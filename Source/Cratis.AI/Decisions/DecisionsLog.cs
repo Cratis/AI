@@ -34,6 +34,9 @@ internal static partial class DecisionsLog
     [LoggerMessage(LogLevel.Warning, "No decision engine is available - the caller will have to fall back")]
     internal static partial void NoEngineAvailable(this ILogger logger);
 
+    [LoggerMessage(LogLevel.Warning, "Reporting telemetry for a decision on the {Engine} decision engine failed - the decision itself is unaffected")]
+    internal static partial void TelemetryFailed(this ILogger logger, Exception exception, DecisionEngineType engine);
+
     [LoggerMessage(LogLevel.Warning, "Recording the usage of a decision on the {Engine} decision engine failed")]
     internal static partial void FailedToRecordUsage(this ILogger logger, Exception exception, DecisionEngineType engine);
 }

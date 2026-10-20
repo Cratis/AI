@@ -247,7 +247,8 @@ describe('when reconciling the release tracking issue', () => {
     it('should isolate sync concurrency from pending releases and avoid persisting issue-write credentials', async () => {
         const workflow = await readFile(new URL('../../.github/workflows/publish.yml', import.meta.url), 'utf8');
         assert.ok(workflow.includes("group: ${{ github.workflow }}-${{ (github.event_name == 'repository_dispatch' || github.event_name == 'schedule') && 'screenplay-sync' || github.ref }}"));
-        assert.match(workflow, /concurrency:\n[^\n]+\n  cancel-in-progress: false/);
+        assert.match(workflow, /concurrency:\n[^\n]+\n  queue: max\n/);
+        assert.doesNotMatch(workflow, /cancel-in-progress: true/);
         const syncJob = workflow.split('  screenplay-sync:')[1].split('  dotnet-verify:')[0];
         assert.match(syncJob, /uses: actions\/checkout@[^\n]+\n        with:\n          persist-credentials: false/);
     });

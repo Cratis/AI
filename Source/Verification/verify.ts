@@ -6,10 +6,12 @@ import { constants, existsSync } from 'node:fs';
 import { access, readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
+import { checkPiAgents } from '../Harness.Setup/pi-agents.ts';
 import { checkCopilotInstructions } from '../Harness.Setup/copilot-instructions.ts';
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
 import { frontmatter as sharedFrontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { validateMcpServers } from './mcp-servers.ts';
+import { pluginManifestPath, pluginManifestProblems } from './plugin-manifest.ts';
 import { loadProductSync, productSyncProblems, productSyncSummary } from './product-sync.ts';
 import { verifyPlayExamples } from './play/index.ts';
 import { summary as contractSummary, verifyContract } from './contract/index.ts';
@@ -19,9 +21,11 @@ import { bundlePins, bundleTable, pinRestatements, pinSummary, scaffoldPins, sca
 import { danglingSkillReferences } from './skill-references.ts';
 import { modelFirstRestatements } from './model-first-restatements.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
-import { alwaysOnFindings, assetExceptions, assetReachabilityFindings, instructionAuthoringFindings, skillAuthoringFindings, skillAuthoringProblems } from './skill-authoring.ts';
+import { alwaysOnFindings, assetExceptions, assetReachabilityFindings, instructionAuthoringFindings, skillAuthoringFindings, skillAuthoringProblems, skillOverlapFindings } from './skill-authoring.ts';
 import type { AuthoringFinding } from './AuthoringFinding.ts';
+import { alwaysOnHarnessBytes, alwaysOnInputs, alwaysOnSummary } from './always-on-budget.ts';
 import { evaluationCoverageBaseline, evaluationCoverageFindings } from './evaluation-coverage.ts';
+import { checkInstructionDependencies, instructionDependencyMessages } from './instruction-dependencies.ts';
 import { skillHygieneFindings, skillHygieneProblems, skillHygieneReport } from './skill-hygiene.ts';
 import { brokenRelativeLinkProblems, referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
 
@@ -46,6 +50,10 @@ const skillHygieneMode = process.env.SKILL_HYGIENE_MODE ?? 'fail';
 const hygieneFindings: ReturnType<typeof skillHygieneFindings> = [];
 const skillAuthoringMode = process.env.SKILL_AUTHORING_MODE ?? 'warn';
 const authoringFindings: AuthoringFinding[] = [];
+
+for (const message of instructionDependencyMessages(checkInstructionDependencies(root), process.env.GITHUB_ACTIONS === 'true')) {
+    console.warn(message);
+}
 
 async function exists(path: string): Promise<boolean> {
     try {
@@ -101,16 +109,21 @@ for (const obsolete of ['tooling', 'evidence', 'evals', 'catalog', 'distribution
 }
 const workflows = (await readdir(join(root, '.github', 'workflows'))).filter(name => name.endsWith('.yml') || name.endsWith('.yaml'));
 if (!workflows.includes('publish.yml')) failures.push('The publish workflow is required.');
-// Release-note callers and the weekly product drift monitor accompany publishing.
-const allowedWorkflows = ['publish.yml', 'verify-release-notes.yml', 'verify-semver-label.yml', 'product-drift.yml'];
+// The pull-request policy caller and the weekly product drift monitor accompany publishing.
+const allowedWorkflows = ['publish.yml', 'verify-pull-request-policy.yml', 'product-drift.yml'];
 const unexpectedWorkflows = workflows.filter(name => !allowedWorkflows.includes(name));
 if (unexpectedWorkflows.length > 0) failures.push(`Only ${allowedWorkflows.join(', ')} are allowed; found ${unexpectedWorkflows.join(', ')}.`);
+const marketplaces: Array<{ path: string; document: unknown }> = [];
 for (const marketplace of ['.claude-plugin/marketplace.json', '.cursor-plugin/marketplace.json', '.agents/plugins/marketplace.json', '.github/plugin/marketplace.json']) {
     const document = JSON.parse(await readFile(join(root, marketplace), 'utf8'));
+    marketplaces.push({ path: marketplace, document });
     if (document.plugins?.length !== 1 || document.plugins[0]?.source?.path !== '.cratis/ai' || document.plugins[0]?.skills !== './skills') {
         failures.push(`${marketplace} must expose the canonical .cratis/ai/skills corpus.`);
     }
 }
+// The Copilot plugin manifest lets the corpus be submitted as an external plugin with source.path .cratis/ai.
+if (!await exists(join(root, pluginManifestPath))) failures.push(`${pluginManifestPath} is missing; the Copilot plugin needs a manifest at the plugin root.`);
+else failures.push(...pluginManifestProblems(JSON.parse(await readFile(join(root, pluginManifestPath), 'utf8')), marketplaces));
 const requiredPiExtensions = ['cratis-hooks', 'cratis-rules', 'cratis-path-guidance', 'subagent', 'cratis-mcp'];
 for (const extension of requiredPiExtensions) {
     if (!await exists(join(corpus, 'harnesses', 'pi', 'extensions', extension, 'index.ts'))) failures.push(`Pi extension '${extension}' is missing.`);
@@ -189,12 +202,15 @@ const referencingFiles = await Promise.all(['rules', 'prompts', 'agents'].map(as
 }));
 failures.push(...danglingSkillReferences(referencingFiles.flat(), skillDirectories.map(entry => entry.name)));
 for (const entry of referencingFiles.flat()) authoringFindings.push(...instructionAuthoringFindings(`.cratis/ai/${entry.path}`, entry.content));
-const copilotAdapterNames = (await readdir(join(corpus, 'harnesses', 'copilot', 'instructions'))).filter(name => name.endsWith('.md'));
-const loadedArtifacts = {
-    copilotAdapters: await Promise.all(copilotAdapterNames.map(async name => ({ file: name, content: await readFile(join(corpus, 'harnesses', 'copilot', 'instructions', name), 'utf8') }))),
-    cursorRule: await readFile(join(corpus, 'harnesses', 'cursor', 'rules', 'cratis.mdc'), 'utf8'),
-};
-authoringFindings.push(...alwaysOnFindings(referencingFiles[0].map(entry => ({ file: `.cratis/ai/${entry.path}`, content: entry.content })), undefined, loadedArtifacts));
+const alwaysOn = await alwaysOnInputs(corpus);
+authoringFindings.push(...alwaysOnFindings(alwaysOn.entries, undefined, alwaysOn.loaded));
+console.log(alwaysOnSummary(alwaysOnHarnessBytes(alwaysOn.entries, alwaysOn.loaded)));
+const overlapFindings = skillOverlapFindings(await Promise.all(corpusTextPaths.filter(path => /\/skills\/[^/]+\/SKILL\.md$/.test(path)).map(async path => ({
+    file: relative(root, path), content: await readFile(path, 'utf8'),
+}))));
+console.log(`Skill trigger overlap: ${skillDirectories.length} skills scanned, ${overlapFindings.length} warnings.`);
+for (const finding of overlapFindings) console.warn(`${finding.file}:${finding.line} [${finding.rule}] ${finding.matchedText}`);
+authoringFindings.push(...overlapFindings);
 for (const directory of skillDirectories) {
     const skillFile = join(corpus, 'skills', directory.name, 'SKILL.md');
     if (!await exists(skillFile)) {
@@ -259,6 +275,7 @@ for (const agent of (await readdir(join(corpus, 'agents'))).filter(name => name.
     if (canonical.readonly && canonical.tools.some(tool => tool === 'Edit' || tool === 'Write')) failures.push(`${relative(root, path)} is readonly but declares Edit/Write.`);
 }
 for (const stale of checkOpenCodeAgents(corpus)) failures.push(`OpenCode agent adapters are out of date: ${stale}`);
+for (const stale of checkPiAgents(corpus)) failures.push(`Pi agent adapters are out of date: ${stale}`);
 for (const stale of checkCopilotInstructions(corpus)) failures.push(`Copilot instruction adapters are out of date: ${stale}`);
 for (const script of (await files(join(corpus, 'hooks', 'scripts'))).filter(path => path.endsWith('.sh'))) {
     const mode = (await stat(script)).mode;

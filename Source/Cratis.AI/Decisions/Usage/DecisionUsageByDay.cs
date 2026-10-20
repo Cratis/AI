@@ -21,7 +21,11 @@ namespace Cratis.AI.Decisions.Usage;
 /// <param name="InputTokens">The input tokens the engine reported.</param>
 /// <param name="OutputTokens">The output tokens the engine reported.</param>
 /// <param name="DurationMs">How long the calls took in total, in milliseconds.</param>
+[Obsolete("Decision usage is no longer appended; removed in the next major release (Cratis/AI#651)")]
 [ReadModel]
+
+// Preserve the historical projection for replay until the next major release.
+#pragma warning disable CS0618
 [FromEvent<DecisionUsageRecorded>(key: nameof(DecisionUsageRecorded.DailyBucketKey))]
 public record DecisionUsageByDay(
     [Key][SetFrom<DecisionUsageRecorded>(nameof(DecisionUsageRecorded.DailyBucketKey))] DecisionUsageBucketKey BucketKey,
@@ -35,6 +39,7 @@ public record DecisionUsageByDay(
     [AddFrom<DecisionUsageRecorded>(nameof(DecisionUsageRecorded.InputTokens))] long InputTokens,
     [AddFrom<DecisionUsageRecorded>(nameof(DecisionUsageRecorded.OutputTokens))] long OutputTokens,
     [AddFrom<DecisionUsageRecorded>(nameof(DecisionUsageRecorded.Duration))] long DurationMs)
+#pragma warning restore CS0618
 {
     /// <summary>
     /// How far back the decision usage a settings page shows reaches.

@@ -48,6 +48,25 @@ const workflow = `jobs:
       JS
 `;
 
+// The combined policy workflow carries other marked programs next to the release-note pair; they
+// throw so a bundle that picked one up fails loudly instead of passing by accident.
+const policyWorkflow = `${workflow}  intent:
+    run: |
+      node - <<'JS'
+      "use strict";
+      // cratis:program release-intent
+      throw new Error('The release-intent program must not run locally');
+      JS
+  aggregate:
+    run: |
+      node - <<'JS'
+      "use strict";
+      // cratis:program aggregate-policy
+      throw new Error('The aggregate-policy program must not run locally');
+      JS
+`;
+const policyCaller = (ref: string) => `jobs:\n  policy:\n    uses: Cratis/Workflows/.github/workflows/verify-pull-request-policy.yml@${ref}\n    with:\n      release-intent: true\n`;
+
 function fixture() {
     const directory = mkdtempSync(join(tmpdir(), 'cratis-pr-body-'));
     const bin = join(directory, 'bin');
@@ -77,10 +96,19 @@ const args = process.argv.slice(2);
 fs.appendFileSync(process.env.TEST_CALLS, JSON.stringify(args) + '\\n');
 if (args[0] === 'api' && args.includes('user')) { console.log('woksin'); }
 else if (args[0] === 'api') {
-    if (process.env.TEST_OFFLINE === '1') process.exit(1);
     const endpoint = args.at(-1);
+    if (endpoint.endsWith('/contents/.github/workflows') && process.env.TEST_WORKFLOWS_STATUS) {
+        console.error('HTTP ' + process.env.TEST_WORKFLOWS_STATUS);
+        process.exit(1);
+    }
+    if (process.env.TEST_WORKFLOW_FILE_STATUS) {
+        // The workflows listing succeeds; fetching the workflow file itself fails.
+        if (endpoint.endsWith('/contents/.github/workflows')) { console.log(JSON.stringify([{ name: 'release.yml', path: '.github/workflows/release.yml', type: 'file' }])); process.exit(0); }
+        if (endpoint.endsWith('/contents/.github/workflows/release.yml')) { console.error('HTTP ' + process.env.TEST_WORKFLOW_FILE_STATUS); process.exit(1); }
+    }
+    if (process.env.TEST_OFFLINE === '1') process.exit(1);
     if (endpoint.endsWith('/contents/.github/workflows')) console.log(JSON.stringify(process.env.TEST_REMOTE_CALLERS === '0' ? [] : [{ name: 'release.yml', path: '.github/workflows/release.yml', type: 'file' }]));
-    else if (endpoint.endsWith('/contents/.github/workflows/release.yml')) console.log('jobs:\\n  verify:\\n    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@main');
+    else if (endpoint.endsWith('/contents/.github/workflows/release.yml')) console.log('jobs:\\n  verify:\\n    uses: Cratis/Workflows/.github/workflows/' + (process.env.TEST_REMOTE_CALLER || 'verify-release-notes') + '.yml@main');
     else console.log(fs.readFileSync(process.env.TEST_WORKFLOW, 'utf8').trimEnd());
 } else if (args[0] === 'repo') console.log(JSON.stringify({ nameWithOwner: args[2] === '--json' ? 'Cratis/Example' : args[2], defaultBranchRef: { name: 'main' } }));
 else if (args[0] === 'pr') {
@@ -108,6 +136,24 @@ else if (args[0] === 'pr') {
     });
     return { directory, body, cache, callers, noNodePath, rulesCache: join(cache, 'cratis/release-notes', rulesRef), downloaded, calls, prEnvironments, env, run, hook, cleanup: () => rmSync(directory, { recursive: true, force: true }) };
 }
+
+test('Codex shell adapter reuses PR guard fixtures without executing external operations', () => {
+    const f = fixture();
+    try {
+        const bridge = join(root, '.cratis/ai/harnesses/codex/hooks.mjs');
+        for (const command of ["gh pr create --body 'inline'", "gh pr edit 7 -b 'inline'", `gh pr create --body-file '${f.body}' --label patch --label minor`]) {
+            const result = spawnSync(process.execPath, [bridge], {
+                cwd: f.directory, env: f.env, encoding: 'utf8', timeout: 25000,
+                input: JSON.stringify({ cwd: f.directory, session_id: 'codex-fixture', hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command } }),
+            });
+            assert.equal(result.status, 2, result.stderr);
+            assert.equal(JSON.parse(result.stdout).hookSpecificOutput.permissionDecision, 'deny');
+        }
+        assert.ok(!readFileSync(f.calls, 'utf8').split('\n').some(line => /"pr","(create|edit)"/.test(line)));
+    } finally {
+        f.cleanup();
+    }
+});
 
 test('the checker extracts both marked programs, caches by blob SHA, and preserves no-release intent', () => {
     const f = fixture();
@@ -192,12 +238,15 @@ test('drift and skipped comparisons warn normally but fail in strict mode', () =
     } finally { f.cleanup(); }
 });
 
-test('offline rules use the latest complete cache, report unchecked with no cache, and never hide strict warnings', () => {
+test('offline rules at another pin use the latest complete cache, report unchecked with no cache, and never hide strict warnings', () => {
     const f = fixture();
     try {
+        const otherRef = 'a'.repeat(40);
+        const rulesCache = join(f.cache, 'cratis/release-notes', otherRef);
+        writeFileSync(join(f.callers, 'release.yml'), `jobs:\n  verify:\n    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@${otherRef}\n`);
         assert.equal(f.run(['--body-file', f.body, '--label', 'patch'], { TEST_OFFLINE: '1' }).status, 3);
         assert.equal(f.run(['--body-file', f.body, '--label', 'patch']).status, 0);
-        writeFileSync(join(f.rulesCache, `${'f'.repeat(40)}.cjs`), 'truncated');
+        writeFileSync(join(rulesCache, `${'f'.repeat(40)}.cjs`), 'truncated');
         const cached = f.run(['--body-file', f.body, '--label', 'patch'], { TEST_OFFLINE: '1' });
         assert.equal(cached.status, 0);
         assert.match(cached.stderr, /using cached/);
@@ -233,6 +282,33 @@ test('the Bash hook blocks inline bodies and violations, understands literal fla
         const rejected = f.hook(`gh pr create -F '${f.body}' --label patch`);
         assert.equal(rejected.status, 2);
         assert.match(rejected.stderr, /rejected by downloaded program/);
+    } finally { f.cleanup(); }
+});
+
+test('an unreadable body file is reported with the path tried, the directories and the checker copy, not a bare ENOENT', () => {
+    const f = fixture();
+    try {
+        const elsewhere = mkdtempSync(join(tmpdir(), 'cratis-pr-body-elsewhere-'));
+        try {
+            const missing = join(f.directory, '.ai-work', 'pr-body-1.md');
+            const result = spawnSync('bash', [guard], {
+                cwd: elsewhere, env: f.env, encoding: 'utf8', timeout: 15000,
+                input: JSON.stringify({ cwd: elsewhere, tool_input: { command: `cd '${f.directory}' && gh pr create --label patch --body-file '${missing}'` } }),
+            });
+            assert.equal(result.status, 2, result.stderr);
+            assert.match(result.stderr, /cannot read the pull-request body file \(ENOENT\)/);
+            assert.ok(result.stderr.includes(`path tried: ${missing}`), result.stderr);
+            assert.ok(result.stderr.includes(`--body-file value: ${missing}`), result.stderr);
+            assert.match(result.stderr, /parent directory exists: false/);
+            assert.match(result.stderr, /file exists now: false/);
+            assert.ok(result.stderr.includes(`hook payload directory: ${elsewhere}`), result.stderr);
+            assert.ok(result.stderr.includes(`command directory: ${f.directory}`), result.stderr);
+            assert.ok(result.stderr.includes(`checker script: ${checker}`), result.stderr);
+        } finally { rmSync(elsewhere, { recursive: true, force: true }); }
+        // The same command succeeds once the file exists - the report names a missing file, nothing else.
+        mkdirSync(join(f.directory, '.ai-work'));
+        writeFileSync(join(f.directory, '.ai-work', 'pr-body-1.md'), '## Fixed\n\n- A product fix.\n');
+        assert.equal(f.hook(`cd '${f.directory}' && gh pr create --label patch --body-file '${join(f.directory, '.ai-work', 'pr-body-1.md')}'`).status, 0);
     } finally { f.cleanup(); }
 });
 
@@ -404,17 +480,20 @@ test('dynamic directories only block executable PR mutations, not quoted example
     } finally { f.cleanup(); }
 });
 
-test('the Bash hook warns and passes through offline without cached rules', () => {
+test('the Bash hook checks bundled reviewed rules offline and surfaces warnings to Pi and Claude', () => {
     const f = fixture();
     try {
         const result = f.hook(`gh pr create -F '${f.body}' --label patch`, { TEST_OFFLINE: '1' });
         assert.equal(result.status, 0);
-        assert.match(result.stderr, /unchecked/);
+        assert.match(result.stderr, /using bundled reviewed/);
+        assert.doesNotMatch(result.stderr, /unchecked/);
         const claude = f.hook(`gh pr create -F '${f.body}' --label patch`, { TEST_OFFLINE: '1' }, true);
         assert.equal(claude.status, 0);
-        assert.match(JSON.parse(claude.stdout).systemMessage, /unchecked/);
-        assert.match(JSON.parse(claude.stdout).hookSpecificOutput.additionalContext, /unchecked/);
+        assert.match(JSON.parse(claude.stdout).systemMessage, /using bundled reviewed/);
+        assert.match(JSON.parse(claude.stdout).hookSpecificOutput.additionalContext, /using bundled reviewed/);
         assert.equal(claude.stderr, '');
+        writeFileSync(f.body, '## Testing\n\n- A product fix.\n');
+        assert.equal(f.hook(`gh pr create -F '${f.body}' --label patch`, { TEST_OFFLINE: '1' }).status, 2);
     } finally { f.cleanup(); }
 });
 
@@ -657,6 +736,156 @@ test('line continuations are guarded for both create and edit', () => {
                 assert.equal(f.hook(`gh pr ${separator}${operation} -F '${f.body}' -lpatch`).status, 0);
             }
         }
+    } finally { f.cleanup(); }
+});
+
+test('failed opt-in authentication warns but still checks bundled rules for a Cratis target', () => {
+    const f = fixture();
+    try {
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', '/local/mirror/Example.git']).status, 0);
+        const command = `gh pr create -R Cratis/Other -F '${f.body}' -lpatch`;
+        const environment = { TEST_WORKFLOWS_STATUS: '401', TEST_OFFLINE: '1' };
+        for (const claude of [false, true]) {
+            const valid = f.hook(command, environment, claude);
+            assert.equal(valid.status, 0, valid.stderr);
+            const warnings = claude ? JSON.parse(valid.stdout).systemMessage : valid.stderr;
+            assert.match(warnings, /could not determine release-workflow opt-in for Cratis\/Other.*HTTP 401.*checking against bundled reviewed rules/i);
+            assert.match(warnings, /using bundled reviewed/);
+            assert.doesNotMatch(warnings, /unchecked/);
+            if (claude) {
+                assert.equal(valid.stderr, '');
+                assert.equal(JSON.parse(valid.stdout).hookSpecificOutput.additionalContext, warnings);
+            }
+        }
+        writeFileSync(f.body, '## Testing\n\n- A product fix.\n');
+        const invalid = f.hook(command, environment);
+        assert.equal(invalid.status, 2, invalid.stderr);
+        assert.match(invalid.stderr, /Heading not allowed/);
+        assert.match(invalid.stderr, /failed cratis-check-pr/);
+    } finally { f.cleanup(); }
+});
+
+test('a failed workflow file fetch is an unknown, never a skip, for a Cratis target', () => {
+    const f = fixture();
+    try {
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', '/local/mirror/Example.git']).status, 0);
+        const command = `gh pr create -R Cratis/Other -F '${f.body}' -lpatch`;
+        for (const status of ['401', '404']) {
+            const environment = { TEST_WORKFLOW_FILE_STATUS: status, TEST_OFFLINE: '1' };
+            writeFileSync(f.body, '## Fixed\n\n- A product fix.\n');
+            const valid = f.hook(command, environment);
+            assert.equal(valid.status, 0, valid.stderr);
+            assert.match(valid.stderr, new RegExp(`could not determine release-workflow opt-in for Cratis/Other.*HTTP ${status}`, 'i'));
+            writeFileSync(f.body, '## Testing\n\n- A product fix.\n');
+            const invalid = f.hook(command, environment);
+            assert.equal(invalid.status, 2, invalid.stderr);
+            assert.match(invalid.stderr, /Heading not allowed/);
+        }
+    } finally { f.cleanup(); }
+});
+
+test('a workflows 404 still skips opt-in and non-Cratis lookup failures do not gain bundled enforcement', () => {
+    const f = fixture();
+    try {
+        const absent = f.hook('gh pr create -R Cratis/Other --body inline', { TEST_WORKFLOWS_STATUS: '404' });
+        assert.equal(absent.status, 0, absent.stderr);
+        assert.equal(absent.stderr, '');
+        const calls = readFileSync(f.calls, 'utf8').trim().split('\n').map(line => JSON.parse(line));
+        assert.deepEqual(calls, [['api', 'repos/Cratis/Other/contents/.github/workflows']]);
+        const personal = f.run(['--repo', 'Someone/Personal', '--body-file', f.body, '--label', 'patch'], { TEST_WORKFLOWS_STATUS: '401' });
+        assert.equal(personal.status, 1);
+        assert.match(personal.stderr, /Could not determine release-workflow opt-in.*HTTP 401/);
+        assert.doesNotMatch(personal.stderr, /bundled reviewed/);
+    } finally { f.cleanup(); }
+});
+
+test('offline rules at the reviewed pin use the bundle before any cache', () => {
+    const f = fixture();
+    try {
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch']).status, 0);
+        assert.equal(readdirSync(f.rulesCache).length, 1);
+        // The cached protocol probe accepts this body; the reviewed bundle must reject it.
+        writeFileSync(f.body, '## Testing\n\n- A product fix.\n');
+        const invalid = f.run(['--body-file', f.body, '--label', 'patch'], { TEST_OFFLINE: '1' });
+        assert.equal(invalid.status, 1, invalid.stdout + invalid.stderr);
+        assert.match(invalid.stderr, /using bundled reviewed/);
+        assert.doesNotMatch(invalid.stderr, /using cached|unchecked/);
+        writeFileSync(f.body, '## Fixed\n\n- A product fix.\n');
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch', '--strict'], { TEST_OFFLINE: '1' }).status, 1);
+    } finally { f.cleanup(); }
+});
+
+test('a repository with only the combined policy caller is opted in and runs its release-note programs at the caller ref', () => {
+    const f = fixture();
+    try {
+        const policyRef = 'b'.repeat(40);
+        writeFileSync(join(f.callers, 'release.yml'), policyCaller(policyRef));
+        writeFileSync(f.downloaded, policyWorkflow);
+        assert.equal(f.hook("gh pr create --body 'inline'").status, 2);
+        assert.match(f.hook('gh pr create --body inline', { PATH: f.noNodePath }, true).stderr, /node is unavailable/);
+        const result = f.run(['--body-file', f.body, '--label', 'patch']);
+        assert.equal(result.status, 0, result.stderr);
+        assert.match(result.stdout, /Gate read proposed body for Cratis\/Example by woksin/);
+        assert.match(result.stdout, /Drift base: main/);
+        const calls = readFileSync(f.calls, 'utf8');
+        assert.ok(calls.includes(`repos/Cratis/Workflows/contents/.github/workflows/verify-pull-request-policy.yml?ref=${policyRef}`), calls);
+        assert.doesNotMatch(calls, /verify-release-notes\.yml\?ref=/);
+        const bytes = Buffer.from(policyWorkflow);
+        const sha = createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+        const policyCache = join(f.cache, 'cratis/verify-pull-request-policy', policyRef);
+        assert.deepEqual(readdirSync(policyCache), [`${sha}.cjs`]);
+        const bundle = readFileSync(join(policyCache, `${sha}.cjs`), 'utf8');
+        assert.match(bundle, /\/\/ cratis:program release-notes\n/);
+        assert.match(bundle, /\/\/ cratis:program release-notes-drift\n/);
+        assert.doesNotMatch(bundle, /cratis:program (?:release-intent|aggregate-policy|read-pull-request)/);
+        assert.deepEqual(readdirSync(join(f.cache, 'cratis')), ['verify-pull-request-policy']);
+        writeFileSync(f.body, 'reject-me');
+        const rejected = f.run(['--body-file', f.body, '--label', 'patch']);
+        assert.equal(rejected.status, 1);
+        assert.match(rejected.stdout, /rejected by downloaded program/);
+        assert.equal(f.hook(`gh pr create -F '${f.body}' -lpatch`).status, 2);
+    } finally { f.cleanup(); }
+});
+
+test('a policy caller takes precedence over legacy callers, and legacy callers alone still fetch verify-release-notes', () => {
+    const f = fixture();
+    try {
+        const policyRef = 'c'.repeat(40);
+        writeFileSync(f.downloaded, policyWorkflow);
+        writeFileSync(join(f.callers, 'policy.yml'), policyCaller(policyRef));
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch']).status, 0);
+        let calls = readFileSync(f.calls, 'utf8');
+        assert.ok(calls.includes(`verify-pull-request-policy.yml?ref=${policyRef}`), calls);
+        assert.doesNotMatch(calls, /verify-release-notes\.yml\?ref=/);
+        // A cache entry from one source workflow is never offered for the other at the same ref.
+        writeFileSync(join(f.callers, 'release.yml'), `jobs:\n  verify:\n    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@${policyRef}\n`);
+        rmSync(join(f.callers, 'policy.yml'));
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch'], { TEST_OFFLINE: '1' }).status, 3);
+        writeFileSync(f.calls, '');
+        writeFileSync(join(f.callers, 'release.yml'), `jobs:\n  verify:\n    uses: Cratis/Workflows/.github/workflows/verify-release-notes.yml@${rulesRef}\n`);
+        writeFileSync(join(f.callers, 'intent.yml'), `jobs:\n  intent:\n    uses: Cratis/Workflows/.github/workflows/verify-release-intent.yml@${rulesRef}\n`);
+        writeFileSync(f.downloaded, workflow);
+        assert.equal(f.run(['--body-file', f.body, '--label', 'patch']).status, 0);
+        calls = readFileSync(f.calls, 'utf8');
+        assert.ok(calls.includes(`verify-release-notes.yml?ref=${rulesRef}`), calls);
+        assert.doesNotMatch(calls, /verify-pull-request-policy\.yml/);
+        assert.equal(readdirSync(f.rulesCache).length, 1);
+    } finally { f.cleanup(); }
+});
+
+test('a target repository with only a remote policy caller is opted in and checked against the policy workflow', () => {
+    const f = fixture();
+    try {
+        writeFileSync(f.downloaded, policyWorkflow);
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Someone/Personal.git']).status, 0);
+        const remote = { TEST_REMOTE_CALLER: 'verify-pull-request-policy' };
+        assert.equal(f.hook('gh pr create -R Cratis/Other --body inline', remote).status, 2);
+        const valid = f.hook(`gh pr create -R Cratis/Other -F '${f.body}' -lpatch`, remote);
+        assert.equal(valid.status, 0, valid.stderr);
+        const calls = readFileSync(f.calls, 'utf8');
+        assert.match(calls, /repos\/Cratis\/Other\/contents\/\.github\/workflows\/release\.yml/);
+        assert.match(calls, /verify-pull-request-policy\.yml\?ref=main/);
+        assert.doesNotMatch(calls, /verify-release-notes\.yml\?ref=/);
     } finally { f.cleanup(); }
 });
 

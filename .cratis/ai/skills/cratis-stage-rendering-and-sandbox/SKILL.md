@@ -11,11 +11,19 @@ ships a **renderer** (a .NET library, driven from a terminal by `cratis render`)
 disposable **sandbox** container (`cratis/stage`, started by `cratis run`) and a
 **specification runner** container (`cratis/stage-specrunner`).
 
-The admitted model shape is deliberately small. A model Stage cannot render exactly
-produces **no artifacts at all**, never thinner ones. Render the model to find out
-whether it is admitted; reading the admission rules is not a render result.
+A model Stage cannot render exactly produces **no artifacts**, never thinner ones.
+Probe the model; admission rules are not a render result.
 
 Requires cratis CLI ≥ 3.57 (`cratis --version`) to render ESM v14 and v15 models; an older CLI refuses newer ESM versions with `CLI-RENDER-004` (or `STAGE-ESM-016` from Stage directly).
+
+Requires Cratis CLI 3.74.0 to render ESM v21–v26 models and 3.75.0 for v27; CLI 3.66.0–3.73.0 refuse v21 and later with `CLI-RENDER-004`, and every CLI refuses v28 and later with it. Above the ceiling, a construct the bundled compiler cannot bind reports PLAY0268 before `CLI-RENDER-004` is reached.
+
+## Batches, described handlers, text rules and protected reads
+
+Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
+for v22–v25: text rules and admitted protected reads render; atomic batches and
+described bodies do not. Semantic execution is separate from rendering. Stub mode
+emits no described-body stubs. Keep protection and report refusal.
 
 ## When to use
 
@@ -64,9 +72,20 @@ Order: recover any interrupted publication, compile, bind, build the plan, plan 
 Exit `0` is a published render, `5` is a refusal with nothing published (diagnostics are
 printed), `1` is a missing input. Add `-o json` for the counts and the publication receipt.
 
-Facts that surprise:
+Key facts:
 
-- **Binding uses the CLI's bundled Screenplay compiler**, which differs from a standalone one. A model that binds is not necessarily renderable: Stage admits exact ESM v1–v17 and v19 pairs (not v18/v20), then checks constructs; CLI admission can stop at v16. A newer model reports `CLI-RENDER-004` (direct Stage: `STAGE-ESM-016`). Supported generation strategies, freshness scopes, responses, equality filters, enum numbers and concept compliance render.
+- **Binding uses the CLI's bundled compiler**, not the standalone one. Version admission
+  does not imply construct support: exact ESM v1–v27 pairs are admitted;
+  v28 and mixed pairs refuse `STAGE-ESM-016`. Requires Stage 4.139.0 for v22 admission;
+  older Stage refuses v22 with `-016`, while atomic mode still refuses `-043`.
+  Requires Stage 4.141.0 to render v26 Date/DateTime command comparisons; older
+  renderers refuse `-046`. Read [references/date-comparisons.md](references/date-comparisons.md)
+  when rendering dates for the remaining refusals and input-binding differences. Pattern/random generation and checksum validation
+  render with an admitting renderer; `generate rule` renders in a new enough bundle (the Host and legacy syntax engine still refuse it with `STAGE-ESM-028`).
+  Read [references/admission.md](references/admission.md) for the introducing-release
+  prerequisites, all-Proven unpinned specifications and construct/pin checks (-011/-038).
+  An older CLI bundle can refuse `CLI-RENDER-004` (direct Stage: `STAGE-ESM-016`);
+  keep refused models for gap-fill.
 - **Render never builds, tests or runs** the output. A published render is admission and
   publication only; build and tests are separate results (see "Verify"). Admission can be
   green while a rendered Debug test fails (for example a query assertion on the key).
@@ -81,7 +100,7 @@ Facts that surprise:
 
 `--scope` renders an admitted part while other slices wait for hand-written code or
 renderer support. The whole model must still compile and bind, so a `PLAY0268`, protected
-identity/enum, handler or newer-than-v15 problem anywhere blocks even a scoped render.
+identity/enum, attached handler or unsupported ESM version anywhere blocks even a scoped render.
 `PLAN-*` problems in unselected slices become warnings and `STAGE-ESM-*` refusals in
 unselected slices do not block. A scoped plan has no application scaffold or default Scene
 (with no manifest in the destination the plain scaffold is added). A dependency in another
@@ -91,31 +110,18 @@ first). Unselected managed files are preserved. A scoped result is evidence for 
 
 ## Publication and recovery
 
-Ownership is the destination's **`.cratis-render.json`** manifest (semantic revision,
-identity, path and SHA-256 per artifact); there are no in-file markers. Interrupted
-commits are journaled in the **`.cratis-render/`** control directory (journal, staging,
-backups). Never stage `.cratis-render/` in git; commit the manifest with the output.
-
-- An unmanaged file at a planned path is refused, even with `--force`.
-- A user-modified managed file is refused unless it is still active **and** `--force` is
-  given; `--force` replaces it. It never overwrites unmanaged files and never deletes a
-  modified stale file. A stale managed file is removed only if its bytes still match.
-- Recovery runs before planning, even when planning then fails. **`recovered: true` in the
-  result means stop and reconcile**: the receipt does not describe what recovery changed.
-- An unchanged re-render writes nothing (`unchanged` equals the artifact count).
-- Use exclusive access to the destination; a receipt is a filesystem result, not a Git commit, and the command creates no branch, commit or PR.
-- Drift: `cratis render ... --check` is the first probe; exit `6` means pending changes.
-  Otherwise compare successive manifests' `semanticRevision` for renders with the same
-  `--name` and inputs. Do not compare the MCP `modelRevision` with the manifest: their
-  application identities can differ.
-
-A modified managed file reports `Managed artifact 'Program.cs' was modified by the user; pass --force to replace it.`
-Find out why it was edited, move the intent into the model or `Customizations/`, then
-re-render; use `--force` only to discard the edit on purpose.
+Read [publication and recovery](references/publication-and-recovery.md) before
+publishing or using `--force`. Commit `.cratis-render.json`, never the
+`.cratis-render/` control directory. Force never overwrites unmanaged files or
+modified stale artifacts. Recovery runs before planning:
+`recovered: true` means stop and reconcile. Use `--check` for drift, not MCP-to-manifest revision comparisons.
 
 ## Admission
 
-One blocker publishes nothing. Codes, limits and fixes: [references/admission.md](references/admission.md).
+One blocker publishes nothing. Requires Stage 4.146.0 to collect independent admission
+refusals in one plan; older renderers stop at earlier batches of checks. Target-profile
+and unaudited-version refusals still stop first. Codes, limits and fixes:
+[references/admission.md](references/admission.md).
 
 - **Renders:** concepts/types/collections/optionals; portable StateChange and StateView slices,
   flat/scoped projections, pure reducers and reducer `from` filters; keyed optional snapshots,
@@ -126,14 +132,21 @@ One blocker publishes nothing. Codes, limits and fixes: [references/admission.md
   single-hop reaction append specifications, Debug specifications and authored UI through Scene.
 - **Refused:** Translate/captures, non-event triggers, opaque bodies and clock specs (`STAGE-ESM-024`);
   mixed effects (`STAGE-ESM-037`, redelivery duplicates events); unsupported reaction mappings (`-039`),
-  protected identities/enums (`-040`), non-text secrets (`-041`); generated types/results (`-028`/`-038`);
+  protected identities/enums (`-040`); unsupported generated types/results (`-028`/`-038`);
   appends beyond single-hop/cascade specs (`-011`), absence (`-027`), evolution (`STAGE-ESM-026`), public/foreign events
   (`-032`/`-033`), claim-reading/opaque `runs as` gates (`-034`), legacy filters (`-035`), production
-  overrides (`-036`), code validation (`-005`), snapshot lists/DateTime filters (`-010`), conditional
-  productions, composite projection keys and `all`. Through v15 is construct admission.
-- **Binding refusals (`PLAY0268`/`PLAY0271`):** `reads`, `concurrency`, handlers,
-  context/single-result filters, opaque scope/performer, composite `by`, enum/identity
-  compliance and subject lineage. Never drop protection.
+  overrides (`-036`), code validation (`-005`), DateTime filters (`-010`),
+  unsupported conditional productions, composite read-model keys (`STAGE-ESM-048`, and `-047` for a single-instance query by parts) and unsupported `all` shapes.
+  Protected reads render as Arc read protection in a new enough bundle; shapes it cannot preserve, and every protected read in an older bundle, refuse `STAGE-ESM-044` (see admission.md). The renderer refuses described handlers `STAGE-IMPL-002`
+  (even Stub mode), and atomic mode in admitted pairs `STAGE-ESM-043`.
+- **Attached command handlers (`PLAY0800`):** file/inline handlers permanently require
+  constrained implementation attachments: gap-fill the slice in code, not by waiting
+  for ESM admission. Read the required typed `arguments.subject` for the command,
+  never match message text. Requires Screenplay 4.210.0 (`screenplay --version`);
+  older bundled binders use PLAY0268 for these handlers.
+- **Binding refusals:** read toolchain `references/executable-subset.md` for
+  `PLAY0268`/`PLAY0271` families; binding is not rendering. V27 keys are admitted
+  but refuse rendering (`STAGE-ESM-048`). Never drop protection.
 
 A refusal is not a licence to weaken the model: drop no specification, event generation or
 protection to get a render; keep the model, record the capability gap and gap-fill.
@@ -146,19 +159,16 @@ prose is not enforced. A documentation edit changes managed-file hashes (a `--ch
 Generated identities: read [shop strategy choices](references/choosing-generation.md) before
 rendering a model with generated values. Case tables and whole numbers:
 [case tables and whole numbers](references/case-tables-and-whole-numbers.md).
-`[ProtectedDecision]` and `DecisionRead<T>` are available to gap-fill code, not
-automatically emitted or protected by Stage; admission and unit-of-work enrollment still matter.
+Gap-fill `[ProtectedDecision]`/`DecisionRead<T>` use still needs admission and
+unit-of-work enrollment.
 
 ## What it emits
 
-At application scope the plan holds the scaffold plus the modeled artifacts: a `.csproj`
-and `.slnx`, `Program.cs`, `appsettings.json`, `docker-compose.yml`, the Directory props
-files, a policy registration and generated policies, `Common/<Concept>.cs`, one
-`<Module>/<Feature>/<Slice>/` folder per slice with the `[Command]` record and `Handle()`,
-the `[EventType]` event, the validator and the `[ReadModel]` with its query, `scene.json`,
-and a React/Vite frontend scaffold (`.frontend/`, `package.json`, `tsconfig.json`,
-`.gitignore`). Per-file detail, the scaffold's dependency set and the `Customizations/`
-contract: [references/rendered-application.md](references/rendered-application.md). Scene
+Application plans hold the backend scaffold, concepts, commands/events/validators,
+read models/queries and policies, plus Scene and React/Vite frontend artifacts.
+Read the per-file scaffold, dependency and `Customizations/` contract, including
+the opt-in self-reducing layout for confirmed new Cratis C# applications:
+[references/rendered-application.md](references/rendered-application.md). Scene
 package ids, host capabilities and the boundary from hand-built Components pages:
 [references/scene-runtime.md](references/scene-runtime.md). A complete renderable model:
 [references/render-example.md](references/render-example.md).
@@ -182,26 +192,19 @@ Silent fallback to a default screen is a failure, not a partial render.
 
 ## Sandbox and specification runner
 
-`cratis run [PATH]` (Docker required) starts `cratis/stage` on the folder or file: Stage
-API on `9090`, Chronicle Workbench on `https://localhost:35000`. It is a **partial,
-disposable runtime**, not a generated application. The default engine appends modeled
-`produces` facts and echoes the payload. It refuses missing required properties and
-simple literal `validate` rules on top-level properties, but enforces no other rule, no
-constraint and no command or query authorization; `Stage__Runtime__Engine=semantic` opts
-in to an engine that does, and refuses what it cannot execute (HTTP 501). The default engine
-also refuses routed models (`STAGE-ESM-030`). Callers are built from unsigned headers, so
-authorization there is not a security boundary.
+`cratis run [PATH]` (Docker required) starts the disposable `cratis/stage`, not a
+generated application: API on `9090`, Workbench on `https://localhost:35000`.
+Requires Cratis CLI 3.73.0 for the semantic engine by default, 3.75.0 for v27 keys;
+older CLIs use the legacy EventModel engine, which does not enforce authorization.
+Unsigned caller headers make sandbox authorization no security boundary.
+Read [references/sandbox-and-specrunner.md](references/sandbox-and-specrunner.md)
+before running either image: engine selection, protected reads, outside-append
+conflicts/retries, reached bodies, authored occurrence and generated-spec limits live there.
 
-`cratis/stage-specrunner` checks modeled specifications and writes a results file. The
-default `structural` engine is deprecated and model-level only; `--engine semantic`
-executes admitted specs through Arc's in-memory pipeline and reports `Passed`, `Failed`,
-`Unsupported` or `Cancelled`. A green result is Stage semantic-engine evidence: not V4 and
-not a rendered Debug test run. Commands, the report schema and limits:
-[references/sandbox-and-specrunner.md](references/sandbox-and-specrunner.md).
-
-Specification runner exit codes: `0` means the run completed and the results file was
-written **even when a specification failed**, so read the outcomes; `1` is a missing or
-uncompilable input; `2` a missing required argument or an invalid semantic option.
+`cratis/stage-specrunner --engine semantic` reports `Passed`, `Failed`, `Unsupported`
+or `Cancelled`; deprecated structural mode is model-level only. Neither proves V4
+or rendered Debug tests. Exit `0` means the report was written **even on failed specs**:
+read outcomes. Exit `1` means missing/uncompilable input; `2` invalid arguments.
 
 ## Behavior walk (optional, after V3)
 
@@ -231,7 +234,7 @@ to disk with no managed staging and no safe stale-file removal; a failure can le
 - No file under `.cratis-render/` is staged; managed files carry no local edits.
 - Stage's plan is deterministic (same bytes and hashes); that is not a review, and Stage never reviews, stages or approves anything.
 - Sandbox expectations account for the rules, constraints, authorization and query
-  authorization the default engine does not enforce.
+  authorization the legacy EventModel engine does not enforce.
 - Runtime screen smoke coverage uses the same model root or workspace export as
   `cratis render`, names package/image versions, and fails on dropped authored UI
   or silent default composition.

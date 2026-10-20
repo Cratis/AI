@@ -3,6 +3,7 @@
 ## Contents
 
 - Scaffold
+- Reducer layout for new applications
 - What is managed
 - `Customizations/` (unmanaged)
 - Re-render checklist
@@ -14,6 +15,10 @@ image, Cratis Components, Scene, Fundamentals, Vite and React). The pins belong 
 renderer: read them from the rendered `.csproj`, `docker-compose.yml` and `package.json`, never
 from this skill. Moving them is a renderer change, so a re-render
 under a newer Stage is how they change; never bump a managed file.
+Requires Stage 4.144.0 for backend pins derived at build time from Stage's central
+package versions and shared frontend pins following Stage's frontend manifest;
+older renderers use separately maintained scaffold pins. Regeneration updates
+existing applications; it does not float dependencies in an already rendered app.
 
 | Item | Value |
 | --- | --- |
@@ -35,12 +40,53 @@ Consequences: `[ProtectedDecision]` (`Cratis.Arc.Chronicle.ReadModels`) and
 in the scaffold's package set, as is `[ExecuteCommandsAsSystem]`. This is API
 availability, not Stage emission or runtime protection: gap-fill must opt into
 the protected command profile and enroll an admitted projection/key read in the
-active unit of work. Stage does not turn `.play` `reads`/`require` into protected decisions.
+active unit of work. Requires Stage 4.138.0 for Cratis C# rendering of admitted
+`.play` protected reads as Arc read protection; older renderers refuse them with
+`STAGE-ESM-044`, as do shapes the renderer cannot preserve. Semantic Host/executor
+support is separate from generated-application protection.
 Hand-written scope that needs a newer dependency can raise its version through
 `Customizations/Dependencies.props` (explicit `Version`, imported last; central management
 is off), but any override must be proven with a restore and build. The compose file binds local ports `27017` and
 `35000`, keeps data in the named volumes `chronicle-data` and `chronicle-config`, and
 `docker compose down --volumes` is the only thing that deletes them.
+
+## Reducer layout for new applications
+
+Requires Stage 4.128.0 for the Cratis C# self-reducing profile; older renderers emit
+separate `IReducerFor<T>` classes. Existing `CreateProfile` callers remain classic;
+a missing destination/configuration file does not identify a new application.
+For a **confirmed new application**, artifact-planning hosts opt in explicitly:
+
+```csharp excerpt
+var profile = CratisRendering.CreateNewApplicationProfile(
+    "Shop", new("Shop.Backend", "Acme.Shop"));
+```
+
+This API is in `Cratis.Stage.Rendering.Cratis`. Pass the profile to scaffold and
+artifact planning through `CratisPlanOptions.Profile`. The scaffold persists
+`.cratis/stage/rendering.json` with exactly
+`{"version":1,"application":"Shop","reducerConvention":"self"}`. On later renders,
+the host reads that file and restores the input; Stage does not search the destination:
+
+```csharp excerpt
+var input = ReducerConventionInput.Read("Shop", configurationJson);
+var profile = CratisRendering.WithReducerConvention(
+    CratisRendering.CreateProfile("Shop", new("Shop.Backend", "Acme.Shop")), input);
+```
+
+`configurationJson` is the host-supplied file content. Invalid version, application,
+fields or convention are refused, not defaulted. Self mode emits public static
+`Reduce` overloads and non-public typed-context helpers on the read-model record,
+with unchanged queries and no companion `IReducerFor<T>`. StateView and Automation
+slices use the layout; observer filters become model attributes. Existing purity,
+identity, tenant, deletion and occurrence semantics remain. Model/property/query
+name `Reduce`, replay-hook query names, or generated `Transition_<suffix>` collisions
+refuse `STAGE-ESM-019`; Stage never silently changes layout.
+
+No per-model override or existing-application migration is supported. Do not flip
+an existing classic application to `self`: observer identity and old reducer removal
+need migration-aware publication. This opt-in does not automatically change CLI,
+Studio or semantic-engine execution.
 
 ## What is managed
 

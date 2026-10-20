@@ -630,6 +630,13 @@
       ]
     },
     {
+      "id": "cratis/playwright",
+      "availableTargets": [],
+      "languages": [
+        "language-agnostic"
+      ]
+    },
+    {
       "id": "cratis/components",
       "availableTargets": [
         "cratis-components-accessibility",
@@ -650,6 +657,7 @@
       "availableTargets": [
         "cratis-content-length",
         "cratis-developer-marketing",
+        "cratis-discoverability",
         "cratis-release-notes",
         "cratis-social-feed-post",
         "cratis-technical-examples",
@@ -663,6 +671,7 @@
     {
       "id": "cratis/documentation",
       "availableTargets": [
+        "cratis-discoverability",
         "cratis-documentation-writing",
         "cratis-engineering-docs-authoring",
         "cratis-llm-friendly-documentation",
@@ -982,9 +991,11 @@
       "id": "cratis/engineering/core",
       "availableTargets": [
         "cratis-documentation-writing",
+        "cratis-engineering-consolidation-guard",
         "cratis-engineering-decision-record",
         "cratis-engineering-docs-authoring",
         "cratis-engineering-effect-boundaries",
+        "cratis-engineering-regression-cluster",
         "cratis-release-notes",
         "cratis-technical-examples"
       ],

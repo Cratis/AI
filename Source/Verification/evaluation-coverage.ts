@@ -1,8 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { comparisonGit, verificationBase } from './git-base.ts';
+export { evaluationBaseRevision } from './git-base.ts';
 import type { AuthoringFinding } from './AuthoringFinding.ts';
 
 /** A JSON object of skill names to one-line reasons. The comparison baseline comes from the base ref. */
@@ -24,29 +24,12 @@ export function evaluationCoverageFindings(skills: string[], evaluated: string[]
     return findings;
 }
 
-/** CI checks the immutable event base, including shallow checkouts that have no origin/main ref. */
-export function evaluationBaseRevision(eventName: string, event: unknown): string | undefined {
-    if (!['pull_request', 'push'].includes(eventName)) return undefined;
-    const document = event as { pull_request?: { base?: { sha?: unknown } }; before?: unknown } | null;
-    const revision = eventName === 'push' ? document?.before : document?.pull_request?.base?.sha;
-    if (typeof revision !== 'string' || !/^[a-f0-9]{40}$/.test(revision) || /^0+$/.test(revision)) throw new Error('Evaluation ratchet requires a nonzero event base commit SHA.');
-    return revision;
-}
-
 /** Read Git's base when available; CI requires it, but installed copies still run static coverage checks. */
 export function evaluationCoverageBaseline(root: string): Record<string, unknown> | undefined {
-    const git = (...args: string[]) => execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: 'pipe', timeout: 30_000 }).trim();
+    const git = (...args: string[]) => comparisonGit(root, ...args);
     let base: string;
     try {
-        const eventBase = process.env.GITHUB_EVENT_PATH
-            ? evaluationBaseRevision(process.env.GITHUB_EVENT_NAME ?? '', JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8')))
-            : undefined;
-        base = eventBase ?? git('merge-base', 'HEAD', 'origin/main');
-        if (eventBase) {
-            // actions/checkout defaults to one commit. Fetch only the event's exact base when absent.
-            try { git('cat-file', '-e', `${base}^{commit}`); }
-            catch { git('fetch', '--no-tags', '--depth=1', 'origin', base); }
-        }
+        base = verificationBase(root);
     } catch (error) {
         if (process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true') {
             throw new Error(`Evaluation coverage base could not resolve in CI: ${error instanceof Error ? error.message : String(error)}`, { cause: error });

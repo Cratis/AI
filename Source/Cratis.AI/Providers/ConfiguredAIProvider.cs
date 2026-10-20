@@ -150,7 +150,17 @@ public record ConfiguredAIProvider(
     /// <summary>
     /// Gets the moment the vendor said it would accept work again.
     /// </summary>
+    /// <remarks>
+    /// A limit lifted by hand, or by replacing the provider's credential, ends at the moment of that
+    /// event - a limit recorded against the old credential says nothing about the new one.
+    /// </remarks>
     [SetFrom<AIProviderRateLimited>(nameof(AIProviderRateLimited.Until))]
+    [SetFromContext<AIProviderRateLimitCleared>(nameof(EventContext.Occurred))]
+    [SetFromContext<AnthropicProviderReconfigured>(nameof(EventContext.Occurred))]
+    [SetFromContext<OpenAIProviderReconfigured>(nameof(EventContext.Occurred))]
+    [SetFromContext<AzureOpenAIProviderReconfigured>(nameof(EventContext.Occurred))]
+    [SetFromContext<OpenAICompatibleProviderReconfigured>(nameof(EventContext.Occurred))]
+    [SetFromContext<ZAIProviderReconfigured>(nameof(EventContext.Occurred))]
     public DateTimeOffset RateLimitedUntil { get; init; }
 
     /// <summary>

@@ -1,8 +1,6 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Cratis.AI.Common;
-using Cratis.AI.Usage;
 using Microsoft.Extensions.Logging;
 
 namespace Cratis.AI.Decisions.Usage;
@@ -24,16 +22,14 @@ public interface IDecisionUsageRecorder
 }
 
 /// <summary>
-/// Represents an implementation of <see cref="IDecisionUsageRecorder"/> that records through the
-/// command pipeline, the same way <see cref="LanguageModels.ManagedLanguageModel"/> records a
-/// completion's usage.
+/// Reports decision usage as telemetry without appending events.
 /// </summary>
-/// <param name="commandPipeline">The <see cref="ICommandPipeline"/>.</param>
+/// <param name="telemetry">The decision metrics.</param>
 /// <param name="logger">The logger.</param>
-public class DecisionUsageRecorder(ICommandPipeline commandPipeline, ILogger<DecisionUsageRecorder> logger) : IDecisionUsageRecorder
+public class DecisionUsageRecorder(IDecisionTelemetry telemetry, ILogger<DecisionUsageRecorder> logger) : IDecisionUsageRecorder
 {
     /// <inheritdoc/>
-    public async Task Record(IReadOnlyList<DecisionRequest> requests, DecisionEngineConnection connection, DecisionEngineAnswers answers, TimeSpan duration)
+    public Task Record(IReadOnlyList<DecisionRequest> requests, DecisionEngineConnection connection, DecisionEngineAnswers answers, TimeSpan duration)
     {
         try
         {
@@ -42,23 +38,14 @@ public class DecisionUsageRecorder(ICommandPipeline commandPipeline, ILogger<Dec
             // batch that mixes topics is not a shape anything produces today.
             var topic = requests.Select(_ => _.Topic).FirstOrDefault(_ => _ is not null && !string.IsNullOrWhiteSpace(_.Value)) ?? DecisionTopic.NotSet;
 
-            await commandPipeline.ExecuteAndReport(
-                new RecordDecisionUsage(
-                    DecisionUsageId.New(),
-                    connection.Type,
-                    answers.Model,
-                    topic,
-                    requests.Count,
-                    requests.Sum(_ => _.Choices.Count),
-                    new InputTokens(answers.InputTokens),
-                    new OutputTokens(answers.OutputTokens),
-                    new DurationMilliseconds((long)duration.TotalMilliseconds)),
-                logger);
+            telemetry.RecordUsage(connection.Type, answers.Model, topic, requests.Count, requests.Sum(_ => _.Choices.Count), answers.InputTokens, answers.OutputTokens);
         }
         catch (Exception ex)
         {
             // Losing a usage record is not worth failing a decision that was already made.
             logger.FailedToRecordUsage(ex, connection.Type);
         }
+
+        return Task.CompletedTask;
     }
 }

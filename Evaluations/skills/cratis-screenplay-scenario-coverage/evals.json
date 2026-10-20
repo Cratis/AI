@@ -48,6 +48,19 @@
         "Requires a spec that pins the child before the parent, and that a parent that never arrives leaves the child absent.",
         "Says to decide per read model whether single-transition specs or a lifecycle family is needed and record the reason."
       ]
+    },
+    {
+      "id": 5,
+      "name": "record-capture-first-sight-and-update",
+      "prompt": "A source api capture InvoiceRecords keys by id and appends InvoiceStatusObserved when status. A spec with only when capture InvoiceRecords (id inv-42, status paid) expects that event but gets none. Cover first sight, an update from sent to paid, and an unchanged repeat without losing update behavior. Does the same rule apply to children/nested and expression guards? Give the reasoning and spec shapes in the answer; do not write files.",
+      "expected_output": "First records are added only. Add a separate when added append for initial observations and retain when status for updates. Update and unchanged cases need given capture for the same key; children and nested first records follow added-only semantics, while expressions/maps/unguarded appends keep their meaning.",
+      "assertions": [
+        "Explains that a first record is added only, so when status and field-change and/or guards do not hold without previous state.",
+        "Adds a separate append with when added for first sight while retaining the field-guarded append for later updates.",
+        "Seeds the update with given capture InvoiceRecords for inv-42 with status sent before when capture with status paid; a baseline for another key is insufficient.",
+        "Includes an unchanged-repeat case seeded with the same key and status, expecting then no events.",
+        "Applies added-only to new child identities and missing/null previous nested records, leaves expression guards/maps/unguarded appends unchanged, and identifies Screenplay 4.175.0 as the prerequisite."
+      ]
     }
   ]
 }

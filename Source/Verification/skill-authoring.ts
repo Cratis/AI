@@ -3,10 +3,12 @@
 
 import { isScalar, parseDocument } from 'yaml';
 import type { AuthoringFinding } from './AuthoringFinding.ts';
+import { alwaysOnBudgetFindings, alwaysOnHarnessBudgets, alwaysOnHarnessBytes, type InstructionEntry, type LoadedHarnessArtifacts } from './always-on-budget.ts';
 import { instructionHygieneFindings, proseLines, skillHygieneFindings } from './skill-hygiene.ts';
 import { lineCount, referencesPath, skillBody } from './skill-structure.ts';
 
-const requiredRules = new Set(['description-when', 'description-voice', 'eval-coverage-ratchet', 'always-on-lines', 'asset-reachability']);
+const warningOnlyRules = new Set(['description-overlap']);
+const requiredRules = new Set(['description-when', 'description-voice', 'eval-coverage-ratchet', 'always-on-lines', 'always-on-harness-bytes', 'asset-reachability']);
 
 /** Skill assets allowed to stay unnamed in SKILL.md, each with a reason; a linked or removed asset makes its exception fail as stale. */
 export const assetExceptions: { file: string; reason: string }[] = [];
@@ -52,6 +54,41 @@ export function skillAuthoringFindings(file: string, content: string): Authoring
     return findings;
 }
 
+/** Unique lowercase ASCII word tokens from the positive trigger, excluding routing boilerplate. */
+export function skillTriggerTokens(description: string): Set<string> {
+    const trigger = /\b(?:Use|Load|Read) (?:this )?(?:skill )?(?:when|for|to|before|whenever|if)\b([\s\S]*)/i.exec(description)?.[1] ?? '';
+    const positive = trigger.split(/\b(?:Not for|Not when|Do not use|Don't use)\b/i)[0];
+    const stopWords = new Set('a an the and or for of to in on with when where how what which that this is are be as by from use skill adding changing writing building existing must needs not it its through'.split(' '));
+    return new Set((positive.toLowerCase().match(/[a-z][a-z0-9]*/g) ?? []).filter(token => !stopWords.has(token)));
+}
+
+/** Jaccard similarity >= 0.4 warns (unrounded); empty triggers never match. No allowlist. */
+export const skillOverlapThreshold = 0.4;
+
+/** Compare canonical skill entry points once per pair; negative routing cannot inflate similarity. */
+export function skillOverlapFindings(entries: Array<{ file: string; content: string }>): AuthoringFinding[] {
+    const skills = entries.filter(entry => /(?:^|\/)SKILL\.md$/.test(entry.file.replaceAll('\\', '/')))
+        .map(entry => ({ ...entry, description: descriptionOf(entry.content) }))
+        .filter(entry => entry.description !== undefined)
+        .map(entry => ({ file: entry.file, line: entry.description!.line, tokens: skillTriggerTokens(entry.description!.value) }))
+        .sort((left, right) => left.file.localeCompare(right.file));
+    const pairs: Array<{ finding: AuthoringFinding; score: number }> = [];
+    for (let index = 0; index < skills.length; index++) {
+        const left = skills[index];
+        if (left.tokens.size === 0) continue;
+        for (const right of skills.slice(index + 1)) {
+            const shared = [...left.tokens].filter(token => right.tokens.has(token)).length;
+            const score = shared / (left.tokens.size + right.tokens.size - shared);
+            if (score >= skillOverlapThreshold) pairs.push({ score, finding: {
+                file: left.file, line: left.line, rule: 'description-overlap',
+                matchedText: `${right.file}:${right.line} trigger Jaccard=${score.toFixed(3)} (>= ${skillOverlapThreshold}); sharpen triggers and sibling routing.`,
+            } });
+        }
+    }
+    return pairs.sort((left, right) => right.score - left.score || left.finding.file.localeCompare(right.finding.file) || left.finding.matchedText.localeCompare(right.finding.matchedText))
+        .map(pair => pair.finding);
+}
+
 /** Every shipped non-Markdown asset is directly named; Markdown reachability already has a hard gate. */
 export function assetReachabilityFindings(skillFile: string, body: string, paths: string[], exceptions = assetExceptions): AuthoringFinding[] {
     const directory = skillFile.slice(0, -'SKILL.md'.length);
@@ -75,60 +112,11 @@ export function instructionAuthoringFindings(file: string, content: string): Aut
     return instructionHygieneFindings(file, content);
 }
 
-/** Warn-mode ceilings, set just above today's totals, for the rule bytes each harness loads at session start. */
-export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 113_000, copilot: 91_000, pi: 115_000, cursor: 23_000, 'codex-opencode': 23_000 };
-
 /** Warn-mode ceiling for the combined bytes of rules without `paths`, which Claude Code loads at session start. */
 export const unscopedRuleBudget = 91_000;
 
-const universalGlobs = new Set(['**', '**/*', '*']);
-
-function scopes(header: string, key: string): string[] {
-    const block = new RegExp(`^${key}:[ \\t]*([^\\n]*)((?:\\n[ \\t]+[^\\n]*)*)`, 'm').exec(header);
-    if (!block) return [];
-    return `${block[1]}\n${block[2]}`.split(/[\n,]/).map(part => part.replace(/^\s*-\s*/, '').trim().replace(/^["']|["']$/g, '')).filter(Boolean);
-}
-
-/** What a harness loads besides the canonical rules: the generated Copilot adapters and the Cursor rule file. */
-export interface LoadedHarnessArtifacts {
-    copilotAdapters?: Array<{ file: string; content: string }>;
-    cursorRule?: string;
-}
-
-/**
- * Rule bytes loaded at session start per harness, counting the artifacts each one reads:
- * Claude Code reads CLAUDE.md (general.md) and every `.claude/rules` file without `paths`, so general.md arrives twice;
- * Copilot reads copilot-instructions.md (general.md) and the generated adapters whose `applyTo` covers every file;
- * Pi reads AGENTS.md (general.md) as a context file and puts every universal rule in the system prompt, so general.md is counted twice;
- * Cursor reads its always-apply rule file and the general.md it references; Codex and OpenCode read AGENTS.md (general.md).
- */
-export function alwaysOnHarnessBytes(entries: Array<{ file: string; content: string }>, loaded: LoadedHarnessArtifacts = {}): Record<string, number> {
-    const totals: Record<string, number> = { 'claude-code': 0, copilot: 0, pi: 0, cursor: 0, 'codex-opencode': 0 };
-    const universal = (header: string): boolean => scopes(header, 'applyTo').some(glob => universalGlobs.has(glob));
-    for (const { file, content } of entries) {
-        const header = content.slice(0, content.length - skillBody(content).length);
-        const bytes = Buffer.byteLength(content);
-        const applyTo = scopes(header, 'applyTo');
-        const paths = scopes(header, 'paths');
-        const general = file.endsWith('/general.md');
-        if (general) {
-            totals['claude-code'] += bytes;
-            totals.pi += bytes;
-            totals.cursor += bytes + Buffer.byteLength(loaded.cursorRule ?? '');
-            totals['codex-opencode'] += bytes;
-        }
-        if (paths.length === 0) totals['claude-code'] += bytes;
-        if (general || (!loaded.copilotAdapters && universal(header))) totals.copilot += bytes;
-        if ((applyTo.length === 0 && paths.length === 0) || [...applyTo, ...paths].some(glob => universalGlobs.has(glob))) totals.pi += bytes;
-    }
-    for (const { content } of loaded.copilotAdapters ?? []) {
-        if (universal(content.slice(0, content.length - skillBody(content).length))) totals.copilot += Buffer.byteLength(content);
-    }
-    return totals;
-}
-
 /** Byte and unscoped-rule totals complement the hard always-on line cap. */
-export function alwaysOnFindings(entries: Array<{ file: string; content: string }>, budgets = alwaysOnHarnessBudgets, loaded: LoadedHarnessArtifacts = {}): AuthoringFinding[] {
+export function alwaysOnFindings(entries: InstructionEntry[], budgets = alwaysOnHarnessBudgets, loaded: LoadedHarnessArtifacts = {}): AuthoringFinding[] {
     const findings: AuthoringFinding[] = [];
     let unscopedBytes = 0;
     for (const { file, content } of entries) {
@@ -142,10 +130,7 @@ export function alwaysOnFindings(entries: Array<{ file: string; content: string 
         }
         if (/^applyTo:\s*["']?\*\*\/\*["']?\s*$/m.test(header) && content.length > 4_000) add('copilot-budget', `${content.length} characters; review above 4,000.`);
     }
-    const totals = alwaysOnHarnessBytes(entries, loaded);
-    for (const [harness, budget] of Object.entries(budgets)) {
-        if (totals[harness] > budget) findings.push({ file: '.cratis/ai/rules', line: 1, rule: 'always-on-harness-bytes', matchedText: `${harness} loads ${totals[harness]} rule bytes at session start; budget ${budget}.` });
-    }
+    findings.push(...alwaysOnBudgetFindings(alwaysOnHarnessBytes(entries, loaded), budgets));
     if (unscopedBytes > unscopedRuleBudget) findings.push({ file: '.cratis/ai/rules', line: 1, rule: 'unscoped-rule-bytes', matchedText: `${unscopedBytes} bytes; budget ${unscopedRuleBudget.toLocaleString('en-US')}.` });
     return findings;
 }
@@ -153,6 +138,6 @@ export function alwaysOnFindings(entries: Array<{ file: string; content: string 
 /** Required checks fail even during warn rollout; every other check follows one switch. */
 export function skillAuthoringProblems(findings: AuthoringFinding[], mode = 'warn'): string[] {
     if (!['warn', 'fail'].includes(mode)) return ['SKILL_AUTHORING_MODE must be warn or fail.'];
-    return findings.filter(finding => mode === 'fail' || requiredRules.has(finding.rule))
+    return findings.filter(finding => !warningOnlyRules.has(finding.rule) && (mode === 'fail' || requiredRules.has(finding.rule)))
         .map(finding => `${finding.file}:${finding.line} [${finding.rule}] ${finding.matchedText}`);
 }

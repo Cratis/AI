@@ -163,9 +163,35 @@ public sealed class PooledChatClient(
         ClaudeCodeConversationFailed { FunctionInvocationAttempted: true } => false,
         ClientResultException clientResult => IsTransientStatus(clientResult.Status),
         HttpRequestException http => http.StatusCode is null || IsTransientStatus((int)http.StatusCode),
+        ClaudeCodeConversationFailed { Kind: ClaudeCodeFailureKind.ServerError } => true,
         TimeoutException => true,
         _ => ProviderRateLimit.IsIndicatedBy(exception.Message)
     };
+
+    // A spent quota is read from the exception's HTTP status and the vendor's own error code where it
+    // carries them (402, insufficient_quota, enforced_spend_limit_reached), not only from the words
+    // of its message - a gateway's 402 may say nothing a message match would recognize.
+    static bool IsQuotaExhausted(Exception exception) => exception switch
+    {
+        ClaudeCodeConversationFailed { FunctionInvocationAttempted: true } => false,
+        ClientResultException clientResult => QuotaExhaustion.IsIndicatedBy(clientResult.Status, null, $"{clientResult.Message} {ResponseBodyOf(clientResult)}"),
+        HttpRequestException { StatusCode: { } status } http => QuotaExhaustion.IsIndicatedBy((int)status, null, http.Message),
+        _ => QuotaExhaustion.IsIndicatedBy(exception.Message)
+    };
+
+    static string ResponseBodyOf(ClientResultException exception)
+    {
+        try
+        {
+            return exception.GetRawResponse()?.Content.ToString() ?? string.Empty;
+        }
+        catch (Exception)
+        {
+            // Classifying a failure must not become a second failure: an unbuffered, disposed or otherwise
+            // unreadable response has no body to read, so the status and message stand alone.
+            return string.Empty;
+        }
+    }
 
     static bool IsTransientStatus(int status) => status is 0 or (int)HttpStatusCode.TooManyRequests or >= 500;
 
@@ -226,7 +252,7 @@ public sealed class PooledChatClient(
                     recentProviderFailures,
                     $"No member of pool {role.PoolId} could serve this chat",
                     async (member, ct) => capacities.TryGetValue(member.ProviderId, out var capacity) && !capacity.CanStartWork
-                        ? PoolAttempt<(T Value, AIProviderId Provider)>.Skipped($"AI provider {member.ProviderId} has no capacity to start work")
+                        ? PoolAttempt<(T Value, AIProviderId Provider)>.Skipped($"AI provider {member.ProviderId} cannot start work: it {capacity.Explain()}")
                         : await Attempt(member.ProviderId, tier, call, holdSlot, ct),
                     cancellationToken);
 
@@ -292,8 +318,15 @@ public sealed class PooledChatClient(
             return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} cannot serve the {purpose.Value} agent");
         }
 
-        var model = TierModelResolution.Resolve(provider, tier);
-        if (model.Equals(ModelName.NotSet) || !chatClientFactory.CanServe(provider, model))
+        var resolution = TierModelResolution.Explain(provider, tier);
+        if (resolution.Source == TierModelSource.Unsatisfied)
+        {
+            logger.NoModelResolvedForTier(providerId, provider.Type, tier, resolution.Reason);
+            return PoolAttempt<(T, AIProviderId)>.Skipped(resolution.Reason);
+        }
+
+        var model = resolution.Model;
+        if (!chatClientFactory.CanServe(provider, model))
         {
             logger.ChatProviderCannotServe(providerId, provider.Type, purpose);
             return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} has no usable model for the {purpose.Value} agent");
@@ -302,7 +335,7 @@ public sealed class PooledChatClient(
         if (provider.RateLimitedUntil > timeProvider.GetUtcNow())
         {
             logger.ChatProviderRateLimited(providerId, provider.RateLimitedUntil);
-            return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} is rate limited");
+            return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} is paused until {provider.RateLimitedUntil.UtcDateTime:yyyy-MM-dd HH:mm} UTC because its vendor turned work away over its usage limit (it is tried again then; replacing its credential or clearing the pause in Settings > AI tries it at once)");
         }
 
         var slot = await providerConcurrencyGate.TryEnter(providerId, cancellationToken);
@@ -346,16 +379,23 @@ public sealed class PooledChatClient(
             // A spent quota moves the same messages and options on to the next member and parks this
             // provider until it resets - unless a Claude Code turn may already have run a tool, where
             // replaying the turn elsewhere could repeat its effects.
-            if (exception is not ClaudeCodeConversationFailed { FunctionInvocationAttempted: true } &&
-                QuotaExhaustion.IsIndicatedBy(exception.Message))
+            var where = $"AI provider {providerId} ({provider.Type}, model {model.Value})";
+            if (IsQuotaExhausted(exception))
             {
                 await rateLimitRecorder.Record(providerId, exception.Message);
-                return PoolAttempt<(T, AIProviderId)>.QuotaExhausted(exception.Message);
+                return PoolAttempt<(T, AIProviderId)>.QuotaExhausted($"{where}: {exception.Message}");
+            }
+
+            // This provider's own credential, plan or model was refused: another member of the pool may well
+            // still serve the call, so move on - the reason is kept for when none can.
+            if (exception is ClaudeCodeConversationFailed { FunctionInvocationAttempted: false, Kind: ClaudeCodeFailureKind.Authentication or ClaudeCodeFailureKind.Billing or ClaudeCodeFailureKind.InvalidRequest })
+            {
+                return PoolAttempt<(T, AIProviderId)>.Rejected(default, $"{where}: {exception.Message}");
             }
 
             if (!IsTransient(exception))
             {
-                return PoolAttempt<(T, AIProviderId)>.PermanentFailure(default, exception.Message);
+                return PoolAttempt<(T, AIProviderId)>.PermanentFailure(default, $"{where}: {exception.Message}");
             }
 
             if (ProviderRateLimit.IsIndicatedBy(exception.Message) || exception is ClientResultException { Status: (int)HttpStatusCode.TooManyRequests })
@@ -363,7 +403,7 @@ public sealed class PooledChatClient(
                 await rateLimitRecorder.Record(providerId, exception.Message);
             }
 
-            return PoolAttempt<(T, AIProviderId)>.TransientFailure(exception.Message);
+            return PoolAttempt<(T, AIProviderId)>.TransientFailure($"{where}: {exception.Message}");
         }
         finally
         {

@@ -74,6 +74,22 @@ internal sealed record ClaudeCodeStreamEvent
     internal string? FailureReason { get; private init; }
 
     /// <summary>
+    /// Gets the vendor's own failure code (such as <c>authentication_failed</c>) when it is one this transport
+    /// recognizes or a short identifier-shaped token, for a failure; never free vendor text.
+    /// </summary>
+    internal string? FailureCode { get; private init; }
+
+    /// <summary>
+    /// Gets whether the line only announced that the CLI is retrying a failed API call.
+    /// </summary>
+    internal bool IsRetry { get; private init; }
+
+    /// <summary>
+    /// Gets the HTTP status the vendor answered with, for <see cref="IsRetry"/> and a result failure.
+    /// </summary>
+    internal int? HttpStatus { get; private init; }
+
+    /// <summary>
     /// Gets the model that actually produced the result, for <see cref="IsResult"/>.
     /// </summary>
     internal string? ModelId { get; private init; }
@@ -115,13 +131,11 @@ internal sealed record ClaudeCodeStreamEvent
 
             var candidate = typeElement.GetString() switch
             {
+                "system" when IsApiRetry(body) => ParseApiRetry(body),
                 "system" => ParseInit(body),
                 "stream_event" => ParsePartialText(body),
                 "result" => ParseResult(body),
-                "assistant" when body.TryGetProperty("error", out var error) && error.ValueKind != JsonValueKind.Null =>
-                    error.ValueKind == JsonValueKind.String && error.GetString() == "rate_limit"
-                        ? Failure("Claude Code's model request was rate limited (HTTP 429).", ClaudeCodeFailureKind.RateLimit)
-                        : Failure("Claude Code's model request failed.", ClaudeCodeFailureKind.ModelRequest),
+                "assistant" when body.TryGetProperty("error", out var error) && error.ValueKind != JsonValueKind.Null => ParseAssistantError(body, error),
                 "assistant" when body.TryGetProperty("message", out var message) && message.ValueKind == JsonValueKind.Object => ParseFinish(message),
                 "rate_limit_event" when body.TryGetProperty("rate_limit_info", out var limit) && limit.ValueKind == JsonValueKind.Object &&
                     limit.TryGetProperty("status", out var status) && status.ValueKind == JsonValueKind.String && status.GetString() == "rejected" => Failure("Claude Code's model request was rate limited (HTTP 429).", ClaudeCodeFailureKind.RateLimit),
@@ -143,6 +157,77 @@ internal sealed record ClaudeCodeStreamEvent
     }
 
     static ClaudeCodeStreamEvent Failure(string message, ClaudeCodeFailureKind kind) => new() { IsFailure = true, FailureReason = message, FailureKind = kind };
+
+    static bool IsApiRetry(JsonElement body) =>
+        body.TryGetProperty("subtype", out var subtype) && subtype.ValueKind == JsonValueKind.String && subtype.GetString() == "api_retry";
+
+    static ClaudeCodeStreamEvent ParseApiRetry(JsonElement body) => new()
+    {
+        IsRetry = true,
+        HttpStatus = body.TryGetProperty("error_status", out var status) && status.ValueKind == JsonValueKind.Number && status.TryGetInt32(out var code) ? code : null,
+    };
+
+    // The CLI names what went wrong on the assistant message's error field, and carries the vendor's API error in the
+    // message's text ("API Error: 400 {...}"). The code is read as an identifier. Of the text only the vendor's own
+    // error message inside that JSON is kept - a short, credential-free excerpt - so the person can see what it objected
+    // to; any other text is not trusted to be safe and is dropped.
+    static ClaudeCodeStreamEvent ParseAssistantError(JsonElement body, JsonElement error)
+    {
+        var code = error.ValueKind == JsonValueKind.String ? ClaudeCodeFailureText.SafeCode(error.GetString()) : null;
+        var kind = ClaudeCodeFailureText.KindOf(code);
+        var detail = ClaudeCodeFailureText.Excerpt(AssistantText(body));
+        return new ClaudeCodeStreamEvent
+        {
+            IsFailure = true,
+            FailureKind = kind,
+            FailureCode = code,
+            FailureReason = ClaudeCodeFailureText.For(kind, code, null, detail),
+        };
+    }
+
+    static string? AssistantText(JsonElement body)
+    {
+        if (!body.TryGetProperty("message", out var message) || message.ValueKind != JsonValueKind.Object ||
+            !message.TryGetProperty("content", out var content) || content.ValueKind != JsonValueKind.Array)
+        {
+            return null;
+        }
+
+        foreach (var part in content.EnumerateArray())
+        {
+            if (part.ValueKind == JsonValueKind.Object && part.TryGetProperty("text", out var text) && text.ValueKind == JsonValueKind.String &&
+                VendorMessageIn(text.GetString()) is { } vendorMessage)
+            {
+                return vendorMessage;
+            }
+        }
+
+        return null;
+    }
+
+    // The vendor's error message from the API error body the CLI echoes after its own "API Error: <status>" prefix.
+    static string? VendorMessageIn(string? text)
+    {
+        var start = text?.IndexOf('{', StringComparison.Ordinal) ?? -1;
+        if (text is null || start < 0)
+        {
+            return null;
+        }
+
+        try
+        {
+            using var document = JsonDocument.Parse(text[start..]);
+            var root = document.RootElement;
+            var holder = root.ValueKind == JsonValueKind.Object && root.TryGetProperty("error", out var error) && error.ValueKind == JsonValueKind.Object ? error : root;
+            return holder.ValueKind == JsonValueKind.Object && holder.TryGetProperty("message", out var message) && message.ValueKind == JsonValueKind.String
+                ? message.GetString()
+                : null;
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
 
     static ClaudeCodeStreamEvent? ParseInit(JsonElement body)
     {
@@ -217,11 +302,13 @@ internal sealed record ClaudeCodeStreamEvent
         var hasStructuredOutput = body.TryGetProperty("structured_output", out var structured) && structured.ValueKind == JsonValueKind.Object;
         var succeeded = !reportedError && succeededSubtype && (hasResultText || hasStructuredOutput);
 
+        int? httpStatus = body.TryGetProperty("api_error_status", out var status) && status.ValueKind == JsonValueKind.Number && status.TryGetInt32(out var code) ? code : null;
+        var failureKind = ClaudeCodeFailureText.KindOfStatus(httpStatus);
         string? failureReason = null;
         if (!succeeded)
         {
-            failureReason = body.TryGetProperty("api_error_status", out var status) && status.ValueKind == JsonValueKind.Number && status.GetInt32() is var code && (code == 429 || code >= 500)
-                ? $"Claude Code's model request returned HTTP {code}"
+            failureReason = httpStatus is not null
+                ? ClaudeCodeFailureText.For(failureKind, null, httpStatus, ClaudeCodeFailureText.Excerpt(hasResultText ? resultElement.GetString() : null))
                 : "Claude Code did not complete the conversation. Check the configured subscription and model.";
         }
 
@@ -237,8 +324,8 @@ internal sealed record ClaudeCodeStreamEvent
             IsResult = true,
             IsFailure = !succeeded,
             FailureReason = failureReason,
-            FailureKind = body.TryGetProperty("api_error_status", out var apiStatus) && apiStatus.ValueKind == JsonValueKind.Number && apiStatus.TryGetInt32(out var apiCode) && apiCode == 429
-                ? ClaudeCodeFailureKind.RateLimit : ClaudeCodeFailureKind.Conversation,
+            FailureKind = failureKind,
+            HttpStatus = httpStatus,
             SessionId = body.TryGetProperty("session_id", out var sessionElement) ? sessionElement.GetString() : null,
             ResultText = hasStructuredOutput ? structured.GetRawText() : hasResultText ? resultElement.GetString() : null,
             HasStructuredOutput = hasStructuredOutput,

@@ -68,8 +68,9 @@ to the routed scope. This does not make command `reads` protected.
   computed expressions parse but block binding (`PLAY0268`).
 - **`for <identifier>`** on an indented line names the event source the event is
   appended to. At most one per `produces`. To bind, it must name the command's
-  `identifier` property (`PLAY0273` otherwise; a `generated identifier` command, ESM v7, may name another required scalar property); fanning out to another event
-  source parses but does not run today.
+  `identifier` property (`PLAY0273` otherwise; a `generated identifier` command, ESM v7, may name another required scalar property). From ESM v30 (decision 0098)
+  a command may append to several event sources: each `produces` may name any required scalar command property, and the events of one accepted command are appended
+  together. Optional and collection properties still cannot be destinations. A model using it selects v30; state each destination with `for` on the matching `then` event.
 - **`tag`** lines apply literal tags to this append. Tags also exist on the
   `event` declaration, where they apply to every append of that type.
 - **Several unconditional `produces` blocks** are allowed — that is co-production,

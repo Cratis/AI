@@ -71,7 +71,11 @@ paths:
 - A bot's pre-push verification build must match the strictest configuration any CI in
   the organization applies to the same commit (build `Release` when consumers enforce
   analyzers there). Do not add `[skip ci]` to bot commits as a load optimization: the
-  downstream CI run is the only check that sees the merged result.
+  downstream CI run is the only check that sees the merged result. One exception: a
+  bootstrap commit that changes **only** bootstrapped wrapper workflow files, whose
+  content the source repository's CI verified before the rollout, may carry
+  `[skip ci]` once the same wrapper content has landed with CI running in one canary
+  repository. Package-update bots, and any commit touching another file, keep normal CI.
 - Comment-triggered agent workflows must gate on the trigger phrase in the job's `if:`
   (for example `contains(github.event.comment.body, '@claude')`) so a runner only
   starts when the agent is actually addressed.

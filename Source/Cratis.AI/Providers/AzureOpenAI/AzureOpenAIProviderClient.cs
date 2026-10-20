@@ -41,6 +41,7 @@ public class AzureOpenAIProviderClient(IHttpClientFactory httpClientFactory, IAI
             headers => headers.Add("api-key", provider.ApiKey.ForUse()),
             Type,
             provider.Id,
+            provider.ApiKey,
             quotaTracker,
             logger,
             cancellationToken);

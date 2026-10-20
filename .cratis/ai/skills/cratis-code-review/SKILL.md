@@ -81,10 +81,13 @@ there is nothing to review under a red build.
 - Logging lives in a `*Logging.cs` partial with `[LoggerMessage]`, not inline in
   domain code.
 - No shared mutable state between commands.
-- Plain injected models are advisory, not a concurrency guard. Review guarded
-  stream/projection reads and actual conflict specs (`UseDecisionReads()`).
+- Read protection is `Off` by default; new code sets `<CratisReadProtection>On</CratisReadProtection>`.
+  Under `Off` an injected model or validator read is advisory, not a concurrency guard.
+  Under `On`, review that state rules sit in validators or handlers with the model as
+  a parameter, `[Unprotected("why")]` carries a real reason, and a conflict spec
+  (`AppendConcurrently` plus `ConcurrencyViolation`) exists.
 - Use `Cratis.Arc.Core.CodeAnalysis` and `Cratis.Arc.Chronicle.CodeAnalysis`.
-  ARCCHR0011/0012 (Info) flag unprotected reads/immediate
+  ARCCHR0011 (Info, `Off` only) and 0012 flag unprotected reads/immediate
   bypasses; 0013 (Info) recommends definitions; 0014 checks declared observer
   streams; 0015 warns on nullable events; 0016 flags ignored concurrency flags;
   0017/0018 check stream-id templates; 0019 warns on folds exposed as queries.
@@ -166,28 +169,13 @@ degradations a reviewer can see without measuring:
 
 ## Step 7 — Report
 
-Open with one line:
+Read and use `.cratis/ai/rules/review-reports.md` when writing the report.
 
-> **Review result: Approved / Approved with comments / Changes requested**
-
-Then, per file:
-
-```
-### <file path>
-
-**[BLOCKING]** Line N: `problematic code`
-Because: <the consequence, not the rule number>
-Fix:
-<corrected code>
-```
-
-Close with what passed and what must change. Two rules make the report usable:
-
-- **A blocking finding names a consequence.** "Violates the style guide" is not
-  a reason. "Throws on a recoverable path, so the caller sees a 500 instead of a
-  validation error" is.
-- **Say what you did not review.** A report listing only findings reads as if
-  everything was checked. Name the files, the paths, and the axes you skipped.
+Correctness regressions, broken contracts, and missing specification coverage
+that leaves changed behavior unverified belong in Blockers when they require
+correction before merge. Style preferences and maintainability improvements
+without such a consequence belong in Suggestions. Apply the shared verdict
+vocabulary to those findings.
 
 ## What breaks
 

@@ -29,8 +29,8 @@ internal static partial class ProviderAwareLanguageModelLog
     [LoggerMessage(LogLevel.Warning, "AI provider {ProviderId} (vendor {ProviderType}) does not satisfy the capabilities required by the {Purpose} agent")]
     internal static partial void ProviderDoesNotSatisfyAgentCapabilities(this ILogger logger, AIProviderId providerId, AIProviderType providerType, LanguageModelPurpose purpose);
 
-    [LoggerMessage(LogLevel.Warning, "AI provider {ProviderId} (vendor {ProviderType}) has no model set on the agent and no built-in default for its vendor")]
-    internal static partial void NoModelResolved(this ILogger logger, AIProviderId providerId, AIProviderType providerType);
+    [LoggerMessage(LogLevel.Warning, "AI provider {ProviderId} (vendor {ProviderType}) cannot resolve tier {Tier}: {Reason}")]
+    internal static partial void NoModelResolvedForTier(this ILogger logger, AIProviderId providerId, AIProviderType providerType, ModelTier tier, string reason);
 
     [LoggerMessage(LogLevel.Warning, "Model {Model} on AI provider {ProviderId} does not satisfy the capabilities required by the {Purpose} agent")]
     internal static partial void ModelDoesNotSatisfyAgentCapabilities(this ILogger logger, AIProviderId providerId, ModelName model, LanguageModelPurpose purpose);

@@ -3,9 +3,9 @@
   "input": "Declare a Screenplay query and the screen that binds to it.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "query FindMonth", "file": "references/named-keys.md" },
+    { "kind": "skill-contains", "value": "query Total => PaymentTotals optional", "file": "references/named-keys.md" },
     { "kind": "skill-contains", "value": "command reads only", "file": "references/named-keys.md" },
-    { "kind": "skill-contains", "value": "remain authoring-only", "file": "references/named-keys.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 4.204.0 (ESM v27", "file": "references/named-keys.md" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "Caller-supplied equality query filters (ESM v14)", "file": "references/equality-filters.md" },
     { "kind": "skill-contains", "value": "Supplied `null` is refused", "file": "references/equality-filters.md" },

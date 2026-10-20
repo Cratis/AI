@@ -12,7 +12,7 @@ CI installs and which must match `references/screenplay-contract.version` in the
 
 | Item | Value |
 | --- | --- |
-| Screenplay language, standalone tool and MCP | **4.188.0** |
+| Screenplay language, standalone tool and MCP | **4.235.0** |
 
 The published `screenplay-contract.json` beside the toolchain skill's references is byte-identical to
 this release's contract, and `screenplay-contract.version` names the same version.
@@ -21,9 +21,9 @@ this release's contract, and `screenplay-contract.version` names the same versio
 
 | Item | Value |
 | --- | --- |
-| Release | cratis CLI `3.62.0` |
-| Bundled Stage (renderer and sandbox image) | `4.99.0`, admits ESM v1 to v16 |
-| Bundled Screenplay compiler | `4.159.0`, binds through ESM v17 |
+| Release | cratis CLI `3.74.0` |
+| Bundled Stage (renderer and sandbox image) | `4.135.0`, `cratis render` admits ESM v1 to v26 |
+| Bundled Screenplay compiler | `4.201.0`, binds through ESM v26 |
 | Bundled Screenplay.Generation / CritterStack / Prologue | `0.18.0` / `0.24.0` / `2.0.0` |
 | Bundled Cratis.Arc.Screenplay (generator package) | `22.54.0` |
 | Bundled Chronicle / Fundamentals | `19.56.0` / `7.22.8` |

@@ -38,6 +38,15 @@ public enum PoolAttemptOutcome
     PermanentFailure,
 
     /// <summary>
+    /// A real call to the member was turned away by the provider - bad credentials, a retired model, an
+    /// account with no credit, a request it refused. That is as likely to be about this provider as about
+    /// the request, and nothing was done on the caller's behalf, so the loop records it against the
+    /// provider and moves on. When no member serves the call the first rejection is the answer
+    /// (<see cref="PoolDispatchOutcome.Stopped"/>).
+    /// </summary>
+    Rejected,
+
+    /// <summary>
     /// A real call to the member failed because the provider's quota, spend limit or credit is used up
     /// (<see cref="QuotaExhaustion"/>). Retrying it cannot help until the quota resets, but another
     /// member can serve the same request - recorded against the provider, and the loop moves on.
@@ -106,6 +115,14 @@ public readonly record struct PoolAttempt<T>(PoolAttemptOutcome Outcome, T? Valu
     /// <param name="reason">Why the call failed.</param>
     /// <returns>The <see cref="PoolAttempt{T}"/>.</returns>
     public static PoolAttempt<T> PermanentFailure(T? value, string reason) => new(PoolAttemptOutcome.PermanentFailure, value, reason);
+
+    /// <summary>
+    /// Builds an attempt the provider turned away, which another member may well serve.
+    /// </summary>
+    /// <param name="value">What the rejected call actually produced, when there is something to hand back.</param>
+    /// <param name="reason">Why the call was rejected.</param>
+    /// <returns>The <see cref="PoolAttempt{T}"/>.</returns>
+    public static PoolAttempt<T> Rejected(T? value, string reason) => new(PoolAttemptOutcome.Rejected, value, reason);
 
     /// <summary>
     /// Builds an attempt whose real call failed because the provider's quota is used up.
@@ -256,6 +273,7 @@ public static class PoolDispatcher
         var anyTransientFailure = false;
         var tried = new List<AIProviderId>();
         var quotaExhausted = new List<AIProviderId>();
+        PoolAttempt<T>? firstRejection = null;
 
         while (remaining.Count > 0)
         {
@@ -279,6 +297,13 @@ public static class PoolDispatcher
                 case PoolAttemptOutcome.PermanentFailure:
                     return PoolDispatchResult<T>.Stopped(attempt.Value, attempt.Reason) with { TriedProviders = tried, QuotaExhaustedProviders = quotaExhausted };
 
+                case PoolAttemptOutcome.Rejected:
+                    failureMemory.Record(member.ProviderId);
+                    firstRejection ??= attempt;
+                    lastReason = attempt.Reason;
+                    remaining.Remove(member);
+                    break;
+
                 case PoolAttemptOutcome.QuotaExhausted:
                     // The same request goes to the next member as it is - the caller's tryUse is
                     // handed nothing but the member, so the messages and options it closes over
@@ -301,6 +326,11 @@ public static class PoolDispatcher
                     remaining.Remove(member);
                     break;
             }
+        }
+
+        if (firstRejection is { } rejection)
+        {
+            return PoolDispatchResult<T>.Stopped(rejection.Value, rejection.Reason) with { TriedProviders = tried, QuotaExhaustedProviders = quotaExhausted };
         }
 
         // Out of quota is the one exhaustion a caller cannot wait out in seconds, so it names every

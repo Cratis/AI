@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { alwaysOnFindings, alwaysOnHarnessBudgets, alwaysOnHarnessBytes, assetReachabilityFindings, instructionAuthoringFindings, skillAuthoringFindings, skillAuthoringProblems, unscopedRuleBudget } from './skill-authoring.ts';
+import { alwaysOnFindings, assetReachabilityFindings, instructionAuthoringFindings, skillAuthoringFindings, skillAuthoringProblems, unscopedRuleBudget } from './skill-authoring.ts';
 import { evaluationBaseRevision, evaluationCoverageFindings } from './evaluation-coverage.ts';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -110,33 +110,14 @@ test('always-on line and byte thresholds have separate required and informationa
     assert.deepEqual(general('x\n'.repeat(201)).map(finding => finding.rule), ['always-on-lines']);
     assert.ok(!general('x'.repeat(24_000)).some(finding => finding.rule === 'always-on-bytes'));
     assert.ok(general('é'.repeat(12_001)).some(finding => finding.rule === 'always-on-bytes'));
-    const unlimited = { 'claude-code': Infinity, copilot: Infinity, pi: Infinity, cursor: Infinity, 'codex-opencode': Infinity };
+    // No harness budgets, so only the unscoped-rule total is judged here.
+    const unlimited = {};
     // The boundary follows the exported budget, so raising the budget cannot leave this specification behind.
     assert.ok(alwaysOnFindings([{ file: 'rules/x.md', content: 'x'.repeat(unscopedRuleBudget + 1) }], unlimited).some(finding => finding.rule === 'unscoped-rule-bytes'));
     assert.deepEqual(alwaysOnFindings([{ file: 'rules/x.md', content: '---\npaths:\n  - src/**\n---\n' + 'x'.repeat(unscopedRuleBudget + 1) }], unlimited), []);
     assert.deepEqual(alwaysOnFindings([{ file: 'rules/x.md', content: 'x'.repeat(unscopedRuleBudget) }], unlimited), []);
     assert.ok(alwaysOnFindings([{ file: 'rules/x.md', content: '---\napplyTo: "**/*"\n---\n' + 'x'.repeat(4_000) }]).some(finding => finding.rule === 'copilot-budget'));
-    assert.deepEqual(alwaysOnFindings([{ file: 'rules/x.md', content: '---\napplyTo: "src/**"\n---\n' + 'x'.repeat(4_000) }]), []);
-});
-
-test('per-harness always-on budget counts what each harness loads at session start', () => {
-    const scoped = (scope: string) => `---\n${scope}\n---\n${'x'.repeat(100)}`;
-    const entries = [
-        { file: '.cratis/ai/rules/general.md', content: 'g'.repeat(1_000) },
-        { file: '.cratis/ai/rules/none.md', content: 'n'.repeat(500) },
-        { file: '.cratis/ai/rules/everything.md', content: scoped('applyTo: "**/*"') },
-        { file: '.cratis/ai/rules/everything-paths.md', content: scoped('applyTo: "**/*"\npaths:\n  - "**/*"') },
-        { file: '.cratis/ai/rules/narrow.md', content: scoped('applyTo: "**/*.cs,**/*.csproj"\npaths:\n  - "**/*.cs"\n  - "**/*.csproj"') },
-    ];
-    const adapter = scoped('applyTo: "**/*"') + 'a'.repeat(10);
-    const totals = alwaysOnHarnessBytes(entries, { copilotAdapters: [{ file: 'everything.instructions.md', content: adapter }], cursorRule: 'c'.repeat(50) });
-    // general.md arrives twice for Claude Code (CLAUDE.md and the rules directory) and for Pi (AGENTS.md context file and the system prompt).
-    assert.equal(totals['claude-code'], 2 * 1_000 + 500 + Buffer.byteLength(entries[2].content));
-    assert.equal(totals.copilot, 1_000 + Buffer.byteLength(adapter));
-    assert.equal(totals.pi, 2 * 1_000 + 500 + Buffer.byteLength(entries[2].content) + Buffer.byteLength(entries[3].content));
-    assert.equal(totals.cursor, 1_000 + 50);
-    assert.equal(totals['codex-opencode'], 1_000);
-    assert.ok(alwaysOnFindings([{ file: '.cratis/ai/rules/x.md', content: 'x'.repeat(alwaysOnHarnessBudgets.pi + 1) }]).some(finding => finding.rule === 'always-on-harness-bytes'));
+    assert.deepEqual(alwaysOnFindings([{ file: 'rules/x.md', content: '---\napplyTo: "src/**"\n---\n' + 'x'.repeat(4_000) }], unlimited), []);
 });
 
 test('evaluation coverage ratchets only shrink, require reasons, and cannot exempt a new skill', () => {
@@ -172,7 +153,7 @@ test('CI ratchet selects immutable event bases and rejects malformed or zero rev
 });
 
 test('required checks fail in warn mode and all other checks obey the single authoring mode', () => {
-    for (const rule of ['description-when', 'description-voice', 'eval-coverage-ratchet', 'always-on-lines', 'asset-reachability']) {
+    for (const rule of ['description-when', 'description-voice', 'eval-coverage-ratchet', 'always-on-lines', 'always-on-harness-bytes', 'asset-reachability']) {
         assert.equal(skillAuthoringProblems([{ file, line: 3, rule, matchedText: 'Defect' }]).length, 1);
     }
     const findings = [{ file, line: 3, rule: 'body-headroom', matchedText: 'Defect' }];

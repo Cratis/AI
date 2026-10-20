@@ -332,7 +332,7 @@ test('agent controls and installed trees are protected without blocking authored
                 Files: [{ Source: 'agents/custom.md', Destination: 'agents/custom.md', Hash: 'fixture' }],
                 Integrations: [
                     { Path: '.claude/agents/custom.md', Target: '../../.cratis/ai/agents/custom.md', IsDirectory: false },
-                    { Path: '.pi/agents/custom.md', Target: '../../.cratis/ai/agents/custom.md', IsDirectory: false },
+                    { Path: '.pi/agents', Target: '../.cratis/ai/harnesses/pi/agents', IsDirectory: true },
                     { Path: '.claude/commands/managed', Target: '../../.cratis/ai/prompts', IsDirectory: true },
                 ],
             }));

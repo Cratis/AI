@@ -83,6 +83,7 @@
     "cratis/lens",
     "cratis/methodology/governed-releases",
     "cratis/modeling/screenplay-stage",
+    "cratis/playwright",
     "cratis/review",
     "cratis/screenplay",
     "cratis/specifications",

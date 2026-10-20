@@ -9,6 +9,7 @@
     { "query": "Write a policy and persona for the CancelInvoice command in .play.", "shouldTrigger": true },
     { "query": "Should the client-minted DraftId in this Screenplay command be marked generated?", "shouldTrigger": true },
     { "query": "How many random bits does generate nanoid 16 with a 16-symbol alphabet provide for an identifier?", "shouldTrigger": true },
+    { "query": "Model a retention window with required DateTime from/to and require to >= from on Screenplay 4.199.0. Explain the missing-offset input rejection and whether today is admitted.", "shouldTrigger": true },
     { "query": "Pin a generated identifier in a Screenplay given/when/then specification.", "shouldTrigger": false, "note": "cratis-screenplay-specifications" },
     { "query": "Use revision-checked MCP tools to edit the concept generation AST.", "shouldTrigger": false, "note": "cratis-screenplay-model-authoring" },
     { "query": "Recover generated Handle parameters from an existing Arc codebase into a candidate model.", "shouldTrigger": false, "note": "cratis-screenplay-legacy-extraction" },

@@ -12,10 +12,19 @@ public class and_the_catalog_covers_it : Specification
 {
     static readonly ModelName[] _catalog =
     [
+        new("configured-fast"),
         new("claude-haiku-4-5"),
         new("claude-sonnet-4-5"),
         new("claude-opus-4-5")
     ];
+
+    [Fact] void should_report_a_derived_source() => TierModelResolution.Explain(
+        new(AIProviderId.New(), AIProviderType.Anthropic, "test-key")
+        {
+            TierModels = new("configured-fast", ModelName.NotSet, ModelName.NotSet, ModelName.NotSet),
+            AvailableModels = _catalog
+        },
+        ModelTier.Balanced).Source.ShouldEqual(TierModelSource.Derived);
 
     [Fact]
     void should_resolve_the_unset_tier_from_the_catalog() =>

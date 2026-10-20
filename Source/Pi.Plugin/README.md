@@ -18,7 +18,11 @@ The `subagent` tool stands down for the session when another extension already
 provides a delegation tool named `Agent` (such as pi-subagents, which lists the
 same agents). It removes itself from the active tools at session start and
 shows one notice when Pi has a UI, so the model is not offered two delegation
-tools.
+tools. The package declares generated Pi-native agents through `pi.subagents.agents`
+for external loaders that support package resources. Their comma-separated `tools:`
+allowlists already use Pi names (`read`, `grep`, `find`, `bash`, `edit`, `write`),
+so neither loader needs to interpret Claude-style names. See
+[Agent adapters](https://github.com/Cratis/AI/blob/main/Documentation/agent-adapters.md) for regeneration and drift checks.
 
 The managed CLI path remains the choice when one repository must configure and
 synchronize several harnesses. It writes the resolved corpus to `.cratis/ai`,
@@ -28,6 +32,20 @@ and `.pi/extensions/cratis-path-guidance` extensions and does not require this p
 yields to the managed installation to avoid duplicate resources and hooks. The Pi
 package manages only Pi; it neither configures other harnesses nor owns a local
 managed corpus.
+
+## MCP servers from the corpus
+
+The packaged `cratis-mcp` extension starts every stdio server declared in
+`mcp-servers.json` whose `profiles` intersect the profiles listed explicitly in
+`.cratis/ai.json` (a profile reached only through another profile's `composes` does
+not start a server; Screenplay keeps its composed selection) (for
+example `codescene` for `cratis/codescene`, `playwright` for `cratis/playwright`).
+Each server gets its own connection, so one failing to start never stops the others,
+and its tools are namespaced by server id (`playwright_browser_navigate`). The
+`command`, `args` and optional literal `env` are used verbatim, without a shell. A
+malformed selected server is skipped with one notice; set
+`mcpServers.<id>.enabled` to `false` in `.cratis/ai.json` to opt a server out.
+`capabilities.json` beside the extension declares this behavior to the Cratis CLI.
 
 ## Screenplay MCP tools
 

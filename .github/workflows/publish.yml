@@ -24,9 +24,13 @@ on:
         default: No release notes
         type: string
 
+# Keep up to 100 pending Publish runs in FIFO order with `queue: max` (Cratis/Direct#1517).
+# The default single pending slot drops the older pending release when a third merge arrives.
+# PR refs and the Screenplay-sync group keep non-publishing runs out of the main release queue.
+# Omit `cancel-in-progress`: GitHub rejects it together with `queue: max`; in-flight runs are not cancelled.
 concurrency:
   group: ${{ github.workflow }}-${{ (github.event_name == 'repository_dispatch' || github.event_name == 'schedule') && 'screenplay-sync' || github.ref }}
-  cancel-in-progress: false
+  queue: max
 
 permissions:
   contents: read
@@ -259,22 +263,48 @@ jobs:
     outputs:
       publish: ${{ steps.release.outputs.should-publish }}
       version: ${{ steps.release.outputs.version }}
+      prerelease: ${{ steps.release.outputs.prerelease }}
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Determine release
         id: release
-        uses: cratis/release-action@f5fc6db6adbb4db6e6c4548cd7addfc924426e69 # v1.2.0
+        uses: cratis/release-action@31a6d28d6aa36d46970cb29f0d0260b360e81a69 # v1.4.2
         with:
           version: ${{ github.event.inputs.version }}
           release-notes: ${{ github.event.inputs.release-notes }}
+
+  # release-action creates the GitHub release in its post stage, after the release job's own
+  # steps have run, so the release can only be confirmed from a job that needs the release job.
+  # Nothing publishes unless the GitHub release for this version exists: the action can report a
+  # publish for an explicit version on a commit that already carries another release without
+  # creating one, and failing here keeps every publish job from running.
+  release-confirmed:
+    timeout-minutes: 5
+    name: Confirm the GitHub release
+    if: needs.release.outputs.publish == 'true'
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Verify the GitHub release exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          if ! gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY"; then
+            echo "::error::GitHub release v$VERSION does not exist in $GITHUB_REPOSITORY; refusing to publish."
+            exit 1
+          fi
 
   publish-pi:
     timeout-minutes: 30
     name: Publish Pi package
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -307,7 +337,7 @@ jobs:
     timeout-minutes: 30
     name: Publish Cratis.AI (NuGet)
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -344,7 +374,7 @@ jobs:
     timeout-minutes: 30
     name: Publish @cratis/ai (npm)
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -402,7 +432,7 @@ jobs:
     timeout-minutes: 60
     name: Publish agent-harness images (Docker Hub)
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -468,7 +498,7 @@ jobs:
     timeout-minutes: 60
     name: Publish Decision Engine image (Docker Hub)
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read

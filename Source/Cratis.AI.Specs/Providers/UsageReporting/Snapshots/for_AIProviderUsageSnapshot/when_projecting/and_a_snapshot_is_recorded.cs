@@ -14,8 +14,11 @@ public class and_a_snapshot_is_recorded : Specification
 
     void Establish() => _scenario = new();
 
+    // The old event must still replay into its existing projection.
+#pragma warning disable CS0618
     async Task Because() => await _scenario.Given.ForEventSource(_provider).Events(
         new AIProviderUsageSnapshotRecorded(AIUsageReportAvailability.Available, 42_000, UsedLocalBurnFallback: false));
+#pragma warning restore CS0618
 
     [Fact] void should_carry_the_availability() => _scenario.Instance.Availability.ShouldEqual(AIUsageReportAvailability.Available);
     [Fact] void should_carry_the_consumed_tokens() => _scenario.Instance.ConsumedTokens.ShouldEqual(42_000);

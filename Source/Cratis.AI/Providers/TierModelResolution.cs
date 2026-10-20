@@ -12,7 +12,8 @@ namespace Cratis.AI.Providers;
 /// </summary>
 /// <remarks>
 /// Pure so the whole question - "what does <see cref="ModelTier.Premier"/> mean on this provider?" -
-/// is directly specifiable. The configured mapping wins per tier; a tier it leaves unset is derived
+/// is directly specifiable. The configured mapping wins per tier only when the catalog does not
+/// contradict it; a tier it leaves unset is derived
 /// from the models the provider published, so a provider configured before tiers existed still
 /// dispatches somewhere, and a partially-mapped provider stays deliberate everywhere it was mapped.
 /// <para>
@@ -37,17 +38,48 @@ public static class TierModelResolution
     /// <param name="provider">The configured provider with its revealed credential.</param>
     /// <param name="tier">The tier being asked for.</param>
     /// <returns>The mapped or discovered model, a subscription CLI alias, or <see cref="ModelName.NotSet"/>.</returns>
-    public static ModelName Resolve(ConfiguredAIProvider provider, ModelTier tier)
+    public static ModelName Resolve(ConfiguredAIProvider provider, ModelTier tier) => Explain(provider, tier).Model;
+
+    /// <summary>
+    /// Explains the effective model without replacing an explicit mapping the catalog contradicts.
+    /// A recorded successful discovery is authoritative even when its catalog is empty or a later refresh failed.
+    /// </summary>
+    /// <param name="provider">The configured provider.</param>
+    /// <param name="tier">The tier being asked for.</param>
+    /// <returns>The resolution, including why a tier is borrowed or refused.</returns>
+    public static TierModelResolved Explain(ConfiguredAIProvider provider, ModelTier tier)
     {
-        var resolved = Resolve(provider.TierModels, provider.AvailableModels, tier);
-        if (!resolved.Equals(ModelName.NotSet))
+        var catalog = provider.AvailableModels.ToArray();
+        var mapped = provider.TierModels.For(tier);
+        if (!mapped.Equals(ModelName.NotSet))
         {
-            return resolved;
+            var hasSuccessfulDiscovery = provider.ModelsDiscoveredAt != default || catalog.Length > 0;
+            return hasSuccessfulDiscovery && !catalog.Contains(mapped)
+                ? new(
+                    tier,
+                    ModelName.NotSet,
+                    TierModelSource.Unsatisfied,
+                    $"{tier} is mapped to {mapped}, which AI provider {provider.Id} ({provider.Type}) did not list when its models were discovered at {provider.ModelsDiscoveredAt:O}.")
+                : new(tier, mapped, TierModelSource.Configured, string.Empty);
         }
 
-        return provider.Type == AIProviderType.Anthropic && AnthropicCredential.IsOAuthToken(provider.ApiKey)
+        var derived = TierModelAssignment.Explain(catalog, tier);
+        if (derived.Source != TierModelSource.Unsatisfied)
+        {
+            return derived;
+        }
+
+        var alias = provider.Type == AIProviderType.Anthropic && AnthropicCredential.IsOAuthToken(provider.ApiKey)
             ? ClaudeCodeModels.For(tier)
             : ModelName.NotSet;
+
+        return !alias.Equals(ModelName.NotSet)
+            ? new(tier, alias, TierModelSource.SubscriptionAlias, string.Empty)
+            : new(
+                tier,
+                ModelName.NotSet,
+                TierModelSource.Unsatisfied,
+                $"AI provider {provider.Id} ({provider.Type}) cannot satisfy {tier}: no mapping and no usable catalog model.");
     }
 
     /// <summary>
@@ -56,13 +88,14 @@ public static class TierModelResolution
     /// <param name="configured">The provider's own tier mapping - <see langword="null"/> or <see cref="TierModels.NotSet"/> when none was configured.</param>
     /// <param name="available">The models the provider published, that an unmapped tier is derived from.</param>
     /// <param name="tier">The tier being asked for.</param>
-    /// <returns>The concrete model, or <see cref="ModelName.NotSet"/> when neither the mapping nor the catalog yields one.</returns>
+    /// <returns>The concrete model, or <see cref="ModelName.NotSet"/> when the catalog contradicts the mapping or neither yields one.</returns>
     public static ModelName Resolve(TierModels? configured, IEnumerable<ModelName>? available, ModelTier tier)
     {
         var mapped = (configured ?? TierModels.NotSet).For(tier);
         if (!mapped.Equals(ModelName.NotSet))
         {
-            return mapped;
+            var catalog = available?.ToArray() ?? [];
+            return catalog.Length == 0 || catalog.Contains(mapped) ? mapped : ModelName.NotSet;
         }
 
         return TierModelAssignment.From(available).For(tier);

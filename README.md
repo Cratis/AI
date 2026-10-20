@@ -49,8 +49,12 @@ everything, or raise the budget with Claude Code's `skillListingBudgetFraction` 
 ## Native plugins
 
 Native plugins remain an independent single-harness choice. Claude Code, Codex,
-GitHub Copilot, and Cursor use the marketplace manifests in this repository. Pi
-uses the published package:
+GitHub Copilot, and Cursor use the marketplace manifests in this repository.
+`.cratis/ai/plugin.json` is the Copilot plugin manifest for listing the corpus as
+an external plugin (for example in github/awesome-copilot). Its `version` is a
+manifest version, not the release version: bump it together with the `version` in
+every marketplace manifest when the plugin's shape changes; verification fails
+when they differ. Pi uses the published package:
 
 ```bash
 pi install -l npm:@cratis/pi
@@ -167,6 +171,43 @@ adapters. A directory containing local instructions is preserved and refused
 unless `--force` is given. This repository tool is not the consumer CLI's
 manifest-aware installer; CLI versions that still link to `rules/` need to
 switch their Copilot integration to `harnesses/copilot/instructions/`.
+
+## Contribute instruction changes
+
+Review instruction files with the same care as code. Rules, skills, agents, hooks,
+prompts, MCP configuration and harness adapters influence what coding agents execute
+and are distributed to other repositories. Check package identities and ownership,
+registry/feed destinations and install scripts against the intended upstream source;
+do not treat an instruction's recommendation as permission to install it.
+[Package Hallucination Attacks on Coding Agents through Prompt Injection in Rule Files](https://arxiv.org/abs/2610.09264)
+shows how injected rules can redirect agents from legitimate dependencies to
+attacker-controlled packages.
+
+`.github/CODEOWNERS` routes corpus, adapter and distribution-manifest changes to
+`@Cratis/core`. It does not enforce approval: branch protection does not currently
+require code-owner review, and enabling that requirement is a maintainer decision.
+
+The normal corpus verifier also runs an advisory instruction-dependency comparison.
+It reuses evaluation coverage's Git-base selection (the immutable pull-request base
+or push-before SHA in CI; the merge base with `origin/main` locally), then compares
+the working tree against the merge base. Staged, unstaged and untracked unignored
+instruction files are included; unchanged existing lines, including renamed content,
+are not reported. Added lines containing package-manager install/add/dlx commands,
+npx/bunx/uvx invocations, uv installs, Docker runs, MCP launcher commands/arguments,
+`curl ... | sh`, registry/index/feed references, scoped package names, NuGet
+`PackageReference` declarations or dependency-map headers/entries produce file:line
+warnings. This includes examples in code blocks, even when only a dependency entry
+changes inside an existing block. It is a heuristic review aid, not a complete
+security scanner or a package allowlist.
+
+Run `yarn workspace @cratis/ai-verification run verify` locally. The existing
+**Verify corpus and skill behavior** step in `publish.yml` runs the same check and
+emits GitHub warning annotations. Legitimate installation examples need review,
+not suppression: findings never fail the build. Missing Git history or an
+unresolvable base is explicitly reported as **skipped**, not a passing comparison.
+Shallow CI checkouts attempt a bounded history fetch; unavailable comparisons also
+remain advisory. An unreadable instruction produces a per-file skip warning without
+preventing the remaining files from being scanned.
 
 ## Author skills
 
@@ -386,9 +427,11 @@ tooling pipeline.
 the corpus and packages, checks semantic release intent, uses
 `cratis/release-action` to calculate the version after merge, and publishes
 `@cratis/pi` when a release is requested by the merged pull request label.
-`.github/workflows/verify-release-notes.yml` is a thin caller of the
-organization release-notes check, which fails a release-bound pull request
-whose description would not publish as release notes.
+`.github/workflows/verify-pull-request-policy.yml` is a thin caller of the
+organization pull-request policy gate. It checks release intent and fails a
+release-bound pull request whose description would not publish as release
+notes. The local PR-body checker recognizes this caller as well as the legacy
+`verify-release-notes` and `verify-semver-label` callers.
 
 ## Acknowledgments
 
