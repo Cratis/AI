@@ -300,7 +300,7 @@ Requires Screenplay 4.200.0 or later (`screenplay --version`); 4.197.0 reads the
 | Code | Severity | Meaning / fix |
 | --- | --- | --- |
 | PLAY0788 | E | A `root template` / `new screens use template` line is malformed, or pins a version on an own template. |
-| PLAY0789 | E | A malformed or repeated `appearance` line, or a second `appearance` block. |
+| PLAY0789 | E | A malformed or repeated `identity` or `appearance` line, or a second `identity` or `appearance` block. |
 | PLAY0790 | E | The template is not declared (or the blueprint does not ship it). Declare it or take it from a blueprint. |
 | PLAY0791 | W | The profile selects its shell with the legacy `layout <Name>`. Write `root template <Name>`; the quick fix rewrites it (or removes the ignored line beside a `root template`). |
 | PLAY0792 | E | The blueprint is not in the profile's `packages` (or not installed). |
@@ -308,7 +308,7 @@ Requires Screenplay 4.200.0 or later (`screenplay --version`); 4.197.0 reads the
 | PLAY0794 | E | The root template cannot be the shell (not a layout or application-scope template, fits a slot, `scopes` without `application`). |
 | PLAY0795 | E | The root template has no `content` slot. |
 | PLAY0796 | W | An `option` the shell does not expose. |
-| PLAY0797 | E | Color scheme is not `light`, `dark` or `system`, or the accent is not a hex colour. |
+| PLAY0797 | E | Color scheme is not `light`, `dark` or `system`, the accent is not a hex colour, the corners are not `sharp`, `default` or `round`, or an `identity` value is outside Scene's rules (initials longer than 2, unknown icon, image that is not a PNG/JPG/SVG/WebP data URI of at most 400 KB). |
 | PLAY0798 | E | More than one `root template` in a profile. |
 | PLAY0799 | E | `new screens use template` cannot start a screen in a feature. |
 
