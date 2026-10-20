@@ -6,7 +6,7 @@
              AI-consolidation-plan.md risk #11 and Section 12.2. Do not rename without also fixing discovery. -->
         <AssemblyName>Cratis.AI</AssemblyName>
         <RootNamespace>Cratis.AI</RootNamespace>
-        <Description>Backend AI services for Cratis Direct and Cratis Studio, part of Cratis AI.</Description>
+        <Description>Backend AI services shared by Cratis Direct and Cratis Studio: providers, pools, tiers, concurrency, conversations, agents, worker scheduling and usage.</Description>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <!-- The proxy generator reflects over Cratis.AI.dll's dependency closure (Cratis.Chronicle,
