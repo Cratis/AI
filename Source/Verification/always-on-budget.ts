@@ -11,8 +11,9 @@ import { skillBody } from './skill-structure.ts';
  * A profile selection only removes profile-specific rules, so no selection loads more than these.
  * Exceeding one fails verification.
  * Raised by the 88-byte general.md routing row for discoverability.md (Claude Code and Pi count general.md twice).
+ * Raised for the new issue-filing.md rule and its local-work-artifacts.md/.instructions.md cross-references.
  */
-export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 116_604, copilot: 92_420, pi: 118_800, cursor: 23_078, 'codex-opencode': 22_785 };
+export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 117_832, copilot: 92_513, pi: 120_028, cursor: 23_078, 'codex-opencode': 22_785 };
 
 const remedy = 'Displace or demote text to an on-demand skill, or raise the budget in Source/Verification/always-on-budget.ts in a reviewed change.';
 

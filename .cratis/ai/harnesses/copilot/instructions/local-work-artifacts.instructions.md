@@ -18,9 +18,8 @@ dumps, and similar coordination files. These are **work records, not documentati
   tracking in a dedicated commit.
 - A genuine follow-up that must survive the session is **not** a work record — suggest
   opening a GitHub issue for it (or open one when asked) so future work is tracked
-  where everyone can see it, instead of leaving a planning file behind. Follow the
-  format in [`issue-filing.md`](../../../rules/issue-filing.md) — every filed issue should include a
-  `## Acceptance criteria` section with concrete, testable bullets.
+  where everyone can see it, instead of leaving a planning file behind. Use the
+  acceptance-criteria format in [`issue-filing.md`](../../../rules/issue-filing.md).
 - Knowledge that must outlive the session (real documentation, ADRs, operator
   guides) is written deliberately into the repository's documentation structure
   through normal review — not left behind as a work record.
