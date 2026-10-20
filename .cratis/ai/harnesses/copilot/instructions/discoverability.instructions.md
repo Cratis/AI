@@ -30,5 +30,12 @@ Readability comes first. If a change for search engines or AI assistants makes a
 
 - Public pages need a canonical link, one `<h1>`, Open Graph tags, valid JSON-LD that describes visible content, a sitemap entry and a `robots.txt` that allows crawling. Add no new `HowTo` or `FAQPage` markup; keep the visible Q&A.
 - `llms.txt` is an optional index. Never claim it improves ranking. See **cratis-llm-friendly-documentation**.
-- Package metadata (`Description`, `PackageProjectUrl`, `PackageTags`, npm `description`, `homepage`, `keywords`) and the README opener use the same definition sentence, and the project URL points at the docs page `https://www.cratis.io/<product>/`.
+- Package metadata uses `Cratis` for Authors and Company. Metadata (`Description`, `PackageProjectUrl`, `PackageTags`, npm `description`, `homepage`, `keywords`) and the README opener use the same definition sentence, and the project URL points at the docs page `https://www.cratis.io/<product>/`.
 - State only facts the repository supports: versions, licenses, limits. The claim gate in `BRAND.md`, `MESSAGING.md` and `SITE.md` still applies.
+
+## Facts and publication guardrails
+
+- Each entity page has one sourced "at a glance" block: verifiable facts only, dated counts; never invent customers, user counts, benchmarks, certifications, prices or competitor comparisons.
+- Adoption claims count downloads per product through entry packages only, including predecessor names for a continuation; no sub-package sums or shared-dependency double counting. Round down to a stated threshold, name the month and registries, never say "users" or "customers".
+- Keep description and duplicate-title lint baselines at 0; never raise a baseline to pass. Preserve product names in rendered titles and enforce the site's `llms.txt` / `llms-small.txt` byte budgets.
+- Structured data uses only public, owner-approved founder/company facts. Community member profiles are `noindex`, with no personal data or `Person` entities in markup; this overrides the public-page indexing default above. Keep shared guidance generic: no private/unannounced integration names, legal entity details or factual counts.

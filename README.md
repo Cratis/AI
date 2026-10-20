@@ -209,6 +209,24 @@ Shallow CI checkouts attempt a bounded history fetch; unavailable comparisons al
 remain advisory. An unreadable instruction produces a per-file skip warning without
 preventing the remaining files from being scanned.
 
+### Maintain discoverability guidance
+
+Keep the discoverability invariants in `.cratis/ai/rules/discoverability.md` within
+40 lines; put procedures and checklists in
+`.cratis/ai/skills/cratis-discoverability/` and link each reference from `SKILL.md`.
+Fact blocks need sources and dated counts. Adoption claims count product entry
+packages and continuation predecessors, not sub-packages or shared dependencies;
+round down and name the month and registries, never users or customers. Keep the
+shared examples generic: no private integration names, legal entity details or
+factual counts. Only public, owner-approved founder/company facts belong in
+structured data; community member profiles stay `noindex` without personal markup.
+
+Update the skill's `verification.json` assertions and its trigger/output cases in
+`Evaluations/skills/cratis-discoverability/` together. Regenerate harness adapters
+with the setup command above, then run `yarn workspace @cratis/harness-setup run check`
+and `yarn workspace @cratis/ai-verification run verify`. Report model-based trigger
+and output evaluations separately; fixture coverage is not a model behavior result.
+
 ## Author skills
 
 Skills follow the [Agent Skills specification](https://agentskills.io/specification) and

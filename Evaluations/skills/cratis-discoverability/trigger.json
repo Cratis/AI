@@ -6,11 +6,11 @@
       "shouldTrigger": true
     },
     {
-      "query": "Is the title and meta description of this docs page good for SEO? The title is 82 characters.",
+      "query": "Check our docs SEO: missing-description and duplicate-title baselines are 0, but the title drops the product name and llms.txt/llms-small.txt exceed their byte budgets. What should change before publishing?",
       "shouldTrigger": true
     },
     {
-      "query": "Write the NuGet description and PackageProjectUrl for our new Chronicle integration library so it can be found.",
+      "query": "Align package/repo metadata: Authors, Company, NuGet project URL, npm homepage, GitHub About topics, Docker Hub descriptions, analyzer helpLinkUri, template messages and README footer docs links.",
       "shouldTrigger": true
     },
     {
@@ -22,11 +22,19 @@
       "shouldTrigger": true
     },
     {
-      "query": "Which JSON-LD types should a docs tutorial and a blog post get, and should I add FAQPage markup?",
+      "query": "Which JSON-LD types should a docs tutorial and a blog post get? May approved public founders be Person nodes, and should community member profiles be noindex without personal structured data?",
       "shouldTrigger": true
     },
     {
       "query": "Make this concept page easier for AI assistants to quote. It opens with a long story before it says what the feature is.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Add one sourced at-a-glance fact block to each entity page, with dated counts and no invented customers, benchmarks, certifications, prices or competitor claims.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review a product download claim across entry packages and predecessor names: exclude sub-packages, round down and state the month and registries without calling downloads users.",
       "shouldTrigger": true
     },
     {
