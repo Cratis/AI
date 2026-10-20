@@ -79,7 +79,7 @@ public static class TierModelResolution
                 tier,
                 ModelName.NotSet,
                 TierModelSource.Unsatisfied,
-                $"AI provider {provider.Id} ({provider.Type}) cannot satisfy {tier}: no mapping and no usable catalog model.");
+                $"AI provider {provider.Id} ({provider.Type}) cannot satisfy {tier}: {UnsatisfiedReason(provider, tier, catalog.Length)}");
     }
 
     /// <summary>
@@ -99,5 +99,17 @@ public static class TierModelResolution
         }
 
         return TierModelAssignment.From(available).For(tier);
+    }
+
+    static string UnsatisfiedReason(ConfiguredAIProvider provider, ModelTier tier, int modelCount)
+    {
+        if (!string.IsNullOrEmpty(provider.ModelDiscoveryFailure))
+        {
+            return $"model discovery failed at {provider.ModelDiscoveryFailedAt:O}: {provider.ModelDiscoveryFailure}. Check the provider's API key and endpoint.";
+        }
+
+        return provider.ModelsDiscoveredAt == default
+            ? "its models have never been discovered. Refresh the provider's models, and check its API key if that fails."
+            : $"model discovery at {provider.ModelsDiscoveredAt:O} found {modelCount} models and none can serve {tier}. Map a model for {tier} in the provider's tier settings.";
     }
 }

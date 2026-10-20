@@ -205,4 +205,10 @@ public record ConfiguredAIProvider(
     [SetValue<AIProviderModelsDiscovered>("")]
     [SetFrom<AIProviderModelDiscoveryFailed>(nameof(AIProviderModelDiscoveryFailed.Reason))]
     public string ModelDiscoveryFailure { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets when the last catalog read failed; only meaningful while <see cref="ModelDiscoveryFailure"/> is set.
+    /// </summary>
+    [SetFrom<AIProviderModelDiscoveryFailed>(nameof(AIProviderModelDiscoveryFailed.AttemptedAt))]
+    public DateTimeOffset ModelDiscoveryFailedAt { get; init; }
 }
