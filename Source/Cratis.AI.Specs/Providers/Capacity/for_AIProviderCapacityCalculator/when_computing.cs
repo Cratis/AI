@@ -42,6 +42,12 @@ public class when_computing : Specification
         Compute(AIProviderCapacitySource.Subscription, [new(UsageWindowKind.FiveHour, "5-hour", 1, _fiveHourReset), new(UsageWindowKind.Weekly, "Weekly", 1, _weeklyReset)])
             .AvailableAgainAt.ShouldEqual(_weeklyReset);
 
+    [Fact] void should_count_a_window_that_has_since_reset_as_unused() =>
+        Compute(AIProviderCapacitySource.Subscription, [new(UsageWindowKind.FiveHour, "5-hour", 1, _now.AddMinutes(-1))]).CanStartWork.ShouldBeTrue();
+
+    [Fact] void should_still_hold_a_window_that_has_not_yet_reset_against_the_provider() =>
+        Compute(AIProviderCapacitySource.Subscription, [new(UsageWindowKind.FiveHour, "5-hour", 1, _now.AddMinutes(1))]).CanStartWork.ShouldBeFalse();
+
     [Fact] void should_give_a_configured_ceiling_its_remaining_share() =>
         Compute(AIProviderCapacitySource.ConfiguredCeiling, [new(UsageWindowKind.Other, "Configured capacity", 0.75, null)]).Headroom.ShouldEqual(0.25);
 

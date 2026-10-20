@@ -131,6 +131,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | C# / TypeScript style and code-quality principles | `csharp.md`, `typescript.md`, `code-quality.md`, `code-quality.csharp.md`, `code-quality.typescript.md` |
 | Kotlin / Java / Elixir style; Orleans grains; reactors; GitHub Actions workflows | `kotlin.md`, `java.md`, `elixir.md`, `orleans.md`, `reactors.md`, `github-actions.md` |
 | Documentation pages (`Documentation/`): structure, voice, examples, editing | `documentation.md`, `documentation-structure-and-formatting.md`, `writing-cratis-docs.md`, `editing-cratis-docs.md`, `writing-correct-examples.md` |
+| Findability of published pages, READMEs and package metadata | `discoverability.md` |
 | Go style, source and module files | `go.md`; framework contributors also read `go-engineering.md`; product APIs use `cratis-chronicle-client-go`, `cratis-arc-go` and `cratis-fundamentals-concept-go` |
 | Service lifetimes — why anything taking a scoped dependency is scoped or transient, never a singleton | `csharp.md` |
 | React + Arc + Cratis Components + MVVM + dialogs | `react.md`, `components.md`, `dialogs.md` |

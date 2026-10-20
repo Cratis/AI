@@ -330,8 +330,9 @@ module Berths
 - A query's `by` goes on its own body line. Optional keyed and collection queries
   bind, including observable delivery. Caller-supplied equality filters on collections
   bind as ESM v14; `by` ANDs with supplied filters. `from`, single-result
-  filters, scope, performer and a `by` block on a list query remain PLAY0268 for their
-  respective context/cardinality/opaque/multipart gaps. A composite-keyed optional
+  filters, scope and a `by` block on a list query remain PLAY0268 for their
+  respective context/cardinality/opaque/multipart gaps. A `performer` query is an opaque read left
+  out of the executable model, not PLAY0268 ([version gate](../../cratis-screenplay-toolchain/references/executable-subset.md#code-attachments-what-binds-what-never-does)). A composite-keyed optional
   single-instance query takes a `by` block naming every part (ESM v27). Read read-surface
   [equality filters](../../cratis-screenplay-read-surface/references/equality-filters.md).
 

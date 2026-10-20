@@ -13,4 +13,8 @@ Rules for stream-id literals, composite ids and the reserved `All` stream name.
   PLAY0273 as a backstop. Streams `all`, `ALL` and `Default`
   remain valid. Rename via `propose-rename`; a pin retaining `All` cannot fix it.
   Existing `All` history reads as source-only appends, not the renamed stream.
+  Rename a composite part with `propose-rename` too: it rewrites the part and every
+  `part = ...` mapping together and refuses a name that collides with another part;
+  never hand-write a `propose-ast` batch for it (needs a server that supports part
+  renames, see model-authoring `references/mcp-tools.md`).
   Source evidence and migration limits are in that reference.

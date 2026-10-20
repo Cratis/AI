@@ -10,8 +10,9 @@ import { skillBody } from './skill-structure.ts';
  * Ceilings for the rule bytes each harness loads at session start, measured over every rule in the corpus.
  * A profile selection only removes profile-specific rules, so no selection loads more than these.
  * Exceeding one fails verification.
+ * Raised by the 88-byte general.md routing row for discoverability.md (Claude Code and Pi count general.md twice).
  */
-export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 116_428, copilot: 92_332, pi: 118_624, cursor: 22_990, 'codex-opencode': 22_697 };
+export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 116_604, copilot: 92_420, pi: 118_800, cursor: 23_078, 'codex-opencode': 22_785 };
 
 const remedy = 'Displace or demote text to an on-demand skill, or raise the budget in Source/Verification/always-on-budget.ts in a reviewed change.';
 

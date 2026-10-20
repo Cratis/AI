@@ -65,7 +65,7 @@ superseded statement needs context; exceptions do not change the contract.
 | | Standalone `screenplay` | `cratis screenplay ...` |
 | --- | --- | --- |
 | Check root | `screenplay <root> --warnaserror --no-color` | `cratis screenplay validate <root> --warnings-as-errors -o json-compact` |
-| Scope/checks | `--scope <address>`, `--check <names>`; a scoped pass is not whole-application success | `validate --executable` (bundled binder, no write), `--check <names>`, `--scope`; `render --scope`/`--check`; `cratis screenplay conform` |
+| Scope/checks | `--scope <address>`, `--check <names>`; a scoped pass is not whole-application success | `validate --executable` (bundled binder, no write), `--check <names>`, `--scope`; `render --scope`/`--check`; `cratis screenplay conform`, `cratis screenplay conform-namespace` |
 | Declared gate | `screenplay <root> --print-gate`, `--format json`, `--no-gate-file` | `validate <root> --print-gate`, `--no-gate-file`; the same `screenplay.json` |
 | Reference execution | `screenplay test <root>` or MCP `run-specifications` | Discover bundled MCP capability; target tests are not V4 |
 | MCP | `screenplay mcp <root>`; discover schemas | `cratis screenplay mcp [root]`; registered by `cratis ai install` |
@@ -96,6 +96,8 @@ for MCP initialization, source identity and reporting. Without MCP, report
 version, source identity and any blocking codes; MCP `modelRevision` is semantic,
 not the source identity.
 
+Read [observation comparison](references/observation-comparison.md) when asking whether a running namespace holds what the model declares, or when reading a `conform-namespace` verdict. It differs from model comparison (model versus model) and `conform` (model versus code).
+
 ## Subsets (write from the one your mode needs)
 
 - **Design**: every construct family parses; use it to model first. Compiled shapes:
@@ -103,7 +105,7 @@ not the source identity.
 - **Executable** (binds, V3): `references/executable-subset.md`. Optional keyed lookups, unfiltered
   lists and lists narrowed by one `by` key (observable too) bind; caller-supplied equality
   filters on collections bind as ESM v14. Context `from`, single-result
-  filters, opaque `scoped to`/`performer` and a `by` block on a list query remain PLAY0268. Read
+  filters, opaque `scoped to` and a `by` block on a list query remain PLAY0268; a `performer` query is an opaque read left out of the executable model (PLAY0270; [version gate](references/executable-subset.md#code-attachments-what-binds-what-never-does)). Read
   read-surface [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md).
   Pending handlers beside unconditional productions bind as described commands (v23),
   but reached bodies are Unsupported; attached file/inline handlers refuse PLAY0800

@@ -8,6 +8,7 @@
 - Explicit enum member numbers
 - Reserved stored names and event pins
 - Named keys, production routes and observer filters
+- Ambiguous match patterns (PLAY0803)
 - Projection event scope (PLAY0801)
 - Reducer instance identity (PLAY0690)
 - Caller identity, compliance and routes
@@ -148,6 +149,14 @@ list-query `by` blocks over a composite-keyed view are PLAY0268.
 Overrides/filters select released ESM v10; malformed routes also use PLAY0504.
 Read read-surface `references/named-keys.md` and
 [production routes and filters](production-routes-and-filters.md).
+
+## Ambiguous match patterns (PLAY0803)
+
+Requires Screenplay 4.218.2 (`screenplay --version`); older compilers do not report it.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0803 | W | `AmbiguousMatchPattern`: a `matches` pattern in the portable dialect, such as `(a+)+$`, `(a\|a)*` or `(a*)*`, can backtrack exponentially in a browser engine. Reported by both compilers and editors with the ambiguous subexpression; very large patterns are not analyzed. Rewrite it unambiguously (`a+`, `[ab]*`); see command-surface `text-and-match-rules.md`. |
 
 ## Projection event scope (PLAY0801)
 

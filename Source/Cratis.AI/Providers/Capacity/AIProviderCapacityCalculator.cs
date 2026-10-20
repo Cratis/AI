@@ -26,7 +26,7 @@ public static class AIProviderCapacityCalculator
     /// When a provider cannot start work because windows are exhausted, it is available again only
     /// once <i>every</i> exhausted window has reset - a five-hour window rolling over does not help
     /// while the weekly one is still spent - so <see cref="AIProviderCapacity.AvailableAgainAt"/> is the latest of their
-    /// resets, not the earliest.
+    /// resets, not the earliest. A window whose reset has passed counts as unused.
     /// </remarks>
     public static AIProviderCapacity Compute(
         AIProviderId provider,
@@ -38,6 +38,10 @@ public static class AIProviderCapacityCalculator
         DateTimeOffset now,
         double minimumHeadroom)
     {
+        // A window that has rolled over since it was read holds nothing against the provider any more: the
+        // reading is stale, not the allowance spent - waiting on it would keep a provider parked for hours
+        // after the vendor let it work again.
+        windows = [.. windows.Select(window => window.ResetsAt is { } resets && resets <= now ? window with { UsedFraction = 0d } : window)];
         var headroom = windows.Count == 0 ? 1d : windows.Min(window => window.Remaining);
         var exhaustedReset = windows
             .Where(window => window.UsedFraction >= 1 - minimumHeadroom && window.ResetsAt is not null)

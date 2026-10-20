@@ -22,4 +22,24 @@ public enum ClaudeCodeFailureKind
     /// The vendor rejected a model API request.
     /// </summary>
     ModelRequest,
+
+    /// <summary>
+    /// The vendor did not accept the subscription token: it is invalid, expired or revoked (HTTP 401/403).
+    /// </summary>
+    Authentication,
+
+    /// <summary>
+    /// The vendor refused the request because the account has no credit or the plan does not cover the use (HTTP 402).
+    /// </summary>
+    Billing,
+
+    /// <summary>
+    /// The vendor rejected the request itself - typically a model the account cannot use (HTTP 400/404).
+    /// </summary>
+    InvalidRequest,
+
+    /// <summary>
+    /// The vendor failed on its side (HTTP 5xx, overloaded); trying again or another provider may work.
+    /// </summary>
+    ServerError,
 }

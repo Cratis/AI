@@ -238,7 +238,10 @@ For command specifications:
 - [ ] `given caller` is present whenever the command is authorized, with a
       `then denied` case for a caller who must be refused.
 - [ ] `then` contains **either** events **or** an error, never both.
-- [ ] A collision between two event sources uses `for` on the `given` event.
+- [ ] A collision between two event sources uses `for` on the `given` event. A `given` without
+      `for` belongs to the event source the specification acts on; state `for` when the command
+      appends to several event sources or an assertion depends on it (see
+      [examples and routes](references/examples-and-routes.md#givens-without-an-event-source)).
 - [ ] Error cases test business rules; each concept rule has one rejection
       specification through one command, not one per use.
 - [ ] A localized rejection is pinned by its quoted `$strings` key.
@@ -248,7 +251,8 @@ For command specifications:
 For view specifications:
 
 - [ ] A view a `performer` composes is specified with `given readmodel`,
-      `when query` and `then result` or `then no result`.
+      `when query` and `then result` or `then no result`; the reference runner leaves such a
+      spec out (`PLAY0270` information), so it is design intent, not executed proof.
 - [ ] `given readmodel` is a complete instance with its identifier.
 - [ ] `then readmodel` states the identifier and the properties that matter; add
       `exactly` only when extra properties must fail the assertion.
