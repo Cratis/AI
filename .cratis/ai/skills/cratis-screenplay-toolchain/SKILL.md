@@ -218,6 +218,8 @@ unresolved questions: the standalone tool has `--open-questions fail`; `cratis s
 does through `--open-questions report|fail`. It is separate from compilation and `--warnaserror`.
 Requires Cratis CLI 3.60.0 or later (`cratis --version`) for that option; older CLIs lack it.
 
+Read [fast path](references/fast-path.md) for the ordered requirements-to-running-app checklist (validate, `render --check`, render, build, run).
+
 ## Route near misses
 
 Read [references/neighbouring-skills.md](references/neighbouring-skills.md) when the work is modeling phases, MCP editing, construct depth, rendering or running systems.

@@ -1,5 +1,12 @@
 # Constraints, produces mappings and concurrency
 
+## Contents
+
+- `constraint` — uniqueness at append time
+- Refuse a command on an unknown id
+- `concurrency`
+- `produces`
+
 This reference holds the detailed forms for append-time `constraint` uniqueness, `produces` mapping sources and conditions, and the `concurrency` block.
 
 ## `constraint` — uniqueness at append time
@@ -38,6 +45,48 @@ hand-written Chronicle `IConstraint`, which can only declare uniqueness; it warn
 belongs in `validate`/`require`. Use a constraint when two concurrent appends must
 not both win — a `validate` rule cannot do that. Stage renders only single-text-property and
 `unique event` constraints (`STAGE-ESM-014`; `cratis-stage-rendering-and-sandbox` `references/admission.md`).
+
+## Refuse a command on an unknown id
+
+Without a guard, a command naming an id that has no state is accepted and appends its event. Guard
+existence with a protected read: after authorization and property rules, and before any `require`
+or mapping runs, it rejects with `<ReadModel> '<key>' does not exist.` The preamble goes in the root document, the read model's key property is
+named `id` (`STAGE-ESM-044` otherwise, found by `cratis render --check`), and the view needs a
+`remove with` event. Complete model; it validates with `--executable`, renders with `--check`,
+and the specification passes in `screenplay test`:
+
+```screenplay
+domain Tasks
+command reads protected
+module Work
+  feature Closing
+    slice StateView TaskStatus
+      event TaskOpened
+        title String
+      event TaskDeleted
+      readmodel Task
+        id String key
+        title String
+      projection TaskProjection => Task
+        from TaskOpened
+        remove with TaskDeleted
+    slice StateChange CloseTask
+      event TaskClosed
+        reason String
+      command CloseTask
+        taskId String identifier
+        reads Task by taskId
+        produces TaskClosed
+          for taskId
+          reason = "done"
+      specification ClosingAnUnknownTask
+        when CloseTask
+          taskId = "missing"
+        then error "Task 'missing' does not exist."
+```
+
+Admission, races and refused read shapes: [protected reads](protected-reads.md). A `validate` rule or a
+screen guard cannot check existence, and a `unique` constraint only guards duplicates.
 
 ## `concurrency`
 

@@ -2,6 +2,7 @@
 
 ## Contents
 
+- Probe before the first real render
 - How a refusal arrives
 - Event-reaction boundary
 - Recovery, stored identity and baseline boundaries
@@ -56,6 +57,13 @@ Requires Stage 4.137.0 for v27 admission; older Stage refuses v27 with STAGE-ESM
 Binding with the CLI's bundled compiler is a separate
 prerequisite. The exhaustive construct table is `references/renderable-subset.md` in
 `cratis-screenplay-toolchain`; run the real render before claiming anything is admitted.
+
+## Probe before the first real render
+
+`cratis screenplay validate --executable` binds the model but does not run Stage admission, so a
+renderer refusal such as `STAGE-ESM-005` (Cratis events have no optional properties) passes it.
+Run `cratis render <root> --target cratis --name <App> --destination <dir> --check` right after validate:
+it runs the same admission, collects every refusal and writes nothing.
 
 ## How a refusal arrives
 

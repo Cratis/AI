@@ -27,6 +27,17 @@ selection is:
    candidates and requires exactly one. An admitted list query here is a collection
    query without context-derived `by`, filters or scope.
 
+Two `*Id` properties (`orderId`, `customerId`) with only a list query are ambiguous
+(PLAY0268). Add one keyed query, whose `by` names the identity:
+
+```screenplay excerpt
+readmodel Order
+  orderId String
+  customerId String
+query OrderById => Order optional
+  by orderId String
+```
+
 A projection-only/queryless read model needs an explicit `key`: a lone `*Id`
 property alone does not infer identity. Never use the command's `identifier`
 modifier on a read model.
