@@ -226,7 +226,7 @@ module Sales
 
 Read [references/application-shell.md](references/application-shell.md) before writing any of it: the inherit/extend/override
 choice, item target and slot, the module-only target rule (`PLAY0750`), buttons, feature and module toolbars (`toolbar` in a
-`feature` or `module`, `confirm`, `PLAY0808`), blueprint ranges, sample data, MCP editing
+`feature` or `module`, `confirm`), blueprint ranges, sample data, MCP editing
 and the review checklist. `contribute to Navigation` stays the flat contribution; a new application uses regions.
 
 ## Interactions — what a click does
