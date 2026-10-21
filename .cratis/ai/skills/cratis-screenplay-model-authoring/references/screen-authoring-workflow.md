@@ -170,6 +170,15 @@ open, read, propose, review, apply, reopen loop; the syntax and rules are in
 5. Switching a module from inherit to override copies the application's items; retarget each copy to the module's own
    features first or the proposal is refused.
 
+### Feature and module toolbars
+
+A feature (or module) toolbar is a `ScreenToolbarSyntax` in the `toolbars` member of its `FeatureSyntax` (or `ModuleSyntax`);
+`syntax-schema` for `FeatureSyntax` lists `toolbars`. `add` a `ScreenToolbarSyntax` with `name`, `items` and `buttons` to the
+feature, and `replace` a `ToolbarButtonSyntax` or `ToolbarItemSyntax` to set its `confirm` text; `remove` takes a button away.
+Read the proposal's diagnostics: `PLAY0808` says an `item ... action` names a command no slice of that feature (or module)
+declares. The syntax, the `confirm` rule and when to prefer the feature toolbar are in `cratis-screenplay-ui-composition`
+(`references/application-shell.md`, "Feature and module toolbars"; Screenplay 4.238.0 or later).
+
 ### The profile's shell
 
 `ui-profiles` (Screenplay 4.201.0 or later) reads each `ui profile`'s root template, shell options, appearance, new screens default and
