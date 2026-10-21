@@ -25,7 +25,7 @@ a seed is not a portable fixture.
 
 ## When not to
 
-A fixture still states every property, optional ones included (PLAY0524); a generated value does not excuse an omitted field.
+A fixture still states every command and event property with a concrete value, optional ones included (PLAY0524); a generated value does not excuse an omitted field.
 
 Pins do not prove randomness, authorization, idempotency, storage freshness or
 secret safety. Client-minted IDs stay inputs; gapless invoice numbering needs an

@@ -37,7 +37,7 @@ Read [source notes](references/source-notes.md) for the retained inline-fact and
 ## State every property
 
 A `when` command and each `then` event list **every** property, including `optional`
-ones; omitting one is PLAY0524. Only a read-model property may be `null` (PLAY0350).
+ones, with a concrete value; omitting one is PLAY0524. Only a read-model property may be `null` (PLAY0350).
 This model fails with PLAY0524 on both `when` and `then` until `note = "none"` is added:
 
 ```screenplay excerpt

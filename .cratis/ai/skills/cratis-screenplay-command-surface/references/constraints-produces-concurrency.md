@@ -49,8 +49,8 @@ not both win — a `validate` rule cannot do that. Stage renders only single-tex
 ## Refuse a command on an unknown id
 
 Without a guard, a command naming an id that has no state is accepted and appends its event. Guard
-existence with a protected read: it rejects with `<ReadModel> '<key>' does not exist.` before any
-rule or mapping runs. The preamble goes in the root document, the read model's key property is
+existence with a protected read: after authorization and property rules, and before any `require`
+or mapping runs, it rejects with `<ReadModel> '<key>' does not exist.` The preamble goes in the root document, the read model's key property is
 named `id` (`STAGE-ESM-044` otherwise, found by `cratis render --check`), and the view needs a
 `remove with` event. Complete model; it validates with `--executable`, renders with `--check`,
 and the specification passes in `screenplay test`:
