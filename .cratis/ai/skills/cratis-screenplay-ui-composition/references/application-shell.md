@@ -2,6 +2,7 @@
 
 ## Contents
 
+- Default shell
 - One complete shell
 - Navigation regions: inherit, extend or override
 - Toolbar buttons that invoke a State Change slice
@@ -19,6 +20,12 @@ older compiler answers `PLAY0001`, `PLAY0022` or `PLAY0103` for the lines below;
 Every construct here is authoring syntax. The executable model defers it (`PLAY0269`), Stage plans it from the syntax
 tree, and none of it changes a backend. The Scene designer, the Stage runtime and Studio read the same lines, so the
 Screenplay is the one place to write them.
+
+## Default shell
+
+Requires Stage 4.189.3 or later (the CLI that bundles it) for a rendered frontend to get a default application shell without a
+`layout` or `ui profile`. Declare a `layout` and a `ui profile` only to customize that shell
+(navigation, logo, templates, sample data), as below.
 
 ## One complete shell
 

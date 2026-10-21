@@ -1,5 +1,13 @@
 # Validation rule forms
 
+## Contents
+
+- Rule vocabulary
+- `require` message
+- Date and DateTime comparisons
+- `not empty` means non-blank text
+- Rules whose logic is code
+
 ## Rule vocabulary
 
 | Rule | Example |
@@ -23,6 +31,16 @@ Requires Screenplay 4.172.0 or later (`screenplay --version`) for checksum rules
 modifier generates check digits but does not add validation. Check digits catch
 typos, not forgery. For generated-concept proof statuses, deterministic regex
 limits and PLAY0688 repairs, read [generated rules](generated-values-and-responses.md#generated-concept-rules-esm-v20).
+
+## `require` message
+
+The `message` of a whole-command `require` goes on the next, indented line, not on the `require` line:
+
+```screenplay excerpt
+validate
+  require to >= from
+    message "The end must not be before the start"
+```
 
 ## Date and DateTime comparisons
 

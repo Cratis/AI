@@ -3,6 +3,7 @@
 ## Contents
 
 - Scaffold
+- Lists on screen
 - Reducer layout for new applications
 - What is managed
 - `Customizations/` (unmanaged)
@@ -49,6 +50,13 @@ Hand-written scope that needs a newer dependency can raise its version through
 is off), but any override must be proven with a restore and build. The compose file binds local ports `27017` and
 `35000`, keeps data in the named volumes `chronicle-data` and `chronicle-config`, and
 `docker compose down --volumes` is the only thing that deletes them.
+
+## Lists on screen
+
+A `data <ReadModel>[] via query <Query>` list renders from either list-query mode, but
+`observable` renders `Observe<T>()` and a first-result wait, while a snapshot renders a one-shot
+`GetInstances<T>()`. Declare `query <Name> => observable <ReadModel>[]` for any list a person watches change.
+Run `cratis render --check` first (`references/admission.md`) to catch refusals before a real render.
 
 ## Reducer layout for new applications
 

@@ -34,6 +34,24 @@ Requires Screenplay 4.145.0 or later (`screenplay --version`) for `run-specifica
 
 Read [source notes](references/source-notes.md) for the retained inline-fact and action-syntax evidence; run the changed examples at the standalone pin.
 
+## State every property
+
+A `when` command and each `then` event list **every** property, including `optional`
+ones; omitting one is PLAY0524. Only a read-model property may be `null` (PLAY0350).
+This model fails with PLAY0524 on both `when` and `then` until `note = "none"` is added:
+
+```screenplay excerpt
+event TaskOpened
+  note String optional
+specification Opening
+  when OpenTask
+    taskId = "t1"
+    title = "Write"
+  then TaskOpened
+    for "t1"
+    title = "Write"
+```
+
 ## Reference execution — what actually runs
 
 Screenplay's reference runner executes specifications against an immutable
