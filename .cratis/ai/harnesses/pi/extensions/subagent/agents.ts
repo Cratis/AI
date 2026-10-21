@@ -6,7 +6,10 @@
  * files use Claude/Copilot tool names such as `Read`/`Glob`/`Bash`; generated files use
  * Pi's lowercase names. This loader also normalizes canonical, user and legacy files
  * with the same tool-name map used by generation. Agents without a `model:` inherit
- * the dispatching session's model.
+ * the dispatching session's model, but a user or project agent may pin a bare vendor
+ * model id (`claude-opus-5`), which Pi treats as ambiguous the moment more than one
+ * authenticated provider serves that id. This module qualifies a bare id with its
+ * provider (`anthropic/claude-opus-5`) wherever the pin came from.
  */
 
 import * as fs from "node:fs";
@@ -48,6 +51,31 @@ type AgentFrontmatter = {
 	tools?: unknown;
 	model?: unknown;
 };
+
+/**
+ * Provider prefixes for the bare model ids an agent may pin. A bare id that matches no
+ * prefix is passed through untouched so a deliberately exotic pin keeps working.
+ */
+const PROVIDER_BY_MODEL_PREFIX: Array<[prefix: string, provider: string]> = [
+	["claude-", "anthropic"],
+];
+
+/**
+ * Qualify a bare frontmatter `model` id with its provider (`claude-x` → `anthropic/claude-x`).
+ *
+ * An already-qualified id (contains `/`) is returned unchanged, as is a bare id whose vendor
+ * this table does not know. Pi resolves a bare id only while exactly one authenticated provider
+ * serves it — the moment a second provider offers the same model, every launch fails with an
+ * ambiguity error, which is why a pinned id must always dispatch qualified.
+ */
+export function normalizeModel(value: unknown): string | undefined {
+	if (typeof value !== "string") return undefined;
+	const model = value.trim();
+	if (!model) return undefined;
+	if (model.includes("/")) return model;
+	const provider = PROVIDER_BY_MODEL_PREFIX.find(([prefix]) => model.startsWith(prefix))?.[1];
+	return provider ? `${provider}/${model}` : model;
+}
 
 /**
  * The launch error for an agent whose declared tools resolve to nothing, or `undefined` when the
@@ -95,7 +123,7 @@ function loadAgentsFromDir(dir: string, source: "package" | "user" | "project"):
 			description: frontmatter.description,
 			tools: normalizeTools(frontmatter.tools),
 			toolsError: toolsErrorFor(frontmatter.name, frontmatter.tools),
-			model: typeof frontmatter.model === "string" ? frontmatter.model.trim() : undefined,
+			model: normalizeModel(frontmatter.model),
 			systemPrompt: body,
 			source,
 			filePath,
