@@ -225,7 +225,8 @@ module Sales
 ```
 
 Read [references/application-shell.md](references/application-shell.md) before writing any of it: the inherit/extend/override
-choice, item target and slot, the module-only target rule (`PLAY0750`), buttons, blueprint ranges, sample data, MCP editing
+choice, item target and slot, the module-only target rule (`PLAY0750`), buttons, feature and module toolbars (`toolbar` in a
+`feature` or `module`, `confirm`), blueprint ranges, sample data, MCP editing
 and the review checklist. `contribute to Navigation` stays the flat contribution; a new application uses regions.
 
 ## Interactions — what a click does
@@ -297,7 +298,7 @@ Localized text lives in companion `.strings` files and is referenced unquoted as
 - [ ] No `file` reference is doing work the declaration should be doing.
 - [ ] Every click, submit and screen entry that does something has an `on` or
       `uses`; continuations sit only on actions that can fail.
-- [ ] Navigation regions, slice buttons, blueprint references and sample data follow `references/application-shell.md`: each module's mode is deliberate, no module item targets another module, every button names a State Change slice, every template has a `category`, and the active sample data pack is chosen once in the `ui profile`.
+- [ ] Navigation regions, slice buttons, blueprint references and sample data follow `references/application-shell.md`: each module's mode is deliberate, no module item targets another module, every button names a State Change slice, buttons shared by a feature's screens sit in a feature `toolbar` linked to its commands (`confirm` on destructive ones), every template has a `category`, and the active sample data pack is chosen once in the `ui profile`.
 - [ ] Component bindings, exposed template values, manual form columns, toolbar items, outlets and routes all trace to typed data; no runtime fallback counts as delivery. Report authoring acceptance, executable admission and runtime
       implementation separately.
 
