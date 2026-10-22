@@ -1,0 +1,77 @@
+{
+  "skill": "including-generated-files",
+  "queries": [
+    {
+      "query": "A target generates a .cs file during build but the compiler does not see it; why?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I add generated files to Compile in the right target phase?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Generated source appears in obj but is not compiled on first build; what is the ordering problem?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write the MSBuild snippet to include generated files and clean them properly with FileWrites.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Does CoreCompile pick up items added after it started?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Our Roslyn source generator output should be emitted to disk with EmitCompilerGeneratedFiles; how do I avoid duplicates?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Include a generated resource file in the build safely and incrementally.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Why do generated files vanish after dotnet clean or reappear stale?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Author a custom target from scratch.",
+      "shouldTrigger": false,
+      "note": "target-authoring owns general targets."
+    },
+    {
+      "query": "Why does the build fail?",
+      "shouldTrigger": false,
+      "note": "msbuild owns failures."
+    },
+    {
+      "query": "Write an Arc proxy generator.",
+      "shouldTrigger": false,
+      "note": "Arc generator design, not MSBuild inclusion."
+    },
+    {
+      "query": "Use NuGet build props hooks.",
+      "shouldTrigger": false,
+      "note": "extension-points owns hooks."
+    },
+    {
+      "query": "Share settings between projects.",
+      "shouldTrigger": false,
+      "note": "directory-build-organization owns it."
+    },
+    {
+      "query": "Binlog capture.",
+      "shouldTrigger": false,
+      "note": "binlog-generation owns it."
+    },
+    {
+      "query": "Avoid restore duplicates.",
+      "shouldTrigger": false,
+      "note": "eliminate-redundant-restores owns it."
+    },
+    {
+      "query": "Refactor the generator class.",
+      "shouldTrigger": false,
+      "note": "csharp-refactoring owns it."
+    }
+  ]
+}

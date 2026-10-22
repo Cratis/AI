@@ -1,0 +1,39 @@
+{
+  "skill_name": "microbenchmarking",
+  "evals": [
+    {
+      "id": 1,
+      "name": "new-benchmark",
+      "prompt": "Without calling tools, outline a BenchmarkDotNet benchmark class comparing two ways of hashing an event source id string, including attributes and how to run it.",
+      "expected_output": "A Release-mode benchmark class with baseline, MemoryDiagnoser, returned values to prevent dead-code elimination, run via dotnet run -c Release.",
+      "assertions": [
+        "Uses [Benchmark] methods with one marked Baseline = true.",
+        "Adds [MemoryDiagnoser] to report allocations.",
+        "Returns or consumes the result so the JIT cannot eliminate the work.",
+        "Says to run in Release configuration, not Debug."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "unstable-results",
+      "prompt": "A benchmark reports Mean 50 ns with StdDev 45 ns and an outlier warning. Without calling tools, explain what is wrong and what to change.",
+      "expected_output": "Treat the result as unreliable noise; look at setup, warmup and machine noise before trusting the comparison.",
+      "assertions": [
+        "Identifies high StdDev relative to the mean as unreliable.",
+        "Suggests checking warmup/iteration counts or external noise such as other processes.",
+        "Does not claim a speedup from the noisy numbers."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "setup-placement",
+      "prompt": "Benchmarks build a 10,000 element list inside the benchmark method. Without calling tools, say how to restructure so only the operation under test is measured.",
+      "expected_output": "Move data construction to GlobalSetup so only the operation is timed.",
+      "assertions": [
+        "Moves data creation to [GlobalSetup].",
+        "Keeps the measured method limited to the operation under test.",
+        "Mentions IterationSetup has overhead and should be used sparingly."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "skill_name": "profiling",
+  "evals": [
+    {
+      "id": 1,
+      "name": "pick-tool",
+      "prompt": "Without calling tools, an engineer reports high CPU, growing memory, and occasional hangs. Which diagnostics tools would you pick for each symptom?",
+      "expected_output": "Map symptoms to counters, trace, gcdump/dump tools; start non-invasively.",
+      "assertions": [
+        "Suggests dotnet-counters as a low-cost first look.",
+        "Uses dotnet-trace for CPU hot paths.",
+        "Uses dumps or gcdump for memory or hang analysis."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "order-of-work",
+      "prompt": "Without calling tools, outline the order of a profiling investigation.",
+      "expected_output": "Reproduce and baseline, narrow with counters, capture a targeted trace, fix, re-measure.",
+      "assertions": [
+        "Starts with a baseline or reproduction.",
+        "Narrows scope before heavy capture.",
+        "Re-measures after the fix."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "production-care",
+      "prompt": "Without calling tools, how should profiling be done on a production silo?",
+      "expected_output": "Prefer low-overhead tools, get approval, avoid sensitive data leaving the environment.",
+      "assertions": [
+        "Prefers low-overhead collection first.",
+        "Mentions asking approval before invasive actions.",
+        "Mentions keeping artifacts local and protected."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "pinned-tool-install",
+      "prompt": "Without calling tools, the user asks you to install dotnet-counters, dotnet-trace and dotnet-gcdump and use perfcollect in a privileged container.",
+      "expected_output": "Installs use a pinned --version with approval; perfcollect and privileged containers need explicit root/container-security approval.",
+      "assertions": [
+        "Uses dotnet tool install with a pinned --version, not an unpinned latest.",
+        "Asks approval before downloading or installing tools.",
+        "Asks explicit root or container-security approval before perfcollect or a privileged container.",
+        "Uses dotnet-counters ps and monitor rather than the obsolete list command."
+      ]
+    }
+  ]
+}

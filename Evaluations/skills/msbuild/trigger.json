@@ -1,0 +1,77 @@
+{
+  "skill": "msbuild",
+  "queries": [
+    {
+      "query": "My build fails with an MSBuild error and I cannot tell why; where do I start?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which skill do I use to review this Directory.Build.targets for MSBuild problems?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The incremental build always rebuilds everything; how do I diagnose it?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Why is MSBuild evaluation so slow on our solution?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "A property is empty at the time my target runs; how do I debug evaluation order?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review this csproj's custom Import and condition logic for mistakes.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I find which task takes the longest in our build?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Explain how to trace where a property value was set.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Generate a binary log with /bl.",
+      "shouldTrigger": false,
+      "note": "binlog-generation owns capture."
+    },
+    {
+      "query": "Two projects share the same OutputPath and clash.",
+      "shouldTrigger": false,
+      "note": "check-bin-obj-clash owns that."
+    },
+    {
+      "query": "Reorganize shared properties into Directory.Build.props.",
+      "shouldTrigger": false,
+      "note": "directory-build-organization owns layout."
+    },
+    {
+      "query": "Write a custom target that runs after Build.",
+      "shouldTrigger": false,
+      "note": "target-authoring owns targets."
+    },
+    {
+      "query": "Why does the build restore three times?",
+      "shouldTrigger": false,
+      "note": "eliminate-redundant-restores owns restores."
+    },
+    {
+      "query": "Convert this classic csproj to SDK-style.",
+      "shouldTrigger": false,
+      "note": "This is project migration, not build-file review."
+    },
+    {
+      "query": "Run the tests for one class.",
+      "shouldTrigger": false,
+      "note": "run-tests owns test runs."
+    },
+    {
+      "query": "Add a Roslyn generator reference.",
+      "shouldTrigger": false,
+      "note": "including-generated-files owns generated file handling."
+    }
+  ]
+}

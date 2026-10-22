@@ -1,0 +1,77 @@
+{
+  "skill": "dump-collect",
+  "queries": [
+    {
+      "query": "The service crashed with an unhandled exception; how do I get a crash dump automatically?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which environment variables enable createdump on crash in a container?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Collect a full dump of process 4321 using dotnet-dump collect.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The process hangs; how do I take a dump while it is hung?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Difference between mini, heap and full dumps and which to pick?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I capture a dump on Linux when the process is out of memory?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Set DOTNET_DbgEnableMiniDump so the runtime writes a dump on failure.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Where should I put the dump file and how do I read it afterwards with dotnet-dump analyze?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Why is the CPU high? Start the investigation.",
+      "shouldTrigger": false,
+      "note": "profiling owns investigation."
+    },
+    {
+      "query": "Capture a 30-second performance trace.",
+      "shouldTrigger": false,
+      "note": "dotnet-trace-collect owns traces."
+    },
+    {
+      "query": "Generate a binlog of the build.",
+      "shouldTrigger": false,
+      "note": "binlog-generation owns binlogs."
+    },
+    {
+      "query": "Send the dump to a public file share for help.",
+      "shouldTrigger": false,
+      "note": "This skill keeps dumps local; it must not publish them."
+    },
+    {
+      "query": "Make the test host collect crash dumps in the test run.",
+      "shouldTrigger": false,
+      "note": "run-tests owns test-run options such as crash dumps."
+    },
+    {
+      "query": "Find memory growth in the kernel by reading code.",
+      "shouldTrigger": false,
+      "note": "analyzing-dotnet-performance owns static review."
+    },
+    {
+      "query": "Add logging for crashes.",
+      "shouldTrigger": false,
+      "note": "cratis-engineering-csharp-conventions owns code conventions."
+    },
+    {
+      "query": "Is our grain state design right?",
+      "shouldTrigger": false,
+      "note": "orleans owns grain design."
+    }
+  ]
+}
