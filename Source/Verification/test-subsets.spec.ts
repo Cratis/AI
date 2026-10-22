@@ -6,7 +6,7 @@ import { existsSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { slowestReport } from './slowest-reporter.ts';
-import { affectedSubsets, main, subsetFiles, subsets } from './test-subsets.ts';
+import { affectedSubsets, defaultFullSuiteBudgetSeconds, judgeBudget, main, subsetFiles, subsets } from './test-subsets.ts';
 
 describe('test subsets', () => {
     it('should name only spec files that exist, each in one subset', () => {
@@ -68,5 +68,53 @@ describe('test subsets', () => {
         const lines = slowestReport(timings).trim().split('\n');
         assert.equal(lines.length, 11);
         assert.match(lines[1], / 1\. +11\.00 s +f11\.spec\.ts +t11/);
+    });
+
+    describe('full-suite wall-time budget', () => {
+        it('should pass quietly within the default budget', () => {
+            const verdict = judgeBudget(884, {});
+            assert.deepEqual([verdict.exceeded, verdict.fail], [false, false]);
+            assert.match(verdict.message, new RegExp(`of its ${defaultFullSuiteBudgetSeconds} s budget`));
+        });
+
+        it('should only warn when over budget locally', () => {
+            const verdict = judgeBudget(defaultFullSuiteBudgetSeconds + 1, {});
+            assert.deepEqual([verdict.exceeded, verdict.fail], [true, false]);
+            assert.match(verdict.message, /^WARNING/);
+        });
+
+        it('should fail when over budget and CI is set', () => {
+            const verdict = judgeBudget(defaultFullSuiteBudgetSeconds + 1, { CI: 'true' });
+            assert.deepEqual([verdict.exceeded, verdict.fail], [true, true]);
+            assert.match(verdict.message, /^FAILED.*CRATIS_TEST_BUDGET_SECONDS/);
+        });
+
+        it('should honour a valid override and ignore an invalid one', () => {
+            assert.equal(judgeBudget(500, { CRATIS_TEST_BUDGET_SECONDS: '400', CI: '1' }).fail, true);
+            assert.equal(judgeBudget(500, { CRATIS_TEST_BUDGET_SECONDS: '2000', CI: '1' }).exceeded, false);
+            for (const invalid of ['abc', '0', '-5', '']) assert.equal(judgeBudget(1100, { CRATIS_TEST_BUDGET_SECONDS: invalid, CI: '1' }).exceeded, false, invalid);
+        });
+
+        function timedRun(elapsedMilliseconds: number, status: number, env: NodeJS.ProcessEnv) {
+            const clock = [0, elapsedMilliseconds];
+            const logs: string[] = [];
+            const dependencies = { changedPaths: () => [], allSpecs: () => ['a.spec.ts'], run: () => status, log: (message: string) => { logs.push(message); }, now: () => clock.shift() ?? 0, env };
+            return { exit: main(['full'], dependencies), logs };
+        }
+
+        it('should keep the exit status of a passing run within budget', () => {
+            assert.equal(timedRun(10_000, 0, { CI: '1' }).exit, 0);
+        });
+
+        it('should fail the full run over budget only under CI', () => {
+            assert.equal(timedRun(1_300_000, 0, { CI: '1' }).exit, 1);
+            const local = timedRun(1_300_000, 0, {});
+            assert.equal(local.exit, 0);
+            assert.match(local.logs.join('\n'), /WARNING/);
+        });
+
+        it('should never mask a failing run', () => {
+            assert.equal(timedRun(10_000, 3, {}).exit, 3);
+        });
     });
 });

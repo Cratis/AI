@@ -45,7 +45,7 @@ export function affectedSubsets(paths: string[]): { subsets: string[]; specs: st
 
 export function subsetFiles(name: string): string[] {
     const bases = subsets[name];
-    if (!bases) throw new Error(`Unknown subset '${name}'. Known: ${Object.keys(subsets).join(', ')}, affected.`);
+    if (!bases) throw new Error(`Unknown subset '${name}'. Known: ${Object.keys(subsets).join(', ')}, affected, full.`);
     return bases.map(base => `${base}.spec.ts`);
 }
 
@@ -53,6 +53,26 @@ export function subsetFiles(name: string): string[] {
 export function unassignedSpecs(files: string[]): string[] {
     const assigned = new Set(Object.keys(subsets).flatMap(subsetFiles));
     return files.filter(file => file.endsWith('.spec.ts') && !assigned.has(file)).sort();
+}
+
+/** Default wall-time budget of the full suite, in seconds. Measured at 884 s on a heavily loaded machine; override with CRATIS_TEST_BUDGET_SECONDS. */
+export const defaultFullSuiteBudgetSeconds = 1200;
+
+export interface BudgetVerdict { exceeded: boolean; fail: boolean; message: string }
+
+/**
+ * Judges a full-suite run against its wall-time budget. Wall time depends on machine load, so an overrun is a
+ * loud warning locally and fails the run only when CI is set. An unparsable or non-positive override is ignored.
+ */
+export function judgeBudget(elapsedSeconds: number, env: NodeJS.ProcessEnv): BudgetVerdict {
+    const configured = Number(env.CRATIS_TEST_BUDGET_SECONDS);
+    const budget = Number.isFinite(configured) && configured > 0 ? configured : defaultFullSuiteBudgetSeconds;
+    const exceeded = elapsedSeconds > budget;
+    const fail = exceeded && Boolean(env.CI);
+    const message = exceeded
+        ? `${fail ? 'FAILED' : 'WARNING'}: the full suite took ${elapsedSeconds.toFixed(0)} s, over its ${budget} s budget. Find the slowest specs above and speed them up, or raise CRATIS_TEST_BUDGET_SECONDS for a slower runner.`
+        : `Full suite took ${elapsedSeconds.toFixed(0)} s of its ${budget} s budget.`;
+    return { exceeded, fail, message };
 }
 
 function runFiles(files: string[]): number {
@@ -65,6 +85,19 @@ export interface Dependencies {
     allSpecs(): string[];
     run(files: string[]): number;
     log(message: string): void;
+    /** Milliseconds clock for the full-suite budget; defaults to Date.now. */
+    now?(): number;
+    /** Environment for the budget (CRATIS_TEST_BUDGET_SECONDS, CI); defaults to process.env. */
+    env?: NodeJS.ProcessEnv;
+}
+
+function runFullSuite(dependencies: Dependencies): number {
+    const now = dependencies.now ?? Date.now;
+    const started = now();
+    const status = dependencies.run(dependencies.allSpecs());
+    const verdict = judgeBudget((now() - started) / 1000, dependencies.env ?? process.env);
+    dependencies.log(verdict.message);
+    return status === 0 && verdict.fail ? 1 : status;
 }
 
 const systemDependencies: Dependencies = {
@@ -86,10 +119,11 @@ export function main(arguments_: string[], dependencies: Dependencies = systemDe
             const paths = dependencies.changedPaths(base);
             if (!paths.length) { dependencies.log('No changed paths; nothing to run. The full suite is still the final gate.'); return 0; }
             const affected = affectedSubsets(paths);
-            if (affected.full) { dependencies.log('A changed path is not on the narrow subset allowlist; running the full suite.'); return dependencies.run(dependencies.allSpecs()); }
+            if (affected.full) { dependencies.log('A changed path is not on the narrow subset allowlist; running the full suite.'); return runFullSuite(dependencies); }
             dependencies.log(`Affected subsets: ${affected.subsets.join(', ') || '(none)'}${affected.specs.length ? `; changed specs: ${affected.specs.join(', ')}` : ''}`);
             return dependencies.run([...new Set([...affected.subsets.flatMap(subsetFiles), ...affected.specs])]);
         }
+        if (mode === 'full') return runFullSuite(dependencies);
         if (mode === 'unassigned') { dependencies.log(unassignedSpecs(dependencies.allSpecs()).join('\n')); return 0; }
         return dependencies.run(subsetFiles(mode ?? ''));
     } catch (error) {

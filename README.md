@@ -351,8 +351,13 @@ yarn workspace @cratis/ai-verification run test:corpus    # structure, budgets, 
 yarn workspace @cratis/ai-verification run test:affected  # changed paths vs origin/main: narrow subset or the full suite
 ```
 
-`test:hooks` is dominated by two `guard-writes.spec.ts` specs that spawn the guard repeatedly
-(about 90 s of its run).
+`test:hooks` took about 124 s on a heavily loaded machine; the `guard-writes.spec.ts` specs now overlap their
+guard spawns and the guard avoids avoidable subprocesses, bringing it to about 92 s under the same load. The
+rest is other hook specs that spawn many processes, so the 60 s target is not reached there.
+
+The full `test` suite runs through `test-subsets.ts full` and is held to a wall-time budget of 1200 s (measured
+at 884 s on a loaded machine). Because wall time depends on load, an overrun prints a `WARNING` locally and
+fails the run only when `CI` is set. Set `CRATIS_TEST_BUDGET_SECONDS` to change the budget on a slower runner.
 
 `test:affected` is deny-by-default: it runs a subset only when every changed path is on a small allowlist
 (the guard hook scripts for `hooks`, `Source/Harness.Setup/*.ts` for `adapters`, or a changed spec file, which

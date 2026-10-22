@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "check": "tsc --noEmit",
-    "test": "tsx --test *.spec.ts",
+    "test": "tsx test-subsets.ts full",
     "test:hooks": "tsx test-subsets.ts hooks",
     "test:adapters": "tsx test-subsets.ts adapters",
     "test:corpus": "tsx test-subsets.ts corpus",
