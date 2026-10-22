@@ -341,6 +341,19 @@ npm test --prefix Source/Verification
 (cd Source/Pi.Plugin && npm pack --dry-run)
 ```
 
+While iterating, run the named subset that matches what you changed; each prints its ten
+slowest specs. The full `test` suite stays the gate before you call work done.
+
+```bash
+yarn workspace @cratis/ai-verification run test:hooks     # guards, hook wiring, Codex hooks, Pi bridge and quality gates
+yarn workspace @cratis/ai-verification run test:adapters  # agent adapters, harness setup, Pi plugin, MCP configuration
+yarn workspace @cratis/ai-verification run test:corpus    # structure, budgets, skills, routing
+yarn workspace @cratis/ai-verification run test:affected  # maps `git diff --name-only origin/main...` to the subsets
+```
+
+`test:hooks` is dominated by two `guard-writes.spec.ts` specs that spawn the guard repeatedly
+(about 90 s of its run). A change to `Source/Verification/*.ts` makes `test:affected` point to the full suite.
+
 The verification suite uses Pi's `DefaultResourceLoader` directly, without a
 model or credentials, to prove that project context, every skill, 18 prompts,
 and the managed extensions are actually discovered. It also verifies the

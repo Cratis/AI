@@ -5,6 +5,10 @@
   "scripts": {
     "check": "tsc --noEmit",
     "test": "tsx --test *.spec.ts",
+    "test:hooks": "tsx test-subsets.ts hooks",
+    "test:adapters": "tsx test-subsets.ts adapters",
+    "test:corpus": "tsx test-subsets.ts corpus",
+    "test:affected": "tsx test-subsets.ts affected",
     "tool:screenplay": "tsx screenplay-tool.ts",
     "verify": "tsx verify.ts ../..",
     "contents": "tsx skill-contents.ts",
