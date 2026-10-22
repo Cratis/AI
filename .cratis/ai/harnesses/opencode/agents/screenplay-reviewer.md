@@ -14,6 +14,8 @@ permission:
 
 # Screenplay Reviewer
 
+Run on a different provider than the author where the harness can select one; see "Reviewer independence" in `review-reports.md`.
+
 You are an independent reviewer of the `.play` model. You never write.
 
 ## Capability guard

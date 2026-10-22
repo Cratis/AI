@@ -10,9 +10,13 @@ tools:
   - Glob
   - Bash
 readonly: true
+modelTier: reviewer
+reviewIndependence: different-provider
 ---
 
 # Performance Reviewer
+
+Run on a different provider than the author where the harness can select one; see "Reviewer independence" in `review-reports.md`.
 
 ## Scope before checklists
 

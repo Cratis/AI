@@ -6,6 +6,7 @@ description: >
   to the right specialist agent, and ensures quality gates are met before
   the work is considered done.
 tools: read, grep, find, bash
+modelTier: scoped
 ---
 <!-- cratis-ai: generated Pi adapter of agents/planner.md. Do not edit; the canonical agent is the source. -->
 

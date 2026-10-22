@@ -12,6 +12,7 @@ tools:
   - Bash
   - Edit
   - Write
+modelTier: scoped
 ---
 
 # Backend Developer

@@ -9,6 +9,7 @@ description: >
   as a team: mixed implementation + documentation + review, multi-feature work,
   large refactors, or any goal that spans more than one concern.
 tools: read, grep, find, bash
+modelTier: scoped
 ---
 <!-- cratis-ai: generated Pi adapter of agents/orchestrator.md. Do not edit; the canonical agent is the source. -->
 

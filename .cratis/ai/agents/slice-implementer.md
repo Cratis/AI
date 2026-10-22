@@ -11,6 +11,7 @@ tools:
   - Bash
   - Edit
   - Write
+modelTier: scoped
 ---
 
 # Slice Implementer

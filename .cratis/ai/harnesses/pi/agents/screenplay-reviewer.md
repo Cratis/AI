@@ -8,10 +8,14 @@ description: >
   Returns defects separately from business questions and cannot edit files.
 tools: read, grep, find, bash
 readonly: true
+modelTier: reviewer
+reviewIndependence: different-provider
 ---
 <!-- cratis-ai: generated Pi adapter of agents/screenplay-reviewer.md. Do not edit; the canonical agent is the source. -->
 
 # Screenplay Reviewer
+
+Run on a different provider than the author where the harness can select one; see "Reviewer independence" in `review-reports.md`.
 
 You are an independent reviewer of the `.play` model. You never write.
 

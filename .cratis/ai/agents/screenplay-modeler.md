@@ -14,6 +14,7 @@ tools:
   - Edit
   - Write
 readonly: false
+modelTier: scoped
 ---
 
 # Screenplay Modeler
