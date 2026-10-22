@@ -164,7 +164,8 @@ repository_origin() {
 
 # Case-insensitive ASCII match of the origin URL, equivalent to grep -Eiq on a single line.
 origin_matches() {
-    local pattern="$1" matched=1
+    # C locale, as the grep it replaced ran: a non-ASCII letter (the Kelvin sign) must not match [a-z].
+    local LC_ALL=C pattern="$1" matched=1
     shopt -s nocasematch
     # shellcheck disable=SC2034
     [[ "$REPLY" =~ $pattern ]] && matched=0

@@ -144,6 +144,7 @@ test('the manifest default depends on the exact GitHub origin, not installed pro
         ['https://evil.test/github.com/Cratis/Arc.git', BLOCK],
         ['https://github.com/Cratis/Arc/extra', BLOCK],
         ['https://github.com/Cratis/', BLOCK],
+        ['git@github.com:cratis/\u212A', BLOCK],
         [undefined, BLOCK],
     ];
     for (const [origin, expected] of cases) {
@@ -152,7 +153,7 @@ test('the manifest default depends on the exact GitHub origin, not installed pro
             mkdirSync(join(repo.root, '.cratis', 'ai'), { recursive: true });
             writeFileSync(join(repo.root, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/engineering', 'cratis/arc'] }));
             const cwd = join(repo.root, 'Source', 'Accounts');
-            const result = runGuard({ cwd, tool_input: { file_path: relative(cwd, repo.manifest), new_string: 'x' } }, cwd);
+            const result = runGuard({ cwd, tool_input: { file_path: relative(cwd, repo.manifest), new_string: 'x' } }, cwd, { LC_ALL: 'en_US.UTF-8', LANG: 'en_US.UTF-8' });
             assert.equal(result.verdict, expected, `${origin}: ${result.stderr}`);
             if (expected === ALLOW) assert.equal(result.stdout + result.stderr, '', 'default allowance is silent');
         } finally {
