@@ -86,6 +86,7 @@ Confirm the Components `file:` tarball resolutions. Run Studio's frontend build,
 lint/specs and exercise the broken dialog/page. If Vite serves stale assets, stop
 the dev server, clear only its `.vite` prebundle and restart. Avoid `link:` and
 `portal:` because duplicate React/context instances distort the reproduction.
-Review npm backups if `restore` refuses a lockfile changed by Yarn; preserve
-unrelated work, restore only local changes and retry. Reinstall released packages,
+Overlay-only lockfile changes from Yarn install are restored automatically.
+Review npm backups if unrelated changes cause `restore` to refuse; preserve
+that work, restore only local changes and retry. Reinstall released packages,
 run `check`, and review/apply cleanup for this stamp.

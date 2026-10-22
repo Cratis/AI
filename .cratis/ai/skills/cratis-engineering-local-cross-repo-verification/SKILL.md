@@ -70,11 +70,12 @@ commands before choosing the build, regression spec and full gate commands.
 stamp=$(bash "$local" stamp "$producer")
 ```
 
-Format: `<next-patch>-local.<UTC-minute>.<sha7>`, based on the highest reachable
+Format: `<next-patch>-local.<12-digit-UTC-minute>.g<sha7>`, based on the highest reachable
 `vX.Y.Z` tag. Next-patch prereleases sort above the existing release; arbitrary
 `0.0.0-local` versions can violate transitive minimums and cause **NU1605**
 downgrades. Confirm tags cover the consumer's released constraints. With no tag,
 the helper warns and falls back to a base that must be checked before proceeding.
+The `g` prefix keeps even an all-digit SHA nonnumeric in SemVer.
 Use the identical stamp for packages and images. A changed build needs a distinct
 stamp; do not overwrite a cached version (the minute and commit determine it).
 
@@ -162,9 +163,10 @@ bash "$local" check "$consumer"
 ```
 
 Pass: restoration exits `0`, local overlay files are removed and `check` reports
-`0 leaks`. npm restore refuses later manifest/lockfile edits, including changes
-from Yarn install: review saved backups and restore only overlay changes manually,
-then retry. Never overwrite unrelated work. Reinstall released npm dependencies
+`0 leaks`. npm restore accepts overlay-only resolutions and local tarball lockfile
+entries after Yarn install; unrelated edits are refused with backups retained.
+Review conflicts and restore only overlay changes manually, then retry. Never
+overwrite unrelated work. Reinstall released npm dependencies
 and clear image/compose/Gradle selection too. Check the producer for codegen drift;
 Workbench builds can regenerate tracked proxies. Prefer a throwaway worktree, or
 use `git checkout -- <generated-path>` only after proving those edits are disposable
@@ -229,3 +231,6 @@ not infer end-to-end speed or a passing consumer spec from package creation.
 - Read [references/go-jvm-python-elixir.md](references/go-jvm-python-elixir.md) when the boundary uses another language toolchain.
 - Read [references/worked-examples.md](references/worked-examples.md) when following Chronicle → Studio, Fundamentals → Arc or Components → Studio.
 - Read [references/other-environments.md](references/other-environments.md) when running on another developer machine or an agent host.
+
+Read `scripts/npm-restore-check.cjs` when inspecting the read-only npm restoration
+guard; `restore` executes it when npm files differ from the saved overlay state.

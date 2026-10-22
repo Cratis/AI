@@ -21,18 +21,18 @@ Commands (COMMAND --help shows these instructions too):
     are Yarn's own behavior; this helper does not run a separate build.
   use-nuget CONSUMER STAMP [PACKAGE-ID...]
     Create a CPM overlay importing the repository's own Directory.Packages.props.
-    Defaults to feed IDs mentioned in that file. Prints properties and sourceable
+    Defaults to every stamped package ID in the feed. Prints properties and sourceable
     env. With source mapping, also prints the required restore --configfile.
     Non-CPM: manually use an untracked project copy with explicit PackageReference
     versions and dotnet restore --source FEED/nuget; do not edit shipped versions.
   use-npm CONSUMER STAMP
-    Requires node. Back up package.json, yarn.lock (including existing edits),
-    and git diff; add file-tarball resolutions for referenced workspace packages.
+    Requires node and tar. Back up package.json, yarn.lock (including existing edits),
+    and git diff; add file-tarball resolutions for every stamped feed package.
     Run yarn install afterward. Only one active npm overlay per session.
   restore CONSUMER
-    Restore npm backups only if files still match the helper's saved post-edit
-    state. A changed lockfile (including yarn install) requires manual review:
-    backups are retained, never overwrite later user edits. Remove CPM/env overlays
+    Restore npm backups when only overlay resolutions and their local lockfile
+    entries changed (including yarn install). Refuse unrelated changes and retain
+    backups for review. Remove CPM/env overlays
     and run check. No git checkout is used on consumer files.
   check REPO [--staged]
     Scan added/changed tracked lines (staged-only if requested), plus all contents
@@ -69,7 +69,7 @@ ARGS=()
 for argument in "$@"; do
     case "$argument" in --dry-run) DRY=1 ;; *) ARGS+=("$argument") ;; esac
 done
-set -- "${ARGS[@]}"
+set -- ${ARGS[@]+"${ARGS[@]}"}
 case " ${*:-} " in *' --help '*|*' -h '*) usage; exit 0 ;; esac
 [ $# -gt 0 ] || { usage; exit 2; }
 SELF=$(cd "$(dirname "$0")" && pwd)/$(basename "$0")
@@ -117,7 +117,7 @@ heavy() {
 }
 repo_root() { git -C "$1" rev-parse --show-toplevel 2>/dev/null || die "not a Git repository: $1"; }
 valid_stamp() {
-    [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+-local\.[0-9]{12}\.[0-9a-f]{7}$ ]] || die "invalid local stamp: $1"
+    [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+-local\.[0-9]{12}\.g[0-9a-f]{7}$ ]] || die "invalid local stamp: $1"
 }
 session_path() {
     local path git_dir
@@ -173,7 +173,7 @@ stamp() {
         tag=0.1.0
     fi
     sha=$(git -C "$repo" rev-parse HEAD) || die 'producer has no HEAD commit'
-    printf '%s-local.%s.%.7s\n' "$tag" "$(date -u +%Y%m%d%H%M)" "$sha"
+    printf '%s-local.%s.g%.7s\n' "$tag" "$(date -u +%Y%m%d%H%M)" "$sha"
 }
 
 pack_nuget() {
@@ -294,7 +294,7 @@ source_mapping() {
 
 use_nuget() {
     [ $# -ge 2 ] || die 'use-nuget requires consumer and stamp'
-    local repo version session props id file config='' props_key sources_key
+    local repo version session props id file config='' props_key sources_key action
     local ids=()
     repo=$(repo_root "$1"); version=$2; shift 2
     valid_stamp "$version"; props=$repo/Directory.Packages.props
@@ -306,7 +306,7 @@ use_nuget() {
     elif [ -d "$FEED/nuget" ]; then
         while IFS= read -r -d '' file; do
             id=${file##*/}; id=${id%."$version".nupkg}
-            if grep -Fxiq -- "$id" "$TMP/consumer-ids"; then ids+=("$id"); fi
+            ids+=("$id")
         done < <(find "$FEED/nuget" -type f -name "*.$version.nupkg" -print0)
     fi
     [ ${#ids[@]} -gt 0 ] || die 'no matching NuGet package IDs found'
@@ -336,7 +336,11 @@ use_nuget() {
     {
         printf '<Project>\n  <Import Project="%s" />\n' "$(xml_escape "$props")"
         printf '  <PropertyGroup><CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled></PropertyGroup>\n  <ItemGroup>\n'
-        for id in "${ids[@]}"; do printf '    <PackageVersion %s="%s" Version="%s" />\n' Update "$id" "$version"; done
+        for id in "${ids[@]}"; do
+            action=Include
+            if grep -Fxiq -- "$id" "$TMP/consumer-ids"; then action=Update; fi
+            printf '    <PackageVersion %s="%s" Version="%s" />\n' "$action" "$id" "$version"
+        done
         printf '  </ItemGroup>\n</Project>\n'
     } > "$session/Directory.Packages.props"
     props_key=DirectoryPackages"PropsPath"; sources_key=RestoreAdditional"ProjectSources"
@@ -359,29 +363,22 @@ use_npm() {
     [ $# -eq 2 ] || die 'use-npm requires consumer and stamp'
     local repo version session backup
     repo=$(repo_root "$1"); version=$2
-    valid_stamp "$version"; need node; scratch
+    valid_stamp "$version"; need node; need tar; scratch
     session=$(session_path "$repo"); backup=$session/npm-backup
     [ -f "$repo/package.json" ] || die 'consumer has no root package.json'
     [ ! -e "$backup" ] || die "active npm backup exists: $backup; restore first"
-    # Tracked manifests are sufficient for declared workspaces; ignored dependencies
-    # (node_modules, generated packages) must not become accidental consumers.
-    git -C "$repo" ls-files -z -- 'package.json' '*/package.json' > "$TMP/manifests"
-    node - "$repo" "$FEED/npm" "$version" "$TMP/manifests" "$TMP/package.json" <<'NODE'
-const fs = require('fs'), path = require('path');
-const [repo, feed, stamp, manifests, output] = process.argv.slice(2);
-const names = new Set();
-for (const relative of fs.readFileSync(manifests, 'utf8').split('\0').filter(Boolean)) {
-    const json = JSON.parse(fs.readFileSync(path.join(repo, relative), 'utf8'));
-    if (json.name) names.add(json.name);
-    for (const key of ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'])
-        for (const name of Object.keys(json[key] || {})) names.add(name);
-}
+    node - "$repo" "$FEED/npm" "$version" "$TMP/package.json" <<'NODE'
+const fs = require('fs'), path = require('path'), {execFileSync} = require('child_process');
+const [repo, feed, stamp, output] = process.argv.slice(2);
 const root = JSON.parse(fs.readFileSync(path.join(repo, 'package.json'), 'utf8'));
 let count = 0;
-for (const name of names) {
-    // Yarn 4 slugifyIdent: @scope/name -> @scope-name.
-    const tarball = path.join(feed, name.replace('/', '-') + '-' + stamp + '.tgz');
-    if (!fs.existsSync(tarball)) continue;
+for (const file of fs.existsSync(feed) ? fs.readdirSync(feed) : []) {
+    if (!file.endsWith('-' + stamp + '.tgz')) continue;
+    const tarball = path.join(feed, file);
+    // Read the packed name: slugified scoped names are not reversibly encoded.
+    const {name} = JSON.parse(execFileSync('tar', ['-xOf', tarball, 'package/package.json'], {encoding: 'utf8'}));
+    if (typeof name !== 'string' || !/^(@[^/\s]+\/)?[^/\s]+$/.test(name))
+        throw new Error('Invalid packed package name: ' + tarball);
     root.resolutions = root.resolutions || {};
     root.resolutions[name] = 'file:' + tarball;
     count++;
@@ -413,16 +410,15 @@ restore() {
     validate_session "$session"
     if [ -f "$session/repo" ] && [ "$(cat "$session/repo")" != "$repo" ]; then die 'session belongs to another checkout'; fi
     if [ -d "$backup" ]; then
-        if ! cmp -s "$repo/package.json" "$backup/expected-package.json" && ! cmp -s "$repo/package.json" "$backup/package.json"; then
-            die "package.json changed after use-npm; review $backup (nothing restored)"
-        fi
-        if [ -f "$backup/yarn.lock" ]; then
-            cmp -s "$repo/yarn.lock" "$backup/yarn.lock" || die "yarn.lock changed after use-npm; review $backup (nothing restored)"
-        elif [ -e "$repo/yarn.lock" ]; then
-            die "yarn.lock created after use-npm; review $backup (nothing restored)"
+        if ! cmp -s "$repo/package.json" "$backup/expected-package.json" ||
+            { [ -f "$backup/yarn.lock" ] && ! cmp -s "$repo/yarn.lock" "$backup/yarn.lock"; } ||
+            { [ ! -f "$backup/yarn.lock" ] && [ -e "$repo/yarn.lock" ]; }; then
+            need node
+            node "$(dirname "$SELF")/npm-restore-check.cjs" "$repo" "$backup" ||
+                die "npm files changed beyond the overlay; review $backup (nothing restored)"
         fi
         mutate cp -p "$backup/package.json" "$repo/package.json"
-        if [ -f "$backup/yarn.lock" ]; then mutate cp -p "$backup/yarn.lock" "$repo/yarn.lock"; fi
+        if [ -f "$backup/yarn.lock" ]; then mutate cp -p "$backup/yarn.lock" "$repo/yarn.lock"; else mutate rm -f -- "$repo/yarn.lock"; fi
         mutate rm -rf -- "$backup"
     fi
     mutate rm -f -- "$session/Directory.Packages.props" "$session/nuget.config" "$session/env" "$session/stamp"
@@ -471,7 +467,7 @@ scan_lines() {
         function hit(pattern) { print path ":" number ":" pattern }
         {
             number=$0; sub(/:.*/,"",number); line=$0; sub(/^[^:]*:/,"",line)
-            if (line ~ /-local\.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\./) hit("local stamp")
+            if (line ~ /-local\.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.g[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/) hit("local stamp")
             if (index(line,feed)) hit("local feed path")
             if (index(line,"DirectoryPackages" "PropsPath")) hit("CPM overlay property")
             if (index(line,"RestoreAdditional" "ProjectSources")) hit("additional restore sources")
@@ -499,6 +495,9 @@ bounded_docker() {
     wait "$pid" || status=$?
     return "$status"
 }
+local_artifact() {
+    [[ "$1" =~ -local\.[0-9]{12}\.g[0-9a-f]{7}($|[^0-9A-Za-z]) ]]
+}
 clean() {
     local version='' apply=0 consumer='' arg path cache image session maximum count=0
     local subjects=() kinds=()
@@ -520,7 +519,7 @@ clean() {
     for cache in "$FEED/nuget" "$FEED/npm"; do
         [ -d "$cache" ] || continue
         while IFS= read -r -d '' path; do
-            case "$path" in *-local.*) ;; *) continue ;; esac
+            local_artifact "${path##*/}" || continue
             if [ -n "$version" ] && [ "$version" != all ]; then case "$path" in *"$version"*) ;; *) continue ;; esac; fi
             subjects+=("$path"); kinds+=(file)
         done < <(find "$cache" -type f \( -name '*.nupkg' -o -name '*.tgz' \) -print0)
@@ -530,6 +529,7 @@ clean() {
             [ -d "$cache" ] && [ ! -L "$cache" ] || continue
             for path in "$cache"/*-local.*; do
                 [ -d "$path" ] && [ ! -L "$path" ] || continue
+                local_artifact "${path##*/}" || continue
                 if [ -n "$version" ] && [ "$version" != all ] && [ "${path##*/}" != "$version" ]; then continue; fi
                 subjects+=("$path"); kinds+=(directory)
             done
@@ -539,6 +539,7 @@ clean() {
         cache=$(cd "$consumer" && yarn config get cacheFolder) || die 'cannot discover Yarn cache'
         if [ -d "$cache" ]; then
             while IFS= read -r -d '' path; do
+                local_artifact "${path##*/}" || continue
                 if [ -n "$version" ] && [ "$version" != all ]; then case "$path" in *"$version"*) ;; *) continue ;; esac; fi
                 subjects+=("$path"); kinds+=(file)
             done < <(find "$cache" -type f -name '*-local.*' -print0)
@@ -549,7 +550,7 @@ clean() {
     if command -v docker >/dev/null 2>&1; then
         if bounded_docker image ls --format '{{.Repository}}:{{.Tag}}'; then
             while IFS= read -r image; do
-                case "${image##*:}" in *-local.*) ;; *) continue ;; esac
+                local_artifact "${image##*:}" || continue
                 if [ -n "$version" ] && [ "$version" != all ]; then case "${image##*:}" in *"$version"*) ;; *) continue ;; esac; fi
                 subjects+=("$image"); kinds+=(image)
             done < "$TMP/docker-output"
@@ -562,6 +563,7 @@ clean() {
     sort -u "$TMP/sessions" > "$TMP/unique-sessions"
     while IFS= read -r session; do
         [ -d "$session" ] && [ -f "$session/repo" ] && [ -f "$session/stamp" ] || continue
+        local_artifact "$(cat "$session/stamp")" || continue
         if [ -n "$version" ] && [ "$version" != all ] && [ "$(cat "$session/stamp")" != "$version" ]; then continue; fi
         [ ! -L "$session" ] && [ "$session" != / ] || die "unsafe session: $session"
         validate_session "$session"
@@ -593,7 +595,7 @@ clean() {
 
 self_test() {
     [ $# -eq 0 ] || die '--self-test takes no arguments'
-    local root home repo feed version output status passed=0 skipped=0 test_key
+    local root home repo feed version output status passed=0 skipped=0 test_key arg
     scratch; root=$TMP/self-test; mkdir -p "$root/home" "$root/repo"
     home=$root/home; repo=$root/repo; feed=$home/.cache/cratis/local-feed
     # System-only tests stay hermetic; npm tests inherit PATH to discover node.
@@ -606,23 +608,60 @@ self_test() {
     git -C "$repo" config user.name 'Local package self-test'
     printf '<Project><ItemGroup><PackageVersion Include="Cratis.Test" Version="1.2.3" /></ItemGroup></Project>\n' > "$repo/Directory.Packages.props"
     printf '{"private":true,"dependencies":{"@cratis/test":"1.2.3"}}\n' > "$repo/package.json"
-    printf 'original lock\n' > "$repo/yarn.lock"
+    cat > "$repo/yarn.lock" <<'LOCK'
+# This file is generated by running "yarn install" inside your project.
+
+__metadata:
+  version: 8
+  cacheKey: 10c0
+
+"@cratis/test@npm:1.2.3":
+  version: 1.2.3
+  resolution: "@cratis/test@npm:1.2.3"
+  checksum: original
+  languageName: node
+  linkType: hard
+
+"unrelated@npm:1.0.0":
+  version: 1.0.0
+  resolution: "unrelated@npm:1.0.0"
+  checksum: keep
+  languageName: node
+  linkType: hard
+LOCK
     printf 'clean\n' > "$repo/probe"
     git -C "$repo" add .; git -C "$repo" commit -qm initial; git -C "$repo" tag v1.2.3
+    status=0; st > "$root/output" || status=$?
+    if [ "$status" -ne 2 ] || ! grep -q '^Usage:' "$root/output"; then
+        failed 'self-test: no arguments must show usage and exit 2'
+    fi
+    passed=$((passed + 1))
     version=$(st stamp "$repo")
-    [[ "$version" =~ ^1\.2\.4-local\.[0-9]{12}\.[0-9a-f]{7}$ ]] || failed 'self-test: stamp format'
+    [[ "$version" =~ ^1\.2\.4-local\.[0-9]{12}\.g[0-9a-f]{7}$ ]] || failed 'self-test: stamp format'
     passed=$((passed + 1))
     mkdir -p "$feed/nuget" "$feed/npm"
+    : > "$feed/nuget/Cratis.Test.1.2.4-local.200001010000.g1234567.nupkg"
+    st --dry-run use-nuget "$repo" 1.2.4-local.200001010000.g1234567 Cratis.Test > "$root/output"
+    status=0; st --dry-run use-nuget "$repo" 1.2.4-local.200001010000.1234567 Cratis.Test > "$root/output" 2>&1 || status=$?
+    [ "$status" -eq 2 ] || failed 'self-test: unprefixed numeric SHA accepted'
+    rm "$feed/nuget/Cratis.Test.1.2.4-local.200001010000.g1234567.nupkg"
+    passed=$((passed + 2))
     : > "$feed/nuget/Cratis.Test.$version.nupkg"
-    : > "$feed/npm/@cratis-test-$version.tgz"
+    : > "$feed/nuget/Cratis.Transitive.$version.nupkg"
+    mkdir -p "$root/tarball/package"
+    for arg in test transitive; do
+        printf '{"name":"@cratis/%s","version":"%s"}\n' "$arg" "$version" > "$root/tarball/package/package.json"
+        tar -czf "$feed/npm/@cratis-$arg-$version.tgz" -C "$root/tarball" package
+    done
     st use-nuget "$repo" "$version" > "$root/output"
     output=$(git -C "$repo" rev-parse --absolute-git-dir)/cratis-local
     grep -Fq "Import Project=\"$repo/Directory.Packages.props\"" "$output/Directory.Packages.props" || failed 'self-test: overlay import'
-    grep -Fq "Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: overlay version'
+    grep -Fq "PackageVersion Update=\"Cratis.Test\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: pinned package Update'
+    grep -Fq "PackageVersion Include=\"Cratis.Transitive\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: transitive package Include'
     grep -Fq 'CentralPackageTransitivePinningEnabled>true' "$output/Directory.Packages.props" || failed 'self-test: transitive pinning'
     test_key=DirectoryPackages"PropsPath"
     grep -Fq "export $test_key=" "$output/env" || failed 'self-test: env property'
-    passed=$((passed + 4))
+    passed=$((passed + 5))
     st check "$repo" > "$root/output" || failed 'self-test: clean repo'
     passed=$((passed + 1))
     for test_key in stamp npm props sources override feed; do
@@ -650,14 +689,70 @@ self_test() {
     git -C "$repo" restore --staged probe; git -C "$repo" checkout -- probe
     passed=$((passed + 1))
     if command -v node >/dev/null 2>&1; then
-        cp "$repo/package.json" "$root/original-package.json"
+        # Preserve pre-existing user edits as well as the committed contents.
         st_npm use-npm "$repo" "$version"
-        grep -q 'resolutions' "$repo/package.json" || failed 'self-test: resolutions'
+        grep -Fq '"@cratis/transitive": "file:' "$repo/package.json" || failed 'self-test: transitive npm resolution'
+        grep -Fq '"@cratis/test": "file:' "$repo/package.json" || failed 'self-test: direct npm resolution'
         st_npm restore "$repo" > "$root/output"
-        cmp -s "$repo/package.json" "$root/original-package.json" || failed 'self-test: npm restore'
         passed=$((passed + 2))
-    else printf 'SKIP: npm mutation/restore needs node on inherited PATH\n'; skipped=$((skipped + 2)); fi
+        printf '{"private":true,"dependencies":{"@cratis/test":"1.2.3"},"userSetting":true}\n' > "$repo/package.json"
+        cp "$repo/package.json" "$root/original-package.json"
+        cp "$repo/yarn.lock" "$root/original-yarn.lock"
+        st_npm use-npm "$repo" "$version"
+        # Model Yarn's replacement of a remote entry with a file-tarball entry.
+        node - "$repo/yarn.lock" "$feed/npm/@cratis-test-$version.tgz" "$version" <<'NODE'
+const fs = require('fs');
+const [file, input, stamp] = process.argv.slice(2);
+const tarball = require('path').normalize(input);
+const lock = fs.readFileSync(file, 'utf8');
+fs.writeFileSync(file, lock.replace(/"@cratis\/test@npm:1\.2\.3":[\s\S]*?(?="unrelated)/,
+    `"@cratis/test@file:${tarball}::locator=consumer%40workspace%3A.":\n` +
+    `  version: ${stamp}\n  resolution: "@cratis/test@file:${tarball}::hash=abc&locator=consumer%40workspace%3A."\n` +
+    '  checksum: local\n  languageName: node\n  linkType: hard\n\n'));
+NODE
+        cp "$repo/yarn.lock" "$root/overlay-yarn.lock"
+        sed 's|^"@cratis/test@file:.*":$|"@cratis/test@npm:1.2.3":|' "$root/overlay-yarn.lock" > "$repo/yarn.lock"
+        node "$(dirname "$SELF")/npm-restore-check.cjs" "$repo" "$output/npm-backup" || failed 'self-test: local resolution with original descriptor'
+        passed=$((passed + 1))
+        cp "$root/overlay-yarn.lock" "$repo/yarn.lock"
+        printf '\n"unrelated-user-addition@npm:2":\n  version: 2\n' >> "$repo/yarn.lock"
+        status=0; st_npm restore "$repo" > "$root/output" 2>&1 || status=$?
+        [ "$status" -eq 2 ] && [ -d "$output/npm-backup" ] || failed 'self-test: unrelated lockfile addition refused'
+        grep -Fq 'file:' "$repo/package.json" || failed 'self-test: partial restore on conflict'
+        passed=$((passed + 2))
+        sed 's/checksum: keep/checksum: user-edit/' "$root/overlay-yarn.lock" > "$repo/yarn.lock"
+        status=0; st_npm restore "$repo" > "$root/output" 2>&1 || status=$?
+        [ "$status" -eq 2 ] || failed 'self-test: unrelated lockfile edit refused'
+        passed=$((passed + 1))
+        cp "$root/overlay-yarn.lock" "$repo/yarn.lock"
+        node - "$repo/package.json" <<'NODE'
+const fs = require('fs'), file = process.argv[2];
+const json = JSON.parse(fs.readFileSync(file)); json.userSetting = false;
+fs.writeFileSync(file, JSON.stringify(json));
+NODE
+        status=0; st_npm restore "$repo" > "$root/output" 2>&1 || status=$?
+        [ "$status" -eq 2 ] || failed 'self-test: unrelated manifest edit refused'
+        passed=$((passed + 1))
+        cp "$output/npm-backup/expected-package.json" "$repo/package.json"
+        st_npm restore "$repo" > "$root/output"
+        cmp -s "$repo/package.json" "$root/original-package.json" || failed 'self-test: npm restore preserves prior manifest edits'
+        cmp -s "$repo/yarn.lock" "$root/original-yarn.lock" || failed 'self-test: npm restore after install'
+        [ ! -d "$output/npm-backup" ] || failed 'self-test: resolved backup removed'
+        passed=$((passed + 3))
+        git -C "$repo" checkout -- package.json
+    else printf 'SKIP: npm mutation/restore needs node on inherited PATH\n'; skipped=$((skipped + 10)); fi
     mkdir -p "$home/.nuget/packages/cratis.test/$version" "$home/.nuget/packages/cratis.test/1.2.3"
+    mkdir -p "$home/.nuget/packages/cratis.test/1.2.3-local.keep"
+    for arg in nuget npm; do
+        : > "$feed/$arg/keep-local.notes.tgz"
+        : > "$feed/$arg/keep-local.202610221735.g12345678.tgz"
+    done
+    for arg in default --all; do
+        if [ "$arg" = default ]; then st clean > "$root/output"; else st clean "$arg" > "$root/output"; fi
+        grep -Fq "$version" "$root/output" || failed 'self-test: clean finds stamped subjects'
+        if grep -Eq 'keep-local|local.keep' "$root/output"; then failed 'self-test: clean selected non-stamp'; fi
+        passed=$((passed + 2))
+    done
     st clean --stamp "$version" > "$root/output"
     grep -Fq "$home/.nuget/packages/cratis.test/$version" "$root/output" || failed 'self-test: clean lists local cache'
     [ -d "$home/.nuget/packages/cratis.test/$version" ] || failed 'self-test: dry-run mutated cache'

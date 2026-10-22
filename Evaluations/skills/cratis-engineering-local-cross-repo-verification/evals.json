@@ -7,8 +7,8 @@
       "prompt": "A Chronicle kernel fix is intended to solve a Studio integration bug. Plan local proof before the producer PR, without pushing an image or waiting for publication. Include commands and success conditions. Reply only; do not execute anything.",
       "expected_output": "Execute the helper to generate one next-patch local stamp, pack the full dependency closure, publish the correct kernel RID and Workbench assets, build the local development-slim image, and select it using CHRONICLE_KERNEL_VERSION in Studio. Run the actual failing spec and required consumer gates, check both repositories, restore, check again and dry-run cleanup before apply.",
       "assertions": [
-        "Uses one next-patch prerelease stamp for NuGet packages and the kernel image, explaining NU1605 avoidance.",
-        "Includes Chronicle.CodeAnalysis dependency closure, kernel publish RID/architecture, and Workbench wwwroot before Docker build.",
+        "Uses one <next-patch>-local.<12-digit-UTC-minute>.g<sha7> prerelease stamp for NuGet packages and the kernel image, explaining NU1605 avoidance and the nonnumeric SHA prefix.",
+        "Includes Chronicle.CodeAnalysis dependency closure, pins every stamped NuGet feed ID using Update for consumer-pinned IDs and Include for absent transitive IDs, and covers kernel publish RID/architecture and Workbench wwwroot before Docker build.",
         "Selects Studio's local image with CHRONICLE_KERNEL_VERSION and never pushes it.",
         "Requires a passing reproducing integration spec and CI-equivalent consumer gates rather than treating a build as behavioral proof.",
         "Runs check before consumer commits/pushes, restore plus check at the end, and clean dry-run before --apply."
@@ -18,12 +18,12 @@
       "id": 2,
       "name": "components-to-studio-frontend",
       "prompt": "Components has a dialog fix that needs proof in Studio's frontend. How should the engineer consume and test a local build, avoiding duplicate React and preserving unrelated manifest edits? Reply only.",
-      "expected_output": "Build and pack real Yarn tarballs, use-npm to add file resolutions with saved backups, install and invalidate only stale Vite prebundles, then run frontend checks and reproduce the UI bug. Avoid link/portal. Restore only reviewed overlay edits, honoring lockfile conflict refusal, and clean stamped artifacts.",
+      "expected_output": "Build and pack real Yarn tarballs, use-npm to add file resolutions for every stamped tarball including transitive packages, with saved backups, install and invalidate only stale Vite prebundles, then run frontend checks and reproduce the UI bug. Avoid link/portal. Restore only reviewed overlay edits, honoring lockfile conflict refusal, and clean stamped artifacts.",
       "assertions": [
         "Builds the producer before pack-npm and consumes real file tarballs through use-npm rather than link or portal.",
         "Mentions duplicate React/context risk and stale Vite prebundles.",
         "Requires frontend build/specs and exercising the originally broken dialog.",
-        "Preserves pre-existing edits and explains manual review when restore refuses a changed yarn.lock.",
+        "Preserves pre-existing edits, restores overlay-only yarn.lock changes after install automatically, and requires manual review only for unrelated edits or unsupported lockfile churn.",
         "Finishes with restore, check and scoped dry-run cleanup followed by --apply."
       ]
     },
@@ -35,7 +35,7 @@
       "assertions": [
         "Requires check before both commit and push; exit 1 is findings and exit 2 is could-not-run, neither passes.",
         "Explains check scans changed tracked lines and non-ignored untracked files, not active ignored/env overlays or committed history.",
-        "Does not force restore or overwrite unrelated changes when the lockfile differs from the backup.",
+        "Restores overlay-only resolutions and stamped tarball lock entries after install, but refuses unrelated lockfile or manifest changes and retains backups without partial restoration.",
         "Requires removing the overlay and unsetting environment properties, followed by restore plus a passing check.",
         "Scopes cleanup to the task stamp and reviews dry-run subjects before applying."
       ]

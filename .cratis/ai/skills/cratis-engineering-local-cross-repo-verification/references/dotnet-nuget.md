@@ -12,10 +12,12 @@ may remain released; inspect the resulting nuspec and restore graph to distingui
 them from an accidental published fallback.
 
 `use-nuget CONSUMER STAMP [ID...]` requires a root `Directory.Packages.props`.
-Without IDs it selects stamped feed packages whose IDs occur in that file.
-Transitive packages absent from CPM need explicit IDs. The generated overlay
-imports the consumer's real props, updates only selected versions and enables
-`CentralPackageTransitivePinningEnabled`. It does not copy or edit the props in git.
+Without IDs it selects every package with `<id>.<stamp>.nupkg` in the feed,
+including transitive dependencies absent from the consumer props. The generated
+overlay imports the consumer's real props, uses `PackageVersion Update` for IDs
+already pinned there and `PackageVersion Include` for the others, and enables
+`CentralPackageTransitivePinningEnabled` so the added IDs pin transitive packages.
+An `Update` alone cannot add an absent ID. It does not copy or edit the props in git.
 
 ```bash
 bash "$local" use-nuget "$consumer" "$stamp" Cratis.Chronicle Cratis.Chronicle.CodeAnalysis
@@ -51,7 +53,8 @@ NuGet XML rewriter. An incomplete mapping or existing `cratis-local` key is refu
 Generate a fresh stamp with the helper, not `0.0.0-local`. The next-patch prerelease
 must sort above the versions required transitively or NuGet may report NU1605.
 A stale highest tag or dependency with a newer minimum needs investigation, not a
-warning suppression. The SHA is seven characters; dirty edits are not encoded.
+warning suppression. The suffix is `-local.<12-digit-UTC-minute>.g<sha7>`; the `g` prefix makes an
+all-digit SHA unambiguously nonnumeric in SemVer. Dirty edits are not encoded.
 Wait for a distinct UTC minute or commit before repacking changed contents.
 
 The existing global cache is shared safely only because local versions have

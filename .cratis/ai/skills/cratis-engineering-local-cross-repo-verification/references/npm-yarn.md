@@ -5,7 +5,7 @@
 
 ## Pack the package, not a link
 
-Requires node and Yarn 4. Run the producer's normal build first. The helper does
+Requires node, tar and Yarn 4. Run the producer's normal build first. The helper does
 not run a separate build; Yarn's normal pack lifecycle hooks still run.
 
 ```bash
@@ -34,8 +34,10 @@ yarn install
 # Run the repository's frontend build, lint, specs and reproducing UI action.
 ```
 
-The helper inspects tracked manifests, selects tarballs for referenced package
-names, and adds root `resolutions` using absolute `file:` tarball paths. It backs
+The helper selects every tarball ending in `-<stamp>.tgz` in the npm feed, reads
+each packed manifest for its package name, and adds root `resolutions` using
+absolute `file:` tarball paths. This also overrides transitive packages absent
+from consumer manifests, rather than silently falling back to published versions. It backs
 up root `package.json`, `yarn.lock` if present, and the pre-existing diff in the
 per-worktree session. It refuses another active npm backup. Check the install
 output/lockfile for the selected local versions; a successful install alone is not
@@ -53,15 +55,23 @@ bash "$local" restore "$consumer"
 bash "$local" check "$consumer"
 ```
 
-Restoration is deliberately conservative: it copies saved manifests only if the
-current manifest matches either the expected overlay or original, and the
-lockfile still matches its backup. Yarn install usually changes `yarn.lock`, so
-the helper can refuse even an expected workflow change. It retains backups and
-restores nothing on that conflict. Review the saved before-diff and files, undo
-only local overlay/lockfile changes manually, and retry. If user changes were
-made afterward, merge them instead of replacing them with the backup. Do not
-blindly checkout the consumer manifests. Reinstall released dependencies after
-restoration, then run `check` before any commit/push.
+Restoration compares the manifest with the saved original and overlay. Only the
+overlay's own resolution values may differ; unrelated manifest edits cause a
+refusal. Formatting alone is not a conflict. For Yarn 4 lockfiles, unchanged
+entries, metadata and headers must remain byte-identical. The guard accepts
+entries resolving to the exact overlay tarballs (including Yarn locator/hash
+suffixes) and removal of old entries for those same package names. Those local
+package blocks are treated as overlay-owned, including checksums and dependencies.
+Thus the normal `use-npm` → `yarn install` → `restore` flow puts back both original
+files, including edits that existed before `use-npm`.
+
+Unrelated lockfile edits, metadata/install churn, unsupported lockfile syntax, or
+a newly created/deleted lockfile require manual review. The helper restores
+neither file and retains backups on a conflict. Read the saved before-diff and
+files, undo only local overlay changes manually, and retry. Merge later user
+changes instead of replacing them with the backup. Do not blindly checkout the
+consumer manifests. Reinstall released dependencies after restoration, then run
+`check` before any commit/push.
 
 Review `clean "$consumer" --stamp "$stamp"` before `--apply`. Passing the consumer
 allows Yarn cache discovery; no consumer or unavailable Yarn yields a reported
