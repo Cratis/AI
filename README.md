@@ -426,8 +426,11 @@ Fence info strings declare what verification checks:
   errors cannot also claim specification execution.
 
 Run `yarn workspace @cratis/ai-verification run verify`. The tool is resolved
-from `CRATIS_SCREENPLAY_TOOL` or `screenplay` on PATH; its version must match the
-standalone pin in `Documentation/compatibility.md`. To require it
+from `CRATIS_SCREENPLAY_TOOL` when set; otherwise `verify` installs the standalone pin
+from `Documentation/compatibility.md` into the Git-ignored `.cache/screenplay-tool/`
+(the same `yarn workspace @cratis/ai-verification run tool:screenplay` script CI runs)
+and falls back to `screenplay` on PATH when that install is impossible (offline). A
+version mismatch names that command as the fix. To require it
 locally, run `CRATIS_SCREENPLAY_TOOL=/path/to/screenplay CRATIS_REQUIRE_SCREENPLAY=1
 yarn workspace @cratis/ai-verification run verify` on one shell line. CI installs
 that pin and requires the check. An unavailable tool is reported as SKIPPED

@@ -164,7 +164,7 @@ export async function verifyPlayExamples(root: string, runner: Runner = run, env
     else {
         const versionResult = await runner(tool, ['--version'], root);
         const outcome = versionOutcome(versionResult, version);
-        if (outcome === Outcome.Defects) report.problems.push(`Screenplay version mismatch: expected ${version}, got ${versionResult.output.trim()}.`);
+        if (outcome === Outcome.Defects) report.problems.push(`Screenplay version mismatch: expected ${version}, got ${versionResult.output.trim()}. Fix: run \`yarn workspace @cratis/ai-verification run tool:screenplay\` (installs the pin into .cache/screenplay-tool) and rerun.`);
         else if (outcome === Outcome.CouldNotRun) couldNotRun('Screenplay examples', versionResult.unavailable ?? versionResult.output);
         else {
             let index = 0;

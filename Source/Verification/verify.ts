@@ -14,6 +14,7 @@ import { validateMcpServers } from './mcp-servers.ts';
 import { pluginManifestPath, pluginManifestProblems } from './plugin-manifest.ts';
 import { loadProductSync, productSyncProblems, productSyncSummary } from './product-sync.ts';
 import { verifyPlayExamples } from './play/index.ts';
+import { resolvePinnedTool } from './screenplay-tool.ts';
 import { summary as contractSummary, verifyContract } from './contract/index.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
 import { verifySkillEvaluations } from './skill-evaluations.ts';
@@ -339,6 +340,13 @@ try {
     process.exit(2);
 }
 
+if (!process.env.CRATIS_SCREENPLAY_TOOL) {
+    try {
+        process.env.CRATIS_SCREENPLAY_TOOL = resolvePinnedTool(root);
+    } catch (error) {
+        console.error(`Pinned Screenplay tool unavailable; falling back to screenplay on PATH. ${error instanceof Error ? error.message : String(error)}`);
+    }
+}
 const screenplay = await verifyPlayExamples(root);
 failures.push(...screenplay.problems);
 console.log(JSON.stringify({ screenplay }, null, 2));
