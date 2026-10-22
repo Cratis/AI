@@ -13,6 +13,7 @@ const root = resolve(import.meta.dirname, '../..');
 const bridge = join(root, '.cratis/ai/harnesses/codex/hooks.mjs');
 const { shellGuard } = await import(pathToFileURL(bridge).href);
 const store = 'cratis-guard-store-mutations.sh';
+const secrets = 'cratis-guard-secrets.sh';
 const pullRequest = 'cratis-guard-pr-body.sh';
 function payload(command = 'git status') {
     return { cwd: root, session_id: 'codex-test', hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command } };
@@ -20,6 +21,7 @@ function payload(command = 'git status') {
 function fixture(first = 'exit 0', second = 'exit 0') {
     const directory = mkdtempSync(join(tmpdir(), 'codex-hooks-'));
     writeFileSync(join(directory, store), first, { mode: 0o644 });
+    writeFileSync(join(directory, secrets), 'exit 0', { mode: 0o644 });
     writeFileSync(join(directory, pullRequest), second, { mode: 0o644 });
     return { directory, cleanup: () => rmSync(directory, { recursive: true, force: true }) };
 }
@@ -155,7 +157,7 @@ test('managed scripts run through Bash even without execute permission', async (
     const f = fixture();
     try {
         const scripts = join(root, '.cratis/ai/hooks/scripts');
-        for (const file of [store, 'hook-lib.sh', 'cratis-store-mutations.json']) {
+        for (const file of [store, secrets, 'hook-lib.sh', 'cratis-store-mutations.json']) {
             copyFileSync(join(scripts, file), join(f.directory, file));
             chmodSync(join(f.directory, file), 0o644);
         }

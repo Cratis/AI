@@ -148,6 +148,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Reading, citing and superseding a decision record | the **cratis-engineering-decision-record** skill |
 | Before any browser call: production permit, handoff, artifact paths, evidence | `browser.md` |
 | Whether you are allowed to do the thing you are able to do | `capability-is-not-authority.md` |
+| Before running a command that could print a credential, or when a secret value appears in output | `secrets.md` |
 | What must stop and ask a human | `capability-is-not-authority.md` (absent authority for a consequential effect: stop and ask) |
 | What counts as evidence that something works | `verification-discipline.md` |
 | Before writing a session note, plan or handover: where they may live (`.ai-work/` only) | `local-work-artifacts.md` |

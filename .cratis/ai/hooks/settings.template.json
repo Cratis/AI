@@ -20,6 +20,10 @@
           },
           {
             "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.cratis/ai/hooks/scripts/cratis-guard-secrets.sh"
+          },
+          {
+            "type": "command",
             "command": "bash \"$CLAUDE_PROJECT_DIR\"/.cratis/ai/hooks/scripts/cratis-guard-pr-body.sh"
           }
         ]
