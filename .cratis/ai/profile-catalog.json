@@ -990,6 +990,7 @@
     {
       "id": "cratis/engineering/core",
       "availableTargets": [
+        "cratis-ci-pipeline-performance",
         "cratis-documentation-writing",
         "cratis-engineering-consolidation-guard",
         "cratis-engineering-decision-record",
