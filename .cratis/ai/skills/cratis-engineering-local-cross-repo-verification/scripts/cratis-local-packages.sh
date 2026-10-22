@@ -44,7 +44,8 @@ Commands (COMMAND --help shows these instructions too):
     Known sessions are registered in FEED/sessions; an optional consumer also
     discovers its per-worktree session. Docker probes have a 10-second deadline.
   --self-test
-    Hermetic scratch HOME/system PATH tests; reports passed and skipped counts.
+    Isolated scratch HOME tests; npm uses inherited PATH to discover node.
+    Other tests use system PATH. Reports passed and skipped counts.
 
 Configuration: source ${XDG_CONFIG_HOME:-$HOME/.config}/cratis/local-packages.env
 if present (trusted shell code), then use these defaults for unset variables:
@@ -595,8 +596,10 @@ self_test() {
     local root home repo feed version output status passed=0 skipped=0 test_key
     scratch; root=$TMP/self-test; mkdir -p "$root/home" "$root/repo"
     home=$root/home; repo=$root/repo; feed=$home/.cache/cratis/local-feed
-    # Each invocation uses only system tools, isolated HOME/config and no host adapter.
+    # System-only tests stay hermetic; npm tests inherit PATH to discover node.
+    # Both isolate HOME/config and omit the host adapter.
     st() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" /bin/bash "$SELF" "$@"; }
+    st_npm() { env -i HOME="$home" PATH="$PATH" TMPDIR="$TMP" /bin/bash "$SELF" "$@"; }
     git -C "$repo" init -q
     repo=$(repo_root "$repo")
     git -C "$repo" config user.email test@example.invalid
@@ -646,14 +649,14 @@ self_test() {
     [ "$status" -eq 1 ] || failed 'self-test: staged content'
     git -C "$repo" restore --staged probe; git -C "$repo" checkout -- probe
     passed=$((passed + 1))
-    if PATH=/usr/bin:/bin:/usr/sbin:/sbin command -v node >/dev/null 2>&1; then
+    if command -v node >/dev/null 2>&1; then
         cp "$repo/package.json" "$root/original-package.json"
-        st use-npm "$repo" "$version"
+        st_npm use-npm "$repo" "$version"
         grep -q 'resolutions' "$repo/package.json" || failed 'self-test: resolutions'
-        st restore "$repo" > "$root/output"
+        st_npm restore "$repo" > "$root/output"
         cmp -s "$repo/package.json" "$root/original-package.json" || failed 'self-test: npm restore'
         passed=$((passed + 2))
-    else printf 'SKIP: npm mutation/restore needs node on system PATH\n'; skipped=$((skipped + 2)); fi
+    else printf 'SKIP: npm mutation/restore needs node on inherited PATH\n'; skipped=$((skipped + 2)); fi
     mkdir -p "$home/.nuget/packages/cratis.test/$version" "$home/.nuget/packages/cratis.test/1.2.3"
     st clean --stamp "$version" > "$root/output"
     grep -Fq "$home/.nuget/packages/cratis.test/$version" "$root/output" || failed 'self-test: clean lists local cache'
