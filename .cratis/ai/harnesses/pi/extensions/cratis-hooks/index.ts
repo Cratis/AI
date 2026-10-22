@@ -162,6 +162,19 @@ async function runBlockingGuard(
 	return undefined;
 }
 
+/** Runs the installed blocking Bash guards in order; the first refusal wins. */
+async function runCommandGuards(
+	guards: Array<[script: string, name: string]>,
+	payload: object,
+	ctx: ToolCallContext,
+): Promise<{ block: true; reason: string } | undefined> {
+	for (const [script, name] of guards.filter(([guard]) => isInstalled(guard))) {
+		const blocked = await runBlockingGuard(script, name, "command", payload, ctx);
+		if (blocked) return blocked;
+	}
+	return undefined;
+}
+
 /**
  * Whether a hook script is installed at all.
  *
@@ -216,14 +229,8 @@ export default function (pi: ExtensionAPI) {
 			const command = (event as any).input?.command;
 			if (typeof command !== "string" || !command.trim()) return;
 			const payload = { cwd: ctx.cwd, tool_name: "Bash", tool_input: { command } };
-			if (isInstalled(guardStoreMutations)) {
-				const blocked = await runBlockingGuard(guardStoreMutations, "cratis-guard-store-mutations", "command", payload, ctx);
-				if (blocked) return blocked;
-			}
-			if (isInstalled(guardSecrets)) {
-				const blocked = await runBlockingGuard(guardSecrets, "cratis-guard-secrets", "command", payload, ctx);
-				if (blocked) return blocked;
-			}
+			const blocked = await runCommandGuards([[guardStoreMutations, "cratis-guard-store-mutations"], [guardSecrets, "cratis-guard-secrets"]], payload, ctx);
+			if (blocked) return blocked;
 			if (isInstalled(guardPrBody)) {
 				const run = await runScript(guardPrBody, JSON.stringify(payload), ctx.cwd, ctx.signal);
 				if (run.failed || run.code !== 0) return { block: true, reason: run.stderr.trim() || "cratis-guard-pr-body could not check this command." };

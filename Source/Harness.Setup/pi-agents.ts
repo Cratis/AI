@@ -4,9 +4,15 @@
 import { existsSync, lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { isKnownToolName, normalizeToolsDetailed } from '../../.cratis/ai/harnesses/pi/extensions/subagent/tool-names.ts';
-import { readCanonicalAgents, refusePinnedModel, type CanonicalAgent, type GeneratedAgent } from './opencode-agents.ts';
+import { pinnedModelMessage, readCanonicalAgents, type CanonicalAgent, type GeneratedAgent } from './opencode-agents.ts';
 
 export const piAgentsDirectory = 'harnesses/pi/agents';
+
+/** Pi passes a native `model:` verbatim to `--model`; canonical agents declare modelTier instead. */
+function refusePinnedModel(agent: CanonicalAgent): void {
+    if (agent.model !== undefined) throw new Error(pinnedModelMessage(agent.file));
+}
+
 export const piAgentMarkerPrefix = '<!-- cratis-ai: generated Pi adapter of agents/';
 
 /**

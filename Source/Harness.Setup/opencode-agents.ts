@@ -77,11 +77,6 @@ function splitFrontmatter(file: string, text: string): { frontmatter: string[]; 
     return { frontmatter: text.slice(4, end).split('\n'), body: text.slice(end + 5) };
 }
 
-/** Canonical agents declare modelTier; a native model pin is refused by every generator. */
-export function refusePinnedModel(agent: CanonicalAgent): void {
-    if (agent.model !== undefined) throw new Error(pinnedModelMessage(agent.file));
-}
-
 /**
  * Reads the frontmatter keys this generator needs. The canonical agents use exactly four shapes -
  * `key: value`, `key: >` folded blocks, `key:` followed by `  - item` lines, and `key: [a, b]` - and
@@ -140,7 +135,7 @@ export function generateOpenCodeAgent(agent: CanonicalAgent): GeneratedAgent {
     if (unknown.length > 0) {
         throw new Error(`${agent.file} declares tools outside the canonical vocabulary: ${unknown.join(', ')}.`);
     }
-    refusePinnedModel(agent);
+    if (agent.model !== undefined) throw new Error(pinnedModelMessage(agent.file));
     if (agent.readonly && agent.tools.some(tool => tool === 'Edit' || tool === 'Write')) {
         throw new Error(`${agent.file} is readonly but declares Edit/Write.`);
     }
