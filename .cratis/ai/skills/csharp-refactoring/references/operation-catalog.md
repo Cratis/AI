@@ -29,8 +29,8 @@ ladder in SKILL.md.
 
 ## "Modernize" is defined by the repo's analyzer config, not personal taste
 
-These repos drive idiom rules through `.editorconfig` + `EnforceOnBuild` (roslyn #49995 "Set
-EnforceOnBuild values for code style analyzers"). Apply the fixes the repo's own analyzers request
+These repos drive idiom rules through `.editorconfig` + `EnforceOnBuild` (which enforces
+code-style analyzers during build). Apply the fixes the repo's own analyzers request
 (IDE00xx / CAxxxx) via `dotnet format` / code-fixes; don't impose a style it hasn't opted into, and don't
 blanket-suppress diagnostics to make an edit "pass." For _adopting_ nullable annotations specifically, see
 `dotnet-upgrade/migrate-nullable-references`; enabling nullable across a project or changing public API

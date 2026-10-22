@@ -35,7 +35,7 @@ A single benchmark number has limited value — it can confirm the order of magn
 - **Runtime configuration (GC mode, JIT settings)**: understanding how runtime settings affect performance — compared via multiple jobs in a single run.
 - **Scale (N=100 vs N=1000)**: understanding how performance changes as input size grows.
 - **Hardware/OS**: comparing across different machines or operating systems — requires separate runs on each environment.
-- **Historical measurements**: comparing against measurements recorded at a previous point in time.
+- **Earlier measurements**: comparing against measurements recorded previously.
 
 BDN can compare the first six axes side-by-side in a single run, but each requires specific CLI flags or configuration that differ from what you might expect — read [references/comparison-strategies.md](references/comparison-strategies.md) for the correct approach for each strategy before configuring a comparison.
 

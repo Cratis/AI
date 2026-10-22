@@ -10,6 +10,7 @@ LICENSE:
 - Copy upstream MIT license and copyright verbatim.
 
 SKILL.md:
+- Lead the description trigger with an explicit "Use when" clause.
 - Normalize frontmatter serialization, add MIT license where absent; preserve name and description.
 - Add marked modification/source comment and applicability/Cratis precedence line.
 - Require analyzer/warnings-as-errors restoration after labelled timing experiments.

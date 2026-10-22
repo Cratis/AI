@@ -40,12 +40,14 @@ references/configuration-api.md:
 - Add or normalize the top Contents list from existing headings; preserve section content.
 
 references/official-docs-index.md:
+- Remove the release-notes list; point links at the main branch and drop version labels.
 - Add or normalize the top Contents list from existing headings; preserve section content.
 
 references/persistence-api.md:
 - Add or normalize the top Contents list from existing headings; preserve section content.
 
 references/scheduling-and-services.md:
+- Remove release-notes link; point links at the main branch; describe the prerelease suffix without a version.
 - Add or normalize the top Contents list from existing headings; preserve section content.
 
 references/streaming-api.md:
@@ -53,5 +55,8 @@ references/streaming-api.md:
 
 references/testing-patterns.md:
 - Add or normalize the top Contents list from existing headings; preserve section content.
+
+references/grains.md:
+- Point links at the main branch and drop version labels.
 
 NOTICE: Add this attribution, change list, and any download/execution disclosure.

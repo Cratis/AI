@@ -10,6 +10,7 @@ LICENSE:
 - Copy upstream MIT license and copyright verbatim.
 
 SKILL.md:
+- Reword the historical-measurements axis in neutral present-tense wording.
 - Normalize frontmatter serialization, add MIT license where absent; preserve name and description.
 - Add marked modification/source comment and applicability/Cratis precedence line.
 
@@ -18,6 +19,7 @@ references/writing-benchmarks.md:
 - Add or normalize the top Contents list from existing headings; preserve section content.
 
 references/bdn-internals-and-tuning.md:
+- Reduce release-specific version mentions to the single behavior boundary.
 - Add or normalize the top Contents list from existing headings; preserve section content.
 
 references/comparison-strategies.md:

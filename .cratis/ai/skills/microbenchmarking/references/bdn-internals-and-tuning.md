@@ -30,7 +30,7 @@ Each case runs through these stages sequentially. Some stage defaults have chang
 3. **Warmup** — Adaptive, typically 6–10 iterations for stable benchmarks (those with low variance). During warmup the runtime may further optimize the method (e.g., tiered JIT recompilation).
 4. **Actual** — Adaptive, typically 15 iterations for stable benchmarks. Stops when the confidence interval is sufficiently narrow (controlled by `MaxRelativeError`, default 2%).
 
-**Note (versions before 0.16.0):** prior to BDN 0.16.0, an additional **Overhead** stage ran between Pilot and Warmup by default. It measured the internal invocation loop's own cost and subtracted it from results. Starting in 0.16.0 this stage is off by default and the API to re-enable it (`[EvaluateOverhead]` / `.WithEvaluateOverhead()`) is marked obsolete.
+**Note (BDN before 0.16.0):** an additional **Overhead** stage ran between Pilot and Warmup by default. It measured the internal invocation loop's own cost and subtracted it from results. Newer releases leave this stage off by default, and the API to re-enable it (`[EvaluateOverhead]` / `.WithEvaluateOverhead()`) is marked obsolete.
 
 ## Job preset configurations
 
@@ -91,7 +91,7 @@ Note: `[ProcessCount]` and `--launchCount` control the same setting (how many se
 
 The `[RunOncePerIteration]` attribute (also available as `.RunOncePerIteration()` or `--runOncePerIteration`) is shorthand for setting `InvocationCount=1` and `UnrollFactor=1`.
 
-**Note (versions before 0.16.0):** `[EvaluateOverhead(bool)]` / `.WithEvaluateOverhead(bool)` / `--noOverheadEvaluation` controlled overhead subtraction. These are obsolete since 0.16.0 when overhead evaluation was disabled by default.
+**Note (older BDN releases):** `[EvaluateOverhead(bool)]` / `.WithEvaluateOverhead(bool)` / `--noOverheadEvaluation` controlled overhead subtraction. These are obsolete because overhead evaluation is disabled by default.
 
 **Class or assembly level:**
 - Job attributes: `[SimpleJob(...)]`, `[DryJob]`, `[ShortRunJob]`, `[MediumRunJob]`, `[LongRunJob]`, `[VeryLongRunJob]`. AllowMultiple — can stack to run the same benchmarks under different job configurations.

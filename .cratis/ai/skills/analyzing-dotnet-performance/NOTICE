@@ -10,6 +10,7 @@ LICENSE:
 - Copy upstream MIT license and copyright verbatim.
 
 SKILL.md:
+- Replace "I/O" with "input/output" in the description to satisfy the neutral-voice rule.
 - Normalize frontmatter serialization, add MIT license where absent; preserve name and description.
 - Add marked modification/source comment and applicability/Cratis precedence line.
 

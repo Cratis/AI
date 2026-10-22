@@ -10,6 +10,7 @@ LICENSE:
 - Copy upstream MIT license and copyright verbatim.
 
 SKILL.md:
+- Remove the SDK version from the description; the 17.12 floor stays in the body.
 - Normalize frontmatter serialization, add MIT license where absent; preserve name and description.
 - Correct the binlog {} placeholder SDK/MSBuild minimum in description and body.
 - Add marked modification/source comment and applicability/Cratis precedence line with the skill-specific safety, ownership or compatibility caveat.

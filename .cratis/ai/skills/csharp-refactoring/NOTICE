@@ -14,4 +14,7 @@ SKILL.md:
 - Add marked modification/source comment and applicability/Cratis precedence line.
 - Add the requested Cratis persisted-event, proxy, Orleans identity and framework-public-API contract section.
 
+references/operation-catalog.md:
+- Replace the upstream issue reference with a plain statement of the behavior.
+
 NOTICE: Add this attribution, change list, and any download/execution disclosure.
