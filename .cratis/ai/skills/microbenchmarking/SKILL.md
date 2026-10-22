@@ -113,7 +113,7 @@ Decide on the list of test cases. For each test case, think through:
 
 For **coverage suite** benchmarks, add to the existing benchmark project and follow its conventions. For **temporary benchmarks** (investigation, change validation, development feedback), create a standalone project — read [references/project-setup-and-running.md](references/project-setup-and-running.md) for project setup and entry point configuration.
 
-**Adding the BenchmarkDotNet package**: Always use `dotnet add package BenchmarkDotNet` (no version) — this lets NuGet resolve the latest compatible version. Do NOT manually write a `<PackageReference>` with a version number into the `.csproj`; BDN versions in training data are outdated and may lack support for current .NET runtimes.
+**Adding the BenchmarkDotNet package**: In a repository with Central Package Management (`Directory.Packages.props`), use the version already pinned there and add a versionless `<PackageReference>`; otherwise use `dotnet add package BenchmarkDotNet` (no version) — this lets NuGet resolve the latest compatible version. Do NOT manually write a `<PackageReference>` with a version number into the `.csproj`; BDN versions in training data are outdated and may lack support for current .NET runtimes.
 
 Write the benchmark code. Follow the patterns in [references/writing-benchmarks.md](references/writing-benchmarks.md) to avoid common measurement errors — in particular:
 - **Return results** from benchmark methods to prevent dead code elimination

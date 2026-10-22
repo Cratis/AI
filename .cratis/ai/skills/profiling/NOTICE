@@ -10,6 +10,7 @@ LICENSE:
 - Copy upstream MIT license and copyright verbatim.
 
 SKILL.md:
+- Bootstrap step 4 records commands in task notes or the report instead of editing `AGENTS.md`.
 - Normalize frontmatter serialization, add MIT license where absent; preserve name and description.
 - Add marked modification/source comment and applicability/Cratis precedence line with the skill-specific safety, ownership or compatibility caveat.
 - Add --version <x> placeholders to tool installations; pin the version.

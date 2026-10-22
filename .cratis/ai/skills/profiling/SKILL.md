@@ -83,7 +83,7 @@ If official .NET profiling tools are not available yet:
    - `dotnet-counters --version`
    - `dotnet-trace --version`
    - `dotnet-gcdump --version`
-4. Record exact profiling commands in `AGENTS.md`, for example:
+4. Record the exact profiling commands in the task's `.ai-work/<task>/` notes or the final report (propose an `AGENTS.md` or project-doc change only when the user asks for one; managed corpus files are never edited by hand), for example:
    - `dotnet-counters monitor --process-id PID --counters System.Runtime`
    - `dotnet-trace collect --process-id PID --profile dotnet-common,dotnet-sampled-thread-time -o trace.nettrace`
    - `dotnet-gcdump collect --process-id PID --output heap.gcdump`
