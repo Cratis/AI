@@ -13,8 +13,9 @@ import { skillBody } from './skill-structure.ts';
  * Raised by the 88-byte general.md routing row for discoverability.md (Claude Code and Pi count general.md twice).
  * Cratis/AI#859 browser.md + general.md routing row: +2425 bytes (claude-code, pi), +2454 (copilot), +97 (cursor, codex-opencode).
  * Cratis/AI#863 secrets.md + general.md routing row + local-work-artifacts.md scan bullet: +2525 bytes (claude-code, pi), +2541 (copilot), +116 (cursor, codex-opencode).
+ * Cratis/AI#871 secrets.md hook-limits bullet: +321 bytes (claude-code, copilot, pi).
  */
-export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 121_554, copilot: 97_415, pi: 123_750, cursor: 23_291, 'codex-opencode': 22_998 };
+export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 121_875, copilot: 97_736, pi: 124_071, cursor: 23_291, 'codex-opencode': 22_998 };
 
 const remedy = 'Displace or demote text to an on-demand skill, or raise the budget in Source/Verification/always-on-budget.ts in a reviewed change.';
 
