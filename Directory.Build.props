@@ -4,6 +4,16 @@
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
 
+        <!-- NuGet package metadata -->
+        <Authors>Cratis</Authors>
+        <PackageProjectUrl>https://www.cratis.io/ai/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/Cratis/AI</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>cratis;ai;agents;dotnet;cqrs</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>logo.png</PackageIcon>
+
         <WarnOnPackingNonPackableProject>false</WarnOnPackingNonPackableProject>
 
         <!-- Debuggability -->
