@@ -44,6 +44,17 @@ paths:
   `cancel-in-progress: true`, keyed `${{ github.workflow }}-${{ github.ref }}`.
   **Never** cancel-in-progress on publish, release, or deploy workflows — a cancelled
   half-publish is worse than a queued one.
+- **Publish and release workflows set `concurrency` with `queue: max`** and no
+  cancellation. The default single pending slot replaces a queued run, so a release
+  is silently dropped. A workflow that deliberately aggregates triggers into one run
+  may keep a single pending slot if it documents that design beside the `concurrency` block.
+- **A required check must not be skippable by `paths:` alone.** A workflow that never
+  starts never reports, and the pull request hangs. Gate jobs on a change-detection job
+  and require one always-run aggregator job (`if: always()`, checks every `needs.*.result`).
+- **Pin third-party actions by full commit SHA** (version in a comment) and set minimal
+  `permissions:` on each job. `actionlint` and `zizmor` enforce this in CI; run them on
+  edited workflows.
+- To make a workflow faster, use the `cratis-ci-pipeline-performance` skill.
 
 ## Matrices and operating systems
 
