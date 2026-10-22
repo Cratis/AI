@@ -19,19 +19,19 @@ concurrency:
   arrival replaces the pending one. `queue: max` keeps up to 100 pending runs in
   the group and processes them in order. It is valid only while
   `cancel-in-progress` is `false` or unset; never combine it with `true`.
-- Replacement only happens between runs of the same group. Decide from the group
-  key whether the queue matters: a group keyed on `github.ref` for `pull_request`
-  `closed` events is `refs/pull/N/merge`, one group per pull request, so two merges
-  never compete and `queue: max` changes nothing. It matters when releases share a
-  group: a push to the default branch, or a repository-wide key like the one above.
+- Replacement only happens between runs of the same group, so read the group key.
+  Merges into the default branch share one group: a push, a repository-wide key, or
+  `github.ref` on a merged `pull_request` `closed` event, where `github.ref` is the
+  base branch (for example `refs/heads/main`). A newer merge's pending run then
+  replaces the older pending one unless `queue: max` is set. Only a `closed` event
+  of an unmerged pull request keeps `refs/pull/N/merge`, a group of its own.
 - A replaced pending run is lost work only when that run alone would have released
   something. Release tooling that aggregates everything since the last release
   loses nothing when a pending run is replaced; such a workflow may keep one
   pending slot, with a comment beside the `concurrency` block saying so.
 - Groups are repository-scoped; this is not an organization-wide release lock.
 - Check the symptom in the report: many cancelled publish runs under one group
-  point at a replaced pending slot; cancelled runs spread across per-PR groups do
-  not.
+  point at a replaced pending slot.
 
 ## Publish from the tested artifacts
 

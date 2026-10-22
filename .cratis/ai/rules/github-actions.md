@@ -44,16 +44,15 @@ paths:
   `cancel-in-progress: true`, keyed `${{ github.workflow }}-${{ github.ref }}`.
   **Never** cancel-in-progress on publish, release, or deploy workflows — a cancelled
   half-publish is worse than a queued one.
-- **Publish and release workflows never cancel** (`cancel-in-progress: false`). Where
-  releases from different runs share one `concurrency` group (push to the default branch,
-  a repository-wide group), add `queue: max`: it keeps up to 100 pending runs and
-  processes them in order, instead of replacing the single pending run. It applies only
-  while `cancel-in-progress` is false or unset, and only between runs of the same group:
-  a group keyed on `github.ref` for `pull_request` `closed` events is per pull request,
-  so the queue gains nothing there. A replaced pending run loses a release only when that
-  run alone would have released something; release tooling that aggregates everything
-  since the last release loses nothing, and may keep one pending slot if a comment beside
-  the `concurrency` block says so.
+- **Publish and release workflows never cancel** (`cancel-in-progress: false`) and set
+  `queue: max`. A group holds one running and one pending run; a newer arrival replaces
+  the pending one. Merges into the default branch share a group (a push, a repository-wide
+  key, or `github.ref` on a merged `pull_request` `closed` event, which is the base
+  branch), so without `queue: max` a newer merge replaces the older pending release.
+  `queue: max` keeps up to 100 pending runs, processed in order, and applies only while
+  `cancel-in-progress` is false or unset. Keep a single pending slot only for a documented
+  design where each run releases everything since the last release, so a replaced run
+  loses nothing; say so in a comment beside the `concurrency` block.
 - **A required check must not be skippable by `paths:` alone.** A workflow that never
   starts never reports, and the pull request hangs. Gate jobs on a change-detection job
   and require one always-run aggregator job (`if: always()`, checks every `needs.*.result`).

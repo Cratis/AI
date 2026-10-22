@@ -66,6 +66,7 @@ $runs[0] as $all
 | ($done | map(select(.conclusion == "failure"))) as $fail
 | ($done | map(select(.conclusion == "cancelled"))) as $canc
 | ($done | map(select(.attempt > 1))) as $rerun
+| ($done | map(select((.conclusion == "success" or .conclusion == "failure") and .attempt > 1)) | length) as $rerunExcluded
 | ($done | map(select((.conclusion == "success" or .conclusion == "failure") and .attempt == 1)
     | ((.updatedAt | ts) - (.createdAt | ts)))) as $walls
 | (rate($fail | length; $done | length)) as $failP
@@ -108,7 +109,7 @@ $runs[0] as $all
         | .[] | "| \(.k) | \(.n) |"),
   "",
   "Rates over \($done | length) completed runs: cancelled \($cancP | f1)%, failed \($failP | f1)%, rerun (attempt > 1) \($rerunP | f1)%.",
-  "Wall clock (success and failure, first attempts only, \($walls | length) runs; \($rerun | length) rerun runs excluded): median \($walls | pct(0.5) | mins | f1) min, p90 \($walls | pct(0.9) | mins | f1) min.",
+  "Wall clock (success and failure, first attempts only, \($walls | length) runs; \($rerunExcluded) rerun runs excluded): median \($walls | pct(0.5) | mins | f1) min, p90 \($walls | pct(0.9) | mins | f1) min.",
   "",
   (
      "## Per run (\($sample | length) most recent successful first-attempt runs)",
@@ -246,6 +247,14 @@ Wall clock (success and failure, first attempts only, 6 runs; 1 rerun runs exclu
 | lint / eslint | 0.8 | 3 |
 Classification: execution-bound (queue share 12.0%, failed 12.5%, cancelled 12.5%, rerun 12.5%).
 EXPECTED
+
+  # A rerun that ended cancelled is not excluded from wall clock; only success or failure reruns are.
+  jq 'map(if .databaseId == 1005 then .attempt = 2 else . end)' "$fx/runs.json" >"$tmp/rerun-cancelled.json"
+  out=$(report "$tmp/rerun-cancelled.json" "$tmp/jobs.json" "example/repo" "ci.yml" "" 3)
+  if ! printf '%s\n' "$out" | grep -F -x -q -- 'Wall clock (success and failure, first attempts only, 6 runs; 1 rerun runs excluded): median 15.0 min, p90 25.0 min.'; then
+    printf 'FAIL rerun exclusion count: %s\n' "$(printf '%s\n' "$out" | grep -F 'Wall clock')" >&2
+    failures=$((failures + 1))
+  fi
 
   # A skipped job must not be counted as a job.
   if printf '%s\n' "$out" | grep -F -q '| deploy |'; then

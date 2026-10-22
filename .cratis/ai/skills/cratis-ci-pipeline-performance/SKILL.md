@@ -105,10 +105,11 @@ and the pull request hangs. Read `references/required-checks-and-path-filters.md
 **Concurrency.** Pull-request verification uses `cancel-in-progress: true` keyed
 by workflow and ref. Publish never cancels; where releases share one group, `queue:
 max` keeps up to 100 pending runs in order instead of replacing the single pending
-one. Pitfall: expecting `queue: max` to help when the group key is per pull request
-(it only orders runs of the same group), or dropping a pending run that alone would
-have released something. A workflow whose release tooling aggregates since the last
-release may keep one pending slot, documented. Read `references/publish-pipelines.md`.
+one. Pitfall: leaving the single pending slot where a replaced merge's run alone
+would have released something (merges into the default branch share a group, also
+when keyed on `github.ref` for merged `pull_request` `closed` events). A workflow
+whose release tooling aggregates since the last release may keep one pending slot,
+documented. Read `references/publish-pipelines.md`.
 
 **Runner routing.** Fits queue-bound workflows. Default: private-repository jobs
 on the organization scale set `cratis-arc` or a repository variable that falls
