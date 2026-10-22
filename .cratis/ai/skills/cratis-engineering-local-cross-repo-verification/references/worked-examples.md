@@ -52,8 +52,13 @@ step. Apply the entry point's check/restore/cleanup sequence to both repositorie
    producer normally and bump Studio to released pins later; never commit local
    package versions or the local image selector.
 
-TODO(parent): replace timing gaps after the complete proof run. Package creation
-and kernel publishing are not a passing image build or consumer integration spec.
+In run time this loop takes minutes: client packs about 1–2 minutes, kernel
+publish a few minutes, image build seconds with a warm cache, the Studio spec
+project build about 6 minutes, and the spec class itself seconds. When the spec
+fails because the local kernel refuses to start (for example a startup
+requirement the consumer's container setup does not satisfy yet), that is a
+real finding about the consumer, not about the overlay: read the container log
+before changing the producer.
 
 ## Fundamentals → Arc
 

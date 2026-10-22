@@ -214,14 +214,22 @@ is not exercised by this hermetic self-test. Report any unrun ecosystem checks.
 
 ## Why the local loop
 
-A release chain requires producer PR, CI and publication, then a consumer pin bump
-and CI; a failed attempt repeats that chain. Local package packing can take about
-1–2 minutes and kernel publishing a few minutes, before consumer proof, without
-publication between iterations. Queue time is separate from execution time.
+A release chain runs producer PR, producer CI and publication, then a consumer
+pin bump and consumer CI, with hand-offs between each step. For a Chronicle fix
+consumed by Studio that is roughly 15–25 minutes of publishing, a bump pull
+request and another 20–30 minutes of consumer CI, and in practice hours of
+latency between them. A fix that turns out not to work repeats all of it.
 
-TODO(parent): fill measured image-build, consumer-build and one integration-spec
-ranges, plus release-chain comparison, when the end-to-end proof completes. Do
-not infer end-to-end speed or a passing consumer spec from package creation.
+The local loop for the same chain, in run time: packing the client packages
+about 1–2 minutes, publishing the kernel a few minutes, building the image
+seconds with a warm layer cache, building the consumer's spec project about
+6 minutes, and an integration spec class seconds to minutes. Every iteration
+stays local. A shared build queue adds its own waiting time on top; that is
+machine load, not part of the loop.
+
+The loop also surfaces incompatibilities before anything ships: a consumer that
+does not yet supply what a newer kernel requires at startup fails here, in
+minutes, instead of after a release and a pin bump.
 
 ## Conditional recipes
 
