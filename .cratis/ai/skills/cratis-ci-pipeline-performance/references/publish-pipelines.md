@@ -15,16 +15,23 @@ concurrency:
 
 - Pull-request verification cancels superseded runs. Publish never does: a
   cancelled half-publish is worse than a queued one.
-- Without `queue: max`, a newer pending run replaces the single pending slot even
-  when `cancel-in-progress` is `false`. Where a replaced run loses a release (each
-  merge is a release), a dropped pending run is lost work: use `queue: max`.
-- A workflow that deliberately aggregates triggers into one run, and documents
-  that single-pending design, may keep it. Say so in a comment next to the
-  `concurrency` block.
-- Do not combine `queue: max` with `cancel-in-progress: true`.
+- A concurrency group holds one running and, by default, one pending run; a newer
+  arrival replaces the pending one. `queue: max` keeps up to 100 pending runs in
+  the group and processes them in order. It is valid only while
+  `cancel-in-progress` is `false` or unset; never combine it with `true`.
+- Replacement only happens between runs of the same group. Decide from the group
+  key whether the queue matters: a group keyed on `github.ref` for `pull_request`
+  `closed` events is `refs/pull/N/merge`, one group per pull request, so two merges
+  never compete and `queue: max` changes nothing. It matters when releases share a
+  group: a push to the default branch, or a repository-wide key like the one above.
+- A replaced pending run is lost work only when that run alone would have released
+  something. Release tooling that aggregates everything since the last release
+  loses nothing when a pending run is replaced; such a workflow may keep one
+  pending slot, with a comment beside the `concurrency` block saying so.
 - Groups are repository-scoped; this is not an organization-wide release lock.
-- Check the symptom in the report: many cancelled publish runs on `closed` pull
-  request events point at a replaced pending slot.
+- Check the symptom in the report: many cancelled publish runs under one group
+  point at a replaced pending slot; cancelled runs spread across per-PR groups do
+  not.
 
 ## Publish from the tested artifacts
 

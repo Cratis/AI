@@ -44,16 +44,23 @@ paths:
   `cancel-in-progress: true`, keyed `${{ github.workflow }}-${{ github.ref }}`.
   **Never** cancel-in-progress on publish, release, or deploy workflows — a cancelled
   half-publish is worse than a queued one.
-- **Publish and release workflows set `concurrency` with `queue: max`** and no
-  cancellation. The default single pending slot replaces a queued run, so a release
-  is silently dropped. A workflow that deliberately aggregates triggers into one run
-  may keep a single pending slot if it documents that design beside the `concurrency` block.
+- **Publish and release workflows never cancel** (`cancel-in-progress: false`). Where
+  releases from different runs share one `concurrency` group (push to the default branch,
+  a repository-wide group), add `queue: max`: it keeps up to 100 pending runs and
+  processes them in order, instead of replacing the single pending run. It applies only
+  while `cancel-in-progress` is false or unset, and only between runs of the same group:
+  a group keyed on `github.ref` for `pull_request` `closed` events is per pull request,
+  so the queue gains nothing there. A replaced pending run loses a release only when that
+  run alone would have released something; release tooling that aggregates everything
+  since the last release loses nothing, and may keep one pending slot if a comment beside
+  the `concurrency` block says so.
 - **A required check must not be skippable by `paths:` alone.** A workflow that never
   starts never reports, and the pull request hangs. Gate jobs on a change-detection job
   and require one always-run aggregator job (`if: always()`, checks every `needs.*.result`).
 - **Pin third-party actions by full commit SHA** (version in a comment) and set minimal
-  `permissions:` on each job. `actionlint` and `zizmor` enforce this in CI; run them on
-  edited workflows.
+  `permissions:` on each job. Run `zizmor` locally on edited workflows: its `unpinned-uses`
+  and `excessive-permissions` audits check exactly this. `actionlint` checks syntax,
+  expressions and embedded shell, not pinning. Do not assume CI runs either tool.
 - To make a workflow faster, use the `cratis-ci-pipeline-performance` skill.
 
 ## Matrices and operating systems

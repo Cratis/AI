@@ -103,11 +103,12 @@ only the aggregator. Pitfall: a required check skipped by `paths:` never reports
 and the pull request hangs. Read `references/required-checks-and-path-filters.md`.
 
 **Concurrency.** Pull-request verification uses `cancel-in-progress: true` keyed
-by workflow and ref. Publish never cancels and uses `queue: max`, so a queued
-release is not dropped. Pitfall: cancelling a publish, or leaving the single
-pending slot in place where a dropped run loses a release. A workflow that
-deliberately aggregates several triggers into one run may keep a documented
-single-pending design. Read `references/publish-pipelines.md`.
+by workflow and ref. Publish never cancels; where releases share one group, `queue:
+max` keeps up to 100 pending runs in order instead of replacing the single pending
+one. Pitfall: expecting `queue: max` to help when the group key is per pull request
+(it only orders runs of the same group), or dropping a pending run that alone would
+have released something. A workflow whose release tooling aggregates since the last
+release may keep one pending slot, documented. Read `references/publish-pipelines.md`.
 
 **Runner routing.** Fits queue-bound workflows. Default: private-repository jobs
 on the organization scale set `cratis-arc` or a repository variable that falls
@@ -176,9 +177,11 @@ touches `permissions:`, uses `pull_request_target`, or adds a cache.
 2. Report expected against measured savings, wall and runner-minutes separately,
    and whether the classification moved. A saving that is not measured is labeled
    as expected.
-3. Lint every edited workflow when the tools are available: `actionlint` and
-   `zizmor`. Pass means exit `0` with no findings; a tool that is not installed is
-   reported as not run, not as clean.
+3. Run the linters locally on every edited workflow when installed: `actionlint`
+   (syntax, expressions, embedded shell) and `zizmor` (security audits such as
+   `unpinned-uses` and `excessive-permissions`). Pass means exit `0` with no
+   findings; a tool that is not installed is reported as not run, not as clean.
+   Do not assume CI runs either.
 4. Compare required check names before and after; a renamed job silently removes
    a required check. See `references/required-checks-and-path-filters.md`.
 5. Confirm the workflow change ships as `no-release`.

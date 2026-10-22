@@ -43,13 +43,13 @@
     {
       "id": 4,
       "name": "publish-queue-and-supply-chain",
-      "prompt": "A publish workflow uses cancel-in-progress: false but still loses releases when two merges land close together, and a reviewer asks to bump an action to the latest version tag in the same change. Describe the fix. Reply only; do not run anything.",
-      "expected_output": "Explain that the single pending slot replaces a queued run, add concurrency queue: max without cancelling, pin the bumped action by full commit SHA with a version comment, use minimal job permissions, and ship as no-release.",
+      "prompt": "A publish workflow uses one repository-wide concurrency group with cancel-in-progress: false, yet queued releases are dropped when two pushes to the default branch land close together, and a reviewer asks to bump an action to the latest version tag in the same change. Describe the fix. Reply only; do not run anything.",
+      "expected_output": "Explain that the group holds one pending run and replaces it, add queue: max (up to 100 pending, in order) without cancelling, note it only orders runs of the same group and that a replaced run matters only if it alone would have released, pin the bumped action by full commit SHA with a version comment, use minimal job permissions, and ship as no-release.",
       "assertions": [
-        "Identifies the single pending concurrency slot as the cause and adds queue: max.",
+        "Identifies the single pending slot within one concurrency group as the cause and adds queue: max.",
         "Does not enable cancel-in-progress on the publish workflow.",
-        "Pins the third-party action by full commit SHA with a version comment rather than a tag.",
-        "Keeps permissions minimal at the job level.",
+        "States that queue: max only orders runs that share a group, so the group key matters.",
+        "Pins the third-party action by full commit SHA with a version comment rather than a tag, and keeps permissions minimal at the job level.",
         "Notes the workflow-only change ships with the no-release label."
       ]
     }

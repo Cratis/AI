@@ -52,6 +52,7 @@ jobs:
           if-no-files-found: error
 
   specs:
+    name: ${{ matrix.shard }}
     needs: [build]
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -60,7 +61,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [specs-1, specs-2, specs-3]
+        include:
+          - shard: specs-1
+            projects: Source/Core.Specs Source/Storage.Specs
+          - shard: specs-2
+            projects: Source/Api.Specs
+          - shard: specs-3
+            projects: Source/Client.Specs Source/Tools.Specs
     steps:
       - uses: actions/checkout@v7 # pin by full commit SHA
       - uses: actions/setup-dotnet@v6 # pin by full commit SHA
@@ -68,11 +75,47 @@ jobs:
         with:
           name: build-output
       - run: tar --zstd -xf build-output.tar.zst
-      - run: dotnet test --no-build --configuration Release
+      - name: Test the shard's projects
+        env:
+          PROJECTS: ${{ matrix.projects }}
+        run: |
+          failed=0
+          for project in $PROJECTS; do
+            dotnet test "$project" --no-build --configuration Release \
+              --logger "trx;LogFileName=$(basename "$project").trx" \
+              --results-directory "$RUNNER_TEMP/test-results" || failed=1
+          done
+          exit "$failed"
+      - name: Verify every project ran tests
+        if: ${{ !cancelled() }}
+        env:
+          PROJECTS: ${{ matrix.projects }}
+        run: |
+          failed=0
+          for project in $PROJECTS; do
+            file="$RUNNER_TEMP/test-results/$(basename "$project").trx"
+            executed=$(grep -o -m1 'executed="[0-9]*"' "$file" 2>/dev/null | grep -o '[0-9]*' || echo 0)
+            echo "$project executed $executed tests"
+            [ "$executed" -gt 0 ] || failed=1
+          done
+          exit "$failed"
+      - uses: actions/upload-artifact@v7 # pin by full commit SHA
+        if: ${{ !cancelled() }}
+        with:
+          name: test-results-${{ matrix.shard }}
+          path: ${{ runner.temp }}/test-results/*.trx
+          if-no-files-found: warn
 ```
 
-The shard step selects its projects from the matrix value; keep the selection in
-one checked-in script so that adding a project cannot leave it unassigned.
+Each matrix entry carries its own `projects` list, which the test step reads, so
+shards run different tests. For a test framework filter instead of a project list,
+carry the filter in the entry (`filter: FullyQualifiedName~Core`) and pass it as
+`--filter`. Keep the assignment in the workflow or one checked-in script so that
+adding a project cannot leave it unassigned; review the list when a project is added.
+
+To balance, read each shard job's median duration from the slowest-jobs table of
+`ci-timings.sh`, move a project from the longest shard to the shortest, and
+re-measure; stop when the spread is within the job start cost.
 
 ## Decisions
 
@@ -98,10 +141,8 @@ one checked-in script so that adding a project cannot leave it unassigned.
 - A filter or project list that matches nothing passes `dotnet test`. End every
   shard with a check that each assigned project or namespace ran at least one test,
   and print the counts. Zero tests is a failed shard.
-- Shards balance by test time, not by project count. Take each shard job's median
-  duration from `ci-timings.sh` (the slowest-jobs table) and move projects from
-  the longest shard to the shortest. Stop when the spread is within the job start
-  cost.
+- Shards balance by test time, not by project count (see the balancing steps
+  after the example).
 - A shard that downloads a large artifact pays that transfer on every job; measure
   the download step in the slowest-steps table before adding shards.
 - Static assets outside `bin`/`dist` (generated sources, local tool caches) must

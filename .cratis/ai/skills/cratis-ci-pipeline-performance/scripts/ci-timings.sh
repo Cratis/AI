@@ -66,7 +66,7 @@ $runs[0] as $all
 | ($done | map(select(.conclusion == "failure"))) as $fail
 | ($done | map(select(.conclusion == "cancelled"))) as $canc
 | ($done | map(select(.attempt > 1))) as $rerun
-| ($done | map(select(.conclusion == "success" or .conclusion == "failure")
+| ($done | map(select((.conclusion == "success" or .conclusion == "failure") and .attempt == 1)
     | ((.updatedAt | ts) - (.createdAt | ts)))) as $walls
 | (rate($fail | length; $done | length)) as $failP
 | (rate($canc | length; $done | length)) as $cancP
@@ -85,6 +85,8 @@ $runs[0] as $all
           sumq: ($j | map(((.started_at | ts) - ((.created_at // .started_at) | ts))) | add),
           span: (($j | map(.completed_at | ts) | max) - ($j | map(.started_at | ts) | min)),
           runner: ($j | map(dur(.)) | add)})) as $sample
+| ($sample | map(.jobs | length) | add // 0) as $njobsTotal
+| ($sample | map(.jobs[] | (.steps // [])[] | select(.started_at != null and .completed_at != null and .conclusion != "skipped")) | length) as $nsteps
 | ($sample | map(.maxq / .wall * 100 | select(. != null))) as $shares
 | (if ($shares | length) == 0 then null else ($shares | pct(0.5)) end) as $qshare
 | ([ (if ($failP >= 15 or $rerunP >= 15) then "failure-bound" else empty end),
@@ -92,9 +94,11 @@ $runs[0] as $all
      (if ($qshare != null and $qshare >= 25) then "queue-bound" else empty end) ]) as $flags
 | (if ($flags | length) == 0 then "execution-bound" else $flags[0] end) as $primary
 | (if ($flags | length) > 1 then " (also: " + ($flags[1:] | join(", ")) + ")" else "" end) as $also
-| "# CI timings: \($repo) / \($workflow)",
+| "@@COUNTS \($done | length) \($walls | length) \($sample | length) \($nsteps)",
+  "# CI timings: \($repo) / \($workflow)",
   "",
   "Sample: \($all | length) runs listed\($filters), \($done | length) completed, \($all | map(select(.status != "completed")) | length) not finished, \($all | map(select(.conclusion == "skipped")) | length) skipped.",
+  "Analyzed: \($done | length) completed runs, \($walls | length) first-attempt runs for wall clock, \($sample | length) sampled runs with \($njobsTotal) jobs and \($nsteps) steps.",
   (if ($done | length) < 10 then "Small sample: fewer than 10 completed runs; treat every figure as indicative." else empty end),
   "",
   "| Conclusion | Runs |",
@@ -104,11 +108,9 @@ $runs[0] as $all
         | .[] | "| \(.k) | \(.n) |"),
   "",
   "Rates over \($done | length) completed runs: cancelled \($cancP | f1)%, failed \($failP | f1)%, rerun (attempt > 1) \($rerunP | f1)%.",
-  "Wall clock (success and failure, \($walls | length) runs): median \($walls | pct(0.5) | mins | f1) min, p90 \($walls | pct(0.9) | mins | f1) min.",
+  "Wall clock (success and failure, first attempts only, \($walls | length) runs; \($rerun | length) rerun runs excluded): median \($walls | pct(0.5) | mins | f1) min, p90 \($walls | pct(0.9) | mins | f1) min.",
   "",
-  (if ($sample | length) == 0 then
-     "No successful first-attempt run with job data in the sample; queue, execution and runner-minute figures are unavailable."
-   else
+  (
      "## Per run (\($sample | length) most recent successful first-attempt runs)",
      "",
      "Wall is run creation to last update. First start wait is run creation to the first job start. Max job queue is the longest job wait for a runner. Execution span is first job start to last job end. Runner-min is the sum of job durations.",
@@ -135,7 +137,7 @@ $runs[0] as $all
           | {k: "\($jn) / \(.name)", d: dur(.)})
         | group_by(.k) | map({k: .[0].k, m: (map(.d) | pct(0.5)), n: length}) | sort_by([-.m, .k]) | .[0:8]
         | .[] | "| \(.k) | \(.m | mins | f1) | \(.n) |")
-   end),
+  ),
   "",
   "## Classification",
   "",
@@ -144,24 +146,55 @@ $runs[0] as $all
 JQ
 
 # report RUNS_JSON JOBS_JSON REPO WORKFLOW FILTERS NJOBS
+# Every analyzed population must be non-empty; otherwise exit 3 with the reason on stderr.
 report() {
-  local count
+  local count out counts done_n walls_n sample_n steps_n why
   count=$(jq 'length' "$1") || return 4
   if [ "$count" = "0" ]; then
     printf 'ci-timings: no runs found for %s / %s%s\n' "$3" "$4" "$5" >&2
     return 3
   fi
-  jq -n -r --slurpfile runs "$1" --slurpfile jobs "$2" \
+  out=$(jq -n -r --slurpfile runs "$1" --slurpfile jobs "$2" \
     --arg repo "$3" --arg workflow "$4" --arg filters "$5" --argjson njobs "$6" \
-    "$REPORT_JQ"
+    "$REPORT_JQ") || return 4
+  counts=$(printf '%s\n' "$out" | head -n 1)
+  read -r _ done_n walls_n sample_n steps_n <<EOF_COUNTS
+$counts
+EOF_COUNTS
+  why=""
+  if [ "$done_n" = "0" ]; then
+    why="$count runs found but none completed (all unfinished or skipped)"
+  elif [ "$walls_n" = "0" ]; then
+    why="no first-attempt run ended in success or failure (all cancelled, rerun or skipped)"
+  elif [ "$sample_n" = "0" ]; then
+    why="no successful first-attempt run has usable job timestamps; job, queue and runner-minute figures cannot be computed"
+  elif [ "$steps_n" = "0" ]; then
+    why="the sampled jobs carry no step timings"
+  fi
+  if [ -n "$why" ]; then
+    printf 'ci-timings: no data for %s / %s%s: %s. Widen --limit, drop --branch/--event, or pick another workflow.\n' "$3" "$4" "$5" "$why" >&2
+    return 3
+  fi
+  printf '%s\n' "$out" | tail -n +2
 }
 
 sample_ids() { # sample_ids RUNS_JSON N
   jq -r --argjson n "$2" "$SAMPLE_JQ | .[]" "$1"
 }
 
+expect_exit3() { # expect_exit3 LABEL RUNS JOBS (uses and updates failures of self_test)
+  local out rc
+  out=$(report "$2" "$3" "example/repo" "ci.yml" "" 3 2>/dev/null)
+  rc=$?
+  if [ "$rc" -ne 3 ] || [ -n "$out" ]; then
+    printf 'FAIL %s: expected exit 3 and empty stdout, got exit %s\n' "$1" "$rc" >&2
+    failures=$((failures + 1))
+  fi
+}
+
 self_test() {
-  local fx="$SCRIPT_DIR/fixtures" tmp out rc failures=0 ids line
+  local fx="$SCRIPT_DIR/fixtures" tmp out rc ids line
+  failures=0
   command -v jq >/dev/null 2>&1 || die 4 "jq is required"
   tmp=$(mktemp -d) || die 4 "mktemp failed"
   trap 'rm -rf "$tmp"' EXIT
@@ -193,13 +226,14 @@ self_test() {
     fi
   done <<'EXPECTED'
 Sample: 10 runs listed, 8 completed, 1 not finished, 1 skipped.
+Analyzed: 8 completed runs, 6 first-attempt runs for wall clock, 3 sampled runs with 9 jobs and 21 steps.
 | success | 6 |
 | cancelled | 1 |
 | failure | 1 |
 | in_progress | 1 |
 | skipped | 1 |
 Rates over 8 completed runs: cancelled 12.5%, failed 12.5%, rerun (attempt > 1) 12.5%.
-Wall clock (success and failure, 7 runs): median 20.0 min, p90 30.0 min.
+Wall clock (success and failure, first attempts only, 6 runs; 1 rerun runs excluded): median 15.0 min, p90 25.0 min.
 | 1010 | 25.0 | 1.2 | 3.0 | 5.0 | 11.0 | 11.0 | 3 |
 | 1007 | 15.0 | 1.2 | 3.0 | 5.0 | 11.0 | 11.0 | 3 |
 | 1003 | 30.0 | 1.2 | 3.0 | 5.0 | 16.0 | 16.0 | 3 |
@@ -219,14 +253,16 @@ EXPECTED
     failures=$((failures + 1))
   fi
 
+  # Non-vacuity: every empty population must exit 3 and print nothing on stdout.
   printf '[]\n' >"$tmp/empty.json"
-  printf '[]\n' >"$tmp/nojobs.json"
-  report "$tmp/empty.json" "$tmp/nojobs.json" "example/repo" "ci.yml" "" 3 >/dev/null 2>&1
-  rc=$?
-  if [ "$rc" -ne 3 ]; then
-    printf 'FAIL empty run list: expected exit 3, got %s\n' "$rc" >&2
-    failures=$((failures + 1))
-  fi
+  jq 'map(.conclusion = "cancelled")' "$fx/runs.json" >"$tmp/cancelled.json"
+  jq 'map(.jobs |= map(.started_at = null))' "$tmp/jobs.json" >"$tmp/jobs-untimed.json"
+  jq 'map(.jobs |= map(.steps = []))' "$tmp/jobs.json" >"$tmp/jobs-nosteps.json"
+  expect_exit3 "empty run list" "$tmp/empty.json" "$tmp/jobs.json"
+  expect_exit3 "all runs cancelled" "$tmp/cancelled.json" "$tmp/jobs.json"
+  expect_exit3 "no job data" "$fx/runs.json" "$tmp/empty.json"
+  expect_exit3 "jobs without timestamps" "$fx/runs.json" "$tmp/jobs-untimed.json"
+  expect_exit3 "jobs without steps" "$fx/runs.json" "$tmp/jobs-nosteps.json"
 
   if [ "$failures" -ne 0 ]; then
     printf 'ci-timings self-test: %s failure(s)\n' "$failures" >&2

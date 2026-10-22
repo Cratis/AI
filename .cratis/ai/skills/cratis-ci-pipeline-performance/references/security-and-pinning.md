@@ -2,8 +2,10 @@
 
 Use this when a speed change adds or updates an action, edits `permissions:`,
 changes a trigger, or adds a cache. Speed changes widen the blast radius of a
-workflow more often than they narrow it. The authoritative checks are `actionlint`
-and `zizmor`; run both on every edited workflow when installed.
+workflow more often than they narrow it. Run `zizmor` (security audits, including
+`unpinned-uses` and `excessive-permissions`) and `actionlint` (syntax, expressions,
+embedded shell; it does not check pinning) locally on every edited workflow when
+installed. Do not assume CI runs them.
 
 ## Contents
 
