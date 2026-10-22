@@ -348,11 +348,16 @@ slowest specs. The full `test` suite stays the gate before you call work done.
 yarn workspace @cratis/ai-verification run test:hooks     # guards, hook wiring, Codex hooks, Pi bridge and quality gates
 yarn workspace @cratis/ai-verification run test:adapters  # agent adapters, harness setup, Pi plugin, MCP configuration
 yarn workspace @cratis/ai-verification run test:corpus    # structure, budgets, skills, routing
-yarn workspace @cratis/ai-verification run test:affected  # maps `git diff --name-only origin/main...` to the subsets
+yarn workspace @cratis/ai-verification run test:affected  # changed paths vs origin/main: narrow subset or the full suite
 ```
 
 `test:hooks` is dominated by two `guard-writes.spec.ts` specs that spawn the guard repeatedly
-(about 90 s of its run). A change to `Source/Verification/*.ts` makes `test:affected` point to the full suite.
+(about 90 s of its run).
+
+`test:affected` is deny-by-default: it runs a subset only when every changed path is on a small allowlist
+(the guard hook scripts for `hooks`, `Source/Harness.Setup/*.ts` for `adapters`, or a changed spec file, which
+runs itself). Any other change (rules, skills, evaluations, agents, docs, `Source/Verification/*.ts`, package
+files) runs the full suite and returns its exit status.
 
 The verification suite uses Pi's `DefaultResourceLoader` directly, without a
 model or credentials, to prove that project context, every skill, 18 prompts,

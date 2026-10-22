@@ -6,7 +6,7 @@ import { existsSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { slowestReport } from './slowest-reporter.ts';
-import { affectedSubsets, subsetFiles, subsets } from './test-subsets.ts';
+import { affectedSubsets, main, subsetFiles, subsets } from './test-subsets.ts';
 
 describe('test subsets', () => {
     it('should name only spec files that exist, each in one subset', () => {
@@ -24,16 +24,43 @@ describe('test subsets', () => {
         assert.throws(() => subsetFiles('nope'), /Unknown subset/);
     });
 
-    it('should map changed paths to subsets', () => {
-        assert.deepEqual(affectedSubsets(['.cratis/ai/hooks/scripts/guard-writes.sh']).subsets, ['hooks']);
-        assert.deepEqual(affectedSubsets(['Source/Harness.Setup/index.ts']).subsets, ['adapters']);
-        assert.deepEqual(affectedSubsets(['.cratis/ai/skills/x/SKILL.md', 'Documentation/a.md']).subsets, ['corpus']);
-        assert.deepEqual(affectedSubsets(['README.md']), { subsets: [], specs: [], full: false });
+    it('should select a subset only for allowlisted paths', () => {
+        assert.deepEqual(affectedSubsets(['.cratis/ai/hooks/scripts/cratis-guard-writes.sh']), { subsets: ['hooks'], specs: [], full: false });
+        assert.deepEqual(affectedSubsets(['Source/Harness.Setup/setup.ts']).subsets, ['adapters']);
+        assert.deepEqual(affectedSubsets(['Source/Verification/skill-hygiene.spec.ts']), { subsets: [], specs: ['skill-hygiene.spec.ts'], full: false });
     });
 
-    it('should run a changed spec itself and escalate other verification sources to the full suite', () => {
-        assert.deepEqual(affectedSubsets(['Source/Verification/skill-hygiene.spec.ts']).specs, ['skill-hygiene.spec.ts']);
-        assert.equal(affectedSubsets(['Source/Verification/verify.ts']).full, true);
+    it('should require the full suite for any other path, even beside a mapped one', () => {
+        for (const path of ['Evaluations/skills/x/SKILL.md', '.cratis/ai/rules/general.md', '.cratis/ai/hooks/scripts/hook-lib.sh', 'Source/Verification/verify.ts', 'README.md', 'package.json', '.cratis/ai/agents/a.md']) {
+            assert.equal(affectedSubsets([path]).full, true, path);
+        }
+        assert.equal(affectedSubsets(['.cratis/ai/hooks/scripts/cratis-guard-writes.sh', 'README.md']).full, true);
+    });
+
+    function harness(paths: string[], status = 0) {
+        const runs: string[][] = [];
+        const dependencies = { changedPaths: () => paths, allSpecs: () => ['a.spec.ts', 'b.spec.ts', 'c.spec.ts'], run: (files: string[]) => { runs.push(files); return status; }, log: () => undefined };
+        return { runs, dependencies };
+    }
+
+    it('should execute every spec and propagate the exit status for an unmapped path', () => {
+        const { runs, dependencies } = harness(['.cratis/ai/rules/general.md'], 1);
+        assert.equal(main(['affected'], dependencies), 1);
+        assert.deepEqual(runs, [['a.spec.ts', 'b.spec.ts', 'c.spec.ts']]);
+    });
+
+    it('should run the full suite for Evaluations and rules changes', () => {
+        for (const path of ['Evaluations/skills/x/SKILL.md', '.cratis/ai/rules/general.md']) {
+            const { runs, dependencies } = harness([path]);
+            assert.equal(main(['affected'], dependencies), 0);
+            assert.equal(runs[0].length, 3, path);
+        }
+    });
+
+    it('should run only the hooks subset for a hook-script-only change', () => {
+        const { runs, dependencies } = harness(['.cratis/ai/hooks/scripts/cratis-guard-secrets.sh']);
+        assert.equal(main(['affected'], dependencies), 0);
+        assert.deepEqual(runs, [subsetFiles('hooks')]);
     });
 
     it('should print the slowest specs first, capped at ten', () => {
