@@ -1,0 +1,38 @@
+{
+  "skill_name": "filter-syntax",
+  "evals": [
+    {
+      "id": 1,
+      "name": "vstest-filter",
+      "prompt": "Without calling tools, write a VSTest filter for Category Unit excluding names containing Slow.",
+      "expected_output": "Category=Unit&Name!~Slow",
+      "assertions": [
+        "Uses & to combine.",
+        "Uses !~ for does-not-contain.",
+        "Uses valid property names."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "translate",
+      "prompt": "Without calling tools, translate a VSTest filter to MTP.",
+      "expected_output": "The syntax differs by platform and framework.",
+      "assertions": [
+        "States the syntax differs.",
+        "Gives a translated filter.",
+        "Confirms the platform and framework first."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "precedence",
+      "prompt": "Without calling tools, explain precedence of & and | in a filter.",
+      "expected_output": "Use parentheses to be explicit.",
+      "assertions": [
+        "Uses parentheses in the example.",
+        "Explains & binds tighter than |.",
+        "Avoids an ambiguous expression."
+      ]
+    }
+  ]
+}

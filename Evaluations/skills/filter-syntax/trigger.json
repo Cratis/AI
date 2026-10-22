@@ -1,0 +1,77 @@
+{
+  "skill": "filter-syntax",
+  "queries": [
+    {
+      "query": "Translate FullyQualifiedName~Orders into the MTP filter form.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What is the VSTest filter for Category=Unit but not Slow?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Show an xUnit v2 trait filter for Area=Projections.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I filter MSTest tests by TestCategory?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write an MTP --filter-query tree expression for NUnit tests in one namespace.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I combine two conditions with & and | correctly in a VSTest filter?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Filter xunit v3 tests by display name.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What is the TUnit filter format for a property?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Is this project VSTest or MTP?",
+      "shouldTrigger": false,
+      "note": "platform-detection owns detection."
+    },
+    {
+      "query": "Run the whole suite.",
+      "shouldTrigger": false,
+      "note": "run-tests owns unfiltered runs."
+    },
+    {
+      "query": "Interpret branch coverage numbers.",
+      "shouldTrigger": false,
+      "note": "coverage-analysis owns it."
+    },
+    {
+      "query": "Name my spec methods well.",
+      "shouldTrigger": false,
+      "note": "cratis-specifications-csharp owns spec naming."
+    },
+    {
+      "query": "Capture a binlog of the build.",
+      "shouldTrigger": false,
+      "note": "binlog-generation owns it."
+    },
+    {
+      "query": "Rename these test helpers.",
+      "shouldTrigger": false,
+      "note": "csharp-refactoring owns it."
+    },
+    {
+      "query": "Write an MSBuild Condition expression.",
+      "shouldTrigger": false,
+      "note": "msbuild owns build XML."
+    },
+    {
+      "query": "Explain the exit code of a CI test step.",
+      "shouldTrigger": false,
+      "note": "run-tests owns test run behavior."
+    }
+  ]
+}

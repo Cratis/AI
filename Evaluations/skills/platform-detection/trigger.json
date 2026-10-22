@@ -1,0 +1,77 @@
+{
+  "skill": "platform-detection",
+  "queries": [
+    {
+      "query": "Is this test project running on VSTest or Microsoft.Testing.Platform?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which test framework does Source/Foo.Specs use, xunit or NUnit?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What does a UseVSTest opt-out in Directory.Build.props change for dotnet test?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Does global.json select a test runner for this repo?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Is this a classic packages.config project or an SDK-style one?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We have VSTest and MTP settings that conflict in different props files; which one wins?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Our Specs use xunit v2; confirm which command mode the repository is configured for.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What runner does this project use on the .NET 10 SDK?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Give me the command to run a single test class.",
+      "shouldTrigger": false,
+      "note": "run-tests owns test commands."
+    },
+    {
+      "query": "Write a trait filter for the Slow category.",
+      "shouldTrigger": false,
+      "note": "filter-syntax owns filter expressions."
+    },
+    {
+      "query": "Analyze this Cobertura report for weak branches.",
+      "shouldTrigger": false,
+      "note": "coverage-analysis owns coverage interpretation."
+    },
+    {
+      "query": "Write a new spec for event deduplication.",
+      "shouldTrigger": false,
+      "note": "cratis-specifications-csharp owns writing specs."
+    },
+    {
+      "query": "Capture a binlog of the failing build.",
+      "shouldTrigger": false,
+      "note": "binlog-generation owns binlog capture."
+    },
+    {
+      "query": "Fix MSB3277 version conflict in the build.",
+      "shouldTrigger": false,
+      "note": "msbuild owns build failure investigation."
+    },
+    {
+      "query": "Rename the spec base class across the repo.",
+      "shouldTrigger": false,
+      "note": "csharp-refactoring owns refactors."
+    },
+    {
+      "query": "Use hot reload with MTP tests.",
+      "shouldTrigger": false,
+      "note": "run-tests owns test-run workflows, not detection."
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "skill": "dotnet-aot-compat",
+  "queries": [
+    {
+      "query": "Fix the IL2026 warnings in our library.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Add DynamicallyAccessedMembers to this generic method.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Enable IsAotCompatible on this project and work through the warnings.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Resolve the IL3050 warning for MakeGenericType.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I fix an IL2070 warning on GetMethod?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Make this class library trim safe.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Annotate this reflection over type fields correctly.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Replace this reflection with a source generator to remove IL2072.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Publish the app as a native AOT binary and measure startup.",
+      "shouldTrigger": false,
+      "note": "Publishing and size/startup work is out of scope."
+    },
+    {
+      "query": "Set up the Arc host for NativeAOT.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-hosting owns Arc host setup."
+    },
+    {
+      "query": "Refactor this class.",
+      "shouldTrigger": false,
+      "note": "csharp-refactoring owns it."
+    },
+    {
+      "query": "Reduce allocations in this loop.",
+      "shouldTrigger": false,
+      "note": "analyzing-dotnet-performance owns it."
+    },
+    {
+      "query": "Shrink the binary size.",
+      "shouldTrigger": false,
+      "note": "Binary size optimization is out of scope."
+    },
+    {
+      "query": "Run the specs.",
+      "shouldTrigger": false,
+      "note": "run-tests owns it."
+    },
+    {
+      "query": "Design grain state.",
+      "shouldTrigger": false,
+      "note": "orleans owns it."
+    },
+    {
+      "query": "Check naming conventions.",
+      "shouldTrigger": false,
+      "note": "cratis-engineering-csharp-conventions owns style."
+    }
+  ]
+}

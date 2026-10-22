@@ -1,0 +1,77 @@
+{
+  "skill": "eliminate-redundant-restores",
+  "queries": [
+    {
+      "query": "Our CI runs dotnet build, then test, then publish and each restores; how do I restore once?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What does NETSDK1004 after --no-restore mean?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Add a Directory.Build.rsp with -restore so builds stop restoring repeatedly?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Does dotnet test --no-build also skip restore, and is it safe?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Safe way to suppress restore for later steps in a multi-step pipeline.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Why do I get NETSDK1047 about a missing target framework in assets after --no-restore?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Pack, build and test each run restore; reduce that safely.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How can I tell from the output that restore ran more than once?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The first restore takes ten minutes.",
+      "shouldTrigger": false,
+      "note": "This is slow first restore, outside this skill."
+    },
+    {
+      "query": "Our NuGet feed returns 401.",
+      "shouldTrigger": false,
+      "note": "NuGet auth troubleshooting is not redundant restores."
+    },
+    {
+      "query": "Which test framework is this project using?",
+      "shouldTrigger": false,
+      "note": "platform-detection owns that."
+    },
+    {
+      "query": "Produce a binlog.",
+      "shouldTrigger": false,
+      "note": "binlog-generation owns capture."
+    },
+    {
+      "query": "Shared props layout.",
+      "shouldTrigger": false,
+      "note": "directory-build-organization owns layout."
+    },
+    {
+      "query": "Diagnose build failure.",
+      "shouldTrigger": false,
+      "note": "msbuild owns it."
+    },
+    {
+      "query": "Build with the Debug config only.",
+      "shouldTrigger": false,
+      "note": "run-tests/msbuild concern."
+    },
+    {
+      "query": "Upgrade package versions.",
+      "shouldTrigger": false,
+      "note": "Version management, not restore elimination."
+    }
+  ]
+}

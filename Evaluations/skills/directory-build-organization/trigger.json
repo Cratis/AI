@@ -1,0 +1,77 @@
+{
+  "skill": "directory-build-organization",
+  "queries": [
+    {
+      "query": "Where should shared TargetFramework and Nullable settings go across all Source projects?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I split Directory.Build.props and Directory.Build.targets correctly?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Our nested Directory.Build.props stopped inheriting the parent; how do I import it?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Should package versions live in Directory.Packages.props with central package management?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Move duplicated analyzer references from every csproj into a shared location.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Why is a property from Directory.Build.props not visible in my Directory.Build.targets condition?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I make Specs projects get different defaults than Source projects?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Organize our monorepo's build configuration files with a clear hierarchy.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Why does the build fail with MSB4057?",
+      "shouldTrigger": false,
+      "note": "msbuild owns failure investigation."
+    },
+    {
+      "query": "Write a target that copies files after build.",
+      "shouldTrigger": false,
+      "note": "target-authoring owns targets."
+    },
+    {
+      "query": "Two projects write to the same obj folder.",
+      "shouldTrigger": false,
+      "note": "check-bin-obj-clash owns clashes."
+    },
+    {
+      "query": "Hook into the NuGet package build/ props import.",
+      "shouldTrigger": false,
+      "note": "extension-points owns import hooks."
+    },
+    {
+      "query": "Stop restoring in each CI step.",
+      "shouldTrigger": false,
+      "note": "eliminate-redundant-restores owns that."
+    },
+    {
+      "query": "Enforce file header style.",
+      "shouldTrigger": false,
+      "note": "cratis-engineering-csharp-conventions owns style."
+    },
+    {
+      "query": "Capture a binlog.",
+      "shouldTrigger": false,
+      "note": "binlog-generation owns capture."
+    },
+    {
+      "query": "Fix the NuGet source mapping error.",
+      "shouldTrigger": false,
+      "note": "msbuild or NuGet config troubleshooting, not layout."
+    }
+  ]
+}
