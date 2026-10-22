@@ -4,13 +4,24 @@
 import { existsSync, lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { isKnownToolName, normalizeToolsDetailed } from '../../.cratis/ai/harnesses/pi/extensions/subagent/tool-names.ts';
-import { readCanonicalAgents, type CanonicalAgent, type GeneratedAgent } from './opencode-agents.ts';
+import { pinnedModelMessage, readCanonicalAgents, type CanonicalAgent, type GeneratedAgent } from './opencode-agents.ts';
 
 export const piAgentsDirectory = 'harnesses/pi/agents';
+
+/** Pi passes a native `model:` verbatim to `--model`; canonical agents declare modelTier instead. */
+function refusePinnedModel(agent: CanonicalAgent): void {
+    if (agent.model !== undefined) throw new Error(pinnedModelMessage(agent.file));
+}
+
 export const piAgentMarkerPrefix = '<!-- cratis-ai: generated Pi adapter of agents/';
 
-/** Pi-native allowlists work in both the Cratis loader and external Agent loaders without normalization. */
+/**
+ * Pi-native allowlists work in both the Cratis loader and external Agent loaders without normalization.
+ * The frontmatter is copied, so `modelTier` and `reviewIndependence` travel with the agent; a native `model:`
+ * is refused, because Pi passes it verbatim to `--model` and the tier is bound by the consumer instead.
+ */
 export function generatePiAgent(agent: CanonicalAgent): GeneratedAgent {
+    refusePinnedModel(agent);
     const unresolved = agent.tools.filter(tool => !isKnownToolName(tool));
     if (unresolved.length > 0) throw new Error(`${agent.file} declares unresolved Pi tools: ${unresolved.join(', ')}.`);
     const { tools } = normalizeToolsDetailed(agent.tools);

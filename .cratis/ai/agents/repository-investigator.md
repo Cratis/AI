@@ -10,6 +10,7 @@ tools:
   - Glob
   - Bash
 readonly: true
+modelTier: scoped
 ---
 
 # Repository Investigator

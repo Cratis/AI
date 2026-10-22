@@ -28,7 +28,24 @@ Generation uses the same tool-name map as the Cratis runtime loader. Known
 non-built-in names such as `Agent` are omitted; an unknown name fails generation
 and names the agent and tool. Generation also refuses a list with no resolvable
 Pi tools, rather than allowing a loader to interpret it as unrestricted access.
-Models remain inherited when the canonical agent does not pin one.
+
+## Model tier and provider independence
+
+Canonical agents never pin a native `model:`. A model id is not portable across harnesses
+and goes stale, and generation refuses an agent that carries one. Each agent declares a
+`modelTier` instead:
+
+- `scoped`: the default tier for a scoped change.
+- `strongest`: needs a stated reason in the agent body.
+- `reviewer`: the reviewer tier. Reviewer agents also declare
+  `reviewIndependence: different-provider`, so the review runs on a different provider
+  than the author where the harness can select one (see `review-reports.md`).
+
+Corpus verification fails an agent without a valid `modelTier`. The harness or product
+binds a tier to a concrete model; the corpus does not. Bind it with a `model:` in a
+project-level override of the agent: `.pi/agents/<name>.md` for Pi, `.claude/agents` for
+Claude Code, and the agent override for OpenCode (`provider/model`). The Pi subagent
+extension does not resolve a tier on its own yet.
 
 The `@cratis/pi` package declares its generated agent directory through
 `pi.subagents.agents` for external loaders that support package resources.

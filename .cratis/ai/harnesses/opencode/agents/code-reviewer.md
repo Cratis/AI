@@ -12,6 +12,8 @@ permission:
 
 # Code Reviewer
 
+Run on a different provider than the author where the harness can select one; see "Reviewer independence" in `review-reports.md`.
+
 ## Scope before checklists
 
 Identify the repository profile and changed lane before selecting rules or running a checklist. Read the repository's `AGENTS.md` and applicable universal rules in `.cratis/ai/rules/`. For framework contributions, load `.cratis/ai/rules/framework.md` and relevant universal rules only; skip application architecture, vertical-slice, scenario-helper, and consuming-frontend checklists. Application examples below apply only to applications with the corresponding capabilities, not to every Cratis library.

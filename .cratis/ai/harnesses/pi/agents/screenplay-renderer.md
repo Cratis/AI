@@ -8,6 +8,7 @@ description: >
   Stage-managed files; routes non-renderable scope to slice-implementer.
 tools: read, grep, find, bash
 readonly: false
+modelTier: scoped
 ---
 <!-- cratis-ai: generated Pi adapter of agents/screenplay-renderer.md. Do not edit; the canonical agent is the source. -->
 

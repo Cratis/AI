@@ -12,6 +12,7 @@ tools:
   - Glob
   - Bash
 readonly: false
+modelTier: scoped
 ---
 
 # Screenplay Renderer

@@ -9,6 +9,7 @@ description: >
   multiple slices, mixed C#/TypeScript work, or requires both implementation
   and review).
 tools: read, grep, find, bash
+modelTier: scoped
 ---
 <!-- cratis-ai: generated Pi adapter of agents/coordinator.md. Do not edit; the canonical agent is the source. -->
 
