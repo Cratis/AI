@@ -8,6 +8,8 @@ applyTo: "**/*"
 
 **The PR description is published verbatim as the GitHub release. In repositories released by `cratis/release-action`, it also closes every issue written as `(#n)`; elsewhere, follow the repository's own release and issue-closing process.** Write the note the person upgrading should read, not a development write-up. The same contract applies to release notes typed into a manual workflow run or written straight into a release. Where it is installed, the `policy / verify` check enforces it on release-bound PRs into the default branch carrying `major`/`minor`/`patch` (it re-runs when the label is added); its release-note step warns on `no-release` and unlabelled PRs, which must still be written this way because any of them may become releasable. `release-action` does not run for a `no-release` PR, so `(#n)` closes nothing there. Editing the description re-runs the check. HTML comments are not shown on the release page and the check ignores them for headings, keywords and placeholders, and `release-action` removes them before publishing, so a `(#n)` only inside a comment closes nothing; the check fails it, so never put an issue reference in a comment. The template's own comment can stay: its `(#123)` examples are inline code, and the comment is not published.
 
+**A change to a hook script or its wiring (`.cratis/ai/hooks/**`) needs a release-note line that tells consumers to run `cratis ai update`; a hook fix does not reach a repository until they do.**
+
 ### Allowed shape
 
 - Follow the repository's pull request template (`.github/pull_request_template.md`) within this contract.

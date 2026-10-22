@@ -255,6 +255,51 @@ test('a word that only appears inside a string argument, a comment or a here-doc
     ]);
 });
 
+test('the cheap bypasses are closed: wrapper paths, attached short options, whole-object projections and redirect-then-read (Cratis/AI#871)', () => {
+    assertVerdicts([
+        [BLOCK, '/usr/bin/env'],
+        [BLOCK, '/usr/bin/printenv TOKEN'],
+        [BLOCK, 'command env'],
+        [BLOCK, 'command -p env'],
+        [ALLOW, '/usr/bin/printenv HOME'],
+        [ALLOW, 'command -v env'],
+        [ALLOW, '/usr/bin/env FOO=1 true'],
+        [BLOCK, 'grep -ePATTERN .env'],
+        [BLOCK, 'grep -nePATTERN .env'],
+        [BLOCK, 'rg -ePATTERN .env'],
+        [BLOCK, 'grep -m5 PATTERN .env'],
+        [BLOCK, "sed -ne 's/a/b/p' .env"],
+        [ALLOW, 'grep -ePATTERN README.md'],
+        [ALLOW, 'grep -m5 PATTERN README.md'],
+        [ALLOW, 'sed -i.bak s/a/b/ README.md'],
+        [ALLOW, 'grep -ePATTERN .env.example'],
+        [BLOCK, "kubectl get pod web -o jsonpath='{.}'"],
+        [BLOCK, "kubectl get pods -ojsonpath={.items[*]}"],
+        [BLOCK, "kubectl get pod web -o go-template='{{.}}'"],
+        [BLOCK, "kubectl get cm app --output=go-template='{{ . }}'"],
+        [BLOCK, "kubectl get pod web -o go-template --template '{{.}}'"],
+        [ALLOW, "kubectl get pod web -o jsonpath='{.metadata.name}'"],
+        [ALLOW, "kubectl get pods -o go-template='{{range .items}}{{.metadata.name}}{{end}}'"],
+        [ALLOW, "kubectl get svc web -o jsonpath='{.}'"],
+        [BLOCK, 'env > /tmp/dump.txt && cat /tmp/dump.txt'],
+        [BLOCK, 'printenv >dump.txt; cat ./dump.txt'],
+        [BLOCK, 'env >> dump.txt; grep . dump.txt'],
+        [BLOCK, 'env > dump.txt; cat dump.txt > copy.txt; cat copy.txt'],
+        [ALLOW, 'env > dump.txt; echo done'],
+        [ALLOW, 'env > dump.txt; cat other.txt'],
+        [BLOCK, 'env > dump.txt; echo hi > dump.txt; cat dump.txt'],
+        [BLOCK, 'printenv TOKEN > /dev/stderr'],
+        [BLOCK, 'export -p > /dev/stdout'],
+        [BLOCK, 'printenv TOKEN > /dev/fd/1'],
+        [BLOCK, 'printenv TOKEN > dump.txt; tee < dump.txt'],
+        [BLOCK, 'export -p > dump.txt; dd if=dump.txt'],
+        [ALLOW, 'printenv TOKEN > dump.txt'],
+        [ALLOW, 'echo hi > out.txt; cat out.txt'],
+        [ALLOW, 'kubectl get pods -o name > pods.txt; cat pods.txt'],
+        [BLOCK, 'grep ">" .env'],
+    ]);
+});
+
 test('the block message names the alternative and the incident procedure', () => {
     const { stderr } = runGuard('kubectl get pods -o json');
     assert.match(stderr, /BLOCKED by cratis-guard-secrets: kubectl get pods -o json prints the full container spec/);

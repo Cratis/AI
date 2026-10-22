@@ -10,8 +10,9 @@
 # Exit 2 blocks the tool call and sends stderr back to the model; every other command exits 0.
 #
 # What it sees is the command text. A credential reached through a variable, an alias, a function, a script
-# file or a pipe into a shell is invisible to it; a projection it cannot see through (`-o jsonpath` that dumps
-# `{.}`) is trusted. See .cratis/ai/hooks/README.md.
+# file or a pipe into a shell is invisible to it, as is a recursive search with no named file; a projection it
+# cannot see through (a template or `-o jsonpath` that is not a bare `{.}`) is trusted. `env > f` is allowed only
+# when f is not mentioned again in the same command. See .cratis/ai/hooks/README.md.
 #
 # Escape hatch for a human who authorized the read — set in the environment the agent harness was started
 # from, never inside the command (an assignment in the command is ignored):
@@ -42,9 +43,23 @@ esac
 
 IFS= read -r -d '' awk_program <<'AWK' || true
 function report(what, alt) {
+    nfound++
+    # `env > f` prints nothing to the transcript, so an environment dump into a file nothing else in the command
+    # mentions is not a finding.
+    if (redir_file != "" && what ~ /^(env|printenv|export|declare|typeset)/ && file_unused(redir_file)) return
     if (what in seen) return
     seen[what] = 1
     printf "%s\t%s\n", what, alt
+}
+# True for a regular file name that the command text does not mention again after the redirect, in any form. A
+# stream that reaches the transcript (/dev/stderr, /dev/fd/1, /dev/tty, /proc/self/fd/2) is never a file.
+function file_unused(f,    b, at, rest) {
+    if (f ~ /^\/dev\// || f ~ /^\/proc\/[^\/]*\/fd\//) return 0
+    at = index(CMD, f)
+    if (at == 0) return 0
+    rest = substr(CMD, at + length(f))
+    b = f; sub(/.*\//, "", b)
+    return !(index(rest, f) || (b != "" && index(rest, b)))
 }
 function enqueue(text) {
     if (text == "" || queued >= 64) return
@@ -54,13 +69,35 @@ function base(word) { word = tolower(word); sub(/.*\//, "", word); return word }
 
 # ── tokenizer: splits text into simple commands, queueing nested command text ──
 function flush_word() {
-    if (inword) W[++nw] = word
-    word = ""; inword = 0
+    if (inword) { W[++nw] = word; WQ[nw] = wordq }
+    word = ""; inword = 0; wordq = 0
 }
-function end_cmd() {
+# Output redirections are removed before a command is analyzed, so they are never read as operands. A
+# redirect to a file that nothing later in the command mentions drops the findings of an environment dump.
+function end_cmd(    k, m, w, fd, tgt, app) {
     flush_word()
-    if (nw > 0) analyze(W, 1, nw)
-    split("", W); nw = 0
+    if (nw > 0) {
+        m = 0; tgt = ""; app = 0; split("", V)
+        for (k = 1; k <= nw; k++) {
+            w = W[k]
+            if (!WQ[k] && w ~ /^[0-9]*>>?$/) {
+                fd = w; sub(/>.*/, "", fd)
+                if (fd == "" || fd == "1") { tgt = W[k + 1]; app = (w ~ />>$/) }
+                k++; continue
+            }
+            if (!WQ[k] && w ~ /^[0-9]*>>?[^>&]/) {
+                fd = w; sub(/>.*/, "", fd)
+                if (fd == "" || fd == "1") { tgt = w; sub(/^[0-9]*>>?/, "", tgt); app = (w ~ />>/) }
+                continue
+            }
+            V[++m] = w
+        }
+        sub(/^\.\//, "", tgt)
+        redir_file = tgt
+        if (m > 0) analyze(V, 1, m)
+        redir_file = ""
+    }
+    split("", W); split("", WQ); nw = 0
 }
 function cmdsub(s, i, n,    start, depth, c, j) {
     start = i; depth = 1
@@ -97,23 +134,23 @@ function read_heredocs(s, i, n,    h, e, line, cmp, body) {
     return i
 }
 function tokenize(s,    i, n, c, c2, j, dash, delim) {
-    n = length(s); i = 1; nw = 0; word = ""; inword = 0; nheredoc = 0; hd_shell = 0
-    split("", W)
+    n = length(s); i = 1; nw = 0; word = ""; inword = 0; wordq = 0; nheredoc = 0; hd_shell = 0
+    split("", W); split("", WQ)
     while (i <= n) {
         c = substr(s, i, 1)
         if (c == "\\") {
             c2 = substr(s, i + 1, 1)
             if (c2 == "\n") { i += 2; continue }
-            word = word c2; inword = 1; i += 2; continue
+            word = word c2; inword = 1; wordq = 1; i += 2; continue
         }
         if (c == "\047") {
-            inword = 1
+            inword = 1; wordq = 1
             j = index(substr(s, i + 1), "\047")
             if (j == 0) { word = word substr(s, i + 1); i = n + 1; continue }
             word = word substr(s, i + 1, j - 1); i += j + 1; continue
         }
         if (c == "\"") {
-            inword = 1; i++
+            inword = 1; wordq = 1; i++
             while (i <= n) {
                 c = substr(s, i, 1)
                 if (c == "\\") { word = word substr(s, i + 1, 1); i += 2; continue }
@@ -128,9 +165,9 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             }
             continue
         }
-        if (c == "$" && substr(s, i + 1, 1) == "(") { inword = 1; i = cmdsub(s, i + 2, n); word = word "x"; continue }
+        if (c == "$" && substr(s, i + 1, 1) == "(") { inword = 1; wordq = 1; i = cmdsub(s, i + 2, n); word = word "x"; continue }
         if (c == "`") {
-            inword = 1
+            inword = 1; wordq = 1
             j = index(substr(s, i + 1), "`")
             if (j == 0) { i = n + 1; continue }
             enqueue(substr(s, i + 1, j - 1)); i += j + 1; word = word "x"; continue
@@ -169,7 +206,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
 # ── option parsing shared by the CLIs: positionals P/PI, output format, -f/--format value, --raw ──
 function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
     split("", P); split("", PI)
-    np = 0; outfmt = ""; fmtval = ""; dd = 0; raw = 0
+    np = 0; outfmt = ""; fmtval = ""; tmpl = ""; dd = 0; raw = 0
     for (i = s; i <= n; i++) {
         w = A[i]
         if (w == "--") { dd = i; break }
@@ -178,6 +215,7 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
             if (eq) { key = substr(w, 1, eq - 1); val = substr(w, eq + 1) }
             if (key == "--output") { if (!eq) { i++; val = A[i] } outfmt = tolower(val) }
             else if (key == "--format") { if (!eq) { i++; val = A[i] } fmtval = val }
+            else if (key == "--template") { if (!eq) { i++; val = A[i] } tmpl = val }
             else if (key == "--raw") raw = 1
             else if (!eq && (key in LV)) i++
             continue
@@ -195,6 +233,11 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
         }
         np++; P[np] = w; PI[np] = i
     }
+}
+# `-o jsonpath={.}` and `-o go-template={{.}}` print the whole object, exactly like -o json.
+function proj_leaks(t) {
+    t = tolower(t); gsub(/[ \t]/, "", t)
+    return t ~ /[{](\.|@|\.items|\.items\[\*\])[}]/
 }
 function skipopts(A, s, n, vals) {
     while (s <= n && substr(A[s], 1, 1) == "-") {
@@ -257,6 +300,8 @@ function kube(A, s, n,    verb, m, parts, k, r, rlist) {
                 report("kubectl describe " r " prints the full container spec, including inline credentials", "kubectl get " r " -o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, or kubectl get events / kubectl logs; say which field you need")
             else if (outfmt == "json" || outfmt == "yaml")
                 report("kubectl get " r " -o " outfmt " prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
+            else if ((outfmt ~ /^(jsonpath|go-template|jsonpath-as-json)=/ || tmpl != "") && proj_leaks(tmpl outfmt))
+                report("kubectl get " r " with a projection that selects the whole object prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
         }
     }
 }
@@ -323,19 +368,36 @@ function gcloud(A, s, n,    k) {
     if (P[1] == "secrets" && P[2] == "versions" && P[3] == "access") report("gcloud secrets versions access prints the secret", "gcloud secrets versions list, or gcloud secrets describe (metadata only)")
     if (P[1] == "auth") for (k = 2; k <= np; k++) if (P[k] ~ /^print-(access|identity)-token$/) report("gcloud auth " P[k] " prints a token", "gcloud auth list")
 }
-function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2) {
-    b = base(A[s]); mode = ""; valued = " "; valued2 = " "
-    if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) { mode = "pattern"; valued = " -m -A -B -C -g -t -T -d -D --glob --type --type-not --max-count --include --exclude --exclude-dir --context --after-context --before-context --max-depth --threads " }
-    else if (b ~ /^(sed|awk|gawk|jq|yq)$/) { mode = "script"; valued = " -v -F --indent "; valued2 = " --arg --argjson --slurpfile --rawfile " }
+# Scans one attached or clustered short option (-ePATTERN, -nePATTERN, -m5, -F:) of a pattern or script tool:
+# sc_pat is set when it supplies the pattern or script, sc_skip when its value is the next word.
+function scan_short(w, shortvals, sed_like,    i, c, last) {
+    sc_pat = 0; sc_skip = 0; last = length(w)
+    for (i = 2; i <= last; i++) {
+        c = substr(w, i, 1)
+        if (c == "e" || c == "f") { sc_pat = 1; sc_skip = (i == last); return }
+        if (index(shortvals, c)) { sc_skip = (i == last); return }
+        if (sed_like && c == "i") return
+    }
+}
+function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals) {
+    b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
+    if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) { mode = "pattern"; shortvals = "mABCgtTdD"; valued = " --glob --type --type-not --max-count --include --exclude --exclude-dir --context --after-context --before-context --max-depth --threads " }
+    else if (b ~ /^(sed|awk|gawk|jq|yq)$/) { mode = "script"; shortvals = "vF"; valued = " --indent "; valued2 = " --arg --argjson --slurpfile --rawfile " }
     # The first operand is the pattern or script unless -e/-f/--regexp/--file/--expression supplies it; only the rest are files.
     havepat = 0
-    if (mode != "") for (k = s + 1; k <= n; k++) if (A[k] ~ /^-[a-zA-Z]*[ef]$/ || A[k] ~ /^--(regexp|file|expression|from-file)(=|$)/) havepat = 1
+    if (mode != "") for (k = s + 1; k <= n; k++) {
+        w = A[k]
+        if (w == "--") break
+        if (w ~ /^--(regexp|file|expression|from-file)(=|$)/) havepat = 1
+        else if (w ~ /^-[a-zA-Z]/) { scan_short(w, shortvals, b == "sed"); if (sc_pat) havepat = 1 }
+    }
     need = (mode != "" && !havepat); afterdd = 0
     for (k = s + 1; k <= n; k++) {
         w = A[k]
         if (w == "--" && !afterdd) { afterdd = 1; continue }
         if (!afterdd && substr(w, 1, 1) == "-" && length(w) > 1) {
-            if (mode != "" && (w ~ /^-[a-zA-Z]*[ef]$/ || w ~ /^--(regexp|file|expression|from-file)$/ || index(valued, " " w " "))) k++
+            if (mode != "" && w ~ /^-[a-zA-Z]/) { scan_short(w, shortvals, b == "sed"); if (sc_skip) k++ }
+            else if (mode != "" && (w ~ /^--(regexp|file|expression|from-file)$/ || index(valued, " " w " "))) k++
             else if (index(valued2, " " w " ")) k += 2
             continue
         }
@@ -351,7 +413,7 @@ function analyze(A, s, n,    w, b, k, names, p) {
         if (is_assign(w)) { s++; continue }
         if (w ~ /^[0-9]*[<>]/) { s += (w ~ /^[0-9]*[<>]+&?-?$/) ? 2 : 1; continue }
         if (b in KW) { s++; continue }
-        if (b == "command" || b == "builtin") { s++; if (s <= n && (A[s] == "-v" || A[s] == "-V")) return; continue }
+        if (b == "command" || b == "builtin") { s++; if (s <= n && (A[s] == "-v" || A[s] == "-V")) return; if (s <= n && A[s] == "-p") s++; continue }
         if (b == "sudo" || b == "doas") { s = skipopts(A, s + 1, n, "ugChprtUD"); continue }
         if (b == "xargs") { s = skipopts(A, s + 1, n, "IniPLdsEa"); continue }
         if (b == "timeout") { s = skipopts(A, s + 1, n, "ks") + 1; continue }
@@ -426,7 +488,8 @@ BEGIN {
     for (i in L) KW[L[i]] = 1
     split("pods po pod deployments deployment deploy statefulsets statefulset sts daemonsets daemonset ds jobs job cronjobs cronjob cj configmaps configmap cm replicasets replicaset rs replicationcontrollers rc all", L, " ")
     for (i in L) SENS[L[i]] = 1
-    enqueue(ENVIRON["GS_COMMAND"])
+    CMD = ENVIRON["GS_COMMAND"]
+    enqueue(CMD)
     while (qi < queued) { qi++; tokenize(queue[qi]) }
 }
 AWK

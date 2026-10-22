@@ -11,7 +11,7 @@ Three layers:
 | Pattern pass | `PostToolUse` on a write | `scripts/cratis-pattern-scan.sh` | zero tokens until a match | appends a one-line reminder to context, never blocks |
 | Hard block | `PreToolUse` on a write | `scripts/cratis-guard-writes.sh` | zero | exits **2** — the write does not happen |
 | Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-store-mutations.sh` | zero; parses only commands that mention `cratis` | exits **2** — the store-changing `cratis chronicle` command does not run |
-| Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-secrets.sh` | zero; parses only commands that mention a credential-bearing tool or file | exits **2** — a command that prints credentials (full `kubectl` specs and secrets, `env`/`printenv`, `docker inspect`, secret-manager reads, `.env`/kubeconfig/key files) does not run unless it projects a field; see [`secrets.md`](../rules/secrets.md) |
+| Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-secrets.sh` | zero; parses only commands that mention a credential-bearing tool or file | exits **2** — a command that prints credentials (full `kubectl` specs and secrets, `env`/`printenv`, `docker inspect`, secret-manager reads, `.env`/kubeconfig/key files; also behind `/usr/bin/env`, `command`, attached options such as `-ePATTERN`, a bare `{.}` projection, or `env > f` then a reader of `f` in the same command) does not run unless it projects a field; piped shells and recursive searches with no named file stay uncovered; see [`secrets.md`](../rules/secrets.md) |
 | Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-pr-body.sh` | fetches shared rules only for `gh pr create/edit` | exits **2** for inline bodies, invalid notes or conflicting release labels; warns and allows when offline with no cache |
 | Cleanup of delivered work | `PostToolUse` on `Bash` (`gh pr merge`, `git pull/merge/worktree`) and `SessionStart` (Pi: `tool_result` and `session_start`) | `scripts/cratis-cleanup-worktrees.sh --hook` | zero when the command is unrelated | never blocks; removes delivered worktrees and branches, reports what it kept |
 | Quality gate (Claude) | `Stop` | `scripts/cratis-quality-gate.sh` | one build/test run, only when relevant files changed | exits **2** — the turn does not end |
@@ -251,6 +251,16 @@ file first, then run `gh pr create/edit` in a separate command**. The guard read
 execution, so it cannot validate a body that the command has yet to write, even if an older file
 already exists. Dependabot's generated description remains exempt (including GitHub CLI's
 `app/dependabot` bot identity), but its release-intent label is still checked.
+
+A release that changes a hook script or its wiring must say in its release notes that consumers run
+`cratis ai update`: hooks are managed files, so a fix reaches a repository only once it updates.
+
+The direct checker exits non-zero, with remediation text, in a `github.com/Cratis/` repository whose
+workflows hold no policy caller (none of the recognized callers above): without one, nothing enforces the
+pull-request contract there, and a pass would claim otherwise. A repository outside Cratis still falls back to
+the reviewed pin below, and the Bash guard stays a no-op where there is no caller. A contract spec in the AI corpus's own
+verification runs the checker over vendored copies of the callers Cratis/Workflows publishes; with
+`CRATIS_CONTRACT_LIVE=1` it compares them with Cratis/Workflows `main`.
 
 Run the same checker directly:
 
