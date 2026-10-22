@@ -12,7 +12,7 @@
  */
 
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, relative, resolve } from 'node:path';
@@ -35,6 +35,31 @@ function runGuard(payload: object, cwd: string, env: NodeJS.ProcessEnv = {}): { 
     });
     assert.ok(result.status === 0 || result.status === 2, `unexpected guard exit ${result.status}: ${result.stderr}`);
     return { verdict: result.status === 2 ? BLOCK : ALLOW, stdout: result.stdout, stderr: result.stderr };
+}
+
+/** Same contract as runGuard without blocking the event loop, so independent cases can overlap their process spawns. */
+function runGuardAsync(payload: object, cwd: string, env: NodeJS.ProcessEnv = {}): Promise<{ verdict: string; stdout: string; stderr: string }> {
+    return new Promise((resolveRun, reject) => {
+        const child = spawn('bash', [guard], { cwd, env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0', ...env } });
+        let stdout = '';
+        let stderr = '';
+        child.stdout.setEncoding('utf8').on('data', chunk => { stdout += chunk; });
+        child.stderr.setEncoding('utf8').on('data', chunk => { stderr += chunk; });
+        child.on('error', reject);
+        child.on('close', status => {
+            if (status !== 0 && status !== 2) return reject(new Error(`unexpected guard exit ${status}: ${stderr}`));
+            resolveRun({ verdict: status === 2 ? BLOCK : ALLOW, stdout, stderr });
+        });
+        child.stdin.on('error', () => {});
+        child.stdin.end(JSON.stringify(payload));
+    });
+}
+
+/** Runs independent cases with bounded concurrency; the first failed assertion rejects the whole run. */
+async function forEachConcurrently<T>(items: T[], action: (item: T) => Promise<void>, limit = 16): Promise<void> {
+    let next = 0;
+    const worker = async () => { while (next < items.length) await action(items[next++]); };
+    await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
 }
 
 /** A throwaway repository holding one real generated proxy, one file that merely mentions the marker, and a manifest. */
@@ -166,16 +191,15 @@ test('manifest policy follows the write target across repositories and nonexiste
             [cratis.root, join(optedOut.root, 'New', 'Nested', 'global.json'), BLOCK],
             [cratis.root, join(outside, 'New', 'Nested', 'global.json'), BLOCK],
         ];
-        for (const [cwd, target, expected] of cases) {
-            for (const path of [target, relative(cwd, target)]) {
-                const payload = { cwd, tool_input: { file_path: path, content: 'x' } };
-                const result = runGuard(payload, cwd);
-                assert.equal(result.verdict, expected, `${cwd} -> ${path}: ${result.stderr}`);
-                if (expected === ALLOW) assert.equal(result.stdout + result.stderr, '');
-                const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd }) as { block?: boolean } | undefined;
-                assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${cwd} -> ${path}`);
-            }
-        }
+        const spellings = cases.flatMap(([cwd, target, expected]) => [target, relative(cwd, target)].map(path => [cwd, path, expected] as [string, string, string]));
+        await forEachConcurrently(spellings, async ([cwd, path, expected]) => {
+            const payload = { cwd, tool_input: { file_path: path, content: 'x' } };
+            const result = await runGuardAsync(payload, cwd);
+            assert.equal(result.verdict, expected, `${cwd} -> ${path}: ${result.stderr}`);
+            if (expected === ALLOW) assert.equal(result.stdout + result.stderr, '');
+            const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd }) as { block?: boolean } | undefined;
+            assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${cwd} -> ${path}`);
+        });
         assert.equal(runGuard({ cwd: cratis.root, tool_input: { file_path: join(outside, 'global.json'), content: 'x' } }, cratis.root, { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' }).verdict, ALLOW);
     } finally {
         cratis.dispose();
@@ -204,14 +228,14 @@ test('manifest policy normalizes missing path components and follows physical di
             [cratis.root, `/../../..${consumer.root}//./global.json`, BLOCK],
             [consumer.root, `/../../..${cratis.root}//./global.json`, ALLOW],
         ];
-        for (const [cwd, path, expected] of cases) {
-            const result = runGuard({ cwd, tool_input: { file_path: path, content: 'x' } }, cwd);
+        await forEachConcurrently(cases, async ([cwd, path, expected]) => {
+            const result = await runGuardAsync({ cwd, tool_input: { file_path: path, content: 'x' } }, cwd);
             assert.equal(result.verdict, expected, `${cwd} -> ${path}: ${result.stderr}`);
             if (expected === ALLOW) assert.equal(result.stdout + result.stderr, '');
             // Pi forwards this original path and cwd unchanged; the shared script normalizes them.
             const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd }) as { block?: boolean } | undefined;
             assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${cwd} -> ${path}`);
-        }
+        });
     } finally {
         cratis.dispose();
         consumer.dispose();
@@ -236,16 +260,16 @@ test('repository manifest settings override the origin default identically throu
             for (const [configuration, override] of configurations) {
                 writeFileSync(join(repo.root, '.cratis', 'ai.json'), configuration);
                 const expected = override ?? defaultVerdict;
-                for (const name of protectedNames) {
+                await forEachConcurrently(protectedNames, async name => {
                     const path = join(repo.root, name);
-                    const result = runGuard({ cwd: repo.root, tool_input: { file_path: path, content: 'x' } }, repo.root);
+                    const result = await runGuardAsync({ cwd: repo.root, tool_input: { file_path: path, content: 'x' } }, repo.root);
                     assert.equal(result.verdict, expected, `${origin}, ${configuration}, ${name}: ${result.stderr}`);
                     if (expected === ALLOW) assert.equal(result.stdout + result.stderr, '');
                     const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd: join(repo.root, 'Source', 'Accounts') }) as { block?: boolean } | undefined;
                     assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${origin}, ${configuration}, ${name}`);
-                }
+                });
                 const packagePath = join(repo.root, 'package.json');
-                assert.equal(runGuard({ cwd: repo.root, tool_input: { file_path: packagePath, content: '{}' } }, repo.root).verdict, ALLOW, 'the protected category does not expand');
+                assert.equal((await runGuardAsync({ cwd: repo.root, tool_input: { file_path: packagePath, content: '{}' } }, repo.root)).verdict, ALLOW, 'the protected category does not expand');
             }
         } finally {
             repo.dispose();
@@ -366,12 +390,12 @@ test('agent controls and installed trees are protected without blocking authored
                 ['.claude/commands/managed/ship.md', ALLOW],
                 ['.claude/skills/shared/new/SKILL.md', BLOCK],
             ];
-            for (const [name, expected] of cases) {
+            await forEachConcurrently(cases, async ([name, expected]) => {
                 const path = join(consumer.root, name);
-                assert.equal(runGuard({ tool_input: { file_path: path, content: 'x' } }, source.root).verdict, expected, `${manifest}, ${name}`);
+                assert.equal((await runGuardAsync({ tool_input: { file_path: path, content: 'x' } }, source.root)).verdict, expected, `${manifest}, ${name}`);
                 const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd: source.root }) as { block?: boolean } | undefined;
                 assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${manifest}, ${name}`);
-            }
+            });
         }
         for (const name of [...controls, ...managed]) {
             assert.equal(runGuard({ cwd: consumer.root, tool_input: { file_path: join(source.root, name), content: 'x' } }, consumer.root).verdict, ALLOW, `authored Cratis/AI: ${name}`);
