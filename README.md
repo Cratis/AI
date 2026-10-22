@@ -341,6 +341,29 @@ npm test --prefix Source/Verification
 (cd Source/Pi.Plugin && npm pack --dry-run)
 ```
 
+While iterating, run the named subset that matches what you changed; each prints its ten
+slowest specs. The full `test` suite stays the gate before you call work done.
+
+```bash
+yarn workspace @cratis/ai-verification run test:hooks     # guards, hook wiring, Codex hooks, Pi bridge and quality gates
+yarn workspace @cratis/ai-verification run test:adapters  # agent adapters, harness setup, Pi plugin, MCP configuration
+yarn workspace @cratis/ai-verification run test:corpus    # structure, budgets, skills, routing
+yarn workspace @cratis/ai-verification run test:affected  # changed paths vs origin/main: narrow subset or the full suite
+```
+
+`test:hooks` took about 124 s on a heavily loaded machine; the `guard-writes.spec.ts` specs now overlap their
+guard spawns and the guard avoids avoidable subprocesses, bringing it to about 92 s under the same load. The
+rest is other hook specs that spawn many processes, so the 60 s target is not reached there.
+
+The full `test` suite runs through `test-subsets.ts full` and is held to a wall-time budget of 1200 s (measured
+at 884 s on a loaded machine). Because wall time depends on load, an overrun prints a `WARNING` locally and
+fails the run only when `CI` is set. Set `CRATIS_TEST_BUDGET_SECONDS` to change the budget on a slower runner.
+
+`test:affected` is deny-by-default: it runs a subset only when every changed path is on a small allowlist
+(the guard hook scripts for `hooks`, `Source/Harness.Setup/*.ts` for `adapters`, or a changed spec file, which
+runs itself). Any other change (rules, skills, evaluations, agents, docs, `Source/Verification/*.ts`, package
+files) runs the full suite and returns its exit status.
+
 The verification suite uses Pi's `DefaultResourceLoader` directly, without a
 model or credentials, to prove that project context, every skill, 18 prompts,
 and the managed extensions are actually discovered. It also verifies the
@@ -426,8 +449,11 @@ Fence info strings declare what verification checks:
   errors cannot also claim specification execution.
 
 Run `yarn workspace @cratis/ai-verification run verify`. The tool is resolved
-from `CRATIS_SCREENPLAY_TOOL` or `screenplay` on PATH; its version must match the
-standalone pin in `Documentation/compatibility.md`. To require it
+from `CRATIS_SCREENPLAY_TOOL` when set; otherwise `verify` installs the standalone pin
+from `Documentation/compatibility.md` into the Git-ignored `.cache/screenplay-tool/`
+(the same `yarn workspace @cratis/ai-verification run tool:screenplay` script CI runs)
+and falls back to `screenplay` on PATH when that install is impossible (offline). A
+version mismatch names that command as the fix. To require it
 locally, run `CRATIS_SCREENPLAY_TOOL=/path/to/screenplay CRATIS_REQUIRE_SCREENPLAY=1
 yarn workspace @cratis/ai-verification run verify` on one shell line. CI installs
 that pin and requires the check. An unavailable tool is reported as SKIPPED
