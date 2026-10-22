@@ -5,6 +5,7 @@ description: >
   in when_*/ folders, and the React surface (page and/or command dialog). Use for new slices and for
   non-trivial slice changes spanning backend and frontend.
 tools: read, grep, find, bash, edit, write
+modelTier: scoped
 ---
 <!-- cratis-ai: generated Pi adapter of agents/slice-implementer.md. Do not edit; the canonical agent is the source. -->
 

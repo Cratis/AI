@@ -14,6 +14,7 @@ tools:
   - Glob
   - Bash
   - Agent
+modelTier: scoped
 ---
 
 # Orchestrator

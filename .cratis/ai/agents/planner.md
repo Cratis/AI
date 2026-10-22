@@ -11,6 +11,7 @@ tools:
   - Glob
   - Bash
   - Agent
+modelTier: scoped
 ---
 
 # Vertical Slice Planner

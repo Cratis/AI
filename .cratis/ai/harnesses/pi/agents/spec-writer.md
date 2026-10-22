@@ -5,6 +5,7 @@ description: >
   TypeScript/React specs for vertical slices. Ensures every slice has
   comprehensive behavior coverage following the project's BDD conventions.
 tools: read, grep, find, bash, edit, write
+modelTier: scoped
 ---
 <!-- cratis-ai: generated Pi adapter of agents/spec-writer.md. Do not edit; the canonical agent is the source. -->
 

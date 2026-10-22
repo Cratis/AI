@@ -8,6 +8,7 @@ description: >
   legacy extraction. Does not write application code.
 tools: read, grep, find, bash, edit, write
 readonly: false
+modelTier: scoped
 ---
 <!-- cratis-ai: generated Pi adapter of agents/screenplay-modeler.md. Do not edit; the canonical agent is the source. -->
 

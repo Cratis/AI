@@ -6,10 +6,14 @@ description: >
   React render overhead, and Chronicle anti-patterns before merge.
 tools: read, grep, find, bash
 readonly: true
+modelTier: reviewer
+reviewIndependence: different-provider
 ---
 <!-- cratis-ai: generated Pi adapter of agents/performance-reviewer.md. Do not edit; the canonical agent is the source. -->
 
 # Performance Reviewer
+
+Run on a different provider than the author where the harness can select one; see "Reviewer independence" in `review-reports.md`.
 
 ## Scope before checklists
 

@@ -33,6 +33,36 @@ test('every Claude hook command runs its script through bash', () => {
     }
 });
 
+test('the secrets guard is wired on Bash beside the store-mutation guard', () => {
+    const template = JSON.parse(readFileSync(templatePath, 'utf8')) as { hooks: Record<string, Entry[]> };
+    const bash = template.hooks.PreToolUse.find(entry => entry.matcher === 'Bash');
+    const commands = bash?.hooks.map(hook => hook.command) ?? [];
+    assert.ok(commands.some(command => command.endsWith('/cratis-guard-secrets.sh')), 'the secrets guard is wired on Bash');
+    assert.ok(commands.some(command => command.endsWith('/cratis-guard-store-mutations.sh')), 'the store-mutation guard stays wired');
+});
+
+test('the wired secrets guard still blocks when its script has lost the execute bit', () => {
+    const command = wiredCommands().find(candidate => candidate.endsWith('/cratis-guard-secrets.sh'));
+    assert.ok(command, 'the secrets guard is wired');
+    const project = mkdtempSync(join(tmpdir(), 'hook-wiring-secrets-'));
+    try {
+        const scripts = join(project, '.cratis/ai/hooks/scripts');
+        spawnSync('mkdir', ['-p', scripts]);
+        for (const file of ['cratis-guard-secrets.sh', 'hook-lib.sh']) {
+            copyFileSync(join(root, '.cratis/ai/hooks/scripts', file), join(scripts, file));
+            chmodSync(join(scripts, file), 0o644);
+        }
+        const run = spawnSync('bash', ['-c', command!], {
+            input: JSON.stringify({ session_id: 't', cwd: project, tool_name: 'Bash', tool_input: { command: 'kubectl get pods -o json' } }),
+            cwd: project, encoding: 'utf8',
+            env: { ...process.env, CLAUDE_PROJECT_DIR: project, CRATIS_HOOKS_ALLOW_SECRET_READS: '0' },
+        });
+        assert.equal(run.status, 2, `expected a block (exit 2), got ${run.status}: ${run.stderr}`);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
 test('a wired guard still blocks when its script has lost the execute bit', () => {
     const command = wiredCommands().find(candidate => candidate.endsWith('/cratis-guard-writes.sh'));
     assert.ok(command, 'the write guard is wired');

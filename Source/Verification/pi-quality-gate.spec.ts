@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerCratisHooks, { QUALITY_GATE_TOOL_NAME } from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
-import { gateTimeoutSeconds, latestGateLog, parseGatePlan, runBounded, tailLines, workingTreeFingerprint } from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/quality-gate.ts';
+import { gateTimeoutSeconds, isNotRepositoryError, latestGateLog, parseGatePlan, runBounded, tailLines, workingTreeFingerprint } from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/quality-gate.ts';
 
 type Handler = (event: unknown, ctx: unknown) => Promise<unknown> | unknown;
 type GateTool = {
@@ -440,6 +440,13 @@ test('an inherited dry-run flag never reports a verified gate', async () => {
     } finally {
         repo.dispose();
     }
+});
+
+test('both of Git\'s discovery failures mean not a repository, and a broken GIT_DIR does not', () => {
+    assert.equal(isNotRepositoryError('fatal: not a git repository (or any of the parent directories): .git\n'), true);
+    assert.equal(isNotRepositoryError('fatal: not a git repository (or any parent up to mount point /tmp)\nStopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).\n'), true);
+    assert.equal(isNotRepositoryError("fatal: not a git repository: '/repo/missing-git-dir'\n"), false);
+    assert.equal(isNotRepositoryError('fatal: detected dubious ownership in repository at \'/repo\'\n'), false);
 });
 
 test('failed fingerprints are unknown, not evidence that the working tree was unchanged', async () => {

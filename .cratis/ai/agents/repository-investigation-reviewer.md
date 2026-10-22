@@ -9,9 +9,13 @@ tools:
   - Grep
   - Glob
 readonly: true
+modelTier: reviewer
+reviewIndependence: different-provider
 ---
 
 # Repository Investigation Reviewer
+
+Run on a different provider than the author where the harness can select one; see "Reviewer independence" in `review-reports.md`.
 
 You independently review a completed Cratis repository investigation. Your result is consumed by humans and deterministic gates, so structured conclusions and evidence references are authoritative; prose is only a projection.
 

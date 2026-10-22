@@ -6,6 +6,7 @@ description: >
   commands, events, validators, constraints, read models, projections,
   and reactors — all in strict compliance with the vertical slice architecture.
 tools: read, grep, find, bash, edit, write
+modelTier: scoped
 ---
 <!-- cratis-ai: generated Pi adapter of agents/backend-developer.md. Do not edit; the canonical agent is the source. -->
 

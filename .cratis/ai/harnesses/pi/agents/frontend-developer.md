@@ -5,6 +5,7 @@ description: >
   Implements React components that consume auto-generated command and query
   proxies, following the project's component and styling conventions.
 tools: read, grep, find, bash, edit, write
+modelTier: scoped
 ---
 <!-- cratis-ai: generated Pi adapter of agents/frontend-developer.md. Do not edit; the canonical agent is the source. -->
 

@@ -6,6 +6,7 @@ description: >
   mutating Chronicle operations, or assuming an application architecture.
 tools: read, grep, find, bash
 readonly: true
+modelTier: scoped
 ---
 <!-- cratis-ai: generated Pi adapter of agents/repository-investigator.md. Do not edit; the canonical agent is the source. -->
 

@@ -7,7 +7,7 @@ import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const scripts = resolve(dirname(fileURLToPath(import.meta.url)), '../../hooks/scripts');
-const guards = ['cratis-guard-store-mutations.sh', 'cratis-guard-pr-body.sh'];
+const guards = ['cratis-guard-store-mutations.sh', 'cratis-guard-secrets.sh', 'cratis-guard-pr-body.sh'];
 const outputLimit = 64 * 1024;
 
 function deny(reason) {

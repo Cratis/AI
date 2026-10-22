@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 import { constants, existsSync } from 'node:fs';
 import { access, readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve } from 'node:path';
-import { canonicalToolNames, checkOpenCodeAgents, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
+import { canonicalToolNames, checkOpenCodeAgents, modelTiers, parseCanonicalAgent, pinnedModelMessage } from '../Harness.Setup/opencode-agents.ts';
 import { checkPiAgents } from '../Harness.Setup/pi-agents.ts';
 import { checkCopilotInstructions } from '../Harness.Setup/copilot-instructions.ts';
 import { toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
@@ -273,6 +273,9 @@ for (const agent of (await readdir(join(corpus, 'agents'))).filter(name => name.
     const piError = toolsErrorFor(canonical.name, canonical.tools);
     if (piError) failures.push(`${relative(root, path)}: ${piError}`);
     if (canonical.readonly && canonical.tools.some(tool => tool === 'Edit' || tool === 'Write')) failures.push(`${relative(root, path)} is readonly but declares Edit/Write.`);
+    if (canonical.model !== undefined) failures.push(pinnedModelMessage(relative(root, path)));
+    if (!(modelTiers as readonly string[]).includes(canonical.modelTier ?? '')) failures.push(`${relative(root, path)} must declare modelTier: ${modelTiers.join(' | ')}.`);
+    if (canonical.modelTier === 'reviewer' && canonical.reviewIndependence !== 'different-provider') failures.push(`${relative(root, path)} is reviewer tier and must declare reviewIndependence: different-provider.`);
 }
 for (const stale of checkOpenCodeAgents(corpus)) failures.push(`OpenCode agent adapters are out of date: ${stale}`);
 for (const stale of checkPiAgents(corpus)) failures.push(`Pi agent adapters are out of date: ${stale}`);

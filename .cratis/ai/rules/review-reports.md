@@ -65,3 +65,14 @@ scope limits when combining reports.
 When a workflow requires a typed review envelope, preserve its schema and express
 these sections, verdict meanings, and scope limits through its existing fields.
 Do not append a competing Markdown report or invent envelope fields.
+
+## Reviewer independence
+
+- **[contract]** Run a reviewer on a different provider family than the author's model
+  where the harness can select one. The reviewer agents declare
+  `reviewIndependence: different-provider` and the `reviewer` model tier.
+- **[contract]** Where the harness cannot select a provider, state `single-provider` in the
+  report header and on the Not examined line.
+- **[contract]** A provider or tool error makes the review **Incomplete**. Fall back once
+  to the other family. Never report a failed verdict, or Approved, because the reviewer
+  could not run.
