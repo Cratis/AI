@@ -1,0 +1,32 @@
+Benchmark Authoring Guidelines
+Copyright (c) .NET Foundation and Contributors
+Licensed under the MIT License. See LICENSE.
+
+Upstream source: https://github.com/dotnet/skills/blob/a6bf43ab61967c30919334986515163ab24d7635/plugins/dotnet-diag/skills/microbenchmarking/SKILL.md
+
+Changes made by Cratis:
+
+LICENSE:
+- Copy upstream MIT license and copyright verbatim.
+
+SKILL.md:
+- Normalize frontmatter serialization, add MIT license where absent; preserve name and description.
+- Add marked modification/source comment and applicability/Cratis precedence line.
+
+references/writing-benchmarks.md:
+- Repair references/-relative sibling link.
+- Add or normalize the top Contents list from existing headings; preserve section content.
+
+references/bdn-internals-and-tuning.md:
+- Add or normalize the top Contents list from existing headings; preserve section content.
+
+references/comparison-strategies.md:
+- Add or normalize the top Contents list from existing headings; preserve section content.
+
+references/diagnosers-and-exporters.md:
+- Add or normalize the top Contents list from existing headings; preserve section content.
+
+references/project-setup-and-running.md:
+- Add or normalize the top Contents list from existing headings; preserve section content.
+
+NOTICE: Add this attribution, change list, and any download/execution disclosure.
