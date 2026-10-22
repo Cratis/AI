@@ -995,6 +995,7 @@
         "cratis-engineering-decision-record",
         "cratis-engineering-docs-authoring",
         "cratis-engineering-effect-boundaries",
+        "cratis-engineering-local-cross-repo-verification",
         "cratis-engineering-regression-cluster",
         "cratis-release-notes",
         "cratis-technical-examples"
