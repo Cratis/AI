@@ -11,8 +11,8 @@
 #
 # What it sees is the command text. A credential reached through a variable, an alias, a function, a script
 # file or a pipe into a shell is invisible to it, as is a recursive search with no named file; a projection it
-# cannot see through (a template or `-o jsonpath` that is not a bare `{.}`) is trusted. `env > f` is allowed until
-# a reader of f appears in the same command. See .cratis/ai/hooks/README.md.
+# cannot see through (a template or `-o jsonpath` that is not a bare `{.}`) is trusted. `env > f` is allowed only
+# when f is not mentioned again in the same command. See .cratis/ai/hooks/README.md.
 #
 # Escape hatch for a human who authorized the read — set in the environment the agent harness was started
 # from, never inside the command (an assignment in the command is ignored):
@@ -44,11 +44,22 @@ esac
 IFS= read -r -d '' awk_program <<'AWK' || true
 function report(what, alt) {
     nfound++
-    # `env > f` prints nothing to the transcript; the findings of an environment dump wait for a reader of f.
-    if (redir_file != "" && what ~ /^(env|printenv|export|declare|typeset)/) { DEFER_WHAT[redir_file] = what; return }
+    # `env > f` prints nothing to the transcript, so an environment dump into a file nothing else in the command
+    # mentions is not a finding.
+    if (redir_file != "" && what ~ /^(env|printenv|export|declare|typeset)/ && file_unused(redir_file)) return
     if (what in seen) return
     seen[what] = 1
     printf "%s\t%s\n", what, alt
+}
+# True for a regular file name that the command text does not mention again after the redirect, in any form. A
+# stream that reaches the transcript (/dev/stderr, /dev/fd/1, /dev/tty, /proc/self/fd/2) is never a file.
+function file_unused(f,    b, at, rest) {
+    if (f ~ /^\/dev\// || f ~ /^\/proc\/[^\/]*\/fd\//) return 0
+    at = index(CMD, f)
+    if (at == 0) return 0
+    rest = substr(CMD, at + length(f))
+    b = f; sub(/.*\//, "", b)
+    return !(index(rest, f) || (b != "" && index(rest, b)))
 }
 function enqueue(text) {
     if (text == "" || queued >= 64) return
@@ -62,8 +73,8 @@ function flush_word() {
     word = ""; inword = 0; wordq = 0
 }
 # Output redirections are removed before a command is analyzed, so they are never read as operands. A
-# redirect to a file defers the findings of an environment dump until a reader of that file is seen.
-function end_cmd(    k, m, w, fd, tgt, app, before) {
+# redirect to a file that nothing later in the command mentions drops the findings of an environment dump.
+function end_cmd(    k, m, w, fd, tgt, app) {
     flush_word()
     if (nw > 0) {
         m = 0; tgt = ""; app = 0; split("", V)
@@ -82,9 +93,8 @@ function end_cmd(    k, m, w, fd, tgt, app, before) {
             V[++m] = w
         }
         sub(/^\.\//, "", tgt)
-        redir_file = tgt; before = nfound
+        redir_file = tgt
         if (m > 0) analyze(V, 1, m)
-        if (tgt != "" && !app && nfound == before) delete DEFER_WHAT[tgt]
         redir_file = ""
     }
     split("", W); split("", WQ); nw = 0
@@ -369,7 +379,7 @@ function scan_short(w, shortvals, sed_like,    i, c, last) {
         if (sed_like && c == "i") return
     }
 }
-function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals, key) {
+function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals) {
     b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
     if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) { mode = "pattern"; shortvals = "mABCgtTdD"; valued = " --glob --type --type-not --max-count --include --exclude --exclude-dir --context --after-context --before-context --max-depth --threads " }
     else if (b ~ /^(sed|awk|gawk|jq|yq)$/) { mode = "script"; shortvals = "vF"; valued = " --indent "; valued2 = " --arg --argjson --slurpfile --rawfile " }
@@ -392,8 +402,6 @@ function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued,
             continue
         }
         if (need) { need = 0; continue }
-        key = w; sub(/^\.\//, "", key)
-        if (key in DEFER_WHAT) report(b " of " w " prints credentials: it holds the output of a command that was blocked when it printed (" DEFER_WHAT[key] ")", "do not read the file; name the variable you need and test it with [ -n \"${NAME:-}\" ] && echo set")
         kind = sensitive_path(w)
         if (kind != "") report(b " of " kind " prints credentials", "name the file and the key you need in your report; ask the user to confirm a value instead of printing it; for an env template read the .env.example")
     }
@@ -480,7 +488,8 @@ BEGIN {
     for (i in L) KW[L[i]] = 1
     split("pods po pod deployments deployment deploy statefulsets statefulset sts daemonsets daemonset ds jobs job cronjobs cronjob cj configmaps configmap cm replicasets replicaset rs replicationcontrollers rc all", L, " ")
     for (i in L) SENS[L[i]] = 1
-    enqueue(ENVIRON["GS_COMMAND"])
+    CMD = ENVIRON["GS_COMMAND"]
+    enqueue(CMD)
     while (qi < queued) { qi++; tokenize(queue[qi]) }
 }
 AWK
