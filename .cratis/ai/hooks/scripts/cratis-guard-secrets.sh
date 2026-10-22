@@ -207,12 +207,12 @@ function is_assign(w) { return w ~ /^[A-Za-z_][A-Za-z0-9_]*=/ }
 
 # ── file classification for the reader commands ──
 function code_file(b) { return b ~ /\.(cs|ts|tsx|js|jsx|mjs|cjs|go|py|java|kt|rs|md)$/ }
-# A design-token file is not a credential: style/data extensions and design or theme directories are fine
-# unless the file sits in a secrets or credentials directory.
+# A design-token file is not a credential: a stylesheet, or a file under a design, theme or style directory, is
+# fine unless it sits in a secrets or credentials directory. A bare token.json (an OAuth refresh-token file) is not.
 function token_ok(l, b) {
     if (l ~ /(^|\/)(secrets?|credentials?)\//) return 0
-    if (b ~ /\.(json|css|scss|less)$/) return 1
-    return l ~ /(^|\/)(design|themes?|styles?)\//
+    if (b ~ /\.(css|scss|less)$/) return 1
+    return l ~ /(^|\/)(design|design-tokens|themes?|styles?)\//
 }
 function sensitive_path(w,    l, b) {
     l = tolower(w); b = l; sub(/.*\//, "", b)

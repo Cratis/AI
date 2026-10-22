@@ -223,6 +223,10 @@ test('reading credential files is blocked; templates and source files are not', 
         [ALLOW, 'cat design/tokens.json'],
         [ALLOW, 'cat Source/Styles/tokens.css'],
         [BLOCK, 'cat secrets/tokens.json'],
+        [BLOCK, 'cat token.json'],
+        [BLOCK, 'cat oauth-tokens.json'],
+        [BLOCK, 'cat ~/.config/gcloud/token.json'],
+        [ALLOW, 'cat Source/Themes/tokens.json'],
         [ALLOW, 'cat Source/Settings/appsettings.json'],
     ]);
 });
