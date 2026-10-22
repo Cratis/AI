@@ -207,13 +207,20 @@ function is_assign(w) { return w ~ /^[A-Za-z_][A-Za-z0-9_]*=/ }
 
 # ── file classification for the reader commands ──
 function code_file(b) { return b ~ /\.(cs|ts|tsx|js|jsx|mjs|cjs|go|py|java|kt|rs|md)$/ }
+# A design-token file is not a credential: style/data extensions and design or theme directories are fine
+# unless the file sits in a secrets or credentials directory.
+function token_ok(l, b) {
+    if (l ~ /(^|\/)(secrets?|credentials?)\//) return 0
+    if (b ~ /\.(json|css|scss|less)$/) return 1
+    return l ~ /(^|\/)(design|themes?|styles?)\//
+}
 function sensitive_path(w,    l, b) {
     l = tolower(w); b = l; sub(/.*\//, "", b)
     if (l ~ /(^|\/)\.kube\// || b == "kubeconfig" || b ~ /\.kubeconfig$/) return "a kubeconfig"
     if (b ~ /^\.env/ || b ~ /\.env$/) { if (b ~ /\.(example|sample|template|dist|defaults?)$/) return ""; return "an .env file" }
     if (b ~ /\.(pem|p12|pfx)$/) return "a key or certificate file"
     if (b == "id_rsa" || b == "id_ed25519" || b == "id_ecdsa" || b == "id_dsa") return "a private key"
-    if (b ~ /(^|[._-])tokens?($|[._-])/ && !code_file(b)) return "a token file"
+    if (b ~ /(^|[._-])tokens?($|[._-])/ && !code_file(b) && !token_ok(l, b)) return "a token file"
     if (b == ".netrc" || b == ".npmrc" || b == ".pgpass" || b == ".git-credentials") return "a credentials file"
     if (b == "credentials" && l ~ /\.aws\//) return "the AWS credentials file"
     if (l ~ /\.docker\/config\.json$/) return "the Docker registry credentials"
@@ -223,7 +230,7 @@ function sensitive_path(w,    l, b) {
 }
 
 # ── tools ──
-function kube(A, s, n,    verb, m, parts, k, r) {
+function kube(A, s, n,    verb, m, parts, k, r, rlist) {
     kparse(A, s + 1, n, "nlcsfkLR")
     verb = P[1]
     if (verb == "exec") {
@@ -236,7 +243,10 @@ function kube(A, s, n,    verb, m, parts, k, r) {
         return
     }
     if (verb != "get" && verb != "describe") return
-    m = split(tolower(P[2]), parts, ",")
+    # `get pods,cm` and `get pod web` name one resource type; `get svc/web secret/db` names one per argument.
+    rlist = P[2]
+    if (index(P[2], "/")) for (k = 3; k <= np; k++) if (index(P[k], "/")) rlist = rlist "," P[k]
+    m = split(tolower(rlist), parts, ",")
     for (k = 1; k <= m; k++) {
         r = parts[k]; sub(/\/.*/, "", r); sub(/\..*/, "", r)
         if (r == "secret" || r == "secrets") {
@@ -254,15 +264,17 @@ function fmt_leaks(f) {
     f = tolower(f)
     return f ~ /env|json|\.args/ || f ~ /[{][{] *\.? *[}][}]/ || f ~ /\.config *[}][}]/
 }
-function dock(A, s, n,    off, sub1, nxt, insp) {
+function dock(A, s, n,    off, sub1, nxt, insp, k, listing) {
     kparse(A, s + 1, n, "Hceuwlpfv")
     off = (P[1] == "compose") ? 1 : 0
     sub1 = P[1 + off]; nxt = P[2 + off]
     insp = (sub1 == "inspect") || ((sub1 == "container" || sub1 == "image" || sub1 == "service") && nxt == "inspect")
     if (insp && (fmtval == "" || fmt_leaks(fmtval)))
         report("docker inspect prints the container environment, including credentials", "docker inspect --format " SQ "{{.State.Status}}" SQ " (or {{.Config.Image}}, {{.NetworkSettings.IPAddress}}), docker ps, or docker logs")
-    if (off && sub1 == "config")
-        report("docker compose config prints the resolved environment, including credentials", "docker compose config --services, or read the compose file and name the variables instead of printing their values")
+    if (off && sub1 == "config") {
+        for (k = s + 1; k <= n; k++) if (A[k] ~ /^(--services|--volumes|--profiles|--images|--networks|--quiet|-q)$/) listing = 1
+        if (!listing) report("docker compose config prints the resolved environment, including credentials", "docker compose config --services, or read the compose file and name the variables instead of printing their values")
+    }
     if (sub1 == "exec" && np >= 3 + off) analyze(A, PI[3 + off], n)
 }
 function gh(A, s, n,    i, w, mutating, k) {
@@ -311,11 +323,25 @@ function gcloud(A, s, n,    k) {
     if (P[1] == "secrets" && P[2] == "versions" && P[3] == "access") report("gcloud secrets versions access prints the secret", "gcloud secrets versions list, or gcloud secrets describe (metadata only)")
     if (P[1] == "auth") for (k = 2; k <= np; k++) if (P[k] ~ /^print-(access|identity)-token$/) report("gcloud auth " P[k] " prints a token", "gcloud auth list")
 }
-function reader(A, s, n,    k, kind) {
+function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2) {
+    b = base(A[s]); mode = ""; valued = " "; valued2 = " "
+    if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) { mode = "pattern"; valued = " -m -A -B -C -g -t -T -d -D --glob --type --type-not --max-count --include --exclude --exclude-dir --context --after-context --before-context --max-depth --threads " }
+    else if (b ~ /^(sed|awk|gawk|jq|yq)$/) { mode = "script"; valued = " -v -F --indent "; valued2 = " --arg --argjson --slurpfile --rawfile " }
+    # The first operand is the pattern or script unless -e/-f/--regexp/--file/--expression supplies it; only the rest are files.
+    havepat = 0
+    if (mode != "") for (k = s + 1; k <= n; k++) if (A[k] ~ /^-[a-zA-Z]*[ef]$/ || A[k] ~ /^--(regexp|file|expression|from-file)(=|$)/) havepat = 1
+    need = (mode != "" && !havepat); afterdd = 0
     for (k = s + 1; k <= n; k++) {
-        if (substr(A[k], 1, 1) == "-") continue
-        kind = sensitive_path(A[k])
-        if (kind != "") report(base(A[s]) " of " kind " prints credentials", "name the file and the key you need in your report; ask the user to confirm a value instead of printing it; for an env template read the .env.example")
+        w = A[k]
+        if (w == "--" && !afterdd) { afterdd = 1; continue }
+        if (!afterdd && substr(w, 1, 1) == "-" && length(w) > 1) {
+            if (mode != "" && (w ~ /^-[a-zA-Z]*[ef]$/ || w ~ /^--(regexp|file|expression|from-file)$/ || index(valued, " " w " "))) k++
+            else if (index(valued2, " " w " ")) k += 2
+            continue
+        }
+        if (need) { need = 0; continue }
+        kind = sensitive_path(w)
+        if (kind != "") report(b " of " kind " prints credentials", "name the file and the key you need in your report; ask the user to confirm a value instead of printing it; for an env template read the .env.example")
     }
 }
 
@@ -389,7 +415,7 @@ function analyze(A, s, n,    w, b, k, names, p) {
         if (p && names == 0) report(b " -p/-x with no variable name prints the whole environment, including credentials", "printenv with the one non-credential variable you need")
         return
     }
-    if (b == "cat" || b == "less" || b == "more" || b == "head" || b == "tail" || b == "bat" || b == "batcat" || b == "tac" || b == "nl" || b == "xxd" || b == "od" || b == "strings") reader(A, s, n)
+    if (b ~ /^(cat|tac|nl|less|more|head|tail|bat|batcat|strings|xxd|od|hexdump|cut|sort|uniq|base64|grep|egrep|fgrep|rg|ag|sed|awk|gawk|jq|yq)$/) reader(A, s, n)
 }
 
 BEGIN {
