@@ -13,7 +13,7 @@ Tab-separated, `#` starts a comment.
 
 | Row | Fields | Meaning |
 | --- | --- | --- |
-| `pack` | repo, eco, target, `ENV=VAL,...` | An ordered pack target; the optional MSBuild properties are exported for that pack only |
+| `pack` | repo, eco, target, `ENV=VAL,...` | An ordered pack target; the optional MSBuild properties reach that pack as `-p:` arguments through `CRATIS_LOCAL_PACK_PROPERTIES`, never as exported environment variables |
 | `ids` | repo, eco, comma-separated IDs | The packages `verify-pack` expects in the feed |
 | `uses` | consumer, producer, eco, manifest | An edge; the manifest is the pin file, or the Yarn project directory for npm |
 | `image` | repo, dockerfile, tag suffix | A producer image a consumer builds on |
