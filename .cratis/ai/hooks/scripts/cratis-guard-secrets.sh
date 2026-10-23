@@ -55,23 +55,26 @@ function base(word) { word = tolower(word); sub(/.*\//, "", word); return word }
 
 # ── tokenizer: splits text into simple commands, queueing nested command text ──
 function flush_word() {
-    if (inword) { W[++nw] = word; WQ[nw] = wordq }
-    word = ""; inword = 0; wordq = 0
+    if (inword) { W[++nw] = word; WP[nw] = wplain }
+    word = ""; inword = 0; wquoted = 0; wplain = 0
 }
 # Output redirections are removed before a command is analyzed, so a redirect never shifts a CLI's subcommand
 # or operands (`kubectl get > /dev/stdout secrets`). Nothing is exempted: the command itself is still analyzed.
-# Only a word whose first character is unquoted is an operator; input redirections (`< file`) stay operands.
+# A word is a redirection only when its whole operator lies in the word's unquoted prefix (WP: characters before
+# the first quoted or escaped one), so `1">"b` and `">x"` stay operands; input redirections (`< file`) stay too.
 function end_cmd(    k, m, w) {
     flush_word()
     m = 0
     for (k = 1; k <= nw; k++) {
         w = W[k]
-        if (!WQ[k] && w ~ /^([0-9]*|&)>[>|]?$/) { k++; continue }
-        if (!WQ[k] && w ~ /^([0-9]*|&)>/) continue
+        if (match(w, /^([0-9]*|&)>[>|]?/) && RLENGTH <= WP[k]) {
+            if (RLENGTH == length(w)) k++
+            continue
+        }
         V[++m] = w
     }
     if (m > 0) analyze(V, 1, m)
-    split("", W); split("", WQ); split("", V); nw = 0
+    split("", W); split("", WP); split("", V); nw = 0
 }
 function cmdsub(s, i, n,    start, depth, c, j) {
     start = i; depth = 1
@@ -108,23 +111,23 @@ function read_heredocs(s, i, n,    h, e, line, cmp, body) {
     return i
 }
 function tokenize(s,    i, n, c, c2, j, dash, delim) {
-    n = length(s); i = 1; nw = 0; word = ""; inword = 0; wordq = 0; nheredoc = 0; hd_shell = 0
-    split("", W); split("", WQ)
+    n = length(s); i = 1; nw = 0; word = ""; inword = 0; wquoted = 0; wplain = 0; nheredoc = 0; hd_shell = 0
+    split("", W); split("", WP)
     while (i <= n) {
         c = substr(s, i, 1)
         if (c == "\\") {
             c2 = substr(s, i + 1, 1)
             if (c2 == "\n") { i += 2; continue }
-            if (!inword) wordq = 1; word = word c2; inword = 1; i += 2; continue
+            wquoted = 1; word = word c2; inword = 1; i += 2; continue
         }
         if (c == "\047") {
-            if (!inword) wordq = 1; inword = 1
+            wquoted = 1; inword = 1
             j = index(substr(s, i + 1), "\047")
             if (j == 0) { word = word substr(s, i + 1); i = n + 1; continue }
             word = word substr(s, i + 1, j - 1); i += j + 1; continue
         }
         if (c == "\"") {
-            if (!inword) wordq = 1; inword = 1; i++
+            wquoted = 1; inword = 1; i++
             while (i <= n) {
                 c = substr(s, i, 1)
                 if (c == "\\") { word = word substr(s, i + 1, 1); i += 2; continue }
@@ -139,9 +142,9 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             }
             continue
         }
-        if (c == "$" && substr(s, i + 1, 1) == "(") { if (!inword) wordq = 1; inword = 1; i = cmdsub(s, i + 2, n); word = word "x"; continue }
+        if (c == "$" && substr(s, i + 1, 1) == "(") { wquoted = 1; inword = 1; i = cmdsub(s, i + 2, n); word = word "x"; continue }
         if (c == "`") {
-            if (!inword) wordq = 1; inword = 1
+            wquoted = 1; inword = 1
             j = index(substr(s, i + 1), "`")
             if (j == 0) { i = n + 1; continue }
             enqueue(substr(s, i + 1, j - 1)); i += j + 1; word = word "x"; continue
@@ -157,6 +160,9 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             if (nheredoc > 0) i = read_heredocs(s, i, n)
             continue
         }
+        # `>&`, `>|` and `&>` are parts of a redirection operator, not command separators.
+        if ((c == "&" || c == "|") && inword && !wquoted && word ~ />$/) { word = word c; wplain++; i++; continue }
+        if (c == "&" && substr(s, i + 1, 1) == ">") { flush_word(); word = c; inword = 1; wplain = 1; i++; continue }
         if (c == ";" || c == "&" || c == "|" || c == "(" || c == ")") { end_cmd(); i++; continue }
         if (substr(s, i, 2) == "<<" && substr(s, i, 3) != "<<<") {
             flush_word(); i += 2; dash = 0
@@ -172,7 +178,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             nheredoc++; HD[nheredoc] = delim; HDDASH[nheredoc] = dash
             continue
         }
-        if (!inword) wordq = 0
+        if (!wquoted) wplain++
         word = word c; inword = 1; i++
     }
     end_cmd()
