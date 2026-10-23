@@ -239,7 +239,7 @@ minutes, instead of after a release and a pin bump.
 - Read [references/npm-yarn.md](references/npm-yarn.md) when packing frontend libraries or restoring Yarn overlays.
 - Read [references/docker-images.md](references/docker-images.md) when publishing a kernel or selecting images in a consumer.
 - Read [references/go-jvm-python-elixir.md](references/go-jvm-python-elixir.md) when the boundary uses another language toolchain.
-- Read [references/worked-examples.md](references/worked-examples.md) when following Chronicle → Studio, Fundamentals → Arc, Components → Studio, Chronicle → Direct or Screenplay → Stage and Studio.
+- Read [references/worked-examples.md](references/worked-examples.md) when following Chronicle → Studio, Fundamentals → Arc, Components → Studio, Chronicle → Direct Screenplay → Stage and Studio, or Arc → Chronicle and the three-repository train ([references/worked-examples-chronicle-train.md](references/worked-examples-chronicle-train.md)).
 - Read [references/train-mode.md](references/train-mode.md) when verifying against a local release train's packages (`stamp --train`).
 - Read [references/other-environments.md](references/other-environments.md) when running on another developer machine or an agent host.
 

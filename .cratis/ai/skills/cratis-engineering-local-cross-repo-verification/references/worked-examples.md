@@ -10,6 +10,7 @@
 - Components → Studio frontend (npm)
 - Chronicle clients → Direct (NuGet)
 - Screenplay → Stage and Studio (NuGet and npm)
+- Arc → Chronicle and Fundamentals → Arc → Chronicle: see [worked-examples-chronicle-train.md](worked-examples-chronicle-train.md)
 
 Run times below are rounded from one measured run on a shared machine; queue wait is not included.
 Use absolute producer/consumer paths for your checkouts and the entry point's
