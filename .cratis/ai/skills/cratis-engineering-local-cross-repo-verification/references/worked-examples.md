@@ -10,7 +10,6 @@
 - Components → Studio frontend (npm)
 - Chronicle clients → Direct (NuGet)
 - Screenplay → Stage and Studio (NuGet and npm)
-- Arc → Chronicle and Fundamentals → Arc → Chronicle: see [worked-examples-chronicle-train.md](worked-examples-chronicle-train.md)
 
 Run times below are rounded from one measured run on a shared machine; queue wait is not included.
 Use absolute producer/consumer paths for your checkouts and the entry point's
@@ -187,3 +186,5 @@ own spec-shard helper; skip probes that need a live kernel or database and say s
   like the publish workflow; a `yarn pack` of a package whose `files` lists a gitignored folder
   can ship only part of it.
 - Pitfall: multi-hop. Studio keeps its released Stage; a binary break is a finding.
+
+Arc → Chronicle and Fundamentals → Arc → Chronicle are in [worked-examples-chronicle-train.md](worked-examples-chronicle-train.md).
