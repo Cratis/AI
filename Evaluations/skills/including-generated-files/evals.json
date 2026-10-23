@@ -1,0 +1,38 @@
+{
+  "skill_name": "including-generated-files",
+  "evals": [
+    {
+      "id": 1,
+      "name": "ordering",
+      "prompt": "Without calling tools, make a generated file compile on first build.",
+      "expected_output": "Generate before CoreCompile with BeforeTargets and add to Compile.",
+      "assertions": [
+        "Uses BeforeTargets=\"CoreCompile\" or CompileDependsOn.",
+        "Adds generated file to the Compile item.",
+        "Adds the file to FileWrites."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "incremental",
+      "prompt": "Without calling tools, make the generation target incremental.",
+      "expected_output": "Use Inputs and Outputs.",
+      "assertions": [
+        "Declares Inputs and Outputs.",
+        "Does not regenerate if unchanged.",
+        "Handles file in FileWrites."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "duplicates",
+      "prompt": "Without calling tools, resolve duplicate Compile item errors from generated files.",
+      "expected_output": "Remove existing before include or exclude obj path.",
+      "assertions": [
+        "Identifies duplicate items.",
+        "Removes or excludes duplicate path.",
+        "Verifies with a build."
+      ]
+    }
+  ]
+}

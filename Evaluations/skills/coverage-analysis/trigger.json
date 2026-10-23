@@ -1,0 +1,77 @@
+{
+  "skill": "coverage-analysis",
+  "queries": [
+    {
+      "query": "Here is a Cobertura report for the projection module; where are the weakest branches?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Line coverage is 78% and branch coverage 61%; how many more lines to reach 85%?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Why does coverage plateau at 90% when conditions are only partially covered?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Compute the CRAP score for the worst methods in this coverage data.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Is it safe to refactor this class given its current coverage?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Collect coverage for this specs project so we can analyze it.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Interpret condition coverage 2/4 for this boolean expression.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which uncovered lines in this report are riskiest?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Run the specs for one namespace.",
+      "shouldTrigger": false,
+      "note": "run-tests owns running tests."
+    },
+    {
+      "query": "Write a spec for uncovered code.",
+      "shouldTrigger": false,
+      "note": "cratis-specifications-csharp owns writing specs."
+    },
+    {
+      "query": "Refactor this class to reduce complexity.",
+      "shouldTrigger": false,
+      "note": "csharp-refactoring owns refactoring."
+    },
+    {
+      "query": "What coverage target should we aim for as a team, in general?",
+      "shouldTrigger": false,
+      "note": "No evidence supplied, so this is not report analysis."
+    },
+    {
+      "query": "Which runner does this repo use?",
+      "shouldTrigger": false,
+      "note": "platform-detection owns it."
+    },
+    {
+      "query": "Filter syntax for slow tests.",
+      "shouldTrigger": false,
+      "note": "filter-syntax owns it."
+    },
+    {
+      "query": "Find the hot method in the silo.",
+      "shouldTrigger": false,
+      "note": "profiling owns it."
+    },
+    {
+      "query": "Enforce naming in tests.",
+      "shouldTrigger": false,
+      "note": "cratis-engineering-csharp-conventions owns style."
+    }
+  ]
+}

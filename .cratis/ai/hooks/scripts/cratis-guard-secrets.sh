@@ -10,8 +10,9 @@
 # Exit 2 blocks the tool call and sends stderr back to the model; every other command exits 0.
 #
 # What it sees is the command text. A credential reached through a variable, an alias, a function, a script
-# file or a pipe into a shell is invisible to it; a projection it cannot see through (`-o jsonpath` that dumps
-# `{.}`) is trusted. See .cratis/ai/hooks/README.md.
+# file or a pipe into a shell is invisible to it, as is a recursive search with no named file; a projection it
+# cannot see through (a template or `-o jsonpath` that is not a bare `{.}`) is trusted. A redirect does not
+# exempt anything: `env > f` is blocked like `env`. See .cratis/ai/hooks/README.md.
 #
 # Escape hatch for a human who authorized the read — set in the environment the agent harness was started
 # from, never inside the command (an assignment in the command is ignored):
@@ -54,13 +55,26 @@ function base(word) { word = tolower(word); sub(/.*\//, "", word); return word }
 
 # ── tokenizer: splits text into simple commands, queueing nested command text ──
 function flush_word() {
-    if (inword) W[++nw] = word
-    word = ""; inword = 0
+    if (inword) { W[++nw] = word; WP[nw] = wplain }
+    word = ""; inword = 0; wquoted = 0; wplain = 0
 }
-function end_cmd() {
+# Output redirections are removed before a command is analyzed, so a redirect never shifts a CLI's subcommand
+# or operands (`kubectl get > /dev/stdout secrets`). Nothing is exempted: the command itself is still analyzed.
+# A word is a redirection only when its whole operator lies in the word's unquoted prefix (WP: characters before
+# the first quoted or escaped one), so `1">"b` and `">x"` stay operands; input redirections (`< file`) stay too.
+function end_cmd(    k, m, w) {
     flush_word()
-    if (nw > 0) analyze(W, 1, nw)
-    split("", W); nw = 0
+    m = 0
+    for (k = 1; k <= nw; k++) {
+        w = W[k]
+        if (match(w, /^([0-9]*|&)>[>|]?/) && RLENGTH <= WP[k]) {
+            if (RLENGTH == length(w)) k++
+            continue
+        }
+        V[++m] = w
+    }
+    if (m > 0) analyze(V, 1, m)
+    split("", W); split("", WP); split("", V); nw = 0
 }
 function cmdsub(s, i, n,    start, depth, c, j) {
     start = i; depth = 1
@@ -97,23 +111,23 @@ function read_heredocs(s, i, n,    h, e, line, cmp, body) {
     return i
 }
 function tokenize(s,    i, n, c, c2, j, dash, delim) {
-    n = length(s); i = 1; nw = 0; word = ""; inword = 0; nheredoc = 0; hd_shell = 0
-    split("", W)
+    n = length(s); i = 1; nw = 0; word = ""; inword = 0; wquoted = 0; wplain = 0; nheredoc = 0; hd_shell = 0
+    split("", W); split("", WP)
     while (i <= n) {
         c = substr(s, i, 1)
         if (c == "\\") {
             c2 = substr(s, i + 1, 1)
             if (c2 == "\n") { i += 2; continue }
-            word = word c2; inword = 1; i += 2; continue
+            wquoted = 1; word = word c2; inword = 1; i += 2; continue
         }
         if (c == "\047") {
-            inword = 1
+            wquoted = 1; inword = 1
             j = index(substr(s, i + 1), "\047")
             if (j == 0) { word = word substr(s, i + 1); i = n + 1; continue }
             word = word substr(s, i + 1, j - 1); i += j + 1; continue
         }
         if (c == "\"") {
-            inword = 1; i++
+            wquoted = 1; inword = 1; i++
             while (i <= n) {
                 c = substr(s, i, 1)
                 if (c == "\\") { word = word substr(s, i + 1, 1); i += 2; continue }
@@ -128,9 +142,9 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             }
             continue
         }
-        if (c == "$" && substr(s, i + 1, 1) == "(") { inword = 1; i = cmdsub(s, i + 2, n); word = word "x"; continue }
+        if (c == "$" && substr(s, i + 1, 1) == "(") { wquoted = 1; inword = 1; i = cmdsub(s, i + 2, n); word = word "x"; continue }
         if (c == "`") {
-            inword = 1
+            wquoted = 1; inword = 1
             j = index(substr(s, i + 1), "`")
             if (j == 0) { i = n + 1; continue }
             enqueue(substr(s, i + 1, j - 1)); i += j + 1; word = word "x"; continue
@@ -146,6 +160,9 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             if (nheredoc > 0) i = read_heredocs(s, i, n)
             continue
         }
+        # `>&`, `>|` and `&>` are parts of a redirection operator, not command separators.
+        if ((c == "&" || c == "|") && inword && !wquoted && word ~ />$/) { word = word c; wplain++; i++; continue }
+        if (c == "&" && substr(s, i + 1, 1) == ">") { flush_word(); word = c; inword = 1; wplain = 1; i++; continue }
         if (c == ";" || c == "&" || c == "|" || c == "(" || c == ")") { end_cmd(); i++; continue }
         if (substr(s, i, 2) == "<<" && substr(s, i, 3) != "<<<") {
             flush_word(); i += 2; dash = 0
@@ -161,6 +178,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             nheredoc++; HD[nheredoc] = delim; HDDASH[nheredoc] = dash
             continue
         }
+        if (!wquoted) wplain++
         word = word c; inword = 1; i++
     }
     end_cmd()
@@ -169,7 +187,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
 # ── option parsing shared by the CLIs: positionals P/PI, output format, -f/--format value, --raw ──
 function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
     split("", P); split("", PI)
-    np = 0; outfmt = ""; fmtval = ""; dd = 0; raw = 0
+    np = 0; outfmt = ""; fmtval = ""; tmpl = ""; dd = 0; raw = 0
     for (i = s; i <= n; i++) {
         w = A[i]
         if (w == "--") { dd = i; break }
@@ -178,6 +196,7 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
             if (eq) { key = substr(w, 1, eq - 1); val = substr(w, eq + 1) }
             if (key == "--output") { if (!eq) { i++; val = A[i] } outfmt = tolower(val) }
             else if (key == "--format") { if (!eq) { i++; val = A[i] } fmtval = val }
+            else if (key == "--template") { if (!eq) { i++; val = A[i] } tmpl = val }
             else if (key == "--raw") raw = 1
             else if (!eq && (key in LV)) i++
             continue
@@ -195,6 +214,11 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
         }
         np++; P[np] = w; PI[np] = i
     }
+}
+# `-o jsonpath={.}` and `-o go-template={{.}}` print the whole object, exactly like -o json.
+function proj_leaks(t) {
+    t = tolower(t); gsub(/[ \t]/, "", t)
+    return t ~ /[{](\.|@|\.items|\.items\[\*\])[}]/
 }
 function skipopts(A, s, n, vals) {
     while (s <= n && substr(A[s], 1, 1) == "-") {
@@ -257,6 +281,8 @@ function kube(A, s, n,    verb, m, parts, k, r, rlist) {
                 report("kubectl describe " r " prints the full container spec, including inline credentials", "kubectl get " r " -o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, or kubectl get events / kubectl logs; say which field you need")
             else if (outfmt == "json" || outfmt == "yaml")
                 report("kubectl get " r " -o " outfmt " prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
+            else if ((outfmt ~ /^(jsonpath|go-template|jsonpath-as-json)=/ || tmpl != "") && proj_leaks(tmpl outfmt))
+                report("kubectl get " r " with a projection that selects the whole object prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
         }
     }
 }
@@ -323,19 +349,36 @@ function gcloud(A, s, n,    k) {
     if (P[1] == "secrets" && P[2] == "versions" && P[3] == "access") report("gcloud secrets versions access prints the secret", "gcloud secrets versions list, or gcloud secrets describe (metadata only)")
     if (P[1] == "auth") for (k = 2; k <= np; k++) if (P[k] ~ /^print-(access|identity)-token$/) report("gcloud auth " P[k] " prints a token", "gcloud auth list")
 }
-function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2) {
-    b = base(A[s]); mode = ""; valued = " "; valued2 = " "
-    if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) { mode = "pattern"; valued = " -m -A -B -C -g -t -T -d -D --glob --type --type-not --max-count --include --exclude --exclude-dir --context --after-context --before-context --max-depth --threads " }
-    else if (b ~ /^(sed|awk|gawk|jq|yq)$/) { mode = "script"; valued = " -v -F --indent "; valued2 = " --arg --argjson --slurpfile --rawfile " }
+# Scans one attached or clustered short option (-ePATTERN, -nePATTERN, -m5, -F:) of a pattern or script tool:
+# sc_pat is set when it supplies the pattern or script, sc_skip when its value is the next word.
+function scan_short(w, shortvals, sed_like,    i, c, last) {
+    sc_pat = 0; sc_skip = 0; last = length(w)
+    for (i = 2; i <= last; i++) {
+        c = substr(w, i, 1)
+        if (c == "e" || c == "f") { sc_pat = 1; sc_skip = (i == last); return }
+        if (index(shortvals, c)) { sc_skip = (i == last); return }
+        if (sed_like && c == "i") return
+    }
+}
+function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals) {
+    b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
+    if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) { mode = "pattern"; shortvals = (b ~ /^(grep|egrep|fgrep)$/) ? "mABCdD" : (b == "rg") ? "mABCdjEMrgtT" : "ABCGgmpW"; valued = " --glob --type --type-not --max-count --include --exclude --exclude-dir --context --after-context --before-context --max-depth --threads " }
+    else if (b ~ /^(sed|awk|gawk|jq|yq)$/) { mode = "script"; shortvals = "vF"; valued = " --indent "; valued2 = " --arg --argjson --slurpfile --rawfile " }
     # The first operand is the pattern or script unless -e/-f/--regexp/--file/--expression supplies it; only the rest are files.
     havepat = 0
-    if (mode != "") for (k = s + 1; k <= n; k++) if (A[k] ~ /^-[a-zA-Z]*[ef]$/ || A[k] ~ /^--(regexp|file|expression|from-file)(=|$)/) havepat = 1
+    if (mode != "") for (k = s + 1; k <= n; k++) {
+        w = A[k]
+        if (w == "--") break
+        if (w ~ /^--(regexp|file|expression|from-file)(=|$)/) havepat = 1
+        else if (w ~ /^-[a-zA-Z]/) { scan_short(w, shortvals, b == "sed"); if (sc_pat) havepat = 1 }
+    }
     need = (mode != "" && !havepat); afterdd = 0
     for (k = s + 1; k <= n; k++) {
         w = A[k]
         if (w == "--" && !afterdd) { afterdd = 1; continue }
         if (!afterdd && substr(w, 1, 1) == "-" && length(w) > 1) {
-            if (mode != "" && (w ~ /^-[a-zA-Z]*[ef]$/ || w ~ /^--(regexp|file|expression|from-file)$/ || index(valued, " " w " "))) k++
+            if (mode != "" && w ~ /^-[a-zA-Z]/) { scan_short(w, shortvals, b == "sed"); if (sc_skip) k++ }
+            else if (mode != "" && (w ~ /^--(regexp|file|expression|from-file)$/ || index(valued, " " w " "))) k++
             else if (index(valued2, " " w " ")) k += 2
             continue
         }
@@ -345,13 +388,22 @@ function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued,
     }
 }
 
+function drop_redirects(A, s, n,    k, m, w) {
+    m = s
+    for (k = s + 1; k <= n; k++) {
+        w = A[k]
+        if (w ~ /^[0-9]*[<>]/) { if (w ~ /^[0-9]*[<>]+&?-?$/) k++; continue }
+        A[++m] = w
+    }
+    return m
+}
 function analyze(A, s, n,    w, b, k, names, p) {
     while (s <= n) {
         w = A[s]; b = base(w)
         if (is_assign(w)) { s++; continue }
         if (w ~ /^[0-9]*[<>]/) { s += (w ~ /^[0-9]*[<>]+&?-?$/) ? 2 : 1; continue }
         if (b in KW) { s++; continue }
-        if (b == "command" || b == "builtin") { s++; if (s <= n && (A[s] == "-v" || A[s] == "-V")) return; continue }
+        if (b == "command" || b == "builtin") { s++; if (s <= n && (A[s] == "-v" || A[s] == "-V")) return; if (s <= n && A[s] == "-p") s++; continue }
         if (b == "sudo" || b == "doas") { s = skipopts(A, s + 1, n, "ugChprtUD"); continue }
         if (b == "xargs") { s = skipopts(A, s + 1, n, "IniPLdsEa"); continue }
         if (b == "timeout") { s = skipopts(A, s + 1, n, "ks") + 1; continue }
@@ -363,6 +415,7 @@ function analyze(A, s, n,    w, b, k, names, p) {
             while (s <= n) {
                 w = A[s]
                 if (is_assign(w)) s++
+                else if (w ~ /^[0-9]*[<>]/) s += (w ~ /^[0-9]*[<>]+&?-?$/) ? 2 : 1
                 else if (w == "-u" || w == "-C" || w == "-S" || w == "--unset" || w == "--chdir" || w == "--split-string") s += 2
                 else if (substr(w, 1, 1) == "-") s++
                 else break
@@ -393,6 +446,8 @@ function analyze(A, s, n,    w, b, k, names, p) {
         for (k = s + 1; k <= n; k++) if (A[k] ~ /^--show-secrets/) report("pulumi --show-secrets prints decrypted secrets", "pulumi config / pulumi stack output without --show-secrets (secrets stay masked)")
         return
     }
+    # A redirect is not a variable name: `printenv > f` and `export > f` still dump the whole environment.
+    if (b == "printenv" || b == "export" || b == "declare" || b == "typeset") n = drop_redirects(A, s, n)
     if (b == "printenv") {
         names = 0
         for (k = s + 1; k <= n; k++) {
@@ -426,7 +481,8 @@ BEGIN {
     for (i in L) KW[L[i]] = 1
     split("pods po pod deployments deployment deploy statefulsets statefulset sts daemonsets daemonset ds jobs job cronjobs cronjob cj configmaps configmap cm replicasets replicaset rs replicationcontrollers rc all", L, " ")
     for (i in L) SENS[L[i]] = 1
-    enqueue(ENVIRON["GS_COMMAND"])
+    CMD = ENVIRON["GS_COMMAND"]
+    enqueue(CMD)
     while (qi < queued) { qi++; tokenize(queue[qi]) }
 }
 AWK

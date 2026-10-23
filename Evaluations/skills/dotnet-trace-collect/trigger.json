@@ -1,0 +1,77 @@
+{
+  "skill": "dotnet-trace-collect",
+  "queries": [
+    {
+      "query": "Give me the dotnet-trace collect command to capture CPU samples from process id 1234 for 30 seconds.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I collect a trace from a .NET container running in Kubernetes?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What is the difference between --profile cpu-sampling and gc-verbose in dotnet-trace?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Capture a startup trace with dotnet-trace collect -- dotnet run.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The container has no shell tools; how do I use a diagnostic sidecar with the diagnostic port?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I convert a .nettrace to speedscope format?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We are on Linux without dotnet-trace; can I use perfcollect?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which providers should I enable to see Orleans and EventSource events in a trace?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Why is the service slow? Analyze and decide what to investigate.",
+      "shouldTrigger": false,
+      "note": "profiling owns the investigation approach."
+    },
+    {
+      "query": "Capture a full memory dump after a crash.",
+      "shouldTrigger": false,
+      "note": "dump-collect owns dumps."
+    },
+    {
+      "query": "Benchmark the two parser implementations.",
+      "shouldTrigger": false,
+      "note": "microbenchmarking owns benchmarks."
+    },
+    {
+      "query": "Collect an MSBuild binary log.",
+      "shouldTrigger": false,
+      "note": "binlog-generation owns binlogs."
+    },
+    {
+      "query": "Which Chronicle read model change would reduce load?",
+      "shouldTrigger": false,
+      "note": "cratis-performance-review owns that."
+    },
+    {
+      "query": "Add a histogram to trace command duration permanently.",
+      "shouldTrigger": false,
+      "note": "cratis-fundamentals-telemetry owns metrics."
+    },
+    {
+      "query": "Set up Orleans silo hosting.",
+      "shouldTrigger": false,
+      "note": "orleans owns design."
+    },
+    {
+      "query": "Run the tests with a filter.",
+      "shouldTrigger": false,
+      "note": "run-tests owns test runs."
+    }
+  ]
+}

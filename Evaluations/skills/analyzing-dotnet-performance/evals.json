@@ -1,0 +1,38 @@
+{
+  "skill_name": "analyzing-dotnet-performance",
+  "evals": [
+    {
+      "id": 1,
+      "name": "sealing-public-types",
+      "prompt": "A reviewer suggests sealing every class for speed. Without calling tools, advise on sealing in a framework library with public types.",
+      "expected_output": "Seal internal and private types freely; do not seal public framework types that consumers may extend, as that is a breaking change.",
+      "assertions": [
+        "Recommends sealing internal types for devirtualization.",
+        "Does not recommend sealing public framework types, citing consumer extension and compatibility.",
+        "Frames the gain as measurable only when it matters."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "linq-hot-path",
+      "prompt": "A method calls items.Where(...).Select(...).ToList() inside a per-event handler. Without calling tools, review it.",
+      "expected_output": "Flag allocation in the hot path; suggest a loop or pooled/Span approach and verify with a benchmark.",
+      "assertions": [
+        "Identifies LINQ allocations in a hot path.",
+        "Proposes a concrete allocation-free alternative.",
+        "Recommends confirming with measurement before claiming a win."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "regex-constant",
+      "prompt": "A hot path calls Regex.IsMatch(input, \"^[a-z]+$\") on each event. Without calling tools, what do you recommend?",
+      "expected_output": "Use a source-generated regex or a cached static Regex.",
+      "assertions": [
+        "Recommends [GeneratedRegex] or a static compiled Regex.",
+        "Explains per-call construction/cache overhead.",
+        "Mentions RegexOptions or non-backtracking only where relevant."
+      ]
+    }
+  ]
+}

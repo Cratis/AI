@@ -1,0 +1,38 @@
+{
+  "skill_name": "dotnet-aot-compat",
+  "evals": [
+    {
+      "id": 1,
+      "name": "il2070",
+      "prompt": "Without calling tools, fix an IL2070 on Type.GetMethod.",
+      "expected_output": "Annotate the Type parameter with DynamicallyAccessedMembers.",
+      "assertions": [
+        "Uses DynamicallyAccessedMembers.",
+        "Propagates the annotation to callers.",
+        "Avoids blanket suppression."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "enable",
+      "prompt": "Without calling tools, how do you start making a library AOT compatible?",
+      "expected_output": "Set IsAotCompatible and fix the analyzer warnings.",
+      "assertions": [
+        "Sets IsAotCompatible.",
+        "Builds to see warnings.",
+        "Fixes warnings systematically."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "suppress",
+      "prompt": "Without calling tools, when is UnconditionalSuppressMessage acceptable?",
+      "expected_output": "As a last resort with justification.",
+      "assertions": [
+        "Prefers fixing the cause.",
+        "Requires a justification.",
+        "Avoids blanket suppression."
+      ]
+    }
+  ]
+}

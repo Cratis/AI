@@ -1,0 +1,38 @@
+{
+  "skill_name": "directory-build-organization",
+  "evals": [
+    {
+      "id": 1,
+      "name": "layout-plan",
+      "prompt": "Without calling tools, propose where shared settings go for a repo with Source and Specs trees.",
+      "expected_output": "Root Directory.Build.props for shared properties, nested files that import the parent, targets in .targets.",
+      "assertions": [
+        "Puts shared properties in root Directory.Build.props.",
+        "Uses GetPathAboveDirectoryBuildPropsFile import in nested files.",
+        "Keeps target logic in Directory.Build.targets."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "props-vs-targets",
+      "prompt": "Without calling tools, explain why a condition using a project-defined property fails in Directory.Build.props.",
+      "expected_output": "Props evaluate before the project body; use targets or later evaluation.",
+      "assertions": [
+        "Explains props import order is before the project file.",
+        "Suggests moving the logic to Directory.Build.targets.",
+        "Gives an example property."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "central-versions",
+      "prompt": "Without calling tools, how do you centralize package versions?",
+      "expected_output": "Directory.Packages.props with ManagePackageVersionsCentrally.",
+      "assertions": [
+        "Names Directory.Packages.props.",
+        "Sets ManagePackageVersionsCentrally true.",
+        "Removes Version from PackageReference items."
+      ]
+    }
+  ]
+}
