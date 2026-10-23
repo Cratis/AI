@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Exercises entrypoint.sh's run_copilot() against a stubbed `copilot` binary - the Copilot
 # equivalent of the Pi fixtures next to it, and for the same reason: the invocation is the contract
 # between this repository and the CLI, and a flag that quietly stops being passed costs a session

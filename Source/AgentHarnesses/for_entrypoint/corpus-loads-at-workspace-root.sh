@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Reproduces Cratis/Stagehand#603 - a workspace whose repository (or repositories) carry a
 # .claude/.ai corpus should always end up with that corpus reachable directly under /workspace,
 # because Claude Code only reads project instructions from its working directory and that

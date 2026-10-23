@@ -121,25 +121,12 @@ jobs:
 
       # Each fixture is a self-contained, hermetic bash script that seeds its own throwaway git
       # repositories in a temporary directory (removed on exit, along with any process it started)
-      # and exits non-zero on failure - not a bats/TAP suite, so they are simply run and their exit
-      # codes checked. Every one runs even after a failure, so a single broken fixture does not hide
-      # the others.
+      # and exits non-zero on failure - not a bats/TAP suite. run-entrypoint-fixtures.sh runs every
+      # one (concurrently where they share nothing, even after a failure, so a single broken fixture
+      # does not hide the others), keeps each exit code and exits non-zero if any failed. Its
+      # Linux-only SKIPPED cases are never skipped here: the skip only applies on non-Linux machines.
       - name: Run entrypoint fixtures
-        working-directory: Source/AgentHarnesses/for_entrypoint
-        run: |
-          set -uo pipefail
-          status=0
-          for spec in *.sh; do
-            echo "::group::${spec}"
-            if bash "$spec"; then
-              echo "PASS: ${spec}"
-            else
-              echo "::error::FAILED: ${spec}"
-              status=1
-            fi
-            echo "::endgroup::"
-          done
-          exit "$status"
+        run: bash Source/AgentHarnesses/run-entrypoint-fixtures.sh
 
       # Regenerates Source/Cratis.AI.Proxies/generated in place, so the drift check right after this
       # step is comparing the freshly-built tree against what is actually committed - without this,

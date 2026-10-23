@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # A spent quota is recognized from the words a vendor or harness uses for it, and only from the text
 # that is the error (Cratis/AI#569):
 #   - Claude Code's "hit your ... limit" wording matches the qualifiers it is known to use - none,

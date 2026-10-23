@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# fixture-requires-linux: needs bash >= 4.4, GNU date and the worker image's tool set (macOS /bin/bash is 3.2)
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # The Pi harness counterpart to terminated-worker-pushes-commits.sh, covering the path a ChatGPT
 # subscription runs through: Pi's own built-in openai-codex provider, seeded from the OAuth record
 # the Direct hands the container.
