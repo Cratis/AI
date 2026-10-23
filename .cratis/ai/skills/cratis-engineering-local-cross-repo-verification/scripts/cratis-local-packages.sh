@@ -36,8 +36,10 @@ Commands (COMMAND --help shows these instructions too):
     version non-private workspaces, pack with %s-%v.tgz (Yarn slugifies scoped
     names), and restore tracked manifests even on failure. Pack lifecycle hooks
     are Yarn's own behavior; this helper does not run a separate build.
-  use-nuget CONSUMER STAMP [PACKAGE-ID...]
+  use-nuget CONSUMER STAMP [--pin-transitive] [PACKAGE-ID...]
     Create a CPM overlay importing the repository's own Directory.Packages.props.
+    Transitive pinning stays as the consumer sets it; --pin-transitive forces it on so
+    stamped IDs the consumer does not pin still take effect (can raise NU1109 floors).
     Defaults to every stamped package ID in the feed. Prints properties and sourceable
     env. With source mapping, also prints the required restore --configfile.
     Non-CPM: manually use an untracked project copy with explicit PackageReference
@@ -337,9 +339,13 @@ source_mapping() {
 
 use_nuget() {
     [ $# -ge 2 ] || die 'use-nuget requires consumer and stamp'
-    local repo version session props id file config='' props_key sources_key action
+    local repo version session props id file config='' props_key sources_key action pin=0 args=()
     local ids=()
     repo=$(repo_root "$1"); version=$2; shift 2
+    for id in "$@"; do
+        if [ "$id" = --pin-transitive ]; then pin=1; else args+=("$id"); fi
+    done
+    set -- ${args[@]+"${args[@]}"}
     valid_stamp "$version"; props=$repo/Directory.Packages.props
     [ -f "$props" ] || die 'no Directory.Packages.props (non-CPM). Manual alternative: untracked project copy, explicit PackageReference versions, dotnet restore --source FEED/nuget'
     session=$(session_path "$repo"); scratch
@@ -378,7 +384,10 @@ use_nuget() {
     register_session "$repo" "$session" "$version"
     {
         printf '<Project>\n  <Import Project="%s" />\n' "$(xml_escape "$props")"
-        printf '  <PropertyGroup><CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled></PropertyGroup>\n  <ItemGroup>\n'
+        if [ "$pin" -eq 1 ]; then
+            printf '  <PropertyGroup><CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled></PropertyGroup>\n'
+        fi
+        printf '  <ItemGroup>\n'
         for id in "${ids[@]}"; do
             action=Include
             if grep -Fxiq -- "$id" "$TMP/consumer-ids"; then action=Update; fi
@@ -920,7 +929,13 @@ LOCK
     grep -Fq "Import Project=\"$repo/Directory.Packages.props\"" "$output/Directory.Packages.props" || failed 'self-test: overlay import'
     grep -Fq "PackageVersion Update=\"Cratis.Test\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: pinned package Update'
     grep -Fq "PackageVersion Include=\"Cratis.Transitive\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: transitive package Include'
-    grep -Fq 'CentralPackageTransitivePinningEnabled>true' "$output/Directory.Packages.props" || failed 'self-test: transitive pinning'
+    if grep -Fq 'CentralPackageTransitivePinningEnabled' "$output/Directory.Packages.props"; then failed 'self-test: transitive pinning must be opt-in'; fi
+    st use-nuget "$repo" "$version" --pin-transitive > "$root/output"
+    grep -Fq 'CentralPackageTransitivePinningEnabled>true' "$output/Directory.Packages.props" || failed 'self-test: --pin-transitive enables pinning'
+    grep -Fq "PackageVersion Include=\"Cratis.Transitive\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: --pin-transitive keeps the IDs'
+    st use-nuget "$repo" "$version" Cratis.Test --pin-transitive > "$root/output" || failed 'self-test: --pin-transitive with explicit IDs'
+    st use-nuget "$repo" "$version" > "$root/output"
+    passed=$((passed + 3))
     test_key=DirectoryPackages"PropsPath"
     grep -Fq "export $test_key=" "$output/env" || failed 'self-test: env property'
     passed=$((passed + 5))
