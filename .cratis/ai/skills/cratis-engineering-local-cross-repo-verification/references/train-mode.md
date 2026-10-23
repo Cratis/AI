@@ -11,7 +11,7 @@ per-branch packages.
 
 `stamp --train PRODUCER...` prints `X.Y.Z-train.g<sha7>`. X.Y.Z is the highest next patch over the
 producers' latest reachable tags, so no stamped package sorts below a released pin. sha7 is the first
-seven hex characters of the git hash of the sorted `<repository> <full HEAD sha>` lines of every
+seven hex characters of the SHA-1 of the sorted `<repository> <full HEAD sha>` lines of every
 producer (the repository is its origin's last path part, else its folder name). There is no minute: one
 combined code state yields one stamp, a change in any producer changes it, and the order of the
 producers does not matter. The grammar is fixed so tools can rely on it. Every command that takes a

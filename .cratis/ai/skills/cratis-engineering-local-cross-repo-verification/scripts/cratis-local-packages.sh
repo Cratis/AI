@@ -222,11 +222,11 @@ stamp() {
     # With several producers the highest base wins, so no stamped package sorts
     # below a released pin of another stamped package (NU1605).
     # A train stamp has no minute and its sha7 covers every producer: the first 7 hex characters of the
-    # git hash of the sorted "<repo> <full HEAD sha>" lines. One combined code state always yields the same
+    # SHA-1 of the sorted "<repo> <full HEAD sha>" lines. One combined code state always yields the same
     # stamp, and a change in any producer changes it. The grammar stays X.Y.Z-train.g<sha7>.
     if [ "$train" -eq 1 ]; then
-        sha=$(printf '%s' "$lines" | LC_ALL=C sort -u | git hash-object --stdin) || die 'cannot hash the producer HEADs'
-        printf '%s-train.g%.7s\n' "$base" "$sha"; return 0
+        sha=$(printf '%s' "$lines" | LC_ALL=C sort -u | shasum -a 1) || die 'cannot hash the producer HEADs'
+        printf '%s-train.g%.7s\n' "$base" "${sha%% *}"; return 0
     fi
     printf '%s-local.%s.g%.7s\n' "$base" "$(date -u +%Y%m%d%H%M)" "$sha"
 }
@@ -1119,7 +1119,7 @@ NODE
     passed=$((passed + 4))
     # Train mode: a deterministic X.Y.Z-train.g<sha7> stamp, accepted everywhere a local stamp is.
     local tv tv2 tsha tleak
-    tsha=$(printf '%s %s\n' "$(basename "$repo")" "$(git -C "$repo" rev-parse HEAD)" | git hash-object --stdin | cut -c1-7)
+    tsha=$(printf '%s %s\n' "$(basename "$repo")" "$(git -C "$repo" rev-parse HEAD)" | shasum -a 1 | cut -c1-7)
     tv=$(st stamp --train "$repo") || failed 'self-test: stamp --train'
     tv2=$(st stamp --train "$repo")
     [[ "$tv" =~ ^1\.2\.4-train\.g$tsha$ ]] || failed "self-test: train stamp grammar ($tv)"
