@@ -1074,8 +1074,9 @@ test('invalid YAML in the frontmatter is reported', () => {
 
 const specificationsSkill = '.cratis/ai/skills/cratis-specifications-csharp/SKILL.md';
 
-test('verify.ts accepts the corpus end to end, and CI without a resolvable base fails closed', async () => {
+test('verify.ts accepts the corpus end to end, rejects a bad skill trigger, and CI without a resolvable base fails closed', async () => {
     const workspace = mkdtempSync(join(tmpdir(), 'cratis-verify-'));
+    const rejectedWorkspace = mkdtempSync(join(tmpdir(), 'cratis-verify-rejected-'));
     try {
         for (const entry of ['.cratis', '.claude-plugin', '.cursor-plugin', '.github/workflows', '.github/plugin', 'Evaluations']) {
             cpSync(join(repositoryRoot, entry), join(workspace, entry), { recursive: true });
@@ -1088,8 +1089,8 @@ test('verify.ts accepts the corpus end to end, and CI without a resolvable base 
         mkdirSync(join(workspace, 'Source', 'Verification', 'play'), { recursive: true });
         cpSync(join(repositoryRoot, 'Source', 'Verification', 'play', 'preferred-syntax-allowlist.json'), join(workspace, 'Source', 'Verification', 'play', 'preferred-syntax-allowlist.json'));
         const env = { ...process.env, CI: '', GITHUB_ACTIONS: '', GITHUB_EVENT_PATH: '', GITHUB_EVENT_NAME: '' };
-        const verify = (overrides: NodeJS.ProcessEnv = {}) => new Promise<{ status: number | null; stdout: string; stderr: string }>(resolveRun => {
-            const child = spawn(process.execPath, ['--import', 'tsx', join(repositoryRoot, 'Source', 'Verification', 'verify.ts'), workspace], { cwd: join(repositoryRoot, 'Source', 'Verification'), env: { ...env, ...overrides } });
+        const verify = (overrides: NodeJS.ProcessEnv = {}, root = workspace) => new Promise<{ status: number | null; stdout: string; stderr: string }>(resolveRun => {
+            const child = spawn(process.execPath, ['--import', 'tsx', join(repositoryRoot, 'Source', 'Verification', 'verify.ts'), root], { cwd: join(repositoryRoot, 'Source', 'Verification'), env: { ...env, ...overrides } });
             let stdout = '';
             let stderr = '';
             child.stdout.setEncoding('utf8').on('data', chunk => { stdout += chunk; });
@@ -1100,8 +1101,15 @@ test('verify.ts accepts the corpus end to end, and CI without a resolvable base 
         const original = readFileSync(join(workspace, specificationsSkill), 'utf8');
         assert.match(original, /\nmetadata:\n  cratis-hint-paths: "/, 'the corpus skill declares a trigger under metadata');
         assert.doesNotMatch(original, /\npaths:/, "the plain 'paths' key is Claude Code's conditional activation");
-        // The two runs only read the workspace, so they run side by side.
-        const [baseline, ciWithoutBase] = await Promise.all([verify(), verify({ GITHUB_ACTIONS: 'true' })]);
+        // A second copy carries one bad trigger, so verify.ts itself is shown to reject what skillFrontmatterProblems reports.
+        cpSync(workspace, rejectedWorkspace, { recursive: true });
+        const badTrigger = original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: "**/for_*/**/*.cs **/*.{cs"');
+        assert.notEqual(badTrigger, original, 'the bad-trigger replacement did not apply');
+        writeFileSync(join(rejectedWorkspace, specificationsSkill), badTrigger);
+        // The three runs only read their workspaces, so they run side by side.
+        const [baseline, ciWithoutBase, rejected] = await Promise.all([verify(), verify({ GITHUB_ACTIONS: 'true' }), verify({}, rejectedWorkspace)]);
+        assert.equal(rejected.status, 1, `${rejected.stdout}${rejected.stderr}`);
+        assert.match(rejected.stderr, /cratis-specifications-csharp\/SKILL\.md has an invalid 'metadata\.cratis-hint-paths' entry '\*\*\/\*\.\{cs'/);
         assert.equal(baseline.status, 0, `${baseline.stdout}${baseline.stderr}`);
         assert.match(baseline.stdout, /Evaluation coverage base comparison: skipped.*static coverage checks still run/);
         assert.equal(ciWithoutBase.status, 2, `${ciWithoutBase.stdout}${ciWithoutBase.stderr}`);
@@ -1109,11 +1117,12 @@ test('verify.ts accepts the corpus end to end, and CI without a resolvable base 
         assert.doesNotMatch(ciWithoutBase.stdout, /base comparison: skipped/);
     } finally {
         rmSync(workspace, { recursive: true, force: true });
+        rmSync(rejectedWorkspace, { recursive: true, force: true });
     }
 });
 
 // verify.ts reports exactly what skillFrontmatterProblems returns for each corpus skill (the end-to-end test above
-// covers that wiring), so each variant of the real skill is checked by calling the validation directly.
+// proves that wiring with one rejected trigger), so each variant of the real skill is checked by calling the validation directly.
 test('a bad or misplaced skill trigger in a real corpus skill is rejected, and valid shapes are accepted', () => {
     const original = readFileSync(join(repositoryRoot, specificationsSkill), 'utf8');
     const problemsOf = (content: string) => skillFrontmatterProblems(specificationsSkill, content);
