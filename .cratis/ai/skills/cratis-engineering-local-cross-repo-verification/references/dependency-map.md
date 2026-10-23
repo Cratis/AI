@@ -33,7 +33,7 @@ producer's pack with its map environment, `verify-pack`, the consumer overlay,
 When a producer reaches the consumer through a repository you did not name, it warns
 that the released version of that hop is kept. Name the hop to rebuild it, or accept
 the released one and treat a binary break as a finding. Exit 2 means an unknown name,
-a missing edge or the wrong order.
+a missing edge, the wrong order, or a missing ID map for a planned producer/ecosystem.
 
 ## Multi-hop and cycles
 
@@ -55,3 +55,23 @@ Add `pack` rows only from the producer's publish workflow on the default branch,
 a stale clone. Add `ids` for every package a consumer must resolve: a missing ID is a
 silent partial overlay. Add one `uses` row per consumer manifest that pins the producer.
 Run `closure` against real checkouts to prove the new rows before relying on them.
+
+## Pack plan and verification scope
+
+`closure` builds one `(producer, ecosystem)` plan from the downstream edges. Each planned pack
+is followed by `verify-pack STAMP PRODUCER --ecosystem nuget|npm`; it never checks an ecosystem
+that was not packed. A NuGet-only Stage → Arc edge therefore requires only Arc's NuGet artifacts,
+not its npm tarballs. A missing artifact at the exact stamp fails; a file from an older stamp is not
+accepted. Unrelated feed artifacts do not expand the dependency verification scope.
+
+A planned ecosystem without an `ids` row cannot be verified. `closure` rejects that map before
+printing executable steps, rather than succeeding vacuously or falling back to another ecosystem.
+For example, the current Screenplay map has only npm IDs but Stage → Screenplay is a NuGet edge;
+add the NuGet ID map from the producer's publish workflow before using that closure.
+
+Generated `verify-assets` commands use repeatable `--producer NAME` options. They check the
+planned feed artifacts first, scan only those producers' IDs in the selected ecosystem, and require
+at least one consumed package from each named producer. Packages in unrelated feed artifacts
+cannot mask an absent producer. Not every mapped ID needs to be consumed by every downstream.
+Without `--producer`, `verify-assets` retains its feed-wide inspection behavior; without
+`--ecosystem`, `verify-pack` retains its repository-wide behavior for manual full-pack runs.

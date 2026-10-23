@@ -42,7 +42,7 @@ stamp=$(bash "$local" stamp --train $fundamentals $arc $chronicle)   # X.Y.Z-tra
 (cd "$fundamentals" && bash "$local" pack-nuget . "$stamp" Fundamentals.slnx)
 bash "$local" use-nuget "$arc" "$stamp"                               # Arc builds against the new Fundamentals
 (cd "$arc" && bash "$local" pack-nuget . "$stamp" Arc.slnx)
-bash "$local" verify-pack "$stamp" Fundamentals --json                # then Arc, same stamp
+bash "$local" verify-pack "$stamp" Fundamentals --ecosystem nuget --json                # then Arc, same stamp
 bash "$local" use-nuget "$chronicle" "$stamp"                         # all upstream IDs in one overlay
 ```
 
@@ -53,6 +53,6 @@ Gates: Chronicle Release build and the non-integration specs, as above.
 - The stamp is deterministic for the combined state and changes when any producer's HEAD changes (it hashes every producer's HEAD).
 - Order: pack the upstream first, overlay it into the next repository, pack that, and so on; `verify-pack`
   each producer before overlaying it.
-- Pitfall: `verify-pack` for a repository with npm packages reports them missing when only NuGet was packed;
-  that is the scope of the run, not a failure of the NuGet legs.
+- Verify only the packed ecosystem: `verify-pack STAMP NAME --ecosystem nuget` for this NuGet train.
+  `closure` emits this scope itself and rejects a missing ID map before printing a partial plan.
 - Time: each pack 15–30 minutes with queue waits; the Chronicle build and specs about 5 minutes of run time each.
