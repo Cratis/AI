@@ -128,6 +128,14 @@ ignored records. Other ignored files (`node_modules`, build output) go with a de
   `--include-work-records` only after preserving any records you still need: it permits deleting
   `.ai-work/` content, but never overrides locks or other safety checks. Hook mode ignores this flag;
   automatic hooks never opt in.
+- **GitHub lookups.** Git ancestry is checked first. When more evidence is needed, one REST request
+  reads the latest 100 closed pull requests; only merged entries with the exact branch and head commit
+  qualify. Hook runs share an atomic stamp and cache under the Git common directory, with at most one
+  request per repository every 15 minutes, including failed attempts. Concurrent runs that cannot take
+  the cache lock skip GitHub. A fresh cache is reused; a failed request keeps everything that needs
+  GitHub evidence. Manual runs are not throttled, but also use at most one request per run.
+- **Disable GitHub only.** Set `CRATIS_CLEANUP_NO_GH=1` to avoid all GitHub lookups while keeping
+  cleanup based on Git ancestry enabled.
 - **Pin a long-lived worktree.** Use `git worktree lock <path>` to keep it out of cleanup; release the
   pin with `git worktree unlock <path>` when ready.
 - **Self-test.** `--self-test` plants delivered, dirty, unmerged, brand-new, work-record and locked cases

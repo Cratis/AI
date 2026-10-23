@@ -139,16 +139,64 @@ REMOVED=(); KEPT=(); FREED_KB=0
 note_removed() { REMOVED+=("$1"); }
 note_kept() { KEPT+=("$1"); }
 
-# delivered <sha> <branch|""> <upstream-track>  → prints the evidence, returns 0 when delivered
+# One lazy lookup per run; hook runs also share a 15-minute stamp/cache across all worktrees.
+# The lock covers both publication and the request. Contenders skip GitHub, never wait or steal it.
+GH_READY=0; GH_PULLS=''
+hook_pulls() (
+    local repo="$1" common state now stamp temporary
+    common=$(git rev-parse --git-common-dir) || exit 0
+    state="$common/cratis-cleanup-gh/$repo"
+    mkdir -p "$state" 2>/dev/null || exit 0
+    mkdir "$state/lock" 2>/dev/null || exit 0
+    temporary=''
+    trap '[[ -z "$temporary" ]] || rm -f "$temporary"; rmdir "$state/lock" 2>/dev/null' EXIT
+    now=$(date +%s)
+    stamp=$(cat "$state/stamp" 2>/dev/null || true)
+    if [[ "$stamp" =~ ^[0-9]+$ ]] && [ "$now" -lt "$((stamp + 900))" ]; then
+        cat "$state/pulls.json" 2>/dev/null
+        exit 0
+    fi
+    temporary=$(mktemp "$state/pulls.XXXXXX") || exit 0
+    # Publish an empty cache and the attempt time before calling gh: failures are throttled too.
+    printf '[]\n' > "$temporary" && mv "$temporary" "$state/pulls.json" || exit 0
+    printf '%s\n' "$now" > "$temporary" && mv "$temporary" "$state/stamp" || exit 0
+    if gh api "repos/$repo/pulls?state=closed&per_page=100" > "$temporary" 2>/dev/null &&
+        jq -e 'type == "array"' "$temporary" >/dev/null 2>&1; then
+        mv "$temporary" "$state/pulls.json" || exit 0
+        cat "$state/pulls.json"
+    fi
+)
+load_pulls() {
+    GH_READY=1
+    [ "${CRATIS_CLEANUP_NO_GH:-}" != 1 ] || return 0
+    command -v gh >/dev/null 2>&1 && command -v jq >/dev/null 2>&1 || return 0
+    local remote repo
+    remote=$(git remote get-url origin 2>/dev/null) || return 0
+    case "$remote" in
+        https://github.com/*) repo=${remote#https://github.com/} ;;
+        git@github.com:*) repo=${remote#git@github.com:} ;;
+        ssh://git@github.com/*) repo=${remote#ssh://git@github.com/} ;;
+        *) return 0 ;;
+    esac
+    repo=${repo%.git}
+    [[ "$repo" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || return 0
+    if [ "$HOOK" = 1 ]; then GH_PULLS=$(hook_pulls "$repo")
+    else GH_PULLS=$(gh api "repos/$repo/pulls?state=closed&per_page=100" 2>/dev/null) || GH_PULLS=''; fi
+}
+
+# delivered <sha> <branch|""> <upstream-track> → sets EVIDENCE, returns 0 when delivered.
+# Call in the parent shell so lazy lookup/failure state survives every branch check.
 delivered() {
     local sha="$1" br="$2" track="$3"
     if git merge-base --is-ancestor "$sha" "$default" 2>/dev/null; then
-        if ! grep -qx "$sha" "$firstparent"; then echo "merged into $default"; return 0; fi
-        if [ "$track" = "[gone]" ]; then echo "merged into $default, upstream gone"; return 0; fi
+        if ! grep -qx "$sha" "$firstparent"; then EVIDENCE="merged into $default"; return 0; fi
+        if [ "$track" = "[gone]" ]; then EVIDENCE="merged into $default, upstream gone"; return 0; fi
     fi
-    if [ -n "$br" ] && [ "${CRATIS_CLEANUP_NO_GH:-}" != 1 ] && command -v gh >/dev/null 2>&1; then
-        if gh pr list --head "$br" --state merged --json headRefOid -q '.[].headRefOid' 2>/dev/null | grep -qx "$sha"; then
-            echo "pull request merged at this commit"; return 0
+    if [ -n "$br" ]; then
+        [ "$GH_READY" = 1 ] || load_pulls
+        if [ -n "$GH_PULLS" ] && printf '%s' "$GH_PULLS" | jq -e --arg br "$br" --arg sha "$sha" \
+            'type == "array" and any(.[]; .merged_at != null and .head.ref == $br and .head.sha == $sha)' >/dev/null 2>&1; then
+            EVIDENCE="pull request merged at this commit"; return 0
         fi
     fi
     return 1
@@ -164,9 +212,10 @@ process_worktree() {
     local name="${br:-detached}" ev
     if [ "$locked" = 1 ]; then note_kept "worktree $wt ($name): locked"; return 0; fi
     case "$here/" in "$wt"/*) note_kept "worktree $wt ($name): it is the current directory - run the sweep from the main checkout"; return 0 ;; esac
-    if ! ev=$(delivered "$sha" "$br" "$([ -n "$br" ] && track_of "$br")"); then
+    if ! delivered "$sha" "$br" "$([ -n "$br" ] && track_of "$br")"; then
         note_kept "worktree $wt ($name): work not delivered to $default"; return 0
     fi
+    ev=$EVIDENCE
     if [ "$INCLUDE_WORK_RECORDS" = 0 ] && [ -d "$wt/.ai-work" ]; then
         local records
         if ! records=$(find "$wt/.ai-work/." -mindepth 1 -maxdepth 1 -print -quit); then
@@ -196,7 +245,8 @@ in_use=$(git worktree list --porcelain | sed -n 's#^branch refs/heads/##p')
 while IFS='|' read -r b bsha; do
     if [ -z "$b" ] || [ "$b" = "$default_local" ]; then continue; fi
     printf '%s\n' "$in_use" | grep -qx "$b" && continue
-    if ev=$(delivered "$bsha" "$b" "$(track_of "$b")"); then
+    if delivered "$bsha" "$b" "$(track_of "$b")"; then
+        ev=$EVIDENCE
         if [ "$DRY" = 1 ]; then note_removed "branch $b: would delete, $ev"
         elif git branch -D "$b" >/dev/null 2>&1; then note_removed "branch $b: $ev"
         else note_kept "branch $b: git refused to delete it"; fi
