@@ -772,7 +772,7 @@ clean() {
             local_artifact "${path##*/}" || continue
             if [ -n "$version" ] && [ "$version" != all ]; then case "$path" in *"$version"*) ;; *) continue ;; esac; fi
             subjects+=("$path"); kinds+=(file)
-        done < <(find "$cache" -type f \( -name '*.nupkg' -o -name '*.tgz' \) -print0)
+        done < <(find "$cache" -type f \( -name '*.nupkg' -o -name '*.snupkg' -o -name '*.tgz' \) -print0)
     done
     if [ -d "$NUGET_CACHE" ]; then
         for cache in "$NUGET_CACHE"/*; do
@@ -1117,10 +1117,12 @@ NODE
     st clean --stamp "$version" > "$root/output"
     grep -Fq "$home/.nuget/packages/cratis.test/$version" "$root/output" || failed 'self-test: clean lists local cache'
     [ -d "$home/.nuget/packages/cratis.test/$version" ] || failed 'self-test: dry-run mutated cache'
+    : > "$feed/nuget/Cratis.Test.$version.snupkg"
     st clean --stamp "$version" --apply > "$root/output"
+    [ ! -e "$feed/nuget/Cratis.Test.$version.snupkg" ] || failed 'self-test: clean left a symbols package'
     [ ! -e "$home/.nuget/packages/cratis.test/$version" ] || failed 'self-test: clean failed to remove cache'
     [ -d "$home/.nuget/packages/cratis.test/1.2.3" ] || failed 'self-test: clean removed real version'
-    passed=$((passed + 4))
+    passed=$((passed + 5))
     printf 'SKIP: real dotnet/Yarn/Docker packing is not a hermetic self-test\n'; skipped=$((skipped + 3))
     printf 'self-test: %s passed, %s skipped\n' "$passed" "$skipped"
 }
