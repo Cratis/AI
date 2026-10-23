@@ -206,7 +206,7 @@ base_above() {
 
 stamp() {
     [ $# -ge 1 ] || die 'stamp requires a producer repository'
-    local repo base='' sha='' arg train=0
+    local repo base='' sha='' arg train=0 lines='' rname origin
     if [ "$1" = --train ]; then train=1; shift; [ $# -ge 1 ] || die 'stamp --train requires a producer repository'; fi
     for arg in "$@"; do
         repo=$(repo_root "$arg")
@@ -214,11 +214,20 @@ stamp() {
         if [ -z "$base" ] || base_above "$NEXT_BASE" "$base"; then base=$NEXT_BASE; fi
         sha=$(git -C "$repo" rev-parse HEAD) || die 'producer has no HEAD commit'
         if [ $# -gt 1 ]; then printf 'HEAD %s %s\n' "$repo" "$sha" >&2; fi
+        # The repository name is its origin's last path part (stable across checkouts), else its folder name.
+        origin=$(git -C "$repo" remote get-url origin 2>/dev/null || true)
+        rname=$(basename "${origin:-$repo}"); rname=${rname%.git}
+        lines="$lines$rname $sha"$'\n'
     done
-    # With several producers the highest line wins, so no stamped package sorts
-    # below a released pin of another stamped package (NU1605); sha7 is the last repo's.
-    # A train stamp has no minute: the same code state always yields the same stamp.
-    if [ "$train" -eq 1 ]; then printf '%s-train.g%.7s\n' "$base" "$sha"; return 0; fi
+    # With several producers the highest base wins, so no stamped package sorts
+    # below a released pin of another stamped package (NU1605).
+    # A train stamp has no minute and its sha7 covers every producer: the first 7 hex characters of the
+    # git hash of the sorted "<repo> <full HEAD sha>" lines. One combined code state always yields the same
+    # stamp, and a change in any producer changes it. The grammar stays X.Y.Z-train.g<sha7>.
+    if [ "$train" -eq 1 ]; then
+        sha=$(printf '%s' "$lines" | LC_ALL=C sort -u | git hash-object --stdin) || die 'cannot hash the producer HEADs'
+        printf '%s-train.g%.7s\n' "$base" "$sha"; return 0
+    fi
     printf '%s-local.%s.g%.7s\n' "$base" "$(date -u +%Y%m%d%H%M)" "$sha"
 }
 
@@ -258,7 +267,8 @@ pack_npm_workspace() {
     fi
     # Packing is a file copy, not a build: no queue slot per workspace.
     (cd "$dir" && mutate npm pack --ignore-scripts --pack-destination "$FEED/npm") >/dev/null
-    mv -f "$FEED/npm/${slug#@}-$version.tgz" "$FEED/npm/$slug-$version.tgz" || failed "npm pack did not produce $name"
+    [ "$FEED/npm/${slug#@}-$version.tgz" = "$FEED/npm/$slug-$version.tgz" ] || \
+        mv -f "$FEED/npm/${slug#@}-$version.tgz" "$FEED/npm/$slug-$version.tgz" || failed "npm pack did not produce $name"
 }
 
 pack_npm() {
@@ -455,7 +465,7 @@ names_index() {
 # shellcheck disable=SC2016  # printed commands keep a literal $STAMP
 closure() {
     local arg name path i j k eco manifest dir targets envs kind repo row x p
-    local names=() paths=() ecos overlaid
+    local names=() paths=() ecos overlaid packed
     while [ $# -gt 0 ]; do
         arg=$1; shift
         case "$arg" in
@@ -492,7 +502,7 @@ closure() {
     for ((i=1; i<${#paths[@]}; i++)); do printf ' %q' "${paths[$i]}"; done
     printf ')\n'
     for ((i=1; i<${#names[@]}; i++)); do
-        name=${names[$i]}; repo=${paths[$i]}; overlaid=0
+        name=${names[$i]}; repo=${paths[$i]}; overlaid=0; packed=0
         for eco in nuget npm; do
             row=''
             for ((j=0; j<${#names[@]}; j++)); do
@@ -517,17 +527,20 @@ closure() {
             envs=${envs%,}
             printf '( cd %q && ' "$repo"
             if [ "$eco" = nuget ]; then
-                printf '%s' "${envs:+CRATIS_LOCAL_PACK_PROPERTIES=${envs//,/ } }"
+                # Quoted so several properties stay one environment value instead of becoming commands.
+                if [ -n "$envs" ]; then printf 'CRATIS_LOCAL_PACK_PROPERTIES=%q ' "${envs//,/ }"; fi
                 # shellcheck disable=SC2086
                 printf 'bash %q pack-nuget . "$STAMP" %s)\n' "$SELF" "${targets% }"
-                if [ -n "$(map_rows ids | awk -F'\t' -v r="$name" '$2 == r && $3 == "nuget"')" ]; then
-                    printf 'bash %q verify-pack "$STAMP" %s\n' "$SELF" "$name"
-                fi
             else
                 printf 'bash %q pack-npm . "$STAMP")   # needs yarn install --immutable and the repository build first; pack-npm does not build\n' "$SELF"
             fi
+            packed=1
             if [ "$overlaid" -eq 1 ] && [ "$eco" = nuget ]; then printf 'bash %q restore %q\n' "$SELF" "$repo"; fi
         done
+        # Verify once, after every pack of this repository (NuGet and npm IDs share the same check).
+        if [ "$packed" -eq 1 ] && [ -n "$(map_rows ids | awk -F'\t' -v r="$name" '$2 == r')" ]; then
+            printf 'bash %q verify-pack "$STAMP" %s\n' "$SELF" "$name"
+        fi
     done
     for eco in nuget npm image; do
         row=''; dir=''
@@ -1077,8 +1090,11 @@ NODE
         pk_count=$(tar tzf "$pk_feed/npm/@cratis-nested-$pk_ver.tgz" | grep -c 'dist/bundles/') || true
         [ "$pk_count" -eq 2 ] || failed "self-test: nested dist files packed ($pk_count of 2)"
         tar tzf "$pk_feed/npm/@cratis-nested-$pk_ver.tgz" | grep -Fq 'dist/a.d.ts' || failed 'self-test: declaration glob packed'
-        passed=$((passed + 3))
-    else printf 'SKIP: npm pack needs node and npm on inherited PATH\n'; skipped=$((skipped + 3)); fi
+        printf '{"name":"plainpkg","version":"%s","files":["dist/bundles"]}\n' "$pk_ver" > "$pk_dir/package.json"
+        (FEED=$pk_feed; pack_npm_workspace "$pk_dir" package.json "$pk_ver") >/dev/null || failed 'self-test: unscoped npm workspace pack'
+        [ -f "$pk_feed/npm/plainpkg-$pk_ver.tgz" ] || failed 'self-test: unscoped npm tarball kept'
+        passed=$((passed + 5))
+    else printf 'SKIP: npm pack needs node and npm on inherited PATH\n'; skipped=$((skipped + 5)); fi
     # Multi-repo stamp: the highest next patch wins and every HEAD is reported.
     local repo2 v2 v3 pk
     repo2=$root/repo2; mkdir -p "$repo2"; git -C "$repo2" init -q
@@ -1090,9 +1106,20 @@ NODE
     v2=$(st stamp "$repo2" "$repo" 2> /dev/null)
     [[ "$v2" =~ ^2\.0\.1-local\. ]] || failed 'self-test: multi-repo stamp order independent base'
     passed=$((passed + 3))
+    # A train stamp covers every producer: changing a non-last producer changes it, order does not.
+    local ta tb tc
+    ta=$(st stamp --train "$repo" "$repo2" 2> /dev/null); tb=$(st stamp --train "$repo2" "$repo" 2> /dev/null)
+    [ "$ta" = "$tb" ] || failed 'self-test: train stamp is independent of producer order'
+    [[ "$ta" =~ ^2\.0\.1-train\.g[0-9a-f]{7}$ ]] || failed "self-test: multi-producer train grammar ($ta)"
+    printf 'y\n' > "$repo/g"; git -C "$repo" add g; git -C "$repo" commit -qm second
+    tc=$(st stamp --train "$repo" "$repo2" 2> /dev/null)
+    [ "$tc" != "$ta" ] || failed 'self-test: a change in a non-last producer must change the train stamp'
+    git -C "$repo" reset -q --hard HEAD~1
+    [ "$(st stamp --train "$repo" "$repo2" 2> /dev/null)" = "$ta" ] || failed 'self-test: train stamp returns with the same state'
+    passed=$((passed + 4))
     # Train mode: a deterministic X.Y.Z-train.g<sha7> stamp, accepted everywhere a local stamp is.
     local tv tv2 tsha tleak
-    tsha=$(git -C "$repo" rev-parse --short=7 HEAD)
+    tsha=$(printf '%s %s\n' "$(basename "$repo")" "$(git -C "$repo" rev-parse HEAD)" | git hash-object --stdin | cut -c1-7)
     tv=$(st stamp --train "$repo") || failed 'self-test: stamp --train'
     tv2=$(st stamp --train "$repo")
     [[ "$tv" =~ ^1\.2\.4-train\.g$tsha$ ]] || failed "self-test: train stamp grammar ($tv)"
@@ -1133,12 +1160,21 @@ NODE
         "uses	Con	Np	npm	sub/dir" > "$map"
     st closure --map "$map" "Con=$repo" "Fx=$repo" "Mid=$repo" "Np=$repo" > "$root/output" 2> "$root/stderr"
     has 'STAMP=$(bash' "$root/output" || failed 'self-test: closure prints stamp step'
-    has 'CRATIS_LOCAL_PACK_PROPERTIES=IsPackaging=true Other=1 bash' "$root/output" || failed 'self-test: closure pack environment'
+    has 'CRATIS_LOCAL_PACK_PROPERTIES=IsPackaging=true\ Other=1 bash' "$root/output" || failed 'self-test: closure pack environment is one quoted value'
     has 'verify-pack "$STAMP" Fx' "$root/output" || failed 'self-test: closure verify-pack'
     has 'use-npm' "$root/output" || failed 'self-test: closure npm'
     has '--dir sub/dir' "$root/output" || failed 'self-test: closure npm --dir'
     [ "$(grep -n 'use-nuget' "$root/output" | head -n 1 | cut -d: -f1)" -lt "$(grep -n 'pack-nuget . "$STAMP" Mid.slnf' "$root/output" | cut -d: -f1)" ] || failed 'self-test: closure overlays Fx before packing Mid'
+    # The generated pack line must run: several properties are one environment value, not extra commands.
+    grep -F 'CRATIS_LOCAL_PACK_PROPERTIES=' "$root/output" | sed 's/bash .*pack-nuget.*/true)/' | bash -n || failed 'self-test: closure pack line parses'
     has 'Fx -> Orl -> Con' "$root/stderr" || failed 'self-test: closure warns about an unnamed intermediate'
+    printf '%s\n' "pack	Bo	nuget	Bo.slnx" "ids	Bo	nuget	Cratis.Bo" "pack	Bo	npm	." "ids	Bo	npm	@cratis/bo" \
+        "uses	Cn	Bo	nuget	Directory.Packages.props" "uses	Cn	Bo	npm	." > "$root/both.tsv"
+    st closure --map "$root/both.tsv" "Cn=$repo" "Bo=$repo" > "$root/output" 2> /dev/null || failed 'self-test: closure with NuGet and npm packs'
+    [ "$(grep -c 'verify-pack' "$root/output")" -eq 1 ] || failed 'self-test: closure verifies a repository once'
+    [ "$(grep -n 'verify-pack' "$root/output" | cut -d: -f1)" -gt "$(grep -n 'pack-npm' "$root/output" | cut -d: -f1)" ] || failed 'self-test: closure verify-pack comes after every pack'
+    [ "$(grep -n 'verify-pack' "$root/output" | cut -d: -f1)" -gt "$(grep -n 'pack-nuget' "$root/output" | cut -d: -f1)" ] || failed 'self-test: closure verify-pack comes after the NuGet pack'
+    passed=$((passed + 3))
     stm closure "Con=$repo" "Fx=$repo" > "$root/output" 2> /dev/null || failed 'self-test: CRATIS_LOCAL_MAP override'
     passed=$((passed + 7))
     status=0; st closure --map "$map" "Con=$repo" "Nope=$repo" > /dev/null 2>&1 || status=$?
