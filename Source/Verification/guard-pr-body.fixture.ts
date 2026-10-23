@@ -132,4 +132,3 @@ else if (args[0] === 'pr') {
     });
     return { directory, body, cache, callers, noNodePath, rulesCache: join(cache, 'cratis/release-notes', rulesRef), downloaded, calls, prEnvironments, env, run, hook, cleanup: () => rmSync(directory, { recursive: true, force: true }) };
 }
-

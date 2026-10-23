@@ -82,4 +82,3 @@ export function scratch(command: string[], deadline: { timeoutSeconds?: number; 
         },
     };
 }
-

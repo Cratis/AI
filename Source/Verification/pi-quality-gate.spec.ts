@@ -155,4 +155,3 @@ test('a timeout identifies the gate and directory rather than a per-directory lo
         repo.dispose();
     }
 });
-
