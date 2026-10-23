@@ -17,6 +17,7 @@ SKILL.md:
 - Prefix official tool downloads/installs with marked approval/pinned-version guidance and privileged/perfcollect examples with explicit root/container-security approval, where present.
 - Scope upstream general workflow advice to this skill's stated task; it does not govern unrelated tasks.
 - Indent approval guard lines to keep the surrounding nested Markdown lists intact.
+- Rewrite the description to the Cratis shape (what it does, Use when, Not for) and drop references to skills that are not part of this corpus.
 
 references/commands.md:
 - Add --version <x> placeholders to tool installations; pin the version.

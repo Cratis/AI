@@ -1,6 +1,6 @@
 ---
 name: including-generated-files
-description: 'Own MSBuild generated-artifact integration. USE FOR: a target that creates or should create source, Content, None, or another physical file but the artifact is missing from compilation or output; target timing; evaluation-time glob misses; $(IntermediateOutputPath) placement; and FileWrites clean tracking. The prompt may describe the generated artifact without naming the producing task. DO NOT USE when the primary defect is general Include/Remove/Update semantics, item metadata or batching, duplicate/overlapping declarations, or a generated-item identity relationship; use item-management. Exclude Roslyn source-generator internals and non-MSBuild systems.'
+description: 'Owns MSBuild generated-artifact integration: a target that creates source, Content, None, or another physical file that is missing from compilation or output, target timing, evaluation-time glob misses, IntermediateOutputPath placement, and FileWrites clean tracking. Use when a generated file is missing from the build even if the prompt does not name the producing task. Not for general Include/Remove/Update semantics, item metadata or batching, duplicate declarations, Roslyn source-generator internals, or non-MSBuild systems.'
 license: MIT
 ---
 

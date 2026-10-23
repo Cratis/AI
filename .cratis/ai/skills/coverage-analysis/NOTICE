@@ -17,6 +17,8 @@ SKILL.md:
 - Render unimported test-tagging routing reference as plain topic text.
 - Render unimported crap-score routing reference as plain topic text.
 - Add direct conditional pointers for all otherwise-indirect reference/script/asset files: scripts/Compute-CrapScores.ps1, scripts/CoverageData.ps1, scripts/Extract-MethodCoverage.ps1.
+- Rewrite the description to the Cratis shape (what it does, Use when, Not for) and drop references to skills that are not part of this corpus.
+- Remove references to sibling skills that are not part of this corpus.
 
 references/report-generation.md:
 - Prefix official tool downloads/installs with marked approval/pinned-version guidance and privileged/perfcollect examples with explicit root/container-security approval, where present.

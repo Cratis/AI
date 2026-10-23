@@ -1,6 +1,6 @@
 ---
 name: msbuild
-description: 'Use when working on MSBuild failure investigation, build-performance analysis, or review of existing build XML/extension contracts. A plan to convert a working legacy/non-SDK project to SDK style or migrate packages.config is a project-system migration, NOT a build-file review: do not activate, even to check scope. Framework/API upgrades are also excluded. Activate for advisory Import/Exists hook and NuGet packed-import questions even without a checkout or failed build; .csproj/.fsproj/.vbproj/.props/.targets conditions; custom-target inputs/outputs; .binlog capture/replay; failing dotnet build/restore/pack/publish or MSBuild-based test builds; slow evaluation, compilation, copying, or no-change builds; and controlled timing comparisons. Exclude SDK installation alone, C# refactoring, runtime profiling, assertions after successful builds, and non-MSBuild builds.'
+description: 'Investigates MSBuild build failures, diagnoses build performance, and reviews build XML and extension contracts using binary logs. Use for failing dotnet build, restore, pack, or publish; .binlog capture and replay; project, props, and targets conditions; custom-target inputs/outputs; Import/Exists hooks and packed NuGet imports; slow evaluation, compilation, copying, or no-change builds; and controlled timing comparisons. Not for legacy or non-SDK project migration, framework or package upgrades, SDK installation, C# refactoring, runtime profiling, assertions after a successful build, or non-MSBuild builds.'
 license: MIT
 ---
 

@@ -14,6 +14,7 @@ SKILL.md:
 - Normalize frontmatter serialization, add MIT license where absent; preserve name and description.
 - Add marked modification/source comment and applicability/Cratis precedence line with the skill-specific safety, ownership or compatibility caveat.
 - Scope upstream general workflow advice to this skill's stated task; it does not govern unrelated tasks.
+- Rewrite the description to the Cratis shape (what it does, Use when, Not for) and drop references to skills that are not part of this corpus.
 
 references/grain-api.md:
 - Qualify activation liveness for KeepAlive timers.

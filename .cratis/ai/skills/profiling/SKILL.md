@@ -1,6 +1,6 @@
 ---
 name: profiling
-description: 'Use the free official .NET diagnostics CLI tools for profiling and runtime investigation in .NET repositories. USE FOR: the repo needs performance or runtime profiling for a .NET application; the user asks about slow code, high CPU, GC pressure, allocation growth, exception storms, lock. DO NOT USE FOR: replacing realistic performance tests or load tests with ad-hoc tracing alone; production heap collection when the pause risk has not been. INVOKES: inspect the repository context, edit targeted files, and run relevant build, test, lint, or validation commands when changes are made.'
+description: 'Uses the free official .NET diagnostics CLI tools for profiling and runtime investigation in a repository: CPU, GC pressure, allocation growth, exception storms, lock contention, and slow code. Use when a .NET application needs performance or runtime profiling. Not for replacing realistic performance or load tests with ad-hoc tracing, production heap collection without a pause-risk plan, crash dumps (use dump-collect), or benchmark design (use microbenchmarking).'
 compatibility: Requires a .NET app or process to inspect; respects the repo's `AGENTS.md` commands first.
 license: MIT
 ---

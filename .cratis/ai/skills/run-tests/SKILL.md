@@ -1,6 +1,6 @@
 ---
 name: run-tests
-description: ALWAYS USE before running .NET tests or answering with a test command or flags. Trigger on "run the tests", "exact dotnet test command", one test/class/category/trait/target framework, combined filters, `--filter-query`, `--no-build`, `--diag`, diagnostic logs, TRX, coverage collection, crash/hang dumps, filter errors, or unrecognized options. Chooses repository-compatible classic, VSTest, bridged MTP, or native MTP syntax for MSTest/xUnit/NUnit/TUnit. DO NOT USE for platform identification alone (platform-detection), writing or debugging test code, interpreting an existing coverage report, CI investigation, migration, or a persistent hot reload/watch loop.
+description: 'Chooses and runs the repository-compatible .NET test command: classic, VSTest, bridged MTP, or native MTP syntax for MSTest, xUnit, NUnit, and TUnit. Use before running .NET tests or answering with a test command or flags: run the tests, one test, class, category, trait or target framework, combined filters, --filter-query, --no-build, --diag, TRX, coverage collection, crash or hang dumps, filter errors, or unrecognized options. Not for platform identification alone (use platform-detection), writing or debugging test code, interpreting a coverage report (use coverage-analysis), CI investigation, migration, or a persistent hot-reload loop.'
 license: MIT
 metadata:
   portability: portable
@@ -49,7 +49,7 @@ Choose the smallest path that satisfies the request:
 | One-time SDK-style `dotnet test` run without rebuilding | Stay in `run-tests` and add `--no-build`. |
 | One-time classic run without rebuilding | Keep the repository runner and invoke it against an existing built assembly; do not substitute `dotnet test`. |
 | Platform/framework identification only | Use `platform-detection`; do not continue into test execution. |
-| Explicit hot reload or a keep-running edit/re-run loop | Use mtp hot reload. |
+| Explicit hot reload or a keep-running edit/re-run loop | Out of scope for this skill; run it directly with the platform's own watch/hot-reload support. |
 | Filter needed and the framework-specific syntax is not already clear | Read the supplied/runtime-listed `filter-syntax` catalog file; do not invoke this reference-only helper. |
 
 Do not invoke a tool merely to repeat a command already determined by the

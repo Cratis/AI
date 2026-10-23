@@ -13,6 +13,8 @@ SKILL.md:
 - Normalize frontmatter serialization, add MIT license where absent; preserve name and description.
 - Add marked modification/source comment and applicability/Cratis precedence line.
 - Add the requested Cratis persisted-event, proxy, Orleans identity and framework-public-API contract section.
+- Rewrite the description to the Cratis shape (what it does, Use when, Not for) and drop references to skills that are not part of this corpus.
+- Remove references to the dotnet-upgrade skill; point to the repository's own upgrade workflow.
 
 references/operation-catalog.md:
 - Replace the upstream issue reference with a plain statement of the behavior.

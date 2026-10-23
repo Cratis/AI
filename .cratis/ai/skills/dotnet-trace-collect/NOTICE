@@ -16,6 +16,7 @@ SKILL.md:
 - Move the complete ### Step 2: Recommend diagnostic tools section verbatim into references/tool-selection.md to fit the body limit; leave a direct pointer.
 - Add direct conditional pointers for all otherwise-indirect reference/script/asset files: references/dotnet-monitor.md, references/dotnet-trace-collect-linux.md, references/dotnet-trace-collect.md, references/perfcollect.md, references/perfview.md.
 - Place approval guards immediately before complete Markdown tables so original rows remain intact.
+- Rewrite the description to the Cratis shape (what it does, Use when, Not for) and drop references to skills that are not part of this corpus.
 
 references/dotnet-monitor.md:
 - Quote the dotnet-monitor trace URL containing ampersand.

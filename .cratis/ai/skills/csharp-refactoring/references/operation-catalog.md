@@ -33,5 +33,5 @@ These repos drive idiom rules through `.editorconfig` + `EnforceOnBuild` (which 
 code-style analyzers during build). Apply the fixes the repo's own analyzers request
 (IDE00xx / CAxxxx) via `dotnet format` / code-fixes; don't impose a style it hasn't opted into, and don't
 blanket-suppress diagnostics to make an edit "pass." For _adopting_ nullable annotations specifically, see
-`dotnet-upgrade/migrate-nullable-references`; enabling nullable across a project or changing public API
+the repository's nullable migration workflow; enabling nullable across a project or changing public API
 annotations is a migration or contract change, not a canonical behavior-preserving refactoring operation.

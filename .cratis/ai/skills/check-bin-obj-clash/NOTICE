@@ -17,6 +17,8 @@ SKILL.md:
 - Qualify the structured workflow exclusion by actual targets and writes.
 - Qualify the text-replay exclusion by actual targets and writes.
 - Move the complete ## Common Causes and Fixes section verbatim into references/common-causes-and-fixes.md to fit the body limit; leave a direct pointer.
+- Rewrite the description to the Cratis shape (what it does, Use when, Not for) and drop references to skills that are not part of this corpus.
+- Point the antipatterns cross-references at the bundled msbuild skill reference.
 
 references/common-causes-and-fixes.md:
 - Contain the section moved verbatim from SKILL.md, with a reference H1 title.

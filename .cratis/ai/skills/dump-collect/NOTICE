@@ -12,6 +12,8 @@ LICENSE:
 SKILL.md:
 - Normalize frontmatter serialization, add MIT license where absent; preserve name and description.
 - Add marked modification/source comment and applicability/Cratis precedence line with the skill-specific safety, ownership or compatibility caveat.
+- Rewrite the description to the Cratis shape (what it does, Use when, Not for) and drop references to skills that are not part of this corpus.
+- Replace absence-of-CorExeMain NativeAOT detection with positive evidence (sibling app.dll and runtimeconfig.json, loaded runtime modules, Rhp runtime symbols).
 
 references/container-dumps.md:
 - Prefix official tool downloads/installs with marked approval/pinned-version guidance and privileged/perfcollect examples with explicit root/container-security approval, where present.

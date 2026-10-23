@@ -1,6 +1,6 @@
 ---
 name: eliminate-redundant-restores
-description: 'Remove repeated NuGet restores from multi-step .NET builds safely. USE FOR: build/test/publish steps that each restore, Directory.Build.rsp with -restore, safe restore suppression, NETSDK1004/NETSDK1047 after --no-restore. DO NOT USE FOR: slow first restore, only one restore, version or lock errors, unranked build slowness (use build-perf-baseline).'
+description: 'Removes repeated NuGet restores from multi-step .NET builds safely, including Directory.Build.rsp with -restore and safe restore suppression. Use when separate build, test, or publish steps each restore, or when NETSDK1004 or NETSDK1047 appears after --no-restore. Not for a slow first restore, a build with only one restore, version or lock-file errors, or general build slowness without a measured baseline (use the msbuild skill).'
 license: MIT
 ---
 

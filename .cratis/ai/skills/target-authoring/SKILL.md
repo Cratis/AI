@@ -1,6 +1,6 @@
 ---
 name: target-authoring
-description: 'Canonical patterns for writing custom MSBuild targets. USE FOR: diagnosing and fixing custom target authoring anti-patterns; broken SDK target chains across files (e.g., Directory.Build.targets silently redefining SDK targets); targets that replace CompileDependsOn instead of extending it with $(CompileDependsOn); query targets returning stale results from Outputs vs Returns misuse; missing Inputs/Outputs causing unnecessary rebuilds; missing FileWrites registration. Covers DependsOnTargets vs BeforeTargets vs AfterTargets, the Build→CoreBuild three-level pattern, and the $(XxxDependsOn) chain-extension pattern. DO NOT USE FOR: incremental build tuning (use incremental-build), parallelization (use build-parallelism), general anti-patterns (use msbuild-antipatterns), non-MSBuild build systems.'
+description: 'Canonical patterns for writing custom MSBuild targets: DependsOnTargets versus BeforeTargets and AfterTargets, the Build-to-CoreBuild three-level pattern, and the XxxDependsOn chain-extension pattern. Use when diagnosing or fixing custom-target anti-patterns: Directory.Build.targets redefining SDK targets, targets that replace CompileDependsOn instead of extending it, Outputs versus Returns misuse that returns stale results, missing Inputs/Outputs causing needless rebuilds, or missing FileWrites registration. Not for incremental build tuning or general anti-pattern review (use the msbuild skill), or non-MSBuild build systems.'
 license: MIT
 ---
 

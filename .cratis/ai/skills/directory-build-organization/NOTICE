@@ -13,6 +13,7 @@ SKILL.md:
 - Lead the description trigger with an explicit "Use when" clause.
 - Normalize frontmatter serialization, add MIT license where absent; preserve name and description.
 - Add marked modification/source comment and applicability/Cratis precedence line.
+- Rewrite the description to the Cratis shape (what it does, Use when, Not for) and drop references to skills that are not part of this corpus.
 
 references/multi-level-examples.md:
 - Add or normalize the top Contents list from existing headings; preserve section content.
