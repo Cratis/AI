@@ -11,8 +11,8 @@
 #
 # What it sees is the command text. A credential reached through a variable, an alias, a function, a script
 # file or a pipe into a shell is invisible to it, as is a recursive search with no named file; a projection it
-# cannot see through (a template or `-o jsonpath` that is not a bare `{.}`) is trusted. `env > f` is allowed only
-# when f is not mentioned again in the same command. See .cratis/ai/hooks/README.md.
+# cannot see through (a template or `-o jsonpath` that is not a bare `{.}`) is trusted. A redirect does not
+# exempt anything: `env > f` is blocked like `env`. See .cratis/ai/hooks/README.md.
 #
 # Escape hatch for a human who authorized the read — set in the environment the agent harness was started
 # from, never inside the command (an assignment in the command is ignored):
@@ -43,23 +43,9 @@ esac
 
 IFS= read -r -d '' awk_program <<'AWK' || true
 function report(what, alt) {
-    nfound++
-    # `env > f` prints nothing to the transcript, so an environment dump into a file nothing else in the command
-    # mentions is not a finding.
-    if (redir_file != "" && what ~ /^(env|printenv|export|declare|typeset)/ && file_unused(redir_file)) return
     if (what in seen) return
     seen[what] = 1
     printf "%s\t%s\n", what, alt
-}
-# True for a regular file name that the command text does not mention again after the redirect, in any form. A
-# stream that reaches the transcript (/dev/stderr, /dev/fd/1, /dev/tty, /proc/self/fd/2) is never a file.
-function file_unused(f,    b, at, rest) {
-    if (f ~ /^\/dev\// || f ~ /^\/proc\/[^\/]*\/fd\//) return 0
-    at = index(CMD, f)
-    if (at == 0) return 0
-    rest = substr(CMD, at + length(f))
-    b = f; sub(/.*\//, "", b)
-    return !(index(rest, f) || (b != "" && index(rest, b)))
 }
 function enqueue(text) {
     if (text == "" || queued >= 64) return
@@ -72,32 +58,20 @@ function flush_word() {
     if (inword) { W[++nw] = word; WQ[nw] = wordq }
     word = ""; inword = 0; wordq = 0
 }
-# Output redirections are removed before a command is analyzed, so they are never read as operands. A
-# redirect to a file that nothing later in the command mentions drops the findings of an environment dump.
-function end_cmd(    k, m, w, fd, tgt, app) {
+# Output redirections are removed before a command is analyzed, so a redirect never shifts a CLI's subcommand
+# or operands (`kubectl get > /dev/stdout secrets`). Nothing is exempted: the command itself is still analyzed.
+# Only a word whose first character is unquoted is an operator; input redirections (`< file`) stay operands.
+function end_cmd(    k, m, w) {
     flush_word()
-    if (nw > 0) {
-        m = 0; tgt = ""; app = 0; split("", V)
-        for (k = 1; k <= nw; k++) {
-            w = W[k]
-            if (!WQ[k] && w ~ /^[0-9]*>>?$/) {
-                fd = w; sub(/>.*/, "", fd)
-                if (fd == "" || fd == "1") { tgt = W[k + 1]; app = (w ~ />>$/) }
-                k++; continue
-            }
-            if (!WQ[k] && w ~ /^[0-9]*>>?[^>&]/) {
-                fd = w; sub(/>.*/, "", fd)
-                if (fd == "" || fd == "1") { tgt = w; sub(/^[0-9]*>>?/, "", tgt); app = (w ~ />>/) }
-                continue
-            }
-            V[++m] = w
-        }
-        sub(/^\.\//, "", tgt)
-        redir_file = tgt
-        if (m > 0) analyze(V, 1, m)
-        redir_file = ""
+    m = 0
+    for (k = 1; k <= nw; k++) {
+        w = W[k]
+        if (!WQ[k] && w ~ /^([0-9]*|&)>[>|]?$/) { k++; continue }
+        if (!WQ[k] && w ~ /^([0-9]*|&)>/) continue
+        V[++m] = w
     }
-    split("", W); split("", WQ); nw = 0
+    if (m > 0) analyze(V, 1, m)
+    split("", W); split("", WQ); split("", V); nw = 0
 }
 function cmdsub(s, i, n,    start, depth, c, j) {
     start = i; depth = 1
@@ -141,16 +115,16 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
         if (c == "\\") {
             c2 = substr(s, i + 1, 1)
             if (c2 == "\n") { i += 2; continue }
-            word = word c2; inword = 1; wordq = 1; i += 2; continue
+            if (!inword) wordq = 1; word = word c2; inword = 1; i += 2; continue
         }
         if (c == "\047") {
-            inword = 1; wordq = 1
+            if (!inword) wordq = 1; inword = 1
             j = index(substr(s, i + 1), "\047")
             if (j == 0) { word = word substr(s, i + 1); i = n + 1; continue }
             word = word substr(s, i + 1, j - 1); i += j + 1; continue
         }
         if (c == "\"") {
-            inword = 1; wordq = 1; i++
+            if (!inword) wordq = 1; inword = 1; i++
             while (i <= n) {
                 c = substr(s, i, 1)
                 if (c == "\\") { word = word substr(s, i + 1, 1); i += 2; continue }
@@ -165,9 +139,9 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             }
             continue
         }
-        if (c == "$" && substr(s, i + 1, 1) == "(") { inword = 1; wordq = 1; i = cmdsub(s, i + 2, n); word = word "x"; continue }
+        if (c == "$" && substr(s, i + 1, 1) == "(") { if (!inword) wordq = 1; inword = 1; i = cmdsub(s, i + 2, n); word = word "x"; continue }
         if (c == "`") {
-            inword = 1; wordq = 1
+            if (!inword) wordq = 1; inword = 1
             j = index(substr(s, i + 1), "`")
             if (j == 0) { i = n + 1; continue }
             enqueue(substr(s, i + 1, j - 1)); i += j + 1; word = word "x"; continue
@@ -198,6 +172,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             nheredoc++; HD[nheredoc] = delim; HDDASH[nheredoc] = dash
             continue
         }
+        if (!inword) wordq = 0
         word = word c; inword = 1; i++
     }
     end_cmd()
@@ -381,7 +356,7 @@ function scan_short(w, shortvals, sed_like,    i, c, last) {
 }
 function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals) {
     b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
-    if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) { mode = "pattern"; shortvals = "mABCgtTdD"; valued = " --glob --type --type-not --max-count --include --exclude --exclude-dir --context --after-context --before-context --max-depth --threads " }
+    if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) { mode = "pattern"; shortvals = (b ~ /^(grep|egrep|fgrep)$/) ? "mABCdD" : (b == "rg") ? "mABCdjEMrgtT" : "ABCGgmpW"; valued = " --glob --type --type-not --max-count --include --exclude --exclude-dir --context --after-context --before-context --max-depth --threads " }
     else if (b ~ /^(sed|awk|gawk|jq|yq)$/) { mode = "script"; shortvals = "vF"; valued = " --indent "; valued2 = " --arg --argjson --slurpfile --rawfile " }
     # The first operand is the pattern or script unless -e/-f/--regexp/--file/--expression supplies it; only the rest are files.
     havepat = 0
@@ -407,6 +382,15 @@ function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued,
     }
 }
 
+function drop_redirects(A, s, n,    k, m, w) {
+    m = s
+    for (k = s + 1; k <= n; k++) {
+        w = A[k]
+        if (w ~ /^[0-9]*[<>]/) { if (w ~ /^[0-9]*[<>]+&?-?$/) k++; continue }
+        A[++m] = w
+    }
+    return m
+}
 function analyze(A, s, n,    w, b, k, names, p) {
     while (s <= n) {
         w = A[s]; b = base(w)
@@ -425,6 +409,7 @@ function analyze(A, s, n,    w, b, k, names, p) {
             while (s <= n) {
                 w = A[s]
                 if (is_assign(w)) s++
+                else if (w ~ /^[0-9]*[<>]/) s += (w ~ /^[0-9]*[<>]+&?-?$/) ? 2 : 1
                 else if (w == "-u" || w == "-C" || w == "-S" || w == "--unset" || w == "--chdir" || w == "--split-string") s += 2
                 else if (substr(w, 1, 1) == "-") s++
                 else break
@@ -455,6 +440,8 @@ function analyze(A, s, n,    w, b, k, names, p) {
         for (k = s + 1; k <= n; k++) if (A[k] ~ /^--show-secrets/) report("pulumi --show-secrets prints decrypted secrets", "pulumi config / pulumi stack output without --show-secrets (secrets stay masked)")
         return
     }
+    # A redirect is not a variable name: `printenv > f` and `export > f` still dump the whole environment.
+    if (b == "printenv" || b == "export" || b == "declare" || b == "typeset") n = drop_redirects(A, s, n)
     if (b == "printenv") {
         names = 0
         for (k = s + 1; k <= n; k++) {
