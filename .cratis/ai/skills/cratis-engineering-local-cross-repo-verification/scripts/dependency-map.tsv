@@ -66,4 +66,3 @@ uses	Direct	Chronicle	nuget	Directory.Packages.props
 uses	Direct	Orleans	nuget	Directory.Packages.props
 uses	Direct	Screenplay	nuget	Directory.Packages.props
 uses	Direct	Chronicle	image	Source/Watchdog/Dockerfile.full
-
