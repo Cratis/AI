@@ -62,8 +62,7 @@
         "Uses the `closure` command and the dependency map rather than a hand-built package list.",
         "Uses a single multi-repo stamp for every producer in the chain.",
         "Overlays Fundamentals into Arc before packing Arc, and runs verify-pack on the packs.",
-        "Proves the stamp resolved in the consumer with verify-assets before trusting the consumer result.",
-        "Ends with check, restore and a stamp-scoped clean (dry run, then apply).",
+        "Proves the stamp resolved in the consumer with verify-assets before trusting the consumer result, and ends with check (0 leaks), restore and a stamp-scoped clean (dry run, then apply).",
         "For a release train, uses `stamp --train`, states that a change in any producer changes the stamp (downstream verification must be redone), and requires `check` to report 0 leaks."
       ]
     }
