@@ -60,7 +60,8 @@ commands before choosing the build, regression spec and full gate commands.
 - [ ] Activate the consumer overlay and select the local image.
 - [ ] Build the consumer, run its regression specs/app action and required gates, then `verify-assets`.
 - [ ] On failure, diagnose, fix the producer, create a distinct stamp and repeat.
-- [ ] Run `check` before every consumer commit and push, and on the producer.
+- [ ] Run `check` before every consumer commit and push, and on the producer; it must report 0 leaks.
+- [ ] Upstream first: a downstream ships only after the upstream has released and its pin is bumped to the released version.
 - [ ] Restore overlays, unset environment overrides, and run `check` again.
 - [ ] Review stamp-scoped `clean` dry-run targets, then apply cleanup.
 
@@ -239,6 +240,7 @@ minutes, instead of after a release and a pin bump.
 - Read [references/docker-images.md](references/docker-images.md) when publishing a kernel or selecting images in a consumer.
 - Read [references/go-jvm-python-elixir.md](references/go-jvm-python-elixir.md) when the boundary uses another language toolchain.
 - Read [references/worked-examples.md](references/worked-examples.md) when following Chronicle → Studio, Fundamentals → Arc, Components → Studio, Chronicle → Direct or Screenplay → Stage and Studio.
+- Read [references/train-mode.md](references/train-mode.md) when verifying against a local release train's packages (`stamp --train`).
 - Read [references/other-environments.md](references/other-environments.md) when running on another developer machine or an agent host.
 
 Read `scripts/npm-restore-check.cjs` when inspecting the read-only npm restoration
