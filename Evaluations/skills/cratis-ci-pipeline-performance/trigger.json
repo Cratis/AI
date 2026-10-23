@@ -1,0 +1,85 @@
+{
+  "skill": "cratis-ci-pipeline-performance",
+  "queries": [
+    {
+      "query": "Our PR build takes 35 minutes. Where is the time going and how do we speed up the GitHub Actions workflow?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Make dotnet-build.yml faster; the build and the specs run one after the other in a single job.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Jobs sit in the queue for ten minutes before they start. Is it the number of jobs or the runners?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Add NuGet and Yarn caching to our workflows so CI stops restoring everything on every run.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Docs-only pull requests still run the whole pipeline. Add path filters without making required checks hang.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We burn too many runner minutes on pull requests that get superseded and cancelled. Reduce the waste.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Our publish workflow rebuilds everything that the PR run already built and tested. Make it publish the tested artifacts.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Merged releases are being dropped when two PRs merge close together; the publish workflow cancels or loses the pending run.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Prove the CI change helped: compare workflow wall clock and runner-minutes before and after.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Docker image builds in CI take eight minutes every time even when nothing changed. Add a buildx layer cache.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Draft the release notes for version 3.4 from the merged pull requests.",
+      "shouldTrigger": false,
+      "note": "release-notes: cratis-release-notes should win"
+    },
+    {
+      "query": "Which assurance tier does this release need, and do we need an SBOM and provenance?",
+      "shouldTrigger": false,
+      "note": "release methodology: cratis-governed-release-methodology should win"
+    },
+    {
+      "query": "CI is red on my pull request. Fix the failing test.",
+      "shouldTrigger": false,
+      "note": "failing-build triage; not workflow performance"
+    },
+    {
+      "query": "The same checkout screen keeps breaking every sprint. Why do we keep fixing the same bug?",
+      "shouldTrigger": false,
+      "note": "recurring regressions: cratis-engineering-regression-cluster should win"
+    },
+    {
+      "query": "Our command handler is slow under load and the read model query times out in production.",
+      "shouldTrigger": false,
+      "note": "application runtime performance: cratis-performance-review should win"
+    },
+    {
+      "query": "Run the local build and specs before I push so I know the change is safe.",
+      "shouldTrigger": false,
+      "note": "local gates before pushing; not CI workflow speed"
+    },
+    {
+      "query": "Review this workflow for script injection and over-broad token permissions.",
+      "shouldTrigger": false,
+      "note": "security review: cratis-security-review should win; no speed question"
+    },
+    {
+      "query": "Write a documentation page explaining how our release pipeline works for new contributors.",
+      "shouldTrigger": false,
+      "note": "documentation: cratis-documentation-writing should win"
+    }
+  ]
+}

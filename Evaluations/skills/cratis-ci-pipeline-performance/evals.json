@@ -1,0 +1,57 @@
+{
+  "skill_name": "cratis-ci-pipeline-performance",
+  "evals": [
+    {
+      "id": 1,
+      "name": "measure-before-changing",
+      "prompt": "The PR workflow in one of our repositories feels slow and someone proposes splitting it into twelve parallel jobs right away. You have gh access. Plan the work before editing any YAML. Reply only; do not run anything.",
+      "expected_output": "Run the timing script on the workflow first, separate wall clock from runner-minutes, classify the workflow (queue, execution, failure or cancel bound), find the critical path over required checks, and choose one lever that fits the measured class instead of splitting into twelve jobs.",
+      "assertions": [
+        "Measures the workflow with scripts/ci-timings.sh before proposing a change.",
+        "Separates wall clock from runner-minutes.",
+        "Classifies the workflow as queue-bound, execution-bound, failure-bound or cancel-bound and ties the lever to that class.",
+        "Warns that more parallel jobs add scheduling and setup cost and can worsen a queue-bound workflow.",
+        "Plans a second measurement after the change to compare expected and measured savings."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "build-once-shard-plan",
+      "prompt": "A .NET repository workflow runs dotnet build then dotnet test in one job and takes about 28 minutes; the report shows it is execution-bound with a single long job. Describe how to restructure it. Reply only; do not run anything.",
+      "expected_output": "Build once in Release, upload the output as an artifact, run a shard matrix that downloads it and tests with --no-build, add the shared Cratis dotnet-cache action, assert every shard ran tests, and re-measure.",
+      "assertions": [
+        "Proposes one Release build job that uploads an artifact and shard jobs that download it and use dotnet test --no-build.",
+        "Uses an artifact, not a commit-SHA-keyed cache, to pass build output between jobs of one run.",
+        "Uses fail-fast: false on the shard matrix and guards against a shard that matches no tests and passes.",
+        "Names the shared Cratis/Workflows dotnet-cache action for package caching.",
+        "States the expected wall-clock change and the runner-minute change separately."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "path-filter-required-check",
+      "prompt": "A repository wants to skip the heavy build for documentation-only pull requests using a paths: filter on the workflow. The build check is required by branch protection. Review the proposal. Reply only; do not run anything.",
+      "expected_output": "Reject workflow-level paths on a required check because it never reports and hangs the pull request; use a change-detection job, gate heavy jobs on it, and require one always-run aggregator that checks every needs result, and keep the check names stable.",
+      "assertions": [
+        "Explains that a workflow skipped by paths never reports its required check and blocks the merge.",
+        "Proposes a changes job gating the heavy jobs and an aggregator job with if: always().",
+        "Has the aggregator inspect the result of every needed job and fail on failure or cancellation.",
+        "Requires only the aggregator in branch protection and keeps required check names stable.",
+        "Does not skip release, schema or other required validation to save time."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "publish-queue-and-supply-chain",
+      "prompt": "A publish workflow uses one repository-wide concurrency group with cancel-in-progress: false, yet queued releases are dropped when two pushes to the default branch land close together, and a reviewer asks to bump an action to the latest version tag in the same change. Describe the fix. Reply only; do not run anything.",
+      "expected_output": "Explain that the group holds one pending run and replaces it, add queue: max (up to 100 pending, in order) without cancelling, note it only orders runs of the same group and that a replaced run matters only if it alone would have released, pin the bumped action by full commit SHA with a version comment, use minimal job permissions, and ship as no-release.",
+      "assertions": [
+        "Identifies the single pending slot within one concurrency group as the cause and adds queue: max.",
+        "Does not enable cancel-in-progress on the publish workflow.",
+        "States that queue: max only orders runs that share a group, so the group key matters.",
+        "Pins the third-party action by full commit SHA with a version comment rather than a tag, and keeps permissions minimal at the job level.",
+        "Notes the workflow-only change ships with the no-release label."
+      ]
+    }
+  ]
+}
