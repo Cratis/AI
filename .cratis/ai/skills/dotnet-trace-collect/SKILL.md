@@ -1,6 +1,6 @@
 ---
 name: dotnet-trace-collect
-description: Guide developers through capturing diagnostic artifacts to diagnose production .NET performance issues. Use when the user needs help choosing diagnostic tools, collecting performance data, or understanding tool trade-offs across different environments (Windows/Linux, .NET Framework/modern .NET, container/non-container).
+description: 'Guides capturing diagnostic artifacts to diagnose production .NET performance problems: choosing tools, collecting performance data, and understanding trade-offs across Windows and Linux, .NET Framework and modern .NET, and container and non-container environments. Use when the user needs help choosing a diagnostic tool or collecting performance data for a .NET process. Not for crash dumps (use dump-collect), repository-level profiling workflows (use profiling), or analyzing collected traces.'
 license: MIT
 ---
 

@@ -14,6 +14,7 @@ SKILL.md:
 - Reword the historical-measurements axis in neutral present-tense wording.
 - Normalize frontmatter serialization, add MIT license where absent; preserve name and description.
 - Add marked modification/source comment and applicability/Cratis precedence line.
+- Rewrite the description to the Cratis shape (what it does, Use when, Not for) and drop references to skills that are not part of this corpus.
 
 references/writing-benchmarks.md:
 - Repair references/-relative sibling link.

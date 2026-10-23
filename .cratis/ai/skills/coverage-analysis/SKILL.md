@@ -1,8 +1,6 @@
 ---
 name: coverage-analysis
-description: 'Activation requires either supplied .NET coverage reports/percentages/line, branch, or condition metrics, or an explicit request to collect .NET coverage for analysis. USE FOR: interpreting that evidence, including Cobertura data, partial conditions, plateaus, target arithmetic, project-wide coverage-backed CRAP, and coverage-backed refactoring safety. Analyze supplied reports directly without rerunning tests or installing tools. DO NOT USE FOR: requests with neither coverage evidence nor explicit coverage-collection intent, including hypothetical change-survival questions (use test-gap-analysis); CRAP or refactoring safety for one named target (use crap-score); or requests owned by test-tagging, find-untested-sources, test-anti-patterns, run-tests, or code-testing.
-
-  '
+description: 'Interprets supplied .NET coverage reports (Cobertura, line, branch, condition metrics) or collects coverage on request: partial conditions, plateaus, target arithmetic, project-wide coverage-backed CRAP, and refactoring safety. Use when coverage reports, percentages, or an explicit coverage-collection request are present. Analyzes supplied reports directly without rerunning tests or installing tools. Not for requests with no coverage evidence, hypothetical change-survival questions, CRAP for one named target, writing tests (use cratis-specifications-csharp), or running tests (use run-tests).'
 license: MIT
 ---
 
@@ -27,10 +25,10 @@ coverage-backed risk analysis.
 
 ## When Not to Use
 
-- **Named method, class, or file CRAP/refactoring-safety analysis** — use the crap score skill instead
-- **Static source-to-test pairing or listing files with no tests** — use find untested sources
-- **Behavioral or pseudo-mutation gaps in existing tests** — use test gap analysis
-- **Test trait/category distributions or coverage shape by test type** — use test tagging
+- **Named method, class, or file CRAP/refactoring-safety analysis** — out of scope; analyze that target directly
+- **Static source-to-test pairing or listing files with no tests** — out of scope
+- **Behavioral or pseudo-mutation gaps in existing tests** — out of scope
+- **Test trait/category distributions or coverage shape by test type** — out of scope
 - **Writing or generating tests** — this skill identifies where tests are needed, not write them
 - **General test execution** unrelated to coverage or CRAP analysis
 - **Only collecting .NET coverage or printing a raw percentage with no diagnosis** — use `run-tests`; use native tooling for non-.NET coverage collection or analysis. Interpreting .NET line/branch gaps remains in scope here

@@ -15,6 +15,7 @@ SKILL.md:
 - Add marked modification/source comment and applicability/Cratis precedence line.
 - Require analyzer/warnings-as-errors restoration after labelled timing experiments.
 - Add direct conditional pointers for all otherwise-indirect reference/script/asset files: references/antipatterns/additional-antipatterns.md, references/antipatterns/incremental-build-inputs-outputs.md, references/antipatterns/private-assets.md.
+- Rewrite the description to the Cratis shape (what it does, Use when, Not for) and drop references to skills that are not part of this corpus.
 
 references/binlog-failure-analysis.md:
 - Render unimported binlog-failure-analysis routing reference as plain topic text.

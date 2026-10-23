@@ -1,6 +1,6 @@
 ---
 name: orleans
-description: 'Design Microsoft Orleans systems from each primitive''s purpose and failure model. USE FOR: grains, digital twins, state versus databases, transactions, messaging, streams, timers, reminders, Durable Jobs, stateless workers, grain services, startup, and hosting. DO NOT USE FOR: other actor stacks, batches, relational-only CRUD, or advice without an Orleans decision. INVOKES: inspect version and topology, choose the primitive, implement, and validate.'
+description: 'Designs Microsoft Orleans systems from each primitive''s purpose and failure model: grains, digital twins, state versus databases, transactions, messaging, streams, timers, reminders, Durable Jobs, stateless workers, grain services, startup, and hosting. Use when a task needs an Orleans design decision: inspect version and topology, choose the primitive, implement, and validate. Not for other actor stacks, batch processing, relational-only CRUD, or advice without an Orleans decision.'
 license: MIT
 ---
 

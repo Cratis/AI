@@ -1,6 +1,6 @@
 ---
 name: extension-points
-description: 'Own MSBuild import and hook discovery. USE FOR: CustomBefore/CustomAfter hooks, ordered wildcard and NuGet auto-imports, control properties, build/buildTransitive packed layout, package ID and file-name matching, per-TFM forwarders, and tracing why assets or hooks are missing, broken, or replaced. An import guard remains in scope when it is one defect in a broader hook/import flow. DO NOT USE for a focused safety verdict on whether one specific Import needs Exists or is an intentionally unguarded package contract; use msbuild-antipatterns. NEVER INVOKE when imports and hook placement already work and the request is only target Inputs/Outputs, incremental skipping, or FileWrites clean tracking; use incremental-build or target-authoring. Exclude props-versus-targets placement and non-MSBuild systems.'
+description: 'Owns MSBuild import and hook discovery: CustomBefore and CustomAfter hooks, ordered wildcard and NuGet auto-imports, control properties, build and buildTransitive packed layout, package ID and file-name matching, per-TFM forwarders, and tracing why assets or hooks are missing, broken, or replaced. Use when imports or hooks do not run, run in the wrong order, or are overwritten. Not for a verdict on whether one Import needs an Exists guard (use the msbuild skill''s antipatterns reference), target Inputs/Outputs or incremental skipping (use target-authoring), or props-versus-targets placement (use directory-build-organization).'
 license: MIT
 ---
 

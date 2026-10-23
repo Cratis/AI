@@ -158,7 +158,7 @@ Either way this forks a distinct instance of the target project (`path` + `{_IsP
 <!-- consumer reads tool's publish dir; it does NOT invoke Publish on tool -->
 ```
 
-See the msbuild antipatterns skill (AP-22) for the authoring-time smell and rationale.
+See `msbuild` skill `references/msbuild-antipatterns.md` (AP-22) for the authoring-time smell and rationale.
 
 ### `SetTargetFramework` re-injecting a single-targeting project's own TFM on a `ProjectReference`
 
@@ -203,5 +203,4 @@ Injecting the TFM the project already targets is **path-neutral** — the projec
                     ReferenceOutputAssembly="false" />
   ```
 
-See the msbuild antipatterns skill (AP-23) for the authoring-time smell and rationale.
-
+See `msbuild` skill `references/msbuild-antipatterns.md` (AP-23) for the authoring-time smell and rationale.

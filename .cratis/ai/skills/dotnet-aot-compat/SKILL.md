@@ -1,8 +1,6 @@
 ---
 name: dotnet-aot-compat
-description: 'Make .NET projects compatible with Native AOT and trimming by systematically resolving IL trim/AOT analyzer warnings. USE FOR: making projects AOT-compatible, fixing trimming warnings, resolving IL warnings (IL2026, IL2070, IL2067, IL2072, IL3050), adding DynamicallyAccessedMembers annotations, enabling IsAotCompatible. DO NOT USE FOR: publishing native AOT binaries, optimizing binary size, replacing reflection-heavy libraries with alternatives. INVOKES: no tools — pure knowledge skill.
-
-  '
+description: 'Makes .NET projects compatible with Native AOT and trimming by resolving IL trim and AOT analyzer warnings. Use when making a project AOT-compatible, fixing trimming warnings, resolving IL2026, IL2067, IL2070, IL2072, or IL3050, adding DynamicallyAccessedMembers annotations, or enabling IsAotCompatible. Not for publishing native AOT binaries, optimizing binary size, replacing reflection-heavy libraries, or .NET Framework projects.'
 license: MIT
 ---
 
@@ -166,7 +164,6 @@ When most warnings are IL2026/IL3050 from `JsonSerializer.Serialize`/`Deserializ
 2. **Create one `JsonSerializerContext`** with `[JsonSerializable]` for every type found. **Skip types from external packages** (e.g., `ResponseError` from `Azure.Core`) — they won't source-generate for types you don't own. Handle external types separately via Gotcha #1 below.
 
 ```csharp
-[JsonSerializerContext]
 [JsonSerializable(typeof(ManagedServiceIdentity))]
 [JsonSerializable(typeof(SystemData))]
 // ... one attribute per type YOU OWN

@@ -13,5 +13,7 @@ SKILL.md:
 - Normalize frontmatter serialization, add MIT license where absent; preserve name and description.
 - Add marked modification/source comment and applicability/Cratis precedence line with the skill-specific safety, ownership or compatibility caveat.
 - Render unimported mtp-hot-reload routing reference as plain topic text.
+- Rewrite the description to the Cratis shape (what it does, Use when, Not for) and drop references to skills that are not part of this corpus.
+- Remove the reference to the mtp-hot-reload skill.
 
 NOTICE: Add this attribution, change list, and any download/execution disclosure.

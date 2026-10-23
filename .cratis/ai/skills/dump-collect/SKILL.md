@@ -1,6 +1,6 @@
 ---
 name: dump-collect
-description: 'Configure and collect crash dumps for modern .NET applications. USE FOR: enabling automatic crash dumps for CoreCLR or NativeAOT, capturing dumps from running .NET processes, setting up dump collection in Docker or Kubernetes, using dotnet-dump collect or createdump. DO NOT USE FOR: analyzing or debugging dumps, post-mortem investigation with lldb/windbg/dotnet-dump analyze, profiling or tracing, or for .NET Framework processes.'
+description: 'Configures and collects crash dumps for modern .NET applications: enabling automatic crash dumps for CoreCLR or NativeAOT, capturing dumps from running processes, setting up collection in Docker or Kubernetes, and using dotnet-dump collect or createdump. Use when a crash dump must be enabled or captured. Not for analyzing or debugging dumps (lldb, windbg, dotnet-dump analyze), profiling or tracing (use dotnet-trace-collect), or .NET Framework processes.'
 license: MIT
 ---
 
@@ -32,39 +32,34 @@ Ask or determine:
 
 ### Detecting CoreCLR vs NativeAOT
 
-**From a binary file (Linux/macOS):**
+Decide from positive evidence. A native executable that lacks one marker is not thereby NativeAOT: modern CoreCLR apphost executables are native launchers too, so `CorExeMain` (an import of managed .NET Framework-style executables) is not a reliable CoreCLR test. Treat the result as unknown, and ask the user, when the evidence below conflicts or is missing.
+
+**From files next to the executable (any platform):**
+- A CoreCLR apphost (framework-dependent or self-contained) sits beside `<app>.dll` and `<app>.runtimeconfig.json`, usually also `<app>.deps.json`. A self-contained app also ships `libcoreclr.so`, `libcoreclr.dylib` or `coreclr.dll`. Treat these as CoreCLR.
+- A CoreCLR single-file app has no sibling `.dll`/`.runtimeconfig.json` because they are bundled into the executable. Do not read that as NativeAOT; use the loaded-module check below, and ask the user how the app was published if it is still unclear.
+- A NativeAOT app is a single native executable (plus optional native libraries) with no `<app>.dll`, no `<app>.runtimeconfig.json` and no runtime libraries beside it. It embeds the Redhawk runtime, whose symbols and strings start with `Rhp`.
+
 ```bash
-# CoreCLR — has IL metadata / managed entry point
-strings <binary> | grep -q "CorExeMain" && echo "CoreCLR"
-
-# NativeAOT — has Redhawk runtime symbols
-strings <binary> | grep -q "Rhp" && echo "NativeAOT"
-
-# On macOS/Linux, also try:
-nm <binary> 2>/dev/null | grep -qi "Rhp" && echo "NativeAOT"
+# Linux/macOS: positive NativeAOT hint (Redhawk runtime strings/symbols)
+strings <binary> | grep -q "Rhp" && echo "NativeAOT (Rhp present)"
+nm <binary> 2>/dev/null | grep -qi "Rhp" && echo "NativeAOT (Rhp symbols)"
 ```
 
-**From a binary file (Windows):**
 ```powershell
-# CoreCLR — has a CLI header (IL entry point)
-dumpbin /clrheader <binary.exe> | Select-String "CLI Header" -Quiet
-
-# NativeAOT — no CLI header, has Redhawk symbols
+# Windows: positive NativeAOT hint (Redhawk symbols)
 dumpbin /symbols <binary.exe> | Select-String "Rhp" -Quiet
 ```
 
 **From a running process (Linux):**
 ```bash
-# Resolve the binary, then use the same file checks
-BINARY=$(readlink /proc/<pid>/exe)
-strings "$BINARY" | grep -q "CorExeMain" && echo "CoreCLR" || echo "NativeAOT"
+# CoreCLR loads libcoreclr; a NativeAOT process does not
+grep -q libcoreclr /proc/<pid>/maps && echo "CoreCLR"
 ```
 
 **From a running process (macOS):**
 ```bash
-# Resolve the binary path from the running process
-BINARY=$(ps -o comm= -p <pid>)
-strings "$BINARY" | grep -q "CorExeMain" && echo "CoreCLR" || echo "NativeAOT"
+# CoreCLR loads libcoreclr.dylib; a NativeAOT process does not
+vmmap <pid> 2>/dev/null | grep -q libcoreclr && echo "CoreCLR"
 ```
 
 **From a running process (Windows PowerShell):**
@@ -75,6 +70,8 @@ strings "$BINARY" | grep -q "CorExeMain" && echo "CoreCLR" || echo "NativeAOT"
 # .NET Framework — loads clr.dll (this skill does not apply)
 (Get-Process -Id <pid>).Modules.ModuleName -contains "clr.dll"
 ```
+
+A running process that loaded no CoreCLR runtime module and whose binary shows the NativeAOT file layout and `Rhp` evidence is NativeAOT. A single-file self-contained CoreCLR app can link the runtime into the host, so a missing `libcoreclr`/`coreclr.dll` module alone does not prove NativeAOT.
 
 > **If the app is .NET Framework (`clr.dll`), stop.** This skill covers modern .NET (CoreCLR and NativeAOT) only.
 >

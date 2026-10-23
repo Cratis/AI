@@ -1,6 +1,6 @@
 ---
 name: analyzing-dotnet-performance
-description: Scans .NET code for ~50 performance anti-patterns across async, memory, strings, collections, LINQ, regex, serialization, and input/output with tiered severity classification. Use when analyzing .NET code for optimization opportunities, reviewing hot paths, or auditing allocation-heavy patterns.
+description: 'Scans .NET code for about 50 performance anti-patterns across async, memory, strings, collections, LINQ, regex, serialization, and input/output, with tiered severity. Use when analyzing .NET code for optimization opportunities, reviewing hot paths, or auditing allocation-heavy patterns. Not for measuring or profiling a running process (use profiling or microbenchmarking) or for SIMD work (use vectorization).'
 license: MIT
 ---
 

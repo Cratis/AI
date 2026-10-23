@@ -1,8 +1,6 @@
 ---
 name: vectorization
-description: 'Design, implement, optimize, and review SIMD code in .NET. USE FOR: vectorizing scalar loops with TensorPrimitives, Vector64/128/256/512, or platform hardware intrinsics; reviewing existing SIMD code, including the generic Vector type, for contract equivalence, tail handling, memory safety, portability, fallbacks, and measured performance. DO NOT USE FOR: performance work unrelated to SIMD or vectorization.
-
-  '
+description: 'Designs, implements, optimizes, and reviews SIMD code in .NET: vectorizing scalar loops with TensorPrimitives, Vector64, Vector128, Vector256, Vector512, or hardware intrinsics, and reviewing existing SIMD code, including the generic Vector type, for contract equivalence, tail handling, memory safety, portability, fallbacks, and measured performance. Use when a .NET loop or SIMD routine is being written or reviewed. Not for performance work unrelated to SIMD.'
 license: MIT
 ---
 
