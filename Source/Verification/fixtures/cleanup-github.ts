@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '../../..');
@@ -85,8 +85,21 @@ cat "$CLEANUP_FIXTURE/response"
         git(repository, 'merge', '--no-ff', pulls[index].head.ref, '-m', 'delivered', '-s', 'ours');
         git(repository, 'update-ref', 'refs/remotes/origin/main', 'main');
     };
+    const withoutTool = (missing: 'gh' | 'jq') => {
+        const isolated = join(directory, `without-${missing}`);
+        mkdirSync(isolated);
+        for (const tool of ['bash', 'git', 'awk', 'mktemp', 'rm', 'grep', 'sed', 'find', 'du', 'jq', 'gh', 'cat', 'mkdir', 'stat', 'date', 'mv', 'rmdir', 'sleep']) {
+            if (tool === missing) continue;
+            const located = spawnSync('bash', ['-c', 'command -v "$1"', 'bash', tool], options());
+            assert.equal(located.status, 0, `fixture requires ${tool}`);
+            symlinkSync(located.stdout.trim(), join(isolated, tool));
+        }
+        env.PATH = isolated;
+        const unavailable = spawnSync('bash', ['-c', 'command -v "$1"', 'bash', missing], options());
+        assert.equal(unavailable.status, 1, `${missing} must really be absent from PATH`);
+    };
     return {
-        directory, repository, worktrees, pulls, env, git, run, runAsync, calls, deliver,
+        directory, repository, worktrees, pulls, env, git, run, runAsync, calls, deliver, withoutTool,
         state: join(repository, '.git/cratis-cleanup-gh/example/cleanup'),
         dispose: () => rmSync(directory, { recursive: true, force: true }),
     };

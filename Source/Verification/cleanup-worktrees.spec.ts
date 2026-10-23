@@ -9,7 +9,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -137,6 +137,34 @@ for (const hook of [true, false]) {
     });
 }
 
+for (const unavailable of ['NO_GH', 'gh missing', 'jq missing', 'non-GitHub origin', 'invalid slug']) {
+    test(`no lookup possible preserves ancestry-only removals: ${unavailable}`, () => {
+        const fixture = cleanupGithubFixture();
+        try {
+            fixture.deliver();
+            fixture.git(fixture.repository, 'branch', 'ancestry-only', 'topic-0');
+            fixture.git(fixture.repository, 'branch', 'unproven', 'topic-1');
+            if (unavailable === 'NO_GH') fixture.env.CRATIS_CLEANUP_NO_GH = '1';
+            else if (unavailable === 'gh missing') fixture.withoutTool('gh');
+            else if (unavailable === 'jq missing') fixture.withoutTool('jq');
+            else fixture.git(fixture.repository, 'remote', 'set-url', 'origin', unavailable === 'invalid slug'
+                ? 'https://github.com/example/cleanup/extra' : 'https://example.com/example/cleanup.git');
+            const output = fixture.run(['--hook']);
+            assert.match(output, /3 removed/);
+            assert.doesNotMatch(output, /GitHub evidence unavailable/);
+            assert.equal(existsSync(fixture.worktrees[0]), false);
+            assert.ok(existsSync(fixture.worktrees[1]));
+            assert.ok(existsSync(fixture.worktrees[2]));
+            const branches = fixture.git(fixture.repository, 'branch', '--format=%(refname:short)').split('\n');
+            assert.ok(!branches.includes('ancestry-only'));
+            assert.ok(!branches.includes('topic-0'));
+            assert.ok(branches.includes('unproven'));
+            assert.equal(fixture.calls().length, 0);
+            assert.equal(existsSync(join(fixture.repository, '.git/cratis-cleanup-gh')), false);
+        } finally { fixture.dispose(); }
+    });
+}
+
 for (const failure of ['API rate limit already exceeded', 'network unavailable', 'invalid JSON', 'invalid shape', 'invalid entry', 'lock held']) {
     test(`a mixed sweep aborts every worktree and branch removal: ${failure}`, () => {
         const fixture = cleanupGithubFixture();
@@ -183,17 +211,32 @@ test('a failed window does not block a sweep that needs only ancestry evidence',
     } finally { fixture.dispose(); }
 });
 
-test('a stale lock is reclaimed and the single batch is cached', () => {
+test('a stale lock with an abandoned reclaim marker is renamed and the single batch is cached', () => {
     const fixture = cleanupGithubFixture();
     try {
         const lock = join(fixture.state, 'lock');
-        mkdirSync(lock, { recursive: true });
+        mkdirSync(join(lock, 'reclaim'), { recursive: true });
         const expired = new Date(Date.now() - 901_000);
         utimesSync(lock, expired, expired);
         assert.match(fixture.run(), /3 removed/);
         assert.match(fixture.run(), /3 removed/);
         assert.equal(fixture.calls().length, 1);
         assert.equal(existsSync(lock), false);
+        assert.ok(!readdirSync(fixture.state).some(name => name.startsWith('lock.stale.')));
+    } finally { fixture.dispose(); }
+});
+
+test('a detached unproven worktree never acquires GitHub evidence from another planned item', () => {
+    const fixture = cleanupGithubFixture();
+    try {
+        fixture.git(fixture.worktrees[1], 'checkout', '--detach');
+        const detached = { ...fixture.pulls[1], head: { ...fixture.pulls[1].head, ref: '' } };
+        writeFileSync(join(fixture.directory, 'response'), JSON.stringify([...fixture.pulls, detached]));
+        fixture.run(['--hook']);
+        assert.ok(existsSync(fixture.worktrees[1]));
+        assert.equal(existsSync(fixture.worktrees[0]), false);
+        assert.equal(existsSync(fixture.worktrees[2]), false);
+        assert.equal(fixture.calls().length, 1);
     } finally { fixture.dispose(); }
 });
 

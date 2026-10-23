@@ -141,7 +141,9 @@ ignored records. Other ignored files (`node_modules`, build output) go with a de
   Manual runs are not throttled, but also use at most one request per run and abort all removals if
   that request fails.
 - **Disable GitHub only.** Set `CRATIS_CLEANUP_NO_GH=1` to avoid all GitHub lookups while keeping
-  cleanup based on Git ancestry enabled.
+  cleanup based on Git ancestry enabled. Missing `gh` or `jq`, a non-GitHub origin, or an invalid
+  repository slug also select ancestry-only cleanup before planning: unproven items are kept, with
+  no GitHub call, abort, or failed-attempt marker.
 - **Pin a long-lived worktree.** Use `git worktree lock <path>` to keep it out of cleanup; release the
   pin with `git worktree unlock <path>` when ready.
 - **Self-test.** `--self-test` plants delivered, dirty, unmerged, brand-new, work-record and locked cases
