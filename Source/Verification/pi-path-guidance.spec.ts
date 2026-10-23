@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -13,7 +13,7 @@ import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerPathGuidance from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/index.ts';
 import { standsDown } from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/standDown.ts';
 import { skillsRead } from '../../.cratis/ai/harnesses/pi/extensions/cratis-path-guidance/skillReads.ts';
-import { frontmatterBlock, frontmatterMap } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
+import { frontmatter, frontmatterBlock, frontmatterMap } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { skillTriggerGlobs, skillTriggerKey } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillFrontmatter.ts';
 import { selectedSkillNames } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillSelection.ts';
 import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
@@ -1072,8 +1072,11 @@ test('invalid YAML in the frontmatter is reported', () => {
     assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', 'no frontmatter'), []);
 });
 
-test('verify.ts rejects a skill with a bad paths entry and accepts the corpus without it', () => {
+const specificationsSkill = '.cratis/ai/skills/cratis-specifications-csharp/SKILL.md';
+
+test('verify.ts accepts the corpus end to end, rejects a bad skill trigger, and CI without a resolvable base fails closed', async () => {
     const workspace = mkdtempSync(join(tmpdir(), 'cratis-verify-'));
+    const rejectedWorkspace = mkdtempSync(join(tmpdir(), 'cratis-verify-rejected-'));
     try {
         for (const entry of ['.cratis', '.claude-plugin', '.cursor-plugin', '.github/workflows', '.github/plugin', 'Evaluations']) {
             cpSync(join(repositoryRoot, entry), join(workspace, entry), { recursive: true });
@@ -1086,62 +1089,76 @@ test('verify.ts rejects a skill with a bad paths entry and accepts the corpus wi
         mkdirSync(join(workspace, 'Source', 'Verification', 'play'), { recursive: true });
         cpSync(join(repositoryRoot, 'Source', 'Verification', 'play', 'preferred-syntax-allowlist.json'), join(workspace, 'Source', 'Verification', 'play', 'preferred-syntax-allowlist.json'));
         const env = { ...process.env, CI: '', GITHUB_ACTIONS: '', GITHUB_EVENT_PATH: '', GITHUB_EVENT_NAME: '' };
-        const verify = (overrides: NodeJS.ProcessEnv = {}) => spawnSync(process.execPath, ['--import', 'tsx', join(repositoryRoot, 'Source', 'Verification', 'verify.ts'), workspace], { encoding: 'utf8', cwd: join(repositoryRoot, 'Source', 'Verification'), env: { ...env, ...overrides } });
+        const verify = (overrides: NodeJS.ProcessEnv = {}, root = workspace) => new Promise<{ status: number | null; stdout: string; stderr: string }>(resolveRun => {
+            const child = spawn(process.execPath, ['--import', 'tsx', join(repositoryRoot, 'Source', 'Verification', 'verify.ts'), root], { cwd: join(repositoryRoot, 'Source', 'Verification'), env: { ...env, ...overrides } });
+            let stdout = '';
+            let stderr = '';
+            child.stdout.setEncoding('utf8').on('data', chunk => { stdout += chunk; });
+            child.stderr.setEncoding('utf8').on('data', chunk => { stderr += chunk; });
+            child.on('close', status => resolveRun({ status, stdout, stderr }));
+        });
 
-        const skillFile = join(workspace, '.cratis', 'ai', 'skills', 'cratis-specifications-csharp', 'SKILL.md');
-        const original = readFileSync(skillFile, 'utf8');
+        const original = readFileSync(join(workspace, specificationsSkill), 'utf8');
         assert.match(original, /\nmetadata:\n  cratis-hint-paths: "/, 'the corpus skill declares a trigger under metadata');
         assert.doesNotMatch(original, /\npaths:/, "the plain 'paths' key is Claude Code's conditional activation");
-        const baseline = verify();
+        // A second copy carries one bad trigger, so verify.ts itself is shown to reject what skillFrontmatterProblems reports.
+        cpSync(workspace, rejectedWorkspace, { recursive: true });
+        const badTrigger = original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: "**/for_*/**/*.cs **/*.{cs"');
+        assert.notEqual(badTrigger, original, 'the bad-trigger replacement did not apply');
+        writeFileSync(join(rejectedWorkspace, specificationsSkill), badTrigger);
+        // The three runs only read their workspaces, so they run side by side.
+        const [baseline, ciWithoutBase, rejected] = await Promise.all([verify(), verify({ GITHUB_ACTIONS: 'true' }), verify({}, rejectedWorkspace)]);
+        assert.equal(rejected.status, 1, `${rejected.stdout}${rejected.stderr}`);
+        assert.match(rejected.stderr, /cratis-specifications-csharp\/SKILL\.md has an invalid 'metadata\.cratis-hint-paths' entry '\*\*\/\*\.\{cs'/);
         assert.equal(baseline.status, 0, `${baseline.stdout}${baseline.stderr}`);
         assert.match(baseline.stdout, /Evaluation coverage base comparison: skipped.*static coverage checks still run/);
-        const ciWithoutBase = verify({ GITHUB_ACTIONS: 'true' });
         assert.equal(ciWithoutBase.status, 2, `${ciWithoutBase.stdout}${ciWithoutBase.stderr}`);
         assert.match(ciWithoutBase.stderr, /Evaluation coverage base could not resolve in CI/);
         assert.doesNotMatch(ciWithoutBase.stdout, /base comparison: skipped/);
-
-        writeFileSync(skillFile, original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: "**/for_*/**/*.cs **/*.{cs"'));
-        const rejected = verify();
-        assert.equal(rejected.status, 1, `${rejected.stdout}${rejected.stderr}`);
-        assert.match(rejected.stderr, /cratis-specifications-csharp\/SKILL\.md has an invalid 'metadata\.cratis-hint-paths' entry '\*\*\/\*\.\{cs'/);
-
-        writeFileSync(skillFile, original.replace('metadata:\n  cratis-hint-paths:', 'cratis-hint-paths:'));
-        const topLevel = verify();
-        assert.equal(topLevel.status, 1, `${topLevel.stdout}${topLevel.stderr}`);
-        assert.match(topLevel.stderr, /cratis-specifications-csharp\/SKILL\.md declares 'cratis-hint-paths' as a top-level key/);
-
-        writeFileSync(skillFile, original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: >-\n    **/for_*/**/*.cs'));
-        const blockScalar = verify();
-        assert.equal(blockScalar.status, 1, `${blockScalar.stdout}${blockScalar.stderr}`);
-        assert.match(blockScalar.stderr, /cratis-specifications-csharp\/SKILL\.md has an unsupported 'metadata\.cratis-hint-paths' value \(a block scalar/);
-
-        // Spellings the runtime reader does not know are valid YAML, so only the cross-check with a real parser catches them.
-        const spellings: Array<[string, string, RegExp]> = [
-            ['a quoted key', original.replace('  cratis-hint-paths:', '  "cratis-hint-paths":'), /cratis-specifications-csharp\/SKILL\.md spells 'metadata\.cratis-hint-paths' in a way the Pi runtime reads differently from YAML/],
-            ['a space before the colon', original.replace('  cratis-hint-paths:', '  cratis-hint-paths :'), /reads differently from YAML/],
-            ['a duplicate metadata key', original.replace('---\n\n', 'metadata:\n  other: "x"\n---\n\n'), /cratis-specifications-csharp\/SKILL\.md has frontmatter that is not valid YAML: .*unique/i],
-            ['a duplicate top-level key', original.replace('license: MIT\n', 'license: MIT\nlicense: MIT\n'), /not valid YAML: .*unique/i],
-            ['a flow map', original.replace('metadata:\n  cratis-hint-paths: "**/for_*/**/*.cs"\n', 'metadata: {cratis-hint-paths: "**/for_*/**/*.cs"}\n'), /declares 'metadata' inline \(a flow map\)/],
-            ['a literal block scalar', original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: |\n    **/for_*/**/*.cs'), /a block scalar/],
-            ['a quoted block scalar key', original.replace('  cratis-hint-paths: "**/for_*/**/*.cs"', '  "cratis-hint-paths": >-\n    **/for_*/**/*.cs'), /reads differently from YAML/],
-        ];
-        for (const [form, content, message] of spellings) {
-            assert.notEqual(content, original, `${form}: the replacement did not apply`);
-            writeFileSync(skillFile, content);
-            const result = verify();
-            assert.equal(result.status, 1, `${form}: ${result.stdout}${result.stderr}`);
-            assert.match(result.stderr, message, form);
-        }
-
-        writeFileSync(skillFile, original.replace('metadata:\n', 'metadata:\n  name: other\n  description: other\n'));
-        const nestedKeys = verify();
-        assert.equal(nestedKeys.status, 0, `${nestedKeys.stdout}${nestedKeys.stderr}`);
-
-        writeFileSync(skillFile, original.replace('license: MIT\n', 'license: MIT\nversion: 1\n'));
-        const unknown = verify();
-        assert.equal(unknown.status, 1, `${unknown.stdout}${unknown.stderr}`);
-        assert.match(unknown.stderr, /cratis-specifications-csharp\/SKILL\.md declares top-level frontmatter key 'version'/);
     } finally {
         rmSync(workspace, { recursive: true, force: true });
+        rmSync(rejectedWorkspace, { recursive: true, force: true });
     }
+});
+
+// verify.ts reports exactly what skillFrontmatterProblems returns for each corpus skill (the end-to-end test above
+// proves that wiring with one rejected trigger), so each variant of the real skill is checked by calling the validation directly.
+test('a bad or misplaced skill trigger in a real corpus skill is rejected, and valid shapes are accepted', () => {
+    const original = readFileSync(join(repositoryRoot, specificationsSkill), 'utf8');
+    const problemsOf = (content: string) => skillFrontmatterProblems(specificationsSkill, content);
+    assert.match(original, /\nmetadata:\n  cratis-hint-paths: "/, 'the corpus skill declares a trigger under metadata');
+    assert.deepEqual(problemsOf(original), [], 'the unchanged corpus skill is accepted');
+
+    const rejected = problemsOf(original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: "**/for_*/**/*.cs **/*.{cs"'));
+    assert.match(rejected.join('\n'), /cratis-specifications-csharp\/SKILL\.md has an invalid 'metadata\.cratis-hint-paths' entry '\*\*\/\*\.\{cs'/);
+
+    const topLevel = problemsOf(original.replace('metadata:\n  cratis-hint-paths:', 'cratis-hint-paths:'));
+    assert.match(topLevel.join('\n'), /cratis-specifications-csharp\/SKILL\.md declares 'cratis-hint-paths' as a top-level key/);
+
+    const blockScalar = problemsOf(original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: >-\n    **/for_*/**/*.cs'));
+    assert.match(blockScalar.join('\n'), /cratis-specifications-csharp\/SKILL\.md has an unsupported 'metadata\.cratis-hint-paths' value \(a block scalar/);
+
+    // Spellings the runtime reader does not know are valid YAML, so only the cross-check with a real parser catches them.
+    const spellings: Array<[string, string, RegExp]> = [
+        ['a quoted key', original.replace('  cratis-hint-paths:', '  "cratis-hint-paths":'), /cratis-specifications-csharp\/SKILL\.md spells 'metadata\.cratis-hint-paths' in a way the Pi runtime reads differently from YAML/],
+        ['a space before the colon', original.replace('  cratis-hint-paths:', '  cratis-hint-paths :'), /reads differently from YAML/],
+        ['a duplicate metadata key', original.replace('---\n\n', 'metadata:\n  other: "x"\n---\n\n'), /cratis-specifications-csharp\/SKILL\.md has frontmatter that is not valid YAML: .*unique/i],
+        ['a duplicate top-level key', original.replace('license: MIT\n', 'license: MIT\nlicense: MIT\n'), /not valid YAML: .*unique/i],
+        ['a flow map', original.replace('metadata:\n  cratis-hint-paths: "**/for_*/**/*.cs"\n', 'metadata: {cratis-hint-paths: "**/for_*/**/*.cs"}\n'), /declares 'metadata' inline \(a flow map\)/],
+        ['a literal block scalar', original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: |\n    **/for_*/**/*.cs'), /a block scalar/],
+        ['a quoted block scalar key', original.replace('  cratis-hint-paths: "**/for_*/**/*.cs"', '  "cratis-hint-paths": >-\n    **/for_*/**/*.cs'), /reads differently from YAML/],
+    ];
+    for (const [form, content, message] of spellings) {
+        assert.notEqual(content, original, `${form}: the replacement did not apply`);
+        assert.match(problemsOf(content).join('\n'), message, form);
+    }
+
+    const nested = original.replace('metadata:\n', 'metadata:\n  name: other\n  description: other\n');
+    assert.notEqual(nested, original);
+    assert.deepEqual(problemsOf(nested), [], 'nested name and description keys are valid metadata');
+    assert.deepEqual(frontmatter(nested).get('name'), ['cratis-specifications-csharp'], 'nested keys are not read as the skill name (verify.ts reads name through this parser)');
+
+    const unknown = original.replace('license: MIT\n', 'license: MIT\nversion: 1\n');
+    assert.notEqual(unknown, original);
+    assert.match(problemsOf(unknown).join('\n'), /cratis-specifications-csharp\/SKILL\.md declares top-level frontmatter key 'version'/);
 });

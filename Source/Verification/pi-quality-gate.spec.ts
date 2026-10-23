@@ -191,8 +191,9 @@ test('a timed-out gate includes its bounded log tail and log path', async () => 
     try {
         const { tool } = bridge();
         repo.change();
-        await assert.rejects(() => tool.execute('call', { timeoutSeconds: 1 }, undefined, undefined, repo.ctx()), (error: Error) => {
-            assert.match(error.message, /TIMED OUT after 1s/);
+        // The gate needs time to start and write its log before the deadline; 1 s is too short on a loaded machine.
+        await assert.rejects(() => tool.execute('call', { timeoutSeconds: 5 }, undefined, undefined, repo.ctx()), (error: Error) => {
+            assert.match(error.message, /TIMED OUT after 5s/);
             assert.match(error.message, /scratch-gate\.log/);
             assert.match(error.message, /distinctive-gate-output/);
             return true;

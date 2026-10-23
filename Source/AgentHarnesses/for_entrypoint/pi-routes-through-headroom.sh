@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Exercises entrypoint.sh's configure_pi_provider() (issue #586, extending Headroom - issue #556 -
 # to the Pi harness; azure-openai-responses wired in by #646) against every one of Pi's four provider
 # shapes, with and without Headroom live, and shows: (1) DIRECT_HEADROOM unset/not-live leaves every

@@ -73,6 +73,7 @@ module Billing
         returns invoiceId
       screen CreateInvoiceScreen
         action CreateInvoice
+          label "Create invoice"
     slice StateView Details
       readmodel Invoice
         invoiceId InvoiceId

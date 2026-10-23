@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# fixture-requires-linux: needs bash >= 4.4, GNU date and the worker image's tool set (macOS /bin/bash is 3.2)
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # A session the provider turned away because its quota, spend limit or credit is used up reports a
 # typed failure - the failed callback carries reason "quotaExhausted", with the provider, model and
 # vendor error code where known - so the dispatching product can continue the work on another
