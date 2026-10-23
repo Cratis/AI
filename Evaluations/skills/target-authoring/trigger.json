@@ -1,0 +1,77 @@
+{
+  "skill": "target-authoring",
+  "queries": [
+    {
+      "query": "My Directory.Build.targets redefines Build and the SDK build breaks; how do I extend instead?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Should I override CompileDependsOn or extend it with $(CompileDependsOn)?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Query target returns stale results; difference between Outputs and Returns?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write a target that runs after Publish and only when a property is true.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How should I use BeforeTargets and AfterTargets versus DependsOnTargets?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "My target does not run incrementally; set Inputs and Outputs correctly.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Pass item metadata through a custom target with batching.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Make a custom target safe for multi-targeting and parallel builds.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Why does MSBuild fail with MSB4006?",
+      "shouldTrigger": false,
+      "note": "msbuild owns diagnosis."
+    },
+    {
+      "query": "Hook CustomAfter imports.",
+      "shouldTrigger": false,
+      "note": "extension-points owns hooks."
+    },
+    {
+      "query": "Add generated sources to Compile.",
+      "shouldTrigger": false,
+      "note": "including-generated-files owns it."
+    },
+    {
+      "query": "Where do global props belong?",
+      "shouldTrigger": false,
+      "note": "directory-build-organization owns it."
+    },
+    {
+      "query": "Check bin/obj collisions.",
+      "shouldTrigger": false,
+      "note": "check-bin-obj-clash owns it."
+    },
+    {
+      "query": "Profile my target time with binlog.",
+      "shouldTrigger": false,
+      "note": "binlog-generation owns capture."
+    },
+    {
+      "query": "Write a C# MSBuild task.",
+      "shouldTrigger": false,
+      "note": "Task implementation is outside target authoring."
+    },
+    {
+      "query": "Document the target.",
+      "shouldTrigger": false,
+      "note": "cratis-engineering-csharp-conventions covers docs style."
+    }
+  ]
+}

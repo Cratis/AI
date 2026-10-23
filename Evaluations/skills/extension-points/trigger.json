@@ -1,0 +1,77 @@
+{
+  "skill": "extension-points",
+  "queries": [
+    {
+      "query": "How do CustomBeforeMicrosoftCommonTargets and CustomAfter hooks work?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "My NuGet package's build/ props are not imported; why?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What is the difference between build and buildTransitive folders in a package?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Package ID and file name must match for auto-import; verify our layout.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Trace why a package targets file is replaced by another import.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Per-TFM forwarder in build/ for a multi-targeted package; how?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Ordered wildcard imports in Directory.Build.targets: how do I control ordering?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Disable an extension point import with a control property.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "General build failure.",
+      "shouldTrigger": false,
+      "note": "msbuild owns it."
+    },
+    {
+      "query": "Write the target body.",
+      "shouldTrigger": false,
+      "note": "target-authoring owns it."
+    },
+    {
+      "query": "Layout props across repo.",
+      "shouldTrigger": false,
+      "note": "directory-build-organization owns it."
+    },
+    {
+      "query": "Include generated files.",
+      "shouldTrigger": false,
+      "note": "including-generated-files owns it."
+    },
+    {
+      "query": "Binlog needed.",
+      "shouldTrigger": false,
+      "note": "binlog-generation owns it."
+    },
+    {
+      "query": "Package version management.",
+      "shouldTrigger": false,
+      "note": "Central package management is separate."
+    },
+    {
+      "query": "Roslyn analyzer packaging.",
+      "shouldTrigger": false,
+      "note": "extension-points covers package imports, not analyzer authoring; cratis-engineering-csharp-conventions covers analyzer style."
+    },
+    {
+      "query": "Clash in output.",
+      "shouldTrigger": false,
+      "note": "check-bin-obj-clash owns it."
+    }
+  ]
+}

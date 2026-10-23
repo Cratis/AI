@@ -1,0 +1,77 @@
+{
+  "skill": "microbenchmarking",
+  "queries": [
+    {
+      "query": "Write a BenchmarkDotNet benchmark comparing Span-based and string.Split parsing of Chronicle event type ids.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "My BenchmarkDotNet run shows 0 ns for a method; how do I stop the JIT from eliminating dead code in the benchmark?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I add [MemoryDiagnoser] and a baseline to compare two serializer implementations in our Fundamentals project?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Set up a benchmark project with parameters for payload size 16, 256 and 4096 bytes.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Why are my BenchmarkDotNet results different between Debug and Release, and how should I run them?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Our benchmark allocates in setup and skews results; where should GlobalSetup versus IterationSetup go?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Interpret this BenchmarkDotNet table: Mean 120 ns, StdDev 40 ns, Allocated 0 B. Is the difference with the baseline real?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Create a microbenchmark that compares ConcurrentDictionary and Dictionary with a lock for read-heavy lookups.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Our Chronicle kernel pegs the CPU in production; find which methods are hot.",
+      "shouldTrigger": false,
+      "note": "profiling owns whole-process CPU investigation, not isolated micro-measurements."
+    },
+    {
+      "query": "Collect a dotnet-trace from the running silo for 30 seconds.",
+      "shouldTrigger": false,
+      "note": "dotnet-trace-collect owns trace capture."
+    },
+    {
+      "query": "Review this C# loop for allocations and tell me what to fix by reading the code.",
+      "shouldTrigger": false,
+      "note": "analyzing-dotnet-performance owns static code review for performance patterns."
+    },
+    {
+      "query": "Rewrite this loop with Vector128 for SIMD speedup.",
+      "shouldTrigger": false,
+      "note": "vectorization owns SIMD rewrites."
+    },
+    {
+      "query": "Write a spec proving the projection handles duplicate events.",
+      "shouldTrigger": false,
+      "note": "cratis-specifications-csharp owns writing specs."
+    },
+    {
+      "query": "Review our React event list for scalability problems.",
+      "shouldTrigger": false,
+      "note": "cratis-performance-review owns Chronicle/React scalability review."
+    },
+    {
+      "query": "Add a counter and histogram for command handling duration.",
+      "shouldTrigger": false,
+      "note": "cratis-fundamentals-telemetry owns metrics instrumentation."
+    },
+    {
+      "query": "Run only the benchmark category tests in CI with dotnet test.",
+      "shouldTrigger": false,
+      "note": "run-tests owns test run commands."
+    }
+  ]
+}

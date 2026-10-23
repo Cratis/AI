@@ -71,6 +71,13 @@ function callers(cwd = process.cwd()) {
     } catch { return []; }
 }
 
+function missingCaller(repository) {
+    return `No Cratis/Workflows policy caller found for ${repository}, so its pull-request contract is not enforced and this check cannot vouch for it. `
+        + 'Add .github/workflows/verify-pull-request-policy.yml calling Cratis/Workflows/.github/workflows/verify-pull-request-policy.yml '
+        + '(a legacy verify-release-notes, verify-semver-label or verify-release-intent caller also counts), then run this check again. '
+        + 'Cratis/Workflows bootstrap-common-workflows installs the caller; if the repository is meant to have none, do not use this check there.';
+}
+
 function repositoryName(value) {
     return value?.replace(/^(?:https?:\/\/github\.com\/|(?:ssh:\/\/)?git@github\.com[:/])/i, '')
         .replace(/^github\.com\//i, '').replace(/\/$/, '').replace(/\.git$/i, '');
@@ -216,7 +223,11 @@ function check(argv, repositoryCallers, lookupOptions) {
     // The release-intent check above still applies to bot-authored pull requests.
     if (author === 'dependabot[bot]') return 0;
     const base = values.base || pull?.baseRefName || defaultBranch;
-    const file = rules(warn, repositoryCallers || targetCallers(repository, process.cwd(), warn));
+    const found = repositoryCallers || targetCallers(repository, process.cwd(), warn);
+    // A Cratis repository without a policy caller has no enforced pull-request contract; passing here would
+    // let the author believe it has one. A fetch failure is not this case: targetCallers falls back to a caller.
+    if (!found.length && /^Cratis\/[^/]+$/i.test(repository)) throw new Error(missingCaller(repository));
+    const file = rules(warn, found);
     if (!file) return 3;
     const env = { PATH: process.env.PATH, HOME: homedir(), LANG: 'C.UTF-8',
         PR_BODY: body, PR_LABELS: JSON.stringify([...labels]),

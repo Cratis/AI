@@ -1,0 +1,49 @@
+{
+  "skill_name": "msbuild",
+  "evals": [
+    {
+      "id": 1,
+      "name": "route-failure",
+      "prompt": "Without calling tools, route this: build fails with MSB4018 from a custom task. How do you proceed?",
+      "expected_output": "Capture a binlog, find the failing target/task, then route to specialized skill.",
+      "assertions": [
+        "Recommends generating a binary log.",
+        "Identifies the failing task and target from the log.",
+        "Routes to target-authoring if the defect is in custom target logic."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "slow-build",
+      "prompt": "Without calling tools, a build takes 12 minutes. How do you analyze it?",
+      "expected_output": "Use a binlog with performance analysis to find expensive targets, tasks and evaluations.",
+      "assertions": [
+        "Uses a binlog for analysis.",
+        "Looks at expensive targets/tasks and evaluation time.",
+        "Avoids guessing before evidence."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "migration-not-review",
+      "prompt": "Without calling tools, user asks to convert a legacy project to SDK style. Does this skill apply?",
+      "expected_output": "No, project-system migration is not build-file review.",
+      "assertions": [
+        "States it is a migration, not a build review.",
+        "Does not activate the review workflow.",
+        "Suggests an appropriate migration route."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "timing-experiment",
+      "prompt": "Without calling tools, to measure build time someone suggests disabling analyzers and warnings-as-errors. What do you require?",
+      "expected_output": "Only as a labelled timing experiment; restore analyzers and warnings-as-errors and run the real gate before finishing.",
+      "assertions": [
+        "Labels the change a timing experiment only.",
+        "Requires restoring analyzers and warnings-as-errors afterward.",
+        "Requires running the real build gate before finishing."
+      ]
+    }
+  ]
+}

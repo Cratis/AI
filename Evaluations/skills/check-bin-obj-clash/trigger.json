@@ -1,0 +1,77 @@
+{
+  "skill": "check-bin-obj-clash",
+  "queries": [
+    {
+      "query": "Build fails with 'Cannot create a file when that file already exists' intermittently; could OutputPath clash?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Two projects target the same IntermediateOutputPath; how do I detect it?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The process cannot access the file in obj because it is used by another process during parallel build.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Multi-targeting writes both TFMs into one bin folder; is that a clash?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check whether projects in this solution share an OutputPath.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Incremental build is flaky and succeeds on rerun; check bin and obj conflicts.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "AppendTargetFrameworkToOutputPath is false and builds collide; confirm.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How can the binlog reveal two projects writing the same file?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Build is slow.",
+      "shouldTrigger": false,
+      "note": "msbuild owns performance analysis."
+    },
+    {
+      "query": "Reorganize props.",
+      "shouldTrigger": false,
+      "note": "directory-build-organization owns layout."
+    },
+    {
+      "query": "Collect the binlog.",
+      "shouldTrigger": false,
+      "note": "binlog-generation owns capture."
+    },
+    {
+      "query": "Write a custom clean target.",
+      "shouldTrigger": false,
+      "note": "target-authoring owns it."
+    },
+    {
+      "query": "Restores repeat.",
+      "shouldTrigger": false,
+      "note": "eliminate-redundant-restores owns it."
+    },
+    {
+      "query": "Test run fails to find a DLL.",
+      "shouldTrigger": false,
+      "note": "run-tests handles run issues."
+    },
+    {
+      "query": "File locked by antivirus.",
+      "shouldTrigger": false,
+      "note": "Environmental, not project clash."
+    },
+    {
+      "query": "Generated file compile errors.",
+      "shouldTrigger": false,
+      "note": "including-generated-files owns it."
+    }
+  ]
+}

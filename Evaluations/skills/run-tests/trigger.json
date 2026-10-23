@@ -1,0 +1,77 @@
+{
+  "skill": "run-tests",
+  "queries": [
+    {
+      "query": "Give the exact dotnet test command to run only the OrderSpecs class in this repo.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Run the specs with --no-build and produce a TRX file.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I run tests for only the net10.0 target framework?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Collect crash and hang dumps during a test run.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which flags produce --diag logs for the test host?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "dotnet test says an option is unrecognized; what is wrong?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Run tests filtered by trait and by name together.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Run the specs with code coverage collection enabled.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which platform does this project use?",
+      "shouldTrigger": false,
+      "note": "platform-detection owns detection."
+    },
+    {
+      "query": "Explain the exact filter query grammar for NUnit.",
+      "shouldTrigger": false,
+      "note": "filter-syntax owns the filter reference."
+    },
+    {
+      "query": "Interpret this coverage report and tell me which branches to test.",
+      "shouldTrigger": false,
+      "note": "coverage-analysis owns interpretation."
+    },
+    {
+      "query": "Author new specs for the projection.",
+      "shouldTrigger": false,
+      "note": "cratis-specifications-csharp owns writing specs."
+    },
+    {
+      "query": "Fix the grain deadlock in the reminders.",
+      "shouldTrigger": false,
+      "note": "orleans owns grain design."
+    },
+    {
+      "query": "Why does the build fail with NETSDK1005?",
+      "shouldTrigger": false,
+      "note": "msbuild owns build failures."
+    },
+    {
+      "query": "Capture a binlog for the test build.",
+      "shouldTrigger": false,
+      "note": "binlog-generation owns capture."
+    },
+    {
+      "query": "The test suite is slow; find where the time goes in the process.",
+      "shouldTrigger": false,
+      "note": "profiling owns runtime investigation."
+    }
+  ]
+}

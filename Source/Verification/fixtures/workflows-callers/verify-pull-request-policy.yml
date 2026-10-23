@@ -1,0 +1,25 @@
+# [vendored] Cratis/Workflows caller template .github/workflows/verify-pull-request-policy.yml
+# [vendored] source: https://github.com/Cratis/Workflows/blob/55135e76c2a1fb9f4bd8014df3a4ce6d7411bdfc/.github/scripts/bootstrap-common-workflows.sh (BOOTSTRAPPED_FILES)
+# [vendored] commit: 55135e76c2a1fb9f4bd8014df3a4ce6d7411bdfc; refresh with CRATIS_CONTRACT_LIVE=1 to detect drift
+name: Verify Pull Request Policy
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, labeled, unlabeled, ready_for_review]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+__DEPENDABOT_JOB__  policy:
+__POLICY_NEEDS__    uses: Cratis/Workflows/.github/workflows/verify-pull-request-policy.yml@main
+    with:
+      runs-on: ${{ vars.RUNNER_GATE || '__POLICY_RUNNER__' }}
+      release-intent: __RELEASE_INTENT__

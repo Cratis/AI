@@ -21,6 +21,10 @@ Every line is tagged **[contract]** (binding) per the Three Levels of Authority 
 - **[contract] Project the field you need and say which one:** `-o jsonpath='{.spec.containers[*].image}'`,
   `-o custom-columns=…`, `kubectl get … -o name`, status fields, `kubectl logs`, `docker inspect --format`.
   Read a `.env.example`, never the `.env`.
+- **[contract] The hook reads command text only.** It cannot see a command piped into a shell
+  (`… | sh`, `bash -c "$(…)"`), a recursive search with no named file (`grep -r PASSWORD .`), or a
+  value reached through a variable, alias or script. These stay your rule to keep; output redaction
+  is the only backstop.
 
 ## Values
 

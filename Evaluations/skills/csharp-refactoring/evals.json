@@ -1,0 +1,50 @@
+{
+  "skill_name": "csharp-refactoring",
+  "evals": [
+    {
+      "id": 1,
+      "name": "public-api",
+      "prompt": "Without calling tools, rename a public type used by consumers. What do you consider?",
+      "expected_output": "Public API compatibility and reflection or serialization names.",
+      "assertions": [
+        "Flags the public API break risk.",
+        "Considers reflection, serialization and configuration names.",
+        "Plans verification across consumers."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "behavior-preserving",
+      "prompt": "Without calling tools, plan extracting a long method.",
+      "expected_output": "Small steps with tests between.",
+      "assertions": [
+        "Works in small steps.",
+        "Verifies behavior is unchanged with tests.",
+        "Does not mix in functional changes."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "conditional",
+      "prompt": "Without calling tools, consolidate #if branches in a multi-targeted file.",
+      "expected_output": "Check every target framework.",
+      "assertions": [
+        "Considers each target framework.",
+        "Builds every target.",
+        "Keeps conditional symbols consistent."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "cratis-contracts",
+      "prompt": "Without calling tools, you are asked to rename an [EventType] record, an Arc command used by generated TypeScript proxies, and a grain type in a framework package.",
+      "expected_output": "These are contracts the compiler cannot see: persisted event identifiers and names, generated proxies, Orleans aliases and serializer ids, and public API under semver.",
+      "assertions": [
+        "Preserves [EventType] identifiers and type names of persisted events.",
+        "Flags that generated TypeScript proxies of Arc commands and queries change.",
+        "Preserves [Alias] and serializer ids in Orleans.",
+        "Treats public API of framework packages as semver-governed."
+      ]
+    }
+  ]
+}

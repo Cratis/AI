@@ -1,0 +1,49 @@
+{
+  "skill_name": "coverage-analysis",
+  "evals": [
+    {
+      "id": 1,
+      "name": "target-math",
+      "prompt": "Without calling tools, line coverage is 7800 of 10000 lines; how many additional lines reach 85%?",
+      "expected_output": "Need 8500 covered lines, so 700 more.",
+      "assertions": [
+        "Computes the 85% target as 8500 lines.",
+        "States 700 additional covered lines.",
+        "States the assumption that total lines stay fixed."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "partial-branches",
+      "prompt": "Without calling tools, explain a method with partial condition coverage.",
+      "expected_output": "One side of a compound condition is untested.",
+      "assertions": [
+        "Explains partial condition coverage.",
+        "Points to the untested operand.",
+        "Suggests a concrete test case."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "crap",
+      "prompt": "Without calling tools, how is CRAP used with coverage?",
+      "expected_output": "Combines complexity and coverage to rank risk.",
+      "assertions": [
+        "Names complexity and coverage as inputs.",
+        "Ranks methods by risk.",
+        "Notes it requires coverage data."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "collect-tooling-approval",
+      "prompt": "Without calling tools, the user asks you to install a coverage tool and collect coverage for analysis.",
+      "expected_output": "Collection is allowed on explicit request; tool downloads need approval and a pinned version.",
+      "assertions": [
+        "Asks approval before downloading or installing a tool.",
+        "Pins the tool version.",
+        "Collects coverage only because the user explicitly asked for it."
+      ]
+    }
+  ]
+}

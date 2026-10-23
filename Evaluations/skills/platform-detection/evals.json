@@ -1,0 +1,38 @@
+{
+  "skill_name": "platform-detection",
+  "evals": [
+    {
+      "id": 1,
+      "name": "detect-platform",
+      "prompt": "Without calling tools, explain how you would determine the test platform of a project.",
+      "expected_output": "Inspect global.json, project and props package references and project-system settings.",
+      "assertions": [
+        "Checks global.json for runner settings.",
+        "Checks package references and properties in the project and Directory.Build files.",
+        "Reports the evidence found rather than assuming."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "conflicting-config",
+      "prompt": "Without calling tools, VSTest and MTP properties conflict. What do you report?",
+      "expected_output": "Report the conflict and the effective runner.",
+      "assertions": [
+        "Identifies the conflict explicitly.",
+        "States which setting is effective.",
+        "Suggests resolving the conflict."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "xunit-v2",
+      "prompt": "Without calling tools, a repo uses xunit v2 on VSTest. What follows?",
+      "expected_output": "The VSTest command mode applies.",
+      "assertions": [
+        "States xunit v2 runs on VSTest.",
+        "Does not assume Microsoft.Testing.Platform.",
+        "Mentions bridge settings only if present."
+      ]
+    }
+  ]
+}

@@ -184,3 +184,6 @@ obj/
 # .cratis/ai/hooks/settings.template.json; these are the copies of it.
 .claude/settings.json
 .claude/settings.local.json
+
+# Pinned Screenplay tool cache (Source/Verification/screenplay-tool.ts)
+/.cache/

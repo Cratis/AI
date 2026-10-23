@@ -87,10 +87,19 @@ profile includes neither Screenplay nor Stage.
 | Profile ID | Description | Automatically Includes |
 |---|---|---|
 | `cratis/engineering` | Engineering conventions and workflows | `cratis/engineering/core`, `cratis/engineering/csharp`, `cratis/engineering/elixir`, `cratis/engineering/go`, `cratis/engineering/kotlin`, `cratis/engineering/react`, `cratis/engineering/typescript` |
-| `cratis/engineering/csharp` | C# engineering conventions and framework Orleans jobs (`cratis-orleans-jobs`, alongside `orleans.md`) | `cratis/engineering/core` |
+| `cratis/engineering/csharp` | C# engineering conventions, .NET engineering skills, and framework Orleans jobs (`cratis-orleans-jobs`, alongside `orleans.md`) | `cratis/engineering/core`, `cratis/engineering/dotnet` |
+| `cratis/engineering/dotnet` | Upstream .NET engineering workflows | `cratis/engineering/dotnet/performance`, `cratis/engineering/dotnet/diagnostics`, `cratis/engineering/dotnet/msbuild`, `cratis/engineering/dotnet/orleans`, `cratis/engineering/dotnet/testing`, `cratis/engineering/dotnet/refactoring` |
+| `cratis/engineering/dotnet/performance` | Microbenchmarking, performance patterns, SIMD, and profiling | (no child profiles) |
+| `cratis/engineering/dotnet/diagnostics` | Trace and crash-dump collection | (no child profiles) |
+| `cratis/engineering/dotnet/msbuild` | MSBuild troubleshooting, build authoring, output paths, and binlogs | (no child profiles) |
+| `cratis/engineering/dotnet/orleans` | Orleans primitives, hosting, persistence, and runtime behavior | (no child profiles) |
+| `cratis/engineering/dotnet/testing` | Test-platform detection, runner commands, filters, and coverage | (no child profiles) |
+| `cratis/engineering/dotnet/refactoring` | Behavior-preserving C# refactoring and AOT compatibility | (no child profiles) |
 | `cratis/engineering/go` | Go framework parity and immutable module releases | `cratis/engineering/core`, `cratis/language/go` |
 | `cratis/engineering/typescript` | TypeScript engineering conventions | `cratis/engineering/core` |
 | `cratis/engineering/react` | React engineering conventions | `cratis/engineering/core` |
+
+The `cratis/engineering/dotnet` profiles carry upstream skills under MIT, with attribution and changes in each skill's NOTICE. Cratis rules and the `cratis-*` skills win where they differ.
 
 The `cratis/engineering` profile also carries [issue-assignment.md](../../../rules/issue-assignment.md): when an agent starts work on a numbered issue in a known repository and nobody is assigned, it assigns the current `gh` user.
 

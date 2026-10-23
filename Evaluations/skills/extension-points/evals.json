@@ -1,0 +1,38 @@
+{
+  "skill_name": "extension-points",
+  "evals": [
+    {
+      "id": 1,
+      "name": "missing-package-asset",
+      "prompt": "Without calling tools, package build/ props are ignored. Diagnose.",
+      "expected_output": "Check file name equals package ID and folder.",
+      "assertions": [
+        "Checks name equals package ID.",
+        "Checks build vs buildTransitive.",
+        "Uses a binlog to trace imports."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "transitive",
+      "prompt": "Without calling tools, when buildTransitive?",
+      "expected_output": "Flow to indirect consumers.",
+      "assertions": [
+        "Explains transitive flow.",
+        "Mentions build only for direct reference.",
+        "Gives a layout example."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "custom-hooks",
+      "prompt": "Without calling tools, hook ordering.",
+      "expected_output": "Use CustomBefore/After properties.",
+      "assertions": [
+        "Names the properties.",
+        "Explains ordering.",
+        "Notes silent overwrites."
+      ]
+    }
+  ]
+}

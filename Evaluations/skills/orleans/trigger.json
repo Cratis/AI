@@ -1,0 +1,77 @@
+{
+  "skill": "orleans",
+  "queries": [
+    {
+      "query": "Should a per-order entity in our Chronicle-style kernel be a grain, and what should its grain key be?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "When should I choose a reminder, a grain timer or a Durable Job for a nightly cleanup?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "When is grain persistent state the wrong choice compared with a database?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I configure a stateless worker grain for CPU-bound hashing work?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Orleans streams or direct grain calls for fanning an update out to many subscribers?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Show how to register a periodic grain timer in Orleans 10 without blocking the activation.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Is it safe to mark this grain reentrant, and what interleaving bugs should I expect?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Plan silo startup tasks and hosting order for a silo that must load configuration before accepting grain calls.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Make this long-running import resumable after a silo restart using our job infrastructure.",
+      "shouldTrigger": false,
+      "note": "cratis-orleans-jobs owns recoverable job work."
+    },
+    {
+      "query": "Review this React list page for scalability when there are 100k events.",
+      "shouldTrigger": false,
+      "note": "cratis-performance-review owns Chronicle/React scalability review."
+    },
+    {
+      "query": "Design an Akka.NET supervisor hierarchy for this pipeline.",
+      "shouldTrigger": false,
+      "note": "Other actor stacks are out of scope for orleans."
+    },
+    {
+      "query": "Add a histogram for grain call latency with OpenTelemetry.",
+      "shouldTrigger": false,
+      "note": "cratis-fundamentals-telemetry owns metrics instrumentation."
+    },
+    {
+      "query": "Configure Arc hosting for a NativeAOT app.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-hosting owns Arc host setup."
+    },
+    {
+      "query": "Write a Cratis specification for this grain's decision logic.",
+      "shouldTrigger": false,
+      "note": "cratis-specifications-csharp owns writing specs."
+    },
+    {
+      "query": "The silo is at 100% CPU; find the hot method.",
+      "shouldTrigger": false,
+      "note": "profiling owns runtime hot-spot investigation."
+    },
+    {
+      "query": "Choose between EF Core and Dapper for a relational CRUD admin screen.",
+      "shouldTrigger": false,
+      "note": "Relational-only CRUD is outside the Orleans decision scope."
+    }
+  ]
+}

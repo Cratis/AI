@@ -1,0 +1,49 @@
+{
+  "skill_name": "check-bin-obj-clash",
+  "evals": [
+    {
+      "id": 1,
+      "name": "detect-clash",
+      "prompt": "Without calling tools, how do you detect OutputPath clashes?",
+      "expected_output": "Inspect evaluated OutputPath/IntermediateOutputPath per project and TFM via a binlog or msbuild -getProperty.",
+      "assertions": [
+        "Compares OutputPath and IntermediateOutputPath across projects.",
+        "Considers TargetFramework appending.",
+        "Uses a binlog or property query."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "fix-clash",
+      "prompt": "Without calling tools, fix two projects sharing obj.",
+      "expected_output": "Give each a unique path, e.g. via BaseIntermediateOutputPath per project.",
+      "assertions": [
+        "Makes paths unique per project.",
+        "Avoids sharing obj across projects.",
+        "Rebuilds clean afterward."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "intermittent",
+      "prompt": "Without calling tools, why do clashes appear intermittent?",
+      "expected_output": "Only parallel builds race.",
+      "assertions": [
+        "Ties it to parallel project builds.",
+        "Notes that serial builds hide it.",
+        "Suggests confirming via path comparison."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "project-reference-queries",
+      "prompt": "Without calling tools, an evaluation has BuildProjectReferences=false. Do you exclude it from the clash analysis?",
+      "expected_output": "Not on that property alone; exclude only instances whose targets and writes show a metadata-only query such as GetTargetPath.",
+      "assertions": [
+        "Does not exclude an instance on BuildProjectReferences=false alone.",
+        "Excludes only instances proven metadata-only by their actual targets and writes.",
+        "Names GetTargetPath as an example of a metadata-only query."
+      ]
+    }
+  ]
+}

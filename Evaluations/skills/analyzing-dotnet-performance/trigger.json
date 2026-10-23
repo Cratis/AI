@@ -1,0 +1,77 @@
+{
+  "skill": "analyzing-dotnet-performance",
+  "queries": [
+    {
+      "query": "Scan this C# service class for performance anti-patterns such as LINQ in hot paths and boxing.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Is string concatenation in this loop a problem, and what should replace it?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Review this code for unnecessary allocations: it calls ToList() before every foreach.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We use Regex in a hot path with a constant pattern; what is the performance fix?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Look at this async method for ValueTask, ConfigureAwait and allocation issues in a hot path.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check this struct for accidental copying and boxing through interface calls.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Is using params object[] in this logging helper a performance problem?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Should I seal this internal class for devirtualization, and what about our public framework types?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Benchmark both implementations and show the numbers.",
+      "shouldTrigger": false,
+      "note": "microbenchmarking owns measurements."
+    },
+    {
+      "query": "Capture a CPU profile of the running process.",
+      "shouldTrigger": false,
+      "note": "profiling owns runtime investigation."
+    },
+    {
+      "query": "Convert this loop to SIMD with Vector256.",
+      "shouldTrigger": false,
+      "note": "vectorization owns SIMD."
+    },
+    {
+      "query": "Is our Orleans grain reentrancy design correct?",
+      "shouldTrigger": false,
+      "note": "orleans owns grain design."
+    },
+    {
+      "query": "Review our Chronicle queries for N+1 patterns across the React frontend.",
+      "shouldTrigger": false,
+      "note": "cratis-performance-review owns Chronicle/React scalability review."
+    },
+    {
+      "query": "Make this library trimming safe.",
+      "shouldTrigger": false,
+      "note": "dotnet-aot-compat owns AOT/trim warnings."
+    },
+    {
+      "query": "Rename these methods and extract an interface.",
+      "shouldTrigger": false,
+      "note": "csharp-refactoring owns behavior-preserving refactors."
+    },
+    {
+      "query": "Enforce naming and file-scoped namespace style.",
+      "shouldTrigger": false,
+      "note": "cratis-engineering-csharp-conventions owns style."
+    }
+  ]
+}

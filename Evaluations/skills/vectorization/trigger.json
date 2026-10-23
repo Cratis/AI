@@ -1,0 +1,77 @@
+{
+  "skill": "vectorization",
+  "queries": [
+    {
+      "query": "Vectorize this byte-search loop with Vector128 and a scalar tail.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I check Vector.IsHardwareAccelerated and add a fallback path?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Is there a built-in span API such as IndexOfAny or SequenceEqual that replaces my hand-written SIMD loop?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Convert this sum-of-floats loop to System.Numerics.Vector<T>.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Explain when Vector512 is worth using on .NET 10 and how to guard it.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write a SIMD routine for counting matching bytes in a ReadOnlySpan<byte>.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "My vectorized loop is slower than scalar for small inputs; why?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I handle the remainder elements after the vector loop ends?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Benchmark my scalar and vector versions.",
+      "shouldTrigger": false,
+      "note": "microbenchmarking owns measurement."
+    },
+    {
+      "query": "Find which function burns CPU in our silo.",
+      "shouldTrigger": false,
+      "note": "profiling owns hot-spot discovery."
+    },
+    {
+      "query": "Review this class for allocation problems.",
+      "shouldTrigger": false,
+      "note": "analyzing-dotnet-performance owns general performance review."
+    },
+    {
+      "query": "Make this assembly trim-safe.",
+      "shouldTrigger": false,
+      "note": "dotnet-aot-compat owns AOT/trim."
+    },
+    {
+      "query": "Collect a trace from a Kubernetes pod.",
+      "shouldTrigger": false,
+      "note": "dotnet-trace-collect owns capture."
+    },
+    {
+      "query": "Refactor this class into smaller methods.",
+      "shouldTrigger": false,
+      "note": "csharp-refactoring owns refactors."
+    },
+    {
+      "query": "Write specs for the hashing helper.",
+      "shouldTrigger": false,
+      "note": "cratis-specifications-csharp owns specs."
+    },
+    {
+      "query": "Add OpenTelemetry metrics to the byte counter.",
+      "shouldTrigger": false,
+      "note": "cratis-fundamentals-telemetry owns metrics."
+    }
+  ]
+}

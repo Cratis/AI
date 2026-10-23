@@ -1,0 +1,77 @@
+{
+  "skill": "profiling",
+  "queries": [
+    {
+      "query": "Our Chronicle silo uses 100% CPU after deploy; how do I find the hot methods?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Memory in the kernel keeps growing; how do I tell whether it is a managed leak or GC pressure?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Investigate high exception rate in the running service with the diagnostics CLI tools.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Threads seem blocked and requests stall; how do I find lock contention?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which dotnet-counters should I watch for GC and thread pool starvation?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Walk me through a profiling session from symptom to root cause for a slow command handler.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The app is slow only under load; how do I decide between trace, counters and a dump?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Analyze allocation growth over time on a staging deployment.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Write a BenchmarkDotNet comparison of two methods.",
+      "shouldTrigger": false,
+      "note": "microbenchmarking owns isolated measurements."
+    },
+    {
+      "query": "Give me the exact dotnet-trace collect command with providers and output path.",
+      "shouldTrigger": false,
+      "note": "dotnet-trace-collect owns the capture details."
+    },
+    {
+      "query": "Take a memory dump of the crashed process.",
+      "shouldTrigger": false,
+      "note": "dump-collect owns dump capture."
+    },
+    {
+      "query": "Check this code by reading it for allocation smells.",
+      "shouldTrigger": false,
+      "note": "analyzing-dotnet-performance owns static review."
+    },
+    {
+      "query": "Review the React list rendering for scalability.",
+      "shouldTrigger": false,
+      "note": "cratis-performance-review owns that review."
+    },
+    {
+      "query": "Why does the build take 10 minutes?",
+      "shouldTrigger": false,
+      "note": "msbuild owns build performance."
+    },
+    {
+      "query": "Add metrics for observer lag.",
+      "shouldTrigger": false,
+      "note": "cratis-fundamentals-telemetry owns instrumentation."
+    },
+    {
+      "query": "Make a job recoverable after restart.",
+      "shouldTrigger": false,
+      "note": "cratis-orleans-jobs owns recoverable work."
+    }
+  ]
+}

@@ -73,13 +73,10 @@ jobs:
           yarn workspace @cratis/ai-skill-evaluation run check
 
       - name: Install the pinned standalone Screenplay tool
-        run: |
-          version=$(node --experimental-strip-types --input-type=module -e "import { readFileSync } from 'node:fs'; import { pinnedVersion } from './Source/Verification/play/fences.ts'; console.log(pinnedVersion(readFileSync('Documentation/compatibility.md', 'utf8')));")
-          dotnet tool install Cratis.Screenplay.Tool --version "$version" --tool-path "$RUNNER_TEMP/screenplay"
+        run: yarn workspace @cratis/ai-verification run tool:screenplay
 
       - name: Verify corpus and skill behavior
         env:
-          CRATIS_SCREENPLAY_TOOL: ${{ runner.temp }}/screenplay/screenplay
           CRATIS_REQUIRE_SCREENPLAY: '1'
         run: yarn workspace @cratis/ai-verification run verify
 

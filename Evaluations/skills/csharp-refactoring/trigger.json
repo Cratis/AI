@@ -1,0 +1,77 @@
+{
+  "skill": "csharp-refactoring",
+  "queries": [
+    {
+      "query": "Extract this 80 line handler method into smaller methods without changing behavior.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Rename this public type safely across the solution.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Inline this one-line wrapper class.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Merge the duplicate helper methods across two files.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Modernize this class to use primary constructors.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Move members between declarations of a partial class.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Rename a property that is used by JSON serialization.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Consolidate the conditional-compilation branches in this multi-targeted file.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which naming and namespace style should this follow?",
+      "shouldTrigger": false,
+      "note": "cratis-engineering-csharp-conventions owns style."
+    },
+    {
+      "query": "Write specs for this behavior.",
+      "shouldTrigger": false,
+      "note": "cratis-specifications-csharp owns specs."
+    },
+    {
+      "query": "Why is this allocating so much?",
+      "shouldTrigger": false,
+      "note": "analyzing-dotnet-performance owns performance review."
+    },
+    {
+      "query": "Which branches are untested?",
+      "shouldTrigger": false,
+      "note": "coverage-analysis owns it."
+    },
+    {
+      "query": "Fix the IL2026 warnings.",
+      "shouldTrigger": false,
+      "note": "dotnet-aot-compat owns AOT/trim warnings."
+    },
+    {
+      "query": "Run the specs afterward.",
+      "shouldTrigger": false,
+      "note": "run-tests owns running."
+    },
+    {
+      "query": "Design the grain topology.",
+      "shouldTrigger": false,
+      "note": "orleans owns it."
+    },
+    {
+      "query": "Migrate this solution from packages.config.",
+      "shouldTrigger": false,
+      "note": "Project migration is out of scope."
+    }
+  ]
+}

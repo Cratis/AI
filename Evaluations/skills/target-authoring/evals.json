@@ -1,0 +1,38 @@
+{
+  "skill_name": "target-authoring",
+  "evals": [
+    {
+      "id": 1,
+      "name": "extend-not-replace",
+      "prompt": "Without calling tools, user sets <CompileDependsOn>MyTarget</CompileDependsOn>. Review.",
+      "expected_output": "It replaces the chain; append existing value.",
+      "assertions": [
+        "Says assignment replaces the SDK chain.",
+        "Shows $(CompileDependsOn) appended.",
+        "Warns about silently broken builds."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "returns",
+      "prompt": "Without calling tools, explain Outputs vs Returns.",
+      "expected_output": "Outputs drives incrementality; Returns defines the item result.",
+      "assertions": [
+        "Outputs is for incremental checks.",
+        "Returns defines what callers receive.",
+        "Notes stale results when confused."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "hook-choice",
+      "prompt": "Without calling tools, pick DependsOnTargets or AfterTargets.",
+      "expected_output": "DependsOnTargets for required prerequisites; AfterTargets for hooks.",
+      "assertions": [
+        "Explains each semantic.",
+        "Picks by ownership of the target.",
+        "Mentions ordering pitfalls."
+      ]
+    }
+  ]
+}
