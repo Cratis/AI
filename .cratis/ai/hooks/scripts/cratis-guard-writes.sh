@@ -27,7 +27,9 @@ script_directory="${BASH_SOURCE[0]%/*}"
 
 # This guard runs before every write, so it avoids subprocesses where a builtin does the same job:
 # the helpers below return through REPLY instead of printing into a command substitution.
-input="$(</dev/stdin)" || input=""
+# Read stdin with the read builtin: opening /dev/stdin fails with ENXIO when stdin is a socket (Linux, Node pipes).
+input=""
+IFS= read -r -d '' input || true
 [ -n "$input" ] || exit 0
 hook_have jq || exit 0
 
