@@ -81,8 +81,12 @@ cat "$CLEANUP_FIXTURE/response"
         return result;
     };
     const calls = () => existsSync(join(directory, 'calls')) ? readFileSync(join(directory, 'calls'), 'utf8').trim().split('\n') : [];
+    const deliver = (index = 0) => {
+        git(repository, 'merge', '--no-ff', pulls[index].head.ref, '-m', 'delivered', '-s', 'ours');
+        git(repository, 'update-ref', 'refs/remotes/origin/main', 'main');
+    };
     return {
-        directory, repository, worktrees, pulls, env, git, run, runAsync, calls,
+        directory, repository, worktrees, pulls, env, git, run, runAsync, calls, deliver,
         state: join(repository, '.git/cratis-cleanup-gh/example/cleanup'),
         dispose: () => rmSync(directory, { recursive: true, force: true }),
     };
