@@ -50,7 +50,7 @@ Gates: Chronicle Release build and the non-integration specs, as above.
 
 - Pass: every spec assembly passes (no `MissingMethodException`), which the two-repository run did not.
   A binary mismatch between layers disappears only when every layer carries the same stamp.
-- The stamp is deterministic for the combined state; the last repository named supplies the commit.
+- The stamp is deterministic for the combined state and changes when any producer's HEAD changes (it hashes every producer's HEAD).
 - Order: pack the upstream first, overlay it into the next repository, pack that, and so on; `verify-pack`
   each producer before overlaying it.
 - Pitfall: `verify-pack` for a repository with npm packages reports them missing when only NuGet was packed;
