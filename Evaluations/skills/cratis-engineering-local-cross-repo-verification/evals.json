@@ -65,6 +65,18 @@
         "Proves the stamp resolved in the consumer with verify-assets before trusting the consumer result.",
         "Ends with check, restore and a stamp-scoped clean (dry run, then apply)."
       ]
+    },
+    {
+      "id": 6,
+      "name": "train-stamp-and-leak-check",
+      "prompt": "My release train folds Fundamentals and Arc changes into one train and I must verify Chronicle against it. Which stamp do I use, what happens when another producer in the train changes, and how do I make sure the version never reaches a commit? Reply only.",
+      "expected_output": "Use `stamp --train` with every producer; it prints `X.Y.Z-train.g<sha7>` with no minute, where sha7 hashes the HEAD of every producer, so a change in any producer (not only the last) yields a new stamp and the earlier downstream verification is stale and must be repeated. Run `check` (it reports the train version in tracked, staged and untracked files; 0 leaks) before any commit or push, and ship the downstream only after the upstream is released and its pin bumped.",
+      "assertions": [
+        "Uses `stamp --train` over every producer and names the `X.Y.Z-train.g<sha7>` form.",
+        "States that a change in any producer changes the stamp, so downstream verification must be redone.",
+        "Runs `check` and requires 0 leaks before commit or push.",
+        "Ships downstream only after the upstream is released and its pin is bumped."
+      ]
     }
   ]
 }
