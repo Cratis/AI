@@ -134,8 +134,8 @@ exact commands.
 
 ## Compatibility and releases
 
-- Prefer additive change: exported signature changes and interface growth break
-  callers. Check struct comparability, embedding, defaults, errors and wire shape;
+- Prefer additive change: exported signature changes break callers, and adding a
+  method to an exported interface breaks its external implementations. Check struct comparability, embedding, defaults, errors and wire shape;
   API-diff tools aid but cannot prove behavioral compatibility.
 - Introduce `/v2` only with a migration and parallel-support plan. Never move a
   published tag; issue a corrective release and retract when needed.
