@@ -289,11 +289,11 @@ refuses with `STAGE-ESM-017` and a generic message whose location is a `sem1:<ha
 (seen on Stage 4.192.0 and CLI 3.94.0). Cause: `validate --executable` binds only Screenplay's model;
 Stage's admission runs only in `render`. Check every `from` block in turn:
 
-1. **Key.** An event property or the event source; a literal or composite key is refused.
-2. **Never map the key.** `berthId = $eventSourceId` into the key property is refused, and so is `from E key $eventSourceId` plus that mapping.
-3. **`$eventSourceId` into a non-key target** only when the target type exactly matches the type of the identifier the event is produced with. Not in `join`s, not in a `from` keyed by an event property, not into an enumerated concept.
+1. **Key.** An event property or the event source. A root `from` also accepts a constant text key (nonempty, only letters, digits, `_`, space and `. / : * + -`); any other literal key, and a literal key outside a root, is refused.
+2. **Do not overwrite the key.** A mapping onto the key property must restate the key itself (`from E` keyed by the event source with `berthId = $eventSourceId`, or the key's own event property); mapping a different value onto it is refused (`MatchesKey`). Simplest is to leave the key property unmapped.
+3. **`$eventSourceId` into a non-key target** is admitted in a `from` block keyed by an event property, when every command and reaction producing the event addresses it with a non-collection value of exactly the target's type (optionality ignored). It is refused in `join`s, for a mismatched type, and for an event nothing produces.
 4. **No `$context.*`.** Map an event property instead and have the command set it. The compiler may refuse it first (`PLAY0152`); Stage refuses a context value in a projection with `STAGE-ESM-017`.
-5. **Targets.** A target that is optional, sits behind an optional or nested intermediate, or is mapped twice in one block is refused; the event property must exist on the event.
+5. **Targets.** A target path through an optional or non-composite intermediate is refused; an optional leaf and a path through required composites are fine. The event property mapped from must exist on the event.
 
 Bisect: run `cratis render <root> --target cratis --name <App> --destination <dir> --check` (plans,
 writes nothing), comment out `from` blocks one at a time until the error clears, then apply the list to
