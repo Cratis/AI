@@ -171,6 +171,7 @@ module Billing
         table InvoiceRow
           column number label "Number"
         action RegisterInvoice
+          label "Register invoice"
       specification ListingAnInvoice
         given caller                                  // module + feature gates apply to the query too
           authenticated

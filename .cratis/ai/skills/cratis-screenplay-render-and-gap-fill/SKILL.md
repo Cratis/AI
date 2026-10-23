@@ -178,6 +178,23 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
   Never `.cratis-render/` (the journal directory) and never `.ai-work/`.
 - Limits stated in this text are prompt policy unless a guard enforces them; say so.
 
+## Hand-written query logic and re-render
+
+Symptom: a today-relative query (overdue, due today) was written by editing the body of a generated query
+file; the next `render` refused with `Managed artifact '<file>' was modified by the user; pass --force to
+replace it.` Query filters are equality only and there is no `today` in a filter or projection, so this
+logic is gap-fill. Cause: a managed file's hash is in `.cratis-render.json`, and an edited one blocks the
+whole re-render. What to do:
+
+- Never edit a managed file. Put the logic in a new unmanaged file, for example `Customizations/<Name>.cs`
+  (compiled with the project, never replaced by `render`), with its own endpoint or query class, and record it
+  as gap-fill (`references/gap-fill-handoff.md`).
+- `--force` replaces the edited managed file with the generated one and discards the edit; use it only with
+  approval that names the file.
+- Screens reported as `PLAY0269` are information that the backend profile defers them. They are not
+  proof of a rendered screen: check the running app (`cratis-screenplay-toolchain` `references/fast-path.md`)
+  and list any authored screen that is missing as not rendered.
+
 ## Gate
 
 Before reporting done:

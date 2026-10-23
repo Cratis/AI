@@ -23,6 +23,7 @@ module Marina
         data BerthListView[] via query ListBerths
         action BookBerth
           navigate to BerthListScreen
+          label "Book berth"
     slice StateView BerthList
       readmodel BerthListView
         berthId BerthId
