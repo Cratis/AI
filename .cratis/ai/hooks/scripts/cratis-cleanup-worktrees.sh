@@ -158,18 +158,16 @@ cached_pulls() {
 }
 take_lock() {
     mkdir "$state/lock" 2>/dev/null && return 0
-    local inode modified current retired
-    read -r inode modified < <(lock_stat "$state/lock")
+    local modified retired acquired
+    read -r _ modified < <(lock_stat "$state/lock")
     [[ "$modified" =~ ^[0-9]+$ ]] && [ "$now" -ge "$((modified + 900))" ] || return 1
-    # A reclaim child serializes stale-lock breakers. Verify identity before renaming, so a breaker
-    # that observed the old lock cannot retire a replacement lock acquired by another run.
-    mkdir "$state/lock/reclaim" 2>/dev/null || return 1
-    read -r current _ < <(lock_stat "$state/lock")
-    if [ "$current" != "$inode" ]; then rmdir "$state/lock/reclaim" 2>/dev/null; return 1; fi
-    retired=$(mktemp -d "$state/retired.XXXXXX") || { rmdir "$state/lock/reclaim"; return 1; }
-    if ! mv "$state/lock" "$retired/lock" 2>/dev/null; then rmdir "$retired"; return 1; fi
-    rmdir "$retired/lock/reclaim" "$retired/lock" "$retired" 2>/dev/null
-    mkdir "$state/lock" 2>/dev/null
+    # Rename atomically: a killed reclaimer can leave only a retired directory, never a blocking marker.
+    retired="$state/lock.stale.$$.$RANDOM"
+    mv "$state/lock" "$retired" 2>/dev/null || return 1
+    acquired=1
+    mkdir "$state/lock" 2>/dev/null && acquired=0
+    rm -rf "$retired"
+    return "$acquired"
 }
 hook_pulls() (
     local repo="$1" common state now temporary lock_inode current
@@ -186,6 +184,8 @@ hook_pulls() (
     temporary=$(mktemp "$state/pulls.XXXXXX") || exit 1
     printf '%s\n' "$now" > "$temporary" && mv "$temporary" "$state/failed" || exit 1
     printf '%s\n' "$now" > "$temporary" && mv "$temporary" "$state/stamp" || exit 1
+    read -r current _ < <(lock_stat "$state/lock")
+    [ "$current" = "$lock_inode" ] || exit 1
     # Only the latest 100 closed PRs are searched; older merged branches are simply kept.
     if gh api "repos/$repo/pulls?state=closed&per_page=100" > "$temporary" 2>/dev/null && valid_pulls "$temporary"; then
         read -r current _ < <(lock_stat "$state/lock")
@@ -194,20 +194,26 @@ hook_pulls() (
         cat "$state/pulls.json"
     else exit 1; fi
 )
-load_pulls() {
-    command -v gh >/dev/null 2>&1 && command -v jq >/dev/null 2>&1 || return 1
+GH_POSSIBLE=0; GH_REPO=''
+configure_github() {
+    [ "${CRATIS_CLEANUP_NO_GH:-}" != 1 ] || return 0
+    command -v gh >/dev/null 2>&1 && command -v jq >/dev/null 2>&1 || return 0
     local remote repo
-    remote=$(git remote get-url origin 2>/dev/null) || return 1
+    remote=$(git remote get-url origin 2>/dev/null) || return 0
     case "$remote" in
         https://github.com/*) repo=${remote#https://github.com/} ;;
         git@github.com:*) repo=${remote#git@github.com:} ;;
         ssh://git@github.com/*) repo=${remote#ssh://git@github.com/} ;;
-        *) return 1 ;;
+        *) return 0 ;;
     esac
     repo=${repo%.git}
-    [[ "$repo" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || return 1
-    if [ "$HOOK" = 1 ]; then GH_PULLS=$(hook_pulls "$repo") || return 1
-    else GH_PULLS=$(gh api "repos/$repo/pulls?state=closed&per_page=100" 2>/dev/null) || return 1; fi
+    [[ "$repo" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]] || return 0
+    GH_REPO=$repo; GH_POSSIBLE=1
+}
+configure_github
+load_pulls() {
+    if [ "$HOOK" = 1 ]; then GH_PULLS=$(hook_pulls "$GH_REPO") || return 1
+    else GH_PULLS=$(gh api "repos/$GH_REPO/pulls?state=closed&per_page=100" 2>/dev/null) || return 1; fi
     printf '%s' "$GH_PULLS" | valid_pulls /dev/stdin
 }
 
@@ -228,7 +234,7 @@ PLAN_KIND=(); PLAN_PATH=(); PLAN_SHA=(); PLAN_BRANCH=(); PLAN_EVIDENCE=(); NEEDS
 plan_item() {
     local kind="$1" path="$2" tip="$3" branch="$4" evidence=''
     if ancestry_delivered "$tip" "$branch" "$([ -n "$branch" ] && track_of "$branch")"; then evidence=$EVIDENCE
-    elif [ -n "$branch" ] && [ "${CRATIS_CLEANUP_NO_GH:-}" != 1 ]; then NEEDS_GH=1; fi
+    elif [ -n "$branch" ] && [ "$GH_POSSIBLE" = 1 ]; then NEEDS_GH=1; fi
     PLAN_KIND+=("$kind"); PLAN_PATH+=("$path"); PLAN_SHA+=("$tip")
     PLAN_BRANCH+=("$branch"); PLAN_EVIDENCE+=("$evidence")
 }
@@ -290,7 +296,7 @@ abort_sweep() {
 # Resolve every item's evidence before any deletion, including ancestry-proven items.
 if [ "$NEEDS_GH" = 1 ] && ! load_pulls; then abort_sweep; fi
 for ((i=0; i<${#PLAN_KIND[@]}; i++)); do
-    if [ -z "${PLAN_EVIDENCE[i]}" ] && [ -n "$GH_PULLS" ]; then
+    if [ -z "${PLAN_EVIDENCE[i]}" ] && [ -n "${PLAN_BRANCH[i]}" ] && [ -n "$GH_PULLS" ]; then
         if github_delivered "${PLAN_BRANCH[i]}" "${PLAN_SHA[i]}"; then PLAN_EVIDENCE[i]="pull request merged at this commit"
         else result=$?; [ "$result" = 1 ] || abort_sweep; fi
     fi
