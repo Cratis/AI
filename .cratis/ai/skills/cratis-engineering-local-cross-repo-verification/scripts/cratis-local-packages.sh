@@ -32,10 +32,11 @@ Commands (COMMAND --help shows these instructions too):
   pack-nuget PRODUCER STAMP PROJECT-OR-SLN...
     Release-pack each target into the NuGet feed; requires dotnet.
   pack-npm PRODUCER STAMP
-    Requires node and Yarn 4, and a completed repository build. Temporarily
-    version non-private workspaces, pack with %s-%v.tgz (Yarn slugifies scoped
-    names), and restore tracked manifests even on failure. Pack lifecycle hooks
-    are Yarn's own behavior; this helper does not run a separate build.
+    Requires node, npm and Yarn 4, and a completed repository build. Temporarily
+    version non-private workspaces, pack each with npm pack --ignore-scripts (the
+    publish workflows' tool, so the tarball matches the published one) as
+    <scope>-<name>-<version>.tgz, and restore tracked manifests even on failure.
+    This helper does not build or run lifecycle scripts.
   use-nuget CONSUMER STAMP [--pin-transitive] [PACKAGE-ID...]
     Create a CPM overlay importing the repository's own Directory.Packages.props.
     Transitive pinning stays as the consumer sets it; --pin-transitive forces it on so
@@ -238,11 +239,25 @@ pack_nuget() {
     printf 'produced %s nupkgs\n' "$count"
 }
 
+# Pack one workspace with npm pack (what publish does) into the feed as <scope>-<name>-<version>.tgz.
+pack_npm_workspace() {
+    local repo=$1 manifest=$2 version=$3 dir name slug
+    dir=$repo/$(dirname "$manifest")
+    name=$(node -p "require(process.argv[1]).name" "$dir/package.json") || failed "cannot read package name: $manifest"
+    slug=${name//\//-}
+    if [ "$DRY" -eq 1 ]; then
+        quote_command npm pack --ignore-scripts --pack-destination "$FEED/npm" "(in $dir)"
+        return 0
+    fi
+    (cd "$dir" && heavy build "pack npm $name" npm pack --ignore-scripts --pack-destination "$FEED/npm") >/dev/null
+    mv -f "$FEED/npm/${slug#@}-$version.tgz" "$FEED/npm/$slug-$version.tgz" || failed "npm pack did not produce $name"
+}
+
 pack_npm() {
     [ $# -eq 2 ] || die 'pack-npm requires producer and stamp'
     local repo version path count=0
     repo=$(repo_root "$1"); version=$2
-    valid_stamp "$version"; need node; need yarn; scratch
+    valid_stamp "$version"; need node; need npm; need yarn; scratch
     git -C "$repo" diff --name-only HEAD -- 'package.json' '*/package.json' > "$TMP/modified"
     git -C "$repo" diff --cached --name-only -- 'package.json' '*/package.json' >> "$TMP/modified"
     git -C "$repo" diff --name-only -- 'package.json' '*/package.json' >> "$TMP/modified"
@@ -279,7 +294,10 @@ for (const file of files) {
 NODE
     fi
     mutate mkdir -p "$FEED/npm"
-    (cd "$repo" && heavy build 'pack npm workspaces' yarn workspaces foreach -A --no-private pack --out "$FEED/npm/%s-%v.tgz")
+    # npm pack, like the publish workflows' npm publish: yarn pack drops files of a gitignored dist folder.
+    while IFS= read -r -d '' path; do
+        pack_npm_workspace "$repo" "$path" "$version"
+    done < "$TMP/manifests"
     if [ "$DRY" -eq 1 ]; then quote_command git -C "$repo" checkout -- '<versioned manifests>'; return 0; fi
     git -C "$repo" checkout -- "${PACK_MANIFESTS[@]}"
     PACK_MANIFESTS=()
@@ -1018,6 +1036,22 @@ NODE
         passed=$((passed + 3))
         git -C "$repo" checkout -- package.json
     else printf 'SKIP: npm mutation/restore needs node on inherited PATH\n'; skipped=$((skipped + 10)); fi
+    # pack-npm uses npm pack so a nested, gitignored dist directory listed in files is packed whole.
+    if command -v npm >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then
+        local pk_dir=$root/npm-workspace pk_feed=$root/npm-feed pk_ver=1.2.3-local.202601010000.gabcdef0 pk_count
+        mkdir -p "$pk_dir/dist/bundles/sub" "$pk_feed/npm"
+        printf '{"name":"@cratis/nested","version":"%s","files":["dist/bundles","dist/**/*.d.ts"]}\n' "$pk_ver" > "$pk_dir/package.json"
+        printf 'dist\n' > "$pk_dir/.gitignore"
+        printf 'a\n' > "$pk_dir/dist/bundles/a.js"; printf 'b\n' > "$pk_dir/dist/bundles/sub/b.js"
+        printf 'export {}\n' > "$pk_dir/dist/a.d.ts"
+        git -C "$pk_dir" init -q
+        (FEED=$pk_feed; pack_npm_workspace "$pk_dir" package.json "$pk_ver") >/dev/null || failed 'self-test: npm workspace pack'
+        [ -f "$pk_feed/npm/@cratis-nested-$pk_ver.tgz" ] || failed 'self-test: npm tarball name'
+        pk_count=$(tar tzf "$pk_feed/npm/@cratis-nested-$pk_ver.tgz" | grep -c 'dist/bundles/') || true
+        [ "$pk_count" -eq 2 ] || failed "self-test: nested dist files packed ($pk_count of 2)"
+        tar tzf "$pk_feed/npm/@cratis-nested-$pk_ver.tgz" | grep -Fq 'dist/a.d.ts' || failed 'self-test: declaration glob packed'
+        passed=$((passed + 3))
+    else printf 'SKIP: npm pack needs node and npm on inherited PATH\n'; skipped=$((skipped + 3)); fi
     # Multi-repo stamp: the highest next patch wins and every HEAD is reported.
     local repo2 v2 v3 pk
     repo2=$root/repo2; mkdir -p "$repo2"; git -C "$repo2" init -q

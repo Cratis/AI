@@ -182,7 +182,7 @@ own spec-shard helper; skip probes that need a live kernel or database and say s
 - Pitfall: a repository without a committed lockfile fails `yarn install --immutable`; use plain
   `yarn install` there.
 - Pitfall: yarn hoists to the root `node_modules`; check and install at the root.
-- Pitfall: the packed language tarball must contain its built bundles. A `yarn pack` of a package
-  whose `files` lists a gitignored folder can ship only part of it; compare the file count with
-  `npm pack --ignore-scripts` before trusting a consumer build error or pass.
+- Pitfall: the packed language tarball must contain its built bundles. `pack-npm` uses `npm pack`
+  like the publish workflow; a `yarn pack` of a package whose `files` lists a gitignored folder
+  can ship only part of it.
 - Pitfall: multi-hop. Studio keeps its released Stage; a binary break is a finding.
