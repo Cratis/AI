@@ -39,9 +39,7 @@
   },
   "pi": {
     "subagents": {
-      "agents": [
-        "./package/corpus/harnesses/pi/agents"
-      ]
+      "agents": ["./package/corpus/harnesses/pi/agents"]
     },
     "extensions": [
       "./src/index.ts",
