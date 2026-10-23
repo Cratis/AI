@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: writes the global git config (safe.directory), which the other serial fixtures also touch
 # Proves the worker's checkout path works with the shared repository cache fully write-protected -
 # which is what it now is, because the Kubernetes Job mounts the PVC read-only (Cratis/Stagehand#245).
 #

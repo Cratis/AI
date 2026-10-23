@@ -121,7 +121,32 @@ At most one command property may carry `identifier`. It names the value the
 runtime uses as the event source id, so **choosing it is choosing the stream
 boundary** — the highest-consequence decision in the slice. Leave it out only
 when the runtime should allocate a fresh `Uuid` (a command that creates
-something whose identity the caller does not supply).
+something whose identity the caller does not supply); for a create command prefer
+`generated identifier` below, which also keeps the id out of the rendered form.
+
+**A command that creates something has no caller-supplied id.** Declare
+`<id> <IdConcept> generated identifier` (ESM v7, Screenplay 4.68.0 or later) and `returns <id>` when the
+caller needs it back. Symptom of getting it wrong: `organizationId OrganizationId identifier` on a create
+command makes the rendered form ask the user to type an Organization Id. Keep plain `identifier` for
+commands that act on an existing stream (the id comes from the selected row). Specifications pin the
+allocated value with `for "<value>"` in `when` and `then` (see the generated-values reference). Read
+[generated values](references/generated-values-and-responses.md) before writing one.
+
+```screenplay excerpt
+command RegisterOrganization
+  organizationId OrganizationId generated identifier
+  name           OrganizationName
+  produces event OrganizationRegistered
+    name OrganizationName = name
+  returns organizationId
+specification RegistersAnOrganization
+  when RegisterOrganization
+    for "11111111-1111-1111-1111-111111111111"
+    name = "Acme"
+  then OrganizationRegistered
+    for "11111111-1111-1111-1111-111111111111"
+    name = "Acme"
+```
 
 - A second `identifier` on the same command is an error: *only one property can be
   the identifier*.

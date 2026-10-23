@@ -251,8 +251,9 @@ Stage renders two projection forms; the restrictions differ.
   inside a child are admitted), `nested`
   over an optional composite property, and `every`/`all` with set-from-event-source mappings. Keys
   are an event property or the event source. The key establishes the identifier, so it must
-  end up unmapped: a mapping onto it is refused unless it copies the key's own event
-  property, so an event-source key admits no mapping at all (`STAGE-ESM-017`). Auto-map
+  end up unmapped: a mapping onto it is refused unless it restates the key (the key's own
+  event property, `$eventSourceId` for an event-source key, or the same literal)
+  (`STAGE-ESM-017`). Auto-map
   counts as a mapping: if the event carries a property with the identifier's name and type,
   declare `no automap` and map the other properties explicitly. `from E` and
   `from E key $eventSourceId` render when the identifier ends up unmapped, whether or not

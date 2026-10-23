@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Verifies the worker validates its mounted AI configuration manifest and never sources it.
 set -euo pipefail
 

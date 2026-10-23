@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Pins how run_claude_code() keeps a repository's interactive `ask` rules from blocking a headless
 # worker. A cloned repository's .claude/settings.json may ask before `git push` and `gh pr` (the
 # Cratis corpus does); in `claude -p` an `ask` rule wins over --dangerously-skip-permissions and the

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Pins entrypoint.sh's three-way DIRECT_HARNESS selection.
 #
 # This is the one edit in the Copilot harness work that does not fail loudly when it is wrong: before

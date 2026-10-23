@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Exercises entrypoint.sh's start_headroom/stop_headroom (issue #556) against every way the proxy
 # can be missing or broken, and shows that each one leaves the run to carry on rather than failing
 # it. That fail-open contract is the whole reason a compression layer is allowed in the request path

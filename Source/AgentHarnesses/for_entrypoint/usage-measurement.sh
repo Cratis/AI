@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-requires-linux: samples /proc/<pid>/status and /proc/<pid>/task, which macOS does not have
 # Exercises the CPU/memory measurement helpers entrypoint.sh added for Cratis/Stagehand#638:
 #   - claude_cpu_seconds_from_time_file / claude_memory_bytes_from_time_file, which parse GNU
 #     `time -v`'s report for the Claude CLI path.
@@ -10,6 +11,12 @@
 # actually exercises the shipped code, matching checkout-can-commit.sh's self-contained style. A
 # failure printed at the end means one of the parsers produced something that is not a sane number.
 set -u
+
+# On Linux the /proc this fixture samples must exist; failing here keeps a broken container from reading as a pass.
+if [[ "$(uname -s)" == Linux && ! -r /proc/self/status ]]; then
+    echo "FAIL: /proc/self/status is not readable on Linux"
+    exit 1
+fi
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 ENTRYPOINT="$ROOT/entrypoint.sh"

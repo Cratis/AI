@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# fixture-requires-linux: needs bash >= 4.4, GNU date and the worker image's tool set (macOS /bin/bash is 3.2)
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Reproduces the production incident - a worker container that is stopped or evicted (SIGTERM,
 # then SIGKILL when the grace period runs out) took every commit the agent had made with it,
 # because push_workspaces was only ever reached from the two normal-completion paths - and shows
