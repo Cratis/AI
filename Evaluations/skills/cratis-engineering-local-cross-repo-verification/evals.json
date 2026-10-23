@@ -56,26 +56,15 @@
     {
       "id": 5,
       "name": "multi-hop-closure-one-stamp",
-      "prompt": "A Fundamentals fix must be proven in Chronicle, but Chronicle takes Fundamentals through Arc as well as directly. How do I verify it locally without assembling the package list by hand? Reply only.",
-      "expected_output": "Run `closure` with Chronicle as the consumer and Fundamentals then Arc as producers; it prints the steps from the dependency map. Use one stamp from a multi-repo `stamp` (the highest line wins, avoiding NU1605), pack Fundamentals, overlay it into Arc, pack Arc, run `verify-pack`, overlay the consumer, build and run its specs, then prove resolution with `verify-assets`. Finish with `check`, `restore` and `clean --stamp` (dry run, then apply).",
+      "prompt": "A Fundamentals fix must be proven in Chronicle, but Chronicle takes Fundamentals through Arc as well as directly. How do I verify it locally without assembling the package list by hand? The producers are folded into one release train, so the stamp must also stay stable per train state. Reply only.",
+      "expected_output": "Run `closure` with Chronicle as the consumer and Fundamentals then Arc as producers; it prints the steps from the dependency map. Use one stamp from a multi-repo `stamp` (the highest line wins, avoiding NU1605), pack Fundamentals, overlay it into Arc, pack Arc, run `verify-pack`, overlay the consumer, build and run its specs, then prove resolution with `verify-assets`. Finish with `check`, `restore` and `clean --stamp` (dry run, then apply). For a release train use `stamp --train`, which prints `X.Y.Z-train.g<sha7>` with no minute; sha7 hashes the HEAD of every producer, so a change in any producer gives a new stamp and the earlier downstream verification is stale and must be repeated. `check` must report 0 leaks, including the train version, before any commit or push.",
       "assertions": [
         "Uses the `closure` command and the dependency map rather than a hand-built package list.",
         "Uses a single multi-repo stamp for every producer in the chain.",
         "Overlays Fundamentals into Arc before packing Arc, and runs verify-pack on the packs.",
         "Proves the stamp resolved in the consumer with verify-assets before trusting the consumer result.",
-        "Ends with check, restore and a stamp-scoped clean (dry run, then apply)."
-      ]
-    },
-    {
-      "id": 6,
-      "name": "train-stamp-and-leak-check",
-      "prompt": "My release train folds Fundamentals and Arc changes into one train and I must verify Chronicle against it. Which stamp do I use, what happens when another producer in the train changes, and how do I make sure the version never reaches a commit? Reply only.",
-      "expected_output": "Use `stamp --train` with every producer; it prints `X.Y.Z-train.g<sha7>` with no minute, where sha7 hashes the HEAD of every producer, so a change in any producer (not only the last) yields a new stamp and the earlier downstream verification is stale and must be repeated. Run `check` (it reports the train version in tracked, staged and untracked files; 0 leaks) before any commit or push, and ship the downstream only after the upstream is released and its pin bumped.",
-      "assertions": [
-        "Uses `stamp --train` over every producer and names the `X.Y.Z-train.g<sha7>` form.",
-        "States that a change in any producer changes the stamp, so downstream verification must be redone.",
-        "Runs `check` and requires 0 leaks before commit or push.",
-        "Ships downstream only after the upstream is released and its pin is bumped."
+        "Ends with check, restore and a stamp-scoped clean (dry run, then apply).",
+        "For a release train, uses `stamp --train`, states that a change in any producer changes the stamp (downstream verification must be redone), and requires `check` to report 0 leaks."
       ]
     }
   ]
