@@ -6,7 +6,7 @@ import { existsSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { slowestReport } from './slowest-reporter.ts';
-import { affectedSubsets, defaultFullSuiteBudgetSeconds, judgeBudget, main, subsetFiles, subsets } from './test-subsets.ts';
+import { affectedSubsets, defaultFullSuiteBudgetSeconds, judgeBudget, collectChangedPaths, main, subsetFiles, subsets } from './test-subsets.ts';
 
 describe('test subsets', () => {
     it('should name only spec files that exist, each in one subset', () => {
@@ -61,6 +61,40 @@ describe('test subsets', () => {
         const { runs, dependencies } = harness(['.cratis/ai/hooks/scripts/cratis-guard-secrets.sh']);
         assert.equal(main(['affected'], dependencies), 0);
         assert.deepEqual(runs, [subsetFiles('hooks')]);
+    });
+
+    it('should collect committed, staged, unstaged and untracked paths, deduplicated', () => {
+        const calls: string[][] = [];
+        const git = (arguments_: string[]) => {
+            calls.push(arguments_);
+            if (arguments_[0] === 'merge-base') return 'abc123\n';
+            if (arguments_[0] === 'diff') return 'a.md\nb.md\n';
+            return 'b.md\nc.md\n';
+        };
+        assert.deepEqual(collectChangedPaths('origin/main', git), ['a.md', 'b.md', 'c.md']);
+        assert.deepEqual(calls[1], ['diff', '--name-only', 'abc123']);
+        assert.deepEqual(calls[2], ['ls-files', '--others', '--exclude-standard']);
+    });
+
+    it('should force the full suite for an uncommitted unmapped change', () => {
+        const git = (arguments_: string[]) => arguments_[0] === 'diff' ? '.cratis/ai/hooks/scripts/cratis-guard-secrets.sh\nRules/x.md\n' : '';
+        const { runs, dependencies } = harness(collectChangedPaths('origin/main', git));
+        assert.equal(main(['affected'], dependencies), 0);
+        assert.equal(runs[0].length, 3);
+    });
+
+    it('should select the subset for an untracked mapped file', () => {
+        const git = (arguments_: string[]) => arguments_[0] === 'ls-files' ? '.cratis/ai/hooks/scripts/cratis-guard-secrets.sh\n' : '';
+        const { runs, dependencies } = harness(collectChangedPaths('origin/main', git));
+        assert.equal(main(['affected'], dependencies), 0);
+        assert.deepEqual(runs, [subsetFiles('hooks')]);
+    });
+
+    it('should still run nothing for a clean tree', () => {
+        assert.deepEqual(collectChangedPaths('origin/main', () => ''), []);
+        const { runs, dependencies } = harness([]);
+        assert.equal(main(['affected'], dependencies), 0);
+        assert.deepEqual(runs, []);
     });
 
     it('should print the slowest specs first, capped at ten', () => {

@@ -362,7 +362,8 @@ fails the run only when `CI` is set. Set `CRATIS_TEST_BUDGET_SECONDS` to change 
 `test:affected` is deny-by-default: it runs a subset only when every changed path is on a small allowlist
 (the guard hook scripts for `hooks`, `Source/Harness.Setup/*.ts` for `adapters`, or a changed spec file, which
 runs itself). Any other change (rules, skills, evaluations, agents, docs, `Source/Verification/*.ts`, package
-files) runs the full suite and returns its exit status.
+files) runs the full suite and returns its exit status. Changed paths are everything since the merge base with
+`origin/main`: committed, staged, unstaged and untracked files.
 
 The verification suite uses Pi's `DefaultResourceLoader` directly, without a
 model or credentials, to prove that project context, every skill, 18 prompts,
