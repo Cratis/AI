@@ -158,4 +158,3 @@ Explain the trade-offs when recommending a tool. For example:
 - `dotnet-trace` works cross-platform without admin but captures less system-level detail.
 - `perfcollect` captures native call stacks but needs admin/root.
 - `dotnet-monitor` is the best option for containers/K8s when console access is not available, but requires sidecar deployment and authentication configuration.
-

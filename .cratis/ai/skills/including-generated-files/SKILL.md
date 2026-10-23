@@ -70,12 +70,12 @@ For generated files that need to be copied to output (config files, data files, 
 
 ```xml
 <Target Name="IncludeGeneratedFiles" BeforeTargets="BeforeBuild">
-  
+
   <!-- Your logic that generates files goes here -->
 
   <ItemGroup>
     <None Include="$(IntermediateOutputPath)my-generated-file.xyz" CopyToOutputDirectory="PreserveNewest"/>
-    
+
     <!-- Capture all files of a certain type with a glob -->
     <None Include="$(IntermediateOutputPath)generated\*.xyz" CopyToOutputDirectory="PreserveNewest"/>
 

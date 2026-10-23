@@ -33,4 +33,3 @@ When adding retries, make side effects idempotent. Default Orleans calls are at-
 | Heterogeneous silo/versioning | Run different grain sets or versions during rollout | Use explicit compatibility/version selection for safe rolling deployments |
 
 Turn-based execution is single-threaded, not magically race-free. Reentrancy allows another turn to run while the first awaits; any state observed before the `await` can be stale afterward. Avoid blocking calls, `.Result`, `.Wait()`, thread-affine work, and unbounded CPU loops on the grain scheduler.
-

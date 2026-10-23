@@ -204,4 +204,3 @@ Injecting the TFM the project already targets is **path-neutral** — the projec
   ```
 
 See `msbuild` skill `references/msbuild-antipatterns.md` (AP-23) for the authoring-time smell and rationale.
-
