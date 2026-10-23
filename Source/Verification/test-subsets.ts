@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { spawnSync } from 'node:child_process';
-import { readdirSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -10,10 +10,13 @@ const here = dirname(fileURLToPath(import.meta.url));
 
 /** Named, fast subsets for iteration. The full `test` script stays the CI and final gate. */
 export const subsets: Record<string, string[]> = {
-    hooks: ['guard-pr-body', 'guard-secrets', 'guard-store-mutations', 'guard-writes', 'hook-wiring', 'codex-hooks', 'migration-reminder', 'pi-mcp-bridge', 'pi-quality-gate', 'quality-gates', 'cleanup-worktrees'],
+    hooks: ['guard-pr-body', 'guard-secrets', 'guard-store-mutations', 'guard-writes', 'hook-wiring', 'codex-hooks', 'migration-reminder', 'pi-mcp-bridge', 'pi-quality-gate', 'quality-gates', 'cleanup-worktrees', 'check-pr-callers'],
     adapters: ['agent-adapters', 'harness-setup', 'harness-loading', 'pi-plugin', 'plugin-manifest', 'pi-mcp-configuration', 'pi-mcp-servers', 'pi-mcp-transport', 'pi-subagent', 'mcp-servers', 'source-identity-helper'],
     corpus: ['always-on-budget', 'discoverability-routing', 'documentation-routing', 'evaluation-coverage', 'instruction-dependencies', 'profiled-skills', 'skill-authoring', 'skill-evaluations', 'skill-hygiene', 'skill-overlap', 'skill-references', 'skill-structure', 'pin-restatements', 'model-first-restatements', 'preferred-syntax', 'review-reports', 'screenplay-tool', 'test-subsets']
 };
+
+/** Spec files that may be absent on a branch; they are skipped when missing. */
+const optionalSpecs = new Set(['check-pr-callers.spec.ts']);
 
 export type Mapping = { pattern: RegExp; subsets: string[] };
 
@@ -46,7 +49,8 @@ export function affectedSubsets(paths: string[]): { subsets: string[]; specs: st
 export function subsetFiles(name: string): string[] {
     const bases = subsets[name];
     if (!bases) throw new Error(`Unknown subset '${name}'. Known: ${Object.keys(subsets).join(', ')}, affected, full.`);
-    return bases.map(base => `${base}.spec.ts`);
+    // check-pr-callers.spec.ts arrives on another branch; tolerate it being absent until both merge.
+    return bases.map(base => `${base}.spec.ts`).filter(file => !optionalSpecs.has(file) || existsSync(resolve(here, file)));
 }
 
 /** Specs that belong to no named subset; they run only in the full suite. */
@@ -100,12 +104,27 @@ function runFullSuite(dependencies: Dependencies): number {
     return status === 0 && verdict.fail ? 1 : status;
 }
 
+type Git = (arguments_: string[]) => string;
+
+const repositoryRoot = resolve(here, '..', '..');
+
+function runGit(arguments_: string[]): string {
+    // Run from the repository root: `git ls-files` only lists paths under its working directory.
+    const result = spawnSync('git', arguments_, { cwd: repositoryRoot, encoding: 'utf8' });
+    if (result.status !== 0) throw new Error(`git ${arguments_.join(' ')} failed: ${result.stderr}`);
+    return result.stdout;
+}
+
+/** Committed, staged, unstaged and untracked changes since the merge base with `base`, deduplicated. */
+export function collectChangedPaths(base: string, git: Git): string[] {
+    const mergeBase = git(['merge-base', base, 'HEAD']).trim();
+    const tracked = git(['diff', '--name-only', mergeBase]).split('\n');
+    const untracked = git(['ls-files', '--others', '--exclude-standard']).split('\n');
+    return [...new Set([...tracked, ...untracked].filter(Boolean))].sort();
+}
+
 const systemDependencies: Dependencies = {
-    changedPaths: base => {
-        const diff = spawnSync('git', ['diff', '--name-only', `${base}...`], { cwd: here, encoding: 'utf8' });
-        if (diff.status !== 0) throw new Error(`git diff against ${base} failed: ${diff.stderr}`);
-        return diff.stdout.split('\n').filter(Boolean);
-    },
+    changedPaths: base => collectChangedPaths(base, runGit),
     allSpecs: () => readdirSync(here).filter(file => file.endsWith('.spec.ts')).sort(),
     run: runFiles,
     log: message => console.log(message)
