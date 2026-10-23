@@ -106,8 +106,11 @@ function runFullSuite(dependencies: Dependencies): number {
 
 type Git = (arguments_: string[]) => string;
 
+const repositoryRoot = resolve(here, '..', '..');
+
 function runGit(arguments_: string[]): string {
-    const result = spawnSync('git', arguments_, { cwd: here, encoding: 'utf8' });
+    // Run from the repository root: `git ls-files` only lists paths under its working directory.
+    const result = spawnSync('git', arguments_, { cwd: repositoryRoot, encoding: 'utf8' });
     if (result.status !== 0) throw new Error(`git ${arguments_.join(' ')} failed: ${result.stderr}`);
     return result.stdout;
 }
