@@ -189,13 +189,17 @@ Gates: Chronicle `dotnet build` in Release with `DisableProxyGenerator=true` and
 with `NODE_OPTIONS=--max-old-space-size=4096`.
 
 - Pass: Release build clean; every spec assembly passes; `project.assets.json` shows the stamp for
-  every Arc ID; the Workbench copies of the Arc packages are at the stamp.
+  every Arc ID.
 - Finding when the consumer's other pins lag: the build passes, but the specs fail with
   `MissingMethodException` on a Fundamentals method the newer Arc calls, because Chronicle pins an
   older Fundamentals than Arc was built against. Record it; do not edit the consumer's pins.
 - Pitfall: build the Arc embedded viewer before the .NET build, or the Arc build fails.
 - Pitfall: Chronicle resolves Arc packages to the stamp only where its manifests pin them; a
   released package that depends on a released Arc package keeps that version. Record it.
+- Pitfall: `use-npm` overlays only the consumer repository root `package.json` and has no option to
+  target `Source/Workbench`, so this recipe does not put the Arc npm packages under the Workbench.
+  To verify them there, run `pack-npm` in Arc, then add `file:` resolutions to the Workbench
+  manifest by hand and run `yarn install`; do not claim the Workbench result without that step.
 - Pitfall: the Workbench is its own Yarn project with its own lockfile. `restore` refuses to
   put back a changed lockfile; in a throwaway worktree check out the two manifests and remove the
   helper's backup folder.
@@ -208,10 +212,14 @@ stamp=$(bash "$local" stamp "$arc")                 # one stamp, reused for ever
 bash "$local" use-nuget "$arc" "$stamp"             # Arc builds against the new Fundamentals
 (cd "$arc" && bash "$local" pack-nuget . "$stamp" Arc.slnx)
 bash "$local" restore "$arc"
-bash "$local" use-nuget "$chronicle" "$stamp"       # all upstream IDs in one overlay
+bash "$local" use-nuget "$chronicle" "$stamp"       # no IDs: every stamped Fundamentals and Arc ID
 ```
 
 Gates: Chronicle Release build and the non-integration specs, as above.
+
+Without package IDs `use-nuget` overrides every package in the feed carrying the stamp, so Chronicle
+resolves Fundamentals at the stamp both directly and through Arc; naming only the Arc IDs would leave
+its direct Fundamentals pin at the release and bring back the `MissingMethodException`.
 
 - Pass: every spec assembly passes (no `MissingMethodException`), which the two-repository run does
   not achieve. A binary mismatch between layers disappears only when every layer carries the same stamp.
