@@ -10,7 +10,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 
 /** Named, fast subsets for iteration. The full `test` script stays the CI and final gate. */
 export const subsets: Record<string, string[]> = {
-    hooks: ['guard-pr-body', 'guard-secrets', 'guard-store-mutations', 'guard-writes', 'hook-wiring', 'codex-hooks', 'migration-reminder', 'pi-mcp-bridge', 'pi-quality-gate', 'quality-gates', 'cleanup-worktrees', 'check-pr-callers'],
+    hooks: ['guard-pr-body', 'guard-pr-body-hook', 'guard-pr-body-policy', 'guard-secrets', 'guard-store-mutations', 'guard-writes', 'hook-wiring', 'codex-hooks', 'migration-reminder', 'pi-mcp-bridge', 'pi-quality-gate', 'pi-quality-gate-lifecycle', 'pi-quality-gate-bounded', 'pi-quality-gate-fingerprint', 'quality-gates', 'cleanup-worktrees', 'check-pr-callers'],
     adapters: ['agent-adapters', 'harness-setup', 'harness-loading', 'pi-plugin', 'plugin-manifest', 'pi-mcp-configuration', 'pi-mcp-servers', 'pi-mcp-transport', 'pi-subagent', 'mcp-servers', 'source-identity-helper'],
     corpus: ['always-on-budget', 'discoverability-routing', 'documentation-routing', 'evaluation-coverage', 'instruction-dependencies', 'profiled-skills', 'skill-authoring', 'skill-evaluations', 'skill-hygiene', 'skill-overlap', 'skill-references', 'skill-structure', 'pin-restatements', 'model-first-restatements', 'preferred-syntax', 'review-reports', 'screenplay-tool', 'test-subsets']
 };
