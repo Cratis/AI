@@ -55,7 +55,7 @@ commands before choosing the build, regression spec and full gate commands.
 ## Copy this checklist
 
 - [ ] Reproduce the consumer bug and select its regression spec/app action.
-- [ ] Run `closure` for the named repositories, generate one stamp, then pack and `verify-pack` the producers.
+- [ ] Run `closure` for the named repositories, generate one stamp, then pack and `verify-pack --ecosystem nuget|npm` each planned producer/ecosystem.
 - [ ] If needed, publish the kernel and assets, then build a matching local image.
 - [ ] Activate the consumer overlay and select the local image.
 - [ ] Build the consumer, run its regression specs/app action and required gates, then `verify-assets`.
