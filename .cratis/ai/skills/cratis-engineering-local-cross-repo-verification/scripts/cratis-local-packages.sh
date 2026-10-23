@@ -214,12 +214,19 @@ stamp() {
 
 pack_nuget() {
     [ $# -ge 3 ] || die 'pack-nuget requires producer, stamp and targets'
-    local repo version target path count=0
+    local repo version target path count=0 property
+    local properties=()
     repo=$(repo_root "$1"); version=$2; shift 2
     valid_stamp "$version"; need dotnet
+    # Extra MSBuild properties (from the dependency map) go on the command line, never the environment:
+    # an environment variable also reaches nested builds such as Chronicle's `dotnet run` code generator.
+    for property in ${CRATIS_LOCAL_PACK_PROPERTIES:-}; do
+        [[ "$property" =~ ^[A-Za-z_][A-Za-z0-9_]*=[A-Za-z0-9_.,-]*$ ]] || die "invalid pack property: $property"
+        properties+=("-p:$property")
+    done
     mutate mkdir -p "$FEED/nuget"
     for target in "$@"; do
-        (cd "$repo" && heavy build "pack NuGet $target" dotnet pack "$target" -c Release "-p:PackageVersion=$version" "-p:Version=$version" -o "$FEED/nuget")
+        (cd "$repo" && heavy build "pack NuGet $target" dotnet pack "$target" -c Release "-p:PackageVersion=$version" "-p:Version=$version" ${properties[@]+"${properties[@]}"} -o "$FEED/nuget")
     done
     [ "$DRY" -eq 0 ] || return 0
     while IFS= read -r -d '' path; do
@@ -475,7 +482,7 @@ closure() {
             envs=${envs%,}
             printf '( cd %q && ' "$repo"
             if [ "$eco" = nuget ]; then
-                printf '%s' "${envs:+env ${envs//,/ } }"
+                printf '%s' "${envs:+CRATIS_LOCAL_PACK_PROPERTIES=${envs//,/ } }"
                 # shellcheck disable=SC2086
                 printf 'bash %q pack-nuget . "$STAMP" %s)\n' "$SELF" "${targets% }"
                 if [ -n "$(map_rows ids | awk -F'\t' -v r="$name" '$2 == r && $3 == "nuget"')" ]; then
@@ -1021,7 +1028,7 @@ NODE
         "uses	Con	Np	npm	sub/dir" > "$map"
     st closure --map "$map" "Con=$repo" "Fx=$repo" "Mid=$repo" "Np=$repo" > "$root/output" 2> "$root/stderr"
     has 'STAMP=$(bash' "$root/output" || failed 'self-test: closure prints stamp step'
-    has 'env IsPackaging=true Other=1 bash' "$root/output" || failed 'self-test: closure pack environment'
+    has 'CRATIS_LOCAL_PACK_PROPERTIES=IsPackaging=true Other=1 bash' "$root/output" || failed 'self-test: closure pack environment'
     has 'verify-pack "$STAMP" Fx' "$root/output" || failed 'self-test: closure verify-pack'
     has 'use-npm' "$root/output" || failed 'self-test: closure npm'
     has '--dir sub/dir' "$root/output" || failed 'self-test: closure npm --dir'
@@ -1035,7 +1042,11 @@ NODE
     [ "$status" -eq 2 ] || failed 'self-test: closure missing edge'
     status=0; st closure --map "$map" "Con=$repo" "Mid=$repo" "Fx=$repo" > /dev/null 2>&1 || status=$?
     [ "$status" -eq 2 ] || failed 'self-test: closure wrong order'
-    passed=$((passed + 3))
+    output=$(env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin:"$(dirname "$(command -v dotnet || echo /usr/bin/dotnet)")" TMPDIR="$TMP" CRATIS_LOCAL_PACK_PROPERTIES='A=1 B=true' /bin/bash "$SELF" --dry-run pack-nuget "$repo" "$version" X.slnx 2>&1) || failed 'self-test: pack-nuget properties dry run'
+    [[ "$output" == *' -p:A=1 -p:B=true '* ]] || failed 'self-test: pack properties become -p: arguments'
+    status=0; env -i HOME="$home" PATH=/usr/bin:/bin CRATIS_LOCAL_PACK_PROPERTIES='A=1;rm' /bin/bash "$SELF" --dry-run pack-nuget "$repo" "$version" X.slnx > /dev/null 2>&1 || status=$?
+    [ "$status" -ne 0 ] || failed 'self-test: pack property injection rejected'
+    passed=$((passed + 6))
     # verify-pack and verify-assets.
     v3=1.2.9-local.200001010001.gabcdef0
     if command -v zip >/dev/null 2>&1 && command -v unzip >/dev/null 2>&1; then

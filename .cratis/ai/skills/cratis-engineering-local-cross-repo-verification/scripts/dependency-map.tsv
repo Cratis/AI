@@ -1,6 +1,6 @@
 # Producer/consumer dependency map read by cratis-local-packages.sh closure, verify-pack and verify-assets.
 # Tab-separated; # starts a comment; no versions (pins are read live from consumer manifests).
-#   pack  <repo> <eco> <target> [ENV=VAL,...]   ordered pack targets; ENV is exported for that pack only
+#   pack  <repo> <eco> <target> [PROP=VAL,...]  ordered pack targets; PROP is passed as -p:PROP=VAL (never via the environment)
 #   ids   <repo> <eco> <comma-separated expected package IDs>
 #   uses  <consumer> <producer> <eco> <manifest path relative to consumer>
 #   image <repo> <dockerfile> <tag-suffix>
