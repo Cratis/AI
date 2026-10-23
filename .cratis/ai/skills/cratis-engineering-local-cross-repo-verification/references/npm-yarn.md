@@ -76,3 +76,11 @@ consumer manifests. Reinstall released dependencies after restoration, then run
 Review `clean "$consumer" --stamp "$stamp"` before `--apply`. Passing the consumer
 allows Yarn cache discovery; no consumer or unavailable Yarn yields a reported
 skip. Unresolved backups block cleanup rather than silently losing recovery data.
+
+## Pitfalls
+
+- Yarn hoists workspace dependencies to the root `node_modules`; run `use-npm`, `yarn install`
+  and `verify-assets --npm` at the workspace root, not in a nested application folder.
+- A repository with no committed lockfile cannot use `yarn install --immutable`; install plainly.
+- Check that a packed tarball is complete before blaming the consumer: compare its file count with
+  `npm pack --ignore-scripts` for packages whose `files` lists a gitignored folder.

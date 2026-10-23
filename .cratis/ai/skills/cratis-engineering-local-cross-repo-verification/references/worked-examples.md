@@ -9,6 +9,7 @@
 - Fundamentals → Arc (NuGet)
 - Components → Studio frontend (npm)
 - Chronicle clients → Direct (NuGet)
+- Screenplay → Stage and Studio (NuGet and npm)
 
 Run times below are rounded from one measured run on a shared machine; queue wait is not included.
 Use absolute producer/consumer paths for your checkouts and the entry point's
@@ -142,16 +143,46 @@ Gates (Direct `build.yml`): `dotnet build Source/Direct/Direct.csproj -c Release
 project with `--no-build`, and `dotnet test Source/Assurance/Assurance.csproj`. Then
 `verify-assets "$direct" "$stamp"`. Image-based specs also need the producer image tag.
 
-- Pass: `verify-pack` finds every Chronicle ID; `verify-assets` shows every stamped ID at the stamp.
+- Pass for a consumer whose pins lag the producer: `verify-pack` finds every Chronicle ID, the
+  Release build with the owner's floors passes, and `verify-assets` shows every stamped ID at the
+  stamp. The Debug `-warnaserror` build and the specs are gated on the consumer owner's pin
+  bump (Arc, Orleans, Screenplay, MongoDB.Driver) and on the analyzer fixes the newer pins
+  bring. Record that dependency; do not edit the consumer's source or tracked pins.
 - Time: pack about 5 min; the Release build about 2 min.
 - Pitfall: pass pack properties as `-p:` arguments (`CRATIS_LOCAL_PACK_PROPERTIES`), never
   as environment variables. An exported `IsPackaging=true` reaches Chronicle's nested
   `dotnet run` code generator and fails with a multi-target error.
-- Pitfall: a consumer whose pins lag the producer's own pins fails with NU1109 or NU1605
-  (Arc, Orleans, Screenplay, MongoDB.Driver floors). That is the upgrade the consumer
-  would need anyway. Record the bump list; do not edit tracked pins to get past it.
-- Pitfall: `use-nuget` turns central transitive pinning on. A consumer that does not use it
-  can show false NU1109 floors from build-only packages; compare against the consumer's
-  own setting before trusting them.
-- Pitfall: `verify-assets` can list a released package pulled in by another dependency
-  (here `Cratis.Chronicle.AspNetCore`); name it in the overlay IDs or treat it as a finding.
+- Pitfall: a consumer whose pins lag the producer's own pins fails with NU1109 or NU1605.
+  That is the upgrade the consumer would need anyway; record the bump list.
+- Pitfall: `use-nuget` keeps the consumer's transitive-pinning setting. `--pin-transitive`
+  forces it on so unpinned stamped IDs take effect, and can raise false NU1109 floors from
+  build-only packages.
+- Pitfall: `verify-assets` can list a released package that another released umbrella package
+  pulls in (here an AspNetCore package). Pin it with `--pin-transitive` or a direct reference,
+  or treat it as a finding; the dependency map and closure are not at fault.
+
+## Screenplay → Stage and Studio (NuGet and npm)
+
+```bash
+bash "$local" closure Stage=$stage Screenplay=$screenplay    # warns about the unnamed Arc hop
+stamp=$(bash "$local" stamp "$screenplay")
+(cd "$screenplay" && yarn install && yarn workspaces foreach -Rt --from @cratis/screenplay-mcp-app run build \
+  && bash "$local" pack-nuget . "$stamp" Screenplay.slnx && yarn build && bash "$local" pack-npm . "$stamp")
+bash "$local" verify-pack "$stamp" Screenplay
+bash "$local" use-nuget "$stage" "$stamp"; bash "$local" use-nuget "$studio" "$stamp"
+bash "$local" use-npm "$studio" "$stamp"       # at the workspace root, not the nested app
+```
+
+Gates: Stage's frontend `npm ci`, test and build, then `dotnet build` in Debug and the repository's
+own spec-shard helper; skip probes that need a live kernel or database and say so. Studio:
+`dotnet build` of its solution in Debug with warnings as errors, then the frontend `yarn ci` and
+`yarn build` of every workspace that consumes the language package.
+
+- Pass: `verify-assets` clean in both (NuGet) and `--npm` at the workspace root; specs executed > 0.
+- Pitfall: a repository without a committed lockfile fails `yarn install --immutable`; use plain
+  `yarn install` there.
+- Pitfall: yarn hoists to the root `node_modules`; check and install at the root.
+- Pitfall: the packed language tarball must contain its built bundles. A `yarn pack` of a package
+  whose `files` lists a gitignored folder can ship only part of it; compare the file count with
+  `npm pack --ignore-scripts` before trusting a consumer build error or pass.
+- Pitfall: multi-hop. Studio keeps its released Stage; a binary break is a finding.
