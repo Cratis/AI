@@ -282,6 +282,23 @@ of a document a reader cannot check at a glance.
 
 Read [pdl-grammar.md](references/pdl-grammar.md) when checking exact syntax, interpreting a projection diagnostic code, or needing a worked example.
 
+## `STAGE-ESM-017` on a projection passes `validate` and fails at `render`
+
+Symptom: `cratis screenplay validate --executable` exits 0, then `cratis render` (or `render --check`)
+refuses with `STAGE-ESM-017` and a generic message whose location is a `sem1:<hash>`, not a source line
+(seen on Stage 4.192.0 and CLI 3.94.0). Cause: `validate --executable` binds only Screenplay's model;
+Stage's admission runs only in `render`. Check every `from` block in turn:
+
+1. **Key.** An event property or the event source; a literal or composite key is refused.
+2. **Never map the key.** `berthId = $eventSourceId` into the key property is refused, and so is `from E key $eventSourceId` plus that mapping.
+3. **`$eventSourceId` into a non-key target** only when the target type exactly matches the type of the identifier the event is produced with. Not in `join`s, not in a `from` keyed by an event property, not into an enumerated concept.
+4. **No `$context.*`.** Map an event property instead and have the command set it. The compiler may refuse it first (`PLAY0152`); Stage refuses a context value in a projection with `STAGE-ESM-017`.
+5. **Targets.** A target that is optional, sits behind an optional or nested intermediate, or is mapped twice in one block is refused; the event property must exist on the event.
+
+Bisect: run `cratis render <root> --target cratis --name <App> --destination <dir> --check` (plans,
+writes nothing), comment out `from` blocks one at a time until the error clears, then apply the list to
+the block that cleared it. Reference: `cratis-stage-rendering-and-sandbox` `references/admission.md`.
+
 ## Verify
 
 - [ ] Standalone `screenplay <model> --warnaserror` reports zero errors and zero
