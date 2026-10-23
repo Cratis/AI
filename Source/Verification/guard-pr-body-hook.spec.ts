@@ -342,4 +342,3 @@ test('offline rules at the reviewed pin use the bundle before any cache', () => 
         assert.equal(f.run(['--body-file', f.body, '--label', 'patch', '--strict'], { TEST_OFFLINE: '1' }).status, 1);
     } finally { f.cleanup(); }
 });
-
