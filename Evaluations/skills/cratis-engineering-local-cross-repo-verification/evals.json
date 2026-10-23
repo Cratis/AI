@@ -52,6 +52,19 @@
         "Requires workspace-accessible feeds, images in the job's daemon, and matching architecture.",
         "Retains leak checks, restoration and cleanup on that host."
       ]
+    },
+    {
+      "id": 5,
+      "name": "multi-hop-closure-one-stamp",
+      "prompt": "A Fundamentals fix must be proven in Chronicle, but Chronicle takes Fundamentals through Arc as well as directly. How do I verify it locally without assembling the package list by hand? Reply only.",
+      "expected_output": "Run `closure` with Chronicle as the consumer and Fundamentals then Arc as producers; it prints the steps from the dependency map. Use one stamp from a multi-repo `stamp` (the highest line wins, avoiding NU1605), pack Fundamentals, overlay it into Arc, pack Arc, run `verify-pack`, overlay the consumer, build and run its specs, then prove resolution with `verify-assets`. Finish with `check`, `restore` and `clean --stamp` (dry run, then apply).",
+      "assertions": [
+        "Uses the `closure` command and the dependency map rather than a hand-built package list.",
+        "Uses a single multi-repo stamp for every producer in the chain.",
+        "Overlays Fundamentals into Arc before packing Arc, and runs verify-pack on the packs.",
+        "Proves the stamp resolved in the consumer with verify-assets before trusting the consumer result.",
+        "Ends with check, restore and a stamp-scoped clean (dry run, then apply)."
+      ]
     }
   ]
 }
