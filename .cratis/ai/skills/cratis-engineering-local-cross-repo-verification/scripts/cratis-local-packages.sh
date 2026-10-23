@@ -256,7 +256,8 @@ pack_npm_workspace() {
         quote_command npm pack --ignore-scripts --pack-destination "$FEED/npm" "(in $dir)"
         return 0
     fi
-    (cd "$dir" && heavy build "pack npm $name" npm pack --ignore-scripts --pack-destination "$FEED/npm") >/dev/null
+    # Packing is a file copy, not a build: no queue slot per workspace.
+    (cd "$dir" && mutate npm pack --ignore-scripts --pack-destination "$FEED/npm") >/dev/null
     mv -f "$FEED/npm/${slug#@}-$version.tgz" "$FEED/npm/$slug-$version.tgz" || failed "npm pack did not produce $name"
 }
 
