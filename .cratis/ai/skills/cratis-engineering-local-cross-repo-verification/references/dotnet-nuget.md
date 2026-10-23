@@ -11,13 +11,18 @@ changed dependency closure, not just the top-level package. Unchanged dependenci
 may remain released; inspect the resulting nuspec and restore graph to distinguish
 them from an accidental published fallback.
 
-`use-nuget CONSUMER STAMP [ID...]` requires a root `Directory.Packages.props`.
+`use-nuget CONSUMER STAMP [--pin-transitive] [ID...]` requires a root `Directory.Packages.props`.
 Without IDs it selects every package with `<id>.<stamp>.nupkg` in the feed,
 including transitive dependencies absent from the consumer props. The generated
 overlay imports the consumer's real props, uses `PackageVersion Update` for IDs
-already pinned there and `PackageVersion Include` for the others, and enables
-`CentralPackageTransitivePinningEnabled` so the added IDs pin transitive packages.
-An `Update` alone cannot add an absent ID. It does not copy or edit the props in git.
+already pinned there and `PackageVersion Include` for the others. Transitive pinning stays
+as the consumer sets it (the import carries a consumer that enables it). An `Include` for an
+ID the consumer never references only takes effect with pinning on. Add `--pin-transitive`
+when `verify-assets` shows a stamped ID resolving to a released version because a released
+package depends on it. The trade-off: pinning also lifts every transitive floor to the
+consumer's central version, so a consumer that did not use it can fail with NU1109 on
+packages unrelated to the overlay. An `Update` alone cannot add an absent ID. It does not
+copy or edit the props in git.
 
 ```bash
 bash "$local" use-nuget "$consumer" "$stamp" Cratis.Chronicle Cratis.Chronicle.CodeAnalysis

@@ -55,12 +55,13 @@ commands before choosing the build, regression spec and full gate commands.
 ## Copy this checklist
 
 - [ ] Reproduce the consumer bug and select its regression spec/app action.
-- [ ] Generate one stamp; build and pack the producer's full dependency closure.
+- [ ] Run `closure` for the named repositories, generate one stamp, then pack and `verify-pack` the producers.
 - [ ] If needed, publish the kernel and assets, then build a matching local image.
 - [ ] Activate the consumer overlay and select the local image.
-- [ ] Build the consumer, run its regression specs/app action and required gates.
+- [ ] Build the consumer, run its regression specs/app action and required gates, then `verify-assets`.
 - [ ] On failure, diagnose, fix the producer, create a distinct stamp and repeat.
-- [ ] Run `check` before every consumer commit and push, and on the producer.
+- [ ] Run `check` before every consumer commit and push, and on the producer; it must report 0 leaks.
+- [ ] Upstream first: a downstream ships only after the upstream has released and its pin is bumped to the released version.
 - [ ] Restore overlays, unset environment overrides, and run `check` again.
 - [ ] Review stamp-scoped `clean` dry-run targets, then apply cleanup.
 
@@ -90,9 +91,10 @@ bash "$local" pack-nuget "$producer" "$stamp" path/to/producer.slnx
 For npm, complete the repository build before
 `bash "$local" pack-npm "$producer" "$stamp"`. Pass: nonzero package count and
 exit `0`. Inspect package dependencies: every locally changed dependency ID must
-resolve to the stamp, not a published fallback. Chronicle's client solution filter
-can omit `Cratis.Chronicle.CodeAnalysis`; pack its code-analysis package project
-separately. A successful pack alone does not prove dependency closure.
+resolve to the stamp, not a published fallback. `verify-pack` checks every package ID
+in [dependency-map.tsv](scripts/dependency-map.tsv) (see [references/dependency-map.md](references/dependency-map.md))
+and its nuspec dependencies, and `verify-assets` checks what the consumer resolved. A
+successful pack alone does not prove dependency closure.
 
 ### 3. Build an image when needed
 
@@ -237,7 +239,8 @@ minutes, instead of after a release and a pin bump.
 - Read [references/npm-yarn.md](references/npm-yarn.md) when packing frontend libraries or restoring Yarn overlays.
 - Read [references/docker-images.md](references/docker-images.md) when publishing a kernel or selecting images in a consumer.
 - Read [references/go-jvm-python-elixir.md](references/go-jvm-python-elixir.md) when the boundary uses another language toolchain.
-- Read [references/worked-examples.md](references/worked-examples.md) when following Chronicle → Studio, Fundamentals → Arc or Components → Studio.
+- Read [references/worked-examples.md](references/worked-examples.md) when following Chronicle → Studio, Fundamentals → Arc, Components → Studio, Chronicle → Direct Screenplay → Stage and Studio, or Arc → Chronicle and the three-repository train ([references/worked-examples-chronicle-train.md](references/worked-examples-chronicle-train.md)).
+- Read [references/train-mode.md](references/train-mode.md) when verifying against a local release train's packages (`stamp --train`).
 - Read [references/other-environments.md](references/other-environments.md) when running on another developer machine or an agent host.
 
 Read `scripts/npm-restore-check.cjs` when inspecting the read-only npm restoration
