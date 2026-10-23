@@ -20,7 +20,8 @@
     "ai",
     "skills"
   ],
-  "homepage": "https://github.com/Cratis/AI",
+  "homepage": "https://www.cratis.io/ai/",
+  "author": "Cratis",
   "repository": {
     "type": "git",
     "url": "https://github.com/Cratis/AI",
