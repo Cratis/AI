@@ -166,6 +166,7 @@ TMP=''
 PACK_REPO=''
 PACK_MANIFESTS=()
 SESSION_LOCK=''
+SESSION_RECOVERY_GUARD=''
 cleanup() {
     local status=$?
     trap - EXIT
@@ -179,6 +180,9 @@ cleanup() {
         [ -f "$SESSION_LOCK/owner" ] && [ "$(cat "$SESSION_LOCK/owner")" = "$$" ]; then
         rm -- "$SESSION_LOCK/owner"
         rmdir -- "$SESSION_LOCK" || status=1
+    fi
+    if [ -n "$SESSION_RECOVERY_GUARD" ]; then
+        rmdir -- "$SESSION_RECOVERY_GUARD" || status=1
     fi
     if [ -n "$TMP" ]; then rm -rf -- "$TMP"; fi
     exit "$status"
@@ -538,10 +542,17 @@ acquire_session_lock() {
         return 0
     fi
     mkdir -p "$FEED"
+    # Serialize inspection, journal recovery and replacement so a contender cannot
+    # recover a stale owner and then delete the next invocation's live lock.
+    # An abandoned guard fails closed, just like an incomplete/unknown lock.
+    mkdir "$FEED/.composition-recovery" || die 'local package session is locked'
+    SESSION_RECOVERY_GUARD=$FEED/.composition-recovery
     if [ -e "$lock" ] || [ -L "$lock" ]; then composition recover; fi
     mkdir "$lock" || die 'local package session is locked'
     SESSION_LOCK=$lock
     printf '%s\n' "$$" > "$lock/owner"
+    rmdir -- "$SESSION_RECOVERY_GUARD"
+    SESSION_RECOVERY_GUARD=''
 }
 
 # Opt-in composition uses Node orchestration and the selected SDK's native NuGet
@@ -2697,6 +2708,19 @@ JSON
         expect_status 0 'composition reactivation after restoration recovery' cst use-nuget "$cr" --composition "$cm"
     done
     expect_status 0 'composition final restore' cst restore "$cr"
+    # Another recoverer holds the transition guard after observing this dead owner.
+    # A contender must not touch the stale lock (or its journal) until that transition ends.
+    local dead_owner
+    dead_owner=$(node -p process.pid)
+    kill -0 "$dead_owner" 2>/dev/null && failed 'composition fixture owner is still alive'
+    mkdir "$cf/.composition-lock" "$cf/.composition-recovery"
+    printf '%s\n' "$dead_owner" > "$cf/.composition-lock/owner"
+    expect_status 2 'composition competing stale-lock recoverer is excluded' cst restore "$cr"
+    [ "$(cat "$cf/.composition-lock/owner")" = "$dead_owner" ] || failed 'composition contender removed stale lock'
+    [ -d "$cf/.composition-recovery" ] || failed 'composition contender removed recovery guard'
+    rmdir "$cf/.composition-recovery"
+    expect_status 0 'composition stale-lock takeover after recovery guard release' cst restore "$cr"
+    [ ! -e "$cf/.composition-lock" ] || failed 'composition stale-lock takeover left lock'
     mkdir -p "$cf/.composition-lock"; printf 'unknown owner\n' > "$cf/.composition-lock/owner"
     expect_status 2 'composition unknown ownership fails closed' cst use-nuget "$cr" --composition "$cm"
     grep -Fq 'unknown owner' "$cf/.composition-lock/owner" || failed 'composition deleted unknown owner'
