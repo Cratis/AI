@@ -121,7 +121,7 @@ test('any 1.x schema loads; another major loads nothing with one message', () =>
     assert.match(selection.messages[0], /schemaVersion/);
 });
 
-function harness(fixture: ReturnType<typeof serversFixture>, behaviors: Record<string, 'ok' | 'exit' | 'hang'> = {}, deadline = 15_000, timeout = 1000) {
+function harness(fixture: ReturnType<typeof serversFixture>, behaviors: Record<string, 'ok' | 'exit' | 'hang' | 'throw'> = {}, deadline = 15_000, timeout = 1000) {
     const children = new Map<string, ReturnType<typeof fakeChild>>();
     const registered = new Map<string, ToolDefinition>();
     const launched: CorpusServer[] = [];
@@ -139,6 +139,7 @@ function harness(fixture: ReturnType<typeof serversFixture>, behaviors: Record<s
     const bridge = createServerBridge(api, fixture.corpus, (project: string, server: CorpusServer) => {
         assert.equal(project, fixture.project);
         launched.push(server);
+        if (behaviors[server.id] === 'throw') throw new Error('synchronous connection failure');
         const child = fakeChild();
         children.set(server.id, child);
         child.onRequest(request => {
@@ -183,6 +184,20 @@ test('a server that fails to start does not stop the others and is reported once
     assert.match(run.notices[0], /'codescene' is unavailable/);
     await run.bridge.refresh(run.context, false);
     assert.equal(run.notices.length, 1, 'unchanged selection does not retry or repeat the notice');
+});
+
+test('a synchronous connection failure leaves other servers registered and reports unavailable', async () => {
+    const run = harness(serversFixture([codescene, playwright]), { codescene: 'throw' });
+    try {
+        await run.bridge.refresh(run.context, true);
+        assert.deepEqual(run.launched.map(server => server.id), ['codescene', 'playwright']);
+        assert.deepEqual([...run.registered.keys()], ['playwright_browser_navigate']);
+        assert.deepEqual(run.notices, ["MCP server 'codescene' is unavailable: synchronous connection failure"]);
+        const result = await run.registered.get('playwright_browser_navigate')!.execute('call', {}, undefined, undefined, run.context);
+        assert.deepEqual(result.content, [{ type: 'text', text: 'ran playwright' }]);
+    } finally {
+        run.bridge.dispose();
+    }
 });
 
 test('a crash of one server leaves the other usable', async () => {
