@@ -148,6 +148,26 @@ theme Nordic
   compatible with Cratis.Components
 ```
 
+A profile may also select the same theme with a quoted reference:
+
+```screenplay excerpt
+ui profile DesktopQuoted
+  root template AppShell
+  theme "Nordic"
+  packages
+    Cratis.Components
+```
+
+Requires Screenplay 4.227.0 (`screenplay --version`) for quoted references; older
+compilers reject them. Both `theme Nordic` and `theme "Nordic"` select the same
+name. Quoted references use normal escaped-string syntax and cannot be empty or
+blank (`PLAY0232`). A profile may select only one theme: repeating `theme`, even
+mixing quoted and bare forms, remains `PLAY0231`. This changes only the reference
+inside `ui profile`; declaration headers remain identifiers (`theme Nordic`),
+not `theme "Nordic"`. Package selection and compatibility checks are unchanged;
+parsing a reference is not proof that a renderer/package provides that theme.
+Source: [UI profile parser](https://github.com/Cratis/Screenplay/blob/v4.227.0/Source/DotNET/Screenplay/Parsing/UiProfileParser.cs).
+
 - `target platform` takes a comma-separated list. `web`, `ios` and `android` are
   the documented examples; ⚠️ **the parser accepts any identifier** — there is no
   enforced list, so a typo is silent.
