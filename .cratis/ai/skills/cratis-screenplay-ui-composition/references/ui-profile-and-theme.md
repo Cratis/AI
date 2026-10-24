@@ -148,9 +148,13 @@ theme Nordic
   compatible with Cratis.Components
 ```
 
-A profile may also select the same theme with a quoted reference:
+A profile can select a package theme by its quoted display name, or quote a
+locally declared name:
 
 ```screenplay excerpt
+ui profile PackageTheme
+  theme "Scene Default Light"
+
 ui profile DesktopQuoted
   root template AppShell
   theme "Nordic"
@@ -159,14 +163,19 @@ ui profile DesktopQuoted
 ```
 
 Requires Screenplay 4.227.0 (`screenplay --version`) for quoted references; older
-compilers reject them. Both `theme Nordic` and `theme "Nordic"` select the same
-name. Quoted references use normal escaped-string syntax and cannot be empty or
-blank (`PLAY0232`). A profile may select only one theme: repeating `theme`, even
-mixing quoted and bare forms, remains `PLAY0231`. This changes only the reference
-inside `ui profile`; declaration headers remain identifiers (`theme Nordic`),
-not `theme "Nordic"`. Package selection and compatibility checks are unchanged;
-parsing a reference is not proof that a renderer/package provides that theme.
-Source: [UI profile parser](https://github.com/Cratis/Screenplay/blob/v4.227.0/Source/DotNET/Screenplay/Parsing/UiProfileParser.cs).
+compilers reject them. Escapes resolve to the theme name. A quoted name not
+declared in the document refers to a package theme and gets no unknown-theme
+`PLAY0231`; do not invent an identifier alias for `"Scene Default Light"`. A
+quoted name matching a declared theme resolves to it and receives the `PLAY0232`
+package compatibility check, like the bare reference `theme Nordic`.
+
+Empty, blank or unterminated quoted names are `PLAY0229`. Repeating a profile's
+`theme` selection remains `PLAY0230`. This changes only references inside
+`ui profile`; declaration headers remain identifiers (`theme Nordic`), not
+`theme "Nordic"`. Package selection/compatibility rules are unchanged, and
+parse acceptance does not prove that an installed package provides the theme.
+Source: [quoted theme release](https://github.com/Cratis/Screenplay/releases/tag/v4.227.0),
+[UI profile parser](https://github.com/Cratis/Screenplay/blob/v4.227.0/Source/DotNET/Screenplay/Parsing/UiProfileParser.cs).
 
 - `target platform` takes a comma-separated list. `web`, `ios` and `android` are
   the documented examples; ⚠️ **the parser accepts any identifier** — there is no

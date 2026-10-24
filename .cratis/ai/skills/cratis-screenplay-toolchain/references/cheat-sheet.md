@@ -216,11 +216,13 @@ warning/info rules, checksum validation and pattern/random rendering.
 
 ## UI profile theme references
 
-Inside `ui profile`, `theme Nordic` and `theme "Nordic"` select the same name.
-Requires Screenplay 4.227.0 (`screenplay --version`) for the quoted form; older
-compilers reject it. Normal escaped-string rules apply; empty/blank quoted names
-are `PLAY0232`, and duplicate selections remain `PLAY0231`. Declaration headers
-still use identifiers (`theme Nordic`), not quoted names. Package compatibility
+Inside `ui profile`, write `theme "Scene Default Light"` for a package theme's
+display name. Requires Screenplay 4.227.0 (`screenplay --version`); older compilers
+reject quoted references. Escapes resolve to the name. Undeclared quoted names
+refer to package themes without `PLAY0231`; quoted names matching declarations
+receive `PLAY0232` compatibility checks. Bare `theme Nordic` is unchanged.
+Empty, blank or unterminated quoted names are `PLAY0229`; duplicates are `PLAY0230`.
+Declaration headers remain identifiers, not quoted names. Package compatibility
 is unchanged; parse acceptance does not prove rendering support. See [profile
 examples](../../cratis-screenplay-ui-composition/references/ui-profile-and-theme.md#ui-profile-and-theme).
 
