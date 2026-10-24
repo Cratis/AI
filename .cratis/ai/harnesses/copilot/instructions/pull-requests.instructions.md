@@ -126,9 +126,10 @@ intents do not.
   name the exact breaking change(s), who is affected and how, and the
   resulting version number. A generic "ready to ship?" is not this checkpoint —
   say plainly that this release breaks compatibility and needs a yes.
-- Proceed to merge only on an explicit, affirmative answer to that question.
-  A prior general instruction to "ship" or "land this" does not answer it,
-  even when it named `major` as the intended label.
+- A human merges a `major` PR, after answering that question with an explicit
+  yes. An agent never merges it, even after the confirmation. A prior general
+  instruction to "ship" or "land this" does not answer it, even when it named
+  `major` as the intended label.
 - This checkpoint is per release, not per conversation — a human confirming
   one major release does not pre-authorize the next one.
 

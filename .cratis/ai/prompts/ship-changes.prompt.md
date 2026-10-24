@@ -24,8 +24,8 @@ and verify required checks before merging.
 
 **Exception: a `major` label does not carry merge authority.** Prepare the branch, commits, push,
 and PR labeled `major` as usual, then stop before merging. Ask a human to confirm the breaking
-change(s), who is affected, and the resulting version number, and merge only on an explicit
-affirmative answer to that specific question — see
+change(s), who is affected, and the resulting version number; the human merges it after an
+explicit yes to that specific question, and an agent never does — see
 [`pull-requests.md`](../rules/pull-requests.md#a-major-release-needs-a-humans-explicit-go-ahead).
 Every other label proceeds through merge under this prompt's ordinary authority.
 
