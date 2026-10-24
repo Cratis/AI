@@ -25,8 +25,8 @@ Sources:
 
 | Package | Purpose |
 | --- | --- |
-| `Cratis.Specifications.XUnit` | `Specification` base, lifecycle discovery, `ShouldXxx` assertions, optional shared lifecycle |
-| `Cratis.Specifications` | `Catch.Exception`, `SpecificationMethods` (dependency of the XUnit package) |
+| `Cratis.Specifications.XUnit.v3` | `Specification` base, lifecycle discovery, `ShouldXxx` assertions, shared lifecycle by default (house default; `.XUnit` is the xUnit v2 equivalent) |
+| `Cratis.Specifications` | `Catch.Exception`, `SpecificationMethods` (dependency of the XUnit packages) |
 | `Cratis.Arc.Testing` | `CommandScenario<TCommand>` preserves explicit principal/override/policy services; see application-scenarios |
 | `Cratis.Chronicle.Testing` | `EventScenario`, `ReadModelScenario<T>`, `ReactorScenario<T>` |
 
@@ -100,10 +100,14 @@ resolved read-model key. See the ReactorScenario reference for diagnostics,
 exception capture and UTC occurrence-time defaults.
 
 Specification projects are named `<Source>.Specs`. Add a `PackageReference` to
-`Cratis.Specifications.XUnit`, not just `Cratis.Specifications`; the C#
-namespace stays `Cratis.Specifications`. The house runner is xUnit **2.x**
-not xUnit v3. Supported targets are net8.0/net9.0/net10.0;
-net48 was dropped (retain 3.x for that target).
+`Cratis.Specifications.XUnit.v3`, not just `Cratis.Specifications`; the C#
+namespace stays `Cratis.Specifications`. The house default is Specifications 5
+on xUnit v3 with `xunit.v3.mtp-off` and `<OutputType>Exe</OutputType>`, run as
+the built executable. 5.0 targets net10.0 only; net8.0/net9.0 projects stay on
+4.x and net48 on 3.x. A project that stays on xUnit v2 references
+`Cratis.Specifications.XUnit`. Read [running-specs.md](references/running-specs.md)
+for the project shape, the executable loop, filters, mixed solutions and the
+4.x → 5.0 checklist; the `run-tests` and `filter-syntax` skills own command choice.
 `Cratis.Specifications.NUnit` is an alternative with the same base pattern,
 `[Test]` instead of `[Fact]`, and **public** test methods.
 
@@ -199,15 +203,18 @@ public class when_<behavior> : Specification
 - Fields are `private` in a concrete specification and `protected` in a `given/`
   context, named `_camelCase`.
 - Any phase may be `async Task`. `void Destroy()` is optional teardown, after
-  each fact by default; once per eligible class with the shared lifecycle opt-in.
+  once per eligible class by default (shared lifecycle); after each fact in a
+  `[PerFactSpecificationLifecycle]` class.
 
-`Cratis.Specifications.XUnit` discovers `Establish`, `Because`, and `Destroy` by
+`Cratis.Specifications.XUnit.v3` discovers `Establish`, `Because`, and `Destroy` by
 convention — there are no attributes on them.
 
-Keep the stock per-fact lifecycle by default. Read
-[shared-lifecycle.md](references/shared-lifecycle.md) when deliberately opting
-into one instance and one Establish/Because execution per specification class.
-Facts must not mutate that shared context.
+The shared lifecycle is the default: one instance and one Establish/Because
+execution per specification class. Facts must not mutate that shared context;
+`CRSPEC0008` is an error when one does. Read
+[shared-lifecycle.md](references/shared-lifecycle.md) for eligibility, opting a
+class, assembly or project out with `[PerFactSpecificationLifecycle]`, and
+fixing `CRSPEC0008`.
 
 ## Step 4 — Extract a reusable context
 
@@ -297,7 +304,7 @@ between collaborators. That is where defects hide.
 Requires `Cratis.Specifications` 4.0.0 for the analyzers.
 
 CRSPEC0001–CRSPEC0007 ship as **warnings** in `Cratis.Specifications`, `.XUnit`,
-and `.NUnit`. A warnings-as-errors build enforces them: `should_` names,
+`.XUnit.v3` and `.NUnit`; `CRSPEC0008` is an error. A warnings-as-errors build enforces them: `should_` names,
 one specification per file (given contexts exempt), no facts on given contexts,
 test attributes on `should_` methods, no explicit base lifecycle calls, public
 specification classes, and no `Because` on given contexts. See

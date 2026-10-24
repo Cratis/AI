@@ -12,7 +12,7 @@ metadata:
 
 # Run .NET Tests
 
-Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, and `orleans.md`) and the `cratis-*` skills win where they differ. Specification authoring belongs to **cratis-specifications-csharp**; Cratis core repositories run xUnit v2 on VSTest.
+Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, and `orleans.md`) and the `cratis-*` skills win where they differ. Specification authoring belongs to **cratis-specifications-csharp**; Cratis spec projects on Specifications 5 and xUnit v3 run as the built executable, not `dotnet test`; see its `references/running-specs.md` for the loop and filter flags. Projects still on xUnit v2 run on VSTest.
 
 Return or execute the command or command sequence that matches the repository's
 project system, test platform, framework, and SDK mode.
