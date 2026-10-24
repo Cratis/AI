@@ -24,6 +24,25 @@ Commands (COMMAND --help shows these instructions too):
     (producer, ecosystem), overlay rows (producer, upstream) and consume rows
     (the consumer's own edges). Exit 2, nothing printed: unknown or repeated name,
     no edge, wrong order, a planned pack without ids or pack rows.
+  verify-pack STAMP --consumer CONSUMER --producer PRODUCER... [--json] [--map FILE]
+    Check exactly the plan that "plan" prints for those names: every planned package
+    exists in the feed at exactly STAMP (never another stamp), and each nuspec
+    dependency on another planned NuGet ID has STAMP as its lower bound. Run once,
+    after the last pack. Exit 1 lists the findings ("missing: ..." / "dependency: ...").
+    Exit 2: invalid plan, or a plan without pack rows (image-only). --json prints one
+    line, {"stamp":..,"packages":[{"id":..,"version":..}]}, and sends findings to stderr.
+  verify-pack STAMP NAME... [--ecosystem nuget|npm] [--json]
+    Manual, weaker form: the IDs the map lists for each named repository (optionally
+    one ecosystem) exist at STAMP and their planned NuGet dependencies point at STAMP.
+  verify-assets CONSUMER-PATH STAMP [--npm] [--dir REL] [--json] --consumer C --producer P...
+    Checks the same plan inside the consumer. Exit 1: a planned package missing from
+    the feed; a planned ID resolved at another version ("ID VERSION PATH"); a producer
+    the consumer uses in this ecosystem with none of its IDs resolved ("unconsumed:").
+    NuGet reads obj/project.assets.json (none: exit 2); --npm reads installed copies
+    under node_modules (under REL if given). --json: the consumer's resolved ids and versions.
+  verify-assets CONSUMER-PATH STAMP [--npm] [--dir REL] [--json]
+    Manual, weaker form without a plan: every package at STAMP in the feed that the
+    consumer resolves must be STAMP (none resolved: exit 1).
   pack-nuget PRODUCER STAMP [--property NAME=VALUE]... PROJECT-OR-SLN...
     Release-pack each target into the NuGet feed; requires dotnet. Each --property
     becomes one -p:NAME=VALUE argument of that command only (closure prints the
@@ -562,6 +581,261 @@ plan_command() {
     cat "$TMP/plan"
 }
 
+# ---- Verification primitives. Each one reads only what it is passed and writes only to the paths it is given. ----
+# One private scratch directory per command; stateless: nothing survives between two verify invocations.
+SCR=''
+fn_scratch() { scratch; SCR=$(mktemp -d "$TMP/fn.XXXXXX") || die 'cannot create a scratch directory'; }
+
+# One line per planned artifact: "id<TAB>eco<TAB>producer". Derived from the plan rows and the map's ids rows only.
+expected_artifacts() {
+    local plan=$1 out=$2 kind p eco id
+    : > "$out"
+    while IFS=$'\t' read -r kind p eco; do
+        [ "$kind" = pack ] || continue
+        while IFS= read -r id; do printf '%s\t%s\t%s\n' "$id" "$eco" "$p" >> "$out"; done < <(map_ids "$p" "$eco")
+    done < "$plan"
+}
+
+# The exact feed file of one artifact. Never a glob and never another stamp.
+feed_path() {
+    case "$2" in
+        nuget) printf '%s/nuget/%s.%s.nupkg\n' "$FEED" "$3" "$1" ;;
+        npm) printf '%s/npm/%s-%s.tgz\n' "$FEED" "${3//\//-}" "$1" ;;
+    esac
+}
+
+# Split EXPECTED into PRESENT_OUT (same rows) and FINDINGS_OUT ("missing: ID STAMP (producer eco)").
+feed_check() {
+    local stamp=$1 expected=$2 present=$3 findings=$4 id eco p
+    : > "$present"; : > "$findings"
+    while IFS=$'\t' read -r id eco p; do
+        if [ -f "$(feed_path "$stamp" "$eco" "$id")" ]; then printf '%s\t%s\t%s\n' "$id" "$eco" "$p" >> "$present"
+        else printf 'missing: %s %s (%s %s)\n' "$id" "$stamp" "$p" "$eco" >> "$findings"; fi
+    done < "$expected"
+}
+
+# A dependency range names the stamp only when its lower bound is exactly the stamp:
+# STAMP, [STAMP], [STAMP, ) pass; [1.0.0, STAMP) and 1.0.0 do not (a substring test would accept the first).
+dep_matches() {
+    local bound=$2
+    bound=${bound%%,*}; bound=${bound#\[}; bound=${bound#\(}; bound=${bound%\]}; bound=${bound%\)}
+    bound=${bound//[[:space:]]/}
+    [ "$bound" = "$1" ]
+}
+
+# Every nuspec dependency of a present planned .nupkg whose ID is in DEPSET must point at the stamp.
+# Appends to FINDINGS_OUT and sets NUSPEC_EDGES to the number of dependency edges checked.
+NUSPEC_EDGES=0
+nuspec_findings() {
+    local stamp=$1 depset=$2 present=$3 findings=$4 id eco p dep range nuspec
+    NUSPEC_EDGES=0
+    nuspec=$findings.nuspec
+    while IFS=$'\t' read -r id eco p; do
+        [ "$eco" = nuget ] || continue
+        if ! unzip -p "$(feed_path "$stamp" nuget "$id")" '*.nuspec' > "$nuspec" 2>/dev/null; then
+            printf 'unreadable nuspec: %s\n' "$id" >> "$findings"; continue
+        fi
+        while IFS=$'\t' read -r dep range; do
+            grep -Fxiq -- "$dep" "$depset" || continue
+            NUSPEC_EDGES=$((NUSPEC_EDGES + 1))
+            dep_matches "$stamp" "$range" || printf 'dependency: %s -> %s %s (expected %s)\n' "$id" "$dep" "$range" "$stamp" >> "$findings"
+        done < <(grep -o '<dependency [^>]*>' "$nuspec" | sed -n 's/.*id="\([^"]*\)".*version="\([^"]*\)".*/\1\t\2/p')
+    done < "$present"
+    rm -f -- "$nuspec"
+}
+
+# "id<TAB>version<TAB>assets file" for every package in IDSFILE that the consumer's restore resolved.
+# Library keys are "Id/Version"; project references are not packages. Exit 2 without an assets file.
+nuget_resolutions() {
+    local consumer=$1 idsfile=$2 out=$3 path files=()
+    while IFS= read -r -d '' path; do files+=("$path"); done < <(find "$consumer" -name node_modules -prune -o -path '*/obj/project.assets.json' -type f -print0)
+    [ ${#files[@]} -gt 0 ] || { printf 'ERROR: no obj/project.assets.json under %s (restore the consumer first)\n' "$consumer" >&2; return 2; }
+    awk -F'\t' '
+        NR == FNR { ids[tolower($0)] = 1; next }
+        FNR == 1 { inlib = 0; pending = 0 }
+        /^  "libraries": *\{/ { inlib = 1; next }
+        inlib && /^  "[^"]+":/ { inlib = 0 }
+        inlib && /^    "[^"]+\/[^"]+": *\{/ {
+            key = $0; sub(/^    "/, "", key); sub(/": *\{.*$/, "", key)
+            cut = index(key, "/"); pid = substr(key, 1, cut - 1); pver = substr(key, cut + 1); pending = 1; next
+        }
+        inlib && pending && /"type":/ {
+            pending = 0
+            if ($0 !~ /"project"/ && (tolower(pid) in ids)) print pid "\t" pver "\t" FILENAME
+        }
+    ' "$idsfile" "${files[@]}" > "$out" || { printf 'ERROR: cannot scan the consumer assets\n' >&2; return 2; }
+}
+
+# "name<TAB>version<TAB>package.json" for every installed copy of a package in IDSFILE under NM.
+npm_installed() {
+    local nm=$1 idsfile=$2 out=$3 name file version
+    [ -d "$nm" ] || { printf 'ERROR: no node_modules: %s (run yarn install first)\n' "$nm" >&2; return 2; }
+    : > "$out"
+    while IFS= read -r name; do
+        while IFS= read -r -d '' file; do
+            version=$(grep -o '"version": *"[^"]*"' "$file" | head -n 1 | sed 's/.*: *"\(.*\)"/\1/' || true)
+            printf '%s\t%s\t%s\n' "$name" "$version" "$file" >> "$out"
+        done < <(find "$nm" -path "*/node_modules/$name/package.json" -type f -print0)
+    done < "$idsfile"
+}
+
+# Every producer the consumer uses in ECO must have at least one of its planned IDs resolved.
+# A consumer may use only part of a producer, so one ID is enough.
+consumption_findings() {
+    local plan=$1 eco=$2 resolved=$3 findings=$4 kind p e manifest ids
+    while IFS=$'\t' read -r kind p e manifest; do
+        [ "$kind" = consume ] && [ "$e" = "$eco" ] || continue
+        ids=$(map_ids "$p" "$eco") || ids=''
+        if ! awk -F'\t' 'NR == FNR { want[tolower($0)] = 1; next } tolower($1) in want { found = 1 } END { exit !found }' <(printf '%s\n' "$ids") "$resolved"; then
+            printf 'unconsumed: %s (%s): none of %s resolved in the consumer\n' "$p" "$eco" "$(printf '%s' "$ids" | tr '\n' ',' | sed 's/,$//; s/,/, /g')" >> "$findings"
+        fi
+    done < "$plan"
+}
+
+# One JSON line from tab-separated "id<TAB>version" rows in $2, for machine consumers (pi-train).
+json_report() {
+    awk -F'\t' -v stamp="$1" 'BEGIN { printf "{\"stamp\":\"%s\",\"packages\":[", stamp }
+        { printf "%s{\"id\":\"%s\",\"version\":\"%s\"}", (NR > 1 ? "," : ""), $1, $2 }
+        END { print "]}" }' "$2"
+}
+
+# Print findings to stdout, or stderr when stdout carries JSON, then fail. Returns only when there are none.
+report_findings() {
+    local command=$1 findings=$2 out=$3 count
+    count=$(wc -l < "$findings" | tr -d ' ')
+    [ "$count" -eq 0 ] && return 0
+    cat "$findings" >&"$out"
+    failed "$command: $count findings"
+}
+
+# verify-pack STAMP (--consumer C --producer P... | NAME... [--ecosystem E]) [--json] [--map FILE]
+# Plan mode checks exactly the plan the closure printed. Name mode (manual, weaker) builds the plan rows from
+# the named repositories' ids rows instead of from edges.
+verify_pack() {
+    [ $# -ge 2 ] || die 'verify-pack requires STAMP and either --consumer C --producer P... or repository NAMEs'
+    local stamp=$1 json=0 out=1 ecosystem='' consumer='' name eco d found
+    local producers=() names=()
+    shift
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --json) json=1; out=2; shift ;;
+            --map) [ $# -ge 2 ] || die '--map requires a file'; MAP=$2; shift 2 ;;
+            --consumer) [ $# -ge 2 ] || die '--consumer requires a repository name'; consumer=$2; shift 2 ;;
+            --producer) [ $# -ge 2 ] || die '--producer requires a repository name'; producers+=("$2"); shift 2 ;;
+            --ecosystem) [ $# -ge 2 ] || die '--ecosystem requires nuget or npm'; ecosystem=$2; shift 2
+                case "$ecosystem" in nuget|npm) ;; *) die 'invalid ecosystem' ;; esac ;;
+            --*) die "unknown verify-pack option: $1" ;;
+            *) names+=("$1"); shift ;;
+        esac
+    done
+    valid_stamp "$stamp"; fn_scratch; d=$SCR
+    if [ -n "$consumer" ] || [ ${#producers[@]} -gt 0 ]; then
+        [ -n "$consumer" ] && [ ${#producers[@]} -gt 0 ] || die 'verify-pack plan mode needs both --consumer and --producer'
+        [ ${#names[@]} -eq 0 ] && [ -z "$ecosystem" ] || die 'verify-pack takes either --consumer/--producer or repository names, not both'
+        plan_derive "$d/plan" "$consumer" "${producers[@]}"
+    else
+        [ ${#names[@]} -ge 1 ] || die 'verify-pack requires --consumer/--producer or at least one repository name from the map'
+        map_require
+        : > "$d/plan"
+        for name in "${names[@]}"; do
+            map_known "$name" || die "repository not in the dependency map: $name"
+            found=0
+            for eco in nuget npm; do
+                [ -z "$ecosystem" ] || [ "$eco" = "$ecosystem" ] || continue
+                if map_ids "$name" "$eco" > /dev/null; then printf 'pack\t%s\t%s\n' "$name" "$eco" >> "$d/plan"; found=1; fi
+            done
+            [ "$found" -eq 1 ] || die "no ids row for $name (${ecosystem:-all ecosystems}) in the map"
+        done
+    fi
+    grep -q '^pack' "$d/plan" || die 'the plan has no pack rows (image-only edges): nothing to verify'
+    expected_artifacts "$d/plan" "$d/expected"
+    awk -F'\t' '$2 == "nuget" { print $1 }' "$d/expected" > "$d/depset"
+    [ ! -s "$d/depset" ] || need unzip
+    feed_check "$stamp" "$d/expected" "$d/present" "$d/findings"
+    nuspec_findings "$stamp" "$d/depset" "$d/present" "$d/findings"
+    report_findings verify-pack "$d/findings" "$out"
+    if [ "$json" -eq 1 ]; then
+        awk -F'\t' -v s="$stamp" '{ print $1 "\t" s }' "$d/present" > "$d/json"
+        json_report "$stamp" "$d/json"
+        return 0
+    fi
+    printf 'verify-pack: %s planned artifacts present at %s (%s dependency edges checked)\n' "$(wc -l < "$d/present" | tr -d ' ')" "$stamp" "$NUSPEC_EDGES"
+}
+
+# verify-assets CONSUMER-PATH STAMP [--npm] [--dir REL] [--json] [--consumer C --producer P...] [--map FILE]
+# Plan mode scans for exactly the planned IDs of one ecosystem; feed-wide mode (no --consumer) scans every
+# package at the stamp in the feed, which is manual and weaker.
+verify_assets() {
+    [ $# -ge 2 ] || die 'verify-assets requires CONSUMER-PATH, STAMP, [--npm] [--dir REL]'
+    local path=$1 stamp=$2 npm=0 dir='' json=0 out=1 consumer='' eco=nuget d name file matched nm unit
+    local producers=()
+    shift 2
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --npm) npm=1; eco=npm; shift ;;
+            --json) json=1; out=2; shift ;;
+            --dir) [ $# -ge 2 ] || die '--dir requires a relative directory'; dir=${2%/}; shift 2 ;;
+            --map) [ $# -ge 2 ] || die '--map requires a file'; MAP=$2; shift 2 ;;
+            --consumer) [ $# -ge 2 ] || die '--consumer requires a repository name'; consumer=$2; shift 2 ;;
+            --producer) [ $# -ge 2 ] || die '--producer requires a repository name'; producers+=("$2"); shift 2 ;;
+            *) die "unknown verify-assets option: $1" ;;
+        esac
+    done
+    valid_stamp "$stamp"; [ -d "$path" ] || die "not a directory: $path"
+    case "$dir" in /*|..|../*|*/..|*/../*) die "--dir must be a relative path inside the consumer: $dir" ;; esac
+    if [ -n "$consumer" ] || [ ${#producers[@]} -gt 0 ]; then
+        [ -n "$consumer" ] && [ ${#producers[@]} -gt 0 ] || die 'verify-assets needs --consumer and --producer together'
+    fi
+    fn_scratch; d=$SCR
+    : > "$d/findings"
+    if [ -n "$consumer" ]; then
+        plan_derive "$d/plan" "$consumer" "${producers[@]}"
+        awk -F'\t' -v e="$eco" '$1 == "consume" && $3 == e { found = 1 } END { exit !found }' "$d/plan" || die "$consumer has no $eco edge to the named producers"
+        expected_artifacts "$d/plan" "$d/all-expected"
+        awk -F'\t' -v e="$eco" '$2 == e' "$d/all-expected" > "$d/expected"
+        feed_check "$stamp" "$d/expected" "$d/present" "$d/findings"
+        cut -f1 "$d/expected" | sort -u > "$d/ids"
+    else
+        : > "$d/ids"
+        if [ "$npm" -eq 1 ]; then
+            for file in "$FEED/npm/"*"-$stamp.tgz"; do
+                [ -f "$file" ] || continue
+                name=$(tar -xOf "$file" package/package.json | grep -o '"name": *"[^"]*"' | head -n 1 | sed 's/.*: *"\(.*\)"/\1/')
+                [ -n "$name" ] || die "cannot read the package name: $file"
+                printf '%s\n' "$name" >> "$d/ids"
+            done
+        else
+            for file in "$FEED/nuget/"*".$stamp.nupkg"; do
+                [ -f "$file" ] || continue
+                name=${file##*/}; printf '%s\n' "${name%."$stamp".nupkg}" >> "$d/ids"
+            done
+            [ -s "$d/ids" ] || die "no packages at $stamp in the feed"
+        fi
+    fi
+    if [ "$npm" -eq 1 ]; then
+        nm=$path${dir:+/$dir}/node_modules
+        npm_installed "$nm" "$d/ids" "$d/resolved" || return $?
+    else
+        nuget_resolutions "$path" "$d/ids" "$d/resolved" || return $?
+    fi
+    matched=$(wc -l < "$d/resolved" | tr -d ' ')
+    awk -F'\t' -v s="$stamp" '$2 != s { print $1 " " $2 " " $3 }' "$d/resolved" >> "$d/findings"
+    if [ -n "$consumer" ]; then
+        consumption_findings "$d/plan" "$eco" "$d/resolved" "$d/findings"
+    elif [ "$matched" -eq 0 ]; then
+        failed "verify-assets: no stamped $eco package is resolved in the consumer"
+    fi
+    report_findings verify-assets "$d/findings" "$out"
+    if [ "$json" -eq 1 ]; then
+        awk -F'\t' '{ print $1 "\t" $2 }' "$d/resolved" | sort -u > "$d/json"
+        json_report "$stamp" "$d/json"
+        return 0
+    fi
+    unit=resolutions
+    if [ "$npm" -eq 1 ]; then unit='installed copies'; fi
+    printf 'verify-assets: %s %s, all at %s\n' "$matched" "$unit" "$stamp"
+}
+
 use_npm() {
     [ $# -eq 2 ] || { [ $# -eq 4 ] && [ "$3" = --dir ]; } || die 'use-npm requires consumer, stamp and optional --dir REL'
     local repo version session backup rel='' dir
@@ -1078,8 +1352,146 @@ NODE
     printf 'self-test: %s passed, %s skipped\n' "$passed" "$skipped"
 }
 
+# V fixtures: verify-pack and verify-assets against a fixture feed (needs zip, unzip and tar).
+# Each fixture starts from the same complete feed so one case cannot hide behind another.
+self_test_verify() {
+    local vfeed=$root/vfeed s=1.2.4-local.202601010000.gaaaaaaa old=1.2.4-local.200001010000.g1234567 args id
+    local lib=(--consumer App --producer Lib --producer Mid)
+    fxv() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_MAP="$fx" CRATIS_LOCAL_FEED="$vfeed" /bin/bash "$SELF" "$@"; }
+    if ! command -v zip >/dev/null 2>&1 || ! command -v unzip >/dev/null 2>&1 || ! command -v tar >/dev/null 2>&1; then
+        printf 'SKIP: verify fixtures need zip, unzip and tar\n'; skipped=$((skipped + 30)); return 0
+    fi
+    # mkpkg ID STAMP [DEPENDENCY-ID RANGE]...: a .nupkg (a zip with a nuspec) or, for an @scope/name ID, an npm tarball.
+    mkpkg() {
+        local pid=$1 stamp=$2 deps='' dir=$root/pk
+        shift 2
+        mkdir -p "$dir" "$vfeed/nuget" "$vfeed/npm"
+        case "$pid" in
+            @*) mkdir -p "$dir/package"; printf '{"name":"%s","version":"%s"}\n' "$pid" "$stamp" > "$dir/package/package.json"
+                (cd "$dir" && tar -czf "$vfeed/npm/${pid//\//-}-$stamp.tgz" package) ;;
+            *) while [ $# -ge 2 ]; do deps="$deps<dependency id=\"$1\" version=\"$2\" />"; shift 2; done
+                printf '<package><metadata><id>%s</id><dependencies>%s</dependencies></metadata></package>\n' "$pid" "$deps" > "$dir/$pid.nuspec"
+                rm -f "$vfeed/nuget/$pid.$stamp.nupkg"; (cd "$dir" && zip -q "$vfeed/nuget/$pid.$stamp.nupkg" "$pid.nuspec") ;;
+        esac
+    }
+    # mkfeed STAMP [MID-DEPENDENCY-RANGE]: the complete feed of the plan "App Lib Mid".
+    mkfeed() {
+        rm -rf "$vfeed"
+        mkpkg Cratis.Lib "$1"; mkpkg Cratis.Lib.Core "$1"; mkpkg @cratis/lib "$1"
+        mkpkg Cratis.Mid "$1" Cratis.Lib "${2:-$1}"
+        mkpkg Cratis.Extra "$1"
+    }
+    # mkassets DIR ID/VERSION...: a restore result that resolves exactly these packages.
+    mkassets() {
+        local dir=$1 entry sep=''
+        shift; mkdir -p "$dir/obj"
+        { printf '{\n  "libraries": {\n'
+            for entry in "$@"; do printf '%s    "%s": {\n      "type": "package"\n    }' "$sep" "$entry"; sep=$',\n'; done
+            printf '\n  }\n}\n'; } > "$dir/obj/project.assets.json"
+    }
+    # V1: complete feed, plan-mode verify and the exact JSON line.
+    mkfeed "$s"
+    expect_status 0 'V1 complete feed verifies' fxv verify-pack "$s" "${lib[@]}"
+    has 'verify-pack: 4 planned artifacts present' "$root/output" || failed 'self-test: V1 summary'
+    fxv verify-pack "$s" "${lib[@]}" --json > "$root/output" 2> "$root/stderr" || failed 'self-test: V1 json'
+    printf '{"stamp":"%s","packages":[{"id":"Cratis.Lib","version":"%s"},{"id":"Cratis.Lib.Core","version":"%s"},{"id":"@cratis/lib","version":"%s"},{"id":"Cratis.Mid","version":"%s"}]}\n' "$s" "$s" "$s" "$s" "$s" > "$root/json.expected"
+    cmp -s "$root/output" "$root/json.expected" || failed 'self-test: V1 json line grammar'
+    passed=$((passed + 2))
+    # V2: a cross-producer dependency at the wrong version.
+    mkfeed "$s" 1.0.0
+    expect_status 1 'V2 wrong-version cross-producer dependency' fxv verify-pack "$s" "${lib[@]}"
+    has 'dependency: Cratis.Mid -> Cratis.Lib 1.0.0' "$root/output" || failed 'self-test: V2 names the dependency'
+    passed=$((passed + 1))
+    # V3: lower bound equal to the stamp passes; a range that merely contains the stamp does not.
+    for args in "[$s, )" "$s" "[$s]"; do
+        mkfeed "$s" "$args"
+        expect_status 0 "V3 dependency range $args" fxv verify-pack "$s" "${lib[@]}"
+    done
+    mkfeed "$s" "[1.0.0, $s)"
+    expect_status 1 'V3 range with the stamp as upper bound' fxv verify-pack "$s" "${lib[@]}"
+    # V4: a dependency outside the plan is ignored.
+    mkfeed "$s"; mkpkg Cratis.Mid "$s" Cratis.Lib "$s" Cratis.Other 1.0.0
+    expect_status 0 'V4 unplanned dependency is ignored' fxv verify-pack "$s" "${lib[@]}"
+    # V5: a missing planned artifact is not satisfied by another stamp.
+    mkfeed "$s"; rm "$vfeed/nuget/Cratis.Lib.Core.$s.nupkg"; mkpkg Cratis.Lib.Core "$old"
+    expect_status 1 'V5 missing planned artifact' fxv verify-pack "$s" "${lib[@]}"
+    has "missing: Cratis.Lib.Core $s (Lib nuget)" "$root/output" || failed 'self-test: V5 names the artifact'
+    mkassets "$root/cons" "Cratis.Lib/$s" "Cratis.Lib.Core/$s" "Cratis.Mid/$s"
+    expect_status 1 'V5 verify-assets plan mode also fails on the missing artifact' fxv verify-assets "$root/cons" "$s" "${lib[@]}"
+    passed=$((passed + 2))
+    # V6: a real NuGet-only plan never demands the npm tarballs of a dual-ecosystem producer.
+    rm -rf "$vfeed"
+    while IFS= read -r id; do mkpkg "$id" "$s"; done < <(awk -F'\t' '$1 == "ids" && $2 == "Arc" && $3 == "nuget" { n = split($4, a, ","); for (i = 1; i <= n; i++) print a[i] }' "$(dirname "$SELF")/dependency-map.tsv")
+    expect_status 0 'V6 real Arc NuGet plan without npm tarballs' env -i HOME="$home" PATH=/usr/bin:/bin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$vfeed" /bin/bash "$SELF" verify-pack "$s" --consumer Stage --producer Arc
+    # V7: stale assets (an older local stamp) name the ID, version and path.
+    mkfeed "$s"
+    mkassets "$root/cons" "Cratis.Lib/$old" "Cratis.Lib.Core/$s" "Cratis.Mid/$s"
+    expect_status 1 'V7 stale local stamp' fxv verify-assets "$root/cons" "$s" "${lib[@]}"
+    has "Cratis.Lib $old $root/cons/obj/project.assets.json" "$root/output" || failed 'self-test: V7 names id, version and path'
+    passed=$((passed + 1))
+    # V8: a train stamp changes with a commit in a non-last producer, so the old feed is stale.
+    local t1 t2
+    t1=$(st stamp --train "$repo" "$repo2" 2> /dev/null); mkfeed "$t1"
+    expect_status 0 'V8 train feed verifies at its own stamp' fxv verify-pack "$t1" "${lib[@]}"
+    git -C "$repo" commit -q --allow-empty -m 'non-last producer change'
+    t2=$(st stamp --train "$repo" "$repo2" 2> /dev/null)
+    [ "$t1" != "$t2" ] || failed 'self-test: V8 stamp changes with a non-last producer commit'
+    expect_status 1 'V8 stale train stamp' fxv verify-pack "$t2" "${lib[@]}"
+    has "missing: Cratis.Lib $t2" "$root/output" || failed 'self-test: V8 missing at the new train stamp'
+    passed=$((passed + 2))
+    # V9: a second, stale installed copy of an npm package.
+    mkfeed "$s"
+    mkdir -p "$root/npmcons/node_modules/@cratis/lib"
+    printf '{"name":"@cratis/lib","version":"%s"}\n' "$s" > "$root/npmcons/node_modules/@cratis/lib/package.json"
+    expect_status 0 'V9 one installed copy at the stamp' fxv verify-assets "$root/npmcons" "$s" --npm "${lib[@]}"
+    mkdir -p "$root/npmcons/node_modules/x/node_modules/@cratis/lib"
+    printf '{"name":"@cratis/lib","version":"1.0.0"}\n' > "$root/npmcons/node_modules/x/node_modules/@cratis/lib/package.json"
+    expect_status 1 'V9 stale second npm copy' fxv verify-assets "$root/npmcons" "$s" --npm "${lib[@]}"
+    has "@cratis/lib 1.0.0" "$root/output" || failed 'self-test: V9 names the stale copy'
+    expect_status 1 'V9 feed-wide npm mode flags the same copy' fxv verify-assets "$root/npmcons" "$s" --npm
+    passed=$((passed + 1))
+    # V10: a named producer the consumer never resolved.
+    mkfeed "$s"
+    mkassets "$root/cons" "Cratis.Mid/$s" "Cratis.Extra/$s"
+    expect_status 1 'V10 unconsumed producer' fxv verify-assets "$root/cons" "$s" --consumer App --producer Lib --producer Mid --producer Extra
+    has 'unconsumed: Lib (nuget)' "$root/output" || failed 'self-test: V10 names the unconsumed producer'
+    mkassets "$root/cons" "Cratis.Mid/$s" "Cratis.Extra/$s" "Cratis.Lib/$s"
+    expect_status 0 'V10 one consumed ID is enough' fxv verify-assets "$root/cons" "$s" --consumer App --producer Lib --producer Mid --producer Extra
+    passed=$((passed + 1))
+    # V11: an unrelated package at the stamp is ignored in plan mode and flagged by the feed-wide mode.
+    mkfeed "$s"; mkpkg Cratis.Unrelated "$s"
+    mkassets "$root/cons" "Cratis.Lib/$s" "Cratis.Mid/$s" "Cratis.Unrelated/9.9.9"
+    expect_status 0 'V11 plan mode ignores an unrelated package' fxv verify-assets "$root/cons" "$s" "${lib[@]}"
+    expect_status 1 'V11 feed-wide mode flags it' fxv verify-assets "$root/cons" "$s"
+    # V12: --json lists only what the consumer resolved, whatever else the feed holds.
+    mkassets "$root/cons" "Cratis.Lib/$s" "Cratis.Mid/$s"
+    fxv verify-assets "$root/cons" "$s" "${lib[@]}" --json > "$root/output" 2> "$root/stderr" || failed 'self-test: V12 json'
+    printf '{"stamp":"%s","packages":[{"id":"Cratis.Lib","version":"%s"},{"id":"Cratis.Mid","version":"%s"}]}\n' "$s" "$s" "$s" > "$root/json.expected"
+    cmp -s "$root/output" "$root/json.expected" || failed 'self-test: V12 json lists only consumer resolutions'
+    passed=$((passed + 1))
+    # V13/V14: cannot-run cases exit 2.
+    expect_status 2 'V13 no edge in that ecosystem' fxv verify-assets "$root/cons" "$s" --npm --consumer Mid --producer Lib
+    mkdir -p "$root/noassets"
+    expect_status 2 'V13 no project.assets.json' fxv verify-assets "$root/noassets" "$s" "${lib[@]}"
+    expect_status 2 'V14 verify-pack --consumer without --producer' fxv verify-pack "$s" --consumer App
+    expect_status 2 'V14 verify-pack --producer without --consumer' fxv verify-pack "$s" --producer Lib
+    expect_status 2 'V14 verify-assets --consumer without --producer' fxv verify-assets "$root/cons" "$s" --consumer App
+    expect_status 2 'V14 verify-assets --producer without --consumer' fxv verify-assets "$root/cons" "$s" --producer Lib
+    # Manual forms stay available.
+    expect_status 0 'name-mode verify-pack' fxv verify-pack "$s" Lib --ecosystem nuget
+    expect_status 2 'name-mode verify-pack without ids' fxv verify-pack "$s" Nod
+}
+
 # Fixture matrix for the plan, closure and verify commands. Runs inside self_test and uses its
 # root/home/feed/st/passed/skipped (dynamic scope). `fx` is the fixture map, `real` the shipped one.
+# expect_status WANT DESCRIPTION COMMAND...: run, capture stdout/stderr in $root/output and $root/stderr, require the exit code.
+expect_status() {
+    local want=$1 desc=$2 got=0
+    shift 2
+    "$@" > "$root/output" 2> "$root/stderr" || got=$?
+    [ "$got" -eq "$want" ] || failed "self-test: $desc (exit $got, wanted $want)"
+    passed=$((passed + 1))
+}
 tsv() { local IFS=$'\t'; printf '%s\n' "$*"; }
 self_test_matrix() {
     local fx=$root/fx.tsv status
@@ -1145,11 +1557,14 @@ self_test_matrix() {
     status=0; env -i HOME="$home" PATH="$root/bin:/usr/bin:/bin" TMPDIR="$TMP" /bin/bash "$SELF" --dry-run pack-nuget "$repo" "$version" --property A=1 > "$root/output" 2>&1 || status=$?
     [ "$status" -eq 2 ] || failed 'self-test: pack-nuget needs a target after the properties'
     passed=$((passed + 3))
+    self_test_verify
 }
 
 case "$MODE" in
     stamp) stamp "$@" ;;
     plan) plan_command "$@" ;;
+    verify-pack) verify_pack "$@" ;;
+    verify-assets) verify_assets "$@" ;;
     pack-nuget) pack_nuget "$@" ;;
     pack-npm) pack_npm "$@" ;;
     use-nuget) use_nuget "$@" ;;
