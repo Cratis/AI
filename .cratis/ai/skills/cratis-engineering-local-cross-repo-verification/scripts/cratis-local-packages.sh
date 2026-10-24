@@ -55,7 +55,7 @@ Commands (COMMAND --help shows these instructions too):
     consumer resolves must be STAMP (none resolved: exit 1).
   verify-pack --composition FILE [--json]
   verify-assets CONSUMER-PATH --composition FILE [--json]
-  use-nuget CONSUMER --composition FILE [--pin-transitive]
+  use-nuget CONSUMER --composition FILE [--pin-transitive] [--private-cache]
     Opt-in mixed-version NuGet closure: tab-separated producer NAME STAMP
     ABSOLUTE_WORKTREE rows, then package PRODUCER PACKAGE_ID rows. Case-insensitive
     IDs have one owner. All declared artifacts must exist; nothing is built/repacked.
@@ -76,12 +76,14 @@ Commands (COMMAND --help shows these instructions too):
     publish workflows' tool, so the tarball matches the published one) as
     <scope>-<name>-<version>.tgz, and restore tracked manifests even on failure.
     This helper does not build or run lifecycle scripts.
-  use-nuget CONSUMER STAMP [--pin-transitive] [PACKAGE-ID...]
+  use-nuget CONSUMER STAMP [--pin-transitive] [--private-cache] [PACKAGE-ID...]
     Create a CPM overlay importing the repository's own Directory.Packages.props.
     Transitive pinning stays as the consumer sets it; --pin-transitive forces it on so
     stamped IDs the consumer does not pin still take effect (can raise NU1109 floors).
     Defaults to every stamped package ID in the feed. Prints properties and sourceable
     env. With source mapping, also prints the required restore --configfile.
+    --private-cache (or CRATIS_LOCAL_PRIVATE_CACHE=1) exports NUGET_PACKAGES in env
+    and registers a marked cache at <absolute-git-dir>/cratis-local-nuget.
     Non-CPM: manually use an untracked project copy with explicit PackageReference
     versions and dotnet restore --source FEED/nuget; do not edit shipped versions.
   use-npm CONSUMER STAMP [--dir REL]
@@ -93,18 +95,22 @@ Commands (COMMAND --help shows these instructions too):
     Restore npm backups when only overlay resolutions and their local lockfile
     entries changed (including yarn install). Refuse unrelated changes and retain
     backups for review. Remove CPM/env overlays
-    and run check. No git checkout is used on consumer files.
+    and run check. Keep the private NuGet cache. No git checkout is used on consumer files.
   check REPO [--staged]
     Scan added/changed tracked lines (staged-only if requested), plus all contents
     of untracked, non-ignored files. Reports path:line:pattern and file counts.
-  clean [CONSUMER] [--stamp STAMP | --all] [--apply] [--dir REL]
+  clean [CONSUMER] [--stamp STAMP | --all] [--apply] [--dir REL] [--private-cache]
     Default: list all local feed/cache/image/session subjects, without deleting.
     --apply deletes listed subjects (docker rmi, never force). Refuses more than
     CRATIS_LOCAL_CLEAN_MAX subjects (default 500), or unresolved npm backups.
     Refuses selected stamps referenced by registered live consumer overlays/manifests;
     restore those consumers first. Dry-run uses the same protection.
     Known sessions are registered in FEED/sessions; an optional consumer also
-    discovers its per-worktree session. Docker probes have a 10-second deadline.
+    discovers its per-worktree session. Registered private caches are also scanned;
+    missing/mismatched markers or unsafe cache paths refuse the entire clean (2).
+    clean CONSUMER --private-cache lists the whole marked cache for removal; --apply
+    removes it and its registration only after restore and with no live stamp.
+    Docker probes have a 10-second deadline.
   --self-test
     Isolated scratch HOME tests; npm uses inherited PATH to discover node.
     Other tests use system PATH. Reports passed and skipped counts.
@@ -114,6 +120,7 @@ if present (trusted shell code), then use these defaults for unset variables:
   CRATIS_LOCAL_FEED=${XDG_CACHE_HOME:-$HOME/.cache}/cratis/local-feed
   CRATIS_LOCAL_SESSION_DIR=<absolute-git-dir>/cratis-local (per checkout)
   NUGET_PACKAGES=$HOME/.nuget/packages
+  CRATIS_LOCAL_PRIVATE_CACHE=0 (1 opts use-nuget into a private worktree cache)
   CRATIS_LOCAL_CLEAN_MAX=500
   CRATIS_LOCAL_RUN=optional executable wrapper, invoked for each heavy step as:
     "$CRATIS_LOCAL_RUN" build LABEL -- COMMAND ARGUMENTS...
@@ -229,7 +236,7 @@ validate_session() {
         [ -e "$entry" ] || [ -L "$entry" ] || continue
         [ ! -L "$entry" ] || die "symlink in session: $entry"
         case "${entry##*/}" in
-            repo|stamp|env|npm-dir|Directory.Packages.props|cratis-local.targets|nuget.config) [ -f "$entry" ] || die "unexpected session entry: $entry" ;;
+            repo|stamp|env|npm-dir|nuget-cache|Directory.Packages.props|cratis-local.targets|nuget.config) [ -f "$entry" ] || die "unexpected session entry: $entry" ;;
             npm-backup|composition) [ -d "$entry" ] || die "unexpected session entry: $entry" ;;
             *) die "unrecognized file in session (preserved): $entry" ;;
         esac
@@ -245,6 +252,50 @@ register_session() {
     if [ ! -f "$FEED/sessions" ] || ! grep -Fxq -- "$session" "$FEED/sessions"; then
         printf '%s\n' "$session" >> "$FEED/sessions"
     fi
+}
+# Validate every helper-owned path component before trusting a cache registration.
+validate_private_cache() {
+    local repo=$1 cache=$2 git_dir parent relative
+    git_dir=$(git -C "$repo" rev-parse --absolute-git-dir) || die "cannot find cache repository: $repo"
+    case "$cache" in "$git_dir/"*) relative=${cache#"$git_dir/"} ;; *) die "private cache outside repository git directory: $cache" ;; esac
+    case "/$relative/" in */../*|*/./*|*//*) die "unsafe private cache path: $cache" ;; esac
+    parent=$cache
+    while [ "$parent" != "$git_dir" ]; do
+        [ -d "$parent" ] && [ ! -L "$parent" ] || die "unsafe private cache directory: $parent"
+        parent=${parent%/*}
+    done
+    [ -f "$cache/.cratis-local-cache" ] && [ ! -L "$cache/.cratis-local-cache" ] || die "private cache marker missing: $cache"
+    [ "$(cat "$cache/.cratis-local-cache")" = "$repo" ] || die "private cache marker mismatch: $cache"
+}
+registered_private_cache() {
+    local session=$1 repo cache
+    validate_session "$session"
+    [ -f "$session/repo" ] || die "private cache session has no repository: $session"
+    repo=$(cat "$session/repo"); cache=$(cat "$session/nuget-cache")
+    [ "$(repo_root "$repo")" = "$repo" ] && [ "$(session_path "$repo")" = "$session" ] || die "private cache session no longer matches repository: $session"
+    validate_private_cache "$repo" "$cache"
+    printf '%s\n' "$cache"
+}
+prepare_private_cache() {
+    local repo=$1 cache=$2 session=$3
+    validate_session "$session"
+    if [ -e "$cache" ] || [ -L "$cache" ]; then validate_private_cache "$repo" "$cache"; fi
+    if [ -f "$session/nuget-cache" ]; then
+        [ "$(registered_private_cache "$session")" = "$cache" ] || die "different private cache already registered: $session"
+    fi
+}
+register_private_cache() {
+    local repo=$1 cache=$2 session=$3
+    prepare_private_cache "$repo" "$cache" "$session"
+    mkdir -p "$cache"
+    printf '%s\n' "$repo" > "$cache/.cratis-local-cache"
+    printf '%s\n' "$cache" > "$session/nuget-cache"
+}
+private_cache_restored() {
+    local session=$1 entry
+    for entry in stamp env Directory.Packages.props cratis-local.targets nuget.config npm-backup composition; do
+        [ ! -e "$session/$entry" ] && [ ! -L "$session/$entry" ] || die "private cache still referenced by $session/$entry; restore first"
+    done
 }
 xml_escape() { printf '%s' "$1" | sed -e 's/\&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' -e 's/"/\&quot;/g' -e "s/'/\&apos;/g"; }
 
@@ -478,10 +529,26 @@ nuget_env() {
     printf 'if [ "%s" != %q ]; then\n' "\${$targets_key:-}" "$session/cratis-local.targets"
     printf '  export _CratisLocalPreviousAfterMicrosoftCommonTargets="%s"\nfi\n' "\${$targets_key:-}"
     printf 'export %s=%q\n' "$targets_key" "$session/cratis-local.targets"
+    if [ -n "${PRIVATE_NUGET_CACHE:-}" ]; then printf 'export NUGET_PACKAGES=%q\n' "$PRIVATE_NUGET_CACHE"; fi
 }
 
 use_nuget() {
-    if [ "${2:-}" = --composition ]; then composition use-nuget "$@"; return; fi
+    local private=${CRATIS_LOCAL_PRIVATE_CACHE:-0} PRIVATE_NUGET_CACHE='' option filtered=() private_repo private_session
+    for option in "$@"; do
+        if [ "$option" = --private-cache ]; then private=1; else filtered+=("$option"); fi
+    done
+    set -- ${filtered[@]+"${filtered[@]}"}
+    if [ "$private" = 1 ]; then
+        [ $# -ge 2 ] || die 'use-nuget requires consumer and stamp or composition'
+        private_repo=$(repo_root "$1"); private_session=$(session_path "$private_repo")
+        PRIVATE_NUGET_CACHE=$(git -C "$private_repo" rev-parse --absolute-git-dir)/cratis-local-nuget
+        prepare_private_cache "$private_repo" "$PRIVATE_NUGET_CACHE" "$private_session"
+    fi
+    if [ "${2:-}" = --composition ]; then
+        composition use-nuget "$@"
+        if [ "$private" = 1 ] && [ "$DRY" -eq 0 ]; then register_private_cache "$private_repo" "$PRIVATE_NUGET_CACHE" "$private_session"; fi
+        return
+    fi
     case " $* " in *' --composition '*) die 'cannot mix a stamp or IDs with --composition' ;; esac
     [ $# -ge 2 ] || die 'use-nuget requires consumer and stamp'
     [ ! -d "$(session_path "$(repo_root "$1")")/composition" ] || die 'active composition; restore first'
@@ -527,6 +594,7 @@ use_nuget() {
         return 0
     fi
     register_session "$repo" "$session" "$version"
+    if [ "$private" = 1 ]; then register_private_cache "$repo" "$PRIVATE_NUGET_CACHE" "$session"; fi
     {
         nuget_props_start "$pin"
         for id in "${ids[@]}"; do
@@ -559,7 +627,9 @@ use_nuget() {
         rm -- "$session/nuget.config"
     fi
     printf 'overrode %s NuGet package IDs\n' "${#ids[@]}"
-    printf 'Optional per-worktree cache (set before restore and clean): export NUGET_PACKAGES=%q\n' "$(git -C "$repo" rev-parse --absolute-git-dir)/cratis-local-nuget"
+    if [ "$private" != 1 ]; then
+        printf 'Optional per-worktree cache (set before restore and clean): export NUGET_PACKAGES=%q\n' "$(git -C "$repo" rev-parse --absolute-git-dir)/cratis-local-nuget"
+    fi
 }
 
 # A shared lock covers legacy mutations too: registration rollback must never replace
@@ -952,7 +1022,7 @@ function activate(packages,pin) {
     const props = path.join(repo,'Directory.Packages.props'); plain(props);
     if (exists(session)) {
         plain(session,true);
-        const allowed = new Set(['repo','composition']);
+        const allowed = new Set(['repo','composition','nuget-cache']);
         if (fs.readdirSync(session).some(n => !allowed.has(n))) fail('conflicting active overlay/session; restore first');
         if (exists(path.join(session,'repo')) && fs.readFileSync(path.join(session,'repo'),'utf8') !== repo + '\n') fail('session belongs to another checkout');
     }
@@ -1774,14 +1844,15 @@ clean_live_references() {
     [ "$blocked" -eq 0 ] || die 'live references retained; restore registered consumers before cleaning (no subjects removed)'
 }
 clean() {
-    local version='' apply=0 consumer='' arg path cache image session maximum count=0 rel=''
-    local subjects=() kinds=()
+    local version='' apply=0 consumer='' arg path cache image session maximum count=0 rel='' private=0 whole_cache='' whole_session=''
+    local subjects=() kinds=() caches=("$NUGET_CACHE") cache_sessions=()
     while [ $# -gt 0 ]; do
         arg=$1; shift
         case "$arg" in
             --stamp) [ $# -gt 0 ] || die '--stamp requires a stamp'; [ -z "$version" ] || die 'choose --stamp or --all'; version=$1; shift; valid_stamp "$version" ;;
             --all) [ -z "$version" ] || die 'choose --stamp or --all'; version=all ;;
             --apply) apply=1 ;;
+            --private-cache) private=1 ;;
             --dir) [ $# -gt 0 ] || die '--dir requires a relative directory'; rel=${1%/}; shift ;;
             -*) die "unknown clean option: $arg" ;;
             *) [ -z "$consumer" ] || die 'clean takes at most one consumer'; consumer=$(repo_root "$arg") ;;
@@ -1805,6 +1876,25 @@ clean() {
     [ ${#maximum} -le 6 ] || die 'CRATIS_LOCAL_CLEAN_MAX is too large'
     maximum=$((10#$maximum))
     scratch
+    if [ -f "$FEED/sessions" ]; then cat "$FEED/sessions" > "$TMP/sessions"; else : > "$TMP/sessions"; fi
+    if [ -n "$consumer" ]; then session_path "$consumer" >> "$TMP/sessions"; fi
+    sort -u "$TMP/sessions" > "$TMP/unique-sessions"
+    while IFS= read -r session; do
+        if [ -e "$session/nuget-cache" ] || [ -L "$session/nuget-cache" ]; then
+            cache=$(registered_private_cache "$session")
+            cache_sessions+=("$session"); caches+=("$cache")
+        fi
+    done < "$TMP/unique-sessions"
+    if [ "$private" -eq 1 ]; then
+        [ -n "$consumer" ] || die 'clean --private-cache requires a consumer'
+        whole_session=$(session_path "$consumer")
+        [ -f "$whole_session/nuget-cache" ] || die "no registered private cache: $consumer"
+        whole_cache=$(registered_private_cache "$whole_session")
+        private_cache_restored "$whole_session"
+        clean_live_references ''
+        subjects+=("$whole_cache"); kinds+=(private-cache)
+    fi
+    printf '%s\n' "${caches[@]}" | sort -u > "$TMP/nuget-caches"
     for cache in "$FEED/nuget" "$FEED/npm"; do
         [ -d "$cache" ] || continue
         while IFS= read -r -d '' path; do
@@ -1813,8 +1903,10 @@ clean() {
             subjects+=("$path"); kinds+=(file)
         done < <(find "$cache" -type f \( -name '*.nupkg' -o -name '*.snupkg' -o -name '*.tgz' \) -print0)
     done
-    if [ -d "$NUGET_CACHE" ]; then
-        for cache in "$NUGET_CACHE"/*; do
+    while IFS= read -r path; do
+        [ "$path" != "$whole_cache" ] || continue
+        [ -d "$path" ] || continue
+        for cache in "$path"/*; do
             [ -d "$cache" ] && [ ! -L "$cache" ] || continue
             for path in "$cache"/*-local.* "$cache"/*-train.*; do
                 [ -d "$path" ] && [ ! -L "$path" ] || continue
@@ -1823,7 +1915,7 @@ clean() {
                 subjects+=("$path"); kinds+=(directory)
             done
         done
-    fi
+    done < "$TMP/nuget-caches"
     if [ -n "$consumer" ] && [ ! -f "$consumer${rel:+/$rel}/package.json" ]; then
         printf 'SKIP: no package.json in %s; pass --dir REL for a Yarn project in a subdirectory\n' "$consumer${rel:+/$rel}" >&2
     elif command -v yarn >/dev/null 2>&1 && [ -n "$consumer" ]; then
@@ -1849,9 +1941,6 @@ clean() {
             printf 'SKIP: Docker unavailable or did not respond within 10 seconds\n' >&2
         fi
     else printf 'SKIP: docker is not on PATH\n' >&2; fi
-    if [ -f "$FEED/sessions" ]; then cat "$FEED/sessions" > "$TMP/sessions"; else : > "$TMP/sessions"; fi
-    if [ -n "$consumer" ]; then session_path "$consumer" >> "$TMP/sessions"; fi
-    sort -u "$TMP/sessions" > "$TMP/unique-sessions"
     while IFS= read -r session; do
         [ -d "$session" ] && [ -f "$session/repo" ] && [ -f "$session/stamp" ] || continue
         local_artifact "$(cat "$session/stamp")" || continue
@@ -1870,16 +1959,29 @@ clean() {
     if [ "$apply" -eq 1 ] && [ "$DRY" -eq 0 ]; then
         for ((arg=0; arg<count; arg++)); do
             clean_live_references "$version"
+            for session in ${cache_sessions[@]+"${cache_sessions[@]}"}; do registered_private_cache "$session" > /dev/null; done
             path=${subjects[$arg]}
             case "${kinds[$arg]}" in
+                private-cache)
+                    [ "$(registered_private_cache "$whole_session")" = "$path" ] || die "private cache changed: $path"
+                    private_cache_restored "$whole_session"
+                    clean_live_references ''
+                    rm -rf -- "$path"
+                    rm -- "$whole_session/nuget-cache"
+                    # Later subjects still validate all remaining registrations.
+                    cache_sessions=()
+                    while IFS= read -r session; do
+                        if [ -f "$session/nuget-cache" ]; then cache_sessions+=("$session"); fi
+                    done < "$TMP/unique-sessions"
+                    ;;
                 image) docker rmi "$path" ;;
                 file) [ -f "$path" ] && [ ! -L "$path" ] || die "clean subject changed: $path"; rm -- "$path" ;;
                 directory) [ -d "$path" ] && [ ! -L "$path" ] || die "clean subject changed: $path"; rm -rf -- "$path" ;;
                 session)
                     [ -f "$path/stamp" ] && [ ! -L "$path" ] && [ ! -e "$path/npm-backup" ] || die "session changed: $path"
                     validate_session "$path"
-                    rm -f -- "$path/repo" "$path/stamp" "$path/env" "$path/npm-dir" "$path/Directory.Packages.props" "$path/cratis-local.targets" "$path/nuget.config"
-                    rmdir -- "$path" ;;
+                    rm -f -- "$path/stamp" "$path/env" "$path/npm-dir" "$path/Directory.Packages.props" "$path/cratis-local.targets" "$path/nuget.config"
+                    if [ ! -f "$path/nuget-cache" ]; then rm -f -- "$path/repo"; rmdir -- "$path"; fi ;;
             esac
         done
         printf 'removed %s subjects\n' "$count"
@@ -2197,6 +2299,7 @@ NODE
         passed=$((passed + 6))
     else printf 'SKIP: use-npm --dir needs node\n'; skipped=$((skipped + 6)); fi
     self_test_live_clean
+    self_test_private_cache
     mkdir -p "$home/.nuget/packages/cratis.test/$version" "$home/.nuget/packages/cratis.test/1.2.3"
     mkdir -p "$home/.nuget/packages/cratis.test/1.2.3-local.keep"
     for arg in nuget npm; do
@@ -2221,6 +2324,68 @@ NODE
     printf 'SKIP: real dotnet/Yarn/Docker packing is not a hermetic self-test\n'; skipped=$((skipped + 3))
     self_test_matrix
     printf 'self-test: %s passed, %s skipped\n' "$passed" "$skipped"
+}
+
+self_test_private_cache() {
+    local pc_repo=$root/'private cache repo' pc_feed=$root/private-feed pc_shared=$root/private-shared
+    local pc_cache pc_session pc_opt=0 other=1.2.5-train.g1234567
+    mkdir -p "$pc_repo" "$pc_feed/nuget"
+    git -C "$pc_repo" init -q
+    cp "$repo/Directory.Packages.props" "$pc_repo/Directory.Packages.props"
+    git -C "$pc_repo" add Directory.Packages.props
+    git -C "$pc_repo" -c user.email=test@example.invalid -c user.name='Private cache fixture' commit -qm initial
+    pc_cache=$(git -C "$pc_repo" rev-parse --absolute-git-dir)/cratis-local-nuget
+    pc_session=$(git -C "$pc_repo" rev-parse --absolute-git-dir)/cratis-local
+    pct() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$pc_feed" NUGET_PACKAGES="$pc_shared" CRATIS_LOCAL_PRIVATE_CACHE="$pc_opt" /bin/bash "$SELF" "$@"; }
+    : > "$pc_feed/nuget/Cratis.Test.$version.nupkg"
+    expect_status 0 'private-cache default unchanged' pct use-nuget "$pc_repo" "$version"
+    [ ! -e "$pc_cache" ] && [ ! -e "$pc_session/nuget-cache" ] || failed 'private-cache default created a cache'
+    has 'Optional per-worktree cache' "$root/output" || failed 'private-cache default hint changed'
+    pct restore "$pc_repo" > "$root/output"
+    expect_status 0 'private-cache dry-run' pct --dry-run use-nuget "$pc_repo" "$version" --private-cache
+    [ ! -e "$pc_cache" ] && [ ! -e "$pc_session/nuget-cache" ] || failed 'private-cache dry-run wrote a cache'
+    expect_status 0 'private-cache env export' pct use-nuget "$pc_repo" "$version" --private-cache
+    env -i PATH=/usr/bin:/bin /bin/bash -c "source \"\$1\"; [ \"\$NUGET_PACKAGES\" = \"\$2\" ]" _ "$pc_session/env" "$pc_cache" || failed 'private-cache env does not export gitdir cache'
+    if has 'Optional per-worktree cache' "$root/output"; then failed 'private-cache still prints manual hint'; fi
+    pc_marker() { [ "$(cat "$pc_cache/.cratis-local-cache")" = "$pc_repo" ] && [ "$(cat "$pc_session/nuget-cache")" = "$pc_cache" ]; }
+    expect_status 0 'private-cache marker' pc_marker
+    expect_status 2 'private-cache live kept' pct clean "$pc_repo" --private-cache --apply
+    [ -d "$pc_cache" ] || failed 'private-cache live cache removed'
+    pct restore "$pc_repo" > "$root/output"
+    [ -f "$pc_session/nuget-cache" ] && [ -d "$pc_cache" ] || failed 'private-cache restore removed cache'
+    mkdir -p "$pc_cache/cratis.test/$version" "$pc_cache/cratis.test/$other" "$pc_cache/cratis.test/1.2.3" "$pc_cache/cratis.test/1.2.3-local.keep"
+    mkdir -p "$pc_shared/cratis.test/$version" "$pc_shared/cratis.test/$other" "$pc_shared/cratis.test/1.2.3"
+    expect_status 0 'private-cache clean scoped' pct clean --stamp "$version" --apply
+    [ ! -e "$pc_cache/cratis.test/$version" ] && [ -d "$pc_cache/cratis.test/$other" ] && [ -d "$pc_cache/cratis.test/1.2.3" ] && [ -d "$pc_cache/cratis.test/1.2.3-local.keep" ] || failed 'private-cache stamp scope violated'
+    [ ! -e "$pc_shared/cratis.test/$version" ] || failed 'private-cache shared local version retained'
+    expect_status 0 'private-cache shared cache only local' pct clean --all --apply
+    [ ! -e "$pc_shared/cratis.test/$other" ] && [ -d "$pc_shared/cratis.test/1.2.3" ] || failed 'private-cache shared non-local folder removed'
+    rm -- "$pc_cache/.cratis-local-cache"
+    mkdir -p "$pc_shared/cratis.test/$version"
+    expect_status 2 'private-cache unmarked refused' pct clean --stamp "$version" --apply
+    [ -d "$pc_shared/cratis.test/$version" ] || failed 'private-cache unmarked refusal mutated shared cache'
+    printf '%s\n' "$root/other-repo" > "$pc_cache/.cratis-local-cache"
+    expect_status 2 'private-cache mismatched marker refused' pct clean --all --apply
+    printf '%s\n' "$pc_repo" > "$pc_cache/.cratis-local-cache"
+    mv "$pc_cache" "$pc_cache.saved"; ln -s "$pc_cache.saved" "$pc_cache"
+    expect_status 2 'private-cache symlink refused' pct clean --apply
+    rm -- "$pc_cache"; mv "$pc_cache.saved" "$pc_cache"
+    printf '%s\n' "$pc_shared" > "$pc_session/nuget-cache"
+    expect_status 2 'private-cache outside gitdir refused' pct clean --apply
+    printf '%s\n' "$pc_cache" > "$pc_session/nuget-cache"
+    printf '<Project><!-- %s --></Project>\n' "$other" > "$pc_repo/Directory.Packages.props"
+    expect_status 2 'private-cache restored manifest live kept' pct clean "$pc_repo" --private-cache --stamp "$version" --apply
+    cp "$repo/Directory.Packages.props" "$pc_repo/Directory.Packages.props"
+    expect_status 0 'private-cache whole dry-run' pct clean "$pc_repo" --private-cache
+    [ -d "$pc_cache" ] && [ -f "$pc_session/nuget-cache" ] || failed 'private-cache whole dry-run mutated cache'
+    expect_status 0 'private-cache whole removal' pct clean "$pc_repo" --private-cache --apply
+    [ ! -e "$pc_cache" ] && [ ! -e "$pc_session/nuget-cache" ] && [ -d "$pc_shared/cratis.test/1.2.3" ] || failed 'private-cache whole removal scope violated'
+    : > "$pc_feed/nuget/Cratis.Test.$version.nupkg"
+    pc_opt=1
+    expect_status 0 'private-cache environment opt-in' pct use-nuget "$pc_repo" "$version"
+    pc_marker || failed 'private-cache environment opt-in missing marker'
+    pct restore "$pc_repo" > "$root/output"
+    pct clean "$pc_repo" --private-cache --apply > "$root/output"
 }
 
 self_test_base_version() {
@@ -2802,6 +2967,23 @@ JSON
     expect_status 0 'composition repeated restore' cst restore "$cr"
     [ ! -e "$output" ] || failed 'composition overlay survives restore'
     cmp -s "$cr/Directory.Packages.props" "$root/composition-original.props" || failed 'composition consumer props mutated'
+    # Whole-cache cleanup also cleans feed artifacts. Keep this fixture's feed
+    # separate so the recovery fixtures below retain their declared packages.
+    local composition_feed=$cf composition_cache
+    cf=$root/private-composition-feed
+    mkdir -p "$cf/nuget"
+    cp "$composition_feed/nuget/"*.nupkg "$cf/nuget/"
+    expect_status 0 'private-cache composition' cst use-nuget "$cr" --composition "$cm" --private-cache
+    composition_cache=$(git -C "$cr" rev-parse --absolute-git-dir)/cratis-local-nuget
+    env -i PATH=/usr/bin:/bin /bin/bash -c "source \"\$1\"; [ \"\$NUGET_PACKAGES\" = \"\$2\" ]" _ "$output/env" "$composition_cache" || failed 'private-cache composition env export'
+    [ "$(cat "$cr/.ai-work/local-packages/nuget-cache")" = "$composition_cache" ] && [ "$(cat "$composition_cache/.cratis-local-cache")" = "$cr" ] || failed 'private-cache composition marker'
+    expect_status 2 'private-cache composition live kept' cst clean "$cr" --private-cache --apply
+    expect_status 0 'private-cache composition restore' cst restore "$cr"
+    [ -d "$composition_cache" ] || failed 'private-cache composition restore removed cache'
+    expect_status 0 'private-cache composition removal' cst clean "$cr" --private-cache --apply
+    [ ! -e "$composition_cache" ] && [ ! -e "$cr/.ai-work/local-packages/nuget-cache" ] || failed 'private-cache composition removal left cache registration'
+    cf=$composition_feed
+    [ -f "$cf/nuget/Cratis.Chronicle.InProcess.$a.nupkg" ] && [ -f "$cf/nuget/Cratis.Screenplay.$b.nupkg" ] && [ -f "$cf/nuget/Cratis.Stage.$c.nupkg" ] || failed 'private-cache composition cleanup removed recovery feed packages'
     # Every live mutation boundary is exercised both as an ordinary failure and
     # an uncatchable parent/child interruption, then recovered by the next call.
     for kind in fail interrupt; do

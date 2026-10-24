@@ -212,6 +212,12 @@ feed packages, NuGet version folders, discoverable Yarn cache entries, local ima
 tags and registered sessions; unresolved npm backups block it. Missing Docker/Yarn
 probes are reported as skipped cleanup, not proof those stores are empty. Default
 fuse: 500 subjects; investigate an unexpectedly large list instead of raising it.
+NuGet cleanup scans the active shared cache and every registered private cache.
+It removes only recognized local/train version folders. Missing or mismatched
+private-cache markers, symlinks and paths outside the consumer's Git directory
+refuse the entire request. `restore` keeps private caches. After restoring overlays
+and removing live stamps, use `clean "$consumer" --private-cache` to review whole-cache
+removal, then add `--apply` to remove the marked cache and its session registration.
 Prefer `--stamp` to `--all`. Legacy cleanup refuses the entire request (exit `2`,
 also in dry-run) for registered live overlay/manifest references; it reports kept
 stamps and paths. Restore/remove references, then retry. This is not an ownership
@@ -229,7 +235,8 @@ is sourced before defaults. Do not put credentials in it. Environment settings:
 | --- | --- |
 | `CRATIS_LOCAL_FEED` | `${XDG_CACHE_HOME:-$HOME/.cache}/cratis/local-feed`; outside tracked files |
 | `CRATIS_LOCAL_SESSION_DIR` | `<absolute-git-dir>/cratis-local`; per-worktree overlays/backups |
-| `NUGET_PACKAGES` | `$HOME/.nuget/packages`; opt-in per-worktree cache via `use-nuget` hint |
+| `NUGET_PACKAGES` | `$HOME/.nuget/packages`; active cache scanned by `clean` |
+| `CRATIS_LOCAL_PRIVATE_CACHE` | `0`; `1` opts `use-nuget` into a marked worktree cache, also available with `--private-cache` |
 | `CRATIS_LOCAL_CLEAN_MAX` | `500`; cleanup subject fuse |
 | `CRATIS_LOCAL_RUN` | Optional executable wrapper receiving `build <label> -- <command...>` |
 

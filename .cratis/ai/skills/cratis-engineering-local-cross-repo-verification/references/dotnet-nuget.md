@@ -75,26 +75,36 @@ On a major-version branch, use `bash "$local" stamp --base-version 5.0.0 "$produ
 prerelease or metadata and uses it verbatim; no patch increment is added.
 An explicit base still must meet the consumer's minimum.
 
-Prefer a private cache per consumer worktree so another checkout's cached package
-cannot mask a same-version repack. The optional `use-nuget` hint uses a sibling of
-the session directory, not a tracked path:
+Opt into a private cache when a shared cached package could mask a same-version
+repack. `use-nuget --private-cache` creates a marked cache at
+`<absolute-git-dir>/cratis-local-nuget` and records it in the session's `nuget-cache`
+file. The printed env file exports `NUGET_PACKAGES`. This works with both stamps
+and `--composition`. Set `CRATIS_LOCAL_PRIVATE_CACHE=1` to opt in through configuration.
+Without either option, activation keeps its default behavior.
 
 ```bash
-export NUGET_PACKAGES="$(git -C "$consumer" rev-parse --absolute-git-dir)/cratis-local-nuget"
+bash "$local" use-nuget "$consumer" "$stamp" --private-cache
+# Source the env path printed by use-nuget, then restore and verify.
 dotnet restore path/to/consumer.slnx
-# After restoring overlays/removing live local references, keep this export for:
+bash "$local" restore "$consumer"
+# Remove any remaining live manifest references before cleanup.
 bash "$local" clean "$consumer" --stamp "$stamp"
 bash "$local" clean "$consumer" --stamp "$stamp" --apply
 unset NUGET_PACKAGES
 ```
 
-A private cache still reuses its own downloads: changed bits need a distinct stamp,
-or reviewed cleanup of that stamp before repacking. It does not make same-version
-repacking safe. `clean` honors the active `NUGET_PACKAGES`, touches only recognized
-`-local`/`-train` version folders there, and leaves released versions alone. With
-no export, it uses the shared `$HOME/.nuget/packages` cache; never clear that whole
-cache. Restore local overlays and remove live manifest references before cleanup;
-registered live references refuse the entire request even in dry-run.
+A private cache still reuses its own downloads. Changed bits need a distinct stamp
+or reviewed stamp-scoped cleanup before repacking. `clean` scans the active
+`NUGET_PACKAGES` (or `$HOME/.nuget/packages`) and every registered private cache,
+even after the env export is unset. It removes only recognized `-local`/`-train`
+version folders and keeps released versions. A missing or mismatched marker,
+symlink or cache path outside the consumer's Git directory stops the entire clean
+with exit `2`. Registered live references also refuse cleanup, even in dry-run.
+
+`restore` keeps the private cache. To remove it entirely, restore overlays and
+remove all live stamp references first. Review `clean "$consumer" --private-cache`,
+then add `--apply`. This removes the marked cache and its `nuget-cache` registration.
+Never remove an entire shared cache.
 
 The helper uses a folder feed, so NuGet's HTTP cache is not involved. When diagnosing
 an HTTP feed instead, `dotnet restore --no-http-cache` bypasses its HTTP cache only;
