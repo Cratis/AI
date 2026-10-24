@@ -226,7 +226,7 @@ validate_session() {
         [ -e "$entry" ] || [ -L "$entry" ] || continue
         [ ! -L "$entry" ] || die "symlink in session: $entry"
         case "${entry##*/}" in
-            repo|stamp|env|npm-dir|Directory.Packages.props|nuget.config) [ -f "$entry" ] || die "unexpected session entry: $entry" ;;
+            repo|stamp|env|npm-dir|Directory.Packages.props|cratis-local.targets|nuget.config) [ -f "$entry" ] || die "unexpected session entry: $entry" ;;
             npm-backup|composition) [ -d "$entry" ] || die "unexpected session entry: $entry" ;;
             *) die "unrecognized file in session (preserved): $entry" ;;
         esac
@@ -408,15 +408,6 @@ NODE
     printf 'produced %s npm tarballs\n' "$count"
 }
 
-# Read Include/Update attributes without assuming one element per line.
-package_ids() {
-    awk 'BEGIN { RS="<" } /^PackageVersion[[:space:]]/ {
-        gsub(sprintf("%c",39),"\"")
-        if (match($0, /(Include|Update)[[:space:]]*=[[:space:]]*"[^"]+"/)) {
-            value=substr($0,RSTART,RLENGTH); sub(/^[^"]*"/,"",value); sub(/"$/,"",value); print value
-        }
-    }' "$1"
-}
 source_mapping() {
     local config=$1 output=$2 id
     shift 2
@@ -455,12 +446,43 @@ source_mapping() {
     ' "$config" > "$output"
 }
 
+# These headers are shared by the legacy and composition writers. The session
+# lives below the Git directory, never above a consumer project in the lookup.
+nuget_props_start() {
+    cat <<'XML'
+<Project>
+  <PropertyGroup><_CratisLocalPackagesProps>$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildProjectDirectory)'))</_CratisLocalPackagesProps></PropertyGroup>
+  <Import Project="$(_CratisLocalPackagesProps)" Condition="'$(_CratisLocalPackagesProps)' != '' and Exists('$(_CratisLocalPackagesProps)')" />
+XML
+    if [ "$1" -eq 1 ]; then
+        printf '  <PropertyGroup Condition="%s"><CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled></PropertyGroup>\n' "'\$(ManagePackageVersionsCentrally)' == 'true'"
+    fi
+    printf '  <ItemGroup Condition="%s">\n' "'\$(ManagePackageVersionsCentrally)' == 'true'"
+}
+nuget_targets_start() {
+    cat <<'XML'
+<Project>
+  <Import Project="$(_CratisLocalPreviousAfterMicrosoftCommonTargets)" Condition="'$(_CratisLocalPreviousAfterMicrosoftCommonTargets)' != ''" />
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">
+XML
+}
+nuget_overlay_end() { printf '  </ItemGroup>\n</Project>\n'; }
+nuget_env() {
+    local session=$1 targets_key=CustomAfterMicrosoftCommon"Targets"
+    printf 'export %s=%q\n' DirectoryPackages"PropsPath" "$session/Directory.Packages.props"
+    printf 'export %s=%q\n' RestoreAdditional"ProjectSources" "$FEED/nuget"
+    # Capture at source time, not activation time; sourcing twice must not recurse.
+    printf 'if [ "%s" != %q ]; then\n' "\${$targets_key:-}" "$session/cratis-local.targets"
+    printf '  export _CratisLocalPreviousAfterMicrosoftCommonTargets="%s"\nfi\n' "\${$targets_key:-}"
+    printf 'export %s=%q\n' "$targets_key" "$session/cratis-local.targets"
+}
+
 use_nuget() {
     if [ "${2:-}" = --composition ]; then composition use-nuget "$@"; return; fi
     case " $* " in *' --composition '*) die 'cannot mix a stamp or IDs with --composition' ;; esac
     [ $# -ge 2 ] || die 'use-nuget requires consumer and stamp'
     [ ! -d "$(session_path "$(repo_root "$1")")/composition" ] || die 'active composition; restore first'
-    local repo version session props id file config='' props_key sources_key action pin=0 args=()
+    local repo version session props id file config='' props_key sources_key targets_key pin=0 args=()
     local ids=()
     repo=$(repo_root "$1"); version=$2; shift 2
     for id in "$@"; do
@@ -470,7 +492,6 @@ use_nuget() {
     valid_stamp "$version"; props=$repo/Directory.Packages.props
     [ -f "$props" ] || die 'no Directory.Packages.props (non-CPM). Manual alternative: untracked project copy, explicit PackageReference versions, dotnet restore --source FEED/nuget'
     session=$(session_path "$repo"); scratch
-    package_ids "$props" > "$TMP/consumer-ids"
     if [ $# -gt 0 ]; then
         ids=("$@")
     elif [ -d "$FEED/nuget" ]; then
@@ -504,24 +525,29 @@ use_nuget() {
     fi
     register_session "$repo" "$session" "$version"
     {
-        printf '<Project>\n  <Import Project="%s" />\n' "$(xml_escape "$props")"
-        if [ "$pin" -eq 1 ]; then
-            printf '  <PropertyGroup><CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled></PropertyGroup>\n'
-        fi
-        printf '  <ItemGroup>\n'
+        nuget_props_start "$pin"
         for id in "${ids[@]}"; do
-            action=Include
-            if grep -Fxiq -- "$id" "$TMP/consumer-ids"; then action=Update; fi
-            printf '    <PackageVersion %s="%s" Version="%s" />\n' "$action" "$id" "$version"
+            # Remove/include works with any nearest props, not only root IDs.
+            printf '    <PackageVersion Remove="%s" /><PackageVersion Include="%s" Version="%s" />\n' "$id" "$id" "$version"
         done
-        printf '  </ItemGroup>\n</Project>\n'
+        nuget_overlay_end
     } > "$session/Directory.Packages.props"
-    props_key=DirectoryPackages"PropsPath"; sources_key=RestoreAdditional"ProjectSources"
     {
-        printf 'export %s=%q\n' "$props_key" "$session/Directory.Packages.props"
-        printf 'export %s=%q\n' "$sources_key" "$FEED/nuget"
-    } > "$session/env"
-    printf ' %q' "-p:$props_key=$session/Directory.Packages.props" "-p:$sources_key=$FEED/nuget"; printf '\n'
+        nuget_targets_start
+        for id in "${ids[@]}"; do
+            printf '    <PackageReference Update="%s" Version="%s" />\n' "$id" "$version"
+        done
+        nuget_overlay_end
+    } > "$session/cratis-local.targets"
+    nuget_env "$session" > "$session/env"
+    props_key=DirectoryPackages"PropsPath"; sources_key=RestoreAdditional"ProjectSources"; targets_key=CustomAfterMicrosoftCommon"Targets"
+    printf ' %q' "-p:$props_key=$session/Directory.Packages.props" "-p:$sources_key=$FEED/nuget" "-p:$targets_key=$session/cratis-local.targets"
+    if [ "${CustomAfterMicrosoftCommonTargets:-}" != "$session/cratis-local.targets" ]; then
+        printf ' %q' "-p:_CratisLocalPreviousAfterMicrosoftCommonTargets=${CustomAfterMicrosoftCommonTargets:-}"
+    else
+        printf ' %q' "-p:_CratisLocalPreviousAfterMicrosoftCommonTargets=${_CratisLocalPreviousAfterMicrosoftCommonTargets:-}"
+    fi
+    printf '\n'
     printf 'source %q\n' "$session/env"
     if [ -n "$config" ]; then
         source_mapping "$config" "$session/nuget.config" "${ids[@]}"
@@ -566,6 +592,11 @@ composition() {
             [ $# -ge 1 ] || die "$operation requires a consumer"
             repo=$(repo_root "$1"); session=$(session_path "$repo") ;;
     esac
+    nuget_props_start 0 > "$TMP/overlay-props"
+    nuget_props_start 1 > "$TMP/overlay-props-pin"
+    nuget_targets_start > "$TMP/overlay-targets"
+    nuget_overlay_end > "$TMP/overlay-end"
+    nuget_env "$session/composition" > "$TMP/overlay-env"
     node - "$operation" "$FEED" "$TMP" "$DRY" "$repo" "$session" "$@" <<'COMPOSITION'
 const fs = require('node:fs');
 const path = require('node:path');
@@ -841,7 +872,7 @@ function journal(value) {
     fs.renameSync(file + '.next', file);
 }
 function recoverState(j) {
-    if (j.schema !== 1 || !path.isAbsolute(j.repo) || !path.isAbsolute(j.session) || j.session === '/' || j.session === j.repo || !/^[a-f0-9]{24}$/.test(j.token) || !j.files || Object.keys(j.files).some(n => !['manifest.tsv','Directory.Packages.props','nuget.config','env','transaction','state.json'].includes(n))) fail('unknown transaction journal');
+    if (j.schema !== 1 || !path.isAbsolute(j.repo) || !path.isAbsolute(j.session) || j.session === '/' || j.session === j.repo || !/^[a-f0-9]{24}$/.test(j.token) || !j.files || Object.keys(j.files).some(n => !['manifest.tsv','Directory.Packages.props','cratis-local.targets','nuget.config','env','transaction','state.json'].includes(n))) fail('unknown transaction journal');
     safeParents(j.session,j.session);
     const pub = path.join(j.session,'composition'), stage = path.join(j.session, '.composition-' + j.token);
     if (j.operation === 'activate') {
@@ -899,7 +930,7 @@ function activeFiles() {
     const pub = path.join(session,'composition');
     if (!exists(pub)) return null;
     const files = directoryBytes(pub);
-    const allowed = new Set(['manifest.tsv','Directory.Packages.props','nuget.config','env','transaction','state.json']);
+    const allowed = new Set(['manifest.tsv','Directory.Packages.props','cratis-local.targets','nuget.config','env','transaction','state.json']);
     if (Object.keys(files).some(n => !allowed.has(n)) || !files['state.json'] || !files.transaction || !/^[a-f0-9]{24}\n$/.test(Buffer.from(files.transaction,'base64').toString())) fail('unsafe composition session');
     const expected = JSON.parse(Buffer.from(files['state.json'],'base64').toString());
     const actual = {...files}; delete actual.transaction; delete actual['state.json'];
@@ -916,11 +947,14 @@ function activate(packages,pin) {
         if (exists(path.join(session,'repo')) && fs.readFileSync(path.join(session,'repo'),'utf8') !== repo + '\n') fail('session belongs to another checkout');
     }
     const pub = path.join(session,'composition');
+    const template = name => fs.readFileSync(path.join(scratch,'overlay-' + name),'utf8');
     const escaped = packages.map(p => `<PackageVersion Remove="${xml(p.id)}"/><PackageVersion Include="${xml(p.id)}" Version="${p.version}"/>`).join('\n');
+    const references = packages.map(p => `<PackageReference Update="${xml(p.id)}" Version="${p.version}"/>`).join('\n');
     const files = {
         'manifest.tsv':normalize(packages),
-        'Directory.Packages.props':`<Project><Import Project="${xml(props)}"/>${pin ? '<PropertyGroup><CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled></PropertyGroup>' : ''}<ItemGroup>\n${escaped}\n</ItemGroup></Project>\n`,
-        env:`export DirectoryPackagesPropsPath=${shell(path.join(pub,'Directory.Packages.props'))}\nexport RestoreAdditionalProjectSources=${shell(path.join(feed,'nuget'))}\n`
+        'Directory.Packages.props':template(pin ? 'props-pin' : 'props') + escaped + '\n' + template('end'),
+        'cratis-local.targets':template('targets') + references + '\n' + template('end'),
+        env:template('env')
     };
     // Native XML manipulation preserves namespaces/configuration and makes exact
     // local mappings exclusive; remote wildcards remain less specific.
@@ -1613,7 +1647,7 @@ restore() {
         if [ -f "$backup/yarn.lock" ]; then mutate cp -p "$backup/yarn.lock" "$dir/yarn.lock"; else mutate rm -f -- "$dir/yarn.lock"; fi
         mutate rm -rf -- "$backup"
     fi
-    mutate rm -f -- "$session/Directory.Packages.props" "$session/nuget.config" "$session/env" "$session/stamp" "$session/npm-dir"
+    mutate rm -f -- "$session/Directory.Packages.props" "$session/cratis-local.targets" "$session/nuget.config" "$session/env" "$session/stamp" "$session/npm-dir"
     if [ "$DRY" -eq 0 ]; then check "$repo"; fi
 }
 
@@ -1664,6 +1698,9 @@ scan_lines() {
             if (index(line,feed)) hit("local feed path")
             if (index(line,"DirectoryPackages" "PropsPath")) hit("CPM overlay property")
             if (index(line,"RestoreAdditional" "ProjectSources")) hit("additional restore sources")
+            if (index(line,"CustomAfterMicrosoftCommon" "Targets")) hit("local targets property")
+            if (index(line,"_CratisLocalPreviousAfterMicrosoftCommon" "Targets")) hit("previous targets property")
+            if (line ~ /<PackageReference[[:space:]]+Update[[:space:]]*=/) hit("package reference override")
             if (line ~ /<PackageVersion[[:space:]]+Update[[:space:]]*=/) hit("package version override")
             if (path ~ /(^|\/)(package.json|yarn.lock)$/ && line ~ /(file|portal|link):/ &&
                 (line ~ /\.tgz/ || line ~ /(file|portal|link):(\/|\.\.?\/|~\/|[A-Za-z]:)/)) hit("local npm reference")
@@ -1706,7 +1743,7 @@ clean_live_references() {
         if [ -f "$session/stamp" ] && [ "$(cat "$session/stamp")" = "$selected" ]; then session_selected=1; fi
         # Follow manifest symlinks too; traversal/read failures refuse cleanup.
         find -L "$repo" \( -name .git -o -name node_modules \) -prune -o \( -iname nuget.config -o -iname Directory.Packages.props -o -name packages.lock.json -o -name package.json -o -name yarn.lock \) \( -type f -o -type l \) -print0 > "$TMP/live-files" || die "cannot inspect registered consumer: $repo"
-        for file in "$session/Directory.Packages.props" "$session/nuget.config"; do
+        for file in "$session/Directory.Packages.props" "$session/cratis-local.targets" "$session/nuget.config"; do
             if [ -e "$file" ]; then printf '%s\0' "$file" >> "$TMP/live-files"; fi
         done
         while IFS= read -r -d '' file; do
@@ -1831,7 +1868,7 @@ clean() {
                 session)
                     [ -f "$path/stamp" ] && [ ! -L "$path" ] && [ ! -e "$path/npm-backup" ] || die "session changed: $path"
                     validate_session "$path"
-                    rm -f -- "$path/repo" "$path/stamp" "$path/env" "$path/npm-dir" "$path/Directory.Packages.props" "$path/nuget.config"
+                    rm -f -- "$path/repo" "$path/stamp" "$path/env" "$path/npm-dir" "$path/Directory.Packages.props" "$path/cratis-local.targets" "$path/nuget.config"
                     rmdir -- "$path" ;;
             esac
         done
@@ -1840,6 +1877,23 @@ clean() {
 }
 
 # shellcheck disable=SC2016  # fixtures assert literal $STAMP in printed commands
+self_test_nuget_overlay() {
+    local output=$1 id=$2 version=$3
+    local cpm_on="'\$(ManagePackageVersionsCentrally)' == 'true'" cpm_off="'\$(ManagePackageVersionsCentrally)' != 'true'"
+    grep -Fq "GetPathOfFileAbove('Directory.Packages.props', '\$(MSBuildProjectDirectory)')" "$output/Directory.Packages.props" || failed 'self-test: nearest CPM import'
+    grep -Fq 'Import Project="$(_CratisLocalPackagesProps)" Condition="' "$output/Directory.Packages.props" || failed 'self-test: conditional nearest import'
+    grep -Fq "ItemGroup Condition=\"$cpm_on\"" "$output/Directory.Packages.props" || failed 'self-test: CPM-only versions'
+    grep -Fq "PropertyGroup Condition=\"$cpm_on\"" "$output/Directory.Packages.props" || failed 'self-test: CPM-only transitive pinning'
+    grep -Fq "ItemGroup Condition=\"$cpm_off\"" "$output/cratis-local.targets" || failed 'self-test: opt-out-only references'
+    grep -Fq "PackageReference Update=\"$id\" Version=\"$version\"" "$output/cratis-local.targets" || failed 'self-test: opt-out version override'
+    grep -Fq 'Import Project="$(_CratisLocalPreviousAfterMicrosoftCommonTargets)"' "$output/cratis-local.targets" || failed 'self-test: chained targets import'
+    env -i PATH=/usr/bin:/bin CustomAfterMicrosoftCommonTargets='/previous targets/file.targets' /bin/bash -c '
+        source "$1"; source "$1"
+        [ "$_CratisLocalPreviousAfterMicrosoftCommonTargets" = "/previous targets/file.targets" ] &&
+        [ "$CustomAfterMicrosoftCommonTargets" = "$2/cratis-local.targets" ]
+    ' _ "$output/env" "$output" || failed 'self-test: source twice preserves previous targets'
+}
+
 self_test() {
     [ $# -eq 0 ] || die '--self-test takes no arguments'
     local root home repo feed version output status passed=0 skipped=0 test_key arg map
@@ -1855,7 +1909,10 @@ self_test() {
     repo=$(repo_root "$repo")
     git -C "$repo" config user.email test@example.invalid
     git -C "$repo" config user.name 'Local package self-test'
-    printf '<Project><ItemGroup><PackageVersion Include="Cratis.Test" Version="1.2.3" /></ItemGroup></Project>\n' > "$repo/Directory.Packages.props"
+    printf '<Project><PropertyGroup><ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally></PropertyGroup><ItemGroup><PackageVersion Include="Cratis.Test" Version="1.2.3" /></ItemGroup></Project>\n' > "$repo/Directory.Packages.props"
+    mkdir -p "$repo/nested"
+    printf '<Project><PropertyGroup><ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally></PropertyGroup></Project>\n' > "$repo/nested/Directory.Packages.props"
+    printf '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><PackageReference Include="Cratis.Test" Version="1.2.3" /></ItemGroup></Project>\n' > "$repo/nested/OptOut.csproj"
     printf '{"private":true,"dependencies":{"@cratis/test":"1.2.3"}}\n' > "$repo/package.json"
     cat > "$repo/yarn.lock" <<'LOCK'
 # This file is generated by running "yarn install" inside your project.
@@ -1905,12 +1962,13 @@ LOCK
     done
     st use-nuget "$repo" "$version" > "$root/output"
     output=$(git -C "$repo" rev-parse --absolute-git-dir)/cratis-local
-    grep -Fq "Import Project=\"$repo/Directory.Packages.props\"" "$output/Directory.Packages.props" || failed 'self-test: overlay import'
-    grep -Fq "PackageVersion Update=\"Cratis.Test\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: pinned package Update'
+    grep -Fq "PackageVersion Include=\"Cratis.Test\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: pinned package Include'
     grep -Fq "PackageVersion Include=\"Cratis.Transitive\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: transitive package Include'
     if grep -Fq 'CentralPackageTransitivePinningEnabled' "$output/Directory.Packages.props"; then failed 'self-test: transitive pinning must be opt-in'; fi
     st use-nuget "$repo" "$version" --pin-transitive > "$root/output"
     grep -Fq 'CentralPackageTransitivePinningEnabled>true' "$output/Directory.Packages.props" || failed 'self-test: --pin-transitive enables pinning'
+    self_test_nuget_overlay "$output" Cratis.Test "$version"
+    passed=$((passed + 8))
     grep -Fq "PackageVersion Include=\"Cratis.Transitive\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: --pin-transitive keeps the IDs'
     st use-nuget "$repo" "$version" Cratis.Test --pin-transitive > "$root/output" || failed 'self-test: --pin-transitive with explicit IDs'
     st use-nuget "$repo" "$version" > "$root/output"
@@ -1920,12 +1978,15 @@ LOCK
     passed=$((passed + 5))
     st check "$repo" > "$root/output" || failed 'self-test: clean repo'
     passed=$((passed + 1))
-    for test_key in stamp npm props sources override feed; do
+    for test_key in stamp npm props sources targets previous reference override feed; do
         case "$test_key" in
             stamp) printf '%s\n' "$version" > "$repo/probe" ;;
             npm) printf '{"resolutions":{"@cratis/test":"%s%s"}}\n' 'file:/tmp/' 'package.tgz' > "$repo/package.json" ;;
             props) printf '%s=/tmp/overlay\n' DirectoryPackages"PropsPath" > "$repo/probe" ;;
             sources) printf '%s=/tmp/feed\n' RestoreAdditional"ProjectSources" > "$repo/probe" ;;
+            targets) printf '%s=/tmp/overlay.targets\n' CustomAfterMicrosoftCommon"Targets" > "$repo/probe" ;;
+            previous) printf '%s=/tmp/previous.targets\n' _CratisLocalPreviousAfterMicrosoftCommon"Targets" > "$repo/probe" ;;
+            reference) printf '<PackageReference %s="Cratis.Test" Version="1.2.3" />\n' Update > "$repo/probe" ;;
             override) printf '<PackageVersion %s="Cratis.Test" />\n' Update > "$repo/probe" ;;
             feed) printf '%s\n' "$feed" > "$repo/probe" ;;
         esac
@@ -1943,6 +2004,9 @@ LOCK
     status=0; st check "$repo" --staged > "$root/output" || status=$?
     [ "$status" -eq 1 ] || failed 'self-test: staged content'
     git -C "$repo" restore --staged probe; git -C "$repo" checkout -- probe
+    passed=$((passed + 1))
+    st restore "$repo" > "$root/output" || failed 'self-test: restore legacy overlay'
+    [ ! -e "$output/cratis-local.targets" ] && [ ! -e "$output/env" ] || failed 'self-test: legacy targets and env survive restore'
     passed=$((passed + 1))
     if command -v node >/dev/null 2>&1; then
         # Preserve pre-existing user edits as well as the committed contents.
@@ -2552,9 +2616,12 @@ self_test_composition() {
     : > "$root/.composition-fixture"
     git -C "$cr" init -q
     printf '.ai-work/\nobj/\n' > "$cr/.gitignore"
-    printf '<Project><ItemGroup><PackageVersion Include="Cratis.Keep" Version="1.2.3"/></ItemGroup></Project>\n' > "$cr/Directory.Packages.props"
+    printf '<Project><PropertyGroup><ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally></PropertyGroup><ItemGroup><PackageVersion Include="Cratis.Keep" Version="1.2.3"/></ItemGroup></Project>\n' > "$cr/Directory.Packages.props"
+    mkdir -p "$cr/nested"
+    printf '<Project><PropertyGroup><ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally></PropertyGroup></Project>\n' > "$cr/nested/Directory.Packages.props"
+    printf '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><PackageReference Include="Cratis.Stage" Version="0.1.0" /></ItemGroup></Project>\n' > "$cr/nested/OptOut.csproj"
     printf '<configuration><packageSources><clear/><add key="remote" value="https://example.invalid/v3/index.json"/></packageSources><packageSourceMapping><packageSource key="remote"><package pattern="*"/><package pattern="Cratis.*"/><package pattern="Cratis.Screenplay*"/><package pattern="Cratis.Screenplay"/></packageSource></packageSourceMapping></configuration>\n' > "$cr/nuget.config"
-    git -C "$cr" add .gitignore Directory.Packages.props nuget.config
+    git -C "$cr" add .gitignore Directory.Packages.props nuget.config nested
     git -C "$cr" -c user.email=test@example.invalid -c user.name='Composition fixture' commit -qm initial
     cp "$cr/Directory.Packages.props" "$root/composition-original.props"
     printf 'producer\tChronicle\t%s\t%s\nproducer\tScreenplay\t%s\t%s\nproducer\tStage\t%s\t%s\npackage\tChronicle\tCratis.Chronicle.InProcess\npackage\tScreenplay\tCratis.Screenplay\npackage\tStage\tCratis.Stage\n' "$a" "$cr" "$b" "$cr" "$c" "$cr" > "$cm"
@@ -2650,7 +2717,8 @@ JSON
     expect_status 0 'composition activation with transitive pinning' cst use-nuget "$cr" --composition "$cm" --pin-transitive
     output=$cr/.ai-work/local-packages/composition
     grep -Fq 'CentralPackageTransitivePinningEnabled>true' "$output/Directory.Packages.props" || failed 'composition pin property'
-    grep -Fq 'Directory.Packages.props' "$output/Directory.Packages.props" || failed 'composition CPM import'
+    self_test_nuget_overlay "$output" Cratis.Stage "$c"
+    passed=$((passed + 8))
     # Only exact owned IDs are removed remotely; broader patterns remain remote.
     [ "$(grep -c 'pattern="Cratis.Screenplay"' "$output/nuget.config")" -eq 1 ] || failed 'composition exclusive exact mapping'
     has 'pattern="*"' "$output/nuget.config" || failed 'composition removed remote wildcard'
@@ -2670,6 +2738,11 @@ JSON
     expect_status 2 'composition edited overlay retained on restore' cst restore "$cr"
     grep -Fq 'unrelated session edit' "$output/env" || failed 'composition deleted edited overlay'
     cp "$root/composition-env" "$output/env"
+    cp "$output/cratis-local.targets" "$root/composition-targets"
+    printf '<!-- unrelated targets edit -->\n' >> "$output/cratis-local.targets"
+    expect_status 2 'composition edited targets retained on restore' cst restore "$cr"
+    has 'unrelated targets edit' "$output/cratis-local.targets" || failed 'composition deleted edited targets'
+    cp "$root/composition-targets" "$output/cratis-local.targets"
     printf '<!-- consumer edit -->\n' >> "$cr/Directory.Packages.props"
     cp "$cr/Directory.Packages.props" "$root/composition-original.props"
     expect_status 0 'composition restores preserving consumer edits' cst restore "$cr"
@@ -2680,7 +2753,7 @@ JSON
     # Every live mutation boundary is exercised both as an ordinary failure and
     # an uncatchable parent/child interruption, then recovered by the next call.
     for kind in fail interrupt; do
-        for boundary in journal session stage-manifest.tsv stage-Directory.Packages.props stage-nuget.config stage-env stage-state.json stage-transaction staged published repo registration-staged registered committed; do
+        for boundary in journal session stage-manifest.tsv stage-Directory.Packages.props stage-cratis-local.targets stage-nuget.config stage-env stage-state.json stage-transaction staged published repo registration-staged registered committed; do
             printf '%s\n' "$root/another-session" > "$cf/sessions"; cp "$cf/sessions" "$base"
             composition_fail=''; composition_interrupt=''
             if [ "$kind" = fail ]; then composition_fail=$boundary; else composition_interrupt=$boundary; fi

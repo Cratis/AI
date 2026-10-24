@@ -24,10 +24,11 @@ them from an accidental published fallback.
 `use-nuget CONSUMER STAMP [ID...]` requires a root `Directory.Packages.props`.
 Without IDs it selects every package with `<id>.<stamp>.nupkg` in the feed,
 including transitive dependencies absent from the consumer props. The generated
-overlay imports the consumer's real props, uses `PackageVersion Update` for IDs
-already pinned there and `PackageVersion Include` for the others, and enables
-`CentralPackageTransitivePinningEnabled` so the added IDs pin transitive packages.
-An `Update` alone cannot add an absent ID. It does not copy or edit the props in git.
+overlay imports each project's nearest `Directory.Packages.props` and replaces
+owned `PackageVersion` items only when CPM is enabled, honoring nested props files.
+CPM opt-out projects get owned versions through late `PackageReference Update`
+items in `CustomAfterMicrosoftCommonTargets`, chaining any existing targets import;
+consumer files are never edited.
 
 ```bash
 bash "$local" use-nuget "$consumer" "$stamp" Cratis.Chronicle Cratis.Chronicle.CodeAnalysis
@@ -41,8 +42,8 @@ dotnet build path/to/consumer.slnx -c Release --no-restore -warnaserror
 Transitive pinning stays as the consumer sets it; `--pin-transitive` forces it on so stamped IDs the
 consumer does not pin still take effect (it can raise NU1109 floors).
 
-The printed properties are `DirectoryPackagesPropsPath` and
-`RestoreAdditionalProjectSources`. For an IDE, launch it from that shell, or pass
+The printed properties include `DirectoryPackagesPropsPath`,
+`RestoreAdditionalProjectSources` and `CustomAfterMicrosoftCommonTargets`. For an IDE, launch it from that shell, or pass
 the printed `-p:` properties explicitly to its build. Verify restore uses the
 stamp in `obj/project.assets.json`; shell environment changes do not reconfigure
 an already-running IDE. A config overlay printed below must also reach IDE restore.
@@ -193,12 +194,14 @@ graph. Never edit versions intended to ship merely to make local proof work.
 
 ## Restoration and drift
 
-`restore` removes session props, generated config and env files, then runs `check`.
+`restore` removes session props, targets, generated config and env files, then runs `check`.
 It cannot unset variables in the calling shell:
 
 ```bash
 bash "$local" restore "$consumer"
 unset DirectoryPackagesPropsPath RestoreAdditionalProjectSources
+export CustomAfterMicrosoftCommonTargets="${_CratisLocalPreviousAfterMicrosoftCommonTargets:-}"
+unset _CratisLocalPreviousAfterMicrosoftCommonTargets
 bash "$local" check "$consumer"
 ```
 
