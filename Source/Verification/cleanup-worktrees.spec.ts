@@ -9,10 +9,12 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
+import { setTimeout as delay } from 'node:timers/promises';
+import { cleanupGithubFixture } from './fixtures/cleanup-github.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const corpus = join(repositoryRoot, '.cratis', 'ai');
@@ -88,6 +90,206 @@ for (const scenario of cleanupCases) {
         }
     });
 }
+
+test('N worktrees share one REST lookup and fresh cache across worktrees; expired stamps refresh', () => {
+    const fixture = cleanupGithubFixture();
+    try {
+        assert.match(fixture.run(), /3 removed/);
+        assert.deepEqual(fixture.calls(), ['api repos/example/cleanup/pulls?state=closed&per_page=100']);
+        writeFileSync(join(fixture.directory, 'response'), '[]');
+        assert.match(fixture.run(undefined, fixture.worktrees[0]), /2 removed/);
+        assert.equal(fixture.calls().length, 1);
+        writeFileSync(join(fixture.state, 'stamp'), `${Math.floor(Date.now() / 1000) - 901}\n`);
+        assert.match(fixture.run(), /0 removed/);
+        assert.equal(fixture.calls().length, 2);
+    } finally { fixture.dispose(); }
+});
+
+for (const failure of ['API rate limit already exceeded', 'network unavailable']) {
+    test(`GitHub failure keeps every dependent worktree and throttles retries: ${failure}`, () => {
+        const fixture = cleanupGithubFixture();
+        try {
+            assert.match(fixture.run(), /3 removed/);
+            writeFileSync(join(fixture.state, 'stamp'), '1\n');
+            writeFileSync(join(fixture.directory, 'fail'), failure);
+            assert.match(fixture.run(['--hook']), /0 removed/);
+            assert.match(fixture.run(['--hook']), /0 removed/);
+            assert.equal(fixture.calls().length, 2);
+            fixture.worktrees.forEach(worktree => assert.ok(existsSync(worktree)));
+            assert.equal(readFileSync(join(fixture.state, 'failed'), 'utf8'), readFileSync(join(fixture.state, 'stamp'), 'utf8'));
+        } finally { fixture.dispose(); }
+    });
+}
+
+for (const hook of [true, false]) {
+    test(`NO_GH skips lookups and manual runs use one batch per run (hook=${hook})`, () => {
+        const fixture = cleanupGithubFixture();
+        const args = hook ? ['--hook', '--dry-run'] : ['--dry-run'];
+        try {
+            fixture.env.CRATIS_CLEANUP_NO_GH = '1';
+            assert.match(fixture.run(args), /0 removed/);
+            assert.equal(fixture.calls().length, 0);
+            fixture.env.CRATIS_CLEANUP_NO_GH = '0';
+            assert.match(fixture.run(args), /3 removed/);
+            assert.match(fixture.run(args), /3 removed/);
+            assert.equal(fixture.calls().length, hook ? 1 : 2);
+        } finally { fixture.dispose(); }
+    });
+}
+
+for (const unavailable of ['NO_GH', 'gh missing', 'jq missing', 'non-GitHub origin', 'invalid slug']) {
+    test(`no lookup possible preserves ancestry-only removals: ${unavailable}`, () => {
+        const fixture = cleanupGithubFixture();
+        try {
+            fixture.deliver();
+            fixture.git(fixture.repository, 'branch', 'ancestry-only', 'topic-0');
+            fixture.git(fixture.repository, 'branch', 'unproven', 'topic-1');
+            if (unavailable === 'NO_GH') fixture.env.CRATIS_CLEANUP_NO_GH = '1';
+            else if (unavailable === 'gh missing') fixture.withoutTool('gh');
+            else if (unavailable === 'jq missing') fixture.withoutTool('jq');
+            else fixture.git(fixture.repository, 'remote', 'set-url', 'origin', unavailable === 'invalid slug'
+                ? 'https://github.com/example/cleanup/extra' : 'https://example.com/example/cleanup.git');
+            const output = fixture.run(['--hook']);
+            assert.match(output, /3 removed/);
+            assert.doesNotMatch(output, /GitHub evidence unavailable/);
+            assert.equal(existsSync(fixture.worktrees[0]), false);
+            assert.ok(existsSync(fixture.worktrees[1]));
+            assert.ok(existsSync(fixture.worktrees[2]));
+            const branches = fixture.git(fixture.repository, 'branch', '--format=%(refname:short)').split('\n');
+            assert.ok(!branches.includes('ancestry-only'));
+            assert.ok(!branches.includes('topic-0'));
+            assert.ok(branches.includes('unproven'));
+            assert.equal(fixture.calls().length, 0);
+            assert.equal(existsSync(join(fixture.repository, '.git/cratis-cleanup-gh')), false);
+        } finally { fixture.dispose(); }
+    });
+}
+
+for (const failure of ['API rate limit already exceeded', 'network unavailable', 'invalid JSON', 'invalid shape', 'invalid entry', 'lock held']) {
+    test(`a mixed sweep aborts every worktree and branch removal: ${failure}`, () => {
+        const fixture = cleanupGithubFixture();
+        try {
+            fixture.deliver(); // Put ancestry-proven work first, before GitHub-dependent worktrees.
+            fixture.git(fixture.repository, 'branch', 'ancestry-only', 'topic-0');
+            fixture.git(fixture.repository, 'branch', 'github-dependent', 'topic-1');
+            if (failure === 'lock held') mkdirSync(join(fixture.state, 'lock'), { recursive: true });
+            else if (failure === 'invalid JSON') writeFileSync(join(fixture.directory, 'response'), '{broken');
+            else if (failure === 'invalid shape') writeFileSync(join(fixture.directory, 'response'), '{}');
+            else if (failure === 'invalid entry') writeFileSync(join(fixture.directory, 'response'), '[{}]');
+            else writeFileSync(join(fixture.directory, 'fail'), failure);
+            for (let run = 0; run < 2; run++) {
+                assert.match(fixture.run(['--hook']), /GitHub evidence unavailable; 0 removed/);
+                fixture.worktrees.forEach(worktree => assert.ok(existsSync(worktree)));
+                assert.equal(fixture.git(fixture.repository, 'branch', '--format=%(refname:short)').split('\n').length, 6);
+            }
+            assert.equal(fixture.calls().length, failure === 'lock held' ? 0 : 1);
+            if (failure !== 'lock held') assert.ok(existsSync(join(fixture.state, 'failed')));
+        } finally { fixture.dispose(); }
+    });
+}
+
+test('manual GitHub failure also aborts ancestry-proven removals', () => {
+    const fixture = cleanupGithubFixture();
+    try {
+        fixture.deliver();
+        writeFileSync(join(fixture.directory, 'fail'), 'network unavailable');
+        assert.match(fixture.run([]), /GitHub evidence unavailable; 0 removed/);
+        fixture.worktrees.forEach(worktree => assert.ok(existsSync(worktree)));
+        assert.equal(fixture.calls().length, 1);
+    } finally { fixture.dispose(); }
+});
+
+test('a failed window does not block a sweep that needs only ancestry evidence', () => {
+    const fixture = cleanupGithubFixture();
+    try {
+        writeFileSync(join(fixture.directory, 'fail'), 'API rate limit already exceeded');
+        fixture.run(['--hook']);
+        fixture.pulls.forEach((_, index) => fixture.deliver(index));
+        assert.match(fixture.run(['--hook']), /6 removed/);
+        fixture.worktrees.forEach(worktree => assert.equal(existsSync(worktree), false));
+        assert.equal(fixture.calls().length, 1);
+    } finally { fixture.dispose(); }
+});
+
+test('a stale lock with an abandoned reclaim marker is renamed and the single batch is cached', () => {
+    const fixture = cleanupGithubFixture();
+    try {
+        const lock = join(fixture.state, 'lock');
+        mkdirSync(join(lock, 'reclaim'), { recursive: true });
+        const expired = new Date(Date.now() - 901_000);
+        utimesSync(lock, expired, expired);
+        assert.match(fixture.run(), /3 removed/);
+        assert.match(fixture.run(), /3 removed/);
+        assert.equal(fixture.calls().length, 1);
+        assert.equal(existsSync(lock), false);
+        assert.ok(!readdirSync(fixture.state).some(name => name.startsWith('lock.stale.')));
+    } finally { fixture.dispose(); }
+});
+
+test('a detached unproven worktree never acquires GitHub evidence from another planned item', () => {
+    const fixture = cleanupGithubFixture();
+    try {
+        fixture.git(fixture.worktrees[1], 'checkout', '--detach');
+        const detached = { ...fixture.pulls[1], head: { ...fixture.pulls[1].head, ref: '' } };
+        writeFileSync(join(fixture.directory, 'response'), JSON.stringify([...fixture.pulls, detached]));
+        fixture.run(['--hook']);
+        assert.ok(existsSync(fixture.worktrees[1]));
+        assert.equal(existsSync(fixture.worktrees[0]), false);
+        assert.equal(existsSync(fixture.worktrees[2]), false);
+        assert.equal(fixture.calls().length, 1);
+    } finally { fixture.dispose(); }
+});
+
+test('git delivery evidence avoids GitHub entirely', () => {
+    const fixture = cleanupGithubFixture();
+    try {
+        for (const pull of fixture.pulls) fixture.git(fixture.repository, 'merge', '--no-ff', pull.head.ref, '-m', 'delivered', '-s', 'ours');
+        fixture.git(fixture.repository, 'update-ref', 'refs/remotes/origin/main', 'main');
+        assert.match(fixture.run(), /3 removed/);
+        assert.equal(fixture.calls().length, 0);
+    } finally { fixture.dispose(); }
+});
+
+test('only a merged PR with both the exact head ref and SHA is delivery evidence', () => {
+    const fixture = cleanupGithubFixture();
+    try {
+        const pulls = [
+            fixture.pulls[0],
+            { ...fixture.pulls[1], merged_at: null },
+            { ...fixture.pulls[2], head: { ...fixture.pulls[2].head, sha: fixture.pulls[0].head.sha } },
+            { ...fixture.pulls[2], head: { ...fixture.pulls[2].head, ref: 'other-branch' } },
+        ];
+        writeFileSync(join(fixture.directory, 'response'), JSON.stringify(pulls));
+        const output = fixture.run(['--hook']);
+        assert.match(output, /2 removed/); // The worktree and its now-unused branch are counted separately.
+        assert.equal(existsSync(fixture.worktrees[0]), false);
+        assert.ok(existsSync(fixture.worktrees[1]));
+        assert.ok(existsSync(fixture.worktrees[2]));
+        assert.equal(fixture.calls().length, 1);
+    } finally { fixture.dispose(); }
+});
+
+test('concurrent hook runs honour the shared lock and published stamp', async () => {
+    const fixture = cleanupGithubFixture();
+    let pending: Promise<string> | undefined;
+    try {
+        writeFileSync(join(fixture.directory, 'block'), '');
+        pending = fixture.runAsync();
+        for (let attempt = 0; attempt < 500 && fixture.calls().length === 0; attempt++) await delay(20);
+        assert.equal(fixture.calls().length, 1, 'first run must reach fake gh');
+        assert.ok(existsSync(join(fixture.state, 'stamp')), 'stamp must precede the request');
+        assert.match(fixture.run(undefined, fixture.worktrees[0]), /0 removed/);
+        assert.equal(fixture.calls().length, 1);
+        writeFileSync(join(fixture.directory, 'release'), '');
+        assert.match(await pending, /3 removed/);
+        assert.match(fixture.run(), /3 removed/);
+        assert.equal(fixture.calls().length, 1);
+    } finally {
+        writeFileSync(join(fixture.directory, 'release'), '');
+        if (pending) await pending;
+        fixture.dispose();
+    }
+});
 
 test('hook mode ignores commands that deliver no work', () => {
     const result = spawnSync('bash', [script, '--hook'], {

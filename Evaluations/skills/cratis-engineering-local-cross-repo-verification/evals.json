@@ -52,6 +52,19 @@
         "Requires workspace-accessible feeds, images in the job's daemon, and matching architecture.",
         "Retains leak checks, restoration and cleanup on that host."
       ]
+    },
+    {
+      "id": 5,
+      "name": "multi-hop-one-stamp",
+      "prompt": "A Fundamentals fix must be proven in Chronicle, but Chronicle takes Fundamentals through Arc as well as directly. How do I verify it locally without guessing the package chain? Reply only.",
+      "expected_output": "Read the dependency map reference (a table, not consumed by the helper) to find the chain Fundamentals -> Arc -> Chronicle and the pack targets of each. Generate one stamp with `stamp` from one producer and reuse that exact string for the whole chain. Pack Fundamentals, overlay it into Arc with `use-nuget`, pack Arc, restore the Arc overlay, then overlay the stamped IDs into Chronicle with `use-nuget`. Inspect each nuspec by hand so every locally changed dependency resolves to the stamp, build and run the consumer's specs, then run `check` (0 leaks), `restore` and `clean --stamp` (dry run, then apply).",
+      "assertions": [
+        "Uses the dependency map reference to learn the chain rather than a guessed package list, and treats the map as a reference the helper does not read.",
+        "Reuses one stamp for every producer in the chain.",
+        "Overlays Fundamentals into Arc before packing Arc.",
+        "Inspects nuspec dependencies by hand instead of assuming the helper verifies them.",
+        "Ends with check (0 leaks), restore and a stamp-scoped clean (dry run, then apply)."
+      ]
     }
   ]
 }
