@@ -57,6 +57,7 @@ commands before choosing the build, regression spec and full gate commands.
 - [ ] Reproduce the consumer bug and select its regression spec/app action.
 - [ ] Read [references/dependency-map.md](references/dependency-map.md) for the chain between the named repositories, generate one stamp, then pack each producer in upstream order.
 - [ ] If needed, publish the kernel and assets, then build a matching local image.
+- [ ] Run `closure` for the consumer and producers, follow the printed commands, and run its one `verify-pack` after the last pack.
 - [ ] Activate the consumer overlay and select the local image.
 - [ ] Build the consumer, run its regression specs/app action and required gates.
 - [ ] On failure, diagnose, fix the producer, create a distinct stamp and repeat.
@@ -94,9 +95,11 @@ exit `0`. Inspect package dependencies: every locally changed dependency ID must
 resolve to the stamp, not a published fallback. Chronicle's client solution filter
 can omit `Cratis.Chronicle.CodeAnalysis`; pack its code-analysis package project
 separately. The package IDs a producer should ship are listed in
-[dependency-map.tsv](scripts/dependency-map.tsv) (a reference, see
-[references/dependency-map.md](references/dependency-map.md)); compare them with the feed by hand.
-A successful pack alone does not prove dependency closure.
+[dependency-map.tsv](scripts/dependency-map.tsv); `closure CONSUMER=PATH PRODUCER=PATH...` prints
+the stamp, every overlay, one `pack-*` command per map row (with its `--property` arguments) and
+ONE `verify-pack` for the whole plan (see [references/dependency-map.md](references/dependency-map.md)).
+Run the printed commands in order. A successful pack alone does not prove dependency closure;
+`verify-pack` does.
 
 ### 3. Build an image when needed
 
@@ -242,6 +245,7 @@ minutes, instead of after a release and a pin bump.
 - Read [references/docker-images.md](references/docker-images.md) when publishing a kernel or selecting images in a consumer.
 - Read [references/go-jvm-python-elixir.md](references/go-jvm-python-elixir.md) when the boundary uses another language toolchain.
 - Read [references/worked-examples.md](references/worked-examples.md) when following Chronicle → Studio, Fundamentals → Arc, Components → Studio, Chronicle → Direct, Screenplay → Stage and Studio, Arc → Chronicle, or Fundamentals → Arc → Chronicle.
+- Read [references/train-mode.md](references/train-mode.md) when verifying a downstream repository against a local release train (`stamp --train`).
 - Read [references/other-environments.md](references/other-environments.md) when running on another developer machine or an agent host.
 
 Read `scripts/npm-restore-check.cjs` when inspecting the read-only npm restoration
