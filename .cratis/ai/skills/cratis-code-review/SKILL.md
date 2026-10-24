@@ -177,6 +177,9 @@ correction before merge. Style preferences and maintainability improvements
 without such a consequence belong in Suggestions. Apply the shared verdict
 vocabulary to those findings.
 
+For a follow-up round after blockers were fixed, review only the delta and carry prior
+findings forward; see `cratis-engineering-review-rounds`.
+
 ## What breaks
 
 - **The review restates the compiler.** The gates were not run first, so

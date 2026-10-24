@@ -60,6 +60,18 @@
         "Routes a focused security audit to the security review skill and a scalability analysis to the performance review skill.",
         "Says the report states what was not reviewed."
       ]
+    },
+    {
+      "id": 6,
+      "name": "follow-up-round-is-delta",
+      "prompt": "You reviewed a change earlier at commit a1b2c3d and reported one blocker: RegisterBoat.Handle threw an exception for a missing name. The author pushed commit e4f5a6b that moves the check into a CommandValidator and touches nothing else. Give the follow-up review report in your reply (do not write files).",
+      "expected_output": "A follow-up round that reviews only the delta since a1b2c3d, says whether the earlier blocker is resolved, does not re-review untouched files, and states what was not re-examined.",
+      "assertions": [
+        "Scopes the review to the changes since the previously reviewed commit rather than the whole change.",
+        "States whether the earlier blocker is resolved, citing the validator change.",
+        "Does not raise new findings about files the author did not touch.",
+        "Says what was not re-examined in this round."
+      ]
     }
   ]
 }

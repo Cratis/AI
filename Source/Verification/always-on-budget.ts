@@ -15,8 +15,9 @@ import { skillBody } from './skill-structure.ts';
  * Cratis/AI#863 secrets.md + general.md routing row + local-work-artifacts.md scan bullet: +2525 bytes (claude-code, pi), +2541 (copilot), +116 (cursor, codex-opencode).
  * Cratis/AI#871 secrets.md hook-limits bullet: +321 bytes (claude-code, copilot, pi).
  * Cratis/AI#855 pull-requests.md hook-change release-note line: +197 bytes (claude-code, copilot, pi).
+ * Cratis/AI#909 method pointers in pull-requests.md, issue-assignment.md, review-reports.md, profiles.md: +1087 bytes (claude-code, pi), +1002 (copilot).
  */
-export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 122_072, copilot: 97_933, pi: 124_268, cursor: 23_291, 'codex-opencode': 22_998 };
+export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 123_159, copilot: 98_935, pi: 125_355, cursor: 23_291, 'codex-opencode': 22_998 };
 
 const remedy = 'Displace or demote text to an on-demand skill, or raise the budget in Source/Verification/always-on-budget.ts in a reviewed change.';
 

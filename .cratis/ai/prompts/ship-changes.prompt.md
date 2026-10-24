@@ -15,7 +15,7 @@ branch → commits → PR → merge → issue disposition → cleanup workflow.
 
 - **What changed** — brief description of the work (used for branch name and PR title)
 - **Label** — exactly one of `no-release`, `patch`, `minor`, or `major`, selected from the repository's release contract and applied in `gh pr create --label <intent>`
-- **Related issue** — optional exact repository and issue number; if unknown, search read-only first. Comment on or close it only when the user's request includes that effect; otherwise prepare the disposition as a proposal. In repositories released by `cratis/release-action`, a delivered issue is closed by release-action through `(#n)` in the description, but release-action does not run for a `no-release` PR, so `(#n)` closes nothing there; elsewhere follow the repository's own release and issue-closing process.
+- **Related issue** — optional exact repository and issue number; if unknown, search read-only first. Comment on or close it only when the user's request includes that effect; otherwise prepare the disposition as a proposal. In repositories released by `cratis/release-action`, a delivered issue is closed by release-action through `(#n)` in the description, but release-action does not run for a `no-release` PR, so `(#n)` closes nothing there; elsewhere follow the repository's own release and issue-closing process. Keep the issue current and close it with a reason per `cratis-engineering-issue-hygiene`.
 
 Invoking this prompt is direct authority for the standard branch, commit, push, pull-request,
 requested-label, merge, and branch-cleanup effects. Do not pause to ask for separate approval at
@@ -32,6 +32,19 @@ Every other label proceeds through merge under this prompt's ordinary authority.
 This prompt is for an explicit request to ship or land. If the user asked only to commit, only to
 push, or only to open a PR, stop after that step: the narrower request does not become authority
 for the rest of the chain because this prompt happens to be loaded.
+
+## Before you branch
+
+Check for an open release candidate or PR in the repository before opening a new branch.
+Group related work onto one branch and one PR, and join an open candidate instead of starting
+another. The method is in the `cratis-engineering-release-trains` skill.
+
+## Waiting on checks and merging
+
+Push only when the ship bar is met: root cause understood, specs added, local gate green,
+review passed, issue and PR re-read, and no overlap with main. Then watch the exact run once
+instead of polling it. Merge only after required checks pass. The method is in the
+`cratis-engineering-ci-gates` skill. For review rounds, see `cratis-engineering-review-rounds`.
 
 ## Pull request description
 

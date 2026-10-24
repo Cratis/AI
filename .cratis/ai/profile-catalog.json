@@ -992,12 +992,16 @@
       "availableTargets": [
         "cratis-ci-pipeline-performance",
         "cratis-documentation-writing",
+        "cratis-engineering-ci-gates",
         "cratis-engineering-consolidation-guard",
         "cratis-engineering-decision-record",
         "cratis-engineering-docs-authoring",
         "cratis-engineering-effect-boundaries",
+        "cratis-engineering-issue-hygiene",
         "cratis-engineering-local-cross-repo-verification",
         "cratis-engineering-regression-cluster",
+        "cratis-engineering-release-trains",
+        "cratis-engineering-review-rounds",
         "cratis-release-notes",
         "cratis-technical-examples"
       ],
