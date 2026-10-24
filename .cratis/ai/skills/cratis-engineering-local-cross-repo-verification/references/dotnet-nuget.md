@@ -139,6 +139,12 @@ bash "$local" verify-assets "$consumer" --composition .ai-work/composition.tsv -
 bash "$local" restore "$consumer"
 ```
 
+`verify-assets` reads every `obj/project.assets.json` under the consumer and fails
+closed on any project that resolved an owned ID at another version, including stale
+assets from an earlier restore. Restore every project under the consumer with the
+printed config, or remove the `obj` folders of projects outside the build, before
+running it.
+
 Transitive pinning is optional. The overlay imports the consumer's CPM file and
 removes/re-includes owned IDs at exact producer versions. Its generated NuGet
 config gives local IDs exclusive exact source mappings, removes conflicting remote
