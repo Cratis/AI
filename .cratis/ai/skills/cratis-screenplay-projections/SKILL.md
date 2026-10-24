@@ -15,11 +15,10 @@ text. This is half of every event model, and the half most easily got wrong.
 ## Locate the model
 
 Look first for the project's existing `.play` files: the folder holding them is the
-model. A new model goes under the repository's `Source/` or `src/` folder, else in a
-`Screenplay/` folder at the repository root; never under `.cratis/`, which holds
-configuration and the shared AI corpus only. This is the
-conventional home for consumer-owned `.play` source; do not invent another
-location or search the whole repository before checking it.
+model. Reuse existing model/workspace roots; code-only `Source/` or `src/` does
+not qualify. Otherwise use repository-root `Screenplay/`, never `.cratis/`
+(configuration/shared corpus only). Read [discovery/version gates](../cratis-screenplay-event-modeling/references/file-layout.md#locate-the-model)
+when locating the model; do not invent another location.
 
 `cratis ai install` manages `.cratis/ai/`, never model files. Never
 hand-copy Screenplay source between repositories. Keep Markdown that explains,
