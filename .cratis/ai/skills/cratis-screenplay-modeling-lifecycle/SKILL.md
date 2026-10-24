@@ -25,6 +25,10 @@ an unproven pass.
    A direct user request to model a scope is consent for that scope. A committed model the project marks `modelFirst.frozen` in `.cratis/ai.json` is generated evidence, not opted in (reason `frozen-model`): read it, never regenerate or edit it unless the request names that `.play` path or model; a generic "regenerate all" skips it and says so. Run `scripts/model-first-status.mjs` from the repository with Node.js and Git:
    `node <skill-directory>/scripts/model-first-status.mjs [--root <repository-relative-dir>] [--json]`.
    Read-only roots: `--root`, configuration, then discovery from HEAD project paths (drafts only if none). Discovery prefers legacy `.cratis/screenplay/`, else the common folder, else `Source/`, `src/`, `Screenplay/`. It excludes hidden/build/docs/samples/examples/scratch/test fixtures from discovery and acceptance, including at `.`; explicit roots include everything beneath them.
+   This read-only opt-in detector is not MCP/CLI workspace discovery. For a new
+   workspace use [root selection](../cratis-screenplay-event-modeling/references/file-layout.md#locate-the-model):
+   code-only `Source/` or `src/` does not qualify; absent model/workspace state,
+   use repository-root `Screenplay/`.
    Output: root, reason, frozen marker, file counts, drafts, model changes and the resolved `process` block. Exits: **0 opted in**, **1 not opted in**, **2 could not run** (Git/configuration/arguments). Treat 2 as blocked, not code-first.
    Run `scripts/model-first-status.mjs --self-test` to plant and check verdict fixtures; it executes `scripts/model-first-self-test.mjs` and prints the checked count on success.
    Read `references/opt-in.md` when checking the project configuration mechanism.

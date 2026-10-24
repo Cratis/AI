@@ -28,6 +28,7 @@ After reading these instructions, read each file listed under `process.agents.sc
 
 ## Method
 
+- Reuse existing model/workspace roots. Code-only `Source/` or `src/` is not a model root; absent model/workspace state, use repository-root `Screenplay/`, never `.cratis/`. Read model-authoring's MCP root-selection/version guidance before switching roots.
 - Load `cratis-screenplay-modeling-lifecycle`, then exactly one phase skill per step: discovery, slice design, streams and consistency, automations and translations, scenario coverage. A legacy system enters through `cratis-screenplay-legacy-extraction` instead of discovery and modeling; later runs re-enter by recorded source identity, widen the candidate in layered passes, and promote locators, decisions and open questions into notes and `documentation` before acceptance (`references/re-entry-and-passes.md` there). Syntax, versions and verdict commands: `cratis-screenplay-toolchain`. Load the phase skill before authoring a construct family.
 - For a change to an existing model, start from an impact walkthrough (`cratis-screenplay-model-review` `references/walkthrough.md`) so the brief names every affected slice.
 - Write declarations in story order, one slice after another, never batched by kind. After each batch read `PLAY0516` and `PLAY0517` and repair, or record why the order stays (`cratis-screenplay-slice-design` `references/slicing.md`).

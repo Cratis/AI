@@ -3,6 +3,10 @@
   "input": "Declare the application shell, a screen template and a command form.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "Requires Screenplay 4.227.0", "file": "references/ui-profile-and-theme.md" },
+    { "kind": "skill-contains", "value": "theme \"Scene Default Light\"", "file": "references/ui-profile-and-theme.md" },
+    { "kind": "skill-contains", "value": "Empty, blank or unterminated quoted names are `PLAY0229`", "file": "references/ui-profile-and-theme.md" },
+    { "kind": "skill-contains", "value": "package compatibility check", "file": "references/ui-profile-and-theme.md" },
     {
       "kind": "skill-contains",
       "value": "PLAY0685",

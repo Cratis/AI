@@ -312,8 +312,12 @@ The profile also selects the corpus-owned Screenplay MCP declaration from
 `mcp-servers.json`. The Cratis CLI hosts the server as `cratis screenplay mcp`
 and registers a scoped entry for supported clients without replacing their other
 servers. Inspect install/status results for adapter support or configuration
-conflicts. The model is wherever the project keeps its `.play` files, else under `Source/` or
-`src/`, else in a `Screenplay/` folder at the repository root; never under `.cratis/`.
+conflicts. Reuse the project's existing model/workspace root. A code-only `Source/`
+or `src/` is not a model root; without model/workspace state use repository-root
+`Screenplay/`, never `.cratis/`. Requires Cratis CLI 3.93.1 (`cratis --version`) for
+CLI discovery and Screenplay 4.236.1 (`screenplay --version`) for standalone MCP
+discovery; older versions can choose code-only folders. Fixed-root sibling admission
+is narrowly scoped, not an arbitrary switch: see [root selection](../skills/cratis-screenplay-event-modeling/references/file-layout.md#locate-the-model).
 Project-owned configuration can name a root explicitly.
 
 Like `allowDependencyManifestWrites`, `modelFirst` (`frozen`, `reason`) and `process` (`decisions`, `workItems`, `acceptance`, `agents`) are project-owned keys in `.cratis/ai.json` that install and update preserve. Only `modelFirst.frozen` is read by code; the lifecycle skill's `references/project-process.md` defines the keys, defaults and routing.

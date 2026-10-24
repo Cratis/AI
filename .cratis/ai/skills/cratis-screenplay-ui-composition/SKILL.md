@@ -20,8 +20,8 @@ a trigger value named `file` is written `@file`.
 ## Locate the model
 
 Look first for the project's existing `.play` files: their folder is the model.
-For a new model, check `Source/` or `src/`, else use `Screenplay/` at the repository
-root. Never put a model under `.cratis/` or hand-copy it between repositories.
+Reuse existing model/workspace roots; code-only `Source/` or `src/` does not
+qualify. Otherwise use repository-root `Screenplay/` ([discovery/version gates](../cratis-screenplay-event-modeling/references/file-layout.md#locate-the-model)). Never put a model under `.cratis/` or hand-copy it between repositories.
 `cratis ai install` manages `.cratis/ai/`, never model files. Keep explanatory
 Markdown in project documentation; `.play` is the single flow model.
 
@@ -267,6 +267,12 @@ precedence, PLAY0485 and examples.
   fires one; that is where the two meet.
 
 ## `ui profile` and `theme`
+
+Requires Screenplay 4.227.0 (`screenplay --version`) for a quoted profile reference
+such as `theme "Scene Default Light"`: an undeclared quoted name selects a package
+theme without PLAY0231; a declared one gets PLAY0232 compatibility checks. Bare
+`theme Nordic` still works; declaration headers stay identifier-only. See the
+reference below for escaping and PLAY0229 malformed/blank-name refusals.
 
 A `ui profile` selects the application shell with `root template` (an own layout or application-scope screen template, or `blueprint <B> <Name>` with an optional `version` pin), its shell `option` lines, an `appearance` block (`color scheme`, `accent`), the template new screens start from (`new screens use template`), the theme and the `packages`, listed in override-priority order (a later package shadows an earlier one); `target platform` and `target size` accept any identifier, so a typo is silent. The legacy `layout <Name>` line inside a profile still reads but warns `PLAY0791`: write `root template`. `PLAY0790` to `PLAY0799` check the shell. Read [references/ui-profile-and-theme.md](references/ui-profile-and-theme.md) when writing a profile or theme, or fixing a shell diagnostic.
 
