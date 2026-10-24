@@ -65,8 +65,8 @@ cat "$CLEANUP_FIXTURE/response"
         assert.equal(result.status, 0, result.stdout + result.stderr);
         return result.stdout + result.stderr;
     };
-    const runAsync = () => {
-        const child = spawn('bash', [script, '--no-fetch', '--hook', '--dry-run'], options());
+    const runAsync = (overrides: NodeJS.ProcessEnv = {}) => {
+        const child = spawn('bash', [script, '--no-fetch', '--hook', '--dry-run'], { ...options(), env: { ...env, ...overrides } });
         let output = '';
         child.stdout.on('data', chunk => { output += chunk; });
         child.stderr.on('data', chunk => { output += chunk; });
@@ -98,8 +98,43 @@ cat "$CLEANUP_FIXTURE/response"
         const unavailable = spawnSync('bash', ['-c', 'command -v "$1"', 'bash', missing], options());
         assert.equal(unavailable.status, 1, `${missing} must really be absent from PATH`);
     };
+    const pauseLockStat = () => {
+        const located = spawnSync('bash', ['-c', 'command -v stat'], options());
+        assert.equal(located.status, 0, located.stderr);
+        writeFileSync(join(bin, 'stat'), `#!/usr/bin/env bash
+snapshot=$("${located.stdout.trim()}" "$@") || exit $?
+case "\${!#}" in
+    */lock)
+        marker="$CLEANUP_FIXTURE/read-$CLEANUP_RECLAIMER"
+        if [ -n "$CLEANUP_RECLAIMER" ] && [ ! -f "$marker" ]; then
+            printf '%s\\n' "$snapshot" > "$marker"
+            for ((i=0; i<500; i++)); do
+                [ -f "$CLEANUP_FIXTURE/resume-$CLEANUP_RECLAIMER" ] && break
+                sleep 0.02
+            done
+            [ -f "$CLEANUP_FIXTURE/resume-$CLEANUP_RECLAIMER" ] || exit 1
+        fi ;;
+esac
+printf '%s\\n' "$snapshot"
+`, { mode: 0o755 });
+    };
+    const padWorktreeList = () => {
+        const located = spawnSync('bash', ['-c', 'command -v git'], options());
+        assert.equal(located.status, 0, located.stderr);
+        writeFileSync(join(bin, 'git'), `#!/usr/bin/env bash
+if [ "$*" != 'worktree list --porcelain' ]; then exec "${located.stdout.trim()}" "$@"; fi
+listing=$("${located.stdout.trim()}" "$@") || exit $?
+printf '%s\\n' "\${listing%%$'\\n'*}"
+# Redundant branch fields are overwritten by the real main-worktree branch below.
+# Exceed pipe capacity so a quiet match reliably closes stdin before printf finishes.
+if [[ "$listing" == *'branch refs/heads/topic-0'* ]]; then
+    for ((i=0; i<16384; i++)); do printf '%s\\n' 'branch refs/heads/topic-0'; done
+fi
+printf '%s\\n' "\${listing#*$'\\n'}"
+`, { mode: 0o755 });
+    };
     return {
-        directory, repository, worktrees, pulls, env, git, run, runAsync, calls, deliver, withoutTool,
+        directory, repository, worktrees, pulls, env, git, run, runAsync, calls, deliver, withoutTool, pauseLockStat, padWorktreeList,
         state: join(repository, '.git/cratis-cleanup-gh/example/cleanup'),
         dispose: () => rmSync(directory, { recursive: true, force: true }),
     };

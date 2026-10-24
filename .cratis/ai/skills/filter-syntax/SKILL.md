@@ -80,7 +80,9 @@ dotnet test --filter "Name~LoginTest"
 
 ## MTP filters — xUnit (v3)
 
-xUnit v3 on MTP uses **framework-specific filter flags** instead of the generic `--filter` expression:
+xUnit v3 on MTP uses **framework-specific filter flags** instead of the generic `--filter` expression. A project on `xunit.v3.mtp-off` (the Cratis specification default) runs the native xUnit v3 executable instead and takes `-class`, `-method`, `-namespace`, `-trait` or one `-filter "<query>"`; see the `cratis-specifications-csharp` skill's `references/running-specs.md`.
+
+The flags below apply to the MTP-enabled `xunit.v3` runner:
 
 | Flag | Description |
 |------|-------------|

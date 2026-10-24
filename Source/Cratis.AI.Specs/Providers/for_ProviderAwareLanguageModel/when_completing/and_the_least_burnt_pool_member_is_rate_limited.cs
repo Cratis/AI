@@ -42,5 +42,5 @@ public class and_the_least_burnt_pool_member_is_rate_limited : given.all_depende
 
     [Fact]
     void should_never_touch_the_rate_limited_member() =>
-        _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, default);
+        _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, TestContext.Current.CancellationToken);
 }

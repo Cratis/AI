@@ -17,9 +17,9 @@ Extends the base [specs.md](./specs.md) (folder structure, naming, philosophy) w
 
 ## Frameworks
 
-- [xUnit](https://xunit.net/) **2.x** for execution (not v3).
-- Reference `Cratis.Specifications.XUnit` **4.1.1** for the `Specification` base, convention lifecycle and `ShouldXxx` assertions; the namespace remains `Cratis.Specifications`. Its `Cratis.Specifications` dependency supplies `Catch` and `SpecificationMethods`, not the base or assertions.
-- 4.x targets net8.0/net9.0/net10.0; net48 requires 3.x. `Cratis.Specifications.NUnit` is an alternative with `[Test]` and public test methods; xUnit remains the house default.
+- [xUnit v3](https://xunit.net/docs/getting-started/v3/migration) is the house default for new and migrated spec projects: reference `Cratis.Specifications.XUnit.v3` **5.0** with `xunit.v3.mtp-off`, `Microsoft.NET.Test.Sdk` and `xunit.runner.visualstudio`, and set `<OutputType>Exe</OutputType>` in the project. The package supplies the `Specification` base, convention lifecycle and `ShouldXxx` assertions; the namespace remains `Cratis.Specifications`. Its `Cratis.Specifications` dependency supplies `Catch` and `SpecificationMethods`.
+- 5.0 targets `net10.0` only. A spec project that must stay on net8.0/net9.0 stays on 4.x, and net48 on 3.x. A project that stays on xUnit v2 uses `Cratis.Specifications.XUnit`, with the same base and conventions.
+- `.NUnit`/`.NUnit5`, `.TUnit` and the experimental `.Runner` are alternatives for repositories already built on them.
 - [NSubstitute](https://nsubstitute.github.io/) for mocking collaborators.
 - Spec projects are named `<Source>.Specs`.
 
@@ -47,9 +47,11 @@ public class when_combining_parts : Specification
 | `[Fact] void should_*()` | one assertion per fact | use the `ShouldXxx()` extension methods |
 | `void Destroy()` | teardown after each fact by default | once per eligible class with shared lifecycle opt-in |
 
-Shared lifecycle is optional (4.1.0+): add `[assembly: Xunit.TestFramework("Cratis.Specifications.SpecificationTestFramework", "Cratis.Specifications.XUnit")]`. Eligible classes derive from `Specification`, have one public parameterless constructor, do not implement `IDisposable`, and contain only plain facts. Construction, Establish/Because and Destroy run once; all facts share the instance and must not mutate it. Initialization failure fails every fact. Other classes keep per-fact execution. Keep the stock lifecycle by default; details are in the **cratis-specifications-csharp** skill's shared-lifecycle reference.
+The shared lifecycle is the default on xUnit v2 and v3 since 5.0; the package registers the framework, so delete any hand-written `[assembly: Xunit.TestFramework(...)]` (it fails with `CS0579`). Eligible classes derive from `Specification`, have one public parameterless constructor, do not implement `IDisposable`, and contain only plain facts. Construction, Establish/Because and Destroy run once; all facts share the instance and must not mutate it. Initialization failure fails every fact. Theories and `ITestOutputHelper` constructors keep per-fact execution; `[PerFactSpecificationLifecycle]` opts a class out. `CRSPEC0008` (a fact modifies the shared context) is an error by default: move the change into `Establish` or `Because`. See the **cratis-specifications-csharp** skill's shared-lifecycle reference.
 
-CRSPEC0001–CRSPEC0007 are warnings bundled in `.Specifications`, `.XUnit`, and `.NUnit` 4.0.0+. With warnings as errors, a non-`should_` fact, multiple specs per file (given contexts exempt), a fact on a given context, a `should_` without a test attribute, explicit base lifecycle calls, non-public specs with facts, or `Because` on a given context fail the build. Follow **cratis-specification-by-example**; do not suppress these diagnostics.
+Run specifications as the built executable, not `dotnet test`: restore and build once, then run `bin/<Config>/net10.0/<Project>.Specs`. In a solution that mixes Microsoft.Testing.Platform and VSTest projects, run each project on its own; `dotnet test` on the whole solution does not work there. Filters and the 4.x → 5.0 checklist are in the **cratis-specifications-csharp** skill's [running-specs reference](../skills/cratis-specifications-csharp/references/running-specs.md).
+
+CRSPEC0001–CRSPEC0007 are warnings bundled in `.Specifications`, `.XUnit`, `.XUnit.v3`, and `.NUnit`. With warnings as errors, a non-`should_` fact, multiple specs per file (given contexts exempt), a fact on a given context, a `should_` without a test attribute, explicit base lifecycle calls, non-public specs with facts, or `Because` on a given context fail the build. Follow **cratis-specification-by-example**; do not suppress these diagnostics.
 
 ## Reusable layered contexts
 

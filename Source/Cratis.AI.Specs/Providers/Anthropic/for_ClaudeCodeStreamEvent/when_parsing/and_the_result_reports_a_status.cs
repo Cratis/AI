@@ -25,5 +25,5 @@ public class and_the_result_reports_a_status : Specification
     [Fact] void should_classify_402_as_billing() => _payment.FailureKind.ShouldEqual(ClaudeCodeFailureKind.Billing);
     [Fact] void should_classify_404_as_an_invalid_request() => _notFound.FailureKind.ShouldEqual(ClaudeCodeFailureKind.InvalidRequest);
     [Fact] void should_classify_529_as_a_server_error() => _overloaded.FailureKind.ShouldEqual(ClaudeCodeFailureKind.ServerError);
-    [Fact] void should_name_the_status() => _unauthorized.FailureReason!.ShouldContain("HTTP 401");
+    [Fact] void should_name_the_status() => _unauthorized.FailureReason.ShouldContain("HTTP 401");
 }

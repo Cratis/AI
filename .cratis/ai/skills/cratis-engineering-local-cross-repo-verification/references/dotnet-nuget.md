@@ -28,6 +28,9 @@ dotnet restore path/to/consumer.slnx
 dotnet build path/to/consumer.slnx -c Release --no-restore -warnaserror
 ```
 
+Transitive pinning stays as the consumer sets it; `--pin-transitive` forces it on so stamped IDs the
+consumer does not pin still take effect (it can raise NU1109 floors).
+
 The printed properties are `DirectoryPackagesPropsPath` and
 `RestoreAdditionalProjectSources`. For an IDE, launch it from that shell, or pass
 the printed `-p:` properties explicitly to its build. Verify restore uses the

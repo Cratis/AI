@@ -16,5 +16,5 @@ public class and_neither_answer_states_its_usage : given.a_claude_subscription
     Task Because() => Report();
 
     [Fact] void should_not_know() => _report.Source.ShouldEqual(AIProviderCapacitySource.Unknown);
-    [Fact] void should_say_why() => _report.Problem!.ShouldContain("stated no usage windows");
+    [Fact] void should_say_why() => _report.Problem.ShouldContain("stated no usage windows");
 }

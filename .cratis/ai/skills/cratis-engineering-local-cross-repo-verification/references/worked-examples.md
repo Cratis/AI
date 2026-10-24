@@ -162,6 +162,10 @@ bash "$local" use-nuget "$stage" "$stamp"; bash "$local" use-nuget "$studio" "$s
 bash "$local" use-npm "$studio" "$stamp"       # at the workspace root, not the nested app
 ```
 
+`closure` exits 2 for this chain until `dependency-map.tsv` has the Screenplay NuGet `ids` (it lists
+only npm IDs); add them from the publish workflow first, then use the printed commands and its one
+`verify-pack`.
+
 Gates: Stage's frontend `npm ci`, test and build, then `dotnet build` in Debug and the repository's
 own spec-shard helper; skip probes that need a live kernel or database and say so. Studio:
 `dotnet build` of its solution in Debug with warnings as errors, then the frontend `yarn ci` and
@@ -171,7 +175,7 @@ own spec-shard helper; skip probes that need a live kernel or database and say s
 - Pitfall: a repository without a committed lockfile fails `yarn install --immutable`; use plain
   `yarn install` there.
 - Pitfall: yarn hoists to the root `node_modules`; check and install at the root.
-- Pitfall: the packed language tarball must contain its built bundles. `pack-npm` uses `yarn pack`;
+- Pitfall: the packed language tarball must contain its built bundles. `pack-npm` uses `npm pack`;
   a package whose `files` lists a gitignored folder can ship only part of it. Compare the
   tarball file list with the package's `dist` folder.
 - Pitfall: multi-hop. Studio keeps its released Stage; a binary break is a finding.

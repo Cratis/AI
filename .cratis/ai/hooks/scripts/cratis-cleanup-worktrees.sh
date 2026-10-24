@@ -158,12 +158,19 @@ cached_pulls() {
 }
 take_lock() {
     mkdir "$state/lock" 2>/dev/null && return 0
-    local modified retired acquired
-    read -r _ modified < <(lock_stat "$state/lock")
+    local inode modified retired acquired current
+    read -r inode modified < <(lock_stat "$state/lock")
     [[ "$modified" =~ ^[0-9]+$ ]] && [ "$now" -ge "$((modified + 900))" ] || return 1
     # Rename atomically: a killed reclaimer can leave only a retired directory, never a blocking marker.
     retired="$state/lock.stale.$$.$RANDOM"
     mv "$state/lock" "$retired" 2>/dev/null || return 1
+    read -r current _ < <(lock_stat "$retired")
+    if [ "$current" != "$inode" ]; then
+        # Another reclaimer replaced the stale directory. Restore its lock if possible;
+        # never acquire or delete a directory that was not the stale one we inspected.
+        [ -e "$state/lock" ] || mv "$retired" "$state/lock" 2>/dev/null
+        return 1
+    fi
     acquired=1
     mkdir "$state/lock" 2>/dev/null && acquired=0
     rm -rf "$retired"
@@ -282,9 +289,10 @@ in_use=$(git worktree list --porcelain | sed -n 's#^branch refs/heads/##p')
 planned_branches=$(printf '%s\n' "${PLAN_BRANCH[@]+"${PLAN_BRANCH[@]}"}")
 while IFS='|' read -r b bsha; do
     if [ -z "$b" ] || [ "$b" = "$default_local" ]; then continue; fi
-    if printf '%s\n' "$in_use" | grep -qx "$b"; then
+    # Drain producers under pipefail: grep -q can turn a match into a SIGPIPE failure.
+    if printf '%s\n' "$in_use" | grep -x "$b" >/dev/null; then
         [ "$DRY" = 0 ] || continue
-        printf '%s\n' "$planned_branches" | grep -qx "$b" || continue
+        printf '%s\n' "$planned_branches" | grep -x "$b" >/dev/null || continue
     fi
     plan_item branch "$b" "$bsha" "$b"
 done < <(git for-each-ref --format='%(refname:short)|%(objectname)' refs/heads)
@@ -307,7 +315,7 @@ git worktree prune >/dev/null 2>&1
 for ((i=0; i<${#PLAN_KIND[@]}; i++)); do
     kind=${PLAN_KIND[i]}; path=${PLAN_PATH[i]}; sha=${PLAN_SHA[i]}; br=${PLAN_BRANCH[i]}; ev=${PLAN_EVIDENCE[i]}
     if [ "$kind" = branch ]; then
-        git worktree list --porcelain | sed -n 's#^branch refs/heads/##p' | grep -qx "$br" && continue
+        git worktree list --porcelain | sed -n 's#^branch refs/heads/##p' | grep -x "$br" >/dev/null && continue
     fi
     if [ -z "$ev" ]; then
         if [ "$kind" = worktree ]; then note_kept "worktree $path (${br:-detached}): work not delivered to $default"

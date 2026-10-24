@@ -34,5 +34,5 @@ public class with_encrypted_envelopes : given.outbound_credentials
 
     [Fact] void should_require_reconfiguration_for_each_envelope() => _errors.All(error => error is AIProviderRequiresReconfiguration).ShouldBeTrue();
     [Fact] void should_not_send_any_http_request() => _sent.ShouldEqual(0);
-    [Fact] async Task should_not_invoke_the_subscription_cli() => await _claude.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, default);
+    [Fact] async Task should_not_invoke_the_subscription_cli() => await _claude.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, TestContext.Current.CancellationToken);
 }

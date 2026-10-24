@@ -10,22 +10,68 @@ Portable local package verification for macOS/Linux (Bash 3.2+). Windows: use WS
 Exit codes: 0 success, 1 findings/failed operation, 2 cannot run/invalid input.
 
 Commands (COMMAND --help shows these instructions too):
-  stamp PRODUCER
+  stamp PRODUCER [PRODUCER...]
     Next patch of the highest reachable vX.Y.Z tag, UTC minute and HEAD sha7.
-  pack-nuget PRODUCER STAMP PROJECT-OR-SLN...
-    Release-pack each target into the NuGet feed; requires dotnet.
+    With several producers the highest next patch wins (one stamp for a multi-hop
+    chain, so no stamped package sorts below a released pin) and sha7 is the last
+    producer's; every HEAD is printed to stderr.
+  stamp --train PRODUCER [PRODUCER...]
+    Train stamp X.Y.Z-train.g<sha7>: the same next patch, no minute, so one code
+    state always yields one stamp. Accepted everywhere a local stamp is.
+  closure [--map FILE] [--train] CONSUMER=PATH PRODUCER=PATH...
+    Read-only. Print, from the same plan, the commands to run in order: one stamp
+    (--train: the train stamp), per producer the NuGet overlay of its upstream
+    producers, one pack command per map pack row (with its --property arguments)
+    and the restore, then ONE verify-pack for the whole plan, then the consumer
+    overlay, its verify-assets, restore, check and clean. List producers in dependency order.
+    Nothing is printed when the plan is invalid (exit 2). Warns when a producer
+    reaches the consumer through an unnamed hop.
+  plan [--map FILE] CONSUMER PRODUCER...
+    Read-only. Print the plan derived from scripts/dependency-map.tsv (or
+    CRATIS_LOCAL_MAP) for repository names listed in dependency order: pack rows
+    (producer, ecosystem), overlay rows (producer, upstream) and consume rows
+    (the consumer's own edges). Exit 2, nothing printed: unknown or repeated name,
+    no edge, wrong order, a planned pack without ids or pack rows.
+  verify-pack STAMP --consumer CONSUMER --producer PRODUCER... [--json] [--map FILE]
+    Check exactly the plan that "plan" prints for those names: every planned package
+    exists in the feed at exactly STAMP (never another stamp), and each nuspec
+    dependency on another planned NuGet ID is exactly STAMP, [STAMP] or [STAMP, )
+    (an unreadable element fails). Run once,
+    after the last pack. Exit 1 lists the findings ("missing: ..." / "dependency: ...").
+    Exit 2: invalid plan, or a plan without pack rows (image-only). --json prints one
+    line, {"stamp":..,"packages":[{"id":..,"version":..}]}, and sends findings to stderr.
+  verify-pack STAMP NAME... [--ecosystem nuget|npm] [--json]
+    Manual, weaker form: the IDs the map lists for each named repository (optionally
+    one ecosystem) exist at STAMP and their planned NuGet dependencies point at STAMP.
+  verify-assets CONSUMER-PATH STAMP [--npm] [--dir REL] [--json] --consumer C --producer P...
+    Checks the same plan inside the consumer. Exit 1: a planned package missing from
+    the feed; a planned ID resolved at another version ("ID VERSION PATH"); a producer
+    the consumer uses in this ecosystem with none of its IDs resolved ("unconsumed:").
+    NuGet reads obj/project.assets.json (none: exit 2); --npm reads installed copies
+    under node_modules (under REL if given). --json: the consumer's resolved ids and versions.
+  verify-assets CONSUMER-PATH STAMP [--npm] [--dir REL] [--json]
+    Manual, weaker form without a plan: every package at STAMP in the feed that the
+    consumer resolves must be STAMP (none resolved: exit 1).
+  pack-nuget PRODUCER STAMP [--property NAME=VALUE]... PROJECT-OR-SLN...
+    Release-pack each target into the NuGet feed; requires dotnet. Each --property
+    becomes one -p:NAME=VALUE argument of that command only (closure prints the
+    properties of each map pack row); no environment variable carries them.
   pack-npm PRODUCER STAMP
-    Requires node and Yarn 4, and a completed repository build. Temporarily
-    version non-private workspaces, pack with %s-%v.tgz (Yarn slugifies scoped
-    names), and restore tracked manifests even on failure. Pack lifecycle hooks
-    are Yarn's own behavior; this helper does not run a separate build.
-  use-nuget CONSUMER STAMP [PACKAGE-ID...]
+    Requires node, npm and Yarn 4, and a completed repository build. Temporarily
+    version non-private workspaces, pack each with npm pack --ignore-scripts (the
+    publish workflows' tool, so the tarball matches the published one) as
+    <scope>-<name>-<version>.tgz, and restore tracked manifests even on failure.
+    This helper does not build or run lifecycle scripts.
+  use-nuget CONSUMER STAMP [--pin-transitive] [PACKAGE-ID...]
     Create a CPM overlay importing the repository's own Directory.Packages.props.
+    Transitive pinning stays as the consumer sets it; --pin-transitive forces it on so
+    stamped IDs the consumer does not pin still take effect (can raise NU1109 floors).
     Defaults to every stamped package ID in the feed. Prints properties and sourceable
     env. With source mapping, also prints the required restore --configfile.
     Non-CPM: manually use an untracked project copy with explicit PackageReference
     versions and dotnet restore --source FEED/nuget; do not edit shipped versions.
-  use-npm CONSUMER STAMP
+  use-npm CONSUMER STAMP [--dir REL]
+    --dir REL names a Yarn project in a subdirectory (restore and clean follow it).
     Requires node and tar. Back up package.json, yarn.lock (including existing edits),
     and git diff; add file-tarball resolutions for every stamped feed package.
     Run yarn install afterward. Only one active npm overlay per session.
@@ -37,7 +83,7 @@ Commands (COMMAND --help shows these instructions too):
   check REPO [--staged]
     Scan added/changed tracked lines (staged-only if requested), plus all contents
     of untracked, non-ignored files. Reports path:line:pattern and file counts.
-  clean [CONSUMER] [--stamp STAMP | --all] [--apply]
+  clean [CONSUMER] [--stamp STAMP | --all] [--apply] [--dir REL]
     Default: list all local feed/cache/image/session subjects, without deleting.
     --apply deletes listed subjects (docker rmi, never force). Refuses more than
     CRATIS_LOCAL_CLEAN_MAX subjects (default 500), or unresolved npm backups.
@@ -117,7 +163,7 @@ heavy() {
 }
 repo_root() { git -C "$1" rev-parse --show-toplevel 2>/dev/null || die "not a Git repository: $1"; }
 valid_stamp() {
-    [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+-local\.[0-9]{12}\.g[0-9a-f]{7}$ ]] || die "invalid local stamp: $1"
+    [[ "$1" =~ ^[0-9]+\.[0-9]+\.[0-9]+-(local\.[0-9]{12}|train)\.g[0-9a-f]{7}$ ]] || die "invalid local stamp: $1"
 }
 session_path() {
     local path git_dir
@@ -141,7 +187,7 @@ validate_session() {
         [ -e "$entry" ] || [ -L "$entry" ] || continue
         [ ! -L "$entry" ] || die "symlink in session: $entry"
         case "${entry##*/}" in
-            repo|stamp|env|Directory.Packages.props|nuget.config) [ -f "$entry" ] || die "unexpected session entry: $entry" ;;
+            repo|stamp|env|npm-dir|Directory.Packages.props|nuget.config) [ -f "$entry" ] || die "unexpected session entry: $entry" ;;
             npm-backup) [ -d "$entry" ] || die "unexpected session entry: $entry" ;;
             *) die "unrecognized file in session (preserved): $entry" ;;
         esac
@@ -160,30 +206,70 @@ register_session() {
 }
 xml_escape() { printf '%s' "$1" | sed -e 's/\&/\&amp;/g' -e 's/</\&lt;/g' -e 's/>/\&gt;/g' -e 's/"/\&quot;/g' -e "s/'/\&apos;/g"; }
 
-stamp() {
-    [ $# -eq 1 ] || die 'stamp requires a producer repository'
-    local repo tag major minor patch sha
-    repo=$(repo_root "$1")
-    tag=$(git -C "$repo" tag --merged HEAD | awk '/^v[0-9]+\.[0-9]+\.[0-9]+$/' | sort -t. -k1.2,1n -k2,2n -k3,3n | tail -n 1)
+# Next patch of the highest reachable vX.Y.Z tag; sets NEXT_BASE.
+next_base() {
+    local tag major minor patch
+    tag=$(git -C "$1" tag --merged HEAD | awk '/^v[0-9]+\.[0-9]+\.[0-9]+$/' | sort -t. -k1.2,1n -k2,2n -k3,3n | tail -n 1)
     if [ -n "$tag" ]; then
         IFS=. read -r major minor patch <<< "${tag#v}"
-        tag="$major.$minor.$((10#$patch + 1))"
+        NEXT_BASE="$major.$minor.$((10#$patch + 1))"
     else
-        printf 'WARNING: no reachable vX.Y.Z tag; using 0.1.0\n' >&2
-        tag=0.1.0
+        printf 'WARNING: no reachable vX.Y.Z tag in %s; using 0.1.0\n' "$1" >&2
+        NEXT_BASE=0.1.0
     fi
-    sha=$(git -C "$repo" rev-parse HEAD) || die 'producer has no HEAD commit'
-    printf '%s-local.%s.g%.7s\n' "$tag" "$(date -u +%Y%m%d%H%M)" "$sha"
+}
+# True when version $1 sorts above $2 (major.minor.patch).
+base_above() {
+    local top
+    top=$(printf '%s\n%s\n' "$1" "$2" | sort -t. -k1,1n -k2,2n -k3,3n | tail -n 1)
+    [ "$top" = "$1" ] && [ "$1" != "$2" ]
+}
+
+stamp() {
+    [ $# -ge 1 ] || die 'stamp requires a producer repository'
+    local repo base='' sha='' arg train=0 lines='' rname origin
+    if [ "$1" = --train ]; then train=1; shift; [ $# -ge 1 ] || die 'stamp --train requires a producer repository'; fi
+    for arg in "$@"; do
+        repo=$(repo_root "$arg")
+        next_base "$repo"
+        if [ -z "$base" ] || base_above "$NEXT_BASE" "$base"; then base=$NEXT_BASE; fi
+        sha=$(git -C "$repo" rev-parse HEAD) || die 'producer has no HEAD commit'
+        if [ $# -gt 1 ]; then printf 'HEAD %s %s\n' "$repo" "$sha" >&2; fi
+        # The repository name is its origin's last path part (stable across checkouts), else its folder name.
+        origin=$(git -C "$repo" remote get-url origin 2>/dev/null || true)
+        rname=$(basename "${origin:-$repo}"); rname=${rname%.git}
+        lines="$lines$rname $sha"$'\n'
+    done
+    # With several producers the highest base wins, so no stamped package sorts
+    # below a released pin of another stamped package (NU1605).
+    # A train stamp has no minute and its sha7 covers every producer: the first 7 hex characters of the
+    # SHA-1 of the sorted "<repo> <full HEAD sha>" lines. One combined code state always yields the same
+    # stamp, and a change in any producer changes it. The grammar stays X.Y.Z-train.g<sha7>.
+    if [ "$train" -eq 1 ]; then
+        sha=$(printf '%s' "$lines" | LC_ALL=C sort -u | shasum -a 1) || die 'cannot hash the producer HEADs'
+        printf '%s-train.g%.7s\n' "$base" "${sha%% *}"; return 0
+    fi
+    printf '%s-local.%s.g%.7s\n' "$base" "$(date -u +%Y%m%d%H%M)" "$sha"
 }
 
 pack_nuget() {
     [ $# -ge 3 ] || die 'pack-nuget requires producer, stamp and targets'
-    local repo version target path count=0
+    local repo version target path count=0 property
+    local properties=()
     repo=$(repo_root "$1"); version=$2; shift 2
     valid_stamp "$version"; need dotnet
+    # Extra MSBuild properties (from the dependency map) go on the command line, never the environment:
+    # an environment variable also reaches nested builds such as Chronicle's `dotnet run` code generator.
+    while [ "${1:-}" = --property ]; do
+        [ $# -ge 2 ] || die '--property requires NAME=VALUE'
+        property=$2; shift 2
+        [[ "$property" =~ ^[A-Za-z_][A-Za-z0-9_]*=[A-Za-z0-9_.,-]*$ ]] || die "invalid pack property: $property"
+        properties+=("-p:$property")
+    done
+    [ $# -ge 1 ] || die 'pack-nuget requires at least one target after the properties'
     mutate mkdir -p "$FEED/nuget"
     for target in "$@"; do
-        (cd "$repo" && heavy build "pack NuGet $target" dotnet pack "$target" -c Release "-p:PackageVersion=$version" "-p:Version=$version" -o "$FEED/nuget")
+        (cd "$repo" && heavy build "pack NuGet $target" dotnet pack "$target" -c Release "-p:PackageVersion=$version" "-p:Version=$version" ${properties[@]+"${properties[@]}"} -o "$FEED/nuget")
     done
     [ "$DRY" -eq 0 ] || return 0
     while IFS= read -r -d '' path; do
@@ -193,11 +279,27 @@ pack_nuget() {
     printf 'produced %s nupkgs\n' "$count"
 }
 
+# Pack one workspace with npm pack (what publish does) into the feed as <scope>-<name>-<version>.tgz.
+pack_npm_workspace() {
+    local repo=$1 manifest=$2 version=$3 dir name slug
+    dir=$repo/$(dirname "$manifest")
+    name=$(node -p "require(process.argv[1]).name" "$dir/package.json") || failed "cannot read package name: $manifest"
+    slug=${name//\//-}
+    if [ "$DRY" -eq 1 ]; then
+        quote_command npm pack --ignore-scripts --pack-destination "$FEED/npm" "(in $dir)"
+        return 0
+    fi
+    # Packing is a file copy, not a build: no queue slot per workspace.
+    (cd "$dir" && mutate npm pack --ignore-scripts --pack-destination "$FEED/npm") >/dev/null
+    [ "$FEED/npm/${slug#@}-$version.tgz" = "$FEED/npm/$slug-$version.tgz" ] || \
+        mv -f "$FEED/npm/${slug#@}-$version.tgz" "$FEED/npm/$slug-$version.tgz" || failed "npm pack did not produce $name"
+}
+
 pack_npm() {
     [ $# -eq 2 ] || die 'pack-npm requires producer and stamp'
     local repo version path count=0
     repo=$(repo_root "$1"); version=$2
-    valid_stamp "$version"; need node; need yarn; scratch
+    valid_stamp "$version"; need node; need npm; need yarn; scratch
     git -C "$repo" diff --name-only HEAD -- 'package.json' '*/package.json' > "$TMP/modified"
     git -C "$repo" diff --cached --name-only -- 'package.json' '*/package.json' >> "$TMP/modified"
     git -C "$repo" diff --name-only -- 'package.json' '*/package.json' >> "$TMP/modified"
@@ -234,7 +336,10 @@ for (const file of files) {
 NODE
     fi
     mutate mkdir -p "$FEED/npm"
-    (cd "$repo" && heavy build 'pack npm workspaces' yarn workspaces foreach -A --no-private pack --out "$FEED/npm/%s-%v.tgz")
+    # npm pack, like the publish workflows' npm publish: yarn pack drops files of a gitignored dist folder.
+    while IFS= read -r -d '' path; do
+        pack_npm_workspace "$repo" "$path" "$version"
+    done < "$TMP/manifests"
     if [ "$DRY" -eq 1 ]; then quote_command git -C "$repo" checkout -- '<versioned manifests>'; return 0; fi
     git -C "$repo" checkout -- "${PACK_MANIFESTS[@]}"
     PACK_MANIFESTS=()
@@ -294,9 +399,13 @@ source_mapping() {
 
 use_nuget() {
     [ $# -ge 2 ] || die 'use-nuget requires consumer and stamp'
-    local repo version session props id file config='' props_key sources_key action
+    local repo version session props id file config='' props_key sources_key action pin=0 args=()
     local ids=()
     repo=$(repo_root "$1"); version=$2; shift 2
+    for id in "$@"; do
+        if [ "$id" = --pin-transitive ]; then pin=1; else args+=("$id"); fi
+    done
+    set -- ${args[@]+"${args[@]}"}
     valid_stamp "$version"; props=$repo/Directory.Packages.props
     [ -f "$props" ] || die 'no Directory.Packages.props (non-CPM). Manual alternative: untracked project copy, explicit PackageReference versions, dotnet restore --source FEED/nuget'
     session=$(session_path "$repo"); scratch
@@ -335,7 +444,10 @@ use_nuget() {
     register_session "$repo" "$session" "$version"
     {
         printf '<Project>\n  <Import Project="%s" />\n' "$(xml_escape "$props")"
-        printf '  <PropertyGroup><CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled></PropertyGroup>\n  <ItemGroup>\n'
+        if [ "$pin" -eq 1 ]; then
+            printf '  <PropertyGroup><CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled></PropertyGroup>\n'
+        fi
+        printf '  <ItemGroup>\n'
         for id in "${ids[@]}"; do
             action=Include
             if grep -Fxiq -- "$id" "$TMP/consumer-ids"; then action=Update; fi
@@ -359,15 +471,488 @@ use_nuget() {
     printf 'overrode %s NuGet package IDs\n' "${#ids[@]}"
 }
 
+# Dependency map: tab-separated rows, '#' comments (see references/dependency-map.md).
+# Everything below is derived from these rows; no function reads a feed listing to decide what to expect.
+MAP=${CRATIS_LOCAL_MAP:-$(dirname "$SELF")/dependency-map.tsv}
+map_require() {
+    [ -f "$MAP" ] || die "dependency map not found: $MAP"
+    awk -F'\t' '
+        /^#/ || NF == 0 { next }
+        $2 == "" { bad = 1 }
+        $1 == "pack" && (NF == 4 || NF == 5) && ($3 == "nuget" || $3 == "npm") && $4 != "" && $2 != "" { next }
+        $1 == "ids" && NF == 4 && ($3 == "nuget" || $3 == "npm") && $4 != "" && $2 != "" { next }
+        $1 == "uses" && NF == 5 && ($4 == "nuget" || $4 == "npm" || $4 == "image") && $3 != "" && $5 != "" && $2 != "" { next }
+        $1 == "image" && NF == 4 && $2 != "" { next }
+        { printf "%s:%d: malformed dependency map row: %s\n", FILENAME, NR, $0 > "/dev/stderr"; bad = 1 }
+        END { exit bad ? 1 : 0 }' "$MAP" || exit 2
+}
+map_rows() { awk -F'\t' -v kind="$1" '/^#/ || NF == 0 { next } $1 == kind' "$MAP"; }
+map_known() { awk -F'\t' -v n="$1" '/^#/ || NF == 0 { next } $2 == n || ($1 == "uses" && $3 == n) { found = 1 } END { exit !found }' "$MAP"; }
+# Edge rows "eco<TAB>manifest" for consumer $1 using producer $2.
+map_edge() { map_rows uses | awk -F'\t' -v c="$1" -v p="$2" '$2 == c && $3 == p { print $4 "\t" $5 }'; }
+# Expected package IDs of producer $1 in ecosystem $2, one per line; return 1 when the map has no ids row.
+map_ids() {
+    local rows
+    rows=$(map_rows ids | awk -F'\t' -v r="$1" -v e="$2" '$2 == r && $3 == e { n = split($4, a, ","); for (i = 1; i <= n; i++) if (a[i] != "") print a[i] }')
+    [ -n "$rows" ] || return 1
+    printf '%s\n' "$rows"
+}
+# Pack rows of producer $1 in ecosystem $2 as "target<TAB>PROP=VAL,..." (properties may be empty).
+map_pack_rows() { map_rows pack | awk -F'\t' -v r="$1" -v e="$2" '$2 == r && $3 == e { print $4 "\t" $5 }'; }
+# True when the manifest rows of uses edge "$1 uses $2" include ecosystem $3.
+map_uses() { map_edge "$1" "$2" | awk -F'\t' -v e="$3" '$1 == e { found = 1 } END { exit !found }'; }
+
+# plan_derive OUTFILE CONSUMER PRODUCER...: the one plan every other command works from. Producers are in
+# dependency order. Rows (TSV) are written to OUTFILE only when the whole plan is valid; any problem is die (exit 2).
+# Call it directly, never inside $(...) or a pipeline, so the exit cannot be lost in a subshell.
+#   pack <producer> <eco>            eco nuget|npm: a named downstream repository uses it in that ecosystem
+#   overlay <producer> <upstream>    producer consumes an earlier-named upstream through NuGet
+#   consume <producer> <eco> <path>  the consumer's own edge (eco nuget|npm|image) and its manifest
+plan_derive() {
+    local out=$1 consumer=$2 i j eco name edge manifests
+    shift 2
+    [ $# -ge 1 ] || die 'a plan needs a consumer and at least one producer'
+    local names=("$consumer" "$@")
+    map_require
+    for ((i=0; i<${#names[@]}; i++)); do
+        map_known "${names[$i]}" || die "repository not in the dependency map: ${names[$i]}"
+        for ((j=i+1; j<${#names[@]}; j++)); do
+            [ "${names[$i]}" != "${names[$j]}" ] || die "repository named twice (a consumer cannot also be a producer): ${names[$i]}"
+        done
+    done
+    for ((i=1; i<${#names[@]}; i++)); do
+        for ((j=i+1; j<${#names[@]}; j++)); do
+            [ -z "$(map_edge "${names[$i]}" "${names[$j]}")" ] || die "order: ${names[$i]} uses ${names[$j]}; list ${names[$j]} first"
+        done
+    done
+    : > "$out"
+    for ((i=1; i<${#names[@]}; i++)); do
+        name=${names[$i]}
+        edge=0
+        for eco in nuget npm image; do
+            for ((j=0; j<${#names[@]}; j++)); do
+                [ "$j" -eq 0 ] || [ "$j" -gt "$i" ] || continue
+                if map_uses "${names[$j]}" "$name" "$eco"; then
+                    edge=1
+                    if [ "$eco" != image ]; then plan_add_pack "$out" "$name" "$eco"; fi
+                    break
+                fi
+            done
+        done
+        [ "$edge" -eq 1 ] || die "no edge: nothing named after $name uses it (check the order and the map)"
+    done
+    for ((i=2; i<${#names[@]}; i++)); do
+        for ((j=1; j<i; j++)); do
+            if map_uses "${names[$i]}" "${names[$j]}" nuget; then printf 'overlay\t%s\t%s\n' "${names[$i]}" "${names[$j]}" >> "$out"; fi
+        done
+    done
+    for ((i=1; i<${#names[@]}; i++)); do
+        map_edge "$consumer" "${names[$i]}" | awk -F'\t' -v p="${names[$i]}" '{ print "consume\t" p "\t" $1 "\t" $2 }' >> "$out"
+    done
+    manifests=$(awk -F'\t' '$1 == "consume" && $3 == "npm" { print $4 }' "$out" | sort -u | wc -l | tr -d ' ')
+    [ "$manifests" -le 1 ] || die "$consumer uses npm producers from different directories; only one npm overlay per session is supported"
+    plan_warn_unnamed_hops "${names[@]}"
+}
+# Append "pack <producer> <eco>" after checking the map can verify it (an ids row) and build it (a pack row).
+plan_add_pack() {
+    map_ids "$2" "$3" > /dev/null || die "no ids row for $2 ($3): cannot verify the planned pack"
+    [ -n "$(map_pack_rows "$2" "$3")" ] || die "no pack row for $2 ($3) in the map"
+    printf 'pack\t%s\t%s\n' "$2" "$3" >> "$1"
+}
+# A producer that reaches the consumer through a repository that is not named keeps the released copy of it.
+plan_warn_unnamed_hops() {
+    local consumer=$1 kind x p eco manifest named
+    shift
+    named=$(printf '%s\n' "$@")
+    map_rows uses | while IFS=$'\t' read -r kind x p eco manifest; do
+        [ "$kind" = uses ] && [ "$eco" != '' ] || continue
+        printf '%s\n' "$named" | grep -Fxq "$x" && continue
+        printf '%s\n' "$named" | grep -Fxq "$p" || continue
+        [ "$p" != "$consumer" ] || continue
+        [ -n "$(map_edge "$consumer" "$x")" ] || continue
+        printf 'WARNING: %s -> %s -> %s: %s is not named, so the released %s is kept; name it to rebuild it (a binary break is a finding)\n' "$p" "$x" "$consumer" "$x" "$x" >&2
+    done
+}
+
+# closure [--map FILE] [--train] CONSUMER=PATH PRODUCER=PATH...
+# A printer over plan_derive: it decides nothing the plan does not already say, and prints nothing until the
+# whole plan is valid. Every verify command it prints names the consumer and ALL producers in the given order,
+# so each one re-derives the identical plan (no state is stored between commands).
+# shellcheck disable=SC2016  # printed commands keep a literal $STAMP
+closure() {
+    local arg name path i j eco row target props prop manifest mapopt='' train='' overlaid scope='' upstreams dirarg=''
+    local names=() paths=()
+    while [ $# -gt 0 ]; do
+        arg=$1; shift
+        case "$arg" in
+            --map) [ $# -gt 0 ] || die '--map requires a file'; MAP=$1; printf -v mapopt ' --map %q' "$1"; shift ;;
+            --train) train=' --train' ;;
+            *=*) name=${arg%%=*}; path=${arg#*=}; names+=("$name"); paths+=("$(repo_root "$path")") ;;
+            *) die "closure arguments are NAME=PATH; got: $arg" ;;
+        esac
+    done
+    [ ${#names[@]} -ge 2 ] || die 'closure requires CONSUMER=PATH and at least one PRODUCER=PATH'
+    scratch
+    plan_derive "$TMP/closure-plan" "${names[@]}"
+    for ((i=1; i<${#names[@]}; i++)); do printf -v arg ' --producer %q' "${names[$i]}"; scope="$scope$arg"; done
+    scope=" --consumer $(printf '%q' "${names[0]}")$scope$mapopt"
+    printf '# closure for %s (printed, not executed; run each step and check its exit code)\n' "${names[0]}"
+    printf 'STAMP=$(bash %q stamp%s' "$SELF" "$train"
+    for ((i=1; i<${#paths[@]}; i++)); do printf ' %q' "${paths[$i]}"; done
+    printf ')\n'
+    for ((i=1; i<${#names[@]}; i++)); do
+        name=${names[$i]}; overlaid=0
+        upstreams=$(awk -F'\t' -v p="$name" '$1 == "overlay" && $2 == p { printf "%s ", $3 }' "$TMP/closure-plan")
+        if [ -n "$upstreams" ]; then
+            overlaid=1
+            printf '# %s consumes %s: overlay it, then pack in a shell that sourced the printed env file\n' "$name" "${upstreams% }"
+            printf 'bash %q use-nuget %q "$STAMP"\n' "$SELF" "${paths[$i]}"
+        fi
+        for eco in nuget npm; do
+            grep -Fxq "$(printf 'pack\t%s\t%s' "$name" "$eco")" "$TMP/closure-plan" || continue
+            if [ "$eco" = npm ]; then
+                printf '( cd %q && bash %q pack-npm . "$STAMP" )   # needs yarn install --immutable and the repository build first; pack-npm does not build\n' "${paths[$i]}" "$SELF"
+                continue
+            fi
+            while IFS=$'\t' read -r target props; do
+                printf '( cd %q && ' "${paths[$i]}"
+                if [ "$overlaid" -eq 1 ]; then printf '. %q && ' "$(session_path "${paths[$i]}")/env"; fi
+                printf 'bash %q pack-nuget . "$STAMP"' "$SELF"
+                for prop in ${props//,/ }; do printf ' --property %q' "$prop"; done
+                printf ' %q )\n' "$target"
+            done < <(map_pack_rows "$name" nuget)
+        done
+        if [ "$overlaid" -eq 1 ]; then printf 'bash %q restore %q\n' "$SELF" "${paths[$i]}"; fi
+        for ((j=i+1; j<${#names[@]}; j++)); do
+            while IFS=$'\t' read -r eco manifest; do
+                case "$eco" in npm|image) printf '# note: %s uses %s (%s, %s): not overlaid here; wire it by hand if the %s build needs the local %s\n' "${names[$j]}" "$name" "$eco" "$manifest" "${names[$j]}" "$name" ;; esac
+            done < <(map_edge "${names[$j]}" "$name")
+        done
+    done
+    if grep -q '^pack' "$TMP/closure-plan"; then
+        printf 'bash %q verify-pack "$STAMP"%s\n' "$SELF" "$scope"
+    else
+        printf '# no pack rows in this plan (image-only edges): nothing to verify in the feed\n'
+    fi
+    for eco in nuget npm image; do
+        row=$(awk -F'\t' -v e="$eco" '$1 == "consume" && $3 == e { print $4; exit }' "$TMP/closure-plan")
+        [ -n "$row" ] || continue
+        if [ "$eco" = npm ] && [ "$row" != . ]; then printf -v dirarg ' --dir %q' "$row"; fi
+        case "$eco" in
+            nuget) printf 'bash %q use-nuget %q "$STAMP"\n# source the printed env file, restore and build the consumer, then:\nbash %q verify-assets %q "$STAMP"%s\n' "$SELF" "${paths[0]}" "$SELF" "${paths[0]}" "$scope" ;;
+            npm) printf 'bash %q use-npm %q "$STAMP"%s   # then yarn install (not --immutable)\nbash %q verify-assets %q "$STAMP" --npm%s%s\n' "$SELF" "${paths[0]}" "$dirarg" "$SELF" "${paths[0]}" "$dirarg" "$scope" ;;
+            image) printf '# image edge: build the producer image per references/docker-images.md, tag it with "$STAMP"\n' ;;
+        esac
+    done
+    printf 'bash %q restore %q\nbash %q check %q\nbash %q clean %q --stamp "$STAMP"%s   # review, then repeat with --apply\n' "$SELF" "${paths[0]}" "$SELF" "${paths[0]}" "$SELF" "${paths[0]}" "$dirarg"
+}
+
+# plan [--map FILE] CONSUMER PRODUCER...: print the plan rows (read-only).
+plan_command() {
+    local args=()
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --map) [ $# -ge 2 ] || die '--map requires a file'; MAP=$2; shift 2 ;;
+            --*) die "unknown plan option: $1" ;;
+            *) args+=("$1"); shift ;;
+        esac
+    done
+    [ ${#args[@]} -ge 2 ] || die 'plan requires CONSUMER and at least one PRODUCER (repository names from the map)'
+    scratch
+    plan_derive "$TMP/plan" "${args[@]}"
+    cat "$TMP/plan"
+}
+
+# ---- Verification primitives. Each one reads only what it is passed and writes only to the paths it is given. ----
+# One private scratch directory per command; stateless: nothing survives between two verify invocations.
+SCR=''
+fn_scratch() { scratch; SCR=$(mktemp -d "$TMP/fn.XXXXXX") || die 'cannot create a scratch directory'; }
+
+# One line per planned artifact: "id<TAB>eco<TAB>producer". Derived from the plan rows and the map's ids rows only.
+expected_artifacts() {
+    local plan=$1 out=$2 kind p eco id
+    : > "$out"
+    while IFS=$'\t' read -r kind p eco; do
+        [ "$kind" = pack ] || continue
+        while IFS= read -r id; do printf '%s\t%s\t%s\n' "$id" "$eco" "$p" >> "$out"; done < <(map_ids "$p" "$eco")
+    done < "$plan"
+}
+
+# The exact feed file of one artifact. Never a glob and never another stamp.
+feed_path() {
+    case "$2" in
+        nuget) printf '%s/nuget/%s.%s.nupkg\n' "$FEED" "$3" "$1" ;;
+        npm) printf '%s/npm/%s-%s.tgz\n' "$FEED" "${3//\//-}" "$1" ;;
+    esac
+}
+
+# Split EXPECTED into PRESENT_OUT (same rows) and FINDINGS_OUT ("missing: ID STAMP (producer eco)").
+feed_check() {
+    local stamp=$1 expected=$2 present=$3 findings=$4 id eco p
+    : > "$present"; : > "$findings"
+    while IFS=$'\t' read -r id eco p; do
+        if [ -f "$(feed_path "$stamp" "$eco" "$id")" ]; then printf '%s\t%s\t%s\n' "$id" "$eco" "$p" >> "$present"
+        else printf 'missing: %s %s (%s %s)\n' "$id" "$stamp" "$p" "$eco" >> "$findings"; fi
+    done < "$expected"
+}
+
+# A dependency matches only when it is exactly the stamp: STAMP, [STAMP] or [STAMP, ) (an inclusive lower bound
+# with no upper bound, which is how a floor is written). Exclusive bounds, upper bounds and anything else fail.
+dep_matches() {
+    local range=${2//[[:space:]]/}
+    [ "$range" = "$1" ] || [ "$range" = "[$1]" ] || [ "$range" = "[$1,)" ]
+}
+
+# "dep<TAB>id<TAB>version" for every <dependency> element of a nuspec, whatever the attribute order, quote
+# style or line breaks; "bad<TAB>element" for one whose id or version cannot be read (the caller fails on it).
+nuspec_dependencies() {
+    tr '\r\n\t' '   ' < "$1" | awk '
+        function attr(el, n,   v) {
+            if (match(el, "[ ]" n "[ ]*=[ ]*\"[^\"]*\"")) { v = substr(el, RSTART, RLENGTH); sub(/^[^"]*"/, "", v); sub(/"$/, "", v); return v }
+            if (match(el, "[ ]" n "[ ]*=[ ]*\047[^\047]*\047")) { v = substr(el, RSTART, RLENGTH); sub(/^[^\047]*\047/, "", v); sub(/\047$/, "", v); return v }
+            return ""
+        }
+        { s = $0
+          while (match(s, /<dependency([^A-Za-z]|$)/)) {
+              rest = substr(s, RSTART); e = index(rest, ">")
+              if (e == 0) { print "bad\t" substr(rest, 1, 80); break }
+              el = substr(rest, 1, e); s = substr(rest, e + 1)
+              id = attr(el, "id"); ver = attr(el, "version")
+              if (id == "" || ver == "" || index(substr(el, 2), "<") > 0) print "bad\t" el
+              else print "dep\t" id "\t" ver
+          } }'
+}
+
+# Every nuspec dependency of a present planned .nupkg whose ID is in DEPSET must point at the stamp.
+# Appends to FINDINGS_OUT and sets NUSPEC_EDGES to the number of dependency edges checked.
+NUSPEC_EDGES=0
+nuspec_findings() {
+    local stamp=$1 depset=$2 present=$3 findings=$4 id eco p kind dep range nuspec
+    NUSPEC_EDGES=0
+    nuspec=$findings.nuspec
+    while IFS=$'\t' read -r id eco p; do
+        [ "$eco" = nuget ] || continue
+        if ! unzip -p "$(feed_path "$stamp" nuget "$id")" '*.nuspec' > "$nuspec" 2>/dev/null; then
+            printf 'unreadable nuspec: %s\n' "$id" >> "$findings"; continue
+        fi
+        while IFS=$'\t' read -r kind dep range; do
+            if [ "$kind" = bad ]; then printf 'unparseable dependency: %s: %s\n' "$id" "$dep" >> "$findings"; continue; fi
+            grep -Fxiq -- "$dep" "$depset" || continue
+            NUSPEC_EDGES=$((NUSPEC_EDGES + 1))
+            dep_matches "$stamp" "$range" || printf 'dependency: %s -> %s %s (expected %s)\n' "$id" "$dep" "$range" "$stamp" >> "$findings"
+        done < <(nuspec_dependencies "$nuspec")
+    done < "$present"
+    rm -f -- "$nuspec"
+}
+
+# "id<TAB>version<TAB>assets file" for every package in IDSFILE that the consumer's restore resolved.
+# Library keys are "Id/Version"; project references are not packages. Exit 2 without an assets file.
+nuget_resolutions() {
+    local consumer=$1 idsfile=$2 out=$3 path files=()
+    while IFS= read -r -d '' path; do files+=("$path"); done < <(find "$consumer" -name node_modules -prune -o -path '*/obj/project.assets.json' -type f -print0)
+    [ ${#files[@]} -gt 0 ] || { printf 'ERROR: no obj/project.assets.json under %s (restore the consumer first)\n' "$consumer" >&2; return 2; }
+    need node
+    node - "$idsfile" "${files[@]}" > "$out" <<'NODE' || { printf 'ERROR: cannot read the consumer assets\n' >&2; return 2; }
+const fs = require('fs');
+const [idsfile, ...files] = process.argv.slice(2);
+const ids = new Set(fs.readFileSync(idsfile, 'utf8').split('\n').filter(Boolean).map(s => s.toLowerCase()));
+for (const file of files) {
+    let json;
+    try { json = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) { console.error('invalid JSON: ' + file); process.exit(1); }
+    if (!json || typeof json.libraries !== 'object' || json.libraries === null) { console.error('no libraries object: ' + file); process.exit(1); }
+    for (const [key, lib] of Object.entries(json.libraries)) {
+        const cut = key.indexOf('/');
+        if (cut < 1 || cut === key.length - 1 || !lib || typeof lib.type !== 'string') { console.error('unreadable library ' + key + ': ' + file); process.exit(1); }
+        if (lib.type !== 'project' && ids.has(key.slice(0, cut).toLowerCase())) console.log(key.slice(0, cut) + '\t' + key.slice(cut + 1) + '\t' + file);
+    }
+}
+NODE
+}
+
+# "name<TAB>version<TAB>package.json" for every installed copy of a package in IDSFILE under NM.
+npm_installed() {
+    local nm=$1 idsfile=$2 out=$3 name file version
+    need node
+    [ -d "$nm" ] || { printf 'ERROR: no node_modules: %s (run yarn install first)\n' "$nm" >&2; return 2; }
+    : > "$out"
+    while IFS= read -r name; do
+        while IFS= read -r -d '' file; do
+            version=$(node -e 'const v = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).version; if (typeof v !== "string" || v === "") process.exit(1); process.stdout.write(v)' "$file") \
+                || { printf 'ERROR: unreadable package.json (no version): %s\n' "$file" >&2; return 2; }
+            printf '%s\t%s\t%s\n' "$name" "$version" "$file" >> "$out"
+        done < <(find "$nm" -path "*/node_modules/$name/package.json" -type f -print0)
+    done < "$idsfile"
+}
+
+# Every producer the consumer uses in ECO must have at least one of its planned IDs resolved.
+# A consumer may use only part of a producer, so one ID is enough.
+consumption_findings() {
+    local plan=$1 eco=$2 resolved=$3 findings=$4 kind p e manifest ids
+    while IFS=$'\t' read -r kind p e manifest; do
+        [ "$kind" = consume ] && [ "$e" = "$eco" ] || continue
+        ids=$(map_ids "$p" "$eco") || ids=''
+        if ! awk -F'\t' 'NR == FNR { want[tolower($0)] = 1; next } tolower($1) in want { found = 1 } END { exit !found }' <(printf '%s\n' "$ids") "$resolved"; then
+            printf 'unconsumed: %s (%s): none of %s resolved in the consumer\n' "$p" "$eco" "$(printf '%s' "$ids" | tr '\n' ',' | sed 's/,$//; s/,/, /g')" >> "$findings"
+        fi
+    done < "$plan"
+}
+
+# One JSON line from tab-separated "id<TAB>version" rows in $2, for machine consumers (pi-train).
+json_report() {
+    awk -F'\t' -v stamp="$1" 'BEGIN { printf "{\"stamp\":\"%s\",\"packages\":[", stamp }
+        { printf "%s{\"id\":\"%s\",\"version\":\"%s\"}", (NR > 1 ? "," : ""), $1, $2 }
+        END { print "]}" }' "$2"
+}
+
+# Print findings to stdout, or stderr when stdout carries JSON, then fail. Returns only when there are none.
+report_findings() {
+    local command=$1 findings=$2 out=$3 count
+    count=$(wc -l < "$findings" | tr -d ' ')
+    [ "$count" -eq 0 ] && return 0
+    cat "$findings" >&"$out"
+    failed "$command: $count findings"
+}
+
+# verify-pack STAMP (--consumer C --producer P... | NAME... [--ecosystem E]) [--json] [--map FILE]
+# Plan mode checks exactly the plan the closure printed. Name mode (manual, weaker) builds the plan rows from
+# the named repositories' ids rows instead of from edges.
+verify_pack() {
+    [ $# -ge 2 ] || die 'verify-pack requires STAMP and either --consumer C --producer P... or repository NAMEs'
+    local stamp=$1 json=0 out=1 ecosystem='' consumer='' name eco d found
+    local producers=() names=()
+    shift
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --json) json=1; out=2; shift ;;
+            --map) [ $# -ge 2 ] || die '--map requires a file'; MAP=$2; shift 2 ;;
+            --consumer) [ $# -ge 2 ] || die '--consumer requires a repository name'; consumer=$2; shift 2 ;;
+            --producer) [ $# -ge 2 ] || die '--producer requires a repository name'; producers+=("$2"); shift 2 ;;
+            --ecosystem) [ $# -ge 2 ] || die '--ecosystem requires nuget or npm'; ecosystem=$2; shift 2
+                case "$ecosystem" in nuget|npm) ;; *) die 'invalid ecosystem' ;; esac ;;
+            --*) die "unknown verify-pack option: $1" ;;
+            *) names+=("$1"); shift ;;
+        esac
+    done
+    valid_stamp "$stamp"; fn_scratch; d=$SCR
+    if [ -n "$consumer" ] || [ ${#producers[@]} -gt 0 ]; then
+        [ -n "$consumer" ] && [ ${#producers[@]} -gt 0 ] || die 'verify-pack plan mode needs both --consumer and --producer'
+        [ ${#names[@]} -eq 0 ] && [ -z "$ecosystem" ] || die 'verify-pack takes either --consumer/--producer or repository names, not both'
+        plan_derive "$d/plan" "$consumer" "${producers[@]}"
+    else
+        [ ${#names[@]} -ge 1 ] || die 'verify-pack requires --consumer/--producer or at least one repository name from the map'
+        map_require
+        : > "$d/plan"
+        for name in "${names[@]}"; do
+            map_known "$name" || die "repository not in the dependency map: $name"
+            found=0
+            for eco in nuget npm; do
+                [ -z "$ecosystem" ] || [ "$eco" = "$ecosystem" ] || continue
+                if map_ids "$name" "$eco" > /dev/null; then printf 'pack\t%s\t%s\n' "$name" "$eco" >> "$d/plan"; found=1; fi
+            done
+            [ "$found" -eq 1 ] || die "no ids row for $name (${ecosystem:-all ecosystems}) in the map"
+        done
+    fi
+    grep -q '^pack' "$d/plan" || die 'the plan has no pack rows (image-only edges): nothing to verify'
+    expected_artifacts "$d/plan" "$d/expected"
+    awk -F'\t' '$2 == "nuget" { print $1 }' "$d/expected" > "$d/depset"
+    [ ! -s "$d/depset" ] || need unzip
+    feed_check "$stamp" "$d/expected" "$d/present" "$d/findings"
+    nuspec_findings "$stamp" "$d/depset" "$d/present" "$d/findings"
+    report_findings verify-pack "$d/findings" "$out"
+    if [ "$json" -eq 1 ]; then
+        awk -F'\t' -v s="$stamp" '{ print $1 "\t" s }' "$d/present" > "$d/json"
+        json_report "$stamp" "$d/json"
+        return 0
+    fi
+    printf 'verify-pack: %s planned artifacts present at %s (%s dependency edges checked)\n' "$(wc -l < "$d/present" | tr -d ' ')" "$stamp" "$NUSPEC_EDGES"
+}
+
+# verify-assets CONSUMER-PATH STAMP [--npm] [--dir REL] [--json] [--consumer C --producer P...] [--map FILE]
+# Plan mode scans for exactly the planned IDs of one ecosystem; feed-wide mode (no --consumer) scans every
+# package at the stamp in the feed, which is manual and weaker.
+verify_assets() {
+    [ $# -ge 2 ] || die 'verify-assets requires CONSUMER-PATH, STAMP, [--npm] [--dir REL]'
+    local path=$1 stamp=$2 npm=0 dir='' json=0 out=1 consumer='' eco=nuget d name file matched nm unit
+    local producers=()
+    shift 2
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --npm) npm=1; eco=npm; shift ;;
+            --json) json=1; out=2; shift ;;
+            --dir) [ $# -ge 2 ] || die '--dir requires a relative directory'; dir=${2%/}; shift 2 ;;
+            --map) [ $# -ge 2 ] || die '--map requires a file'; MAP=$2; shift 2 ;;
+            --consumer) [ $# -ge 2 ] || die '--consumer requires a repository name'; consumer=$2; shift 2 ;;
+            --producer) [ $# -ge 2 ] || die '--producer requires a repository name'; producers+=("$2"); shift 2 ;;
+            *) die "unknown verify-assets option: $1" ;;
+        esac
+    done
+    valid_stamp "$stamp"; [ -d "$path" ] || die "not a directory: $path"
+    case "$dir" in /*|..|../*|*/..|*/../*) die "--dir must be a relative path inside the consumer: $dir" ;; esac
+    if [ -n "$consumer" ] || [ ${#producers[@]} -gt 0 ]; then
+        [ -n "$consumer" ] && [ ${#producers[@]} -gt 0 ] || die 'verify-assets needs --consumer and --producer together'
+    fi
+    fn_scratch; d=$SCR
+    : > "$d/findings"
+    if [ -n "$consumer" ]; then
+        plan_derive "$d/plan" "$consumer" "${producers[@]}"
+        awk -F'\t' -v e="$eco" '$1 == "consume" && $3 == e { found = 1 } END { exit !found }' "$d/plan" || die "$consumer has no $eco edge to the named producers"
+        expected_artifacts "$d/plan" "$d/all-expected"
+        awk -F'\t' -v e="$eco" '$2 == e' "$d/all-expected" > "$d/expected"
+        feed_check "$stamp" "$d/expected" "$d/present" "$d/findings"
+        cut -f1 "$d/expected" | sort -u > "$d/ids"
+    else
+        : > "$d/ids"
+        if [ "$npm" -eq 1 ]; then
+            for file in "$FEED/npm/"*"-$stamp.tgz"; do
+                [ -f "$file" ] || continue
+                name=$(tar -xOf "$file" package/package.json | node -e 'const n = JSON.parse(require("fs").readFileSync(0, "utf8")).name; if (typeof n !== "string" || n === "") process.exit(1); process.stdout.write(n)') \
+                    || die "cannot read the package name: $file"
+                printf '%s\n' "$name" >> "$d/ids"
+            done
+        else
+            for file in "$FEED/nuget/"*".$stamp.nupkg"; do
+                [ -f "$file" ] || continue
+                name=${file##*/}; printf '%s\n' "${name%."$stamp".nupkg}" >> "$d/ids"
+            done
+            [ -s "$d/ids" ] || die "no packages at $stamp in the feed"
+        fi
+    fi
+    if [ "$npm" -eq 1 ]; then
+        nm=$path${dir:+/$dir}/node_modules
+        npm_installed "$nm" "$d/ids" "$d/resolved" || return $?
+    else
+        nuget_resolutions "$path" "$d/ids" "$d/resolved" || return $?
+    fi
+    matched=$(wc -l < "$d/resolved" | tr -d ' ')
+    awk -F'\t' -v s="$stamp" '$2 != s { print $1 " " $2 " " $3 }' "$d/resolved" >> "$d/findings"
+    if [ -n "$consumer" ]; then
+        consumption_findings "$d/plan" "$eco" "$d/resolved" "$d/findings"
+    elif [ "$matched" -eq 0 ]; then
+        failed "verify-assets: no stamped $eco package is resolved in the consumer"
+    fi
+    report_findings verify-assets "$d/findings" "$out"
+    if [ "$json" -eq 1 ]; then
+        awk -F'\t' '{ print $1 "\t" $2 }' "$d/resolved" | sort -u > "$d/json"
+        json_report "$stamp" "$d/json"
+        return 0
+    fi
+    unit=resolutions
+    if [ "$npm" -eq 1 ]; then unit='installed copies'; fi
+    printf 'verify-assets: %s %s, all at %s\n' "$matched" "$unit" "$stamp"
+}
+
 use_npm() {
-    [ $# -eq 2 ] || die 'use-npm requires consumer and stamp'
-    local repo version session backup
+    [ $# -eq 2 ] || { [ $# -eq 4 ] && [ "$3" = --dir ]; } || die 'use-npm requires consumer, stamp and optional --dir REL'
+    local repo version session backup rel='' dir
     repo=$(repo_root "$1"); version=$2
+    if [ $# -eq 4 ]; then rel=${4%/}; fi
+    case "$rel" in /*|..|../*|*/..|*/../*) die "--dir must be a relative path inside the consumer: $rel" ;; esac
+    dir=$repo${rel:+/$rel}
     valid_stamp "$version"; need node; need tar; scratch
     session=$(session_path "$repo"); backup=$session/npm-backup
-    [ -f "$repo/package.json" ] || die 'consumer has no root package.json'
+    [ -f "$dir/package.json" ] || die "consumer has no package.json in ${rel:-the root}; use --dir REL for a Yarn project in a subdirectory"
     [ ! -e "$backup" ] || die "active npm backup exists: $backup; restore first"
-    node - "$repo" "$FEED/npm" "$version" "$TMP/package.json" <<'NODE'
+    node - "$dir" "$FEED/npm" "$version" "$TMP/package.json" <<'NODE'
 const fs = require('fs'), path = require('path'), {execFileSync} = require('child_process');
 const [repo, feed, stamp, output] = process.argv.slice(2);
 const root = JSON.parse(fs.readFileSync(path.join(repo, 'package.json'), 'utf8'));
@@ -389,39 +974,42 @@ console.log(`overrode ${count} npm packages`);
 NODE
     if [ "$DRY" -eq 1 ]; then
         quote_command mkdir -p "$backup"
-        quote_command cp "$TMP/package.json" "$repo/package.json"
+        quote_command cp "$TMP/package.json" "$dir/package.json"
         return 0
     fi
     register_session "$repo" "$session" "$version"
     mkdir "$backup"
-    cp -p "$repo/package.json" "$backup/package.json"
-    if [ -f "$repo/yarn.lock" ]; then cp -p "$repo/yarn.lock" "$backup/yarn.lock"; fi
-    git -C "$repo" diff HEAD -- package.json yarn.lock > "$backup/before.diff"
+    if [ -n "$rel" ]; then printf '%s\n' "$rel" > "$session/npm-dir"; fi
+    cp -p "$dir/package.json" "$backup/package.json"
+    if [ -f "$dir/yarn.lock" ]; then cp -p "$dir/yarn.lock" "$backup/yarn.lock"; fi
+    git -C "$dir" diff HEAD -- package.json yarn.lock > "$backup/before.diff"
     cp "$TMP/package.json" "$backup/expected-package.json"
-    cp "$TMP/package.json" "$repo/package.json"
-    printf 'Next: cd %q && yarn install\n' "$repo"
+    cp "$TMP/package.json" "$dir/package.json"
+    printf 'Next: cd %q && yarn install\n' "$dir"
     printf 'Vite: clear stale prebundles with rm -rf node_modules/.vite\n'
 }
 
 restore() {
     [ $# -eq 1 ] || die 'restore requires a consumer'
-    local repo session backup
+    local repo session backup dir
     repo=$(repo_root "$1"); session=$(session_path "$repo"); backup=$session/npm-backup
     validate_session "$session"
+    dir=$repo
+    if [ -f "$session/npm-dir" ]; then dir=$repo/$(cat "$session/npm-dir"); fi
     if [ -f "$session/repo" ] && [ "$(cat "$session/repo")" != "$repo" ]; then die 'session belongs to another checkout'; fi
     if [ -d "$backup" ]; then
-        if ! cmp -s "$repo/package.json" "$backup/expected-package.json" ||
-            { [ -f "$backup/yarn.lock" ] && ! cmp -s "$repo/yarn.lock" "$backup/yarn.lock"; } ||
-            { [ ! -f "$backup/yarn.lock" ] && [ -e "$repo/yarn.lock" ]; }; then
+        if ! cmp -s "$dir/package.json" "$backup/expected-package.json" ||
+            { [ -f "$backup/yarn.lock" ] && ! cmp -s "$dir/yarn.lock" "$backup/yarn.lock"; } ||
+            { [ ! -f "$backup/yarn.lock" ] && [ -e "$dir/yarn.lock" ]; }; then
             need node
-            node "$(dirname "$SELF")/npm-restore-check.cjs" "$repo" "$backup" ||
+            node "$(dirname "$SELF")/npm-restore-check.cjs" "$dir" "$backup" ||
                 die "npm files changed beyond the overlay; review $backup (nothing restored)"
         fi
-        mutate cp -p "$backup/package.json" "$repo/package.json"
-        if [ -f "$backup/yarn.lock" ]; then mutate cp -p "$backup/yarn.lock" "$repo/yarn.lock"; else mutate rm -f -- "$repo/yarn.lock"; fi
+        mutate cp -p "$backup/package.json" "$dir/package.json"
+        if [ -f "$backup/yarn.lock" ]; then mutate cp -p "$backup/yarn.lock" "$dir/yarn.lock"; else mutate rm -f -- "$dir/yarn.lock"; fi
         mutate rm -rf -- "$backup"
     fi
-    mutate rm -f -- "$session/Directory.Packages.props" "$session/nuget.config" "$session/env" "$session/stamp"
+    mutate rm -f -- "$session/Directory.Packages.props" "$session/nuget.config" "$session/env" "$session/stamp" "$session/npm-dir"
     if [ "$DRY" -eq 0 ]; then check "$repo"; fi
 }
 
@@ -468,6 +1056,7 @@ scan_lines() {
         {
             number=$0; sub(/:.*/,"",number); line=$0; sub(/^[^:]*:/,"",line)
             if (line ~ /-local\.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.g[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/) hit("local stamp")
+            if (line ~ /-train\.g[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/) hit("train stamp")
             if (index(line,feed)) hit("local feed path")
             if (index(line,"DirectoryPackages" "PropsPath")) hit("CPM overlay property")
             if (index(line,"RestoreAdditional" "ProjectSources")) hit("additional restore sources")
@@ -496,10 +1085,10 @@ bounded_docker() {
     return "$status"
 }
 local_artifact() {
-    [[ "$1" =~ -local\.[0-9]{12}\.g[0-9a-f]{7}($|[^0-9A-Za-z]) ]]
+    [[ "$1" =~ -(local\.[0-9]{12}|train)\.g[0-9a-f]{7}($|[^0-9A-Za-z]) ]]
 }
 clean() {
-    local version='' apply=0 consumer='' arg path cache image session maximum count=0
+    local version='' apply=0 consumer='' arg path cache image session maximum count=0 rel=''
     local subjects=() kinds=()
     while [ $# -gt 0 ]; do
         arg=$1; shift
@@ -507,6 +1096,7 @@ clean() {
             --stamp) [ $# -gt 0 ] || die '--stamp requires a stamp'; [ -z "$version" ] || die 'choose --stamp or --all'; version=$1; shift; valid_stamp "$version" ;;
             --all) [ -z "$version" ] || die 'choose --stamp or --all'; version=all ;;
             --apply) apply=1 ;;
+            --dir) [ $# -gt 0 ] || die '--dir requires a relative directory'; rel=${1%/}; shift ;;
             -*) die "unknown clean option: $arg" ;;
             *) [ -z "$consumer" ] || die 'clean takes at most one consumer'; consumer=$(repo_root "$arg") ;;
         esac
@@ -522,12 +1112,12 @@ clean() {
             local_artifact "${path##*/}" || continue
             if [ -n "$version" ] && [ "$version" != all ]; then case "$path" in *"$version"*) ;; *) continue ;; esac; fi
             subjects+=("$path"); kinds+=(file)
-        done < <(find "$cache" -type f \( -name '*.nupkg' -o -name '*.tgz' \) -print0)
+        done < <(find "$cache" -type f \( -name '*.nupkg' -o -name '*.snupkg' -o -name '*.tgz' \) -print0)
     done
     if [ -d "$NUGET_CACHE" ]; then
         for cache in "$NUGET_CACHE"/*; do
             [ -d "$cache" ] && [ ! -L "$cache" ] || continue
-            for path in "$cache"/*-local.*; do
+            for path in "$cache"/*-local.* "$cache"/*-train.*; do
                 [ -d "$path" ] && [ ! -L "$path" ] || continue
                 local_artifact "${path##*/}" || continue
                 if [ -n "$version" ] && [ "$version" != all ] && [ "${path##*/}" != "$version" ]; then continue; fi
@@ -535,14 +1125,16 @@ clean() {
             done
         done
     fi
-    if command -v yarn >/dev/null 2>&1 && [ -n "$consumer" ]; then
-        cache=$(cd "$consumer" && yarn config get cacheFolder) || die 'cannot discover Yarn cache'
+    if [ -n "$consumer" ] && [ ! -f "$consumer${rel:+/$rel}/package.json" ]; then
+        printf 'SKIP: no package.json in %s; pass --dir REL for a Yarn project in a subdirectory\n' "$consumer${rel:+/$rel}" >&2
+    elif command -v yarn >/dev/null 2>&1 && [ -n "$consumer" ]; then
+        cache=$(cd "$consumer${rel:+/$rel}" && yarn config get cacheFolder) || die 'cannot discover Yarn cache'
         if [ -d "$cache" ]; then
             while IFS= read -r -d '' path; do
                 local_artifact "${path##*/}" || continue
                 if [ -n "$version" ] && [ "$version" != all ]; then case "$path" in *"$version"*) ;; *) continue ;; esac; fi
                 subjects+=("$path"); kinds+=(file)
-            done < <(find "$cache" -type f -name '*-local.*' -print0)
+            done < <(find "$cache" -type f \( -name '*-local.*' -o -name '*-train.*' \) -print0)
         fi
     else
         printf 'SKIP: Yarn cache discovery needs yarn and an explicit consumer\n' >&2
@@ -585,7 +1177,7 @@ clean() {
                 session)
                     [ -f "$path/stamp" ] && [ ! -L "$path" ] && [ ! -e "$path/npm-backup" ] || die "session changed: $path"
                     validate_session "$path"
-                    rm -f -- "$path/repo" "$path/stamp" "$path/env" "$path/Directory.Packages.props" "$path/nuget.config"
+                    rm -f -- "$path/repo" "$path/stamp" "$path/env" "$path/npm-dir" "$path/Directory.Packages.props" "$path/nuget.config"
                     rmdir -- "$path" ;;
             esac
         done
@@ -593,14 +1185,17 @@ clean() {
     else printf 'dry-run: %s subjects (use --apply to remove)\n' "$count"; fi
 }
 
+# shellcheck disable=SC2016  # fixtures assert literal $STAMP in printed commands
 self_test() {
     [ $# -eq 0 ] || die '--self-test takes no arguments'
-    local root home repo feed version output status passed=0 skipped=0 test_key arg
+    local root home repo feed version output status passed=0 skipped=0 test_key arg map
     scratch; root=$TMP/self-test; mkdir -p "$root/home" "$root/repo"
-    home=$root/home; repo=$root/repo; feed=$home/.cache/cratis/local-feed
+    map=$root/map.tsv; home=$root/home; repo=$root/repo; feed=$home/.cache/cratis/local-feed
     # System-only tests stay hermetic; npm tests inherit PATH to discover node.
     # Both isolate HOME/config and omit the host adapter.
     st() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" /bin/bash "$SELF" "$@"; }
+    stm() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_MAP="$map" /bin/bash "$SELF" "$@"; }
+    has() { grep -Fq -- "$1" "$2"; }
     st_npm() { env -i HOME="$home" PATH="$PATH" TMPDIR="$TMP" /bin/bash "$SELF" "$@"; }
     git -C "$repo" init -q
     repo=$(repo_root "$repo")
@@ -658,7 +1253,13 @@ LOCK
     grep -Fq "Import Project=\"$repo/Directory.Packages.props\"" "$output/Directory.Packages.props" || failed 'self-test: overlay import'
     grep -Fq "PackageVersion Update=\"Cratis.Test\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: pinned package Update'
     grep -Fq "PackageVersion Include=\"Cratis.Transitive\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: transitive package Include'
-    grep -Fq 'CentralPackageTransitivePinningEnabled>true' "$output/Directory.Packages.props" || failed 'self-test: transitive pinning'
+    if grep -Fq 'CentralPackageTransitivePinningEnabled' "$output/Directory.Packages.props"; then failed 'self-test: transitive pinning must be opt-in'; fi
+    st use-nuget "$repo" "$version" --pin-transitive > "$root/output"
+    grep -Fq 'CentralPackageTransitivePinningEnabled>true' "$output/Directory.Packages.props" || failed 'self-test: --pin-transitive enables pinning'
+    grep -Fq "PackageVersion Include=\"Cratis.Transitive\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: --pin-transitive keeps the IDs'
+    st use-nuget "$repo" "$version" Cratis.Test --pin-transitive > "$root/output" || failed 'self-test: --pin-transitive with explicit IDs'
+    st use-nuget "$repo" "$version" > "$root/output"
+    passed=$((passed + 3))
     test_key=DirectoryPackages"PropsPath"
     grep -Fq "export $test_key=" "$output/env" || failed 'self-test: env property'
     passed=$((passed + 5))
@@ -693,8 +1294,27 @@ LOCK
         st_npm use-npm "$repo" "$version"
         grep -Fq '"@cratis/transitive": "file:' "$repo/package.json" || failed 'self-test: transitive npm resolution'
         grep -Fq '"@cratis/test": "file:' "$repo/package.json" || failed 'self-test: direct npm resolution'
-        st_npm restore "$repo" > "$root/output"
-        passed=$((passed + 2))
+        # Execute the consumer tail printed by closure, with a fixture installation between
+        # overlay and verification. In particular, check must not run before restore.
+        {
+            tsv pack Lib npm .
+            tsv ids Lib npm @cratis/test,@cratis/transitive
+            tsv uses App Lib npm .
+        } > "$root/npm-closure.tsv"
+        st_npm closure --map "$root/npm-closure.tsv" App="$repo" Lib="$repo" > "$root/npm-closure.out"
+        printf 'node_modules/\n' >> "$repo/.git/info/exclude"
+        for arg in test transitive; do
+            mkdir -p "$repo/node_modules/@cratis/$arg"
+            tar -xzf "$feed/npm/@cratis-$arg-$version.tgz" -C "$repo/node_modules/@cratis/$arg" --strip-components=1
+        done
+        status=0; st_npm check "$repo" > "$root/output" || status=$?
+        [ "$status" -eq 1 ] || failed 'self-test: npm overlay needs restore before check'
+        awk '/ verify-assets / { consumer=1 } consumer' "$root/npm-closure.out" > "$root/npm-closure-tail.sh"
+        env -i HOME="$home" PATH="$PATH" TMPDIR="$TMP" STAMP="$version" \
+            /bin/bash -e "$root/npm-closure-tail.sh" > "$root/output" || failed 'self-test: npm closure verification, restore, check and clean'
+        cmp -s "$repo/package.json" <(git -C "$repo" show HEAD:package.json) || failed 'self-test: npm closure restores tracked manifest'
+        grep -Fq 'dry-run:' "$root/output" || failed 'self-test: npm closure reaches clean'
+        passed=$((passed + 6))
         printf '{"private":true,"dependencies":{"@cratis/test":"1.2.3"},"userSetting":true}\n' > "$repo/package.json"
         cp "$repo/package.json" "$root/original-package.json"
         cp "$repo/yarn.lock" "$root/original-yarn.lock"
@@ -741,6 +1361,95 @@ NODE
         passed=$((passed + 3))
         git -C "$repo" checkout -- package.json
     else printf 'SKIP: npm mutation/restore needs node on inherited PATH\n'; skipped=$((skipped + 10)); fi
+    # pack-npm uses npm pack so a nested, gitignored dist directory listed in files is packed whole.
+    if command -v npm >/dev/null 2>&1 && command -v node >/dev/null 2>&1; then
+        local pk_dir=$root/npm-workspace pk_feed=$root/npm-feed pk_ver=1.2.3-local.202601010000.gabcdef0 pk_count
+        mkdir -p "$pk_dir/dist/bundles/sub" "$pk_feed/npm"
+        printf '{"name":"@cratis/nested","version":"%s","files":["dist/bundles","dist/**/*.d.ts"]}\n' "$pk_ver" > "$pk_dir/package.json"
+        printf 'dist\n' > "$pk_dir/.gitignore"
+        printf 'a\n' > "$pk_dir/dist/bundles/a.js"; printf 'b\n' > "$pk_dir/dist/bundles/sub/b.js"
+        printf 'export {}\n' > "$pk_dir/dist/a.d.ts"
+        git -C "$pk_dir" init -q
+        (FEED=$pk_feed; pack_npm_workspace "$pk_dir" package.json "$pk_ver") >/dev/null || failed 'self-test: npm workspace pack'
+        [ -f "$pk_feed/npm/@cratis-nested-$pk_ver.tgz" ] || failed 'self-test: npm tarball name'
+        pk_count=$(tar tzf "$pk_feed/npm/@cratis-nested-$pk_ver.tgz" | grep -c 'dist/bundles/') || true
+        [ "$pk_count" -eq 2 ] || failed "self-test: nested dist files packed ($pk_count of 2)"
+        tar tzf "$pk_feed/npm/@cratis-nested-$pk_ver.tgz" | grep -Fq 'dist/a.d.ts' || failed 'self-test: declaration glob packed'
+        printf '{"name":"plainpkg","version":"%s","files":["dist/bundles"]}\n' "$pk_ver" > "$pk_dir/package.json"
+        (FEED=$pk_feed; pack_npm_workspace "$pk_dir" package.json "$pk_ver") >/dev/null || failed 'self-test: unscoped npm workspace pack'
+        [ -f "$pk_feed/npm/plainpkg-$pk_ver.tgz" ] || failed 'self-test: unscoped npm tarball kept'
+        passed=$((passed + 5))
+    else printf 'SKIP: npm pack needs node and npm on inherited PATH\n'; skipped=$((skipped + 5)); fi
+    # Multi-repo stamp: the highest next patch wins and every HEAD is reported.
+    local repo2 v2
+    repo2=$root/repo2; mkdir -p "$repo2"; git -C "$repo2" init -q
+    git -C "$repo2" config user.email test@example.invalid; git -C "$repo2" config user.name 'Local package self-test'
+    printf 'x\n' > "$repo2/f"; git -C "$repo2" add f; git -C "$repo2" commit -qm initial; git -C "$repo2" tag v2.0.0
+    v2=$(st stamp "$repo" "$repo2" 2> "$root/stderr")
+    [[ "$v2" =~ ^2\.0\.1-local\.[0-9]{12}\.g$(git -C "$repo2" rev-parse --short=7 HEAD)$ ]] || failed 'self-test: multi-repo stamp uses highest base and last sha'
+    [ "$(grep -c '^HEAD ' "$root/stderr")" -eq 2 ] || failed 'self-test: multi-repo stamp prints each HEAD'
+    v2=$(st stamp "$repo2" "$repo" 2> /dev/null)
+    [[ "$v2" =~ ^2\.0\.1-local\. ]] || failed 'self-test: multi-repo stamp order independent base'
+    passed=$((passed + 3))
+    # A train stamp covers every producer: changing a non-last producer changes it, order does not.
+    local ta tb tc
+    ta=$(st stamp --train "$repo" "$repo2" 2> /dev/null); tb=$(st stamp --train "$repo2" "$repo" 2> /dev/null)
+    [ "$ta" = "$tb" ] || failed 'self-test: train stamp is independent of producer order'
+    [[ "$ta" =~ ^2\.0\.1-train\.g[0-9a-f]{7}$ ]] || failed "self-test: multi-producer train grammar ($ta)"
+    printf 'y\n' > "$repo/g"; git -C "$repo" add g; git -C "$repo" commit -qm second
+    tc=$(st stamp --train "$repo" "$repo2" 2> /dev/null)
+    [ "$tc" != "$ta" ] || failed 'self-test: a change in a non-last producer must change the train stamp'
+    git -C "$repo" reset -q --hard HEAD~1
+    [ "$(st stamp --train "$repo" "$repo2" 2> /dev/null)" = "$ta" ] || failed 'self-test: train stamp returns with the same state'
+    passed=$((passed + 4))
+    # Train mode: a deterministic X.Y.Z-train.g<sha7> stamp, accepted everywhere a local stamp is.
+    local tv tv2 tsha tleak
+    tsha=$(printf '%s %s\n' "$(basename "$repo")" "$(git -C "$repo" rev-parse HEAD)" | shasum -a 1 | cut -c1-7)
+    tv=$(st stamp --train "$repo") || failed 'self-test: stamp --train'
+    tv2=$(st stamp --train "$repo")
+    [[ "$tv" =~ ^1\.2\.4-train\.g$tsha$ ]] || failed "self-test: train stamp grammar ($tv)"
+    [ "$tv" = "$tv2" ] || failed 'self-test: train stamp is deterministic'
+    : > "$feed/nuget/Cratis.Train.$tv.nupkg"; : > "$feed/nuget/Cratis.Train.1.2.4-local.200001010000.g1234567.nupkg"
+    st --dry-run use-nuget "$repo" "$tv" Cratis.Train > "$root/output" || failed 'self-test: use-nuget accepts a train stamp'
+    for tleak in 1.2.4-train.1234567 1.2.4-train.200001010000.g1234567 1.2.4-train.gABCDEF0 1.2.4-train.g123456; do
+        status=0; st --dry-run use-nuget "$repo" "$tleak" Cratis.Train > "$root/output" 2>&1 || status=$?
+        [ "$status" -eq 2 ] || failed "self-test: invalid train stamp accepted ($tleak)"
+    done
+    st clean --stamp "$tv" > "$root/output" || failed 'self-test: clean accepts a train stamp'
+    has "Cratis.Train.$tv.nupkg" "$root/output" || failed 'self-test: clean lists the train artifact'
+    if has '200001010000' "$root/output"; then failed 'self-test: clean --stamp train must not list a local stamp'; fi
+    rm "$feed/nuget/Cratis.Train.$tv.nupkg" "$feed/nuget/Cratis.Train.1.2.4-local.200001010000.g1234567.nupkg"
+    printf 'Version="%s"\n' "$tv" > "$repo/probe-train"
+    status=0; st check "$repo" > "$root/output" 2>&1 || status=$?
+    [ "$status" -eq 1 ] || failed 'self-test: check misses an untracked train version'
+    has 'train stamp' "$root/output" || failed 'self-test: check names the train stamp'
+    git -C "$repo" add probe-train
+    status=0; st check "$repo" > "$root/output" 2>&1 || status=$?
+    [ "$status" -eq 1 ] || failed 'self-test: check misses a staged train version'
+    status=0; st check "$repo" --staged > "$root/output" 2>&1 || status=$?
+    [ "$status" -eq 1 ] || failed 'self-test: check --staged misses a train version'
+    git -C "$repo" rm -qf --cached probe-train; rm "$repo/probe-train"
+    st check "$repo" > "$root/output" || failed 'self-test: check clean after removing the train probe'
+    passed=$((passed + 13))
+    # use-npm --dir for a Yarn project in a subdirectory (no root package.json).
+    if command -v node >/dev/null 2>&1; then
+        local sub=$root/repo3
+        mkdir -p "$sub/Source/Workbench"; git -C "$sub" init -q
+        git -C "$sub" config user.email test@example.invalid; git -C "$sub" config user.name 'Local package self-test'
+        cp "$root/original-package.json" "$sub/Source/Workbench/package.json" 2>/dev/null || printf '{"private":true,"dependencies":{"@cratis/test":"1.2.3"}}\n' > "$sub/Source/Workbench/package.json"
+        printf '# lock\n' > "$sub/Source/Workbench/yarn.lock"
+        git -C "$sub" add .; git -C "$sub" commit -qm initial
+        status=0; st_npm use-npm "$sub" "$version" > "$root/output" 2>&1 || status=$?
+        [ "$status" -eq 2 ] || failed 'self-test: use-npm without --dir needs a root package.json'
+        st_npm use-npm "$sub" "$version" --dir Source/Workbench > "$root/output" || failed 'self-test: use-npm --dir'
+        grep -Fq '"@cratis/test": "file:' "$sub/Source/Workbench/package.json" || failed 'self-test: use-npm --dir overlays the subdirectory manifest'
+        status=0; st_npm use-npm "$sub" "$version" --dir ../x > "$root/output" 2>&1 || status=$?
+        [ "$status" -eq 2 ] || failed 'self-test: use-npm --dir rejects escapes'
+        st_npm restore "$sub" > "$root/output" || failed 'self-test: restore follows --dir'
+        git -C "$sub" diff --quiet || failed 'self-test: restore --dir leaves the tracked files clean'
+        [ ! -e "$(git -C "$sub" rev-parse --absolute-git-dir)/cratis-local/npm-dir" ] || failed 'self-test: restore removes npm-dir'
+        passed=$((passed + 6))
+    else printf 'SKIP: use-npm --dir needs node\n'; skipped=$((skipped + 6)); fi
     mkdir -p "$home/.nuget/packages/cratis.test/$version" "$home/.nuget/packages/cratis.test/1.2.3"
     mkdir -p "$home/.nuget/packages/cratis.test/1.2.3-local.keep"
     for arg in nuget npm; do
@@ -756,16 +1465,312 @@ NODE
     st clean --stamp "$version" > "$root/output"
     grep -Fq "$home/.nuget/packages/cratis.test/$version" "$root/output" || failed 'self-test: clean lists local cache'
     [ -d "$home/.nuget/packages/cratis.test/$version" ] || failed 'self-test: dry-run mutated cache'
+    : > "$feed/nuget/Cratis.Test.$version.snupkg"
     st clean --stamp "$version" --apply > "$root/output"
+    [ ! -e "$feed/nuget/Cratis.Test.$version.snupkg" ] || failed 'self-test: clean left a symbols package'
     [ ! -e "$home/.nuget/packages/cratis.test/$version" ] || failed 'self-test: clean failed to remove cache'
     [ -d "$home/.nuget/packages/cratis.test/1.2.3" ] || failed 'self-test: clean removed real version'
-    passed=$((passed + 4))
+    passed=$((passed + 5))
     printf 'SKIP: real dotnet/Yarn/Docker packing is not a hermetic self-test\n'; skipped=$((skipped + 3))
+    self_test_matrix
     printf 'self-test: %s passed, %s skipped\n' "$passed" "$skipped"
+}
+
+# C fixtures: the printed closure is one plan, in order, and every line is valid shell.
+self_test_closure() {
+    local name line a b c p last first fa fl fm
+    for name in App Lib Mid; do
+        mkdir -p "$root/fx-$name"; git -C "$root/fx-$name" init -q
+        git -C "$root/fx-$name" config user.email test@example.invalid; git -C "$root/fx-$name" config user.name 'Local package self-test'
+        git -C "$root/fx-$name" commit -q --allow-empty -m initial
+    done
+    fa=$(git -C "$root/fx-App" rev-parse --show-toplevel); fl=$(git -C "$root/fx-Lib" rev-parse --show-toplevel); fm=$(git -C "$root/fx-Mid" rev-parse --show-toplevel)
+    expect_status 0 'C1 closure for the fixture plan' fxm closure App="$root/fx-App" Lib="$root/fx-Lib" Mid="$root/fx-Mid"
+    cp "$root/output" "$root/closure.out"
+    bash -n "$root/closure.out" || failed 'self-test: C2 every printed closure line must be valid shell'
+    [ "$(grep -c ' verify-pack ' "$root/closure.out")" -eq 1 ] || failed 'self-test: C1 exactly one verify-pack'
+    a=$(grep -n ' verify-pack ' "$root/closure.out" | cut -d: -f1)
+    last=$(grep -nE ' pack-(nuget|npm) ' "$root/closure.out" | tail -n 1 | cut -d: -f1)
+    first=$(grep -n " use-nuget $fa " "$root/closure.out" | head -n 1 | cut -d: -f1)
+    { [ "$a" -gt "$last" ] && [ "$a" -lt "$first" ]; } || failed 'self-test: C1 verify-pack sits after the last pack and before the consumer overlay'
+    line=$(grep ' verify-pack ' "$root/closure.out")
+    case "$line" in *' --consumer App --producer Lib --producer Mid'*) ;; *) failed 'self-test: C1 verify-pack carries the whole plan' ;; esac
+    grep -q "pack-nuget . \"\$STAMP\" --property A=1 --property B=2 Lib.Extra.slnx" "$root/closure.out" || failed 'self-test: C2 the second Lib row carries both properties'
+    [ "$(grep -c "pack-nuget \. \"\$STAMP\" Lib.slnx" "$root/closure.out")" -eq 1 ] || failed 'self-test: C2 the first Lib row carries no properties'
+    # C4: Mid's overlay, then its pack in a shell that sources the env file, then its restore.
+    a=$(grep -n " use-nuget $fm " "$root/closure.out" | cut -d: -f1)
+    b=$(grep -n "$fm && \. .*/env && .* pack-nuget " "$root/closure.out" | cut -d: -f1)
+    c=$(grep -n " restore $fm" "$root/closure.out" | cut -d: -f1)
+    { [ -n "$a" ] && [ -n "$b" ] && [ -n "$c" ] && [ "$a" -lt "$b" ] && [ "$b" -lt "$c" ]; } || failed 'self-test: C4 overlay, sourced pack and restore are in order'
+    if grep -q " use-nuget $fl " "$root/closure.out"; then failed 'self-test: C4 Lib has no upstream to overlay'; fi
+    passed=$((passed + 6))
+    # C2 (real map): Chronicle's three pack properties are separate flags; C3: an invalid plan prints nothing.
+    expect_status 0 'C2 real closure Studio <- Chronicle' st closure Studio="$root/fx-App" Chronicle="$root/fx-Lib"
+    cp "$root/output" "$root/closure.out"
+    bash -n "$root/closure.out" || failed 'self-test: C2 real closure is valid shell'
+    p=$(grep 'pack-nuget' "$root/closure.out" | grep -o -- '--property' | wc -l | tr -d ' ')
+    [ "$p" -eq 3 ] || failed "self-test: C2 Chronicle carries 3 --property flags (got $p)"
+    expect_status 2 'C3 closure for an unplannable pair prints nothing' st closure Stage="$root/fx-App" Screenplay="$root/fx-Lib"
+    [ ! -s "$root/output" ] || failed 'self-test: C3 stdout must be empty'
+    expect_status 0 'closure --train' st closure --train Studio="$root/fx-App" Chronicle="$root/fx-Lib"
+    has 'stamp --train' "$root/output" || failed 'self-test: closure --train prints a train stamp'
+    passed=$((passed + 3))
+}
+
+# V fixtures: verify-pack and verify-assets against a fixture feed (needs zip, unzip and tar).
+# Each fixture starts from the same complete feed so one case cannot hide behind another.
+self_test_verify() {
+    local vfeed=$root/vfeed s=1.2.4-local.202601010000.gaaaaaaa old=1.2.4-local.200001010000.g1234567 args id
+    local lib=(--consumer App --producer Lib --producer Mid)
+    local nodedir; nodedir=$(dirname "$(command -v node)")
+    fxv() { env -i HOME="$home" PATH="$nodedir:/usr/bin:/bin:/usr/sbin:/sbin" TMPDIR="$TMP" CRATIS_LOCAL_MAP="$fx" CRATIS_LOCAL_FEED="$vfeed" /bin/bash "$SELF" "$@"; }
+    if ! command -v zip >/dev/null 2>&1 || ! command -v unzip >/dev/null 2>&1 || ! command -v tar >/dev/null 2>&1 || ! command -v node >/dev/null 2>&1; then
+        printf 'SKIP: verify fixtures need zip, unzip, tar and node\n'; skipped=$((skipped + 30)); return 0
+    fi
+    # mkpkg ID STAMP [DEPENDENCY-ID RANGE]...: a .nupkg (a zip with a nuspec) or, for an @scope/name ID, an npm tarball.
+    mkpkg() {
+        local pid=$1 stamp=$2 deps='' dir=$root/pk
+        shift 2
+        mkdir -p "$dir" "$vfeed/nuget" "$vfeed/npm"
+        case "$pid" in
+            @*) mkdir -p "$dir/package"; printf '{"name":"%s","version":"%s"}\n' "$pid" "$stamp" > "$dir/package/package.json"
+                (cd "$dir" && tar -czf "$vfeed/npm/${pid//\//-}-$stamp.tgz" package) ;;
+            *) while [ $# -ge 2 ]; do deps="$deps<dependency id=\"$1\" version=\"$2\" />"; shift 2; done
+                printf '<package><metadata><id>%s</id><dependencies>%s</dependencies></metadata></package>\n' "$pid" "$deps" > "$dir/$pid.nuspec"
+                rm -f "$vfeed/nuget/$pid.$stamp.nupkg"; (cd "$dir" && zip -q "$vfeed/nuget/$pid.$stamp.nupkg" "$pid.nuspec") ;;
+        esac
+    }
+    # mkfeed STAMP [MID-DEPENDENCY-RANGE]: the complete feed of the plan "App Lib Mid".
+    mkfeed() {
+        rm -rf "$vfeed"
+        mkpkg Cratis.Lib "$1"; mkpkg Cratis.Lib.Core "$1"; mkpkg @cratis/lib "$1"
+        mkpkg Cratis.Mid "$1" Cratis.Lib "${2:-$1}"
+        mkpkg Cratis.Extra "$1"
+    }
+    # mkassets DIR ID/VERSION...: a restore result that resolves exactly these packages.
+    mkassets() {
+        local dir=$1 entry sep=''
+        shift; mkdir -p "$dir/obj"
+        { printf '{\n  "libraries": {\n'
+            for entry in "$@"; do printf '%s    "%s": {\n      "type": "package"\n    }' "$sep" "$entry"; sep=$',\n'; done
+            printf '\n  }\n}\n'; } > "$dir/obj/project.assets.json"
+    }
+    # V1: complete feed, plan-mode verify and the exact JSON line.
+    mkfeed "$s"
+    expect_status 0 'V1 complete feed verifies' fxv verify-pack "$s" "${lib[@]}"
+    has 'verify-pack: 4 planned artifacts present' "$root/output" || failed 'self-test: V1 summary'
+    fxv verify-pack "$s" "${lib[@]}" --json > "$root/output" 2> "$root/stderr" || failed 'self-test: V1 json'
+    printf '{"stamp":"%s","packages":[{"id":"Cratis.Lib","version":"%s"},{"id":"Cratis.Lib.Core","version":"%s"},{"id":"@cratis/lib","version":"%s"},{"id":"Cratis.Mid","version":"%s"}]}\n' "$s" "$s" "$s" "$s" "$s" > "$root/json.expected"
+    cmp -s "$root/output" "$root/json.expected" || failed 'self-test: V1 json line grammar'
+    passed=$((passed + 2))
+    # V2: a cross-producer dependency at the wrong version.
+    mkfeed "$s" 1.0.0
+    expect_status 1 'V2 wrong-version cross-producer dependency' fxv verify-pack "$s" "${lib[@]}"
+    has 'dependency: Cratis.Mid -> Cratis.Lib 1.0.0' "$root/output" || failed 'self-test: V2 names the dependency'
+    passed=$((passed + 1))
+    # V3: lower bound equal to the stamp passes; a range that merely contains the stamp does not.
+    for args in "[$s, )" "$s" "[$s]"; do
+        mkfeed "$s" "$args"
+        expect_status 0 "V3 dependency range $args" fxv verify-pack "$s" "${lib[@]}"
+    done
+    mkfeed "$s" "[1.0.0, $s)"
+    expect_status 1 'V3 range with the stamp as upper bound' fxv verify-pack "$s" "${lib[@]}"
+    # V3b: strict nuspec parsing. mkraw ID STAMP DEPENDENCIES-XML writes the dependencies element verbatim.
+    mkraw() {
+        local pk=$root/pk; mkdir -p "$pk"
+        printf '<package><metadata><id>%s</id><dependencies>%s</dependencies></metadata></package>\n' "$1" "$3" > "$pk/$1.nuspec"
+        rm -f "$vfeed/nuget/$1.$2.nupkg"; (cd "$pk" && zip -q "$vfeed/nuget/$1.$2.nupkg" "$1.nuspec")
+    }
+    mkfeed "$s"; mkraw Cratis.Mid "$s" "<dependency version=\"1.0.0\" id=\"Cratis.Lib\" />"
+    expect_status 1 'V3b reversed attributes are read' fxv verify-pack "$s" "${lib[@]}"
+    has 'dependency: Cratis.Mid -> Cratis.Lib 1.0.0' "$root/output" || failed 'self-test: V3b reversed attributes name the dependency'
+    mkfeed "$s"; mkraw Cratis.Mid "$s" "<dependency version='1.0.0' id='Cratis.Lib' />"
+    expect_status 1 'V3b single quotes are read' fxv verify-pack "$s" "${lib[@]}"
+    mkfeed "$s"; mkraw Cratis.Mid "$s" "<dependency
+      id=\"Cratis.Lib\"
+      version=\"1.0.0\"
+      exclude=\"Build\" />"
+    expect_status 1 'V3b multiline element is read' fxv verify-pack "$s" "${lib[@]}"
+    mkfeed "$s"; mkraw Cratis.Mid "$s" "<dependency version='$s' id='Cratis.Lib' exclude='Build'/>"
+    expect_status 0 'V3b reversed single-quoted element at the stamp passes' fxv verify-pack "$s" "${lib[@]}"
+    for bad in "<dependency id=\"Cratis.Lib\" />" "<dependency version=\"$s\" />" "<dependency id=\"\" version=\"$s\" />" "<dependency id=\"Cratis.Lib\" version=\"$s\""; do
+        mkfeed "$s"; mkraw Cratis.Mid "$s" "$bad"
+        expect_status 1 "V3b malformed element fails: $bad" fxv verify-pack "$s" "${lib[@]}"
+        has 'unparseable dependency: Cratis.Mid' "$root/output" || failed 'self-test: V3b malformed element is named'
+    done
+    for args in "($s,)" "($s, )" "[$s, $s]" "[$s,]" "[$s, 9.9.9)" "$s-x" "[ $s ]x"; do
+        mkfeed "$s" "$args"
+        expect_status 1 "V3b dependency range rejected: $args" fxv verify-pack "$s" "${lib[@]}"
+    done
+    # V4: a dependency outside the plan is ignored.
+    mkfeed "$s"; mkpkg Cratis.Mid "$s" Cratis.Lib "$s" Cratis.Other 1.0.0
+    expect_status 0 'V4 unplanned dependency is ignored' fxv verify-pack "$s" "${lib[@]}"
+    # V5: a missing planned artifact is not satisfied by another stamp.
+    mkfeed "$s"; rm "$vfeed/nuget/Cratis.Lib.Core.$s.nupkg"; mkpkg Cratis.Lib.Core "$old"
+    expect_status 1 'V5 missing planned artifact' fxv verify-pack "$s" "${lib[@]}"
+    has "missing: Cratis.Lib.Core $s (Lib nuget)" "$root/output" || failed 'self-test: V5 names the artifact'
+    mkassets "$root/cons" "Cratis.Lib/$s" "Cratis.Lib.Core/$s" "Cratis.Mid/$s"
+    expect_status 1 'V5 verify-assets plan mode also fails on the missing artifact' fxv verify-assets "$root/cons" "$s" "${lib[@]}"
+    passed=$((passed + 2))
+    # V6: a real NuGet-only plan never demands the npm tarballs of a dual-ecosystem producer.
+    rm -rf "$vfeed"
+    while IFS= read -r id; do mkpkg "$id" "$s"; done < <(awk -F'\t' '$1 == "ids" && $2 == "Arc" && $3 == "nuget" { n = split($4, a, ","); for (i = 1; i <= n; i++) print a[i] }' "$(dirname "$SELF")/dependency-map.tsv")
+    expect_status 0 'V6 real Arc NuGet plan without npm tarballs' env -i HOME="$home" PATH=/usr/bin:/bin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$vfeed" /bin/bash "$SELF" verify-pack "$s" --consumer Stage --producer Arc
+    # V7: stale assets (an older local stamp) name the ID, version and path.
+    mkfeed "$s"
+    mkassets "$root/cons" "Cratis.Lib/$old" "Cratis.Lib.Core/$s" "Cratis.Mid/$s"
+    expect_status 1 'V7 stale local stamp' fxv verify-assets "$root/cons" "$s" "${lib[@]}"
+    has "Cratis.Lib $old $root/cons/obj/project.assets.json" "$root/output" || failed 'self-test: V7 names id, version and path'
+    passed=$((passed + 1))
+    # V8: a train stamp changes with a commit in a non-last producer, so the old feed is stale.
+    local t1 t2
+    t1=$(st stamp --train "$repo" "$repo2" 2> /dev/null); mkfeed "$t1"
+    expect_status 0 'V8 train feed verifies at its own stamp' fxv verify-pack "$t1" "${lib[@]}"
+    git -C "$repo" commit -q --allow-empty -m 'non-last producer change'
+    t2=$(st stamp --train "$repo" "$repo2" 2> /dev/null)
+    [ "$t1" != "$t2" ] || failed 'self-test: V8 stamp changes with a non-last producer commit'
+    expect_status 1 'V8 stale train stamp' fxv verify-pack "$t2" "${lib[@]}"
+    has "missing: Cratis.Lib $t2" "$root/output" || failed 'self-test: V8 missing at the new train stamp'
+    passed=$((passed + 2))
+    # V9: a second, stale installed copy of an npm package.
+    mkfeed "$s"
+    mkdir -p "$root/npmcons/node_modules/@cratis/lib"
+    printf '{"name":"@cratis/lib","version":"%s"}\n' "$s" > "$root/npmcons/node_modules/@cratis/lib/package.json"
+    expect_status 0 'V9 one installed copy at the stamp' fxv verify-assets "$root/npmcons" "$s" --npm "${lib[@]}"
+    mkdir -p "$root/npmcons/node_modules/x/node_modules/@cratis/lib"
+    printf '{"name":"@cratis/lib","version":"1.0.0"}\n' > "$root/npmcons/node_modules/x/node_modules/@cratis/lib/package.json"
+    expect_status 1 'V9 stale second npm copy' fxv verify-assets "$root/npmcons" "$s" --npm "${lib[@]}"
+    has "@cratis/lib 1.0.0" "$root/output" || failed 'self-test: V9 names the stale copy'
+    expect_status 1 'V9 feed-wide npm mode flags the same copy' fxv verify-assets "$root/npmcons" "$s" --npm
+    passed=$((passed + 1))
+    # V10: a named producer the consumer never resolved.
+    mkfeed "$s"
+    mkassets "$root/cons" "Cratis.Mid/$s" "Cratis.Extra/$s"
+    expect_status 1 'V10 unconsumed producer' fxv verify-assets "$root/cons" "$s" --consumer App --producer Lib --producer Mid --producer Extra
+    has 'unconsumed: Lib (nuget)' "$root/output" || failed 'self-test: V10 names the unconsumed producer'
+    mkassets "$root/cons" "Cratis.Mid/$s" "Cratis.Extra/$s" "Cratis.Lib/$s"
+    expect_status 0 'V10 one consumed ID is enough' fxv verify-assets "$root/cons" "$s" --consumer App --producer Lib --producer Mid --producer Extra
+    passed=$((passed + 1))
+    # V11: an unrelated package at the stamp is ignored in plan mode and flagged by the feed-wide mode.
+    mkfeed "$s"; mkpkg Cratis.Unrelated "$s"
+    mkassets "$root/cons" "Cratis.Lib/$s" "Cratis.Mid/$s" "Cratis.Unrelated/9.9.9"
+    expect_status 0 'V11 plan mode ignores an unrelated package' fxv verify-assets "$root/cons" "$s" "${lib[@]}"
+    expect_status 1 'V11 feed-wide mode flags it' fxv verify-assets "$root/cons" "$s"
+    # V12: --json lists only what the consumer resolved, whatever else the feed holds.
+    mkassets "$root/cons" "Cratis.Lib/$s" "Cratis.Mid/$s"
+    fxv verify-assets "$root/cons" "$s" "${lib[@]}" --json > "$root/output" 2> "$root/stderr" || failed 'self-test: V12 json'
+    printf '{"stamp":"%s","packages":[{"id":"Cratis.Lib","version":"%s"},{"id":"Cratis.Mid","version":"%s"}]}\n' "$s" "$s" "$s" > "$root/json.expected"
+    cmp -s "$root/output" "$root/json.expected" || failed 'self-test: V12 json lists only consumer resolutions'
+    passed=$((passed + 1))
+    # V15: unreadable evidence is a failure, never a skip: broken assets JSON, a package.json without a version,
+    # and a tarball whose package.json has no name. A nested "version" key must not stand in for the top-level one.
+    mkdir -p "$root/badassets/obj"; printf '{"libraries": {"Cratis.Lib/%s": {"type": "package"' "$s" > "$root/badassets/obj/project.assets.json"
+    expect_status 2 'V15 truncated project.assets.json' fxv verify-assets "$root/badassets" "$s" "${lib[@]}"
+    printf '{"version": 3}\n' > "$root/badassets/obj/project.assets.json"
+    expect_status 2 'V15 assets without libraries' fxv verify-assets "$root/badassets" "$s" "${lib[@]}"
+    mkfeed "$s"; rm -rf "$root/npmbad"; mkdir -p "$root/npmbad/node_modules/@cratis/lib"
+    printf '{"name":"@cratis/lib"}\n' > "$root/npmbad/node_modules/@cratis/lib/package.json"
+    expect_status 2 'V15 installed package.json without a version' fxv verify-assets "$root/npmbad" "$s" --npm "${lib[@]}"
+    printf '{"name":"@cratis/lib","dependencies":{"x":{"version":"%s"}},"version":"1.0.0"}\n' "$s" > "$root/npmbad/node_modules/@cratis/lib/package.json"
+    expect_status 1 'V15 nested version does not hide the real one' fxv verify-assets "$root/npmbad" "$s" --npm "${lib[@]}"
+    # V13/V14: cannot-run cases exit 2.
+    expect_status 2 'V13 no edge in that ecosystem' fxv verify-assets "$root/cons" "$s" --npm --consumer Mid --producer Lib
+    mkdir -p "$root/noassets"
+    expect_status 2 'V13 no project.assets.json' fxv verify-assets "$root/noassets" "$s" "${lib[@]}"
+    expect_status 2 'V14 verify-pack --consumer without --producer' fxv verify-pack "$s" --consumer App
+    expect_status 2 'V14 verify-pack --producer without --consumer' fxv verify-pack "$s" --producer Lib
+    expect_status 2 'V14 verify-assets --consumer without --producer' fxv verify-assets "$root/cons" "$s" --consumer App
+    expect_status 2 'V14 verify-assets --producer without --consumer' fxv verify-assets "$root/cons" "$s" --producer Lib
+    # Manual forms stay available.
+    expect_status 0 'name-mode verify-pack' fxv verify-pack "$s" Lib --ecosystem nuget
+    expect_status 2 'name-mode verify-pack without ids' fxv verify-pack "$s" Nod
+}
+
+# Fixture matrix for the plan, closure and verify commands. Runs inside self_test and uses its
+# root/home/feed/st/passed/skipped (dynamic scope). `fx` is the fixture map, `real` the shipped one.
+# expect_status WANT DESCRIPTION COMMAND...: run, capture stdout/stderr in $root/output and $root/stderr, require the exit code.
+expect_status() {
+    local want=$1 desc=$2 got=0
+    shift 2
+    "$@" > "$root/output" 2> "$root/stderr" || got=$?
+    [ "$got" -eq "$want" ] || failed "self-test: $desc (exit $got, wanted $want)"
+    passed=$((passed + 1))
+}
+tsv() { local IFS=$'\t'; printf '%s\n' "$*"; }
+self_test_matrix() {
+    local fx=$root/fx.tsv status
+    fxm() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_MAP="$fx" /bin/bash "$SELF" "$@"; }
+    {
+        echo '# fixture map'
+        tsv pack Lib nuget Lib.slnx
+        tsv pack Lib nuget Lib.Extra.slnx A=1,B=2
+        tsv ids Lib nuget Cratis.Lib,Cratis.Lib.Core
+        tsv pack Lib npm .
+        tsv ids Lib npm @cratis/lib
+        tsv pack Mid nuget Mid.slnx
+        tsv ids Mid nuget Cratis.Mid
+        tsv pack Extra nuget Extra.slnx
+        tsv ids Extra nuget Cratis.Extra
+        tsv pack Nod nuget Nod.slnx
+        tsv uses Mid Lib nuget Directory.Packages.props
+        tsv uses App Mid nuget Directory.Packages.props
+        tsv uses App Lib nuget Directory.Packages.props
+        tsv uses App Extra nuget Directory.Packages.props
+        tsv uses App Lib npm .
+        tsv uses App Orl nuget Directory.Packages.props
+        tsv uses Orl Lib nuget Directory.Packages.props
+        tsv uses App Nod nuget Directory.Packages.props
+    } > "$fx"
+    # P1: exact plan rows and the unnamed-hop warning on stderr only.
+    {
+        tsv pack Lib nuget; tsv pack Lib npm; tsv pack Mid nuget; tsv overlay Mid Lib
+        tsv consume Lib nuget Directory.Packages.props; tsv consume Lib npm .; tsv consume Mid nuget Directory.Packages.props
+    } > "$root/p1.expected"
+    fxm plan App Lib Mid > "$root/output" 2> "$root/stderr" || failed 'self-test: P1 plan'
+    cmp -s "$root/output" "$root/p1.expected" || failed 'self-test: P1 plan rows differ from the expected plan'
+    has 'Lib -> Orl -> App' "$root/stderr" || failed 'self-test: P1 unnamed-hop warning'
+    if has 'WARNING' "$root/output"; then failed 'self-test: P1 warning must stay on stderr'; fi
+    # P2/P3: the real map. An NuGet-only edge plans only the NuGet ecosystem of a dual-ecosystem producer;
+    # npm-only ids on a NuGet edge cannot be planned. P3 must move to the fixture map if Screenplay ships NuGet ids.
+    st plan Stage Arc > "$root/output" 2> "$root/stderr" || failed 'self-test: P2 real plan'
+    { [ "$(grep -c '^pack' "$root/output")" -eq 1 ] && has "$(tsv pack Arc nuget)" "$root/output"; } || failed 'self-test: P2 plans exactly pack Arc nuget'
+    status=0; st plan Stage Screenplay > "$root/output" 2> "$root/stderr" || status=$?
+    { [ "$status" -eq 2 ] && [ ! -s "$root/output" ] && has 'Screenplay (nuget)' "$root/stderr"; } || failed 'self-test: P3 npm-only ids on a NuGet edge'
+    passed=$((passed + 3))
+    # P4-P7: invalid inputs exit 2 with nothing on stdout (unknown, repeated, consumer as producer, wrong order, no edge, no ids, no producer).
+    local bad
+    for bad in 'App Nope' 'App Lib Lib' 'App Lib App' 'App Mid Lib' 'Mid Extra' 'App Nod' 'App'; do
+        status=0
+        # shellcheck disable=SC2086
+        fxm plan $bad > "$root/output" 2> "$root/stderr" || status=$?
+        { [ "$status" -eq 2 ] && [ ! -s "$root/output" ]; } || failed "self-test: plan $bad must exit 2 with empty stdout (got $status)"
+        passed=$((passed + 1))
+    done
+    # P8: a malformed row names its line.
+    { cat "$fx"; printf 'uses\tApp\tLib\n'; } > "$root/bad.tsv"
+    status=0; fx=$root/bad.tsv; fxm plan App Lib > "$root/output" 2> "$root/stderr" || status=$?
+    fx=$root/fx.tsv
+    { [ "$status" -eq 2 ] && has "bad.tsv:$(($(wc -l < "$root/bad.tsv"))): malformed" "$root/stderr"; } || failed 'self-test: P8 malformed map row'
+    passed=$((passed + 1))
+    # Pack properties are separate -p: arguments of the one command, never an environment variable.
+    mkdir -p "$root/bin"; printf '#!/bin/sh\nexit 0\n' > "$root/bin/dotnet"; chmod +x "$root/bin/dotnet"
+    env -i HOME="$home" PATH="$root/bin:/usr/bin:/bin" TMPDIR="$TMP" /bin/bash "$SELF" --dry-run pack-nuget "$repo" "$version" --property A=1 --property B=2 Lib.slnx > "$root/output" || failed 'self-test: pack-nuget --property dry run'
+    { has ' -p:A=1 -p:B=2 ' "$root/output" && ! has CRATIS_LOCAL_PACK_PROPERTIES "$root/output"; } || failed 'self-test: pack-nuget prints separate -p: tokens'
+    status=0; env -i HOME="$home" PATH="$root/bin:/usr/bin:/bin" TMPDIR="$TMP" /bin/bash "$SELF" --dry-run pack-nuget "$repo" "$version" --property 'A=1;B' Lib.slnx > "$root/output" 2>&1 || status=$?
+    [ "$status" -eq 2 ] || failed 'self-test: pack-nuget rejects an invalid property'
+    status=0; env -i HOME="$home" PATH="$root/bin:/usr/bin:/bin" TMPDIR="$TMP" /bin/bash "$SELF" --dry-run pack-nuget "$repo" "$version" --property A=1 > "$root/output" 2>&1 || status=$?
+    [ "$status" -eq 2 ] || failed 'self-test: pack-nuget needs a target after the properties'
+    passed=$((passed + 3))
+    self_test_closure
+    self_test_verify
 }
 
 case "$MODE" in
     stamp) stamp "$@" ;;
+    plan) plan_command "$@" ;;
+    closure) closure "$@" ;;
+    verify-pack) verify_pack "$@" ;;
+    verify-assets) verify_assets "$@" ;;
     pack-nuget) pack_nuget "$@" ;;
     pack-npm) pack_npm "$@" ;;
     use-nuget) use_nuget "$@" ;;

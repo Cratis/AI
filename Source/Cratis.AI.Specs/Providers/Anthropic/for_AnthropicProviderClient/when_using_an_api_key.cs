@@ -30,7 +30,7 @@ public class when_using_an_api_key : Specification
 
     [Fact] void should_use_the_messages_api() => _result.Text.ShouldEqual("Analyzed");
     [Fact] void should_use_api_key_authentication() => _response.ApiKey.ShouldEqual("sk-ant-api-test");
-    [Fact] async Task should_not_start_claude_code() => await _claude.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, default);
+    [Fact] async Task should_not_start_claude_code() => await _claude.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, TestContext.Current.CancellationToken);
 
     void Destroy() => _client.Dispose();
 
