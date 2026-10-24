@@ -722,22 +722,28 @@ baseline bytes or pending recovery refuse that view too.
 
 ### Enum numeric identity
 
-Requires Screenplay 4.218.0 (`screenplay --version`); older comparison tools do not
-report these enum-specific changes. Compare explicit values, or implicit values
-assigned by source order starting at zero. The report distinguishes
-`enum-member-added`, `enum-member-removed`, `enum-member-number-changed`,
-`enum-member-number-reused`, `enum-numbering-mode-changed` and
-`enum-member-order-changed`. A reorder with stable explicit numbers is not
-renumbering; changing from implicit to explicit numbering with the same effective
-values is a mode change, not a stored-value change.
+Requires Screenplay 4.214.0 (`screenplay --version`); older comparison tools do not
+report these enum-specific changes. Inspect `enum-*` items in `members`, especially
+`stored: true`: the baseline enum is reachable from an event property (including
+nested composite types), not proof that events were persisted. `beforeNumber`,
+`afterNumber`, `beforeNumbering`, `afterNumbering` and `afterMember` expose the
+numeric change; implicit numbers are zero-based declaration positions.
 
-Treat removal, renumbering and numeric reuse as a stored-value compatibility
-review, never an automatic migration. A member rename is removal plus addition,
-not inferred continuity. Ambiguous enum pairing or
-unreliable numeric metadata returns `EnumerationNotComparable`; inspect the
-declarations instead of treating it as unchanged. Neither `semantic-diff` nor
-`read-proposal view=semantic-diff` proves behavioral or storage compatibility.
-Source: [model comparison](https://github.com/Cratis/Screenplay/blob/v4.218.0/Documentation/screenplay/model-comparison.md).
+`enum-number-changed`, `enum-member-removed` and `enum-number-reused` are
+contract-breaking. `enum-member-renamed` retains an explicit number on both sides
+and is not breaking for default numeric storage, but renames generated C#/TypeScript
+members and schema metadata; a name-based converter can still break. Explicit
+removal/reuse is indistinguishable from that rename, so review intent. Positional
+renames report number reuse. Appending members, reordering stable explicit numbers,
+or pinning existing positions adds no enum records; structural hashes still change.
+Before reordering a stored positional enum, use `propose-number-enum-members` to pin
+its current values. Never migrate stored numbers automatically.
+
+Duplicate names/numbers or inconsistent member/number counts report
+`EnumerationNotComparable`; absence of enum items is not a clean comparison when
+coverage is incomplete. Neither comparison view proves behavioral compatibility
+or waives the separate release-baseline equality check.
+Source: [model comparison](https://github.com/Cratis/Screenplay/blob/v4.214.0/Documentation/screenplay/model-comparison.md).
 
 Authority: `Source/DotNET/Screenplay.Mcp/{McpRevisionDiff,McpWorkspaces.Comparison,McpToolSchemas,McpToolCatalog}.cs`
 and `Documentation/screenplay/mcp/reference.md`.
