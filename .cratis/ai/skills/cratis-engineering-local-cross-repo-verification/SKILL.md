@@ -74,7 +74,7 @@ commands before choosing the build, regression spec and full gate commands.
 - [ ] Run `check` before every consumer commit and push, and on the producer; it must report 0 leaks.
 - [ ] Upstream first: a downstream ships only after the upstream has released and its pin is bumped to the released version.
 - [ ] Restore overlays, unset environment overrides, and run `check` again.
-- [ ] Review `finish --task ID`, mark completed work with `--apply`, then review stamp-scoped `clean` targets and apply cleanup.
+- [ ] Review `finish --task ID`, mark completed work with `--apply`, then review `clean --expired` (or explicit `--stamp`) targets before applying cleanup.
 
 ### 1. Stamp
 
@@ -233,6 +233,19 @@ bash "$local" clean "$consumer" --stamp "$stamp" --apply
 
 `clean --stamp STAMP` validates only that stamp's record; default clean and `--all`
 validate all selected records. An invalid selected record refuses cleanup (`2`).
+
+Use `clean --expired` for retention-based cleanup, then add `--apply` after review.
+It keeps unrecorded stamps, active compositions and live manifest/overlay references
+(in registered sessions or recorded consumer worktrees). Otherwise, a stamp expires
+when every non-null producing task is finished (at least one required), all recorded
+consumers are gone (at least one required), or a real release at or above its base exists,
+in that order. Offline evidence is NuGet `.nupkg.metadata` in the shared or registered
+private caches; npm has no offline release check. `--online` opts into NuGet/npm
+registry checks with a 10-second timeout; failures provide no evidence. Each stamp
+prints `expired STAMP: REASON` or `kept STAMP: REASON`; kept stamps succeed (`0`).
+`list --json` reports the same offline decision in `expiry:{expired,reasons,kept}`.
+`--expired` cannot combine with `--stamp` or `--all`. It retains the same lock, fuse
+and dry-run default. Applying also prunes gone consumers and missing session registrations.
 
 Pass: expected subjects listed, then removed without force. Cleanup covers local
 feed packages, NuGet version folders, discoverable Yarn cache entries, local image

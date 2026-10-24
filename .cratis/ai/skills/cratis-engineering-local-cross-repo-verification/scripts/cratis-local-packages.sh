@@ -106,7 +106,7 @@ Commands (COMMAND --help shows these instructions too):
   check REPO [--staged]
     Scan added/changed tracked lines (staged-only if requested), plus all contents
     of untracked, non-ignored files. Reports path:line:pattern and file counts.
-  clean [CONSUMER] [--stamp STAMP | --all] [--apply] [--dir REL] [--private-cache]
+  clean [CONSUMER] [--stamp STAMP | --all | --expired [--online]] [--apply] [--dir REL] [--private-cache]
     Default: list all local feed/cache/image/session subjects, without deleting.
     --apply deletes listed subjects (docker rmi, never force). Refuses more than
     CRATIS_LOCAL_CLEAN_MAX subjects (default 500), or unresolved npm backups.
@@ -118,6 +118,11 @@ Commands (COMMAND --help shows these instructions too):
     clean CONSUMER --private-cache lists the whole marked cache for removal; --apply
     removes it and its registration only after restore and with no live stamp.
     Removes selected FEED/stamps/STAMP records with the artifacts on --apply.
+    --expired keeps unrecorded stamps, compositions and live references; expires
+    finished producing tasks, gone consumers or stamps superseded by a release.
+    Release evidence is offline NuGet caches unless --online opts into 10-second
+    NuGet/npm checks. Kept stamps succeed (0). --apply also prunes gone consumers
+    and missing sessions. Uses the same fuse, lock and dry-run default.
     Docker probes have a 10-second deadline.
 
 Pack/use commands (including --composition) accept --task ID, overriding
@@ -396,9 +401,10 @@ registry_consumer() {
 }
 registry() {
     need node
-    node - "$FEED" "$TASK" "$@" <<'REGISTRY'
+    case "$1" in list|expiry) expiry_context "$@" ;; esac
+    node - "$FEED" "$TASK" "$TMP" "$@" <<'REGISTRY'
 const fs = require('node:fs'), path = require('node:path'), cp = require('node:child_process');
-const [feed, taskValue, operation, ...args] = process.argv.slice(2);
+const [feed, taskValue, scratch, operation, ...args] = process.argv.slice(2);
 const task = taskValue || null, root = path.join(feed, 'stamps');
 const stampPattern = /^([0-9]+\.[0-9]+\.[0-9]+)-(local\.[0-9]{12}|train)\.g[0-9a-f]{7}$/;
 const taskPattern = /^[A-Za-z0-9][A-Za-z0-9._#:/-]{0,127}$/;
@@ -492,21 +498,118 @@ function packages() {
     }
     return found;
 }
-function list() {
+function gone(consumer) {
+    if (!fs.statSync(consumer.worktree,{throwIfNoEntry:false})?.isDirectory() || !fs.statSync(consumer.session,{throwIfNoEntry:false})?.isDirectory()) return true;
+    const git = cp.spawnSync('git',['-C',consumer.worktree,'rev-parse','--show-toplevel'],{encoding:'utf8'});
+    return git.status !== 0 || git.stdout.trim() !== consumer.worktree;
+}
+function expiryInputs() {
+    const selectedIndex = args.indexOf('--stamp'), selected = selectedIndex < 0 ? null : args[selectedIndex + 1];
+    const sessions = path.join(feed,'sessions'); safe(sessions);
+    if (fs.existsSync(sessions)) {
+        for (const session of fs.readFileSync(sessions,'utf8').split('\n').filter(Boolean)) {
+            const repo = path.join(session,'repo');
+            if (fs.existsSync(repo)) console.log(fs.readFileSync(repo,'utf8').trim() + '\t' + session);
+            else console.log('\t' + session);
+        }
+    }
+    for (const stamp of selected ? [selected] : stamps()) {
+        let value;
+        try { value = read(stamp); } catch (error) { if (args[0] === 'list') continue; throw error; }
+        for (const c of value?.consumers || []) console.log(c.worktree + '\t' + c.session);
+    }
+}
+function contextLines(name) { return fs.readFileSync(path.join(scratch,'expiry-' + name),'utf8').split('\n').filter(Boolean); }
+function atLeast(version, base) {
+    if (!/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/.test(version)) return false;
+    const a = version.split('.').map(BigInt), b = base.split('.').map(BigInt);
+    for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] > b[i];
+    return true;
+}
+function offlineRelease(value) {
+    for (const pack of value.packs.filter(p => p.ecosystem === 'nuget')) for (const id of pack.ids) {
+        if (!/^[A-Za-z0-9_][A-Za-z0-9_.-]*$/.test(id)) fail('invalid NuGet release ID: ' + id);
+        for (const cache of contextLines('caches')) {
+            const directory = path.join(cache,id.toLowerCase());
+            // A missing cache is no evidence; actual scan/read errors fail closed.
+            if (!fs.statSync(directory,{throwIfNoEntry:false})) continue;
+            for (const version of fs.readdirSync(directory).sort()) {
+                if (atLeast(version,value.base) && fs.statSync(path.join(directory,version)).isDirectory() &&
+                    fs.statSync(path.join(directory,version,'.nupkg.metadata'),{throwIfNoEntry:false})?.isFile()) return 'released:' + id + '@' + version;
+            }
+        }
+    }
+    return null;
+}
+async function onlineRelease(value) {
+    for (const pack of value.packs) for (const id of pack.ids) {
+        // Test-only override: hermetic unreachable-host fixtures, never a feed setting.
+        const override = process.env.CRATIS_LOCAL_RELEASE_URL_BASE;
+        const url = pack.ecosystem === 'nuget' ? (override || 'https://api.nuget.org/v3-flatcontainer') + '/' + encodeURIComponent(id.toLowerCase()) + '/index.json' :
+            (override || 'https://registry.npmjs.org') + '/' + encodeURIComponent(id);
+        try {
+            const response = await fetch(url,{signal:AbortSignal.timeout(10000)});
+            if (!response.ok) continue;
+            const data = await response.json(), versions = pack.ecosystem === 'nuget' ? data.versions : Object.keys(data.versions || {});
+            if (!Array.isArray(versions)) continue;
+            const version = versions.find(v => typeof v === 'string' && atLeast(v,value.base));
+            if (version) return 'released:' + id + '@' + version;
+        } catch { /* Network failures are not release evidence and never fail cleanup. */ }
+    }
+    return null;
+}
+async function expiry(stamp, value, online = false) {
+    const kept = reason => ({expired:false,reasons:[],kept:[reason]});
+    if (!value) return kept('unrecorded; use clean --stamp ' + stamp);
+    if (contextLines('compositions').includes(stamp)) return kept('active composition member');
+    const reference = contextLines('live').find(line => line.split('\t')[0] === stamp);
+    if (reference) return kept('live reference in ' + reference.slice(reference.indexOf('\t') + 1));
+    const tasks = value.packs.map(p => p.task).filter(t => t !== null);
+    let reason = tasks.length && tasks.every(t => value.tasks[t]?.finished) ? 'task-finished' : null;
+    if (!reason && value.consumers.length && value.consumers.every(gone)) reason = 'consumers-gone';
+    if (!reason) reason = offlineRelease(value);
+    if (!reason && online) reason = await onlineRelease(value);
+    return reason ? {expired:true,reasons:[reason],kept:[]} : kept('active');
+}
+async function expired() {
+    const names = [...new Set([...packages().keys(),...stamps()])].sort();
+    // Validate every subject before reporting decisions or allowing any deletion.
+    const records = names.map(stamp => [stamp,read(stamp)]);
+    for (const [stamp,value] of records) {
+        const decision = await expiry(stamp,value,args.includes('--online'));
+        console.log([decision.expired ? 'expired' : 'kept',stamp,(decision.expired ? decision.reasons : decision.kept).join('; ')].join('\t'));
+    }
+}
+function prune() {
+    const values = stamps().map(read), sessions = path.join(feed,'sessions'); safe(sessions);
+    const before = fs.existsSync(sessions) ? fs.readFileSync(sessions,'utf8') : null;
+    for (const value of values.filter(Boolean)) {
+        const consumers = value.consumers.filter(c => !gone(c));
+        if (consumers.length !== value.consumers.length) { value.consumers = consumers; write(value); }
+    }
+    if (before !== null) {
+        const after = before.split('\n').filter(s => s && fs.statSync(s,{throwIfNoEntry:false})?.isDirectory()).join('\n');
+        const next = sessions + '.next'; safe(next);
+        fs.writeFileSync(next,after ? after + '\n' : '',{mode:0o600}); fs.renameSync(next,sessions);
+    }
+}
+async function list() {
     const json = args.includes('--json'), index = args.indexOf('--stamp');
     const selected = index < 0 ? null : args[index + 1];
     const remaining = args.filter((_,i) => i !== index && i !== index + 1 || index < 0);
     if (remaining.some(a => a !== '--json') || index >= 0 && !stampPattern.test(selected || '')) fail('list accepts --json and --stamp STAMP');
     const artifacts = packages(), names = [...new Set([...artifacts.keys(), ...stamps()])].sort();
-    const rows = names.filter(s => !selected || s === selected).map(stamp => {
+    const rows = [];
+    for (const stamp of names.filter(s => !selected || s === selected)) {
         let value = null, error;
         try { value = read(stamp); } catch (failure) { error = failure.message; warning(stamp, failure); }
         const match = stamp.match(stampPattern), created = value?.created || null;
-        return {stamp,base:match[1],kind:match[2] === 'train' ? 'train' : 'local',recorded:error ? 'invalid' : !!value,...(error ? {error} : {}),packages:artifacts.get(stamp) || [],
+        rows.push({stamp,base:match[1],kind:match[2] === 'train' ? 'train' : 'local',recorded:error ? 'invalid' : !!value,...(error ? {error} : {}),packages:artifacts.get(stamp) || [],
             producers:value?.packs.map(p => p.producer) || [],tasks:Object.entries(value?.tasks || {}).map(([id,s]) => ({id,finished:s.finished})),
             consumers:value?.consumers.map(c => ({worktree:c.worktree,task:c.task,state:consumerState(c)})) || [],created,
-            ageSeconds:created ? Math.max(0,Math.floor((Date.now()-Date.parse(created))/1000)) : null,expiry:{expired:false,reasons:[],kept:[]}};
-    });
+            ageSeconds:created ? Math.max(0,Math.floor((Date.now()-Date.parse(created))/1000)) : null,
+            expiry:error ? {expired:false,reasons:[],kept:['invalid record']} : await expiry(stamp,value)});
+    }
     if (json) console.log(JSON.stringify({schema:1,feed,stamps:rows}));
     else {
         console.log('STAMP\tECOSYS\tPACKAGES(n)\tOWNER(repo@branch)\tTASK(state)\tCONSUMERS(live/total)\tAGE\tRECORDED');
@@ -536,8 +639,11 @@ function update() {
     }
     write(value);
 }
-try {
-    if (operation === 'list') list();
+async function main() {
+    if (operation === 'list') await list();
+    else if (operation === 'expiry-inputs') expiryInputs();
+    else if (operation === 'expiry') await expired();
+    else if (operation === 'prune') prune();
     else if (operation === 'pack' || operation === 'use') update();
     else if (operation === 'restore-stamps') sessionStamps(args[0]);
     else if (operation === 'remove') {
@@ -569,7 +675,8 @@ try {
         }
         if (operation === 'finish' && !count) console.log('no records name task ' + task);
     }
-} catch (error) { console.error('ERROR: stamp registry: ' + error.message); process.exitCode = 2; }
+}
+main().catch(error => { console.error('ERROR: stamp registry: ' + error.message); process.exitCode = 2; });
 REGISTRY
 }
 
@@ -1403,14 +1510,15 @@ function cleanGuard() {
         if (!exists(composition)) continue;
         plain(composition,true); plain(path.join(composition,'manifest.tsv'));
         const versions = fs.readFileSync(path.join(composition,'manifest.tsv'),'utf8').trim().split('\n').map(row => row.split('\t')[2]);
-        if (!selected || selected === 'all' || versions.includes(selected)) fail('active composition retains member artifacts; restore first: ' + known);
+        if (mode === 'clean-members') { for (const version of versions) console.log(version); }
+        else if (!selected || selected === 'all' || versions.includes(selected)) fail('active composition retains member artifacts; restore first: ' + known);
     }
 }
 try {
     safeParents(feed);
     if (mode === 'recover') recover();
     else if (mode === 'restore-state') restoreState();
-    else if (mode === 'clean-guard') cleanGuard();
+    else if (mode === 'clean-guard' || mode === 'clean-members') cleanGuard();
     else {
         const args = [...argv]; if (mode !== 'verify-pack') args.shift();
         if (args.shift() !== '--composition' || !args.length) fail('expected --composition FILE');
@@ -2072,20 +2180,11 @@ bounded_docker() {
 local_artifact() {
     [[ "$1" =~ -(local\.[0-9]{12}|train)\.g[0-9a-f]{7}($|[^0-9A-Za-z]) ]]
 }
-# Legacy registrations name consumers, not an artifact ownership graph. Fail closed
-# for the whole requested cleanup if any selected stamp is still live. Also keep a
-# selected session when its overlays/manifests reference another stamp.
-clean_live_references() {
-    local selected=$1 session repo file found stamp status blocked=0 session_selected
-    while IFS= read -r session; do
-        [ -d "$session" ] && [ -f "$session/repo" ] || continue
-        validate_session "$session"
-        repo=$(cat "$session/repo")
-        [ -d "$repo" ] || continue
-        [ "$(repo_root "$repo")" = "$repo" ] || die "registered consumer no longer matches repository: $repo"
-        session_selected=0
-        if [ -f "$session/stamp" ] && [ "$(cat "$session/stamp")" = "$selected" ]; then session_selected=1; fi
-        # Follow manifest symlinks too; traversal/read failures refuse cleanup.
+# Print stamp<TAB>file. Follow manifest symlinks; traversal/read errors refuse cleanup.
+live_stamps() {
+    local repo session file found stamp status
+    for repo in "$@"; do
+        session=${LIVE_SESSION:-$(session_path "$repo")}
         find -L "$repo" \( -name .git -o -name node_modules \) -prune -o \( -iname nuget.config -o -iname Directory.Packages.props -o -name packages.lock.json -o -name package.json -o -name yarn.lock \) \( -type f -o -type l \) -print0 > "$TMP/live-files" || die "cannot inspect registered consumer: $repo"
         for file in "$session/Directory.Packages.props" "$session/cratis-local.targets" "$session/nuget.config"; do
             if [ -e "$file" ]; then printf '%s\0' "$file" >> "$TMP/live-files"; fi
@@ -2098,23 +2197,80 @@ clean_live_references() {
             [ -n "$found" ] || continue
             while IFS= read -r stamp; do
                 stamp=$(printf '%s' "$stamp" | tr '[:upper:]' '[:lower:]')
-                if [ -z "$selected" ] || [ "$selected" = all ] || [ "$session_selected" -eq 1 ] || [ "$stamp" = "$selected" ]; then
-                    printf 'kept stamp %s: registered live reference in %s\n' "$stamp" "$file"
-                    blocked=1
-                fi
+                printf '%s\t%s\n' "$stamp" "$file"
             done <<< "$found"
         done < "$TMP/live-files"
+    done
+}
+# Legacy clean still refuses the whole request, with its original messages.
+clean_live_references() {
+    local selected=$1 session repo file stamp blocked=0 session_selected
+    while IFS= read -r session; do
+        [ -d "$session" ] && [ -f "$session/repo" ] || continue
+        validate_session "$session"
+        repo=$(cat "$session/repo")
+        [ -d "$repo" ] || continue
+        [ "$(repo_root "$repo")" = "$repo" ] || die "registered consumer no longer matches repository: $repo"
+        session_selected=0
+        if [ -f "$session/stamp" ] && [ "$(cat "$session/stamp")" = "$selected" ]; then session_selected=1; fi
+        LIVE_SESSION=$session live_stamps "$repo" > "$TMP/legacy-live"
+        while IFS=$'\t' read -r stamp file; do
+            if [ -z "$selected" ] || [ "$selected" = all ] || [ "$session_selected" -eq 1 ] || [ "$stamp" = "$selected" ]; then
+                printf 'kept stamp %s: registered live reference in %s\n' "$stamp" "$file"
+                blocked=1
+            fi
+        done < "$TMP/legacy-live"
     done < "$TMP/unique-sessions"
     [ "$blocked" -eq 0 ] || die 'live references retained; restore registered consumers before cleaning (no subjects removed)'
 }
+# The registry supplies recorded consumers as well as registered sessions. Both list
+# and expired clean use exactly this offline context and the same decision function.
+expiry_context() {
+    local repo session cache actual
+    scratch
+    registry expiry-inputs "$@" > "$TMP/expiry-inputs"
+    if [ -n "${EXPIRY_CONSUMER:-}" ]; then printf '%s\t%s\n' "$EXPIRY_CONSUMER" "$(session_path "$EXPIRY_CONSUMER")" >> "$TMP/expiry-inputs"; fi
+    : > "$TMP/expiry-live"; : > "$TMP/expiry-compositions"
+    printf '%s\n' "$NUGET_CACHE" "$HOME/.nuget/packages" > "$TMP/expiry-caches"
+    while IFS= read -r actual; do
+        session=${actual#*$'\t'}; repo=${actual%%$'\t'*}
+        validate_session "$session"
+        if [ -e "$session/nuget-cache" ] || [ -L "$session/nuget-cache" ]; then
+            cache=$(registered_private_cache "$session")
+            printf '%s\n' "$cache" >> "$TMP/expiry-caches"
+        fi
+        if [ -e "$session/composition" ] || [ -L "$session/composition" ]; then
+            composition clean-members all "$session" >> "$TMP/expiry-compositions"
+        fi
+        [ -n "$repo" ] && [ -d "$repo" ] || continue
+        actual=$(git -C "$repo" rev-parse --show-toplevel 2>/dev/null) || continue
+        [ "$actual" = "$repo" ] || continue
+        LIVE_SESSION=$session live_stamps "$repo" >> "$TMP/expiry-live"
+    done < "$TMP/expiry-inputs"
+}
+expired_guard() {
+    local stamp=$1 found file
+    expiry_context expiry
+    if grep -Fxq -- "$stamp" "$TMP/expiry-compositions"; then die "expired stamp changed: active composition member: $stamp"; fi
+    while IFS=$'\t' read -r found file; do
+        [ "$found" != "$stamp" ] || die "expired stamp changed: live reference in $file"
+    done < "$TMP/expiry-live"
+}
+subject_stamp() {
+    local name=${1##*/}
+    if [[ "$name" =~ ([0-9]+\.[0-9]+\.[0-9]+-(local\.[0-9]{12}|train)\.g[0-9a-f]{7}) ]]; then printf '%s\n' "${BASH_REMATCH[1]}"; fi
+}
 clean() {
     local version='' apply=0 consumer='' arg path cache image session maximum count=0 rel='' private=0 whole_cache='' whole_session=''
-    local subjects=() kinds=() caches=("$NUGET_CACHE") cache_sessions=()
+    local expired=0 online=0 selected_stamp decision reason EXPIRY_CONSUMER=''
+    local subjects=() kinds=() caches=("$NUGET_CACHE") cache_sessions=() filtered_subjects=() filtered_kinds=()
     while [ $# -gt 0 ]; do
         arg=$1; shift
         case "$arg" in
             --stamp) [ $# -gt 0 ] || die '--stamp requires a stamp'; [ -z "$version" ] || die 'choose --stamp or --all'; version=$1; shift; valid_stamp "$version" ;;
             --all) [ -z "$version" ] || die 'choose --stamp or --all'; version=all ;;
+            --expired) expired=1 ;;
+            --online) online=1 ;;
             --apply) apply=1 ;;
             --private-cache) private=1 ;;
             --dir) [ $# -gt 0 ] || die '--dir requires a relative directory'; rel=${1%/}; shift ;;
@@ -2122,12 +2278,15 @@ clean() {
             *) [ -z "$consumer" ] || die 'clean takes at most one consumer'; consumer=$(repo_root "$arg") ;;
         esac
     done
+    [ "$expired" -eq 0 ] || [ -z "$version" ] || die '--expired cannot be combined with --stamp or --all'
+    [ "$online" -eq 0 ] || [ "$expired" -eq 1 ] || die '--online requires --expired'
+    [ "$expired" -eq 0 ] || [ "$private" -eq 0 ] || die '--expired cannot remove a whole private cache'
     local registered
-    if [ -n "$consumer" ]; then
+    if [ "$expired" -eq 0 ] && [ -n "$consumer" ]; then
         session=$(session_path "$consumer")
         if [ -e "$session/composition" ] || [ -L "$session/composition" ]; then composition clean-guard "${version:-all}" "$session"; fi
     fi
-    if [ -f "$FEED/sessions" ]; then
+    if [ "$expired" -eq 0 ] && [ -f "$FEED/sessions" ]; then
         while IFS= read -r registered; do
             if [ -e "$registered/composition" ] || [ -L "$registered/composition" ]; then
                 composition clean-guard "${version:-all}"
@@ -2143,6 +2302,18 @@ clean() {
     if [ -f "$FEED/sessions" ]; then cat "$FEED/sessions" > "$TMP/sessions"; else : > "$TMP/sessions"; fi
     if [ -n "$consumer" ]; then session_path "$consumer" >> "$TMP/sessions"; fi
     sort -u "$TMP/sessions" > "$TMP/unique-sessions"
+    if [ "$expired" -eq 1 ]; then
+        EXPIRY_CONSUMER=$consumer
+        if [ "$online" -eq 1 ]; then registry expiry --online > "$TMP/expiry-decisions"; else registry expiry > "$TMP/expiry-decisions"; fi
+        : > "$TMP/expired-stamps"
+        while IFS=$'\t' read -r decision selected_stamp reason; do
+            printf '%s %s: %s\n' "$decision" "$selected_stamp" "$reason"
+            if [ "$decision" = expired ]; then printf '%s\n' "$selected_stamp" >> "$TMP/expired-stamps"; fi
+        done < "$TMP/expiry-decisions"
+        while IFS= read -r path; do printf '%s\n' "${path#*$'\t'}" >> "$TMP/sessions"; done < "$TMP/expiry-inputs"
+        sort -u "$TMP/sessions" > "$TMP/unique-sessions"
+        caches+=("$HOME/.nuget/packages")
+    fi
     while IFS= read -r session; do
         if [ -e "$session/nuget-cache" ] || [ -L "$session/nuget-cache" ]; then
             cache=$(registered_private_cache "$session")
@@ -2208,6 +2379,7 @@ clean() {
     while IFS= read -r session; do
         [ -d "$session" ] && [ -f "$session/repo" ] && [ -f "$session/stamp" ] || continue
         local_artifact "$(cat "$session/stamp")" || continue
+        if [ "$expired" -eq 1 ] && ! grep -Fxq -- "$(cat "$session/stamp")" "$TMP/expired-stamps"; then continue; fi
         if [ -n "$version" ] && [ "$version" != all ] && [ "$(cat "$session/stamp")" != "$version" ]; then continue; fi
         [ ! -L "$session" ] && [ "$session" != / ] || die "unsafe session: $session"
         validate_session "$session"
@@ -2218,13 +2390,24 @@ clean() {
     done < "$TMP/unique-sessions"
     registry clean "$version" > "$TMP/stamp-records"
     while IFS= read -r path; do subjects+=("$path"); kinds+=(stamp-record); done < "$TMP/stamp-records"
-    clean_live_references "$version"
+    if [ "$expired" -eq 1 ]; then
+        for ((arg=0; arg<${#subjects[@]}; arg++)); do
+            if [ "${kinds[$arg]}" = session ]; then selected_stamp=$(cat "${subjects[$arg]}/stamp"); else selected_stamp=$(subject_stamp "${subjects[$arg]}"); fi
+            if grep -Fxq -- "$selected_stamp" "$TMP/expired-stamps"; then
+                filtered_subjects+=("${subjects[$arg]}"); filtered_kinds+=("${kinds[$arg]}")
+            fi
+        done
+        subjects=(${filtered_subjects[@]+"${filtered_subjects[@]}"}); kinds=(${filtered_kinds[@]+"${filtered_kinds[@]}"})
+    else clean_live_references "$version"; fi
     count=${#subjects[@]}
     [ "$count" -le "$maximum" ] || die "clean fuse: $count subjects exceeds $maximum"
     for ((arg=0; arg<count; arg++)); do printf '%s: %s\n' "${kinds[$arg]}" "${subjects[$arg]}"; done
     if [ "$apply" -eq 1 ] && [ "$DRY" -eq 0 ]; then
         for ((arg=0; arg<count; arg++)); do
-            clean_live_references "$version"
+            if [ "$expired" -eq 1 ]; then
+                if [ "${kinds[$arg]}" = session ]; then selected_stamp=$(cat "${subjects[$arg]}/stamp"); else selected_stamp=$(subject_stamp "${subjects[$arg]}"); fi
+                expired_guard "$selected_stamp"
+            else clean_live_references "$version"; fi
             for session in ${cache_sessions[@]+"${cache_sessions[@]}"}; do registered_private_cache "$session" > /dev/null; done
             path=${subjects[$arg]}
             case "${kinds[$arg]}" in
@@ -2251,6 +2434,7 @@ clean() {
                     if [ ! -f "$path/nuget-cache" ]; then rm -f -- "$path/repo"; rmdir -- "$path"; fi ;;
             esac
         done
+        if [ "$expired" -eq 1 ]; then registry_update prune; fi
         printf 'removed %s subjects\n' "$count"
     else printf 'dry-run: %s subjects (use --apply to remove)\n' "$count"; fi
 }
@@ -2593,8 +2777,111 @@ NODE
     [ -d "$home/.nuget/packages/cratis.test/1.2.3" ] || failed 'self-test: clean removed real version'
     passed=$((passed + 5))
     printf 'SKIP: real dotnet/Yarn/Docker packing is not a hermetic self-test\n'; skipped=$((skipped + 3))
+    self_test_expired
     self_test_matrix
     printf 'self-test: %s passed, %s skipped\n' "$passed" "$skipped"
+}
+
+self_test_expired() {
+    local fixture ef er es ec record result expected stamp=9.8.7-train.gabcdef0
+    local fixtures=('task finished' 'consumers gone' 'released offline cache' 'live reference kept' 'composition kept' 'unrecorded kept' 'dry-run no mutation' 'with stamp' 'fuse' 'online unreachable kept' 'prunes sessions' 'list json expiry' 'invalid record' 'record consumer reference kept' 'private release cache' 'prerelease cache kept' 'older release kept' 'without task kept' 'with all')
+    ext() { env -i HOME="$ef/home" PATH="$system_path" TMPDIR="$TMP" CRATIS_LOCAL_FEED="$ef/feed" NUGET_PACKAGES="$ec" CRATIS_LOCAL_CLEAN_MAX="${limit:-500}" CRATIS_LOCAL_RELEASE_URL_BASE=http://127.0.0.1:1 /bin/bash "$SELF" "$@"; }
+    for fixture in "${fixtures[@]}"; do
+        ef=$root/expired-${fixture// /-}; er=$ef/repo; ec=$ef/cache
+        mkdir -p "$er" "$ef/feed/nuget" "$ec/cratis.expiry/$stamp" "$ef/home"
+        git -C "$er" init -q
+        es=$(git -C "$er" rev-parse --absolute-git-dir)/cratis-local
+        record=$ef/feed/stamps/$stamp/record.json
+        mkdir -p "${record%/*}"
+        printf 'fixture\n' > "$ef/feed/nuget/Cratis.Expiry.$stamp.nupkg"
+        node - "$record" "$stamp" "$er" "$es" "$fixture" <<'NODE'
+const fs = require('node:fs'); const [file,stamp,repo,session,fixture] = process.argv.slice(2), now = new Date().toISOString();
+const finished = ['task finished','live reference kept','composition kept','dry-run no mutation','fuse','prunes sessions','list json expiry','record consumer reference kept'].includes(fixture);
+const r = {schema:1,stamp,base:'9.8.7',kind:'train',created:now,updated:now,
+    packs:[{ecosystem:'nuget',ids:['Cratis.Expiry'],producer:{repo:'Fixture',worktree:repo,branch:'main',head:'a'.repeat(40)},task:'Fixture#1',time:now}],
+    consumers:[],tasks:{'Fixture#1':{finished:finished ? now : null}}};
+if (fixture === 'consumers gone') r.consumers.push({worktree:repo + '/gone',session:session + '-gone',ecosystem:'nuget',task:null,time:now});
+if (fixture === 'record consumer reference kept') r.consumers.push({worktree:repo,session,ecosystem:'nuget',task:null,time:now});
+if (fixture === 'without task kept') r.packs[0].task = null;
+fs.writeFileSync(file,JSON.stringify(r) + '\n');
+NODE
+        expected=0; result=removed
+        case "$fixture" in
+            'released offline cache') mkdir -p "$ec/cratis.expiry/9.8.8"; : > "$ec/cratis.expiry/9.8.8/.nupkg.metadata" ;;
+            'private release cache')
+                mkdir -p "$es" "$er/.git/cratis-local-nuget/cratis.expiry/9.8.7"
+                printf '%s\n' "$er" > "$es/repo"
+                printf '%s\n' "$es" > "$ef/feed/sessions"
+                printf '%s\n' "$er/.git/cratis-local-nuget" > "$es/nuget-cache"
+                printf '%s\n' "$er" > "$er/.git/cratis-local-nuget/.cratis-local-cache"
+                : > "$er/.git/cratis-local-nuget/cratis.expiry/9.8.7/.nupkg.metadata" ;;
+            'live reference kept'|'record consumer reference kept')
+                mkdir -p "$es"; printf '%s\n' "$er" > "$es/repo"
+                if [ "$fixture" = 'live reference kept' ]; then printf '%s\n' "$es" > "$ef/feed/sessions"; fi
+                printf '{"dependencies":{"fixture":"%s"}}\n' "$stamp" > "$er/package.json"
+                result=kept ;;
+            'composition kept')
+                mkdir -p "$es/composition"; printf '%s\n' "$er" > "$es/repo"
+                printf '%s\n' "$es" > "$ef/feed/sessions"
+                printf 'Fixture\tCratis.Expiry\t%s\t%s\n' "$stamp" "$er" > "$es/composition/manifest.tsv"
+                result=kept ;;
+            'unrecorded kept') rm -- "$record"; rmdir "${record%/*}"; result=kept ;;
+            'dry-run no mutation') cp "$record" "$ef/before"; result=kept ;;
+            'with stamp'|'with all'|'fuse'|'invalid record')
+                expected=2; result=kept
+                if [ "$fixture" = 'invalid record' ]; then printf '{broken\n' > "$record"; fi ;;
+            'prerelease cache kept') mkdir -p "$ec/cratis.expiry/9.8.9-preview"; : > "$ec/cratis.expiry/9.8.9-preview/.nupkg.metadata"; result=kept ;;
+            'older release kept') mkdir -p "$ec/cratis.expiry/9.8.6"; : > "$ec/cratis.expiry/9.8.6/.nupkg.metadata"; result=kept ;;
+            'online unreachable kept'|'without task kept') result=kept ;;
+            'list json expiry') result=kept ;;
+            'prunes sessions')
+                mkdir -p "$es"; printf '%s\n' "$er" > "$es/repo"; : > "$es/env"
+                printf '%s\n%s\n' "$ef/missing-session" "$es" > "$ef/feed/sessions"
+                node - "$record" "$es" <<'NODE'
+const fs = require('node:fs'); const [file,session] = process.argv.slice(2), r = JSON.parse(fs.readFileSync(file));
+r.stamp = '9.8.7-train.g1234567'; r.packs[0].task = null;
+r.consumers = [{worktree:r.packs[0].producer.worktree,session,ecosystem:'nuget',task:null,time:r.created},
+    {worktree:'/nonexistent/cratis-expiry-fixture',session:session + '-gone',ecosystem:'nuget',task:null,time:r.created}];
+const target = file.replace('gabcdef0','g1234567'); fs.mkdirSync(require('node:path').dirname(target)); fs.writeFileSync(target,JSON.stringify(r));
+NODE
+                ;;
+        esac
+        case "$fixture" in
+            'with stamp') expect_status "$expected" 'expired with stamp' ext clean --expired --stamp "$stamp" --apply ;;
+            'with all') expect_status "$expected" 'expired with all' ext clean --all --expired --apply ;;
+            'fuse') limit=0 expect_status "$expected" 'expired fuse' ext clean --expired --apply ;;
+            'online unreachable kept') expect_status 0 'expired online unreachable kept' ext clean --expired --online --apply ;;
+            'dry-run no mutation') expect_status 0 'expired dry-run no mutation' ext clean --expired ;;
+            'list json expiry')
+                expect_status 0 'list json expiry' ext list --json
+                node - "$root/output" <<'NODE' || failed 'list json expiry decision'
+const r = JSON.parse(require('node:fs').readFileSync(process.argv[2])).stamps;
+if (r.length !== 1 || !r[0].expiry.expired || r[0].expiry.reasons.join() !== 'task-finished' || r[0].expiry.kept.length) process.exit(1);
+NODE
+                ;;
+            *) expect_status "$expected" "expired $fixture" ext clean --expired --apply ;;
+        esac
+        if [ "$result" = removed ]; then
+            [ ! -e "$record" ] && [ ! -e "$ef/feed/nuget/Cratis.Expiry.$stamp.nupkg" ] && [ ! -e "$ec/cratis.expiry/$stamp" ] || failed "expired $fixture left subjects"
+        else
+            [ -f "$ef/feed/nuget/Cratis.Expiry.$stamp.nupkg" ] && [ -d "$ec/cratis.expiry/$stamp" ] || failed "expired $fixture removed subjects"
+        fi
+        case "$fixture" in
+            'task finished'|'consumers gone') grep -Fq "expired $stamp: ${fixture// /-}" "$root/output" || failed "expired $fixture reason" ;;
+            'released offline cache') grep -Fq 'released:Cratis.Expiry@9.8.8' "$root/output" || failed 'offline release reason' ;;
+            'live reference kept'|'record consumer reference kept') grep -Fq "kept $stamp: live reference in $er/package.json" "$root/output" || failed 'live override reason' ;;
+            'composition kept') grep -Fq "kept $stamp: active composition member" "$root/output" || failed 'composition override reason' ;;
+            'unrecorded kept') grep -Fq "unrecorded; use clean --stamp $stamp" "$root/output" || failed 'unrecorded reason' ;;
+            'online unreachable kept') grep -Fq "kept $stamp: active" "$root/output" || failed 'network failure removed active stamp' ;;
+            'dry-run no mutation') cmp -s "$record" "$ef/before" || failed 'expired dry-run rewrote record' ;;
+            'prunes sessions')
+                [ "$(cat "$ef/feed/sessions")" = "$es" ] || failed 'expired prunes sessions'
+                node - "$ef/feed/stamps/9.8.7-train.g1234567/record.json" <<'NODE' || failed 'expired prunes consumers'
+const r = JSON.parse(require('node:fs').readFileSync(process.argv[2])); if (r.consumers.length !== 1 || r.consumers[0].worktree.endsWith('fixture')) process.exit(1);
+NODE
+                ;;
+        esac
+    done
 }
 
 self_test_registry() {
@@ -2671,7 +2958,7 @@ const fs = require('node:fs'); const [file,feed] = process.argv.slice(2), data =
 if (data.schema !== 1 || data.feed !== feed || data.stamps.length !== 2) process.exit(1);
 const keys = ['stamp','base','kind','recorded','packages','producers','tasks','consumers','created','ageSeconds','expiry'].sort().join();
 for (const r of data.stamps) {
-    if (Object.keys(r).sort().join() !== keys || JSON.stringify(r.expiry) !== '{"expired":false,"reasons":[],"kept":[]}') process.exit(1);
+    if (Object.keys(r).sort().join() !== keys || typeof r.expiry.expired !== 'boolean' || !Array.isArray(r.expiry.reasons) || !Array.isArray(r.expiry.kept)) process.exit(1);
     for (const p of r.packages) if (Object.keys(p).sort().join() !== 'ecosystem,file,id,version') process.exit(1);
     for (const c of r.consumers) if (c.state !== 'restored') process.exit(1);
 }

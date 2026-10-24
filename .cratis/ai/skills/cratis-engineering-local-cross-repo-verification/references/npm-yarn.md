@@ -85,3 +85,10 @@ allows Yarn cache discovery; no consumer or unavailable Yarn yields a reported
 skip. Unresolved backups block cleanup rather than silently losing recovery data.
 `restore` retains consumer history in the registry; stamp-scoped `clean --apply`
 removes the stamp's record directory together with its artifacts.
+Alternatively review `clean "$consumer" --expired`, then add `--apply`. Live manifest
+or overlay references and active compositions always retain the stamp; unrecorded
+stamps require explicit `--stamp`. Finished producing tasks or all consumers gone
+can expire npm stamps. npm has no offline release evidence: `--online` opts into
+registry release checks (10-second timeout); failed checks never remove a stamp.
+Kept stamps succeed (`0`). Applying also prunes gone consumers and missing sessions;
+`--expired` cannot combine with `--stamp` or `--all`.

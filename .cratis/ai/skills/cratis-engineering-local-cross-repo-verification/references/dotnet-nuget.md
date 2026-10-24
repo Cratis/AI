@@ -65,7 +65,12 @@ writing. Legacy stamps appear with `recorded:false`. Text shows stamp, ecosystem
 package count, producer `repo@branch`, task state, live/total consumers, age and recorded state. JSON
 has top-level `schema:1`, `feed` and `stamps`; each stamp includes packages, producers,
 tasks, consumer states (`live`, `restored`, `gone`), creation time and age in seconds.
-Its `expiry` is `{"expired":false,"reasons":[],"kept":[]}`; no expiry decision is made.
+Its `expiry:{expired,reasons,kept}` uses the same offline decision as `clean --expired`:
+keep unrecorded stamps, active compositions and live manifest/overlay references first;
+otherwise expire finished producing tasks, all consumers gone, or a release at or above
+the stamp's base, in that order. A taskless pack alone never expires by task completion;
+a stamp without consumers never expires by consumers gone. Live references include
+registered sessions and recorded consumer worktrees, even after task completion.
 A live consumer must still be a Git root and retain an env, overlay, backup or composition.
 `use-*` records consumers after activation (every composition member stamp); `restore`
 restores overlays first, then marks only the session's stamps restored without erasing
@@ -88,7 +93,13 @@ with all records valid is a successful no-op with a message. It does not restore
 or delete packages. Stamp-scoped `clean --apply` reads only the selected record and removes
 its directory with its artifacts; invalid selected records refuse cleanup (`2`). Default
 clean and `--all` validate all selected records and fail closed (`2`) on any invalid one.
-Review the dry run first.
+Review the dry run first. For retention-based cleanup, run `clean --expired`, then
+`clean --expired --apply` after reviewing `expired STAMP: REASON` and `kept STAMP: REASON`.
+Kept stamps are success (`0`); invalid records or scan errors refuse cleanup (`2`).
+`--expired` is exclusive with `--stamp` and `--all`, uses the same lock and fuse, and
+never removes an unrecorded stamp. Apply also prunes gone consumers from remaining
+records and removes missing session directories' registrations. A consumer is gone
+when its worktree is missing/not a Git root or its session directory is missing.
 
 ## Source mapping
 
@@ -144,6 +155,14 @@ with exit `2`. Registered live references also refuse cleanup, even in dry-run.
 remove all live stamp references first. Review `clean "$consumer" --private-cache`,
 then add `--apply`. This removes the marked cache and its `nuget-cache` registration.
 Never remove an entire shared cache.
+
+`clean --expired` also scans `$HOME/.nuget/packages` when `NUGET_PACKAGES` is set.
+Offline release evidence is a non-prerelease `lowercase-id/X.Y.Z/.nupkg.metadata`
+at or above the record's base in the shared or any registered private cache, for
+any recorded NuGet ID. Released folders are evidence only, never cleanup targets.
+Add `--online` to opt into NuGet flat-container and npm registry release checks
+with a 10-second timeout; missing evidence and network failures simply keep that
+expiry reason from applying. `list` never checks online.
 
 The helper uses a folder feed, so NuGet's HTTP cache is not involved. When diagnosing
 an HTTP feed instead, `dotnet restore --no-http-cache` bypasses its HTTP cache only;
