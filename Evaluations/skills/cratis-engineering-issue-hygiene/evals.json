@@ -1,0 +1,57 @@
+{
+  "skill_name": "cratis-engineering-issue-hygiene",
+  "evals": [
+    {
+      "id": 1,
+      "name": "status-block-not-comment",
+      "prompt": "The request includes maintaining this issue while implementing it. No one is assigned and no other writer is active. The issue has a detailed original report. After claiming it, prepare to record In progress and the approach. A colleague suggests replacing the description with the plan and posting a working-on-it comment. Explain the safe alternative, including what happens if the body changes before writing. Reply only; do not run anything.",
+      "expected_output": "Follow issue-assignment, keep one writer and add a managed status block between the agent-status markers. Read the body with gh issue view --json body, preserve the original report, re-read issue and PR immediately before writing, recompose if changed and write with gh issue edit --body-file. Verify after writing; do not post progress chatter or local plan paths.",
+      "assertions": [
+        "Uses issue-assignment for claiming and keeps only one writer, with delegated workers reporting to the owner.",
+        "Keeps In progress and the approach inside the description's agent-status:start and agent-status:end markers, preserving all original text outside them.",
+        "Reads the body with gh issue view --json body and writes the complete preserved body with gh issue edit --body-file after a fresh issue and PR read.",
+        "Recomposes from fresh content if the remote body changed, stops for continuing concurrent edits and verifies the final body.",
+        "Rejects a working-on-it comment and never puts a local plan path or harness command in public text."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "fix-before-filing",
+      "prompt": "While fixing the requested issue, a small real defect appears in the same files and risk area, along with an advisory naming preference and a speculative hardening idea. A separate necessary follow-up cannot be fixed now, but this request does not authorize filing issues. Propose the disposition and explain what would change if filing the necessary follow-up were authorized. Reply only.",
+      "expected_output": "Fix the small in-scope defect, fix the advisory cheaply or drop it without an issue, and do not file speculative hardening. Report the necessary follow-up rather than filing without authority. With authority, search existing issues first, reuse one if present, otherwise use one checklist issue for the area with testable acceptance criteria.",
+      "assertions": [
+        "Fixes the small same-files, same-risk defect in the active change instead of creating a new issue.",
+        "Does not file an issue for the advisory naming preference or speculative hardening idea.",
+        "Reports the necessary follow-up without filing because the request does not authorize that effect.",
+        "Searches existing open and closed issues before any authorized filing and avoids duplicating an existing issue.",
+        "Groups related necessary findings in one checklist issue per area with concrete, testable acceptance criteria rather than one issue per finding."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "close-no-release-by-hand",
+      "prompt": "The user asked to deliver the work and close its issue. The repository uses release-action, but this PR carries no-release. All scope appears delivered and the PR is merged. Plan the final issue update, closure and end-of-work audit. Reply only; do not run anything.",
+      "expected_output": "Re-read the issue and PR, confirm no remaining scope or reverted or failing delivery, update the status block to Done, and close manually with completed plus a public delivery link because no-release does not run release-action. Audit all touched issues, verify actual states and leave no unattended In progress state.",
+      "assertions": [
+        "Re-reads the issue and PR and verifies all scope is delivered before closing rather than relying on an old summary.",
+        "Recognizes that release-action does not close issues for a no-release PR and allows authorized manual completion.",
+        "Updates the description's status block to Done and closes with reason completed and a public PR or delivery URL.",
+        "Audits every issue touched, checks actual closure and reconciles remaining work or pending release closure.",
+        "Leaves no issue In progress without an active writer and keeps local paths and harness commands out of public text."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "release-action-closes",
+      "prompt": "A fully delivering patch PR has merged. The repository uses release-action and the correct release-note bullet ends with the real issue's (#n) marker. Publication has not finished. The user asked to ship this issue. A teammate says to close it manually now because merging never closes issues. What should happen? Also explain how a separately authorized, clearly evidenced duplicate would be handled. Reply only.",
+      "expected_output": "Re-read issue, PR and release state. Do not close the delivering issue manually; release-action closes it at release. Keep pending publication visible and verify actual closure later. A genuine duplicate is a separate authorized not-planned disposition with a reason and canonical issue link, not a completed delivery.",
+      "assertions": [
+        "Does not close the delivering issue by hand because release-action owns closure at release.",
+        "Checks the actual issue, PR, release intent and publication state instead of equating merge with release.",
+        "Keeps the pending release dependency visible and verifies actual issue closure in the end-of-work audit.",
+        "Allows a separately authorized duplicate closure only with clear evidence, reason not planned and a canonical public issue link.",
+        "Does not mark a partial, reverted or failing delivery as complete merely to reduce the open-issue count."
+      ]
+    }
+  ]
+}
