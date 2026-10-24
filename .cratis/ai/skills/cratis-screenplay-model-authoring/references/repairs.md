@@ -51,8 +51,7 @@ The TypeScript compiler also exposes PLAY0516 as a quick fix (including edits in
 the importing document); Monaco shows it as a code action. VS Code offers it as a
 reviewed saved-file code action with preview, drift checks and recovery. These
 editor routes share the safe repair, not permission to force a reorder.
-Source: [released editor support](https://github.com/Cratis/Screenplay/releases/tag/v4.219.0),
-[workspace timeline repairs](https://github.com/Cratis/Screenplay/blob/v4.219.0/Source/DotNET/Screenplay/Workspaces/WorkspaceTimelineRepairs.Expansion.cs).
+Source: [workspace timeline repairs](https://github.com/Cratis/Screenplay/blob/main/Source/DotNET/Screenplay/Workspaces/WorkspaceTimelineRepairs.Expansion.cs).
 
 ## Enum numbering and event extraction
 
