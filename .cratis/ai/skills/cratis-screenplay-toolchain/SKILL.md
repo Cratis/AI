@@ -98,6 +98,10 @@ not the source identity.
 
 Read [observation comparison](references/observation-comparison.md) when asking whether a running namespace holds what the model declares, or when reading a `conform-namespace` verdict. It differs from model comparison (model versus model) and `conform` (model versus code).
 
+PLAY0516 ordering is presentation-only, not execution. For a wildcard-import
+repair, read [timeline diagnostics](references/diagnostics.md): replacing globs
+with ordered imports means future files need explicit imports.
+
 ## Subsets (write from the one your mode needs)
 
 - **Design**: every construct family parses; use it to model first. Compiled shapes:

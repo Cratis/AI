@@ -176,6 +176,9 @@ connection. Passing `open-workspace.path` does **not** avoid it, because the err
    move or removal is that approval, also unattended: do not ask again per apply. Then `apply` with the **before**
    revisions. Every old handle and proposal is gone afterwards: re-read at the new
    revision.
+   For a PLAY0516 [wildcard-import repair](repairs.md#timeline-import-order), review
+   that future files will need explicit imports, then rediscover diagnostics and
+   repairs after the apply; never reuse the old ordering proposal.
 9. Verify: compile the whole folder (V1), read `executable-diagnostics` (V2,
    V3), and run `screenplay test <root> --format json` or workspace
    `run-specifications` (V4), naming the tool, version and source revision. A

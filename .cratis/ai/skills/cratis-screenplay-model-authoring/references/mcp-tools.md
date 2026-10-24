@@ -327,7 +327,11 @@ with `view: "diagnostics"`, then `view: "repairs"` at the current revision.
 | `PLAY0688` | Replace a refuted generated-concept rule with the strategy-derived `matches`; review every concept use affected by the changed rule. |
 | `PLAY0683/0684` | Raise NanoID size/bytes count using the concept subject; PLAY0683 also offers uniqueness using the command-property subject. Individual review, canonical formatting, no pinned evidence; see [concept generation](#concept-generation). |
 | `PLAY0664` | Remove an override identical to the command's complete source/stream/id route. |
-| `PLAY0516` | Move a producing sibling declaration/import before its consumer, or pin an already placed file before a retained glob. Preserve catalogs, comments, placement and executable readiness; introduce no timeline findings. Own-sub-feature edges, cycles, unranked members and mixed/different-parent boundaries have no repair. Rediscover after each move; pinned evidence is unsupported. |
+| `PLAY0516` | Move a producing sibling declaration/import before its consumer, pin an already placed file before a retained glob, or, when those cannot safely fix the edge, replace a same-parent wildcard-import span with explicit ordered imports. The last repair changes future inclusion: new files need explicit imports. Preserve catalogs, comments, placement and executable readiness; introduce no timeline findings. Own-sub-feature edges, cycles, unranked members and mixed/different-parent boundaries have no repair. Rediscover after each move; pinned evidence is unsupported. |
+
+Requires Screenplay 4.219.0 (`screenplay --version`) for wildcard-import expansion;
+older tools do not offer that repair. Read [timeline repair](repairs.md#timeline-import-order)
+for the future-import decision and refusal boundaries.
 
 These discoveries verify acceptance before listing a repair. Only compact
 acceptance/conflict verdicts are cached on the immutable snapshot, not diagnostics,

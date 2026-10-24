@@ -3,6 +3,8 @@
   "input": "Check a Screenplay model folder: which compiler should I run, what do V1 to V3 mean, and what does the cratis CLI do with my Automation slice?",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "New files need explicit imports", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "cycles, own-sub-feature edges and ambiguous imports", "file": "references/diagnostics.md" },
     { "kind": "skill-contains", "value": "Uuid equality in command conditions (ESM v28)", "file": "references/executable-subset.md" },
     { "kind": "skill-contains", "value": "screenplay baseline check", "file": "references/verdicts.md" },
     { "kind": "skill-contains", "value": "independent of V1–V5", "file": "references/verdicts.md" },
