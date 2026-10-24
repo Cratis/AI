@@ -462,7 +462,7 @@ XML
 nuget_targets_start() {
     cat <<'XML'
 <Project>
-  <Import Project="$(_CratisLocalPreviousAfterMicrosoftCommonTargets)" Condition="'$(_CratisLocalPreviousAfterMicrosoftCommonTargets)' != ''" />
+  <Import Project="$(_CratisLocalPreviousAfterMicrosoftCommonTargets)" Condition="'$(_CratisLocalPreviousAfterMicrosoftCommonTargets)' != '' and '$(_CratisLocalPreviousAfterMicrosoftCommonTargets)' != '$(MSBuildThisFileFullPath)' and Exists('$(_CratisLocalPreviousAfterMicrosoftCommonTargets)')" />
   <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">
 XML
 }
@@ -1700,7 +1700,6 @@ scan_lines() {
             if (index(line,"RestoreAdditional" "ProjectSources")) hit("additional restore sources")
             if (index(line,"CustomAfterMicrosoftCommon" "Targets")) hit("local targets property")
             if (index(line,"_CratisLocalPreviousAfterMicrosoftCommon" "Targets")) hit("previous targets property")
-            if (line ~ /<PackageReference[[:space:]]+Update[[:space:]]*=/) hit("package reference override")
             if (line ~ /<PackageVersion[[:space:]]+Update[[:space:]]*=/) hit("package version override")
             if (path ~ /(^|\/)(package.json|yarn.lock)$/ && line ~ /(file|portal|link):/ &&
                 (line ~ /\.tgz/ || line ~ /(file|portal|link):(\/|\.\.?\/|~\/|[A-Za-z]:)/)) hit("local npm reference")
@@ -1887,6 +1886,7 @@ self_test_nuget_overlay() {
     grep -Fq "ItemGroup Condition=\"$cpm_off\"" "$output/cratis-local.targets" || failed 'self-test: opt-out-only references'
     grep -Fq "PackageReference Update=\"$id\" Version=\"$version\"" "$output/cratis-local.targets" || failed 'self-test: opt-out version override'
     grep -Fq 'Import Project="$(_CratisLocalPreviousAfterMicrosoftCommonTargets)"' "$output/cratis-local.targets" || failed 'self-test: chained targets import'
+    grep -Fq "!= '\$(MSBuildThisFileFullPath)' and Exists('\$(_CratisLocalPreviousAfterMicrosoftCommonTargets)')" "$output/cratis-local.targets" || failed 'self-test: chained targets import is guarded'
     env -i PATH=/usr/bin:/bin CustomAfterMicrosoftCommonTargets='/previous targets/file.targets' /bin/bash -c '
         source "$1"; source "$1"
         [ "$_CratisLocalPreviousAfterMicrosoftCommonTargets" = "/previous targets/file.targets" ] &&
@@ -1978,7 +1978,7 @@ LOCK
     passed=$((passed + 5))
     st check "$repo" > "$root/output" || failed 'self-test: clean repo'
     passed=$((passed + 1))
-    for test_key in stamp npm props sources targets previous reference override feed; do
+    for test_key in stamp npm props sources targets previous override feed; do
         case "$test_key" in
             stamp) printf '%s\n' "$version" > "$repo/probe" ;;
             npm) printf '{"resolutions":{"@cratis/test":"%s%s"}}\n' 'file:/tmp/' 'package.tgz' > "$repo/package.json" ;;
@@ -1986,7 +1986,6 @@ LOCK
             sources) printf '%s=/tmp/feed\n' RestoreAdditional"ProjectSources" > "$repo/probe" ;;
             targets) printf '%s=/tmp/overlay.targets\n' CustomAfterMicrosoftCommon"Targets" > "$repo/probe" ;;
             previous) printf '%s=/tmp/previous.targets\n' _CratisLocalPreviousAfterMicrosoftCommon"Targets" > "$repo/probe" ;;
-            reference) printf '<PackageReference %s="Cratis.Test" Version="1.2.3" />\n' Update > "$repo/probe" ;;
             override) printf '<PackageVersion %s="Cratis.Test" />\n' Update > "$repo/probe" ;;
             feed) printf '%s\n' "$feed" > "$repo/probe" ;;
         esac
@@ -1995,6 +1994,10 @@ LOCK
         passed=$((passed + 1))
         git -C "$repo" checkout -- probe package.json
     done
+    # A consumer's own published-version reference update is legitimate, not an overlay leak.
+    printf '<PackageReference %s="Cratis.Test" Version="1.2.3" />\n' Update > "$repo/probe"
+    st check "$repo" > "$root/output" || failed 'self-test: published reference update reported as leak'
+    git -C "$repo" checkout -- probe; passed=$((passed + 1))
     printf '%s\n' "$version" > "$repo/untracked"
     status=0; st check "$repo" > "$root/output" || status=$?
     [ "$status" -eq 1 ] || failed 'self-test: untracked leak'
