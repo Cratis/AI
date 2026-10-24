@@ -9,7 +9,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -165,6 +165,20 @@ for (const unavailable of ['NO_GH', 'gh missing', 'jq missing', 'non-GitHub orig
     });
 }
 
+test('ancestry-only cleanup drains branch membership checks even when output exceeds pipe capacity', () => {
+    const fixture = cleanupGithubFixture();
+    try {
+        fixture.deliver();
+        fixture.git(fixture.repository, 'branch', 'ancestry-only', 'topic-0');
+        fixture.env.CRATIS_CLEANUP_NO_GH = '1';
+        fixture.padWorktreeList();
+        assert.match(fixture.run(['--hook']), /3 removed/);
+        assert.equal(existsSync(fixture.worktrees[0]), false);
+        assert.ok(!fixture.git(fixture.repository, 'branch', '--format=%(refname:short)').split('\n').includes('topic-0'));
+        assert.equal(fixture.calls().length, 0);
+    } finally { fixture.dispose(); }
+});
+
 for (const failure of ['API rate limit already exceeded', 'network unavailable', 'invalid JSON', 'invalid shape', 'invalid entry', 'lock held']) {
     test(`a mixed sweep aborts every worktree and branch removal: ${failure}`, () => {
         const fixture = cleanupGithubFixture();
@@ -224,6 +238,47 @@ test('a stale lock with an abandoned reclaim marker is renamed and the single ba
         assert.equal(existsSync(lock), false);
         assert.ok(!readdirSync(fixture.state).some(name => name.startsWith('lock.stale.')));
     } finally { fixture.dispose(); }
+});
+
+test('cleanup self-test: concurrent stale-lock reclaimers preserve the winner and the loser uses cached_pulls', async () => {
+    const fixture = cleanupGithubFixture();
+    const pending: Promise<string>[] = [];
+    const resume = (name: string) => writeFileSync(join(fixture.directory, `resume-${name}`), '');
+    const waitFor = async (path: string) => {
+        for (let attempt = 0; attempt < 500 && !existsSync(path); attempt++) await delay(20);
+        assert.ok(existsSync(path), `reclaimer must reach ${path}`);
+    };
+    try {
+        const lock = join(fixture.state, 'lock');
+        mkdirSync(lock, { recursive: true });
+        const expired = new Date(Date.now() - 901_000);
+        utimesSync(lock, expired, expired);
+        fixture.pauseLockStat();
+        writeFileSync(join(fixture.directory, 'block'), '');
+        pending.push(fixture.runAsync({ CLEANUP_RECLAIMER: 'winner' }));
+        pending.push(fixture.runAsync({ CLEANUP_RECLAIMER: 'loser' }));
+        await waitFor(join(fixture.directory, 'read-winner'));
+        await waitFor(join(fixture.directory, 'read-loser'));
+        assert.equal(readFileSync(join(fixture.directory, 'read-winner'), 'utf8'), readFileSync(join(fixture.directory, 'read-loser'), 'utf8'));
+        resume('winner');
+        await waitFor(join(fixture.directory, 'calls'));
+        const winnerInode = statSync(lock).ino;
+        resume('loser');
+        assert.match(await pending[1], /GitHub evidence unavailable; 0 removed/);
+        assert.equal(statSync(lock).ino, winnerInode, 'the live lock must be restored, not replaced');
+        assert.equal(fixture.calls().length, 1);
+        writeFileSync(join(fixture.directory, 'release'), '');
+        assert.match(await pending[0], /3 removed/);
+        assert.match(fixture.run(), /3 removed/);
+        assert.equal(fixture.calls().length, 1, 'the winner must publish the cache for later hooks');
+        assert.equal(existsSync(lock), false);
+        assert.ok(!readdirSync(fixture.state).some(name => name.startsWith('lock.stale.')));
+    } finally {
+        resume('winner'); resume('loser');
+        writeFileSync(join(fixture.directory, 'release'), '');
+        await Promise.allSettled(pending);
+        fixture.dispose();
+    }
 });
 
 test('a detached unproven worktree never acquires GitHub evidence from another planned item', () => {
