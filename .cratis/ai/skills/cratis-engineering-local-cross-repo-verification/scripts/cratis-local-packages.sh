@@ -10,12 +10,13 @@ Portable local package verification for macOS/Linux (Bash 3.2+). Windows: use WS
 Exit codes: 0 success, 1 findings/failed operation, 2 cannot run/invalid input.
 
 Commands (COMMAND --help shows these instructions too):
-  stamp PRODUCER [PRODUCER...]
+  stamp [--base-version X.Y.Z] PRODUCER [PRODUCER...]
     Next patch of the highest reachable vX.Y.Z tag, UTC minute and HEAD sha7.
     With several producers the highest next patch wins (one stamp for a multi-hop
     chain, so no stamped package sorts below a released pin) and sha7 is the last
     producer's; every HEAD is printed to stderr.
-  stamp --train PRODUCER [PRODUCER...]
+  stamp --train [--base-version X.Y.Z] PRODUCER [PRODUCER...]
+    --base-version overrides the tag-derived base (strict SemVer core, no suffix).
     Train stamp X.Y.Z-train.g<sha7>: the same next patch, no minute, so one code
     state always yields one stamp. Accepted everywhere a local stamp is.
   closure [--map FILE] [--train] CONSUMER=PATH PRODUCER=PATH...
@@ -52,6 +53,19 @@ Commands (COMMAND --help shows these instructions too):
   verify-assets CONSUMER-PATH STAMP [--npm] [--dir REL] [--json]
     Manual, weaker form without a plan: every package at STAMP in the feed that the
     consumer resolves must be STAMP (none resolved: exit 1).
+  verify-pack --composition FILE [--json]
+  verify-assets CONSUMER-PATH --composition FILE [--json]
+  use-nuget CONSUMER --composition FILE [--pin-transitive]
+    Opt-in mixed-version NuGet closure: tab-separated producer NAME STAMP
+    ABSOLUTE_WORKTREE rows, then package PRODUCER PACKAGE_ID rows. Case-insensitive
+    IDs have one owner. All declared artifacts must exist; nothing is built/repacked.
+    Uses Node, unzip and the selected SDK's native NuGet.Versioning APIs; unavailable
+    validation fails closed (2). Bad artifacts/ranges/assets are findings (1).
+    Composition JSON: {"packages":[{"id":..,"version":..,"producer":..}]} (no stamp).
+    Activation publishes a journaled overlay with exclusive exact source mappings.
+    The next mutation recovers interrupted work, or refuses and preserves unknown
+    ownership/drift. Active compositions retain member artifacts. Restore before
+    changing a composition or switching between it and a legacy overlay.
   pack-nuget PRODUCER STAMP [--property NAME=VALUE]... PROJECT-OR-SLN...
     Release-pack each target into the NuGet feed; requires dotnet. Each --property
     becomes one -p:NAME=VALUE argument of that command only (closure prints the
@@ -87,6 +101,8 @@ Commands (COMMAND --help shows these instructions too):
     Default: list all local feed/cache/image/session subjects, without deleting.
     --apply deletes listed subjects (docker rmi, never force). Refuses more than
     CRATIS_LOCAL_CLEAN_MAX subjects (default 500), or unresolved npm backups.
+    Refuses selected stamps referenced by registered live consumer overlays/manifests;
+    restore those consumers first. Dry-run uses the same protection.
     Known sessions are registered in FEED/sessions; an optional consumer also
     discovers its per-worktree session. Docker probes have a 10-second deadline.
   --self-test
@@ -132,10 +148,28 @@ fi
 FEED=${CRATIS_LOCAL_FEED:-${XDG_CACHE_HOME:-$HOME/.cache}/cratis/local-feed}
 NUGET_CACHE=${NUGET_PACKAGES:-$HOME/.nuget/packages}
 case "$FEED" in /*) ;; *) FEED=$PWD/$FEED ;; esac
+# The configured spelling (for example /var/... on macOS, or a symlinked cache) is kept
+# so leak scans catch consumer references written through either path.
+FEED_ALIAS=$FEED
+# Resolve configured/system symlink parents without creating a missing feed.
+# Subsequent checks concern helper-owned components, not /tmp, /var or HOME.
+resolve_feed() {
+    local directory=$FEED suffix='' physical
+    while [ ! -d "$directory" ]; do
+        [ ! -e "$directory" ] && [ ! -L "$directory" ] || die "not a feed directory: $directory"
+        suffix=/${directory##*/}$suffix
+        directory=${directory%/*}; [ -n "$directory" ] || directory=/
+    done
+    physical=$(cd -P "$directory" && pwd -P) || die "cannot resolve feed: $FEED"
+    if [ -n "$suffix" ]; then FEED=${physical%/}$suffix; else FEED=$physical; fi
+}
+[ "$MODE" = --self-test ] || resolve_feed
 case "$NUGET_CACHE" in /*) ;; *) NUGET_CACHE=$PWD/$NUGET_CACHE ;; esac
 TMP=''
 PACK_REPO=''
 PACK_MANIFESTS=()
+SESSION_LOCK=''
+SESSION_RECOVERY_GUARD=''
 cleanup() {
     local status=$?
     trap - EXIT
@@ -144,6 +178,14 @@ cleanup() {
             printf 'ERROR: producer manifest restoration failed: %s\n' "$PACK_REPO" >&2
             status=1
         fi
+    fi
+    if [ -n "$SESSION_LOCK" ] && [ ! -e "$SESSION_LOCK/journal.json" ] &&
+        [ -f "$SESSION_LOCK/owner" ] && [ "$(cat "$SESSION_LOCK/owner")" = "$$" ]; then
+        rm -- "$SESSION_LOCK/owner"
+        rmdir -- "$SESSION_LOCK" || status=1
+    fi
+    if [ -n "$SESSION_RECOVERY_GUARD" ]; then
+        rmdir -- "$SESSION_RECOVERY_GUARD" || status=1
     fi
     if [ -n "$TMP" ]; then rm -rf -- "$TMP"; fi
     exit "$status"
@@ -187,8 +229,8 @@ validate_session() {
         [ -e "$entry" ] || [ -L "$entry" ] || continue
         [ ! -L "$entry" ] || die "symlink in session: $entry"
         case "${entry##*/}" in
-            repo|stamp|env|npm-dir|Directory.Packages.props|nuget.config) [ -f "$entry" ] || die "unexpected session entry: $entry" ;;
-            npm-backup) [ -d "$entry" ] || die "unexpected session entry: $entry" ;;
+            repo|stamp|env|npm-dir|Directory.Packages.props|cratis-local.targets|nuget.config) [ -f "$entry" ] || die "unexpected session entry: $entry" ;;
+            npm-backup|composition) [ -d "$entry" ] || die "unexpected session entry: $entry" ;;
             *) die "unrecognized file in session (preserved): $entry" ;;
         esac
     done
@@ -227,12 +269,31 @@ base_above() {
 
 stamp() {
     [ $# -ge 1 ] || die 'stamp requires a producer repository'
-    local repo base='' sha='' arg train=0 lines='' rname origin
+    local repo base='' override='' sha='' arg train=0 lines='' rname origin
+    local producers=()
     if [ "$1" = --train ]; then train=1; shift; [ $# -ge 1 ] || die 'stamp --train requires a producer repository'; fi
+    while [ $# -gt 0 ]; do
+        arg=$1; shift
+        case "$arg" in
+            --base-version)
+                [ $# -gt 0 ] || die '--base-version requires X.Y.Z'
+                [ -z "$override" ] || die '--base-version may only be supplied once'
+                [[ "$1" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || die "invalid base version: $1 (expected SemVer core X.Y.Z)"
+                override=$1; shift ;;
+            --train) train=1 ;;
+            -*) die "unknown stamp option: $arg" ;;
+            *) producers+=("$arg") ;;
+        esac
+    done
+    [ ${#producers[@]} -gt 0 ] || die 'stamp requires a producer repository'
+    set -- "${producers[@]}"
+    base=$override
     for arg in "$@"; do
         repo=$(repo_root "$arg")
-        next_base "$repo"
-        if [ -z "$base" ] || base_above "$NEXT_BASE" "$base"; then base=$NEXT_BASE; fi
+        if [ -z "$override" ]; then
+            next_base "$repo"
+            if [ -z "$base" ] || base_above "$NEXT_BASE" "$base"; then base=$NEXT_BASE; fi
+        fi
         sha=$(git -C "$repo" rev-parse HEAD) || die 'producer has no HEAD commit'
         if [ $# -gt 1 ]; then printf 'HEAD %s %s\n' "$repo" "$sha" >&2; fi
         # The repository name is its origin's last path part (stable across checkouts), else its folder name.
@@ -350,15 +411,6 @@ NODE
     printf 'produced %s npm tarballs\n' "$count"
 }
 
-# Read Include/Update attributes without assuming one element per line.
-package_ids() {
-    awk 'BEGIN { RS="<" } /^PackageVersion[[:space:]]/ {
-        gsub(sprintf("%c",39),"\"")
-        if (match($0, /(Include|Update)[[:space:]]*=[[:space:]]*"[^"]+"/)) {
-            value=substr($0,RSTART,RLENGTH); sub(/^[^"]*"/,"",value); sub(/"$/,"",value); print value
-        }
-    }' "$1"
-}
 source_mapping() {
     local config=$1 output=$2 id
     shift 2
@@ -397,9 +449,43 @@ source_mapping() {
     ' "$config" > "$output"
 }
 
+# These headers are shared by the legacy and composition writers. The session
+# lives below the Git directory, never above a consumer project in the lookup.
+nuget_props_start() {
+    cat <<'XML'
+<Project>
+  <PropertyGroup><_CratisLocalPackagesProps>$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildProjectDirectory)'))</_CratisLocalPackagesProps></PropertyGroup>
+  <Import Project="$(_CratisLocalPackagesProps)" Condition="'$(_CratisLocalPackagesProps)' != '' and Exists('$(_CratisLocalPackagesProps)')" />
+XML
+    if [ "$1" -eq 1 ]; then
+        printf '  <PropertyGroup Condition="%s"><CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled></PropertyGroup>\n' "'\$(ManagePackageVersionsCentrally)' == 'true'"
+    fi
+    printf '  <ItemGroup Condition="%s">\n' "'\$(ManagePackageVersionsCentrally)' == 'true'"
+}
+nuget_targets_start() {
+    cat <<'XML'
+<Project>
+  <Import Project="$(_CratisLocalPreviousAfterMicrosoftCommonTargets)" Condition="'$(_CratisLocalPreviousAfterMicrosoftCommonTargets)' != '' and '$(_CratisLocalPreviousAfterMicrosoftCommonTargets)' != '$(MSBuildThisFileFullPath)' and Exists('$(_CratisLocalPreviousAfterMicrosoftCommonTargets)')" />
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">
+XML
+}
+nuget_overlay_end() { printf '  </ItemGroup>\n</Project>\n'; }
+nuget_env() {
+    local session=$1 targets_key=CustomAfterMicrosoftCommon"Targets"
+    printf 'export %s=%q\n' DirectoryPackages"PropsPath" "$session/Directory.Packages.props"
+    printf 'export %s=%q\n' RestoreAdditional"ProjectSources" "$FEED/nuget"
+    # Capture at source time, not activation time; sourcing twice must not recurse.
+    printf 'if [ "%s" != %q ]; then\n' "\${$targets_key:-}" "$session/cratis-local.targets"
+    printf '  export _CratisLocalPreviousAfterMicrosoftCommonTargets="%s"\nfi\n' "\${$targets_key:-}"
+    printf 'export %s=%q\n' "$targets_key" "$session/cratis-local.targets"
+}
+
 use_nuget() {
+    if [ "${2:-}" = --composition ]; then composition use-nuget "$@"; return; fi
+    case " $* " in *' --composition '*) die 'cannot mix a stamp or IDs with --composition' ;; esac
     [ $# -ge 2 ] || die 'use-nuget requires consumer and stamp'
-    local repo version session props id file config='' props_key sources_key action pin=0 args=()
+    [ ! -d "$(session_path "$(repo_root "$1")")/composition" ] || die 'active composition; restore first'
+    local repo version session props id file config='' props_key sources_key targets_key pin=0 args=()
     local ids=()
     repo=$(repo_root "$1"); version=$2; shift 2
     for id in "$@"; do
@@ -409,7 +495,6 @@ use_nuget() {
     valid_stamp "$version"; props=$repo/Directory.Packages.props
     [ -f "$props" ] || die 'no Directory.Packages.props (non-CPM). Manual alternative: untracked project copy, explicit PackageReference versions, dotnet restore --source FEED/nuget'
     session=$(session_path "$repo"); scratch
-    package_ids "$props" > "$TMP/consumer-ids"
     if [ $# -gt 0 ]; then
         ids=("$@")
     elif [ -d "$FEED/nuget" ]; then
@@ -443,24 +528,29 @@ use_nuget() {
     fi
     register_session "$repo" "$session" "$version"
     {
-        printf '<Project>\n  <Import Project="%s" />\n' "$(xml_escape "$props")"
-        if [ "$pin" -eq 1 ]; then
-            printf '  <PropertyGroup><CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled></PropertyGroup>\n'
-        fi
-        printf '  <ItemGroup>\n'
+        nuget_props_start "$pin"
         for id in "${ids[@]}"; do
-            action=Include
-            if grep -Fxiq -- "$id" "$TMP/consumer-ids"; then action=Update; fi
-            printf '    <PackageVersion %s="%s" Version="%s" />\n' "$action" "$id" "$version"
+            # Remove/include works with any nearest props, not only root IDs.
+            printf '    <PackageVersion Remove="%s" /><PackageVersion Include="%s" Version="%s" />\n' "$id" "$id" "$version"
         done
-        printf '  </ItemGroup>\n</Project>\n'
+        nuget_overlay_end
     } > "$session/Directory.Packages.props"
-    props_key=DirectoryPackages"PropsPath"; sources_key=RestoreAdditional"ProjectSources"
     {
-        printf 'export %s=%q\n' "$props_key" "$session/Directory.Packages.props"
-        printf 'export %s=%q\n' "$sources_key" "$FEED/nuget"
-    } > "$session/env"
-    printf ' %q' "-p:$props_key=$session/Directory.Packages.props" "-p:$sources_key=$FEED/nuget"; printf '\n'
+        nuget_targets_start
+        for id in "${ids[@]}"; do
+            printf '    <PackageReference Update="%s" Version="%s" />\n' "$id" "$version"
+        done
+        nuget_overlay_end
+    } > "$session/cratis-local.targets"
+    nuget_env "$session" > "$session/env"
+    props_key=DirectoryPackages"PropsPath"; sources_key=RestoreAdditional"ProjectSources"; targets_key=CustomAfterMicrosoftCommon"Targets"
+    printf ' %q' "-p:$props_key=$session/Directory.Packages.props" "-p:$sources_key=$FEED/nuget" "-p:$targets_key=$session/cratis-local.targets"
+    if [ "${CustomAfterMicrosoftCommonTargets:-}" != "$session/cratis-local.targets" ]; then
+        printf ' %q' "-p:_CratisLocalPreviousAfterMicrosoftCommonTargets=${CustomAfterMicrosoftCommonTargets:-}"
+    else
+        printf ' %q' "-p:_CratisLocalPreviousAfterMicrosoftCommonTargets=${_CratisLocalPreviousAfterMicrosoftCommonTargets:-}"
+    fi
+    printf '\n'
     printf 'source %q\n' "$session/env"
     if [ -n "$config" ]; then
         source_mapping "$config" "$session/nuget.config" "${ids[@]}"
@@ -469,6 +559,557 @@ use_nuget() {
         rm -- "$session/nuget.config"
     fi
     printf 'overrode %s NuGet package IDs\n' "${#ids[@]}"
+    printf 'Optional per-worktree cache (set before restore and clean): export NUGET_PACKAGES=%q\n' "$(git -C "$repo" rev-parse --absolute-git-dir)/cratis-local-nuget"
+}
+
+# A shared lock covers legacy mutations too: registration rollback must never replace
+# another invocation's registry writes. An incomplete/unknown lock is preserved.
+acquire_session_lock() {
+    local lock=$FEED/.composition-lock
+    if [ "$DRY" -eq 1 ]; then
+        [ ! -e "$lock" ] && [ ! -L "$lock" ] || die 'session locked; recovery requires a non-dry-run mutation'
+        return 0
+    fi
+    mkdir -p "$FEED"
+    # Serialize inspection, journal recovery and replacement so a contender cannot
+    # recover a stale owner and then delete the next invocation's live lock.
+    # An abandoned guard fails closed, just like an incomplete/unknown lock.
+    mkdir "$FEED/.composition-recovery" || die 'local package session is locked'
+    SESSION_RECOVERY_GUARD=$FEED/.composition-recovery
+    if [ -e "$lock" ] || [ -L "$lock" ]; then composition recover; fi
+    mkdir "$lock" || die 'local package session is locked'
+    SESSION_LOCK=$lock
+    printf '%s\n' "$$" > "$lock/owner"
+    rmdir -- "$SESSION_RECOVERY_GUARD"
+    SESSION_RECOVERY_GUARD=''
+}
+
+# Opt-in composition uses Node orchestration and the selected SDK's native NuGet
+# APIs. No npm dependency, persistent project, package restore or producer build.
+composition() {
+    need node; scratch
+    local operation=$1 repo='' session=''
+    shift
+    case "$operation" in
+        use-nuget|verify-assets|restore-state)
+            [ $# -ge 1 ] || die "$operation requires a consumer"
+            repo=$(repo_root "$1"); session=$(session_path "$repo") ;;
+    esac
+    nuget_props_start 0 > "$TMP/overlay-props"
+    nuget_props_start 1 > "$TMP/overlay-props-pin"
+    nuget_targets_start > "$TMP/overlay-targets"
+    nuget_overlay_end > "$TMP/overlay-end"
+    nuget_env "$session/composition" > "$TMP/overlay-env"
+    node - "$operation" "$FEED" "$TMP" "$DRY" "$repo" "$session" "$@" <<'COMPOSITION'
+const fs = require('node:fs');
+const path = require('node:path');
+const cp = require('node:child_process');
+const crypto = require('node:crypto');
+const [mode, feed, scratch, dry, repo, session, ...argv] = process.argv.slice(2);
+const lock = path.join(feed, '.composition-lock');
+const registry = path.join(feed, 'sessions');
+const local = /-(?:local\.[0-9]{12}|train)\.g[0-9a-f]{7}(?:$|[^0-9A-Za-z])/;
+const stamp = /^[0-9]+\.[0-9]+\.[0-9]+-(?:local\.[0-9]{12}|train)\.g[0-9a-f]{7}$/;
+const idPattern = /^[A-Za-z0-9_.-]+$/;
+const lower = s => s.toLowerCase();
+const exists = p => fs.existsSync(p) || !!fs.lstatSync(path.dirname(p), {throwIfNoEntry:false}) && fs.readdirSync(path.dirname(p)).includes(path.basename(p));
+function fail(message, code = 2) { const error = new Error(message); error.code = code; throw error; }
+function plain(p, directory = false) {
+    const st = fs.lstatSync(p, {throwIfNoEntry:false});
+    if (!st || st.isSymbolicLink() || (directory ? !st.isDirectory() : !st.isFile())) fail('unsafe or missing path: ' + p);
+}
+function safeParents(p, ownedRoot = feed) {
+    if (/[\x00-\x1f]/.test(p)) fail('control character in path');
+    const root = path.resolve(ownedRoot), start = path.resolve(p);
+    if (start !== root && !start.startsWith(root + path.sep)) fail('outside helper-owned directory: ' + p);
+    for (let cur = start; ; cur = path.dirname(cur)) {
+        const st = fs.lstatSync(cur, {throwIfNoEntry:false});
+        if (st && (st.isSymbolicLink() || !st.isDirectory())) fail('unsafe directory: ' + cur);
+        if (cur === root) break;
+    }
+}
+function bytes(p) { if (!exists(p)) return null; plain(p); return fs.readFileSync(p).toString('base64'); }
+function write(p, value) { fs.writeFileSync(p, value, {flag:'wx', mode:0o600}); }
+function run(command, args) {
+    const result = cp.spawnSync(command, args, {encoding:'utf8', maxBuffer:32 * 1024 * 1024});
+    if (result.error || result.status !== 0) fail(command + ' failed: ' + (result.error?.message || result.stderr || result.stdout), 2);
+    return result.stdout;
+}
+function manifest(file) {
+    plain(file);
+    const producers = new Map(), packages = new Map(), rows = [];
+    for (const line of fs.readFileSync(file, 'utf8').split('\n')) {
+        if (line === '' || line.startsWith('#')) continue;
+        const row = line.split('\t');
+        if (row.some(s => s === '' || /[\r\x00-\x08\x0b-\x1f]/.test(s))) fail('malformed composition row');
+        if (row[0] === 'producer' && row.length === 4) {
+            const [, name, version, worktree] = row;
+            if (!idPattern.test(name) || producers.has(lower(name)) || !stamp.test(version) || !path.isAbsolute(worktree)) fail('invalid or duplicate producer: ' + name);
+            plain(worktree, true);
+            if (run('git', ['-C', worktree, 'rev-parse', '--show-toplevel']).trim() !== worktree) fail('producer must name an absolute worktree root: ' + worktree);
+            producers.set(lower(name), {name, version, worktree});
+        } else if (row[0] === 'package' && row.length === 3) rows.push(row);
+        else fail('malformed composition row: ' + line);
+    }
+    for (const [, owner, id] of rows) {
+        const producer = producers.get(lower(owner));
+        if (!producer || !idPattern.test(id) || packages.has(lower(id))) fail('unknown producer or duplicate package ownership: ' + id);
+        packages.set(lower(id), {id, producer:producer.name, version:producer.version, worktree:producer.worktree});
+    }
+    if (!producers.size || !packages.size) fail('empty composition');
+    for (const p of producers.values()) if (![...packages.values()].some(pkg => pkg.producer === p.name)) fail('empty producer closure: ' + p.name);
+    return [...packages.values()].sort((a,b) => lower(a.id).localeCompare(lower(b.id), 'en'));
+}
+const normalize = packages => packages.map(p => [p.producer,p.id,p.version,p.worktree].join('\t')).join('\n') + '\n';
+const xml = s => s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;').replaceAll("'",'&apos;');
+const msxml = s => xml(s.replace(/[%$@;?*()]/g, c => '%' + c.charCodeAt(0).toString(16)));
+// All version/range comparisons and nuspec XML parsing run inside the SDK.
+function native(packages, graphs = []) {
+    const inputs = path.join(scratch, 'native-inputs.tsv');
+    const checks = path.join(scratch, 'native-graphs.tsv');
+    const result = path.join(scratch, 'native-result');
+    let input = '';
+    packages.forEach((pkg, i) => {
+        const artifact = path.join(feed, 'nuget', `${pkg.id}.${pkg.version}.nupkg`);
+        safeParents(path.dirname(artifact));
+        if (!exists(artifact)) fail('missing: ' + artifact, 1);
+        plain(artifact);
+        let names;
+        try { names = run('unzip', ['-Z1', artifact]).split('\n').filter(n => /\.nuspec$/i.test(n)); }
+        catch (e) { fail('corrupt package: ' + artifact, 1); }
+        if (names.length !== 1 || !/^[A-Za-z0-9_.-]+\.nuspec$/i.test(names[0])) fail('ambiguous nuspec: ' + artifact, 1);
+        const extracted = cp.spawnSync('unzip', ['-p', artifact, names[0]], {maxBuffer:8 * 1024 * 1024});
+        if (extracted.error || extracted.status !== 0) fail('unreadable nuspec: ' + artifact, 1);
+        const nuspec = path.join(scratch, `package-${i}.xml`);
+        fs.writeFileSync(nuspec, extracted.stdout);
+        input += [pkg.id, pkg.version, nuspec].join('\t') + '\n';
+    });
+    fs.writeFileSync(inputs, input); fs.writeFileSync(checks, graphs.join('\n'));
+    const project = path.join(scratch, 'native.proj');
+    fs.writeFileSync(project, `<Project>
+<UsingTask TaskName="CompositionValidation" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll">
+<ParameterGroup><Sdk ParameterType="System.String" Required="true"/><Inputs ParameterType="System.String" Required="true"/><Graphs ParameterType="System.String" Required="true"/><Result ParameterType="System.String" Required="true"/></ParameterGroup>
+<Task><Code Type="Fragment" Language="cs"><![CDATA[
+var verdict = "0";
+var advisories = new System.Text.StringBuilder();
+try {
+    var assembly = System.Reflection.Assembly.LoadFrom(System.IO.Path.Combine(Sdk, "NuGet.Versioning.dll"));
+    var vt = assembly.GetType("NuGet.Versioning.NuGetVersion", true);
+    var rt = assembly.GetType("NuGet.Versioning.VersionRange", true);
+    var pv = vt.GetMethod("TryParse", new[] { typeof(string), vt.MakeByRefType() });
+    var pr = rt.GetMethod("TryParse", new[] { typeof(string), rt.MakeByRefType() });
+    var sat = rt.GetMethod("Satisfies", new[] { vt });
+    if (pv == null || pr == null || sat == null) throw new MissingMethodException("native NuGet validation API unavailable");
+    Func<string, object> version = text => {
+        var args = new object[] { text, null };
+        if (!(bool)pv.Invoke(null, args)) throw new FormatException("invalid version: " + text);
+        return args[1];
+    };
+    Func<string, object> range = text => {
+        var args = new object[] { text, null };
+        if (String.IsNullOrWhiteSpace(text) || !(bool)pr.Invoke(null, args)) throw new FormatException("invalid range: " + text);
+        return args[1];
+    };
+    Action<string, string, string> satisfies = (v, r, context) => {
+        if (!(bool)sat.Invoke(range(r), new[] { version(v) })) throw new FormatException("dependency range: " + context + " " + r + " excludes " + v);
+    };
+    var fa = System.Reflection.Assembly.LoadFrom(System.IO.Path.Combine(Sdk, "NuGet.Frameworks.dll"));
+    var ft = fa.GetType("NuGet.Frameworks.NuGetFramework", true);
+    var reducerType = fa.GetType("NuGet.Frameworks.FrameworkReducer", true);
+    var fp = ft.GetMethod("Parse", new[] { typeof(string) });
+    var nearest = reducerType.GetMethod("GetNearest", new[] { ft, typeof(System.Collections.Generic.IEnumerable<>).MakeGenericType(ft) });
+    if (fp == null || nearest == null) throw new MissingMethodException("native NuGet framework API unavailable");
+    var reducer = Activator.CreateInstance(reducerType);
+    Func<string, object> framework = text => fp.Invoke(null, new object[] { String.IsNullOrEmpty(text) ? "any" : text });
+    var dependencies = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.Dictionary<object, System.Collections.Generic.HashSet<string>>>(StringComparer.OrdinalIgnoreCase);
+    var owned = new System.Collections.Generic.Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    var rows = System.IO.File.ReadAllLines(Inputs);
+    foreach (var row in rows) { var p = row.Split('\t'); version(p[1]); owned.Add(p[0], p[1]); }
+    foreach (var row in rows) {
+        var p = row.Split('\t');
+        var document = new System.Xml.XmlDocument(); document.XmlResolver = null;
+        var settings = new System.Xml.XmlReaderSettings(); settings.DtdProcessing = System.Xml.DtdProcessing.Prohibit; settings.XmlResolver = null;
+        using (var reader = System.Xml.XmlReader.Create(p[2], settings)) document.Load(reader);
+        var metadata = document.SelectNodes("/*[local-name()='package']/*[local-name()='metadata']");
+        if (metadata.Count != 1) throw new FormatException("ambiguous metadata: " + p[0]);
+        var ids = metadata[0].SelectNodes("*[local-name()='id']");
+        var versions = metadata[0].SelectNodes("*[local-name()='version']");
+        if (ids.Count != 1 || versions.Count != 1 || !String.Equals(ids[0].InnerText, p[0], StringComparison.OrdinalIgnoreCase) || versions[0].InnerText != p[1]) throw new FormatException("nuspec identity/version mismatch: " + p[0]);
+        var groups = new System.Collections.Generic.Dictionary<object, System.Collections.Generic.HashSet<string>>();
+        dependencies.Add(p[0], groups);
+        var sections = metadata[0].SelectNodes("*[local-name()='dependencies']");
+        if (sections.Count > 1) throw new FormatException("ambiguous dependency sections: " + p[0]);
+        if (sections.Count == 1) {
+            var grouped = sections[0].SelectNodes("*[local-name()='group']");
+            if (grouped.Count == 0) groups.Add(framework("any"), new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase));
+            else {
+                if (sections[0].SelectNodes("*[local-name()='dependency']").Count != 0) throw new FormatException("mixed dependency groups: " + p[0]);
+                foreach (System.Xml.XmlElement group in grouped) {
+                    var target = framework(group.GetAttribute("targetFramework"));
+                    if (groups.ContainsKey(target)) throw new FormatException("duplicate dependency group: " + p[0]);
+                    groups.Add(target, new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase));
+                }
+            }
+        }
+        foreach (System.Xml.XmlNode dep in document.SelectNodes("//*[local-name()='dependency']")) {
+            var id = dep.Attributes["id"]; var r = dep.Attributes["version"];
+            if (id == null || String.IsNullOrWhiteSpace(id.Value) || r == null || (dep.ParentNode.LocalName != "group" && dep.ParentNode.LocalName != "dependencies")) throw new FormatException("unreadable dependency: " + p[0]);
+            var section = dep.ParentNode.LocalName == "group" ? dep.ParentNode.ParentNode : dep.ParentNode;
+            if (sections.Count != 1 || section != sections[0]) throw new FormatException("misplaced dependency: " + p[0]);
+            range(r.Value);
+            if (owned.ContainsKey(id.Value)) {
+                satisfies(owned[id.Value], r.Value, p[0] + " -> " + id.Value);
+                var target = dep.ParentNode.LocalName == "group" ? framework(((System.Xml.XmlElement)dep.ParentNode).GetAttribute("targetFramework")) : framework("any");
+                groups[target].Add(id.Value);
+            }
+            else if (System.Text.RegularExpressions.Regex.IsMatch(r.Value, @"-(local\\.[0-9]{12}|train)\\.g[0-9a-f]{7}")) throw new FormatException("undeclared local dependency: " + id.Value);
+        }
+    }
+    foreach (var row in System.IO.File.ReadAllLines(Graphs)) {
+        if (row.Length == 0) continue;
+        var p = row.Split('\t');
+        if (p[0] == "~") { if (!(bool)sat.Invoke(range(p[2]), new[] { version(p[1]) })) advisories.Append("\\ndependency range outside the composition: " + p[3] + " " + p[2] + " excludes " + p[1]); continue; }
+        if (p[0] != "@") { satisfies(p[0], p[1], p[2]); continue; }
+        var groups = dependencies[p[2]];
+        if (groups.Count == 0) continue;
+        var candidates = Array.CreateInstance(ft, groups.Count); var index = 0;
+        foreach (var candidate in groups.Keys) candidates.SetValue(candidate, index++);
+        var selected = nearest.Invoke(reducer, new object[] { framework(p[1].Split('/')[0]), candidates });
+        if (selected == null) continue;
+        var consumed = new System.Collections.Generic.HashSet<string>(p[3].Split(','), StringComparer.OrdinalIgnoreCase);
+        var edges = new System.Collections.Generic.HashSet<string>(p[4].Split(','), StringComparer.OrdinalIgnoreCase);
+        foreach (var required in groups[selected]) if (!consumed.Contains(required) || !edges.Contains(required)) throw new FormatException("required local dependency not consumed: " + p[2] + " -> " + required + " " + p[1]);
+    }
+    verdict = "0" + advisories.ToString();
+} catch (Exception e) {
+    verdict = (e is MissingMethodException || e is System.IO.FileNotFoundException || e is TypeLoadException ? "2" : "1") + "\\n" + e.Message;
+}
+System.IO.File.WriteAllText(Result, verdict);
+]]></Code></Task></UsingTask>
+<Target Name="Validate"><CompositionValidation Sdk="$(MSBuildToolsPath)" Inputs="${msxml(inputs)}" Graphs="${msxml(checks)}" Result="${msxml(result)}"/></Target></Project>`);
+    const execution = cp.spawnSync('dotnet', ['msbuild', project, '-t:Validate', '-nologo', '-v:quiet', '-m:1', '-nodeReuse:false'], {encoding:'utf8', maxBuffer:8 * 1024 * 1024});
+    if (execution.error || execution.status !== 0 || !exists(result)) fail('native SDK validator unavailable: ' + (execution.error?.message || execution.stdout || execution.stderr));
+    const [code, ...message] = fs.readFileSync(result,'utf8').split('\n');
+    if (code !== '0') fail(message.join('\n'), Number(code));
+    return message.filter(Boolean);
+}
+function assets(packages) {
+    const owned = new Map(packages.map(p => [lower(p.id), p]));
+    const files = [], resolved = new Map(), checks = [];
+    function walk(dir) {
+        for (const entry of fs.readdirSync(dir, {withFileTypes:true})) {
+            if (entry.isSymbolicLink() || ['.git','node_modules'].includes(entry.name)) continue;
+            const file = path.join(dir,entry.name);
+            if (entry.isDirectory()) walk(file);
+            else if (entry.name === 'project.assets.json' && path.basename(dir) === 'obj') files.push(file);
+        }
+    }
+    walk(repo);
+    if (!files.length) fail('no obj/project.assets.json (restore the consumer first)');
+    const object = value => value && typeof value === 'object' && !Array.isArray(value);
+    for (const file of files) {
+        let data;
+        try { data = JSON.parse(fs.readFileSync(file,'utf8')); } catch { fail('malformed assets: ' + file,1); }
+        if (!object(data.libraries) || !object(data.targets) || !Object.keys(data.targets).length || data.logs?.some(log => log.level === 'Error')) fail('invalid or failed restore assets: ' + file,1);
+        const libraries = new Map();
+        function keyParts(key, value) {
+            const parts = key.split('/');
+            if (parts.length !== 2 || !idPattern.test(parts[0]) || !parts[1] || !object(value) || !['package','project'].includes(value.type)) fail('malformed asset entry: ' + key + ' ' + file,1);
+            return parts;
+        }
+        for (const [key, lib] of Object.entries(data.libraries)) {
+            const [id, version] = keyParts(key,lib);
+            if (lib.type !== 'package') continue;
+            // Multitarget restores can hold several versions of one ID, one per framework.
+            if (libraries.has(lower(id) + '/' + version)) fail('duplicate assets library: ' + key,1);
+            libraries.set(lower(id) + '/' + version, {id,version});
+            const pkg = owned.get(lower(id));
+            if (pkg && version !== pkg.version || !pkg && local.test(version)) fail('wrong or undeclared local library: ' + key + ' ' + file,1);
+        }
+        const used = new Set();
+        for (const [framework, target] of Object.entries(data.targets)) {
+            if (!object(target) || /[\t\r\n]/.test(framework)) fail('malformed assets target: ' + file,1);
+            const nodes = new Map();
+            for (const [key,node] of Object.entries(target)) {
+                const [id,version] = keyParts(key,node);
+                if (nodes.has(lower(id))) fail('duplicate target ID: ' + id,1);
+                nodes.set(lower(id), {id,version,node});
+                if (node.type !== 'package') continue;
+                if (!libraries.has(lower(id) + '/' + version)) fail('target/library mismatch: ' + key + ' ' + file,1);
+                used.add(lower(id) + '/' + version);
+                checks.push([version,`[${version}]`,`${file} ${framework} ${id}`].join('\t'));
+                if (owned.has(lower(id))) resolved.set(lower(id),owned.get(lower(id)));
+            }
+            const packageIds = [...nodes.values()].filter(n => n.node.type === 'package').map(n => n.id).join(',');
+            for (const {id,node} of nodes.values()) {
+                if (owned.has(lower(id)) && node.type === 'package') checks.push(['@',framework,id,packageIds,Object.keys(node.dependencies || {}).join(',')].join('\t'));
+                if (node.dependencies !== undefined && !object(node.dependencies)) fail('malformed target dependencies: ' + id,1);
+                for (const [dep,range] of Object.entries(node.dependencies || {})) {
+                    if (typeof range !== 'string' || /[\t\r\n]/.test(range)) fail('malformed asset range: ' + dep,1);
+                    const selected = nodes.get(lower(dep));
+                    if (!selected) fail('unresolved target dependency: ' + id + ' -> ' + dep + ' ' + file,1);
+                    // An edge between two IDs outside the composition is NuGet's own NU1608 case and exists
+                    // without the overlay too; report it as a warning instead of refusing the composition.
+                    if (selected.node.type === 'package' && (owned.has(lower(id)) || owned.has(lower(dep)))) checks.push([selected.version,range,`${file} ${framework} ${id} -> ${dep}`].join('\t'));
+                    else if (selected.node.type === 'package') checks.push(['~',selected.version,range,`${file} ${framework} ${id} -> ${dep}`].join('\t'));
+                    if (owned.has(lower(dep)) && selected.node.type !== 'package') fail('owned dependency resolved as project: ' + dep,1);
+                }
+            }
+        }
+        for (const [key, {id}] of libraries) if (owned.has(lower(id)) && !used.has(key)) fail('owned library absent from targets: ' + id + ' ' + file,1);
+    }
+    if (!resolved.size) fail('verify-assets: no composition package consumed',1);
+    return {checks, packages:[...resolved.values()], files:files.length};
+}
+// Journal contains only the transaction's exact expected bytes. Recovery refuses
+// drift, unknown files and symlinks rather than deleting another task's work.
+function directoryBytes(dir) {
+    plain(dir,true); const result = {};
+    for (const name of fs.readdirSync(dir)) { plain(path.join(dir,name)); result[name] = bytes(path.join(dir,name)); }
+    return result;
+}
+function same(a,b) { return JSON.stringify(Object.entries(a).sort()) === JSON.stringify(Object.entries(b).sort()); }
+function removeOwned(dir, expected, partial = false) {
+    if (!exists(dir)) return;
+    const actual = directoryBytes(dir);
+    if (partial ? Object.keys(actual).some(n => actual[n] !== expected[n]) : !same(actual,expected)) fail('transaction files changed; preserved: ' + dir);
+    for (const name of Object.keys(actual)) fs.unlinkSync(path.join(dir,name));
+    fs.rmdirSync(dir);
+}
+function journal(value) {
+    const file = path.join(lock,'journal.json');
+    fs.writeFileSync(file + '.next', JSON.stringify(value), {mode:0o600});
+    fs.renameSync(file + '.next', file);
+}
+function recoverState(j) {
+    if (j.schema !== 1 || !path.isAbsolute(j.repo) || !path.isAbsolute(j.session) || j.session === '/' || j.session === j.repo || !/^[a-f0-9]{24}$/.test(j.token) || !j.files || Object.keys(j.files).some(n => !['manifest.tsv','Directory.Packages.props','cratis-local.targets','nuget.config','env','transaction','state.json'].includes(n))) fail('unknown transaction journal');
+    safeParents(j.session,j.session);
+    const pub = path.join(j.session,'composition'), stage = path.join(j.session, '.composition-' + j.token);
+    if (j.operation === 'activate') {
+        if (!j.committed) {
+            const current = bytes(registry);
+            if (current !== j.registryBefore && current !== j.registryAfter) fail('registry changed; transaction preserved');
+            if (exists(pub)) removeOwned(pub,j.files);
+            if (current === j.registryAfter && current !== j.registryBefore) {
+                if (j.registryBefore === null) fs.unlinkSync(registry);
+                else { fs.writeFileSync(path.join(lock,'registry.rollback'),Buffer.from(j.registryBefore,'base64')); fs.renameSync(path.join(lock,'registry.rollback'),registry); }
+            }
+            const marker = path.join(j.session,'repo');
+            if (!j.hadRepo && exists(marker)) {
+                if (bytes(marker) !== Buffer.from(j.repo + '\n').toString('base64')) fail('session marker changed; preserved');
+                fs.unlinkSync(marker);
+            }
+        }
+        removeOwned(stage,j.files,true);
+        const pending = path.join(lock,'registry.next');
+        if (exists(pending)) {
+            if (bytes(pending) !== j.registryAfter) fail('staged registry changed; preserved');
+            fs.unlinkSync(pending);
+        }
+        if (!j.committed && !j.hadSession && exists(j.session) && fs.readdirSync(j.session).length === 0) fs.rmdirSync(j.session);
+    } else if (j.operation === 'restore') {
+        if (!j.committed && exists(stage)) {
+            if (exists(pub) || !same(directoryBytes(stage),j.files)) fail('restoration state changed; preserved');
+            fs.renameSync(stage,pub);
+        } else if (j.committed) removeOwned(stage,j.files);
+    } else fail('unknown transaction operation');
+    fs.unlinkSync(path.join(lock,'journal.json'));
+}
+function recover() {
+    safeParents(lock); plain(lock,true); plain(path.join(lock,'owner'));
+    const owner = fs.readFileSync(path.join(lock,'owner'),'utf8').trim();
+    if (!/^[1-9][0-9]*$/.test(owner)) fail('unknown lock owner; preserved');
+    try { process.kill(Number(owner),0); fail('local package session is locked by ' + owner); }
+    catch (error) { if (error.code !== 'ESRCH') throw error; }
+    const allowed = new Set(['owner','journal.json','journal.json.next','registry.next','registry.rollback']);
+    if (fs.readdirSync(lock).some(n => !allowed.has(n))) fail('unknown lock state; preserved');
+    for (const n of fs.readdirSync(lock)) plain(path.join(lock,n));
+    if (exists(path.join(lock,'journal.json'))) recoverState(JSON.parse(fs.readFileSync(path.join(lock,'journal.json'),'utf8')));
+    else if (fs.readdirSync(lock).some(n => n !== 'owner')) fail('incomplete transaction journal; preserved');
+    for (const n of fs.readdirSync(lock)) fs.unlinkSync(path.join(lock,n));
+    fs.rmdirSync(lock);
+}
+// Fixture-only fault injection requires the isolated self-test capability file.
+function boundary(name) {
+    const capability = process.env.CRATIS_LOCAL_COMPOSITION_TEST_ROOT;
+    if (!capability || !feed.startsWith(capability + path.sep) || !fs.existsSync(path.join(capability,'.composition-fixture'))) return;
+    if (process.env.CRATIS_LOCAL_COMPOSITION_FAIL === name) fail('injected failure: ' + name,1);
+    if (process.env.CRATIS_LOCAL_COMPOSITION_INTERRUPT === name) { process.kill(process.ppid,'SIGKILL'); process.kill(process.pid,'SIGKILL'); }
+}
+function activeFiles() {
+    const pub = path.join(session,'composition');
+    if (!exists(pub)) return null;
+    const files = directoryBytes(pub);
+    const allowed = new Set(['manifest.tsv','Directory.Packages.props','cratis-local.targets','nuget.config','env','transaction','state.json']);
+    if (Object.keys(files).some(n => !allowed.has(n)) || !files['state.json'] || !files.transaction || !/^[a-f0-9]{24}\n$/.test(Buffer.from(files.transaction,'base64').toString())) fail('unsafe composition session');
+    const expected = JSON.parse(Buffer.from(files['state.json'],'base64').toString());
+    const actual = {...files}; delete actual.transaction; delete actual['state.json'];
+    if (!same(actual,expected)) fail('composition files changed; preserved');
+    return files;
+}
+function activate(packages,pin) {
+    safeParents(session,session); safeParents(feed);
+    const props = path.join(repo,'Directory.Packages.props'); plain(props);
+    if (exists(session)) {
+        plain(session,true);
+        const allowed = new Set(['repo','composition']);
+        if (fs.readdirSync(session).some(n => !allowed.has(n))) fail('conflicting active overlay/session; restore first');
+        if (exists(path.join(session,'repo')) && fs.readFileSync(path.join(session,'repo'),'utf8') !== repo + '\n') fail('session belongs to another checkout');
+    }
+    const pub = path.join(session,'composition');
+    const template = name => fs.readFileSync(path.join(scratch,'overlay-' + name),'utf8');
+    const escaped = packages.map(p => `<PackageVersion Remove="${xml(p.id)}"/><PackageVersion Include="${xml(p.id)}" Version="${p.version}"/>`).join('\n');
+    const references = packages.map(p => `<PackageReference Update="${xml(p.id)}" Version="${p.version}"/>`).join('\n');
+    const files = {
+        'manifest.tsv':normalize(packages),
+        'Directory.Packages.props':template(pin ? 'props-pin' : 'props') + escaped + '\n' + template('end'),
+        'cratis-local.targets':template('targets') + references + '\n' + template('end'),
+        env:template('env')
+    };
+    // Native XML manipulation preserves namespaces/configuration and makes exact
+    // local mappings exclusive; remote wildcards remain less specific.
+    const configs = run('git',['-C',repo,'ls-files','-z']).split('\0').filter(n => ['nuget.config','NuGet.Config','NuGet.config'].includes(n));
+    if (configs.length > 1) fail('ambiguous root NuGet config');
+    if (configs.length) files['nuget.config'] = configOverlay(path.join(repo,configs[0]),packages);
+    else files['nuget.config'] = configOverlay(null,packages);
+    files['state.json'] = JSON.stringify(Object.fromEntries(Object.entries(files).map(([k,v]) => [k,Buffer.from(v).toString('base64')]))) + '\n';
+    const previous = activeFiles();
+    if (previous) {
+        const expected = Object.fromEntries(Object.entries(files).map(([k,v]) => [k,Buffer.from(v).toString('base64')]));
+        const withoutToken = {...previous}; delete withoutToken.transaction;
+        if (!same(expected,withoutToken) || !fs.readFileSync(registry,'utf8').split('\n').includes(session)) fail('different or unregistered active composition; restore first');
+        instructions(packages); return;
+    }
+    if (dry === '1') { console.log('dry-run: validated ' + packages.length + ' composition packages; no overlay written'); return; }
+    const token = crypto.randomBytes(12).toString('hex'); files.transaction = token + '\n';
+    const expected = Object.fromEntries(Object.entries(files).map(([k,v]) => [k,Buffer.from(v).toString('base64')]));
+    const before = bytes(registry);
+    const oldRegistry = before === null ? '' : Buffer.from(before,'base64').toString();
+    if (oldRegistry && !oldRegistry.endsWith('\n')) fail('malformed session registry');
+    const after = oldRegistry.split('\n').includes(session) ? oldRegistry : oldRegistry + session + '\n';
+    const j = {schema:1,operation:'activate',session,repo,token,files:expected,hadSession:exists(session),hadRepo:exists(path.join(session,'repo')),registryBefore:before,registryAfter:Buffer.from(after).toString('base64'),committed:false};
+    journal(j);
+    try {
+        boundary('journal');
+        if (!j.hadSession) { fs.mkdirSync(path.dirname(session), {recursive:true}); fs.mkdirSync(session); }
+        boundary('session');
+        const stage = path.join(session,'.composition-' + token); fs.mkdirSync(stage);
+        // A partial stage is recorded before each file write for exact recovery.
+        for (const [name,value] of Object.entries(files)) { write(path.join(stage,name),value); boundary('stage-' + name); }
+        boundary('staged');
+        if (bytes(registry) !== before) fail('registry changed before publication');
+        fs.renameSync(stage,pub); boundary('published');
+        if (!j.hadRepo) write(path.join(session,'repo'),repo + '\n');
+        boundary('repo');
+        write(path.join(lock,'registry.next'),after); boundary('registration-staged');
+        if (bytes(registry) !== before) fail('registry changed before registration');
+        fs.renameSync(path.join(lock,'registry.next'),registry); boundary('registered');
+        j.committed = true; journal(j); boundary('committed');
+        recoverState(j);
+    } catch (error) {
+        if (!j.committed) recoverState(j);
+        throw error;
+    }
+    instructions(packages);
+}
+function shell(s) { return "'" + s.replaceAll("'", "'\\''") + "'"; }
+function instructions(packages) {
+    const pub = path.join(session,'composition');
+    console.log('source ' + shell(path.join(pub,'env')));
+    console.log('For restore, also pass: --configfile ' + shell(path.join(pub,'nuget.config')));
+    console.log('overrode ' + packages.length + ' NuGet package IDs in composition');
+}
+// XML config overlay is implemented by a second SDK task in the same temporary
+// project, using XmlDocument rather than a regex/token-based XML rewrite.
+function configOverlay(config,packages) {
+    if (config) plain(config);
+    const output = path.join(scratch,'config.xml'), project = path.join(scratch,'config.proj');
+    const ids = path.join(scratch,'config-ids'); fs.writeFileSync(ids,packages.map(p => p.id).join('\n'));
+    fs.writeFileSync(project, `<Project><UsingTask TaskName="CompositionConfig" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)/Microsoft.Build.Tasks.Core.dll"><ParameterGroup><Input ParameterType="System.String"/><Output ParameterType="System.String"/><Feed ParameterType="System.String"/><Ids ParameterType="System.String"/></ParameterGroup><Task><Code Type="Fragment" Language="cs"><![CDATA[
+var doc = new System.Xml.XmlDocument(); doc.XmlResolver = null;
+if (Input.Length == 0) doc.LoadXml("<configuration><packageSources><clear/><add key='nuget.org' value='https://api.nuget.org/v3/index.json'/></packageSources></configuration>");
+else { var settings = new System.Xml.XmlReaderSettings(); settings.DtdProcessing = System.Xml.DtdProcessing.Prohibit; settings.XmlResolver = null; using (var reader = System.Xml.XmlReader.Create(Input, settings)) doc.Load(reader); }
+var root = doc.DocumentElement;
+if (root.Name != "configuration") throw new FormatException("invalid NuGet config");
+var sources = root.SelectNodes("packageSources");
+if (sources.Count != 1 || root.SelectNodes("packageSourceMapping").Count > 1) throw new FormatException("ambiguous NuGet sources/mapping");
+foreach (System.Xml.XmlElement source in sources[0].SelectNodes("add")) {
+    if (String.Equals(source.GetAttribute("key"),"cratis-local",StringComparison.OrdinalIgnoreCase)) throw new FormatException("source key cratis-local already exists");
+    var value = source.GetAttribute("value"); Uri uri;
+    if (Input.Length > 0 && !System.IO.Path.IsPathRooted(value) && !Uri.TryCreate(value, UriKind.Absolute, out uri) && !value.StartsWith("%")) source.SetAttribute("value",System.IO.Path.GetFullPath(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Input),value)));
+}
+var localSource = doc.CreateElement("add"); localSource.SetAttribute("key","cratis-local"); localSource.SetAttribute("value",Feed); sources[0].AppendChild(localSource);
+var mapping = root.SelectSingleNode("packageSourceMapping");
+if (mapping != null) foreach (System.Xml.XmlElement source in mapping.SelectNodes("packageSource")) if (String.Equals(source.GetAttribute("key"),"cratis-local",StringComparison.OrdinalIgnoreCase)) throw new FormatException("mapping key cratis-local already exists");
+foreach (System.Xml.XmlElement source in root.SelectNodes("disabledPackageSources/add")) if (String.Equals(source.GetAttribute("key"),"cratis-local",StringComparison.OrdinalIgnoreCase)) throw new FormatException("source key cratis-local is disabled");
+if (mapping == null) {
+    mapping = doc.CreateElement("packageSourceMapping"); root.AppendChild(mapping);
+    foreach (System.Xml.XmlElement source in sources[0].SelectNodes("add")) {
+        if (source.GetAttribute("key") == "cratis-local") continue;
+        var remote = doc.CreateElement("packageSource"); remote.SetAttribute("key",source.GetAttribute("key"));
+        var wildcard = doc.CreateElement("package"); wildcard.SetAttribute("pattern","*"); remote.AppendChild(wildcard); mapping.AppendChild(remote);
+    }
+}
+var localMapping = doc.CreateElement("packageSource"); localMapping.SetAttribute("key","cratis-local");
+foreach (var id in System.IO.File.ReadAllLines(Ids)) {
+    foreach (System.Xml.XmlElement entry in mapping.SelectNodes("packageSource/package")) if (String.Equals(entry.GetAttribute("pattern"),id,StringComparison.OrdinalIgnoreCase)) entry.ParentNode.RemoveChild(entry);
+    var entryLocal = doc.CreateElement("package"); entryLocal.SetAttribute("pattern",id); localMapping.AppendChild(entryLocal);
+}
+mapping.AppendChild(localMapping); doc.Save(Output);
+]]></Code></Task></UsingTask><Target Name="Overlay"><CompositionConfig Input="${msxml(config || '')}" Output="${msxml(output)}" Feed="${msxml(path.join(feed,'nuget'))}" Ids="${msxml(ids)}"/></Target></Project>`);
+    run('dotnet',['msbuild',project,'-t:Overlay','-nologo','-v:quiet','-m:1','-nodeReuse:false']);
+    return fs.readFileSync(output,'utf8');
+}
+function restoreState() {
+    const files = activeFiles(); if (!files) return;
+    if (dry === '1') { console.log('dry-run: remove composition overlay'); return; }
+    const token = crypto.randomBytes(12).toString('hex');
+    const j = {schema:1,operation:'restore',session,repo,token,files,committed:false};
+    journal(j);
+    try {
+        boundary('restore-journal');
+        fs.renameSync(path.join(session,'composition'),path.join(session,'.composition-' + token)); boundary('restore-renamed');
+        j.committed = true; journal(j); boundary('restore-committed'); recoverState(j);
+    } catch (error) { if (!j.committed) recoverState(j); throw error; }
+}
+function cleanGuard() {
+    const knownSessions = new Set(argv[1] ? [argv[1]] : []);
+    if (exists(registry)) { plain(registry); for (const known of fs.readFileSync(registry,'utf8').split('\n').filter(Boolean)) knownSessions.add(known); }
+    const selected = argv[0] || '';
+    for (const known of knownSessions) {
+        if (!path.isAbsolute(known)) fail('invalid registered session');
+        safeParents(known,known);
+        const composition = path.join(known,'composition');
+        if (!exists(composition)) continue;
+        plain(composition,true); plain(path.join(composition,'manifest.tsv'));
+        const versions = fs.readFileSync(path.join(composition,'manifest.tsv'),'utf8').trim().split('\n').map(row => row.split('\t')[2]);
+        if (!selected || selected === 'all' || versions.includes(selected)) fail('active composition retains member artifacts; restore first: ' + known);
+    }
+}
+try {
+    safeParents(feed);
+    if (mode === 'recover') recover();
+    else if (mode === 'restore-state') restoreState();
+    else if (mode === 'clean-guard') cleanGuard();
+    else {
+        const args = [...argv]; if (mode !== 'verify-pack') args.shift();
+        if (args.shift() !== '--composition' || !args.length) fail('expected --composition FILE');
+        const file = args.shift(); let json = false, pin = false;
+        for (const arg of args) {
+            if (arg === '--json' && mode !== 'use-nuget' && !json) json = true;
+            else if (arg === '--pin-transitive' && mode === 'use-nuget' && !pin) pin = true;
+            else fail('cannot mix composition with stamp, IDs or other options: ' + arg);
+        }
+        const packages = manifest(file);
+        const consumed = mode === 'verify-assets' ? assets(packages) : null;
+        const warnings = native(packages,consumed?.checks);
+        for (const warning of warnings) console.error('WARNING: ' + warning);
+        if (mode === 'use-nuget') activate(packages,pin);
+        else if (json) console.log(JSON.stringify({packages:(consumed?.packages || packages).map(({id,version,producer}) => ({id,version,producer})), warnings}));
+        else console.log(mode + ': ' + (consumed?.packages.length || packages.length) + ' composition packages' + (consumed ? ', ' + consumed.files + ' assets files' : '') + ', native NuGet validation passed');
+    }
+} catch (error) { console.error('ERROR: ' + error.message); process.exitCode = Number.isInteger(error.code) ? error.code : 2; }
+COMPOSITION
 }
 
 # Dependency map: tab-separated rows, '#' comments (see references/dependency-map.md).
@@ -817,6 +1458,7 @@ report_findings() {
 # Plan mode checks exactly the plan the closure printed. Name mode (manual, weaker) builds the plan rows from
 # the named repositories' ids rows instead of from edges.
 verify_pack() {
+    case " $* " in *' --composition '*) composition verify-pack "$@"; return ;; esac
     [ $# -ge 2 ] || die 'verify-pack requires STAMP and either --consumer C --producer P... or repository NAMEs'
     local stamp=$1 json=0 out=1 ecosystem='' consumer='' name eco d found
     local producers=() names=()
@@ -871,6 +1513,7 @@ verify_pack() {
 # Plan mode scans for exactly the planned IDs of one ecosystem; feed-wide mode (no --consumer) scans every
 # package at the stamp in the feed, which is manual and weaker.
 verify_assets() {
+    case " $* " in *' --composition '*) composition verify-assets "$@"; return ;; esac
     [ $# -ge 2 ] || die 'verify-assets requires CONSUMER-PATH, STAMP, [--npm] [--dir REL]'
     local path=$1 stamp=$2 npm=0 dir='' json=0 out=1 consumer='' eco=nuget d name file matched nm unit
     local producers=()
@@ -950,6 +1593,7 @@ use_npm() {
     dir=$repo${rel:+/$rel}
     valid_stamp "$version"; need node; need tar; scratch
     session=$(session_path "$repo"); backup=$session/npm-backup
+    [ ! -d "$session/composition" ] || die 'active composition; restore first'
     [ -f "$dir/package.json" ] || die "consumer has no package.json in ${rel:-the root}; use --dir REL for a Yarn project in a subdirectory"
     [ ! -e "$backup" ] || die "active npm backup exists: $backup; restore first"
     node - "$dir" "$FEED/npm" "$version" "$TMP/package.json" <<'NODE'
@@ -994,6 +1638,11 @@ restore() {
     local repo session backup dir
     repo=$(repo_root "$1"); session=$(session_path "$repo"); backup=$session/npm-backup
     validate_session "$session"
+    if [ -d "$session/composition" ]; then
+        composition restore-state "$repo"
+        if [ "$DRY" -eq 0 ]; then check "$repo"; fi
+        return
+    fi
     dir=$repo
     if [ -f "$session/npm-dir" ]; then dir=$repo/$(cat "$session/npm-dir"); fi
     if [ -f "$session/repo" ] && [ "$(cat "$session/repo")" != "$repo" ]; then die 'session belongs to another checkout'; fi
@@ -1009,7 +1658,7 @@ restore() {
         if [ -f "$backup/yarn.lock" ]; then mutate cp -p "$backup/yarn.lock" "$dir/yarn.lock"; else mutate rm -f -- "$dir/yarn.lock"; fi
         mutate rm -rf -- "$backup"
     fi
-    mutate rm -f -- "$session/Directory.Packages.props" "$session/nuget.config" "$session/env" "$session/stamp" "$session/npm-dir"
+    mutate rm -f -- "$session/Directory.Packages.props" "$session/cratis-local.targets" "$session/nuget.config" "$session/env" "$session/stamp" "$session/npm-dir"
     if [ "$DRY" -eq 0 ]; then check "$repo"; fi
 }
 
@@ -1051,15 +1700,17 @@ check() {
 }
 scan_lines() {
     local path=$1 input=$2
-    awk -v path="$path" -v feed="$FEED" '
+    awk -v path="$path" -v feed="$FEED" -v alias="$FEED_ALIAS" '
         function hit(pattern) { print path ":" number ":" pattern }
         {
             number=$0; sub(/:.*/,"",number); line=$0; sub(/^[^:]*:/,"",line)
             if (line ~ /-local\.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.g[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/) hit("local stamp")
             if (line ~ /-train\.g[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/) hit("train stamp")
-            if (index(line,feed)) hit("local feed path")
+            if (index(line,feed) || (alias != feed && index(line,alias))) hit("local feed path")
             if (index(line,"DirectoryPackages" "PropsPath")) hit("CPM overlay property")
             if (index(line,"RestoreAdditional" "ProjectSources")) hit("additional restore sources")
+            if (index(line,"CustomAfterMicrosoftCommon" "Targets")) hit("local targets property")
+            if (index(line,"_CratisLocalPreviousAfterMicrosoftCommon" "Targets")) hit("previous targets property")
             if (line ~ /<PackageVersion[[:space:]]+Update[[:space:]]*=/) hit("package version override")
             if (path ~ /(^|\/)(package.json|yarn.lock)$/ && line ~ /(file|portal|link):/ &&
                 (line ~ /\.tgz/ || line ~ /(file|portal|link):(\/|\.\.?\/|~\/|[A-Za-z]:)/)) hit("local npm reference")
@@ -1087,6 +1738,41 @@ bounded_docker() {
 local_artifact() {
     [[ "$1" =~ -(local\.[0-9]{12}|train)\.g[0-9a-f]{7}($|[^0-9A-Za-z]) ]]
 }
+# Legacy registrations name consumers, not an artifact ownership graph. Fail closed
+# for the whole requested cleanup if any selected stamp is still live. Also keep a
+# selected session when its overlays/manifests reference another stamp.
+clean_live_references() {
+    local selected=$1 session repo file found stamp status blocked=0 session_selected
+    while IFS= read -r session; do
+        [ -d "$session" ] && [ -f "$session/repo" ] || continue
+        validate_session "$session"
+        repo=$(cat "$session/repo")
+        [ -d "$repo" ] || continue
+        [ "$(repo_root "$repo")" = "$repo" ] || die "registered consumer no longer matches repository: $repo"
+        session_selected=0
+        if [ -f "$session/stamp" ] && [ "$(cat "$session/stamp")" = "$selected" ]; then session_selected=1; fi
+        # Follow manifest symlinks too; traversal/read failures refuse cleanup.
+        find -L "$repo" \( -name .git -o -name node_modules \) -prune -o \( -iname nuget.config -o -iname Directory.Packages.props -o -name packages.lock.json -o -name package.json -o -name yarn.lock \) \( -type f -o -type l \) -print0 > "$TMP/live-files" || die "cannot inspect registered consumer: $repo"
+        for file in "$session/Directory.Packages.props" "$session/cratis-local.targets" "$session/nuget.config"; do
+            if [ -e "$file" ]; then printf '%s\0' "$file" >> "$TMP/live-files"; fi
+        done
+        while IFS= read -r -d '' file; do
+            [ -f "$file" ] && [ -r "$file" ] || die "cannot read live manifest: $file"
+            status=0
+            found=$(grep -Eio '[0-9]+\.[0-9]+\.[0-9]+-(local\.[0-9]{12}|train)\.g[0-9a-f]{7}' "$file") || status=$?
+            [ "$status" -le 1 ] || die "cannot inspect live manifest: $file"
+            [ -n "$found" ] || continue
+            while IFS= read -r stamp; do
+                stamp=$(printf '%s' "$stamp" | tr '[:upper:]' '[:lower:]')
+                if [ -z "$selected" ] || [ "$selected" = all ] || [ "$session_selected" -eq 1 ] || [ "$stamp" = "$selected" ]; then
+                    printf 'kept stamp %s: registered live reference in %s\n' "$stamp" "$file"
+                    blocked=1
+                fi
+            done <<< "$found"
+        done < "$TMP/live-files"
+    done < "$TMP/unique-sessions"
+    [ "$blocked" -eq 0 ] || die 'live references retained; restore registered consumers before cleaning (no subjects removed)'
+}
 clean() {
     local version='' apply=0 consumer='' arg path cache image session maximum count=0 rel=''
     local subjects=() kinds=()
@@ -1101,6 +1787,19 @@ clean() {
             *) [ -z "$consumer" ] || die 'clean takes at most one consumer'; consumer=$(repo_root "$arg") ;;
         esac
     done
+    local registered
+    if [ -n "$consumer" ]; then
+        session=$(session_path "$consumer")
+        if [ -e "$session/composition" ] || [ -L "$session/composition" ]; then composition clean-guard "${version:-all}" "$session"; fi
+    fi
+    if [ -f "$FEED/sessions" ]; then
+        while IFS= read -r registered; do
+            if [ -e "$registered/composition" ] || [ -L "$registered/composition" ]; then
+                composition clean-guard "${version:-all}"
+                break
+            fi
+        done < "$FEED/sessions"
+    fi
     maximum=${CRATIS_LOCAL_CLEAN_MAX:-500}
     [[ "$maximum" =~ ^[0-9]+$ ]] || die 'CRATIS_LOCAL_CLEAN_MAX must be a whole number'
     [ ${#maximum} -le 6 ] || die 'CRATIS_LOCAL_CLEAN_MAX is too large'
@@ -1164,11 +1863,13 @@ clean() {
         [ ! -d "$session/npm-backup" ] || die "unresolved npm backup: $session; restore before cleaning"
         subjects+=("$session"); kinds+=(session)
     done < "$TMP/unique-sessions"
+    clean_live_references "$version"
     count=${#subjects[@]}
     [ "$count" -le "$maximum" ] || die "clean fuse: $count subjects exceeds $maximum"
     for ((arg=0; arg<count; arg++)); do printf '%s: %s\n' "${kinds[$arg]}" "${subjects[$arg]}"; done
     if [ "$apply" -eq 1 ] && [ "$DRY" -eq 0 ]; then
         for ((arg=0; arg<count; arg++)); do
+            clean_live_references "$version"
             path=${subjects[$arg]}
             case "${kinds[$arg]}" in
                 image) docker rmi "$path" ;;
@@ -1177,7 +1878,7 @@ clean() {
                 session)
                     [ -f "$path/stamp" ] && [ ! -L "$path" ] && [ ! -e "$path/npm-backup" ] || die "session changed: $path"
                     validate_session "$path"
-                    rm -f -- "$path/repo" "$path/stamp" "$path/env" "$path/npm-dir" "$path/Directory.Packages.props" "$path/nuget.config"
+                    rm -f -- "$path/repo" "$path/stamp" "$path/env" "$path/npm-dir" "$path/Directory.Packages.props" "$path/cratis-local.targets" "$path/nuget.config"
                     rmdir -- "$path" ;;
             esac
         done
@@ -1186,10 +1887,30 @@ clean() {
 }
 
 # shellcheck disable=SC2016  # fixtures assert literal $STAMP in printed commands
+self_test_nuget_overlay() {
+    local output=$1 id=$2 version=$3
+    local cpm_on="'\$(ManagePackageVersionsCentrally)' == 'true'" cpm_off="'\$(ManagePackageVersionsCentrally)' != 'true'"
+    grep -Fq "GetPathOfFileAbove('Directory.Packages.props', '\$(MSBuildProjectDirectory)')" "$output/Directory.Packages.props" || failed 'self-test: nearest CPM import'
+    grep -Fq 'Import Project="$(_CratisLocalPackagesProps)" Condition="' "$output/Directory.Packages.props" || failed 'self-test: conditional nearest import'
+    grep -Fq "ItemGroup Condition=\"$cpm_on\"" "$output/Directory.Packages.props" || failed 'self-test: CPM-only versions'
+    grep -Fq "PropertyGroup Condition=\"$cpm_on\"" "$output/Directory.Packages.props" || failed 'self-test: CPM-only transitive pinning'
+    grep -Fq "ItemGroup Condition=\"$cpm_off\"" "$output/cratis-local.targets" || failed 'self-test: opt-out-only references'
+    grep -Fq "PackageReference Update=\"$id\" Version=\"$version\"" "$output/cratis-local.targets" || failed 'self-test: opt-out version override'
+    grep -Fq 'Import Project="$(_CratisLocalPreviousAfterMicrosoftCommonTargets)"' "$output/cratis-local.targets" || failed 'self-test: chained targets import'
+    grep -Fq "!= '\$(MSBuildThisFileFullPath)' and Exists('\$(_CratisLocalPreviousAfterMicrosoftCommonTargets)')" "$output/cratis-local.targets" || failed 'self-test: chained targets import is guarded'
+    env -i PATH=/usr/bin:/bin CustomAfterMicrosoftCommonTargets='/previous targets/file.targets' /bin/bash -c '
+        source "$1"; source "$1"
+        [ "$_CratisLocalPreviousAfterMicrosoftCommonTargets" = "/previous targets/file.targets" ] &&
+        [ "$CustomAfterMicrosoftCommonTargets" = "$2/cratis-local.targets" ]
+    ' _ "$output/env" "$output" || failed 'self-test: source twice preserves previous targets'
+}
+
 self_test() {
     [ $# -eq 0 ] || die '--self-test takes no arguments'
     local root home repo feed version output status passed=0 skipped=0 test_key arg map
-    scratch; root=$TMP/self-test; mkdir -p "$root/home" "$root/repo"
+    # Fixtures use the physical path (macOS TMPDIR is /var -> /private/var) because the helper
+    # reports repositories by their git toplevel; symlinked feeds have their own test below.
+    scratch; root=$(cd -P "$TMP" && pwd -P)/self-test; mkdir -p "$root/home" "$root/repo"
     map=$root/map.tsv; home=$root/home; repo=$root/repo; feed=$home/.cache/cratis/local-feed
     # System-only tests stay hermetic; npm tests inherit PATH to discover node.
     # Both isolate HOME/config and omit the host adapter.
@@ -1201,7 +1922,10 @@ self_test() {
     repo=$(repo_root "$repo")
     git -C "$repo" config user.email test@example.invalid
     git -C "$repo" config user.name 'Local package self-test'
-    printf '<Project><ItemGroup><PackageVersion Include="Cratis.Test" Version="1.2.3" /></ItemGroup></Project>\n' > "$repo/Directory.Packages.props"
+    printf '<Project><PropertyGroup><ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally></PropertyGroup><ItemGroup><PackageVersion Include="Cratis.Test" Version="1.2.3" /></ItemGroup></Project>\n' > "$repo/Directory.Packages.props"
+    mkdir -p "$repo/nested"
+    printf '<Project><PropertyGroup><ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally></PropertyGroup></Project>\n' > "$repo/nested/Directory.Packages.props"
+    printf '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><PackageReference Include="Cratis.Test" Version="1.2.3" /></ItemGroup></Project>\n' > "$repo/nested/OptOut.csproj"
     printf '{"private":true,"dependencies":{"@cratis/test":"1.2.3"}}\n' > "$repo/package.json"
     cat > "$repo/yarn.lock" <<'LOCK'
 # This file is generated by running "yarn install" inside your project.
@@ -1234,6 +1958,7 @@ LOCK
     version=$(st stamp "$repo")
     [[ "$version" =~ ^1\.2\.4-local\.[0-9]{12}\.g[0-9a-f]{7}$ ]] || failed 'self-test: stamp format'
     passed=$((passed + 1))
+    self_test_base_version
     mkdir -p "$feed/nuget" "$feed/npm"
     : > "$feed/nuget/Cratis.Test.1.2.4-local.200001010000.g1234567.nupkg"
     st --dry-run use-nuget "$repo" 1.2.4-local.200001010000.g1234567 Cratis.Test > "$root/output"
@@ -1250,12 +1975,13 @@ LOCK
     done
     st use-nuget "$repo" "$version" > "$root/output"
     output=$(git -C "$repo" rev-parse --absolute-git-dir)/cratis-local
-    grep -Fq "Import Project=\"$repo/Directory.Packages.props\"" "$output/Directory.Packages.props" || failed 'self-test: overlay import'
-    grep -Fq "PackageVersion Update=\"Cratis.Test\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: pinned package Update'
+    grep -Fq "PackageVersion Include=\"Cratis.Test\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: pinned package Include'
     grep -Fq "PackageVersion Include=\"Cratis.Transitive\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: transitive package Include'
     if grep -Fq 'CentralPackageTransitivePinningEnabled' "$output/Directory.Packages.props"; then failed 'self-test: transitive pinning must be opt-in'; fi
     st use-nuget "$repo" "$version" --pin-transitive > "$root/output"
     grep -Fq 'CentralPackageTransitivePinningEnabled>true' "$output/Directory.Packages.props" || failed 'self-test: --pin-transitive enables pinning'
+    self_test_nuget_overlay "$output" Cratis.Test "$version"
+    passed=$((passed + 8))
     grep -Fq "PackageVersion Include=\"Cratis.Transitive\" Version=\"$version\"" "$output/Directory.Packages.props" || failed 'self-test: --pin-transitive keeps the IDs'
     st use-nuget "$repo" "$version" Cratis.Test --pin-transitive > "$root/output" || failed 'self-test: --pin-transitive with explicit IDs'
     st use-nuget "$repo" "$version" > "$root/output"
@@ -1265,12 +1991,14 @@ LOCK
     passed=$((passed + 5))
     st check "$repo" > "$root/output" || failed 'self-test: clean repo'
     passed=$((passed + 1))
-    for test_key in stamp npm props sources override feed; do
+    for test_key in stamp npm props sources targets previous override feed; do
         case "$test_key" in
             stamp) printf '%s\n' "$version" > "$repo/probe" ;;
             npm) printf '{"resolutions":{"@cratis/test":"%s%s"}}\n' 'file:/tmp/' 'package.tgz' > "$repo/package.json" ;;
             props) printf '%s=/tmp/overlay\n' DirectoryPackages"PropsPath" > "$repo/probe" ;;
             sources) printf '%s=/tmp/feed\n' RestoreAdditional"ProjectSources" > "$repo/probe" ;;
+            targets) printf '%s=/tmp/overlay.targets\n' CustomAfterMicrosoftCommon"Targets" > "$repo/probe" ;;
+            previous) printf '%s=/tmp/previous.targets\n' _CratisLocalPreviousAfterMicrosoftCommon"Targets" > "$repo/probe" ;;
             override) printf '<PackageVersion %s="Cratis.Test" />\n' Update > "$repo/probe" ;;
             feed) printf '%s\n' "$feed" > "$repo/probe" ;;
         esac
@@ -1279,6 +2007,20 @@ LOCK
         passed=$((passed + 1))
         git -C "$repo" checkout -- probe package.json
     done
+    # A feed configured through a symlink is found under both its configured and its physical spelling.
+    mkdir -p "$feed" && ln -s "$(dirname "$feed")" "$root/feed-alias"
+    for test_key in "$root/feed-alias/$(basename "$feed")" "$(cd -P "$feed" && pwd -P)"; do
+        printf '%s/nuget\n' "$test_key" > "$repo/probe"
+        status=0; env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$root/feed-alias/$(basename "$feed")" /bin/bash "$SELF" check "$repo" > "$root/output" || status=$?
+        [ "$status" -eq 1 ] || failed "self-test: did not find aliased feed leak: $test_key"
+        passed=$((passed + 1))
+        git -C "$repo" checkout -- probe
+    done
+    rm "$root/feed-alias"
+    # A consumer's own published-version reference update is legitimate, not an overlay leak.
+    printf '<PackageReference %s="Cratis.Test" Version="1.2.3" />\n' Update > "$repo/probe"
+    st check "$repo" > "$root/output" || failed 'self-test: published reference update reported as leak'
+    git -C "$repo" checkout -- probe; passed=$((passed + 1))
     printf '%s\n' "$version" > "$repo/untracked"
     status=0; st check "$repo" > "$root/output" || status=$?
     [ "$status" -eq 1 ] || failed 'self-test: untracked leak'
@@ -1288,6 +2030,9 @@ LOCK
     status=0; st check "$repo" --staged > "$root/output" || status=$?
     [ "$status" -eq 1 ] || failed 'self-test: staged content'
     git -C "$repo" restore --staged probe; git -C "$repo" checkout -- probe
+    passed=$((passed + 1))
+    st restore "$repo" > "$root/output" || failed 'self-test: restore legacy overlay'
+    [ ! -e "$output/cratis-local.targets" ] && [ ! -e "$output/env" ] || failed 'self-test: legacy targets and env survive restore'
     passed=$((passed + 1))
     if command -v node >/dev/null 2>&1; then
         # Preserve pre-existing user edits as well as the committed contents.
@@ -1319,8 +2064,9 @@ LOCK
         cp "$repo/package.json" "$root/original-package.json"
         cp "$repo/yarn.lock" "$root/original-yarn.lock"
         st_npm use-npm "$repo" "$version"
-        # Model Yarn's replacement of a remote entry with a file-tarball entry.
-        node - "$repo/yarn.lock" "$feed/npm/@cratis-test-$version.tgz" "$version" <<'NODE'
+        # Model Yarn's replacement of a remote entry with a file-tarball entry. Yarn writes the
+        # path the overlay put in package.json, which uses the physical feed path.
+        node - "$repo/yarn.lock" "$(cd -P "$feed/npm" && pwd -P)/@cratis-test-$version.tgz" "$version" <<'NODE'
 const fs = require('fs');
 const [file, input, stamp] = process.argv.slice(2);
 const tarball = require('path').normalize(input);
@@ -1450,6 +2196,7 @@ NODE
         [ ! -e "$(git -C "$sub" rev-parse --absolute-git-dir)/cratis-local/npm-dir" ] || failed 'self-test: restore removes npm-dir'
         passed=$((passed + 6))
     else printf 'SKIP: use-npm --dir needs node\n'; skipped=$((skipped + 6)); fi
+    self_test_live_clean
     mkdir -p "$home/.nuget/packages/cratis.test/$version" "$home/.nuget/packages/cratis.test/1.2.3"
     mkdir -p "$home/.nuget/packages/cratis.test/1.2.3-local.keep"
     for arg in nuget npm; do
@@ -1474,6 +2221,92 @@ NODE
     printf 'SKIP: real dotnet/Yarn/Docker packing is not a hermetic self-test\n'; skipped=$((skipped + 3))
     self_test_matrix
     printf 'self-test: %s passed, %s skipped\n' "$passed" "$skipped"
+}
+
+self_test_base_version() {
+    local base mode actual status
+    for mode in local train; do
+        local options=()
+        if [ "$mode" = train ]; then options=(--train); fi
+        for base in 0.0.0 5.0.0 10.20.300; do
+            actual=$(st stamp ${options[@]+"${options[@]}"} --base-version "$base" "$repo") || failed 'self-test: base override'
+            case "$actual" in "$base-$mode."*) ;; *) failed "self-test: base override grammar $actual" ;; esac
+            valid_stamp "$actual"
+            passed=$((passed + 1))
+        done
+        for base in '' 01.0.0 1.01.0 1.0.01 v5.0.0 5.0 5.0.0.1 5.0.0-preview 5.0.0+build -1.0.0 '5.0.0 '; do
+            status=0; st stamp ${options[@]+"${options[@]}"} --base-version "$base" "$repo" > "$root/output" 2>&1 || status=$?
+            [ "$status" -eq 2 ] || failed "self-test: invalid base accepted: $base"
+            passed=$((passed + 1))
+        done
+    done
+    for mode in missing repeated producer; do
+        status=0
+        case "$mode" in
+            missing) st stamp "$repo" --base-version > "$root/output" 2>&1 || status=$? ;;
+            repeated) st stamp --base-version 5.0.0 --base-version 6.0.0 "$repo" > "$root/output" 2>&1 || status=$? ;;
+            producer) st stamp --base-version 5.0.0 > "$root/output" 2>&1 || status=$? ;;
+        esac
+        [ "$status" -eq 2 ] || failed "self-test: base option $mode"
+        passed=$((passed + 1))
+    done
+    actual=$(st stamp "$repo" --base-version 0.0.0 "$repo" 2> "$root/stderr")
+    case "$actual" in 0.0.0-local.*) ;; *) failed 'self-test: multi-producer explicit base overrides all tags' ;; esac
+    passed=$((passed + 1))
+}
+
+self_test_live_clean() {
+    local lr=$root/live-repo lf=$root/live-feed ls file mode status
+    local lv=5.0.0-local.202601010000.gabcdef0 uv=5.0.0-train.gabcdef1
+    mkdir -p "$lr/nested" "$lf/nuget"
+    git -C "$lr" init -q
+    printf '<Project/>\n' > "$lr/Directory.Packages.props"
+    git -C "$lr" add Directory.Packages.props
+    git -C "$lr" -c user.email=test@example.invalid -c user.name='Live clean fixture' commit -qm initial
+    ls=$(git -C "$lr" rev-parse --absolute-git-dir)/cratis-local
+    lct() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$lf" NUGET_PACKAGES="$root/live-cache" /bin/bash "$SELF" "$@"; }
+    : > "$lf/nuget/Cratis.Live.$lv.nupkg"
+    : > "$lf/nuget/Cratis.Unused.$uv.nupkg"
+    mkdir -p "$root/live-cache/cratis.live/$lv" "$root/live-cache/cratis.live/5.0.0"
+    lct use-nuget "$lr" "$lv" > "$root/output"
+    for mode in dry apply; do
+        local options=()
+        if [ "$mode" = apply ]; then options=(--apply); fi
+        status=0; lct clean --stamp "$lv" ${options[@]+"${options[@]}"} > "$root/output" 2> "$root/stderr" || status=$?
+        { [ "$status" -eq 2 ] && has "kept stamp $lv" "$root/output" && has "$ls/Directory.Packages.props" "$root/output"; } || failed "self-test: $mode clean must report live overlay"
+        [ -f "$lf/nuget/Cratis.Live.$lv.nupkg" ] && [ -f "$ls/env" ] && [ -d "$root/live-cache/cratis.live/$lv" ] || failed 'self-test: live clean mutated subjects'
+        passed=$((passed + 2))
+    done
+    lct restore "$lr" > "$root/output"
+    for file in nuget.config Directory.Packages.props nested/packages.lock.json nested/package.json nested/yarn.lock; do
+        printf '%s\n' "$lv" > "$lr/$file"
+        for mode in dry apply; do
+            local options=()
+            if [ "$mode" = apply ]; then options=(--apply); fi
+            status=0; lct clean --stamp "$lv" ${options[@]+"${options[@]}"} > "$root/output" 2> "$root/stderr" || status=$?
+            { [ "$status" -eq 2 ] && has "kept stamp $lv" "$root/output" && has "$lr/$file" "$root/output"; } || failed "self-test: $mode clean missed live $file"
+            [ -f "$lf/nuget/Cratis.Live.$lv.nupkg" ] || failed 'self-test: live manifest artifact removed'
+            passed=$((passed + 2))
+        done
+        if [ "$file" = Directory.Packages.props ]; then printf '<Project/>\n' > "$lr/$file"; else rm "$lr/$file"; fi
+    done
+    printf '%s\n' "$uv" | tr '[:lower:]' '[:upper:]' > "$lr/nested/packages.lock.json"
+    for mode in dry apply; do
+        local options=()
+        if [ "$mode" = apply ]; then options=(--apply); fi
+        status=0; lct clean --stamp "$uv" ${options[@]+"${options[@]}"} > "$root/output" 2> "$root/stderr" || status=$?
+        { [ "$status" -eq 2 ] && has "kept stamp $uv" "$root/output" && [ -f "$lf/nuget/Cratis.Unused.$uv.nupkg" ]; } || failed 'self-test: case-insensitive train reference protection'
+        passed=$((passed + 1))
+    done
+    printf '%s\n' "$lv" > "$lr/nested/packages.lock.json"
+    lct clean --stamp "$uv" --apply > "$root/output" || failed 'self-test: unrelated live stamp blocks unreferenced cleanup'
+    [ ! -e "$lf/nuget/Cratis.Unused.$uv.nupkg" ] && [ -f "$lf/nuget/Cratis.Live.$lv.nupkg" ] || failed 'self-test: unreferenced stamp selection'
+    rm "$lr/nested/packages.lock.json"
+    lct clean --stamp "$lv" > "$root/output"
+    has "Cratis.Live.$lv.nupkg" "$root/output" && [ -d "$root/live-cache/cratis.live/$lv" ] || failed 'self-test: unreferenced dry-run'
+    lct clean --stamp "$lv" --apply > "$root/output"
+    [ ! -e "$lf/nuget/Cratis.Live.$lv.nupkg" ] && [ ! -d "$root/live-cache/cratis.live/$lv" ] && [ -d "$root/live-cache/cratis.live/5.0.0" ] || failed 'self-test: unreferenced per-worktree cleanup scope'
+    passed=$((passed + 4))
 }
 
 # C fixtures: the printed closure is one plan, in order, and every line is valid shell.
@@ -1692,8 +2525,12 @@ self_test_verify() {
 expect_status() {
     local want=$1 desc=$2 got=0
     shift 2
+    printf 'self-test [%ss]: %s\n' "$SECONDS" "$desc" >&2
     "$@" > "$root/output" 2> "$root/stderr" || got=$?
-    [ "$got" -eq "$want" ] || failed "self-test: $desc (exit $got, wanted $want)"
+    if [ "$got" -ne "$want" ]; then
+        cat "$root/stderr" >&2
+        failed "self-test: $desc (exit $got, wanted $want)"
+    fi
     passed=$((passed + 1))
 }
 tsv() { local IFS=$'\t'; printf '%s\n' "$*"; }
@@ -1728,7 +2565,7 @@ self_test_matrix() {
     } > "$root/p1.expected"
     fxm plan App Lib Mid > "$root/output" 2> "$root/stderr" || failed 'self-test: P1 plan'
     cmp -s "$root/output" "$root/p1.expected" || failed 'self-test: P1 plan rows differ from the expected plan'
-    has 'Lib -> Orl -> App' "$root/stderr" || failed 'self-test: P1 unnamed-hop warning'
+    has 'Lib -> Orl -> App' "$root/stderr" || { cat "$root/stderr" >&2; failed 'self-test: P1 unnamed-hop warning'; }
     if has 'WARNING' "$root/output"; then failed 'self-test: P1 warning must stay on stderr'; fi
     # P2/P3: the real map. An NuGet-only edge plans only the NuGet ecosystem of a dual-ecosystem producer;
     # npm-only ids on a NuGet edge cannot be planned. P3 must move to the fixture map if Screenplay ships NuGet ids.
@@ -1763,6 +2600,263 @@ self_test_matrix() {
     passed=$((passed + 3))
     self_test_closure
     self_test_verify
+    self_test_symlink_feed
+    self_test_composition
+}
+
+# Legacy mutations must work without Node and with system/configured symlink parents.
+self_test_symlink_feed() {
+    local physical=$root/feed-physical-parent alias=$root/feed-symlink-parent
+    local sr=$root/feed-symlink-repo sv=1.2.3-local.202610240544.gabcdef0
+    mkdir -p "$physical" "$sr"
+    ln -s "$physical" "$alias"
+    git -C "$sr" init -q
+    printf '.ai-work/\n' > "$sr/.gitignore"
+    printf '<Project><ItemGroup><PackageVersion Include="Cratis.Symlink" Version="1.2.3"/></ItemGroup></Project>\n' > "$sr/Directory.Packages.props"
+    git -C "$sr" add .gitignore Directory.Packages.props
+    git -C "$sr" -c user.email=test@example.invalid -c user.name='Symlink feed fixture' commit -qm initial
+    slf() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$alias/missing/feed" CRATIS_LOCAL_SESSION_DIR="$sr/.ai-work/local-packages" /bin/bash "$SELF" "$@"; }
+    expect_status 0 'symlink feed resolution does not create a missing feed' slf check "$sr"
+    [ ! -e "$physical/missing" ] || failed 'symlink feed resolution created directories'
+    mkdir -p "$physical/missing/feed/nuget"
+    : > "$physical/missing/feed/nuget/Cratis.Symlink.$sv.nupkg"
+    expect_status 0 'legacy use-nuget under symlinked feed parent' slf use-nuget "$sr" "$sv" Cratis.Symlink
+    has "$physical/missing/feed/nuget" "$sr/.ai-work/local-packages/env" || failed 'legacy feed path was not resolved physically'
+    expect_status 0 'legacy restore under symlinked feed parent' slf restore "$sr"
+    has '0 leaks' "$root/output" || failed 'symlink feed restore leaked a local pin'
+    expect_status 0 'legacy clean under symlinked feed parent' slf clean --stamp "$sv" --apply
+    [ ! -e "$physical/missing/feed/nuget/Cratis.Symlink.$sv.nupkg" ] || failed 'symlink feed clean left the artifact'
+    passed=$((passed + 4))
+}
+
+# Composition fixtures are isolated, SDK-native and never restore/build a producer.
+self_test_composition() {
+    local cf=$root/composition-parent/feed cr=$root/composition-repo cm=$root/composition.tsv
+    local a=22.138.1-local.202610240544.gd1ad215 b=0.2.2-local.202610240544.g91916a3 c=0.1.18-local.202610240544.g524bdce
+    local boundary kind base=$root/composition-prior cpkg=$root/composition-package
+    if ! command -v node >/dev/null 2>&1 || ! command -v dotnet >/dev/null 2>&1 || ! command -v zip >/dev/null 2>&1 || ! command -v unzip >/dev/null 2>&1; then
+        printf 'SKIP: composition fixtures require node, dotnet SDK, zip and unzip\n'; skipped=$((skipped + 1)); return 0
+    fi
+    mkdir -p "$root/composition-physical-parent"
+    ln -s "$root/composition-physical-parent" "$root/composition-parent"
+    mkdir -p "$cf/nuget" "$cr" "$cpkg"
+    : > "$root/.composition-fixture"
+    git -C "$cr" init -q
+    printf '.ai-work/\nobj/\n' > "$cr/.gitignore"
+    printf '<Project><PropertyGroup><ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally></PropertyGroup><ItemGroup><PackageVersion Include="Cratis.Keep" Version="1.2.3"/></ItemGroup></Project>\n' > "$cr/Directory.Packages.props"
+    mkdir -p "$cr/nested"
+    printf '<Project><PropertyGroup><ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally></PropertyGroup></Project>\n' > "$cr/nested/Directory.Packages.props"
+    printf '<Project Sdk="Microsoft.NET.Sdk"><PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup><ItemGroup><PackageReference Include="Cratis.Stage" Version="0.1.0" /></ItemGroup></Project>\n' > "$cr/nested/OptOut.csproj"
+    printf '<configuration><packageSources><clear/><add key="remote" value="https://example.invalid/v3/index.json"/></packageSources><packageSourceMapping><packageSource key="remote"><package pattern="*"/><package pattern="Cratis.*"/><package pattern="Cratis.Screenplay*"/><package pattern="Cratis.Screenplay"/></packageSource></packageSourceMapping></configuration>\n' > "$cr/nuget.config"
+    git -C "$cr" add .gitignore Directory.Packages.props nuget.config nested
+    git -C "$cr" -c user.email=test@example.invalid -c user.name='Composition fixture' commit -qm initial
+    cp "$cr/Directory.Packages.props" "$root/composition-original.props"
+    printf 'producer\tChronicle\t%s\t%s\nproducer\tScreenplay\t%s\t%s\nproducer\tStage\t%s\t%s\npackage\tChronicle\tCratis.Chronicle.InProcess\npackage\tScreenplay\tCratis.Screenplay\npackage\tStage\tCratis.Stage\n' "$a" "$cr" "$b" "$cr" "$c" "$cr" > "$cm"
+    cst() { env -i HOME="$home" PATH="$PATH" TMPDIR="$TMP" DOTNET_CLI_HOME="$home" DOTNET_NOLOGO=1 DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 PI_PHASE_ORIGINAL_PATH="${PI_PHASE_ORIGINAL_PATH:-}" PI_PHASE_SHIM_DIR="${PI_PHASE_SHIM_DIR:-}" PI_PHASE_MSBUILD_MAX_CPU="${PI_PHASE_MSBUILD_MAX_CPU:-1}" CRATIS_LOCAL_FEED="$cf" CRATIS_LOCAL_SESSION_DIR="$cr/.ai-work/local-packages" CRATIS_LOCAL_COMPOSITION_TEST_ROOT="$root" CRATIS_LOCAL_COMPOSITION_FAIL="${composition_fail:-}" CRATIS_LOCAL_COMPOSITION_INTERRUPT="${composition_interrupt:-}" /bin/bash "$SELF" "$@"; }
+    cmpkg() {
+        local id=$1 ver=$2 dependencies=${3:-} xmlfile=$cpkg/$1.nuspec
+        printf '<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd"><metadata><id>%s</id><version>%s</version><dependencies>%s</dependencies></metadata></package>' "$id" "$ver" "$dependencies" > "$xmlfile"
+        rm -f -- "$cf/nuget/$id.$ver.nupkg"
+        (cd "$cpkg" && zip -q "$cf/nuget/$id.$ver.nupkg" "$id.nuspec")
+    }
+    cmpkg Cratis.Chronicle.InProcess "$a"
+    cmpkg Cratis.Screenplay "$b" '<group targetFramework="net10.0"><dependency id="Cratis.Chronicle.InProcess" version="[22.136.4,23.0.0)"/></group>'
+    cmpkg Cratis.Stage "$c" "<dependency id=\"Cratis.Screenplay\" version=\"[$b]\"/>"
+    expect_status 0 'composition native mixed-version pack' cst verify-pack --composition "$cm" --json
+    node - "$root/output" "$a" "$b" "$c" <<'JSON'
+const fs = require('fs'); const [file,...versions] = process.argv.slice(2), data = JSON.parse(fs.readFileSync(file));
+if (data.packages.length !== 3 || !versions.every(v => data.packages.some(p => p.version === v && p.producer))) process.exit(1);
+JSON
+    passed=$((passed + 1))
+    mkdir -p "$root/no-sdk"
+    printf '#!/bin/sh\nexit 127\n' > "$root/no-sdk/dotnet"; chmod +x "$root/no-sdk/dotnet"
+    expect_status 2 'composition unavailable native SDK fails closed' env -i HOME="$home" PATH="$root/no-sdk:$PATH" TMPDIR="$TMP" CRATIS_LOCAL_FEED="$cf" /bin/bash "$SELF" verify-pack --composition "$cm"
+    mkdir -p "$root/composition-foreign-nuget" "$root/composition-foreign-lock"
+    printf 'keep foreign lock state\n' > "$root/composition-foreign-lock/sentinel"
+    mv "$cf/nuget" "$root/composition-original-nuget"
+    ln -s "$root/composition-foreign-nuget" "$cf/nuget"
+    expect_status 2 'composition rejects helper-owned nuget symlink' cst verify-pack --composition "$cm"
+    [ -d "$root/composition-foreign-nuget" ] || failed 'composition removed foreign nuget directory'
+    rm "$cf/nuget"; mv "$root/composition-original-nuget" "$cf/nuget"
+    ln -s "$root/composition-foreign-lock" "$cf/.composition-lock"
+    expect_status 2 'composition rejects helper-owned lock symlink' cst use-nuget "$cr" --composition "$cm"
+    has 'keep foreign lock state' "$root/composition-foreign-lock/sentinel" || failed 'composition removed foreign lock state'
+    rm "$cf/.composition-lock"
+    passed=$((passed + 2))
+    cp "$cm" "$root/composition-good.tsv"
+    printf 'package\tStage\tcratis.screenplay\n' >> "$cm"
+    expect_status 2 'composition duplicate case-insensitive owner' cst verify-pack --composition "$cm"
+    cp "$root/composition-good.tsv" "$cm"
+    expect_status 2 'composition flags cannot mix legacy stamp' cst verify-pack "$a" --composition "$cm"
+    expect_status 2 'composition activation cannot mix legacy IDs' cst use-nuget "$cr" --composition "$cm" Cratis.Stage
+    printf 'producer\tBad\t1.2.3\t%s\npackage\tBad\tBad\n' "$cr" > "$root/composition-bad.tsv"
+    expect_status 2 'composition rejects nonlocal producer stamp' cst verify-pack --composition "$root/composition-bad.tsv"
+    cmpkg Cratis.Screenplay "$b" '<group><dependency id="Cratis.Chronicle.InProcess" version="[22.0.0,22.1.0)"/></group>'
+    expect_status 1 'composition incompatible native group range' cst verify-pack --composition "$cm"
+    cmpkg Cratis.Screenplay "$b" '<dependency id="Cratis.Chronicle.InProcess" version="[broken"/>'
+    expect_status 1 'composition malformed native range' cst verify-pack --composition "$cm"
+    cmpkg Cratis.Screenplay "$b" "<dependency id=\"Cratis.Undeclared\" version=\"[$a]\"/>"
+    expect_status 1 'composition undeclared local nuspec edge' cst verify-pack --composition "$cm"
+    cmpkg Cratis.Screenplay "$b" '<group><dependency id="Cratis.Chronicle.InProcess" version="[22.136.4,23.0.0)"/></group>'
+    cp "$cf/nuget/Cratis.Stage.$c.nupkg" "$root/stage.nupkg"
+    cmpkg Cratis.Stage "$c"; printf '<package><metadata>' > "$cpkg/Cratis.Stage.nuspec"
+    (cd "$cpkg" && zip -q "$cf/nuget/Cratis.Stage.$c.nupkg" Cratis.Stage.nuspec)
+    expect_status 1 'composition malformed XML' cst verify-pack --composition "$cm"
+    cp "$root/stage.nupkg" "$cf/nuget/Cratis.Stage.$c.nupkg"
+    mv "$cf/nuget/Cratis.Stage.$c.nupkg" "$root/hidden-stage.nupkg"
+    expect_status 1 'composition missing package' cst verify-pack --composition "$cm"
+    mv "$root/hidden-stage.nupkg" "$cf/nuget/Cratis.Stage.$c.nupkg"
+    mkdir -p "$cr/obj"
+    cat > "$cr/obj/project.assets.json" <<JSON
+{"libraries":{"Cratis.Chronicle.InProcess/$a":{"type":"package"},"Cratis.Screenplay/$b":{"type":"package"},"Cratis.Stage/$c":{"type":"package"}},"targets":{"net10.0":{"Cratis.Chronicle.InProcess/$a":{"type":"package"},"Cratis.Screenplay/$b":{"type":"package","dependencies":{"Cratis.Chronicle.InProcess":"[22.136.4,23.0.0)"}},"Cratis.Stage/$c":{"type":"package","dependencies":{"Cratis.Screenplay":"[$b]"}}}}}
+JSON
+    cp "$cr/obj/project.assets.json" "$root/composition-assets.json"
+    expect_status 0 'composition exact assets graph' cst verify-assets "$cr" --composition "$cm" --json
+    node - "$root/composition-assets.json" "$cr/obj/project.assets.json" <<'JSON'
+const fs=require('fs'), [input,output]=process.argv.slice(2), data=JSON.parse(fs.readFileSync(input));
+const target=data.targets['net10.0']; delete target[Object.keys(target).find(k=>k.startsWith('Cratis.Chronicle'))];
+fs.writeFileSync(output,JSON.stringify(data));
+JSON
+    expect_status 1 'composition missing consumed local dependency' cst verify-assets "$cr" --composition "$cm"
+    node - "$root/composition-assets.json" "$cr/obj/project.assets.json" <<'JSON'
+const fs=require('fs'), [input,output]=process.argv.slice(2), data=JSON.parse(fs.readFileSync(input));
+for (const graph of [data.libraries,data.targets['net10.0']]) delete graph[Object.keys(graph).find(k=>k.startsWith('Cratis.Chronicle'))];
+const target=data.targets['net10.0']; target[Object.keys(target).find(k=>k.startsWith('Cratis.Screenplay'))].dependencies={};
+fs.writeFileSync(output,JSON.stringify(data));
+JSON
+    expect_status 1 'composition nuspec local dependency absent from graph' cst verify-assets "$cr" --composition "$cm"
+    cmpkg Cratis.Screenplay "$b" '<group targetFramework="net8.0"><dependency id="Cratis.Chronicle.InProcess" version="[22.136.4,23.0.0)"/></group><group targetFramework="net10.0"/>'
+    expect_status 0 'composition native nearest group allows unused owned ID' cst verify-assets "$cr" --composition "$cm"
+    cmpkg Cratis.Screenplay "$b" '<group><dependency id="Cratis.Chronicle.InProcess" version="[22.136.4,23.0.0)"/></group>'
+    node - "$root/composition-assets.json" "$cr/obj/project.assets.json" "$a" <<'JSON'
+const fs=require('fs'), [input,output,a]=process.argv.slice(2), data=JSON.parse(fs.readFileSync(input));
+data.targets.net9=data.targets['net10.0']; data.targets.net9['Cratis.Chronicle.InProcess/'+a].dependencies={'Cratis.Stage':'[1.0.0,2.0.0)'};
+fs.writeFileSync(output,JSON.stringify(data));
+JSON
+    expect_status 1 'composition bad edge in another target' cst verify-assets "$cr" --composition "$cm"
+    node - "$root/composition-assets.json" "$cr/obj/project.assets.json" <<'JSON'
+const fs=require('fs'), [input,output]=process.argv.slice(2), data=JSON.parse(fs.readFileSync(input)), target=data.targets['net10.0'];
+Object.assign(data.libraries,{'Other.A/1.0.0':{type:'package'},'Other.B/2.0.0':{type:'package'}});
+Object.assign(target,{'Other.A/1.0.0':{type:'package',dependencies:{'Other.B':'[1.0.0]'}},'Other.B/2.0.0':{type:'package'}});
+fs.writeFileSync(output,JSON.stringify(data));
+JSON
+    expect_status 0 'composition range conflict outside the composition is a warning' cst verify-assets "$cr" --composition "$cm" --json
+    has 'WARNING: dependency range outside the composition' "$root/stderr" || failed 'composition outside-range warning on stderr'
+    node -e 'const d=JSON.parse(require("fs").readFileSync(process.argv[1]));if(d.warnings.length!==1||!/Other\.A -> Other\.B/.test(d.warnings[0]))process.exit(1)' "$root/output" || failed 'composition outside-range warning in JSON'
+    node - "$root/composition-assets.json" "$cr/obj/project.assets.json" "$c" <<'JSON'
+const fs=require('fs'), [input,output,c]=process.argv.slice(2), data=JSON.parse(fs.readFileSync(input)), target=data.targets['net10.0'];
+data.libraries['Other.B/2.0.0']={type:'package'}; target['Other.B/2.0.0']={type:'package'};
+target['Cratis.Stage/'+c].dependencies['Other.B']='[1.0.0]';
+fs.writeFileSync(output,JSON.stringify(data));
+JSON
+    expect_status 1 'composition range conflict on a composed edge is refused' cst verify-assets "$cr" --composition "$cm"
+    node - "$root/composition-assets.json" "$cr/obj/project.assets.json" <<'JSON'
+const fs=require('fs'), [input,output]=process.argv.slice(2), data=JSON.parse(fs.readFileSync(input));
+data.targets.net9=JSON.parse(JSON.stringify(data.targets['net10.0']));
+Object.assign(data.libraries,{'Other.C/1.0.0':{type:'package'},'Other.C/2.0.0':{type:'package'}});
+data.targets.net9['Other.C/1.0.0']={type:'package'}; data.targets['net10.0']['Other.C/2.0.0']={type:'package'};
+fs.writeFileSync(output,JSON.stringify(data));
+JSON
+    expect_status 0 'composition multitarget assets with one released ID at two versions' cst verify-assets "$cr" --composition "$cm"
+    passed=$((passed + 3))
+    sed "s/$a/22.136.4/g" "$root/composition-assets.json" > "$cr/obj/project.assets.json"
+    expect_status 1 'composition published fallback version' cst verify-assets "$cr" --composition "$cm"
+    printf '{"libraries":{},"targets":{"net10.0":{}}}\n' > "$cr/obj/project.assets.json"
+    expect_status 1 'composition zero consumption' cst verify-assets "$cr" --composition "$cm"
+    printf '{broken\n' > "$cr/obj/project.assets.json"
+    expect_status 1 'composition malformed assets' cst verify-assets "$cr" --composition "$cm"
+    cp "$root/composition-assets.json" "$cr/obj/project.assets.json"
+    expect_status 0 'composition activation with transitive pinning' cst use-nuget "$cr" --composition "$cm" --pin-transitive
+    output=$cr/.ai-work/local-packages/composition
+    grep -Fq 'CentralPackageTransitivePinningEnabled>true' "$output/Directory.Packages.props" || failed 'composition pin property'
+    self_test_nuget_overlay "$output" Cratis.Stage "$c"
+    passed=$((passed + 8))
+    # Only exact owned IDs are removed remotely; broader patterns remain remote.
+    [ "$(grep -c 'pattern="Cratis.Screenplay"' "$output/nuget.config")" -eq 1 ] || failed 'composition exclusive exact mapping'
+    has 'pattern="*"' "$output/nuget.config" || failed 'composition removed remote wildcard'
+    has 'pattern="Cratis.*"' "$output/nuget.config" || failed 'composition removed broader remote prefix'
+    has 'pattern="Cratis.Screenplay*"' "$output/nuget.config" || failed 'composition removed overlapping remote prefix'
+    has "$root/composition-physical-parent/feed/nuget" "$output/env" || failed 'composition feed path was not resolved physically'
+    passed=$((passed + 4))
+    cp "$output/Directory.Packages.props" "$root/composition-overlay.props"
+    expect_status 0 'composition identical activation is a no-op' cst use-nuget "$cr" --composition "$cm" --pin-transitive
+    cmp -s "$output/Directory.Packages.props" "$root/composition-overlay.props" || failed 'composition repeated activation drift'
+    expect_status 2 'composition changed pinning refuses reactivation' cst use-nuget "$cr" --composition "$cm"
+    expect_status 2 'composition rejects legacy activation while active' cst use-nuget "$cr" "$a" Cratis.Chronicle.InProcess
+    expect_status 2 'composition active artifacts retained by clean' cst clean --stamp "$a" --apply
+    expect_status 2 'composition refuses legacy npm activation' cst use-npm "$cr" "$b"
+    cp "$output/env" "$root/composition-env"
+    printf '# unrelated session edit\n' >> "$output/env"
+    expect_status 2 'composition edited overlay retained on restore' cst restore "$cr"
+    grep -Fq 'unrelated session edit' "$output/env" || failed 'composition deleted edited overlay'
+    cp "$root/composition-env" "$output/env"
+    cp "$output/cratis-local.targets" "$root/composition-targets"
+    printf '<!-- unrelated targets edit -->\n' >> "$output/cratis-local.targets"
+    expect_status 2 'composition edited targets retained on restore' cst restore "$cr"
+    has 'unrelated targets edit' "$output/cratis-local.targets" || failed 'composition deleted edited targets'
+    cp "$root/composition-targets" "$output/cratis-local.targets"
+    printf '<!-- consumer edit -->\n' >> "$cr/Directory.Packages.props"
+    cp "$cr/Directory.Packages.props" "$root/composition-original.props"
+    expect_status 0 'composition restores preserving consumer edits' cst restore "$cr"
+    has '0 leaks' "$root/output" || failed 'composition restore did not run check'
+    expect_status 0 'composition repeated restore' cst restore "$cr"
+    [ ! -e "$output" ] || failed 'composition overlay survives restore'
+    cmp -s "$cr/Directory.Packages.props" "$root/composition-original.props" || failed 'composition consumer props mutated'
+    # Every live mutation boundary is exercised both as an ordinary failure and
+    # an uncatchable parent/child interruption, then recovered by the next call.
+    for kind in fail interrupt; do
+        for boundary in journal session stage-manifest.tsv stage-Directory.Packages.props stage-cratis-local.targets stage-nuget.config stage-env stage-state.json stage-transaction staged published repo registration-staged registered committed; do
+            printf '%s\n' "$root/another-session" > "$cf/sessions"; cp "$cf/sessions" "$base"
+            composition_fail=''; composition_interrupt=''
+            if [ "$kind" = fail ]; then composition_fail=$boundary; else composition_interrupt=$boundary; fi
+            status=0; cst use-nuget "$cr" --composition "$cm" > "$root/output" 2> "$root/error" || status=$?
+            [ "$status" -ne 0 ] || failed "composition $kind $boundary returned success"
+            [ ! -s "$root/output" ] || failed "composition $kind $boundary printed activation instructions"
+            composition_fail=''; composition_interrupt=''
+            # A recovery-triggering restore must roll back incomplete activation,
+            # or finish a committed activation and then restore it.
+            expect_status 0 "composition recovery $kind $boundary" cst restore "$cr"
+            [ ! -e "$output" ] || failed "composition recovery left publication $boundary"
+            if [ "$boundary" != committed ]; then cmp -s "$cf/sessions" "$base" || failed "composition registry rollback $boundary"; fi
+            cmp -s "$cr/Directory.Packages.props" "$root/composition-original.props" || failed "composition consumer drift $boundary"
+            passed=$((passed + 3))
+        done
+    done
+    expect_status 0 'composition activate before interrupted restoration' cst use-nuget "$cr" --composition "$cm"
+    for boundary in restore-journal restore-renamed restore-committed; do
+        composition_interrupt=$boundary
+        status=0; cst restore "$cr" > "$root/output" 2> "$root/error" || status=$?
+        [ "$status" -ne 0 ] || failed "composition interrupted restoration $boundary"
+        composition_interrupt=''
+        expect_status 0 "composition recover interrupted restoration $boundary" cst restore "$cr"
+        [ ! -e "$output" ] || failed 'composition incomplete restoration recovery'
+        expect_status 0 'composition reactivation after restoration recovery' cst use-nuget "$cr" --composition "$cm"
+    done
+    expect_status 0 'composition final restore' cst restore "$cr"
+    # Another recoverer holds the transition guard after observing this dead owner.
+    # A contender must not touch the stale lock (or its journal) until that transition ends.
+    local dead_owner
+    dead_owner=$(node -p process.pid)
+    kill -0 "$dead_owner" 2>/dev/null && failed 'composition fixture owner is still alive'
+    mkdir "$cf/.composition-lock" "$cf/.composition-recovery"
+    printf '%s\n' "$dead_owner" > "$cf/.composition-lock/owner"
+    expect_status 2 'composition competing stale-lock recoverer is excluded' cst restore "$cr"
+    [ "$(cat "$cf/.composition-lock/owner")" = "$dead_owner" ] || failed 'composition contender removed stale lock'
+    [ -d "$cf/.composition-recovery" ] || failed 'composition contender removed recovery guard'
+    rmdir "$cf/.composition-recovery"
+    expect_status 0 'composition stale-lock takeover after recovery guard release' cst restore "$cr"
+    [ ! -e "$cf/.composition-lock" ] || failed 'composition stale-lock takeover left lock'
+    mkdir -p "$cf/.composition-lock"; printf 'unknown owner\n' > "$cf/.composition-lock/owner"
+    expect_status 2 'composition unknown ownership fails closed' cst use-nuget "$cr" --composition "$cm"
+    grep -Fq 'unknown owner' "$cf/.composition-lock/owner" || failed 'composition deleted unknown owner'
+    rm "$cf/.composition-lock/owner"; rmdir "$cf/.composition-lock"
+    mkdir -p "$cf/.composition-lock"; printf '%s\n' "$$" > "$cf/.composition-lock/owner"
+    expect_status 2 'composition concurrent activation lock' cst use-nuget "$cr" --composition "$cm"
+    rm "$cf/.composition-lock/owner"; rmdir "$cf/.composition-lock"
+    mkdir -p "$cr/.ai-work/local-packages/npm-backup"; printf 'unrelated npm backup\n' > "$cr/.ai-work/local-packages/npm-backup/package.json"
+    expect_status 2 'composition preserves incompatible npm backup' cst use-nuget "$cr" --composition "$cm"
+    grep -Fq 'unrelated npm backup' "$cr/.ai-work/local-packages/npm-backup/package.json" || failed 'composition npm backup drift'
+    passed=$((passed + 1))
 }
 
 case "$MODE" in
@@ -1773,11 +2867,11 @@ case "$MODE" in
     verify-assets) verify_assets "$@" ;;
     pack-nuget) pack_nuget "$@" ;;
     pack-npm) pack_npm "$@" ;;
-    use-nuget) use_nuget "$@" ;;
-    use-npm) use_npm "$@" ;;
-    restore) restore "$@" ;;
+    use-nuget) acquire_session_lock; use_nuget "$@" ;;
+    use-npm) acquire_session_lock; use_npm "$@" ;;
+    restore) acquire_session_lock; restore "$@" ;;
     check) check "$@" ;;
-    clean) clean "$@" ;;
+    clean) acquire_session_lock; clean "$@" ;;
     --self-test) self_test "$@" ;;
     *) die "unknown command: $MODE (use --help)" ;;
 esac
