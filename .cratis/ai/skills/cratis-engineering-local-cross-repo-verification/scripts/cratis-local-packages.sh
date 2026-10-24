@@ -148,6 +148,9 @@ fi
 FEED=${CRATIS_LOCAL_FEED:-${XDG_CACHE_HOME:-$HOME/.cache}/cratis/local-feed}
 NUGET_CACHE=${NUGET_PACKAGES:-$HOME/.nuget/packages}
 case "$FEED" in /*) ;; *) FEED=$PWD/$FEED ;; esac
+# The configured spelling (for example /var/... on macOS, or a symlinked cache) is kept
+# so leak scans catch consumer references written through either path.
+FEED_ALIAS=$FEED
 # Resolve configured/system symlink parents without creating a missing feed.
 # Subsequent checks concern helper-owned components, not /tmp, /var or HOME.
 resolve_feed() {
@@ -817,8 +820,9 @@ function assets(packages) {
         for (const [key, lib] of Object.entries(data.libraries)) {
             const [id, version] = keyParts(key,lib);
             if (lib.type !== 'package') continue;
-            if (libraries.has(lower(id))) fail('duplicate assets library: ' + id,1);
-            libraries.set(lower(id), {id,version});
+            // Multitarget restores can hold several versions of one ID, one per framework.
+            if (libraries.has(lower(id) + '/' + version)) fail('duplicate assets library: ' + key,1);
+            libraries.set(lower(id) + '/' + version, {id,version});
             const pkg = owned.get(lower(id));
             if (pkg && version !== pkg.version || !pkg && local.test(version)) fail('wrong or undeclared local library: ' + key + ' ' + file,1);
         }
@@ -831,9 +835,8 @@ function assets(packages) {
                 if (nodes.has(lower(id))) fail('duplicate target ID: ' + id,1);
                 nodes.set(lower(id), {id,version,node});
                 if (node.type !== 'package') continue;
-                const lib = libraries.get(lower(id));
-                if (!lib || lib.version !== version) fail('target/library mismatch: ' + key + ' ' + file,1);
-                used.add(lower(id));
+                if (!libraries.has(lower(id) + '/' + version)) fail('target/library mismatch: ' + key + ' ' + file,1);
+                used.add(lower(id) + '/' + version);
                 checks.push([version,`[${version}]`,`${file} ${framework} ${id}`].join('\t'));
                 if (owned.has(lower(id))) resolved.set(lower(id),owned.get(lower(id)));
             }
@@ -853,7 +856,7 @@ function assets(packages) {
                 }
             }
         }
-        for (const id of libraries.keys()) if (owned.has(id) && !used.has(id)) fail('owned library absent from targets: ' + id + ' ' + file,1);
+        for (const [key, {id}] of libraries) if (owned.has(lower(id)) && !used.has(key)) fail('owned library absent from targets: ' + id + ' ' + file,1);
     }
     if (!resolved.size) fail('verify-assets: no composition package consumed',1);
     return {checks, packages:[...resolved.values()], files:files.length};
@@ -1697,13 +1700,13 @@ check() {
 }
 scan_lines() {
     local path=$1 input=$2
-    awk -v path="$path" -v feed="$FEED" '
+    awk -v path="$path" -v feed="$FEED" -v alias="$FEED_ALIAS" '
         function hit(pattern) { print path ":" number ":" pattern }
         {
             number=$0; sub(/:.*/,"",number); line=$0; sub(/^[^:]*:/,"",line)
             if (line ~ /-local\.[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.g[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/) hit("local stamp")
             if (line ~ /-train\.g[0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f][0-9a-f]/) hit("train stamp")
-            if (index(line,feed)) hit("local feed path")
+            if (index(line,feed) || (alias != feed && index(line,alias))) hit("local feed path")
             if (index(line,"DirectoryPackages" "PropsPath")) hit("CPM overlay property")
             if (index(line,"RestoreAdditional" "ProjectSources")) hit("additional restore sources")
             if (index(line,"CustomAfterMicrosoftCommon" "Targets")) hit("local targets property")
@@ -1905,7 +1908,9 @@ self_test_nuget_overlay() {
 self_test() {
     [ $# -eq 0 ] || die '--self-test takes no arguments'
     local root home repo feed version output status passed=0 skipped=0 test_key arg map
-    scratch; root=$TMP/self-test; mkdir -p "$root/home" "$root/repo"
+    # Fixtures use the physical path (macOS TMPDIR is /var -> /private/var) because the helper
+    # reports repositories by their git toplevel; symlinked feeds have their own test below.
+    scratch; root=$(cd -P "$TMP" && pwd -P)/self-test; mkdir -p "$root/home" "$root/repo"
     map=$root/map.tsv; home=$root/home; repo=$root/repo; feed=$home/.cache/cratis/local-feed
     # System-only tests stay hermetic; npm tests inherit PATH to discover node.
     # Both isolate HOME/config and omit the host adapter.
@@ -2002,6 +2007,16 @@ LOCK
         passed=$((passed + 1))
         git -C "$repo" checkout -- probe package.json
     done
+    # A feed configured through a symlink is found under both its configured and its physical spelling.
+    mkdir -p "$feed" && ln -s "$(dirname "$feed")" "$root/feed-alias"
+    for test_key in "$root/feed-alias/$(basename "$feed")" "$(cd -P "$feed" && pwd -P)"; do
+        printf '%s/nuget\n' "$test_key" > "$repo/probe"
+        status=0; env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$root/feed-alias/$(basename "$feed")" /bin/bash "$SELF" check "$repo" > "$root/output" || status=$?
+        [ "$status" -eq 1 ] || failed "self-test: did not find aliased feed leak: $test_key"
+        passed=$((passed + 1))
+        git -C "$repo" checkout -- probe
+    done
+    rm "$root/feed-alias"
     # A consumer's own published-version reference update is legitimate, not an overlay leak.
     printf '<PackageReference %s="Cratis.Test" Version="1.2.3" />\n' Update > "$repo/probe"
     st check "$repo" > "$root/output" || failed 'self-test: published reference update reported as leak'
@@ -2049,8 +2064,9 @@ LOCK
         cp "$repo/package.json" "$root/original-package.json"
         cp "$repo/yarn.lock" "$root/original-yarn.lock"
         st_npm use-npm "$repo" "$version"
-        # Model Yarn's replacement of a remote entry with a file-tarball entry.
-        node - "$repo/yarn.lock" "$feed/npm/@cratis-test-$version.tgz" "$version" <<'NODE'
+        # Model Yarn's replacement of a remote entry with a file-tarball entry. Yarn writes the
+        # path the overlay put in package.json, which uses the physical feed path.
+        node - "$repo/yarn.lock" "$(cd -P "$feed/npm" && pwd -P)/@cratis-test-$version.tgz" "$version" <<'NODE'
 const fs = require('fs');
 const [file, input, stamp] = process.argv.slice(2);
 const tarball = require('path').normalize(input);
@@ -2734,7 +2750,15 @@ target['Cratis.Stage/'+c].dependencies['Other.B']='[1.0.0]';
 fs.writeFileSync(output,JSON.stringify(data));
 JSON
     expect_status 1 'composition range conflict on a composed edge is refused' cst verify-assets "$cr" --composition "$cm"
-    passed=$((passed + 2))
+    node - "$root/composition-assets.json" "$cr/obj/project.assets.json" <<'JSON'
+const fs=require('fs'), [input,output]=process.argv.slice(2), data=JSON.parse(fs.readFileSync(input));
+data.targets.net9=JSON.parse(JSON.stringify(data.targets['net10.0']));
+Object.assign(data.libraries,{'Other.C/1.0.0':{type:'package'},'Other.C/2.0.0':{type:'package'}});
+data.targets.net9['Other.C/1.0.0']={type:'package'}; data.targets['net10.0']['Other.C/2.0.0']={type:'package'};
+fs.writeFileSync(output,JSON.stringify(data));
+JSON
+    expect_status 0 'composition multitarget assets with one released ID at two versions' cst verify-assets "$cr" --composition "$cm"
+    passed=$((passed + 3))
     sed "s/$a/22.136.4/g" "$root/composition-assets.json" > "$cr/obj/project.assets.json"
     expect_status 1 'composition published fallback version' cst verify-assets "$cr" --composition "$cm"
     printf '{"libraries":{},"targets":{"net10.0":{}}}\n' > "$cr/obj/project.assets.json"
