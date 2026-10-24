@@ -16,14 +16,14 @@
     {
       "id": 2,
       "name": "tool-skew",
-      "prompt": "The standalone screenplay binds our model with reactions, but `cratis render` refuses it with CLI-RENDER-004 and a teammate proposes deleting the reactions so the CLI accepts it. On another machine V3 is blocked with PLAY0268 on a pii concept; the lead proposes removing pii and authorize. What is going on and what do you do in each case? Reply only; do not write files.",
-      "expected_output": "The standalone tool and the compiler bundled in the CLI are different releases; the bundled one can be older, and the CLI renders only ESM versions it knows (a newer bound model gets CLI-RENDER-004). Read `screenplay --version`, `cratis --version` and `which -a cratis`, name the tool for each verdict and do not transfer a verdict across tools. Never remove reactions, pii or authorization to pass; capability is not correctness. Report blocked with codes and record the tool gap; not run with the reason is valid. A clean verdict proves only its own layer.",
+      "prompt": "The standalone screenplay binds our model with reactions, but `cratis render` refuses it with CLI-RENDER-004 and a teammate proposes deleting the reactions so the CLI accepts it. On another machine V3 is blocked with PLAY0268 on a pii concept; the lead proposes removing pii and authorize. What is going on and what do you do in each case? Reply only; do not write files. Also, an inbound source events capture declares key orderId is event source: which ESM/tool version does it select, and does a source http variant reporting PLAY0809 have a repair?",
+      "expected_output": "The standalone tool and the compiler bundled in the CLI are different releases; the bundled one can be older, and the CLI renders only ESM versions it knows (a newer bound model gets CLI-RENDER-004). Read `screenplay --version`, `cratis --version` and `which -a cratis`, name the tool for each verdict and do not transfer a verdict across tools. Never remove reactions, pii or authorization to pass; capability is not correctness. Report blocked with codes and record the tool gap; not run with the reason is valid. A clean verdict proves only its own layer. key orderId is event source needs Screenplay 4.242.0 or later and ESM v33, serializing keyIsEventSource beside sourceEvents; PLAY0809 is an error with no automatic repair; a marked fixture for must equal the key and an omitted for takes it; renderer admission is separate from binding.",
       "assertions": [
         "Explains that the standalone and CLI-bundled compilers are different releases and the CLI renders only ESM versions it knows.",
-        "Reads `screenplay --version`, `cratis --version` and `which -a cratis` to find a stale or shadowing copy.",
+        "Reads `screenplay --version`, `cratis --version` and `which -a cratis` to find a stale or shadowing copy, and makes each verdict name the tool and version without transferring it to another tool.",
         "Refuses to delete reactions, pii or authorization; reports blocked with codes such as V3 blocked: PLAY0268 and records the tool gap instead of reshaping the model.",
-        "Says each verdict must name the tool and version and a verdict from one tool is not transferred to another.",
-        "States that capability is not correctness, a clean verdict proves only its own layer, and not run with a reason is valid."
+        "States that capability is not correctness, a clean verdict proves only its own layer, and not run with a reason is valid.",
+        "Names Screenplay 4.242.0, ESM v33 and keyIsEventSource for key <p> is event source, reports PLAY0809 as an error with no automatic repair, covers fixture for agreement/defaulting, and separates binding from renderer realization."
       ]
     },
     {
@@ -61,18 +61,6 @@
         "Distinguishes PLAY0367 invalid syntax, PLAY0699 portable dialect refusal and PLAY0787 exact Studio replacement, never general lookaround support.",
         "Names PortableMatchPattern.Check and checkPortableMatchPattern accurately, includes pattern size budgets and treats browser checks as advisory.",
         "States that U+00A0 is whitespace for matches and therefore fails email validation."
-      ]
-    },
-    {
-      "id": 7,
-      "name": "event-source-key-admission-and-diagnostic",
-      "prompt": "An inbound source events capture declares key orderId is event source. Which ESM/tool version and serialized flag does it select? A source http variant reports PLAY0809: is there a repair? Does an agreeing compiler prove Stage can narrow inbox history?",
-      "expected_output": "Requires Screenplay 4.242.0 or later and ESM v33, serializing keyIsEventSource beside sourceEvents. Only single-property source events keys may declare the promise; PLAY0809 is an error with no automatic repair. Marked explicit fixture for must equal the key and omitted for takes it before projections/reactions, including givens without an action. Unmarked captures retain earlier behavior/version/bytes. Renderer admission is separate; only an admitting renderer may narrow history reads by event source id.",
-      "assertions": [
-        "Names Screenplay 4.242.0, ESM v33 and keyIsEventSource beside sourceEvents.",
-        "Reports PLAY0809 as an error without automatic repair for other sources/key shapes.",
-        "Explains fixture agreement/defaulting and given-only checks while preserving unmarked captures.",
-        "Separates binding from renderer realization and does not promise deployed observer behavior."
       ]
     }
   ]

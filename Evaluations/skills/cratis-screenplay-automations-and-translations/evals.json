@@ -30,14 +30,14 @@
     {
       "id": 3,
       "name": "capture-omission-not-redaction",
-      "prompt": "We capture customer records from a partner CRM into CustomerImported. The `map` block does not mention the record's `email` and `birthDate` fields, so a reviewer wrote 'redacted by omission - fine'. The event's `reference` property also holds the signed download URL the CRM sends. Review this for data protection and tell us what to change. Reply only; do not write files.",
-      "expected_output": "Omission is not redaction: an unmapped field still passes through the capture's working record. Check append mappings and every event property, record how raw or last-seen source records are stored and minimized, put bare `pii` and a purpose on personal-data concepts, never record signed URLs or tokens as facts, and never put PII on the event-source id.",
+      "prompt": "We capture customer records from a partner CRM into CustomerImported. The `map` block does not mention the record's `email` and `birthDate` fields, so a reviewer wrote 'redacted by omission - fine'. The event's `reference` property also holds the signed download URL the CRM sends. Review this for data protection and tell us what to change. Reply only; do not write files. The CRM guarantees CustomerImported is appended on the customerId stream; how should that promise be declared on the inbound source events capture, and what does it need?",
+      "expected_output": "Omission is not redaction: an unmapped field still passes through the capture's working record. Check append mappings and every event property, record how raw or last-seen source records are stored and minimized, put bare `pii` and a purpose on personal-data concepts, never record signed URLs or tokens as facts, and never put PII on the event-source id. For a guaranteed single-property source events key use key customerId is event source (Screenplay 4.242.0, ESM v33; PLAY0809 elsewhere, no repair): a fixture for must equal the key, an omitted for takes it, and unmarked captures stay unchanged.",
       "assertions": [
         "Says a field left out of `map` still passes through the capture's working record, so omission is not redaction.",
         "Asks to check the append mappings and every resulting event property, and to record whether the target stores raw or last-seen source records and how they are minimized.",
         "Requires bare `pii` on the concept of any personal data kept in events, with a declared purpose.",
-        "Rejects storing the signed download URL (or any bearer token or magic link) as a fact, allowing at most a keyed hash or reference.",
-        "States that PII never goes on the event-source id."
+        "Rejects storing the signed download URL (or any bearer token or magic link) as a fact, allowing at most a keyed hash or reference, and states that PII never goes on the event-source id.",
+        "Declares key customerId is event source only for a guaranteed single-property source events key (Screenplay 4.242.0, ESM v33, PLAY0809 elsewhere with no repair), with matching or defaulted fixture for and unmarked captures unchanged."
       ]
     },
     {
@@ -63,18 +63,6 @@
         "Explains that adding direction inbound is not the repair because local-event consumption is refused by PLAY0616.",
         "Says no automatic repair/fix-all exists because slice naming, placement and specifications require a deliberate split.",
         "Includes child/nested appends in the check, excludes reactions with a from route and captures from other slices, and identifies Screenplay 4.176.0 as the prerequisite."
-      ]
-    },
-    {
-      "id": 6,
-      "name": "declare-inbound-capture-source-promise",
-      "prompt": "Our inbound ShipmentTracking capture folds ShipmentDispatched and ShipmentDelivered by orderId. Shipping guarantees both are appended on that orderId stream. Show the capture promise, fixture source behavior and tool boundary. Would you keep that promise if orderId were only payload correlation?",
-      "expected_output": "Uses key orderId is event source in the explicitly inbound source events example. Requires Screenplay 4.242.0 and ESM v33. An explicit fixture for must equal the key; omitted for takes it before projections/reactions, including givens without an action. Only single-property source events keys are allowed (PLAY0809, no repair). An admitting renderer may narrow history reads, but binding is not target realization. Remove no boundary protections and do not declare the promise for mere correlation; unmarked behavior stays unchanged.",
-      "assertions": [
-        "Shows key orderId is event source only when every foreign event is really sourced by that key.",
-        "Explains agreeing, mismatched and omitted fixture sources and given-only checking.",
-        "Names Screenplay 4.242.0, ESM v33 and PLAY0809 without claiming target realization.",
-        "Keeps the unmarked form when sourcing is not guaranteed."
       ]
     }
   ]
