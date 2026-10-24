@@ -166,10 +166,12 @@ public static class AIChatClientFactory
             // extension method, so it reads this as a leak; it is not one.
 #pragma warning disable CA2000
             AIProviderType.Anthropic =>
-                (new AnthropicClient(new ClientOptions
-                {
-                    ApiKey = AnthropicCredential.Normalize(apiKey!).Value,
-                }).AsIChatClient(),
+                (new TemperatureOmittingChatClient(
+                    new AnthropicClient(new ClientOptions
+                    {
+                        ApiKey = AnthropicCredential.Normalize(apiKey!).Value,
+                    }).AsIChatClient(),
+                    modelId),
                     modelId),
 #pragma warning restore CA2000
 
