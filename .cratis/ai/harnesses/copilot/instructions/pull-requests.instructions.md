@@ -126,9 +126,10 @@ intents do not.
   name the exact breaking change(s), who is affected and how, and the
   resulting version number. A generic "ready to ship?" is not this checkpoint —
   say plainly that this release breaks compatibility and needs a yes.
-- Proceed to merge only on an explicit, affirmative answer to that question.
-  A prior general instruction to "ship" or "land this" does not answer it,
-  even when it named `major` as the intended label.
+- A human merges a `major` PR, after answering that question with an explicit
+  yes. An agent never merges it, even after the confirmation. A prior general
+  instruction to "ship" or "land this" does not answer it, even when it named
+  `major` as the intended label.
 - This checkpoint is per release, not per conversation — a human confirming
   one major release does not pre-authorize the next one.
 
@@ -156,7 +157,7 @@ A non-release pull request must satisfy the relevant required checks like any ot
 
 ### Group small related changes into one pull request
 
-Do not open a pull request per task when the tasks belong to the same body of work. Several small merged PRs become several releases, and a stream of near-empty patch releases makes the release history useless for the people it is written for. Collect related work — a set of CI gates, a group of fixes in one area, the steps of one refactor — onto **one branch, as separate commits**, and open **one** pull request. Commits stay one-logical-unit-each; the pull request is the release boundary, and the release boundary should be a coherent, describable change.
+Do not open a pull request per task when the tasks belong to the same body of work. Several small merged PRs become several releases, and a stream of near-empty patch releases makes the release history useless for the people it is written for. Collect related work — a set of CI gates, a group of fixes in one area, the steps of one refactor — onto **one branch, as separate commits**, and open **one** pull request. Commits stay one-logical-unit-each; the pull request is the release boundary, and the release boundary should be a coherent, describable change. Joining an open candidate, folding superseded PRs and the cut are in `cratis-engineering-release-trains`.
 
 **Before consolidating open PRs, review each PR’s release intent and workflow effects.** Integration may trigger completion/publication behavior on an absorbed PR. Use supported non-release intent where appropriate. A direct request to consolidate the named pull requests authorizes the necessary relabeling and merge; it does not authorize unrelated notifications.
 
@@ -177,4 +178,4 @@ Before marking code/automation work ready, select the affected-project gates tha
 - `yarn lint` — zero errors
 - `npx tsc -b` — zero TypeScript errors
 - Code follows all project coding standards and conventions
-- **Required CI checks pass.** After an authorized push, inspect checks and failure logs. Diagnose within a bounded attempt, fix in-scope causes, and re-run relevant gates after each fix. Report unrelated/environmental failures and missing authority as blockers rather than retrying indefinitely or silently waiving required checks. If a release job fails after a concurrent merge (the release for the tag exists for another commit), re-run it: it releases under the next version (release-action v1.4.2 fails the job rather than reporting success).
+- **Required CI checks pass.** After an authorized push, inspect checks and failure logs. Diagnose within a bounded attempt, fix in-scope causes, and re-run relevant gates after each fix. Report unrelated/environmental failures and missing authority as blockers rather than retrying indefinitely or silently waiving required checks. Waiting, cancelling and tiered local gates are in `cratis-engineering-ci-gates`. If a release job fails after a concurrent merge (the release for the tag exists for another commit), re-run it: it releases under the next version (release-action v1.4.2 fails the job rather than reporting success).

@@ -242,14 +242,16 @@ speculative alternative grammars.
 | TRX | SDK-style: `--logger "trx;LogFileName=<name>.trx"` when an exact output file is requested, otherwise `--logger trx`; standalone `vstest.console.exe`: `/Logger:trx`; `MSTest.exe`: repository-documented results option | `--report-trx` |
 | Results directory | `--results-directory <dir>` | `--results-directory <dir>` |
 | Diagnostic log | `--diag <file>` | `--diagnostic --diagnostic-output-directory <dir>` |
-| Crash dump | `--blame-crash` | `--crashdump` |
-| Hang timeout | `--blame-hang --blame-hang-timeout 5min` | `--hangdump --hangdump-timeout 5min` |
+| Crash dump | `--blame-crash --blame-crash-dump-type mini` | `--crashdump --crashdump-type Mini` |
+| Hang timeout | `--blame-hang --blame-hang-timeout 5min --blame-hang-dump-type mini` | `--hangdump --hangdump-timeout 5min --hangdump-type Mini` |
 | Code coverage | `--collect "Code Coverage"` | `--coverage` |
 
 MTP report, dump, and coverage flags require their corresponding registered
 extensions (`TrxReport`, `CrashDump`, `HangDump`, or `CodeCoverage`). Some
 framework SDKs bundle common extensions; if a flag is unrecognized, inspect
 package references before recommending a package change.
+
+Always ask for a mini dump. Read the stack (for example `dotnet-dump analyze <file>` then `clrstack -all`), keep the text output, and delete the `.dmp` file. Use a full dump only for a named investigation that needs heap contents.
 
 `--verbosity diagnostic` increases dotnet/MSBuild output verbosity; it does not
 write a VSTest diagnostic log file.
@@ -264,7 +266,7 @@ dotnet test Tests.csproj --logger "trx;LogFileName=TestResults.trx"
 dotnet test Tests.csproj -- --report-trx
 
 # Native MTP TRX and hang detection
-dotnet test --project Tests.csproj --report-trx --hangdump --hangdump-timeout 5min
+dotnet test --project Tests.csproj --report-trx --hangdump --hangdump-timeout 5min --hangdump-type Mini
 
 # Native MTP diagnostics
 dotnet test --project Tests.csproj --diagnostic --diagnostic-output-directory artifacts/diagnostics

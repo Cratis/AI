@@ -1,0 +1,70 @@
+{
+  "skill_name": "cratis-engineering-ci-gates",
+  "evals": [
+    {
+      "id": 1,
+      "name": "wait-without-polling",
+      "prompt": "An authorized push is complete. Two workflow runs appear on the PR branch, but only one belongs to the full current head SHA and intended workflow. CI is still running. Explain how to wait when independent documentation work remains, and what to do if the watch outlasts the session. Reply only; do not run anything.",
+      "expected_output": "Capture the full head SHA and exact matching workflow run ID, disambiguate events, start one blocking watch with exit-status handling and a deadline, state what is awaited, then do independent work. Never query status by hand. If waiting cannot finish, leave a private handoff with SHA and run ID and report CI incomplete.",
+      "assertions": [
+        "Selects the exact workflow run ID for the full head SHA rather than the latest run by branch or time.",
+        "Starts one blocking watch such as gh run watch with --exit-status and a deadline.",
+        "Does not poll status by hand or suggest periodic gh run list, gh run view or PR-check requests while waiting.",
+        "States what is being waited on and uses the time for independent work or ends the turn when none remains.",
+        "Preserves the SHA and run ID in a private handoff if the watch outlasts the session and does not claim a pass."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "fix-all-failures-push-once",
+      "prompt": "A completed CI run failed in a deterministic compilation job and a separate lint job. Someone suggests rerunning the compilation job immediately, then pushing its fix before looking at lint. The request authorizes shipping the fixes. Plan the response. Reply only.",
+      "expected_output": "Read failed logs once and inspect the other jobs in the completed run. Fix both causes, rerun the required local gate on the fixed state, then push once. Rerun only a diagnosed flake after the run completes, not deterministic failures. Never use a CI skip token.",
+      "assertions": [
+        "Reads the failed logs once and checks other jobs instead of diagnosing only the first failure.",
+        "Fixes the compilation and lint causes together before one corrective push.",
+        "Requires the required local gate to pass on the fixed state before pushing.",
+        "Rejects retrying deterministic failures and allows a job rerun only for a diagnosed flake after run completion.",
+        "Does not put a CI skip token in a title or commit."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "cancel-only-own-superseded",
+      "prompt": "During authorized folding, four runs look unnecessary: an older check from this session's superseded push, a check another owner is watching for merge, this session's Publish run, and a check on a merged head needed by a queued Publish. Can all four be cancelled to free runners? Reply only; do not run anything.",
+      "expected_output": "Inspect each exact run ID, workflow, event, SHA, branch and effects. Only the owned superseded check is a cancellation candidate. Another owner's check needs agreement. Never cancel Publish or a check needed by publication. Re-read before any targeted cancellation and report its reason.",
+      "assertions": [
+        "Allows only the session's own superseded check as an immediate cancellation candidate and verifies its exact run ID and SHA.",
+        "Requires the other owner's agreement before cancelling that owner's watched check.",
+        "Does not cancel the Publish run even though this session started it.",
+        "Preserves the check needed by queued publication.",
+        "Requires a fresh target read before a targeted cancellation and reports the ID and reason rather than cancelling by branch or in bulk."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "container-cleanup-and-hang-dump",
+      "prompt": "The repository's tier policy requires local container-backed integration. A test hangs, and the phase times out after creating containers and a network; another task has services on the same Docker daemon. A proposal says capture a default hang dump, restart Docker and run docker system prune -a. Describe the safe diagnostics, phase and cleanup plan. Reply only.",
+      "expected_output": "Apply deadlines to startup, build, tests, Docker calls and teardown. Capture a mini hang dump, read the stack and delete the dump file. Record owned resource IDs or a unique Compose project and clean up only that phase's containers and networks. Preserve other services, volumes and images; do not restart the shared daemon or prune globally.",
+      "assertions": [
+        "Gives every container phase and Docker call a deadline, including teardown.",
+        "Tracks resource ownership with exact IDs or a task-specific Compose project and removes only the phase's own containers and networks, on timeout as well as success or failure.",
+        "Rejects docker system prune -a, shared-daemon restarts, cleanup of another task's services, and deleting volumes whose ownership is not established.",
+        "Requests a mini hang dump (--blame-hang-dump-type mini or --hangdump-type Mini), not the default full dump, and keeps a full dump for a named investigation that needs heap contents.",
+        "Reads the stack from the dump, keeps the text output and deletes the .dmp file."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "derive-tiers-from-ci",
+      "prompt": "Only one library changed. CI builds the whole solution in Release with warnings as errors, runs formatting and every unit-test project, then integration on a hosted service and another operating system. The repository allows CI-backed integration. Someone calls a passing affected-project Debug build the final gate. State what is required locally, what can wait for CI and what must be reported. Reply only.",
+      "expected_output": "Derive Tier 1 from workflows and invoked scripts: the whole-solution Release build with CI warning settings, lint/format and all non-integration tests. Use affected checks only during iteration and the full gate once at the final state. Integration may run in CI under the repository policy, but must pass before merge and be named in reviewer notes alongside locally unavailable checks.",
+      "assertions": [
+        "Reads workflows and scripts to derive whole-solution CI configuration, warning settings, lint/format and every non-integration test project for Tier 1.",
+        "Rejects the affected-project Debug build as final Tier 1 proof while allowing targeted checks during iteration.",
+        "Runs the full local gate once at the end rather than after each edit or repeatedly on unchanged inputs.",
+        "Lets repository policy choose local Tier 2 and allows CI-backed integration only when CI runs it and it passes before merge.",
+        "Names the hosted-service and operating-system coverage that cannot run locally, discloses deferral in reviewer notes and does not call it a local pass."
+      ]
+    }
+  ]
+}

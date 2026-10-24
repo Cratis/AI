@@ -67,6 +67,12 @@ When a workflow requires a typed review envelope, preserve its schema and expres
 these sections, verdict meanings, and scope limits through its existing fields.
 Do not append a competing Markdown report or invent envelope fields.
 
+## Rounds
+
+A follow-up round reviews only the delta since the last reviewed commit and carries prior
+findings forward. Cap the rounds and prefer one structural fix over looping. See
+`cratis-engineering-review-rounds`.
+
 ## Reviewer independence
 
 - **[contract]** Run a reviewer on a different provider family than the author's model

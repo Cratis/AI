@@ -134,7 +134,7 @@ OS or framework matrix. Default: full matrix on `schedule` and
 rule states this). Pitfall: the full matrix needs an owner who reads its failures.
 
 **Flaky and hung jobs.** Fits failure-bound workflows. Default: a
-`timeout-minutes` on every job, `--blame-hang`, retry only a diagnosed flake, and
+`timeout-minutes` on every job, `--blame-hang` with a mini dump, retry only a diagnosed flake, and
 quarantine a test with an issue. Pitfall: a blanket rerun hides the defect and
 doubles minutes. Read `references/flaky-and-hung-jobs.md`.
 

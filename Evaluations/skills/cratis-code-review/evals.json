@@ -28,13 +28,15 @@
     },
     {
       "id": 3,
-      "name": "singleton-scoped-dependency",
-      "prompt": "In review: `[Singleton] public class BoatCatalog(IEventStore eventStore, IMongoCollection<Boat> boats)`; the event store call is used in a handler. Also an untouched line elsewhere in the same file still uses `== null`. What do you report and how severe is each? Reply only.",
-      "expected_output": "A [Singleton] must not take a scoped dependency such as the event store or a MongoDB collection/database/client; make the type transient or scoped (IServiceScopeFactory only for a service the host resolves once). A pre-existing violation in a line the change did not touch is a note, never a blocker.",
+      "name": "singleton-scoped-dependency-and-delta",
+      "prompt": "In review at commit a1b2c3d: `[Singleton] public class BoatCatalog(IEventStore eventStore, IMongoCollection<Boat> boats)`; the event store call is used in a handler. Also an untouched line elsewhere in the same file still uses `== null`. What do you report and how severe is each? Then the author pushes commit e4f5a6b replacing [Singleton] with [Scoped] and touching nothing else. Give a separate follow-up review report. Reply only; do not write files.",
+      "expected_output": "A [Singleton] must not take a scoped dependency such as the event store or a MongoDB collection/database/client; make the type transient or scoped (IServiceScopeFactory only for a service the host resolves once). A pre-existing violation in a line the change did not touch is a note, never a blocker. The follow-up reviews only the delta since a1b2c3d, resolves the singleton blocker based on scoped activation, does not re-review untouched files and states what was not re-examined.",
       "assertions": [
         "Flags the singleton taking the event store and a MongoDB collection as a blocking finding.",
         "Recommends making the type transient or scoped instead.",
-        "Says a pre-existing violation on a line the change did not touch is a note, not a blocker."
+        "Says a pre-existing violation on a line the change did not touch is a note, not a blocker.",
+        "Scopes the follow-up to the delta since the previously reviewed commit and states that scoped activation resolves the earlier singleton blocker.",
+        "Does not raise new follow-up findings about untouched files and says what was not re-examined in that round."
       ]
     },
     {

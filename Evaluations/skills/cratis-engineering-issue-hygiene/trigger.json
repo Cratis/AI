@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-engineering-issue-hygiene",
+  "queries": [
+    { "query": "Claim this issue and keep a status block in its description while work proceeds.", "shouldTrigger": true },
+    { "query": "Another session already edits this issue. Who should own its status updates?", "shouldTrigger": true },
+    { "query": "Refresh the agent-status block without overwriting the original issue report.", "shouldTrigger": true },
+    { "query": "Should this scope decision go in the issue description or a comment?", "shouldTrigger": true },
+    { "query": "We found a small defect in the same files. Fix it now or file an issue?", "shouldTrigger": true },
+    { "query": "The no-release PR merged and all scope is delivered. Close the issue with a reason.", "shouldTrigger": true },
+    { "query": "This issue is a duplicate. Reconcile it with the canonical issue before closing.", "shouldTrigger": true },
+    { "query": "Audit the issues touched by this work so none remains In progress after we stop.", "shouldTrigger": true },
+    { "query": "A patch release uses release-action and its delivering bullet has the issue marker. Should we close it by hand?", "shouldTrigger": true },
+    { "query": "Assemble a single candidate from the ready delivery branches.", "shouldTrigger": false, "note": "cratis-engineering-release-trains owns candidate assembly" },
+    { "query": "Fold superseded pull requests into the open release train and move their bullets.", "shouldTrigger": false, "note": "cratis-engineering-release-trains owns folding deliveries" },
+    { "query": "Plan a delta review after fixing the previous blocking findings.", "shouldTrigger": false, "note": "cratis-engineering-review-rounds owns review iterations" },
+    { "query": "After three review rounds the same architectural blocker remains. What next?", "shouldTrigger": false, "note": "cratis-engineering-review-rounds owns the round cap" },
+    { "query": "Our workflows burn too many runner minutes. Measure and optimize them.", "shouldTrigger": false, "note": "cratis-ci-pipeline-performance owns workflow optimization" },
+    { "query": "Change the Actions YAML to build once and shard tests.", "shouldTrigger": false, "note": "cratis-ci-pipeline-performance owns workflow changes" },
+    { "query": "Derive Tier 1 from CI and watch the exact run without polling.", "shouldTrigger": false, "note": "cratis-engineering-ci-gates owns local gates and watches" },
+    { "query": "Cancel only the workflow runs started by our superseded pushes.", "shouldTrigger": false, "note": "cratis-engineering-ci-gates owns cancellation safeguards" },
+    { "query": "The same list filter has regressed a third time. Name the failure class and owning gate.", "shouldTrigger": false, "note": "cratis-engineering-regression-cluster owns recurring failure classes" }
+  ]
+}

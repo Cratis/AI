@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-engineering-ci-gates",
+  "queries": [
+    { "query": "Derive the local gate from our GitHub Actions workflows before the final push.", "shouldTrigger": true },
+    { "query": "What belongs in Tier 1 and when should Tier 2 run locally?", "shouldTrigger": true },
+    { "query": "CI is queued for the current head SHA. Start a blocking watch and wait without polling.", "shouldTrigger": true },
+    { "query": "Which exact run ID should we watch when two workflows ran on this branch?", "shouldTrigger": true },
+    { "query": "The CI run failed in several jobs. Plan one local gate and one corrective push.", "shouldTrigger": true },
+    { "query": "Our own older push was superseded. Can we cancel its CI run safely?", "shouldTrigger": true },
+    { "query": "An obsolete PR run includes a publish job. Decide whether to cancel it.", "shouldTrigger": true },
+    { "query": "The local integration tier timed out. How should its containers and networks be cleaned up?", "shouldTrigger": true },
+    { "query": "Tier 1 passed locally but integration only runs in CI. What remains before merge?", "shouldTrigger": true },
+    { "query": "Edit the workflow YAML to reduce runner minutes with build artifacts and caching.", "shouldTrigger": false, "note": "cratis-ci-pipeline-performance edits workflows; this is not operating a run" },
+    { "query": "Measure why the pull request workflow spends most of its time queued.", "shouldTrigger": false, "note": "cratis-ci-pipeline-performance measures bottlenecks" },
+    { "query": "Group these ready fixes into one release candidate and fold their old PRs.", "shouldTrigger": false, "note": "cratis-engineering-release-trains owns grouping and folding" },
+    { "query": "Should we hold the release cut for another nearly ready delivery?", "shouldTrigger": false, "note": "cratis-engineering-release-trains owns candidate readiness" },
+    { "query": "A review found a blocker after the first round. Scope the next delta review.", "shouldTrigger": false, "note": "cratis-engineering-review-rounds owns follow-up review scope" },
+    { "query": "We have reached the review round cap and the same blockers remain.", "shouldTrigger": false, "note": "cratis-engineering-review-rounds owns review-loop escalation" },
+    { "query": "Update the issue status block after the pull request opens.", "shouldTrigger": false, "note": "cratis-engineering-issue-hygiene owns issue descriptions" },
+    { "query": "The no-release PR merged. Close its completed issue with a reason.", "shouldTrigger": false, "note": "cratis-engineering-issue-hygiene owns issue disposition" },
+    { "query": "Write the consumer-facing release-note bullets for these fixes.", "shouldTrigger": false, "note": "cratis-release-notes owns release-note text" }
+  ]
+}

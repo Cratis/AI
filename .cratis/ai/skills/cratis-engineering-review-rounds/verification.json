@@ -1,0 +1,16 @@
+{
+  "skill": "cratis-engineering-review-rounds",
+  "input": "Plan a delta round after a blocker without restarting whole-change review or filing advisory findings.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "../../rules/review-reports.md" },
+    { "kind": "skill-contains", "value": "Run one quick round per delivery" },
+    { "kind": "skill-contains", "value": "Run one whole-change review per PR" },
+    { "kind": "skill-contains", "value": "SHA, not from an arbitrary base" },
+    { "kind": "skill-contains", "value": "Prior: <complete round 1 report, including dismissals and scope limits>" },
+    { "kind": "skill-contains", "value": "3 rounds per work item" },
+    { "kind": "skill-contains", "value": "Never file an issue merely to dispose of advisory feedback" },
+    { "kind": "skill-contains", "value": "single-provider" },
+    { "kind": "skill-contains", "value": "**cross-cutting**" }
+  ]
+}

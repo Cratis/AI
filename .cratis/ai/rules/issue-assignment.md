@@ -29,3 +29,4 @@ up, or it looks abandoned while it is being done.
 The user's request to work on the issue is the authority for this assignment; do not ask
 before doing it. It authorizes assigning the issue and nothing else: commenting, labeling
 or closing still follow [pull-requests.md](./pull-requests.md) and the user's request.
+- **After claiming,** keep the issue current per `cratis-engineering-issue-hygiene`.
