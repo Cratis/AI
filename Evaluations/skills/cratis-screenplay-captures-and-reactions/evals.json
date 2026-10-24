@@ -63,6 +63,48 @@
         "States that foreign fixture for is optional opaque text and not the content key, while prior events overlay properties per typed key.",
         "Keeps children/nested over events and context other than occurred unsupported, and does not claim reference execution proves observer order or redelivery deduplication."
       ]
+    },
+    {
+      "id": 6,
+      "name": "event-source-key-promise",
+      "prompt": "Our inbound source events capture consumes ParcelDispatched from carrier. The producer always appends it on the orderId stream. How do we declare that promise and what versions does it need? Must our existing unmarked captures change too?",
+      "expected_output": "Uses key orderId is event source on a single-property source events key, requires Screenplay 4.242.0 and ESM v33, and explains keyIsEventSource beside sourceEvents. An admitting renderer may narrow history reads; binding is not target proof. Unmarked captures keep behavior, version and bytes.",
+      "assertions": [
+        "Uses key orderId is event source only for the producer's actual sourcing guarantee.",
+        "Names Screenplay 4.242.0 and ESM v33 with keyIsEventSource beside sourceEvents.",
+        "Separates renderer admission from binding and preserves unmarked behavior, version and bytes."
+      ]
+    },
+    {
+      "id": 7,
+      "name": "reject-mismatched-explicit-and-given-sources",
+      "prompt": "Feed declares key orderId is event source. when append ParcelDispatched says for other-order but orderId = order-42. Can we accept it as then no events? What if the same mismatch is in a given-only world without an action?",
+      "expected_output": "Rejects execution as a source/key contract violation, including while establishing givens without an action. Explicit for must equal the key; this is not PLAY0809 or an accepted then no events result. Does not delete the marker or silently rekey the explicit source.",
+      "assertions": [
+        "Rejects explicit source/key mismatches rather than appending or accepting then no events.",
+        "Checks givens without an action.",
+        "Distinguishes runtime contract rejection from PLAY0809 and never repairs away the promise."
+      ]
+    },
+    {
+      "id": 8,
+      "name": "omitted-source-precedes-projections-and-reactions",
+      "prompt": "A typed incoming fixture for our key orderId is event source capture omits for. Is its source random until capture appends, or does a projection/reaction reading $eventSourceId already see orderId? Compare the unmarked case.",
+      "expected_output": "The marked fixture takes the key as its event source before projections and reactions, so $eventSourceId is the key. An unmarked fixture's optional foreign for stays independent of the capture key; do not infer the promise from a correlation field alone.",
+      "assertions": [
+        "Omitted for takes the marked key before projections and reactions.",
+        "Explains $eventSourceId and keeps unmarked foreign source independent."
+      ]
+    },
+    {
+      "id": 9,
+      "name": "reject-marker-on-other-sources-and-key-shapes",
+      "prompt": "I added is event source to a source http capture key, and to a composite rather than single-property event capture key. Which diagnostic and compiler-authored repair should I use?",
+      "expected_output": "PLAY0809 is an error: the marker is only for single-property source events keys. There is no automatic repair; revisit the source/key and producer contract rather than rewriting it automatically.",
+      "assertions": [
+        "Reports PLAY0809 for other sources and non-single-property keys.",
+        "Says no automatic repair and does not invent one."
+      ]
     }
   ]
 }

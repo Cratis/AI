@@ -8,6 +8,7 @@
 - Exact numeric source mode
 - Clause order inside a command (canonical)
 - Slice contents (typical)
+- Event-source capture keys (ESM v33)
 - `$context.` paths (command `produces`)
 - `$eventContext.` (projections)
 - PDL quick reference (most forms are compiled in `pdl-example.md` or `cheat-sheet-example.md`; `remove via join` and `$eventContext.occurred` are not)
@@ -138,6 +139,17 @@ description, properties, `reads`, `authorize`, `validate`, `produces`/`handler`,
 - `slice Automation <Behaviour>`: reaction(s) + events they produce + specs.
 - `slice Translate <Behaviour>`: capture and/or translator reaction + both vocabularies' events.
 - Declare each event once, in the slice that produces it; reference it by name elsewhere.
+
+## Event-source capture keys (ESM v33)
+
+For inbound `source events` captures only, a single-property
+`key <property> is event source` promises every incoming event is sourced by that
+key (Screenplay 4.242.0; serializes `keyIsEventSource` beside `sourceEvents`).
+Other sources/key shapes report PLAY0809, with no automatic repair. Explicit typed
+fixture `for` must equal the key; omission takes the key before projections/reactions,
+including givens without an action. Unmarked captures keep earlier semantics.
+An admitting renderer may narrow history reads by event source id; binding is not target evidence.
+Read [event-source keys](../../cratis-screenplay-captures-and-reactions/references/event-source-keys.md) for the complete example.
 
 ## `$context.` paths (command `produces`)
 `occurred`, `tenant`, `command.<p>`, `arguments.<p>`, `causedBy.subject|name|userName`,

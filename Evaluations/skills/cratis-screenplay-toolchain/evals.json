@@ -62,6 +62,18 @@
         "Names PortableMatchPattern.Check and checkPortableMatchPattern accurately, includes pattern size budgets and treats browser checks as advisory.",
         "States that U+00A0 is whitespace for matches and therefore fails email validation."
       ]
+    },
+    {
+      "id": 7,
+      "name": "event-source-key-admission-and-diagnostic",
+      "prompt": "An inbound source events capture declares key orderId is event source. Which ESM/tool version and serialized flag does it select? A source http variant reports PLAY0809: is there a repair? Does an agreeing compiler prove Stage can narrow inbox history?",
+      "expected_output": "Requires Screenplay 4.242.0 or later and ESM v33, serializing keyIsEventSource beside sourceEvents. Only single-property source events keys may declare the promise; PLAY0809 is an error with no automatic repair. Marked explicit fixture for must equal the key and omitted for takes it before projections/reactions, including givens without an action. Unmarked captures retain earlier behavior/version/bytes. Renderer admission is separate; only an admitting renderer may narrow history reads by event source id.",
+      "assertions": [
+        "Names Screenplay 4.242.0, ESM v33 and keyIsEventSource beside sourceEvents.",
+        "Reports PLAY0809 as an error without automatic repair for other sources/key shapes.",
+        "Explains fixture agreement/defaulting and given-only checks while preserving unmarked captures.",
+        "Separates binding from renderer realization and does not promise deployed observer behavior."
+      ]
     }
   ]
 }

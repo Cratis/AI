@@ -3,6 +3,12 @@
   "input": "Check a Screenplay model folder: which compiler should I run, what do V1 to V3 mean, and what does the cratis CLI do with my Automation slice?",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "| v33 |", "file": "references/language-admission.md" },
+    { "kind": "skill-contains", "value": "`keyIsEventSource` beside `sourceEvents`", "file": "references/language-admission.md" },
+    { "kind": "skill-contains", "value": "| PLAY0809 | E |", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "no automatic repair", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "key <property> is event source", "file": "references/cheat-sheet.md" },
+    { "kind": "skill-contains", "value": "including givens without an action", "file": "references/cheat-sheet.md" },
     { "kind": "skill-contains", "value": "Requires Screenplay 4.227.0", "file": "references/cheat-sheet.md" },
     { "kind": "skill-contains", "value": "New files need explicit imports", "file": "references/diagnostics.md" },
     { "kind": "skill-contains", "value": "cycles, own-sub-feature edges and ambiguous imports", "file": "references/diagnostics.md" },

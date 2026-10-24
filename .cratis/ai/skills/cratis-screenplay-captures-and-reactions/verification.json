@@ -5,13 +5,24 @@
   "assertions": [
     { "kind": "skill-contains", "value": "unrouted facts never match" },
     { "kind": "skill-contains", "value": "source events" },
+    { "kind": "skill-contains", "value": "## Keying by the event source" },
+    { "kind": "skill-contains", "value": "PLAY0809, no automatic repair" },
+    { "kind": "skill-contains", "value": "ESM v33" },
+    { "kind": "skill-contains", "file": "references/event-source-keys.md", "value": "key orderId is event source" },
+    { "kind": "skill-contains", "file": "references/event-source-keys.md", "value": "`keyIsEventSource` beside `sourceEvents`" },
+    { "kind": "skill-contains", "file": "references/event-source-keys.md", "value": "earlier behavior, version and bytes" },
+    { "kind": "skill-contains", "file": "references/event-source-keys.md", "value": "An explicit fixture `for` must equal the key" },
+    { "kind": "skill-contains", "file": "references/event-source-keys.md", "value": "A fixture without `for` takes the key as its source" },
+    { "kind": "skill-contains", "file": "references/event-source-keys.md", "value": "givens, including a world with no action" },
     { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
+      "file": "references/reaction-forms.md",
       "value": "command-only (`PLAY0474` in a reaction)"
     },
     {
       "kind": "skill-contains",
+      "file": "references/reaction-forms.md",
       "value": "Do not extend the inline command destination default"
     },
     {
@@ -28,6 +39,7 @@
     },
     {
       "kind": "skill-contains",
+      "file": "references/reaction-forms.md",
       "value": "`where` belongs to the reaction, not to one trigger"
     },
     {

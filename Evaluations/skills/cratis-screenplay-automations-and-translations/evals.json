@@ -64,6 +64,18 @@
         "Says no automatic repair/fix-all exists because slice naming, placement and specifications require a deliberate split.",
         "Includes child/nested appends in the check, excludes reactions with a from route and captures from other slices, and identifies Screenplay 4.176.0 as the prerequisite."
       ]
+    },
+    {
+      "id": 6,
+      "name": "declare-inbound-capture-source-promise",
+      "prompt": "Our inbound ShipmentTracking capture folds ShipmentDispatched and ShipmentDelivered by orderId. Shipping guarantees both are appended on that orderId stream. Show the capture promise, fixture source behavior and tool boundary. Would you keep that promise if orderId were only payload correlation?",
+      "expected_output": "Uses key orderId is event source in the explicitly inbound source events example. Requires Screenplay 4.242.0 and ESM v33. An explicit fixture for must equal the key; omitted for takes it before projections/reactions, including givens without an action. Only single-property source events keys are allowed (PLAY0809, no repair). An admitting renderer may narrow history reads, but binding is not target realization. Remove no boundary protections and do not declare the promise for mere correlation; unmarked behavior stays unchanged.",
+      "assertions": [
+        "Shows key orderId is event source only when every foreign event is really sourced by that key.",
+        "Explains agreeing, mismatched and omitted fixture sources and given-only checking.",
+        "Names Screenplay 4.242.0, ESM v33 and PLAY0809 without claiming target realization.",
+        "Keeps the unmarked form when sourcing is not guaranteed."
+      ]
     }
   ]
 }

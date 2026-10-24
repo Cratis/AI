@@ -57,6 +57,11 @@ reference is handed records (`given capture`, `when capture`) and never contacts
 (PLAY0700). Events append to the event source the key names, and
 `$context.occurred` is supplied by the scenario's `given clock`.
 
+For a producer that sources every event by this key, declare
+`key <property> is event source` (ESM v33, Screenplay 4.242.0).
+Read [event-source keys](event-source-keys.md) for the promise, fixture `for`
+checks and the PLAY0809 restriction to single-property `source events` keys.
+
 An event's external origin is declared on the `event` itself with `event X from "<origin>"` (ESM v9);
 outside records still enter through a `capture` in a `Translate` slice
 (`cratis-screenplay-automations-and-translations` `references/public-events-and-direction.md`).
