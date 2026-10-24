@@ -42,15 +42,15 @@
     },
     {
       "id": 4,
-      "name": "container-cleanup",
-      "prompt": "The repository's tier policy requires local container-backed integration. The test phase times out after creating containers and a network; another task has services on the same Docker daemon. A proposal says restart Docker and run docker system prune -a. Describe the safe phase and cleanup plan. Reply only.",
-      "expected_output": "Apply deadlines to startup, build, tests, Docker calls and teardown. Record owned resource IDs or a unique Compose project. On timeout, clean up only that phase's containers and networks. Preserve other services, volumes and images; do not restart the shared daemon or prune globally.",
+      "name": "container-cleanup-and-hang-dump",
+      "prompt": "The repository's tier policy requires local container-backed integration. A test hangs, and the phase times out after creating containers and a network; another task has services on the same Docker daemon. A proposal says capture a default hang dump, restart Docker and run docker system prune -a. Describe the safe diagnostics, phase and cleanup plan. Reply only.",
+      "expected_output": "Apply deadlines to startup, build, tests, Docker calls and teardown. Capture a mini hang dump, read the stack and delete the dump file. Record owned resource IDs or a unique Compose project and clean up only that phase's containers and networks. Preserve other services, volumes and images; do not restart the shared daemon or prune globally.",
       "assertions": [
         "Gives every container phase and Docker call a deadline, including teardown.",
-        "Tracks resource ownership with exact IDs or a task-specific Compose project.",
-        "Stops and removes the phase's own containers and networks on timeout as well as success or failure.",
-        "Rejects docker system prune -a, shared-daemon restarts and cleanup of another task's services.",
-        "Does not delete volumes unless their ownership and disposability are established."
+        "Tracks resource ownership with exact IDs or a task-specific Compose project and removes only the phase's own containers and networks, on timeout as well as success or failure.",
+        "Rejects docker system prune -a, shared-daemon restarts, cleanup of another task's services, and deleting volumes whose ownership is not established.",
+        "Requests a mini hang dump (--blame-hang-dump-type mini or --hangdump-type Mini), not the default full dump, and keeps a full dump for a named investigation that needs heap contents.",
+        "Reads the stack from the dump, keeps the text output and deletes the .dmp file."
       ]
     },
     {
@@ -64,17 +64,6 @@
         "Runs the full local gate once at the end rather than after each edit or repeatedly on unchanged inputs.",
         "Lets repository policy choose local Tier 2 and allows CI-backed integration only when CI runs it and it passes before merge.",
         "Names the hosted-service and operating-system coverage that cannot run locally, discloses deferral in reviewer notes and does not call it a local pass."
-      ]
-    },
-    {
-      "id": 6,
-      "name": "mini-hang-dump-and-delete",
-      "prompt": "Without calling tools, a local integration test hangs. How do you capture diagnostics without filling the disk? Reply only.",
-      "expected_output": "Ask for a mini hang dump, read the stack, and delete the dump file.",
-      "assertions": [
-        "Requests a mini dump (--blame-hang-dump-type mini or --hangdump-type Mini), not the default full dump.",
-        "Reads the stack from the dump and then deletes the .dmp file.",
-        "Reserves a full dump for a named investigation that needs heap contents."
       ]
     }
   ]
