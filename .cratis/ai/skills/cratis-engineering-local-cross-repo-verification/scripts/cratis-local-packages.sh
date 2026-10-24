@@ -23,7 +23,7 @@ Commands (COMMAND --help shows these instructions too):
     (--train: the train stamp), per producer the NuGet overlay of its upstream
     producers, one pack command per map pack row (with its --property arguments)
     and the restore, then ONE verify-pack for the whole plan, then the consumer
-    overlay, its verify-assets, check, restore and clean. List producers in dependency order.
+    overlay, its verify-assets, restore, check and clean. List producers in dependency order.
     Nothing is printed when the plan is invalid (exit 2). Warns when a producer
     reaches the consumer through an unnamed hop.
   plan [--map FILE] CONSUMER PRODUCER...
@@ -644,7 +644,7 @@ closure() {
             image) printf '# image edge: build the producer image per references/docker-images.md, tag it with "$STAMP"\n' ;;
         esac
     done
-    printf 'bash %q check %q\nbash %q restore %q\nbash %q clean %q --stamp "$STAMP"%s   # review, then repeat with --apply\n' "$SELF" "${paths[0]}" "$SELF" "${paths[0]}" "$SELF" "${paths[0]}" "$dirarg"
+    printf 'bash %q restore %q\nbash %q check %q\nbash %q clean %q --stamp "$STAMP"%s   # review, then repeat with --apply\n' "$SELF" "${paths[0]}" "$SELF" "${paths[0]}" "$SELF" "${paths[0]}" "$dirarg"
 }
 
 # plan [--map FILE] CONSUMER PRODUCER...: print the plan rows (read-only).
@@ -1294,8 +1294,27 @@ LOCK
         st_npm use-npm "$repo" "$version"
         grep -Fq '"@cratis/transitive": "file:' "$repo/package.json" || failed 'self-test: transitive npm resolution'
         grep -Fq '"@cratis/test": "file:' "$repo/package.json" || failed 'self-test: direct npm resolution'
-        st_npm restore "$repo" > "$root/output"
-        passed=$((passed + 2))
+        # Execute the consumer tail printed by closure, with a fixture installation between
+        # overlay and verification. In particular, check must not run before restore.
+        {
+            tsv pack Lib npm .
+            tsv ids Lib npm @cratis/test,@cratis/transitive
+            tsv uses App Lib npm .
+        } > "$root/npm-closure.tsv"
+        st_npm closure --map "$root/npm-closure.tsv" App="$repo" Lib="$repo" > "$root/npm-closure.out"
+        printf 'node_modules/\n' >> "$repo/.git/info/exclude"
+        for arg in test transitive; do
+            mkdir -p "$repo/node_modules/@cratis/$arg"
+            tar -xzf "$feed/npm/@cratis-$arg-$version.tgz" -C "$repo/node_modules/@cratis/$arg" --strip-components=1
+        done
+        status=0; st_npm check "$repo" > "$root/output" || status=$?
+        [ "$status" -eq 1 ] || failed 'self-test: npm overlay needs restore before check'
+        awk '/ verify-assets / { consumer=1 } consumer' "$root/npm-closure.out" > "$root/npm-closure-tail.sh"
+        env -i HOME="$home" PATH="$PATH" TMPDIR="$TMP" STAMP="$version" \
+            /bin/bash -e "$root/npm-closure-tail.sh" > "$root/output" || failed 'self-test: npm closure verification, restore, check and clean'
+        cmp -s "$repo/package.json" <(git -C "$repo" show HEAD:package.json) || failed 'self-test: npm closure restores tracked manifest'
+        grep -Fq 'dry-run:' "$root/output" || failed 'self-test: npm closure reaches clean'
+        passed=$((passed + 6))
         printf '{"private":true,"dependencies":{"@cratis/test":"1.2.3"},"userSetting":true}\n' > "$repo/package.json"
         cp "$repo/package.json" "$root/original-package.json"
         cp "$repo/yarn.lock" "$root/original-yarn.lock"
