@@ -18,6 +18,14 @@ Commands (COMMAND --help shows these instructions too):
   stamp --train PRODUCER [PRODUCER...]
     Train stamp X.Y.Z-train.g<sha7>: the same next patch, no minute, so one code
     state always yields one stamp. Accepted everywhere a local stamp is.
+  closure [--map FILE] [--train] CONSUMER=PATH PRODUCER=PATH...
+    Read-only. Print, from the same plan, the commands to run in order: one stamp
+    (--train: the train stamp), per producer the NuGet overlay of its upstream
+    producers, one pack command per map pack row (with its --property arguments)
+    and the restore, then ONE verify-pack for the whole plan, then the consumer
+    overlay, its verify-assets, check, restore and clean. List producers in dependency order.
+    Nothing is printed when the plan is invalid (exit 2). Warns when a producer
+    reaches the consumer through an unnamed hop.
   plan [--map FILE] CONSUMER PRODUCER...
     Read-only. Print the plan derived from scripts/dependency-map.tsv (or
     CRATIS_LOCAL_MAP) for repository names listed in dependency order: pack rows
@@ -563,6 +571,79 @@ plan_warn_unnamed_hops() {
         [ -n "$(map_edge "$consumer" "$x")" ] || continue
         printf 'WARNING: %s -> %s -> %s: %s is not named, so the released %s is kept; name it to rebuild it (a binary break is a finding)\n' "$p" "$x" "$consumer" "$x" "$x" >&2
     done
+}
+
+# closure [--map FILE] [--train] CONSUMER=PATH PRODUCER=PATH...
+# A printer over plan_derive: it decides nothing the plan does not already say, and prints nothing until the
+# whole plan is valid. Every verify command it prints names the consumer and ALL producers in the given order,
+# so each one re-derives the identical plan (no state is stored between commands).
+# shellcheck disable=SC2016  # printed commands keep a literal $STAMP
+closure() {
+    local arg name path i j eco row target props prop manifest mapopt='' train='' overlaid scope='' upstreams dirarg=''
+    local names=() paths=()
+    while [ $# -gt 0 ]; do
+        arg=$1; shift
+        case "$arg" in
+            --map) [ $# -gt 0 ] || die '--map requires a file'; MAP=$1; printf -v mapopt ' --map %q' "$1"; shift ;;
+            --train) train=' --train' ;;
+            *=*) name=${arg%%=*}; path=${arg#*=}; names+=("$name"); paths+=("$(repo_root "$path")") ;;
+            *) die "closure arguments are NAME=PATH; got: $arg" ;;
+        esac
+    done
+    [ ${#names[@]} -ge 2 ] || die 'closure requires CONSUMER=PATH and at least one PRODUCER=PATH'
+    scratch
+    plan_derive "$TMP/closure-plan" "${names[@]}"
+    for ((i=1; i<${#names[@]}; i++)); do printf -v arg ' --producer %q' "${names[$i]}"; scope="$scope$arg"; done
+    scope=" --consumer $(printf '%q' "${names[0]}")$scope$mapopt"
+    printf '# closure for %s (printed, not executed; run each step and check its exit code)\n' "${names[0]}"
+    printf 'STAMP=$(bash %q stamp%s' "$SELF" "$train"
+    for ((i=1; i<${#paths[@]}; i++)); do printf ' %q' "${paths[$i]}"; done
+    printf ')\n'
+    for ((i=1; i<${#names[@]}; i++)); do
+        name=${names[$i]}; overlaid=0
+        upstreams=$(awk -F'\t' -v p="$name" '$1 == "overlay" && $2 == p { printf "%s ", $3 }' "$TMP/closure-plan")
+        if [ -n "$upstreams" ]; then
+            overlaid=1
+            printf '# %s consumes %s: overlay it, then pack in a shell that sourced the printed env file\n' "$name" "${upstreams% }"
+            printf 'bash %q use-nuget %q "$STAMP"\n' "$SELF" "${paths[$i]}"
+        fi
+        for eco in nuget npm; do
+            grep -Fxq "$(printf 'pack\t%s\t%s' "$name" "$eco")" "$TMP/closure-plan" || continue
+            if [ "$eco" = npm ]; then
+                printf '( cd %q && bash %q pack-npm . "$STAMP" )   # needs yarn install --immutable and the repository build first; pack-npm does not build\n' "${paths[$i]}" "$SELF"
+                continue
+            fi
+            while IFS=$'\t' read -r target props; do
+                printf '( cd %q && ' "${paths[$i]}"
+                if [ "$overlaid" -eq 1 ]; then printf '. %q && ' "$(session_path "${paths[$i]}")/env"; fi
+                printf 'bash %q pack-nuget . "$STAMP"' "$SELF"
+                for prop in ${props//,/ }; do printf ' --property %q' "$prop"; done
+                printf ' %q )\n' "$target"
+            done < <(map_pack_rows "$name" nuget)
+        done
+        if [ "$overlaid" -eq 1 ]; then printf 'bash %q restore %q\n' "$SELF" "${paths[$i]}"; fi
+        for ((j=i+1; j<${#names[@]}; j++)); do
+            while IFS=$'\t' read -r eco manifest; do
+                case "$eco" in npm|image) printf '# note: %s uses %s (%s, %s): not overlaid here; wire it by hand if the %s build needs the local %s\n' "${names[$j]}" "$name" "$eco" "$manifest" "${names[$j]}" "$name" ;; esac
+            done < <(map_edge "${names[$j]}" "$name")
+        done
+    done
+    if grep -q '^pack' "$TMP/closure-plan"; then
+        printf 'bash %q verify-pack "$STAMP"%s\n' "$SELF" "$scope"
+    else
+        printf '# no pack rows in this plan (image-only edges): nothing to verify in the feed\n'
+    fi
+    for eco in nuget npm image; do
+        row=$(awk -F'\t' -v e="$eco" '$1 == "consume" && $3 == e { print $4; exit }' "$TMP/closure-plan")
+        [ -n "$row" ] || continue
+        if [ "$eco" = npm ] && [ "$row" != . ]; then printf -v dirarg ' --dir %q' "$row"; fi
+        case "$eco" in
+            nuget) printf 'bash %q use-nuget %q "$STAMP"\n# source the printed env file, restore and build the consumer, then:\nbash %q verify-assets %q "$STAMP"%s\n' "$SELF" "${paths[0]}" "$SELF" "${paths[0]}" "$scope" ;;
+            npm) printf 'bash %q use-npm %q "$STAMP"%s   # then yarn install (not --immutable)\nbash %q verify-assets %q "$STAMP" --npm%s%s\n' "$SELF" "${paths[0]}" "$dirarg" "$SELF" "${paths[0]}" "$dirarg" "$scope" ;;
+            image) printf '# image edge: build the producer image per references/docker-images.md, tag it with "$STAMP"\n' ;;
+        esac
+    done
+    printf 'bash %q check %q\nbash %q restore %q\nbash %q clean %q --stamp "$STAMP"%s   # review, then repeat with --apply\n' "$SELF" "${paths[0]}" "$SELF" "${paths[0]}" "$SELF" "${paths[0]}" "$dirarg"
 }
 
 # plan [--map FILE] CONSUMER PRODUCER...: print the plan rows (read-only).
@@ -1352,6 +1433,47 @@ NODE
     printf 'self-test: %s passed, %s skipped\n' "$passed" "$skipped"
 }
 
+# C fixtures: the printed closure is one plan, in order, and every line is valid shell.
+self_test_closure() {
+    local name line a b c p last first fa fl fm
+    for name in App Lib Mid; do
+        mkdir -p "$root/fx-$name"; git -C "$root/fx-$name" init -q
+        git -C "$root/fx-$name" config user.email test@example.invalid; git -C "$root/fx-$name" config user.name 'Local package self-test'
+        git -C "$root/fx-$name" commit -q --allow-empty -m initial
+    done
+    fa=$(git -C "$root/fx-App" rev-parse --show-toplevel); fl=$(git -C "$root/fx-Lib" rev-parse --show-toplevel); fm=$(git -C "$root/fx-Mid" rev-parse --show-toplevel)
+    expect_status 0 'C1 closure for the fixture plan' fxm closure App="$root/fx-App" Lib="$root/fx-Lib" Mid="$root/fx-Mid"
+    cp "$root/output" "$root/closure.out"
+    bash -n "$root/closure.out" || failed 'self-test: C2 every printed closure line must be valid shell'
+    [ "$(grep -c ' verify-pack ' "$root/closure.out")" -eq 1 ] || failed 'self-test: C1 exactly one verify-pack'
+    a=$(grep -n ' verify-pack ' "$root/closure.out" | cut -d: -f1)
+    last=$(grep -nE ' pack-(nuget|npm) ' "$root/closure.out" | tail -n 1 | cut -d: -f1)
+    first=$(grep -n " use-nuget $fa " "$root/closure.out" | head -n 1 | cut -d: -f1)
+    { [ "$a" -gt "$last" ] && [ "$a" -lt "$first" ]; } || failed 'self-test: C1 verify-pack sits after the last pack and before the consumer overlay'
+    line=$(grep ' verify-pack ' "$root/closure.out")
+    case "$line" in *' --consumer App --producer Lib --producer Mid'*) ;; *) failed 'self-test: C1 verify-pack carries the whole plan' ;; esac
+    grep -q "pack-nuget . \"\$STAMP\" --property A=1 --property B=2 Lib.Extra.slnx" "$root/closure.out" || failed 'self-test: C2 the second Lib row carries both properties'
+    [ "$(grep -c "pack-nuget \. \"\$STAMP\" Lib.slnx" "$root/closure.out")" -eq 1 ] || failed 'self-test: C2 the first Lib row carries no properties'
+    # C4: Mid's overlay, then its pack in a shell that sources the env file, then its restore.
+    a=$(grep -n " use-nuget $fm " "$root/closure.out" | cut -d: -f1)
+    b=$(grep -n "$fm && \. .*/env && .* pack-nuget " "$root/closure.out" | cut -d: -f1)
+    c=$(grep -n " restore $fm" "$root/closure.out" | cut -d: -f1)
+    { [ -n "$a" ] && [ -n "$b" ] && [ -n "$c" ] && [ "$a" -lt "$b" ] && [ "$b" -lt "$c" ]; } || failed 'self-test: C4 overlay, sourced pack and restore are in order'
+    if grep -q " use-nuget $fl " "$root/closure.out"; then failed 'self-test: C4 Lib has no upstream to overlay'; fi
+    passed=$((passed + 6))
+    # C2 (real map): Chronicle's three pack properties are separate flags; C3: an invalid plan prints nothing.
+    expect_status 0 'C2 real closure Studio <- Chronicle' st closure Studio="$root/fx-App" Chronicle="$root/fx-Lib"
+    cp "$root/output" "$root/closure.out"
+    bash -n "$root/closure.out" || failed 'self-test: C2 real closure is valid shell'
+    p=$(grep 'pack-nuget' "$root/closure.out" | grep -o -- '--property' | wc -l | tr -d ' ')
+    [ "$p" -eq 3 ] || failed "self-test: C2 Chronicle carries 3 --property flags (got $p)"
+    expect_status 2 'C3 closure for an unplannable pair prints nothing' st closure Stage="$root/fx-App" Screenplay="$root/fx-Lib"
+    [ ! -s "$root/output" ] || failed 'self-test: C3 stdout must be empty'
+    expect_status 0 'closure --train' st closure --train Studio="$root/fx-App" Chronicle="$root/fx-Lib"
+    has 'stamp --train' "$root/output" || failed 'self-test: closure --train prints a train stamp'
+    passed=$((passed + 3))
+}
+
 # V fixtures: verify-pack and verify-assets against a fixture feed (needs zip, unzip and tar).
 # Each fixture starts from the same complete feed so one case cannot hide behind another.
 self_test_verify() {
@@ -1557,12 +1679,14 @@ self_test_matrix() {
     status=0; env -i HOME="$home" PATH="$root/bin:/usr/bin:/bin" TMPDIR="$TMP" /bin/bash "$SELF" --dry-run pack-nuget "$repo" "$version" --property A=1 > "$root/output" 2>&1 || status=$?
     [ "$status" -eq 2 ] || failed 'self-test: pack-nuget needs a target after the properties'
     passed=$((passed + 3))
+    self_test_closure
     self_test_verify
 }
 
 case "$MODE" in
     stamp) stamp "$@" ;;
     plan) plan_command "$@" ;;
+    closure) closure "$@" ;;
     verify-pack) verify_pack "$@" ;;
     verify-assets) verify_assets "$@" ;;
     pack-nuget) pack_nuget "$@" ;;
