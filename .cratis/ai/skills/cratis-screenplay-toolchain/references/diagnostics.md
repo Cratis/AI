@@ -348,8 +348,16 @@ presentation order, not execution: a backward event/read-model dependency or a
 mutually dependent sibling group. A cycle group replaces internal individual
 backward findings. Ordering roots are the sole source document, an importing
 `application.play`, or a unique importing root; without one, folder timeline
-checking is skipped. Safe PLAY0516 repairs move siblings/imports or pin files
-before a retained glob; cycles and own-sub-feature findings have no repair.
+checking is skipped. Safe PLAY0516 repairs move siblings/imports, pin files
+before a retained glob, or replace a same-parent wildcard-import span with explicit
+ordered imports when earlier moves cannot safely fix it (Requires Screenplay
+4.219.0; `screenplay --version`). **New files need explicit imports** after that
+replacement. Review comments, identities, placement and readiness preservation,
+and no new timeline findings; cycles, own-sub-feature edges and ambiguous imports
+remain refused. Use the [timeline repair loop](../../cratis-screenplay-model-authoring/references/repairs.md#timeline-import-order),
+not a hand-written reorder; rediscover after applying. In the same release the
+TypeScript compiler/Monaco expose the PLAY0516 quick fix, and VS Code provides a
+reviewed saved-file code action (preview, drift checks and recovery).
 
 ## Editor versus C# verdicts
 

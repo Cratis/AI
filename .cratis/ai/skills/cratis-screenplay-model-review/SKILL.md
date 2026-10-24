@@ -117,6 +117,12 @@ model's behalf.
 
 ## Comparing with a baseline
 For comparison with `main`, use `semantic-diff`; neither it nor `read-proposal view=semantic-diff` proves behavioral equivalence. Read [baseline comparison](references/baseline-comparison.md) for source selection, the baseline worktree check, identity matching and drift refusals.
+Review [enum numeric identity](../cratis-screenplay-model-authoring/references/mcp-tools.md#enum-numeric-identity)
+(Requires Screenplay 4.214.0; `screenplay --version`): inspect `stored: true` items.
+Number change/removal/reuse is breaking; an explicit-number-preserving rename is
+not breaking for numeric storage but renames generated code. Pin stored positional
+enums with `propose-number-enum-members` before reordering. Treat
+`EnumerationNotComparable` as unresolved comparison, never as unchanged.
 
 ## Audit pass (existing or extracted models)
 Read-only. Before the checklist produce the inventory in the fixed shape of

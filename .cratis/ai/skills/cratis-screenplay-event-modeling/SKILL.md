@@ -120,7 +120,7 @@ Stage, `cratis render` or Studio refusal as a platform gap rather than waiting f
 
 ## Locate the model
 
-Look first for the project's existing `.play` files: the folder holding them is the model; a new model goes under `Source/` or `src/`, else `Screenplay/`, never under `.cratis/`. Read [references/file-layout.md](references/file-layout.md) (section "Locate the model") when the location is unclear or source might be copied between repositories. `cratis ai install` manages `.cratis/ai/`, never model files.
+Look first for the project's existing `.play` model and workspace state; reuse that root. Code-only `Source/` or `src/` is not a model root; otherwise use repository-root `Screenplay/`, never `.cratis/`. Read [references/file-layout.md](references/file-layout.md) (section "Locate the model") when the location is unclear or source might be copied between repositories. `cratis ai install` manages `.cratis/ai/`, never model files.
 
 ## Verified product sources
 

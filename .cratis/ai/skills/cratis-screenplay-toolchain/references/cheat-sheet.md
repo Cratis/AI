@@ -12,6 +12,7 @@
 - `$eventContext.` (projections)
 - PDL quick reference (most forms are compiled in `pdl-example.md` or `cheat-sheet-example.md`; `remove via join` and `$eventContext.occurred` are not)
 - Generated values and proofs
+- UI profile theme references
 - Specification forms
 
 Released boundary forms: `public event X`, `event X from "store"`, Translate
@@ -212,6 +213,18 @@ generated source destinations need freshness. Read
 for v21 admission, all-Proven unpinned specs and the separate prerequisites for
 warning/info rules, checksum validation and pattern/random rendering.
 `generate rule` renders from Stage 4.136.0 (STAGE-ESM-028 in the Host). Reference binding is not rendering.
+
+## UI profile theme references
+
+Inside `ui profile`, write `theme "Scene Default Light"` for a package theme's
+display name. Requires Screenplay 4.227.0 (`screenplay --version`); older compilers
+reject quoted references. Escapes resolve to the name. Undeclared quoted names
+refer to package themes without `PLAY0231`; quoted names matching declarations
+receive `PLAY0232` compatibility checks. Bare `theme Nordic` is unchanged.
+Empty, blank or unterminated quoted names are `PLAY0229`; duplicates are `PLAY0230`.
+Declaration headers remain identifiers, not quoted names. Package compatibility
+is unchanged; parse acceptance does not prove rendering support. See [profile
+examples](../../cratis-screenplay-ui-composition/references/ui-profile-and-theme.md#ui-profile-and-theme).
 
 ## Specification forms
 Full list with semantics: `Documentation/screenplay/specifications.md`. Compiled in the

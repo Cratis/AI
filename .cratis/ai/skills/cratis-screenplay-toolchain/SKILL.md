@@ -15,6 +15,8 @@ This skill owns tool selection, verdicts and admission. Modeling method lives in
 
 Decide opt-in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` to locate the model root. A folder of `.play`
 files is one application: always check the folder, never one file of it.
+MCP/CLI discovery reuses model/workspace roots, not code-only `Source/` or `src/`;
+otherwise use repository-root `Screenplay/` ([version gates and root boundaries](../cratis-screenplay-event-modeling/references/file-layout.md#locate-the-model)).
 
 ## Tool versions and the contract
 
@@ -97,6 +99,10 @@ version, source identity and any blocking codes; MCP `modelRevision` is semantic
 not the source identity.
 
 Read [observation comparison](references/observation-comparison.md) when asking whether a running namespace holds what the model declares, or when reading a `conform-namespace` verdict. It differs from model comparison (model versus model) and `conform` (model versus code).
+
+PLAY0516 ordering is presentation-only, not execution. For a wildcard-import
+repair, read [timeline diagnostics](references/diagnostics.md): replacing globs
+with ordered imports means future files need explicit imports.
 
 ## Subsets (write from the one your mode needs)
 
