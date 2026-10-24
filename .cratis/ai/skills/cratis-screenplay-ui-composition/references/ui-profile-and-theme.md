@@ -174,8 +174,7 @@ Empty, blank or unterminated quoted names are `PLAY0229`. Repeating a profile's
 `ui profile`; declaration headers remain identifiers (`theme Nordic`), not
 `theme "Nordic"`. Package selection/compatibility rules are unchanged, and
 parse acceptance does not prove that an installed package provides the theme.
-Source: [quoted theme release](https://github.com/Cratis/Screenplay/releases/tag/v4.227.0),
-[UI profile parser](https://github.com/Cratis/Screenplay/blob/v4.227.0/Source/DotNET/Screenplay/Parsing/UiProfileParser.cs).
+Source: [UI profile parser](https://github.com/Cratis/Screenplay/blob/main/Source/DotNET/Screenplay/Parsing/UiProfileParser.cs).
 
 - `target platform` takes a comma-separated list. `web`, `ios` and `android` are
   the documented examples; ⚠️ **the parser accepts any identifier** — there is no
