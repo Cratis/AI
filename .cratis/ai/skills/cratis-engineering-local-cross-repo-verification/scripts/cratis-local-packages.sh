@@ -10,12 +10,13 @@ Portable local package verification for macOS/Linux (Bash 3.2+). Windows: use WS
 Exit codes: 0 success, 1 findings/failed operation, 2 cannot run/invalid input.
 
 Commands (COMMAND --help shows these instructions too):
-  stamp PRODUCER [PRODUCER...]
+  stamp [--base-version X.Y.Z] PRODUCER [PRODUCER...]
     Next patch of the highest reachable vX.Y.Z tag, UTC minute and HEAD sha7.
     With several producers the highest next patch wins (one stamp for a multi-hop
     chain, so no stamped package sorts below a released pin) and sha7 is the last
     producer's; every HEAD is printed to stderr.
-  stamp --train PRODUCER [PRODUCER...]
+  stamp --train [--base-version X.Y.Z] PRODUCER [PRODUCER...]
+    --base-version overrides the tag-derived base (strict SemVer core, no suffix).
     Train stamp X.Y.Z-train.g<sha7>: the same next patch, no minute, so one code
     state always yields one stamp. Accepted everywhere a local stamp is.
   closure [--map FILE] [--train] CONSUMER=PATH PRODUCER=PATH...
@@ -100,6 +101,8 @@ Commands (COMMAND --help shows these instructions too):
     Default: list all local feed/cache/image/session subjects, without deleting.
     --apply deletes listed subjects (docker rmi, never force). Refuses more than
     CRATIS_LOCAL_CLEAN_MAX subjects (default 500), or unresolved npm backups.
+    Refuses selected stamps referenced by registered live consumer overlays/manifests;
+    restore those consumers first. Dry-run uses the same protection.
     Known sessions are registered in FEED/sessions; an optional consumer also
     discovers its per-worktree session. Docker probes have a 10-second deadline.
   --self-test
@@ -259,12 +262,31 @@ base_above() {
 
 stamp() {
     [ $# -ge 1 ] || die 'stamp requires a producer repository'
-    local repo base='' sha='' arg train=0 lines='' rname origin
+    local repo base='' override='' sha='' arg train=0 lines='' rname origin
+    local producers=()
     if [ "$1" = --train ]; then train=1; shift; [ $# -ge 1 ] || die 'stamp --train requires a producer repository'; fi
+    while [ $# -gt 0 ]; do
+        arg=$1; shift
+        case "$arg" in
+            --base-version)
+                [ $# -gt 0 ] || die '--base-version requires X.Y.Z'
+                [ -z "$override" ] || die '--base-version may only be supplied once'
+                [[ "$1" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]] || die "invalid base version: $1 (expected SemVer core X.Y.Z)"
+                override=$1; shift ;;
+            --train) train=1 ;;
+            -*) die "unknown stamp option: $arg" ;;
+            *) producers+=("$arg") ;;
+        esac
+    done
+    [ ${#producers[@]} -gt 0 ] || die 'stamp requires a producer repository'
+    set -- "${producers[@]}"
+    base=$override
     for arg in "$@"; do
         repo=$(repo_root "$arg")
-        next_base "$repo"
-        if [ -z "$base" ] || base_above "$NEXT_BASE" "$base"; then base=$NEXT_BASE; fi
+        if [ -z "$override" ]; then
+            next_base "$repo"
+            if [ -z "$base" ] || base_above "$NEXT_BASE" "$base"; then base=$NEXT_BASE; fi
+        fi
         sha=$(git -C "$repo" rev-parse HEAD) || die 'producer has no HEAD commit'
         if [ $# -gt 1 ]; then printf 'HEAD %s %s\n' "$repo" "$sha" >&2; fi
         # The repository name is its origin's last path part (stable across checkouts), else its folder name.
@@ -504,6 +526,7 @@ use_nuget() {
         rm -- "$session/nuget.config"
     fi
     printf 'overrode %s NuGet package IDs\n' "${#ids[@]}"
+    printf 'Optional per-worktree cache (set before restore and clean): export NUGET_PACKAGES=%q\n' "$(git -C "$repo" rev-parse --absolute-git-dir)/cratis-local-nuget"
 }
 
 # A shared lock covers legacy mutations too: registration rollback must never replace
@@ -1657,6 +1680,41 @@ bounded_docker() {
 local_artifact() {
     [[ "$1" =~ -(local\.[0-9]{12}|train)\.g[0-9a-f]{7}($|[^0-9A-Za-z]) ]]
 }
+# Legacy registrations name consumers, not an artifact ownership graph. Fail closed
+# for the whole requested cleanup if any selected stamp is still live. Also keep a
+# selected session when its overlays/manifests reference another stamp.
+clean_live_references() {
+    local selected=$1 session repo file found stamp status blocked=0 session_selected
+    while IFS= read -r session; do
+        [ -d "$session" ] && [ -f "$session/repo" ] || continue
+        validate_session "$session"
+        repo=$(cat "$session/repo")
+        [ -d "$repo" ] || continue
+        [ "$(repo_root "$repo")" = "$repo" ] || die "registered consumer no longer matches repository: $repo"
+        session_selected=0
+        if [ -f "$session/stamp" ] && [ "$(cat "$session/stamp")" = "$selected" ]; then session_selected=1; fi
+        # Follow manifest symlinks too; traversal/read failures refuse cleanup.
+        find -L "$repo" \( -name .git -o -name node_modules \) -prune -o \( -iname nuget.config -o -iname Directory.Packages.props -o -name packages.lock.json -o -name package.json -o -name yarn.lock \) \( -type f -o -type l \) -print0 > "$TMP/live-files" || die "cannot inspect registered consumer: $repo"
+        for file in "$session/Directory.Packages.props" "$session/nuget.config"; do
+            if [ -e "$file" ]; then printf '%s\0' "$file" >> "$TMP/live-files"; fi
+        done
+        while IFS= read -r -d '' file; do
+            [ -f "$file" ] && [ -r "$file" ] || die "cannot read live manifest: $file"
+            status=0
+            found=$(grep -Eio '[0-9]+\.[0-9]+\.[0-9]+-(local\.[0-9]{12}|train)\.g[0-9a-f]{7}' "$file") || status=$?
+            [ "$status" -le 1 ] || die "cannot inspect live manifest: $file"
+            [ -n "$found" ] || continue
+            while IFS= read -r stamp; do
+                stamp=$(printf '%s' "$stamp" | tr '[:upper:]' '[:lower:]')
+                if [ -z "$selected" ] || [ "$selected" = all ] || [ "$session_selected" -eq 1 ] || [ "$stamp" = "$selected" ]; then
+                    printf 'kept stamp %s: registered live reference in %s\n' "$stamp" "$file"
+                    blocked=1
+                fi
+            done <<< "$found"
+        done < "$TMP/live-files"
+    done < "$TMP/unique-sessions"
+    [ "$blocked" -eq 0 ] || die 'live references retained; restore registered consumers before cleaning (no subjects removed)'
+}
 clean() {
     local version='' apply=0 consumer='' arg path cache image session maximum count=0 rel=''
     local subjects=() kinds=()
@@ -1747,11 +1805,13 @@ clean() {
         [ ! -d "$session/npm-backup" ] || die "unresolved npm backup: $session; restore before cleaning"
         subjects+=("$session"); kinds+=(session)
     done < "$TMP/unique-sessions"
+    clean_live_references "$version"
     count=${#subjects[@]}
     [ "$count" -le "$maximum" ] || die "clean fuse: $count subjects exceeds $maximum"
     for ((arg=0; arg<count; arg++)); do printf '%s: %s\n' "${kinds[$arg]}" "${subjects[$arg]}"; done
     if [ "$apply" -eq 1 ] && [ "$DRY" -eq 0 ]; then
         for ((arg=0; arg<count; arg++)); do
+            clean_live_references "$version"
             path=${subjects[$arg]}
             case "${kinds[$arg]}" in
                 image) docker rmi "$path" ;;
@@ -1817,6 +1877,7 @@ LOCK
     version=$(st stamp "$repo")
     [[ "$version" =~ ^1\.2\.4-local\.[0-9]{12}\.g[0-9a-f]{7}$ ]] || failed 'self-test: stamp format'
     passed=$((passed + 1))
+    self_test_base_version
     mkdir -p "$feed/nuget" "$feed/npm"
     : > "$feed/nuget/Cratis.Test.1.2.4-local.200001010000.g1234567.nupkg"
     st --dry-run use-nuget "$repo" 1.2.4-local.200001010000.g1234567 Cratis.Test > "$root/output"
@@ -2033,6 +2094,7 @@ NODE
         [ ! -e "$(git -C "$sub" rev-parse --absolute-git-dir)/cratis-local/npm-dir" ] || failed 'self-test: restore removes npm-dir'
         passed=$((passed + 6))
     else printf 'SKIP: use-npm --dir needs node\n'; skipped=$((skipped + 6)); fi
+    self_test_live_clean
     mkdir -p "$home/.nuget/packages/cratis.test/$version" "$home/.nuget/packages/cratis.test/1.2.3"
     mkdir -p "$home/.nuget/packages/cratis.test/1.2.3-local.keep"
     for arg in nuget npm; do
@@ -2057,6 +2119,92 @@ NODE
     printf 'SKIP: real dotnet/Yarn/Docker packing is not a hermetic self-test\n'; skipped=$((skipped + 3))
     self_test_matrix
     printf 'self-test: %s passed, %s skipped\n' "$passed" "$skipped"
+}
+
+self_test_base_version() {
+    local base mode actual status
+    for mode in local train; do
+        local options=()
+        if [ "$mode" = train ]; then options=(--train); fi
+        for base in 0.0.0 5.0.0 10.20.300; do
+            actual=$(st stamp ${options[@]+"${options[@]}"} --base-version "$base" "$repo") || failed 'self-test: base override'
+            case "$actual" in "$base-$mode."*) ;; *) failed "self-test: base override grammar $actual" ;; esac
+            valid_stamp "$actual"
+            passed=$((passed + 1))
+        done
+        for base in '' 01.0.0 1.01.0 1.0.01 v5.0.0 5.0 5.0.0.1 5.0.0-preview 5.0.0+build -1.0.0 '5.0.0 '; do
+            status=0; st stamp ${options[@]+"${options[@]}"} --base-version "$base" "$repo" > "$root/output" 2>&1 || status=$?
+            [ "$status" -eq 2 ] || failed "self-test: invalid base accepted: $base"
+            passed=$((passed + 1))
+        done
+    done
+    for mode in missing repeated producer; do
+        status=0
+        case "$mode" in
+            missing) st stamp "$repo" --base-version > "$root/output" 2>&1 || status=$? ;;
+            repeated) st stamp --base-version 5.0.0 --base-version 6.0.0 "$repo" > "$root/output" 2>&1 || status=$? ;;
+            producer) st stamp --base-version 5.0.0 > "$root/output" 2>&1 || status=$? ;;
+        esac
+        [ "$status" -eq 2 ] || failed "self-test: base option $mode"
+        passed=$((passed + 1))
+    done
+    actual=$(st stamp "$repo" --base-version 0.0.0 "$repo" 2> "$root/stderr")
+    case "$actual" in 0.0.0-local.*) ;; *) failed 'self-test: multi-producer explicit base overrides all tags' ;; esac
+    passed=$((passed + 1))
+}
+
+self_test_live_clean() {
+    local lr=$root/live-repo lf=$root/live-feed ls file mode status
+    local lv=5.0.0-local.202601010000.gabcdef0 uv=5.0.0-train.gabcdef1
+    mkdir -p "$lr/nested" "$lf/nuget"
+    git -C "$lr" init -q
+    printf '<Project/>\n' > "$lr/Directory.Packages.props"
+    git -C "$lr" add Directory.Packages.props
+    git -C "$lr" -c user.email=test@example.invalid -c user.name='Live clean fixture' commit -qm initial
+    ls=$(git -C "$lr" rev-parse --absolute-git-dir)/cratis-local
+    lct() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$lf" NUGET_PACKAGES="$root/live-cache" /bin/bash "$SELF" "$@"; }
+    : > "$lf/nuget/Cratis.Live.$lv.nupkg"
+    : > "$lf/nuget/Cratis.Unused.$uv.nupkg"
+    mkdir -p "$root/live-cache/cratis.live/$lv" "$root/live-cache/cratis.live/5.0.0"
+    lct use-nuget "$lr" "$lv" > "$root/output"
+    for mode in dry apply; do
+        local options=()
+        if [ "$mode" = apply ]; then options=(--apply); fi
+        status=0; lct clean --stamp "$lv" ${options[@]+"${options[@]}"} > "$root/output" 2> "$root/stderr" || status=$?
+        { [ "$status" -eq 2 ] && has "kept stamp $lv" "$root/output" && has "$ls/Directory.Packages.props" "$root/output"; } || failed "self-test: $mode clean must report live overlay"
+        [ -f "$lf/nuget/Cratis.Live.$lv.nupkg" ] && [ -f "$ls/env" ] && [ -d "$root/live-cache/cratis.live/$lv" ] || failed 'self-test: live clean mutated subjects'
+        passed=$((passed + 2))
+    done
+    lct restore "$lr" > "$root/output"
+    for file in nuget.config Directory.Packages.props nested/packages.lock.json nested/package.json nested/yarn.lock; do
+        printf '%s\n' "$lv" > "$lr/$file"
+        for mode in dry apply; do
+            local options=()
+            if [ "$mode" = apply ]; then options=(--apply); fi
+            status=0; lct clean --stamp "$lv" ${options[@]+"${options[@]}"} > "$root/output" 2> "$root/stderr" || status=$?
+            { [ "$status" -eq 2 ] && has "kept stamp $lv" "$root/output" && has "$lr/$file" "$root/output"; } || failed "self-test: $mode clean missed live $file"
+            [ -f "$lf/nuget/Cratis.Live.$lv.nupkg" ] || failed 'self-test: live manifest artifact removed'
+            passed=$((passed + 2))
+        done
+        if [ "$file" = Directory.Packages.props ]; then printf '<Project/>\n' > "$lr/$file"; else rm "$lr/$file"; fi
+    done
+    printf '%s\n' "$uv" | tr '[:lower:]' '[:upper:]' > "$lr/nested/packages.lock.json"
+    for mode in dry apply; do
+        local options=()
+        if [ "$mode" = apply ]; then options=(--apply); fi
+        status=0; lct clean --stamp "$uv" ${options[@]+"${options[@]}"} > "$root/output" 2> "$root/stderr" || status=$?
+        { [ "$status" -eq 2 ] && has "kept stamp $uv" "$root/output" && [ -f "$lf/nuget/Cratis.Unused.$uv.nupkg" ]; } || failed 'self-test: case-insensitive train reference protection'
+        passed=$((passed + 1))
+    done
+    printf '%s\n' "$lv" > "$lr/nested/packages.lock.json"
+    lct clean --stamp "$uv" --apply > "$root/output" || failed 'self-test: unrelated live stamp blocks unreferenced cleanup'
+    [ ! -e "$lf/nuget/Cratis.Unused.$uv.nupkg" ] && [ -f "$lf/nuget/Cratis.Live.$lv.nupkg" ] || failed 'self-test: unreferenced stamp selection'
+    rm "$lr/nested/packages.lock.json"
+    lct clean --stamp "$lv" > "$root/output"
+    has "Cratis.Live.$lv.nupkg" "$root/output" && [ -d "$root/live-cache/cratis.live/$lv" ] || failed 'self-test: unreferenced dry-run'
+    lct clean --stamp "$lv" --apply > "$root/output"
+    [ ! -e "$lf/nuget/Cratis.Live.$lv.nupkg" ] && [ ! -d "$root/live-cache/cratis.live/$lv" ] && [ -d "$root/live-cache/cratis.live/5.0.0" ] || failed 'self-test: unreferenced per-worktree cleanup scope'
+    passed=$((passed + 4))
 }
 
 # C fixtures: the printed closure is one plan, in order, and every line is valid shell.
@@ -2275,6 +2423,7 @@ self_test_verify() {
 expect_status() {
     local want=$1 desc=$2 got=0
     shift 2
+    printf 'self-test [%ss]: %s\n' "$SECONDS" "$desc" >&2
     "$@" > "$root/output" 2> "$root/stderr" || got=$?
     if [ "$got" -ne "$want" ]; then
         cat "$root/stderr" >&2
@@ -2314,7 +2463,7 @@ self_test_matrix() {
     } > "$root/p1.expected"
     fxm plan App Lib Mid > "$root/output" 2> "$root/stderr" || failed 'self-test: P1 plan'
     cmp -s "$root/output" "$root/p1.expected" || failed 'self-test: P1 plan rows differ from the expected plan'
-    has 'Lib -> Orl -> App' "$root/stderr" || failed 'self-test: P1 unnamed-hop warning'
+    has 'Lib -> Orl -> App' "$root/stderr" || { cat "$root/stderr" >&2; failed 'self-test: P1 unnamed-hop warning'; }
     if has 'WARNING' "$root/output"; then failed 'self-test: P1 warning must stay on stderr'; fi
     # P2/P3: the real map. An NuGet-only edge plans only the NuGet ecosystem of a dual-ecosystem producer;
     # npm-only ids on a NuGet edge cannot be planned. P3 must move to the fixture map if Screenplay ships NuGet ids.

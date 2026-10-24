@@ -16,7 +16,16 @@ Use real locally built packages to prove a producer fix at its consumer's packag
 boundary. A **producer** builds the changed library or image; a **consumer** is the
 downstream repository that reproduces the bug. Start before opening the producer
 PR whose purpose is that consumer bug, rather than publishing just to find out.
-Also use this loop to compare the consumer against lower-layer main.
+Also use this loop for:
+
+- Consumer-blocking fixes, dependency features, and breaking-change trials.
+- Release candidates in their main consumer (Specifications in Fundamentals).
+- Cross-repository bisects and build/test timing comparisons against lower-layer main.
+- Chained upgrades (Specifications → Fundamentals → Arc/Chronicle) without releasing each hop.
+- Release blockers: trying Specifications in Fundamentals can expose a generator bug before publishing.
+
+Prefer a release/preview for trivial changes, external consumers unable to use
+the local feed, or CI-only behavior this loop cannot reproduce.
 
 **Local verification replaces waiting, not shipping.** After local proof, release
 the producer through the normal authorized workflow and bump the consumer to the
@@ -78,6 +87,8 @@ Format: `<next-patch>-local.<12-digit-UTC-minute>.g<sha7>`, based on the highest
 downgrades. Confirm tags cover the consumer's released constraints. With no tag,
 the helper warns and falls back to a base that must be checked before proceeding.
 The `g` prefix keeps even an all-digit SHA nonnumeric in SemVer.
+On `release/5.0`, use `stamp --base-version 5.0.0 "$producer"` (also with `--train`);
+the strict SemVer core overrides tag discovery verbatim. Ensure it meets consumer minima.
 Use the identical stamp for packages and images. A changed build needs a distinct
 stamp; do not overwrite a cached version (the minute and commit determine it).
 
@@ -126,7 +137,10 @@ export CHRONICLE_KERNEL_VERSION="$stamp" # Studio integration specs, if used
 ```
 
 Pass: the helper reports overridden IDs and restore resolves them to local
-artifacts. Follow any printed `--configfile` instruction. Run Yarn install after
+artifacts. To isolate NuGet downloads per worktree, set the optional
+`NUGET_PACKAGES` export printed by `use-nuget` before restore and keep it set through
+`clean`; see [versions and cache](references/dotnet-nuget.md#versions-and-cache).
+Follow any printed `--configfile` instruction. Run Yarn install after
 `use-npm`; it adds file-tarball resolutions, not links to source folders.
 
 For independent NuGet producer versions, explicitly opt in with
@@ -198,7 +212,13 @@ feed packages, NuGet version folders, discoverable Yarn cache entries, local ima
 tags and registered sessions; unresolved npm backups block it. Missing Docker/Yarn
 probes are reported as skipped cleanup, not proof those stores are empty. Default
 fuse: 500 subjects; investigate an unexpectedly large list instead of raising it.
-Prefer `--stamp` to `--all` on shared machines.
+Prefer `--stamp` to `--all`. Legacy cleanup refuses the entire request (exit `2`,
+also in dry-run) for registered live overlay/manifest references; it reports kept
+stamps and paths. Restore/remove references, then retry. This is not an ownership
+registry; unregistered consumers need manual review. To retire a hand-rolled
+`-local.N` feed, restore released pins/sources and switch to helper stamps; review
+old artifacts separately because `clean` does not recognize them. See
+[migration](references/dotnet-nuget.md#retire-a-hand-rolled-feed).
 
 ## Configuration and results
 
@@ -209,7 +229,7 @@ is sourced before defaults. Do not put credentials in it. Environment settings:
 | --- | --- |
 | `CRATIS_LOCAL_FEED` | `${XDG_CACHE_HOME:-$HOME/.cache}/cratis/local-feed`; outside tracked files |
 | `CRATIS_LOCAL_SESSION_DIR` | `<absolute-git-dir>/cratis-local`; per-worktree overlays/backups |
-| `NUGET_PACKAGES` | `$HOME/.nuget/packages`; shared cache, unique version folders |
+| `NUGET_PACKAGES` | `$HOME/.nuget/packages`; opt-in per-worktree cache via `use-nuget` hint |
 | `CRATIS_LOCAL_CLEAN_MAX` | `500`; cleanup subject fuse |
 | `CRATIS_LOCAL_RUN` | Optional executable wrapper receiving `build <label> -- <command...>` |
 

@@ -8,6 +8,7 @@
 - CPM overlay
 - Source mapping
 - Versions and cache
+- Retire a hand-rolled feed
 - Mixed-version compositions (opt-in)
 - Non-CPM escape
 - Restoration and drift
@@ -68,11 +69,45 @@ A stale highest tag or dependency with a newer minimum needs investigation, not 
 warning suppression. The suffix is `-local.<12-digit-UTC-minute>.g<sha7>`; the `g` prefix makes an
 all-digit SHA unambiguously nonnumeric in SemVer. Dirty edits are not encoded.
 Wait for a distinct UTC minute or commit before repacking changed contents.
+On a major-version branch, use `bash "$local" stamp --base-version 5.0.0 "$producer"`
+(also with `--train`). It accepts only a SemVer core without leading zeros,
+prerelease or metadata and uses it verbatim; no patch increment is added.
+An explicit base still must meet the consumer's minimum.
 
-The existing global cache is shared safely only because local versions have
-unique directories. Do not repack changed bits under the same version. Use
-`clean --stamp "$stamp"` to list that stamp's version folders, then `--apply`
-after review; do not delete the entire NuGet cache.
+Prefer a private cache per consumer worktree so another checkout's cached package
+cannot mask a same-version repack. The optional `use-nuget` hint uses a sibling of
+the session directory, not a tracked path:
+
+```bash
+export NUGET_PACKAGES="$(git -C "$consumer" rev-parse --absolute-git-dir)/cratis-local-nuget"
+dotnet restore path/to/consumer.slnx
+# After restoring overlays/removing live local references, keep this export for:
+bash "$local" clean "$consumer" --stamp "$stamp"
+bash "$local" clean "$consumer" --stamp "$stamp" --apply
+unset NUGET_PACKAGES
+```
+
+A private cache still reuses its own downloads: changed bits need a distinct stamp,
+or reviewed cleanup of that stamp before repacking. It does not make same-version
+repacking safe. `clean` honors the active `NUGET_PACKAGES`, touches only recognized
+`-local`/`-train` version folders there, and leaves released versions alone. With
+no export, it uses the shared `$HOME/.nuget/packages` cache; never clear that whole
+cache. Restore local overlays and remove live manifest references before cleanup;
+registered live references refuse the entire request even in dry-run.
+
+The helper uses a folder feed, so NuGet's HTTP cache is not involved. When diagnosing
+an HTTP feed instead, `dotnet restore --no-http-cache` bypasses its HTTP cache only;
+it does not bypass packages already in `NUGET_PACKAGES`. Use a fresh worktree cache
+or review stamp-scoped cleanup too, and preserve any required `--configfile` option.
+
+## Retire a hand-rolled feed
+
+Stop packing new `-local.N` versions. Restore consumers' released pins and sources,
+then use helper-generated stamps and overlays for the next trial. Confirm restore
+resolves the helper stamp and run `check` before committing. Inventory the old
+feed separately: `clean` recognizes only its local/train grammar, not `-local.N`.
+Remove old artifacts only after checking all their consumers and reviewing exact
+targets; never rename old packages into a helper stamp or clear a whole shared cache.
 
 ## Mixed-version compositions (opt-in)
 
