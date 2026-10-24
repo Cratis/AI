@@ -3,6 +3,8 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "Monaco shows it as a code action", "file": "references/repairs.md" },
+    { "kind": "skill-contains", "value": "reviewed saved-file code action", "file": "references/repairs.md" },
     { "kind": "skill-contains", "value": "an empty fixed root named `data` cannot rebind", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "selects `/project/Screenplay`, not `/project/src`", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "`semantic-diff` path sources use the same admission checks", "file": "references/mcp-tools.md" },

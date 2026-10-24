@@ -355,7 +355,9 @@ ordered imports when earlier moves cannot safely fix it (Requires Screenplay
 replacement. Review comments, identities, placement and readiness preservation,
 and no new timeline findings; cycles, own-sub-feature edges and ambiguous imports
 remain refused. Use the [timeline repair loop](../../cratis-screenplay-model-authoring/references/repairs.md#timeline-import-order),
-not a hand-written reorder; rediscover after applying.
+not a hand-written reorder; rediscover after applying. In the same release the
+TypeScript compiler/Monaco expose the PLAY0516 quick fix, and VS Code provides a
+reviewed saved-file code action (preview, drift checks and recovery).
 
 ## Editor versus C# verdicts
 

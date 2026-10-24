@@ -47,7 +47,12 @@ executable readiness and existing error/warning counts, remove the target findin
 and introduce no new timeline findings. Cycles, own-sub-feature edges, ambiguous
 or duplicate imports, placement mismatches and unproven moves remain refused.
 Rediscover diagnostics and repairs at the new revisions after applying.
-Source: [workspace timeline repairs](https://github.com/Cratis/Screenplay/blob/v4.219.0/Source/DotNET/Screenplay/Workspaces/WorkspaceTimelineRepairs.Expansion.cs).
+The TypeScript compiler also exposes PLAY0516 as a quick fix (including edits in
+the importing document); Monaco shows it as a code action. VS Code offers it as a
+reviewed saved-file code action with preview, drift checks and recovery. These
+editor routes share the safe repair, not permission to force a reorder.
+Source: [released editor support](https://github.com/Cratis/Screenplay/releases/tag/v4.219.0),
+[workspace timeline repairs](https://github.com/Cratis/Screenplay/blob/v4.219.0/Source/DotNET/Screenplay/Workspaces/WorkspaceTimelineRepairs.Expansion.cs).
 
 ## Enum numbering and event extraction
 
