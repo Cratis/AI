@@ -229,7 +229,7 @@ jobs:
         run: dotnet build Cratis.AI.slnx --configuration Release --no-restore
 
       - name: Run specs
-        run: dotnet test Cratis.AI.slnx --configuration Debug --no-build --logger "console;verbosity=normal"
+        run: Source/Cratis.AI.Specs/bin/Debug/net10.0/Cratis.AI.Specs
 
       - name: Verify restricted workers cannot read the shared cache sentinel
         run: dotnet run --project Source/WorkerCacheFixture/WorkerCacheFixture.csproj --configuration Release -p:CratisProxiesOutputPath= -warnaserror
