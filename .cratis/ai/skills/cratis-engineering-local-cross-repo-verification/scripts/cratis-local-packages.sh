@@ -2664,7 +2664,7 @@ NODE
     # Post-publication failures preserve overlays and report a warning/findings.
     printf '{"schema":2}\n' > "$record"
     expect_status 1 'registry use failure keeps overlay' rgt use-nuget "$rr" "$version"
-    [ -f "$rs/env" ] && grep -Fq WARNING "$root/stderr" || failed 'registry failed use lost overlay/warning'
+    { [ -f "$rs/env" ] && grep -Fq WARNING "$root/stderr"; } || failed 'registry failed use lost overlay/warning'
     cp "$root/registry-good" "$record"
     rgt restore "$rr" > "$root/output"
     expect_status 0 'clean removes stamp record' rgt clean --stamp "$version" --apply

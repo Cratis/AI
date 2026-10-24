@@ -6,6 +6,7 @@
 ## Contents
 
 - CPM overlay
+- Registry and list
 - Source mapping
 - Versions and cache
 - Retire a hand-rolled feed
