@@ -40,7 +40,7 @@ pin updates use ordinary dependency maintenance; CI changes use the
 
 Execute [scripts/cratis-local-packages.sh](scripts/cratis-local-packages.sh), not
 an improvised replacement. Run `bash "$local" <command> --help` for inputs and
-errors. Requires bash and git; add dotnet for NuGet, node and Yarn for npm, Docker
+errors. Requires bash, git and node for package registry operations; add dotnet for NuGet, Yarn and npm for npm packages, Docker
 for images, or the selected language toolchain. Check availability first:
 
 ```bash
@@ -67,13 +67,14 @@ commands before choosing the build, regression spec and full gate commands.
 - [ ] Read [references/dependency-map.md](references/dependency-map.md) for the chain between the named repositories, generate one stamp, then pack each producer in upstream order.
 - [ ] If needed, publish the kernel and assets, then build a matching local image.
 - [ ] Run `closure` for the consumer and producers, follow the printed commands, and run its one `verify-pack` after the last pack.
-- [ ] Activate the consumer overlay and select the local image.
+- [ ] Set a task ID (`--task ID` or `CRATIS_LOCAL_TASK`, convention `owner/repo#number`), activate the consumer overlay and select the local image.
+- [ ] Run `list` (or `list --json`) to inspect recorded producers, tasks and live consumers.
 - [ ] Build the consumer, run its regression specs/app action and required gates.
 - [ ] On failure, diagnose, fix the producer, create a distinct stamp and repeat.
 - [ ] Run `check` before every consumer commit and push, and on the producer; it must report 0 leaks.
 - [ ] Upstream first: a downstream ships only after the upstream has released and its pin is bumped to the released version.
 - [ ] Restore overlays, unset environment overrides, and run `check` again.
-- [ ] Review stamp-scoped `clean` dry-run targets, then apply cleanup.
+- [ ] Review `finish --task ID`, mark completed work with `--apply`, then review stamp-scoped `clean` targets and apply cleanup.
 
 ### 1. Stamp
 
@@ -110,7 +111,11 @@ separately. The package IDs a producer should ship are listed in
 the stamp, every overlay, one `pack-*` command per map row (with its `--property` arguments) and
 ONE `verify-pack` for the whole plan (see [references/dependency-map.md](references/dependency-map.md)).
 Run the printed commands in order. A successful pack alone does not prove dependency closure;
-`verify-pack` does.
+`verify-pack` does. After successful packing, the helper atomically records package IDs,
+producer worktree, branch and HEAD in `FEED/stamps/STAMP/record.json` (mode `0600`).
+Pass `--task ID` to `pack-*` and `use-*`, or set `CRATIS_LOCAL_TASK`; without either,
+the recorded task is null. IDs match `^[A-Za-z0-9][A-Za-z0-9._#:/-]{0,127}$` and
+are JSON values, never paths. Prefer `owner/repo#number`.
 
 ### 3. Build an image when needed
 
@@ -201,6 +206,21 @@ build output, not pre-existing work.
 
 ### 8. Clean
 
+`list [--json] [--stamp STAMP]` is a lock-free, read-only inventory, including legacy
+artifacts without records. It shows producer ownership, task state, live/total consumers
+and age. `use-*` records each consumer, including every composition member stamp;
+`restore` retains the entry with its restoration time. A registry-write failure after
+activation warns and exits `1`, keeping the overlay for restoration.
+
+```bash
+bash "$local" list
+bash "$local" finish --task owner/repo#number
+bash "$local" finish --task owner/repo#number --apply
+```
+
+`finish` is dry-run by default, marks task completion only, and succeeds with a message
+if no record names the task. It never restores consumers or cleans packages automatically.
+
 ```bash
 bash "$local" clean "$consumer" --stamp "$stamp"
 # Review listed subjects and stop task-owned containers first.
@@ -209,7 +229,7 @@ bash "$local" clean "$consumer" --stamp "$stamp" --apply
 
 Pass: expected subjects listed, then removed without force. Cleanup covers local
 feed packages, NuGet version folders, discoverable Yarn cache entries, local image
-tags and registered sessions; unresolved npm backups block it. Missing Docker/Yarn
+tags, stamp record directories and registered sessions; unresolved npm backups block it. Missing Docker/Yarn
 probes are reported as skipped cleanup, not proof those stores are empty. Default
 fuse: 500 subjects; investigate an unexpectedly large list instead of raising it.
 NuGet cleanup scans the active shared cache and every registered private cache.
@@ -236,6 +256,7 @@ is sourced before defaults. Do not put credentials in it. Environment settings:
 | `CRATIS_LOCAL_FEED` | `${XDG_CACHE_HOME:-$HOME/.cache}/cratis/local-feed`; outside tracked files |
 | `CRATIS_LOCAL_SESSION_DIR` | `<absolute-git-dir>/cratis-local`; per-worktree overlays/backups |
 | `NUGET_PACKAGES` | `$HOME/.nuget/packages`; active cache scanned by `clean` |
+| `CRATIS_LOCAL_TASK` | Optional task ID, convention `owner/repo#number`; `--task ID` on pack/use/finish overrides it |
 | `CRATIS_LOCAL_PRIVATE_CACHE` | `0`; `1` opts `use-nuget` into a marked worktree cache, also available with `--private-cache` |
 | `CRATIS_LOCAL_CLEAN_MAX` | `500`; cleanup subject fuse |
 | `CRATIS_LOCAL_RUN` | Optional executable wrapper receiving `build <label> -- <command...>` |
@@ -249,7 +270,7 @@ doing read-only discovery.
 Helper exit codes: `0` success, `1` findings/failed operation, `2` cannot run or
 invalid input. Neither `1` nor `2` is a pass. After script changes, execute
 `bash "$local" --self-test`; pass requires printed passed/skipped counts and exit
-`0`. npm overlay/restore tests run when node is on the inherited PATH; real packing
+`0`. Registry tests require node; npm overlay/restore tests use the inherited PATH. Real packing
 is not exercised by this hermetic self-test. Report any unrun ecosystem checks.
 
 ## Why the local loop

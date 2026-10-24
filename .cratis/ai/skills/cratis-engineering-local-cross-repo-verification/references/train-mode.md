@@ -32,6 +32,13 @@ sorts above the released pin like a local stamp does.
 
 ## Recording consumed versions
 
+`pack-*` and `use-*` accept `--task ID` (or `CRATIS_LOCAL_TASK`, convention
+`owner/repo#number`). Successful packs record producer HEADs and IDs in the stamp
+registry; use records consumers. `list [--json]` includes train stamps and their
+owners, tasks and consumers. `finish --task ID` previews completion; add `--apply`
+to mark the task finished without removing artifacts. See
+[Registry and list](dotnet-nuget.md#registry-and-list).
+
 `verify-pack STAMP --consumer C --producer P... --json` and
 `verify-assets CONSUMER STAMP [--npm] [--consumer C --producer P...] --json` print one line:
 `{"stamp":"...","packages":[{"id":"...","version":"..."}]}`. Findings go to stderr and the exit status
@@ -41,3 +48,4 @@ is unchanged, so a train tool can record the consumed versions without scraping 
 
 `clean --stamp STAMP` lists and removes the feed files, cache folders and Yarn cache entries of
 that one train stamp; a local stamp is not matched. Review the dry run before `--apply`.
+Applying also removes `FEED/stamps/STAMP`, including its registry record.

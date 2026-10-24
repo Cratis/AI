@@ -51,6 +51,37 @@ an already-running IDE. A config overlay printed below must also reach IDE resto
 The `CRATIS_LOCAL_RUN` adapter applies to pack steps, not these restore/build
 commands; route each heavy command separately through the host's build queue.
 
+## Registry and list
+
+Package operations require node for the stamp registry. Successful `pack-nuget` and
+`pack-npm` calls record package IDs, producer repo/worktree, branch, HEAD and UTC time
+in `FEED/stamps/STAMP/record.json` (schema `1`, mode `0600`). `--task ID` on pack/use
+commands overrides `CRATIS_LOCAL_TASK`; otherwise task is null. Prefer `owner/repo#number`.
+IDs match `^[A-Za-z0-9][A-Za-z0-9._#:/-]{0,127}$`; they are JSON values, never paths.
+
+`list [--json] [--stamp STAMP]` joins feed artifacts with records without locking or
+writing. Legacy stamps appear with `recorded:false`. Text shows stamp, ecosystem,
+package count, producer `repo@branch`, task state, live/total consumers and age. JSON
+has top-level `schema:1`, `feed` and `stamps`; each stamp includes packages, producers,
+tasks, consumer states (`live`, `restored`, `gone`), creation time and age in seconds.
+Its `expiry` is `{"expired":false,"reasons":[],"kept":[]}`; no expiry decision is made.
+A live consumer must still be a Git root and retain an env, overlay, backup or composition.
+`use-*` records consumers after activation (every composition member stamp); `restore`
+marks them restored without erasing history. A registry error after activation warns,
+exits `1` and leaves the overlay intact. Unknown schemas, malformed records and symlink
+registry paths refuse updates (`2`); dry runs write no records.
+
+```bash
+bash "$local" list --json
+bash "$local" finish --task owner/repo#number
+bash "$local" finish --task owner/repo#number --apply
+```
+
+`finish` previews by default; `--apply` marks that task finished in every matching
+record. No match is a successful no-op with a message. It does not restore overlays
+or delete packages. Stamp-scoped `clean --apply` removes the record directory with
+its artifacts; review its dry run first.
+
 ## Source mapping
 
 If a tracked root NuGet config has `packageSourceMapping`, the helper prints an

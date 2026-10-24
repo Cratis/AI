@@ -55,7 +55,7 @@ Commands (COMMAND --help shows these instructions too):
     consumer resolves must be STAMP (none resolved: exit 1).
   verify-pack --composition FILE [--json]
   verify-assets CONSUMER-PATH --composition FILE [--json]
-  use-nuget CONSUMER --composition FILE [--pin-transitive] [--private-cache]
+  use-nuget CONSUMER --composition FILE [--task ID] [--pin-transitive] [--private-cache]
     Opt-in mixed-version NuGet closure: tab-separated producer NAME STAMP
     ABSOLUTE_WORKTREE rows, then package PRODUCER PACKAGE_ID rows. Case-insensitive
     IDs have one owner. All declared artifacts must exist; nothing is built/repacked.
@@ -66,17 +66,24 @@ Commands (COMMAND --help shows these instructions too):
     The next mutation recovers interrupted work, or refuses and preserves unknown
     ownership/drift. Active compositions retain member artifacts. Restore before
     changing a composition or switching between it and a legacy overlay.
-  pack-nuget PRODUCER STAMP [--property NAME=VALUE]... PROJECT-OR-SLN...
+  list [--json] [--stamp STAMP]
+    Read-only inventory of feed artifacts and stamp records, including legacy stamps.
+    Shows producer, task state, live/total consumers and age. Requires node; npm
+    package names are read from tarballs with tar. Takes no session lock.
+  finish --task ID [--apply]
+    Print records naming ID; --apply marks that task finished. No match is success.
+    Finishing never restores consumers or removes packages. Requires node.
+  pack-nuget PRODUCER STAMP [--task ID] [--property NAME=VALUE]... PROJECT-OR-SLN...
     Release-pack each target into the NuGet feed; requires dotnet. Each --property
     becomes one -p:NAME=VALUE argument of that command only (closure prints the
     properties of each map pack row); no environment variable carries them.
-  pack-npm PRODUCER STAMP
+  pack-npm PRODUCER STAMP [--task ID]
     Requires node, npm and Yarn 4, and a completed repository build. Temporarily
     version non-private workspaces, pack each with npm pack --ignore-scripts (the
     publish workflows' tool, so the tarball matches the published one) as
     <scope>-<name>-<version>.tgz, and restore tracked manifests even on failure.
     This helper does not build or run lifecycle scripts.
-  use-nuget CONSUMER STAMP [--pin-transitive] [--private-cache] [PACKAGE-ID...]
+  use-nuget CONSUMER STAMP [--task ID] [--pin-transitive] [--private-cache] [PACKAGE-ID...]
     Create a CPM overlay importing the repository's own Directory.Packages.props.
     Transitive pinning stays as the consumer sets it; --pin-transitive forces it on so
     stamped IDs the consumer does not pin still take effect (can raise NU1109 floors).
@@ -86,7 +93,7 @@ Commands (COMMAND --help shows these instructions too):
     and registers a marked cache at <absolute-git-dir>/cratis-local-nuget.
     Non-CPM: manually use an untracked project copy with explicit PackageReference
     versions and dotnet restore --source FEED/nuget; do not edit shipped versions.
-  use-npm CONSUMER STAMP [--dir REL]
+  use-npm CONSUMER STAMP [--task ID] [--dir REL]
     --dir REL names a Yarn project in a subdirectory (restore and clean follow it).
     Requires node and tar. Back up package.json, yarn.lock (including existing edits),
     and git diff; add file-tarball resolutions for every stamped feed package.
@@ -110,7 +117,14 @@ Commands (COMMAND --help shows these instructions too):
     missing/mismatched markers or unsafe cache paths refuse the entire clean (2).
     clean CONSUMER --private-cache lists the whole marked cache for removal; --apply
     removes it and its registration only after restore and with no live stamp.
+    Removes selected FEED/stamps/STAMP records with the artifacts on --apply.
     Docker probes have a 10-second deadline.
+
+Pack/use commands (including --composition) accept --task ID, overriding
+CRATIS_LOCAL_TASK, else record null. Convention: owner/repo#number. IDs match
+^[A-Za-z0-9][A-Za-z0-9._#:/-]{0,127}$ and are JSON values, never path components.
+Registry mutations require node. Successful packs record producer HEAD and branch;
+use records consumers after publication; restore retains their history.
   --self-test
     Isolated scratch HOME tests; npm uses inherited PATH to discover node.
     Other tests use system PATH. Reports passed and skipped counts.
@@ -121,6 +135,7 @@ if present (trusted shell code), then use these defaults for unset variables:
   CRATIS_LOCAL_SESSION_DIR=<absolute-git-dir>/cratis-local (per checkout)
   NUGET_PACKAGES=$HOME/.nuget/packages
   CRATIS_LOCAL_PRIVATE_CACHE=0 (1 opts use-nuget into a private worktree cache)
+  CRATIS_LOCAL_TASK=optional task ID (overridden by --task ID)
   CRATIS_LOCAL_CLEAN_MAX=500
   CRATIS_LOCAL_RUN=optional executable wrapper, invoked for each heavy step as:
     "$CRATIS_LOCAL_RUN" build LABEL -- COMMAND ARGUMENTS...
@@ -364,9 +379,198 @@ stamp() {
     printf '%s-local.%s.g%.7s\n' "$base" "$(date -u +%Y%m%d%H%M)" "$sha"
 }
 
+# All stamp-record mutations use this path, after builds or overlay publication.
+registry_update() {
+    [ "$DRY" -eq 0 ] || return 0
+    [ -n "$SESSION_LOCK" ] || acquire_session_lock
+    registry "$@"
+}
+registry_consumer() {
+    if ! (registry_update use "$@"); then
+        printf 'WARNING: stamp registry update failed; overlay kept; restore before cleaning\n' >&2
+        exit 1
+    fi
+}
+registry() {
+    need node
+    node - "$FEED" "$TASK" "$@" <<'REGISTRY'
+const fs = require('node:fs'), path = require('node:path'), cp = require('node:child_process');
+const [feed, taskValue, operation, ...args] = process.argv.slice(2);
+const task = taskValue || null, root = path.join(feed, 'stamps');
+const stampPattern = /^([0-9]+\.[0-9]+\.[0-9]+)-(local\.[0-9]{12}|train)\.g[0-9a-f]{7}$/;
+const taskPattern = /^[A-Za-z0-9][A-Za-z0-9._#:/-]{0,127}$/;
+const now = new Date().toISOString();
+function fail(message) { throw new Error(message); }
+function safe(file, directory = false) {
+    const relative = path.relative(feed, file);
+    if (relative.startsWith('..') || path.isAbsolute(relative)) fail('outside stamp registry: ' + file);
+    let current = feed;
+    for (const part of ['', ...relative.split(path.sep).filter(Boolean)]) {
+        current = path.join(current, part);
+        const stat = fs.lstatSync(current, {throwIfNoEntry:false});
+        if (stat && (stat.isSymbolicLink() || (current !== file || directory ? !stat.isDirectory() : !stat.isFile()))) fail('unsafe registry path: ' + current);
+    }
+}
+function recordPath(stamp) {
+    if (!stampPattern.test(stamp)) fail('invalid registry stamp: ' + stamp);
+    const file = path.join(root, stamp, 'record.json'); safe(file); return file;
+}
+function read(stamp) {
+    const file = recordPath(stamp);
+    if (!fs.existsSync(file)) return null;
+    const value = JSON.parse(fs.readFileSync(file, 'utf8'));
+    const match = stamp.match(stampPattern);
+    if (value.schema !== 1 || value.stamp !== stamp || value.base !== match[1] || value.kind !== (match[2] === 'train' ? 'train' : 'local') ||
+        !Array.isArray(value.packs) || !Array.isArray(value.consumers) || !value.tasks || typeof value.tasks !== 'object' || Array.isArray(value.tasks) ||
+        !Number.isFinite(Date.parse(value.created)) || !Number.isFinite(Date.parse(value.updated))) fail('invalid stamp record: ' + file);
+    for (const pack of value.packs) {
+        if (!['nuget','npm'].includes(pack.ecosystem) || !Array.isArray(pack.ids) || pack.ids.some(id => typeof id !== 'string') ||
+            !pack.producer || ['repo','worktree','branch','head'].some(k => typeof pack.producer[k] !== 'string') ||
+            !(pack.task === null || typeof pack.task === 'string' && taskPattern.test(pack.task)) || !Number.isFinite(Date.parse(pack.time))) fail('invalid pack record: ' + file);
+    }
+    for (const consumer of value.consumers) {
+        if (['worktree','session','ecosystem','time'].some(k => typeof consumer[k] !== 'string') || !['nuget','npm'].includes(consumer.ecosystem) ||
+            !(consumer.task === null || typeof consumer.task === 'string' && taskPattern.test(consumer.task)) ||
+            !Number.isFinite(Date.parse(consumer.time)) || consumer.restored && !Number.isFinite(Date.parse(consumer.restored))) fail('invalid consumer record: ' + file);
+    }
+    for (const [id, state] of Object.entries(value.tasks)) {
+        if (!taskPattern.test(id) || !state || !(state.finished === null || typeof state.finished === 'string' && Number.isFinite(Date.parse(state.finished)))) fail('invalid task record: ' + file);
+    }
+    return value;
+}
+function stamps() {
+    safe(root, true);
+    if (!fs.existsSync(root)) return [];
+    return fs.readdirSync(root).filter(s => stampPattern.test(s)).sort();
+}
+function write(value) {
+    const file = recordPath(value.stamp), next = file + '.next'; safe(next);
+    fs.mkdirSync(path.dirname(file), {recursive:true, mode:0o700});
+    value.updated = now;
+    fs.writeFileSync(next, JSON.stringify(value, null, 2) + '\n', {mode:0o600});
+    fs.chmodSync(next, 0o600); fs.renameSync(next, file);
+}
+function consumerState(consumer) {
+    if (consumer.restored) return 'restored';
+    if (!fs.existsSync(consumer.worktree)) return 'gone';
+    const git = cp.spawnSync('git', ['-C', consumer.worktree, 'rev-parse', '--show-toplevel'], {encoding:'utf8'});
+    if (git.status !== 0 || git.stdout.trim() !== consumer.worktree) return 'gone';
+    return ['env','Directory.Packages.props','cratis-local.targets','nuget.config','npm-backup','composition'].some(n => fs.existsSync(path.join(consumer.session,n))) ? 'live' : 'restored';
+}
+function packages() {
+    const found = new Map();
+    for (const ecosystem of ['nuget','npm']) {
+        const directory = path.join(feed,ecosystem); safe(directory,true);
+        if (!fs.existsSync(directory)) continue;
+        for (const name of fs.readdirSync(directory)) {
+            const match = name.match(/^(.*?)[.-]([0-9]+\.[0-9]+\.[0-9]+-(?:local\.[0-9]{12}|train)\.g[0-9a-f]{7})\.(nupkg|tgz)$/);
+            if (!match || (ecosystem === 'nuget' ? match[3] !== 'nupkg' : match[3] !== 'tgz')) continue;
+            const file = path.join(directory,name); safe(file);
+            let id = match[1];
+            if (ecosystem === 'npm') id = JSON.parse(cp.execFileSync('tar',['-xOf',file,'package/package.json'],{encoding:'utf8'})).name;
+            if (typeof id !== 'string' || !id) fail('invalid package ID: ' + file);
+            const entries = found.get(match[2]) || [];
+            entries.push({id,version:match[2],ecosystem,file}); found.set(match[2],entries);
+        }
+    }
+    return found;
+}
+function list() {
+    const json = args.includes('--json'), index = args.indexOf('--stamp');
+    const selected = index < 0 ? null : args[index + 1];
+    const remaining = args.filter((_,i) => i !== index && i !== index + 1 || index < 0);
+    if (remaining.some(a => a !== '--json') || index >= 0 && !stampPattern.test(selected || '')) fail('list accepts --json and --stamp STAMP');
+    const artifacts = packages(), names = [...new Set([...artifacts.keys(), ...stamps()])].sort();
+    const rows = names.filter(s => !selected || s === selected).map(stamp => {
+        const value = read(stamp), match = stamp.match(stampPattern), created = value?.created || null;
+        return {stamp,base:match[1],kind:match[2] === 'train' ? 'train' : 'local',recorded:!!value,packages:artifacts.get(stamp) || [],
+            producers:value?.packs.map(p => p.producer) || [],tasks:Object.entries(value?.tasks || {}).map(([id,s]) => ({id,finished:s.finished})),
+            consumers:value?.consumers.map(c => ({worktree:c.worktree,task:c.task,state:consumerState(c)})) || [],created,
+            ageSeconds:created ? Math.max(0,Math.floor((Date.now()-Date.parse(created))/1000)) : null,expiry:{expired:false,reasons:[],kept:[]}};
+    });
+    if (json) console.log(JSON.stringify({schema:1,feed,stamps:rows}));
+    else {
+        console.log('STAMP\tECOSYS\tPACKAGES(n)\tOWNER(repo@branch)\tTASK(state)\tCONSUMERS(live/total)\tAGE');
+        for (const r of rows) console.log([r.stamp,[...new Set(r.packages.map(p => p.ecosystem))].join(',') || '-',r.packages.length,
+            r.producers.map(p => p.repo+'@'+p.branch).join(',') || '-',r.tasks.map(t => t.id+'('+ (t.finished ? 'finished' : 'active') +')').join(',') || '-',
+            r.consumers.filter(c => c.state === 'live').length+'/'+r.consumers.length,r.ageSeconds === null ? '-' : r.ageSeconds+'s'].join('\t'));
+    }
+}
+function update() {
+    const [stamp, ecosystem, repo, session, cache, ...ids] = args;
+    let value = read(stamp);
+    if (!value) {
+        const match = stamp.match(stampPattern);
+        value = {schema:1,stamp,base:match[1],kind:match[2] === 'train' ? 'train' : 'local',created:now,updated:now,packs:[],consumers:[],tasks:{}};
+    }
+    if (task && !Object.hasOwn(value.tasks,task)) Object.defineProperty(value.tasks,task,{value:{finished:null},enumerable:true,writable:true,configurable:true});
+    if (operation === 'pack') {
+        const git = (...argv) => cp.execFileSync('git',['-C',repo,...argv],{encoding:'utf8'}).trim();
+        const producer = {repo:path.basename(repo),worktree:repo,branch:git('branch','--show-current'),head:git('rev-parse','HEAD')};
+        const entry = {ecosystem,ids,producer,task,time:now};
+        const index = value.packs.findIndex(p => p.ecosystem === ecosystem && p.producer.worktree === repo && p.task === task);
+        if (index < 0) value.packs.push(entry); else value.packs[index] = {...entry,ids:[...new Set([...value.packs[index].ids,...ids])]};
+    } else {
+        const entry = {worktree:repo,session,task,ecosystem,time:now,...(cache ? {cache} : {})};
+        const index = value.consumers.findIndex(c => c.worktree === repo && c.session === session && c.ecosystem === ecosystem && c.task === task);
+        if (index < 0) value.consumers.push(entry); else value.consumers[index] = entry;
+    }
+    write(value);
+}
+try {
+    if (operation === 'list') list();
+    else if (operation === 'pack' || operation === 'use') update();
+    else {
+        const records = stamps().map(stamp => ({stamp,value:read(stamp)}));
+        let count = 0;
+        for (const {stamp,value} of records) {
+            if (!value) continue;
+            if (operation === 'finish' && Object.hasOwn(value.tasks,task)) {
+                console.log((args.includes('--apply') ? 'finish: ' : 'would finish: ') + stamp + ' ' + task); count++;
+                if (args.includes('--apply')) { value.tasks[task].finished = now; write(value); }
+            } else if (operation === 'restore' && value.consumers.some(c => c.session === args[0] && !c.restored)) {
+                for (const c of value.consumers) if (c.session === args[0] && !c.restored) c.restored = now;
+                write(value);
+            } else if (operation === 'clean' && (!args[0] || args[0] === 'all' || stamp === args[0])) {
+                const directory = path.dirname(recordPath(stamp));
+                if (fs.readdirSync(directory).some(n => n !== 'record.json')) fail('unexpected stamp directory entry: ' + directory);
+                console.log(directory);
+            }
+        }
+        if (operation === 'finish' && !count) console.log('no records name task ' + task);
+        if (operation === 'remove') {
+            const file = recordPath(args[0]); read(args[0]);
+            if (fs.readdirSync(path.dirname(file)).some(n => n !== 'record.json')) fail('unexpected stamp directory entry');
+            fs.unlinkSync(file); fs.rmdirSync(path.dirname(file));
+        }
+    }
+} catch (error) { console.error('ERROR: stamp registry: ' + error.message); process.exitCode = 2; }
+REGISTRY
+}
+
+# Compare file identities/times so a multi-producer stamp does not attribute earlier
+# producers' packages to the current pack. Repacking the same ID is still recorded.
+nuget_pack_files() {
+    node - "$FEED/nuget" "$@" <<'NODE'
+const fs = require('node:fs'), path = require('node:path');
+const [directory, stamp, before] = process.argv.slice(2);
+const files = {};
+for (const name of fs.existsSync(directory) ? fs.readdirSync(directory) : []) {
+    if (!name.endsWith('.' + stamp + '.nupkg')) continue;
+    const file = path.join(directory,name), st = fs.statSync(file, {bigint:true});
+    files[file] = [st.ino,st.size,st.mtimeNs,st.ctimeNs].map(String).join(':');
+}
+if (!before) console.log(JSON.stringify(files));
+else {
+    const previous = JSON.parse(fs.readFileSync(before,'utf8'));
+    for (const [file,identity] of Object.entries(files)) if (previous[file] !== identity) process.stdout.write(file + '\0');
+}
+NODE
+}
+
 pack_nuget() {
     [ $# -ge 3 ] || die 'pack-nuget requires producer, stamp and targets'
-    local repo version target path count=0 property
+    local repo version target path count=0 property ids=()
     local properties=()
     repo=$(repo_root "$1"); version=$2; shift 2
     valid_stamp "$version"; need dotnet
@@ -379,16 +583,23 @@ pack_nuget() {
         properties+=("-p:$property")
     done
     [ $# -ge 1 ] || die 'pack-nuget requires at least one target after the properties'
+    if [ "$DRY" -eq 0 ]; then
+        need node; scratch
+        nuget_pack_files "$version" > "$TMP/pack-before"
+    fi
     mutate mkdir -p "$FEED/nuget"
     for target in "$@"; do
         (cd "$repo" && heavy build "pack NuGet $target" dotnet pack "$target" -c Release "-p:PackageVersion=$version" "-p:Version=$version" ${properties[@]+"${properties[@]}"} -o "$FEED/nuget")
     done
     [ "$DRY" -eq 0 ] || return 0
+    nuget_pack_files "$version" "$TMP/pack-before" > "$TMP/pack-produced"
     while IFS= read -r -d '' path; do
         printf '%s\n' "$path"; count=$((count + 1))
-    done < <(find "$FEED/nuget" -type f -name "*.$version.nupkg" -print0)
+        target=${path##*/}; ids+=("${target%."$version".nupkg}")
+    done < "$TMP/pack-produced"
     [ "$count" -gt 0 ] || failed 'pack produced no matching nupkgs'
     printf 'produced %s nupkgs\n' "$count"
+    registry_update pack "$version" nuget "$repo" '' '' "${ids[@]}"
 }
 
 # Pack one workspace with npm pack (what publish does) into the feed as <scope>-<name>-<version>.tgz.
@@ -409,7 +620,7 @@ pack_npm_workspace() {
 
 pack_npm() {
     [ $# -eq 2 ] || die 'pack-npm requires producer and stamp'
-    local repo version path count=0
+    local repo version path count=0 ids=()
     repo=$(repo_root "$1"); version=$2
     valid_stamp "$version"; need node; need npm; need yarn; scratch
     git -C "$repo" diff --name-only HEAD -- 'package.json' '*/package.json' > "$TMP/modified"
@@ -460,6 +671,10 @@ NODE
     done < <(find "$FEED/npm" -type f -name "*-$version.tgz" -print0)
     [ "$count" -gt 0 ] || failed 'pack produced no matching npm tarballs'
     printf 'produced %s npm tarballs\n' "$count"
+    while IFS= read -r -d '' path; do
+        ids+=("$(node -p 'require(process.argv[1]).name' "$repo/$path")")
+    done < "$TMP/manifests"
+    registry_update pack "$version" npm "$repo" '' '' "${ids[@]}"
 }
 
 source_mapping() {
@@ -547,6 +762,15 @@ use_nuget() {
     if [ "${2:-}" = --composition ]; then
         composition use-nuget "$@"
         if [ "$private" = 1 ] && [ "$DRY" -eq 0 ]; then register_private_cache "$private_repo" "$PRIVATE_NUGET_CACHE" "$private_session"; fi
+        if [ "$DRY" -eq 0 ]; then
+            local composition_repo composition_session composition_stamp
+            composition_repo=$(repo_root "$1"); composition_session=$(session_path "$composition_repo")
+            scratch
+            cut -f3 "$composition_session/composition/manifest.tsv" | sort -u > "$TMP/registry-stamps"
+            while IFS= read -r composition_stamp; do
+                registry_consumer "$composition_stamp" nuget "$composition_repo" "$composition_session" "$PRIVATE_NUGET_CACHE"
+            done < "$TMP/registry-stamps"
+        fi
         return
     fi
     case " $* " in *' --composition '*) die 'cannot mix a stamp or IDs with --composition' ;; esac
@@ -626,6 +850,7 @@ use_nuget() {
     elif [ -f "$session/nuget.config" ]; then
         rm -- "$session/nuget.config"
     fi
+    registry_consumer "$version" nuget "$repo" "$session" "$PRIVATE_NUGET_CACHE"
     printf 'overrode %s NuGet package IDs\n' "${#ids[@]}"
     if [ "$private" != 1 ]; then
         printf 'Optional per-worktree cache (set before restore and clean): export NUGET_PACKAGES=%q\n' "$(git -C "$repo" rev-parse --absolute-git-dir)/cratis-local-nuget"
@@ -1699,6 +1924,7 @@ NODE
     git -C "$dir" diff HEAD -- package.json yarn.lock > "$backup/before.diff"
     cp "$TMP/package.json" "$backup/expected-package.json"
     cp "$TMP/package.json" "$dir/package.json"
+    registry_consumer "$version" npm "$repo" "$session" ''
     printf 'Next: cd %q && yarn install\n' "$dir"
     printf 'Vite: clear stale prebundles with rm -rf node_modules/.vite\n'
 }
@@ -1710,6 +1936,7 @@ restore() {
     validate_session "$session"
     if [ -d "$session/composition" ]; then
         composition restore-state "$repo"
+        registry_update restore "$session"
         if [ "$DRY" -eq 0 ]; then check "$repo"; fi
         return
     fi
@@ -1729,6 +1956,7 @@ restore() {
         mutate rm -rf -- "$backup"
     fi
     mutate rm -f -- "$session/Directory.Packages.props" "$session/cratis-local.targets" "$session/nuget.config" "$session/env" "$session/stamp" "$session/npm-dir"
+    registry_update restore "$session"
     if [ "$DRY" -eq 0 ]; then check "$repo"; fi
 }
 
@@ -1952,6 +2180,8 @@ clean() {
         [ ! -d "$session/npm-backup" ] || die "unresolved npm backup: $session; restore before cleaning"
         subjects+=("$session"); kinds+=(session)
     done < "$TMP/unique-sessions"
+    registry clean "$version" > "$TMP/stamp-records"
+    while IFS= read -r path; do subjects+=("$path"); kinds+=(stamp-record); done < "$TMP/stamp-records"
     clean_live_references "$version"
     count=${#subjects[@]}
     [ "$count" -le "$maximum" ] || die "clean fuse: $count subjects exceeds $maximum"
@@ -1974,6 +2204,7 @@ clean() {
                         if [ -f "$session/nuget-cache" ]; then cache_sessions+=("$session"); fi
                     done < "$TMP/unique-sessions"
                     ;;
+                stamp-record) registry_update remove "${path##*/}" ;;
                 image) docker rmi "$path" ;;
                 file) [ -f "$path" ] && [ ! -L "$path" ] || die "clean subject changed: $path"; rm -- "$path" ;;
                 directory) [ -d "$path" ] && [ ! -L "$path" ] || die "clean subject changed: $path"; rm -rf -- "$path" ;;
@@ -2009,15 +2240,18 @@ self_test_nuget_overlay() {
 
 self_test() {
     [ $# -eq 0 ] || die '--self-test takes no arguments'
-    local root home repo feed version output status passed=0 skipped=0 test_key arg map
+    local root home repo feed version output status passed=0 skipped=0 test_key arg map system_path
     # Fixtures use the physical path (macOS TMPDIR is /var -> /private/var) because the helper
     # reports repositories by their git toplevel; symlinked feeds have their own test below.
     scratch; root=$(cd -P "$TMP" && pwd -P)/self-test; mkdir -p "$root/home" "$root/repo"
     map=$root/map.tsv; home=$root/home; repo=$root/repo; feed=$home/.cache/cratis/local-feed
-    # System-only tests stay hermetic; npm tests inherit PATH to discover node.
-    # Both isolate HOME/config and omit the host adapter.
-    st() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" /bin/bash "$SELF" "$@"; }
-    stm() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_MAP="$map" /bin/bash "$SELF" "$@"; }
+    # Isolate tool discovery, adding only node for the stamp registry. npm tests
+    # inherit PATH. Both isolate HOME/config and omit the host adapter.
+    need node; mkdir -p "$root/registry-bin"
+    ln -s "$(command -v node)" "$root/registry-bin/node"
+    system_path=$root/registry-bin:/usr/bin:/bin:/usr/sbin:/sbin
+    st() { env -i HOME="$home" PATH="$system_path" TMPDIR="$TMP" /bin/bash "$SELF" "$@"; }
+    stm() { env -i HOME="$home" PATH="$system_path" TMPDIR="$TMP" CRATIS_LOCAL_MAP="$map" /bin/bash "$SELF" "$@"; }
     has() { grep -Fq -- "$1" "$2"; }
     st_npm() { env -i HOME="$home" PATH="$PATH" TMPDIR="$TMP" /bin/bash "$SELF" "$@"; }
     git -C "$repo" init -q
@@ -2300,6 +2534,7 @@ NODE
     else printf 'SKIP: use-npm --dir needs node\n'; skipped=$((skipped + 6)); fi
     self_test_live_clean
     self_test_private_cache
+    self_test_registry
     mkdir -p "$home/.nuget/packages/cratis.test/$version" "$home/.nuget/packages/cratis.test/1.2.3"
     mkdir -p "$home/.nuget/packages/cratis.test/1.2.3-local.keep"
     for arg in nuget npm; do
@@ -2326,6 +2561,117 @@ NODE
     printf 'self-test: %s passed, %s skipped\n' "$passed" "$skipped"
 }
 
+self_test_registry() {
+    local rr=$root/'registry repo' rf=$root/registry-feed rb=$root/registry-tools rs record
+    local rt=Cratis/Fixture#1 legacy=1.2.5-train.gabcdef0
+    mkdir -p "$rr" "$rf/nuget" "$rb"
+    git -C "$rr" init -q
+    cp "$repo/Directory.Packages.props" "$rr/Directory.Packages.props"
+    printf '{"name":"@cratis/registry","version":"1.0.0"}\n' > "$rr/package.json"
+    git -C "$rr" add .
+    git -C "$rr" -c user.email=test@example.invalid -c user.name='Registry fixture' commit -qm initial
+    rs=$(git -C "$rr" rev-parse --absolute-git-dir)/cratis-local
+    record=$rf/stamps/$version/record.json
+    # Pack-tool doubles exercise successful/failed pack boundaries without building.
+    cat > "$rb/dotnet" <<'SH'
+#!/bin/bash
+set -eu
+[ ! -e "$CRATIS_LOCAL_FEED/fail-pack" ] || exit 1
+version=''; output=''
+for arg in "$@"; do
+    case "$arg" in -p:PackageVersion=*) version=${arg#*=} ;; esac
+    if [ "$output" = next ]; then output=$arg; fi
+    if [ "$arg" = -o ]; then output=next; fi
+done
+printf 'packed\n' > "$output/Cratis.Registry.$version.nupkg"
+SH
+    printf '#!/bin/sh\nprintf '\''{"location":"."}\\n'\''\n' > "$rb/yarn"
+    cat > "$rb/npm" <<'SH'
+#!/bin/bash
+set -eu
+version=$(node -p 'require("./package.json").version')
+mkdir -p "$TMPDIR/registry-tar/package"
+cp package.json "$TMPDIR/registry-tar/package/package.json"
+tar -czf "$CRATIS_LOCAL_FEED/npm/cratis-registry-$version.tgz" -C "$TMPDIR/registry-tar" package
+SH
+    chmod +x "$rb/dotnet" "$rb/npm" "$rb/yarn"
+    rgt() { env -i HOME="$home" PATH="$rb:$system_path" TMPDIR="$TMP" CRATIS_LOCAL_FEED="$rf" NUGET_PACKAGES="$root/registry-cache" CRATIS_LOCAL_TASK="$rt" /bin/bash "$SELF" "$@"; }
+    rg_assert() { node - "$record" "$@" <<'NODE'
+const fs = require('node:fs'); const [file,kind,version,repo,session] = process.argv.slice(2);
+const r = JSON.parse(fs.readFileSync(file,'utf8'));
+if (r.schema !== 1 || r.stamp !== version || !r.created.endsWith('Z') || !r.updated.endsWith('Z')) process.exit(1);
+if (kind === 'pack' && (r.packs.length !== 2 || !r.packs.some(p => p.ecosystem === 'nuget' && p.ids.join() === 'Cratis.Registry') || !r.packs.some(p => p.ids.includes('@cratis/registry')) || r.packs.some(p => p.producer.worktree !== repo || !/^[0-9a-f]{40}$/.test(p.producer.head)) || (fs.statSync(file).mode & 0o777) !== 0o600)) process.exit(1);
+if (kind === 'use' && (r.consumers.length !== 2 || r.consumers.some(c => c.worktree !== repo || c.session !== session || c.task !== 'Cratis/Fixture#2'))) process.exit(1);
+if (kind === 'restored' && r.consumers.some(c => !c.restored?.endsWith('Z'))) process.exit(1);
+if (kind === 'finished' && !r.tasks['Cratis/Fixture#1'].finished?.endsWith('Z')) process.exit(1);
+NODE
+    }
+    : > "$rf/nuget/Cratis.Previous.$version.nupkg"
+    rgt pack-nuget "$rr" "$version" Fixture.csproj > "$root/output"
+    rgt pack-npm "$rr" "$version" > "$root/output"
+    expect_status 0 'registry pack records' rg_assert pack "$version" "$rr" "$rs"
+    rgt use-nuget "$rr" "$version" --task Cratis/Fixture#2 > "$root/output"
+    rgt use-npm "$rr" "$version" --task Cratis/Fixture#2 > "$root/output"
+    expect_status 0 'registry use consumer' rg_assert use "$version" "$rr" "$rs"
+    expect_status 0 'registry restore consumer' rgt restore "$rr"
+    rg_assert restored "$version" "$rr" "$rs" || failed 'registry restore history'
+    cp "$record" "$root/registry-before"
+    expect_status 0 'registry dry-run no write' rgt --dry-run pack-nuget "$rr" "$legacy" Fixture.csproj
+    [ ! -e "$rf/stamps/$legacy" ] || failed 'registry dry-run created record'
+    rgt --dry-run use-nuget "$rr" "$version" > "$root/output"
+    cmp -s "$record" "$root/registry-before" || failed 'registry dry-run use rewrote record'
+    expect_status 0 'finish task dry-run' rgt finish --task "$rt"
+    cmp -s "$record" "$root/registry-before" || failed 'finish dry-run rewrote record'
+    expect_status 0 'finish task apply' rgt finish --task "$rt" --apply
+    rg_assert finished "$version" "$rr" "$rs" || failed 'finish did not mark task'
+    expect_status 0 'finish unknown task' rgt finish --task Cratis/Unknown#2 --apply
+    grep -Fq 'no records name task' "$root/output" || failed 'finish unknown task message'
+    : > "$rf/nuget/Cratis.Legacy.$legacy.nupkg"
+    expect_status 0 'list unrecorded legacy' rgt list --stamp "$legacy" --json
+    node -e 'const r=JSON.parse(require("fs").readFileSync(process.argv[1])).stamps;if(r.length!==1||r[0].recorded||r[0].packages[0].id!=="Cratis.Legacy")process.exit(1)' "$root/output" || failed 'list legacy missing'
+    rgt list --json > "$root/registry-list"
+    rg_json() { node - "$root/registry-list" "$rf" <<'NODE'
+const fs = require('node:fs'); const [file,feed] = process.argv.slice(2), data = JSON.parse(fs.readFileSync(file));
+if (data.schema !== 1 || data.feed !== feed || data.stamps.length !== 2) process.exit(1);
+const keys = ['stamp','base','kind','recorded','packages','producers','tasks','consumers','created','ageSeconds','expiry'].sort().join();
+for (const r of data.stamps) {
+    if (Object.keys(r).sort().join() !== keys || JSON.stringify(r.expiry) !== '{"expired":false,"reasons":[],"kept":[]}') process.exit(1);
+    for (const p of r.packages) if (Object.keys(p).sort().join() !== 'ecosystem,file,id,version') process.exit(1);
+    for (const c of r.consumers) if (c.state !== 'restored') process.exit(1);
+}
+NODE
+    }
+    expect_status 0 'list json schema' rg_json
+    cp "$record" "$root/registry-good"
+    printf '{"schema":2}\n' > "$record"
+    cp "$record" "$root/registry-bad"
+    expect_status 2 'registry rejects bad schema' rgt finish --task "$rt" --apply
+    cmp -s "$record" "$root/registry-bad" || failed 'registry rewrote bad schema'
+    printf '{broken\n' > "$record"
+    expect_status 2 'registry rejects malformed JSON' rgt finish --task "$rt" --apply
+    cp "$root/registry-good" "$record"
+    mv "$rf/stamps" "$rf/real-stamps"; ln -s "$rf/real-stamps" "$rf/stamps"
+    expect_status 2 'registry symlink refused' rgt finish --task "$rt" --apply
+    rm "$rf/stamps"; mv "$rf/real-stamps" "$rf/stamps"
+    ln -s "$root/registry-good" "$record.next"
+    expect_status 2 'registry next symlink refused' rgt finish --task "$rt" --apply
+    rm "$record.next"
+    expect_status 2 'registry bad task id' rgt pack-nuget "$rr" "$version" --task 'bad task' Fixture.csproj
+    : > "$rf/fail-pack"
+    expect_status 1 'registry failed pack no write' rgt pack-nuget "$rr" "$legacy" Fixture.csproj
+    [ ! -e "$rf/stamps/$legacy" ] || failed 'failed pack wrote record'
+    rm "$rf/fail-pack"
+    # Post-publication failures preserve overlays and report a warning/findings.
+    printf '{"schema":2}\n' > "$record"
+    expect_status 1 'registry use failure keeps overlay' rgt use-nuget "$rr" "$version"
+    [ -f "$rs/env" ] && grep -Fq WARNING "$root/stderr" || failed 'registry failed use lost overlay/warning'
+    cp "$root/registry-good" "$record"
+    rgt restore "$rr" > "$root/output"
+    expect_status 0 'clean removes stamp record' rgt clean --stamp "$version" --apply
+    [ ! -e "$rf/stamps/$version" ] && [ ! -e "$rf/nuget/Cratis.Registry.$version.nupkg" ] || failed 'clean retained stamp record/artifacts'
+    [ -e "$rf/nuget/Cratis.Legacy.$legacy.nupkg" ] || failed 'registry clean removed another stamp'
+}
+
 self_test_private_cache() {
     local pc_repo=$root/'private cache repo' pc_feed=$root/private-feed pc_shared=$root/private-shared
     local pc_cache pc_session pc_opt=0 other=1.2.5-train.g1234567
@@ -2336,7 +2682,7 @@ self_test_private_cache() {
     git -C "$pc_repo" -c user.email=test@example.invalid -c user.name='Private cache fixture' commit -qm initial
     pc_cache=$(git -C "$pc_repo" rev-parse --absolute-git-dir)/cratis-local-nuget
     pc_session=$(git -C "$pc_repo" rev-parse --absolute-git-dir)/cratis-local
-    pct() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$pc_feed" NUGET_PACKAGES="$pc_shared" CRATIS_LOCAL_PRIVATE_CACHE="$pc_opt" /bin/bash "$SELF" "$@"; }
+    pct() { env -i HOME="$home" PATH="$system_path" TMPDIR="$TMP" CRATIS_LOCAL_FEED="$pc_feed" NUGET_PACKAGES="$pc_shared" CRATIS_LOCAL_PRIVATE_CACHE="$pc_opt" /bin/bash "$SELF" "$@"; }
     : > "$pc_feed/nuget/Cratis.Test.$version.nupkg"
     expect_status 0 'private-cache default unchanged' pct use-nuget "$pc_repo" "$version"
     [ ! -e "$pc_cache" ] && [ ! -e "$pc_session/nuget-cache" ] || failed 'private-cache default created a cache'
@@ -2429,7 +2775,7 @@ self_test_live_clean() {
     git -C "$lr" add Directory.Packages.props
     git -C "$lr" -c user.email=test@example.invalid -c user.name='Live clean fixture' commit -qm initial
     ls=$(git -C "$lr" rev-parse --absolute-git-dir)/cratis-local
-    lct() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$lf" NUGET_PACKAGES="$root/live-cache" /bin/bash "$SELF" "$@"; }
+    lct() { env -i HOME="$home" PATH="$system_path" TMPDIR="$TMP" CRATIS_LOCAL_FEED="$lf" NUGET_PACKAGES="$root/live-cache" /bin/bash "$SELF" "$@"; }
     : > "$lf/nuget/Cratis.Live.$lv.nupkg"
     : > "$lf/nuget/Cratis.Unused.$uv.nupkg"
     mkdir -p "$root/live-cache/cratis.live/$lv" "$root/live-cache/cratis.live/5.0.0"
@@ -2769,7 +3115,7 @@ self_test_matrix() {
     self_test_composition
 }
 
-# Legacy mutations must work without Node and with system/configured symlink parents.
+# Registry paths allow system/configured symlink parents of the feed.
 self_test_symlink_feed() {
     local physical=$root/feed-physical-parent alias=$root/feed-symlink-parent
     local sr=$root/feed-symlink-repo sv=1.2.3-local.202610240544.gabcdef0
@@ -2780,7 +3126,7 @@ self_test_symlink_feed() {
     printf '<Project><ItemGroup><PackageVersion Include="Cratis.Symlink" Version="1.2.3"/></ItemGroup></Project>\n' > "$sr/Directory.Packages.props"
     git -C "$sr" add .gitignore Directory.Packages.props
     git -C "$sr" -c user.email=test@example.invalid -c user.name='Symlink feed fixture' commit -qm initial
-    slf() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$alias/missing/feed" CRATIS_LOCAL_SESSION_DIR="$sr/.ai-work/local-packages" /bin/bash "$SELF" "$@"; }
+    slf() { env -i HOME="$home" PATH="$system_path" TMPDIR="$TMP" CRATIS_LOCAL_FEED="$alias/missing/feed" CRATIS_LOCAL_SESSION_DIR="$sr/.ai-work/local-packages" /bin/bash "$SELF" "$@"; }
     expect_status 0 'symlink feed resolution does not create a missing feed' slf check "$sr"
     [ ! -e "$physical/missing" ] || failed 'symlink feed resolution created directories'
     mkdir -p "$physical/missing/feed/nuget"
@@ -2932,6 +3278,16 @@ JSON
     expect_status 1 'composition malformed assets' cst verify-assets "$cr" --composition "$cm"
     cp "$root/composition-assets.json" "$cr/obj/project.assets.json"
     expect_status 0 'composition activation with transitive pinning' cst use-nuget "$cr" --composition "$cm" --pin-transitive
+    composition_registry() {
+        node - "$cf" "$cr" "$a" "$b" "$c" <<'NODE'
+const fs = require('node:fs'), path = require('node:path'); const [feed,repo,...stamps] = process.argv.slice(2);
+for (const stamp of stamps) {
+    const r = JSON.parse(fs.readFileSync(path.join(feed,'stamps',stamp,'record.json')));
+    if (r.schema !== 1 || r.consumers.length !== 1 || r.consumers[0].worktree !== repo || r.consumers[0].ecosystem !== 'nuget') process.exit(1);
+}
+NODE
+    }
+    expect_status 0 'registry composition consumer' composition_registry
     output=$cr/.ai-work/local-packages/composition
     grep -Fq 'CentralPackageTransitivePinningEnabled>true' "$output/Directory.Packages.props" || failed 'composition pin property'
     self_test_nuget_overlay "$output" Cratis.Stage "$c"
@@ -3041,7 +3397,26 @@ JSON
     passed=$((passed + 1))
 }
 
+TASK=''
 case "$MODE" in
+    pack-nuget|pack-npm|use-nuget|use-npm|finish)
+        TASK=${CRATIS_LOCAL_TASK:-}
+        ARGS=()
+        while [ $# -gt 0 ]; do
+            if [ "$1" = --task ]; then
+                [ $# -ge 2 ] || die '--task requires an ID'
+                TASK=$2; [ -n "$TASK" ] || die 'invalid task ID'; shift 2
+            else ARGS+=("$1"); shift; fi
+        done
+        set -- ${ARGS[@]+"${ARGS[@]}"}
+        if [ -n "$TASK" ]; then [[ "$TASK" =~ ^[A-Za-z0-9][A-Za-z0-9._#:/-]{0,127}$ ]] || die 'invalid task ID'; fi ;;
+esac
+case "$MODE" in
+    list) registry list "$@" ;;
+    finish)
+        [ -n "$TASK" ] || die 'finish requires --task ID or CRATIS_LOCAL_TASK'
+        [ $# -eq 0 ] || { [ $# -eq 1 ] && [ "$1" = --apply ]; } || die 'finish accepts --task ID and --apply'
+        if [ "${1:-}" = --apply ] && [ "$DRY" -eq 0 ]; then registry_update finish --apply; else registry finish; fi ;;
     stamp) stamp "$@" ;;
     plan) plan_command "$@" ;;
     closure) closure "$@" ;;

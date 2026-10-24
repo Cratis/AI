@@ -14,6 +14,11 @@ stamp=$(bash "$local" stamp "$producer")
 bash "$local" pack-npm "$producer" "$stamp"
 ```
 
+Pass `--task ID` to pack/use, or set `CRATIS_LOCAL_TASK` (convention `owner/repo#number`),
+to associate the stamp with work. Successful packing records package IDs and producer
+HEAD; activation records the consumer after publication. See
+[Registry and list](dotnet-nuget.md#registry-and-list) for inventory and task completion.
+
 It requires clean tracked workspace manifests, temporarily changes all non-private
 workspace versions and packs actual tarballs. It restores those manifests on
 success and failure. Tarballs are named `<scope>-<name>-<version>.tgz` (`@cratis/foo` becomes
@@ -78,3 +83,5 @@ consumer manifests. Reinstall released dependencies after restoration, then run
 Review `clean "$consumer" --stamp "$stamp"` before `--apply`. Passing the consumer
 allows Yarn cache discovery; no consumer or unavailable Yarn yields a reported
 skip. Unresolved backups block cleanup rather than silently losing recovery data.
+`restore` retains consumer history in the registry; stamp-scoped `clean --apply`
+removes the stamp's record directory together with its artifacts.
