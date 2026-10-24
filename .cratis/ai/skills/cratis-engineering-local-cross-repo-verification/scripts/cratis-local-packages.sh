@@ -1961,11 +1961,18 @@ restore() {
     repo=$(repo_root "$1"); session=$(session_path "$repo"); backup=$session/npm-backup
     validate_session "$session"
     scratch
-    registry restore-stamps "$session" > "$TMP/restore-stamps"
-    while IFS= read -r stamp; do restore_stamps+=("$stamp"); done < "$TMP/restore-stamps"
+    # Restoring the overlay never depends on node; only the registry bookkeeping does.
+    local registry_node=0
+    if [ "$DRY" -eq 0 ] && command -v node > /dev/null 2>&1; then
+        registry_node=1
+        registry restore-stamps "$session" > "$TMP/restore-stamps"
+        while IFS= read -r stamp; do restore_stamps+=("$stamp"); done < "$TMP/restore-stamps"
+    elif [ "$DRY" -eq 0 ]; then
+        printf 'WARNING: node not found; restoring without updating the stamp registry\n' >&2
+    fi
     if [ -d "$session/composition" ]; then
         composition restore-state "$repo"
-        registry_update restore "$session" ${restore_stamps[@]+"${restore_stamps[@]}"}
+        if [ "$registry_node" -eq 1 ]; then registry_update restore "$session" ${restore_stamps[@]+"${restore_stamps[@]}"}; fi
         if [ "$DRY" -eq 0 ]; then check "$repo"; fi
         return
     fi
@@ -1985,7 +1992,7 @@ restore() {
         mutate rm -rf -- "$backup"
     fi
     mutate rm -f -- "$session/Directory.Packages.props" "$session/cratis-local.targets" "$session/nuget.config" "$session/env" "$session/stamp" "$session/npm-dir"
-    registry_update restore "$session" ${restore_stamps[@]+"${restore_stamps[@]}"}
+    if [ "$registry_node" -eq 1 ]; then registry_update restore "$session" ${restore_stamps[@]+"${restore_stamps[@]}"}; fi
     if [ "$DRY" -eq 0 ]; then check "$repo"; fi
 }
 
@@ -2704,7 +2711,7 @@ NODE
 
 self_test_registry_invalid() {
     local fixture rf bad_record other=1.2.3-train.gabcdef0
-    for fixture in clean-scoped restore-other restore-own finish list; do
+    for fixture in clean-scoped restore-other restore-no-node restore-own finish list; do
         rf=$root/registry-invalid-$fixture
         bad_record=$rf/stamps/$other/record.json
         mkdir -p "$rf/nuget" "${bad_record%/*}"
@@ -2726,6 +2733,15 @@ self_test_registry_invalid() {
                 ;;
             restore-other)
                 expect_status 0 'registry invalid other record restore' rgt restore "$rr"
+                ;;
+            restore-no-node)
+                if PATH=/usr/bin:/bin:/usr/sbin:/sbin command -v node > /dev/null 2>&1; then
+                    printf 'SKIP: restore without node needs a system PATH without node\n' >&2; skipped=$((skipped + 1))
+                    rgt restore "$rr" > "$root/output"
+                else
+                    expect_status 0 'registry restore without node restores the overlay' env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$rf" NUGET_PACKAGES="$root/registry-cache" /bin/bash "$SELF" restore "$rr"
+                    { [ ! -e "$rs/env" ] && grep -Fq 'WARNING: node not found' "$root/stderr"; } || failed 'restore without node kept overlay or missed warning'
+                fi
                 ;;
             restore-own)
                 expect_status 1 'registry invalid own record restore' rgt restore "$rr"
