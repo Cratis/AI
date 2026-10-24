@@ -5,8 +5,9 @@
 
 ## Pack the package, not a link
 
-Requires node, tar and Yarn 4. Run the producer's normal build first. The helper does
-not run a separate build; Yarn's normal pack lifecycle hooks still run.
+Requires node, npm and Yarn 4. Run the producer's normal build first. The helper does
+not build or run lifecycle scripts: it packs with `npm pack --ignore-scripts`, the publish
+workflows' tool, so the tarball matches the published one.
 
 ```bash
 stamp=$(bash "$local" stamp "$producer")
@@ -15,8 +16,9 @@ bash "$local" pack-npm "$producer" "$stamp"
 
 It requires clean tracked workspace manifests, temporarily changes all non-private
 workspace versions and packs actual tarballs. It restores those manifests on
-success and failure; inspect diffs for other lifecycle-generated output. Yarn's
-`%s-%v.tgz` output slugifies a scoped name (`@cratis/foo` becomes `@cratis-foo`).
+success and failure. Tarballs are named `<scope>-<name>-<version>.tgz` (`@cratis/foo` becomes
+`cratis-foo-<version>.tgz`). `verify-assets --npm [--dir REL]` reads installed copies under
+`node_modules`, or under `REL` when the consumer's Yarn project is a subfolder.
 Inspect dependency ranges in packed manifests: the helper changes versions, not
 arbitrary inter-package dependency constraints. Include every required workspace
 and verify the consumer resolves the intended tarballs.

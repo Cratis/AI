@@ -1,4 +1,4 @@
-# Reference table of producer/consumer dependencies between Cratis repositories. cratis-local-packages.sh does not read it.
+# Reference table of producer/consumer dependencies between Cratis repositories. cratis-local-packages.sh reads it to derive the pack plan.
 # Tab-separated; # starts a comment; no versions (pins are read live from consumer manifests).
 #   pack  <repo> <eco> <target> [PROP=VAL,...]  pack targets; PROP is a -p:PROP=VAL argument (never an environment variable)
 #   ids   <repo> <eco> <comma-separated expected package IDs>
