@@ -145,6 +145,19 @@ fi
 FEED=${CRATIS_LOCAL_FEED:-${XDG_CACHE_HOME:-$HOME/.cache}/cratis/local-feed}
 NUGET_CACHE=${NUGET_PACKAGES:-$HOME/.nuget/packages}
 case "$FEED" in /*) ;; *) FEED=$PWD/$FEED ;; esac
+# Resolve configured/system symlink parents without creating a missing feed.
+# Subsequent checks concern helper-owned components, not /tmp, /var or HOME.
+resolve_feed() {
+    local directory=$FEED suffix='' physical
+    while [ ! -d "$directory" ]; do
+        [ ! -e "$directory" ] && [ ! -L "$directory" ] || die "not a feed directory: $directory"
+        suffix=/${directory##*/}$suffix
+        directory=${directory%/*}; [ -n "$directory" ] || directory=/
+    done
+    physical=$(cd -P "$directory" && pwd -P) || die "cannot resolve feed: $FEED"
+    if [ -n "$suffix" ]; then FEED=${physical%/}$suffix; else FEED=$physical; fi
+}
+[ "$MODE" = --self-test ] || resolve_feed
 case "$NUGET_CACHE" in /*) ;; *) NUGET_CACHE=$PWD/$NUGET_CACHE ;; esac
 TMP=''
 PACK_REPO=''
@@ -501,11 +514,6 @@ acquire_session_lock() {
         [ ! -e "$lock" ] && [ ! -L "$lock" ] || die 'session locked; recovery requires a non-dry-run mutation'
         return 0
     fi
-    local parent=$FEED
-    while [ "$parent" != / ]; do
-        [ ! -L "$parent" ] || die "symlink feed parent: $parent"
-        parent=${parent%/*}; [ -n "$parent" ] || parent=/
-    done
     mkdir -p "$FEED"
     if [ -e "$lock" ] || [ -L "$lock" ]; then composition recover; fi
     mkdir "$lock" || die 'local package session is locked'
@@ -542,11 +550,14 @@ function plain(p, directory = false) {
     const st = fs.lstatSync(p, {throwIfNoEntry:false});
     if (!st || st.isSymbolicLink() || (directory ? !st.isDirectory() : !st.isFile())) fail('unsafe or missing path: ' + p);
 }
-function safeParents(p) {
+function safeParents(p, ownedRoot = feed) {
     if (/[\x00-\x1f]/.test(p)) fail('control character in path');
-    for (let cur = path.resolve(p); cur !== path.dirname(cur); cur = path.dirname(cur)) {
+    const root = path.resolve(ownedRoot), start = path.resolve(p);
+    if (start !== root && !start.startsWith(root + path.sep)) fail('outside helper-owned directory: ' + p);
+    for (let cur = start; ; cur = path.dirname(cur)) {
         const st = fs.lstatSync(cur, {throwIfNoEntry:false});
         if (st && (st.isSymbolicLink() || !st.isDirectory())) fail('unsafe directory: ' + cur);
+        if (cur === root) break;
     }
 }
 function bytes(p) { if (!exists(p)) return null; plain(p); return fs.readFileSync(p).toString('base64'); }
@@ -566,7 +577,7 @@ function manifest(file) {
         if (row[0] === 'producer' && row.length === 4) {
             const [, name, version, worktree] = row;
             if (!idPattern.test(name) || producers.has(lower(name)) || !stamp.test(version) || !path.isAbsolute(worktree)) fail('invalid or duplicate producer: ' + name);
-            safeParents(worktree); plain(worktree, true);
+            plain(worktree, true);
             if (run('git', ['-C', worktree, 'rev-parse', '--show-toplevel']).trim() !== worktree) fail('producer must name an absolute worktree root: ' + worktree);
             producers.set(lower(name), {name, version, worktree});
         } else if (row[0] === 'package' && row.length === 3) rows.push(row);
@@ -797,7 +808,7 @@ function journal(value) {
 }
 function recoverState(j) {
     if (j.schema !== 1 || !path.isAbsolute(j.repo) || !path.isAbsolute(j.session) || j.session === '/' || j.session === j.repo || !/^[a-f0-9]{24}$/.test(j.token) || !j.files || Object.keys(j.files).some(n => !['manifest.tsv','Directory.Packages.props','nuget.config','env','transaction','state.json'].includes(n))) fail('unknown transaction journal');
-    safeParents(j.session);
+    safeParents(j.session,j.session);
     const pub = path.join(j.session,'composition'), stage = path.join(j.session, '.composition-' + j.token);
     if (j.operation === 'activate') {
         if (!j.committed) {
@@ -862,7 +873,7 @@ function activeFiles() {
     return files;
 }
 function activate(packages,pin) {
-    safeParents(session); safeParents(feed);
+    safeParents(session,session); safeParents(feed);
     const props = path.join(repo,'Directory.Packages.props'); plain(props);
     if (exists(session)) {
         plain(session,true);
@@ -989,7 +1000,7 @@ function cleanGuard() {
     const selected = argv[0] || '';
     for (const known of knownSessions) {
         if (!path.isAbsolute(known)) fail('invalid registered session');
-        safeParents(known);
+        safeParents(known,known);
         const composition = path.join(known,'composition');
         if (!exists(composition)) continue;
         plain(composition,true); plain(path.join(composition,'manifest.tsv'));
@@ -998,7 +1009,7 @@ function cleanGuard() {
     }
 }
 try {
-    safeParents(feed); if (repo) safeParents(repo);
+    safeParents(feed);
     if (mode === 'recover') recover();
     else if (mode === 'restore-state') restoreState();
     else if (mode === 'clean-guard') cleanGuard();
@@ -2338,23 +2349,51 @@ self_test_matrix() {
     passed=$((passed + 3))
     self_test_closure
     self_test_verify
+    self_test_symlink_feed
     self_test_composition
+}
+
+# Legacy mutations must work without Node and with system/configured symlink parents.
+self_test_symlink_feed() {
+    local physical=$root/feed-physical-parent alias=$root/feed-symlink-parent
+    local sr=$root/feed-symlink-repo sv=1.2.3-local.202610240544.gabcdef0
+    mkdir -p "$physical" "$sr"
+    ln -s "$physical" "$alias"
+    git -C "$sr" init -q
+    printf '.ai-work/\n' > "$sr/.gitignore"
+    printf '<Project><ItemGroup><PackageVersion Include="Cratis.Symlink" Version="1.2.3"/></ItemGroup></Project>\n' > "$sr/Directory.Packages.props"
+    git -C "$sr" add .gitignore Directory.Packages.props
+    git -C "$sr" -c user.email=test@example.invalid -c user.name='Symlink feed fixture' commit -qm initial
+    slf() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$alias/missing/feed" CRATIS_LOCAL_SESSION_DIR="$sr/.ai-work/local-packages" /bin/bash "$SELF" "$@"; }
+    expect_status 0 'symlink feed resolution does not create a missing feed' slf check "$sr"
+    [ ! -e "$physical/missing" ] || failed 'symlink feed resolution created directories'
+    mkdir -p "$physical/missing/feed/nuget"
+    : > "$physical/missing/feed/nuget/Cratis.Symlink.$sv.nupkg"
+    expect_status 0 'legacy use-nuget under symlinked feed parent' slf use-nuget "$sr" "$sv" Cratis.Symlink
+    has "$physical/missing/feed/nuget" "$sr/.ai-work/local-packages/env" || failed 'legacy feed path was not resolved physically'
+    expect_status 0 'legacy restore under symlinked feed parent' slf restore "$sr"
+    has '0 leaks' "$root/output" || failed 'symlink feed restore leaked a local pin'
+    expect_status 0 'legacy clean under symlinked feed parent' slf clean --stamp "$sv" --apply
+    [ ! -e "$physical/missing/feed/nuget/Cratis.Symlink.$sv.nupkg" ] || failed 'symlink feed clean left the artifact'
+    passed=$((passed + 4))
 }
 
 # Composition fixtures are isolated, SDK-native and never restore/build a producer.
 self_test_composition() {
-    local cf=$root/composition-feed cr=$root/composition-repo cm=$root/composition.tsv
+    local cf=$root/composition-parent/feed cr=$root/composition-repo cm=$root/composition.tsv
     local a=22.138.1-local.202610240544.gd1ad215 b=0.2.2-local.202610240544.g91916a3 c=0.1.18-local.202610240544.g524bdce
     local boundary kind base=$root/composition-prior cpkg=$root/composition-package
     if ! command -v node >/dev/null 2>&1 || ! command -v dotnet >/dev/null 2>&1 || ! command -v zip >/dev/null 2>&1 || ! command -v unzip >/dev/null 2>&1; then
         printf 'SKIP: composition fixtures require node, dotnet SDK, zip and unzip\n'; skipped=$((skipped + 1)); return 0
     fi
+    mkdir -p "$root/composition-physical-parent"
+    ln -s "$root/composition-physical-parent" "$root/composition-parent"
     mkdir -p "$cf/nuget" "$cr" "$cpkg"
     : > "$root/.composition-fixture"
     git -C "$cr" init -q
     printf '.ai-work/\nobj/\n' > "$cr/.gitignore"
     printf '<Project><ItemGroup><PackageVersion Include="Cratis.Keep" Version="1.2.3"/></ItemGroup></Project>\n' > "$cr/Directory.Packages.props"
-    printf '<configuration><packageSources><clear/><add key="remote" value="https://example.invalid/v3/index.json"/></packageSources><packageSourceMapping><packageSource key="remote"><package pattern="*"/><package pattern="Cratis.Screenplay"/></packageSource></packageSourceMapping></configuration>\n' > "$cr/nuget.config"
+    printf '<configuration><packageSources><clear/><add key="remote" value="https://example.invalid/v3/index.json"/></packageSources><packageSourceMapping><packageSource key="remote"><package pattern="*"/><package pattern="Cratis.*"/><package pattern="Cratis.Screenplay*"/><package pattern="Cratis.Screenplay"/></packageSource></packageSourceMapping></configuration>\n' > "$cr/nuget.config"
     git -C "$cr" add .gitignore Directory.Packages.props nuget.config
     git -C "$cr" -c user.email=test@example.invalid -c user.name='Composition fixture' commit -qm initial
     cp "$cr/Directory.Packages.props" "$root/composition-original.props"
@@ -2378,6 +2417,18 @@ JSON
     mkdir -p "$root/no-sdk"
     printf '#!/bin/sh\nexit 127\n' > "$root/no-sdk/dotnet"; chmod +x "$root/no-sdk/dotnet"
     expect_status 2 'composition unavailable native SDK fails closed' env -i HOME="$home" PATH="$root/no-sdk:$PATH" TMPDIR="$TMP" CRATIS_LOCAL_FEED="$cf" /bin/bash "$SELF" verify-pack --composition "$cm"
+    mkdir -p "$root/composition-foreign-nuget" "$root/composition-foreign-lock"
+    printf 'keep foreign lock state\n' > "$root/composition-foreign-lock/sentinel"
+    mv "$cf/nuget" "$root/composition-original-nuget"
+    ln -s "$root/composition-foreign-nuget" "$cf/nuget"
+    expect_status 2 'composition rejects helper-owned nuget symlink' cst verify-pack --composition "$cm"
+    [ -d "$root/composition-foreign-nuget" ] || failed 'composition removed foreign nuget directory'
+    rm "$cf/nuget"; mv "$root/composition-original-nuget" "$cf/nuget"
+    ln -s "$root/composition-foreign-lock" "$cf/.composition-lock"
+    expect_status 2 'composition rejects helper-owned lock symlink' cst use-nuget "$cr" --composition "$cm"
+    has 'keep foreign lock state' "$root/composition-foreign-lock/sentinel" || failed 'composition removed foreign lock state'
+    rm "$cf/.composition-lock"
+    passed=$((passed + 2))
     cp "$cm" "$root/composition-good.tsv"
     printf 'package\tStage\tcratis.screenplay\n' >> "$cm"
     expect_status 2 'composition duplicate case-insensitive owner' cst verify-pack --composition "$cm"
@@ -2440,8 +2491,13 @@ JSON
     output=$cr/.ai-work/local-packages/composition
     grep -Fq 'CentralPackageTransitivePinningEnabled>true' "$output/Directory.Packages.props" || failed 'composition pin property'
     grep -Fq 'Directory.Packages.props' "$output/Directory.Packages.props" || failed 'composition CPM import'
-    # Native XML overlay must remove remote exact mappings but retain wildcard.
+    # Only exact owned IDs are removed remotely; broader patterns remain remote.
     [ "$(grep -c 'pattern="Cratis.Screenplay"' "$output/nuget.config")" -eq 1 ] || failed 'composition exclusive exact mapping'
+    has 'pattern="*"' "$output/nuget.config" || failed 'composition removed remote wildcard'
+    has 'pattern="Cratis.*"' "$output/nuget.config" || failed 'composition removed broader remote prefix'
+    has 'pattern="Cratis.Screenplay*"' "$output/nuget.config" || failed 'composition removed overlapping remote prefix'
+    has "$root/composition-physical-parent/feed/nuget" "$output/env" || failed 'composition feed path was not resolved physically'
+    passed=$((passed + 4))
     cp "$output/Directory.Packages.props" "$root/composition-overlay.props"
     expect_status 0 'composition identical activation is a no-op' cst use-nuget "$cr" --composition "$cm" --pin-transitive
     cmp -s "$output/Directory.Packages.props" "$root/composition-overlay.props" || failed 'composition repeated activation drift'
