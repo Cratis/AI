@@ -498,10 +498,13 @@ function packages() {
     }
     return found;
 }
-function gone(consumer) {
-    if (!fs.statSync(consumer.worktree,{throwIfNoEntry:false})?.isDirectory() || !fs.statSync(consumer.session,{throwIfNoEntry:false})?.isDirectory()) return true;
+function worktreeGone(consumer) {
+    if (!fs.statSync(consumer.worktree,{throwIfNoEntry:false})?.isDirectory()) return true;
     const git = cp.spawnSync('git',['-C',consumer.worktree,'rev-parse','--show-toplevel'],{encoding:'utf8'});
     return git.status !== 0 || git.stdout.trim() !== consumer.worktree;
+}
+function gone(consumer) {
+    return !fs.statSync(consumer.session,{throwIfNoEntry:false})?.isDirectory() || worktreeGone(consumer);
 }
 function expiryInputs() {
     const selectedIndex = args.indexOf('--stamp'), selected = selectedIndex < 0 ? null : args[selectedIndex + 1];
@@ -584,7 +587,8 @@ function prune() {
     const values = stamps().map(read), sessions = path.join(feed,'sessions'); safe(sessions);
     const before = fs.existsSync(sessions) ? fs.readFileSync(sessions,'utf8') : null;
     for (const value of values.filter(Boolean)) {
-        const consumers = value.consumers.filter(c => !gone(c));
+        // Keep a consumer while its worktree exists: its manifests are still scanned for live references.
+        const consumers = value.consumers.filter(c => !worktreeGone(c));
         if (consumers.length !== value.consumers.length) { value.consumers = consumers; write(value); }
     }
     if (before !== null) {
@@ -2388,7 +2392,9 @@ clean() {
         [ ! -d "$session/npm-backup" ] || die "unresolved npm backup: $session; restore before cleaning"
         subjects+=("$session"); kinds+=(session)
     done < "$TMP/unique-sessions"
-    registry clean "$version" > "$TMP/stamp-records"
+    # Stamp records exist only after a registry-aware pack or use; without any, clean needs no node.
+    : > "$TMP/stamp-records"
+    if [ -e "$FEED/stamps" ] || [ -L "$FEED/stamps" ]; then registry clean "$version" > "$TMP/stamp-records"; fi
     while IFS= read -r path; do subjects+=("$path"); kinds+=(stamp-record); done < "$TMP/stamp-records"
     if [ "$expired" -eq 1 ]; then
         for ((arg=0; arg<${#subjects[@]}; arg++)); do
@@ -2547,6 +2553,14 @@ LOCK
     passed=$((passed + 5))
     st check "$repo" > "$root/output" || failed 'self-test: clean repo'
     passed=$((passed + 1))
+    # Legacy clean of a feed without stamp records must not need node.
+    mkdir -p "$root/no-registry-feed/nuget"
+    if PATH=/usr/bin:/bin:/usr/sbin:/sbin command -v node > /dev/null 2>&1; then
+        printf 'SKIP: clean without node needs a system PATH without node\n' >&2; skipped=$((skipped + 1))
+    else
+        expect_status 0 'legacy clean without node or stamp records' env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_FEED="$root/no-registry-feed" /bin/bash "$SELF" clean
+        passed=$((passed + 1))
+    fi
     for test_key in stamp npm props sources targets previous override feed; do
         case "$test_key" in
             stamp) printf '%s\n' "$version" > "$repo/probe" ;;
@@ -2841,7 +2855,8 @@ NODE
 const fs = require('node:fs'); const [file,session] = process.argv.slice(2), r = JSON.parse(fs.readFileSync(file));
 r.stamp = '9.8.7-train.g1234567'; r.packs[0].task = null;
 r.consumers = [{worktree:r.packs[0].producer.worktree,session,ecosystem:'nuget',task:null,time:r.created},
-    {worktree:'/nonexistent/cratis-expiry-fixture',session:session + '-gone',ecosystem:'nuget',task:null,time:r.created}];
+    {worktree:'/nonexistent/cratis-expiry-fixture',session:session + '-gone',ecosystem:'nuget',task:null,time:r.created},
+    {worktree:r.packs[0].producer.worktree,session:session + '-missing',ecosystem:'nuget',task:null,time:r.created}];
 const target = file.replace('gabcdef0','g1234567'); fs.mkdirSync(require('node:path').dirname(target)); fs.writeFileSync(target,JSON.stringify(r));
 NODE
                 ;;
@@ -2877,7 +2892,8 @@ NODE
             'prunes sessions')
                 [ "$(cat "$ef/feed/sessions")" = "$es" ] || failed 'expired prunes sessions'
                 node - "$ef/feed/stamps/9.8.7-train.g1234567/record.json" <<'NODE' || failed 'expired prunes consumers'
-const r = JSON.parse(require('node:fs').readFileSync(process.argv[2])); if (r.consumers.length !== 1 || r.consumers[0].worktree.endsWith('fixture')) process.exit(1);
+// The consumer with a missing session but an existing worktree stays, so its manifests remain protected.
+const r = JSON.parse(require('node:fs').readFileSync(process.argv[2])); if (r.consumers.length !== 2 || r.consumers.some(c => c.worktree.endsWith('fixture')) || !r.consumers.some(c => c.session.endsWith('-missing'))) process.exit(1);
 NODE
                 ;;
         esac
