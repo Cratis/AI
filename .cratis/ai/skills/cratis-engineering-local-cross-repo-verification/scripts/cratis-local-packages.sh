@@ -18,6 +18,12 @@ Commands (COMMAND --help shows these instructions too):
   stamp --train PRODUCER [PRODUCER...]
     Train stamp X.Y.Z-train.g<sha7>: the same next patch, no minute, so one code
     state always yields one stamp. Accepted everywhere a local stamp is.
+  plan [--map FILE] CONSUMER PRODUCER...
+    Read-only. Print the plan derived from scripts/dependency-map.tsv (or
+    CRATIS_LOCAL_MAP) for repository names listed in dependency order: pack rows
+    (producer, ecosystem), overlay rows (producer, upstream) and consume rows
+    (the consumer's own edges). Exit 2, nothing printed: unknown or repeated name,
+    no edge, wrong order, a planned pack without ids or pack rows.
   pack-nuget PRODUCER STAMP PROJECT-OR-SLN...
     Release-pack each target into the NuGet feed; requires dotnet.
   pack-npm PRODUCER STAMP
@@ -430,6 +436,125 @@ use_nuget() {
         rm -- "$session/nuget.config"
     fi
     printf 'overrode %s NuGet package IDs\n' "${#ids[@]}"
+}
+
+# Dependency map: tab-separated rows, '#' comments (see references/dependency-map.md).
+# Everything below is derived from these rows; no function reads a feed listing to decide what to expect.
+MAP=${CRATIS_LOCAL_MAP:-$(dirname "$SELF")/dependency-map.tsv}
+map_require() {
+    [ -f "$MAP" ] || die "dependency map not found: $MAP"
+    awk -F'\t' '
+        /^#/ || NF == 0 { next }
+        $2 == "" { bad = 1 }
+        $1 == "pack" && (NF == 4 || NF == 5) && ($3 == "nuget" || $3 == "npm") && $4 != "" && $2 != "" { next }
+        $1 == "ids" && NF == 4 && ($3 == "nuget" || $3 == "npm") && $4 != "" && $2 != "" { next }
+        $1 == "uses" && NF == 5 && ($4 == "nuget" || $4 == "npm" || $4 == "image") && $3 != "" && $5 != "" && $2 != "" { next }
+        $1 == "image" && NF == 4 && $2 != "" { next }
+        { printf "%s:%d: malformed dependency map row: %s\n", FILENAME, NR, $0 > "/dev/stderr"; bad = 1 }
+        END { exit bad ? 1 : 0 }' "$MAP" || exit 2
+}
+map_rows() { awk -F'\t' -v kind="$1" '/^#/ || NF == 0 { next } $1 == kind' "$MAP"; }
+map_known() { awk -F'\t' -v n="$1" '/^#/ || NF == 0 { next } $2 == n || ($1 == "uses" && $3 == n) { found = 1 } END { exit !found }' "$MAP"; }
+# Edge rows "eco<TAB>manifest" for consumer $1 using producer $2.
+map_edge() { map_rows uses | awk -F'\t' -v c="$1" -v p="$2" '$2 == c && $3 == p { print $4 "\t" $5 }'; }
+# Expected package IDs of producer $1 in ecosystem $2, one per line; return 1 when the map has no ids row.
+map_ids() {
+    local rows
+    rows=$(map_rows ids | awk -F'\t' -v r="$1" -v e="$2" '$2 == r && $3 == e { n = split($4, a, ","); for (i = 1; i <= n; i++) if (a[i] != "") print a[i] }')
+    [ -n "$rows" ] || return 1
+    printf '%s\n' "$rows"
+}
+# Pack rows of producer $1 in ecosystem $2 as "target<TAB>PROP=VAL,..." (properties may be empty).
+map_pack_rows() { map_rows pack | awk -F'\t' -v r="$1" -v e="$2" '$2 == r && $3 == e { print $4 "\t" $5 }'; }
+# True when the manifest rows of uses edge "$1 uses $2" include ecosystem $3.
+map_uses() { map_edge "$1" "$2" | awk -F'\t' -v e="$3" '$1 == e { found = 1 } END { exit !found }'; }
+
+# plan_derive OUTFILE CONSUMER PRODUCER...: the one plan every other command works from. Producers are in
+# dependency order. Rows (TSV) are written to OUTFILE only when the whole plan is valid; any problem is die (exit 2).
+# Call it directly, never inside $(...) or a pipeline, so the exit cannot be lost in a subshell.
+#   pack <producer> <eco>            eco nuget|npm: a named downstream repository uses it in that ecosystem
+#   overlay <producer> <upstream>    producer consumes an earlier-named upstream through NuGet
+#   consume <producer> <eco> <path>  the consumer's own edge (eco nuget|npm|image) and its manifest
+plan_derive() {
+    local out=$1 consumer=$2 i j eco name edge manifests
+    shift 2
+    [ $# -ge 1 ] || die 'a plan needs a consumer and at least one producer'
+    local names=("$consumer" "$@")
+    map_require
+    for ((i=0; i<${#names[@]}; i++)); do
+        map_known "${names[$i]}" || die "repository not in the dependency map: ${names[$i]}"
+        for ((j=i+1; j<${#names[@]}; j++)); do
+            [ "${names[$i]}" != "${names[$j]}" ] || die "repository named twice (a consumer cannot also be a producer): ${names[$i]}"
+        done
+    done
+    for ((i=1; i<${#names[@]}; i++)); do
+        for ((j=i+1; j<${#names[@]}; j++)); do
+            [ -z "$(map_edge "${names[$i]}" "${names[$j]}")" ] || die "order: ${names[$i]} uses ${names[$j]}; list ${names[$j]} first"
+        done
+    done
+    : > "$out"
+    for ((i=1; i<${#names[@]}; i++)); do
+        name=${names[$i]}
+        edge=0
+        for eco in nuget npm image; do
+            for ((j=0; j<${#names[@]}; j++)); do
+                [ "$j" -eq 0 ] || [ "$j" -gt "$i" ] || continue
+                if map_uses "${names[$j]}" "$name" "$eco"; then
+                    edge=1
+                    if [ "$eco" != image ]; then plan_add_pack "$out" "$name" "$eco"; fi
+                    break
+                fi
+            done
+        done
+        [ "$edge" -eq 1 ] || die "no edge: nothing named after $name uses it (check the order and the map)"
+    done
+    for ((i=2; i<${#names[@]}; i++)); do
+        for ((j=1; j<i; j++)); do
+            if map_uses "${names[$i]}" "${names[$j]}" nuget; then printf 'overlay\t%s\t%s\n' "${names[$i]}" "${names[$j]}" >> "$out"; fi
+        done
+    done
+    for ((i=1; i<${#names[@]}; i++)); do
+        map_edge "$consumer" "${names[$i]}" | awk -F'\t' -v p="${names[$i]}" '{ print "consume\t" p "\t" $1 "\t" $2 }' >> "$out"
+    done
+    manifests=$(awk -F'\t' '$1 == "consume" && $3 == "npm" { print $4 }' "$out" | sort -u | wc -l | tr -d ' ')
+    [ "$manifests" -le 1 ] || die "$consumer uses npm producers from different directories; only one npm overlay per session is supported"
+    plan_warn_unnamed_hops "${names[@]}"
+}
+# Append "pack <producer> <eco>" after checking the map can verify it (an ids row) and build it (a pack row).
+plan_add_pack() {
+    map_ids "$2" "$3" > /dev/null || die "no ids row for $2 ($3): cannot verify the planned pack"
+    [ -n "$(map_pack_rows "$2" "$3")" ] || die "no pack row for $2 ($3) in the map"
+    printf 'pack\t%s\t%s\n' "$2" "$3" >> "$1"
+}
+# A producer that reaches the consumer through a repository that is not named keeps the released copy of it.
+plan_warn_unnamed_hops() {
+    local consumer=$1 kind x p eco manifest named
+    shift
+    named=$(printf '%s\n' "$@")
+    map_rows uses | while IFS=$'\t' read -r kind x p eco manifest; do
+        [ "$kind" = uses ] && [ "$eco" != '' ] || continue
+        printf '%s\n' "$named" | grep -Fxq "$x" && continue
+        printf '%s\n' "$named" | grep -Fxq "$p" || continue
+        [ "$p" != "$consumer" ] || continue
+        [ -n "$(map_edge "$consumer" "$x")" ] || continue
+        printf 'WARNING: %s -> %s -> %s: %s is not named, so the released %s is kept; name it to rebuild it (a binary break is a finding)\n' "$p" "$x" "$consumer" "$x" "$x" >&2
+    done
+}
+
+# plan [--map FILE] CONSUMER PRODUCER...: print the plan rows (read-only).
+plan_command() {
+    local args=()
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --map) [ $# -ge 2 ] || die '--map requires a file'; MAP=$2; shift 2 ;;
+            --*) die "unknown plan option: $1" ;;
+            *) args+=("$1"); shift ;;
+        esac
+    done
+    [ ${#args[@]} -ge 2 ] || die 'plan requires CONSUMER and at least one PRODUCER (repository names from the map)'
+    scratch
+    plan_derive "$TMP/plan" "${args[@]}"
+    cat "$TMP/plan"
 }
 
 use_npm() {
@@ -853,7 +978,7 @@ NODE
         passed=$((passed + 5))
     else printf 'SKIP: npm pack needs node and npm on inherited PATH\n'; skipped=$((skipped + 5)); fi
     # Multi-repo stamp: the highest next patch wins and every HEAD is reported.
-    local repo2 v2 v3 pk
+    local repo2 v2
     repo2=$root/repo2; mkdir -p "$repo2"; git -C "$repo2" init -q
     git -C "$repo2" config user.email test@example.invalid; git -C "$repo2" config user.name 'Local package self-test'
     printf 'x\n' > "$repo2/f"; git -C "$repo2" add f; git -C "$repo2" commit -qm initial; git -C "$repo2" tag v2.0.0
@@ -944,11 +1069,73 @@ NODE
     [ -d "$home/.nuget/packages/cratis.test/1.2.3" ] || failed 'self-test: clean removed real version'
     passed=$((passed + 5))
     printf 'SKIP: real dotnet/Yarn/Docker packing is not a hermetic self-test\n'; skipped=$((skipped + 3))
+    self_test_matrix
     printf 'self-test: %s passed, %s skipped\n' "$passed" "$skipped"
+}
+
+# Fixture matrix for the plan, closure and verify commands. Runs inside self_test and uses its
+# root/home/feed/st/passed/skipped (dynamic scope). `fx` is the fixture map, `real` the shipped one.
+tsv() { local IFS=$'\t'; printf '%s\n' "$*"; }
+self_test_matrix() {
+    local fx=$root/fx.tsv status
+    fxm() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_MAP="$fx" /bin/bash "$SELF" "$@"; }
+    {
+        echo '# fixture map'
+        tsv pack Lib nuget Lib.slnx
+        tsv pack Lib nuget Lib.Extra.slnx A=1,B=2
+        tsv ids Lib nuget Cratis.Lib,Cratis.Lib.Core
+        tsv pack Lib npm .
+        tsv ids Lib npm @cratis/lib
+        tsv pack Mid nuget Mid.slnx
+        tsv ids Mid nuget Cratis.Mid
+        tsv pack Extra nuget Extra.slnx
+        tsv ids Extra nuget Cratis.Extra
+        tsv pack Nod nuget Nod.slnx
+        tsv uses Mid Lib nuget Directory.Packages.props
+        tsv uses App Mid nuget Directory.Packages.props
+        tsv uses App Lib nuget Directory.Packages.props
+        tsv uses App Extra nuget Directory.Packages.props
+        tsv uses App Lib npm .
+        tsv uses App Orl nuget Directory.Packages.props
+        tsv uses Orl Lib nuget Directory.Packages.props
+        tsv uses App Nod nuget Directory.Packages.props
+    } > "$fx"
+    # P1: exact plan rows and the unnamed-hop warning on stderr only.
+    {
+        tsv pack Lib nuget; tsv pack Lib npm; tsv pack Mid nuget; tsv overlay Mid Lib
+        tsv consume Lib nuget Directory.Packages.props; tsv consume Lib npm .; tsv consume Mid nuget Directory.Packages.props
+    } > "$root/p1.expected"
+    fxm plan App Lib Mid > "$root/output" 2> "$root/stderr" || failed 'self-test: P1 plan'
+    cmp -s "$root/output" "$root/p1.expected" || failed 'self-test: P1 plan rows differ from the expected plan'
+    has 'Lib -> Orl -> App' "$root/stderr" || failed 'self-test: P1 unnamed-hop warning'
+    if has 'WARNING' "$root/output"; then failed 'self-test: P1 warning must stay on stderr'; fi
+    # P2/P3: the real map. An NuGet-only edge plans only the NuGet ecosystem of a dual-ecosystem producer;
+    # npm-only ids on a NuGet edge cannot be planned. P3 must move to the fixture map if Screenplay ships NuGet ids.
+    st plan Stage Arc > "$root/output" 2> "$root/stderr" || failed 'self-test: P2 real plan'
+    { [ "$(grep -c '^pack' "$root/output")" -eq 1 ] && has "$(tsv pack Arc nuget)" "$root/output"; } || failed 'self-test: P2 plans exactly pack Arc nuget'
+    status=0; st plan Stage Screenplay > "$root/output" 2> "$root/stderr" || status=$?
+    { [ "$status" -eq 2 ] && [ ! -s "$root/output" ] && has 'Screenplay (nuget)' "$root/stderr"; } || failed 'self-test: P3 npm-only ids on a NuGet edge'
+    passed=$((passed + 3))
+    # P4-P7: invalid inputs exit 2 with nothing on stdout (unknown, repeated, consumer as producer, wrong order, no edge, no ids, no producer).
+    local bad
+    for bad in 'App Nope' 'App Lib Lib' 'App Lib App' 'App Mid Lib' 'Mid Extra' 'App Nod' 'App'; do
+        status=0
+        # shellcheck disable=SC2086
+        fxm plan $bad > "$root/output" 2> "$root/stderr" || status=$?
+        { [ "$status" -eq 2 ] && [ ! -s "$root/output" ]; } || failed "self-test: plan $bad must exit 2 with empty stdout (got $status)"
+        passed=$((passed + 1))
+    done
+    # P8: a malformed row names its line.
+    { cat "$fx"; printf 'uses\tApp\tLib\n'; } > "$root/bad.tsv"
+    status=0; fx=$root/bad.tsv; fxm plan App Lib > "$root/output" 2> "$root/stderr" || status=$?
+    fx=$root/fx.tsv
+    { [ "$status" -eq 2 ] && has "bad.tsv:$(($(wc -l < "$root/bad.tsv"))): malformed" "$root/stderr"; } || failed 'self-test: P8 malformed map row'
+    passed=$((passed + 1))
 }
 
 case "$MODE" in
     stamp) stamp "$@" ;;
+    plan) plan_command "$@" ;;
     pack-nuget) pack_nuget "$@" ;;
     pack-npm) pack_npm "$@" ;;
     use-nuget) use_nuget "$@" ;;
