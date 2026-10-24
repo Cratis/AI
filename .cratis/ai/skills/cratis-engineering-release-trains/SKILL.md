@@ -44,8 +44,10 @@ run handling, and `cratis-engineering-review-rounds` for proportionate review.
    ```
 
 2. Group related, ready deliveries under one candidate and one PR. Check with
-   the person assembling an existing candidate before changing it. Work branches
-   start from `origin/main`, not from a candidate; ongoing work keeps its branch.
+   the person assembling an existing candidate before changing it. Independent
+   work branches start from `origin/main`; work that depends on an unmerged
+   candidate may start from that candidate's latest commit (see Replace waits
+   with local work). Ongoing work keeps its branch.
    Do not edit another session's checkout or include its uncommitted work.
 3. Prefer joining a related open PR that is still accepting deliveries, has no
    checks running, and is not being merged by another session. Agree on its
