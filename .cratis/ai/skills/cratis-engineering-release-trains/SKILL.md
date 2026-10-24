@@ -106,6 +106,20 @@ Record the cut and readiness estimates in one line in the reviewer comment,
 not the release note: `Cut with A and B; C waits for consumer proof.` Keep local
 coordination records under `.ai-work/`, never in public release text.
 
+## Replace waits with local work
+
+Most waits are removable. The build queue is the only legitimate one; while
+queued, do the next independent piece of work.
+
+- Base work on a committed local candidate instead of waiting for it to reach
+  main, and say which candidate commit it is based on when delivering.
+- Prove against locally built packages instead of waiting for a release; see
+  [cratis-engineering-local-cross-repo-verification](../cratis-engineering-local-cross-repo-verification/SKILL.md).
+  Only the final version pin waits for the release.
+- Drop an item that has been stuck for about two hours rather than holding the
+  candidate; it joins the next one.
+- Cut a candidate at least every few hours with whatever is green.
+
 ## Apply the ship bar
 
 Check these six conditions. If one is missing, stop and report it instead of

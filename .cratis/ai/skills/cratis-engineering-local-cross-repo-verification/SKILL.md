@@ -27,7 +27,9 @@ Also use this loop for:
 Prefer a release/preview for trivial changes, external consumers unable to use
 the local feed, or CI-only behavior this loop cannot reproduce.
 
-**Local verification replaces waiting, not shipping.** After local proof, release
+**Local verification replaces waiting, not shipping.** Other waits a candidate
+can avoid are in [cratis-engineering-release-trains](../cratis-engineering-release-trains/SKILL.md).
+After local proof, release
 the producer through the normal authorized workflow and bump the consumer to the
 released version. Local feeds, pins and images never go into production or a PR.
 Single-repository work needs its own regression specs, not this overlay. Released

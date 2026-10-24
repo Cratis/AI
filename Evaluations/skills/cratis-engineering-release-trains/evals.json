@@ -17,13 +17,14 @@
     {
       "id": 2,
       "name": "hold-cut-for-near-ready",
-      "prompt": "A release candidate has two ready deliveries. Another related fix should be ready within about one gate duration. A fourth delivery is blocked on a design decision in another repository. Decide when to cut, whether a late fifth delivery can join after the cut, and where to record the decision. Reply only.",
+      "prompt": "A release candidate has two ready deliveries. Another related fix should be ready within about one gate duration. A fourth delivery is blocked on a design decision in another repository. Decide when to cut, whether a late fifth delivery can join after the cut, and where to record the decision. Its owner suggests holding the whole candidate until that repository releases. Reply only.",
       "expected_output": "Hold for the near-ready fix, exclude the blocked delivery, freeze after the cut, and put late work into the next candidate. Record readiness estimates and the cut decision in the reviewer comment, not the release note. Run the assembled gate once per code state.",
       "assertions": [
         "Holds the cut for the fix expected within about one gate duration without imposing a fixed clock limit.",
         "Excludes the delivery blocked on a design decision rather than holding indefinitely.",
         "Rejects a new delivery after the cut and assigns it to the next candidate.",
-        "Records the cut and readiness estimates in reviewer notes rather than release notes."
+        "Records the cut and readiness estimates in reviewer notes rather than release notes.",
+        "Does not hold the whole candidate for another repository or a release; drops the stuck item to the next candidate and suggests proving it against locally built packages."
       ]
     },
     {

@@ -5,6 +5,7 @@
   "assertions": [
     { "kind": "skill-contains", "value": "One assembled candidate, one release" },
     { "kind": "skill-contains", "value": "After the cut, nothing joins." },
+    { "kind": "skill-contains", "value": "The build queue is the only legitimate one" },
     { "kind": "skill-contains", "value": "only runs started by this session's own superseded pushes" },
     { "kind": "skill-contains", "value": "A major release is never merged by an agent: a human confirms" },
     { "kind": "skill-contains", "value": "in a PR title or commit message" },
