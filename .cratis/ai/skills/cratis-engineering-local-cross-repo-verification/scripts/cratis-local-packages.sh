@@ -24,8 +24,10 @@ Commands (COMMAND --help shows these instructions too):
     (producer, ecosystem), overlay rows (producer, upstream) and consume rows
     (the consumer's own edges). Exit 2, nothing printed: unknown or repeated name,
     no edge, wrong order, a planned pack without ids or pack rows.
-  pack-nuget PRODUCER STAMP PROJECT-OR-SLN...
-    Release-pack each target into the NuGet feed; requires dotnet.
+  pack-nuget PRODUCER STAMP [--property NAME=VALUE]... PROJECT-OR-SLN...
+    Release-pack each target into the NuGet feed; requires dotnet. Each --property
+    becomes one -p:NAME=VALUE argument of that command only (closure prints the
+    properties of each map pack row); no environment variable carries them.
   pack-npm PRODUCER STAMP
     Requires node, npm and Yarn 4, and a completed repository build. Temporarily
     version non-private workspaces, pack each with npm pack --ignore-scripts (the
@@ -230,10 +232,13 @@ pack_nuget() {
     valid_stamp "$version"; need dotnet
     # Extra MSBuild properties (from the dependency map) go on the command line, never the environment:
     # an environment variable also reaches nested builds such as Chronicle's `dotnet run` code generator.
-    for property in ${CRATIS_LOCAL_PACK_PROPERTIES:-}; do
+    while [ "${1:-}" = --property ]; do
+        [ $# -ge 2 ] || die '--property requires NAME=VALUE'
+        property=$2; shift 2
         [[ "$property" =~ ^[A-Za-z_][A-Za-z0-9_]*=[A-Za-z0-9_.,-]*$ ]] || die "invalid pack property: $property"
         properties+=("-p:$property")
     done
+    [ $# -ge 1 ] || die 'pack-nuget requires at least one target after the properties'
     mutate mkdir -p "$FEED/nuget"
     for target in "$@"; do
         (cd "$repo" && heavy build "pack NuGet $target" dotnet pack "$target" -c Release "-p:PackageVersion=$version" "-p:Version=$version" ${properties[@]+"${properties[@]}"} -o "$FEED/nuget")
@@ -1131,6 +1136,15 @@ self_test_matrix() {
     fx=$root/fx.tsv
     { [ "$status" -eq 2 ] && has "bad.tsv:$(($(wc -l < "$root/bad.tsv"))): malformed" "$root/stderr"; } || failed 'self-test: P8 malformed map row'
     passed=$((passed + 1))
+    # Pack properties are separate -p: arguments of the one command, never an environment variable.
+    mkdir -p "$root/bin"; printf '#!/bin/sh\nexit 0\n' > "$root/bin/dotnet"; chmod +x "$root/bin/dotnet"
+    env -i HOME="$home" PATH="$root/bin:/usr/bin:/bin" TMPDIR="$TMP" /bin/bash "$SELF" --dry-run pack-nuget "$repo" "$version" --property A=1 --property B=2 Lib.slnx > "$root/output" || failed 'self-test: pack-nuget --property dry run'
+    { has ' -p:A=1 -p:B=2 ' "$root/output" && ! has CRATIS_LOCAL_PACK_PROPERTIES "$root/output"; } || failed 'self-test: pack-nuget prints separate -p: tokens'
+    status=0; env -i HOME="$home" PATH="$root/bin:/usr/bin:/bin" TMPDIR="$TMP" /bin/bash "$SELF" --dry-run pack-nuget "$repo" "$version" --property 'A=1;B' Lib.slnx > "$root/output" 2>&1 || status=$?
+    [ "$status" -eq 2 ] || failed 'self-test: pack-nuget rejects an invalid property'
+    status=0; env -i HOME="$home" PATH="$root/bin:/usr/bin:/bin" TMPDIR="$TMP" /bin/bash "$SELF" --dry-run pack-nuget "$repo" "$version" --property A=1 > "$root/output" 2>&1 || status=$?
+    [ "$status" -eq 2 ] || failed 'self-test: pack-nuget needs a target after the properties'
+    passed=$((passed + 3))
 }
 
 case "$MODE" in
