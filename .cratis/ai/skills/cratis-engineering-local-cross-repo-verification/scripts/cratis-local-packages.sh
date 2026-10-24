@@ -125,6 +125,9 @@ CRATIS_LOCAL_TASK, else record null. Convention: owner/repo#number. IDs match
 ^[A-Za-z0-9][A-Za-z0-9._#:/-]{0,127}$ and are JSON values, never path components.
 Registry mutations require node. Successful packs record producer HEAD and branch;
 use records consumers after publication; restore retains their history.
+Invalid records: pack/use and selected clean subjects refuse with 2. Restore reads only
+session stamps after restoring overlays; finish skips invalid records with WARNINGs.
+Restore/finish exit 1 for invalid records; list shows invalid rows and exits 1.
   --self-test
     Isolated scratch HOME tests; npm uses inherited PATH to discover node.
     Other tests use system PATH. Reports passed and skipped counts.
@@ -438,6 +441,20 @@ function read(stamp) {
     }
     return value;
 }
+function warning(stamp, error) {
+    console.error('WARNING: stamp registry: ' + path.join(root, stamp, 'record.json') + ': ' + error.message);
+    process.exitCode = 1;
+}
+function sessionStamps(session) {
+    const files = ['stamp','Directory.Packages.props','cratis-local.targets','nuget.config','env','npm-backup/expected-package.json','composition/manifest.tsv'];
+    const found = new Set();
+    for (const name of files) {
+        const file = path.join(session, name);
+        if (!fs.existsSync(file)) continue;
+        for (const stamp of fs.readFileSync(file, 'utf8').match(/[0-9]+\.[0-9]+\.[0-9]+-(?:local\.[0-9]{12}|train)\.g[0-9a-f]{7}/g) || []) found.add(stamp);
+    }
+    for (const stamp of found) console.log(stamp);
+}
 function stamps() {
     safe(root, true);
     if (!fs.existsSync(root)) return [];
@@ -482,18 +499,20 @@ function list() {
     if (remaining.some(a => a !== '--json') || index >= 0 && !stampPattern.test(selected || '')) fail('list accepts --json and --stamp STAMP');
     const artifacts = packages(), names = [...new Set([...artifacts.keys(), ...stamps()])].sort();
     const rows = names.filter(s => !selected || s === selected).map(stamp => {
-        const value = read(stamp), match = stamp.match(stampPattern), created = value?.created || null;
-        return {stamp,base:match[1],kind:match[2] === 'train' ? 'train' : 'local',recorded:!!value,packages:artifacts.get(stamp) || [],
+        let value = null, error;
+        try { value = read(stamp); } catch (failure) { error = failure.message; warning(stamp, failure); }
+        const match = stamp.match(stampPattern), created = value?.created || null;
+        return {stamp,base:match[1],kind:match[2] === 'train' ? 'train' : 'local',recorded:error ? 'invalid' : !!value,...(error ? {error} : {}),packages:artifacts.get(stamp) || [],
             producers:value?.packs.map(p => p.producer) || [],tasks:Object.entries(value?.tasks || {}).map(([id,s]) => ({id,finished:s.finished})),
             consumers:value?.consumers.map(c => ({worktree:c.worktree,task:c.task,state:consumerState(c)})) || [],created,
             ageSeconds:created ? Math.max(0,Math.floor((Date.now()-Date.parse(created))/1000)) : null,expiry:{expired:false,reasons:[],kept:[]}};
     });
     if (json) console.log(JSON.stringify({schema:1,feed,stamps:rows}));
     else {
-        console.log('STAMP\tECOSYS\tPACKAGES(n)\tOWNER(repo@branch)\tTASK(state)\tCONSUMERS(live/total)\tAGE');
+        console.log('STAMP\tECOSYS\tPACKAGES(n)\tOWNER(repo@branch)\tTASK(state)\tCONSUMERS(live/total)\tAGE\tRECORDED');
         for (const r of rows) console.log([r.stamp,[...new Set(r.packages.map(p => p.ecosystem))].join(',') || '-',r.packages.length,
             r.producers.map(p => p.repo+'@'+p.branch).join(',') || '-',r.tasks.map(t => t.id+'('+ (t.finished ? 'finished' : 'active') +')').join(',') || '-',
-            r.consumers.filter(c => c.state === 'live').length+'/'+r.consumers.length,r.ageSeconds === null ? '-' : r.ageSeconds+'s'].join('\t'));
+            r.consumers.filter(c => c.state === 'live').length+'/'+r.consumers.length,r.ageSeconds === null ? '-' : r.ageSeconds+'s',r.recorded].join('\t'));
     }
 }
 function update() {
@@ -520,10 +539,21 @@ function update() {
 try {
     if (operation === 'list') list();
     else if (operation === 'pack' || operation === 'use') update();
-    else {
-        const records = stamps().map(stamp => ({stamp,value:read(stamp)}));
+    else if (operation === 'restore-stamps') sessionStamps(args[0]);
+    else if (operation === 'remove') {
+        const file = recordPath(args[0]); read(args[0]);
+        if (fs.readdirSync(path.dirname(file)).some(n => n !== 'record.json')) fail('unexpected stamp directory entry');
+        fs.unlinkSync(file); fs.rmdirSync(path.dirname(file));
+    } else {
+        const selected = operation === 'restore' ? [...new Set(args.slice(1))] :
+            operation === 'clean' && args[0] && args[0] !== 'all' ? [args[0]] : stamps();
         let count = 0;
-        for (const {stamp,value} of records) {
+        for (const stamp of selected) {
+            let value;
+            try { value = read(stamp); } catch (error) {
+                if (operation !== 'finish' && operation !== 'restore') throw error;
+                warning(stamp, error); continue;
+            }
             if (!value) continue;
             if (operation === 'finish' && Object.hasOwn(value.tasks,task)) {
                 console.log((args.includes('--apply') ? 'finish: ' : 'would finish: ') + stamp + ' ' + task); count++;
@@ -538,11 +568,6 @@ try {
             }
         }
         if (operation === 'finish' && !count) console.log('no records name task ' + task);
-        if (operation === 'remove') {
-            const file = recordPath(args[0]); read(args[0]);
-            if (fs.readdirSync(path.dirname(file)).some(n => n !== 'record.json')) fail('unexpected stamp directory entry');
-            fs.unlinkSync(file); fs.rmdirSync(path.dirname(file));
-        }
     }
 } catch (error) { console.error('ERROR: stamp registry: ' + error.message); process.exitCode = 2; }
 REGISTRY
@@ -1931,12 +1956,16 @@ NODE
 
 restore() {
     [ $# -eq 1 ] || die 'restore requires a consumer'
-    local repo session backup dir
+    local repo session backup dir stamp
+    local restore_stamps=()
     repo=$(repo_root "$1"); session=$(session_path "$repo"); backup=$session/npm-backup
     validate_session "$session"
+    scratch
+    registry restore-stamps "$session" > "$TMP/restore-stamps"
+    while IFS= read -r stamp; do restore_stamps+=("$stamp"); done < "$TMP/restore-stamps"
     if [ -d "$session/composition" ]; then
         composition restore-state "$repo"
-        registry_update restore "$session"
+        registry_update restore "$session" ${restore_stamps[@]+"${restore_stamps[@]}"}
         if [ "$DRY" -eq 0 ]; then check "$repo"; fi
         return
     fi
@@ -1956,7 +1985,7 @@ restore() {
         mutate rm -rf -- "$backup"
     fi
     mutate rm -f -- "$session/Directory.Packages.props" "$session/cratis-local.targets" "$session/nuget.config" "$session/env" "$session/stamp" "$session/npm-dir"
-    registry_update restore "$session"
+    registry_update restore "$session" ${restore_stamps[@]+"${restore_stamps[@]}"}
     if [ "$DRY" -eq 0 ]; then check "$repo"; fi
 }
 
@@ -2645,10 +2674,10 @@ NODE
     cp "$record" "$root/registry-good"
     printf '{"schema":2}\n' > "$record"
     cp "$record" "$root/registry-bad"
-    expect_status 2 'registry rejects bad schema' rgt finish --task "$rt" --apply
+    expect_status 2 'registry rejects bad schema' rgt clean --stamp "$version" --apply
     cmp -s "$record" "$root/registry-bad" || failed 'registry rewrote bad schema'
     printf '{broken\n' > "$record"
-    expect_status 2 'registry rejects malformed JSON' rgt finish --task "$rt" --apply
+    expect_status 2 'registry rejects malformed JSON' rgt clean --stamp "$version" --apply
     cp "$root/registry-good" "$record"
     mv "$rf/stamps" "$rf/real-stamps"; ln -s "$rf/real-stamps" "$rf/stamps"
     expect_status 2 'registry symlink refused' rgt finish --task "$rt" --apply
@@ -2670,6 +2699,60 @@ NODE
     expect_status 0 'clean removes stamp record' rgt clean --stamp "$version" --apply
     [ ! -e "$rf/stamps/$version" ] && [ ! -e "$rf/nuget/Cratis.Registry.$version.nupkg" ] || failed 'clean retained stamp record/artifacts'
     [ -e "$rf/nuget/Cratis.Legacy.$legacy.nupkg" ] || failed 'registry clean removed another stamp'
+    self_test_registry_invalid
+}
+
+self_test_registry_invalid() {
+    local fixture rf bad_record other=1.2.3-train.gabcdef0
+    for fixture in clean-scoped restore-other restore-own finish list; do
+        rf=$root/registry-invalid-$fixture
+        bad_record=$rf/stamps/$other/record.json
+        mkdir -p "$rf/nuget" "${bad_record%/*}"
+        printf '{broken\n' > "$bad_record"
+        : > "$rf/nuget/Cratis.Test.$version.nupkg"
+        rgt use-nuget "$rr" "$version" > "$root/output"
+        if [ "$fixture" = restore-own ]; then
+            bad_record=$rf/stamps/$version/record.json
+            printf '{broken\n' > "$bad_record"
+        fi
+        cp "$bad_record" "$root/invalid-before"
+        case "$fixture" in
+            clean-scoped)
+                rgt restore "$rr" > "$root/output"
+                expect_status 0 'registry invalid other record clean scoped' rgt clean --stamp "$version" --apply
+                [ ! -e "$rf/stamps/$version" ] && [ ! -e "$rf/nuget/Cratis.Test.$version.nupkg" ] || failed 'invalid other record blocked scoped clean'
+                expect_status 2 'registry invalid record clean all' rgt clean --all --apply
+                expect_status 2 'registry invalid record clean default' rgt clean --apply
+                ;;
+            restore-other)
+                expect_status 0 'registry invalid other record restore' rgt restore "$rr"
+                ;;
+            restore-own)
+                expect_status 1 'registry invalid own record restore' rgt restore "$rr"
+                { grep -Fq 'WARNING:' "$root/stderr" && grep -Fq "$bad_record" "$root/stderr"; } || failed 'restore missing invalid record warning'
+                ;;
+            finish)
+                expect_status 1 'registry finish skips invalid' rgt finish --task "$rt" --apply
+                record=$rf/stamps/$version/record.json rg_assert finished "$version" "$rr" "$rs" || failed 'finish skipped valid record'
+                { grep -Fq 'WARNING:' "$root/stderr" && grep -Fq "$bad_record" "$root/stderr"; } || failed 'finish missing invalid record warning'
+                rgt restore "$rr" > "$root/output"
+                ;;
+            list)
+                expect_status 1 'list invalid record' rgt list --json
+                node - "$root/output" "$version" "$other" <<'NODE' || failed 'list missing valid/invalid rows'
+const fs = require('node:fs'); const [file, valid, invalid] = process.argv.slice(2);
+const rows = JSON.parse(fs.readFileSync(file, 'utf8')).stamps;
+if (rows.length !== 2 || rows.find(r => r.stamp === valid)?.recorded !== true ||
+    rows.find(r => r.stamp === invalid)?.recorded !== 'invalid' || typeof rows.find(r => r.stamp === invalid)?.error !== 'string') process.exit(1);
+NODE
+                expect_status 1 'list invalid record text' rgt list
+                { grep -Fq invalid "$root/output" && grep -Fq "$version" "$root/output"; } || failed 'text list missing valid/invalid rows'
+                rgt restore "$rr" > "$root/output"
+                ;;
+        esac
+        [ ! -e "$rs/env" ] && [ ! -e "$rs/Directory.Packages.props" ] || failed 'invalid record prevented overlay restore'
+        cmp -s "$bad_record" "$root/invalid-before" || failed 'invalid record rewritten'
+    done
 }
 
 self_test_private_cache() {

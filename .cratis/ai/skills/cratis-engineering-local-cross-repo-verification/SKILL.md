@@ -208,9 +208,11 @@ build output, not pre-existing work.
 
 `list [--json] [--stamp STAMP]` is a lock-free, read-only inventory, including legacy
 artifacts without records. It shows producer ownership, task state, live/total consumers
-and age. `use-*` records each consumer, including every composition member stamp;
-`restore` retains the entry with its restoration time. A registry-write failure after
-activation warns and exits `1`, keeping the overlay for restoration.
+and age, plus recorded state. Invalid records appear as `invalid` rows (JSON includes
+`error`); listing continues and exits `1`. `use-*` records each consumer, including every
+composition member stamp. `restore` restores overlays first, then updates only those
+stamps' consumer entries; an invalid selected record warns with its path and exits `1`.
+A registry-write failure after activation warns and exits `1`, keeping the overlay for restoration.
 
 ```bash
 bash "$local" list
@@ -219,13 +221,18 @@ bash "$local" finish --task owner/repo#number --apply
 ```
 
 `finish` is dry-run by default, marks task completion only, and succeeds with a message
-if no record names the task. It never restores consumers or cleans packages automatically.
+if no record names the task and all records are valid. It warns and skips invalid records
+without rewriting them, continues with valid matches, and exits `1` if any were skipped.
+It never restores consumers or cleans packages automatically.
 
 ```bash
 bash "$local" clean "$consumer" --stamp "$stamp"
 # Review listed subjects and stop task-owned containers first.
 bash "$local" clean "$consumer" --stamp "$stamp" --apply
 ```
+
+`clean --stamp STAMP` validates only that stamp's record; default clean and `--all`
+validate all selected records. An invalid selected record refuses cleanup (`2`).
 
 Pass: expected subjects listed, then removed without force. Cleanup covers local
 feed packages, NuGet version folders, discoverable Yarn cache entries, local image

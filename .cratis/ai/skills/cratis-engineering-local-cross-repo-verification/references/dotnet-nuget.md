@@ -62,15 +62,18 @@ IDs match `^[A-Za-z0-9][A-Za-z0-9._#:/-]{0,127}$`; they are JSON values, never p
 
 `list [--json] [--stamp STAMP]` joins feed artifacts with records without locking or
 writing. Legacy stamps appear with `recorded:false`. Text shows stamp, ecosystem,
-package count, producer `repo@branch`, task state, live/total consumers and age. JSON
+package count, producer `repo@branch`, task state, live/total consumers, age and recorded state. JSON
 has top-level `schema:1`, `feed` and `stamps`; each stamp includes packages, producers,
 tasks, consumer states (`live`, `restored`, `gone`), creation time and age in seconds.
 Its `expiry` is `{"expired":false,"reasons":[],"kept":[]}`; no expiry decision is made.
 A live consumer must still be a Git root and retain an env, overlay, backup or composition.
 `use-*` records consumers after activation (every composition member stamp); `restore`
-marks them restored without erasing history. A registry error after activation warns,
-exits `1` and leaves the overlay intact. Unknown schemas, malformed records and symlink
-registry paths refuse updates (`2`); dry runs write no records.
+restores overlays first, then marks only the session's stamps restored without erasing
+history. An invalid selected record prints a `WARNING:` naming its path and exits `1`;
+unrelated records are not read. A registry error after activation warns, exits `1` and
+leaves the overlay intact. Pack/use still refuse invalid target records (`2`); dry runs
+write no records. `list` keeps listing invalid records as `recorded:"invalid"` with an
+`error` string in JSON (text: `RECORDED` is `invalid`) and exits `1` if any are invalid.
 
 ```bash
 bash "$local" list --json
@@ -79,9 +82,13 @@ bash "$local" finish --task owner/repo#number --apply
 ```
 
 `finish` previews by default; `--apply` marks that task finished in every matching
-record. No match is a successful no-op with a message. It does not restore overlays
-or delete packages. Stamp-scoped `clean --apply` removes the record directory with
-its artifacts; review its dry run first.
+record. Invalid records are skipped with a `WARNING:` naming each path, never rewritten;
+valid matches are still marked, and any skipped record makes the exit code `1`. No match
+with all records valid is a successful no-op with a message. It does not restore overlays
+or delete packages. Stamp-scoped `clean --apply` reads only the selected record and removes
+its directory with its artifacts; invalid selected records refuse cleanup (`2`). Default
+clean and `--all` validate all selected records and fail closed (`2`) on any invalid one.
+Review the dry run first.
 
 ## Source mapping
 
