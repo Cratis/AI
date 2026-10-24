@@ -33,6 +33,17 @@
         "Does not invent flags.",
         "Recommends checking the platform first."
       ]
+    },
+    {
+      "id": 4,
+      "name": "mini-dump-and-delete",
+      "prompt": "Without calling tools, a test run hangs and you need a hang dump. What do you ask for and what do you do afterward?",
+      "expected_output": "Ask for a mini dump, read the stack, keep the text output, and delete the dump file.",
+      "assertions": [
+        "Requests a mini dump (--blame-hang-dump-type mini or --hangdump-type Mini), not the default full dump.",
+        "Reads the stack from the dump and then deletes the .dmp file.",
+        "Reserves a full dump for a named investigation that needs heap contents."
+      ]
     }
   ]
 }

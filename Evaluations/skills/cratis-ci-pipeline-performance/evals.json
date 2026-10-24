@@ -52,6 +52,17 @@
         "Pins the third-party action by full commit SHA with a version comment rather than a tag, and keeps permissions minimal at the job level.",
         "Notes the workflow-only change ships with the no-release label."
       ]
+    },
+    {
+      "id": 5,
+      "name": "mini-hang-dump-and-delete",
+      "prompt": "Without calling tools, a CI test job hangs intermittently. Describe how to capture a dump for it. Reply only.",
+      "expected_output": "Add a job timeout and a mini hang dump, upload the result, read the stack, and delete the dump file.",
+      "assertions": [
+        "Requests a mini dump (--blame-hang-dump-type mini or --hangdump-type Mini), not the default full dump.",
+        "Reads the stack from the dump and then deletes the .dmp file.",
+        "Reserves a full dump for a named investigation that needs heap contents."
+      ]
     }
   ]
 }

@@ -146,6 +146,8 @@ Use exact IDs or a task-specific Compose project; confirm ownership before
 removal. Do not restart a shared daemon or stop another task's services.
 Never run `docker system prune -a` or `docker image prune -a`.
 
+When a test run hangs, ask for a mini hang dump (`--blame-hang-dump-type mini` on VSTest, `--hangdump-type Mini` on Microsoft.Testing.Platform). Read the stack (for example `dotnet-dump analyze <file>` then `clrstack -all`), keep the text output, and delete the `.dmp` file. Use a full dump only for a named investigation that needs heap contents.
+
 For a repository's Compose test setup, one scoped teardown example is
 `docker compose -p <task-project> down`, under its own deadline. Do not add
 volume deletion unless those volumes are disposable and owned by this task.

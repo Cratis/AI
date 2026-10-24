@@ -65,6 +65,17 @@
         "Lets repository policy choose local Tier 2 and allows CI-backed integration only when CI runs it and it passes before merge.",
         "Names the hosted-service and operating-system coverage that cannot run locally, discloses deferral in reviewer notes and does not call it a local pass."
       ]
+    },
+    {
+      "id": 6,
+      "name": "mini-hang-dump-and-delete",
+      "prompt": "Without calling tools, a local integration test hangs. How do you capture diagnostics without filling the disk? Reply only.",
+      "expected_output": "Ask for a mini hang dump, read the stack, and delete the dump file.",
+      "assertions": [
+        "Requests a mini dump (--blame-hang-dump-type mini or --hangdump-type Mini), not the default full dump.",
+        "Reads the stack from the dump and then deletes the .dmp file.",
+        "Reserves a full dump for a named investigation that needs heap contents."
+      ]
     }
   ]
 }

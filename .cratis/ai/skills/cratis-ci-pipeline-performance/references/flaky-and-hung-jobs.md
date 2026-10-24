@@ -25,12 +25,14 @@ cost runner-minutes and developer trust; diagnose before retrying.
 
 ```bash
 dotnet test Repo.slnx --configuration Release --no-build \
-  --blame-hang --blame-hang-timeout 5m --blame-crash \
+  --blame-hang --blame-hang-timeout 5m --blame-hang-dump-type mini \
+  --blame-crash --blame-crash-dump-type mini \
   --results-directory TestResults
 ```
 
 - This is the VSTest form. Microsoft.Testing.Platform projects use their own
-  crash and hang dump extensions and options; do not mix the two sets of switches.
+  crash and hang dump extensions and options (`--hangdump-type Mini`, `--crashdump-type Mini`); do not mix the two sets of switches.
+- Read the stack (for example `dotnet-dump analyze <file>` then `clrstack -all`), keep the text output, and delete the `.dmp` file. Use a full dump only for a named investigation that needs heap contents.
 - Upload `TestResults` as an artifact with `if: ${{ !cancelled() }}`, so the dump
   survives the failure.
 
