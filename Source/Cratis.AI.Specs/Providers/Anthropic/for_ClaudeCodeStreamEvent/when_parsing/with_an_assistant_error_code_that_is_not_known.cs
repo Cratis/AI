@@ -18,7 +18,7 @@ public class with_an_assistant_error_code_that_is_not_known : Specification
 
     [Fact] void should_recognize_every_line() => _recognized.ShouldBeTrue();
     [Fact] void should_classify_an_unknown_code_as_a_model_request_failure() => _unknown.FailureKind.ShouldEqual(ClaudeCodeFailureKind.ModelRequest);
-    [Fact] void should_name_the_unknown_code() => _unknown.FailureReason!.ShouldContain("something_new");
+    [Fact] void should_name_the_unknown_code() => _unknown.FailureReason.ShouldContain("something_new");
     [Fact] void should_drop_a_code_that_is_free_text() => _freeText.FailureCode.ShouldBeNull();
     [Fact] void should_not_repeat_free_text() => _freeText.FailureReason!.Contains("sk-ant", StringComparison.Ordinal).ShouldBeFalse();
 }

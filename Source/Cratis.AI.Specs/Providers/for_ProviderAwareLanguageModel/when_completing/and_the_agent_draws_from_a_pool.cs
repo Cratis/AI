@@ -38,5 +38,5 @@ public class and_the_agent_draws_from_a_pool : given.all_dependencies
 
     [Fact]
     void should_never_touch_the_burnt_member() =>
-        _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, default);
+        _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, TestContext.Current.CancellationToken);
 }

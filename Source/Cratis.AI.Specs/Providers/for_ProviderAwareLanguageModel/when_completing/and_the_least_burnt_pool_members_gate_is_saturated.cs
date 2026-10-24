@@ -66,7 +66,7 @@ public class and_the_least_burnt_pool_members_gate_is_saturated : given.all_depe
 
     [Fact]
     void should_never_touch_the_saturated_member() =>
-        _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default);
+        _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, TestContext.Current.CancellationToken);
 
     void Destroy() => _heldSlot?.Dispose();
 }

@@ -18,6 +18,6 @@ public class with_an_api_error_body_in_the_assistant_text : Specification
 
     [Fact] void should_recognize_the_failure() => _recognized.ShouldBeTrue();
     [Fact] void should_classify_the_failure_as_invalid() => _event.FailureKind.ShouldEqual(ClaudeCodeFailureKind.InvalidRequest);
-    [Fact] void should_say_what_the_vendor_objected_to() => _event.FailureReason!.ShouldContain("tools.3.custom.input_schema: JSON schema is invalid");
+    [Fact] void should_say_what_the_vendor_objected_to() => _event.FailureReason.ShouldContain("tools.3.custom.input_schema: JSON schema is invalid");
     [Fact] void should_not_expose_a_credential_the_vendor_echoed() => _event.FailureReason!.Contains("abcdefghijklmnopqrstuvwxyz", StringComparison.Ordinal).ShouldBeFalse();
 }

@@ -27,5 +27,5 @@ public class and_the_failure_is_not_transient : given.an_inner_model
 
     [Fact]
     void should_not_have_waited_at_all() =>
-        Delay.DidNotReceiveWithAnyArgs().Invoke(default, default);
+        Delay.DidNotReceiveWithAnyArgs().Invoke(default, TestContext.Current.CancellationToken);
 }

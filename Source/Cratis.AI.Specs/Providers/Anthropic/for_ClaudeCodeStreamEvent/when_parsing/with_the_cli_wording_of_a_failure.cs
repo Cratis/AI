@@ -17,5 +17,5 @@ public class with_the_cli_wording_of_a_failure : Specification
         out _event);
 
     [Fact] void should_recognize_the_failure() => _recognized.ShouldBeTrue();
-    [Fact] void should_say_what_the_cli_said() => _event.FailureReason!.ShouldContain("There's an issue with the selected model (haiku)");
+    [Fact] void should_say_what_the_cli_said() => _event.FailureReason.ShouldContain("There's an issue with the selected model (haiku)");
 }

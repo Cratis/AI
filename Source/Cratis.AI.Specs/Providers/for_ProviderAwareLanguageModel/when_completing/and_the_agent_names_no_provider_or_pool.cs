@@ -24,7 +24,7 @@ public class and_the_agent_names_no_provider_or_pool : given.all_dependencies
 
     [Fact]
     void should_never_touch_a_provider_client() =>
-        _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default);
+        _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, TestContext.Current.CancellationToken);
 
     // This route used to be silent, which is what made an agent whose provider read back empty
     // indistinguishable from a deployment that had configured none (issue #103).
