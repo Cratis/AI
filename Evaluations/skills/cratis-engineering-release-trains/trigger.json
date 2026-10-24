@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-engineering-release-trains",
+  "queries": [
+    { "query": "Group these finished branches into one candidate and one release instead of separate PRs.", "shouldTrigger": true },
+    { "query": "We have related work in three worktrees of the same repository. How should the candidate be assembled?", "shouldTrigger": true },
+    { "query": "Fold the superseded PR into our open candidate and move its release-note bullet.", "shouldTrigger": true },
+    { "query": "Should this related fix join the existing open PR rather than create another release?", "shouldTrigger": true },
+    { "query": "Decide the candidate cut: one delivery is almost ready and another is blocked on design.", "shouldTrigger": true },
+    { "query": "The candidate is frozen. Can a late feature still join it before the shipping push?", "shouldTrigger": true },
+    { "query": "Apply the ship bar before publishing this assembled set of fixes.", "shouldTrigger": true },
+    { "query": "Our major candidate is green and confirmed. Who must merge it?", "shouldTrigger": true },
+    { "query": "Can the candidate PR title or commit message use a CI skip token to save a run?", "shouldTrigger": true },
+    { "query": "Watch the exact CI run without repeatedly querying its status.", "shouldTrigger": false, "note": "cratis-engineering-ci-gates" },
+    { "query": "Choose a delta review round after a blocking finding was corrected.", "shouldTrigger": false, "note": "cratis-engineering-review-rounds" },
+    { "query": "Optimize our GitHub Actions workflow cache keys and job matrix to reduce pipeline duration.", "shouldTrigger": false, "note": "cratis-ci-pipeline-performance" },
+    { "query": "Prove the consolidation preserved every delivered change after the branches were merged.", "shouldTrigger": false, "note": "cratis-engineering-consolidation-guard" },
+    { "query": "Write consumer-facing release notes for this completed API change.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Update the issue status block instead of adding another progress comment.", "shouldTrigger": false, "note": "cratis-engineering-issue-hygiene" },
+    { "query": "Review this command for architecture and missing specification coverage.", "shouldTrigger": false, "note": "cratis-code-review" },
+    { "query": "Three regressions on the same export endpoint need an owning failure-class gate.", "shouldTrigger": false, "note": "cratis-engineering-regression-cluster" },
+    { "query": "Derive the local gate commands from the repository workflows and identify integration coverage.", "shouldTrigger": false, "note": "cratis-engineering-ci-gates" }
+  ]
+}

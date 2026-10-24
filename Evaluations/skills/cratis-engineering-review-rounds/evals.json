@@ -1,0 +1,55 @@
+{
+  "skill_name": "cratis-engineering-review-rounds",
+  "evals": [
+    {
+      "id": 1,
+      "name": "delta-round-after-blocker",
+      "prompt": "Round 1 reviewed the whole PR at committed head R1 and found one confirmed blocker, one missing required migration check, one suggestion, and one dismissed finding with a reason. The blocker is fixed at R2 and the check has now run. Plan round 2, including its inputs and what can be reused. Reply only; do not run anything.",
+      "expected_output": "Run a quick delta from R1 to R2, carrying the original base, full resolved SHAs, and the complete prior report including blockers, evidence gaps, suggestions, dismissals, and scope limits. Check the correction and migration evidence. Do not restart whole-change review or reuse approval for a changed or dirty head.",
+      "assertions": [
+        "Chooses a delta from the last reviewed head R1 to corrected head R2 rather than a whole-change restart.",
+        "Supplies round number, original base, full resolved head SHAs, and the prior report.",
+        "Carries the earlier blocker, required evidence gap, suggestion, dismissal reason, and scope limits.",
+        "Requires evidence for the fix and migration rather than treating inspection as migration execution.",
+        "Does not reuse an earlier approval for a changed head or dirty tree."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "cap-then-structural-fix",
+      "prompt": "Three review rounds on the same work item have each exposed another blocking edge case in the same parser. Someone proposes renaming it as a new delivery and starting round 4, or applying one more patch. What should happen instead? Reply only.",
+      "expected_output": "Stop at the three-round cap. Do not reset the count by renaming the target or start an automatic fourth round. Make one structural change that addresses the class or ask the user about the approach. Retain blockers and required review as unresolved rather than claiming completion.",
+      "assertions": [
+        "Stops the review loop at three rounds and refuses to reset the cap by renaming the work item.",
+        "Proposes one structural correction for the recurring class or asks the user about the approach.",
+        "Does not authorize an automatic fourth round after the structural correction.",
+        "Preserves unresolved blockers and required review instead of claiming approval."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "advisory-not-filed",
+      "prompt": "The whole-change review and all required checks are complete. There are no blockers, only an advisory naming preference and an optional refactor. Neither is cheap. Should the agent fix them, open follow-up issues, or start another round to reach a completely clean report? Reply only.",
+      "expected_output": "Leave the items as Suggestions and use Approved with suggestions within the examined scope. No extra review round or fix pass is warranted for advisory feedback alone. Do not file issues merely to dispose of it or elevate a preference to a merge gate.",
+      "assertions": [
+        "Maps advisory findings to Suggestions and the verdict to Approved with suggestions.",
+        "Does not start another round or mandatory fix pass for advisory findings alone.",
+        "Does not file follow-up issues merely to dispose of advisory feedback.",
+        "Does not promote a naming preference or optional refactor to a blocker."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "proportionate-depth-and-independent-review",
+      "prompt": "Two deliveries are joining one PR: a documentation correction and a migration changing tenant isolation across services. Choose delivery and whole-change review depth and timing. The harness can select a different provider family, but its first reviewer call fails. A teammate suggests calling the failure Approved because it returned no findings. Reply only.",
+      "expected_output": "Use quick delivery reviews and one whole-change review per PR, beginning inspection in parallel with the gate without final approval until required gates pass. Deep review only where the cross-cutting or security risk is named and justified; run the migration on representative data. Select a different provider family, mark the provider error Incomplete, and fall back once per the shared rule.",
+      "assertions": [
+        "Keeps quick delivery reviews and one whole-change review per PR; delivery reviews do not replace it.",
+        "Allows whole-change inspection parallel to the gate but withholds approval until required checks pass.",
+        "Requires a named security or cross-cutting justification for deep migration review and real migration execution evidence.",
+        "Selects a different provider family where supported and follows the shared fallback-once rule.",
+        "Marks the reviewer error Incomplete rather than Approved or a fabricated failed verdict."
+      ]
+    }
+  ]
+}

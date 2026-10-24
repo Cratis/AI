@@ -1,0 +1,120 @@
+---
+name: cratis-engineering-review-rounds
+description: Plan proportionate review rounds, distinguish blocking from advisory findings, and carry prior evidence into a delta round with a firm stopping point. Use when choosing a review round, handling blocking or advisory feedback, requesting a delta since the last reviewed SHA, or stopping recurring blockers. Not for review criteria (use cratis-code-review), grouping a release candidate (use cratis-engineering-release-trains), waiting on checks (use cratis-engineering-ci-gates), or a repeated regression class (use cratis-engineering-regression-cluster).
+license: LICENSE
+compatibility: Requires git and the GitHub CLI (gh).
+---
+
+<!-- Copyright (c) Cratis. All rights reserved. -->
+<!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
+
+# Review the change, then its corrections
+
+Read [review-reports.md](../../rules/review-reports.md) before choosing reviewers
+or reporting findings. Its report shape, verdicts, scope limits, and reviewer
+independence apply to every round. This skill schedules reviews; it does not
+replace the criteria in `cratis-code-review` or specialist review skills.
+
+**Blocking** means a must-fix finding in **Blockers**, yielding **Changes
+requested**. **Advisory** means a non-blocking finding in **Suggestions**. An
+advisory preference is not a merge gate. Missing required evidence yields
+**Incomplete**, not approval; retain that gap until it is resolved.
+
+## Budget the review
+
+- Run one quick round per delivery. A second is warranted only after a blocker,
+  not to seek reassurance or eliminate suggestions.
+- Run one whole-change review per PR on the assembled change. Quick delivery
+  rounds do not replace it. Start whole-change inspection in parallel with the
+  gate when possible, but keep it provisional: required gates must pass before
+  an approval report is finalized. Do not launch duplicate gates for review.
+- Use ordinary depth by default. Deep review needs one named risk class:
+  **security**, **algorithmic**, **concurrency**, or **cross-cutting**, plus a
+  one-line justification tied to the changed behavior. Data-loss exposure or
+  irreversible migrations may justify cross-cutting review; merely wanting
+  extra confidence does not.
+- Prove migrations and deployment-sensitive behavior by running the migration
+  on representative local data and exercising the relevant old/new behavior.
+  Deeper inspection is not execution evidence. Follow repository test policy.
+
+## First whole-change round
+
+1. Fix the target scope and committed base and head SHAs. Name changed surfaces,
+   expected behavior, required checks, and any specific risk before starting.
+   Use `git rev-parse <base>` and `git rev-parse HEAD` to resolve full SHAs.
+2. Apply reviewer independence from `review-reports.md`: use a different
+   provider family where selectable. Where it is not selectable, declare
+   `single-provider` in the report header and on the Not examined line. A
+   provider/tool error makes the review Incomplete; fall back once as that
+   rule directs, rather than manufacturing a verdict.
+3. Review the whole diff using the applicable criteria and real gate results.
+   Record round 1 with its base/head and retain the complete report unchanged.
+   Keep local review records under `.ai-work/`; public reviewer notes follow
+   [pull-requests.md](../../rules/pull-requests.md), never the release note.
+4. Fix confirmed Blockers together. Dismiss a candidate only with evidence and
+   a reason, not by silently deleting it. Correct required evidence gaps before
+   seeking approval. Cheap advisory fixes may join this correction pass.
+
+## Delta rounds
+
+A delta round follows a whole-change review and reviews from the last reviewed
+SHA, not from an arbitrary base. Carry the prior Blockers, unresolved evidence
+gaps, Suggestions, and Dismissed findings with their reasons. Supply the round
+number, prior report, original base, last reviewed SHA, and new head explicitly.
+
+For example, after correcting a blocker from round 1:
+
+```text
+Round: 2 (delta)
+Original base: <full base SHA>
+Since: <full head SHA reviewed in round 1>
+Head: <full corrected head SHA>
+Prior: <complete round 1 report, including dismissals and scope limits>
+Scope: inspect the correction diff and verify disposition of prior findings
+```
+
+Inspect the correction diff with `git diff <last-reviewed-sha>..<new-head-sha>`.
+Recheck earlier blockers against the correction and its specifications. Preserve
+unresolved findings and limits; a narrow delta cannot certify surfaces that
+were never examined. Reuse earlier approval only for the exact committed SHAs
+and examined scope, never for a dirty tree or a changed head.
+
+Do not start a follow-up round for advisory findings alone. Fix them only when
+cheap in an existing correction pass; otherwise leave them as Suggestions.
+Never file an issue merely to dispose of advisory feedback. A distinct defect
+needs its own evidence and the authority rules, not automatic issue creation.
+
+## Stop instead of looping
+
+Cap review at **3 rounds per work item**, normally fewer. Keep delivery and
+whole-change round counts explicit; renaming the target does not reset a work
+item's cap. If blockers recur, stop the fix/review loop. Make one structural
+change addressing the failure class or ask the user about the approach. Use
+`cratis-engineering-regression-cluster` when repeated instances share a surface.
+A structural change does not authorize an automatic fourth round or waive any
+required review; report the remaining blocker or required decision.
+
+## What breaks
+
+- **A whole-change restart after every correction:** repeats work while losing
+  the earlier blocker list and dismissals. Use a delta with the prior report.
+- **Advisory becomes blocking:** a preference causes needless edits, extra
+  rounds, or unwanted issues. Preserve the shared report vocabulary.
+- **Deep by habit:** extra review displaces running the behavior without a
+  named risk. State the risk or use ordinary depth.
+- **Green by absence:** a reviewer failure or missing required proof is
+  Incomplete, not a successful review with no findings.
+
+## How it is proven
+
+Run the repository's required gates and behavioral specifications for the
+correction; successful exits are required evidence, not review substitutes.
+Use the delta command above to confirm scope and verify that each earlier
+finding has a disposition with evidence. The report includes Blockers,
+Suggestions, Dismissed (with reason), Verdict, and Not examined, per the shared
+rule. No Blockers and complete required evidence permit approval; suggestions
+alone permit Approved with suggestions.
+
+For PR descriptions and release notes, run the deterministic
+`cratis-check-pr.mjs` command from `pull-requests.md` and require a zero exit.
+Do not spend a review round on checks that script owns.

@@ -1,0 +1,19 @@
+{
+  "skill": "cratis-engineering-release-trains",
+  "input": "Group related deliveries, freeze the candidate, and apply the ship bar without bypassing human merge or CI.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "One assembled candidate, one release" },
+    { "kind": "skill-contains", "value": "After the cut, nothing joins." },
+    { "kind": "skill-contains", "value": "only runs started by this session's own superseded pushes" },
+    { "kind": "skill-contains", "value": "A major release is never merged by an agent: a human confirms" },
+    { "kind": "skill-contains", "value": "in a PR title or commit message" },
+    { "kind": "skill-contains", "value": "[skip ci]" },
+    { "kind": "skill-contains", "value": "[ci skip]" },
+    { "kind": "skill-contains", "value": "[no ci]" },
+    { "kind": "skill-contains", "value": "[skip actions]" },
+    { "kind": "skill-contains", "value": "never squash or rebase" },
+    { "kind": "skill-contains", "value": "../../rules/pull-requests.md" },
+    { "kind": "skill-contains", "value": "../../prompts/ship-changes.prompt.md" }
+  ]
+}

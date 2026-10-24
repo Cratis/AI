@@ -1,0 +1,66 @@
+{
+  "skill_name": "cratis-engineering-release-trains",
+  "evals": [
+    {
+      "id": 1,
+      "name": "fold-superseded-pr-and-join-open-pr",
+      "prompt": "The user asked to ship two related fixes together and fold the old PR. A related open candidate PR is still accepting deliveries, has no checks running, and its writer agrees to take both fixes. One fix also has a superseded PR. Its branch has a queued check from this session's superseded push, a Publish run, and a check started by another session. Plan the fold and delivery. Reply only; do not run anything.",
+      "expected_output": "Join the open candidate rather than creating a competing PR. Preserve commits with merges, apply consolidation-guard, close the superseded PR promptly with a Folded into or Will be folded into reason, and move its release-note bullet. Cancel only this session's superseded check, never Publish or the other session's run. Run one assembled gate and whole-change review before the shipping push.",
+      "assertions": [
+        "Joins the related open candidate with its writer rather than opening another PR.",
+        "Preserves commits with merge commits and never recommends squash or rebase.",
+        "Closes the superseded PR promptly with a folding reason and moves its delivered release-note bullet.",
+        "Cancels only the check from this session's superseded push, not Publish or another session's run.",
+        "Requires consolidation proof plus the assembled gate and whole-change review before shipping."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "hold-cut-for-near-ready",
+      "prompt": "A release candidate has two ready deliveries. Another related fix should be ready within about one gate duration. A fourth delivery is blocked on a design decision in another repository. Decide when to cut, whether a late fifth delivery can join after the cut, and where to record the decision. Reply only.",
+      "expected_output": "Hold for the near-ready fix, exclude the blocked delivery, freeze after the cut, and put late work into the next candidate. Record readiness estimates and the cut decision in the reviewer comment, not the release note. Run the assembled gate once per code state.",
+      "assertions": [
+        "Holds the cut for the fix expected within about one gate duration without imposing a fixed clock limit.",
+        "Excludes the delivery blocked on a design decision rather than holding indefinitely.",
+        "Rejects a new delivery after the cut and assigns it to the next candidate.",
+        "Records the cut and readiness estimates in reviewer notes rather than release notes."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "ship-bar-unmet-stops",
+      "prompt": "The user asked to ship a non-major fix. Targeted specs pass, but the assembled local gate has not run, no whole-change review exists, and an issue comment raises an unanswered product question. Someone suggests pushing now to find out if CI passes. Explain the next action and the final pre-merge checks once the blockers are resolved. Reply only.",
+      "expected_output": "Stop the speculative push and report the missing gate, review, and product decision. Resolve the question, run the assembled gate and whole-change review, then push a coherent batch. Before merging re-read issue/PR discussion, fetch main, check overlap with the tested SHA, and rerun gates and CI after merging overlapping main changes.",
+      "assertions": [
+        "Does not push speculative code to discover whether CI passes.",
+        "Reports the missing assembled gate, whole-change review, and unresolved product question.",
+        "Requires a fresh reread of issue and PR comments immediately before merge.",
+        "Fetches main, checks overlapping changes since the tested head, and requires updated gates and CI after overlap."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "major-human-confirms-and-merges",
+      "prompt": "The user asked to ship a breaking API change as a major release. The candidate gate, review, and CI are green. A human has explicitly confirmed the exact breaking change and resulting major version, then says the release is ready. Should the agent run gh pr merge? State the boundary and handoff. Reply only.",
+      "expected_output": "No. Prepare the major PR and explain that a human must both confirm and merge it. Even explicit major confirmation does not permit an agent merge under this skill. Leave the PR and current evidence for the human to merge with a merge commit after rechecking the ship bar.",
+      "assertions": [
+        "Explicitly refuses an agent merge of a major release even after human confirmation.",
+        "Requires a human to both confirm and perform the major merge.",
+        "Allows preparing the major PR under the ship request without asking again for those ordinary preparation steps.",
+        "Does not propose auto-merge, squash, or rebase as a workaround."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "ci-skip-tokens-rejected",
+      "prompt": "To save CI minutes, someone proposes a PR title ending in [skip ci] and the next commit message ending in [skip actions]. They say [ci skip] or [no ci] would also work and merging the PR is safe because the branch checks already passed. Explain what to do before creating the commit or PR. Reply only.",
+      "expected_output": "Reject all four tokens in both PR titles and commit messages. Remove them from the proposed text. A merge commit inherits the PR title, so a skip token can suppress checks on main even if branch checks passed. Save CI through grouping and local gates, not skip markers or rewriting history.",
+      "assertions": [
+        "Rejects [skip ci], [ci skip], [no ci], and [skip actions] in PR titles.",
+        "Also rejects every listed token in commit messages, not only PR titles.",
+        "Explains that the merge commit inherits the PR title and can suppress checks on main.",
+        "Removes the tokens from the proposed uncommitted text without recommending history rewriting."
+      ]
+    }
+  ]
+}
