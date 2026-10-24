@@ -168,7 +168,7 @@ The example declares `is event source` because the producer sources every event 
 Requires Screenplay 4.242.0 and ESM v33. A fixture `for` must then equal the key;
 without `for`, it takes the key. Unmarked captures stay unchanged. Other
 sources or non-single-property keys report PLAY0809, with no automatic repair. Read
-[event-source keys](../../cratis-screenplay-captures-and-reactions/references/event-source-keys.md).
+[event-source keys](../../cratis-screenplay-captures-and-reactions/references/capture-map-and-example.md#keying-by-the-event-source).
 
 Givens fold in authored order without appending. Each event overlays its top-level
 properties onto state for that typed key: absent properties retain earlier values;

@@ -110,7 +110,7 @@ Marked typed fixtures reject an explicit `for` that differs from the key. Withou
 `for`, the fixture takes the key before projections/reactions. The contract checks
 givens too, even without an action. This execution rejection is not PLAY0809 and
 not a successful `then no events` outcome. Unmarked captures retain prior semantics.
-Read captures-and-reactions [event-source keys](../../cratis-screenplay-captures-and-reactions/references/event-source-keys.md).
+Read captures-and-reactions [event-source keys](../../cratis-screenplay-captures-and-reactions/references/capture-map-and-example.md#keying-by-the-event-source).
 
 ## Explicit enum member numbers
 

@@ -149,7 +149,7 @@ Other sources/key shapes report PLAY0809, with no automatic repair. Explicit typ
 fixture `for` must equal the key; omission takes the key before projections/reactions,
 including givens without an action. Unmarked captures keep earlier semantics.
 An admitting renderer may narrow history reads by event source id; binding is not target evidence.
-Read [event-source keys](../../cratis-screenplay-captures-and-reactions/references/event-source-keys.md) for the complete example.
+Read [event-source keys](../../cratis-screenplay-captures-and-reactions/references/capture-map-and-example.md#keying-by-the-event-source) for the complete example.
 
 ## `$context.` paths (command `produces`)
 `occurred`, `tenant`, `command.<p>`, `arguments.<p>`, `causedBy.subject|name|userName`,
