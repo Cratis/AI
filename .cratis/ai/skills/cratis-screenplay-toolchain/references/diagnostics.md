@@ -5,6 +5,7 @@
 - Warnings that hide defects (always validate with `--warnings-as-errors`)
 - Source reference and identifier checks
 - Public events and translation direction
+- Event-source capture keys
 - Explicit enum member numbers
 - Reserved stored names and event pins
 - Named keys, production routes and observer filters

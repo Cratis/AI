@@ -66,5 +66,5 @@ Changing the first fixture's `for` to `"other-order"` rejects the run; it is not
 new stream to accept silently. Test that rejection and the given-only mismatch
 through evaluator outcomes as well as the two successful source forms.
 
-Authority: Screenplay [captures](https://github.com/Cratis/Screenplay/blob/v4.242.0/Documentation/screenplay/captures.md#keying-by-the-event-source)
-and [capture grammar](https://github.com/Cratis/Screenplay/blob/v4.242.0/Documentation/screenplay/captures/grammar.md).
+Authority: Screenplay [captures](https://github.com/Cratis/Screenplay/blob/main/Documentation/screenplay/captures.md#keying-by-the-event-source)
+and [capture grammar](https://github.com/Cratis/Screenplay/blob/main/Documentation/screenplay/captures/grammar.md).
