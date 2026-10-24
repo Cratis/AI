@@ -42,12 +42,16 @@ client registration. Installation must preserve user-owned MCP servers and
 report unsupported adapters or drift.
 
 From Screenplay 4.236.1, a fixed root at a code-only `Source/` or `src/` can admit
-an explicitly requested sibling model folder via `open-workspace path`. The
+an explicitly requested direct sibling model folder via `open-workspace path`. The
 configured code root must have no model or workspace state. The sibling must be
 missing, empty, or already model/workspace-bearing; an unrelated nonempty folder,
 a file or a symlink is refused. Existing model/workspace roots stay protected;
-this is not permission to switch to arbitrary roots. Inspect the returned root
-and reuse its workspace/revisions. Path selection alone creates no directory.
+this is not permission to switch to arbitrary roots. Nested targets are refused;
+an empty fixed root named `data` cannot rebind merely because it is empty.
+`semantic-diff` path sources use the same admission checks. Inspect the returned
+root and reuse its workspace/revisions. Path selection alone creates no directory.
+For example, a Java project `/project` with code in `/project/src` but no model or
+Screenplay state selects `/project/Screenplay`, not `/project/src`.
 Source: [sibling admission](https://github.com/Cratis/Screenplay/blob/v4.236.1/Source/DotNET/Screenplay.Mcp/McpWorkspaces.ModelFolder.cs).
 
 ## Tool groups

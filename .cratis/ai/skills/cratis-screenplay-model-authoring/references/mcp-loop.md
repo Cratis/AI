@@ -34,7 +34,10 @@ home; do not invent a location. A fixed root can switch to the same model
 folder in a registered Git worktree of the same repository. Screenplay 4.236.1
 also admits an explicitly requested sibling from a code-only `Source/` or `src/`
 root, not arbitrary root changes; existing model/workspace state prevents that
-switch. Read [sibling admission boundaries](mcp-tools.md#working-with-the-screenplay-mcp).
+switch. An empty fixed root named `data` still cannot rebind; nested targets,
+links and unrelated nonempty folders remain refused. `semantic-diff` path sources
+share these checks. A Java project with only code in `src` selects
+`<project>/Screenplay`, not `<project>/src`. Read [sibling admission boundaries](mcp-tools.md#working-with-the-screenplay-mcp).
 
 1. Launch with a **fixed root**: `screenplay mcp <model-folder>`, or
    `cratis screenplay mcp <model-folder>`, or `cratis screenplay mcp` inside a

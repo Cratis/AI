@@ -3,6 +3,9 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "an empty fixed root named `data` cannot rebind", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "selects `/project/Screenplay`, not `/project/src`", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "`semantic-diff` path sources use the same admission checks", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "Requires Cratis CLI 3.93.1", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "configured code root must have no model or workspace state", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "Path selection alone creates no directory", "file": "references/mcp-tools.md" },
