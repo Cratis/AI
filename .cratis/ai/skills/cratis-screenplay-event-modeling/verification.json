@@ -19,7 +19,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "Look first for the project's existing `.play` files"
+      "value": "Look first for the project's existing `.play` model and workspace state"
     },
     {
       "kind": "skill-contains",

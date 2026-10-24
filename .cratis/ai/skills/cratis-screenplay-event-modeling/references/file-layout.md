@@ -101,15 +101,15 @@ model files or workspace state, not merely because application code lives there.
 With neither, start at repository-root `Screenplay/`, never under `.cratis/`,
 which holds configuration and the shared AI corpus only.
 
-Requires Screenplay 4.236.1 (`screenplay --version`) for standalone MCP discovery
-and Cratis CLI 3.93.1 (`cratis --version`) for CLI discovery. Older tools can select
+Requires Screenplay 4.236.1 (`screenplay --version`) for standalone MCP discovery.
+Requires Cratis CLI 3.93.1 (`cratis --version`) for CLI discovery. Older tools can select
 a code-only `Source/` or `src/`; inspect the opened root rather than assuming it
 is correct. Existing workspace state can retain the served ancestor of a discovered
 model; do not relocate it or create a second workspace implicitly. Discovery
 selects a path without creating it; the first write creates the directory.
 For fixed-root admission, see [MCP launch and sibling roots](../../cratis-screenplay-model-authoring/references/mcp-tools.md#working-with-the-screenplay-mcp).
-Sources: [MCP discovery](https://github.com/Cratis/Screenplay/blob/v4.236.1/Source/DotNET/Screenplay.Mcp/McpModelLocation.cs),
-[CLI discovery](https://github.com/Cratis/cli/blob/v3.93.1/Source/Cli/Commands/Screenplay/ScreenplayModelLocation.cs).
+Sources: [MCP discovery](https://github.com/Cratis/Screenplay/blob/main/Source/DotNET/Screenplay.Mcp/McpModelLocation.cs),
+[CLI discovery](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Screenplay/ScreenplayModelLocation.cs).
 
 `cratis ai install` manages `.cratis/ai/`, never model files. Never
 hand-copy Screenplay source between repositories. Keep Markdown that explains,
