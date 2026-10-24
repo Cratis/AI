@@ -1,0 +1,170 @@
+---
+name: cratis-engineering-ci-gates
+description: Run CI-matched local gates and watch exact workflow runs without polling or wasting checks. Use when choosing a local gate or tier, deciding how to wait for CI, starting a blocking watch, or deciding which superseded runs to cancel. Not for grouping deliveries (use cratis-engineering-release-trains), review iterations (use cratis-engineering-review-rounds), or editing workflows for speed (use cratis-ci-pipeline-performance).
+license: LICENSE
+compatibility: Requires git and the GitHub CLI (gh).
+---
+
+<!-- Copyright (c) Cratis. All rights reserved. -->
+<!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
+
+# Run the gate once, then watch the exact run
+
+Operate checks; do not redesign workflows here. Read
+[verification-discipline.md](../../rules/verification-discipline.md) for phase
+budgets and exit-status handling, and
+[pull-requests.md](../../rules/pull-requests.md#quality-gates) for required checks.
+Read [capability-is-not-authority.md](../../rules/capability-is-not-authority.md)
+before an external effect. A request to verify does not authorize a push.
+
+## Derive the local gate
+
+1. Read `.github/workflows/` and the repository's tier policy. Follow reusable
+   workflows and invoked scripts. Extract commands, solution and test selection,
+   configuration, warning settings, analyzers, lint and formatting checks.
+2. Prefer the repository's existing gate script. If none exists, keep a small
+   local runner under `.ai-work/`, with each phase's real exit status preserved.
+   Do not substitute only the touched projects for the final gate.
+3. **Tier 1** is the whole-solution build with CI's configuration and warning
+   settings, lint/format, and every non-integration test project. For example,
+   use Release with warnings as errors when that is what CI uses.
+4. **Tier 2** adds integration tests. The repository's tier policy decides
+   whether they run locally. The default is CI-backed integration only if CI
+   runs that coverage, it passes before merge, and reviewer notes say it was
+   deferred to CI. If CI lacks that coverage, do not claim it is verified.
+5. Name anything CI runs that cannot run locally: services, platforms, secrets
+   or hosted checks. Say what ran instead and what remains unverified before
+   pushing. Missing coverage is not a local pass.
+
+Use affected-project checks while coding and writing specifications. Build once
+at the end: run the full local gate when the work is believed complete, not after
+every edit. Do not repeat a passing gate on unchanged inputs for reassurance.
+When several deliveries form one candidate, the assembler runs the final gate
+on the assembled state; deliveries bring targeted results. A changed state after
+a failure needs the required gate again.
+
+Keep build, lint and test phases separate, each with a deadline. Stop on failure;
+do not run dependent phases or hide a producer's exit status behind a filter.
+Report the exact command and result. Put verification and deferred coverage in
+reviewer comments, not the release-note description.
+
+## Wait without polling
+
+After an authorized push, capture the full head SHA and discover the run for the
+intended workflow. For example:
+
+```bash
+head_sha=$(git rev-parse HEAD)
+gh run list --repo OWNER/REPO --workflow ci.yml --commit "$head_sha" \
+  --json databaseId,headSha,event,status
+```
+
+Select the exact run ID, not the newest run by time or branch alone. Disambiguate
+multiple events or dispatches for the same SHA. Capture one ID per required
+workflow. If no matching run is visible, report that no run was captured; do not
+start a status-query loop or guess an ID.
+
+Start one blocking watch for that run, with a deadline sized to the repository:
+
+```bash
+gh run watch <id> --repo OWNER/REPO --exit-status
+```
+
+A background job, if the harness has one, can hold the same blocking watch.
+Never re-query status by hand. Use the watch's completion and exit status, not
+repeated `gh run list`, `gh run view` or PR-check requests while waiting.
+
+Say: "Waiting on CI run <id> for the current PR head." Do independent work while
+it runs. If none remains, end the turn. If the watch cannot finish in the session,
+leave a handoff under `.ai-work/` with the SHA, run ID and outstanding checks;
+report the wait as incomplete, not successful. A watch timeout does not cancel
+the remote run and is not a failed-test diagnosis.
+
+## Diagnose once, fix together
+
+After the run completes with a failure:
+
+1. Read the failed logs once, for example
+   `gh run view <id> --repo OWNER/REPO --log-failed`.
+2. Check other jobs in that completed run, for example
+   `gh run view <id> --repo OWNER/REPO --json jobs`. Account for every failure,
+   including independent failures beyond the first red job.
+3. Fix all in-scope causes together. Report unrelated or unavailable causes as
+   blockers rather than silently waiving them. Re-run the required local gate
+   on the fixed state, then push once when the request authorizes it.
+4. Rerun a job only for a diagnosed flake, including a demonstrated transient
+   infrastructure failure, and only after the run completes. For example,
+   `gh run rerun <id> --repo OWNER/REPO --failed` retries failed jobs. Watch the
+   resulting attempt once. A deterministic failure needs a fix, not a retry.
+
+Never put a CI skip token in a title or commit. Do not spend a push on each
+individual fix or use CI to discover whether speculative fixes compile.
+
+## Cancel only owned, superseded work
+
+Cancellation needs a reason and an exact target. Within an authorized shipping
+or folding request, cancel only runs started by the session's own superseded or
+folded pushes. Anyone else's run needs the owner's agreement. Merely sharing a
+branch or finding a duplicate run does not establish ownership.
+
+Before acting, inspect each candidate, for example:
+
+```bash
+gh run view <id> --repo OWNER/REPO \
+  --json workflowName,event,headBranch,headSha,status,createdAt
+```
+
+Confirm the initiating push, workflow and SHA against the superseding head or
+folded PR. Inspect the workflow's jobs if its effects are unclear. Never cancel
+a release, publish or deploy run, regardless of ownership or workflow name.
+Do not cancel a check whose result a queued or running publication needs, or a
+required check about to gate a merge. Another owner's watched merge run needs
+that owner's agreement. Even with agreement, release, publish and deploy runs
+and checks needed by publication remain protected.
+
+Re-read immediately before cancelling so drift cannot widen the target. Do not
+cancel by branch, name or age alone, or use a bulk cancellation command. Once
+confirmed, for example:
+
+```bash
+gh run cancel <id> --repo OWNER/REPO
+```
+
+Report one line naming the run ID and superseding or folding reason. If ownership
+or downstream use is uncertain, leave it running and report the uncertainty.
+
+## Integration and containers
+
+Run local integration only when the tier policy calls for it or a bounded
+cross-repository proof needs it. Give every container phase and Docker call a
+deadline, including startup, image builds, tests and teardown. A background job
+is not a timeout or a cleanup policy.
+
+Keep track of the containers and networks created by the phase. On success,
+failure, timeout or abandonment, stop and remove only those owned resources.
+Use exact IDs or a task-specific Compose project; confirm ownership before
+removal. Do not restart a shared daemon or stop another task's services.
+Never run `docker system prune -a` or `docker image prune -a`.
+
+For a repository's Compose test setup, one scoped teardown example is
+`docker compose -p <task-project> down`, under its own deadline. Do not add
+volume deletion unless those volumes are disposable and owned by this task.
+Keep secrets out of logs and artifacts per
+[secrets.md](../../rules/secrets.md).
+
+## What breaks
+
+- An affected-project build presented as Tier 1 leaves other projects unchecked.
+- A green Tier 1 presented as integration proof hides coverage deferred to CI.
+- Watching a branch's newest run can report success for the wrong SHA.
+- Manual polling duplicates the watch and wastes time without improving proof.
+- Blind retries and one push per failure spend checks without fixing the run.
+- Broad container cleanup destroys resources the phase does not own.
+
+## How it is proven
+
+The derived local commands exit successfully on the final state. The blocking
+watch for each required run exits successfully for the exact head SHA, including
+integration coverage deferred to CI. A timeout, cancellation, missing check or
+unobserved result stays unverified. Report local results, CI results and omissions
+separately; no inventory or receipt substitutes for running the checks.
