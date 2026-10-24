@@ -688,6 +688,7 @@ function native(packages, graphs = []) {
 <ParameterGroup><Sdk ParameterType="System.String" Required="true"/><Inputs ParameterType="System.String" Required="true"/><Graphs ParameterType="System.String" Required="true"/><Result ParameterType="System.String" Required="true"/></ParameterGroup>
 <Task><Code Type="Fragment" Language="cs"><![CDATA[
 var verdict = "0";
+var advisories = new System.Text.StringBuilder();
 try {
     var assembly = System.Reflection.Assembly.LoadFrom(System.IO.Path.Combine(Sdk, "NuGet.Versioning.dll"));
     var vt = assembly.GetType("NuGet.Versioning.NuGetVersion", true);
@@ -764,6 +765,7 @@ try {
     foreach (var row in System.IO.File.ReadAllLines(Graphs)) {
         if (row.Length == 0) continue;
         var p = row.Split('\t');
+        if (p[0] == "~") { if (!(bool)sat.Invoke(range(p[2]), new[] { version(p[1]) })) advisories.Append("\\ndependency range outside the composition: " + p[3] + " " + p[2] + " excludes " + p[1]); continue; }
         if (p[0] != "@") { satisfies(p[0], p[1], p[2]); continue; }
         var groups = dependencies[p[2]];
         if (groups.Count == 0) continue;
@@ -775,6 +777,7 @@ try {
         var edges = new System.Collections.Generic.HashSet<string>(p[4].Split(','), StringComparer.OrdinalIgnoreCase);
         foreach (var required in groups[selected]) if (!consumed.Contains(required) || !edges.Contains(required)) throw new FormatException("required local dependency not consumed: " + p[2] + " -> " + required + " " + p[1]);
     }
+    verdict = "0" + advisories.ToString();
 } catch (Exception e) {
     verdict = (e is MissingMethodException || e is System.IO.FileNotFoundException || e is TypeLoadException ? "2" : "1") + "\\n" + e.Message;
 }
@@ -785,6 +788,7 @@ System.IO.File.WriteAllText(Result, verdict);
     if (execution.error || execution.status !== 0 || !exists(result)) fail('native SDK validator unavailable: ' + (execution.error?.message || execution.stdout || execution.stderr));
     const [code, ...message] = fs.readFileSync(result,'utf8').split('\n');
     if (code !== '0') fail(message.join('\n'), Number(code));
+    return message.filter(Boolean);
 }
 function assets(packages) {
     const owned = new Map(packages.map(p => [lower(p.id), p]));
@@ -841,7 +845,10 @@ function assets(packages) {
                     if (typeof range !== 'string' || /[\t\r\n]/.test(range)) fail('malformed asset range: ' + dep,1);
                     const selected = nodes.get(lower(dep));
                     if (!selected) fail('unresolved target dependency: ' + id + ' -> ' + dep + ' ' + file,1);
-                    if (selected.node.type === 'package') checks.push([selected.version,range,`${file} ${framework} ${id} -> ${dep}`].join('\t'));
+                    // An edge between two IDs outside the composition is NuGet's own NU1608 case and exists
+                    // without the overlay too; report it as a warning instead of refusing the composition.
+                    if (selected.node.type === 'package' && (owned.has(lower(id)) || owned.has(lower(dep)))) checks.push([selected.version,range,`${file} ${framework} ${id} -> ${dep}`].join('\t'));
+                    else if (selected.node.type === 'package') checks.push(['~',selected.version,range,`${file} ${framework} ${id} -> ${dep}`].join('\t'));
                     if (owned.has(lower(dep)) && selected.node.type !== 'package') fail('owned dependency resolved as project: ' + dep,1);
                 }
             }
@@ -1092,9 +1099,10 @@ try {
         }
         const packages = manifest(file);
         const consumed = mode === 'verify-assets' ? assets(packages) : null;
-        native(packages,consumed?.checks);
+        const warnings = native(packages,consumed?.checks);
+        for (const warning of warnings) console.error('WARNING: ' + warning);
         if (mode === 'use-nuget') activate(packages,pin);
-        else if (json) console.log(JSON.stringify({packages:(consumed?.packages || packages).map(({id,version,producer}) => ({id,version,producer}))}));
+        else if (json) console.log(JSON.stringify({packages:(consumed?.packages || packages).map(({id,version,producer}) => ({id,version,producer})), warnings}));
         else console.log(mode + ': ' + (consumed?.packages.length || packages.length) + ' composition packages' + (consumed ? ', ' + consumed.files + ' assets files' : '') + ', native NuGet validation passed');
     }
 } catch (error) { console.error('ERROR: ' + error.message); process.exitCode = Number.isInteger(error.code) ? error.code : 2; }
@@ -2710,6 +2718,23 @@ data.targets.net9=data.targets['net10.0']; data.targets.net9['Cratis.Chronicle.I
 fs.writeFileSync(output,JSON.stringify(data));
 JSON
     expect_status 1 'composition bad edge in another target' cst verify-assets "$cr" --composition "$cm"
+    node - "$root/composition-assets.json" "$cr/obj/project.assets.json" <<'JSON'
+const fs=require('fs'), [input,output]=process.argv.slice(2), data=JSON.parse(fs.readFileSync(input)), target=data.targets['net10.0'];
+Object.assign(data.libraries,{'Other.A/1.0.0':{type:'package'},'Other.B/2.0.0':{type:'package'}});
+Object.assign(target,{'Other.A/1.0.0':{type:'package',dependencies:{'Other.B':'[1.0.0]'}},'Other.B/2.0.0':{type:'package'}});
+fs.writeFileSync(output,JSON.stringify(data));
+JSON
+    expect_status 0 'composition range conflict outside the composition is a warning' cst verify-assets "$cr" --composition "$cm" --json
+    has 'WARNING: dependency range outside the composition' "$root/stderr" || failed 'composition outside-range warning on stderr'
+    node -e 'const d=JSON.parse(require("fs").readFileSync(process.argv[1]));if(d.warnings.length!==1||!/Other\.A -> Other\.B/.test(d.warnings[0]))process.exit(1)' "$root/output" || failed 'composition outside-range warning in JSON'
+    node - "$root/composition-assets.json" "$cr/obj/project.assets.json" "$c" <<'JSON'
+const fs=require('fs'), [input,output,c]=process.argv.slice(2), data=JSON.parse(fs.readFileSync(input)), target=data.targets['net10.0'];
+data.libraries['Other.B/2.0.0']={type:'package'}; target['Other.B/2.0.0']={type:'package'};
+target['Cratis.Stage/'+c].dependencies['Other.B']='[1.0.0]';
+fs.writeFileSync(output,JSON.stringify(data));
+JSON
+    expect_status 1 'composition range conflict on a composed edge is refused' cst verify-assets "$cr" --composition "$cm"
+    passed=$((passed + 2))
     sed "s/$a/22.136.4/g" "$root/composition-assets.json" > "$cr/obj/project.assets.json"
     expect_status 1 'composition published fallback version' cst verify-assets "$cr" --composition "$cm"
     printf '{"libraries":{},"targets":{"net10.0":{}}}\n' > "$cr/obj/project.assets.json"

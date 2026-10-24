@@ -170,6 +170,10 @@ resolved target. The nearest native framework group must have its owned dependen
 consumed and represented by target edges. Owned IDs must resolve at their producer's exact version. Unused
 declared IDs need not appear, but at least one owned ID must be consumed. Malformed
 or failed-restore assets, missing dependency nodes and undeclared local packages fail.
+A range violation on an edge where neither end is an owned ID is NuGet's own NU1608
+case and exists without the overlay too, so it is printed as a `WARNING:` on stderr
+(and listed under `warnings` with `--json`) instead of refusing the composition.
+Any violation on an edge to or from an owned ID still fails.
 
 Activation stages the normalized manifest, props, config and env together. A shared
 mutation lock and journal protect publication and registration. The next mutation
