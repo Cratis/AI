@@ -105,7 +105,10 @@ for handler views: `executableReady` means binding, not an implemented body.
 ## Compare models
 
 Compare with `main` through `semantic-diff` worktree `path`, not two exports.
-Read [comparison sources](references/mcp-tools.md#semantic-revision-comparison) for paging.
+Read [comparison sources](references/mcp-tools.md#semantic-revision-comparison) for paging
+and [enum numeric identity](references/mcp-tools.md#enum-numeric-identity) for
+stored-value risks: implicit reorders can renumber values; stable explicit-number
+reorders do not. Static comparison never proves storage or behavioral compatibility.
 
 ## Make one coherent proposal
 

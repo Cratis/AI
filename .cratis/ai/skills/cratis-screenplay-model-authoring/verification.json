@@ -3,6 +3,9 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "enum-member-number-reused", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "EnumerationNotComparable", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 4.218.0", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": ".screenplay/release-baseline.json", "file": "references/release-baseline.md" },
     { "kind": "skill-contains", "value": "screenplay baseline admit", "file": "references/release-baseline.md" },
     { "kind": "skill-contains", "value": "screenplay baseline check", "file": "references/release-baseline.md" },

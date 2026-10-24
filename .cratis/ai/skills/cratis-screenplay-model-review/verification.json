@@ -3,6 +3,8 @@
   "input": "Review the marina berth .play model before we accept it: check the model and report findings, do not change anything.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "EnumerationNotComparable" },
+    { "kind": "skill-contains", "value": "stable explicit-number reorders are order-only", "file": "references/checklist.md" },
     { "kind": "skill-contains", "value": "all *known* producers", "file": "references/public-keys-and-routes.md" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "A read-only reviewer returns `question` note requests" },

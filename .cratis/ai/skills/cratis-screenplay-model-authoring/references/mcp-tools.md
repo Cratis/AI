@@ -703,6 +703,25 @@ or transitive/runtime impact. Use `read-proposal` with `view: "semantic-diff"`
 for a retained proposal against its disk baseline without applying it; changed
 baseline bytes or pending recovery refuse that view too.
 
+### Enum numeric identity
+
+Requires Screenplay 4.218.0 (`screenplay --version`); older comparison tools do not
+report these enum-specific changes. Compare explicit values, or implicit values
+assigned by source order starting at zero. The report distinguishes
+`enum-member-added`, `enum-member-removed`, `enum-member-number-changed`,
+`enum-member-number-reused`, `enum-numbering-mode-changed` and
+`enum-member-order-changed`. A reorder with stable explicit numbers is not
+renumbering; changing from implicit to explicit numbering with the same effective
+values is a mode change, not a stored-value change.
+
+Treat removal, renumbering and numeric reuse as a stored-value compatibility
+review, never an automatic migration. A member rename is removal plus addition,
+not inferred continuity. Ambiguous enum pairing or
+unreliable numeric metadata returns `EnumerationNotComparable`; inspect the
+declarations instead of treating it as unchanged. Neither `semantic-diff` nor
+`read-proposal view=semantic-diff` proves behavioral or storage compatibility.
+Source: [model comparison](https://github.com/Cratis/Screenplay/blob/v4.218.0/Documentation/screenplay/model-comparison.md).
+
 Authority: `Source/DotNET/Screenplay.Mcp/{McpRevisionDiff,McpWorkspaces.Comparison,McpToolSchemas,McpToolCatalog}.cs`
 and `Documentation/screenplay/mcp/reference.md`.
 
