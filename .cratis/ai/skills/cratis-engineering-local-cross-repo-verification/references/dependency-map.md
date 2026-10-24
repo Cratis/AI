@@ -47,7 +47,7 @@ for the names you list. It is rejected (exit 2) for an unknown or repeated name,
 order, or a planned pack without `ids` or `pack` rows.
 
 - Run `verify-pack STAMP --consumer C --producer P...` once, after the last pack. It checks the
-  planned IDs exist at exactly STAMP and each planned NuGet dependency has STAMP as lower bound.
+  planned IDs exist at exactly STAMP and each planned NuGet dependency is exactly STAMP, [STAMP] or [STAMP, ) (an unreadable dependency element fails).
 - After `use-*` and restore, `verify-assets CONSUMER-PATH STAMP --consumer C --producer P...`
   checks the same plan inside the consumer: no planned ID resolved at another version, and no
   producer the consumer uses left unconsumed. `--json` lists the resolved IDs only.

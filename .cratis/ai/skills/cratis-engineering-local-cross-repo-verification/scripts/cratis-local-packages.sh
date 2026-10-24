@@ -35,7 +35,8 @@ Commands (COMMAND --help shows these instructions too):
   verify-pack STAMP --consumer CONSUMER --producer PRODUCER... [--json] [--map FILE]
     Check exactly the plan that "plan" prints for those names: every planned package
     exists in the feed at exactly STAMP (never another stamp), and each nuspec
-    dependency on another planned NuGet ID has STAMP as its lower bound. Run once,
+    dependency on another planned NuGet ID is exactly STAMP, [STAMP] or [STAMP, )
+    (an unreadable element fails). Run once,
     after the last pack. Exit 1 lists the findings ("missing: ..." / "dependency: ...").
     Exit 2: invalid plan, or a plan without pack rows (image-only). --json prints one
     line, {"stamp":..,"packages":[{"id":..,"version":..}]}, and sends findings to stderr.
@@ -695,20 +696,38 @@ feed_check() {
     done < "$expected"
 }
 
-# A dependency range names the stamp only when its lower bound is exactly the stamp:
-# STAMP, [STAMP], [STAMP, ) pass; [1.0.0, STAMP) and 1.0.0 do not (a substring test would accept the first).
+# A dependency matches only when it is exactly the stamp: STAMP, [STAMP] or [STAMP, ) (an inclusive lower bound
+# with no upper bound, which is how a floor is written). Exclusive bounds, upper bounds and anything else fail.
 dep_matches() {
-    local bound=$2
-    bound=${bound%%,*}; bound=${bound#\[}; bound=${bound#\(}; bound=${bound%\]}; bound=${bound%\)}
-    bound=${bound//[[:space:]]/}
-    [ "$bound" = "$1" ]
+    local range=${2//[[:space:]]/}
+    [ "$range" = "$1" ] || [ "$range" = "[$1]" ] || [ "$range" = "[$1,)" ]
+}
+
+# "dep<TAB>id<TAB>version" for every <dependency> element of a nuspec, whatever the attribute order, quote
+# style or line breaks; "bad<TAB>element" for one whose id or version cannot be read (the caller fails on it).
+nuspec_dependencies() {
+    tr '\r\n\t' '   ' < "$1" | awk '
+        function attr(el, n,   v) {
+            if (match(el, "[ ]" n "[ ]*=[ ]*\"[^\"]*\"")) { v = substr(el, RSTART, RLENGTH); sub(/^[^"]*"/, "", v); sub(/"$/, "", v); return v }
+            if (match(el, "[ ]" n "[ ]*=[ ]*\047[^\047]*\047")) { v = substr(el, RSTART, RLENGTH); sub(/^[^\047]*\047/, "", v); sub(/\047$/, "", v); return v }
+            return ""
+        }
+        { s = $0
+          while (match(s, /<dependency([^A-Za-z]|$)/)) {
+              rest = substr(s, RSTART); e = index(rest, ">")
+              if (e == 0) { print "bad\t" substr(rest, 1, 80); break }
+              el = substr(rest, 1, e); s = substr(rest, e + 1)
+              id = attr(el, "id"); ver = attr(el, "version")
+              if (id == "" || ver == "" || index(substr(el, 2), "<") > 0) print "bad\t" el
+              else print "dep\t" id "\t" ver
+          } }'
 }
 
 # Every nuspec dependency of a present planned .nupkg whose ID is in DEPSET must point at the stamp.
 # Appends to FINDINGS_OUT and sets NUSPEC_EDGES to the number of dependency edges checked.
 NUSPEC_EDGES=0
 nuspec_findings() {
-    local stamp=$1 depset=$2 present=$3 findings=$4 id eco p dep range nuspec
+    local stamp=$1 depset=$2 present=$3 findings=$4 id eco p kind dep range nuspec
     NUSPEC_EDGES=0
     nuspec=$findings.nuspec
     while IFS=$'\t' read -r id eco p; do
@@ -716,11 +735,12 @@ nuspec_findings() {
         if ! unzip -p "$(feed_path "$stamp" nuget "$id")" '*.nuspec' > "$nuspec" 2>/dev/null; then
             printf 'unreadable nuspec: %s\n' "$id" >> "$findings"; continue
         fi
-        while IFS=$'\t' read -r dep range; do
+        while IFS=$'\t' read -r kind dep range; do
+            if [ "$kind" = bad ]; then printf 'unparseable dependency: %s: %s\n' "$id" "$dep" >> "$findings"; continue; fi
             grep -Fxiq -- "$dep" "$depset" || continue
             NUSPEC_EDGES=$((NUSPEC_EDGES + 1))
             dep_matches "$stamp" "$range" || printf 'dependency: %s -> %s %s (expected %s)\n' "$id" "$dep" "$range" "$stamp" >> "$findings"
-        done < <(grep -o '<dependency [^>]*>' "$nuspec" | sed -n 's/.*id="\([^"]*\)".*version="\([^"]*\)".*/\1\t\2/p')
+        done < <(nuspec_dependencies "$nuspec")
     done < "$present"
     rm -f -- "$nuspec"
 }
@@ -731,30 +751,34 @@ nuget_resolutions() {
     local consumer=$1 idsfile=$2 out=$3 path files=()
     while IFS= read -r -d '' path; do files+=("$path"); done < <(find "$consumer" -name node_modules -prune -o -path '*/obj/project.assets.json' -type f -print0)
     [ ${#files[@]} -gt 0 ] || { printf 'ERROR: no obj/project.assets.json under %s (restore the consumer first)\n' "$consumer" >&2; return 2; }
-    awk -F'\t' '
-        NR == FNR { ids[tolower($0)] = 1; next }
-        FNR == 1 { inlib = 0; pending = 0 }
-        /^  "libraries": *\{/ { inlib = 1; next }
-        inlib && /^  "[^"]+":/ { inlib = 0 }
-        inlib && /^    "[^"]+\/[^"]+": *\{/ {
-            key = $0; sub(/^    "/, "", key); sub(/": *\{.*$/, "", key)
-            cut = index(key, "/"); pid = substr(key, 1, cut - 1); pver = substr(key, cut + 1); pending = 1; next
-        }
-        inlib && pending && /"type":/ {
-            pending = 0
-            if ($0 !~ /"project"/ && (tolower(pid) in ids)) print pid "\t" pver "\t" FILENAME
-        }
-    ' "$idsfile" "${files[@]}" > "$out" || { printf 'ERROR: cannot scan the consumer assets\n' >&2; return 2; }
+    need node
+    node - "$idsfile" "${files[@]}" > "$out" <<'NODE' || { printf 'ERROR: cannot read the consumer assets\n' >&2; return 2; }
+const fs = require('fs');
+const [idsfile, ...files] = process.argv.slice(2);
+const ids = new Set(fs.readFileSync(idsfile, 'utf8').split('\n').filter(Boolean).map(s => s.toLowerCase()));
+for (const file of files) {
+    let json;
+    try { json = JSON.parse(fs.readFileSync(file, 'utf8')); } catch (e) { console.error('invalid JSON: ' + file); process.exit(1); }
+    if (!json || typeof json.libraries !== 'object' || json.libraries === null) { console.error('no libraries object: ' + file); process.exit(1); }
+    for (const [key, lib] of Object.entries(json.libraries)) {
+        const cut = key.indexOf('/');
+        if (cut < 1 || cut === key.length - 1 || !lib || typeof lib.type !== 'string') { console.error('unreadable library ' + key + ': ' + file); process.exit(1); }
+        if (lib.type !== 'project' && ids.has(key.slice(0, cut).toLowerCase())) console.log(key.slice(0, cut) + '\t' + key.slice(cut + 1) + '\t' + file);
+    }
+}
+NODE
 }
 
 # "name<TAB>version<TAB>package.json" for every installed copy of a package in IDSFILE under NM.
 npm_installed() {
     local nm=$1 idsfile=$2 out=$3 name file version
+    need node
     [ -d "$nm" ] || { printf 'ERROR: no node_modules: %s (run yarn install first)\n' "$nm" >&2; return 2; }
     : > "$out"
     while IFS= read -r name; do
         while IFS= read -r -d '' file; do
-            version=$(grep -o '"version": *"[^"]*"' "$file" | head -n 1 | sed 's/.*: *"\(.*\)"/\1/' || true)
+            version=$(node -e 'const v = JSON.parse(require("fs").readFileSync(process.argv[1], "utf8")).version; if (typeof v !== "string" || v === "") process.exit(1); process.stdout.write(v)' "$file") \
+                || { printf 'ERROR: unreadable package.json (no version): %s\n' "$file" >&2; return 2; }
             printf '%s\t%s\t%s\n' "$name" "$version" "$file" >> "$out"
         done < <(find "$nm" -path "*/node_modules/$name/package.json" -type f -print0)
     done < "$idsfile"
@@ -881,8 +905,8 @@ verify_assets() {
         if [ "$npm" -eq 1 ]; then
             for file in "$FEED/npm/"*"-$stamp.tgz"; do
                 [ -f "$file" ] || continue
-                name=$(tar -xOf "$file" package/package.json | grep -o '"name": *"[^"]*"' | head -n 1 | sed 's/.*: *"\(.*\)"/\1/')
-                [ -n "$name" ] || die "cannot read the package name: $file"
+                name=$(tar -xOf "$file" package/package.json | node -e 'const n = JSON.parse(require("fs").readFileSync(0, "utf8")).name; if (typeof n !== "string" || n === "") process.exit(1); process.stdout.write(n)') \
+                    || die "cannot read the package name: $file"
                 printf '%s\n' "$name" >> "$d/ids"
             done
         else
@@ -1479,9 +1503,10 @@ self_test_closure() {
 self_test_verify() {
     local vfeed=$root/vfeed s=1.2.4-local.202601010000.gaaaaaaa old=1.2.4-local.200001010000.g1234567 args id
     local lib=(--consumer App --producer Lib --producer Mid)
-    fxv() { env -i HOME="$home" PATH=/usr/bin:/bin:/usr/sbin:/sbin TMPDIR="$TMP" CRATIS_LOCAL_MAP="$fx" CRATIS_LOCAL_FEED="$vfeed" /bin/bash "$SELF" "$@"; }
-    if ! command -v zip >/dev/null 2>&1 || ! command -v unzip >/dev/null 2>&1 || ! command -v tar >/dev/null 2>&1; then
-        printf 'SKIP: verify fixtures need zip, unzip and tar\n'; skipped=$((skipped + 30)); return 0
+    local nodedir; nodedir=$(dirname "$(command -v node)")
+    fxv() { env -i HOME="$home" PATH="$nodedir:/usr/bin:/bin:/usr/sbin:/sbin" TMPDIR="$TMP" CRATIS_LOCAL_MAP="$fx" CRATIS_LOCAL_FEED="$vfeed" /bin/bash "$SELF" "$@"; }
+    if ! command -v zip >/dev/null 2>&1 || ! command -v unzip >/dev/null 2>&1 || ! command -v tar >/dev/null 2>&1 || ! command -v node >/dev/null 2>&1; then
+        printf 'SKIP: verify fixtures need zip, unzip, tar and node\n'; skipped=$((skipped + 30)); return 0
     fi
     # mkpkg ID STAMP [DEPENDENCY-ID RANGE]...: a .nupkg (a zip with a nuspec) or, for an @scope/name ID, an npm tarball.
     mkpkg() {
@@ -1531,6 +1556,33 @@ self_test_verify() {
     done
     mkfeed "$s" "[1.0.0, $s)"
     expect_status 1 'V3 range with the stamp as upper bound' fxv verify-pack "$s" "${lib[@]}"
+    # V3b: strict nuspec parsing. mkraw ID STAMP DEPENDENCIES-XML writes the dependencies element verbatim.
+    mkraw() {
+        local pk=$root/pk; mkdir -p "$pk"
+        printf '<package><metadata><id>%s</id><dependencies>%s</dependencies></metadata></package>\n' "$1" "$3" > "$pk/$1.nuspec"
+        rm -f "$vfeed/nuget/$1.$2.nupkg"; (cd "$pk" && zip -q "$vfeed/nuget/$1.$2.nupkg" "$1.nuspec")
+    }
+    mkfeed "$s"; mkraw Cratis.Mid "$s" "<dependency version=\"1.0.0\" id=\"Cratis.Lib\" />"
+    expect_status 1 'V3b reversed attributes are read' fxv verify-pack "$s" "${lib[@]}"
+    has 'dependency: Cratis.Mid -> Cratis.Lib 1.0.0' "$root/output" || failed 'self-test: V3b reversed attributes name the dependency'
+    mkfeed "$s"; mkraw Cratis.Mid "$s" "<dependency version='1.0.0' id='Cratis.Lib' />"
+    expect_status 1 'V3b single quotes are read' fxv verify-pack "$s" "${lib[@]}"
+    mkfeed "$s"; mkraw Cratis.Mid "$s" "<dependency
+      id=\"Cratis.Lib\"
+      version=\"1.0.0\"
+      exclude=\"Build\" />"
+    expect_status 1 'V3b multiline element is read' fxv verify-pack "$s" "${lib[@]}"
+    mkfeed "$s"; mkraw Cratis.Mid "$s" "<dependency version='$s' id='Cratis.Lib' exclude='Build'/>"
+    expect_status 0 'V3b reversed single-quoted element at the stamp passes' fxv verify-pack "$s" "${lib[@]}"
+    for bad in "<dependency id=\"Cratis.Lib\" />" "<dependency version=\"$s\" />" "<dependency id=\"\" version=\"$s\" />" "<dependency id=\"Cratis.Lib\" version=\"$s\""; do
+        mkfeed "$s"; mkraw Cratis.Mid "$s" "$bad"
+        expect_status 1 "V3b malformed element fails: $bad" fxv verify-pack "$s" "${lib[@]}"
+        has 'unparseable dependency: Cratis.Mid' "$root/output" || failed 'self-test: V3b malformed element is named'
+    done
+    for args in "($s,)" "($s, )" "[$s, $s]" "[$s,]" "[$s, 9.9.9)" "$s-x" "[ $s ]x"; do
+        mkfeed "$s" "$args"
+        expect_status 1 "V3b dependency range rejected: $args" fxv verify-pack "$s" "${lib[@]}"
+    done
     # V4: a dependency outside the plan is ignored.
     mkfeed "$s"; mkpkg Cratis.Mid "$s" Cratis.Lib "$s" Cratis.Other 1.0.0
     expect_status 0 'V4 unplanned dependency is ignored' fxv verify-pack "$s" "${lib[@]}"
@@ -1591,6 +1643,17 @@ self_test_verify() {
     printf '{"stamp":"%s","packages":[{"id":"Cratis.Lib","version":"%s"},{"id":"Cratis.Mid","version":"%s"}]}\n' "$s" "$s" "$s" > "$root/json.expected"
     cmp -s "$root/output" "$root/json.expected" || failed 'self-test: V12 json lists only consumer resolutions'
     passed=$((passed + 1))
+    # V15: unreadable evidence is a failure, never a skip: broken assets JSON, a package.json without a version,
+    # and a tarball whose package.json has no name. A nested "version" key must not stand in for the top-level one.
+    mkdir -p "$root/badassets/obj"; printf '{"libraries": {"Cratis.Lib/%s": {"type": "package"' "$s" > "$root/badassets/obj/project.assets.json"
+    expect_status 2 'V15 truncated project.assets.json' fxv verify-assets "$root/badassets" "$s" "${lib[@]}"
+    printf '{"version": 3}\n' > "$root/badassets/obj/project.assets.json"
+    expect_status 2 'V15 assets without libraries' fxv verify-assets "$root/badassets" "$s" "${lib[@]}"
+    mkfeed "$s"; rm -rf "$root/npmbad"; mkdir -p "$root/npmbad/node_modules/@cratis/lib"
+    printf '{"name":"@cratis/lib"}\n' > "$root/npmbad/node_modules/@cratis/lib/package.json"
+    expect_status 2 'V15 installed package.json without a version' fxv verify-assets "$root/npmbad" "$s" --npm "${lib[@]}"
+    printf '{"name":"@cratis/lib","dependencies":{"x":{"version":"%s"}},"version":"1.0.0"}\n' "$s" > "$root/npmbad/node_modules/@cratis/lib/package.json"
+    expect_status 1 'V15 nested version does not hide the real one' fxv verify-assets "$root/npmbad" "$s" --npm "${lib[@]}"
     # V13/V14: cannot-run cases exit 2.
     expect_status 2 'V13 no edge in that ecosystem' fxv verify-assets "$root/cons" "$s" --npm --consumer Mid --producer Lib
     mkdir -p "$root/noassets"
