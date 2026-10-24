@@ -129,6 +129,12 @@ Pass: the helper reports overridden IDs and restore resolves them to local
 artifacts. Follow any printed `--configfile` instruction. Run Yarn install after
 `use-npm`; it adds file-tarball resolutions, not links to source folders.
 
+For independent NuGet producer versions, explicitly opt in with
+`verify-pack --composition FILE`, `use-nuget CONSUMER --composition FILE
+[--pin-transitive]`, then `verify-assets CONSUMER --composition FILE`. See the
+[manifest and native-validation workflow](references/dotnet-nuget.md#mixed-version-compositions-opt-in).
+No producer is rebuilt; restore before changing a composition or an active legacy overlay.
+
 ### 5. Build and exercise the consumer
 
 From the consumer root, with the printed NuGet environment sourced:

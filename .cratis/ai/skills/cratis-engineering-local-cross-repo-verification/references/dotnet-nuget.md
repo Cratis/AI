@@ -3,6 +3,15 @@
 
 # .NET and NuGet
 
+## Contents
+
+- CPM overlay
+- Source mapping
+- Versions and cache
+- Mixed-version compositions (opt-in)
+- Non-CPM escape
+- Restoration and drift
+
 ## CPM overlay
 
 Execute the helper from the entry point. `pack-nuget PRODUCER STAMP TARGET...`
@@ -64,6 +73,74 @@ The existing global cache is shared safely only because local versions have
 unique directories. Do not repack changed bits under the same version. Use
 `clean --stamp "$stamp"` to list that stamp's version folders, then `--apply`
 after review; do not delete the entire NuGet cache.
+
+## Mixed-version compositions (opt-in)
+
+Use a composition when products have independent local versions. It never packs
+or rebuilds producers. Write a tab-separated manifest under `.ai-work/`:
+
+```text
+# Separate fields with literal tabs.
+producer	Chronicle	22.138.1-local.202610240544.gd1ad215	/absolute/worktree/Chronicle
+producer	Screenplay	0.2.2-local.202610240544.g91916a3	/absolute/worktree/Screenplay
+producer	Stage	0.1.18-local.202610240544.g524bdce	/absolute/worktree/Stage
+package	Chronicle	Cratis.Chronicle.InProcess
+package	Screenplay	Cratis.Screenplay
+package	Stage	Cratis.Stage
+```
+
+Each producer needs a valid local/train stamp, an existing absolute Git worktree
+root and at least one package. Paths declare provenance, not cryptographic artifact
+authenticity. Package IDs have one owner, case-insensitively.
+Declare the complete local dependency closure. Only blank lines and lines starting
+with `#` are ignored. No npm rows or implicit merging with an active overlay.
+
+```bash
+bash "$local" verify-pack --composition .ai-work/composition.tsv --json
+bash "$local" use-nuget "$consumer" --composition .ai-work/composition.tsv --pin-transitive
+# Source the printed env; use the printed --configfile for consumer restore.
+# Run the consumer's own restore/build/specs, then:
+bash "$local" verify-assets "$consumer" --composition .ai-work/composition.tsv --json
+bash "$local" restore "$consumer"
+```
+
+Transitive pinning is optional. The overlay imports the consumer's CPM file and
+removes/re-includes owned IDs at exact producer versions. Its generated NuGet
+config gives local IDs exclusive exact source mappings, removes conflicting remote
+exact mappings and preserves unrelated sources/mappings/settings. Remote wildcards
+remain less specific. Always pass the printed config during restore. Consumer
+files are never edited. Ambiguous or inherited-only source configuration fails
+closed instead of guessing.
+
+Validation requires Node, `unzip` and the selected .NET SDK. A scratch MSBuild task
+loads its `NuGet.Versioning.dll`: `NuGetVersion.TryParse`, `VersionRange.TryParse`
+and `VersionRange.Satisfies` supply native semantics, never a range approximation.
+Its `NuGet.Frameworks.dll` supplies `NuGetFramework.Parse` and
+`FrameworkReducer.GetNearest` for selecting the applicable dependency group.
+Nuspec XML is parsed structurally, across dependency groups. For example,
+`[22.136.4,23.0.0)` admits the selected Chronicle prerelease above. Missing/corrupt
+packages, mismatched metadata, malformed/incompatible ranges and undeclared local
+dependencies fail. Nothing is rebuilt to make a range pass.
+
+Assets verification examines every `obj/project.assets.json` and target, checks
+package versions against `libraries`, and validates dependency edges against their
+resolved target. The nearest native framework group must have its owned dependencies
+consumed and represented by target edges. Owned IDs must resolve at their producer's exact version. Unused
+declared IDs need not appear, but at least one owned ID must be consumed. Malformed
+or failed-restore assets, missing dependency nodes and undeclared local packages fail.
+
+Activation stages the normalized manifest, props, config and env together. A shared
+mutation lock and journal protect publication and registration. The next mutation
+rolls back incomplete work or finishes committed work after interruption. Changed
+files, unknown ownership and live locks are preserved and refused: inspect rather
+than deleting a lock by age. Identical activation is a no-op; restore before changing
+a composition. Incompatible legacy NuGet/npm sessions are refused with backups
+untouched. Active compositions retain member artifacts against `clean`; restore
+before cleaning any member. Repeated restore is safe and never edits consumer files.
+
+Exit codes: `0` success; `1` findings; `2` invalid input, unavailable native validation
+or unsafe state. Composition JSON is `{"packages":[{"id":...,"version":...,"producer":...}]}`,
+with no global `stamp`. Legacy JSON and uniform-stamp commands remain unchanged.
 
 ## Non-CPM escape
 
