@@ -28,14 +28,27 @@
 The standalone MCP server lists 46 tools from Screenplay 4.228.0 (including the MCP-Apps visualization tool); `tools/list` is the authority for the installed server, and the CLI-bundled MCP (`cratis screenplay mcp`) can be an older Screenplay that lacks newer tools.
 
 The supported CLI launch is `cratis screenplay mcp <model-root>`, or `cratis screenplay mcp`
-alone inside a project, where the CLI locates the model (the project's `.play` files, else
-`Source/` or `src/`, else a new `Screenplay/` folder). The standalone form is `screenplay mcp <model-folder>`. A
+alone inside a project, where the CLI reuses existing model/workspace roots.
+A code-only `Source/` or `src/` is not a model root; without model/workspace state,
+use repository-root `Screenplay/`. Requires Cratis CLI 3.93.1 (`cratis --version`)
+and Screenplay 4.236.1 (`screenplay --version`) for their respective discovery
+paths; older versions can select code-only folders. See [root selection](../../cratis-screenplay-event-modeling/references/file-layout.md#locate-the-model).
+The standalone form is `screenplay mcp <model-folder>`. A
 server started with no root at all binds one on first use from `open-workspace`'s
 `path`, the client's roots, or the working directory; that dynamic form depends on the client supplying roots (see the [MCP loop](mcp-loop.md#dynamic-roots-and-the-workaround)),
 so prefer a fixed root. Without a project the server works in `Documents/Screenplay`. Model files never go under `.cratis/`. AI distribution provides the
 profile-selected declaration and guidance; the CLI owns executable hosting and
 client registration. Installation must preserve user-owned MCP servers and
 report unsupported adapters or drift.
+
+From Screenplay 4.236.1, a fixed root at a code-only `Source/` or `src/` can admit
+an explicitly requested sibling model folder via `open-workspace path`. The
+configured code root must have no model or workspace state. The sibling must be
+missing, empty, or already model/workspace-bearing; an unrelated nonempty folder,
+a file or a symlink is refused. Existing model/workspace roots stay protected;
+this is not permission to switch to arbitrary roots. Inspect the returned root
+and reuse its workspace/revisions. Path selection alone creates no directory.
+Source: [sibling admission](https://github.com/Cratis/Screenplay/blob/v4.236.1/Source/DotNET/Screenplay.Mcp/McpWorkspaces.ModelFolder.cs).
 
 ## Tool groups
 

@@ -15,6 +15,8 @@ This skill owns tool selection, verdicts and admission. Modeling method lives in
 
 Decide opt-in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` to locate the model root. A folder of `.play`
 files is one application: always check the folder, never one file of it.
+MCP/CLI discovery reuses model/workspace roots, not code-only `Source/` or `src/`;
+otherwise use repository-root `Screenplay/` ([version gates and root boundaries](../cratis-screenplay-event-modeling/references/file-layout.md#locate-the-model)).
 
 ## Tool versions and the contract
 

@@ -50,8 +50,9 @@ it owns fallback discovery, fixed-root limits and the initialization protocol.
 Discover `tools/list` schemas.
 
 Look first for the project's existing `.play` files: their folder is the model.
-New models go in `Source/` or `src/`, else root `Screenplay/`, never `.cratis/`
-(configuration/shared corpus only). The source is the single flow model;
+Reuse existing model/workspace roots; code-only `Source/` or `src/` is not a
+model root. Otherwise use repository-root `Screenplay/`, never `.cratis/`
+([root selection and version gates](../cratis-screenplay-event-modeling/references/file-layout.md#locate-the-model)). The source is the single flow model;
 explanatory Markdown belongs in repository documentation.
 
 `cratis ai install` manages `.cratis/ai/`, never model files. Select the

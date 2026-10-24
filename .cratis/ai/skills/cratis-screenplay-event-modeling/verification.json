@@ -3,6 +3,9 @@
   "input": "Facilitate an event modeling session and land the model as .play source.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "Requires Screenplay 4.236.1", "file": "references/file-layout.md" },
+    { "kind": "skill-contains", "value": "Cratis CLI 3.93.1", "file": "references/file-layout.md" },
+    { "kind": "skill-contains", "value": "not merely because application code lives there", "file": "references/file-layout.md" },
     { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
