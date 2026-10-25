@@ -158,10 +158,14 @@ A constraint binds every writer, whichever client or service appends, per namesp
 and per event sequence. It cannot count, sum or test a predicate; it expresses
 uniqueness (with release on a removal event), create-once and closed streams.
 
-- The claim is settled after the durable append (not yet implemented in every
-  store). A failed index update is logged and a later duplicate may pass until a
-  reindex. SQL and InMemory stores do not yet settle claims. A constraint is the
-  right mechanism, not an unconditional proof.
+- From Chronicle 19.82.0, a failed index update after a durable append marks a
+  gap. A later governed append repairs that gap from the event log or refuses
+  with `AppendError.ConstraintIndexUnavailable` before writing. Do not treat
+  that retryable refusal as a duplicate or remove the constraint. Verified at
+  **v19.110.1**, `Source/Kernel/Core/EventSequences/EventSequence.AppendSettlement.cs`
+  and `EventSequence.Validation.cs`; see
+  [append outcomes](../../cratis-chronicle-client-dotnet/references/append-outcomes.md)
+  for the distinct unknown-outcome case.
 - Tenants in different namespaces can claim the same value.
 - `[RemoveConstraint]` releases attribute constraints (`[Unique]` on a property or
   on the event type); on a fluent `IConstraint` it compiles and does nothing, so
