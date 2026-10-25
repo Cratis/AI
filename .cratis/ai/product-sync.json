@@ -556,9 +556,9 @@
       "repository": "Cratis/Screenplay.Generation",
       "packages": [],
       "synced": {
-        "version": "0.18.1",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "0.18.2",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -567,7 +567,7 @@
         "rules": []
       },
       "coverage": "tracked",
-      "notes": "First synced in Cratis/AI#620 at 0.18.1."
+      "notes": "Cratis/AI#820: reviewed v0.18.2. No teaching update needed: package metadata and native .NET 10 Specifications 5 test execution do not change generation APIs or the retained .NET 8/9/10 library targets. No renderer parity or execution uplift inferred."
     },
     {
       "id": "chronicle-elixir",
