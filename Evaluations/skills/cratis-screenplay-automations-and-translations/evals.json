@@ -30,14 +30,14 @@
     {
       "id": 3,
       "name": "capture-omission-not-redaction",
-      "prompt": "We capture customer records from a partner CRM into CustomerImported. The `map` block does not mention the record's `email` and `birthDate` fields, so a reviewer wrote 'redacted by omission - fine'. The event's `reference` property also holds the signed download URL the CRM sends. Review this for data protection and tell us what to change. Reply only; do not write files.",
-      "expected_output": "Omission is not redaction: an unmapped field still passes through the capture's working record. Check append mappings and every event property, record how raw or last-seen source records are stored and minimized, put bare `pii` and a purpose on personal-data concepts, never record signed URLs or tokens as facts, and never put PII on the event-source id.",
+      "prompt": "We capture customer records from a partner CRM into CustomerImported. The `map` block does not mention the record's `email` and `birthDate` fields, so a reviewer wrote 'redacted by omission - fine'. The event's `reference` property also holds the signed download URL the CRM sends. Review this for data protection and tell us what to change. Reply only; do not write files. The CRM guarantees CustomerImported is appended on the customerId stream; how should that promise be declared on the inbound source events capture, and what does it need?",
+      "expected_output": "Omission is not redaction: an unmapped field still passes through the capture's working record. Check append mappings and every event property, record how raw or last-seen source records are stored and minimized, put bare `pii` and a purpose on personal-data concepts, never record signed URLs or tokens as facts, and never put PII on the event-source id. For a guaranteed single-property source events key use key customerId is event source (Screenplay 4.242.0, ESM v33; PLAY0809 elsewhere, no repair): a fixture for must equal the key, an omitted for takes it, and unmarked captures stay unchanged.",
       "assertions": [
         "Says a field left out of `map` still passes through the capture's working record, so omission is not redaction.",
         "Asks to check the append mappings and every resulting event property, and to record whether the target stores raw or last-seen source records and how they are minimized.",
         "Requires bare `pii` on the concept of any personal data kept in events, with a declared purpose.",
-        "Rejects storing the signed download URL (or any bearer token or magic link) as a fact, allowing at most a keyed hash or reference.",
-        "States that PII never goes on the event-source id."
+        "Rejects storing the signed download URL (or any bearer token or magic link) as a fact, allowing at most a keyed hash or reference, and states that PII never goes on the event-source id.",
+        "Declares key customerId is event source only for a guaranteed single-property source events key (Screenplay 4.242.0, ESM v33, PLAY0809 elsewhere with no repair), with matching or defaulted fixture for and unmarked captures unchanged."
       ]
     },
     {

@@ -113,7 +113,7 @@ module Integration
         source events
           from ShipmentDispatched
           from ShipmentDelivered
-        key orderId
+        key orderId is event source
         append OrderDispatched
           when added
             carrier = $.carrier
@@ -162,6 +162,13 @@ identifying the foreign source, not the capture key. A content key such as `orde
 must be required on every `from` event (PLAY0700); `$eventSourceId` and other context
 keys are refused. An empty or whitespace-only text key fails execution, even in a
 given before the action; non-text/non-numeric keys are Unsupported.
+
+The example declares `is event source` because the producer sources every event by
+`orderId`.
+Requires Screenplay 4.242.0 and ESM v33. A fixture `for` must then equal the key;
+without `for`, it takes the key. Unmarked captures stay unchanged. Other
+sources or non-single-property keys report PLAY0809, with no automatic repair. Read
+[event-source keys](../../cratis-screenplay-captures-and-reactions/references/capture-map-and-example.md#keying-by-the-event-source).
 
 Givens fold in authored order without appending. Each event overlays its top-level
 properties onto state for that typed key: absent properties retain earlier values;

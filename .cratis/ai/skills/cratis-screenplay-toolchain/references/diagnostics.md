@@ -5,6 +5,7 @@
 - Warnings that hide defects (always validate with `--warnings-as-errors`)
 - Source reference and identifier checks
 - Public events and translation direction
+- Event-source capture keys
 - Explicit enum member numbers
 - Reserved stored names and event pins
 - Named keys, production routes and observer filters
@@ -96,6 +97,20 @@ and event delivery to captures; older runners do not execute that delivery.
 Requires Screenplay 4.176.0 or later for PLAY0694; older compilers leave the
 legacy directionless co-location unchecked. Full capture execution and ordering:
 automations-and-translations `references/public-events-and-direction.md`.
+
+## Event-source capture keys
+
+Requires Screenplay 4.242.0 or later (`screenplay --version`); the marker selects ESM v33.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0809 | E | `key <property> is event source` outside a single-property `source events` capture key. Declare it only when every captured event is sourced by that property. Other sources or key shapes are errors, with no automatic repair. |
+
+Marked typed fixtures reject an explicit `for` that differs from the key. Without
+`for`, the fixture takes the key before projections/reactions. The contract checks
+givens too, even without an action. This execution rejection is not PLAY0809 and
+not a successful `then no events` outcome. Unmarked captures retain prior semantics.
+Read captures-and-reactions [event-source keys](../../cratis-screenplay-captures-and-reactions/references/capture-map-and-example.md#keying-by-the-event-source).
 
 ## Explicit enum member numbers
 
