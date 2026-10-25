@@ -44,16 +44,16 @@ Requires `Cratis.Arc.Testing` 22.67.0 for generated-value scenario pinning.
 Check the owning product repository before claiming support for
 another version. Never translate an assertion or helper name from memory.
 
-Reviewed Specifications 4.1.2–5.0.2 releases and tagged 5.0.2 upgrade/README
-sources. `Given`/`When` are lifecycle aliases since 4.4, but house style remains
-`Establish`/`Because`; declaring both forms of a phase produces CRSPEC0009.
-Inherited phases execute once and preserve the original exception; `ValueTask`
-is awaited since 4.2. The native runner remains experimental: CRSPEC0010 rejects
-`async void`, CRSPEC0011 warns about trim/AOT-unsafe reflective lifecycle calls.
-Shared resources/leases, phase timings, runtime defaults and parallel NUnit
-fixtures are opt-ins, not blanket recommendations to parallelize a stateful suite.
-See the product upgrade guide before changing runner or package family; this
-source review does not re-execute earlier scenario verification.
+Requires Specifications 5.0.2 for the shared-state diagnostic behavior described here; check `dotnet list package`, or stay with the older package's lifecycle rules until upgrading.
+
+`Given`/`When` are lifecycle aliases, but house style remains `Establish`/`Because`;
+declaring both forms of a phase produces CRSPEC0009. Inherited phases execute
+once and preserve the original exception; `ValueTask` is awaited. The native
+runner remains experimental: CRSPEC0010 rejects `async void`, CRSPEC0011 warns
+about trim/AOT-unsafe reflective lifecycle calls. Shared resources/leases, phase
+timings, runtime defaults and parallel NUnit fixtures are opt-ins, not blanket
+recommendations to parallelize a stateful suite. Read the product upgrade guide
+before changing runner or package family.
 
 ## Route near misses
 
