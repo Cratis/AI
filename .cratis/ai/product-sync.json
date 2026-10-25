@@ -817,9 +817,9 @@
       "repository": "Cratis/Prologue",
       "packages": [],
       "synced": {
-        "version": "2.0.0",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "2.0.5",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -827,7 +827,7 @@
         ],
         "rules": []
       },
-      "notes": "Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+      "notes": "Cratis/AI#820: reviewed all five releases v2.0.1-v2.0.5. Teach security upgrade, native arm64 images and repaired no-LLM emission while retaining executable model validation and disclosure safeguards. Package metadata, Fundamentals runtime bump and repository spec migration require no further extraction recipe. No new capture/interpret execution evidence."
     },
     {
       "id": "lens",
