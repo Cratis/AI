@@ -138,7 +138,11 @@ Several views bind a key to an operation that changes the running server:
 | Jobs | `S` / `U` | stop / resume the job |
 | Recommendations | `A` / `I` | perform / ignore the recommendation |
 
-Each has a bulk form that applies to every checked row.
+Each has a bulk form that applies to every checked row. Requires CLI 3.79.0 for
+job stop/resume to display kernel refusals as failures rather than success.
+Inspect the reason and re-read the job; acknowledgement is not completed work.
+Retained-job deletion is a separate CLI command (3.99.0), not a Workbench key;
+read **cratis-chronicle-cli-operations** before requesting it.
 
 Every one of these opens a centered confirmation modal that states the action
 cannot be undone. **Only an explicit `Y` (or the Confirm button) confirms;

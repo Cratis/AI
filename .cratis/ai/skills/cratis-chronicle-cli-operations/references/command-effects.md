@@ -20,6 +20,7 @@ non-read-only commands.
 | `workbench` | destructive | false (its actions have their own dialogs) |
 | `applications add` | mutating | false |
 | `applications remove` | destructive | true |
+| `jobs delete` | destructive | true |
 | `jobs resume` | mutating | true |
 | `jobs stop` | mutating | true |
 | `observers clear-partition-quarantine` | mutating | true |
@@ -27,13 +28,21 @@ non-read-only commands.
 | `observers remove` | destructive | true |
 | `observers replay` | destructive | true |
 | `observers replay-partition` | destructive | true |
+| `observers retry-failed-partitions` | mutating | true |
 | `observers retry-partition` | mutating | true |
 | `recommendations ignore` | mutating | true |
 | `recommendations perform` | destructive | true |
+| `streams closed reopen` | mutating | true |
 | `subscriptions add` | mutating | false |
 | `subscriptions remove` | destructive | true |
 | `users add` | mutating | false |
 | `users remove` | destructive | true |
+
+Requires CLI 3.79.0 for observer-wide failed-partition retry, 3.80.0 for exact
+manual stream reopening, and 3.99.0 for job deletion. See
+[recovery outcomes](recovery-and-comparison.md) for server floors and acceptance
+versus completed work. `jobs delete` exits nonzero on declined/unavailable
+confirmation; success means deletion requested, not completed removal.
 
 The remaining Chronicle commands are cataloged read-only, including
 `report-error`; the guard deliberately blocks that command because it opens an

@@ -125,9 +125,9 @@
         }
       ],
       "synced": {
-        "version": "3.75.0",
-        "date": "2026-10-17",
-        "by": "Cratis/AI#752"
+        "version": "3.100.0",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -158,7 +158,7 @@
         ],
         "rules": []
       },
-      "notes": "Render bundle source-checked at v3.74.0 (release notes v3.63.0-v3.74.0 and Documentation/reference/screenplay.md): Screenplay 4.201.0 and Stage 4.135.0; CLI rendering admits ESM v1-v26 (v17/v19 from 3.63.0, v18 from 3.65.0, v20 from 3.66.0, v21-v26 from 3.74.0); Stage refuses unsupported constructs with typed STAGE-ESM codes (v22 STAGE-ESM-016, v26 date comparisons STAGE-ESM-046) and CLI-RENDER-004 blocks v27 and later. No render probe: the installed CLI is 3.65.0. Prior at v3.62.0: Screenplay 4.159.0 and Stage 4.99.0, ESM v1-v16. PATH render uses persisted root identities read-only, rejects root/name conflicts, checks destination event ids at every scope, and reports baseline warnings. CLI baseline admit/check and open-question validation are available. Other CLI operations retain prior evidence; no new render/browser probe."
+      "notes": "Reviewed all 35 releases 3.76.0-3.100.0 at tagged sources: refusal-aware job actions, observer-wide retry, exact manual stream repair, retained-job deletion, bounded namespace metadata comparison, release notes/cached templates, Pi adapters/profile MCP and isolated AI conformance/install-only checks. Updated CLI operations and terminal Workbench guidance. Multi-service context/orchestration unchanged. Reviewed bundled render/run changes through Stage 4.196.0 and Screenplay 4.240.2, ESM v29/v30 admission, reducer migration, executable target validation, model-root resolution and sample packs; Screenplay/Stage/Prologue skill edits reserved for their owning lanes. No live store, render, harness or browser probe. Prior floor established in Cratis/AI#752."
     },
     {
       "id": "screenplay",
