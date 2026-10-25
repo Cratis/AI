@@ -619,9 +619,9 @@
       "repository": "Cratis/Fundamentals.Go",
       "packages": [],
       "synced": {
-        "version": "0.3.2",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "0.3.3",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -633,7 +633,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "First synced in Cratis/AI#620 at 0.3.2."
+      "notes": "Cratis/AI#820: reviewed v0.3.3. No teaching update needed: pkg.go.dev summary and documentation links change no concept, serialization, validation or Go engineering API. Existing runtime verification remains historical."
     },
     {
       "id": "chronicle-kotlin",
