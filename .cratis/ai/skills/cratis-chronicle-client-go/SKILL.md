@@ -128,7 +128,14 @@ identity. `delivery.ID()` can key an external idempotency record; it is not an
 exactly-once guarantee. Return supported follow-up events rather than manually
 recreating effect dispatch; use projections for materialization, reactors for effects.
 
-`reactors.OnceOnly` excludes replay; it does **not** deduplicate failed-partition
+Since 0.11.0, opt into `reactors.StartAtTail()` for a new side-effect reactor
+that must skip history. It only changes first registration: existing positions
+are retained and explicit replay still starts at the beginning. Upgrade the
+kernel to 19.70.0 first; older kernels ignore this option and catch up history.
+`observation.Service.FastForward` and `FastForwardResult` (0.10.0) move an
+observer to the tail; this deliberate administrative skip is not error recovery.
+
+`reactors.OnceOnly()` excludes replay; it does **not** deduplicate failed-partition
 recovery. Effects may repeat after errors, cleanup failures or reconnect. Keep them
 idempotent. The kernel owns recovery/quarantine and progress; do not invent resume
 positions or acknowledge before successful processing and cleanup. Read the
@@ -137,7 +144,8 @@ for exact effect, replay and registration-readiness limits.
 
 ## Unsupported does not mean success
 
-Requires Chronicle kernel 19.32.3 for decision guards, with compatibility preflight;
+The 0.11.x client requires Chronicle kernel 19.70.0 or later; decision guards are
+supported against the verified 19.70.0 profile, with compatibility preflight;
 unsupported kernels return `ErrUnsupported`. Protected operations have their own
 kernel capability gates; the client supports qualified protected revisions and
 classified read-model replay routes, not every protected watch/profile.

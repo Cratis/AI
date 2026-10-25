@@ -440,9 +440,9 @@
       "repository": "Cratis/Chronicle.Go",
       "packages": [],
       "synced": {
-        "version": "0.9.1",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "0.11.1",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -454,7 +454,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "First synced in Cratis/AI#620 at 0.9.1."
+      "notes": "Cratis/AI#820: reviewed v0.10.0, v0.11.0 and v0.11.1. Teach FastForward, first-registration StartAtTail and kernel-first upgrade to the verified 19.70.0 decision-guard profile. Documentation metadata needs no teaching update; generated occurrences contracts do not establish a new public workflow. No Go execution probe."
     },
     {
       "id": "ante",
