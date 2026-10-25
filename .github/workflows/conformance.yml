@@ -1,0 +1,71 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Conformance
+
+# Installs the corpus for every conformance fixture and runs its install-phase checks
+# (`cratis ai test --install-only`). No agent harness, credentials or model quota are needed.
+on:
+  pull_request:
+    paths:
+      - '.cratis/ai/**'
+      - 'Evaluations/conformance/**'
+      - '.github/workflows/conformance.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  install-only:
+    name: Install-phase conformance checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # Pinned so a CLI release cannot change the verdict unannounced. --install-only needs 3.100.0 or later.
+      CRATIS_CLI_VERSION: 3.100.0
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install the cratis CLI
+        run: |
+          dotnet tool install Cratis.Cli --version "$CRATIS_CLI_VERSION" --tool-path "$RUNNER_TEMP/cratis-cli"
+          echo "$RUNNER_TEMP/cratis-cli" >> "$GITHUB_PATH"
+
+      # Exit 1 means a check failed or a fixture errored, exit 2 that the corpus or the report could not be produced.
+      # Both fail the job. A run in which nothing passed exits 0, so the report is checked too: at least one result
+      # must pass, and the only accepted skip is a fixture that declares no install-phase checks.
+      - name: Run the install-phase checks
+        run: |
+          set -euo pipefail
+          report="$RUNNER_TEMP/conformance.json"
+          status=0
+          cratis ai test --source . --install-only --output json > "$report" || status=$?
+          jq -r '.results[] | "\(.status)\t\(.fixture)/\(.harness)\t\(.reason // "")"' "$report" || true
+          if [ "$status" -ne 0 ]; then
+            echo "::error title=Conformance::cratis ai test exited $status"
+            jq -r '.error // empty' "$report" || true
+            exit "$status"
+          fi
+          passed=$(jq '[.results[] | select(.status == "passed")] | length' "$report")
+          unexpected=$(jq '[.results[] | select(.status != "passed" and (.status != "skipped" or .reason != "no install-phase checks"))] | length' "$report")
+          total=$(jq '.results | length' "$report")
+          echo "Install-phase checks: $passed passed of $total results."
+          if [ "$unexpected" -ne 0 ]; then
+            echo "::error title=Conformance::$unexpected result(s) neither passed nor skipped for lack of install-phase checks"
+            exit 1
+          fi
+          if [ "$passed" -eq 0 ]; then
+            echo "::error title=Conformance::no fixture passed an install-phase check; $(jq -r '.warning // "no results"' "$report")"
+            exit 1
+          fi
