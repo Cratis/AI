@@ -779,9 +779,9 @@
       "repository": "Cratis/Narrator",
       "packages": [],
       "synced": {
-        "version": "3.0.2",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "3.0.3",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -790,7 +790,7 @@
         "rules": []
       },
       "coverage": "tracked",
-      "notes": "First synced in Cratis/AI#620 at 3.0.2."
+      "notes": "Cratis/AI#820: reviewed v3.0.3. No teaching update needed: the Marketplace documentation link changes neither Narrator capture behavior nor the Chronicle CLI operations taught by this family. No new CLI or extension execution evidence."
     },
     {
       "id": "ai-distribution",
