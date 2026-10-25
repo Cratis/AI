@@ -853,9 +853,9 @@
       "repository": "Cratis/Architecture",
       "packages": [],
       "synced": {
-        "version": "1.0.2",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "1.0.3",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [],
@@ -864,7 +864,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "First synced in Cratis/AI#620 at 1.0.2; analyzer guidance lives in rules/csharp.md."
+      "notes": "Cratis/AI#820: reviewed v1.0.3. No teaching update needed: NuGet author, icon, tags, README and documentation link changes alter no Architecture attributes, analyzer rules or C# conventions. No new analyzer execution evidence."
     },
     {
       "id": "dockerfiles",
