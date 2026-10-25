@@ -199,8 +199,7 @@ performer, a non-C# body, a missing, changed or hash-invalid body, or a body tha
 becomes an explicit implementation gap instead, with a not-fully-runnable marker (see
 [bodies and implementation gaps](../cratis-stage-rendering-and-sandbox/references/current-boundaries.md#bodies-and-implementation-gaps)).
 
-Requires Stage 4.197.0 run directly, or a CLI that bundles it, to render performer bodies.
-Older Stage versions and the CLI 3.100.0 bundle keep the gap-fill path for performers.
+Requires Stage 4.197.0 to render performer bodies, run directly or through a CLI that bundles it (check with `cratis --version`; CLI 3.100.0 bundles Stage 4.196.0); older versions keep the gap-fill path.
 
 A query's key goes on its own `by` line in the body. `query X => RM optional by id Type`
 on the header line is a declaration error, not a shorthand.
