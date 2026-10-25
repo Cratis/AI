@@ -5,13 +5,15 @@
 
 ## Stop, drain and admission
 
-Requires Cratis.Orleans 1.20.0 for `IJob.StopAndDrain()` / `StopAndDrain(JobStopReason)`. Unlike `Stop()`, which acknowledges durable intent, drain waits until the old execution can no longer schedule work, perform activation callbacks or report outcomes, and terminal state is durable. A stop timeout is not a successful drain. A job stopped before completion remains stopped across rehydration; only an explicit resume starts it again. Persistence failures are refusals, not successful stops or starts.
+Requires Cratis.Orleans 1.20.0 for `IJobs.StopAndDrain(key, jobId, timeout)` and the grain protocols `IJobDrain` / `IJobStepDrain`. Unlike ordinary stop acceptance, `Drained` means no step code can run, final outcomes/checkpoints are durable and completion/stop hooks finished. Other outcomes are `TimedOut` (call again), `Completed`, `NotFound` and `UnknownJobType`. `TimeSpan.Zero` polls. Add the method to hand-written `IJobs` implementations. Enable only after every silo supports it. A pending drain survives reactivation and refuses resume; a timeout is not proof of quiescence. Hooks can repeat or be missed after a crash, so keep them idempotent rather than collecting results only there.
 
-Implement singleton `IJobAdmissionPolicy` for mutual exclusion in a host's scope/namespace. `JobAdmissionRequest` supplies the incoming and durable active jobs; return `JobAdmissionDecision.Allow()` or `Refuse(...)`. In the policy, drain a conflicting job **before** allowing a replacement and impose a host-owned timeout. If draining is refused, times out, or throws, refuse the new job. Ordinary `Stop` is not sufficient, because its background work may still be active. `IJobsManager.Start` serializes admission for a scope/namespace; direct `IJob.Start` bypasses admission. Decide exactly which host jobs are mutually exclusive rather than globally blocking all jobs.
+Requires 1.21.0 for owner admission: implement `IJobAdmission.MayRun(JobAdmissionRequest, CancellationToken)` and register with `siloBuilder.AddJobAdmission<T>()` on every silo that hosts those job types. Every admission must allow; none means allow. It runs before start, every resume and each later stage. Refusals return `StartJobError.NotAdmitted` / `CannotResumeJobError.NotAdmitted`; manager resume returns false. A refused running job is stopped/drained, and a refused later stage stops the job. Exceptions/timeouts are failures, not refusals; a later stage retries an unanswered admission on a timer.
+
+`MayRun` runs in the job's turn: never call the job, its steps, or a non-interleaving grain that could be waiting on this start/resume. To change what existing work may do, the owner calls `StopAndDrain` **before** changing the admission answer. Older silos do not ask, so admission guarantees require every silo to run the supporting version. Admission does not by itself serialize arbitrary host-owned mutual-exclusion rules.
 
 ## Bounded delivery and retries
 
-Requires 1.21.0 for these opt-in execution controls. Defaults preserve unbounded dispatch, one execution attempt and no lease timeout:
+Requires 1.23.0 for these opt-in execution controls. Defaults preserve unbounded dispatch, one execution attempt and no lease timeout:
 
 | Option | Default / meaning |
 | --- | --- |
@@ -23,13 +25,13 @@ Requires 1.21.0 for these opt-in execution controls. Defaults preserve unbounded
 | `StepDeliveryMaxAttempts` | `10` |
 | `StepDeliveryRetryDelay`, `MaxStepDeliveryRetryDelay` | `1 second`, `30 seconds` |
 
-A missed heartbeat cannot prove work stopped. A lease-timeout retry is fenced until the prior run settles; it never starts two runs at once. Attempts/checkpoints survive reactivation, and retry resumes the checkpoint, not necessarily the beginning. Delivery exhaustion reaches a failure instead of leaving an unscheduled step forever. Late/duplicate outcomes do not count twice. Derived execution timers should use `ScheduleJobWork`; a raw grain timer can overlap lifecycle callbacks.
+The watchdog restarts a leased step only after its owner silo left the cluster **and** its lease expired. Steps saved by older releases get one lease period. `Job.ShouldRetryStep` decides which failures retry, and `Job.MaxActiveSteps` can override the window. Persist optional `Attempt` and `Lease` on custom step state; old records default to attempt 1 and no lease. `IJobStepStorage.CountByStatus(jobId)` has a default implementation. A step persists its terminal state before retrying outcome delivery; exhausted delivery does not turn that completed step into a new failed execution. The watchdog reconciles stored outcomes if reports never arrive. Keep work idempotent: leases and delivery deduplication do not make external effects exactly-once.
 
-`IJob.RetryFailed()` reopens failed work on a `CompletedWithFailures` job; `IJobsManager.RetryFailedSteps(jobId)` returns `Result<int, RetryFailedStepsError>`. It resets failed steps' attempts, skips successful work, and lets previously unreachable later stages run. It is not a general rerun of a successful job. Keep step effects idempotent despite fencing.
+`IJobsManager.RetryFailedSteps(jobId)` is opt-in through `Job.CanRetryFailedSteps` and runs failed steps of a job completed with failures again. Ordinary resume is unchanged. It is not a general rerun of a successful job.
 
 ## Step test runs
 
-Requires 1.22.0 for `StartJobStepTestRun` and `GetJobStepTestRun` on `IJobsManager` and `IJobStepTestRun`. This starts one prepared step under an isolated test-run job id, with its own state. It does not rewrite the original job's state. Inspect the result; successful values exist only when the step produces one. Removal of the original step can make starting its test run fail. Isolated state is not isolated external effects: authorize the target and use safe dependencies. Results are in-memory on that test-run activation and expire; query promptly instead of treating them as durable receipts.
+Requires 1.22.0 for `step.BeginTestRun()` and `JobStepTestRun<TState>.Perform(state)` in a specification host. `Perform` runs `PerformStep` off activation with the supplied state and returns its `Catch<JobStepResult>`; `TryInvokeOnActivation` callbacks run serially on a stand-in scheduler. `IsOnActivation` tests that state changes happen in callbacks. `Stop()` cancels work while admission remains open; `CloseAdmission()` refuses callbacks. A run performs once and records/delivers nothing to a job. Cover `JobStepAlreadyHasALiveRun` and `JobStepTestRunWasSuperseded` misuse. This does not isolate external effects: use safe substitutes, not a live job/store.
 
 ## Custom storage and rolling upgrades
 
