@@ -68,8 +68,9 @@ function runGuard(script, input, cwd, executable, timeoutMs) {
         collect(child.stdout, text => { stdout += text; });
         collect(child.stderr, text => { stderr += text; });
         child.stdin.on('error', error => {
-            // An early guard verdict may deliberately close stdin without consuming it.
-            if (error.code !== 'EPIPE') { failure ||= 'Guard input failed.'; stop(); }
+            // An early guard verdict may deliberately close stdin without consuming it. Child stdio is a pipe or a
+            // socketpair depending on the platform, so the reader closing surfaces as EPIPE or ECONNRESET; the exit status decides.
+            if (error.code !== 'EPIPE' && error.code !== 'ECONNRESET') { failure ||= 'Guard input failed.'; stop(); }
         });
         child.stdin.end(input);
     });
