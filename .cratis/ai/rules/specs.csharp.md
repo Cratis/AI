@@ -85,6 +85,10 @@ _service.DidNotReceive().DoSomethingElse(Arg.Any<int>());
 _handler.Handle(Arg.Any<CommandContext>()).Throws(new Exception("fail"));
 ```
 
+A change to a widely substituted interface runs the whole affected spec project,
+not one spec. Grep for `Substitute.For<IThatInterface>` to find every substitute
+that needs updating.
+
 Catch exceptions for a unit under test with `Catch.Exception`:
 
 ```csharp
