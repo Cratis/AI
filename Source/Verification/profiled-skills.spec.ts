@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import test from 'node:test';
 import { unprofiledSkills } from './profiled-skills.ts';
 import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
@@ -62,7 +62,7 @@ test('application specifications profiles resolve linked test helpers without en
         ];
         for (const profiles of cases) {
             writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles, languages: ['csharp', 'typescript', 'react'] }));
-            const actual = selectedSkillPaths(project).map(path => path.split('/').pop()).sort();
+            const actual = selectedSkillPaths(project).map(path => basename(path)).sort();
             for (const skill of ['cratis-specifications-csharp', 'run-tests', 'filter-syntax', 'platform-detection', 'coverage-analysis']) {
                 assert.ok(actual.includes(skill), `${profiles.join(', ')} must install ${skill}`);
             }
