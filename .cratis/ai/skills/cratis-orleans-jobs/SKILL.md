@@ -66,7 +66,7 @@ Read [lifecycle and placement](references/lifecycle-and-placement.md) for drain/
 
 Successful jobs clear themselves by default; override `KeepAfterCompleted` to retain state. Jobs completed with failures default to `KeepAfterCompletedWithFailures = true`, but retention cleanup still applies.
 
-Successful **steps delete their state**. Failed step state is retained. A durable callback receipt, deduplication set or result must live on the **job** (and be persisted), not only on a successful step. Deliver external callbacks to a method on the job's grain interface and preserve `WriteState()`'s `Catch` failure: do not acknowledge a failed write. Step state is not a callback inbox, and a running snapshot does not see later writes automatically.
+Keeping a job does not keep successful step state: successful **steps delete their state**. Failed step state is retained. A durable callback receipt, deduplication set or result must live on the **job** (and be persisted), not only on a successful step. Deliver external callbacks to a method on the job's grain interface and preserve `WriteState()`'s `Catch` failure: do not acknowledge a failed write. Step state is not a callback inbox, and a running snapshot does not see later writes automatically.
 
 ## 5. Register storage and budget concurrency
 
@@ -78,7 +78,7 @@ Successful **steps delete their state**. Failed step state is retained. A durabl
 | `AddCratisOrleansSqlJobsStorage` | `.Storage.Sql` / `Cratis.Orleans.Setup` | Durable EF Core; `OptionsResolver(scope, namespace)` selects `DbContextOptions<JobsDbContext>` |
 | `AddCratisOrleansInMemoryJobsStorage` | `.Storage` / `Cratis.Orleans.Storage` | Specs/development; restart loses state |
 
-The SQL provider applies migrations automatically before constructing storage. Do not substitute `EnsureCreated` or hand-create tables; grant migration permissions and choose scope-to-database mapping deliberately. `IJobsStorage.Reset()` clears the cache; the next resolution migrates again. There is no MySQL/MariaDB jobs provider.
+The SQL provider calls `dbContext.Database.Migrate()` automatically before constructing storage. Do not substitute `EnsureCreated` or hand-create tables; grant migration permissions and choose scope-to-database mapping deliberately. `IJobsStorage.Reset()` clears the cache; the next resolution migrates again. There is no MySQL/MariaDB jobs provider.
 
 `JobsOptions` properties are **init-only**: supply a constructed instance through the host's options mechanism, not assignment in `Configure(options => …)`.
 
