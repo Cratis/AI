@@ -8,9 +8,9 @@
       "visibility": "private",
       "packages": [],
       "synced": {
-        "version": "0.157.5",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "0.304.0",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -19,7 +19,7 @@
         ],
         "rules": []
       },
-      "notes": "Only the Stage skill states a release baseline. No Studio MCP implementation or production UI execution evidence is admitted. Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+      "notes": "Cratis/AI#820: reviewed 334 stable release announcements after v0.157.5 through v0.304.0 for the two covered skills. Public corpus remains classification-only for Studio MCP: no tool names, private source/implementation detail or production UI execution evidence added. Product model/generation/preview features do not grant MCP effects or widen this boundary. Prior: Only the Stage skill states a release baseline. No Studio MCP implementation or production UI execution evidence is admitted. Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
     },
     {
       "id": "stage",
