@@ -132,6 +132,11 @@ Camera/controls contract (`Canvas.tsx`, `CanvasHandle.ts`):
 
 Persist item edits in the host, not in camera callbacks. Browser-test gestures and dimensions. For jsdom tests provide a `ResizeObserver` substitute where required; Pixi integration still needs a real browser signal.
 
+For bound-table server filtering, query-state isolation, refreshed selection and
+localized numbered pagination, read
+[Query table updates](references/query-table-updates.md). Page-local filtering is
+still the default; `serverQuery` is opt-in.
+
 ## 4. Public Chat: bind the host's messages and outcomes
 
 The public `@cratis/components/Chat` exports **`ChatConversation`**, **`ChatSidebar`**, **`ChatSidebarForObservableQueries`**, **`ChatTopicList`** and their types. It does **not** export the Kit `Chat` component or expose a `Chat/Kit` package subpath (`Source/Chat/index.ts`, `Source/package.json`). **`Chat` is exported through `@cratis/components/Canvas`** via the Kit barrel (`Source/Canvas/index.ts`, `Source/Chat/Kit/index.ts`). Prefer the non-spatial Chat subpath for ordinary host-data conversations; importing Canvas brings its Pixi edge.

@@ -10,6 +10,17 @@ license: MIT
 user moves with Previous and Next; Submit appears on the last step once every
 field across every step is valid.
 
+## Dialog dismissal and refusal
+
+Requires Components 4.36.0 for independent dismissal controls; check `yarn why @cratis/components`, or use the older `dismissable` contract.
+
+`Dialog` and `CommandDialog` accept independent `dismissOnOutsideClick`,
+`closeOnEscape` and `showCloseButton`; each falls back to `dismissable`. Busy
+dialogs cannot be dismissed. The busy confirm remains focusable as
+`aria-disabled` and ignores duplicate activation; a refused confirm restores
+focus and announces the provider's `refused` message. Do not replace it with a
+disabled button that loses focus or close the dialog on validation refusal.
+
 ## Verified product sources
 
 | Package | Verified from |

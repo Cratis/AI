@@ -11,6 +11,10 @@ ordinary JVM application that happens to talk to a Chronicle server over gRPC.
 There is no framework to inherit from and no application architecture imposed:
 you construct a client, ask it for an event store, and append or observe.
 
+For Chronicle.Kotlin 7.x, first read the
+[Fundamentals migration and upgrade notes](references/fundamentals-migration.md):
+`ConceptAs.value()` and the shared correlation type are breaking changes.
+
 ## Verified product sources
 
 Source: `Cratis/Chronicle.Kotlin`, by source symbols and signatures.

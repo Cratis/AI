@@ -20,6 +20,17 @@ All claims and prop shapes are from **Cratis/Components** source rather than unc
 
 Imports are exported by `Source/Common/index.ts`; `Source/package.json` exposes the `Common` subpath. Use **cratis-components-styling** for the provider and CSS setup and **cratis-components-accessibility** for naming/focus. These controls do not replace Arc's generated `InputTextField`/other command fields; use **cratis-arc-react-page** for those bindings.
 
+Requires Components 4.38.0 for provider routing and forwarded non-modal calendar fields; check `yarn why @cratis/components`, or retain host navigation and modal dates.
+
+Set `CratisComponentsProvider.router` with `navigate` and optional `useHref` to
+integrate `Breadcrumbs` and other link components with the app router. Plain
+clicks navigate client-side; modifier and middle clicks retain native behavior.
+Do not intercept every click in a host `onNavigate`.
+
+`DatePickerInput.isNonModal` defaults to `false`; opting in lets an outside click
+both close the calendar and reach the clicked control. The command form's
+`CalendarField` forwards the same prop.
+
 ## Choose the semantic control first
 
 | Need | Control | Controlled contract |
