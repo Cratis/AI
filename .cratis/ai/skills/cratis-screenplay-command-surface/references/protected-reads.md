@@ -117,8 +117,9 @@ which is one more reason to keep refused shapes out of read keys.
 
 Decide records the unfiltered fact-log boundary, read key and handled event types.
 A matching fact after that boundary makes commit return Conflict /
-DecisionStateChanged with no command facts, including publications. Irrelevant
-facts do not conflict and remain in the committed world. Even a no-fact command is
+DecisionStateChanged with no command facts, including publications. Append constraints
+are checked first: if the same candidate violates a constraint and a protected read,
+the constraint rejection wins. Irrelevant facts do not conflict and remain in the committed world. Even a no-fact command is
 checked. Race cases are evaluator vectors, not a new `.play` specification construct.
 
 Specify present/absent state, rule refusal and denial. Assert no new facts and
