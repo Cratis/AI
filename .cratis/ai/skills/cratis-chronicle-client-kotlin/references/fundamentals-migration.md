@@ -5,7 +5,7 @@
 
 ## Shared concepts and correlation
 
-Requires Chronicle.Kotlin 7.1.0 and Fundamentals 0.6.0 for the shared-context contract below; check Gradle dependencies, or retain the earlier client API until deliberately migrating and recompiling.
+Requires Chronicle.Kotlin 7.0.0 for the shared concept and correlation type migration below; check Gradle dependencies, or retain the earlier client API until deliberately migrating and recompiling.
 
 Import `ConceptAs` from `io.cratis.fundamentals.concepts` and implement `value()`,
 not a property/getter. Java record accessors satisfy this interface directly.
@@ -14,6 +14,8 @@ Import `CorrelationId` from `io.cratis.fundamentals.execution`, use `NOT_SET` an
 Kotlin typealiases for this major version, not a permanent alternative API.
 Typed source-id overloads consume Fundamentals concepts. Follow the product's
 [migration guide](https://github.com/Cratis/Chronicle.Kotlin/blob/main/Documentation/guides/migrate-to-fundamentals.md).
+
+Requires Chronicle.Kotlin 7.1.0 and Fundamentals 0.6.0 for shared ambient correlation context; check Gradle dependencies, or pass correlation explicitly instead of relying on shared ambient state.
 
 The module-level `correlationIdManager` delegates to Fundamentals' shared
 `CorrelationIdContext`. Its own API still takes/returns UUIDs; separately
@@ -34,7 +36,7 @@ Requires contracts and kernel 19.70.0 for StartAtTail; check the server version,
 only on first registration; existing positions remain. `@OnceOnly` excludes
 replay, not initial catch-up or redelivery. Older servers ignore the tail flag.
 
-Requires kernel 19.56.0 for fastForward; check the server version, or do not offer this administrative operation.
+Requires Chronicle.Kotlin 6.14.0 and kernel 19.56.0 for fastForward; check Gradle dependencies and the server version, or do not offer this administrative operation.
 
 `store.observers.fastForward(...)` accepts an identifier or reactor/reducer class
 and returns `FastForwardResult`, with a Java bridge. It deliberately skips work;
