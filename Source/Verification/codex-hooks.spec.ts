@@ -106,11 +106,22 @@ test('denial is final even when a later guard would allow; both guards receive c
             assert.equal(existsSync(later), false);
         }
         for (const guard of [store, pullRequest]) writeFileSync(join(f.directory, guard), `pwd > '${join(f.directory, guard)}.cwd'\ncat > '${join(f.directory, guard)}.json'`);
-        assert.equal((await shellGuard(JSON.stringify(payload()), { scriptsDirectory: f.directory })).code, 0);
+        const allowed = await shellGuard(JSON.stringify(payload()), { scriptsDirectory: f.directory });
+        assert.equal(allowed.code, 0, allowed.reason);
         for (const guard of [store, pullRequest]) {
             assert.equal(readFileSync(join(f.directory, `${guard}.cwd`), 'utf8').trim(), root);
             assert.deepEqual(JSON.parse(readFileSync(join(f.directory, `${guard}.json`), 'utf8')), payload());
         }
+    } finally { f.cleanup(); }
+});
+
+test('a guard that exits without reading a large payload still decides by its exit status', async () => {
+    const f = fixture('exit 0');
+    try {
+        // Larger than any socket buffer, so the write is still pending when the guard exits and the pipe closes.
+        const result = await shellGuard(JSON.stringify(payload(`echo ${'a'.repeat(1024 * 1024 - 1024)}`)), { scriptsDirectory: f.directory });
+        assert.equal(result.code, 0, result.reason);
+        assert.doesNotMatch(result.reason ?? '', /Guard input failed/);
     } finally { f.cleanup(); }
 });
 

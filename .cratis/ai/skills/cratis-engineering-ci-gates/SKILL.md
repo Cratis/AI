@@ -42,10 +42,13 @@ before an external effect. A request to verify does not authorize a push.
    not a universal framework-specific scanner in this corpus.
 3. Prefer the repository's existing gate script. If none exists, keep a small
    local runner under `.ai-work/`, with each phase's real exit status preserved.
-   Do not substitute only the touched projects for the final gate.
+   Do not substitute only the touched projects for the final gate. The done gate
+   runs its tier's CI shards unfiltered; filters are for iterating only.
 4. **Tier 1** is the whole-solution build with CI's configuration and warning
    settings, lint/format, and every non-integration test project. For example,
-   use Release with warnings as errors when that is what CI uses.
+   use Release with warnings as errors when that is what CI uses. For a
+   dependency or analyzer bump, that exact CI Release build is the gate; a Debug
+   build is not evidence.
 5. **Tier 2** adds integration tests. The repository's tier policy decides
    whether they run locally. The default is CI-backed integration only if CI
    runs that coverage, it passes before merge, and reviewer notes say it was
@@ -53,6 +56,9 @@ before an external effect. A request to verify does not authorize a push.
 6. Name anything CI runs that cannot run locally: services, platforms, secrets
    or hosted checks. Say what ran instead and what remains unverified before
    pushing. Missing coverage is not a local pass.
+7. A change to a command, read model or query shape runs the repository's proxy
+   and API regeneration checks; never hand-edit generated files. A package bump
+   regenerates the checked-in snapshots that pin versions, in the same commit.
 
 Use affected-project checks while coding and writing specifications. Build once
 at the end: run the full local gate when the work is believed complete, not after

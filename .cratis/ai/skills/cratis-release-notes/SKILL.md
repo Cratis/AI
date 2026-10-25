@@ -93,6 +93,14 @@ boundary that makes a change safe to adopt. One item can follow this shape:
 That is a checklist for facts, not a template to repeat word-for-word across
 items. Use descriptive headings, meaningful links, and natural sentence rhythm.
 
+A `no-release` PR body still follows this contract. Its `(#n)` closes nothing
+because no release runs, so the issue is closed separately, and only when the
+request includes that effect; never imply automatic closing (see the issue
+section of [pull-requests.md](../../rules/pull-requests.md)).
+
+For every pull request, write the body file in a step of its own before
+`gh pr create --body-file`.
+
 ## Repair an already-published release
 
 Only when asked to fix a release that violates the contract:
@@ -133,6 +141,14 @@ A release-creation 403 caused by workflow drift names the recovery:
 dispatch the publish workflow from the current default branch with the PR's
 release notes. Re-running the stale commit does not fix this. Other 403s keep
 their original cause; do not treat every permission failure as workflow drift.
+
+Before re-running a cancelled publish, check
+`git merge-base --is-ancestor <merge-commit> <latest-release-tag>`. If it is an
+ancestor, a release already contains the change, so do not cut another version.
+The tag alone does not prove it shipped: a release can be created before its
+publishing jobs run. Confirm that the containing release's publish run completed
+every publishing job and its packages exist before reporting it shipped;
+otherwise recover that version's publishing rather than releasing again.
 
 ## Verify before handing over
 
