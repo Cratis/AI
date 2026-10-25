@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-orchestration-lanes",
+  "queries": [
+    { "query": "Three autonomous sessions work on one repository in parallel. Set up their claims and inbox.", "shouldTrigger": true },
+    { "query": "Write a lane brief with owned files, the exact gate command and a Done checklist.", "shouldTrigger": true },
+    { "query": "A lane's claim has had no status update for hours. Can another lane take it over?", "shouldTrigger": true },
+    { "query": "Send a typed delivery message to another lane's inbox with the right file name.", "shouldTrigger": true },
+    { "query": "The coordinator asked for a roll call. Report my lane's state.", "shouldTrigger": true },
+    { "query": "Write a context handoff for the next session continuing this lane's work.", "shouldTrigger": true },
+    { "query": "Which blocked items should a lane escalate to the operator and which should it decide itself?", "shouldTrigger": true },
+    { "query": "Release my lane's claim and hand off the worktree because I am stopping.", "shouldTrigger": true },
+    { "query": "My inbox matching picks up mail for another lane whose id starts the same. Fix the matching.", "shouldTrigger": true },
+    { "query": "Assign this one issue to me before I start working alone in a single session.", "shouldTrigger": false, "note": "cratis-engineering-issue-hygiene" },
+    { "query": "Plan the next review round after a blocker was fixed on this branch.", "shouldTrigger": false, "note": "cratis-engineering-review-rounds" },
+    { "query": "Wait for the required CI checks on my pull request and diagnose the failing job.", "shouldTrigger": false, "note": "cratis-engineering-ci-gates" },
+    { "query": "Group finished deliveries into one release candidate and fold superseded pull requests.", "shouldTrigger": false, "note": "cratis-engineering-release-trains" },
+    { "query": "Record the architectural decision to adopt a different persistence provider.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" },
+    { "query": "Verify that a consolidation pull request dropped none of the absorbed changes.", "shouldTrigger": false, "note": "cratis-engineering-consolidation-guard" },
+    { "query": "Find the cause of a repeated regression class across several recent fixes.", "shouldTrigger": false, "note": "cratis-engineering-regression-cluster" },
+    { "query": "Speed up the pipeline by changing caching and shard layout.", "shouldTrigger": false, "note": "cratis-ci-pipeline-performance" },
+    { "query": "Write the release-note bullets for this new public API.", "shouldTrigger": false, "note": "cratis-release-notes" }
+  ]
+}

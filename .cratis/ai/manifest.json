@@ -90,6 +90,7 @@
     "cratis/lens",
     "cratis/methodology/governed-releases",
     "cratis/modeling/screenplay-stage",
+    "cratis/orchestration",
     "cratis/playwright",
     "cratis/review",
     "cratis/screenplay",

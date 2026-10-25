@@ -93,3 +93,23 @@ test('writing skills are reachable from the relevant public and engineering prof
     assert.ok(targets('cratis/engineering/core').includes('cratis-release-notes'));
     assert.ok(targets('cratis/engineering/core').includes('cratis-technical-examples'));
 });
+
+test('the orchestration profile is opt-in and resolves lanes plus the core engineering skills', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-orchestration-profiles-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const selectFor = (profiles: string[]) => {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles, languages: ['csharp'] }));
+            return selectedSkillNames(project)!;
+        };
+        const orchestration = selectFor(['cratis/orchestration']);
+        assert.ok(orchestration.includes('cratis-orchestration-lanes'));
+        assert.ok(orchestration.includes('cratis-engineering-issue-hygiene'));
+        assert.ok(orchestration.includes('cratis-engineering-review-rounds'));
+        for (const profile of ['cratis/engineering', 'cratis']) {
+            assert.ok(!selectFor([profile]).includes('cratis-orchestration-lanes'), `${profile} must not include the opt-in lanes skill`);
+        }
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
