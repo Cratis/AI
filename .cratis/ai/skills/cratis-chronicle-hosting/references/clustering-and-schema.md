@@ -21,7 +21,8 @@ a cluster. Silo and gateway ports must remain reachable between nodes.
 
 ## Localhost single-writer lease
 
-Requires Chronicle 19.110.0 on every contender for the Localhost lease.
+Requires Chronicle 19.110.0 on every contender for the Localhost lease. With MongoDB
+storage the lease requires MongoDB 5.0 or later, and it is on by default.
 
 `Localhost` on persistent storage (MongoDB, PostgreSQL, SQL Server,
 SQLite) takes the fixed `kernel` lease in the cluster database **before** Orleans

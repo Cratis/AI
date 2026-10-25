@@ -68,7 +68,7 @@ Verified through **v19.110.1**:
 `Source/Kernel/Core/Projections/Engine/KeyResolvers.ParentHistory.cs` and the
 tagged release notes:
 
-Requires Chronicle 19.110.0 for MongoDB resumed bulk-window preservation; 19.110.1 also fences replaced windows and historical parent-key lookups.
+Requires Chronicle 19.110.0 for MongoDB resumed bulk-window preservation, replaced-window fencing and historical parent-key resolution.
 
 - MongoDB catch-ups resumed while clients restarted/re-registered could lose
   unflushed writes on older kernels. Upgrade, then replay affected

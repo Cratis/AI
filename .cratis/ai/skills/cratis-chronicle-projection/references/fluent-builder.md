@@ -88,6 +88,7 @@ Chaining `.NotRewindable()`, `.Passive()`, `.ContainerName()`, or
 
 `RemovedWith` and `RemovedWithJoin` hand you the **concrete**
 `RemovedWithBuilder<,>` and `RemovedWithJoinBuilder<,>` classes, not interfaces.
+
 Requires Chronicle 19.93.0 for the root-removal-through-join startup warning.
 
 `RemovedWithJoin` removes **children**, not a root read model. The .NET client warns at startup about root removal through a join (fluent,

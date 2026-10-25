@@ -26,7 +26,8 @@ clearing one does not clear the other. Inspect the cause before authorizing clea
 or retry. Subscriber timeout abandons waiting, not subscriber work: redelivery
 can overlap work that still runs, so side effects must remain idempotent.
 
-Requires Chronicle 19.110.0 for abandoned-delivery draining and webhook quarantine probes.
+Requires Chronicle 19.109.0 for abandoned-delivery holds.
+Requires Chronicle 19.110.0 for webhook quarantine probes.
 
 `observers.abandonedDeliveryHold` defaults to 300 seconds **after the delivery
 deadline**. A positive value below `subscriberTimeout` uses that timeout instead;
