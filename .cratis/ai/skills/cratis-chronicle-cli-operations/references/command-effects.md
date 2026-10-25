@@ -38,10 +38,8 @@ non-read-only commands.
 | `users add` | mutating | false |
 | `users remove` | destructive | true |
 
-Requires CLI 3.79.0 for observer-wide failed-partition retry, 3.80.0 for exact
-manual stream reopening, and 3.99.0 for job deletion. See
-[recovery outcomes](recovery-and-comparison.md) for server floors and acceptance
-versus completed work. `jobs delete` exits nonzero on declined/unavailable
+See [recovery outcomes](recovery-and-comparison.md) for CLI/server floors and
+acceptance versus completed work. `jobs delete` exits nonzero on declined/unavailable
 confirmation; success means deletion requested, not completed removal.
 
 The remaining Chronicle commands are cataloged read-only, including
