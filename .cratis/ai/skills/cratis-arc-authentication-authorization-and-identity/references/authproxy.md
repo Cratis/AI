@@ -25,7 +25,9 @@ The headers are **not signed**. A backend cannot tell a request that came throug
 
 ## Multi-host sessions are opt-in
 
-Reviewed releases 2.31.0–2.32.4. Defaults stay host-only with cookie name
+Requires AuthProxy 2.32.4 for the multi-host/crawler/invitation contract below; check the deployed version, or retain host-only sessions and the older error-page contract.
+
+Defaults stay host-only with cookie name
 `.Cratis.AuthProxy.Auth.v2`, per-host handshakes and relative return URLs.
 `Session:CookieDomain` shares sessions beneath a parent domain;
 `Session:CookieName` isolates independent deployments. `SignIn:CallbackHost`
@@ -40,12 +42,12 @@ registration still start on their original host and need provider callbacks
 there. Use the product's one-proxy/several-hosts migration guide, not an inferred
 cross-domain cookie recipe.
 
-Since 2.32.0, `AuthProxy:SearchIndexing:Exclude` optionally serves anonymous
+`AuthProxy:SearchIndexing:Exclude` optionally serves anonymous
 `robots.txt` and adds `X-Robots-Tag: noindex, nofollow`. It is off by default and
-is a crawler policy, not authorization. In 2.32.4 invitation error-page tokens
+is a crawler policy, not authorization. Invitation error-page tokens
 `{{invitedEmail}}` and `{{assertedEmail}}` are blank for addresses outside ASCII
 letters, digits and `._+-@`; do not assume these placeholders always contain text.
-The 2.31.1/2.32.2 signed-in `/register` forwarding fixes need no host workaround.
+Signed-in `/register` forwarding needs no host workaround.
 
 ## Tenants and services
 
