@@ -1,7 +1,7 @@
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-# Decision reads
+# Decision reads and the dynamic consistency boundary
 
 Requires Chronicle.Elixir 3.14.2 for the rejection/cleanup behavior below; check `mix deps`, or upgrade before relying on a rejected callback to discard buffered events.
 
@@ -11,7 +11,7 @@ Migrate matches on `{:ok, {:error, _}}` to `{:error, _}`. A failed commit rolls
 back the unit of work, and both `decide/2` and `with_unit_of_work/2` stop their
 unit-of-work process on return, so later appends from long-lived GenServers or
 Phoenix connections are not trapped in a failed buffer. Spec the rejection and
-failed-commit paths, not only successful decisions. and the dynamic consistency boundary
+failed-commit paths, not only successful decisions.
 
 Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/chronicle/read_models/decision_reads.ex`, `decision_read_refused.ex`, `decision_conflict.ex`, `transactions/unit_of_work.ex`, and `Documentation/dynamic-consistency-boundary.md`.
 
