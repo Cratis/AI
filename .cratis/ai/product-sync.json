@@ -353,9 +353,9 @@
       "repository": "Cratis/Templates",
       "packages": [],
       "synced": {
-        "version": "1.7.4",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "1.8.1",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [],
@@ -364,7 +364,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "First synced in Cratis/AI#620 at 1.7.4."
+      "notes": "Cratis/AI#820: reviewed v1.8.0-v1.8.1. Tagged Cratis and CratisAspire app csproj sources enable CratisReadProtection On; application-profile now distinguishes new scaffolds from existing apps. 1.8.1 package metadata has no teaching impact. No scaffold execution claimed."
     },
     {
       "id": "fundamentals",
