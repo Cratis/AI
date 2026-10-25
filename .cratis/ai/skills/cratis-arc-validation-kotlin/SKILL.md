@@ -183,6 +183,21 @@ when omission is invalid for the selected query.
 
 ### `ConceptValidator<TConcept>`
 
+Since Arc.Kotlin 7.8.0, prefer
+`io.cratis.fundamentals.concepts.ConceptAs` for new concepts and
+`FundamentalsConceptValidator<TConcept>` for their rules. It implements
+`ModelValidator<TConcept>` and exposes `conceptType` plus
+`validate(concept): List<ValidationResult>`; read the primitive via `value()`.
+JSON, validation, proxy generation, Spring conversion, Chronicle bridging and
+testing recognize the shared concept type. The old Arc `ConceptAs` extends it
+and is deprecated, as is `ArcCamelCase` (use Fundamentals `toCamelCase`).
+Existing Arc concepts/validators keep compiling and linking unchanged.
+Source: Arc.Kotlin v7.8.1 `validation/FundamentalsConceptValidator.kt` and release notes.
+
+The legacy Arc concept example below remains valid with `ConceptValidator` and
+its `value` property; do not copy that property shape to a new Fundamentals-only
+concept, whose interface method is `value()`.
+
 A reusable invariant on a `ConceptAs<T>` concept type, walked automatically
 wherever that concept type appears — command, nested model, collection,
 array, or map — without each owner repeating the rule. Matching uses
@@ -206,7 +221,8 @@ Jakarta `Validator` bean. Exclude one direct edge deliberately with
 Java record component/field) whose *declared* type implements `ConceptAs`. A
 scalar root, a collection element, or a nested path cannot be excluded this
 way — register the nested owner type and its direct member instead. Excluding
-an edge suppresses only `ConceptValidator` execution there; owner rules, exact
+an edge suppresses concept-rule execution there, including
+`FundamentalsConceptValidator` since 7.8.1; owner rules, exact
 `ModelValidator` rules, Jakarta constraints, and root typed validators still
 run.
 

@@ -669,9 +669,9 @@
         }
       ],
       "synced": {
-        "version": "7.7.0",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "7.8.1",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -684,7 +684,7 @@
         ],
         "rules": []
       },
-      "notes": "Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+      "notes": "Cratis/AI#820: reviewed v7.7.1, v7.8.0 and v7.8.1 with tagged ConceptAs and validator sources. Teach shared Fundamentals concepts/value(), compatible legacy Arc validators and fixed FundamentalsConceptValidator exclusions. Maven metadata/build dependencies need no further teaching update. No Kotlin execution uplift."
     },
     {
       "id": "prompter",
