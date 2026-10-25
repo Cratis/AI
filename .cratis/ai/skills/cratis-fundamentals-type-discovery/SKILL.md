@@ -146,6 +146,18 @@ services.AddSingleton<IReportFormatters, ReportFormatters>();
 Search for every remaining reference before deleting, so nothing else was
 relying on a registration for a different reason.
 
+## Reuse derived-type discovery
+
+Since Fundamentals 7.26.0, use `Cratis.Serialization.DerivedTypes.For(types)` when
+several service collections share the same `ITypes` instance. It returns one shared
+`DerivedTypes` per universe, held weakly; distinct universes stay isolated. Do not
+construct one per scope or replace a host's explicit universe with the global
+`DerivedTypes.Instance`. Source: tagged `Serialization/DerivedTypes.cs` at 7.26.1.
+
+Generator fixes in 7.25.1 omit nested open-generic types from referenced Cratis
+packages, and 7.26.1 handles referenced `[Experimental]` diagnostic IDs. Upgrade the
+generator rather than editing its output to bypass those build failures.
+
 ## What breaks
 
 - **`[Singleton]` does not resolve.** The using directive is

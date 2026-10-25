@@ -381,9 +381,9 @@
         }
       ],
       "synced": {
-        "version": "7.25.0",
-        "date": "2026-10-15",
-        "by": "Cratis/AI#576"
+        "version": "7.26.1",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -399,7 +399,7 @@
           "concepts.md"
         ]
       },
-      "notes": "Source-checked v7.25.0: IGeneratable/IGeneratableInContext, GenerationContext, UUID/ULID/TypeID/NanoID/bytes and finite GenerateValue.Pattern overloads with optional Checksum, inclusive Int64 Integer, and HasValidChecksum. Pattern date segments use captured UTC time; check digits add no entropy or authorization and do not automatically add validation. No Stage version uplift or generated-secret admission is implied."
+      "notes": "Cratis/AI#820: reviewed v7.25.1-v7.26.1, all four releases. Tagged DerivedTypes.For(ITypes) weak per-universe caching and generator build fixes taught in type-discovery; logo and test-package packing are metadata-only. No runtime probe. Prior: Source-checked v7.25.0: IGeneratable/IGeneratableInContext, GenerationContext, UUID/ULID/TypeID/NanoID/bytes and finite GenerateValue.Pattern overloads with optional Checksum, inclusive Int64 Integer, and HasValidChecksum. Pattern date segments use captured UTC time; check digits add no entropy or authorization and do not automatically add validation. No Stage version uplift or generated-secret admission is implied."
     },
     {
       "id": "components",
