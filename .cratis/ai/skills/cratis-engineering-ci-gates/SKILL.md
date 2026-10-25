@@ -43,7 +43,7 @@ before an external effect. A request to verify does not authorize a push.
 3. Prefer the repository's existing gate script. If none exists, keep a small
    local runner under `.ai-work/`, with each phase's real exit status preserved.
    Do not substitute only the touched projects for the final gate. The done gate
-   runs every CI shard unfiltered; filters are for iterating only.
+   runs its tier's CI shards unfiltered; filters are for iterating only.
 4. **Tier 1** is the whole-solution build with CI's configuration and warning
    settings, lint/format, and every non-integration test project. For example,
    use Release with warnings as errors when that is what CI uses. For a

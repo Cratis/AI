@@ -115,9 +115,9 @@ capacity numbers into workflows or guidance.
   content the source repository's CI verified before the rollout, may carry
   `[skip ci]` once the same wrapper content has landed with CI running in one canary
   repository. Package-update bots, and any commit touching another file, keep normal CI.
-  The same holds for any skip token in a PR title or commit message: a merge commit
-  inherits the PR title, so GitHub then runs nothing on the default branch. See
-  `cratis-engineering-release-trains`.
+- Never put a skip token in a pull request title or an ordinary commit message: a
+  merge commit inherits the pull request title, so GitHub then runs nothing on the
+  default branch. See `cratis-engineering-release-trains`.
 - Comment-triggered agent workflows must gate on the trigger phrase in the job's `if:`
   (for example `contains(github.event.comment.body, '@claude')`) so a runner only
   starts when the agent is actually addressed.
