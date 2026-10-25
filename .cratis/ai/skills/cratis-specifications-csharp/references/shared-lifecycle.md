@@ -41,6 +41,15 @@ remain owned by xUnit, with assembly fixtures also supported on v3. Use
 `Specification.InitializeAsync()` is idempotent for a single instance. It does not make
 an ineligible class shared or cache instances across classes.
 
+## Native runner teardown outcomes
+
+Requires Cratis.Specifications.Runner 5.0.3 for separate class teardown results; check `dotnet list package`, or expect the older runner to mark every fact failed after teardown fails.
+
+A failing `Destroy`, disposal or scope end produces one separate failed result
+for the specification class and fails the run. Completed facts keep their own
+outcomes, as on xUnit/NUnit. Select the teardown result to rerun its class; passing
+facts do not imply the class or run passed.
+
 ## CRSPEC0008
 
 `CRSPEC0008` is an error by default: a `should_` fact that assigns to or increments an
