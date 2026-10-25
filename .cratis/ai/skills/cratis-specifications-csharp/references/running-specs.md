@@ -82,7 +82,14 @@ and record the spec count and outcomes first.
    Specifications.
 5. Fix each `CRSPEC0008` error by moving the change into `Establish` or `Because`; use
    `[PerFactSpecificationLifecycle]` only when the fact genuinely needs a fresh instance.
-6. Rebuild with warnings as errors and fix new nullable warnings.
+6. Change assertion delegates typed as `Predicate<T>` to `Func<T, bool>`; for
+   NUnit 4 comparisons that relied on unordered `ShouldEqual(params)`, use
+   `ShouldEqualInAnyOrder`. Null actual values now fail, including nullable
+   `ShouldNotContain` strings. Assertions live in core with forwarded types;
+   rebuild with warnings as errors and fix new nullable warnings. Delete
+   `CratisSpecificationsWarnOnSharedContextMutation` (it has no effect in 5).
+   Native-runner `async void` facts/phases must return `Task` or `ValueTask`
+   instead (CRSPEC0010 is an error).
 7. Run the executable and require the same total, the same passed count and the same
    classes and methods as the baseline (display names may become more readable),
    with no new skips. A different count means a spec was

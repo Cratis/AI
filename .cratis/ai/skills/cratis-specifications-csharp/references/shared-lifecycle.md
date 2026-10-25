@@ -32,7 +32,10 @@ implementations, custom fact test cases and plain xUnit classes keep the per-fac
 
 Requires Cratis.Specifications 4.4.0 or later for `IDisposable` specifications to share
 the lifecycle; earlier versions use per-fact construction. With shared lifecycle enabled,
-construction happens once and `Dispose` runs once after the last fact. Use
+construction happens once and `Destroy` then `Dispose` run once after the last
+fact, even when `Destroy` fails. At 5.0.2 `IAsyncDisposable` is supported too;
+async disposal wins when both interfaces are implemented. Class/collection fixtures
+remain owned by xUnit, with assembly fixtures also supported on v3. Use
 `[PerFactSpecificationLifecycle]` when a fresh instance per fact is needed.
 
 `Specification.InitializeAsync()` is idempotent for a single instance. It does not make
@@ -43,7 +46,11 @@ an ineligible class shared or cache instances across classes.
 `CRSPEC0008` is an error by default: a `should_` fact that assigns to or increments an
 instance field or property of the specification, or calls `Add`, `AddRange`, `Remove`,
 `RemoveAt`, `Clear` or `Insert` on one, would make the result depend on fact order.
-Move the change into `Establish` or `Because`:
+Since 5.0.2, calls inside NSubstitute `Received.InOrder(...)` delegates are
+recognized as verification, but assignments and increments there still mutate
+state and are reported. Theories, per-fact classes/assemblies, immutable collection
+calls and collection calls whose return value is used are excluded as documented
+in the tagged 5.0 upgrade guide. Move actual mutations into `Establish` or `Because`:
 
 ```csharp
 public class when_registering : Specification

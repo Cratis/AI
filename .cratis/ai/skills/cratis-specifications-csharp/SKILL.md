@@ -44,6 +44,17 @@ Requires `Cratis.Arc.Testing` 22.67.0 for generated-value scenario pinning.
 Check the owning product repository before claiming support for
 another version. Never translate an assertion or helper name from memory.
 
+Reviewed Specifications 4.1.2–5.0.2 releases and tagged 5.0.2 upgrade/README
+sources. `Given`/`When` are lifecycle aliases since 4.4, but house style remains
+`Establish`/`Because`; declaring both forms of a phase produces CRSPEC0009.
+Inherited phases execute once and preserve the original exception; `ValueTask`
+is awaited since 4.2. The native runner remains experimental: CRSPEC0010 rejects
+`async void`, CRSPEC0011 warns about trim/AOT-unsafe reflective lifecycle calls.
+Shared resources/leases, phase timings, runtime defaults and parallel NUnit
+fixtures are opt-ins, not blanket recommendations to parallelize a stateful suite.
+See the product upgrade guide before changing runner or package family; this
+source review does not re-execute earlier scenario verification.
+
 ## Route near misses
 
 - The specification is TypeScript, React, or a view model: use
@@ -202,8 +213,9 @@ public class when_<behavior> : Specification
   leave no blank line between `should_` methods.
 - Fields are `private` in a concrete specification and `protected` in a `given/`
   context, named `_camelCase`.
-- Any phase may be `async Task`. `void Destroy()` is optional teardown, after
-  once per eligible class by default (shared lifecycle); after each fact in a
+- Any phase may return `Task` or `ValueTask`; both are awaited. Never use `async void`.
+  `void Destroy()` is optional teardown, once per eligible class by default
+  (shared lifecycle); after each fact in a
   `[PerFactSpecificationLifecycle]` class.
 
 `Cratis.Specifications.XUnit.v3` discovers `Establish`, `Because`, and `Destroy` by

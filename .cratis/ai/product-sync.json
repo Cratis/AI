@@ -755,9 +755,9 @@
         }
       ],
       "synced": {
-        "version": "4.1.1",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "5.0.2",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -771,7 +771,7 @@
           "specs.md"
         ]
       },
-      "notes": "The C# skill states 4.1.1; other skills use 4.x or unversioned test-framework evidence, not an exact older release. Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+      "notes": "Cratis/AI#820: reviewed all nine stable releases v4.1.2-v5.0.2 and tagged 5.0.2 upgrade/README. Existing 5.x executable guidance retained; repair contradictory teardown/fixture/analyzer teaching, document ValueTask and aliases, assertion migration and Received.InOrder exception. New runner/resources remain experimental/opt-in. NuGet logo and XML-registration fix need no workflow workaround; TypeScript/scenario families have no API change from this product. No new .NET execution claim."
     },
     {
       "id": "narrator",
