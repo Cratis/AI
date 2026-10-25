@@ -115,7 +115,8 @@ adding a project cannot leave it unassigned; review the list when a project is a
 
 To balance, read each shard job's median duration from the slowest-jobs table of
 `ci-timings.sh`, move a project from the longest shard to the shortest, and
-re-measure; stop when the spread is within the job start cost.
+re-measure; stop when the spread is within the job start cost. Balance by
+measured wall time, and confirm the new split on one real CI run before merging it.
 
 ## Decisions
 
