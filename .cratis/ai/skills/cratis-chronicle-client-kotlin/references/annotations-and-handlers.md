@@ -13,7 +13,10 @@ This reference holds the observer annotations, their arguments, filtering annota
 | `@Constraint` | `id = ""` | `constraints/Constraint.kt` |
 | `@Seeder` | none | `seeding/Seeder.kt` |
 
-Handler-level: `@Replay`, `@OnceOnly`. Observer filtering: `@Tag`/`@Tags`,
+`@StartAtTail` on a reactor class (since 6.15.0) skips initial history only;
+upgrade the kernel to 19.70.0 first. Existing positions are unchanged.
+`@OnceOnly` targets both classes and functions: it skips replay, not initial
+catch-up or redelivery. Handler-level replay override: `@Replay`. Observer filtering: `@Tag`/`@Tags`,
 `@FilterEventsByTag`/`@FilterEventsByTags`, `@EventSequence`,
 `@EventSourceType`, `@EventStreamType`.
 

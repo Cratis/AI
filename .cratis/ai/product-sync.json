@@ -646,9 +646,9 @@
         }
       ],
       "synced": {
-        "version": "6.13.0",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "7.1.0",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -656,7 +656,7 @@
         ],
         "rules": []
       },
-      "notes": "Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+      "notes": "Cratis/AI#820: reviewed all seven releases v6.13.1-v7.1.0 and tagged concept/correlation/annotation sources. Teach breaking Fundamentals imports/value() and CorrelationId migration, shared thread-bound context, enum ordinals, StartAtTail/FastForward kernel floors and message limits. Maven metadata has no teaching delta. Earlier compile/runtime evidence remains historical."
     },
     {
       "id": "arc-kotlin",
