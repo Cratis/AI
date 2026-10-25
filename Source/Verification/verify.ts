@@ -17,6 +17,7 @@ import { verifyPlayExamples } from './play/index.ts';
 import { resolvePinnedTool } from './screenplay-tool.ts';
 import { summary as contractSummary, verifyContract } from './contract/index.ts';
 import { unprofiledSkills } from './profiled-skills.ts';
+import { verifyConformanceFixtures } from './conformance-fixtures.ts';
 import { verifySkillEvaluations } from './skill-evaluations.ts';
 import { bundlePins, bundleTable, pinRestatements, pinSummary, scaffoldPins, scaffoldTable, type PinException } from './pin-restatements.ts';
 import { danglingSkillReferences } from './skill-references.ts';
@@ -181,6 +182,8 @@ console.log(productSyncSummary(productReport));
 const skillDirectories = (await readdir(join(corpus, 'skills'), { withFileTypes: true })).filter(entry => entry.isDirectory());
 const skillEvaluations = await verifySkillEvaluations(root, skillDirectories.map(entry => entry.name));
 failures.push(...skillEvaluations.problems);
+const conformanceFixtures = await verifyConformanceFixtures(root);
+failures.push(...conformanceFixtures.problems);
 const evaluatedSkills = (await readdir(join(root, 'Evaluations', 'skills'), { withFileTypes: true })).filter(entry => entry.isDirectory()).map(entry => entry.name);
 try {
     const baseline = evaluationCoverageBaseline(root);
@@ -355,4 +358,4 @@ if (failures.length > 0) {
     console.error(JSON.stringify({ passed: false, failures }, null, 2));
     process.exit(1);
 }
-console.log(JSON.stringify({ passed: true, skills: skillDirectories.length, profiles: profiles.length, evaluationSkills: skillEvaluations.skills, mcpServers: (mcpCatalogue as { servers: unknown[] }).servers.length, scenarios: scenarioResults }, null, 2));
+console.log(JSON.stringify({ passed: true, skills: skillDirectories.length, profiles: profiles.length, evaluationSkills: skillEvaluations.skills, conformanceFixtures: conformanceFixtures.fixtures, mcpServers: (mcpCatalogue as { servers: unknown[] }).servers.length, scenarios: scenarioResults }, null, 2));
