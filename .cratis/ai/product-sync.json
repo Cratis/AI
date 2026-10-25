@@ -229,9 +229,9 @@
       "repository": "Cratis/Orleans",
       "packages": [],
       "synced": {
-        "version": "1.16.3",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "1.30.0",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -243,7 +243,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "First synced in Cratis/AI#620 at 1.16.3."
+      "notes": "Reviewed all 33 releases 1.17.0-1.30.0 at tagged sources: local IJobs and recovery keys, activation-safe callbacks and drain/admission, bounded retries/test runs, durable plans and initialization hooks, finalized-stop/outcome storage and independent placement/metadata throttle; corrected jobs and Orleans hosting guidance. Internal fixes require no extra consumer action; no live silo probe. Prior floor established in Cratis/AI#620."
     },
     {
       "id": "keldakraft",
