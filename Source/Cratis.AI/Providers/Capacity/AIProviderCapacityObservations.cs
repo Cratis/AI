@@ -26,12 +26,13 @@ public interface IAIProviderCapacityObservations
     /// <param name="provider">The provider.</param>
     /// <param name="read">Reads the provider's allowance from its vendor. May throw <see cref="HttpRequestException"/> or <see cref="System.Text.Json.JsonException"/>.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
+    /// <param name="credential">The credential the read is made with, when it is known. A different one from the last read discards everything remembered about the provider: a new credential can reach another account, so what the old one saw says nothing about it - on every instance, not just the one that handled the change.</param>
     /// <returns>
     /// The observation. When a read fails, the last good observation is served instead, carrying the
     /// new problem and its own original <see cref="AIProviderCapacityObservation.ObservedAt"/>; with
     /// no good observation to fall back on, the failure itself is.
     /// </returns>
-    Task<AIProviderCapacityObservation> Observe(AIProviderId provider, Func<CancellationToken, Task<AIProviderCapacityReport>> read, CancellationToken cancellationToken = default);
+    Task<AIProviderCapacityObservation> Observe(AIProviderId provider, Func<CancellationToken, Task<AIProviderCapacityReport>> read, CancellationToken cancellationToken = default, string? credential = null);
 
     /// <summary>
     /// Marks a provider's observation stale, so the next <see cref="Observe"/> reads it again - for
@@ -53,12 +54,24 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
     static readonly TimeSpan _maximumBackOff = TimeSpan.FromHours(1);
 
     readonly ConcurrentDictionary<AIProviderId, Entry> _entries = new();
+    readonly ConcurrentDictionary<AIProviderId, string> _fingerprints = new();
     readonly ConcurrentDictionary<AIProviderId, Lazy<Task<AIProviderCapacityObservation>>> _reading = new();
 
     /// <inheritdoc/>
-    public Task<AIProviderCapacityObservation> Observe(AIProviderId provider, Func<CancellationToken, Task<AIProviderCapacityReport>> read, CancellationToken cancellationToken = default)
+    public Task<AIProviderCapacityObservation> Observe(AIProviderId provider, Func<CancellationToken, Task<AIProviderCapacityReport>> read, CancellationToken cancellationToken = default, string? credential = null)
     {
         var now = timeProvider.GetUtcNow();
+        if (credential is not null)
+        {
+            var fingerprint = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(credential)));
+            if (_fingerprints.TryGetValue(provider, out var known) && known != fingerprint)
+            {
+                _entries.TryRemove(provider, out _);
+            }
+
+            _fingerprints[provider] = fingerprint;
+        }
+
         if (_entries.TryGetValue(provider, out var entry))
         {
             if (!entry.Stale && entry.Failure is null && entry.LastGood is { } good && now - good.ObservedAt < options.Value.CapacityFreshness)

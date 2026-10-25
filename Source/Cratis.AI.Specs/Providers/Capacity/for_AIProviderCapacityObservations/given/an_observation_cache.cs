@@ -23,12 +23,14 @@ public class an_observation_cache : Specification
         _vendor = () => AIProviderCapacityReport.Subscription(_goodWindows);
     }
 
-    protected Task<AIProviderCapacityObservation> Observe() =>
-        _observations.Observe(_provider, _ =>
-        {
-            _reads++;
-            return Task.FromResult(_vendor());
-        });
+    protected Task<AIProviderCapacityObservation> Observe(string? credential = null) =>
+        _observations.Observe(_provider, Read, default, credential);
+
+    Task<AIProviderCapacityReport> Read(CancellationToken cancellationToken)
+    {
+        _reads++;
+        return Task.FromResult(_vendor());
+    }
 
     protected sealed class MutableTimeProvider(DateTimeOffset now) : TimeProvider
     {
