@@ -1,13 +1,14 @@
 {
   "name": "csharp-concepts-over-primitives",
-  "description": "A domain value on a command is modeled as a ConceptAs<T> concept, not a raw string.",
+  "description": "A domain value on a command is modeled as a ConceptAs<T> concept, not a raw string. Patterns are JS-compatible .NET regex and ignore declarations that follow a // or /* on the same line.",
   "prompt": "Add an AuthorName value for the author's name and use it in the RegisterAuthor command in Source/Authors/Registration.cs. Write the code to files.",
   "expected_output": "An AuthorName record deriving from ConceptAs<string>, used as the RegisterAuthor parameter type.",
   "profiles": ["cratis/application/csharp"],
   "languages": ["csharp"],
   "expected_instruction_paths": [".cratis/ai/rules/concepts.md"],
   "checks": [
-    { "type": "file_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "ConceptAs<string>" },
+    { "type": "file_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "(?<!(?://|/\\*)[^\\r\\n]*)\\b(?:record|class)\\s+AuthorName\\s*(?:\\(\\s*string\\s+\\w+\\s*\\))?\\s*:\\s*ConceptAs<string>" },
+    { "type": "file_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "(?<!(?://|/\\*)[^\\r\\n]*)\\bRegisterAuthor\\s*\\([^)]*\\bAuthorName\\s+\\w+" },
     { "type": "file_not_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "\\bstring\\s+AuthorName\\b" }
   ]
 }

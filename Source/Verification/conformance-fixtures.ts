@@ -15,6 +15,9 @@ const boundKeys = ['timeout_seconds', 'max_budget_usd', 'max_turns'];
 function object(value: unknown): Record<string, unknown> {
     return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
+function isObject(value: unknown): value is Record<string, unknown> {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
 function text(value: unknown): value is string { return typeof value === 'string' && value.trim().length > 0; }
 function strings(value: unknown): value is string[] { return Array.isArray(value) && value.every(text); }
 function unsafePath(value: string): boolean {
@@ -31,9 +34,16 @@ export function catalogFrom(catalog: unknown): ConformanceCatalog {
     };
 }
 
+function checkBounds(bounds: Record<string, unknown>, fail: (message: string) => void): void {
+    for (const key of Object.keys(bounds)) if (!boundKeys.includes(key)) fail(`bounds: unknown key '${key}'.`);
+    for (const key of boundKeys) if (bounds[key] !== undefined && !(typeof bounds[key] === 'number' && Number.isFinite(bounds[key]) && (bounds[key] as number) > 0)) fail(`bounds.${key} must be a positive number.`);
+    for (const key of ['timeout_seconds', 'max_turns']) if (bounds[key] !== undefined && !Number.isInteger(bounds[key])) fail(`bounds.${key} must be an integer.`);
+}
+
 function checkProblems(index: number, value: unknown, fail: (message: string) => void): void {
     const label = `checks[${index}]`;
-    const check = object(value);
+    if (!isObject(value)) { fail(`${label} must be an object.`); return; }
+    const check = value;
     for (const key of Object.keys(check)) if (!checkKeys.includes(key)) fail(`${label}: unknown key '${key}'.`);
     if (typeof check.type !== 'string' || !checkTypes.includes(check.type)) { fail(`${label}.type must be one of ${checkTypes.join(', ')}.`); return; }
     if (check.phase !== undefined && check.phase !== 'install' && check.phase !== 'result') fail(`${label}.phase must be 'install' or 'result'.`);
@@ -59,9 +69,10 @@ function checkProblems(index: number, value: unknown, fail: (message: string) =>
 
 /** Mirrors Evaluations/conformance/fixture.schema.json plus the cross-file rules the schema cannot express. */
 export function fixtureProblems(path: string, folder: string, value: unknown, catalog: ConformanceCatalog): string[] {
-    const fixture = object(value);
     const problems: string[] = [];
     const fail = (message: string) => problems.push(`${path}: ${message}`);
+    if (!isObject(value)) { fail('fixture must be a JSON object.'); return problems; }
+    const fixture = value;
     for (const key of Object.keys(fixture)) if (!fixtureKeys.includes(key)) fail(`unknown key '${key}'.`);
     if (!text(fixture.name) || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(fixture.name)) fail('name must be kebab-case.');
     else if (fixture.name !== folder) fail(`name must match folder '${folder}'.`);
@@ -80,14 +91,12 @@ export function fixtureProblems(path: string, folder: string, value: unknown, ca
         else for (const item of fixture.expected_instruction_paths) if (unsafePath(item)) fail(`expected_instruction_paths '${item}' must be relative with no '..' segment.`);
     }
     if (fixture.bounds !== undefined) {
-        const bounds = object(fixture.bounds);
-        for (const key of Object.keys(bounds)) if (!boundKeys.includes(key)) fail(`bounds: unknown key '${key}'.`);
-        for (const key of boundKeys) if (bounds[key] !== undefined && !(typeof bounds[key] === 'number' && Number.isFinite(bounds[key]) && (bounds[key] as number) > 0)) fail(`bounds.${key} must be a positive number.`);
-        for (const key of ['timeout_seconds', 'max_turns']) if (bounds[key] !== undefined && !Number.isInteger(bounds[key])) fail(`bounds.${key} must be an integer.`);
+        if (!isObject(fixture.bounds)) fail('bounds must be an object.');
+        else checkBounds(fixture.bounds, fail);
     }
     if (!Array.isArray(fixture.checks) || fixture.checks.length === 0) { fail('checks requires a nonempty array.'); return problems; }
     fixture.checks.forEach((check, index) => checkProblems(index, check, fail));
-    const hasResult = fixture.checks.map(object).some(check => (check.phase ?? 'result') === 'result' && check.optional !== true);
+    const hasResult = fixture.checks.filter(isObject).some(check => (check.phase ?? 'result') === 'result' && check.optional !== true);
     if (!hasResult) fail('requires at least one non-optional result-phase check.');
     return problems;
 }

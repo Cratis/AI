@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
@@ -45,6 +45,49 @@ test('pattern is required for match checks only', () => {
     assert.match(problems(fixture({ checks: [{ type: 'file_matches', path: 'a' }] })).join('\n'), /pattern is required/);
     assert.match(problems(fixture({ checks: [{ type: 'file_exists', path: 'a', pattern: 'x' }] })).join('\n'), /pattern applies only/);
 });
+test('wrong-typed values are rejected, not coerced to empty', () => {
+    for (const bounds of [null, 42, [], 'bad']) assert.match(problems(fixture({ bounds })).join('\n'), /bounds must be an object/);
+    for (const check of [null, 42, [], 'bad']) assert.match(problems(fixture({ checks: [check] })).join('\n'), /checks\[0\] must be an object/);
+    for (const root of [null, 42, [], 'bad']) assert.match(problems(root).join('\n'), /fixture must be a JSON object/);
+    for (const key of ['profiles', 'languages', 'harnesses', 'expected_instruction_paths', 'expected_output', 'description', 'prompt']) assert.ok(problems(fixture({ [key]: null })).length > 0, key);
+    assert.ok(problems(fixture({ checks: null })).length > 0);
+    assert.ok(problems(fixture({ checks: [{ type: 'file_exists', path: null }] })).length > 0);
+    assert.ok(problems(fixture({ checks: [{ type: 'file_exists', path: 'a', optional: null }] })).length > 0);
+    assert.ok(problems(fixture({ bounds: { max_turns: null } })).length > 0);
+});
+
+const fixturesRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'Evaluations', 'conformance');
+async function patterns(folder: string, type: string): Promise<RegExp[]> {
+    const document = JSON.parse(await readFile(join(fixturesRoot, folder, 'fixture.json'), 'utf8')) as { checks: { type: string; pattern?: string }[] };
+    return document.checks.filter(check => check.type === type).map(check => new RegExp(check.pattern as string));
+}
+const matchesAll = (list: RegExp[], content: string) => list.every(pattern => pattern.test(content));
+
+test('C# concept fixture patterns reject a comment-only change and accept the real change', async () => {
+    const wanted = await patterns('csharp-concepts-over-primitives', 'file_matches');
+    const unwanted = await patterns('csharp-concepts-over-primitives', 'file_not_matches');
+    assert.equal(wanted.length, 2);
+    const original = await readFile(join(fixturesRoot, 'csharp-concepts-over-primitives', 'input', 'Source', 'Authors', 'Registration.cs'), 'utf8');
+    assert.equal(wanted.some(pattern => pattern.test(original)), false);
+    const commentOnly = original + '\n// public record AuthorName(string Value) : ConceptAs<string>(Value);\n// RegisterAuthor(AuthorName name)\n/* class AuthorName : ConceptAs<string> */\n';
+    assert.equal(wanted.some(pattern => pattern.test(commentOnly)), false);
+    const real = 'public sealed record AuthorName(string Value) : ConceptAs<string>(Value);\n[Command]\npublic record RegisterAuthor(AuthorName Name)\n{ }\n';
+    assert.equal(matchesAll(wanted, real), true);
+    assert.equal(unwanted.some(pattern => pattern.test(real)), false);
+    assert.equal(unwanted.some(pattern => pattern.test('public record RegisterAuthor(string AuthorName);')), true);
+});
+
+test('TypeScript fixture patterns reject a comment-only change and accept the real change', async () => {
+    const wanted = await patterns('typescript-slice-excludes-csharp', 'file_matches');
+    assert.equal(wanted.length, 2);
+    const original = await readFile(join(fixturesRoot, 'typescript-slice-excludes-csharp', 'input', 'src', 'greeting.ts'), 'utf8');
+    assert.equal(wanted.some(pattern => pattern.test(original)), false);
+    const commentOnly = original + "\n// function greet(name: string, punctuation = '!') { return `${name}${punctuation}`; }\n// punctuation\n";
+    assert.equal(wanted.some(pattern => pattern.test(commentOnly)), false);
+    const real = "export function greet(name: string, punctuation: string = '!'): string {\n    return `Hello, ${name}${punctuation}`;\n}\n";
+    assert.equal(matchesAll(wanted, real), true);
+});
+
 test('the real fixtures validate against the real catalog', async () => {
     const root = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
     const result = await verifyConformanceFixtures(root);
