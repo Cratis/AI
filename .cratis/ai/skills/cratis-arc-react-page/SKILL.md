@@ -47,13 +47,14 @@ import { DialogProps, DialogResult, useDialog } from '@cratis/arc.react/dialogs'
 
 ## Guid command fields
 
-Components 4.31.0 adds opt-in `GuidField` from `@cratis/components/CommandForm`.
-It binds native Fundamentals `Guid` values, accepts partial text drafts and never
-generates an identifier. Register it once through `registerFieldTypeProvider`
-for `AutoCommandForm`; it is not a built-in provider. Invalid drafts clear the
-bound value, but blocking execution requires matching Arc and Arc React 22.19.1
-or later. Preserve host-set errors and use `resetKey` to discard an unchanged
-empty value's draft. Source: Components v4.38.0 `Documentation/CommandForm/guid-field.md`.
+Requires Components 4.31.0 and matching Arc/Arc React 22.19.1 for GuidField invalid-draft execution blocking; check `yarn why @cratis/components` and `yarn why @cratis/arc.react`, or keep a host-validated field.
+
+Opt into `GuidField` from `@cratis/components/CommandForm`. It binds native
+Fundamentals `Guid` values, accepts partial text drafts and never generates an
+identifier. Register it once through `registerFieldTypeProvider` for
+`AutoCommandForm`; it is not a built-in provider. Invalid drafts clear the bound
+value. Preserve host-set errors and use `resetKey` to discard an unchanged empty
+value's draft.
 
 ## Initial focus
 

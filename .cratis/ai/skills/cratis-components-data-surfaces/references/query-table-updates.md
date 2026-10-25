@@ -1,16 +1,14 @@
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-# Query tables since Components 4.27
+# Query tables: server state, selection and pagination
 
-Source-checked at Components `v4.38.0`: `Documentation/DataTables/index.md`,
-`Source/DataTables/DataTableForQuery.tsx`, `TablePaginator.tsx` and the release notes
-from 4.27.0 through 4.38.0. This is source review, not a browser execution claim.
+Requires Components 4.35.1 for the refreshed-selection behavior described here; check `yarn why @cratis/components`, or retain the host's explicit selection reconciliation.
 
 ## Server sorting and filtering are opt-in
 
 `DataTableForQuery`, `DataTableForObservableQuery` and `DataPage` accept
-`serverQuery` since 4.30.0. Without it, sorting and filtering affect only the
+`serverQuery`. Without it, sorting and filtering affect only the
 loaded page, not the complete result set.
 
 - Supply `toArguments` to translate search text and column filters to query
@@ -21,7 +19,7 @@ loaded page, not the complete result set.
 - State changes return to page one; search is debounced by 300 ms by default.
   Rows are rendered as the server returns them, not filtered a second time.
 
-Do not present a page-local search as a complete-dataset search. Since 4.32.0,
+Do not present a page-local search as a complete-dataset search.
 `filteredEmptyMessage` replaces `emptyMessage` when a search/filter has no rows.
 Provider messages distinguish `filteredEmpty` (this page) from
 `filteredEmptyServer` (server result). `onGlobalFilterChange` reports search text
@@ -31,11 +29,11 @@ as the user types; it does not implement backend search.
 
 With Arc and Arc React 22.122 or later, changing bound query arguments shows
 loading instead of the previous arguments' rows, failure or access-denied state
-(4.29.1). Returning to cached arguments avoids a loading flash. A completed
+. Returning to cached arguments avoids a loading flash. A completed
 unsuccessful result is a failure, not an empty success; unauthorized stays access
-denied (4.30.0). The query-bound chat sidebar also distinguishes these outcomes.
+denied. The query-bound chat sidebar also distinguishes these outcomes.
 
-Since 4.35.1, bound tables and `DataPage` reconcile selection against refreshed
+Bound tables and `DataPage` reconcile selection against refreshed
 rows by `dataKey`, clearing it when the selected row disappears. A controlled
 selection is reported through `onSelectionChange`, never forcibly overridden.
 Use stable keys and exercise argument changes and removed selections in specs.
@@ -46,7 +44,7 @@ Use stable keys and exercise argument changes and removed selections in specs.
 `TablePaginator`, a bound table or `DataPage` for numbered links with ellipses.
 The current button has `aria-current="page"`; the old page-count info is hidden.
 The `pages`, `page`, `ellipsis` parts support styling; `page(n)` and `pages`
-messages name the controls. Since 4.34.0, provider paginator messages or
+messages name the controls. Provider paginator messages or
 `ariaLabels.range(start, end, total)` localize the range text too.
 
 For a custom pager, `paginatorPages` and `PaginatorPageItem` export the same

@@ -12,13 +12,14 @@ field across every step is valid.
 
 ## Dialog dismissal and refusal
 
-Since Components 4.36.0, `Dialog` and `CommandDialog` accept independent
-`dismissOnOutsideClick`, `closeOnEscape` and `showCloseButton`; each falls back
-to `dismissable`. Busy dialogs still cannot be dismissed. Since 4.33.0 the busy
-confirm remains focusable as `aria-disabled` and ignores duplicate activation;
-a refused confirm restores focus and announces the provider's `refused` message.
-Do not replace it with a disabled button that loses focus or close the dialog on
-validation refusal. Source: Components releases v4.33.0 and v4.36.0.
+Requires Components 4.36.0 for independent dismissal controls; check `yarn why @cratis/components`, or use the older `dismissable` contract.
+
+`Dialog` and `CommandDialog` accept independent `dismissOnOutsideClick`,
+`closeOnEscape` and `showCloseButton`; each falls back to `dismissable`. Busy
+dialogs cannot be dismissed. The busy confirm remains focusable as
+`aria-disabled` and ignores duplicate activation; a refused confirm restores
+focus and announces the provider's `refused` message. Do not replace it with a
+disabled button that loses focus or close the dialog on validation refusal.
 
 ## Verified product sources
 
