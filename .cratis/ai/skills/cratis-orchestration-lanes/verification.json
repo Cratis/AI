@@ -1,0 +1,15 @@
+{
+  "skill": "cratis-orchestration-lanes",
+  "input": "Write a claim, lease and takeover plan for two lanes without overriding live ownership.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "../../rules/issue-assignment.md" },
+    { "kind": "skill-contains", "value": "Stale means check" },
+    { "kind": "skill-contains", "value": "Record every takeover" },
+    { "kind": "skill-contains", "value": "references/inbox-and-handover.md" },
+    { "kind": "skill-contains", "value": "references/lane-brief.md" },
+    { "kind": "skill-contains", "value": "references/context-handoff.md" },
+    { "kind": "skill-contains", "value": "independent second" },
+    { "kind": "skill-contains", "value": "Answer from evidence, not memory" }
+  ]
+}

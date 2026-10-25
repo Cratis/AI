@@ -1155,6 +1155,18 @@
       "languages": [
         "typescript"
       ]
+    },
+    {
+      "id": "cratis/orchestration",
+      "composes": [
+        "cratis/engineering/core"
+      ],
+      "availableTargets": [
+        "cratis-orchestration-lanes"
+      ],
+      "languages": [
+        "language-agnostic"
+      ]
     }
   ]
 }
