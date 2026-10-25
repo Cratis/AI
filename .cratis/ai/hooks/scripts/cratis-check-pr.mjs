@@ -35,12 +35,14 @@ function readBodyFile(value) {
         return readFileSync(resolved, 'utf8');
     } catch (error) {
         const parent = dirname(resolved);
+        const fileExists = existsSync(resolved);
         const details = [`--body-file value: ${value}`, `path tried: ${resolved}`,
-            `parent directory exists: ${existsSync(parent)}`, `file exists now: ${existsSync(resolved)}`,
+            `parent directory exists: ${existsSync(parent)}`, `file exists now: ${fileExists}`,
             `checker working directory: ${process.cwd()}`,
             ...Object.entries(invocation).map(([name, detail]) => `${name}: ${detail}`),
             `checker script: ${fileURLToPath(import.meta.url)}`];
-        throw new Error(`cannot read the pull-request body file (${error.code || error.message}); ${details.join('; ')}`, { cause: error });
+        const hint = fileExists ? '' : ' If the file is written in the same batch of parallel tool calls as this command, write it in a separate, earlier step; the check runs before a concurrent write completes.';
+        throw new Error(`cannot read the pull-request body file (${error.code || error.message}); ${details.join('; ')}${hint}`, { cause: error });
     }
 }
 const gh = (args, options = {}) => {

@@ -174,6 +174,7 @@ test('an unreadable body file is reported with the path tried, the directories a
             assert.ok(result.stderr.includes(`--body-file value: ${missing}`), result.stderr);
             assert.match(result.stderr, /parent directory exists: false/);
             assert.match(result.stderr, /file exists now: false/);
+            assert.ok(result.stderr.includes('If the file is written in the same batch of parallel tool calls as this command, write it in a separate, earlier step; the check runs before a concurrent write completes.'), result.stderr);
             assert.ok(result.stderr.includes(`hook payload directory: ${elsewhere}`), result.stderr);
             assert.ok(result.stderr.includes(`command directory: ${f.directory}`), result.stderr);
             assert.ok(result.stderr.includes(`checker script: ${checker}`), result.stderr);
@@ -181,7 +182,20 @@ test('an unreadable body file is reported with the path tried, the directories a
         // The same command succeeds once the file exists - the report names a missing file, nothing else.
         mkdirSync(join(f.directory, '.ai-work'));
         writeFileSync(join(f.directory, '.ai-work', 'pr-body-1.md'), '## Fixed\n\n- A product fix.\n');
-        assert.equal(f.hook(`cd '${f.directory}' && gh pr create --label patch --body-file '${join(f.directory, '.ai-work', 'pr-body-1.md')}'`).status, 0);
+        const existing = f.hook(`cd '${f.directory}' && gh pr create --label patch --body-file '${join(f.directory, '.ai-work', 'pr-body-1.md')}'`);
+        assert.equal(existing.status, 0, existing.stderr);
+        assert.doesNotMatch(existing.stdout + existing.stderr, /If the file is written in the same batch/);
+    } finally { f.cleanup(); }
+});
+
+test('an existing unreadable body path does not suggest a concurrent write', () => {
+    const f = fixture();
+    try {
+        const result = f.hook(`gh pr create --label patch --body-file '${f.directory}'`);
+        assert.equal(result.status, 2, result.stderr);
+        assert.match(result.stderr, /cannot read the pull-request body file \(EISDIR\)/);
+        assert.match(result.stderr, /file exists now: true/);
+        assert.doesNotMatch(result.stderr, /If the file is written in the same batch/);
     } finally { f.cleanup(); }
 });
 
