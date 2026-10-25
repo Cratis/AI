@@ -47,7 +47,7 @@ switches without a declared default are off when absent.
 | --- | --- | --- |
 | `CratisProxiesOutputPath` | empty | Where to write. Empty disables generation entirely |
 | `CratisProxiesInputAssembly` | empty | Overrides the assembly to read |
-| `CratisProxiesIncremental` | `true` | Requires Arc 22.135.0; reuse unchanged owned output; set `false` to regenerate every build |
+| `CratisProxiesIncremental` | `true` | Requires Arc 22.138.0; reuse unchanged owned output; set `false` to regenerate every build |
 | `CratisProxiesFileHeader` | project setting | Requires Arc 22.123.0; otherwise uses `.editorconfig` `file_header_template`, or no header; `none` disables it |
 | `CratisProxiesSegmentsToSkip` | empty | Leading namespace segments to drop from the output path |
 | `CratisProxiesLibraryMode` | `false` | Generates for a library rather than an application |

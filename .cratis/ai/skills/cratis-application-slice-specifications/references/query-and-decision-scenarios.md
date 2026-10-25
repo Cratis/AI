@@ -58,12 +58,12 @@ not a caller-supplied tenant filter. Compare whole returned items when the contr
 value; otherwise assert each named value. A query backed by a database still needs that provider's
 integration setup: scenario pins do not replace arbitrary stores.
 
-Requires Arc 22.134.1 for `QueryScenario` to dispose its provider. Dispose the
-scenario (prefer `DisposeAsync` for async-owned resources) as well as individual
-observations. Register dependencies in `Services` before the first execution.
-Requires 22.136.1 for scenario execution to run `OnBeforeQuery` before invoking
-the query and to establish context before `Provide`/`Handle` on the command path.
-A direct static query call does not cover those pipeline hooks.
+`QueryScenario` owns and disposes its provider. Dispose the scenario (prefer
+`DisposeAsync` for async-owned resources) as well as individual observations.
+Register dependencies in `Services` before the first execution. Scenario
+execution runs `OnBeforeQuery` before invoking the query and establishes context
+before `Provide`/`Handle` on the command path. A direct static query call does not
+cover those pipeline hooks.
 
 ## Guarded decisions
 
@@ -100,12 +100,11 @@ read-model dictionary is the only backing are **legacy-mode** warnings, not a
 reason to fake protected decision readers. Keep non-key enumeration/provider
 boundaries explicit in either mode; decision mode is not a MongoDB substitute.
 
-Requires Arc 22.128.4 for the default Chronicle-backed `CommandScenario` to
-discover constraints automatically. A duplicate append may therefore refuse
-where an older scenario passed; assert the real constraint rather than disabling
-it. Requires 22.131.3 for the updated sealed Chronicle `EventScenario`; do not
-subclass or substitute it. Use its public seeding/assertion surface or explicit
-`UseDecisionReads` mode, not a synthetic EventScenario facade.
+The default Chronicle-backed `CommandScenario` discovers constraints
+automatically. Assert real constraint refusals instead of disabling them. Do not
+subclass or substitute Chronicle's `EventScenario`; use its public
+seeding/assertion surface or explicit `UseDecisionReads` mode, not a synthetic
+EventScenario facade.
 
 ## Sources
 

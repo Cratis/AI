@@ -5,10 +5,12 @@
 
 ## Shared MongoDB watches
 
-Requires Arc 22.137.0 for MongoDB `Observe()` to use a shared database-level
-watch keyed by deployment and database, rather than opening a collection watch
-for every observer. Each observation keeps its filter, paging and tenant
-context. Joined observations coalesce refresh notifications into one pending
+MongoDB `Observe()` uses a shared database-level watch keyed by deployment and
+database rather than opening a collection watch for every observer. Each
+observation keeps its filter, paging and tenant context.
+Requires Arc 22.137.0 for observations of collections created by the caller's
+own `MongoClient` to receive changes. The watcher derives the deployment key
+from the database client instead of requiring prior registration. Joined observations coalesce refresh notifications into one pending
 refresh and re-read every joined source. Snapshot read failures receive a
 bounded retry burst; exhaustion waits for a later notification rather than
 spinning or buffering unbounded work.
@@ -24,13 +26,12 @@ replace each subscription's cancellation and disposal.
 
 Implement `Cratis.Arc.Queries.IInterceptReadModel<T>` with
 `Task<T> Intercept(T readModel)`. Return a copy when transforming data that another
-subscriber could share. Requires Arc 22.129.0 for a non-abstract open generic
-`IInterceptReadModel<T>` implementation whose target is exactly its own type
-parameter; closed implementations still work.
+subscriber could share. A non-abstract open generic `IInterceptReadModel<T>`
+implementation must target exactly its own type parameter; closed
+implementations also work.
 
-Requires Arc 22.138.0 for interception of every supported direct/hub streaming
-emission and observable HTTP snapshot/wait in the requesting subscriber's scope
-and identity. Interceptors run before emission guards; a thrown interceptor
+Interception runs for supported direct/hub streaming emissions and observable
+HTTP snapshot/wait results in the requesting subscriber's scope and identity. Interceptors run before emission guards; a thrown interceptor
 fails the result rather than exposing the untransformed value. Ordinary model
 queries and Arc-wrapped MVC GETs also intercept results; `[AspNetResult]` opts
 out of that result processing. Interceptors are transformations, **not access

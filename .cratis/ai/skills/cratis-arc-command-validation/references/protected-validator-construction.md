@@ -5,7 +5,7 @@
 
 ## Plain read models under On
 
-Requires Arc 22.124.0 for plain Chronicle read-model dependencies in
+Requires Arc 22.123.0 for plain Chronicle read-model dependencies in
 `CommandValidator<T>` constructors under read protection `On`. Those reads share
 the command's fold cache and append guard with `Provide`/`Handle`. Let convention
 discovery register a transient validator. Scoped/singleton/factory/instance
@@ -16,7 +16,7 @@ keys. Another source/stream can instead be read explicitly in `Provide`.
 
 ## Explicit decision tokens outside On
 
-Requires Arc 22.130.0 for the opt-in construction of validators taking
+Requires Arc 22.126.0 for the opt-in construction of validators taking
 `DecisionRead<T>` or command-aware `IDecisionReads` on `[ProtectedDecision]`
 commands outside `On`. This is **untrimmed JIT only**, not trimmed JIT or
 NativeAOT, and not a switch making every DI container trusted.
@@ -43,7 +43,7 @@ optional dependencies, provider/scope accessors and collections (including token
 collections). Plain models and raw `IReadModels`, `IEventStore` or `IEventLog`
 are refused on this path: use tokens or choose `On`.
 
-Requires Arc 22.130.1 for
+Requires Arc 22.133.0 for
 `services.AddProtectedDecisionValidator<TValidator>(configure)`. Use it instead
 of an application DI factory when adding rules. The callback runs once on the
 actual fresh instance before validation; thrown callbacks fail the command and
@@ -62,11 +62,11 @@ blocking severity needed for business denials.
 
 ## Generated key metadata is not validator certification
 
-Requires Arc 22.119.0 for generated command key matching and Arc 22.124.0 for
-generated flattened composite-key descriptors. `CommandReadModelKeys` registers
-command property/model-key metadata; `ProtectedReadModelKeyAccessors` registers
-exact-type composite members. These optimize matching; they do not authorize a
-read or certify a validator's dependency graph.
+`CommandReadModelKeys` registers command property/model-key metadata.
+Requires Arc 22.125.0 for generated composite-key descriptors and
+`ProtectedReadModelKeyAccessors`, which registers exact-type composite members.
+These optimize matching; they do not authorize a read or certify a validator's
+dependency graph.
 
 Known concrete composite keys receive generated complete descriptors. For an
 external/runtime key, register `ProtectedReadModelKeyAccessors.Register<T>` with
@@ -75,14 +75,14 @@ before commands run. Generated metadata uses `DeclareKeyTypes` for startup
 coverage checks; that is not a replacement for registering member accessors.
 Duplicate registration fails. Do not omit a member or treat a
 base descriptor as covering a derived runtime type. Missing declared metadata
-fails with `ProtectedReadModelKeyAccessorsMissing`.
+fails with `ProtectedReadModelKeyAccessorMissing`.
 
-`Cratis:Arc:Chronicle:ReadProtection:RequireGeneratedMetadata` is false by
-default; enabling it rejects missing command/model metadata instead of using
+Requires Arc 22.134.0 for `ReadProtection:RequireGeneratedMetadata` (false by
+default). Enabling it rejects missing command/model metadata instead of using
 reflection. `ProtectedReadModelKeyOptions.Strict` is also false by default;
 strict composite matching or a restricted runtime requires exact accessors.
 Untrimmed JIT can use the compatibility reflection path when strict mode is off.
-ARC0031 is the composite coverage warning. Do not suppress it or promise
+ARC0030 is the composite coverage warning. Do not suppress it or promise
 NativeAOT support for the unrelated dynamic validator opt-in.
 
 ## Specify the boundary

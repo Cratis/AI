@@ -101,9 +101,8 @@ if (result.IsSuccess)
 }
 ```
 
-Requires Arc 22.138.3 for `Execute<TResult>` to accept an assignable response,
-such as an array requested as `IEnumerable<T>` or a concrete value requested as
-an interface/base type. Older versions can reject that generic result upcast.
+`Execute<TResult>` accepts an assignable response, such as an array requested
+as `IEnumerable<T>` or a concrete value requested as an interface/base type.
 ⚠️ An incompatible non-null response still throws `InvalidCastException`. When the handler returns no response, or the
 command failed for any reason, `Response` is `default` — a failed result never
 carries a response, because the pipeline clears it once the execution scopes
