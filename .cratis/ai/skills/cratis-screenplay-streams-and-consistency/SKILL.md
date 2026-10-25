@@ -148,8 +148,11 @@ Requires Chronicle 19.59.6 or later (19.59.3 for the InMemory provider) for the 
   is not one transaction. Declared semantics are not a passed concurrency test.
 - New models declare `reaction batches atomic`: direct productions per trigger
   occurrence and each selected refusal branch are separate batches; invoked commands
-  stay independent. Legacy absence retains per-fact appends. Stage refuses v22
-  with STAGE-ESM-016 and atomic mode in admitted v23–v27 with STAGE-ESM-043. Read
+  stay independent. Legacy absence retains per-fact appends. The reviewed Stage
+  executes semantic atomic batches and renders bounded event-only batches;
+  multiple same-event production triggers and routed productions still refuse
+  STAGE-ESM-043. The live Host rolls back the whole initiating command on failure,
+  while the specification executor retains earlier successful units. Read
   [atomic boundaries](../cratis-screenplay-captures-and-reactions/references/atomic-batches-and-source-mappings.md)
   when defining failure rollback; batching is not redelivery deduplication.
 - Match duplicate protection to scope. A property constraint lets a source re-claim its own

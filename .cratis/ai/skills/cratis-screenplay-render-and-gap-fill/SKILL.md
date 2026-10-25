@@ -35,8 +35,10 @@ Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`; read it b
 ## Language modes that block target delivery
 
 Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
-for v22–v25: Stage rendering refuses atomic batches, described bodies (even Stub mode)
-but renders admitted protected reads in a supporting bundle. Semantic Host/executor
+for version selection, and [current Stage boundaries](../cratis-stage-rendering-and-sandbox/references/current-boundaries.md)
+for realization. Bounded atomic batches, source-event Translate captures/publication and resolved
+C# validation bodies now render. Described handlers still refuse even in Stub
+mode; query-performer gaps are a separate contract, not completed behavior. Protected reads still need an admitted shape. Semantic Host/executor
 support is not generated-app protection.
 Preserve contracts; reference success is not target realization.
 
@@ -68,15 +70,18 @@ Supported UUID/String generation, v15 freshness, responses, fixtures and
 types (`STAGE-ESM-028`) and result combinations (`-038`) still require case A or C:
 preserve the model and its specifications. See Stage's `references/admission.md`.
 Supported event-triggered Automation slices also render as managed Chronicle reactors;
-refused reactions, captures and Translate slices remain gap-fill. A `given clock` fixture
+bounded source-event captures and outbound Translate also render; refused reaction/Translate shapes remain gap-fill. A `given clock` fixture
 in the semantic executor is not support for rendering clock triggers.
 Requires Stage 4.141.0 to render v26 Date/DateTime command comparisons; older renderers
 refuse `STAGE-ESM-046`. Read [rendered date comparisons](../cratis-stage-rendering-and-sandbox/references/date-comparisons.md)
 when delivering dates for remaining refusals and input-binding differences.
 
 Source/stream routes bind and reference-execute as v8; target admission is separate.
-Requires Cratis CLI 3.75.0 for v27 admission; older bundles stop earlier, v28 is
-`CLI-RENDER-004`. Read toolchain `references/renderable-subset.md` and
+Requires Cratis CLI 3.75.0 for v27 admission; older bundles stop earlier.
+The reviewed CLI admits semantic versions through v30; its bundled Stage then
+applies matched-pair and construct gates. V32 needs a direct caller of the reviewed
+Stage baseline; see [CLI bundle details](../cratis-screenplay-toolchain/references/language-admission.md#stage-admission-and-execution).
+Read toolchain `references/renderable-subset.md` and
 `references/sources-and-streams.md` when delivering routes, actor gates or filters.
 Preserve refused public/foreign events, production overrides and opaque gates as A/C.
 
