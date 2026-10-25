@@ -580,9 +580,9 @@
         }
       ],
       "synced": {
-        "version": "3.13.0",
-        "date": "2026-10-15",
-        "by": "Cratis/AI#719"
+        "version": "3.14.3",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -592,7 +592,7 @@
           "elixir.md"
         ]
       },
-      "notes": "Synced to the v3.13.0 tag: decision reads, Chronicle.Testing, captures, discovery drift, standalone constraints, children collections, concurrency scopes and observability."
+      "notes": "Cratis/AI#820: reviewed all four releases v3.14.0-v3.14.3. Teach first-registration start_at_tail/kernel floor, client crash-report redaction and decide callback rejection/cleanup. Hex metadata and shared-doc language tabs need no additional API teaching. Tagged reactor/event/testing docs inspected; retained in-memory projection limits still apply. No new execution evidence. Prior: Synced to the v3.13.0 tag: decision reads, Chronicle.Testing, captures, discovery drift, standalone constraints, children collections, concurrency scopes and observability."
     },
     {
       "id": "authproxy",
