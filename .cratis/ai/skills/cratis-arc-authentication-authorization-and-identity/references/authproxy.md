@@ -23,6 +23,30 @@ The headers are **not signed**. A backend cannot tell a request that came throug
 
 `IdentityVerification` on an AuthProxy service defaults to `Required` (fail closed). Only a `2xx` with `"isAuthorized": true` admits the caller. A `404`, an unreachable backend, a timeout (default ten seconds), any other non-`2xx`, an empty or unparseable body, a missing verdict, or `isAuthorized: false` all deny. The earlier `BestEffort` mode denied only on `403`. Consequently your `IProvideIdentityDetails` result is the admission verdict at the proxy, not only display data: return `IsUserAuthorized = false` deliberately, and keep the endpoint reachable and fast. A service can opt back into `BestEffort` explicitly; do not do that to hide a broken identity endpoint.
 
+## Multi-host sessions are opt-in
+
+Reviewed releases 2.31.0–2.32.4. Defaults stay host-only with cookie name
+`.Cratis.AuthProxy.Auth.v2`, per-host handshakes and relative return URLs.
+`Session:CookieDomain` shares sessions beneath a parent domain;
+`Session:CookieName` isolates independent deployments. `SignIn:CallbackHost`
+centralizes OAuth/OIDC handshakes and requires the cookie domain. Restrict
+`AllowedHosts`; never broaden hosts merely to make shared cookies work.
+
+The callback and declared service hosts must lie inside the cookie domain;
+`SubHost` tenant resolution cannot be combined with it. Absolute returns require
+the callback host and an allowed origin inside that domain on the request's
+scheme; otherwise they reduce to a local path. Invitations, credential links and
+registration still start on their original host and need provider callbacks
+there. Use the product's one-proxy/several-hosts migration guide, not an inferred
+cross-domain cookie recipe.
+
+Since 2.32.0, `AuthProxy:SearchIndexing:Exclude` optionally serves anonymous
+`robots.txt` and adds `X-Robots-Tag: noindex, nofollow`. It is off by default and
+is a crawler policy, not authorization. In 2.32.4 invitation error-page tokens
+`{{invitedEmail}}` and `{{assertedEmail}}` are blank for addresses outside ASCII
+letters, digits and `._+-@`; do not assume these placeholders always contain text.
+The 2.31.1/2.32.2 signed-in `/register` forwarding fixes need no host workaround.
+
 ## Tenants and services
 
 AuthProxy resolves the tenant through ordered strategies under `Cratis:AuthProxy:TenantResolutions` (`Host`, `Claim`, `Route`, `Specified`, `Default`, `SubHost`, `Selection`). The result reaches the backend as `x-cratis-tenant-id`, which is Arc's default tenant header, so an Arc application behind AuthProxy needs no tenancy configuration and the `UseHeaderTenancy("Tenant-ID")` workaround seen in older applications can be removed.

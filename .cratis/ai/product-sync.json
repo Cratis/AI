@@ -600,9 +600,9 @@
       "repository": "Cratis/AuthProxy",
       "packages": [],
       "synced": {
-        "version": "2.30.5",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "2.32.4",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -611,7 +611,7 @@
         "rules": []
       },
       "coverage": "tracked",
-      "notes": "First synced in Cratis/AI#620 at 2.30.5."
+      "notes": "Cratis/AI#820: reviewed all eight releases v2.31.0-v2.32.4. Teach opt-in multi-host session/callback boundaries, search-index exclusion and invitation placeholders. Existing canonical tenant header guidance remains correct for bearer routes; registration/cookie fixes need no workaround. Package/tooling/test-runner updates have no further identity API teaching delta. Release review, not a deployed ingress probe."
     },
     {
       "id": "fundamentals-go",
