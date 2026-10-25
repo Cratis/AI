@@ -14,9 +14,11 @@
 
 Stage v4.197.0 admits matched language/ESM pairs **1.0–30.0 and 32.0**, then
 checks constructs per target. V31 anonymous conditions, mixed and unknown pairs
-report `STAGE-ESM-016`. CLI v3.100.0 `cratis render` independently stops at
-matched 27.0 (`CLI-RENDER-004` above it); a construct its bundled compiler cannot
-bind reports PLAY0268 first. Read [current target boundaries](current-boundaries.md)
+report `STAGE-ESM-016`. CLI v3.100.0 `cratis render` independently admits semantic
+versions through v30 (`CLI-RENDER-004` above it); its bundled Stage then
+checks matched pairs and constructs. V32 needs a direct caller of the reviewed
+Stage baseline. See [CLI bundle details](../../cratis-screenplay-toolchain/references/language-admission.md#stage-and-cli-target-boundaries).
+A construct the bundled compiler cannot bind reports PLAY0268 first. Read [current target boundaries](current-boundaries.md)
 for renderer, semantic Host/specification, Translate, atomic, composite-key and
 implementation-gap support before applying the historical minimums below.
 

@@ -16,14 +16,17 @@ Probe the model; admission rules are not a render result.
 
 Requires cratis CLI ≥ 3.57 (`cratis --version`) to render ESM v14 and v15 models; an older CLI refuses newer ESM versions with `CLI-RENDER-004` (or `STAGE-ESM-016` from Stage directly).
 
-Requires Cratis CLI 3.74.0 to render ESM v21–v26 models and 3.75.0 for v27; CLI 3.66.0–3.73.0 refuse v21 and later with `CLI-RENDER-004`, and CLI v3.100.0 still refuses v28 and later with it. Above the ceiling, a construct the bundled compiler cannot bind reports PLAY0268 before `CLI-RENDER-004` is reached.
+Requires Cratis CLI 3.74.0 to render ESM v21–v26 models, 3.75.0 for v27, 3.81.0 for v28 and 3.86.0 for v29–v30. CLI 3.66.0–3.73.0 refuse v21 and later with `CLI-RENDER-004`. Above a CLI's ceiling, a construct its bundled compiler cannot bind reports PLAY0268 before `CLI-RENDER-004` is reached.
 
 ## Batches, described handlers, text rules and protected reads
 
 Start with [current target boundaries](references/current-boundaries.md), reviewed
 against Stage v4.197.0: matched language/ESM 1.0–30.0 and 32.0 are admitted, not
-31.0. The reviewed CLI's `cratis render` still stops at matched 27.0. Renderer, semantic
-Host/specification execution and legacy syntax admission are separate gates.
+31.0. The reviewed CLI's `cratis render` admits ESM through v30; its bundled
+Stage then applies matched-pair and construct gates. V32 needs a direct caller of
+the reviewed Stage baseline. See [CLI bundle details](../cratis-screenplay-toolchain/references/language-admission.md#stage-and-cli-target-boundaries).
+Renderer, semantic Host/specification execution and legacy syntax admission are
+separate gates.
 Bounded atomic batches render; unverifiable query performers can produce explicit
 gaps, not completed behavior. Described handlers still refuse even in Stub mode.
 Keep protection and report remaining refusals.
@@ -78,8 +81,9 @@ printed), `1` is a missing input. Add `-o json` for the counts and the publicati
 Key facts:
 
 - **Binding uses the CLI's bundled compiler**, not the standalone one. Version admission
-  does not imply construct support: the reviewed CLI render admits matched pairs
-  through 27.0 (`CLI-RENDER-004` outside its gate); direct Stage admits matched
+  does not imply construct support: the reviewed CLI render checks only the
+  semantic version, admitting through v30 (`CLI-RENDER-004` above it); its bundled
+  Stage then checks matched pairs and constructs. Direct Stage admits matched
   pairs 1.0–30.0 and 32.0. Mixed/unknown Stage pairs refuse `STAGE-ESM-016`.
   Atomic shapes the renderer cannot preserve still refuse `-043`.
   Requires Stage 4.141.0 to render v26 Date/DateTime command comparisons; older

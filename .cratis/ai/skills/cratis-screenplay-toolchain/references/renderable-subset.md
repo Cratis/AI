@@ -25,8 +25,10 @@ and concept compliance (v13) render.
 The language is frozen at ESM v1–v28 ([the freeze decision](https://github.com/Cratis/Screenplay/blob/main/decisions/0092-the-language-is-frozen-at-esm-v28.md)): no new versions, constructs, keywords or grammar, except a construct for a real model that is blocked with no model-side alternative, accepted in its own record. Model with what v1–v28 offers; when Stage, `cratis render` or Studio does not support a construct yet, treat the typed refusal as a platform gap to report, since consumers are catching up to v28, not a reason to wait for new language.
 
 Stage v4.197.0 admits matched language/ESM **1.0–30.0 and 32.0**, not 31.0,
-mixed or unknown pairs (`STAGE-ESM-016`). CLI v3.100.0 render still admits only
-matched pairs through **27.0**. Read
+mixed or unknown pairs (`STAGE-ESM-016`). CLI v3.100.0 render checks only the
+semantic version and admits through **v30**; its bundled Stage then applies
+matched-pair and construct gates. V32 needs a direct caller of the reviewed Stage
+baseline; see [CLI bundle details](language-admission.md#stage-and-cli-target-boundaries). Read
 [current Stage target boundaries](../../cratis-stage-rendering-and-sandbox/references/current-boundaries.md)
 for Translate, atomic batches, composites, typed gaps and semantic execution.
 Chronological command dates select v26.
@@ -42,7 +44,7 @@ The CLI's bundled Stage can be older: read installed versions and the pins in
 does not render refuses with its own code before any artifact is planned.
 
 Requires Stage 4.96.0 for stored event names (v16), 4.101.0 for no-event assertions (v17), 4.102.0 for refusal branches (v19), and 4.103.0 for rendered redelivery; older renderers refuse the respective shapes.
-Requires Cratis CLI 3.60.0 (`cratis --version`) for v16 rendering, 3.74.0 for v21–v26 and 3.75.0 for v27 admission (v28 and later: CLI-RENDER-004); a bundle below the model's version refuses it with CLI-RENDER-004, or with PLAY0268 when its bundled compiler predates the construct.
+Requires Cratis CLI 3.60.0 (`cratis --version`) for v16 rendering, 3.74.0 for v21–v26 and 3.75.0 for v27 admission; the v28–v30 CLI minimums are in [language admission](language-admission.md#compiler-and-target-minimums). A bundle below the model's version refuses it with CLI-RENDER-004, or with PLAY0268 when its bundled compiler predates the construct.
 
 With an admitting renderer, all-Proven generated-concept rules allow unpinned
 rendered specs; warning/info rules and semantic checksum validation are enforced,

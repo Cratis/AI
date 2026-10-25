@@ -23,9 +23,13 @@ conditions, mismatched and unknown future pairs remain refused. V28 adds UUID
 comparisons; v29 includes decimal rules/projection products; v30 carries per-event
 source routes; v32 typed capture identities must not be lost in conversion.
 
-**CLI v3.100.0** `cratis render` independently accepts matched pairs only through
-**27.0**. Do not relabel a newer model to pass it: use a capable reviewed caller or
-report the CLI blocker.
+**CLI v3.100.0** `cratis render` independently admits semantic versions through
+**v30**. Its bundled Stage then applies matched-pair and construct
+gates; **v32 needs a direct caller of the reviewed Stage baseline**. The CLI checks only the semantic
+version, not the pair. Do not relabel a newer model to pass it: use a capable
+reviewed caller or report the CLI blocker. The introducing CLI minimums are in
+[the skill's admission prerequisites](../SKILL.md); the exact bundled Stage is in
+[toolchain target boundaries](../../cratis-screenplay-toolchain/references/language-admission.md#stage-and-cli-target-boundaries).
 
 ## Renderer support is bounded
 

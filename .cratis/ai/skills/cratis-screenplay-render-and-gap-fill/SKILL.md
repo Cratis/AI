@@ -78,8 +78,10 @@ when delivering dates for remaining refusals and input-binding differences.
 
 Source/stream routes bind and reference-execute as v8; target admission is separate.
 Requires Cratis CLI 3.75.0 for v27 admission; older bundles stop earlier.
-CLI v3.100.0 still reports `CLI-RENDER-004` above v27 even though direct Stage
-admits matched 1.0–30.0 and 32.0. Read toolchain `references/renderable-subset.md` and
+The reviewed CLI admits semantic versions through v30; its bundled Stage then
+applies matched-pair and construct gates. V32 needs a direct caller of the reviewed
+Stage baseline; see [CLI bundle details](../cratis-screenplay-toolchain/references/language-admission.md#stage-and-cli-target-boundaries).
+Read toolchain `references/renderable-subset.md` and
 `references/sources-and-streams.md` when delivering routes, actor gates or filters.
 Preserve refused public/foreign events, production overrides and opaque gates as A/C.
 
