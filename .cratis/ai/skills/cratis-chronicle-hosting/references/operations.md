@@ -28,13 +28,18 @@ can overlap work that still runs, so side effects must remain idempotent.
 
 Requires Chronicle 19.110.0 for abandoned-delivery draining and webhook quarantine probes.
 
-Replay/recovery waits up to
-`observers.abandonedDeliveryDrainTimeout` (default 5 seconds) for abandoned
-delivery tasks to drain. A timeout fences that delivery: late projection/reducer
-sink writes, returned events and position updates are discarded before replay
-state is touched. This does **not** undo an external side effect already sent.
-Do not increase the bound or replay repeatedly to work around non-cancellable
-handlers. Verified in `Documentation/hosting/configuration/observers.md` and
+`observers.abandonedDeliveryHold` defaults to 300 seconds **after the delivery
+deadline**. A positive value below `subscriberTimeout` uses that timeout instead;
+zero or less disables the hold. Retry/catch-up/replay wait for a barrier on the
+**original subscriber activation**, not a replacement client. An unavailable
+original silo is not proof that its work drained. Late results are discarded;
+a late reducer result cannot write to its sink.
+
+The hold is bounded, not cancellation: user code might still run after expiry,
+so external side effects must remain idempotent. Clearing persisted failure
+history followed by restart loses that history. Inspect abandoned-delivery logs
+and metrics before reducing the hold. Verified in
+`Documentation/hosting/configuration/observers.md` and
 `Source/Kernel/Core/Observation/Observer.DeliveryFences.cs`.
 
 Quarantine persists through grain deactivation. Watchdog ticks and catch-up/replay

@@ -160,7 +160,7 @@ uniqueness (with release on a removal event), create-once and closed streams.
 
 - From Chronicle 19.82.2, a failed index update after a durable append marks a
   gap. A later governed append repairs that gap from the event log or refuses
-  with `AppendError.ConstraintIndexUnavailable` before writing. Do not treat
+  with a `ConstraintIndexUnavailable` error value before writing. Do not treat
   that retryable refusal as a duplicate or remove the constraint. Verified at
   **v19.110.1**, `Source/Kernel/Core/EventSequences/EventSequence.AppendSettlement.cs`
   and `EventSequence.Validation.cs`; see

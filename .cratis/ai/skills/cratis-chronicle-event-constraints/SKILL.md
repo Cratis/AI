@@ -23,8 +23,8 @@ Requires Chronicle 19.82.2 for constraint-index gap repair.
 
 A failed
 post-append index update marks a gap: subsequent governed appends repair the
-index from the event log or return `AppendError.ConstraintIndexUnavailable`
-without writing. Do not remove the constraint or blindly retry an unknown
+index from the event log or return `ConstraintIndexUnavailable` in the result's
+error collection without writing. Do not remove the constraint or blindly retry an unknown
 append outcome; see [append outcomes](../cratis-chronicle-client-dotnet/references/append-outcomes.md).
 Constraints apply per event store namespace and event sequence, so tenants in
 different namespaces can claim the same value. A constraint is not re-run when

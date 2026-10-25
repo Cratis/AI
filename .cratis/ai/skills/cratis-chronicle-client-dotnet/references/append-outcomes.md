@@ -20,7 +20,7 @@ a grain-call timeout. Do not retry an
 unkeyed append blindly: read the source's events for the attempt's correlation
 id, and append again only when none belongs to that attempt.
 
-`AppendError.ConstraintIndexUnavailable` means a governing unique/closing index
+An `Errors` entry with value `ConstraintIndexUnavailable` means a governing unique/closing index
 still needs repair and **nothing was stored**. Retry unchanged after a short
 delay. The kernel repairs constraint indexes from the event log; restarting
 clients or removing constraints is not a repair strategy.

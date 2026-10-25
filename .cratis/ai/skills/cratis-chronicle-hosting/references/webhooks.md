@@ -21,17 +21,17 @@ Configuration below sits under `Cratis:Chronicle:Webhooks`.
 
 Requires Chronicle 19.100.0 for webhook target validation.
 
-`Validation` is `Disabled`, `Warn` (default) or `Enforce`.
-Warn records violations without blocking: do not mistake the default for SSRF
-protection. Enforce requires HTTPS and refuses user-info, fragments, private,
-loopback, link-local or reserved destinations; DNS is checked at connect time
-too. Redirects are not followed. OAuth authorities use the same policy.
+`Validation` is `Warn` (default) or `Enforce`. Warn logs violations without
+blocking, except unapproved cloud metadata addresses. Do not mistake the default
+for full SSRF protection or approve metadata hosts in normal deployments.
+Enforce requires HTTPS and approved hosts, checking private/special resolved
+addresses at connect time too. Redirects are not followed. OAuth authorities use the same policy.
 `AllowInsecureHttp` applies only in Development.
 
 `AllowedHosts` accepts exact hosts and wildcard subdomains; an event store's
 `EventStoreAllowedHosts` entry **replaces** the global list. An exact host entry
-can intentionally admit that host's private addresses; a wildcard does not.
-Bound exceptions to trusted receivers.
+can intentionally admit that host's private addresses. Bound exceptions to
+trusted receivers; wildcards approve subdomains, not their parent domain.
 Never widen the list just to silence a refusal.
 
 Requires Chronicle 19.106.0 for validation of stored active definitions.
