@@ -99,7 +99,7 @@ profile includes neither Screenplay nor Stage.
 | `cratis/engineering/go` | Go framework parity and immutable module releases | `cratis/engineering/core`, `cratis/language/go` |
 | `cratis/engineering/typescript` | TypeScript engineering conventions | `cratis/engineering/core` |
 | `cratis/engineering/react` | React engineering conventions | `cratis/engineering/core` |
-| `cratis/orchestration` | Multi-session lane coordination: `cratis-orchestration-lanes` | `cratis/engineering/core` |
+| `cratis/orchestration` | Multi-session lane coordination: `cratis-orchestration-lanes`, `cratis-orchestration-merge-gates` | `cratis/engineering/core` |
 
 The `cratis/orchestration` profile is opt-in: select it explicitly for work with two or more autonomous lanes; `cratis/engineering` and `cratis` do not include it.
 

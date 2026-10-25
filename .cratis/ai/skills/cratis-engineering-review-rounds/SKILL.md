@@ -94,6 +94,28 @@ change addressing the failure class or ask the user about the approach. Use
 A structural change does not authorize an automatic fourth round or waive any
 required review; report the remaining blocker or required decision.
 
+## Contract
+
+A caller that schedules a round supplies these inputs. Resolve every SHA with
+`git rev-parse`; never expand a short prefix by hand.
+
+| Input | Meaning | Required |
+| --- | --- | --- |
+| `target` | The pull request, branch or work item under review | Always |
+| `round` | Round number within the work item's cap of 3 | Always |
+| `baseSha` | Full SHA of the original base | Always |
+| `headSha` | Full SHA of the head being reviewed | Always |
+| `since` | Full SHA of the head last reviewed | Delta rounds |
+| `prior` | The complete previous report, with dismissals and limits | Delta rounds |
+| `cachedReview` | An earlier review to reuse | Only for the exact same SHAs and scope |
+| `mode` | `whole-change` or `delta`; quick or ordinary depth | Always |
+| `deepReason` | One named risk class and a one-line justification | Only for deep review |
+
+The result is one verdict from the canonical vocabulary in `review-reports.md`:
+**Approved**, **Approved with suggestions**, **Changes requested** or
+**Incomplete**. A provider or tool error yields **Incomplete**, never an
+approval and never an invented verdict.
+
 ## What breaks
 
 - **A whole-change restart after every correction:** repeats work while losing

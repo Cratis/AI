@@ -104,10 +104,12 @@ test('the orchestration profile is opt-in and resolves lanes plus the core engin
         };
         const orchestration = selectFor(['cratis/orchestration']);
         assert.ok(orchestration.includes('cratis-orchestration-lanes'));
+        assert.ok(orchestration.includes('cratis-orchestration-merge-gates'));
         assert.ok(orchestration.includes('cratis-engineering-issue-hygiene'));
         assert.ok(orchestration.includes('cratis-engineering-review-rounds'));
         for (const profile of ['cratis/engineering', 'cratis']) {
             assert.ok(!selectFor([profile]).includes('cratis-orchestration-lanes'), `${profile} must not include the opt-in lanes skill`);
+            assert.ok(!selectFor([profile]).includes('cratis-orchestration-merge-gates'), `${profile} must not include the opt-in merge-gates skill`);
         }
     } finally {
         rmSync(project, { recursive: true, force: true });

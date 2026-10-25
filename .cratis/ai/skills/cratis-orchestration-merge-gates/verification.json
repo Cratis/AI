@@ -1,0 +1,17 @@
+{
+  "skill": "cratis-orchestration-merge-gates",
+  "input": "Decide whether a lane's pull request may merge now, given predecessors, a running publish and a green run.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "Merge turns are decided by GitHub state" },
+    { "kind": "skill-contains", "value": "Every predecessor pull request the candidate" },
+    { "kind": "skill-contains", "value": "No publish run of the repository is queued or" },
+    { "kind": "skill-contains", "value": "git log <ci-sha>..origin/main -- <paths>" },
+    { "kind": "skill-contains", "value": "A green run on an older head is not evidence for the current head" },
+    { "kind": "skill-contains", "value": "3 rounds per" },
+    { "kind": "skill-contains", "value": "No hook or tool may wait for" },
+    { "kind": "skill-contains", "value": "A silent command is diagnosed, not given more time" },
+    { "kind": "skill-contains", "value": "references/merge-queue.md" },
+    { "kind": "skill-contains", "value": "references/unattended-guards.md" }
+  ]
+}
