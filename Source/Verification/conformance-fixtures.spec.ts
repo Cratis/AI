@@ -104,6 +104,21 @@ test('every check type has a closed schema shape with its required fields', () =
     assert.deepEqual(schema.$defs.check.oneOf, expected);
 });
 
+test('the verifier accepts exactly the keys each check type allows in the schema', () => {
+    const samples: Record<string, unknown> = { phase: 'result', run: ['true'], exit_code: 0, path: 'a', glob: '*.txt', pattern: 'x', optional: false };
+    for (const shape of schema.$defs.check.oneOf as { properties: Record<string, unknown> }[]) {
+        const type = (shape.properties.type as { const: string }).const;
+        const allowed = new Set(Object.keys(shape.properties));
+        const base = type === 'command' ? { type, run: ['true'] } : { type, path: 'a', ...(type.includes('matches') ? { pattern: 'x' } : {}) };
+        for (const key of fixtureVocabulary.checkKeys.filter(key => key !== 'type')) {
+            const check = key === 'glob' ? { ...base, path: undefined, glob: '*.txt' } : { ...base, [key]: samples[key] };
+            const result = problems(fixture({ checks: [check] }));
+            if (allowed.has(key)) assert.deepEqual(result, [], `${type} should accept ${key}`);
+            else assert.ok(result.length > 0, `${type} should reject ${key}`);
+        }
+    }
+});
+
 test('the verifier enforces the per-type required fields and exclusive path or glob', () => {
     for (const type of fixtureVocabulary.checkTypes) {
         assert.ok(problems(fixture({ checks: [{ type }] })).length > 0, type);
