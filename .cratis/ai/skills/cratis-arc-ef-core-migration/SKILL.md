@@ -187,6 +187,19 @@ Mark the corresponding property `[Json]`.
 `migrationBuilder.GetDatabaseType()` is available when a migration genuinely has
 to branch per provider.
 
+## Conditional upserts are not concurrency constraints
+
+Requires Arc 22.134.0 for `UpdateWhen` on the `UpsertBuilder<TEntity>` returned
+by `DbSet.Upsert`. It receives a predicate over `(existing, incoming)`; use it
+when a stale incoming record must not overwrite a newer stored one. With
+`WhenMatched`, Arc changes a matching row only when the predicate passes. No
+match still inserts, and omitting `UpdateWhen` retains unconditional updates.
+`Upsert` and `UpsertRange` share these semantics. This predicate is an
+in-memory decision, **not** a conditional SQL write or concurrency guard; use a
+database constraint/concurrency mechanism where the rule must hold atomically.
+ARC0030 flags an async lambda converted to `Action` in the Arc/Chronicle fluent
+APIs: use a supported async callback rather than letting work escape unawaited.
+
 ## Observing an EF Core read model
 
 `DbSet<T>` gains `Observe(filter?, configure?)`, `ObserveSingle(filter?, configure?)`

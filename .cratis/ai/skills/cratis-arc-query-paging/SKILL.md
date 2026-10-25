@@ -56,10 +56,11 @@ Sources: `Arc.Core/Queries/QueryStringQueryRequestReader.cs`,
 
 ## Which return shapes page
 
-A query is an eligible public or internal static method on the `[ReadModel]`
-type, discovered by its return type. Internal visibility does not hide an
-endpoint; keep helpers outside that type. Read **cratis-chronicle-read-model**'s
-query reference for explicit `[Query]` discovery and older-version limits.
+A query is an eligible public static method on the `[ReadModel]` type,
+discovered by its return type. Requires Arc 22.121.0 for non-public statics to be
+excluded even with `[Query]` (ARC0029 warns); older Arc exposes internal methods
+as endpoints too. Read **cratis-chronicle-read-model**'s query reference for
+explicit `[Query]` discovery and older-version limits.
 
 | Return | Paged? | How |
 | --- | --- | --- |
@@ -173,7 +174,11 @@ Generated proxies provide field-named sort helpers.
 For composed MongoDB/EF observations, pass `ignoreQueryContext: true` to
 auxiliary sources so only the primary consumes client paging/sorting and writes
 totals. Single-instance observations emit `default` when absent, deleted or
-outside the filter; guard `hasData`/`isReady` in React.
+outside the filter; guard `hasData`/`isReady` in React. Requires Arc 22.117.1 for
+`ObserveSingle`/`ObserveById` never to page or count; their retained
+`ignoreQueryContext` argument has no effect. Use collection results for paging.
+Read [live query processing](references/live-query-processing.md) for shared
+MongoDB watches, emitted-value interception and calendar-bound answers.
 Source: [MongoDB observations](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/mongodb/observing-collections.md).
 
 ## Consume it from the frontend

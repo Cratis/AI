@@ -179,6 +179,12 @@ filters, and system-execution.
 `Task<AuthenticationResult> HandleAuthentication(IHttpRequestContext context)`.
 Implement it and it is discovered — there is **no** `IArcBuilder` extension and
 **no** options type for authentication.
+Requires Arc 22.139.0 for custom handlers to be skipped on an endpoint carrying
+ASP.NET Core `IAllowAnonymous` metadata, matching the built-in handler. A handler
+that previously protected those endpoints will no longer run there: remove
+anonymous metadata if authentication is intended, and specify both anonymous
+and protected requests. Anonymous does not mean another authorization boundary
+may be bypassed.
 
 Arc ships `MicrosoftIdentityPlatformAuthenticationHandler` in `Arc.Core`, which
 reads the forwarded principal. See

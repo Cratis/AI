@@ -15,6 +15,14 @@ with `DateTime command property '<member>' requires an explicit offset or Z.`
 `DateTimeOffset` retains the input offset; `DateTime` becomes UTC. The attribute
 is in `Cratis.Arc.Commands`.
 
+Requires Arc 22.120.0 for concepts over `DateTime` or `DateTimeOffset` with
+Arc's default JSON options. Concepts over `DateOnly` are refused as a
+configuration error: calendar dates have no offset. The marker affects
+JSON-bound properties, including nested collection elements, not query strings
+or route scalars. Use reflection-based JSON metadata for these properties;
+System.Text.Json source-generated metadata does not support derived
+`JsonConverterAttribute` markers.
+
 ## Malformed bodies still authorize
 
 Requires Arc 22.110.0 for authorization-before-binding-failure handling on
@@ -30,6 +38,15 @@ that never read the resource may implement
 policies can run; built-in role, claim, name and authenticated-user requirements
 are already resource-free. Do not mark a requirement resource-free if it reads
 the command.
+
+## Annotations on concepts
+
+Requires Arc 22.121.2 for data annotations on command properties and model-bound
+query parameters to validate a concept's wrapped value: `[Required]` rejects an
+empty wrapped string, `[Range]` checks the primitive, and `[StringLength]` does
+not throw on the wrapper. This uses generated validation metadata; types without
+that metadata (including external assemblies) keep the previous behavior. Do
+not assume annotations replace a concept's reusable validator.
 
 ## Validation members are field paths
 

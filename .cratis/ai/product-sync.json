@@ -63,9 +63,9 @@
         }
       ],
       "synced": {
-        "version": "22.117.0",
-        "date": "2026-10-17",
-        "by": "Cratis/AI#773"
+        "version": "22.139.0",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -99,7 +99,7 @@
           "vertical-slices.md"
         ]
       },
-      "notes": "Reviewed releases 22.100.1-22.117.0 at tags: occurrence command receipts and retry classification, tenant/purpose storage resolution, explicit-offset binding and authorization of malformed bodies, camelCase validation members, conflict event details, hub fallback authorization and snapshot guards, and React query-key isolation/resubscription. Existing read-protection and generated-value guidance retained. Query discovery includes internal statics; public-only discovery in Arc#3368 is unreleased. Screenplay-generator deltas classified for the owning lane, not changed here. No new runtime probe."
+      "notes": "Reviewed all 53 releases 22.117.1-22.139.0 at tagged sources. Corrected public-only query discovery, single observations, pre-transport occurrence append refusal, assignable pipeline responses, concept binding/annotations, protected validator construction and key metadata; added live query/calendar, upsert, scenario, authentication and proxy-generation guidance. Existing response validation, React lifetimes, tenant routing and storage resolution guidance retained after reviewing fixes; internal/dependency changes need no extra consumer action. Screenplay/Scene/Stage deltas belong to their owning lanes. No live runtime probe; prior floor established in Cratis/AI#773."
     },
     {
       "id": "ai",
