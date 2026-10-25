@@ -1162,7 +1162,8 @@
         "cratis/engineering/core"
       ],
       "availableTargets": [
-        "cratis-orchestration-lanes"
+        "cratis-orchestration-lanes",
+        "cratis-orchestration-merge-gates"
       ],
       "languages": [
         "language-agnostic"

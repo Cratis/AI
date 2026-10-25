@@ -255,7 +255,10 @@ reducer Balance => AccountBalance
 ````
 
 Inline code uses a tagged fence (` ```csharp `); a `csharp` line above a bare
-fence still parses but warns (`PLAY0397`). Reach for a reducer only when the next
+fence still parses but warns (`PLAY0397`). Built-in inline languages are `csharp`,
+`typescript`, `react`, `html`, `sql` and `java`; the body is opaque and travels unchanged
+to the target, and the Cratis render target refuses `java` bodies.
+Requires Screenplay 4.244.0 (`screenplay --version`) for that refusal. Reach for a reducer only when the next
 state depends on the current one — a running balance, a state machine.
 `context.State` is **null for the first event** and is the only nullable member;
 `Event`, `Key`, `Tenant`, `Occurred`, `SequenceNumber` and `IsFirst` are always

@@ -141,6 +141,8 @@ Rules the binder enforces:
   needs one of them, `then denied` or a sole validation `then error` (`PLAY0465`). Each argument is a `by` or
   `filter` parameter of the query (`PLAY0468`).
 - **A clock instant is ISO 8601 with an offset or `Z`** (PLAY0461); one `given clock` maximum.
+- **`given time zone "<id>"` is parsed, not runnable.** Executable binding refuses it with PLAY0268;
+  a repeated or malformed line is PLAY0814. Do not author it into an executable model.
 - **`then` contains either events or an error — never both.** A rejection
   specification has exactly one rejection and no success outcome.
 - **`then denied` stands alone**: not with events, errors or state assertions

@@ -13,6 +13,7 @@
 - Chronological command date comparisons (ESM v26)
 - Flat composite read-model keys (ESM v27)
 - Uuid equality in command conditions (ESM v28)
+- Parsed, not runnable: clocks, calendars and time zones
 - Code attachments (what binds, what never does)
 - Refused (code, reason): fix, or record as a mode gap
 - Not refused, but do not rely on it
@@ -45,7 +46,7 @@ Complete examples that bind live in `executable-example.md`, `pdl-example.md` (p
 For atomic batches (v22), described handlers (v23), ordinal text rules (v24) and
 protected reads (v25), chronological command dates (v26), composite keys (v27) and Uuid equality (v28), read
 [language admission](language-admission.md). A later
-version alone does not enable either application opt-in. The language is frozen at ESM v1–v28 ([the freeze decision](https://github.com/Cratis/Screenplay/blob/main/decisions/0092-the-language-is-frozen-at-esm-v28.md)): no new versions, constructs, keywords or grammar, except a construct for a real model that is blocked with no model-side alternative, accepted in its own record. Model with what v1–v28 offers; when Stage, `cratis render` or Studio does not support a construct yet, treat the typed refusal as a platform gap to report, since consumers are catching up to v28, not a reason to wait for new language.
+version alone does not enable either application opt-in. New constructs can be admitted, each byte-changing one with its own ESM version, and count as delivered once Stage admits it or refuses it with a typed refusal. Model with what the installed compiler admits; when Stage, `cratis render` or Studio does not support a construct yet, treat the typed refusal as a platform gap to report.
 
 ## Caller and compliance boundary
 
@@ -307,6 +308,16 @@ binding and reference execution. Read command-surface
 [Uuid equality](../../cratis-screenplay-command-surface/references/uuid-equality.md) for the
 complete example.
 
+## Parsed, not runnable: clocks, calendars and time zones
+
+Application-root `time zone` / `time zone configurable default`, command `calendar` /
+`calendar from $context.<member>`, specification `given time zone`, and the condition
+operands `today - 7 days`, `now + 2 hours`, `date of occurred` and `date of now` parse and
+print, but executable binding refuses them with PLAY0268 and they select no ESM version.
+Do not author them into executable models. PLAY0812, PLAY0813 and PLAY0814 are the
+syntax diagnostics (Requires Screenplay 4.242.0; `screenplay --version`). Bare `today` and
+`now` remain ordinary paths. Detail: command-surface `references/date-comparisons.md`.
+
 ## Code attachments (what binds, what never does)
 
 Pending `handler implementation` beside unconditional `produces` binds as a described
@@ -315,7 +326,7 @@ denial/validation specs still run. Read [language admission](language-admission.
 v22–v28 and [described handlers](../../cratis-screenplay-command-surface/references/described-handlers.md)
 for the result contract. Attached handlers remain unbound.
 
-Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`) and `file <path>` attach
+Inline fences (`csharp`, `typescript`, `react`, `html`, `sql`, `java`) and `file <path>` attach
 code to an owner. Two kinds block binding (V3 blocked, no specification runs):
 the attached command `handler` (PLAY0800) and the `file` constraint (PLAY0268, see below).
 A query `performer` does not block: it is an opaque read, reported as information
