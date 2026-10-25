@@ -47,7 +47,7 @@ an unproven pass.
 | An accepted model covers the scope | **Model** | Change the `.play`, verify V1-V3, review, then render or gap-fill |
 | Opted in, but this scope has no model yet | **Model** | New behavior starts in discovery, then slice design |
 | A computed rule inside a modeled slice | **Model + code attachment** | `csharp`/`file` block; it binds only as the construct allows (`cratis-screenplay-model-authoring`) |
-| Scope Stage cannot render yet (Stage renders supported event-triggered Automation; Translate/captures and refused reactions remain gap-fill. Mixed effects stay one reaction, `STAGE-ESM-037`; a hand-written realization must prove retry safety) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
+| Scope Stage cannot render yet (Stage renders supported event-triggered Automation and bounded source-event capture/outbound Translate paths; refused shapes remain gap-fill. Mixed effects stay one reaction, `STAGE-ESM-037`; a hand-written realization must prove retry safety) | **Gap-fill code** | Hand-written; the `.play` slice and specs are the contract. `cratis-screenplay-render-and-gap-fill` separates an authorized existing generated base from fully hand-written delivery |
 | Outside call, transport or credentials | **Adapter code** | `Customizations/` or the host, applying `cratis-engineering-effect-boundaries` |
 | Infrastructure, clients, framework-profile repositories, brownfield not opted in | **Code** | Arc, Chronicle, spec and React skills; trivial changes keep the proportional-delegation policy |
 
