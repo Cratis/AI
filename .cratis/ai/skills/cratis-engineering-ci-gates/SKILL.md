@@ -13,7 +13,7 @@ compatibility: Requires git and the GitHub CLI (gh).
 Operate checks; do not redesign workflows here. Read
 [verification-discipline.md](../../rules/verification-discipline.md) for phase
 budgets and exit-status handling, and
-[pull-requests.md](../../rules/pull-requests.md#quality-gates) for required checks.
+[pull-requests.md](../cratis-commits-and-pull-requests/references/pr-labels-and-release.md#quality-gates) for required checks.
 Read [capability-is-not-authority.md](../../rules/capability-is-not-authority.md)
 before an external effect. A request to verify does not authorize a push.
 

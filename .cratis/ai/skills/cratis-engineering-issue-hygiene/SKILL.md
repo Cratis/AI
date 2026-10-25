@@ -24,9 +24,23 @@ body edits are not conditional writes; a last-minute reread alone cannot prevent
 two writers from overwriting each other.
 
 Before starting, read the issue, comments, assignees and any status block. Follow
-[issue-assignment.md](../../rules/issue-assignment.md) to claim it. Do not replace
-an existing assignment. If another writer is already active, coordinate rather
-than starting a parallel edit. A failed assignment is not a blocker to the work.
+[issue-assignment.md](../../rules/issue-assignment.md) and this claiming procedure:
+
+- Applies when the user, branch, task or handover names an issue number in a
+  known repository. No known repository or issue means no guessed assignment.
+- Read assignees and state in that issue's repository:
+  `gh issue view <n> --repo <owner>/<repo> --json assignees,state`.
+- If open and unassigned, run
+  `gh issue edit <n> --repo <owner>/<repo> --add-assignee @me`.
+  `@me` means the authenticated user, not an invented identity.
+- Never replace or add to an existing assignment. Skip a closed issue; say so
+  without reopening or assigning it.
+- Do this once, at the start before the first edit, not on every turn. If it
+  fails (permissions or authentication), report it and continue with the work.
+
+The request to work on the issue authorizes this assignment only, not comments,
+labels or closure. If another writer is active, coordinate rather than starting
+a parallel edit. Delegated workers do not claim or mutate the issue.
 
 When the request covers maintaining the issue, set the status block to
 **In progress** before coding. Keep it true as work moves: **In review** for the

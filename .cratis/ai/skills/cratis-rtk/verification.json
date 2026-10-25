@@ -1,0 +1,11 @@
+{
+  "skill": "cratis-rtk",
+  "input": "Choose wrappers for human-readable status and exact parsed gate diagnostics without losing exit codes.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "rtk proxy <cmd>" },
+    { "kind": "skill-contains", "value": "do not install it or block work" },
+    { "kind": "skill-contains", "value": "Keep native commands in scripts, hooks and CI" },
+    { "kind": "skill-contains", "value": "Never sacrifice the producer's exit status" }
+  ]
+}

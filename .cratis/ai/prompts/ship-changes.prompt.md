@@ -26,7 +26,7 @@ and verify required checks before merging.
 and PR labeled `major` as usual, then stop before merging. Ask a human to confirm the breaking
 change(s), who is affected, and the resulting version number; the human merges it after an
 explicit yes to that specific question, and an agent never does — see
-[`pull-requests.md`](../rules/pull-requests.md#a-major-release-needs-a-humans-explicit-go-ahead).
+[`pull-requests.md`](../skills/cratis-commits-and-pull-requests/references/pr-labels-and-release.md#a-major-release-needs-a-humans-explicit-go-ahead).
 Every other label proceeds through merge under this prompt's ordinary authority.
 
 This prompt is for an explicit request to ship or land. If the user asked only to commit, only to
