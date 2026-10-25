@@ -44,7 +44,7 @@ test('Pi SDK discovers the complete managed repository resources without a model
         // skills are the managed resources under test, so an operator's personal skills must not move the count.
         const repositoryRealPath = realpathSync(repositoryRoot);
         const repositorySkills = loader.getSkills().skills.filter(skill => realpathSync(skill.filePath).startsWith(repositoryRealPath));
-        assert.equal(repositorySkills.length, 137);
+        assert.equal(repositorySkills.length, 139);
         assert.equal(loader.getPrompts().prompts.length, 19);
         // A worktree nested under another checkout can also load that checkout's AGENTS.md.
         // Assert this repository's context is present exactly once, regardless of its ancestors.
@@ -64,7 +64,7 @@ test('Pi SDK discovers the complete managed repository resources without a model
 
 test('every supported harness resolves the canonical skill corpus', () => {
     for (const path of ['.claude/skills', '.agents/skills', '.github/skills', '.cursor/skills', '.opencode/skills', '.pi/skills']) {
-        assert.equal(skillCount(join(repositoryRoot, path)), 137, path);
+        assert.equal(skillCount(join(repositoryRoot, path)), 139, path);
         assert.equal(realpathSync(join(repositoryRoot, path)), realpathSync(join(corpusRoot, 'skills')), path);
     }
 });
@@ -113,10 +113,9 @@ test('every path-scoped rule stays reachable in each harness', () => {
 });
 
 test('rules a flow needs before any file is touched stay always-on in every harness', () => {
-    // Committing, opening a pull request, writing a plan and the universal code principles edit no scoped file,
-    // so no path scope can guarantee they load; they stay unscoped and general.md routes to them.
+    // Operations keep always-on contracts; file concerns are scoped and routed from general.md.
     const general = readFileSync(join(corpusRoot, 'rules/general.md'), 'utf8');
-    for (const name of ['git-commits.md', 'pull-requests.md', 'local-work-artifacts.md', 'code-quality.md', 'glossary.md']) {
+    for (const name of ['git-commits.md', 'pull-requests.md']) {
         const fields = frontmatter(readFileSync(join(corpusRoot, 'rules', name), 'utf8'));
         assert.ok(!fields.has('paths'), `${name}: Claude Code loads it at launch only without paths`);
         assert.deepEqual(fields.get('applyTo'), ['**/*'], `${name}: Copilot applies it to every file`);
@@ -156,7 +155,7 @@ test('fresh Go adapter trees expose root policy traversal separately from discov
                     assert.match(instructions, /@\.cratis\/ai\/rules\/general\.md/);
                     instructions = readFileSync(join(corpus, 'rules/general.md'), 'utf8');
                 }
-                assert.match(instructions, /Go style, source and module files.*`go\.md`.*`go-engineering\.md`/, harness);
+                assert.match(instructions, /\| Go \|.*`go\.md`.*`go-engineering\.md`/, harness);
                 assert.match(instructions, /Project-specific context is the repository's own documentation plus\s+`\.cratis\/ai\/rules\/project\.md`/, harness);
                 assert.equal(readFileSync(join(project, 'README.md'), 'utf8'), projectContext, harness);
                 const actualSkills = readdirSync(join(project, skills)).sort();

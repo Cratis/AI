@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-commits-and-pull-requests",
+  "queries": [
+    { "query": "Write a commit message for this fix and regression spec.", "shouldTrigger": true },
+    { "query": "Should I stage the formatting cleanup with the command fix?", "shouldTrigger": true },
+    { "query": "Prepare a release-note PR description for the validation fix.", "shouldTrigger": true },
+    { "query": "Choose patch or no-release for these tooling-only changes.", "shouldTrigger": true },
+    { "query": "Can I put our test results into the PR body?", "shouldTrigger": true },
+    { "query": "Update this PR body after the base branch changed.", "shouldTrigger": true },
+    { "query": "Is this partly delivered issue written correctly as (#42)?", "shouldTrigger": true },
+    { "query": "The PR has both minor and patch labels; how do I correct it?", "shouldTrigger": true },
+    { "query": "Plan a release candidate across five repositories.", "shouldTrigger": false, "note": "cratis-engineering-release-trains" },
+    { "query": "Maintain the current issue status block.", "shouldTrigger": false, "note": "cratis-engineering-issue-hygiene" },
+    { "query": "Configure scheduled release-action batching windows.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Wait for CI without repeatedly polling.", "shouldTrigger": false, "note": "cratis-engineering-ci-gates" },
+    { "query": "Refactor this C# handler for readability.", "shouldTrigger": false },
+    { "query": "Should parsed git output go through rtk?", "shouldTrigger": false, "note": "cratis-rtk" },
+    { "query": "Write the tutorial introduction for a projection.", "shouldTrigger": false, "note": "cratis-documentation-writing" },
+    { "query": "Prove consolidation of reverted work dropped nothing.", "shouldTrigger": false, "note": "cratis-engineering-consolidation-guard" }
+  ]
+}

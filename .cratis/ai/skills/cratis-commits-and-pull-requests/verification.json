@@ -1,0 +1,11 @@
+{
+  "skill": "cratis-commits-and-pull-requests",
+  "input": "Prepare a commit and a release-note pull request without rewriting history or publishing reviewer notes.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "../../rules/git-commits.md" },
+    { "kind": "skill-contains", "value": "../../rules/pull-requests.md" },
+    { "kind": "skill-contains", "value": "cratis-check-pr.mjs --body-file <file> --label <intent>" },
+    { "kind": "skill-contains", "value": "A human confirms and merges a major release." }
+  ]
+}

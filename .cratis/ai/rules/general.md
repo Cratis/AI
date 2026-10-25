@@ -55,6 +55,8 @@ obtaining credentials, and other local conventions ("Product policy" above).
 - Project-specific guidance wins when it deliberately narrows shared behavior,
   but it may not weaken organization security, authorization, or required
   quality gates.
+- Scope project file concerns with `paths`; put operational workflows in
+  `.agents/skills/`, not global `applyTo: "**/*"` rules.
 
 ## Collaboration Default
 
@@ -125,15 +127,14 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 
 | For | Location |
 | --- | --- |
-| **AI Corpus Profiles** — what profiles exist and how to configure them | `profiles.md` |
+| Corpus profiles and configuration | `profiles.md` |
 | **Contributing to a Cratis framework repo** (framework profile) | `framework.md`; creating a repository in the Cratis organization: `new-repository-intake.md` |
 | Slice anatomy (commands, `Provide()`, validators, events, projections, read models, reactors, constraints, compliance, cross-slice) | `vertical-slices.md` |
 | C# / TypeScript style and code-quality principles | `csharp.md`, `typescript.md`, `code-quality.md`, `code-quality.csharp.md`, `code-quality.typescript.md` |
 | Kotlin / Java / Elixir style; Orleans grains; reactors; GitHub Actions workflows | `kotlin.md`, `java.md`, `elixir.md`, `orleans.md`, `reactors.md`, `github-actions.md` |
-| Documentation pages (`Documentation/`): structure, voice, examples, editing | `documentation.md`, `documentation-structure-and-formatting.md`, `writing-cratis-docs.md`, `editing-cratis-docs.md`, `writing-correct-examples.md` |
+| Documentation structure, voice and examples | `documentation.md`, `documentation-structure-and-formatting.md`, `writing-cratis-docs.md`, `editing-cratis-docs.md`, `writing-correct-examples.md` |
 | Findability of published pages, READMEs and package metadata | `discoverability.md` |
-| Go style, source and module files | `go.md`; framework contributors also read `go-engineering.md`; product APIs use `cratis-chronicle-client-go`, `cratis-arc-go` and `cratis-fundamentals-concept-go` |
-| Service lifetimes — why anything taking a scoped dependency is scoped or transient, never a singleton | `csharp.md` |
+| Go | `go.md`; framework: `go-engineering.md`; product APIs: `cratis-chronicle-client-go`, `cratis-arc-go` and `cratis-fundamentals-concept-go` |
 | React + Arc + Cratis Components + MVVM + dialogs | `react.md`, `components.md`, `dialogs.md` |
 | Frontend engineering quality & testing | `frontend-quality.md`, `frontend-testing.md`, `storybook.md` |
 | Spec patterns — universal `Specification` base (both profiles) | `specs.md`, `specs.csharp.md`, `specs.typescript.md` |
@@ -144,16 +145,16 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Inspecting or operating a **running** Chronicle store (failed partitions, replays, browsing events) with the `cratis` CLI | the **cratis-chronicle-cli-operations** and **cratis-cli-terminal-workbench** skills |
 | EF Core read models / migrations | `efcore.md`, `efcore.specs.md` |
 | MongoDB queries — native driver API over LINQ; paging and sorting belong to Arc | `mongodb.md` |
-| Before writing a commit message, committing, pushing or opening/editing a PR: read both | `git-commits.md`, `pull-requests.md` |
+| Before commit messages, commits, pushes or PRs | `git-commits.md`, `pull-requests.md`, then **cratis-commits-and-pull-requests** |
 | Reading, citing and superseding a decision record | the **cratis-engineering-decision-record** skill |
 | Before any browser call: production permit, handoff, artifact paths, evidence | `browser.md` |
 | Whether you are allowed to do the thing you are able to do | `capability-is-not-authority.md` |
 | Before running a command that could print a credential, or when a secret value appears in output | `secrets.md` |
-| What must stop and ask a human | `capability-is-not-authority.md` |
-| What counts as evidence that something works | `verification-discipline.md` |
-| Before writing a session note, plan or handover: where they may live (`.ai-work/` only) | `local-work-artifacts.md` |
-| What may be written into the `.cratis/` folder (configuration and the corpus only, never deliverables) | `cratis-folder-is-configuration.md` |
-| Exit-code meaning, scripts and wrappers that lose a verdict; which language a script uses | `exit-codes-and-wrappers.md`, `scripting.md` |
+| Session notes, plans and handovers (`.ai-work/` only) | `local-work-artifacts.md` |
+| Command wrappers, exact output and exit codes | `rtk.md`, then **cratis-rtk** |
+| Before issue-linked edits | `issue-assignment.md`, then **cratis-engineering-issue-hygiene** |
+| `.cratis/` is configuration, not deliverables | `cratis-folder-is-configuration.md` |
+| Exit codes, wrappers and scripting | `exit-codes-and-wrappers.md`, `scripting.md` |
 | Writing a scan, allowlist, script or CI check, or a destructive pass, that cannot pass vacuously | `guards-and-fuses.md` |
 | How the shared corpus is installed, updated and rolled back | `ai-distribution.md` |
 | Code-level event modeling / schema migration / calling commands from code / paging / cross-cutting metadata / multi-tenancy | the matching skills |

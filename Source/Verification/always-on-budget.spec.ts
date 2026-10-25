@@ -2,7 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import { copilotInstructions } from '../Harness.Setup/copilot-instructions.ts';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -33,6 +35,17 @@ test('per-harness always-on budget counts what each harness loads at session sta
 test('the corpus stays within every harness budget and measures something for each', async () => {
     const { entries, loaded } = await alwaysOnInputs(corpus);
     const totals = alwaysOnHarnessBytes(entries, loaded);
+    const before = entries.map(entry => ({ ...entry, content: execFileSync('git', ['show', `HEAD:${entry.file}`], { cwd: join(corpus, '../..'), encoding: 'utf8' }) }));
+    const previousArtifacts = {
+        copilotAdapters: loaded.copilotAdapters?.map(entry => ({ ...entry, content: execFileSync('git', ['show', `HEAD:.cratis/ai/harnesses/copilot/instructions/${entry.file}`], { cwd: join(corpus, '../..'), encoding: 'utf8' }) })),
+        cursorRule: execFileSync('git', ['show', 'HEAD:.cratis/ai/harnesses/cursor/rules/cratis.mdc'], { cwd: join(corpus, '../..'), encoding: 'utf8' }),
+    };
+    console.log('HEAD startup bytes (HEAD adapters):', alwaysOnHarnessBytes(before, previousArtifacts));
+    console.log('Working-tree startup bytes (stored adapters; regeneration may be pending):', totals);
+    const prospective = alwaysOnHarnessBytes(entries, { ...loaded, copilotAdapters: copilotInstructions(corpus).map(adapter => ({ file: adapter.path, content: adapter.content })) });
+    console.log('Prospective startup bytes after Copilot setup (in-memory adapter generation, not written):', prospective);
+    assert.deepEqual(alwaysOnBudgetFindings(prospective), []);
+    console.log('Canonical fallback bytes (not a generated-adapter measurement):', alwaysOnHarnessBytes(entries));
     for (const harness of Object.keys(alwaysOnHarnessBudgets)) assert.ok(totals[harness] > 0, harness);
     assert.deepEqual(alwaysOnBudgetFindings(totals), []);
 });
@@ -48,6 +61,51 @@ test('the Pi total matches what the Pi rules extension puts in the system prompt
         assert.equal(alwaysOnHarnessBytes(entries, loaded).pi, systemPrompt + Buffer.byteLength(general.content));
     } finally {
         rmSync(empty, { recursive: true, force: true });
+    }
+});
+
+test('representative managed Pi universal-rule payload stays below 60,000 bytes with safety contracts', () => {
+    const project = mkdtempSync(join(tmpdir(), 'always-on-selection-'));
+    try {
+        mkdirSync(join(project, '.cratis/ai'), { recursive: true });
+        cpSync(join(corpus, 'rules'), join(project, '.cratis/ai/rules'), { recursive: true });
+        writeFileSync(join(project, '.cratis/ai.json'), JSON.stringify({ profiles: ['cratis/engineering/csharp', 'cratis/application/csharp', 'cratis/application/react', 'cratis/documentation'], languages: ['csharp', 'typescript'] }));
+        const rules = universalRules(project);
+        const bytes = rules.reduce((sum, rule) => sum + Buffer.byteLength(rule.content), 0);
+        const general = rules.find(rule => rule.name === 'general.md');
+        assert.ok(general);
+        console.log(`Representative Pi universalRules payload: ${bytes} bytes; modeled startup rule context including AGENTS.md: ${bytes + Buffer.byteLength(general.content)} bytes. Payload is not total context.`);
+        assert.ok(bytes < 60_000, `${bytes} must be below 60,000`);
+        for (const name of ['general.md', 'capability-is-not-authority.md', 'browser.md', 'secrets.md', 'verification-discipline.md', 'git-commits.md', 'pull-requests.md', 'issue-assignment.md', 'local-work-artifacts.md']) {
+            assert.ok(rules.some(rule => rule.name === name), `${name} remains always on`);
+        }
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('managed Pi universal rule bytes stay bounded across every catalog profile', () => {
+    const project = mkdtempSync(join(tmpdir(), 'always-on-profiles-'));
+    try {
+        mkdirSync(join(project, '.cratis/ai'), { recursive: true });
+        cpSync(join(corpus, 'rules'), join(project, '.cratis/ai/rules'), { recursive: true });
+        const catalog = JSON.parse(readFileSync(join(corpus, 'profile-catalog.json'), 'utf8'));
+        const profiles = [...catalog.publicProfiles, ...catalog.engineeringProfiles];
+        assert.ok(profiles.length > 0);
+        let largest = 0;
+        for (const profile of profiles) {
+            writeFileSync(join(project, '.cratis/ai.json'), JSON.stringify({ profiles: [profile.id], languages: profile.languages ?? [] }));
+            const rules = universalRules(project);
+            const bytes = rules.reduce((sum, rule) => sum + Buffer.byteLength(rule.content), 0);
+            largest = Math.max(largest, bytes);
+            assert.ok(bytes < 60_000, `${profile.id}: ${bytes} bytes`);
+            for (const name of ['general.md', 'capability-is-not-authority.md', 'browser.md', 'secrets.md', 'verification-discipline.md', 'git-commits.md', 'pull-requests.md', 'local-work-artifacts.md']) {
+                assert.ok(rules.some(rule => rule.name === name), `${profile.id}: ${name}`);
+            }
+        }
+        console.log(`Managed corpus: ${profiles.length} profiles; largest universalRules payload ${largest} bytes. Does not certify packaged-Pi language selection.`);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
     }
 });
 

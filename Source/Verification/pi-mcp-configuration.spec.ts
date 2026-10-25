@@ -173,7 +173,9 @@ test('the frontend-only React application profile selects neither Screenplay ski
     const before = readdirSync(fixture.project, { recursive: true });
     const skills = selectedSkillPaths(fixture.project).map(path => path.split('/').pop());
     assert.ok(screenplaySkills.length > 0);
-    for (const skill of screenplaySkills) assert.ok(!skills.includes(skill), skill);
+    const universalSkills = ['cratis-commits-and-pull-requests', 'cratis-rtk'];
+    for (const skill of universalSkills) assert.ok(skills.includes(skill), skill);
+    for (const skill of screenplaySkills) assert.equal(skills.includes(skill), universalSkills.includes(skill), skill);
     assert.ok(!skills.includes('cratis-stage-rendering-and-sandbox'));
     assert.equal(selectedServer(fixture.project, fixture.corpus), undefined);
     assert.deepEqual(readdirSync(fixture.project, { recursive: true }), before);

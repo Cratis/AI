@@ -1,0 +1,26 @@
+{
+  "skill_name": "cratis-rtk",
+  "evals": [
+    {
+      "id": 1,
+      "name": "parsed-output-is-raw",
+      "prompt": "A follow-up operation will parse git status --porcelain. We have an rtk Bash rewrite hook. Choose the command form, without running it.",
+      "expected_output": "Use rtk proxy git status --porcelain so exact paths and status are preserved rather than compressed.",
+      "assertions": ["Uses rtk proxy for the parsed output.", "Explains that summaries can drop exact state.", "Does not treat compression as gate evidence."]
+    },
+    {
+      "id": 2,
+      "name": "wrapped-failure-and-exit-code",
+      "prompt": "A wrapped test command printed 0 errors but exited nonzero. Can we report a pass or pipe the retry into head? Reply only.",
+      "expected_output": "Report failure, inspect raw diagnostics through rtk proxy, preserve the producer exit status, and never use a filtered summary as proof.",
+      "assertions": ["Does not report a pass from the zero-error text.", "Uses raw diagnostics for the wrapped failure.", "Rejects head/grep gate evidence and preserves the real exit code."]
+    },
+    {
+      "id": 3,
+      "name": "optional-tool-and-native-ci",
+      "prompt": "rtk is not installed here. Should we install it to unblock work and add its wrappers to CI? Reply only.",
+      "expected_output": "Use normal tools without installing or blocking; keep native commands in CI and follow the existing gate contract.",
+      "assertions": ["Continues with normal tools when rtk is absent.", "Does not install optional tooling.", "Keeps scripts/hooks/CI native rather than changing their commands."]
+    }
+  ]
+}

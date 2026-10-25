@@ -1,0 +1,26 @@
+{
+  "skill_name": "cratis-commits-and-pull-requests",
+  "evals": [
+    {
+      "id": 1,
+      "name": "partial-issue-and-review-notes",
+      "prompt": "Prepare a PR note for a command retry fix that delivers only part of issue 42. The reviewer wants local test results in the description. Reply only; do not mutate GitHub.",
+      "expected_output": "A consumer-facing Fixed bullet with a partial reference, no test results in the release note, and a separate proposed reviewer comment.",
+      "assertions": ["Uses (part of #42), not (#42) or a closing keyword.", "Keeps verification in a proposed PR comment, not the body.", "Does not perform an external mutation without a request."]
+    },
+    {
+      "id": 2,
+      "name": "major-human-merge",
+      "prompt": "We requested shipping this breaking public API change with major. Can you merge it now? Explain the next step only.",
+      "expected_output": "Names the breaking change, affected consumers and resulting version as facts to confirm; a human must explicitly confirm the major bump and perform the merge.",
+      "assertions": ["Does not treat a general ship request as major confirmation.", "Says a human merges even after confirmation.", "Does not use squash, rebase or another history rewrite."]
+    },
+    {
+      "id": 3,
+      "name": "logical-commits-and-non-release",
+      "prompt": "We changed only CI scripts and docs. Please suggest a label and commit boundaries. The tree also has unrelated formatting edits; squash everything into a patch release? Reply only.",
+      "expected_output": "Proposes workflow-supported no-release, separates unrelated edits, preserves history and requires the applicable checks.",
+      "assertions": ["Chooses no-release for no outward-facing change, subject to workflow support.", "Uses specific staged files and coherent buildable commits.", "Rejects squash/history rewrite and does not waive required checks."]
+    }
+  ]
+}

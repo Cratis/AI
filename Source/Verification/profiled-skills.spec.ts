@@ -35,7 +35,7 @@ test('Go product profiles resolve the same composed skills in the Pi plugin and 
         for (const [profiles, expected] of cases) {
             writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles, languages: ['go'] }));
             const actual = selectedSkillPaths(project).map(path => path.split('/').pop()).sort();
-            assert.deepEqual(actual, expected, profiles.join(', '));
+            assert.deepEqual(actual, [...expected, 'cratis-commits-and-pull-requests', 'cratis-rtk'].sort(), profiles.join(', '));
             assert.deepEqual(selectedSkillNames(project), actual, 'the fallback must not hint an unselected skill');
         }
         writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/engineering/go'], languages: ['go'] }));
