@@ -154,6 +154,22 @@ The test is **outward-facing effect, not file location**. A change under `Source
 
 A non-release pull request must satisfy the relevant required checks like any other. Confirm label acceptance and publication suppression against the current workflow contract; do not assume external CI or API state.
 
+### Release-action windows and workflow drift
+
+Release-action 1.5.1 supports opt-in `release-window` batching; `0` remains one
+release per PR. A pending batch uses the highest intent and merges notes by
+section, including one combined summary. A successful run with reason `batched`
+or `nothing-pending` has not published; inspect its outputs before claiming a
+release. `hotfix-labels` bypasses the window, but a pending major still needs a
+human confirmation: only the hotfix's merge run fails, while scheduled and other
+merge runs warn and keep the batch pending. Do not enable batching without a
+request to change release behavior.
+
+If release creation reports the specific 403 caused by workflow drift, dispatch
+publish from the current default branch with the PR release notes rather than
+re-running the stale workflow. That recovery differs from the concurrent-tag
+collision above; other 403s are not evidence of workflow drift.
+
 ### Group small related changes into one pull request
 
 Do not open a pull request per task when the tasks belong to the same body of work. Several small merged PRs become several releases, and a stream of near-empty patch releases makes the release history useless for the people it is written for. Collect related work — a set of CI gates, a group of fixes in one area, the steps of one refactor — onto **one branch, as separate commits**, and open **one** pull request. Commits stay one-logical-unit-each; the pull request is the release boundary, and the release boundary should be a coherent, describable change. Joining an open candidate, folding superseded PRs and the cut are in `cratis-engineering-release-trains`.

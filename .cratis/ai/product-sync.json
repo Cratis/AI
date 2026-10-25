@@ -535,9 +535,9 @@
       "repository": "Cratis/release-action",
       "packages": [],
       "synced": {
-        "version": "1.4.2",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "1.5.1",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -548,7 +548,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "First synced in Cratis/AI#620 at 1.4.2."
+      "notes": "Cratis/AI#820: reviewed v1.4.3, v1.5.0 and v1.5.1. Skill and PR policy now distinguish workflow-drift 403 recovery from stale-tag retry, opt-in batching/defaults/outputs, combined summaries and corrected pending-major hotfix behavior. No workflow activation or release execution claimed."
     },
     {
       "id": "screenplay-generation",
