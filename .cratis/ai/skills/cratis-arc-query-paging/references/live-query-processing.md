@@ -5,7 +5,7 @@
 
 ## Shared MongoDB watches
 
-MongoDB `Observe()` uses a shared database-level watch keyed by deployment and
+Requires Arc 22.136.0. MongoDB `Observe()` uses a shared database-level watch keyed by deployment and
 database rather than opening a collection watch for every observer. Each
 observation keeps its filter, paging and tenant context.
 Requires Arc 22.137.0 for observations of collections created by the caller's

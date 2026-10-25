@@ -5,7 +5,7 @@
 
 ## Plain read models under On
 
-Requires Arc 22.123.0 for plain Chronicle read-model dependencies in
+Requires Arc 22.106.0 for plain Chronicle read-model dependencies in
 `CommandValidator<T>` constructors under read protection `On`. Those reads share
 the command's fold cache and append guard with `Provide`/`Handle`. Let convention
 discovery register a transient validator. Scoped/singleton/factory/instance
@@ -43,7 +43,7 @@ optional dependencies, provider/scope accessors and collections (including token
 collections). Plain models and raw `IReadModels`, `IEventStore` or `IEventLog`
 are refused on this path: use tokens or choose `On`.
 
-Requires Arc 22.133.0 for
+Requires Arc 22.126.0 for
 `services.AddProtectedDecisionValidator<TValidator>(configure)`. Use it instead
 of an application DI factory when adding rules. The callback runs once on the
 actual fresh instance before validation; thrown callbacks fail the command and

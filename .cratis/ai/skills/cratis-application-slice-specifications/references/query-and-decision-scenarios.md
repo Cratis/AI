@@ -61,7 +61,7 @@ integration setup: scenario pins do not replace arbitrary stores.
 `QueryScenario` owns and disposes its provider. Dispose the scenario (prefer
 `DisposeAsync` for async-owned resources) as well as individual observations.
 Register dependencies in `Services` before the first execution. Scenario
-execution runs `OnBeforeQuery` before invoking the query and establishes context
+execution runs the query through Arc's hosted query pipeline and establishes context
 before `Provide`/`Handle` on the command path. A direct static query call does not
 cover those pipeline hooks.
 
