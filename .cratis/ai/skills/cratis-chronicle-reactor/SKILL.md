@@ -239,6 +239,14 @@ Read [references/domain-failures.md](references/domain-failures.md) when handlin
 Inject through the primary constructor; hold no mutable state (CHR0031 warning).
 Keep one automation concern per reactor; several related handlers are fine.
 
+From Chronicle 19.90.0, different partitions of one .NET reactor run concurrently;
+batches for one partition retain arrival order. Shared collaborators must be
+thread-safe. Set `ChronicleOptions.Reactors.MaxConcurrentPartitions = 1` when
+one-at-a-time handling is required; the default is processor count capped at 8,
+and values below 1 are refused. This is not ordering across different observers.
+Verified at **v19.110.1**: `Source/Clients/DotNET/Reactors/ReactorOptions.cs`,
+`Reactors.cs` and `Observation/PartitionedDeliveryScheduler.cs`.
+
 ## Specifications
 
 Start with `Specification` plus a direct call for pure reactor decisions; add `ReactorScenario<TReactor>` only where invocation, dependency wiring or side effects contribute proof. Specify the contract, not only the happy path: field lineage, contract-authorized filtering, repeated delivery, and unrelated events.

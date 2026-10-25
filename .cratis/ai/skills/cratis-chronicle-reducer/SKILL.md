@@ -245,6 +245,17 @@ same store catalog: `AmbiguousReadModelBuilder` rejects it. `[Passive]`, sequenc
 selection, filters and `[Reducer]` alone do not establish projection ownership.
 Remove the old builder when switching; registration is not a data migration.
 
+## Partition delivery
+
+From Chronicle 19.90.0, different partitions of one .NET reducer can run at the
+same time; batches for the same partition remain in arrival order. Keep shared
+collaborators thread-safe, or set
+`ChronicleOptions.Reducers.MaxConcurrentPartitions = 1`. The default is processor
+count capped at 8; values below 1 are refused. A global ordering assumption is
+not justified by per-partition ordering. Verified at **v19.110.1**:
+`Source/Clients/DotNET/Reducers/ReducerOptions.cs`, `Reducers.cs` and
+`Observation/PartitionedDeliveryScheduler.cs`.
+
 ## Replay
 
 Read [references/replay-hooks-and-definition-changes.md](references/replay-hooks-and-definition-changes.md) when a self model needs `BeginReplay`/`EndReplay` hooks (they return exactly `Task`; do not assume delivery is exactly once) or when a code, key or filter change must replay (`observers.definitionEvolution`). Requires Chronicle 19.29.4 for method-fingerprint change detection; assembly versions are ignored.
