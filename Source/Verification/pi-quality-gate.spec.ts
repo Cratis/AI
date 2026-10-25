@@ -144,7 +144,8 @@ test('a timeout identifies the gate and directory rather than a per-directory lo
             command: ['/bin/sh', '-c', 'case "$PWD" in */b) echo second-package-output; exec sleep 600 ;; esac'],
         }] }));
         const { tool } = bridge();
-        await assert.rejects(() => tool.execute('call', { timeoutSeconds: 2 }, undefined, undefined, repo.ctx()), (error: Error) => {
+        // The deadline must cover gate a finishing and gate b starting and writing output; 2 s is too short on a loaded machine.
+        await assert.rejects(() => tool.execute('call', { timeoutSeconds: 5 }, undefined, undefined, repo.ctx()), (error: Error) => {
             assert.match(error.message, /while running 'scratch-gate' \(cwd: b\)/);
             assert.match(error.message, /scratch-gate-2\.log/);
             assert.match(error.message, /second-package-output/);
