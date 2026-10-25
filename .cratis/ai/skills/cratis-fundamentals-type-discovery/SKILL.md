@@ -148,15 +148,16 @@ relying on a registration for a different reason.
 
 ## Reuse derived-type discovery
 
-Since Fundamentals 7.26.0, use `Cratis.Serialization.DerivedTypes.For(types)` when
-several service collections share the same `ITypes` instance. It returns one shared
-`DerivedTypes` per universe, held weakly; distinct universes stay isolated. Do not
-construct one per scope or replace a host's explicit universe with the global
-`DerivedTypes.Instance`. Source: tagged `Serialization/DerivedTypes.cs` at 7.26.1.
+Requires Fundamentals and its generator 7.26.1 for per-universe caching plus nested-generic/experimental-type generator fixes; check `dotnet list package`, or keep the older construction path until upgrading.
 
-Generator fixes in 7.25.1 omit nested open-generic types from referenced Cratis
-packages, and 7.26.1 handles referenced `[Experimental]` diagnostic IDs. Upgrade the
-generator rather than editing its output to bypass those build failures.
+Use `Cratis.Serialization.DerivedTypes.For(types)` when several service
+collections share the same `ITypes` instance. It returns one shared `DerivedTypes`
+per universe, held weakly; distinct universes stay isolated. Do not construct one
+per scope or replace a host's explicit universe with `DerivedTypes.Instance`.
+
+The generator omits nested open-generic types from referenced Cratis packages
+and handles referenced `[Experimental]` diagnostic IDs. Upgrade the generator
+rather than editing its output to bypass those build failures.
 
 ## What breaks
 
