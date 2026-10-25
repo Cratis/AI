@@ -45,6 +45,16 @@ import { Dialog } from '@cratis/components/Dialogs';
 import { DialogProps, DialogResult, useDialog } from '@cratis/arc.react/dialogs';
 ```
 
+## Guid command fields
+
+Components 4.31.0 adds opt-in `GuidField` from `@cratis/components/CommandForm`.
+It binds native Fundamentals `Guid` values, accepts partial text drafts and never
+generates an identifier. Register it once through `registerFieldTypeProvider`
+for `AutoCommandForm`; it is not a built-in provider. Invalid drafts clear the
+bound value, but blocking execution requires matching Arc and Arc React 22.19.1
+or later. Preserve host-set errors and use `resetKey` to discard an unchanged
+empty value's draft. Source: Components v4.38.0 `Documentation/CommandForm/guid-field.md`.
+
 ## Initial focus
 
 `DialogInitialFocus.Confirm` is the default and arms the confirm button, so a destructive dialog uses `DialogInitialFocus.Cancel`. Read [dialogs.md](references/dialogs.md) for the three options.

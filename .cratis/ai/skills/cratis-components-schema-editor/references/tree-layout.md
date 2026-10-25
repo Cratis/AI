@@ -36,6 +36,7 @@ the controlled host applies and reports its own changes.
 | --- | --- |
 | `concepts: PropertyConcept[]` | Named types with a `PropertyType`; saved as `x-concept`. Overrides a surrounding `PropertyConceptsProvider` |
 | `allowRequired` | Toggle membership in the object's `required` names |
+| `allowGeneratedProperty` | Boolean or per-property predicate; offers the `x-generated` toggle since 4.28.0 |
 | `allowKeyProperty` | Boolean or `(property, context) => boolean`; `x-key`, one per object |
 | `isPropertyProtected` | Prevent rename/removal, not every possible edit |
 | `validatePropertyName` | `(name, property, siblings) => string \| undefined`, after built-in checks |
@@ -60,3 +61,18 @@ The subpath exports `PropertyType`, `PropertyConceptsProvider`,
 Use the typed property-tree helpers for a controlled host, rather than treating
 `required` as a property boolean. Schema keywords are `x-concept`, `x-key`, and
 the parent object's `required: string[]`.
+
+Since 4.28.0, controlled hosts handle `onSetGeneratedProperty` and carry
+`Property.isGenerated`, `vendorKeywords` and `itemVendorKeywords`; the exported
+`GENERATED_KEYWORD` names `x-generated`. Without an offered toggle, including
+read-only mode, generated properties show a marker styled through `generated`.
+Since 4.29.0, also carry `schemaKeywords` and `itemSchemaKeywords` for unmodeled
+standard JSON Schema keywords. Dropping these bags in a host loses constraints
+and annotations even though the editor preserves them. Untouched properties now
+round-trip their original shape and order; a type change drops only keywords
+inapplicable to the new type (including old array-item annotations).
+
+Since 4.35.0, `PropertyType.UniqueIdentifier` writes a string with `format: uuid`
+and reads either `uuid` or `guid`. Localize it with `typeUniqueIdentifier`.
+`GlyphMenu` and `PropertyTypeGlyph` are exported for host-owned single-choice
+type lists. Source: Components v4.38.0 tree-layout docs and `Tree/Property.ts`.

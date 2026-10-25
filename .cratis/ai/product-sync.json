@@ -412,9 +412,9 @@
         }
       ],
       "synced": {
-        "version": "4.26.4",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "4.38.0",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -432,7 +432,7 @@
           "components.md"
         ]
       },
-      "notes": "Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+      "notes": "Cratis/AI#820: reviewed all 15 stable releases v4.27.0-v4.38.0. Tagged docs/source and release notes inform serverQuery, paginator localization, query-state/selection, schema preservation/generated/UUID, GuidField, dialog focus/dismissal, non-modal dates and router integration. Adapter unchecked rendering is a runtime fix; package metadata requires no teaching update. Source review only; prior browser evidence not extended."
     },
     {
       "id": "chronicle-go",

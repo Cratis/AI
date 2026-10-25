@@ -10,6 +10,16 @@ license: MIT
 user moves with Previous and Next; Submit appears on the last step once every
 field across every step is valid.
 
+## Dialog dismissal and refusal
+
+Since Components 4.36.0, `Dialog` and `CommandDialog` accept independent
+`dismissOnOutsideClick`, `closeOnEscape` and `showCloseButton`; each falls back
+to `dismissable`. Busy dialogs still cannot be dismissed. Since 4.33.0 the busy
+confirm remains focusable as `aria-disabled` and ignores duplicate activation;
+a refused confirm restores focus and announces the provider's `refused` message.
+Do not replace it with a disabled button that loses focus or close the dialog on
+validation refusal. Source: Components releases v4.33.0 and v4.36.0.
+
 ## Verified product sources
 
 | Package | Verified from |
