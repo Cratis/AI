@@ -225,6 +225,10 @@ if (!result.IsSuccess)
   several event sources in one batch.
 - **There is no `AppendAnonymous`.** It does not exist anywhere in the product.
 
+For unknown outcomes, `AppendOnce` / `AppendManyOnce`, keyed retry conflicts and
+several concurrency guards for one source, read
+[append outcomes and retry safety](references/append-outcomes.md).
+
 Reading back is on `IEventSequence`: `GetForEventSourceIdAndEventTypes`,
 `HasEventsFor`, `GetFromSequenceNumber`, `GetNextSequenceNumber`, and
 `GetTailSequenceNumber`. Redaction is `Redact`; subject erasure is a separate
