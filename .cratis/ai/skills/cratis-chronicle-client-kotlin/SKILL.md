@@ -13,8 +13,7 @@ you construct a client, ask it for an event store, and append or observe.
 
 For Chronicle.Kotlin 7.x, first read the
 [Fundamentals migration and upgrade notes](references/fundamentals-migration.md):
-`ConceptAs.value()` and the shared correlation type are breaking changes. Source
-review through 7.1.0 does not uplift earlier execution evidence below.
+`ConceptAs.value()` and the shared correlation type are breaking changes.
 
 ## Verified product sources
 
