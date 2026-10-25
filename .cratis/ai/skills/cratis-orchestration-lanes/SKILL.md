@@ -43,13 +43,17 @@ Lanes add three things on top.
    (default in `references/placeholders.md`) is **stale**. Stale means check,
    not take: it never overrides live ownership.
 3. **Release on stop.** A lane that stops, hands off or is blocked releases its
-   claim in the register and on the issue, and says why in one line.
+   claim in the register and says why in one line. It updates the issue only
+   when its request or brief covers maintaining the issue's status.
 
 Before taking over a stale claim, re-check the register and the issue for new
 activity and look at the owner's branch and worktree. If the work was delivered
 or is in review, take over only with a handoff or an explicit confirmation from
-the user or the coordinator. Record every takeover on the issue, naming the
-previous owner and the evidence that the claim was stale.
+the user or the coordinator. Record every takeover in the register, naming the
+previous owner and the evidence that the claim was stale. Never replace or add
+to another person's issue assignment; comment on or reassign the issue only
+when the request or brief covers it, as
+[issue-assignment.md](../../rules/issue-assignment.md) describes.
 
 ## Inbox
 
@@ -79,13 +83,16 @@ stop and report, not to improvise.
 
 ## Stop and ask
 
-Escalate only consequential items: a public contract, a breaking change,
-security, production data, product direction or spending. Everything else a
-lane decides, records and reports.
+Escalate consequential items: a public contract, a breaking change, security,
+production data, product direction, spending, and any effect the request or
+brief does not authorize
+([capability-is-not-authority.md](../../rules/capability-is-not-authority.md)).
+Everything else a lane decides, records and reports.
 
-- Before escalating or deciding a consequential item, get an independent second
-  review (a different session or reviewer), as
-  [review-reports.md](../../rules/review-reports.md) describes.
+- Stopping and escalating never wait for anything. When a lane decides a
+  non-escalated judgment call itself, it first gets a review from a reviewer on
+  a different provider family, as
+  [review-reports.md](../../rules/review-reports.md) requires.
 - Escalate to `<coordinator>`, who forwards only what needs the operator.
 - A lane blocked longer than the blocked-report threshold sends a `blocked`
   message instead of waiting silently.
