@@ -156,19 +156,10 @@ A non-release pull request must satisfy the relevant required checks like any ot
 
 ### Release-action windows and workflow drift
 
-Release-action 1.5.1 supports opt-in `release-window` batching; `0` remains one
-release per PR. A pending batch uses the highest intent and merges notes by
-section, including one combined summary. A successful run with reason `batched`
-or `nothing-pending` has not published; inspect its outputs before claiming a
-release. `hotfix-labels` bypasses the window, but a pending major still needs a
-human confirmation: only the hotfix's merge run fails, while scheduled and other
-merge runs warn and keep the batch pending. Do not enable batching without a
-request to change release behavior.
-
-If release creation reports the specific 403 caused by workflow drift, dispatch
-publish from the current default branch with the PR release notes rather than
-re-running the stale workflow. That recovery differs from the concurrent-tag
-collision above; other 403s are not evidence of workflow drift.
+Batching is opt-in; success with `batched` or `nothing-pending` is not publication.
+Read **cratis-release-notes** before configuring windows, handling a pending-major
+hotfix, or recovering a workflow-drift 403. Major confirmation remains required;
+a workflow-drift recovery differs from the concurrent-tag retry above.
 
 ### Group small related changes into one pull request
 

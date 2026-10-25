@@ -113,7 +113,9 @@ Only when asked to fix a release that violates the contract:
 
 ## Release-action batching and recovery
 
-Reviewed through release-action 1.5.1. `release-window` defaults to `0` (one
+Requires release-action 1.5.1 for corrected pending-major hotfix handling; check the workflow's `uses` pin, or keep immediate releases on the older contract.
+
+`release-window` defaults to `0` (one
 release per PR); a positive minute window batches pending merges once the oldest
 is old enough. The highest intent wins, notes merge by section with one combined
 `## Summary`, and delivered `(#n)` issues still close. Reference definitions are
@@ -127,7 +129,7 @@ obtain the required human major confirmation first. Inspect `pull-requests` and
 `reason` (`batched` or `nothing-pending`) rather than assuming every successful
 run released. Never turn on batching just to clear a queue without authorization.
 
-A release-creation 403 caused by workflow drift (1.4.3+) names the recovery:
+A release-creation 403 caused by workflow drift names the recovery:
 dispatch the publish workflow from the current default branch with the PR's
 release notes. Re-running the stale commit does not fix this. Other 403s keep
 their original cause; do not treat every permission failure as workflow drift.
