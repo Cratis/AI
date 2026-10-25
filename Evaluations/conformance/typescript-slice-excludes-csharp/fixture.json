@@ -1,0 +1,14 @@
+{
+  "name": "typescript-slice-excludes-csharp",
+  "description": "A TypeScript application profile does not install the C# conventions rule, and the agent does not write C# files.",
+  "prompt": "In src/greeting.ts, make greet accept an optional punctuation argument that defaults to '!'. Write the change to the file.",
+  "expected_output": "greet takes an optional punctuation parameter; no C# files are created.",
+  "profiles": ["cratis/application/typescript"],
+  "languages": ["typescript"],
+  "expected_instruction_paths": [".cratis/ai/rules/typescript.md"],
+  "checks": [
+    { "type": "file_absent", "phase": "install", "path": ".cratis/ai/rules/csharp.md" },
+    { "type": "file_absent", "phase": "result", "glob": "**/*.cs" },
+    { "type": "file_matches", "phase": "result", "path": "src/greeting.ts", "pattern": "punctuation" }
+  ]
+}
