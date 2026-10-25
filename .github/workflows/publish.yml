@@ -88,6 +88,39 @@ jobs:
           SCREENS_SMOKE_BROWSER: '1'
         run: Source/Verification/screens-smoke/screens-smoke.sh "$RUNNER_TEMP/screens-smoke"
 
+      # Installs the corpus for every conformance fixture and runs its install-phase checks; no agent harness,
+      # credentials or model quota needed. The CLI is pinned so a CLI release cannot change the verdict unannounced
+      # (--install-only needs 3.100.0 or later). Exit 1 means a check failed or a fixture errored, exit 2 that the
+      # corpus or the report could not be produced. A run in which nothing passed exits 0, so the report is checked
+      # too: at least one result must pass, and the only accepted skip is a fixture without install-phase checks.
+      - name: Run the conformance install-phase checks
+        env:
+          CRATIS_CLI_VERSION: 3.100.0
+        run: |
+          set -euo pipefail
+          dotnet tool install Cratis.Cli --version "$CRATIS_CLI_VERSION" --tool-path "$RUNNER_TEMP/conformance-cli"
+          report="$RUNNER_TEMP/conformance.json"
+          status=0
+          "$RUNNER_TEMP/conformance-cli/cratis" ai test --source . --install-only --output json > "$report" || status=$?
+          jq -r '.results[] | "\(.status)\t\(.fixture)/\(.harness)\t\(.reason // "")"' "$report" || true
+          if [ "$status" -ne 0 ]; then
+            echo "::error title=Conformance::cratis ai test exited $status"
+            jq -r '.error // empty' "$report" || true
+            exit "$status"
+          fi
+          passed=$(jq '[.results[] | select(.status == "passed")] | length' "$report")
+          unexpected=$(jq '[.results[] | select(.status != "passed" and (.status != "skipped" or .reason != "no install-phase checks"))] | length' "$report")
+          total=$(jq '.results | length' "$report")
+          echo "Install-phase checks: $passed passed of $total results."
+          if [ "$unexpected" -ne 0 ]; then
+            echo "::error title=Conformance::$unexpected result(s) neither passed nor skipped for lack of install-phase checks"
+            exit 1
+          fi
+          if [ "$passed" -eq 0 ]; then
+            echo "::error title=Conformance::no fixture passed an install-phase check; $(jq -r '.warning // "no results"' "$report")"
+            exit 1
+          fi
+
       - name: Test Pi package behavior
         run: |
           yarn workspace @cratis/ai-verification run test
