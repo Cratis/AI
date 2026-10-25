@@ -90,9 +90,10 @@ brief does not authorize
 Everything else a lane decides, records and reports.
 
 - Stopping and escalating never wait for anything. When a lane decides a
-  non-escalated judgment call itself, it first gets a review from a reviewer on
-  a different provider family, as
-  [review-reports.md](../../rules/review-reports.md) requires.
+  non-escalated judgment call itself, it first gets a review from a different
+  provider family where the harness can select one, and otherwise states
+  `single-provider`, as [review-reports.md](../../rules/review-reports.md)
+  requires.
 - Escalate to `<coordinator>`, who forwards only what needs the operator.
 - A lane blocked longer than the blocked-report threshold sends a `blocked`
   message instead of waiting silently.
