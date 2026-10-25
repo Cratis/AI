@@ -3,6 +3,7 @@
 ## Contents
 
 - Scaffold
+- Runtime package migration
 - Lists on screen
 - Reducer layout for new applications
 - What is managed
@@ -50,6 +51,13 @@ Hand-written scope that needs a newer dependency can raise its version through
 is off), but any override must be proven with a restore and build. The compose file binds local ports `27017` and
 `35000`, keeps data in the named volumes `chronicle-data` and `chronicle-config`, and
 `docker compose down --volumes` is the only thing that deletes them.
+
+## Runtime package migration
+
+Stage v4.180.0 and later generate a dependency on `@cratis/stage.runtime`, pinned
+to the rendering Stage release, rather than copied frontend runtime files.
+Re-render existing applications: unchanged old copies are removed; edited copies
+stop the migration until resolved. See [runtime and reducer migration](current-boundaries.md#runtime-package-and-reducer-migration).
 
 ## Lists on screen
 
@@ -145,7 +153,7 @@ Every file is optional. Rules that bite:
 
 What the seam does **not** do: it repairs no rejected model and renders nothing.
 Stage renders supported event-triggered Automation slices as managed Chronicle
-reactors; refused reactions, captures and Translate slices remain hand-written gap-fill
+reactors; bounded source-event capture and outbound Translate paths also render. Refused reaction or Translate shapes remain hand-written gap-fill
 with the model as their contract. See [admission.md](admission.md). Keep `Customizations/` under version control: whether a re-render keeps
 it depends on the publisher, and `cratis render` writes only the planned paths and
 refuses unmanaged files at them.

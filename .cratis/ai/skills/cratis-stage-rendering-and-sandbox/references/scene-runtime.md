@@ -51,6 +51,10 @@ The scaffold's Scene runtime provides:
   `component.<id>.<output>` via `resolveArgumentSource`. `useBoundQuery` reruns
   on changed arguments, aborts prior runs and discards stale answers; cleared or
   failed bindings remove the previous data.
+- Stage v4.197.0 default composition adds input forms only for eligible optional
+  snapshot single-result lookups with a Text/UUID argument and scalar result field;
+  it omits collections and required/unkeyed single results. Drafts do not execute
+  queries until submit. See [current target boundaries](current-boundaries.md).
 - `core:toolbar` / `core:toolbarItem`: Action items announce the command and
   resolved parameters with `cratis.scene.command`; Navigate/Dialog items use
   the navigation host, or announce navigation outside one. Host wiring is still

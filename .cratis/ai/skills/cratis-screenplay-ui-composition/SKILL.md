@@ -31,8 +31,10 @@ Tool versions: toolchain `SKILL.md`. UI statements come from Screenplay
 `screens.md`, `contributions.md`, `navigation.md`, `sample-data.md`, `forms.md`, `templates.md`, `ui-profile.md`,
 `fixtures/screen-release-ui.play`, `layout-arrangement.md`, `interactions.md`, `theme.md`,
 `internationalization.md` and `file-references.md` under `Documentation/screenplay/`. Scene
-runtime sources: scaffold Scene tag, `Source/JavaScript/**`. This guidance does not verify
-UI rendering.
+runtime sources: scaffold Scene tag, `Source/JavaScript/**`. See
+[Scene v4.82.0 runtime boundaries](references/scene-runtime-boundaries.md) for
+exact query registration/submission, root-profile serialization and interaction
+limits. These host APIs are not new `.play` syntax and do not verify UI rendering.
 
 Every construct on this page is deferred from the executable model with
 information `PLAY0269`: it never blocks binding, and it is not evidence that a
