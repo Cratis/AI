@@ -54,7 +54,7 @@ public class AIProviderCapacities(
         var reporter = reporters.FirstOrDefault(candidate => candidate.CanReport(configured));
         if (reporter is not null)
         {
-            var observation = await observations.Observe(provider, ct => reporter.Report(configured, ct), cancellationToken);
+            var observation = await observations.Observe(provider, ct => reporter.Report(configured, ct), configured.ApiKey.Value + "|" + configured.UsageApiKey.Value, cancellationToken);
             if (!observation.Report.FallsBack)
             {
                 if (observation.Report.Problem is { } problem)
