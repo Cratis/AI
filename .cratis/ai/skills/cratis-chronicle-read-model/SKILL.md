@@ -75,7 +75,9 @@ public record <ReadModelName>(
   reserves those for compliance-subject tracking, and analyzer `CHR0035`
   rejects them.
 - `Cratis.Chronicle.ReadModels.IndexAttribute` (`[Index]`) marks a property for
-  indexing in the sink.
+  indexing in the sink, including SQL. `[CompositeIndex]` on the class declares ordered multi-property indexes and
+  `[Index(IsDescending = true)]` declares descending ones. Read
+  [indexing](references/indexing.md) for valid paths, flags and store-specific limits.
 
 ### Shape the model for its consumer
 
