@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { catalogFrom, fixtureProblems, verifyConformanceFixtures } from './conformance-fixtures.ts';
+import { catalogFrom, fixtureProblems, fixtureVocabulary, verifyConformanceFixtures } from './conformance-fixtures.ts';
 
 const catalog = { profiles: ['cratis/application/csharp'], languages: ['csharp'] };
 const name = 'sample-fixture';
@@ -62,6 +62,90 @@ async function patterns(folder: string, type: string): Promise<RegExp[]> {
     return document.checks.filter(check => check.type === type).map(check => new RegExp(check.pattern as string));
 }
 const matchesAll = (list: RegExp[], content: string) => list.every(pattern => pattern.test(content));
+const schema = JSON.parse(await readFile(join(fixturesRoot, 'fixture.schema.json'), 'utf8'));
+
+test('the verifier vocabulary matches the schema enums and field names', () => {
+    assert.deepEqual(fixtureVocabulary, {
+        harnesses: schema.properties.harnesses.items.enum,
+        checkTypes: schema.$defs.check.properties.type.enum,
+        phases: schema.$defs.check.properties.phase.enum,
+        fixtureKeys: Object.keys(schema.properties),
+        checkKeys: Object.keys(schema.$defs.check.properties),
+        boundKeys: Object.keys(schema.properties.bounds.properties)
+    });
+});
+
+test('the schema defaults to result and refuses install commands and optional-only results', () => {
+    assert.equal(schema.$schema, 'https://json-schema.org/draft/2020-12/schema');
+    assert.equal(schema.$defs.check.properties.phase.default, 'result');
+    assert.deepEqual(schema.$defs.check.if, { properties: { type: { const: 'command' } }, required: ['type'] });
+    assert.deepEqual(schema.$defs.check.then, { properties: { phase: { const: 'result' } } });
+    assert.deepEqual(schema.properties.checks.contains, {
+        type: 'object', properties: { phase: { const: 'result' }, optional: { not: { const: true } } }
+    });
+    assert.deepEqual(schema.properties.checks.items, { $ref: '#/$defs/check' });
+    for (const phase of [undefined, 'result']) {
+        for (const optional of [undefined, false]) assert.deepEqual(problems(fixture({ checks: [{ type: 'command', run: ['true'], phase, optional }] })), []);
+    }
+});
+
+test('every check type has a closed schema shape with its required fields', () => {
+    const expected = fixtureVocabulary.checkTypes.map(type => {
+        const command = type === 'command';
+        const matches = type === 'file_matches' || type === 'file_not_matches';
+        const fields = ['phase', ...(command ? ['run', 'exit_code'] : ['path', 'glob', ...(matches ? ['pattern'] : [])]), 'optional'];
+        return {
+            additionalProperties: false,
+            required: ['type', ...(command ? ['run'] : matches ? ['pattern'] : [])],
+            properties: { type: { const: type }, ...Object.fromEntries(fields.map(field => [field, { $ref: `#/$defs/check/properties/${field}` }])) },
+            ...(!command ? { oneOf: [{ required: ['path'] }, { required: ['glob'] }] } : {})
+        };
+    });
+    assert.deepEqual(schema.$defs.check.oneOf, expected);
+});
+
+test('the verifier enforces the per-type required fields and exclusive path or glob', () => {
+    for (const type of fixtureVocabulary.checkTypes) {
+        assert.ok(problems(fixture({ checks: [{ type }] })).length > 0, type);
+        if (type === 'command') continue;
+        const pattern = type.includes('matches') ? { pattern: 'x' } : {};
+        assert.deepEqual(problems(fixture({ checks: [{ type, path: 'a', ...pattern }] })), []);
+        assert.deepEqual(problems(fixture({ checks: [{ type, glob: '*.txt', ...pattern }] })), []);
+        assert.ok(problems(fixture({ checks: [{ type, path: 'a', glob: '*.txt', ...pattern }] })).length > 0);
+    }
+});
+
+test('schema property types match the values the verifier accepts and rejects', () => {
+    const groups = [
+        [schema.properties, { name: 'string', description: 'string', prompt: 'string', expected_output: 'string', profiles: 'array', languages: 'array', harnesses: 'array', expected_instruction_paths: 'array', checks: 'array', bounds: 'object' }],
+        [schema.$defs.check.properties, { path: 'string', glob: 'string', pattern: 'string', run: 'array', exit_code: 'integer', optional: 'boolean' }],
+        [schema.properties.bounds.properties, { timeout_seconds: 'integer', max_budget_usd: 'number', max_turns: 'integer' }]
+    ] as const;
+    for (const [properties, types] of groups) {
+        for (const [key, type] of Object.entries(types)) assert.equal(properties[key].type, type, key);
+    }
+    for (const key of fixtureVocabulary.fixtureKeys) assert.ok(problems(fixture({ [key]: 42 })).length > 0, key);
+    for (const key of ['path', 'glob', 'pattern', 'run', 'exit_code', 'optional', 'phase', 'type']) {
+        assert.ok(problems(fixture({ checks: [{ type: 'command', run: ['true'], [key]: null }] })).length > 0, key);
+    }
+    for (const key of fixtureVocabulary.boundKeys) assert.ok(problems(fixture({ bounds: { [key]: '1' } })).length > 0, key);
+});
+
+test('both existing fixtures satisfy the schema check shapes and result requirement', async () => {
+    for (const folder of ['csharp-concepts-over-primitives', 'typescript-slice-excludes-csharp']) {
+        const document = JSON.parse(await readFile(join(fixturesRoot, folder, 'fixture.json'), 'utf8'));
+        assert.ok(document.checks.length > 0);
+        assert.ok(document.checks.some((check: { phase?: string; optional?: boolean }) => (check.phase ?? 'result') === 'result' && check.optional !== true));
+        for (const check of document.checks) {
+            const shape = schema.$defs.check.oneOf.find((candidate: { properties: { type: { const: string } } }) => candidate.properties.type.const === check.type);
+            assert.ok(shape, check.type);
+            for (const key of shape.required) assert.ok(Object.hasOwn(check, key), key);
+            for (const key of Object.keys(check)) assert.ok(Object.hasOwn(shape.properties, key), key);
+            if (check.type === 'command') assert.notEqual(check.phase, 'install');
+            else assert.notEqual(Object.hasOwn(check, 'path'), Object.hasOwn(check, 'glob'));
+        }
+    }
+});
 
 test('C# concept fixture patterns reject a comment-only change and accept the real change', async () => {
     const wanted = await patterns('csharp-concepts-over-primitives', 'file_matches');

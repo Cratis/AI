@@ -6,11 +6,16 @@ import { join } from 'node:path';
 
 export interface ConformanceCatalog { profiles: string[]; languages: string[] }
 
-const harnesses = ['claude', 'codex', 'copilot', 'pi', 'cursor', 'opencode'];
-const checkTypes = ['file_exists', 'file_absent', 'file_matches', 'file_not_matches', 'command'];
-const fixtureKeys = ['name', 'description', 'prompt', 'expected_output', 'profiles', 'languages', 'harnesses', 'expected_instruction_paths', 'checks', 'bounds'];
-const checkKeys = ['type', 'phase', 'path', 'glob', 'pattern', 'run', 'exit_code', 'optional'];
-const boundKeys = ['timeout_seconds', 'max_budget_usd', 'max_turns'];
+/** Kept in step with the schema by the conformance fixture specs. */
+export const fixtureVocabulary = {
+    harnesses: ['claude', 'codex', 'copilot', 'pi', 'cursor', 'opencode'],
+    checkTypes: ['file_exists', 'file_absent', 'file_matches', 'file_not_matches', 'command'],
+    phases: ['install', 'result'],
+    fixtureKeys: ['name', 'description', 'prompt', 'expected_output', 'profiles', 'languages', 'harnesses', 'expected_instruction_paths', 'checks', 'bounds'],
+    checkKeys: ['type', 'phase', 'path', 'glob', 'pattern', 'run', 'exit_code', 'optional'],
+    boundKeys: ['timeout_seconds', 'max_budget_usd', 'max_turns']
+};
+const { harnesses, checkTypes, phases, fixtureKeys, checkKeys, boundKeys } = fixtureVocabulary;
 
 function object(value: unknown): Record<string, unknown> {
     return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -46,7 +51,7 @@ function checkProblems(index: number, value: unknown, fail: (message: string) =>
     const check = value;
     for (const key of Object.keys(check)) if (!checkKeys.includes(key)) fail(`${label}: unknown key '${key}'.`);
     if (typeof check.type !== 'string' || !checkTypes.includes(check.type)) { fail(`${label}.type must be one of ${checkTypes.join(', ')}.`); return; }
-    if (check.phase !== undefined && check.phase !== 'install' && check.phase !== 'result') fail(`${label}.phase must be 'install' or 'result'.`);
+    if (check.phase !== undefined && (typeof check.phase !== 'string' || !phases.includes(check.phase))) fail(`${label}.phase must be 'install' or 'result'.`);
     if (check.optional !== undefined && typeof check.optional !== 'boolean') fail(`${label}.optional must be boolean.`);
     if (check.exit_code !== undefined && !Number.isInteger(check.exit_code)) fail(`${label}.exit_code must be an integer.`);
     for (const key of ['path', 'glob'] as const) {
