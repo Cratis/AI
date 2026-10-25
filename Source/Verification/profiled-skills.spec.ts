@@ -47,6 +47,33 @@ test('Go product profiles resolve the same composed skills in the Pi plugin and 
     }
 });
 
+test('application specifications profiles resolve linked test helpers without engineering skills', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-specifications-profiles-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const cases = [
+            ['cratis/specifications/dotnet'],
+            ['cratis/application/csharp'],
+            ['cratis/application/react'],
+            ['cratis/application/arc-only'],
+            ['cratis/application/arc-chronicle'],
+            ['cratis/application/chronicle-dotnet'],
+            ['cratis/application/csharp', 'cratis/application/typescript', 'cratis/screenplay'],
+        ];
+        for (const profiles of cases) {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles, languages: ['csharp', 'typescript', 'react'] }));
+            const actual = selectedSkillPaths(project).map(path => path.split('/').pop()).sort();
+            for (const skill of ['cratis-specifications-csharp', 'run-tests', 'filter-syntax', 'platform-detection', 'coverage-analysis']) {
+                assert.ok(actual.includes(skill), `${profiles.join(', ')} must install ${skill}`);
+            }
+            assert.ok(!actual.some(skill => skill.startsWith('cratis-engineering-')), 'test helpers must not require engineering profiles');
+            assert.deepEqual(selectedSkillNames(project), actual, 'path guidance and the plugin must resolve the same helpers');
+        }
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
 test('writing skills are reachable from the relevant public and engineering profiles', () => {
     const catalogPath = resolve(import.meta.dirname, '../../.cratis/ai/profile-catalog.json');
     const catalog = JSON.parse(readFileSync(catalogPath, 'utf8')) as {

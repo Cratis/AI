@@ -927,7 +927,11 @@
         "cratis-application-slice-specifications",
         "cratis-chronicle-event-specifications",
         "cratis-chronicle-read-model-specifications",
-        "cratis-specifications-csharp"
+        "cratis-specifications-csharp",
+        "coverage-analysis",
+        "filter-syntax",
+        "platform-detection",
+        "run-tests"
       ],
       "languages": [
         "csharp"
