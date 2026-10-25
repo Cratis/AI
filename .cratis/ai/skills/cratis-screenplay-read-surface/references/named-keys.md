@@ -13,9 +13,6 @@
 ## Declare identity
 
 A trailing `key` on a top-level read-model property declares instance identity.
-Since Screenplay 4.245.0 it also parses correctly when the read model follows an
-inline event declaration in the same slice; `key` on an event property remains
-invalid (PLAY0136).
 One explicit mark replaces inference and binds byte-identically to the equivalent
 inferred identifier. Several marks declare a composite key. Identity
 selection is:

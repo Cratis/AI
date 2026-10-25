@@ -24,8 +24,7 @@ public metadata. A translation declaring or using public metadata needs explicit
 direction (PLAY0614), not a guess from its name.
 
 - Inbound: accept public foreign events or outside data and produce private local
-  facts. A local `public event` declaration is refused with PLAY0612, even if no
-  command or builder uses it (Screenplay 4.245.0). Use `capture` or a translating reaction. Correlation, deduplication,
+  facts. Use `capture` or a translating reaction. Correlation, deduplication,
   enrichment and recovery still need the method skill's decisions.
 - Outbound: consume private local facts and publish exactly one local public event
   type through a reaction or event-target projection/reducer. No capture belongs
