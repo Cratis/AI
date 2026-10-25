@@ -30,14 +30,25 @@ Quarantine persists through grain deactivation. Watchdog ticks and catch-up/repl
 completion do not end it. An operator clear or a fresh subscription does;
 a kernel restart only helps observers that actually receive a fresh subscription.
 Event-store subscriptions remain quarantined until operator clear. Recovery can
-quarantine again if the cause remains.
+quarantine again if the cause remains. Webhooks are an exception from
+19.108.0: eligible quarantines can probe with a **real pending event** and
+resume after success. Read [webhook policy](webhooks.md) before promising an
+operator that quarantine prevents all traffic; webhook timeout cancellation
+also drains the HTTP operation before starting another delivery.
 
 Projection replay and catch-up each use a **single globally ordered job step**;
 a new catch-up failure stops that step rather than letting other sources proceed.
 Full replay is inactive until completion, then routes to catch-up/live unless
 quarantined. Partition quarantine stops that partition's automatic retries;
 observer quarantine suppresses automatic recovery for the whole observer.
-Sources: `Documentation/concepts/observers.mdx`,
+From 19.91.1, projection replay skips a failed partition while continuing
+healthy partitions, then schedules failed partitions for recovery after replay
+completes. Catch-up still stops its ordered step on a new failure. Replaying
+**global** projections is refused from 19.102.1 before any write. For MongoDB
+catch-up/bulk-write upgrade repairs, read
+[projection definition changes](../../cratis-chronicle-projection/references/definition-changes.md).
+
+Sources (verified through **v19.110.1**): `Documentation/concepts/observers.mdx`,
 `Documentation/projections/registration-lifecycle.md`, and
 `Source/Kernel/Core/Observation/Jobs/{CatchUpObserver,ReplayObserver}.cs`.
 
