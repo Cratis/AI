@@ -54,6 +54,13 @@ public class WorkerRuntimeOptions
     public string KubernetesNamespace { get; set; } = "default";
 
     /// <summary>
+    /// Gets or sets the Kubernetes Job deadline, defaulting to 48 hours. A positive
+    /// <see cref="WorkerJob.Deadline"/> overrides it. Non-positive option values use 48 hours.
+    /// Docker has no equivalent and ignores this setting.
+    /// </summary>
+    public TimeSpan WorkerDeadline { get; set; } = TimeSpan.FromHours(48);
+
+    /// <summary>
     /// Gets or sets the path to a shared repository-cache volume, mounted read-only into every
     /// worker container so its checkout can <c>git clone --shared</c> against it rather than
     /// cloning fresh from GitHub every run. Unset (the default) omits the mount and

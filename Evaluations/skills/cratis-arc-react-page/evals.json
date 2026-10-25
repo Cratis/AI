@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-arc-react-page",
+  "evals": [
+    {
+      "id": 1,
+      "name": "accounts-data-page",
+      "prompt": "An Arc app has generated proxies `AllAccounts` (observable query: name, balance, id) and `CreateAccount` (command with a name property), and a `CreateAccountDialog` already exists. Write the React `AccountsPage` with a table of name and balance and an 'Add account' toolbar action that opens the dialog. Give the code in your reply; do not write files.",
+      "expected_output": "A DataPage with title, query, emptyMessage and dataKey, columns inside DataPage.Columns, a MenuItem with command (not onClick) and an icon component, and a useDialog wrapper rendered once; imports from subpaths.",
+      "assertions": [
+        "Imports DataPage, Column and MenuItem from the subpath '@cratis/components/DataPage', not from the root '@cratis/components'.",
+        "Passes the proxy to DataPage's query prop with title and emptyMessage, and does not pre-fetch rows and pass an array.",
+        "Places columns in <DataPage.Columns> and the action in <DataPage.MenuItems> as a MenuItem using the command prop rather than onClick.",
+        "Uses useDialog from '@cratis/arc.react/dialogs' and renders the returned wrapper component once in the tree."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "command-dialog-binding",
+      "prompt": "Write a `CreateAccountDialog` React component for an Arc app that runs the generated `CreateAccount` command (property `name`), closing with an OK result on success and Cancelled on cancel. A teammate suggests using a native <input> for the name field. Reply with the code and your view of that suggestion.",
+      "expected_output": "A CommandDialog with an InputTextField bound through a value accessor, closing via useDialogContext; the native input is rejected since it is not bound to the command so validation never reruns and submit stays disabled.",
+      "assertions": [
+        "Builds the dialog on CommandDialog from '@cratis/components/CommandDialog' with command, title, onSuccess and onCancel.",
+        "Binds the name with a CommandForm field such as InputTextField using a value accessor like c => c.name and a title prop.",
+        "Closes the dialog through useDialogContext's closeDialog with DialogResult.Ok and DialogResult.Cancelled.",
+        "Rejects a raw native input or Common TextInput because it is not bound to the command, so validation never re-runs and the submit button stays disabled."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "confirm-and-busy",
+      "prompt": "On an Arc React page the Delete action should ask the user to confirm (it is destructive) and then show a busy indicator during a slow export. The developer plans window.confirm and a hand-written Yes/No dialog. How should this be done? Reply only.",
+      "expected_output": "Register ConfirmationDialog and BusyIndicatorDialog once at the app root via DialogComponents and raise them with useConfirmationDialog and useBusyIndicator; destructive uses DialogInitialFocus.Cancel; pair showBusy with a close in a finally.",
+      "assertions": [
+        "Recommends useConfirmationDialog instead of window.confirm or a hand-rolled Yes/No dialog.",
+        "Says ConfirmationDialog and BusyIndicatorDialog are registered once at the app root through DialogComponents.",
+        "Says a destructive dialog should use DialogInitialFocus.Cancel because Confirm is the default.",
+        "Says showBusy() must be paired with a close in a finally block."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "value-without-origin",
+      "prompt": "The designer wants the Accounts page to show an 'Owner email' column, but neither the `AllAccounts` read model nor any other proxy has that property. A teammate proposes fetching a second query on the client and joining it, or adding an `ownerEmail` property to the generated TypeScript proxy by hand. What do you do? Reply only.",
+      "expected_output": "Do not fake it on the client or edit the generated proxy; it is a gap in the backend or model, so add the property to the read model first (or the .play model when it exists) and rebuild to regenerate proxies.",
+      "assertions": [
+        "Refuses to compute the value from another query on the client.",
+        "Refuses to edit the generated proxy because it is marked DO NOT EDIT and is regenerated from the C# source.",
+        "Says a value with no origin is a gap in the backend or model and the property must be added to the read model first (or the .play model where one exists).",
+        "Says to rebuild so the TypeScript proxies are regenerated."
+      ]
+    }
+  ]
+}

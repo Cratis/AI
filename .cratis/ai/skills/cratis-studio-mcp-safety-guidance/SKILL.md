@@ -10,16 +10,29 @@ Treat Studio MCP access as access to live product and organization data. This
 skill classifies intent only. It does not discover, configure, install, or call
 an MCP server.
 
+## Verified product sources
+
+| Source | Purpose |
+| --- | --- |
+| Studio public product announcement | Organization-scoped, credential-gated MCP availability, not tool-effect admission |
+| `Cratis/Studio` | Private repository; implementation evidence is **not admitted** |
+
+Studio has an organization-scoped, credential-gated MCP endpoint. Availability
+and credentials do not establish that an operation is observational. The private
+repository cannot supply this public skill's required immutable public effect
+evidence; do not publish its tool names, schemas or implementation details.
+Treat edits and dynamically delegated work as effectful by default.
+
 ## Current authority boundary
 
 No Studio MCP implementation source, operation, prompt, resource, schema, or
 revision is admitted. An empty inventory means **nothing is authorized**; it
 does not mean the upstream product has no capabilities.
 
-Read the generated classifications before answering:
+Read the classifications before answering:
 
-- [Observational guidance](references/observational-tools.md) is currently
-  empty.
+- [Observational guidance](references/observational-tools.md) contains no
+  admitted observational operations.
 - [Blocked guidance](references/blocked-tools.md) records the deny-all boundary.
 
 Do not infer an operation from private implementation knowledge, a remembered

@@ -1,6 +1,15 @@
 # Tenancy
 
-Verified against `Cratis.Arc.Core` `22.16.0`. Types are in `Cratis.Arc.Tenancy`.
+## Contents
+
+- Constants
+- Options and defaults
+- The resolvers
+- Reading the tenant
+- Development listing
+- Where the boundary is
+
+Source: `Cratis.Arc.Core`. Types are in `Cratis.Arc.Tenancy`.
 
 Arc tenancy is **request-scoped tenant resolution**. It answers "which tenant is
 this request for". It is not Chronicle's tenant namespace isolation, and it does
@@ -64,6 +73,12 @@ the configured value.
 literal string `"[NotSet]"`. `TenantId.Default` is `"Default"`. ⚠️ `IsDefault`
 is `this == NotSet || this == Default` — it is true for an **unresolved** tenant
 as well, so it cannot tell "single-tenant default" from "nothing resolved".
+Arc for .NET has no tenancy-required switch. Empty header/query resolution
+becomes `NotSet`; Chronicle's `TenantNamespaceResolver` maps `IsDefault` (both
+`NotSet` and `Default`) to its default namespace. Refuse unresolved tenants in
+application authorization when required; resolution alone is not isolation.
+Sources: `Arc.Core/Tenancy/TenancyOptions.cs` and
+`Chronicle/Tenancy/TenantNamespaceResolver.cs` under `Source/DotNET`.
 Compare against `TenantId.NotSet` explicitly, or use
 `CurrentTenantIdIsNotSet.ThrowIfNotSet(...)`, wherever an unresolved tenant must
 be refused.
@@ -72,12 +87,20 @@ be refused.
 `string.IsNullOrEmpty(tenantId)` never fires for an unresolved tenant. Compare
 against `TenantId.NotSet`.
 
+`ITenantScope.Begin(TenantId)` selects a tenant explicitly for the current
+asynchronous flow until the returned scope is disposed, and takes precedence over
+the configured resolver. It rejects a null or blank tenant, and it does **not**
+authorize access to that tenant. Resolve tenant-scoped services in a DI scope
+created after beginning it.
+
 ## Development listing
 
 `ICanProvideTenants` (`Task<IEnumerable<Tenant>> Provide()`) feeds
 `GET /.cratis/tenants`, where `Tenant` is `record (TenantId Id, TenantName Name)`.
-The endpoint is `AllowAnonymous` and mapped unconditionally, so an implementation
-that returns real tenants publishes them. Return development fixtures only.
+The endpoint follows `Introspection.IdentityDiscovery` and discovery access:
+anonymous only in Development by default, authenticated elsewhere, or unmapped
+when the host cannot authenticate. Return development fixtures only.
+Source: [secure defaults](https://github.com/Cratis/Arc/blob/main/Documentation/upgrading/secure-defaults.mdx).
 
 ## Where the boundary is
 

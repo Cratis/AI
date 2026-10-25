@@ -57,13 +57,13 @@ public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvider
         // Z.ai authenticates its gateway-style keys as a bearer token, the same credential contract
         // a Claude-style harness honors through ANTHROPIC_AUTH_TOKEN. An x-api-key header, the
         // Anthropic-native slot, is answered with a 401 that names neither.
-        request.Headers.Add("authorization", $"Bearer {provider.ApiKey.Value}");
+        request.Headers.Add("authorization", $"Bearer {provider.ApiKey.ForUse()}");
         request.Headers.Add("anthropic-version", "2023-06-01");
 
         HttpResponseMessage response;
         try
         {
-            response = await httpClient.SendAsync(request, cancellationToken);
+            response = await VendorResponses.Send(httpClient, request, cancellationToken);
         }
         catch (HttpRequestException exception)
         {
@@ -82,8 +82,9 @@ public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvider
 
             if (!response.IsSuccessStatusCode)
             {
-                logger.UnexpectedStatusCode(Type, (int)response.StatusCode);
-                return TransientProviderFailures.FromStatusCode(response);
+                var failure = await TransientProviderFailures.FromResponse(response, Type, model.Value, provider.Id, provider.ApiKey, cancellationToken);
+                logger.UnexpectedStatusCode(provider.Id, Type, failure.Model, (int)response.StatusCode, failure.ErrorType, failure.ErrorCode, failure.RetryAfter, failure.Result.RetryAfter, failure.Body);
+                return failure.Result;
             }
 
             return await ReadCompletion(response, model, cancellationToken);

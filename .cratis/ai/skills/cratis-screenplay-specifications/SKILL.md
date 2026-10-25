@@ -6,215 +6,234 @@ license: MIT
 
 # Screenplay specifications
 
+Read [preferred syntax](../cratis-screenplay-toolchain/references/preferred-syntax.md) when writing or reviewing `.play`.
+
 A `specification` is the acceptance criterion for a slice, written in the same
 document as the behavior it pins. Given/when/then, in business language, with
 concrete data.
 
 ## Locate the model
 
-Look first in `.cratis/screenplay/` at the repository root. This is the
-conventional home for consumer-owned `.play` source; do not invent another
-location or search the whole repository before checking it.
+Look first for the project's existing `.play` files: their folder is the model.
+Reuse existing model/workspace roots; code-only `Source/` or `src/` does not
+qualify. Otherwise use repository-root `Screenplay/` ([discovery/version gates](../cratis-screenplay-event-modeling/references/file-layout.md#locate-the-model)). Never put a model under `.cratis/` or hand-copy it between repositories.
+`cratis ai install` manages `.cratis/ai/`, never model files. Keep explanatory
+Markdown in project documentation; `.play` is the single flow model.
 
-`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`. Never
-hand-copy Screenplay source between repositories. Keep Markdown that explains,
-questions or navigates the model in the repository's documentation; the `.play`
-source is the single flow model.
+## Product sources
 
-## Verified product sources
+Specification syntax follows Screenplay `Documentation/screenplay/specifications.md`.
+Tool versions: `cratis-screenplay-toolchain` `SKILL.md`. Compile commands check source, not
+reference execution. Use `screenplay test` or MCP `run-specifications` for V4; Stage/target
+tests are separate evidence. Propose → review → `run-specifications` with `proposalId` → apply.
+PLAY0285 (an impossible `then`) unbinds the whole model and blocks every spec.
+Unsupported/unbound is never a pass. Typed examples and
+route assertions are in [examples and routes](references/examples-and-routes.md).
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Screenplay` | `4.31.0` | Parser, semantic binder, reference execution |
+Requires Screenplay 4.145.0 or later (`screenplay --version`) for `run-specifications` with `proposalId`.
 
-Checked against the Screenplay repository at tag `v4.31.0` (commit `355dffb`):
-`Documentation/screenplay/{specifications,policies,constraints,readmodels,diagnostics}.md`.
-The worked example below compiles with zero diagnostics, binds to ESM v2, and
-all six specifications pass the reference runner at that tag. Reverify before
-claiming another version behaves the same.
+Read [source notes](references/source-notes.md) for the retained inline-fact and action-syntax evidence; run the changed examples at the standalone pin.
+
+## State every property
+
+A `when` command and each `then` event list **every** property, including `optional`
+ones, with a concrete value; omitting one is PLAY0524. Only a read-model property may be `null` (PLAY0350).
+This model fails with PLAY0524 on both `when` and `then` until `note = "none"` is added:
+
+```screenplay excerpt
+event TaskOpened
+  note String optional
+specification Opening
+  when OpenTask
+    taskId = "t1"
+    title = "Write"
+  then TaskOpened
+    for "t1"
+    title = "Write"
+```
+
+## Reference execution — what actually runs
+
+Screenplay's reference runner executes specifications against an immutable
+in-memory world: no Arc, no Chronicle, no database, no network. Every downstream
+target has one normalized behavior to match.
+
+Binding is not plan admission. Read model-authoring's
+[language reference](../cratis-screenplay-model-authoring/references/language-reference.md)
+when distinguishing executable declarations, refused projection shapes and opaque
+code. Reached opaque code is **unsupported**, never passed; portable denial may
+still execute before it. An unadmitted projection makes unsupported only the specifications that reach it
+(Screenplay 4.213.2 or later); other unsupported declarative constructs block the whole plan.
+
+Read [reactions and cascades](references/reactions-and-cascades.md) when testing
+ESM v6 actions; older compilers fail reaction/capture binding with PLAY0268.
+Read [child ordering](references/child-ordering.md) for deferral;
+an ambiguous parent still fails closed.
+Requires Screenplay 4.149.1 or later (`screenplay --version`) for child deferral; older runners do not defer.
+
+A rejected command/append leaves the world unchanged; an accepted one commits
+before comparing views. V6 has no scenario-wide transaction: later cascade
+failure does not roll back earlier accepted facts. Atomic mode boundaries are below.
+
+Unsupported is not passed. Name a target. Run CLI/MCP reference execution
+or target tests; name engine, version and expected/discovered selection.
+
+## Batches, described bodies, protected reads and text rules
+
+- With `reaction batches atomic`, assert no facts from a failed direct-production or
+  selected refusal-branch batch and unchanged views through evaluator world assertions,
+  not only `then error`. `then no events` is acceptance and cannot accompany an error. Earlier
+  accepted batches/invoked commands remain; legacy absence retains per-fact appends.
+  Read [atomic boundaries](../cratis-screenplay-captures-and-reactions/references/atomic-batches-and-source-mappings.md).
+- A described handler binds v23, but reaching its body returns Unsupported
+  ImplementationBody, naming command/RequirementId and emitting no events. Denial and
+  validation cases still run; an all-Unsupported run is never green. Read
+  [described handlers](../cratis-screenplay-command-surface/references/described-handlers.md).
+- Protected command reads opt into v25. Test present/absent state and rule refusal;
+  matching decide/commit changes are Conflict / DecisionStateChanged, not validation
+  refusal. Race vectors are not new specification syntax. Read
+  [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md).
+- Literal text rules use ordinal UTF-16 comparison (v24); matches uses a portable
+  linear matcher, not platform regex. Old invalid/refused patterns plan as
+  UnsupportedValidation, not a successful check. Read
+  [text and match rules](../cratis-screenplay-command-surface/references/text-and-match-rules.md)
+  for boundary values and PLAY0699/0787. Reference success is not Stage admission.
+
+## Chronological command date comparisons
+
+Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`); older binders refuse
+these comparisons with PLAY0268. DateTime conditions compare UTC instants at tick
+precision: cover equal instants with different offsets, increasing endpoints,
+an inverted interval and a one-tick boundary. Every participating DateTime input
+without an offset or `Z` rejects with Validation before rules, even when its
+comparison is skipped; add a missing-offset rejection, not a clock fixture workaround.
+`then` matching stays ordinal: expected event values keep the exact produced text,
+not an equivalent offset. Read the complete [retention-window specifications](../cratis-screenplay-command-surface/references/date-comparisons.md)
+for `require to >= from`, PLAY0268/0273 and Stage's v26 refusal. The missing-offset
+runtime case needs an evaluator-request or target input test: putting the invalid
+value in a typed `.play` fixture instead fails binding with PLAY0273; `then error`
+does not exercise runtime validation.
+
+## Descriptions, persona callers and case tables
+
+Use one `description "<rule or behavior>"` (or a fenced `text` description) to
+name what the specification witnesses. It is report-only (PLAY0270), changing
+neither execution nor ESM bytes. Specifications do not accept `documentation`;
+put longer assumptions and rejected alternatives on the owning slice's fenced
+Markdown `documentation` block.
+
+`given caller as <Persona>` expands to one authenticated policy witness before
+binding. Named `parameter`/`case` tables share steps and read values as
+`case.<parameter>`; each case runs independently as `<Specification>_<Case>`.
+Read [persona callers and case tables](references/persona-callers-and-cases.md)
+for synthesis refusals, selection, provenance and a complete passing model.
 
 ## The vocabulary
 
-| Construct | Meaning |
-| --- | --- |
-| `given <EventType>` | prior state, established by replaying events before the action |
-| `given readmodel <ReadModelType>` | prior read-model state, established directly — a **complete** instance including its identifier |
-| `given caller` | the caller: `authenticated`, `role "<r>"`, repeatable `claim "<type>" = "<value>"`; empty means unauthenticated |
-| `when <CommandType>` | run a command |
-| `when append <EventType>` | append one event: constraints and projections run, the command and reactions do not |
-| `then <EventType>` | an expected new event |
-| `then events in any order` | compare the new events without regard to order |
-| `then readmodel <ReadModelType> [exactly]` | read-model state afterwards — must state the identifier |
-| `then query <Query> [exactly]` | query results for explicit `arguments`; one `result` per row; none means empty |
-| `then error "<message>"` | a validation or constraint rejection, for that reason |
-| `then error` | a validation or constraint rejection, reason unnamed |
-| `then denied` | an authorization denial (`Unauthorized`) |
-| `for <value>` | the event source of a `given`/`then` event, or of the `when` command or appended event |
-| `<property> = <value>` | a literal, `null`, or a one-line JSON-shaped object or list: `lines = [{"sku":"A-1","quantity":2}]` |
+Read [references/vocabulary.md](references/vocabulary.md) when writing or reading a `given`, `when` or `then` line, to look up a construct such as `then events in any order`, `then no readmodel`, `generated`, `then returns`, `then error` or `then denied`, or an enumeration or `DateTime` literal.
 
 Rules the binder enforces:
 
-- **At most one action** — `when` or `when append` (`PLAY0358`). Without an
-  action, assert only `then readmodel` or `then query` (`PLAY0352`).
+- **At most one action** — a command, `when append`, `when clock`, `when trigger`,
+  `when capture`, `when redelivered` or `when query` (`PLAY0097`, `PLAY0358`). Without an action,
+  assert only read state or one queried call with `then error` (ESM v18; otherwise PLAY0352).
+- **`then result` and `then no result` need `when query`**, and `when query`
+  needs one of them, `then denied` or a sole validation `then error` (`PLAY0465`). Each argument is a `by` or
+  `filter` parameter of the query (`PLAY0468`).
+- **A clock instant is ISO 8601 with an offset or `Z`** (PLAY0461); one `given clock` maximum.
+- **`given time zone "<id>"` is parsed, not runnable.** Executable binding refuses it with PLAY0268;
+  a repeated or malformed line is PLAY0814. Do not author it into an executable model.
 - **`then` contains either events or an error — never both.** A rejection
   specification has exactly one rejection and no success outcome.
 - **`then denied` stands alone**: not with events, errors or state assertions
   (`PLAY0388`). For a query, pair it with one `then query` that has `arguments`
   and no `result`.
-- **Authorized commands and queries need `given caller`** (`PLAY0389`). The runner
+- **Authorized commands and queries need `given caller` or `given caller as <Persona>`** (`PLAY0389`). The runner
   never invents a caller.
 - **`null` only in optional read-model values.** A `null` in a command or event
   value is `PLAY0350`: an optional fact is a separate event.
 
-`PLAY0358` is a syntax error. `PLAY0350`, `PLAY0352`, `PLAY0388`, `PLAY0389` and
-the one-rejection rule (`PLAY0273`) are reported only when the model binds, so
-`screenplay --warnaserror` does not show them. Check executable diagnostics
-(the MCP authoring tools) as well.
+V1 does not report binding-only outcome errors; read `references/vocabulary.md`
+for parse-versus-bind diagnostics and check executable diagnostics too.
 
 ## How outcomes are compared
 
-- **Events:** the complete set of new events, in authored order, unless
-  `then events in any order` is stated. The count is always exact.
-- **Read models and query rows:** only the asserted properties must match
-  (subset); add `exactly` to require every property. Row count and order are
-  always exact. A missing property does not match an asserted `null`.
-- **Rejections:** `then error "<message>"` matches the message whatever the rule's
-  validation severity; no form asserts severity. Bare `then error` never matches
-  a denial. Quote a localized key: `then error "$strings.invoices.reasonRequired"`.
+Events compare as the complete new set in authored order (exact count). Read models and query rows: only the asserted properties must match (add `exactly` for all). Rejections: `then error "<message>"` matches the message, never severity. Bare `then error` never matches
+  a denial. Read [references/outcome-comparison.md](references/outcome-comparison.md) when asserting events, rows, ordering or a localized rejection key.
 
 ## Worked example
 
-A command with an authorization gate, a validation rule and a uniqueness
-constraint, and a read model fed by its event. The `for` values select ESM v2.
+A command with an authorization gate, a validation rule and a uniqueness constraint, specified in full with inline events, optional-aware queries and read-model assertions.
+Read [references/worked-example.md](references/worked-example.md) when writing or checking a complete command, view or constraint specification and you need the full compiled model to copy the shape from.
 
-```screenplay
-concept InvoiceId : Uuid
-concept InvoiceNumber : String
-policy IsAccountant
-  require role "Accountant"
-module Invoicing
-  feature Registration
-    slice StateChange RegisterInvoice
-      command RegisterInvoice
-        invoiceId     InvoiceId identifier
-        invoiceNumber InvoiceNumber
-        authorize IsAccountant
-        validate
-          invoiceNumber not empty message "Invoice number is required"
-        produces InvoiceRegistered
-          for invoiceId
-          invoiceNumber = invoiceNumber
-      event InvoiceRegistered
-        invoiceNumber InvoiceNumber
-      constraint UniqueInvoiceNumber
-        unique invoiceNumber on InvoiceRegistered
-      specification RegisteringAnInvoice
-        given caller
-          authenticated
-          role "Accountant"
-        when RegisterInvoice
-          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
-          invoiceNumber = "INV-000123"
-        then InvoiceRegistered
-          for "9c858901-8a57-4791-81fe-4c455b099bc9"
-          invoiceNumber = "INV-000123"
-        then readmodel InvoiceSummary
-          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
-          invoiceNumber = "INV-000123"
-      specification RejectingAnEmptyInvoiceNumber
-        given caller
-          authenticated
-          role "Accountant"
-        when RegisterInvoice
-          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
-          invoiceNumber = ""
-        then error "Invoice number is required"
-      specification RejectingANumberAnotherInvoiceHolds
-        given caller
-          authenticated
-          role "Accountant"
-        given InvoiceRegistered
-          for "0f5f5f7f-0f6f-4f47-9f39-5c1f2f0a1a9f"
-          invoiceNumber = "INV-000123"
-        when RegisterInvoice
-          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
-          invoiceNumber = "INV-000123"
-        then error
-      specification DenyingACallerWithoutTheRole
-        given caller
-          authenticated
-        when RegisterInvoice
-          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
-          invoiceNumber = "INV-000123"
-        then denied
-      specification ProjectingAnAppendedInvoice
-        when append InvoiceRegistered
-          for "9c858901-8a57-4791-81fe-4c455b099bc9"
-          invoiceNumber = "INV-000123"
-        then query InvoiceById
-          arguments
-            invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
-          result
-            invoiceNumber = "INV-000123"
-    slice StateView InvoiceLookup
-      readmodel InvoiceSummary
-        invoiceId     InvoiceId
-        invoiceNumber InvoiceNumber
-      query InvoiceById => InvoiceSummary?
-        by invoiceId InvoiceId
-      projection InvoiceSummaries => InvoiceSummary
-        from InvoiceRegistered
-          invoiceId     = $eventSourceId
-          invoiceNumber = invoiceNumber
-      specification LookingUpAnExistingInvoice
-        given readmodel InvoiceSummary
-          invoiceId     = "9c858901-8a57-4791-81fe-4c455b099bc9"
-          invoiceNumber = "INV-000001"
-        then query InvoiceById
-          arguments
-            invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
-          result
-            invoiceNumber = "INV-000001"
-```
+## Choosing a strategy
 
-- `RejectingANumberAnotherInvoiceHolds` needs `for`: without it the `given`
-  event lands on the command's own event source, and re-claiming your own value
-  is not a violation.
-- `ProjectingAnAppendedInvoice` exercises the projection without running the
-  command. Put `for`-bearing specifications in the slice whose command produces
-  the event; placed in the view slice, binding fails with `PLAY0273`.
-- `LookingUpAnExistingInvoice` has no action: it checks established state only.
+Read [shop fixtures and strategy choices](references/generated-fixtures.md).
+
+## When not to
+
+Pins/clock do not realize context or secret generation; preserve the contract.
+
+## Generated fixtures and return expectations (ESM v7)
+
+Current compilers bind fixtures/returns. Reached generation without every pin is
+unsupported, never passed. The fixture reference covers strict v15 shapes and freshness.
+
+## Actions beyond commands
+
+A slice is not always set off by a command: `given clock`, `when clock`, `when trigger`, `given capture`, `when capture` and `when query` (with `then result` / `then no result`) name what does. Use `given clock`, never `given time`. From ESM v6 the reference runner executes the clock, trigger and capture actions; before ESM v6 only `when query` executed among them.
+Read [references/actions-beyond-commands.md](references/actions-beyond-commands.md) when the slice is an automation, translation or query view, or you need the action table, grammar and what the reference runner executes for each.
+
+## Reactions and cascades (ESM v6)
+
+From ESM v6 every action sets reactions off and `then` events compare every new fact, the action's and the reactions'. A specification whose action is a command goes in the slice that declares the command. A false `PLAY0285` on a cascade under a compiler that stops before ESM v6 is tool skew, not a modeling error: never delete the `then` line to silence it.
+Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md) when a specification's expected events include what a reaction appends, when a cascade, clock tick or invoked command is involved, or when `cratis` reports `PLAY0285` on a model that `screenplay` accepts (it holds the "Version skew: cascades and the false `PLAY0285`" section).
+
+## Published-event specifications (released ESM v9)
+
+Use `when append <PrivateEvent>` then `then <PublicEvent>`, not `then readmodel`;
+follow-up events are exhaustive and ordered. Read
+[publication and fold cases](../cratis-screenplay-automations-and-translations/references/public-events-and-direction.md)
+when specifying outbound facts or event-source captures: it owns the minimum
+compiler, PLAY0700/0701, key folding and Unsupported boundaries. Composite-keyed
+view fixtures state every key part (Requires Screenplay 4.204.0, ESM v27); see
+`references/vocabulary.md` and read-surface `references/named-keys.md`.
+
+## Reusable fixtures, routes and recovery intent
+
+Use typed `example` declarations for repeated event/command/read-model values;
+step overrides keep the action/outcome visible and carry authored/example/override
+provenance. Event examples can carry routes, replaced as a whole by a step.
+Read [examples and routes](references/examples-and-routes.md) when locating a
+redelivered given (v17, PLAY0543) or asserting event routes (v8); it owns typed
+`for`, `stream`/`no stream`, complete ids and undecided-candidate rules.
+
+Operations remain authoring-only (PLAY0268). Read `references/examples-and-routes.md`
+when asserting `then no events` or located recovery without re-append (v17), and
+[refusal handling](../cratis-screenplay-captures-and-reactions/references/refusals-and-redelivery.md)
+when recording/acknowledging invocation refusals (v19).
+Requires Screenplay 4.157.0 (`screenplay --version`) for v17, 4.160.0 for v19;
+older compilers report PLAY0268.
 
 ## Rejections and denials say different things
 
-`then error "<message>"` says **rejected, for this reason** — pin it when the
-message is the point. Bare `then error` says **rejected, for a reason this
-specification does not name**; the reason lives in the specification's name.
-`then denied` says **this caller may not do this**, which is decided before any
-validation runs. Write the bare form rather than `then error ""`.
+`then error "<message>"` pins the reason, bare `then error` leaves it unnamed, and `then denied` is an authorization denial decided first. Views cannot reject events.
+Read `references/query-rejections.md` when specifying malformed keys/filters
+(Validation `then error`, v18) versus valid absence (`then no result`).
+Requires Screenplay 4.161.0 (`screenplay --version`); older runners may answer absence. Read [references/outcome-comparison.md](references/outcome-comparison.md) when choosing among them.
 
-**Views cannot reject events.** A projection never refuses an event; there are no
-error cases for one. (A `when append` can still be refused by an append-time
-constraint — that is the constraint speaking, not the view.)
+## Business rule or concept rule?
 
-## Business rule or type system?
+Write an error specification for a rule that depends on existing system state or that another business could plausibly set differently. A format, range or presence rule on one value belongs on the concept with its own `validate` block, with **one rejection specification per concept rule**, through one command that uses the concept, not one per use.
+Read [references/concept-rules.md](references/concept-rules.md) when deciding whether a rule needs an error specification or a concept `validate`, or when you need the complete concept-rule example with boundary acceptances and rejections.
 
-Before writing an error specification, apply this test:
+Text `not empty`: [whitespace rejection specs and boundaries](references/whitespace-rules.md).
+Whitespace-acceptance specs fail. This applies to every ESM version.
 
-1. Does the error depend on **existing system state** — what events occurred?
-   → business rule → write the specification.
-2. Can the type system make the invalid state unrepresentable?
-   → in Screenplay that means a `concept` with its own `validate` block, and the
-   rule travels with every use → **not** a specification.
-3. Would a different business plausibly have a different rule here?
-   → business rule → specification.
+Requires Screenplay 4.151.0 or later (`screenplay --version`) for the Unicode `not empty` correction.
 
-**Write specifications for:** *"Cannot cancel an already-paid invoice"*,
-*"Cannot withdraw more than the balance"*, *"Maximum 100 lines per invoice"*.
-
-**Do not write specifications for:** *"Invoice number must match INV-000000"*,
-*"Name cannot be empty"*, *"Discount must be between 0 and 100"* — those belong on
-the concept.
+Date/DateTime comparisons are the command-only exception: do not move them onto
+concept rules to follow the general format-rule convention.
 
 ## Application-boundary coverage
 
@@ -224,41 +243,12 @@ events, read-model state, query results, a rejection or a denial. A specificatio
 satisfiable only by an internal function describes a unit, not a slice acceptance
 criterion.
 
-## Reference execution — what actually runs
-
-Screenplay's reference runner executes specifications against an immutable
-in-memory world: no Arc, no Chronicle, no database, no network. Every downstream
-target has one normalized behavior to match.
-
-- It runs the capabilities the execution plan admits: declarative validation
-  and `require` over command properties, conditional production, literal tags,
-  declarative policies, `unique` constraints, and projections as Chronicle
-  lowers them. The `cratis-screenplay-model-authoring` language reference lists
-  what binds and what the plan admits.
-- Binding is not admission. These projection constructs bind, but the plan
-  refuses them: a projection-level `remove via join`; `all` beside removals,
-  `children` or `nested`; a `join`, `children` or `remove via join` inside
-  `nested`; and any `$eventContext.<path>` other than `eventSourceId`, such as
-  `$eventContext.occurred`. The limits apply at every ESM version.
-- A specification that needs **opaque code** — a bodied reducer, a rule with a
-  body, a fenced `validate` block, a code policy — returns **unsupported** and
-  never passes. Authorization is evaluated first, so a `then denied` case still
-  runs when a portable policy decides it. Other specifications in the model run
-  normally.
-- Unsupported reachable declarative constructs block the whole execution plan
-  rather than running partially: no specification in the model runs, including
-  the ones that never touch the refused construct.
-- Reactions never run, not even after `when append`.
-- A rejection leaves the world unchanged; an accepted action commits once, then
-  the read models and queries are compared.
-
-Unsupported is not passed. Report it as "needs a target", not as green.
-
 ## Quality checklist
 
 For every specification:
 
 - [ ] Concrete, realistic values — never "valid user" or "some amount".
+- [ ] The values the outcome depends on are visible in the body, at the edge that matters.
 - [ ] Tests exactly one behavior, independent of other specifications.
 - [ ] Business language matching the event-model vocabulary.
 
@@ -268,19 +258,40 @@ For command specifications:
 - [ ] `given caller` is present whenever the command is authorized, with a
       `then denied` case for a caller who must be refused.
 - [ ] `then` contains **either** events **or** an error, never both.
-- [ ] A collision between two event sources uses `for` on the `given` event.
-- [ ] Error cases test business rules, not format validation.
+- [ ] A collision between two event sources uses `for` on the `given` event. A `given` without
+      `for` belongs to the event source the specification acts on; state `for` when the command
+      appends to several event sources or an assertion depends on it (see
+      [examples and routes](references/examples-and-routes.md#givens-without-an-event-source)).
+- [ ] Error cases test business rules; each concept rule has one rejection
+      specification through one command, not one per use.
+- [ ] A localized rejection is pinned by its quoted `$strings` key.
+- [ ] DateTime comparisons cover offset-less input rejection before rules, equal
+      instants across offsets and tick boundaries; `then` keeps ordinal payload values.
 
 For view specifications:
 
+- [ ] A view a `performer` composes is specified with `given readmodel`,
+      `when query` and `then result` or `then no result`; the reference runner leaves such a
+      spec out (`PLAY0270` information), so it is design intent, not executed proof.
 - [ ] `given readmodel` is a complete instance with its identifier.
 - [ ] `then readmodel` states the identifier and the properties that matter; add
       `exactly` only when extra properties must fail the assertion.
-- [ ] No error cases — views cannot reject.
+- [ ] Queries cover out-of-rule concept arguments with `then error`; a valid
+      absent key uses `then no result`. Projections still cannot reject events.
+
+## Run the specs before calling the work done
+
+Symptom: a model delivered with specifications that were never run. `screenplay test <root>` runs the
+reference evaluator; after a render, run `dotnet test` (Debug) in the destination for the generated
+specification classes. Report both results separately (`cratis-screenplay-toolchain` V4 and V5.tests); a
+build that succeeds is not a test run, and `unbound`/`unsupported` is not a pass.
 
 ## Verify
 
-- [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings.
+- [ ] Validate the complete root with warnings as errors, naming tool/version.
+      Standalone tool version: `cratis-screenplay-toolchain/SKILL.md`. Run specification examples through
+      `screenplay test`; expected unadmitted syntax reports unbound, not passed.
+- [ ] `screenplay test` and, after a render, `dotnet test` were run and their counts reported.
 - [ ] Executable diagnostics are clean too: `PLAY0350`, `PLAY0352`, `PLAY0388`,
       `PLAY0389` and `PLAY0273` are only reported at binding.
 - [ ] Every slice has at least one boundary specification.
@@ -290,6 +301,10 @@ For view specifications:
 
 ## Route near misses
 
+- Which scenarios a slice needs and how to run a scenario workshop: `cratis-screenplay-scenario-coverage`.
+- Reviewing a model's specifications and verdicts: `cratis-screenplay-model-review`.
+- Automation and translation slices the clock, trigger and capture actions drive: `cratis-screenplay-automations-and-translations`.
+- Which tool says what, and the versions: `cratis-screenplay-toolchain`.
 - The rules being specified: `cratis-screenplay-command-surface`.
 - The projections being asserted on: `cratis-screenplay-projections`.
 - Naming and scoping specifications generally: `cratis-specification-by-example`.

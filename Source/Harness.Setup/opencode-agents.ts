@@ -7,18 +7,21 @@
  * The canonical agents under `.cratis/ai/agents/*.md` are written in the Claude Code shape: a `tools:`
  * allowlist of Claude tool names plus Cursor's `readonly:` flag. Claude Code reads that shape natively,
  * VS Code Copilot and Cursor read `.claude/agents` and map or ignore what they need, and the Pi subagent
- * extension normalizes the tool names at load time. OpenCode is the one harness whose schema is
+ * extension normalizes the tool names at load time (Pi also receives generated native allowlists
+ * for external loaders). OpenCode's schema is
  * structurally different: it has no `tools:` allowlist (its `tools:` is a deprecated name→boolean map),
  * restriction is a `permission:` map and `mode: subagent` is required for delegation. Neither the
- * canonical agents nor the generated adapters pin a model, so they inherit the session model. A symlink
+ * canonical agents nor the generated adapters pin a native `model:`: a model id is not portable across
+ * harnesses and goes stale. Each canonical agent declares a `modelTier` instead (and reviewers a
+ * `reviewIndependence`); the consumer binds a tier to a concrete model. A symlink
  * to the canonical file cannot express the tool restrictions, so OpenCode receives
  * generated files under `.cratis/ai/harnesses/opencode/agents/` — derived, checked, never hand-edited.
  *
- * Every other harness keeps pointing at the canonical directory. The cratis CLI already copies and links
+ * Claude, Copilot and Cursor keep pointing at the canonical directory. The cratis CLI copies and links
  * `harnesses/<harness>/` per selected harness, so this needs no new distribution mechanism.
  */
 
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, lstatSync, readdirSync, readFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 
 /** A generated adapter file: where it lives relative to the corpus root, and its full content. */
@@ -41,8 +44,18 @@ export interface CanonicalAgent {
     name: string;
     tools: string[];
     model?: string;
+    /** The declared model tier; validated by corpus verification, not by the generators. */
+    modelTier?: string;
+    reviewIndependence?: string;
     readonly: boolean;
 }
+
+/** The model tiers a canonical agent may declare. `strongest` needs a stated reason in the agent body. */
+export const modelTiers = ['scoped', 'strongest', 'reviewer'] as const;
+export type ModelTier = typeof modelTiers[number];
+
+/** The message for a canonical agent that pins a native model. */
+export const pinnedModelMessage = (file: string) => `${file} pins a model; canonical agents must declare modelTier (scoped | strongest | reviewer) instead of a native model.`;
 
 export const openCodeAgentsDirectory = 'harnesses/opencode/agents';
 
@@ -101,6 +114,8 @@ export function parseCanonicalAgent(file: string, text: string): CanonicalAgent 
         name,
         tools: list('tools'),
         model: scalar('model'),
+        modelTier: scalar('modelTier'),
+        reviewIndependence: scalar('reviewIndependence'),
         readonly: scalar('readonly') === 'true',
     };
 }
@@ -120,7 +135,7 @@ export function generateOpenCodeAgent(agent: CanonicalAgent): GeneratedAgent {
     if (unknown.length > 0) {
         throw new Error(`${agent.file} declares tools outside the canonical vocabulary: ${unknown.join(', ')}.`);
     }
-    if (agent.model !== undefined) throw new Error(`${agent.file} pins a model; canonical agents must inherit the session model.`);
+    if (agent.model !== undefined) throw new Error(pinnedModelMessage(agent.file));
     if (agent.readonly && agent.tools.some(tool => tool === 'Edit' || tool === 'Write')) {
         throw new Error(`${agent.file} is readonly but declares Edit/Write.`);
     }
@@ -160,10 +175,13 @@ export function checkOpenCodeAgents(corpusRoot: string): string[] {
     const expected = generateOpenCodeAgents(corpusRoot);
     const directory = join(corpusRoot, openCodeAgentsDirectory);
     const failures: string[] = [];
+    if (existsSync(directory) && (!lstatSync(directory).isDirectory() || lstatSync(directory).isSymbolicLink())) {
+        return [`${openCodeAgentsDirectory} is not a generated adapter directory.`];
+    }
     for (const file of expected) {
         const path = join(corpusRoot, file.path);
         if (!existsSync(path)) failures.push(`${file.path} is missing (generated from agents/${file.source}).`);
-        else if (readFileSync(path, 'utf8') !== file.content) failures.push(`${file.path} is stale (regenerate from agents/${file.source}).`);
+        else if (!lstatSync(path).isFile() || readFileSync(path, 'utf8') !== file.content) failures.push(`${file.path} is stale (regenerate from agents/${file.source}).`);
     }
     const expectedNames = new Set(expected.map(file => basename(file.path)));
     if (existsSync(directory)) {

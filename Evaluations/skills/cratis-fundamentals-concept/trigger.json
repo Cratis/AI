@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-fundamentals-concept",
+  "queries": [
+    { "query": "Our Boat commands pass the registration number around as a raw string. Make it a proper strongly typed value in C#.", "shouldTrigger": true },
+    { "query": "I need a CustomerId that is the Chronicle event source for customer events and can create a new id itself. What should the record look like?", "shouldTrigger": true },
+    { "query": "Replace Guid.NewGuid() in our AuthorId.New() with whatever Cratis Fundamentals recommends for generating ids.", "shouldTrigger": true },
+    { "query": "Should our InvoiceId wrap ConceptAs<Guid> or EventSourceId<Guid>? Invoices are their own event stream.", "shouldTrigger": true },
+    { "query": "Which is better for our order id concept, UUID v4 or v7, given the Mongo index keeps fragmenting?", "shouldTrigger": true },
+    { "query": "Our ShipmentId is just a Guid on every command and event. Turn it into a typed id that can also create new values for itself.", "shouldTrigger": true },
+    { "query": "Our Amount record has a Value and a Currency property and serialization drops the currency. How should the concept look?", "shouldTrigger": true },
+    { "query": "Is it fine to use the customer's national id number directly as the event source id for their stream?", "shouldTrigger": true },
+    { "query": "Our InvoiceNumber concept has a NotSet = new(0) sentinel. Is 0 a safe sentinel, or is that a Cratis convention we have misunderstood?", "shouldTrigger": true },
+    { "query": "Add a RegisterBoat command whose Handle appends BoatRegistered and returns the new boat id to the page.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "BookBoat must reject a boat name longer than 50 characters with a field message.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "BoatRegistered gained a required Color property but old events exist without it. How do we upcast?", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Make the event store reject a second BoatRegistered with the same registration number.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
+    { "query": "Our CustomerRegistered event holds the customer's email. How do we make it erasable on request?", "shouldTrigger": false, "note": "cratis-chronicle-compliance" },
+    { "query": "Build a list page of boats with a toolbar Add button that opens a command dialog.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Populate the BoatsOverview read model from BoatRegistered and BoatRenamed events.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Write the Establish/Because/should_ spec for the booking price calculator.", "shouldTrigger": false, "note": "cratis-specifications-csharp" },
+    { "query": "Our reactor sends a welcome email when a customer registers and it double-sends after a replay.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" }
+  ]
+}

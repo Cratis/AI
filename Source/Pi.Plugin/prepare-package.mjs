@@ -20,8 +20,10 @@ const sourceCorpus = join(repositoryRoot, '.cratis', 'ai');
 const targetCorpus = join(output, 'corpus');
 
 mkdirSync(join(targetCorpus, 'skills'), { recursive: true });
-cpSync(join(sourceCorpus, 'mcp-servers.json'), join(targetCorpus, 'mcp-servers.json'));
-for (const directory of ['rules', 'agents', 'prompts', 'hooks', 'harnesses/pi']) {
+for (const file of ['mcp-servers.json', 'product-sync.json']) {
+    cpSync(join(sourceCorpus, file), join(targetCorpus, file));
+}
+for (const directory of ['rules', 'agents', 'prompts', 'hooks', 'harnesses/pi', 'harnesses/copilot']) {
     cpSync(join(sourceCorpus, directory), join(targetCorpus, directory), { recursive: true });
 }
 for (const skill of skillNames) {

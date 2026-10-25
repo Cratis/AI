@@ -1,0 +1,50 @@
+{
+  "skill_name": "cratis-chronicle-client-dotnet",
+  "evals": [
+    {
+      "id": 1,
+      "name": "console-connect-and-append",
+      "prompt": "Write a C# console app (not Arc) that connects to a local Chronicle development server, gets an event store called 'quickstart', and appends a `FundsDeposited(decimal Amount)` event for account 'account-1', handling the failure case. Give the code in your reply; do not write files.",
+      "expected_output": "ChronicleClient built with ChronicleConnectionString.Development, GetEventStore, an [EventType] record with no id argument, eventStore.EventLog.Append returning AppendResult checked via IsSuccess, with no IChronicleClient.Connect.",
+      "assertions": [
+        "Constructs ChronicleClient with ChronicleConnectionString.Development and calls GetEventStore rather than a nonexistent IChronicleClient.Connect.",
+        "Declares the event as a record marked [EventType] without passing an id, since the type name is the identifier.",
+        "Appends through eventStore.EventLog.Append with the event source id first and the event second.",
+        "Checks the AppendResult (IsSuccess, ConstraintViolations, ConcurrencyViolation or Errors) instead of assuming success."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "standalone-defaults",
+      "prompt": "A standalone .NET worker using the Cratis.Chronicle client has a reactor whose constructor takes an `IEmailSender`. The reactor throws NullReference-style failures, there are no client logs, and the app exits right after appending so the reactor never runs. Explain each cause and the fixes. Reply only.",
+      "expected_output": "Default IServiceProvider activates via Activator.CreateInstance so pass a real container; default ILoggerFactory is silent so supply one; observation is a live gRPC stream so keep the process alive.",
+      "assertions": [
+        "Explains that the default IServiceProvider constructs observers with Activator.CreateInstance so a reactor with constructor dependencies is default-constructed unless a real container is passed.",
+        "Says the default ILoggerFactory is a silent one, so supply an ILoggerFactory to see client diagnostics.",
+        "Says observation is a live duplex stream, so a console app that appends and returns from Main never sees a reactor run; keep the process alive."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "readiness-and-tls",
+      "prompt": "A team polls `IsConnected` before starting work, ships the default TLS behavior to production, and copied the package version from the repo's csproj. What is wrong with each? Reply only.",
+      "expected_output": "Connected is not registered, so use WaitForRegistration; certificate validation is skipped by default so production sets skipTlsValidation=false; the repo version is a placeholder, take it from nuget.org.",
+      "assertions": [
+        "States that connected is not the same as registered and recommends WaitForRegistration instead of polling IsConnected.",
+        "States that certificate validation is skipped by default and a production connection string must set skipTlsValidation=false.",
+        "States that the version in the repository is a placeholder and the version should be taken from nuget.org."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "host-registration",
+      "prompt": "A developer writes `services.AddCratisChronicle(...)` on an IServiceCollection and `builder.WithClaimsBasedNamespaceResolver()`; neither compiles. What are the real APIs for a worker or ASP.NET host and for a plain IServiceCollection? Reply only.",
+      "expected_output": "AddCratisChronicle is an extension on IHostApplicationBuilder/WebApplicationBuilder; IServiceCollection has AddCratisChronicleClient and AddCratisChronicleConnection; WithClaimsBasedNamespaceResolver does not exist.",
+      "assertions": [
+        "States AddCratisChronicle is an extension on IHostApplicationBuilder (and WebApplicationBuilder), not IServiceCollection.",
+        "Names AddCratisChronicleClient and AddCratisChronicleConnection as the IServiceCollection extensions.",
+        "States that WithClaimsBasedNamespaceResolver is not a real extension."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "skill": "cratis-components-common-controls",
+  "input": "Choose between a value toggle and panel tabs, wire a nullable entity picker and disable tag editing correctly.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "@cratis/components/Common" },
+    { "kind": "skill-contains", "value": "ComboBoxOption" },
+    { "kind": "skill-contains", "value": "inputValue" },
+    { "kind": "skill-contains", "value": "radio-group semantics" },
+    { "kind": "skill-contains", "value": "content: overview" },
+    { "kind": "skill-contains", "value": "existing tags remain removable" },
+    { "kind": "skill-contains", "value": "removeLabel" },
+    { "kind": "skill-contains", "value": "aria-current='page'" }
+  ]
+}

@@ -40,6 +40,14 @@ public record LanguageModelResult(
     TimeSpan? RetryAfter = null)
 {
     /// <summary>
+    /// Gets a value indicating whether the provider turned the call away because its quota, spend
+    /// limit or credit is used up (<see cref="QuotaExhaustion"/>) rather than because of
+    /// short-term throttling. Not transient - retrying the same provider cannot help before its
+    /// quota resets - but worth failing over to another provider for, which a pool does.
+    /// </summary>
+    public bool IsQuotaExhausted { get; init; }
+
+    /// <summary>
     /// Builds a successful result.
     /// </summary>
     /// <param name="text">The completion text.</param>
@@ -66,4 +74,13 @@ public record LanguageModelResult(
     /// <returns>The <see cref="LanguageModelResult"/>.</returns>
     public static LanguageModelResult TransientFailure(string reason, TimeSpan? retryAfter = null) =>
         new(false, string.Empty, reason, IsTransient: true, RetryAfter: retryAfter);
+
+    /// <summary>
+    /// Builds a failed result for a provider whose quota, spend limit or credit is used up - another
+    /// provider might serve it, the same one cannot until its quota resets.
+    /// </summary>
+    /// <param name="reason">Why it did not succeed.</param>
+    /// <returns>The <see cref="LanguageModelResult"/>.</returns>
+    public static LanguageModelResult QuotaExhausted(string reason) =>
+        new(false, string.Empty, reason) { IsQuotaExhausted = true };
 }

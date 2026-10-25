@@ -9,6 +9,9 @@
     { "kind": "skill-contains", "value": "drafting never authorizes publishing" },
     { "kind": "skill-contains", "value": "`(part of #n)`" },
     { "kind": "skill-contains", "value": "gh release edit TAG --notes-file" },
-    { "kind": "skill-contains", "value": "does not re-run release-action" }
+    { "kind": "skill-contains", "value": "does not re-run release-action" },
+    { "kind": "skill-contains", "value": "states only verified facts and never says 'not verified'" },
+    { "kind": "skill-contains", "value": "state supported pairings as facts" },
+    { "kind": "skill-contains", "value": "which branch or commit, is evidence for the PR comment" }
   ]
 }

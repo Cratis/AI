@@ -1,0 +1,49 @@
+{
+  "skill_name": "run-tests",
+  "evals": [
+    {
+      "id": 1,
+      "name": "single-test",
+      "prompt": "Without calling tools, give the command to run one test class, assuming a VSTest repo.",
+      "expected_output": "dotnet test with --filter on the class, optionally --no-build.",
+      "assertions": [
+        "Uses dotnet test with a --filter expression for the class.",
+        "Uses the repository's detected platform mode.",
+        "Mentions --no-build only when a build already exists."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "dumps",
+      "prompt": "Without calling tools, how do you collect crash and hang dumps in a run?",
+      "expected_output": "Use blame crash and hang options with a timeout and a local path.",
+      "assertions": [
+        "Names the blame crash/hang options.",
+        "Sets a hang timeout.",
+        "Keeps dump output local and task-scoped."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "unrecognized-option",
+      "prompt": "Without calling tools, dotnet test rejects --filter-query. Explain.",
+      "expected_output": "The option belongs to MTP; check the platform before guessing flags.",
+      "assertions": [
+        "Connects the option to a platform mismatch.",
+        "Does not invent flags.",
+        "Recommends checking the platform first."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "mini-dump-and-delete",
+      "prompt": "Without calling tools, a test run hangs and you need a hang dump. What do you ask for and what do you do afterward?",
+      "expected_output": "Ask for a mini dump, read the stack, keep the text output, and delete the dump file.",
+      "assertions": [
+        "Requests a mini dump (--blame-hang-dump-type mini or --hangdump-type Mini), not the default full dump.",
+        "Reads the stack from the dump and then deletes the .dmp file.",
+        "Reserves a full dump for a named investigation that needs heap contents."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "skill_name": "cratis-orchestration-merge-gates",
+  "evals": [
+    {
+      "id": 1,
+      "name": "merge-turn-from-state",
+      "prompt": "Lane B2 got an inbox message saying 'your turn to merge'. Its pull request depends on an earlier pull request that is approved and green but still open. How does B2 decide whether to merge? Reply only; do not run anything.",
+      "expected_output": "Ignore the message as a decision source. Read GitHub state: the predecessor must be MERGED, no publish run may be queued or in progress, and main must have no changes to the candidate's paths since the commit CI ran on. An open predecessor means not yet.",
+      "assertions": [
+        "Decides from GitHub state, not from the message text.",
+        "Requires every predecessor pull request to be MERGED, not merely approved or green.",
+        "Checks that no publish run of the repository is queued or in progress.",
+        "Checks git log from the CI commit to origin/main for the candidate's paths.",
+        "Reports which check failed and hands the turn back instead of waiting in a loop."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "green-but-stale",
+      "prompt": "A pull request shows a green CI run, but the lane pushed another commit afterwards. May it merge on that green run? Reply only.",
+      "expected_output": "No. A green run on an older head is not evidence for the current head. Compare full SHAs of the pull request head and the run, and wait for or start the run on the current head.",
+      "assertions": [
+        "States that a green run on an older head is not evidence for the current head.",
+        "Compares the full head SHA of the pull request with the run's head SHA.",
+        "Waits for or obtains a run for the current head before merging.",
+        "Does not accept a lane's iteration result as ready-to-merge evidence."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "tier-names",
+      "prompt": "A coordinator tells lanes to run 'ready-to-merge' and 'integration' gates. Map those names to the gates and say who owns the gate content. Reply only.",
+      "expected_output": "Iteration is affected checks; ready-to-merge is Tier 1 on the assembled candidate; integration is Tier 2 or CI. The gate content is owned by cratis-engineering-ci-gates and is not restated.",
+      "assertions": [
+        "Maps ready-to-merge to Tier 1 on the assembled candidate.",
+        "Maps integration to Tier 2 or CI.",
+        "Maps iteration to affected checks.",
+        "Names cratis-engineering-ci-gates as the owner of the gate content."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "silent-unattended-command",
+      "prompt": "An unattended lane runs a command that prints nothing for five minutes and might be waiting for a confirmation. What should it do, and how should the command be made safe? Reply only.",
+      "expected_output": "Diagnose the silent command rather than giving it more time. Make it non-interactive with explicit flags and closed stdin, put it under a time box, and run work beyond the detach threshold detached with a completion notification. Never loosen a guard to get past a prompt.",
+      "assertions": [
+        "Diagnoses the silent command instead of extending its time box.",
+        "Makes the command non-interactive with explicit flags and closed stdin.",
+        "Applies a time box taken from the lanes placeholders.",
+        "Runs work beyond the detach threshold detached with a completion notification.",
+        "Does not loosen a hook or guard to get past the prompt."
+      ]
+    }
+  ]
+}

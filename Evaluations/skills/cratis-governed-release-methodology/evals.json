@@ -1,0 +1,65 @@
+{
+  "skill_name": "cratis-governed-release-methodology",
+  "evals": [
+    {
+      "id": 1,
+      "name": "git-ref-artifact-ceremony",
+      "prompt": "Our repository delivers rules, skills and templates that a host clones from a git ref and reads directly. A reviewer demands a checksum file, an SBOM of the markdown and a signed attestation before release. Is that warranted? Reply only; do not write files.",
+      "expected_output": "No. Classify the artifact first. For source files read directly from a git ref, git's content addressing already answers verification: the tree hash is the checksum, the commit is the provenance and the reviewed diff is the artifact. Review and versioning only; say so plainly. The opposite holds for compiled or assembled artifacts.",
+      "assertions": [
+        "Says source files read from a git ref earn review and versioning only, not full supply-chain receipts.",
+        "Explains that the tree hash is the checksum, the commit is the provenance and the reviewed diff is the artifact.",
+        "States the dividing question: whether the consumer can verify what they got against what was reviewed without trusting our build.",
+        "Says compiled or assembled artifacts do need checksums, provenance and an SBOM."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "tier-and-claim",
+      "prompt": "We published a 0.3.0 preview of our plugin; static validation and the exact-artifact install smoke passed on a mocked host fixture. The pipeline is implemented to publish through a protected environment. The team wants to announce it as 'supported'. What can we truthfully say? Reply only.",
+      "expected_output": "Supported needs governed-support evidence: lifecycle on a real host, external control attestations, a canary against a real consumer, a recovery disposition and a named human approval for that exact released artifact. Synthetic evidence caps at statically validated; automation that could produce a receipt is not a control. It is at most a published preview/available, not supported.",
+      "assertions": [
+        "Says publishing makes the plugin available (a preview at most), not supported.",
+        "Says synthetic or fixture observations cap out at statically validated and cannot satisfy install, behavior or canary requirements.",
+        "Says implemented automation does not prove a control is configured; an attestation with subject, observer, expiry and revocation check is needed.",
+        "Says supported requires a named human approval of that exact released artifact plus a canary against a real consumer."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "release-labels",
+      "prompt": "Pick the release label for each pull request and explain: (1) updates only a unit test and a CI workflow file; (2) a one-line change in a shipped package that changes observable behavior in a backward-compatible way for a bug fix; (3) the author is unsure which label fits and suggests defaulting to patch; (4) branch X was merged into branch Y and X auto-closed as merged. Reply only.",
+      "expected_output": "(1) no-release: choose by outward-facing effect, not file location. (2) patch for a fix (outward effect). (3) never default to patch when unsure; decide by outward-facing effect, and an unlabeled PR is an error because no-release is a decision. (4) relabel X to no-release and do not close by hand so the author keeps attribution.",
+      "assertions": [
+        "Labels the test and CI workflow change no-release, reasoning by outward-facing effect rather than file location.",
+        "Labels the backward-compatible bug fix with observable behavior change patch.",
+        "Says never to default to patch when unsure and that no-release is a decision, so an unlabeled pull request stays an error.",
+        "Says to relabel the folded pull request X to no-release and not to close it by hand, so its author keeps attribution."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "recovery-disposition",
+      "prompt": "A published npm version 2.4.0 turned out broken. The release notes draft says 'rolled back 2.4.0'. How should the recovery be described and what should have been written before publishing? Reply only.",
+      "expected_output": "Published registry versions are immutable; the honest recovery is roll-forward: publish a corrected version and move the moving pointer (latest) back to a known-good exact version. Never describe an immutable version as rolled back. The recovery disposition is written before publication, per stage, with which exact version to pin and what it lacks. Automatic rollback is a claim only where implemented and canaried.",
+      "assertions": [
+        "Says a published npm version cannot be un-published in a way consumers can rely on, so it must not be described as rolled back.",
+        "Describes roll-forward: publish a corrected version and move the pointer such as latest back to a known-good exact version.",
+        "Says the recovery disposition is written before publishing, stating what can and cannot be undone per stage.",
+        "Says the disposition names which exact version consumers should pin to and what the pinned version does not have."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "skipped-phase-and-backdating",
+      "prompt": "The canary needed host 2.1.245 but the runner had 2.1.235, so the phase was skipped and the report shows green. The team also plans to edit last week's release request so the preflight digest matches. Judge both. Reply only.",
+      "expected_output": "A missing or version-mismatched host is a blocked outcome, not a skip; a skipped green phase retires the question. Records must not be rewritten or backdated: a defect in a released version is corrected with a new version, and receipts are written at the stage they describe.",
+      "assertions": [
+        "Says the version mismatch is a blocked outcome, not a pass or skip, because the phase did not run.",
+        "Says a skipped phase reporting green is worse than a red one because it retires the question.",
+        "Says requests and records are append-only and must not be rewritten or backdated to satisfy a later stage.",
+        "Says a defect in a released version is corrected by a new version."
+      ]
+    }
+  ]
+}

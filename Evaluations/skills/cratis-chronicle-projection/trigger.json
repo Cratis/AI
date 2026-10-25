@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-chronicle-projection",
+  "queries": [
+    { "query": "BookingsOverview already exists. Add a mapping from BoatBooked into its price and dates using Chronicle C# attributes.", "shouldTrigger": true },
+    { "query": "our BoatStatistics needs a total count of BoatBooked events under one constant key. show the projection annotation, not a new query", "shouldTrigger": true },
+    { "query": "The existing read model has a child list fed by two event types with different key properties. Can attributes handle it or should I use IProjectionFor?", "shouldTrigger": true },
+    { "query": "The app crashes at startup after I added FromEvent<BookingCreated> to both BookingOverview and its nested detail. What's the projection trap?", "shouldTrigger": true },
+    { "query": "Where do UsingKey and UsingParentKey belong in the fluent Chronicle projection? My chain on the root builder won't compile.", "shouldTrigger": true },
+    { "query": "Our existing list projection should consume the inbox instead of the event log. Is FromEventSequence still a valid attribute?", "shouldTrigger": true },
+    { "query": "Can I make the existing BoatList projection join to OwnerList to keep the owner name current? What does Join<T> actually take?", "shouldTrigger": true },
+    { "query": "A joined IsBlocked=true won't clear when our local event sets false. Why is the projection ignoring my reset?", "shouldTrigger": true },
+    { "query": "A work item changes from backlog shape into pull request shape, with different fields. Explain Chronicle variants and late events for our existing projections.", "shouldTrigger": true },
+    { "query": "I added Tag to an existing projection expecting it to select appended events with that tag, but all events still appear. How should source selection work?", "shouldTrigger": true },
+    { "query": "Create BoatAvailability from scratch with a read-model record and snapshot and live Arc queries.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Both projection forms were exhausted. Implement a reducer that applies the remaining prior-state-dependent transition and handles nullable current state.", "shouldTrigger": false, "note": "cratis-chronicle-reducer" },
+    { "query": "Send an SMS on BookingExtended and skip replay deliveries.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Write read-model scenario specs seeding bookings across streams and asserting the materialized result.", "shouldTrigger": false, "note": "cratis-chronicle-read-model-specifications" },
+    { "query": "Write the PDL projection in bookings.play that counts extensions and joins the boat name.", "shouldTrigger": false, "note": "cratis-screenplay-projections" },
+    { "query": "Add server-side paging and sorting to our existing BoatList query.", "shouldTrigger": false, "note": "cratis-arc-query-paging" },
+    { "query": "Inspect the failed BoatList observer in the running staging store with the cratis CLI.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Evolve BoatRegistered with a renamed RegistrationNumber while preserving stored-event replay.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Mark the customer's personal contact details for erasure and identify the natural-person subject.", "shouldTrigger": false, "note": "cratis-chronicle-compliance" },
+    { "query": "Make RegisterBoat's registration number unique at append time under concurrent requests.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" }
+  ]
+}

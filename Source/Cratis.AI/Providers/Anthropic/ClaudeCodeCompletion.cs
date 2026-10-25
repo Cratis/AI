@@ -77,7 +77,7 @@ public sealed class ClaudeCodeCompletion(IClaudeCodeProcess process) : IClaudeCo
         info.Environment["CLAUDE_CODE_OAUTH_TOKEN"] = Cratis.AI.Providers.Anthropic.AnthropicCredential.Normalize(credential.Value).Value;
         info.Environment["CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC"] = "1";
         string[] arguments = ["-p", "--output-format", "json", "--model", model.Value,
-            "--effort", effort switch { Effort.Low => "low", Effort.Medium => "medium", Effort.ExtraHigh => "xhigh", _ => "high" },
+            "--effort", ClaudeCodeEffort.Arg(effort),
             "--max-turns", "1", "--tools", string.Empty, "--strict-mcp-config", "--mcp-config", "{\"mcpServers\":{}}",
             "--disable-slash-commands", "--no-session-persistence", "--setting-sources", string.Empty,
             "--settings", "{\"disableAllHooks\":true}"];

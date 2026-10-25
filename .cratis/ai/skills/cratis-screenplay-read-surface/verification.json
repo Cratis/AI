@@ -3,13 +3,24 @@
   "input": "Declare a Screenplay query and the screen that binds to it.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": ".cratis/screenplay/" },
-    { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`" },
+    { "kind": "skill-contains", "value": "query Total => PaymentTotals optional", "file": "references/named-keys.md" },
+    { "kind": "skill-contains", "value": "command reads only", "file": "references/named-keys.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 4.204.0 (ESM v27", "file": "references/named-keys.md" },
+    { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "Caller-supplied equality query filters (ESM v14)", "file": "references/equality-filters.md" },
+    { "kind": "skill-contains", "value": "Supplied `null` is refused", "file": "references/equality-filters.md" },
+    { "kind": "skill-contains", "value": "PLAY0468", "file": "references/equality-filters.md" },
+    { "kind": "skill-contains", "value": "without regard to row order", "file": "references/equality-filters.md" },
+    { "kind": "skill-contains", "value": "filter status     InvoiceStatus optional" },
+    { "kind": "skill-contains", "value": "query Q => observable?" },
+    { "kind": "skill-contains", "value": "information `PLAY0479`" },
+    { "kind": "skill-contains", "value": "Look first for the project's existing `.play` files" },
+    { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, never model files" },
     { "kind": "skill-contains", "value": "The tenant is the default and stays unstated" },
     { "kind": "skill-contains", "value": "belongs on a `from` parameter, never on a `filter`" },
     { "kind": "skill-contains", "value": "warnings, not errors" },
-    { "kind": "skill-contains", "value": "the executable model does not bind observable queries" },
+    { "kind": "skill-contains", "value": "the executable model binds `observable` queries" },
     { "kind": "skill-contains", "value": "A compiling query is not evidence that access control works" },
-    { "kind": "skill-contains", "value": "decision 0010 but **not in the language yet**" }
+    { "kind": "skill-contains", "value": "are planned but **not in the language yet**" }
   ]
 }

@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-orchestration-merge-gates",
+  "queries": [
+    { "query": "Several lanes have pull requests ready. Decide whose turn it is to merge next.", "shouldTrigger": true },
+    { "query": "Check that every predecessor pull request is merged before merging this candidate.", "shouldTrigger": true },
+    { "query": "Make sure no publish run is queued or in progress before I merge.", "shouldTrigger": true },
+    { "query": "Did main change the candidate's paths since the commit its CI ran on?", "shouldTrigger": true },
+    { "query": "The run is green but I pushed again afterwards. Is that green run still valid?", "shouldTrigger": true },
+    { "query": "What do iteration, ready-to-merge and integration mean as gate tier names for lanes?", "shouldTrigger": true },
+    { "query": "Make this unattended lane's command non-interactive with a time box.", "shouldTrigger": true },
+    { "query": "A command in an unattended lane has been silent for minutes. What now?", "shouldTrigger": true },
+    { "query": "Which work should run detached and report by completion notification?", "shouldTrigger": true },
+    { "query": "Choose a local gate and wait for CI on my single pull request.", "shouldTrigger": false, "note": "cratis-engineering-ci-gates" },
+    { "query": "Write the claim, lease and inbox setup for three parallel lanes.", "shouldTrigger": false, "note": "cratis-orchestration-lanes" },
+    { "query": "Plan a delta review round after fixing a blocker.", "shouldTrigger": false, "note": "cratis-engineering-review-rounds" },
+    { "query": "Group finished branches into one release candidate and fold superseded pull requests.", "shouldTrigger": false, "note": "cratis-engineering-release-trains" },
+    { "query": "Verify a consolidation pull request dropped none of the absorbed changes.", "shouldTrigger": false, "note": "cratis-engineering-consolidation-guard" },
+    { "query": "Write the release-note bullets for this public API change.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Speed up the pipeline by changing caching and shard layout.", "shouldTrigger": false, "note": "cratis-ci-pipeline-performance" },
+    { "query": "Assign this one issue to me before I start working alone.", "shouldTrigger": false, "note": "cratis-engineering-issue-hygiene" },
+    { "query": "Find the cause of a repeated regression class across recent fixes.", "shouldTrigger": false, "note": "cratis-engineering-regression-cluster" }
+  ]
+}

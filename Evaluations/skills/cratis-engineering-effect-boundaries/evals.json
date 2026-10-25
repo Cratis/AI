@@ -1,0 +1,62 @@
+{
+  "skill_name": "cratis-engineering-effect-boundaries",
+  "evals": [
+    {
+      "id": 1,
+      "name": "swallowed-conflict",
+      "prompt": "Review this release step and say what is wrong and how to fix it. Reply only; do not write files.\n\ntry { await Publish(package); }\ncatch (HttpRequestException e) when (e.StatusCode == HttpStatusCode.UnprocessableEntity) { log.Warn(\"already published, continuing\"); }\nreturn Result.Success;",
+      "expected_output": "Publishing is an effect boundary; partial success is failure. Catching the 422 and reporting success means the version may never have been published. Name the boundary, enumerate outcomes, and choose one of three permitted responses: fail, complete and surface the delta, or emit an explicit degraded-mode signal. Plant the failure and watch it surface.",
+      "assertions": [
+        "Identifies publishing as an effect boundary where partial success is failure.",
+        "Says catch-and-continue that reports success after the 422 is the defect, because the version may never have been published.",
+        "Names the three permitted responses: fail the operation, surface the delta in the result, or emit an explicit degraded-mode signal.",
+        "Recommends planting the failure, such as injecting the status code, and confirming the operation fails or signals."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "fan-out-aggregate",
+      "prompt": "A propagation job copies a change to 36 repositories. It logs each failure, then prints 'Propagation complete' and exits 0 even when 7 targets fail. Also one target returned a response the code can't classify. Say how the result and the exit code should look. Reply only.",
+      "expected_output": "Make partial fan-out visible in the aggregate: count attempted, succeeded, failed in the returned result and summary line, so '29 of 36' differs from '36 of 36'. The unclassifiable outcome is indeterminate, reported as its own state and never rolled into success. Exit codes carry the verdict.",
+      "assertions": [
+        "Says attempted, succeeded and failed counts must appear in the returned result and the summary line, not just the log.",
+        "Says 29 of 36 succeeded and 36 of 36 succeeded must not produce the same output.",
+        "Classifies the unclassifiable outcome as indeterminate and says it is reported as its own state, never counted as success.",
+        "Says the exit code must carry the verdict rather than 0 because the wrapper finished."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "sibling-implementation",
+      "prompt": "The SQL and in-memory event stores accept two events with the same unique key, while the real store rejects the second. All our specs use the in-memory store and pass. What is the problem and what should the siblings do? Reply only.",
+      "expected_output": "A sibling that silently accepts what the real one rejects makes specifications pass vacuously. Siblings must enforce the same constraint or throw NotSupported, and the specification proving the constraint should run against every implementation.",
+      "assertions": [
+        "Says the specs pass vacuously because the in-memory sibling accepts what the real store rejects.",
+        "Says the siblings must enforce the same constraint or throw NotSupported.",
+        "Says the specification that proves the constraint should run against every implementation of the interface."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "not-every-catch",
+      "prompt": "Two cases: (a) a parser returns a partial syntax tree to an IDE caller that inspects the errors; (b) an optional cache warm after a write fails and the result says 'cache: skipped'. Does the effect-boundary contract require these to fail? Reply only.",
+      "expected_output": "Neither needs to fail. (a) is pure computation with no effect. (b) is an optional enrichment whose absence is stated in the result, which is itself an explicit degraded-mode signal. Retries are fine if the final outcome is reported truthfully.",
+      "assertions": [
+        "Says the parser case is pure computation with no effect, so the contract does not apply.",
+        "Says the cache warm recording 'cache: skipped' is itself a degraded-mode signal, which the contract asks for.",
+        "Does not demand that either case fail the operation."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "host-state",
+      "prompt": "Our container host reports Running and ready although the hosted service threw during startup, so the orchestrator keeps routing traffic. How should this be fixed, and how do we show it's fixed? Reply only.",
+      "expected_output": "Process state must follow the work: if startup threw, the host is not Running; a liveness or readiness state that survives a failed start is a lie. Prove it by forcing the failure and observing the state change.",
+      "assertions": [
+        "Says that if startup threw, the host must not report Running or ready.",
+        "Says a readiness state surviving a failed start is a lie the orchestrator will believe.",
+        "Says to prove it by forcing the degraded outcome, such as making startup fail, and observing the result."
+      ]
+    }
+  ]
+}

@@ -27,6 +27,13 @@ The package still never sees a key vault - Chronicle holds the key. The `ISecret
 [`0015-chronicle-owns-credential-encryption.md`](./decisions/0015-chronicle-owns-credential-encryption.md),
 which also covers the credential re-recording an upgrade requires.
 
+Before passing a released provider or usage credential to HTTP, an SDK, or a CLI, use
+`AIProviderApiKey.ForUse()`. It preserves plaintext and the empty sentinel unchanged, but refuses
+remaining `enc:` envelopes (including legacy `enc:v1:` and unknown versions) with
+`AIProviderRequiresReconfiguration`. Reconfigure the affected credential in AI settings; do not
+add a consumer-side decryptor. This guard does not decrypt anything or replace Chronicle release,
+and its exception contains no credential value.
+
 ### `IAIAgents`
 
 ```csharp
@@ -40,6 +47,29 @@ public interface IAIAgents
 Looks up the identity of an agent without the package owning the full agent model (that
 reconciliation is plan Section 5.5, not yet done). `IAgentExecution` resolves an agent through this.
 No safe default; required for `IAgentExecution.As(...)` to ever attribute anything.
+
+#### Tenant-scoped agent sources
+
+`WithAgents<TAgents>()` keeps the singleton default for agent catalogs that do not depend on
+scoped services. If your lookup reads tenant-scoped data, such as Chronicle `IReadModels`,
+register it as scoped so each request reads its own tenant.
+
+For an application-defined `OrganizationAgents : IAIAgents`, use this registration excerpt
+(with `Microsoft.Extensions.DependencyInjection` in scope):
+
+```csharp
+builder.Services.AddCratisAI(ai => ai
+    .WithAgents<OrganizationAgents>(ServiceLifetime.Scoped));
+```
+
+`IAgentExecution` is transient and resolves the lookup from the caller's scope. Resolve it within
+the tenant's request scope, not from the root provider. Your own consumers of a scoped lookup or
+`IAgentExecution` must also be scoped or transient, never singletons: a singleton would capture
+one tenant's lookup for later requests.
+
+Do not work around a lifetime mismatch by creating a new scope with `IServiceScopeFactory`.
+That scope does not carry the caller's tenant; use the existing tenant scope instead. Keep scope
+validation enabled to catch accidental singleton consumers.
 
 ### `IAIAlerts`
 

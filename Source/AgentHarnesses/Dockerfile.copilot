@@ -18,7 +18,7 @@ USER root
 # must not change what this image installs out from under a build. Bump procedure: re-run
 # `npm view @github/copilot version`, update this ARG, rebuild, and re-run
 # for_entrypoint/copilot-programmatic-invocation.sh.
-ARG COPILOT_CLI_VERSION=1.0.88
+ARG COPILOT_CLI_VERSION=1.0.92
 RUN npm install -g @github/copilot@${COPILOT_CLI_VERSION}
 
 # The report_progress MCP server — the same script and the same DIRECT_PROGRESS_URL /

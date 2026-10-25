@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: writes the global git config (safe.directory), which the other serial fixtures also touch
 # Proves the worker's checkout path works with the shared repository cache fully write-protected -
 # which is what it now is, because the Kubernetes Job mounts the PVC read-only (Cratis/Stagehand#245).
 #
@@ -13,8 +14,12 @@
 # repo benefits from opportunistic background housekeeping.
 set -u
 
-ROOT="$(cd "$(dirname "$0")" && pwd)/gittest-read-only"
-chmod -R u+w "$ROOT" 2>/dev/null; rm -rf "$ROOT"; mkdir -p "$ROOT"; cd "$ROOT" || exit 1
+HERE="$(cd "$(dirname "$0")" && pwd)"
+# shellcheck source=lib/scratch.sh
+source "${HERE}/lib/scratch.sh"
+scratch_create gittest-read-only
+ROOT="$SCRATCH_ROOT"
+cd "$ROOT" || exit 1
 
 git init -q upstream
 git -C upstream config user.email a@b.c; git -C upstream config user.name t

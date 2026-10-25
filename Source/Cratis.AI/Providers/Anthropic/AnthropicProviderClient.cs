@@ -53,7 +53,7 @@ public class AnthropicProviderClient(
         HttpResponseMessage response;
         try
         {
-            response = await httpClient.SendAsync(request, cancellationToken);
+            response = await VendorResponses.Send(httpClient, request, cancellationToken);
         }
         catch (HttpRequestException exception)
         {
@@ -74,8 +74,9 @@ public class AnthropicProviderClient(
 
             if (!response.IsSuccessStatusCode)
             {
-                logger.UnexpectedStatusCode(Type, (int)response.StatusCode);
-                return TransientProviderFailures.FromStatusCode(response);
+                var failure = await TransientProviderFailures.FromResponse(response, Type, model.Value, provider.Id, provider.ApiKey, cancellationToken);
+                logger.UnexpectedStatusCode(provider.Id, Type, failure.Model, (int)response.StatusCode, failure.ErrorType, failure.ErrorCode, failure.RetryAfter, failure.Result.RetryAfter, failure.Body);
+                return failure.Result;
             }
 
             return await ReadCompletion(response, model, cancellationToken);
@@ -105,10 +106,35 @@ public class AnthropicProviderClient(
 
         if (budgetTokens is { } budget)
         {
-            payload["thinking"] = new JsonObject { ["type"] = "enabled", ["budget_tokens"] = budget };
+            if (UsesAdaptiveThinking(model))
+            {
+                // Models from generation 5 refuse a thinking budget outright ("thinking.type.enabled is not
+                // supported for this model") - they decide how much to think, steered by an effort level.
+                payload["thinking"] = new JsonObject { ["type"] = "adaptive" };
+                payload["output_config"] = new JsonObject { ["effort"] = effort == Effort.Medium ? "medium" : "high" };
+            }
+            else
+            {
+                payload["thinking"] = new JsonObject { ["type"] = "enabled", ["budget_tokens"] = budget };
+            }
         }
 
         return payload;
+    }
+
+    /// <summary>
+    /// Whether the model only accepts adaptive thinking - every Claude model of generation 5 and later.
+    /// </summary>
+    /// <param name="model">The model.</param>
+    /// <returns><see langword="true"/> when a thinking budget would be rejected.</returns>
+    internal static bool UsesAdaptiveThinking(ModelName model)
+    {
+        var parts = model.Value.Split('-');
+        return parts.Length > 2 &&
+            parts[0].Equals("claude", StringComparison.OrdinalIgnoreCase) &&
+            parts[1].Length > 0 && !char.IsDigit(parts[1][0]) &&
+            int.TryParse(parts[2], System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out var generation) &&
+            generation >= 5;
     }
 
     /// <summary>

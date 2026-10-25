@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-chronicle-hosting",
+  "queries": [
+    { "query": "Why does our latest-development Compose fail after switching the Chronicle kernel to latest?", "shouldTrigger": true },
+    { "query": "Does ASPNETCORE_ENVIRONMENT=Development activate the kernel's development credential setup?", "shouldTrigger": true },
+    { "query": "Configure trusted ingress forwarded headers for Chronicle 19.50.0 without trusting every peer.", "shouldTrigger": true },
+    { "query": "Can the Chronicle kernel run a private h2c backend behind our HTTPS proxy?", "shouldTrigger": true },
+    { "query": "I need a private plaintext health port that does not publish the Workbench API.", "shouldTrigger": true },
+    { "query": "Two Chronicle silos share MongoDB but both use Localhost clustering. Is that safe?", "shouldTrigger": true },
+    { "query": "Explain kernel observer definitionEvolution and retry budget configuration before rollout.", "shouldTrigger": true },
+    { "query": "What certificates and backup restore order does the production Chronicle image need?", "shouldTrigger": true },
+    { "query": "Wire AddCratisChronicle into my .NET worker.", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" },
+    { "query": "Clear a failed partition in the running staging store through the CLI.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Implement a custom Orleans grain storage provider.", "shouldTrigger": false, "note": "framework Orleans rules" },
+    { "query": "Write a Chronicle projection for AccountOpened.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Mark personal event fields for right to erasure.", "shouldTrigger": false, "note": "cratis-chronicle-compliance" },
+    { "query": "Inspect events using the browser Workbench.", "shouldTrigger": false, "note": "cratis-chronicle-web-workbench" },
+    { "query": "Add a reactor returning InvoiceSent with OnceOnly.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Use IDecisionReads to protect the read before appending.", "shouldTrigger": false, "note": "cratis-chronicle-decision-reads" }
+  ]
+}

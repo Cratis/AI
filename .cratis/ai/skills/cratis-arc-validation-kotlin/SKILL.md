@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-validation-kotlin
-description: Add a rejection rule to a Cratis Arc command or query in Kotlin or Java — FluentModelValidator shared rules that also emit TypeScript, plus the server-only CommandValidator, QueryValidator, ConceptValidator, and ModelValidator. Use when a Kotlin or Java Arc command or query must refuse work under some condition. Do not use to define a new command or query, and do not use for append-time Chronicle constraints.
+description: Add a rejection rule to a Cratis Arc command or query in Kotlin or Java — FluentModelValidator shared rules that also emit TypeScript, plus the server-only CommandValidator, QueryValidator, ConceptValidator, and ModelValidator. Use when expressing JVM rejection checks with FluentModelValidator or Kotlin/Java server validators for Arc commands and queries. Do not use for C# rejection placement (use cratis-arc-command-validation) or Node.js ruleFor (use cratis-arc-validation-typescript); new command shapes belong to cratis-arc-command-kotlin, append-time uniqueness to cratis-chronicle-event-constraints.
 license: MIT
 ---
 
@@ -14,16 +14,11 @@ that way; keep service calls, async work, and cross-member logic imperative.
 
 ## Verified product sources
 
-Verified against `Arc.Kotlin` at tag **`v7.3.0`**, re-verified at commit
-`d0aa6a4` (14 commits past the tag; `guides/commands.md`, `guides/validation.md`,
-and `guides/chronicle.md` are byte-for-byte unchanged since the tag).
-Documented consumer setup: JDK 17, Kotlin 2.4.20, KSP 2.3.12, Spring Boot
-4.1.x. `io.cratis:arc` supplies `io.cratis.arc.validation.FluentModelValidator`,
-`CommandValidator<T>`, `QueryValidator<T>`, `ConceptValidator<T>`,
+Source: `Arc.Kotlin`. `io.cratis:arc` supplies `io.cratis.arc.validation.FluentModelValidator`,
+`CommandValidator<T>`, nongeneric `QueryValidator`, `ConceptValidator<T>`,
 `ModelValidator<T>`, `ConceptValidationExclusion`, `IgnoreValidation`,
-`CommandFilter`, `QueryFilter`. The re-verification added the new
-"Reject at feature scope with a pipeline filter" section below, from the new
-`guides/pipeline-filters.md`.
+`CommandFilter`, `QueryFilter`. Sources: `queries/QueryValidator.kt`,
+`commands/CommandValidator.kt`, validation types and `guides/pipeline-filters.mdx`.
 
 ## Shared fluent rules — server and generated TypeScript
 
@@ -125,7 +120,7 @@ validated child roots still run.
 
 ## Server-only validators
 
-### `CommandValidator<T>` / `QueryValidator<T>`
+### `CommandValidator<T>`
 
 ```kotlin
 @Component
@@ -153,7 +148,55 @@ Java implementations use `BlockingCommandValidator`/`AsyncCommandValidator`
 with the matching `*Adapter`, published as an ordinary `CommandValidator`
 Spring bean — there is no second Java-specific discovery mechanism.
 
+### `QueryValidator` — request-based, not generic
+
+A query validator receives `QueryRequest` and `QueryContext`, not a typed
+command-style model. `queryName = null` matches every query; set a
+`FullyQualifiedQueryName` to restrict it to one query.
+
+```kotlin
+// Copyright (c) Cratis. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+import io.cratis.arc.queries.FullyQualifiedQueryName
+import io.cratis.arc.queries.QueryContext
+import io.cratis.arc.queries.QueryRequest
+import io.cratis.arc.queries.QueryValidator
+import io.cratis.arc.results.ValidationResult
+import org.springframework.stereotype.Component
+
+@Component
+class TaskQueryValidator : QueryValidator {
+    override val queryName: FullyQualifiedQueryName? = null
+
+    override suspend fun validate(request: QueryRequest, context: QueryContext): List<ValidationResult> =
+        if (request.arguments["title"] == "") {
+            listOf(ValidationResult.error("A task title is required.", listOf("title")))
+        } else {
+            emptyList()
+        }
+}
+```
+
+This example rejects an explicitly empty title; add the absence rule separately
+when omission is invalid for the selected query.
+
 ### `ConceptValidator<TConcept>`
+
+Requires Arc.Kotlin 7.8.0 for shared Fundamentals concepts and their validators; check `./gradlew dependencies`, or retain the legacy Arc concepts and validators until upgrading.
+
+Prefer `io.cratis.fundamentals.concepts.ConceptAs` for new concepts and
+`FundamentalsConceptValidator<TConcept>` for their rules. It implements
+`ModelValidator<TConcept>` and exposes `conceptType` plus
+`validate(concept): List<ValidationResult>`; read the primitive via `value()`.
+JSON, validation, proxy generation, Spring conversion, Chronicle bridging and
+testing recognize the shared concept type. The old Arc `ConceptAs` extends it
+and is deprecated, as is `ArcCamelCase` (use Fundamentals `toCamelCase`).
+Existing Arc concepts/validators keep compiling and linking unchanged.
+
+The legacy Arc concept example below remains valid with `ConceptValidator` and
+its `value` property; do not copy that property shape to a new Fundamentals-only
+concept, whose interface method is `value()`.
 
 A reusable invariant on a `ConceptAs<T>` concept type, walked automatically
 wherever that concept type appears — command, nested model, collection,
@@ -178,9 +221,11 @@ Jakarta `Validator` bean. Exclude one direct edge deliberately with
 Java record component/field) whose *declared* type implements `ConceptAs`. A
 scalar root, a collection element, or a nested path cannot be excluded this
 way — register the nested owner type and its direct member instead. Excluding
-an edge suppresses only `ConceptValidator` execution there; owner rules, exact
-`ModelValidator` rules, Jakarta constraints, and root typed validators still
-run.
+an edge suppresses concept-rule execution there, including
+`FundamentalsConceptValidator`; owner rules, exact `ModelValidator` rules,
+Jakarta constraints, and root typed validators still run.
+
+Requires Arc.Kotlin 7.8.1 for exclusions to suppress FundamentalsConceptValidator; check `./gradlew dependencies`, or upgrade before relying on a shared-concept exclusion.
 
 ### `ModelValidator<T>`
 
@@ -251,7 +296,7 @@ fun billingCommandFilter(): CommandFilter = BillingCommandFilter()
 
 ## Order of execution
 
-Typed `CommandValidator`/`QueryValidator` rules run once, before the shared
+Typed `CommandValidator` and request-based `QueryValidator` rules run once, before the shared
 model/concept traversal. A separately registered `ModelValidator` for the
 command's own class is a distinct rule that also runs once at the root.
 Cancellation from any validator — a concept validator, a Kotlin property
@@ -264,6 +309,8 @@ exception result; it is not silently skipped.
 
 - Defining the command or query the rule attaches to:
   `cratis-arc-command-kotlin`, `cratis-arc-query-kotlin`.
+- In-process rule assertions and dependency pins: `cratis-arc-testing-kotlin`.
+- Authentication, identity and tenancy: `cratis-arc-identity-and-tenancy-kotlin`.
 - Append-time Chronicle uniqueness/concurrency: `cratis-chronicle-event-constraints`.
 - The C# Arc validation shape (`ConceptValidator<T>`, `CommandValidator<T>`,
   Provide short-circuiting): `cratis-arc-command-validation`.
@@ -283,3 +330,5 @@ exception result; it is not silently skipped.
   every rule expressed with `FluentModelValidator` — verify with a build that
   regenerates the proxy.
 - `./gradlew build` is clean with zero warnings and zero errors.
+- Exercise rejection through `cratis-arc-testing-kotlin`; `shouldBeInvalid()`
+  must prove a rule ran, not only a missing dependency.

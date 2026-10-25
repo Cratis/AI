@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Exercises entrypoint.sh's run_copilot() against a stubbed `copilot` binary - the Copilot
 # equivalent of the Pi fixtures next to it, and for the same reason: the invocation is the contract
 # between this repository and the CLI, and a flag that quietly stops being passed costs a session
@@ -23,8 +24,11 @@ set -u
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ENTRYPOINT="${HERE}/../entrypoint.sh"
-WORK="${HERE}/copilot-run"
-rm -rf "$WORK"; mkdir -p "$WORK/bin"
+# shellcheck source=lib/scratch.sh
+source "${HERE}/lib/scratch.sh"
+scratch_create copilot-run
+WORK="$SCRATCH_ROOT"
+mkdir -p "$WORK/bin"
 export PATH="$WORK/bin:$PATH"
 
 command -v jq >/dev/null || { echo "SKIPPED: jq is not installed"; exit 0; }
@@ -169,7 +173,6 @@ check_contains "says so rather than silently ignoring it" "cannot route through 
 check "leaves ANTHROPIC_BASE_URL alone" "" "${ANTHROPIC_BASE_URL:-}"
 unset DIRECT_HEADROOM
 
-rm -rf "$WORK"
 
 echo
 if [[ $failures -eq 0 ]]; then

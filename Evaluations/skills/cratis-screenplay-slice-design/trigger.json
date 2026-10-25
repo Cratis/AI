@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-screenplay-slice-design",
+  "queries": [
+    { "query": "after discovery, design the commands for our parcel locker pickup flow: inputs, rules, refusals", "shouldTrigger": true },
+    { "query": "we have an UpdateCustomer form with 8 fields. how should that be split into commands?", "shouldTrigger": true },
+    { "query": "which read model should the dashboard screen use? it has three widgets", "shouldTrigger": true },
+    { "query": "should 'overdue' be stored as an event or computed in a view?", "shouldTrigger": true },
+    { "query": "where should 'only one active booking per boat' go: input, concept rule or require?", "shouldTrigger": true },
+    { "query": "how do I trace each screen field back to an event? what is field lineage?", "shouldTrigger": true },
+    { "query": "a screen where the user acts on an existing order: what data does it have to show?", "shouldTrigger": true },
+    { "query": "build the state-transition table for the booking entity, including refused transitions", "shouldTrigger": true },
+    { "query": "the command has a confirmsAvailability true input to prove the boat is free. is that fine?", "shouldTrigger": true },
+    { "query": "Which stream identity should these events share, and where is the cross-stream invariant enforced?", "shouldTrigger": false, "note": "cratis-screenplay-streams-and-consistency" },
+    { "query": "Model what happens automatically after the parcel is delivered, with retries.", "shouldTrigger": false, "note": "cratis-screenplay-automations-and-translations" },
+    { "query": "Which scenarios should we write for the locker commands?", "shouldTrigger": false, "note": "cratis-screenplay-scenario-coverage" },
+    { "query": "Audit the finished model and list what an independent reviewer would flag.", "shouldTrigger": false, "note": "cratis-screenplay-model-review" },
+    { "query": "Interview me to find the events and personas for our returns process.", "shouldTrigger": false, "note": "cratis-screenplay-discovery" },
+    { "query": "Write the projection with children and joins for the locker overview.", "shouldTrigger": false, "note": "cratis-screenplay-projections" },
+    { "query": "Write the C# command record and its Handle method for ReassignLocker.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Lay out the screen with a MasterDetail template and a form.", "shouldTrigger": false, "note": "cratis-screenplay-ui-composition" },
+    { "query": "Write the validate and authorize lines for the command in .play syntax.", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" }
+  ]
+}

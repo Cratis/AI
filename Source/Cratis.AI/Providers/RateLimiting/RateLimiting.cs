@@ -39,6 +39,29 @@ public record RecordProviderRateLimited(AIProviderId Provider, DateTimeOffset Un
 }
 
 /// <summary>
+/// Event raised when somebody lifts a provider's rate limit by hand - because the allowance is known to
+/// be back, or because the credential was replaced - so the provider is tried again right away. The
+/// moment the limit lifts is the event's own occurrence time.
+/// </summary>
+[EventType]
+public record AIProviderRateLimitCleared();
+
+/// <summary>
+/// Command for lifting the pause a provider was parked under after the vendor turned work away over its
+/// usage limit. If the limit is still real the next call is turned away again and the provider parks again.
+/// </summary>
+/// <param name="Provider">The provider to lift the pause of - its own identity resolves the event source.</param>
+[Command]
+public record ClearProviderRateLimit(AIProviderId Provider)
+{
+    /// <summary>
+    /// Handles the command by appending an <see cref="AIProviderRateLimitCleared"/> event.
+    /// </summary>
+    /// <returns>The event.</returns>
+    public AIProviderRateLimitCleared Handle() => new();
+}
+
+/// <summary>
 /// Recognizes a provider's own usage limit in what a worker reported back.
 /// </summary>
 /// <remarks>
@@ -47,7 +70,7 @@ public record RecordProviderRateLimited(AIProviderId Provider, DateTimeOffset Un
 /// provider for an hour over an unrelated failure, which is worse than not noticing. Anything not
 /// recognized here simply fails the work the way it always did.
 /// </remarks>
-public static class ProviderRateLimit
+public static partial class ProviderRateLimit
 {
     /// <summary>
     /// The phrases vendors use when the account, rather than the request, is the problem.
@@ -61,7 +84,23 @@ public static class ProviderRateLimit
         "usage limit",
         "usage_limit",
         "too many requests",
-        "insufficient_quota"
+        "insufficient_quota",
+
+        // Claude Code and the harnesses wrapping it report a subscription window running out in
+        // words of their own, none of which carries a status code - "You've hit your weekly limit ·
+        // resets Oct 9, 2am (UTC)" went unrecognized in production and failed the work instead of
+        // failing over. Each phrase names the account's own allowance, never a request property,
+        // which is what keeps it from matching ordinary failures that merely mention a limit.
+        "hit your limit",
+        "hit your weekly limit",
+        "hit your 5-hour limit",
+        "hit your session limit",
+        "hit your opus limit",
+        "hit your sonnet limit",
+        "5-hour limit reached",
+        "weekly limit reached",
+        "session limit reached",
+        "usage limit reached"
     ];
 
     /// <summary>

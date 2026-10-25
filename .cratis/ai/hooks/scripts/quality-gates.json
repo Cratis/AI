@@ -1,7 +1,8 @@
 {
   "$comment": [
     "Quality gates run by the Stop hook (cratis-quality-gate.sh).",
-    "Data, not code: a consuming repository overrides this file (or points CRATIS_HOOKS_GATES at",
+    "Shipped defaults: .cratis/ai/hooks/scripts/quality-gates.json; project overrides: .cratis/ai/quality-gates.project.json.",
+    "Data, not code: a consuming repository patches gates by id (or points CRATIS_HOOKS_GATES at",
     "its own) without touching the script. Gates run in order and stop at the first failure.",
     "",
     "A gate runs only when the working tree contains a change matching one of its \"changed\" globs,",
@@ -16,24 +17,51 @@
     "  excludeChanged   globs that never count as a relevant change",
     "  requires.commands executables that must be on PATH",
     "  requires.paths   repo-relative literal paths that must all exist (no globbing)",
+    "  requires.packageScripts  package.json scripts that must be defined in the gate's working directory",
+    "                   (a g: script may instead be defined in the repository root package.json, which assumes",
+    "                   Yarn Berry, where a root-defined g: script runs from every workspace; no workspace",
+    "                   package.json is inspected); a missing script makes the gate a NO-OP instead of a",
+    "                   \"Couldn't find a script\" failure",
     "  workingDirectory repo-relative directory the command runs in",
     "  workingDirectoryFrom  globs identifying the project file this gate builds; the command runs",
     "                   in that file's directory, and a repository holding none makes the gate a",
-    "                   NO-OP. Globs are tried in order, so the list states a preference. Ignored",
-    "                   when workingDirectory is set.",
+    "                   NO-OP. The first glob with an eligible project wins. Ignored",
+    "                   when workingDirectory is set. Discovery excludes the installed .cratis/ai tree",
+    "                   when .cratis/ai.manifest.json exists, including symlinks resolving into that tree.",
+    "                   Symlinks outside the task-owning repository are never discovered. Without the install",
+    "                   manifest the corpus is authored source and its packages remain eligible. Physical",
+    "                   resolution preserves symlink/.. semantics. Only changed paths surviving this gate's",
+    "                   changed/excludeChanged filters select projects: the deepest containing project per",
+    "                   path wins within that glob when no eligible root project exists. The default root-first",
+    "                   globs preserve workspace/solution dispatch. A root workspace or solution keeps",
+    "                   repository-wide dispatch; otherwise the gate runs once per affected directory. A single project",
+    "                   may own source outside its directory; multiple candidates with an uncontained trigger",
+    "                   report UNVERIFIED and exit 2 rather than silently checking an arbitrary project.",
+    "                   Both the project-file target and the execution directory must pass containment.",
+    "                   Candidate resolution is cached across gates; filtering and prefix lookup are batched.",
+    "                   Mixed RUN/NO-OP directories report UNVERIFIED and exit 2, not a partial success.",
+    "                   Gate commands read /dev/null so they cannot consume remaining directories.",
     "  command          argv array \u2014 executed directly, never through a shell (no eval)",
+    "  timeoutSeconds   optional integer 1..86400; deadline per command/directory, plus 1s TERM-to-KILL cleanup",
+    "                   (Pi's whole-tool deadline still applies); timeout exits 2, never a pass",
+    "  timeoutHint      narrower command to run when the gate times out; diagnostic text, never executed",
+    "",
+    "Managed corpus and adapter trees (.cratis/**, .pi/**, .claude/**) never count as a relevant change:",
+    "a corpus update must not run a repository's application gates over files that are not its application.",
     "",
     "No gate names a product's solution, package or source root \u2014 a default that does would",
     "silently no-op in every repository except the one it was written for. The .NET and frontend",
     "gates discover the repository's own solution/package instead, so they activate unchanged in",
     "an application repository, a framework repository, and (as nothing to run) in a corpus-only",
-    "repository such as this one, which carries no .NET or Node project at all.",
+    "repository. An empty plan reports that no product verification was performed.",
     "",
     "The override model, in order of increasing force: a repository states only what differs in its",
     "own .cratis/ai/quality-gates.project.json, which the runner merges over this file by gate id",
     "(a project fact belongs there, never edited into this managed file, or the next managed update",
     "reports drift or discards it); or it points CRATIS_HOOKS_GATES at a file anywhere. Neither",
-    "requires a script fork.",
+    "requires a script fork. The merge is shallow: a field the override states replaces the managed one.",
+    "The one exception: an override that sets \"command\" without \"requires\" also drops this gate's",
+    "requires.packageScripts, since those guard the managed command, not the override's.",
     "",
     "Example .cratis/ai/quality-gates.project.json, for a repository whose frontend is not at the root:",
     "  { \"gates\": [ { \"id\": \"frontend-lint\", \"workingDirectory\": \"Source/App\" } ] }",
@@ -64,7 +92,10 @@
       ],
       "excludeChanged": [
         "**/obj/**",
-        "**/bin/**"
+        "**/bin/**",
+        ".cratis/**",
+        ".pi/**",
+        ".claude/**"
       ],
       "requires": {
         "commands": [
@@ -87,6 +118,8 @@
     {
       "id": "backend-specs",
       "description": "dotnet test (Debug, --no-build) \u2014 zero failures",
+      "timeoutSeconds": 120,
+      "timeoutHint": "dotnet test <affected.Specs.csproj-or-Tests.csproj> --configuration Debug --no-build (replace the placeholder with the affected test project; repeat for its affected dependents)",
       "changed": [
         "**/*.cs",
         "**/*.csproj",
@@ -95,7 +128,10 @@
       ],
       "excludeChanged": [
         "**/obj/**",
-        "**/bin/**"
+        "**/bin/**",
+        ".cratis/**",
+        ".pi/**",
+        ".claude/**"
       ],
       "requires": {
         "commands": [
@@ -129,7 +165,10 @@
       ],
       "excludeChanged": [
         "**/obj/**",
-        "**/bin/**"
+        "**/bin/**",
+        ".cratis/**",
+        ".pi/**",
+        ".claude/**"
       ],
       "requires": {
         "commands": [
@@ -162,7 +201,10 @@
         "**/wwwroot/**",
         "**/dist/**",
         "**/obj/**",
-        "**/bin/**"
+        "**/bin/**",
+        ".cratis/**",
+        ".pi/**",
+        ".claude/**"
       ],
       "requires": {
         "commands": [
@@ -190,11 +232,17 @@
         "**/wwwroot/**",
         "**/dist/**",
         "**/obj/**",
-        "**/bin/**"
+        "**/bin/**",
+        ".cratis/**",
+        ".pi/**",
+        ".claude/**"
       ],
       "requires": {
         "commands": [
           "yarn"
+        ],
+        "packageScripts": [
+          "g:compile"
         ]
       },
       "workingDirectoryFrom": [
@@ -218,11 +266,17 @@
         "**/wwwroot/**",
         "**/dist/**",
         "**/obj/**",
-        "**/bin/**"
+        "**/bin/**",
+        ".cratis/**",
+        ".pi/**",
+        ".claude/**"
       ],
       "requires": {
         "commands": [
           "yarn"
+        ],
+        "packageScripts": [
+          "g:compile:specs"
         ]
       },
       "workingDirectoryFrom": [
@@ -246,7 +300,10 @@
         "**/wwwroot/**",
         "**/dist/**",
         "**/obj/**",
-        "**/bin/**"
+        "**/bin/**",
+        ".cratis/**",
+        ".pi/**",
+        ".claude/**"
       ],
       "requires": {
         "commands": [

@@ -1,0 +1,55 @@
+{
+  "skill_name": "cratis-arc-query-paging",
+  "evals": [
+    {
+      "id": 1,
+      "name": "strict-paging-and-sort-contract",
+      "prompt": "At Arc 22.75.0 what happens with GET pageSize=0, page=-1, sortDirection=descending, and sortDirection=sideways? Does sortby alone sort? Explain MongoDB paged observation costs and auxiliary sources. Reply only.",
+      "expected_output": "Paged requests validate nonnegative page and positive size. Directions accept asc/ascending/desc/descending case-insensitively; unknown direction is malformedRequest 400 when sorting is activated. MongoDB paged observations reread page and total; auxiliary observations ignore query context explicitly.",
+      "assertions": [
+        "States page >= 0 and pageSize > 0 are validated when IsPaged, not clamped to silent success.",
+        "Accepts descending and rejects sideways as malformedRequest HTTP 400 when both sort keys are supplied.",
+        "Explains GET sorting requires both nonempty sortby and sortDirection, with case-insensitive reserved keys.",
+        "Distinguishes paged MongoDB page-and-total rereads from unpaged retained membership updates.",
+        "Uses ignoreQueryContext true for auxiliary MongoDB/EF observations, not as an unbounded-query performance guarantee."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "materialized-queryable-is-not-bounded",
+      "prompt": "Our Arc list query loads every document to a List and then returns list.AsQueryable. Paging looks correct. Is that sufficient for a million-row query? What does useWithPaging return for a plain versus observable query? Reply only.",
+      "expected_output": "In-memory queryable paging narrows the answer but does not bound DB reads or retained memory. Keep IQueryable at the source and use the correct hook tuple for snapshot/live queries.",
+      "assertions": [
+        "Identifies ToList before returning IQueryable as full hydration rather than source-side paging.",
+        "Explains the renderer counts before windowing and does not claim list.AsQueryable saves DB work.",
+        "Gives five tuple members including perform for snapshot useWithPaging and four without perform for observable useWithPaging.",
+        "Keeps page zero-based and constrains unknown IQueryable sort fields rather than assuming they are ignored."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "stable-live-page-and-missing-document",
+      "prompt": "At Arc 22.75.0 a MongoDB paged Observe has duplicate sort values. An auxiliary collection also uses Observe. Meanwhile ObserveById emits null after deletion. Explain ordering, totals and the React guard, without claiming every provider shares Mongo's ordering. Reply only.",
+      "expected_output": "Mongo observation uses _id tie-break and unsorted page order, rereads page/total, and auxiliary ignoreQueryContext avoids overwriting primary totals. Single-instance default emissions require hasData/isReady guards.",
+      "assertions": [
+        "Names MongoDB _id tie-break/unsorted-page ordering without generalizing to every IQueryable or EF provider.",
+        "States each paged Mongo change rereads page and total, not only removal refill.",
+        "Uses ignoreQueryContext true on auxiliary observations so paging/sorting/totals belong to the primary.",
+        "Treats single-instance default emissions as absence without completion and guards result.hasData/isReady before dereferencing."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "mongodb-paging-without-linq",
+      "prompt": "A paged MongoDB list query is `collection.AsQueryable().OrderBy(p => p.Order).ThenBy(p => p.Id)` where Order and Id are concept types. GET page=0&pageSize=30 returns HTTP 500 with 'Expression not supported ... Skip(0).Take(30).Cast()'. How should the query be written and who applies paging and sorting? Reply only.",
+      "expected_output": "Do not use AsQueryable for MongoDB; return collection.Observe(filterDefinition) as ISubject<IEnumerable<T>>, built on a native Find with no LINQ. Arc applies the client's sort, Skip and Limit; the query writes no OrderBy, Skip or Take. Sorting resolves the BSON element name from the class map, ties break on _id, and a default order is a frontend initial sorting.",
+      "assertions": [
+        "Recommends the native MongoDB driver approach, collection.Observe with a FilterDefinition, instead of AsQueryable LINQ.",
+        "States the query must not write OrderBy, ThenBy, Skip, Take or Limit for the client's paging or sorting; Arc applies them.",
+        "Explains Observe applies the client's sort by BSON element name and breaks ties on _id, so no server default order is needed.",
+        "Says a meaningful initial order is passed from the frontend as the initial sorting argument rather than a server OrderBy.",
+        "Notes Arc before 22.50.6 failed every paged IQueryable on MongoDB because of a Cast the driver cannot translate, and does not claim the concept-typed members were the cause."
+      ]
+    }
+  ]
+}

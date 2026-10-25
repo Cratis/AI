@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-engineering-local-cross-repo-verification",
+  "queries": [
+    { "query": "I fixed Chronicle's kernel for a Studio bug. Prove it with Studio's integration specs before opening the producer PR.", "shouldTrigger": true },
+    { "query": "Can we try this Fundamentals branch in Arc without publishing packages first?", "shouldTrigger": true },
+    { "query": "Build Components locally and check that the Studio frontend really fixes the broken dialog.", "shouldTrigger": true },
+    { "query": "Before requesting another Chronicle release, test the client change in the consuming application.", "shouldTrigger": true },
+    { "query": "Reproduce Studio's bug against Chronicle main, not just the released NuGet packages.", "shouldTrigger": true },
+    { "query": "We are waiting on Arc publication just to find out whether the downstream fix works. Set up a local package loop instead.", "shouldTrigger": true },
+    { "query": "Use locally built Chronicle packages and a matching kernel image in Studio, then remove every override.", "shouldTrigger": true },
+    { "query": "The downstream app passes with local tarballs. Check that none of those overrides can leak into its commit.", "shouldTrigger": true },
+    { "query": "How can an agent host verify a lower-layer Cratis change in a consumer with its own local feed and Docker daemon?", "shouldTrigger": true },
+    { "query": "Validate an unreleased Kotlin SDK change in its consumer using Gradle composite substitution.", "shouldTrigger": true },
+    { "query": "Bump Studio's Chronicle pin to the version already released on NuGet.", "shouldTrigger": false, "note": "dependency manifest maintenance under general.md; no dedicated released-pin sibling exists" },
+    { "query": "Fix this null check in Arc and run Arc's own specs; no consumer repository is involved.", "shouldTrigger": false, "note": "cratis-specifications-csharp; ordinary single-repository regression work" },
+    { "query": "Publish the tested package and ship the release now.", "shouldTrigger": false, "note": "ship-changes prompt and pull-requests rule; cratis-release-notes for release text" },
+    { "query": "Optimize GitHub Actions caching to reduce CI runtime.", "shouldTrigger": false, "note": "github-actions rule; CI configuration, not local consumer proof" },
+    { "query": "Delete unrelated dangling Docker images to free disk space.", "shouldTrigger": false, "note": "guards-and-fuses rule; no local-verification artifacts or dedicated cleanup sibling" },
+    { "query": "Use yarn link to run my local application from a second folder, with no framework fix.", "shouldTrigger": false, "note": "repository tooling documentation; no cross-repository package-proof sibling applies" },
+    { "query": "Consolidate three pull requests and prove no files were dropped.", "shouldTrigger": false, "note": "cratis-engineering-consolidation-guard" },
+    { "query": "Write release notes for a Chronicle client bug fix.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Review this single-repo change for architecture and security.", "shouldTrigger": false, "note": "cratis-code-review" },
+    { "query": "Design the approval and shipping policy for governed releases.", "shouldTrigger": false, "note": "cratis-governed-release-methodology" }
+  ]
+}

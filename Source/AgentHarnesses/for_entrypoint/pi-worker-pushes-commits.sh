@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# fixture-requires-linux: needs bash >= 4.4, GNU date and the worker image's tool set (macOS /bin/bash is 3.2)
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # The Pi harness counterpart to terminated-worker-pushes-commits.sh, covering the path a ChatGPT
 # subscription runs through: Pi's own built-in openai-codex provider, seeded from the OAuth record
 # the Direct hands the container.
@@ -31,8 +33,10 @@ set -u
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ENTRYPOINT="${HERE}/../entrypoint.sh"
-ROOT="${HERE}/pitest"
-chmod -R u+w "$ROOT" 2>/dev/null; rm -rf "$ROOT"; mkdir -p "$ROOT"
+# shellcheck source=lib/scratch.sh
+source "${HERE}/lib/scratch.sh"
+scratch_create pitest
+ROOT="$SCRATCH_ROOT"
 
 BRANCH="direct/spec-pi"
 CREDENTIAL='{"type":"oauth","access":"tok","refresh":"rt","expires":4102444800000,"accountId":"acct-1"}'
@@ -122,6 +126,7 @@ start_worker() {
         DIRECT_PROMPT="do the work" \
         bash "$SCRIPT" > "$ROOT/${label}.log" 2>&1 &
     WORKER=$!
+    scratch_track_pid "$WORKER"
 
     local waited=0
     while [[ ! -f "$ROOT/committed" && $waited -lt 600 ]]; do sleep 0.1; waited=$((waited + 1)); done
@@ -134,6 +139,7 @@ await_worker() {
     touch "$ROOT/stop"
     wait "$WORKER" 2>/dev/null
     WORKER_STATUS=$?
+    scratch_untrack_pid "$WORKER"
     ! kill -0 "$WORKER" 2>/dev/null
 }
 
@@ -142,7 +148,7 @@ pushed() {
 }
 
 fail_case() {
-    echo "  RESULT: $1 - see $ROOT"
+    echo "  RESULT: $1 (rerun with SPEC_KEEP_SCRATCH=1 to keep the scratch tree)"
     FAILURES=$((FAILURES + 1))
 }
 

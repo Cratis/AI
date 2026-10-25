@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Pins entrypoint.sh's three-way DIRECT_HARNESS selection.
 #
 # This is the one edit in the Copilot harness work that does not fail loudly when it is wrong: before
@@ -17,8 +18,10 @@ set -u
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ENTRYPOINT="${HERE}/../entrypoint.sh"
-WORK="${HERE}/copilot-selection"
-rm -rf "$WORK"; mkdir -p "$WORK"
+# shellcheck source=lib/scratch.sh
+source "${HERE}/lib/scratch.sh"
+scratch_create copilot-selection
+WORK="$SCRATCH_ROOT"
 
 SELECTION="$WORK/selection.sh"
 awk '/^case "\$\{DIRECT_HARNESS:-\}" in$/ { inside = 1 }
@@ -68,7 +71,6 @@ check "a typo does not run Copilot" "claude" "$(selected 'coplot')"
 check "copilot-cli does not run Copilot" "claude" "$(selected 'copilot-cli')"
 check "an unrelated value does not run Pi" "claude" "$(selected 'something-else')"
 
-rm -rf "$WORK"
 
 echo
 if [[ $failures -eq 0 ]]; then

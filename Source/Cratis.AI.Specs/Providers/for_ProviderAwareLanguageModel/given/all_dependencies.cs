@@ -5,6 +5,7 @@ using Cratis.AI.Agents;
 using Cratis.AI.Agents.Listing;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
+using Cratis.AI.Providers.Capacity;
 using Cratis.AI.Providers.Pools;
 using Cratis.AI.Providers.Pools.Listing;
 using Cratis.AI.Providers.UsageReporting;
@@ -28,6 +29,8 @@ public class all_dependencies : Specification
     protected CapturingLogger _logger;
     protected IProviderConcurrencyGate _providerGate;
     protected IProviderUsageLevels _providerUsageLevels;
+    protected IAIProviderCapacities _providerCapacities;
+    protected Dictionary<AIProviderId, AIProviderCapacity> _capacities;
     protected IRecentProviderFailures _recentProviderFailures;
     protected ICommandPipeline _commandPipeline;
     protected TimeProvider _timeProvider;
@@ -60,6 +63,14 @@ public class all_dependencies : Specification
         _providerUsageLevels = Substitute.For<IProviderUsageLevels>();
         _providerUsageLevels.RefreshMany(Arg.Any<IReadOnlyCollection<AIProviderId>>(), Arg.Any<CancellationToken>())
             .Returns(new Dictionary<AIProviderId, ProviderUsageLevel>());
+        _capacities = [];
+        _providerCapacities = Substitute.For<IAIProviderCapacities>();
+        _providerCapacities.ForMany(Arg.Any<IReadOnlyCollection<AIProviderId>>(), Arg.Any<CancellationToken>())
+            .Returns(_ => new Dictionary<AIProviderId, AIProviderCapacity>(_capacities));
+        _providerCapacities.For(Arg.Any<AIProviderId>(), Arg.Any<CancellationToken>())
+            .Returns(callInfo => _capacities.TryGetValue(callInfo.Arg<AIProviderId>(), out var capacity)
+                ? capacity
+                : AIProviderCapacityCalculator.Compute(callInfo.Arg<AIProviderId>(), AIProviderCapacitySource.Unknown, [], null, DateTimeOffset.UtcNow, null, DateTimeOffset.UtcNow, 0.02));
         _recentProviderFailures = Substitute.For<IRecentProviderFailures>();
         _recentProviderFailures.CountsSince(Arg.Any<TimeSpan>()).Returns(new Dictionary<AIProviderId, int>());
         _commandPipeline = Substitute.For<ICommandPipeline>();
@@ -70,6 +81,7 @@ public class all_dependencies : Specification
             _readModels,
             new ProviderBurn(_sessions, TimeProvider.System),
             _providerUsageLevels,
+            _providerCapacities,
             _recentProviderFailures,
             _providerGate,
             new DefaultAgentInvocationModes(),
@@ -94,6 +106,9 @@ public class all_dependencies : Specification
             provider?.AvailableModels.Any() != false
                 ? provider!
                 : provider with { AvailableModels = PublishedCatalogs.For(provider.Type) });
+
+    protected void CapacityIs(AIProviderId id, IReadOnlyList<UsageWindow> windows) =>
+        _capacities[id] = AIProviderCapacityCalculator.Compute(id, AIProviderCapacitySource.Subscription, windows, null, DateTimeOffset.UtcNow, null, DateTimeOffset.UtcNow, 0.02);
 
     protected void PoolIs(AIProviderPoolId id, AIProviderPool? pool) =>
         _readModels.GetInstanceById<AIProviderPool>((EventSourceId)id).Returns(pool!);

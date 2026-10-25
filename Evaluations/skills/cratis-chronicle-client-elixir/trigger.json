@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-chronicle-client-elixir",
+  "queries": [
+    { "query": "how do i add the cratis_chronicle client to my Phoenix app's supervision tree and connect to a local kernel?", "shouldTrigger": true },
+    { "query": "Chronicle.append returned :ok but I think the constraint was violated. do I need to match on something?", "shouldTrigger": true },
+    { "query": "my Elixir app is connected but reactors never receive events. is :connected enough?", "shouldTrigger": true },
+    { "query": "use Chronicle.Events.EventType raises KeyError for :id. do I really need to specify it?", "shouldTrigger": true },
+    { "query": "write a reactor module in Elixir with @handles that appends a follow-up event", "shouldTrigger": true },
+    { "query": "two of my Elixir read models register with the same id and collide. why?", "shouldTrigger": true },
+    { "query": "mix deps.get can't find the new Chronicle.Concept macro even though the git tag has it", "shouldTrigger": true },
+    { "query": "how to mark an email field as PII in an OTP event struct, and keep an API key encrypted", "shouldTrigger": true },
+    { "query": "my GenServer gets {:chronicle_read_model_changed, ...} messages it doesn't handle. what is watch sending?", "shouldTrigger": true },
+    { "query": "how do I write an ExUnit spec for my Chronicle reactor in Elixir against the in-memory kernel without a running server?", "shouldTrigger": true },
+    { "query": "Connect to Chronicle from a .NET console app and append.", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" },
+    { "query": "Node worker with @cratis/chronicle reactors dispatched by camelCase method name.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "Go service appending events with the Chronicle Go client.", "shouldTrigger": false, "note": "cratis-chronicle-client-go" },
+    { "query": "Design the events and slices for the order-handling feature before coding.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" },
+    { "query": "Which events must be erased when a data subject asks to be forgotten?", "shouldTrigger": false, "note": "cratis-chronicle-compliance" },
+    { "query": "Explain how a Chronicle projection with joins works conceptually and how to choose between a projection and a reducer.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Write ExUnit tests for my own GenServer that has nothing to do with events.", "shouldTrigger": false, "note": "general Elixir testing, not Chronicle" },
+    { "query": "Start the Chronicle server in a container for local development.", "shouldTrigger": false, "note": "cratis-chronicle-hosting" },
+    { "query": "Test a Chronicle .NET reactor with an in-process EventScenario.", "shouldTrigger": false, "note": "cratis-chronicle-event-specifications" }
+  ]
+}

@@ -1,0 +1,42 @@
+# Copyright (c) Cratis. All rights reserved.
+# Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+name: Verify Pull Request Policy
+
+# Thin caller of the organization-wide pull-request policy gate: release notes, release
+# intent and release-note drift, in Cratis/Workflows/.github/workflows/verify-pull-request-policy.yml.
+# Do not reintroduce logic here. Both references are pinned; cratis-check-pr fetches the
+# release-note rules from the policy workflow at the same ref.
+#
+# RUNNER_GATE is an outage escape hatch and is normally unset: set it temporarily to reroute the
+# job when the default runner is down.
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize, labeled, unlabeled, ready_for_review]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  dependabot-labels:
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.base.ref == 'main'
+    uses: Cratis/Workflows/.github/workflows/normalize-dependabot-labels.yml@ca36e5bcfb27092ab4bf868c3643d0c2948f9b9e # main on 2026-10-18
+    permissions:
+      pull-requests: write
+
+  policy:
+    needs: dependabot-labels
+    if: ${{ !cancelled() }}
+    uses: Cratis/Workflows/.github/workflows/verify-pull-request-policy.yml@ca36e5bcfb27092ab4bf868c3643d0c2948f9b9e # main on 2026-10-18
+    with:
+      runs-on: ${{ vars.RUNNER_GATE || 'ubuntu-latest' }}
+      release-intent: true
+      # Vendored third-party skill references (design-*.md) match the work-record name shape.
+      extra-allowed-paths: Source/AgentHarnesses/skills/react-agent-skills/

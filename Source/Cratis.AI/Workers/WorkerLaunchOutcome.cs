@@ -39,5 +39,12 @@ public enum WorkerLaunchOutcome
     /// the caller should leave the work scheduled and try again, the same as
     /// <see cref="StillGoingAway"/>.
     /// </summary>
-    RefusedByCluster
+    RefusedByCluster,
+
+    /// <summary>
+    /// The mounted files exceed the Kubernetes Secret payload budget. Nothing is created or
+    /// removed; the caller must reduce the configuration before retrying. The runtime log names
+    /// the total UTF-8 bytes, payload limit, and largest files without exposing their contents.
+    /// </summary>
+    ConfigurationTooLarge
 }

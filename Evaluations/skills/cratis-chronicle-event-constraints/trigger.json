@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-chronicle-event-constraints",
+  "queries": [
+    { "query": "two people can register the same boat registration number at the same moment. how do I make the event store reject the second one?", "shouldTrigger": true },
+    { "query": "[Unique] on the class or on the property? I want email unique across all users", "shouldTrigger": true },
+    { "query": "UserRemoved should free up the email so someone else can claim it. how do I release the unique value?", "shouldTrigger": true },
+    { "query": "i want case insensitive uniqueness on project name across ProjectRegistered and ProjectRenamed", "shouldTrigger": true },
+    { "query": "CHR0020 on my IConstraint lambda e => e.Email.ToLower(). what do i do instead?", "shouldTrigger": true },
+    { "query": "how do I assert in a spec that the second append hit the unique constraint?", "shouldTrigger": true },
+    { "query": "PropertyDoesNotExistOnEventType thrown at startup from my constraint definition", "shouldTrigger": true },
+    { "query": "after a month closes no more bookings may be appended for it. how do i close a stream at append time?", "shouldTrigger": true },
+    { "query": "[RemoveConstraint] compiles on my fluent IConstraint but never releases anything", "shouldTrigger": true },
+    { "query": "Make the command reject an end date before the start date.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "A boat can only hold 10 bookings. Enforce capacity under concurrent requests.", "shouldTrigger": false, "note": "cratis-chronicle-decision-reads" },
+    { "query": "Create a read model of active bookings and a projection for it.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "General EventScenario mechanics: seeding with Given, appending with When and asserting the append result.", "shouldTrigger": false, "note": "cratis-chronicle-event-specifications" },
+    { "query": "Evolve an event type with a new required property.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Send an email after BoatRegistered.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Unique index on a column in our EF Core table.", "shouldTrigger": false, "note": "cratis-arc-ef-core-migration" },
+    { "query": "Decide how events and streams should be modeled for a new registration feature.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" }
+  ]
+}

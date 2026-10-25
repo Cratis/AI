@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-engineering-regression-cluster",
+  "queries": [
+    { "query": "This is the third bug on the backlog filter screen this month. Fix it.", "shouldTrigger": true },
+    { "query": "The orders export endpoint broke again, same area as the last two regressions. What should we do differently this time?", "shouldTrigger": true },
+    { "query": "why does the invoice approval workflow keep breaking? we've patched it three times already", "shouldTrigger": true },
+    { "query": "another review finding on the sign-up form validation - that's the third one. just patch it?", "shouldTrigger": true },
+    { "query": "We keep reapplying the same kind of fix to the import command. How do we stop the cycle?", "shouldTrigger": true },
+    { "query": "We reverted the dashboard sorting change twice and now it regressed again. Plan the fix.", "shouldTrigger": true },
+    { "query": "Three issues in a row on the permissions module came from missing checks. What gate should own that?", "shouldTrigger": true },
+    { "query": "Before fixing this pagination bug, check whether this surface has broken before and whether we need a gate instead of another spec", "shouldTrigger": true },
+    { "query": "the same date-range filter bug came back a third time, find the failure class", "shouldTrigger": true },
+    { "query": "Fix this null reference in the customer profile page. First report we've had about it.", "shouldTrigger": false, "note": "isolated first bug; fix with a regression specification" },
+    { "query": "Fold PRs 41, 42 and 43 into one branch and prove nothing got lost in the merges.", "shouldTrigger": false, "note": "cratis-engineering-consolidation-guard" },
+    { "query": "Our deploy step got a 500 from the API but the job reported success. How should it fail?", "shouldTrigger": false, "note": "cratis-engineering-effect-boundaries" },
+    { "query": "Review this pull request for architecture, style and spec coverage.", "shouldTrigger": false, "note": "cratis-code-review" },
+    { "query": "Write a spec that reproduces this bug in the RegisterAuthor command before fixing it.", "shouldTrigger": false, "note": "single regression specification; spec rules" },
+    { "query": "Record the decision to adopt interaction tests for all list screens.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" },
+    { "query": "The read model is stale after a replay. Diagnose the projection.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Write release notes for the version that fixes the three filter bugs.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Write a shell script check that cannot pass when it finds no files to scan.", "shouldTrigger": false, "note": "guards-and-fuses rule" }
+  ]
+}

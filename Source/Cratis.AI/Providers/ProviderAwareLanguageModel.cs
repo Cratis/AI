@@ -4,6 +4,7 @@ using Cratis.AI.Agents;
 using Cratis.AI.Agents.Skills;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
+using Cratis.AI.Providers.Capacity;
 using Cratis.AI.Providers.Pools;
 using Cratis.AI.Providers.Pools.Listing;
 using Cratis.AI.Providers.RateLimiting;
@@ -40,6 +41,7 @@ namespace Cratis.AI.Providers;
 /// <param name="readModels">The <see cref="IReadModels"/> the role, provider and pool are resolved from - injected directly rather than reached through <c>IEventStore.ReadModels</c>, which read the role back with its <c>ProviderId</c> silently null and so sent every chat reply down the legacy fallback (issue #103). The <c>Work.Scheduling.WorkDispatcher</c> resolves the very same read model this way and has always seen the provider.</param>
 /// <param name="providerBurn">The recent burn per provider the least-burnt pick keys off.</param>
 /// <param name="providerUsageLevels">Refreshes every pool member's usage level ahead of selection, so capacity-aware ranking uses current numbers (issue #1061).</param>
+/// <param name="providerCapacities">The headroom each pool member's vendor reports - ranked by, and a member that cannot start work skipped, ahead of a pool dispatch; and what a rate limit's expiry falls back to when the failure does not state one.</param>
 /// <param name="recentProviderFailures">The recent-failure memory <see cref="Pools.PoolMemberSelector"/> ranks pool members by, and where a transient real-call failure is recorded (issue #1060).</param>
 /// <param name="providerConcurrencyGate">Bounds concurrent calls to each configured provider, independently.</param>
 /// <param name="defaultAgentModes">Says what a purpose is invoked as when no agent claims it.</param>
@@ -53,6 +55,7 @@ public class ProviderAwareLanguageModel(
     IReadModels readModels,
     IProviderBurn providerBurn,
     IProviderUsageLevels providerUsageLevels,
+    IAIProviderCapacities providerCapacities,
     IRecentProviderFailures recentProviderFailures,
     IProviderConcurrencyGate providerConcurrencyGate,
     IDefaultAgentInvocationModes defaultAgentModes,
@@ -61,6 +64,57 @@ public class ProviderAwareLanguageModel(
     IOptions<AIProviderOptions> options,
     ILogger<ProviderAwareLanguageModel> logger) : ILanguageModel
 {
+    readonly ProviderRateLimitRecorder _rateLimitRecorder = new(providerCapacities, commandPipeline, timeProvider, options, logger);
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ProviderAwareLanguageModel"/> class without
+    /// provider capacities - every pool member's capacity is unknown, so selection and the rate-limit
+    /// cooldown behave exactly as they did before capacity was known. Kept so existing callers that
+    /// construct it directly keep compiling; dependency injection uses the constructor that takes
+    /// <see cref="IAIProviderCapacities"/>.
+    /// </summary>
+    /// <param name="providerClients">Every discovered <see cref="IAIProviderClient"/>.</param>
+    /// <param name="compatibility">Checks that the resolved provider can serve the calling agent.</param>
+    /// <param name="readModels">The <see cref="IReadModels"/> the role, provider and pool are resolved from.</param>
+    /// <param name="providerBurn">The recent burn per provider the least-burnt pick keys off.</param>
+    /// <param name="providerUsageLevels">Refreshes every pool member's usage level ahead of selection.</param>
+    /// <param name="recentProviderFailures">The recent-failure memory pool members are ranked by.</param>
+    /// <param name="providerConcurrencyGate">Bounds concurrent calls to each configured provider, independently.</param>
+    /// <param name="defaultAgentModes">Says what a purpose is invoked as when no agent claims it.</param>
+    /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> a rate limit is recorded through.</param>
+    /// <param name="timeProvider">The <see cref="TimeProvider"/> the rate-limit cooldown is measured against.</param>
+    /// <param name="options">The <see cref="AIProviderOptions"/>.</param>
+    /// <param name="logger">The logger.</param>
+    public ProviderAwareLanguageModel(
+        IInstancesOf<IAIProviderClient> providerClients,
+        IAgentProviderCompatibility compatibility,
+        IReadModels readModels,
+        IProviderBurn providerBurn,
+        IProviderUsageLevels providerUsageLevels,
+        IRecentProviderFailures recentProviderFailures,
+        IProviderConcurrencyGate providerConcurrencyGate,
+        IDefaultAgentInvocationModes defaultAgentModes,
+        ICommandPipeline commandPipeline,
+        TimeProvider timeProvider,
+        IOptions<AIProviderOptions> options,
+        ILogger<ProviderAwareLanguageModel> logger)
+        : this(
+            providerClients,
+            compatibility,
+            readModels,
+            providerBurn,
+            providerUsageLevels,
+            new UnknownAIProviderCapacities(timeProvider),
+            recentProviderFailures,
+            providerConcurrencyGate,
+            defaultAgentModes,
+            commandPipeline,
+            timeProvider,
+            options,
+            logger)
+    {
+    }
+
     /// <inheritdoc/>
     public async Task<LanguageModelResult> Complete(string prompt, LanguageModelPurpose purpose, CancellationToken cancellationToken = default)
     {
@@ -90,17 +144,21 @@ public class ProviderAwareLanguageModel(
         var tier = role?.Tier ?? ModelTier.Balanced;
 
         var poolExhaustedTransiently = false;
+        string? poolOutOfQuota = null;
+        string? poolFailureReason = null;
         try
         {
             if (hasPool)
             {
-                var (result, exhaustedTransiently) = await CompleteThroughPool(prompt, purpose, role!.PoolId!, tier, effort, cancellationToken);
+                var (result, exhaustedTransiently, outOfQuota, failureReason) = await CompleteThroughPool(prompt, purpose, role!.PoolId!, tier, effort, cancellationToken);
                 if (result is not null)
                 {
                     return result;
                 }
 
                 poolExhaustedTransiently = exhaustedTransiently;
+                poolOutOfQuota = outOfQuota;
+                poolFailureReason = failureReason;
             }
 
             if (hasProvider)
@@ -139,7 +197,17 @@ public class ProviderAwareLanguageModel(
         // the time it tries again, which a same-provider hammering retry never gave the pool a chance
         // to benefit from (issue #1060).
         logger.NothingTheAgentNamedCouldServe(purpose);
-        var reason = $"The AI provider configured for the {purpose.Value} agent could not serve this request. See the log for which step gave up.";
+        if (poolOutOfQuota is not null)
+        {
+            // Members ran out of quota - say so and name them, rather than pointing at the log. Only
+            // worth the whole-call retry when some member also failed transiently; a spent quota does
+            // not come back within a retry's backoff.
+            return poolExhaustedTransiently
+                ? LanguageModelResult.TransientFailure(poolOutOfQuota)
+                : LanguageModelResult.QuotaExhausted(poolOutOfQuota);
+        }
+
+        var reason = $"The AI provider configured for the {purpose.Value} agent could not serve this request. {poolFailureReason ?? "See the log for which step gave up."}";
         return poolExhaustedTransiently ? LanguageModelResult.TransientFailure(reason) : LanguageModelResult.Failure(reason);
     }
 
@@ -148,33 +216,39 @@ public class ProviderAwareLanguageModel(
             .Where(pair => pair.Value.RemainingCapacity is not null)
             .ToDictionary(pair => pair.Key, pair => pair.Value.RemainingCapacity!.Value);
 
-    async Task<(LanguageModelResult? Result, bool ExhaustedTransiently)> CompleteThroughPool(string prompt, LanguageModelPurpose purpose, AIProviderPoolId poolId, ModelTier tier, Effort effort, CancellationToken cancellationToken)
+    async Task<(LanguageModelResult? Result, bool ExhaustedTransiently, string? OutOfQuota, string? FailureReason)> CompleteThroughPool(string prompt, LanguageModelPurpose purpose, AIProviderPoolId poolId, ModelTier tier, Effort effort, CancellationToken cancellationToken)
     {
         var pool = await readModels.GetInstanceById<AIProviderPool>((EventSourceId)poolId);
         if (pool is null)
         {
             logger.PoolNotConfigured(poolId);
-            return (null, false);
+            return (null, false, null, null);
         }
 
         var members = pool.Members?.ToList();
         if (members is null || members.Count == 0)
         {
             logger.PoolHasNoMembers(poolId);
-            return (null, false);
+            return (null, false, null, null);
         }
 
         var burn = await providerBurn.TrailingWeek(cancellationToken);
         var usageLevels = await providerUsageLevels.RefreshMany([.. members.Select(member => member.ProviderId)], cancellationToken);
         var remainingCapacity = RemainingCapacityByProvider(usageLevels);
-        var selection = new PoolSelectionData(burn.Tokens, burn.Sessions, recentProviderFailures.CountsSince(options.Value.RecentFailureWindow), remainingCapacity);
+        var capacities = await CapacitiesOf(members, poolId, cancellationToken);
+        var selection = new PoolSelectionData(burn.Tokens, burn.Sessions, recentProviderFailures.CountsSince(options.Value.RecentFailureWindow), remainingCapacity)
+        {
+            HeadroomByProvider = capacities.ToDictionary(pair => pair.Key, pair => pair.Value.Headroom)
+        };
 
         var dispatch = await PoolDispatcher.Dispatch(
             members,
             selection,
             recentProviderFailures,
             $"No member of pool {poolId} could serve this completion",
-            (member, ct) => AttemptCompletion(prompt, purpose, member, tier, effort, ct),
+            (member, ct) => capacities.TryGetValue(member.ProviderId, out var capacity) && !capacity.CanStartWork
+                ? Task.FromResult(SkipWithoutCapacity(capacity))
+                : AttemptCompletion(prompt, purpose, member, tier, effort, ct),
             cancellationToken);
 
         switch (dispatch.Outcome)
@@ -184,12 +258,35 @@ public class ProviderAwareLanguageModel(
                 // Succeeded hands back what was served; Stopped means a permanent failure said
                 // trying the rest of the pool could not help - either way, this is the pool's final
                 // answer and there is nothing transient about it.
-                return (dispatch.Value, false);
+                return (dispatch.Value, false, null, null);
 
             default:
                 logger.PoolExhausted(poolId);
-                return (null, dispatch.AnyTransientFailure);
+                return (null, dispatch.AnyTransientFailure, dispatch.QuotaExhaustedProviders.Count > 0 ? dispatch.Reason : null, dispatch.Reason);
         }
+    }
+
+    async Task<IReadOnlyDictionary<AIProviderId, AIProviderCapacity>> CapacitiesOf(IReadOnlyCollection<AIProviderPoolMember> members, AIProviderPoolId poolId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await providerCapacities.ForMany([.. members.Select(member => member.ProviderId)], cancellationToken);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            // Not knowing must not block work: without capacities every member ranks and is admitted
+            // as fully available, exactly as before capacity was known.
+            logger.CouldNotReadPoolCapacity(exception, poolId);
+            return new Dictionary<AIProviderId, AIProviderCapacity>();
+        }
+    }
+
+    PoolAttempt<LanguageModelResult> SkipWithoutCapacity(AIProviderCapacity capacity)
+    {
+        // Out of headroom or rate limited: starting on it would only spend a call - or a whole worker
+        // session - to be turned away. Skipped, not recorded as a failure: nothing was tried.
+        logger.PoolMemberHasNoCapacity(capacity.Provider, capacity.Headroom, capacity.AvailableAgainAt);
+        return PoolAttempt<LanguageModelResult>.Skipped($"AI provider {capacity.Provider} cannot start work: it {capacity.Explain()}");
     }
 
     async Task<PoolAttempt<LanguageModelResult>> AttemptCompletion(string prompt, LanguageModelPurpose purpose, AIProviderPoolMember member, ModelTier tier, Effort effort, CancellationToken cancellationToken)
@@ -207,9 +304,22 @@ public class ProviderAwareLanguageModel(
             return PoolAttempt<LanguageModelResult>.Succeeded(result);
         }
 
+        if (result.ProviderId is null)
+        {
+            // A tier refusal happened before any vendor call. Keep its reason, but do not count
+            // configuration as a real-call failure or stop the rest of the pool from serving it.
+            return PoolAttempt<LanguageModelResult>.Skipped(result.FailureReason);
+        }
+
+        if (result.IsQuotaExhausted)
+        {
+            logger.PoolMemberOutOfQuota(member.ProviderId, result.FailureReason);
+            return PoolAttempt<LanguageModelResult>.QuotaExhausted(result.FailureReason);
+        }
+
         return result.IsTransient
             ? PoolAttempt<LanguageModelResult>.TransientFailure(result.FailureReason)
-            : PoolAttempt<LanguageModelResult>.PermanentFailure(result, result.FailureReason);
+            : PoolAttempt<LanguageModelResult>.Rejected(result, result.FailureReason);
     }
 
     async Task<LanguageModelResult?> CompleteThroughProvider(string prompt, LanguageModelPurpose purpose, AIProviderId providerId, ModelTier tier, Effort effort, CancellationToken cancellationToken)
@@ -234,15 +344,16 @@ public class ProviderAwareLanguageModel(
             return null;
         }
 
-        // The tier translates through the provider's own mapping, with the catalog the provider
-        // actually published standing in for tiers the mapping leaves unset (#865, #1187).
-        var resolvedModel = TierModelResolution.Resolve(provider.TierModels, provider.AvailableModels, tier);
-        if (resolvedModel.Equals(ModelName.NotSet))
+        // Mappings and discovered models win. Subscription-only providers without a catalog use
+        // official Claude Code aliases, never a guessed Messages API model identifier.
+        var resolution = TierModelResolution.Explain(provider, tier);
+        if (resolution.Source == TierModelSource.Unsatisfied)
         {
-            logger.NoModelResolved(providerId, provider.Type);
-            return null;
+            logger.NoModelResolvedForTier(providerId, provider.Type, tier, resolution.Reason);
+            return LanguageModelResult.Failure(resolution.Reason);
         }
 
+        var resolvedModel = resolution.Model;
         var mode = defaultAgentModes.For(purpose);
         if (!AIModelCapabilities.Supports(mode, resolvedModel))
         {
@@ -282,33 +393,15 @@ public class ProviderAwareLanguageModel(
             // The completion path has the vendor's actual status code, unlike a worker's failure
             // text - so a 429/quota transient failure is recorded against the provider here rather
             // than waiting for a worker to report the same thing in words (issue #1060).
-            if (result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason))
+            // A spent quota is recorded the same way, so the provider is skipped until it resets - the
+            // reset the vendor stated, else when its capacity says it is available again, else the
+            // bounded RateLimitCooldown.
+            if (result.IsQuotaExhausted || (result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason)))
             {
-                await RecordRateLimit(providerId);
+                await _rateLimitRecorder.Record(providerId, result.FailureReason);
             }
 
             return result;
-        }
-    }
-
-    async Task RecordRateLimit(AIProviderId providerId)
-    {
-        try
-        {
-            // Reported, never discarded. A dropped result here is not a lost log line - it is the
-            // cooldown itself going missing, and the completion path then rediscovers the same 429 on
-            // every attempt. Production spent a day at thirty rejected calls a minute against a
-            // provider that had already said no, with nothing anywhere saying why the cooldown that
-            // was supposed to stop it never took.
-            await commandPipeline.ExecuteAndReport(
-                new RecordProviderRateLimited(providerId, timeProvider.GetUtcNow().Add(options.Value.RateLimitCooldown)),
-                logger);
-        }
-        catch (Exception exception)
-        {
-            // Losing the rate-limit record is not worth failing the caller's actual completion over -
-            // the next attempt at this provider simply rediscovers the same 429.
-            logger.CouldNotRecordRateLimit(exception, providerId);
         }
     }
 }

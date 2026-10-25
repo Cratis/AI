@@ -1,7 +1,18 @@
 # Handler shapes and how Arc dispatches them
 
-Verified against `Cratis.Arc.Core` and `Cratis.Arc.Chronicle` `22.16.0` with
-`Cratis.Chronicle` `18.3.0`.
+## Contents
+
+- The pipeline around `Handle`
+- Dispatch
+- What claims an event
+- The tuple rule
+- Cross-stream appends
+- Failure shapes
+
+Source: `Cratis.Arc.Core` and `Cratis.Arc.Chronicle`. Sources: `Source/DotNET/Arc.Core/Commands/CommandPipeline.cs`,
+`CommandOperationExecution.cs` and `Source/DotNET/Chronicle/Commands/CommandContextExtensions.cs`.
+Read [decisions and routing](decisions-and-routing.md) for guarded reads,
+stream templates, tags and post-commit completion.
 
 ## The pipeline around `Handle`
 
@@ -14,8 +25,11 @@ One command execution runs in this order:
    stopping at the first blocking verdict;
 5. resolve `Handle`'s arguments, which is where `Provide()` runs;
 6. invoke `Handle`;
-7. dispatch the returned value;
-8. complete the execution scopes in reverse order.
+7. classify returned values and preflight operation metadata/dependencies;
+8. dispatch control/other server values (including Chronicle event enrollment),
+   then execute declared operations sequentially while the command is successful;
+9. complete the execution scopes in reverse order, select eligible operation
+   recovery from commitment facts, and finalize backend observations.
 
 If the final result is not successful, the response is **cleared** before it is
 serialized. A caller never receives both a failure and a payload.
@@ -27,7 +41,10 @@ leaving the authorization verdict at its permissive default.
 ## Dispatch
 
 The returned value is dispatched on its **runtime** type, not on the method's
-declared return type.
+declared return type. The one exception is operation participation: Arc decides
+from the **declared** return type whether a command may carry operations, and
+only then dispatches concrete operations by runtime type. An operation hidden
+behind `object` is rejected, and one inside `IEnumerable<object>` is not executed.
 
 - `Task<T>` and `ValueTask<T>` are awaited first, then the inner value is
   dispatched. (`ARC0010` warns when a synchronous result is wrapped in a `Task`
@@ -39,7 +56,18 @@ declared return type.
   conversions, so `return new SomethingHappened(...)` and
   `return ValidationResult.Error("...")` both compile in the same method.
 - A tuple has every non-null element dispatched independently.
-- Anything no handler claims becomes the response payload.
+- `ICommandOperation` and `CommandOperations` are reserved for operation
+  processing, not ordinary response handlers or the client response. Null is
+  absent; raw operation collections are rejected (`ARC0017`).
+- Other unclaimed values become the response payload. When operations
+  participate, control values are reserved for pipeline handling instead.
+
+When operation values participate, Arc flattens tuples and active union branches,
+preflights both operation methods' dependencies, and selects at most one ordinary
+response. Control values are processed before other server values regardless of
+tuple order. Returned events enroll before operations execute, and scopes complete
+afterward. Custom response handlers never receive operation values a second time.
+See `cratis-arc-command-operation` for compensation and unsupported nesting.
 
 ## What claims an event
 
@@ -54,9 +82,7 @@ type registry knows it.
 | `EventForEventSourceId` | single wrapper handler | the wrapper's own id |
 | A collection containing at least one `EventForEventSourceId`, every other element being a registered event | wrapper-collection handler | each wrapper to its own id, each plain event to the command's |
 
-⚠️ **An unregistered event type is not an error.** No handler claims it, so it
-silently becomes the HTTP response body instead of being appended. A command
-that "runs fine" but appends nothing is almost always a missing `[EventType]`.
+See "Choose the return shape" in SKILL.md.
 
 An empty collection statically typed as `IEnumerable<EventForEventSourceId>` is
 still recognised and appends nothing, rather than being serialized as the
@@ -72,8 +98,9 @@ left alone.
 
 Within a tuple:
 
-1. every element is offered to the handlers;
-2. the elements nothing can handle are candidates for the response;
+1. operations are reserved for their own phase; other elements are classified
+   for response/control handling;
+2. ordinary elements nothing can handle are candidates for the response;
 3. **more than one unhandleable element throws `MultipleUnhandledTupleValues`** —
    Arc cannot decide which one is the response;
 4. the single unhandleable element is set as the response *before* the
@@ -87,11 +114,8 @@ events in the same tuple are therefore appended to the id the handler just
 generated, and the client receives it as the response.
 
 ```csharp
-public (<ThingId>, <ThingRegistered>) Handle()
-{
-    var id = <ThingId>.New();
-    return (id, new(<Name>));
-}
+public (<ThingId>, <ThingRegistered>) Handle([GeneratedValue("thing")] <ThingId> id) =>
+    (id, new(<Name>));
 ```
 
 Returning two ids, or an id and another plain value, is the failure case.
@@ -110,6 +134,31 @@ public IEnumerable<object> Handle() =>
 
 `EventForEventSourceId` also carries optional `Subject`, `EventStreamType` and
 `EventStreamId` init members when the target stream is not the default.
+Explicit wrapper routing wins over command-context routing in every return shape.
+
+Requires Arc 22.49.0 and Chronicle 19.30.0 for event source definitions on commands.
+
+A command that always appends through a Chronicle event source definition declares it with
+`[EventSource<TSource>(stream)]` from `Cratis.Arc.Chronicle.Commands`; the definition
+supplies the event source type and validates the optional stream name:
+
+```csharp
+[EventSource]
+[EventStream("transactions")]
+public class Account : IEventSource;
+
+[Command]
+[EventSource<Account>("transactions")]
+public record RecordTransaction(AccountId AccountId, decimal Amount)
+{
+    public <TransactionRecorded> Handle() => new(Amount);
+}
+```
+
+An event that sets legacy `EventSourceType`/`EventStreamType` is appended by those
+strings, not through the definition. A command may also implement
+`ICanProvideEventStreamId` to supply the stream id. Do not combine a definition with
+contradicting `[EventSourceType]`/`[EventStreamType]` attributes.
 
 Concurrency scope is resolved **per target stream** — one expected tail per
 event source id, not one shared across the streams a cross-stream command writes
@@ -118,6 +167,15 @@ to.
 Do not reach for `IEventLog` to do this instead. `ARCCHR0007` warns when a
 command's `Handle` injects `IEventLog`, because that bypasses Arc's append
 pipeline along with its correlation and ordering guarantees.
+
+Requires Arc 22.85.1 for single-source event collections with a compliance
+subject to append atomically even without a command transaction, and 22.87.1
+for multi-source/mixed wrapper collections to do so. Check `dotnet list package`;
+older immediate paths can leave earlier events appended on a later refusal.
+One id routed to several streams without a declared guard can still require
+individual appends: a batch has one guard per source. For atomicity, use the
+command transaction or compatible explicit scopes; do not infer rollback from
+the failed result alone.
 
 ## Failure shapes
 

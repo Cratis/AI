@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-arc-spring-data-kotlin",
+  "evals": [
+    {
+      "id": 1,
+      "name": "spring-page-and-current-state",
+      "prompt": "At Arc.Kotlin 7.7.0, an existing JPA read-model query should take Pageable and Sort, return the repository's page, and preserve the total count. An existing command also needs that mapped read model by CommandKey. Explain the exact types, parameter resolution, JPA versus Mongo ownership and required/nullable/Optional absence. Reply only.",
+      "expected_output": "Exact Spring Data Pageable/Sort bind from QueryRequest and exact Spring Data Page<T> normalizes to QueryPage<T>. Contextual read-model providers precede services, JPA DECLARED beats Mongo FALLBACK; missing required state yields dependencyUnavailable, nullable/Optional observe absence.",
+      "assertions": [
+        "Uses exact Spring Data Commons Pageable and Sort and org.springframework.data.domain.Page<T>, normalized into Arc QueryPage<T> with the pre-page total count, not an invented Arc Page<T>.",
+        "Resolves paging/sorting from the captured QueryRequest rather than thread-local servlet state; page size zero is unpaged.",
+        "Explains JPA DECLARED ownership versus Mongo FALLBACK and that mapped current-state parameters resolve by command key/tenant before ordinary services.",
+        "Requires persistence-key type compatibility without coercion and distinguishes required dependencyUnavailable from Kotlin nullable and Java Optional absence."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "observation-is-store-specific",
+      "prompt": "At Arc.Kotlin 7.7.0, our existing live list uses Spring Data. A teammate wants to call observe directly on a JpaRepository and expects other processes' writes to appear automatically. Compare the JPA and Mongo observation services, notifications, change-stream requirements and cancellation. Reply only.",
+      "expected_output": "observe extensions target JpaObservableQuery/MongoObservableQuery, not repositories. JPA relies on explicit in-process committed notifications; no polling or cross-process mechanism. Mongo uses replica-set/sharded change streams and refreshed snapshots. Cold flows release subscriptions on cancellation.",
+      "assertions": [
+        "Places observe/observeList/observeSingle/observeById extensions on JpaObservableQuery or MongoObservableQuery rather than a foreign repository or collection.",
+        "Requires DatabaseChangePublisher notifications for JPA and identifies the in-process-only boundary; does not promise silent polling or other-process refresh.",
+        "Requires a replica set or sharded cluster for Mongo change streams and explains refreshed filtered snapshots on invalidation so nonmatching rows disappear.",
+        "Describes cold flows closing subscriptions on cancellation and observeShared as explicit sharing/replay of the latest complete snapshot."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "tenant-storage-and-transaction-limits",
+      "prompt": "At Arc.Kotlin 7.7.0, a Java command is tenant-resolved and writes both JPA and MongoDB before returning a Chronicle event. Can plain repository injection and enabling command-transactions-enabled guarantee isolated, atomic cross-store execution even if the handler suspends? Explain the actual boundaries and partial outcomes. Reply only.",
+      "expected_output": "Plain DI is not tenant routing; use certified tenant resolvers with no unknown-tenant fallback. Transactions default disabled and require fixed stores, aligned managers and opening-thread affinity. No distributed transaction exists; local commits may precede later failures, requiring reconciliation.",
+      "assertions": [
+        "Requires certified JpaPersistenceUnitResolver or TenantAwareMongoOperationsResolver storage and refuses automatic isolation from repository injection or fallback on unknown/mismatched tenants.",
+        "States JPA and Mongo command-transactions-enabled default false and opt-in requires a verified fixed store with an identity-aligned transaction manager, not dynamic tenant auto-enrollment.",
+        "Refuses suspension/thread switching during imperative persistence transactions and requires completion on the opening thread.",
+        "Rejects distributed atomicity across JPA, MongoDB and Chronicle; explains that local stores can commit before another store or Chronicle fails and requires reconciliation."
+      ]
+    }
+  ]
+}

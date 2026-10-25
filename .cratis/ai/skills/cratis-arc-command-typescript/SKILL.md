@@ -1,0 +1,329 @@
+---
+name: cratis-arc-command-typescript
+description: Define a Cratis Arc command in a Node.js TypeScript server with Arc for TypeScript — project setup from the source preview, ArcApplication.createBuilder() and discovery, the @command() class with @field inputs, handle() and provide(), outcome helpers, service injection, authorization, returning Chronicle events through withChronicle, generated artifact metadata and proxies, hosting on the standalone host, Express, Fastify, Hono or the Fetch entry, and CommandScenario specs. Use when adding or changing a command in an Arc for TypeScript server, or bootstrapping such a server. Do not use for the .NET or Kotlin/Java Arc command shapes, for a React frontend that calls generated proxies, for validation-only changes, or for query/read-model definition.
+license: MIT
+---
+
+# Define an Arc command in TypeScript (Node.js server)
+
+Arc for TypeScript (`Cratis/Arc.TypeScript`) is the Node.js server implementation
+of Arc. A command is a decorated class that carries the input and handles itself;
+Arc supplies the route, body binding, validation, authorization, and the
+`CommandResult` envelope. There is no controller and no route to write.
+
+## Source preview — read this first
+
+- **None of the server packages is published to npm.** `@cratis/arc.core`,
+  `@cratis/arc.express`, `@cratis/arc.fastify`, `@cratis/arc.hono`,
+  `@cratis/arc.testing`, `@cratis/arc.mongodb`, `@cratis/arc.drizzle`,
+  `@cratis/arc.chronicle`, `@cratis/cratis`, `@cratis/arc.proxygenerator` and
+`@cratis/eslint-plugin-arc-core` are an unpublished source preview (0.x
+  manifests, GitHub pre-releases). The API may still change. `npm install @cratis/arc.core` fails.
+- **`@cratis/arc` is a different package.** `@cratis/arc`, `@cratis/arc.react` and
+  `@cratis/arc.react.mvvm` are the published **client** runtime, built from
+  `Cratis/Arc`. Generated proxies import them in the frontend. The server packages
+  never depend on them. Never tell a user to install `@cratis/arc` to get a
+  server.
+- `@cratis/arc.chronicle` and `@cratis/cratis` are additionally marked
+  **experimental**.
+
+## Verified product sources
+
+Source: `Cratis/Arc.TypeScript` (source preview), reading package exports, `Documentation/**`, and
+`Samples/Tasks` / `Samples/Library`. Behavior on the development branch is excluded.
+
+Requires the Chronicle SDK peer `^6.29.0`, Fundamentals peer `^7.19.6`, `@opentelemetry/api` `^1.9.0` and (optional, for RxJS observable queries) `rxjs` `^7.8.2`.
+
+The Chronicle integration
+needs Node 22.19+, `zod ^4.1`, `rxjs ^7.8.2`, and an optional
+`@cratis/arc.testing` peer for scenarios.
+
+Read [references/hosting-and-storage.md](references/hosting-and-storage.md) when
+hosting or wiring storage. Read [references/chronicle-events.md](references/chronicle-events.md)
+when returning or specifying Chronicle events.
+
+## Chronicle traps
+
+- Appending and projecting are separate; prefer observable reads. See the
+  Chronicle reference before using `completionTimeoutMs` to wait for observers.
+
+- In-memory scenarios evaluate reducers and fixture-bounded projections through
+  the SDK's `ReadModelScenario`; unsupported shapes throw
+  `UnsupportedProjectionOperation`. Aggregates, constraints, concurrency,
+  listing/watching and history beyond that boundary need `ChronicleKernelScenario`
+  against `ARC_CHRONICLE_TEST_URL`.
+
+## Set up and bootstrap
+
+Read [references/project-setup.md](references/project-setup.md) when consuming the source preview in a project, choosing compiler and decorator settings, or wiring `main.ts` and the builder calls (`useGeneratedMetadata` before `discover()`; `build()` validates the graph before any listener opens).
+
+## Secure discovery defaults
+
+Requires Arc for TypeScript 0.56.0 for these defaults.
+
+Outside **Development**, catalogs, identity discovery and `/openapi.json` require
+authentication; without it they are unmapped with a warning. Explicitly requiring
+authentication without configuring it fails startup. `development: true` is no bypass.
+Read [references/identity-and-introspection.md](references/identity-and-introspection.md)
+when configuring authentication, native principals, identity providers or
+introspection access for deployed tools. Source proxy generation needs no host.
+
+## Lay out the slice
+
+House convention (not a runtime requirement): one folder per behavior, one TypeScript file holding the command, its validator and its events; specs in `for_<Subject>/when_<action>/`, which `discover()` skips.
+
+Read [references/slice-layout.md](references/slice-layout.md) when creating a new feature folder.
+
+## Declare the command
+
+`Samples/Tasks/Features/Tasks/Registration/Registration.ts`:
+
+```typescript
+import { field } from '@cratis/fundamentals';
+import { command, CommandValidator, validator } from '@cratis/arc.core';
+import { TaskId } from '../TaskId.js';
+import { TaskTitle } from '../TaskTitle.js';
+import { Tasks } from '../Tasks.js';
+
+/** Register a task. */
+@command()
+export class RegisterTask {
+    @field(TaskId) id!: TaskId;
+    @field(TaskTitle) title!: TaskTitle;
+
+    handle(tasks: Tasks): TaskId {
+        tasks.register(this.id, this.title);
+        return this.id;
+    }
+}
+
+@validator(RegisterTask)
+export class RegisterTaskValidator extends CommandValidator<RegisterTask> {
+    constructor() {
+        super();
+        this.ruleFor(command => command.title).notEmpty().withMessage('A title is required');
+    }
+}
+```
+
+Rules Arc enforces:
+
+- `@command()` from `@cratis/arc.core` marks the class; it needs a public
+  instance `handle()` (which may be inherited). Name it as the action —
+  `RegisterTask`, not `RegisterTaskCommand`.
+- `@field(Type)` comes from **`@cratis/fundamentals`**, not Arc. Every field is
+  required unless marked `@optional()`, `@nullable()`, or `@defaultValue(value)`
+  (from `@cratis/arc.core`). `@enumeration(EnumObject)` restricts a scalar field.
+  Arrays: `@field(Array, { genericArguments: [Item] })`.
+- Domain values are `ConceptAs<T>` classes with a static `valueType`
+  (`static readonly valueType = Guid;`) because generics are erased at runtime.
+  A concept travels as its primitive on the wire.
+- The artifact must be **exported** from a module under the discovery root, or
+  it is never registered.
+- `handle()` returns a value or a promise; the value becomes `response`.
+  Returning nothing is success without a `response`.
+
+### The command key
+
+The key identifies what the command is about. It is resolved from, in order: a
+registered `CommandKeyResolver`, a `getKey()` method, then the `@key()` field
+(a concept unwraps to its primitive). **No key is inferred from an unmarked `id`
+field.** With Chronicle, the key is the default event source.
+
+### Route
+
+`POST /api/<discovery-namespace>/<command-name>` in kebab case —
+`Tasks.Registration.RegisterTask` serves `POST /api/tasks/registration/register-task`.
+`POST <route>/validate` runs authorization and validation only, never
+`provide()` or `handle()`. Pin a route across folder moves with
+`@command({ namespace: 'Tasks.Registration' })` or `@path('/api/...')`, and keep
+class names in bundled builds (`keepNames` in esbuild).
+
+## Bind parameters
+
+Read [references/parameter-binding.md](references/parameter-binding.md) when binding `handle()` or `provide()` parameters (generated metadata or `@inject(...)` markers); `build()` fails with `Unbound handle parameters on <Type>.handle` when neither metadata nor tokens cover a parameter.
+
+## Prepare data with `provide()`
+
+`provide()` is optional. It runs after authorization and validation, before
+`handle()`, on the same instance; its value becomes the **first** `handle()`
+argument, before injected services.
+
+```typescript
+import { field } from '@cratis/fundamentals';
+import { command, inject, rejected, validation } from '@cratis/arc.core';
+
+@command()
+export class RenameTask {
+    @field(TaskId) id!: TaskId;
+    @field(TaskTitle) title!: TaskTitle;
+
+    @inject(Tasks)
+    provide(tasks: Tasks) {
+        const task = tasks.byId(this.id);
+        return task ?? rejected(validation('The task does not exist', ['id'], 'notFound'));
+    }
+
+    handle(task: TaskItem): void {
+        task.title = this.title;
+    }
+}
+```
+
+For several prepared values, return `tuple(...)` and mark each `handle()`
+parameter with `@inject(provided(A), commandContext(), provided(B))`.
+`@inject` is accepted only on a command's `handle()` or `provide()`;
+authorization decorators on `provide()` fail at build.
+
+## Return an outcome
+
+| Return from `provide()` or `handle()` | Result |
+| --- | --- |
+| A plain value, or `response(value)` | Success; the value is `response` |
+| Nothing | Success without `response` |
+| `rejected(...results)` | 400 with the validation results; later steps do not run |
+| `denied(reason?)` | 403 with `authorizationFailureReason`; later steps do not run |
+| `tuple(a, b, ...)` | At most one client response; every other value must be consumed by a response value handler (Chronicle events, command operations) or the command fails |
+
+Outcomes are recognized by origin (a private brand), not shape — an object with
+a `kind` property is ordinary data. `rejected()` with no results throws. A
+thrown error is a 500 whose message is redacted unless `exposeExceptionDetails`
+is enabled; do not throw for a rejection the user can act on. Rules that can
+run before `handle()` belong in validators: see
+`cratis-arc-validation-typescript`.
+
+Read [references/command-operations.md](references/command-operations.md) when
+returning inline work (`CommandOperation`, `operations(...)`), combining it with
+a response, or choosing several business outcomes. It covers commit-aware
+compensation; durable delivery needs its own workflow.
+
+## Protect the command
+
+```typescript
+import { authorize, command, roles } from '@cratis/arc.core';
+
+@command()
+@roles('Librarian')
+export class RegisterAuthor { /* ... */ }
+
+@command()
+@authorize({ policy: 'Finance' })
+export class ApproveBudget { /* ... */ }
+```
+
+- No decorator allows everyone, including anonymous callers.
+- `@authorize()` requires an authenticated caller; `@authorize({ policy?, roles?, schemes? })`
+  a policy, a role, or a scheme; `@roles('A', 'B')` any listed role;
+  `@allowAnonymous()` states anonymous access explicitly.
+- Stacked decorators must **all** pass. `@allowAnonymous()` with an authenticated
+  requirement on the same class fails at startup.
+- Authorization belongs on the **class**. Decorators on `handle()`, `provide()`
+  or any other command method fail the build (a deliberate difference from Arc
+  on .NET, which ignores them).
+- A decision that needs loaded data returns `denied(reason)` from `provide()`.
+
+## Return Chronicle events
+
+With `@cratis/arc.chronicle` registered (`withChronicle`), `handle()` returns the
+event and Arc appends it after authorization, validation and `provide()` pass,
+in the namespace of the resolved tenant. Arc does not require event sourcing: a
+command without Chronicle calls a service, as `RegisterTask` does.
+
+`Samples/Library/Features/Authors/Registration/Registration.ts`:
+
+```typescript
+import { field } from '@cratis/fundamentals';
+import { eventType } from '@cratis/chronicle/events';
+import { command, key, roles } from '@cratis/arc.core';
+import { AuthorId } from '../AuthorId.js';
+import { AuthorName } from '../AuthorName.js';
+
+@eventType()
+export class AuthorRegistered {
+    @field(AuthorName) name: AuthorName;
+    constructor(name: AuthorName = new AuthorName('')) { this.name = name; }
+}
+
+@command()
+@roles('Librarian')
+export class RegisterAuthor {
+    @key() @field(AuthorId) id!: AuthorId;
+    @field(AuthorName) name!: AuthorName;
+
+    handle(): AuthorRegistered { return new AuthorRegistered(this.name); }
+}
+```
+
+- The event class lives in the slice file beside the command, carries
+  `@eventType()` from `@cratis/chronicle/events` and `@field` declarations, and
+  is created through its **constructor** in `handle()` — the house pattern in
+  both samples.
+- `@key()` names the event source; without a key or `getEventSourceId()`, each
+  execution gets a new UUID.
+- A returned event is consumed on the server, so the result carries no
+  `response`.
+- Never append through the SDK inside `handle()` — that append is outside the
+  command's batch.
+
+Returning several events, events beside a response, cross-stream targets,
+routing decorators, concurrency, and the in-memory `ChronicleCommandScenario`
+are in [references/chronicle-events.md](references/chronicle-events.md).
+
+## Generate metadata and proxies
+
+`arc-proxygenerator` (`@cratis/arc.proxygenerator`, unpublished) reads the TypeScript source and writes server metadata and client proxies in one run. Regenerate after **every** change to a command, read model or validator — `useGeneratedMetadata` throws `Stale generated artifact metadata for <Type>` otherwise — and gate CI with `--check-metadata`. Never edit the committed metadata module.
+
+Read [references/proxy-generation.md](references/proxy-generation.md) when wiring the generator script, matching route options to the server, or compiling the generated proxies in a frontend.
+
+## Host the application
+
+`app.run()` is the standalone Node host. To mount the same built application in
+Express 5, Fastify 5, Hono 4, or a Fetch API runtime, keep the builder and swap
+the host — see
+[references/hosting-and-storage.md](references/hosting-and-storage.md). Mount
+Express's `cratisArc(arc)` **before** any body parser, or every command answers
+400 `malformedRequest`.
+
+## Specify the command
+
+Start with a direct `handle()` call for pure command decisions, passing any
+provided values explicitly. Add `CommandScenario` only where binding,
+authorization, validation or dependency wiring contribute proof.
+
+`CommandScenario` from `@cratis/arc.testing` runs a command through the real pipeline in-process, without a listener. Register fakes on `scenario.services` before the first call, create one context per `describe` (act in `beforeAll`, dispose in `afterAll`), and specify authorization for three callers — anonymous, without the role, with it — and on `validate()` too.
+
+Read [references/command-specifications.md](references/command-specifications.md) when writing a `CommandScenario` spec, choosing result assertions, or setting up the scenario context.
+
+Folder and naming conventions for specs are `cratis-specifications-typescript`.
+
+Read [references/observability-and-host-scopes.md](references/observability-and-host-scopes.md)
+when instrumenting commands/queries or using `ArcServer.runInScope` for a trusted
+host integration; a service scope is not an authorization mechanism.
+
+## Route near misses
+
+- A rejection rule on an existing command: `cratis-arc-validation-typescript`.
+- A `@readModel()` query or observable query: `cratis-arc-query-typescript`.
+- A React page that calls the generated proxies: `cratis-arc-react-page`.
+- Talking to Chronicle outside Arc (a worker, direct append, reactors,
+  projections): `cratis-chronicle-client-typescript`.
+- The .NET command shape: `cratis-arc-command`; Kotlin/Java:
+  `cratis-arc-command-kotlin`.
+
+## Verify
+
+- The command class is exported under the discovery root, carries `@command()`,
+  has a public instance `handle()`, and carries authorization only on the class
+  — never on `handle()`, `provide()` or another method.
+- Every input field has `@field(Type)` from `@cratis/fundamentals`; domain values
+  are concepts with a static `valueType`.
+- The key is explicit (`@key()`, `getKey()`, or a resolver) wherever something
+  depends on it — never an assumed `id`.
+- Rejections the user can act on are `rejected(...)`/`denied(...)` or validator
+  results, never thrown errors.
+- Generated metadata is regenerated and `--check-metadata` passes; `build()`
+  succeeds at startup.
+- Plain-call specs cover pure command decisions; `CommandScenario` specs
+  cover the pipeline, including the unauthorized and `/validate` cases.
+- Guidance never claims the server packages are on npm, and never substitutes
+  `@cratis/arc` (the client) for `@cratis/arc.core` (the server).

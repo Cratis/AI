@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-chronicle-reactor",
+  "queries": [
+    { "query": "when BoatBooked is appended I need to send a confirmation email through our mail service. where does that code go in a Chronicle app?", "shouldTrigger": true },
+    { "query": "my IReactor appends a follow-up event but on replay we get duplicates. what attribute do i need?", "shouldTrigger": true },
+    { "query": "can a reactor handler return an event for a different event source? how?", "shouldTrigger": true },
+    { "query": "reactor throws for a malformed event from another service and now the whole observer is quarantined. what should it have done?", "shouldTrigger": true },
+    { "query": "how does dispatch work in a Chronicle reactor, by method name or by the first parameter?", "shouldTrigger": true },
+    { "query": "should I inject IEventLog into my reactor to append the follow-up event?", "shouldTrigger": true },
+    { "query": "UnhandledReactorReturnValue failed my partition. my handler returns a string", "shouldTrigger": true },
+    { "query": "i renamed my reactor class and now it sent every email again from the start", "shouldTrigger": true },
+    { "query": "[OnceOnly] on the handler. will it prevent the email going out twice when the partition is recovered?", "shouldTrigger": true },
+    { "query": "Build a read model of unread notifications from the events.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Write a reducer that folds the balance from credits and debits.", "shouldTrigger": false, "note": "cratis-chronicle-reducer" },
+    { "query": "Run an existing command from backend code using ICommandPipeline.", "shouldTrigger": false, "note": "cratis-arc-command-execution" },
+    { "query": "A Node worker with @reactor class dispatching by camelCase method name.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "Elixir reactor with @handles.", "shouldTrigger": false, "note": "cratis-chronicle-client-elixir" },
+    { "query": "Model the automation slice in the .play file and its produces clause.", "shouldTrigger": false, "note": "cratis-screenplay-automations-and-translations" },
+    { "query": "Clear a quarantined observer from the command line.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Inline charge the card and compensate if the command fails.", "shouldTrigger": false, "note": "cratis-arc-command-operation" }
+  ]
+}

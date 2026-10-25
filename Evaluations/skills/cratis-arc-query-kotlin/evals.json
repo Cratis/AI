@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-arc-query-kotlin",
+  "evals": [
+    {
+      "id": 1,
+      "name": "query-ownership-and-defaults",
+      "prompt": "At Arc.Kotlin 7.7.0, TaskView.byStatus has status: String = \"open\" and a repository dependency. Explain the Kotlin method placement and parameter annotations, the equivalent Java placement, and omitted versus explicitly null caller arguments. Can I overload byStatus? Reply only.",
+      "expected_output": "Use a public companion query with FromServices on the repository, or a Java static query. Omission invokes the Kotlin default; explicit null is supplied and requires nullability. Query overloads are unsupported.",
+      "assertions": [
+        "Places the Kotlin query on a ReadModel companion object and the Java equivalent on a public static method rather than an instance handler.",
+        "Uses FromServices for the repository and keeps the caller status parameter unannotated.",
+        "Distinguishes omission from explicit null: only omission runs the Kotlin default, while null requires a nullable parameter.",
+        "Refuses overloaded query methods instead of recommending overloads for optional arguments."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "java-current-observable-state",
+      "prompt": "Our Java Arc 7.7.0 query returns a SubmissionPublisher<List<TaskView>>. No update has occurred and snapshot GET keeps returning 202. Explain a current-state source for Java, the Kotlin equivalent, and the observable transports. Do not assume the .NET Subject discovery rules apply. Reply only.",
+      "expected_output": "SubmissionPublisher holds no current value. ObservableState is a Flow.Publisher with current-first/latest-state behavior; Kotlin uses StateFlow. Streaming return families are discovered automatically and support snapshot, SSE and WebSocket routes.",
+      "assertions": [
+        "Explains why a plain SubmissionPublisher supplies no initial snapshot and recommends ObservableState initialized with the current list.",
+        "Identifies ObservableState as a JDK Flow.Publisher, with current-first delivery and latest-value conflation rather than a discrete-event backlog.",
+        "Uses MutableStateFlow exposed as Flow for the Kotlin equivalent instead of recommending the Java helper unnecessarily.",
+        "Distinguishes snapshot HTTP from SSE and WebSocket and does not import .NET's Subject discovery restriction into the JVM streaming families."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "provider-owned-page",
+      "prompt": "At Arc.Kotlin 7.7.0, our custom QueryRendererFor already sorts and pages task results. We want Arc to append another implicit paging stage. Is that correct? Describe QueryPage, the no-paging/no-sort values, and how a query chooses GET or QUERY. Reply only.",
+      "expected_output": "The application renderer chain owns sorting/paging; no implicit extra stage follows it. Return QueryPage or explicitly include QueryableQueryRenderer. QueryPage carries zero-based page, pageSize and Long totalItems. HTTP-method metadata chooses GET/QUERY/AUTO.",
+      "assertions": [
+        "Rejects implicit additional paging after a matching application QueryRendererFor chain and suggests QueryPage or an explicit QueryableQueryRenderer stage.",
+        "Describes QueryPage(items, page, pageSize, totalItems) with zero-based page and Long totalItems, not a nonexistent Arc Page type.",
+        "Names QueryPaging.UNPAGED and QuerySorting.UNSORTED for absent paging/sorting.",
+        "Distinguishes GET scalar query strings from QUERY's structured arguments/paging/sorting body and identifies QueryHttpMethod metadata with class defaults and method overrides."
+      ]
+    }
+  ]
+}

@@ -26,14 +26,14 @@
         <PackageVersion Include="Cratis.Chronicle.Testing" Version="19.4.7" />
         <PackageVersion Include="Cratis.Chronicle.XUnit.Integration" Version="19.4.7" />
 
-        <PackageVersion Include="Cratis.Fundamentals" Version="7.19.4" />
+        <PackageVersion Include="Cratis.Fundamentals" Version="7.26.1" />
 
         <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.12" />
         <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.11" />
         <PackageVersion Include="Microsoft.Extensions.Options" Version="10.0.12" />
 
-        <PackageVersion Include="Cratis.Specifications" Version="4.1.0" />
-        <PackageVersion Include="Cratis.Specifications.XUnit" Version="4.1.0" />
+        <PackageVersion Include="Cratis.Specifications" Version="5.0.0" />
+        <PackageVersion Include="Cratis.Specifications.XUnit.v3" Version="5.0.0" />
 
         <!-- Conversational / tool-calling stack (from Studio's ChatClient) -->
         <PackageVersion Include="Microsoft.Extensions.AI" Version="10.10.0" />
@@ -52,7 +52,7 @@
 
         <!-- Specs -->
         <PackageVersion Include="FluentValidation" Version="12.1.1" />
-        <PackageVersion Include="xunit" Version="2.9.3" />
+        <PackageVersion Include="xunit.v3.mtp-off" Version="4.0.2" />
         <PackageVersion Include="xunit.runner.visualstudio" Version="4.0.0" />
         <PackageVersion Include="NSubstitute" Version="6.2.0" />
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.0" />

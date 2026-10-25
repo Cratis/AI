@@ -1,0 +1,38 @@
+{
+  "skill_name": "eliminate-redundant-restores",
+  "evals": [
+    {
+      "id": 1,
+      "name": "restore-once",
+      "prompt": "Without calling tools, design a CI sequence that restores once.",
+      "expected_output": "Run dotnet restore once and pass --no-restore afterward.",
+      "assertions": [
+        "Runs a single explicit restore step.",
+        "Uses --no-restore on build/test/publish.",
+        "Keeps configuration and property flags consistent between steps."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "netsdk1004",
+      "prompt": "Without calling tools, explain NETSDK1004 after adding --no-restore.",
+      "expected_output": "assets file not found because no restore ran or restored different inputs.",
+      "assertions": [
+        "Explains project.assets.json is missing.",
+        "Says restore must run before --no-restore.",
+        "Warns that different properties produce a different restore."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "rsp-file",
+      "prompt": "Without calling tools, explain Directory.Build.rsp for this.",
+      "expected_output": "rsp provides default switches for msbuild invocation.",
+      "assertions": [
+        "Describes the file providing default MSBuild arguments.",
+        "Notes it affects only the msbuild invocation scope.",
+        "Warns not to suppress restore blindly."
+      ]
+    }
+  ]
+}

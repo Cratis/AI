@@ -1,0 +1,14 @@
+{
+  "skill": "cratis-fundamentals-type-discovery",
+  "input": "Wire a discovered set of implementations and diagnose missing types or incorrect scopes.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "concrete, non-generic implementations" },
+    { "kind": "skill-contains", "value": "services.AddTypeDiscovery()" },
+    { "kind": "skill-contains", "value": "TypeDiscoveryDiagnostics.FindMissingContributors(types)" },
+    { "kind": "skill-contains", "value": "type set is fixed at construction" },
+    { "kind": "skill-contains", "value": "singleton captures the root provider" },
+    { "kind": "skill-contains", "value": "Enumeration yields null" },
+    { "kind": "skill-contains", "value": "a later call rebuilds it" }
+  ]
+}

@@ -68,5 +68,5 @@ public static class AnthropicCredential
     /// <param name="apiKey">The revealed Anthropic credential.</param>
     /// <returns>The credential without pasted whitespace, suitable for HTTP headers or worker secrets.</returns>
     public static AIProviderApiKey Normalize(AIProviderApiKey apiKey) =>
-        new string([.. apiKey.Value.Where(character => !char.IsWhiteSpace(character))]);
+        new string([.. apiKey.ForUse().Where(character => !char.IsWhiteSpace(character))]);
 }

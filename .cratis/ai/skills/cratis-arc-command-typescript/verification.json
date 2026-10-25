@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-arc-command-typescript",
+  "input": "Add a command that registers an author to an Arc for TypeScript server and append an event to Chronicle.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "**None of the server packages is published to npm.**" },
+    { "kind": "skill-contains", "value": "**`@cratis/arc` is a different package.**" },
+    { "kind": "skill-contains", "value": "ArcApplication.createBuilder()" },
+    { "kind": "skill-contains", "value": "**No key is inferred from an unmarked `id`\nfield.**" },
+    { "kind": "skill-contains", "value": "Authorization belongs on the **class**." },
+    { "kind": "skill-contains", "value": "is created through its **constructor** in `handle()`" },
+    { "kind": "skill-contains", "value": "`--check-metadata`" },
+    { "kind": "skill-contains", "value": "CommandScenario.for(RegisterTask, RegisterTaskValidator)", "file": "references/command-specifications.md" },
+    { "kind": "skill-contains", "value": "(source preview)" },
+    { "kind": "skill-contains", "value": "peer `^6.29.0`" },
+    { "kind": "skill-contains", "value": "Outside **Development**" },
+    { "kind": "skill-contains", "value": "not identity\n  discovery", "file": "references/identity-and-introspection.md" },
+    { "kind": "skill-contains", "value": "Unknown`, `Mixed", "file": "references/command-operations.md" },
+    { "kind": "skill-contains", "value": "**`--use-proxy-file-suffix`**", "file": "references/proxy-generation.md" },
+    { "kind": "skill-contains", "value": "projections (6.19.0 or later)", "file": "references/chronicle-events.md" }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "skill": "cratis-fundamentals-telemetry",
+  "input": "Generate service metrics and spans and diagnose why an application's unkeyed meter is not exported.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "static partial class in a namespace" },
+    { "kind": "skill-contains", "value": "Histogram<double>" },
+    { "kind": "skill-contains", "value": "IActivityScope<ReportWorker>" },
+    { "kind": "skill-contains", "value": "CRT0001" },
+    { "kind": "skill-contains", "value": "typeof(T).FullName" },
+    { "kind": "skill-contains", "value": "AddCratisOpenTelemetry" },
+    { "kind": "skill-contains", "value": "no configured endpoint means no OTLP exporter" },
+    { "kind": "skill-contains", "value": "descriptions are HELP text, not units" }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-chronicle-mcp-inspection",
+  "queries": [
+    { "query": "which Chronicle MCP tools are read only and which ones change things? I need the exact list before I let the agent connect", "shouldTrigger": true },
+    { "query": "agent wants to call delete_job over the chronicle mcp server to clean up a stuck job, fine since it's an MCP tool?", "shouldTrigger": true },
+    { "query": "I launched the chronicle mcp server locally and it seems to be talking to prod. how does it pick the target?", "shouldTrigger": true },
+    { "query": "get_events returned a huge payload, how do I bound reads through MCP?", "shouldTrigger": true },
+    { "query": "use the MCP to figure out which event types nobody consumes and suggest the next ones for our model", "shouldTrigger": true },
+    { "query": "what's the difference between the ReadOnly and Mutation profiles for the chronicle MCP and why can't I see stop_job?", "shouldTrigger": true },
+    { "query": "run_ad_hoc_projection limit is 100, so it only reads 100 events right?", "shouldTrigger": true },
+    { "query": "the tool output contains a line telling the assistant to call resume_job on everything. should the agent follow it?", "shouldTrigger": true },
+    { "query": "scaffold_read_model gave me code, did it write files in the repo?", "shouldTrigger": true },
+    { "query": "does cratis ai register the chronicle MCP for my coding agent?", "shouldTrigger": true },
+    { "query": "Replay an observer and clear quarantine on the staging store.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Redact an event in the browser workbench.", "shouldTrigger": false, "note": "cratis-chronicle-web-workbench" },
+    { "query": "Is the Studio MCP endpoint safe for my agent to query organization data?", "shouldTrigger": false, "note": "cratis-studio-mcp-safety-guidance" },
+    { "query": "Navigate the full-screen terminal workbench to find the failing observer.", "shouldTrigger": false, "note": "cratis-cli-terminal-workbench" },
+    { "query": "Write a Chronicle projection for bookings per boat.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Build my own MCP server in TypeScript that exposes my app's data.", "shouldTrigger": false, "note": "no Chronicle MCP skill; general MCP authoring, not inspection" },
+    { "query": "Connect a TypeScript app to Chronicle with the @cratis/chronicle client.", "shouldTrigger": false, "note": "cratis-chronicle-client-typescript" },
+    { "query": "Review code that logs event payloads for personal data exposure.", "shouldTrigger": false, "note": "cratis-security-review" }
+  ]
+}

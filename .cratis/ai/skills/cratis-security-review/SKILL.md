@@ -14,13 +14,14 @@ first.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Arc.Chronicle` | `22.16.0` | `[NotAudited]` in `Cratis.Arc.Chronicle.Commands`; the `ARCCHR0009` analyzer |
-| `Cratis.Chronicle` | `18.3.0` | `[PII]`, `[Subject]`, redaction, namespace isolation |
-| `Cratis.Arc.Core` | `22.16.0` | Authorization filters, `CommandResult.Unauthorized` |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Arc.Chronicle` | `[NotAudited]` in `Cratis.Arc.Chronicle.Commands`; the `ARCCHR0009` analyzer |
+| `Cratis.Chronicle` | `[PII]`, `[Subject]`, redaction, namespace isolation |
+| `Cratis.Chronicle` | `[Encrypted]` in `Cratis.Chronicle.ProtectedValues`; analyzers `CHR0052`, `CHR0053` |
+| `Cratis.Arc.Core` | Authorization filters, `CommandResult.Unauthorized` |
 
-> Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
+Every Arc check is cited in references/arc-boundaries.md.
 
 Reverify against the owning product repository before asserting a framework
 guarantee this file does not already state.
@@ -52,18 +53,22 @@ command's properties as well as grepping them.
 
 ## Step 1 — Event sourcing: the permanent-record checks
 
-- **Every `[Command]` property holding a secret is marked `[NotAudited]`.** A
+- **Every `[Command]` property holding a secret or credential is marked `[NotAudited]`; a retained operational secret is also `[Encrypted]` on the event, and a credential reaches the event only as a hash or a reference.** A
   command's property values are written to the causation of every event it
   appends, and causation is as permanent as the events. Prefer the marking on
-  the concept type so it travels everywhere the value appears.
+  the concept type so it travels everywhere the value appears. `[NotAudited]`
+  alone leaves the secret in plaintext on events; `[Encrypted]` alone leaves the
+  command input on the causation chain.
   `ARCCHR0009` catches properties whose *names* read as secrets — so read the
   properties whose names do not say what they hold, because the analyzer cannot.
-- **Personal data is `[PII]`, not `[NotAudited]`.** They are different
-  mechanisms with different consequences: `[NotAudited]` withholds a value from
-  the causation chain; `[PII]` enrolls it in per-subject encryption and erasure.
-  A password is `[NotAudited]`. An email address is `[PII]`. Neither substitutes
-  for the other.
-- No secret, token, API key or password in an event property or a read model.
+- **Personal data is `[PII]` alone, a secret is `[Encrypted]` plus `[NotAudited]`.**
+  They are different mechanisms with different consequences: `[NotAudited]`
+  withholds a value from the causation chain; `[Encrypted]` encrypts it at rest
+  without erasure; `[PII]` encrypts, enrolls it in per-subject erasure and
+  withholds it. A third-party API key is `[Encrypted]` + `[NotAudited]`. An email address is
+  `[PII]`. A password is stored as a hash, never as a retained secret. Never combine `[PII]` with `[Encrypted]` (`CHR0053`), and neither goes
+  on an event-source id (`CHR0034`, `CHR0052`).
+- Credentials used for authentication (passwords, bearer or session tokens) are never stored; keep a hash or a reference. An operational secret the system must retain and use (a third-party API key, a company's bank account number) is stored only as an `[Encrypted]` + `[NotAudited]` concept, and never in a read model returned to clients in plaintext.
 - Event-source ids are generated server-side, never accepted from an untrusted
   client where the id grants access to a stream.
 - Upcasting and event-type migration logic cannot introduce a property the
@@ -92,6 +97,10 @@ command's properties as well as grepping them.
   must not be able to assert who it is through a command property.
 - Note that an unauthorized command result maps to HTTP **403**, not 401 — a
   reviewer reading logs for 401s will miss authorization failures.
+- Review [Arc-specific security boundaries](references/arc-boundaries.md) when
+  the diff touches hosting, identity, policies, discovery, streams or system actors.
+  It ties the checks to Arc source; do not assume a clean analyzer run proves
+  those deployment boundaries.
 
 ## Step 4 — Data exposure
 
@@ -120,21 +129,18 @@ command's properties as well as grepping them.
 
 ## Step 7 — Report
 
-Open with one line:
+Read and use `.cratis/ai/rules/review-reports.md` when writing the report.
+Keep the security risk label on each finding:
 
-> **Security review: No issues / Low-risk findings / Blocking issues found**
-
-Group findings by the section that produced them, and classify each:
-
-| Risk | Meaning |
+| Risk | Shared classification |
 | --- | --- |
-| **Critical** | Must be fixed before merge |
-| **Medium** | Should be fixed soon; state what makes it not-critical |
-| **Low** | Fix when convenient |
+| **Critical** | Blockers: exploitable exposure requiring correction before merge |
+| **Medium** | Suggestions: conditional exposure; state what makes it non-critical |
+| **Low** | Suggestions: defense-in-depth improvement |
 
-Close with a per-section summary table, and **name what you did not review** —
-the paths, the surfaces, and the axes out of scope. A security report listing
-only findings reads as a clean bill of health for everything it never opened.
+Use the shared verdict vocabulary, not a separate security verdict. If a
+conditional exposure must be corrected before merge, classify it as Critical
+and explain the exploit conditions rather than leaving a blocker under Medium.
 
 ## What breaks
 

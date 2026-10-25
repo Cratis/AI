@@ -1,0 +1,61 @@
+{
+  "skill_name": "orleans",
+  "evals": [
+    {
+      "id": 1,
+      "name": "grain-or-not",
+      "prompt": "Without calling tools, decide whether a shopping cart should be a grain and what to consider.",
+      "expected_output": "Use a grain when there is a single-writer identity with state and behavior; check state placement, concurrency and lifetime.",
+      "assertions": [
+        "Considers the entity identity as the grain key and single-threaded access as the benefit.",
+        "Considers where state lives and whether a database is better for it.",
+        "Names an alternative or tradeoff rather than asserting a grain unconditionally."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "cratis-edits",
+      "prompt": "Without calling tools, review a grain interface annotated with [Alias] that uses RegisterTimer for a periodic task.",
+      "expected_output": "Do not put [Alias] on grain interfaces or methods; no ConfigureAwait(false) in grain code; use RegisterGrainTimer for grain timers.",
+      "assertions": [
+        "Does not endorse [Alias] on grain interfaces.",
+        "Does not endorse ConfigureAwait(false) in grain code, citing the Cratis Orleans rule.",
+        "Recommends RegisterGrainTimer rather than RegisterTimer.",
+        "Mentions a reminder or Durable Job if the schedule must survive deactivation."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "time-primitives",
+      "prompt": "Without calling tools, explain how timers, reminders and Durable Jobs differ.",
+      "expected_output": "Timers are in-memory and die with the activation; reminders persist; Durable Jobs schedule durable one-shot work.",
+      "assertions": [
+        "States grain timers do not survive deactivation.",
+        "States reminders are durable.",
+        "Maps scheduled one-time work to Durable Jobs."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "recoverable-jobs-ownership",
+      "prompt": "Without calling tools, a user wants a long import that resumes after a silo restart and suggests Orleans DurableJobs or Journaling. Who owns this and what do you say?",
+      "expected_output": "Defer recoverable job work to cratis-orleans-jobs; DurableJobs/Journaling are experimental and not interchangeable with Cratis.Orleans jobs.",
+      "assertions": [
+        "Names cratis-orleans-jobs as the owner of recoverable job work.",
+        "States DurableJobs and Journaling are experimental.",
+        "States they are not interchangeable with Cratis.Orleans jobs."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "timer-and-placement-details",
+      "prompt": "Without calling tools, review a periodic batching timer and a claim that the default placement is random.",
+      "expected_output": "Callback is Func<CancellationToken, Task>; KeepAlive timers qualify activation liveness; resource-optimized is the default from Orleans 9.2, random before.",
+      "assertions": [
+        "Uses the grain timer extension with a Func<CancellationToken, Task> callback.",
+        "Qualifies that KeepAlive timers affect activation liveness.",
+        "States resource-optimized placement is the default since Orleans 9.2 and random before."
+      ]
+    }
+  ]
+}

@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Verifies the worker validates its mounted AI configuration manifest and never sources it.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ENTRYPOINT="${HERE}/../entrypoint.sh"
-WORK="${HERE}/aiconfigtest"
-rm -rf "$WORK"
-mkdir -p "$WORK"
-trap 'rm -rf "$WORK"' EXIT
+# shellcheck source=lib/scratch.sh
+source "${HERE}/lib/scratch.sh"
+scratch_create aiconfigtest
+WORK="$SCRATCH_ROOT"
 
 awk '/^prepare_ai_profile_prompt\(\)/ { inside = 1 }
      inside { print }

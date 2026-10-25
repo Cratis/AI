@@ -13,12 +13,12 @@ decide the event shape — the subject is what erasure operates on.
 
 ## Verified product sources
 
-This skill is verified against this exact public release:
+Sources:
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `18.3.0` | `Cratis.Chronicle.Compliance.GDPR`, `Cratis.Chronicle.SubjectAttribute`, `IEventSequence.Redact`, `IReadModels.Release` |
-| `Cratis.Chronicle.CodeAnalysis` | `18.3.0` | `CHR0026`, `CHR0034`, `CHR0035`, `CHR0043`, `CHR0046` |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` | `Cratis.Chronicle.Compliance.GDPR`, `Cratis.Chronicle.SubjectAttribute`, `IEventSequence.Redact`, `IReadModels.Release` |
+| `Cratis.Chronicle.CodeAnalysis` | `CHR0026`, `CHR0034`, `CHR0035`, `CHR0043`, `CHR0046` |
 
 Reverify product sources before claiming support for another version.
 
@@ -58,10 +58,28 @@ it.** The rationale that actually reaches the event schema comes from
 marker and `[ComplianceDetails("...")]` for the reason; do not write
 `[PII("reason")]` and expect the reason to be recorded.
 
-`PII` is the only compliance category Chronicle defines — there is exactly one
-well-known `ComplianceMetadataType`. Chronicle has no `[Redact]`, `[Erase]`,
-`[Anonymize]`, `[Encrypt]`, or `[NotAudited]` attribute; do not write one into
-an example. Redaction is an API call, not an annotation.
+`PII` is the only compliance category Chronicle defines. The protection markers
+are `[PII]` for personal data and `[Encrypted]` for retained operational secrets;
+there is no `[Redact]`, `[Erase]`, `[Anonymize]`, or `[Encrypt]` annotation.
+Redaction is an API call. `[NotAudited]` belongs to Arc, not Chronicle.
+
+`[Encrypted]` (`Cratis.Chronicle.ProtectedValues`) is a
+security marker, not a compliance category: it encrypts an operational secret
+(API key, token, a company's bank account number) at rest with no data subject
+and no erasure. Never put it on a value that is also `[PII]` (analyzer
+**CHR0053**, which `[PII]` alone already covers), nor on an event source id
+(**CHR0052**). Arc's `[NotAudited]` is not a Chronicle attribute either; a secret
+that is also a command property takes both `[Encrypted]` and `[NotAudited]`.
+`EncryptedAttribute.Scope` supports `EncryptionScope.Subject` (default),
+`Namespace`, and `Global`; these are security-key scopes, not PII erasure.
+`PIIManager` refuses to delete security keys. Custom security metadata providers
+live in `Cratis.Chronicle.Confidentiality` (`ICanProvideSecurityMetadataForType`
+and `ICanProvideSecurityMetadataForProperty`).
+
+Requires Chronicle 19.54.1 for encrypted non-string properties/concepts (such as
+`int` and `bool`) to append and deserialize with their original types across
+subject, namespace and global scopes. Check the kernel version; earlier kernels
+can fail those appends. Verify a protected-value round trip, not only compilation.
 
 Mark only genuinely personal values. Business metadata, identifiers of
 non-persons, and amounts stay unmarked — every marked value costs an encryption
@@ -144,9 +162,11 @@ What this does and does not do:
   recorded before any key is deleted.
 - The events stay in the log. Their `[PII]` values remain as unreadable
   ciphertext — this is crypto-shredding, not deletion.
-- Reading an erased value yields an **empty string** rather than an exception,
-  so queries and read models over an erased subject keep working. An erased
-  container value comes back as an empty object or array.
+- Released values depend on the schema: string → empty string; non-nullable
+  number/boolean → `0`/`false`; nullable number/boolean → `null`; collection →
+  empty collection; object/value object → empty object. An erased `0`, `false`
+  or empty string is indistinguishable from a genuinely recorded one.
+  Source: `Documentation/compliance/erasing-a-subject.mdx`.
 - Appending a new `[PII]` value for an erased subject **fails** with
   `EncryptionKeyErased`. It does not quietly mint a new key. Call
   `AllowNewEncryptionKeyFor` deliberately if the subject must be re-enrolled.
@@ -154,9 +174,10 @@ What this does and does not do:
   carries the individual failures. Treat it as unfinished and retry — the fence
   is already in place, so retrying is safe.
 
-**Erasure is scoped to one namespace.** There is no cross-namespace erasure. In
-a multi-tenant deployment, an erasure request that spans tenants is one call per
-tenant namespace, and completing only some of them is an incomplete erasure.
+**Erasure covers every event store in one namespace**, not just the store from
+which `PII` was resolved: forwarding copies subject keys within that namespace.
+There is no cross-namespace erasure. A request spanning tenants is one call per
+tenant namespace; completing only some is an incomplete erasure.
 
 ## Redact a stored event
 
@@ -175,6 +196,21 @@ conversion from `string`. Chronicle records the redaction itself as an
 Use redaction for content that should never have been appended. Use key erasure
 for a subject exercising a right to erasure. They are different mechanisms and
 one does not imply the other.
+
+Requires Chronicle 19.11.0 for redaction to also drop retained causation property values, revision
+history and content hashes. It does not reach backups, oplogs or events already
+forwarded elsewhere. Subject erasure does **not** erase causation values: these
+are not encrypted under the subject key. Kernel configuration
+`events.causationPropertyRetention = Omit`
+(`Cratis__Chronicle__Events__CausationPropertyRetention`) prevents **new** retention
+on appends, forwarding, revisions and redactions; it does not rewrite history.
+Source: `Documentation/hosting/configuration/events.md` and
+`Documentation/compliance/erasing-a-subject.mdx`.
+
+Adding `[PII]` / `[Encrypted]` to an existing generation is accepted with a warning
+and protects **later events only**. Revision and migration fail rather than
+persist empty substitutes when key lookup/decryption fails; an erased subject
+migrates as erased. Do not confuse that fail-closed write path with read release.
 
 ## Read personal data back
 
@@ -203,9 +239,15 @@ compliance setup — `AddCompliance()` is already called for you, and the raw
 client path discovers the metadata providers by convention. The developer-facing
 requirement is only to annotate the types.
 
-Key storage is a hosting decision, not an application one. Chronicle ships
+Key storage is per namespace and is a hosting decision, not an application one. Chronicle ships
 MongoDB (the default), SQL, in-memory, HashiCorp Vault, and Azure Key Vault key
 storage, configured under `Cratis:Chronicle:Compliance:Encryption`.
+From 19.99.1, Azure Key Vault erasure **purges every key revision**, not just
+soft-deletes it. The vault must grant purge permission and have purge protection
+disabled; a refused purge fails erasure rather than reporting success. Do not
+silently weaken the erasure contract to fit a protected vault. Verified at
+**v19.110.1**, `Source/Kernel/Storage.AzureKeyVault/AzureKeyVaultEncryptionKeyStorage.cs`
+and `Documentation/hosting/azure.md`.
 
 > **Operational trap.** Switching to a dedicated compliance key store without
 > setting `MigrateFromDefaultStorage` leaves every existing key unreachable.
@@ -213,6 +255,13 @@ storage, configured under `Cratis:Chronicle:Compliance:Encryption`.
 > no log — byte-for-byte indistinguishable from a completed erasure. Verify the
 > migration flag before switching stores, and confirm a known subject still
 > reads after the switch.
+
+> **Restore order.** The erasure fence is kept inside the key store, so a key
+> store restored from *before* an erasure brings the key back without its fence
+> and the erased personal data reads again; a key store older than the storage
+> also lacks keys for newer subjects, and their values read as empty. Restore
+> the certificate ring first, then the storage, then the key store to the
+> storage's point in time.
 
 ## Modeling rules that follow from erasure
 
@@ -225,8 +274,9 @@ storage, configured under `Cratis:Chronicle:Compliance:Encryption`.
 - Bearer tokens, magic links, and signed URLs are secrets, not durable facts.
   Store a keyed hash or an opaque reference. Chronicle has no attribute that
   withholds a secret from the log (Arc's `[NotAudited]` keeps a *command
-  property* out of the causation chain — see **cratis-arc-command** — but a
-  secret placed in an event payload is in the log for good).
+  property* out of the causation chain — see **cratis-arc-command**), and a
+  secret placed in an event payload is in the log for good; `[Encrypted]`
+  protects it at rest but it stays recoverable, so prefer a hash or reference.
 - **Erasure is wider than the event log.** Crypto-shredding removes readability
   of `[PII]` values in events and read models. It does nothing for a copy that
   left Chronicle: an exported CSV, a generated PDF, a search index, an email

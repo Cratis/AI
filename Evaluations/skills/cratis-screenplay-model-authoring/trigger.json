@@ -1,0 +1,90 @@
+{
+  "skill": "cratis-screenplay-model-authoring",
+  "queries": [
+    {
+      "query": "Record our open cancellation question as a Screenplay model note with refs D123, review read-proposal view notes, and resolve it by external-decision when our decision register answers it.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Use propose-property in Screenplay MCP to add a required priority field along the command, event and read-model chain with explicit sources and a fixture value; apply only if both revisions still match.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "my apply call came back StaleRevision. what do i do next with the screenplay mcp?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Rename only our command's title property through Screenplay MCP, preserving the event payload name and inspecting incomplete property evidence before proposing.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which MCP tool tells me the exact syntax shape of a screen template before I propose an AST edit?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Open our Screenplay workspace in the MCP server and tell me whether it is executableReady or only source-valid.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Our persisted event property rename returned EventContractChangeRequiresDecision. Can the identity catalog justify eventNeverPersisted, or should we use newGeneration through Screenplay MCP?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "I proposed a change with propose-source. How do I read the proposal's changes before I apply it?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Remove legacyLabel through propose-property after checking readers and inherited assertions; tell me what needsDecision, chainCandidates and weakensAssertion mean.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Build our work item tracker as a multi-file Screenplay application from an empty folder through the MCP tools, then change the selection binding and the dialog action, and run the edited model.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "cratis render refuses the model with STAGE-ESM-026. What does Stage admit?",
+      "shouldTrigger": false,
+      "note": "cratis-stage-rendering-and-sandbox"
+    },
+    {
+      "query": "Our accepted model has to become running code: probe the render, publish it and gap-fill what Stage cannot emit.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-render-and-gap-fill"
+    },
+    {
+      "query": "Fix PLAY0096 Invalid when declaration from the compiler and tell me which compiler version I am running.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-toolchain"
+    },
+    {
+      "query": "We are starting a new timesheet domain. Interview me and storm the event timeline.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-discovery"
+    },
+    {
+      "query": "Write the C# projection for WorkItemSummary with IProjectionFor.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-projection"
+    },
+    {
+      "query": "What is the .play syntax for a master-detail screen template with a toolbar dialog?",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-ui-composition"
+    },
+    {
+      "query": "Write given/when/then specifications for the CreateWorkItem command in the model.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-specifications"
+    },
+    {
+      "query": "Turn our existing Rails application into a Screenplay model with evidence for every event.",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-legacy-extraction"
+    },
+    {
+      "query": "Inspect failed partitions in our running Chronicle store with the cratis CLI.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-cli-operations"
+    }
+  ]
+}

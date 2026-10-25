@@ -1,0 +1,66 @@
+{
+  "skill_name": "cratis-chronicle-decision-reads",
+  "evals": [
+    {
+      "id": 1,
+      "name": "enroll-and-redecide",
+      "prompt": "A standalone .NET service reads AccountBalance and appends WithdrawalApproved. Another writer can change the balance meanwhile. Explain Chronicle IDecisionReads versus an ordinary passive read, detached enrollment and what to do after a conflict. Do not define an Arc command.",
+      "expected_output": "Admitted projection fold and guard, Get enrolls in ambient UoW, detached needs explicit enrollment, commit conflict requires reread and redecision.",
+      "assertions": [
+        "Distinguishes a current passive read (fresh but unguarded) from a decision read whose guard validates relevant intervening events at append.",
+        "States Get requires ambient unit of work and enrolls it while GetDetached needs explicit AddDecisionRead or guarded append.",
+        "Inspects commit success/conflicts and requires a new read and decision on conflict instead of sending stale events without a guard.",
+        "States the rule holds only when every writer that decides on it is guarded (or it is a constraint): an unguarded writer can still append on stale state."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "refused-hierarchy-and-stream-scope",
+      "prompt": "Our OrderSummary has children. Admit reports Hierarchy. Can we silently read the materialized sink instead? Also explain requirements for a stream-keyed projection decision on one monthly stream at Chronicle 19.50.0.",
+      "expected_output": "Refusal blocks protected use, redesign only with authority, stream-specific overload with admitted projection and one concrete stream type/id, not All, no reducer in a stream-scoped read.",
+      "assertions": [
+        "Explains Hierarchy refuses children/nested projections and does not fall back to an unguarded sink read.",
+        "Uses AdmitForStream and stream-scoped Get/GetDetached with event source id, stream type and stream id rather than inventing Arc API.",
+        "Requires an admitted projection (or an unfiltered reducer without constructor dependencies for a whole-source read; a reducer is not admitted in a stream-scoped read), one stream type not All, an Id property, and an explicit stream id for stream-keyed models.",
+        "Separates no-I/O shape admission from runtime definition, key and fold checks."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "ownership-and-conflicting-scopes",
+      "prompt": "Nested code wants to roll back while the owning protected unit of work commits. We also attached an explicit scope to the same source as an enrolled decision read. Can Compatibility policy make this safe? Explain conflicts and an empty checked append.",
+      "expected_output": "Single owner, Compatibility does not waive protected ownership or completing checks, explicit scope conflicts rejected, empty checked append narrowed to what kernel source supports.",
+      "assertions": [
+        "Requires completion by the owner and does not treat UnitOfWorkIsCompleting as success or permission for nested rollback.",
+        "Names DecisionReadConflictsWithConcurrencyScope and incompatible per-source batch scope errors rather than dropping protection.",
+        "Explains Compatibility legacy staging applies only to unprotected work; Strict rejects all late staging.",
+        "Narrows the empty checked append: current kernel validators accept an empty batch only when a scope has an actual boundary or expects no matching event, an older kernel surfaces DecisionReadValidateOnlyNotSupported, and it must be asserted by an integration specification rather than assumed."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "cross-key-capacity-and-middleware-commit",
+      "prompt": "A course holds at most 30 students and a student may take at most 5 courses. Show how to guard both rules in a Chronicle service that commits through the ASP.NET Core unit-of-work middleware, and how the caller learns of a conflict.",
+      "expected_output": "Two decision reads (course key, student key), one event per event source in one atomic AppendMany, commit before responding via IUnitOfWorkCompletionFeature.CommitAsync, inspect IsSuccess and GetDecisionConflicts.",
+      "assertions": [
+        "Uses one decision read per key and appends one event per event source in a single atomic batch, rather than two separate appends or one read on a single key.",
+        "States the middleware commits after the response and reports no concurrency violation, so the handler calls IUnitOfWorkCompletionFeature.CommitAsync() and checks IsSuccess and GetDecisionConflicts().",
+        "Requires each decision model to be an event-source-keyed flat projection with an Id property and notes there is no automatic retry on conflict.",
+        "Does not present a plain read model, a validator or the default optimistic append as the guard."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "route-rule-shapes",
+      "prompt": "In an Arc application with read protection On, choose the mechanism for each: (a) usernames must be unique, (b) at most 5000 may be withdrawn per bank account per month where each month is a stream of the account, (c) an order with many rules over add lines, pay, ship and cancel, (d) a 'seats left' badge on the course page. Say what you would not use for each.",
+      "expected_output": "(a) constraint; (b) per-stream read model on a routed command; (c) aggregate root; (d) plain query read.",
+      "assertions": [
+        "Routes (a) to a Chronicle constraint (a [Unique] property) that binds every writer, and says a read model or decision read guards one key's history, not a value across keys.",
+        "Routes (b) to a per-stream read model ([ReadModel, EventStream<TSource>(\"Transactions\")]) on a command routed with [EventSource<TSource>(\"Transactions\")] and [EventStreamId(\"{Month}\")], naming ReadModelStreamNotOnCommandRoute when the route is missing; a stream decision or whole-source model is the alternative.",
+        "Routes (c) to an aggregate root that returns Commit() last, and says an aggregate plus a protected read of the same source is refused (ReadAndAggregateOnSameSource).",
+        "Routes (d) to a plain read as a hint, not enforcement; does not guard it.",
+        "Does not present a validator over a plain read under Off, Result<,> or concurrency: true as the guard."
+      ]
+    }
+  ]
+}

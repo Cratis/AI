@@ -24,7 +24,7 @@ namespace Cratis.AI.Agents.Listing;
 /// <param name="ProviderId">The AI provider this role runs on - <see langword="null"/> leaves it unable to run until one is set.</param>
 /// <param name="PoolId">The AI provider pool this role draws from - <see langword="null"/> when it names a provider directly, or nothing at all.</param>
 /// <param name="Skills">The skills the agent has been given - <see langword="null"/> when it has none.</param>
-/// <param name="Harness">The CLI harness the agent's job invocations run under - Pi unless configured otherwise; meaningless for chat agents.</param>
+/// <param name="Harness">Historical per-agent preference for fallback when the resolved provider has no explicit harness selection; ignored when the provider has one.</param>
 /// <param name="Effort">The reasoning effort the agent's AI provider runs completions at - High unless configured otherwise.</param>
 /// <remarks>
 /// <see cref="ProviderId"/> and <see cref="PoolId"/> deliberately carry no <c>= null</c> default -

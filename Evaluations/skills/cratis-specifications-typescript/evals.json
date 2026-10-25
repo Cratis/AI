@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-specifications-typescript",
+  "evals": [
+    {
+      "id": 1,
+      "name": "context-and-spec",
+      "prompt": "In a Cratis TypeScript package, write the context class and one specification for `AuthorService.register(name)` that calls an `AuthorRepository` collaborator, with a context shared by several specs. Say where the files go. Give the code in your reply; do not write files.",
+      "expected_output": "`for_AuthorService/given/an_author_service.ts` (an `a_`/`an_` class with public properties, `sinon.createStubInstance` collaborators, constructing the SUT, no action) and `for_AuthorService/when_registering/with_valid_name.ts` using `describe('when registering with valid name', given(an_author_service, context => { ... }))` with the single action in `beforeEach` and `it('should ...')` asserting with `.should`.",
+      "assertions": [
+        "Puts the context in `for_AuthorService/given/` with an `a_` or `an_` class name and the spec under `when_registering/` in a preposition-prefixed file.",
+        "Makes the context properties public and contains no action under specification in the context.",
+        "Wraps the spec in `given(ContextClass, context => ...)` using a relative import of a local `given` file, with the single action in `beforeEach`.",
+        "Asserts with `.should` and never `expect()`, with `it('should ...')` text using spaces."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "isolation-per-describe",
+      "prompt": "A spec calls `context.service.register('a')` inside one `it()` and `register('b')` inside the next, both on the same stubbed repository, and the second fails after the first changed the stub. A colleague assumed given() rebuilds the context per it(). Explain and fix. Reply only; do not write files.",
+      "expected_output": "`given()` constructs the context once per `describe` and hands that instance to the suite; it is not re-created per `it()`. Isolation comes from the spec's shape: `beforeEach` performs the single action under specification and each `it()` asserts one outcome. Never put an action in an `it()`; the stubs it would disturb are shared. Restore stubs where Sinon state would leak.",
+      "assertions": [
+        "States that `given()` constructs the context class once per `describe`, not per `it()`.",
+        "Moves the single action into `beforeEach` so each `it()` only asserts one outcome.",
+        "Says an action inside an `it()` disturbs stubs shared with sibling `it()` blocks.",
+        "Says to split distinct behaviors into separate spec files or folders."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "setup-and-given-source",
+      "prompt": "In our package `result.should.equal(1)` throws that `should` is undefined, and `import { given } from '@cratis/specifications'` fails. What is wrong and how do I fix both? Reply only; do not write files.",
+      "expected_output": "Configure Vitest to load a setup file that calls `chai.should()` and registers `sinon-chai` and `chai-as-promised`; load the reflection polyfill for metadata-dependent code. `given()` is a small local file inside the package under specification, not a published export: import it with a relative path and create it if absent, matching the owning package's helper signature (Fundamentals has a parameterless context; Arc passes the Mocha Suite). The Specifications repository publishes no TypeScript helper.",
+      "assertions": [
+        "Says Vitest must load a setup file that calls `chai.should()`.",
+        "Says the setup also registers `sinon-chai` and `chai-as-promised` for plugin assertions.",
+        "Says `given()` is a local file in the package, not a published export, so it is imported by relative path and created if absent.",
+        "Says to match the owning package's helper signature rather than assuming one import path."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "naming-and-triviality",
+      "prompt": "Review this: file `when_a_user_registers_when_name_is_empty.ts`, `it('should_reject_empty_names')`, a spec `when_getting_the_name` that checks a property returning a constructor parameter, and `expect(result).to.equal(1)`. Reply only; do not write files.",
+      "expected_output": "`when` belongs only in a `when_<behavior>` folder name; use preposition-prefixed outcome files (`and_`, `with_`, `without_`, `having_`, `given_`). `it()` text starts with 'should' and uses spaces, not underscores. Do not specify getters or constructor-parameter properties. Always `.should`, never `expect()`.",
+      "assertions": [
+        "Says `when` belongs only in a `when_<behavior>` folder name, so a file name containing `when` is wrong.",
+        "Says outcome files use a preposition prefix such as `with_` or `and_`.",
+        "Says `it()` descriptions start with 'should' and use spaces rather than underscores.",
+        "Rejects the getter spec as not a behavior and rejects `expect()` in favor of the `.should` interface."
+      ]
+    }
+  ]
+}

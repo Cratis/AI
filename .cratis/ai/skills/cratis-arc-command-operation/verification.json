@@ -1,0 +1,19 @@
+{
+  "skill": "cratis-arc-command-operation",
+  "input": "Move a model-bound command's immediate seat reservation into an ICommandOperation, preserve its response, and specify forward failure and compensation without assuming a failed command means nothing committed.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "Chronicle is not required." },
+    { "kind": "skill-contains", "value": "operations cannot return receipts" },
+    { "kind": "skill-contains", "value": "only on `Compensate()`" },
+    { "kind": "skill-contains", "value": "Never return a raw array or `IEnumerable<ICommandOperation>` as a batch." },
+    { "kind": "skill-contains", "value": "Calling `Handle()` directly does not execute operations." },
+    { "kind": "skill-contains", "value": "C, B, A — never D" },
+    { "kind": "skill-contains", "value": "A failed result is not proof that nothing committed." },
+    { "kind": "skill-contains", "value": "`Unknown` / `Mixed`" },
+    { "kind": "skill-contains", "value": "CommandOperationOptions.CompensationTimeout" },
+    { "kind": "skill-contains", "value": "EF Core and MongoDB have no built-in operation commit participant." },
+    { "kind": "skill-contains", "value": "CommandResult.Recovery" },
+    { "kind": "skill-contains", "value": "references/testing.md" }
+  ]
+}

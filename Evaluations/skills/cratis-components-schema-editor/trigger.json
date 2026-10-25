@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-components-schema-editor",
+  "queries": [
+    { "query": "we want admins to design the shape of a custom event payload in the UI: add properties, pick string/int32/guid types. what Cratis component does that?", "shouldTrigger": true },
+    { "query": "SchemaEditor onSave doesn't hand me the schema, where do I get the edited value to persist?", "shouldTrigger": true },
+    { "query": "I set editMode from my parent state to toggle the schema editor and it ignores later changes", "shouldTrigger": true },
+    { "query": "my json schema uses $ref and definitions for shared address types, the editor shows nothing for those properties", "shouldTrigger": true },
+    { "query": "view a stored event's content and let the user edit values against its schema in a form. nested objects don't show an editor?", "shouldTrigger": true },
+    { "query": "ObjectContentEditor treats optional fields as required in edit mode and onValidationChange reports errors. how do I allow optional values?", "shouldTrigger": true },
+    { "query": "how do I let users mark one property as the key and some as required in the schema table?", "shouldTrigger": true },
+    { "query": "what does the schema editor do to items and format when I switch a property's type to array?", "shouldTrigger": true },
+    { "query": "property name validation in schema editor: which names does it reject and can I add a reserved-word check?", "shouldTrigger": true },
+    { "query": "translate every visible string of the schema editor to German incl. screen reader names", "shouldTrigger": true },
+    { "query": "bind a generated Arc command to a form with InputTextField and validation timing", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Evolve the CustomerRegistered event schema with a new required PhoneNumber and migrate old events.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Which event type schemas does my Chronicle server have registered? inspect them from a terminal.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
+    { "query": "Style the editor with --cratis tokens and check dark mode contrast.", "shouldTrigger": false, "note": "cratis-components-styling" },
+    { "query": "Which control for a picker and tabs in my details page?", "shouldTrigger": false, "note": "cratis-components-common-controls" },
+    { "query": "A multi-step wizard for the command that registers the type.", "shouldTrigger": false, "note": "cratis-components-stepper-command-dialog" },
+    { "query": "Define a C# event with an EventType attribute and concept-typed properties.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" },
+    { "query": "Explore hundreds of events as faceted cards in a pivot view.", "shouldTrigger": false, "note": "cratis-components-data-surfaces" }
+  ]
+}

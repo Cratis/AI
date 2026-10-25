@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-arc-go",
+  "evals": [
+    {
+      "id": 1,
+      "name": "head-and-json-wire-contract",
+      "prompt": "Review Arc.Go v0.1.1 HTTP behavior. Someone wants every HEAD request to run the observable source and encode a JSON body, and proposes decoding RFC QUERY JSON once without checking trailing documents. What does the released root module do, and which checks are needed before claiming C# HTTP parity?",
+      "expected_output": "HEAD is a bodyless probe and does not activate observable streaming. QUERY reads a bounded JSON object with duplicate/trailing-input checks. Verify exact routes, headers, statuses and envelopes instead of inferring whole-product parity.",
+      "assertions": [
+        "States query HEAD uses GET-style argument reading but suppresses response bodies and does not activate SSE, WebSocket or the observable source; it is an admission probe, not a subscription.",
+        "Retains explicit JSON names and Arc envelopes, including Content-Type application/json; charset=utf-8, rather than replacing them with an ad hoc plain-text or raw-result handler.",
+        "Requires one QUERY JSON object, rejects duplicate declared names case-insensitively and trailing JSON documents, and retains bounded-body/media-type enforcement.",
+        "Keeps the tagged conformance result partial and requires route, status, header, body and lifecycle checks before claiming HEAD or whole-product C# parity."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "cancellation-and-iterator-cleanup",
+      "prompt": "Our Arc.Go v0.1.1 observable query wraps an iterator with observable.FromIterator. After the client disconnects the iterator ignores false yield and blocks forever. We plan to return success on the cleanup deadline and use context.Background for the producer. Explain the fix and a deterministic early-exit specification.",
+      "expected_output": "Propagate cancellation, stop on false yield, join owned producer cleanup with a separate bounded context, and report incomplete joins honestly.",
+      "assertions": [
+        "Uses a lifecycle-bearing observable.Source with explicit registration rather than treating a snapshot query returning an arbitrary channel as streaming.",
+        "Requires the iterator to stop when yield returns false and blocking work to honor its supplied context; FromIterator does not detach a blocked iterator.",
+        "Separates cancellation from joined cleanup and uses a fresh bounded cleanup budget; an expired cleanup context is not proof of successful completion.",
+        "Specifies early exit and observed cleanup completion through synchronization, not guessed sleeps or a claim that fake time proves real-network behavior."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "v2-import-and-release-migration",
+      "prompt": "We want to break an Arc.Go v0.1.1 API and publish v0.1.2. A proposed PR changes consumer imports to github.com/cratis/arc.go/v2 while leaving the module directive at github.com/cratis/arc.go and moving the old tag. Review the version and migration plan against Chronicle.Go v0.9.1 and Fundamentals.Go v0.3.2 too. Do not publish anything.",
+      "expected_output": "A breaking v0 change needs a minor bump, not a patch or incidental /v2 imports. A real major migration coordinates module path, imports and consumers; immutable tags are not repaired by moving them.",
+      "assertions": [
+        "Identifies all three pinned modules as v0 root modules with unsuffixed paths; neither /v0 nor /v1 is a valid replacement and a /v2 module is not released by these tags.",
+        "Classifies a breaking experimental v0 API as a minor version change with migration notes, not a patch release disguised by new imports.",
+        "Requires an explicitly planned v2 migration across the module directive, every affected import, examples, consumers, release policy and parallel support rather than only editing the consumer import.",
+        "Keeps existing tags immutable, uses a new correction release and appropriate documented retractions, and distinguishes proxy indexing from source availability or consumer compilation."
+      ]
+    }
+  ]
+}

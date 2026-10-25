@@ -35,6 +35,20 @@ public interface IDecisionTelemetry
     void Decided(Activity? activity, DecisionEngineType type, DecisionResult result);
 
     /// <summary>
+    /// Records usage reported by one engine call.
+    /// </summary>
+    /// <param name="type">The engine.</param>
+    /// <param name="model">The model.</param>
+    /// <param name="topic">The batch's topic.</param>
+    /// <param name="decisions">The number of decisions.</param>
+    /// <param name="choices">The number of choices.</param>
+    /// <param name="inputTokens">The input tokens consumed.</param>
+    /// <param name="outputTokens">The output tokens consumed.</param>
+    void RecordUsage(DecisionEngineType type, ModelName model, DecisionTopic topic, int decisions, int choices, long inputTokens, long outputTokens)
+    {
+    }
+
+    /// <summary>
     /// Records a decision that failed.
     /// </summary>
     /// <param name="activity">The span the decision ran in.</param>
@@ -62,6 +76,11 @@ public sealed class DecisionTelemetry : IDecisionTelemetry, IDisposable
     readonly Histogram<double> _duration;
     readonly Histogram<double> _topProbability;
     readonly Counter<long> _count;
+    readonly Counter<long> _inputTokens;
+    readonly Counter<long> _outputTokens;
+    readonly Counter<long> _calls;
+    readonly Counter<long> _decisions;
+    readonly Counter<long> _choices;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DecisionTelemetry"/> class.
@@ -71,6 +90,11 @@ public sealed class DecisionTelemetry : IDecisionTelemetry, IDisposable
     {
         _options = options;
         _meter = new(Name);
+        _inputTokens = _meter.CreateCounter<long>("cratis.ai.decision.input_tokens", unit: "{token}");
+        _outputTokens = _meter.CreateCounter<long>("cratis.ai.decision.output_tokens", unit: "{token}");
+        _calls = _meter.CreateCounter<long>("cratis.ai.decision.calls");
+        _decisions = _meter.CreateCounter<long>("cratis.ai.decision.decisions");
+        _choices = _meter.CreateCounter<long>("cratis.ai.decision.choices");
         _duration = _meter.CreateHistogram<double>(
             "cratis.ai.decision.duration",
             unit: "ms",
@@ -121,6 +145,22 @@ public sealed class DecisionTelemetry : IDecisionTelemetry, IDisposable
         var tags = TagsFor(type, model, "failed");
         _duration.Record(duration.TotalMilliseconds, tags);
         _count.Add(1, tags);
+    }
+
+    /// <inheritdoc/>
+    public void RecordUsage(DecisionEngineType type, ModelName model, DecisionTopic topic, int decisions, int choices, long inputTokens, long outputTokens)
+    {
+        var tags = new TagList
+        {
+            { "decision.engine", type.ToString() },
+            { "model", model.Value },
+            { "topic", topic.Value },
+        };
+        _inputTokens.Add(inputTokens, tags);
+        _outputTokens.Add(outputTokens, tags);
+        _calls.Add(1, tags);
+        _decisions.Add(decisions, tags);
+        _choices.Add(choices, tags);
     }
 
     /// <inheritdoc/>

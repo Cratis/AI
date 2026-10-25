@@ -1,0 +1,65 @@
+{
+  "skill_name": "cratis-orleans-jobs",
+  "evals": [
+    {
+      "id": 1,
+      "name": "stage-ordering",
+      "prompt": "In a Cratis.Orleans Job<RecoveryRequest, RecoveryState>, IRepairIndex steps must all finish before IRebuildCatalog starts, and the catalog step needs data the repair produced. Show PrepareSteps and say how the dependency on repair output must be read. Give C# in your reply; do not write files.",
+      "expected_output": "PrepareSteps returns Task<IImmutableList<JobStepDetails>> using CreateStep<TStep>(request, stage: n) with the grain interface and stages 0 and 10 (JobStepStage, implicit int). Steps within a stage run in parallel; stages are barriers. All steps are prepared up front so later-stage preparation cannot see earlier effects; read such dependencies in PerformStep.",
+      "assertions": [
+        "Uses CreateStep with the grain interfaces (IRepairIndex, IRebuildCatalog), not the implementation classes, and gives the later step a higher stage.",
+        "States that every step in a stage reaches an outcome before later stages start and steps within a stage run in parallel.",
+        "States that all steps are prepared up front, so later-stage preparation cannot read effects of earlier-stage execution; read dependencies in PerformStep.",
+        "Returns an IImmutableList<JobStepDetails> from PrepareSteps."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "at-least-once-effects",
+      "prompt": "A job step calls a payment provider and after a crash the customer was charged twice. Is the job exactly-once? What should the step do, and does a checkpoint help? Reply only.",
+      "expected_output": "Jobs are at-least-once; a step interrupted before a durable checkpoint can perform the same work again. A checkpoint does not atomically commit an external write. Protect external effects with receiver-owned idempotency/deduplication. Larger checkpoint intervals mean more post-crash redelivery.",
+      "assertions": [
+        "States jobs are at-least-once, not exactly-once.",
+        "Says a step interrupted before a durable checkpoint can repeat work.",
+        "Recommends receiver-owned idempotency or deduplication for the external effect.",
+        "Says a checkpoint does not atomically commit an external write."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "sql-schema-and-options",
+      "prompt": "We register AddCratisOrleansSqlJobsStorage. The product docs say create the schema yourself. Do we? Also `Configure<JobsOptions>(o => o.MaxParallelSteps = 4)` does not compile. Explain both and the right approach. Reply only.",
+      "expected_output": "Source: SqlJobsStorage.GetFor calls EnsureSchema which calls Database.Migrate(); migration v1_0_0; do not substitute EnsureCreated or hand-create tables; the connection needs permission to apply the migration; Reset() clears the cache and migrates again. JobsOptions properties are init-only: supply a constructed instance via options registration.",
+      "assertions": [
+        "Says the SQL provider applies migrations automatically by calling Migrate when storage is resolved, so the schema is not hand-created.",
+        "Says not to substitute EnsureCreated or hand-create the tables, and that the connection needs permission to apply the migration.",
+        "Says JobsOptions properties are init-only and a constructed instance must be supplied through the options mechanism instead of assigning in a Configure callback.",
+        "Distinguishes MaxParallelSteps as the actual execution throttle from MaxConcurrentStepStarts."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "retention-and-resume",
+      "prompt": "We keep completed jobs with KeepAfterCompleted but the successful step results are gone later, and IJobsManager.Resume returned false but our code waits for a completion callback. Explain both and what to do. Reply only.",
+      "expected_output": "Keeping a job does not keep successful step state; the step provider deletes successful state. Copy results via OnStepCompletedOrStopped(JobStepId, JobStepResult) into job state. Resume returns Task<bool>; false means nothing took the job, do not wait for a callback; true can mean resumed, already running, or finalized completed.",
+      "assertions": [
+        "Says keeping a job does not keep successful step state because it is deleted.",
+        "Recommends copying needed results into job state through OnStepCompletedOrStopped.",
+        "Says Resume returns a bool where false means nothing took the job and a completion callback must not be awaited.",
+        "Says a true result can mean resumed, already running, or finalized as completed."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "grain-types-and-step-shape",
+      "prompt": "List what must be true of a new job and step class pair in Cratis.Orleans regarding base classes, the three step methods, the persistent state attribute and grain type names, plus how PerformStep should treat state. Reply only.",
+      "expected_output": "Job derives Job<TRequest,TJobState> with IJobRequest request and JobState state; step derives JobStep<TRequest,TResult,TState> with JobStepState; PrepareStep returns Task<Result<PrepareJobStepError>>, InitializeState returns ValueTask, PerformStep(TState, CancellationToken) returns Task<Catch<JobStepResult>>. Unique [GrainType] names per concrete job and step. PerformStep runs outside the activation context on a snapshot; mutating it does not persist, don't touch grain State directly.",
+      "assertions": [
+        "Names the base classes Job<TRequest, TJobState> and JobStep<TRequest, TResult, TState> with request and state types implementing IJobRequest, JobState and JobStepState.",
+        "Names PrepareStep, InitializeState and PerformStep(TState, CancellationToken) as the step methods, with PerformStep returning Catch<JobStepResult>.",
+        "Gives the concrete job and step unique [GrainType] names and does not reuse a class-derived grain name across assemblies.",
+        "Says PerformStep runs outside the activation context on a snapshot whose mutation does not persist and grain State must not be accessed directly from background work."
+      ]
+    }
+  ]
+}

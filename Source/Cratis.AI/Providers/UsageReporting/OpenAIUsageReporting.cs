@@ -73,7 +73,7 @@ public class OpenAIUsageReporting(IHttpClientFactory httpClientFactory, TimeProv
     static async Task<string> Send(HttpClient httpClient, ConfiguredAIProvider provider, string url)
     {
         using var request = new HttpRequestMessage(HttpMethod.Get, url);
-        request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {provider.UsageApiKey.Value}");
+        request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {provider.UsageApiKey.ForUse()}");
 
         using var response = await httpClient.SendAsync(request);
         response.EnsureSuccessStatusCode();

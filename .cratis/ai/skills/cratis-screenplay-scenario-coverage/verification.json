@@ -1,0 +1,19 @@
+{
+  "skill": "cratis-screenplay-scenario-coverage",
+  "input": "Write the specifications for a ReserveBerth command and its read model, and tell me what coverage is missing.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "a whitespace-only rejection" },
+    { "kind": "skill-contains", "value": "parent never arrives" },
+    { "kind": "skill-contains", "value": "Coverage matrix before any spec" },
+    { "kind": "skill-contains", "value": "Once, idempotent, exactly once are different claims" },
+    { "kind": "skill-contains", "value": "Unauthorized is never `then error`" },
+    { "kind": "skill-contains", "value": "find-specification-obligations" },
+    { "kind": "skill-contains", "value": "false PLAY0285" },
+    { "kind": "skill-contains", "value": "One behaviour per spec" },
+    { "kind": "skill-contains", "value": "No command has only two specs" },
+    { "kind": "skill-contains", "value": "not scenario-complete" },
+    { "kind": "skill-contains", "value": "per-view judgment was skipped" }
+  ]
+}

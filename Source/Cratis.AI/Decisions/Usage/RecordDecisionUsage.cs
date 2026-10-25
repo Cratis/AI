@@ -20,6 +20,7 @@ namespace Cratis.AI.Decisions.Usage;
 /// <param name="InputTokens">The input tokens the engine reported.</param>
 /// <param name="OutputTokens">The output tokens the engine reported.</param>
 /// <param name="Duration">How long the call took.</param>
+[Obsolete("Decision usage is no longer appended; removed in the next major release (Cratis/AI#651)")]
 [Command]
 public record RecordDecisionUsage(
     DecisionUsageId Usage,
@@ -72,6 +73,7 @@ public record DecisionUsagePeriod(DayKey Day, DecisionUsageBucketKey Bucket);
 /// <param name="Duration">How long the call took.</param>
 /// <param name="DayKey">The day the call was made (UTC).</param>
 /// <param name="DailyBucketKey">The day/engine/model/topic bucket it accumulates into.</param>
+[Obsolete("Decision usage is no longer appended; removed in the next major release (Cratis/AI#651)")]
 [EventType]
 public record DecisionUsageRecorded(
     DecisionEngineType Engine,

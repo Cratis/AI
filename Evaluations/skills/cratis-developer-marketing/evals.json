@@ -1,0 +1,56 @@
+{
+  "skill_name": "cratis-developer-marketing",
+  "evals": [
+    {
+      "id": 1,
+      "name": "launch-plan-contents",
+      "prompt": "We are shipping a new replay-diagnostics feature and want a launch. We have one engineer who wrote the feature and a marketer with about 6 hours a week. Outline the plan and what it must contain. Reply only; do not write files or publish anything.",
+      "expected_output": "A plan with the reader and question, one canonical versioned source with an owner, channel-native derivatives each carrying one insight, community venues with rules checked, assumed capacity in hours including replies, claims needing product verification, and a measurement hypothesis with a primary outcome, window and stop rule. Release is separate from launch. No one publishes on the agent's behalf.",
+      "assertions": [
+        "Names one canonical, owned and versioned source that holds the full explanation, with channel-native derivatives rather than the same text pasted everywhere.",
+        "Includes a capacity estimate in hours that covers replies and maintenance of the canonical page, not only drafting.",
+        "Includes a measurement hypothesis with a primary outcome, an observation window and a stop rule.",
+        "Treats the launch as a deliberate effort separate from the release and names who answers questions on launch day and the week after.",
+        "States that a person publishes, schedules and replies; the plan authorizes none of these."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "vanity-metrics-and-folklore",
+      "prompt": "Our scorecard adds GitHub stars, LinkedIn impressions and last-click signups into one 'engagement score'. A colleague also wants every post to put the link in the first comment because 'links in the body kill reach', and to post five times a week because a study said so. Review this in your reply.",
+      "expected_output": "Keep each stage in its own column; stars are bookmarks, impressions are renders, last click is where a visit came from. Link-in-first-comment is unproved, posting frequency is an observational association, not a prescription.",
+      "assertions": [
+        "Says the stages must not be added together because they count different events and people.",
+        "Describes a star as a bookmark and an impression as a render, not adoption.",
+        "Labels the first-comment link rule as unproved because format studies do not isolate link placement.",
+        "Says two to five posts a week is an observational association and not a prescription; the team should start with what it can sustain.",
+        "Recommends reporting the actual event with its denominator."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "invented-story-and-hn",
+      "prompt": "For the founder's launch article, write that the founder 'stayed up three nights debugging a replay failure and almost gave up', to give it a narrative arc. Also draft the Hacker News title and top comment for the launch. What do you do? Reply only.",
+      "expected_output": "Refuse to invent the experience; incident stories must be real and confirmed by the named author. Refuse to draft HN text; a person writes it, and an assistant only gathers facts and links.",
+      "assertions": [
+        "Refuses to invent the three-night debugging story and says incident or 'I was wrong' stories must be real and owned by the author.",
+        "Says to stop and ask when the author of a first-person piece has not confirmed the experience.",
+        "Declines to draft or edit the Hacker News title and comment because a person writes everything Cratis posts there.",
+        "Allows an assistant only to collect facts and links for the person writing."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "community-participation",
+      "prompt": "Launch day: someone proposes pasting our release link into six community channels and answering each thread with a one-line pitch. Another proposes opening a new Discord for support. Give your recommendation. Reply only.",
+      "expected_output": "Do not drop the same link in several communities on launch day. Answer the asked question in full in the thread, disclose working on the project, follow each venue's current rules, and do not open a new chat community until someone can moderate it.",
+      "assertions": [
+        "Advises against dropping the same link into several communities on launch day.",
+        "Says to answer the question that was asked in full in the thread and link only when the link adds something the answer cannot hold.",
+        "Says to disclose that you work on the project.",
+        "Says to read and follow each venue's current rules, since being able to join does not grant permission to promote.",
+        "Advises not to open a new chat community until someone can moderate it."
+      ]
+    }
+  ]
+}

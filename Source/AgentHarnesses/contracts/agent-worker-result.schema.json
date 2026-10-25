@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/raw/main/Source/AgentHarnesses/contracts/agent-worker-result.schema.json",
+  "$comment": "Copyright (c) Cratis. All rights reserved. Licensed under the MIT license. See LICENSE in the project root.",
+  "title": "Agent worker bundle-diff result",
+  "description": "Canonical camelCase wire format. Studio deserializes Web-default case-insensitive names. All properties below are required and non-null. String limits are additionally checked as UTF-16 units by check-result.mjs (JSON Schema maxLength counts code points). Usage raw JSON is at most 8192 characters; metadata serialized with diff set to an empty string is at most 65536 UTF-8 bytes. Studio also checks the decoded diff against its configured MaxDiffBytes and validates its SHA-256 and patch. Correlation GUID values must equal the launch request. The strict schema requires Studio correlation; the harness checker validates GUID keys only when DIRECT_CORRELATION supplied all four valid GUIDs, retaining opaque-object compatibility for other callers. Such opaque results are not Studio-ready.",
+  "type": "object",
+  "propertyNames": { "$ref": "#/$defs/resultName" },
+  "required": ["diff", "sha256", "structured", "usage", "correlation"],
+  "properties": {
+    "diff": { "type": "string", "description": "Exact UTF-8 git diff against the baseline, including trailing newlines." },
+    "sha256": { "type": "string", "description": "SHA-256 of the exact decoded diff bytes; checked by the receiver after transport validation." },
+    "structured": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/structuredName" },
+      "required": ["outcome", "touchedFiles", "gaps", "summary", "selfChecks"],
+      "properties": {
+        "outcome": { "enum": ["Completed", "NoChanges", "Refused", "Cancelled"] },
+        "touchedFiles": { "type": "array", "maxItems": 10000, "items": { "$ref": "#/$defs/text" } },
+        "gaps": { "type": "array", "maxItems": 1000, "items": { "$ref": "#/$defs/text" } },
+        "summary": { "$ref": "#/$defs/text" },
+        "selfChecks": { "type": "array", "maxItems": 1000, "items": { "$ref": "#/$defs/text" } }
+      }
+    },
+    "usage": { "type": "object", "description": "Original raw JSON text must be at most 8192 UTF-16 characters, including internal whitespace and escapes." },
+    "correlation": {
+      "type": "object",
+      "required": ["job", "session", "application", "feature"],
+      "properties": {
+        "job": { "$ref": "#/$defs/guid" },
+        "session": { "$ref": "#/$defs/guid" },
+        "application": { "$ref": "#/$defs/guid" },
+        "feature": { "$ref": "#/$defs/guid" }
+      }
+    }
+  },
+  "$defs": {
+    "resultName": {
+      "allOf": [
+        { "if": { "pattern": "^[dD][iI][fF][fF]$" }, "then": { "const": "diff" } },
+        { "if": { "pattern": "^[sS][hH][aA]256$" }, "then": { "const": "sha256" } },
+        { "if": { "pattern": "^[sS][tT][rR][uU][cC][tT][uU][rR][eE][dD]$" }, "then": { "const": "structured" } },
+        { "if": { "pattern": "^[uU][sS][aA][gG][eE]$" }, "then": { "const": "usage" } },
+        { "if": { "pattern": "^[cC][oO][rR][rR][eE][lL][aA][tT][iI][oO][nN]$" }, "then": { "const": "correlation" } }
+      ]
+    },
+    "structuredName": {
+      "allOf": [
+        { "if": { "pattern": "^[oO][uU][tT][cC][oO][mM][eE]$" }, "then": { "const": "outcome" } },
+        { "if": { "pattern": "^[tT][oO][uU][cC][hH][eE][dD][fF][iI][lL][eE][sS]$" }, "then": { "const": "touchedFiles" } },
+        { "if": { "pattern": "^[gG][aA][pP][sS]$" }, "then": { "const": "gaps" } },
+        { "if": { "pattern": "^[sS][uU][mM][mM][aA][rR][yY]$" }, "then": { "const": "summary" } },
+        { "if": { "pattern": "^[sS][eE][lL][fF][cC][hH][eE][cC][kK][sS]$" }, "then": { "const": "selfChecks" } }
+      ]
+    },
+    "text": { "type": "string", "maxLength": 8192 },
+    "guid": { "type": "string", "minLength": 36, "maxLength": 36, "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" }
+  }
+}

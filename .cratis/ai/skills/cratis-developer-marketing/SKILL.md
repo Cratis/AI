@@ -11,13 +11,30 @@ which channels get a native version of it, who answers the replies, and how anyo
 whether it helped. It does not write the post, the article or the sample. Other skills own
 those, and this one names them when the plan reaches that point.
 
-The evidence behind this skill is summarized in
+Read `references/playbook-evidence.md` when checking the source or strength of a survey figure, platform rule, company practice or marketing claim. The evidence behind this skill is summarized in
 [playbook evidence](references/playbook-evidence.md), dated and graded. Most of it is
 survey data, vendor observation and company practice. None of it tells you what will work
 for a specific product, so the plan should say what it expects and how it will check.
 
 Nothing in a plan is published, scheduled or replied to by an agent. A person does all
 three.
+
+## What a plan contains
+
+- The reader, their task, and the question the pillar answers.
+- The canonical source, its version, and who keeps it current.
+- Each derivative: channel, account, author, format, and the one insight it carries.
+- Community venues, with their current rules checked and the person who will answer.
+- The capacity it assumes, in hours, including replies and maintenance.
+- The claims that need product verification before anything is drafted.
+- A measurement hypothesis with a primary outcome, an observation window and a stop rule.
+
+## Stop conditions
+
+Stop and ask when the author of a first-person piece hasn't confirmed the experience, when a
+claim has no verified source, when a venue's rules are unknown, or when the plan depends on
+tracking that the site doesn't already have with consent. A plan authorizes nobody to
+publish, schedule, reply, tag or upload.
 
 ## How developers find and judge a tool
 
@@ -66,7 +83,7 @@ accept as fair.
 
 ## Openings that promise something true
 
-Several studies analyzed thousands of historical Upworthy headline experiments. They found
+Several studies analyzed thousands of past Upworthy headline experiments. They found
 that wording changes clicks, that more concreteness helped vague headlines
 and hurt ones that were already very concrete, and that linguistic features predicted the
 winning variant only a little better than chance. Negative words were associated with a
@@ -206,7 +223,7 @@ question left unanswered under a post is also a reader who got stuck.
 
 ## Measurement
 
-Measure a progression, keep each stage in its own column, and never add them together as if
+Read `references/measurement.md` when choosing metrics, preparing a scorecard or designing a small-sample experiment. Measure a progression, keep each stage in its own column, and never add them together as if
 they counted the same people. The stages, what each metric does and does not mean, a
 scorecard template and a small-sample experiment design are in
 [measurement](references/measurement.md).
@@ -224,26 +241,9 @@ not what convinced anyone. Report the actual event and its denominator.
 | Carousels reach more developers and drive adoption | Observed engagement can include slide clicks; adoption not measured |
 | Founder posts get a fixed reach multiplier | One company's observation, no effect size |
 | Everyone should post two to five times a week | Observational association, not a prescription |
-| Negative or mystery hooks win with engineers | Historical news-site CTR only; not trust or adoption |
+| Negative or mystery hooks win with engineers | Past news-site CTR only; not trust or adoption |
 | Documentation only matters after the sale | Developers report using docs to learn and onboard |
 | Stars, impressions, followers or last clicks equal adoption | Different events; report the real one |
 | Hacker News is a channel for polished promotional replies | Its rules prohibit generated comments and primarily promotional use |
 
 Sources are in [playbook evidence](references/playbook-evidence.md).
-
-## What a plan contains
-
-- The reader, their task, and the question the pillar answers.
-- The canonical source, its version, and who keeps it current.
-- Each derivative: channel, account, author, format, and the one insight it carries.
-- Community venues, with their current rules checked and the person who will answer.
-- The capacity it assumes, in hours, including replies and maintenance.
-- The claims that need product verification before anything is drafted.
-- A measurement hypothesis with a primary outcome, an observation window and a stop rule.
-
-## Stop conditions
-
-Stop and ask when the author of a first-person piece hasn't confirmed the experience, when a
-claim has no verified source, when a venue's rules are unknown, or when the plan depends on
-tracking that the site doesn't already have with consent. A plan authorizes nobody to
-publish, schedule, reply, tag or upload.

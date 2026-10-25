@@ -1,0 +1,23 @@
+{
+  "skill": "safeguarding-ai-generated-code",
+  "queries": [
+    { "query": "We opted into cratis/codescene and have CodeScene MCP tools. You generated the new payment handler. Run a Code Health gate before proposing a commit.", "shouldTrigger": true },
+    { "query": "Our repository selected cratis/codescene and has CodeScene MCP tools available. Is our AI-edited branch safe to merge according to CodeScene?", "shouldTrigger": true },
+    { "query": "With cratis/codescene opted in and CodeScene MCP tools available, check my staged AI changes with the safeguard before we commit.", "shouldTrigger": true },
+    { "query": "We opted into cratis/codescene and have CodeScene MCP tools. Compare this AI-generated PR to origin/main for Code Health regressions.", "shouldTrigger": true },
+    { "query": "Our repository selected cratis/codescene and has CodeScene MCP tools available. Before handing off the code you changed, check that its maintainability has not declined.", "shouldTrigger": true },
+    { "query": "With cratis/codescene opted in and CodeScene MCP tools available, CodeScene flagged a regression in your generated function. What must happen before declaring it done?", "shouldTrigger": true },
+    { "query": "We explicitly selected cratis/codescene and have CodeScene MCP tools available. Which checks belong after AI editing and before the PR?", "shouldTrigger": true },
+    { "query": "Our repository selected cratis/codescene and has CodeScene MCP tools available. The final safeguard failed on the assistant's changes. Explain what to inspect next rather than recommending merge.", "shouldTrigger": true },
+    { "query": "We have CodeScene MCP tools but did not opt into cratis/codescene. Run a pre-commit Code Health check on the AI changes.", "shouldTrigger": false, "note": "Profile opt-in guard: the skill must not apply." },
+    { "query": "We selected cratis/codescene but CodeScene MCP tools are unavailable. Gate our AI-edited branch before recommending the PR.", "shouldTrigger": false, "note": "Tool availability guard: skip without blocking." },
+    { "query": "Rank our project's historical hotspots for next quarter's refactoring budget.", "shouldTrigger": false, "note": "Project-level debt prioritization, not an AI-change gate." },
+    { "query": "Refactor this legacy parser in small measurable steps; no branch or commit gate is requested.", "shouldTrigger": false, "note": "Single-file refactoring mechanics." },
+    { "query": "Explain what a Code Health score of 6 means.", "shouldTrigger": false, "note": "Conceptual explanation." },
+    { "query": "Translate the release hotspots into tester-ready regression scenarios.", "shouldTrigger": false, "note": "Risk-based testing." },
+    { "query": "Quantify the financial ROI of improving our worst hotspot.", "shouldTrigger": false, "note": "Business-case framing." },
+    { "query": "Install the CodeScene MCP server and explain OAuth login.", "shouldTrigger": false, "note": "Installation and account setup." },
+    { "query": "Who owns the payment parser according to CodeScene?", "shouldTrigger": false, "note": "Ownership lookup." },
+    { "query": "Write a Git commit message for this documentation-only spelling fix; do not run CodeScene.", "shouldTrigger": false, "note": "Commit text, not a Code Health gate." }
+  ]
+}

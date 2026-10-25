@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-arc-command-kotlin",
+  "queries": [
+    { "query": "Our Spring Boot Kotlin app uses io.cratis:arc. Add RegisterVessel with a public handle method that returns VesselRegistered to Chronicle.", "shouldTrigger": true },
+    { "query": "In our Java Arc backend, should PlaceOrder be a record or a separate handler class? Show the declaration and a CompletionStage response.", "shouldTrigger": true },
+    { "query": "CompleteTask in Arc.Kotlin needs a repository lookup before handle runs. Where does provide go and how is its value injected?", "shouldTrigger": true },
+    { "query": "A Kotlin Arc command returns TaskCreated but has no CommandKey. Why is it rejected instead of getting a new event-source id?", "shouldTrigger": true },
+    { "query": "TransferFunds in our JVM Arc service must append one event to each of two account streams. What should handle return?", "shouldTrigger": true },
+    { "query": "We have an all-Java application using Arc. Do we still need Kotlin and KSP to generate its command adapters?", "shouldTrigger": true },
+    { "query": "The new Arc.Kotlin command has no generated React proxy. Where do I configure the proxy output and how is that different from endpoint segmentsToSkip?", "shouldTrigger": true },
+    { "query": "I want to add an Arc command in Kotlin without Chronicle; can handle just return a receipt DTO?", "shouldTrigger": true },
+    { "query": "In our Kotlin command, provide sometimes returns ValidationResult instead of the fetched account. Does handle still run?", "shouldTrigger": true },
+    { "query": "Add a Java Arc command returning several Chronicle events. How do plain events and EventForEventSourceId wrappers choose their streams?", "shouldTrigger": true },
+    { "query": "RegisterVessel already works in Kotlin. Only add a title length rejection that also appears in its generated TypeScript validation.", "shouldTrigger": false, "note": "cratis-arc-validation-kotlin" },
+    { "query": "Expose VesselView.all from the companion object in our Arc.Kotlin app; it should be an observable query.", "shouldTrigger": false, "note": "cratis-arc-query-kotlin" },
+    { "query": "Write a JVM CommandScenario proving our existing PlaceOrder rejects an empty basket.", "shouldTrigger": false, "note": "cratis-arc-testing-kotlin" },
+    { "query": "Our Java Arc app must reject missing tenant headers and serve application identity at /.cratis/me.", "shouldTrigger": false, "note": "cratis-arc-identity-and-tenancy-kotlin" },
+    { "query": "Configure Arc.Kotlin Spring Data JPA transactions for our existing commands and explain thread affinity.", "shouldTrigger": false, "note": "cratis-arc-spring-data-kotlin" },
+    { "query": "A plain Kotlin worker needs ChronicleClient and direct eventLog.append, without Arc or HTTP commands.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" },
+    { "query": "Add RegisterVessel to our C# Arc backend with a Handle returning an id and VesselRegistered.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Declare PlaceOrder in our Node.js Arc for TypeScript server with command and field decorators.", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "Wire the React registration dialog to our already generated Java command proxy; no backend changes.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Write a Java Chronicle reactor that sends an email after OrderPlaced, outside the Arc command pipeline.", "shouldTrigger": false, "note": "cratis-chronicle-client-kotlin" }
+  ]
+}

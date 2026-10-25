@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Cratis/AI/Evaluations/conformance/fixture.schema.json",
+  "title": "Cratis AI conformance fixture",
+  "description": "A deterministic conformance fixture for `cratis ai test`. The fixture lives at Evaluations/conformance/<name>/fixture.json with an optional input/ tree that seeds the working directory. Result-phase globs exclude .git/, .cratis/ and node_modules/ by default. A file_matches check fails when zero files match its path or glob. Beyond this schema, the verifier enforces: name equals the folder name; paths and globs are relative with no '..' segment and no absolute path; every profile and language exists in .cratis/ai/profile-catalog.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "description", "prompt", "checks"],
+  "properties": {
+    "name": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "description": "Kebab-case fixture name; must equal the fixture folder name." },
+    "description": { "type": "string", "minLength": 1, "description": "What the fixture proves." },
+    "prompt": { "type": "string", "minLength": 1, "description": "The task given to the agent." },
+    "expected_output": { "type": "string", "minLength": 1, "description": "Human-readable expectation. Never evaluated." },
+    "profiles": { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "Profile ids installed for the fixture. Empty or omitted means any. Each must exist in profile-catalog.json." },
+    "languages": { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "Languages the fixture applies to. Empty or omitted means any. Each must exist in profile-catalog.json." },
+    "harnesses": { "type": "array", "items": { "enum": ["claude", "codex", "copilot", "pi", "cursor", "opencode"] }, "description": "Harnesses to run on. Omitted means every supported harness." },
+    "expected_instruction_paths": { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "Relative paths of instruction files expected to be present after install." },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/check" },
+      "contains": {
+        "type": "object",
+        "properties": {
+          "phase": { "const": "result" },
+          "optional": { "not": { "const": true } }
+        }
+      },
+      "description": "Deterministic checks. At least one non-optional result-phase check is required."
+    },
+    "bounds": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "timeout_seconds": { "type": "integer", "minimum": 1 },
+        "max_budget_usd": { "type": "number", "exclusiveMinimum": 0 },
+        "max_turns": { "type": "integer", "minimum": 1 }
+      },
+      "description": "Optional run limits."
+    }
+  },
+  "$defs": {
+    "check": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": { "enum": ["file_exists", "file_absent", "file_matches", "file_not_matches", "command"], "description": "file_matches fails when zero files match the path or glob." },
+        "phase": { "enum": ["install", "result"], "default": "result", "description": "install runs after install and before the agent; result runs after the agent. Result-phase globs exclude .git/, .cratis/ and node_modules/ by default. command is not allowed in the install phase." },
+        "path": { "type": "string", "minLength": 1, "description": "Relative file path. No '..' and not absolute." },
+        "glob": { "type": "string", "minLength": 1, "description": "Relative glob. No '..' and not absolute." },
+        "pattern": { "type": "string", "minLength": 1, "description": ".NET regular expression. Required for file_matches and file_not_matches." },
+        "run": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "Command and arguments. Required for command." },
+        "exit_code": { "type": "integer", "default": 0, "description": "Expected exit code for command." },
+        "optional": { "type": "boolean", "default": false, "description": "An optional check never fails the fixture." }
+      },
+      "if": { "properties": { "type": { "const": "command" } }, "required": ["type"] },
+      "then": { "properties": { "phase": { "const": "result" } } },
+      "oneOf": [
+        {
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": { "const": "file_exists" },
+            "phase": { "$ref": "#/$defs/check/properties/phase" },
+            "path": { "$ref": "#/$defs/check/properties/path" },
+            "glob": { "$ref": "#/$defs/check/properties/glob" },
+            "optional": { "$ref": "#/$defs/check/properties/optional" }
+          },
+          "oneOf": [{ "required": ["path"] }, { "required": ["glob"] }]
+        },
+        {
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": { "const": "file_absent" },
+            "phase": { "$ref": "#/$defs/check/properties/phase" },
+            "path": { "$ref": "#/$defs/check/properties/path" },
+            "glob": { "$ref": "#/$defs/check/properties/glob" },
+            "optional": { "$ref": "#/$defs/check/properties/optional" }
+          },
+          "oneOf": [{ "required": ["path"] }, { "required": ["glob"] }]
+        },
+        {
+          "additionalProperties": false,
+          "required": ["type", "pattern"],
+          "properties": {
+            "type": { "const": "file_matches" },
+            "phase": { "$ref": "#/$defs/check/properties/phase" },
+            "path": { "$ref": "#/$defs/check/properties/path" },
+            "glob": { "$ref": "#/$defs/check/properties/glob" },
+            "pattern": { "$ref": "#/$defs/check/properties/pattern" },
+            "optional": { "$ref": "#/$defs/check/properties/optional" }
+          },
+          "oneOf": [{ "required": ["path"] }, { "required": ["glob"] }]
+        },
+        {
+          "additionalProperties": false,
+          "required": ["type", "pattern"],
+          "properties": {
+            "type": { "const": "file_not_matches" },
+            "phase": { "$ref": "#/$defs/check/properties/phase" },
+            "path": { "$ref": "#/$defs/check/properties/path" },
+            "glob": { "$ref": "#/$defs/check/properties/glob" },
+            "pattern": { "$ref": "#/$defs/check/properties/pattern" },
+            "optional": { "$ref": "#/$defs/check/properties/optional" }
+          },
+          "oneOf": [{ "required": ["path"] }, { "required": ["glob"] }]
+        },
+        {
+          "additionalProperties": false,
+          "required": ["type", "run"],
+          "properties": {
+            "type": { "const": "command" },
+            "phase": { "$ref": "#/$defs/check/properties/phase" },
+            "run": { "$ref": "#/$defs/check/properties/run" },
+            "exit_code": { "$ref": "#/$defs/check/properties/exit_code" },
+            "optional": { "$ref": "#/$defs/check/properties/optional" }
+          }
+        }
+      ]
+    }
+  }
+}

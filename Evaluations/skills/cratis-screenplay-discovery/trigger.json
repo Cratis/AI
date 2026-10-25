@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-screenplay-discovery",
+  "queries": [
+    { "query": "starting a new event model for a marina berth booking system. where do I begin?", "shouldTrigger": true },
+    { "query": "i have a 12 page process doc from ops, turn it into candidate events", "shouldTrigger": true },
+    { "query": "run an event storming session with me for our returns workflow, one question at a time", "shouldTrigger": true },
+    { "query": "list personas and what they can't do for our clinic scheduling domain", "shouldTrigger": true },
+    { "query": "what facts does the business need to remember when a patient is discharged? past tense names please", "shouldTrigger": true },
+    { "query": "we are preparing a human event storming workshop, need a run sheet and someone to scribe into the model", "shouldTrigger": true },
+    { "query": "my events keep ending up as UpdateCustomer and CustomerUpdated. how do I name them better?", "shouldTrigger": true },
+    { "query": "here are 30 jira tickets about onboarding, extract the events in story order", "shouldTrigger": true },
+    { "query": "check my timeline for completeness: what can happen next instead, and where are the dead ends?", "shouldTrigger": true },
+    { "query": "Design the command, its inputs and the read model for BookBerth, including refusals.", "shouldTrigger": false, "note": "cratis-screenplay-slice-design" },
+    { "query": "Audit our finished model and tell me what a reviewer would flag.", "shouldTrigger": false, "note": "cratis-screenplay-model-review" },
+    { "query": "Reverse-engineer the events from our legacy SQL schema and stored procedures.", "shouldTrigger": false, "note": "cratis-screenplay-legacy-extraction" },
+    { "query": "Which stream does BerthAssigned belong to and which invariant must be atomic?", "shouldTrigger": false, "note": "cratis-screenplay-streams-and-consistency" },
+    { "query": "Write the given/when/then scenarios for the booking slice.", "shouldTrigger": false, "note": "cratis-screenplay-scenario-coverage" },
+    { "query": "Draw a picture of the event model as a diagram I can put in the docs.", "shouldTrigger": false, "note": "cratis-event-model-diagram" },
+    { "query": "Model the nightly import from the harbor authority feed as a translate slice.", "shouldTrigger": false, "note": "cratis-screenplay-automations-and-translations" },
+    { "query": "How should I name and attribute a C# event type with [EventType] in Chronicle?", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" },
+    { "query": "Which compiler version should I run to validate the model?", "shouldTrigger": false, "note": "cratis-screenplay-toolchain" }
+  ]
+}

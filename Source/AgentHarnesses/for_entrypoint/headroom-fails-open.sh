@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Exercises entrypoint.sh's start_headroom/stop_headroom (issue #556) against every way the proxy
 # can be missing or broken, and shows that each one leaves the run to carry on rather than failing
 # it. That fail-open contract is the whole reason a compression layer is allowed in the request path
@@ -14,8 +15,13 @@ set -u
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ENTRYPOINT="${HERE}/../entrypoint.sh"
-WORK="${HERE}/headroomtest"
-rm -rf "$WORK"; mkdir -p "$WORK/bin"
+# shellcheck source=lib/scratch.sh
+source "${HERE}/lib/scratch.sh"
+scratch_create headroomtest
+WORK="$SCRATCH_ROOT"
+# The proxy these cases start is a child of this shell; HEADROOM_PID is reassigned on each start.
+scratch_before_cleanup() { scratch_track_pid "${HEADROOM_PID:-}"; }
+mkdir -p "$WORK/bin"
 
 log() { printf '[agent-harness] %s\n' "$*"; }
 
@@ -111,5 +117,4 @@ if [[ $failures -eq 0 ]]; then
 else
     echo "${failures} case(s) failed."
 fi
-rm -rf "$WORK"
 exit $((failures > 0))

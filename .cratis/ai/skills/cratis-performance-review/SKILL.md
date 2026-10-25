@@ -18,13 +18,14 @@ storage and replay cost that never goes away.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Chronicle` | `18.3.0` | Observers, projections, reducers, reactors, replay |
-| `Cratis.Arc.Core` | `22.16.0` | Query return shapes and server-side paging |
-| `@cratis/components` | current | `DataTable` paging surface |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Chronicle` | Observers, projections, reducers, reactors, replay |
+| `Cratis.Arc.Core` | Query return shapes and server-side paging |
+| `@cratis/components` | `DataTable` paging surface |
 
-> Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
+Paged MongoDB observations re-read page and total on each change; see the
+read-model query reference for the distinction from unpaged retained sets.
 
 Reverify against the owning product repository before asserting a framework
 behavior this file does not already state.
@@ -49,7 +50,7 @@ behavior this file does not already state.
   received already carries what it needs. (Reactor dispatch is by the handler's
   first parameter type — the method name is free, so look for the event-typed
   parameter, not for a method called `On`.)
-- **A new projection can replay all historical events without failing.** Ask it
+- **A new projection can replay all earlier events without failing.** Ask it
   explicitly: at production volume, does this projection complete a full replay?
 - **Events are small.** No large blob and no base64 payload embedded in an
   event; put the content elsewhere and carry a reference.
@@ -62,13 +63,32 @@ behavior this file does not already state.
 
 - Queries filter on indexed fields. An unintentional full-collection scan is the
   most common finding here.
-- **A list that can grow returns `IQueryable<T>`**, so Arc applies server-side
-  paging and sorting. Materializing and then slicing in memory reads the whole
+- **A list that can grow returns a shape Arc pages** — `IQueryable<T>` for a
+  LINQ-native provider, `collection.Observe(...)` for MongoDB — so Arc applies
+  server-side paging and sorting. A query that writes its own `Skip`/`Take` or
+  `OrderBy` for the client's page or sort is a finding, as is MongoDB
+  `AsQueryable()` (translation failures at request time). Materializing and then slicing in memory reads the whole
   collection every request.
 - No N+1: one query returns what the caller needs.
 - A count is a count. Hydrating the collection to measure its length is the
   same finding as an unpaged list, wearing different clothes.
-- A read model does not embed a large nested collection nothing fully iterates.
+- Prefer slim projection-backed summaries over repeatedly assembling broad
+  collections. Query composition is supported; one collection per query is not
+  a framework requirement. Bound each input and measure recomputation.
+- Embed bounded related state, not growing histories; page timelines separately.
+  Evaluate variants for divergent lifecycle shapes, not every status field.
+- Preserve reducer admission and ordering guards when proposing a projection
+  conversion; an unconditional setter may resurrect or prematurely create state.
+- Count passive models as inventory, not a smell. Assess history length and read
+  frequency against consistency/security needs. Requires Chronicle 19.77.3 for
+  per-key strongly consistent projection reads to fold from the start each time;
+  repeated reads are O(key history), not incremental cache hits. Prefer a
+  materialized projection for frequent long-history reads when freshness permits. `IMongoCollection<T>` cannot
+  read passive computed state; never materialize secrets to make that query work.
+- Distinguish retained `Observe` state and in-memory emissions from explicit
+  recompute queries. Narrow source filters and inspect page-refill/membership
+  lookups; do not claim every change re-queries the entire collection. See the
+  **cratis-chronicle-read-model** query reference for versioned behavior.
 
 ## Step 3 — Commands and queries
 
@@ -101,25 +121,23 @@ behavior this file does not already state.
 
 ## Step 6 — Report
 
-Open with one line:
+Read and use `.cratis/ai/rules/review-reports.md` when writing the report.
+Keep the performance risk label on each finding:
 
-> **Performance review: No issues / Minor findings / Blocking issues found**
-
-Group findings by the section that produced them, and classify each:
-
-| Risk | Meaning |
+| Risk | Shared classification |
 | --- | --- |
-| **High** | Measurable degradation at moderate load — fix before merge |
-| **Medium** | Degrades under load or as data grows |
-| **Low** | Minor inefficiency |
+| **High** | Blockers: degradation at moderate load requiring correction before merge |
+| **Medium** | Suggestions: degradation under load or as data grows |
+| **Low** | Suggestions: minor inefficiency |
 
-Close with a per-section summary table.
+Use the shared verdict vocabulary, not a separate performance verdict. If a
+scale-dependent degradation must be corrected before merge, classify it as High
+and state the relevant scale rather than leaving a blocker under Medium.
 
 **Say what the finding costs and at what scale.** "This is slow" is not
 actionable; "this scans the whole collection on every page load, so it is fine
-at hundreds of rows and not at tens of thousands" is. And **name what you did
-not measure** — a review of code shape is not a benchmark, and reporting it as
-one overstates the evidence.
+at hundreds of rows and not at tens of thousands" is. Distinguish measured cost
+from code-shape inference; use the shared scope line to name unmeasured behavior.
 
 ## What breaks
 

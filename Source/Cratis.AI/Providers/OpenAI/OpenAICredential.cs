@@ -45,7 +45,7 @@ public static class OpenAICredential
     /// <param name="apiKey">The stored credential, already revealed.</param>
     /// <returns><see langword="true"/> when it is a subscription credential.</returns>
     public static bool IsSubscriptionCredential(AIProviderApiKey apiKey) =>
-        apiKey.Value.AsSpan().TrimStart().StartsWith("{");
+        apiKey.ForUse().AsSpan().TrimStart().StartsWith("{");
 
     /// <summary>
     /// Whether the credential is a subscription record a harness will actually accept - a
@@ -64,7 +64,7 @@ public static class OpenAICredential
 
         try
         {
-            return JsonNode.Parse(apiKey.Value) is JsonObject record &&
+            return JsonNode.Parse(apiKey.ForUse()) is JsonObject record &&
                    _requiredFields.All(field => record[field] is not null);
         }
         catch (JsonException)

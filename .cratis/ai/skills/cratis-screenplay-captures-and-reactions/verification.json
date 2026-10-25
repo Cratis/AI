@@ -3,14 +3,72 @@
   "input": "Translate external data into events and declare a reaction.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": ".cratis/screenplay/" },
-    { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`" },
-    { "kind": "skill-contains", "value": "cannot be mixed in one clause" },
-    { "kind": "skill-contains", "value": "`where` belongs to the reaction, not to one trigger" },
-    { "kind": "skill-contains", "value": "Startup` and `Shutdown" },
-    { "kind": "skill-contains", "value": "`reads <View> [as <alias>] [by <trigger value>]`" },
-    { "kind": "skill-contains", "value": "Clock triggers read whole views." },
-    { "kind": "skill-contains", "value": "Declared, not enforced." },
-    { "kind": "skill-contains", "value": "An application trigger is not a UI event" }
+    { "kind": "skill-contains", "value": "unrouted facts never match" },
+    { "kind": "skill-contains", "value": "source events" },
+    { "kind": "skill-contains", "file": "references/capture-map-and-example.md", "value": "PLAY0809, an error" },
+    { "kind": "skill-contains", "file": "references/capture-map-and-example.md", "value": "ESM v33" },
+    { "kind": "skill-contains", "file": "references/capture-map-and-example.md", "value": "key orderId is event source" },
+    { "kind": "skill-contains", "file": "references/capture-map-and-example.md", "value": "`keyIsEventSource` beside `sourceEvents`" },
+    { "kind": "skill-contains", "file": "references/capture-map-and-example.md", "value": "earlier behavior, version and bytes" },
+    { "kind": "skill-contains", "file": "references/capture-map-and-example.md", "value": "An explicit fixture `for` must equal the key" },
+    { "kind": "skill-contains", "file": "references/capture-map-and-example.md", "value": "A fixture without `for` takes the key as its source" },
+    { "kind": "skill-contains", "file": "references/capture-map-and-example.md", "value": "givens, including a world with no action" },
+    { "kind": "play-compiles" },
+    {
+      "kind": "skill-contains",
+      "value": "command-only (`PLAY0474` in a reaction)"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Do not extend the inline command destination default"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Look first for the project's existing `.play` files"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`cratis ai install` manages `.cratis/ai/`, never model files"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "cannot be mixed in one clause"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`where` belongs to the reaction, not to one trigger"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Startup` and `Shutdown"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`reads <View> [as <alias>] [by <trigger value>]`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Clock triggers read whole views."
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Declared, not enforced."
+    },
+    {
+      "kind": "skill-contains",
+      "value": "An application trigger is not a UI event"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Who is the caller of an `invokes`?"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "ESM v10"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "[ExecuteCommandsAsSystem]"
+    }
   ]
 }

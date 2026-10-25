@@ -1,0 +1,64 @@
+{
+  "skill_name": "cratis-screenplay-modeling-lifecycle",
+  "evals": [
+    {
+      "id": 1,
+      "name": "installed-profile-new-feature",
+      "prompt": "We installed the Cratis screenplay profile and now want Loyalty Points. Decide whether this repository requires a play model before implementation and explain what evidence establishes that decision. If the team wants a model anyway, how may an entry-point agent and delegated implementers suggest it? Reply only.",
+      "expected_output": "Installation is not opt-in. Check the committed model root or an explicit mcpServers.screenplay.root. Only the entry-point session may propose modeling once; delegates do not propose again.",
+      "assertions": [
+        "States that installing profiles or skills does not opt the repository in.",
+        "Names both opt-in routes: a committed play under the model root, or explicit mcpServers.screenplay.root in .cratis/ai.json, including an empty configured root.",
+        "Limits the optional proposal to the entry-point session at most once, with no re-proposal by delegated agents."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "draft-and-head-contract",
+      "prompt": "Compare two repositories. A has returns.play staged but never committed. B has bookings.play committed and is editing its cancellation rule locally. Neither has explicit root configuration. Which version is the behavioral contract in each, how would you check, and what changes acceptance? Reply only.",
+      "expected_output": "A is draft-only, B's HEAD is the contract while edits are in progress. Check git ls-tree narrowed to the root; committing under that root is acceptance and opts in.",
+      "assertions": [
+        "Treats staged but uncommitted returns.play as a draft, not repository opt-in.",
+        "Uses the committed tree via git ls-tree against HEAD, narrowed to the model root, rather than file existence alone.",
+        "States that committing a model under the root is the team's acceptance and opts the repository in.",
+        "States that B's HEAD model remains the contract until its working-tree model change is committed."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "delivery-contradiction-packet",
+      "prompt": "Our accepted booking model says cancellations stop at 24h but production C# allows 12h. Some C# is Stage-managed and some is gap-fill. An unattended delivery agent has no business decision resolving this and is asked to finish the change. What may it do, what must it stop, and what should its handoff contain? Reply only.",
+      "expected_output": "Block the contradicted scope with an addressed question, continue independent scopes. Never patch Stage-managed output. If the policy changes update and verify/review the model first; if code is defective fix delivery against the existing model. A bounded packet opens with Outcome and states all five verdicts honestly.",
+      "assertions": [
+        "Blocks the contradicted scope with a declaration address and question rather than silently choosing 12h or 24h, while allowing independent scopes to continue.",
+        "For a policy change requires model verification and review before delivery; for a code defect allows correction against the accepted contract without gratuitously changing the policy.",
+        "Explicitly prohibits hand-editing Stage-managed output and routes correction through rendering or contract-led gap-fill.",
+        "Specifies a handoff opening with Outcome and five independent V1–V5 verdict lines, including not-run reasons."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "frozen-committed-model",
+      "prompt": "The repository commits a generated returns.play, and .cratis/ai.json sets modelFirst.frozen to true with a reason about migrating to model-first. A teammate asks for a small change to the returns behavior and, in the same chat, says to regenerate all models. How should the work go, and what happens to returns.play? Reply only.",
+      "expected_output": "The frozen model is generated evidence, not opted in (frozen-model): the change is code-first, returns.play is read but not edited or regenerated because the request does not name it, and the regenerate-all request skips it and says so.",
+      "assertions": [
+        "States that a committed model marked modelFirst.frozen is not opted in and the work stays code-first.",
+        "Does not edit or regenerate returns.play because the request does not name that .play path or model, and says the generic regenerate-all skipped it.",
+        "Says an explicit request naming that .play path or model would allow editing it.",
+        "Treats a non-boolean frozen value as could-not-run (exit 2), not as code-first."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "split-acceptance-at-p6",
+      "prompt": "The project's .cratis/ai.json sets process.acceptance with a product owner confirming meaning and a developer committing. The reviewer has produced a walkthrough at a source identity. Explain how P6 completes and what is recorded. Reply only.",
+      "expected_output": "The meaning role confirms against the reviewer's walkthrough at the P5-reviewed source identity (recording the language), the commit role commits, the post-commit digest equals the P5 digest, and both are recorded as commit trailers plus a STATE.md Acceptance line. Either alone leaves P6 open.",
+      "assertions": [
+        "Names two roles: the meaning role confirms against the reviewer's explain or walkthrough output at the P5-reviewed source identity, and the commit role commits.",
+        "Requires the committed digest to equal the digest reviewed at P5 before the identity is recorded.",
+        "Records Model-Meaning-Accepted-By and Model-Committed-By trailers carrying role and GitHub handle, mirrored on the STATE.md Acceptance line.",
+        "States that either acceptance without the other leaves P6 open."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-screenplay-specifications",
+  "evals": [
+    {
+      "id": 1,
+      "name": "pin-shop-customer-and-invite",
+      "prompt": "Write only a Screenplay specification excerpt for the shop's RegisterCustomer. It has customerId CustomerId generated identifier and inviteCode InviteCode generated. CustomerId is String with generate ulid prefix cus_ and InviteCode uses generate nanoid. Inline CustomerRegistered carries inviteCode and targets customerId; returns has customerId and inviteCode. Pin customerId to cus_01ARZ3NDEKTSV4RRFFQ69G5FAV and inviteCode to abcdefghijklmnopqrstu. Do not change the command or turn generated properties into inputs.",
+      "expected_output": "specification RegistersWithPinnedValues with when RegisterCustomer, indented for \"cus_01ARZ3NDEKTSV4RRFFQ69G5FAV\" and generated inviteCode = \"abcdefghijklmnopqrstu\"; then CustomerRegistered with its own for and complete inviteCode payload; then returns with customerId and inviteCode matching the same pins. Both pins match v15 shapes; no seed/request mapping is introduced.",
+      "assertions": [
+        "Pins the generated CustomerId with indented for beneath when, not an input property or a generated customerId fixture.",
+        "Pins InviteCode using generated inviteCode = with the exact 21-symbol NanoID value.",
+        "States the expected event's own destination and complete inviteCode payload.",
+        "Asserts both named response fields against the same whole-value pins without changing the command."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "clock-does-not-draw-shop-identifiers",
+      "prompt": "On Screenplay 4.151.0 our shop's PlaceOrder uses a TypeID OrderId generated identifier and an event's $context.occurred. I set given clock to 2026-10-05T08:00:00Z and a random seed but omitted the identifier pin. Will the reference evaluator create the same OrderId and pass? We also want a secret ApiKey generation spec matching .NET Bytes(32). How should we specify this, and what differs on Stage 4.89.1? Reply only.",
+      "expected_output": "given clock supplies $context.occurred, not a generated TypeID. Pin the whole OrderId with for and other generated values by name; seeds are not portable fixtures. Reaching unpinned generation is Unsupported(IdentityAllocation), not pass. Preserve ApiKey secret and report generation as unadmitted, not a successful issuance spec. Stage Debug specs can use AllowGeneration with supported relational assertions but its in-memory executor requires pins; its time-ordered factories use wall clock, not Arc receipt-time/tenant context, and clock specs are refused.",
+      "assertions": [
+        "Separates given clock's occurred timestamp from generated OrderId and rejects seed-based portable fixtures.",
+        "Requires the whole identifier pin via for, reporting missing reference fixtures as Unsupported rather than passed.",
+        "Preserves ApiKey's secret contract without inventing a passing generated-secret specification.",
+        "Distinguishes Stage Debug relational generation from deterministic reference/in-memory requirements, wall-clock factories and unsupported clock specs."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "strict-shop-fixtures-and-source-freshness",
+      "prompt": "Our v15 shop model uses generate typeid order for OrderId. A success spec pins it to order_00000000000000000000000000 (a zero UUID suffix, not v7/RFC-variant). Another pins a valid TypeID whose whole source already has prior facts on another stream. Should either pass, should the runner retry, and would a pin prove authorization or randomness? Compare older implicit-UUID models without serialized generation. Reply only.",
+      "expected_output": "The invalid TypeID pin is a v15 Contract rejection because the UUID suffix does not have the required version/variant. The valid reused source yields whole-command Concurrency with no append or response and no silent retry regardless of stream/event type. Serialized generation selects v15 guarding all generated destinations. Older implicit-UUID models retain canonical-only checks and unguarded reuse; removing the TypeID strategy is not an equivalent older model. Pins demonstrate deterministic behavior, not entropy, authorization, idempotency or target storage correctness.",
+      "assertions": [
+        "Rejects the invalid TypeID suffix as a v15 Contract failure, not client validation.",
+        "Reports existing whole-source facts as Concurrency with no append/response or silent retry even on another stream.",
+        "Explains v15 guard selection versus historical implicit-UUID unguarded models, without treating strategy removal as equivalent behavior.",
+        "Does not treat pins as proof of randomness, authorization, idempotency or target storage correctness."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "pin-pattern-clock-and-generated-rule-results",
+      "prompt": "Screenplay 4.199.0: InvoiceNumber generates pattern INV-{yyyy}{MM}-#{7} checksum luhn and validates checksum luhn. A shop order also generates a six-digit Int pickupTicket and a String from generate rule TenantOrder. How do we pin these and their UTC clock? What if an invoice fixture has the right shape but wrong checksum, no clock is supplied, or an attached validator is opaque? Could Stage 4.109.0 render the v21 model or allow unpinned v20 rule-bearing generation because its rules are Proven? Compare Stage 4.119.0's pattern/random/checksum rendering and all-Proven pin policy, and say whether generate rule renders. Reply only.",
+      "expected_output": "Use given clock and whole named generated fixtures; with 2026-10-02T09:00:00Z invoiceNumber INV-202610-00000004 is valid, ticket is integral numeric, rule output is a pinned String, never executed. All date segments match the same UTC instant; without clock digit widths only, not wall clock. Wrong checksum fails authored validation as Rejected(Contract), not client validation/redraw; without authored checksum only suffix shape is checked. Opaque validator yields Unsupported. Reference always requires reached generation pins. Stage 4.109.0 refuses v21, requires every rule-bearing v20 generated pin even when Proven; invalid pins -011, unpinned -038. Stage 4.115.0 admits v21 and all-Proven unpinned rendered specs, 4.117.0 allows warning/info rules, 4.118.0 renders checksum and 4.119.0 pattern/random; generate rule stays -028. The independent executor still needs pins. Check digits are not forgery protection and pattern is not gapless allocation.",
+      "assertions": [
+        "Pins each value by name with a UTC given clock and an integral, not quoted, Int ticket; never synthesizes random values or executes the attached generation body.",
+        "Explains same-instant date matching versus digit-width checks without a clock, and distinguishes checksum generation from separate authored arithmetic validation.",
+        "Reports wrong-rule pins as Contract failures with no redraw/client validation outcome, and opaque validation as Unsupported rather than passed.",
+        "Distinguishes reference/executor required pins, older Stage's pin policy and v21 refusal from 4.115.0 all-Proven unpinned rendering, 4.118.0 checksum and 4.119.0 pattern/random; generate rule stays -028."
+      ]
+    }
+  ]
+}

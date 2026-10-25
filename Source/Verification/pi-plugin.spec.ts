@@ -39,6 +39,46 @@ test('Pi exposes every catalog skill when configuration is absent', () => {
     }
 });
 
+test('Pi Go selection follows configuration updates and managed install removal without writing project files', () => {
+    for (const customized of [false, true]) {
+        const project = mkdtempSync(join(tmpdir(), 'cratis-pi-go-lifecycle-'));
+        try {
+            mkdirSync(join(project, '.cratis'));
+            const local = '# Repository-owned Go context\n';
+            writeFileSync(join(project, 'README.md'), local);
+            if (customized) {
+                mkdirSync(join(project, '.agents/skills/local'), { recursive: true });
+                writeFileSync(join(project, '.agents/skills/local/SKILL.md'), local);
+            }
+            const configuration = join(project, '.cratis/ai.json');
+            const handlers = pluginHandlers();
+            const discover = () => handlers.get('resources_discover')?.({ cwd: project, systemPrompt: '' }, { cwd: project }) as { skillPaths: string[] } | undefined;
+            for (const [profile, expected, excluded] of [
+                ['cratis/chronicle/client-go', 'cratis-chronicle-client-go', 'cratis-arc-go'],
+                ['cratis/arc/go', 'cratis-arc-go', 'cratis-chronicle-client-go'],
+            ]) {
+                const configured = JSON.stringify({ profiles: ['cratis/engineering/go', profile], languages: ['go'] });
+                writeFileSync(configuration, configured);
+                const first = discover()!;
+                assert.ok(first.skillPaths.some(path => path.endsWith(`/${expected}`)));
+                assert.ok(!first.skillPaths.some(path => path.endsWith(`/${excluded}`)));
+                assert.deepEqual(discover(), first, 'repeat discovery has no side effects');
+                assert.equal(readFileSync(configuration, 'utf8'), configured);
+                writeFileSync(join(project, '.cratis/ai.manifest.json'), '{}');
+                assert.equal(discover(), undefined, 'managed install owns resources');
+                assert.equal(handlers.get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }), undefined);
+                rmSync(join(project, '.cratis/ai.manifest.json'));
+                assert.deepEqual(discover(), first, 'removing the managed marker restores package selection');
+            }
+            assert.equal(readFileSync(join(project, 'README.md'), 'utf8'), local);
+            if (customized) assert.equal(readFileSync(join(project, '.agents/skills/local/SKILL.md'), 'utf8'), local);
+            assert.equal(existsSync(join(project, '.cratis/ai')), false, 'Pi discovers package resources; it does not install or uninstall a corpus');
+        } finally {
+            rmSync(project, { recursive: true, force: true });
+        }
+    }
+});
+
 test('managed Pi puts only universal rules in the system prompt', () => {
     const prompt = universalRules(repositoryRoot).map(rule => rule.content).join('\n\n');
     assert.match(prompt, /# Cratis — Project Instructions/);
@@ -95,6 +135,59 @@ test('managed Pi drops profile-specific rules the repository does not select', (
     }
 });
 
+test('managed and packaged Pi filter exact Cratis rule profiles without changing legacy selection', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const cases = [
+            { profiles: ['cratis/codescene'], codescene: true, application: false, framework: false },
+            { profiles: ['cratis/codescene/team'], codescene: true, application: false, framework: false },
+            { profiles: ['cratis/codescene-other'], codescene: false, application: false, framework: false },
+            { profiles: ['cratis'], codescene: false, application: false, framework: false },
+            { profiles: ['cratis/full'], codescene: false, application: false, framework: false },
+            { profiles: ['cratis/application/csharp'], codescene: false, application: true, framework: false },
+            { profiles: ['cratis/engineering/csharp'], codescene: false, application: false, framework: true },
+            { profiles: ['cratis/application'], codescene: false, application: true, framework: false },
+            { profiles: ['cratis/engineering'], codescene: false, application: false, framework: true },
+            { profiles: [], codescene: false, application: false, framework: false },
+        ];
+        for (const entry of cases) {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: entry.profiles }));
+            const names = managedRules(project).map(rule => rule.name);
+            assert.equal(names.includes('codescene.md'), entry.codescene, JSON.stringify(entry));
+            assert.equal(names.includes('application-profile.md'), entry.application, JSON.stringify(entry));
+            assert.equal(names.includes('framework.md'), entry.framework, JSON.stringify(entry));
+            const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+            assert.equal(result.systemPrompt.includes('# CodeScene Code Health policy'), entry.codescene, JSON.stringify(entry));
+            // Both profile guides are file-scoped; profile selection still decides which reaches the path.
+            assert.ok(!result.systemPrompt.includes('## Project Layout (Cratis Application convention)'), JSON.stringify(entry));
+            assert.ok(!result.systemPrompt.includes('# Framework Profile — Contributing to Cratis Itself'), JSON.stringify(entry));
+            const delivered = rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name);
+            assert.equal(delivered.includes('application-profile.md'), entry.application, JSON.stringify(entry));
+            assert.equal(delivered.includes('framework.md'), entry.framework, JSON.stringify(entry));
+            assert.equal(result.systemPrompt, `base\n\n${universalRules(project).map(rule => rule.content).join('\n\n')}`);
+        }
+        rmSync(join(project, '.cratis', 'ai.json'));
+        assert.ok(managedRules(project).some(rule => rule.name === 'codescene.md'), 'no configuration still keeps every rule');
+        const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+        assert.ok(result.systemPrompt.includes('# CodeScene Code Health policy'), 'no configuration still keeps every packaged rule');
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('CodeScene resolves only through its explicit opt-in profile', () => {
+    const expected = [
+        'guiding-refactoring-with-code-health', 'prioritizing-technical-debt',
+        'risk-based-testing-with-code-health', 'safeguarding-ai-generated-code',
+    ];
+    assert.deepEqual(resolvedSkills({ profiles: ['cratis/codescene'], languages: ['csharp'] }), ['cratis-commits-and-pull-requests', 'cratis-rtk', ...expected]);
+    for (const profile of ['cratis', 'cratis/full']) {
+        const names = resolvedSkills({ profiles: [profile] });
+        for (const skill of expected) assert.ok(!names.includes(skill), `${profile}: ${skill}`);
+    }
+});
+
 test('managed Pi cratis-rules injects only the universal rules and delivers no path-scoped rule', () => {
     const handlers = new Map<string, (event: unknown, context: { cwd: string }) => unknown>();
     registerManagedRules({
@@ -148,7 +241,7 @@ test('Cratis quality hooks register an explicit gate but no automatic turn-end c
         sendUserMessage() { assert.fail('quality hooks must not request a follow-up'); },
     } as unknown as ExtensionAPI);
     assert.ok(tools.includes('cratis_quality_gate'));
-    assert.deepEqual(handlers.sort(), ['session_shutdown', 'tool_call', 'tool_result']);
+    assert.deepEqual(handlers.sort(), ['session_shutdown', 'session_start', 'tool_call', 'tool_result']);
 });
 
 test('the Pi package filters rules for framework CSharp documentation repositories', () => {
@@ -161,7 +254,8 @@ test('the Pi package filters rules for framework CSharp documentation repositori
         }));
         const handlers = pluginHandlers();
         const result = handlers.get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
-        assert.match(result.systemPrompt, /# Framework Profile/);
+        assert.doesNotMatch(result.systemPrompt, /# Framework Profile/, 'framework guidance is now path-scoped');
+        assert.ok(rulesForPath(project, 'Source/Thing.cs').some(rule => rule.name === 'framework.md'), 'framework guidance still reaches source files');
         assert.doesNotMatch(result.systemPrompt, /# Vertical Slice Architecture/);
         assert.doesNotMatch(result.systemPrompt, /# TypeScript Conventions/);
         // Path-scoped rules are delivered by the packaged cratis-path-guidance extension, not the system prompt.
@@ -170,8 +264,55 @@ test('the Pi package filters rules for framework CSharp documentation repositori
         // The same selection applies to the rules path guidance delivers: csharp and documentation are selected...
         assert.ok(rulesForPath(project, 'Source/Thing.cs').some(rule => /# C# Conventions/.test(rule.content)));
         assert.ok(rulesForPath(project, 'Documentation/page.md').some(rule => /# How to write documentation/.test(rule.content)));
-        // ...typescript is not, so no TypeScript rule reaches a .ts file.
-        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), []);
+        // Shared file concerns reach source paths regardless of the selected implementation language;
+        // language-specific TypeScript conventions remain excluded.
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['code-quality.md', 'framework.md', 'glossary.md']);
+        for (const name of ['framework.md', 'code-quality.md', 'glossary.md']) assert.ok(!universalRules(project).some(rule => rule.name === name));
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('packaged Pi delivers unchanged work-artifact safety at C#-only session start without documentation', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-artifacts-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] }));
+        const safety = readFileSync(join(repositoryRoot, '.cratis/ai/rules/local-work-artifacts.md'), 'utf8');
+        const rules = universalRules(project);
+        assert.equal(rules.find(rule => rule.name === 'local-work-artifacts.md')?.content, safety);
+        assert.ok(!rulesForPath(project, '.ai-work/815/handover.md').some(rule => rule.name === 'local-work-artifacts.md'), 'universal safety is already delivered, not deferred to a path read');
+        const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+        assert.ok(result.systemPrompt.includes(safety), 'the actual packaged startup handler delivers the entire safety rule');
+        for (const text of ['`.ai-work/`', 'A session prompt or handover states when it is valid.', 'Check the preconditions before acting on a prompt.', 'A worktree is a work record too.', 'cratis-cleanup-worktrees.sh', 'locked worktrees are always kept', 'Never `--force` a removal']) {
+            assert.ok(result.systemPrompt.includes(text), text);
+        }
+        assert.doesNotMatch(result.systemPrompt, /# How to write documentation/);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('the profile rules reach a source file of every supported language for every language-only repository', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const files: Record<string, string> = { csharp: 'Source/Thing.cs', typescript: 'Source/thing.ts', go: 'Source/thing.go', kotlin: 'Source/Thing.kt', java: 'Source/Thing.java', elixir: 'lib/thing.ex' };
+        for (const [language, file] of Object.entries(files)) {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/application/csharp'], languages: [language] }));
+            assert.ok(rulesForPath(project, file).some(candidate => candidate.name === 'application-profile.md'), `application-profile.md reaches ${file} in a ${language}-only repository`);
+            assert.ok(managedRules(project).some(candidate => candidate.name === 'application-profile.md'), `application-profile.md is selected in a ${language}-only repository`);
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/engineering/csharp'], languages: [language] }));
+            for (const name of ['framework.md', 'code-quality.md', 'glossary.md']) {
+                assert.ok(!universalRules(project).some(rule => rule.name === name), `${name} is path-scoped`);
+                assert.ok(rulesForPath(project, file).some(rule => rule.name === name), `${name} reaches ${file}`);
+            }
+        }
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/application/kotlin'], languages: ['kotlin'] }));
+        assert.ok(rulesForPath(project, 'Source/model.play').some(rule => rule.name === 'application-profile.md'), 'model files reach the application profile');
+        for (const name of ['git-commits.md', 'pull-requests.md']) {
+            assert.ok(universalRules(project).some(rule => rule.name === name), `${name} is always on`);
+        }
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
@@ -185,12 +326,12 @@ test('path-scoped rules from the packaged corpus follow the selected languages a
 
         configure({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] });
         assert.ok(rulesForPath(project, 'Source/Thing.cs').length > 0, 'csharp is selected');
-        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), [], 'no TypeScript rules for a csharp-only repository');
-        assert.deepEqual(rulesForPath(project, 'Documentation/page.md').map(rule => rule.name), [], 'no documentation rules without cratis/documentation');
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['code-quality.md', 'framework.md', 'glossary.md'], 'only shared source concerns reach TypeScript in a csharp-only repository');
+        assert.deepEqual(rulesForPath(project, 'Documentation/page.md').map(rule => rule.name), ['glossary.md'], 'shared terminology reaches documentation, but documentation-specific rules require cratis/documentation');
 
         configure({ profiles: ['cratis/engineering/typescript', 'cratis/documentation'], languages: ['typescript'] });
         assert.ok(rulesForPath(project, 'Source/Thing.ts').length > 0, 'typescript is selected');
-        assert.deepEqual(rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name), [], 'no C# rules for a typescript-only repository');
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name), ['code-quality.md', 'framework.md', 'glossary.md'], 'only shared source concerns reach C# in a typescript-only repository');
         assert.ok(rulesForPath(project, 'Documentation/page.md').length > 0, 'cratis/documentation is selected');
 
         rmSync(join(project, '.cratis', 'ai.json'));
@@ -213,6 +354,7 @@ test('the Pi package prompt and path guidance select the same rules for every la
         for (const configuration of [
             { profiles: ['cratis/engineering/csharp'], languages: ['csharp'] },
             { profiles: ['cratis/engineering/typescript'], languages: ['typescript'] },
+            { profiles: ['cratis/engineering/go'], languages: ['go'] },
             { profiles: ['cratis/application/csharp', 'cratis/documentation'], languages: ['csharp', 'typescript'] },
             { profiles: ['cratis/application/csharp'], languages: [] },
         ]) {
@@ -246,5 +388,98 @@ test('Pi resolves configured profile composition through selected languages', ()
         assert.ok(!names.includes('cratis-chronicle-client-elixir'));
     } finally {
         rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('Go rules match source and module files only for selected Go languages', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const configure = (profile: string, language: string) => writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: [profile], languages: [language] }));
+        const paths = ['main.go', 'Source/main.go', 'go.mod', 'go.sum', 'adapter/go.mod', 'adapter/go.sum'];
+        configure('cratis/language/go', 'go');
+        for (const path of paths) {
+            const names = rulesForPath(project, path).map(rule => rule.name);
+            assert.ok(names.includes('go.md'), path);
+            assert.ok(!names.includes('go-engineering.md'), path);
+        }
+        configure('cratis/engineering/go', 'go');
+        for (const path of paths) {
+            assert.ok(rulesForPath(project, path).some(rule => rule.name === 'go-engineering.md'), path);
+        }
+        configure('cratis/engineering/csharp', 'csharp');
+        assert.ok(!managedRules(project).some(rule => ['go.md', 'go-engineering.md'].includes(rule.name)));
+        // Shared source/manifests guidance now reaches these paths; dedicated Go conventions remain excluded.
+        for (const path of paths) {
+            const shared = path.endsWith('.go') ? ['code-quality.md', 'framework.md', 'glossary.md'] : path.endsWith('go.mod') ? ['framework.md'] : [];
+            assert.deepEqual(rulesForPath(project, path).map(rule => rule.name), shared, path);
+        }
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('Go profile composition keeps Arc HTTP and Chronicle client skills separate', () => {
+    const language = resolvedSkills({ profiles: ['cratis/language/go'], languages: ['go'] });
+    assert.deepEqual(language, ['cratis-commits-and-pull-requests', 'cratis-rtk']);
+    const engineering = resolvedSkills({ profiles: ['cratis/engineering/go'], languages: ['go'] });
+    assert.ok(engineering.includes('cratis-engineering-effect-boundaries'));
+    assert.ok(!engineering.includes('cratis-arc-go'));
+    assert.ok(!engineering.includes('cratis-chronicle-client-go'));
+    for (const [profile, skill, excluded] of [
+        ['cratis/arc/go', 'cratis-arc-go', 'cratis-chronicle-client-go'],
+        ['cratis/chronicle/client-go', 'cratis-chronicle-client-go', 'cratis-arc-go'],
+        ['cratis/fundamentals/go', 'cratis-fundamentals-concept-go', 'cratis-arc-go'],
+    ]) {
+        const names = resolvedSkills({ profiles: [profile], languages: ['go'] });
+        assert.ok(names.includes(skill), profile);
+        assert.ok(names.includes('cratis-fundamentals-concept-go'), profile);
+        assert.ok(!names.includes(excluded), profile);
+        assert.ok(!names.includes('cratis-arc-command'), profile);
+        assert.ok(!names.includes('cratis-chronicle-client-dotnet'), profile);
+    }
+    const csharp = resolvedSkills({ profiles: ['cratis'], languages: ['csharp'] });
+    assert.ok(!csharp.includes('cratis-arc-go'));
+    assert.ok(!csharp.includes('cratis-chronicle-client-go'));
+});
+
+const arcTypeScriptServerSkills = ['cratis-arc-command-typescript', 'cratis-arc-query-typescript', 'cratis-arc-validation-typescript'];
+
+function resolvedSkills(configuration: { profiles: string[]; languages?: string[] }): (string | undefined)[] {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(configuration));
+        return selectedSkillPaths(project).map(path => path.split('/').pop());
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+}
+
+test('Pi resolves a TypeScript-only Arc application to the Arc for TypeScript server skills', () => {
+    for (const profile of ['cratis/arc/typescript', 'cratis/full/typescript']) {
+        const names = resolvedSkills({ profiles: [profile], languages: ['typescript'] });
+        for (const skill of arcTypeScriptServerSkills) {
+            assert.ok(names.includes(skill), `${profile}: ${skill}`);
+        }
+        assert.ok(!names.includes('cratis-arc-command-kotlin'), profile);
+        assert.ok(!names.includes('cratis-arc-command'), profile);
+    }
+    const names = resolvedSkills({ profiles: ['cratis/application/typescript'], languages: ['typescript'] });
+    assert.ok(names.includes('cratis-chronicle-client-typescript'));
+});
+
+test('Pi does not load the Arc for TypeScript server skills into C# applications with a React frontend', () => {
+    for (const configuration of [
+        { profiles: ['cratis/application/csharp'], languages: ['csharp', 'typescript'] },
+        { profiles: ['cratis/application'] },
+        { profiles: ['cratis/application'], languages: ['csharp', 'typescript'] },
+        { profiles: ['cratis/arc'], languages: ['csharp', 'typescript'] },
+        { profiles: ['cratis/application/typescript'], languages: ['typescript'] },
+    ]) {
+        const names = resolvedSkills(configuration);
+        for (const skill of arcTypeScriptServerSkills) {
+            assert.ok(!names.includes(skill), `${JSON.stringify(configuration)}: ${skill}`);
+        }
     }
 });

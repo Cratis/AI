@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-screenplay-delivery-planning",
+  "queries": [
+    { "query": "how long will it take to build the booking module in our accepted screenplay model? we have 14 slices", "shouldTrigger": true },
+    { "query": "we have 3 devs and a couple of agents. how do we split the .play slices so they can work in parallel?", "shouldTrigger": true },
+    { "query": "what should we build first from the model? order the slices by dependency", "shouldTrigger": true },
+    { "query": "give me an estimate for the whole model, this team has never delivered a slice yet", "shouldTrigger": true },
+    { "query": "set up github issues to track the slice groups. what statuses should we use?", "shouldTrigger": true },
+    { "query": "count how many StateChange, StateView, Automation and Translate slices the model has", "shouldTrigger": true },
+    { "query": "we finished 6 slices in 3 weeks. re-plan the remaining 20 and tell me the new range", "shouldTrigger": true },
+    { "query": "the issue for the invoice slice says in progress and assigned to someone else. should i take it over?", "shouldTrigger": true },
+    { "query": "What events and personas belong in the model for a marina berth booking system?", "shouldTrigger": false, "note": "cratis-screenplay-event-modeling" },
+    { "query": "Render this StateChange slice with Stage and verify the generated target.", "shouldTrigger": false, "note": "cratis-screenplay-render-and-gap-fill" },
+    { "query": "Review the model for missing rejection paths and unowned invariants.", "shouldTrigger": false, "note": "cratis-screenplay-model-review" },
+    { "query": "Design the command, its inputs and the read model for the BookBerth slice.", "shouldTrigger": false, "note": "cratis-screenplay-slice-design" },
+    { "query": "Use the MCP to rename the BerthAssigned event everywhere without breaking identities.", "shouldTrigger": false, "note": "cratis-screenplay-model-authoring" },
+    { "query": "Write the release notes for this sprint from the merged pull requests.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Write a decision record for choosing PostgreSQL over MongoDB for read models.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" },
+    { "query": "Which stream should own the unique booking constraint?", "shouldTrigger": false, "note": "cratis-screenplay-streams-and-consistency" },
+    { "query": "Which phases and verdicts must the model pass before it counts as accepted?", "shouldTrigger": false, "note": "cratis-screenplay-modeling-lifecycle" }
+  ]
+}

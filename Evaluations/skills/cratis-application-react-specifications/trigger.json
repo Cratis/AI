@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-application-react-specifications",
+  "queries": [
+    { "query": "where do I put the vitest spec for CandidatesViewModel in our app slice?", "shouldTrigger": true },
+    { "query": "how do I write a spec for a view model that filters by search text, using vitest, sinon and chai?", "shouldTrigger": true },
+    { "query": "should I snapshot test my React dialog component?", "shouldTrigger": true },
+    { "query": "my command runs outside a command dialog. how do I spec the unauthorized, invalid, exception and success branches?", "shouldTrigger": true },
+    { "query": "how do I test a component that renders a Dialog from @cratis/components without a browser?", "shouldTrigger": true },
+    { "query": "suspense query specs leak cached results between tests, what do I clear in teardown?", "shouldTrigger": true },
+    { "query": "do I need a storybook story for the slice page that uses Arc query and command hooks?", "shouldTrigger": true },
+    { "query": "ResizeObserver is not defined when I render a Cratis table in jsdom", "shouldTrigger": true },
+    { "query": "how do I use fake timers in frontend specs and restore them properly?", "shouldTrigger": true },
+    { "query": "can I use expect() in these frontend specs or must it be should?", "shouldTrigger": true },
+    { "query": "Write a given() context class with Sinon stubs for a spec inside the @cratis/arc package.", "shouldTrigger": false, "note": "cratis-specifications-typescript" },
+    { "query": "Write the C# CommandScenario spec for the RegisterProject slice.", "shouldTrigger": false, "note": "cratis-application-slice-specifications" },
+    { "query": "How should I name and organize specs in general: for_, when_ and and_ folders?", "shouldTrigger": false, "note": "cratis-specification-by-example" },
+    { "query": "Build the React page for the bookings list with the Arc query hook.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Make this table accessible to keyboard and screen reader users.", "shouldTrigger": false, "note": "cratis-components-accessibility" },
+    { "query": "Style the dialog footer buttons with PrimeReact tokens.", "shouldTrigger": false, "note": "cratis-components-styling" },
+    { "query": "Write the given/when/then specification inside the .play model for this slice.", "shouldTrigger": false, "note": "cratis-screenplay-specifications" },
+    { "query": "Build a stepper command dialog with a validation step.", "shouldTrigger": false, "note": "cratis-components-stepper-command-dialog" },
+    { "query": "Write a C# spec for a reducer with Establish and Because.", "shouldTrigger": false, "note": "cratis-specifications-csharp" }
+  ]
+}

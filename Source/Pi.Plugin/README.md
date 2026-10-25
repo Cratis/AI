@@ -18,7 +18,11 @@ The `subagent` tool stands down for the session when another extension already
 provides a delegation tool named `Agent` (such as pi-subagents, which lists the
 same agents). It removes itself from the active tools at session start and
 shows one notice when Pi has a UI, so the model is not offered two delegation
-tools.
+tools. The package declares generated Pi-native agents through `pi.subagents.agents`
+for external loaders that support package resources. Their comma-separated `tools:`
+allowlists already use Pi names (`read`, `grep`, `find`, `bash`, `edit`, `write`),
+so neither loader needs to interpret Claude-style names. See
+[Agent adapters](https://github.com/Cratis/AI/blob/main/Documentation/agent-adapters.md) for regeneration and drift checks.
 
 The managed CLI path remains the choice when one repository must configure and
 synchronize several harnesses. It writes the resolved corpus to `.cratis/ai`,
@@ -29,13 +33,47 @@ yields to the managed installation to avoid duplicate resources and hooks. The P
 package manages only Pi; it neither configures other harnesses nor owns a local
 managed corpus.
 
+## MCP servers from the corpus
+
+The packaged `cratis-mcp` extension starts every stdio server declared in
+`mcp-servers.json` whose `profiles` intersect the profiles listed explicitly in
+`.cratis/ai.json` (a profile reached only through another profile's `composes` does
+not start a server; Screenplay keeps its composed selection) (for
+example `codescene` for `cratis/codescene`, `playwright` for `cratis/playwright`).
+Each server gets its own connection, so one failing to start never stops the others,
+and its tools are namespaced by server id (`playwright_browser_navigate`). The
+`command`, `args` and optional literal `env` are used verbatim, without a shell. A
+malformed selected server is skipped with one notice; set
+`mcpServers.<id>.enabled` to `false` in `.cratis/ai.json` to opt a server out.
+`capabilities.json` beside the extension declares this behavior to the Cratis CLI.
+
+## Screenplay MCP tools
+
+The packaged `cratis-mcp` extension starts the Screenplay MCP server
+(`cratis screenplay mcp`) when the resolved profiles include `cratis/screenplay`.
+The backend application profiles compose it, so an application repository gets
+the Screenplay skills and, when the Cratis CLI 3.46.1 or later is installed, the
+Screenplay tools; the server creates no model folder until the first write.
+Installing them does not opt the repository in to model-first work.
+
+When Screenplay comes in only through such a profile and no model root is
+configured, a missing CLI, a CLI older than 3.46.1 (which creates the model
+folder at server start) or a server that fails to start leaves the Screenplay
+tools inactive with one informational notice when Pi has a UI, and silently otherwise.
+Selecting any profile that also reaches Screenplay without going through an application
+profile (including `cratis/screenplay`, `cratis/modeling/screenplay-stage`,
+`cratis/full/*` or `cratis`), or configuring `mcpServers.screenplay.root` in
+`.cratis/ai.json`, keeps startup failures visible as errors.
+
 ## Path guidance and subagents
 
 The packaged `cratis-path-guidance` extension attaches a path-scoped rule to the
 tool result the first time a matching file is touched, and after a successful
 `write` or `edit` adds one advisory line naming every skill whose `SKILL.md`
-`cratis-hint-paths` frontmatter matches the file. (The key is Cratis-specific
-because Claude Code gives a plain `paths` key its own meaning.) A skill is hinted at
+`metadata.cratis-hint-paths` frontmatter (one string of whitespace-separated globs)
+matches the file. (It sits under `metadata` because Agent Skills allows only a fixed set
+of top-level keys, and the key is Cratis-specific because Claude Code gives a plain
+`paths` key its own meaning.) A skill is hinted at
 most once per session and not when it is already in context: read (a shell command
 counts only when `cat`, `sed`, `head`, `tail`, `less`, `bat`, `rg` or `grep` opens
 its `SKILL.md` or a file under `references/`), preloaded by pi-subagents, or

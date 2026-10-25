@@ -1,0 +1,38 @@
+{
+  "skill_name": "vectorization",
+  "evals": [
+    {
+      "id": 1,
+      "name": "prefer-builtin",
+      "prompt": "Without calling tools, someone wants hand-written SIMD to find a byte in a span. What do you advise?",
+      "expected_output": "Prefer built-in vectorized span APIs like IndexOf; only hand-roll when none fit.",
+      "assertions": [
+        "Recommends MemoryExtensions.IndexOf/IndexOfAny/SequenceEqual first.",
+        "Says custom SIMD is justified only if no built-in API fits.",
+        "Mentions measuring before and after."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "fallback-and-tail",
+      "prompt": "Without calling tools, sketch the structure of a vectorized loop over a span of ints.",
+      "expected_output": "Hardware check, vector loop, then scalar tail for leftovers.",
+      "assertions": [
+        "Guards with Vector128.IsHardwareAccelerated or Vector.IsHardwareAccelerated.",
+        "Includes a scalar tail loop for remaining elements.",
+        "Provides a scalar fallback when acceleration is unavailable."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "small-input-slower",
+      "prompt": "Without calling tools, explain why a vector path is slower for 8-element inputs.",
+      "expected_output": "Setup and loop overhead dominate for small inputs; add a length threshold.",
+      "assertions": [
+        "Attributes the slowdown to fixed overhead for tiny inputs.",
+        "Suggests a minimum-length threshold to choose the scalar path.",
+        "Suggests validating with a benchmark."
+      ]
+    }
+  ]
+}

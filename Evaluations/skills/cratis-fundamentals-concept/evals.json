@@ -1,0 +1,65 @@
+{
+  "skill_name": "cratis-fundamentals-concept",
+  "evals": [
+    {
+      "id": 1,
+      "name": "concept-creates-its-own-id",
+      "prompt": "Our Library app uses Cratis.Fundamentals 7.23.0 and Chronicle. Write the C# for a BookId event-source identity that can create a new id for itself, so code that registers a book can call BookId.New(). Reply only with the code and a short explanation.",
+      "expected_output": "BookId derives from EventSourceId<Guid> and implements IGeneratable<BookId>; New() returns new(GenerateValue.Uuid()). No Guid.NewGuid() and no System.Random.",
+      "assertions": [
+        "BookId implements IGeneratable<BookId> with a static New() method.",
+        "New() uses GenerateValue.Uuid() (or GenerateValue.UuidV7() with a stated ordering reason) rather than Guid.NewGuid().",
+        "Does not use System.Random or a hand-rolled byte generator.",
+        "BookId derives from EventSourceId<Guid> rather than ConceptAs<Guid>."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "time-ordered-id-tradeoffs",
+      "prompt": "Our OrderId concept uses GenerateValue.Uuid() and the database index on it fragments badly. A colleague suggests GenerateValue.UuidV7() and says it gives us a strict creation sequence we can use to number orders. Should we switch, and is the colleague right? Reply only.",
+      "expected_output": "UuidV7 is reasonable for index locality, but it reveals creation time, is not monotonic within a millisecond and can reorder under clock adjustments, so it cannot number orders.",
+      "assertions": [
+        "Recommends GenerateValue.UuidV7() for index locality or explains when it fits.",
+        "States that version 7 values are not monotonic within a millisecond and clock adjustments can reorder them.",
+        "States that version 7 values reveal their creation time.",
+        "Rejects using the UUID as a strict order or sequence number."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "when-not-to-generate",
+      "prompt": "Three cases in our Arc app: (1) the mobile client creates a DraftId offline and sends it with SaveDraft; (2) we need a password-reset token to email users; (3) a webhook may be delivered twice and must map to the same PaymentId. Someone wants IGeneratable with GenerateValue.Uuid() for all three. Which, if any, should generate? Reply only.",
+      "expected_output": "None of them: the client-supplied DraftId is an input, a UUID is not a secret token, and random generation is not idempotency.",
+      "assertions": [
+        "Keeps the client-supplied DraftId as a command input instead of generating a replacement.",
+        "Says a UUID is an identifier, not a secret or authentication token, and points to a dedicated secure-token mechanism.",
+        "Says random generation does not give idempotency and suggests deriving the id deterministically or persisting and reusing the first one.",
+        "Does not recommend System.Random for any case."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "shop-context-and-secret-boundaries",
+      "prompt": "Our shop resolves Cratis.Fundamentals 7.24.0. CustomerId is cus_ plus ULID, OrderId uses TypeID with IGeneratableInContext, InviteCode is NanoID and ApiKey is Bytes(32). Show the OrderId factory with a GenerationContext and explain what time/tenant it consumes. Does TypeID encode the tenant? Does fixing the context fix the random suffix? How must the Arc-hosted ApiKey be protected? Reply only.",
+      "expected_output": "OrderId implements IGeneratableInContext<OrderId> with static New(GenerationContext context) returning new(GenerateValue.TypeId(\"order\", context)). Context holds captured DateTimeOffset Now and portable string Tenant; default tenant is the zero-GUID string. TypeID consumes Now, not Tenant, and a fixed clock does not fix randomness. Keep tenant isolation separate and do not place arbitrary tenant IDs in a TypeID prefix. ApiKey has 256 random bits but remains a secret: NotAudited, authorized delivery, no logging, hash storage for credentials; Encrypted plus NotAudited applies to retained operational secrets.",
+      "assertions": [
+        "Uses the released static IGeneratableInContext<OrderId>.New(GenerationContext) contract and TypeId(order, context), not an invented overload or System.Random.",
+        "States context carries time and portable tenant with zero-GUID default, while built-in TypeID uses time only and does not supply tenant isolation.",
+        "Distinguishes fixed timestamp from random suffix and rejects strict within-millisecond ordering or arbitrary tenant prefixes.",
+        "Treats Bytes(32) ApiKey as a 256-bit secret with audit/delivery/hash-storage safeguards, not a UUID credential or automatic encryption claim."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "readable-invoice-pattern-and-pickup-ticket",
+      "prompt": "Our shop resolves Fundamentals 7.25.0. Write InvoiceNumber as a readable INV-year-month-seven-random-digits reference with a Luhn check digit, and TicketNumber as a six-digit Int64 pickup ticket. Show the static factories, how to validate a supplied invoice checksum and which time the date uses. Can we use this as a legally gapless invoice sequence or an ApiKey? Reply only.",
+      "expected_output": "InvoiceNumber implements IGeneratableInContext<InvoiceNumber>, New(context) wraps GenerateValue.Pattern(\"INV-{yyyy}{MM}-#{7}\", context, Checksum.Luhn). TicketNumber wraps long and implements IGeneratable<TicketNumber> with GenerateValue.Integer(100000, 999999), inclusive. HasValidChecksum(value, Checksum.Luhn) belongs in concept validation alongside shape checks, not hand-written arithmetic. The date uses captured Now in UTC, not Tenant or a new clock read; date-free Pattern(pattern, checksum) also exists. Check digits and dates add no entropy; enforce uniqueness/collision policy. Not gapless/sequential allocation, secret protection, idempotency or authorization.",
+      "assertions": [
+        "Uses the exact Pattern(pattern, context, Checksum.Luhn) factory and IGeneratableInContext contract; states UTC captured Now supplies the date and missing time fails.",
+        "Uses GenerateValue.Integer(100000, 999999) with long-backed TicketNumber and inclusive endpoints, not System.Random or a nonexistent random helper.",
+        "Uses GenerateValue.HasValidChecksum(value, Checksum.Luhn) with separate shape validation and explains generation does not automatically validate stored or supplied values.",
+        "Rejects pattern as gapless/sequential numbering or ApiKey, says checksums catch typos not forgery, and requires collision/uniqueness handling for short codes."
+      ]
+    }
+  ]
+}

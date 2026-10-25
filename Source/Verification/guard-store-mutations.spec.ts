@@ -58,6 +58,13 @@ test('the store-mutation guard refuses chronicle mutations and allows read-only 
         [BLOCK, 'cratis chronicle observers replay my-obs --yes'],
         [BLOCK, 'cratis chronicle observers retry-partition x y'],
         [BLOCK, 'cratis chronicle observers clear-quarantine x'],
+        [BLOCK, 'cratis chronicle observers clear-partition-quarantine x y --no-retry --yes'],
+        [BLOCK, 'cratis chronicle observers remove x --yes'],
+        [ALLOW, 'cratis chronicle observers remove --help'],
+        [ALLOW, 'cratis chronicle observers clear-partition-quarantine --help'],
+        [BLOCK, 'cratis chronicle report-error'],
+        [BLOCK, 'cratis chronicle login user'],
+        [BLOCK, 'cratis chronicle logout'],
         [BLOCK, 'cratis chronicle jobs stop 1 -y'],
         [BLOCK, 'cratis chronicle recommendations perform r1'],
         [BLOCK, 'cratis chronicle users remove bob'],
@@ -68,6 +75,28 @@ test('the store-mutation guard refuses chronicle mutations and allows read-only 
         [ALLOW, 'cratis chronicle read-models get Accounts 42 -o json-compact'],
         [BLOCK, 'cratis chronicle workbench'],
         [BLOCK, 'cratis chronicle Observers Replay x'],
+    ]);
+});
+
+test('the store-mutation guard names new CLI mutations and distinguishes nested closed-stream inspection', () => {
+    const lists = JSON.parse(readFileSync(dataFile, 'utf8')) as CommandLists;
+    for (const command of ['observers retry-failed-partitions', 'jobs delete', 'streams closed reopen']) {
+        const entry = lists.mutating.find(entry => entry.command === command);
+        assert.ok(entry, `missing classification for ${command}`);
+        const result = runGuard(`cratis chronicle ${command} target --yes`);
+        assert.equal(result.code, 2, result.stderr);
+        assert.match(result.stderr, /BLOCKED by cratis-guard-store-mutations/);
+        assert.ok(result.stderr.includes(`cratis chronicle ${command}: ${entry.effect}.`), result.stderr);
+        assert.doesNotMatch(result.stderr, /not on the read-only allowlist/);
+    }
+    assertVerdicts([
+        [BLOCK, 'cratis chronicle streams closed reopen --event-source-id order-42 --reason repair --yes'],
+        [ALLOW, 'cratis chronicle streams closed list --event-source-id order-42 -o json'],
+        [ALLOW, 'cratis chronicle streams --namespace default closed --quiet list'],
+        [ALLOW, 'cratis chronicle streams closed reopen --help'],
+        [BLOCK, 'cratis chronicle streams closed'],
+        [BLOCK, 'cratis chronicle streams closed future-command'],
+        [BLOCK, 'cratis chronicle streams closed list && cratis chronicle streams closed reopen --reason repair --yes'],
     ]);
 });
 
@@ -134,6 +163,7 @@ test('the store-mutation guard leaves every other cratis group alone', () => {
         [ALLOW, 'cratis ai update'],
         [ALLOW, 'cratis screenplay validate ./plays'],
         [ALLOW, 'cratis llm-context'],
+        [ALLOW, 'cratis direct status'],
     ]);
 });
 
@@ -154,6 +184,12 @@ test('the block message names the effect and tells the agent to stop and ask', (
     assert.match(stderr, /what it changes and why/);
     assert.match(stderr, /ask the user/);
     assert.match(stderr, /CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1/);
+    const removal = runGuard('cratis chronicle observers remove x --yes').stderr;
+    assert.match(removal, /across every namespace/);
+    assert.doesNotMatch(removal, /not on the read-only allowlist/);
+    const partition = runGuard('cratis chronicle observers clear-partition-quarantine x y --no-retry --yes').stderr;
+    assert.match(partition, /resets its retry budget/);
+    assert.doesNotMatch(partition, /not on the read-only allowlist/);
     const unknown = runGuard('cratis chronicle some-future-command').stderr;
     assert.match(unknown, /some-future-command: not on the read-only allowlist/);
     const secret = runGuard('CHRONICLE_CONNECTION_STRING=chronicle://client:hunter2@prod:35000 cratis chronicle jobs resume 3').stderr;
@@ -223,9 +259,10 @@ test('every command list entry is justified, unique, and agrees with the skill',
     // Every mutation the operations skill names must be one the guard knows by name, not only by failing closed.
     const skill = readFileSync(join(repositoryRoot, '.cratis', 'ai', 'skills', 'cratis-chronicle-cli-operations', 'SKILL.md'), 'utf8');
     const section = skill.slice(skill.indexOf('These commands mutate the running store:'), skill.indexOf('Before any of them:'));
-    const named = [...section.matchAll(/`chronicle ([a-z-]+) ([a-z-]+)`(?:, `([a-z-]+)`)?(?:, `([a-z-]+)`)?(?:,\s+`([a-z-]+)`)?/g)]
+    const named = [...section.matchAll(/`chronicle ([a-z-]+) ([a-z-]+(?: [a-z-]+)?)`(?:, `([a-z-]+)`)?(?:, `([a-z-]+)`)?(?:,\s+`([a-z-]+)`)?/g)]
         .flatMap(match => [match[2], match[3], match[4], match[5]].filter(Boolean).map(command => `${match[1]} ${command}`));
-    assert.ok(named.length >= 14, `expected the skill to name at least 14 mutations, found ${named.length}`);
+    assert.ok(named.length >= 16, `expected the skill to name at least 16 mutations, found ${named.length}`);
+    assert.ok(named.includes('streams closed reopen'), 'the nested stream mutation must be extracted from the skill');
     for (const command of named) assert.ok(mutating.includes(command), `the skill names '${command}' as a mutation, but the guard does not list it`);
 });
 
@@ -243,7 +280,7 @@ test('the command lists match the chronicle commands of the CLI they were verifi
     }
     const catalog = spawnSync('cratis', ['llm-context'], { encoding: 'utf8', timeout: 60000, maxBuffer: 16 * 1024 * 1024 });
     assert.equal(catalog.status, 0, catalog.stderr);
-    interface Node { name: string; commands?: Node[]; subGroups?: Node[] }
+    interface Node { name: string; effect?: string; requiresConfirmation?: boolean; commands?: Node[]; subGroups?: Node[] }
     const group = (JSON.parse(catalog.stdout) as { commandGroups: Node[] }).commandGroups.find(node => node.name === lists.group);
     assert.ok(group, `the CLI has no '${lists.group}' group`);
     const paths = (node: Node, prefix: string[]): string[] => [
@@ -253,6 +290,21 @@ test('the command lists match the chronicle commands of the CLI they were verifi
     const actual = paths(group, []).sort();
     const classified = [...lists.readOnly.map(entry => entry.command), ...lists.mutating.map(entry => entry.command)].sort();
     assert.deepEqual(classified, actual, 'every CLI command must be classified exactly once, and every entry must still exist');
+    const assertEffects = (node: Node, prefix: string[]): void => {
+        for (const command of node.commands ?? []) {
+            const path = [...prefix, command.name].join(' ');
+            assert.ok(command.effect, `${path} must declare an effect`);
+            assert.equal(typeof command.requiresConfirmation, 'boolean', `${path} must declare confirmation`);
+            if (path === 'report-error') {
+                assert.equal(command.effect, 'read-only', 'browser-opening report-error is a deliberate stricter guard exception');
+                assert.ok(lists.mutating.some(entry => entry.command === path));
+            } else {
+                assert.equal(lists.readOnly.some(entry => entry.command === path), command.effect === 'read-only', `${path} classification must match the catalog effect`);
+            }
+        }
+        for (const child of node.subGroups ?? []) assertEffects(child, [...prefix, child.name]);
+    };
+    assertEffects(group, []);
 });
 
 test('the Pi bridge runs shell commands through the store-mutation guard', async () => {

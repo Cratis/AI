@@ -43,10 +43,10 @@ public class and_more_callers_than_the_limit_are_waiting : Specification
 
         _first.Dispose();
 
-        var slot = await _thirdCaller.WaitAsync(TimeSpan.FromSeconds(5));
+        var slot = await _thirdCaller.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
 
         slot.ShouldNotBeNull();
-        slot!.Dispose();
+        slot.Dispose();
     }
 
     void Destroy() => _second?.Dispose();

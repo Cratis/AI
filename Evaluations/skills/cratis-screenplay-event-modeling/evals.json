@@ -1,0 +1,40 @@
+{
+  "skill_name": "cratis-screenplay-event-modeling",
+  "evals": [
+    {
+      "id": 1,
+      "name": "state-dependent-availability",
+      "prompt": "Our Screenplay workshop needs ReserveBoat to consult Availability before accepting a date range. A teammate says generic event modeling forbids that edge, so proposes copying Available into the command as a boolean. Explain the Cratis modeling approach and whether this proves concurrent bookings are safe on Screenplay 4.68.0. Reply only.",
+      "expected_output": "Model reads plus require with a message and an explicit unenforced target gap; no state-copy attestation. reads/concurrency do not bind at that version. Name protected target enforcement and retain intent.",
+      "assertions": [
+        "Recommends reads of the view plus require with a message rather than copying state into a command boolean.",
+        "States that reads and concurrency are rejected by the executable binder with PLAY0271 on 4.68.0, so append-time freshness is not proven.",
+        "Records the rule as not enforced in the slice description and names target enforcement such as ProtectedDecision/DecisionRead, a Chronicle dynamic consistency boundary, or an applicable constraint."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "whole-model-quick-gate",
+      "prompt": "We split our harbor model under Source/HarborModel into Boats.play and Bookings.play. Individual files report unknown types, yet a folder parse exits 0. What command and completeness checks should we use before calling the specifications done, including a booking view with one Reminder field and an automatic follow-up? Reply only.",
+      "expected_output": "Validate the folder with warnings as errors; an unknown construct warning can drop a block. Quick gate checks backward and forward lineage, refusals, termination, defined references, one slice type, cardinality and infrastructure boundaries.",
+      "assertions": [
+        "Validates the model folder as a whole with --warnaserror or --warnings-as-errors rather than treating individual-file unknown references as model defects.",
+        "Explains that PLAY0029 warns and silently drops an unrecognized construct block, so exit 0 without warnings-as-errors is insufficient.",
+        "Checks backward read-model field lineage and forward event consumers.",
+        "Checks follow-up termination and asks whether more than one reminder may exist concurrently, using a collection where needed."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "patterns-and-runtime-readiness",
+      "prompt": "Classify these Screenplay behaviors: customer submits a booking, events fill a booking list, our BoatBooked causes an email, and an external partner payload is captured as our own fact. A colleague wants one slice for the last two and says parsing means Stage can run all of them. Explain the model boundaries and readiness using Stage 4.24.2. Reply only.",
+      "expected_output": "StateChange, StateView, Automation, Translate are separate behaviors. Distinguish parsed, bound, reference-executed and target-executed. Stage does not render Automation or Translate; keep their intent and gap-fill.",
+      "assertions": [
+        "Assigns the four behaviors respectively to StateChange, StateView, Automation and Translate.",
+        "Keeps recording the outside fact separate from acting on our own fact, rather than merging translation with the email automation.",
+        "Separates parsed, bound, reference-executed and target-executed readiness instead of inferring runtime success from parsing.",
+        "States that Stage 4.24.2 renders StateChange/StateView but neither Automation nor Translate, retaining them as contract-led gap-fill rather than deleting them."
+      ]
+    }
+  ]
+}

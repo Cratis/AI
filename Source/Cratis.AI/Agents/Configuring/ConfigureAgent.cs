@@ -22,7 +22,7 @@ namespace Cratis.AI.Agents.Configuring;
 /// <param name="Tier">The capability tier this role asks for (#865) - each provider translates the tier into the concrete model it offers for it, so moving an agent between vendors keeps meaning the same thing.</param>
 /// <param name="ProviderId">The AI provider this role runs on - <see langword="null"/> leaves it unable to run until one is set. Mutually exclusive with <paramref name="PoolId"/>.</param>
 /// <param name="PoolId">The AI provider pool this role draws from - dispatch picks the member with the least tokens burnt over the trailing week. Mutually exclusive with <paramref name="ProviderId"/>.</param>
-/// <param name="Harness">The CLI harness the agent's job invocations run under - only meaningful for the <see cref="AgentInvocationMode.Job"/> agent; chat agents never touch a harness.</param>
+/// <param name="Harness">Deprecated per-agent harness preference, retained for older callers and fallback when a provider has no selection. Configure provider harnesses instead.</param>
 /// <param name="Effort">The reasoning effort the agent's AI provider runs completions at - each <c>IAIProviderClient</c> translates it to its own vendor's mechanism.</param>
 [Command]
 public record ConfigureAgent(LanguageModelPurpose Purpose, AgentName Name, AgentDescription Description, ModelTier Tier, AIProviderId? ProviderId = null, AIProviderPoolId? PoolId = null, Harness Harness = Harness.Pi, Effort Effort = Effort.High) : ICanProvideEventSourceId
@@ -115,7 +115,7 @@ public class ConfigureAgentValidator : CommandValidator<ConfigureAgent>
 /// <param name="Tier">The capability tier this role asks for - the provider translates it into its concrete model.</param>
 /// <param name="ProviderId">The AI provider this role runs on - <see langword="null"/> leaves it unable to run until one is set. Mutually exclusive with <paramref name="PoolId"/>.</param>
 /// <param name="PoolId">The AI provider pool this role draws from - <see langword="null"/> when the role runs on a single provider or the global fallback. Mutually exclusive with <paramref name="ProviderId"/>.</param>
-/// <param name="Harness">The CLI harness the agent's job invocations run under - only meaningful for the job-mode agent.</param>
+/// <param name="Harness">Historical per-agent preference retained for replay and fallback when the selected provider has no harness selection.</param>
 /// <param name="Effort">The reasoning effort the agent's AI provider runs completions at.</param>
 [EventType]
 public record AgentConfigured(LanguageModelPurpose Purpose, AgentName Name, AgentDescription Description, ModelTier Tier, AIProviderId? ProviderId, AIProviderPoolId? PoolId, Harness Harness, Effort Effort);

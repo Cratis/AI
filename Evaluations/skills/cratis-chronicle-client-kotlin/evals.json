@@ -1,0 +1,40 @@
+{
+  "skill_name": "cratis-chronicle-client-kotlin",
+  "evals": [
+    {
+      "id": 1,
+      "name": "production-connection-and-java-entry",
+      "prompt": "At Chronicle.Kotlin 6.13.0, our standalone Java worker wants to connect to production with apiKey and the default TLS settings. Explain what to change, the preferred Java entry point and kernel compatibility. Do not copy the old client version from the README or introduce Arc. Reply only.",
+      "expected_output": "Use BlockingChronicleClient.connect with options, username/password rather than apiKey, and skipTlsValidation=false. TLS defaults on but certificate verification defaults off. Client 6.13.0 requires kernel 19.30.0 or later; client and server versions are independent.",
+      "assertions": [
+        "Starts Java from BlockingChronicleClient.connect with configured ChronicleOptions rather than raw ChronicleClient plus coroutine bridge statics or Arc hosting.",
+        "Rejects apiKey because client construction rejects it; uses username/password authentication instead of development fallback credentials in production.",
+        "Distinguishes enabled TLS from disabled-by-default certificate verification and explicitly sets skipTlsValidation=false for production.",
+        "Names Chronicle.Kotlin 6.13.0 and kernel 19.30.0 or later without treating independent latest versions or the stale README version as compatibility evidence."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "event-identity-and-handler-dispatch",
+      "prompt": "At Chronicle.Kotlin 6.13.0, two packages contain EventType classes named TaskCreated. Our reactor also has onTaskCreated(context: EventContext, event: TaskCreated), so we think the method name guarantees discovery. Explain both problems, the minimal fixes and what a returned event does. Reply only.",
+      "expected_output": "Default event ids are simple names, so disambiguate with explicit ids. Handler discovery uses the first real parameter's annotated event type, not method name; move the event first. A returned annotated event becomes a side-effect append to the triggering source by default.",
+      "assertions": [
+        "Identifies simple-name default event ids and uses unique names or an explicit EventType id rather than claiming package qualification prevents collision.",
+        "Moves the annotated event to the first real parameter and states that the reactor method name is irrelevant to dispatch.",
+        "Explains that returned EventType values are appended as side effects to the triggering event source by default, with EventForEventSourceId for another source.",
+        "Distinguishes ignored null/Unit/non-event values from event returns and describes a returned event list as an atomic batch."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "cross-source-append-and-routing",
+      "prompt": "At Chronicle.Kotlin 6.13.0, a plain Kotlin worker must atomically append FundsWithdrawn to account A and FundsDeposited to account B. Explain the appendMany overload, how failures are observed, and omitted versus legacy explicit routing. Do not infer success merely because a suspending call completed. Reply only.",
+      "expected_output": "Use appendMany(List<EventForEventSourceId>, concurrencyScopes, correlationId) for atomic cross-source appends; inspect AppendResult success/constraint/concurrency/errors. Omitted routing resolves to kernel Default/All/Default, not source id as stream id.",
+      "assertions": [
+        "Uses the routed List<EventForEventSourceId> appendMany overload for atomic cross-source append rather than two separate appends or a single-source overload.",
+        "Inspects AppendResult.isSuccess, constraintViolations, concurrencyViolation and errors instead of treating a completed suspend call as successful append.",
+        "States omitted routing resolves in the kernel to Default/All/Default for source type/stream type/stream id, and preserves legacy routing by supplying all three explicitly."
+      ]
+    }
+  ]
+}

@@ -3,9 +3,11 @@
 
 import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync, readlinkSync, realpathSync } from 'node:fs';
+import { parseFrontmatter } from '@earendil-works/pi-coding-agent';
+import { checkPiAgents, generatePiAgent, piAgentsDirectory } from '../Harness.Setup/pi-agents.ts';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
-import { canonicalToolNames, checkOpenCodeAgents, generateOpenCodeAgent, openCodeAgentsDirectory, parseCanonicalAgent, readCanonicalAgents } from '../Harness.Setup/opencode-agents.ts';
+import { canonicalToolNames, checkOpenCodeAgents, modelTiers, type ModelTier, generateOpenCodeAgent, openCodeAgentsDirectory, parseCanonicalAgent, readCanonicalAgents } from '../Harness.Setup/opencode-agents.ts';
 import { discoverAgents, normalizeTools, normalizeToolsDetailed, toolsErrorFor } from '../../.cratis/ai/harnesses/pi/extensions/subagent/agents.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
@@ -17,16 +19,34 @@ const piToolFor: Record<string, string | null> = { Read: 'read', Grep: 'grep', G
 const canonicalAgents = readCanonicalAgents(corpusRoot);
 
 test('every canonical agent declares a non-empty tools list in the canonical vocabulary', () => {
-    assert.equal(canonicalAgents.length, 12);
+    assert.equal(canonicalAgents.length, 16);
     for (const agent of canonicalAgents) {
         assert.ok(agent.tools.length > 0, `${agent.file} declares no tools`);
-        assert.equal(agent.model, undefined, `${agent.file} must inherit the session model`);
+        assert.equal(agent.model, undefined, `${agent.file} must not pin a native model; declare modelTier instead`);
+        assert.ok(modelTiers.includes(agent.modelTier as ModelTier), `${agent.file} must declare modelTier: ${modelTiers.join(' | ')}`);
         for (const tool of agent.tools) assert.ok((canonicalToolNames as readonly string[]).includes(tool), `${agent.file}: ${tool}`);
     }
 });
 
+test('reviewer-tier agents declare provider independence and the five reviewers use the reviewer tier', () => {
+    const reviewers = ['code-reviewer.md', 'security-reviewer.md', 'performance-reviewer.md', 'screenplay-reviewer.md', 'repository-investigation-reviewer.md'];
+    for (const agent of canonicalAgents) {
+        assert.equal(agent.modelTier === 'reviewer', reviewers.includes(agent.file), `${agent.file} reviewer tier`);
+        if (agent.modelTier === 'reviewer') assert.equal(agent.reviewIndependence, 'different-provider', `${agent.file} must declare reviewIndependence: different-provider`);
+    }
+});
+
+test('the Pi and OpenCode outputs never carry a native model key', () => {
+    for (const agent of canonicalAgents) {
+        for (const generated of [generatePiAgent(agent), generateOpenCodeAgent(agent)]) {
+            const frontmatter = generated.content.slice(4, generated.content.indexOf('\n---\n', 4)).split('\n');
+            assert.ok(!frontmatter.some(line => line.startsWith('model:')), `${generated.path} must not pin a native model`);
+        }
+    }
+});
+
 test('read-only roles are readonly and never declare Edit or Write', () => {
-    const readOnlyRoles = ['code-reviewer.md', 'security-reviewer.md', 'performance-reviewer.md', 'repository-investigator.md', 'repository-investigation-reviewer.md'];
+    const readOnlyRoles = ['code-reviewer.md', 'security-reviewer.md', 'performance-reviewer.md', 'repository-investigator.md', 'repository-investigation-reviewer.md', 'screenplay-reviewer.md', 'browser-operator.md'];
     for (const file of readOnlyRoles) {
         const agent = canonicalAgents.find(candidate => candidate.file === file);
         assert.ok(agent, file);
@@ -51,8 +71,36 @@ test('Pi receives exactly the canonical allowlist, translated, for every agent',
         assert.ok(launched, `${agent.name} is not discovered by the Pi subagent extension`);
         assert.equal(launched.toolsError, undefined, agent.file);
         assert.deepEqual(launched.tools, normalizeTools(agent.tools), agent.file);
-        assert.equal(launched.model, undefined, `${agent.file} must inherit the Pi session model`);
+        assert.equal(launched.model, undefined, `${agent.file} must not pin a native model on Pi`);
     }
+});
+
+test('the generated Screenplay Modeler exposes exactly the Pi built-in names without loader mapping', () => {
+    const canonical = canonicalAgents.find(agent => agent.file === 'screenplay-modeler.md')!;
+    const text = readFileSync(join(repositoryRoot, '.pi/agents/screenplay-modeler.md'), 'utf8');
+    assert.equal(text, generatePiAgent(canonical).content);
+    const { frontmatter } = parseFrontmatter<{ tools: string }>(text);
+    // External Agent loaders split the CSV as written, without Claude-to-Pi normalization.
+    assert.equal(typeof frontmatter.tools, 'string');
+    assert.deepEqual(frontmatter.tools.split(',').map(tool => tool.trim()), ['read', 'grep', 'find', 'bash', 'edit', 'write']);
+    for (const agent of canonicalAgents) {
+        const generated = generatePiAgent(agent);
+        assert.ok(generated.content.endsWith(agent.body), `${agent.file} preserves its body`);
+        const original = parseFrontmatter<Record<string, unknown>>(`---\n${agent.frontmatter.join('\n')}\n---\n${agent.body}`).frontmatter;
+        const adapted = parseFrontmatter<Record<string, unknown>>(generated.content).frontmatter;
+        assert.deepEqual(adapted, { ...original, tools: normalizeTools(agent.tools)!.join(', ') }, `${agent.file} preserves other metadata`);
+    }
+    assert.deepEqual(checkPiAgents(corpusRoot), []);
+    assert.deepEqual(readdirSync(join(corpusRoot, piAgentsDirectory)).sort(), canonicalAgents.map(agent => agent.file));
+});
+
+test('Pi generation refuses every unresolved name, even alongside a resolvable tool', () => {
+    const agent = parseCanonicalAgent('unknown.md', '---\nname: Unknown\ndescription: x\ntools: [Read, githubRepo]\n---\nbody\n');
+    assert.throws(() => generatePiAgent(agent), /unknown\.md declares unresolved Pi tools: githubRepo/);
+    assert.throws(() => generatePiAgent({ ...agent, tools: ['Read', 'constructor'] }), /unresolved Pi tools: constructor/);
+    assert.throws(() => generatePiAgent({ ...agent, tools: ['Agent'] }), /no Pi-resolvable tools/);
+    const known = generatePiAgent({ ...agent, tools: ['Read', 'MultiEdit', 'LS', 'Agent', 'Task', 'Skill', 'TodoWrite', 'WebFetch', 'WebSearch', 'Glob', 'find'] });
+    assert.match(known.content, /tools: read, edit, ls, find\n/);
 });
 
 test('a tools list that resolves to no Pi tool is a launch error naming the entries, never an unrestricted launch', () => {
@@ -94,14 +142,15 @@ test('the generator refuses a canonical agent it cannot express faithfully', () 
     const foreignVocabulary = parseCanonicalAgent('bad.md', '---\nname: Bad\ndescription: x\ntools: [githubRepo]\n---\nbody\n');
     assert.throws(() => generateOpenCodeAgent(foreignVocabulary), /outside the canonical vocabulary/);
     const pinnedModel = parseCanonicalAgent('bad.md', '---\nname: Bad\ndescription: x\ntools: [Read]\nmodel: claude-sonnet-4-5\n---\nbody\n');
-    assert.throws(() => generateOpenCodeAgent(pinnedModel), /pins a model/);
+    assert.throws(() => generateOpenCodeAgent(pinnedModel), /pins a model.*modelTier/);
 });
 
 test('every harness that receives agents resolves them to the intended source', () => {
     const canonical = realpathSync(join(corpusRoot, 'agents'));
-    for (const path of ['.claude/agents', '.cursor/agents', '.pi/agents']) {
+    for (const path of ['.claude/agents', '.cursor/agents']) {
         assert.equal(realpathSync(join(repositoryRoot, path)), canonical, path);
     }
+    assert.equal(realpathSync(join(repositoryRoot, '.pi', 'agents')), realpathSync(join(corpusRoot, piAgentsDirectory)));
     assert.equal(realpathSync(join(repositoryRoot, '.opencode', 'agents')), realpathSync(join(corpusRoot, openCodeAgentsDirectory)));
     for (const agent of canonicalAgents) {
         const copilot = join(repositoryRoot, '.github', 'agents', agent.file.replace(/\.md$/, '.agent.md'));

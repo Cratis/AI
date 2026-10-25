@@ -120,7 +120,7 @@ public class ZAIModelListing(IModelCatalogReader reader) : ICanListAvailableMode
         ProviderCatalogs.HasValue(provider.Endpoint) && ProviderCatalogs.HasValue(provider.ApiKey)
             ? reader.Read(
                 $"{provider.Endpoint.Value.TrimEnd('/')}/v1/models",
-                [new("x-api-key", provider.ApiKey.Value), new("anthropic-version", ApiVersion)])
+                [new("x-api-key", provider.ApiKey.ForUse()), new("anthropic-version", ApiVersion)])
             : throw new ModelCatalogUnavailable("Z.ai", "the provider has no endpoint and credential to ask with");
 }
 
@@ -140,7 +140,7 @@ public class AzureOpenAIModelListing(IModelCatalogReader reader) : ICanListAvail
     /// <inheritdoc/>
     public Task<IEnumerable<ModelName>> List(ConfiguredAIProvider provider) =>
         ProviderCatalogs.HasValue(provider.ApiKey) && ProviderCatalogs.HasValue(provider.Endpoint)
-            ? reader.Read($"{provider.Endpoint.Value.TrimEnd('/')}/openai/deployments?api-version={ApiVersion}", [new("api-key", provider.ApiKey.Value)])
+            ? reader.Read($"{provider.Endpoint.Value.TrimEnd('/')}/openai/deployments?api-version={ApiVersion}", [new("api-key", provider.ApiKey.ForUse())])
             : throw new ModelCatalogUnavailable("Azure OpenAI", "the provider has no endpoint and credential to ask with");
 }
 
@@ -182,7 +182,7 @@ static class ProviderCatalogs
     /// </summary>
     /// <param name="apiKey">The API key.</param>
     /// <returns>The header.</returns>
-    public static KeyValuePair<string, string> Bearer(AIProviderApiKey apiKey) => new("Authorization", $"Bearer {apiKey.Value}");
+    public static KeyValuePair<string, string> Bearer(AIProviderApiKey apiKey) => new("Authorization", $"Bearer {apiKey.ForUse()}");
 
     /// <summary>
     /// Normalizes an OpenAI-compatible endpoint to its <c>/v1</c> base - configured endpoints come

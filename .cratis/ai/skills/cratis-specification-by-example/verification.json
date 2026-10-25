@@ -1,0 +1,14 @@
+{
+  "skill": "cratis-specification-by-example",
+  "input": "Organize and name the specifications for a new behavior.",
+  "fixtures": [],
+  "assertions": [
+    {
+      "kind": "play-compiles"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "for_"
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "skill_name": "cratis-screenplay-scenario-coverage",
+  "evals": [
+    {
+      "id": 1,
+      "name": "matrix-before-specs",
+      "prompt": "Slice CancelBooking (gated by a Manager role, rule: a booking may not be cancelled twice) has two specs: a success and one rejection. The author says the slice is covered. How do you assess it and what do you do before drafting more? Reply only; do not write files.",
+      "expected_output": "Build the coverage matrix first: rows are commands, reactions, captures, read models and gated queries; columns are the scenario types. Each cell is a spec, `n/a` with a domain reason, `recorded`, `open`, `question` or `gap`. Two specs are not enough unless every other type was reviewed and found inapplicable; denial needs `given caller` without the policy and `then denied`.",
+      "assertions": [
+        "Requires a coverage matrix (rows per command, reaction, capture, read model and gated query; columns per scenario type) before drafting specs.",
+        "Says a command with only two specs (success and one rejection) is not covered unless every other scenario type was reviewed and found inapplicable.",
+        "Requires a denial spec for the gated command using `given caller` without the policy and `then denied`.",
+        "Says each matrix cell is a spec, an `n/a` with a domain reason, or a recorded, open, question or gap entry, and that 'fewer specs' is never a reason."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "once-versus-exactly-once",
+      "prompt": "We wrote a spec where a second ConfirmEnrolment is rejected by a `unique event` constraint, and the author titled it 'sends the certificate exactly once'. What does this spec prove, and what should be recorded? Reply only; do not write files.",
+      "expected_output": "Once, idempotent and exactly once are different claims. A `unique event` constraint proves the fact occurs once per event source; it does not make command handling idempotent (a retry is rejected, not answered with success), and nothing in the model proves an external effect such as an email happens exactly once. State which of the three a spec proves and record the rest as target requirements.",
+      "assertions": [
+        "Says the spec proves only that the fact occurs once per event source.",
+        "Says it does not make command handling idempotent because a retry is rejected, not answered with success.",
+        "Says nothing in the model proves an external effect such as an email or payment happens exactly once.",
+        "Says to state which of the three claims a spec proves and record the rest as target requirements."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "denial-spec-forms",
+      "prompt": "A spec for the gated command CancelBooking has no `given caller` and ends with `then error \"not allowed\"`. Another spec for a gated query asserts a `result` for a caller with no policy. What is wrong with each and what are the correct forms? Reply only; do not write files.",
+      "expected_output": "Unauthorized is never `then error`: command denial is `then denied` with no success or error outcome. Every gated command or query spec needs `given caller` or `given caller as <Persona>`; an authorized scenario gets no inferred fixture (PLAY0389). Read-only query denial is `then query <Query>` with `arguments` and no `result`, then `then denied`.",
+      "assertions": [
+        "Says unauthorized is never `then error`; command denial is `then denied` with no success or error outcome.",
+        "Says every gated command or query spec needs `given caller` or `given caller as <Persona>`.",
+        "Says an authorized scenario without `given caller` gets no inferred fixture and fails at binding (PLAY0389).",
+        "Says a read-only query denial lists `then query <Query>` with `arguments` and no `result`, then `then denied`."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "view-pass-and-arrival-order",
+      "prompt": "Our read model combines a Parent and its Child events. A teammate seeds the read model with `given readmodel` to test it and only writes one spec for the happy order. What should the view pass cover and how should the projection be proven? Reply only; do not write files.",
+      "expected_output": "Prove projections with events (`given`/`when append`), not `given readmodel`; seed read models only for performer-backed views or commands that decide on view state. The view pass covers population, each update, accumulation, removal (with a surviving row), absence and ordering. Views combining sources must tolerate any arrival order: pin a child before its parent (given child, then parent, then the read model); a parent that never arrives leaves the child absent.",
+      "assertions": [
+        "Says projections are proven with events (`given`/`when append`) rather than `given readmodel`.",
+        "Lists the view pass: population, each update, accumulation, removal with a surviving row, absence and ordering.",
+        "Requires a spec that pins the child before the parent, and that a parent that never arrives leaves the child absent.",
+        "Says to decide per read model whether single-transition specs or a lifecycle family is needed and record the reason."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "record-capture-first-sight-and-update",
+      "prompt": "A source api capture InvoiceRecords keys by id and appends InvoiceStatusObserved when status. A spec with only when capture InvoiceRecords (id inv-42, status paid) expects that event but gets none. Cover first sight, an update from sent to paid, and an unchanged repeat without losing update behavior. Does the same rule apply to children/nested and expression guards? Give the reasoning and spec shapes in the answer; do not write files.",
+      "expected_output": "First records are added only. Add a separate when added append for initial observations and retain when status for updates. Update and unchanged cases need given capture for the same key; children and nested first records follow added-only semantics, while expressions/maps/unguarded appends keep their meaning.",
+      "assertions": [
+        "Explains that a first record is added only, so when status and field-change and/or guards do not hold without previous state.",
+        "Adds a separate append with when added for first sight while retaining the field-guarded append for later updates.",
+        "Seeds the update with given capture InvoiceRecords for inv-42 with status sent before when capture with status paid; a baseline for another key is insufficient.",
+        "Includes an unchanged-repeat case seeded with the same key and status, expecting then no events.",
+        "Applies added-only to new child identities and missing/null previous nested records, leaves expression guards/maps/unguarded appends unchanged, and identifies Screenplay 4.175.0 as the prerequisite."
+      ]
+    }
+  ]
+}

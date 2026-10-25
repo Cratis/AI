@@ -1,0 +1,64 @@
+{
+  "skill_name": "cratis-components-common-controls",
+  "evals": [
+    {
+      "id": 1,
+      "name": "server-filtered-picker",
+      "prompt": "Write a React AccountPicker using Cratis Components ComboBox. The parent owns the selected account key (string or null), loads options from the server as the user types, and can show loading and failure states. Give the code in your reply; do not write files.",
+      "expected_output": "A controlled ComboBox with options {key,label}, value string|null, onChange(key), inputValue/onInputChange with filter='none' for server filtering, loading plus loadingMessage, failure node, and emptyMessage only for genuine empties. Host loads options, debounces and discards stale answers.",
+      "assertions": [
+        "Binds value to a string-or-null selected key and onChange receives the key, with options shaped as key and label.",
+        "Passes inputValue and onInputChange with filter='none' for server-side filtering and does not rely on the default local filter.",
+        "Uses the failure prop (and loading/loadingMessage) rather than mapping a failed load to an empty list; emptyMessage is for a genuine empty result.",
+        "States that ComboBox never fetches options and that the caller debounces/cancels requests and discards stale answers."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "footer-action-no-create",
+      "prompt": "A teammate says that passing action={{ label: 'Add account', onAction }} to ComboBox will create and select a new option when the typed text matches nothing. Is that right? Explain what the handler receives and what the caller must do. Reply only.",
+      "expected_output": "No. The action offers a footer action that receives the current input text; it neither selects nor creates an option. It may return a promise but the component does not await it, so the caller owns busy and error handling and updating options/value.",
+      "assertions": [
+        "Says the action does not select or create an option automatically.",
+        "Says the handler receives the current input text.",
+        "Says the component fires the handler without awaiting a returned promise.",
+        "Says the caller owns busy/error handling and must update options and value itself."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "tag-group-editable-false",
+      "prompt": "We render TagGroup with editable={false} for a read-only view of a customer's tags, yet users can still remove tags. Explain why and show how to make it truly non-removable, and how to give the remove buttons localized names. Reply only, snippet allowed.",
+      "expected_output": "editable=false only removes the adding input; existing tags stay removable. Use disabled when removal must be unavailable, or a display-only surface for noninteractive tags. removeLabel(value) supplies localized accessible names.",
+      "assertions": [
+        "States that editable=false only removes the add input and existing tags remain removable.",
+        "Recommends the disabled prop when removal must also be unavailable, or a display-only surface for noninteractive tags.",
+        "Uses removeLabel as a function of the tag value to supply localized remove names."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "toggle-versus-tabs",
+      "prompt": "We have a view-mode switch (compact/expanded) and a details area with Overview and History panels. A dev wants to use Tabs for both because 'it looks nicer', and also navigate the router when a tab changes. Which control fits each, what do their onChange callbacks receive, and what about the router? Reply only.",
+      "expected_output": "ToggleGroup for the compact/expanded value choice (radio-group semantics, onChange receives the value string, reselecting ignored); Tabs for real panels with onChange(id). Do not use panel-less tabs as a radio group; changing a tab reveals content and does not imply route navigation.",
+      "assertions": [
+        "Recommends ToggleGroup for the exclusive value choice and Tabs for content panels.",
+        "States that onChange for both receives a string (value or tab id), not a DOM event.",
+        "Warns against using panel-less Tabs as a radio-style group.",
+        "Says changing a tab reveals content and should not be treated as route navigation."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "breadcrumb-trail",
+      "prompt": "Build a Breadcrumbs trail Home > Accounts > current account for a page that also has a second trail in a side panel. Say what happens with the last item's href or callback and how to name the two trails. Give a snippet and keep text localized via a labels object. Reply only.",
+      "expected_output": "items outermost first with href for earlier entries; the last item is current, its destination is suppressed and aria-current='page' is supplied; use distinct aria-label landmark names per trail. Breadcrumbs do not discover routes or enforce access.",
+      "assertions": [
+        "Lists items outermost first with the last item as the current page.",
+        "States the last item's href or onNavigate is suppressed and aria-current='page' is supplied.",
+        "Gives each trail a distinct aria-label.",
+        "Says Breadcrumbs do not discover routes or enforce access."
+      ]
+    }
+  ]
+}

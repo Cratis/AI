@@ -1,0 +1,38 @@
+{
+  "skill_name": "binlog-generation",
+  "evals": [
+    {
+      "id": 1,
+      "name": "basic",
+      "prompt": "Without calling tools, command to capture a binlog.",
+      "expected_output": "dotnet build /bl",
+      "assertions": [
+        "Uses /bl or -bl.",
+        "Names output path.",
+        "Runs same build as failing."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "unique-names",
+      "prompt": "Without calling tools, unique file names.",
+      "expected_output": "/bl:{} requires MSBuild 17.12+.",
+      "assertions": [
+        "Mentions {} placeholder.",
+        "States MSBuild 17.12+/ .NET 9.0.100 SDK+.",
+        "Gives a fallback explicit name."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "secrets",
+      "prompt": "Without calling tools, share binlog.",
+      "expected_output": "Binlogs may include environment values.",
+      "assertions": [
+        "Warns of secrets.",
+        "Keeps it local.",
+        "Offers redacted summary."
+      ]
+    }
+  ]
+}

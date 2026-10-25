@@ -3,13 +3,37 @@
   "input": "Write given/when/then specifications for a Screenplay slice.",
   "fixtures": [],
   "assertions": [
+    { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "Whitespace-acceptance specs fail." },
+    { "kind": "skill-contains", "value": "specification RejectingWhitespaceOnAConcept", "file": "references/whitespace-rules.md" },
+    { "kind": "skill-contains", "value": "specification RejectingWhitespaceOnAProperty", "file": "references/whitespace-rules.md" },
+    { "kind": "skill-contains", "value": "U+0085 and U+00A0 are whitespace; U+FEFF is not.", "file": "references/whitespace-rules.md" },
+    { "kind": "skill-contains", "value": "an ambiguous parent still fails closed" },
+    { "kind": "skill-contains", "value": "specification ChildBeforeGivenParent", "file": "references/child-ordering.md" },
+    { "kind": "skill-contains", "value": "specification ParentNeverArrives", "file": "references/child-ordering.md" },
+    { "kind": "skill-contains", "value": "earlier-child-creation branch", "file": "references/child-ordering.md" },
+    { "kind": "skill-contains", "value": "Generated fixtures and return expectations (ESM v7)" },
+    { "kind": "skill-contains", "value": "`then returns` counts as a success outcome but does not relax event comparison", "file": "references/generated-fixtures.md" },
+    { "kind": "skill-contains", "value": "`Unsupported(IdentityAllocation)`", "file": "references/generated-fixtures.md" },
     {
       "kind": "skill-contains",
-      "value": ".cratis/screenplay/"
+      "value": "Inline events are ordinary named facts", "file": "references/worked-example.md"
     },
     {
       "kind": "skill-contains",
-      "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`"
+      "value": "Use `given clock`, never `given time`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "query InvoiceById => InvoiceSummary optional", "file": "references/worked-example.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Look first for the project's existing `.play` files"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`cratis ai install` manages `.cratis/ai/`, never model files"
     },
     {
       "kind": "skill-contains",
@@ -21,7 +45,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "**Authorized commands and queries need `given caller`**"
+      "value": "**Authorized commands and queries need `given caller` or `given caller as <Persona>`**"
     },
     {
       "kind": "skill-contains",
@@ -34,6 +58,32 @@
     {
       "kind": "skill-contains",
       "value": "Bare `then error` never matches\n  a denial"
-    }
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A compiler that stops before ESM v6 executes `when query` only.", "file": "references/actions-beyond-commands.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`then result` and `then no result` need `when query`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A clock instant is ISO 8601 with an offset or `Z`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "one rejection specification per concept rule"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Version skew: cascades and the false `PLAY0285`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Specification outcome 'ReminderScheduled' cannot be produced", "file": "references/reactions-and-cascades.md"
+    },
+    { "kind": "skill-contains", "value": "Examples typed from another document", "file": "references/examples-and-routes.md" },
+    { "kind": "skill-contains", "value": "`PLAY0520`", "file": "references/examples-and-routes.md" }
   ]
 }

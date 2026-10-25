@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-arc-command",
+  "queries": [
+    { "query": "I need a new command in the Bookings feature so a customer can book a boat for a date range. What should the C# look like, and what should Handle() return?", "shouldTrigger": true },
+    { "query": "add a retire boat action to our backend. a manager clicks Retire on the boat page and the boat should be marked retired forever. sketch the backend piece for me", "shouldTrigger": true },
+    { "query": "When a customer registers we need the new customer id back to navigate to the profile. How do I return the id from RegisterCustomer and still append CustomerRegistered?", "shouldTrigger": true },
+    { "query": "TransferBooking must write BookingMovedOut on the old boat stream and BookingMovedIn on the new boat stream. How do I write that C# Handle method?", "shouldTrigger": true },
+    { "query": "Our ChangeOwnerApiKey command takes the partner API key as a property. Someone said it ends up in the event log forever. Is that true and what should the record look like instead?", "shouldTrigger": true },
+    { "query": "CancelBooking returns 200 without errors but nothing is appended. Handle returns new BookingCancelled(BookingId). Why does the read model never change?", "shouldTrigger": true },
+    { "query": "Before booking I need the boat's price per day from a read model, then emit BoatBooked with the total. Where does the lookup go so Handle stays clean?", "shouldTrigger": true },
+    { "query": "The frontend dev wants a typed TypeScript client for our new ExtendBooking command. How do we get that generated from C# and what does it expose?", "shouldTrigger": true },
+    { "query": "new feature: customers can leave a rating from the booking detail screen. what's the server side of that submit button look like in our C# Arc backend?", "shouldTrigger": true },
+    { "query": "I'm thinking of injecting IEventLog into my BookBoat handler and calling Append myself because that's what I did in my last project. good idea?", "shouldTrigger": true },
+    { "query": "Write a nightly hosted job that executes our existing ExpireStaleBookings command without HTTP and reads the result from the pipeline.", "shouldTrigger": false, "note": "cratis-arc-command-execution" },
+    { "query": "BookBoat already works. I only need it to reject an end date before the start date with a field validation message.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "Our Spring Boot Kotlin service uses io.cratis:arc. How do I declare RegisterVessel with handle returning a Chronicle event?", "shouldTrigger": false, "note": "cratis-arc-command-kotlin" },
+    { "query": "In our Node Arc for TypeScript server, how do I declare PlaceOrder with field inputs and host it on Fastify?", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "Create a new list of active bookings per boat with a read model and a live query for the bookings page.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Add an ExtensionCount to the existing BookingsOverview projection from BookingExtended events.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Concurrent RegisterBoat requests can duplicate a registration number. Make the event store reject the duplicate at append time.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
+    { "query": "Send a confirmation email after BoatBooked is appended, without resending it during replay. Where does that handler belong?", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "CustomerRegistered needs a required PhoneNumber, but thousands of old events are stored. How do we evolve its schema?", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "BookBoat must charge the payment provider inline and compensate if append fails. How do I declare the operation and recovery?", "shouldTrigger": false, "note": "cratis-arc-command-operation" }
+  ]
+}

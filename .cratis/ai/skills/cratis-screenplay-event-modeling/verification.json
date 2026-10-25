@@ -3,17 +3,32 @@
   "input": "Facilitate an event modeling session and land the model as .play source.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "Requires Screenplay 4.236.1", "file": "references/file-layout.md" },
+    { "kind": "skill-contains", "value": "Cratis CLI 3.93.1", "file": "references/file-layout.md" },
+    { "kind": "skill-contains", "value": "not merely because application code lives there", "file": "references/file-layout.md" },
+    { "kind": "play-compiles" },
     {
       "kind": "skill-contains",
-      "value": ".cratis/screenplay/"
+      "value": "Inline events remain slice-owned contracts",
+      "file": "references/naming-primitives.md"
     },
     {
       "kind": "skill-contains",
-      "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`"
+      "value": "Storage identity is not payload identity",
+      "file": "references/naming-primitives.md"
     },
     {
       "kind": "skill-contains",
-      "value": "Use one file per slice"
+      "value": "Look first for the project's existing `.play` model and workspace state"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`cratis ai install` manages `.cratis/ai/`, never model files"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Use one file per slice",
+      "file": "references/file-layout.md"
     },
     {
       "kind": "skill-contains",
@@ -33,7 +48,15 @@
     },
     {
       "kind": "skill-contains",
-      "value": "It is not a protected"
+      "value": "command reads protected"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A newly scaffolded model starts its application root"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Legacy reads remain PLAY0271"
     },
     {
       "kind": "skill-contains",
@@ -41,7 +64,42 @@
     },
     {
       "kind": "skill-contains",
-      "value": "are accepted but\n**not available**"
+      "value": "Event generations and typed repairs now ship",
+      "file": "references/parsed-not-runnable.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "every level above the slices is a **barrel file**",
+      "file": "references/file-layout.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "it does **not** restate `module` or",
+      "file": "references/file-layout.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "## Start here"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Never:** use code as a shortcut around the model"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`persona` declarations are report-only"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`cratis-screenplay-render-and-gap-fill`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Do not cut corners to save tokens or effort"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Ask only what the step needs"
     }
   ]
 }

@@ -3,8 +3,6 @@
 
 using Cratis.AI.Providers.Pools;
 using Cratis.AI.Providers.UsageReporting;
-using Cratis.AI.Providers.UsageReporting.RecordingSnapshot;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using PackageAIProviderId = Cratis.AI.Providers.AIProviderId;
 
@@ -56,17 +54,13 @@ public record ProviderUsageLevel(AIUsageReportAvailability Availability, long Co
 /// <param name="readModels">The <see cref="IReadModels"/> a provider's configured <see cref="AIProviderUsageCapacity"/> ceiling is read from.</param>
 /// <param name="providerBurn">The recorded-burn fallback for a provider with no vendor usage report available.</param>
 /// <param name="recentSnapshots">The freshness cache a refresh reuses from, and records into.</param>
-/// <param name="commandPipeline">The <see cref="ICommandPipeline"/> a refreshed level is recorded through, so the decision is auditable.</param>
 /// <param name="options">The <see cref="AIProviderOptions"/> the freshness window and per-provider report timeout are read from.</param>
-/// <param name="logger">The logger.</param>
 public class ProviderUsageLevels(
     IAIUsageReporting usageReporting,
     IReadModels readModels,
     IProviderBurn providerBurn,
     IRecentUsageSnapshots recentSnapshots,
-    ICommandPipeline commandPipeline,
-    IOptions<AIProviderOptions> options,
-    ILogger<ProviderUsageLevels> logger) : IProviderUsageLevels
+    IOptions<AIProviderOptions> options) : IProviderUsageLevels
 {
     /// <inheritdoc/>
     public async Task<IReadOnlyDictionary<AIProviderId, ProviderUsageLevel>> RefreshMany(IReadOnlyCollection<AIProviderId> providerIds, CancellationToken cancellationToken = default)
@@ -125,25 +119,8 @@ public class ProviderUsageLevels(
             var level = new ProviderUsageLevel(report.Availability, consumedTokens, usedLocalBurnFallback, ceiling);
             recentSnapshots.Record(providerId, level);
             result[providerId] = level;
-
-            await RecordSnapshot(providerId, level);
         }
 
         return result;
-    }
-
-    async Task RecordSnapshot(AIProviderId providerId, ProviderUsageLevel level)
-    {
-        try
-        {
-            await commandPipeline.Execute(new RecordAIProviderUsageSnapshot(providerId, level.Availability, level.ConsumedTokens, level.UsedLocalBurnFallback));
-        }
-        catch (Exception exception)
-        {
-            // Losing the audit record is not worth failing the caller's actual selection over - the
-            // level itself is already cached and returned above, so the decision this refresh exists
-            // for is unaffected.
-            logger.CouldNotRecordUsageSnapshot(exception, providerId);
-        }
     }
 }

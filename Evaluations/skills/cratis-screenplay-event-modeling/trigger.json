@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-screenplay-event-modeling",
+  "queries": [
+    { "query": "We have a whiteboard booking flow and want it in Screenplay. How do the four behavior patterns map to slices and which modeling skill comes next?", "shouldTrigger": true },
+    { "query": "help us map the information flow for harbor permits before thinking about databases. where do we start and how do we walk one behavior end to end?", "shouldTrigger": true },
+    { "query": "Our application already has an accepted bookings.play. We need a new deposit-refund behavior. Should I start in C# or in the model, and how do I route the work?", "shouldTrigger": true },
+    { "query": "I'm new to Cratis event modeling. Explain the nine-step workflow from events through screens and integrations to slices.", "shouldTrigger": true },
+    { "query": "Before we hand our .play model to review, walk me through the quick validation gate: what do we check across its commands, events and read models?", "shouldTrigger": true },
+    { "query": "The generic method says commands never read views, but booking availability needs state. Explain the Cratis divergence and how to model the enforcement gap.", "shouldTrigger": true },
+    { "query": "We're modeling a parcel-locker system from scratch in Screenplay. Which .play slice type is each behavior: a courier drops a parcel, the customer sees their locker code, a reminder goes out after 48 hours, and carrier status arrives from the carrier's webhook?", "shouldTrigger": true },
+    { "query": "We need a home for a new play model in this app and a readable split into files. Where should it live and how should we validate the whole thing?", "shouldTrigger": true },
+    { "query": "Turn our whiteboard sketch of the boat booking flow into a first Screenplay model. What is the step-by-step order you work through for each behavior?", "shouldTrigger": true },
+    { "query": "Before detailed workflow design for our rental business, how do we separate broad discovery from designing one workflow in Screenplay?", "shouldTrigger": true },
+    { "query": "Explain PLAY0271 and pick the exact compiler command and version for a binding probe.", "shouldTrigger": false, "note": "cratis-screenplay-toolchain" },
+    { "query": "Explain the exact Screenplay grammar of reads, authorize and produces in a standalone placeholder example. I need language reference, not a change to a domain model.", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" },
+    { "query": "Explain PDL join grammar and its key forms using an isolated placeholder example; do not author or change a model.", "shouldTrigger": false, "note": "cratis-screenplay-projections" },
+    { "query": "Give me the query and screen grammar for an observable list readmodel in play.", "shouldTrigger": false, "note": "cratis-screenplay-read-surface" },
+    { "query": "What is the Screenplay grammar for a form, navigation contribute and screen template? Show a reference example, not an application design.", "shouldTrigger": false, "note": "cratis-screenplay-ui-composition" },
+    { "query": "Our accepted model is ready; probe cratis render admission and then publish it.", "shouldTrigger": false, "note": "cratis-screenplay-render-and-gap-fill" },
+    { "query": "Review the final play model and pin each blocking finding to a declaration.", "shouldTrigger": false, "note": "cratis-screenplay-model-review" },
+    { "query": "Write the V1–V5 checkpoint packet and keep lifecycle state between agent turns.", "shouldTrigger": false, "note": "cratis-screenplay-modeling-lifecycle" },
+    { "query": "Update the Mermaid eventmodeling diagram after the agreed BookBoat rename; the vocabulary is settled.", "shouldTrigger": false, "note": "cratis-event-model-diagram" },
+    { "query": "Design stream boundaries for our hand-written Chronicle service; no Screenplay model or opt-in exists.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" }
+  ]
+}

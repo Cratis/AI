@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-chronicle-event-type-migration",
+  "queries": [
+    { "query": "CustomerRegistered needs a required PhoneNumber but thousands of old events are already stored. how do we evolve the schema?", "shouldTrigger": true },
+    { "query": "we split FullName into FirstName and LastName in the event. how do old events upcast?", "shouldTrigger": true },
+    { "query": "what generic args does Downcast take in EventTypeMigration? it won't compile", "shouldTrigger": true },
+    { "query": "i renamed an enum member in an event and got EventTypeSchemaChanged at registration. is that expected?", "shouldTrigger": true },
+    { "query": "i removed a value from the status enum on a stored event type. what do I need?", "shouldTrigger": true },
+    { "query": "my migration never applies. the old record has its own [EventType] attribute without an id", "shouldTrigger": true },
+    { "query": "should I add an optional nullable property to represent missing on old events? analyzer CHR0012 complains", "shouldTrigger": true },
+    { "query": "when is it safe to register a new generation across silos and which namespaces get backfilled?", "shouldTrigger": true },
+    { "query": "is there Rename or Join in the migration property builder?", "shouldTrigger": true },
+    { "query": "We're still prototyping and have no data. I just want to rename the BookBoat event.", "shouldTrigger": false, "note": "greenfield rename; no migration needed (skill itself says so)" },
+    { "query": "Change the shape of the BookingsOverview read model and rebuild it.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Remove the content of a wrongly stored event.", "shouldTrigger": false, "note": "cratis-chronicle-compliance" },
+    { "query": "Configure EventGenerationDelivery.Pinned on the standalone client.", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" },
+    { "query": "Add a unique constraint to the event type.", "shouldTrigger": false, "note": "cratis-chronicle-event-constraints" },
+    { "query": "Design the events for a new feature from scratch.", "shouldTrigger": false, "note": "cratis-chronicle-event-modeling" },
+    { "query": "EF Core migration to add a column to the Bookings table.", "shouldTrigger": false, "note": "cratis-arc-ef-core-migration" },
+    { "query": "Write a reducer that handles both generations of the event.", "shouldTrigger": false, "note": "cratis-chronicle-reducer" }
+  ]
+}

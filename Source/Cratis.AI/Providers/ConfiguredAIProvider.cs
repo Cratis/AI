@@ -2,16 +2,19 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Common;
+using Cratis.AI.Harnesses;
 using Cratis.AI.Providers.Adding;
 using Cratis.AI.Providers.AvailableModels;
 using Cratis.AI.Providers.Codex;
 using Cratis.AI.Providers.Configuring;
+using Cratis.AI.Providers.Copilot;
 using Cratis.AI.Providers.OpenAI;
 using Cratis.AI.Providers.RateLimiting;
 using Cratis.AI.Providers.Reconfiguring;
 using Cratis.AI.Providers.Refreshing;
 using Cratis.AI.Providers.Removing;
 using Cratis.AI.Providers.SettingConcurrency;
+using Cratis.AI.Providers.SettingHarnesses;
 using Cratis.AI.Providers.SettingTierModels;
 using Cratis.AI.Providers.SettingUsageCapacity;
 using Cratis.AI.Providers.UsageReporting.SettingCredential;
@@ -50,6 +53,7 @@ namespace Cratis.AI.Providers;
 [FromEvent<OpenAICompatibleProviderAdded>]
 [FromEvent<ZAIProviderAdded>]
 [FromEvent<OpenAICodexProviderAdded>]
+[FromEvent<CopilotProviderAdded>]
 [FromEvent<AnthropicModelConfigured>]
 [FromEvent<OpenAIModelConfigured>]
 [FromEvent<AzureOpenAIModelConfigured>]
@@ -57,6 +61,7 @@ namespace Cratis.AI.Providers;
 [FromEvent<AIProviderUsageCredentialSet>]
 [FromEvent<AIProviderUsageCredentialCleared>]
 [FromEvent<AIProviderUsageCapacitySet>]
+[FromEvent<AIProviderHarnessesSet>]
 [FromEvent<AIProviderModelsDiscovered>]
 [FromEvent<AIProviderModelDiscoveryFailed>]
 [RemovedWith<AIProviderRemoved>]
@@ -69,6 +74,7 @@ public record ConfiguredAIProvider(
     [SetValue<OpenAICompatibleProviderAdded>(AIProviderType.OpenAICompatible)]
     [SetValue<ZAIProviderAdded>(AIProviderType.ZAI)]
     [SetValue<OpenAICodexProviderAdded>(AIProviderType.OpenAICodex)]
+    [SetValue<CopilotProviderAdded>(AIProviderType.Copilot)]
     [SetValue<AnthropicModelConfigured>(AIProviderType.Anthropic)]
     [SetValue<OpenAIModelConfigured>(AIProviderType.OpenAI)]
     [SetValue<AzureOpenAIModelConfigured>(AIProviderType.AzureOpenAI)]
@@ -90,6 +96,9 @@ public record ConfiguredAIProvider(
     [SetFrom<OpenAICompatibleModelConfigured>(nameof(OpenAICompatibleModelConfigured.ApiKey))]
     [SetFrom<OpenAISubscriptionCredentialRefreshed>(nameof(OpenAISubscriptionCredentialRefreshed.ApiKey))]
     [SetFrom<OpenAICodexProviderDisconnected>(nameof(OpenAICodexProviderDisconnected.ApiKey))]
+    [SetFrom<CopilotProviderAdded>(nameof(CopilotProviderAdded.ApiKey))]
+    [SetFrom<CopilotProviderConnected>(nameof(CopilotProviderConnected.ApiKey))]
+    [SetFrom<CopilotProviderDisconnected>(nameof(CopilotProviderDisconnected.ApiKey))]
     AIProviderApiKey ApiKey)
 {
     /// <summary>
@@ -118,6 +127,7 @@ public record ConfiguredAIProvider(
     /// Gets how much work the provider may be given at once.
     /// </summary>
     [SetFrom<AnthropicProviderAdded>(nameof(AnthropicProviderAdded.MaxConcurrentJobs))]
+    [SetFrom<CopilotProviderAdded>(nameof(CopilotProviderAdded.MaxConcurrentJobs))]
     [SetFrom<OpenAIProviderAdded>(nameof(OpenAIProviderAdded.MaxConcurrentJobs))]
     [SetFrom<AzureOpenAIProviderAdded>(nameof(AzureOpenAIProviderAdded.MaxConcurrentJobs))]
     [SetFrom<OpenAICompatibleProviderAdded>(nameof(OpenAICompatibleProviderAdded.MaxConcurrentJobs))]
@@ -140,7 +150,17 @@ public record ConfiguredAIProvider(
     /// <summary>
     /// Gets the moment the vendor said it would accept work again.
     /// </summary>
+    /// <remarks>
+    /// A limit lifted by hand, or by replacing the provider's credential, ends at the moment of that
+    /// event - a limit recorded against the old credential says nothing about the new one.
+    /// </remarks>
     [SetFrom<AIProviderRateLimited>(nameof(AIProviderRateLimited.Until))]
+    [SetFromContext<AIProviderRateLimitCleared>(nameof(EventContext.Occurred))]
+    [SetFromContext<AnthropicProviderReconfigured>(nameof(EventContext.Occurred))]
+    [SetFromContext<OpenAIProviderReconfigured>(nameof(EventContext.Occurred))]
+    [SetFromContext<AzureOpenAIProviderReconfigured>(nameof(EventContext.Occurred))]
+    [SetFromContext<OpenAICompatibleProviderReconfigured>(nameof(EventContext.Occurred))]
+    [SetFromContext<ZAIProviderReconfigured>(nameof(EventContext.Occurred))]
     public DateTimeOffset RateLimitedUntil { get; init; }
 
     /// <summary>
@@ -154,6 +174,18 @@ public record ConfiguredAIProvider(
     /// </summary>
     [SetFrom<AIProviderUsageCapacitySet>(nameof(AIProviderUsageCapacitySet.UsageCapacity))]
     public AIProviderUsageCapacity UsageCapacity { get; init; } = AIProviderUsageCapacity.NotSet;
+
+    /// <summary>
+    /// Whether the provider has an explicit selection. Legacy providers have not been configured;
+    /// an explicit empty selection instead disables harness dispatch.
+    /// </summary>
+    [SetValue<AIProviderHarnessesSet>(true)]
+    public bool HasHarnessSelection { get; init; }
+
+    /// <summary>
+    /// Gets the selected harnesses, or an empty list before a selection has been made.
+    /// </summary>
+    public IReadOnlyList<Harness> SupportedHarnesses { get; init; } = [];
 
     /// <summary>
     /// Gets the models the provider published the last time it was asked.

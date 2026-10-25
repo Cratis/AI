@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# fixture-serial: runs entrypoint.sh code that writes fixed /tmp paths shared with the other serial fixtures
 # Reproduces Cratis/Stagehand#603 - a workspace whose repository (or repositories) carry a
 # .claude/.ai corpus should always end up with that corpus reachable directly under /workspace,
 # because Claude Code only reads project instructions from its working directory and that
@@ -22,8 +23,10 @@ set -u
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ENTRYPOINT="${HERE}/../entrypoint.sh"
-ROOT="${HERE}/corpustest"
-chmod -R u+w "$ROOT" 2>/dev/null; rm -rf "$ROOT"; mkdir -p "$ROOT"
+# shellcheck source=lib/scratch.sh
+source "${HERE}/lib/scratch.sh"
+scratch_create corpustest
+ROOT="$SCRATCH_ROOT"
 
 BRANCH="direct/spec-corpus"
 FAILURES=0
@@ -57,7 +60,7 @@ STUB
 chmod +x "$ROOT/bin/rtk" "$ROOT/bin/claude"
 
 fail_case() {
-    echo "  RESULT: $1 - see $ROOT"
+    echo "  RESULT: $1 (rerun with SPEC_KEEP_SCRATCH=1 to keep the scratch tree)"
     FAILURES=$((FAILURES + 1))
 }
 

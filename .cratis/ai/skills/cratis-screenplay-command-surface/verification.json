@@ -3,13 +3,48 @@
   "input": "Declare a Screenplay command with validation, authorization, a uniqueness constraint and a state-dependent rule.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "same concept", "file": "references/uuid-equality.md" },
+    { "kind": "skill-contains", "value": "lowercase hyphenated Uuid", "file": "references/uuid-equality.md" },
+    { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "require to >= from", "file": "references/date-comparisons.md" },
+    { "kind": "skill-contains", "value": "RejectingAMissingOffset", "file": "references/date-comparisons.md" },
+    { "kind": "skill-contains", "value": "STAGE-ESM-016", "file": "references/date-comparisons.md" },
+    { "kind": "skill-contains", "value": "Unsupported (`ImplementationBody`)", "file": "references/described-handlers.md" },
+    { "kind": "skill-contains", "value": "including Stub mode", "file": "references/described-handlers.md" },
+    { "kind": "skill-contains", "value": "DecisionStateChanged", "file": "references/protected-reads.md" },
+    { "kind": "skill-contains", "value": "checkPortableMatchPattern", "file": "references/text-and-match-rules.md" },
+    { "kind": "skill-contains", "value": "U+00A0", "file": "references/text-and-match-rules.md" },
+    { "kind": "skill-contains", "value": "screenplay_declaration_details", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "do not hand-edit the text", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "A CLI-bundled MCP can lack this summary", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "optional concept `compliance` as ESM v13", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "PLAY0268 at binding only", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "reasons stay report-only PLAY0270", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "`STAGE-ESM-040`",  "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "A CLI whose compiler and Stage admit v13", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "Enum and identity", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "PLAY0653", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "personal` is an alias of `pii", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "report-only (PLAY0270)", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "--check purposes", "file": "references/compliance.md" },
+    { "kind": "skill-contains", "value": "PLAY0633–0646", "file": "references/context.md" },
+    { "kind": "skill-contains", "value": "The block is **authoring metadata**", "file": "references/context.md" },
+    { "kind": "skill-contains", "value": "produces event ProjectRenamed", "file": "references/inline-events.md" },
+    { "kind": "skill-contains", "value": "name ProjectName = name", "file": "references/inline-events.md" },
+    { "kind": "skill-contains", "value": "In ESM v2+, it inherits a sibling production's resolved\ndestination through the command destination default", "file": "references/inline-events.md" },
+    { "kind": "skill-contains", "value": "An allocated identity is\nused only when no production resolves a destination", "file": "references/inline-events.md" },
+    { "kind": "skill-contains", "value": "State `for` explicitly on\nevery production targeting the identifier", "file": "references/inline-events.md" },
+    { "kind": "skill-contains", "value": "PLAY0478" },
+    { "kind": "skill-contains", "value": "PLAY0479" },
+    { "kind": "skill-contains", "value": "changes the event contract", "file": "references/inline-events.md" },
+    { "kind": "skill-contains", "value": "`reads X optional` is not supported yet" },
     {
       "kind": "skill-contains",
-      "value": ".cratis/screenplay/"
+      "value": "Look first for the project's existing `.play` files"
     },
     {
       "kind": "skill-contains",
-      "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`"
+      "value": "`cratis ai install` manages `.cratis/ai/`, never model files"
     },
     {
       "kind": "skill-contains",
@@ -17,7 +52,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "`produces` and `handler` are mutually exclusive"
+      "value": "A file/code `handler` cannot coexist with `produces`"
     },
     {
       "kind": "skill-contains",
@@ -29,11 +64,11 @@
     },
     {
       "kind": "skill-contains",
-      "value": "`reads` is not a protected read"
+      "value": "command reads protected"
     },
     {
       "kind": "skill-contains",
-      "value": "Adding a\n`concurrency` block does not fix this"
+      "value": "reads/concurrency cannot combine (PLAY0783)"
     },
     {
       "kind": "skill-contains",
@@ -58,6 +93,27 @@
     {
       "kind": "skill-contains",
       "value": "never both (`PLAY0440`)"
-    }
+    },
+    {
+      "kind": "skill-contains",
+      "value": "sources-and-streams.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Generated identifiers need Uuid or String backing and at least 64 random bits.", "file": "references/generated-values-and-responses.md"
+    },
+    { "kind": "skill-contains", "value": "Generated values and responses (ESM v7 and v15)" },
+    { "kind": "skill-contains", "value": "names that can match together report PLAY0367", "file": "references/text-and-match-rules.md" },
+    { "kind": "skill-contains", "value": "or reaction `where` remain PLAY0268", "file": "references/text-and-match-rules.md" },
+    { "kind": "skill-contains", "value": "Generated values are not request inputs", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "Generated-concept validation rules select ESM v20", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "PLAY0688 and a violating example", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "Unproven rules warn PLAY0689", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "Only acceptance has a response", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "whole source", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "`Concurrency`", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "PLAY0682", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "zero trailing bits", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "STAGE-ESM-038", "file": "references/generated-values-and-responses.md" }
   ]
 }

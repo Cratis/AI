@@ -1,0 +1,27 @@
+{
+  "skill": "cratis-screenplay-model-review",
+  "input": "Review the marina berth .play model before we accept it: check the model and report findings, do not change anything.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "EnumerationNotComparable" },
+    { "kind": "skill-contains", "value": "number change/removal/reuse is breaking", "file": "references/checklist.md" },
+    { "kind": "skill-contains", "value": "all *known* producers", "file": "references/public-keys-and-routes.md" },
+    { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "A read-only reviewer returns `question` note requests" },
+    { "kind": "skill-contains", "value": "`state: \"all\"`", "file": "references/report-template.md" },
+    { "kind": "skill-contains", "value": "`model-note.open-question`", "file": "references/report-template.md" },
+    { "kind": "skill-contains", "value": "`orphanedNotes`", "file": "references/report-template.md" },
+    { "kind": "skill-contains", "value": "`by: \"external-decision\"`", "file": "references/report-template.md" },
+    { "kind": "skill-contains", "value": "Verify the answer became a specification", "file": "references/report-template.md" },
+    { "kind": "skill-contains", "value": "Never put secrets or personal data", "file": "references/report-template.md" },
+    { "kind": "skill-contains", "value": "PASS WITH WARNINGS" },
+    { "kind": "skill-contains", "value": "Every finding is pinned to one declaration" },
+    { "kind": "skill-contains", "value": "edit request" },
+    { "kind": "skill-contains", "value": "business-question" },
+    { "kind": "skill-contains", "value": "find-modeling-smells" },
+    { "kind": "skill-contains", "value": "entity walk" },
+    { "kind": "skill-contains", "value": "eleven phases, 89 checks" },
+    { "kind": "skill-contains", "value": "could a non-technical product owner read it and immediately understand" },
+    { "kind": "skill-contains", "value": "a \"simple relay\" is not exempt from having pending work" }
+  ]
+}

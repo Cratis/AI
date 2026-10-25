@@ -1,0 +1,24 @@
+{
+  "skill": "cratis-release-notes",
+  "queries": [
+    { "query": "draft the github release notes for chronicle 15.1.0 from the merged PRs. i need what breaks and what to do before upgrading", "shouldTrigger": true },
+    { "query": "write a migration guide for going from 18 to 19: old behavior, new behavior, required action", "shouldTrigger": true },
+    { "query": "my PR description will get published as the release note. what headings and issue references should it use?", "shouldTrigger": true },
+    { "query": "the published release has a Test plan heading and 'Closes #12' in it. how do I fix the release?", "shouldTrigger": true },
+    { "query": "how do i word a release note item for a changed default that affects apps running the old workflow", "shouldTrigger": true },
+    { "query": "should the release note say which Chronicle kernel version the new Arc client requires?", "shouldTrigger": true },
+    { "query": "write a short announcement post for the new reducer feature that links to the release note and upgrade guide", "shouldTrigger": true },
+    { "query": "the upgrade picker reads upgrading/major-versions.md. what format do the headings and You do lines need?", "shouldTrigger": true },
+    { "query": "do I list internal refactors and new specs in the release notes?", "shouldTrigger": true },
+    { "query": "a contributor outside the team fixed the replay bug. how do we credit them in the notes?", "shouldTrigger": true },
+    { "query": "Which label should this PR get: major, minor, patch or no-release? And can I publish the release now?", "shouldTrigger": false, "note": "cratis-governed-release-methodology" },
+    { "query": "Write the LinkedIn post that announces the release with a code card.", "shouldTrigger": false, "note": "cratis-social-feed-post" },
+    { "query": "How long should the release announcement be, 250 or 600 words?", "shouldTrigger": false, "note": "cratis-content-length" },
+    { "query": "Write the getting-started tutorial page for the new reducer API.", "shouldTrigger": false, "note": "cratis-documentation-writing" },
+    { "query": "Is this sample in the migration guide compiled and extracted from real source?", "shouldTrigger": false, "note": "cratis-technical-examples" },
+    { "query": "This release announcement reads like a model wrote it. Remove the templated phrasing and keep every claim.", "shouldTrigger": false, "note": "cratis-writing-voice-and-cadence" },
+    { "query": "Plan the launch channels, cadence and measurement for the release.", "shouldTrigger": false, "note": "cratis-developer-marketing" },
+    { "query": "Record the decision to stop supporting the old event type format.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" },
+    { "query": "Our release action published even though the push returned a 422. Why did it say success?", "shouldTrigger": false, "note": "cratis-engineering-effect-boundaries" }
+  ]
+}

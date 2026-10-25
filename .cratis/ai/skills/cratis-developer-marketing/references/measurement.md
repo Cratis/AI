@@ -1,5 +1,15 @@
 # Measurement
 
+## Contents
+
+- The stages
+- What common metrics mean
+- Self-reported attribution
+- A UTM convention
+- Scorecard template
+- Small-sample experiments
+- Sources
+
 How to tell whether developer content helped, without claiming more than the data shows.
 Sources were checked on 2026-09-25. Analytics products change their definitions, so
 re-read the linked documentation before relying on a specific report.

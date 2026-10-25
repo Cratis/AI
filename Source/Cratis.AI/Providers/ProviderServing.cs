@@ -40,11 +40,12 @@ public static class ProviderServing
     /// <summary>
     /// Whether any capability tier resolves to a model on this provider - asked through the very
     /// resolution the completion path uses, so the two can never disagree about what "has a model"
-    /// means.
+    /// means. A configured model absent from a successfully discovered catalog is refused, not
+    /// counted as a usable tier.
     /// </summary>
     /// <param name="provider">The provider to judge.</param>
     /// <returns><see langword="true"/> when at least one tier resolves.</returns>
     public static bool NamesAModel(this ConfiguredAIProvider provider) =>
         Enum.GetValues<ModelTier>().Any(tier =>
-            !TierModelResolution.Resolve(provider.TierModels, provider.AvailableModels, tier).Equals(ModelName.NotSet));
+            !TierModelResolution.Resolve(provider, tier).Equals(ModelName.NotSet));
 }

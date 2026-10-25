@@ -14,8 +14,8 @@ namespace Cratis.AI.Providers;
 /// </summary>
 internal static partial class AIProviderClientLog
 {
-    [LoggerMessage(LogLevel.Warning, "{Vendor} language model API returned {StatusCode}")]
-    internal static partial void UnexpectedStatusCode(this ILogger logger, AIProviderType vendor, int statusCode);
+    [LoggerMessage(LogLevel.Warning, "Provider {ProviderId} ({Vendor}) model {Model} returned {StatusCode}; error type {ErrorType}, code {ErrorCode}; Retry-After {RetryAfter}, capped wait {RetryAfterWait}; vendor body: {VendorBody}")]
+    internal static partial void UnexpectedStatusCode(this ILogger logger, AIProviderId providerId, AIProviderType vendor, string model, int statusCode, string? errorType, string? errorCode, string? retryAfter, TimeSpan? retryAfterWait, string vendorBody);
 
     [LoggerMessage(LogLevel.Warning, "{Vendor} language model API returned no text")]
     internal static partial void NoTextReturned(this ILogger logger, AIProviderType vendor);

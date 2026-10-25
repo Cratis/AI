@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-screenplay-read-surface",
+  "evals": [
+    {
+      "id": 1,
+      "name": "tenant-from-not-filter",
+      "prompt": "A Screenplay query `ListInvoices => InvoiceListReadModel[]` declares `filter tenantId TenantId` so the UI sends the tenant. Review the security of this and show the corrected query. Give the code in your reply; do not write files.",
+      "expected_output": "Anything the caller must not choose belongs on a `from` parameter, not a caller-supplied `filter`: `filter tenantId TenantId from $context.tenant`. The `from` states the contract and the runtime enforces it; a compiling query is not evidence that access control works, so pin denial with `given caller` and `then denied`.",
+      "assertions": [
+        "Says a caller-chosen `filter` for the tenant is a security flaw because the caller must not choose it.",
+        "Uses a `from` source such as `filter tenantId TenantId from $context.tenant`.",
+        "States that a compiling query is not evidence that access control works, since the runtime enforces the `from`.",
+        "Recommends a specification with `given caller` including a `then denied` case for an authorized query."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "scoped-to-global",
+      "prompt": "In review we find `query Everyones => Timesheet[]` with `scoped to global`. A teammate says it is harmless metadata. What does it do, what is the default, and how should a reviewer treat it? Reply only; do not write files.",
+      "expected_output": "A query is scoped to the tenant it runs for by default and that stays unstated; `scoped to global` opts out and reaches past the tenant. The dangerous case is the one you have to write down. Scope is a name, not a closed set (`identity` and `global` are documented), and a query declares at most one. Every `scoped to global` is a question to answer in review.",
+      "assertions": [
+        "Says the tenant is the default scope and stays unstated.",
+        "Says `scoped to global` opts out of tenant scoping and reaches past the tenant.",
+        "Treats each `scoped to global` as a question the reviewer must answer, not a detail.",
+        "States that a query declares at most one scope and the scope is a name, not a closed set."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "no-invented-paging",
+      "prompt": "Add paging (20 per page) and sorting by name to `query ListBoats => BoatReadModel[]` in our Screenplay model, and make it update live when boats change. What syntax do you write? Give the code in your reply; do not write files.",
+      "expected_output": "Paging, sorting and change-set delivery are planned but not in the language yet, so do not invent syntax. Liveness is declared with `observable` before the result type: `=> observable BoatReadModel[]`, which composes with `[]`, filters and `authorize`; without it the query is one-shot.",
+      "assertions": [
+        "Declines to invent paging or sorting syntax and says they are not in the language yet.",
+        "Writes `observable` in the return type, for example `=> observable BoatReadModel[]`.",
+        "States that without the marker a query is one-shot.",
+        "Notes that the delivery of a live result is the target runtime's concern."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "ambiguous-references",
+      "prompt": "Two slices in our model each declare `query All`. A screen says `data QueueReadModel[] via query All` and another navigates to `OrdersScreen`, which was renamed. CI is green. Why, and what do we change? Also, a colleague wrote `query GetBoat => BoatRM optional by id BoatId` on one line; is that valid? Reply only; do not write files.",
+      "expected_output": "Unresolved and ambiguous references are warnings, not errors, because a name may resolve outside the document. Run with `--warnaserror`. Qualify the name with any trailing part of the scope (`Queue.All`) using the shortest unambiguous form. The key goes on its own `by` line in the body; `by` on the header line is a declaration error.",
+      "assertions": [
+        "Says unresolved and ambiguous references are warnings, not errors, so the build stays green.",
+        "Recommends running with `--warnaserror`.",
+        "Qualifies the ambiguous query with a trailing scope part such as `Queue.All`, using the shortest unambiguous form.",
+        "Says `by id BoatId` on the query header line is a declaration error and belongs on its own `by` line in the body."
+      ]
+    }
+  ]
+}

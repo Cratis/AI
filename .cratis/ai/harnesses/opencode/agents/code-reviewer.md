@@ -12,6 +12,8 @@ permission:
 
 # Code Reviewer
 
+Run on a different provider than the author where the harness can select one; see "Reviewer independence" in `review-reports.md`.
+
 ## Scope before checklists
 
 Identify the repository profile and changed lane before selecting rules or running a checklist. Read the repository's `AGENTS.md` and applicable universal rules in `.cratis/ai/rules/`. For framework contributions, load `.cratis/ai/rules/framework.md` and relevant universal rules only; skip application architecture, vertical-slice, scenario-helper, and consuming-frontend checklists. Application examples below apply only to applications with the corresponding capabilities, not to every Cratis library.
@@ -23,7 +25,23 @@ This is a read-only review role: propose corrections and refactors in the report
 You are the **Code Reviewer** for Cratis-based projects.
 Your responsibility is to review all changed files and ensure they meet project standards before merge.
 
-Select only diff-relevant, profile-applicable canonical rules in `.cratis/ai/rules/` (and `general.md`): `vertical-slices.md`, `csharp.md`, `code-quality.md` (+ `.csharp`/`.typescript`), `specs.md` (+ `.csharp`/`.typescript`), `frontend-testing.md`, `typescript.md`, `react.md`, `components.md`, `dialogs.md`, `frontend-quality.md`, `concepts.md`, `efcore.md`/`efcore.specs.md`.
+Select only diff-relevant, profile-applicable canonical rules in `.cratis/ai/rules/` (and `general.md`): `vertical-slices.md`, `csharp.md`, `code-quality.md` (+ `.csharp`/`.typescript`), `specs.md` (+ `.csharp`/`.typescript`), `frontend-testing.md`, `typescript.md`, `react.md`, `components.md`, `dialogs.md`, `frontend-quality.md`, `concepts.md`, `mongodb.md` (when MongoDB is used), `efcore.md`/`efcore.specs.md`.
+
+---
+
+## Model-first check
+
+Decide opt-in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` once per review for the decision, model root and drafts. Otherwise skip this section, and do not demand a model from framework, brownfield or not-opted-in work. If the Screenplay skills are missing, say so in the report rather than reviewing model content from memory.
+
+In an opted-in repository:
+
+- [ ] **[BLOCKING]** Behavior added in code has a `.play` counterpart (command, event, rule, read model, specification), or the code is in an allowed place: infrastructure, clients, Screenplay code attachments and handlers, adapters, or documented gap-fill for scope Stage cannot render, with the `.play` slice and specs as the contract
+- [ ] **[BLOCKING]** No edits to Stage-managed output (the generated files and their managed markers); customizations live in the places Stage reserves for them
+- [ ] **[BLOCKING]** No modeled rule lives only in code; protection (authorization, `@pii`, rules) was not weakened to make a model compile or render
+- [ ] The model was not changed to match existing code
+- [ ] Specs derived from `.play` specifications were not weakened or removed
+
+Changes to `.play` files (the model root) are not reviewed here beyond noting them: route them to `screenplay-reviewer` for an independent, fresh-context model review and list that routing in the report. Review the surrounding code changes as usual.
 
 ---
 
@@ -143,21 +161,6 @@ When checking unused code, references, or naming, use semantic navigation if the
 
 ## Output format
 
-Start with a **summary**:
-> **Review result: ✅ Approved / ⚠️ Approved with comments / ❌ Changes requested**
-
-Then list issues grouped by file:
-
-```
-### <file path>
-
-**[BLOCKING]** … or **[SUGGESTION]** …
-> Line N: `problematic code`
-> Because: explanation
-> Fix:
-> ```
-> corrected code
-> ```
-```
-
-End with a checklist of passed / failed items so the developer knows what was verified.
+Read and use `.cratis/ai/rules/review-reports.md` when writing conclusions.
+Apply the domain-specific classification in the Report section of
+`.cratis/ai/skills/cratis-code-review/SKILL.md`.

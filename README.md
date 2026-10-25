@@ -39,11 +39,22 @@ creates native harness adapters. It records hashes in
 `.cratis/ai.manifest.json`, refuses to overwrite user-owned paths, and stops
 update or uninstall when managed content was changed unless `--force` is used.
 
+Claude Code lists every installed skill's description within a budget of about 1% of
+the model's context window and drops the descriptions of the skills used least when the
+listing is larger; Codex shortens or omits entries in the same way. Large profiles such as
+`cratis/full` exceed that budget. Install the profiles a repository needs rather than
+everything, or raise the budget with Claude Code's `skillListingBudgetFraction` setting
+(for example `0.02`).
+
 ## Native plugins
 
 Native plugins remain an independent single-harness choice. Claude Code, Codex,
-GitHub Copilot, and Cursor use the marketplace manifests in this repository. Pi
-uses the published package:
+GitHub Copilot, and Cursor use the marketplace manifests in this repository.
+`.cratis/ai/plugin.json` is the Copilot plugin manifest for listing the corpus as
+an external plugin (for example in github/awesome-copilot). Its `version` is a
+manifest version, not the release version: bump it together with the `version` in
+every marketplace manifest when the plugin's shape changes; verification fails
+when they differ. Pi uses the published package:
 
 ```bash
 pi install -l npm:@cratis/pi
@@ -73,10 +84,13 @@ file at the moment the file is touched, so it costs almost nothing per session:
   attached to the tool result the first time that file is touched in a session.
   `cratis-rules` no longer delivers them; it keeps only the universal rules in
   the system prompt.
-- **Skill hints.** A skill declares trigger globs in the `cratis-hint-paths` list of its
-  `SKILL.md` frontmatter. The key is Cratis-specific on purpose: Claude Code reads a
-  plain `paths` key in `SKILL.md` as conditional activation and would hide the skill
-  until a matching file is touched. After a successful `write` or `edit` of a
+- **Skill hints.** A skill declares trigger globs in `metadata.cratis-hint-paths` in its
+  `SKILL.md` frontmatter, as one string of whitespace-separated globs
+  (`cratis-hint-paths: "**/for_*/**/*.ts **/for_*/**/*.tsx"`). It sits under `metadata`
+  because Agent Skills allows only `name`, `description`, `license`, `compatibility`,
+  `metadata` and `allowed-tools` at the top level, and the key is Cratis-specific on
+  purpose: Claude Code reads a plain `paths` key in `SKILL.md` as conditional activation
+  and would hide the skill until a matching file is touched. After a successful `write` or `edit` of a
   matching file, one advisory line names every matching skill with its glob and its
   `SKILL.md`. Each skill is hinted at most once per session. A skill is not hinted
   when it is already in context: read in the session (a shell command counts only
@@ -126,10 +140,192 @@ After adding or removing an agent, prompt, or harness asset, synchronize the
 repository adapters:
 
 ```bash
-npm ci --prefix Source/Harness.Setup
-npm run setup --prefix Source/Harness.Setup
-npm run check --prefix Source/Harness.Setup
+yarn install --immutable
+yarn workspace @cratis/harness-setup run setup
+yarn workspace @cratis/harness-setup run check
 ```
+
+Setup regenerates its own stale corpus symlinks and marked OpenCode adapters. It
+refuses occupied paths containing local files or directories, reporting the same
+conflicts as `setup --check`, without removing them. Move or back up that content
+first. Only use `yarn workspace @cratis/harness-setup run setup --force` when you
+intend to replace conflicting content; this can recursively delete occupied
+directories. Unlisted project files outside those explicitly replaced paths are
+left alone. `--check` never writes, even with `--force`.
+
+Copilot's repository-wide `.github/copilot-instructions.md` continues to link to
+the canonical `general.md` policy entry point. Rules without `applyTo` are never
+emitted as path adapters. Path rules live in `.github/instructions/` as
+`<name>.instructions.md`, with a quoted `applyTo` glob string (multiple globs are
+comma-separated), as required by [Copilot's custom-instructions documentation](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions#creating-path-specific-custom-instructions).
+Setup copies path rules into marked, portable files under
+`.cratis/ai/harnesses/copilot/instructions/`, normalizing scalar/list forms only
+when needed, and links `.github/instructions` to that generated directory.
+Relative Markdown links point to sibling generated rules or back to their
+original corpus targets; code examples and external URLs are left unchanged.
+`setup --check` and corpus verification reject missing, stale, or orphaned
+adapters. The generated files ship with the corpus and the Pi package; they do
+not depend on source rule symlinks surviving installation. Setup migrates the
+old canonical directory link or a directory containing only its legacy per-file
+adapters. A directory containing local instructions is preserved and refused
+unless `--force` is given. This repository tool is not the consumer CLI's
+manifest-aware installer; CLI versions that still link to `rules/` need to
+switch their Copilot integration to `harnesses/copilot/instructions/`.
+
+## Contribute instruction changes
+
+Review instruction files with the same care as code. Rules, skills, agents, hooks,
+prompts, MCP configuration and harness adapters influence what coding agents execute
+and are distributed to other repositories. Check package identities and ownership,
+registry/feed destinations and install scripts against the intended upstream source;
+do not treat an instruction's recommendation as permission to install it.
+[Package Hallucination Attacks on Coding Agents through Prompt Injection in Rule Files](https://arxiv.org/abs/2610.09264)
+shows how injected rules can redirect agents from legitimate dependencies to
+attacker-controlled packages.
+
+`.github/CODEOWNERS` routes corpus, adapter and distribution-manifest changes to
+`@Cratis/core`. It does not enforce approval: branch protection does not currently
+require code-owner review, and enabling that requirement is a maintainer decision.
+
+The normal corpus verifier also runs an advisory instruction-dependency comparison.
+It reuses evaluation coverage's Git-base selection (the immutable pull-request base
+or push-before SHA in CI; the merge base with `origin/main` locally), then compares
+the working tree against the merge base. Staged, unstaged and untracked unignored
+instruction files are included; unchanged existing lines, including renamed content,
+are not reported. Added lines containing package-manager install/add/dlx commands,
+npx/bunx/uvx invocations, uv installs, Docker runs, MCP launcher commands/arguments,
+`curl ... | sh`, registry/index/feed references, scoped package names, NuGet
+`PackageReference` declarations or dependency-map headers/entries produce file:line
+warnings. This includes examples in code blocks, even when only a dependency entry
+changes inside an existing block. It is a heuristic review aid, not a complete
+security scanner or a package allowlist.
+
+Run `yarn workspace @cratis/ai-verification run verify` locally. The existing
+**Verify corpus and skill behavior** step in `publish.yml` runs the same check and
+emits GitHub warning annotations. Legitimate installation examples need review,
+not suppression: findings never fail the build. Missing Git history or an
+unresolvable base is explicitly reported as **skipped**, not a passing comparison.
+Shallow CI checkouts attempt a bounded history fetch; unavailable comparisons also
+remain advisory. An unreadable instruction produces a per-file skip warning without
+preventing the remaining files from being scanned.
+
+### Maintain discoverability guidance
+
+Keep the discoverability invariants in `.cratis/ai/rules/discoverability.md` within
+40 lines; put procedures and checklists in
+`.cratis/ai/skills/cratis-discoverability/` and link each reference from `SKILL.md`.
+Fact blocks need sources and dated counts. Adoption claims count product entry
+packages and continuation predecessors, not sub-packages or shared dependencies;
+round down and name the month and registries, never users or customers. Keep the
+shared examples generic: no private integration names, legal entity details or
+factual counts. Only public, owner-approved founder/company facts belong in
+structured data; community member profiles stay `noindex` without personal markup.
+
+Update the skill's `verification.json` assertions and its trigger/output cases in
+`Evaluations/skills/cratis-discoverability/` together. Regenerate harness adapters
+with the setup command above, then run `yarn workspace @cratis/harness-setup run check`
+and `yarn workspace @cratis/ai-verification run verify`. Report model-based trigger
+and output evaluations separately; fixture coverage is not a model behavior result.
+
+## Author skills
+
+Skills follow the [Agent Skills specification](https://agentskills.io/specification) and
+Anthropic's [skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+Every skill is read by Claude Code, Codex, Copilot, Cursor, OpenCode and Pi. Follow the path-scoped
+[authoring rule](.cratis/ai/rules/authoring-skills.md) for routing, timeless guidance, progressive
+disclosure, evaluations and the review checklist. Keep to the portable frontmatter fields:
+`name`, `description`, `license`, `compatibility`, `metadata` and `allowed-tools`.
+
+The verification enforces the structural rules:
+
+- `name` is 1-64 lowercase letters, digits and single hyphens, matches its directory, and does not
+  contain `anthropic` or `claude`.
+- `description` is 1-1024 characters and contains no tag-like text. The authoring check requires an
+  explicit `Use when` (or equivalent) clause and rejects first/second person; negative routing is a
+  warning during rollout. Write `IProjectionFor`, not `IProjectionFor<T>`: the Skills API rejects angle brackets.
+- The `SKILL.md` body stays within 500 lines and 20,000 characters (the specification's "under 5,000
+  tokens"). It loads in full whenever the skill triggers and stays in context, so it holds the decision
+  rules, the core workflow, the traps and the pointers. Target 400 lines / 16,000 characters; a
+  headroom warning starts above 16,000 characters. Detail that only some tasks
+  need goes into `references/`.
+- Every supporting file is linked directly from `SKILL.md`, except `LICENSE`, `NOTICE`,
+  `verification.json` and reasoned existing asset exceptions (which fail when stale). Agents may
+  only preview a file that is reached through another reference file.
+- A reference file longer than 100 lines opens with a `## Contents` list of its `##` headings, so a
+  partial read still shows everything the file covers. Generate it rather than writing it by hand:
+  `yarn workspace @cratis/ai-verification run contents` (add `--check` to verify). A file that is one
+  fenced example, introduced within its first 30 lines, needs no list.
+
+The guidance that cannot be checked mechanically:
+
+- Put the key use case first in the description and keep it short: listings truncate long
+  descriptions and drop rarely used ones. When authorized to spend model usage, run trigger
+  evaluations before and after a description change; otherwise report routing as unverified.
+  When a request goes to a neighbor, name that request in the right skill's description rather
+  than adding keywords.
+- Link a reference with the situation that calls for it: "Read `references/x.md` when ...", not
+  "see `references/x.md`".
+- Keep the traps an agent must know before it acts in `SKILL.md`, near the top. Claude Code keeps only
+  the first 5,000 tokens of a skill after compaction.
+- Give a default and say when to use the alternative, rather than a list of equal options.
+- Describe behavior without release history, evidence citations or relative-time claims. Keep a
+  code-breaking prerequisite in one `Requires` line with the version check and fallback; pins belong
+  in `product-sync.json` and compatibility documentation, not skill prose.
+- Name the MCP server once, then its protocol tool; resolve harness-native invocation names from
+  the connected client's tool listing. Resolve user-configured server aliases rather than assuming a prefix.
+- Use one term per concept throughout a skill.
+- Explain why a rule exists instead of raising its volume.
+
+`SKILL_AUTHORING_MODE=warn|fail` defaults to warnings for new content checks. Description trigger
+and voice, asset reachability, the evaluation-coverage ratchet and the 200-line `general.md` limit
+always fail on defects. The skill-body hygiene lint (versions outside `Requires` lines, issue numbers,
+source-line citations, hashes and history wording) fails verification; `SKILL_HYGIENE_MODE=warn` reports
+findings without failing.
+
+### Evaluate skills
+
+Behavior evaluations live in `Evaluations/skills/<name>/trigger.json` and `evals.json`, outside the
+shipped corpus. New skills require both files. `Evaluations/unevaluated.json` records the existing
+coverage gap with reasons; comparison against the Git base allows that list only to shrink. CI
+checks shape and coverage and runs runner specs; it never spends model usage. Each set has 16–20
+unique trigger queries (8–10 positive and 8–10 negative) and 3–5 output tasks with 3–5 nonempty
+assertions each. Near-miss quality and sibling-naming notes are review guidance. Locally,
+use an installed, logged-in `pi` or `claude` (default models: `openai-codex/gpt-6.1-sol` with medium
+thinking, or `sonnet`). These commands make paid model calls:
+
+```bash
+yarn workspace @cratis/ai-skill-evaluation run evaluate trigger --skill cratis-arc-command --harness pi --runs 3
+yarn workspace @cratis/ai-skill-evaluation run evaluate outputs --skill cratis-arc-command --harness claude --runs 1
+yarn workspace @cratis/ai-skill-evaluation run evaluate grade --run <output-run-directory> --grader-model opus
+yarn workspace @cratis/ai-skill-evaluation run evaluate report --run <run-directory>
+```
+
+Results and raw transcripts stay untracked in `.ai-work/skill-evaluations/`. Harnesses run in
+neutral temporary workspaces outside the repository, removed afterward. Each batch uses a private
+copy of the skills; pi's temporary agent directory contains only authentication, not host system
+prompts or settings. Claude has a read-only tool allowlist and no configured MCP servers; its init
+listing must contain the target in with-skills runs and no corpus skills in baseline runs. Output
+tasks run with all corpus skills and without them; graders have no tools, and passes require quoted
+answer evidence.
+Trigger runs stop at the first skill load or six tool calls; a rate ≥ 0.5 counts as triggered.
+Reports show failures, assertion discrimination, and paired token/time deltas. Review actual answers
+alongside grades: model grading and a few repetitions are signals, not proof of correctness.
+
+Use repeatable `--skill` options to select skills, `--limit 2` for a smoke batch, `--model` and
+`--thinking` to override models, `--concurrency` (default 4, maximum 16), and `--timeout` (default
+240 seconds per call, maximum 600). Claude's `--listing-budget 60000` avoids description truncation;
+its bundled skills and usage-dependent listing remain confounds. To resume, repeat the same command
+and options with `--run <directory>` (relative to the invocation directory, or the repository root
+when yarn's workspace dispatcher replaces `INIT_CWD` with the package directory); completed
+JSONL keys are skipped and changed evaluations or corpus revisions are rejected. Grading and reports
+read results under the run lock; a stale lock reports its PID and manual recovery instructions.
+Missing harnesses, login failures and timeouts exit 2, never pass.
+
+Follow [output evaluation](https://agentskills.io/skill-creation/evaluating-skills) and
+[description optimization](https://agentskills.io/skill-creation/optimizing-descriptions): realistic
+near-misses, repeated trigger queries, baseline outputs and objective assertions. Replace assertions
+that always pass or fail in both conditions; keep a fixed balanced train/validation split when tuning
+descriptions and do not use held-out failures to guide edits.
 
 ## Verify quality
 
@@ -145,22 +341,155 @@ npm test --prefix Source/Verification
 (cd Source/Pi.Plugin && npm pack --dry-run)
 ```
 
+While iterating, run the named subset that matches what you changed; each prints its ten
+slowest specs. The full `test` suite stays the gate before you call work done.
+
+```bash
+yarn workspace @cratis/ai-verification run test:hooks     # guards, hook wiring, Codex hooks, Pi bridge and quality gates
+yarn workspace @cratis/ai-verification run test:adapters  # agent adapters, harness setup, Pi plugin, MCP configuration
+yarn workspace @cratis/ai-verification run test:corpus    # structure, budgets, skills, routing
+yarn workspace @cratis/ai-verification run test:affected  # changed paths vs origin/main: narrow subset or the full suite
+```
+
+`test:hooks` took about 124 s on a heavily loaded machine; the `guard-writes.spec.ts` specs now overlap their
+guard spawns and the guard avoids avoidable subprocesses, bringing it to about 92 s under the same load. The
+rest is other hook specs that spawn many processes, so the 60 s target is not reached there.
+
+The full `test` suite runs through `test-subsets.ts full` and is held to a wall-time budget of 1200 s (measured
+at 884 s on a loaded machine). Because wall time depends on load, an overrun prints a `WARNING` locally and
+fails the run only when `CI` is set. Set `CRATIS_TEST_BUDGET_SECONDS` to change the budget on a slower runner.
+
+`test:affected` is deny-by-default: it runs a subset only when every changed path is on a small allowlist
+(the guard hook scripts for `hooks`, `Source/Harness.Setup/*.ts` for `adapters`, or a changed spec file, which
+runs itself). Any other change (rules, skills, evaluations, agents, docs, `Source/Verification/*.ts`, package
+files) runs the full suite and returns its exit status. Changed paths are everything since the merge base with
+`origin/main`: committed, staged, unstaged and untracked files.
+
 The verification suite uses Pi's `DefaultResourceLoader` directly, without a
-model or credentials, to prove that project context, all 68 skills, 18 prompts,
+model or credentials, to prove that project context, every skill, 18 prompts,
 and the managed extensions are actually discovered. It also verifies the
 canonical skill and rule paths exposed to Claude, Codex, Copilot, Cursor, and
 OpenCode.
 
-Static skill checks live beside the skill as `verification.json`. They record
-an example input and assert that required guidance is present; they do not run
-that input through a model, compile examples, or prove writing quality.
+Skill checks live beside the skill as `verification.json`. `skill-contains`
+assertions check required guidance in `SKILL.md` or the assertion's `file`.
+They do not run the example input through a model or prove writing quality.
+
+### Checking the published Screenplay contract
+
+`yarn workspace @cratis/ai-verification run verify` also checks Screenplay/Stage skills,
+Screenplay agents and rules mentioning Screenplay offline against the unchanged release
+contract in the toolchain skill's `references/screenplay-contract.json`. Its adjacent
+`.version` must match the standalone pin in `Documentation/compatibility.md`. PLAY codes (including expanded
+ranges with plain or backticked endpoints), MCP names and named invocation parameters, stated tool counts and standalone
+`screenplay` CLI commands/options produce file:line findings. Every subject kind must be
+nonempty. Run the planted-defect self-test with:
+
+```bash
+yarn workspace @cratis/ai-verification exec tsx contract/cli.ts --self-test
+```
+
+The MCP matcher checks backticked Tools table cells, explicit `MCP tool`/`tool` prefixes,
+and `tool(arguments)` in MCP paragraphs/headings. Published tool names are also recognized
+in that context; release comparisons retain the pinned names to catch removed tools.
+Views, protocol methods and arbitrary kebab-case strings are not tool claims. Named
+parameters are checked only in the same invocation span (`tool(key: value)`,
+`tool(key=value)` or `tool(key, otherKey)`). CLI invocations start a code span or shell line
+with `screenplay`; `cratis screenplay` and prose about a compiler are not standalone
+commands. Option-only spans inherit an earlier standalone command only in the same
+paragraph or table column; unowned options and general prose about parameters are not checked.
+The JSON report lists matched tool subjects and counts, plus advisory mention gaps for
+keywords/constructs, MCP tools, active diagnostic codes and hundred-code families.
+Coverage is not a teaching-quality or admission check and never fails verification.
+
+To compare another release without changing the pin, run:
+
+```bash
+yarn workspace @cratis/ai-verification exec tsx contract/cli.ts --root "$PWD" --contract /path/to/screenplay-contract.json --coverage-json /path/to/coverage.json
+```
+
+Without output flags the report goes only to stdout. Exit 0 means clean facts, 1 means
+findings, and 2 means it could not run. Historical exceptions match exact file/line text,
+kind and value and require a reason including when to remove them. Normal verification
+fails on unnecessary exceptions; an incoming-release comparison does not require an
+exception still to be needed by the newer contract.
+
+A Screenplay release dispatch and a weekly schedule in `publish.yml` download the release
+contract and create/update one open `screenplay-sync` issue with findings and coverage gaps.
+The issue closes when facts are clean; coverage gaps alone remain advisory in the run output.
+Download/parse/API failures fail the job and never close the issue. The job never edits the
+corpus, commits, pushes or publishes. To bump the pin, download the released asset from
+Cratis/Screenplay, replace the JSON without editing it, update its `.version` and the
+standalone row together, fix current facts, remove obsolete exceptions, then run verification,
+including the pinned example compiler, before committing.
+
+### Compiling Screenplay examples
+
+Every skill with Screenplay fences must include `{ "kind": "play-compiles" }`
+in its assertions. It covers all Markdown fences in that skill, including
+references. An optional `value` selects a skill-relative Markdown file or one
+fence, such as `references/example.md#2` (Screenplay fences are numbered from 1).
+Selectors must cover every fence; missing or empty coverage fails verification.
+
+Fence info strings declare what verification checks:
+
+- `screenplay`: a complete source model, compiled with `--warnaserror` and zero
+  diagnostics, including information diagnostics.
+- `screenplay expect PLAY0123,PLAY0456`: exactly that set of compiler diagnostic
+  codes, with exit 0 or 1. This also records expected information diagnostics;
+  it does not turn an unexpected tool failure into a pass.
+- `screenplay excerpt`: a fragment, visibly skipped with its file and line.
+- `screenplay excerpt parent=assets/parent.play`: insert the fragment at the
+  parent's unique `// @excerpt` line, retaining that line's indentation. Parent
+  paths are relative to the skill directory. Alternatively,
+  `parent=references/example.md#1` checks that the excerpt is verbatim in that
+  complete fence and compiles the parent, without duplicating the model.
+- `test=unbound`: expect `screenplay test` exit 3 (unbound or unsupported).
+  Otherwise every compiled model containing specifications must execute a
+  nonempty selection successfully. Markers may be combined; expected compile
+  errors cannot also claim specification execution.
+
+Run `yarn workspace @cratis/ai-verification run verify`. The tool is resolved
+from `CRATIS_SCREENPLAY_TOOL` when set; otherwise `verify` installs the standalone pin
+from `Documentation/compatibility.md` into the Git-ignored `.cache/screenplay-tool/`
+(the same `yarn workspace @cratis/ai-verification run tool:screenplay` script CI runs)
+and falls back to `screenplay` on PATH when that install is impossible (offline). A
+version mismatch names that command as the fix. To require it
+locally, run `CRATIS_SCREENPLAY_TOOL=/path/to/screenplay CRATIS_REQUIRE_SCREENPLAY=1
+yarn workspace @cratis/ai-verification run verify` on one shell line. CI installs
+that pin and requires the check. An unavailable tool is reported as SKIPPED
+locally, never as a passing compilation; version mismatches and example defects
+always fail. The report includes compilation, expected-diagnostic/failure,
+execution and unbound counts, skipped locations, and elapsed time. Invocations
+have a 15-second deadline, with at most four running concurrently.
 Behavioral assessment needs a separate task exercise and review of its output. The repository deliberately
 has no provenance ledger, evidence chain, generated inventory, or distribution
 tooling pipeline.
 
 ## Release
 
-`.github/workflows/publish.yml` is the single workflow. It verifies
+`.github/workflows/publish.yml` is the only release workflow. It verifies
 the corpus and packages, checks semantic release intent, uses
 `cratis/release-action` to calculate the version after merge, and publishes
 `@cratis/pi` when a release is requested by the merged pull request label.
+`.github/workflows/verify-pull-request-policy.yml` is a thin caller of the
+organization pull-request policy gate. It checks release intent and fails a
+release-bound pull request whose description would not publish as release
+notes. The local PR-body checker recognizes this caller as well as the legacy
+`verify-release-notes` and `verify-semver-label` callers.
+
+## Acknowledgments
+
+The Screenplay event-modeling skills adapt material from
+[agentic-engineer](https://github.com/Nebulit-GmbH/agentic-engineer) by
+Martin Dilger and [Nebulit GmbH](https://nebulit.de), used with their explicit
+consent, and from the MIT-licensed
+[TrogonStack agentskills](https://github.com/TrogonStack/agentskills) by
+Straw Hat, LLC. From agentic-engineer that includes the legacy and brownfield, discovery,
+slice design, streams, scenario coverage, review and lifecycle method skills, the diagram,
+read-surface, reactor, read-model specification and slice conformance delivery
+checklists, the delivery planning and estimation skill, and the Screenplay and slice agents,
+and several Arc, Chronicle and Screenplay skills. Event Modeling itself is the work of Adam
+Dymitruk; Martin Dilger's *Understanding Eventsourcing* shapes much of the method. Each
+skill's `references/provenance.md` lists exactly what it adapts, and its `LICENSE` carries
+the notices.

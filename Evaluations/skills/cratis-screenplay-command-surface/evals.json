@@ -1,0 +1,65 @@
+{
+  "skill_name": "cratis-screenplay-command-surface",
+  "evals": [
+    {
+      "id": 1,
+      "name": "choose-shop-strategies-and-entropy",
+      "prompt": "On Screenplay 4.151.0, our shop has CustomerId (cus_ plus ULID), OrderId (TypeID) and InviteCode (NanoID). Show their concept generation declarations and a generated CustomerId command property. A shorter InviteCode proposal uses 16 hexadecimal symbols; compute its random bits versus the default NanoID. Does the customer prefix add entropy or guarantee ordering? We also have ApiKey from .NET Bytes(32) with NotAudited and an Arc context-aware OrderId. Which parts can Screenplay execute today? Reply only; no tools or edits.",
+      "expected_output": "CustomerId is String with generate ulid prefix \"cus_\"; OrderId uses generate typeid \"order\"; InviteCode uses generate nanoid. The command property is customerId CustomerId generated identifier, with no per-property strategy. Default NanoID has 126 bits; 16 positions in a 16-symbol alphabet have 64 bits, meeting the identifier floor. Prefixes add none; time order is not monotonic within a millisecond. Preserve ApiKey secret but do not generate it; received-time/tenant context and secret execution remain Screenplay#616 phases 3/4. The ordinary TypeID strategy is not equivalent to Arc's context contract. Separate source, executable and target gates.",
+      "assertions": [
+        "Places ULID/cus_, TypeID/order and NanoID strategies on String concepts and generated identifier on the command property.",
+        "Computes 64 random bits for the custom InviteCode and 126 for default NanoID, adds no prefix entropy and rejects strict within-millisecond ordering.",
+        "Preserves ApiKey secret classification without claiming executable secret generation, and distinguishes TypeID shape from Arc receipt-time/tenant context.",
+        "Separates authoring, binding/reference execution and target support; does not call entropy evidence an executable or render verdict."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "refuse-gapless-invoice-generation",
+      "prompt": "Our shop's Screenplay 4.151.0 billing model needs legally gapless invoice numbers shared across concurrent commands. Can generate sequence, random numbers with retries, generate pattern with a date, or generate rule reading the previous invoice solve it today? We also receive a client-minted CustomerId and a webhook idempotency key. Reply only with what to model or leave open, without inventing allocator APIs.",
+      "expected_output": "None is a released gapless allocator. generate sequence is reserved (PLAY0682); pattern/random/rule parse but refuse executable binding (PLAY0268), and read-then-write plus randomness cannot enforce gapless concurrent allocation. Keep the allocator requirement as an explicit capability gap/owning implementation question (Screenplay#619). CustomerId remains an input; idempotency needs a persisted/deterministic request mapping with independent uniqueness, not new randomness or a future derive promise.",
+      "assertions": [
+        "Refuses randomness, retries and read-then-write as a gapless concurrent invoice allocator.",
+        "Names sequence as reserved and pattern/random/rule as non-executable, not shipped solutions.",
+        "Preserves the business requirement as an explicit capability gap without inventing a sequence or derive API.",
+        "Keeps client-minted CustomerId as input and treats idempotency/uniqueness independently of generation."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "generation-is-not-protection",
+      "prompt": "RegisterCustomer on Screenplay 4.151.0 has a cus_-prefixed ULID generated identifier. A teammate wants to use it as the shop ApiKey, remove authorization, and add a generated-concept matches rule because the generation summary reports high entropy. Is that admitted and safe? The MCP executable.status is notAssessed due to another declaration's binding error. Reply only.",
+      "expected_output": "A time-visible CustomerId is neither a credential nor authorization. Keep the policy and ApiKey secret contract; secret generation and generated-concept validation/rule consistency are not admitted. High entropy does not prove security or rule consistency. notAssessed is unknown due to unrelated binding failure, not admitted; inspect diagnostics and reassess after a scoped repair. Do not invent derived regex/checksum/rule-proof repairs.",
+      "assertions": [
+        "Rejects CustomerId as ApiKey and retains independent authorization and secret classification.",
+        "States generated secrets and generated-concept validation/rule consistency are unadmitted, never deletes classification/rules to obtain admission.",
+        "Treats notAssessed as unknown rather than admitted and distinguishes entropy from whole-model binding.",
+        "Does not promise derived regex, checksum or rule-proof repairs as released capabilities."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "readable-invoice-pattern-not-gapless-sequence",
+      "prompt": "Use Screenplay 4.199.0 for a shop: OrderId is a TypeID generated identifier; InvoiceNumber must read INV-UTCyearmonth-sevenrandomdigits plus Luhn check digit; pickupTicket is a six-digit random Int. Show concept syntax, generated value pins and a clock. Should a unique constraint cover the short payload codes? Does this provide legally gapless numbering, secrecy, or Stage rendering? Reply only.",
+      "expected_output": "InvoiceNumber String declares generate pattern \"INV-{yyyy}{MM}-#{7}\" checksum luhn and validate checksum luhn; TicketNumber Int declares generate random 100000..999999. Keep those generated values separate from OrderId generated identifier; pin whole OrderId with for, named generated invoiceNumber = \"INV-202610-00000004\" and integral pickupTicket with given clock \"2026-10-02T09:00:00Z\". Pattern/random/checksum select v21, require 4.172.0 and bind/reference-execute with fixtures, not PLAY0268. Short payloads need single-property uniqueness; source freshness is separate. Dates/check digits add no entropy. Not gapless/sequential, not a secret, check digits catch typos not forgery. Stage requires 4.118.0 for checksum validation and 4.119.0 for pattern/random; generate rule remains STAGE-ESM-028. Sequence and generated secrets remain refused.",
+      "assertions": [
+        "Shows concept-owned pattern with checksum plus separate validate checksum and inclusive Int random range, not a per-property strategy or Int identifier.",
+        "Pins whole identifiers and named values with a UTC clock; dates match that instant, and the numeric fixture is not quoted.",
+        "Explains exact support/entropy excludes dates and check digits, short payload uniqueness and whole-source freshness serve different roles, and generation never silently retries.",
+        "Separates v21 reference admission from Stage rendering and refuses pattern for gapless sequences, credentials or authorization; checksums detect typos not forgery."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "repair-refuted-generated-concept-rule",
+      "prompt": "On Screenplay 4.199.0, InviteCode uses generate nanoid but validates matches ^[0-9]{21}$. Compilation reports PLAY0688 with a letter-containing witness; MCP provides derivedPattern and the rule has diagnosticCode and repair PLAY0688. How should we fix this if the NanoID strategy is intended? What if a different rule is unproven? Can a renderer use RuleConsistency.Check? Reply only; preserve input/stored-value consequences.",
+      "expected_output": "Read generation.rules[] and witness, obtain discovered repair subject and both revision guards, propose-repair PLAY0688 with canonical formatting, review input/stored-value validation changes, run proposal specs, then apply. A new rule can use derivedPattern through a typed matches proposal. Proven silent, Refuted error, Unproven PLAY0689 warning with reason; matches containment requires deterministic patterns, passing samples prove nothing. The 4.174.0 RuleConsistency.Check(SemanticConcept,int? utcAssessmentYear) API returns authored-order results including implicit UUID for generated properties. Capable renderers may allow unpinned all-Proven generation, Unproven needs pins; reference evaluator always pins. Stage 4.115.0 permits the all-Proven case; Unproven/Refuted rules still require pins (-038), invalid pins fail -011. Do not delete intended rules or retry generation.",
+      "assertions": [
+        "Reads structured rules/witness and proposes the discovered PLAY0688 repair with both revisions, never a text bypass or removal of the business rule.",
+        "Reviews the derived matches change as validation for supplied/stored values too and distinguishes adding a typed rule from replacing through repair.",
+        "Distinguishes silent Proven, Refuted error and Unproven warning with reason; passing samples and ambiguous regexes do not establish proof.",
+        "Names the renderer proof API and assessment year, differentiates capable-target all-Proven allowance from Unproven pins, reference pins and Stage's version-gated all-Proven allowance."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "skill": "binlog-generation",
+  "queries": [
+    {
+      "query": "Add /bl to dotnet build so I can analyze it later.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What is the command to generate a binlog with dotnet test?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Can I use /bl:{} for unique names and what version does that need?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Capture a binlog for pack and publish, not just build.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I capture a binlog in CI and publish it as an artifact?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Binlog during restore only: which flag?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Name binary logs per project in a solution build.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Prepare a build capture before we investigate perf with build-perf-diagnostics.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Analyze this binlog's errors.",
+      "shouldTrigger": false,
+      "note": "msbuild owns analysis routing."
+    },
+    {
+      "query": "Diagnose OutputPath collisions.",
+      "shouldTrigger": false,
+      "note": "check-bin-obj-clash owns it."
+    },
+    {
+      "query": "Capture a runtime trace.",
+      "shouldTrigger": false,
+      "note": "dotnet-trace-collect owns it."
+    },
+    {
+      "query": "Capture a crash dump.",
+      "shouldTrigger": false,
+      "note": "dump-collect owns it."
+    },
+    {
+      "query": "Run tests with TRX.",
+      "shouldTrigger": false,
+      "note": "run-tests owns it."
+    },
+    {
+      "query": "Redundant restores.",
+      "shouldTrigger": false,
+      "note": "eliminate-redundant-restores owns it."
+    },
+    {
+      "query": "Write a target.",
+      "shouldTrigger": false,
+      "note": "target-authoring owns it."
+    },
+    {
+      "query": "Share a log publicly.",
+      "shouldTrigger": false,
+      "note": "Binlogs can contain secrets; do not publish."
+    }
+  ]
+}

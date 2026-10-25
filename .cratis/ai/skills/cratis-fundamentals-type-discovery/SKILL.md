@@ -1,6 +1,6 @@
 ---
 name: cratis-fundamentals-type-discovery
-description: Wire a type that must enumerate every implementation of an abstraction by injecting IInstancesOf<T> from Cratis.Types and deleting the hand-maintained service registrations. Use when a handler set, filter chain, strategy set, or dispatcher fans out to all implementations. Do not use for ordinary single-service dependency injection.
+description: Wire a type that must enumerate every implementation of an abstraction by injecting IInstancesOf from Cratis.Types and deleting the hand-maintained service registrations. Use when a handler set, filter chain, strategy set, or dispatcher fans out to all implementations. Do not use for ordinary single-service dependency injection.
 license: MIT
 ---
 
@@ -16,9 +16,9 @@ removing one becomes a single-file change.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Fundamentals` | `7.19.2` | `IInstancesOf<T>`, `IImplementationsOf<T>`, `[Singleton]`, `[Scoped]`, `[IgnoreConvention]`, the convention bindings |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Fundamentals` | `IInstancesOf<T>`, `IImplementationsOf<T>`, `ITypes`, convention bindings and the bundled `Cratis.Fundamentals.TypeDiscovery.Generator` |
 
 Reverify against the Cratis Fundamentals repository before claiming support for
 another version.
@@ -47,15 +47,31 @@ registered implementation:
 
 ## Step 1 — Confirm the implementations are discoverable
 
-`IInstancesOf<T>` finds types by convention across the loaded assemblies. The
-requirements are only:
+Discovery normally uses compile-time generated providers, not a walk of
+`DefinedTypes`. Reflection is the fallback when no generated providers exist.
 
-- Each implementation is a non-abstract, non-interface class. Discovery reads each assembly's `DefinedTypes` and filters only on `!IsInterface && !IsAbstract`, so an `internal` class is discovered too; `public` is a convention for a type meant to be reached from another assembly, not a discovery requirement. Instances are resolved from the service provider (`GetService(type)`), so each implementation must be registered as itself — `AddSelfBindings()` does that for every concrete, non-static, non-`Exception` class whose constructor is resolvable (visibility is not a criterion), honoring `[Singleton]`/`[Scoped]`/`[IgnoreConvention]`.
-- It implements the interface directly, not through a layer that hides it.
-- `T` is an interface or abstract class — the interface is declared
-  `where T : class`.
+- Use concrete, non-generic implementations. Generated contract maps exclude
+  open-generic implementors. An assembly's own provider can include its internal
+  types; references emitted from another assembly require public types.
+- `T` is an interface or abstract class (`where T : class`).
+- Instances resolve by concrete type, so each implementation needs a self-binding.
+  `AddSelfBindings()` honors `[Singleton]`, `[Scoped]`, and `[IgnoreConvention]`;
+  it excludes static/abstract/interface/exception types, System/Microsoft
+  namespaces, and classes with primitive or record-typed constructor parameters.
+  `IFoo → Foo` bindings require matching names in the same namespace and exactly
+  one implementation; they do not replace self-bindings for a discovered set.
 
-No assembly attribute and no registration call is needed.
+The host must call `services.AddTypeDiscovery()` to register `ITypes`,
+`IInstancesOf<>`, and `IImplementationsOf<>`, plus the convention binding setup.
+Arc's `AddCratisArc` does this; a plain host must do it.
+No per-implementation registration is needed when self-binding applies.
+
+The Fundamentals NuGet package carries the generator as an analyzer. A project
+reference does **not** carry it: reference the generator explicitly, otherwise
+only Fundamentals' own provider may contribute. A captured `ITypes` universe
+never gains late-loaded assemblies. `AddTypeDiscovery()` reuses the default
+universe while the provider set is unchanged; a later call rebuilds it if new
+providers registered, without changing earlier consumers.
 
 ## Step 2 — Choose the lifetime with an attribute
 
@@ -106,10 +122,14 @@ public class ReportFormatters(IInstancesOf<IReportFormatter> formatters) : IRepo
 
 `IInstancesOf<T>` implements `IEnumerable<T>`, so LINQ works on it directly.
 
-**It resolves an instance from the service provider on every enumeration**, not
-once at construction. That is what makes a scoped or transient implementation
-behave correctly, and it is why materializing with `.ToArray()` is worth doing
-only when you genuinely need a stable snapshot within one operation.
+**The type set is fixed at construction; instances resolve on every enumeration**
+through the service provider captured by `InstancesOf<T>`. The consumer's scope
+therefore matters: the singleton above is safe only when no implementation is
+scoped. A singleton captures the root provider and would make a scoped
+implementation captive or fail scope validation. Use a scoped or transient
+consumer resolved inside a scope when any implementation is scoped; follow the
+lifetime rule in `csharp.md`. Materialize with `.ToArray()` only when one operation
+needs a stable instance snapshot.
 
 ## Step 4 — Delete the dead registrations
 
@@ -126,13 +146,38 @@ services.AddSingleton<IReportFormatters, ReportFormatters>();
 Search for every remaining reference before deleting, so nothing else was
 relying on a registration for a different reason.
 
+## Reuse derived-type discovery
+
+Requires Fundamentals and its generator 7.26.1 for per-universe caching plus nested-generic/experimental-type generator fixes; check `dotnet list package`, or keep the older construction path until upgrading.
+
+Use `Cratis.Serialization.DerivedTypes.For(types)` when several service
+collections share the same `ITypes` instance. It returns one shared `DerivedTypes`
+per universe, held weakly; distinct universes stay isolated. Do not construct one
+per scope or replace a host's explicit universe with `DerivedTypes.Instance`.
+
+The generator omits nested open-generic types from referenced Cratis packages
+and handles referenced `[Experimental]` diagnostic IDs. Upgrade the generator
+rather than editing its output to bypass those build failures.
+
 ## What breaks
 
 - **`[Singleton]` does not resolve.** The using directive is
   `Cratis.DependencyInjection`, not `Cratis`.
-- **An implementation is silently absent from the set.** Its assembly is not
-  loaded at the point of enumeration, it is not `public`, it is abstract, or it
-  carries `[IgnoreConvention]`.
+- **An implementation is silently absent from the set.** Its assembly did not
+  contribute a generated provider before the universe was built, or its type is
+  abstract, generic, or inaccessible to the emitted provider. Inspect
+  `ITypes.DiscoveryMode` (`Unknown`, `Generated`, `Reflected`, or `Explicit`) and
+  `ITypes.Assemblies`; ask `TypeDiscoveryDiagnostics.FindMissingContributors(types)`
+  for referenced assembly names that did not contribute (it loads nothing and
+  may also report libraries with no discoverable types). The reflection fallback
+  includes package assemblies by prefix: `Cratis` by default, configurable through
+  `PackageReferencedAssemblies.Instance.AddAssemblyPrefixesToInclude(...)` before
+  discovery.
+- **Discovery dependencies cannot resolve.** The plain host omitted
+  `services.AddTypeDiscovery()`.
+- **Enumeration yields null.** The concrete type was discovered but not registered
+  as itself, for example because `[IgnoreConvention]` or a self-binding exclusion
+  skipped it. `InstancesOf<T>` uses `GetService(type)`, not `GetRequiredService`.
 - **An implementation is a new instance every time it is touched.** It has no
   lifetime attribute, so the convention made it transient. That is correct
   behavior for the convention and usually the wrong intent — add `[Singleton]`.
@@ -150,3 +195,8 @@ the affected behavior. The non-vacuity check matters here: assert the **count**
 of discovered implementations, not just that iterating them threw nothing. A
 fan-out over an empty set passes every assertion that only says "nothing went
 wrong".
+
+Assert the expected `ITypes.DiscoveryMode` and contributing assembly names too.
+For startup diagnostics, collect EventSource `Cratis.Fundamentals.TypeDiscovery`
+with `dotnet-trace`: it reports universe construction and warns when only
+Fundamentals contributed.

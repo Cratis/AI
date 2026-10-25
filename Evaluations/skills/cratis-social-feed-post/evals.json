@@ -1,0 +1,55 @@
+{
+  "skill_name": "cratis-social-feed-post",
+  "evals": [
+    {
+      "id": 1,
+      "name": "review-draft-post",
+      "prompt": "Review this LinkedIn draft and list what to change. Reply only; do not write files.\n\n\"𝗔𝗻𝗻𝗼𝘂𝗻𝗰𝗶𝗻𝗴 𝗥𝗲𝗽𝗹𝗮𝘆𝗗𝗶𝗮𝗴𝗻𝗼𝘀𝘁𝗶𝗰𝘀\n\nWe are thrilled to share that after a long journey, ReplayDiagnostics (https://example.com/replay) is finally here! It shows why a projection rebuild is slow.\n\nRepost if you agree! #EventSourcing #CQRS #DotNet #Cratis #Dev\"\n\nNo image is attached.",
+      "expected_output": "Remove Unicode pseudo-formatting (screen readers spell it out); lead with a complete specific proposition in the preview and name the problem before the identifier; lead with media carrying the Cratis mark, or record a deliberate text-only choice; alt text; keep the link out of the body unless the reader needs it; remove engagement bait; fewer hashtags on the last line (one or two).",
+      "assertions": [
+        "Flags the Unicode pseudo-bold letters and says assistive technology cannot read them reliably.",
+        "Says the opening should be a complete, specific, true proposition inside the preview and should name the problem before the identifier.",
+        "Says the post should lead with media carrying the Cratis mark or note a deliberate text-only choice, and that images need alt text.",
+        "Flags 'Repost if you agree' as engagement bait.",
+        "Says hashtags go on the last line and the default is one or two that name the subject."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "branding-and-framing",
+      "prompt": "We're publishing (a) a screenshot of the web workbench, (b) a looping GIF of a replay, and (c) an 8-page document post. Where does the Cratis mark go on each? Also, a designer wants to recolor the logo to match the palette. Reply only.",
+      "expected_output": "Screenshot is framed, never stamped: the capture sits unchanged inside a branded frame. GIF carries the mark on every frame. Document carries it on the cover and in the same spot on every page. The real mark is used unaltered, not recolored, large enough to read on a phone. The logo is left out of alt text.",
+      "assertions": [
+        "Says the screenshot is framed inside a branded frame and not stamped, so the captured pixels are unchanged.",
+        "Says the GIF carries the mark on every frame because the feed can show any frame.",
+        "Says the document carries the mark on the cover and in the same spot on every later page.",
+        "Says the mark must be used unaltered, not recolored, stretched, cropped, redrawn or animated.",
+        "Says to leave the logo out of alt text."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "platform-claims",
+      "prompt": "A colleague says: 'LinkedIn's algorithm punishes links in the post body, so always put the link in the first comment, post within the first hour window, and use exactly three hashtags.' What do you tell them? Reply only.",
+      "expected_output": "The reviewed sources disclose no first-hour windows, hashtag counts or link penalties; first-comment links are folklore. Keeping links out of the body is only an editorial default so the post stands alone; when the link is what the reader needs, put it in the body. Don't explain placement in the post or present it as an algorithm fact.",
+      "assertions": [
+        "Says the reviewed sources do not show that a body link lowers distribution and that 'always put the link in the first comment' is folklore.",
+        "Says no first-hour window or hashtag count is supported by the sources.",
+        "Says keeping links out of the body is an editorial default so the post is worth reading without the click, not a platform rule.",
+        "Says that when the link is what the reader needs, such as the runnable sample, it goes in the body."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "agent-boundaries",
+      "prompt": "A reader commented a technical question on our post. Also we want this post's copy on Hacker News. Please post a reply as the account and write the HN title and text. What do you do? Reply only.",
+      "expected_output": "An agent never publishes, schedules or replies; it can draft an answer for the author to rewrite and send. On Hacker News, AI does not write or edit anything Cratis posts; it may only help gather facts, links and answers for the person to check.",
+      "assertions": [
+        "Declines to post the reply and says an agent never replies on anyone's behalf.",
+        "Offers a draft answer for the author to rewrite and send.",
+        "Declines to write the Hacker News title and text because AI does not write or edit anything Cratis posts there.",
+        "Offers only to help a person gather facts, links and answers to check."
+      ]
+    }
+  ]
+}

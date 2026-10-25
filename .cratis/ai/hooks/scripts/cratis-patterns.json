@@ -28,6 +28,14 @@
     ],
     "patterns": [
         {
+            "id": "cratis-append-only-migration",
+            "rule": "cratis-arc-ef-core-migration — Write the migration",
+            "pattern": "\\[Migration[[:space:]]*\\(",
+            "paths": ["Source/**/Migrations/*.cs"],
+            "exclude_paths": ["**/*ModelSnapshot.cs", "**/obj/**", "**/bin/**"],
+            "message": "Migration review (advisory): if this migration is committed or applied anywhere, correct it with a new migration (`dotnet ef migrations add`), not an edit. An unapplied, uncommitted migration may be removed (`dotnet ef migrations remove`) and regenerated. This scan does not determine commit or database state."
+        },
+        {
             "id": "cratis-automap-call",
             "rule": "general.md rule 10 [contract]",
             "pattern": "\\.AutoMap[[:space:]]*\\(",
@@ -79,6 +87,30 @@
             "paths": ["**/*.ts", "**/*.tsx"],
             "exclude_paths": ["**/node_modules/**", "**/dist/**", "**/wwwroot/**", "**/obj/**", "**/bin/**"],
             "message": "Cratis Components 4 has no PrimeReact underneath — a `primereact/dialog` import is a leftover from Components 3. Use `CommandDialog` from `@cratis/components/CommandDialog` or `Dialog` from `@cratis/components/Dialogs`."
+        },
+        {
+            "id": "cratis-apex-docs-link",
+            "rule": "discoverability.md — canonical links",
+            "pattern": "https?://cratis\\.io([/)\"' <]|$)",
+            "paths": ["**/*.md", "**/*.mdx", "**/*.html", "**/*.astro"],
+            "exclude_paths": ["**/node_modules/**", "**/dist/**", "**/obj/**", "**/bin/**", "**/.ai-work/**"],
+            "message": "Discoverability (advisory): the docs host is `https://www.cratis.io`. Link the canonical host, not the bare `cratis.io`."
+        },
+        {
+            "id": "cratis-empty-image-alt",
+            "rule": "discoverability.md — images carry alt text",
+            "pattern": "!\\[\\]\\(",
+            "paths": ["**/*.md", "**/*.mdx"],
+            "exclude_paths": ["**/node_modules/**", "**/dist/**", "**/obj/**", "**/bin/**", "**/.ai-work/**"],
+            "message": "Discoverability (advisory): an image with empty alt text. Describe the content, or keep it empty only when the image is purely decorative."
+        },
+        {
+            "id": "cratis-package-url-github-only",
+            "rule": "discoverability.md — package metadata",
+            "pattern": "<PackageProjectUrl>[[:space:]]*https?://github\\.com",
+            "paths": ["**/*.csproj", "**/*.props"],
+            "exclude_paths": ["**/node_modules/**", "**/obj/**", "**/bin/**"],
+            "message": "Discoverability (advisory): `PackageProjectUrl` should point at the product's docs page `https://www.cratis.io/<product>/`, not only at GitHub."
         }
     ]
 }

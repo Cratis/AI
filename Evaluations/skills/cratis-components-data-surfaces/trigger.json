@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-components-data-surfaces",
+  "queries": [
+    { "query": "we have 3000 fleet vessels already loaded in the browser and want people to explore them by category and size instead of a table. what component in Cratis Components?", "shouldTrigger": true },
+    { "query": "PivotViewer cardRenderer: can I return JSX with an image and a badge for each card?", "shouldTrigger": true },
+    { "query": "I want a slider the user can drag to see how the order looked at past versions, with the events behind each version listed. we already have the snapshots", "shouldTrigger": true },
+    { "query": "TimeMachine currentVersionIndex changes from my parent state but the selected version doesn't move. bug?", "shouldTrigger": true },
+    { "query": "a pannable zoomable board where I drop cards at x/y positions and show a minimap, in React with Cratis", "shouldTrigger": true },
+    { "query": "user drags the Canvas around and now my card positions are lost on reload, do the camera callbacks save them?", "shouldTrigger": true },
+    { "query": "add a chat sidebar with topics to the page, messages come from our own API. onSendMessage gets called with what?", "shouldTrigger": true },
+    { "query": "I imported Chat from @cratis/components/Canvas and my bundle pulled in pixi. is there a lighter import for a plain conversation?", "shouldTrigger": true },
+    { "query": "chat shows an unauthorized state but is that actually enforcing access to the topic's messages?", "shouldTrigger": true },
+    { "query": "Canvas with only DOM items still complains about pixi.js peer, can I skip installing it?", "shouldTrigger": true },
+    { "query": "A paged, sortable list of invoices with a global search and paginator from an Arc query.", "shouldTrigger": false, "note": "cratis-arc-react-page (DataPage lists)" },
+    { "query": "Show me how to replay events on the server to rebuild a read model at a given sequence number.", "shouldTrigger": false, "note": "cratis-chronicle-reducer / cratis-chronicle-projection" },
+    { "query": "Put a vertical icon palette with select/pen/eraser tools on my canvas board.", "shouldTrigger": false, "note": "cratis-components-toolbar" },
+    { "query": "A searchable picker and tabs for my details panel.", "shouldTrigger": false, "note": "cratis-components-common-controls" },
+    { "query": "Persist chat messages durably and enforce per-tenant access to topics in the backend.", "shouldTrigger": false, "note": "cratis-security-review / cratis-chronicle-multi-tenancy" },
+    { "query": "How do I restyle the pivot viewer with --cratis tokens and dark mode?", "shouldTrigger": false, "note": "cratis-components-styling" },
+    { "query": "Edit the structure of an event's JSON schema in a tree.", "shouldTrigger": false, "note": "cratis-components-schema-editor" },
+    { "query": "Make the chat composer announce errors properly to screen readers and give dialog buttons localized names.", "shouldTrigger": false, "note": "cratis-components-accessibility" }
+  ]
+}

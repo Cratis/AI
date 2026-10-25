@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-engineering-docs-authoring",
+  "evals": [
+    {
+      "id": 1,
+      "name": "missing-inputs",
+      "prompt": "Write the docs page for the new replay feature. That's all I have. How do you proceed? Reply only; do not write files.",
+      "expected_output": "Establish required inputs first: owning repository and destination page, document type, reader and outcome, authoritative product source for every API/command/version/capability, scope and exclusions. Resolve routine details from repository evidence; ask only when materially different types, audiences or product choices remain plausible.",
+      "assertions": [
+        "Lists the inputs to establish before drafting: owning repository and destination, document type, target reader and outcome, authoritative product source, and scope.",
+        "Says to use repository evidence to resolve routine details and ask only when materially different choices remain plausible.",
+        "Says a product or API claim without first-party source evidence stops the drafting of that claim rather than being guessed."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "unprovable-claim-and-translation",
+      "prompt": "The page needs a TypeScript version of a C# example that registers a reactor. I don't have the TypeScript client source open, but I'm pretty sure the API mirrors C#. The build also passes. Should I translate it and ship? Reply only.",
+      "expected_output": "No. Never translate a C# example into another client language by guess; verify each API and command against first-party source at the applicable revision (via cratis-technical-examples). A passing build proves rendering, not technical correctness; omit the claim or mark the gap for the maintainer.",
+      "assertions": [
+        "Says not to translate a C# example into another client language by guess.",
+        "Says every API and command must be verified against first-party source at the applicable revision, using the technical-examples skill.",
+        "Says a successful build proves rendering, not technical correctness.",
+        "Says to omit the claim or mark the gap for the owning maintainer when the source cannot prove it."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "scope-and-output",
+      "prompt": "While drafting the how-to page, I notice the sidebar navigation is missing the entry and a synced copy of the page in the site repo has a typo. Should I fix both while I'm there? What do I deliver at the end? Reply only.",
+      "expected_output": "Stay within content. Do not modify navigation or generated/synchronized copies; placement and navigation belong to the owning repository's workflows, and an existing page's authored source is edited, never a synced copy. Deliver page content only at the approved destination and report the authoritative source checked and remaining verification.",
+      "assertions": [
+        "Says not to wire navigation because this skill owns content, not placement or navigation.",
+        "Says never to patch a synchronized copy; find the authored source instead.",
+        "Says to return or write the page content only at the already approved destination.",
+        "Says to report the authoritative source checked and the verification that remains."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "document-type-shapes",
+      "prompt": "I have to deliver four pages on projections: a first-time guided build, a fix for a stuck rebuild, a page on why projections are eventually consistent, and a lookup of every attribute. Map each to a document type and its shape. Reply only.",
+      "expected_output": "Tutorial (ordered steps with visible results), how-to (prerequisites, direct procedure, completion check), explanation (concepts, boundaries, trade-offs, diagram), reference (exhaustive tables, fields, commands, signatures).",
+      "assertions": [
+        "Maps the guided first build to a tutorial with ordered steps and visible results.",
+        "Maps the stuck rebuild fix to a how-to with prerequisites, a direct procedure and a completion check.",
+        "Maps the eventual-consistency page to an explanation with concepts, boundaries, trade-offs and a diagram.",
+        "Maps the attribute lookup to a reference with exhaustive tables or fields."
+      ]
+    }
+  ]
+}

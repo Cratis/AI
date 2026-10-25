@@ -23,20 +23,22 @@ observable changes from the diff, specs, linked issues/PRs, and authoritative
 product source at that revision. A PR description is published verbatim as
 release notes in a Cratis repository; follow its current template and the
 pull-request contract, and confirm that behavior before drafting. Do not turn
-an unreleased draft into a claim about shipped behavior.
+a draft into a claim about shipped behavior.
 
 For each change, ask: who uses this path, what happened before, what happens
 now, is action required, and how would they notice? Check changed defaults,
 serialization/schema/data migrations, runtime and dependency compatibility,
 deploy ordering, deprecations/removals, and upgrade/rollback limits. Report
-'not verified' rather than guessing about a supported configuration.
+what was not verified to the requester or in a PR comment; the published note
+states only verified facts and never says 'not verified'.
 
 Cratis products move together at their seams: the Chronicle kernel and its
 clients, Arc and Chronicle, Components and Arc. When a change touches a
-seam, state the pairings you verified (for example, which kernel versions a
-client release was tested against) and say which pairings are unverified.
-There is no central compatibility matrix to defer to, so the release note may
-be the only place a reader learns it. Where a measurement drove the change,
+seam, state supported pairings as facts the reader can act on ('Requires
+Chronicle kernel 19.25 or later'). Which pairings were tested, and against
+which branch or commit, is evidence for the PR comment. There is no central
+compatibility matrix to defer to, so the release note may be the only place
+a reader learns the supported pairings. Where a measurement drove the change,
 such as how many deployments hit a failure, give the number; never estimate
 one to add weight.
 
@@ -51,7 +53,9 @@ one to add weight.
   `(part of #n)` for anything that stays open (in repositories released by
   `cratis/release-action`, `(#n)` is what closes the issue), never `Closes`, `Fixes` or
   `Refs` before a number (also in bold or a link), and no issue reference
-  inside an HTML comment, which still closes the issue; and absolute
+  inside an HTML comment (release-action removes comments before publishing,
+  so the issue is silently not closed; a body that is only a comment counts as
+  empty and GitHub generates the notes); and absolute
   `https://` links only. Sections are in
   a fixed order (Added, Changed, Fixed, Removed, Security, Deprecated); within
   a section, put changes requiring action first, then new capabilities and
@@ -89,6 +93,14 @@ boundary that makes a change safe to adopt. One item can follow this shape:
 That is a checklist for facts, not a template to repeat word-for-word across
 items. Use descriptive headings, meaningful links, and natural sentence rhythm.
 
+A `no-release` PR body still follows this contract. Its `(#n)` closes nothing
+because no release runs, so the issue is closed separately, and only when the
+request includes that effect; never imply automatic closing (see the issue
+section of [pull-requests.md](../../rules/pull-requests.md)).
+
+For every pull request, write the body file in a step of its own before
+`gh pr create --body-file`.
+
 ## Repair an already-published release
 
 Only when asked to fix a release that violates the contract:
@@ -99,12 +111,44 @@ Only when asked to fix a release that violates the contract:
    `https://` URLs. Do not invent changes, versions or issue numbers.
 2. Publish the corrected text with `gh release edit TAG --notes-file FILE`,
    only when the request authorizes editing that release.
+   Read back the body with `gh release view TAG --json body` and compare it with the corrected text. If it differs, correct and repeat the authorized edit and readback, or report the blocker rather than claiming the repair succeeded.
 3. In a repository released by `cratis/release-action`, editing a release
    does not re-run release-action, so an issue that a `(#n)` would have
    closed stays open. For each one, confirm the release
    actually delivered it. Close it by hand with a comment naming the release
    only when the request covers closing issues; otherwise list the issues as a
    proposal. Leave an issue open when the release only partly delivered it.
+
+## Release-action batching and recovery
+
+Requires release-action 1.5.1 for corrected pending-major hotfix handling; check the workflow's `uses` pin, or keep immediate releases on the older contract.
+
+`release-window` defaults to `0` (one
+release per PR); a positive minute window batches pending merges once the oldest
+is old enough. The highest intent wins, notes merge by section with one combined
+`## Summary`, and delivered `(#n)` issues still close. Reference definitions are
+preserved; duplicate labels keep the first definition and warn. Missing intent
+labels warn but are not permission to omit required PR labels.
+
+`hotfix-labels` defaults to `hotfix` and bypasses the window. With a pending major,
+only the merge run for the hotfix fails; scheduled/other merge runs warn and leave
+the batch pending. A manual run without a version releases everything pending;
+obtain the required human major confirmation first. Inspect `pull-requests` and
+`reason` (`batched` or `nothing-pending`) rather than assuming every successful
+run released. Never turn on batching just to clear a queue without authorization.
+
+A release-creation 403 caused by workflow drift names the recovery:
+dispatch the publish workflow from the current default branch with the PR's
+release notes. Re-running the stale commit does not fix this. Other 403s keep
+their original cause; do not treat every permission failure as workflow drift.
+
+Before re-running a cancelled publish, check
+`git merge-base --is-ancestor <merge-commit> <latest-release-tag>`. If it is an
+ancestor, a release already contains the change, so do not cut another version.
+The tag alone does not prove it shipped: a release can be created before its
+publishing jobs run. Confirm that the containing release's publish run completed
+every publishing job and its packages exist before reporting it shipped;
+otherwise recover that version's publishing rather than releasing again.
 
 ## Verify before handing over
 
@@ -125,8 +169,9 @@ Only when asked to fix a release that violates the contract:
    metadata, and explicit `**You do:**` actions.
    Check `sync-upgrade-paths.mjs` and an existing guide before changing that
    structure, then verify the generated picker as well as the page.
-4. Name the checks actually run and the combinations not checked. Do not
-   imply that a green docs build proved an upgrade safe.
+4. Name the checks actually run and the combinations not checked to the
+   requester or in a PR comment, never in the published note. Do not imply
+   that a green docs build proved an upgrade safe.
 
 The pattern is informed by [Wolverine's migration guide](https://wolverinefx.io/guide/migration.html)
 and [Marten's migration guide](https://martendb.io/migration-guide.html),

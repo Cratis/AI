@@ -10,7 +10,7 @@ This repository is two things sharing one source of truth:
 
 It also carries a separate, parallel effort - the TypeScript corpus/profile-distribution content
 under `Source/Harness.Setup`, `Source/Pi.Plugin`, `Source/Verification` and `.cratis/ai/` - which
-this documentation does not cover. See that content's own `AGENTS.md`/`CLAUDE.md` and
+is described in part by [Agent adapters](./agent-adapters.md). See that content's own `AGENTS.md`/`CLAUDE.md` and
 `AIConsolidation.md` at the repository root.
 
 ## Where to start
@@ -25,11 +25,16 @@ this documentation does not cover. See that content's own `AGENTS.md`/`CLAUDE.md
   capability enums, the resolver seam, and the Decision Engine service under `Source/DecisionEngine/`.
 - [`anthropic-credentials.md`](./anthropic-credentials.md) - credential normalization and authentication headers.
 - [`worker-console.md`](./worker-console.md) - console readiness, cancellation, and application-owned archiving.
+- [Kubernetes worker scheduling](./worker-scheduling.md) - batch packing and running-worker eviction protection.
+- [`provider-harnesses.md`](./provider-harnesses.md) - select supported worker harnesses per provider and migrate away from per-agent selection.
+- [`provider-capacity.md`](./provider-capacity.md) - how much of each provider's subscription
+  windows is left, how pools rank and skip members by it, and how long a hit limit stays parked.
 - [`usage.md`](./usage.md) - the usage subsystem: concepts, `AgentSessionUsageRecorded`, the
   command, the read models, and how event-type changes are handled without migrations.
 - [`migration-status.md`](./migration-status.md) - a living record of what has moved from Direct
   and Studio into the package, what has not, and what each still-open PR contains. Read this first
   if you are picking this work up mid-stream.
+- [`compatibility.md`](./compatibility.md) - the product releases the AI corpus is checked against: the Cratis CLI bundle and the Stage rendered-application scaffold pins. Maintainer reference, not agent-loaded.
 - [`decisions/`](./decisions/) - architecture decision records. Each documents the context, the
   decision, its consequences, and the alternatives that were rejected - read these before
   revisiting a decision that looks wrong; the reasoning for it is here, not only in the code.

@@ -41,18 +41,48 @@ public interface IAIProviderPoolDispatcher
 /// transient failure (a 429, most commonly a member's own quota, or a 5xx) rather than surfacing it
 /// or retrying the same exhausted member (Cratis/AI#337). A member already known, from its own
 /// last-reported quota headers, to be exhausted is skipped before it is ever called - not learned
-/// about only after a wasted round trip and a 429.
+/// about only after a wasted round trip and a 429. So is a member with a rate limit recorded against
+/// it (<see cref="ConfiguredAIProvider.RateLimitedUntil"/>) that has not lifted yet - the same check
+/// <see cref="ProviderAwareLanguageModel"/> makes.
 /// </summary>
+/// <remarks>
+/// Registered as a singleton, so it does not consult <see cref="Capacity.IAIProviderCapacities"/>,
+/// which reads the caller's tenant; a caller that wants headroom-aware ranking dispatches through
+/// <see cref="ProviderAwareLanguageModel"/>. For the same reason it does not park a member that ran
+/// out of quota: recording a rate limit is tenant-scoped, so it only fails over. A caller that needs
+/// the exhausted provider skipped on later calls dispatches through
+/// <see cref="ProviderAwareLanguageModel"/>, which parks it.
+/// </remarks>
 /// <param name="clients">Every registered <see cref="IAIProviderClient"/> - one per vendor, matched by <see cref="ConfiguredAIProvider.Type"/>.</param>
 /// <param name="providerBurn">What each provider has burnt recently - the facts <see cref="PoolMemberSelector"/> orders candidates by.</param>
 /// <param name="quotaTracker">What each provider's own responses most recently reported about its remaining quota.</param>
+/// <param name="timeProvider">The <see cref="TimeProvider"/> a recorded rate limit is checked against.</param>
 /// <param name="logger">The logger.</param>
 public class AIProviderPoolDispatcher(
     IEnumerable<IAIProviderClient> clients,
     IProviderBurn providerBurn,
     IAIProviderQuotaTracker quotaTracker,
+    TimeProvider timeProvider,
     ILogger<AIProviderPoolDispatcher> logger) : IAIProviderPoolDispatcher
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AIProviderPoolDispatcher"/> class measuring
+    /// recorded rate limits against the system clock - kept so existing callers that construct it
+    /// directly keep compiling.
+    /// </summary>
+    /// <param name="clients">Every registered <see cref="IAIProviderClient"/>.</param>
+    /// <param name="providerBurn">What each provider has burnt recently.</param>
+    /// <param name="quotaTracker">What each provider's own responses most recently reported about its remaining quota.</param>
+    /// <param name="logger">The logger.</param>
+    public AIProviderPoolDispatcher(
+        IEnumerable<IAIProviderClient> clients,
+        IProviderBurn providerBurn,
+        IAIProviderQuotaTracker quotaTracker,
+        ILogger<AIProviderPoolDispatcher> logger)
+        : this(clients, providerBurn, quotaTracker, TimeProvider.System, logger)
+    {
+    }
+
     /// <inheritdoc/>
     public async Task<LanguageModelResult> Complete(
         string prompt,
@@ -88,12 +118,24 @@ public class AIProviderPoolDispatcher(
         var reachable = ordered.Where(member => !quotaTracker.IsKnownExhausted(member.ProviderId)).ToList();
         var candidates = reachable.Count > 0 ? reachable : ordered;
 
+        var now = timeProvider.GetUtcNow();
         LanguageModelResult? last = null;
+        var anyRateLimited = false;
+        var anyTransient = false;
+        var tried = new List<AIProviderId>();
+        var outOfQuota = new List<AIProviderId>();
         foreach (var member in candidates)
         {
             if (!configuredProviders.TryGetValue(member.ProviderId, out var provider))
             {
                 logger.PoolMemberNotConfigured(member.ProviderId);
+                continue;
+            }
+
+            if (provider.RateLimitedUntil > now)
+            {
+                logger.PoolMemberRateLimited(member.ProviderId, provider.RateLimitedUntil);
+                anyRateLimited = true;
                 continue;
             }
 
@@ -105,16 +147,39 @@ public class AIProviderPoolDispatcher(
             }
 
             var result = await client.Complete(prompt, provider, model, effort, cancellationToken);
-            if (result.Succeeded || !result.IsTransient)
+            tried.Add(member.ProviderId);
+            if (result.Succeeded || !(result.IsTransient || result.IsQuotaExhausted))
             {
                 return result;
             }
 
-            logger.FailingOverToNextPoolMember(member.ProviderId, result.FailureReason);
+            // A spent quota fails over exactly like a transient failure - the same prompt goes to the
+            // next member - but is remembered, so an exhausted pool says which members ran out.
+            if (result.IsQuotaExhausted)
+            {
+                logger.PoolMemberQuotaExhausted(member.ProviderId, result.FailureReason);
+                outOfQuota.Add(member.ProviderId);
+            }
+            else
+            {
+                logger.FailingOverToNextPoolMember(member.ProviderId, result.FailureReason);
+                anyTransient = true;
+            }
+
             last = result;
         }
 
-        return last ?? LanguageModelResult.Failure("No pool member could be reached");
+        if (outOfQuota.Count > 0)
+        {
+            var reason = $"No pool member could serve this completion: the pool is exhausted. Tried {string.Join(", ", tried)}; out of quota: {string.Join(", ", outOfQuota)}. Last failure: {last!.FailureReason}";
+            return anyTransient || anyRateLimited
+                ? LanguageModelResult.TransientFailure(reason)
+                : LanguageModelResult.QuotaExhausted(reason);
+        }
+
+        return last ?? (anyRateLimited
+            ? LanguageModelResult.TransientFailure("Every reachable pool member is over its own usage limit")
+            : LanguageModelResult.Failure("No pool member could be reached"));
     }
 }
 
@@ -128,6 +193,12 @@ internal static partial class AIProviderPoolDispatcherLog
 
     [LoggerMessage(LogLevel.Warning, "No registered IAIProviderClient for pool member {ProviderId}'s vendor {Type} - skipping it")]
     internal static partial void NoClientForProviderType(this ILogger logger, AIProviderId providerId, AIProviderType type);
+
+    [LoggerMessage(LogLevel.Information, "Pool member {ProviderId} is over its own usage limit until {Until:O} - skipping it")]
+    internal static partial void PoolMemberRateLimited(this ILogger logger, AIProviderId providerId, DateTimeOffset until);
+
+    [LoggerMessage(LogLevel.Warning, "Provider {ProviderId} is out of quota ({Reason}) - failing over to the next pool member")]
+    internal static partial void PoolMemberQuotaExhausted(this ILogger logger, AIProviderId providerId, string reason);
 
     [LoggerMessage(LogLevel.Warning, "Provider {ProviderId} failed transiently ({Reason}) - failing over to the next pool member")]
     internal static partial void FailingOverToNextPoolMember(this ILogger logger, AIProviderId providerId, string reason);

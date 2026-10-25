@@ -1,0 +1,11 @@
+{
+  "skill": "cratis-engineering-issue-hygiene",
+  "input": "Claim a known issue at work start without replacing an assignee or expanding authority.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "gh issue view <n> --repo <owner>/<repo> --json assignees,state" },
+    { "kind": "skill-contains", "value": "gh issue edit <n> --repo <owner>/<repo> --add-assignee @me" },
+    { "kind": "skill-contains", "value": "Never replace or add to an existing assignment" },
+    { "kind": "skill-contains", "value": "authorizes this assignment only" }
+  ]
+}

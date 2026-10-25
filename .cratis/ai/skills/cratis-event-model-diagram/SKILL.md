@@ -1,6 +1,6 @@
 ---
 name: cratis-event-model-diagram
-description: Create and maintain Mermaid eventmodeling diagrams for a Cratis module or feature, and keep them in sync with the code. Use when adding, renaming, moving, or deleting a module, feature, behavior, command, event, read model, automation, translation, or cross-module flow. Do not use to decide the event vocabulary or stream boundaries - settle the model first, then render it here.
+description: Create and maintain Mermaid eventmodeling diagrams for a Cratis module or feature, and keep them in sync with their authority (the accepted `.play` model where one covers the scope, otherwise the code). Use when adding, renaming, moving, or deleting a module, feature, behavior, command, event, read model, automation, translation, or cross-module flow. Do not use to decide the event vocabulary or stream boundaries - settle the model first, then render it here.
 license: MIT
 ---
 
@@ -19,8 +19,10 @@ and later). The grammar is owned by Mermaid, and
 file and Mermaid disagree. Confirm the Mermaid version available to the renderer
 before relying on a construct.
 
-The Cratis artifacts a diagram refers to are verified against `Cratis.Chronicle`
-`18.3.0` and the Arc query and command surface it is used with.
+The Cratis artifacts a diagram refers to were originally checked against `Cratis.Chronicle`
+18.3.0 and re-read against Chronicle 19.50.0 and the Arc query and command surface it is used with
+(tool versions: `cratis-screenplay-toolchain` `SKILL.md`). The Mermaid claim above is
+external and was not re-verified here.
 
 ## What an event model is
 
@@ -73,24 +75,52 @@ tf 03 evt <EntityName><PastTenseVerb>
 rf 04 rmo <ReadModelName> ->> 03
 tf 05 ui <Persona>
 
-%% -- Automation: <ReactorName> (external side effect only) --
+%% -- Automation: <ReactorName> (reacts to our own event) --
 rf 06 evt <EntityName><PastTenseVerb>
 tf 07 pcr <ReactorName>
+%% add the next two frames only when the automation invokes a command
+tf 08 cmd <CommandName>
+tf 09 evt <EntityName><PastTenseVerb>
 
-%% -- Translation: <Source>.<Event> -> <Target>.<Reactor> --
-rf 08 evt <SourceModule>.<EventName>
-tf 09 pcr <TargetModule>.<ReactorName>
-tf 10 evt <TargetModule>.<EventName>
+%% -- Translation: <Outside>.<Fact> -> <Adapter> -> our event --
+rf 10 evt <ExternalSource>.<FactName>
+tf 11 pcr <AdapterName>
+tf 12 evt <EntityName><PastTenseVerb>
 ```
 
 - A state view's `rmo` references the event frames it projects from by number;
   its consumer `ui` frame auto-chains after it. A passive read model has no
   consumer UI — emit only the `rmo ... ->>` line with a `%% passive` comment.
-- Translation flows are reactor-only: `evt` to `pcr` to `evt`, with no
-  intermediate `cmd`. If you draw a `cmd` between the `pcr` and the resulting
-  event, it is an **automation**, not a translation — reclassify it.
+- One definition of Translation everywhere: data from **outside** our own facts
+  becomes our own facts. Its flow starts at an outside-origin `evt` (an
+  `<ExternalSource>.` prefix marks it), passes through the adapter `pcr`, and
+  ends at an event we own. A `pcr` that reacts to **our own** event is an
+  **automation**, whether it causes an external side effect, appends a
+  follow-up event, or invokes a command (then draw the `cmd` and its resulting
+  `evt` after the `pcr`). Classify by where the data comes from, not by how the
+  reactor is built.
 - Several consumers of one read model: declare each consumer `ui` as its own
   `rf` frame with an explicit `->>` back to the `rmo`.
+
+## Connections read forward
+
+A diagram reads left to right, so every connection goes to a later frame, never back to an
+earlier one. In practice:
+
+- Number frames in story order and put elements that belong together next to each other: a
+  persona and the command it issues, a command and the events it produces, an event and the
+  read model that projects it. A read model's `->>` sources are frames that come **before** it.
+- When a later event must change what an earlier read model shows, do not draw an arrow back to
+  that read model. Draw a new `rmo` frame after the later event, sourced from the events that now
+  matter (it is the same read model carried to a later state), and give it its own consumer
+  `ui` frame if a person looks at it. The earlier frame stays as it was: it correctly showed
+  that earlier point in the story. The model itself is unchanged; its projection simply
+  consumes the later event.
+- If the natural place for a frame is already taken, insert it just before or after rather than
+  wiring across the gap.
+
+Adapted from Martin Dilger and Nebulit GmbH's core rules (`references/provenance.md`); their
+board mechanics (columns, cells, linked copies) do not apply to Mermaid frames.
 
 ## The command rules table
 
@@ -105,17 +135,30 @@ language. Include commands that emit no event.
 1. **Discover** the behaviors by scanning the module for the artifacts that
    define them: command records for state changes, read models without a command
    handler for state views, `IReactor` implementations that call out of the
-   system for automations, and `IReactor` implementations that return events for
-   translations. Use the exact type names.
+   system or return events or commands in response to our own events for
+   automations, and adapters that take outside data in as our own events for
+   translations. Choose the **authority** here: when an accepted model covers
+   the scope (or the repository is opted in, per `cratis-screenplay-modeling-lifecycle`), read the behaviors from
+   its slices (`StateChange`, `StateView`, `Automation`, `Translate`) and render
+   from the model; otherwise the code is the authority. Report code that
+   disagrees with the model as drift, separately; do not add unmodeled behavior
+   to the diagram. Use the exact type names.
 2. **Order** frames by domain causality — what must happen before what. Put state
    views after the events they project from. Use `rf` only between independent
    flows, never between sibling events of one flow, or the diagram becomes a
    tall tower one event wide.
 3. **Write** the diagram and the command-rules table.
 4. **Verify** it renders without a syntax-error banner, then reconcile it against
-   the source: every behavior appears, classified by the marker it actually
-   contains. A clean render proves valid Mermaid, not completeness — close the
-   gaps against the code, never from memory.
+   the authority chosen in step 1 (the model's slices, or the code's markers):
+   every behavior appears, classified by the type the authority gives it. A clean
+   render proves valid Mermaid, not completeness — close the gaps against the
+   authority, never from memory. List model/code drift in the report instead of
+   resolving it in the diagram. When the code is the authority, also find what changed since
+   the diagram was last updated: the last commit touching the diagram file is the baseline; list
+   the behavior commits in the module's folders since then
+   (`git log --reverse <baseline>..HEAD -- <module folders>`), oldest first, and check each against
+   the diagram. When an accepted model is the authority, report code that disagrees with it through
+   `cratis-screenplay-render-and-gap-fill` (hand-written changes), not in the diagram.
 
 ## Common mistakes
 
@@ -133,7 +176,7 @@ language. Include commands that emit no event.
 ## Verify
 
 - The diagram renders with no syntax-error banner.
-- Every behavior in the module appears, with the type its code actually has.
+- Every behavior in the module appears, with the type its authority (the accepted `.play` slice, otherwise the code) gives it; drift is reported separately.
 - Every event frame uses the exact event type name from the source.
 - Independent flows start with `rf`; sibling events within a flow do not.
 - Passive read models have no consumer `ui` frame.
@@ -143,7 +186,12 @@ language. Include commands that emit no event.
 
 ## Route near misses
 
+- An accepted model covers the scope (or the repository is opted in): it is the source for this
+  diagram; do not redraw from code and never change the model to match a
+  diagram. The diagram is a view of it.
 - Deciding the model rather than drawing one: `cratis-chronicle-event-modeling`
   for a hand-written Chronicle implementation, or
   `cratis-screenplay-event-modeling` when the model is authored as a Screenplay
   `.play` document.
+
+Attribution for adapted method text: `references/provenance.md`.

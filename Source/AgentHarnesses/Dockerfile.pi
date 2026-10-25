@@ -17,7 +17,7 @@ USER root
 
 # Pi CLI — pinned to the version the entrypoint's RPC handling was verified against, rather than
 # "latest".
-ARG PI_CLI_VERSION=0.84.3
+ARG PI_CLI_VERSION=1.0.3
 RUN npm install -g @earendil-works/pi-coding-agent@${PI_CLI_VERSION}
 
 USER agent

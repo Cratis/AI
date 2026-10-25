@@ -1,0 +1,12 @@
+{
+  "skill": "cratis-components-toolbar",
+  "input": "Build a keyboard-navigable toolbar with a drawer catalog and pressed-state buttons.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "ToolbarFocusMode.Arrows" },
+    { "kind": "skill-contains", "value": "SingleTabStop" },
+    { "kind": "skill-contains", "value": "aria-pressed" },
+    { "kind": "skill-contains", "value": "presentation='drawer'" },
+    { "kind": "skill-contains", "value": "messages.toolbar.closeDrawer" }
+  ]
+}

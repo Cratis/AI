@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-screenplay-streams-and-consistency",
+  "evals": [
+    {
+      "id": 1,
+      "name": "pii-as-identifier",
+      "prompt": "A draft Screenplay model uses `identifier customerEmail` as the stream for CustomerRegistered, CustomerMoved and CustomerClosed. Someone also wants one stream for all customers' events 'to keep it simple'. Review the identity decisions. Reply only; do not write files.",
+      "expected_output": "One business identity per stream (one stream per customer), expressed in a sentence per identifier. Never personal data, a secret or a `pii`/`secret` concept as identifier or subject; use a surrogate identity and protected payload. One data subject per event. An eternal all-customers stream violates one identity per stream.",
+      "assertions": [
+        "Rejects the customer email as the stream identifier because personal data must not be an identifier; recommends a surrogate identity.",
+        "States the rule of one business identity per stream (one stream per customer, not one for all customers).",
+        "Says personal values belong in protected payload properties (`pii`) and one event has one data subject.",
+        "Asks for an identity sentence per identifier and an event-membership check of every producer."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "retry-identity",
+      "prompt": "RegisterOrder uses `generated identifier` for the order id. After a lost reply the client retries and two orders exist. A colleague says generated values make retries safe. What is wrong and what should we do? Reply only; do not write files.",
+      "expected_output": "A generated identifier is generated fresh on every acceptance; it is not a retry identity and gives no idempotency, retry or deduplication guarantee. When a retry must find the same stream, the caller supplies the identifier before the first attempt and reuses it. A `unique event` constraint makes the fact once-only, but a retry is then rejected rather than answered with success.",
+      "assertions": [
+        "States that a generated identifier is generated fresh on every acceptance and is not a retry identity.",
+        "Says generated values give no idempotency, retry or deduplication guarantee.",
+        "Recommends the caller supplying the identifier before the first attempt and reusing it on retry.",
+        "Distinguishes a once-only fact (`unique event`) from idempotent handling, since the retry would be rejected rather than answered with success."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "first-append",
+      "prompt": "We claim 'only one writer may open a Reservation stream' and rely on the optimistic concurrency scope. Two writers open the same new stream at once. What happens by default and what do we change? Reply only; do not write files.",
+      "expected_output": "The first append into a scope is not checked by default: the optimistic strategy compares the scope's tail sequence number and with no matching event yet there is no tail, so both can succeed. A concurrency scope alone does not protect it; enable `ConcurrencyOptions.CheckFirstAppendIntoAScope` or `ExpectingNoMatchingEvent()`, or use a unique event constraint. Treat the default as unchecked until target evidence shows otherwise.",
+      "assertions": [
+        "Says the first append into a scope is not checked by default, so both writers can succeed.",
+        "Explains that there is no tail sequence number yet to compare when no matching event exists.",
+        "Names the fixes: `ConcurrencyOptions.CheckFirstAppendIntoAScope`, `ExpectingNoMatchingEvent()` or a unique event constraint.",
+        "Says to treat the default as unchecked until target evidence shows otherwise."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "evolving-a-stored-event",
+      "prompt": "BookingMoved is stored in production. We want to add a required `reason` and also change what the event means (it will now include cancellations). How do we evolve this in the Screenplay model, and who makes the edit? Reply only; do not write files.",
+      "expected_output": "Classify each change first and write compatibility scenarios before editing. A compatible change is a new generation; changed meaning is a new event. Corrections are new facts, never edits of history. Event properties are required by default; an optional detail is a separate event. Identity-affecting edits are made by the identity owner through MCP, not by a text edit.",
+      "assertions": [
+        "Classifies the changes and writes compatibility scenarios before editing.",
+        "Says a compatible change is a new generation while a changed meaning is a new event.",
+        "Says corrections are new facts and history is never edited.",
+        "Says identity-affecting edits to a persisted event go through MCP and the identity owner, not a text edit."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "skill_name": "cratis-screenplay-captures-and-reactions",
+  "evals": [
+    {
+      "id": 1,
+      "name": "fix-broken-reaction",
+      "prompt": "This reaction in a Screenplay Automation slice does not compile. Explain every defect and give the corrected reaction. Assume the event ReminderQueued is not declared yet.\n\n```\nslice Automation SendReminders\n  reaction Reminder\n    when OverdueFlagged\n      accountId\n    invokes SendReminderMail\n      accountId = accountId\n    produces event ReminderQueued\n      accountId = accountId\n    where daysLate > 7\n    where accountId != \"\"\n```\n\nGive the code in your reply; do not write files.",
+      "expected_output": "Effects must be indented under the trigger (PLAY0137 otherwise); inline `produces event` is not allowed in a reaction (PLAY0474), so declare ReminderQueued in the slice and use plain `produces ReminderQueued`; a reaction takes one `where`, combined with `and` (PLAY0252). `where` stays at reaction level.",
+      "assertions": [
+        "Moves `invokes` and `produces` inside the `when` trigger block by indenting them.",
+        "Declares ReminderQueued separately in the slice and uses plain `produces ReminderQueued` instead of `produces event`.",
+        "Merges the two `where` lines into one with `and`, keeping it at reaction level.",
+        "Notes that every name the reaction takes (such as daysLate) must be carried by the event or trigger."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "clock-reads-and-produces",
+      "prompt": "Write a Screenplay reaction that runs every night at 02:00 and appends ReservationExpired for reservations that are past due, deciding from the PendingReservations view. A teammate wants the trigger to `reads PendingReservations` and `produces ReservationExpired` directly. Say whether that works and show what to do. Give the code in your reply; do not write files.",
+      "expected_output": "Use `at 02:00` as the trigger. A trigger with `reads` that produces directly fails binding because the decision dependency cannot be protected; `reads` is declared, not enforced. Have the reaction `invokes` a command that decides from its own reads. A clock trigger has no source event, so any `produces` needs `for`. Clock triggers read whole views, no `by`.",
+      "assertions": [
+        "Uses the `at 02:00` time form (HH:mm).",
+        "States that a trigger with `reads` that produces directly fails binding, because `reads` gives no runtime protection.",
+        "Moves the decision into an invoked command rather than the reaction.",
+        "Says a clock trigger has no source event, so a `produces` needs `for` with a carried value or a literal.",
+        "Says a clock trigger reads whole views and `by` under it is an error (PLAY0443)."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "capture-when-forms",
+      "prompt": "Our Screenplay capture has `append CustomerFlagged when status == \"blocked\" or status == \"suspended\" and region == \"EU\"` and no `key` line. It does not bind. Explain what is wrong and show the repair. Give the code in your reply; do not write files.",
+      "expected_output": "A capture `when` clause cannot mix `and` and `or` (PLAY0089); split it into two `append` blocks. A capture without `key` does not bind (PLAY0268), so add the required `key <property>`.",
+      "assertions": [
+        "Says a single `when` clause cannot mix `or` and `and`.",
+        "Splits the condition into two `append CustomerFlagged` blocks, each with its own `when`.",
+        "Adds a `key <property>` line and says it is required to bind.",
+        "Treats the capture as the anti-corruption layer in a Translate slice."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "produces-versus-invokes",
+      "prompt": "On Screenplay 4.199.0 a reaction on InvitationAccepted should record WorkspaceProvisioned and ask for SendWelcomeMail. The event has no workspaceId payload; its event source is the workspace. Show how the invokes maps its required scalar workspaceId without adding an event payload property. A colleague wants `produces` for both because 'they are both consequences'. Which keyword goes where, why, and who is the caller of the invoked command? Reply only; do not write files.",
+      "expected_output": "`produces` requests a fact append subject to append-time constraints; `invokes` asks for a command, which also runs authorization, validation and requirements and may reject. Using one word for both blurs that. Map workspaceId = $eventSourceId (or $eventContext.eventSourceId), admitted from 4.197.1 using the existing v6 mapping contract, not a new version. The target is required scalar, validated without conversion; clock/application triggers have no event source. This identity is not the caller. An `invokes` has no caller unless `runs as system role` declares the actor; `given caller` does not supply it.",
+      "assertions": [
+        "Uses `produces WorkspaceProvisioned` for the fact and `invokes SendWelcomeMail` for the command.",
+        "Explains that `invokes` runs the command's authorization, validation and requirements and may reject, while `produces` is subject to append-time constraints.",
+        "Maps workspaceId = $eventSourceId or $eventContext.eventSourceId without duplicating event payload; names 4.197.1 and existing v6 contract, required scalar/type checking and no event source for clock triggers.",
+        "States that source identity is not caller identity and an invokes has no caller unless runs as system role declares it.",
+        "Says each invoked command is atomic but the cascade is not, so earlier accepted facts remain after a later refusal."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "public-event-capture-specification",
+      "prompt": "An inbound Translate capture ShipmentTracking has source events from ShipmentDispatched and ShipmentDelivered, both from shipping and carrying required orderId. It uses key $eventSourceId. Our spec says when capture ShipmentTracking with orderId and status, and expects a field-change append on the first event. Repair the model and show first-sight, update and unchanged-input spec shapes. Explain whether for is required and whether children and $context.subject work. Reply only; do not write files. The shipping producer always appends both on the orderId stream: how do we declare that promise, which versions does it need, does it apply to a source http capture or composite key, and what happens to a fixture whose for differs from orderId or omits for? Unmarked captures must not change.",
+      "expected_output": "Use key orderId (PLAY0700), typed given source events and when append ShipmentDispatched/ShipmentDelivered (PLAY0701). First sight needs when added; updates fold earlier events of the key and unchanged overlays append nothing. Foreign for is optional, not the key. Children/nested and context beyond occurred are not supported. If the producer guarantees the stream, use key orderId is event source on a single-property source events key (Screenplay 4.242.0, ESM v33, keyIsEventSource beside sourceEvents); an admitting renderer may narrow history reads, binding is not target proof, and unmarked captures keep behavior, version and bytes. PLAY0809 (error, no automatic repair) applies to any other capture or key shape. A marked fixture for must equal the key (mismatch is rejected, also in given-only worlds, not PLAY0809 or then no events) and an omitted for takes the key before projections and reactions.",
+      "assertions": [
+        "Uses key orderId, a required property of every from event, and diagnoses the context key as PLAY0700; adds is event source only for the producer's real sourcing guarantee, naming Screenplay 4.242.0, ESM v33 and keyIsEventSource beside sourceEvents, with unmarked captures unchanged and binding not proving renderer realization.",
+        "Uses typed given <FromEvent> and when append <FromEvent>, rejects capture-record fixtures with PLAY0701 and notes that two from events preclude an automatic repair.",
+        "Distinguishes first added from modifications, seeds the update with an earlier event for the same key, and expects no new events on an unchanged overlay.",
+        "States that an unmarked fixture for is optional opaque text and not the key, while for a marked key a differing for is rejected (also without an action, not PLAY0809), an omitted for takes the key before projections and reactions, and PLAY0809 with no automatic repair covers other captures and non-single-property keys.",
+        "Keeps children/nested over events and context other than occurred unsupported, and does not claim reference execution proves observer order or redelivery deduplication."
+      ]
+    }
+  ]
+}

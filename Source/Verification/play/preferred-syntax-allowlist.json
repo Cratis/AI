@@ -1,0 +1,74 @@
+[
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-command-surface/SKILL.md",
+    "rule": "optional-suffix",
+    "text": "`Type?` still parses with information `PLAY0479`; use its repair or editor quick",
+    "reason": "Explains migration from the legacy suffix to optional."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-command-surface/references/compliance.md",
+    "rule": "compliance-marker",
+    "text": "`@pii @pii` report one PLAY0653 warning per header. Both compilers retain the",
+    "reason": "Explains duplicate deprecated markers and their repair, not recommended authoring."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-command-surface/references/compliance.md",
+    "rule": "compliance-marker",
+    "text": "`@pii`, `sensitive` and `@sensitive` still compile but are deprecated: one PLAY0565",
+    "reason": "Names the deprecated spellings so readers can migrate them."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-legacy-extraction/references/generate-notes.md",
+    "rule": "compliance-marker",
+    "text": "`pii/secret`, not the deprecated `sensitive`/`@pii` vocabulary.",
+    "reason": "Contrasts canonical markers with deprecated extraction vocabulary."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-model-authoring/references/language-reference.md",
+    "rule": "optional-suffix",
+    "text": "`Type optional` is canonical for admitted type references; `Type?` remains",
+    "reason": "Documents the accepted legacy suffix beside its canonical replacement."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-model-authoring/references/mcp-tools.md",
+    "rule": "inline-code",
+    "text": "once, then offers its occurrences. `PLAY0397` on legacy `validate csharp` is a",
+    "reason": "Explains the limited repair recipe for an older inline-code header."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-read-surface/SKILL.md",
+    "rule": "optional-suffix",
+    "text": "collection, not absent items. Legacy `Type?` reports information `PLAY0479`,",
+    "reason": "Teaches migration from legacy nullable suffix to optional."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-toolchain/references/diagnostics.md",
+    "rule": "compliance-marker",
+    "text": "Legacy compliance spellings (`@pii`/`@sensitive`) do not evade PLAY0515.",
+    "reason": "Explains that deprecated markers still enforce identifier protection."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-toolchain/references/diagnostics.md",
+    "rule": "compliance-marker",
+    "text": "| PLAY0565 | I | Deprecated `@pii`, `sensitive`, `@sensitive`; repair to bare `pii`/`secret`, preserving notes/trivia |",
+    "reason": "Diagnostic reference must name the spellings being deprecated and repaired."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-toolchain/references/preferred-syntax.md",
+    "rule": "optional-suffix",
+    "text": "| Optional type | `T optional`, `T[] optional` | `T?`, `T[]?` | PLAY0479 (information) |",
+    "reason": "Preferred-syntax table explicitly contrasts accepted older optional spellings."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-toolchain/references/preferred-syntax.md",
+    "rule": "compliance-marker",
+    "text": "| Compliance | Header `concept X : String pii` or `secret`; body settings `pii reason`, `pii special health`, `secret scope namespace` | `@pii`, `@sensitive`, `sensitive`; `personal` is an accepted alias without a diagnostic | PLAY0565 (information); repeated markers warn PLAY0653 |",
+    "reason": "Preferred-syntax table names deprecated markers only to identify their replacements."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-toolchain/references/preferred-syntax.md",
+    "rule": "inline-code",
+    "text": "| Inline code | A construct header such as `validate`, followed by an indented language-tagged fence; descriptions use a tagged `text` fence, event documentation `markdown` | `validate csharp`, a language line above a bare fence, or a bare description fence | PLAY0397 (warning) |",
+    "reason": "Preferred-syntax table contrasts older inline-code forms with tagged fences."
+  }
+]

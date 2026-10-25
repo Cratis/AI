@@ -1,0 +1,69 @@
+{
+  "skill_name": "cratis-discoverability",
+  "evals": [
+    {
+      "id": 1,
+      "name": "readme-and-package-opener",
+      "prompt": "The README for the Cratis Orleans repository opens with a logo and the line \"The stage is set.\" The NuGet Description is empty and PackageProjectUrl is the GitHub repository. Tell me how to fix the discoverability of the README opener and the package metadata. Reply only; do not write files. Also check Authors/Company, GitHub About website/topics, Docker Hub short/full descriptions, analyzer helpLinkUri, template post-action messages and README footer links.",
+      "expected_output": "Open the README with a one-sentence plain definition and an H1 starting with Cratis. Give the package one description sentence equal to the README opener, naming the parent product, and point the project URL at the docs page on the canonical www host. Use Cratis for Authors/Company and align GitHub About, Docker Hub, analyzer, template and footer metadata with the product docs on www.",
+      "assertions": [
+        "Recommends opening the README with a one-sentence definition (what it is, for whom, what it does) in plain nouns instead of a logo-only or metaphor opener.",
+        "Recommends Cratis for Authors and Company and accurate GitHub About website/topics and Docker Hub short/full descriptions.",
+        "Recommends a NuGet Description that is one sentence, equal to the README opener, and names the Cratis product it belongs to.",
+        "Recommends the product docs URL under https://www.cratis.io for PackageProjectUrl/homepage and relevant www docs paths for analyzer helpLinkUri, template post-action messages and README footers, checking that paths exist.",
+        "Does not invent a claim, number or URL the repository does not support."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "readability-beats-keywords",
+      "prompt": "A reviewer wants every heading on our reference page for the EventType attribute rewritten as a question such as \"What is the EventType attribute?\" with a 150-word intro and the product name repeated in each paragraph, because AI assistants like question headings. Advise. Reply only. The same review proposes raising missing-description and duplicate-title baselines from 0 and increasing llms.txt/llms-small budgets to pass the docs build.",
+      "expected_output": "Decline: reference pages stay terse and findable by exact name. Question headings and intros belong on concept pages, not reference pages; readability wins over keywords. Keep lint baselines at 0, fix metadata and generators, retain product context in rendered titles, and trim curated exports to byte budgets rather than raising limits.",
+      "assertions": [
+        "Declines rewriting reference-page headings as questions and adding a long intro.",
+        "Says question headings belong only where they read naturally, such as concept pages, FAQs or blog posts, not reference pages or tutorial steps.",
+        "Recommends the reference title be the exact name with its product and that the first sentence say what it is for.",
+        "States that a change which makes the page harder to read is dropped, and that repeating the product name to chase keywords is stuffing.",
+        "Rejects raising missing-description or duplicate-title baselines from 0 or increasing LLM export budgets to pass; recommends measuring llms.txt/llms-small bytes and fixing metadata or curation."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "structured-data-howto-faq",
+      "prompt": "Our docs tutorial template should emit HowTo markup, and the why-cratis page should get new FAQPage markup with an unapproved founder author. Separately, our company page has owner-approved public founder facts visible on it: may its Organization link founder Person nodes? Community member profiles and CV pages expose names, jobs, emails and interests: should we serialize them as Person JSON-LD and let search index them? Reply only.",
+      "expected_output": "Do not add HowTo or new FAQPage markup; keep visible Q&A. Use TechArticle with BreadcrumbList for the tutorial and organization @id, not an unapproved author. Permit only public, owner-approved visible founder/company facts for Organization/founder nodes. Member profiles/CVs are noindex with no Person entities or personal data in structured data.",
+      "assertions": [
+        "Says not to add HowTo markup.",
+        "Says not to add new FAQPage markup and to keep the visible question and answer text.",
+        "Recommends TechArticle (with BreadcrumbList) for a docs tutorial.",
+        "Allows only public, owner-approved founder/company facts visible on the page, rejects an unapproved founder author, and otherwise references the organization by @id.",
+        "Requires noindex on community member profile/CV pages and rejects Person entities and personal data in their structured data, without blanket noindex on community home/join pages."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "sourced-entity-facts",
+      "prompt": "Add an at-a-glance block to each product entity page. We have a public license source and a dated registry count, but no evidence for customers, performance, certification, pricing or competitor superiority. Can we fill the gaps with plausible facts and repeat the block in every section? Our internal fact sheet also includes legal details and a private integration name; should the reusable AI guidance copy it? Reply only.",
+      "expected_output": "One visible at-a-glance block per entity page, with a source for every verifiable fact and dates on counts. Omit unsupported claims and keep private or project-specific facts out of generic guidance.",
+      "assertions": [
+        "Requires one sourced at-a-glance block per entity page, not repeated section blocks.",
+        "Requires a source for every fact and a date as well as a source for counts.",
+        "Rejects invented customers, user counts, benchmarks, certifications, prices and competitor comparisons.",
+        "Keeps private integration names, legal entity details and factual counts out of shared generic guidance."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "entry-package-download-claims",
+      "prompt": "Draft the method for a product adoption claim, not a numeric claim. We have current entry packages, sub-packages, a shared dependency and predecessor entry packages from before a rename. Registry observations cover NuGet, npm, Docker Hub and Hex in one month, but one npm time range is missing. Should we sum everything, round up and call it users or customers? Reply only; do not invent actual figures.",
+      "expected_output": "Count per product through entry packages and public continuation predecessors, excluding sub-packages and shared-dependency overlap. Complete missing evidence or omit the claim. Round down to a stated threshold, name predecessors, month and measured registries, and say downloads, never users/customers.",
+      "assertions": [
+        "Counts per product via entry packages only, excludes sub-packages/add-ons/meta-packages and shared-dependency double counting.",
+        "Includes predecessor package names only for an evidenced product continuation.",
+        "Rounds down to a stated conservative threshold and includes the as-of month and measured registries.",
+        "Never relabels downloads or Docker pulls as users, customers, teams or installations and invents no actual totals.",
+        "Flags the incomplete npm time range and requires complete evidence or omission rather than silently estimating."
+      ]
+    }
+  ]
+}

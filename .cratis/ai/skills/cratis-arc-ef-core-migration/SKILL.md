@@ -13,15 +13,13 @@ Everything else is ordinary EF Core.
 
 ## Verified product sources
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Arc.EntityFrameworkCore` | `22.16.0` | `BaseDbContext`, `ReadOnlyDbContext`, `WithEntityFrameworkCore`, column helpers, `EntityFrameworkReadModelForCommandResolver` |
-| `Cratis.Arc.Core` | `22.16.0` | `Cratis.Arc.Queries.ModelBound.ReadModelAttribute`, `ICanResolveReadModelForCommand` |
-| `Microsoft.EntityFrameworkCore` | `10.0.11` | EF Core itself, including all migration tooling |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Arc.EntityFrameworkCore` | `BaseDbContext`, `ReadOnlyDbContext`, `WithEntityFrameworkCore`, column helpers, `EntityFrameworkReadModelForCommandResolver` |
+| `Cratis.Arc.Core` | `Cratis.Arc.Queries.ModelBound.ReadModelAttribute`, `ICanResolveReadModelForCommand` |
+| `Microsoft.EntityFrameworkCore` | EF Core itself, including all migration tooling |
 
-> Re-verified at the versions above by **symbol and signature**: every type, attribute and member this skill names exists at that tag, and the public surface it describes is unchanged since the previous verification (Chronicle 16.45.x / Arc 22.10.4 — the Chronicle 16→18 client diff is converters, options and doc comments; no type was removed or renamed). Behavior claims were verified at the earlier tag unless a section says otherwise.
-
-Reverify before claiming support for another version.
+Verify provider-specific migration behavior against the configured provider and the installed Arc version.
 
 ⚠️ **Arc ships no migration tooling of its own.** There is no design-time
 DbContext factory, no migration runner, no table-name constant convention, and
@@ -72,7 +70,13 @@ observation services and then, **only when `AutoDiscoverDbContexts` is true and
 the connection string is non-empty**, discovers and registers every public
 `BaseDbContext` subtype that is not marked `[IgnoreAutoRegistration]`.
 
-⚠️ `WithEntityFrameworkCore()` with no arguments discovers **nothing**.
+Requires Arc 22.109.0 for options bound from `Cratis:EntityFrameworkCore` before
+`configureOptions` runs; that callback wins over configuration. Read
+../cratis-arc-hosting/references/connection-resolution.md when resolving tenant or schema-purpose
+connections, including pooled contexts.
+
+⚠️ Without a connection string from configuration or the callback,
+`WithEntityFrameworkCore()` discovers **nothing**.
 `EntityFrameworkCoreOptions.ConnectionString` defaults to the empty string, and
 both discovery gates test it. A setup that looks wired and registers no context
 is almost always this.
@@ -117,7 +121,8 @@ from the command's resolved key; a composite key throws
 (HTTP 400) rather than a server fault.
 
 `ARC0006` warns when such a parameter is non-nullable, because a command-scoped
-read model can be missing. It is the only Arc diagnostic that touches EF Core
+read model can be missing; reject a missing one rather than returning a nullable
+event from `Handle()`. It is the only Arc diagnostic that touches EF Core
 read models, and only because they share `[ReadModel]`.
 
 ## Write the migration
@@ -126,6 +131,8 @@ Use the standard EF Core tooling — `dotnet ef migrations add <Name>` and
 `dotnet ef database update` — with the `Microsoft.EntityFrameworkCore.Design`
 package referenced by the project that owns the context. Arc contributes nothing
 to how a migration is created, discovered, or applied.
+
+A migration that is committed or applied to any database is append-only: never edit or delete it. Correct a mistake with a new migration. Only a migration that is both unapplied and uncommitted may be removed (`dotnet ef migrations remove`) and regenerated.
 
 What Arc **does** contribute is a set of column helpers that pick the right
 provider-specific SQL type, so one migration works across SQLite, SQL Server and
@@ -180,6 +187,24 @@ Mark the corresponding property `[Json]`.
 `migrationBuilder.GetDatabaseType()` is available when a migration genuinely has
 to branch per provider.
 
+## Tracked and native upserts
+
+Requires Arc 22.135.0 for `DbSet<TEntity>.UpsertAsync(item, cancellationToken)`.
+On supported SQL Server, PostgreSQL and SQLite mappings it executes an immediate,
+parameterized native upsert matching the complete primary key, including composite
+keys and value converters. Native key matching and writing are atomic. It uses
+the context's connection/current transaction, bypasses tracking and does not
+refresh generated values or already tracked instances. It adds no retry policy.
+
+Use application-assigned keys and single-table scalar mappings. Unsupported
+providers or mappings (including unset generated keys, SQL Server identity
+columns, navigations, owned entities, shadow properties, inheritance and multiple
+tables) fall back to tracked persistence and require `SaveChangesAsync`. The
+existing `Upsert(item)` always uses tracked read-then-write persistence and also
+requires saving; that path is not an atomic database upsert. Choose it explicitly
+when deferred persistence is required. Do not rely on fallback for concurrency
+protection or assume the native path flushes pending tracked changes.
+
 ## Observing an EF Core read model
 
 `DbSet<T>` gains `Observe(filter?, configure?)`, `ObserveSingle(filter?, configure?)`
@@ -188,9 +213,14 @@ and `ObserveById<TEntity, TId>(id, configure?)`, returning
 `AddEntityFrameworkCoreObservation()` and `options.AddObservation(serviceProvider)`
 on the context — `WithEntityFrameworkCore` already does the first for you.
 
-Paging and sorting are applied at the source for these, and an out-of-range page
-size is clamped rather than throwing, and an unknown sort field is ignored rather
-than failing.
+Paging and sorting are applied at the source; the query pipeline validates
+`page >= 0` and `pageSize > 0`. Unknown observation sort fields are ignored.
+Auxiliary observations can pass `ignoreQueryContext: true` so only the primary
+uses client paging/sorting and writes totals. `ObserveSingle`/`ObserveById` emit
+`default` when the row is absent/deleted/outside the filter, remaining subscribed.
+Indexer-property keys (shared-type entities) are supported; composite and
+shadow-only keys are refused at setup. Source:
+`Source/DotNET/EntityFrameworkCore/Observe/DbSetObserveExtensions.cs`.
 
 ⚠️ Database-level change notification differs by provider: PostgreSQL uses
 LISTEN/NOTIFY, SQL Server uses Service Broker, and **SQLite has none at all** —

@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-rtk",
+  "queries": [
+    { "query": "Should I wrap this human-readable git status command in rtk?", "shouldTrigger": true },
+    { "query": "Which commands can rtk compress for exploration?", "shouldTrigger": true },
+    { "query": "Our Bash hook rewrites commands. Do I prefix rtk again?", "shouldTrigger": true },
+    { "query": "The wrapped command failed; how do I see exact diagnostics?", "shouldTrigger": true },
+    { "query": "A script parses git status porcelain output. Which wrapper is safe?", "shouldTrigger": true },
+    { "query": "rtk is missing from PATH. Should the task stop?", "shouldTrigger": true },
+    { "query": "How do built-in Read tools interact with the rtk hook?", "shouldTrigger": true },
+    { "query": "Can I add rtk to CI to reduce its test logs?", "shouldTrigger": true },
+    { "query": "Choose the next release-intent label for this PR.", "shouldTrigger": false, "note": "cratis-commits-and-pull-requests" },
+    { "query": "Which integration test gates must pass before merge?", "shouldTrigger": false, "note": "cratis-engineering-ci-gates" },
+    { "query": "Assign the open issue to me if unassigned.", "shouldTrigger": false, "note": "cratis-engineering-issue-hygiene" },
+    { "query": "Implement a projection for the new event.", "shouldTrigger": false },
+    { "query": "Profile allocation hotspots in this .NET service.", "shouldTrigger": false },
+    { "query": "Diagnose this Kubernetes production incident.", "shouldTrigger": false },
+    { "query": "Write a new documentation tutorial.", "shouldTrigger": false },
+    { "query": "Consolidate the release candidate PRs.", "shouldTrigger": false, "note": "cratis-engineering-release-trains" }
+  ]
+}

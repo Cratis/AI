@@ -1,0 +1,20 @@
+{
+  "skill": "cratis-orleans-jobs",
+  "input": "Author a staged recoverable job with SQL storage and distinguish lifecycle state machines from job execution.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "at-least-once" },
+    { "kind": "skill-contains", "value": "Task<Catch<JobStepResult>>" },
+    { "kind": "skill-contains", "value": "CreateStep<IRepairIndex>(request, stage: 0)" },
+    { "kind": "skill-contains", "value": "Unreachable" },
+    { "kind": "skill-contains", "value": "Task<bool>" },
+    { "kind": "skill-contains", "value": "Keeping a job does not keep successful step state" },
+    { "kind": "skill-contains", "value": "dbContext.Database.Migrate()" },
+    { "kind": "skill-contains", "value": "MaxConcurrentStepStarts" },
+    { "kind": "skill-contains", "value": "StateMachine<TStoredState>" },
+    { "kind": "skill-contains", "value": "EventSourcedStateMachine<TModel>" },
+    { "kind": "skill-contains", "file": "references/state-machines.md", "value": "A refused transition is a **no-op**" },
+    { "kind": "skill-contains", "file": "references/state-machines.md", "value": "without a constructor" },
+    { "kind": "skill-contains", "file": "references/state-machines.md", "value": "same state instance" }
+  ]
+}

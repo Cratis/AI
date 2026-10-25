@@ -1,6 +1,17 @@
 # Authentication
 
-Verified against `Cratis.Arc.Core` and `Cratis.Arc` `22.16.0`. Types are in
+## Contents
+
+- The contract
+- The Microsoft Identity Platform handler
+- The reserved claim
+- ASP.NET Core hosting
+- Forwarded headers, ingress requirements and protected introspection
+- What is not here
+- The security boundary, stated plainly
+- AuthenticationResult
+
+Source: `Cratis.Arc.Core` and `Cratis.Arc`. Types are in
 `Cratis.Arc.Authentication` and `Cratis.Arc.Identity`.
 
 ## The contract
@@ -51,7 +62,9 @@ It reads three headers, all constants on
 | `IdentityIdHeader` | `x-ms-client-principal-id` |
 | `IdentityNameHeader` | `x-ms-client-principal-name` |
 
-All three must be present or the result is `Anonymous`. The principal header is
+The host-wide `ArcOptions.TrustForwardedIdentityHeaders` must be true first;
+otherwise headers are ignored and the result is `Anonymous`. All three must be
+present or the result is `Anonymous`. The principal header is
 base64-decoded and deserialized into `ClientPrincipal`:
 
 ```csharp
@@ -120,8 +133,56 @@ services.AddMicrosoftIdentityPlatformIdentityAuthentication(scheme?);
 
 registers the standard ASP.NET Core scheme backed by
 `MicrosoftIDentityPlatformAuthHandler` (note the capital `D` in the type name),
-whose `SchemeName` is `"MicrosoftIdentityPlatform"`. `builder.AddCratis()` calls
-this for you.
+whose `SchemeName` is `"MicrosoftIdentityPlatform"`. `builder.AddCratis()` (the
+`Cratis` package) calls this for you and makes it the **default** authentication
+scheme; `AddCratisArc()` from `Cratis.Arc` does not register it.
+
+`AddCratis()` registers the scheme but forwarded headers do not
+authenticate anybody until `Cratis:Arc:TrustForwardedIdentityHeaders=true`.
+`AddMicrosoftIdentityPlatformIdentityAuthentication()` warns at startup without
+that opt-in; built-in handlers warn on the first header-bearing request.
+The three-argument `MicrosoftIDentityPlatformAuthHandler` constructor is obsolete;
+use the constructor receiving `IOptions<ArcOptions>`.
+Source: [secure defaults](https://github.com/Cratis/Arc/blob/main/Documentation/upgrading/secure-defaults.mdx).
+
+## Forwarded headers, ingress requirements and protected introspection
+
+The headers are only safe behind an ingress that **authenticates callers, strips
+any caller-supplied identity headers, writes its own trusted replacements, and
+prevents direct access to the backend**. The same applies to any custom header
+such as `X-User-ID`. Adding a bearer validator does not make a separately accepted
+forwarded-header mechanism safe.
+
+Configure discovery through `Cratis:Arc:Introspection`:
+
+| Option | Default | Effect |
+| --- | --- | --- |
+| `Enabled` | `true` | `false` leaves command/query catalogs unmapped |
+| `IdentityDiscovery` | `true` | `false` removes users, tenants and details schema |
+| `RequireAuthentication` | unset | Environment default: anonymous in Development, authenticated elsewhere |
+| `Roles` | `null` | Comma-separated, any one grants access; implies authentication |
+| `TrustForwardedIdentityHeaders` | `false` | Obsolete compatibility setting; turns on the host-wide trust flag |
+
+The `RequireAuthentication` getter remains `bool` and reads false when unset,
+but **assigning** false is an explicit anonymous-everywhere opt-in, with a warning
+outside Development. Explicit true requires authentication everywhere and fails
+startup if the host cannot enforce it. Roles cannot combine with explicit false.
+Under the environment default a host unable to authenticate omits discovery
+routes (404) and logs a warning. Disabling both discovery switches removes all
+discovery without enforcement checks; `/.cratis/me` remains.
+
+Custom forwarded-header handlers must read `IOptions<ArcOptions>` and refuse
+headers whenever the host-wide flag is false, **on every endpoint**, not only
+protected catalogs. Startup no longer rejects the built-in header scheme for
+protected catalogs: it authenticates nobody without the opt-in. A subclass that
+bypasses `HandleAuthenticateAsync` in the base owns the same obligation.
+On ASP.NET Core, a scheme's challenge may redirect instead of returning 401.
+
+`[ExcludeFromDiscovery]` suppresses catalogs/OpenAPI, not endpoint invocation;
+it is not authorization. These .NET options do not establish a JVM equivalent.
+Sources: [IntrospectionOptions.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/Introspection/IntrospectionOptions.cs),
+[DiscoveryExposure.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/Introspection/DiscoveryExposure.cs),
+[secure defaults](https://github.com/Cratis/Arc/blob/main/Documentation/upgrading/secure-defaults.mdx).
 
 ## What is not here
 
@@ -138,3 +199,10 @@ sent it. Any caller that can reach the application can author the entire
 serialized principal, including the fields Arc reads. Trust it exactly as far as
 you trust that your ingress is the only thing that can set it — which means the
 application must not be reachable any other way.
+
+## AuthenticationResult
+
+`AuthenticationResult` is
+`record (ClaimsPrincipal? Principal = default, AuthenticationFailure? Failure = default)`
+with `Anonymous`, `Succeeded(principal)` and `Failed(reason)`, and
+`IsAuthenticated => Principal is not null`.

@@ -3,13 +3,246 @@
   "input": "Declare the application shell, a screen template and a command form.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": ".cratis/screenplay/" },
-    { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, not `.cratis/screenplay/`" },
-    { "kind": "skill-contains", "value": "A form is discovered, not referenced" },
-    { "kind": "skill-contains", "value": "declares no\n`fits slot`" },
-    { "kind": "skill-contains", "value": "override-priority order" },
-    { "kind": "skill-contains", "value": "A declared `trigger` is not a UI event" },
-    { "kind": "skill-contains", "value": "**Loaded is not run.**" },
-    { "kind": "skill-contains", "value": "belong only on actions that can fail" }
+    { "kind": "skill-contains", "value": "registerQueryIdentity", "file": "references/scene-runtime-boundaries.md" },
+    { "kind": "skill-contains", "value": "legacy plus identity registration", "file": "references/scene-runtime-boundaries.md" },
+    { "kind": "skill-contains", "value": "Optional empty strings remain present", "file": "references/scene-runtime-boundaries.md" },
+    { "kind": "skill-contains", "value": "not new Screenplay syntax", "file": "references/scene-runtime-boundaries.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 4.227.0", "file": "references/ui-profile-and-theme.md" },
+    { "kind": "skill-contains", "value": "theme \"Scene Default Light\"", "file": "references/ui-profile-and-theme.md" },
+    { "kind": "skill-contains", "value": "Empty, blank or unterminated quoted names are `PLAY0229`", "file": "references/ui-profile-and-theme.md" },
+    { "kind": "skill-contains", "value": "package compatibility check", "file": "references/ui-profile-and-theme.md" },
+    {
+      "kind": "skill-contains",
+      "value": "PLAY0685",
+      "file": "references/response-continuations.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "PLAY0485",
+      "file": "references/response-continuations.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Form fields and behavior parameters\nwin",
+      "file": "references/response-continuations.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "outer successful response remains available",
+      "file": "references/response-continuations.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "binding/navigation remains blocked in Scene",
+      "file": "references/response-continuations.md"
+    },
+    {
+      "kind": "play-compiles"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "produces event InvoiceCancelled",
+      "file": "references/interaction-example.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "invoiceId = $eventSourceId",
+      "file": "references/interaction-example.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "InvoiceStatusView optional",
+      "file": "references/interaction-example.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "An existing success continuation does not imply a response contract"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Look first for the project's existing `.play` files"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`cratis ai install` manages `.cratis/ai/`, never model files"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A form is discovered, not referenced"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "declares no\n`fits slot`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "override-priority order"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A declared `trigger` is not a UI event"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**Loaded is not run.**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "belong only on actions that can fail"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "## Compose in this order"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**Level 1 for every screen in the flow first**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**Read before editing.**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "references/screen-composition-contract.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "component data-context bindings"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "exposed template configuration"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "manual form columns"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "package/icon catalogs"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "hierarchical outlets"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "toolbar"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "runtime fallback"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "authoring acceptance, executable admission and runtime\n      implementation separately"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "application navigation regions (topbar/sidebar, module inherit/extend/override)"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "toolbar slice buttons"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "## The application shell: regions, slice buttons, blueprint references, sample data"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`ui profile` is the only place that selects the shell",
+      "file": "references/ui-profile-and-theme.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "| `PLAY0791` | Warning |",
+      "file": "references/ui-profile-and-theme.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "| `PLAY0799` | Error |",
+      "file": "references/ui-profile-and-theme.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`layout <Name>` inside a profile still reads",
+      "file": "references/ui-profile-and-theme.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`root template` (an own layout or application-scope screen template",
+      "file": "SKILL.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A module's own items may only target that module",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`navigation <region> extends`",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`navigation <region> overrides`",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Hierarchy is sidebar only",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "retargeted to\n  the module's own features",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "A State View, Automation or Translate slice is `PLAY0762`",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Stage refuses a screen that\nmixes a top-level `template` directive with other top-level directives",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`\"latest\"`) is `PLAY0721`",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**The active pack is chosen once, in the `ui profile`**",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Sample data is **design and preview only**",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "Never put sample values in a component or a screen",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`StaleRevision`",
+      "file": "references/application-shell.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "screen-shell-navigation-positive",
+      "file": "references/application-shell.md"
+    }
   ]
 }

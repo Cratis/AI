@@ -1,5 +1,17 @@
 # Length evidence
 
+## Contents
+
+- LinkedIn text
+- LinkedIn documents
+- Other feeds
+- Video
+- Articles, tutorials and release notes
+- Hacker News
+- Batch variety and measurement
+- Not verified here
+- Folklore
+
 The sources behind the bands in the content length skill, as of 2026-09-25. Every entry was
 checked against its source page; where the original reading overstated a source, the
 corrected reading is the one given here. Platform limits and vendor figures change, so check

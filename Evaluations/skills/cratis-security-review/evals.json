@@ -1,0 +1,65 @@
+{
+  "skill_name": "cratis-security-review",
+  "evals": [
+    {
+      "id": 1,
+      "name": "retained-api-key",
+      "prompt": "Security-review this diff and give the report in your reply (no files): `[Command] public record ConnectPaymentProvider(ProviderId Id, string Value)` where Value is the partner API key; Handle returns `new PaymentProviderConnected(Id, Value)`; the system must call the partner later, and a read model returns the key to the admin UI.",
+      "expected_output": "Critical finding: a secret in a command lands in the causation of every appended event and in the event itself, permanently. A retained operational secret is [Encrypted] on the event and [NotAudited] on the command (preferably on the concept type); never returned to clients in plaintext in a read model. ARCCHR0009 matches names so a property called Value passes silently. Open with a one-line Security review result and state what was not reviewed.",
+      "assertions": [
+        "Opens with a single-line result of the form No issues, Low-risk findings, or Blocking issues found and classifies the finding Critical.",
+        "Says command property values are written to the causation of every appended event, which is as permanent as the events.",
+        "Requires [NotAudited] on the command value plus [Encrypted] on the event for a retained secret, preferably on the concept type.",
+        "Flags returning the key in plaintext in a read model to clients.",
+        "Says ARCCHR0009 matches names so a property called Value holding an API key passes the analyzer silently."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "pii-vs-notaudited",
+      "prompt": "A dev marks a customer's Email property [NotAudited] and says that satisfies a GDPR erasure request. Another proposes [PII] and [Encrypted] together on it. Review both. Reply only.",
+      "expected_output": "[NotAudited] withholds a value from the causation chain but never encrypts it or enrolls it in erasure — the opposite of a subject-rights need. Personal data (email) is [PII] alone; secrets are [Encrypted] plus [NotAudited]. Never combine [PII] with [Encrypted] (CHR0053).",
+      "assertions": [
+        "Says [NotAudited] withholds the value from causation but does not encrypt it or enroll it in erasure.",
+        "Says personal data such as an email address is marked [PII] alone.",
+        "Says [PII] must not be combined with [Encrypted] and cites CHR0053.",
+        "Says a third-party API key is [Encrypted] plus [NotAudited]."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "authorization-boundary",
+      "prompt": "Review: `Handle()` begins with `if (!user.IsInRole(\"Admin\")) return ValidationResult...`; the command also takes `RequestedBy` from the client body; our ops team greps logs for 401 to find authorization failures; a query returns orders for every tenant but no caller uses it yet. List findings. Reply only.",
+      "expected_output": "Authorization belongs at the boundary (attribute, policy, filter) not an if on roles in Handle(); a client must not assert identity through a command property so claims are verified; unauthorized command result maps to HTTP 403 not 401; a query that can return all-tenant data is a finding even if no current caller reaches it.",
+      "assertions": [
+        "Says authorization should be expressed at the boundary (attribute, policy or command filter) rather than an if on roles inside Handle().",
+        "Says a client must not assert who it is through a command property and claims must be verified.",
+        "Says an unauthorized command result maps to HTTP 403, not 401.",
+        "Says a query that can return all-tenant data is a finding even when no current caller reaches it."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "report-honesty",
+      "prompt": "You could only open the backend files of a diff; the React files and the deployment hosting config were not reachable. How should the security report treat these, and how should policy matters such as which roles exist be reported? Reply only.",
+      "expected_output": "Name what was not reviewed; unknown is not pass — report as indeterminate; a report with only findings reads as a clean bill of health. Policy choices (roles, sensitive data, retention) are the product's calls: state as policy questions for the owner, not framework contracts.",
+      "assertions": [
+        "Says the report must explicitly name the surfaces not reviewed.",
+        "Says an unreachable surface is reported as indeterminate and not as verified or omitted.",
+        "Says which roles exist, which data is sensitive and which retention applies are product policy calls, stated as questions for the owner and not as framework contracts."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "frontend-and-injection",
+      "prompt": "Review these: React stores the access token in localStorage; a description is rendered with dangerouslySetInnerHTML; a Disabled button is the only thing stopping non-admins from calling DeleteBoat; the handler does Path.Combine(root, request.FileName). Reply only with findings and fixes.",
+      "expected_output": "Token not in localStorage: use httpOnly cookie or in-memory; no user value in dangerouslySetInnerHTML; a disabled button is a usability affordance, never a control, enforce server-side; no user-supplied value reaches Path.Combine/File.* without validation.",
+      "assertions": [
+        "Says a token must not be in localStorage and recommends an httpOnly cookie or in-memory state.",
+        "Flags user-supplied content in dangerouslySetInnerHTML.",
+        "Says a disabled button is a usability affordance and access must also be enforced server-side.",
+        "Flags a user-supplied value reaching Path.Combine or File calls."
+      ]
+    }
+  ]
+}

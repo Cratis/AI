@@ -20,25 +20,30 @@ does not have.
 
 ## Verified product sources
 
-This skill is verified against this exact source:
+Sources:
 
-| Package | Version | Purpose |
-| --- | --- | --- |
-| `Cratis.Cli` | `3.2.0` | `cratis chronicle workbench`, its views, keys, and actions |
+| Package | Purpose |
+| --- | --- |
+| `Cratis.Cli` | `cratis chronicle workbench`, its views, keys, and actions |
 
-> Re-verified at `Cratis/cli` **v3.2.0**: the fifteen navigation views and every key binding below exist in `Source/Cli/Commands/Chronicle/Workbench` at that tag.
+The workbench has fifteen views; keys are in [WorkbenchKeyDispatcher.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/Workbench/windows/WorkbenchKeyDispatcher.cs) and output validation is in [WorkbenchCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/Workbench/WorkbenchCommand.cs).
 
-Reverify before claiming a view, key binding, or action for another version.
+Check the installed CLI before claiming a view, key binding, or action.
 `cratis chronicle workbench --help` and `cratis llm-context` are the authority
 for the installed version.
 
 ## Launch it
 
 ```bash
-cratis chronicle workbench                     # active context, default event store and namespace
-cratis chronicle workbench -e <store> -n <ns>  # explicit event store and namespace
-cratis chronicle workbench --interval <secs>   # refresh cadence, default 5
+cratis chronicle workbench -o table                         # active context
+cratis chronicle workbench -o table -e <store> -n <ns>       # explicit scope
+cratis chronicle workbench -o table --interval <secs>        # default 5
 ```
+
+A **human at a terminal** launches it; an agent should not launch or try to drive
+this TUI. The catalog classifies it `destructive`, and the Cratis store guard
+blocks it. `auto` becomes `json-compact` in an agent environment, so `-o table`
+is needed explicitly there even for a human-operated session.
 
 It requires an interactive terminal and the `table` output format. Asking for
 `json`, `plain`, or `json-compact` is rejected with a validation error — that is
@@ -83,7 +88,12 @@ read-only.
 - `Ctrl+E` switches event store; `Ctrl+N` switches namespace.
 - `F` filters the current view; `[` and `]` page; `Home` jumps to the first row
   and `Shift+G` to the last.
-- `?` shows the keyboard shortcuts.
+- `1`–`9` jump to view N; `F9` opens the theme chooser.
+- `+` / `-` change the refresh interval; `Esc` dismisses overlays.
+- `?` shows the keyboard shortcuts. The File menu offers Switch Event Store
+  (`Ctrl+E`), Switch Namespace (`Ctrl+N`) and Quit; Help offers shortcuts/themes.
+- Filters support `state:`, `type:`, `event:` in Observers, `type:` in Event
+  Sequences, `owner:` / `gen:` in Event Types and `owner:` in Read Models.
 - `Ctrl+C` **copies the detail pane to the clipboard** — it does not interrupt.
   Quit with `Q`, which also persists the refresh interval and the last view.
 
@@ -128,7 +138,11 @@ Several views bind a key to an operation that changes the running server:
 | Jobs | `S` / `U` | stop / resume the job |
 | Recommendations | `A` / `I` | perform / ignore the recommendation |
 
-Each has a bulk form that applies to every checked row.
+Each has a bulk form that applies to every checked row. Requires CLI 3.79.0 for
+job stop/resume to display kernel refusals as failures rather than success.
+Inspect the reason and re-read the job; acknowledgement is not completed work.
+Retained-job deletion is a separate CLI command (3.99.0), not a Workbench key;
+read **cratis-chronicle-cli-operations** before requesting it.
 
 Every one of these opens a centered confirmation modal that states the action
 cannot be undone. **Only an explicit `Y` (or the Confirm button) confirms;
@@ -145,6 +159,10 @@ one of those keys:
 Fix the cause before replaying. Replaying into an unfixed handler fails the same
 way and buries the original error. A failed partition you have not yet explained
 is not a thing to clear.
+
+There is no key for `observers remove`, `clear-quarantine` or
+`clear-partition-quarantine`. A quarantined partition refuses retry; use the CLI
+recovery guidance after fixing the cause, not repeated `T` presses.
 
 `D` and `V` on the event views — view an event type's definition, view the
 observers for an event type — are navigation, not mutation.

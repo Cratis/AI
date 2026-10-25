@@ -4,6 +4,11 @@
 name: Publish
 
 on:
+  repository_dispatch:
+    types: [screenplay-contract-published]
+  schedule:
+    # Cratis/AI's weekly offset, away from the top of the hour.
+    - cron: '41 4 * * 3'
   pull_request:
   push:
     branches: [main]
@@ -19,22 +24,23 @@ on:
         default: No release notes
         type: string
 
+# Keep up to 100 pending Publish runs in FIFO order with `queue: max` (Cratis/Direct#1517).
+# The default single pending slot drops the older pending release when a third merge arrives.
+# PR refs and the Screenplay-sync group keep non-publishing runs out of the main release queue.
+# Omit `cancel-in-progress`: GitHub rejects it together with `queue: max`; in-flight runs are not cancelled.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  group: ${{ github.workflow }}-${{ (github.event_name == 'repository_dispatch' || github.event_name == 'schedule') && 'screenplay-sync' || github.ref }}
+  queue: max
 
 permissions:
   contents: read
   pull-requests: read
 
 jobs:
-  release-intent:
-    if: github.event_name == 'pull_request'
-    uses: Cratis/Workflows/.github/workflows/verify-release-intent.yml@1e5319ff574ce61a771ec5199527b917204a13b5
-
   verify:
     name: verify
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -64,12 +70,28 @@ jobs:
           yarn workspace @cratis/harness-setup run check
           yarn workspace @cratis/pi run check
           yarn workspace @cratis/ai-verification run check
+          yarn workspace @cratis/ai-skill-evaluation run check
+
+      - name: Install the pinned standalone Screenplay tool
+        run: yarn workspace @cratis/ai-verification run tool:screenplay
 
       - name: Verify corpus and skill behavior
+        env:
+          CRATIS_REQUIRE_SCREENPLAY: '1'
         run: yarn workspace @cratis/ai-verification run verify
 
+      # Replays the screens authoring workflow without a Screenplay checkout: the pinned public cratis CLI, the
+      # published canonical corpus, the revision-checked MCP column edit, and a render that must carry the column.
+      # SCREENS_SMOKE_BROWSER also runs the edited model with `cratis run` (Docker) and checks the column in Chromium.
+      - name: Replay the screens authoring workflow on the pinned public vector
+        env:
+          SCREENS_SMOKE_BROWSER: '1'
+        run: Source/Verification/screens-smoke/screens-smoke.sh "$RUNNER_TEMP/screens-smoke"
+
       - name: Test Pi package behavior
-        run: yarn workspace @cratis/ai-verification run test
+        run: |
+          yarn workspace @cratis/ai-verification run test
+          yarn workspace @cratis/ai-skill-evaluation run test
 
       - name: Verify Pi package contents
         run: cd Source/Pi.Plugin && yarn pack --dry-run
@@ -98,25 +120,13 @@ jobs:
         run: npm test
 
       # Each fixture is a self-contained, hermetic bash script that seeds its own throwaway git
-      # repositories under its own directory and exits non-zero on failure - not a bats/TAP suite,
-      # so they are simply run and their exit codes checked. Every one runs even after a failure, so
-      # a single broken fixture does not hide the others. Ported from Direct's build.yml unchanged.
+      # repositories in a temporary directory (removed on exit, along with any process it started)
+      # and exits non-zero on failure - not a bats/TAP suite. run-entrypoint-fixtures.sh runs every
+      # one (concurrently where they share nothing, even after a failure, so a single broken fixture
+      # does not hide the others), keeps each exit code and exits non-zero if any failed. Its
+      # Linux-only SKIPPED cases are never skipped here: the skip only applies on non-Linux machines.
       - name: Run entrypoint fixtures
-        working-directory: Source/AgentHarnesses/for_entrypoint
-        run: |
-          set -uo pipefail
-          status=0
-          for spec in *.sh; do
-            echo "::group::${spec}"
-            if bash "$spec"; then
-              echo "PASS: ${spec}"
-            else
-              echo "::error::FAILED: ${spec}"
-              status=1
-            fi
-            echo "::endgroup::"
-          done
-          exit "$status"
+        run: bash Source/AgentHarnesses/run-entrypoint-fixtures.sh
 
       # Regenerates Source/Cratis.AI.Proxies/generated in place, so the drift check right after this
       # step is comparing the freshly-built tree against what is actually committed - without this,
@@ -124,11 +134,8 @@ jobs:
       - name: Build Cratis.AI (regenerates the proxy tree)
         run: dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Debug
 
-      # Generated-proxies drift gate (plan Section 4 item 3 / Section 6.3), folded into this job
-      # rather than a separate workflow file - the corpus's own Source/Verification check
-      # (workflows.length !== 1) requires exactly one workflow file in this repository, which the
-      # parallel corpus-distribution effort (AIConsolidation.md) owns and this PR must not disturb.
-      # Only Source/Cratis.AI.Proxies/generated is checked - the hand-authored package.json/
+      # Generated-proxies drift gate: only Source/Cratis.AI.Proxies/generated is checked.
+      # The hand-authored package.json/
       # tsconfig.json/rollup.config.mjs/index.ts at the proxies package root are not generated and
       # legitimately change on their own. -I ignores the generator's own "@generated by Cratis ...
       # Time: <now>" header line, which otherwise makes this gate fail on every single run - the
@@ -143,9 +150,63 @@ jobs:
             echo "Source/Cratis.AI.Proxies/generated does not exist yet - nothing to verify."
           fi
 
+  screenplay-sync:
+    name: Compare the published Screenplay contract
+    if: github.event_name == 'repository_dispatch' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Install project dependencies
+        run: corepack enable && yarn install --immutable
+
+      - name: Download the released contract
+        id: contract
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          DISPATCH_VERSION: ${{ github.event.client_payload.version }}
+          DISPATCH_SCHEMA: ${{ github.event.client_payload.schemaVersion }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = repository_dispatch ]; then
+            test "$DISPATCH_SCHEMA" = 1
+            version="$DISPATCH_VERSION"
+          else
+            version=$(gh release view --repo Cratis/Screenplay --json tagName --jq .tagName)
+          fi
+          if [[ ! "$version" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]]; then
+            echo 'Invalid Screenplay release version' >&2
+            exit 2
+          fi
+          tag="v${version#v}"
+          gh release download "$tag" --repo Cratis/Screenplay --pattern screenplay-contract.json --dir "$RUNNER_TEMP/screenplay-contract"
+          echo "version=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Check facts, report coverage and reconcile the tracking issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CONTRACT_VERSION: ${{ steps.contract.outputs.version }}
+          CONTRACT_PATH: ${{ runner.temp }}/screenplay-contract/screenplay-contract.json
+        run: yarn workspace @cratis/ai-verification exec tsx contract/sync.ts --root "$GITHUB_WORKSPACE" --contract "$CONTRACT_PATH" --version "$CONTRACT_VERSION"
+
   dotnet-verify:
     name: dotnet verify
+    if: github.event_name != 'repository_dispatch' && github.event_name != 'schedule'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -168,12 +229,16 @@ jobs:
         run: dotnet build Cratis.AI.slnx --configuration Release --no-restore
 
       - name: Run specs
-        run: dotnet test Cratis.AI.slnx --configuration Debug --no-build --logger "console;verbosity=normal"
+        run: Source/Cratis.AI.Specs/bin/Debug/net10.0/Cratis.AI.Specs
+
+      - name: Verify restricted workers cannot read the shared cache sentinel
+        run: dotnet run --project Source/WorkerCacheFixture/WorkerCacheFixture.csproj --configuration Release -p:CratisProxiesOutputPath= -warnaserror
 
   release:
+    timeout-minutes: 15
     name: Determine semantic version
-    if: github.event_name != 'pull_request'
-    needs: verify
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: [verify, dotnet-verify]
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -182,21 +247,48 @@ jobs:
     outputs:
       publish: ${{ steps.release.outputs.should-publish }}
       version: ${{ steps.release.outputs.version }}
+      prerelease: ${{ steps.release.outputs.prerelease }}
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Determine release
         id: release
-        uses: cratis/release-action@f5fc6db6adbb4db6e6c4548cd7addfc924426e69 # v1.2.0
+        uses: cratis/release-action@31a6d28d6aa36d46970cb29f0d0260b360e81a69 # v1.4.2
         with:
           version: ${{ github.event.inputs.version }}
           release-notes: ${{ github.event.inputs.release-notes }}
 
-  publish-pi:
-    name: Publish Pi package
+  # release-action creates the GitHub release in its post stage, after the release job's own
+  # steps have run, so the release can only be confirmed from a job that needs the release job.
+  # Nothing publishes unless the GitHub release for this version exists: the action can report a
+  # publish for an explicit version on a commit that already carries another release without
+  # creating one, and failing here keeps every publish job from running.
+  release-confirmed:
+    timeout-minutes: 5
+    name: Confirm the GitHub release
     if: needs.release.outputs.publish == 'true'
     needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Verify the GitHub release exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          if ! gh release view "v$VERSION" --repo "$GITHUB_REPOSITORY"; then
+            echo "::error::GitHub release v$VERSION does not exist in $GITHUB_REPOSITORY; refusing to publish."
+            exit 1
+          fi
+
+  publish-pi:
+    timeout-minutes: 30
+    name: Publish Pi package
+    if: needs.release.outputs.publish == 'true'
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -226,9 +318,10 @@ jobs:
         run: npm publish --provenance --access public
 
   publish-dotnet-packages:
+    timeout-minutes: 30
     name: Publish Cratis.AI (NuGet)
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -262,9 +355,10 @@ jobs:
         run: dotnet nuget push --skip-duplicate './Artifacts/NuGet/*.nupkg' --timeout 900 --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
 
   publish-npm-packages:
+    timeout-minutes: 30
     name: Publish @cratis/ai (npm)
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -319,9 +413,10 @@ jobs:
   # cratis/ai-agents-pi and cratis/ai-agents-copilot are what a product's dispatcher actually
   # launches, selected by the acting agent's configured harness.
   publish-agent-harnesses:
+    timeout-minutes: 60
     name: Publish agent-harness images (Docker Hub)
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -384,9 +479,10 @@ jobs:
   # and nothing else builds it, so without this job a Decision Engine deployment would reference an
   # image that was never pushed.
   publish-decision-engine:
+    timeout-minutes: 60
     name: Publish Decision Engine image (Docker Hub)
     if: needs.release.outputs.publish == 'true'
-    needs: release
+    needs: [release, release-confirmed]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -427,6 +523,7 @@ jobs:
           scripts/docker-build-push-retry.sh $args Source/DecisionEngine
 
   verify-published:
+    timeout-minutes: 15
     name: Verify a release actually shipped
     if: always() && needs.release.outputs.publish == 'true'
     needs: [release, publish-pi, publish-dotnet-packages, publish-npm-packages, publish-agent-harnesses, publish-decision-engine]
