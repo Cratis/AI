@@ -44,7 +44,7 @@ Requires `Cratis.Arc.Testing` 22.67.0 for generated-value scenario pinning.
 Check the owning product repository before claiming support for
 another version. Never translate an assertion or helper name from memory.
 
-Requires Specifications 5.0.2 for the shared-state diagnostic behavior described here; check `dotnet list package`, or stay with the older package's lifecycle rules until upgrading.
+Requires Specifications 4.4.0 for Given/When lifecycle aliases across framework packages; check `dotnet list package`, or keep Establish/Because on older packages.
 
 `Given`/`When` are lifecycle aliases, but house style remains `Establish`/`Because`;
 declaring both forms of a phase produces CRSPEC0009. Inherited phases execute
