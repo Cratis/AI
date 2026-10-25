@@ -32,8 +32,8 @@ implementations, custom fact test cases and plain xUnit classes keep the per-fac
 
 Requires Cratis.Specifications 4.4.0 or later for `IDisposable` specifications to share
 the lifecycle; earlier versions use per-fact construction. With shared lifecycle enabled,
-construction happens once and `Destroy` then `Dispose` run once after the last
-fact, even when `Destroy` fails. Class/collection fixtures remain owned by xUnit,
+construction happens once, and `Destroy` runs followed by
+one `Dispose` after the last fact, even when `Destroy` fails. Class/collection fixtures remain owned by xUnit,
 with assembly fixtures also supported on v3. Use
 `[PerFactSpecificationLifecycle]` when a fresh instance per fact is needed.
 
