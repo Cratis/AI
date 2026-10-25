@@ -1,5 +1,11 @@
 # Connection lifecycle
 
+Since Chronicle.TypeScript 6.51.1, `ChronicleOptions` and its factory methods
+accept `maxReceiveMessageSize` and `maxSendMessageSize`. Both default to 100 MB;
+pass `null` to keep gRPC's own default. Check payload bounds before increasing
+limits; a transport allowance is not an unbounded-query policy. Source: v6.51.1
+release notes.
+
 This reference holds the watchdog, reconnect, keepalive, compatibility check and telemetry behavior.
 
 ## Lifecycle

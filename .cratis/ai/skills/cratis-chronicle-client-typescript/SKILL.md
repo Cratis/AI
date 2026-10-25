@@ -186,6 +186,18 @@ before enrollment.
 
 ## Observing
 
+Since 6.53.0, `@startAtTail()` on a reactor skips history only on first
+registration; existing positions stay intact. `@onceOnly()` alone does not skip
+initial catch-up. Upgrade the server to 19.70.0 first: older servers ignore the
+new flag. `observers.fastForward(observerId)` returns `FastForwardResult` since
+6.52.0 (kernel 19.56.0+); it deliberately skips to the tail, not a retry mechanism.
+
+The 6.53.1 child/nested `@fromAllEvents` and `@fromEvery` mapping fix requires
+kernel 19.78.1+ to keep root-only mappings off new children. Replay affected
+projections to rebuild already-materialized child values. Since 6.52.1, unset
+read-model fields retain their class defaults (absent arrays stay empty), requiring
+Fundamentals 7.24.1+. These are reviewed release requirements, not new runtime probes.
+
 ### Handlers use camelCase names or `@handles(EventType)`
 
 The default is the camelCase event class name, **not** parameter-type dispatch.

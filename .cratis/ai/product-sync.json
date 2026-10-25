@@ -517,9 +517,9 @@
         }
       ],
       "synced": {
-        "version": "6.51.0",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "6.53.1",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -527,7 +527,7 @@
         ],
         "rules": []
       },
-      "notes": "Initial historical floor recorded on 2026-10-12 by Cratis/AI#619; date records this inventory, not a new product verification."
+      "notes": "Cratis/AI#820: reviewed all five releases v6.51.1-v6.53.1. Teach gRPC limits, FastForward, first-registration StartAtTail, class defaults and child all-event projection fixes with explicit kernel/Fundamentals requirements and replay action. Release review only; no new TypeScript execution evidence."
     },
     {
       "id": "release-action",
