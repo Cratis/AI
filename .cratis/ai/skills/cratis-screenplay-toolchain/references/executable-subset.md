@@ -92,7 +92,7 @@ Requires Screenplay 4.141.0 or later (`screenplay --version`) to bind concept co
   equivalent inferred ESM bytes. Flat composite read-model keys bind as v27
   (see below). Collections and observable delivery bind.
   Caller-supplied equality filters on collections also bind as ESM v14; context
-  sources, single-result filters, scope and a list-query `by` block remain blocked; a `performer` query is an opaque read left out of the executable model.
+  sources, single-result filters, scope and a list-query `by` block remain blocked; a `performer` query is an opaque read left out of the executable model (Stage still renders its verified C# body: [performer bodies](../../cratis-screenplay-read-surface/SKILL.md#performer-bodies-are-rendered)).
 - One projection per read model: `from`, `every`, `all` (one block per level), `join`,
   `children`, `nested`, `remove with`, `remove via join` (binds; blocks the execution plan at the projection level, see below), `clear with`, counters, `add`,
   `subtract`, `set`, `clear`, variants, and the identifier mapped from the projection's key (`xId = $eventSourceId` only for an event-source key).
@@ -331,7 +331,7 @@ code to an owner. Two kinds block binding (V3 blocked, no specification runs):
 the attached command `handler` (PLAY0800) and the `file` constraint (PLAY0268, see below).
 A query `performer` does not block: it is an opaque read, reported as information
 `PLAY0270` and left out of the executable model; a specification that reads it is left
-out, and every other specification still runs with `screenplay test`.
+out, and every other specification still runs with `screenplay test`. That is the compiler fact only; Stage renders the body separately ([performer bodies](../../cratis-screenplay-read-surface/SKILL.md#performer-bodies-are-rendered)).
 Requires Screenplay 4.220.1 (`screenplay --version`); older versions refuse a performer
 query with PLAY0268 and leave the whole model unbound. Everything else binds as an **opaque requirement** that needs a target to
 execute: reducer transitions, rule predicates, command and concept code validation, policy
