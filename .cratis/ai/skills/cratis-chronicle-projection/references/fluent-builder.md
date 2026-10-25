@@ -53,8 +53,11 @@ mapping shared across variants is repeated on each variant's builder.
 the owning parent. `IFromEveryBuilder.ExcludeChildProjections()` opts out;
 model-bound `[FromEvery]` has no opt-out. `FromAll` can count into dictionary
 properties with a per-event context key (`Projections/FromEveryBuilder.cs`,
-`IFromEveryBuilder.cs`, `Documentation/projections/declarative/`). From 19.88.0,
-fluent `FromEvery` and `FromAll` property mappings support `ToValue(...)` for
+`IFromEveryBuilder.cs`, `Documentation/projections/declarative/`).
+
+Requires Chronicle 19.88.0 for all-event constant mappings.
+
+Fluent `FromEvery` and `FromAll` property mappings support `ToValue(...)` for
 concepts, enums and `null`, like per-event `Set(...).ToValue(...)`. Verified at
 **v19.110.1**, `Projections/AllSetBuilder.cs` and `IAllSetBuilder.cs`.
 
@@ -85,10 +88,11 @@ Chaining `.NotRewindable()`, `.Passive()`, `.ContainerName()`, or
 
 `RemovedWith` and `RemovedWithJoin` hand you the **concrete**
 `RemovedWithBuilder<,>` and `RemovedWithJoinBuilder<,>` classes, not interfaces.
-`RemovedWithJoin` removes **children**, not a root read model. From 19.93.0 the
-.NET client warns at startup about root removal through a join (fluent,
+Requires Chronicle 19.93.0 for the root-removal-through-join startup warning.
+
+`RemovedWithJoin` removes **children**, not a root read model. The .NET client warns at startup about root removal through a join (fluent,
 model-bound or explicit); it still removes nothing. Use `RemovedWith` for the
-root. Verified at **v19.110.1**, `Projections/RootRemovalViaJoin.cs`.
+root. Verified in `Projections/RootRemovalViaJoin.cs` at the tag above.
 
 ## Keys live on the per-event builder
 

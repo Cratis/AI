@@ -3,7 +3,7 @@
 
 # Append outcomes and retry safety
 
-Verified against Chronicle **v19.110.1**: `Source/Clients/DotNET/EventSequences/`
+Verified against the tagged sources in `Source/Clients/DotNET/EventSequences/`
 (`IEventSequence.cs`, `EventSequence.cs`, `IdempotencyKey.cs`, `AppendResult.cs`,
 `AppendManyResult.cs`, `AppendError.cs`) and
 [appending events](https://github.com/Cratis/Chronicle/blob/v19.110.1/Documentation/events/appending.mdx).
@@ -11,9 +11,12 @@ These are .NET client APIs; do not assume other SDKs expose the same methods.
 
 ## Unknown is not failure-before-write
 
-From 19.82.2, `AppendError.AppendOutcomeUnknown` means the kernel cannot confirm
-whether the events were stored. From 19.108.0 this also covers an in-flight
-append interrupted by node loss or a grain-call timeout. Do not retry an
+Requires Chronicle 19.82.2 for the distinct unknown-outcome and index-unavailable errors.
+Requires Chronicle 19.108.0 for node-loss/timeout unknown-outcome handling.
+
+`AppendError.AppendOutcomeUnknown` means the kernel cannot confirm whether the
+events were stored, including an in-flight append interrupted by node loss or
+a grain-call timeout. Do not retry an
 unkeyed append blindly: read the source's events for the attempt's correlation
 id, and append again only when none belongs to that attempt.
 
@@ -24,7 +27,7 @@ clients or removing constraints is not a repair strategy.
 
 ## Append once
 
-The .NET client adds keyed appends in 19.92.0 (kernel support starts in 19.91.0):
+Requires Chronicle .NET client 19.92.0 and kernel 19.91.0 for keyed appends.
 
 ```csharp
 using Cratis.Chronicle.EventSequences;
@@ -55,15 +58,18 @@ var result = await eventLog.AppendOnce(orderId, new OrderConfirmed(), key);
   effect receipts: these throw `IdempotentAppendsNotSupported`, not an unkeyed
   fallback. Keyed appends are not a replacement for DCB or unit-of-work ownership.
 
-The Testing client supports keyed appends. From 19.99.0,
-`DropNext(DroppedReply.Append)` can lose a keyed append reply after persistence;
+Requires Chronicle Testing 19.99.0 for dropped keyed-append replies.
+
+The Testing client supports keyed appends. `DropNext(DroppedReply.Append)` can lose a keyed append reply after persistence;
 retry with the same key and assert exactly one stored event and an
 already-appended outcome. This proves retry behavior, not an exactly-once
 external side effect.
 
 ## Several concurrency guards for one source
 
-From 19.84.0, `AppendMany` overloads accept
+Requires Chronicle 19.84.0 for multiple concurrency guards for one source.
+
+`AppendMany` overloads accept
 `IEnumerable<KeyValuePair<EventSourceId, ConcurrencyScope>>`. Repeat a source id
 for distinct stream guards; a dictionary cannot represent those entries. The
 kernel checks the conjunction before any write, preserving batch atomicity.

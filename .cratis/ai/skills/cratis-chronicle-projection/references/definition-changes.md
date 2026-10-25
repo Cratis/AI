@@ -13,16 +13,17 @@ when independence cannot be proved. Counters and joins are repaired by replay,
 not by deploying corrected mappings: earlier double-counts remain until rebuilt.
 A `FromAll` subscription change redefines existing projections.
 
-From 19.101.1, adding mappings for event types that already have history requires
+Adding mappings for event types that already have history requires
 **full** replay: `Automatic` rebuilds; `PartialOnly` and `Manual` recommend it.
 The kernel no longer replays those mappings onto live state, where watermarks
 could discard historical writes or counters could count twice. No history for
 the added types means no action. Explicit partition replay is unchanged.
-Verified at **v19.110.1**, `Source/Kernel/Core/Projections/Projection.cs`
+Verified in `Source/Kernel/Core/Projections/Projection.cs`
 (`EvolveForAllNamespaces`).
 
-Global projection replay (full or partition) is refused before writing from
-19.102.1 onward. Do not promise to repair globally scoped state by replay.
+Requires Chronicle 19.101.3 for explicit refusal of global projection replay.
+
+Global projection replay (full or partition) is refused before writing. Do not promise to repair globally scoped state by replay.
 
 Projection replay and catch-up each walk the sequence in **one globally ordered
 job step**, not parallel per-source steps. A new failure during catch-up stops
@@ -67,13 +68,15 @@ Verified through **v19.110.1**:
 `Source/Kernel/Core/Projections/Engine/KeyResolvers.ParentHistory.cs` and the
 tagged release notes:
 
+Requires Chronicle 19.110.0 for MongoDB resumed bulk-window preservation; 19.110.1 also fences replaced windows and historical parent-key lookups.
+
 - MongoDB catch-ups resumed while clients restarted/re-registered could lose
-  unflushed writes on kernels 15.0.0–19.109.0. Upgrade, then replay affected
+  unflushed writes on older kernels. Upgrade, then replay affected
   projections, including catch-ups with `BulkWindowLost` or completed failures;
-  silent loss may leave no log entry. 19.110.0 preserves the window; 19.110.1
-  additionally refuses a window replaced before the first checkpoint and
+  silent loss may leave no log entry. The fixed sink preserves the window,
+  refuses a window replaced before the first checkpoint and
   prevents queued writes crossing replay/catch-up collections.
-- With content-keyed parents, children rebuilt before 19.110.1 may be under the
+- With content-keyed parents, children rebuilt before this fix may be under the
   wrong parent. Replay after upgrading; key lookup now uses the child's event
   position rather than the parent's latest key.
 - These are kernel-backed storage/replay behaviors. In-process projection

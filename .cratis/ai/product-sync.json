@@ -284,9 +284,9 @@
         }
       ],
       "synced": {
-        "version": "19.81.1",
-        "date": "2026-10-17",
-        "by": "Cratis/AI#773"
+        "version": "19.110.1",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -323,7 +323,7 @@
         ],
         "rules": []
       },
-      "notes": "Reviewed releases 19.65.1-19.81.1 at tags: subscription generation pins, StartAtTail, namespace removal/reconnect, storage connection resolution (deploy 19.74.2+), definition refusal recovery, conflict event fields, .NET occurrences/lifecycle/receipts and testing identities, full-history per-key reads, child all-event mapping repair, projection SoftwareVersion, bounded job acceptance/recovery, immediate-append refusal ownership and namespace subscription reconciliation. Existing protected-read guidance retained. Chronicle#5028 definition round-trip/restart-replay fix is unreleased and not taught as fixed. No new kernel/transport probe."
+      "notes": "Reviewed all 60 stable releases 19.82.0-19.110.1 against tagged v19.110.1 source: append uncertainty and constraint-index repair, .NET keyed appends and multi-scope guards, request completion ownership, concurrent reactor/reducer partitions and returned-event receipts, projection replay/upgrade repairs, seeded scenarios, SQL/composite indexes, SQL membership/schema ownership, Localhost single-writer fencing, health probes, Azure identity/Key Vault purge, webhook target validation/retries/managed identity/real-delivery probes, and disabled-by-default projection-generation groundwork. 19.110.0 .NET packages were not published; use 19.110.1. Other covered skills were reviewed for release relevance without mechanical changes. Existing protected-read guidance retained. No new kernel/transport probe or capability."
     },
     {
       "id": "arc-go",

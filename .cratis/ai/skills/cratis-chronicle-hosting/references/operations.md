@@ -26,12 +26,23 @@ clearing one does not clear the other. Inspect the cause before authorizing clea
 or retry. Subscriber timeout abandons waiting, not subscriber work: redelivery
 can overlap work that still runs, so side effects must remain idempotent.
 
+Requires Chronicle 19.110.0 for abandoned-delivery draining and webhook quarantine probes.
+
+Replay/recovery waits up to
+`observers.abandonedDeliveryDrainTimeout` (default 5 seconds) for abandoned
+delivery tasks to drain. A timeout fences that delivery: late projection/reducer
+sink writes, returned events and position updates are discarded before replay
+state is touched. This does **not** undo an external side effect already sent.
+Do not increase the bound or replay repeatedly to work around non-cancellable
+handlers. Verified in `Documentation/hosting/configuration/observers.md` and
+`Source/Kernel/Core/Observation/Observer.DeliveryFences.cs`.
+
 Quarantine persists through grain deactivation. Watchdog ticks and catch-up/replay
 completion do not end it. An operator clear or a fresh subscription does;
 a kernel restart only helps observers that actually receive a fresh subscription.
 Event-store subscriptions remain quarantined until operator clear. Recovery can
-quarantine again if the cause remains. Webhooks are an exception from
-19.108.0: eligible quarantines can probe with a **real pending event** and
+quarantine again if the cause remains. Webhooks are an exception: eligible
+quarantines can probe with a **real pending event** and
 resume after success. Read [webhook policy](webhooks.md) before promising an
 operator that quarantine prevents all traffic; webhook timeout cancellation
 also drains the HTTP operation before starting another delivery.
@@ -41,10 +52,10 @@ a new catch-up failure stops that step rather than letting other sources proceed
 Full replay is inactive until completion, then routes to catch-up/live unless
 quarantined. Partition quarantine stops that partition's automatic retries;
 observer quarantine suppresses automatic recovery for the whole observer.
-From 19.91.1, projection replay skips a failed partition while continuing
+Projection replay skips a failed partition while continuing
 healthy partitions, then schedules failed partitions for recovery after replay
 completes. Catch-up still stops its ordered step on a new failure. Replaying
-**global** projections is refused from 19.102.1 before any write. For MongoDB
+**global** projections is refused before any write (Requires Chronicle 19.101.3). For MongoDB
 catch-up/bulk-write upgrade repairs, read
 [projection definition changes](../../cratis-chronicle-projection/references/definition-changes.md).
 

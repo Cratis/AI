@@ -58,7 +58,7 @@ on startup). Changing the image or supplying new client credentials alone does
 not remove that old application. See **cratis-chronicle-hosting** for kernel
 certificates, private h2c and production setup.
 
-## Request completion ownership (19.83.0+)
+## Request completion ownership (19.110.1+ .NET packages)
 
 Verified at **v19.110.1**: `Source/Clients/DotNET/Transactions/`
 (`IUnitOfWorkCompletionOwnershipFeature.cs`, `IUnitOfWorkCompletionClaim.cs`,

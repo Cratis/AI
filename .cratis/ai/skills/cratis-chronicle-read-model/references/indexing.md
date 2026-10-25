@@ -3,13 +3,14 @@
 
 # Read-model indexes
 
-Verified at Chronicle **v19.110.1**: `Source/Clients/DotNET/ReadModels/IndexAttribute.cs`,
+Verified against the tagged `Source/Clients/DotNET/ReadModels/IndexAttribute.cs`,
 `CompositeIndexAttribute.cs` and
 [indexing documentation](https://github.com/Cratis/Chronicle/blob/v19.110.1/Documentation/read-models/indexing.mdx).
 
-`[Index]` is no longer MongoDB-only. SQL index support starts in 19.105.0;
-composite and descending indexes are available in 19.110.0. Import
-`Cratis.Chronicle.ReadModels`.
+Requires Chronicle 19.103.0 for SQL indexes.
+Requires Chronicle .NET packages 19.110.1 for composite/descending indexes; 19.110.0 was tagged but not published.
+
+Import `Cratis.Chronicle.ReadModels`.
 
 ```csharp
 [ReadModel]
@@ -26,12 +27,14 @@ public record OrdersByCustomer(
   an array on `[CompositeIndex]`; omit the array for all ascending or provide
   one flag per property. Empty/duplicate/unknown paths and mismatched flag
   counts are refused at registration. Indexes are not uniqueness constraints.
+  Use an event constraint for a value that must be unique at append time;
+  a read-side index is not a write-side invariant.
 - MongoDB and SQL create indexes at read-model registration. PostgreSQL uses
   GIN for collection paths, which cannot be combined in a composite index with
   ordinary fields. SQL Server and SQLite skip collection indexes with a warning.
 - SQL Server indexed string columns honor `MaxLength`, `StringLength` or
   `Length`; otherwise the bound is 450 characters. Overlong writes fail the
   projection partition. Replay existing read models to apply bounded columns.
-- Indexes on reused nested types are expanded for every path (19.110.1), not
+- Indexes on reused nested types are expanded for every path, not
   just the first occurrence. Test the actual store's query behavior and inspect
   its schema; an in-process scenario does not prove physical indexes exist.

@@ -60,7 +60,9 @@ Read [host wiring](hosting.md) for the deployment distinction.
 > `skipTlsValidation=false`** (or `Tls.SkipCertificateValidation = false`)
 > against a server whose certificate is actually verifiable.
 
-## Partition concurrency (19.90.0+)
+## Partition concurrency
+
+Requires Chronicle 19.90.0 for concurrent .NET reactor/reducer partitions.
 
 `ChronicleOptions.Reactors.MaxConcurrentPartitions` and
 `ChronicleOptions.Reducers.MaxConcurrentPartitions` independently limit parallel

@@ -11,16 +11,19 @@ Verified at Chronicle **v19.110.1**: `Documentation/hosting/configuration/`
 
 ## Choose membership for the storage
 
-From 19.98.0, PostgreSQL and SQL Server support multi-node membership with
+Requires Chronicle 19.105.0 for SQL multi-node membership and provider validation.
+
+PostgreSQL and SQL Server support multi-node membership with
 `clustering.type = Sql`; MongoDB uses `MongoDB`. Every node must share the
-cluster database, `clusterId`, `serviceId` and certificates. From 19.109.0,
-SQL clustering with SQLite or a non-SQL provider fails at startup; it is not a
+cluster database, `clusterId`, `serviceId` and certificates. SQL clustering with SQLite or a non-SQL provider fails at startup; it is not a
 way to cluster SQLite. Sharing a database while using `Localhost` does not form
 a cluster. Silo and gateway ports must remain reachable between nodes.
 
 ## Localhost single-writer lease
 
-From 19.103.0, `Localhost` on persistent storage (MongoDB, PostgreSQL, SQL Server,
+Requires Chronicle 19.110.0 on every contender for the Localhost lease.
+
+`Localhost` on persistent storage (MongoDB, PostgreSQL, SQL Server,
 SQLite) takes the fixed `kernel` lease in the cluster database **before** Orleans
 runtime startup. `InMemory` is process-local and takes no lease; MongoDB/Sql
 membership do not use this guard. Different cluster/service ids are diagnostic,
@@ -35,14 +38,22 @@ not a way to bypass the fixed lease.
   renewal within half the TTL hard-fences the process. Shutdown retains the
   lease while silo work drains; a crash successor waits for expiry. Do not
   delete a live lease to get another node started.
-- Every contender must run 19.103.0+; an older binary does not take this lease.
+- Every contender must support the lease; an older binary does not take it.
 
 ## Least-privilege SQL deployments
 
-From 19.109.0, `--migrate-only` (or
+Requires Chronicle 19.109.0 for schema actions and Verify runtime mode.
+
+`--migrate-only` (or
 `Cratis__Chronicle__Storage__SchemaAction=MigrateAndExit`) applies SQL migrations
 for the cluster, known stores/namespaces and jobs, then exits without serving.
 Run it with the authorized schema identity before starting runtime-only nodes.
+`--verify-schema` / `SchemaAction=VerifyAndExit` checks without changing schema;
+repeatable `--event-store` and `--namespace` with migration pre-provision new
+destinations. Exit codes: 0 success, 2 schema not current, 3 lock timeout, 4
+invalid options/forbidden database creation, 1 other failure. MongoDB and
+in-memory schema actions succeed without doing work; do not call that a SQL
+migration check.
 
 `Cratis__Chronicle__Storage__SchemaMode=Verify` performs no database/schema
 creation or migrations. Missing schema at startup or a newly used namespace
@@ -56,7 +67,7 @@ node using a readiness endpoint as liveness.
 
 ## Projection generations are not enabled by these releases
 
-19.109.0–19.110.0 add guarded groundwork, not an instruction to enable it.
+The tagged sources provide guarded groundwork, not an instruction to enable it.
 `Features.ProjectionGenerations` remains off by default. MongoDB generation
 sink writes need majority transactions/fences, so startup refuses a standalone
 MongoDB with the feature on. Materialization binding catalogs exist for

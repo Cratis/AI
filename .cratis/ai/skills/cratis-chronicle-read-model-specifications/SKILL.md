@@ -154,7 +154,7 @@ rather than the harness. Skip only on a reproduced harness gap, and put the
 specific reason in the skip message.
 
 For pre-seeding instances, `ProcessAppendedEvents(...)` and schema-generator
-sharing, read [seeded state and store-backed processing](references/seeded-state.md).
+sharing, read [seeded state and appended-event processing](references/seeded-state.md).
 These are setup/processing surfaces, not proof of kernel persistence or replay.
 
 ## Step 4 — Know what the scenario picked

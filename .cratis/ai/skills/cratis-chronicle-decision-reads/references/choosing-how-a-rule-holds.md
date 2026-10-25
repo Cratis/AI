@@ -158,7 +158,7 @@ A constraint binds every writer, whichever client or service appends, per namesp
 and per event sequence. It cannot count, sum or test a predicate; it expresses
 uniqueness (with release on a removal event), create-once and closed streams.
 
-- From Chronicle 19.82.0, a failed index update after a durable append marks a
+- From Chronicle 19.82.2, a failed index update after a durable append marks a
   gap. A later governed append repairs that gap from the event log or refuses
   with `AppendError.ConstraintIndexUnavailable` before writing. Do not treat
   that retryable refusal as a duplicate or remove the constraint. Verified at

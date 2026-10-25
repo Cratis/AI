@@ -46,12 +46,14 @@ access tokens refreshed through resolution. Password-based MongoDB clients do
 not acquire a new password merely because configuration changes; restart them
 when rotating that credential.
 
-## Azure identity (19.97.0+)
+## Azure identity
 
 Verified through **v19.110.1**: `Documentation/hosting/azure.md`,
 `Documentation/hosting/configuration/storage-connection-resolution.md`,
 `Source/Kernel/Core/Configuration/PostgreSqlEntra.cs` and
 `Source/Kernel/Storage.Sql/Connections/PostgreSqlEntraAuthentication.cs`.
+
+Requires Chronicle 19.96.0 for AzureCredential HTTP resolver authentication.
 
 The HTTP resolver's `Authentication.Type=AzureCredential` supports
 `Credential=ManagedIdentity` (default), `WorkloadIdentity` or `Default`, plus
@@ -59,10 +61,13 @@ The HTTP resolver's `Authentication.Type=AzureCredential` supports
 identity. Prefer the specific production credential rather than accidentally
 using a developer credential through the default chain.
 
+Requires Chronicle 19.92.2 for native Azure SQL identity authentication.
+Requires Chronicle 19.109.0 for native PostgreSQL Entra authentication.
+
 Azure SQL uses Microsoft.Data.SqlClient's native authentication connection-string
 settings (managed identity, workload identity, or default chain), not a
-Chronicle-specific password flow. Native Entra authentication for Azure
-Database for PostgreSQL uses `storage.postgreSqlEntra.enabled=true`, optional
+Chronicle-specific password flow. Native Entra authentication for
+Azure Database for PostgreSQL uses `storage.postgreSqlEntra.enabled=true`, optional
 `managedIdentityClientId`, and a PostgreSQL `Username` with **no password**.
 Tokens refresh on pooled connections. Do not combine it with a resolver that
 returns credentials; placement and schema resolution remain supported.

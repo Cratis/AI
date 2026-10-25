@@ -118,19 +118,21 @@ internal. `health.tls=true` needs the top-level TLS certificate even when main
 TLS is disabled. The production chiseled container has no shell/curl: use an
 orchestrator/external probe, not an in-container shell healthcheck.
 
-From 19.109.0, `/health` and `/health/ready` remain readiness (including startup
+Requires Chronicle 19.109.0 for separate readiness/liveness routes.
+
+`/health` and `/health/ready` remain readiness (including startup
 and storage); use `/health/live` for liveness/startup so a replay backlog does
 not restart a healthy-but-unready silo. A custom base path moves all three
-routes. Verified through **v19.110.1**, `Documentation/hosting/configuration/health-endpoint.md`
+routes. Verified in the tagged sources linked from [clustering and schema ownership](references/clustering-and-schema.md),
+`Documentation/hosting/configuration/health-endpoint.md`
 and `Source/Kernel/Server/KernelReadinessHealthCheck.cs`.
 
 ## Form one cluster, not several over shared data
 
 Every node must select shared membership and share cluster/service ids and the
 cluster database: `clustering.type=MongoDB` for MongoDB, or `Sql` for PostgreSQL
-and SQL Server (19.98.0+). SQLite remains single-node. Default `Localhost` does
-not join nodes; from 19.103.0 persistent stores guard it with a single-writer
-lease. Read [clustering and schema ownership](references/clustering-and-schema.md)
+and SQL Server. SQLite remains single-node. Default `Localhost` does not join
+nodes; persistent stores guard it with a single-writer lease. Read [clustering and schema ownership](references/clustering-and-schema.md)
 for lease failure behavior, SQL migration/Verify modes and the disabled-by-default
 projection-generation groundwork.
 `Clustering:ResponseTimeout` bounds Orleans transport waiting; increasing observer
