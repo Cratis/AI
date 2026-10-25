@@ -9,9 +9,10 @@ Verified against the tagged `Source/Clients/DotNET/ReadModels/IndexAttribute.cs`
 
 Requires Chronicle 19.103.0 for SQL indexes.
 Requires Chronicle 19.105.0 for SQL Server string index length bounds.
-Requires Chronicle 19.110.0 for nested-path indexes, PostgreSQL GIN collection
-indexes and an index for every use of a reused nested type.
-Requires Chronicle .NET packages 19.110.1 for composite/descending indexes; 19.110.0 was tagged but not published.
+Requires Chronicle kernel 19.110.0 for SQL nested-path indexes and PostgreSQL GIN
+collection indexes.
+Requires Chronicle .NET packages 19.110.1 for composite/descending indexes and an
+index for every use of a reused nested type.
 
 Import `Cratis.Chronicle.ReadModels`.
 
