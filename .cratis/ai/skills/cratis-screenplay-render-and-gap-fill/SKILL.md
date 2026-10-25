@@ -49,8 +49,9 @@ older binders use PLAY0268. Read [renderability gate](references/renderability-g
 when classifying a handler or other binding refusal; never parse message text.
 
 Inline bodies (`csharp`, `typescript`, `react`, `html`, `sql`, `java`) are opaque and reach the target
-unchanged; each target decides which it realizes. The Cratis target refuses `java` bodies (Requires
-Screenplay 4.244.0): gap-fill that scope in code and record the refusal.
+unchanged; each target decides which it realizes. The Cratis target refuses `java` bodies: gap-fill
+that scope in code and record the refusal.
+Requires Screenplay 4.244.0 (`screenplay --version`) for the `java` refusal.
 
 ## Interview phase
 Ask only for missing inputs: accepted model/root, stable `--name`, destination,
@@ -181,7 +182,8 @@ Adapters and non-renderable scope follow the contract rules of `cratis-applicati
   authorization; it is no evidence for denial behaviour or for any other rule.
 - Never remove `pii`, `secret`, authorization or rules to get a render through; report the gap.
 - Generated .NET apps validate concept `matches` rules at runtime with the `Cratis.Screenplay.Matching` package (`PortableMatcher`),
-  the matcher the compiler admitted; reference it at the same version as the Screenplay compiler (Requires Screenplay 4.241.0).
+  the matcher the compiler admitted; reference it at the same version as the Screenplay compiler.
+  Requires Screenplay 4.241.0 (`screenplay --version`) for that package.
 - Stop and ask only on a genuine contradiction between model, specs, descriptions and declared
   contracts, after reading the slice fully (`cratis-screenplay-modeling-lifecycle` `references/stop-or-assume.md`).
 - Commit set after a delivery the user accepts: the destination's `.cratis-render.json`,

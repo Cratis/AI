@@ -108,8 +108,8 @@ A caller that schedules a round supplies these inputs. Resolve every SHA with
 | `since` | Full SHA of the head last reviewed | Delta rounds |
 | `prior` | The complete previous report, with dismissals and limits | Delta rounds |
 | `cachedReview` | An earlier review to reuse | Only for the exact same SHAs and scope |
-| `mode` | `whole-change` or `delta`; quick or ordinary depth | Always |
-| `deepReason` | One named risk class and a one-line justification | Only for deep review |
+| `mode` | `whole-change` or `delta`; quick, ordinary or deep depth | Always |
+| `deepReason` | One named risk class and a one-line justification | Required when the depth is deep |
 
 The result is one verdict from the canonical vocabulary in `review-reports.md`:
 **Approved**, **Approved with suggestions**, **Changes requested** or

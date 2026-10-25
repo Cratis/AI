@@ -223,7 +223,8 @@ rule, PLAY0268/0273 and the refused shapes (ordering, Uuid validation rules, Uui
 **Rules whose logic is code.** A bare `rule <Name>` has no portable meaning (`PLAY0268`) and a bodied rule binds only as
 opaque code. Read [references/validate-rules.md](references/validate-rules.md) when a rule's logic must live in a `file`
 or fenced code body. Built-in inline languages are `csharp`, `typescript`, `react`, `html`, `sql` and `java`;
-the body is opaque and travels unchanged, and the Cratis render target refuses `java` bodies (Requires Screenplay 4.244.0).
+the body is opaque and travels unchanged, and the Cratis render target refuses `java` bodies.
+Requires Screenplay 4.244.0 (`screenplay --version`) for that refusal.
 
 **Put format rules on the `concept`, not the command** (except date comparisons,
 which bind only on command properties, not as concept rules). A concept carries its own

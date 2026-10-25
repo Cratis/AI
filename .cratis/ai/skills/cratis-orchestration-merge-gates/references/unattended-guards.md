@@ -22,16 +22,16 @@ box.
 
 ## Time boxes
 
-Use the defaults and bounds in
+The values and override bounds for the first three boxes are the defaults in
 [placeholders.md](../../cratis-orchestration-lanes/references/placeholders.md);
-a brief may override within those bounds.
+a brief may override within those bounds. The queue wait is set by the brief.
 
-| Box | Default | Action at the limit |
+| Box | Value from | Action at the limit |
 |---|---|---|
-| Targeted check | 120 seconds | Stop and diagnose |
-| Build or test phase | 300 seconds | Stop and diagnose; longer needs approval |
-| Detach threshold | 600 seconds | Run detached; do not wait |
-| Queue wait | per the brief | Send a `blocked` message |
+| Targeted check | placeholders.md | Stop and diagnose |
+| Build or test phase | placeholders.md | Stop and diagnose; longer needs approval |
+| Detach threshold | placeholders.md | Run detached; do not wait |
+| Queue wait | the brief | Send a `blocked` message |
 
 ## A silent command is diagnosed
 
@@ -52,7 +52,7 @@ A command that would prompt, made non-interactive and boxed:
 
 ```bash
 # Would prompt: gh pr merge <n>   (asks how to merge)
-# Non-interactive, explicit strategy, stdin closed, 120 second box:
+# Non-interactive, explicit strategy, stdin closed, targeted-check box (120 seconds by default):
 timeout 120 gh pr merge <n> --repo owner/repo --merge < /dev/null
 echo "exit=$?"
 ```

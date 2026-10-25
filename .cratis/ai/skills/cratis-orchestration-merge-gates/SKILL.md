@@ -78,8 +78,10 @@ interactive input.
 
 - Make every command non-interactive: pass explicit flags, close stdin, and
   provide values rather than prompting for them.
-- Time boxes are the lanes skill's placeholders: targeted check, build or test
-  phase, detach threshold, queue wait.
+- Time boxes for a targeted check, a build or test phase and the detach
+  threshold are the defaults in the lanes skill's
+  [placeholders.md](../cratis-orchestration-lanes/references/placeholders.md);
+  the queue wait is set by the brief.
 - A silent command is diagnosed, not given more time: check the process, its
   output and what it waits on, then fix or report.
 - Work beyond the detach threshold runs detached and reports through a

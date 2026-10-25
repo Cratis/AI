@@ -150,7 +150,9 @@ with ordered imports means future files need explicit imports.
   Tool/renderer authors: read [references/generation-checks.md](references/generation-checks.md)
   when discovering strategy options, checking one concept or value, or consuming rule proofs.
 - **v32:** a `source events` capture with a typed scalar key carries the key's type onto
-  the appended event's identity (Requires Screenplay 4.241.0). Read
+  the appended event's identity.
+  Requires Screenplay 4.241.0 (`screenplay --version`);
+  older compilers keep the key as Text. Read
   [language admission](references/language-admission.md) for the Stage boundary.
 - **v28:** `==`/`!=` between Uuid values in `require` and `produces when` select v28
   (Requires Screenplay 4.205.0; `screenplay --version`; older binders refuse PLAY0268).

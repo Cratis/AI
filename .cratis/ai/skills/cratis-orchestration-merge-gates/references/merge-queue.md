@@ -63,6 +63,7 @@ Candidate pull request 12 depends on pull request 10. Its CI run 900 was green.
 The lane does not merge. It reports "turn blocked: main changed `Source/Api`
 after the CI commit" with the commit id, then hands the turn back to
 `<coordinator>`. After updating the branch it needs a new run on the new head;
-the old green run proves nothing for it. Only when all four checks pass, in
-that order, does the merge proceed, and the lane records the commands and their
-results with the merge.
+the old green run proves nothing for it. The merge proceeds only when the three
+state checks (predecessors merged, no publish running, no overlap since CI ran)
+all hold and the stale-head check confirms the run belongs to the current head.
+The lane records the commands and their results with the merge.
