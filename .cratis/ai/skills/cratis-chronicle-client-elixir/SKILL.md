@@ -103,10 +103,11 @@ channel exists return `{:error, :not_connected}`.
 
 ## Authentication and TLS
 
-Since 3.14.1 the client Logger filter redacts authentication secrets and gRPC/Mint
-request-header state from crash reports; no application-level filter is needed
-for those client reports. This does not authorize logging credentials in your own
-code. Source: v3.14.1 release and its crash-report documentation.
+Requires Chronicle.Elixir 3.14.1 for client crash-report redaction; check `mix deps`, or treat older crash reports as potentially secret-bearing and upgrade before sharing them.
+
+The client Logger filter redacts authentication secrets and gRPC/Mint request-header
+state from crash reports; no application-level filter is needed for those client
+reports. This does not authorize logging credentials in your own code.
 
 Use `ConnectionString.development()` locally: `default()` supplies **no
 credentials**, so an authentication-required development kernel never lets it
@@ -201,10 +202,11 @@ failure.
 
 ### Reactors
 
-Since 3.14.0, `use Chronicle.Reactors.Reactor, start_at_tail: true` skips history
-only on first registration; an existing reactor keeps its position. `once_only`
-does not skip initial catch-up. Upgrade the kernel to 19.70.0+ and contracts to
-19.70 first: an older server ignores the flag and catches up from the beginning.
+Requires Chronicle.Elixir 3.14.0, contracts 19.70 and kernel 19.70.0 for start_at_tail; check `mix deps` and the server version, or retain initial catch-up until upgraded.
+
+`use Chronicle.Reactors.Reactor, start_at_tail: true` skips history only on first
+registration; an existing reactor keeps its position. `once_only` does not skip
+initial catch-up. An older server ignores the flag and catches up from the beginning.
 
 Read [references/reactor-example.md](references/reactor-example.md) when you need a worked reactor module.
 

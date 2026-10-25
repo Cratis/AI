@@ -3,13 +3,15 @@
 
 # Decision reads
 
-Since Chronicle.Elixir 3.14.2, a `Chronicle.decide/2` callback returning
-`{:error, reason}` rejects all buffered appends and returns that tuple unchanged.
+Requires Chronicle.Elixir 3.14.2 for the rejection/cleanup behavior below; check `mix deps`, or upgrade before relying on a rejected callback to discard buffered events.
+
+A `Chronicle.decide/2` callback returning `{:error, reason}` rejects all buffered
+appends and returns that tuple unchanged.
 Migrate matches on `{:ok, {:error, _}}` to `{:error, _}`. A failed commit rolls
 back the unit of work, and both `decide/2` and `with_unit_of_work/2` stop their
 unit-of-work process on return, so later appends from long-lived GenServers or
 Phoenix connections are not trapped in a failed buffer. Spec the rejection and
-failed-commit paths, not only successful decisions. Source: v3.14.2 release. and the dynamic consistency boundary
+failed-commit paths, not only successful decisions. and the dynamic consistency boundary
 
 Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/chronicle/read_models/decision_reads.ex`, `decision_read_refused.ex`, `decision_conflict.ex`, `transactions/unit_of_work.ex`, and `Documentation/dynamic-consistency-boundary.md`.
 
