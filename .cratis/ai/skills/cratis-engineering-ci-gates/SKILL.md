@@ -22,17 +22,35 @@ before an external effect. A request to verify does not authorize a push.
 1. Read `.github/workflows/` and the repository's tier policy. Follow reusable
    workflows and invoked scripts. Extract commands, solution and test selection,
    configuration, warning settings, analyzers, lint and formatting checks.
-2. Prefer the repository's existing gate script. If none exists, keep a small
+2. Require an executable, repository-specific specification-project coverage
+   gate in CI; add one if absent and run its documented command locally where
+   inputs are available. Discover every spec project independently of CI's test
+   selection, then compare discovery with actual CI test commands and results.
+   Every project must run in some CI test job or be removed; a green subset,
+   a build-only job or solution membership is not execution coverage.
+   Follow reusable workflows and scripts, expand matrices and evaluate job/step
+   conditions for the relevant event and head SHA. Resolve project selection and
+   test filters; a command whose filters exclude all of a project's specs does
+   not cover it. A skipped conditional job cannot cover its assigned projects.
+   Keep command/filter mapping separate from runtime proof: correlate per-project
+   test results with the executed jobs for that SHA and require nonzero executed
+   specs per project. A static mapping alone cannot prove the tests ran.
+   Fail closed on empty or unknown discovery, unresolved selection/conditions,
+   missing results or uncovered projects. Print omitted project paths and the
+   missing/excluding job, command or filter so omissions are actionable. Pass only
+   when every discovered project has execution coverage; use repository tooling,
+   not a universal framework-specific scanner in this corpus.
+3. Prefer the repository's existing gate script. If none exists, keep a small
    local runner under `.ai-work/`, with each phase's real exit status preserved.
    Do not substitute only the touched projects for the final gate.
-3. **Tier 1** is the whole-solution build with CI's configuration and warning
+4. **Tier 1** is the whole-solution build with CI's configuration and warning
    settings, lint/format, and every non-integration test project. For example,
    use Release with warnings as errors when that is what CI uses.
-4. **Tier 2** adds integration tests. The repository's tier policy decides
+5. **Tier 2** adds integration tests. The repository's tier policy decides
    whether they run locally. The default is CI-backed integration only if CI
    runs that coverage, it passes before merge, and reviewer notes say it was
    deferred to CI. If CI lacks that coverage, do not claim it is verified.
-5. Name anything CI runs that cannot run locally: services, platforms, secrets
+6. Name anything CI runs that cannot run locally: services, platforms, secrets
    or hosted checks. Say what ran instead and what remains unverified before
    pushing. Missing coverage is not a local pass.
 
