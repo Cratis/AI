@@ -106,7 +106,7 @@ Stage's reviewed semantic engines admit matched 1.0–30.0 and 32.0 pairs, not
 31.0, mixed or unknown pairs (STAGE-ESM-016). CLI v3.100.0 render checks only the
 semantic version and admits through v30; bundled Stage 4.196.0 then applies
 matched-pair and construct gates. V32 needs a direct caller of the reviewed Stage
-baseline in [current target boundaries](../../cratis-stage-rendering-and-sandbox/references/current-boundaries.md#version-admission-is-target-specific).
+baseline in [current target boundaries](../../cratis-stage-rendering-and-sandbox/references/current-boundaries.md#version-admission).
 Requires Stage 4.139.0 for v22; older Stage refuses -016.
 Version admission is not body implementation or proof that a particular atomic
 or composite-key shape renders; protected reads need a bundle that supports them. A CLI may bundle an older compiler/Stage pair: run no-write render

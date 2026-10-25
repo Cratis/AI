@@ -24,7 +24,7 @@ Start with [current target boundaries](references/current-boundaries.md), review
 against Stage v4.197.0: matched language/ESM 1.0–30.0 and 32.0 are admitted, not
 31.0. The reviewed CLI's `cratis render` admits ESM through v30; its bundled
 Stage then applies matched-pair and construct gates. V32 needs a direct caller of
-the reviewed Stage baseline. See [CLI bundle details](../cratis-screenplay-toolchain/references/language-admission.md#stage-and-cli-target-boundaries).
+the reviewed Stage baseline. See [CLI bundle details](../cratis-screenplay-toolchain/references/language-admission.md#stage-admission-and-execution).
 Renderer, semantic Host/specification execution and legacy syntax admission are
 separate gates.
 Bounded atomic batches render; unverifiable query performers can produce explicit

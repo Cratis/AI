@@ -29,7 +29,7 @@ gates; **v32 needs a direct caller of the reviewed Stage baseline**. The CLI che
 version, not the pair. Do not relabel a newer model to pass it: use a capable
 reviewed caller or report the CLI blocker. The introducing CLI minimums are in
 [the skill's admission prerequisites](../SKILL.md); the exact bundled Stage is in
-[toolchain target boundaries](../../cratis-screenplay-toolchain/references/language-admission.md#stage-and-cli-target-boundaries).
+[toolchain target boundaries](../../cratis-screenplay-toolchain/references/language-admission.md#stage-admission-and-execution).
 
 ## Renderer support is bounded
 

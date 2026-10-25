@@ -28,7 +28,7 @@ Stage v4.197.0 admits matched language/ESM **1.0–30.0 and 32.0**, not 31.0,
 mixed or unknown pairs (`STAGE-ESM-016`). CLI v3.100.0 render checks only the
 semantic version and admits through **v30**; its bundled Stage then applies
 matched-pair and construct gates. V32 needs a direct caller of the reviewed Stage
-baseline; see [CLI bundle details](language-admission.md#stage-and-cli-target-boundaries). Read
+baseline; see [CLI bundle details](language-admission.md#stage-admission-and-execution). Read
 [current Stage target boundaries](../../cratis-stage-rendering-and-sandbox/references/current-boundaries.md)
 for Translate, atomic batches, composites, typed gaps and semantic execution.
 Chronological command dates select v26.

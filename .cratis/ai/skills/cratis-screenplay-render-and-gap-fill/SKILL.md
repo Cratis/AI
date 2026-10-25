@@ -80,7 +80,7 @@ Source/stream routes bind and reference-execute as v8; target admission is separ
 Requires Cratis CLI 3.75.0 for v27 admission; older bundles stop earlier.
 The reviewed CLI admits semantic versions through v30; its bundled Stage then
 applies matched-pair and construct gates. V32 needs a direct caller of the reviewed
-Stage baseline; see [CLI bundle details](../cratis-screenplay-toolchain/references/language-admission.md#stage-and-cli-target-boundaries).
+Stage baseline; see [CLI bundle details](../cratis-screenplay-toolchain/references/language-admission.md#stage-admission-and-execution).
 Read toolchain `references/renderable-subset.md` and
 `references/sources-and-streams.md` when delivering routes, actor gates or filters.
 Preserve refused public/foreign events, production overrides and opaque gates as A/C.
