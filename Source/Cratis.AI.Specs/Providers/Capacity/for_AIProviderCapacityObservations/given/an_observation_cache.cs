@@ -24,7 +24,7 @@ public class an_observation_cache : Specification
     }
 
     protected Task<AIProviderCapacityObservation> Observe(string? credential = null) =>
-        _observations.Observe(_provider, Read, default, credential);
+        _observations.Observe(_provider, Read, credential);
 
     Task<AIProviderCapacityReport> Read(CancellationToken cancellationToken)
     {
