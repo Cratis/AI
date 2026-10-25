@@ -53,7 +53,8 @@ public static class CratisAIServiceCollectionExtensions
 
         configure(builder);
 
-        services.AddSingleton<IAgentExecution, AgentExecution>();
+        // Resolve the agent lookup in the caller's scope so tenant-scoped sources are not captured.
+        services.AddTransient<IAgentExecution, AgentExecution>();
 
         // Process-local by design - see AIProviderQuotaTracker's own remarks. Registered here rather
         // than left for each IAIProviderClient to construct its own: every client and

@@ -32,9 +32,24 @@ public class CratisAIBuilder(IServiceCollection services)
     /// <typeparam name="TAgents">The implementation type.</typeparam>
     /// <returns>The <see cref="CratisAIBuilder"/> for continuation.</returns>
     public CratisAIBuilder WithAgents<TAgents>()
+        where TAgents : class, IAIAgents => WithAgents<TAgents>(ServiceLifetime.Singleton);
+
+    /// <summary>
+    /// Registers the <see cref="IAIAgents"/> lookup with the specified lifetime.
+    /// </summary>
+    /// <typeparam name="TAgents">The implementation type.</typeparam>
+    /// <param name="lifetime">The lifetime of the agent lookup.</param>
+    /// <returns>The <see cref="CratisAIBuilder"/> for continuation.</returns>
+    /// <remarks>
+    /// A lookup that reads tenant-scoped data, such as Chronicle read models, needs
+    /// <see cref="ServiceLifetime.Scoped"/> so it resolves the current tenant in the caller's scope.
+    /// Its consumers must then be scoped or transient, never singletons, to avoid capturing one
+    /// tenant's lookup for every request. The parameterless overload keeps the singleton default.
+    /// </remarks>
+    public CratisAIBuilder WithAgents<TAgents>(ServiceLifetime lifetime)
         where TAgents : class, IAIAgents
     {
-        Services.AddSingleton<IAIAgents, TAgents>();
+        Services.Add(new ServiceDescriptor(typeof(IAIAgents), typeof(TAgents), lifetime));
         return this;
     }
 
