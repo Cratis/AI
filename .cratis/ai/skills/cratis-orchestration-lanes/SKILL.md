@@ -90,10 +90,11 @@ brief does not authorize
 Everything else a lane decides, records and reports.
 
 - Stopping and escalating never wait for anything. When a lane decides a
-  non-escalated judgment call itself, it first gets a review from a different
-  provider family where the harness can select one, and otherwise states
-  `single-provider`, as [review-reports.md](../../rules/review-reports.md)
-  requires.
+  non-escalated judgment call with real alternatives and consequences itself
+  (not a trivial choice such as an internal name), it first gets a review from
+  a different provider family where the harness can select one, and otherwise
+  states `single-provider`, as
+  [review-reports.md](../../rules/review-reports.md) requires.
 - Escalate to `<coordinator>`, who forwards only what needs the operator.
 - A lane blocked longer than the blocked-report threshold sends a `blocked`
   message instead of waiting silently.
@@ -121,7 +122,8 @@ reports "done" from recollection.
 
 ## Verify
 
-- The claim register, the issue and the branch agree on who owns the work.
+- The claim register and the branch agree on who owns the work, and so does
+  the issue when the brief covers maintaining it.
 - Every sent message follows the naming and required fields.
 - A handoff states branch, HEAD and date, and the next session compared them
   with `git` before acting.
