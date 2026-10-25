@@ -133,7 +133,7 @@ Camera/controls contract (`Canvas.tsx`, `CanvasHandle.ts`):
 Persist item edits in the host, not in camera callbacks. Browser-test gestures and dimensions. For jsdom tests provide a `ResizeObserver` substitute where required; Pixi integration still needs a real browser signal.
 
 For bound-table server filtering, query-state isolation, refreshed selection and
-localized numbered pagination since 4.27, read
+localized numbered pagination, read
 [Query table updates](references/query-table-updates.md). Page-local filtering is
 still the default; `serverQuery` is opt-in.
 

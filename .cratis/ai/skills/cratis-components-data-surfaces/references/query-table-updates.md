@@ -3,7 +3,7 @@
 
 # Query tables: server state, selection and pagination
 
-Requires Components 4.35.1 for the refreshed-selection behavior described here; check `yarn why @cratis/components`, or retain the host's explicit selection reconciliation.
+Requires Components 4.35.1 for all table features described here, including serverQuery, filteredEmptyMessage, pageLinks and refreshed selection; check `yarn why @cratis/components`, or retain the older table API and host-owned filtering, pagination and selection reconciliation.
 
 ## Server sorting and filtering are opt-in
 
@@ -28,8 +28,8 @@ as the user types; it does not implement backend search.
 ## Query state and selection
 
 With Arc and Arc React 22.122 or later, changing bound query arguments shows
-loading instead of the previous arguments' rows, failure or access-denied state
-. Returning to cached arguments avoids a loading flash. A completed
+loading instead of the previous arguments' rows, failure or access-denied state.
+Returning to cached arguments avoids a loading flash. A completed
 unsuccessful result is a failure, not an empty success; unauthorized stays access
 denied. The query-bound chat sidebar also distinguishes these outcomes.
 
