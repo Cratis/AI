@@ -257,7 +257,7 @@ public record AuthorRegistered(AuthorName Name);
 
 ## Read Models and Queries
 
-**[contract]** `[ReadModel]` records expose eligible public and internal static methods as queries; internal visibility does not hide an endpoint. Dependencies are plain method parameters (no `[FromServices]`). For application code, start with model-bound mappings, use fluent when the definition needs structure, and choose reducer code when transitions read better as code. For step-by-step creation, invoke the **cratis-chronicle-read-model** skill.
+**[contract]** `[ReadModel]` records expose eligible public static methods as queries. Requires Arc 22.121.0 for non-public methods to be excluded even with `[Query]` (ARC0029 warns); older versions also expose eligible internal statics. Keep helpers outside the read model when supporting those versions. Dependencies are plain method parameters (no `[FromServices]`). For application code, start with model-bound mappings, use fluent when the definition needs structure, and choose reducer code when transitions read better as code. For step-by-step creation, invoke the **cratis-chronicle-read-model** skill.
 
 Use `[ReadModel(RequireQueryAttribute = true)]` with `[Query]` on intended
 endpoints when folds exist (ARC0026/ARCCHR0019). `[Query]` alone does not hide

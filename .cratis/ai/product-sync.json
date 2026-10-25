@@ -63,9 +63,9 @@
         }
       ],
       "synced": {
-        "version": "22.117.0",
-        "date": "2026-10-17",
-        "by": "Cratis/AI#773"
+        "version": "22.139.0",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -99,7 +99,7 @@
           "vertical-slices.md"
         ]
       },
-      "notes": "Reviewed releases 22.100.1-22.117.0 at tags: occurrence command receipts and retry classification, tenant/purpose storage resolution, explicit-offset binding and authorization of malformed bodies, camelCase validation members, conflict event details, hub fallback authorization and snapshot guards, and React query-key isolation/resubscription. Existing read-protection and generated-value guidance retained. Query discovery includes internal statics; public-only discovery in Arc#3368 is unreleased. Screenplay-generator deltas classified for the owning lane, not changed here. No new runtime probe."
+      "notes": "Reviewed all 53 releases 22.117.1-22.139.0 at tagged sources. Corrected public-only query discovery, single observations, pre-transport occurrence append refusal, assignable pipeline responses, concept binding/annotations, protected validator construction and key metadata; added live query/calendar, upsert, scenario, authentication and proxy-generation guidance. Existing response validation, React lifetimes, tenant routing and storage resolution guidance retained after reviewing fixes; internal/dependency changes need no extra consumer action. Screenplay/Scene/Stage deltas belong to their owning lanes. No live runtime probe; prior floor established in Cratis/AI#773."
     },
     {
       "id": "ai",
@@ -125,9 +125,9 @@
         }
       ],
       "synced": {
-        "version": "3.75.0",
-        "date": "2026-10-17",
-        "by": "Cratis/AI#752"
+        "version": "3.100.0",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -158,7 +158,7 @@
         ],
         "rules": []
       },
-      "notes": "Render bundle source-checked at v3.74.0 (release notes v3.63.0-v3.74.0 and Documentation/reference/screenplay.md): Screenplay 4.201.0 and Stage 4.135.0; CLI rendering admits ESM v1-v26 (v17/v19 from 3.63.0, v18 from 3.65.0, v20 from 3.66.0, v21-v26 from 3.74.0); Stage refuses unsupported constructs with typed STAGE-ESM codes (v22 STAGE-ESM-016, v26 date comparisons STAGE-ESM-046) and CLI-RENDER-004 blocks v27 and later. No render probe: the installed CLI is 3.65.0. Prior at v3.62.0: Screenplay 4.159.0 and Stage 4.99.0, ESM v1-v16. PATH render uses persisted root identities read-only, rejects root/name conflicts, checks destination event ids at every scope, and reports baseline warnings. CLI baseline admit/check and open-question validation are available. Other CLI operations retain prior evidence; no new render/browser probe."
+      "notes": "Reviewed all 35 releases 3.76.0-3.100.0 at tagged sources: refusal-aware job actions, observer-wide retry, exact manual stream repair, retained-job deletion, bounded namespace metadata comparison, release notes/cached templates, Pi adapters/profile MCP and isolated AI conformance/install-only checks. Updated CLI operations and terminal Workbench guidance. Multi-service context/orchestration unchanged. Reviewed bundled render/run changes through Stage 4.196.0 and Screenplay 4.240.2, ESM v29/v30 admission, reducer migration, executable target validation, model-root resolution and sample packs; Screenplay/Stage/Prologue skill edits reserved for their owning lanes. No live store, render, harness or browser probe. Prior floor established in Cratis/AI#752."
     },
     {
       "id": "screenplay",
@@ -229,9 +229,9 @@
       "repository": "Cratis/Orleans",
       "packages": [],
       "synced": {
-        "version": "1.16.3",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "1.30.0",
+        "date": "2026-10-25",
+        "by": "Cratis/AI#820"
       },
       "covers": {
         "skills": [
@@ -243,7 +243,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "First synced in Cratis/AI#620 at 1.16.3."
+      "notes": "Reviewed all 33 releases 1.17.0-1.30.0 at tagged sources: local IJobs and recovery keys, activation-safe callbacks and drain/admission, bounded retries/test runs, durable plans and initialization hooks, finalized-stop/outcome storage and independent placement/metadata throttle; corrected jobs and Orleans hosting guidance. Internal fixes require no extra consumer action; no live silo probe. Prior floor established in Cratis/AI#620."
     },
     {
       "id": "keldakraft",

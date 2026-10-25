@@ -78,6 +78,28 @@ test('the store-mutation guard refuses chronicle mutations and allows read-only 
     ]);
 });
 
+test('the store-mutation guard names new CLI mutations and distinguishes nested closed-stream inspection', () => {
+    const lists = JSON.parse(readFileSync(dataFile, 'utf8')) as CommandLists;
+    for (const command of ['observers retry-failed-partitions', 'jobs delete', 'streams closed reopen']) {
+        const entry = lists.mutating.find(entry => entry.command === command);
+        assert.ok(entry, `missing classification for ${command}`);
+        const result = runGuard(`cratis chronicle ${command} target --yes`);
+        assert.equal(result.code, 2, result.stderr);
+        assert.match(result.stderr, /BLOCKED by cratis-guard-store-mutations/);
+        assert.ok(result.stderr.includes(`cratis chronicle ${command}: ${entry.effect}.`), result.stderr);
+        assert.doesNotMatch(result.stderr, /not on the read-only allowlist/);
+    }
+    assertVerdicts([
+        [BLOCK, 'cratis chronicle streams closed reopen --event-source-id order-42 --reason repair --yes'],
+        [ALLOW, 'cratis chronicle streams closed list --event-source-id order-42 -o json'],
+        [ALLOW, 'cratis chronicle streams --namespace default closed --quiet list'],
+        [ALLOW, 'cratis chronicle streams closed reopen --help'],
+        [BLOCK, 'cratis chronicle streams closed'],
+        [BLOCK, 'cratis chronicle streams closed future-command'],
+        [BLOCK, 'cratis chronicle streams closed list && cratis chronicle streams closed reopen --reason repair --yes'],
+    ]);
+});
+
 test('the store-mutation guard fails closed for commands it does not know', () => {
     assertVerdicts([
         [BLOCK, 'cratis chronicle some-future-command'],
@@ -237,9 +259,10 @@ test('every command list entry is justified, unique, and agrees with the skill',
     // Every mutation the operations skill names must be one the guard knows by name, not only by failing closed.
     const skill = readFileSync(join(repositoryRoot, '.cratis', 'ai', 'skills', 'cratis-chronicle-cli-operations', 'SKILL.md'), 'utf8');
     const section = skill.slice(skill.indexOf('These commands mutate the running store:'), skill.indexOf('Before any of them:'));
-    const named = [...section.matchAll(/`chronicle ([a-z-]+) ([a-z-]+)`(?:, `([a-z-]+)`)?(?:, `([a-z-]+)`)?(?:,\s+`([a-z-]+)`)?/g)]
+    const named = [...section.matchAll(/`chronicle ([a-z-]+) ([a-z-]+(?: [a-z-]+)?)`(?:, `([a-z-]+)`)?(?:, `([a-z-]+)`)?(?:,\s+`([a-z-]+)`)?/g)]
         .flatMap(match => [match[2], match[3], match[4], match[5]].filter(Boolean).map(command => `${match[1]} ${command}`));
     assert.ok(named.length >= 16, `expected the skill to name at least 16 mutations, found ${named.length}`);
+    assert.ok(named.includes('streams closed reopen'), 'the nested stream mutation must be extracted from the skill');
     for (const command of named) assert.ok(mutating.includes(command), `the skill names '${command}' as a mutation, but the guard does not list it`);
 });
 

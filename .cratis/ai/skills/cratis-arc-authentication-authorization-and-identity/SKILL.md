@@ -179,6 +179,14 @@ filters, and system-execution.
 `Task<AuthenticationResult> HandleAuthentication(IHttpRequestContext context)`.
 Implement it and it is discovered — there is **no** `IArcBuilder` extension and
 **no** options type for authentication.
+Requires Arc 22.139.0 for handlers to opt out of anonymous endpoints through
+`AppliesToAnonymousEndpoints => false`. The default is `true`: existing handlers
+keep running and may establish an identity even when no credential is required.
+Opt out when a handler only rejects credentials and contributes no identity on
+those endpoints. A handler that still runs can inspect the endpoint's anonymous
+metadata and return `AuthenticationResult.Anonymous` instead of rejecting a
+credential the endpoint never required. Specify anonymous and protected requests;
+anonymous access does not bypass other authorization boundaries.
 
 Arc ships `MicrosoftIdentityPlatformAuthenticationHandler` in `Arc.Core`, which
 reads the forwarded principal. See

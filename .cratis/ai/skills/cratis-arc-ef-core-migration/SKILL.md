@@ -187,6 +187,24 @@ Mark the corresponding property `[Json]`.
 `migrationBuilder.GetDatabaseType()` is available when a migration genuinely has
 to branch per provider.
 
+## Tracked and native upserts
+
+Requires Arc 22.135.0 for `DbSet<TEntity>.UpsertAsync(item, cancellationToken)`.
+On supported SQL Server, PostgreSQL and SQLite mappings it executes an immediate,
+parameterized native upsert matching the complete primary key, including composite
+keys and value converters. Native key matching and writing are atomic. It uses
+the context's connection/current transaction, bypasses tracking and does not
+refresh generated values or already tracked instances. It adds no retry policy.
+
+Use application-assigned keys and single-table scalar mappings. Unsupported
+providers or mappings (including unset generated keys, SQL Server identity
+columns, navigations, owned entities, shadow properties, inheritance and multiple
+tables) fall back to tracked persistence and require `SaveChangesAsync`. The
+existing `Upsert(item)` always uses tracked read-then-write persistence and also
+requires saving; that path is not an atomic database upsert. Choose it explicitly
+when deferred persistence is required. Do not rely on fallback for concurrency
+protection or assume the native path flushes pending tracked changes.
+
 ## Observing an EF Core read model
 
 `DbSet<T>` gains `Observe(filter?, configure?)`, `ObserveSingle(filter?, configure?)`

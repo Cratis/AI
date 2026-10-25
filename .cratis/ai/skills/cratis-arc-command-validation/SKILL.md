@@ -142,6 +142,11 @@ public class TransferFundsValidator : CommandValidator<TransferFunds>
 - A validator that itself throws does not become a 500 — Arc catches it and
   emits a validation error with reason `ValidatorFailed`, returning 400.
 
+Read [protected validator construction](references/protected-validator-construction.md)
+for plain read-model constructor inputs under `On`, the separate untrimmed-JIT
+provider opt-in for decision tokens outside `On`, and generated composite-key
+metadata. Do not conflate metadata coverage with validator certification.
+
 ## Step 4 — Data the handler needs: `Provide()`
 
 `Provide()` runs after authorization and validation and before `Handle()`. Its
