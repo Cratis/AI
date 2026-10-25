@@ -26,10 +26,14 @@ a duplicate fails the build with `CS0579`.
 ## Eligibility
 
 A class is shared only when it derives from `Specification`, has a single public
-parameterless constructor (or only framework-managed fixture arguments), does not
-implement `IDisposable`, and has only plain facts. Theories, `ITestOutputHelper`
-constructors, custom `IAsyncLifetime` implementations, custom fact test cases and plain
-xUnit classes keep the per-fact lifecycle.
+parameterless constructor (or only framework-managed fixture arguments), and has only
+plain facts. Theories, `ITestOutputHelper` constructors, custom `IAsyncLifetime`
+implementations, custom fact test cases and plain xUnit classes keep the per-fact lifecycle.
+
+Requires Cratis.Specifications 4.4.0 or later for `IDisposable` specifications to share
+the lifecycle; earlier versions use per-fact construction. With shared lifecycle enabled,
+construction happens once and `Dispose` runs once after the last fact. Use
+`[PerFactSpecificationLifecycle]` when a fresh instance per fact is needed.
 
 `Specification.InitializeAsync()` is idempotent for a single instance. It does not make
 an ineligible class shared or cache instances across classes.
