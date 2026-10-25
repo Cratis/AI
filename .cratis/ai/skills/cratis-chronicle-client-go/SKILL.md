@@ -128,12 +128,13 @@ identity. `delivery.ID()` can key an external idempotency record; it is not an
 exactly-once guarantee. Return supported follow-up events rather than manually
 recreating effect dispatch; use projections for materialization, reactors for effects.
 
-Since 0.11.0, opt into `reactors.StartAtTail()` for a new side-effect reactor
-that must skip history. It only changes first registration: existing positions
-are retained and explicit replay still starts at the beginning. Upgrade the
-kernel to 19.70.0 first; older kernels ignore this option and catch up history.
-`observation.Service.FastForward` and `FastForwardResult` (0.10.0) move an
-observer to the tail; this deliberate administrative skip is not error recovery.
+Requires Chronicle.Go 0.11.0 and kernel 19.70.0 for StartAtTail; check `go list -m github.com/Cratis/Chronicle.Go` and the server version, or retain catch-up behavior until both are upgraded.
+
+Opt into `reactors.StartAtTail()` for a new side-effect reactor that must skip
+history. It only changes first registration: existing positions are retained and
+explicit replay still starts at the beginning. Older kernels ignore this option
+and catch up history. `observation.Service.FastForward` and `FastForwardResult`
+move an observer to the tail; this deliberate administrative skip is not recovery.
 
 `reactors.OnceOnly()` excludes replay; it does **not** deduplicate failed-partition
 recovery. Effects may repeat after errors, cleanup failures or reconnect. Keep them
@@ -144,8 +145,9 @@ for exact effect, replay and registration-readiness limits.
 
 ## Unsupported does not mean success
 
-The 0.11.x client requires Chronicle kernel 19.70.0 or later; decision guards are
-supported against the verified 19.70.0 profile, with compatibility preflight;
+Requires Chronicle kernel 19.70.0 for the current Go decision-guard profile; check the server version or postpone the client upgrade.
+
+Decision guards include compatibility preflight;
 unsupported kernels return `ErrUnsupported`. Protected operations have their own
 kernel capability gates; the client supports qualified protected revisions and
 classified read-model replay routes, not every protected watch/profile.
