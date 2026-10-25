@@ -156,6 +156,10 @@ builder.Services.AddCratisAI(ai => ai
     .WithDecisions());
 ```
 
+`WithAgents<T>()` defaults to singleton. If your agent lookup reads tenant-scoped data, use
+`WithAgents<OrganizationAgents>(ServiceLifetime.Scoped)` and keep its consumers scoped or transient;
+see [Tenant-scoped agent sources](abstractions.md#tenant-scoped-agent-sources).
+
 `WithDecisions()` resolves the engine from the configuration above through
 `ConfiguredDecisionEngineResolver`. A host that needs to decide for itself registers its own
 `IDecisionEngineResolver` with `WithDecisions<TResolver>()`.

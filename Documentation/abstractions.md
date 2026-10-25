@@ -48,6 +48,29 @@ Looks up the identity of an agent without the package owning the full agent mode
 reconciliation is plan Section 5.5, not yet done). `IAgentExecution` resolves an agent through this.
 No safe default; required for `IAgentExecution.As(...)` to ever attribute anything.
 
+#### Tenant-scoped agent sources
+
+`WithAgents<TAgents>()` keeps the singleton default for agent catalogs that do not depend on
+scoped services. If your lookup reads tenant-scoped data, such as Chronicle `IReadModels`,
+register it as scoped so each request reads its own tenant.
+
+For an application-defined `OrganizationAgents : IAIAgents`, use this registration excerpt
+(with `Microsoft.Extensions.DependencyInjection` in scope):
+
+```csharp
+builder.Services.AddCratisAI(ai => ai
+    .WithAgents<OrganizationAgents>(ServiceLifetime.Scoped));
+```
+
+`IAgentExecution` is transient and resolves the lookup from the caller's scope. Resolve it within
+the tenant's request scope, not from the root provider. Your own consumers of a scoped lookup or
+`IAgentExecution` must also be scoped or transient, never singletons: a singleton would capture
+one tenant's lookup for later requests.
+
+Do not work around a lifetime mismatch by creating a new scope with `IServiceScopeFactory`.
+That scope does not carry the caller's tenant; use the existing tenant scope instead. Keep scope
+validation enabled to catch accidental singleton consumers.
+
 ### `IAIAlerts`
 
 ```csharp
