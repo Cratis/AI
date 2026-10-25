@@ -22,7 +22,7 @@ and concept compliance (v13) render.
 
 ## Current admission
 
-The language is frozen at ESM v1–v28 ([the freeze decision](https://github.com/Cratis/Screenplay/blob/main/decisions/0092-the-language-is-frozen-at-esm-v28.md)): no new versions, constructs, keywords or grammar, except a construct for a real model that is blocked with no model-side alternative, accepted in its own record. Model with what v1–v28 offers; when Stage, `cratis render` or Studio does not support a construct yet, treat the typed refusal as a platform gap to report, since consumers are catching up to v28, not a reason to wait for new language.
+New constructs can be admitted, each byte-changing one with its own ESM version, and count as delivered once Stage admits it or refuses it with a typed refusal. Model with what the installed compiler admits; when Stage, `cratis render` or Studio does not support a construct yet, treat the typed refusal as a platform gap to report.
 
 Stage v4.197.0 admits matched language/ESM **1.0–30.0 and 32.0**, not 31.0,
 mixed or unknown pairs (`STAGE-ESM-016`). CLI v3.100.0 render checks only the

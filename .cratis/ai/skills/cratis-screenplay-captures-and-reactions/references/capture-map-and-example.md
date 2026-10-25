@@ -63,6 +63,13 @@ reference is handed records (`given capture`, `when capture`) and never contacts
 (PLAY0700). Events append to the event source the key names, and
 `$context.occurred` is supplied by the scenario's `given clock`.
 
+When every consumed event declares the key as one required scalar property of the same
+type (for example a concept over Uuid), the appended event's identity carries that type
+instead of Text, and `for` in specifications binds as that type. A model that uses this
+selects ESM v32 (Requires Screenplay 4.241.0; `screenplay --version`); untyped, non-scalar or
+disagreeing keys keep Text and the earlier version. Rendering needs a Stage that admits v32:
+see toolchain [language admission](../../cratis-screenplay-toolchain/references/language-admission.md).
+
 For a producer that sources every event by this key, declare
 `key <property> is event source` (ESM v33, Screenplay 4.242.0).
 See [Keying by the event source](#keying-by-the-event-source) below for the promise, fixture `for`

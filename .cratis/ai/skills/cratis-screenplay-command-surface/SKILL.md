@@ -212,6 +212,8 @@ comparisons; older binders report PLAY0268. Read [date comparisons](references/d
 when ordering a retention window with `require to >= from`, comparing instants
 across offsets, or rejecting offset-less inputs before rules. It covers admitted
 positions, PLAY0268/0273, ordinal `then` matching and Stage's STAGE-ESM-046 renderer refusal.
+The same file lists the parsed-but-not-runnable calendar and clock forms (`time zone`, `calendar`,
+`today - 7 days`, `date of occurred`; PLAY0812 to PLAY0814): do not author them into executable models.
 
 Requires Screenplay 4.205.0 (ESM v28; `screenplay --version`) for `==`/`!=` between Uuid
 values (properties, concepts, identities, canonical literals, and read paths in `require`);
@@ -220,7 +222,8 @@ rule, PLAY0268/0273 and the refused shapes (ordering, Uuid validation rules, Uui
 
 **Rules whose logic is code.** A bare `rule <Name>` has no portable meaning (`PLAY0268`) and a bodied rule binds only as
 opaque code. Read [references/validate-rules.md](references/validate-rules.md) when a rule's logic must live in a `file`
-or fenced code body.
+or fenced code body. Built-in inline languages are `csharp`, `typescript`, `react`, `html`, `sql` and `java`;
+the body is opaque and travels unchanged, and the Cratis render target refuses `java` bodies (Requires Screenplay 4.244.0).
 
 **Put format rules on the `concept`, not the command** (except date comparisons,
 which bind only on command properties, not as concept rules). A concept carries its own

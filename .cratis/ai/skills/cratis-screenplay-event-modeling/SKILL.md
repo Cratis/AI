@@ -115,8 +115,8 @@ result are in [references/parsed-not-runnable.md](references/parsed-not-runnable
 and `cratis-screenplay-toolchain` (`references/executable-subset.md`). Read `references/parsed-not-runnable.md` when determining the required ESM version or interpreting binding dispositions. Read `cratis-screenplay-toolchain`'s `references/executable-subset.md` when checking binder admission or reference-execution limits. Model the wider
 language freely when the `.play` file **is** the deliverable - documentation,
 review, a shared description of a system. Never read a clean `screenplay` run as
-evidence a construct works downstream. The language is frozen at ESM v1–v28 ([the freeze decision](https://github.com/Cratis/Screenplay/blob/main/decisions/0092-the-language-is-frozen-at-esm-v28.md)): model with it, and report a typed
-Stage, `cratis render` or Studio refusal as a platform gap rather than waiting for new constructs.
+evidence a construct works downstream. New constructs can be admitted, each byte-changing one with its own ESM version, and count as delivered once Stage admits it or refuses it with a typed refusal. Model with what the installed compiler admits, and report a typed
+Stage, `cratis render` or Studio refusal as a platform gap.
 
 ## Locate the model
 
@@ -168,7 +168,9 @@ Read [references/parsed-not-runnable.md](references/parsed-not-runnable.md) (sec
 Two divergences matter, and getting them wrong produces a model that will not
 compile or will not be safe. Both are deliberate.
 
-- **A command may read state.** The generic method forbids `ReadModel -> Command`
+- **A command may read state.** A newly scaffolded model starts its application root
+  with `command reads protected`; leave the preamble out only for a model whose reads are
+  not admissible (PLAY0781/PLAY0786). The generic method forbids `ReadModel -> Command`
   edges. Screenplay ships `reads <ReadModel> [as <alias>] [by <property>]` so the
   model shows what a state-dependent decision consulted. Application-root
   `command reads protected` admits eligible command reads as v25: absent state

@@ -164,7 +164,7 @@ A query is **complete without a performer** — it is realization metadata, not 
 precondition. It takes a `file` reference or an inline block in a tagged fence
 (` ```csharp `, ` ```sql `), and is the query's counterpart to a command's
 `handler`. The parser accepts any registered inline language and does not reject
-a nonsensical one, so the choice is yours to get right. Performer code is opaque:
+a nonsensical one, so the choice is yours to get right. Built-in inline languages are `csharp`, `typescript`, `react`, `html`, `sql` and `java`. A performer query refuses a `by` or `filter` argument sourced from `$context` with PLAY0810 (C# binding; Requires Screenplay 4.244.0, `screenplay --version`; older compilers silently drop it): take a caller-supplied argument instead. Performer code is opaque:
 Screenplay never runs it. It is reported as information `PLAY0270` and left out of the executable model; a specification that reads it is left out while every other specification still runs. Older compilers refuse it with PLAY0268: see the [version gate](../cratis-screenplay-toolchain/references/executable-subset.md#code-attachments-what-binds-what-never-does).
 
 A read model a performer composes needs no projection, and no event builds it.

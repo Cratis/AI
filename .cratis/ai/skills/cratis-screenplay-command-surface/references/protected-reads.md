@@ -154,6 +154,8 @@ Stage's [protected reads rendering](https://github.com/Cratis/Stage/blob/main/Do
 for the rendered shape and where it differs from the reference (a race is an Arc
 validation failure, not `DecisionStateChanged`; only the first failing requirement is reported).
 
+When the same commit also violates a uniqueness constraint, the constraint refusal is the one observed, not the concurrency conflict; see [race scenarios](../../cratis-screenplay-streams-and-consistency/references/consistency-and-concurrency.md#4-concurrency-scenarios).
+
 Requires Stage 4.129.0 for semantic Host/specification-executor protected reads;
 older engines refuse STAGE-ESM-044. They require presence before requirements or
 generation and use stored read properties in requirements and produced mappings,
