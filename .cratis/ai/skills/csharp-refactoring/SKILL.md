@@ -1,6 +1,6 @@
 ---
 name: csharp-refactoring
-description: Use when restructuring C# code without changing behavior or separating a requested refactor from behavioral changes. Not for ordinary features, bug fixes, dependency upgrades, test additions or formatting alone.
+description: Use when renaming public types or restructuring C# code without changing behavior, or separating a requested refactor from behavioral changes. Not for ordinary features, bug fixes, dependency upgrades, test additions or formatting alone.
 license: MIT
 ---
 
