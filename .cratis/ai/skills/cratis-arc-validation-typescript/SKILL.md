@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-validation-typescript
-description: Add rejection checks to Arc for TypeScript servers, including proxy-safe rules and severity filtering. Use when authoring Node.js ruleFor chains, readModelForValidation checks or rejected()/denied() outcomes in provide()/handle(), and asserting them with @cratis/arc.testing. Do not use for C# validation (use cratis-arc-command-validation), JVM FluentModelValidator (use cratis-arc-validation-kotlin), new server commands (use cratis-arc-command-typescript), query definitions (use cratis-arc-query-typescript), or append-time uniqueness (use cratis-chronicle-event-constraints).
+description: Use when adding rejection rules, state checks or validation assertions to an Arc Node.js server. Not for defining commands or queries, C# and JVM validators, or append-time uniqueness.
 license: MIT
 ---
 

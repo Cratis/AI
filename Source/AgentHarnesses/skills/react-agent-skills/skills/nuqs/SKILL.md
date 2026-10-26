@@ -1,6 +1,6 @@
 ---
 name: nuqs
-description: nuqs (type-safe URL query state) best practices for Next.js applications. This skill should be used when writing, reviewing, or refactoring code that uses nuqs for URL state management. Triggers on tasks involving useQueryState, useQueryStates, search params, URL state, query parameters, nuqs parsers, or Next.js routing with state.
+description: Use when changing nuqs URL query state, search-param parsers or browser-history synchronization. Not for server-data caching; use tanstack-query.
 ---
 
 # Community nuqs Best Practices for Next.js

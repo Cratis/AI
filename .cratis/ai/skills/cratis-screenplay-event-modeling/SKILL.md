@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-event-modeling
-description: "Entry point and router for model-first Cratis work: the short decision rule (model, or code), the nine-step workflow per behavior, the four slice types, the Cratis divergences from the generic method, the quick validation gate, file layout and what parsed-but-not-runnable means, then the phase skill to load next. Use when designing an information system, mapping a business process or information flow, deciding the event vocabulary or stream boundaries, turning a whiteboard model into `.play`, or when a request may change behavior in an application with a Screenplay model. Not for: Screenplay syntax and the compiler alone (use `cratis-screenplay-toolchain`), the lifecycle, verdicts and handoffs (use `cratis-screenplay-modeling-lifecycle`), or rendering a settled model (use `cratis-screenplay-render-and-gap-fill`)."
+description: Use when starting a Screenplay modeling task, mapping a business process or deciding where a modeled behavior change enters the workflow. Not for syntax-only questions, lifecycle verdicts or rendering a settled model.
 license: MIT
 ---
 

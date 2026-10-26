@@ -1,6 +1,6 @@
 ---
 name: cratis-lens-browser-extension
-description: Use the Cratis Lens browser extension against a running Cratis Arc application — building and side-loading it, what the Arc app must already serve for Lens to work, switching the active user and tenant, and executing a command or query from the popup. Use when setting Lens up, when Lens does not detect an Arc app, or when a switched identity or tenant does not take effect. Do not use for production authentication or authorization design, and do not use for Chronicle inspection.
+description: Use when setting up Lens for a development Arc application, diagnosing app detection or checking switched identities and tenants. Not for production authentication, authorization design or Chronicle inspection.
 license: MIT
 ---
 

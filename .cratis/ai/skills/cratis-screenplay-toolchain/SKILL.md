@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-toolchain
-description: "How to run and check Cratis Screenplay `.play` models: locating the model, choosing the standalone `screenplay` tool or the `cratis` CLI, the exact command behind each verdict V1 to V5 and what a pass looks like, the executable and renderable subsets, reading PLAY, STAGE and CLI-RENDER diagnostics, traps, and a compiled cheat-sheet. Use when choosing a compiler, running or reading a verdict, fixing a diagnostic, or deciding whether syntax binds or renders. Not for: what to model or the phase workflow (use `cratis-screenplay-modeling-lifecycle`), the MCP editing loop (use `cratis-screenplay-model-authoring`), rendering workflow (use `cratis-screenplay-render-and-gap-fill`)."
+description: Use when selecting a Screenplay compiler, running verdict checks or interpreting PLAY, STAGE and CLI diagnostics. Not for modeling phase decisions, AST editing proposals or the end-to-end rendering workflow.
 license: MIT
 ---
 

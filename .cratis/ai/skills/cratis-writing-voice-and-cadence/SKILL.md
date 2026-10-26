@@ -1,6 +1,6 @@
 ---
 name: cratis-writing-voice-and-cadence
-description: Review and revise existing prose so it reads as written by a person, by finding overused constructions and stock phrasing in one piece and structural sameness across a batch, then fixing both with specifics instead of injected variety, without changing any technical claim. Flags are editing prompts and never a verdict on who wrote something. Use when reviewing or rewriting documentation, release notes, pull request descriptions, posts or reviews for voice. Do not use for technical accuracy review, original drafting, authorship detection, or as a reason to touch approved copy without authorization.
+description: Use when revising existing prose for stock phrasing, voice or structural sameness across a batch. Not for original drafting, technical accuracy review, authorship detection or unauthorized edits to approved copy.
 license: MIT
 ---
 

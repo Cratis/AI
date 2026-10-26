@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-query-paging
-description: Add server-side paging and sorting to a Cratis Arc read-model query — which return shapes Arc pages, what a query author must not write (Skip, Take, OrderBy), how MongoDB pages and sorts without LINQ, the exact query-string keys, sorting pitfalls per storage provider, and the paged frontend hooks. Use when a list query can grow large enough that returning every row is wasteful, or needs server-side sorting, or a paged query fails with `Expression not supported`. Do not use for general query creation or as a performance review.
+description: Use when an existing Arc list query needs server-side paging or sorting, or a paged query fails with `Expression not supported`. Not for general query creation or a broad performance review.
 license: MIT
 ---
 

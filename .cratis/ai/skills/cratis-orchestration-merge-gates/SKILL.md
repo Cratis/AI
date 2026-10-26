@@ -1,6 +1,6 @@
 ---
 name: cratis-orchestration-merge-gates
-description: Decide when an assembled candidate may merge during multi-lane work, using tier names, GitHub state for serial merge turns, a stale-head check, the review budget and an unattended no-prompt contract. Use when naming the gate tier for a lane, deciding whether it is this pull request's turn to merge, checking that a green run belongs to the current head, bounding review rounds for a lane, or making a command safe to run unattended. Not for ordinary single-session merging (use cratis-engineering-ci-gates), lane claims and briefs (use cratis-orchestration-lanes), review rounds themselves (use cratis-engineering-review-rounds), or grouping a release candidate (use cratis-engineering-release-trains).
+description: Use when checking gate tiers, serial merge turns or exact-head readiness during multi-lane delivery. Not for single-session merging, lane claims, performing review rounds or grouping release candidates.
 license: LICENSE
 compatibility: Requires git and the GitHub CLI (gh).
 ---

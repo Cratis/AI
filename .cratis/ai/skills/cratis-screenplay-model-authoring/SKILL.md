@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-model-authoring
-description: Author, inspect, refactor and verify a Cratis Screenplay .play model through its typed AST and MCP workspace tools. Use for creating or changing model elements, navigating large split models, reviewing references/specifications, revision-checked screen/UI authoring proposals, or distinguishing source validity from executable/runtime readiness. Do not use for rendering a model into an application or hand-written Arc/Chronicle code.
+description: Use when inspecting or changing Screenplay model elements through typed AST proposals, navigating split models or recovering workspace state. Not for rendering the model or writing Arc and Chronicle application code.
 license: MIT
 ---
 

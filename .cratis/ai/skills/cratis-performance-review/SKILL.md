@@ -1,6 +1,6 @@
 ---
 name: cratis-performance-review
-description: Perform a focused scalability review of changed code in a Cratis application — Chronicle observers and replay, read-model query shape, command and query payloads, .NET enumeration, and React render cost — and report findings by risk. Use when asked to check for performance or scalability problems. Do not use for ordinary implementation and do not override the authoritative paging guidance.
+description: Use when auditing Cratis application changes for runtime scalability, replay cost, query shape, payload size or React render cost. Not for ordinary implementation, CI workflow speed or paging syntax alone.
 license: MIT
 ---
 

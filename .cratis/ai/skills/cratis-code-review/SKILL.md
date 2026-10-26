@@ -1,6 +1,6 @@
 ---
 name: cratis-code-review
-description: Review changed code in a Cratis application against the architecture, style, and specification-coverage criteria that the compiler cannot check, and produce a structured report with blocking issues separated from suggestions. Use when asked to review, check, or validate a change. Do not substitute it for a focused security audit and do not restate specialist performance findings.
+description: Use when reviewing changed Cratis application code for architecture, style and specification coverage beyond compiler checks. Not for a focused security or scalability audit, or for scheduling review rounds.
 license: MIT
 ---
 

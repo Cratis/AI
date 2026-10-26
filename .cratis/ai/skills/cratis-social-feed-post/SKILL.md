@@ -1,6 +1,6 @@
 ---
 name: cratis-social-feed-post
-description: Write or review a short post for a social feed such as LinkedIn, where only the opening shows before "see more", the body is plain text with no markup, posts lead with media that carries the Cratis mark, and formatting tricks cost accessibility. Use when drafting, adapting or reviewing a feed post, choosing its media, or adapting it for another channel. Do not use for documentation pages, release notes, long-form articles, or anything rendered as Markdown, and hand length, voice and distribution questions to their own skills.
+description: Use when drafting, adapting or reviewing a short social-feed post or choosing its media. Not for documentation, release notes, long-form articles or Markdown content; length, voice and distribution have separate skills.
 license: MIT
 ---
 

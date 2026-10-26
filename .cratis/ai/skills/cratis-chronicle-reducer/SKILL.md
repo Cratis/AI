@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-reducer
-description: Write a Chronicle IReducerFor reducer when model-bound projection attributes and the fluent IProjectionFor builder cannot express a read-model state transition. Covers the admission test, the exact accepted method signatures, the nullable-current requirement, deletion, passivity and event filtering. Use only after the projection options are genuinely exhausted; do not use for ordinary event-to-property mapping.
+description: Use when a Chronicle read-model transition needs branching, calculations or guards over prior state, or a reducer's discovery and delivery need diagnosis. Not for ordinary event-to-property mappings or external side effects.
 license: MIT
 ---
 

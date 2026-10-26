@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-command-surface
-description: Write the write side of a Cratis Screenplay `.play` model — the `command` block and its `identifier`, `reads`, `validate`, `authorize`, `produces`, `handler` and `concurrency` clauses, plus `event`, `constraint`, `policy`, `persona`, `concept`, `type` and `seed`. Use when declaring or changing a command, an event shape, a validation or authorization rule, an append-time constraint, or a strongly-typed value in Screenplay. Do not use for projections, queries, screens, captures or reactions.
+description: Use when writing Screenplay command, event, constraint, authorization or strongly-typed value syntax. Not for deciding stream boundaries or declaring queries, screens, projections and reactive edges.
 license: MIT
 ---
 

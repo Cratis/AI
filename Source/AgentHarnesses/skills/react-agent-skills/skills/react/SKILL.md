@@ -1,6 +1,6 @@
 ---
 name: react
-description: React 19 performance optimization guidelines for concurrent rendering, Server Components, actions, hooks, and memoization (formerly react-19). This skill should be used when writing React 19 components, using concurrent features, or optimizing re-renders. This skill does NOT cover Next.js-specific features like App Router, next.config.js, or Next.js caching (use nextjs-16-app-router skill). For client-side form validation with React Hook Form, use react-hook-form skill.
+description: Use when changing React concurrent rendering, Server Components, actions, hooks or re-render behavior. Not for Next.js routing and caching or React Hook Form field validation.
 ---
 
 # React 19 Best Practices

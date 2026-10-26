@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-event-specifications
-description: Specify event-append behavior with EventScenario from Cratis.Chronicle.Testing — seeding prior events through Given, appending through When or the event log, and asserting on the append result including constraint violations. Use when the behavior under specification is what reaches the event store. Do not use for command handling or for read-model projection behavior.
+description: Use when specifying Chronicle event appends or constraint violations through the in-process append path. Not for command handling or how events become read-model state.
 license: MIT
 ---
 

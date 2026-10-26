@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-automations-and-translations
-description: "Model Screenplay Automation and Translate slices: when a reaction is warranted, todo-list work queues, produces versus invokes, the trusted actor behind caller-less invokes, termination, clock and trigger occurrences, outside facts via capture with correlation, dedup and enrich/ignore/infer, recovery ownership, and what once-only does not prove about external effects. Use when a model has or needs 'when X happens then ...', schedules, work queues, webhooks, API polls, message feeds or imported events. Not for: reaction, trigger or capture grammar (use `cratis-screenplay-captures-and-reactions`)."
+description: Use when deciding Screenplay event-driven work, schedules, queues or translation of outside facts and their recovery guarantees. Not for reaction, trigger or capture grammar alone; use cratis-screenplay-captures-and-reactions.
 license: MIT
 ---
 

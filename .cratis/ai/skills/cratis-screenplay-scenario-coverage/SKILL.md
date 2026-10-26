@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-scenario-coverage
-description: "Decide and write Screenplay specifications for slices: a coverage matrix before drafting, every applicable scenario type per command (rules, denial, duplicates and retries, competing claims, ordering, external failure, compensation, evolution), view lifecycle specs per read model, shared example data, spec forms per mode, and a workshop guide for scenario sessions. Use when writing or auditing given/when/then in a `.play` model. Not for: spec grammar and comparison semantics (use `cratis-screenplay-specifications`), C# specs (use `cratis-specifications-csharp`)."
+description: Use when deciding which Screenplay scenarios a slice needs or auditing its refusal, retry, race and view-lifecycle coverage. Not for specification grammar, comparison semantics or C# tests.
 license: MIT
 ---
 

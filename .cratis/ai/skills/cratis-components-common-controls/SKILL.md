@@ -1,6 +1,6 @@
 ---
 name: cratis-components-common-controls
-description: Choose and bind Cratis Components ComboBox, ToggleGroup, Tabs, TagGroup and Breadcrumbs with controlled values, query states, keyboard semantics and localizable names. Use for entity pickers, exclusive choices, panel tabs, tag inputs or navigation trails. Do not use for Arc generated command fields, data tables, canvas palettes or theming.
+description: Use when binding Cratis Components entity pickers, exclusive choices, panel tabs, tag inputs or breadcrumb trails. Not for generated Arc command fields, data tables, canvas palettes or theming.
 license: MIT
 ---
 

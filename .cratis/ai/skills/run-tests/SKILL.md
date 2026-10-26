@@ -1,6 +1,6 @@
 ---
 name: run-tests
-description: 'Chooses and runs the repository-compatible .NET test command: classic, VSTest, bridged MTP, or native MTP syntax for MSTest, xUnit, NUnit, and TUnit. Use before running .NET tests or answering with a test command or flags: run the tests, one test, class, category, trait or target framework, combined filters, --filter-query, --no-build, --diag, TRX, coverage collection, crash or hang dumps, filter errors, or unrecognized options. Not for platform identification alone (use platform-detection), writing or debugging test code, interpreting a coverage report (use coverage-analysis), CI investigation, migration, or a persistent hot-reload loop.'
+description: Use before running .NET tests or choosing test commands, flags and filters, including command failures and dump collection. Not for platform identification alone, test authoring or interpreting coverage reports.
 license: MIT
 metadata:
   portability: portable

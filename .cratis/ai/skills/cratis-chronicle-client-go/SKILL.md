@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-client-go
-description: Connect a standalone Go application to Chronicle, register events and observers, append with explicit outcomes, and materialize read models. Use for Chronicle.Go client setup, projections, reactors, gRPC ownership and safe retry decisions. Do not use for Arc HTTP commands or Chronicle kernel implementation.
+description: Use when connecting Go to Chronicle, registering client observers or deciding gRPC ownership and append retries. Not for Arc HTTP commands or Chronicle kernel implementation.
 license: MIT
 compatibility: Go 1.26 or later; a Chronicle kernel profile the client supports.
 ---

@@ -10,22 +10,29 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const file = '.cratis/ai/skills/example/SKILL.md';
-const skill = (description = 'Build an example. Use when demonstrating behavior. Not for queries.', body = '') => `---\nname: example\ndescription: ${JSON.stringify(description)}\n---\n${body}`;
+const skill = (description = 'Use when demonstrating behavior. Not for queries.', body = '') => `---\nname: example\ndescription: ${JSON.stringify(description)}\n---\n${body}`;
 const rules = (content: string, path = file) => skillAuthoringFindings(path, content).map(finding => finding.rule);
 
-test('description-when recognizes explicit routing forms and rejects implicit triggers', () => {
-    for (const clause of ['Use when writing', 'Load when writing', 'Read when writing', 'Use this skill when writing', 'Load this skill before writing', 'Read for examples', 'Use to write', 'Use whenever writing', 'Use if writing', 'Trigger on examples', 'Build examples. Use when writing', 'For examples, load when writing']) {
+test('description-when requires an anchored invocation condition, not a summary prefix', () => {
+    for (const clause of ['Use when writing', 'Use before writing', 'Use when changing café labels', '  Use when writing']) {
         assert.ok(!rules(skill(clause + '. Not for queries.')).includes('description-when'), clause);
     }
-    assert.ok(rules(skill('Build an example. After discovery.')).includes('description-when'));
-    assert.ok(rules(skill('Abuse when writing.')).includes('description-when'));
+    for (const clause of ['Build an example. After discovery.', 'Abuse when writing.', 'Build examples. Use when writing.', 'Load when writing.', 'Read for examples.', 'Use whenever writing.', 'Use if writing.', 'Use when', 'Use before']) {
+        assert.ok(rules(skill(clause)).includes('description-when'), clause);
+    }
+    for (const content of ['---\nname: example\ndescription: Examples.\nmetadata:\n  description: Use when writing.\n---\n', skill('Examples.', 'Use when writing.')]) {
+        assert.ok(rules(content).includes('description-when'));
+    }
+    const finding = skillAuthoringFindings(file, skill('Build examples. Use when writing.'))[0];
+    assert.equal(finding.line, 3);
+    assert.match(finding.matchedText, /Start with Use when or Use before/);
+    assert.equal(skillAuthoringProblems([finding]).length, 1);
 });
 
-test('description-when-not recognizes boundaries and named alternatives', () => {
-    for (const clause of ['Not for queries', 'Not when querying', 'Do not use for querying', "Don't use for querying", 'use `example-query` instead']) {
-        assert.ok(!rules(skill('Use when writing. ' + clause)).includes('description-when-not'));
+test('isolated positive triggers and useful sibling boundaries are both valid', () => {
+    for (const clause of ['', ' Not for queries.', ' For queries use `example-query` instead.']) {
+        assert.deepEqual(rules(skill('Use when writing.' + clause)), []);
     }
-    assert.ok(rules(skill('Use when writing.')).includes('description-when-not'));
 });
 
 test('description voice rejects first and second person but allows domain we/our and word substrings', () => {
@@ -42,10 +49,13 @@ test('description voice rejects first and second person but allows domain we/our
 });
 
 test('folded and quoted YAML routing is checked at its physical description location', () => {
-    const content = '---\nname: example\ndescription: >-\n  Build examples.\n  Use when writing. Not for queries; your input.\n---\n';
+    const content = '---\nname: example\ndescription: >-\n  Use when writing.\n  Not for queries; your input.\n---\n';
     for (const source of [content, content.replaceAll('\n', '\r\n')]) {
         const findings = skillAuthoringFindings(file, source);
         assert.deepEqual(findings.map(finding => [finding.rule, finding.line]), [['description-voice', 3]]);
+    }
+    for (const scalar of ['"Use before writing café labels."', "'Use when writing café labels.'", '>\n  Use when writing\n  café labels.']) {
+        assert.deepEqual(rules(`---\nname: example\ndescription: ${scalar}\n---\n`), []);
     }
 });
 

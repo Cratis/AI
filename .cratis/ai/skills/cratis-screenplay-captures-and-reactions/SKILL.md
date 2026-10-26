@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-captures-and-reactions
-description: Model the reactive edges of a Cratis Screenplay `.play` model — `capture` in the Change Data Capture Language for turning external data into events, and `reaction` plus `trigger` for work that runs when something happens, on a schedule, or on an integration signal. Use when integrating an external system, translating outside data into events, or declaring automatic follow-up work in a `.play` model. Do not use for commands, projections or screens.
+description: Use when writing Screenplay capture, reaction or trigger syntax for outside facts and automatic follow-up work. Not for deciding integration guarantees or declaring commands, projections and screens.
 license: MIT
 ---
 

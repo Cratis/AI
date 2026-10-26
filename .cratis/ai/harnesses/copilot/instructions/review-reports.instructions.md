@@ -70,8 +70,16 @@ Do not append a competing Markdown report or invent envelope fields.
 ## Rounds
 
 A follow-up round reviews only the delta since the last reviewed commit and carries prior
-findings forward. Cap the rounds and prefer one structural fix over looping. See
-`cratis-engineering-review-rounds`.
+findings forward with stable finding IDs, consequences, evidence, dispositions and
+unresolved gaps. The writer independently verifies feedback and records evidence-backed
+corrections or disagreements. Preserve typed report envelopes without adding fields.
+Dirty-tree feedback is preliminary, never reusable committed approval.
+
+Cap review at three total rounds per work item; retries, fallbacks and renaming do
+not reset it. Record failed attempts. Silence, failure, cancellation, missing checks
+and exhaustion never imply approval. Verify cancellation before replacement; escalate
+unresolved disputes instead of looping. Suggestions alone do not justify another round.
+See `cratis-engineering-review-rounds` for dispatch and writer-pause mechanics.
 
 ## Reviewer independence
 
@@ -82,4 +90,7 @@ findings forward. Cap the rounds and prefer one structural fix over looping. See
   report header and on the Not examined line.
 - **[contract]** A provider or tool error makes the review **Incomplete**. Fall back once
   to the other family. Never report a failed verdict, or Approved, because the reviewer
-  could not run.
+  could not run. Verify actual reviewer identity and availability through the host;
+  a configured name alone is not proof. A user-named reviewer that is unavailable
+  leaves that named loop blocked/Incomplete; identify any separately authorized
+  fallback honestly. An independent fallback does not erase the failed attempt.

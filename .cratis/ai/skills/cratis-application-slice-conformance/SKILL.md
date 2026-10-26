@@ -1,6 +1,6 @@
 ---
 name: cratis-application-slice-conformance
-description: "Reconcile a Cratis slice's hand-written or gap-filled code and specifications with its contract (the `.play` slice and its specifications, else the agreed slice outline) in both directions: every contracted field, rule, event, read-model property and specification has a realization, and nothing in code lacks authority. Use when implementing a slice, re-delivering after a model change, finishing gap-fill after a render, or reviewing slice code. Not for: deciding what the slice should do (use `cratis-chronicle-event-modeling` or `cratis-screenplay-slice-design`), writing the specifications themselves (use `cratis-application-slice-specifications`), or rendering (use `cratis-screenplay-render-and-gap-fill`)."
+description: Use when finishing or reviewing hand-written slice code, gap-fill or re-delivery against its accepted model or outline. Not for deciding behavior, writing specifications or running the renderer.
 license: MIT
 ---
 
