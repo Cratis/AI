@@ -1,7 +1,7 @@
 # Provenance
 
-This `react-agent-skills/` directory is vendored, unmodified, from an upstream open-source project -
-not authored by Cratis.
+This `react-agent-skills/` directory is vendored from an upstream open-source project,
+with the bounded routing-description modifications below. The upstream guidance is not authored by Cratis.
 
 - **Source:** https://github.com/thongdn-it/react-agent-skills
 - **Pinned commit:** `22b5ec4e4a1077e213bcf368bb2b6ed26c91d8e9` (branch `master`)
@@ -20,13 +20,18 @@ startup would make a worker's behavior depend on an upstream repository staying 
 unchanged for as long as this image is in use, and would need its own supply-chain review every time
 it ran rather than once, at vendor time.
 
-## Why kept unmodified rather than re-authored
+## Local routing-description modifications
 
-Each of the 19 skills under `skills/` is a substantial, curated body of React-ecosystem guidance
-(references, checklists, examples) that would be expensive to reproduce faithfully and easy to
-silently drift from upstream if hand-edited. Re-vendoring at a newer commit is a deliberate,
-reviewable update to this directory and the pinned commit above; nothing in this tree should be
-edited by hand.
+The 18 shipped skills under `skills/` retain their upstream bodies, references, examples,
+metadata, names, directories and license. Cratis changed only their frontmatter descriptions
+to invocation conditions starting with `Use when`, with concise near-miss boundaries and
+sibling names that exist in the shipped collection. Removed capability summaries remain
+covered by the body introductions and reference categories. No upstream content was refreshed.
+
+On a deliberate re-vendor, compare against the pinned commit above, preserve the upstream
+license and review each description against the complete new body and nearest shipped sibling.
+Reapply these routing-only changes explicitly; do not overwrite bodies with a bulk rewrite.
+Run `Source/AgentHarnesses/verify-vendored-skills.sh` and the repository corpus/install gates.
 
 ## Where a worker sees this
 

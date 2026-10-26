@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-cli-operations
-description: Inspect and operate a running Chronicle server with the cratis CLI - contexts and connection resolution, machine-readable output, failed partitions, observers, event sequences, read models, projections and jobs, and the authorization discipline for replay, retry, quarantine clearing and other mutations. Use when the question is about the state of a live store rather than source code. Do not use to diagnose a defect that reproduces locally in source.
+description: Use when inspecting a running Chronicle store or performing an authorized store operation through the cratis CLI. Not for source-local defects, MCP tool selection or the browser Workbench.
 license: MIT
 ---
 

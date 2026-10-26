@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-event-constraints
-description: Enforce append-time uniqueness in Chronicle with the [Unique] attribute, [RemoveConstraint], and IConstraint, and specify the violation with EventScenario. Use when a rule must hold at the event store rather than in a command, so two concurrent appends cannot both win. Do not use for ordinary command input validation and do not use to create a projection.
+description: Use when Chronicle uniqueness or create-once rules must hold across concurrent appends from every writer. Not for ordinary input validation, capacity predicates or projection creation.
 license: MIT
 ---
 

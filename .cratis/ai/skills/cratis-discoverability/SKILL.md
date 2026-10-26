@@ -1,6 +1,6 @@
 ---
 name: cratis-discoverability
-description: Check Cratis content before publishing for search and AI answers without sacrificing readability. Use when reviewing discoverability, SEO, AEO or GEO; writing fact blocks or download claims; editing package/repo metadata; checking docs titles, descriptions or LLM export budgets; or reviewing founder/company JSON-LD and member profile indexing. Not for page voice and structure (cratis-documentation-writing), llms.txt design (cratis-llm-friendly-documentation), distribution plans (cratis-developer-marketing) or length decisions (cratis-content-length).
+description: Use when checking Cratis search discoverability, metadata, adoption claims, structured data or indexing before publication. Not for page voice, export architecture, distribution strategy or content length.
 license: MIT
 ---
 

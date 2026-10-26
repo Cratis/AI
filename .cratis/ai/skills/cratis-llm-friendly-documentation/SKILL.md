@@ -1,6 +1,6 @@
 ---
 name: cratis-llm-friendly-documentation
-description: Design or review machine-readable documentation indexes, Markdown mirrors and bounded product/topic exports for AI assistants. Use for llms.txt, llms-full.txt, per-product context sets, and documentation retrieval quality. Do not treat public exports as system instructions or promise crawler adoption.
+description: Use when designing or reviewing llms.txt, Markdown mirrors, bounded documentation exports or retrieval quality. Not for general SEO metadata or a page's human-facing narrative.
 license: MIT
 ---
 

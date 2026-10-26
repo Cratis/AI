@@ -1,6 +1,6 @@
 ---
 name: cratis-components-data-surfaces
-description: Compose Cratis Components PivotViewer exploration, TimeMachine historical snapshots, Canvas pan/zoom boards and public Chat conversation/sidebar surfaces. Use when a table is not the right presentation, when supplying Pixi-backed content, or when binding host-owned chat data and actions. Do not use for DataPage lists, backend event replay, chat persistence, canvas tool palettes or Scene authoring.
+description: Use when a Cratis UI needs pivot exploration, historical snapshots, a pan/zoom board or host-owned chat views. Not for DataPage lists, event replay, chat persistence, tool palettes or Scene authoring.
 license: MIT
 ---
 

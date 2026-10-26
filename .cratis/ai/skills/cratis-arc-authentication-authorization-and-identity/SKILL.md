@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-authentication-authorization-and-identity
-description: Wire authentication, authorization and identity in a Cratis Arc application — IProvideIdentityDetails and the /.cratis/me endpoint, Arc's [Authorize]/[Roles]/[AllowAnonymous] attributes and named policies, fallback baselines, observable-query emission guards, IAuthenticationHandler, the Microsoft Identity Platform header contract and its ingress requirements, discovery and introspection exposure, tenant resolution, and the React identity hooks. Use for Arc identity providers, endpoint protection, roles, policies, or frontend identity integration. Do not use for isolated command validation, and do not use for Chronicle tenant namespaces alone.
+description: Use when configuring C# Arc authentication, endpoint authorization, identity providers or React identity integration. Not for command validation or Chronicle tenant namespaces alone.
 license: MIT
 ---
 

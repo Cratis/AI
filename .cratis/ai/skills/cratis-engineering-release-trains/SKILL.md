@@ -1,6 +1,6 @@
 ---
 name: cratis-engineering-release-trains
-description: Group related deliveries into one release candidate, fold superseded pull requests, and apply a ship bar before publishing the assembled change. Use when asked to group finished branches, join an open PR, fold superseded PRs, size a candidate, or decide whether the ship bar is met. Not for waiting on checks (use cratis-engineering-ci-gates), planning review rounds (use cratis-engineering-review-rounds), or optimizing workflow performance (use cratis-ci-pipeline-performance).
+description: Use when grouping finished branches into a release candidate, folding superseded PRs or checking the assembled ship bar. Not for CI waiting, review-round scheduling or workflow optimization.
 license: LICENSE
 compatibility: Requires git and the GitHub CLI (gh).
 ---

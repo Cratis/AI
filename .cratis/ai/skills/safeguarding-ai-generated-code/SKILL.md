@@ -1,6 +1,6 @@
 ---
 name: safeguarding-ai-generated-code
-description: Gate AI-touched changes against Code Health regressions. Use when reviewing a staged diff or branch before commit, handoff or pull request with pre_commit_code_health_safeguard or analyze_change_set. Requires an opted-in cratis/codescene profile and available CodeScene MCP tools; otherwise skip. Do not use for a structural refactoring workflow (use guiding-refactoring-with-code-health) or risk-based test selection (use risk-based-testing-with-code-health).
+description: Use before committing or handing off an AI-touched diff in a CodeScene-enabled, opted-in repository. Not for structural refactoring steps, portfolio debt ranking or risk-based test selection.
 license: Apache-2.0
 ---
 

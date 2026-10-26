@@ -1,6 +1,6 @@
 ---
 name: cratis-fundamentals-concept-go
-description: Define named Go domain values with Fundamentals.Go concepts, explicit UUID text and JSON codecs, and scalar recognition. Use when an identity or scalar must not be interchangeable with its primitive. Do not use for C# ConceptAs types, event migration or dependency-injection setup.
+description: Use when a Go domain identity or scalar must be distinct from its primitive, or its UUID and JSON encoding needs definition. Not for C# concepts, event migration or dependency-injection setup.
 license: MIT
 compatibility: Go 1.26 or later.
 ---

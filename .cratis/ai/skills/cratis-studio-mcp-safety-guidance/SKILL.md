@@ -1,6 +1,6 @@
 ---
 name: cratis-studio-mcp-safety-guidance
-description: Classify Studio MCP requests and interpret already-redacted output without discovering or invoking operations. Use whenever a user asks an agent to inspect, query, change, navigate, or automate Studio through MCP, or asks whether a Studio MCP operation is safe. No Studio MCP implementation authority is admitted, so every operation remains evidence-blocked.
+description: Use when classifying a Studio MCP request, interpreting already-redacted output or asking whether an operation is safe. Not for discovering, configuring or invoking Studio operations; their effects remain evidence-blocked.
 license: MIT
 ---
 

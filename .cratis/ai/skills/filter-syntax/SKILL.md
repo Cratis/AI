@@ -1,6 +1,6 @@
 ---
 name: filter-syntax
-description: 'Reference-only filter syntax for VSTest and Microsoft Testing Platform (MTP) with MSTest, NUnit, xUnit v3, and TUnit. Use when run-tests needs to create or translate a test filter after the platform and framework are known. Not for unfiltered runs or platform detection (use platform-detection); loaded by run-tests, never invoked directly.'
+description: Use when run-tests needs a filter translated after the .NET test platform and framework are known. Not for direct invocation, unfiltered runs or platform detection.
 license: MIT
 metadata:
   user-invocable: 'false'

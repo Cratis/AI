@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-client-dotnet
-description: Talk to a Chronicle server from a standalone .NET application with the Cratis.Chronicle client - connection strings, ChronicleClient construction outside any host, AddCratisChronicle for a worker or ASP.NET host, [EventType] records, IEventSequence.Append, reactors and reducers found by assembly scanning, the connection lifecycle and registration wait, and the client/server compatibility check. Use when a console, worker, or service app connects to Chronicle directly. Do not use for Arc applications, the Chronicle kernel, or the Kotlin, TypeScript, and Elixir clients.
+description: Use when connecting a standalone .NET console, worker or service directly to Chronicle or diagnosing its client lifecycle. Not for Arc integration, kernel implementation or another language's client.
 license: MIT
 ---
 

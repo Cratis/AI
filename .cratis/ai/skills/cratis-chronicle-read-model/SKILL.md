@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-read-model
-description: Create a Chronicle read model and its query surface - past-tense event types, the read-model record and its key, choosing a projection or a reducer to build it, snapshot versus observable queries (including why Arc does not discover a query declared to return Subject or BehaviorSubject), and reading an instance directly through IReadModels. Use when creating a read model from scratch; for changing how an existing model is populated use the projection or reducer skill instead.
+description: Use when creating a Chronicle read model from scratch or choosing its C# Arc query surface. Not for changing only an existing model's event mappings or state transitions; use the projection or reducer sibling.
 license: MIT
 ---
 

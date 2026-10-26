@@ -1,6 +1,6 @@
 ---
 name: cratis-content-length
-description: Decide how long a piece of content should be, when to keep it short, when it earns more length, and where to split it, for feed posts, documents and carousels, video, social threads, community posts, blog articles, tutorials, newsletters and release notes. Use when planning, drafting or reviewing content length, or a batch whose lengths are all the same. Do not use for SEO scoring or authorship detection.
+description: Use when choosing a content piece's length, deciding where to split it or reviewing a batch with uniform lengths. Not for SEO scoring, authorship detection or distribution planning.
 license: MIT
 ---
 

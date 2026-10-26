@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-command-typescript
-description: Define a Cratis Arc command in a Node.js TypeScript server with Arc for TypeScript — project setup from the source preview, ArcApplication.createBuilder() and discovery, the @command() class with @field inputs, handle() and provide(), outcome helpers, service injection, authorization, returning Chronicle events through withChronicle, generated artifact metadata and proxies, hosting on the standalone host, Express, Fastify, Hono or the Fetch entry, and CommandScenario specs. Use when adding or changing a command in an Arc for TypeScript server, or bootstrapping such a server. Do not use for the .NET or Kotlin/Java Arc command shapes, for a React frontend that calls generated proxies, for validation-only changes, or for query/read-model definition.
+description: Use when bootstrapping an Arc Node.js server or defining its TypeScript commands. Not for frontend proxy consumption, validation-only changes or server queries; use the corresponding Arc sibling.
 license: MIT
 ---
 
@@ -54,6 +54,8 @@ when returning or specifying Chronicle events.
   against `ARC_CHRONICLE_TEST_URL`.
 
 ## Set up and bootstrap
+
+Start the server's builder with `ArcApplication.createBuilder()`.
 
 Read [references/project-setup.md](references/project-setup.md) when consuming the source preview in a project, choosing compiler and decorator settings, or wiring `main.ts` and the builder calls (`useGeneratedMetadata` before `discover()`; `build()` validates the graph before any listener opens).
 

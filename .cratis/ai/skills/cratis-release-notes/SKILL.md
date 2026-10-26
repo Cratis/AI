@@ -1,6 +1,6 @@
 ---
 name: cratis-release-notes
-description: Draft or review developer-facing release notes and migration guidance from verified changes for a specific Cratis product version. Use for GitHub releases, upgrade guides, and release announcements; not for deciding release authority, publishing, or selecting a version label.
+description: Use when drafting or reviewing release notes, upgrade guidance or announcements for a specific verified Cratis version. Not for deciding release authority, publishing or selecting a version label.
 license: MIT
 ---
 

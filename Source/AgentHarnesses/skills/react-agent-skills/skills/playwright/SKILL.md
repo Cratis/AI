@@ -1,6 +1,6 @@
 ---
 name: playwright
-description: Playwright testing best practices for Next.js applications (formerly test-playwright). This skill should be used when writing, reviewing, or debugging E2E tests with Playwright. Triggers on tasks involving test selectors, flaky tests, authentication state, API mocking, hydration testing, parallel execution, CI configuration, or debugging test failures.
+description: Use when writing or debugging Playwright end-to-end tests, selectors, authentication state, hydration or flaky browser assertions. Not for unit-test runner setup; use vitest.
 ---
 
 # Playwright + Next.js Testing Best Practices

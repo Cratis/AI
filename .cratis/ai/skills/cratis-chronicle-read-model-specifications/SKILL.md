@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-read-model-specifications
-description: Specify declarative projections and reducer wiring with ReadModelScenario from Cratis.Chronicle.Testing — seeding events through Given and asserting on the materialized instance; start with Specification plus a direct call for pure reducer decisions. Use when the behavior under specification is how events become read-model state. Do not use to create a read model and do not use for raw event append behavior.
+description: Use when specifying how Chronicle events become read-model state, including projection or reducer wiring and pure reducer decisions. Not for creating the production model or testing raw event append behavior.
 license: MIT
 ---
 

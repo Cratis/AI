@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-compliance
-description: Model personal data in Chronicle with [PII] and [Subject], and erase it through crypto-shredding with IPIIManager. Use when an event or read model carries data about a natural person, when a subject must be identified for erasure, when a right-to-erasure request must be executed, or when redacting a stored event. Do not use for authorization, authentication, secret handling, or generic data-protection policy.
+description: Use when Chronicle events or read models contain personal data, an erasure subject must be identified or stored events need redaction. Not for authentication, operational secrets or generic data-protection policy.
 license: MIT
 ---
 

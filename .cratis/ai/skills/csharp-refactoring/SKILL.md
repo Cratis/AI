@@ -1,6 +1,6 @@
 ---
 name: csharp-refactoring
-description: 'Safely refactors C#/.NET code without changing behavior: rename, move, extract, inline, merge, consolidate, deduplicate, split, or modernize, including partial or generated declarations, public APIs, serialization and reflection names, friend assemblies, conditional compilation, and multi-targeted projects. Use when a request asks for a refactor, or calls a feature, bug fix, upgrade, or public nullability change a refactor and the behavior-changing part must be separated or declined. Not for ordinary feature or bug fixes, standalone framework or package upgrades, adding tests, or formatting-only work.'
+description: Use when restructuring C# code without changing behavior or separating a requested refactor from behavioral changes. Not for ordinary features, bug fixes, dependency upgrades, test additions or formatting alone.
 license: MIT
 ---
 

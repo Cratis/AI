@@ -1,6 +1,6 @@
 ---
 name: cratis-documentation-writing
-description: Plan, write, and improve user-centered Cratis documentation with a clear reader journey and one primary Diátaxis purpose per page. Use for product docs, tutorials, how-to guides, reference, explanations, and documentation reviews. For executable examples use cratis-technical-examples; for release notes use cratis-release-notes. Do not invent APIs or publish content.
+description: Use when planning a Cratis documentation reader journey, choosing a page's purpose or reviewing its structure. Not for example execution, release notes or publication; use the corresponding specialist.
 license: MIT
 metadata:
   cratis-hint-paths: "**/Documentation/**/*.{md,mdx}"

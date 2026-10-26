@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-model-review
-description: "Critic-mode review of a Cratis Screenplay .play model, candidate, proposal or edit request: verdict evidence, element sweep, entity walk, field lineage, an 89-check phased checklist, anti-pattern signals, event-sourcing correctness and a PASS / PASS WITH WARNINGS / FAIL report pinned to declarations, plus a business-question pass and a read-only walkthrough that explains a feature or a planned change slice by slice. Use to review, audit, self-check or explain a model before acceptance or rendering. Never edits the model. Not for: writing the missing specifications (use `cratis-screenplay-scenario-coverage`), changing the model (use `cratis-screenplay-model-authoring`)."
+description: Use when reviewing, auditing, self-checking or explaining a Screenplay model or proposal read-only before acceptance or rendering. Not for editing the model, adding missing scenarios or reviewing rendered code.
 license: MIT
 ---
 
@@ -58,7 +58,7 @@ model's behalf.
    payload or generic verb is a signal to investigate: report it only when the name or payload
    hides the business reason or a consequence is shown (distinct facts that share a shape and
    earlier generations are not findings). A description, comment or spec name never excuses a flagged line.
-4. **Entity walk** (phase 2). Per kind of event source write the first fact, the allowed and the
+4. **Entity walk** (phase 2). Perform an entity walk per kind of event source: write the first fact, the allowed and the
    refused state changes, the final states; then walk cancel, fail, correct and expire paths. Each
    refused change needs a `then error` spec; each command missing from the table is investigated.
 5. **Lineage and completeness** (phase 3). Backward: every read-model field to an event field,
@@ -167,7 +167,7 @@ P5 uses a fresh reviewer who authored nothing in scope; record reviewer/author m
 The review is complete when every phase of the checklist has a status for every check, every
 sweep `NONE` and field-copy line is a finding or has a written domain reason, all five verdict
 lines are present (result or "not run: reason"), the three final questions are answered, and the
-verdict follows the rules in `references/report-template.md`.
+verdict follows the rules in `references/report-template.md`: PASS, PASS WITH WARNINGS or FAIL.
 
 ## Verify
 - Every finding has severity, kind, address and file:line, rule (with tier), consequence and fix;

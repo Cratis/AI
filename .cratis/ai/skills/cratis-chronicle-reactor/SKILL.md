@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-reactor
-description: Implement a Chronicle IReactor - an automation that causes an external side effect or appends a follow-up event or command, or the adapter side of a translation of outside data into our own facts. Covers handler dispatch and parameter resolution, every supported return type, targeting another event source, replay handling with [OnceOnly] and [Replay], event filtering, failure and quarantine behavior, and the analyzer rules. Use for event-driven side effects; do not use to populate a read model.
+description: Use when Chronicle events must trigger external effects, follow-up commands or translated facts, or a reactor's replay and failure behavior needs diagnosis. Not for populating a queryable read model.
 license: MIT
 ---
 

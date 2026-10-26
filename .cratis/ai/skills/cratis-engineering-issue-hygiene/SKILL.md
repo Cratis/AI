@@ -1,6 +1,6 @@
 ---
 name: cratis-engineering-issue-hygiene
-description: Keep GitHub issues current and reduce unfinished work with a single-writer status block and reasoned disposition. Use when maintaining an issue status block, deciding who may claim an issue, whether to close completed work, or whether to file a necessary follow-up. Not for grouping deliveries (use cratis-engineering-release-trains), review iterations (use cratis-engineering-review-rounds), workflow optimization (use cratis-ci-pipeline-performance), or CI operations (use cratis-engineering-ci-gates).
+description: Use when claiming an issue, maintaining its status block or deciding an authorized closure or necessary follow-up. Not for delivery grouping, review rounds or CI operations.
 license: LICENSE
 compatibility: Requires git and the GitHub CLI (gh).
 ---
