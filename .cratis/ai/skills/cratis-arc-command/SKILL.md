@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-command
-description: Use when defining a C# Arc command, choosing its handler return shape or audit exposure, or wiring its generated proxy. Not for validation-only changes or executing an existing command.
+description: Use when defining a C# Arc command, choosing its handler return shape or audit exposure (such as API keys or other credentials passed to it), or wiring its generated proxy to a form or button. Not for validation-only changes or executing an existing command.
 license: MIT
 ---
 

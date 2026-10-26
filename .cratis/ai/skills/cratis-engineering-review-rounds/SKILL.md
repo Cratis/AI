@@ -1,6 +1,6 @@
 ---
 name: cratis-engineering-review-rounds
-description: Use when choosing a review round, handling review feedback or requesting a delta since the last reviewed SHA. Not for review criteria, release-candidate grouping or waiting on CI checks.
+description: Use when choosing a review round, handling review feedback or requesting a delta since the last reviewed SHA. Not for review criteria (cratis-code-review), release-candidate grouping (cratis-engineering-release-trains) or waiting on CI checks (cratis-engineering-ci-gates).
 license: LICENSE
 compatibility: Requires git and the GitHub CLI (gh).
 ---
