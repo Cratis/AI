@@ -4,6 +4,8 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "Goals, layout and sticky notes are authoring-only", "file": "references/personas-and-causes.md" },
+    { "kind": "skill-contains", "value": "sticky note on personas", "file": "references/personas-and-causes.md" },
     { "kind": "skill-contains", "value": "record the open question and assumption as a `question` note" },
     { "kind": "skill-contains", "value": "`refs: [{ \"id\": \"D123\" }]`", "file": "references/plotting-and-handoff.md" },
     { "kind": "skill-contains", "value": "`by: \"external-decision\"`", "file": "references/plotting-and-handoff.md" },
