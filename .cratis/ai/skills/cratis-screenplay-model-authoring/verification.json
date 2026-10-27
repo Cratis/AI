@@ -3,6 +3,9 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "../cratis-screenplay-ui-composition/references/action-subjects.md" },
+    { "kind": "skill-contains", "value": "Select by location and occurrence, not identical message text." },
+    { "kind": "skill-contains", "value": "recompile the complete imported workspace" },
     { "kind": "skill-contains", "value": "Monaco shows it as a code action", "file": "references/repairs.md" },
     { "kind": "skill-contains", "value": "reviewed saved-file code action", "file": "references/repairs.md" },
     { "kind": "skill-contains", "value": "an empty fixed root named `data` cannot rebind", "file": "references/mcp-tools.md" },

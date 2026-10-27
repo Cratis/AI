@@ -226,6 +226,8 @@ nominal type warns `PLAY0690`. Rebuild it as a projection keyed on each `from`: 
 
 ## `screen` — three levels
 
+Read [action subjects](../cratis-screenplay-ui-composition/references/action-subjects.md) when tracing nearest `data`, selected `item` or explicit action inputs; never infer identity from primitive type or spelling.
+
 The examples below are excerpts: each screen sits in a slice, and the queries,
 commands and screens it names are declared elsewhere.
 

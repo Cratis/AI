@@ -3,6 +3,8 @@
   "input": "Design the slices for a new capability in a Screenplay model: commands, rules, read models and screens.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "../cratis-screenplay-ui-composition/references/action-subjects.md" },
+    { "kind": "skill-contains", "value": "Subject selection supplies context, not command authorization" },
     { "kind": "play-compiles" },
     {
       "kind": "skill-contains",

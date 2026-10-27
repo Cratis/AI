@@ -3,6 +3,9 @@
   "input": "Check a Screenplay model folder: which compiler should I run, what do V1 to V3 mean, and what does the cratis CLI do with my Automation slice?",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "../cratis-screenplay-ui-composition/references/action-subjects.md" },
+    { "kind": "skill-contains", "value": "Error, Information, Warning, Warning, Warning respectively." },
+    { "kind": "skill-contains", "value": "Keep `PLAY0815`/`PLAY0816` for specification invocations." },
     { "kind": "skill-contains", "value": "| v33 |", "file": "references/language-admission.md" },
     { "kind": "skill-contains", "value": "`keyIsEventSource` beside `sourceEvents`", "file": "references/language-admission.md" },
     { "kind": "skill-contains", "value": "| PLAY0809 | E |", "file": "references/diagnostics.md" },

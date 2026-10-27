@@ -139,6 +139,8 @@ Ask the batch below only for what the request leaves open: (1) origin of each ac
 
 ### Review questions
 
+Trace screen action subject and input lineage with [action subjects](../cratis-screenplay-ui-composition/references/action-subjects.md) when choosing record/selection versus screen intent. Subject selection supplies context, not command authorization; retain authorization and rules independently.
+
 Ask `references/review-questions.md` (reachability, forms in disguise, secrets, fan-in,
 collections, invariants, who sees which rows); report a finding only with a domain consequence.
 

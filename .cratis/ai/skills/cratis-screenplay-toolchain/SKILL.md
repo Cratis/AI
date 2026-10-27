@@ -34,6 +34,8 @@ superseded statement needs context; exceptions do not change the contract.
 
 ## Ground rules
 
+Read [action subjects](../cratis-screenplay-ui-composition/references/action-subjects.md) when diagnosing `PLAY0817`–`PLAY0821`: Error, Information, Warning, Warning, Warning respectively. Keep `PLAY0815`/`PLAY0816` for specification invocations. Review warning dispositions and recompile the imported workspace; advisories are not blanket source refusal or evidence of runtime admission.
+
 1. **Never invent syntax.** Copy shapes from `references/cheat-sheet.md` and the compiled
    examples it names, or from a compiled documentation example. Construct keywords are
    closed.

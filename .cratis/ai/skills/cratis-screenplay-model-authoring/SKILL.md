@@ -179,6 +179,8 @@ Choose formatting and disclose dropped comments before apply:
 
 ## Repair or extract before rewriting
 
+Read [action subjects](../cratis-screenplay-ui-composition/references/action-subjects.md) when inspecting authored versus effective action inputs or repairing `PLAY0818`/`PLAY0819`. Select by location and occurrence, not identical message text. Preview a transactional repair at the inspected revision, preserve unrelated syntax and independently repairable advisories, then recompile the complete imported workspace. Do not infer runtime admission from the effective application.
+
 Read `read-workspace` with `view: "repairs"` at the same revision as diagnostics and pass the repair to `propose-repair`; use `propose-extract-inline-event` before adding generations, or let a `remove` with `newGeneration: true` extract the inline event itself, as [property links](references/property-links.md) describes. `PLAY0469` changes the event contract, so ask about stored contracts first. No automatic generation-evolution repair ships. `PLAY0479`: migrate optionality spelling with `PreserveTrivia`. `eventNeverPersisted: true` cannot unfreeze admitted revisions. Differing event pins carry `storedName` in ESM v16, shared by all generations and unique (PLAY0472). Read [references/repairs.md](references/repairs.md) when fixing `PLAY0166`, `PLAY0478`, `PLAY0516` or `PLAY0683`, or admitting a [release baseline](references/release-baseline.md). Read [references/destination-intent-repair.md](references/destination-intent-repair.md) when `PLAY0470` needs a repair.
 
 ## Choose a readable layout

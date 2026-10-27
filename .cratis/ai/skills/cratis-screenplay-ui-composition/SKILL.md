@@ -233,6 +233,8 @@ and the review checklist. `contribute to Navigation` stays the flat contribution
 
 ## Interactions — what a click does
 
+Read [references/action-subjects.md](references/action-subjects.md) when choosing `for item` or `for screen`, tracing action inputs, or repairing subject diagnostics; compiler acceptance is not runtime admission.
+
 An interaction wires an `on <thing>` trigger to actions, inline or through named
 `behavior` + `uses`. This is closed UI wiring, not scripting; validation stays on
 the command. Trigger/action syntax is in [interaction example](references/interaction-example.md)
