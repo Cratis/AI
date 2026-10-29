@@ -243,6 +243,8 @@ and [guarded interactions](references/guarded-interactions.md).
 
 Guarded alternatives and `where` deprecation:
 [guarded interactions](references/guarded-interactions.md).
+Read [change alternatives](references/change-alternatives.md) when a component's
+`on change` should choose an action list by the changed item, such as a kanban move.
 
 Read [interaction example](references/interaction-example.md) when wiring a
 named confirmation behavior and an inline refresh to the same screen.

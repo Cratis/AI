@@ -59,6 +59,12 @@
     { "kind": "skill-contains", "value": "The scaffold pins an exact release of every dependency", "file": "references/rendered-application.md" },
     { "kind": "skill-contains", "value": "STAGE-CRATIS-004", "file": "references/case-tables-and-whole-numbers.md" },
     { "kind": "skill-contains", "value": "STAGE-ESM-031", "file": "references/case-tables-and-whole-numbers.md" },
-    { "kind": "skill-contains", "value": "Requires cratis CLI" }
+    { "kind": "skill-contains", "value": "Requires cratis CLI" },
+    { "kind": "skill-contains", "value": "a concept over `Decimal` is refused `STAGE-ESM-048`", "file": "references/current-boundaries.md" },
+    { "kind": "skill-contains", "value": "the same value arrives as `1.0` and `1.00`", "file": "references/current-boundaries.md" },
+    { "kind": "skill-contains", "value": "Stage#847 lands, which needs Chronicle#5427", "file": "references/current-boundaries.md" },
+    { "kind": "skill-contains", "value": "required single non-date, non-decimal primitive/concept", "file": "references/current-boundaries.md" },
+    { "kind": "skill-contains", "value": "Single-instance lookup by parts remains `STAGE-ESM-047`", "file": "references/current-boundaries.md" },
+    { "kind": "skill-contains", "value": "including DateTime and decimal key parts", "file": "SKILL.md" }
   ]
 }

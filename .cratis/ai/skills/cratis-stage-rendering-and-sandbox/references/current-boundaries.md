@@ -48,9 +48,14 @@ reviewed caller or report the CLI blocker. The introducing CLI minimums are in
   batch. Multiple production triggers on the same event and routed direct
   productions retain `STAGE-ESM-043`. Models without the atomic declaration keep
   their prior behavior.
-- **Composite keys:** required single non-date primitive/concept parts in a
-  scoped projection with complete event-property parts keys for `from`/`remove
-  with` blocks render. Reducers, flat projections, joins, nested/child blocks,
+- **Composite keys:** required single non-date, non-decimal primitive/concept
+  parts in a scoped projection with complete event-property parts keys for
+  `from`/`remove with` blocks render. A DateTime part, a `Decimal` primitive
+  part or a concept over `Decimal` is refused `STAGE-ESM-048`: Chronicle keeps
+  a decimal key part's scale, so a replay can split one instance into two when
+  the same value arrives as `1.0` and `1.00`. The decimal refusal lifts only when
+  Stage#847 lands, which needs Chronicle#5427 to key those values as one
+  instance; do not normalize scale in the model to get around it. Reducers, flat projections, joins, nested/child blocks,
   partial keys, collisions and protected live queries over that composite shape
   remain refused. Single-instance lookup by parts remains `STAGE-ESM-047` even
   though composite projections and equality-filtered lists can render.
