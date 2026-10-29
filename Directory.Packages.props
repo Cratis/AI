@@ -42,7 +42,7 @@
 
         <!-- Worker/agent scheduling (Docker + Kubernetes runtimes) -->
         <PackageVersion Include="Docker.DotNet.Enhanced" Version="4.3.3" />
-        <PackageVersion Include="KubernetesClient" Version="19.0.2" />
+        <PackageVersion Include="KubernetesClient" Version="21.0.8" />
 
         <!-- Toolset -->
         <PackageVersion Include="System.Text.Json" Version="10.0.11" />
