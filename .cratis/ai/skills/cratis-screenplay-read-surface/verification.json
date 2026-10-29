@@ -24,6 +24,7 @@
     { "kind": "skill-contains", "value": "are planned but **not in the language yet**" },
     { "kind": "skill-contains", "value": "a `Decimal` part or a concept over `Decimal` is always refused", "file": "references/named-keys.md" },
     { "kind": "skill-contains", "value": "a replay can split `1.0` and `1.00` into two instances", "file": "references/named-keys.md" },
-    { "kind": "skill-contains", "value": "the decimal refusal lifts with Stage#847 once Chronicle#5427 lands", "file": "references/named-keys.md" }
+    { "kind": "skill-contains", "value": "the decimal refusal lifts with Stage#847 once Chronicle#5427 lands", "file": "references/named-keys.md" },
+    { "kind": "skill-contains", "value": "`when`/`otherwise` on click, double click, select or change:" }
   ]
 }

@@ -296,11 +296,11 @@ Routes do not by themselves select v17: redelivery executes as v17 (Requires Scr
 
 | Code | Severity | Meaning / fix |
 | --- | --- | --- |
-| PLAY0560 | E | Alternatives on a non-item trigger; only click/double click/select admit them. |
+| PLAY0560 | E | Alternatives on a non-item trigger; only click, double click, select or change admit them. |
 | PLAY0561 | E | Alternatives mixed with plain actions or `where`; choose one form. |
 | PLAY0562 | E | Empty branch; supply a nonempty action list. |
 | PLAY0563 | E | One-line labeled-action `when … execute …` in an interaction; use an indented list. C# offers a typed repair. |
-| PLAY0564 | W/I | Item-trigger opaque `where` deprecated: a strict item condition warns with a C# repair to one `when`, no fallback; other text is information with no repair. Other triggers unchanged. |
+| PLAY0564 | W/I | Item-trigger opaque `where` deprecated: a strict item condition warns with a C# repair to one `when`, no fallback; other text is information with no repair. Other triggers unchanged, including `change`, which keeps opaque `where`. |
 
 PLAY0563/0564 repairs need individual review and canonical formatting, refuse
 comment loss and do not support pinned evidence. TypeScript diagnoses but does

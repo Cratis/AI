@@ -295,7 +295,7 @@ bindings; the selected command still enforces its own gate/rules/constraints.
 Read [guarded actions](references/guarded-actions.md) for the checked model,
 missing-versus-null behavior and source-versus-renderer boundary. For a gesture
 choosing a whole action list rather than one labeled command, use block-form
-`when`/`otherwise` on click/double click/select:
+`when`/`otherwise` on click, double click, select or change:
 [guarded interactions](../cratis-screenplay-ui-composition/references/guarded-interactions.md).
 
 ## How a bare name resolves

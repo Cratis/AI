@@ -82,6 +82,9 @@
     { "kind": "skill-contains", "value": "`join` events have their own set", "file": "references/diagnostics.md" },
     { "kind": "skill-contains", "value": "Each children, nested and variant\nblock starts fresh sets", "file": "references/diagnostics.md" },
     { "kind": "skill-contains", "value": "a decimal part (`Decimal` or concept over `Decimal`, replay can split `1.0`/`1.00`; lifts with Stage#847 once Chronicle#5427 lands)", "file": "references/diagnostics.md" },
-    { "kind": "skill-contains", "value": "a `Decimal` primitive or a concept over `Decimal`, which a replay can split into `1.0` and `1.00` instances", "file": "references/executable-subset.md" }
+    { "kind": "skill-contains", "value": "a `Decimal` primitive or a concept over `Decimal`, which a replay can split into `1.0` and `1.00` instances", "file": "references/executable-subset.md" },
+    { "kind": "skill-contains", "value": "only click, double click, select or change admit them.", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "including `change`, which keeps opaque `where`", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "(a `change` keeps it)", "file": "references/preferred-syntax.md" }
   ]
 }
