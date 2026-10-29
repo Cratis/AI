@@ -21,6 +21,9 @@
     { "kind": "skill-contains", "value": "warnings, not errors" },
     { "kind": "skill-contains", "value": "the executable model binds `observable` queries" },
     { "kind": "skill-contains", "value": "A compiling query is not evidence that access control works" },
-    { "kind": "skill-contains", "value": "are planned but **not in the language yet**" }
+    { "kind": "skill-contains", "value": "are planned but **not in the language yet**" },
+    { "kind": "skill-contains", "value": "a `Decimal` part or a concept over `Decimal` is always refused", "file": "references/named-keys.md" },
+    { "kind": "skill-contains", "value": "a replay can split `1.0` and `1.00` into two instances", "file": "references/named-keys.md" },
+    { "kind": "skill-contains", "value": "the decimal refusal lifts with Stage#847 once Chronicle#5427 lands", "file": "references/named-keys.md" }
   ]
 }
