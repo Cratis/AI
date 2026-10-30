@@ -48,6 +48,19 @@
         "Records the feed and the self-firing reminder as non-human causes in STATE.md rather than as personas that act.",
         "Lists every Cannot line as a denial candidate for later design."
       ]
+    },
+    {
+      "id": 5,
+      "name": "persona-goals-and-canvas-notes",
+      "prompt": "During discovery, Shopper wants to find the right product quickly. Show the persona card at 0 0 with size 300 180 and a pink sticky note at 340 0 saying 'Pain point: the checkout asks for too much'. Can goals repeat, can positions be negative, and do these enforce behavior or change ESM revision? What fields does the note require and what diagnostic rejects invalid pairs or colors? Reply only; do not write files.",
+      "expected_output": "Uses goal on persona Shopper and a top-level sticky note on personas with description, colour pink and position, in documented order. Goals can repeat; position is an integer pair allowing negatives, size is an optional nonnegative integer pair. Note description and position are required; colour is optional, defaults to yellow and accepts pink, green or blue. Goals, layout and notes are authoring-only, not enforcement, and leave ESM bytes and revision unchanged. Malformed goals, invalid coordinate or size pairs, invalid colour values and missing required note fields report PLAY0030; unknown directives, including color, report PLAY0032.",
+      "assertions": [
+        "Shows persona Shopper with goal, position 0 0 and size 300 180; explains that goal lines can repeat.",
+        "Shows a separate top-level sticky note on personas with description, colour pink and position 340 0 in that order; identifies description and position as required.",
+        "Uses the exact grammar token colour and names yellow as the default with pink, green and blue as alternatives.",
+        "States that position accepts negative integers and optional size requires nonnegative integers; distinguishes malformed goals/pairs/colour and missing required note fields (PLAY0030) from unknown directives such as color (PLAY0032).",
+        "Treats goals, layout and notes as authoring-only, leaving ESM bytes and revision unchanged without enforcing behavior or authorization."
+      ]
     }
   ]
 }
