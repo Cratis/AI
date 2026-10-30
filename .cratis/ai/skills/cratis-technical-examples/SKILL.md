@@ -1,6 +1,6 @@
 ---
 name: cratis-technical-examples
-description: Design and verify developer-facing code samples, tutorial projects, and documentation snippets against real Cratis APIs. Use when adding or reviewing a runnable example, multi-client snippet, sample app, command/output pair, or migration before/after code. Do not invent API shapes or treat rendering as a compilation check.
+description: Use when adding or reviewing runnable Cratis examples, tutorial projects, multi-client snippets or command/output pairs. Not for page placement, release notes or treating rendering as compilation proof.
 license: MIT
 metadata:
   cratis-hint-paths: "**/Samples/**/*.{cs,ts,tsx}"

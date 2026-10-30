@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-mcp-inspection
-description: Inspect a running Chronicle store through MCP using the exact tool-effect inventory, bounded reads and design-time schema tools. Use when choosing an MCP capability, interpreting redacted output, checking deployment profiles or diagnosing the target context. Job-control tools are effectful, not inspection; unknown tools remain evidence-blocked.
+description: Use when selecting a Chronicle MCP inspection tool, checking its target and deployment profile or interpreting redacted output. Not for treating job-control tools as read-only inspection or assuming unknown effects are safe.
 license: MIT
 ---
 

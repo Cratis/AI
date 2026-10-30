@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-streams-and-consistency
-description: "Decide Screenplay stream identity and consistency: one business identity per event source, where each invariant is enforced atomically, constraints versus recorded state-dependent rules, races, retries and dedup scope, event granularity, evolution (generations, id pins, new events) and module or team boundaries. Use for identifier/for, constraints, splitting streams or modules, ownership of interfaces, or changing persisted events. Not for: projection or query syntax (use `cratis-screenplay-projections`), reactions and captures (use `cratis-screenplay-automations-and-translations`)."
+description: Use when deciding Screenplay stream identities, invariant boundaries, races, retry scope or persisted-event evolution. Not for projection syntax or choosing automation and capture behavior.
 license: MIT
 ---
 

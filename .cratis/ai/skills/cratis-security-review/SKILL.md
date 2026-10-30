@@ -1,6 +1,6 @@
 ---
 name: cratis-security-review
-description: Perform a focused security review of changed code in a Cratis application — injection, authentication and authorization, data exposure, secrets, event-sourcing-specific exposure, and the frontend — and report findings by risk. Use when asked for a security review or audit. Do not use to implement authentication and do not report a policy preference as a framework contract.
+description: Use when auditing a Cratis application change for security, especially permissions, untrusted input, secrets or permanent event-log exposure. Not for implementing authentication or general style review.
 license: MIT
 ---
 

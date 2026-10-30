@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-hosting
-description: Run the Chronicle kernel with production storage, certificates, TLS or a private h2c proxy, health probes, clustering and observer recovery configuration. Use when deploying the kernel, moving from development images to production, configuring trusted proxies, or diagnosing kernel startup and topology. Do not use for wiring a .NET application client, implementing Orleans grains, or mutating a live store.
+description: Use when deploying the Chronicle kernel, preparing production topology or diagnosing kernel startup, certificates and clustering. Not for application client wiring, Orleans grain implementation or live-store mutation.
 license: MIT
 ---
 

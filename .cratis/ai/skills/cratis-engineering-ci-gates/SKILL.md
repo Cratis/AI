@@ -1,6 +1,6 @@
 ---
 name: cratis-engineering-ci-gates
-description: Run CI-matched local gates and watch exact workflow runs without polling or wasting checks. Use when choosing a local gate or tier, deciding how to wait for CI, starting a blocking watch, or deciding which superseded runs to cancel. Not for grouping deliveries (use cratis-engineering-release-trains), review iterations (use cratis-engineering-review-rounds), or editing workflows for speed (use cratis-ci-pipeline-performance).
+description: Use when choosing CI-matched local gates, waiting for exact workflow runs or considering cancellation of owned superseded checks. Not for delivery grouping, review rounds or optimizing workflow design.
 license: LICENSE
 compatibility: Requires git and the GitHub CLI (gh).
 ---

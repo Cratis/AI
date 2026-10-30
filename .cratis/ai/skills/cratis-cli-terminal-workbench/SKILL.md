@@ -1,6 +1,6 @@
 ---
 name: cratis-cli-terminal-workbench
-description: Navigate the cratis CLI's terminal Workbench - the full-screen TUI launched with `cratis chronicle workbench`. Use when exploring a running Chronicle store interactively rather than answering one question with a single command, when locating an observer, failure, event type, projection or read model by name, or when capturing read-only evidence from a live store. Do not use for the browser Workbench, and do not use for scripted or piped inspection.
+description: Use when interactively exploring Chronicle in the CLI terminal Workbench or locating store objects by name. Not for the browser Workbench or scripted and piped inspection.
 license: MIT
 ---
 

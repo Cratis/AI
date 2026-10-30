@@ -1,6 +1,6 @@
 ---
 name: cratis-stage-rendering-and-sandbox
-description: "What Cratis Stage and `cratis render` do with a Screenplay `.play` model: the model shape Stage admits and refuses (`STAGE-ESM-*`, `PLAY0268` render refusals), what it emits (C# Arc/Chronicle backend, React/Vite scaffold with Arc `CommandForm` shell emission over Scene typed bindings, Debug specifications), managed publication, `--force`, recovery, scoped renders (`--scope`) and `--check`, authored-UI omission/parity checks, the unmanaged `Customizations/` seam, and the `cratis/stage` sandbox and `cratis/stage-specrunner` job. Use when deciding whether Stage can render a model, reading a blocked render, re-rendering safely, checking generated/runtime screen parity, or running the sandbox. Not for: authoring the model (use `cratis-screenplay-model-authoring`) or the render and gap-fill workflow (use `cratis-screenplay-render-and-gap-fill`)."
+description: Use when diagnosing Stage admission or blocked renders, checking screen parity, re-rendering safely or running its sandbox. Not for model authoring or the accepted-model delivery workflow.
 license: MIT
 ---
 
@@ -146,7 +146,7 @@ and unaudited-version refusals still stop first. Codes, limits and fixes:
   appends/absence beyond admitted specification shapes (`-011`/`-027`), evolution (`STAGE-ESM-026`), unsupported public/foreign-event uses
   (`-032`/`-033`), claim-reading/opaque `runs as` gates (`-034`), legacy filters (`-035`), production
   overrides (`-036`), unsupported code validation (`-005`), DateTime filters (`-010`),
-  unsupported conditional productions, unsupported composite-key projection shapes (`STAGE-ESM-048`, and `-047` for a single-instance query by parts) and unsupported `all` shapes.
+  unsupported conditional productions, unsupported composite-key projection shapes, including DateTime and decimal key parts (`STAGE-ESM-048`, and `-047` for a single-instance query by parts) and unsupported `all` shapes.
   Protected reads render as Arc read protection in a new enough bundle; shapes it cannot preserve, and every protected read in an older bundle, refuse `STAGE-ESM-044` (see admission.md). Described handlers still refuse `STAGE-IMPL-002` even in Stub mode. Query-performer gaps are a separate contract, not a completed implementation.
 - **Attached command handlers (`PLAY0800`):** file/inline handlers permanently require
   constrained implementation attachments: gap-fill the slice in code, not by waiting

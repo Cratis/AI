@@ -1,6 +1,6 @@
 ---
 name: shadcn
-description: shadcn/ui component library best practices and patterns (formerly shadcn-ui). This skill should be used when writing, reviewing, or refactoring shadcn/ui components to ensure proper architecture, accessibility, and performance. Triggers on tasks involving Radix primitives, Tailwind styling, form validation with React Hook Form, data tables, theming, or component composition patterns.
+description: Use when composing or customizing shadcn/ui components, Radix primitives, dialogs, forms or data tables. Not for PrimeReact or general Tailwind configuration.
 ---
 
 # shadcn/ui Community Best Practices

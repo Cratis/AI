@@ -1,6 +1,6 @@
 ---
 name: msw
-description: MSW (Mock Service Worker) best practices for API mocking in tests (formerly test-msw). This skill should be used when setting up MSW, writing request handlers, or mocking HTTP APIs. This skill does NOT cover general testing patterns (use test-vitest or test-tdd skills) or test methodology.
+description: Use when setting up MSW, writing HTTP or GraphQL mock handlers, or debugging request interception in tests. Not for general test methodology; use vitest or tdd.
 ---
 
 # MSW Best Practices

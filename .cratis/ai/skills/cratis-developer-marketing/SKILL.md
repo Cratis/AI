@@ -1,6 +1,6 @@
 ---
 name: cratis-developer-marketing
-description: Plan or review how developer-facing content earns real engagement and adoption - positioning with developers, choosing the canonical artifact and its channel-native entry points, community participation, founder and company voice, a cadence a small team can keep, and measurement that doesn't fake attribution. Use when planning a content program, a launch, a distribution plan, a channel choice, a measurement plan or a repurposing plan. Do not use for drafting a specific feed post (use cratis-social-feed-post), voice review (cratis-writing-voice-and-cadence), length decisions (cratis-content-length), release notes (cratis-release-notes) or code examples (cratis-technical-examples).
+description: Use when planning developer-content distribution, a launch, channel selection, repurposing or adoption measurement. Not for drafting individual posts, voice edits, content length, release notes or code examples.
 license: MIT
 ---
 

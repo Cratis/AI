@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-render-and-gap-fill
-description: "Deliver an accepted Screenplay `.play` model as code: probe whether `cratis render` admits the whole model, publish, then report admission, publication, Debug build and Debug tests as separate results mapped to the generated specification classes; triage model fix versus capability gap; bounded `Customizations/` adapters; drift by manifest revision; and hand non-renderable scope to `slice-implementer` with the model as the contract. Use when an accepted model must become running code, when asking whether a model renders, or after a model change. Not for: changing the model (use `cratis-screenplay-slice-design`), Stage internals (use `cratis-stage-rendering-and-sandbox`), or checking hand-written code against its slice (use `cratis-application-slice-conformance`)."
+description: Use when probing whether an accepted Screenplay model renders, delivering admitted scope or triaging a renderer gap. Not for changing the model, Stage internals or auditing hand-written slice conformance.
 license: MIT
 ---
 

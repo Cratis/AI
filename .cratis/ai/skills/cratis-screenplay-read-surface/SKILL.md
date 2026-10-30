@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-read-surface
-description: Declare the read side of a Cratis Screenplay `.play` model — the `readmodel` shape, `query` with `by`/`filter`/`scoped to`/`observable`/`performer`, and `screen` at its three levels of detail, including the data/action contract that later component bindings, templates, forms, toolbars, routes and outlets consume. Use when adding or changing a query, a read-model shape, or a screen in a `.play` model, or when deciding what a caller may narrow a result by. Do not use for how events fill the read model, and do not use for layouts, templates or forms.
+description: Use when writing Screenplay read-model shapes, query filtering or screen data and action contracts. Not for event-to-state mappings or component layouts, templates and forms.
 license: MIT
 ---
 
@@ -295,7 +295,7 @@ bindings; the selected command still enforces its own gate/rules/constraints.
 Read [guarded actions](references/guarded-actions.md) for the checked model,
 missing-versus-null behavior and source-versus-renderer boundary. For a gesture
 choosing a whole action list rather than one labeled command, use block-form
-`when`/`otherwise` on click/double click/select:
+`when`/`otherwise` on click, double click, select or change:
 [guarded interactions](../cratis-screenplay-ui-composition/references/guarded-interactions.md).
 
 ## How a bare name resolves

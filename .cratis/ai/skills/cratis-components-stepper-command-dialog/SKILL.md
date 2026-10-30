@@ -1,6 +1,6 @@
 ---
 name: cratis-components-stepper-command-dialog
-description: Build a multi-step wizard dialog for a single Cratis Arc command with StepperCommandDialog and StepperPanel from Cratis Components — named steps, per-step validation, linear navigation, vertical or horizontal orientation, and pre-populated edit wizards. Use when one command gathers information across several stages or a form has too many fields to show at once. Do not use for an ordinary single-page command dialog or for a page shell.
+description: Use when one Arc command needs a multi-step wizard or a form has too many fields for one dialog page. Not for ordinary single-page command dialogs or a page shell; use cratis-arc-react-page.
 license: MIT
 ---
 

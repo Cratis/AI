@@ -1,6 +1,6 @@
 ---
 name: guiding-refactoring-with-code-health
-description: Improve unhealthy code incrementally using measured Code Health feedback. Use when planning structural refactoring steps for complexity, size, cohesion or nesting and comparing each step with a baseline. Requires an opted-in cratis/codescene profile and available CodeScene MCP tools; otherwise skip. Do not use for a pre-commit change gate (use safeguarding-ai-generated-code) or portfolio debt ranking (use prioritizing-technical-debt).
+description: Use when planning measured structural refactoring for complexity, size, cohesion or nesting in a CodeScene-enabled, opted-in repository. Not for pre-commit safeguards or portfolio debt ranking.
 license: Apache-2.0
 ---
 

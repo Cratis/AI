@@ -1,6 +1,6 @@
 ---
 name: feature-arch
-description: React feature-based architecture guidelines for scalable applications (formerly feature-architecture). This skill should be used when writing, reviewing, or refactoring React code to ensure proper feature organization. Triggers on tasks involving project structure, feature organization, module boundaries, cross-feature imports, data fetching patterns, or component composition.
+description: Use when organizing React feature folders, enforcing module boundaries or reviewing cross-feature imports. Not for local component APIs or query-cache behavior.
 ---
 
 # Feature-Based Architecture Best Practices

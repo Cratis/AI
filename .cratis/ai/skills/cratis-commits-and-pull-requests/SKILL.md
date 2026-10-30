@@ -1,6 +1,6 @@
 ---
 name: cratis-commits-and-pull-requests
-description: Prepare coherent commits and release-note pull requests with the right release-intent label. Use when writing a commit message, staging commits, pushing, creating or editing a PR description, choosing major/minor/patch/no-release, or checking issue references in release notes. Not for assembling release candidates (use cratis-engineering-release-trains), issue status updates (use cratis-engineering-issue-hygiene), or batching release windows (use cratis-release-notes).
+description: Use before writing commit messages, staging, pushing or creating and editing PRs, including release labels and issue references. Not for candidate assembly, issue status or batching release windows.
 license: LICENSE
 compatibility: Requires git and the GitHub CLI (gh).
 ---

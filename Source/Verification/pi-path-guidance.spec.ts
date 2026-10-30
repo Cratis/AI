@@ -47,7 +47,7 @@ function writeSkill(project: string, name: string, globs: string[], skillsRoot =
     const directory = join(skillsRoot, name);
     mkdirSync(join(directory, 'references'), { recursive: true });
     const paths = globs.length === 0 ? '' : `metadata:\n  ${skillTriggerKey}: "${globs.join(' ')}"\n`;
-    writeFileSync(join(directory, 'SKILL.md'), `---\nname: ${name}\ndescription: Test skill.\n${paths}---\n\n# ${name}\n`);
+    writeFileSync(join(directory, 'SKILL.md'), `---\nname: ${name}\ndescription: Use when testing path guidance.\n${paths}---\n\n# ${name}\n`);
     writeFileSync(join(directory, 'references', 'detail.md'), '# detail');
     return { name, filePath: join(directory, 'SKILL.md') };
 }

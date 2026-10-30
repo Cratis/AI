@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-client-elixir
-description: Connect Elixir applications to Chronicle with the cratis_chronicle Hex client, including events, projections, reactors, concepts, protected values, decision reads, constraints, captures and testing. Use when wiring Chronicle.Client into an Elixir OTP supervision tree, defining EventType structs, or handling append outcomes with cratis_chronicle. Do not use for JVM clients (use cratis-chronicle-client-kotlin) or Node.js clients (use cratis-chronicle-client-typescript); .NET belongs to cratis-chronicle-client-dotnet.
+description: Use when adding Chronicle to an Elixir OTP application, defining its event structs or handling client append outcomes. Not for JVM or Node.js clients; use the corresponding Chronicle client sibling.
 license: MIT
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-primereact-ui-basics
-description: Baseline UI/UX standards for building React frontends on Cratis Components (PrimeReact theming/tokens) - usable, accessible, consistent screens. Use when building or modifying a Cratis Arc React page, form, dialog, or list; when adding a PrimeReact-backed control; or when reviewing a Cratis frontend change for sizing, spacing, contrast, or consistency.
+description: Use when building or reviewing a Cratis Components page, form, dialog or PrimeReact-backed control for sizing, spacing, contrast and keyboard access. Not for shadcn/ui or a product-specific design system.
 ---
 
 # Cratis Components / PrimeReact UI Basics

@@ -1,6 +1,6 @@
 ---
 name: cratis-orchestration-lanes
-description: Coordinate several autonomous sessions (lanes) working in parallel on one repository, with claims, leases, a typed inbox, lane briefs, worktree discipline, escalation limits, context handoffs and evidence-based roll calls. Use when two or more lanes run at once, when writing a lane brief, claiming or releasing a lane's work, sending a typed message between lanes, writing a context handoff, or answering a roll call. Not for ordinary single-session work (use the existing agents), claiming one issue (use cratis-engineering-issue-hygiene), review rounds (use cratis-engineering-review-rounds), CI waiting (use cratis-engineering-ci-gates), or grouping a release (use cratis-engineering-release-trains).
+description: Use when coordinating two or more autonomous sessions in one repository, including lane claims, messages, briefs and handoffs. Not for one session with subagents, claiming one issue or scheduling reviews and CI.
 license: LICENSE
 compatibility: Requires git and the GitHub CLI (gh).
 ---

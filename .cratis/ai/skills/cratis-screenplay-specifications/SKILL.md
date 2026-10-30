@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-specifications
-description: Pin behavior in a Cratis Screenplay `.play` model with given/when/then `specification` blocks — prior events and read-model state, the caller, the command or appended event under test, expected events, read-model state, query results, rejections and denials, plus what the reference execution actually runs. Use when writing acceptance criteria for a slice, specifying a rejection or an authorization denial, or deciding whether a rule belongs in a specification or in the type system. Do not use for C# or TypeScript test code.
+description: Use when writing Screenplay specification syntax or checking fixture, outcome-comparison, rejection and denial semantics. Not for choosing scenario coverage or writing C# and TypeScript tests.
 license: MIT
 ---
 

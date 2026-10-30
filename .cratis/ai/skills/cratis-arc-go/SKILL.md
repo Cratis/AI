@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-go
-description: Build a Go HTTP CQRS application with Arc.Go commands, read-model queries, validation, identity and explicit hosting lifecycle. Use for the tagged root module and handwritten typed adapters. Do not use for Chronicle-only clients, C# or JVM Arc, or unpublished Go integration and generator modules.
+description: Use when building an Arc.Go HTTP command or read-model query with handwritten typed adapters and the root module. Not for Chronicle-only clients or unpublished Go integrations and generators.
 license: MIT
 compatibility: Go 1.26 or later; root module only.
 ---

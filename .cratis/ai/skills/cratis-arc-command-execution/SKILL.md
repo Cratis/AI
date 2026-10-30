@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-command-execution
-description: Execute an existing Cratis Arc command from backend code through ICommandPipeline — the scopeless and scoped overloads, the typed generic Execute, the pre-flight Validate, validation severity filtering, and how to read CommandResult. Use when a reactor, background job, scheduled task, or backend service must run a command without an HTTP request. Do not use to define a command.
+description: Use when a reactor, job or backend service must execute an existing Arc command without an HTTP request. Not for defining a command or appending another stream's events directly.
 license: MIT
 ---
 

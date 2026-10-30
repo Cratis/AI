@@ -1,6 +1,6 @@
 ---
 name: typescript
-description: This skill should be used when the user asks to "optimize TypeScript performance", "speed up tsc compilation", "configure tsconfig.json", "fix type errors", "improve async patterns", or encounters TS errors (TS2322, TS2339, "is not assignable to"). Also triggers on .ts, .tsx, .d.ts file work involving type definitions, module organization, or memory management. Does NOT cover TypeScript basics, framework-specific patterns, or testing.
+description: Use when configuring tsconfig.json, resolving TypeScript assignability errors or tuning complex types, async code and module performance. Not for framework-specific React behavior or test-runner APIs.
 ---
 
 # TypeScript Best Practices

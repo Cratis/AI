@@ -1,6 +1,6 @@
 ---
 name: cratis-fundamentals-type-discovery
-description: Wire a type that must enumerate every implementation of an abstraction by injecting IInstancesOf from Cratis.Types and deleting the hand-maintained service registrations. Use when a handler set, filter chain, strategy set, or dispatcher fans out to all implementations. Do not use for ordinary single-service dependency injection.
+description: Use when a Cratis handler set, filter chain, strategy set or dispatcher must discover every implementation of an abstraction. Not for selecting one service implementation at composition time.
 license: MIT
 ---
 

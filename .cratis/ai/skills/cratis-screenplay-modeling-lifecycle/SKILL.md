@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-modeling-lifecycle
-description: "Model first: load before any Cratis application work where a Screenplay `.play` model is, or should become, the source of truth. Holds the model-first decision rule, modes, independent verdicts V1-V5, the P0-P9 phases with Input / Carry-forward / Gate, stop-or-assume, identity ownership, approvals, untrusted content, session state and handoffs, then routes to ONE phase skill. Not for: Screenplay syntax or the compiler (use `cratis-screenplay-toolchain`), a single construct (use the `cratis-screenplay-*` construct skills), or Chronicle runtime diagnosis (use `cratis-chronicle-cli-operations`)."
+description: Use before application work to determine model-first obligations, or when selecting a Screenplay phase, verdict, approval or handoff. Not for construct syntax alone or Chronicle runtime diagnosis.
 license: MIT
 metadata:
   cratis-hint-paths: "**/*.play"

@@ -9,7 +9,8 @@
     { "query": "Does this review need deep scrutiny, or is ordinary depth enough without a named risk?", "shouldTrigger": true },
     { "query": "Our reviewer failed to run. Can that round be marked approved with no findings?", "shouldTrigger": true },
     { "query": "A previous review approved an older head. Can its verdict be reused for the correction delta?", "shouldTrigger": true },
-    { "query": "Should advisory naming feedback become a follow-up issue or remain a suggestion?", "shouldTrigger": true },
+    { "query": "I asked for Sol, but the host has no matching reviewer route. May another provider count as the named review?", "shouldTrigger": true },
+    { "query": "The reviewer timed out while I was editing. Must the writer pause and verify cancellation before a retry?", "shouldTrigger": true },
     { "query": "Group finished deliveries into one release candidate and fold superseded PRs.", "shouldTrigger": false, "note": "cratis-engineering-release-trains" },
     { "query": "Review the changed command against Cratis architecture, style, and specification criteria.", "shouldTrigger": false, "note": "cratis-code-review" },
     { "query": "Audit authentication and tenant-data exposure for vulnerabilities.", "shouldTrigger": false, "note": "cratis-security-review" },
@@ -17,7 +18,8 @@
     { "query": "The third regression hit the same filter. Name its failure class and build an owning gate.", "shouldTrigger": false, "note": "cratis-engineering-regression-cluster" },
     { "query": "Wait for the current CI run and diagnose all failed jobs before pushing once.", "shouldTrigger": false, "note": "cratis-engineering-ci-gates" },
     { "query": "Reduce pipeline duration by changing caching and workflow job dependencies.", "shouldTrigger": false, "note": "cratis-ci-pipeline-performance" },
-    { "query": "Write the release-note bullets for this new public API.", "shouldTrigger": false, "note": "cratis-release-notes" },
-    { "query": "Record the architectural decision to use a different persistence provider.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" }
+    { "query": "Record the architectural decision to use a different persistence provider.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" },
+    { "query": "Choose whether this C# command rejection belongs in Provide or a ConceptValidator.", "shouldTrigger": false, "note": "cratis-arc-command-validation" },
+    { "query": "Review the event timeline and refusal scenarios in this .play model without editing it.", "shouldTrigger": false, "note": "cratis-screenplay-model-review" }
   ]
 }

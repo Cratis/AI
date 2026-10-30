@@ -60,7 +60,9 @@ Requires Stage 4.135.0 for v26 admission; older Stage refuses v26 with STAGE-ESM
 Requires Stage 4.137.0 for v27 admission; older Stage refuses v27 with STAGE-ESM-016.
 The reviewed semantic Host runs composite-key read models and key-part
 lookups; specification execution still refuses multi-part keys. The renderer admits bounded scoped composite-key
-projections, not every parts-key shape; unsupported shapes retain STAGE-ESM-048.
+projections, not every parts-key shape; unsupported shapes, including DateTime
+and decimal key parts (a `Decimal` primitive or a concept over `Decimal`), retain
+STAGE-ESM-048.
 Single-instance query lookup by parts still refuses STAGE-ESM-047 until
 Chronicle#4265. The legacy syntax engine retains STAGE-ESM-048. See
 [current composite-key boundaries](current-boundaries.md#renderer-support-is-bounded).
@@ -205,7 +207,7 @@ Requires Stage 4.90.0 for snapshot/live lists, 4.96.0 for non-text secrets and 4
 | `STAGE-ESM-042` | Unknown validation rule kinds; checksum on the legacy syntax path (semantic checksum renders) | Keep the rule; use an admitting semantic renderer or gap-fill |
 | `STAGE-ESM-043` | Atomic shapes the renderer cannot preserve: multiple same-event production triggers or routed direct productions; semantic execution supports atomic batches | Keep the batch boundary; gap-fill refused shapes without splitting it |
 | `STAGE-ESM-044` | A protected read the Cratis renderer cannot preserve faithfully, naming the reason (every protected read before Stage 4.138.0); the legacy Host/structural runner refuse the preamble | Keep protection; gap-fill the refused command; semantic Host/executor support is separate from generated-app enforcement |
-| `STAGE-ESM-047`, `-048` | `-048` unsupported composite-key projection shape (legacy syntax refuses composite models); `-047` rendered single-instance lookup by parts. Semantic Host supports composite keys and key-part lookups; specification execution still refuses multi-part keys | Keep the model; check [composite boundaries](current-boundaries.md#renderer-support-is-bounded) |
+| `STAGE-ESM-047`, `-048` | `-048` unsupported composite-key projection shape, including a DateTime or decimal (`Decimal` or concept over `Decimal`) key part, whose refusal lifts with Stage#847 once Chronicle#5427 lands (legacy syntax refuses composite models); `-047` rendered single-instance lookup by parts. Semantic Host supports composite keys and key-part lookups; specification execution still refuses multi-part keys | Keep the model; check [composite boundaries](current-boundaries.md#renderer-support-is-bounded) |
 | `STAGE-ESM-046` | Compared DateTime concept with compliance or optionality, or a non-camel-case compared DateTime property; older renderers and legacy engines refuse all date comparisons | Keep the date rule and protection; see [date comparisons](date-comparisons.md) |
 | `STAGE-ESM-045` | Non-Error requirement on a protected command, including reaction-invoked commands; semantic admission refuses before reads, requirements or facts | Keep the severity contract; record the execution gap, never silently promote or drop the requirement |
 | `STAGE-IMPL-002` | Described command handler, naming command and RequirementId; also refused in Stub mode | Supply authorized implementation outside rendering; no described-body stub is emitted |

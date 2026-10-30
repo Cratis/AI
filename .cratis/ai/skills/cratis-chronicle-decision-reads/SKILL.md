@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-decision-reads
-description: Choose which mechanism makes a write-side rule hold (constraint, Arc read protection with read-model parameters and validators, per-stream read model, stream decision, aggregate, explicit scope, reactor repair or an advisory read), and guard a Chronicle decision directly with IDecisionReads, projection admission, ambient unit-of-work enrollment and commit conflict handling. Use when an append must remain valid for the facts read, when a rule must hold under concurrent writers, when choosing whole-source versus stream-scoped reads, or diagnosing ReadChanged, DecisionReadRefused and scope conflicts. Do not use for ordinary query reads or append-time uniqueness alone; Arc command shapes belong to cratis-arc-command.
+description: Use when a Chronicle write decision must remain valid under concurrent writers, its read scope is unclear or commit read conflicts occur. Not for ordinary query reads or append-time uniqueness alone.
 license: MIT
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-slice-design
-description: "Shape Screenplay slices from a discovered timeline: commands with reachable, authorized origins and traced inputs, rules placed by layer, a per-command refusal inventory, events-vs-views decisions, read models per screen component with queries that follow the business view, Level-1 screens, field lineage, state-transition tables, slice dependencies and the next slice. Use when designing slices after discovery, adding a capability or deciding command inputs, rule placement, read-model shape or screen data. Not for: stream boundaries or invariants across streams (use `cratis-screenplay-streams-and-consistency`), reactions and captures (use `cratis-screenplay-automations-and-translations`), which scenarios to write (use `cratis-screenplay-scenario-coverage`), or auditing a finished model (use `cratis-screenplay-model-review`)."
+description: Use when turning a discovered Screenplay timeline into commands, views and screens, or deciding inputs, refusal rules and field lineage. Not for stream identity, automation guarantees, scenario coverage or a finished-model audit.
 license: MIT
 ---
 

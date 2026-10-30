@@ -21,7 +21,7 @@ covers deliberate legacy explanations in prose; stale entries fail.
 | Source/stream identity | Omit `id` unless preserving a previous stored name | A pin equal to the current name | PLAY0507 (information) |
 | Production route | Inherit the command's route | Repeating the same `stream` / `streamId` on a production | PLAY0664 (warning) |
 | Imports | Import only declarations not already declared by the application | Importing the application's own names | PLAY0290 (warning) |
-| Interaction guard | Block-form `when` alternatives | Opaque interaction `where` on click, double click or select | PLAY0564 (warning or information) |
+| Interaction guard | Block-form `when` alternatives | Opaque interaction `where` on click, double click or select (a `change` keeps it) | PLAY0564 (warning or information) |
 | Projection transition cardinality | Source binding emits `One` | Constructed/deserialized ESM v1–v3 `ZeroOrOne` / `Many` | PLAY0445 (warning; ESM-only, not a source spelling) |
 | Command decision reads | `command reads protected` after reviewing every read's admission, absence and conflict semantics | Eligible legacy command reads without the application-root preamble | PLAY0786 (information; individual typed repair review, never fix-all) |
 | Profile shell | `root template <Name>` in a `ui profile` | `layout <Name>` in a `ui profile` | PLAY0791 (warning; quick fix) |

@@ -1,6 +1,6 @@
 ---
 name: cratis-orleans-jobs
-description: Build recoverable work with Cratis.Orleans jobs and job-step grains, stage barriers, bounded startup and cleanup, storage scopes and state machines. Use for service or kernel job authors, job recovery, SQL schema setup, or grain lifecycle transitions. Framework guidance; do not use for operating live Chronicle jobs or for application command validation.
+description: Use when authoring or recovering Cratis.Orleans jobs, configuring their storage or changing job-step lifecycle transitions. Not for operating live Chronicle jobs or validating application commands.
 license: MIT
 ---
 

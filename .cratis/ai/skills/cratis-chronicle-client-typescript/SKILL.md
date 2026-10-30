@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-client-typescript
-description: Connect Node.js applications to Chronicle with @cratis/chronicle, including reflect-metadata, compiler settings, camelCase reactor dispatch, projections, reducers, variants and the lazy-connect lifecycle. Use when configuring @cratis/chronicle decorators, glob discovery or eventLog.append in a standalone Node.js process. Do not use for JVM connections (use cratis-chronicle-client-kotlin), OTP supervision (use cratis-chronicle-client-elixir), or React generated proxies (use cratis-arc-react-page).
+description: Use when connecting a standalone Node.js process to Chronicle or diagnosing its decorators, discovery or client lifecycle. Not for React generated proxies or another language's client.
 license: MIT
 ---
 

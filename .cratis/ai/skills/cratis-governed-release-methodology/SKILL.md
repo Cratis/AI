@@ -1,6 +1,6 @@
 ---
 name: cratis-governed-release-methodology
-description: Choose the assurance tier a release needs, gather the evidence that tier requires, label release intent by semantic-version impact, and structure a canary-before-promotion path with an explicit recovery disposition. Use when planning a release or judging whether checksums, provenance, an SBOM, or a claim of support are warranted. Do not use for product code, publish-command syntax, or release credentials.
+description: Use when planning release assurance, support claims, promotion and recovery, or deciding whether supply-chain evidence is warranted. Not for product code, publish-command syntax or credentials.
 license: MIT
 ---
 

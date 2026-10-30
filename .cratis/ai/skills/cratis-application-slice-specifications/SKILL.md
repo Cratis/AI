@@ -1,6 +1,6 @@
 ---
 name: cratis-application-slice-specifications
-description: Specify the backend behavior of an event-sourced Cratis application slice — plain-call specs for pure decisions, plus CommandScenario, EventScenario, ReadModelScenario and ReactorScenario where the pipeline, validation, constraints or projections matter — including what to cover for each slice type and where the specification files live. Use when choosing backend plain-call coverage versus CommandScenario, EventScenario, ReadModelScenario or ReactorScenario for an event-sourced slice. Do not use for frontend interactions (use cratis-application-react-specifications) or framework unit-spec mechanics (use cratis-specifications-csharp).
+description: Use when choosing backend plain-call or pipeline-scenario coverage for an event-sourced Cratis application slice. Not for frontend interactions or language-level framework specification mechanics.
 license: MIT
 metadata:
   cratis-hint-paths: "**/when_*/**/*.cs **/for_*/**/*.cs"

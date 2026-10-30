@@ -98,6 +98,29 @@ test('packaged Pi selects and path-delivers shared reports for review profiles w
     }
 });
 
+test('portable rounds preserve writer verification, bounded failures and exact-scope evidence', () => {
+    const rounds = read('skills/cratis-engineering-review-rounds/SKILL.md');
+    for (const text of [
+        'verify actual reviewer identity and availability',
+        'the named loop is blocked/Incomplete',
+        'The sole writer pauses scoped edits',
+        'The reviewer is read-only:',
+        'nested reviewers',
+        'evidence obligations, and cancellation',
+        'verify cancellation before replacement',
+        'Retries and fallbacks count toward the same three-round cap',
+        'The writer independently verifies each finding',
+        'stable\n   finding IDs',
+        'Dirty-tree feedback\nis preliminary',
+        'final independent whole-change review',
+        'exact-head CI, assembled-candidate, predecessor and overlap requirements',
+    ]) assert.ok(rounds.includes(text), text);
+    for (const text of ['stable finding IDs', 'three total rounds per work item', 'Record failed attempts.', 'Verify cancellation before replacement', 'Suggestions alone do not justify another round.', 'Verify actual reviewer identity and availability']) {
+        assert.ok(rule.includes(text), text);
+    }
+    assert.doesNotMatch(rounds, /openai-codex\/|gpt-6|orchestrator_capabilities|delegate_task/);
+});
+
 test('specialist agents reuse their skills risk mappings instead of defining competing tables', () => {
     for (const domain of ['code', 'security', 'performance']) {
         const content = read(`agents/${domain}-reviewer.md`);

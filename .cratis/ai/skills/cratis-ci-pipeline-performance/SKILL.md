@@ -1,6 +1,6 @@
 ---
 name: cratis-ci-pipeline-performance
-description: Make a Cratis repository's GitHub Actions CI/CD faster and cheaper by measuring workflow timings first, picking the lever that fits the measured bottleneck (build once and shard, caching, path filters with an aggregator, concurrency, runner routing, publish from artifacts) and verifying before and after. Use when a workflow is slow, queues, burns runner minutes, reruns or cancels a lot, or when editing .github/workflows to speed up CI. Not for authoring a release (use cratis-governed-release-methodology), recurring regressions on one surface (use cratis-engineering-regression-cluster), runtime performance of application code (use cratis-performance-review), or fixing a red build.
+description: Use when GitHub Actions is slow, queues, wastes runner minutes or repeatedly reruns and cancels work. Not for fixing a red build, runtime application performance or release-assurance planning.
 license: LICENSE
 ---
 

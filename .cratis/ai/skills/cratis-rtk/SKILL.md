@@ -1,6 +1,6 @@
 ---
 name: cratis-rtk
-description: Route human-readable command output through rtk without losing exact diagnostics or exit codes. Use before choosing wrappers for git, searches, builds, tests, lint or package-manager commands, and when a wrapped command fails or a script needs raw output. Not for granting execution authority, choosing CI gates, or changing repository scripts to use rtk.
+description: Use before choosing command-output wrappers, or when a wrapped command fails and exact diagnostics or parsed output are needed. Not for execution permission, CI-gate selection or rewriting repository scripts around rtk.
 license: LICENSE
 compatibility: Local shell; rtk is optional and must already be installed.
 ---

@@ -1,6 +1,6 @@
 ---
 name: ui-design
-description: UI/UX and frontend design best practices guidelines (formerly frontend-design). This skill should be used when writing, reviewing, or designing frontend code to ensure accessibility, performance, and usability. Triggers on tasks involving HTML structure, CSS styling, responsive layouts, form design, animations, or accessibility improvements.
+description: Use when designing HTML semantics, accessible forms, responsive layouts, typography or reduced-motion behavior. Not for a Web Interface Guidelines compliance audit; use web-design-guidelines.
 ---
 
 # UI/UX Best Practices Frontend Design
