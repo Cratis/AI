@@ -3,6 +3,13 @@
 
 # Shared specification lifecycle
 
+## Contents
+
+- Eligibility
+- Native runner teardown outcomes
+- CRSPEC0008
+- Keep shared execution on
+
 Requires `Cratis.Specifications.XUnit.v3` or `.XUnit` 5.0. Before 5.0 the shared
 lifecycle was an opt-in on xUnit and `CRSPEC0008` was informational; check the package
 version before relying on either. NUnit, TUnit and the native runner always share the
@@ -60,8 +67,18 @@ Requires Specifications 5.0.2 for Received.InOrder verification recognition; che
 Calls inside NSubstitute `Received.InOrder(...)` delegates are recognized as
 verification, but assignments and increments there still mutate state and are
 reported. Theories, per-fact classes/assemblies, immutable collection calls and
-collection calls whose return value is used are excluded. Move actual mutations
-into `Establish` or `Because`:
+collection calls whose return value is used are excluded.
+
+Since Specifications 5.2.0, `CRSPEC0008` also reports indirect changes it can prove:
+writes through nested members and indexers (also `?.`), `Dispose`/`DisposeAsync` on a
+shared field, reconfiguring a shared NSubstitute substitute (`Returns`, `Throws`,
+`When`, `ClearReceivedCalls`), and calls to a method in the same file that does any of
+these. The warning `CRSPEC0012` reports calls that usually change state, judged by
+name: `Execute`/`Handle`, destructive reads (`Take`, `Dequeue`, `Pop`, `MoveNext`) and
+`Push`, `Enqueue`, `TryAdd`, `Reset`, or `Add`/`Remove`/`Clear` on a collection reached
+through a field. Helpers in other files (such as a `given` context) and Moq `Setup`
+are not followed, so audit those classes by hand before turning the shared lifecycle
+back on. Move actual mutations into `Establish` or `Because`:
 
 ```csharp
 public class when_registering : Specification
