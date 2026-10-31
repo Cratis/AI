@@ -208,8 +208,11 @@ Both builder methods return `void`; there is nothing to await.
 
 Read protection is invisible to application spec authors. Never configure modes,
 call `UseDecisionReads`, seed events solely for infrastructure, or re-prove
-platform guards/admission. If the harness cannot accept required state, report
-the upstream gap; never weaken production guards for test speed. Read
+the platform concurrency/guard matrix. Keep one cheap assembly-level
+`DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)` spec for the
+application's own model/projection shapes: its only decision-read spec obligation.
+If the harness cannot accept required state, report the upstream gap; never weaken
+production guards for test speed. Read
 [query and decision scenarios](references/query-and-decision-scenarios.md) for
 query pipelines and application-owned race policies.
 

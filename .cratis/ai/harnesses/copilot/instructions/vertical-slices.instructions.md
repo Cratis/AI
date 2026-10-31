@@ -433,8 +433,10 @@ reads/exact scopes or read-model parameters under read protection `On`
 (`[ProtectedDecision]` + `DecisionRead<T>` is the older per-command opt-in);
 validator/`Provide()`/`Handle()` injection under `Off` is advisory. Stream-level
 `concurrency: true` scopes are another explicit boundary, not protection for an
-arbitrary snapshot. Specify conflicts with `AppendConcurrently` and actual seeded
-events, not pinned models.
+arbitrary snapshot. Specify business decisions with direct `Handle()`/validator
+calls and supplied model state. Follow [specs.scenarios.csharp.md](./specs.scenarios.csharp.instructions.md):
+one cheap assembly-level application-shape admission spec; the platform guard
+matrix belongs only in Arc/Chronicle specs.
 
 ## Dialogs
 

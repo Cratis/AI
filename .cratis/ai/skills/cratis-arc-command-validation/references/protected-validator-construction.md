@@ -87,8 +87,12 @@ NativeAOT support for the unrelated dynamic validator opt-in.
 
 ## Specify the boundary
 
-Cover a fresh allowed/denied validator, callback-added denial and exception,
-refused DI graphs and cleanup failure, and repeated validation/execution without
-reusing an instance. For keys, cover inherited/flattened members, exact derived
-types, missing metadata under strict settings and generated versus compatibility
-matching. An advisory Validate success is not proof that Execute commits.
+In application specs, call the validator directly with supplied read-model state
+and assert its business decision. Keep the one cheap assembly-level application-shape
+admission spec in [specs.scenarios.csharp.md](../../../rules/specs.scenarios.csharp.md).
+
+Arc/Chronicle specs own the construction/guard matrix: fresh instances, callback
+failures, refused DI graphs, cleanup, key matching and repeated execution. Do not
+re-prove that matrix per application validator. A focused application pipeline
+spec may prove its own registration/wiring; advisory Validate success alone is
+not proof that Execute commits.

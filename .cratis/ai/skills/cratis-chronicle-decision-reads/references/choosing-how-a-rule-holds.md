@@ -256,7 +256,7 @@ return `Commit()` last), `ReadOfSourceWithStagedEvents`, `ExplicitScopeDoesNotCo
 | Injected `IEventLog.Append` in `Handle` | immediate write that survives a conflict rollback | return events |
 | Aggregate `Commit()` whose result is ignored, or `Failed()` without `Commit()` | staged events still commit | return `await aggregate.Commit()` |
 | `[Unprotected]` command taking `DecisionRead<T>` | resolves to an unguarded read | remove `[Unprotected]` |
-| Tests without `AppendConcurrently`, or a scenario left in legacy mode | the race is never exercised | [test the race](#test-the-race) |
+| Per-decision specs rebuild the platform guard matrix | repeated infrastructure proof, not business coverage | [specify the business decision](#specify-the-business-decision) |
 
 ## Chronicle-only traps
 
@@ -310,8 +310,11 @@ Start with a plain `Handle()` or validator call supplied with read-model state.
 Follow the [scenario rule](../../../rules/specs.scenarios.csharp.md): read-protection
 plumbing is invisible to application spec authors. They never configure modes,
 call `UseDecisionReads`, seed events solely for infrastructure or re-prove platform
-guards/admission. Arc/Chronicle specs own the guard matrix; production protection
-stays unchanged regardless of spec cost.
+concurrency, conflict-refusal or isolation guards. Arc/Chronicle specs own that
+matrix. The application's only decision-read spec obligation is one cheap
+assembly-level `DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)`
+check of its own models/projections, not per-decision scenarios. Production
+protection stays unchanged regardless of spec cost.
 
 A scenario is justified for an application-owned race policy: for example, two
 borrowers competing for the last copy must yield one loan and the specified
@@ -339,7 +342,8 @@ append. Decision reads exist in the .NET and Elixir clients.
   an explicit scope, enrolled **before** the events are staged.
 - The model is admitted (source-keyed projection or admitted reducer, `Id`).
 - Cross-key rules append one event per source atomically, with distinct event types.
-- A specification interleaves a competing append and asserts
-  `ConcurrencyViolation`.
+- Business decisions have direct `Handle()`/validator specs with supplied state;
+  one cheap assembly-level spec checks application-shape admission. Arc/Chronicle,
+  not application specs, interleave appends to prove the platform guard matrix.
 - What stays unguarded (an unguarded writer's own decision, external state,
   revisions, `[Unprotected]` reads, `Off` mode) is stated.

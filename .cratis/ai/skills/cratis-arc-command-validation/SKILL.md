@@ -272,8 +272,10 @@ read-model state and validate directly, asserting the specific rejection. Add
 or an application-owned race policy. Follow the
 [scenario rule](../../rules/specs.scenarios.csharp.md): application specs never
 configure read-protection modes, call `UseDecisionReads`, seed events solely for
-infrastructure, or re-prove platform guards. Report harness gaps upstream; never
-weaken production guards for speed.
+infrastructure, or re-prove platform guards. Keep the single cheap assembly-level
+application-shape admission spec specified by that rule; it is the application's
+only decision-read spec obligation. Report harness gaps upstream; never weaken
+production guards for speed.
 
 For a pipeline validation rejection, assert **both** that the command did not
 succeed and that it failed *as a validation*:

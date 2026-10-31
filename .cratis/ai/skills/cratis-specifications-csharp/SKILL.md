@@ -81,7 +81,7 @@ before changing runner or package family.
 | Isolated class, collaborators can be substituted | `Specification` + NSubstitute |
 | Arc command pipeline (validators, `Provide()`, `Handle()`, appended events) | `CommandScenario<TCommand>` |
 | Arc query conversion, validation, authorization and interceptors | `QueryScenario<TReadModel>` (`Cratis.Arc.Testing.Queries`) |
-| Chronicle append semantics, constraints, concurrency | `EventScenario` |
+| Append-time domain constraints | `EventScenario` |
 | Declarative mapping or reducer wiring | One `ReadModelScenario<TReadModel>` class per read model, many read-only assertions on shared setup |
 | Reactor invocation and its side effects | `ReactorScenario<TReactor>` |
 | Host, transport, or real-infrastructure boundary | Out-of-process Chronicle integration specification |
@@ -101,8 +101,12 @@ boundaries the scenario helpers cannot reach — see
 ⚠️ `EventScenario` wires a strategy that always answers `ConcurrencyScope.None`,
 which the validator skips, so an append that lets the strategy choose the scope
 never produces a concurrency violation. `ShouldHaveConcurrencyViolations()`
-cannot pass for such an append and its negation passes vacuously — specify concurrency against the
-real kernel with an out-of-process integration specification instead.
+cannot pass for such an append and its negation passes vacuously. Arc/Chronicle
+alone prove the platform concurrency, conflict-refusal and isolation matrix,
+with real-kernel integration where required. The application's only decision-read
+spec obligation is one cheap assembly-level shape-admission check from the
+[scenario rule](../../rules/specs.scenarios.csharp.md); business decisions take
+supplied state in direct `Handle()`/validator calls.
 
 For a class-based `ReactorScenario<TReactor>` on a recent Chronicle (Requires Chronicle 19.46.0), seed each
 handler read-model parameter with `Given.ForEventSourceId(id).ReadModel(instance)`

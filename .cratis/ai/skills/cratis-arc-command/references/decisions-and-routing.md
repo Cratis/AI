@@ -179,7 +179,9 @@ Call `Handle()` and validators directly with read-model state for pure business
 decisions. Follow the [scenario rule](../../../rules/specs.scenarios.csharp.md):
 read-protection plumbing is invisible to application spec authors. They never
 call `UseDecisionReads`, configure modes, seed events solely for infrastructure,
-or re-prove platform guards/admission; Arc/Chronicle specs own those checks.
+or re-prove the platform concurrency, conflict-refusal or isolation matrix;
+Arc/Chronicle specs own it. The application's only decision-read spec obligation
+is one cheap assembly-level shape-admission spec from that rule.
 Never weaken production guards for test speed. Report a harness state-setup gap
 upstream instead of working around it in application specs.
 

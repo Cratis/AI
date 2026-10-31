@@ -72,9 +72,22 @@ cover those pipeline hooks.
 Start with a direct decision call supplied with read-model state. Follow the
 [scenario rule](../../../rules/specs.scenarios.csharp.md): application authors do
 not select read-protection modes, call `UseDecisionReads`, seed events only to
-satisfy infrastructure, or prove platform guard/admission behavior. Arc/Chronicle
-specs own that plumbing. If the installed harness cannot accept required state,
-report the upstream gap; never weaken production guards or invent guard doubles.
+satisfy infrastructure, or prove the platform concurrency, conflict-refusal or
+isolation matrix. Arc/Chronicle specs own it. The application's only decision-read
+spec obligation is one cheap assembly-level check of its own model/projection
+shapes, not one scenario per decision:
+
+```csharp
+DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly);
+```
+
+This API is in `Cratis.Arc.Chronicle.Testing.Commands`; it discovers declared reads
+and checks admission without executing commands or running Chronicle. Keep the
+spec's discovered projections representative of production; spec-only competing
+definitions can make a model ambiguous. Explicit `IDecisionReads.Get` calls inside
+method bodies are not statically discovered. If the harness cannot accept
+required state for a business decision, report the upstream gap; never weaken
+production guards or invent guard doubles.
 
 Add a `CommandScenario<TCommand>` only when the application owns a race policy:
 for example, two callers reserving the last seat must produce one reservation
@@ -82,9 +95,10 @@ and the specified rejection or retry outcome. Name that business contract and
 assert it, rather than repeating the platform's generic stale-read tests.
 Use event history only when it is part of the domain example.
 
-`AppendConcurrently(id, events...)` (or its routed overload) supplies controlled
-interference. Requires Arc 22.92.0 for this without explicit decision-read setup;
-older harness limitations are upgrade/report concerns, not application setup
+For an application-owned race/retry policy only, `AppendConcurrently(id, events...)`
+(or its routed overload) can supply controlled interference. It is not required
+for every guarded decision. Requires Arc 22.92.0 without explicit decision-read
+setup; older limitations are upgrade/report concerns, not application setup
 instructions. A competing append alone proves no policy: assert the intended
 business outcome and ensure the decision would otherwise append.
 `ShouldHaveCompletedStream(ClosedStreamScope)` can assert an application-owned
@@ -101,3 +115,4 @@ Provider boundaries remain separate: state fixtures are not a MongoDB substitute
 - [Query scenarios](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/testing/query-scenario.md)
 - [Stream decisions and routed specs](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/commands/stream-decisions.md)
 - [Decision-mode extension](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Chronicle.Testing/Commands/CommandScenarioChronicleExtensions.cs)
+- [Application-shape admission assertion](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Chronicle.Testing/Commands/DecisionReadAdmissions.cs)
