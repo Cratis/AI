@@ -15,6 +15,11 @@ default, with the event and current state supplied explicitly (for a self model,
 `Model.Reduce(@event, current)`). Add
 `ReadModelScenario<TReadModel>` only where declarative projection behavior,
 event dispatch, filtering, metadata or read-model wiring contribute proof.
+Follow the [scenario selection and cost rule](../../rules/specs.scenarios.csharp.md):
+use one scenario class per read model, many read-only assertions on one shared
+setup, and keep shared lifecycle enabled. Do not create a class per property,
+mapping attribute or lifecycle event. Measure scenario cost with TRX durations
+using [running-specs.md](../cratis-specifications-csharp/references/running-specs.md).
 
 For a read-model scenario specification the **`Given` *is* the act**. There
 is no separate `When`: seeding the events is what makes the projection run.
@@ -69,7 +74,8 @@ version.
 
 ## Step 1 — Create the scenario
 
-A new scenario per specification, never shared state.
+Create one scenario for the read model's specification class. Share setup among
+its read-only facts, never across specification classes.
 
 ```csharp
 // Default, empty initial state
@@ -214,7 +220,11 @@ public class and_two_items_are_priced : Specification
 
 Wrap files in `#if DEBUG … #endif` only when they compile into the application
 assembly, so specification code ships only in Debug. Dedicated spec projects
-need no wrapper. Keep one outcome per `should_` fact.
+need no wrapper. Keep one outcome per `should_` fact, not one scenario class per
+assertion. Apply the event sequence once; capture intermediate states in `Because`
+for create/update/delete assertions so facts remain read-only. Capture values or
+immutable copies if later events mutate the same instance. Multiple event-source
+keys may share this setup for isolation and child-key assertions.
 
 ## Step 6 — Cover the read model, not just one event
 
@@ -224,7 +234,8 @@ One summation example proves one event. Take the inventory from the contract
 (the `.play` read model and its specifications, or the agreed outline); without
 one, derive it from the projection and say so. Then check each line:
 
-- **Every property is asserted** in at least one specification.
+- **Every property is asserted** in a read-only fact in the model's shared
+  scenario class; do not multiply scenario startup for each field.
 - **Every subscribed event has a specification.** Reconcile three lists in both
   directions: the contract's event types, the projection's actual subscriptions,
   and the events your specifications seed. Report any event in one list missing

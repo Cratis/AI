@@ -3,7 +3,7 @@
 ## Contents
 
 - Query pipeline
-- Guarded decisions
+- Application-owned race policies
 - Sources
 
 <!-- Copyright (c) Cratis. All rights reserved. -->
@@ -47,8 +47,10 @@ arbitrary stores.
 Requires Arc 22.87.0 and Chronicle 19.54.0 for scenario `IReadModels.Observe<T>(filter)` snapshots from given events or pinned models,
 including new emissions after scenario command appends. Pins need a readable key
 or throw `PinnedReadModelCannotBeObserved`.
-Requires Arc 22.91.1 and Chronicle 19.59.1 for default-mode children, joins and reducers to observe through scenario-owned storage (the initial Arc package was not published); older default mode cannot
-observe children, so use decision mode. Check both package versions.
+Requires Arc 22.91.1 and Chronicle 19.59.1 for children, joins and reducers to
+observe through scenario-owned storage (the initial Arc package was not published).
+Check both package versions; upgrade or report a harness gap rather than configuring
+decision-read modes in application specs.
 
 For a query with `by`, `filter` or `scoped to`, seed instances for two keys, two filter values
 or two tenants with distinct callers, as applicable, and assert that each call returns only its
@@ -65,50 +67,52 @@ execution runs the query through Arc's hosted query pipeline and establishes con
 before `Provide`/`Handle` on the command path. A direct static query call does not
 cover those pipeline hooks.
 
-## Guarded decisions
+## Application-owned race policies
 
-Create `new CommandScenario<TCommand>()`. It selects Chronicle's in-process decision
-mode from the command's read-protection mode and dependencies (for example under
-`On`, or with a per-stream read model); do not call `UseDecisionReads()`, which is
-hidden and unnecessary. This mode shares **one real in-process event log** among
-given events, guarded reads, constraints and returned appends. Seed actual events
-(`Given.ForEventSource(id).Events(...)`, or `.OnRoute(route).Events(...)`); protected
-reads fold the log and ignore a pinned `.ReadModel(m)`, which only pins an advisory
-(plain) read. Assert a lost race with
-`result.ShouldHaveValidationErrorBecauseOf(ValidationResultReason.ConcurrencyViolation)`
-after `scenario.AppendConcurrently(id, events...)`. There is no
-`scenario.AppendConditions`. An `Off` command with no protected dependency stays in
-legacy mode.
-`Given.ForEventSource(id).OnRoute(route).Events(...)` preserves routing;
-`scenario.EventRoutes.For<TSource>(stream).WithStreamId(...)` creates the route.
-Queue interference using `AppendConcurrently(id, route, event)` and assert a
-nonempty decision is rejected on the intended boundary. An empty identical-retry
-append deliberately returns no scope and cannot prove the conflict guard.
+Start with a direct decision call supplied with read-model state. Follow the
+[scenario rule](../../../rules/specs.scenarios.csharp.md): application authors do
+not select read-protection modes, call `UseDecisionReads`, seed events only to
+satisfy infrastructure, or prove the platform concurrency, conflict-refusal or
+isolation matrix. Arc/Chronicle specs own it. The application's only decision-read
+spec obligation is one cheap assembly-level check of its own model/projection
+shapes, not one scenario per decision:
 
-Requires Arc 22.92.0 for `AppendConcurrently` without decision reads; older Arc
-needs decision mode. Its early interference does not make a plain read guarded;
-assert the actual scope/outcome, not merely that the competing append ran.
+```csharp
+DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly);
+```
 
-`ShouldHaveCompletedStream(type, id)` proves successful completion;
-`ShouldHaveCompletedStream(ClosedStreamScope)` asserts the exact source and route.
-`DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)` checks projection
-admission in assembly-wide specs. These APIs are in
-`Cratis.Arc.Chronicle.Testing.Commands`. Routed seeding is refused in legacy mode.
+This API is in `Cratis.Arc.Chronicle.Testing.Commands`; it discovers declared reads
+and checks admission without executing commands or running Chronicle. Keep the
+spec's discovered projections representative of production; spec-only competing
+definitions can make a model ambiguous. Explicit `IDecisionReads.Get` calls inside
+method bodies are not statically discovered. If the harness cannot accept
+required state for a business decision, report the upstream gap; never weaken
+production guards or invent guard doubles.
 
-The old warnings that command `Given` never reaches the event log and that its
-read-model dictionary is the only backing are **legacy-mode** warnings, not a
-reason to fake protected decision readers. Keep non-key enumeration/provider
-boundaries explicit in either mode; decision mode is not a MongoDB substitute.
+Add a `CommandScenario<TCommand>` only when the application owns a race policy:
+for example, two callers reserving the last seat must produce one reservation
+and the specified rejection or retry outcome. Name that business contract and
+assert it, rather than repeating the platform's generic stale-read tests.
+Use event history only when it is part of the domain example.
 
-The default Chronicle-backed `CommandScenario` discovers constraints
-automatically. Assert real constraint refusals instead of disabling them. Do not
-subclass or substitute Chronicle's `EventScenario`; use its public
-seeding/assertion surface or explicit `UseDecisionReads` mode, not a synthetic
-EventScenario facade.
+For an application-owned race/retry policy only, `AppendConcurrently(id, events...)`
+(or its routed overload) can supply controlled interference. It is not required
+for every guarded decision. Requires Arc 22.92.0 without explicit decision-read
+setup; older limitations are upgrade/report concerns, not application setup
+instructions. A competing append alone proves no policy: assert the intended
+business outcome and ensure the decision would otherwise append.
+`ShouldHaveCompletedStream(ClosedStreamScope)` can assert an application-owned
+completion outcome at the exact source and route. These APIs are in
+`Cratis.Arc.Chronicle.Testing.Commands`.
+
+The Chronicle-backed `CommandScenario` discovers constraints automatically.
+Assert domain constraint refusals instead of disabling them; use `EventScenario`
+for append-time uniqueness examples. Do not subclass or substitute its engine.
+Provider boundaries remain separate: state fixtures are not a MongoDB substitute.
 
 ## Sources
 
 - [Query scenarios](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/testing/query-scenario.md)
 - [Stream decisions and routed specs](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/commands/stream-decisions.md)
 - [Decision-mode extension](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Chronicle.Testing/Commands/CommandScenarioChronicleExtensions.cs)
-- [Admission assertion](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Chronicle.Testing/Commands/DecisionReadAdmissions.cs)
+- [Application-shape admission assertion](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Chronicle.Testing/Commands/DecisionReadAdmissions.cs)

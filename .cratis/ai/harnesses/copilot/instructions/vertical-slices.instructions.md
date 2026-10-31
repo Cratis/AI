@@ -21,7 +21,7 @@ This file is the reference for *what* goes in each part of a slice. Layout, slic
 
 - .NET / C# (ASP.NET Core) — **Cratis Arc** for CQRS / model-bound commands and queries, **Cratis Chronicle** for event sourcing, MongoDB or EF Core for read models.
 - React + TypeScript (Vite) — Cratis Components 4.x + Arc-generated proxies, MVVM. Vitest + Mocha/Chai/Sinon for frontend specs.
-- xUnit + Cratis.Specifications + NSubstitute for C# specs (`Specification` plus a direct call by default for pure decisions; add the `*Scenario` family only where pipelines, validation, constraints, projections or wiring contribute proof — see [specs.md](./specs.instructions.md)).
+- xUnit + Cratis.Specifications + NSubstitute for C# specs (`Specification` plus a direct call for pure command/validator/reducer decisions with supplied state; add scenarios only for pipeline/authorization wiring, constraints, declarative projections or application-owned race policies — see [specs.md](./specs.instructions.md)).
 
 ## Proxy generation — the build dependency
 
@@ -433,8 +433,10 @@ reads/exact scopes or read-model parameters under read protection `On`
 (`[ProtectedDecision]` + `DecisionRead<T>` is the older per-command opt-in);
 validator/`Provide()`/`Handle()` injection under `Off` is advisory. Stream-level
 `concurrency: true` scopes are another explicit boundary, not protection for an
-arbitrary snapshot. Specify conflicts with `AppendConcurrently` and actual seeded
-events, not pinned models.
+arbitrary snapshot. Specify business decisions with direct `Handle()`/validator
+calls and supplied model state. Follow [specs.scenarios.csharp.md](./specs.scenarios.csharp.instructions.md):
+one cheap assembly-level application-shape admission spec; the platform guard
+matrix belongs only in Arc/Chronicle specs.
 
 ## Dialogs
 

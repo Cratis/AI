@@ -52,10 +52,11 @@ version. Never translate an assertion name from memory.
   (`When`, or `EventLog.Append` without a `concurrencyScope`) can never report
   `HasConcurrencyViolations`. Only an append that passes an explicit scope on
   `scenario.EventLog.Append(...)` reaches the in-process validator at all — and
-  that is a spec of the scope you hand-built, not of the application's strategy. Specify concurrency against
-  the real kernel with an out-of-process integration specification, and do not
-  write a scenario specification that looks like it covers it — it would pass
-  vacuously, which is worse than not having one.
+  that is a spec of the scope you hand-built, not of the application's strategy. The platform concurrency/guard matrix belongs only in Arc/Chronicle specs,
+  with real-kernel integration where required. Application decisions use direct
+  `Handle()`/validator calls with supplied state plus the one cheap assembly-level
+  shape-admission spec in [specs.scenarios.csharp.md](../../rules/specs.scenarios.csharp.md).
+  A default scenario must not claim concurrency coverage — it would pass vacuously.
 
 ## Step 1 — Create the scenario
 
