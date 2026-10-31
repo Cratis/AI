@@ -15,16 +15,16 @@ Specs are **mandatory for every slice type**, including reactors.
 
 ## Start with the plain call; add a scenario where it adds proof
 
-**Judgment-shaped convention:** call pure `Handle()`, validators, reducers and reactor decisions directly with their inputs, including read-model state. Add a scenario only for pipeline/authorization wiring, constraints, declarative projection mapping or an application-owned race policy. Do not repeat every decision through the pipeline; name the extra behavior each scenario proves.
+**Judgment-shaped convention:** call pure `Handle()`, validators, reducers and reactor decisions directly with their inputs, including read-model state. Add a scenario only for pipeline/authorization wiring, constraints or declarative projection mapping. Do not repeat every decision through the pipeline; name the extra behavior each scenario proves.
 
-**Application specs supply state, not decision-read infrastructure.** Call `Handle()` or the validator directly with supplied read-model state. Never call `UseDecisionReads`, configure protection modes, seed events solely for infrastructure, or re-prove the platform's concurrency, conflict-refusal or isolation matrix; Arc/Chronicle specs own it. The application's **only decision-read spec obligation** is one cheap assembly-level shape-admission spec: `DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)` (`Cratis.Arc.Chronicle.Testing.Commands`). It checks the application's own models/projections without executing commands or running Chronicle, not the platform guards. An application-owned race policy may justify a scenario; assert its business outcome. Report harness state-setup gaps upstream; never weaken production guards for test speed.
+**Application specs supply state, not decision-read infrastructure.** Call `Handle()` or the validator directly with supplied read-model state. Never call `UseDecisionReads`, configure protection modes, seed events solely for infrastructure, or re-prove the platform's concurrency, conflict-refusal or isolation matrix; Arc/Chronicle specs own it. The application's **only decision-read spec obligation** is one cheap assembly-level shape-admission spec: `DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)` (`Cratis.Arc.Chronicle.Testing.Commands`). It checks the application's own models/projections without executing commands or running Chronicle, not the platform guards. Never simulate competing appends either (`AppendConcurrently` or any hand-built interleaving): concurrency is a framework concern a developer should not think about in tests, and Arc and Chronicle specs prove it. A rule that must hold under races is expressed in production by taking the read model as a `Handle` parameter under `[ReadProtection(On)]`; the spec gives that read model's state and asserts the outcome. Report harness state gaps upstream; never weaken production guards for speed. `AppendConcurrently` is an advanced framework-verification API: use only for an explicit need. Direction, no release claim: Arc will obsolete `UseDecisionReads`.
 
 **Share setup and budget cost (judgment-shaped).** Keep shared lifecycle on; use `[PerFactSpecificationLifecycle]` only on a class whose facts genuinely mutate shared state and cannot move that mutation into `Because`. Plain decision specs should take roughly milliseconds; measure scenario facts and justify seconds by the extra behavior they prove. Compare TRX durations and suite wall time with unchanged concurrency; see [running-specs.md](../../../skills/cratis-specifications-csharp/references/running-specs.md). Do not multiply scenario startup by splitting assertions into classes or opting the project out of shared lifecycle.
 
 | Tool | Tests | Use when |
 |---|---|---|
 | `Specification` (plain call) | `Handle()`, `Handle(providedValue)`, validator/reducer logic or a reactor's decision as a method call; or an isolated class with mocked collaborators | **default** for a decision that is a pure function of its arguments |
-| `CommandScenario<TCommand>` | the real Arc command pipeline — authorization + validators + `Provide()` + `Handle()` + appended events | pipeline wiring, authorization, constraints or an application-owned race policy adds proof |
+| `CommandScenario<TCommand>` | the real Arc command pipeline — authorization + validators + `Provide()` + `Handle()` + appended events | pipeline wiring, authorization or constraints adds proof |
 | `QueryScenario<TReadModel>` | query pipeline: argument conversion, authorization, validation, interceptors; `Observe` buffers emissions | query composition matters; real MongoDB observations still need infrastructure |
 | `EventScenario` | Chronicle-level append semantics, no command pipeline | constraint violations, raw stream sequencing/concurrency |
 | `ReadModelScenario<TReadModel>` | projection/reducer state from a sequence of events (auto-detects model-bound / fluent / reducer) | one class per read model, many read-only assertions on shared setup |
@@ -121,7 +121,7 @@ arguments?, paging?, sorting?)`; `Observe(...)` returns `QueryObservation.Initia
 and buffered `Next()`. Configure principal/policies in `Services`; schemes fail
 closed without HTTP. Chronicle query `Given` can seed keyed models/events.
 
-For query setup and application-owned race policies, see **cratis-application-slice-specifications**,
+For query setup, see **cratis-application-slice-specifications**,
 `references/query-and-decision-scenarios.md`. Framework read-protection guards are not application spec obligations.
 
 ### `EventScenario` — constraints & append semantics

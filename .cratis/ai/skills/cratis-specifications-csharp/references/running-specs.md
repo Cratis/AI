@@ -63,7 +63,7 @@ project on its own; `dotnet test` on the whole solution does not work there.
 Apply the [scenario cost budget](../../../rules/specs.scenarios.csharp.md): plain
 decision specs should take roughly milliseconds, not seconds. Measure scenario
 facts and justify their cost by pipeline/authorization wiring, constraints,
-declarative mapping or an application-owned race policy that a plain call cannot
+or declarative mapping that a plain call cannot
 prove. Prefer fewer startups, not fewer assertions or weaker production guards.
 
 Capture TRX for the affected project before and after the change. With VSTest,

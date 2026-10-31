@@ -268,10 +268,10 @@ authorization and camelCase member paths are separate contracts.
 
 Every rule gets a failure specification: instantiate the validator with its
 read-model state and validate directly, asserting the specific rejection. Add
-`CommandScenario<TCommand>` only for pipeline/authorization wiring, constraints
-or an application-owned race policy. Follow the
+`CommandScenario<TCommand>` only for pipeline/authorization wiring, constraints.
+Follow the
 [scenario rule](../../rules/specs.scenarios.csharp.md): application specs never
-configure read-protection modes, call `UseDecisionReads`, seed events solely for
+configure read-protection modes, call `UseDecisionReads`, simulate competing appends, seed events solely for
 infrastructure, or re-prove platform guards. Keep the single cheap assembly-level
 application-shape admission spec specified by that rule; it is the application's
 only decision-read spec obligation. Report harness gaps upstream; never weaken

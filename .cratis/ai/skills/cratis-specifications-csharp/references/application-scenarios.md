@@ -10,18 +10,18 @@
 
 The four scenario helpers exercise the real Arc and Chronicle pipelines
 in-process. Follow the [scenario selection and cost rule](../../../rules/specs.scenarios.csharp.md):
-use them for pipeline/authorization wiring, constraints, declarative mapping or an
-application-owned race policy; specify pure `Handle()`, validator, reducer and
+use them for pipeline/authorization wiring, constraints, or declarative mapping;
+specify pure `Handle()`, validator, reducer and
 reactor decisions first as plain calls with supplied read-model state. A library or framework repository reaches for a scenario only to test the
 very engine it provides.
 
 Read [query and decision scenarios](../../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
-when using `QueryScenario<T>`, buffered emissions or application-owned race policies.
+when using `QueryScenario<T>`, or buffered emissions.
 Read-protection plumbing is the harness's responsibility, never application setup.
 
 | Helper | Exercises | Use for |
 | --- | --- | --- |
-| `CommandScenario<TCommand>` | Authorization, validators, `Provide()`, `Handle()`, appended events | Pipeline wiring, authorization, domain constraints/race policies |
+| `CommandScenario<TCommand>` | Authorization, validators, `Provide()`, `Handle()`, appended events | Pipeline wiring, authorization, domain constraints |
 | `QueryScenario<TReadModel>` | Argument conversion, authorization, validation, interceptors and buffered observations | Query pipeline behavior |
 | `EventScenario` | Chronicle append semantics without the command pipeline | Domain constraints; raw engine guards belong in framework specs |
 | `ReadModelScenario<TReadModel>` | Projection or reducer state from a sequence of events | Declarative mapping/wiring, one class per model |

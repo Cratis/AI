@@ -316,12 +316,11 @@ assembly-level `DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)`
 check of its own models/projections, not per-decision scenarios. Production
 protection stays unchanged regardless of spec cost.
 
-A scenario is justified for an application-owned race policy: for example, two
-borrowers competing for the last copy must yield one loan and the specified
-rejection or retry. Assert that domain outcome, not the engine's generic append
-conditions. See [query and decision scenarios](../../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
-for controlled interference. If the harness cannot accept required state, report
-the upstream gap rather than adding infrastructure setup to application specs.
+Do not simulate competing appends in an application spec, even for a rule such as
+two borrowers competing for the last copy. Give the state (no copies left) and assert
+the domain outcome (rejected); the guarantee that only one wins is proven by Arc and
+Chronicle. If the harness cannot accept required state, report the upstream gap
+rather than adding infrastructure setup to application specs.
 
 ## Costs
 

@@ -276,7 +276,7 @@ Components guidance, not to this skill.
 
 Start pure `Handle()` and validator decisions with direct calls and supplied
 read-model state. Add scenarios only for pipeline/authorization wiring,
-constraints or application-owned race policies, not read-protection plumbing;
+constraints, never read-protection plumbing or simulated concurrency;
 follow the [scenario selection and cost rule](../../rules/specs.scenarios.csharp.md).
 
 - The command is a `record`, carries `[Command]`, and declares a public instance

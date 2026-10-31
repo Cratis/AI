@@ -13,7 +13,7 @@ of contents, and each file states one setup, one action, and one or more
 focused assertions.
 
 Read [query and decision scenarios](../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
-when specifying query emissions or application-owned race policies.
+when specifying query emissions.
 Follow the [scenario selection and cost rule](../../rules/specs.scenarios.csharp.md):
 application specs supply read-model state and test business decisions, never
 read-protection plumbing. `Perform`/`Observe` need configured services/principal;
@@ -90,8 +90,7 @@ before changing runner or package family.
 The plain `Specification` base is the universal foundation and the dominant mode
 in library and framework code. In applications, start pure decisions with a
 plain call, including direct validator calls, and add scenarios only for
-pipeline/authorization wiring, constraints, declarative mapping or application-owned
-race policies. Keep shared lifecycle on; measure scenario cost using
+pipeline/authorization wiring, constraints, or declarative mapping. Keep shared lifecycle on; measure scenario cost using
 [running-specs.md](references/running-specs.md). Read
 [application-scenarios.md](references/application-scenarios.md) before using
 one. Out-of-process integration specifications are an advanced case reserved for

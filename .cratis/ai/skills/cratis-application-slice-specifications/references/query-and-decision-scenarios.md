@@ -3,7 +3,7 @@
 ## Contents
 
 - Query pipeline
-- Application-owned race policies
+- Decision specifications
 - Sources
 
 <!-- Copyright (c) Cratis. All rights reserved. -->
@@ -67,7 +67,7 @@ execution runs the query through Arc's hosted query pipeline and establishes con
 before `Provide`/`Handle` on the command path. A direct static query call does not
 cover those pipeline hooks.
 
-## Application-owned race policies
+## Decision specifications
 
 Start with a direct decision call supplied with read-model state. Follow the
 [scenario rule](../../../rules/specs.scenarios.csharp.md): application authors do
@@ -89,21 +89,19 @@ method bodies are not statically discovered. If the harness cannot accept
 required state for a business decision, report the upstream gap; never weaken
 production guards or invent guard doubles.
 
-Add a `CommandScenario<TCommand>` only when the application owns a race policy:
-for example, two callers reserving the last seat must produce one reservation
-and the specified rejection or retry outcome. Name that business contract and
-assert it, rather than repeating the platform's generic stale-read tests.
+Do not add a scenario to prove a race. A rule such as "two callers reserving the last
+seat yield one reservation" is specified from state: supply a read model with no seats
+left and assert the rejection, then supply one seat and assert the reservation.
+Simulating competing appends is a framework concern a developer should not think
+about in tests; Arc and Chronicle prove it. `AppendConcurrently` stays a public but
+advanced framework-verification API (hidden from IntelliSense), outside application
+testing guidance; use it only for a specific, explicit need. Production expresses
+the guarantee with the read model as a `Handle` parameter under
+`[ReadProtection(On)]`. Direction, not a release claim: Arc will obsolete
+`UseDecisionReads`; do not adopt it.
+`ShouldHaveCompletedStream(ClosedStreamScope)` may assert that a decision completed a
+stream at the exact source and route (`Cratis.Arc.Chronicle.Testing.Commands`).
 Use event history only when it is part of the domain example.
-
-For an application-owned race/retry policy only, `AppendConcurrently(id, events...)`
-(or its routed overload) can supply controlled interference. It is not required
-for every guarded decision. Requires Arc 22.92.0 without explicit decision-read
-setup; older limitations are upgrade/report concerns, not application setup
-instructions. A competing append alone proves no policy: assert the intended
-business outcome and ensure the decision would otherwise append.
-`ShouldHaveCompletedStream(ClosedStreamScope)` can assert an application-owned
-completion outcome at the exact source and route. These APIs are in
-`Cratis.Arc.Chronicle.Testing.Commands`.
 
 The Chronicle-backed `CommandScenario` discovers constraints automatically.
 Assert domain constraint refusals instead of disabling them; use `EventScenario`
