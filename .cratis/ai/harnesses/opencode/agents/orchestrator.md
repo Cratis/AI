@@ -94,7 +94,8 @@ When you receive a goal:
 6. **Output a team plan** — always as a structured markdown checklist with agent assignments and phase labels.
 7. **Return or execute the plan** — default to a parent handoff; delegate only under the explicit large-scope contract.
 8. **Track overall progress** — after each phase, report what was completed and what remains.
-9. **Enforce scoped quality gates** — require relevant changed-lane evidence, not an unrelated full-code matrix.
+9. **Open the PR yourself, once** — sub-agents deliver verified branches and never open or push to PRs. Verify locally first, then open one PR for the whole scope with `--assignee @me`; do not open it early or keep pushing to it (see `pull-requests.md`).
+10. **Enforce scoped quality gates** — require relevant changed-lane evidence, not an unrelated full-code matrix.
 
 ---
 
@@ -104,6 +105,7 @@ When you receive a goal:
 - **Implementation before documentation** — documentation of new features must wait until the implementation is complete and reviewed.
 - **Build is a synchronisation point** — `dotnet build` must succeed before any frontend, spec, or documentation work that references generated proxies.
 - **Quality gates are always last** — code review and security review run after all implementation, specs, and documentation are complete.
+- **Cap local parallelism.** Delegated streams share this machine: limit each build and spec run (`dotnet -m:2`, `vitest --maxWorkers=2`), run one heavy phase at a time, and stagger parallel agents' builds so the machine stays responsive (see `verification-discipline.md`).
 - **Independent features** (no shared events) can be implemented in parallel via separate `planner` or `coordinator` invocations.
 
 ---

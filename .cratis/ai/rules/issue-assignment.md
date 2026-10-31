@@ -10,3 +10,5 @@ unassigned. Never guess an issue/repository, replace an assignee or reopen a
 closed issue. Report assignment failures and continue. The request to work on
 the issue authorizes this claim only, not comments, labels or closure; follow
 [pull-requests.md](./pull-requests.md) and the user's request for those.
+
+Assign each PR you open to the same user: `gh pr create --assignee @me`.

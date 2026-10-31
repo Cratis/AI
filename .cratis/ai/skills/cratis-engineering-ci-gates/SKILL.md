@@ -72,6 +72,23 @@ do not run dependent phases or hide a producer's exit status behind a filter.
 Report the exact command and result. Put verification and deferred coverage in
 reviewer comments, not the release-note description.
 
+## Local first, and resource-aware
+
+CI is the final confirmation before merge and deploy, never a feedback loop.
+Run build, specifications, lint and frontend gates locally until green, then
+push. Do not push to see whether something compiles or passes, and do not use
+a red run to discover the next failure.
+
+Several agents, worktrees or builds often share one machine. Keep it responsive:
+
+- Cap parallelism, for example `dotnet build -m:2`, `dotnet test -m:2` with the
+  spec runner's thread limit, and `vitest run --maxWorkers=2`.
+- Run one heavy phase at a time (build, then specs, then frontend lint and
+  tests), never several at once.
+- Do not start a heavy phase while another agent's runs in the same machine's
+  checkout; wait or lower the cap, and do not retry a starved or timed-out phase
+  at full parallelism.
+
 ## Wait without polling
 
 After an authorized push, capture the full head SHA and discover the run for the
