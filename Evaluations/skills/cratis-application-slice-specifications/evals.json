@@ -51,14 +51,14 @@
     },
     {
       "id": 5,
-      "name": "test-the-race",
+      "name": "specify-the-decision-not-the-race",
       "prompt": "Write the specification that proves two members cannot both borrow the last copy of a book under Arc read protection On. Reply only; do not write files.",
-      "expected_output": "new CommandScenario<BorrowBook>(), seed BookAdded with Given.ForEventSource(isbn).Events, AppendConcurrently(isbn, BookBorrowed), Execute, assert ShouldHaveValidationErrorBecauseOf(ValidationResultReason.ConcurrencyViolation).",
+      "expected_output": "The race itself is a platform guarantee proven in Arc and Chronicle, not re-proven per application. The application specifies the business decision: call BorrowBook.Handle (or the validator) directly with supplied read-model state where no copy is left and assert the rejection, plus a case where a copy is left. The application keeps one assembly-level decision-read admission spec for its own decision models.",
       "assertions": [
-        "Uses new CommandScenario<BorrowBook>() without calling UseDecisionReads().",
-        "Seeds real events with Given.ForEventSource(id).Events(...), not a pinned read model, and queues a competing event with scenario.AppendConcurrently(id, ...).",
-        "Asserts result.ShouldHaveValidationErrorBecauseOf(ValidationResultReason.ConcurrencyViolation).",
-        "Does not use scenario.AppendConditions, which does not exist; a Chronicle-direct test uses unitOfWork.GetAppendConditions()."
+        "Says the concurrent-append race is proven by Arc/Chronicle platform specs, not by an application specification.",
+        "Specifies the decision by calling Handle or the validator directly with supplied read-model state (no copies left rejects; a copy left succeeds), without seeding events or calling AppendConcurrently or UseDecisionReads.",
+        "Mentions the single assembly-level decision-read admission spec as the application's only decision-read obligation.",
+        "Does not use scenario.AppendConditions, which does not exist."
       ]
     }
   ]

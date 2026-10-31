@@ -82,7 +82,7 @@ published scenario catalogue.
     of the same source in one command are refused.
 11. **Moving an existing app to `On`** (S12): `Measure` first.
 12. **A command failed under protection** (S13): the [refusals](#refusals).
-13. **Prove it** (S14): [test the race](#test-the-race).
+13. **Prove it** (S14): [specify the business decision](#specify-the-business-decision).
 
 ## The matrix
 
