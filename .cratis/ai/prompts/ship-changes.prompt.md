@@ -14,7 +14,7 @@ branch → commits → PR → merge → issue disposition → cleanup workflow.
 ## Inputs
 
 - **What changed** — brief description of the work (used for branch name and PR title)
-- **Label** — exactly one of `no-release`, `patch`, `minor`, or `major`, selected from the repository's release contract and applied in `gh pr create --label <intent>`
+- **Label** — exactly one of `no-release`, `patch`, `minor`, or `major`, selected from the repository's release contract and applied in `gh pr create --label <intent> --assignee @me`
 - **Related issue** — optional exact repository and issue number; if unknown, search read-only first. Comment on or close it only when the user's request includes that effect; otherwise prepare the disposition as a proposal. In repositories released by `cratis/release-action`, a delivered issue is closed by release-action through `(#n)` in the description, but release-action does not run for a `no-release` PR, so `(#n)` closes nothing there; elsewhere follow the repository's own release and issue-closing process. Keep the issue current and close it with a reason per `cratis-engineering-issue-hygiene`.
 
 Invoking this prompt is direct authority for the standard branch, commit, push, pull-request,
@@ -40,6 +40,12 @@ Group related work onto one branch and one PR, and join an open candidate instea
 another. The method is in the `cratis-engineering-release-trains` skill.
 
 ## Waiting on checks and merging
+
+Verify locally and open the PR once: CI is the final confirmation, not a feedback loop, so every
+gate runs on this machine first, with parallelism capped when other agents or builds share it
+(see `verification-discipline.md`). Do not open the PR early or keep pushing to it; each push
+starts checks on shared runners. Assign the PR to the user you run for with `--assignee @me`.
+When this prompt is run by an orchestrator or for sub-agent deliveries, the orchestrator opens the one PR.
 
 Push only when the ship bar is met: root cause understood, specs added, local gate green,
 review passed, issue and PR re-read, and no overlap with main. Then watch the exact run once

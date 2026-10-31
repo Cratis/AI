@@ -34,6 +34,16 @@ Use `cratis-engineering-consolidation-guard` when folding existing PRs to prove
 nothing was dropped. Use `cratis-engineering-ci-gates` for gate selection and
 run handling, and `cratis-engineering-review-rounds` for proportionate review.
 
+## Open the PR once
+
+Each push to an open PR starts checks on shared runners. Push the branch for
+backup or hand-off if needed, but open the PR only once, when the work is
+verified locally and ready. Push to it again only for a correction that review
+or CI found. Do not open a draft PR to see what CI says. Related work goes into
+one PR (see below and `cratis-engineering-consolidation-guard`). An orchestrator
+opens the one PR; a sub-agent delivers a verified branch and does not open or
+push to a PR unless the request says so. Pass `--assignee @me` when creating it.
+
 ## Choose the candidate before creating a PR
 
 1. Inspect the repository's worktrees, finished branches, and open PRs:
