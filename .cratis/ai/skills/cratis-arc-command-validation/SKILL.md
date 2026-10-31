@@ -266,15 +266,17 @@ authorization and camelCase member paths are separate contracts.
 
 ## Step 6 — Specify the rejection
 
-Every rule gets a specification of its failure case, using
-`CommandScenario<TCommand>`. For guarded reads, `new CommandScenario<T>()`
-selects the in-process log from the command's mode and dependencies (do not call
-`UseDecisionReads()`). Seed real events with `Given.ForEventSource(id).Events(...)`
-(pinned read models cannot supply a guard), queue a competing
-`AppendConcurrently(id, events...)` and assert
-`ShouldHaveValidationErrorBecauseOf(ValidationResultReason.ConcurrencyViolation)`.
-For the ordinary rejection, assert **both** that the command did not succeed
-and that it failed *as a validation*:
+Every rule gets a failure specification: instantiate the validator with its
+read-model state and validate directly, asserting the specific rejection. Add
+`CommandScenario<TCommand>` only for pipeline/authorization wiring, constraints
+or an application-owned race policy. Follow the
+[scenario rule](../../rules/specs.scenarios.csharp.md): application specs never
+configure read-protection modes, call `UseDecisionReads`, seed events solely for
+infrastructure, or re-prove platform guards. Report harness gaps upstream; never
+weaken production guards for speed.
+
+For a pipeline validation rejection, assert **both** that the command did not
+succeed and that it failed *as a validation*:
 
 ```csharp
 [Fact] void should_not_succeed() => _result.ShouldNotBeSuccessful();
@@ -309,6 +311,8 @@ the fact. See
 
 `dotnet build` in Debug and in Release, zero warnings and zero errors — the
 analyzers above are how `ARC0005`, `ARC0006` and `ARC0013` surface. Then
-`dotnet test` with a specification per rule, each asserting both
-`ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()`. A rule with no
-red-first specification has not been shown to reject anything.
+run the specification project using its runner, with a direct validation
+specification per rule and focused pipeline specs where wiring matters. Pipeline
+validation specs assert both `ShouldNotBeSuccessful()` and
+`ShouldHaveValidationErrors()`. A rule with no red-first specification has not
+been shown to reject anything.

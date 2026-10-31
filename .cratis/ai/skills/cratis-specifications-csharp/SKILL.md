@@ -13,10 +13,10 @@ of contents, and each file states one setup, one action, and one or more
 focused assertions.
 
 Read [query and decision scenarios](../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
-when specifying query emissions, routed conflicts or protected projection reads.
-Seed actual events for a guarded command; pinned models cannot supply a guard.
-`new CommandScenario<T>()` selects the in-process decision log from the command's
-read-protection mode and dependencies, so `UseDecisionReads()` is not called. `Perform`/`Observe` need configured services/principal, and
+when specifying query emissions or application-owned race policies.
+Follow the [scenario selection and cost rule](../../rules/specs.scenarios.csharp.md):
+application specs supply read-model state and test business decisions, never
+read-protection plumbing. `Perform`/`Observe` need configured services/principal;
 MongoDB observations still need real infrastructure.
 
 ## Verified product sources
@@ -77,20 +77,22 @@ before changing runner or package family.
 
 | Situation | Surface |
 | --- | --- |
-| Pure `Handle()` / `Handle(providedValue)`, reducer logic or reactor decision (default) | Plain method call with `Specification` |
+| Pure `Handle()` / `Handle(providedValue)`, validator, reducer or reactor decision (default) | Plain method call with `Specification`, supplying read-model state |
 | Isolated class, collaborators can be substituted | `Specification` + NSubstitute |
 | Arc command pipeline (validators, `Provide()`, `Handle()`, appended events) | `CommandScenario<TCommand>` |
 | Arc query conversion, validation, authorization and interceptors | `QueryScenario<TReadModel>` (`Cratis.Arc.Testing.Queries`) |
 | Chronicle append semantics, constraints, concurrency | `EventScenario` |
-| Projection or reducer state from a sequence of events | `ReadModelScenario<TReadModel>` |
+| Declarative mapping or reducer wiring | One `ReadModelScenario<TReadModel>` class per read model, many read-only assertions on shared setup |
 | Reactor invocation and its side effects | `ReactorScenario<TReactor>` |
 | Host, transport, or real-infrastructure boundary | Out-of-process Chronicle integration specification |
 | Setup shared by many specifications | Reusable context under `given/` |
 
 The plain `Specification` base is the universal foundation and the dominant mode
 in library and framework code. In applications, start pure decisions with a
-plain call and add the scenario helpers where the pipeline, validation,
-constraints or declarative projections contribute proof; read
+plain call, including direct validator calls, and add scenarios only for
+pipeline/authorization wiring, constraints, declarative mapping or application-owned
+race policies. Keep shared lifecycle on; measure scenario cost using
+[running-specs.md](references/running-specs.md). Read
 [application-scenarios.md](references/application-scenarios.md) before using
 one. Out-of-process integration specifications are an advanced case reserved for
 boundaries the scenario helpers cannot reach — see
@@ -224,9 +226,9 @@ convention — there are no attributes on them.
 The shared lifecycle is the default: one instance and one Establish/Because
 execution per specification class. Facts must not mutate that shared context;
 `CRSPEC0008` is an error when one does. Read
-[shared-lifecycle.md](references/shared-lifecycle.md) for eligibility, opting a
-class, assembly or project out with `[PerFactSpecificationLifecycle]`, and
-fixing `CRSPEC0008`.
+[shared-lifecycle.md](references/shared-lifecycle.md) for eligibility, auditing
+mutation, class-only `[PerFactSpecificationLifecycle]` exceptions and fixing
+`CRSPEC0008`. Do not opt the assembly or project out.
 
 ## Step 4 — Extract a reusable context
 

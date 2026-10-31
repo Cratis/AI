@@ -12,7 +12,7 @@
 - Arc traps
 - Chronicle-only traps
 - Roll out with Measure
-- Test the race
+- Specify the business decision
 - Costs
 - Checklist for generated code
 
@@ -304,31 +304,21 @@ then set `On` per project. Behaviour for callers does not change under `Measure`
   or annotate `[Unprotected("why")]`. Under `On`, `ARCCHR0011` no longer applies;
   fix `ARCCHR0024`, `0028` and `0033`.
 
-## Test the race
+## Specify the business decision
 
-`new CommandScenario<T>()` selects the in-process decision log from the command's
-read-protection mode and dependencies (for example under `On`); do not call
-`UseDecisionReads()` (it is hidden and unnecessary). An `Off` command with no
-protected dependency stays in legacy mode with pinned read models, which cannot
-prove a race. Seed with
-`scenario.Given.ForEventSource(id).Events(...)` (for a routed stream
-`.OnRoute(route).Events(...)`). Guarded state needs events: protected reads fold the
-event log and ignore a pinned model, and `DecisionRead<T>` parameters reject one.
-`.ReadModel(m)` only pins an advisory (plain) read. Then queue a competing event with
-`scenario.AppendConcurrently(id, events...)` and execute:
+Start with a plain `Handle()` or validator call supplied with read-model state.
+Follow the [scenario rule](../../../rules/specs.scenarios.csharp.md): read-protection
+plumbing is invisible to application spec authors. They never configure modes,
+call `UseDecisionReads`, seed events solely for infrastructure or re-prove platform
+guards/admission. Arc/Chronicle specs own the guard matrix; production protection
+stays unchanged regardless of spec cost.
 
-```csharp
-await using var scenario = new CommandScenario<BorrowBook>();
-scenario.Given.ForEventSource(isbn).Events(new BookAdded(Copies: 1));
-scenario.AppendConcurrently(isbn, new BookBorrowed(other));
-var result = await scenario.Execute(new BorrowBook(isbn, me));
-result.ShouldHaveValidationErrorBecauseOf(ValidationResultReason.ConcurrencyViolation);
-```
-
-There is no `scenario.AppendConditions`. A pure decision test builds the command
-and the validator with a hand-made read model. Chronicle-direct code asserts
-`unitOfWork.GetAppendConditions()`. A default `EventScenario` scope strategy
-returning `None` is not concurrency evidence.
+A scenario is justified for an application-owned race policy: for example, two
+borrowers competing for the last copy must yield one loan and the specified
+rejection or retry. Assert that domain outcome, not the engine's generic append
+conditions. See [query and decision scenarios](../../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
+for controlled interference. If the harness cannot accept required state, report
+the upstream gap rather than adding infrastructure setup to application specs.
 
 ## Costs
 

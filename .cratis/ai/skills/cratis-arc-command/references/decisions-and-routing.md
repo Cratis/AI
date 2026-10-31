@@ -175,20 +175,20 @@ source id/type and stream route; reactor tuples/collections cannot mix it with e
 
 ## Decision specifications
 
-`new CommandScenario<T>()` selects the in-process decision log from the command's
-read-protection mode and dependencies (under `On`, with a per-stream model or
-`[ProtectedDecision]`); `UseDecisionReads()` is hidden and unnecessary. An `Off`
-command with no protected dependency stays in the legacy mode with pinned read
-models, which cannot prove a race. Seed with `Given.ForEventSource(id).Events(...)`,
-`.OnRoute(route).Events(...)`, queue a competing append with
-`AppendConcurrently(id, events...)` (or `AppendConcurrently(id, route, ...)`) and
-assert `result.ShouldHaveValidationErrorBecauseOf(ValidationResultReason.ConcurrencyViolation)`.
-There is no `scenario.AppendConditions`. Guarded state needs seeded events: protected reads ignore a pinned `.ReadModel(m)` (which only pins an advisory plain read) and `DecisionRead<T>` rejects it. Assert a
-real nonempty decision conflicts on the intended route, and that an independent
-route is not over-guarded. `ShouldHaveCompletedStream(type, id)` asserts completion;
-`ShouldHaveCompletedStream(ClosedStreamScope)` asserts the exact owner and route;
-`DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)` checks projection
-admission in assembly-level specs.
+Call `Handle()` and validators directly with read-model state for pure business
+decisions. Follow the [scenario rule](../../../rules/specs.scenarios.csharp.md):
+read-protection plumbing is invisible to application spec authors. They never
+call `UseDecisionReads`, configure modes, seed events solely for infrastructure,
+or re-prove platform guards/admission; Arc/Chronicle specs own those checks.
+Never weaken production guards for test speed. Report a harness state-setup gap
+upstream instead of working around it in application specs.
+
+Add scenarios for pipeline/authorization wiring, constraints or an application-owned
+race policy. Name the domain outcome (for example, one successful reservation and
+one rejection), not the generic guard behavior. Read
+[query and decision scenarios](../../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
+for controlled interference and completion assertions. Keep shared lifecycle on
+and measure the added cost.
 
 ## Sources
 

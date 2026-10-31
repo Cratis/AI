@@ -35,7 +35,8 @@ the lifecycle; earlier versions use per-fact construction. With shared lifecycle
 construction happens once, and `Destroy` runs followed by
 one `Dispose` after the last fact, even when `Destroy` fails. Class/collection fixtures remain owned by xUnit,
 with assembly fixtures also supported on v3. Use
-`[PerFactSpecificationLifecycle]` when a fresh instance per fact is needed.
+`[PerFactSpecificationLifecycle]` only on the class whose facts genuinely mutate
+shared state and cannot move the mutation into `Because`; state the reason locally.
 
 `Specification.InitializeAsync()` is idempotent for a single instance. It does not make
 an ineligible class shared or cache instances across classes.
@@ -74,18 +75,19 @@ public class when_registering : Specification
 }
 ```
 
-Do not lower the severity to pass the gate. When the repository must lower it, set it in
-`.editorconfig` with `dotnet_diagnostic.CRSPEC0008.severity = warning`.
+Do not lower the severity to pass the gate. The analyzer is not a complete mutation
+audit: also inspect helper calls, nested/indexer writes, command execution,
+destructive reads, disposal and substitute reconfiguration inside facts. Awaiting
+a read-only assertion is not itself a mutation.
 
-## Keep per-fact execution
+## Keep shared execution on
 
-Use the narrowest scope; the reason is a fact that genuinely needs a fresh instance.
-
-| Scope | How |
-| --- | --- |
-| One class | `[PerFactSpecificationLifecycle]` on the class |
-| The assembly | `[assembly: PerFactSpecificationLifecycle]` |
-| The project | `<CratisSpecificationsSharedLifecycle>false</CratisSpecificationsSharedLifecycle>` |
+Do not opt the assembly or project out for a few mutating facts. Remove blanket
+opt-outs only after auditing fact mutations; move actions into `Because` where
+possible and put `[PerFactSpecificationLifecycle]` on the remaining concrete
+classes, with a reason. Compare discovered/passed/failed/skipped counts and TRX
+durations before and after with unchanged concurrency. A clean analyzer run alone
+does not prove that all facts are read-only.
 
 Read [running-specs.md](./running-specs.md) for the executable loop and the 4.x → 5.0
 checklist.

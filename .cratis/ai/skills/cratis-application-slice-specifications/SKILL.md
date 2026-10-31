@@ -10,8 +10,10 @@ metadata:
 
 Start a pure decision with a plain method call: `Handle()`,
 `Handle(providedValue)`, reducer logic or a reactor's decision needs no host,
-services or harness. Add a scenario where the pipeline, validation,
-authorization, constraints or projections contribute proof. The scenario family
+services or harness, including direct validator calls with supplied read-model state.
+Add scenarios only for pipeline/authorization wiring, constraints, declarative
+mapping or application-owned race policies; follow the
+[scenario selection and cost rule](../../rules/specs.scenarios.csharp.md). The scenario family
 exercises the real Arc and Chronicle code paths in-process — no HTTP, no fixture,
 no server.
 
@@ -67,7 +69,8 @@ repository before claiming support for another version.
 
 When the slice has a contract — a `.play` slice with its `specification`
 blocks, or an agreed outline — its specifications are the **minimum list**: each
-one becomes a specification class here, named after it. Steps 3–7 then add what
+gets concrete assertions. Decision outcomes use focused classes; declarative
+read-model mappings share one class per model with many read-only facts. Steps 3–7 then add what
 the code reveals (each validator rule, each constraint). A rule found in the code
 with no contract specification is a proposal for the contract (the `.play` model when one covers the slice, otherwise the agreed outline), not silent coverage:
 list it in the report and, where a model exists, route it to
@@ -106,15 +109,16 @@ A behavior covering several subjects groups under
 
 Specify a pure decision with the plain `Specification` base first. A direct
 `Handle()` call does not run validation, authorization, `Provide()` or operations;
-keep a scenario for that wiring and for appended-event behavior.
+add a scenario only where that wiring adds proof. Keep shared lifecycle enabled
+and measure scenario cost as described in the linked rule.
 
 | Slice type | Scenario | Skill |
 | --- | --- | --- |
-| Pure command decision, reducer logic or reactor decision | Plain method call with `Specification` (default) | `cratis-specifications-csharp` |
+| Pure command/validator decision, reducer logic or reactor decision | Plain method call with `Specification` and supplied read-model state (default) | `cratis-specifications-csharp` |
 | State Change — command pipeline and appended events | `CommandScenario<TCommand>` | this one |
 | Append semantics, a constraint | `EventScenario` | `cratis-chronicle-event-specifications` |
 | Query pipeline — arguments, authorization, validation, interceptors | `QueryScenario<TReadModel>` | [query and decision scenarios](references/query-and-decision-scenarios.md) |
-| State View — a projection or reducer | `ReadModelScenario<TReadModel>` | `cratis-chronicle-read-model-specifications` |
+| State View — declarative mapping or reducer wiring | One `ReadModelScenario<TReadModel>` class per read model, many assertions on shared setup | `cratis-chronicle-read-model-specifications` |
 | Automation or Translation — a reactor | `ReactorScenario<TReactor>` | `cratis-specifications-csharp` |
 | A host, transport, or real-infrastructure boundary | Out-of-process integration | `cratis-specifications-csharp` |
 
@@ -131,9 +135,11 @@ exception diagnostics, synchronous handler throws and UTC context defaults.
 
 One specification class for **each** of:
 
-1. **The happy path** — the command succeeds and the expected event is appended.
-2. **Each validation failure** — one `and_` class per `CommandValidator` or
-   `ConceptValidator` rule.
+1. **The happy path** — a plain call returns the expected event; add pipeline
+   coverage only for behavior that call cannot prove.
+2. **Each validation failure** — instantiate `CommandValidator` or
+   `ConceptValidator` with the required state and validate directly. Use a
+   scenario only to prove pipeline wiring.
 3. **Each business-rule rejection** — one `and_` class per condition in
    `Handle()` that inspects a read model.
 4. **Each constraint violation** — one class per constraint, written with
@@ -194,24 +200,23 @@ _scenario.Given.ForEventSource(_cartId).Events(new ItemAddedToCart(itemId));
 _scenario.Given.ForEventSource(_cartId).ReadModel(new CartSummary { ItemCount = 3 });
 ```
 
-Prefer seeding **events**: it exercises the projection that production relies on,
-so a specification cannot pass against a read-model shape the projection never
-produces. Pin an instance only when the events would be noise.
+Supply read-model state for a business decision. Seed events only when the
+history itself matters, such as projection mapping or append-time uniqueness;
+do not replay a projection merely to feed a pure command decision.
 
 Both builder methods return `void`; there is nothing to await.
 
-That is **legacy** read-model mode: seeded events populate an in-memory model,
-not the append log. A command under read protection `On`, with a per-stream model or
-with `[ProtectedDecision]` selects the decision mode itself (no `UseDecisionReads()`
-call); actual events and decisions then share one in-process log. Pinned models
-cannot supply decision guards. Read
-[query and decision scenarios](references/query-and-decision-scenarios.md) when
-specifying query pipelines, routed conflicts, projection admission or completion.
+Read protection is invisible to application spec authors. Never configure modes,
+call `UseDecisionReads`, seed events solely for infrastructure, or re-prove
+platform guards/admission. If the harness cannot accept required state, report
+the upstream gap; never weaken production guards for test speed. Read
+[query and decision scenarios](references/query-and-decision-scenarios.md) for
+query pipelines and application-owned race policies.
 
 Validator and `Provide()` dependencies are registered in `_scenario.Services`;
 the concrete validator itself is discovered automatically.
 
-## Step 6 — Assert twice on every unhappy path
+## Step 6 — Assert twice on pipeline validation failures
 
 ```csharp
 [Fact] void should_not_succeed() => _result.ShouldNotBeSuccessful();
@@ -219,7 +224,9 @@ the concrete validator itself is discovered automatically.
 ```
 
 `ShouldNotBeSuccessful()` alone cannot distinguish a validation rejection from an
-unhandled exception, so both facts are required. **Do not assert on a message
+unhandled exception, so both facts are required for pipeline validation specs.
+For direct validator calls, assert the validation result and the specific rule.
+**Do not assert on a message
 string by default** — it is presentation text; assert one only when that exact
 text is the specified behavior, and name that requirement in the fact. A `.play`
 specification may pin the message (`then error "<message>"`); prefer pinning the

@@ -103,7 +103,7 @@ Each distinct outcome deserves its own spec file. This keeps specs small, focuse
 
 - When a behavior has multiple outcomes, create a `when_<behavior>/` folder with separate files for each outcome.
 - For simple behaviors with a single outcome, use a single file: `when_<behavior>`.
-- Never write a single file that tests an entire class.
+- Never write a single file that tests an entire class's unrelated behaviors. **C# declarative read-model mappings are the exception:** use one scenario class per read model, one shared event sequence with captured intermediate states, and many read-only facts for fields and lifecycle outcomes. See [specs.scenarios.csharp.md](./specs.scenarios.csharp.md) for scenario selection and cost budgets.
 
 ## Reusable Context
 
