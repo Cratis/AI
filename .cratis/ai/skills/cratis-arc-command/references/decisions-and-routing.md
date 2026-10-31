@@ -15,6 +15,13 @@ Source: Arc. These features require `Cratis.Arc.Chronicle`.
 
 ## Pick the guarded read
 
+**Idiomatic default:** a state-dependent rule takes the read model as a `Handle()`
+(or validator-constructor) parameter, with `[ReadProtection(On)]` where it must hold
+under concurrent writers. Do not take `IDecisionReads` in `Handle()`: it is not
+recommended with Arc and is not an investment target. A computed key stays in
+`Provide()` until a read-model parameter covers it. Direction, not a release claim:
+Arc will pin protected parameters so the idiomatic shape needs no further ceremony.
+
 Under read protection `On` (`<CratisReadProtection>On</CratisReadProtection>`, or
 `[ReadProtection(ReadProtectionMode.On)]` on a command), a read model that is a
 parameter of `Handle()` or of a `CommandValidator<T>` constructor is read fresh from
@@ -178,19 +185,18 @@ source id/type and stream route; reactor tuples/collections cannot mix it with e
 Call `Handle()` and validators directly with read-model state for pure business
 decisions. Follow the [scenario rule](../../../rules/specs.scenarios.csharp.md):
 read-protection plumbing is invisible to application spec authors. They never
-call `UseDecisionReads`, configure modes, seed events solely for infrastructure,
-or re-prove the platform concurrency, conflict-refusal or isolation matrix;
+call `UseDecisionReads`, configure modes, simulate competing appends
+(`AppendConcurrently`), seed events solely for infrastructure, or re-prove the platform concurrency, conflict-refusal or isolation matrix;
 Arc/Chronicle specs own it. The application's only decision-read spec obligation
 is one cheap assembly-level shape-admission spec from that rule.
 Never weaken production guards for test speed. Report a harness state-setup gap
 upstream instead of working around it in application specs.
 
-Add scenarios for pipeline/authorization wiring, constraints or an application-owned
-race policy. Name the domain outcome (for example, one successful reservation and
-one rejection), not the generic guard behavior. Read
+Add scenarios for pipeline/authorization wiring or constraints. Never simulate
+competing appends: assert the business outcome from supplied state (for example, no
+copies left rejects). Read
 [query and decision scenarios](../../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
-for controlled interference and completion assertions. Keep shared lifecycle on
-and measure the added cost.
+for the query and decision setup. Keep shared lifecycle on and measure the added cost.
 
 ## Sources
 

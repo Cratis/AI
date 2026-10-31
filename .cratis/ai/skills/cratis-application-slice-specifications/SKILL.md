@@ -12,7 +12,7 @@ Start a pure decision with a plain method call: `Handle()`,
 `Handle(providedValue)`, reducer logic or a reactor's decision needs no host,
 services or harness, including direct validator calls with supplied read-model state.
 Add scenarios only for pipeline/authorization wiring, constraints, declarative
-mapping or application-owned race policies; follow the
+mapping; follow the
 [scenario selection and cost rule](../../rules/specs.scenarios.csharp.md). The scenario family
 exercises the real Arc and Chronicle code paths in-process — no HTTP, no fixture,
 no server.
@@ -207,14 +207,15 @@ do not replay a projection merely to feed a pure command decision.
 Both builder methods return `void`; there is nothing to await.
 
 Read protection is invisible to application spec authors. Never configure modes,
-call `UseDecisionReads`, seed events solely for infrastructure, or re-prove
-the platform concurrency/guard matrix. Keep one cheap assembly-level
+call `UseDecisionReads`, simulate competing appends (`AppendConcurrently`), seed
+events solely for infrastructure, or re-prove the platform concurrency/guard
+matrix: give state, assert the outcome. Keep one cheap assembly-level
 `DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)` spec for the
 application's own model/projection shapes: its only decision-read spec obligation.
 If the harness cannot accept required state, report the upstream gap; never weaken
 production guards for test speed. Read
 [query and decision scenarios](references/query-and-decision-scenarios.md) for
-query pipelines and application-owned race policies.
+query pipelines.
 
 Validator and `Provide()` dependencies are registered in `_scenario.Services`;
 the concrete validator itself is discovered automatically.

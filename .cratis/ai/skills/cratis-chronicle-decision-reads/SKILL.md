@@ -199,5 +199,5 @@ deciding writer is guarded or the rule is a constraint.
   changes, absence guards, empty checked appends, isolation and commit lifecycle.
   Their real-client/kernel integration proves the boundary; a default
   `EventScenario` scope strategy returning `None` is not concurrency evidence.
-- An application-owned race/retry policy may justify a focused scenario, not
-  repetition of that matrix. Never weaken production guards for spec speed.
+- Application specs never simulate competing appends or repeat that matrix.
+  Never weaken production guards for spec speed.
