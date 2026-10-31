@@ -52,6 +52,7 @@ obtaining credentials, and other local conventions ("Product policy" above).
 - Project context may explain which approved secret mechanism or local setup to
   use, but it must never contain credential values, tokens, keys, passwords, or
   other secrets.
+- A repository's accepted decision records (`decisions/`) and project rules bind AI work: read those matching your paths, follow them, never work around one.
 - Project-specific guidance wins when it deliberately narrows shared behavior,
   but it may not weaken organization security, authorization, or required
   quality gates.
