@@ -92,11 +92,13 @@ production guards or invent guard doubles.
 Do not add a scenario to prove a race. A rule such as "two callers reserving the last
 seat yield one reservation" is specified from state: supply a read model with no seats
 left and assert the rejection, then supply one seat and assert the reservation.
-Simulating competing appends (`AppendConcurrently` or any hand-built interleaving) is
-a framework concern a developer should not think about in tests; Arc and Chronicle
-prove it. Production expresses the guarantee with the read model as a `Handle`
-parameter under `[ReadProtection(On)]`. Direction, not a release claim: Arc will
-obsolete `AppendConcurrently` and `UseDecisionReads`; do not adopt either.
+Simulating competing appends is a framework concern a developer should not think
+about in tests; Arc and Chronicle prove it. `AppendConcurrently` stays a public but
+advanced framework-verification API (hidden from IntelliSense), outside application
+testing guidance; use it only for a specific, explicit need. Production expresses
+the guarantee with the read model as a `Handle` parameter under
+`[ReadProtection(On)]`. Direction, not a release claim: Arc will obsolete
+`UseDecisionReads`; do not adopt it.
 `ShouldHaveCompletedStream(ClosedStreamScope)` may assert that a decision completed a
 stream at the exact source and route (`Cratis.Arc.Chronicle.Testing.Commands`).
 Use event history only when it is part of the domain example.

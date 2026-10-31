@@ -29,8 +29,11 @@ Until now the corpus still described `AppendConcurrently` as available for an ap
 1. An application spec supplies read-model state and asserts business outcomes. It never configures decision reads (`UseDecisionReads`) and never simulates competing appends (`AppendConcurrently`). Concurrency and decision-read guarantees are proven by Arc's and Chronicle's own specifications.
 2. A state-dependent rule takes the read model as a `Handle` parameter, with `[ReadProtection(On)]` where it must hold under concurrent writers. Taking `IDecisionReads` in `Handle` is not recommended; the corpus teaches and the platform invests in the read-model parameter shape, not in supporting the alternative.
 3. Arc's guidance for effective, idiomatic use belongs in its documentation and in this AI corpus, and the two say the same thing.
+4. General principle: Cratis code, documentation and examples always use and recommend the most idiomatic Cratis way, unless something else is explicitly needed. Advanced or non-idiomatic APIs are documented only as such, with the explicit need that justifies them. Decider, 2026-10-31: "we should always use and recommend the most idiomatic way to write Cratis code, unless explcitily something else is needed."
+5. `AppendConcurrently` is not being obsoleted. It remains a public, advanced framework-verification API hidden from IntelliSense: its purpose is internal proof that Arc and Chronicle handle concurrency well. It is outside the recommended application testing guidance and is used only for a specific explicit need. Decider: "AppendConcurrently its only use is for testing interenally that we handle these concurrency issues in a good way, but should not really be used by the develoeprs using Arc unless they have some very specific needs to do so."
 
-Where Arc behavior is still pending (pins for protected parameters; obsolescence of `UseDecisionReads` and `AppendConcurrently`), the corpus states the direction and makes no version claim until a release carries it.
+
+Where Arc behavior is still pending (pins for protected parameters; obsolescence of `UseDecisionReads`), the corpus states the direction and makes no version claim until a release carries it.
 
 ## Options considered
 
@@ -44,7 +47,7 @@ The corpus keeps offering `AppendConcurrently` and an unranked list of read shap
 
 ## Timeline and scope
 
-Holds from the corpus release carrying it. In scope: C# application specs and the Arc command, validation and decision-read guidance. Out of scope: Arc and Chronicle's own specifications (they prove the guarantees and keep their harness), framework-side implementation of pins and obsolescence, and the single assembly-level shape-admission spec, which the current rule keeps unchanged.
+Holds from the corpus release carrying it. In scope: C# application specs and the Arc command, validation and decision-read guidance. Out of scope: Arc and Chronicle's own specifications (they prove the guarantees and keep their harness, including `AppendConcurrently`), framework-side implementation of pins and of `UseDecisionReads` obsolescence, and the single assembly-level shape-admission spec, which the current rule keeps unchanged.
 
 Done when: no corpus rule or skill tells an application author to call `UseDecisionReads` or `AppendConcurrently`, and the command guidance names the read-model parameter as the recommended shape.
 
