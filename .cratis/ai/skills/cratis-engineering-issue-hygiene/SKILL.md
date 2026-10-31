@@ -38,6 +38,9 @@ Before starting, read the issue, comments, assignees and any status block. Follo
 - Do this once, at the start before the first edit, not on every turn. If it
   fails (permissions or authentication), report it and continue with the work.
 
+Assign each PR you open the same way: `gh pr create --assignee @me`, or
+`gh pr edit <n> --add-assignee @me` afterwards.
+
 The request to work on the issue authorizes this assignment only, not comments,
 labels or closure. If another writer is active, coordinate rather than starting
 a parallel edit. Delegated workers do not claim or mutate the issue.
