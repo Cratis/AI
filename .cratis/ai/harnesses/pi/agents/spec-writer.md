@@ -41,13 +41,13 @@ Select from these canonical rules in `.cratis/ai/rules/` only after applying the
 
 ## C# specs — start with the plain call
 
-Specify pure `Handle()`, validator, reducer and reactor decisions with plain calls and supplied read-model state. Follow `.cratis/ai/rules/specs.scenarios.csharp.md`: scenarios add only pipeline/authorization wiring, constraints, declarative mapping or application-owned race-policy proof, not a platform guard matrix. Keep the single cheap assembly-level admission spec for the application's own decision-model shapes. Prefer in-process helpers over out-of-process Chronicle hosts for the applicable behaviors:
+Specify pure `Handle()`, validator, reducer and reactor decisions with plain calls and supplied read-model state. Follow `.cratis/ai/rules/specs.scenarios.csharp.md`: add exactly the scenarios its per-artifact decision table obligates (pipeline and authorization, constraints, projection and reducer dispatch, reactor dispatch and routing) plus application-owned race-policy proof, not a platform guard matrix. Keep the single cheap assembly-level admission spec for the application's own decision-model shapes. Prefer in-process helpers over out-of-process Chronicle hosts for the applicable behaviors:
 
 | Tool | Use for |
 |---|---|
 | `CommandScenario<TCommand>` | **State Change** — runs authorization + validators + `Provide()` + `Handle()` + appended events |
 | `EventScenario` | constraint violations, raw append/sequencing semantics |
-| `ReadModelScenario<TReadModel>` | **State View** — one class per read model, many read-only assertions on shared setup |
+| `ReadModelScenario<TReadModel>` | **State View** — one class per read model by default (another only for a sequence that cannot share it), many read-only assertions on shared setup |
 | `ReactorScenario<TReactor>` | **Automation / Translation** — reactor invocation + side effects |
 
 Reserve out-of-process integration specs for host/transport/infra boundaries the scenario helpers can't exercise.

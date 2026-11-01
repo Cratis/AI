@@ -16,9 +16,12 @@ default, with the event and current state supplied explicitly (for a self model,
 `ReadModelScenario<TReadModel>` only where declarative projection behavior,
 event dispatch, filtering, metadata or read-model wiring contribute proof.
 Follow the [scenario selection and cost rule](../../rules/specs.scenarios.csharp.md):
-use one scenario class per read model, many read-only assertions on one shared
-setup, and keep shared lifecycle enabled. Do not create a class per property,
-mapping attribute or lifecycle event. Measure scenario cost with TRX durations
+use one scenario class per read model and per distinct event sequence the
+projection declares (lifecycle, join, children with two keys, removal), with many
+read-only assertions on one shared setup, and keep shared lifecycle enabled. Cover
+each declared sequence; do not create a class per property or mapping attribute.
+Never replace the engine with a substitute store as projection proof. Reducer
+transitions are plain calls; the scenario proves dispatch and filters. Measure scenario cost with TRX durations
 using [running-specs.md](../cratis-specifications-csharp/references/running-specs.md).
 
 For a read-model scenario specification the **`Given` *is* the act**. There

@@ -274,10 +274,13 @@ Components guidance, not to this skill.
 
 ## Verify
 
-Start pure `Handle()` and validator decisions with direct calls and supplied
-read-model state. Add scenarios only for pipeline/authorization wiring,
-constraints, never read-protection plumbing or simulated concurrency;
-follow the [scenario selection and cost rule](../../rules/specs.scenarios.csharp.md).
+Keep `Handle` a pure function of the command, its read-model parameters and
+provided values: that makes it specifiable by a plain call. Start `Handle()` and
+validator decisions with direct calls and supplied read-model state. Add the
+pipeline scenario plus a negative proof per authorization policy, validator
+rejection and `Provide()` short-circuit, and a constraint scenario; never
+read-protection plumbing or simulated concurrency. Follow the
+[decision table](../../rules/specs.scenarios.csharp.md).
 
 - The command is a `record`, carries `[Command]`, and declares a public instance
   `Handle`.

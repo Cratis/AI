@@ -139,6 +139,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | React + Arc + Cratis Components + MVVM + dialogs | `react.md`, `components.md`, `dialogs.md` |
 | Frontend engineering quality & testing | `frontend-quality.md`, `frontend-testing.md`, `storybook.md` |
 | Spec patterns — universal `Specification` base (both profiles) | `specs.md`, `specs.csharp.md`, `specs.typescript.md` |
+| Build and spec-run speed: parallel-safe specs, no per-spec startup, cheap analyzers | `fast-feedback.md` |
 | Spec patterns — the four `*Scenario` helpers (application only) | `specs.scenarios.csharp.md` |
 | Strongly-typed values (`ConceptAs<T>`, `EventSourceId<T>`) | `concepts.md` |
 | Shared term definitions (event, projection, reducer, reactor, observer, DCB, …) | `glossary.md` |
