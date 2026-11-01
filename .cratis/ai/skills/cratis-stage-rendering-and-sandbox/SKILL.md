@@ -206,6 +206,11 @@ generated application: API on `9090`, Workbench on `https://localhost:35000`.
 Requires Cratis CLI 3.73.0 for the semantic engine by default, 3.75.0 for v27 keys;
 older CLIs use the legacy EventModel engine, which does not enforce authorization.
 Unsigned caller headers make sandbox authorization no security boundary.
+A model with `authentication` makes `cratis run` start a stack instead: AuthProxy (the
+address to open), the Stage with `Stage__Sandbox__ForwardedIdentity=true` so it trusts the
+forwarded identity instead of playing a persona, and with `onboarding` Ante and MongoDB.
+`cratis render` realizes authentication and onboarding (`references/rendered-application.md`).
+<!-- version: fill after release -->
 Read [references/sandbox-and-specrunner.md](references/sandbox-and-specrunner.md)
 before running either image: engine selection, protected reads, outside-append
 conflicts/retries, reached bodies, authored occurrence and generated-spec limits live there.

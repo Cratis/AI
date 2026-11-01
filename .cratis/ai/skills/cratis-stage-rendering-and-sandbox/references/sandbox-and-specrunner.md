@@ -49,6 +49,13 @@ ports or an authenticated proxy). Rendered applications use the renderer's admit
 authorization instead, which is the thing to test for production behavior (Debug tests
 of a render, [render-example.md](render-example.md)).
 
+`Stage__Sandbox__ForwardedIdentity=true` (`Stage:Sandbox:ForwardedIdentity`) is the exception:
+the sandbox runs behind AuthProxy, trusts the identity it forwards and plays no persona, so the
+signed-in caller is the caller authorization runs for. It overrides `Stage:Sandbox:Identity`.
+`cratis run` sets it when the model declares `authentication`; set it yourself only behind an
+AuthProxy, because the headers are unsigned and anything that can reach the sandbox directly
+can forge them. <!-- version: fill after release -->
+
 The semantic Host encrypts personal-data and secret concepts at rest through Chronicle and
 releases values on read; erasure deletes event-source keys. Encryption applies to new
 writes only: events already stored in plaintext in an existing Play store are not

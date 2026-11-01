@@ -6,6 +6,7 @@
 - Runtime package migration
 - Lists on screen
 - Reducer layout for new applications
+- Authentication and onboarding
 - What is managed
 - `Customizations/` (unmanaged)
 - Re-render checklist
@@ -103,6 +104,37 @@ No per-model override or existing-application migration is supported. Do not fli
 an existing classic application to `self`: observer identity and old reducer removal
 need migration-aware publication. This opt-in does not automatically change CLI,
 Studio or semantic-engine execution.
+
+## Authentication and onboarding
+
+A model with an `authentication` block renders an application that runs behind AuthProxy
+and trusts the identity it forwards. The model's `onboarding` block renders the code that
+acts on the outcomes of the application's own Ante. Both are realized by the renderer;
+none of it is hand-written gap-fill. <!-- version: fill after release -->
+
+| Rendered | Purpose |
+| --- | --- |
+| `appsettings.json` with `Cratis:Arc:TrustForwardedIdentityHeaders` true | Arc builds the caller from the headers AuthProxy forwards. |
+| `GeneratedAuthentication/` (`Personas`, `MemberIdentity`, `RuntimeConventions`) | Roles and claims per persona, the identity of a person, and the Chronicle connection string read from `CRATIS_CHRONICLE_CONNECTION_STRING_FILE`. |
+| `GeneratedOnboarding/` | Reactor on Ante's outcomes, idempotent provisioning, the invite-member command, member persona claims, Herald email sending. |
+| `Emails/` | Email templates and images laid out for Herald. |
+| `.runtime/authproxy.application.json`, `.runtime/ante.onboarding.json`, `.runtime/environment.json` | What a runtime (`cratis run`, Stage Manager) starts AuthProxy and Ante with, and the environment keys the model needs. |
+
+- The identity headers are unsigned. Never expose a rendered application with authentication
+  except through AuthProxy.
+- Only provider kinds AuthProxy supports render (`EntraId`, `GitHub`, `Google`, `Apple`,
+  `OpenId`). Another kind is left out with `STAGE-AUTH-001`; a persona that is not a
+  requirement on authentication, roles or claims is never matched (`STAGE-AUTH-002`).
+- `offering` renders nothing (`STAGE-ONBOARDING-001`): tenants are provisioned without
+  licensing. `STAGE-ONBOARDING-002` to `-006` cover a tenant invitation with no command,
+  a sign-up without a first-member persona, a legal document count other than two, a
+  missing email template and an invitation without inviters.
+- An application with onboarding pins a newer Chronicle client and kernel image than
+  other applications; read them from the rendered files.
+- Realization needs the model folder: email images are read from the model root.
+
+Read the Stage references `authentication-rendering.md` and `onboarding-rendering.md` for
+exact files and keys.
 
 ## What is managed
 

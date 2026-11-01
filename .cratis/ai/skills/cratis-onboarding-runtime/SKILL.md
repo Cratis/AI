@@ -53,6 +53,12 @@ needs no secret. Ante refuses to start when the environment name is production-l
 `Prod`, `Live`, `Staging`, `Stage`, `Preprod`), in a Kubernetes pod, or when a configured URL is not
 loopback. Never copy a development key to another environment, and leave `Secrets:SigningKeyFile` out of a development run.
 
+Locally, `cratis run` on a model with `onboarding` starts Ante this way: `ASPNETCORE_ENVIRONMENT`
+is `Development` and `Ante:Onboarding:Development:Enabled` is `true`, so Ante generates its signing
+key into a folder that lives only for the run. It shares AuthProxy's network stack, so AuthProxy
+reaches it on loopback, and the lobby is served through AuthProxy. Nothing from a local run is
+trusted by another run or cluster. <!-- version: fill after release -->
+
 ## Stage Manager `Performance`
 
 A `Performance` (`showrunner.cratis.io/v1alpha1`) runs one application in one Cratis environment,

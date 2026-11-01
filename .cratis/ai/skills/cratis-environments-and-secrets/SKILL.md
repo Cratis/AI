@@ -84,6 +84,12 @@ vault when secrets must not travel with the repository or are shared with a clus
 | `azurekeyvault://<vault>` | The team already runs Azure Key Vault. | `DefaultAzureCredential` (Azure CLI login, managed or workload identity). |
 | `hashivault://<address>/<mount>[/<path>]` | The team runs HashiCorp Vault KV v2. `hashivault+http://` is for a development server. | `VAULT_TOKEN`, or `VAULT_ROLE_ID` and `VAULT_SECRET_ID`, or `VAULT_K8S_ROLE`. |
 
+`cratis run` on a model with `authentication` resolves the selected environment (or `-e <name>`)
+before starting Docker, hands the provider and onboarding values to the AuthProxy and Ante
+containers, and stops with exit `5` listing the missing keys, never their values. A mail
+server is optional: without `onboarding.email.server.host`, emails are written as `.eml` files.
+<!-- version: fill after release -->
+
 ## Pitfalls
 
 - Setting a secret with `cratis config set smtp:password <value>` stores a plain value and leaks it. Always add `--secret` and pipe or prompt.
