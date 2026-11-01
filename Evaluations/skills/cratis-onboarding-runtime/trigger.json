@@ -1,0 +1,85 @@
+{
+  "skill": "cratis-onboarding-runtime",
+  "queries": [
+    {
+      "query": "how do I configure Ante for a Screenplay application with onboarding?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "write a Performance resource that runs my crm app with authproxy and ante",
+      "shouldTrigger": true
+    },
+    {
+      "query": "my Performance is Blocked with missingEnvironmentKeys, what do I do?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "why was an invitation rejected with PersonaNotGrantable?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Ante:Onboarding:SignUp JoinTenant what does it close?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "how do secrets reach the ante container in Stage Manager?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Ante refuses to start in development mode in my cluster",
+      "shouldTrigger": true
+    },
+    {
+      "query": "who provisions the tenant after InvitationToCreateTenantAccepted?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "rotate the invitation signing key for a performance",
+      "shouldTrigger": true
+    },
+    {
+      "query": "legal terms files in ante, what happens when I edit one?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "what are the onboarding block directives in the play language?",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-authentication-and-onboarding"
+    },
+    {
+      "query": "how do I send the invitation email template with herald?",
+      "shouldTrigger": false,
+      "note": "cratis-showrunner-herald"
+    },
+    {
+      "query": "how do I set a client secret in a cratis environment?",
+      "shouldTrigger": false,
+      "note": "cratis-environments-and-secrets"
+    },
+    {
+      "query": "deploy chronicle server on kubernetes with mongodb",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-hosting"
+    },
+    {
+      "query": "how does an Arc backend trust the x-ms-client-principal header?",
+      "shouldTrigger": false,
+      "note": "cratis-arc-authentication-authorization-and-identity"
+    },
+    {
+      "query": "configure Ante for a host product that is not a Screenplay application",
+      "shouldTrigger": false,
+      "note": "no corpus skill; Ante documentation"
+    },
+    {
+      "query": "design the multi-store layout for several services",
+      "shouldTrigger": false,
+      "note": "cratis-multi-service-architecture"
+    },
+    {
+      "query": "render my model to a runnable application",
+      "shouldTrigger": false,
+      "note": "cratis-stage-rendering-and-sandbox"
+    }
+  ]
+}

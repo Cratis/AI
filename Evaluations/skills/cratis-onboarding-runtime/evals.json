@@ -1,0 +1,42 @@
+{
+  "skill_name": "cratis-onboarding-runtime",
+  "evals": [
+    {
+      "id": 1,
+      "name": "performance-spec",
+      "prompt": "Write the Performance for application crm in namespace apps, environment production from a ConfigMap, Entra ID and GitHub providers, onboarding where anyone creates a tenant, behind an nginx ingress. Do not run anything; reply only.",
+      "expected_output": "kind Performance showrunner.cratis.io/v1alpha1 with chronicle connectionSecretRef or productionRef, application image and eventStores, environment configMapRef, authProxy providers kind and identity only, onboarding signUp CreateTenant with personas, ingress to AuthProxy; no secret values.",
+      "assertions": [
+        "Uses `apiVersion: showrunner.cratis.io/v1alpha1` and `kind: Performance`.",
+        "Lists authProxy providers by `kind` and `identity` only, with no client ids or secrets in the spec.",
+        "Takes the environment from `environment.configMapRef` and sets `onboarding.signUp: CreateTenant`.",
+        "Routes the ingress hosts to AuthProxy only and keeps application and Ante as ClusterIP.",
+        "Does not put any secret value, passphrase or key in the manifest."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "blocked-performance",
+      "prompt": "A Performance shows phase Blocked. Explain how to find out why and fix it without exposing secrets. Do not run anything; reply only.",
+      "expected_output": "Read status.phase and status.missingEnvironmentKeys and conditions with jsonpath projections; add the missing keys to the Cratis environment with cratis config set --secret; never kubectl get -o json on secrets.",
+      "assertions": [
+        "Reads `status.missingEnvironmentKeys` and the conditions by projecting fields (jsonpath), not a full `-o json` or `describe` dump.",
+        "Fixes it by adding the missing keys to the Cratis environment, secrets via `cratis config set --secret`.",
+        "Explains nothing is created or changed until everything is in hand, so running Deployments stay as they were.",
+        "Never reads or prints Secret contents."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "accepted-is-not-provisioned",
+      "prompt": "Our app reacts to InvitationToCreateTenantAccepted by assuming the tenant exists. Review that assumption and the rejection behavior for personas. Do not run anything; reply only.",
+      "expected_output": "Accepted means published to Ante's outbox, not provisioned; the app provisions idempotently by event source id and kind; Ante rejects personas outside Personas with PersonaNotGrantable and issues no token, but the app should validate first; observe InvitationRejected generation 4.",
+      "assertions": [
+        "States accepted facts mean published to Ante's outbox, not provisioned.",
+        "Requires provisioning to be idempotent by event source id and event kind.",
+        "Explains `PersonaNotGrantable` and `InvitationTypeNotAllowed` issue no token.",
+        "Advises validating personas in the application first with Ante as the second line of defense."
+      ]
+    }
+  ]
+}

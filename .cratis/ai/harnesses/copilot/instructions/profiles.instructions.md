@@ -220,7 +220,7 @@ language policy always follows the consuming repository's `go.mod` minimum.
 | `cratis/chronicle/mcp` | Chronicle MCP inspection and exact tool-effect guidance |
 | `cratis/lens` | Lens browser extension |
 | `cratis/screenplay` | Model-first event modeling: lifecycle, phase skills, toolchain, review, render and gap-fill, plus the whole `.play` language |
-| `cratis/stage` | Stage rendering and sandbox |
+| `cratis/stage` | Stage rendering and sandbox, onboarding runtime (Ante, Stage Manager) |
 | `cratis/modeling/screenplay-stage` | Screenplay + Stage together |
 
 ### Code Health with CodeScene

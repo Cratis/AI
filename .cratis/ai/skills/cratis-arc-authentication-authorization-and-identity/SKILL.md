@@ -48,7 +48,7 @@ ingress above, otherwise configure a credential-validating scheme. The old
 same host-wide flag. See [authentication](references/authentication.md).
 Source: [secure defaults](https://github.com/Cratis/Arc/blob/main/Documentation/upgrading/secure-defaults.mdx).
 
-Cratis AuthProxy is the ingress that meets these obligations for Cratis applications. Read [AuthProxy](references/authproxy.md) when the application is deployed behind it (header contract, `/.cratis/me` fail-closed verification, tenant headers).
+Cratis AuthProxy is the ingress that meets these obligations for Cratis applications. Read [AuthProxy](references/authproxy.md) when the application is deployed behind it (header contract, `/.cratis/me` fail-closed verification, tenant headers, and starting it from a Screenplay model's provider list and a Cratis environment).
 
 ## Identity details — what the frontend is told
 

@@ -1029,6 +1029,7 @@
       "availableTargets": [
         "cratis-commits-and-pull-requests",
         "cratis-rtk",
+        "cratis-onboarding-runtime",
         "cratis-stage-rendering-and-sandbox"
       ],
       "languages": [
