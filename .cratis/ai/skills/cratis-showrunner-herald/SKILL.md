@@ -12,6 +12,10 @@ as events in the application's own Chronicle event store. It is not a service.
 
 **Requires** `Cratis.Showrunner.Herald` 1.10.0 or later and an application that is a Chronicle
 client (`AddCratis` or `AddCratisChronicle`); check the package reference in the `.csproj`.
+Herald records in the host application's own event store, without naming it again; set
+`HeraldOptions.EventStore` only to use another store. Showrunner 1.13.0 or later takes the host's
+store; an older release takes the name from the Chronicle client options, which an ASP.NET Core
+host leaves empty, so set `EventStore` explicitly there.
 
 ## Add it
 
@@ -41,6 +45,7 @@ builder.AddHerald(herald =>
   validated at startup and the error names the option.
 - Defaults worth knowing: `DefaultLanguage` `en`, `Transport` `Smtp`, `Smtp.Security` `StartTls`,
   `Retry.MaxAttempts` 6, `PollingInterval` 5 seconds. Read [options](references/options.md) for the full table.
+- A `signupDeclined` email is sent from `OrganizationRegistrationDeclined` with the reviewer's message as a value; see `cratis-onboarding-runtime`.
 - Chronicle finds Herald's events through type discovery of referenced `Cratis*` packages.
 - Run the worker in **one** application instance: delivery is at least once.
 

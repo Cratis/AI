@@ -69,7 +69,7 @@ block. The diagnostics for each rule are in that reference. The rules that decid
   `signup open creates tenant` makes a signup create a tenant, `signup open joins tenant` asks to join an existing one.
 - Every persona in `as`, `by` and `grant` must be declared with `persona`; there are no free-text roles.
 - `emails` names only `invitation`, `welcome` and `signupDeclined`. The sender and mail server are not in the model.
-- `file` paths are repository-relative, like handler files. `offering` is an opaque name resolved where the application is provisioned.
+- `file` paths are repository-relative, like handler files. `offering` is the name of an offer the operator publishes in Box Office; a rendered application starts each new tenant on it. `signupDeclined` is sent when the host declines a held sign-up (review is not modeled; see `cratis-onboarding-runtime`).
 
 ## Environment keys
 
