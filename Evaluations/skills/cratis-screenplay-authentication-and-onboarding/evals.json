@@ -1,0 +1,43 @@
+{
+  "skill_name": "cratis-screenplay-authentication-and-onboarding",
+  "evals": [
+    {
+      "id": 1,
+      "name": "model-signup-and-invitations",
+      "prompt": "Our Screenplay application already declares authentication with provider EntraId and personas Owner, Administrator, Accountant and InvoiceManager. Anyone should be able to sign up and create a tenant; Owners are invited as tenant creators; Administrators and Owners invite members who become Accountant or InvoiceManager; people must accept terms-of-service and privacy files. Write the onboarding block. Do not run anything; reply only.",
+      "expected_output": "An onboarding block under authentication with signup open creates tenant, invite tenant as Owner, invite member by Owner, Administrator grant Accountant, InvoiceManager, and a legal terms block with two file lines. No sender, mail server or credential in the block; personas must be declared.",
+      "assertions": [
+        "Writes `signup open creates tenant`, `invite tenant as Owner` and an `invite member` body with `by` and `grant` persona lists.",
+        "Includes a `legal terms` body with `file` lines for the two documents.",
+        "Keeps the block alongside `authentication` and notes it needs that block (PLAY0828 otherwise).",
+        "Does not put a sender address, mail server or password in the model.",
+        "Uses only declared personas and says an undeclared persona is PLAY0831."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "derive-environment-keys",
+      "prompt": "The model has `authentication` with `provider EntraId`, `provider OpenId name Partner` and an `onboarding` block with emails. List the environment keys it needs, say which are secrets and how to list them with a tool. Do not run anything; reply only.",
+      "expected_output": "authentication.providers.EntraId.clientId, clientSecret (secret), tenantId; authentication.providers.Partner.clientId, clientSecret (secret), authority; onboarding.email.sender, server.host, port, username, password (secret). screenplay environment <folder> lists them.",
+      "assertions": [
+        "Names `authentication.providers.EntraId.tenantId` and `authentication.providers.Partner.authority` as the kind-specific keys.",
+        "Uses the alias `Partner`, not `OpenId`, as the identity for the second provider.",
+        "Marks exactly the `clientSecret` keys and `onboarding.email.server.password` as secrets.",
+        "Lists the five `onboarding.email` keys including `sender` and `server.host`.",
+        "Points to `screenplay environment <folder>` (optionally `--format json`) instead of deriving by hand."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "refuse-provider-config-in-model",
+      "prompt": "To make the render work, a teammate wants to add the client id, client secret and authority under `provider OpenId name Partner` in the .play file. What do you do? Do not run anything; reply only.",
+      "expected_output": "Refuse: configuration under a provider is a compile error (PLAY0183), the model is identical in every environment, and values live in the environment under authentication.providers.Partner.*, with the secret set via cratis config set --secret.",
+      "assertions": [
+        "Says provider configuration in the model is a compile error (PLAY0183), not an ignored line.",
+        "Explains the model is the same in every environment while the values differ.",
+        "Directs the values to the environment keys `authentication.providers.Partner.*`.",
+        "Never asks for or writes a real client secret value into the model or the reply."
+      ]
+    }
+  ]
+}

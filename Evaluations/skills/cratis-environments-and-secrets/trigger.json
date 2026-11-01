@@ -1,0 +1,85 @@
+{
+  "skill": "cratis-environments-and-secrets",
+  "queries": [
+    {
+      "query": "create a production environment for my cratis project and select it",
+      "shouldTrigger": true
+    },
+    {
+      "query": "how do I store the smtp password so it is not in the repo?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "what do cratis env init and cratis config set --secret do?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "which keys is my environment missing for this play model?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "switch the secrets provider from passphrase to azure key vault",
+      "shouldTrigger": true
+    },
+    {
+      "query": "how does cratis pick the environment, I have CRATIS_ENVIRONMENT set and also ran env select",
+      "shouldTrigger": true
+    },
+    {
+      "query": "change the passphrase of the staging environment",
+      "shouldTrigger": true
+    },
+    {
+      "query": "cratis config --missing exits with 5, what does that mean?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "how do I give CI the passphrase for an encrypted environment file?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "use hashivault as the secrets provider for an environment",
+      "shouldTrigger": true
+    },
+    {
+      "query": "the observer is quarantined on production chronicle, how do I inspect it with the cli?",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-cli-operations"
+    },
+    {
+      "query": "which environment keys does a provider in my model need?",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-authentication-and-onboarding"
+    },
+    {
+      "query": "write the onboarding block for invitations and legal terms",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-authentication-and-onboarding"
+    },
+    {
+      "query": "how do I set the context so chronicle commands hit the staging server?",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-cli-operations"
+    },
+    {
+      "query": "add the Herald options for the SMTP host in AddHerald",
+      "shouldTrigger": false,
+      "note": "cratis-showrunner-herald"
+    },
+    {
+      "query": "which kubectl command shows the secrets of a pod?",
+      "shouldTrigger": false,
+      "note": "secrets rule; do not use any skill to print credentials"
+    },
+    {
+      "query": "explore the event store in a full-screen terminal UI",
+      "shouldTrigger": false,
+      "note": "cratis-cli-terminal-workbench"
+    },
+    {
+      "query": "how do I add a user secret to dotnet user-secrets for local development?",
+      "shouldTrigger": false,
+      "note": "no corpus skill; not a Cratis environment"
+    }
+  ]
+}

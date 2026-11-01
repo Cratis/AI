@@ -26,5 +26,75 @@
     "kind": "diagnostic",
     "value": "PLAY0686",
     "reason": "Explicit retirement notice, not an active diagnostic or repair recommendation. The published contract marks PLAY0686 retired. Remove when this notice is removed or replaced."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-authentication-and-onboarding/SKILL.md",
+    "text": "screenplay environment ./model                 # one key per line, secrets marked \"(secret)\"",
+    "kind": "cliCommand",
+    "value": "environment",
+    "reason": "Documents the onboarding and environment-key surface of Screenplay 4.259.0, which the pinned 4.245.0 contract predates. Remove when the pinned contract moves to 4.259.0 or later (the check then reports it unnecessary)."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-authentication-and-onboarding/SKILL.md",
+    "text": "screenplay environment ./model --format json   # key, secret, source, owner, description",
+    "kind": "cliCommand",
+    "value": "environment",
+    "reason": "Documents the onboarding and environment-key surface of Screenplay 4.259.0, which the pinned 4.245.0 contract predates. Remove when the pinned contract moves to 4.259.0 or later (the check then reports it unnecessary)."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-authentication-and-onboarding/SKILL.md",
+    "text": "screenplay environment ./model --format json   # key, secret, source, owner, description",
+    "kind": "cliOption",
+    "value": "--format",
+    "reason": "Documents the onboarding and environment-key surface of Screenplay 4.259.0, which the pinned 4.245.0 contract predates. Remove when the pinned contract moves to 4.259.0 or later (the check then reports it unnecessary)."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-authentication-and-onboarding/references/onboarding-directives.md",
+    "text": "| `PLAY0826` | The `onboarding` line carries more than the keyword. | Move content into the body. |",
+    "kind": "diagnostic",
+    "value": "PLAY0826",
+    "reason": "Documents the onboarding and environment-key surface of Screenplay 4.259.0, which the pinned 4.245.0 contract predates. Remove when the pinned contract moves to 4.259.0 or later (the check then reports it unnecessary)."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-authentication-and-onboarding/references/onboarding-directives.md",
+    "text": "| `PLAY0827` | More than one `onboarding` block. | Merge them. |",
+    "kind": "diagnostic",
+    "value": "PLAY0827",
+    "reason": "Documents the onboarding and environment-key surface of Screenplay 4.259.0, which the pinned 4.245.0 contract predates. Remove when the pinned contract moves to 4.259.0 or later (the check then reports it unnecessary)."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-authentication-and-onboarding/references/onboarding-directives.md",
+    "text": "| `PLAY0828` | `onboarding` without `authentication`. | Declare the providers. Draft authoring reports a warning until the folder is assembled. |",
+    "kind": "diagnostic",
+    "value": "PLAY0828",
+    "reason": "Documents the onboarding and environment-key surface of Screenplay 4.259.0, which the pinned 4.245.0 contract predates. Remove when the pinned contract moves to 4.259.0 or later (the check then reports it unnecessary)."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-authentication-and-onboarding/references/onboarding-directives.md",
+    "text": "| `PLAY0829` | A line is not a directive, or one is malformed or incomplete. | Use the forms above. |",
+    "kind": "diagnostic",
+    "value": "PLAY0829",
+    "reason": "Documents the onboarding and environment-key surface of Screenplay 4.259.0, which the pinned 4.245.0 contract predates. Remove when the pinned contract moves to 4.259.0 or later (the check then reports it unnecessary)."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-authentication-and-onboarding/references/onboarding-directives.md",
+    "text": "| `PLAY0830` | A directive stated twice. | Keep one. |",
+    "kind": "diagnostic",
+    "value": "PLAY0830",
+    "reason": "Documents the onboarding and environment-key surface of Screenplay 4.259.0, which the pinned 4.245.0 contract predates. Remove when the pinned contract moves to 4.259.0 or later (the check then reports it unnecessary)."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-authentication-and-onboarding/references/onboarding-directives.md",
+    "text": "| `PLAY0831` | An invitation names a persona nothing declares. | Declare it with `persona`. |",
+    "kind": "diagnostic",
+    "value": "PLAY0831",
+    "reason": "Documents the onboarding and environment-key surface of Screenplay 4.259.0, which the pinned 4.245.0 contract predates. Remove when the pinned contract moves to 4.259.0 or later (the check then reports it unnecessary)."
+  },
+  {
+    "file": ".cratis/ai/skills/cratis-screenplay-authentication-and-onboarding/references/onboarding-directives.md",
+    "text": "| `PLAY0832` | `emails` names an email onboarding does not send. | Use `invitation`, `welcome` or `signupDeclined`. |",
+    "kind": "diagnostic",
+    "value": "PLAY0832",
+    "reason": "Documents the onboarding and environment-key surface of Screenplay 4.259.0, which the pinned 4.245.0 contract predates. Remove when the pinned contract moves to 4.259.0 or later (the check then reports it unnecessary)."
   }
 ]

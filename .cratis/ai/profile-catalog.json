@@ -623,7 +623,8 @@
       "availableTargets": [
         "cratis-commits-and-pull-requests",
         "cratis-rtk",
-        "cratis-chronicle-cli-operations"
+        "cratis-chronicle-cli-operations",
+        "cratis-environments-and-secrets"
       ],
       "languages": [
         "shell"
@@ -953,6 +954,7 @@
       "availableTargets": [
         "cratis-commits-and-pull-requests",
         "cratis-rtk",
+        "cratis-screenplay-authentication-and-onboarding",
         "cratis-screenplay-automations-and-translations",
         "cratis-screenplay-captures-and-reactions",
         "cratis-screenplay-command-surface",

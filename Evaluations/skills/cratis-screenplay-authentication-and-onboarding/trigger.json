@@ -1,0 +1,85 @@
+{
+  "skill": "cratis-screenplay-authentication-and-onboarding",
+  "queries": [
+    {
+      "query": "add an onboarding block to my play model so people can sign up and create their own tenant",
+      "shouldTrigger": true
+    },
+    {
+      "query": "how do I let an Owner invite a new tenant and let Administrators invite members who get the Accountant persona?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "which environment keys does a model with provider EntraId and provider OpenId name Partner need?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "my play file got PLAY0828 onboarding without authentication, what do I fix?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "where do the client secret and authority for an OpenId provider go in a Screenplay application?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "what does the screenplay environment command print and what do its exit codes mean?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "declare legal terms and the invitation, welcome and signupDeclined emails in the model",
+      "shouldTrigger": true
+    },
+    {
+      "query": "PLAY0831 on my invite member line, the persona is unknown",
+      "shouldTrigger": true
+    },
+    {
+      "query": "can I put the SMTP server and sender address in the onboarding block?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "two OpenId providers in the authentication block, how do I tell them apart?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "write a policy that requires the Administrator persona on this command",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-command-surface"
+    },
+    {
+      "query": "which compiler should I run and how do I read a PLAY0268 verdict?",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-toolchain"
+    },
+    {
+      "query": "create a production environment and set the smtp password secret with the cratis cli",
+      "shouldTrigger": false,
+      "note": "cratis-environments-and-secrets"
+    },
+    {
+      "query": "configure Arc's identity provider so the React frontend knows the current user",
+      "shouldTrigger": false,
+      "note": "cratis-arc-authentication-authorization-and-identity"
+    },
+    {
+      "query": "add a theme and a ui profile logo to the application shell",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-ui-composition"
+    },
+    {
+      "query": "how do I send the invitation email from a reactor with Herald?",
+      "shouldTrigger": false,
+      "note": "cratis-showrunner-herald"
+    },
+    {
+      "query": "declare a Performance resource so the operator runs my application with Ante",
+      "shouldTrigger": false,
+      "note": "cratis-onboarding-runtime"
+    },
+    {
+      "query": "model a projection that lists pending invitations",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-projections"
+    }
+  ]
+}

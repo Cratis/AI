@@ -1,0 +1,32 @@
+{
+  "skill": "cratis-screenplay-authentication-and-onboarding",
+  "input": "Declare how people sign in and get into a Screenplay application, and say which environment keys it needs.",
+  "fixtures": [],
+  "assertions": [
+    {
+      "kind": "skill-contains",
+      "value": "PLAY0183"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "authentication.providers.<Identity>.clientSecret"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "onboarding.email.server.password"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "screenplay environment ./model --format json"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "No `signup` line means self-signup is off"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "| `PLAY0832` |",
+      "file": "references/onboarding-directives.md"
+    }
+  ]
+}

@@ -97,6 +97,8 @@ model's behalf.
     mode in a design model is a recorded gap, not a defect to delete. Removing protection
     (`pii`, authorization, rules) to pass a tool is always a critical finding.
     Protection and reaction-privilege checks: [mode compliance](references/mode-compliance.md).
+    A client id, secret, authority, sender or mail server in a model is a critical finding: those
+    belong in the environment (`cratis-screenplay-authentication-and-onboarding`).
 12. **Root causes, classify, report** (`references/report-template.md`). Group findings that share
     a declaration; report the root cause with its symptoms under it; severity critical, major or
     minor; kind defect, question or note; verdict with confidence. Never apply changes.
