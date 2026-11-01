@@ -14,7 +14,7 @@ Specs are **mandatory for every slice type**, including reactors.
 
 ## Start with the plain call; add a scenario where it adds proof
 
-**Judgment-shaped convention:** call pure `Handle()`, validators, reducers and reactor decisions directly with their inputs, including read-model state. Add a scenario only for pipeline/authorization wiring, constraints or declarative projection mapping. Do not repeat every decision through the pipeline; name the extra behavior each scenario proves.
+Call pure `Handle()`, validators, reducers and reactor decisions directly with their inputs, including read-model state. Add a scenario only for the wiring the decision table below obligates (pipeline and authorization, constraints, projection and reducer dispatch, reactor dispatch and routing). Do not repeat every decision through the pipeline; name the extra behavior each scenario proves.
 
 **Decision table — apply it per artifact, without judgment.** A plain call proves the decision; a scenario is a coverage obligation for the wiring only the framework proves. These are obligations, not quotas: add a scenario for each behavior listed, and none beyond it.
 
@@ -24,7 +24,7 @@ Specs are **mandatory for every slice type**, including reactors.
 | `Handle` that needs `IEventStore`, `IReadModels` or services | none: do not substitute the store | keep the scenario; when touched, take the read model as a `Handle` parameter and use the row above |
 | `CommandValidator`, `ConceptValidator`, `Provide()` logic | each rule, built with its state | the command's pipeline scenarios prove the wiring |
 | Constraint (`[Unique]`, `IConstraint`) | none | an `EventScenario` per constraint: the violation and the nearest non-violation |
-| Projection or read model | none | `ReadModelScenario` against the real engine, covering **each distinct event sequence, key, join, children and removal the projection declares** |
+| Projection or read model | none | `ReadModelScenario` against the real engine, covering **each event, key, join, children and removal the projection declares**: one class per read model with one shared event sequence by default; add a class only for a sequence that cannot share it (a removal, another key) |
 | Reducer | each transition: `Model.Reduce(event, current[, context])` | a `ReadModelScenario` for dispatch, filters and stream routing |
 | Reactor | each handler decision and side effect, called directly with substitute collaborators | a `ReactorScenario`: dispatch, filtering, read-model parameters, routing of produced events to the right event source, `[OnceOnly]`/replay |
 | Query | extracted filter, sort or composition logic | `QueryScenario` for arguments, authorization and paging; provider behavior is integration |
@@ -63,7 +63,7 @@ An unauthenticated scenario against an `[Authorize]`/`[Roles]` command is denied
 | `CommandScenario<TCommand>` | the real Arc command pipeline — authorization + validators + `Provide()` + `Handle()` + appended events | pipeline wiring, authorization or constraints adds proof |
 | `QueryScenario<TReadModel>` | query pipeline: argument conversion, authorization, validation, interceptors; `Observe` buffers emissions | query composition matters; real MongoDB observations still need infrastructure |
 | `EventScenario` | Chronicle-level append semantics, no command pipeline | constraint violations, raw stream sequencing/concurrency |
-| `ReadModelScenario<TReadModel>` | projection/reducer state from a sequence of events (auto-detects model-bound / fluent / reducer) | one class per read model, many read-only assertions on shared setup |
+| `ReadModelScenario<TReadModel>` | projection/reducer state from a sequence of events (auto-detects model-bound / fluent / reducer) | one class per read model by default, many read-only assertions on shared setup (see the decision table for when to add another) |
 | `ReactorScenario<TReactor>` | reactor handler invocation + side effects via mocked services | the reactor wiring and side effects (Automation / Translation slices) |
 
 > **Out-of-process Chronicle integration specs are an advanced case** — reserve them for host wiring, real infrastructure, serialization/transport, or end-to-end boundaries the scenario helpers can't exercise. They are not the default vertical-slice test shape.
@@ -180,7 +180,7 @@ async Task Because() =>
 
 ### `ReadModelScenario<TReadModel>` — declarative projections and reducer wiring
 
-The default for declarative projections; pure reducer decisions start with a direct call. Use **one scenario class per read model**, not one per property, mapping attribute or lifecycle event. Apply its event sequence once, capture intermediate states in `Because` where needed, then assert fields, children, counters and lifecycle outcomes in many read-only facts. Add a reducer scenario only for dispatch, filtering, metadata or read-model wiring. Use xUnit `Assert.*` on `_scenario.Instance`.
+The default for declarative projections; pure reducer decisions start with a direct call. Use **one scenario class per read model**, not one per property, mapping attribute or lifecycle event; add another class only for an event sequence that cannot share the first (a removal, another key), as the decision table says. Apply its event sequence once, capture intermediate states in `Because` where needed, then assert fields, children, counters and lifecycle outcomes in many read-only facts. Add a reducer scenario only for dispatch, filtering, metadata or read-model wiring. Use xUnit `Assert.*` on `_scenario.Instance`.
 
 ```csharp
 ReadModelScenario<Author> _scenario = null!;

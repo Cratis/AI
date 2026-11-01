@@ -47,7 +47,7 @@ Specify pure `Handle()`, validator, reducer and reactor decisions with plain cal
 |---|---|
 | `CommandScenario<TCommand>` | **State Change** — runs authorization + validators + `Provide()` + `Handle()` + appended events |
 | `EventScenario` | constraint violations, raw append/sequencing semantics |
-| `ReadModelScenario<TReadModel>` | **State View** — one class per read model, many read-only assertions on shared setup |
+| `ReadModelScenario<TReadModel>` | **State View** — one class per read model by default (another only for a sequence that cannot share it), many read-only assertions on shared setup |
 | `ReactorScenario<TReactor>` | **Automation / Translation** — reactor invocation + side effects |
 
 Reserve out-of-process integration specs for host/transport/infra boundaries the scenario helpers can't exercise.
