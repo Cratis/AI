@@ -40,12 +40,23 @@
       "id": 4,
       "name": "document-type-shapes",
       "prompt": "I have to deliver four pages on projections: a first-time guided build, a fix for a stuck rebuild, a page on why projections are eventually consistent, and a lookup of every attribute. Map each to a document type and its shape. Reply only.",
-      "expected_output": "Tutorial (ordered steps with visible results), how-to (prerequisites, direct procedure, completion check), explanation (concepts, boundaries, trade-offs, diagram), reference (exhaustive tables, fields, commands, signatures).",
+      "expected_output": "Tutorial (ordered steps with visible results), how-to (prerequisites, direct procedure, completion check), explanation (concepts, boundaries, trade-offs, diagram when useful), reference (exhaustive tables, fields, commands, signatures).",
       "assertions": [
         "Maps the guided first build to a tutorial with ordered steps and visible results.",
         "Maps the stuck rebuild fix to a how-to with prerequisites, a direct procedure and a completion check.",
-        "Maps the eventual-consistency page to an explanation with concepts, boundaries, trade-offs and a diagram.",
+        "Maps the eventual-consistency page to an explanation with concepts, boundaries and trade-offs, using a diagram when it clarifies them.",
         "Maps the attribute lookup to a reference with exhaustive tables or fields."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "causal-how-to-not-category-purity",
+      "prompt": "Our how-to says 'configure Arc, append with Chronicle, then the Platform handles it.' The app and worker run in separate hosts, but we don't say where the configuration belongs or how an ID reaches the query. A reviewer wants to remove the brief explanation because how-tos must contain no teaching, and says every explanation page must contain no steps. Review this, including what reader evidence we need. Reply only.",
+      "expected_output": "Keep the how-to task-focused, but explain the necessary concepts and effects beside each step: ownership, host, identifier continuity, defaults and observable result, with recovery where relevant. Short sequences can clarify an explanation without making it a procedure; Diátaxis is not a purity test. Route to the canonical documentation-writing fresh-context reader review for a materially changed journey, keeping it separate from source, build and runtime checks. Follow the shared Platform naming and source-claim rule rather than hiding behavior behind the umbrella.",
+      "assertions": [
+        "Rejects rigid no-teaching and no-steps prohibitions while preserving the page's primary reader purpose.",
+        "Requires ownership, separate host placement, identifier continuity and an observable result rather than a list of components.",
+        "Routes comprehension review to documentation-writing's canonical procedure without claiming that build or source checks prove it."
       ]
     }
   ]

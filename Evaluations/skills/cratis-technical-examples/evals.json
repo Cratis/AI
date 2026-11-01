@@ -47,6 +47,17 @@
         "Says to use the same domain type names in every tab and to fix the snippets instead of explaining names in prose.",
         "Says to state each backend's id and command-response wire type and keep one id type per concept across every page of a series."
       ]
+    },
+    {
+      "id": 5,
+      "name": "configuration-and-output-evidence",
+      "prompt": "A cross-component how-to includes source-checked commands and configuration plus expected terminal output. It never says which host loads the configuration or which ID connects the command to its result. We did not compile, run or deploy it. The author reread it and wants to mark it fully verified. What should change? Reply only.",
+      "expected_output": "State the example scope and setup, component ownership, host placement, connecting identifiers, invisible effects and observable result, plus applicable defaults and recovery. Source checking is not compilation, runtime or deployed evidence, and expected output is not observed output. Use the canonical documentation-writing reader review for a changed journey, reporting it unavailable if not performed; do not claim the author's reread independent. Keep check evidence in the private change note.",
+      "assertions": [
+        "Requires causal explanation for commands and configuration, including ownership, host placement and identifiers, not just for code fences.",
+        "Separates source-checked commands and expected output from compilation, runtime observation and deployment.",
+        "Routes reader comprehension to documentation-writing's fresh-context procedure and does not substitute self-review or invent unavailable evidence."
+      ]
     }
   ]
 }

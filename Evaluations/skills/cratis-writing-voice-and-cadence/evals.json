@@ -16,13 +16,14 @@
     {
       "id": 2,
       "name": "rewrite-keeps-claims",
-      "prompt": "Original: 'There is no need to restart the host. This applies only to version 3.2 and later; it may take up to 30 seconds for replay to finish.' Proposed smoother rewrite: 'You can reload without restarting the host, and replay finishes in about 30 seconds.' Judge the rewrite. Reply only.",
-      "expected_output": "The rewrite changes claims: 'only to 3.2 and later' limit dropped, 'may take up to' became 'in about', widening the claim. Before accepting a rewrite confirm every identifier and number survives, every hedge survives in substance, and every limitation stays. Reject the rewrite.",
+      "prompt": "Original: 'There is no need to restart the host. This applies only to version 3.2 and later; it may take up to 30 seconds for replay to finish.' Proposed smoother rewrite: 'You can reload without restarting the host, and replay finishes in about 30 seconds.' Another approved passage says: 'Only the worker host loads this configuration. Arc sends the OrderId to the Chronicle-backed handler; the API host does not run the worker.' The editor replaces it with 'The Cratis Platform handles your order automatically' and says smoother copy proves comprehension and runtime correctness. Judge both edits and the approval implications. Reply only.",
+      "expected_output": "Reject both rewrites. The first drops the 3.2-and-later limit and changes 'may take up to' into 'in about'. Every identifier, number, hedge and limitation must survive in substance. The second erases component ownership, worker/API host boundaries, OrderId and only/not limitations while adding an unsupported automatic claim. Preserve literal identifiers and verified component names under the shared naming rule; stop for unauthorized approval refresh. Voice editing proves neither comprehension nor source, compilation, runtime or deployed behavior. Route a materially changed journey to documentation-writing's canonical reader review and report unavailable review honestly.",
       "assertions": [
-        "Says the rewrite drops the version limit 3.2 and later.",
-        "Says 'may take up to 30 seconds' became 'in about 30 seconds', changing a hedged bound into a stronger claim.",
+        "Says the first rewrite drops the 3.2-and-later limit and changes 'may take up to 30 seconds' into 'in about 30 seconds', strengthening a hedged bound.",
         "States the check that every identifier, number, hedging word and stated limitation must survive in substance.",
-        "Does not accept the rewrite as is."
+        "Rejects both rewrites rather than accepting smoother copy as is.",
+        "Rejects the loss of worker/API host boundaries, component ownership, OrderId and only/not limitations plus the new automatic claim, preserving literal identifiers and verified component names.",
+        "Stops for unauthorized approval refresh, says voice editing proves neither comprehension nor execution, and routes changed journeys to the canonical reader-review owner without claiming unavailable evidence."
       ]
     },
     {

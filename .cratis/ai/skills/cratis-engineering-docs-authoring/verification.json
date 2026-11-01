@@ -1,0 +1,12 @@
+{
+  "skill": "cratis-engineering-docs-authoring",
+  "input": "Draft a source-grounded cross-component how-to without hiding ownership or claiming unobserved behavior.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "## Required inputs" },
+    { "kind": "skill-contains", "value": "which identifiers connect" },
+    { "kind": "skill-contains", "value": "(../../rules/documentation.md)" },
+    { "kind": "skill-contains", "value": "(../cratis-documentation-writing/references/reader-review.md)" },
+    { "kind": "skill-contains", "value": "source checks and a successful build do not prove comprehension" }
+  ]
+}

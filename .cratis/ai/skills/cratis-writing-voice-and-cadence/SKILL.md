@@ -71,6 +71,23 @@ A mechanical before-and-after check over identifiers, numbers and hedge words ca
 this before anyone reads a word. The catalog describes one. A person still reads every
 flagged pair, because a count can't tell a widened limit from a harmless rephrase.
 
+## Preserve documentation evidence
+
+For documentation, apply the [documentation rule](../../rules/documentation.md)
+without changing literal product names, APIs or package IDs. Preserve causal
+explanations: responsibility, host-process boundaries, connecting identifiers,
+defaults, observable results and limitations must survive the voice pass.
+Do not smooth several components into an unexplained "the Platform handles it"
+or make an independent component sound dependent on the whole Platform.
+
+When the journey changes materially, route to **cratis-documentation-writing**'s
+[fresh-context reader review](../cratis-documentation-writing/references/reader-review.md).
+It owns comprehension review; this skill does not duplicate it. Source checks,
+compilation, runtime and deployed evidence remain separate, and a voice pass
+establishes none of them. Report unavailable reader review rather than treating
+a smoother author's reread as independent evidence. Existing approval and
+claim-preservation stop conditions still apply.
+
 ## Stop conditions
 
 Stop and hand back when:

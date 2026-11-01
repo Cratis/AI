@@ -14,6 +14,25 @@ real project behind it; a five-line illustration need not become a new sample
 repository. This skill owns the example workflow, not the owning product's
 language-tab layout or documentation site implementation.
 
+## Explain the evidence and the handoff
+
+For every code, command or configuration example, state its scope and assumed
+setup. Explain the invisible effect beside the example: which component owns
+it, which host runs it, how identifiers connect it to the next step, and the
+observable result. Include applicable defaults, limitations and recovery; a
+plausible block followed by a product-name list is not a causal explanation.
+Preserve real package IDs, API names and wire types rather than translating
+them into umbrella branding. Follow the
+[documentation rule](../../rules/documentation.md) for naming and claims.
+
+Keep source checking, compilation, runtime observation and deployed behavior
+separate in the private change note. A source-verified command is not a command
+you ran; expected output is not observed output. For a new or materially changed
+journey, use **cratis-documentation-writing**'s
+[fresh-context reader review](../cratis-documentation-writing/references/reader-review.md).
+That comprehension check cannot replace any example gate, and an unavailable
+reader review must not be claimed as completed.
+
 ## Choose the right source
 
 - **Short illustration:** use the smallest self-contained block that proves one
@@ -110,7 +129,11 @@ every changed client snippet, or name a missing toolchain and rely on its
 required CI gate. These checks **do not** compile ordinary Markdown/MDX fences
 elsewhere in product documentation. For those, verify against real source and
 a runnable sample/spec or an explicit snippet comparison; do not claim
-coverage from a site build or a validator that never scans the page.
+coverage from a site build or a validator that never scans the page. In the
+private change note, map changed ordinary Markdown/MDX fences, commands,
+configuration and output to the source revision and validator or sample that
+actually covers each block. Mark uncovered blocks and unrun checks explicitly;
+source-equal, compiled and runtime-demonstrated are different results.
 
 A compiling tab is not a working tab. For each backend, confirm that the
 artifact is discovered and registered, that proxy generation emits the file

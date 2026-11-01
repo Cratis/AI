@@ -15,6 +15,18 @@ as a compass for each page's primary purpose, not a purity test. This skill
 governs content and reader journeys; the owning repository governs page
 placement, navigation, and rendering.
 
+## Use the specialists at their boundary
+
+Read this skill to plan the reader journey, then read
+**cratis-engineering-docs-authoring** to draft from product evidence,
+**cratis-technical-examples** to verify code, commands, configuration and output,
+and **cratis-llm-friendly-documentation** when discovery or exported representations
+are involved. Read **cratis-writing-voice-and-cadence** before revising existing
+prose. Skill availability is not evidence that its instructions were read.
+The [documentation rule](../../rules/documentation.md) owns Platform naming and
+product-claim constraints; do not turn an umbrella label into a dependency on
+all components.
+
 ## Classify before writing
 
 Determine which quadrant the page belongs to before drafting:
@@ -38,13 +50,15 @@ Rules per type:
   path, with no registration or wiring a convention already does, then name
   what the framework did that the reader cannot see.
 - **How-to guide** — assume competence. State the goal, list prerequisites,
-  give the steps, done. No teaching.
+  give the steps and a completion check. Explain necessary concepts, effects,
+  and recovery beside the step; link sustained teaching elsewhere.
 - **Reference** — exhaustive within its declared scope and terse. For each
   public option or API, cover type, required/optional status, default, valid
   values, return behavior, errors and compatibility where applicable. State
   scope and link to a working usage example; do not turn it into a lesson.
-- **Explanation** — no steps. Discuss concepts, trade-offs, and design
-  decisions. Diagrams are welcome here.
+- **Explanation** — discuss concepts, trade-offs, and design decisions. Short
+  steps or examples can make an effect concrete without becoming a full
+  procedure. Diagrams are welcome when they clarify a relationship.
 
 A brief prerequisite or explanation may serve the main journey. If a reader
 also needs an exhaustive lookup, link a reference page rather than burying it
@@ -83,7 +97,10 @@ and neighboring pages; ask only when the alternatives change the outcome.
    start route, but let the reader reach a first success before the theory.
 6. Read the rendered page as a newcomer: could they find it, begin without
    hidden prerequisites, recover from a common mistake, and recognize success?
-   Then check claims, examples, accessibility, links, and the owning gates.
+   For a new or materially changed journey, read and use
+   [fresh-context reader review](references/reader-review.md). An author's
+   reread is useful but is not independent reader evidence. Check claims,
+   examples, accessibility, links, and the owning gates separately.
 
 Use support questions and user feedback as evidence: ask what they searched
 for, where they looked, and which step failed. Repair the entry link, wording,
@@ -215,6 +232,9 @@ A page is done when:
   checkable result; longer examples come from compiling sample or spec source.
   Explanations of what happened match the backend the reader built.
 - The entry point, terminology, and next-step links fit the surrounding docs.
+- A new or materially changed journey has fresh-context reader evidence, or
+  explicitly reports that review as unavailable. Missing steps and guessed
+  prerequisites are gaps, not reader success.
 - All internal links resolve; all external links are real.
 - Mermaid blocks are syntactically valid.
 - The file ends with a single trailing newline.

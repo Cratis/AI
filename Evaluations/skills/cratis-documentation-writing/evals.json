@@ -40,25 +40,27 @@
     {
       "id": 4,
       "name": "multi-backend-limits",
-      "prompt": "We are adding a Kotlin backend to a series of 6 pages that currently teach C# only. Two features are unsupported on Kotlin and tracked in issues. How do we handle the limitation text, and what else must we check outside the product's own docs? Reply only.",
-      "expected_output": "Put backend differences once in a 'how the backends differ' table near the start (series index), including unsupported features with their tracking issue, and link it rather than repeating on each page. Search cross-product and site-level pages for single-language claims and series indexes that no longer hold.",
+      "prompt": "We are adding a Kotlin backend to a series of 6 pages that currently teach C# only. Two features are unsupported on Kotlin and tracked in issues. How do we handle the limitation text, and what else must we check outside the product's own docs? The front door calls Chronicle, Arc and Screenplay competing Cratis platforms, requires all three for a Chronicle-only task and proposes replacing package IDs with umbrella names. Review that framing too. Reply only.",
+      "expected_output": "Put backend differences once in a 'how the backends differ' table near the start (series index), including unsupported features with their tracking issue, and link it rather than repeating on each page. Search cross-product and site-level pages for single-language claims and series indexes that no longer hold. Cratis is the organization; Cratis Platform the umbrella; named products are independently adoptable components or supporting tools. Preserve actual package IDs and APIs, route to a first useful component outcome and show source-grounded prerequisites and handoffs only when relevant, without invented dependencies or guarantees.",
       "assertions": [
         "Recommends one backend-differences table on the series index, linked from pages, instead of repeating the limitation on every page.",
         "Includes unsupported features together with their tracking issue in that table.",
         "Says to search pages the product's own checks do not scan, such as cross-product and site-level pages, for single-language claims.",
-        "Says to check series indexes whose description, reading order or production claims may no longer hold."
+        "Says to check series indexes whose description, reading order or production claims may no longer hold.",
+        "Distinguishes organization, Platform umbrella and independently adoptable components; rejects whole-Platform requirements and package/API renames, and proposes a useful component path with source-grounded handoffs."
       ]
     },
     {
       "id": 5,
       "name": "ai-drafted-narrative",
-      "prompt": "I generated a tutorial narrative with a model and want to ship it. What must happen before it ships, and where do I tell the reviewer it was AI-drafted? Reply only.",
-      "expected_output": "It is a first draft. Revise against source evidence and the voice skill; technical correctness is not established by a style pass. Tell the reviewer in the review request, a PR comment or the commit message, never the PR description, which is published as release notes.",
+      "prompt": "I generated a cross-component tutorial narrative with a model and want to ship it. What must happen before it ships, and where do I tell the reviewer it was AI-drafted? I reread it and the site builds. A colleague succeeded only after I supplied missing host setup and explained which identifier to copy. Can we call that independent reader validation? We cannot launch agents or model evaluations. What should we record and fix? Reply only.",
+      "expected_output": "It is a first draft. Revise against source evidence and the voice skill; technical correctness is not established by a style pass. Tell the reviewer in the review request, a PR comment or the commit message, never the PR description, which is published as release notes. The author's reread, build and coached success are not independent comprehension proof. Follow the canonical reader-review procedure with only the task, page and stated prerequisites, not author answers; record guesses and repair the smallest host/identifier gaps. Keep comprehension, source, compile, runtime and deployed evidence distinct. Report independent review unavailable, do not launch prohibited agents or evaluations, and keep concise evidence private rather than publishing receipts.",
       "assertions": [
         "Treats the AI-drafted narrative as a first draft to be revised against source evidence.",
         "Says a style pass cannot establish technical correctness.",
-        "Says to tell the reviewer in the review request, a PR comment or the commit message.",
-        "Says not to put the AI-drafted note in the PR description because it is published as the release note."
+        "Says to tell the reviewer in the review request, a PR comment or the commit message, not the PR description because it is published as the release note.",
+        "Rejects rereading, coached success and a site build as independent comprehension proof; routes to an uncoached reader with only the task, page and stated prerequisites, recording guesses instead of author answers.",
+        "Repairs the smallest host/identifier gaps, separates comprehension, source, compile, runtime and deployed evidence, and reports review unavailable privately without prohibited agents, evaluations or public receipts."
       ]
     }
   ]

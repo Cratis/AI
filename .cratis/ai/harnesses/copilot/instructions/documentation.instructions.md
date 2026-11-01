@@ -11,6 +11,27 @@ Documentation exists for one audience: **developers who need to use the framewor
 
 Every page should answer: “If I were a developer encountering this concept for the first time, what would I need to understand to use it correctly?”
 
+## Name the Platform and its components accurately
+
+In reader-facing documentation and discovery, **Cratis** is the organization and
+**Cratis Platform** is the umbrella offering. Chronicle, Arc, Components,
+Screenplay, Studio, CLI, and other named tools are components or supporting tools
+with distinct roles, not competing platforms. When a reader or search query asks
+about a Cratis framework, route to the relevant Platform component without
+pretending its name, API or package identifier changed.
+
+Readers may adopt one component independently or combine several. Never imply
+that a component requires the whole Platform. For a cross-component task, name
+which component owns each responsibility and show the handoffs, prerequisites
+and result instead of using the umbrella name as an explanation. Preserve
+verified product terminology, literal package IDs and API names.
+
+Use authoritative source for capability, compatibility, dependency and maturity
+claims; label unknown pairings as unverified. Do not infer support from branding
+or navigation, and do not invent guarantees, performance or production-readiness
+claims. Shared overview pages should link to component-owned procedures rather
+than duplicate their setup.
+
 The site is built with [Astro Starlight](https://starlight.astro.build/). Documentation lives in the `Documentation/` folder of each product repository as [GitHub Flavored Markdown](https://github.github.com/gfm/); a converter synchronizes product `.md`/`.mdx` into the Starlight site, and all repositories are aggregated into one published site. Readers experience it as a single place — write for that whole, not for one repository in isolation. For the authoritative rendering contract, see [Documentation Structure and Formatting](./documentation-structure-and-formatting.instructions.md).
 
 ## Give each page one primary reader purpose
@@ -20,9 +41,9 @@ Use [Diátaxis](https://diataxis.fr/) as a compass: decide whether the reader is
 | Type | The reader is… | Reads like | Rule |
 |---|---|---|---|
 | **Tutorial** | learning by doing | a guided lesson | Steps that each produce a visible result. Briefly explain the invisible effect after a step; link out for deeper theory rather than stopping the lesson. The reader must succeed even before they fully understand. |
-| **How-to guide** | solving a specific problem | a recipe | Assume competence. Goal → prerequisites → steps → done. No teaching. |
+| **How-to guide** | solving a specific problem | a recipe | Assume competence. Goal → prerequisites → steps → completion check. Explain necessary concepts, effects and recovery beside the step; link sustained teaching elsewhere. |
 | **Reference** | looking something up | a dictionary | Exhaustive and terse. Tables, signatures, attributes, configuration. No narrative. |
-| **Explanation** | trying to understand | a discussion | Concepts, trade-offs, architecture, *why*. No steps. Lean on diagrams. |
+| **Explanation** | trying to understand | a discussion | Concepts, trade-offs, architecture, *why*. A short example or sequence can clarify an effect without becoming a full procedure. Use diagrams when they explain a relationship. |
 
 Diátaxis governs a page's purpose and voice, not a universal set of sidebar labels. Each product has navigation buckets suited to its domain; read `PRODUCTS[].buckets` in the Documentation site's sync script before placing a new section.
 
@@ -89,3 +110,4 @@ The project's voice is **direct, practical, and opinionated**. Write like an exp
 - Follow [Documentation Structure and Formatting](./documentation-structure-and-formatting.instructions.md) for frontmatter, landing pages, `toc.yml`, Markdown/MDX, links, and rendering.
 - End every Markdown file with a single trailing newline.
 - Run the owning repository's local documentation gate when present; use `cd ../Documentation/web && npm run check` for full-fidelity site verification when the sibling checkout is available.
+- For a new or materially changed reader journey, use the **cratis-documentation-writing** [fresh-context reader review](../../../skills/cratis-documentation-writing/references/reader-review.md). Report unavailable review rather than calling an author's reread independent evidence; a passing build is not a comprehension check.
