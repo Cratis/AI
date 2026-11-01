@@ -43,10 +43,16 @@ Where the repository requires release intent, `no-release` is a decision, not an
 
 This covers, whenever the PR touches *only* these:
 
-- **Documentation**: anything under `Documentation/**`, READMEs, the `.cratis/ai/` corpus.
+- **Documentation**: anything under `Documentation/**`, READMEs, the `.cratis/ai/` copy installed in a consumer repository.
 - **CI and repository automation**: `.github/workflows/**`, `.github/scripts/**`, `.github/CODEOWNERS`, issue/PR templates.
 - **Tests and specs**: `*.Specs/**`, `when_*/**`, `for_*/**`, `Integration/**`, and test-only fixtures.
 - **Build and tooling configuration** that produces no shipped artifact difference: lint config, editor config, local scripts.
+
+**In Cratis/AI the corpus is the product.** Its skills, rules, prompts and hooks reach users through `@cratis/pi`, so a corpus change there is labelled by its effect on those users, like code:
+
+- `patch`: a fix to existing guidance, for example correcting a wrong command or a broken link in a skill.
+- `minor`: new or changed guidance, for example a new skill or a new required step in an existing one.
+- `no-release`: only when users cannot see the change, for example specs, evaluations or CI.
 
 The test is **outward-facing effect, not file location**. A change under `Source/**` that only touches specs is not shippable; a one-line change to a published package's behavior is, however small. If a consumer could not tell the difference by upgrading, there is nothing to version. When genuinely unsure, ask rather than defaulting to `patch`: an unnecessary release is not free. It burns a version number, ships release notes describing nothing, and buries the releases that matter.
 
