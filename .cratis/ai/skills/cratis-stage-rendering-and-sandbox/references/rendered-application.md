@@ -131,7 +131,7 @@ Requires cratis CLI 3.116.0 with Stage 4.211.0 (`cratis --version`); older relea
   retrying reactor on tenant provisioning starts each new tenant on it (`StartTenant`) as soon as
   the operator publishes the offer. Provisioning and the welcome email do not wait for it.
   `STAGE-ONBOARDING-008` is information: the operator must publish an offer with that name, and
-  Box Office seat and compute policies are not rendered. Requires Stage <!-- stage-version -->
+  Box Office seat and compute policies are not rendered. Requires Stage 4.212.0
   for the offering and the declined email; older renderers render neither.
   `STAGE-ONBOARDING-002` to `-006` cover a tenant invitation with no command,
   a sign-up without a first-member persona, a legal document count other than two, a
