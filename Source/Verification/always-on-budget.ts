@@ -17,9 +17,10 @@ import { skillBody } from './skill-structure.ts';
  * Cratis/AI#855 pull-requests.md hook-change release-note line: +197 bytes (claude-code, copilot, pi).
  * Cratis/AI#909 method pointers in pull-requests.md, issue-assignment.md, review-reports.md, profiles.md: +1087 bytes (claude-code, pi), +1002 (copilot).
  * fast-feedback.md general.md routing row: budgets raised by 150 bytes (copilot, pi) and 109 (cursor, codex-opencode).
+ * Cratis/AI#969 secrets.md `cratis config get … --show-secret` in the guarded commands: +39 bytes (claude-code, copilot, pi); the Pi budget is raised by 50.
  */
 // File scoping and on-demand operation skills reduce Claude Code, Copilot and Pi; other caps stay unchanged.
-export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 74_500, copilot: 51_400, pi: 76_900, cursor: 23_400, 'codex-opencode': 23_100 };
+export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 74_500, copilot: 51_400, pi: 76_950, cursor: 23_400, 'codex-opencode': 23_100 };
 
 const remedy = 'Displace or demote text to an on-demand skill, or raise the budget in Source/Verification/always-on-budget.ts in a reviewed change.';
 

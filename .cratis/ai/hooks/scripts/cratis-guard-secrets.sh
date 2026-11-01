@@ -35,7 +35,7 @@ command_text="$(hook_json "$input" '.tool_input.command')"
 
 # Cheap exit for the overwhelming majority of shell commands, which mention none of these words.
 case "$(printf '%s' "$command_text" | tr '[:upper:]' '[:lower:]')" in
-    *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
+    *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
     *export*|*declare*|*typeset*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.p12*|*.pfx*|*token*|*.netrc*|*.npmrc*|\
     *credentials*|*.pgpass*|*secrets*) ;;
     *) exit 0 ;;
@@ -397,7 +397,7 @@ function drop_redirects(A, s, n,    k, m, w) {
     }
     return m
 }
-function analyze(A, s, n,    w, b, k, names, p) {
+function analyze(A, s, n,    w, b, k, names, p, config, get, show) {
     while (s <= n) {
         w = A[s]; b = base(w)
         if (is_assign(w)) { s++; continue }
@@ -444,6 +444,17 @@ function analyze(A, s, n,    w, b, k, names, p) {
     if (b == "gcloud") return gcloud(A, s, n)
     if (b == "pulumi") {
         for (k = s + 1; k <= n; k++) if (A[k] ~ /^--show-secrets/) report("pulumi --show-secrets prints decrypted secrets", "pulumi config / pulumi stack output without --show-secrets (secrets stay masked)")
+        return
+    }
+    # `cratis config get` prints a secret as [secret]; --show-secret resolves it through the secrets provider.
+    if (b == "cratis") {
+        config = 0
+        for (k = s + 1; k <= n; k++) {
+            if (A[k] == "config") config = 1
+            else if (config && A[k] == "get") get = 1
+            if (A[k] ~ /^--show-secret/) show = 1
+        }
+        if (config && get && show) report("cratis config get --show-secret prints a decrypted secret", "cratis config get without --show-secret (a secret prints as [secret]); name the key in your report")
         return
     }
     # A redirect is not a variable name: `printenv > f` and `export > f` still dump the whole environment.
