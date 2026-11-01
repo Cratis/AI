@@ -46,7 +46,7 @@ Select from these canonical rules in `.cratis/ai/rules/` only after applying the
 
 ## C# specs — start with the plain call
 
-Specify pure `Handle()`, validator, reducer and reactor decisions with plain calls and supplied read-model state. Follow `.cratis/ai/rules/specs.scenarios.csharp.md`: scenarios add only pipeline/authorization wiring, constraints, declarative mapping or application-owned race-policy proof, not a platform guard matrix. Keep the single cheap assembly-level admission spec for the application's own decision-model shapes. Prefer in-process helpers over out-of-process Chronicle hosts for the applicable behaviors:
+Specify pure `Handle()`, validator, reducer and reactor decisions with plain calls and supplied read-model state. Follow `.cratis/ai/rules/specs.scenarios.csharp.md`: add exactly the scenarios its per-artifact decision table obligates (pipeline and authorization, constraints, projection and reducer dispatch, reactor dispatch and routing) plus application-owned race-policy proof, not a platform guard matrix. Keep the single cheap assembly-level admission spec for the application's own decision-model shapes. Prefer in-process helpers over out-of-process Chronicle hosts for the applicable behaviors:
 
 | Tool | Use for |
 |---|---|

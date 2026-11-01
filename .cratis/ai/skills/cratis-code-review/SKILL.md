@@ -155,8 +155,10 @@ degradations a reviewer can see without measuring:
 ## Step 6 — Specification coverage
 
 - Pure command, validator, reducer and reactor decisions have plain-call specs
-  with supplied read-model state; scenarios add only pipeline/authorization
-  wiring, constraints, declarative mapping or application-owned race-policy proof.
+  with supplied read-model state; scenarios cover exactly the obligations in the
+  per-artifact decision table of `specs.scenarios.csharp.md` (pipeline and
+  authorization, constraints, projection and reducer dispatch, reactor dispatch
+  and routing) plus application-owned race-policy proof.
 - Every State Change command has a happy-path specification.
 - Every validation rule has a direct-call failure spec. Pipeline validation
   specs assert **both** `ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()`.

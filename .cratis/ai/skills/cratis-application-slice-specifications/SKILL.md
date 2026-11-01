@@ -11,9 +11,10 @@ metadata:
 Start a pure decision with a plain method call: `Handle()`,
 `Handle(providedValue)`, reducer logic or a reactor's decision needs no host,
 services or harness, including direct validator calls with supplied read-model state.
-Add scenarios only for pipeline/authorization wiring, constraints, declarative
-mapping; follow the
-[scenario selection and cost rule](../../rules/specs.scenarios.csharp.md). The scenario family
+Add exactly the scenarios the per-artifact decision table in the
+[scenario selection and cost rule](../../rules/specs.scenarios.csharp.md) obligates
+(pipeline and authorization, constraints, projection and reducer dispatch,
+reactor dispatch and routing). The scenario family
 exercises the real Arc and Chronicle code paths in-process — no HTTP, no fixture,
 no server.
 

@@ -89,8 +89,8 @@ before changing runner or package family.
 
 The plain `Specification` base is the universal foundation and the dominant mode
 in library and framework code. In applications, start pure decisions with a
-plain call, including direct validator calls, and add scenarios only for
-pipeline/authorization wiring, constraints, or declarative mapping. Keep shared lifecycle on; measure scenario cost using
+plain call, including direct validator calls, and add the scenarios the
+per-artifact decision table in `specs.scenarios.csharp.md` obligates. Keep shared lifecycle on; measure scenario cost using
 [running-specs.md](references/running-specs.md). Read
 [application-scenarios.md](references/application-scenarios.md) before using
 one. Out-of-process integration specifications are an advanced case reserved for
