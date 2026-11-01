@@ -88,7 +88,7 @@ vault when secrets must not travel with the repository or are shared with a clus
 before starting Docker, hands the provider and onboarding values to the AuthProxy and Ante
 containers, and stops with exit `5` listing the missing keys, never their values. A mail
 server is optional: without `onboarding.email.server.host`, emails are written as `.eml` files.
-<!-- version: fill after release -->
+Requires cratis CLI 3.116.0 (`cratis --version`); older CLIs run the Stage alone and play a persona.
 
 ## Pitfalls
 

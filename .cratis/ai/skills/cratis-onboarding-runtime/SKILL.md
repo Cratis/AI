@@ -13,7 +13,7 @@ that read one contract, produced from the model and a Cratis environment:
 |---|---|---|
 | **AuthProxy** | The only public entry point; signs people in with the model's providers. | `Cratis:AuthProxy:Application` (see the AuthProxy reference of `cratis-arc-authentication-authorization-and-identity`). |
 | **Ante** | **One per application.** Signs invitation tokens, serves the lobby, records acceptance and legal terms, publishes to its outbox. | `Ante:Onboarding:*`. |
-| **Herald** | Sends the invitation, welcome and declined emails from the application. | `cratis-showrunner-herald`. |
+| **Herald** | Sends the invitation and welcome emails from the application (the declined template waits for an Ante outcome). | `cratis-showrunner-herald`. |
 
 Nobody writes the equivalent `Ante:*` or `Cratis:AuthProxy:*` keys by hand for a Screenplay
 application. The model supplies structure (providers, personas, invitation types, legal files);
@@ -57,7 +57,7 @@ Locally, `cratis run` on a model with `onboarding` starts Ante this way: `ASPNET
 is `Development` and `Ante:Onboarding:Development:Enabled` is `true`, so Ante generates its signing
 key into a folder that lives only for the run. It shares AuthProxy's network stack, so AuthProxy
 reaches it on loopback, and the lobby is served through AuthProxy. Nothing from a local run is
-trusted by another run or cluster. <!-- version: fill after release -->
+trusted by another run or cluster.
 
 ## Stage Manager `Performance`
 

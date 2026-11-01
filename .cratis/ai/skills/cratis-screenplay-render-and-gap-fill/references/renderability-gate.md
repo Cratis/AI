@@ -66,7 +66,7 @@ configuration, personas, provisioning, emails); do not gap-fill them by hand
 (`cratis-stage-rendering-and-sandbox` `references/rendered-application.md`). A provider kind
 AuthProxy does not support is left out of the render with the warning `STAGE-AUTH-001`; the
 render still publishes, so report it as a model decision, not as a hand-written provider.
-<!-- version: fill after release -->
+Requires cratis CLI 3.116.0 with Stage 4.211.0 (`cratis --version`); older releases report `authentication` and `onboarding` as unrendered warnings.
 
 ## Stage issues to cite in fallback record entries
 Historical issue pointers (not a fresh issue-state check): portable query semantics Stage#58;

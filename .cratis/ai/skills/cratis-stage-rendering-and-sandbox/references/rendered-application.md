@@ -110,7 +110,9 @@ Studio or semantic-engine execution.
 A model with an `authentication` block renders an application that runs behind AuthProxy
 and trusts the identity it forwards. The model's `onboarding` block renders the code that
 acts on the outcomes of the application's own Ante. Both are realized by the renderer;
-none of it is hand-written gap-fill. <!-- version: fill after release -->
+none of it is hand-written gap-fill.
+
+Requires cratis CLI 3.116.0 with Stage 4.211.0 (`cratis --version`); older releases report `authentication` and `onboarding` as unrendered warnings.
 
 | Rendered | Purpose |
 | --- | --- |
@@ -129,6 +131,11 @@ none of it is hand-written gap-fill. <!-- version: fill after release -->
   licensing. `STAGE-ONBOARDING-002` to `-006` cover a tenant invitation with no command,
   a sign-up without a first-member persona, a legal document count other than two, a
   missing email template and an invitation without inviters.
+- An invitation Ante rejects (a persona or invitation type the model does not allow) is a
+  mistake in the invitation, not a decision about the person: the application records
+  `OnboardingInvitationRejected` and logs a warning for an administrator, and emails no
+  one. The `signupDeclined` template renders but is not sent until Ante publishes a
+  declined sign-up (`STAGE-ONBOARDING-007`).
 - An application with onboarding pins a newer Chronicle client and kernel image than
   other applications; read them from the rendered files.
 - Realization needs the model folder: email images are read from the model root.

@@ -54,7 +54,7 @@ the sandbox runs behind AuthProxy, trusts the identity it forwards and plays no 
 signed-in caller is the caller authorization runs for. It overrides `Stage:Sandbox:Identity`.
 `cratis run` sets it when the model declares `authentication`; set it yourself only behind an
 AuthProxy, because the headers are unsigned and anything that can reach the sandbox directly
-can forge them. <!-- version: fill after release -->
+can forge them. Requires Stage 4.211.0; an older sandbox ignores the setting.
 
 The semantic Host encrypts personal-data and secret concepts at rest through Chronicle and
 releases values on read; erasure deletes event-source keys. Encryption applies to new
