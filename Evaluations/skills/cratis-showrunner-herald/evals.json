@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-showrunner-herald",
+  "evals": [
+    {
+      "id": 1,
+      "name": "add-herald",
+      "prompt": "Wire Herald into a .NET app that already calls AddCratis, using values from configuration for the sender and SMTP. Do not run anything; reply only.",
+      "expected_output": "Reference Cratis.Showrunner.Herald, call builder.AddHerald with TemplatesFolder, ImagesFolder, Sender and Smtp, reading the host, user and password from configuration; run the worker in one instance.",
+      "assertions": [
+        "Calls `builder.AddHerald` and sets `TemplatesFolder` and `Sender.Address`.",
+        "Reads the SMTP password (and host and user) from configuration, never a literal.",
+        "Notes the application must be a Chronicle client via AddCratis or AddCratisChronicle.",
+        "Advises running the delivery worker in a single instance because delivery is at least once."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "write-template",
+      "prompt": "Create the invitation email: a link, the inviter's name, an optional message and the company logo. Show the files and what rules apply. Do not run anything; reply only.",
+      "expected_output": "invitation.json manifest with invitation.link required; invitation.en.html with a --- header (subject, preview), table layout, {{values}}, {{#if}} for the message, cid:logo.png PNG image; no triple braces.",
+      "assertions": [
+        "Creates `invitation.json` declaring `invitation.link` as required and the other values.",
+        "Creates `invitation.en.html` with a subject header between `---` lines and only `{{value}}`, `{{#if}}` and `{{date}}` constructs.",
+        "References the logo as `cid:logo.png` and states SVG is refused so a PNG is used.",
+        "Does not use triple-brace unescaped output or partials."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "send-and-develop",
+      "prompt": "Send the invitation from a reactor and explain how to test it locally and what facts get recorded. Do not run anything; reply only.",
+      "expected_output": "Inject IEmails, emails.Send(new EmailRequest(Kind: \"invitation\", About, To, Values) {...}); Send throws EmailCannotBeRendered when invalid; Folder transport with PickupFolder for .eml; EmailQueued then EmailSent or EmailFailed.",
+      "assertions": [
+        "Uses `IEmails.Send` with an `EmailRequest` carrying `Kind`, `About`, `To` and `Values`.",
+        "Explains `Send` renders first and throws `EmailCannotBeRendered` without queuing when invalid.",
+        "Uses `Transport = EmailTransportKind.Folder` with `PickupFolder` for local testing.",
+        "Names `EmailQueued` and then `EmailSent` or `EmailFailed` as the recorded facts."
+      ]
+    }
+  ]
+}

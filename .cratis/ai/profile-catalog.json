@@ -522,7 +522,8 @@
         "cratis-chronicle-reducer",
         "cratis-event-model-diagram",
         "cratis-multi-service-architecture",
-        "cratis-multi-service-local-orchestration"
+        "cratis-multi-service-local-orchestration",
+        "cratis-showrunner-herald"
       ],
       "languages": [
         "csharp",
