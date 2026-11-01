@@ -522,7 +522,8 @@
         "cratis-chronicle-reducer",
         "cratis-event-model-diagram",
         "cratis-multi-service-architecture",
-        "cratis-multi-service-local-orchestration"
+        "cratis-multi-service-local-orchestration",
+        "cratis-showrunner-herald"
       ],
       "languages": [
         "csharp",
@@ -623,7 +624,8 @@
       "availableTargets": [
         "cratis-commits-and-pull-requests",
         "cratis-rtk",
-        "cratis-chronicle-cli-operations"
+        "cratis-chronicle-cli-operations",
+        "cratis-environments-and-secrets"
       ],
       "languages": [
         "shell"
@@ -953,6 +955,7 @@
       "availableTargets": [
         "cratis-commits-and-pull-requests",
         "cratis-rtk",
+        "cratis-screenplay-authentication-and-onboarding",
         "cratis-screenplay-automations-and-translations",
         "cratis-screenplay-captures-and-reactions",
         "cratis-screenplay-command-surface",
@@ -1026,6 +1029,7 @@
       "availableTargets": [
         "cratis-commits-and-pull-requests",
         "cratis-rtk",
+        "cratis-onboarding-runtime",
         "cratis-stage-rendering-and-sandbox"
       ],
       "languages": [

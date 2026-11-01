@@ -60,6 +60,14 @@ Requires Stage 4.138.0 for the Cratis renderer to render protected reads.
 - Admission can pass and a Debug test still fail. Admission is never a passing test; see
   `cratis-stage-rendering-and-sandbox` `references/render-example.md`.
 
+## Authentication and onboarding are realized
+A model's `authentication` and `onboarding` blocks are rendered by Stage (AuthProxy and Ante
+configuration, personas, provisioning, emails); do not gap-fill them by hand
+(`cratis-stage-rendering-and-sandbox` `references/rendered-application.md`). A provider kind
+AuthProxy does not support is left out of the render with the warning `STAGE-AUTH-001`; the
+render still publishes, so report it as a model decision, not as a hand-written provider.
+Requires cratis CLI 3.116.0 with Stage 4.211.0 (`cratis --version`); older releases report `authentication` and `onboarding` as unrendered warnings.
+
 ## Stage issues to cite in fallback record entries
 Historical issue pointers (not a fresh issue-state check): portable query semantics Stage#58;
 Translate and unsupported automation forms Stage#79; mapping expressions and projection blocks Stage#117; modeled authentication

@@ -177,6 +177,12 @@ test('docker, the CLIs of secret managers and cloud providers', () => {
         [BLOCK, 'pulumi stack output --show-secrets'],
         [ALLOW, 'pulumi stack output'],
         [ALLOW, 'pulumi up --yes'],
+        [BLOCK, 'cratis config get smtp:password --show-secret'],
+        [BLOCK, 'cratis config get smtp:password -e production --show-secret'],
+        [BLOCK, 'rtk cratis config get auth:clientSecret --show-secret'],
+        [ALLOW, 'cratis config get smtp:password'],
+        [ALLOW, 'cratis config set smtp:password --secret'],
+        [ALLOW, 'cratis config --missing ./model'],
     ]);
 });
 

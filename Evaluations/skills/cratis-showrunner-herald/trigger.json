@@ -1,0 +1,85 @@
+{
+  "skill": "cratis-showrunner-herald",
+  "queries": [
+    {
+      "query": "add herald to my arc chronicle app so it can send the invitation email",
+      "shouldTrigger": true
+    },
+    {
+      "query": "how do I send an email with IEmails and what happens if the template is wrong?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "herald template manifest json, which values does it accept?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "can I use an svg logo in a herald email template?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "how do I develop locally without sending real mail using herald?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "herald retries after smtp failure, what are the defaults?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "how do I report a bounce to herald?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "which events does herald record and which package has them?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "where should the smtp password come from when calling AddHerald?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "herald template says unknown placeholder, what is allowed in a template?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "how do I configure Ante to issue invitation tokens for my application?",
+      "shouldTrigger": false,
+      "note": "cratis-onboarding-runtime"
+    },
+    {
+      "query": "write a Chronicle reactor that reacts to InvitationIssued",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-reactor"
+    },
+    {
+      "query": "which environment keys hold the mail server for onboarding?",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-authentication-and-onboarding"
+    },
+    {
+      "query": "send email from my node service with nodemailer",
+      "shouldTrigger": false,
+      "note": "no corpus skill; not Herald or .NET"
+    },
+    {
+      "query": "erase a person's personal data from the event log",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-compliance"
+    },
+    {
+      "query": "set the smtp password in my cratis environment",
+      "shouldTrigger": false,
+      "note": "cratis-environments-and-secrets"
+    },
+    {
+      "query": "write an html newsletter design with css grid",
+      "shouldTrigger": false,
+      "note": "no corpus skill; not a Herald template"
+    },
+    {
+      "query": "run two replicas of my worker for scale",
+      "shouldTrigger": false,
+      "note": "cratis-orleans-jobs"
+    }
+  ]
+}

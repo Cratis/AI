@@ -1,0 +1,42 @@
+{
+  "skill_name": "cratis-environments-and-secrets",
+  "evals": [
+    {
+      "id": 1,
+      "name": "set-smtp-password",
+      "prompt": "I need the smtp password set in the production Cratis environment. The password is in my head. How do we do it, and what do you run yourself? Do not run anything; reply only.",
+      "expected_output": "Ask the person to run `cratis config set smtp:password --secret -e production` in their terminal (hidden prompt) or pipe it from a secret store; the agent never receives or prints the value, never passes it as an argument, never uses --show-secret.",
+      "assertions": [
+        "Uses `cratis config set smtp:password --secret` with `-e production` or `--environment production`.",
+        "Has the value entered through stdin or the hidden prompt, not as a command-line argument.",
+        "States the agent must not receive, echo or print the secret and never runs `--show-secret`.",
+        "Says to confirm with `cratis config get smtp:password`, which prints `[secret]`."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "check-missing-keys",
+      "prompt": "Before deploying, check that the staging environment has every key the model in ./model needs, and say what the result means. Do not run anything; reply only.",
+      "expected_output": "cratis config --missing ./model -e staging (or --environment staging); exit 5 means keys are missing or the model does not compile; 0 means complete; list shows names, never secret values.",
+      "assertions": [
+        "Gives `cratis config --missing ./model` with the staging environment selected through `-e` or `--environment`.",
+        "Explains exit code 5 means validation failed: keys missing, or the model did not compile.",
+        "Does not reveal or request any secret value.",
+        "Mentions fixing the model first when it does not compile."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "choose-provider-and-selection",
+      "prompt": "Our team of five commits environment files and wants secrets in Azure Key Vault for production but simple for development. Also explain which environment a plain `cratis config` uses when CRATIS_ENVIRONMENT=staging and I ran `cratis env select production` yesterday. Do not run anything; reply only.",
+      "expected_output": "Development with the default passphrase provider, production created with --secrets-provider azurekeyvault://<vault>; precedence: --environment, CRATIS_ENVIRONMENT, selection, development; so staging.",
+      "assertions": [
+        "Creates production with `cratis env init production --secrets-provider azurekeyvault://<vault>`.",
+        "Keeps development on the default passphrase provider.",
+        "States the order: `--environment`, then `CRATIS_ENVIRONMENT`, then the selection, then `development`.",
+        "Concludes the environment in effect is staging.",
+        "Notes the selection is per user, in .cratis/local, and not committed."
+      ]
+    }
+  ]
+}
