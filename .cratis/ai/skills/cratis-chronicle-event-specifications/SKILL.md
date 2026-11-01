@@ -10,6 +10,11 @@ license: MIT
 database, no network — an empty event log at sequence number zero, with the
 application's constraints discovered and active.
 
+Specify every constraint with an `EventScenario`: one class for the violation
+and one for the nearest non-violation. A constraint is enforced at append, so no
+plain call or substituted event store proves it. Pure decisions around it are
+plain calls; see the [decision table](../../rules/specs.scenarios.csharp.md).
+
 ## Verified product sources
 
 | Package | Purpose |

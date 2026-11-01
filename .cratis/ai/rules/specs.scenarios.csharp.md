@@ -16,6 +16,43 @@ Specs are **mandatory for every slice type**, including reactors.
 
 **Judgment-shaped convention:** call pure `Handle()`, validators, reducers and reactor decisions directly with their inputs, including read-model state. Add a scenario only for pipeline/authorization wiring, constraints or declarative projection mapping. Do not repeat every decision through the pipeline; name the extra behavior each scenario proves.
 
+**Decision table — apply it per artifact, without judgment.** A plain call proves the decision; a scenario is a coverage obligation for the wiring only the framework proves. These are obligations, not quotas: add a scenario for each behavior listed, and none beyond it.
+
+| Artifact | Plain call (`Specification`) | Scenario obligation |
+|---|---|---|
+| Command with a pure `Handle(…)` | every outcome and rejection branch, with read-model state supplied | the pipeline path once (`CommandScenario`: discovery, DI, event source, appended events), plus a **negative proof for each wiring that can refuse before `Handle`**: authorization denies (`ShouldNotBeAuthorized`), validation rejects, `Provide()` short-circuits |
+| `Handle` that needs `IEventStore`, `IReadModels` or services | none: do not substitute the store | keep the scenario; when touched, take the read model as a `Handle` parameter and use the row above |
+| `CommandValidator`, `ConceptValidator`, `Provide()` logic | each rule, built with its state | the command's pipeline scenarios prove the wiring |
+| Constraint (`[Unique]`, `IConstraint`) | none | an `EventScenario` per constraint: the violation and the nearest non-violation |
+| Projection or read model | none | `ReadModelScenario` against the real engine, covering **each distinct event sequence, key, join, children and removal the projection declares** |
+| Reducer | each transition: `Model.Reduce(event, current[, context])` | a `ReadModelScenario` for dispatch, filters and stream routing |
+| Reactor | each handler decision and side effect, called directly with substitute collaborators | a `ReactorScenario`: dispatch, filtering, read-model parameters, routing of produced events to the right event source, `[OnceOnly]`/replay |
+| Query | extracted filter, sort or composition logic | `QueryScenario` for arguments, authorization and paging; provider behavior is integration |
+| Cross-slice flow | each link | out-of-process integration, outside the fast loop |
+
+Name a scenario after the wiring it proves (`and_the_caller_is_not_a_maintainer`). A plain `Handle()` spec never takes a validator, authorization or constraint name: it did not run them. Merge scenario classes only with an assertion map that keeps every assertion. Never use a substitute for the event store or a read-model store as proof of persistence or projection. Cost and parallel-safety requirements are in [fast-feedback.md](./fast-feedback.md).
+
+#### Negative authorization proof
+
+```csharp
+#if DEBUG
+namespace MyApp.Authors.Registration.when_registering_an_author;
+
+public class and_the_caller_is_not_a_maintainer : Specification
+{
+    readonly CommandScenario<RegisterAuthor> _scenario = new();   // no identity registered
+    CommandResult _result;
+
+    async Task Because() => _result = await _scenario.Execute(new RegisterAuthor(AuthorId.New(), "Jane Austen"));
+
+    [Fact] void should_be_denied() => _result.ShouldNotBeAuthorized();
+    [Fact] async Task should_append_nothing() => await _scenario.ShouldNotHaveAppendedEvents();
+}
+#endif
+```
+
+An unauthenticated scenario against an `[Authorize]`/`[Roles]` command is denied before `Handle`; pair it with the happy-path scenario that registers an allowed identity in `_scenario.Services`.
+
 **Application specs supply state, not decision-read infrastructure.** Call `Handle()` or the validator directly with supplied read-model state. Never call `UseDecisionReads`, configure protection modes, seed events solely for infrastructure, or re-prove the platform's concurrency, conflict-refusal or isolation matrix; Arc/Chronicle specs own it. The application's **only decision-read spec obligation** is one cheap assembly-level shape-admission spec: `DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)` (`Cratis.Arc.Chronicle.Testing.Commands`). It checks the application's own models/projections without executing commands or running Chronicle, not the platform guards. Never simulate competing appends either (`AppendConcurrently` or any hand-built interleaving): concurrency is a framework concern a developer should not think about in tests, and Arc and Chronicle specs prove it. A rule that must hold under races is expressed in production by taking the read model as a `Handle` parameter under `[ReadProtection(On)]`; the spec gives that read model's state and asserts the outcome. Report harness state gaps upstream; never weaken production guards for speed. `AppendConcurrently` is an advanced framework-verification API: use only for an explicit need. Direction, no release claim: Arc will obsolete `UseDecisionReads`.
 
 **Share setup and budget cost (judgment-shaped).** Keep shared lifecycle on; use `[PerFactSpecificationLifecycle]` only on a class whose facts genuinely mutate shared state and cannot move that mutation into `Because`. Plain decision specs should take roughly milliseconds; measure scenario facts and justify seconds by the extra behavior they prove. Compare TRX durations and suite wall time with unchanged concurrency; see [running-specs.md](../skills/cratis-specifications-csharp/references/running-specs.md). Do not multiply scenario startup by splitting assertions into classes or opting the project out of shared lifecycle.

@@ -108,9 +108,12 @@ A behavior covering several subjects groups under
 ## Step 2 — Start with the decision; add the scenario by slice type
 
 Specify a pure decision with the plain `Specification` base first. A direct
-`Handle()` call does not run validation, authorization, `Provide()` or operations;
-add a scenario only where that wiring adds proof. Keep shared lifecycle enabled
-and measure scenario cost as described in the linked rule.
+`Handle()` call does not run validation, authorization, `Provide()` or operations,
+so each wiring that can refuse before `Handle` needs its own negative scenario.
+The per-artifact decision table and its coverage obligations are in the
+[scenario rule](../../rules/specs.scenarios.csharp.md); apply it as written.
+A `Handle` that takes `IEventStore`, `IReadModels` or services is not a plain
+call: keep the scenario, and when touched take read models as parameters.
 
 | Slice type | Scenario | Skill |
 | --- | --- | --- |
@@ -135,11 +138,12 @@ exception diagnostics, synchronous handler throws and UTC context defaults.
 
 One specification class for **each** of:
 
-1. **The happy path** — a plain call returns the expected event; add pipeline
-   coverage only for behavior that call cannot prove.
+1. **The happy path** — a plain call returns the expected event, plus one
+   `CommandScenario` happy path for the pipeline, and a negative scenario for
+   each authorization policy and `Provide()` short-circuit.
 2. **Each validation failure** — instantiate `CommandValidator` or
-   `ConceptValidator` with the required state and validate directly. Use a
-   scenario only to prove pipeline wiring.
+   `ConceptValidator` with the required state and validate directly; the
+   command's pipeline scenario proves the wiring.
 3. **Each business-rule rejection** — one `and_` class per condition in
    `Handle()` that inspects a read model.
 4. **Each constraint violation** — one class per constraint, written with

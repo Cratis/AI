@@ -271,8 +271,8 @@ Read [references/filtering.md](references/filtering.md) when restricting which e
 
 Start with `Specification` plus a direct call for pure reducer decisions:
 pass the event and current state explicitly and assert the returned next state.
-Add `ReadModelScenario<TReadModel>` only where event dispatch, filtering,
-metadata or read-model wiring contribute proof; drive the event sequence and
+Add one `ReadModelScenario<TReadModel>` per reducer for event dispatch, filtering,
+metadata and read-model wiring (the [decision table](../../rules/specs.scenarios.csharp.md)); drive the event sequence and
 assert on the resulting instance there. For the self example:
 
 Read [references/specification-example.md](references/specification-example.md) when you need a worked direct-call and `ReadModelScenario` spec.
