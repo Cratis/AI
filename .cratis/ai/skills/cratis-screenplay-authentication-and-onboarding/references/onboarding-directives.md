@@ -66,7 +66,7 @@ Syntax and meaning of each line of the `onboarding` block. All lines are optiona
 | `invite tenant` | `invite tenant as <Persona>` | An invitation that creates a tenant; the invitee becomes the persona in it. One line, no body. |
 | `invite member` | body with `by <Persona>, ...` and `grant <Persona>, ...` | An invitation into an existing tenant. `by` lists who may send it, `grant` what the invitee is given. Both are required. |
 | `legal terms` | body of `file <path>` lines | Documents a newcomer must accept. Present means acceptance is required. |
-| `offering` | `offering <Id>` | The offering a new tenant starts on. Opaque; absent means no licensing. |
+| `offering` | `offering <Id>` | The Box Office offer a new tenant starts on. Absent means no licensing. |
 | `emails` | body of `<email> file <path>` lines and `images <folder>` | Templates for `invitation`, `welcome` and `signupDeclined`, and the folder they take images from. |
 
 ## What the block deliberately lacks

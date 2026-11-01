@@ -127,15 +127,24 @@ Requires cratis CLI 3.116.0 with Stage 4.211.0 (`cratis --version`); older relea
 - Only provider kinds AuthProxy supports render (`EntraId`, `GitHub`, `Google`, `Apple`,
   `OpenId`). Another kind is left out with `STAGE-AUTH-001`; a persona that is not a
   requirement on authentication, roles or claims is never matched (`STAGE-AUTH-002`).
-- `offering` renders nothing (`STAGE-ONBOARDING-001`): tenants are provisioned without
-  licensing. `STAGE-ONBOARDING-002` to `-006` cover a tenant invitation with no command,
+- `offering <Name>` renders against Box Office: the default offering is declared, and a
+  retrying reactor on tenant provisioning starts each new tenant on it (`StartTenant`) as soon as
+  the operator publishes the offer. Provisioning and the welcome email do not wait for it.
+  `STAGE-ONBOARDING-008` is information: the operator must publish an offer with that name, and
+  Box Office seat and compute policies are not rendered. Requires Stage 4.212.0
+  for the offering and the declined email; older renderers render neither.
+  `STAGE-ONBOARDING-002` to `-006` cover a tenant invitation with no command,
   a sign-up without a first-member persona, a legal document count other than two, a
-  missing email template and an invitation without inviters.
+  missing email template and an invitation without inviters. `-001` and `-007` are retired
+  and never reused.
 - An invitation Ante rejects (a persona or invitation type the model does not allow) is a
   mistake in the invitation, not a decision about the person: the application records
   `OnboardingInvitationRejected` and logs a warning for an administrator, and emails no
-  one. The `signupDeclined` template renders but is not sent until Ante publishes a
-  declined sign-up (`STAGE-ONBOARDING-007`).
+  one.
+- The `signupDeclined` template is sent on `OrganizationRegistrationDeclined`, with the
+  reviewer's message as `decline.message`, once per registration. Ante publishes that only
+  when sign-up review is on; the model has no review syntax, so a rendered application leaves
+  review off and the host adds approve and decline commands by hand (`cratis-onboarding-runtime`).
 - An application with onboarding pins a newer Chronicle client and kernel image than
   other applications; read them from the rendered files.
 - Realization needs the model folder: email images are read from the model root.

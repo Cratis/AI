@@ -13,7 +13,7 @@ that read one contract, produced from the model and a Cratis environment:
 |---|---|---|
 | **AuthProxy** | The only public entry point; signs people in with the model's providers. | `Cratis:AuthProxy:Application` (see the AuthProxy reference of `cratis-arc-authentication-authorization-and-identity`). |
 | **Ante** | **One per application.** Signs invitation tokens, serves the lobby, records acceptance and legal terms, publishes to its outbox. | `Ante:Onboarding:*`. |
-| **Herald** | Sends the invitation and welcome emails from the application (the declined template waits for an Ante outcome). | `cratis-showrunner-herald`. |
+| **Herald** | Sends the invitation and welcome emails from the application (including the declined sign-up email). | `cratis-showrunner-herald`. |
 
 Nobody writes the equivalent `Ante:*` or `Cratis:AuthProxy:*` keys by hand for a Screenplay
 application. The model supplies structure (providers, personas, invitation types, legal files);
@@ -29,7 +29,7 @@ persona and invitation-type checks. The **application** owns the persona list (t
 invited, link delivery, membership and provisioning. Ante sends no email: the application sends
 the invitation link through Herald using the `InvitationTokenIssued` token. Every accepted fact
 (`InvitationToJoinTenantAccepted`, `InvitationToCreateTenantAccepted`,
-`OrganizationRegistrationCompleted`, `LegalTermsAccepted`) means **published to Ante's outbox, not
+`OrganizationRegistrationCompleted`, `OrganizationRegistrationDeclined`, `LegalTermsAccepted`) means **published to Ante's outbox, not
 provisioned**: make provisioning idempotent by event source id and event kind. Ante does not know
 what a persona may do; it validates grantable personas against the configured list only.
 
@@ -45,6 +45,12 @@ for the table before configuring anything.
 - `InvitationTypes` and `Personas` are runtime checks: an invitation of a disallowed type is rejected with `InvitationTypeNotAllowed`, one granting a persona outside the list with `PersonaNotGrantable`, and no token is issued either way. Validate against the model's persona list in the application first; Ante is the second line of defense. Observe generation 4 of `InvitationRejected`.
 - Legal terms are files in a mounted folder (`terms.md`, `privacy.md`). The version is a content hash, so editing either file requires everyone onboarding afterwards to accept again. Archive each version for consent audit; the bodies live in your files.
 - **Secrets** (the signing private key, pinned attestation public keys) arrive only as mounted files or standard configuration, never on the command line; Ante logs no value.
+
+## Sign-up review and the default offering
+
+- **Sign-up review** is opt-in (`Ante:Registration:Review`, off by default): Ante holds each sign-up until the host decides. Read [sign-up review](references/sign-up-review.md) before turning it on or handling `OrganizationRegistrationAwaitingReview`.
+- **The default offering** starts each new tenant on the offer the product declared, through Box Office. Read [default offering](references/default-offering.md) before wiring `IDefaultOffering` or diagnosing a tenant without seats or modules.
+- `InvitationRejected` is a host configuration problem, never a message to the invitee; only `OrganizationRegistrationDeclined` says a person was turned down.
 
 ## Development mode is for local runs only
 
@@ -76,6 +82,7 @@ with its AuthProxy when the application has `authentication` and its own Ante wh
 - Treating `Accepted` as provisioned: provisioning is the application's, and must be idempotent.
 - Setting a signing key or provider secret as an environment variable in a manifest: use the mounted files.
 - Two Ante instances for one application, or one Ante shared by several Performances: one Ante per Performance, with its own event store (`ante-<name>` by default).
+- Answering `InvitationRejected` with a message to the invitee: fix the invitation or host configuration instead.
 - Using development mode in a shared cluster: Ante refuses; do not work around the guard.
 
 ## Verify
@@ -90,5 +97,6 @@ with its AuthProxy when the application has `authentication` and its own Ante wh
 - The model's `onboarding` block and environment keys: `cratis-screenplay-authentication-and-onboarding`.
 - Environment commands and secrets providers: `cratis-environments-and-secrets`.
 - Sending the emails: `cratis-showrunner-herald`.
+- Box Office offers, seats and entitlements beyond the default offering: Showrunner's Box Office documentation; this corpus covers only starting a tenant on the default offering.
 - Ante used by a host product, not a Screenplay application: Ante's own documentation; this corpus does not cover it.
 - Chronicle itself in a cluster: `cratis-chronicle-hosting`.
