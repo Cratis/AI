@@ -91,7 +91,10 @@ module Billing
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
           number    = "INV-000123"
           contact   = "ada@example.com"
-          lines     = [{"sku": "A-1", "quantity": 2}]
+          lines
+            item
+              sku      = "A-1"
+              quantity = 2
         then InvoiceRegistered
           for "9c858901-8a57-4791-81fe-4c455b099bc9"
           number       = "INV-000123"
@@ -105,7 +108,7 @@ module Billing
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
           number    = "INV-000000"
           contact   = "ada@example.com"
-          lines     = []
+          lines none
         then error "Reserved number"
 
       specification RefusingAGuest
@@ -116,7 +119,7 @@ module Billing
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
           number    = "INV-000123"
           contact   = "ada@example.com"
-          lines     = []
+          lines none
         then denied
 
       specification RejectingAnEmptyEmail          // one concept rejection spec, through this command
@@ -127,7 +130,7 @@ module Billing
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
           number    = "INV-000123"
           contact   = ""
-          lines     = []
+          lines none
         then error "An email is required"
 
     slice StateChange CancelInvoice
@@ -170,7 +173,7 @@ module Billing
         data InvoiceRow[] via query ListInvoices
         table InvoiceRow
           column number label "Number"
-        action RegisterInvoice
+        action RegisterInvoice for screen
           label "Register invoice"
       specification ListingAnInvoice
         given caller                                  // module + feature gates apply to the query too

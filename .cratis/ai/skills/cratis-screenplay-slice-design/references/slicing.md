@@ -83,7 +83,7 @@ module Moorings
       query WaitingRequests => WaitingRequest[]
       screen WaitingListPage
         data WaitingRequest via query WaitingRequests
-        action AssignBerth
+        action AssignBerth for item
     slice StateChange AssignBerth
       command AssignBerth
         berthRequestId BerthRequestId identifier
