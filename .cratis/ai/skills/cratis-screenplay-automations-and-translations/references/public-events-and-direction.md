@@ -178,6 +178,9 @@ append without `when` holds on any change, not on every delivery. Maps apply to
 before and after states; `$.field` reads the mapped merged state. An expression
 guard evaluates the after state only on a change. Root `when removed` never holds.
 
+A command's specification never states the public event an outbound Translate slice publishes
+(`PLAY0285`, decision 0115); the outbound slice's own specification does.
+
 Captures run after reactions to the same input settle; each capture append settles
 its own cascade before the next. Mixed capture/reaction assertions may need
 `then events in any order`: reference order does not prove independent observer

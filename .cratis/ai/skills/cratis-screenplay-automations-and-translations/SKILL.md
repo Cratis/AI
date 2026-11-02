@@ -59,6 +59,7 @@ A todo list + reaction + unique constraint proves the first. It does **not** pro
 the send can succeed and the append fail (crash, lost reply, constraint race), and the retry
 sends again.
 
+- A specification runs its own slice only: to prove an automation that invokes another slice's command, state `then invokes <Command>` with the values passed (ESM v34); that command's own slice states its events. A command spec never states what another slice's reaction appends.
 - A reaction cascade is not one transaction: earlier accepted facts stay when a later invoked
   command rejects (Screenplay `reactions.md`). Design each step to be retried on its own.
 - Read `references/effects-and-idempotency.md` when specifying redelivery,

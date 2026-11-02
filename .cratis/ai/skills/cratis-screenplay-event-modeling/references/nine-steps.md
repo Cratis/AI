@@ -274,9 +274,8 @@ module Invoicing
       specification IssuingOnMonday
         given clock "2026-10-05T07:00:00Z"
         when clock "2026-10-05T07:30:00Z"
-        then CollectionsDigestIssued
-          for "weekly"
-          issuedAt = "2026-10-05T07:30:00Z"
+        then invokes IssueCollectionsDigest
+          period = "weekly"
 ```
 
 At the example's verified Screenplay version, iterating the overdue items needs code (a clock trigger reads the whole view and takes

@@ -396,7 +396,9 @@ or V4 execution. Run the CLI or MCP for those verdicts.
 | PLAY0282 | `validate` rule targets a field absent from the command |
 | PLAY0283 | `reads View by field` type matches no `by` param of the view's queries |
 | PLAY0284 | `children`/`nested` never populates a declared element field |
-| PLAY0285 | a spec's `then` event contradicts every possible declared producer of its `when` command (decidable literals, property copies, equality conditions). Fix the model or the spec deliberately. **False positive** on reaction cascades with an older bundled compiler. On an older bundle confirm with the standalone tool, record a tool gap, do not "fix" a correct model |
+| PLAY0285 | a spec's `then` event contradicts every possible declared producer of its `when` command (decidable literals, property copies, equality conditions). Follows only reactions, invocations and publications declared in the specification's own slice (decision 0115), so stating another slice's reaction event or an outbound publication is refused; move the `then` to that slice or state `then invokes <Command>`. Fix the model or the spec deliberately |
+| PLAY0815 | a specification `then invokes` line is not `then invokes <Command>` |
+| PLAY0816 | a specification states `then invokes <Command>`, but no reaction declared in its own slice invokes that command; a specification runs its own slice only, so the invocation can never be made |
 | PLAY0286 | spec value is not a member of the enum |
 | PLAY0287 | producer/capture/spec assigns a field the event lacks |
 | PLAY0291-0294 | bad single-line JSON / unknown key / wrong shape / duplicate key |
