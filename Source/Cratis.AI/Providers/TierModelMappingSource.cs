@@ -4,16 +4,13 @@
 namespace Cratis.AI.Providers;
 
 /// <summary>
-/// The recorded origin of the current complete tier table; legacy tables have no known origin.
+/// The recorded origin of the current complete tier table.
 /// </summary>
 public enum TierModelMappingSource
 {
-    /// <summary>Legacy table without recorded provenance, retained for backward-compatible resolution.</summary>
+    /// <summary>No derivation recorded: the operator's selection, or any table recorded before derivations were marked.</summary>
     Unknown = 0,
 
-    /// <summary>An operator deliberately saved the complete table.</summary>
-    Explicit = 1,
-
     /// <summary>Discovery derived the table from a catalog.</summary>
-    Derived = 2
+    Derived = 1
 }

@@ -27,8 +27,12 @@ namespace Cratis.AI.Providers;
 /// <para>
 /// The provider-aware overload also recognizes subscription-only Claude Code transport defaults.
 /// Its official CLI aliases are not a replacement catalog and are never sent to API-key providers.
-/// A recorded unavailable discovery instead requires explicit provenance for that tier: historical
-/// catalogs and CLI aliases cannot supply it, and an explicit selection may contradict old models.
+/// </para>
+/// <para>
+/// A recorded unavailable discovery refuses every tier only while the current table is one discovery
+/// derived: it came from a catalog the provider can no longer be asked for, so the operator reviews and
+/// saves it. Any other table - the operator's own, or one recorded before derivations were marked -
+/// resolves exactly as it does after a failed discovery, CLI aliases included.
 /// </para>
 /// </remarks>
 public static class TierModelResolution
@@ -54,17 +58,14 @@ public static class TierModelResolution
     {
         var catalog = provider.AvailableModels.ToArray();
         var mapped = provider.TierModels.For(tier);
-        if (provider.ModelDiscoveryStatus == AIModelDiscoveryStatus.Unavailable)
+        if (provider.ModelDiscoveryStatus == AIModelDiscoveryStatus.Unavailable &&
+            provider.TierModelMappingSource == TierModelMappingSource.Derived)
         {
-            // Unknown tables predate provenance, including catalog-derived tables. Keep their legacy resolution.
-            var isExplicitOrLegacy = provider.TierModelMappingSource is TierModelMappingSource.Explicit or TierModelMappingSource.Unknown;
-            return isExplicitOrLegacy && !mapped.Equals(ModelName.NotSet)
-                ? new(tier, mapped, TierModelSource.Configured, string.Empty)
-                : new(
-                    tier,
-                    ModelName.NotSet,
-                    TierModelSource.Unsatisfied,
-                    $"AI provider {provider.Id} ({provider.Type}) cannot discover models: review and save the {tier}-tier model selection by hand before using it.");
+            return new(
+                tier,
+                ModelName.NotSet,
+                TierModelSource.Unsatisfied,
+                $"AI provider {provider.Id} ({provider.Type}) cannot discover models, and its tier models were derived from a catalog it can no longer read: review and save the {tier}-tier model selection by hand before using it.");
         }
 
         if (!mapped.Equals(ModelName.NotSet))

@@ -168,14 +168,14 @@ public record ConfiguredAIProvider(
     /// Gets the operator's own mapping of capability tier to model.
     /// </summary>
     [SetFrom<AIProviderTierModelsSet>(nameof(AIProviderTierModelsSet.Models))]
-    [SetFrom<AIProviderTierModelsProvenanceSet>(nameof(AIProviderTierModelsProvenanceSet.Models))]
+    [SetFrom<AIProviderTierModelsDerived>(nameof(AIProviderTierModelsDerived.Models))]
     public TierModels TierModels { get; init; } = TierModels.NotSet;
 
     /// <summary>
-    /// Gets the recorded origin of the current table, unknown for compatibility-only writes.
+    /// Gets the recorded origin of the current table: derived only when discovery marked it so.
     /// </summary>
     [SetValue<AIProviderTierModelsSet>(TierModelMappingSource.Unknown)]
-    [SetFrom<AIProviderTierModelsProvenanceSet>(nameof(AIProviderTierModelsProvenanceSet.Source))]
+    [SetValue<AIProviderTierModelsDerived>(TierModelMappingSource.Derived)]
     public TierModelMappingSource TierModelMappingSource { get; init; }
 
     /// <summary>

@@ -30,13 +30,11 @@ public class and_the_provider_has_no_mapping_of_its_own : Specification
     [Fact] void should_append_three_events() => _result.Count().ShouldEqual(3);
 
     [Fact]
-    void should_record_derived_provenance_after_the_compatibility_mapping()
+    void should_mark_the_mapping_as_derived_after_recording_it()
     {
         var events = _result.ToArray();
         events[1].ShouldBeOfExactType<AIProviderTierModelsSet>();
-        var provenance = (AIProviderTierModelsProvenanceSet)events[2];
-        provenance.Source.ShouldEqual(TierModelMappingSource.Derived);
-        provenance.Models.ShouldEqual(((AIProviderTierModelsSet)events[1]).Models);
+        ((AIProviderTierModelsDerived)events[2]).Models.ShouldEqual(((AIProviderTierModelsSet)events[1]).Models);
     }
 
     [Fact]

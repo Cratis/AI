@@ -91,7 +91,7 @@ public record AIProvider(
     [SetFrom<OpenAISubscriptionCredentialConfigured>(nameof(OpenAISubscriptionCredentialConfigured.ExpiresAt))]
     DateTimeOffset? SubscriptionExpiresAt = null,
     [SetFrom<AIProviderTierModelsSet>(nameof(AIProviderTierModelsSet.Models))]
-    [SetFrom<AIProviderTierModelsProvenanceSet>(nameof(AIProviderTierModelsProvenanceSet.Models))]
+    [SetFrom<AIProviderTierModelsDerived>(nameof(AIProviderTierModelsDerived.Models))]
     TierModels? TierModels = null,
     [SetFrom<AIProviderUsageCapacitySet>(nameof(AIProviderUsageCapacitySet.UsageCapacity))]
     AIProviderUsageCapacity? UsageCapacity = null,
@@ -117,10 +117,10 @@ public record AIProvider(
     bool HasHarnessSelection = false)
 {
     /// <summary>
-    /// Gets the recorded origin of the current table, unknown for compatibility-only writes.
+    /// Gets the recorded origin of the current table: derived only when discovery marked it so.
     /// </summary>
     [SetValue<AIProviderTierModelsSet>(TierModelMappingSource.Unknown)]
-    [SetFrom<AIProviderTierModelsProvenanceSet>(nameof(AIProviderTierModelsProvenanceSet.Source))]
+    [SetValue<AIProviderTierModelsDerived>(TierModelMappingSource.Derived)]
     public TierModelMappingSource TierModelMappingSource { get; init; }
 
     /// <summary>
