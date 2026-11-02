@@ -93,9 +93,6 @@ module Exams
           for "7e9d1c2b-4a3f-4e5d-8c6b-1a2b3c4d5e06"
           outcome = "passed"
           score   = 87
-        then ExamPassed
-          for "7e9d1c2b-4a3f-4e5d-8c6b-1a2b3c4d5e06"
-          score = 87
     slice Automation RecordExamResult
       reaction PassTranslator
         when ProctorResultReceived
@@ -115,6 +112,14 @@ module Exams
       constraint OneResultPerAttempt
         unique event ExamPassed
         unique event ExamFailed
+      specification PassingAfterAPassingResult
+        when append ProctorResultReceived
+          for "7e9d1c2b-4a3f-4e5d-8c6b-1a2b3c4d5e06"
+          outcome = "passed"
+          score   = 87
+        then ExamPassed
+          for "7e9d1c2b-4a3f-4e5d-8c6b-1a2b3c4d5e06"
+          score = 87
       specification RefusingASecondResult
         given ExamPassed
           for "7e9d1c2b-4a3f-4e5d-8c6b-1a2b3c4d5e06"

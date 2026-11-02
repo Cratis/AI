@@ -227,8 +227,6 @@ module Billing
           for "0b6f3f7e-3c1e-4a53-9f7e-2a1c3b4d5e6f"
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
           amount    = 100
-        then InvoiceClosed                            // ESM v6: the Reconciler cascade (amount > 0)
-          for "9c858901-8a57-4791-81fe-4c455b099bc9"
 
 module Housekeeping                                   // no gates: this reaction declares no `runs as`, so its `invokes` has no caller
   description "Background follow-up"
@@ -248,9 +246,8 @@ module Housekeeping                                   // no gates: this reaction
         invoiceId InvoiceId identifier
         produces event InvoiceMarkedOverdue
           overdueAt DateTime = $context.occurred
-      // No command spec here: under ESM v6 it must list the ReminderSent cascade. The file is
-      // RecordingAPayment's cascade: an older bundled compiler reported a false PLAY0285 here.
-      // The cascade form: automation-translate-example.md (SubscribingAMember).
+      // No command spec here: the ReminderSent reaction belongs to RemindOverdue, whose spec states it.
+      // The hand-over form: automation-translate-example.md (RenewingFromAFile).
 
     slice Automation RemindOverdue
       reaction Reminder
@@ -286,8 +283,8 @@ module Housekeeping                                   // no gates: this reaction
           for "0b6f3f7e-3c1e-4a53-9f7e-2a1c3b4d5e6f"
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
           amount    = 100
-        then InvoiceClosed
-          for "9c858901-8a57-4791-81fe-4c455b099bc9"
+        then invokes CloseInvoice                         // another slice's command: state the hand-over, not its event
+          invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
 
     slice Translate LegacySync
       capture LegacyInvoices

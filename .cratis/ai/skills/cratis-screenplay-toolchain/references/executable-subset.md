@@ -161,10 +161,10 @@ Requires Screenplay 4.105.0 or later (`screenplay --version`) for list queries (
   due **after** the given clock and **at or before** the when clock, once each, in time
   order. `when clock` needs `given clock`. Limits: 10,000 occurrences per advance, 1,000
   facts per scenario. A scenario with given equal to when fires nothing.
-- Command specifications that list reaction cascades.
+- Command specifications that list another slice's reaction events (`PLAY0285`; decision 0115).
 - In a `then` list after `when append`, only what followed the appended event.
 
-Requires Screenplay 4.61 or later (`screenplay --version`) for ESM v6 constructs, and Cratis CLI 3.28.2 or later for the bundled compiler; older compilers refuse them with PLAY0268 and report a false PLAY0285 on cascades.
+Requires Screenplay 4.61 or later (`screenplay --version`) for ESM v6 constructs, and Cratis CLI 3.28.2 or later for the bundled compiler; older compilers refuse them with PLAY0268. `then invokes` needs Screenplay 4.246.0 (ESM v34).
 
 Requires Screenplay 4.125.0 or later (`screenplay --version`) for reaction `runs as system`.
 

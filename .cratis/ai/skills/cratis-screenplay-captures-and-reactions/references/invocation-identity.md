@@ -54,8 +54,8 @@ module Work
       specification ProcessingRequestedWork
         when append WorkRequested
           workId = "work-1"
-        then WorkRecorded
-          for "work-1"
+        then invokes RecordWork
+          workId = "work-1"
 ```
 
 ## Diagnostics and target boundaries

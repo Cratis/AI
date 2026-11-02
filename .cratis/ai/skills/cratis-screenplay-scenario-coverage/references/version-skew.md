@@ -1,14 +1,19 @@
-# Version skew: reaction cascades and false PLAY0285
+# One slice per specification: reactions and `then invokes`
 
-How to specify reaction cascades across compiler versions.
+How to cover reactions that span slices.
 
-Under ESM v6 a command spec's `then` lists the events reactions cascade from it. A compiler
-bundled in an older `cratis` reports a **false PLAY0285** for such
-a spec; the standalone `screenplay` and a `cratis` whose compiler admits v6 accept it.
-Neither checks that a cascade event is *missing*.
-- A compiler that admits v6 (standalone, or a current `cratis`): write the v6-correct spec
-  (own productions plus cascade); validate with `screenplay <folder> --warnaserror --no-color`
-  or `cratis screenplay validate <folder> --warnings-as-errors`.
-- Only an older `cratis` bundle and no standalone tool: keep the command spec to its own productions, specify the reaction in its
-  Automation slice (`when append <Trigger>` -> `then <Produced>`), record the pending cascade
-  expectation in `STATE.md` as known-incomplete. Never delete the reaction.
+A specification runs its own slice only (it applies to every model): only the reactions, captures and outbound publications declared in the slice that
+holds it run. A command spec's `then` lists the command's own facts. Stating an event
+another slice's reaction appends, or the public event an outbound Translate slice
+publishes, is refused by `PLAY0285` ("cannot be produced") and fails at run time.
+- Cover the reaction in its own Automation slice: `when append <Trigger>` -> `then <Produced>`.
+- When the reaction invokes a command another slice owns, state the hand-over with
+  `then invokes <Command>` and the values passed (ESM v34;
+  `PLAY0815` for a malformed line, `PLAY0816` when no reaction of the specification's slice
+  invokes the command). The invoked command's own slice covers the events it appends.
+- A command's own specification covers the command; an outbound Translate's specification
+  covers the public event it publishes.
+- Validate with `screenplay <folder> --warnaserror --no-color` or
+  `cratis screenplay validate <folder> --warnings-as-errors`, and name the tool. A compiler
+  that predates ESM v34 still runs every slice's reactions and rejects `then invokes`; do not
+  restate a spec to suit it. Never delete the reaction.
