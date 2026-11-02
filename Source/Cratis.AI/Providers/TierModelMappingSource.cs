@@ -8,7 +8,7 @@ namespace Cratis.AI.Providers;
 /// </summary>
 public enum TierModelMappingSource
 {
-    /// <summary>No provenance was recorded for the current table.</summary>
+    /// <summary>Legacy table without recorded provenance, retained for backward-compatible resolution.</summary>
     Unknown = 0,
 
     /// <summary>An operator deliberately saved the complete table.</summary>

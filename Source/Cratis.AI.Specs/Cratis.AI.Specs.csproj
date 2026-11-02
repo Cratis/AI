@@ -10,6 +10,7 @@
 
     <ItemGroup>
         <ProjectReference Include="../Cratis.AI/Cratis.AI.csproj" />
+        <EmbeddedResource Include="../Cratis.AI.Proxies/generated/Providers/SettingTierModels/SetAIProviderTierModels.ts" LogicalName="LegacyTierModelsProxy" />
     </ItemGroup>
 
     <ItemGroup>

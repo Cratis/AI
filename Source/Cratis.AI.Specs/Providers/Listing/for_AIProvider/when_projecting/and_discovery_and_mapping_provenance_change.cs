@@ -3,6 +3,7 @@
 
 using Cratis.AI.Providers.Adding;
 using Cratis.AI.Providers.AvailableModels;
+using Cratis.AI.Providers.SettingExplicitTierModels;
 using Cratis.AI.Providers.SettingTierModels;
 
 namespace Cratis.AI.Providers.Listing.for_AIProvider.when_projecting;

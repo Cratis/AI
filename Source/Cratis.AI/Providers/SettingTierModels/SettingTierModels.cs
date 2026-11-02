@@ -19,10 +19,14 @@ namespace Cratis.AI.Providers.SettingTierModels;
 public record SetAIProviderTierModels(AIProviderId Provider, TierModels Models)
 {
     /// <summary>
-    /// Handles the command by appending an <see cref="AIProviderTierModelsSet"/> event to the provider's stream.
+    /// Handles the user selection by recording the mapping and its explicit provenance.
     /// </summary>
-    /// <returns>The event.</returns>
-    public AIProviderTierModelsSet Handle() => new(Models);
+    /// <returns>The mapping followed by its provenance in one ordered append.</returns>
+    public IEnumerable<object> Handle() =>
+    [
+        new AIProviderTierModelsSet(Models),
+        new AIProviderTierModelsProvenanceSet(Models, TierModelMappingSource.Explicit)
+    ];
 }
 
 /// <summary>

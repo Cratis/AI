@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Cratis.AI.Providers.SettingTierModels.for_SetExplicitAIProviderTierModels;
+namespace Cratis.AI.Providers.SettingExplicitTierModels.for_SetExplicitAIProviderTierModels;
 
 public class when_no_provider_is_given : Specification
 {

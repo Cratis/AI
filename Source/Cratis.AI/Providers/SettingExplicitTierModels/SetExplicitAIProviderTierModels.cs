@@ -1,7 +1,9 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Cratis.AI.Providers.SettingTierModels;
+using Cratis.AI.Providers.SettingTierModels;
+
+namespace Cratis.AI.Providers.SettingExplicitTierModels;
 
 /// <summary>
 /// Deliberately saves a provider's complete tier table, including unchanged selections.

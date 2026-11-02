@@ -50,11 +50,13 @@ mapping first, subject to the last successful catalog. It then tries the discove
 neither names a model, **only** an Anthropic provider with a revealed subscription token gets the
 [official CLI aliases](https://code.claude.com/docs/en/model-config#model-aliases).
 
-**A recorded `Unavailable` discovery is different:** only a nonempty tier ID from a table with
-`TierModelMappingSource.Explicit` resolves. Historical catalogs, automatically derived tables,
-legacy tables of unknown origin, and CLI aliases cannot supply that tier. An explicit table can
-name a model missing from the historical catalog in this state; only a real conversation can
-establish whether the account can use it.
+**A recorded `Unavailable` discovery is different:** a nonempty tier ID resolves from an
+`Explicit` table or a legacy `Unknown` table. Before provenance was recorded, both user selections
+and catalog auto-assignment emitted the same event. Those historical tables keep resolving to
+preserve existing behavior; `Unknown` does not prove operator intent. Newly recorded `Derived`
+tables, historical catalogs without an accepted mapping, and CLI aliases cannot supply that tier.
+An explicit or legacy table can name a model missing from the historical catalog in this state;
+only a real conversation can establish whether the account can use it.
 
 Outside that unavailable state, the transport aliases remain:
 
@@ -91,14 +93,16 @@ throttling, outages and other failures remain `Failed`, never `Unavailable`. Con
 real discovery failures as failures rather than treating diagnostic text as a capability signal.
 
 `RefreshAvailableModels` records `AIProviderModelDiscoveryUnavailable(Reason, AttemptedAt)` without
-inventing models or tiers. `ConfiguredAIProvider.ModelDiscoveryStatus` and the credential-free
-listing expose the latest outcome. The old successful catalog and timestamp remain historical;
+inventing models or tiers. Repeating the same unavailable status and reason appends nothing;
+a changed reason or status records a new observation. `ConfiguredAIProvider.ModelDiscoveryStatus`
+and the credential-free listing expose the latest outcome. The old successful catalog and timestamp remain historical;
 the discovery query returns a reason-bearing sentinel instead of stale model rows when unavailable.
 
 For intentional model selection, dispatch
 `SetExplicitAIProviderTierModels(providerId, completeTierModels)` from
-`Cratis.AI.Providers.SettingTierModels`. It uses the legacy command's provider validation and routing
-conventions. It returns the unchanged `AIProviderTierModelsSet` followed by
+`Cratis.AI.Providers.SettingExplicitTierModels`. It uses the legacy command's provider validation
+and has its own slice route, preserving the legacy endpoint `/api/a-i/providers/setting-tier-models`.
+It returns the unchanged `AIProviderTierModelsSet` followed by
 `AIProviderTierModelsProvenanceSet(Models, Explicit)` in one ordered command batch. Callers cannot
 supply the source. Saving the same IDs deliberately is confirmation; saving an unset tier does
 not make that tier usable.
@@ -109,12 +113,14 @@ in the refresh batch. Projection of an unmarked compatibility event always reset
 the table and its source. Source wire values are `Unknown = 0`, `Explicit = 1`, `Derived = 2`.
 Discovery and usage-credential changes do not promote provenance.
 
-The existing `SetAIProviderTierModels` constructor and single-event `Handle()` are unchanged; it
-continues to produce an unmarked event. All pre-upgrade tables remain `Unknown`, even if a person
-originally entered them: the old event cannot distinguish that action from auto-assignment. Review
-and deliberately save the complete table through the new command before testing when discovery is
-unavailable. Do not infer intent from model names, catalog membership or timestamps. Consumers must
-read the committed batch in their own event-store namespace, not authorize from a partial batch or
+The existing `SetAIProviderTierModels` constructor and HTTP route are unchanged. Its `Handle()`
+now returns an ordered event batch rather than a single event: the compatibility mapping followed
+by `Explicit` provenance, just like the new command. It is a user command, so new saves through
+either command are explicit; discovery auto-assignment records `Derived`. Historical unmarked
+tables remain `Unknown` and keep resolving while discovery is unavailable, whether originally
+user-selected or derived. Do not infer their origin from model names, catalog membership or
+timestamps. Consumers must read the committed batch in their own event-store namespace,
+not authorize from a partial batch or
 cache a provider's provenance across namespaces.
 
 ## Conversational transport: `ClaudeCodeChatClient`

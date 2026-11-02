@@ -1,7 +1,9 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Cratis.AI.Providers.SettingTierModels.for_SetExplicitAIProviderTierModels;
+using Cratis.AI.Providers.SettingTierModels;
+
+namespace Cratis.AI.Providers.SettingExplicitTierModels.for_SetExplicitAIProviderTierModels;
 
 public class when_saving_a_table : Specification
 {
@@ -36,11 +38,6 @@ public class when_saving_a_table : Specification
             (EventSourceId)_provider, @event => @event.Models == _models && @event.Source == TierModelMappingSource.Explicit);
 
     [Fact]
-    void should_preserve_the_legacy_handle_contract()
-    {
-        var legacyEvent = new SetAIProviderTierModels(_provider, _models).Handle();
-        legacyEvent.Models.ShouldEqual(_models);
-        var returnType = typeof(SetAIProviderTierModels).GetMethod(nameof(SetAIProviderTierModels.Handle))?.ReturnType;
-        returnType.ShouldEqual(typeof(AIProviderTierModelsSet));
-    }
+    void should_record_the_same_explicit_selection_as_the_legacy_command() =>
+        new SetAIProviderTierModels(_provider, _models).Handle().ToArray().ShouldEqual(_events);
 }

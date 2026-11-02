@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-namespace Cratis.AI.Providers.SettingTierModels;
+namespace Cratis.AI.Providers.SettingExplicitTierModels;
 
 /// <summary>
 /// Validates an intentional tier-table save with the same provider rule as the legacy command.

@@ -23,6 +23,12 @@ public class and_a_mapping_is_given : Specification
     [Fact] void should_succeed() => _result.ShouldBeSuccessful();
 
     [Fact]
+    async Task should_append_explicit_provenance_to_the_provider() =>
+        await _scenario.ShouldHaveAppendedEvent<SetAIProviderTierModels, AIProviderTierModelsProvenanceSet>(
+            (EventSourceId)_provider,
+            @event => @event.Source == TierModelMappingSource.Explicit && @event.Models.Fast == new ModelName("vendor-fast"));
+
+    [Fact]
     async Task should_append_the_tier_models_set_event() =>
         await _scenario.ShouldHaveAppendedEvent<SetAIProviderTierModels, AIProviderTierModelsSet>(
             (EventSourceId)_provider,
