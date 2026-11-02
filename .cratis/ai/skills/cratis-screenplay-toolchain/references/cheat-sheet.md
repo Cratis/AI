@@ -49,7 +49,7 @@ examples belong to `cheat-sheet-example.md` and its siblings.
 
 | File | Mode | V1, warnings as errors | V3 (binds) |
 | --- | --- | --- | --- |
-| `cheat-sheet-example.md` | design: every construct family | 0 diagnostics, both tools (an older bundled compiler reported a false PLAY0285 on the `RecordingAPayment` cascade spec) | not ready by design (its header lists why; fewer blockers on the standalone tool) |
+| `cheat-sheet-example.md` | design: every construct family | 0 diagnostics, both tools | not ready by design (its header lists why; fewer blockers on the standalone tool) |
 | `executable-example.md` | executable, StateChange and StateView | 0 diagnostics, both tools | ready, both tools |
 | `pdl-example.md` | executable projections | 0 diagnostics, both tools | ready, both tools |
 | `automation-translate-example.md` | executable Automation and Translate (ESM v6) | 0 diagnostics, both tools (an older bundled compiler could not bind it) | ready, both tools |

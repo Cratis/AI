@@ -186,8 +186,10 @@ Read [references/actions-beyond-commands.md](references/actions-beyond-commands.
 
 ## Reactions and cascades (ESM v6)
 
-From ESM v6 every action sets reactions off and `then` events compare every new fact, the action's and the reactions'. A specification whose action is a command goes in the slice that declares the command. A false `PLAY0285` on a cascade under a compiler that stops before ESM v6 is tool skew, not a modeling error: never delete the `then` line to silence it.
-Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md) when a specification's expected events include what a reaction appends, when a cascade, clock tick or invoked command is involved, or when `cratis` reports `PLAY0285` on a model that `screenplay` accepts (it holds the "Version skew: cascades and the false `PLAY0285`" section).
+From ESM v6 every action sets reactions off. A specification runs only the slice that declares it: only that slice's reactions, captures and publications run, and `then` events compare the new facts of that slice. A specification whose action is a command goes in the slice that declares the command and states the command's own events. Another slice's event is `PLAY0285` (unreachable): state it in the slice that produces it. An automation states a command it invokes in another slice with `then invokes <Command>` (ESM v34).
+Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md) when a specification's expected events include what a reaction appends, when a cascade, clock tick or invoked command is involved, or when a compiler reports `PLAY0285` (it holds the "Version skew and `PLAY0285`" section).
+
+A `statemachine` or `workflow` (ESM v36) carries its own specifications with `then is`, `then sends`, `then starts`, `outcome`, `then completes`, `then fails at` and `then waits at`. Read automations-and-translations [state machines and workflows](../cratis-screenplay-automations-and-translations/references/statemachines-and-workflows.md) when specifying either.
 
 ## Published-event specifications (released ESM v9)
 

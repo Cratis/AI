@@ -42,10 +42,10 @@ mode; query-performer gaps are a separate contract, not completed behavior. Prot
 support is not generated-app protection.
 Preserve contracts; reference success is not target realization.
 
-File/inline command handlers permanently require constrained attachments: gap-fill
-in code, not by waiting for ESM admission. Requires Screenplay 4.210.0
-(`screenplay --version`) for PLAY0800 and required typed `arguments.subject`;
-older binders use PLAY0268. Read [renderability gate](references/renderability-gate.md)
+A file/inline command handler binds beside unconditional `produces` with a resolved
+body (v23 result contract, Screenplay 4.250.0); without them it refuses PLAY0800 with a
+required typed `arguments.subject`. 4.210.0 to 4.249.x refuse every attached handler
+with PLAY0800; older binders use PLAY0268. Read [renderability gate](references/renderability-gate.md)
 when classifying a handler or other binding refusal; never parse message text.
 
 Inline bodies (`csharp`, `typescript`, `react`, `html`, `sql`, `java`) are opaque and reach the target
