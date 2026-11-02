@@ -81,7 +81,7 @@ Documentation-only changes use repository-supported non-release intent, ordinari
 Before marking code/automation work ready, select the affected-project gates that apply from the following list; run wider checks for cross-cutting changes and repository-required merge/release gates:
 
 - `dotnet build`: zero errors, zero warnings
-- `dotnet test`: all specs pass
+- Built C# spec executables: all specs pass; `dotnet test <project> --no-build` only for VSTest (see specs.csharp)
 - `yarn lint`: zero errors
 - `npx tsc -b`: zero TypeScript errors
 - Code follows all project coding standards and conventions

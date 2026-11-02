@@ -11,9 +11,13 @@
 - Filters
 - Migrate from 4.x to 5.0
 
-Requires `Cratis.Specifications.XUnit.v3` 5.0 on `net10.0`. Check the
-`PackageReference` versions in the specification project; 4.x projects follow the
-checklist below before the executable loop applies.
+The xUnit examples and migration checklist require `Cratis.Specifications.XUnit.v3`
+5.0 on `net10.0`. This is not a requirement to migrate frameworks: identify the
+project's evaluated runner first. TUnit and `Cratis.Specifications.Runner` suites
+also run their built executable, with their own help-confirmed flags, not xUnit
+`-trx`/filter flags. Only legacy VSTest projects use `dotnet test <project> --no-build`.
+Check package versions and the actual configuration/TFM; the 4.x migration checklist
+below applies only when migrating, not as a prerequisite to running an existing suite.
 
 Sources: [Running specifications fast](https://github.com/Cratis/Specifications/blob/main/Documentation/running-fast.md),
 [The native runner](https://github.com/Cratis/Specifications/blob/main/Documentation/runner.md) and

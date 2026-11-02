@@ -44,6 +44,19 @@
         "Reads the stack from the dump and then deletes the .dmp file.",
         "Reserves a full dump for a named investigation that needs heap contents."
       ]
+    },
+    {
+      "id": 5,
+      "name": "cratis-mixed-runner-solution",
+      "prompt": "Without calling tools, give the test commands for an already-built mixed Cratis solution: xUnit v3 mtp-off project Source/Orders.Specs (Release/net10.0, AssemblyName Orders.Specs), a TUnit or Cratis.Specifications.Runner native MTP suite without apphost (evaluated TargetPath Source/Checks/bin/Release/net10.0/Checks.dll), legacy VSTest project Source/Legacy.Specs/Legacy.Specs.csproj, and a web app disabling the xUnit entrypoint. No restore, build or migration is needed.",
+      "expected_output": "Run ./Source/Orders.Specs/bin/Release/net10.0/Orders.Specs; dotnet Source/Checks/bin/Release/net10.0/Checks.dll; project-scoped dotnet test --configuration Release --no-build only for Legacy.Specs; require a repository override for the web app.",
+      "assertions": [
+        "Runs the matching built xUnit v3 executable directly without rebuilding, dotnet run or migration.",
+        "Runs the native/TUnit dll directly via dotnet and does not reuse xUnit -trx or VSTest logger flags without confirmed runner support.",
+        "Runs identified VSTest projects individually with dotnet test --no-build, never solution-wide dotnet test as the mixed-suite default.",
+        "Never starts the web application server as a spec runner or silently omits it; requests its documented repository-specific entrypoint.",
+        "Requires positive executed counts, preserves failures and exit status, and reports missing evidence as unverified."
+      ]
     }
   ]
 }

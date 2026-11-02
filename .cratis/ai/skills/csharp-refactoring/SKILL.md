@@ -132,8 +132,8 @@ Use the repo's own build/test workflow when it documents one (`README`/`CONTRIBU
 
 Otherwise:
 ```bash
-dotnet build   # 0 errors
-dotnet test    # stays green; same pass count as before
+dotnet build   # 0 errors; use dotnet test <project> --no-build only for VSTest (see specs.csharp)
+./<project-dir>/bin/<Config>/<TFM>/<AssemblyName> # built spec executable; same discovered/passed counts
 ```
 
 One operation per step; never mix a refactor and a behavior change in the same step. On red, stop and report the failure; repair only your edit without discarding unrelated worktree changes.

@@ -32,7 +32,7 @@ Measure before guessing, with the language's profiler on the test process:
 
 ```bash
 dotnet tool install --global dotnet-trace
-dotnet-trace collect --format speedscope -- dotnet test Project.Specs --no-build --configuration Release
+dotnet-trace collect --format speedscope -- ./<project-dir>/bin/Release/<TFM>/<AssemblyName>
 ```
 
 Read the inclusive time of the setup methods. Pass means the profile names the

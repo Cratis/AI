@@ -394,7 +394,7 @@ export default function (pi: ExtensionAPI) {
 				const last = latestGateLog(gateLogDirectory(sessionId), started);
 				const tail = last ? tailLines(last.file, TAIL_LINES) : "";
 				throw new Error(`The Cratis quality gate TIMED OUT after ${duration(timeoutSeconds * 1000)}${last ? ` while running '${last.gate}'${last.cwd ? ` (cwd: ${last.cwd})` : ""}` : ""}. This is not a pass: nothing was verified.` +
-					(last ? `\nRun a narrower command instead: ${last.gate === "backend-specs" ? "dotnet test <affected.Specs.csproj-or-Tests.csproj> --configuration Debug --no-build (replace the placeholder; repeat for affected dependents)." : "run the affected project alone using this gate's configured command."}\nConfigure it in .cratis/ai/quality-gates.project.json.\n\nGate log: ${last.file}` : "") +
+					(last ? `\nRun a narrower command instead: ${last.gate === "backend-specs" ? "./<affected-project-dir>/bin/Debug/<TFM>/<AssemblyName> (or dotnet <TargetPath.dll> without apphost); dotnet test <project> --configuration Debug --no-build only for VSTest. Repeat for affected dependents." : "run the affected project alone using this gate's configured command."}\nConfigure it in .cratis/ai/quality-gates.project.json.\n\nGate log: ${last.file}` : "") +
 					(tail ? `\n\n--- last ${TAIL_LINES} lines ---\n${tail}\n--- end ---` : ""));
 			};
 			const reportInterrupted = () => {
