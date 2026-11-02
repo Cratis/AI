@@ -173,7 +173,7 @@ module Billing
         data InvoiceRow[] via query ListInvoices
         table InvoiceRow
           column number label "Number"
-        action RegisterInvoice
+        action RegisterInvoice for screen
           label "Register invoice"
       specification ListingAnInvoice
         given caller                                  // module + feature gates apply to the query too
