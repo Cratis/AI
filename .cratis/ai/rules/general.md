@@ -154,7 +154,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Before running a command that could print a credential, or when a secret value appears in output | `secrets.md` |
 | Session notes, plans and handovers (`.ai-work/` only) | `local-work-artifacts.md` |
 | Command wrappers, exact output and exit codes | `rtk.md`, then **cratis-rtk** |
-| Before issue-linked edits | `issue-assignment.md`, then **cratis-engineering-issue-hygiene**, **cratis-engineering-issue-design-note** |
+| Before issue-linked edits | `issue-assignment.md`, then **cratis-engineering-issue-hygiene** |
 | `.cratis/` is configuration, not deliverables | `cratis-folder-is-configuration.md` |
 | Exit codes, wrappers and scripting | `exit-codes-and-wrappers.md`, `scripting.md` |
 | Writing a scan, allowlist, script or CI check, or a destructive pass, that cannot pass vacuously | `guards-and-fuses.md` |
