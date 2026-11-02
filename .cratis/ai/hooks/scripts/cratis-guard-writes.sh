@@ -20,44 +20,90 @@ set -euo pipefail
 # against the current working directory, and these hooks are linted from wherever CI happens to run.
 script_directory="${BASH_SOURCE[0]%/*}"
 [ "$script_directory" != "${BASH_SOURCE[0]}" ] || script_directory=.
-# shellcheck source=SCRIPTDIR/hook-lib.sh
-. "$script_directory/hook-lib.sh"
 
+# The human launch-environment opt-out needs nothing from the helper library.
 [ "${CRATIS_HOOKS_ALLOW_PROTECTED_WRITES:-0}" = "1" ] && exit 0
+
+# A guard whose helper library is missing or unloadable cannot protect anything: refuse with a fixed message
+# (exit 2), never the shell's own exit 1 from a failed source.
+if [ ! -f "$script_directory/hook-lib.sh" ]; then
+    printf '%s\n' 'BLOCKED by cratis-guard-writes: a guard helper file is missing (hook-lib.sh). Use instead: run cratis ai update to restore the managed hooks; do not work around the guard.' >&2
+    exit 2
+fi
+# shellcheck source=SCRIPTDIR/hook-lib.sh
+if ! . "$script_directory/hook-lib.sh"; then
+    printf '%s\n' 'BLOCKED by cratis-guard-writes: a guard helper file could not be loaded (hook-lib.sh). Use instead: run cratis ai update to restore the managed hooks; do not work around the guard.' >&2
+    exit 2
+fi
 
 # This guard runs before every write, so it avoids subprocesses where a builtin does the same job:
 # the helpers below return through REPLY instead of printing into a command substitution.
-# Read stdin with the read builtin: opening /dev/stdin fails with ENXIO when stdin is a socket (Linux, Node pipes).
-input=""
-IFS= read -r -d '' input || true
-[ -n "$input" ] || exit 0
-hook_have jq || exit 0
+# A guard that cannot read its input cannot protect anything, so unreadable input blocks (fail closed).
+# The message never repeats the input.
+input_refused() {
+    printf 'BLOCKED by cratis-guard-writes: the tool input could not be validated (%s).\n\n%s\n' "$1" \
+        'This guard fails closed: it needs jq and exactly one JSON object with string path, cwd and content fields. Re-run with a well-formed Write, Edit, MultiEdit or NotebookEdit call; do not work around the guard.' >&2
+    exit 2
+}
 
-# One jq call reads every field the guard uses. Fields are NUL-terminated (embedded NULs are dropped,
-# as a command substitution would drop them); a missing, null, false or unreadable path is empty.
-cwd="" file="" notebook="" new_content="" new_string=""
+hook_have jq || input_refused 'jq is not installed'
+
+# One jq process validates stdin and emits every field the guard uses, NUL-terminated and in order, then a final
+# END frame. Stdin is never held in a shell variable, so NUL and trailing newlines survive. Rules: exactly one
+# JSON object; cwd and tool_name are optional but strings; a tool_name other than Write, Edit, MultiEdit or
+# NotebookEdit is not a write (applicable N); an applicable call (Pi omits tool_name) has an object tool_input,
+# a non-empty string file_path or notebook_path, string content and new_string when present, no NUL anywhere, and
+# for MultiEdit (or any input carrying edits) a non-empty edits array of objects whose new_string is a string, each
+# of which is emitted after a count frame so every replacement is inspected.
+# Nothing is decided until every field and the END frame have been read.
+applicable="" cwd="" file="" notebook="" new_content="" new_string="" trailer="" edit_count="" edit_index=0
+edit_strings=()
 {
-    IFS= read -r -d '' cwd
-    IFS= read -r -d '' file
-    IFS= read -r -d '' notebook
-    IFS= read -r -d '' new_content
-    IFS= read -r -d '' new_string
-} < <(jq -j '
-    def field(path): ([try (path // empty) catch empty] | first // "")
-        | if type == "string" then . else tojson end
-        | gsub("\u0000"; "");
-    [field(.cwd), field(.tool_input.file_path), field(.tool_input.notebook_path),
-     field(.tool_input.content), field(.tool_input.new_string)]
+    IFS= read -r -d '' applicable || input_refused 'the validator produced no verdict'
+    IFS= read -r -d '' cwd || input_refused 'the validator output was truncated'
+    IFS= read -r -d '' file || input_refused 'the validator output was truncated'
+    IFS= read -r -d '' notebook || input_refused 'the validator output was truncated'
+    IFS= read -r -d '' new_content || input_refused 'the validator output was truncated'
+    IFS= read -r -d '' new_string || input_refused 'the validator output was truncated'
+    IFS= read -r -d '' edit_count || input_refused 'the validator output was truncated'
+    [[ "$edit_count" =~ ^[0-9]+$ ]] || input_refused 'the validator output was malformed'
+    while [ "$edit_index" -lt "$edit_count" ]; do
+        replacement=""
+        IFS= read -r -d '' replacement || input_refused 'the validator output was truncated'
+        edit_strings[edit_index]="$replacement"
+        edit_index=$((edit_index + 1))
+    done
+    IFS= read -r -d '' trailer || input_refused 'the validator output was truncated'
+} < <(jq -j -s '
+    def text($object; $key):
+        if ($object | has($key)) then
+            ($object[$key] | if type == "string" and (contains("\u0000") | not) then . else error("field") end)
+        else "" end;
+    if length != 1 then error("documents") else .[0] end
+    | if type != "object" then error("object") else . end
+    | . as $root
+    | (if has("cwd") then (.cwd | if type == "string" and length > 0 and (contains("\u0000") | not) then . else error("cwd") end) else "" end) as $cwd
+    | (if has("tool_name") then (.tool_name | if type == "string" and (contains("\u0000") | not) then . else error("tool") end) else null end) as $tool
+    | if ($tool != null) and (["Write", "Edit", "MultiEdit", "NotebookEdit"] | index($tool) | not) then
+        ["N", "", "", "", "", "", "0", "END"]
+      else
+        ($root | if has("tool_input") and (.tool_input | type) == "object" then .tool_input else error("tool_input") end) as $input
+        | text($input; "file_path") as $file
+        | text($input; "notebook_path") as $notebook
+        | if ($file == "" and $notebook == "") then error("path") else . end
+        | (if ($tool == "MultiEdit") or ($input | has("edits")) then
+            ($input | .edits | if type == "array" and length > 0 then . else error("edits") end
+             | map(if type == "object" and has("new_string") then (text(.; "old_string") | empty), text(.; "new_string") else error("edit") end))
+          else [] end) as $replacements
+        | ["Y", $cwd, $file, $notebook, text($input; "content"), text($input; "new_string"), ($replacements | length | tostring)] + $replacements + ["END"]
+      end
     | .[] | ., "\u0000"
-' <<<"$input" 2>/dev/null) || true
-# Command substitution stripped trailing newlines from each field; keep that behaviour.
-for field_name in cwd file notebook new_content new_string; do
-    while [[ "${!field_name}" == *$'\n' ]]; do printf -v "$field_name" '%s' "${!field_name%$'\n'}"; done
-done
+' 2>/dev/null) || input_refused 'the validator could not run'
+[ "$trailer" = END ] || input_refused 'the validator did not finish'
+[ "$applicable" = Y ] || exit 0
 
 [ -n "$cwd" ] || cwd="$(hook_repo_root)"
 [ -n "$file" ] || file="$notebook"
-[ -n "$file" ] || exit 0
 
 # dir_of / base_of / relative_to mirror dirname, basename and hook_relpath for the absolute,
 # normalized paths used here. abspath mirrors hook_abspath. All return through REPLY.
@@ -258,12 +304,19 @@ fi
 
 # The same guard for authoring a *new* file that pretends to be generated output.
 [ -n "$new_content" ] || new_content="$new_string"
-if [ -n "$new_content" ] \
-    && first_lines_carry_marker <<<"$new_content"; then
-    block \
-        "The content being written opens with a Cratis generated-file header. Proxies are produced by the Cratis proxy generator, never hand-written." \
-        "Instead: write the C# source and run 'dotnet build -c Debug' to generate the proxy."
-fi
+candidates=("$new_content")
+edit_index=0
+while [ "$edit_index" -lt "$edit_count" ]; do
+    candidates+=("${edit_strings[$edit_index]}")
+    edit_index=$((edit_index + 1))
+done
+for candidate in "${candidates[@]}"; do
+    if [ -n "$candidate" ] && first_lines_carry_marker <<<"$candidate"; then
+        block \
+            "The content being written opens with a Cratis generated-file header. Proxies are produced by the Cratis proxy generator, never hand-written." \
+            "Instead: write the C# source and run 'dotnet build -c Debug' to generate the proxy."
+    fi
+done
 
 # ── 2. Dependency manifests, lockfiles, SDK and NuGet configuration ───────────
 manifest_writes_allowed() {

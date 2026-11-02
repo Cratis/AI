@@ -26,6 +26,9 @@ describe('test subsets', () => {
 
     it('should select a subset only for allowlisted paths', () => {
         assert.deepEqual(affectedSubsets(['.cratis/ai/hooks/scripts/cratis-guard-writes.sh']), { subsets: ['hooks'], specs: [], full: false });
+        for (const helper of ['cratis-shell-parser.mjs', 'cratis-guard-secrets.mjs']) {
+            assert.deepEqual(affectedSubsets([`.cratis/ai/hooks/scripts/${helper}`]), { subsets: ['hooks'], specs: [], full: false }, helper);
+        }
         assert.deepEqual(affectedSubsets(['Source/Harness.Setup/setup.ts']).subsets, ['adapters']);
         assert.deepEqual(affectedSubsets(['Source/Verification/skill-hygiene.spec.ts']), { subsets: [], specs: ['skill-hygiene.spec.ts'], full: false });
     });

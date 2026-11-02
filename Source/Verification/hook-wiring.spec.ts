@@ -48,7 +48,7 @@ test('the wired secrets guard still blocks when its script has lost the execute 
     try {
         const scripts = join(project, '.cratis/ai/hooks/scripts');
         spawnSync('mkdir', ['-p', scripts]);
-        for (const file of ['cratis-guard-secrets.sh', 'hook-lib.sh']) {
+        for (const file of ['cratis-guard-secrets.sh', 'cratis-guard-secrets.mjs', 'cratis-shell-parser.mjs', 'hook-lib.sh']) {
             copyFileSync(join(root, '.cratis/ai/hooks/scripts', file), join(scripts, file));
             chmodSync(join(scripts, file), 0o644);
         }

@@ -42,6 +42,14 @@ hook_json() {
     printf '%s' "$json" | jq -r "$path // empty" 2>/dev/null || true
 }
 
+# Fail-closed refusal for a blocking guard that cannot read or validate its input: prints a fixed diagnostic
+# for guard $1 with the fixed reason $2 (never the input itself) and exits 2. hook_json above stays permissive
+# for advisory hooks; a guard that blocks must not treat unreadable input as permission.
+hook_refuse_input() {
+    printf 'BLOCKED by %s: the tool input could not be validated (%s). Use instead: send one well-formed JSON tool call and keep jq and node installed; do not work around the guard.\n' "$1" "$2" >&2
+    exit 2
+}
+
 # ── Paths ─────────────────────────────────────────────────────────────────────
 
 # Absolutize $1 against $2 (a directory), leaving already-absolute paths untouched.

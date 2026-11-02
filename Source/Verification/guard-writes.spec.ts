@@ -18,6 +18,7 @@ import { tmpdir } from 'node:os';
 import { basename, join, relative, resolve } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
+import { isolatedScripts, malformedInputs, minimalPath, runWithPath, runWritesRaw, writesGuard } from './guard-security.fixture.ts';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
@@ -89,7 +90,6 @@ test('the write guard refuses generated output and allows a file that merely men
             [BLOCK, 'edit a dependency manifest', { cwd: repo.root, tool_name: 'Edit', tool_input: { file_path: repo.manifest, new_string: 'x' } }],
             [ALLOW, 'edit an ordinary source file', { cwd: repo.root, tool_name: 'Edit', tool_input: { file_path: join(repo.root, 'Source', 'Accounts', 'Registration', 'Registration.cs'), new_string: 'x' } }],
             [ALLOW, 'a call with no file path is not the guard\u2019s business', { cwd: repo.root, tool_name: 'Bash', tool_input: { command: `cat ${repo.generated}` } }],
-            [ALLOW, 'malformed input fails open', 'not json' as unknown as object],
         ];
         for (const [expected, name, payload] of cases) {
             const { verdict, stderr } = runGuard(payload, repo.root);
@@ -430,5 +430,142 @@ test('the Pi bridge classifies write-shaped calls through the guard and never bl
         assert.equal(ordinary, undefined, 'an ordinary edit must pass through');
     } finally {
         repo.dispose();
+    }
+});
+
+test('input the write guard cannot read is refused, never allowed, and the diagnostic never echoes it', () => {
+    const writeInputs: Array<[string, string]> = [
+        ...malformedInputs.filter(([name]) => !/^(tool_input is missing|command )/.test(name) && name !== 'tool_input is null' && name !== 'tool_input is an array' && name !== 'tool_input is a string').map(([name, input]): [string, string] => [name, input]),
+        ['Write without tool_input', '{"tool_name":"Write"}'],
+        ['Write with a null tool_input', '{"tool_name":"Write","tool_input":null}'],
+        ['Write with an array tool_input', '{"tool_name":"Write","tool_input":[]}'],
+        ['Write without a path', '{"tool_name":"Write","tool_input":{"content":"x"}}'],
+        ['Write with an empty path', '{"tool_name":"Write","tool_input":{"file_path":"","content":"x"}}'],
+        ['Write with a numeric path', '{"tool_name":"Write","tool_input":{"file_path":5,"content":"x"}}'],
+        ['Write with an array path', '{"tool_name":"Edit","tool_input":{"file_path":["a"],"new_string":"x"}}'],
+        ['Write with numeric content', '{"tool_name":"Write","tool_input":{"file_path":"a.txt","content":5}}'],
+        ['Edit with numeric new_string', '{"tool_name":"Edit","tool_input":{"file_path":"a.txt","new_string":5}}'],
+        ['Write with a numeric cwd', '{"cwd":5,"tool_name":"Write","tool_input":{"file_path":"a.txt","content":"x"}}'],
+        ['Write with a NUL in the path', '{"tool_name":"Write","tool_input":{"file_path":"a\\u0000b","content":"x"}}'],
+        ['Write with a NUL in the content', '{"tool_name":"Write","tool_input":{"file_path":"a.txt","content":"a\\u0000b"}}'],
+        ['Pi shape without a path', '{"cwd":"/tmp","tool_input":{"content":"x"}}'],
+        ['two Write documents', '{"tool_name":"Write","tool_input":{"file_path":"a.txt","content":"x"}}{"tool_name":"Write","tool_input":{"file_path":"a.txt","content":"x"}}'],
+    ];
+    for (const [name, input] of writeInputs) {
+        const result = runWritesRaw(input);
+        assert.equal(result.status, 2, `${name}: expected exit 2, got ${result.status}\n${result.stderr}`);
+        assert.equal(result.stdout, '', name);
+        assert.match(result.stderr, /BLOCKED by cratis-guard-writes: the tool input could not be validated/, name);
+        assert.doesNotMatch(result.stderr, /a\.txt|git sta/, `${name}: the diagnostic must not repeat the input`);
+    }
+});
+
+test('well-formed calls that are not writes, and ordinary writes with empty or newline-bearing content, are allowed', () => {
+    const repo = scratchRepository();
+    try {
+        const ordinary = join(repo.root, 'Source', 'Ordinary.md');
+        for (const [name, payload] of [
+            ['a Read call', { cwd: repo.root, tool_name: 'Read', tool_input: { file_path: repo.generated } }],
+            ['a Bash call with no path', { cwd: repo.root, tool_name: 'Bash', tool_input: { command: 'ls' } }],
+            ['a write with empty content', { cwd: repo.root, tool_name: 'Write', tool_input: { file_path: ordinary, content: '' } }],
+            ['a write with trailing newlines', { cwd: repo.root, tool_name: 'Write', tool_input: { file_path: ordinary, content: 'one\n\n\n' } }],
+            ['a Pi write that omits tool_name, with empty content', { cwd: repo.root, tool_input: { file_path: ordinary, content: '' } }],
+            ['a Pi write that omits tool_name, with newlines', { cwd: repo.root, tool_input: { file_path: ordinary, content: '\nbody\n' } }],
+            ['a write that omits cwd', { tool_name: 'Write', tool_input: { file_path: ordinary, content: 'x' } }],
+        ] as Array<[string, object]>) {
+            const result = runWritesRaw(JSON.stringify(payload), {}, writesGuard);
+            assert.equal(result.status, 0, `${name}\n${result.stderr}`);
+            assert.equal(result.stdout, '', name);
+        }
+        for (const [name, payload] of [
+            ['a Pi write of a generated proxy', { cwd: repo.root, tool_input: { file_path: repo.generated, content: '' } }],
+            ['a Pi edit of a generated proxy', { cwd: repo.root, tool_input: { file_path: repo.generated, new_string: 'x\n' } }],
+            ['a Pi write of generated-header content', { cwd: repo.root, tool_input: { file_path: join(repo.root, 'Source', 'New.ts'), content: '// @generated by Cratis\nexport {};\n' } }],
+        ] as Array<[string, object]>) {
+            const result = runWritesRaw(JSON.stringify(payload));
+            assert.equal(result.status, 2, `${name}\n${result.stderr}`);
+            assert.match(result.stderr, /BLOCKED by cratis-guard-writes/, name);
+        }
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('a missing jq or a failing validator blocks writes; the same call passes with jq present', () => {
+    const payload = JSON.stringify({ tool_name: 'Write', tool_input: { file_path: join(tmpdir(), 'cratis-guard-note.txt'), content: 'x' } });
+    const present = minimalPath();
+    const missing = minimalPath({ omit: ['jq'] });
+    try {
+        assert.equal(runWithPath(writesGuard, payload, present.path).status, 0);
+        const refused = runWithPath(writesGuard, payload, missing.path);
+        assert.equal(refused.status, 2, refused.stderr);
+        assert.match(refused.stderr, /BLOCKED by cratis-guard-writes: the tool input could not be validated \(jq is not installed\)/);
+    } finally {
+        present.cleanup();
+        missing.cleanup();
+    }
+    for (const body of ['exit 1', 'exit 0', "printf 'Y\\000'", "printf 'Y\\000\\000\\000\\000\\000'", 'kill -9 $$']) {
+        const sandbox = minimalPath({ stubs: { jq: body } });
+        try {
+            const result = runWithPath(writesGuard, payload, sandbox.path);
+            assert.equal(result.status, 2, `${body}\n${result.stderr}`);
+            assert.match(result.stderr, /BLOCKED by cratis-guard-writes/, body);
+        } finally {
+            sandbox.cleanup();
+        }
+    }
+});
+
+test('the human opt-out is read from the environment before any input is validated; one written in the payload has no effect', () => {
+    assert.equal(runWritesRaw('', { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' }).status, 0);
+    assert.equal(runWritesRaw('not json', { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' }).status, 2);
+    const embedded = JSON.stringify({ tool_name: 'Write', tool_input: { file_path: '.env', content: 'CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1' } });
+    assert.equal(runWritesRaw(embedded).status, 2);
+});
+
+test('MultiEdit replacements are validated and every one is inspected for a generated header', () => {
+    const repo = scratchRepository();
+    try {
+        const target = join(repo.root, 'Source', 'Ordinary.md');
+        const multi = (edits: unknown) => JSON.stringify({ cwd: repo.root, tool_name: 'MultiEdit', tool_input: { file_path: target, edits } });
+        const okEdit = { old_string: 'a', new_string: 'fine\n' };
+        assert.equal(runWritesRaw(multi([okEdit, { old_string: 'b', new_string: '' }])).status, 0, 'ordinary replacements pass, including an empty one');
+        for (const [name, edits] of [
+            ['a header in the first replacement', [{ old_string: 'a', new_string: '// @generated by Cratis\nx' }, okEdit]],
+            ['a header in a later replacement', [okEdit, okEdit, { old_string: 'c', new_string: '# @generated by Cratis\nx' }]],
+        ] as Array<[string, unknown]>) {
+            const result = runWritesRaw(multi(edits));
+            assert.equal(result.status, 2, name);
+            assert.match(result.stderr, /BLOCKED by cratis-guard-writes: .*The content being written opens with a Cratis generated-file header/s, name);
+        }
+        for (const [name, edits] of [
+            ['edits missing', undefined],
+            ['an empty edits array', []],
+            ['edits that is not an array', 'x'],
+            ['an edit that is not an object', ['x']],
+            ['an edit without new_string', [{ old_string: 'a' }]],
+            ['a numeric new_string', [okEdit, { old_string: 'a', new_string: 5 }]],
+            ['a numeric old_string', [{ old_string: 5, new_string: 'x' }]],
+            ['a NUL in a replacement', [{ old_string: 'a', new_string: 'a\u0000b' }]],
+        ] as Array<[string, unknown]>) {
+            const result = runWritesRaw(multi(edits));
+            assert.equal(result.status, 2, `${name}\n${result.stderr}`);
+            assert.match(result.stderr, /the tool input could not be validated/, name);
+        }
+    } finally {
+        repo.dispose();
+    }
+});
+
+test('a missing hook-lib.sh blocks with a fixed message and exit 2, never the shell failure status', () => {
+    const scripts = isolatedScripts(['cratis-guard-writes.sh', 'hook-lib.sh']);
+    try {
+        rmSync(join(scripts.directory, 'hook-lib.sh'));
+        const result = runWritesRaw(JSON.stringify({ tool_name: 'Write', tool_input: { file_path: 'a.txt', content: 'x' } }), {}, join(scripts.directory, 'cratis-guard-writes.sh'));
+        assert.equal(result.status, 2);
+        assert.match(result.stderr, /^BLOCKED by cratis-guard-writes: a guard helper file is missing \(hook-lib\.sh\)\./);
+        assert.equal(runWritesRaw('', { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' }, join(scripts.directory, 'cratis-guard-writes.sh')).status, 0, 'the human opt-out still applies');
+    } finally {
+        scripts.cleanup();
     }
 });

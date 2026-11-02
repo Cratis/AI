@@ -168,7 +168,7 @@ test('managed scripts run through Bash even without execute permission', async (
     const f = fixture();
     try {
         const scripts = join(root, '.cratis/ai/hooks/scripts');
-        for (const file of [store, secrets, 'hook-lib.sh', 'cratis-store-mutations.json']) {
+        for (const file of [store, secrets, 'cratis-guard-secrets.mjs', 'cratis-shell-parser.mjs', 'hook-lib.sh', 'cratis-store-mutations.json']) {
             copyFileSync(join(scripts, file), join(f.directory, file));
             chmodSync(join(f.directory, file), 0o644);
         }

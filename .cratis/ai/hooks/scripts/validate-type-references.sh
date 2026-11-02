@@ -38,11 +38,17 @@
 #        CRATIS_HOOKS_TYPE_REPORT=1 ...                         # also print every distinct name and its status
 set -euo pipefail
 
-root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-cd "$root"
-
 warn() { printf 'ai-corpus warn: %s\n' "$1" >&2; }
 cannot() { printf 'ai-corpus type-references: could not run: %s\n' "$1" >&2; exit 2; }
+
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" || cannot "cannot locate the hook script directory"
+# Authored and installed hooks both live at <repo>/.cratis/ai/hooks/scripts. Never search
+# ancestors or use the caller's working directory: either could select an unrelated repository.
+case "$script_dir" in
+    */.cratis/ai/hooks/scripts) root="$(cd "$script_dir/../../../.." && pwd)" || cannot "cannot locate the repository root" ;;
+    *) cannot "the hook must live under <repo>/.cratis/ai/hooks/scripts" ;;
+esac
+cd "$root" || cannot "cannot enter the repository root"
 # `if`, not `A && B || C`: the trailing `|| true` was there to keep a disabled report
 # from failing the caller, but it also swallowed a real printf failure, and shellcheck
 # flags the shape (SC2015) for exactly that reason.
@@ -57,7 +63,7 @@ report() {
 # must be able to tell "ran and found nothing" from "never looked" (exit-codes-and-wrappers.md).
 self_test=0
 if [[ "${1:-}" == "--self-test" ]]; then self_test=1; shift; fi
-pins_file="$(dirname "${BASH_SOURCE[0]}")/cratis-nuget-pins.txt"
+pins_file="$script_dir/cratis-nuget-pins.txt"
 if [[ -f Directory.Packages.props ]]; then
     queue="$(awk 'match($0, /<PackageVersion[^>]*>/) {
             el = substr($0, RSTART, RLENGTH); id = ""; ver = ""
@@ -164,7 +170,7 @@ decl_re='(^|[^A-Za-z0-9_])(record|class|interface|struct|enum|delegate)[[:space:
     { find Source -type f -name '*.cs' -print0 2>/dev/null | xargs -0 grep -hoE "$decl_re" 2>/dev/null || true; }
 } | sed -E 's/^[^A-Za-z]*//; s/^[a-z]+[[:space:]]+([a-z]+[[:space:]]+)?//' | LC_ALL=C sort -u > "$tmp/declared.txt"
 
-allowlist="$(dirname "${BASH_SOURCE[0]}")/type-references-allowlist.txt"
+allowlist="$script_dir/type-references-allowlist.txt"
 : > "$tmp/allow.txt"
 if [[ -f "$allowlist" ]]; then
     sed -E 's/#.*//; s/[[:space:]]//g' "$allowlist" | grep -v '^$' > "$tmp/allow.txt" || true
