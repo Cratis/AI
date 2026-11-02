@@ -93,8 +93,9 @@ throttling, outages and other failures remain `Failed`, never `Unavailable`. Con
 real discovery failures as failures rather than treating diagnostic text as a capability signal.
 
 `RefreshAvailableModels` records `AIProviderModelDiscoveryUnavailable(Reason, AttemptedAt)` without
-inventing models or tiers. `ConfiguredAIProvider.ModelDiscoveryStatus` and the credential-free
-listing expose the latest outcome. The old successful catalog and timestamp remain historical;
+inventing models or tiers. Repeating the same unavailable status and reason appends nothing;
+a changed reason or status records a new observation. `ConfiguredAIProvider.ModelDiscoveryStatus`
+and the credential-free listing expose the latest outcome. The old successful catalog and timestamp remain historical;
 the discovery query returns a reason-bearing sentinel instead of stale model rows when unavailable.
 
 For intentional model selection, dispatch

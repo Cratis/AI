@@ -44,7 +44,12 @@ public record RefreshAvailableModels(AIProviderId Provider) : ICanProvideEventSo
     {
         var provider = await eventStore.ReadModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)Provider);
 
-        return new(await availableModels.Discover(Provider), provider?.TierModels, timeProvider.GetUtcNow());
+        return new(
+            await availableModels.Discover(Provider),
+            provider?.TierModels,
+            timeProvider.GetUtcNow(),
+            provider?.ModelDiscoveryStatus ?? AIModelDiscoveryStatus.NotAttempted,
+            provider?.ModelDiscoveryFailure ?? string.Empty);
     }
 
     /// <summary>
@@ -62,7 +67,9 @@ public record RefreshAvailableModels(AIProviderId Provider) : ICanProvideEventSo
     {
         if (refresh.Result.Status == AIModelDiscoveryStatus.Unavailable)
         {
-            return [new AIProviderModelDiscoveryUnavailable(refresh.Result.Failure, refresh.At)];
+            return refresh.CurrentStatus == AIModelDiscoveryStatus.Unavailable && refresh.CurrentFailure == refresh.Result.Failure
+                ? []
+                : [new AIProviderModelDiscoveryUnavailable(refresh.Result.Failure, refresh.At)];
         }
 
         if (!refresh.Result.Succeeded)
@@ -92,7 +99,14 @@ public record RefreshAvailableModels(AIProviderId Provider) : ICanProvideEventSo
 /// <param name="Result">The vendor's answer.</param>
 /// <param name="Configured">The provider's own tier mapping, <see langword="null"/> when it has none.</param>
 /// <param name="At">When the vendor was asked.</param>
-public record ModelCatalogRefresh(AIModelDiscoveryResult Result, TierModels? Configured, DateTimeOffset At);
+/// <param name="CurrentStatus">The provider's last recorded discovery outcome.</param>
+/// <param name="CurrentFailure">The provider's last recorded discovery reason.</param>
+public record ModelCatalogRefresh(
+    AIModelDiscoveryResult Result,
+    TierModels? Configured,
+    DateTimeOffset At,
+    AIModelDiscoveryStatus CurrentStatus = AIModelDiscoveryStatus.NotAttempted,
+    string CurrentFailure = "");
 
 /// <summary>
 /// Event raised when a provider published the models it currently serves. The authentic catalog, as
