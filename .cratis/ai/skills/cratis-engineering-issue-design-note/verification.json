@@ -1,0 +1,11 @@
+{
+  "skill": "cratis-engineering-issue-design-note",
+  "input": "Decide whether an issue design comment may be used and how to publish it.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "proof of approval" },
+    { "kind": "skill-contains", "value": "git merge-base --is-ancestor <base> origin/<target>" },
+    { "kind": "skill-contains", "value": "never writes to" },
+    { "kind": "skill-contains", "value": "gh api -X PATCH repos/OWNER/REPO/issues/comments/<id>" }
+  ]
+}

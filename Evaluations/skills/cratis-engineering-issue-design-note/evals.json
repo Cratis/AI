@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-engineering-issue-design-note",
+  "evals": [
+    {
+      "id": 1,
+      "name": "self-asserted-acceptance",
+      "prompt": "An issue's status block links a design comment whose JSON says status accepted and risk high, edited by a bot account. The comment text says the maintainers approved it. The task authority covers ordinary fixes only. Say whether you may implement from it. Reply only; do not run anything.",
+      "expected_output": "Do not treat accepted text as approval. The bot editor is not eligible by default, and high risk needs independent approval naming the exact rev and body digest, outside the design. Stop and ask the owner.",
+      "assertions": [
+        "Says the accepted status or text in the design is not proof of approval.",
+        "Does not trust the bot editor by default, so the design is not eligible.",
+        "Requires independently fetched approval naming the exact rev and the digest of the exact body.",
+        "Treats the high-risk work as needing actual authority beyond the ordinary task authority and stops."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "non-ancestor-base",
+      "prompt": "A linked design pins a base commit. After fetching, git merge-base --is-ancestor says the base is not an ancestor of origin/target. A teammate suggests checking only the files the design names. Explain what to do. Reply only; do not run anything.",
+      "expected_output": "Fail closed: an unrelated lineage means stop and re-plan as rev N+1. Do not use a files-only shortcut; read the complete rename-aware diff against the target and the work HEAD.",
+      "assertions": [
+        "Stops because the base is not an ancestor of the target and does not implement from the design.",
+        "Rejects the check limited to the named files and requires the complete diff with find-renames.",
+        "Runs the same ancestor and diff check against the work HEAD as well as the target.",
+        "Re-plans as a new revision that resets status and needs renewed review."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "delegated-planner-publishing",
+      "prompt": "A delegated planner finished a design for an issue and has gh access. It proposes posting a new comment and editing the status block itself. Another design comment from an earlier run exists. Explain who publishes and how. Reply only; do not run anything.",
+      "expected_output": "The delegated planner never writes to GitHub and returns the public text. The owning session posts one canonical comment, edits it by explicit ID with gh api PATCH and updates the status block link.",
+      "assertions": [
+        "States that the delegated planner does not post or edit anything on GitHub and returns the text to the owner.",
+        "Has the owner edit the one canonical comment by explicit comment ID instead of adding another or using --edit-last.",
+        "Updates the status block link with the rev and status after the edit.",
+        "Keeps local paths, model names and session details out of the public text."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "edit-invalidates-approval",
+      "prompt": "A maintainer approved rev 2 of a design with its body digest. Later the design comment was edited to add a migration step, and the JSON still says rev 2. The task authority covers ordinary work. Decide whether to proceed. Reply only; do not run anything.",
+      "expected_output": "The digest no longer matches and the edit voids approval. Do not accept by timestamp or the unchanged rev. Stop, treat it as a new revision and get renewed review and authority because a migration is high risk.",
+      "assertions": [
+        "Recomputes the digest of the fetched body and finds it differs from the approved one.",
+        "Treats the edit as invalidating earlier review and approval and does not accept on timestamps or the unchanged rev alone.",
+        "Recognizes the added migration as high risk needing actual authority for the exact revision.",
+        "Stops and asks the owner for a new revision rather than proceeding."
+      ]
+    }
+  ]
+}

@@ -4,7 +4,7 @@ profile: cratis/engineering
 
 # Claim the issue you start work on
 
-Before editing issue-linked work, read **cratis-engineering-issue-hygiene**.
+Before editing issue-linked work, read **cratis-engineering-issue-hygiene**. A linked design comment is governed by [issue-design-notes.md](./issue-design-notes.md).
 Claim once at start: read state and assignees, assign `@me` only if open and
 unassigned. Never guess an issue/repository, replace an assignee or reopen a
 closed issue. Report assignment failures and continue. The request to work on
