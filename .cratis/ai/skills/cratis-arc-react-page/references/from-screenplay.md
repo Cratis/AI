@@ -83,9 +83,9 @@ module Marina
       screen BerthListScreen
         title "Berths"
         data BerthListView[] via query ListBerths
-        action BookBerth
+        action BookBerth for screen
           label "Book a berth"
-        action CancelBerth
+        action CancelBerth for item
         table BerthListView
           column boatName label "Boat"
           on row-click navigate to BerthDetailsScreen by berthId
@@ -94,7 +94,7 @@ module Marina
         data BerthListView via query GetBerth by berthId
         summary BerthListView
           field boatName label "Boat"
-        action CancelBerth
+        action CancelBerth for item
           navigate to BerthListScreen
 
   form BookBerthForm for BookBerth

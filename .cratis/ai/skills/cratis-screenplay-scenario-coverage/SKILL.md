@@ -175,8 +175,8 @@ Use a separate `when added` append when initial observations should produce a fa
 Read captures-and-reactions `references/record-capture-specifications.md` for the
 prerequisite and runnable cases. Include first, changed and unchanged rows in the matrix.
 
-## Version skew: reaction cascades and false PLAY0285
-Under ESM v6 a command spec's `then` lists the events reactions cascade from it; an older `cratis` bundle reports a **false PLAY0285** for it. Never delete the reaction. Read [references/version-skew.md](references/version-skew.md) when a spec with cascade events reports PLAY0285 or the bundled compiler is older than the standalone tool.
+## A specification covers its own slice: reactions and `then invokes`
+A specification runs its own slice only. A command spec lists the command's own facts, never an event another slice's reaction appends; `PLAY0285` refuses it. Cover the reaction in its Automation slice (`when append <Trigger>`, then the produced fact, or `then invokes <Command>` plus the values passed when the reaction invokes another slice's command; ESM v34). The invoked command's own slice covers its events. Never delete the reaction. Read [references/version-skew.md](references/version-skew.md) for the rule and the older-compiler caveat.
 
 ## Gate
 A scope is spec-complete only when: the matrix has no `open`, `question` or `gap` cell (or the

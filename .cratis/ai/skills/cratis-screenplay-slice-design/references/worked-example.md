@@ -121,8 +121,8 @@ module Lockers
           column number   label "Locker"
           column volume     label "Volume (l)"
           column assigned label "Taken"
-        action InstallLocker
-        action AssignLocker
+        action InstallLocker for screen
+        action AssignLocker for item
       specification RefusingAnAnonymousLockerLookup
         given caller
         then query LockerById
@@ -273,7 +273,7 @@ module Lockers
       screen MyRequest
         title "My locker request"
         data RequestStatus via query RequestById
-        action RequestLocker
+        action RequestLocker for item
       specification FollowingARequestToAssignment
         given caller
           authenticated

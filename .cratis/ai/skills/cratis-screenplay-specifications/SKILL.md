@@ -72,7 +72,7 @@ an ambiguous parent still fails closed.
 Requires Screenplay 4.149.1 or later (`screenplay --version`) for child deferral; older runners do not defer.
 
 A rejected command/append leaves the world unchanged; an accepted one commits
-before comparing views. V6 has no scenario-wide transaction: later cascade
+before comparing views. V6 has no scenario-wide transaction: later reaction
 failure does not roll back earlier accepted facts. Atomic mode boundaries are below.
 
 Unsupported is not passed. Name a target. Run CLI/MCP reference execution
@@ -184,10 +184,10 @@ unsupported, never passed. The fixture reference covers strict v15 shapes and fr
 A slice is not always set off by a command: `given clock`, `when clock`, `when trigger`, `given capture`, `when capture` and `when query` (with `then result` / `then no result`) name what does. Use `given clock`, never `given time`. From ESM v6 the reference runner executes the clock, trigger and capture actions; before ESM v6 only `when query` executed among them.
 Read [references/actions-beyond-commands.md](references/actions-beyond-commands.md) when the slice is an automation, translation or query view, or you need the action table, grammar and what the reference runner executes for each.
 
-## Reactions and cascades (ESM v6)
+## Reactions and one slice per specification (ESM v6, v34)
 
-From ESM v6 every action sets reactions off and `then` events compare every new fact, the action's and the reactions'. A specification whose action is a command goes in the slice that declares the command. A false `PLAY0285` on a cascade under a compiler that stops before ESM v6 is tool skew, not a modeling error: never delete the `then` line to silence it.
-Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md) when a specification's expected events include what a reaction appends, when a cascade, clock tick or invoked command is involved, or when `cratis` reports `PLAY0285` on a model that `screenplay` accepts (it holds the "Version skew: cascades and the false `PLAY0285`" section).
+A specification runs its own slice only: only the reactions, captures and outbound publications declared in the slice that holds it run, and `then` events compare that slice's facts. A command specification states the command's own facts, never an event another slice's reaction appends or an outbound `Translate` publishes (`PLAY0285`, "cannot be produced"). An automation states what it does to another slice with `then invokes <Command>` plus the values passed (ESM v34; `PLAY0815`, `PLAY0816`); the invoked command's own slice proves its events. Never delete a `then` line to silence `PLAY0285`; move it to the slice that owns the behavior.
+Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md) when a reaction, clock tick, trigger or invoked command is involved, or when `PLAY0285`/`PLAY0816` is reported (it holds the "`PLAY0285` and the slice boundary" section).
 
 ## Published-event specifications (released ESM v9)
 

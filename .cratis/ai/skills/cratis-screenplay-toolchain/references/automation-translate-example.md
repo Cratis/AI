@@ -23,12 +23,9 @@ module Membership
         given clock "2026-10-05T09:00:00Z"
         when Subscribe
           memberId = "5b6c1f7e-2d3a-4e8b-9c0d-1a2b3c4d5e6f"
-        then MemberSubscribed                             // v6: cascades are part of `then`
+        then MemberSubscribed                             // the command's own event; another slice's reaction does not run
           for "5b6c1f7e-2d3a-4e8b-9c0d-1a2b3c4d5e6f"
           subscribedAt = "2026-10-05T09:00:00Z"
-        then WelcomeSent
-          for "5b6c1f7e-2d3a-4e8b-9c0d-1a2b3c4d5e6f"
-          sentAt = "2026-10-05T09:00:00Z"
 
     slice StateChange Renew
       command Renew                                       // ungated for the demo only: reactions invoke with no caller
@@ -78,9 +75,9 @@ module Membership
         when trigger RenewalFileArrived
           memberId = "5b6c1f7e-2d3a-4e8b-9c0d-1a2b3c4d5e6f"
           months   = 12
-        then MembershipRenewed
-          for "5b6c1f7e-2d3a-4e8b-9c0d-1a2b3c4d5e6f"
-          months = 12
+        then invokes Renew                                // Renew belongs to another slice: state the hand-over, not its event
+          memberId = "5b6c1f7e-2d3a-4e8b-9c0d-1a2b3c4d5e6f"
+          months   = 12
       specification IssuingTheWeeklyReport
         given clock "2026-10-05T07:00:00Z"
         when clock "2026-10-05T07:30:00Z"

@@ -121,6 +121,14 @@ specification TranslatingADeclinedCardResult
     for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
     outcome = "declined"
     reason  = "Card declined"
+```
+The Automation slice that records the local outcome is specified on its own, from the provider's fact:
+```screenplay excerpt parent=references/invoicing-dues-example.md#1
+specification RecordingADeclinedPayment
+  when append PaymentGatewayResultReceived
+    for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+    outcome = "declined"
+    reason  = "Card declined"
   then PaymentDeclined
     for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
     reason = "Card declined"
@@ -153,7 +161,7 @@ model; it tests the projection only, never the translation.
 
 ## 4. Compensation
 A reversal needs a paid history, the reversal action and the exact consequence. The command spec
-lists the declared consequence (`RefundRequested`); the reaction is also specified on its own.
+lists the command's own fact (`PaymentReversed`); the refund request is another slice's reaction, so it is specified in its own slice.
 `RefundRequested` is a recorded request, not proof that money moved, and there is no
 `then <Command>` form. What the target must do to deliver the refund is a requirement, not a spec.
 From `invoicing-dues-design.md` (design mode; the specs do not run):
@@ -172,9 +180,6 @@ specification ReversingAReceivedPayment
     invoiceId = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
     amount    = 130
   then PaymentReversed
-    for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
-    amount = 130
-  then RefundRequested
     for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
     amount = 130
 
