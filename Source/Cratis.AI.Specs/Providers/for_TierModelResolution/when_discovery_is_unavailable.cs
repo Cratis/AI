@@ -22,12 +22,14 @@ public class when_discovery_is_unavailable : Specification
         TierModelResolution.Resolve(_provider with { TierModelMappingSource = TierModelMappingSource.Explicit }, ModelTier.Fast)
             .ShouldEqual(new ModelName("chosen-fast"));
 
-    [Theory]
-    [InlineData(TierModelMappingSource.Unknown)]
-    [InlineData(TierModelMappingSource.Derived)]
-    public void should_not_infer_intent_from_a_nonempty_mapping(TierModelMappingSource source)
+    [Fact]
+    void should_keep_resolving_a_legacy_table_without_recorded_provenance() =>
+        TierModelResolution.Resolve(_provider, ModelTier.Fast).ShouldEqual(new ModelName("chosen-fast"));
+
+    [Fact]
+    void should_refuse_a_newly_derived_mapping()
     {
-        var result = TierModelResolution.Explain(_provider with { TierModelMappingSource = source }, ModelTier.Fast);
+        var result = TierModelResolution.Explain(_provider with { TierModelMappingSource = TierModelMappingSource.Derived }, ModelTier.Fast);
         result.Model.ShouldEqual(ModelName.NotSet);
         result.Source.ShouldEqual(TierModelSource.Unsatisfied);
         result.Reason.ShouldContain("review and save");
@@ -35,7 +37,7 @@ public class when_discovery_is_unavailable : Specification
 
     [Fact]
     void should_not_promote_a_catalog_matching_mapping() =>
-        TierModelResolution.Resolve(_provider with { TierModels = TierModels.NotSet with { Fast = "claude-haiku-4-5" } }, ModelTier.Fast)
+        TierModelResolution.Resolve(_provider with { TierModels = TierModels.NotSet with { Fast = "claude-haiku-4-5" }, TierModelMappingSource = TierModelMappingSource.Derived }, ModelTier.Fast)
             .ShouldEqual(ModelName.NotSet);
 
     [Fact]

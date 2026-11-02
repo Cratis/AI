@@ -3,6 +3,7 @@
 
 using Cratis.AI.Providers.Adding;
 using Cratis.AI.Providers.AvailableModels;
+using Cratis.AI.Providers.SettingExplicitTierModels;
 using Cratis.AI.Providers.SettingTierModels;
 using Cratis.AI.Providers.UsageReporting.SettingCredential;
 
@@ -44,7 +45,7 @@ public class and_tier_provenance_is_recorded : Specification
         await Project(new AIProviderModelDiscoveryUnavailable("fixture limitation", _at.AddMinutes(4)));
         _rederived = await Project(new AIProviderTierModelsSet(_derived.TierModels), new AIProviderTierModelsProvenanceSet(_derived.TierModels, TierModelMappingSource.Derived));
         await Project(new SetExplicitAIProviderTierModels(_id, _explicit.TierModels).Handle().ToArray());
-        _unmarked = await Project(new SetAIProviderTierModels(_id, _explicit.TierModels).Handle());
+        _unmarked = await Project(new AIProviderTierModelsSet(_explicit.TierModels));
         _without_fast = await Project(new SetExplicitAIProviderTierModels(_id, TierModels.NotSet with { Balanced = "fixture-balanced" }).Handle().ToArray());
         _cleared = await Project(new SetExplicitAIProviderTierModels(_id, TierModels.NotSet).Handle().ToArray());
 
@@ -61,7 +62,7 @@ public class and_tier_provenance_is_recorded : Specification
         _legacy = legacy.Instance;
         var resaved = new ReadModelScenario<ConfiguredAIProvider>();
         await resaved.Given.ForEventSource(_id).Events(
-            [.. legacyHistory, .. new SetExplicitAIProviderTierModels(_id, _legacy.TierModels).Handle()]);
+            [.. legacyHistory, .. new SetAIProviderTierModels(_id, _legacy.TierModels).Handle()]);
         _resavedLegacy = resaved.Instance;
     }
 
@@ -97,11 +98,11 @@ public class and_tier_provenance_is_recorded : Specification
     [Fact] void should_replace_the_whole_table_when_all_tiers_are_cleared() => _cleared.TierModels.ShouldEqual(TierModels.NotSet);
     [Fact] void should_refuse_fast_after_it_is_cleared() => TierModelResolution.Resolve(_without_fast, ModelTier.Fast).ShouldEqual(ModelName.NotSet);
     [Fact] void should_refuse_fast_after_all_tiers_are_cleared() => TierModelResolution.Resolve(_cleared, ModelTier.Fast).ShouldEqual(ModelName.NotSet);
-    [Fact] void should_refuse_an_unmarked_replacement() => TierModelResolution.Resolve(_unmarked, ModelTier.Fast).ShouldEqual(ModelName.NotSet);
+    [Fact] void should_preserve_legacy_resolution_for_an_unmarked_replacement() => TierModelResolution.Resolve(_unmarked, ModelTier.Fast).ShouldEqual(_unmarked.TierModels.Fast);
     [Fact] void should_refuse_a_derived_replacement() => TierModelResolution.Resolve(_rederived, ModelTier.Fast).ShouldEqual(ModelName.NotSet);
     [Fact] void should_not_infer_legacy_provenance() => _legacy.TierModelMappingSource.ShouldEqual(TierModelMappingSource.Unknown);
-    [Fact] void should_not_admit_the_legacy_fast_mapping() => TierModelResolution.Resolve(_legacy, ModelTier.Fast).ShouldEqual(ModelName.NotSet);
+    [Fact] void should_keep_resolving_the_legacy_fast_mapping() => TierModelResolution.Resolve(_legacy, ModelTier.Fast).ShouldEqual(_legacy.TierModels.Fast);
     [Fact] void should_record_a_deliberate_unchanged_legacy_resave() => _resavedLegacy.TierModelMappingSource.ShouldEqual(TierModelMappingSource.Explicit);
-    [Fact] void should_admit_the_legacy_table_only_after_deliberate_resave() => TierModelResolution.Resolve(_resavedLegacy, ModelTier.Fast).ShouldEqual(_legacy.TierModels.Fast);
+    [Fact] void should_keep_resolving_after_a_save_through_the_legacy_command() => TierModelResolution.Resolve(_resavedLegacy, ModelTier.Fast).ShouldEqual(_legacy.TierModels.Fast);
     [Fact] void should_not_let_the_independent_legacy_history_change_the_explicit_snapshot() => _explicit.TierModelMappingSource.ShouldEqual(TierModelMappingSource.Explicit);
 }

@@ -56,7 +56,9 @@ public static class TierModelResolution
         var mapped = provider.TierModels.For(tier);
         if (provider.ModelDiscoveryStatus == AIModelDiscoveryStatus.Unavailable)
         {
-            return provider.TierModelMappingSource == TierModelMappingSource.Explicit && !mapped.Equals(ModelName.NotSet)
+            // Unknown tables predate provenance, including catalog-derived tables. Keep their legacy resolution.
+            var isExplicitOrLegacy = provider.TierModelMappingSource is TierModelMappingSource.Explicit or TierModelMappingSource.Unknown;
+            return isExplicitOrLegacy && !mapped.Equals(ModelName.NotSet)
                 ? new(tier, mapped, TierModelSource.Configured, string.Empty)
                 : new(
                     tier,
