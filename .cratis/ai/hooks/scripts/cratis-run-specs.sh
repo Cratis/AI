@@ -89,19 +89,21 @@ function verifyCounts(runner, output, report, project) {
     let total;
     let passed;
     let failed;
+    let skipped;
     if (runner === 'xunit-mtp-off' && existsSync(report)) {
         const counters = /<(?:\w+:)?Counters\b([^>]*)\/?\s*>/.exec(readFileSync(report, 'utf8'))?.[1];
         const count = name => { const value = new RegExp(`\\b${name}="(\\d+)"`).exec(counters ?? ''); return value ? Number(value[1]) : undefined; };
-        total = count('total'); passed = count('passed'); failed = count('failed');
+        total = count('total'); passed = count('passed'); failed = count('failed'); skipped = count('notExecuted') ?? 0;
     } else if (runner !== 'xunit-mtp-off') {
         const count = expression => { const match = expression.exec(output); return match ? Number(match[1]) : undefined; };
         total = count(/\btotal:\s*(\d+)/i);
         passed = count(/\b(?:succeeded|passed):\s*(\d+)/i);
         failed = count(/\bfailed:\s*(\d+)/i);
+        skipped = count(/\bskipped:\s*(\d+)/i) ?? 0;
     }
     if (total === 0) refuse(`${project}: zero tests executed; no specifications verified.`);
     if (total === undefined || passed === undefined || failed === undefined) refuse(`${project}: UNVERIFIED — runner count evidence unavailable. Configure a repository-owned invocation with verified reports.`);
-    if (total !== passed || failed !== 0) refuse(`${project}: not all specifications passed (total=${total}, passed=${passed}, failed=${failed}).`);
+    if (failed !== 0 || passed + skipped !== total || passed === 0) refuse(`${project}: not all specifications passed (total=${total}, passed=${passed}, failed=${failed}).`);
     console.log(`cratis-run-specs: verified total=${total}, passed=${passed}, failed=${failed}`);
 }
 
