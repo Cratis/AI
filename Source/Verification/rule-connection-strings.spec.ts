@@ -10,7 +10,7 @@ import { frontmatter } from '../../.cratis/ai/harnesses/pi/extensions/shared/fro
 const rules = resolve(import.meta.dirname, '../../.cratis/ai/rules');
 
 const schemeUri = /(?<![\w+.-])(?!https?:)[a-z][a-z0-9+.-]*:\/\/\S/i;
-const credentialString = /\b(?:Password|Pwd)\s*=/i;
+const credentialString = /\b(?:Password|Pwd|AccountKey|SharedAccessKey|SharedAccessSignature)\s*=/i;
 
 export function connectionStringFindings(content: string): string[] {
     return content.split('\n').flatMap((line, index) =>
@@ -34,6 +34,9 @@ function ruleFiles(directory: string): string[] {
 test('the connection string detector flags URIs and credential strings but not web links', () => {
     assert.equal(connectionStringFindings('const string c = "mongodb://localhost:27017";').length, 1);
     assert.equal(connectionStringFindings('Server=db;Password=x;').length, 1);
+    assert.equal(connectionStringFindings('AccountName=example;AccountKey=hostile-sample;').length, 1);
+    assert.equal(connectionStringFindings('Endpoint=example;SharedAccessKey=hostile-sample;').length, 1);
+    assert.equal(connectionStringFindings('SharedAccessSignature=hostile-sample;').length, 1);
     assert.equal(connectionStringFindings('postgres://u@h/db').length, 1);
     assert.equal(connectionStringFindings('See https://example.com and http://localhost:5000').length, 0);
 });
