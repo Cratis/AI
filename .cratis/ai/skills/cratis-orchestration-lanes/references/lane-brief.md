@@ -60,12 +60,12 @@ C# rules.
 **Decisions already made:** the cap is five and is a constant, not
 configuration.
 
-**Gate command:** `dotnet test Source/Export.Specs`.
+**Gate command:** `./Source/Export.Specs/bin/Debug/net10.0/Export.Specs`.
 
 **Done =**
 - [ ] A failing upload stops after five attempts and reports the error
 - [ ] A spec covers the fifth failure and a success on the third attempt
-- [ ] `dotnet test Source/Export.Specs` exits 0
+- [ ] `./Source/Export.Specs/bin/Debug/net10.0/Export.Specs` exits 0
 - [ ] `git diff --stat` shows only the owned files
 
 **Stop and report if:** a public type must change, or another file needs edits.

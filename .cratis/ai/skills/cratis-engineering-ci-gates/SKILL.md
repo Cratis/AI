@@ -81,8 +81,9 @@ a red run to discover the next failure.
 
 Several agents, worktrees or builds often share one machine. Keep it responsive:
 
-- Cap parallelism, for example `dotnet build -m:2`, `dotnet test -m:2` with the
-  spec runner's thread limit, and `vitest run --maxWorkers=2`.
+- Cap parallelism, for example `dotnet build -m:2`, built spec executables with their
+  runner-specific thread limit, and `vitest run --maxWorkers=2`. Do not pass MSBuild
+  `-m` to executables; `dotnet test <project> --no-build -m:2` is VSTest-only.
 - Run one heavy phase at a time (build, then specs, then frontend lint and
   tests), never several at once.
 - Do not start a heavy phase while another agent's runs in the same machine's

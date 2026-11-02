@@ -76,4 +76,4 @@ append behavior. Deliver the same occurrence twice under the same effect name:
 assert one committed effect and a recorded result on the second delivery. Cover
 a terminal refusal, a retryable concurrency conflict, insufficient capability,
 and commit-then-lost-reply recovery. Run the owning specification project with
-`dotnet test`; passing means those assertions ran, not just that compilation succeeded.
+the owning project's built spec executable (see [specs.csharp](../../../rules/specs.csharp.md)); passing means those assertions ran, not just that compilation succeeded.
