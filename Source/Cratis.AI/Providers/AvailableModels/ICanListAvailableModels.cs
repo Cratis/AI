@@ -24,4 +24,21 @@ public interface ICanListAvailableModels
     /// <param name="provider">The configured provider to ask - its credentials already revealed.</param>
     /// <returns>The model names the provider publishes - empty when it publishes none or cannot be asked.</returns>
     Task<IEnumerable<ModelName>> List(ConfiguredAIProvider provider);
+
+    /// <summary>
+    /// Discovers the catalog with a typed outcome while adapting existing listing implementations.
+    /// </summary>
+    /// <param name="provider">The configured provider to ask.</param>
+    /// <returns>The catalog or the catalog reader's failure.</returns>
+    async Task<AIModelDiscoveryResult> Discover(ConfiguredAIProvider provider)
+    {
+        try
+        {
+            return AIModelDiscoveryResult.Discovered((await List(provider)).ToArray());
+        }
+        catch (ModelCatalogUnavailable exception)
+        {
+            return AIModelDiscoveryResult.Failed(exception.Message);
+        }
+    }
 }

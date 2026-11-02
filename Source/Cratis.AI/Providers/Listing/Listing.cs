@@ -54,6 +54,7 @@ namespace Cratis.AI.Providers.Listing;
 [FromEvent<CopilotProviderAdded>]
 [FromEvent<AIProviderModelsDiscovered>]
 [FromEvent<AIProviderModelDiscoveryFailed>]
+[FromEvent<AIProviderModelDiscoveryUnavailable>]
 [FromEvent<AIProviderUsageCredentialSet>]
 [FromEvent<AIProviderUsageCredentialCleared>]
 [FromEvent<AIProviderRateLimited>]
@@ -90,6 +91,7 @@ public record AIProvider(
     [SetFrom<OpenAISubscriptionCredentialConfigured>(nameof(OpenAISubscriptionCredentialConfigured.ExpiresAt))]
     DateTimeOffset? SubscriptionExpiresAt = null,
     [SetFrom<AIProviderTierModelsSet>(nameof(AIProviderTierModelsSet.Models))]
+    [SetFrom<AIProviderTierModelsProvenanceSet>(nameof(AIProviderTierModelsProvenanceSet.Models))]
     TierModels? TierModels = null,
     [SetFrom<AIProviderUsageCapacitySet>(nameof(AIProviderUsageCapacitySet.UsageCapacity))]
     AIProviderUsageCapacity? UsageCapacity = null,
@@ -97,6 +99,7 @@ public record AIProvider(
     DateTimeOffset? ModelsDiscoveredAt = null,
     [SetValue<AIProviderModelsDiscovered>("")]
     [SetFrom<AIProviderModelDiscoveryFailed>(nameof(AIProviderModelDiscoveryFailed.Reason))]
+    [SetFrom<AIProviderModelDiscoveryUnavailable>(nameof(AIProviderModelDiscoveryUnavailable.Reason))]
     string ModelDiscoveryFailure = "",
     [SetValue<AIProviderUsageCredentialSet>(true)]
     [SetValue<AIProviderUsageCredentialCleared>(false)]
@@ -113,6 +116,21 @@ public record AIProvider(
     [SetValue<AIProviderHarnessesSet>(true)]
     bool HasHarnessSelection = false)
 {
+    /// <summary>
+    /// Gets the recorded origin of the current table, unknown for compatibility-only writes.
+    /// </summary>
+    [SetValue<AIProviderTierModelsSet>(TierModelMappingSource.Unknown)]
+    [SetFrom<AIProviderTierModelsProvenanceSet>(nameof(AIProviderTierModelsProvenanceSet.Source))]
+    public TierModelMappingSource TierModelMappingSource { get; init; }
+
+    /// <summary>
+    /// Gets the latest discovery outcome independently of any retained successful catalog.
+    /// </summary>
+    [SetValue<AIProviderModelsDiscovered>(AIModelDiscoveryStatus.Discovered)]
+    [SetValue<AIProviderModelDiscoveryFailed>(AIModelDiscoveryStatus.Failed)]
+    [SetValue<AIProviderModelDiscoveryUnavailable>(AIModelDiscoveryStatus.Unavailable)]
+    public AIModelDiscoveryStatus ModelDiscoveryStatus { get; init; }
+
     /// <summary>
     /// Observes every configured AI provider.
     /// </summary>

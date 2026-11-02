@@ -21,6 +21,26 @@ public class AnthropicModelListing(IModelCatalogReader reader) : ICanListAvailab
     public AIProviderType Type => AIProviderType.Anthropic;
 
     /// <inheritdoc/>
+    public async Task<AIModelDiscoveryResult> Discover(ConfiguredAIProvider provider)
+    {
+        if (ProviderCatalogs.HasValue(provider.ApiKey) && AnthropicCredential.IsOAuthToken(provider.ApiKey) &&
+            !ProviderCatalogs.HasValue(provider.UsageApiKey))
+        {
+            return AIModelDiscoveryResult.Unavailable(
+                "A Claude subscription token cannot read Anthropic's model list, and no usage reporting key is configured to ask with instead - review and save the model selection for each tier by hand.");
+        }
+
+        try
+        {
+            return AIModelDiscoveryResult.Discovered((await List(provider)).ToArray());
+        }
+        catch (ModelCatalogUnavailable exception)
+        {
+            return AIModelDiscoveryResult.Failed(exception.Message);
+        }
+    }
+
+    /// <inheritdoc/>
     public async Task<IEnumerable<ModelName>> List(ConfiguredAIProvider provider)
     {
         // Claude setup tokens authenticate Claude Code but do not authorize Anthropic's model-list
@@ -54,7 +74,7 @@ public class AnthropicModelListing(IModelCatalogReader reader) : ICanListAvailab
         }
         catch (ModelCatalogUnavailable exception) when (subscriptionToken)
         {
-            var refusedBoth = "a Claude subscription token cannot read Anthropic's model list, and the usage reporting key was refused for it as well "
+            var refusedBoth = "a Claude subscription token cannot read Anthropic's model list, and the usage reporting catalog request failed "
                 + $"({exception.Message.TrimEnd('.')}) - name the models for each tier by hand";
             throw new ModelCatalogUnavailable("Anthropic", refusedBoth);
         }

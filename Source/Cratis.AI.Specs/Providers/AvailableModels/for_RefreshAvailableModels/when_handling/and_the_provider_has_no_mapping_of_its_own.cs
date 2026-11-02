@@ -6,7 +6,7 @@ using Cratis.AI.Providers.SettingTierModels;
 namespace Cratis.AI.Providers.AvailableModels.for_RefreshAvailableModels.when_handling;
 
 /// <summary>
-/// Registration's shape: two events on one stream. The vendor's catalog is one fact, and the tier
+/// Registration's shape: catalog, mapping and provenance events on one stream. The vendor's catalog is one fact, and the tier
 /// mapping Direct derived from it is another - which is what makes a freshly added provider usable
 /// without anybody opening its settings (#1187).
 /// </summary>
@@ -27,7 +27,17 @@ public class and_the_provider_has_no_mapping_of_its_own : Specification
             null,
             _at));
 
-    [Fact] void should_append_two_events() => _result.Count().ShouldEqual(2);
+    [Fact] void should_append_three_events() => _result.Count().ShouldEqual(3);
+
+    [Fact]
+    void should_record_derived_provenance_after_the_compatibility_mapping()
+    {
+        var events = _result.ToArray();
+        events[1].ShouldBeOfExactType<AIProviderTierModelsSet>();
+        var provenance = (AIProviderTierModelsProvenanceSet)events[2];
+        provenance.Source.ShouldEqual(TierModelMappingSource.Derived);
+        provenance.Models.ShouldEqual(((AIProviderTierModelsSet)events[1]).Models);
+    }
 
     [Fact]
     void should_record_the_catalog_exactly_as_published() =>

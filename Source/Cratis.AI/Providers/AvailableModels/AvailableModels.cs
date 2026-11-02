@@ -73,8 +73,7 @@ public class AvailableAIModels(
             // Both credentials are revealed at the moment they are spent, the usage one included:
             // a vendor whose completions credential cannot read its catalog may still answer the
             // second key, and an encrypted value handed to a listing would simply be refused.
-            var models = (await listing.List(provider)).ToArray();
-            return AIModelDiscoveryResult.Discovered(models);
+            return await listing.Discover(provider);
         }
         catch (ModelCatalogUnavailable exception)
         {

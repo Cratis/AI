@@ -24,7 +24,9 @@ public class and_a_listing_serves_the_provider_type : given.all_dependencies
 
     [Fact] void should_answer_with_the_listings_models() => _result.Models.ShouldContainOnly(new ModelName("claude-sonnet-4-5"), new ModelName("claude-haiku-4-5"));
 
+    [Fact] void should_call_discovery_once() => _anthropicListing.DiscoveryCalls.Count.ShouldEqual(1);
+
     [Fact]
     void should_hand_the_listing_the_revealed_key() =>
-        _anthropicListing.Received(1).List(Arg.Is<ConfiguredAIProvider>(provider => provider.ApiKey == new AIProviderApiKey("sk-ant-test")));
+        _anthropicListing.DiscoveryCalls.Single().ApiKey.ShouldEqual(new AIProviderApiKey("sk-ant-test"));
 }

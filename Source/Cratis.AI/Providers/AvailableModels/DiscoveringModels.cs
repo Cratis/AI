@@ -53,13 +53,18 @@ public record RefreshAvailableModels(AIProviderId Provider) : ICanProvideEventSo
     /// <param name="refresh">What <see cref="Provide"/> found.</param>
     /// <returns>The events - the discovery outcome, and a derived tier mapping when the provider has none of its own.</returns>
     /// <remarks>
-    /// Two events on a first successful discovery, which is the shape a registration produces: the
-    /// catalog is the vendor's fact, and the tier mapping derived from it is Direct's. Deriving only
+    /// Three ordered events on a first successful discovery: the catalog is the vendor's fact,
+    /// and the derived tier mapping and its provenance are Direct's. Deriving only
     /// when the provider has no mapping of its own is what keeps a deliberate mapping deliberate - a
     /// refresh never silently re-decides what an operator already decided.
     /// </remarks>
     public IEnumerable<object> Handle(ModelCatalogRefresh refresh)
     {
+        if (refresh.Result.Status == AIModelDiscoveryStatus.Unavailable)
+        {
+            return [new AIProviderModelDiscoveryUnavailable(refresh.Result.Failure, refresh.At)];
+        }
+
         if (!refresh.Result.Succeeded)
         {
             return [new AIProviderModelDiscoveryFailed(refresh.Result.Failure, refresh.At)];
@@ -69,7 +74,11 @@ public record RefreshAvailableModels(AIProviderId Provider) : ICanProvideEventSo
         if (refresh.Configured?.IsNotSet() != false)
         {
             var derived = TierModelAssignment.From(refresh.Result.Models);
-            if (!derived.IsNotSet()) events.Add(new AIProviderTierModelsSet(derived));
+            if (!derived.IsNotSet())
+            {
+                events.Add(new AIProviderTierModelsSet(derived));
+                events.Add(new AIProviderTierModelsProvenanceSet(derived, TierModelMappingSource.Derived));
+            }
         }
 
         return events;
@@ -148,6 +157,11 @@ public record AvailableAIModelDiscovery(
         if (provider is null)
         {
             return [DiscoverySentinels.For("The configured provider could not be found.", default)];
+        }
+
+        if (provider.ModelDiscoveryStatus == AIModelDiscoveryStatus.Unavailable)
+        {
+            return [DiscoverySentinels.For(provider.ModelDiscoveryFailure, provider.ModelsDiscoveredAt)];
         }
 
         var models = provider.AvailableModels.ToArray();
