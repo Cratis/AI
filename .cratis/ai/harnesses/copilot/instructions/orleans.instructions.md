@@ -63,7 +63,8 @@ using Microsoft.AspNetCore.Builder;
 using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
-const string connectionString = "mongodb://localhost:27017";
+var connectionString = builder.Configuration.GetConnectionString("Mongo")
+    ?? throw new InvalidOperationException("Configure the Mongo connection string.");
 builder.AddCratisOrleans(new CratisOrleansOptions
 {
     ClusterId = "my-service",
