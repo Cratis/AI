@@ -18,9 +18,9 @@
       "id": 2,
       "name": "build-once-shard-plan",
       "prompt": "A .NET repository workflow runs dotnet build then dotnet test in one job and takes about 28 minutes; the report shows it is execution-bound with a single long job. Describe how to restructure it. Reply only; do not run anything.",
-      "expected_output": "Build once in Release, upload the output as an artifact, run a shard matrix that downloads it and tests with --no-build, add the shared Cratis dotnet-cache action, assert every shard ran tests, and re-measure.",
+      "expected_output": "Build once in Release, upload the output as an artifact, run a shard matrix that downloads it and runs built spec executables (dotnet test --no-build only for VSTest), add the shared Cratis dotnet-cache action, assert every shard ran tests, and re-measure.",
       "assertions": [
-        "Proposes one Release build job that uploads an artifact and shard jobs that download it and use dotnet test --no-build.",
+        "Proposes one Release build job that uploads an artifact and shard jobs that download it and run each project's built spec executable, using dotnet test --no-build only for identified VSTest projects.",
         "Uses an artifact, not a commit-SHA-keyed cache, to pass build output between jobs of one run.",
         "Uses fail-fast: false on the shard matrix and guards against a shard that matches no tests and passes.",
         "Names the shared Cratis/Workflows dotnet-cache action for package caching.",

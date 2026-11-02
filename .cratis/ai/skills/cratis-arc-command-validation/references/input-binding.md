@@ -61,6 +61,6 @@ Arc can fail to bind such results to the matching form field.
 
 Add specs for offset-less rejection, an accepted offset, malformed input under
 both authorized and denied callers, and nested/indexed member paths. Assert
-server `Members` using camelCase and run `dotnet test` on the owning spec project.
+server `Members` using camelCase and run the owning spec project's built executable (see [specs.csharp](../../../rules/specs.csharp.md)).
 For form behavior, assert the rejection appears on its intended field, not only
 in a command-wide error list.
