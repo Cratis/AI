@@ -34,7 +34,8 @@ This reference holds the given/when/then construct table and the enumeration and
 | `then error` | a validation or constraint rejection, reason unnamed |
 | `then denied` | an authorization denial (`Unauthorized`) |
 | `for <value>` | the event source of a `given`/`then` event, or of the `when` command or appended event |
-| `<property> = <value>` | a literal, `null`, or a one-line JSON-shaped object or list: `lines = [{"sku":"A-1","quantity":2}]` |
+| `<property> = <value>` | a scalar literal or `null` |
+| `<property>` with an indented block | an object (`member = value` lines) or a list (one `item` line per element); `<property> none` is an empty list. Screenplay has no JSON: `lines = [...]` is PLAY0833 |
 
 ## Composite-keyed read models
 
@@ -43,7 +44,7 @@ read model with two or more `key` marks, and every specification over it, with P
 
 - `given readmodel` and `then readmodel` state every key part (missing part PLAY0351,
   repeated part PLAY0519).
-- `then no readmodel <Type> for {"part":"value",...}` names every part (missing PLAY0661,
+- `then no readmodel <Type> for`, with one indented `part = value` line per part, names every part (missing PLAY0661,
   unknown PLAY0662, repeated member PLAY0294).
 - `when query` or `then query … arguments` supplies every `by` part of a single-instance
   query, or the equality filters of a list query (missing, unknown or repeated PLAY0468).
