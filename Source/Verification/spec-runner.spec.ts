@@ -3,7 +3,8 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 
@@ -12,7 +13,7 @@ const runner = resolve(import.meta.dirname, '../../.cratis/ai/hooks/scripts/crat
 type Project = { properties?: Record<string, string>; packages?: string[]; apphost?: boolean; dll?: boolean; output?: string; exit?: number; evaluationExit?: number; report?: number };
 
 function fixture(projects: Record<string, Project>, arguments_: string[] = [], configuration = 'Debug') {
-    const root = mkdtempSync(resolve(import.meta.dirname, '../../.ai-work/ai-961/spec-runner-'));
+    const root = realpathSync(mkdtempSync(join(tmpdir(), 'spec-runner-')));
     const log = join(root, 'calls.jsonl');
     const metadata: Record<string, unknown> = {};
     for (const [name, project] of Object.entries(projects)) {
