@@ -3,6 +3,7 @@
 
 using Cratis.AI.Common;
 using Cratis.AI.Providers.Anthropic;
+using Cratis.AI.Providers.AvailableModels;
 
 namespace Cratis.AI.Providers;
 
@@ -26,6 +27,8 @@ namespace Cratis.AI.Providers;
 /// <para>
 /// The provider-aware overload also recognizes subscription-only Claude Code transport defaults.
 /// Its official CLI aliases are not a replacement catalog and are never sent to API-key providers.
+/// A recorded unavailable discovery instead requires explicit provenance for that tier: historical
+/// catalogs and CLI aliases cannot supply it, and an explicit selection may contradict old models.
 /// </para>
 /// </remarks>
 public static class TierModelResolution
@@ -51,6 +54,17 @@ public static class TierModelResolution
     {
         var catalog = provider.AvailableModels.ToArray();
         var mapped = provider.TierModels.For(tier);
+        if (provider.ModelDiscoveryStatus == AIModelDiscoveryStatus.Unavailable)
+        {
+            return provider.TierModelMappingSource == TierModelMappingSource.Explicit && !mapped.Equals(ModelName.NotSet)
+                ? new(tier, mapped, TierModelSource.Configured, string.Empty)
+                : new(
+                    tier,
+                    ModelName.NotSet,
+                    TierModelSource.Unsatisfied,
+                    $"AI provider {provider.Id} ({provider.Type}) cannot discover models: review and save the {tier}-tier model selection by hand before using it.");
+        }
+
         if (!mapped.Equals(ModelName.NotSet))
         {
             var hasSuccessfulDiscovery = provider.ModelsDiscoveredAt != default || catalog.Length > 0;

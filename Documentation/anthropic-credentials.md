@@ -25,8 +25,9 @@ Normalization does not refresh an expired token, increase account quota, or guar
 A setup token is not a Console API key. Subscription completions use the **unmodified official
 Claude Code CLI**, not the Messages API with fabricated Claude Code identity headers.
 `HeadersFor` is a credential-format helper, not permission to use a subscription against any
-Anthropic endpoint. Model discovery still reports `ModelCatalogUnavailable` without a separate
-key authorized for the Models API; CLI aliases are never recorded as a discovered catalog.
+Anthropic endpoint. Typed model discovery reports `AIModelDiscoveryStatus.Unavailable` for a
+subscription without a separate key for the Models API. The legacy `List` method still throws
+`ModelCatalogUnavailable` in this case. CLI aliases are never recorded as a discovered catalog.
 
 Install [official Claude Code](https://code.claude.com/docs/en/setup) in the environment that runs
 `Cratis.AI`, including your container image. The `claude` executable must be on the service's
@@ -44,9 +45,18 @@ Managed machine policy can still apply; use a dedicated service environment.
 
 ## Tier defaults without model discovery
 
-`TierModelResolution.Resolve(ConfiguredAIProvider, ModelTier)` resolves an explicit tier mapping
-first, then a discovered catalog. If neither names a model, **only** an Anthropic provider with a
-revealed subscription token gets the [official CLI aliases](https://code.claude.com/docs/en/model-config#model-aliases):
+`TierModelResolution.Resolve(ConfiguredAIProvider, ModelTier)` normally resolves a configured tier
+mapping first, subject to the last successful catalog. It then tries the discovered catalog. If
+neither names a model, **only** an Anthropic provider with a revealed subscription token gets the
+[official CLI aliases](https://code.claude.com/docs/en/model-config#model-aliases).
+
+**A recorded `Unavailable` discovery is different:** only a nonempty tier ID from a table with
+`TierModelMappingSource.Explicit` resolves. Historical catalogs, automatically derived tables,
+legacy tables of unknown origin, and CLI aliases cannot supply that tier. An explicit table can
+name a model missing from the historical catalog in this state; only a real conversation can
+establish whether the account can use it.
+
+Outside that unavailable state, the transport aliases remain:
 
 | Tier | CLI alias |
 | --- | --- |
@@ -56,11 +66,56 @@ revealed subscription token gets the [official CLI aliases](https://code.claude.
 | Premier | `opus` |
 
 These are framework-owned transport defaults, not guessed versioned model IDs or an entitlement
-claim. Powerful and Premier share Opus because there is no distinct fourth CLI family. Explicit
-mappings win even if the account cannot use that model; failures stay visible. API-key providers
-without mappings or a catalog still resolve to `ModelName.NotSet`. The older mapping/catalog-only
-`Resolve` overload remains unchanged. Provider serving checks, pooled completions, and pooled chat
-use the provider-aware overload, so subscription calls do not depend on a usage-reporting key.
+claim. Powerful and Premier share Opus because there is no distinct fourth CLI family. Actual
+request failures stay visible. API-key providers without mappings or a catalog still resolve to
+`ModelName.NotSet`. The older mapping/catalog-only `Resolve` overload remains unchanged. Provider
+serving checks, pooled completions, and pooled chat use the provider-aware overload.
+
+## Catalog discovery and deliberate tier selection
+
+Use `ICanListAvailableModels.Discover` or `IAvailableAIModels.Discover` for typed outcomes. Existing
+listing implementations that implement only `List` receive a default adapter. The two-argument
+`AIModelDiscoveryResult(models, failure)` constructor and the existing factories remain available;
+an empty failure infers `Discovered`, otherwise `Failed`. `Succeeded` is true only for `Discovered`.
+
+| Status | Meaning |
+| --- | --- |
+| `NotAttempted` | No discovery outcome has been recorded on the provider. |
+| `Discovered` | A catalog request succeeded, including an empty catalog. |
+| `Unavailable` | A recognized Claude subscription has no alternate listing credential. No catalog request was made. |
+| `Failed` | A request or prerequisite failed, including missing credentials, rejected alternate keys, HTTP errors, network errors, timeouts, and malformed payloads. |
+
+Recognizing the subscription format does **not** validate the token or prove model entitlement.
+When a usage-reporting credential is present, discovery asks with that credential; its 401/403,
+throttling, outages and other failures remain `Failed`, never `Unavailable`. Consumers must keep
+real discovery failures as failures rather than treating diagnostic text as a capability signal.
+
+`RefreshAvailableModels` records `AIProviderModelDiscoveryUnavailable(Reason, AttemptedAt)` without
+inventing models or tiers. `ConfiguredAIProvider.ModelDiscoveryStatus` and the credential-free
+listing expose the latest outcome. The old successful catalog and timestamp remain historical;
+the discovery query returns a reason-bearing sentinel instead of stale model rows when unavailable.
+
+For intentional model selection, dispatch
+`SetExplicitAIProviderTierModels(providerId, completeTierModels)` from
+`Cratis.AI.Providers.SettingTierModels`. It uses the legacy command's provider validation and routing
+conventions. It returns the unchanged `AIProviderTierModelsSet` followed by
+`AIProviderTierModelsProvenanceSet(Models, Explicit)` in one ordered command batch. Callers cannot
+supply the source. Saving the same IDs deliberately is confirmation; saving an unset tier does
+not make that tier usable.
+
+Catalog auto-assignment returns the compatibility mapping followed by provenance with `Derived`
+in the refresh batch. Projection of an unmarked compatibility event always resets the source to
+`Unknown`, even after an earlier explicit save. The complete-table provenance event replaces both
+the table and its source. Source wire values are `Unknown = 0`, `Explicit = 1`, `Derived = 2`.
+Discovery and usage-credential changes do not promote provenance.
+
+The existing `SetAIProviderTierModels` constructor and single-event `Handle()` are unchanged; it
+continues to produce an unmarked event. All pre-upgrade tables remain `Unknown`, even if a person
+originally entered them: the old event cannot distinguish that action from auto-assignment. Review
+and deliberately save the complete table through the new command before testing when discovery is
+unavailable. Do not infer intent from model names, catalog membership or timestamps. Consumers must
+read the committed batch in their own event-store namespace, not authorize from a partial batch or
+cache a provider's provenance across namespaces.
 
 ## Conversational transport: `ClaudeCodeChatClient`
 

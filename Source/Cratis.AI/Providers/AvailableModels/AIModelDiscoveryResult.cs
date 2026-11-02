@@ -14,7 +14,21 @@ public record AIModelDiscoveryResult(IReadOnlyList<ModelName> Models, string Fai
     /// <summary>
     /// Gets whether discovery succeeded, independently of whether the catalog is empty.
     /// </summary>
-    public bool Succeeded => string.IsNullOrEmpty(Failure);
+    public bool Succeeded => Status == AIModelDiscoveryStatus.Discovered;
+
+    /// <summary>
+    /// Gets the outcome, inferring the legacy constructor's meaning unless explicitly supplied.
+    /// </summary>
+    public AIModelDiscoveryStatus Status { get; init; } = string.IsNullOrEmpty(Failure)
+        ? AIModelDiscoveryStatus.Discovered
+        : AIModelDiscoveryStatus.Failed;
+
+    /// <summary>
+    /// Records a capability limitation without validating the credential or inventing a catalog.
+    /// </summary>
+    /// <param name="reason">Why discovery is unavailable.</param>
+    /// <returns>The unavailable outcome.</returns>
+    public static AIModelDiscoveryResult Unavailable(string reason) => new([], reason) { Status = AIModelDiscoveryStatus.Unavailable };
 
     /// <summary>
     /// The outcome for a catalog that was read - possibly an empty one, which is a real answer and

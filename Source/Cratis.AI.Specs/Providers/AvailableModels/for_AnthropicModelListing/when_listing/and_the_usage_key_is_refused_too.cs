@@ -29,7 +29,7 @@ public class and_the_usage_key_is_refused_too : Specification
 
     [Fact] void should_report_that_the_catalog_cannot_be_read() => _result.ShouldBeOfExactType<ModelCatalogUnavailable>();
 
-    [Fact] void should_say_the_usage_key_was_refused_as_well() => _result.Message.ShouldContain("refused for it as well");
+    [Fact] void should_identify_the_usage_catalog_request() => _result.Message.ShouldContain("usage reporting catalog request failed");
 
     [Fact] void should_carry_what_anthropic_answered() => _result.Message.ShouldContain("401");
 }

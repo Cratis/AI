@@ -11,6 +11,7 @@ public class a_reader_with_a_stubbed_endpoint : Specification
 {
     protected ModelCatalogReader _reader;
     protected HttpStatusCode _statusCode;
+    protected Exception? _requestFailure;
     protected string _body;
     protected HttpRequestMessage _request;
 
@@ -29,10 +30,12 @@ public class a_reader_with_a_stubbed_endpoint : Specification
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             context._request = request;
-            return Task.FromResult(new HttpResponseMessage(context._statusCode)
-            {
-                Content = new StringContent(context._body, Encoding.UTF8, "application/json")
-            });
+            return context._requestFailure is not null
+                ? Task.FromException<HttpResponseMessage>(context._requestFailure)
+                : Task.FromResult(new HttpResponseMessage(context._statusCode)
+                {
+                    Content = new StringContent(context._body, Encoding.UTF8, "application/json")
+                });
         }
     }
 }

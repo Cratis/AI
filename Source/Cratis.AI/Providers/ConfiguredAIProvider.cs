@@ -64,6 +64,7 @@ namespace Cratis.AI.Providers;
 [FromEvent<AIProviderHarnessesSet>]
 [FromEvent<AIProviderModelsDiscovered>]
 [FromEvent<AIProviderModelDiscoveryFailed>]
+[FromEvent<AIProviderModelDiscoveryUnavailable>]
 [RemovedWith<AIProviderRemoved>]
 [RemovedWith<AIModelRemoved>]
 public record ConfiguredAIProvider(
@@ -167,7 +168,15 @@ public record ConfiguredAIProvider(
     /// Gets the operator's own mapping of capability tier to model.
     /// </summary>
     [SetFrom<AIProviderTierModelsSet>(nameof(AIProviderTierModelsSet.Models))]
+    [SetFrom<AIProviderTierModelsProvenanceSet>(nameof(AIProviderTierModelsProvenanceSet.Models))]
     public TierModels TierModels { get; init; } = TierModels.NotSet;
+
+    /// <summary>
+    /// Gets the recorded origin of the current table, unknown for compatibility-only writes.
+    /// </summary>
+    [SetValue<AIProviderTierModelsSet>(TierModelMappingSource.Unknown)]
+    [SetFrom<AIProviderTierModelsProvenanceSet>(nameof(AIProviderTierModelsProvenanceSet.Source))]
+    public TierModelMappingSource TierModelMappingSource { get; init; }
 
     /// <summary>
     /// Gets how much the provider may be spent against before it is considered exhausted.
@@ -204,5 +213,14 @@ public record ConfiguredAIProvider(
     /// </summary>
     [SetValue<AIProviderModelsDiscovered>("")]
     [SetFrom<AIProviderModelDiscoveryFailed>(nameof(AIProviderModelDiscoveryFailed.Reason))]
+    [SetFrom<AIProviderModelDiscoveryUnavailable>(nameof(AIProviderModelDiscoveryUnavailable.Reason))]
     public string ModelDiscoveryFailure { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets the latest discovery outcome independently of any retained successful catalog.
+    /// </summary>
+    [SetValue<AIProviderModelsDiscovered>(AIModelDiscoveryStatus.Discovered)]
+    [SetValue<AIProviderModelDiscoveryFailed>(AIModelDiscoveryStatus.Failed)]
+    [SetValue<AIProviderModelDiscoveryUnavailable>(AIModelDiscoveryStatus.Unavailable)]
+    public AIModelDiscoveryStatus ModelDiscoveryStatus { get; init; }
 }

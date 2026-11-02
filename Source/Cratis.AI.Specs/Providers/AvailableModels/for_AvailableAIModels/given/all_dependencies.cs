@@ -12,7 +12,7 @@ public class all_dependencies : Specification
 {
     protected IEventStore _eventStore;
     protected IReadModels _readModels;
-    protected ICanListAvailableModels _anthropicListing;
+    protected model_listing _anthropicListing;
     protected AvailableAIModels _availableModels;
 
     void Establish()
@@ -21,10 +21,10 @@ public class all_dependencies : Specification
         _eventStore = Substitute.For<IEventStore>();
         _eventStore.ReadModels.Returns(_readModels);
 
-        _anthropicListing = Substitute.For<ICanListAvailableModels>();
-        _anthropicListing.Type.Returns(AIProviderType.Anthropic);
-        _anthropicListing.List(Arg.Any<ConfiguredAIProvider>())
-            .Returns([new ModelName("claude-sonnet-4-5"), new ModelName("claude-haiku-4-5")]);
+        _anthropicListing = new()
+        {
+            DiscoveryResult = AIModelDiscoveryResult.Discovered([new ModelName("claude-sonnet-4-5"), new ModelName("claude-haiku-4-5")])
+        };
 
         _availableModels = new(
             _eventStore,
