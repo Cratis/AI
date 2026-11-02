@@ -95,7 +95,12 @@ another version behaves the same.
 
 ## When / when not
 - Use: "when X happens, then ...", schedules, retries, work queues, notifications, webhooks, APIs,
-  files or message feeds, events imported from another context, legacy sync.
+  files or message feeds, events imported from another context, legacy sync, lifecycles and
+  longer processes.
+- A lifecycle (where one thing is and what moves it on) is a `statemachine`; a process that
+  sends several commands, waits, asks for approval or gives up after a deadline is a
+  `workflow` (ESM v36). Read
+  [state machines and workflows](references/statemachines-and-workflows.md) before modeling either.
 - Not for: reaction, trigger or CDL grammar (`cratis-screenplay-captures-and-reactions`); stream
   identity and invariants (`cratis-screenplay-streams-and-consistency`); UI interactions such as
   `on click` (`cratis-screenplay-ui-composition`); hand-written reactors (`cratis-chronicle-reactor`).

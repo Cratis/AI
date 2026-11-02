@@ -83,7 +83,7 @@ module Berths
           berth BerthName = berth
       screen BookBerthScreen
         title "Book a berth"
-        action BookBerth
+        action BookBerth for screen
           navigate to OpenBookingsScreen
       specification BookingABerth
         given caller
@@ -115,7 +115,7 @@ module Berths
       screen OpenBookingsScreen
         title "Open bookings"
         data OpenBooking[] via query ListOpenBookings
-        action BookBerth
+        action BookBerth for screen
 ```
 
 ## What a screen pattern is not
