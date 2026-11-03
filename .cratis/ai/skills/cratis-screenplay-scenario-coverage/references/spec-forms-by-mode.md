@@ -39,7 +39,7 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | `then no events`, `when redelivered` | yes | ESM v17; no new facts, input not re-appended | Stage no-event/redelivery subset; fan-out/cascades/constraints/read expectations/refusal redelivery retain -011 |
 | Refusal branches, `$refusal` | yes | ESM v19; first matching branch wins | Stage supported subset; -039 for unfaithful refusal details/trigger groups, -011 for specification limits |
 | Query `then error` | yes | ESM v18; one query/one error, no result/denial | requires target v18 admission; a v19-capable renderer does not necessarily admit v18 |
-| Composite (JSON) values in specs | yes | yes | no |
+| Composite values in specs: indented object/list blocks, `item` entries, `<name> none` for empty lists (not inline JSON: PLAY0833) | yes | yes | no |
 | Same-primitive `Date`/`DateTime` comparisons in `require`, `produces when` and command or property validation rules (v26; Requires Screenplay 4.199.0; see [date comparisons](../../cratis-screenplay-command-surface/references/date-comparisons.md)) | spec them | binds and executes; a `DateTime` input without an offset is a Validation rejection | Host/executor run it (Requires Stage 4.135.0); renderer STAGE-ESM-046: gap-fill |
 | Date rules using `today`, `$context`, mixed `Date`/`DateTime`, concept or reaction-`where` positions; nested paths | spec them in design | rule does not bind: `recorded` | `recorded` |
 | Bodied rules, code policies | spec them | spec reported **unsupported**, never passed | no |

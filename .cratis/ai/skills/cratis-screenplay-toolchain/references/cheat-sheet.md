@@ -99,7 +99,8 @@ remain unadmitted. Compile and test each relevant fixture with the chosen tool.
   at most once. Canonical printing may place it first, but the parser does not
   require that position. Source preambles precede declarations.
 - Strings: `"..."`, escapes `\" \\ \n \r \t`; other backslashes kept (regex `"^INV-\d{6}$"` works).
-- Structured values: single-line JSON, quoted keys (`[{"sku": "A-1", "quantity": 2}]`).
+- Structured values: indented object/list blocks with `member = value` lines and one `item`
+  entry per list element; `<name> none` for an empty list. Inline JSON is not accepted (PLAY0833).
 - Literal property/concept text rules use `contains`, `not contains`, `starts with`,
   `ends with` with quoted operands (v24, ordinal UTF-16). Portable `matches` refuses
   nonportable constructs with PLAY0699; exact Studio patterns warn PLAY0787.

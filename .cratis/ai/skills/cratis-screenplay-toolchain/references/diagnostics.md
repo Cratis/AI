@@ -401,7 +401,7 @@ or V4 execution. Run the CLI or MCP for those verdicts.
 | PLAY0816 | a specification states `then invokes <Command>`, but no reaction declared in its own slice invokes that command; a specification runs its own slice only, so the invocation can never be made |
 | PLAY0286 | spec value is not a member of the enum |
 | PLAY0287 | producer/capture/spec assigns a field the event lacks |
-| PLAY0291-0294 | bad single-line JSON / unknown key / wrong shape / duplicate key |
+| PLAY0291-0294 | malformed structured value / unknown key / wrong shape / duplicate key; author indented object/list blocks, not inline JSON (PLAY0833) |
 
 ## Batches, described handlers, text rules and protected reads
 

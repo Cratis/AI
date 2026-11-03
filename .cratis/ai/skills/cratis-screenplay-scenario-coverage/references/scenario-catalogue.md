@@ -243,8 +243,9 @@ rules, gates, mappings or contracts to make an example pass.
   and booleans, quoted declared enum members. Dates are concrete ISO dates in the story's
   future, instants offset-qualified; fix `given clock` when asserting occurrence-time values.
   No `{uuid}`/`{now}` placeholders. No real personal data.
-- Structured values: single-line JSON with quoted keys and required members; empty, single and
-  several items where that changes behaviour.
+- Structured values: indented object/list blocks with required `member = value` lines and `item`
+  entries; `<name> none` for empty lists, single and several items where that changes behavior.
+  Inline JSON is not accepted (PLAY0833).
 - Competing claim: different source ids, same constrained value. Retry: same source id and inputs.
   Removal: an existing target, plus a second row that must survive. Branch: inputs that flip the
   condition. Denial: valid business input, vary only the caller. Validation: satisfy every other

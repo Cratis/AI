@@ -35,6 +35,23 @@ describe('when selecting preferred syntax diagnostics', () => {
     });
 });
 
+describe('when documenting structured specification values', () => {
+    for (const path of [
+        'cratis-screenplay-toolchain/references/cheat-sheet.md',
+        'cratis-screenplay-scenario-coverage/references/spec-forms-by-mode.md',
+        'cratis-screenplay-scenario-coverage/references/scenario-catalogue.md',
+    ]) {
+        it(`should teach indented blocks instead of JSON in ${path}`, async () => {
+            const text = await readFile(`../../.cratis/ai/skills/${path}`, 'utf8');
+            assert.match(text, /indented object\/list blocks/);
+            assert.match(text, /`item`/);
+            assert.match(text, /`<name> none`/);
+            assert.match(text, /PLAY0833/);
+            assert.doesNotMatch(text, /single-line JSON|Composite \(JSON\)/);
+        });
+    }
+});
+
 describe('when checking preferred syntax', () => {
     it('should forbid a style diagnostic even in an expect fence', () => {
         const result = checker();
