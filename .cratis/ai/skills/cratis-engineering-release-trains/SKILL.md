@@ -54,7 +54,7 @@ push to a PR unless the request says so. Pass `--assignee @me` when creating it.
    gh pr list --state open --json number,headRefName,title,author
    ```
 
-2. Group related, ready deliveries under one candidate and one PR. Check with
+2. Group ready deliveries under one candidate and one PR. Check with
    the person assembling an existing candidate before changing it. Independent
    work branches start from `origin/main`; work that depends on an unmerged
    candidate may start from that candidate's latest commit (see Replace waits
