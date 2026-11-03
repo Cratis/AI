@@ -119,7 +119,7 @@ Why it is shaped this way:
 | Forced | the same with `--force` | `written: 1`, the rest `unchanged` |
 | Missing name | render without `--name` | exit 5: `A valid --name is required and must be a C# identifier` |
 | Debug build | `dotnet build out/Marina.csproj -c Debug` | succeeds, 0 warnings, 0 errors |
-| Debug tests | Run `out/Marina.csproj`'s verified built Debug spec executable (see [specs.csharp](../../../rules/specs.csharp.md)); only VSTest uses `dotnet test out/Marina.csproj -c Debug --no-build` | all specification classes pass |
+| Debug tests | `dotnet test out/Marina.csproj -c Debug --no-build` after the Debug build (Stage-rendered apps use VSTest) | all specification classes pass |
 
 Runtime (`docker compose up`, `/healthz`) and the frontend build are separate results.
 
