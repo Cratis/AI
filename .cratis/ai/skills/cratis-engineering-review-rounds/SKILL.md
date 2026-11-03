@@ -22,12 +22,25 @@ advisory preference is not a merge gate. Missing required evidence yields
 
 ## Budget the review
 
-- Run one quick round per delivery. A second is warranted only after a blocker,
-  not to seek reassurance or eliminate suggestions.
-- Run one whole-change review per PR on the assembled change. Quick delivery
-  rounds do not replace it. Start whole-change inspection in parallel with the
-  gate when possible, but keep it provisional: required gates must pass before
-  an approval report is finalized. Do not launch duplicate gates for review.
+- Review each branch whole once, the first time or when the coordinator orders
+  it; a second round only after a blocker, not to seek reassurance.
+- After that, review deltas only: from the last reviewed head in the review
+  ledger to the new head. A certified item is never re-reviewed whole.
+- For a release train, review glue only: recreate the merge of the certified
+  item heads and review `git diff <that merge> <train head>` (merge resolutions,
+  fix-ups; for main merges, the conflict resolutions). Item reviews are not an
+  integration pass; the train's gate and CI still run on the merged state.
+- Start review in parallel with the gate when possible, but keep it
+  provisional: required gates must pass before an approval report is finalized.
+  Do not launch duplicate gates for review.
+- Keep a review ledger at the path the coordinator names, default
+  `.ai-work/review-ledger.tsv` (ignored work area, configurable). Append one row per
+  attempt: repo, branch/PR, full base and head SHAs, run id, mode, ranges
+  covered, verdict (PASS / NOT PASS / INCOMPLETE), date. An attempt is always
+  recorded, but an unexamined partition never advances certified coverage.
+  Rerunning a missing partition at a later head covers its original base to head
+  range plus the new delta. An item is certified only with complete coverage, the
+  security lens run and blockers resolved; an incomplete slot is not a pass.
 - Use ordinary depth by default. Deep review needs one named risk class:
   **security**, **algorithmic**, **concurrency**, or **cross-cutting**, plus a
   one-line justification tied to the changed behavior. Data-loss exposure or
@@ -84,8 +97,8 @@ later completes a valid review.
 
 ## Delta rounds
 
-A delta round follows a whole-change review and reviews from the last reviewed
-SHA, not from an arbitrary base. Carry the prior Blockers, unresolved evidence
+A delta round is the default after a first whole review and reviews from the last
+reviewed SHA in the ledger, not from an arbitrary base. Carry the prior Blockers, unresolved evidence
 gaps, Suggestions, and Dismissed findings with their reasons. Supply the round
 number, prior report, original base, last reviewed SHA, and new head explicitly.
 
@@ -106,8 +119,9 @@ unresolved findings and limits; a narrow delta cannot certify surfaces that
 were never examined. Reuse earlier approval only for the exact committed SHAs
 and examined scope, never for a dirty tree or a changed head. Dirty-tree feedback
 is preliminary, not reusable committed approval. Do not duplicate completed
-premium reviews or gates on unchanged exact reviewed scope; a bounded loop does
-not replace the final independent whole-change review or full required gates.
+premium reviews or gates on unchanged exact reviewed scope. Certified item
+coverage plus the train's glue or delta review replaces a repeat whole-change
+review; it never replaces the required gates, which run on the merged state.
 
 Do not start a follow-up round for advisory findings alone. Fix them only when
 cheap in an existing correction pass; otherwise leave them as Suggestions.

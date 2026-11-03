@@ -13,7 +13,8 @@ compatibility: Requires git and the GitHub CLI (gh).
 A **candidate** is the branch assembling deliveries intended to ship together.
 A repository includes its main checkout and all its worktrees. Consider their
 concurrent work together, not as separate releases merely because it has
-separate branches. One person or session assembles the candidate.
+separate branches. One person or session assembles the candidate. Even a single
+item ships as a train: the train is the PR, and item branches get no PR.
 
 ## Authority and routing
 
@@ -39,8 +40,8 @@ run handling, and `cratis-engineering-review-rounds` for proportionate review.
 Each push to an open PR starts checks on shared runners. Push the branch for
 backup or hand-off if needed, but open the PR only once, when the work is
 verified locally and ready. Push to it again only for a correction that review
-or CI found. Do not open a draft PR to see what CI says. Related work goes into
-one PR (see below and `cratis-engineering-consolidation-guard`). An orchestrator
+or CI found. Do not open a draft PR to see what CI says. All work goes into
+the repository's one train PR (see below and `cratis-engineering-consolidation-guard`). An orchestrator
 opens the one PR; a sub-agent delivers a verified branch and does not open or
 push to a PR unless the request says so. Pass `--assignee @me` when creating it.
 
@@ -67,10 +68,11 @@ push to a PR unless the request says so. Pass `--assignee @me` when creating it.
    ready delivery branches with merge commits. Keep each logical change in its
    own commits. Return a conflicting or failing delivery for correction rather
    than guessing its intent in the assembled branch.
-5. Keep one candidate per repository by default. Apply the split criteria in
-   `pull-requests.md` for unrelated work, different risk, or an urgent fix. Name
-   the exception in the reviewer comment; a major awaiting human confirmation
-   must not silently hold unrelated safe work indefinitely.
+5. Keep one train per repository. Split only for a named major awaiting human
+   confirmation or an urgent security fix authorized in writing; name the
+   exception in the reviewer comment. Unrelated or differently risky work rides
+   a later train, not its own PR. Item branches get no PR, CI or
+   `run-integration` label; they get local gates and a delta review.
 
 Minimal assembly, after agreeing on the included deliveries:
 
@@ -103,19 +105,19 @@ release, publish, or deploy run, or another session's watched merge. Leave
 others running and report them. Follow `cratis-engineering-ci-gates` for the
 cancellation checks; folding a PR is not blanket cancellation authority.
 
-## Size by readiness, then freeze
+## Cadence, then freeze
 
-Before the final gate, list in-flight deliveries and their expected readiness.
-Hold the cut for work expected ready within about one gate duration, so the
-assembled gate runs once on the larger set. Cut without work further out or
-blocked on a design decision, consumer proof, or another repository.
+A train holds at most about 10 items, or one review slot of glue. Cut the next
+train as soon as the previous one merges, or at least every 4 hours while ready
+items wait. Never hold the cut for work that is not yet ready; keep items blocked
+on a design decision, consumer proof, or another repository out.
 
 After the cut, nothing joins. Late deliveries go into the next candidate.
 Corrections needed to make the frozen candidate pass are not new deliveries;
 rerun the affected required gates for that changed code state.
 
-Record the cut and readiness estimates in one line in the reviewer comment,
-not the release note: `Cut with A and B; C waits for consumer proof.` Keep local
+Record the cut in one line in the reviewer comment, not the release note:
+`Cut with A and B; C waits for consumer proof.` Keep local
 coordination records under `.ai-work/`, never in public release text.
 
 ## Replace waits with local work
@@ -128,9 +130,17 @@ queued, do the next independent piece of work.
 - Prove against locally built packages instead of waiting for a release; see
   [cratis-engineering-local-cross-repo-verification](../cratis-engineering-local-cross-repo-verification/SKILL.md).
   Only the final version pin waits for the release.
-- Drop an item that has been stuck for about two hours rather than holding the
-  candidate; it joins the next one.
-- Cut a candidate at least every few hours with whatever is green.
+- Evict a stuck or failing item instead of holding the train (next section).
+- Cut a train at least every 4 hours with whatever is green.
+
+## Evict, don't hold
+
+If train CI or the glue review fails and the failure is attributable to one
+item, revert that item out of the train with a revert commit (never rewrite
+history), push once, ship the rest, and send the item to the next train after
+its fix. Diagnose an unattributable failure; never evict the whole train blindly.
+Merge as soon as CI is green and the review passed (majors stay with a human),
+then cut the next train. A train's gate and CI run on the real merged state.
 
 ## Apply the ship bar
 
@@ -143,9 +153,10 @@ making a speculative shipping push. Recheck the merge conditions after CI.
    reason why they do not apply. The assembled local gate is green. Required
    integration coverage follows repository policy and must pass before merge;
    name anything that cannot run locally rather than calling it a local pass.
-3. **Whole change reviewed.** The candidate has a completed review without
-   Blockers or missing required evidence. Targeted delivery reviews alone do
-   not satisfy this condition.
+3. **Reviewed.** Each item head is certified in the review ledger and the
+   train's glue review (merge resolutions, fix-ups, main-merge conflict
+   resolutions) completed without Blockers or missing required evidence. A
+   whole-change review is needed only for an item without a ledger entry.
 4. **Release decision settled.** Release intent follows `pull-requests.md`.
    For a major release, require explicit human confirmation and human merge.
    An agent never merges it; preparing the PR does not answer that checkpoint.
@@ -185,7 +196,7 @@ steps. The next session must recheck the ship bar, not blindly merge on green.
 
 ## What breaks
 
-- **One PR per delivery:** duplicate gates and fragmented releases replace an
+- **A PR per item or a delivery outside the train:** duplicate gates and fragmented releases replace an
   assembled check of the actual shipped change.
 - **A growing frozen candidate:** late work invalidates the gate and cut.
 - **Green means permitted:** checks neither resolve objections nor approve a
@@ -195,7 +206,7 @@ steps. The next session must recheck the ship bar, not blindly merge on green.
 
 Run the repository's exact assembled gate and inspect its successful exit.
 Run `gh pr checks <pr>` before merge: required checks must pass for the tested
-head. Confirm the whole-change review, fresh discussion, and main-overlap check.
+head. Confirm the ledger-certified items and glue review, fresh discussion, and main-overlap check.
 For release notes, execute the repository's `cratis-check-pr.mjs` command from
 `pull-requests.md`; a zero exit is the pass signal. No checklist replaces those
 behavioral and CI signals.

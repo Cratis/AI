@@ -134,10 +134,20 @@ After the run completes with a failure:
 3. Fix all in-scope causes together. Report unrelated or unavailable causes as
    blockers rather than silently waiving them. Re-run the required local gate
    on the fixed state, then push once when the request authorizes it.
-4. Rerun a job only for a diagnosed flake, including a demonstrated transient
-   infrastructure failure, and only after the run completes. For example,
-   `gh run rerun <id> --repo OWNER/REPO --failed` retries failed jobs. Watch the
-   resulting attempt once. A deterministic failure needs a fix, not a retry.
+4. Flaky tests never hang a release. Classify within about 15 minutes from one
+   failed-log read and the test's history on main: real (in code the change
+   touched) or flaky. A flaky or pre-existing claim needs independent root-cause
+   validation; an unknown or repeating failure without a matching signature is
+   real and a blocker, not a quarantine candidate.
+   - Confirmed flake: after the run completes, rerun once, e.g.
+     `gh run rerun <id> --repo OWNER/REPO --failed`; a known flake with a
+     matching signature may go straight to quarantine. If it fails again,
+     quarantine the test in the same train via the repo's mechanism, open a
+     tracked "Flaky: <test>" issue with the evidence (label `flaky`), and push
+     once. Never quarantine silently or disable security or critical-path
+     coverage; if the security lens vetoes, evict the item or escalate.
+   - Real failure: fix in one round or evict the item. Never retry in loops; a
+     train waits at most one CI cycle on a flake.
 
 Never put a CI skip token in a title or commit. Do not spend a push on each
 individual fix or use CI to discover whether speculative fixes compile.
