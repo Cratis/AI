@@ -136,7 +136,8 @@ module Exams
 - Keep the capture and its appended event in Translate; put reactions to that local
   event in a separate Automation. Co-location in a directionless Translate warns
   PLAY0694 and fails `--warnaserror`; explicit inbound refuses it with PLAY0616.
-  `then` lists every new fact, so `TranslatingAPass` includes the Automation result.
+  `TranslatingAPass` states only the Translate slice's own fact; `PassingAfterAPassingResult`
+  states `ExamPassed` in the Automation slice.
 - `when added` records first sight; the separate `when outcome` append handles
   later changes. For an update spec, seed the same reference with `given capture`.
   Requires Screenplay 4.175.0 or later (`screenplay --version`); older evaluators
