@@ -285,7 +285,7 @@ For view specifications:
 
 Symptom: a model delivered with specifications that were never run. `screenplay test <root>` runs the
 reference evaluator; after rendering and building in Debug, run `dotnet test <destination>/<Project>.csproj -c Debug --no-build`
-for the generated specification classes (Stage-rendered apps use VSTest). Use a built spec executable only in repositories whose spec projects really are executables
+for the generated specification classes (Stage-rendered apps use VSTest). Run a built spec executable only where spec projects are executables
 (see [specs.csharp](../../rules/specs.csharp.md)). Report both results separately (`cratis-screenplay-toolchain` V4 and V5.tests); a
 build that succeeds is not a test run, and `unbound`/`unsupported` is not a pass.
 
@@ -294,7 +294,7 @@ build that succeeds is not a test run, and `unbound`/`unsupported` is not a pass
 - [ ] Validate the complete root with warnings as errors, naming tool/version.
       Standalone tool version: `cratis-screenplay-toolchain/SKILL.md`. Run specification examples through
       `screenplay test`; expected unadmitted syntax reports unbound, not passed.
-- [ ] `screenplay test` and, after rendering and building in Debug, `dotnet test <destination>/<Project>.csproj -c Debug --no-build` were run and their counts reported.
+- [ ] `screenplay test` and, after a Debug render and build, the `dotnet test` above were run and their counts reported.
 - [ ] Executable diagnostics are clean too: `PLAY0350`, `PLAY0352`, `PLAY0388`,
       `PLAY0389` and `PLAY0273` are only reported at binding.
 - [ ] Every slice has at least one boundary specification.
