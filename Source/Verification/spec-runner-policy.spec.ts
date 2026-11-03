@@ -37,12 +37,6 @@ const executableSites = [
     'skills/cratis-engineering-local-cross-repo-verification/references/worked-examples.md',
     'skills/cratis-orchestration-lanes/references/context-handoff.md',
     'skills/cratis-orchestration-lanes/references/lane-brief.md',
-    'skills/cratis-screenplay-render-and-gap-fill/references/delivery-protocol.md',
-    'skills/cratis-screenplay-specifications/SKILL.md',
-    'skills/cratis-screenplay-toolchain/references/fast-path.md',
-    'skills/cratis-screenplay-toolchain/references/verdicts.md',
-    'skills/cratis-stage-rendering-and-sandbox/SKILL.md',
-    'skills/cratis-stage-rendering-and-sandbox/references/render-example.md',
     'skills/csharp-refactoring/SKILL.md',
     'skills/coverage-analysis/references/setup-discovery.md',
     'skills/cratis-ci-pipeline-performance/SKILL.md',
@@ -59,6 +53,31 @@ for (const path of executableSites) {
         assert.doesNotMatch(text, /(?:^|\n)\s*dotnet test\s*(?:#.*)?\n/, path);
     });
 }
+
+const stageSites = [
+    'skills/cratis-screenplay-render-and-gap-fill/references/delivery-protocol.md',
+    'skills/cratis-screenplay-specifications/SKILL.md',
+    'skills/cratis-screenplay-toolchain/references/fast-path.md',
+    'skills/cratis-screenplay-toolchain/references/verdicts.md',
+    'skills/cratis-stage-rendering-and-sandbox/SKILL.md',
+    'skills/cratis-stage-rendering-and-sandbox/references/render-example.md',
+];
+
+for (const path of stageSites) {
+    test(`${path} runs Stage-rendered VSTest specs after the Debug build`, () => {
+        const text = read(path);
+        assert.match(text, /`dotnet test [^`]+\.csproj -c Debug --no-build`/, path);
+        assert.match(text, /(?:Stage-rendered apps.*VSTest|Stage-rendered apps \(VSTest\))/, path);
+        assert.doesNotMatch(text, /(?:VSTest-only:|only VSTest uses)/i, path);
+        assert.doesNotMatch(text, /(?:the (?:same|generated) project's|the destination's) (?:verified )?built (?:Debug )?spec executable/i, path);
+    });
+}
+
+test('Stage class discovery lists VSTest tests rather than starting the web server', () => {
+    const text = read('skills/cratis-screenplay-render-and-gap-fill/references/delivery-protocol.md');
+    assert.match(text, /`dotnet test <dir>\/<Project>\.csproj -c Debug --no-build --list-tests`/);
+    assert.doesNotMatch(text, /Use that executable's supported listing flag/);
+});
 
 test('formatting follows repository CI instead of inventing a solution gate', () => {
     const text = read('rules/csharp.md');

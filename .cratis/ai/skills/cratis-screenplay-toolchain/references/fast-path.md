@@ -24,7 +24,7 @@ Run these in order and stop at the first failure; each step catches what the one
    run one create command and one query, and read the console for errors. The check is the app, not the build:
    a screen reported as `PLAY0269` (deferred from the backend profile, information only) is not evidence that
    it was rendered. List any authored screen that is absent as not rendered; do not call it delivered.
-10. **Specs:** the generated project's built Debug spec executable in `<dir>` (see [specs.csharp](../../../rules/specs.csharp.md)) and `screenplay test <root>`; see
+10. **Specs:** after the Debug build, `dotnet test <dir>/<Project>.csproj -c Debug --no-build` (Stage-rendered apps use VSTest) and `screenplay test <root>`; see
     `cratis-screenplay-specifications`.
 
 The rendered `README.md` repeats steps 6-8 for the pinned scaffold. Re-render and gap-fill rules:
