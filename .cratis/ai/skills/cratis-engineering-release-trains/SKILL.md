@@ -156,10 +156,10 @@ making a speculative shipping push. Recheck the merge conditions after CI.
    reason why they do not apply. The assembled local gate is green. Required
    integration coverage follows repository policy and must pass before merge;
    name anything that cannot run locally rather than calling it a local pass.
-3. **Reviewed.** Each item head is certified in the review ledger and the
+3. **Reviewed.** Each item head is certified in the review log and the
    train's glue review (merge resolutions, fix-ups, main-merge conflict
    resolutions) completed without Blockers or missing required evidence. A
-   whole-change review is needed only for an item without a ledger entry.
+   whole-change review is needed only for an item without a review-log entry.
 4. **Release decision settled.** Release intent follows `pull-requests.md`.
    For a major release, require explicit human confirmation and human merge.
    An agent never merges it; preparing the PR does not answer that checkpoint.
@@ -209,7 +209,7 @@ steps. The next session must recheck the ship bar, not blindly merge on green.
 
 Run the repository's exact assembled gate and inspect its successful exit.
 Run `gh pr checks <pr>` before merge: required checks must pass for the tested
-head. Confirm the ledger-certified items and glue review, fresh discussion, and main-overlap check.
+head. Confirm the review-log-certified items and glue review, fresh discussion, and main-overlap check.
 For release notes, execute the repository's `cratis-check-pr.mjs` command from
 `pull-requests.md`; a zero exit is the pass signal. No checklist replaces those
 behavioral and CI signals.

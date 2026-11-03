@@ -25,7 +25,7 @@ advisory preference is not a merge gate. Missing required evidence yields
 - Review each branch whole once, the first time or when the coordinator orders
   it; a second round only after a blocker, not to seek reassurance.
 - After that, review deltas only: from the last reviewed head in the review
-  ledger to the new head. A certified item is never re-reviewed whole.
+  log to the new head. A certified item is never re-reviewed whole.
 - For a release train, review glue only: recreate the merge of the certified
   item heads and review `git diff <that merge> <train head>` (merge resolutions,
   fix-ups; for main merges, the conflict resolutions). Item reviews are not an
@@ -33,8 +33,8 @@ advisory preference is not a merge gate. Missing required evidence yields
 - Start review in parallel with the gate when possible, but keep it
   provisional: required gates must pass before an approval report is finalized.
   Do not launch duplicate gates for review.
-- Keep a review ledger at the path the coordinator names, default
-  `.ai-work/review-ledger.tsv` (ignored work area, configurable). Append one row per
+- Keep a review log at the path the coordinator names, default
+  `.ai-work/review-log.tsv` (ignored work area, configurable). Append one row per
   attempt: repo, branch/PR, full base and head SHAs, run id, mode, ranges
   covered, verdict (PASS / NOT PASS / INCOMPLETE), date. An attempt is always
   recorded, but an unexamined partition never advances certified coverage.
@@ -98,7 +98,7 @@ later completes a valid review.
 ## Delta rounds
 
 A delta round is the default after a first whole review and reviews from the last
-reviewed SHA in the ledger, not from an arbitrary base. Carry the prior Blockers, unresolved evidence
+reviewed SHA, not from an arbitrary base; take that SHA from the review log. Carry the prior Blockers, unresolved evidence
 gaps, Suggestions, and Dismissed findings with their reasons. Supply the round
 number, prior report, original base, last reviewed SHA, and new head explicitly.
 
