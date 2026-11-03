@@ -11,7 +11,7 @@ metadata:
 
 # Test Filter Syntax Reference
 
-Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, and `orleans.md`) and the `cratis-*` skills win where they differ. Specification authoring belongs to **cratis-specifications-csharp**; Cratis core repositories run xUnit v2 on VSTest.
+Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, and `orleans.md`) and the `cratis-*` skills win where they differ. Specification authoring belongs to **cratis-specifications-csharp**; identify the actual runner rather than assuming xUnit v2/VSTest. Supported Cratis executable suites use direct runner flags first (see its [running-specs reference](../cratis-specifications-csharp/references/running-specs.md)). The dotnet-test forms below are technical syntax when that entrypoint is explicitly required, not the Cratis default.
 
 Filter syntax depends on the **platform** and **test framework**.
 

@@ -241,7 +241,7 @@ to disk with no managed staging and no safe stale-file removal; a failure can le
   result. State the scope in the V5 report.
 - Report V5 as separate results, each a result or "not run": admission, publication,
   Debug build (`dotnet build <destination>/<Project>.csproj -c Debug`), Debug tests
-  (`dotnet test` on the same project) and runtime. Render alone is the first two.
+  (the same project's built spec executable; see [specs.csharp](../../rules/specs.csharp.md)) and runtime. Render alone is the first two.
 - A refusal is kept verbatim as reported: `PLAY*` (compile or bind), `PLAN-*` (execution
   plan), `STAGE-*` (admission), `CLI-RENDER-*`, or a plain ownership error for a managed
   file. The fix is an intent-preserving model change or a recorded gap, never an edit of

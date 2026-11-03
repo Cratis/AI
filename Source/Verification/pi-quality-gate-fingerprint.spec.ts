@@ -354,7 +354,7 @@ test('gate timeouts and dry-run plans are parsed defensively', () => {
     assert.equal(gateTimeoutSeconds(undefined, '999999'), 600, 'environment overrides obey the same cap');
     assert.equal(gateTimeoutSeconds(0, undefined), 1);
     assert.deepEqual(
-        parseGatePlan('cratis-quality-gate: SKIP  frontend-lint (no matching change)\ncratis-quality-gate: RUN   backend-build-debug dotnet build\n                            $ dotnet build   (cwd: .)\ncratis-quality-gate: RUN   backend-specs dotnet test\n'),
+        parseGatePlan('cratis-quality-gate: SKIP  frontend-lint (no matching change)\ncratis-quality-gate: RUN   backend-build-debug dotnet build\n                            $ dotnet build   (cwd: .)\ncratis-quality-gate: RUN   backend-specs built C# spec executables\n'),
         ['backend-build-debug', 'backend-specs'],
     );
     assert.deepEqual(parseGatePlan(''), []);

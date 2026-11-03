@@ -302,6 +302,6 @@ ideas recorded in `references/provenance.md`. Read `references/provenance.md` wh
 ## How it is proven
 
 `dotnet build -c Debug` — it compiles the `#if DEBUG` specification code — then
-`dotnet test`, both clean, with a specification for the happy path and one per
+the owning project's built spec executable (see [specs.csharp](../../rules/specs.csharp.md)), both clean, with a specification for the happy path and one per
 rejection. Before trusting a rejection specification green, remove the condition
 that causes the rejection once and confirm it goes red.
