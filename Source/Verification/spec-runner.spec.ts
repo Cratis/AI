@@ -62,6 +62,43 @@ test('xUnit v3 mtp-off takes precedence over Test.Sdk and uses the evaluated cus
     assert.equal(result.calls.find(call => call[0] === 'suite')?.[2], '-trx');
 });
 
+for (const package_ of ['xunit.v3', 'xunit.v3.core', 'xunit.v3.mtp-v1', 'xunit.v3.core.mtp-v1', 'xunit.v3.mtp-v2', 'xunit.v3.core.mtp-v2']) {
+    test(`default ${package_} uses console-runner TRX evidence despite platform metadata`, () => {
+        const result = fixture({ 'Specs.csproj': {
+            packages: [package_],
+            properties: { IsTestingPlatformApplication: 'true' },
+            output: 'Total: 2, Errors: 0, Failed: 0, Skipped: 0, Not Run: 0, Time: 0.001s',
+        } });
+        passed(result);
+        assert.equal(result.calls.find(call => call[0] === 'suite')?.[2], '-trx');
+        assert.match(result.text, /verified total=2, passed=2, failed=0/);
+        assert.match(result.calls.find(call => call[0] === 'msbuild')!.join(' '), /-getProperty:.*UseMicrosoftTestingPlatformRunner/);
+    });
+}
+
+test('xUnit v3 explicitly opted into MTP uses platform counts without console flags', () => {
+    const result = fixture({ 'Specs.csproj': {
+        packages: ['xunit.v3'],
+        properties: { IsTestingPlatformApplication: 'true', UseMicrosoftTestingPlatformRunner: 'true' },
+    } });
+    passed(result);
+    assert.deepEqual(result.calls.find(call => call[0] === 'suite'), ['suite', 'Specs.csproj']);
+});
+
+test('a non-test library using xUnit v3 support packages is skipped before per-framework evaluation', () => {
+    const result = fixture({
+        'Support.csproj': {
+            packages: ['xunit.v3.assert', 'xunit.v3.extensibility.core'],
+            properties: { IsTestProject: '', OutputType: 'Library', TargetFramework: '', TargetFrameworks: 'net9.0;net10.0' },
+        },
+        'Specs.csproj': {},
+    });
+    passed(result);
+    assert.match(result.text, /SKIP non-test.*Support/);
+    assert.deepEqual(result.calls.filter(call => call[0] === 'suite').map(call => call[1]), ['Specs.csproj']);
+    assert.equal(result.calls.filter(call => call[0] === 'msbuild' && call[1].endsWith('Support.csproj')).length, 1);
+});
+
 test('a mixed solution executes supported projects independently in solution order', () => {
     const result = fixture({
         'Xunit.csproj': {},
@@ -91,6 +128,7 @@ test('evaluated MTP applications work without direct package references', () => 
 for (const [format, packages] of [
     ['MTP', ['TUnit']],
     ['TRX', ['xunit.v3.mtp-off', 'Microsoft.NET.Test.Sdk']],
+    ['default xUnit TRX', ['xunit.v3']],
     ['native', ['Cratis.Specifications.Runner']],
 ] as [string, string[]][]) {
     for (const passedCount of [2, 0]) {
