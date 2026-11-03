@@ -16,7 +16,7 @@ Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, a
 
 You MUST add the `/bl:{}` flag to:
 - `dotnet build`
-- `dotnet test`
+- `dotnet test` when it is the selected VSTest runner; built spec executables do not produce MSBuild binlogs
 - `dotnet pack`
 - `dotnet publish`
 - `dotnet restore`

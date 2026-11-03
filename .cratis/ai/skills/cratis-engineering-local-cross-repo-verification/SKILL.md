@@ -162,9 +162,13 @@ From the consumer root, with the printed NuGet environment sourced:
 
 ```bash
 dotnet build path/to/consumer.slnx -c Release -warnaserror
-dotnet test path/to/Integration.csproj -c Release --no-build --filter '<regression>'
+./<integration-project-dir>/bin/Release/<TFM>/<AssemblyName> <runner-specific-filter>
 ```
 
+Resolve the integration project's actual built spec entrypoint and filter syntax with
+[running-specs](../cratis-specifications-csharp/references/running-specs.md); without
+apphost use `dotnet <TargetPath.dll>`. Only VSTest uses `dotnet test <project> -c Release
+--no-build --filter '<regression>'`. Keep the sourced local NuGet environment.
 Substitute the repository's actual commands; for frontend fixes run build, lint,
 specs and the previously broken UI action. Pass: the reproducing spec/action now
 succeeds, at least one intended filtered spec actually ran, and the consumer's

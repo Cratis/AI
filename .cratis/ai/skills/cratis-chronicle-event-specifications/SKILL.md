@@ -229,6 +229,6 @@ assert the value can be claimed again.
 ## How it is proven
 
 `dotnet build` in Debug (which compiles the `#if DEBUG` specification code) and
-`dotnet test`, both clean. A constraint specification is only meaningful if it
+the owning project's built spec executable (see [specs.csharp](../../rules/specs.csharp.md)), both clean. A constraint specification is only meaningful if it
 has been seen to fail: remove the seeding `Given` once and confirm the
 specification goes red before trusting it green.
