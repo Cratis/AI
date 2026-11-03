@@ -69,9 +69,12 @@ push to a PR unless the request says so. Pass `--assignee @me` when creating it.
    own commits. Return a conflicting or failing delivery for correction rather
    than guessing its intent in the assembled branch.
 5. Keep one train per repository. Split only for a named major awaiting human
-   confirmation or an urgent security fix authorized in writing; name the
-   exception in the reviewer comment. Unrelated or differently risky work rides
-   a later train, not its own PR. Item branches get no PR, CI or
+   confirmation, an urgent security fix authorized in writing, or an accepted
+   issue reported by someone outside the organization (patch or minor), which
+   ships promptly on its own release right after private security work; issues
+   captured by internal bots are not outsider issues. Name the exception in the
+   reviewer comment. Other unrelated or differently risky work rides a later
+   train, not its own PR. Item branches get no PR, CI or
    `run-integration` label; they get local gates and a delta review.
 
 Minimal assembly, after agreeing on the included deliveries:
