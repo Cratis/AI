@@ -4,7 +4,7 @@ One complete document with every construct family. Design mode, not executable. 
 
 Binding blockers in this legacy control without protected-read opt-in: unquoted
 import, legacy `reads` (PLAY0271), condition-only `starts with` (PLAY0268).
-Property/concept text rules bind v24; eligible protected reads bind v25. Caller-supplied collection equality filters bind as ESM v14; context and single-result filters remain blocked. Executable shapes are in the sibling examples. `RecordingAPayment` states `then invokes CloseInvoice` for the invocation declared in its own slice; it does not assert the other slice's `InvoiceClosed` event (PLAY0285).
+Property/concept text rules bind v24; eligible protected reads bind v25. Caller-supplied collection equality filters bind as ESM v14; context and single-result filters remain blocked. Executable shapes are in the sibling examples. `RecordingAPayment` states only `PaymentRecorded`: a specification runs only its own slice (Screenplay decision 0115), so `ReconcilingAPayment` states the hand-over with `then invokes CloseInvoice` and `ClosingAnInvoice` states `InvoiceClosed`.
 
 Concept compliance itself binds as ESM v13; reasons remain report-only PLAY0270. Stage renders v13 concept
 protection. Binder-only PLAY0268 refusals and subject-lineage limits: command-surface `references/compliance.md`.
@@ -229,7 +229,7 @@ module Billing
         then PaymentRecorded
           for "0b6f3f7e-3c1e-4a53-9f7e-2a1c3b4d5e6f"
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
-          amount    = 100
+          amount    = 100                             // the Reconciler's InvoiceClosed is another slice's fact (decision 0115)
 
 module Housekeeping                                   // no gates: this reaction declares no `runs as`, so its `invokes` has no caller
   description "Background follow-up"
@@ -249,8 +249,9 @@ module Housekeeping                                   // no gates: this reaction
         invoiceId InvoiceId identifier
         produces event InvoiceMarkedOverdue
           overdueAt DateTime = $context.occurred
-      // No command spec here: the ReminderSent reaction belongs to RemindOverdue, whose spec states it.
-      // The hand-over form: automation-translate-example.md (RenewingFromAFile).
+      // No command spec here: under ESM v6 it must list the ReminderSent cascade. The file is
+      // RecordingAPayment's cascade: an older bundled compiler reported a false PLAY0285 here.
+      // The cascade form: automation-translate-example.md (SubscribingAMember).
 
     slice Automation RemindOverdue
       reaction Reminder
@@ -286,7 +287,7 @@ module Housekeeping                                   // no gates: this reaction
           for "0b6f3f7e-3c1e-4a53-9f7e-2a1c3b4d5e6f"
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
           amount    = 100
-        then invokes CloseInvoice                         // another slice's command: state the hand-over, not its event
+        then invokes CloseInvoice                     // ESM v34: the hand-over; CloseInvoice's slice proves InvoiceClosed
           invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
 
     slice Translate LegacySync

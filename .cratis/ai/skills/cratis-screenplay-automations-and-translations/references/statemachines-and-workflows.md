@@ -159,6 +159,11 @@ duration resumes at once.
 - Workflows: PLAY0843-PLAY0851 (no trigger is PLAY0844, a bad outlet PLAY0847, a decision
   without exactly two outlets PLAY0848, an undeclared reference PLAY0851); PLAY0839 and
   PLAY0841 are shared.
-- Stage refuses ESM v36 models with `STAGE-ESM-016`; every other model renders as
-  before. The durable engine is Cratis.Orleans; its hosting and adapters are outside this
+- Stage 4.212.0 or later admits ESM v36 and renders supported state machines and
+  workflows; older Stage refuses v36 with `STAGE-ESM-016`. The renderer refuses what it
+  cannot express with a `STAGE-LIFECYCLE-*` code (scheduled triggers -007, guards it cannot
+  express -008, restart state not derivable -009, decision/approval/`foreach`/`join`
+  nodes and similar -010; see toolchain `language-admission.md`), and lifecycle
+  specifications run in the reference evaluator, not as generated specifications. Every
+  other model renders as before. The durable engine is Cratis.Orleans; its hosting and adapters are outside this
   reference.

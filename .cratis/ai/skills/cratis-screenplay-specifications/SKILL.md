@@ -72,7 +72,7 @@ an ambiguous parent still fails closed.
 Requires Screenplay 4.149.1 or later (`screenplay --version`) for child deferral; older runners do not defer.
 
 A rejected command/append leaves the world unchanged; an accepted one commits
-before comparing views. V6 has no scenario-wide transaction: later reaction
+before comparing views. V6 has no scenario-wide transaction: later cascade
 failure does not roll back earlier accepted facts. Atomic mode boundaries are below.
 
 Unsupported is not passed. Name a target. Run CLI/MCP reference execution
@@ -184,12 +184,12 @@ unsupported, never passed. The fixture reference covers strict v15 shapes and fr
 A slice is not always set off by a command: `given clock`, `when clock`, `when trigger`, `given capture`, `when capture` and `when query` (with `then result` / `then no result`) name what does. Use `given clock`, never `given time`. From ESM v6 the reference runner executes the clock, trigger and capture actions; before ESM v6 only `when query` executed among them.
 Read [references/actions-beyond-commands.md](references/actions-beyond-commands.md) when the slice is an automation, translation or query view, or you need the action table, grammar and what the reference runner executes for each.
 
-## Reactions and one slice per specification (ESM v6, v34)
+## Reactions and cascades (ESM v6)
 
-A specification runs its own slice only: only the reactions, captures and outbound publications declared in the slice that holds it run, and `then` events compare that slice's facts. A command specification states the command's own facts, never an event another slice's reaction appends or an outbound `Translate` publishes (`PLAY0285`, "cannot be produced"). An automation states what it does to another slice with `then invokes <Command>` plus the values passed (ESM v34; `PLAY0815`, `PLAY0816`); the invoked command's own slice proves its events. Never delete a `then` line to silence `PLAY0285`; move it to the slice that owns the behavior.
-Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md) when a reaction, clock tick, trigger or invoked command is involved, or when `PLAY0285`/`PLAY0816` is reported (it holds the "`PLAY0285` and the slice boundary" section).
+From ESM v6 every action sets reactions off. A specification runs only the slice that declares it: only that slice's reactions, captures and publications run, and `then` events compare the new facts of that slice. A specification whose action is a command goes in the slice that declares the command and states the command's own events. Another slice's event is `PLAY0285` (unreachable): state it in the slice that produces it. An automation states a command it invokes in another slice with `then invokes <Command>` (ESM v34).
+Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md) when a specification's expected events include what a reaction appends, when a cascade, clock tick or invoked command is involved, or when a compiler reports `PLAY0285` (it holds the "Version skew and `PLAY0285`" section).
 
-A `statemachine` or `workflow` (ESM v36) has its own specifications: [state machines and workflows](../cratis-screenplay-automations-and-translations/references/statemachines-and-workflows.md).
+A `statemachine` or `workflow` (ESM v36) carries its own specifications with `then is`, `then sends`, `then starts`, `outcome`, `then completes`, `then fails at` and `then waits at`. Read automations-and-translations [state machines and workflows](../cratis-screenplay-automations-and-translations/references/statemachines-and-workflows.md) when specifying either.
 
 ## Published-event specifications (released ESM v9)
 
@@ -285,8 +285,7 @@ For view specifications:
 
 Symptom: a model delivered with specifications that were never run. `screenplay test <root>` runs the
 reference evaluator; after rendering and building in Debug, run `dotnet test <destination>/<Project>.csproj -c Debug --no-build`
-for the generated specification classes (Stage-rendered apps use VSTest). Use a built spec executable only in repositories whose spec projects really are executables
-(see [specs.csharp](../../rules/specs.csharp.md)). Report both results separately (`cratis-screenplay-toolchain` V4 and V5.tests); a
+for the generated specification classes (Stage-rendered apps use VSTest). Report both results separately (`cratis-screenplay-toolchain` V4 and V5.tests); a
 build that succeeds is not a test run, and `unbound`/`unsupported` is not a pass.
 
 ## Verify
