@@ -112,7 +112,7 @@ test('portable rounds preserve writer verification, bounded failures and exact-s
         'The writer independently verifies each finding',
         'stable\n   finding IDs',
         'Dirty-tree feedback\nis preliminary',
-        'final independent whole-change review',
+        'it never replaces the required gates, which run on the merged state',
         'exact-head CI, assembled-candidate, predecessor and overlap requirements',
     ]) assert.ok(rounds.includes(text), text);
     for (const text of ['stable finding IDs', 'three total rounds per work item', 'Record failed attempts.', 'Verify cancellation before replacement', 'Suggestions alone do not justify another round.', 'Verify actual reviewer identity and availability']) {
