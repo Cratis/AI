@@ -1,6 +1,6 @@
 # Automation and Translate example (ESM v6)
 
-Executable Automation and Translate slices. Binds as `executableReady` on the standalone tool and on the compiler bundled in the CLI; see [executable-subset.md](executable-subset.md) for what renders. Shows a reaction `produces` cascade, `invokes`, `where`, clock `at`, an application trigger, a capture with translate and a transition `when`, and v6 specifications.
+Executable Automation and Translate slices. Binds as `executableReady` (ESM v34, for `then invokes`) on the standalone tool and on a CLI whose bundled compiler is Screenplay 4.246.0 or later; see [executable-subset.md](executable-subset.md) for what renders. Shows a reaction `produces` cascade, `invokes`, `where`, clock `at`, an application trigger, a capture with translate and a transition `when`, and v6 specifications. Each specification states only its own slice (Screenplay decision 0115); the automation states the command it invokes with `then invokes` (ESM v34).
 
 The `Renew` command is ungated so that the reaction can invoke it: this is a syntax demonstration, not a safe production design. Reactions invoke with no caller, so a real model needs a trusted path (see [cratis-screenplay-automations-and-translations](../../cratis-screenplay-automations-and-translations/SKILL.md)).
 

@@ -148,11 +148,12 @@ and unaudited-version refusals still stop first. Codes, limits and fixes:
   overrides (`-036`), unsupported code validation (`-005`), DateTime filters (`-010`),
   unsupported conditional productions, unsupported composite-key projection shapes, including DateTime and decimal key parts (`STAGE-ESM-048`, and `-047` for a single-instance query by parts) and unsupported `all` shapes.
   Protected reads render as Arc read protection in a new enough bundle; shapes it cannot preserve, and every protected read in an older bundle, refuse `STAGE-ESM-044` (see admission.md). Described handlers still refuse `STAGE-IMPL-002` even in Stub mode. Query-performer gaps are a separate contract, not a completed implementation.
-- **Attached command handlers (`PLAY0800`):** file/inline handlers permanently require
-  constrained implementation attachments: gap-fill the slice in code, not by waiting
-  for ESM admission. Read the required typed `arguments.subject` for the command,
-  never match message text. Requires Screenplay 4.210.0 (`screenplay --version`);
-  older bundled binders use PLAY0268 for these handlers.
+- **Attached command handlers:** a file/inline handler beside unconditional `produces`
+  with a resolved body binds as the v23 result contract and Stage renders its C# body.
+  Without `produces`, with `produces ... when` or with an unresolved body it refuses
+  `PLAY0800`: read the required typed `arguments.subject` for the command, never match
+  message text. Older bundled binders refuse every attached handler (version gate:
+  toolchain `references/executable-subset.md`).
 - **Binding refusals:** read toolchain `references/executable-subset.md` for
   `PLAY0268`/`PLAY0271` families; binding is not rendering. Composite keys have
   target-specific support, not blanket refusal. Never drop protection.

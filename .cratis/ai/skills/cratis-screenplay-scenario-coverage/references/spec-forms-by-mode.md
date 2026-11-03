@@ -44,13 +44,13 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | Date rules using `today`, `$context`, mixed `Date`/`DateTime`, concept or reaction-`where` positions; nested paths | spec them in design | rule does not bind: `recorded` | `recorded` |
 | Bodied rules, code policies | spec them | spec reported **unsupported**, never passed | no |
 | Pending described command handlers (v23) | specify intent | binds; denial/validation execute, body-reaching specs Unsupported ImplementationBody; all-Unsupported is not green | STAGE-IMPL-002 even Stub mode |
-| Attached command handlers | spec them in design | blocked: PLAY0800, no spec runs (V3 blocked); permanent constrained-attachment requirement, gap-fill in code | no |
+| Attached command handlers | spec them in design | beside unconditional `produces` with a resolved body: binds v23, a spec reaching the body is Unsupported (`ImplementationBody`); otherwise PLAY0800, no spec runs | Stage renders a C# body; generated specifications execute verified synchronous C# handlers |
 | `file` constraints | spec them in design | blocked: PLAY0268 at binding, no spec runs (V3 blocked) | no |
 | Query `performer`s | spec them in design | opaque read: PLAY0270 information, left out of the executable model; a spec that reads it is left out, every other spec still runs ([version gate](../../cratis-screenplay-toolchain/references/executable-subset.md#code-attachments-what-binds-what-never-does); older compilers report PLAY0268) | no |
 | Atomic reaction mode (v22) | declare for new models | failed batch adds no facts or view changes; earlier batches/commands remain; `then error` alone is insufficient | v22 STAGE-ESM-016; mode in admitted v23–v27 STAGE-ESM-043 |
 | Protected command reads (v25) | declare opt-in for eligible reads | absence Validation; matching intervening facts Conflict; race vectors are not a new spec construct | Cratis C# rendering in a new enough bundle (STAGE-ESM-044 before, or for unpreservable shapes); semantic Host/executor execute admitted reads, non-Error protected requirements STAGE-ESM-045; v25 pair admitted |
 
-Requires Screenplay 4.210.0 (`screenplay --version`) for attached handlers to report PLAY0800; older binders use PLAY0268. Other PLAY0268 families are unchanged.
+Requires Screenplay 4.250.0 (`screenplay --version`) for attached handlers beside `produces` to bind; 4.210.0 to 4.249.x report PLAY0800 for every attached handler and older binders use PLAY0268. Other PLAY0268 families are unchanged.
 
 Requires Screenplay 4.105.0 or later (`screenplay --version`) for list-query specifications, and 4.143.0 or later for collection equality filters (ESM v14).
 

@@ -104,9 +104,9 @@ design-mode rejection spec and `recorded` in the matrix. See `RejectingSettlemen
 in `invoicing-dues-design.md`; it is never prose and never a spec that pretends to enforce it.
 
 ## 3. External failure: the capture, then the retry
-Two separate obligations. First, the **capture specification**: concrete external input in, our
-facts out. The provider's refusal is a fact (never a `then error`), kept in the provider's
-vocabulary; a separate Automation records the local outcome. The capture uses
+Two separate obligations. First, the **capture specification**: concrete external input in, the
+provider's fact out. The provider's refusal is a fact (never a `then error`), kept in the provider's
+vocabulary; a separate Automation records the local outcome and states it in its own specification. The capture uses
 `when added` for first sight and a separate `when outcome` for updates. An update
 spec needs `given capture` with the same key's earlier record; the first record's
 fields are not modifications (root, child or nested). See captures-and-reactions

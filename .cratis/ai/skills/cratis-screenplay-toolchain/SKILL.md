@@ -114,9 +114,9 @@ with ordered imports means future files need explicit imports.
   filters, opaque `scoped to` and a `by` block on a list query remain PLAY0268; a `performer` query is an opaque read left out of the executable model (PLAY0270; [version gate](references/executable-subset.md#code-attachments-what-binds-what-never-does)). Read
   read-surface [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md).
   Pending handlers beside unconditional productions bind as described commands (v23),
-  but reached bodies are Unsupported; attached file/inline handlers refuse PLAY0800
-  and require constrained implementation attachments (code gap-fill, not future ESM
-  admission).
+  but reached bodies are Unsupported; attached file/inline handlers bind the same way
+  beside unconditional `produces` with a resolved body and otherwise
+  refuse PLAY0800.
   Requires Screenplay 4.210.0 (`screenplay --version`); older binders use PLAY0268 for this refusal. Read `arguments.subject`, not the message, for the command.
   Eligible protected reads opt into v25; legacy reads and `concurrency` retain PLAY0271.
   Concept compliance binds as v13 (precise refusals: command-surface `references/compliance.md`);

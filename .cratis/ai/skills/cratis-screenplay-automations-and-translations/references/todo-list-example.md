@@ -58,7 +58,7 @@ module Courses
           CoursePassed
             for enrolmentId
             enrolmentId = enrolmentId          // copied on purpose: the reaction selects it as a value
-            completedAt = $context.occurred    // carried on the fact: a projection cannot read $eventContext.occurred
+            completedAt = $context.occurred    // carried on the fact, so every reader sees the same instant
         produces when passed == false
           CourseFailed
             for enrolmentId

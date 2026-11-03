@@ -189,6 +189,8 @@ Read [references/actions-beyond-commands.md](references/actions-beyond-commands.
 A specification runs its own slice only: only the reactions, captures and outbound publications declared in the slice that holds it run, and `then` events compare that slice's facts. A command specification states the command's own facts, never an event another slice's reaction appends or an outbound `Translate` publishes (`PLAY0285`, "cannot be produced"). An automation states what it does to another slice with `then invokes <Command>` plus the values passed (ESM v34; `PLAY0815`, `PLAY0816`); the invoked command's own slice proves its events. Never delete a `then` line to silence `PLAY0285`; move it to the slice that owns the behavior.
 Read [references/reactions-and-cascades.md](references/reactions-and-cascades.md) when a reaction, clock tick, trigger or invoked command is involved, or when `PLAY0285`/`PLAY0816` is reported (it holds the "`PLAY0285` and the slice boundary" section).
 
+A `statemachine` or `workflow` (ESM v36) has its own specifications: [state machines and workflows](../cratis-screenplay-automations-and-translations/references/statemachines-and-workflows.md).
+
 ## Published-event specifications (released ESM v9)
 
 Use `when append <PrivateEvent>` then `then <PublicEvent>`, not `then readmodel`;
