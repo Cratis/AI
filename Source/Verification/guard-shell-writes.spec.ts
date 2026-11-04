@@ -109,16 +109,72 @@ test('no-reference commands bypass the allowlist and protected reads remain read
             'bash --version', 'bash --help', 'bash -', 'bash < script', 'cat f | bash',
             'cd src && echo ok > out.txt', 'echo x > notes.md', 'echo x > Package.json.md',
             'cat package.json', 'grep -n version package.json > /tmp/v.txt', 'git diff -- package.json',
-            'git commit -m "Update package.json"', 'git -C sub status -- .env', 'gh pr view 5',
+            'git commit -m "Update package.json"', 'git -C sub status -- ordinary.txt', 'gh pr view 5',
             'ls -la .env.example', 'cat < .env', "echo 'x > .env'", 'cat .env | grep x',
             'echo .env 2>&1', 'echo .env >&2', 'cat .env > /dev/null', 'cat .env > out.txt',
-            ...['cat', 'head', 'tail', 'less', 'more', 'wc', 'grep', 'egrep', 'fgrep', 'rg', 'ag', 'ls', 'stat', 'file', 'diff', 'cmp', 'jq', 'yq', 'sort', 'uniq', 'cut', 'md5sum', 'shasum', 'sha256sum', 'realpath', 'dirname', 'basename', 'echo', 'printf', 'test', '[', 'true', 'false', 'pwd', 'which', 'type'].map(verb => `${verb} .env`),
+            ...['cat', 'head', 'tail', 'wc', 'grep', 'egrep', 'fgrep', 'ls', 'echo', 'printf', 'test', '[', 'true', 'false', 'pwd'].map(verb => `${verb} .env`),
             ...['status', 'diff', 'log', 'show', 'blame', 'grep', 'ls-files', 'rev-parse', 'add', 'commit', 'check-ignore'].map(verb => `git ${verb} .env`),
-            ...['pr', 'issue', 'run'].map(group => `gh ${group} view .env`),
-            'gh api .env', 'gh api .env -X GET', 'gh api .env --method=GET', 'uniq -f 1 .env',
             "c'a't .env", 'cat Source/Accounts/Registration.ts', 'cat .ENV', 'ls .e*',
         ];
         await checkCases(allowed.map(command => [ALLOW, command]), repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('only explicit per-verb options are permitted with protected references', async () => {
+    const repo = scratchRepository();
+    try {
+        const blocked = [
+            'git diff --output=.env', 'git show --output=.env HEAD', 'git log --output=.env',
+            'git diff --out=.env', 'git diff --output .env', 'git show --outp=.env HEAD',
+            'git -c x=y diff .env', 'git -C sub status -- .env', 'git --no-pager diff .env',
+            'sort --outp=.env x', 'sort --o=.env x', 'sort -o .env x',
+            'rg --pre tee x .env', 'rg --pre=tee x .env',
+            'gh run download 1 --dir .claude', 'gh run download 1 --dir=.claude',
+            'echo .env; gh pr checkout 5', 'gh pr checkout 5 .env', 'gh issue develop 1 .env',
+            'head -f .env', 'tail -f .env', 'head --bytes=20 .env', 'head -c20 .env',
+            'grep --include=x y .env', 'grep --incl=x y .env', 'grep -ePATTERN .env', 'grep -A5 x .env',
+            'cat --number .env', 'cat -nZ .env', 'wc --bytes .env', 'ls --sort=name .env',
+            'printf -v result .env', 'pwd -L .env', 'test -f .env',
+            'git status --porcelain=v1 .env', 'git status --sho .env', 'git diff -U 3 .env',
+            'git log --forma=%H .env', 'git log --format .env', 'git log --format="%(trailers)" .env',
+            'git show --pretty=%s .env', 'git add --chmod=+x .env', 'git add --pathspec-from-file=.env',
+            'git commit --no-verify -m .env', 'git commit -F .env', 'git commit -F .ENV', 'git commit -F linked-control',
+            'git commit -F "$file" -- .env', 'git commit -Fnotes.md -- .env',
+            'git blame -p .env', 'git checkout .env',
+            'echo .env; head -n', 'echo .env; grep -e', 'echo .env; git commit -m',
+            ...['less', 'more', 'rg', 'ag', 'sort', 'uniq', 'cut', 'jq', 'yq', 'stat', 'file', 'diff', 'cmp', 'md5sum', 'shasum', 'sha256sum', 'realpath', 'dirname', 'basename', 'which', 'type', 'gh'].map(verb => `${verb} .env`),
+            ...['jq', 'yq', 'sort', 'uniq', 'gh'].map(verb => `${verb} -- .env`),
+            ...['cat', 'head', 'tail', 'wc', 'ls', 'grep', 'egrep', 'fgrep', 'echo', 'printf', 'test', '[', 'true', 'false', 'pwd'].flatMap(verb => [`${verb} --unlisted=.env`, `${verb} -z .env`]),
+            ...['status', 'diff', 'log', 'show', 'add', 'commit', 'blame', 'ls-files', 'rev-parse', 'check-ignore', 'grep'].map(verb => `git ${verb} --unlisted .env`),
+        ];
+        const allowed = [
+            'head -n 20 .env.example', 'head -n20 .env', 'head -c 20 .env', 'head -20 .env',
+            'tail -n 20 .env', 'tail -n20 .env', 'tail -c 20 .env', 'tail -20 .env',
+            ...['n', 'A', 'v', 'e', 't', 's', 'b'].map(flag => `cat -${flag} .env`),
+            'cat -nb .env', 'cat -- --output=.env', 'cat - .env',
+            ...['l', 'w', 'c', 'm'].map(flag => `wc -${flag} .env`),
+            ...['l', 'a', 'A', '1', 'h', 'd', 'R', 't', 'r', 'F'].map(flag => `ls -${flag} .env`),
+            'ls -la .claude',
+            ...['grep', 'egrep', 'fgrep'].flatMap(verb => [
+                ...['n', 'i', 'r', 'R', 'l', 'L', 'c', 'v', 'w', 'x', 'F', 'E', 'H', 'h', 'o', 'q', 's'].map(flag => `${verb} -${flag} x .env`),
+                ...['A', 'B', 'C'].map(flag => `${verb} -${flag} 2 x .env`),
+                `${verb} -e --include=x .env`, `${verb} -ni x .env`,
+            ]),
+            ...['n', 'e', 'E'].map(flag => `echo -${flag} .env`),
+            'printf -- -v .env', 'test -- .env', '[ -- .env',
+            'git status -sb --short --porcelain .env',
+            'git diff --stat --name-only --name-status --cached --staged --check -p -U3 --no-color -- package.json',
+            'git diff -- --output=.env', 'git log --oneline -n 5 -- package.json',
+            'git log --stat --name-only -n5 -20 -p --no-color --format=%H --pretty=%s --follow .env',
+            'git show --stat --name-only -p --no-color --format=%H .env',
+            'git add -Aup .env', 'git commit -m "Update package.json"', 'git commit -mUpdate.env -aq',
+            'git commit -m--no-verify -- .env', 'git commit -F notes.md -- .env',
+            ...['blame', 'ls-files', 'rev-parse', 'check-ignore', 'grep'].map(verb => `git ${verb} -- .env`),
+            // Removed verbs and writer options remain outside this guard when there is no reference.
+            'sort --outp=out.txt x', 'rg --pre tee x notes.txt', 'gh run download 1 --dir scratch',
+            'git diff --output=out.txt', 'printf -v result ordinary', 'head -n',
+        ];
+        await checkCases([...blocked.map(command => [BLOCK, command] as [string, string]), ...allowed.map(command => [ALLOW, command] as [string, string])], repo.root);
     } finally { repo.dispose(); }
 });
 

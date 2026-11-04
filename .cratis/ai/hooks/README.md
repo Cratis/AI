@@ -187,15 +187,38 @@ Dependency manifests, including `package.json`, retain their origin/opt-in allow
 `bash --help` and `cd src && echo ok > out.txt` are unaffected. If any reference exists,
 **every simple command must be on this read-only allowlist**:
 
-- `cat`, `head`, `tail`, `less`, `more`, `wc`, `grep`, `egrep`, `fgrep`, `rg`, `ag`, `ls`,
-  `stat`, `file`, `diff`, `cmp`, `cut`, `md5sum`, `shasum`, `sha256sum`, `realpath`, `dirname`,
-  `basename`, `echo`, `printf`, `test`, `[`, `true`, `false`, `pwd`, `which`, `type`.
-- `jq`/`yq` without in-place options; `sort` without output options; `uniq` with at most
-  one operand. These restrictions prevent the allowlisted command from becoming a writer.
-- `git status`, `diff`, `log`, `show`, `blame`, `grep`, `ls-files`, `rev-parse`, `add`, `commit`,
-  `check-ignore`; only `-C`, `--no-pager` and `--literal-pathspecs` global options are accepted.
-  Index/commit operations are deliberate allowances, not general shell execution permission.
-- `gh pr`, `issue`, `run`; `gh api` only GET, without `-f`/`-F`/`--field`/`--raw-field`/`--input`.
+Only the following **exact options** are exempt, because they select/present reads rather
+than create files or invoke helpers. Any other option denies, including long-option
+abbreviations and unlisted `--option=value` forms. `--` ends option checking; remaining
+arguments are operands. A lone `-` is a stdin operand. Value-free short flags may combine
+(e.g. `grep -ni`); value-taking forms must use the explicitly listed spelling.
+
+| Command | Permitted options |
+| --- | --- |
+| `cat` | `-n -A -v -e -t -s -b` |
+| `head`, `tail` | `-n N`, `-nN`, `-c N`, `-N` (numeric counts); no `-f` |
+| `wc` | `-l -w -c -m` |
+| `ls` | `-l -a -A -1 -h -d -R -t -r -F` |
+| `grep`, `egrep`, `fgrep` | `-n -i -r -R -l -L -c -v -w -x -F -E -H -h -o -q -s`; `-e PATTERN`, `-A N`, `-B N`, `-C N`; no long options |
+| `echo` | `-n -e -E` |
+| `printf`, `test`, `[`, `true`, `false`, `pwd` | None (in particular, no `printf -v`) |
+| `git status` | `-s -b --short --porcelain` |
+| `git diff` | `--stat --name-only --name-status --cached --staged --check -p -U<N> --no-color` |
+| `git log` | `--oneline --stat --name-only -n N -nN -<N> -p --no-color --format=<fmt> --pretty=<fmt> --follow` |
+| `git show` | `--stat --name-only -p --no-color --format=<fmt>` |
+| `git add` | `-A -u -p` |
+| `git commit` | `-m MSG`, `-mMSG`, `-a`, `-q`; `-F FILE` only for a literal non-protected file; no `--no-verify` |
+| `git blame`, `ls-files`, `rev-parse`, `check-ignore`, `grep` | None |
+
+No global git options are exempt (`-C`, `-c`, `--no-pager` etc. deny before the subcommand).
+Git format values containing `%(` are not accepted. Index/commit operations are deliberate
+allowances, not general shell execution permission. Output-to-file options such as
+`git diff --output=...` are never exempt, even with a non-protected destination on a line
+that references a protected file.
+
+`gh` (all subcommands), `rg`, `ag`, `sort`, `uniq`, `cut`, `jq`, `yq`, `less`, `more`, `stat`,
+`file`, `diff`, `cmp`, checksum tools, `realpath`, `dirname`, `basename`, `which` and `type`
+are not on this list: their option surfaces are deliberately not analysed here.
 
 Assignment prefixes and assignment-only commands are not allowlisted. Neither are wrappers,
 evaluators, shells or writer verbs. `cd`, `pushd` and `popd` are **not** allowlisted when a
@@ -208,8 +231,9 @@ Even an allowlisted command may not redirect output to a protected or non-litera
 (`$`, backticks or pathname patterns). Literal ordinary output is permitted, for example
 `grep -n version package.json > /tmp/v.txt`; descriptor duplication such as `2>&1` is fine.
 `cat package.json`, `git diff -- package.json`, `git commit -m "Update package.json"` and
-`ls -la .env.example` are allowed reads/explicit index operations. `.env.example` is protected
-by the write policy, so `cp .env.example .env` refuses. Use the edit/write tools, or report
+`ls -la .env.example` are allowed reads/explicit index operations. `head -n 20 .env.example`
+is allowed too: the write policy protects that file, but reading is not writing (the secrets
+guard independently governs reads). `cp .env.example .env` refuses. Use the edit/write tools, or report
 the intended change; those tools retain their own protection and are not a bypass.
 
 Parser/classifier failures and bounded work limits fail closed (128 KiB command text,

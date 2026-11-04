@@ -101,58 +101,64 @@ function endword() {
     }
     word = ""; inword = 0
 }
-# These verbs are exempt only because their ordinary operation is read-only. Each has
-# a paired allow test; removing one breaks that test. No wrappers/evaluators are exempt.
-function allow_command(    b, i, w, subcommand, operands, endopts) {
-    if (!argc) return
-    if (++commands > 64) { bad = 1; return }
-    b = W[1]
-    if (b in plain) return
-    if (b == "jq" || b == "yq" || b == "sort") {
-        for (i = 2; i <= argc; i++) {
-            w = W[i]
-            if (w == "--") break
-            if ((b == "sort" && (w ~ /^-[^-]*o/ || w ~ /^--output(=|$)/)) ||
-                (b != "sort" && (w ~ /^-[^-]*i/ || w ~ /^--in-?place(=|$)/))) bad = 1
-        }
-        return
-    }
-    if (b == "uniq") {
-        for (i = 2; i <= argc; i++) {
-            w = W[i]
-            if (!endopts && w == "--") { endopts = 1; continue }
-            if (!endopts && w ~ /^-/ && w != "-") {
-                if (w ~ /^(-[fsw]|--skip-fields|--skip-chars|--check-chars)$/) i++
+# Each exemption permits only the reviewed read/presentation options below. No unknown
+# options, long-option abbreviations or implicit value-taking short clusters are accepted.
+# Every table entry has a sibling ALLOW test and rejected-option neighbors.
+function policy(verb, flags, longs,    words, n, k) {
+    verbs[verb] = 1; short_options[verb] = flags
+    n = split(longs, words, " ")
+    for (k = 1; k <= n; k++) long_options[verb, words[k]] = 1
+}
+function short_flags(w, flags,    k) {
+    if (w !~ /^-[^-]/) return 0
+    for (k = 2; k <= length(w); k++) if (!index(flags, substr(w, k, 1))) return 0
+    return 1
+}
+function number(s) { return s ~ /^[+-]?[0-9]+$/ }
+function options_allowed(verb, first,    i, w) {
+    for (i = first; i <= argc; i++) {
+        w = W[i]
+        if (w == "--") return 1
+        if (w !~ /^-/ || w == "-") continue
+        if ((verb, w) in long_options) continue
+        if (verb == "head" || verb == "tail" || verb == "git log") {
+            if (w == "-n" || (verb != "git log" && w == "-c")) {
+                if (++i > argc || !number(W[i])) return 0
                 continue
             }
-            operands++
+            if (w ~ /^-n[+-]?[0-9]+$/ || w ~ /^-[0-9]+$/) continue
         }
-        if (operands > 1) bad = 1
-        return
-    }
-    if (b == "git") {
-        i = 2
-        while (i <= argc && W[i] ~ /^-/) {
-            if (W[i] == "-C") i += 2
-            else if (W[i] == "--no-pager" || W[i] == "--literal-pathspecs") i++
-            else { bad = 1; return }
+        if (verb == "grep" || verb == "egrep" || verb == "fgrep") {
+            if (w == "-e") { if (++i > argc) return 0; continue }
+            if (w == "-A" || w == "-B" || w == "-C") {
+                if (++i > argc || !number(W[i])) return 0
+                continue
+            }
         }
-        if (!(W[i] in git_commands)) bad = 1
-        return
-    }
-    if (b == "gh") {
-        if (W[2] == "pr" || W[2] == "issue" || W[2] == "run") return
-        if (W[2] != "api") { bad = 1; return }
-        for (i = 3; i <= argc; i++) {
-            w = W[i]
-            if (w ~ /^-[^-]*[fF]/ || w ~ /^--(field|raw-field|input)(=|$)/) bad = 1
-            if (w == "-X" || w == "--method") { if (W[++i] != "GET") bad = 1 }
-            else if (w ~ /^-X./ && substr(w, 3) != "GET") bad = 1
-            else if (w ~ /^--method=/ && substr(w, 10) != "GET") bad = 1
+        if (verb == "git diff" && w ~ /^-U[0-9]+$/) continue
+        if ((verb == "git log" && w ~ /^--(format|pretty)=/) || (verb == "git show" && w ~ /^--format=/)) {
+            if (index(w, "%(")) return 0
+            continue
         }
-        return
+        if (verb == "git commit") {
+            if (w == "-m") { if (++i > argc) return 0; continue }
+            if (w ~ /^-m./) continue
+            if (w == "-F") {
+                if (++i > argc || W[i] ~ /[$`*?\[{]/ || protected(W[i])) return 0
+                continue
+            }
+        }
+        if (!short_flags(w, short_options[verb])) return 0
     }
-    bad = 1
+    return 1
+}
+function allow_command(    verb, first) {
+    if (!argc) return
+    if (++commands > 64) { bad = 1; return }
+    verb = W[1]; first = 2
+    # No global git option is exempt, including -C, -c and --no-pager.
+    if (verb == "git") { verb = verb " " W[2]; first = 3 }
+    if (!(verb in verbs) || !options_allowed(verb, first)) bad = 1
 }
 function command_end() { endword(); allow_command(); delete W; argc = 0 }
 function readonly(s,    i, c, c2, sq, dq) {
@@ -184,8 +190,21 @@ function readonly(s,    i, c, c2, sq, dq) {
     return !bad
 }
 BEGIN {
-    split("cat head tail less more wc grep egrep fgrep rg ag ls stat file diff cmp cut md5sum shasum sha256sum realpath dirname basename echo printf test [ true false pwd which type", a, " "); for (i in a) plain[a[i]] = 1
-    split("status diff log show blame grep ls-files rev-parse add commit check-ignore", a, " "); for (i in a) git_commands[a[i]] = 1
+    policy("cat", "nAvetsb", "")
+    policy("head", "", ""); policy("tail", "", "")
+    policy("wc", "lwcm", ""); policy("ls", "laA1hdRtrF", "")
+    policy("grep", "nirRlLcvwxFEHhoqs", "")
+    policy("egrep", "nirRlLcvwxFEHhoqs", ""); policy("fgrep", "nirRlLcvwxFEHhoqs", "")
+    policy("echo", "neE", "")
+    policy("printf", "", ""); policy("test", "", ""); policy("[", "", "")
+    policy("true", "", ""); policy("false", "", ""); policy("pwd", "", "")
+    policy("git status", "sb", "--short --porcelain")
+    policy("git diff", "p", "--stat --name-only --name-status --cached --staged --check --no-color")
+    policy("git log", "p", "--oneline --stat --name-only --no-color --follow")
+    policy("git show", "p", "--stat --name-only --no-color")
+    policy("git add", "Aup", ""); policy("git commit", "aq", "")
+    policy("git blame", "", ""); policy("git ls-files", "", "")
+    policy("git rev-parse", "", ""); policy("git check-ignore", "", ""); policy("git grep", "", "")
     for (i = 0; i < 16; i++) HEX[substr("0123456789abcdef", i + 1, 1)] = i
     ESC["n"] = 10; ESC["r"] = 13; ESC["t"] = 9; ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34
     text = ENVIRON["GSW_COMMAND"]
