@@ -24,7 +24,7 @@ cost runner-minutes and developer trust; diagnose before retrying.
 ## Find hangs and crashes in .NET
 
 ```bash
-dotnet test Repo.slnx --configuration Release --no-build \
+dotnet test VSTest.Specs.csproj --configuration Release --no-build \
   --blame-hang --blame-hang-timeout 5m --blame-hang-dump-type mini \
   --blame-crash --blame-crash-dump-type mini \
   --results-directory TestResults

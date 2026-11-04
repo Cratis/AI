@@ -18,6 +18,7 @@ import { tmpdir } from 'node:os';
 import { basename, join, relative, resolve } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
+import { pathWithout } from './fixtures/path-without-tool.ts';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
@@ -25,6 +26,10 @@ const guard = join(repositoryRoot, '.cratis', 'ai', 'hooks', 'scripts', 'cratis-
 
 const BLOCK = 'block';
 const ALLOW = 'allow';
+
+function adapterPathVerdict(name: string, verdict: string): string {
+    return /^\.(claude|pi)\//.test(name) ? verdict : ALLOW;
+}
 
 function runGuard(payload: object, cwd: string, env: NodeJS.ProcessEnv = {}): { verdict: string; stdout: string; stderr: string } {
     const result = spawnSync('bash', [guard], {
@@ -118,6 +123,21 @@ test('the write guard resolves every spelling of the same target to the same ver
     } finally {
         repo.dispose();
     }
+});
+
+test('protected filenames are case-insensitive without changing ordinary writes', () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        for (const file of ['.ENV', '.Env.local', 'service.ENV', 'Package.json', 'Directory.packages.props', 'YARN.LOCK', '.Claude/Settings.json', '.PI/Extensions/x.ts', '.Cratis/AI/rules/x.md']) {
+            const result = runGuard({ cwd: repo.root, tool_name: 'Write', tool_input: { file_path: file, content: 'x' } }, repo.root);
+            assert.equal(result.verdict, BLOCK, `${file}\n${result.stderr}`);
+        }
+        for (const file of ['ENV.txt', 'Package.json.md', '.Claude/notes.md']) {
+            assert.equal(runGuard({ cwd: repo.root, tool_name: 'Write', tool_input: { file_path: file, content: 'x' } }, repo.root).verdict, ALLOW, file);
+        }
+    } finally { repo.dispose(); }
 });
 
 test('the explicit escape hatch allows one protected write and nothing else changes', () => {
@@ -251,9 +271,9 @@ test('repository manifest settings override the origin default identically throu
         ['{"allowDependencyManifestWrites": false}', BLOCK],
         ['{"allowDependencyManifestWrites": "true"}', undefined],
         ['{"allowDependencyManifestWrites": null}', undefined],
-        ['not json', undefined],
+        ['not json', BLOCK],
     ];
-    const protectedNames = ['Directory.Packages.props', 'global.json', 'NuGet.config', 'NuGet.Config', 'nuget.config', 'yarn.lock', 'package-lock.json', 'pnpm-lock.yaml', 'packages.lock.json'];
+    const protectedNames = ['package.json', 'Package.json', 'Directory.Packages.props', 'global.json', 'NuGet.config', 'NuGet.Config', 'nuget.config', 'yarn.lock', 'package-lock.json', 'pnpm-lock.yaml', 'packages.lock.json'];
     for (const [origin, defaultVerdict] of [['git@github.com:Cratis/AI.git', ALLOW], ['https://github.com/Consumer/App.git', BLOCK]]) {
         const repo = scratchRepository(origin);
         try {
@@ -269,8 +289,8 @@ test('repository manifest settings override the origin default identically throu
                     const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd: join(repo.root, 'Source', 'Accounts') }) as { block?: boolean } | undefined;
                     assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${origin}, ${configuration}, ${name}`);
                 });
-                const packagePath = join(repo.root, 'package.json');
-                assert.equal((await runGuardAsync({ cwd: repo.root, tool_input: { file_path: packagePath, content: '{}' } }, repo.root)).verdict, ALLOW, 'the protected category does not expand');
+                const ordinaryPath = join(repo.root, 'package.json.md');
+                assert.equal((await runGuardAsync({ cwd: repo.root, tool_input: { file_path: ordinaryPath, content: '{}' } }, repo.root)).verdict, ALLOW, 'ordinary files remain writable');
             }
         } finally {
             repo.dispose();
@@ -380,15 +400,15 @@ test('agent controls and installed trees are protected without blocking authored
         const managedChild = join(consumer.root, '.claude', 'commands', 'managed', 'ship.md');
         assert.equal(runGuard({ tool_input: { file_path: managedChild, content: 'x' } }, source.root).verdict, BLOCK, 'a listed directory owns its children');
         assert.equal(runGuard({ tool_input: { file_path: join(consumer.root, '.claude', 'commands', 'managed-like', 'ship.md'), content: 'x' } }, source.root).verdict, ALLOW, 'a directory prefix look-alike is not owned');
-        for (const manifest of ['not json', '{"Integrations":"invalid"}', '{}']) {
+        for (const [manifest, adapterVerdict] of [['not json', BLOCK], ['{"Integrations":"invalid"}', ALLOW], ['{}', ALLOW]]) {
             writeFileSync(join(consumer.root, '.cratis', 'ai.manifest.json'), manifest);
             const cases: Array<[name: string, expected: string]> = [
                 ...controls.map(name => [name, BLOCK] as [string, string]),
-                ...ordinary.map(name => [name, ALLOW] as [string, string]),
+                ...ordinary.map(name => [name, adapterPathVerdict(name, adapterVerdict)] as [string, string]),
                 ['.cratis/ai/skills/custom/SKILL.md', BLOCK],
-                ['.claude/agents/custom.md', ALLOW],
-                ['.pi/agents/custom.md', ALLOW],
-                ['.claude/commands/managed/ship.md', ALLOW],
+                ['.claude/agents/custom.md', adapterVerdict],
+                ['.pi/agents/custom.md', adapterVerdict],
+                ['.claude/commands/managed/ship.md', adapterVerdict],
                 ['.claude/skills/shared/new/SKILL.md', BLOCK],
             ];
             await forEachConcurrently(cases, async ([name, expected]) => {
@@ -429,6 +449,31 @@ test('the Pi bridge classifies write-shaped calls through the guard and never bl
         const ordinary = await toolCall({ toolName: 'edit', input: { path: join(repo.root, 'Source', 'Ordinary.cs'), edits: [{ oldText: 'a', newText: 'b' }] } }, ctx);
         assert.equal(ordinary, undefined, 'an ordinary edit must pass through');
     } finally {
+        repo.dispose();
+    }
+});
+
+test('the guard refuses every write when jq is missing', () => {
+    const repo = scratchRepository();
+    const isolated = pathWithout('jq');
+    try {
+        const run = (input: string, env: NodeJS.ProcessEnv = {}) => spawnSync('/bin/bash', [guard], {
+            cwd: repo.root,
+            input,
+            encoding: 'utf8',
+            env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0', PATH: isolated.path, ...env },
+        });
+        for (const path of ['.env', '.claude/settings.json', 'README.md']) {
+            const payload = JSON.stringify({ cwd: repo.root, tool_name: 'Write', tool_input: { file_path: join(repo.root, path), content: 'x' } });
+            const result = run(payload);
+            assert.equal(result.status, 2, path);
+            assert.match(result.stderr, /jq is not installed/);
+            assert.match(result.stderr, /CRATIS_HOOKS_ALLOW_PROTECTED_WRITES/);
+            assert.equal(run(payload, { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' }).status, 0, 'the escape hatch still works');
+        }
+        assert.equal(run('').status, 0, 'empty input still exits 0');
+    } finally {
+        isolated.dispose();
         repo.dispose();
     }
 });

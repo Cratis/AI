@@ -34,7 +34,7 @@ test('the tool description identifies both configuration paths and how replaceme
 
 test('a per-gate timeout is a named tool failure and kills TERM-resistant descendants', async () => {
     const repo = scratch(['bash', '-c', 'bash -c \'trap "" TERM; echo $$ > child.pid; while :; do sleep 1; done\' & wait'], {
-        timeoutSeconds: 1, timeoutHint: 'dotnet test Affected.Specs.csproj --configuration Debug --no-build',
+        timeoutSeconds: 1, timeoutHint: './Source/Affected.Specs/bin/Debug/net10.0/Affected.Specs',
     });
     try {
         repo.change();
@@ -42,7 +42,7 @@ test('a per-gate timeout is a named tool failure and kills TERM-resistant descen
         await assert.rejects(() => tool.execute('call', { timeoutSeconds: 15 }, undefined, undefined, repo.ctx()), (error: Error) => {
             assert.match(error.message, /QUALITY GATE TIMED OUT: scratch-gate after 1s/);
             assert.match(error.message, /NOT VERIFIED/);
-            assert.match(error.message, /Run a narrower command instead: dotnet test Affected\.Specs\.csproj/);
+            assert.match(error.message, /Run a narrower command instead: \.\/Source\/Affected\.Specs\/bin\/Debug\/net10\.0\/Affected\.Specs/);
             return true;
         });
         const child = Number(readFileSync(join(repo.root, 'child.pid'), 'utf8').trim());

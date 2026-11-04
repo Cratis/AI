@@ -4,9 +4,11 @@
   "fixtures": [],
   "assertions": [
     { "kind": "skill-contains", "value": "../../rules/review-reports.md" },
-    { "kind": "skill-contains", "value": "Run one quick round per delivery" },
-    { "kind": "skill-contains", "value": "Run one whole-change review per PR" },
+    { "kind": "skill-contains", "value": "Review each branch whole once" },
+    { "kind": "skill-contains", "value": "review glue only" },
     { "kind": "skill-contains", "value": "SHA, not from an arbitrary base" },
+    { "kind": "skill-contains", "value": "covers its original base to head" },
+    { "kind": "skill-contains", "value": "an incomplete slot is not a pass" },
     { "kind": "skill-contains", "value": "Prior: <complete round 1 report, including dismissals and scope limits>" },
     { "kind": "skill-contains", "value": "3 rounds per work item" },
     { "kind": "skill-contains", "value": "Never file an issue merely to dispose of advisory feedback" },

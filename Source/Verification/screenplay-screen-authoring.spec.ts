@@ -272,3 +272,15 @@ test('the screens smoke replays the pinned public vector from the published corp
     assert.ok(readFileSync(join(smokeDirectory, 'materialize-corpus.cs'), 'utf8').includes('#:package Cratis.Screenplay.CanonicalCorpus@CORPUS_VERSION'));
     assert.ok(authoring.includes('screens-smoke.sh'), 'the authoring workflow must point at the smoke');
 });
+
+test('Stage dependency guidance follows the scaffold central package management (Cratis/AI#992)', () => {
+    const reference = readFileSync(
+        join(corpus, 'skills', 'cratis-stage-rendering-and-sandbox', 'references', 'rendered-application.md'),
+        'utf8',
+    );
+    assert.doesNotMatch(reference, /central package management \*\*off\*\*/, 'current scaffolds enable central package management');
+    assert.doesNotMatch(reference, /needs an explicit `Version`\./, 'a blanket explicit-Version rule breaks restore under central package management');
+    for (const required of ['`VersionOverride`', 'matching central `PackageVersion`', 'Read the existing\n`Directory.Packages.props` first', 'older inline-spec scaffolds']) {
+        assert.ok(reference.includes(required), `rendered-application.md is missing ${required}`);
+    }
+});

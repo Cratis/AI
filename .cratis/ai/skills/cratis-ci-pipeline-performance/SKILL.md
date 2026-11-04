@@ -75,7 +75,7 @@ named reference before applying one.
 **Build once, shard the tests.** Fits execution-bound workflows where build and
 tests run serially or several jobs each rebuild. Default: one job builds in
 `Release`, uploads the output with `actions/upload-artifact`, and a matrix of shard jobs downloads it and runs
-`dotnet test --no-build`. Pitfall: a shard whose filter matches nothing still
+each built spec executable; only VSTest projects use `dotnet test <project> --no-build`. Pitfall: a shard whose filter matches nothing still
 passes, so assert that every shard ran tests. Read
 `references/build-once-and-shard.md` when applying or reviewing this.
 

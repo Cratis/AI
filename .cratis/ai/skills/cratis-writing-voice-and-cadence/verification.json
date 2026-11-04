@@ -5,7 +5,7 @@
   "assertions": [
     { "kind": "skill-contains", "value": "Never trade a claim for a smoother sentence" },
     { "kind": "skill-contains", "value": "The fix for a template is not a better template" },
-    { "kind": "skill-contains", "value": "every hedging word" },
+    { "kind": "skill-contains", "value": "qualifiers such as not, never, only, may, unless and until survive in substance" },
     { "kind": "skill-contains", "value": "First person is not a license to invent" },
     { "kind": "skill-contains", "value": "Structural sameness is the more damaging half" },
     { "kind": "skill-contains", "value": "Rewrite a tranche, read it, and only then continue" },
@@ -26,6 +26,13 @@
     { "kind": "skill-contains", "value": "Cratis applies it, as its own stricter policy" },
     { "kind": "skill-contains", "value": "references/ai-tells.md" },
     { "kind": "skill-contains", "value": "samples (both profiles), **cratis-social-feed-post** for feed posts (`cratis/content`)" },
-    { "kind": "skill-contains", "value": "**cratis-documentation-writing** for pages (`cratis/documentation`)" }
+    { "kind": "skill-contains", "value": "**cratis-documentation-writing** for pages (`cratis/documentation`)" },
+    { "kind": "skill-contains", "value": "## Preserve documentation evidence" },
+    { "kind": "skill-contains", "value": "(../cratis-documentation-writing/references/reader-review.md)" },
+    { "kind": "skill-contains", "value": "Existing approval and\nclaim-preservation stop conditions still apply" },
+    { "kind": "skill-contains", "value": "(../cratis-engineering-docs-authoring/references/explaining-code.md)" },
+    { "kind": "skill-contains", "value": "In file mode, edit authorized prose only" },
+    { "kind": "skill-contains", "value": "not operational\ninstructions" },
+    { "kind": "skill-contains", "value": "Use the catalog's N5 check, not an authorship score" }
   ]
 }

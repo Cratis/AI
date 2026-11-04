@@ -4,13 +4,14 @@
     {
       "id": 1,
       "name": "mixed-quadrant-page",
-      "prompt": "A draft page 'Getting started with Reactors' opens with 'A reactor is an abstraction over event observers.', walks a newcomer through building a first reactor, then pastes a 40-row table of every attribute and option in the middle of the lesson. Review it and say how to fix it. Reply only; do not write files.",
-      "expected_output": "Classify the page as a tutorial. Open with the reader's problem and payoff, not an abstract definition. Move the exhaustive option table to a linked reference page; keep the lesson threaded with visible results and let the first success come before theory.",
+      "prompt": "A draft page 'Getting started with Reactors' opens with 'A reactor is an abstraction over event observers.', walks a newcomer through building a first reactor, then pastes a 40-row table of every attribute and option in the middle of the lesson. The owning Astro pipeline supports callouts, steps, independent-variant tabs, cards, Mermaid and code emphasis. The author proposes either prose-only polishing or adding all components to every page. A LinkCard description, an Aside default warning heading and computed FullStackTabs backend/frontend labels contain essential meaning missing from the children. Review it for visual and text/AI readers. Then write an actual two-paragraph opening, using only these supplied scenario facts: the reader wants a reactor to run after an event; the worker host discovers it; only that host loads its configuration; acceptance of the event does not prove that the reactor finished. Do not invent APIs, timing, output or setup. Develop the explanation from the event-to-worker handoff rather than writing labels for responsibility and limitations. Reply only; do not write files.",
+      "expected_output": "Classify the page as a tutorial. Return an actual two-paragraph opening that develops the supplied event-to-worker handoff, worker-only configuration and acceptance-versus-completion limit without invented facts, not merely advice. Open with the reader's problem and payoff, not an abstract definition. Move the exhaustive option table to a linked reference page; keep the lesson threaded with visible results and let the first success come before theory. Put prerequisites at first use, distinguish optional setup, explain effects and link the next task or exact reference without imposing one template. Choose supported presentation for a real task aid, not all components everywhere: preserve sequential backend/frontend work and use tabs only for independent variants. Ordinary Markdown uses native asides; JSX requires eligible MDX. Preserve meaningful labels, warnings and roles in prose/children when props or computed defaults disappear, and inspect bounded exports with canonical citation context rather than treating rendering as export or AI proof.",
       "assertions": [
         "Classifies the page as a tutorial, with learning as its primary purpose.",
-        "Says the opening should state the reader's problem and payoff rather than an abstract product definition.",
+        "Writes an actual connected two-paragraph opening grounded only in the supplied scenario facts: reader problem, worker discovery and worker-only configuration, and acceptance distinct from completion; no invented API, setup, timing or output, and no labeled responsibility/limitation ledger.",
         "Recommends moving the exhaustive attribute table to a linked reference page instead of burying it in the lesson.",
-        "Says each tutorial step should have a visible result and that deeper theory links to an explanation rather than interrupting the lesson."
+        "Says each tutorial step should have a visible result, prerequisites at first use and deeper theory linked rather than interrupting the lesson; adapts structure to the task, not a uniform template.",
+        "Chooses useful supported Astro/MDX aids rather than prose-only or blanket decoration, respects ordinary Markdown/MDX boundaries and sequential roles, and preserves LinkCard descriptions, Aside warning meaning and computed FullStackTabs labels in readable content while checking bounded exports and canonical citation context without claiming runtime or AI proof."
       ]
     },
     {
@@ -40,25 +41,27 @@
     {
       "id": 4,
       "name": "multi-backend-limits",
-      "prompt": "We are adding a Kotlin backend to a series of 6 pages that currently teach C# only. Two features are unsupported on Kotlin and tracked in issues. How do we handle the limitation text, and what else must we check outside the product's own docs? Reply only.",
-      "expected_output": "Put backend differences once in a 'how the backends differ' table near the start (series index), including unsupported features with their tracking issue, and link it rather than repeating on each page. Search cross-product and site-level pages for single-language claims and series indexes that no longer hold.",
+      "prompt": "We are adding a Kotlin backend to a series of 6 pages that currently teach C# only. Two features are unsupported on Kotlin and tracked in issues. How do we handle the limitation text, and what else must we check outside the product's own docs? The front door calls Chronicle, Arc and Screenplay competing Cratis platforms, requires all three for a Chronicle-only task and proposes replacing package IDs with umbrella names. Review that framing too. Reply only.",
+      "expected_output": "Put backend differences once in a 'how the backends differ' table near the start (series index), including unsupported features with their tracking issue, and link it rather than repeating on each page. Search cross-product and site-level pages for single-language claims and series indexes that no longer hold. Cratis is the organization; Cratis Platform the umbrella; named products are independently adoptable components or supporting tools. Preserve actual package IDs and APIs, route to a first useful component outcome and show source-grounded prerequisites and handoffs only when relevant, without invented dependencies or guarantees.",
       "assertions": [
         "Recommends one backend-differences table on the series index, linked from pages, instead of repeating the limitation on every page.",
         "Includes unsupported features together with their tracking issue in that table.",
         "Says to search pages the product's own checks do not scan, such as cross-product and site-level pages, for single-language claims.",
-        "Says to check series indexes whose description, reading order or production claims may no longer hold."
+        "Says to check series indexes whose description, reading order or production claims may no longer hold.",
+        "Distinguishes organization, Platform umbrella and independently adoptable components; rejects whole-Platform requirements and package/API renames, and proposes a useful component path with source-grounded handoffs."
       ]
     },
     {
       "id": 5,
       "name": "ai-drafted-narrative",
-      "prompt": "I generated a tutorial narrative with a model and want to ship it. What must happen before it ships, and where do I tell the reviewer it was AI-drafted? Reply only.",
-      "expected_output": "It is a first draft. Revise against source evidence and the voice skill; technical correctness is not established by a style pass. Tell the reviewer in the review request, a PR comment or the commit message, never the PR description, which is published as release notes.",
+      "prompt": "I generated a cross-component tutorial narrative with a model and want to ship it. What must happen before it ships, and where do I tell the reviewer it was AI-drafted? I reread it and the site builds. A colleague succeeded only after I supplied missing host setup and explained which identifier to copy. Can we call that independent reader validation? We cannot launch agents or model evaluations. What should we record and fix? Consider newcomer, experienced developer, operator, AI/text, accuracy, security/trust-boundary and accessibility/visual/editorial perspectives where relevant without requiring a review board or repeated polishing loops. Reply only.",
+      "expected_output": "It is a first draft. Revise against source evidence and the voice skill; technical correctness is not established by a style pass. Tell the reviewer in the review request, a PR comment or the commit message, never the PR description, which is published as release notes. The author's reread, build and coached success are not independent comprehension proof. Follow the canonical reader-review procedure with only the task, page and stated prerequisites, not author answers; record guesses and repair the smallest host/identifier gaps. Keep comprehension, source, compile, runtime and deployed evidence distinct. Report independent review unavailable, do not launch prohibited agents or evaluations, and keep concise evidence private rather than publishing receipts. Select relevant reader and quality lenses proportionately; one reviewer can cover several. Check credentials, exposure, permissions, destructive actions, tenant and preview/production boundaries before risk, without claiming a security audit or inventing source/runtime evidence. Repair demonstrated gaps and recheck affected content, not endless review rounds.",
       "assertions": [
         "Treats the AI-drafted narrative as a first draft to be revised against source evidence.",
         "Says a style pass cannot establish technical correctness.",
-        "Says to tell the reviewer in the review request, a PR comment or the commit message.",
-        "Says not to put the AI-drafted note in the PR description because it is published as the release note."
+        "Says to tell the reviewer in the review request, a PR comment or the commit message, not the PR description because it is published as the release note.",
+        "Rejects rereading, coached success and a site build as independent comprehension proof; routes to an uncoached reader with only the task, page and stated prerequisites, recording guesses instead of author answers.",
+        "Repairs the smallest host/identifier gaps, separates comprehension, source, compile, runtime and deployed evidence, and reports review unavailable privately without prohibited agents, evaluations or public receipts; selects relevant newcomer, experienced developer, operator, AI/text, accuracy, security/trust-boundary and accessibility/visual/editorial lenses proportionately without a mandatory review board or endless loops."
       ]
     }
   ]

@@ -70,7 +70,7 @@ Do not open a pull request per task when the tasks belong to the same body of wo
 
 Before a consolidation or a re-land of reverted work merges, prove it dropped nothing with `cratis-engineering-consolidation-guard`.
 
-Split into separate pull requests when the changes are genuinely unrelated, when one is urgent and the others are not, or when one is risky enough to want its own revert.
+Split into a separate pull request only for the exceptions in `cratis-engineering-release-trains`: a named major awaiting human confirmation, an urgent security fix authorized in writing, or an accepted outsider issue. Unrelated or riskier work rides a later train instead.
 
 ## Quality gates
 
@@ -81,7 +81,7 @@ Documentation-only changes use repository-supported non-release intent, ordinari
 Before marking code/automation work ready, select the affected-project gates that apply from the following list; run wider checks for cross-cutting changes and repository-required merge/release gates:
 
 - `dotnet build`: zero errors, zero warnings
-- `dotnet test`: all specs pass
+- Built C# spec executables: all specs pass; `dotnet test <project> --no-build` only for VSTest (see specs.csharp)
 - `yarn lint`: zero errors
 - `npx tsc -b`: zero TypeScript errors
 - Code follows all project coding standards and conventions

@@ -40,12 +40,25 @@
       "id": 4,
       "name": "document-type-shapes",
       "prompt": "I have to deliver four pages on projections: a first-time guided build, a fix for a stuck rebuild, a page on why projections are eventually consistent, and a lookup of every attribute. Map each to a document type and its shape. Reply only.",
-      "expected_output": "Tutorial (ordered steps with visible results), how-to (prerequisites, direct procedure, completion check), explanation (concepts, boundaries, trade-offs, diagram), reference (exhaustive tables, fields, commands, signatures).",
+      "expected_output": "Tutorial (ordered steps with visible results), how-to (prerequisites, direct procedure, completion check), explanation (concepts, boundaries, trade-offs, diagram when useful), reference (exhaustive tables, fields, commands, signatures).",
       "assertions": [
         "Maps the guided first build to a tutorial with ordered steps and visible results.",
         "Maps the stuck rebuild fix to a how-to with prerequisites, a direct procedure and a completion check.",
-        "Maps the eventual-consistency page to an explanation with concepts, boundaries, trade-offs and a diagram.",
+        "Maps the eventual-consistency page to an explanation with concepts, boundaries and trade-offs, using a diagram when it clarifies them.",
         "Maps the attribute lookup to a reference with exhaustive tables or fields."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "explain-a-source-backed-client-difference",
+      "prompt": "Evaluation operator: supply a source-backed multi-client difference scenario with the relevant first-party excerpts, revision, code examples and intended reader task. It must establish at least one difference in setup, semantics, defaults, async completion, result/failure lifecycle or supported features; do not invent real API facts to fill this input. Using only that supplied evidence, draft two or three connected documentation paragraphs beside the examples, not a review plan. Explain the shared concept once, the action-changing distinction beside its example, and what result each reader can expect. Choose tabs only for genuine alternatives to the same task; if setup diverges, give coherent client-specific procedures with a common introduction/route where useful. Keep shared essential context and warnings visible outside tabs and in plain Markdown. Backend producer/frontend consumer steps remain sequential. Also give a brief private note on source gaps and unavailable reader/execution checks. If the scenario is absent, request it; that is blocked evaluation, not a prose-quality pass. Reply only; do not write files.",
+      "expected_output": "Actual source-grounded explanation whose paragraphs develop from the supplied examples, preserving shared concepts without assuming API or behavior parity. Client-specific differences appear where they change action or outcome; shared warnings remain visible. Tabs or separate procedures fit the real reader task, with sequential cross-role work kept together. The private note distinguishes source, comprehension and execution evidence. Without the required scenario the evaluation is blocked, not passed.",
+      "assertions": [
+        "Produces actual connected explanatory prose based on the supplied first-party scenario, not a checklist or promise to explain; blocks rather than inventing missing source facts or a counterpart.",
+        "Checks each client independently for relevant setup, semantics, defaults, asynchronous completion, result/failure lifecycle and supported features; matching code shape does not become a parity or least-common-denominator assurance.",
+        "Explains the shared concept once and places action/outcome-changing differences beside the relevant example without duplicating the whole explanation or cramming all caveats everywhere.",
+        "Uses tabs only for alternatives accomplishing the same task, separates substantially divergent setup into coherent client-specific guides with a useful shared route, and keeps backend-producer/frontend-consumer work sequential; shared essential context and warnings survive outside tabs in plain Markdown.",
+        "Keeps source provenance and unavailable checks in the private note, distinguishing source, comprehension, compilation, runtime and deployed evidence without claiming prose alone establishes them."
       ]
     }
   ]

@@ -4,13 +4,14 @@
     {
       "id": 1,
       "name": "choose-source",
-      "prompt": "I'm writing a 10-step tutorial with four long code blocks, and one five-line illustration in an explanation page. How should the code for each be sourced and kept from drifting? Reply only; do not write files.",
-      "expected_output": "Long tutorial: a buildable sample or spec maintained with the product; extract displayed snippets from it, or keep a reproducible extraction or snippet-equality check run with the build in CI. Manual comparison is a one-time review, not a drift guard. Short illustration: the smallest self-contained block, every type and signature verified against first-party source at the supported version, with assumed setup stated.",
+      "prompt": "I'm writing a 10-step tutorial with four long code blocks, and one five-line illustration in an explanation page. How should the code for each be sourced and kept from drifting? Must every ordinary supported latest-release install command gain an exact patch pin and every incidental image digest stay? Explain maintained lockfiles, a deliberately reproducible tutorial, real minimum/breaking/peer constraints, and security/deployment image requirements. Reply only; do not write files.",
+      "expected_output": "Long tutorial: a buildable sample or spec maintained with the product; extract displayed snippets from it, or keep a reproducible extraction or snippet-equality check run with the build in CI. Manual comparison is a one-time review, not a drift guard. Short illustration: the smallest self-contained block, every type and signature verified against first-party source at the supported version, with assumed setup stated. Ordinary supported latest-release installation does not require universal patch pins; maintained manifests/lockfiles can hold resolved versions, while deliberate tutorial reproduction may justify exact pins. Preserve real minimum, fixed, breaking and peer compatibility requirements and security/deployment constraints. A digest stays for an actual artifact requirement, not merely because it is in a command; do not float production images or expose the verification diary.",
       "assertions": [
         "Recommends a buildable sample or spec maintained with the product for the long tutorial, with snippets extracted from it.",
         "Says that without extraction tooling a reproducible snippet-equality check should run with the sample build in CI, and that manual comparison is only a one-time review, not a drift guard.",
         "Says the five-line illustration does not need a new sample repository but must have every framework type and signature verified against first-party source at the supported version.",
-        "Says the illustration should state the domain types or setup it assumes rather than presenting a partial excerpt as a standalone app."
+        "Says the illustration should state the domain types or setup it assumes rather than presenting a partial excerpt as a standalone app.",
+        "Rejects universal exact-patch pins for ordinary supported latest-release installs and unconditional digest retention; uses maintained manifests/lockfiles or deliberate reproducibility when needed, preserving real minimum/breaking/peer compatibility and security/deployment artifact requirements without floating production images or publishing verification provenance."
       ]
     },
     {
@@ -46,6 +47,17 @@
         "Refuses to hand-translate the C# call and says to offer only implementations that exist, compiled against their own SDK.",
         "Says to use the same domain type names in every tab and to fix the snippets instead of explaining names in prose.",
         "Says to state each backend's id and command-response wire type and keep one id type per concept across every page of a series."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "configuration-and-output-evidence",
+      "prompt": "A cross-component how-to includes source-checked commands and configuration plus expected terminal output. It never says which host loads the configuration or which ID connects the command to its result. We did not compile, run or deploy it. The author reread it and wants to mark it fully verified. What should change? Reply only.",
+      "expected_output": "State the example scope and setup, component ownership, host placement, connecting identifiers, invisible effects and observable result, plus applicable defaults and recovery. Source checking is not compilation, runtime or deployed evidence, and expected output is not observed output. Use the canonical documentation-writing reader review for a changed journey, reporting it unavailable if not performed; do not claim the author's reread independent. Keep check evidence in the private change note.",
+      "assertions": [
+        "Requires causal explanation for commands and configuration, including ownership, host placement and identifiers, not just for code fences.",
+        "Separates source-checked commands and expected output from compilation, runtime observation and deployment.",
+        "Routes reader comprehension to documentation-writing's fresh-context procedure and does not substitute self-review or invent unavailable evidence."
       ]
     }
   ]

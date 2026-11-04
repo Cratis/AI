@@ -12,10 +12,11 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
+import { pathWithout } from './fixtures/path-without-tool.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const scripts = join(repositoryRoot, '.cratis', 'ai', 'hooks', 'scripts');
@@ -25,7 +26,7 @@ function plan(
     committed: Record<string, string>,
     changed: Record<string, string>,
     links: Record<string, string> = {},
-    options: { dryrun?: boolean; expectedStatus?: number; configPath?: string; beforeChanges?: (root: string) => void; onPlan?: (elapsedMs: number) => void } = {},
+    options: { dryrun?: boolean; expectedStatus?: number; configPath?: string; scriptsDirectory?: string; input?: string; env?: NodeJS.ProcessEnv; beforeChanges?: (root: string) => void; onPlan?: (elapsedMs: number) => void } = {},
 ): string {
     const root = mkdtempSync(join(tmpdir(), 'cratis-shipped-gates-'));
     try {
@@ -47,15 +48,18 @@ function plan(
         options.beforeChanges?.(root);
         write(changed);
         const started = performance.now();
-        const result = spawnSync(process.env.CRATIS_GATE_SPEC_SHELL ?? 'bash', [join(scripts, 'cratis-quality-gate.sh')], {
-            input: '',
+        const gateScripts = options.scriptsDirectory ? join(root, options.scriptsDirectory) : scripts;
+        const result = spawnSync(process.env.CRATIS_GATE_SPEC_SHELL ?? 'bash', [join(gateScripts, 'cratis-quality-gate.sh')], {
+            input: options.input ?? '',
             encoding: 'utf8',
             env: {
                 ...process.env,
                 CLAUDE_PROJECT_DIR: root,
-                CRATIS_HOOKS_GATES: options.configPath ?? join(scripts, 'quality-gates.json'),
+                PATH: `${join(root, '.bin')}:${process.env.PATH}`,
+                CRATIS_HOOKS_GATES: options.configPath ?? join(gateScripts, 'quality-gates.json'),
                 CRATIS_HOOKS_GATE_DRYRUN: options.dryrun === false ? '0' : '1',
                 CRATIS_HOOKS_SKIP_GATE: '',
+                ...options.env,
             },
         });
         options.onPlan?.(performance.now() - started);
@@ -64,6 +68,85 @@ function plan(
     } finally {
         rmSync(root, { recursive: true, force: true });
     }
+}
+
+test('without jq the gate blocks changed trees with installation and harness escape-hatch instructions', () => {
+    const isolated = pathWithout('jq');
+    try {
+        const changes: Record<string, string>[] = [{ 'change.txt': 'untracked' }, { 'README.md': 'tracked change' }];
+        for (const changed of changes) {
+            const output = plan({}, changed, {}, { dryrun: false, expectedStatus: 2, env: { PATH: isolated.path } });
+            assert.match(output, /jq is not installed, so no quality gates ran on this change/);
+            assert.match(output, /Stop and ask the user to install jq/);
+            assert.match(output, /brew install jq/);
+            assert.match(output, /sudo apt-get install jq/);
+            assert.match(output, /winget install jqlang.jq/);
+            assert.match(output, /CRATIS_HOOKS_SKIP_GATE=1 in the environment the agent\nharness was started from/);
+        }
+    } finally {
+        isolated.dispose();
+    }
+});
+
+const silentMissingJqScenarios: { name: string; changed: Record<string, string>; input: string; env: NodeJS.ProcessEnv }[] = [
+    { name: 'an unchanged tree', changed: {}, input: '', env: {} },
+    { name: 'Stop-hook re-entry', changed: { 'change.txt': 'x' }, input: '{\n "stop_hook_active" : true\n}', env: {} },
+    { name: 'the inherited escape hatch', changed: { 'change.txt': 'x' }, input: '', env: { CRATIS_HOOKS_SKIP_GATE: '1' } },
+];
+for (const scenario of silentMissingJqScenarios) {
+    test(`without jq the gate is silent for ${scenario.name}`, () => {
+        const isolated = pathWithout('jq');
+        try {
+            assert.equal(plan({}, scenario.changed, {}, {
+                dryrun: false, input: scenario.input, env: { PATH: isolated.path, ...scenario.env },
+            }), '');
+        } finally {
+            isolated.dispose();
+        }
+    });
+}
+
+test('without jq a dry run exits zero with the same diagnostic as a blocking run', () => {
+    const isolated = pathWithout('jq');
+    try {
+        const changed = { 'change.txt': 'x' };
+        const env = { PATH: isolated.path };
+        const blocking = plan({}, changed, {}, { dryrun: false, expectedStatus: 2, env });
+        assert.equal(plan({}, changed, {}, { env }), blocking);
+    } finally {
+        isolated.dispose();
+    }
+});
+
+for (const scriptsDirectory of ['.cratis/ai/hooks/installed scripts', '.pi/bundled corpus/hooks/scripts with spaces']) {
+    test(`the default runner resolves ${scriptsDirectory} from a nested solution`, () => {
+        let observedRoot = '';
+        plan(
+            {
+                'Nested Suite/Repo.slnx': '<Solution />',
+                'Nested Suite/Specs.csproj': '<Project />',
+                '.cratis/ai/quality-gates.project.json': JSON.stringify({ gates: [
+                    { id: 'backend-build-debug', command: ['true'] }, { id: 'backend-build-release', command: ['true'] },
+                ] }),
+            },
+            { 'Nested Suite/Source/example.cs': 'class Example {}' },
+            {},
+            { dryrun: false, scriptsDirectory, beforeChanges: root => {
+                observedRoot = root;
+                cpSync(scripts, join(root, scriptsDirectory), { recursive: true });
+                mkdirSync(join(root, '.bin'));
+                const target = join(root, 'Nested Suite', 'Actual Assembly.dll');
+                writeFileSync(target, `const fs = require('node:fs'); const args = process.argv.slice(2); fs.writeFileSync(args[args.indexOf('-trx') + 1], '<TestRun><Counters total="1" passed="1" failed="0" /></TestRun>'); fs.writeFileSync(${JSON.stringify(join(root, 'runner-observed.json'))}, JSON.stringify({ cwd: process.cwd(), scripts: process.env.CRATIS_HOOKS_SCRIPTS_DIR }));`);
+                const dotnet = join(root, '.bin/dotnet');
+                writeFileSync(dotnet, `#!${process.execPath}\nconst cp = require('node:child_process'); const args = process.argv.slice(2); if (args[0] === 'sln') console.log('Project(s)\\n----------\\nSpecs.csproj'); else if (args[0] === 'msbuild') console.log(JSON.stringify({ Properties: { IsTestProject: 'true', OutputType: 'Exe', TargetFramework: 'net10.0', TargetPath: ${JSON.stringify(target)} }, Items: { PackageReference: [{ Identity: 'xunit.v3.mtp-off' }, { Identity: 'Microsoft.NET.Test.Sdk' }] } })); else if (args[0] === ${JSON.stringify(target)}) { const result = cp.spawnSync(process.execPath, args, { stdio: 'inherit' }); process.exit(result.status ?? 1); } else process.exit(99);\n`);
+                chmodSync(dotnet, 0o755);
+            }, onPlan: () => {
+                const observed = JSON.parse(readFileSync(join(observedRoot, 'runner-observed.json'), 'utf8'));
+                assert.equal(observed.cwd, realpathSync(join(observedRoot, 'Nested Suite')));
+                assert.equal(observed.scripts, realpathSync(join(observedRoot, scriptsDirectory)));
+            } },
+        );
+    });
 }
 
 test('a missing configuration names the shipped defaults, project overrides, and replacement variable', () => {
@@ -456,7 +539,7 @@ test('a per-gate timeout names the gate, log output, and narrower command withou
     const output = plan(
         { [overrideFile]: JSON.stringify({ gates: [{
             id: 'backend-specs', workingDirectory: '.', requires: {}, timeoutSeconds: 1,
-            timeoutHint: 'dotnet test App.Specs.csproj --configuration Debug --no-build',
+            timeoutHint: './Source/App.Specs/bin/Debug/net10.0/App.Specs',
             command: ['/bin/sh', '-c', 'printf "distinctive-output\\n"; exec sleep 600'],
         }] }) },
         { 'Source/example.cs': 'class Example {}' },
@@ -464,7 +547,7 @@ test('a per-gate timeout names the gate, log output, and narrower command withou
         { dryrun: false, expectedStatus: 2 },
     );
     assert.match(output, /QUALITY GATE TIMED OUT: backend-specs after 1s \(cwd: \.\) — NOT VERIFIED/);
-    assert.match(output, /Run a narrower command instead: dotnet test App\.Specs\.csproj --configuration Debug --no-build/);
+    assert.match(output, /Run a narrower command instead: \.\/Source\/App\.Specs\/bin\/Debug\/net10\.0\/App\.Specs/);
     assert.match(output, /Configure command\/workingDirectory\/timeoutSeconds in \.cratis\/ai\/quality-gates\.project\.json/);
     assert.match(output, /distinctive-output/);
 });

@@ -59,7 +59,7 @@ Cap export retries at five and surface the final failure.
 
 ## Verified facts (with evidence)
 - Cap and spec committed: `git log -1` shows the SHA above.
-- Spec project passes: `dotnet test Source/Export.Specs` exit 0 at that SHA.
+- Spec project passes: `./Source/Export.Specs/bin/Debug/net10.0/Export.Specs` exit 0 at that SHA.
 - Pull request is open: `gh pr list --head export-retry` shows one entry; CI run
   `1234567890` is in progress.
 

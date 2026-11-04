@@ -73,7 +73,8 @@ Keep the first restore. Skip a later one only when all four checks pass:
 ### Step 4: Apply the smallest change
 
 - One explicit restore carrying every restore input, then `--no-restore`, `-restore:false` or `--no-build` on later steps.
-- Several `dotnet test` steps over one solution: build once, then `dotnet test --no-build` on each. Add `--no-restore -restore:false` if an rsp enables restore, including on .NET 8 and earlier. `--no-restore` alone still rebuilds.
+- Supported executable suites run their built spec runner instead (see [running-specs](../cratis-specifications-csharp/references/running-specs.md)); the dotnet-test examples here are VSTest-only.
+- Several `dotnet test` steps over one VSTest-only solution: build once, then `dotnet test --no-build` on each. Add `--no-restore -restore:false` if an rsp enables restore, including on .NET 8 and earlier. `--no-restore` alone still rebuilds.
 - Keep self-contained publish settings. A `publish --no-build` still needs a prior build with matching configuration, framework, RID and self-contained output; restore compatibility does not prove that build outputs exist.
 - Scope the change to CI and scripts. Leave `-restore` in `Directory.Build.rsp`, because developers rely on it; pass `-restore:false` per invocation instead.
 - Never remove the first restore. If it is a `--locked-mode` gate, keep it there.
