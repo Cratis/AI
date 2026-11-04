@@ -1001,7 +1001,7 @@ function kube(A, s, n,    verb, m, parts, k, r, rlist, projection) {
         } else if (r in SENS) {
             if (verb == "describe")
                 report("kubectl describe " r " prints the full container spec, including inline credentials", "kubectl get " r " -o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, or kubectl get events / kubectl logs; say which field you need")
-            else if (outfmt == "json" || outfmt == "yaml")
+            else if (outfmt != "" && outfmt !~ /^(wide|name|jsonpath|jsonpath-as-json|custom-columns|go-template|template|templatefile|go-template-file|jsonpath-file|custom-columns-file)(=|$)/)
                 report("kubectl get " r " -o " outfmt " prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
             else if (tmplfile || outfmt ~ /^(templatefile|go-template-file|jsonpath-file|custom-columns-file)(=|$)/)
                 report("kubectl get " r " with a file-based projection may print the full container spec, including inline credentials", "use an inline projection of the needed fields: -o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")

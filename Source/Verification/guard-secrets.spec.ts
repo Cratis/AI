@@ -69,6 +69,9 @@ test('the issue acceptance list: full specs, secrets, env and inspect are blocke
 test('kubectl: every spec-bearing resource is blocked with json or yaml, however the flag is spelled', () => {
     assertVerdicts([
         [BLOCK, 'kubectl get pods -o yaml'],
+        [BLOCK, 'kubectl get pods -o kyaml'],
+        [BLOCK, 'kubectl get pods --output=JSON'],
+        [BLOCK, 'oc get pods -o some-future-format'],
         [BLOCK, 'kubectl get pod x -ojson'],
         [BLOCK, 'kubectl get pod x -o=json'],
         [BLOCK, 'kubectl get pods --output json'],
