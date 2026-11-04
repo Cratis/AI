@@ -11,7 +11,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -671,6 +671,153 @@ for (const [index, commands] of commandForms.entries()) {
         assertVerdicts(commands.map(command => [BLOCK, command]));
     });
 }
+
+test('shell option changes use only the supported defaults', () => {
+    assertVerdicts([
+        ...['-O extglob', '+O extglob', '-o nounset', '+o nounset', '-O dotglob', '-Oextglob'].flatMap(option =>
+            ['bash', 'sh', 'zsh'].map(shell => [BLOCK, `${shell} ${option} -c true`] as [string, string])),
+        [BLOCK, "bash -O extglob -c 'cat .@(e)nv'"],
+        [BLOCK, "bash -O extglob -c 'cat .!(x)nv'"],
+        [BLOCK, "bash -O extglob -c 'cat .+(e)nv'"],
+        [BLOCK, "bash -O dotglob -c 'cat .e@(n)v'"],
+        [BLOCK, 'echo extglob'],
+        [BLOCK, 'shopt -s expand_aliases'],
+        [BLOCK, 'set -o noclobber'],
+        [BLOCK, 'set +o posix'],
+        [BLOCK, 'set -C'],
+        ...['errexit', 'nounset', 'pipefail', 'xtrace', 'verbose', 'noglob', 'errtrace', 'functrace'].flatMap(option =>
+            ['-o', '+o'].map(flag => [ALLOW, `set ${flag} ${option}`] as [string, string])),
+        ...['-e', '-u', '-x', '-f', '-v', '-E', '-T', '+e', '+u', '+x', '+f', '+v', '+E', '+T', '-euo pipefail'].map(flags =>
+            [ALLOW, `set ${flags}`] as [string, string]),
+    ]);
+});
+
+test('quoted boundaries end parameter names', () => {
+    assertVerdicts([
+        [BLOCK, 'f=.e; cat "$f"nv'],
+        [BLOCK, "f=.e; cat $f'nv'"],
+        [BLOCK, 'f=id_r; cat ~/.ssh/"$f"sa'],
+        [BLOCK, 'f=/proc/self/env; cat "$f"iron'],
+        [BLOCK, 'f=.n; cat ~/"$f"etrc'],
+        [BLOCK, 'f=.e; cp "$f"nv /tmp/x'],
+        [BLOCK, 'f=.e; tar cf - "$f"nv'],
+        [BLOCK, 'f=.e; cat <"$f"nv'],
+        [BLOCK, 'bash -c \'f=.e; cat "$f"nv\''],
+        [ALLOW, 'f=READ; cat "$f"ME.md'],
+    ]);
+});
+
+test('grouped and repeated pathname patterns are checked in every argument', () => {
+    assertVerdicts([
+        ...['?(', '*(', '+(', '@(', '!('].map(group => [BLOCK, `cat .${group}e)nv`] as [string, string]),
+        [BLOCK, 'cat .(e|x)nv'],
+        [BLOCK, "zsh -c 'cat .(e|x)nv'"],
+        [BLOCK, "find . -maxdepth 1 -name '.e*' -exec cat {} \\;"],
+        [BLOCK, "find ~/.ssh -name 'id_*' -exec cat {} \\;"],
+        [BLOCK, "find . -iname '.e*' -execdir cat {} +"],
+        [BLOCK, "find . -path '*/.e*' -ok cat {} \\;"],
+        [BLOCK, "find . -ipath '*/id_*' -exec cat {} +"],
+        [BLOCK, 'cat .e*'],
+        [BLOCK, 'cat ~/.ssh/id_*'],
+        [ALLOW, "find . -name '*.md' -exec cat {} \\;"],
+    ]);
+});
+
+test('metadata-only glob operands do not permit content reads', () => {
+    assertVerdicts([
+        [ALLOW, 'ls .e*'],
+        [ALLOW, 'stat .env'],
+        [ALLOW, 'stat .e*'],
+        [BLOCK, 'ls .e* | xargs cat'],
+        [BLOCK, 'ls $(cat .env)'],
+        [BLOCK, 'ls $HOME/.env'],
+        [BLOCK, 'stat .e* > /tmp/x'],
+        [BLOCK, 'command ls .e*'],
+    ]);
+});
+
+test('search filters and recursive operands are not literal reads when tainted', () => {
+    assertVerdicts([
+        [BLOCK, 'rg -uu -g .env KEY'],
+        [BLOCK, "rg --hidden --glob .env ''"],
+        [BLOCK, 'rg -uu --iglob .ENV .'],
+        [BLOCK, 'rg -uu --type-add x:.env -tx KEY'],
+        [BLOCK, 'grep -r --include .env KEY .'],
+        [BLOCK, "rg -uu -g id_rsa ''"],
+        [BLOCK, "rg -uu -g .netrc ''"],
+        [BLOCK, "rg -uu -g '**/credentials' ''"],
+        [BLOCK, 'grep -r . .kube'],
+        [BLOCK, 'grep -r . /run/secrets'],
+        [BLOCK, 'rg --unknown-option -g .env KEY'],
+        [BLOCK, 'rg -J -g .env KEY'],
+        [BLOCK, 'grep -f .env x'],
+        [BLOCK, 'grep --file=.env x'],
+        [BLOCK, 'grep -e foo .env'],
+        [BLOCK, 'grep --regexp=foo .env'],
+        [BLOCK, 'grep -e foo -- .env'],
+        [BLOCK, 'rg -f .env x'],
+        [BLOCK, 'rg -e foo .env'],
+        [BLOCK, "rg -g '.env' x"],
+        [BLOCK, "rg --glob '.env' x"],
+        [BLOCK, "rg --iglob '.env' x"],
+        [BLOCK, "rg --type-add 'private:.env' x"],
+        [BLOCK, "grep --include '.env' -r x ."],
+        [BLOCK, "rg -g '.e*' x"],
+        [BLOCK, "rg --glob='.e*' x"],
+        [BLOCK, "rg --iglob 'id_*' x"],
+        [BLOCK, "rg --type-add 'private:.e*' x"],
+        [BLOCK, "grep --include='.e*' -r x ."],
+        [BLOCK, 'grep -rn foo .kube'],
+        [BLOCK, 'grep -Rn foo run/secrets'],
+        [BLOCK, 'grep --recursive foo .env.example'],
+        [BLOCK, 'rg x .env.example Source'],
+        [BLOCK, 'rg -n --label=.env.example x'],
+        [BLOCK, 'grep -m 5 x .env.example'],
+        [BLOCK, 'rg -g "*.md" x .env.example'],
+        [ALLOW, 'grep -rn "process.env" src'],
+        [ALLOW, 'rg -n id_rsa docs'],
+        [ALLOW, 'rg -uu .env docs'],
+        [ALLOW, 'rg -S .env docs'],
+        [ALLOW, 'grep -T .env docs'],
+        [ALLOW, 'rg --regexp=.env docs'],
+        [ALLOW, 'grep -ne.env README.md'],
+        [ALLOW, 'grep -e .env -r .'],
+        [ALLOW, 'ag -r .env .'],
+        [ALLOW, 'grep -e foo .env.example'],
+        [ALLOW, 'rg -e foo .env.example'],
+    ]);
+});
+
+test('tainted rg operands distinguish files from directories in the invocation directory', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'guard-search-'));
+    try {
+        writeFileSync(join(directory, '.env.example'), '');
+        mkdirSync(join(directory, '.env.sample'));
+        mkdirSync(join(directory, "docs'notes"));
+        for (const [expected, command] of [
+            [0, 'rg -e foo .env.example'],
+            [2, 'rg -e foo .env.sample'],
+            [2, "rg -e foo .env.example \"docs'notes\""],
+        ] as const) {
+            const result = spawnSync('/bin/bash', [guard], {
+                input: JSON.stringify({ tool_name: 'Bash', cwd: directory, tool_input: { command } }),
+                encoding: 'utf8',
+                env: { ...process.env, CRATIS_HOOKS_ALLOW_SECRET_READS: '0' },
+            });
+            assert.equal(result.status, expected, `${command}\n${result.stderr}`);
+        }
+    } finally {
+        rmSync(directory, { recursive: true, force: true });
+    }
+});
+
+test('here-string text keeps the conservative refusal', () => {
+    assertVerdicts([
+        [BLOCK, 'cat <<< .env'],
+        [BLOCK, 'read x <<< .env'],
+        [ALLOW, 'cat <<< README.md'],
+    ]);
+});
 
 test('names assembled from fragments take every value the command assigns', () => {
     assertVerdicts([
