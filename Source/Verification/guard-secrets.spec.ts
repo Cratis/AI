@@ -57,7 +57,7 @@ test('the issue acceptance list: full specs, secrets, env and inspect are blocke
         [BLOCK, 'printenv'],
         [BLOCK, 'docker inspect x'],
         [ALLOW, "kubectl get pods -o jsonpath='{.items[*].spec.containers[*].image}'"],
-        [ALLOW, 'kubectl get pods -o custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[0].image'],
+        [ALLOW, 'kubectl get pods -o custom-columns=NAME:.metadata.name,IMAGE:.spec.containers[*].image'],
         [ALLOW, 'kubectl get pods -o name'],
     ]);
 });
@@ -157,17 +157,12 @@ test('go-template projections of container specs and environments are refused', 
         [BLOCK, "kubectl get pod web -o go-template --template '{{.spec.ephemeralContainers}}'"],
         [BLOCK, "kubectl get cronjobs --output=go-template --template='{{.spec.jobTemplate.spec.template}}'"],
         [ALLOW, "kubectl get pods -o go-template='{{range .items}}{{.metadata.name}}{{end}}'"],
-        [ALLOW, "kubectl get pod web -o go-template='{{.spec.nodeName}}'"],
+        [BLOCK, "kubectl get pod web -o go-template='{{.spec.nodeName}}'"],
     ]);
 });
 
 test('custom-columns checks container paths with every supported output flag spelling', () => {
-    const paths = [
-        '.spec', '.items[*].spec.template', '.spec.template.spec', '.spec.containers[0]',
-        '.spec.initContainers[*]', '.spec.ephemeralContainers', '.spec.jobTemplate.spec.template.spec',
-        '.spec.containers[*].env', '.spec.containers[0].env[0].value', '.spec.containers[*].envFrom',
-        '..env', '..value', '..',
-    ];
+    const paths = ['.spec', '.spec.containers[*].env', '..env'];
     const flags = ['-o ', '-o', '-o=', '--output ', '--output='];
     assertVerdicts(flags.flatMap(flag => paths.map(path =>
         [BLOCK, `kubectl get pods ${flag}custom-columns=NAME:.metadata.name,VALUE:${path}`] as [string, string])));
@@ -175,10 +170,9 @@ test('custom-columns checks container paths with every supported output flag spe
 
 test('field projections and the suggested alternatives remain allowed', () => {
     const paths = [
-        '.items[*].spec.containers[*].image', '.metadata.name', '.status.phase',
-        '.spec.replicas', '.spec.nodeName', '.spec.containers[0].image',
-        '.spec.initContainers[*].image', '.spec.ephemeralContainers[0].image',
-        '.spec.jobTemplate.spec.template.spec.containers[0].image',
+        '.items[*].spec.containers[*].image', '.spec.containers[*].name',
+        '.spec.initContainers[*].image', '.metadata.name', '.items[*].metadata.name',
+        '.items[*].metadata.labels', '.status.phase',
     ];
     assertVerdicts(paths.flatMap(path => [
         [ALLOW, `kubectl get pods -o jsonpath='{${path}}'`],
@@ -202,105 +196,112 @@ test('container-spec projection checks use the existing resource aliases', () =>
     ]);
 });
 
-test('wildcard child steps retain container-spec and environment checks', () => {
-    assertVerdicts([
-        [BLOCK, "kubectl get pod web -o jsonpath='{.spec.*}'"],
-        [BLOCK, "kubectl get pods -o jsonpath='{.items.*.spec}'"],
-        [BLOCK, "kubectl get pods -o jsonpath='{.spec.containers.*}'"],
-        [BLOCK, "kubectl get pods -o jsonpath='{.spec.*.containers.*.env.*.value}'"],
-        [BLOCK, "kubectl get pods -o jsonpath='{..*}'"],
-        [BLOCK, 'kubectl get pods -o custom-columns=VALUE:.items.*.spec.containers.*'],
-        [BLOCK, "kubectl get pods -o go-template='{{.spec.containers.*}}'"],
-        [ALLOW, "kubectl get pods -o jsonpath='{.items.*.spec.containers.*.image}'"],
-        [ALLOW, "kubectl get pods -o jsonpath='{.items[*].spec.containers[*].image}'"],
-        [ALLOW, 'kubectl get pods -o custom-columns=NAME:.metadata.name'],
-    ]);
-});
-
-test('range and with check relative output without printing their container targets', () => {
-    assertVerdicts([
-        [ALLOW, "kubectl get pods -o go-template='{{range .spec.containers}}{{.image}}{{end}}'"],
-        [ALLOW, "kubectl get pods -o go-template='{{with .spec.containers}}{{.name}}{{end}}'"],
-        [ALLOW, "kubectl get pods -o go-template='{{with .spec}}{{range .containers}}{{.image}}{{end}}{{end}}'"],
-        [ALLOW, "kubectl get pods -o go-template='{{- range .spec.containers -}}{{.image}}{{end}}'"],
-        [ALLOW, "kubectl get pods -o jsonpath='{range .spec.containers[*]}{.image}{end}'"],
-        [ALLOW, "kubectl get pods -o jsonpath='{range .items[*]}{range .spec.containers[*]}{.name}{end}{end}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{with .spec}}{{.containers}}{{end}}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{range .spec.containers}}{{.}}{{end}}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{range .spec.containers}}{{.env}}{{end}}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{range .spec.containers}}{{.envFrom}}{{end}}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{with .spec}}{{.template}}{{end}}'"],
-        [BLOCK, "kubectl get pods -o jsonpath='{range .items[*]}{.spec}{end}'"],
-        [BLOCK, "kubectl get pods -o jsonpath='{range .spec.containers[*]}{.}{end}'"],
-        [BLOCK, "kubectl get pods -o jsonpath='{range .spec.containers[*].env[*]}{.value}{end}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{range $c := .spec.containers}}{{$c}}{{end}}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{range $i, $c := .spec.containers}}{{$c}}{{end}}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{with $s := .spec}}{{$s}}{{end}}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{range $c := .spec.containers}}{{$c.image}}{{end}}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{$c}}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{ $ }}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{$.spec}}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{$c.env}}'"],
-        [ALLOW, "kubectl get pods -o go-template='{{$c.image}}'"],
-        [ALLOW, "kubectl get pods -o jsonpath='{$.metadata.name}'"],
-    ]);
-});
-
-test('custom columns accept dotted and undotted paths with the same field checks', () => {
-    const expressions = ['spec', 'spec.containers[*]', 'spec.containers[*].env', 'spec.containers[0].envFrom', 'items[*].spec.template', 'spec.*'];
-    assertVerdicts(expressions.flatMap(expression => [
-        [BLOCK, `kubectl get pods -o custom-columns=NAME:metadata.name,ENV:${expression}`],
-        [BLOCK, `kubectl get pods --output=custom-columns=ENV:${expression}`],
+test('sensitive words in quoted keys, unions and index arguments require the exact allowlist', () => {
+    const keys = ['spec', 'template', 'jobTemplate', 'containers', 'initContainers', 'ephemeralContainers', 'env', 'envFrom', 'volumes', 'data', 'stringData', 'annotations'];
+    assertVerdicts(keys.flatMap(key => [
+        [BLOCK, `kubectl get pods -o jsonpath="{['${key}','status']}"`],
+        [BLOCK, `kubectl get pods -o jsonpath="{['a']['${key}']}"`],
+        [BLOCK, `kubectl get pods -o go-template='{{index .metadata "${key}"}}'`],
     ] as Array<[string, string]>));
     assertVerdicts([
-        [ALLOW, 'kubectl get pods -o custom-columns=NAME:metadata.name'],
-        [ALLOW, 'kubectl get pods --output=custom-columns=NAME:.metadata.name,STATUS:status.phase'],
-        [ALLOW, 'kubectl get pods -ocustom-columns=IMAGE:items[*].spec.containers[*].image'],
-        [ALLOW, 'kubectl get pods -o custom-columns=IMAGE:spec.containers.*.image'],
-        [ALLOW, 'kubectl get pods -o custom-columns=NAME:.metadata.name'],
-    ]);
-});
-
-test('quoted bracket children and index keys retain container-spec checks', () => {
-    const keys = ['spec', 'template', 'jobTemplate', 'containers', 'initContainers', 'ephemeralContainers', 'env', 'envFrom'];
-    assertVerdicts(keys.map(key => [BLOCK, `kubectl get pods -o go-template='{{index .metadata "${key}"}}'`]));
-    assertVerdicts([
         [BLOCK, `kubectl get pods -o jsonpath="{['spec']['containers']}"`],
-        [BLOCK, `kubectl get pods -o jsonpath='{["spec"]["containers"]}'`],
-        [BLOCK, `kubectl get pods -o jsonpath="{.items[0]['spec']}"`],
-        [BLOCK, `kubectl get pods -o jsonpath="{.spec['containers'][*]['env']}"`],
-        [BLOCK, `kubectl get pods -o jsonpath='{.spec["initContainers"][0]["envFrom"]}'`],
-        [BLOCK, `kubectl get pods -o custom-columns=ENV:"spec['containers'][0]['env']"`],
-        [BLOCK, `kubectl get pods -o go-template='{{index .spec "containers"}}'`],
+        [BLOCK, `kubectl get pods -o jsonpath='{["spec","status"]}'`],
         [BLOCK, `kubectl get pods -o go-template='{{index . "spec"}}'`],
-        [BLOCK, `kubectl get pods -o go-template='{{range .spec.containers}}{{index . "env"}}{{end}}'`],
-        [BLOCK, `kubectl get pods -o go-template='{{range .items}}{{index . "template"}}{{end}}'`],
-        [ALLOW, `kubectl get pods -o jsonpath="{.items[*]['spec']['containers'][*]['image']}"`],
-        [ALLOW, `kubectl get pods -o jsonpath='{["metadata"]["name"]}'`],
-        [ALLOW, `kubectl get pods -o go-template='{{index .metadata "name"}}'`],
-        [ALLOW, `kubectl get pods -o custom-columns=NAME:"['metadata']['name']"`],
+        [BLOCK, "kubectl get pods -o jsonpath='{.spec.*}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{.spec.volumes}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{.metadata.annotations}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{..env}'"],
+        [BLOCK, 'kubectl get pods -o custom-columns=ENV:spec.containers[*].env'],
+        [BLOCK, "kubectl get pods -o template='{{.spec}}'"],
     ]);
 });
 
-test('inline template aliases are inspected and file-based projections require inline fields', () => {
-    const aliases = ['templatefile', 'go-template-file', 'jsonpath-file'];
+test('range over containers printing image and with forms are now refused', () => {
+    assertVerdicts([
+        [BLOCK, "kubectl get pods -o go-template='{{range .spec.containers}}{{.image}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{with .spec.containers}}{{.name}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{with .spec}}{{.containers}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{range $c := .spec.containers}}{{$c}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{range $i, $c := .spec.containers}}{{$c.image}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{range .spec.containers[*]}{.image}{end}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{range .spec.containers[*].env[*]}{.value}{end}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{range .spec.containers[*].image}{.}{end}'"],
+    ]);
+});
+
+test('only the exact container image and name paths are allowlisted', () => {
+    const prefixes = ['', '.items[*]'];
+    const templates = ['', '.template.spec'];
+    const paths = prefixes.flatMap(prefix => templates.flatMap(template => ['containers', 'initContainers'].flatMap(container =>
+        ['image', 'name', 'imagePullPolicy'].map(field => `${prefix}.spec${template}.${container}[*].${field}`))));
+    assertVerdicts(paths.flatMap(path => [
+        [ALLOW, `kubectl get pods -o jsonpath='{${path}}'`],
+        [ALLOW, `kubectl get pods --output=jsonpath-as-json='{ ${path} }'`],
+        [ALLOW, `kubectl get pods -o custom-columns=NAME:metadata.name,IMAGE:${path.slice(1)}`],
+    ] as Array<[string, string]>));
+    const refused = ['.spec.replicas', '.spec.nodeName', '.spec.containers[0].image', '.spec.ephemeralContainers[*].image',
+        '.spec.jobTemplate.spec.template.spec.containers[*].image', '.spec.containers.*.image', '.spec.containers[*].image.extra'];
+    assertVerdicts(refused.map(path => [BLOCK, `kubectl get pods -o jsonpath='{${path}}'`]));
+    assertVerdicts([
+        [BLOCK, "kubectl get pods -o jsonpath='{.spec.containers[*].image}{.spec.containers[*].env}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{range .spec.containers[*].image}{.image}{end}'"],
+        [BLOCK, `kubectl get pods -o jsonpath="{['spec']['containers'][*]['image']}"`],
+        [BLOCK, 'kubectl get pods -o custom-columns=IMAGE:spec.containers[*].image,ENV:spec.containers[*].env'],
+        [BLOCK, 'kubectl get pods -o custom-columns=IMAGE:spec.containers[*].image,UNKNOWN'],
+        [ALLOW, "kubectl get pods -o jsonpath='{.spec.containers[*].image}{.spec.initContainers[*].name}'"],
+        [ALLOW, 'kubectl get pods -o custom-columns=NAME:.metadata.name,STATUS:.status.phase'],
+        [ALLOW, 'kubectl get pods -o custom-columns=NAME:metadata.name,STATUS:status.phase'],
+        [ALLOW, "kubectl get pods -o go-template --template='{{.metadata.name}}'"],
+    ]);
+});
+
+test('metadata labels named env or data are conservatively refused as sensitive words', () => {
+    assertVerdicts([
+        [BLOCK, "kubectl get pods -o jsonpath='{.metadata.labels.env}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{.metadata.labels.data}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{.metadata.labels.ENV}'"],
+        [ALLOW, "kubectl get pods -o jsonpath='{.metadata.labels.containers_total}'"],
+        [ALLOW, "kubectl get pods -o jsonpath='{.metadata.labels.data_source}'"],
+        [ALLOW, 'kubectl get pods -o custom-columns=DATA:.metadata.name'],
+    ]);
+});
+
+test('whole-object prints and bare variables remain refused without sensitive words', () => {
+    const expressions = ['{.}', '{@}', '{{.}}', '{{ . }}', '{.items}', '{.items[*]}', '{{.items}}',
+        '{@.items}', '{$.items[*]}', '{{$object.items}}', '{@[*]}',
+        '{{json .items}}', '{{toJson .}}', '{{$}}', '{{$object}}', '{{printf "%v" $object}}'];
+    assertVerdicts(expressions.map(expression => [BLOCK, `kubectl get pods -o go-template='${expression}'`]));
+    assertVerdicts([
+        [BLOCK, 'kubectl get pods -o custom-columns=VALUE:.'],
+        [BLOCK, 'kubectl get pods -o custom-columns=VALUE:items[*]'],
+        [ALLOW, "kubectl get pods -o go-template='{{$object.name}}'"],
+        [ALLOW, "kubectl get pods -o jsonpath='{$.metadata.name}'"],
+        [ALLOW, "kubectl get pods -o go-template='{{range .items}}{{.metadata.name}}{{end}}'"],
+    ]);
+});
+
+test('file-sourced output formats and template arguments require inline fields', () => {
+    const aliases = ['templatefile', 'go-template-file', 'jsonpath-file', 'custom-columns-file'];
     assertVerdicts(aliases.flatMap(alias => [
         [BLOCK, `kubectl get pods -o ${alias}=fields.txt`],
         [BLOCK, `kubectl get pods --output=${alias}=fields.txt`],
         [BLOCK, `kubectl get pods -o ${alias} --template=fields.txt`],
         [BLOCK, `kubectl get pods --output ${alias} --template fields.txt`],
     ] as Array<[string, string]>));
+    assertVerdicts(['template', 'go-template', 'jsonpath'].flatMap(format => ['fields.txt', '@fields.txt', './fields.tpl', '/tmp/fields.tpl'].flatMap(file => [
+        [BLOCK, `kubectl get pods -o ${format} --template=${file}`],
+        [BLOCK, `kubectl get pods --output=${format} --template ${file}`],
+    ] as Array<[string, string]>)));
     assertVerdicts([
-        [BLOCK, "kubectl get pods -o template='{{.spec}}'"],
-        [BLOCK, "kubectl get pods --output=template='{{range .items}}{{.spec}}{{end}}'"],
-        [BLOCK, "kubectl get pods -o template --template='{{.spec.containers}}'"],
-        [BLOCK, "kubectl get pods --output template --template '{{.spec.containers.env}}'"],
+        [BLOCK, 'kubectl get pods --template=@fields.txt'],
+        [BLOCK, 'kubectl get pods --template-file=fields.txt'],
+        [BLOCK, 'kubectl get --template-file fields.txt pods -o go-template'],
+        [BLOCK, "kubectl get pods -o jsonpath --template-file fields.txt --template='{.metadata.name}'"],
         [ALLOW, "kubectl get pods -o template='{{.metadata.name}}'"],
-        [ALLOW, "kubectl get pods -o template --template='{{range .spec.containers}}{{.image}}{{end}}'"],
         [ALLOW, "kubectl get pods --output=template --template '{{.metadata.name}}'"],
         [ALLOW, 'kubectl get svc web -o jsonpath-file=fields.txt'],
     ]);
-    const result = runGuard('kubectl get pods -o templatefile=fields.txt');
+    const result = runGuard('kubectl get pods -o custom-columns-file=fields.txt');
     assert.equal(result.code, 2);
     assert.match(result.stderr, /inline projection of the needed fields/);
 });

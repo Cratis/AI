@@ -462,7 +462,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
 # ── option parsing shared by the CLIs: positionals P/PI, output format, -f/--format value, --raw ──
 function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
     delete P; delete PI
-    np = 0; outfmt = ""; fmtval = ""; tmpl = ""; dd = 0; raw = 0
+    np = 0; outfmt = ""; fmtval = ""; tmpl = ""; tmplfile = 0; dd = 0; raw = 0
     for (i = s; i <= n; i++) {
         w = A[i]
         if (w == "--") { dd = i; break }
@@ -471,7 +471,11 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
             if (eq) { key = substr(w, 1, eq - 1); val = substr(w, eq + 1) }
             if (key == "--output") { if (!eq) { i++; val = A[i] } outfmt = tolower(val) }
             else if (key == "--format") { if (!eq) { i++; val = A[i] } fmtval = val }
-            else if (key == "--template") { if (!eq) { i++; val = A[i] } tmpl = val }
+            else if (key == "--template") {
+                if (!eq) { i++; val = A[i] } tmpl = val
+                if (val !~ /^[[:space:]]*[{]/ || val !~ /[}][[:space:]]*$/) tmplfile = 1
+            }
+            else if (key == "--template-file") { if (!eq) i++; tmplfile = 1 }
             else if (key == "--raw") raw = 1
             else if (!eq && (key in LV)) i++
             continue
@@ -490,42 +494,49 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
         np++; P[np] = w; PI[np] = i
     }
 }
-# Projections of the container spec or its environment print credentials just like whole-object output.
-function proj_path_leaks(p, iterating) {
-    if (p ~ /\.\./ || p ~ /^\$[a-z0-9_]*$/) return 1
-    sub(/^\$[a-z0-9_]*/, "", p); sub(/^@\.?/, ".", p)
-    gsub(/\.\*/, "", p)
-    if (p == "") p = "."
-    if (p ~ /\.(env|envfrom)(\.|$)/) return 1
-    # Iterating a container does not print it; environment targets and relative body paths remain checked.
-    if (iterating) return 0
-    return p == "." || p == ".items" || p ~ /\.(spec|template|jobtemplate|containers|initcontainers|ephemeralcontainers)$/
+# Sensitive words are checked regardless of projection syntax or quoting.
+function proj_words(t) {
+    return t ~ /(^|[^a-z0-9_])(spec|template|jobtemplate|containers|initcontainers|ephemeralcontainers|env|envfrom|volumes|data|stringdata|annotations)([^a-z0-9_]|$)/
 }
-function proj_leaks(t, columns,    actions, paths, count, a, n, k, p, key, action, iterating) {
-    t = tolower(t)
-    # Quoted child keys are path steps, not array indexes.
-    while (match(t, /\[[ \t]*(\047[a-z0-9_]+\047|"[a-z0-9_]+")[ \t]*\]/)) {
-        key = substr(t, RSTART, RLENGTH); gsub(/[][ \t"\047]/, "", key)
-        t = substr(t, 1, RSTART - 1) "." key substr(t, RSTART + RLENGTH)
+function proj_safe(t) {
+    return t ~ /^(\.items\[\*\])?\.spec(\.template\.spec)?\.(containers|initcontainers)\[\*\]\.(image|name|imagepullpolicy)$/
+}
+function proj_whole(t,    v, actions, words, n, m, a, k, p) {
+    v = t
+    while (match(v, /\$[a-z0-9_]*/)) {
+        if (substr(v, RSTART + RLENGTH, 2) !~ /^\.[a-z_]/) return 1
+        v = substr(v, RSTART + RLENGTH)
     }
-    gsub(/\[[^]]*\]/, "", t)
-    if (columns) { sub(/^[^=]*=/, "", t); count = split(t, actions, ",") }
-    else count = split(t, actions, /[{}]+/)
-    for (a = 1; a <= count; a++) {
-        action = actions[a]
+    n = split(t, actions, /[{}]+/)
+    for (a = 1; a <= n; a++) {
+        # Control actions do not print their target; sensitive words are still checked separately.
+        if (actions[a] ~ /^[[:space:]-]*(range|with|if)[[:space:]]/) continue
+        m = split(actions[a], words, /[[:space:](),|]+/)
+        for (k = 1; k <= m; k++) {
+            p = words[k]
+            sub(/^\$[a-z0-9_]*/, "", p); sub(/^@\.?/, ".", p)
+            if (p ~ /^(\.items|\.)(\[(\*|[0-9]+)\])*$/) return 1
+        }
+    }
+    return 0
+}
+function proj_leaks(t, columns,    expressions, n, k, p, colon) {
+    t = tolower(t)
+    if (t ~ /\.\./ || proj_whole(t)) return 1
+    if (!columns && !proj_words(t)) return 0
+    if (columns) n = split(t, expressions, ",")
+    else n = split(t, expressions, /[{},[:space:]]+/)
+    for (k = 1; k <= n; k++) {
+        p = expressions[k]
         if (columns) {
-            k = index(action, ":"); if (!k) return 1
-            action = substr(action, k + 1); sub(/^[ \t]+/, "", action)
-            if (action !~ /^[.@$]/) action = "." action
-        }
-        if (action ~ /(^|[^a-z0-9_])index[ \t(]/ && action ~ /["\047](spec|template|jobtemplate|containers|initcontainers|ephemeralcontainers|env|envfrom)["\047]/) return 1
-        iterating = !columns && action ~ /^[ \t\n-]*(range|with)[ \t\n]/ && action !~ /:=/
-        n = split(action, paths, /[^a-z0-9_.@$*]+/)
-        for (k = 1; k <= n; k++) {
-            p = paths[k]
-            if (p !~ /^[.@$]/) continue
-            if (proj_path_leaks(p, iterating && (paths[k - 1] == "range" || paths[k - 1] == "with"))) return 1
-        }
+            gsub(/[[:space:]]/, "", p)
+            colon = index(p, ":"); if (!colon) return 1
+            p = substr(p, colon + 1); if (p == "" || index(p, ":")) return 1
+            if (p !~ /^\./) p = "." p
+            if (proj_whole(p)) return 1
+            if (!proj_words(p)) continue
+        } else if (p == "") continue
+        if (!proj_safe(p)) return 1
     }
     return 0
 }
@@ -954,8 +965,9 @@ function dyn_command(A, s, n,    j, na, b, d, S, unresolved, rx) {
 }
 
 # ── tools ──
-function kube(A, s, n,    verb, m, parts, k, r, rlist) {
+function kube(A, s, n,    verb, m, parts, k, r, rlist, projection) {
     kparse(A, s + 1, n, "nlcsfkLR")
+    projection = index(outfmt, "=") ? substr(outfmt, index(outfmt, "=") + 1) : ""
     verb = P[1]
     if (verb == "exec") {
         if (dd) analyze(A, dd + 1, n)
@@ -982,9 +994,9 @@ function kube(A, s, n,    verb, m, parts, k, r, rlist) {
                 report("kubectl describe " r " prints the full container spec, including inline credentials", "kubectl get " r " -o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, or kubectl get events / kubectl logs; say which field you need")
             else if (outfmt == "json" || outfmt == "yaml")
                 report("kubectl get " r " -o " outfmt " prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
-            else if (outfmt ~ /^(templatefile|go-template-file|jsonpath-file)(=|$)/)
+            else if (tmplfile || outfmt ~ /^(templatefile|go-template-file|jsonpath-file|custom-columns-file)(=|$)/)
                 report("kubectl get " r " with a file-based projection may print the full container spec, including inline credentials", "use an inline projection of the needed fields: -o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
-            else if ((outfmt ~ /^(jsonpath|go-template|template|jsonpath-as-json|custom-columns)=/ || tmpl != "") && proj_leaks(outfmt " " tmpl, outfmt ~ /^custom-columns=/))
+            else if ((outfmt ~ /^(jsonpath|go-template|template|jsonpath-as-json|custom-columns)(=|$)/ || tmpl != "") && (proj_leaks(projection, outfmt ~ /^custom-columns=/) || proj_leaks(tmpl, 0)))
                 report("kubectl get " r " with a projection that selects the container spec prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
         }
     }
