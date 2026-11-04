@@ -355,9 +355,8 @@ function normalizeGlobalOptions(words) {
             options.push(option);
             continue;
         }
-        if (words.slice(index).some((_, offset) => isPrMutation(words, index + offset))) {
-            throw new Error('Put options after gh pr create/edit; only -R/--repo is supported before the subcommand.');
-        }
+        // The caller refuses this only where the release-note checks apply.
+        if (words.slice(index).some((_, offset) => isPrMutation(words, index + offset))) return null;
         return words;
     }
     if (!isPrMutation(words, index)) return words;
@@ -413,6 +412,10 @@ function hook() {
     for (const command of parsed) {
         const executable = executableWords(command.words);
         const words = normalizeGlobalOptions(executable.words);
+        if (!words) {
+            if (!optedIn(cwd)) continue;
+            throw new Error('Put options after gh pr create/edit; only -R/--repo is supported before the subcommand.');
+        }
         const { environmentRepository } = executable;
         const writes = [...command.writes];
         if (words[0] === 'tee') writes.push(...words.slice(1).filter(word => !word.startsWith('-')));

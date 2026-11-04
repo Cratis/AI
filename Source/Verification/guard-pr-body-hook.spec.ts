@@ -78,6 +78,10 @@ test('unknown options before PR mutations are refused without affecting non-PR c
             assert.equal(result.stderr, '');
         }
         assert.equal(readFileSync(f.calls, 'utf8'), '');
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Someone/Personal.git']).status, 0);
+        const unrelated = f.hook('gh --unknown pr create --body inline');
+        assert.equal(unrelated.status, 0);
+        assert.equal(unrelated.stderr, '');
     } finally { f.cleanup(); }
 });
 
