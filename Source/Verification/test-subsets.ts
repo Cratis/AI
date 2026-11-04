@@ -10,7 +10,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 
 /** Named, fast subsets for iteration. The full `test` script stays the CI and final gate. */
 export const subsets: Record<string, string[]> = {
-    hooks: ['guard-pr-body', 'guard-pr-body-hook', 'guard-pr-body-policy', 'guard-secrets', 'guard-store-mutations', 'guard-writes', 'hook-wiring', 'codex-hooks', 'migration-reminder', 'pi-mcp-bridge', 'pi-quality-gate', 'pi-quality-gate-lifecycle', 'pi-quality-gate-bounded', 'pi-quality-gate-fingerprint', 'quality-gates', 'spec-runner', 'cleanup-worktrees', 'check-pr-callers', 'hook-pipefail-grep'],
+    hooks: ['guard-pr-body', 'guard-pr-body-hook', 'guard-pr-body-policy', 'guard-secrets', 'guard-store-mutations', 'guard-writes', 'guard-shell-writes', 'hook-wiring', 'codex-hooks', 'migration-reminder', 'pi-mcp-bridge', 'pi-quality-gate', 'pi-quality-gate-lifecycle', 'pi-quality-gate-bounded', 'pi-quality-gate-fingerprint', 'quality-gates', 'spec-runner', 'cleanup-worktrees', 'check-pr-callers', 'hook-pipefail-grep'],
     adapters: ['agent-adapters', 'harness-setup', 'harness-loading', 'pi-plugin', 'plugin-manifest', 'pi-mcp-configuration', 'pi-mcp-servers', 'pi-mcp-transport', 'pi-subagent', 'mcp-servers', 'source-identity-helper'],
     corpus: ['spec-runner-policy', 'always-on-budget', 'discoverability-routing', 'documentation-routing', 'conformance-fixtures', 'evaluation-coverage', 'instruction-dependencies', 'profiled-skills', 'skill-authoring', 'skill-evaluations', 'skill-hygiene', 'skill-overlap', 'skill-references', 'skill-structure', 'pin-restatements', 'rule-connection-strings', 'model-first-restatements', 'preferred-syntax', 'review-reports', 'screenplay-tool', 'test-subsets']
 };
@@ -26,7 +26,7 @@ export type Mapping = { pattern: RegExp; subsets: string[] };
  */
 export const mappings: Mapping[] = [
     // Read only by guard-*, codex-hooks, hook-wiring, cleanup-worktrees specs, all in `hooks`. hook-lib.sh is excluded: discoverability-routing sources it.
-    { pattern: /^\.cratis\/ai\/hooks\/scripts\/(cratis-guard-(writes|secrets|pr-body|store-mutations)\.sh|cratis-check-pr\.mjs|cratis-store-mutations\.json|cratis-cleanup-worktrees\.sh)$/, subsets: ['hooks'] },
+    { pattern: /^\.cratis\/ai\/hooks\/scripts\/(cratis-guard-(writes|shell-writes|secrets|pr-body|store-mutations)\.sh|cratis-check-pr\.mjs|cratis-store-mutations\.json|cratis-cleanup-worktrees\.sh)$/, subsets: ['hooks'] },
     // Imported only by agent-adapters, harness-loading and harness-setup specs, all in `adapters`.
     { pattern: /^Source\/Harness\.Setup\/[^/]+\.ts$/, subsets: ['adapters'] }
 ];

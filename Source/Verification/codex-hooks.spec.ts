@@ -22,6 +22,7 @@ function fixture(first = 'exit 0', second = 'exit 0') {
     const directory = mkdtempSync(join(tmpdir(), 'codex-hooks-'));
     writeFileSync(join(directory, store), first, { mode: 0o644 });
     writeFileSync(join(directory, secrets), 'exit 0', { mode: 0o644 });
+    writeFileSync(join(directory, 'cratis-guard-shell-writes.sh'), 'exit 0', { mode: 0o644 });
     writeFileSync(join(directory, pullRequest), second, { mode: 0o644 });
     return { directory, cleanup: () => rmSync(directory, { recursive: true, force: true }) };
 }
@@ -68,6 +69,16 @@ test('native adapter allows read-only neighbors and blocks mutations without exe
         assert.equal(native(payload(`touch '${marker}'`)).status, 0);
         assert.equal(existsSync(marker), false, 'only guards run, never pending shell text');
     } finally { f.cleanup(); }
+});
+
+test('native Codex refuses shell writes to agent controls through the real scripts', () => {
+    const project = mkdtempSync(join(tmpdir(), 'codex-shell-writes-'));
+    try {
+        assert.equal(spawnSync('git', ['init', '-q', project]).status, 0);
+        const result = native({ ...payload('echo x > .mcp.json'), cwd: project }, { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' });
+        assert.equal(result.status, 2, result.stderr);
+        assert.match(result.stdout, /BLOCKED by cratis-guard-shell-writes/);
+    } finally { rmSync(project, { recursive: true, force: true }); }
 });
 
 test('malformed input and unnormalized or patch tools explicitly deny', () => {

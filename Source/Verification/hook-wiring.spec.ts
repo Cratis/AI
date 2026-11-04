@@ -38,6 +38,7 @@ test('the secrets guard is wired on Bash beside the store-mutation guard', () =>
     const bash = template.hooks.PreToolUse.find(entry => entry.matcher === 'Bash');
     const commands = bash?.hooks.map(hook => hook.command) ?? [];
     assert.ok(commands.some(command => command.endsWith('/cratis-guard-secrets.sh')), 'the secrets guard is wired on Bash');
+    assert.ok(commands.some(command => command.endsWith('/cratis-guard-shell-writes.sh')), 'the shell-write guard is wired on Bash');
     assert.ok(commands.some(command => command.endsWith('/cratis-guard-store-mutations.sh')), 'the store-mutation guard stays wired');
 });
 
@@ -61,6 +62,29 @@ test('the wired secrets guard still blocks when its script has lost the execute 
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
+});
+
+test('the wired shell-write guard still blocks when all its scripts have lost the execute bit', () => {
+    const command = wiredCommands().find(candidate => candidate.endsWith('/cratis-guard-shell-writes.sh'));
+    assert.ok(command, 'the shell-write guard is wired');
+    const project = mkdtempSync(join(tmpdir(), 'hook-wiring-shell-writes-'));
+    try {
+        assert.equal(spawnSync('git', ['init', '-q', project]).status, 0);
+        const scripts = join(project, '.cratis/ai/hooks/scripts');
+        assert.equal(spawnSync('mkdir', ['-p', scripts]).status, 0);
+        for (const file of ['cratis-guard-shell-writes.sh', 'cratis-guard-writes.sh', 'hook-lib.sh']) {
+            copyFileSync(join(root, '.cratis/ai/hooks/scripts', file), join(scripts, file));
+            chmodSync(join(scripts, file), 0o644);
+        }
+        const run = spawnSync('bash', ['-c', command], {
+            input: JSON.stringify({ cwd: project, tool_name: 'Bash', tool_input: { command: 'echo x > .mcp.json' } }),
+            cwd: project, encoding: 'utf8',
+            env: { ...process.env, CLAUDE_PROJECT_DIR: project, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+        });
+        assert.equal(run.status, 2, run.stderr);
+        assert.match(run.stderr, /BLOCKED by cratis-guard-shell-writes/);
+        assert.match(run.stderr, /BLOCKED by cratis-guard-writes/);
+    } finally { rmSync(project, { recursive: true, force: true }); }
 });
 
 test('a wired guard still blocks when its script has lost the execute bit', () => {

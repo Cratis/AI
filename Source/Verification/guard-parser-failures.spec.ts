@@ -9,7 +9,7 @@ import { join, resolve } from 'node:path';
 import test from 'node:test';
 
 const scripts = resolve(import.meta.dirname, '../../.cratis/ai/hooks/scripts');
-const guards = ['cratis-guard-secrets', 'cratis-guard-store-mutations', 'cratis-guard-writes'];
+const guards = ['cratis-guard-secrets', 'cratis-guard-store-mutations', 'cratis-guard-writes', 'cratis-guard-shell-writes'];
 const payload = JSON.stringify({ tool_input: { command: 'cat .env; cratis chronicle observers list', file_path: 'README.md' } });
 
 function assertRefused(guard: string, input: string, path: string = process.env.PATH ?? ''): void {
