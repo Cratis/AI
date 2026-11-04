@@ -16,6 +16,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
+import { pathWithout } from './fixtures/path-without-tool.ts';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
@@ -212,11 +213,11 @@ test('malformed shipped or local lists fail closed rather than silently losing p
         for (const file of ['hook-lib.sh', 'cratis-guard-store-mutations.sh', 'cratis-store-mutations.json']) copyFileSync(join(scripts, file), join(directory, file));
         const copy = join(directory, 'cratis-guard-store-mutations.sh');
         writeFileSync(join(directory, 'cratis-store-mutations.local.json'), '{invalid');
-        assertVerdicts([[BLOCK, 'cratis chronicle observers list'], [ALLOW, 'cratis context show']], {}, copy);
+        assertVerdicts([[BLOCK, 'cratis chronicle observers list'], [BLOCK, 'cratis context show']], {}, copy);
         assert.match(runGuard('cratis chronicle observers list', {}, copy).stderr, /cratis-store-mutations\.local\.json/);
         rmSync(join(directory, 'cratis-store-mutations.local.json'));
         writeFileSync(join(directory, 'cratis-store-mutations.json'), '[]');
-        assertVerdicts([[BLOCK, 'cratis chronicle observers list'], [ALLOW, 'cratis ai update']], {}, copy);
+        assertVerdicts([[BLOCK, 'cratis chronicle observers list'], [BLOCK, 'cratis ai update']], {}, copy);
     } finally {
         rmSync(directory, { recursive: true, force: true });
     }
@@ -330,5 +331,38 @@ test('the Pi bridge runs shell commands through the store-mutation guard', async
     } finally {
         if (saved !== undefined) process.env.CRATIS_HOOKS_ALLOW_STORE_MUTATIONS = saved;
         rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('a quoted, escaped or ANSI-C spelling of the command name is still the command', () => {
+    assertVerdicts([
+        [BLOCK, "c'ratis' chronicle observers replay x --yes"],
+        [BLOCK, '"cra"tis chronicle observers replay x --yes'],
+        [BLOCK, 'cr\\atis chronicle observers replay x --yes'],
+        [BLOCK, "$'\\x63ratis' chronicle observers replay x --yes"],
+        [BLOCK, 'bash -c "c\'ratis\' chronicle observers replay x --yes"'],
+        [BLOCK, "bash <<EOF\nc'ratis' chronicle observers replay x --yes\nEOF"],
+        [ALLOW, "c'ratis' chronicle observers list -o plain"],
+    ]);
+});
+
+test('the guard refuses every call when jq is missing', () => {
+    const isolated = pathWithout('jq');
+    try {
+        const run = (command: string, env: NodeJS.ProcessEnv = {}, input?: string) => spawnSync('/bin/bash', [guard], {
+            input: input ?? JSON.stringify({ tool_name: 'Bash', tool_input: { command } }),
+            encoding: 'utf8',
+            env: { ...process.env, CRATIS_HOOKS_ALLOW_STORE_MUTATIONS: '0', PATH: isolated.path, ...env },
+        });
+        for (const command of ['cratis chronicle observers replay x --yes', 'ls']) {
+            const result = run(command);
+            assert.equal(result.status, 2, command);
+            assert.match(result.stderr, /jq is not installed/);
+            assert.match(result.stderr, /CRATIS_HOOKS_ALLOW_STORE_MUTATIONS/);
+        }
+        assert.equal(run('', {}, '').status, 0, 'empty input still exits 0');
+        assert.equal(run('ls', { CRATIS_HOOKS_ALLOW_STORE_MUTATIONS: '1' }).status, 0, 'the escape hatch still works');
+    } finally {
+        isolated.dispose();
     }
 });

@@ -9,6 +9,8 @@
 #   3. Environment files    — .env and friends (secrets)
 #   4. Agent controls       — permissions, hooks and installed managed corpus/adapters
 #
+# While jq is missing the guard cannot read the tool call, so it refuses every call.
+#
 # .cratis/ai.json allowDependencyManifestWrites overrides only the manifest policy:
 # true allows them in any repository; false blocks them even in a Cratis repository.
 #
@@ -31,10 +33,15 @@ script_directory="${BASH_SOURCE[0]%/*}"
 input=""
 IFS= read -r -d '' input || true
 [ -n "$input" ] || exit 0
-hook_have jq || exit 0
+hook_require_jq cratis-guard-writes CRATIS_HOOKS_ALLOW_PROTECTED_WRITES
+
+parser_failed() {
+    printf '%s\n' 'BLOCKED by cratis-guard-writes: parser failed; cannot check this tool call.' >&2
+    exit 2
+}
 
 # One jq call reads every field the guard uses. Fields are NUL-terminated (embedded NULs are dropped,
-# as a command substitution would drop them); a missing, null, false or unreadable path is empty.
+# as a command substitution would drop them); a missing, null or false path is empty.
 cwd="" file="" notebook="" new_content="" new_string=""
 {
     IFS= read -r -d '' cwd
@@ -49,7 +56,9 @@ cwd="" file="" notebook="" new_content="" new_string=""
     [field(.cwd), field(.tool_input.file_path), field(.tool_input.notebook_path),
      field(.tool_input.content), field(.tool_input.new_string)]
     | .[] | ., "\u0000"
-' <<<"$input" 2>/dev/null) || true
+' <<<"$input" 2>/dev/null) || parser_failed
+# Process substitutions do not propagate their exit status to the reading group.
+wait "$!" || parser_failed
 # Command substitution stripped trailing newlines from each field; keep that behaviour.
 for field_name in cwd file notebook new_content new_string; do
     while [[ "${!field_name}" == *$'\n' ]]; do printf -v "$field_name" '%s' "${!field_name%$'\n'}"; done
@@ -177,7 +186,7 @@ origin_matches() {
 
 # ── 4. Agent controls and installed managed trees ─────────────────────────────
 agent_control_target() {
-    local target="$1" directory policy_root target_rel
+    local target="$1" directory policy_root target_rel managed
     dir_of "$target"
     directory="$REPLY"
     # Keep the addressed spelling here, even when an adapter directory is a symlink.
@@ -196,18 +205,16 @@ agent_control_target() {
             .claude/* | .pi/*)
                 # The installer records adapter ownership in Integrations (Path, IsDirectory),
                 # not Files: those destinations are relative to the managed corpus root.
-                # An unreadable/invalid manifest cannot establish ownership of local adapters.
-                # Allow unclassified paths; corpus paths and explicit controls still block.
-                if jq -e --arg path "$target_rel" '
+                # A readable manifest must establish ownership before classifying local adapters.
+                managed="$(jq -r --arg path "$target_rel" '
                     (.Integrations // [])
                     | if type != "array" then false else
                         [.[] | select(type == "object") | select(.Path | type == "string")]
                         | any(.[]; . as $entry | $entry.Path == $path
                             or ($entry.IsDirectory == true and ($path | startswith($entry.Path + "/"))))
                       end
-                ' "$policy_root/.cratis/ai.manifest.json" >/dev/null 2>&1; then
-                    return 0
-                fi
+                ' "$policy_root/.cratis/ai.manifest.json" 2>/dev/null)" || parser_failed
+                [ "$managed" != "true" ] || return 0
                 ;;
         esac
     else
@@ -284,7 +291,7 @@ manifest_writes_allowed() {
     policy_root="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null)" || return 1
     if [ -f "$policy_root/.cratis/ai.json" ]; then
         # Only actual booleans override the default; jq's `// empty` would discard false.
-        setting="$(jq -r '.allowDependencyManifestWrites | select(type == "boolean") | tostring' "$policy_root/.cratis/ai.json" 2>/dev/null || true)"
+        setting="$(jq -r '.allowDependencyManifestWrites | select(type == "boolean") | tostring' "$policy_root/.cratis/ai.json" 2>/dev/null)" || parser_failed
     fi
     case "$setting" in
         true) return 0 ;;
