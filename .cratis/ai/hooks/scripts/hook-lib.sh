@@ -34,6 +34,12 @@ hook_read_stdin() {
     cat 2>/dev/null || true
 }
 
+# Shared installation hint, without a trailing newline so guards can append their warning.
+hook_jq_install_hint() {
+    printf 'Stop and ask the user to install jq (macOS: brew install jq; Debian/Ubuntu: sudo apt-get install jq;\n'
+    printf 'Windows: winget install jqlang.jq), then retry.'
+}
+
 # Refuse the tool call when jq is missing: $1 is the guard name, $2 the variable that lets a person run without it.
 # A guard that cannot read the tool call cannot check it, so this ends the sourcing script with exit 2
 # (the deny signal every wired harness honors). It uses only builtins, so it works without jq.
@@ -41,8 +47,8 @@ hook_require_jq() {
     hook_have jq && return 0
     {
         printf 'BLOCKED by %s: jq is not installed, so this guard cannot read the tool call and refuses every call until it is.\n' "$1"
-        printf 'Stop and ask the user to install jq (macOS: brew install jq; Debian/Ubuntu: sudo apt-get install jq;\n'
-        printf 'Windows: winget install jqlang.jq), then retry. Do not work around the guard.\n'
+        hook_jq_install_hint
+        printf ' Do not work around the guard.\n'
         printf 'A person who accepts running without this guard sets %s=1 in the environment the agent\n' "$2"
         printf 'harness was started from; setting it inside the command has no effect.\n'
     } >&2

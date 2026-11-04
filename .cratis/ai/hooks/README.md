@@ -96,8 +96,9 @@ This is a guardrail, **not absolute enforcement**. Node, Bash and Git are requir
 launch the adapter; native callback failure, crash, timeout, or malformed-response behavior
 can fail open before a supported denial is received. Other local hook configurations and
 specialized tool paths are outside this adapter's control. The existing scripts retain
-their own deliberate allowances and limits: missing `jq` makes the store, secret and write guards refuse every call; PR checks
-can allow with an unchecked/offline warning; command-text parsing cannot see all indirect
+their own deliberate allowances and limits: missing `jq` makes the store, secret and write guards refuse every call;
+the quality gate blocks changed trees (dry runs warn only), and pattern scanning warns once per session without blocking.
+PR checks can allow with an unchecked/offline warning; command-text parsing cannot see all indirect
 execution. Inherited `CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1` and existing script configuration
 are preserved. An adapter exit **0** is not proof that every underlying check ran.
 
@@ -800,9 +801,13 @@ Each is an explicit, auditable opt-out — none of them is a default.
 - **Gate commands are an argv array**, executed directly. They never pass through a shell.
 - **`jq` is the dependency for the write, store-mutation, secret, pattern and quality hooks.** The
   write, store-mutation and secret guards refuse every call while it is missing (exit 2, with the
-  reason and the install hint on stderr); the pattern and quality hooks degrade to a silent no-op,
-  because those must never break a session. The
-  PR-body hook uses Node instead, and the checker uses Git and `gh` as described above.
+  reason and the install hint on stderr). Without `jq`, the quality gate blocks changed trees with
+  an install hint (exit 2); dry runs warn with exit 0. Unchanged trees, non-Git directories,
+  Stop-hook re-entry and `CRATIS_HOOKS_SKIP_GATE=1` still exit 0 silently. A person accepting
+  unverified turn ends can set that escape hatch in the environment the harness was started from.
+  The pattern scan exits 0 with a one-line stderr notice at most once per session (or on each call
+  if session state is unavailable). The PR-body hook uses Node instead, and the checker uses Git
+  and `gh` as described above.
 - **Fail safe.** Malformed config, empty stdin, a missing file, a binary file, a file over 2 MB:
   all exit 0 silently. The one deliberate exception is the store-mutation guard's command lists:
   an unreadable shipped or local list is not an empty allowlist that happens to pass, so every `cratis chronicle`
