@@ -13,7 +13,7 @@ This reference holds the given/when/then construct table and the enumeration and
 | `given readmodel <ReadModelType>` | prior read-model state, established directly — a **complete** instance including its identifier |
 | `given caller` / `given caller as <Persona>` | explicit caller (`authenticated`, roles, claims; empty means anonymous), or an authenticated synthesized persona witness |
 | `when <CommandType>` | run a command |
-| `when append <EventType>` | append one event: constraints and projections run, the command does not; reactions run only from ESM v6, where `then` lists what followed |
+| `when append <EventType>` | append one event: constraints and projections run, the command does not; only the specification's own slice's reactions run (ESM v6), and `then` lists what followed |
 | `when query <Query>` | perform a query with the argument values beneath it |
 | `then result [exactly]` | one expected row of the performed query; repeat for several |
 | `then no result` | the performed query returns nothing |
@@ -23,7 +23,8 @@ This reference holds the given/when/then construct table and the enumeration and
 | `given capture` / `when capture <Capture>` | earlier/current records for non-event sources; for `source events` use typed `given <Event>` / `when append <Event>` (PLAY0701) |
 | `generated <name> = <value>` | beneath `when <Command>`: the fixture for a generated property other than the identifier (ESM v7); `for` beneath the `when` supplies the generated identifier |
 | `then returns [<value>]` | the command's response (ESM v7): `then returns "<uuid>"` for a scalar, `then returns` with named `field = value` lines for a subset of a record |
-| `then <EventType>` | an expected new event |
+| `then <EventType>` | an expected new event of the specification's own slice |
+| `then invokes <Command>` | a command the slice's own reactions invoke, with the values passed beneath it (ESM v34, Screenplay 4.246.0) |
 | `then events in any order` | compare the new events without regard to order |
 | `then readmodel <ReadModelType> [exactly]` | read-model state afterwards — must state the identifier |
 | `then no readmodel <ReadModelType> for <key>` | exactly that keyed instance is absent; the key is concrete and typed |

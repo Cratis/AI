@@ -17,9 +17,9 @@ Compiler syntax: `cheat-sheet.md`. Negative capability claims depend on the tool
 13. Projection `key` routes only on `from` (projection-level: PLAY0381). `all` is per event source. Joins never create instances and match the joined event's source id.
 14. AutoMap is on by default: same-named event properties fill read-model properties silently (scoped: case-insensitive, same type only; flat-bound: exact name, no type check, so a type mismatch invalidates the model). Use `no automap` for control.
 15. `given readmodel` bypasses the projection; prove a projection with `given` events + `when append`/command + `then readmodel`/`then query`.
-16. PLAY0285/0286/0287 are static spec checks: do not edit expectations blindly. An older bundled compiler can report PLAY0285 falsely on reaction cascades; confirm with the standalone tool before changing a `then`.
+16. PLAY0285/0286/0287 are static spec checks: do not edit expectations blindly. A spec runs its own slice only (decision 0115): PLAY0285 on an event another slice's reaction appends is correct, so move the `then` to that slice or state `then invokes <Command>` (ESM v34, PLAY0815/0816).
 17. `null` in specs only for optional read-model properties (PLAY0350). A `when` command or `then` event states every property with a concrete value, optional ones too (PLAY0524); whether an optional detail is really a separate fact is a review question, not the fix for this code.
-18. `then` events are exhaustive and ordered (use `then events in any order` for order only). From ESM v6 they include reaction cascades; after `when append` they list only what followed the append.
+18. `then` events are exhaustive and ordered (use `then events in any order` for order only). They are the facts of the specification's own slice (its reactions follow, other slices' do not); after `when append` they list only what followed the append.
 19. Under `command reads protected`, omitted `by` uses the command identifier; absent identifier is PLAY0782. Eligible reads bind v25; legacy reads and `concurrency` retain PLAY0271. Combining reads/concurrency under opt-in is PLAY0783.
 20. Declare each event once, in its producing slice; renaming a persisted event needs `id "OldName"`; renaming a constraint discards its index.
 21. Quoted `import "x/*.play"` = my files; unquoted `import Ctx.Event` = another context's contract (does not bind: PLAY0268).
@@ -36,7 +36,7 @@ Compiler syntax: `cheat-sheet.md`. Negative capability claims depend on the tool
 30. Claims compare with `matches` (`claim "dept" matches "Finance"`); `==` is PLAY0120. Conditions with `contains`/`starts with` compile but do not bind.
 31. One `every`/`all` block per projection level for V3; `$eventContext.occurred.Week` does not bind.
 32. Concept rules: `min`/`max`/`length ==`, not `length 3 to 10` (PLAY0141).
-33. Which compiler matters: an older cratis bundle can reject constructs the standalone tool binds (ESM v6 Automation/Translate) and report a false PLAY0285 on cascades. Check `cratis --version` and name the tool in every verdict.
+33. Which compiler matters: an older cratis bundle can reject constructs the standalone tool binds (ESM v6 Automation/Translate) and cannot read `then invokes` (ESM v34). Check `cratis --version` and name the tool in every verdict.
 
 34. A `from <Event> key <property>` routes only if every such event carries that property: an event that frees or updates a row keyed by another stream's id must carry that id in its payload, or the row never changes. The compiler may not report a missing key property; check by hand.
 35. `description`/`documentation` are authoring metadata: board, MCP and Prologue show them; `cratis render` emits them only as XML doc comments (invalid XML characters are CLI-RENDER-005), never as behavior. A rule only in prose is unenforced in rendered code; make it a rule layer, a spec or a recorded target requirement.

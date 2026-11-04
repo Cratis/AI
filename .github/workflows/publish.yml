@@ -39,6 +39,7 @@ permissions:
 jobs:
   verify:
     name: verify
+    if: github.event_name != 'repository_dispatch' && github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
