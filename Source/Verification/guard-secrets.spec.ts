@@ -35,7 +35,10 @@ function runGuard(command: string, env: NodeJS.ProcessEnv = {}): { verdict: stri
 }
 
 function assertVerdicts(cases: Array<[expected: string, command: string]>, env: NodeJS.ProcessEnv = {}): void {
-    for (const [expected, command] of cases) {
+    const cliCases = cases.flatMap(([expected, command]): Array<[string, string]> => command.includes('kubectl')
+        ? [[expected, command], [expected, command.replaceAll('kubectl', 'oc')]]
+        : [[expected, command]]);
+    for (const [expected, command] of cliCases) {
         const { verdict, code, stderr } = runGuard(command, env);
         assert.ok(code === 0 || code === 2, `${command}\nexited ${code}, which is neither allow nor block\n${stderr}`);
         assert.equal(verdict, expected, `${command}\n${stderr}`);
@@ -95,6 +98,107 @@ test('kubectl: every spec-bearing resource is blocked with json or yaml, however
         [BLOCK, 'kubectl config view --raw'],
         [ALLOW, 'kubectl config view'],
         [ALLOW, 'kubectl config current-context'],
+    ]);
+});
+
+test('oc command words, paths and tabs reach the same resource checks', () => {
+    assertVerdicts([
+        [BLOCK, 'oc describe deployment web'],
+        [BLOCK, 'oc\tdescribe pod web'],
+        [BLOCK, '/usr/local/bin/oc describe deployment web'],
+        [BLOCK, '/usr/local/bin/oc get pod web -o yaml'],
+        [BLOCK, '/usr/local/bin/oc get secret'],
+        [BLOCK, '/usr/local/bin/oc config view --raw'],
+        [ALLOW, 'oc get pods'],
+        [ALLOW, 'oc get pods -o name'],
+        [ALLOW, '/usr/local/bin/oc get pods'],
+        [ALLOW, '/usr/local/bin/oc get pods -o name'],
+        [ALLOW, 'oc'],
+        [ALLOW, 'docker ps'],
+        [ALLOW, 'echo doc'],
+    ]);
+});
+
+test('container-spec ancestors and indexed paths are refused in jsonpath projections', () => {
+    const paths = [
+        '.', '@', '.items', '.items[*]', '.items[0]',
+        '.spec', '.spec.template', '.spec.template.spec',
+        '.spec.containers', '.spec.initContainers', '.spec.ephemeralContainers',
+        '.spec.containers[0]', '.spec.initContainers[*]', '.spec.ephemeralContainers[1]',
+        '.items[*].spec', '.items[0].spec.template', '.items[*].spec.template.spec',
+        '.items[0].spec.template.spec.containers[*]',
+        '.spec.jobTemplate', '.spec.jobTemplate.spec', '.spec.jobTemplate.spec.template',
+        '.spec.jobTemplate.spec.template.spec', '.spec.jobTemplate.spec.template.spec.containers[0]',
+        '.items[0].spec.jobTemplate.spec.template.spec.initContainers[*]',
+    ];
+    assertVerdicts(paths.map(path => [BLOCK, `kubectl get pods -o jsonpath='{${path}}'`]));
+});
+
+test('environment segments and recursive descent are refused in jsonpath projections', () => {
+    const paths = [
+        '.spec.containers[*].env', '.spec.containers[0].env[*].value',
+        '.spec.initContainers[*].envFrom', '.spec.ephemeralContainers[0].envFrom[*].secretRef.name',
+        '.items[*].spec.template.spec.containers[0].env[1].value',
+        '.spec.jobTemplate.spec.template.spec.containers[*].envFrom',
+        '..env', '..value', '..', '.items[*]..value',
+    ];
+    assertVerdicts(paths.map(path => [BLOCK, `kubectl get pods --output=jsonpath-as-json='{${path}}'`]));
+});
+
+test('go-template projections of container specs and environments are refused', () => {
+    assertVerdicts([
+        [BLOCK, "kubectl get pod web -o go-template='{{.spec}}'"],
+        [BLOCK, "kubectl get pod web -o go-template='{{json .spec}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{range .items}}{{.spec}}{{end}}'"],
+        [BLOCK, "kubectl get pod web -o go-template='{{toJson .}}'"],
+        [BLOCK, "kubectl get pod web -o go-template='{{.spec.containers}}'"],
+        [BLOCK, "kubectl get pod web -o go-template='{{index .spec.initContainers 0}}'"],
+        [BLOCK, "kubectl get pod web -o go-template='{{.spec.containers.envFrom}}'"],
+        [BLOCK, "kubectl get pod web -o go-template --template '{{.spec.ephemeralContainers}}'"],
+        [BLOCK, "kubectl get cronjobs --output=go-template --template='{{.spec.jobTemplate.spec.template}}'"],
+        [ALLOW, "kubectl get pods -o go-template='{{range .items}}{{.metadata.name}}{{end}}'"],
+        [ALLOW, "kubectl get pod web -o go-template='{{.spec.nodeName}}'"],
+    ]);
+});
+
+test('custom-columns checks container paths with every supported output flag spelling', () => {
+    const paths = [
+        '.spec', '.items[*].spec.template', '.spec.template.spec', '.spec.containers[0]',
+        '.spec.initContainers[*]', '.spec.ephemeralContainers', '.spec.jobTemplate.spec.template.spec',
+        '.spec.containers[*].env', '.spec.containers[0].env[0].value', '.spec.containers[*].envFrom',
+        '..env', '..value', '..',
+    ];
+    const flags = ['-o ', '-o', '-o=', '--output ', '--output='];
+    assertVerdicts(flags.flatMap(flag => paths.map(path =>
+        [BLOCK, `kubectl get pods ${flag}custom-columns=NAME:.metadata.name,VALUE:${path}`] as [string, string])));
+});
+
+test('field projections and the suggested alternatives remain allowed', () => {
+    const paths = [
+        '.items[*].spec.containers[*].image', '.metadata.name', '.status.phase',
+        '.spec.replicas', '.spec.nodeName', '.spec.containers[0].image',
+        '.spec.initContainers[*].image', '.spec.ephemeralContainers[0].image',
+        '.spec.jobTemplate.spec.template.spec.containers[0].image',
+    ];
+    assertVerdicts(paths.flatMap(path => [
+        [ALLOW, `kubectl get pods -o jsonpath='{${path}}'`],
+        [ALLOW, `kubectl get pods --output=custom-columns=VALUE:${path}`],
+    ] as Array<[string, string]>));
+    assertVerdicts([
+        [ALLOW, 'kubectl get pods -o custom-columns=NAME:.metadata.name,STATUS:.status.phase'],
+        [ALLOW, 'kubectl get pods -o name'],
+        [ALLOW, 'kubectl get pods -o wide'],
+        [ALLOW, "kubectl get svc web -o jsonpath='{.spec}'"],
+        [ALLOW, 'kubectl get svc web -o custom-columns=VALUE:.spec'],
+    ]);
+});
+
+test('container-spec projection checks use the existing resource aliases', () => {
+    const resources = 'pods po pod deployments deployment deploy statefulsets statefulset sts daemonsets daemonset ds jobs job cronjobs cronjob cj configmaps configmap cm replicasets replicaset rs replicationcontrollers rc all'.split(' ');
+    assertVerdicts(resources.map(resource => [BLOCK, `kubectl get ${resource} -o jsonpath='{.spec}'`]));
+    assertVerdicts([
+        [BLOCK, "kubectl get deployments.apps/web --output=jsonpath='{.spec.template}'"],
+        [BLOCK, 'kubectl get svc/web pod/x -o custom-columns=VALUE:.spec'],
     ]);
 });
 

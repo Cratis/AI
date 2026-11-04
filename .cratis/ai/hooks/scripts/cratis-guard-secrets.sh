@@ -48,7 +48,7 @@ probe_lower="$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" || parser_fai
 case "$probe_lower" in
     *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
     *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.p12*|*.pfx*|*token*|*.netrc*|*.npmrc*|\
-    *credentials*|*.pgpass*|*pypirc*|*secrets*) ;;
+    *credentials*|*.pgpass*|*pypirc*|*secrets*|*oc*) ;;
     *)
         case "$command_text" in
             *'$'*|*'*'*|*'?'*|*'['*|*'{'*|*'('*|*'^'*|*'~'*|*'`'*) ;;
@@ -490,10 +490,23 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
         np++; P[np] = w; PI[np] = i
     }
 }
-# `-o jsonpath={.}` and `-o go-template={{.}}` print the whole object, exactly like -o json.
-function proj_leaks(t) {
-    t = tolower(t); gsub(/[ \t]/, "", t)
-    return t ~ /[{](\.|@|\.items|\.items\[\*\])[}]/
+# Projections of the container spec or its environment print credentials just like whole-object output.
+function proj_leaks(t,    paths, count, k, p) {
+    t = tolower(t)
+    gsub(/\[[^]]*\]/, "", t)
+    count = split(t, paths, /[^a-z0-9_.@]+/)
+    for (k = 1; k <= count; k++) {
+        p = paths[k]
+        if (p !~ /^[.@]/) continue
+        if (p ~ /\.\./) return 1
+        sub(/^@/, ".", p); sub(/^\.\./, ".", p)
+        if (p == ".") return 1
+        # Iterating items alone does not print them; the paths in the loop body are checked separately.
+        if (p == ".items" && paths[k - 1] != "range" && paths[k - 1] != "with") return 1
+        if (p ~ /\.(env|envfrom)(\.|$)/) return 1
+        if (p ~ /(^|\.)spec(\.|$)/ && p ~ /\.(spec|template|jobtemplate|containers|initcontainers|ephemeralcontainers)$/) return 1
+    }
+    return 0
 }
 function skipopts(A, s, n, vals) {
     while (s <= n && substr(A[s], 1, 1) == "-") {
@@ -948,8 +961,8 @@ function kube(A, s, n,    verb, m, parts, k, r, rlist) {
                 report("kubectl describe " r " prints the full container spec, including inline credentials", "kubectl get " r " -o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, or kubectl get events / kubectl logs; say which field you need")
             else if (outfmt == "json" || outfmt == "yaml")
                 report("kubectl get " r " -o " outfmt " prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
-            else if ((outfmt ~ /^(jsonpath|go-template|jsonpath-as-json)=/ || tmpl != "") && proj_leaks(tmpl outfmt))
-                report("kubectl get " r " with a projection that selects the whole object prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
+            else if ((outfmt ~ /^(jsonpath|go-template|jsonpath-as-json|custom-columns)=/ || tmpl != "") && proj_leaks(tmpl " " outfmt))
+                report("kubectl get " r " with a projection that selects the container spec prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
         }
     }
 }
