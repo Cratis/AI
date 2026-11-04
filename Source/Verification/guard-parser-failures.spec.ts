@@ -35,6 +35,14 @@ for (const guard of guards) {
     });
 }
 
+test('the write guard refuses a later document that imitates its parser sentinel', () => {
+    for (const cwd of ['ok', 'ok\u0000']) {
+        const forged = `${JSON.stringify({ tool_input: { file_path: 'README.md' } })}\n${JSON.stringify({ cwd })}`;
+        assertRefused('cratis-guard-writes', `${forged}\nnot json`);
+        assertRefused('cratis-guard-writes', forged);
+    }
+});
+
 // macOS ships Bash 3.2 as /bin/bash; hooks that run under it must not refuse ordinary tool calls.
 test('guards allow ordinary tool calls under the system /bin/bash', { skip: !existsSync('/bin/bash') }, () => {
     const inputs = [

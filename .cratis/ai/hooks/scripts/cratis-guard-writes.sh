@@ -52,11 +52,14 @@ cwd="" file="" notebook="" new_content="" new_string="" parser_status=""
     IFS= read -r -d '' new_content
     IFS= read -r -d '' new_string
     IFS= read -r -d '' parser_status
-} < <(jq -j '
+} < <(jq -j -s '
     def field(path): ([try (path // empty) catch empty] | first // "")
         | if type == "string" then . else tojson end
         | gsub("\u0000"; "");
-    [field(.cwd), field(.tool_input.file_path), field(.tool_input.notebook_path),
+    # Slurping parses the whole input before any output, and exactly one document is accepted,
+    # so no field from a later document can stand in for the sentinel.
+    if length == 1 then .[0] else error("expected one JSON document") end
+    | [field(.cwd), field(.tool_input.file_path), field(.tool_input.notebook_path),
      field(.tool_input.content), field(.tool_input.new_string)]
     | .[] | ., "\u0000"
 ' <<<"$input" 2>/dev/null && printf 'ok\0') || parser_failed
