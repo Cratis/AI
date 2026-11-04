@@ -213,11 +213,11 @@ test('malformed shipped or local lists fail closed rather than silently losing p
         for (const file of ['hook-lib.sh', 'cratis-guard-store-mutations.sh', 'cratis-store-mutations.json']) copyFileSync(join(scripts, file), join(directory, file));
         const copy = join(directory, 'cratis-guard-store-mutations.sh');
         writeFileSync(join(directory, 'cratis-store-mutations.local.json'), '{invalid');
-        assertVerdicts([[BLOCK, 'cratis chronicle observers list'], [ALLOW, 'cratis context show']], {}, copy);
+        assertVerdicts([[BLOCK, 'cratis chronicle observers list'], [BLOCK, 'cratis context show']], {}, copy);
         assert.match(runGuard('cratis chronicle observers list', {}, copy).stderr, /cratis-store-mutations\.local\.json/);
         rmSync(join(directory, 'cratis-store-mutations.local.json'));
         writeFileSync(join(directory, 'cratis-store-mutations.json'), '[]');
-        assertVerdicts([[BLOCK, 'cratis chronicle observers list'], [ALLOW, 'cratis ai update']], {}, copy);
+        assertVerdicts([[BLOCK, 'cratis chronicle observers list'], [BLOCK, 'cratis ai update']], {}, copy);
     } finally {
         rmSync(directory, { recursive: true, force: true });
     }

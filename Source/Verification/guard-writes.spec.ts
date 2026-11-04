@@ -27,6 +27,10 @@ const guard = join(repositoryRoot, '.cratis', 'ai', 'hooks', 'scripts', 'cratis-
 const BLOCK = 'block';
 const ALLOW = 'allow';
 
+function adapterPathVerdict(name: string, verdict: string): string {
+    return /^\.(claude|pi)\//.test(name) ? verdict : ALLOW;
+}
+
 function runGuard(payload: object, cwd: string, env: NodeJS.ProcessEnv = {}): { verdict: string; stdout: string; stderr: string } {
     const result = spawnSync('bash', [guard], {
         cwd,
@@ -252,7 +256,7 @@ test('repository manifest settings override the origin default identically throu
         ['{"allowDependencyManifestWrites": false}', BLOCK],
         ['{"allowDependencyManifestWrites": "true"}', undefined],
         ['{"allowDependencyManifestWrites": null}', undefined],
-        ['not json', undefined],
+        ['not json', BLOCK],
     ];
     const protectedNames = ['Directory.Packages.props', 'global.json', 'NuGet.config', 'NuGet.Config', 'nuget.config', 'yarn.lock', 'package-lock.json', 'pnpm-lock.yaml', 'packages.lock.json'];
     for (const [origin, defaultVerdict] of [['git@github.com:Cratis/AI.git', ALLOW], ['https://github.com/Consumer/App.git', BLOCK]]) {
@@ -381,15 +385,15 @@ test('agent controls and installed trees are protected without blocking authored
         const managedChild = join(consumer.root, '.claude', 'commands', 'managed', 'ship.md');
         assert.equal(runGuard({ tool_input: { file_path: managedChild, content: 'x' } }, source.root).verdict, BLOCK, 'a listed directory owns its children');
         assert.equal(runGuard({ tool_input: { file_path: join(consumer.root, '.claude', 'commands', 'managed-like', 'ship.md'), content: 'x' } }, source.root).verdict, ALLOW, 'a directory prefix look-alike is not owned');
-        for (const manifest of ['not json', '{"Integrations":"invalid"}', '{}']) {
+        for (const [manifest, adapterVerdict] of [['not json', BLOCK], ['{"Integrations":"invalid"}', ALLOW], ['{}', ALLOW]]) {
             writeFileSync(join(consumer.root, '.cratis', 'ai.manifest.json'), manifest);
             const cases: Array<[name: string, expected: string]> = [
                 ...controls.map(name => [name, BLOCK] as [string, string]),
-                ...ordinary.map(name => [name, ALLOW] as [string, string]),
+                ...ordinary.map(name => [name, adapterPathVerdict(name, adapterVerdict)] as [string, string]),
                 ['.cratis/ai/skills/custom/SKILL.md', BLOCK],
-                ['.claude/agents/custom.md', ALLOW],
-                ['.pi/agents/custom.md', ALLOW],
-                ['.claude/commands/managed/ship.md', ALLOW],
+                ['.claude/agents/custom.md', adapterVerdict],
+                ['.pi/agents/custom.md', adapterVerdict],
+                ['.claude/commands/managed/ship.md', adapterVerdict],
                 ['.claude/skills/shared/new/SKILL.md', BLOCK],
             ];
             await forEachConcurrently(cases, async ([name, expected]) => {

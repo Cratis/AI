@@ -30,7 +30,12 @@ input="$(hook_read_stdin)"
 [ -n "$input" ] || exit 0
 hook_require_jq cratis-guard-secrets CRATIS_HOOKS_ALLOW_SECRET_READS
 
-command_text="$(hook_json "$input" '.tool_input.command')"
+parser_failed() {
+    printf '%s\n' 'BLOCKED by cratis-guard-secrets: parser failed; cannot check this tool call.' >&2
+    exit 2
+}
+
+command_text="$(jq -r '.tool_input.command // empty' <<<"$input")" || parser_failed
 [ -n "$command_text" ] || exit 0
 
 # Cheap exit for the overwhelming majority of shell commands, which mention none of these words. The shell
@@ -39,7 +44,8 @@ command_text="$(hook_json "$input" '.tool_input.command')"
 # character: this list must stay a superset of the protected stems the parser can resolve.
 probe=${command_text//\\$'\n'/}
 probe=${probe//[\'\"\\]/}
-case "$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" in
+probe_lower="$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" || parser_failed
+case "$probe_lower" in
     *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
     *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.p12*|*.pfx*|*token*|*.netrc*|*.npmrc*|\
     *credentials*|*.pgpass*|*pypirc*|*secrets*) ;;
@@ -149,7 +155,7 @@ function stem_match(t, stem, p, k, literals, wildcard,    key, c, end, nextp, j,
     return SM[key] = 0
 }
 function stem_units(t, m, start, stem) {
-    split("", SM)
+    delete SM
     return stem_match(t, stem, start, 1, 0, 0)
 }
 function stem_scan(text, mode,    t, k, stem, pos, offset, first, found, end, p, candidate) {
@@ -198,7 +204,7 @@ function regex_short_flag(b, c) {
     return c ~ /^[EFGPivwxcnNlLoqsaHIhVzuUSyZ0]$/ || (c ~ /^[rRT]$/ && b != "rg")
 }
 function regex_slots(A, s, n,    b, k, j, w, c, explicit, ended, attached, uncertain) {
-    split("", RP); split("", ROPER)
+    delete RP; delete ROPER
     b = base(A[s])
     if (b !~ /^(grep|egrep|fgrep|rg|ag)$/) return
     for (k = s + 1; k <= n; k++) {
@@ -254,7 +260,7 @@ function metadata_shape(A, M, n,    k, j, c, mk) {
 }
 function literal_shape(A, M, n,    k, j, b, words, count, pattern, ended, w, paths, flags) {
     if (metadata_shape(A, M, n)) return 1
-    split("", words)
+    delete words
     for (k = 1; k <= n; k++) {
         if (is_assign(A[k]) || !literal_word(A[k], M[k])) return 0
         resolve(A[k], M[k])
@@ -322,7 +328,7 @@ function end_cmd(    k, m, w, j, hit) {
         V[++m] = w; VM[m] = WM[k]
     }
     if (m > 0) { check_inputs(V, 1, m); analyze(V, 1, m) }
-    split("", W); split("", WP); split("", WM); split("", V); split("", VM); nw = 0
+    delete W; delete WP; delete WM; delete V; delete VM; nw = 0
 }
 function cmdsub(s, i, n,    start, depth, c, j) {
     complex = 1
@@ -361,7 +367,7 @@ function read_heredocs(s, i, n,    h, e, line, cmp, body) {
 }
 function tokenize(s,    i, n, c, c2, j, dash, delim) {
     n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; nheredoc = 0; hd_shell = 0; quote_boundary = 0
-    split("", W); split("", WP); split("", WM)
+    delete W; delete WP; delete WM
     while (i <= n) {
         c = substr(s, i, 1)
         if (c == "\\") {
@@ -455,7 +461,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
 
 # ── option parsing shared by the CLIs: positionals P/PI, output format, -f/--format value, --raw ──
 function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
-    split("", P); split("", PI)
+    delete P; delete PI
     np = 0; outfmt = ""; fmtval = ""; tmpl = ""; dd = 0; raw = 0
     for (i = s; i <= n; i++) {
         w = A[i]
@@ -555,7 +561,7 @@ function find_group(    i, j, depth, c) {
     return 0
 }
 function brace_all(w, m,    head, tail, r, k, e, a, pre, prem, suf, sufm) {
-    nf = 0; split("", FW); split("", FM); split("", QW); split("", QM)
+    nf = 0; delete FW; delete FM; delete QW; delete QM
     head = 1; tail = 1; QW[1] = w; QM[1] = m
     while (head <= tail) {
         gw = QW[head]; gm = QM[head]; head++
@@ -573,22 +579,23 @@ function brace_all(w, m,    head, tail, r, k, e, a, pre, prem, suf, sufm) {
 }
 # Parses the parameter expansion that starts at w[i] and fills PC[1..npc] with what it can be; returns the index of
 # its last character. ${NAME:-w} ${NAME-w} ${NAME:=w} ${NAME=w} add w, ${NAME:+w} ${NAME+w} give w or nothing.
-function variable_values(name,    k, j, count, result, values, masks, value) {
+function variable_values(name,    k, j, count, result, values, masks, value_parts) {
     if (UNK[name] || ACTIVE[name] || value_depth >= 4) return "\001"
     ACTIVE[name] = 1; value_depth++
     result = "\003"; count = BVN[name]
-    split("", values); split("", masks)
+    delete values; delete masks
     for (k = 1; k <= count; k++) { values[k] = BV[name, k]; masks[k] = BVM[name, k] }
     for (k = 1; k <= count; k++) {
         resolve(values[k], masks[k])
         for (j = 1; j <= nalt; j++) result = result "\034" ALT[j]
-        if (split(result, value, "\034") > 64) { result = "\001"; break }
+        delete value_parts
+        if (split(result, value_parts, "\034") > 64) { result = "\001"; break }
     }
     value_depth--; delete ACTIVE[name]
     return result
 }
 function param(w, m, i,    c, j, name, inner, op, base, rest, depth, bad, special, kind) {
-    split("", PC); npc = 1; PC[1] = "$"
+    delete PC; npc = 1; PC[1] = "$"
     c = substr(w, i + 1, 1); name = ""; op = ""; rest = ""
     if (c == "{") {
         depth = 1
@@ -618,7 +625,7 @@ function param(w, m, i,    c, j, name, inner, op, base, rest, depth, bad, specia
     if (bad) { PC[1] = "\001"; return i }
     if (op == "=") bind_value(name, rest, "")
     base = (special != "") ? special : variable_values(name)
-    split("", PC); npc = split(base, PC, "\034")
+    delete PC; npc = split(base, PC, "\034")
     if (op == "+") { npc = 2; PC[1] = rest; PC[2] = "" }
     else if (op == "-" || op == "=") PC[++npc] = rest
     return i
@@ -627,9 +634,9 @@ function cross(    k, j, t) {
     t = 0
     if (ncur * npc > 64) { overflow = 1; return }
     for (k = 1; k <= ncur; k++) for (j = 1; j <= npc; j++) NXT[++t] = CUR[k] PC[j]
-    split("", CUR)
+    delete CUR
     for (k = 1; k <= t; k++) CUR[k] = NXT[k]
-    ncur = t; split("", NXT)
+    ncur = t; delete NXT
 }
 function bracket_end(w, i,    j, marker, end) {
     j = i + 1
@@ -647,16 +654,16 @@ function bracket_end(w, i,    j, marker, end) {
     return 0
 }
 function expand_item(w, m,    i, n, c, mk, lit, j, saved, count) {
-    n = length(w); ncur = 1; split("", CUR); CUR[1] = ""; lit = ""
+    n = length(w); ncur = 1; delete CUR; CUR[1] = ""; lit = ""
     for (i = 1; i <= n; i++) {
         c = substr(w, i, 1); mk = tolower(substr(m, i, 1))
         if (mk == "c") lit = lit "\003"
         else if (c == "$" && mk != "l") {
-            split("", PC); npc = 1; PC[1] = lit; cross(); lit = ""
-            split("", saved); count = ncur
+            delete PC; npc = 1; PC[1] = lit; cross(); lit = ""
+            delete saved; count = ncur
             for (j = 1; j <= count; j++) saved[j] = CUR[j]
             i = param(w, m, i)
-            split("", CUR); ncur = count
+            delete CUR; ncur = count
             for (j = 1; j <= count; j++) CUR[j] = saved[j]
             if (mk == "u") for (j = 1; j <= npc; j++) if (PC[j] ~ /[*?[ \t\n]/) PC[j] = "\001"
             cross()
@@ -667,21 +674,21 @@ function expand_item(w, m,    i, n, c, mk, lit, j, saved, count) {
         else if (mk == "u" && c == "{") lit = lit "\001"
         else lit = lit c
     }
-    split("", PC); npc = 1; PC[1] = lit; cross()
+    delete PC; npc = 1; PC[1] = lit; cross()
 }
-function resolve(w, m,    k, j, words, masks, count, result, nr, failed) {
+function resolve(w, m,    k, j, words, masks, count, resolved_values, nr, failed) {
     overflow = 0; brace_all(w, m)
-    split("", words); split("", masks); split("", result)
+    delete words; delete masks; delete resolved_values
     count = nf; failed = overflow
     for (k = 1; k <= count; k++) { words[k] = FW[k]; masks[k] = FM[k] }
     for (k = 1; k <= count && !failed; k++) {
         expand_item(words[k], masks[k])
         if (overflow || nr + ncur > 64) failed = 1
-        else for (j = 1; j <= ncur; j++) result[++nr] = CUR[j]
+        else for (j = 1; j <= ncur; j++) resolved_values[++nr] = CUR[j]
     }
-    split("", ALT); nalt = nr
-    for (j = 1; j <= nr; j++) ALT[j] = result[j]
-    if (failed) { split("", ALT); nalt = 1; ALT[1] = "\001" }
+    delete ALT; nalt = nr
+    for (j = 1; j <= nr; j++) ALT[j] = resolved_values[j]
+    if (failed) { delete ALT; nalt = 1; ALT[1] = "\001" }
 }
 function has_sentinel(b) { return b ~ /[\001-\007]/ }
 function only_runtime(b,    t) { t = b; gsub("\003", "", t); return t == "" }
@@ -704,18 +711,20 @@ function rxize(b,    k, c, r, j, bracket) {
 }
 # Globs use case-sensitive, per-segment matching with Bash default leading-dot rules. Runtime expansions
 # are different: they can supply a leading dot without pathname expansion.
-function pattern_match(pattern, candidate,    p, c, np, nc, k) {
-    np = split(pattern, p, "/"); nc = split(candidate, c, "/")
+function pattern_match(pattern, candidate,    pattern_parts, candidate_parts, np, nc, k) {
+    delete pattern_parts; delete candidate_parts
+    np = split(pattern, pattern_parts, "/"); nc = split(candidate, candidate_parts, "/")
     if (np != nc) return 0
     for (k = 1; k <= np; k++) {
-        if (substr(c[k], 1, 1) == "." && substr(p[k], 1, 1) ~ /[\004-\006]/) return 0
-        if (c[k] !~ rxize(p[k])) return 0
+        if (substr(candidate_parts[k], 1, 1) == "." && substr(pattern_parts[k], 1, 1) ~ /[\004-\006]/) return 0
+        if (candidate_parts[k] !~ rxize(pattern_parts[k])) return 0
     }
     return 1
 }
 # Intersection of two wildcard segments, used for the complete protected extension suffixes rather than
 # a handful of sample key names. States advance monotonically, including empty star transitions.
 function pattern_units(a, U,    k, n, j) {
+    delete U
     for (k = 1; k <= length(a); k++) {
         if (substr(a, k, 1) == "\006") {
             j = index(substr(a, k + 1), "\007"); U[++n] = substr(a, k, j + 1); k += j
@@ -731,6 +740,7 @@ function non_dot_character(unit,    k, rx) {
     return 0
 }
 function overlap(a, b,    states, i, j, z, x, y, ax, by, na, nb, au, bu, hidden) {
+    delete states
     na = pattern_units(a, au); nb = pattern_units(b, bu); states[0,0,0] = 1
     hidden = (substr(a, 1, 1) ~ /[\004-\006]/)
     for (i = 0; i <= na; i++) for (j = 0; j <= nb; j++) for (z = 0; z <= 1; z++) {
@@ -749,11 +759,12 @@ function overlap(a, b,    states, i, j, z, x, y, ax, by, na, nb, au, bu, hidden)
     }
     return states[na,nb,1]
 }
-function path_probe(a, probe,    p, c, n, m, k, tail) {
-    n = split(a, p, "/"); m = split(probe, c, "/")
+function path_probe(a, probe,    path_parts, probe_parts, n, m, k, tail) {
+    delete path_parts; delete probe_parts
+    n = split(a, path_parts, "/"); m = split(probe, probe_parts, "/")
     if (n < m) return 0
-    tail = p[n-m+1]
-    for (k = n-m+2; k <= n; k++) tail = tail "/" p[k]
+    tail = path_parts[n-m+1]
+    for (k = n-m+2; k <= n; k++) tail = tail "/" path_parts[k]
     return pattern_match(tail, probe)
 }
 # Literal words retain the full classifier. Glob words use canonical names and all protected extensions;
@@ -881,8 +892,8 @@ function check_inputs(A, s, n,    k, kind) {
     }
 }
 function note_redirect(A, s) {
-    if (A[s] ~ /^[0-9]*<$/) { RT[++nrt] = s + 1; ROFF[nrt] = 0 }
-    else if (match(A[s], /^[0-9]*<[^<>&]/)) { RT[++nrt] = s; ROFF[nrt] = RLENGTH - 1 }
+    if (A[s] ~ /^[0-9]*<$/) { REDIRECT_TOKENS[++nrt] = s + 1; ROFF[nrt] = 0 }
+    else if (match(A[s], /^[0-9]*<[^<>&]/)) { REDIRECT_TOKENS[++nrt] = s; ROFF[nrt] = RLENGTH - 1 }
 }
 function generic_files(A, s, n, why,    k, kind) {
     for (k = s + 1; k <= n; k++) {
@@ -925,6 +936,7 @@ function kube(A, s, n,    verb, m, parts, k, r, rlist) {
     # `get pods,cm` and `get pod web` name one resource type; `get svc/web secret/db` names one per argument.
     rlist = P[2]
     if (index(P[2], "/")) for (k = 3; k <= np; k++) if (index(P[k], "/")) rlist = rlist "," P[k]
+    delete parts
     m = split(tolower(rlist), parts, ",")
     for (k = 1; k <= m; k++) {
         r = parts[k]; sub(/\/.*/, "", r); sub(/\..*/, "", r)
@@ -1070,7 +1082,7 @@ function transfer_files(A, s, n, b,    k, last, options, kind, w, eq, off, ended
     }
 }
 function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
-    nrt = 0; split("", RT); split("", ROFF); first = s
+    nrt = 0; delete REDIRECT_TOKENS; delete ROFF; first = s
     while (s <= n) {
         w = A[s]; b = base(w)
         if (is_assign(w)) { if (protected_config(w)) config_report(); s++; continue }
@@ -1117,7 +1129,7 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
     if (b == "eval") { p = ""; for (k = s + 1; k <= n; k++) p = p " " A[k]; enqueue(p); return }
     if (b == "kubectl" || b == "oc") return kube(A, s, n)
     if (b == "docker" || b == "podman") return dock(A, s, n)
-    if (b == "docker-compose") { split("", T); T[1] = "docker"; T[2] = "compose"; for (k = s + 1; k <= n; k++) T[k - s + 2] = A[k]; return dock(T, 1, n - s + 2) }
+    if (b == "docker-compose") { delete T; T[1] = "docker"; T[2] = "compose"; for (k = s + 1; k <= n; k++) T[k - s + 2] = A[k]; return dock(T, 1, n - s + 2) }
     if (b == "gh") return gh(A, s, n)
     if (b == "vault") return vault(A, s, n)
     if (b == "aws") return aws(A, s, n)
@@ -1165,8 +1177,8 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
     if (b ~ /^(cat|tac|nl|less|more|head|tail|bat|batcat|strings|xxd|od|hexdump|cut|sort|uniq|base64|wc|grep|egrep|fgrep|rg|ag|sed|awk|gawk|jq|yq)$/) {
         reader(A, s, n)
         for (k = 1; k <= nrt; k++) {
-            if (RT[k] > n || operand_kind(A, RT[k], ROFF[k]) == "") continue
-            report(b " of " operand_kind(A, RT[k], ROFF[k]) " through an input redirection prints credentials", "name the file and the key you need in your report; ask the user to confirm a value instead of printing it; for an env template read the .env.example")
+            if (REDIRECT_TOKENS[k] > n || operand_kind(A, REDIRECT_TOKENS[k], ROFF[k]) == "") continue
+            report(b " of " operand_kind(A, REDIRECT_TOKENS[k], ROFF[k]) " through an input redirection prints credentials", "name the file and the key you need in your report; ask the user to confirm a value instead of printing it; for an env template read the .env.example")
         }
     }
 }
@@ -1175,15 +1187,15 @@ BEGIN {
     SQ = "\047"
     split("namespace context kubeconfig server cluster user as as-group selector field-selector container label-columns sort-by request-timeout filename kustomize template chunk-size token env env-file workdir host config project-name file profile detach-keys log-level method header field raw-field jq repo hostname input region query endpoint-url vault-name subscription resource-group name id version project secret account", L, " ")
     for (i in L) LV["--" L[i]] = 1
-    split("! { } if then else elif do while until", L, " ")
+    delete L; split("! { } if then else elif do while until", L, " ")
     for (i in L) KW[L[i]] = 1
-    split("pods po pod deployments deployment deploy statefulsets statefulset sts daemonsets daemonset ds jobs job cronjobs cronjob cj configmaps configmap cm replicasets replicaset rs replicationcontrollers rc all", L, " ")
+    delete L; split("pods po pod deployments deployment deploy statefulsets statefulset sts daemonsets daemonset ds jobs job cronjobs cronjob cj configmaps configmap cm replicasets replicaset rs replicationcontrollers rc all", L, " ")
     for (i in L) SENS[L[i]] = 1
     # Decoding tables for $'...' strings, and the names a pattern is probed against.
     for (i = 1; i < 256; i++) { CH[i] = sprintf("%c", i); ORD[CH[i]] = i }
-    split("0 1 2 3 4 5 6 7 8 9 a b c d e f", L, " ")
+    delete L; split("0 1 2 3 4 5 6 7 8 9 a b c d e f", L, " ")
     for (i = 1; i <= 16; i++) HEX[L[i]] = i - 1
-    split("a b e E f n r t v", L, " "); split("7 8 27 27 12 10 13 9 11", L2, " ")
+    delete L; split("a b e E f n r t v", L, " "); split("7 8 27 27 12 10 13 9 11", L2, " ")
     for (i = 1; i <= 9; i++) ESC[L[i]] = L2[i] + 0
     ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34; ESC["?"] = 63
     nprobe = split(".env .env.local .env.production .envrc id_rsa id_ed25519 id_ecdsa id_dsa credentials token token.json tokens.json github_token .netrc .npmrc .pypirc .pgpass .git-credentials kubeconfig", PROBE, " ")
@@ -1193,7 +1205,7 @@ BEGIN {
     nstem = split(".env .pem .p12 .pfx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials .docker/ /environ run/secrets", STEM, " ")
     CMD = ENVIRON["GS_COMMAND"]
     for (pass = 1; pass <= 2; pass++) {
-        split("", queue); queued = 0; qi = 0; split("", seen); reports = ""
+        delete queue; queued = 0; qi = 0; delete seen; reports = ""
         nheredoc = 0; hd_shell = 0; commands = 0; complex = 0; simple_ok = 1; TAINT = ""
         enqueue(CMD)
         while (qi < queued) { qi++; tokenize(queue[qi]) }
@@ -1211,8 +1223,8 @@ AWK
 
 # Only literal rg needs the invocation directory to distinguish file and directory operands.
 command_cwd="$PWD"
-case "$probe" in *rg*) command_cwd="$(hook_json "$input" '.cwd')"; command_cwd="${command_cwd:-$PWD}" ;; esac
-findings="$(GS_COMMAND="$command_text" GS_CWD="$command_cwd" LC_ALL=C awk "$awk_program" </dev/null)"
+case "$probe" in *rg*) command_cwd="$(jq -r '.cwd // empty' <<<"$input")" || parser_failed; command_cwd="${command_cwd:-$PWD}" ;; esac
+findings="$(GS_COMMAND="$command_text" GS_CWD="$command_cwd" LC_ALL=C awk "$awk_program" </dev/null)" || parser_failed
 [ -n "$findings" ] || exit 0
 
 {

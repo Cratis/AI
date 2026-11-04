@@ -33,7 +33,12 @@ input="$(hook_read_stdin)"
 [ -n "$input" ] || exit 0
 hook_require_jq cratis-guard-store-mutations CRATIS_HOOKS_ALLOW_STORE_MUTATIONS
 
-command_text="$(hook_json "$input" '.tool_input.command')"
+parser_failed() {
+    printf 'BLOCKED by cratis-guard-store-mutations: parser failed%s; cannot check this tool call.\n' "${1:+ ($1)}" >&2
+    exit 2
+}
+
+command_text="$(jq -r '.tool_input.command // empty' <<<"$input")" || parser_failed
 [ -n "$command_text" ] || exit 0
 
 # Cheap exit for the overwhelming majority of shell commands, which never mention the CLI. The shell reads a
@@ -41,7 +46,8 @@ command_text="$(hook_json "$input" '.tool_input.command')"
 # `$'` (an ANSI-C string) goes on to the parser, which decodes it.
 probe=${command_text//\\$'\n'/}
 probe=${probe//[\'\"\\]/}
-case "$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" in
+probe_lower="$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" || parser_failed
+case "$probe_lower" in
     *cratis*) ;;
     *)
         case "$command_text" in
@@ -61,7 +67,7 @@ if [ -f "$data_file" ]; then
     merged="$(jq -ce 'select(type == "object" and (.group | type == "string") and
         (.readOnly | type == "array") and (.mutating | type == "array") and
         (.helpOptions | type == "array") and (.versionOptions | type == "array") and
-        (.flagOptions | type == "array") and (.valueOptions | type == "array"))' "$data_file" 2>/dev/null || true)"
+        (.flagOptions | type == "array") and (.valueOptions | type == "array"))' "$data_file" 2>/dev/null)" || parser_failed "$data_file"
 fi
 if [ -n "$merged" ] && [ -f "$local_file" ]; then
     # A local file adds entries; it never removes one. A command it lists as mutating is blocked even
@@ -74,7 +80,7 @@ if [ -n "$merged" ] && [ -f "$local_file" ]; then
           then error("invalid local list") else . end
         | $base + (["readOnly", "mutating", "helpOptions", "versionOptions", "flagOptions", "valueOptions"]
             | map({key: ., value: (($base[.] // []) + ($add[.] // []))}) | from_entries)
-    ' 2>/dev/null || true)"
+    ' 2>/dev/null)" || parser_failed "$local_file"
     if [ -n "$extended" ]; then
         merged="$extended"
     else
@@ -89,16 +95,16 @@ data_ok=1
 [ -n "$merged" ] || { data_ok=0; merged='{}'; }
 
 list() {
-    printf '%s' "$merged" | jq -r "$1" 2>/dev/null || true
+    printf '%s' "$merged" | jq -r "$1" 2>/dev/null
 }
 
-group="$(list '.group // "chronicle"')"
-read_only="$(list '(.readOnly // [])[] | .command // empty')"
-mutating="$(list '(.mutating // [])[] | select(.command) | "\(.command)\t\(.effect // "")"')"
-help_options="$(list '(.helpOptions // [])[]')"
-version_options="$(list '(.versionOptions // [])[]')"
-flag_options="$(list '(.flagOptions // [])[]')"
-value_options="$(list '(.valueOptions // [])[]')"
+group="$(list '.group // "chronicle"')" || parser_failed
+read_only="$(list '(.readOnly // [])[] | .command // empty')" || parser_failed
+mutating="$(list '(.mutating // [])[] | select(.command) | "\(.command)\t\(.effect // "")"')" || parser_failed
+help_options="$(list '(.helpOptions // [])[]')" || parser_failed
+version_options="$(list '(.versionOptions // [])[]')" || parser_failed
+flag_options="$(list '(.flagOptions // [])[]')" || parser_failed
+value_options="$(list '(.valueOptions // [])[]')" || parser_failed
 
 tab_char="$(printf '\t')"
 
@@ -121,10 +127,11 @@ findings="$(
     CSM_VALUES="$value_options" \
     LC_ALL=C awk '
     function toset(text, set,    parts, n, k) {
+        delete set; delete parts
         n = split(text, parts, "\n")
         for (k = 1; k <= n; k++) if (parts[k] != "") set[tolower(parts[k])] = 1
     }
-    function words_in(text,    parts) { return split(text, parts, " ") }
+    function words_in(text,    parts) { delete parts; return split(text, parts, " ") }
     function norm(text) {
         text = tolower(text); gsub(/[ \t]+/, " ", text); sub(/^ /, "", text); sub(/ $/, "", text)
         return text
@@ -333,6 +340,7 @@ findings="$(
 
     # ── simple commands ──
     function analyze(text,    parts, n, k) {
+        delete parts
         n = split(text, parts, SEP)
         for (k = 1; k <= n; k++) { Q[k] = substr(parts[k], 1, 1); W[k] = substr(parts[k], 2) }
         count = n
@@ -386,7 +394,8 @@ findings="$(
         eq = index(lower, "=")
         return eq > 1 && (substr(lower, 1, eq - 1) in value_option)
     }
-    function classify(first,    j, m, x, t, lower, name, values, only_options, count_words, path, shown, key) {
+    function classify(first,    j, m, x, t, lower, name, values, only_options, count_words, command_words, shown, key) {
+        delete command_words; delete shown
         values = " "
         for (j = first; j <= count; j++) {
             lower = tolower(W[j])
@@ -425,12 +434,12 @@ findings="$(
                 if (known_value(lower)) continue
                 break
             }
-            count_words++; path[count_words] = lower; shown[count_words] = W[m]
+            count_words++; command_words[count_words] = lower; shown[count_words] = W[m]
         }
         if (count_words == 0) { report("unknown", "cratis " W[j], ""); return }
         for (m = count_words; m >= 1; m--) {
-            key = path[1]; t = shown[1]
-            for (x = 2; x <= m; x++) { key = key " " path[x]; t = t " " shown[x] }
+            key = command_words[1]; t = shown[1]
+            for (x = 2; x <= m; x++) { key = key " " command_words[x]; t = t " " shown[x] }
             if (key in mutating) { report("mutating", "cratis " W[j] " " t, mutating[key]); return }
             if (key in read_only) return
         }
@@ -449,7 +458,7 @@ findings="$(
             read_only[key] = 1
             if (words_in(key) > max_depth) max_depth = words_in(key)
         }
-        n = split(ENVIRON["CSM_MUTATING"], lines, "\n")
+        delete lines; n = split(ENVIRON["CSM_MUTATING"], lines, "\n")
         for (k = 1; k <= n; k++) {
             tab = index(lines[k], "\t"); if (tab == 0) continue
             key = norm(substr(lines[k], 1, tab - 1)); if (key == "") continue
@@ -467,9 +476,9 @@ findings="$(
 
         # Decoding tables for ANSI-C strings.
         for (k = 1; k < 256; k++) { CH[k] = sprintf("%c", k); ORD[CH[k]] = k }
-        n = split("0 1 2 3 4 5 6 7 8 9 a b c d e f", lines, " ")
+        delete lines; n = split("0 1 2 3 4 5 6 7 8 9 a b c d e f", lines, " ")
         for (k = 1; k <= n; k++) HEX[lines[k]] = k - 1
-        n = split("a b e E f n r t v", lines, " "); split("7 8 27 27 12 10 13 9 11", codes, " ")
+        delete lines; n = split("a b e E f n r t v", lines, " "); split("7 8 27 27 12 10 13 9 11", codes, " ")
         for (k = 1; k <= n; k++) ESC[lines[k]] = codes[k] + 0
         ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34; ESC["?"] = 63
 
@@ -480,7 +489,7 @@ findings="$(
         }
     }
     '
-)" || findings="unparsed${tab_char}(the classifier failed, so no cratis command in it can be checked)${tab_char}"
+)" || parser_failed
 
 [ -n "$findings" ] || exit 0
 

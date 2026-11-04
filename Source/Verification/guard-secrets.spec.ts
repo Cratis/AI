@@ -352,8 +352,8 @@ test('the escape hatch comes from the harness environment, never from the comman
     assert.equal(runGuard('export CRATIS_HOOKS_ALLOW_SECRET_READS=1; kubectl get secret').verdict, BLOCK);
 });
 
-test('empty and malformed input exits 0 rather than blocking everything', () => {
-    for (const input of ['', '{}', '{"tool_name":"Bash"}', '{"tool_input":{"command":""}}', 'not json']) {
+test('empty input and calls without a command exit 0 rather than blocking everything', () => {
+    for (const input of ['', '{}', '{"tool_name":"Bash"}', '{"tool_input":{"command":""}}']) {
         const result = spawnSync('bash', [guard], { input, encoding: 'utf8', env: { ...process.env, CRATIS_HOOKS_ALLOW_SECRET_READS: '0' } });
         assert.equal(result.status, 0, `${input}\n${result.stderr}`);
     }
@@ -377,7 +377,8 @@ test('a command that mentions no trigger word never reaches the parser', () => {
         }
         const parsed = run('kubectl get pods');
         assert.match(parsed.stderr, /stub-awk-ran/, 'a command that mentions kubectl is handed to the parser');
-        assert.notEqual(parsed.status, 0);
+        assert.equal(parsed.status, 2);
+        assert.match(parsed.stderr, /BLOCKED by cratis-guard-secrets: parser failed/);
     } finally {
         rmSync(stubs, { recursive: true, force: true });
     }
