@@ -29,7 +29,7 @@ projection is the fact's occurrence time: the reference runner executes it in `f
 **Which tools bind these actions.** A compiler that admits ESM v6 binds the clock, trigger
 and capture actions, and the `Automation` and `Translate` slices, reactions and captures they
 drive; the reference runner executes them through `screenplay test` or MCP `run-specifications`,
-with the semantics in [Reactions and cascades](reactions-and-cascades.md). The complete example in
+with the semantics in [Reactions and one slice per specification](reactions-and-cascades.md). The complete example in
 that reference reports `executableReady` with no executable error in `open-workspace` readiness
 and `read-workspace` view `executable-diagnostics`.
 

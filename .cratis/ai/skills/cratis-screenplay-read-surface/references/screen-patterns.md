@@ -118,6 +118,11 @@ module Berths
         action BookBerth for screen
 ```
 
+State what an action acts on: `action CancelBooking for item` acts on the selected row or the record the screen shows,
+`action BookBerth for screen` does not depend on a selection. An omitted subject is inferred from the declared data
+and identifier types and reported as `PLAY0818` (and `PLAY0819` when the row binding differs from legacy name matching),
+so write the clause. Source: Screenplay v5.1.0 `Documentation/screenplay/action-subjects.md`.
+
 ## What a screen pattern is not
 
 - Not a column or a lane: a screen is a declaration in a slice, not a position on a timeline.
