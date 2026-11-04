@@ -12,8 +12,13 @@
 # for work whose acting agent is configured with the Pi harness.
 ARG BASE_IMAGE=cratis/ai-agents:latest
 FROM ${BASE_IMAGE}
+ARG TARGETARCH
 
 USER root
+# npm selects native dependencies for Node's architecture; npm ci retains the reviewed
+# extensions' lock-file integrity checks for both targets.
+RUN case "$TARGETARCH" in amd64) node_arch=x64 ;; arm64) node_arch=arm64 ;; *) exit 1 ;; esac \
+    && test "$(node -p process.arch)" = "$node_arch"
 
 # Pi CLI — pinned to the version the entrypoint's RPC handling was verified against, rather than
 # "latest".
