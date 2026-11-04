@@ -48,6 +48,43 @@ test('the hook is silent in non-Cratis repositories and Cratis repositories with
     } finally { f.cleanup(); }
 });
 
+test('repository options before the PR subcommand retain body enforcement and repository selection', () => {
+    const f = fixture();
+    try {
+        for (const option of ['-R Cratis/Example', '-RCratis/Example', '--repo Cratis/Example', '--repo=Cratis/Example']) {
+            assert.equal(f.hook(`gh ${option} pr create --body 'inline'`).status, 2, option);
+            assert.equal(f.hook(`gh ${option} pr create -F '${f.body}' -lpatch`).status, 0, option);
+            assert.equal(f.hook(`gh ${option} pr edit 7 -b inline`).status, 2, option);
+            assert.equal(f.hook(`gh ${option} pr edit 7 -F '${f.body}' -lpatch`, { TEST_EXPECTED_PR_REPOSITORY: 'Cratis/Example' }).status, 0, option);
+        }
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Someone/Personal.git']).status, 0);
+        assert.equal(f.hook('gh --repo=Cratis/Example pr create --body inline').status, 2);
+        assert.equal(f.hook(`gh --repo=Cratis/Example pr create -F '${f.body}' -lpatch`).status, 0);
+        assert.equal(f.hook('gh -R Someone/Personal pr create --body inline').status, 0);
+    } finally { f.cleanup(); }
+});
+
+test('unknown options before PR mutations are refused without affecting non-PR commands', () => {
+    const f = fixture();
+    try {
+        for (const command of ['gh --unknown pr create --body inline', 'gh -R Cratis/Example --unknown pr edit 7 -b inline']) {
+            const result = f.hook(command);
+            assert.equal(result.status, 2);
+            assert.match(result.stderr, /Put options after gh pr create\/edit/);
+        }
+        for (const command of ['gh -R x issue list', 'gh repo view']) {
+            const result = f.hook(command);
+            assert.equal(result.status, 0);
+            assert.equal(result.stderr, '');
+        }
+        assert.equal(readFileSync(f.calls, 'utf8'), '');
+        assert.equal(spawnSync('git', ['-C', f.directory, 'remote', 'set-url', 'origin', 'https://github.com/Someone/Personal.git']).status, 0);
+        const unrelated = f.hook('gh --unknown pr create --body inline');
+        assert.equal(unrelated.status, 0);
+        assert.equal(unrelated.stderr, '');
+    } finally { f.cleanup(); }
+});
+
 test('the hook stays silent instead of crashing when a caller provides no stdin at all', () => {
     const f = fixture();
     try {

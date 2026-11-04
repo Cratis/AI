@@ -900,7 +900,11 @@ function allowed_option(option) { return option ~ /^(errexit|nounset|pipefail|xt
 function shell_invocation(A, s, n,    k, j, flags, c, script) {
     for (k = s + 1; k <= n; k++) {
         if (A[k] == "--" || A[k] !~ /^[-+]/) break
-        if (A[k] ~ /^--/) continue
+        if (A[k] ~ /^--/) {
+            # Only startup switches that preserve the checked shell syntax are safe.
+            if (A[k] !~ /^--(norc|noprofile|noediting|verbose|login|version|help)$/) config_report()
+            continue
+        }
         flags = substr(A[k], 2); script = index(flags, "c")
         for (j = 1; j <= length(flags); j++) {
             c = substr(flags, j, 1)
