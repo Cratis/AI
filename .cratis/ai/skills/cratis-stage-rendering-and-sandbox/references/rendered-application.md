@@ -29,7 +29,7 @@ existing applications; it does not float dependencies in an already rendered app
 | Chronicle image | The compose file runs the `cratis/chronicle` development image matching the pinned client |
 | Embedded reverse extraction | `CratisEmbeddedScreenplayEnabled=false`: the source `.play` is authoritative |
 | Test packages | Cratis specifications, xunit and test SDK; **Debug configuration only** (`IsTestProject` when Debug) |
-| Package management | central package management **off**; `Directory.Packages.props` is managed, do not edit it |
+| Package management | central package management and transitive pinning **on** in `Directory.Packages.props` (Stage 4.197.0 and later scaffolds); older inline-spec scaffolds turn it off |
 
 The Scene family in the frontend is six packages: `@cratis/scene.blueprint.default`,
 `@cratis/scene.components`, `@cratis/scene.engine`, `@cratis/scene.model`,
@@ -47,9 +47,19 @@ active unit of work. Requires Stage 4.138.0 for Cratis C# rendering of admitted
 `.play` protected reads as Arc read protection; older renderers refuse them with
 `STAGE-ESM-044`, as do shapes the renderer cannot preserve. Semantic Host/executor
 support is separate from generated-application protection.
-Hand-written scope that needs a newer dependency can raise its version through
-`Customizations/Dependencies.props` (explicit `Version`, imported last; central management
-is off), but any override must be proven with a restore and build. The compose file binds local ports `27017` and
+Hand-written scope that needs another or newer backend package adds it through
+`Customizations/Dependencies.props`, which is imported last. Read the existing
+`Directory.Packages.props` first:
+
+- With central package management on (`ManagePackageVersionsCentrally` is `true`), use an
+  unversioned `PackageReference` with a matching central `PackageVersion`, or keep the pin
+  inside the import with `VersionOverride`. `Version` on a `PackageReference` fails restore.
+  Add or change a `PackageVersion` only when the manifest does not record
+  `Directory.Packages.props` as Stage-managed; otherwise use `VersionOverride`.
+- With central package management off (older inline-spec scaffolds), the reference needs an
+  explicit `Version`.
+
+Either way, prove the change with a restore and build. The compose file binds local ports `27017` and
 `35000`, keeps data in the named volumes `chronicle-data` and `chronicle-config`, and
 `docker compose down --volumes` is the only thing that deletes them.
 
@@ -191,7 +201,9 @@ Every file is optional. Rules that bite:
   service wins, so do not re-register Cratis types unless you mean to replace them.
 - Configuration comes from environment variables or other sources, not from
   `appsettings.json` (managed). Keep secrets out of files under `Customizations/`.
-- A `PackageReference` in `Dependencies.props` needs an explicit `Version`.
+- A `PackageReference` in `Dependencies.props` follows `Directory.Packages.props`: under
+  central package management, no `Version` (a matching central `PackageVersion`, or
+  `VersionOverride`); only scaffolds that turn central management off take `Version`.
 - Endpoints sit under `/api` (the Vite dev server proxies it) on a path that cannot collide
   with a route Arc generates.
 - `package.json` is managed, so `styles.css` cannot add npm dependencies. Restart the dev
