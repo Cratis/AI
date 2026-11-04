@@ -545,12 +545,13 @@ test('glob extensions and canonical names use default shell matching', () => {
         [ALLOW, 'cat tsconfig*.json'],
         [ALLOW, 'cat *.md'],
         [ALLOW, 'cat src/*.ts'],
-        [ALLOW, 'cat .ENV?'],
-        [ALLOW, 'cat ID_R??'],
+        // a protected stem in a glob is refused rather than matched
+        [BLOCK, 'cat .ENV?'],
+        [BLOCK, 'cat ID_R??'],
         [ALLOW, 'cat secret.p[z]m'],
         [ALLOW, 'cat secret.p[[:digit:]]m'],
-        [ALLOW, 'cat [.]env'],
-        [ALLOW, 'cat [.]pem'],
+        [BLOCK, 'cat [.]env'],
+        [BLOCK, 'cat [.]pem'],
     ]);
 });
 
@@ -618,6 +619,96 @@ test('shell glob configuration changes require the default options', () => {
         [ALLOW, 'echo "shopt -s dotglob"'],
     ]);
     assert.match(runGuard('shopt -s dotglob').stderr, /run without changing shell glob options/);
+});
+
+test('commands that name a protected file run only as a single literal read', () => {
+    assertVerdicts([
+        [ALLOW, 'cat .env.example'],
+        [ALLOW, 'cp .env.example .env'],
+        [ALLOW, 'cat .env.{example,sample}'],
+        [ALLOW, 'grep -rn "process.env" src'],
+        [ALLOW, 'rg -n id_rsa docs'],
+        [ALLOW, 'ls -la .env'],
+        [ALLOW, 'test -f .env'],
+        [BLOCK, 'cp -f .env.example .env'],
+        [BLOCK, 'cp .env /tmp/x'],
+        [BLOCK, 'cat .env.example | head'],
+        [BLOCK, 'cat .env.example; true'],
+        [BLOCK, 'cat .env.example > /tmp/x'],
+        [BLOCK, 'cat <<< .env'],
+        [BLOCK, 'node -e "require(\'fs\').readFileSync(\'.env\')"'],
+        [BLOCK, 'git diff --no-index /dev/null .env'],
+        [BLOCK, 'F=.env.example; cat "$F"'],
+        [BLOCK, 'grep -f .env README.md'],
+        [BLOCK, 'grep -r x --include=.env .'],
+    ]);
+    const message = runGuard('git diff --no-index /dev/null .e"nv"').stderr;
+    assert.match(message, /protected file \(\.env\)/);
+    assert.match(message, /literal paths/);
+    assert.match(message, /split/);
+    assert.match(runGuard('cat secret.p[e]m').stderr, /\(\.pem\)/);
+});
+
+const commandForms: string[][] = [
+    ['x=.env; true | x=.env.example; cat $x', 'x=.env; x=.env.example | cat $x', 'x=.env; x=.env.example & cat $x', 'x=.env; case b in a) x=.env.example;; esac; cat $x', 'x=.env; for f in ; do x=.env.example; done; cat $x'],
+    ['bash -O dotglob -c "cat ?env"', 'bash -O extglob -c "cat @(.env)"'],
+    ['zip -0 - .env', 'zip -0 -q - .env'],
+    ['set -- .env; cat $1', 'set -- .env; cat "$@"', 'f(){ cat "$1"; }; f .env'],
+    ['cp -rt /tmp/x .env', 'cp --target-directory=/tmp/x .env'],
+    ['cat <<< .env'],
+    ['x=.env; false && unset x; cat "$x"'],
+    ['opt=-s; shopt "$opt" nocaseglob; cat .[E]nv'],
+    ['ln -s /other/.env'],
+    ['f=README.md; for x in a b; do cat "$f"; f=.env; done'],
+    ['f=.env; (unset f); cat "$f"', 'f=.env; (for f in README.md; do :; done); cat "$f"'],
+    ['f=.env bash -c \'cat "$f"\''],
+    ['o=-s; shopt $o dotglob; cat [.]env'],
+    ['zip - .env', 'cp --target-directory=/tmp .env'],
+    ['x="secret.p[e]m"; cat $x'],
+];
+for (const [index, commands] of commandForms.entries()) {
+    test(`command form ${index + 1} is refused`, () => {
+        assertVerdicts(commands.map(command => [BLOCK, command]));
+    });
+}
+
+test('names assembled from fragments take every value the command assigns', () => {
+    assertVerdicts([
+        [BLOCK, 'x=.e; true | x=ab; cat "${x}nv"'],
+        [BLOCK, 'x=.e; x=ab & cat "${x}nv"'],
+        [BLOCK, 'x=.e; case b in a) x=ab;; esac; cat "${x}nv"'],
+        [BLOCK, 'x=.e; false && unset x; cat "${x}nv"'],
+        [BLOCK, 'f=READ; for x in a b; do cat "${f}nv"; f=.e; done'],
+        [BLOCK, 'f=.e; (unset f); cat "${f}nv"'],
+        [BLOCK, 'f=.e bash -c \'cat "${f}nv"\''],
+        [BLOCK, 'set -- .e; cat "$1"nv'],
+        [BLOCK, 'x=\'*.p*\'; cat $x'],
+        [BLOCK, 'x=\'foo token.json\'; cat $x'],
+        [BLOCK, 'zip -0 - .e*'],
+        [BLOCK, 'cp -rt /tmp/x .e*'],
+        [BLOCK, 'cp --target-directory=/tmp/x token.json'],
+        [BLOCK, 'ln -s /other/token.json'],
+        [BLOCK, 'bash -O dotglob -c \'cat *.md\''],
+        [BLOCK, 'o=-s; shopt $o dotglob'],
+        [BLOCK, 'opt=-s; shopt "$opt" nocaseglob; cat .E*'],
+        [BLOCK, 'X=.e; git diff --no-index /dev/null "${X}nv"'],
+        [ALLOW, 'X=README.md; cat $X'],
+        [ALLOW, 'for f in *.md; do wc -l "$f"; done'],
+        [ALLOW, 'cat "$dir/README.md"'],
+        [ALLOW, 'echo $$; cat /tmp/x.md'],
+    ]);
+});
+
+test('stems keep their boundaries', () => {
+    assertVerdicts([
+        [ALLOW, 'printenv HOME'],
+        [ALLOW, 'ls environment/'],
+        [ALLOW, 'npm run env:check'],
+        [ALLOW, 'curl -H "Authorization: Bearer $GITHUB_TOKEN" https://example.org'],
+        [ALLOW, 'KUBECONFIG=x.yaml kubectl get pods'],
+        [ALLOW, 'cat .dockerignore'],
+        [ALLOW, 'ls ????-??.log'],
+    ]);
 });
 
 test('the guard refuses every call when jq is missing', () => {
