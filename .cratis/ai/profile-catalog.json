@@ -1083,6 +1083,7 @@
         "cratis-engineering-docs-authoring",
         "cratis-engineering-effect-boundaries",
         "cratis-engineering-issue-hygiene",
+        "cratis-engineering-issue-design-note",
         "cratis-engineering-local-cross-repo-verification",
         "cratis-engineering-regression-cluster",
         "cratis-engineering-release-trains",

@@ -108,6 +108,7 @@ Do not paste the private working-file path into the issue.
 Edit the status block for current scope, decisions, approach, checklist, linked
 PRs, dependencies and what remains. The description alone should explain the
 present state. Do not rewrite other people's text or replace the original report.
+The one design comment linked from the block is the edited-in-place exception; see **cratis-engineering-issue-design-note**.
 
 Comment only for an event worth notifying readers about: a decision or scope
 change with its reason, a human blocker, a delivery milestone or a closing

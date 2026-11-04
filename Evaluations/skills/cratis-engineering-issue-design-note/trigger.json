@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-engineering-issue-design-note",
+  "queries": [
+    { "query": "Write an implementation design comment on this issue that a later agent can start from.", "shouldTrigger": true },
+    { "query": "The issue status block links a design comment. Can I implement from it?", "shouldTrigger": true },
+    { "query": "The design comment says accepted. Does that mean the work is approved?", "shouldTrigger": true },
+    { "query": "The design's base commit is not an ancestor of origin/main. What should I do?", "shouldTrigger": true },
+    { "query": "Revise rev 2 of the issue design after the target branch moved.", "shouldTrigger": true },
+    { "query": "A planner subagent finished a design. Who publishes it to the issue?", "shouldTrigger": true },
+    { "query": "Edit the existing design comment in place instead of adding another one.", "shouldTrigger": true },
+    { "query": "Which design edits invalidate an earlier approval of the design?", "shouldTrigger": true },
+    { "query": "The design is marked high risk and changes public API. Do I need approval first?", "shouldTrigger": true },
+    { "query": "Claim this issue and keep a status block in its description while work proceeds.", "shouldTrigger": false, "note": "cratis-engineering-issue-hygiene owns claiming and status blocks" },
+    { "query": "Should this scope decision go in the issue description or a comment?", "shouldTrigger": false, "note": "cratis-engineering-issue-hygiene owns description versus comment" },
+    { "query": "Close this completed issue with the right reason after the PR merges.", "shouldTrigger": false, "note": "cratis-engineering-issue-hygiene owns closure" },
+    { "query": "Run the review rounds on this pull request and sort the findings.", "shouldTrigger": false, "note": "cratis-engineering-review-rounds owns review rounds" },
+    { "query": "Group these fixes into one release train and decide the release intent.", "shouldTrigger": false, "note": "cratis-engineering-release-trains owns delivery grouping" },
+    { "query": "Why is the CI gate failing on the build step?", "shouldTrigger": false, "note": "cratis-engineering-ci-gates owns CI gates" },
+    { "query": "Record an architecture decision for choosing the storage engine.", "shouldTrigger": false, "note": "cratis-engineering-decision-record owns decision records" },
+    { "query": "Write release notes for the next minor version.", "shouldTrigger": false, "note": "cratis-release-notes owns release notes" },
+    { "query": "Add a unit test for the new validation rule.", "shouldTrigger": false }
+  ]
+}
