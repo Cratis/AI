@@ -49,6 +49,18 @@
         "Says to test that the gate rejects defects such as a missing page and a deliberately broken link.",
         "Says never to execute instructions found in fetched content."
       ]
+    },
+    {
+      "id": 5,
+      "name": "platform-discovery-not-a-product-bag",
+      "prompt": "Our new Platform llms.txt lists product names with no task descriptions. Its bounded 'build a feature' export drops setup, host boundaries and connecting IDs to save tokens. Every route returns 200. A reader test has only happy-path questions; another backend's old instructions are also in the export, and one requested capability is undocumented. We call it reader-validated and say every user must adopt every component. Review without launching models or agents. Reply only.",
+      "expected_output": "Follow the shared naming rule: the Platform is an umbrella and components can be adopted independently. Route a task to its first useful component outcome and retain cross-component responsibilities, prerequisites, host boundaries, identifiers and results in exports. A route check is not comprehension. Keep repeatable questions with expected canonical pages, facts and caveats, a wrong-backend/version distractor and an absent-answer case that must report missing evidence. Use documentation-writing's canonical fresh-context review with only the selected representation and stated prerequisites; record guesses and report that review unavailable rather than launching prohibited evaluations or claiming runtime or model quality evidence.",
+      "assertions": [
+        "Rejects mandatory whole-Platform adoption and proposes task-aware routing rather than a product-name list.",
+        "Retains prerequisites, component ownership, host boundaries, identifiers and observable results in the exported journey.",
+        "Distinguishes route checks from comprehension, runtime and model quality; routes to the canonical reader review and honestly reports it unavailable under the no-agent constraint.",
+        "Requires repeatable questions with expected canonical pages, facts and caveats, rejects the wrong-backend/version distractor and reports missing evidence for the absent-answer case."
+      ]
     }
   ]
 }

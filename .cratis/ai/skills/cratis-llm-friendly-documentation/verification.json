@@ -1,0 +1,15 @@
+{
+  "skill": "cratis-llm-friendly-documentation",
+  "input": "Review a Platform routing index and bounded component export without overstating comprehension or runtime evidence.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "## Keep discovery aligned with the reader journey" },
+    { "kind": "skill-contains", "value": "(../../rules/documentation.md)" },
+    { "kind": "skill-contains", "value": "(../cratis-documentation-writing/references/reader-review.md)" },
+    { "kind": "skill-contains", "value": "what was supplied and where the reader had to guess" },
+    { "kind": "skill-contains", "value": "report unavailable review" },
+    { "kind": "skill-contains", "value": "expected canonical" },
+    { "kind": "skill-contains", "value": "wrong-backend or wrong-version distractor" },
+    { "kind": "skill-contains", "value": "absent-answer case" }
+  ]
+}
