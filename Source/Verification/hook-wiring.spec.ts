@@ -83,7 +83,7 @@ test('the wired shell-write guard still blocks when all its scripts have lost th
         });
         assert.equal(run.status, 2, run.stderr);
         assert.match(run.stderr, /BLOCKED by cratis-guard-shell-writes/);
-        assert.match(run.stderr, /BLOCKED by cratis-guard-writes/);
+        assert.match(run.stderr, /protected reference '\.mcp\.json' \(cratis-guard-writes\)/);
     } finally { rmSync(project, { recursive: true, force: true }); }
 });
 
