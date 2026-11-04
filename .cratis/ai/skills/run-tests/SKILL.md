@@ -88,6 +88,15 @@ resolved. Route identification-only requests to `platform-detection`.
 
 ## Decision table
 
+For supported Cratis xUnit v3, TUnit and native-runner suites, restore/build once
+and run each project's built executable directly, or `dotnet <TargetPath.dll>`
+when there is no apphost. Use the matching configuration/TFM and runner-specific
+filter/report flags; see [running-specs](../cratis-specifications-csharp/references/running-specs.md).
+Only identified VSTest projects default to `dotnet test <project> --no-build`.
+Mixed suites run per project, never solution-wide `dotnet test`. The command-mode
+forms below remain valid when the user explicitly requires dotnet-test syntax;
+do not switch an executable suite to them as an automatic fallback.
+
 | Detected mode / platform | Command shape | Never use |
 |---|---|---|
 | Classic non-SDK | Repository script, or full MSBuild followed by `vstest.console.exe` / `MSTest.exe` | Assuming `dotnet test` is compatible or migrating implicitly |

@@ -52,7 +52,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "A file/code `handler` cannot coexist with `produces`"
+      "value": "A file/code `handler` beside unconditional `produces`, with a resolved nonempty body,"
     },
     {
       "kind": "skill-contains",

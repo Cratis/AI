@@ -183,7 +183,9 @@ module Billing
         when append PaymentRemoved
           invoice = "INV-1"
           method = "card"
-        then no readmodel PaymentTotals for {"invoiceId":"INV-1","method":"card"}
+        then no readmodel PaymentTotals for
+          invoiceId = "INV-1"
+          method    = "card"
         then readmodel PaymentTotals
           invoiceId = "INV-1"
           method = "cash"

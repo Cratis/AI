@@ -227,9 +227,6 @@ module Invoicing
           for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
           outcome = "declined"
           reason  = "Card declined"
-        then PaymentDeclined
-          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
-          reason = "Card declined"
 
     slice Automation RecordPaymentOutcome
       reaction ReceivedTranslator
@@ -247,6 +244,14 @@ module Invoicing
       event PaymentReceived
       event PaymentDeclined
         reason String
+      specification RecordingADeclinedPayment
+        when append PaymentGatewayResultReceived
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          outcome = "declined"
+          reason  = "Card declined"
+        then PaymentDeclined
+          for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
+          reason = "Card declined"
 
     slice StateView OpenInvoices
       description "Todo list: membership means 'still to collect'; there is no status flag."

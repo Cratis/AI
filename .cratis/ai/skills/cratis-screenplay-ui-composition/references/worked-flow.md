@@ -21,7 +21,7 @@ module Marina
       screen BookBerthScreen
         title "Book a berth"
         data BerthListView[] via query ListBerths
-        action BookBerth
+        action BookBerth for screen
           navigate to BerthListScreen
           label "Book berth"
     slice StateView BerthList

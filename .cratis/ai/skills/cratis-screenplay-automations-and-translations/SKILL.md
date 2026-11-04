@@ -59,6 +59,7 @@ A todo list + reaction + unique constraint proves the first. It does **not** pro
 the send can succeed and the append fail (crash, lost reply, constraint race), and the retry
 sends again.
 
+- A specification runs its own slice only: to prove an automation that invokes another slice's command, state `then invokes <Command>` with the values passed (ESM v34); that command's own slice states its events. A command spec never states what another slice's reaction appends.
 - A reaction cascade is not one transaction: earlier accepted facts stay when a later invoked
   command rejects (Screenplay `reactions.md`). Design each step to be retried on its own.
 - Read `references/effects-and-idempotency.md` when specifying redelivery,
@@ -95,7 +96,12 @@ another version behaves the same.
 
 ## When / when not
 - Use: "when X happens, then ...", schedules, retries, work queues, notifications, webhooks, APIs,
-  files or message feeds, events imported from another context, legacy sync.
+  files or message feeds, events imported from another context, legacy sync, lifecycles and
+  longer processes.
+- A lifecycle (where one thing is and what moves it on) is a `statemachine`; a process that
+  sends several commands, waits, asks for approval or gives up after a deadline is a
+  `workflow` (ESM v36). Read
+  [state machines and workflows](references/statemachines-and-workflows.md) before modeling either.
 - Not for: reaction, trigger or CDL grammar (`cratis-screenplay-captures-and-reactions`); stream
   identity and invariants (`cratis-screenplay-streams-and-consistency`); UI interactions such as
   `on click` (`cratis-screenplay-ui-composition`); hand-written reactors (`cratis-chronicle-reactor`).

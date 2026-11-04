@@ -32,6 +32,7 @@ fi
 
 root="$(hook_repo_root)"
 here="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+export CRATIS_HOOKS_SCRIPTS_DIR="$here"
 config="${CRATIS_HOOKS_GATES:-$here/quality-gates.json}"
 dryrun="${CRATIS_HOOKS_GATE_DRYRUN:-0}"
 

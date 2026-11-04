@@ -72,7 +72,7 @@ module Billing
           title String = title
         returns invoiceId
       screen CreateInvoiceScreen
-        action CreateInvoice
+        action CreateInvoice for screen
           label "Create invoice"
     slice StateView Details
       readmodel Invoice
