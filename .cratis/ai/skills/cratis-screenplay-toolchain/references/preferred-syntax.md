@@ -28,6 +28,7 @@ covers deliberate legacy explanations in prose; stale entries fail.
 | Composite key | Indented key parts under `key` | `key {` ... `}` around parts the indentation already groups | PLAY0824 (information; repair removes the braces) |
 | Profile shell | `root template <Name>` in a `ui profile` | `layout <Name>` in a `ui profile` | PLAY0791 (warning; quick fix) |
 | Literal text rules | `starts with`, `ends with`, `contains`, `not contains` or equality, preserving message and severity | Exact deprecated Studio `matches` shapes | PLAY0787 (warning; not arbitrary regex rewriting) |
+| Composite keys | `key` followed by its indented parts | `key {` ... `}` around the indented parts | PLAY0824 (information; a repair removes the braces) |
 | Objects and lists | An indented block under the name: `member = value` lines, one `item` line per element, `<name> none` for an empty list | Inline JSON (`= {...}`, `= [...]`) - not accepted; Screenplay has no JSON | PLAY0833 (error; quick fix, and printing converts) |
 
 `query Q => observable?` is not a legacy optional type suffix and has no keyword

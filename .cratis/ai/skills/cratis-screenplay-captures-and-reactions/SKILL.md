@@ -28,7 +28,7 @@ Language claims follow Screenplay `reactions.md`, `triggers.md`, `captures.md` a
 
 The compiler's ESM admission decides, not the slice type. Reactions, triggers and
 captures bind/reference-execute from v6; older compilers refuse them. Read toolchain
-`references/diagnostics.md` when diagnosing skew or false PLAY0285 cascades.
+`references/diagnostics.md` when diagnosing skew or `PLAY0285`/`PLAY0816` on a specification.
 - **Stage realization:** read `cratis-stage-rendering-and-sandbox` `references/admission.md`
   before claiming rendering. Supported event-triggered Automation renders; captures,
   Translate, clocks and opaque bodies remain gap-fill (`-024`).
@@ -225,7 +225,7 @@ Requires Screenplay 4.176.0 or later (`screenplay --version`) for PLAY0694; olde
 
 - [ ] `screenplay <model> --warnaserror` reports zero errors and zero warnings
       (standalone, or a `cratis` whose compiler admits ESM v6). Under an older compiler expect
-      `PLAY0268` at binding and a false `PLAY0285` on cascade specifications, and report them
+      `PLAY0268` at binding, and `then invokes` unreadable before 4.246.0 (ESM v34); report them
       as tool skew.
 - [ ] The tool that bound the model is named (standalone, or a `cratis` whose compiler admits ESM v6, for ESM v6 constructs); reference scenarios use
       `screenplay test`/MCP. Unadmitted refusal/redelivery is not executed evidence.
