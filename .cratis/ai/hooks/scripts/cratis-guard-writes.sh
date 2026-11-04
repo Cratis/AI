@@ -42,13 +42,16 @@ parser_failed() {
 
 # One jq call reads every field the guard uses. Fields are NUL-terminated (embedded NULs are dropped,
 # as a command substitution would drop them); a missing, null or false path is empty.
-cwd="" file="" notebook="" new_content="" new_string=""
+# The process substitution's exit status does not reach the reading group, and Bash 3.2 (macOS /bin/bash)
+# cannot wait on its PID, so a sentinel field is written only after jq succeeds.
+cwd="" file="" notebook="" new_content="" new_string="" parser_status=""
 {
     IFS= read -r -d '' cwd
     IFS= read -r -d '' file
     IFS= read -r -d '' notebook
     IFS= read -r -d '' new_content
     IFS= read -r -d '' new_string
+    IFS= read -r -d '' parser_status
 } < <(jq -j '
     def field(path): ([try (path // empty) catch empty] | first // "")
         | if type == "string" then . else tojson end
@@ -56,9 +59,8 @@ cwd="" file="" notebook="" new_content="" new_string=""
     [field(.cwd), field(.tool_input.file_path), field(.tool_input.notebook_path),
      field(.tool_input.content), field(.tool_input.new_string)]
     | .[] | ., "\u0000"
-' <<<"$input" 2>/dev/null) || parser_failed
-# Process substitutions do not propagate their exit status to the reading group.
-wait "$!" || parser_failed
+' <<<"$input" 2>/dev/null && printf 'ok\0') || parser_failed
+[ "$parser_status" = "ok" ] || parser_failed
 # Command substitution stripped trailing newlines from each field; keep that behaviour.
 for field_name in cwd file notebook new_content new_string; do
     while [[ "${!field_name}" == *$'\n' ]]; do printf -v "$field_name" '%s' "${!field_name%$'\n'}"; done
