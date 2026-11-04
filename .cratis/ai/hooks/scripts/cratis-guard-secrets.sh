@@ -1275,7 +1275,7 @@ BEGIN {
         if (pass == 1 && bindings > 0) continue
         if (TAINT != "" && (complex || queued != 1 || commands != 1 || !simple_ok)) {
             other_reports = reports; reports = ""
-            report("the command names a protected file (" TAINT ") and is not a single literal read", "run the read on its own with literal paths, e.g. cat .env.example or cp .env.example .env; split compound commands into separate calls; do not build the name with variables, globs, loops, pipes, redirections or nested shells; for a commit message or PR body that mentions the name, write the text to a file with the file tool and pass the file")
+            report("the command names a protected file (" TAINT ") and is not a single literal read", "run the read on its own with literal paths, e.g. cat .env.example; split compound commands into separate calls; do not build the name with variables, globs, loops, pipes, redirections or nested shells; for a commit message or PR body that mentions the name, write the text to a file with the file tool and pass the file")
             reports = reports other_reports
         }
         printf "%s", reports
