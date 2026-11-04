@@ -487,6 +487,136 @@ test('an input redirection before the command word is a read too', () => {
     ]);
 });
 
+test('parameter operators that are not resolved exactly remain checked', () => {
+    assertVerdicts([
+        [BLOCK, 'x=.env; cat ${x:?}'],
+        [BLOCK, 'x=.envX; cat "${x%X}"'],
+        [BLOCK, 'x=.exv; cat ${x/x/n}'],
+        [BLOCK, 'x=.envx; cat ${x:0:4}'],
+        [BLOCK, 'x=.ENV; cat ${x,,}'],
+        [BLOCK, 'x=.env; cat ${x^^}'],
+        [BLOCK, 'x=.env; cat ${x@Q}'],
+        [BLOCK, 'y=.env; x=y; cat ${!x}'],
+        [BLOCK, 'cat ${UNSET:-${OTHER:-.env}}'],
+        [BLOCK, 'x=unused; cat ${x%z}README.md'],
+        [BLOCK, 'x=unused; cat tsconfig${x%z}.json'],
+    ]);
+});
+
+test('append assignments contribute to subsequent read operands', () => {
+    assertVerdicts([[BLOCK, 'x=.e; x+=nv; cat $x']]);
+});
+
+test('temporary assignments do not replace earlier argument values', () => {
+    assertVerdicts([[BLOCK, 'S=; S=.example cat ".env$S"']]);
+});
+
+test('expansion limits retain unresolved protected possibilities', () => {
+    assertVerdicts([
+        [BLOCK, 'a= b= c= d= e= f= g=; cat .env${a:+.example}${b:+.example}${c:+.example}${d:+.example}${e:+.example}${f:+.example}${g:+.example}'],
+        [BLOCK, 'cat ${a:+x}${b:+x}${c:+x}${d:+x}${e:+x}${f:+x}${g:+x}'],
+        [BLOCK, 'cat {a,b}{a,b}{a,b}{a,b}{a,b}{a,b}{a,b}.pem'],
+    ]);
+});
+
+test('temporary assignments do not define previously unset argument values', () => {
+    assertVerdicts([[BLOCK, 'unset f; f=.example cat .env$f']]);
+});
+
+test('assignments in subshells and conditional branches are not unconditional values', () => {
+    assertVerdicts([
+        [BLOCK, '(f=.example); cat .env$f'],
+        [BLOCK, 'f=; false && f=.example; cat .env$f'],
+        [BLOCK, 'f=; if false; then f=.example; fi; cat .env$f'],
+    ]);
+});
+
+test('glob extensions and canonical names use default shell matching', () => {
+    assertVerdicts([
+        [BLOCK, 'cat secret.p[e]m'],
+        [BLOCK, 'cat *.p?m'],
+        [BLOCK, 'cat secret.p[[:alpha:]]m'],
+        [BLOCK, 'cat secret.p[!z]m'],
+        [BLOCK, 'cat secret.*'],
+        [BLOCK, 'cat .e*'],
+        [BLOCK, 'cat creden*'],
+        [ALLOW, 'cat ~/.ssh/*.pub'],
+        [ALLOW, 'cat tsconfig*.json'],
+        [ALLOW, 'cat *.md'],
+        [ALLOW, 'cat src/*.ts'],
+        [ALLOW, 'cat .ENV?'],
+        [ALLOW, 'cat ID_R??'],
+        [ALLOW, 'cat secret.p[z]m'],
+        [ALLOW, 'cat secret.p[[:digit:]]m'],
+    ]);
+});
+
+test('adjacent input redirections are checked independently of the command', () => {
+    assertVerdicts([
+        [BLOCK, 'cat<.env'],
+        [BLOCK, '<.env true'],
+        [BLOCK, 'true <.env'],
+        [ALLOW, 'cat<README.md'],
+    ]);
+});
+
+test('wrapper option terminators preserve the command classification', () => {
+    assertVerdicts([
+        [BLOCK, 'command -- cat .env'],
+        [BLOCK, 'builtin -- cat .env'],
+        [BLOCK, 'exec -- cat .env'],
+        [BLOCK, 'env -- cat .env'],
+    ]);
+});
+
+test('dd input assignments are read operands', () => {
+    assertVerdicts([
+        [BLOCK, 'dd if=.env'],
+        [BLOCK, 'x=.env; dd if=$x'],
+        [ALLOW, 'dd if=README.md of=/tmp/x'],
+    ]);
+});
+
+for (const command of ['cp .env /tmp/x', 'mv .env /tmp/x', 'ln .env /tmp/x', 'rsync .env /tmp/x', 'scp .env host:/tmp/x', 'tar -cf /tmp/x .env', 'zip /tmp/x .env']) {
+    test(`${command.split(' ')[0]} source operands are reads`, () => {
+        assertVerdicts([[BLOCK, command]]);
+    });
+}
+
+test('loop values remain checked inside the loop body', () => {
+    assertVerdicts([
+        [BLOCK, 'for f in .env; do cat $f; done'],
+        [ALLOW, 'for f in *.md; do wc -l "$f"; done'],
+        [ALLOW, 'for f in *.md; do cat "$f"; done'],
+    ]);
+});
+
+test('here-string input operands are checked as reads', () => {
+    assertVerdicts([
+        [BLOCK, 'read x <<< .env'],
+        [BLOCK, 'read x<<<.env'],
+        [ALLOW, 'read x <<< README.md'],
+    ]);
+});
+
+test('shell glob configuration changes require the default options', () => {
+    assertVerdicts([
+        [BLOCK, 'shopt -s dotglob'],
+        [BLOCK, 'shopt -s nocaseglob; cat *.md'],
+        [BLOCK, 'GLOBIGNORE=x cat *'],
+        [BLOCK, 'export BASHOPTS=dotglob'],
+        [BLOCK, 'declare GLOBIGNORE'],
+        [BLOCK, 'BASH_ENV=some-script bash -c true'],
+        [BLOCK, 'ENV=some-script sh -c true'],
+        ...['dotglob', 'nocaseglob', 'extglob', 'globstar', 'nullglob', 'failglob', 'globasciiranges'].map(option => [BLOCK, `shopt -u ${option}`] as [string, string]),
+        [ALLOW, 'set -f'],
+        [ALLOW, 'set -o noglob'],
+        [ALLOW, 'shopt -p dotglob'],
+        [ALLOW, 'echo "shopt -s dotglob"'],
+    ]);
+    assert.match(runGuard('shopt -s dotglob').stderr, /run without changing shell glob options/);
+});
+
 test('the guard refuses every call when jq is missing', () => {
     const isolated = pathWithout('jq');
     try {
