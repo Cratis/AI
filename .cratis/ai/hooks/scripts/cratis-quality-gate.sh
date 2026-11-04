@@ -27,7 +27,7 @@ if ! hook_have jq; then
     # Without JSON parsing, still honor Stop re-entry and never block an unchanged tree.
     LC_ALL=C grep -Eq '"stop_hook_active"[[:space:]]*:[[:space:]]*true' <<<"$input" && exit 0
     git -C "$root" rev-parse --git-dir >/dev/null 2>&1 || exit 0
-    [ -n "$(git -C "$root" status --porcelain 2>/dev/null || true)" ] || exit 0
+    [ -n "$(git -C "$root" status --porcelain --untracked-files=normal 2>/dev/null || true)" ] || exit 0
     {
         printf 'BLOCKED by cratis-quality-gate: jq is not installed, so no quality gates ran on this change.\n'
         hook_jq_install_hint
