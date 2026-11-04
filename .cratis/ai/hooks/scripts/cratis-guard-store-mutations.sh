@@ -7,13 +7,13 @@
 # `chronicle` group, classified against cratis-store-mutations.json. Anything that is not on the
 # read-only allowlist — replay, retry, quarantine clearing, job control, recommendations, users,
 # applications, subscriptions, and any command a newer CLI adds — exits 2 (block the tool call,
-# stderr goes back to the model). Unknown commands fail closed.
+# stderr goes back to the model). Unknown commands fail closed, and so does every call while jq is missing.
 #
 # Other groups (ai, arc, context, llm, screenplay, prologue, completions) and the top-level commands
 # (init, new, render, run, update, version, ...) are out of scope and always allowed.
 #
-# What it sees is the command text. A `cratis` reached through a variable, an alias, a function or a
-# script file is invisible to it; see .cratis/ai/hooks/README.md for the full list of limits.
+# What it sees is the command text. A `cratis` reached through a variable, an alias, a function, a glob or
+# brace pattern or a script file is invisible to it; see .cratis/ai/hooks/README.md for the full list of limits.
 #
 # Escape hatch for a human who authorized the mutation — set in the environment the agent harness was
 # started from, never inside the command (an assignment in the command is ignored):
@@ -31,15 +31,23 @@ set -euo pipefail
 
 input="$(hook_read_stdin)"
 [ -n "$input" ] || exit 0
-hook_have jq || exit 0
+hook_require_jq cratis-guard-store-mutations CRATIS_HOOKS_ALLOW_STORE_MUTATIONS
 
 command_text="$(hook_json "$input" '.tool_input.command')"
 [ -n "$command_text" ] || exit 0
 
-# Cheap exit for the overwhelming majority of shell commands, which never mention the CLI.
-case "$(printf '%s' "$command_text" | tr '[:upper:]' '[:lower:]')" in
+# Cheap exit for the overwhelming majority of shell commands, which never mention the CLI. The shell reads a
+# word after removing quotes, escapes and line continuations, so the name is looked for in that form; a raw
+# `$'` (an ANSI-C string) goes on to the parser, which decodes it.
+probe=${command_text//\\$'\n'/}
+probe=${probe//[\'\"\\]/}
+case "$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" in
     *cratis*) ;;
-    *) exit 0 ;;
+    *)
+        case "$command_text" in
+            *'$'\'*) ;;
+            *) exit 0 ;;
+        esac ;;
 esac
 
 # ── Command lists: shipped defaults + optional local extension, or a replacement ─────────
@@ -127,8 +135,42 @@ findings="$(
         reported[key] = 1
         printf "%s\t%s\t%s\n", kind, path, effect
     }
+    # True when text can name the CLI once the shell has read it: quotes, escapes and line continuations removed,
+    # or an ANSI-C string that the parser decodes.
+    function mentions(text,    t) {
+        if (index(text, "$\047")) return 1
+        t = tolower(text)
+        gsub("\\\\\n", "", t); gsub("\047", "", t); gsub("\"", "", t); gsub("\\\\", "", t)
+        return index(t, "cratis") > 0
+    }
+    # Decodes the body of an ANSI-C string (i is just after the opening quote) into word and returns the position
+    # after the closing quote. The same decoder is in cratis-guard-secrets.sh (ansi_c).
+    function ansi_c(s, i, n,    c, c2, v, d, k, lim, stop, digits) {
+        stop = 0
+        while (i <= n) {
+            c = substr(s, i, 1)
+            if (c == "\047") return i + 1
+            if (c != "\\") { if (!stop) word = word c; i++; continue }
+            c2 = substr(s, i + 1, 1); i += 2; v = -1
+            if (c2 in ESC) v = ESC[c2]
+            else if (c2 ~ /^[0-7]$/) {
+                v = c2 + 0
+                for (k = 0; k < 2 && substr(s, i, 1) ~ /^[0-7]$/; k++) { v = v * 8 + substr(s, i, 1); i++ }
+                v = v % 256
+            } else if (c2 == "x" || c2 == "u" || c2 == "U") {
+                lim = (c2 == "x") ? 2 : (c2 == "u") ? 4 : 8; v = 0; digits = 0
+                while (digits < lim && (d = tolower(substr(s, i, 1))) != "" && (d in HEX)) { v = v * 16 + HEX[d]; i++; digits++ }
+                if (digits == 0) { if (!stop) word = word "\\" c2; continue }
+                if (c2 != "x" && v >= 128) { if (!stop) word = word "?"; continue }
+            } else if (c2 == "c" && i <= n) { v = ORD[substr(s, i, 1)] % 32; i++ }
+            else { if (!stop) word = word "\\" c2; continue }
+            if (v == 0) stop = 1
+            else if (!stop) word = word CH[v]
+        }
+        return i
+    }
     function enqueue(text) {
-        if (text == "" || !index(tolower(text), "cratis")) return
+        if (text == "" || !mentions(text)) return
         queue[++queued] = text
     }
     function base(word) { word = tolower(word); sub(/.*\//, "", word); return word }
@@ -186,7 +228,7 @@ findings="$(
                 if (test == delimiter[k]) break
                 body = body line "\n"
             }
-            if (index(tolower(body), "cratis") && candidates < 256) candidate[++candidates] = body
+            if (mentions(body) && candidates < 256) candidate[++candidates] = body
         }
         pending = 0
         return i
@@ -228,6 +270,8 @@ findings="$(
             if (c == "#" && !inword) { while (i <= n && substr(s, i, 1) != "\n") i++; continue }
             if (c == "$") {
                 c2 = substr(s, i + 1, 1)
+                if (c2 == "\047") { inword = 1; quoted = 1; i = ansi_c(s, i + 2, n); continue }
+                if (c2 == "\"") { in_dq = 1; inword = 1; quoted = 1; i += 2; continue }
                 if (c2 == "(" && substr(s, i + 2, 1) == "(") { j = skip_group(s, i + 1, "(", ")"); word = word substr(s, i, j - i); inword = 1; i = j; continue }
                 if (c2 == "(") { push("subst"); i += 2; continue }
                 if (c2 == "{") { j = skip_group(s, i + 1, "{", "}"); word = word substr(s, i, j - i); inword = 1; i = j; continue }
@@ -421,10 +465,18 @@ findings="$(
         toset("!\n{\n}\nif\nthen\nelse\nelif\ndo\nwhile\nuntil\ntime", keyword)
         toset("env\ncommand\nexec\nbuiltin\nnohup\ntime\nnice\nionice\nsudo\ndoas\ntimeout\ngtimeout\nxargs\nparallel\nstdbuf\nunbuffer\ncaffeinate\nwatch\nrtk\ndotnet\narch\nssh\nnoglob\nnocorrect\ntaskset\nflock\nsetsid\nchronic", wrapper)
 
+        # Decoding tables for ANSI-C strings.
+        for (k = 1; k < 256; k++) { CH[k] = sprintf("%c", k); ORD[CH[k]] = k }
+        n = split("0 1 2 3 4 5 6 7 8 9 a b c d e f", lines, " ")
+        for (k = 1; k <= n; k++) HEX[lines[k]] = k - 1
+        n = split("a b e E f n r t v", lines, " "); split("7 8 27 27 12 10 13 9 11", codes, " ")
+        for (k = 1; k <= n; k++) ESC[lines[k]] = codes[k] + 0
+        ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34; ESC["?"] = 63
+
         queued = 1; queue[1] = ENVIRON["CSM_COMMAND"]
         for (done = 1; done <= queued; done++) {
             if (done > 64) { report("unparsed", "(more than 64 nested shell scripts)", ""); break }
-            if (index(tolower(queue[done]), "cratis")) parse(queue[done])
+            if (mentions(queue[done])) parse(queue[done])
         }
     }
     '

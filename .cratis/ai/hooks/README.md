@@ -11,7 +11,7 @@ Three layers:
 | Pattern pass | `PostToolUse` on a write | `scripts/cratis-pattern-scan.sh` | zero tokens until a match | appends a one-line reminder to context, never blocks |
 | Hard block | `PreToolUse` on a write | `scripts/cratis-guard-writes.sh` | zero | exits **2** — the write does not happen |
 | Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-store-mutations.sh` | zero; parses only commands that mention `cratis` | exits **2** — the store-changing `cratis chronicle` command does not run |
-| Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-secrets.sh` | zero; parses only commands that mention a credential-bearing tool or file | exits **2** — a command that prints credentials (full `kubectl` specs and secrets, `env`/`printenv`, `docker inspect`, secret-manager reads, `cratis config get --show-secret`, `.env`/kubeconfig/key files; also behind `/usr/bin/env`, `command`, attached options such as `-ePATTERN`, a bare `{.}` projection) does not run unless it projects a field; piped shells and recursive searches with no named file stay uncovered; see [`secrets.md`](../rules/secrets.md) |
+| Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-secrets.sh` | zero; parses only commands that mention a credential-bearing tool or file | exits **2** — a command that prints credentials (full `kubectl` specs and secrets, `env`/`printenv`, `docker inspect`, secret-manager reads, `cratis config get --show-secret`, `.env`/kubeconfig/key files; also behind `/usr/bin/env`, `command`, attached options such as `-ePATTERN`, a bare `{.}` projection) does not run unless it projects a field; file names are read the way the shell reads them (quoting, escapes, brace expansion and glob patterns), and a name built only at run time stays uncovered; piped shells and recursive searches with no named file stay uncovered; see [`secrets.md`](../rules/secrets.md) |
 | Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-pr-body.sh` | fetches shared rules only for `gh pr create/edit` | exits **2** for inline bodies, invalid notes or conflicting release labels; warns and allows when offline with no cache |
 | Cleanup of delivered work | `PostToolUse` on `Bash` (`gh pr merge`, `git pull/merge/worktree`) and `SessionStart` (Pi: `tool_result` and `session_start`) | `scripts/cratis-cleanup-worktrees.sh --hook` | zero when the command is unrelated | never blocks; removes delivered worktrees and branches, reports what it kept |
 | Quality gate (Claude) | `Stop` | `scripts/cratis-quality-gate.sh` | one build/test run, only when relevant files changed | exits **2** — the turn does not end |
@@ -95,7 +95,7 @@ This is a guardrail, **not absolute enforcement**. Node, Bash and Git are requir
 launch the adapter; native callback failure, crash, timeout, or malformed-response behavior
 can fail open before a supported denial is received. Other local hook configurations and
 specialized tool paths are outside this adapter's control. The existing scripts retain
-their own deliberate allowances and limits: missing `jq` skips the store guard; PR checks
+their own deliberate allowances and limits: missing `jq` makes the store, secret and write guards refuse every call; PR checks
 can allow with an unchecked/offline warning; command-text parsing cannot see all indirect
 execution. Inherited `CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1` and existing script configuration
 are preserved. An adapter exit **0** is not proof that every underlying check ran.
@@ -725,8 +725,10 @@ Each is an explicit, auditable opt-out — none of them is a default.
   (macOS system bash) — no `mapfile`, no associative arrays, no GNU-only flags, `LC_ALL=C` on
   every sort and compare.
 - **Gate commands are an argv array**, executed directly. They never pass through a shell.
-- **`jq` is the dependency for the write, store-mutation, pattern and quality hooks.** They
-  degrade to a silent no-op when it is missing — a hook must never break a session. The
+- **`jq` is the dependency for the write, store-mutation, secret, pattern and quality hooks.** The
+  write, store-mutation and secret guards refuse every call while it is missing (exit 2, with the
+  reason and the install hint on stderr); the pattern and quality hooks degrade to a silent no-op,
+  because those must never break a session. The
   PR-body hook uses Node instead, and the checker uses Git and `gh` as described above.
 - **Fail safe.** Malformed config, empty stdin, a missing file, a binary file, a file over 2 MB:
   all exit 0 silently. The one deliberate exception is the store-mutation guard's command lists:

@@ -465,7 +465,7 @@ test('variables assigned in the same command resolve; names known only at run ti
         [BLOCK, 'X=.env; cat "${X}"'],
         [BLOCK, 'X=.e; cat ${X}nv'],
         [BLOCK, 'export F=~/.ssh/id_rsa; cat $F'],
-        [BLOCK, 'Y=nv; cat ".en${Y}"'],
+        [BLOCK, 'Y=v; cat ".en${Y}"'],
         [BLOCK, 'cat ${X:-.env}'],
         [BLOCK, '$C .env'],
         [ALLOW, 'cat "$f"'],

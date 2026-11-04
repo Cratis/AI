@@ -9,6 +9,8 @@
 #   3. Environment files    — .env and friends (secrets)
 #   4. Agent controls       — permissions, hooks and installed managed corpus/adapters
 #
+# While jq is missing the guard cannot read the tool call, so it refuses every call.
+#
 # .cratis/ai.json allowDependencyManifestWrites overrides only the manifest policy:
 # true allows them in any repository; false blocks them even in a Cratis repository.
 #
@@ -31,7 +33,7 @@ script_directory="${BASH_SOURCE[0]%/*}"
 input=""
 IFS= read -r -d '' input || true
 [ -n "$input" ] || exit 0
-hook_have jq || exit 0
+hook_require_jq cratis-guard-writes CRATIS_HOOKS_ALLOW_PROTECTED_WRITES
 
 # One jq call reads every field the guard uses. Fields are NUL-terminated (embedded NULs are dropped,
 # as a command substitution would drop them); a missing, null, false or unreadable path is empty.
