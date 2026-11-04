@@ -537,6 +537,7 @@ test('glob extensions and canonical names use default shell matching', () => {
         [BLOCK, 'cat *.p?m'],
         [BLOCK, 'cat secret.p[[:alpha:]]m'],
         [BLOCK, 'cat secret.p[!z]m'],
+        [BLOCK, 'cat [a.]*.pem'],
         [BLOCK, 'cat secret.*'],
         [BLOCK, 'cat .e*'],
         [BLOCK, 'cat creden*'],
@@ -548,6 +549,8 @@ test('glob extensions and canonical names use default shell matching', () => {
         [ALLOW, 'cat ID_R??'],
         [ALLOW, 'cat secret.p[z]m'],
         [ALLOW, 'cat secret.p[[:digit:]]m'],
+        [ALLOW, 'cat [.]env'],
+        [ALLOW, 'cat [.]pem'],
     ]);
 });
 

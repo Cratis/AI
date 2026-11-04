@@ -42,7 +42,7 @@ probe=${command_text//\\$'\n'/}
 probe=${probe//[\'\"\\]/}
 case "$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" in
     *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
-    *export*|*declare*|*typeset*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.p12*|*.pfx*|*token*|*.netrc*|*.npmrc*|\
+    *shopt*|*globignore*|*export*|*declare*|*typeset*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.p12*|*.pfx*|*token*|*.netrc*|*.npmrc*|\
     *credentials*|*.pgpass*|*secrets*) ;;
     *)
         case "$command_text" in
@@ -115,7 +115,7 @@ function end_cmd(    k, m, w) {
         }
         V[++m] = w; VM[m] = WM[k]
     }
-    if (m > 0) analyze(V, 1, m)
+    if (m > 0) { check_inputs(V, 1, m); analyze(V, 1, m) }
     split("", W); split("", WP); split("", WM); split("", V); split("", VM); nw = 0
 }
 function cmdsub(s, i, n,    start, depth, c, j) {
@@ -207,7 +207,11 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
         # `>&`, `>|` and `&>` are parts of a redirection operator, not command separators.
         if ((c == "&" || c == "|") && inword && !wquoted && word ~ />$/) { addw(c, "u"); wplain++; i++; continue }
         if (c == "&" && substr(s, i + 1, 1) == ">") { flush_word(); addw(c, "u"); inword = 1; wplain = 1; i++; continue }
-        if (c == ";" || c == "&" || c == "|" || c == "(" || c == ")") { end_cmd(); i++; continue }
+        if (c == ";" || c == "&" || c == "|" || c == "(" || c == ")") {
+            end_cmd()
+            if (c == "(" || substr(s, i, 2) == "&&" || substr(s, i, 2) == "||") uncertain = 1
+            i++; continue
+        }
         if (substr(s, i, 2) == "<<" && substr(s, i, 3) != "<<<") {
             flush_word(); i += 2; dash = 0
             if (substr(s, i, 1) == "-") { dash = 1; i++ }
@@ -221,6 +225,12 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             }
             nheredoc++; HD[nheredoc] = delim; HDDASH[nheredoc] = dash
             continue
+        }
+        if (c == "<") {
+            if (word !~ /^[0-9]+$/ || wquoted) flush_word()
+            addw(c, "u"); inword = 1; wplain++; i++
+            while (i <= n && substr(s, i, 1) ~ /[<>&]/) { addw(substr(s, i, 1), "u"); wplain++; i++ }
+            flush_word(); continue
         }
         if (!wquoted) wplain++
         addw(c, "u"); inword = 1; i++
@@ -271,7 +281,7 @@ function skipopts(A, s, n, vals) {
     }
     return s
 }
-function is_assign(w) { return w ~ /^[A-Za-z_][A-Za-z0-9_]*=/ }
+function is_assign(w) { return w ~ /^[A-Za-z_][A-Za-z0-9_]*\+?=/ }
 
 # ── file classification for the reader commands ──
 function code_file(b) { return b ~ /\.(cs|ts|tsx|js|jsx|mjs|cjs|go|py|java|kt|rs|md)$/ }
@@ -298,10 +308,10 @@ function sensitive_path(w,    l, b) {
 }
 
 # ── word resolution: what the shell reads a word as ──
-# resolve() fills ALT[1..nalt] with the strings a word can become. \001 stands for any string (an unquoted *, or a
-# brace sequence), \002 for any one character (an unquoted ? or a [...] expression) and \003 for a value known only
-# at run time (a parameter nothing in the command assigned, or command output). Variables assigned earlier in the
-# command are in VARS. Brace expansion comes first, as it does in the shell, and stops at 64 alternatives.
+# resolve() fills ALT[1..nalt]. \001 is an unresolved expansion; \003 is an external runtime value.
+# \004 and \005 are pathname glob stars and single-character patterns, subject to default shell dot rules.
+# Variables assigned earlier in the command are in VARS. An incomplete expansion or a reached cap is never
+# discarded: it becomes unresolved and is checked against protected names before a read is allowed.
 function mask_of(A, k,    m) { m = VM[k]; return (length(m) == length(A[k])) ? m : "" }
 function expands(w, m,    k, c, mk) {
     if (m == "") return 0
@@ -338,7 +348,7 @@ function brace_all(w, m,    head, tail, r, k, e, a, pre, prem, suf, sufm) {
         if (r == 0) { FW[++nf] = gw; FM[nf] = gm; continue }
         pre = substr(gw, 1, gs - 1); prem = substr(gm, 1, gs - 1)
         suf = substr(gw, ge + 1); sufm = substr(gm, ge + 1)
-        if (r == 2 || (tail - head + 1) + nf + gnc + 1 > 64) { tail++; QW[tail] = pre "\001" suf; QM[tail] = prem "l" sufm; continue }
+        if (r == 2 || (tail - head + 1) + nf + gnc + 1 > 64) { overflow = 1; return }
         a = gs + 1
         for (k = 1; k <= gnc + 1; k++) {
             e = (k <= gnc) ? GCP[k] : ge
@@ -348,24 +358,31 @@ function brace_all(w, m,    head, tail, r, k, e, a, pre, prem, suf, sufm) {
 }
 # Parses the parameter expansion that starts at w[i] and fills PC[1..npc] with what it can be; returns the index of
 # its last character. ${NAME:-w} ${NAME-w} ${NAME:=w} ${NAME=w} add w, ${NAME:+w} ${NAME+w} give w or nothing.
-function param(w, i,    c, j, name, inner, op, base, rest) {
+function param(w, i,    c, j, name, inner, op, base, rest, depth, bad) {
     split("", PC); npc = 1; PC[1] = "$"
     c = substr(w, i + 1, 1); name = ""; op = ""; rest = ""
     if (c == "{") {
-        j = index(substr(w, i + 2), "}")
-        if (j == 0) return i
-        inner = substr(w, i + 2, j - 1); i = i + 1 + j
+        depth = 1
+        for (j = i + 2; j <= length(w); j++) {
+            c = substr(w, j, 1)
+            if (c == "{") depth++
+            else if (c == "}" && --depth == 0) break
+        }
+        if (depth != 0) { PC[1] = "\001"; return length(w) }
+        inner = substr(w, i + 2, j - i - 2); i = j
         if (match(inner, /^[A-Za-z_][A-Za-z0-9_]*/)) {
             name = substr(inner, 1, RLENGTH); rest = substr(inner, RLENGTH + 1)
             if (rest != "") {
-                if (match(rest, /^:?[-=+]/)) { op = substr(rest, RLENGTH, 1); rest = substr(rest, RLENGTH + 1) } else name = ""
+                if (match(rest, /^:?[-=+]/)) { op = substr(rest, RLENGTH, 1); rest = substr(rest, RLENGTH + 1) } else bad = 1
             }
-        }
+        } else bad = 1
+        if (rest ~ /[$`{}]/) bad = 1
     } else if (c ~ /^[A-Za-z_]$/) {
         match(substr(w, i + 1), /^[A-Za-z0-9_]*/); name = substr(w, i + 1, RLENGTH); i += RLENGTH
     } else if (c ~ /^[0-9@*#?$!-]$/) i++
     else return i
     base = (name != "" && (name in VARS)) ? VARS[name] : "\003"
+    if (bad) { PC[1] = "\001"; return i }
     npc = 0
     if (op == "+") { PC[++npc] = rest; PC[++npc] = "" }
     else { PC[++npc] = base; if (op == "-" || op == "=") PC[++npc] = rest }
@@ -373,10 +390,26 @@ function param(w, i,    c, j, name, inner, op, base, rest) {
 }
 function cross(    k, j, t) {
     t = 0
-    for (k = 1; k <= ncur; k++) for (j = 1; j <= npc && t < 64; j++) NXT[++t] = CUR[k] PC[j]
+    if (ncur * npc > 64) { overflow = 1; return }
+    for (k = 1; k <= ncur; k++) for (j = 1; j <= npc; j++) NXT[++t] = CUR[k] PC[j]
     split("", CUR)
     for (k = 1; k <= t; k++) CUR[k] = NXT[k]
     ncur = t; split("", NXT)
+}
+function bracket_end(w, i,    j, marker, end) {
+    j = i + 1
+    if (substr(w, j, 1) ~ /[!^]/) j++
+    if (substr(w, j, 1) == "]") j++
+    for (; j <= length(w); j++) {
+        if (substr(w, j, 1) == "]") return j
+        marker = substr(w, j + 1, 1)
+        if (substr(w, j, 1) == "[" && marker ~ /[:.=]/) {
+            end = index(substr(w, j + 2), marker "]")
+            if (!end) return 0
+            j += end + 2
+        }
+    }
+    return 0
 }
 function expand_item(w, m,    i, n, c, mk, lit, j) {
     n = length(w); ncur = 1; split("", CUR); CUR[1] = ""; lit = ""
@@ -387,49 +420,128 @@ function expand_item(w, m,    i, n, c, mk, lit, j) {
             split("", PC); npc = 1; PC[1] = lit; cross(); lit = ""
             i = param(w, i); cross()
         }
-        else if (mk == "u" && c == "*") lit = lit "\001"
-        else if (mk == "u" && c == "?") lit = lit "\002"
-        else if (mk == "u" && c == "[" && (j = index(substr(w, i + 1), "]")) > 0) { lit = lit "\002"; i += j }
+        else if (mk == "u" && c == "*") lit = lit "\004"
+        else if (mk == "u" && c == "?") lit = lit "\005"
+        else if (mk == "u" && c == "[" && (j = bracket_end(w, i)) > 0) { lit = lit "\006" substr(w, i + 1, j - i - 1) "\007"; i = j }
+        else if (mk == "u" && c == "{") lit = lit "\001"
         else lit = lit c
     }
     split("", PC); npc = 1; PC[1] = lit; cross()
 }
 function resolve(w, m,    k, j) {
-    nalt = 0; split("", ALT)
+    nalt = 0; overflow = 0; split("", ALT)
     brace_all(w, m)
-    for (k = 1; k <= nf; k++) {
+    for (k = 1; k <= nf && !overflow; k++) {
         expand_item(FW[k], FM[k])
-        for (j = 1; j <= ncur && nalt < 64; j++) ALT[++nalt] = CUR[j]
+        if (nalt + ncur > 64) overflow = 1
+        else for (j = 1; j <= ncur; j++) ALT[++nalt] = CUR[j]
     }
+    if (overflow) { split("", ALT); nalt = 1; ALT[1] = "\001" }
 }
-function has_sentinel(b) { return index(b, "\001") || index(b, "\002") || index(b, "\003") }
+function has_sentinel(b) { return b ~ /[\001-\007]/ }
 function only_runtime(b,    t) { t = b; gsub("\003", "", t); return t == "" }
 # An anchored regex for a name that can hold sentinels: \001 and \003 match any string, \002 one character.
-function rxize(b,    k, c, r) {
+function rxize(b,    k, c, r, j, bracket) {
     r = ""
     for (k = 1; k <= length(b); k++) {
         c = substr(b, k, 1)
         if (c == "\001" || c == "\003") r = r ".*"
-        else if (c == "\002") r = r "."
+        else if (c == "\004") r = r "[^/]*"
+        else if (c == "\002" || c == "\005") r = r "[^/]"
+        else if (c == "\006") {
+            j = index(substr(b, k + 1), "\007"); bracket = substr(b, k + 1, j - 1)
+            sub(/^!/, "^", bracket); r = r "[" bracket "]"; k += j
+        }
         else if (index(".[]()*+?{}|^$\\", c)) r = r "\\" c
         else r = r c
     }
     return "^" r "$"
 }
-# The kind of protected file a resolved alternative can name: a literal name is classified as written; a name with
-# pattern characters in its last component is tested against the names that matter, so `.e*` and `id_r?a` are found.
-function alt_kind(a,    b, d, kind, rx, k, two) {
-    kind = sensitive_path(a)
-    if (kind != "") return kind
-    b = tolower(a); sub(/.*\//, "", b)
-    if (!has_sentinel(a) || only_runtime(b)) return ""
-    d = a; sub(/[^\/]*$/, "", d); rx = rxize(b)
-    if (has_sentinel(b)) for (k = 1; k <= nprobe; k++) if (PROBE[k] ~ rx) { kind = sensitive_path(d PROBE[k]); if (kind != "") return kind }
-    two = tolower(a)
-    if (match(two, /[^\/]*\/[^\/]*$/)) {
-        rx = rxize(substr(two, RSTART))
-        for (k = 1; k <= nprobe2; k++) if (PROBE2[k] ~ rx) return sensitive_path(PROBE2[k])
+# Globs use case-sensitive, per-segment matching with Bash default leading-dot rules. Runtime expansions
+# are different: they can supply a leading dot without pathname expansion.
+function pattern_match(pattern, candidate,    p, c, np, nc, k) {
+    np = split(pattern, p, "/"); nc = split(candidate, c, "/")
+    if (np != nc) return 0
+    for (k = 1; k <= np; k++) {
+        if (substr(c[k], 1, 1) == "." && substr(p[k], 1, 1) ~ /[\004-\006]/) return 0
+        if (c[k] !~ rxize(p[k])) return 0
     }
+    return 1
+}
+# Intersection of two wildcard segments, used for the complete protected extension suffixes rather than
+# a handful of sample key names. States advance monotonically, including empty star transitions.
+function pattern_units(a, U,    k, n, j) {
+    for (k = 1; k <= length(a); k++) {
+        if (substr(a, k, 1) == "\006") {
+            j = index(substr(a, k + 1), "\007"); U[++n] = substr(a, k, j + 1); k += j
+        } else U[++n] = substr(a, k, 1)
+    }
+    return n
+}
+function non_dot_character(unit,    k, rx) {
+    if (substr(unit, 1, 1) != "\006") return unit != "."
+    if (unit ~ /[^\001-\177]/) return 1
+    rx = rxize(unit)
+    for (k = 1; k < 128; k++) if (k != 46 && k != 47 && CH[k] ~ rx) return 1
+    return 0
+}
+function overlap(a, b,    states, i, j, z, x, y, ax, by, na, nb, au, bu, hidden) {
+    na = pattern_units(a, au); nb = pattern_units(b, bu); states[0,0,0] = 1
+    hidden = (substr(a, 1, 1) ~ /[\004-\006]/)
+    for (i = 0; i <= na; i++) for (j = 0; j <= nb; j++) for (z = 0; z <= 1; z++) {
+        if (!states[i,j,z]) continue
+        x = au[i + 1]; y = bu[j + 1]
+        ax = (x ~ /^[\001\003\004]$/); by = (y == "\004")
+        if (ax) states[i+1,j,z] = 1
+        if (by) states[i,j+1,z] = 1
+        if (i == na || j == nb) continue
+        if (ax && by) states[i,j,1] = 1
+        else if (ax) {
+            if (!hidden || z || y != ".") states[i,j+1,1] = 1
+        } else if (by) {
+            if (!hidden || z || non_dot_character(x)) states[i+1,j,1] = 1
+        } else if ((!hidden || z || y != ".") && y ~ rxize(x)) states[i+1,j+1,1] = 1
+    }
+    return states[na,nb,1]
+}
+function path_probe(a, probe,    p, c, n, m, k, tail) {
+    n = split(a, p, "/"); m = split(probe, c, "/")
+    if (n < m) return 0
+    tail = p[n-m+1]
+    for (k = n-m+2; k <= n; k++) tail = tail "/" p[k]
+    return pattern_match(tail, probe)
+}
+# Literal words retain the full classifier. Glob words use canonical names and all protected extensions;
+# substring-only token names outside that canonical set are not glob probes.
+function alt_kind(a,    b, d, kind, k, glob) {
+    # An unsupported expansion may supply slashes too, reaching a protected directory even with a fixed suffix.
+    if (index(a, "\001")) return "an unresolved file name that may name a protected file"
+    b = a; sub(/.*\//, "", b)
+    glob = (a ~ /[\004-\006]/)
+    if (!has_sentinel(a)) return sensitive_path(a)
+    if (!glob) {
+        kind = sensitive_path(a)
+        if (kind != "") return kind
+        if (only_runtime(b)) return ""
+        a = tolower(a); b = tolower(b)
+    }
+    d = a; sub(/[^\/]*$/, "", d)
+    if (has_sentinel(b)) {
+        for (k = 1; k <= nprobe; k++) if (pattern_match(b, PROBE[k])) {
+            kind = sensitive_path(d PROBE[k])
+            if (kind != "") return kind
+            if (PROBE[k] == "credentials" || PROBE[k] == ".pypirc") return "a credentials file"
+        }
+        for (k = 1; k <= nextension; k++) if (overlap(b, "\004." EXT[k])) return "a key or certificate file"
+    } else if (glob) {
+        for (k = 1; k <= nprobe; k++) if (b == PROBE[k]) {
+            kind = sensitive_path(d b)
+            if (kind != "") return kind
+            if (b == "credentials" || b == ".pypirc") return "a credentials file"
+        }
+        for (k = 1; k <= nextension; k++) if (b ~ ("\\." EXT[k] "$")) return "a key or certificate file"
+    }
+    for (k = 1; k <= nprobe2; k++) if (path_probe(a, PROBE2[k])) return sensitive_path(PROBE2[k])
     return ""
 }
 # The kind of protected file operand k of A names; via_pattern says the answer came from a pattern or a variable.
@@ -441,11 +553,39 @@ function operand_kind(A, k, off,    w, m, j, kind) {
     for (j = 1; j <= nalt; j++) { kind = alt_kind(ALT[j]); if (kind != "") return kind }
     return ""
 }
-function set_var(w, m,    eq, name) {
-    eq = index(w, "="); name = substr(w, 1, eq - 1); w = substr(w, eq + 1); m = substr(m, eq + 1)
-    if (!expands(w, m)) { VARS[name] = w; return }
-    resolve(w, m)
-    VARS[name] = (nalt == 1) ? ALT[1] : "\003"
+function set_var(w, m,    eq, name, append, value) {
+    eq = index(w, "="); name = substr(w, 1, eq - 1); append = sub(/\+$/, "", name)
+    w = substr(w, eq + 1); m = substr(m, eq + 1)
+    value = w
+    if (expands(w, m)) { resolve(w, m); value = (nalt == 1) ? ALT[1] : "\001" }
+    if (append) value = ((name in VARS) ? VARS[name] : "\001") value
+    VARS[name] = uncertain ? "\001" : value
+}
+function protected_config(w) { return w ~ /^(GLOBIGNORE|BASHOPTS|BASH_ENV|ENV)(\+?=|$)/ }
+function config_report() {
+    report("a protected shell configuration change cannot be checked with default glob matching", "run without changing shell glob options")
+}
+function shell_config(A, s, n, b,    k, modifying, option, j) {
+    if (b ~ /^(export|declare|typeset|local|readonly)$/)
+        for (k = s + 1; k <= n; k++) if (protected_config(A[k])) config_report()
+    if (b != "shopt") return
+    for (k = s + 1; k <= n; k++) if (A[k] ~ /^-[a-zA-Z]*[su]/) modifying = 1
+    if (!modifying) return
+    for (k = s + 1; k <= n; k++) {
+        resolve(A[k], mask_of(A, k))
+        for (j = 1; j <= nalt; j++) {
+            option = ALT[j]
+            if (option ~ /^(dotglob|nocaseglob|extglob|globstar|nullglob|failglob|globasciiranges)$/ || has_sentinel(option)) config_report()
+        }
+    }
+}
+function check_inputs(A, s, n,    k, kind) {
+    for (k = s; k < n; k++) {
+        if (A[k] !~ /^[0-9]*<+[>&]?$/ || substr(mask_of(A, k), 1, 1) != "u") continue
+        kind = operand_kind(A, k + 1, 0)
+        if (kind != "") report("an input redirection reads " kind, "name the file and the key you need; for an env template read the .env.example")
+        k++
+    }
 }
 function note_redirect(A, s) {
     if (A[s] ~ /^[0-9]*<$/) { RT[++nrt] = s + 1; ROFF[nrt] = 0 }
@@ -620,14 +760,41 @@ function drop_redirects(A, s, n,    k, m, w) {
     }
     return m
 }
-function analyze(A, s, n,    w, b, k, names, p, config, get, show) {
-    nrt = 0; split("", RT); split("", ROFF)
+function loop_value(A, s, n,    k) {
+    if (A[s + 2] != "in" || s + 3 > n) { VARS[A[s + 1]] = "\001"; return }
+    if (s + 3 != n) { VARS[A[s + 1]] = "\001"; return }
+    resolve(A[n], mask_of(A, n))
+    VARS[A[s + 1]] = (nalt == 1) ? ALT[1] : "\001"
+}
+function transfer_files(A, s, n, b,    k, last, archive, kind, w) {
+    last = n; archive = (b == "zip")
+    if (b ~ /^(cp|mv|ln|rsync|scp)$/) last--
+    for (k = s + 1; k <= last; k++) {
+        w = A[k]
+        if (w == "--") continue
+        if (w ~ /^-/) {
+            if (b == "tar" && w ~ /f$/) {
+                if (w !~ /c/) {
+                    kind = operand_kind(A, k + 1, 0)
+                    if (kind != "") report(b " reads " kind, "name only non-credential source files")
+                }
+                k++
+            } else if (w == "-t" || w == "--target-directory") { k++; last = n }
+            continue
+        }
+        if (archive) { archive = 0; continue }
+        kind = operand_kind(A, k, 0)
+        if (kind != "") report(b " reads " kind, "name only non-credential source files")
+    }
+}
+function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
+    nrt = 0; split("", RT); split("", ROFF); first = s
     while (s <= n) {
         w = A[s]; b = base(w)
-        if (is_assign(w)) { set_var(w, mask_of(A, s)); s++; continue }
+        if (is_assign(w)) { if (protected_config(w)) config_report(); s++; continue }
         if (w ~ /^[0-9]*[<>]/) { note_redirect(A, s); s += (w ~ /^[0-9]*[<>]+&?-?$/) ? 2 : 1; continue }
-        if (b in KW) { s++; continue }
-        if (b == "command" || b == "builtin") { s++; if (s <= n && (A[s] == "-v" || A[s] == "-V")) return; if (s <= n && A[s] == "-p") s++; continue }
+        if (b in KW) { if (b ~ /^(if|elif|while|until)$/) uncertain = 1; s++; continue }
+        if (b == "command" || b == "builtin") { s++; if (s <= n && (A[s] == "-v" || A[s] == "-V")) return; if (s <= n && A[s] == "-p") s++; if (A[s] == "--") s++; continue }
         if (b == "sudo" || b == "doas") { s = skipopts(A, s + 1, n, "ugChprtUD"); continue }
         if (b == "xargs") { s = skipopts(A, s + 1, n, "IniPLdsEa"); continue }
         if (b == "timeout") { s = skipopts(A, s + 1, n, "ks") + 1; continue }
@@ -638,7 +805,7 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show) {
             s++
             while (s <= n) {
                 w = A[s]
-                if (is_assign(w)) s++
+                if (is_assign(w)) { if (protected_config(w)) config_report(); s++ }
                 else if (w ~ /^[0-9]*[<>]/) s += (w ~ /^[0-9]*[<>]+&?-?$/) ? 2 : 1
                 else if (w == "-u" || w == "-C" || w == "-S" || w == "--unset" || w == "--chdir" || w == "--split-string") s += 2
                 else if (substr(w, 1, 1) == "-") s++
@@ -649,9 +816,20 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show) {
         }
         break
     }
-    if (s > n) return
+    if (s > n) {
+        for (k = first; k <= n; k++) if (is_assign(A[k])) set_var(A[k], mask_of(A, k))
+        return
+    }
     if (expands(A[s], mask_of(A, s))) return dyn_command(A, s, n)
     b = base(A[s])
+    shell_config(A, s, n, b)
+    if (b == "for" || b == "select") { loop_value(A, s, n); return }
+    if (b == "unset") { for (k = s + 1; k <= n; k++) VARS[A[k]] = ""; return }
+    if (b == "dd") {
+        for (k = s + 1; k <= n; k++) if (A[k] ~ /^if=/ && (config = operand_kind(A, k, 3)) != "") report("dd reads " config, "name only a non-credential input file")
+        return
+    }
+    if (b ~ /^(cp|mv|ln|rsync|scp|tar|zip)$/) { transfer_files(A, s, n, b); return }
     if (b ~ /^(export|declare|typeset|local|readonly)$/) for (k = s + 1; k <= n; k++) if (is_assign(A[k])) set_var(A[k], mask_of(A, k))
     if (b == "bash" || b == "sh" || b == "zsh" || b == "dash" || b == "ksh") {
         for (k = s + 1; k <= n; k++)
@@ -707,7 +885,7 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show) {
         if (p && names == 0) report(b " -p/-x with no variable name prints the whole environment, including credentials", "printenv with the one non-credential variable you need")
         return
     }
-    if (b ~ /^(cat|tac|nl|less|more|head|tail|bat|batcat|strings|xxd|od|hexdump|cut|sort|uniq|base64|grep|egrep|fgrep|rg|ag|sed|awk|gawk|jq|yq)$/) {
+    if (b ~ /^(cat|tac|nl|less|more|head|tail|bat|batcat|strings|xxd|od|hexdump|cut|sort|uniq|base64|wc|grep|egrep|fgrep|rg|ag|sed|awk|gawk|jq|yq)$/) {
         reader(A, s, n)
         for (k = 1; k <= nrt; k++) {
             if (RT[k] > n || operand_kind(A, RT[k], ROFF[k]) == "") continue
@@ -731,12 +909,17 @@ BEGIN {
     split("a b e E f n r t v", L, " "); split("7 8 27 27 12 10 13 9 11", L2, " ")
     for (i = 1; i <= 9; i++) ESC[L[i]] = L2[i] + 0
     ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34; ESC["?"] = 63
-    nprobe = split(".env .env.local .env.production id_rsa id_ed25519 id_ecdsa id_dsa key.pem cert.p12 cert.pfx token token.json tokens.json github_token .netrc .npmrc .pgpass .git-credentials kubeconfig prod.kubeconfig", PROBE, " ")
-    nprobe2 = split(".kube/config .aws/credentials .docker/config.json", PROBE2, " ")
-    ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 grep egrep fgrep rg ag sed awk gawk jq yq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
+    nprobe = split(".env .env.local .env.production .envrc id_rsa id_ed25519 id_ecdsa id_dsa credentials token token.json tokens.json github_token .netrc .npmrc .pypirc .pgpass .git-credentials kubeconfig", PROBE, " ")
+    nprobe2 = split(".kube/config .aws/credentials .docker/config.json /proc/1/environ /run/secrets/token /var/run/secrets/token", PROBE2, " ")
+    nextension = split("pem key p12 pfx jks keystore kdbx kubeconfig env", EXT, " ")
+    ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt grep egrep fgrep rg ag sed awk gawk jq yq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
     CMD = ENVIRON["GS_COMMAND"]
     enqueue(CMD)
-    while (qi < queued) { qi++; tokenize(queue[qi]) }
+    while (qi < queued) {
+        qi++
+        if (qi > 1) { for (name in VARS) VARS[name] = "\001"; uncertain = 0 }
+        tokenize(queue[qi])
+    }
 }
 AWK
 
