@@ -491,20 +491,41 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
     }
 }
 # Projections of the container spec or its environment print credentials just like whole-object output.
-function proj_leaks(t,    paths, count, k, p) {
+function proj_path_leaks(p, iterating) {
+    if (p ~ /\.\./ || p ~ /^\$[a-z0-9_]*$/) return 1
+    sub(/^\$[a-z0-9_]*/, "", p); sub(/^@\.?/, ".", p)
+    gsub(/\.\*/, "", p)
+    if (p == "") p = "."
+    if (p ~ /\.(env|envfrom)(\.|$)/) return 1
+    # Iterating a container does not print it; environment targets and relative body paths remain checked.
+    if (iterating) return 0
+    return p == "." || p == ".items" || p ~ /\.(spec|template|jobtemplate|containers|initcontainers|ephemeralcontainers)$/
+}
+function proj_leaks(t, columns,    actions, paths, count, a, n, k, p, key, action, iterating) {
     t = tolower(t)
+    # Quoted child keys are path steps, not array indexes.
+    while (match(t, /\[[ \t]*(\047[a-z0-9_]+\047|"[a-z0-9_]+")[ \t]*\]/)) {
+        key = substr(t, RSTART, RLENGTH); gsub(/[][ \t"\047]/, "", key)
+        t = substr(t, 1, RSTART - 1) "." key substr(t, RSTART + RLENGTH)
+    }
     gsub(/\[[^]]*\]/, "", t)
-    count = split(t, paths, /[^a-z0-9_.@]+/)
-    for (k = 1; k <= count; k++) {
-        p = paths[k]
-        if (p !~ /^[.@]/) continue
-        if (p ~ /\.\./) return 1
-        sub(/^@/, ".", p); sub(/^\.\./, ".", p)
-        if (p == ".") return 1
-        # Iterating items alone does not print them; the paths in the loop body are checked separately.
-        if (p == ".items" && paths[k - 1] != "range" && paths[k - 1] != "with") return 1
-        if (p ~ /\.(env|envfrom)(\.|$)/) return 1
-        if (p ~ /(^|\.)spec(\.|$)/ && p ~ /\.(spec|template|jobtemplate|containers|initcontainers|ephemeralcontainers)$/) return 1
+    if (columns) { sub(/^[^=]*=/, "", t); count = split(t, actions, ",") }
+    else count = split(t, actions, /[{}]+/)
+    for (a = 1; a <= count; a++) {
+        action = actions[a]
+        if (columns) {
+            k = index(action, ":"); if (!k) return 1
+            action = substr(action, k + 1); sub(/^[ \t]+/, "", action)
+            if (action !~ /^[.@$]/) action = "." action
+        }
+        if (action ~ /(^|[^a-z0-9_])index[ \t(]/ && action ~ /["\047](spec|template|jobtemplate|containers|initcontainers|ephemeralcontainers|env|envfrom)["\047]/) return 1
+        iterating = !columns && action ~ /^[ \t\n-]*(range|with)[ \t\n]/ && action !~ /:=/
+        n = split(action, paths, /[^a-z0-9_.@$*]+/)
+        for (k = 1; k <= n; k++) {
+            p = paths[k]
+            if (p !~ /^[.@$]/) continue
+            if (proj_path_leaks(p, iterating && (paths[k - 1] == "range" || paths[k - 1] == "with"))) return 1
+        }
     }
     return 0
 }
@@ -961,7 +982,9 @@ function kube(A, s, n,    verb, m, parts, k, r, rlist) {
                 report("kubectl describe " r " prints the full container spec, including inline credentials", "kubectl get " r " -o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, or kubectl get events / kubectl logs; say which field you need")
             else if (outfmt == "json" || outfmt == "yaml")
                 report("kubectl get " r " -o " outfmt " prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
-            else if ((outfmt ~ /^(jsonpath|go-template|jsonpath-as-json|custom-columns)=/ || tmpl != "") && proj_leaks(tmpl " " outfmt))
+            else if (outfmt ~ /^(templatefile|go-template-file|jsonpath-file)(=|$)/)
+                report("kubectl get " r " with a file-based projection may print the full container spec, including inline credentials", "use an inline projection of the needed fields: -o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
+            else if ((outfmt ~ /^(jsonpath|go-template|template|jsonpath-as-json|custom-columns)=/ || tmpl != "") && proj_leaks(outfmt " " tmpl, outfmt ~ /^custom-columns=/))
                 report("kubectl get " r " with a projection that selects the container spec prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
         }
     }

@@ -202,6 +202,109 @@ test('container-spec projection checks use the existing resource aliases', () =>
     ]);
 });
 
+test('wildcard child steps retain container-spec and environment checks', () => {
+    assertVerdicts([
+        [BLOCK, "kubectl get pod web -o jsonpath='{.spec.*}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{.items.*.spec}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{.spec.containers.*}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{.spec.*.containers.*.env.*.value}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{..*}'"],
+        [BLOCK, 'kubectl get pods -o custom-columns=VALUE:.items.*.spec.containers.*'],
+        [BLOCK, "kubectl get pods -o go-template='{{.spec.containers.*}}'"],
+        [ALLOW, "kubectl get pods -o jsonpath='{.items.*.spec.containers.*.image}'"],
+        [ALLOW, "kubectl get pods -o jsonpath='{.items[*].spec.containers[*].image}'"],
+        [ALLOW, 'kubectl get pods -o custom-columns=NAME:.metadata.name'],
+    ]);
+});
+
+test('range and with check relative output without printing their container targets', () => {
+    assertVerdicts([
+        [ALLOW, "kubectl get pods -o go-template='{{range .spec.containers}}{{.image}}{{end}}'"],
+        [ALLOW, "kubectl get pods -o go-template='{{with .spec.containers}}{{.name}}{{end}}'"],
+        [ALLOW, "kubectl get pods -o go-template='{{with .spec}}{{range .containers}}{{.image}}{{end}}{{end}}'"],
+        [ALLOW, "kubectl get pods -o go-template='{{- range .spec.containers -}}{{.image}}{{end}}'"],
+        [ALLOW, "kubectl get pods -o jsonpath='{range .spec.containers[*]}{.image}{end}'"],
+        [ALLOW, "kubectl get pods -o jsonpath='{range .items[*]}{range .spec.containers[*]}{.name}{end}{end}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{with .spec}}{{.containers}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{range .spec.containers}}{{.}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{range .spec.containers}}{{.env}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{range .spec.containers}}{{.envFrom}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{with .spec}}{{.template}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{range .items[*]}{.spec}{end}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{range .spec.containers[*]}{.}{end}'"],
+        [BLOCK, "kubectl get pods -o jsonpath='{range .spec.containers[*].env[*]}{.value}{end}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{range $c := .spec.containers}}{{$c}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{range $i, $c := .spec.containers}}{{$c}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{with $s := .spec}}{{$s}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{range $c := .spec.containers}}{{$c.image}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{$c}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{ $ }}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{$.spec}}'"],
+        [BLOCK, "kubectl get pods -o go-template='{{$c.env}}'"],
+        [ALLOW, "kubectl get pods -o go-template='{{$c.image}}'"],
+        [ALLOW, "kubectl get pods -o jsonpath='{$.metadata.name}'"],
+    ]);
+});
+
+test('custom columns accept dotted and undotted paths with the same field checks', () => {
+    const expressions = ['spec', 'spec.containers[*]', 'spec.containers[*].env', 'spec.containers[0].envFrom', 'items[*].spec.template', 'spec.*'];
+    assertVerdicts(expressions.flatMap(expression => [
+        [BLOCK, `kubectl get pods -o custom-columns=NAME:metadata.name,ENV:${expression}`],
+        [BLOCK, `kubectl get pods --output=custom-columns=ENV:${expression}`],
+    ] as Array<[string, string]>));
+    assertVerdicts([
+        [ALLOW, 'kubectl get pods -o custom-columns=NAME:metadata.name'],
+        [ALLOW, 'kubectl get pods --output=custom-columns=NAME:.metadata.name,STATUS:status.phase'],
+        [ALLOW, 'kubectl get pods -ocustom-columns=IMAGE:items[*].spec.containers[*].image'],
+        [ALLOW, 'kubectl get pods -o custom-columns=IMAGE:spec.containers.*.image'],
+        [ALLOW, 'kubectl get pods -o custom-columns=NAME:.metadata.name'],
+    ]);
+});
+
+test('quoted bracket children and index keys retain container-spec checks', () => {
+    const keys = ['spec', 'template', 'jobTemplate', 'containers', 'initContainers', 'ephemeralContainers', 'env', 'envFrom'];
+    assertVerdicts(keys.map(key => [BLOCK, `kubectl get pods -o go-template='{{index .metadata "${key}"}}'`]));
+    assertVerdicts([
+        [BLOCK, `kubectl get pods -o jsonpath="{['spec']['containers']}"`],
+        [BLOCK, `kubectl get pods -o jsonpath='{["spec"]["containers"]}'`],
+        [BLOCK, `kubectl get pods -o jsonpath="{.items[0]['spec']}"`],
+        [BLOCK, `kubectl get pods -o jsonpath="{.spec['containers'][*]['env']}"`],
+        [BLOCK, `kubectl get pods -o jsonpath='{.spec["initContainers"][0]["envFrom"]}'`],
+        [BLOCK, `kubectl get pods -o custom-columns=ENV:"spec['containers'][0]['env']"`],
+        [BLOCK, `kubectl get pods -o go-template='{{index .spec "containers"}}'`],
+        [BLOCK, `kubectl get pods -o go-template='{{index . "spec"}}'`],
+        [BLOCK, `kubectl get pods -o go-template='{{range .spec.containers}}{{index . "env"}}{{end}}'`],
+        [BLOCK, `kubectl get pods -o go-template='{{range .items}}{{index . "template"}}{{end}}'`],
+        [ALLOW, `kubectl get pods -o jsonpath="{.items[*]['spec']['containers'][*]['image']}"`],
+        [ALLOW, `kubectl get pods -o jsonpath='{["metadata"]["name"]}'`],
+        [ALLOW, `kubectl get pods -o go-template='{{index .metadata "name"}}'`],
+        [ALLOW, `kubectl get pods -o custom-columns=NAME:"['metadata']['name']"`],
+    ]);
+});
+
+test('inline template aliases are inspected and file-based projections require inline fields', () => {
+    const aliases = ['templatefile', 'go-template-file', 'jsonpath-file'];
+    assertVerdicts(aliases.flatMap(alias => [
+        [BLOCK, `kubectl get pods -o ${alias}=fields.txt`],
+        [BLOCK, `kubectl get pods --output=${alias}=fields.txt`],
+        [BLOCK, `kubectl get pods -o ${alias} --template=fields.txt`],
+        [BLOCK, `kubectl get pods --output ${alias} --template fields.txt`],
+    ] as Array<[string, string]>));
+    assertVerdicts([
+        [BLOCK, "kubectl get pods -o template='{{.spec}}'"],
+        [BLOCK, "kubectl get pods --output=template='{{range .items}}{{.spec}}{{end}}'"],
+        [BLOCK, "kubectl get pods -o template --template='{{.spec.containers}}'"],
+        [BLOCK, "kubectl get pods --output template --template '{{.spec.containers.env}}'"],
+        [ALLOW, "kubectl get pods -o template='{{.metadata.name}}'"],
+        [ALLOW, "kubectl get pods -o template --template='{{range .spec.containers}}{{.image}}{{end}}'"],
+        [ALLOW, "kubectl get pods --output=template --template '{{.metadata.name}}'"],
+        [ALLOW, 'kubectl get svc web -o jsonpath-file=fields.txt'],
+    ]);
+    const result = runGuard('kubectl get pods -o templatefile=fields.txt');
+    assert.equal(result.code, 2);
+    assert.match(result.stderr, /inline projection of the needed fields/);
+});
+
 test('the process environment is blocked however it is reached', () => {
     assertVerdicts([
         [BLOCK, 'env'],
