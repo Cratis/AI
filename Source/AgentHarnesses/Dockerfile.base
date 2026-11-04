@@ -60,10 +60,8 @@
 #        Helm:   curl -fsSL "https://get.helm.sh/helm-<version>-linux-<amd64|arm64>.tar.gz.sha256sum"
 #        Gradle: curl -fsSL "https://services.gradle.org/distributions/gradle-<version>-bin.zip.sha256"
 #        Kotlin: curl -fsSL "https://github.com/JetBrains/kotlin/releases/download/v<version>/kotlin-compiler-<version>.zip.sha256"
-#      Elixir's install.sh has no published checksum - ELIXIR_INSTALL_SH_SHA256 pins the *script*
-#      fetched while this comment was written, not the Elixir/OTP versions it installs, so it only
-#      needs refreshing if the installer itself changes (rare):
-#        curl -fsSO https://elixir-lang.org/install.sh && sha256sum install.sh
+#        OTP:    https://builds.hex.pm/builds/otp/<amd64|arm64>/ubuntu-24.04/builds.txt
+#        Elixir: curl -fsSL "https://github.com/elixir-lang/elixir/releases/download/v<version>/elixir-otp-<otp-major>.zip.sha256sum"
 #   3. The two `FROM ...@sha256:...` base images (rust:1-slim, mcr.microsoft.com/dotnet/sdk:10.0) -
 #      re-resolve the tag's current digest and swap it in:
 #        docker buildx imagetools inspect rust:1-slim
@@ -73,7 +71,7 @@
 #   4. Rebuild locally (`docker buildx build --file Source/AgentHarnesses/Dockerfile.base
 #      Source/AgentHarnesses`) before pushing the bump - a bad digest or checksum fails immediately.
 
-# rtk publishes a static musl binary for amd64 only - build from source elsewhere.
+# Build rtk from source on the target platform; no emulated compiler or amd64-only binary.
 # Digest resolved from the rust:1-slim tag on 2026-09-05 (docker buildx imagetools inspect).
 FROM rust:1-slim@sha256:17d1ba895198f9934c6314ec5346a0d5115372f3243390c3d731e242f35c2f27 AS rtk-build
 ARG RTK_VERSION=v0.51.0
@@ -86,6 +84,12 @@ RUN apt-get update \
 # Digest resolved from the mcr.microsoft.com/dotnet/sdk:10.0 tag on 2026-09-05 (docker buildx
 # imagetools inspect).
 FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:e1ffd2a92ae84c1291bc1b6887501f8af98e6331e7af6d4c8d37168c5e87a64c
+ARG TARGETARCH
+# The pinned FROM digests are multi-arch indexes. Apt, dotnet tool, npm, Playwright and pip
+# resolve native packages for this target, not the build host. Reject mismatched/unsupported
+# targets before installing anything; package managers verify their repository checksums.
+RUN case "$TARGETARCH" in amd64|arm64) ;; *) echo "Unsupported architecture: $TARGETARCH" >&2; exit 1 ;; esac \
+    && test "$(dpkg --print-architecture)" = "$TARGETARCH"
 
 # Tools the agent needs for cloning, diffing and interacting with GitHub, plus GNU time - used by
 # entrypoint.sh's run_claude_code() to measure the CPU time and peak memory of the Claude CLI session
@@ -158,7 +162,7 @@ RUN curl -fsSL "https://download.docker.com/linux/$(. /etc/os-release && echo $I
         docker-compose-plugin \
         kubectl \
     && rm -rf /var/lib/apt/lists/* \
-    && ARCH="$(dpkg --print-architecture)" \
+    && ARCH="$TARGETARCH" \
     && curl -fsSL "https://get.helm.sh/helm-${HELM_VERSION}-linux-${ARCH}.tar.gz" -o /tmp/helm.tar.gz \
     && case "$ARCH" in \
         amd64) echo "${HELM_SHA256_AMD64}  /tmp/helm.tar.gz" | sha256sum -c - ;; \
@@ -230,23 +234,35 @@ RUN curl -fsSL https://packages.adoptium.net/artifactory/api/gpg/key/public \
     && ln -s /opt/kotlinc/bin/kotlin /usr/local/bin/kotlin \
     && rm /tmp/kotlin.zip
 
-# Elixir with Erlang/OTP through the official installer. 1.20 is Elixir's current release branch,
+# Elixir with Erlang/OTP from the official archives. 1.20 is Elixir's current release branch,
 # and OTP 29 is within its supported range (27-29, per hexdocs.pm/elixir/compatibility-and-deprecations.html).
 ARG ELIXIR_VERSION=1.20.4
 ARG OTP_VERSION=29.1.1
-# install.sh has no published checksum of its own - this pins the exact script fetched while these
-# versions were pinned (2026-09-05), so a tampered or unexpectedly changed installer fails the build
-# instead of running unverified. It is independent of ELIXIR_VERSION/OTP_VERSION above and normally
-# does not need to move when those do; refresh only if the installer itself is deliberately bumped:
-#   curl -fsSO https://elixir-lang.org/install.sh && sha256sum install.sh
-ARG ELIXIR_INSTALL_SH_SHA256=18859f92620d3b9eaba009e248706c5ee2067d38ccebe482333233726a99e6f8
-RUN curl -fsSO https://elixir-lang.org/install.sh \
-    && echo "${ELIXIR_INSTALL_SH_SHA256}  install.sh" | sha256sum -c - \
-    && sh install.sh elixir@${ELIXIR_VERSION} otp@${OTP_VERSION} \
-    && rm install.sh \
-    && ln -s "$(ls -d /root/.elixir-install/installs/otp/* | head -1)/bin/"* /usr/local/bin/ \
-    && ln -s "$(ls -d /root/.elixir-install/installs/elixir/* | head -1)/bin/"* /usr/local/bin/ \
-    # The installer puts the real files under /root/.elixir-install, and /root is 700 - so every
+# Published SHA-256 values from builds.hex.pm/builds/otp/<arch>/ubuntu-24.04/builds.txt
+# and the Elixir release's elixir-otp-29.zip.sha256sum. Elixir's BEAM archive is architecture-neutral.
+# These are the same archives/paths the official installer selects, now verified before extraction.
+ARG OTP_SHA256_AMD64=35186bdae840028df621d14f3a75c68eb52eea90fabd500f7946a5d74bdaf11b
+ARG OTP_SHA256_ARM64=734946b92e9caf9866c2ee841f1d987cfa625cbee051a87ba4f3eaa8cab0fc7f
+ARG ELIXIR_SHA256=7863c546cda13fecc949e562e326042451dacf8fd8698a36783cb71eeb223b46
+RUN case "$TARGETARCH" in \
+        amd64) otp_sha256="$OTP_SHA256_AMD64" ;; \
+        arm64) otp_sha256="$OTP_SHA256_ARM64" ;; \
+        *) echo "No pinned OTP checksum for architecture $TARGETARCH" >&2; exit 1 ;; \
+       esac \
+    && curl -fsSL "https://builds.hex.pm/builds/otp/${TARGETARCH}/ubuntu-24.04/OTP-${OTP_VERSION}.tar.gz" -o /tmp/otp.tar.gz \
+    && echo "${otp_sha256}  /tmp/otp.tar.gz" | sha256sum -c - \
+    && otp_dir="/root/.elixir-install/installs/otp/${OTP_VERSION}" \
+    && elixir_dir="/root/.elixir-install/installs/elixir/${ELIXIR_VERSION}-otp-${OTP_VERSION%%.*}" \
+    && mkdir -p "$otp_dir" "$elixir_dir" \
+    && tar -xzf /tmp/otp.tar.gz --strip-components=1 -C "$otp_dir" \
+    && (cd "$otp_dir" && ./Install -sasl "$PWD") \
+    && curl -fsSL "https://github.com/elixir-lang/elixir/releases/download/v${ELIXIR_VERSION}/elixir-otp-${OTP_VERSION%%.*}.zip" -o /tmp/elixir.zip \
+    && echo "${ELIXIR_SHA256}  /tmp/elixir.zip" | sha256sum -c - \
+    && unzip -q /tmp/elixir.zip -d "$elixir_dir" \
+    && rm /tmp/otp.tar.gz /tmp/elixir.zip \
+    && ln -s "$otp_dir/bin/"* /usr/local/bin/ \
+    && ln -s "$elixir_dir/bin/"* /usr/local/bin/ \
+    # The real files live under /root/.elixir-install, and /root is 700 - so every
     # elixir/erl/mix/... symlink above points somewhere the non-root `agent` user this image
     # ultimately runs as (see USER agent below) could never traverse into, making the whole
     # toolchain silently unusable despite `which elixir` finding the symlink. +x alone (not +r) is

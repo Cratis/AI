@@ -10,8 +10,13 @@
 # for work whose acting agent is configured with the Copilot harness.
 ARG BASE_IMAGE=cratis/ai-agents:latest
 FROM ${BASE_IMAGE}
+ARG TARGETARCH
 
 USER root
+# npm selects the pinned CLI's linux-x64/linux-arm64 optional package and verifies its
+# registry integrity. Assert the target before that native package is resolved.
+RUN case "$TARGETARCH" in amd64) node_arch=x64 ;; arm64) node_arch=arm64 ;; *) exit 1 ;; esac \
+    && test "$(node -p process.arch)" = "$node_arch"
 
 # Copilot CLI — pinned to the version run_copilot()'s flags and JSONL handling were verified
 # against, rather than "latest", for the same reason Dockerfile.pi pins Pi: a fresh publish upstream
