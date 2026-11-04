@@ -16,6 +16,7 @@ import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, 
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
+import { pathWithout } from './fixtures/path-without-tool.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const scripts = join(repositoryRoot, '.cratis', 'ai', 'hooks', 'scripts');
@@ -25,7 +26,7 @@ function plan(
     committed: Record<string, string>,
     changed: Record<string, string>,
     links: Record<string, string> = {},
-    options: { dryrun?: boolean; expectedStatus?: number; configPath?: string; scriptsDirectory?: string; beforeChanges?: (root: string) => void; onPlan?: (elapsedMs: number) => void } = {},
+    options: { dryrun?: boolean; expectedStatus?: number; configPath?: string; scriptsDirectory?: string; input?: string; env?: NodeJS.ProcessEnv; beforeChanges?: (root: string) => void; onPlan?: (elapsedMs: number) => void } = {},
 ): string {
     const root = mkdtempSync(join(tmpdir(), 'cratis-shipped-gates-'));
     try {
@@ -49,7 +50,7 @@ function plan(
         const started = performance.now();
         const gateScripts = options.scriptsDirectory ? join(root, options.scriptsDirectory) : scripts;
         const result = spawnSync(process.env.CRATIS_GATE_SPEC_SHELL ?? 'bash', [join(gateScripts, 'cratis-quality-gate.sh')], {
-            input: '',
+            input: options.input ?? '',
             encoding: 'utf8',
             env: {
                 ...process.env,
@@ -58,6 +59,7 @@ function plan(
                 CRATIS_HOOKS_GATES: options.configPath ?? join(gateScripts, 'quality-gates.json'),
                 CRATIS_HOOKS_GATE_DRYRUN: options.dryrun === false ? '0' : '1',
                 CRATIS_HOOKS_SKIP_GATE: '',
+                ...options.env,
             },
         });
         options.onPlan?.(performance.now() - started);
@@ -67,6 +69,54 @@ function plan(
         rmSync(root, { recursive: true, force: true });
     }
 }
+
+test('without jq the gate blocks changed trees with installation and harness escape-hatch instructions', () => {
+    const isolated = pathWithout('jq');
+    try {
+        const changes: Record<string, string>[] = [{ 'change.txt': 'untracked' }, { 'README.md': 'tracked change' }];
+        for (const changed of changes) {
+            const output = plan({}, changed, {}, { dryrun: false, expectedStatus: 2, env: { PATH: isolated.path } });
+            assert.match(output, /jq is not installed, so no quality gates ran on this change/);
+            assert.match(output, /Stop and ask the user to install jq/);
+            assert.match(output, /brew install jq/);
+            assert.match(output, /sudo apt-get install jq/);
+            assert.match(output, /winget install jqlang.jq/);
+            assert.match(output, /CRATIS_HOOKS_SKIP_GATE=1 in the environment the agent\nharness was started from/);
+        }
+    } finally {
+        isolated.dispose();
+    }
+});
+
+const silentMissingJqScenarios: { name: string; changed: Record<string, string>; input: string; env: NodeJS.ProcessEnv }[] = [
+    { name: 'an unchanged tree', changed: {}, input: '', env: {} },
+    { name: 'Stop-hook re-entry', changed: { 'change.txt': 'x' }, input: '{\n "stop_hook_active" : true\n}', env: {} },
+    { name: 'the inherited escape hatch', changed: { 'change.txt': 'x' }, input: '', env: { CRATIS_HOOKS_SKIP_GATE: '1' } },
+];
+for (const scenario of silentMissingJqScenarios) {
+    test(`without jq the gate is silent for ${scenario.name}`, () => {
+        const isolated = pathWithout('jq');
+        try {
+            assert.equal(plan({}, scenario.changed, {}, {
+                dryrun: false, input: scenario.input, env: { PATH: isolated.path, ...scenario.env },
+            }), '');
+        } finally {
+            isolated.dispose();
+        }
+    });
+}
+
+test('without jq a dry run exits zero with the same diagnostic as a blocking run', () => {
+    const isolated = pathWithout('jq');
+    try {
+        const changed = { 'change.txt': 'x' };
+        const env = { PATH: isolated.path };
+        const blocking = plan({}, changed, {}, { dryrun: false, expectedStatus: 2, env });
+        assert.equal(plan({}, changed, {}, { env }), blocking);
+    } finally {
+        isolated.dispose();
+    }
+});
 
 for (const scriptsDirectory of ['.cratis/ai/hooks/installed scripts', '.pi/bundled corpus/hooks/scripts with spaces']) {
     test(`the default runner resolves ${scriptsDirectory} from a nested solution`, () => {

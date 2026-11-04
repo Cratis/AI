@@ -179,9 +179,9 @@ async function runCommandGuards(
 /**
  * Whether a hook script is installed at all.
  *
- * A repository that ships no hook scripts is a supported configuration — the corpus scripts
- * themselves degrade to a silent no-op when `jq` is missing, on the stated principle that a hook
- * must never break a session. So an absent script is not an error and is not enforced.
+ * A repository that ships no hook scripts is a supported configuration, so an absent script is
+ * not an error and is not enforced. Installed scripts report missing `jq`: guards refuse calls,
+ * the quality gate blocks changed trees, and the advisory pattern scan warns once per session.
  *
  * The dangerous case is the other one: the script is present, so this repository clearly intends
  * the guard to run, but it cannot be executed. That is a broken guard rather than an absent one,
