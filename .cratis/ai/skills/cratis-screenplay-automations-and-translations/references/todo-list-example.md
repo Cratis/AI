@@ -5,14 +5,15 @@
 - Design-only additions
 
 A complete model: a result opens a work item, a reaction invokes a command, the command's fact
-closes the item. It binds as ESM v6 (`executableReady: true`), standalone and through `cratis screenplay mcp`.
-Stage renders supported event reactions, but this model's clock/cascade specs remain
-refused (`-024`/`-011`); keep them intact. A compiler that stops before v6 rejects the
-Automation slice at binding with PLAY0268. `then invokes` requires Screenplay 4.246.0 (ESM v34). Versions: `cratis-screenplay-toolchain` `SKILL.md`.
+closes the item. `then invokes` selects ESM v34 (`executableReady: true` from Screenplay 4.246.0),
+standalone and through `cratis screenplay mcp`. The Stage spec runner compares `then invokes`, but the
+Cratis renderer refuses models after v33 with `STAGE-ESM-016`; keep the specifications intact. A compiler
+that stops before v34 refuses `then invokes`. Versions: `cratis-screenplay-toolchain` `SKILL.md`.
 
-Each spec states its own slice only. `RecordingAPass` states `CoursePassed`, and `given clock` supplies the
-instant that `$context.occurred` needs. `SendingAfterAPass` states the hand-over with `then invokes SendCertificate`;
-the command's own slice states `CertificateSent`.
+Each specification states only its own slice (Screenplay decision 0115): `RecordingAPass`
+states `CoursePassed`, `SendingAfterAPass` states the hand-over with `then invokes
+SendCertificate` (ESM v34), and `SendingACertificate` states `CertificateSent`. `given clock`
+supplies the instant that `$context.occurred` needs.
 Current admitted scenarios can be run with
 standalone `screenplay test` or MCP `run-specifications`.
 
@@ -58,7 +59,7 @@ module Courses
           CoursePassed
             for enrolmentId
             enrolmentId = enrolmentId          // copied on purpose: the reaction selects it as a value
-            completedAt = $context.occurred    // carried on the fact: a projection cannot read $eventContext.occurred
+            completedAt = $context.occurred    // carried on the fact, so every reader sees the same instant
         produces when passed == false
           CourseFailed
             for enrolmentId

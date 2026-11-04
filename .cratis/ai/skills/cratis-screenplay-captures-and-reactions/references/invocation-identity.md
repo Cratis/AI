@@ -58,6 +58,12 @@ module Work
           workId = "work-1"
 ```
 
+The automation states the hand-over with `then invokes` (ESM v34). `RecordWork` is
+decided under the declared system identity, so a denial would reach the reaction's
+refusal branches, but `WorkRecorded` belongs to the `RecordWork` slice and is not kept
+in this specification (Screenplay decision 0115). `RecordWork`'s own slice proves the
+event with a `when RecordWork` specification.
+
 ## Diagnostics and target boundaries
 
 - PLAY0647: malformed, repeated or misplaced identity, including duplicate/empty roles.

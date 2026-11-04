@@ -248,6 +248,12 @@ Read [change alternatives](references/change-alternatives.md) when a component's
 
 Read [interaction example](references/interaction-example.md) when wiring a
 named confirmation behavior and an inline refresh to the same screen.
+
+State every plain and toolbar `action`'s subject: `for item` (the chosen record fills its
+inputs) or `for screen` (no row does). Omitted, the compiler infers it from types, and a
+create action on a list can bind the selected row's id. Read
+[action subjects](references/action-subjects.md) when adding a screen action or when
+PLAY0817-PLAY0821 appear.
 Scalar/named `returns` bind and reference-execute (ESM v7).
 Renderer generation/response limits: command-surface `references/generated-values-and-responses.md`.
 Screenplay resolves response names in form submit and execute success (Requires Screenplay 4.148.0 or later);

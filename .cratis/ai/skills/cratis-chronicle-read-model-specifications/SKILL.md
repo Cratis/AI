@@ -283,6 +283,6 @@ Read `references/view-lifecycle-checks.md` when delivering a read model from a c
 
 ## How it is proven
 
-`dotnet build` in Debug and `dotnet test`, both clean. A projection
+`dotnet build` in Debug and the owning project's built spec executable (see [specs.csharp](../../rules/specs.csharp.md)), both clean. A projection
 specification is only meaningful once it has been seen to fail: drop one seeded
 event and confirm the assertion goes red before trusting it green.

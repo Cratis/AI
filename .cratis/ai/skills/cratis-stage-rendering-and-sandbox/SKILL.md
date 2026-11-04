@@ -148,11 +148,12 @@ and unaudited-version refusals still stop first. Codes, limits and fixes:
   overrides (`-036`), unsupported code validation (`-005`), DateTime filters (`-010`),
   unsupported conditional productions, unsupported composite-key projection shapes, including DateTime and decimal key parts (`STAGE-ESM-048`, and `-047` for a single-instance query by parts) and unsupported `all` shapes.
   Protected reads render as Arc read protection in a new enough bundle; shapes it cannot preserve, and every protected read in an older bundle, refuse `STAGE-ESM-044` (see admission.md). Described handlers still refuse `STAGE-IMPL-002` even in Stub mode. Query-performer gaps are a separate contract, not a completed implementation.
-- **Attached command handlers (`PLAY0800`):** file/inline handlers permanently require
-  constrained implementation attachments: gap-fill the slice in code, not by waiting
-  for ESM admission. Read the required typed `arguments.subject` for the command,
-  never match message text. Requires Screenplay 4.210.0 (`screenplay --version`);
-  older bundled binders use PLAY0268 for these handlers.
+- **Attached command handlers:** a file/inline handler beside unconditional `produces`
+  with a resolved body binds as the v23 result contract and Stage renders its C# body.
+  Without `produces`, with `produces ... when` or with an unresolved body it refuses
+  `PLAY0800`: read the required typed `arguments.subject` for the command, never match
+  message text. Older bundled binders refuse every attached handler (version gate:
+  toolchain `references/executable-subset.md`).
 - **Binding refusals:** read toolchain `references/executable-subset.md` for
   `PLAY0268`/`PLAY0271` families; binding is not rendering. Composite keys have
   target-specific support, not blanket refusal. Never drop protection.
@@ -240,7 +241,8 @@ to disk with no managed staging and no safe stale-file removal; a failure can le
   result. State the scope in the V5 report.
 - Report V5 as separate results, each a result or "not run": admission, publication,
   Debug build (`dotnet build <destination>/<Project>.csproj -c Debug`), Debug tests
-  (`dotnet test` on the same project) and runtime. Render alone is the first two.
+  (`dotnet test <destination>/<Project>.csproj -c Debug --no-build` after the build; Stage-rendered apps use VSTest) and runtime. Render alone is the first two.
+  Use a built spec executable only in repositories whose spec projects really are executables (see [specs.csharp](../../rules/specs.csharp.md)); the rendered app's executable starts its web server, not its specs.
 - A refusal is kept verbatim as reported: `PLAY*` (compile or bind), `PLAN-*` (execution
   plan), `STAGE-*` (admission), `CLI-RENDER-*`, or a plain ownership error for a managed
   file. The fix is an intent-preserving model change or a recorded gap, never an edit of

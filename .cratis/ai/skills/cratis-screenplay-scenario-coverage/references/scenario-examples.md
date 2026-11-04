@@ -104,9 +104,9 @@ design-mode rejection spec and `recorded` in the matrix. See `RejectingSettlemen
 in `invoicing-dues-design.md`; it is never prose and never a spec that pretends to enforce it.
 
 ## 3. External failure: the capture, then the retry
-Two separate obligations. First, the **capture specification**: concrete external input in, our
-facts out. The provider's refusal is a fact (never a `then error`), kept in the provider's
-vocabulary; a separate Automation records the local outcome. The capture uses
+Two separate obligations. First, the **capture specification**: concrete external input in, the
+provider's fact out. The provider's refusal is a fact (never a `then error`), kept in the provider's
+vocabulary; a separate Automation records the local outcome and states it in its own specification. The capture uses
 `when added` for first sight and a separate `when outcome` for updates. An update
 spec needs `given capture` with the same key's earlier record; the first record's
 fields are not modifications (root, child or nested). See captures-and-reactions
@@ -122,7 +122,8 @@ specification TranslatingADeclinedCardResult
     outcome = "declined"
     reason  = "Card declined"
 ```
-The Automation slice that records the local outcome is specified on its own, from the provider's fact:
+The Automation that records the local outcome proves its own link in its own slice
+(a specification runs only its slice, Screenplay decision 0115):
 ```screenplay excerpt parent=references/invoicing-dues-example.md#1
 specification RecordingADeclinedPayment
   when append PaymentGatewayResultReceived
@@ -161,9 +162,11 @@ model; it tests the projection only, never the translation.
 
 ## 4. Compensation
 A reversal needs a paid history, the reversal action and the exact consequence. The command spec
-lists the command's own fact (`PaymentReversed`); the refund request is another slice's reaction, so it is specified in its own slice.
-`RefundRequested` is a recorded request, not proof that money moved, and there is no
-`then <Command>` form. What the target must do to deliver the refund is a requirement, not a spec.
+states the command's own fact (`PaymentReversed`); the `RequestRefunds` Automation states
+`RefundRequested` in its own specification, because a specification runs only its own slice
+(Screenplay decision 0115). `RefundRequested` is a recorded request, not proof that money moved.
+An automation that invokes another slice's command states it with `then invokes <Command>`
+(ESM v34). What the target must do to deliver the refund is a requirement, not a spec.
 From `invoicing-dues-design.md` (design mode; the specs do not run):
 ```screenplay excerpt parent=references/invoicing-dues-design.md#1 expect PLAY0516 test=unbound
 specification ReversingAReceivedPayment

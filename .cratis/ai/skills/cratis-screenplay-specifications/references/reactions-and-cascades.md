@@ -1,19 +1,22 @@
 ## Contents
 
 - Reactions and cascades (ESM v6)
-  - An outbound publication is stated by its own Translate slice
-  - `PLAY0285` and the slice boundary
+  - An automation states the commands it invokes (ESM v34)
+  - The public event is stated in the publishing slice
+  - Version skew and `PLAY0285`
 
 ## Reactions and cascades (ESM v6)
 
-From ESM v6 an action sets reactions off: after a command, an append, a clock
+From ESM v6 every action sets reactions off: after a command, an append, a clock
 tick, a trigger or a capture record, each new fact runs the reactions to its event,
-and what those append or invoke runs more, until nothing is left. **A specification
-runs its own slice only** (decision 0115, ESM v34, applies to every model): only the
-reactions, captures and outbound publications declared in the slice that holds the
-specification run. `then` events compare the facts of that slice; another slice's
-reaction, capture or publication never runs, so its facts cannot appear in `then`.
-A chain across slices is proved link by link, each slice stating its own link.
+and what those append or invoke runs more, until nothing is left.
+
+A specification runs only the slice that declares it (Screenplay decision 0115, every
+model and version from Screenplay 4.246.0). Only that slice's reactions, captures and
+outbound publications run; another slice's never do, so their facts cannot appear in
+`then`, read-model or query assertions. `then` events compare the new facts of the
+specification's own slice. A chain across slices is proved link by link: each slice's
+specification states its own link.
 
 ```screenplay expect PLAY0469
 concept InvoiceId : Uuid
@@ -41,15 +44,9 @@ module Collections
           produces ReminderScheduled
             for invoiceId
             scheduledAt = $context.occurred
-      reaction ReminderSender
-        description "Asks for the reminder to go out"
-        when InvoiceSent
-          invoiceId
-          invokes SendReminder
-            invoiceId = invoiceId
       event ReminderScheduled
         scheduledAt DateTime
-      specification SchedulingAReminderWhenAnInvoiceIsSent
+      specification SendingAnInvoiceSchedulesAReminder
         given clock "2026-10-02T09:00:00Z"
         when append InvoiceSent
           for "9c858901-8a57-4791-81fe-4c455b099bc9"
@@ -57,36 +54,17 @@ module Collections
         then ReminderScheduled
           for "9c858901-8a57-4791-81fe-4c455b099bc9"
           scheduledAt = "2026-10-02T09:00:00Z"
-        then invokes SendReminder
-          invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
-    slice StateChange SendReminder
-      command SendReminder
-        invoiceId InvoiceId identifier
-        produces event ReminderSent
-      specification SendingAReminder
-        when SendReminder
-          invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
-        then ReminderSent
-          for "9c858901-8a57-4791-81fe-4c455b099bc9"
 ```
 
 - A specification whose action is a command goes in the slice that declares that
   command, here `SendInvoice`, not in the `Automation` slice that reacts: a command
   from another slice is `PLAY0273` "command is unresolved in its slice" at binding.
-  The command's specification states the command's own facts; it does not state
-  `ReminderScheduled`, which the other slice's reaction appends.
-- `then invokes <Command>` states the hand-over to a command another slice owns
-  (ESM v34, Screenplay 4.246.0). That command is decided against the world, so its
-  refusals reach the reaction's `on refused` branches, but its facts belong to its
-  own slice and are not kept; `SendReminder`'s own specification states `ReminderSent`.
-  Each `then invokes` names the command and the values passed, and only the stated
-  values are compared. When at least one is stated, the invocations the slice's
-  reactions made must match them exactly in count and order (any order under
-  `then events in any order`); a refused invocation counts too. A specification
-  that states none compares no invocations. `PLAY0815`: the line is not
-  `then invokes <Command>`. `PLAY0816`: "Specification '<name>' states 'then invokes
-  <Command>', but no reaction of its slice '<slice>' invokes '<Command>'" (no
-  reaction declared in the specification's own slice invokes it).
+  It states the command's own events. The reminder is the `Reminders` slice's link,
+  stated there with `when append InvoiceSent`.
+- Stating another slice's event in a command specification is `PLAY0285` (the
+  outcome is unreachable from the specification's slice) and fails at run time with
+  "Expected N fact(s), got M". Move the expectation to the slice that produces it;
+  never delete the reaction.
 - A reaction invocation without a declared actor has no caller and a gated
   command denies. Reaction `runs as system role "<Role>"` supplies the
   authenticated system actor (ESM v10); `given caller` does not. Each command is
@@ -101,26 +79,50 @@ module Collections
 - A model that uses these forms selects ESM v6 (`schemaVersion: 6`). Stage
   renders supported event-triggered Automation, but not Translate,
   captures, non-event triggers or opaque bodies (`-024`), claim-reading/opaque `runs as` gates (`-034`), legacy filters (`-035`)
-  or mixed effects (`-037`). Single-hop reaction append specs render; deeper appends
-  remain `-011`. Keep refused scope as gap-fill against this contract: `cratis-screenplay-render-and-gap-fill`.
+  or mixed effects (`-037`). Single-hop reaction append specs render; deeper appends and
+  command specs cascading into reactions remain `-011`. Keep refused scope as gap-fill against this contract: `cratis-screenplay-render-and-gap-fill`.
 
-### An outbound publication is stated by its own Translate slice
+### An automation states the commands it invokes (ESM v34)
 
-When an outbound Translate slice publishes a public event from the private events a command
-produces, the command's specification does not state that public event: the publication is
-another slice's behavior and does not run. State the public event in the outbound `Translate`
-slice's specification (decision 0115, which amends 0098). Stating it in the command's
-specification is refused by `PLAY0285` as unreachable and fails at run time.
+When a slice's reaction invokes a command another slice owns, that command is decided
+against the world, so the reaction's `on refused` branches behave as before, but its
+facts belong to the other slice and are not kept. The automation states the hand-over
+with `then invokes`, the command and the values it passes (the complete model is the
+`Reminders` slice in captures-and-reactions `references/complete-examples.md`):
 
-### `PLAY0285` and the slice boundary
+```screenplay excerpt
+specification ClosingAPaidInvoice
+  when trigger PaymentFileArrived
+    invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
+    amount = 120
+  then invokes CloseInvoice
+    invoiceId = "9c858901-8a57-4791-81fe-4c455b099bc9"
+    reason = "paid"
+```
 
-`PLAY0285` (a specification's expected event contradicts every producer of its `when`
-command) runs in the syntax pass, with no binding. It follows only the reactions,
-invocations and publications declared in the specification's own slice, and its message is
-"Specification outcome '<event>' cannot be produced by '<command>' from the stated 'when'
-values under its declared mappings". It is no longer tool skew: a specification that states
-an event another slice's reaction appends is wrong, so move the `then` to the slice that
-owns the reaction (`when append` the triggering fact) or state the hand-over with
-`then invokes`. Do not delete the assertion to turn the model green. A compiler older than
-4.246.0 still runs every slice's reactions; record which tool gave which verdict and see
-`cratis-screenplay-toolchain`.
+- When a specification states at least one `then invokes`, the invocations the slice's
+  reactions made must match them exactly in count and order (any order under
+  `then events in any order`), comparing only the stated values. A refused invocation
+  counts too. A specification that states none does not compare invocations.
+- `then invokes` selects ESM v34. The Stage spec runner compares it; the Cratis
+  renderer refuses models after v33 with `STAGE-ESM-016`.
+- The invoked command's own events are proved by that command's slice, in its own
+  `when <Command>` specification.
+
+### The public event is stated in the publishing slice
+
+An outbound Translate slice that publishes a public event from private events states it
+in its own `when append <PrivateEvent>` specification. The command that produces the
+private event states only its own events (decision 0115 replaces the earlier rule that
+the command's specification listed the public event).
+
+### Version skew and `PLAY0285`
+
+`PLAY0285` (a specification's expected event contradicts every possible producer of its
+`when` command) follows the reactions, invocations and publications declared in the
+specification's own slice. From Screenplay 4.246.0 it refuses another slice's event as
+unreachable, and that is a modeling error: move the expectation to the slice that
+produces the event. A compiler older than ESM v6 does not trace reactions at all and
+can report `PLAY0285` on a reaction in the specification's own slice; that is tool skew.
+Validate with the standalone tool or a current `cratis`, record which tool gave which
+verdict, and see `cratis-screenplay-toolchain`.

@@ -278,6 +278,10 @@ module Invoicing
           period = "weekly"
 ```
 
+Each slice proves its own link (Screenplay decision 0115): the automation states the
+command it invokes with `then invokes` (ESM v34), and `IssuingTheDigest` in the command's
+slice states `CollectionsDigestIssued`.
+
 At the example's verified Screenplay version, iterating the overdue items needs code (a clock trigger reads the whole view and takes
 no `by`); see `cratis-screenplay-automations-and-translations`. A reaction that `produces`
 directly while it `reads` fails binding (`PLAY0268`): decide in a command instead.

@@ -314,11 +314,14 @@ pure expressions, and no generated type shadowing a referenced one. Anything els
 `STAGE-ESM-019`, `-021` or `-022`. A reducer needs a `StateView` slice, its read model in the
 same slice, a required Guid or text identifier and a matching keyed query. Resolved
 C# command/concept rule and iterator validation bodies have pure-gated render
-paths; unsupported body/context shapes still refuse. Attached
-command handlers refuse `PLAY0800` and permanently require constrained implementation
-attachments: gap-fill in code, not by waiting for ESM admission. Requires Screenplay
-4.210.0 (`screenplay --version`); older bundled binders use PLAY0268 for these handlers.
-Read the required typed `arguments.subject` for the command rather than the message.
+paths; unsupported body/context shapes still refuse. An attached command handler
+beside unconditional `produces` with a resolved body binds as the v23 result contract
+(Screenplay 4.250.0, decision 0117); Stage renders a C# body (`STAGE-IMPL-LANGUAGE` when
+no `csharp` body exists) and its semantic Host and executor report a reached body as
+`Unsupported(ImplementationBody)`. Without `produces`, with `produces ... when` or with
+an unresolved body the handler refuses `PLAY0800` at binding; 4.210.0 to 4.249.x refuse
+every attached handler with it and older binders use PLAY0268. Read the required typed
+`arguments.subject` for the command rather than the message.
 A pending handler beside unconditional productions binds as a described v23
 command; rendering still refuses it with STAGE-IMPL-002 even in Stub mode.
 Query-performer gaps are a separate contract: see [bodies and implementation gaps](current-boundaries.md#bodies-and-implementation-gaps).

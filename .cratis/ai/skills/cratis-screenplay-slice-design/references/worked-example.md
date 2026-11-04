@@ -273,7 +273,7 @@ module Lockers
       screen MyRequest
         title "My locker request"
         data RequestStatus via query RequestById
-        action RequestLocker for item
+        action RequestLocker for screen
       specification FollowingARequestToAssignment
         given caller
           authenticated
