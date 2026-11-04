@@ -18,6 +18,7 @@ import { tmpdir } from 'node:os';
 import { basename, join, relative, resolve } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
+import { pathWithout } from './fixtures/path-without-tool.ts';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
@@ -429,6 +430,31 @@ test('the Pi bridge classifies write-shaped calls through the guard and never bl
         const ordinary = await toolCall({ toolName: 'edit', input: { path: join(repo.root, 'Source', 'Ordinary.cs'), edits: [{ oldText: 'a', newText: 'b' }] } }, ctx);
         assert.equal(ordinary, undefined, 'an ordinary edit must pass through');
     } finally {
+        repo.dispose();
+    }
+});
+
+test('the guard refuses every write when jq is missing', () => {
+    const repo = scratchRepository();
+    const isolated = pathWithout('jq');
+    try {
+        const run = (input: string, env: NodeJS.ProcessEnv = {}) => spawnSync('/bin/bash', [guard], {
+            cwd: repo.root,
+            input,
+            encoding: 'utf8',
+            env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0', PATH: isolated.path, ...env },
+        });
+        for (const path of ['.env', '.claude/settings.json', 'README.md']) {
+            const payload = JSON.stringify({ cwd: repo.root, tool_name: 'Write', tool_input: { file_path: join(repo.root, path), content: 'x' } });
+            const result = run(payload);
+            assert.equal(result.status, 2, path);
+            assert.match(result.stderr, /jq is not installed/);
+            assert.match(result.stderr, /CRATIS_HOOKS_ALLOW_PROTECTED_WRITES/);
+            assert.equal(run(payload, { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' }).status, 0, 'the escape hatch still works');
+        }
+        assert.equal(run('').status, 0, 'empty input still exits 0');
+    } finally {
+        isolated.dispose();
         repo.dispose();
     }
 });

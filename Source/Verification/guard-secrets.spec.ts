@@ -16,6 +16,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
+import { pathWithout } from './fixtures/path-without-tool.ts';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
@@ -371,6 +372,9 @@ test('a command that mentions no trigger word never reaches the parser', () => {
             assert.equal(result.status, 0, `${command}\n${result.stderr}`);
             assert.doesNotMatch(result.stderr, /stub-awk-ran/, command);
         }
+        for (const command of ["cat .e'n'v", 'cat .e*']) {
+            assert.match(run(command).stderr, /stub-awk-ran/, `${command} is handed to the parser`);
+        }
         const parsed = run('kubectl get pods');
         assert.match(parsed.stderr, /stub-awk-ran/, 'a command that mentions kubectl is handed to the parser');
         assert.notEqual(parsed.status, 0);
@@ -402,5 +406,104 @@ test('the Pi bridge runs shell commands through the secrets guard', async () => 
     } finally {
         if (saved !== undefined) process.env.CRATIS_HOOKS_ALLOW_SECRET_READS = saved;
         rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('shell quoting, escapes and ANSI-C strings resolve to the name the shell reads', () => {
+    assertVerdicts([
+        [BLOCK, "cat .e'n'v"],
+        [BLOCK, 'cat ".en"v'],
+        [BLOCK, "cat \".\"'env'"],
+        [BLOCK, 'cat .e\\nv'],
+        [BLOCK, 'cat \\.\\e\\n\\v'],
+        [BLOCK, 'cat .e\\\nnv'],
+        [BLOCK, "cat $'.env'"],
+        [BLOCK, "cat $'\\x2eenv'"],
+        [BLOCK, "cat $'\\056env'"],
+        [BLOCK, "cat $'\\x2e\\x65\\x6e\\x76'"],
+        [BLOCK, 'cat $".env"'],
+        [BLOCK, "cat ~/.ssh/id_'rsa'"],
+        [BLOCK, "head -n1 se'rver.p'em"],
+        [BLOCK, "cat ~/.ku'be'/config"],
+        [BLOCK, "c'at' .env"],
+        [BLOCK, "$'\\x63at' .e'n'v"],
+        [BLOCK, 'bash -c "cat .e\'n\'v"'],
+    ]);
+});
+
+test('brace expansion and glob patterns are checked against every protected name they can match', () => {
+    assertVerdicts([
+        [BLOCK, 'cat .{e,x}nv'],
+        [BLOCK, 'cat {.,}env'],
+        [BLOCK, 'cat .en?'],
+        [BLOCK, 'cat .e*'],
+        [BLOCK, 'cat .[e]nv'],
+        [BLOCK, 'cat ~/.ssh/id_*'],
+        [BLOCK, 'cat ~/.ssh/id_r?a'],
+        [BLOCK, 'cat *.pem'],
+        [BLOCK, 'cat ~/.k*/config'],
+        [BLOCK, 'cat ~/.kube/*'],
+        [BLOCK, 'cat *'],
+        [BLOCK, 'c?t .env'],
+        [ALLOW, 'cat src/*.ts'],
+        [ALLOW, 'cat docs/*.md'],
+        [ALLOW, 'grep -n foo *.cs'],
+        [ALLOW, 'cat ~/.ssh/*.pub'],
+        [ALLOW, 'cat tsconfig*.json'],
+        [ALLOW, 'ls .e*'],
+        [ALLOW, 'ls *'],
+        [ALLOW, 'cat .env.{example,sample}'],
+        [ALLOW, "sed -n '1p' *.md"],
+        [ALLOW, "rg -n foo -g '*.json'"],
+        [ALLOW, 'cat file{1,2}.txt'],
+    ]);
+});
+
+test('variables assigned in the same command resolve; names known only at run time stay uncovered', () => {
+    assertVerdicts([
+        [BLOCK, 'X=.env; cat $X'],
+        [BLOCK, 'X=.env; cat "${X}"'],
+        [BLOCK, 'X=.e; cat ${X}nv'],
+        [BLOCK, 'export F=~/.ssh/id_rsa; cat $F'],
+        [BLOCK, 'Y=nv; cat ".en${Y}"'],
+        [BLOCK, 'cat ${X:-.env}'],
+        [BLOCK, '$C .env'],
+        [ALLOW, 'cat "$f"'],
+        [ALLOW, 'head -n 5 "$file"'],
+        [ALLOW, 'for f in *.md; do cat "$f"; done'],
+        [ALLOW, 'cat "$dir/README.md"'],
+        [ALLOW, 'echo $HOME'],
+        [ALLOW, 'cat ${HOME}/notes.txt'],
+        [ALLOW, 'cat "$(git rev-parse --show-toplevel)/package.json"'],
+        [ALLOW, 'X=README.md; cat $X'],
+    ]);
+});
+
+test('an input redirection before the command word is a read too', () => {
+    assertVerdicts([
+        [BLOCK, '< .env cat'],
+        [BLOCK, '<.env cat'],
+        [ALLOW, '< README.md cat'],
+    ]);
+});
+
+test('the guard refuses every call when jq is missing', () => {
+    const isolated = pathWithout('jq');
+    try {
+        const run = (command: string, env: NodeJS.ProcessEnv = {}, input?: string) => spawnSync('/bin/bash', [guard], {
+            input: input ?? JSON.stringify({ tool_name: 'Bash', tool_input: { command } }),
+            encoding: 'utf8',
+            env: { ...process.env, CRATIS_HOOKS_ALLOW_SECRET_READS: '0', PATH: isolated.path, ...env },
+        });
+        for (const command of ['cat .env', 'git status']) {
+            const result = run(command);
+            assert.equal(result.status, 2, command);
+            assert.match(result.stderr, /jq is not installed/);
+            assert.match(result.stderr, /CRATIS_HOOKS_ALLOW_SECRET_READS/);
+        }
+        assert.equal(run('', {}, '').status, 0, 'empty input still exits 0');
+        assert.equal(run('cat .env', { CRATIS_HOOKS_ALLOW_SECRET_READS: '1' }).status, 0, 'the escape hatch still works');
+    } finally {
+        isolated.dispose();
     }
 });
