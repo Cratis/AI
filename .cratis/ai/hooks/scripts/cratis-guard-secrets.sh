@@ -48,7 +48,7 @@ probe_lower="$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" || parser_fai
 case "$probe_lower" in
     *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
     *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.p12*|*.pfx*|*token*|*.netrc*|*.npmrc*|\
-    *credentials*|*.pgpass*|*pypirc*|*secrets*) ;;
+    *credentials*|*.pgpass*|*pypirc*|*secrets*|*oc*) ;;
     *)
         case "$command_text" in
             *'$'*|*'*'*|*'?'*|*'['*|*'{'*|*'('*|*'^'*|*'~'*|*'`'*) ;;
@@ -462,7 +462,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
 # ── option parsing shared by the CLIs: positionals P/PI, output format, -f/--format value, --raw ──
 function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
     delete P; delete PI
-    np = 0; outfmt = ""; fmtval = ""; tmpl = ""; dd = 0; raw = 0
+    np = 0; outfmt = ""; fmtval = ""; tmpl = ""; tmplfile = 0; dd = 0; raw = 0
     for (i = s; i <= n; i++) {
         w = A[i]
         if (w == "--") { dd = i; break }
@@ -471,7 +471,11 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
             if (eq) { key = substr(w, 1, eq - 1); val = substr(w, eq + 1) }
             if (key == "--output") { if (!eq) { i++; val = A[i] } outfmt = tolower(val) }
             else if (key == "--format") { if (!eq) { i++; val = A[i] } fmtval = val }
-            else if (key == "--template") { if (!eq) { i++; val = A[i] } tmpl = val }
+            else if (key == "--template") {
+                if (!eq) { i++; val = A[i] } tmpl = val
+                if (val ~ /^[[:space:]]*@/ || val !~ /[{]/) tmplfile = 1
+            }
+            else if (key == "--template-file") { if (!eq) i++; tmplfile = 1 }
             else if (key == "--raw") raw = 1
             else if (!eq && (key in LV)) i++
             continue
@@ -490,10 +494,60 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
         np++; P[np] = w; PI[np] = i
     }
 }
-# `-o jsonpath={.}` and `-o go-template={{.}}` print the whole object, exactly like -o json.
-function proj_leaks(t) {
-    t = tolower(t); gsub(/[ \t]/, "", t)
-    return t ~ /[{](\.|@|\.items|\.items\[\*\])[}]/
+# Projection paths pass only through these explicit field shapes.
+function proj_path_allowed(t, inrange) {
+    if (!inrange) sub(/^\.items\[(\*|[0-9]+)\]/, "", t)
+    if (t ~ /^\.(kind|apiversion)$/) return 1
+    if (t ~ /^\.metadata\.(name|namespace|uid|creationtimestamp|resourceversion|generation|deletiontimestamp)$/) return 1
+    if (t ~ /^\.metadata\.labels(\.[a-z0-9_-]+)?$/) return 1
+    if (t ~ /^\.metadata\.ownerreferences\[(\*|[0-9]+)\]\.(name|kind|uid)$/) return 1
+    if (t ~ /^\.status(\.[a-z0-9_-]+|\[(\*|[0-9]+)\])*$/) return 1
+    if (t ~ /^\.spec(\.template\.spec)?\.(containers|initcontainers|ephemeralcontainers)\[(\*|[0-9]+)\]\.(name|image|imagepullpolicy)$/) return 1
+    return t ~ /^\.spec\.(nodename|replicas|serviceaccountname|schedulername|restartpolicy|type|clusterip)$/
+}
+function proj_columns_allowed(t,    columns, n, k, p, colon) {
+    n = split(tolower(t), columns, ","); if (!n) return 0
+    for (k = 1; k <= n; k++) {
+        p = columns[k]; gsub(/[[:space:]]/, "", p)
+        colon = index(p, ":"); if (colon <= 1) return 0
+        p = substr(p, colon + 1)
+        if (p !~ /^\./) p = "." p
+        if (!proj_path_allowed(p, 0)) return 0
+    }
+    return 1
+}
+function proj_jsonpath_allowed(t,    i, c, segment, active, quote, escaped, literal, depth) {
+    t = tolower(t)
+    for (i = 1; i <= length(t); i++) {
+        c = substr(t, i, 1)
+        if (!active) {
+            if (c == "}") return 0
+            if (c == "{") { active = 1; segment = ""; literal = 0 }
+            continue
+        }
+        if (c == "{") return 0
+        if (c == "}") {
+            if (quote != "") return 0
+            if (!literal) {
+                if (segment == "range.items[*]") depth++
+                else if (segment == "end") { if (!depth) return 0; depth-- }
+                else if (!proj_path_allowed(segment, depth > 0)) return 0
+            }
+            active = 0; continue
+        }
+        if (quote != "") {
+            if (escaped) escaped = 0
+            else if (c == "\\") escaped = 1
+            else if (c == quote) { quote = ""; literal = 1 }
+        } else if (c !~ /[[:space:]]/) {
+            if (literal) return 0
+            if (c == "\"" || c == SQ) {
+                if (segment != "") return 0
+                quote = c
+            } else segment = segment c
+        }
+    }
+    return !active && !depth
 }
 function skipopts(A, s, n, vals) {
     while (s <= n && substr(A[s], 1, 1) == "-") {
@@ -920,8 +974,9 @@ function dyn_command(A, s, n,    j, na, b, d, S, unresolved, rx) {
 }
 
 # ── tools ──
-function kube(A, s, n,    verb, m, parts, k, r, rlist) {
+function kube(A, s, n,    verb, m, parts, k, r, rlist, projection) {
     kparse(A, s + 1, n, "nlcsfkLR")
+    projection = index(outfmt, "=") ? substr(outfmt, index(outfmt, "=") + 1) : ""
     verb = P[1]
     if (verb == "exec") {
         if (dd) analyze(A, dd + 1, n)
@@ -946,10 +1001,14 @@ function kube(A, s, n,    verb, m, parts, k, r, rlist) {
         } else if (r in SENS) {
             if (verb == "describe")
                 report("kubectl describe " r " prints the full container spec, including inline credentials", "kubectl get " r " -o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, or kubectl get events / kubectl logs; say which field you need")
-            else if (outfmt == "json" || outfmt == "yaml")
+            else if (outfmt != "" && outfmt !~ /^(wide|name|jsonpath|jsonpath-as-json|custom-columns|go-template|template|templatefile|go-template-file|jsonpath-file|custom-columns-file)(=|$)/)
                 report("kubectl get " r " -o " outfmt " prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
-            else if ((outfmt ~ /^(jsonpath|go-template|jsonpath-as-json)=/ || tmpl != "") && proj_leaks(tmpl outfmt))
-                report("kubectl get " r " with a projection that selects the whole object prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
+            else if (tmplfile || outfmt ~ /^(templatefile|go-template-file|jsonpath-file|custom-columns-file)(=|$)/)
+                report("kubectl get " r " with a file-based projection may print the full container spec, including inline credentials", "use an inline projection of the needed fields: -o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
+            else if (outfmt ~ /^(go-template|template)(=|$)/ || (tmpl != "" && outfmt !~ /^(jsonpath|jsonpath-as-json)(=|$)/))
+                report("kubectl get " r " with a projection that selects the container spec prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
+            else if ((outfmt ~ /^(jsonpath|jsonpath-as-json)(=|$)/ && (!proj_jsonpath_allowed(projection) || !proj_jsonpath_allowed(tmpl))) || (outfmt ~ /^custom-columns(=|$)/ && !proj_columns_allowed(projection)))
+                report("kubectl get " r " with a projection that selects the container spec prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
         }
     }
 }
