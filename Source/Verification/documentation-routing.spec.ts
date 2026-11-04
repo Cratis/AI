@@ -32,7 +32,67 @@ test('documentation entry points route to the installed writing skill', () => {
     }
 });
 
+test('version guidance distinguishes ordinary installation from deliberate reproducibility', () => {
+    const rule = readFileSync(join(corpus, 'rules/documentation.md'), 'utf8');
+    const examples = readFileSync(join(corpus, 'skills/cratis-technical-examples/SKILL.md'), 'utf8');
+    for (const content of [rule, examples]) {
+        assert.match(content, /supported latest-release/);
+        assert.match(content, /reproducib/);
+        assert.match(content, /security/);
+        assert.match(content, /deployment/);
+    }
+    assert.doesNotMatch(rule, /pin what the reader runs/);
+    assert.doesNotMatch(examples, /part of the command, not a note, and stays/);
+});
+
+test('site presentation guidance owns format choices and export limitations', () => {
+    const site = readFileSync(join(corpus, 'skills', canonical, 'references/cratis-site.md'), 'utf8');
+    const format = readFileSync(join(corpus, 'skills/cratis-engineering-docs-authoring/references/site-format.md'), 'utf8');
+    assert.ok(format.includes('../cratis-documentation-writing/references/cratis-site.md'));
+    for (const component of ['Steps', 'Tabs', 'Card', 'Mermaid', 'LinkCard', 'Aside', 'FullStackTabs']) {
+        assert.ok(site.includes(component), `missing supported presentation boundary: ${component}`);
+    }
+    assert.match(site, /prose\/children/);
+    assert.match(site, /canonical URL/);
+    assert.doesNotMatch(site, /mirror behind "Copy Markdown" keeps its\s+imports and JSX/);
+    assert.doesNotMatch(site, /Two independently readable alternatives \(C# and TypeScript\)/);
+});
+
+test('reader review selects relevant perspectives without creating a mandatory review board', () => {
+    const review = readFileSync(join(corpus, 'skills', canonical, 'references/reader-review.md'), 'utf8');
+    for (const lens of ['Newcomer', 'Experienced developer', 'Operator', 'AI/text reader', 'Security/trust boundary', 'Accessibility/visual/editorial']) {
+        assert.ok(review.includes(lens), `missing conditional reader lens: ${lens}`);
+    }
+    assert.match(review, /One reviewer may cover several/);
+    assert.match(review, /not a mandatory review board/);
+    assert.match(review, /source-backed recovery/);
+});
+
 // These checks protect routing and reference structure, not reader comprehension or model behavior.
+test('drafting and revision entry points require the shared explanation guidance', () => {
+    const authoring = 'skills/cratis-engineering-docs-authoring';
+    const reference = join(corpus, authoring, 'references/explaining-code.md');
+    assert.ok(existsSync(reference));
+    const routes = [
+        ['rules/documentation.md', '../skills/cratis-engineering-docs-authoring/references/explaining-code.md'],
+        ['rules/writing-cratis-docs.md', '../skills/cratis-engineering-docs-authoring/references/explaining-code.md'],
+        [`${authoring}/SKILL.md`, 'references/explaining-code.md'],
+        [`skills/${canonical}/SKILL.md`, '../cratis-engineering-docs-authoring/references/explaining-code.md'],
+        ['skills/cratis-writing-voice-and-cadence/SKILL.md', '../cratis-engineering-docs-authoring/references/explaining-code.md'],
+    ];
+    for (const [entryPoint, target] of routes) {
+        const content = readFileSync(join(corpus, entryPoint), 'utf8');
+        assert.ok(content.includes(`(${target})`), `${entryPoint} must route to the explanation reference`);
+        assert.match(content, /read and (?:apply|use)|work through/i, entryPoint);
+    }
+    // Local links must resolve even when the reference is shipped with a profile.
+    const content = readFileSync(reference, 'utf8');
+    for (const match of content.matchAll(/\]\(([^)#]+)(?:#[^)]*)?\)/g)) {
+        if (!match[1].startsWith('https://')) {
+            assert.ok(existsSync(resolve(reference, '..', match[1])), `missing explanation reference: ${match[1]}`);
+        }
+    }
+});
 test('the documentation prompt requires applicable skill reads before drafting', () => {
     const prompt = readFileSync(join(corpus, 'prompts/write-documentation.prompt.md'), 'utf8');
     const preparation = prompt.slice(0, prompt.indexOf('## Determine the reader'));

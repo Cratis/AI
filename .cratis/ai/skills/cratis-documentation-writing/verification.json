@@ -18,6 +18,12 @@
     { "kind": "skill-contains", "file": "references/reader-review.md", "value": "## Give the reader only what the page gives them" },
     { "kind": "skill-contains", "file": "references/reader-review.md", "value": "| Comprehension |" },
     { "kind": "skill-contains", "file": "references/reader-review.md", "value": "| Deployed |" },
-    { "kind": "skill-contains", "file": "references/reader-review.md", "value": "Do not infer reads" }
+    { "kind": "skill-contains", "file": "references/reader-review.md", "value": "Do not infer reads" },
+    { "kind": "skill-contains", "value": "## Guide the next useful action" },
+    { "kind": "skill-contains", "file": "references/reader-review.md", "value": "## Select the perspectives that can expose this page's gaps" },
+    { "kind": "skill-contains", "file": "references/cratis-site.md", "value": "## Preserve the text and citation path" },
+    { "kind": "skill-contains", "value": "Before drafting or revising explanations beside examples, read and apply" },
+    { "kind": "skill-contains", "value": "(../cratis-engineering-docs-authoring/references/explaining-code.md)" },
+    { "kind": "skill-contains", "value": "Check each\n   client independently" }
   ]
 }

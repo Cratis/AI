@@ -20,10 +20,9 @@ contain imports, JSX, hidden tab alternatives, and component-only meaning;
 renaming or copying it to `.md` does not make it clean rendered Markdown.
 Inspect actual output before calling it LLM-friendly.
 
-Use the [Wolverine index](https://wolverinefx.net/llms.txt) and
-[full export](https://wolverinefx.net/llms-full.txt) as examples of discovery
-and bulk delivery. They do not prove crawler adoption, answer quality, or that
-an entire product will fit a model's context window.
+A routing index and a full-text export serve different retrieval needs.
+Neither proves crawler adoption, answer quality, or that an entire product
+will fit a model's context window.
 
 ## Keep discovery aligned with the reader journey
 

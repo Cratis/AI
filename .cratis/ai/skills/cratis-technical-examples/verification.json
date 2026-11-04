@@ -12,6 +12,9 @@
     { "kind": "skill-contains", "value": "Use the same domain type names in every tab" },
     { "kind": "skill-contains", "value": "## Explain the evidence and the handoff" },
     { "kind": "skill-contains", "value": "expected output is not observed output" },
-    { "kind": "skill-contains", "value": "(../cratis-documentation-writing/references/reader-review.md)" }
+    { "kind": "skill-contains", "value": "(../cratis-documentation-writing/references/reader-review.md)" },
+    { "kind": "skill-contains", "value": "supported latest-release path" },
+    { "kind": "skill-contains", "value": "Maintained manifests/lockfiles" },
+    { "kind": "skill-contains", "value": "security/deployment constraints" }
   ]
 }

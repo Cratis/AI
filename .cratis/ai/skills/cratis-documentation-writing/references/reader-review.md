@@ -35,6 +35,30 @@ the affected passage without leaking the answer into the review. Do not
 redesign navigation or rewrite the whole corpus as a side effect. Hand wider
 changes back to the owner.
 
+## Select the perspectives that can expose this page's gaps
+
+Choose lenses relevant to the task, not a mandatory review board or a fixed
+number of agents. One reviewer may cover several; a short change may need only
+one task check. Keep the independent task attempt page-only and uncoached.
+Source/security reviewers may inspect authoritative evidence separately; do
+not feed their answers into that attempt.
+
+| Lens | Question when relevant |
+| --- | --- |
+| Newcomer | Can someone start, follow the causal steps and recognize success without private setup knowledge? |
+| Experienced developer | Can someone find the contract, adapt the example and identify boundaries without replaying a whole tutorial? |
+| Operator | Are host/configuration ownership, safe defaults and source-backed recovery links clear? |
+| AI/text reader | Does the bounded export preserve the task, warnings, variants, links and canonical citation context? |
+| Security/trust boundary | Are credentials, network exposure, permissions, destructive actions, tenant boundaries and preview/production limits accurate and visible before the risky step? |
+| Accessibility/visual/editorial | Do semantic order, keyboard/focus behavior, text alternatives, small screens, contrast and wording help the task where applicable? |
+
+Check accuracy against source independently of style. Cards or tabs should
+clarify a choice; a diagram needs meaningful text, not just an image. An export
+or image label alone proves neither accessibility nor AI comprehension. Link
+only recovery supported by the owning source, not invented commands or errors.
+Record the demonstrated gap, repair it and recheck the affected passage once;
+broaden review only for new evidence, not repeated polishing loops.
+
 ## Keep evidence levels separate
 
 Record each level independently; one passing level cannot stand in for another.

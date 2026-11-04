@@ -42,12 +42,12 @@ Use [Diátaxis](https://diataxis.fr/) as a compass: decide whether the reader is
 |---|---|---|---|
 | **Tutorial** | learning by doing | a guided lesson | Steps that each produce a visible result. Briefly explain the invisible effect after a step; link out for deeper theory rather than stopping the lesson. The reader must succeed even before they fully understand. |
 | **How-to guide** | solving a specific problem | a recipe | Assume competence. Goal → prerequisites → steps → completion check. Explain necessary concepts, effects and recovery beside the step; link sustained teaching elsewhere. |
-| **Reference** | looking something up | a dictionary | Exhaustive and terse. Tables, signatures, attributes, configuration. No narrative. |
+| **Reference** | looking something up | a dictionary | Exhaustive and terse. Tables, signatures, attributes, configuration; concise explanation where a default or interaction would otherwise surprise the reader. |
 | **Explanation** | trying to understand | a discussion | Concepts, trade-offs, architecture, *why*. A short example or sequence can clarify an effect without becoming a full procedure. Use diagrams when they explain a relationship. |
 
 Diátaxis governs a page's purpose and voice, not a universal set of sidebar labels. Each product has navigation buckets suited to its domain; read `PRODUCTS[].buckets` in the Documentation site's sync script before placing a new section.
 
-For a reader-centered writing workflow, use the **cratis-documentation-writing** skill; for source-verified snippets use **cratis-technical-examples**.
+For a reader-centered writing workflow, use **cratis-documentation-writing**; for source-verified snippets use **cratis-technical-examples**. Before drafting or revising an explanation beside code, read and apply [Explaining code](../../../skills/cratis-engineering-docs-authoring/references/explaining-code.md): develop the point from the example instead of turning source-checking questions into public prose.
 
 ## Onboarding is the most important documentation you write
 
@@ -63,7 +63,7 @@ Most readers decide whether to adopt Cratis in the first ten minutes. Protect th
 Readers do not care about repository boundaries — they are building one application.
 
 - The site has **one front door** stating what Cratis is, with a one-sentence definition and a “start here” link for each product.
-- Every product index opens with a **one-sentence definition** and a **“without vs. with” framing** of the problem it removes — lead with the pain, then the relief.
+- Every product index makes the product's purpose clear near the beginning. Use a **one-sentence definition** or **“without vs. with” framing** where it helps the reader choose; do not force one opening or sequence onto every product.
 - **Cross-link at the seams** rather than re-explaining: show how the products meet in the reader's workflow. Before a procedure uses another product's command, link its installation procedure as a prerequisite instead of assuming the command is already available. Prefer the canonical procedure over copying installation commands that can drift.
 - Maintain a **glossary** of shared terms and link to it instead of redefining terms per page. One term, one concept, everywhere.
 
@@ -71,11 +71,11 @@ Readers do not care about repository boundaries — they are building one applic
 
 The project's voice is **direct, practical, and opinionated**. Write like an experienced colleague explaining something to a capable developer — confident but never condescending.
 
-- **Active voice, present tense, second person.** “You append the event,” not “The event is appended.”
-- **Lead with *why* before *how*.** A reader who understands the reasoning handles edge cases the docs do not cover.
+- **Active voice, present tense.** Address the reader when giving an action; let the API or component be the subject when it makes a contract clearer.
+- Explain the reason where it helps the reader choose or understand an effect. A lookup can open directly with its contract.
 - **Do not document the obvious.** If the API is self-explanatory, a complete code example is enough.
-- Use headings, lists, tables, and code blocks — dense paragraphs lose readers.
-- **Be honest about trade-offs.** A “when this is the wrong fit” section builds more trust than omitting the limits.
+- Use connected paragraphs to develop an explanation, headings to locate it, and lists or tables for real steps and comparisons.
+- **Be honest about trade-offs.** Put a limit where it changes the reader's action or expectation, before risk when relevant; a separate wrong-fit section is useful only when it has something to explain.
 - Focus on public APIs and behavior. Explain internals only where they clarify a supported boundary or failure mode; link to third-party documentation rather than retelling it.
 
 ## Diagrams
@@ -87,9 +87,9 @@ The project's voice is **direct, practical, and opinionated**. Write like an exp
 - Prefer `record` types for events, commands, and read models — match the codebase.
 - Use argument-free `[EventType]` for new events. A new generation or an explicit legacy identifier is valid only when documenting evolution of an existing stored-event contract.
 - A standalone example must be **complete and correct** at its stated scope. Mark a partial excerpt as an excerpt, state its prerequisites, and never leave an essential step behind `// ...`. Do not offer an incomplete block as click-to-copy code.
-- **State version requirements, not the test log.** Say which release a feature needs and pin what the reader runs. Do not end a page with how and when you verified it (SDK build, image digest or SHA, date, "tested with", which samples were not run); that belongs in the change summary. See **cratis-technical-examples**.
+- **State version requirements, not the test log.** Name minimum, fixed or breaking releases and meaningful compatibility or peer ranges. Ordinary installation follows the supported latest-release path, not universal exact-patch pins; latest does not imply every package combination is compatible. Keep resolved versions in maintained manifests/lockfiles, or pin deliberately reproducible tutorials when needed. Preserve required security/deployment constraints and production image policy. Do not end a page with verification provenance (SDK build, image digest or SHA, date, "tested with", unrun samples); that belongs in the change summary. See **cratis-technical-examples**.
 - **Short illustrative snippets** may be purpose-built after checking their framework APIs against source. Derive substantial or runnable examples from compiled, tested sample or spec code; extract or check displayed snippets with the owning repository's tooling so they do not drift. Never substitute a bare “see the repository” link for showing the code.
-- Where a feature spans products or languages, show both sides when both matter. Keep causal explanations sequential; use tabs only for alternatives.
+- Where a feature spans products or languages, show both sides when both matter. Keep sequential backend-producer/frontend-consumer examples together. Tabs are alternatives for the same reader task, not evidence of client parity; apply the multi-client guidance in [Explaining code](../../../skills/cratis-engineering-docs-authoring/references/explaining-code.md) before choosing that shape.
 
 ## Links
 

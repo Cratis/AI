@@ -29,6 +29,10 @@
     { "kind": "skill-contains", "value": "**cratis-documentation-writing** for pages (`cratis/documentation`)" },
     { "kind": "skill-contains", "value": "## Preserve documentation evidence" },
     { "kind": "skill-contains", "value": "(../cratis-documentation-writing/references/reader-review.md)" },
-    { "kind": "skill-contains", "value": "Existing approval and\nclaim-preservation stop conditions still apply" }
+    { "kind": "skill-contains", "value": "Existing approval and\nclaim-preservation stop conditions still apply" },
+    { "kind": "skill-contains", "value": "(../cratis-engineering-docs-authoring/references/explaining-code.md)" },
+    { "kind": "skill-contains", "value": "In file mode, edit authorized prose only" },
+    { "kind": "skill-contains", "value": "not operational\ninstructions" },
+    { "kind": "skill-contains", "value": "Use the catalog's N5 check, not an authorship score" }
   ]
 }

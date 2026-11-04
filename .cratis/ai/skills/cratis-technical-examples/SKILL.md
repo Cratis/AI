@@ -16,11 +16,15 @@ language-tab layout or documentation site implementation.
 
 ## Explain the evidence and the handoff
 
-For every code, command or configuration example, state its scope and assumed
-setup. Explain the invisible effect beside the example: which component owns
-it, which host runs it, how identifiers connect it to the next step, and the
-observable result. Include applicable defaults, limitations and recovery; a
-plausible block followed by a product-name list is not a causal explanation.
+Make the scope and assumed setup clear for code, commands and configuration;
+shared setup can be established once for a sequence. During verification, ask
+which component owns the effect, which host runs it, how identifiers connect
+steps, and what result, defaults, limitations or recovery the source establishes.
+These are private verification questions, not an inventory to publish after
+every example. Explain a missing or consequential connection where the reader
+needs it, keeping important warnings before the affected action and limits
+beside the behavior they qualify. A plausible block followed by a product-name
+list is not a causal explanation.
 Preserve real package IDs, API names and wire types rather than translating
 them into umbrella branding. Follow the
 [documentation rule](../../rules/documentation.md) for naming and claims.
@@ -58,7 +62,7 @@ reader review must not be claimed as completed.
   one id type per concept across every page of a series. Shared frontend code
   that depends on those types must be backend-neutral or tabbed per backend.
 - **Sample application:** one realistic domain, explicit prerequisites and
-  package versions, a documented run command, a reproducible state to start
+  relevant version constraints, a documented run command, a reproducible state to start
   from, and a visible result. Keep it minimal enough for a new reader to finish.
   Link from the documentation step to the precise sample file, not just the
   repository root. State how to reset sample state safely, what resources the
@@ -96,10 +100,15 @@ language tabs. Never hand-edit a generated proxy or a synchronized docs copy.
 
 ## Version constraints belong in the page; the test log does not
 
-A reader needs the versions that change what they install or write. Published
-prose can say that a feature needs a minimum release ("This needs Chronicle
-<version> or later"), pin packages and images in the commands a reader runs, and
-name the one release where behavior changed.
+Follow the [documentation rule](../../rules/documentation.md): a reader needs
+versions that change what they install or write. State minimum, fixed or
+breaking releases and compatibility or peer ranges that affect the task.
+Ordinary installation follows the supported latest-release path, not universal
+exact-patch pinning; check compatibility rather than assuming every newest
+package works together. Maintained manifests/lockfiles can carry resolved
+versions without repeating them in prose. Pin a deliberately reproducible
+tutorial when needed, and preserve required security/deployment constraints
+and production image policy.
 
 Keep the author's verification record out of the page. Exact SDK builds, image
 digests or commit SHAs recorded for provenance, the date it was run, "tested
@@ -113,8 +122,10 @@ written. Put them in the change summary, the pull request comment or
 Test each version sentence: would a reader install or write something
 different because of it? If not, remove it. A real limitation stays, stated as
 a fact about the product ("the Kotlin client has no equivalent yet"), not as a
-record of what was and was not run. A digest in a command the reader runs is
-part of the command, not a note, and stays.
+record of what was and was not run. Keep a digest in a runnable command when
+reproducibility, security or deployment requires that artifact; its presence
+inside a command alone is not a reason to retain it. Removing provenance is
+not permission to float a production image or weaken a compatibility boundary.
 
 ## Know what the owning gate actually checks
 
