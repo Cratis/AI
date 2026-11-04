@@ -168,8 +168,11 @@ function readonly(s,    i, c, c2, sq, dq) {
         if (c == "\\") { if (c2 != "\n") { word = word c2; inword = 1 }; i++; continue }
         if (c == "\047" && !dq) { sq = inword = 1; continue }
         if (c == "\"") { dq = !dq; inword = 1; continue }
-        if (c == "`" || (c == "$" && c2 ~ /[({[]/)) bad = 1
+        # Expansions and globs can supply option words the per-verb tables never see.
+        if (c == "`" || c == "$") bad = 1
         if (dq) { word = word c; continue }
+        # A glob that starts a word, or follows a leading dash, may expand to an option word.
+        if ((c == "*" || c == "?" || c == "[") && (word == "" ? !(c == "[" && c2 ~ /[ \t]/) : substr(word, 1, 1) == "-")) bad = 1
         if (c == "#" && !inword) { while (i <= length(s) && substr(s, i, 1) != "\n") i++; c = "\n" }
         if (c == "(" || c == ")" || c == "{" || c == "}") bad = 1
         if (c == ">" || c == "<" || (c == "&" && c2 == ">")) {

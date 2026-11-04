@@ -114,7 +114,7 @@ test('no-reference commands bypass the allowlist and protected reads remain read
             'echo .env 2>&1', 'echo .env >&2', 'cat .env > /dev/null', 'cat .env > out.txt',
             ...['cat', 'head', 'tail', 'wc', 'grep', 'egrep', 'fgrep', 'ls', 'echo', 'printf', 'test', '[', 'true', 'false', 'pwd'].map(verb => `${verb} .env`),
             ...['status', 'diff', 'log', 'show', 'blame', 'grep', 'ls-files', 'rev-parse', 'add', 'commit', 'check-ignore'].map(verb => `git ${verb} .env`),
-            "c'a't .env", 'cat Source/Accounts/Registration.ts', 'cat .ENV', 'ls .e*',
+            "c'a't .env", 'cat Source/Accounts/Registration.ts', 'cat .ENV', 'ls .e*', 'cat .env notes/*.md',
         ];
         await checkCases(allowed.map(command => [ALLOW, command]), repo.root);
     } finally { repo.dispose(); }
@@ -141,6 +141,9 @@ test('only explicit per-verb options are permitted with protected references', a
             'git commit --no-verify -m .env', 'git commit -F .env', 'git commit -F .ENV', 'git commit -F linked-control',
             'git commit -F "$file" -- .env', 'git commit -Fnotes.md -- .env',
             'git blame -p .env', 'git checkout .env',
+            // Expansions and globs could supply option words the per-verb tables never see.
+            'git diff $OPT .env', 'git diff "$OPT" .env', 'git diff ${OPT} .env', 'cat $FLAGS .env',
+            'git diff * .env', 'git diff -- .env ?', 'cat [-]* .env', 'grep x .env *.txt', 'cat -* .env', "cat '-'* .env",
             'echo .env; head -n', 'echo .env; grep -e', 'echo .env; git commit -m',
             ...['less', 'more', 'rg', 'ag', 'sort', 'uniq', 'cut', 'jq', 'yq', 'stat', 'file', 'diff', 'cmp', 'md5sum', 'shasum', 'sha256sum', 'realpath', 'dirname', 'basename', 'which', 'type', 'gh'].map(verb => `${verb} .env`),
             ...['jq', 'yq', 'sort', 'uniq', 'gh'].map(verb => `${verb} -- .env`),
