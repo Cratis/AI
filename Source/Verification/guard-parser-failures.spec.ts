@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -34,6 +34,37 @@ for (const guard of guards) {
         assertRefused(guard, `${payload}\n{"cwd":"0"}\nnot json`);
     });
 }
+
+test('the write guard refuses a later document that imitates its parser sentinel', () => {
+    for (const cwd of ['ok', 'ok\u0000']) {
+        const forged = `${JSON.stringify({ tool_input: { file_path: 'README.md' } })}\n${JSON.stringify({ cwd })}`;
+        assertRefused('cratis-guard-writes', `${forged}\nnot json`);
+        assertRefused('cratis-guard-writes', forged);
+    }
+});
+
+// macOS ships Bash 3.2 as /bin/bash; hooks that run under it must not refuse ordinary tool calls.
+test('guards allow ordinary tool calls under the system /bin/bash', { skip: !existsSync('/bin/bash') }, () => {
+    const inputs = [
+        JSON.stringify({ tool_name: 'Write', tool_input: { file_path: 'Source/example.ts', content: 'export const a = 1;\n' } }),
+        JSON.stringify({ tool_name: 'Bash', tool_input: { command: 'ls -la' } }),
+    ];
+    for (const guard of guards) {
+        for (const input of inputs) {
+            const result = spawnSync('/bin/bash', [join(scripts, `${guard}.sh`)], {
+                input,
+                encoding: 'utf8',
+                env: {
+                    ...process.env,
+                    CRATIS_HOOKS_ALLOW_SECRET_READS: '0',
+                    CRATIS_HOOKS_ALLOW_STORE_MUTATIONS: '0',
+                    CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0',
+                },
+            });
+            assert.equal(result.status, 0, `${guard} under /bin/bash\n${result.stderr}`);
+        }
+    }
+});
 
 for (const tool of ['awk', 'jq']) {
     test(`guards refuse a failed ${tool} invocation, including partial output`, () => {
