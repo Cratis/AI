@@ -473,7 +473,7 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
             else if (key == "--format") { if (!eq) { i++; val = A[i] } fmtval = val }
             else if (key == "--template") {
                 if (!eq) { i++; val = A[i] } tmpl = val
-                if (val !~ /^[[:space:]]*[{]/ || val !~ /[}][[:space:]]*$/) tmplfile = 1
+                if (val ~ /^[[:space:]]*@/ || val !~ /[{]/) tmplfile = 1
             }
             else if (key == "--template-file") { if (!eq) i++; tmplfile = 1 }
             else if (key == "--raw") raw = 1
@@ -494,51 +494,60 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
         np++; P[np] = w; PI[np] = i
     }
 }
-# Sensitive words are checked regardless of projection syntax or quoting.
-function proj_words(t) {
-    return t ~ /(^|[^a-z0-9_])(spec|template|jobtemplate|containers|initcontainers|ephemeralcontainers|env|envfrom|volumes|data|stringdata|annotations)([^a-z0-9_]|$)/
+# Projection paths pass only through these explicit field shapes.
+function proj_path_allowed(t, inrange) {
+    if (!inrange) sub(/^\.items\[(\*|[0-9]+)\]/, "", t)
+    if (t ~ /^\.(kind|apiversion)$/) return 1
+    if (t ~ /^\.metadata\.(name|namespace|uid|creationtimestamp|resourceversion|generation|deletiontimestamp)$/) return 1
+    if (t ~ /^\.metadata\.labels(\.[a-z0-9_-]+)?$/) return 1
+    if (t ~ /^\.metadata\.ownerreferences\[(\*|[0-9]+)\]\.(name|kind|uid)$/) return 1
+    if (t ~ /^\.status(\.[a-z0-9_-]+|\[(\*|[0-9]+)\])*$/) return 1
+    if (t ~ /^\.spec(\.template\.spec)?\.(containers|initcontainers|ephemeralcontainers)\[(\*|[0-9]+)\]\.(name|image|imagepullpolicy)$/) return 1
+    return t ~ /^\.spec\.(nodename|replicas|serviceaccountname|schedulername|restartpolicy|type|clusterip)$/
 }
-function proj_safe(t) {
-    return t ~ /^(\.items\[\*\])?\.spec(\.template\.spec)?\.(containers|initcontainers)\[\*\]\.(image|name|imagepullpolicy)$/
-}
-function proj_whole(t,    v, actions, words, n, m, a, k, p) {
-    v = t
-    while (match(v, /\$[a-z0-9_]*/)) {
-        if (substr(v, RSTART + RLENGTH, 2) !~ /^\.[a-z_]/) return 1
-        v = substr(v, RSTART + RLENGTH)
+function proj_columns_allowed(t,    columns, n, k, p, colon) {
+    n = split(tolower(t), columns, ","); if (!n) return 0
+    for (k = 1; k <= n; k++) {
+        p = columns[k]; gsub(/[[:space:]]/, "", p)
+        colon = index(p, ":"); if (colon <= 1) return 0
+        p = substr(p, colon + 1)
+        if (p !~ /^\./) p = "." p
+        if (!proj_path_allowed(p, 0)) return 0
     }
-    n = split(t, actions, /[{}]+/)
-    for (a = 1; a <= n; a++) {
-        # Control actions do not print their target; sensitive words are still checked separately.
-        if (actions[a] ~ /^[[:space:]-]*(range|with|if)[[:space:]]/) continue
-        m = split(actions[a], words, /[[:space:](),|]+/)
-        for (k = 1; k <= m; k++) {
-            p = words[k]
-            sub(/^\$[a-z0-9_]*/, "", p); sub(/^@\.?/, ".", p)
-            if (p ~ /^(\.items|\.)(\[(\*|[0-9]+)\])*$/) return 1
+    return 1
+}
+function proj_jsonpath_allowed(t,    i, c, segment, active, quote, escaped, literal, depth) {
+    t = tolower(t)
+    for (i = 1; i <= length(t); i++) {
+        c = substr(t, i, 1)
+        if (!active) {
+            if (c == "}") return 0
+            if (c == "{") { active = 1; segment = ""; literal = 0 }
+            continue
+        }
+        if (c == "{") return 0
+        if (c == "}") {
+            if (quote != "") return 0
+            if (!literal) {
+                if (segment == "range.items[*]") depth++
+                else if (segment == "end") { if (!depth) return 0; depth-- }
+                else if (!proj_path_allowed(segment, depth > 0)) return 0
+            }
+            active = 0; continue
+        }
+        if (quote != "") {
+            if (escaped) escaped = 0
+            else if (c == "\\") escaped = 1
+            else if (c == quote) { quote = ""; literal = 1 }
+        } else if (c !~ /[[:space:]]/) {
+            if (literal) return 0
+            if (c == "\"" || c == SQ) {
+                if (segment != "") return 0
+                quote = c
+            } else segment = segment c
         }
     }
-    return 0
-}
-function proj_leaks(t, columns,    expressions, n, k, p, colon) {
-    t = tolower(t)
-    if (t ~ /\.\./ || proj_whole(t)) return 1
-    if (!columns && !proj_words(t)) return 0
-    if (columns) n = split(t, expressions, ",")
-    else n = split(t, expressions, /[{},[:space:]]+/)
-    for (k = 1; k <= n; k++) {
-        p = expressions[k]
-        if (columns) {
-            gsub(/[[:space:]]/, "", p)
-            colon = index(p, ":"); if (!colon) return 1
-            p = substr(p, colon + 1); if (p == "" || index(p, ":")) return 1
-            if (p !~ /^\./) p = "." p
-            if (proj_whole(p)) return 1
-            if (!proj_words(p)) continue
-        } else if (p == "") continue
-        if (!proj_safe(p)) return 1
-    }
-    return 0
+    return !active && !depth
 }
 function skipopts(A, s, n, vals) {
     while (s <= n && substr(A[s], 1, 1) == "-") {
@@ -996,7 +1005,9 @@ function kube(A, s, n,    verb, m, parts, k, r, rlist, projection) {
                 report("kubectl get " r " -o " outfmt " prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
             else if (tmplfile || outfmt ~ /^(templatefile|go-template-file|jsonpath-file|custom-columns-file)(=|$)/)
                 report("kubectl get " r " with a file-based projection may print the full container spec, including inline credentials", "use an inline projection of the needed fields: -o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
-            else if ((outfmt ~ /^(jsonpath|go-template|template|jsonpath-as-json|custom-columns)(=|$)/ || tmpl != "") && (proj_leaks(projection, outfmt ~ /^custom-columns=/) || proj_leaks(tmpl, 0)))
+            else if (outfmt ~ /^(go-template|template)(=|$)/ || (tmpl != "" && outfmt !~ /^(jsonpath|jsonpath-as-json)(=|$)/))
+                report("kubectl get " r " with a projection that selects the container spec prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
+            else if ((outfmt ~ /^(jsonpath|jsonpath-as-json)(=|$)/ && (!proj_jsonpath_allowed(projection) || !proj_jsonpath_allowed(tmpl))) || (outfmt ~ /^custom-columns(=|$)/ && !proj_columns_allowed(projection)))
                 report("kubectl get " r " with a projection that selects the container spec prints the full container spec, including inline credentials", "-o jsonpath=" SQ "{.items[*].spec.containers[*].image}" SQ ", -o custom-columns=NAME:.metadata.name,STATUS:.status.phase, -o name, -o wide, or the status fields you need")
         }
     }
