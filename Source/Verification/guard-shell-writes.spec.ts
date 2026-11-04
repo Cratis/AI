@@ -115,11 +115,11 @@ test('literal shell write forms reuse the write classifier; reads and ordinary w
     } finally { repo.dispose(); }
 });
 
-test('dynamic and pattern destinations fail closed only under the stated taint policy', async () => {
+test('dynamic, pattern and unknown-directory destinations fail closed as specified', async () => {
     const repo = scratchRepository();
     try {
         const cases: Array<[string, string]> = [
-            [BLOCK, 'cd "$D"/.claude && echo x > settings.json'], [ALLOW, 'cd "$D" && echo x > out.txt'],
+            [BLOCK, 'cd "$D"/.claude && echo x > settings.json'], [BLOCK, 'cd "$D" && echo x > out.txt'], [ALLOW, 'cd sub && echo x > out.txt'],
             [BLOCK, 'f=.mcp.json; echo x > "$f"'], [ALLOW, 'echo x > "$out"'],
             [BLOCK, 'echo x > "$(git rev-parse --show-toplevel)/.mcp.json"'],
             [BLOCK, 'echo x > .cl*/settings.json'], [BLOCK, 'cp a.ts .{claude,pi}/x'],
@@ -129,8 +129,8 @@ test('dynamic and pattern destinations fail closed only under the stated taint p
             [BLOCK, 'ls | xargs -J{} cp {} .pi/extensions/'], [BLOCK, 'ls | xargs --replace={} cp {} .pi/extensions/'],
             [BLOCK, 'ls | xargs cp a.ts .pi/extensions/'], [ALLOW, 'ls | xargs tee out.txt'],
             [BLOCK, 'echo x > ~somebody/.mcp.json'], [ALLOW, 'echo x > ~somebody/out.txt'],
-            [BLOCK, 'popd; echo x > .mcp.json'], [ALLOW, 'popd; echo x > out.txt'],
-            [BLOCK, `${'cd sub; '.repeat(9)}echo x > .mcp.json`], [ALLOW, `${'cd sub; '.repeat(9)}echo x > out.txt`],
+            [BLOCK, 'popd; echo x > .mcp.json'], [BLOCK, 'popd; echo x > out.txt'], [ALLOW, 'cd -- sub; echo x > out.txt'],
+            [BLOCK, `${'cd sub; '.repeat(9)}echo x > .mcp.json`], [BLOCK, `${'cd sub; '.repeat(9)}echo x > out.txt`], [ALLOW, 'echo x > /tmp/out.txt'],
             [BLOCK, 'echo x > ordinary*'], [ALLOW, "echo x > 'ordinary*'"],
             [BLOCK, "echo x > $'out\\tfile'"], [ALLOW, 'echo x > outfile'],
             [BLOCK, `tee ${Array.from({ length: 65 }, (_, i) => `out${i}`).join(' ')}`],
@@ -138,6 +138,47 @@ test('dynamic and pattern destinations fail closed only under the stated taint p
         await forEachConcurrently(cases, async ([expected, command]) => {
             const result = await runGuardAsync(payload(command, repo.root), repo.root);
             assert.equal(result.verdict, expected, `${command}\n${result.stderr}`);
+            if (expected === BLOCK) assert.match(result.stderr, /BLOCKED by cratis-guard-shell-writes/, command);
+            else assert.equal(result.stderr, '', command);
+        });
+    } finally { repo.dispose(); }
+});
+
+test('review regressions refuse shifted operands, hidden execution and unchecked shell input', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, 'build'));
+        writeFileSync(join(repo.root, 'build/.env'), 'secret');
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        const cases: Array<[string, string]> = [
+            ...['cd -- /tmp; echo x > package.json', 'cd -P .claude; echo x > settings.json', 'cd -L .claude; echo x > settings.json', 'pushd -n .claude; tee settings.json', 'cd -; tee out.txt', 'cd; tee out.txt', 'popd; tee out.txt', 'pushd +1; tee out.txt', 'cd "$D"; tee out.txt'].map(command => [BLOCK, command] as [string, string]),
+            [ALLOW, 'cd -- sub && echo x > out.txt'], [ALLOW, 'cd -P sub && echo x > out.txt'],
+            ...[`bash -c -- 'echo x > .env'`, `bash -c -e 'echo x > .env'`, `bash -O extglob -c 'echo x > .env'`, `sh -ec -- 'echo x > .env'`].map(command => [BLOCK, command] as [string, string]),
+            [ALLOW, `bash -c -- 'echo ok'`], [ALLOW, `bash -c -e 'echo ok'`],
+            ...[`echo 'x > .env' | bash`, 'bash < script.sh', 'cat f | sh', 'cat f | bash -s', 'bash < <(cat f)', `cat <<'EOF'\necho ok\nEOF\nbash`, `bash <<< "$script"`].map(command => [BLOCK, command] as [string, string]),
+            [ALLOW, `bash <<'EOF'\necho ok\nEOF`], [ALLOW, `bash <<< 'echo ok'`], [ALLOW, 'npm test | tee log.txt'],
+            ...['cp /tmp/x/.env .', 'cp /tmp/x/.env build/', 'cp -t build /tmp/x/.env', 'cp --no-target-directory a.ts .env', 'ln -sf a.ts .env', 'ln -t build /tmp/x/.env', 'install -D -m 600 a.ts .env', 'install -t build /tmp/x/.env', 'cp a.ts b.ts .env'].map(command => [BLOCK, command] as [string, string]),
+            [ALLOW, 'cp a.txt build/'], [ALLOW, 'cp a.txt b.txt build'], [ALLOW, 'cp -T /tmp/x/.env out.txt'],
+            ...['echo ${x:-$(echo x > .env)}', 'echo $((1 + $(echo x > .env)))', 'echo $[1 + $(echo x > .env)]', '(( x = $(echo x > .env) ))', 'echo "${x:-$(echo x > .env)}"', 'echo "${x:-`echo x > .env`}"', 'echo ${x:-<(echo x > .env)}', 'echo ${x:-$(echo ")" > .env)}'].map(command => [BLOCK, command] as [string, string]),
+            [BLOCK, `echo "\${x:-'$(echo x > .env)'}"`],
+            [ALLOW, 'echo $((1 + $(echo 2)))'], [ALLOW, "echo '${x:-$(echo x > .env)}'"], [ALLOW, 'echo "literal <(echo x > .env)"'],
+            ...['tee -a -- .env', 'tee -p .env', "sed -i'' -e s/a/b/ .env", 'sed -i.bak s/a/b/ .env', 'sed --in-place=.bak s/a/b/ .env', 'sed -E -i s/a/b/ .env', 'perl -pi -e s/a/b/ .env', 'perl -i.bak -e s/a/b/ .env', 'dd of=.env if=a.ts', 'truncate -s 0 .env', 'truncate --size=0 .env', 'truncate -r ref .env'].map(command => [BLOCK, command] as [string, string]),
+            [ALLOW, 'sed -i.bak s/a/b/ notes.txt'], [ALLOW, 'truncate -r ref notes.txt'], [ALLOW, 'install -D -m 600 a.ts out.txt'],
+            // Self-review: expansion of unquoted heredocs executes even when their consumer is not a shell.
+            [BLOCK, 'cat <<EOF\n$(echo x > .env)\nEOF'], [BLOCK, 'cat <<EOF\n`echo x > .env`\nEOF'],
+            [ALLOW, "cat <<'EOF'\n$(echo x > .env)\nEOF"],
+            // Self-review: wrapper chdir flags must not hide the effective directory.
+            [BLOCK, 'sudo -D .claude tee settings.json'], [BLOCK, 'sudo --chdir=.claude tee settings.json'],
+            [ALLOW, 'sudo --chdir sub tee out.txt'],
+            [BLOCK, 'install -Sdir a.ts .env'], [ALLOW, 'install -Sdir a.ts out.txt'],
+            ...['.ENV', 'Package.json', 'Directory.packages.props', '.Claude/Settings.json', '.PI/Extensions/x.ts', '.Cratis/AI/rules/x.md'].map(file => [BLOCK, `echo x > ${file}`] as [string, string]),
+            [ALLOW, 'echo x > Package.json.md'], [ALLOW, 'echo x > ENV.txt'],
+        ];
+        await forEachConcurrently(cases, async ([expected, command]) => {
+            const result = await runGuardAsync(payload(command, repo.root), repo.root);
+            assert.equal(result.verdict, expected, `${command}\n${result.stderr}`);
+            assert.equal(result.stdout, '', command);
             if (expected === BLOCK) assert.match(result.stderr, /BLOCKED by cratis-guard-shell-writes/, command);
             else assert.equal(result.stderr, '', command);
         });

@@ -125,6 +125,21 @@ test('the write guard resolves every spelling of the same target to the same ver
     }
 });
 
+test('protected filenames are case-insensitive without changing ordinary writes', () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        for (const file of ['.ENV', '.Env.local', 'service.ENV', 'Package.json', 'Directory.packages.props', 'YARN.LOCK', '.Claude/Settings.json', '.PI/Extensions/x.ts', '.Cratis/AI/rules/x.md']) {
+            const result = runGuard({ cwd: repo.root, tool_name: 'Write', tool_input: { file_path: file, content: 'x' } }, repo.root);
+            assert.equal(result.verdict, BLOCK, `${file}\n${result.stderr}`);
+        }
+        for (const file of ['ENV.txt', 'Package.json.md', '.Claude/notes.md']) {
+            assert.equal(runGuard({ cwd: repo.root, tool_name: 'Write', tool_input: { file_path: file, content: 'x' } }, repo.root).verdict, ALLOW, file);
+        }
+    } finally { repo.dispose(); }
+});
+
 test('the explicit escape hatch allows one protected write and nothing else changes', () => {
     const repo = scratchRepository();
     try {
@@ -258,7 +273,7 @@ test('repository manifest settings override the origin default identically throu
         ['{"allowDependencyManifestWrites": null}', undefined],
         ['not json', BLOCK],
     ];
-    const protectedNames = ['Directory.Packages.props', 'global.json', 'NuGet.config', 'NuGet.Config', 'nuget.config', 'yarn.lock', 'package-lock.json', 'pnpm-lock.yaml', 'packages.lock.json'];
+    const protectedNames = ['package.json', 'Package.json', 'Directory.Packages.props', 'global.json', 'NuGet.config', 'NuGet.Config', 'nuget.config', 'yarn.lock', 'package-lock.json', 'pnpm-lock.yaml', 'packages.lock.json'];
     for (const [origin, defaultVerdict] of [['git@github.com:Cratis/AI.git', ALLOW], ['https://github.com/Consumer/App.git', BLOCK]]) {
         const repo = scratchRepository(origin);
         try {
@@ -274,8 +289,8 @@ test('repository manifest settings override the origin default identically throu
                     const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd: join(repo.root, 'Source', 'Accounts') }) as { block?: boolean } | undefined;
                     assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${origin}, ${configuration}, ${name}`);
                 });
-                const packagePath = join(repo.root, 'package.json');
-                assert.equal((await runGuardAsync({ cwd: repo.root, tool_input: { file_path: packagePath, content: '{}' } }, repo.root)).verdict, ALLOW, 'the protected category does not expand');
+                const ordinaryPath = join(repo.root, 'package.json.md');
+                assert.equal((await runGuardAsync({ cwd: repo.root, tool_input: { file_path: ordinaryPath, content: '{}' } }, repo.root)).verdict, ALLOW, 'ordinary files remain writable');
             }
         } finally {
             repo.dispose();

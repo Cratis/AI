@@ -47,7 +47,7 @@ IFS= read -r -d '' awk_program <<'AWK' || true
 function base(w) { sub(/.*\//, "", w); return w }
 function taint(text,    t) {
     t = tolower(text); gsub(/\\\n/, "", t); gsub(/[\047"\\]/, "", t)
-    if (match(t, /\.env|directory\.packages\.props|global\.json|nuget\.config|yarn\.lock|package-lock\.json|pnpm-lock\.yaml|packages\.lock\.json|\.mcp\.json/)) STEM = substr(t, RSTART, RLENGTH)
+    if (match(t, /\.env|directory\.packages\.props|global\.json|nuget\.config|yarn\.lock|package\.json|package-lock\.json|pnpm-lock\.yaml|packages\.lock\.json|\.mcp\.json/)) STEM = substr(t, RSTART, RLENGTH)
     else if (match(t, /(^|[\/ =:"])\.(claude|pi|cratis)(\/|$|[^a-z0-9_.-])/)) STEM = "agent controls"
 }
 function refuse(form, reason) { failures = failures "refuse\t" form "\t\t" reason "\n" }
@@ -92,9 +92,8 @@ function target(form, lit, dyn, pat, tilde) {
 }
 function at(form, i) { target(form, W[i], D[i], P[i], T[i]) }
 function directory(lit, dyn, pat, tilde) {
-    if (dyn || pat || lit == "-" || (tilde && lit ~ /^~[^\/]/)) { cwd_unknown = 1; return }
+    if (dyn || pat || lit == "" || lit == "-" || (tilde && lit ~ /^~[^\/]/)) { cwd_unknown = 1; return }
     if (tilde) sub(/^~/, ENVIRON["GSW_HOME"], lit)
-    if (lit == "") lit = ENVIRON["GSW_HOME"]
     if (dirs >= 8) { cwd_unknown = 1; return }
     if (lit !~ /^\//) lit = DIR[dirs] "/" lit
     DIR[++dirs] = lit
@@ -104,30 +103,57 @@ function end_word() {
     if (inword) {
         taint(word)
         if (redirect != "") {
-            if (redirect == "<<<") body[++bodies] = word
-            else if (redirect != "<" && redirect != "<&" && !(redirect == ">&" && word ~ /^([0-9]+|-)$/)) target(redirect, word, dyn, pat, tilde)
+            if (redirect == "<<<") { string_body[++strings] = word; input_here = 1; if (dyn) input_unknown = 1 }
+            else if (redirect == "<" || redirect == "<&") input_unknown = 1
+            else if (!(redirect == ">&" && word ~ /^([0-9]+|-)$/)) target(redirect, word, dyn, pat, tilde)
             redirect = ""
         } else current = current (current == "" ? "" : SEP) dyn pat tilde quoted word
     }
     reset_word()
 }
-function emit() { end_word(); if (current != "") analyze(current); current = "" }
+function emit() {
+    end_word(); if (current != "") analyze(current); current = ""
+    input_here = input_unknown = 0; doc_start = pending; string_start = strings
+}
 function push(kind) {
     depth++
     s_current[depth] = current; s_word[depth] = word; s_dyn[depth] = dyn; s_pat[depth] = pat; s_tilde[depth] = tilde
     s_quoted[depth] = quoted; s_dq[depth] = in_dq; s_kind[depth] = frame; s_parens[depth] = parens; s_redirect[depth] = redirect
+    s_here[depth] = input_here; s_unknown[depth] = input_unknown; s_doc[depth] = doc_start; s_string[depth] = string_start
     current = ""; reset_word(); in_dq = 0; frame = kind; parens = 0; redirect = ""
+    input_here = input_unknown = 0; doc_start = pending; string_start = strings
 }
 function pop() {
     emit()
     current = s_current[depth]; word = s_word[depth] "$()"; dyn = 1; pat = s_pat[depth]; tilde = s_tilde[depth]
     quoted = s_quoted[depth]; inword = 1; in_dq = s_dq[depth]; frame = s_kind[depth]; parens = s_parens[depth]; redirect = s_redirect[depth]
+    input_here = s_here[depth]; input_unknown = s_unknown[depth]; doc_start = s_doc[depth]; string_start = s_string[depth]
     depth--
 }
-function skip_group(s, i, opener, closer,    n, level, c) {
-    n = length(s); level = 0
-    for (; i <= n; i++) { c = substr(s, i, 1); if (c == opener) level++; else if (c == closer) { if (--level == 0) return i + 1 } }
-    bad = 1; return n + 1
+# Inspect executed substitutions inside otherwise opaque parameter/arithmetic expressions.
+# raw is used for unquoted heredocs, where quote characters do not suppress expansion.
+function skip_group(s, i, opener, closer, raw, inherited_dq,    n, level, c, c2, sq, dq, j) {
+    n = length(s); level = 1; i++
+    if (++scan_depth > 64) { bad = 1; scan_depth--; return n + 1 }
+    for (; i <= n; i++) {
+        c = substr(s, i, 1); c2 = substr(s, i + 1, 1)
+        if (c == "\\") { i++; continue }
+        if (!raw && opener == "`" && c == "`") { scan_depth--; return i + 1 }
+        if (!raw && sq) { if (c == "\047") sq = 0; continue }
+        if (!raw && c == "\047" && !dq && !(opener == "{" && inherited_dq)) { sq = 1; continue }
+        if (!raw && c == "\"") { dq = !dq; continue }
+        if (c == "`") { j = skip_group(s, i, "`", "`", 0); enqueue(substr(s, i + 1, j - i - 2)); i = j - 1; continue }
+        if ((c == "$" && (c2 == "(" || c2 == "{" || c2 == "[")) || (!dq && (c == "<" || c == ">") && c2 == "(")) {
+            j = skip_group(s, i + 1, c2, c2 == "(" ? ")" : c2 == "{" ? "}" : "]", 0, dq || (opener == "{" && inherited_dq))
+            if (c2 == "(" && !(c == "$" && substr(s, i + 2, 1) == "(")) enqueue(substr(s, i + 2, j - i - 3))
+            i = j - 1; continue
+        }
+        if (raw) { if (i == n) { scan_depth--; return n + 1 }; continue }
+        if (dq) continue
+        if (c == opener) level++
+        else if (c == closer && --level == 0) { scan_depth--; return i + 1 }
+    }
+    bad = 1; scan_depth--; return n + 1
 }
 function heredocs(s, i,    n, k, nl, line, text, check, closed) {
     n = length(s)
@@ -141,12 +167,13 @@ function heredocs(s, i,    n, k, nl, line, text, check, closed) {
             text = text line "\n"
         }
         if (!closed) bad = 1
-        body[++bodies] = text
+        if (!doc_quoted[k]) skip_group("{" text "}", 1, "{", "}", 1)
+        if (doc_shell[k]) enqueue(text)
     }
-    pending = 0; return i
+    pending = doc_start = 0; return i
 }
 function parse(s,    n, i, c, c2, j, k, op) {
-    current = ""; reset_word(); redirect = ""; in_sq = in_dq = depth = parens = pending = bodies = stdin_shell = 0; frame = "top"
+    current = ""; reset_word(); redirect = ""; in_sq = in_dq = depth = parens = pending = strings = doc_start = string_start = input_here = input_unknown = 0; frame = "top"
     n = length(s); i = 1
     while (i <= n) {
         c = substr(s, i, 1); c2 = substr(s, i + 1, 1)
@@ -158,7 +185,8 @@ function parse(s,    n, i, c, c2, j, k, op) {
                 word = word c; i++; continue
             }
             if (c == "\"") { in_dq = 0; i++; continue }
-            if (c == "$" && c2 == "(" && substr(s, i + 2, 1) != "(") { push("subst"); i += 2; continue }
+            if (c == "$" && (c2 == "{" || c2 == "[" || (c2 == "(" && substr(s, i + 2, 1) == "("))) { j = skip_group(s, i + 1, c2, c2 == "{" ? "}" : c2 == "[" ? "]" : ")", 0, 1); word = word substr(s, i, j - i); dyn = 1; i = j; continue }
+            if (c == "$" && c2 == "(") { push("subst"); i += 2; continue }
             if (c == "`") { if (frame == "backtick") pop(); else push("backtick"); i++; continue }
             if (c == "$") dyn = 1
             word = word c; i++; continue
@@ -172,20 +200,20 @@ function parse(s,    n, i, c, c2, j, k, op) {
             if (c2 == "\"") { in_dq = inword = quoted = 1; i += 2; continue }
             if (c2 == "(" && substr(s, i + 2, 1) != "(") { push("subst"); i += 2; continue }
             dyn = inword = 1
-            if (c2 == "(" || c2 == "{") { j = skip_group(s, i + 1, c2, c2 == "(" ? ")" : "}"); word = word substr(s, i, j - i); i = j; continue }
+            if (c2 == "(" || c2 == "{" || c2 == "[") { j = skip_group(s, i + 1, c2, c2 == "(" ? ")" : c2 == "{" ? "}" : "]", 0); word = word substr(s, i, j - i); i = j; continue }
             word = word c; i++; continue
         }
         if (c == "`") { if (frame == "backtick") pop(); else push("backtick"); i++; continue }
-        if (c == "(") { if (!inword && c2 == "(") { i = skip_group(s, i, "(", ")"); continue }; emit(); parens++; i++; continue }
+        if (c == "(") { if (!inword && c2 == "(") { i = skip_group(s, i, "(", ")", 0); continue }; emit(); parens++; i++; continue }
         if (c == ")") { if (parens > 0) { emit(); parens--; i++; continue }; if (frame == "subst") pop(); else emit(); i++; continue }
         if (c == "<" || c == ">" || (c == "&" && c2 == ">")) {
             if (c2 == "(") { push("subst"); i += 2; continue }
             if (inword && !quoted && word ~ /^[0-9]+$/) reset_word(); else end_word()
             if (c == "<" && c2 == "<" && substr(s, i + 2, 1) != "<") {
-                i += 2; pending++; strip[pending] = 0; delimiter[pending] = ""
+                i += 2; pending++; strip[pending] = doc_quoted[pending] = doc_shell[pending] = 0; delimiter[pending] = ""; input_here = 1
                 if (substr(s, i, 1) == "-") { strip[pending] = 1; i++ }
                 while (substr(s, i, 1) == " " || substr(s, i, 1) == "\t") i++
-                while (i <= n) { c2 = substr(s, i, 1); if (c2 ~ /[ \t\n;&|<>()]/) break; if (c2 != "\047" && c2 != "\"" && c2 != "\\") delimiter[pending] = delimiter[pending] c2; i++ }
+                while (i <= n) { c2 = substr(s, i, 1); if (c2 ~ /[ \t\n;&|<>()]/) break; if (c2 != "\047" && c2 != "\"" && c2 != "\\") delimiter[pending] = delimiter[pending] c2; else doc_quoted[pending] = 1; i++ }
                 continue
             }
             op = c; i++
@@ -193,7 +221,7 @@ function parse(s,    n, i, c, c2, j, k, op) {
             else if (c2 == "&" || c2 == ">" || c2 == "<" || c2 == "|") { op = op c2; i++; if (op == "<<" && substr(s, i, 1) == "<") { op = "<<<"; i++ } }
             redirect = op; continue
         }
-        if (c == "&" || c == ";" || c == "|") { emit(); i++; continue }
+        if (c == "&" || c == ";" || c == "|") { emit(); if (c == "|" && c2 != "|") input_unknown = 1; i += (c == c2 && c != ";") ? 2 : 1; continue }
         if (c == "\n") { emit(); i++; if (pending) i = heredocs(s, i); continue }
         if (c == " " || c == "\t" || c == "\r") { end_word(); i++; continue }
         if (c == "*" || c == "?" || c == "[") pat = 1
@@ -203,7 +231,6 @@ function parse(s,    n, i, c, c2, j, k, op) {
     }
     emit()
     if (in_sq || in_dq || depth || redirect != "" || pending) bad = 1
-    if (stdin_shell) for (k = 1; k <= bodies; k++) enqueue(body[k])
 }
 # Short value options consume their cluster suffix or the following word.
 function option(w, letters,    k, c) {
@@ -215,7 +242,7 @@ function option(w, letters,    k, c) {
     }
     return 0
 }
-function analyze(text,    parts, n, k, i, b, j, w, letters, replace, endopts, duration, command_at) {
+function analyze(text,    parts, n, k, i, b, j, w, letters, replace, endopts, duration) {
     delete parts; delete W; delete D; delete P; delete T; delete Q
     n = split(text, parts, SEP)
     for (k = 1; k <= n; k++) { D[k] = substr(parts[k], 1, 1) + 0; P[k] = substr(parts[k], 2, 1) + 0; T[k] = substr(parts[k], 3, 1) + 0; Q[k] = substr(parts[k], 4, 1) + 0; W[k] = substr(parts[k], 5) }
@@ -233,13 +260,15 @@ function analyze(text,    parts, n, k, i, b, j, w, letters, replace, endopts, du
             if (b == "env" && w ~ /^[A-Za-z_][A-Za-z0-9_]*=/) { i++; continue }
             if (w !~ /^-/ || w == "-") { if (duration) { duration = 0; i++; continue }; break }
             if (b == "env" && w ~ /^--split-string=/) { enqueue(substr(w, 16)); i++; continue }
+            if (b == "sudo" && w ~ /^--chdir=/) { directory(substr(w, 9), D[i], P[i], T[i]); i++; continue }
+            if (b == "sudo" && w == "--chdir") { i++; directory(W[i], D[i], P[i], T[i]); i++; continue }
             if (b == "env" && w ~ /^--chdir=/) { directory(substr(w, 9), D[i], P[i], T[i]); i++; continue }
             if (b == "env" && (w == "-C" || w == "--chdir")) { i++; directory(W[i], D[i], P[i], T[i]); i++; continue }
             if (b == "xargs" && w ~ /^--replace(=|$)/) { replace = w == "--replace" ? "{}" : substr(w, 11); i++; continue }
             letters = (b == "sudo" || b == "doas") ? "ugChprtUD" : b == "xargs" ? "IJniPLdsEa" : b == "timeout" ? "ks" : b == "nice" ? "n" : b == "env" ? "uCS" : b == "exec" ? "a" : ""
             if (option(w, letters)) {
                 j = i; if (next_value) value = W[++i]
-                if (b == "env" && letter == "C") directory(value, D[i], P[i], T[i])
+                if ((b == "env" && letter == "C") || (b == "sudo" && letter == "D")) directory(value, D[i], P[i], T[i])
                 if (b == "env" && letter == "S") enqueue(value)
                 if (b == "xargs" && (letter == "I" || letter == "J")) replace = value
             } else if (w == "--unset" || w == "--split-string" || w == "--user" || w == "--group" || w == "--signal" || w == "--kill-after" || w == "--arg-file" || w == "--max-args" || w == "--max-procs" || w == "--max-lines") i++
@@ -252,21 +281,18 @@ function analyze(text,    parts, n, k, i, b, j, w, letters, replace, endopts, du
     }
     if (i > n) return
     b = base(W[i])
-    if (b == "cd" || b == "pushd") { directory(W[i + 1], D[i + 1], P[i + 1], T[i + 1]); return }
-    if (b == "popd") { cwd_unknown = 1; return }
-    if (b == "eval") { w = ""; for (j = i + 1; j <= n; j++) w = w (j == i + 1 ? "" : " ") W[j]; enqueue(w); return }
-    if (b in shell) {
-        command_at = 0
+    if (b == "cd" || b == "pushd") {
         for (j = i + 1; j <= n; j++) {
-            if (W[j] ~ /^-[A-Za-z]*c[A-Za-z]*$/ || W[j] == "--command") { enqueue(W[j + 1]); return }
-            if (W[j] == "-s") { stdin_shell = 1; return }
-            if (W[j] == "-o" || W[j] == "+o" || W[j] == "-O" || W[j] == "+O" || W[j] == "--rcfile" || W[j] == "--init-file") { j++; continue }
-            if (W[j] == "--") { if (j < n) command_at = 1; break }
-            if (W[j] !~ /^[-+]/) { command_at = 1; break }
+            if (W[j] == "--") { j++; break }
+            if (W[j] !~ /^-/ || W[j] == "-") break
         }
-        if (!command_at) stdin_shell = 1
+        if (b == "pushd" && W[j] ~ /^[+-][0-9]+$/) cwd_unknown = 1
+        else directory(W[j], D[j], P[j], T[j])
         return
     }
+    if (b == "popd") { cwd_unknown = 1; return }
+    if (b == "eval") { w = ""; for (j = i + 1; j <= n; j++) w = w (j == i + 1 ? "" : " ") W[j]; enqueue(w); return }
+    if (b in shell) { shell_command(i + 1, n); return }
     if (b == "cp" || b == "mv" || b == "install" || b == "ln") { copy_targets(b, i + 1, n); return }
     if (b == "sed" || b == "perl") { inplace_targets(b, i + 1, n); return }
     endopts = 0
@@ -282,20 +308,46 @@ function analyze(text,    parts, n, k, i, b, j, w, letters, replace, endopts, du
         at(b, j)
     }
 }
+function shell_command(first, n,    j, k, w, c, command_text, stdin) {
+    for (j = first; j <= n; j++) {
+        w = W[j]
+        if (w == "--") { j++; break }
+        if (w !~ /^[-+]/ || w == "-") break
+        if (w == "--command") { command_text = 1; continue }
+        if (w == "--rcfile" || w == "--init-file") { j++; continue }
+        if (w ~ /^--/) continue
+        for (k = 2; k <= length(w); k++) {
+            c = substr(w, k, 1)
+            if (c == "c" && substr(w, 1, 1) == "-") command_text = 1
+            if (c == "s" && substr(w, 1, 1) == "-") stdin = 1
+            if (c == "o" || c == "O") { if (k == length(w)) j++; break }
+        }
+    }
+    if (command_text) {
+        if (D[j]) refuse("shell -c", "cannot check expansion-built shell command text")
+        else enqueue(W[j])
+        return
+    }
+    if (j <= n && !stdin) return
+    if (!input_here || input_unknown) { refuse("shell stdin", "cannot check shell input other than a literal heredoc or here-string"); return }
+    for (k = doc_start + 1; k <= pending; k++) doc_shell[k] = 1
+    for (k = string_start + 1; k <= strings; k++) enqueue(string_body[k])
+}
 function copy_targets(b, first, n,    j, w, operands, source, dest, destlit, destdyn, destpat, desttilde, tdir, no_dir, endopts, letters, k, src, name) {
     delete operand; operands = 0; tdir = 0; no_dir = 0; endopts = 0
     for (j = first; j <= n; j++) {
         w = W[j]
         if (!endopts && w == "--") { endopts = 1; continue }
         if (!endopts && w ~ /^-/ && w != "-") {
-            if (b == "install" && w ~ /^-[^-]*d/) return
             if (w == "--directory" && b == "install") return
-            if (w == "--no-target-directory" || w ~ /^-[^-]*T/) no_dir = 1
+            if (w == "--no-target-directory") no_dir = 1
             if (w ~ /^--target-directory=/) { tdir = j; W[j] = substr(w, 20); continue }
             if (w == "--target-directory") { tdir = ++j; continue }
             if (w == "--suffix" || (b == "install" && w ~ /^--(mode|owner|group|strip-program)$/)) { j++; continue }
-            letters = b == "install" ? "tSmogBf" : "tS"
+            letters = b == "install" ? "tSmogBfdT" : "tST"
             if (option(w, letters)) {
+                if (letter == "d" && b == "install") return
+                if (letter == "T") { no_dir = 1; continue }
                 if (next_value) { j++; value = W[j] } else W[j] = value
                 if (letter == "t") tdir = j
             }
@@ -306,7 +358,7 @@ function copy_targets(b, first, n,    j, w, operands, source, dest, destlit, des
     if (tdir) dest = tdir
     else { if (operands < 2) return; dest = operand[operands--] }
     destlit = W[dest]; destdyn = D[dest]; destpat = P[dest]; desttilde = T[dest]
-    if (!tdir && (no_dir || operands == 1)) target(b " destination", destlit, destdyn, destpat, desttilde)
+    if (!tdir) target(b " destination", destlit, destdyn, destpat, desttilde)
     if (no_dir) return
     for (k = 1; k <= operands; k++) {
         src = operand[k]; name = D[src] ? "" : W[src]; sub(/\/+$/, "", name); sub(/.*\//, "", name)
@@ -356,9 +408,10 @@ BEGIN {
     for (i = 1; i <= targets && i <= 64; i++) {
         if (!(i in TFORM)) continue
         lit = TLIT[i]
-        if (TDYN[i] || (cwd_unknown && lit !~ /^\//)) {
+        if (cwd_unknown && lit !~ /^\//) { refuse(TFORM[i], "cannot resolve a relative write destination after an unknown directory change"); continue }
+        if (TDYN[i]) {
             if (STEM != "") refuse(TFORM[i], "the destination is built from expansions and the command names a protected file (" STEM "); use a literal destination")
-            if (TDYN[i]) continue
+            continue
         }
         if (lit ~ /^\//) printf "path\t%s\t%s\t%s\n", TFORM[i], DIR[1], lit
         else for (j = 1; j <= dirs; j++) printf "path\t%s\t%s\t%s\n", TFORM[i], DIR[j], lit

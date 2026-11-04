@@ -159,7 +159,7 @@ Rule numbers refer to the numbered list in [`../rules/general.md`](../rules/gene
 
 - Editing a file whose header marks it as Cratis-generated output — rule 15 `[contract]`
 - Writing content that opens with such a header (hand-authoring a "generated" proxy)
-- `Directory.Packages.props`, `global.json`, `NuGet.config` (also `NuGet.Config` and `nuget.config`),
+- `package.json`, `Directory.Packages.props`, `global.json`, `NuGet.config` (also `NuGet.Config` and `nuget.config`),
   `yarn.lock`, `package-lock.json`, `pnpm-lock.yaml`, `packages.lock.json` — unless the
   repository's dependency-manifest policy allows them (see below)
 - `.env`, `.env.*`, `*.env` — secrets
@@ -183,8 +183,14 @@ sources (including directory moves such as `mv .claude x`) are outside it.
 The parser looks through wrappers, nested shells, substitutions and shell stdin bodies.
 Literal `cd`/`pushd`/`env -C` add candidate directories; previous candidates remain, so
 `cd /tmp && echo x > .mcp.json` can still be refused. Glob/brace destinations are refused.
+Unknown directory changes (including operand-less `cd`, `cd -` and `popd`) refuse relative
+write destinations. Shell stdin is accepted only from this command's analysed literal heredocs
+or here-strings; pipes, files and process-substitution input are refused. Executed substitutions
+inside parameter/arithmetic expansions and unquoted heredocs are also checked.
 Expansion-built destinations and dynamic command names are refused when the command text
 (including decoded words) names a protected stem; no runtime variable binding is inferred.
+Protected filenames are compared case-insensitively, including `package.json` under the
+existing dependency-manifest origin/opt-in policy.
 Parser/classifier failures, newline/tab destinations and more than 64 targets fail closed.
 
 This is **best-effort, not a sandbox**. Residuals include runtime-generated names without a

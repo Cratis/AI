@@ -191,7 +191,7 @@ origin_matches() {
 
 # ── 4. Agent controls and installed managed trees ─────────────────────────────
 agent_control_target() {
-    local target="$1" directory policy_root target_rel managed
+    local target="$1" directory policy_root target_rel managed matched=1 LC_ALL=C
     dir_of "$target"
     directory="$REPLY"
     # Keep the addressed spelling here, even when an adapter directory is a symlink.
@@ -205,8 +205,9 @@ agent_control_target() {
     relative_to "$target" "$policy_root"
     target_rel="$REPLY"
     if [ -f "$policy_root/.cratis/ai.manifest.json" ]; then
+        shopt -s nocasematch
         case "$target_rel" in
-            .cratis/ai/*) return 0 ;;
+            .cratis/ai/*) matched=0 ;;
             .claude/* | .pi/*)
                 # The installer records adapter ownership in Integrations (Path, IsDirectory),
                 # not Files: those destinations are relative to the managed corpus root.
@@ -215,13 +216,15 @@ agent_control_target() {
                     (.Integrations // [])
                     | if type != "array" then false else
                         [.[] | select(type == "object") | select(.Path | type == "string")]
-                        | any(.[]; . as $entry | $entry.Path == $path
-                            or ($entry.IsDirectory == true and ($path | startswith($entry.Path + "/"))))
+                        | any(.[]; . as $entry | ($entry.Path | ascii_downcase) == ($path | ascii_downcase)
+                            or ($entry.IsDirectory == true and ($path | ascii_downcase | startswith(($entry.Path | ascii_downcase) + "/"))))
                       end
                 ' "$policy_root/.cratis/ai.manifest.json" 2>/dev/null)" || parser_failed
-                [ "$managed" != "true" ] || return 0
+                [ "$managed" != "true" ] || matched=0
                 ;;
         esac
+        shopt -u nocasematch
+        [ "$matched" != 0 ] || return 0
     else
         # The corpus is authored source in Cratis/AI, not a managed installation.
         repository_origin "$policy_root"
@@ -229,11 +232,13 @@ agent_control_target() {
             return 1
         fi
     fi
+    shopt -s nocasematch
     case "$target_rel" in
         .claude/settings.json | .claude/settings.local.json | .mcp.json \
-            | .pi/settings.json | .pi/extensions/*) return 0 ;;
+            | .pi/settings.json | .pi/extensions/*) matched=0 ;;
     esac
-    return 1
+    shopt -u nocasematch
+    return "$matched"
 }
 
 physical_target_path "$file" || physical_file=""
@@ -307,8 +312,11 @@ manifest_writes_allowed() {
     origin_matches '^(https://github\.com/|git@github\.com:|ssh://git@github\.com(:[0-9]+)?/)cratis/[a-z0-9_.-]+/?$'
 }
 
+# Protect the same ASCII names on case-sensitive and case-insensitive file systems.
+LC_ALL=C
+shopt -s nocasematch
 case "$base" in
-    Directory.Packages.props | global.json | NuGet.config | NuGet.Config | nuget.config \
+    package.json | Directory.Packages.props | global.json | NuGet.config | NuGet.Config | nuget.config \
         | yarn.lock | package-lock.json | pnpm-lock.yaml | packages.lock.json)
         if manifest_writes_allowed; then exit 0; fi
         block \
@@ -325,5 +333,6 @@ case "$base" in
             "Instead: tell the user exactly which variable to set and let them edit the file. If they explicitly asked you to write it, re-run with CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1 exported."
         ;;
 esac
+shopt -u nocasematch
 
 exit 0
