@@ -674,13 +674,13 @@ for (const [index, commands] of commandForms.entries()) {
 
 test('shell option changes use only the supported defaults', () => {
     assertVerdicts([
-        ...['-O extglob', '+O extglob', '-o nounset', '+o nounset', '-O dotglob', '-Oextglob'].flatMap(option =>
+        ...['-O extglob', '+O extglob', '-O dotglob', '-Oextglob'].flatMap(option =>
             ['bash', 'sh', 'zsh'].map(shell => [BLOCK, `${shell} ${option} -c true`] as [string, string])),
         [BLOCK, "bash -O extglob -c 'cat .@(e)nv'"],
         [BLOCK, "bash -O extglob -c 'cat .!(x)nv'"],
         [BLOCK, "bash -O extglob -c 'cat .+(e)nv'"],
         [BLOCK, "bash -O dotglob -c 'cat .e@(n)v'"],
-        [BLOCK, 'echo extglob'],
+        [ALLOW, 'echo extglob'],
         [BLOCK, 'shopt -s expand_aliases'],
         [BLOCK, 'set -o noclobber'],
         [BLOCK, 'set +o posix'],
@@ -816,6 +816,77 @@ test('here-string text keeps the conservative refusal', () => {
         [BLOCK, 'cat <<< .env'],
         [BLOCK, 'read x <<< .env'],
         [ALLOW, 'cat <<< README.md'],
+    ]);
+});
+
+test('single-alternative shell glob groups retain protected possibilities', () => {
+    assertVerdicts([
+        [BLOCK, 'cat .(e)nv'],
+        [BLOCK, 'cat .e(n)v'],
+        [BLOCK, 'cat ~/.ssh/i(d)_rsa'],
+        [BLOCK, "zsh -c 'cat .(e)nv'"],
+        [BLOCK, 'head .(e)nv'],
+        [BLOCK, 'grep -e x .(e)nv'],
+        [BLOCK, '(.e)nv'],
+        [BLOCK, '.(en)v'],
+        [BLOCK, 'cat ~/.ssh/id_(rsa)'],
+        [BLOCK, 'cat .ssh/i(d)_r(s)a'],
+        [BLOCK, 'grep "$(cat .(e)nv)" a.txt'],
+        [BLOCK, 'cat .e^x'],
+        [BLOCK, 'cat .e~x'],
+        [ALLOW, 'cat ~/README.md'],
+        [ALLOW, 'ls .(e)nv'],
+    ]);
+});
+
+test('shell option changes include zsh and clustered invocation flags', () => {
+    assertVerdicts([
+        [BLOCK, "zsh -c 'setopt globdots extendedglob; cat ^a.txt'"],
+        [BLOCK, 'setopt globdots extendedglob'],
+        [BLOCK, 'setopt extended_glob'],
+        [BLOCK, 'setopt extendedglob; cat .e#nv'],
+        [BLOCK, 'setopt extendedglob; cat .(#i)ENV'],
+        [BLOCK, 'unsetopt noglob'],
+        [BLOCK, 'emulate zsh -o extendedglob'],
+        [BLOCK, 'emulate sh'],
+        [BLOCK, 'bash -eO dotglob -c true'],
+        [BLOCK, 'bash -eo posix -c true'],
+        [BLOCK, 'bash -xo extglob -c true'],
+        [BLOCK, 'f=-C; set "$f"'],
+        [BLOCK, 'f=-o; set "$f" noclobber'],
+        [BLOCK, 'set -- "$flags"'],
+        [ALLOW, "bash -o pipefail -c 'npm test | tee log'"],
+        [ALLOW, "bash -euo pipefail -c 'npm test | tee log'"],
+        [ALLOW, "sh -o pipefail -c 'npm test | tee log'"],
+        [ALLOW, 'bash -xo pipefail -c true'],
+        ...['bash', 'sh', 'zsh'].flatMap(shell => ['-o', '+o'].map(flag =>
+            [ALLOW, `${shell} ${flag} nounset -c true`] as [string, string])),
+        [ALLOW, 'grep -rn extglob .'],
+        [ALLOW, 'grep -rn extglob .cratis'],
+        [ALLOW, 'git log --grep extglob'],
+    ]);
+});
+
+test('search option arity does not exempt a directory operand', () => {
+    assertVerdicts([
+        [BLOCK, 'grep -r --color foo .kube'],
+        [BLOCK, 'grep -r --colour foo run/secrets'],
+        [BLOCK, 'grep -r --unknown foo .kube'],
+        [BLOCK, 'rg --unknown foo .kube'],
+        [BLOCK, 'grep -r --color foo /run/secrets'],
+        [ALLOW, 'grep --color foo .env.example'],
+        [ALLOW, 'grep --colour foo .env.example'],
+    ]);
+});
+
+test('empty and adjacent quoted segments end parameter names', () => {
+    assertVerdicts([
+        [BLOCK, 'f=.e; cat "$f""nv"'],
+        [BLOCK, "f=.e; cat $f''nv"],
+        [BLOCK, 'f=.e; cat $f""nv'],
+        [BLOCK, 'f=id_r; cat ~/.ssh/"$f""sa"'],
+        [ALLOW, 'f=READ; cat "$f""ME.md"'],
+        [ALLOW, "f=READ; cat $f''ME.md"],
     ]);
 });
 

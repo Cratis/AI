@@ -41,11 +41,11 @@ probe=${command_text//\\$'\n'/}
 probe=${probe//[\'\"\\]/}
 case "$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" in
     *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
-    *shopt*|*extglob*|*set*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.p12*|*.pfx*|*token*|*.netrc*|*.npmrc*|\
+    *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.p12*|*.pfx*|*token*|*.netrc*|*.npmrc*|\
     *credentials*|*.pgpass*|*pypirc*|*secrets*) ;;
     *)
         case "$command_text" in
-            *'$'*|*'*'*|*'?'*|*'['*|*'{'*|*'('*|*'`'*) ;;
+            *'$'*|*'*'*|*'?'*|*'['*|*'{'*|*'('*|*'^'*|*'~'*|*'`'*) ;;
             *) exit 0 ;;
         esac ;;
 esac
@@ -65,13 +65,14 @@ function base(word) { word = tolower(word); sub(/.*\//, "", word); return word }
 # ── tokenizer: splits text into simple commands, queueing nested command text ──
 # Appends text to the current word and records how the shell reads each character in the parallel mask wmask:
 # l literal (single-quoted, escaped or ANSI-C decoded), d inside double quotes, u unquoted, c command output.
+# An uppercase mask character marks the first character after a quote boundary, including an empty segment.
 function addw(text, kind,    k) {
     word = word text
-    for (k = length(text); k > 0; k--) wmask = wmask kind
+    for (k = 1; k <= length(text); k++) { wmask = wmask (quote_boundary ? toupper(kind) : kind); quote_boundary = 0 }
 }
 function flush_word() {
     if (inword) { W[++nw] = word; WP[nw] = wplain; WM[nw] = wmask }
-    word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0
+    word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; quote_boundary = 0
 }
 # Decodes the body of an ANSI-C string $'...' (i is just after the opening quote) into the word and returns the
 # position after the closing quote. The same decoder is in cratis-guard-store-mutations.sh (`ansi_c`).
@@ -123,6 +124,7 @@ function glob_end(t, p,    j, depth, c) {
 }
 # Memoized matching keeps stars and grouped globs bounded by the length of a protected stem.
 # Two literal characters are required: a generic pattern such as *.md is not a protected name.
+function glob_negation(t, p) { return substr(t, p, 1) ~ /^[~^]$/ && p > 1 && substr(t, p - 1, 1) !~ /[\/=:]/ }
 function stem_match(t, stem, p, k, literals, wildcard,    key, c, end, nextp, j, result, bracket) {
     key = p SUBSEP k SUBSEP literals SUBSEP wildcard
     if (key in SM) return SM[key]
@@ -131,8 +133,8 @@ function stem_match(t, stem, p, k, literals, wildcard,    key, c, end, nextp, j,
     if (c == "" || c ~ /[\001-\007]/) return SM[key] = 0
     nextp = 0
     if (c ~ /[?*+@!]/ && substr(t, p + 1, 1) == "(") nextp = glob_end(t, p + 1) + 1
-    else if (c == "(" && (end = glob_end(t, p)) && index(substr(t, p, end - p), "|")) nextp = end + 1
-    if (nextp > p || c == "*") {
+    else if (c == "(" && (end = glob_end(t, p))) nextp = end + 1
+    if (nextp > p || c == "*" || glob_negation(t, p)) {
         if (!nextp) nextp = p + 1
         for (j = k; j <= length(stem) + 1; j++) {
             result = stem_match(t, stem, nextp, j, literals, 1)
@@ -164,12 +166,12 @@ function stem_scan(text, mode,    t, k, stem, pos, offset, first, found, end, p,
             if (pos && (pos + 5 > length(t) || substr(t, pos + 5, 1) ~ /^[ \t\n;|&]$/) && (!first || pos < first)) { first = pos; found = stem }
         }
     }
-    if (mode != "resolved" && t ~ /[*?[(]/) {
+    if (mode != "resolved" && t ~ /[*?[(~^]/) {
         for (p = 1; p <= length(t) && (!first || p < first); p++) {
             candidate = substr(t, p, 1)
             for (k = 1; k <= nstem; k++) {
                 stem = STEM[k]
-                if (candidate != substr(stem, 1, 1) && candidate !~ /[*?[(@+!]/) continue
+                if (candidate != substr(stem, 1, 1) && candidate !~ /[*?[(@+!~^]/) continue
                 end = stem_units(t, mode, p, stem)
                 if (end && stem_boundary(t, p, end, stem)) { first = p; found = stem; break }
             }
@@ -179,18 +181,18 @@ function stem_scan(text, mode,    t, k, stem, pos, offset, first, found, end, p,
 }
 function literal_word(w, m,    k, c, mk) {
     for (k = 1; k <= length(w); k++) {
-        c = substr(w, k, 1); mk = substr(m, k, 1)
-        if (mk == "c" || (c == "$" && mk != "l") || (mk == "u" && c ~ /[*?[()]/)) return 0
+        c = substr(w, k, 1); mk = tolower(substr(m, k, 1))
+        if (mk == "c" || (c == "$" && mk != "l") || (mk == "u" && (c ~ /[*?[()]/ || glob_negation(w, k)))) return 0
     }
     return !(substr(w, 1, 1) == "~" && substr(w, 2, 1) != "/")
 }
 # RP records only exempt regex text. Other option values are skipped while locating the pattern, not while scanning stems.
 # With any -e or -f there is no implicit pattern operand. Attached patterns exempt only their suffix.
 function regex_flag(w) {
-    return w ~ /^--(ignore-case|no-ignore-case|word-regexp|line-regexp|fixed-strings|basic-regexp|extended-regexp|perl-regexp|invert-match|line-number|no-line-number|count|files-with-matches|files-without-match|only-matching|quiet|silent|text|binary|no-messages|with-filename|no-filename|heading|no-heading|no-ignore|hidden|no-hidden|recursive|help|version)$/
+    return w ~ /^--(ignore-case|no-ignore-case|word-regexp|line-regexp|fixed-strings|basic-regexp|extended-regexp|perl-regexp|invert-match|line-number|no-line-number|count|files-with-matches|files-without-match|only-matching|quiet|silent|text|binary|no-messages|with-filename|no-filename|heading|no-heading|no-ignore|hidden|no-hidden|recursive|help|version|color|colour)$/
 }
 function regex_value(w) {
-    return w ~ /^--(file|glob|iglob|include|exclude|exclude-dir|type|type-not|type-add|type-clear|max-count|max-depth|maxdepth|max-filesize|encoding|engine|pre|pre-glob|sort|sortr|threads|replace|label|color|colour|colors|after-context|before-context|context|ignore-file|path-separator|hostname-bin)$/
+    return w ~ /^--(file|glob|iglob|include|exclude|exclude-dir|type|type-not|type-add|type-clear|max-count|max-depth|maxdepth|max-filesize|encoding|engine|pre|pre-glob|sort|sortr|threads|replace|label|colors|after-context|before-context|context|ignore-file|path-separator|hostname-bin)$/
 }
 function regex_short_flag(b, c) {
     return c ~ /^[EFGPivwxcnNlLoqsaHIhVzuUSyZ0]$/ || (c ~ /^[rRT]$/ && b != "rg")
@@ -206,7 +208,7 @@ function regex_slots(A, s, n,    b, k, j, w, c, explicit, ended, attached, uncer
             if (w ~ /^--(regexp|file)(=|$)/) explicit = 1
             if (w ~ /^--regexp=/) RP[k] = index(w, "=")
             else if (w == "--regexp") RP[++k] = -1
-            else if (w !~ /=/ && !regex_flag(w)) { if (!regex_value(w)) uncertain = 1; k++ }
+            else if (w !~ /=/ && regex_value(w)) k++
             continue
         }
         if (!ended && w ~ /^-./) {
@@ -245,7 +247,7 @@ function directory_operand(w,    path) {
 function metadata_shape(A, M, n,    k, j, c, mk) {
     if (A[1] != "ls" && A[1] != "stat") return 0
     for (k = 1; k <= n; k++) for (j = 1; j <= length(A[k]); j++) {
-        c = substr(A[k], j, 1); mk = substr(M[k], j, 1)
+        c = substr(A[k], j, 1); mk = tolower(substr(M[k], j, 1))
         if (mk == "c" || (c == "$" && mk != "l")) return 0
     }
     return 1
@@ -300,7 +302,6 @@ function end_cmd(    k, m, w, j, hit) {
         regex_slots(W, 1, nw)
         for (k = 1; k <= nw; k++) {
             if (is_assign(W[k])) set_var(W[k], WM[k])
-            if (tolower(W[k]) ~ /extglob/) config_report()
             if ((k in RP) && RP[k] < 0) continue
             w = (k in RP) ? substr(W[k], 1, RP[k]) : W[k]
             hit = stem_scan(w, "raw"); if (TAINT == "") TAINT = hit
@@ -359,7 +360,7 @@ function read_heredocs(s, i, n,    h, e, line, cmp, body) {
     return i
 }
 function tokenize(s,    i, n, c, c2, j, dash, delim) {
-    n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; nheredoc = 0; hd_shell = 0
+    n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; nheredoc = 0; hd_shell = 0; quote_boundary = 0
     split("", W); split("", WP); split("", WM)
     while (i <= n) {
         c = substr(s, i, 1)
@@ -369,19 +370,19 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             wquoted = 1; addw(c2, "l"); inword = 1; i += 2; continue
         }
         if (c == "\047") {
-            wquoted = 1; inword = 1
+            wquoted = 1; inword = 1; quote_boundary = 1
             j = index(substr(s, i + 1), "\047")
             if (j == 0) { addw(substr(s, i + 1), "l"); i = n + 1; continue }
-            addw(substr(s, i + 1, j - 1), "l"); i += j + 1; continue
+            addw(substr(s, i + 1, j - 1), "l"); quote_boundary = 1; i += j + 1; continue
         }
-        if (c == "$" && substr(s, i + 1, 1) == "\047") { wquoted = 1; inword = 1; i = ansi_c(s, i + 2, n); continue }
+        if (c == "$" && substr(s, i + 1, 1) == "\047") { wquoted = 1; inword = 1; quote_boundary = 1; i = ansi_c(s, i + 2, n); quote_boundary = 1; continue }
         if (c == "$" && substr(s, i + 1, 1) == "\"") { i++; c = "\"" }
         if (c == "\"") {
-            wquoted = 1; inword = 1; i++
+            wquoted = 1; inword = 1; quote_boundary = 1; i++
             while (i <= n) {
                 c = substr(s, i, 1)
                 if (c == "\\") { addw(substr(s, i + 1, 1), "l"); i += 2; continue }
-                if (c == "\"") { i++; break }
+                if (c == "\"") { quote_boundary = 1; i++; break }
                 if (c == "$" && substr(s, i + 1, 1) == "(") { i = cmdsub(s, i + 2, n); addw("x", "c"); continue }
                 if (c == "`") {
                     complex = 1
@@ -415,8 +416,8 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
         # `>&`, `>|` and `&>` are parts of a redirection operator, not command separators.
         if ((c == "&" || c == "|") && inword && !wquoted && word ~ />$/) { addw(c, "u"); wplain++; i++; continue }
         if (c == "&" && substr(s, i + 1, 1) == ">") { flush_word(); addw(c, "u"); inword = 1; wplain = 1; i++; continue }
-        if (c == "(" && inword && (j = glob_end(s, i)) > 0) {
-            addw(substr(s, i, j - i + 1), "u"); i = j + 1; continue
+        if (c == "(" && (j = glob_end(s, i)) > 0 && (inword || nw > 0 || substr(s, j + 1, 1) ~ /^[A-Za-z0-9_.]$/)) {
+            inword = 1; addw(substr(s, i, j - i + 1), "u"); i = j + 1; continue
         }
         if (c == ";" || c == "&" || c == "|" || c == "(" || c == ")") {
             end_cmd()
@@ -530,17 +531,17 @@ function mask_of(A, k,    m) { m = VM[k]; return (length(m) == length(A[k])) ? m
 function expands(w, m,    k, c, mk) {
     if (m == "") return 0
     for (k = length(w); k > 0; k--) {
-        c = substr(w, k, 1); mk = substr(m, k, 1)
-        if (mk == "c" || (c == "$" && mk != "l") || (mk == "u" && (c == "*" || c == "?" || c == "[" || c == "{"))) return 1
+        c = substr(w, k, 1); mk = tolower(substr(m, k, 1))
+        if (mk == "c" || (c == "$" && mk != "l") || (mk == "u" && (c ~ /[*?[{()]/ || glob_negation(w, k)))) return 1
     }
     return 0
 }
 function find_group(    i, j, depth, c) {
     for (i = 1; i <= length(gw); i++) {
-        if (substr(gm, i, 1) != "u" || substr(gw, i, 1) != "{" || (i > 1 && substr(gw, i - 1, 1) == "$")) continue
+        if (tolower(substr(gm, i, 1)) != "u" || substr(gw, i, 1) != "{" || (i > 1 && substr(gw, i - 1, 1) == "$")) continue
         depth = 0; gnc = 0
         for (j = i; j <= length(gw); j++) {
-            if (substr(gm, j, 1) != "u") continue
+            if (tolower(substr(gm, j, 1)) != "u") continue
             c = substr(gw, j, 1)
             if (c == "{") depth++
             else if (c == "}") { depth--; if (depth == 0) break }
@@ -608,7 +609,7 @@ function param(w, m, i,    c, j, name, inner, op, base, rest, depth, bad, specia
         else bad = 1
         if (rest ~ /[$`{}]/) bad = 1
     } else if (c ~ /^[A-Za-z_]$/) {
-        kind = substr(m, i, 1)
+        kind = tolower(substr(m, i, 1))
         for (j = i + 1; j <= length(w) && substr(w, j, 1) ~ /^[A-Za-z0-9_]$/ && substr(m, j, 1) == kind; j++) name = name substr(w, j, 1)
         i = j - 1
     } else if (c ~ /^[0-9@*#?$!-]$/) { special = (c ~ /^[1-9@*]$/) ? "\001" : "\003"; i++ }
@@ -648,7 +649,7 @@ function bracket_end(w, i,    j, marker, end) {
 function expand_item(w, m,    i, n, c, mk, lit, j, saved, count) {
     n = length(w); ncur = 1; split("", CUR); CUR[1] = ""; lit = ""
     for (i = 1; i <= n; i++) {
-        c = substr(w, i, 1); mk = substr(m, i, 1)
+        c = substr(w, i, 1); mk = tolower(substr(m, i, 1))
         if (mk == "c") lit = lit "\003"
         else if (c == "$" && mk != "l") {
             split("", PC); npc = 1; PC[1] = lit; cross(); lit = ""
@@ -660,7 +661,7 @@ function expand_item(w, m,    i, n, c, mk, lit, j, saved, count) {
             if (mk == "u") for (j = 1; j <= npc; j++) if (PC[j] ~ /[*?[ \t\n]/) PC[j] = "\001"
             cross()
         }
-        else if (mk == "u" && c == "*") lit = lit "\004"
+        else if (mk == "u" && (c == "*" || glob_negation(w, i))) lit = lit "\004"
         else if (mk == "u" && c == "?") lit = lit "\005"
         else if (mk == "u" && c == "[" && (j = bracket_end(w, i)) > 0) { lit = lit "\006" substr(w, i + 1, j - i - 1) "\007"; i = j }
         else if (mk == "u" && c == "{") lit = lit "\001"
@@ -830,10 +831,28 @@ function protected_config(w) { return w ~ /^(GLOBIGNORE|BASHOPTS|BASH_ENV|ENV)(\
 function config_report() {
     report("a protected shell configuration change cannot be checked with default glob matching", "run without changing shell glob options")
 }
-function shell_config(A, s, n, b,    k, modifying, option, j, flags, c) {
+function allowed_option(option) { return option ~ /^(errexit|nounset|pipefail|xtrace|verbose|noglob|errtrace|functrace)$/ }
+function shell_invocation(A, s, n,    k, j, flags, c, script) {
+    for (k = s + 1; k <= n; k++) {
+        if (A[k] == "--" || A[k] !~ /^[-+]/) break
+        if (A[k] ~ /^--/) continue
+        flags = substr(A[k], 2); script = index(flags, "c")
+        for (j = 1; j <= length(flags); j++) {
+            c = substr(flags, j, 1)
+            if (c != "o" && c != "O") continue
+            if (j != length(flags) || expands(A[k + 1], mask_of(A, k + 1)) || !allowed_option(A[k + 1])) config_report()
+            k++; break
+        }
+        if (script) { enqueue(A[k + 1]); return }
+    }
+    if (nheredoc > 0) hd_shell = 1
+}
+function shell_config(A, s, n, b,    k, option, j, flags, c) {
+    if (b ~ /^(setopt|unsetopt|emulate)$/) config_report()
     if (b ~ /^(export|declare|typeset|local|readonly)$/)
         for (k = s + 1; k <= n; k++) if (protected_config(A[k])) config_report()
     if (b == "set") {
+        for (k = s + 1; k <= n; k++) if (expands(A[k], mask_of(A, k))) config_report()
         for (k = s + 1; k <= n; k++) {
             if (A[k] == "--" || A[k] !~ /^[-+]/) break
             flags = substr(A[k], 2)
@@ -841,7 +860,7 @@ function shell_config(A, s, n, b,    k, modifying, option, j, flags, c) {
                 c = substr(flags, j, 1)
                 if (c == "o") {
                     option = (j < length(flags)) ? substr(flags, j + 1) : A[++k]
-                    if (option !~ /^(errexit|nounset|pipefail|xtrace|verbose|noglob|errtrace|functrace)$/) config_report()
+                    if (!allowed_option(option)) config_report()
                     break
                 }
                 if (c !~ /^[euxfvET]$/) config_report()
@@ -850,12 +869,12 @@ function shell_config(A, s, n, b,    k, modifying, option, j, flags, c) {
     }
     if (b != "shopt") return
     for (k = s + 1; k <= n; k++) {
-        if (expands(A[k], mask_of(A, k)) || A[k] ~ /^-[a-zA-Z]*[su]/) config_report()
+        if (A[k] == "extglob" || expands(A[k], mask_of(A, k)) || A[k] ~ /^-[a-zA-Z]*[su]/) config_report()
     }
 }
 function check_inputs(A, s, n,    k, kind) {
     for (k = s; k < n; k++) {
-        if (A[k] !~ /^[0-9]*<+[>&]?$/ || substr(mask_of(A, k), 1, 1) != "u") continue
+        if (A[k] !~ /^[0-9]*<+[>&]?$/ || tolower(substr(mask_of(A, k), 1, 1)) != "u") continue
         kind = operand_kind(A, k + 1, 0)
         if (kind != "") report("an input redirection reads " kind, "name the file and the key you need; for an env template read the .env.example")
         k++
@@ -1094,13 +1113,7 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
     }
     if (b ~ /^(cp|mv|ln|rsync|scp|tar|zip)$/) { transfer_files(A, s, n, b); return }
     if (b ~ /^(export|declare|typeset|local|readonly)$/) for (k = s + 1; k <= n; k++) if (is_assign(A[k])) set_var(A[k], mask_of(A, k))
-    if (b == "bash" || b == "sh" || b == "zsh" || b == "dash" || b == "ksh") {
-        for (k = s + 1; k <= n; k++) if (A[k] ~ /^[-+][a-zA-Z]*[oO]/) config_report()
-        for (k = s + 1; k <= n; k++)
-            if (A[k] ~ /^-[a-zA-Z]*c[a-zA-Z]*$/) { enqueue(A[k + 1]); return }
-        if (nheredoc > 0) hd_shell = 1
-        return
-    }
+    if (b == "bash" || b == "sh" || b == "zsh" || b == "dash" || b == "ksh") { shell_invocation(A, s, n); return }
     if (b == "eval") { p = ""; for (k = s + 1; k <= n; k++) p = p " " A[k]; enqueue(p); return }
     if (b == "kubectl" || b == "oc") return kube(A, s, n)
     if (b == "docker" || b == "podman") return dock(A, s, n)
@@ -1176,14 +1189,12 @@ BEGIN {
     nprobe = split(".env .env.local .env.production .envrc id_rsa id_ed25519 id_ecdsa id_dsa credentials token token.json tokens.json github_token .netrc .npmrc .pypirc .pgpass .git-credentials kubeconfig", PROBE, " ")
     nprobe2 = split(".kube/config .aws/credentials .docker/config.json /proc/1/environ /run/secrets/token /var/run/secrets/token", PROBE2, " ")
     nextension = split("pem key p12 pfx jks keystore kdbx kubeconfig env", EXT, " ")
-    ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt grep egrep fgrep rg ag sed awk gawk jq yq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
+    ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt set setopt unsetopt emulate grep egrep fgrep rg ag sed awk gawk jq yq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
     nstem = split(".env .pem .p12 .pfx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials .docker/ /environ run/secrets", STEM, " ")
     CMD = ENVIRON["GS_COMMAND"]
-    if (tolower(CMD) ~ /extglob/) config_report_pending = 1
     for (pass = 1; pass <= 2; pass++) {
         split("", queue); queued = 0; qi = 0; split("", seen); reports = ""
         nheredoc = 0; hd_shell = 0; commands = 0; complex = 0; simple_ok = 1; TAINT = ""
-        if (config_report_pending) config_report()
         enqueue(CMD)
         while (qi < queued) { qi++; tokenize(queue[qi]) }
         if (pass == 1 && bindings > 0) continue
