@@ -1,20 +1,20 @@
 # Cratis site specifics
 
+## Contents
+
+- Teaching components
+- Preserve the text and citation path
+- Maturity
+- Cross-product compatibility
+- Prompter as a documentation signal
+- Bridges and comparisons
+- Structure and publishing
+
+## Teaching components
+
 Confirm presentation against the owning Documentation repository's
 `web/src/components`, installed Starlight exports, `web/astro.config.mjs`,
 `web/scripts/sync-content.mjs` and `web/variant-docs.yml` before using it.
-
-## Contents
-
-- [Teaching components](#teaching-components)
-- [Preserve the text and citation path](#preserve-the-text-and-citation-path)
-- [Maturity](#maturity)
-- [Cross-product compatibility](#cross-product-compatibility)
-- [Prompter as a documentation signal](#prompter-as-a-documentation-signal)
-- [Bridges and comparisons](#bridges-and-comparisons)
-- [Structure and publishing](#structure-and-publishing)
-
-## Teaching components
 
 Choose a component because it helps the reader act, understand or recover,
 not because every page needs decoration. Product `.md` pages support native

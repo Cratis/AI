@@ -5,7 +5,7 @@
   "assertions": [
     { "kind": "skill-contains", "value": "Never trade a claim for a smoother sentence" },
     { "kind": "skill-contains", "value": "The fix for a template is not a better template" },
-    { "kind": "skill-contains", "value": "every hedging word" },
+    { "kind": "skill-contains", "value": "qualifiers such as not, never, only, may, unless and until survive in substance" },
     { "kind": "skill-contains", "value": "First person is not a license to invent" },
     { "kind": "skill-contains", "value": "Structural sameness is the more damaging half" },
     { "kind": "skill-contains", "value": "Rewrite a tranche, read it, and only then continue" },

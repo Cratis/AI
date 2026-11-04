@@ -207,7 +207,7 @@ beside its first use. Distinguish optional integration from required setup.
 For a procedure, show a small meaningful action, its visible result and any
 invisible effect before linking the next task or exact reference. Develop the
 explanation from that action using **Explaining code**, rather than publishing
-a separate ledger of responsibilities, defaults and limits. Link
+a separate list of responsibilities, defaults and limits. Link
 source-backed recovery at likely failure points; do not invent error messages
 or recovery commands. Keep lookup pages concise and explanations purpose-led,
 not a compulsory tutorial template.

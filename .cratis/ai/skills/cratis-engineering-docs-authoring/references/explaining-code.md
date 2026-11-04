@@ -1,5 +1,12 @@
 # Explain what the example means
 
+## Contents
+
+- Let a type choice explain a lookup
+- Explain the code that is absent
+- Share a concept without promising client parity
+- Use the guidance while drafting and revising
+
 A developer can read the call and still miss why its argument matters. Start
 there. Show the code that makes the question concrete, then explain the choice
 or effect the reader cannot infer from its spelling. Give the next paragraph
@@ -11,13 +18,6 @@ The transformations below use Fundamentals.Go examples to connect a concrete
 type or directive to its effect. Develop that connection from the product's own
 documentation and source; another project's behavior does not establish Cratis
 capabilities.
-
-## Contents
-
-- [Let a type choice explain a lookup](#let-a-type-choice-explain-a-lookup)
-- [Explain the code that is absent](#explain-the-code-that-is-absent)
-- [Share a concept without promising client parity](#share-a-concept-without-promising-client-parity)
-- [Use the guidance while drafting and revising](#use-the-guidance-while-drafting-and-revising)
 
 ## Let a type choice explain a lookup
 
