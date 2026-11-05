@@ -194,13 +194,8 @@ public class KubernetesWorkerRuntime(
             {
                 Name = SecretVolumeName,
 
-                // Kubernetes always owns a mounted Secret's files as root:root, regardless of the
-                // container's runAsUser - there is no PodSecurityContext.FsGroup set here to change
-                // that. The worker container runs as the non-root "agent" user (Dockerfile.base), so
-                // an owner-only mode (0400) is unreadable by the very process meant to read it. 0444
-                // is the mode that is actually readable inside this single-user, single-purpose
-                // container - restricting it further would need an FsGroup to go with it.
-                Secret = new V1SecretVolumeSource { SecretName = name, DefaultMode = 292 }
+                // Root owns mounted files; the pod's FsGroup gives the worker read access (0440).
+                Secret = new V1SecretVolumeSource { SecretName = name, DefaultMode = 288 }
             }
         };
 
@@ -333,10 +328,9 @@ public class KubernetesWorkerRuntime(
                             RunAsGroup = AgentUid,
                             SeccompProfile = new V1SeccompProfile { Type = "RuntimeDefault" },
 
-                            // Only with a scratch volume, whose root belongs to root until the agent's
-                            // group is given it - see WorkerScratch.
-                            FsGroup = workspace.IsSet ? AgentUid : null,
-                            FsGroupChangePolicy = workspace.IsSet ? "OnRootMismatch" : null
+                            // Mounted credentials and optional scratch storage need the worker's group.
+                            FsGroup = AgentUid,
+                            FsGroupChangePolicy = "OnRootMismatch"
                         },
                         InitContainers = initContainers,
                         TerminationGracePeriodSeconds = TerminationGracePeriodSeconds,

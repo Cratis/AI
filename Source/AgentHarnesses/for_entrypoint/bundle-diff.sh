@@ -191,7 +191,7 @@ CASES=0
 run_worker() {
     local label="$1" harness="${2:-claude-code}"
     shift 2
-    rm -rf "$ROOT/workspace" "$ROOT/home" "$ROOT/tmp"
+    rm -rf "${ROOT:?}/workspace" "${ROOT:?}/home" "${ROOT:?}/tmp"
     rm -f "$ROOT/result.json" "$ROOT/http.jsonl" "$ROOT/http.log" "$ROOT/agent-args" "$ROOT/mcp.json" "$ROOT/agent-index"
     mkdir -p "$ROOT/home" "$ROOT/tmp"
     : > "$ROOT/http.jsonl"
@@ -225,7 +225,12 @@ await_worker
 check_diff
 cmp "$ROOT/agent-index" "$ROOT/workspace/.git/index"
 jq -e '.structured.summary == "Agent summary" and .structured.gaps == ["gap"] and .structured.selfChecks == ["advisory"]' "$ROOT/result.json" >/dev/null
-jq -e '.mcpServers.context == {type:"http",url:"http://fixture/context",headers:{Authorization:"Bearer context-secret"}}' "$ROOT/mcp.json" >/dev/null
+jq -e '.mcpServers.context.command == "node" and (.mcpServers.context | has("headers") | not)' "$ROOT/mcp.json" >/dev/null
+jq -e '.url == "http://fixture/context" and .headers.Authorization == "Bearer context-secret"' "$(jq -r '.mcpServers.context.args[-1]' "$ROOT/mcp.json")" >/dev/null
+if grep -q 'context-secret\|callback-secret' "$ROOT/mcp.json"; then
+    echo 'FAIL: MCP configuration contains a credential value' >&2
+    exit 1
+fi
 for harness in pi copilot; do
     run_worker "$harness" "$harness"
     await_worker
@@ -348,6 +353,7 @@ exec 9<> "$ROOT/ready"
 for label in cancelled index-lock stalled-result delivered-then-termination; do
     run_worker "$label" claude-code
     read -r -t 20 -u 9 ready
+    [[ "$ready" == ready ]]
     started=$SECONDS
     kill -TERM "$WORKER"
     # This timer is a deadline, not a delay before asserting on the worker.

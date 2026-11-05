@@ -21,6 +21,7 @@
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { readFile } from 'node:fs/promises';
 import { z } from 'zod';
 
 const REQUEST_TIMEOUT_MS = 10_000;
@@ -140,7 +141,9 @@ export function createServer(config) {
 async function main() {
     const server = createServer({
         progressUrl: process.env.DIRECT_PROGRESS_URL,
-        token: process.env.DIRECT_CALLBACK_TOKEN,
+        token: process.env.DIRECT_CALLBACK_TOKEN_FILE
+            ? await readFile(process.env.DIRECT_CALLBACK_TOKEN_FILE, 'utf8')
+            : process.env.DIRECT_CALLBACK_TOKEN,
     });
     const transport = new StdioServerTransport();
     await server.connect(transport);
