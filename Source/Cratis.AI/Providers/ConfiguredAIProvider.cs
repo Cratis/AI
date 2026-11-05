@@ -13,6 +13,7 @@ using Cratis.AI.Providers.RateLimiting;
 using Cratis.AI.Providers.Reconfiguring;
 using Cratis.AI.Providers.Refreshing;
 using Cratis.AI.Providers.Removing;
+using Cratis.AI.Providers.SettingAllowedTeamMembers;
 using Cratis.AI.Providers.SettingConcurrency;
 using Cratis.AI.Providers.SettingHarnesses;
 using Cratis.AI.Providers.SettingTierModels;
@@ -62,6 +63,7 @@ namespace Cratis.AI.Providers;
 [FromEvent<AIProviderUsageCredentialCleared>]
 [FromEvent<AIProviderUsageCapacitySet>]
 [FromEvent<AIProviderHarnessesSet>]
+[FromEvent<AIProviderAllowedTeamMembersSet>]
 [FromEvent<AIProviderModelsDiscovered>]
 [FromEvent<AIProviderModelDiscoveryFailed>]
 [RemovedWith<AIProviderRemoved>]
@@ -186,6 +188,19 @@ public record ConfiguredAIProvider(
     /// Gets the selected harnesses, or an empty list before a selection has been made.
     /// </summary>
     public IReadOnlyList<Harness> SupportedHarnesses { get; init; } = [];
+
+    /// <summary>
+    /// Whether the provider has an explicit team member selection. Without one the provider is open
+    /// to everyone; an explicit empty selection instead denies every team member.
+    /// </summary>
+    [SetValue<AIProviderAllowedTeamMembersSet>(true)]
+    public bool HasAllowedTeamMembersSelection { get; init; }
+
+    /// <summary>
+    /// Gets the team members allowed to use the provider, or an empty list before a selection has
+    /// been made.
+    /// </summary>
+    public IReadOnlyList<TeamMemberId> AllowedTeamMembers { get; init; } = [];
 
     /// <summary>
     /// Gets the models the provider published the last time it was asked.
