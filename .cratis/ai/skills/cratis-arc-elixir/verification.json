@@ -1,0 +1,57 @@
+{
+  "skill": "cratis-arc-elixir",
+  "input": "Build an Elixir Arc application with a command, an observable query over the SSE hub, tenancy and MongoDB.",
+  "fixtures": [],
+  "assertions": [
+    {
+      "kind": "skill-contains",
+      "value": "`cratis_arc`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**must be in the supervision tree**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**A tenant resolver only selects.**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**Change streams need a replica set.**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "`layout: :colocated`"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**An SSE control request must come from the caller that opened the stream.**",
+      "file": "references/observable-queries-and-hubs.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**a source needs nothing extra**",
+      "file": "references/observable-queries-and-hubs.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "There is **no chain of resolvers**",
+      "file": "references/tenancy-and-identity.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**An OIDC `accessToken` is refused**",
+      "file": "references/mongodb.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**`package.json` and `node_modules` must sit above `lib`**",
+      "file": "references/proxies-and-vertical-slices.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**`Arc.Notifier` is one node.**",
+      "file": "references/pitfalls.md"
+    }
+  ]
+}
