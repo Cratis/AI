@@ -16,14 +16,18 @@ Arc supplies the route, body binding, validation, authorization, and the
 - **The server packages are published to npm at stable 1.0.0.** `@cratis/arc.core`,
   `@cratis/arc.express`, `@cratis/arc.fastify`, `@cratis/arc.hono`,
   `@cratis/arc.testing`, `@cratis/arc.mongodb`, `@cratis/arc.drizzle`,
-  `@cratis/arc.chronicle`, `@cratis/cratis`, `@cratis/arc.proxygenerator` and
+  `@cratis/arc.chronicle`, `@cratis/platform`, `@cratis/arc.proxygenerator` and
   `@cratis/eslint-plugin-arc-core` install with `npm install`.
+  `@cratis/platform` is a meta package, like the C# `Cratis` package: it brings
+  Arc and Chronicle together by installing `@cratis/arc.core`, `.express`,
+  `.chronicle`, `.testing` and the `@cratis/chronicle` client. `@cratis/cratis`
+  is its deprecated former name.
 - **`@cratis/arc` is a different package.** `@cratis/arc`, `@cratis/arc.react` and
   `@cratis/arc.react.mvvm` are the published **client** runtime, built from
   `Cratis/Arc`. Generated proxies import them in the frontend. The server packages
   never depend on them. Never tell a user to install `@cratis/arc` to get a
   server.
-- `@cratis/arc.chronicle` and `@cratis/cratis` describe their own Chronicle
+- `@cratis/arc.chronicle` and `@cratis/platform` describe their own Chronicle
   integration as **experimental**; their package READMEs carry that label.
 
 ## Verified product sources

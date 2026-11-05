@@ -13,7 +13,7 @@ environment variables and code; **code always wins**.
 | Entry point | Reads `appsettings.json` and environment |
 | --- | --- |
 | `ArcApplication.createBuilder()` (`@cratis/arc.core`) | Yes, unless `configuration: false` |
-| `CratisApplication.createBuilder()` (`@cratis/cratis`) | Yes, including `Cratis:Chronicle` |
+| `CratisApplication.createBuilder()` (`@cratis/platform`) | Yes, including `Cratis:Chronicle` |
 | `ArcApplication.createBuilder()` from `@cratis/arc.core/fetch` | No; code options only (no filesystem) |
 | `new ArcServer(options)` | No; code options only |
 

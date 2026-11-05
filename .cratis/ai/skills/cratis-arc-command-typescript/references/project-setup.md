@@ -15,7 +15,7 @@ npm install --save-dev @cratis/arc.testing @cratis/arc.proxygenerator @cratis/es
 | --- | --- |
 | `@cratis/arc.express`, `@cratis/arc.fastify` or `@cratis/arc.hono` | The application mounts into an existing web framework instead of the standalone host |
 | `@cratis/arc.mongodb`, `@cratis/arc.drizzle` | MongoDB or SQL read models |
-| `@cratis/arc.chronicle`, or `@cratis/cratis` for the composed builder | Event sourcing with Chronicle |
+| `@cratis/arc.chronicle`, or `@cratis/platform` (meta package) for the composed builder | Event sourcing with Chronicle |
 | `rxjs` | RxJS observable queries (optional peer of the core) |
 
 `Samples/Tasks` and `Samples/Library` in `Cratis/Arc.TypeScript` are runnable references for the slice layout.

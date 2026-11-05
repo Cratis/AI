@@ -146,8 +146,8 @@ JVM language conventions are `kotlin.md` and `java.md`.
 
 Arc for TypeScript (`@cratis/arc.core` with the Express, Fastify, Hono,
 MongoDB, Drizzle, testing and experimental Chronicle packages, plus
-`@cratis/arc.proxygenerator`, `@cratis/eslint-plugin-arc-core` and experimental
-`@cratis/cratis`) brings the same model-bound command/query shape to a Node.js
+`@cratis/arc.proxygenerator`, `@cratis/eslint-plugin-arc-core` and the
+`@cratis/platform` meta package that brings Arc and Chronicle together) brings the same model-bound command/query shape to a Node.js
 server. The packages are published to npm at stable 1.0.0. They are separate
 from `@cratis/arc`, the published client runtime that generated proxies import
 in a frontend.

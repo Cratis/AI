@@ -212,7 +212,8 @@ Requires the peers `mongodb` `^6.21.0`, `drizzle-orm` `^0.45.0`, `rxjs` `^7.8.2`
   Existing deployments must replay projections into the aligned collection;
   the old collection is left intact. Core exports `readModelCollectionNameResolver`,
   MongoDB exports `resolveMongoCollectionName`.
-- `@cratis/cratis` (experimental) registers Arc and Chronicle together through
+- `@cratis/platform` (a meta package, formerly `@cratis/cratis`; its Chronicle
+  integration is experimental) brings Arc and Chronicle together and registers them through
   `CratisApplication.createBuilder()` and `builder.addCratis(...)`. Unlike C#
   `AddCratis`, it installs no authentication handler; protected routes still
   need one you choose.
