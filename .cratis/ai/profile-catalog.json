@@ -19,6 +19,7 @@
         "cratis/arc/core",
         "cratis/arc/csharp",
         "cratis/arc/ef-core",
+        "cratis/arc/elixir",
         "cratis/arc/go",
         "cratis/arc/identity",
         "cratis/arc/java",
@@ -173,6 +174,7 @@
     {
       "id": "cratis/application/elixir",
       "composes": [
+        "cratis/arc/elixir",
         "cratis/chronicle/client-elixir",
         "cratis/language/elixir",
         "cratis/screenplay"
@@ -309,6 +311,19 @@
       ],
       "languages": [
         "csharp"
+      ]
+    },
+    {
+      "id": "cratis/arc/elixir",
+      "composes": [
+        "cratis/chronicle/client-elixir",
+        "cratis/language/elixir"
+      ],
+      "availableTargets": [
+        "cratis-arc-elixir"
+      ],
+      "languages": [
+        "elixir"
       ]
     },
     {

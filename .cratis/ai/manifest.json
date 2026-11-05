@@ -26,6 +26,7 @@
     "cratis/arc/core",
     "cratis/arc/csharp",
     "cratis/arc/ef-core",
+    "cratis/arc/elixir",
     "cratis/arc/go",
     "cratis/arc/identity",
     "cratis/arc/java",
