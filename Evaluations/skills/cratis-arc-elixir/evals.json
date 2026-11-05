@@ -1,0 +1,52 @@
+{
+  "skill_name": "cratis-arc-elixir",
+  "evals": [
+    {
+      "id": 1,
+      "name": "sse-hub-and-browser-auth",
+      "prompt": "Our Arc for Elixir app serves an observable query to a React app that must not use WebSockets. How do we use the SSE hub, how does the browser authenticate it, and what happens to the control POSTs?",
+      "expected_output": "Use the multiplexed SSE hub (QueryTransportMethod.ServerSentEvents). A browser EventSource cannot set headers so use cookies read by a plug or handler. Control POSTs must come from the caller that opened the stream.",
+      "assertions": [
+        "Selects the shared SSE hub at /.cratis/queries/sse with subscribe and unsubscribe POST routes, and the client QueryTransportMethod.ServerSentEvents, not a per-query direct stream.",
+        "States a browser EventSource and WebSocket cannot set request headers, so authentication uses cookies read by a plug or authentication handler.",
+        "States a control request from an unknown connection or a different caller than the one that opened the stream is answered 404, and a malformed body 400.",
+        "Does not recommend trust_forwarded_identity_headers: true as a production authentication scheme; it trusts unsigned headers from any caller and is for samples or an ingress that sets them."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "tenant-selection-is-not-membership",
+      "prompt": "We set tenancy: [resolver: :header] in Arc for Elixir and the MongoDB database follows the tenant. Is a customer safe from reading another tenant's data now?",
+      "expected_output": "No. A resolver only selects; membership must be checked. A named tenant selects database<database>+<tenant> and the Chronicle namespace; use the :claim resolver or an Arc.Filter or policy to authorize membership.",
+      "assertions": [
+        "States a resolver only selects the tenant, because the header is chosen by the caller, and that Arc does not check membership.",
+        "Tells the user to authorize tenant membership themselves, for example with the :claim resolver, a policy or an Arc.Filter.",
+        "Explains a named tenant uses the database database+tenant and the Chronicle namespace, and that nil, an empty value and Default are the default tenant.",
+        "Does not invent a chain of tenant resolvers; Arc for Elixir configures one resolver."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "mongodb-observation-needs-a-replica-set",
+      "prompt": "Our observable Arc.MongoDB query never updates in a docker standalone mongo. We use watch: [Arc.MongoDB.watch(Book)]. Why, and what else must be in the supervision tree?",
+      "expected_output": "Change streams require a replica set or sharded cluster; a single node with --replSet is enough. Arc.MongoDB must be started after the Arc application in the supervision tree.",
+      "assertions": [
+        "Explains change streams need a replica set or sharded cluster, and that a single node started with --replSet and initiated is enough.",
+        "Shows {Arc.MongoDB, application: MyApp.Arc} in the supervision tree after the Arc application.",
+        "Mentions one shared database-level change stream per database, which resumes from its token."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "colocated-vertical-slices",
+      "prompt": "We want the Elixir, generated TypeScript proxy and React page of each Arc for Elixir feature in one folder. How do we configure it and what must the JS tooling do?",
+      "expected_output": "Use arc: [application:, output: \"lib\", layout: :colocated]; put package.json and node_modules above lib; include lib in tsconfig and the bundler; commit generated files and use --check in CI.",
+      "assertions": [
+        "Configures the :arc compiler with layout: :colocated and an output that is the root holding both Elixir and React code, such as lib.",
+        "States package.json and node_modules must sit above lib so each slice resolves @cratis/arc, and the TypeScript and bundler configuration must include lib.",
+        "States generated files carry an @generated marker, a file without it is never overwritten, and recommends committing them with mix arc.gen.proxies --check in CI.",
+        "Keeps shared concepts out of a slice and has slices reach each other only through commands, queries or shared contracts."
+      ]
+    }
+  ]
+}

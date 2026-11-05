@@ -443,7 +443,7 @@ test('Go profile composition keeps Arc HTTP and Chronicle client skills separate
     assert.ok(!csharp.includes('cratis-chronicle-client-go'));
 });
 
-const arcTypeScriptServerSkills = ['cratis-arc-command-typescript', 'cratis-arc-query-typescript', 'cratis-arc-validation-typescript'];
+const arcTypeScriptServerSkills = ['cratis-arc-command-typescript', 'cratis-arc-query-typescript', 'cratis-arc-validation-typescript', 'cratis-arc-tenancy-typescript', 'cratis-arc-storage-typescript', 'cratis-arc-testing-typescript', 'cratis-arc-code-analysis-typescript'];
 
 function resolvedSkills(configuration: { profiles: string[]; languages?: string[] }): (string | undefined)[] {
     const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));

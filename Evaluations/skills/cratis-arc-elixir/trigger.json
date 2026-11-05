@@ -1,0 +1,77 @@
+{
+  "skill": "cratis-arc-elixir",
+  "queries": [
+    {
+      "query": "Add an Arc for Elixir command with a schema and a handle/2 that appends an event.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Make an observable query in Arc for Elixir that pushes over the SSE hub.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I pick the tenant in an Elixir Arc app, and does it check membership?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Store documents in MongoDB with cratis_arc_mongodb and observe the collection.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Generate TypeScript proxies from an Elixir Arc application beside the Elixir source.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Require a role for every command in one Elixir Arc namespace with Arc.Filter.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Authenticate a browser WebSocket or EventSource against an Arc Plug server.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Test an Arc for Elixir command with Arc.Test and the in-memory kernel.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Connect an Elixir app to Chronicle and append through an event source.",
+      "shouldTrigger": false,
+      "note": "cratis-chronicle-client-elixir"
+    },
+    {
+      "query": "Define a Go Arc command with arc.go.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-go"
+    },
+    {
+      "query": "Define a Kotlin Arc @Command and its handle method.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-command-kotlin"
+    },
+    {
+      "query": "Configure ArcApplication.CreateBuilder in an ASP.NET host.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-hosting"
+    },
+    {
+      "query": "Host Arc for TypeScript on Fastify.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-command-typescript"
+    },
+    {
+      "query": "Write an Elixir GenServer that supervises a worker pool.",
+      "shouldTrigger": false,
+      "note": "elixir.md rule"
+    },
+    {
+      "query": "Add an EF Core migration to a .NET Arc application.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-ef-core-migration"
+    },
+    {
+      "query": "Style a React DataPage toolbar in Cratis Components.",
+      "shouldTrigger": false,
+      "note": "cratis-arc-react-page"
+    }
+  ]
+}

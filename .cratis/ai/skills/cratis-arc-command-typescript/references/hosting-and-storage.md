@@ -10,11 +10,11 @@
 - Observable-query WebSockets from a dev server
 - Storage integrations
 
-Source: `Cratis/Arc.TypeScript` (source preview): `Documentation/overview.md`, `hosts/**`,
+Source: `Cratis/Arc.TypeScript`: `Documentation/overview.md`, `hosts/**`,
 `mongodb/getting-started.md`, `sql/getting-started.md`,
 `chronicle/registration-options.md`, and the `Express`, `Fastify`, `Hono`,
-`MongoDB`, `Drizzle` and `Chronicle` package exports. None of these packages is
-published to npm; install them from a clone or packed tarballs.
+`MongoDB`, `Drizzle` and `Chronicle` package exports. Install each package from
+npm (stable 1.0.0).
 
 ## The host only delivers requests
 
@@ -212,7 +212,8 @@ Requires the peers `mongodb` `^6.21.0`, `drizzle-orm` `^0.45.0`, `rxjs` `^7.8.2`
   Existing deployments must replay projections into the aligned collection;
   the old collection is left intact. Core exports `readModelCollectionNameResolver`,
   MongoDB exports `resolveMongoCollectionName`.
-- `@cratis/cratis` (experimental) registers Arc and Chronicle together through
+- `@cratis/platform` (a meta package, formerly `@cratis/cratis`; its Chronicle
+  integration is experimental) brings Arc and Chronicle together and registers them through
   `CratisApplication.createBuilder()` and `builder.addCratis(...)`. Unlike C#
   `AddCratis`, it installs no authentication handler; protected routes still
   need one you choose.

@@ -11,11 +11,11 @@
 - Reactors that return commands
 - Specify it without a kernel
 
-Source: `Cratis/Arc.TypeScript` (source preview): `Documentation/chronicle/**`,
+Source: `Cratis/Arc.TypeScript`: `Documentation/chronicle/**`,
 `Documentation/testing/chronicle.md`, `Source/Chronicle/index.ts`, and
-`Samples/Library`. `@cratis/arc.chronicle` is **experimental** and, like every
-package in the repository, not published to npm. `@cratis/chronicle` (the SDK)
-is published; the integration peers it and needs SDK 6.29.0 or later.
+`Samples/Library`. `@cratis/arc.chronicle` labels itself **experimental** in
+its README. `@cratis/chronicle` (the SDK) is a separate package; the
+integration peers it and needs SDK 6.29.0 or later.
 
 ## Register the integration
 
@@ -126,7 +126,7 @@ itself is `cratis-chronicle-client-typescript`.
 preset flags a command-returning handler without `@onceOnly()` or a replay
 handler. Prefer explicit replay decisions, not lint suppression.
 
-Preview `withChronicle({ ..., activateArtifactsInScopes: true })` on an Arc-owned
+Opt in with `withChronicle({ ..., activateArtifactsInScopes: true })` on an Arc-owned
 client resolves reactors/reducers through Arc DI, one scope per delivered batch,
 with the Chronicle namespace as tenant and no principal. Existing registrations
 win; otherwise discovered reactors/reducers are registered scoped. The SDK

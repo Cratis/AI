@@ -12,16 +12,15 @@ the command's `POST <route>/validate`, so a form can ask before the user
 submits. Every rejection comes back as a `ValidationResult` with a message and
 the member it concerns — never as a thrown error.
 
-Arc for TypeScript is a **source preview**: `@cratis/arc.core` and the other
-server packages are not published to npm, and the API may change. The published
+Arc for TypeScript ships as stable 1.0.0 packages on npm (`@cratis/arc.core`
+and the other server packages). The published
 `@cratis/arc` client is separate; it runs the client-safe rules the proxy
 generator copies into generated proxies. Setup is in
 `cratis-arc-command-typescript`.
 
 ## Verified product sources
 
-Source: `Cratis/Arc.TypeScript` (source preview;
-server packages not on npm), reading `Source/Core/validation/**` (including
+Source: `Cratis/Arc.TypeScript`, reading `Source/Core/validation/**` (including
 `index.ts`, `ValidationResult.ts`, `Severity.ts`, `RuleBuilder.ts`),
 `Source/Core/commands/Outcome.ts`, `Documentation/commands/command-validation.md`,
 `validation-severity-filtering.md`, `command-outcomes.md`,

@@ -1,0 +1,40 @@
+{
+  "skill_name": "cratis-arc-code-analysis-typescript",
+  "evals": [
+    {
+      "id": 1,
+      "name": "configure-plugin",
+      "prompt": "Add the Arc lint rules to our Node.js Arc for TypeScript server that already uses typescript-eslint and flat config. Give the config in your reply; do not write files.",
+      "expected_output": "Import @cratis/eslint-plugin-arc-core and spread arc.configs['recommended-type-checked'] after the typescript-eslint recommended config; mention the ESLint 10 and parser peers and running eslint src.",
+      "assertions": [
+        "Imports the default export of @cratis/eslint-plugin-arc-core and uses configs['recommended-type-checked'].",
+        "Notes the preset needs type information and the plugin targets ESLint 10 flat config.",
+        "Says recommended works without type information but skips type-dependent checks.",
+        "Does not invent preset names other than recommended and recommended-type-checked."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "fix-missing-field",
+      "prompt": "eslint reports arc-core/missing-field on `title!: string;` in our @command() class. What does it mean and how do we fix it? Reply only.",
+      "expected_output": "Public properties on @command() and @readModel() need @field so they appear in the wire schema; add @field(String); private and #/_ names are ignored.",
+      "assertions": [
+        "Explains unmarked properties are invisible to the wire schema.",
+        "Shows adding @field(String) to the property.",
+        "Notes private, # and underscore-prefixed names are ignored.",
+        "Does not recommend disabling the rule."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "chronicle-reactor-rule",
+      "prompt": "The type-checked preset reports arcchr0006 on a Chronicle reactor in our Arc for TypeScript server that returns commands. What does it want? Reply only.",
+      "expected_output": "A command-returning reactor must be marked once-only or supply a replay handler so replays do not re-run commands; decide replay explicitly instead of suppressing the lint.",
+      "assertions": [
+        "Identifies arcchr0006 as a type-checked rule about command-returning reactors and replay.",
+        "Asks for an explicit once-only marker or a replay handler.",
+        "Recommends an explicit replay decision rather than a lint suppression."
+      ]
+    }
+  ]
+}
