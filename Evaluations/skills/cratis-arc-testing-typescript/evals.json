@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-arc-testing-typescript",
+  "evals": [
+    {
+      "id": 1,
+      "name": "authorization-three-callers",
+      "prompt": "ArchiveTask is an Arc for TypeScript command decorated with @roles('Planner'). Write the spec that proves who may call it. Give the code in your reply; do not write files.",
+      "expected_output": "A CommandScenario for ArchiveTask covering an anonymous caller, a caller without the role and a caller with the role using withContext({ principal }), disposing the scenario.",
+      "assertions": [
+        "Creates CommandScenario.for(ArchiveTask) and disposes it after the assertions.",
+        "Covers anonymous, wrong-role and right-role callers.",
+        "Uses withContext({ principal }) with an authenticated principal carrying roles.",
+        "Asserts with shouldNotBeAuthorized() for denials and shouldBeSuccessful() for the permitted caller."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "choose-boundary",
+      "prompt": "We have a shipping-quote command with arithmetic, a validator, a role and a service. What should our Arc for TypeScript specs cover directly and what through a scenario, and what does neither prove? Reply only.",
+      "expected_output": "Direct handle() specs for the arithmetic branches; CommandScenario for validation, authorization, provide, services and the response envelope; ArcScenario for routes and authentication; none proves a real provider or database.",
+      "assertions": [
+        "Puts calculation branches in direct handle() specs with explicit inputs.",
+        "Uses CommandScenario for validators, authorization, services and the response.",
+        "Reserves ArcScenario handle(request) for routing and authentication.",
+        "States that a scenario with fakes does not prove a real provider or database."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "observable-collect",
+      "prompt": "Write a spec for an observable Arc for TypeScript query that emits the current tasks and assert the first emission. Reply only.",
+      "expected_output": "ObservableQueryScenario with collect(1, timeout), assertions on emissions[0].data, and dispose.",
+      "assertions": [
+        "Uses ObservableQueryScenario and collect(count, timeoutMs).",
+        "Asserts on the emissions array and the wire-shaped data.",
+        "Disposes the scenario in every case.",
+        "Does not claim the spec proves a transport or browser client."
+      ]
+    }
+  ]
+}

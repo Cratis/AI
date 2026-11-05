@@ -142,6 +142,6 @@ test('the actual ledger covers every verified-source skill and all targets exist
     assert.match(products.find(product => product.name === 'Architecture')!.notes!, /rules\/csharp.md/);
     assert.deepEqual(products.filter(product => product.visibility === 'private').map(product => product.name).sort(), ['Direct', 'KeldaKraft', 'Studio']);
     const arcTypescript = products.find(product => product.id === 'arc-typescript')!;
-    assert.equal(arcTypescript.track, 'prerelease');
-    assert.equal(arcTypescript.synced!.version, '0.57.2');
+    assert.equal(arcTypescript.track, undefined);
+    assert.equal(arcTypescript.synced!.version, '1.0.0');
 });

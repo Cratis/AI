@@ -1,19 +1,24 @@
 # Project setup and bootstrap for Arc for TypeScript
 
-This reference holds the source-preview consumption paths, compiler and decorator settings, and the application bootstrap with its builder calls.
+This reference holds the install path, compiler and decorator settings, and the application bootstrap with its builder calls.
 
 ## Set up a project
 
-Consume the preview in one of two ways:
+Install the server packages from npm (stable 1.0.0), then add the host adapter and storage packages the application needs:
 
-| Path | How | Use when |
-| --- | --- | --- |
-| Inside a clone | Put the application under `Samples/<Name>` in a clone of `Cratis/Arc.TypeScript`; reference packages as `workspace:^` | Experimenting, or changing Arc while building on it |
-| Packed tarballs | In the clone: `yarn install`, `yarn build`, then `yarn workspace @cratis/arc.core pack --out <file>` per package; `npm install <file>.tgz` in your project | A separate repository |
+```bash
+npm install @cratis/arc.core @cratis/fundamentals @opentelemetry/api
+npm install --save-dev @cratis/arc.testing @cratis/arc.proxygenerator @cratis/eslint-plugin-arc-core
+```
 
-Use `yarn pack`, not `npm pack` — Yarn rewrites `workspace:^` dependencies to
-version ranges; npm does not, and the tarball then fails to install. A
-`workspace:^` dependency outside the clone fails at install.
+| Add | When |
+| --- | --- |
+| `@cratis/arc.express`, `@cratis/arc.fastify` or `@cratis/arc.hono` | The application mounts into an existing web framework instead of the standalone host |
+| `@cratis/arc.mongodb`, `@cratis/arc.drizzle` | MongoDB or SQL read models |
+| `@cratis/arc.chronicle`, or `@cratis/platform` (meta package) for the composed builder | Event sourcing with Chronicle |
+| `rxjs` | RxJS observable queries (optional peer of the core) |
+
+`Samples/Tasks` and `Samples/Library` in `Cratis/Arc.TypeScript` are runnable references for the slice layout.
 
 - Node.js 22.19 or later (the core runs on 22; the workspace build needs 22.19;
   24 LTS is recommended).

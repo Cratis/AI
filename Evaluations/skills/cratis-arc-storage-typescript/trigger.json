@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-arc-storage-typescript",
+  "queries": [
+    { "query": "connect our Arc Node server's TaskRecord read model to MongoDB with withMongoDB and serve a paged query", "shouldTrigger": true },
+    { "query": "mongoCollection(TaskRecord) throws that the model requires @field metadata. what does the Arc MongoDB package need?", "shouldTrigger": true },
+    { "query": "our .NET service wrote Tasks with a Title property but the TypeScript Arc side reads title. naming policy?", "shouldTrigger": true },
+    { "query": "store a Point location in a Mongo read model with Arc for TypeScript and query nearby places", "shouldTrigger": true },
+    { "query": "observe() on my Mongo collection fails before the first read on a local standalone mongod. why?", "shouldTrigger": true },
+    { "query": "map a Drizzle pgTable to an Arc read model: guid ids and a DateOnly column, which codecs?", "shouldTrigger": true },
+    { "query": "withDrizzle registration fails because a field has no column. what must match between the table and the model?", "shouldTrigger": true },
+    { "query": "make Arc observe committed Postgres changes from other processes: postgresqlChangeTrigger and nodePostgresListener setup", "shouldTrigger": true },
+    { "query": "I added a dueOn column to the task table and model. does Arc migrate the database?", "shouldTrigger": true },
+    { "query": "Add a query method with an id argument to our read model class.", "shouldTrigger": false, "note": "cratis-arc-query-typescript" },
+    { "query": "Persist a C# read model with EF Core and add a migration.", "shouldTrigger": false, "note": "cratis-arc-ef-core-migration" },
+    { "query": "Project Chronicle events into a read model with a fromEvent mapping.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Write MongoDB queries with the native driver in our C# service instead of LINQ.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
+    { "query": "Which database does tenant acme use in our Arc Node app, and how do I prove the caller belongs to it?", "shouldTrigger": false, "note": "cratis-arc-tenancy-typescript" },
+    { "query": "Spec a paged Arc query with QueryScenario.", "shouldTrigger": false, "note": "cratis-arc-testing-typescript" },
+    { "query": "How do I add server-side paging and sorting to an existing C# Arc list query?", "shouldTrigger": false, "note": "cratis-arc-query-paging" },
+    { "query": "Install Spring Data MongoDB for our Kotlin Arc server.", "shouldTrigger": false, "note": "cratis-arc-spring-data-kotlin" },
+    { "query": "Define a command that registers a task in the Node Arc server.", "shouldTrigger": false, "note": "cratis-arc-command-typescript" }
+  ]
+}

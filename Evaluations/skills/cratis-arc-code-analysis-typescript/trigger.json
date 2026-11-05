@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-arc-code-analysis-typescript",
+  "queries": [
+    { "query": "add the Arc eslint plugin to our Node server with the type-checked preset", "shouldTrigger": true },
+    { "query": "eslint says arc-core/missing-field on my command property. what is wrong?", "shouldTrigger": true },
+    { "query": "arc-core/unexported-artifact fires on my command class. why does export matter?", "shouldTrigger": true },
+    { "query": "what do the arc-core arc0004 and arc0010 rules check in a TypeScript Arc command?", "shouldTrigger": true },
+    { "query": "ARCCHR0006 on my Chronicle reactor in the TypeScript Arc server. how do I fix it without suppressing?", "shouldTrigger": true },
+    { "query": "difference between the recommended and recommended-type-checked arc-core eslint configs?", "shouldTrigger": true },
+    { "query": "arc-core/query-binding says the descriptor count differs from the method parameters", "shouldTrigger": true },
+    { "query": "which .NET ARC diagnostics have a TypeScript equivalent in @cratis/eslint-plugin-arc-core?", "shouldTrigger": true },
+    { "query": "catch a @command() class with a handle but no field decorators before build() in CI", "shouldTrigger": true },
+    { "query": "Suppress the ARC0004 Roslyn analyzer warning in our C# command.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "build() throws Unbound parameters on TaskItem.taskById. how do I bind the id argument?", "shouldTrigger": false, "note": "cratis-arc-query-typescript" },
+    { "query": "Tune the .editorconfig and Roslyn analyzer severities for our C# slice project.", "shouldTrigger": false, "note": "cratis-engineering-csharp-conventions" },
+    { "query": "Regenerate stale Arc metadata and proxies with arc-proxygenerator --check-metadata.", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "Fix an ESLint failure in the React Cratis Components page.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Write a validator for the register command in the Node Arc server.", "shouldTrigger": false, "note": "cratis-arc-validation-typescript" },
+    { "query": "Which spec runner should I use for Arc server specifications?", "shouldTrigger": false, "note": "cratis-arc-testing-typescript" },
+    { "query": "Review this diff for architecture and style issues in a Cratis application.", "shouldTrigger": false, "note": "cratis-code-review" }
+  ]
+}

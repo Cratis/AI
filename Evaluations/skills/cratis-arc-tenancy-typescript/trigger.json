@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-arc-tenancy-typescript",
+  "queries": [
+    { "query": "our Arc Node server reads the x-cratis-tenant-id header. how do I make sure Globex users can't read Acme's tasks?", "shouldTrigger": true },
+    { "query": "configure tenancy sources so the tenant comes from a claim in the token first and falls back to a header", "shouldTrigger": true },
+    { "query": "what does membershipClaim do in the Arc TypeScript tenancy options and when does it answer 403 vs 400?", "shouldTrigger": true },
+    { "query": "I want the tenant to be the subdomain, acme.example.com, on my Express-hosted Arc app. TenantResolverType.Subdomain wants a baseDomain, why?", "shouldTrigger": true },
+    { "query": "write tenancy.resolve for our Arc server that derives the tenant from the principal and checks membership", "shouldTrigger": true },
+    { "query": "which MongoDB database does Arc for TypeScript use for tenant acme when database is 'tasks'? and what if there is no tenant?", "shouldTrigger": true },
+    { "query": "single-tenant Arc TypeScript app: give every request the default tenant", "shouldTrigger": true },
+    { "query": "my background job calls app.server.executeCommand and the Drizzle databaseFactory throws 'A tenant is required'. what tenant do I pass?", "shouldTrigger": true },
+    { "query": "currentContext()?.tenantId is undefined in a repository class deep in our Node Arc server. why?", "shouldTrigger": true },
+    { "query": "Which Chronicle namespace does a C# Arc command append to for a tenant?", "shouldTrigger": false, "note": "cratis-chronicle-multi-tenancy" },
+    { "query": "Add JWT bearer authentication with a JWKS URL to our Arc Node server.", "shouldTrigger": false, "note": "cratis-arc-command-typescript" },
+    { "query": "Write a validator that rejects an empty task title in the TypeScript Arc server.", "shouldTrigger": false, "note": "cratis-arc-validation-typescript" },
+    { "query": "Configure the C# Arc host so each request resolves a tenant from a claim.", "shouldTrigger": false, "note": "cratis-arc-authentication-authorization-and-identity" },
+    { "query": "Add a MongoDB collection and a page query for our Node Arc read model.", "shouldTrigger": false, "note": "cratis-arc-storage-typescript" },
+    { "query": "How do I write a spec for the Arc command with CommandScenario?", "shouldTrigger": false, "note": "cratis-arc-testing-typescript" },
+    { "query": "Add a new tenant namespace to an existing Chronicle event store in .NET.", "shouldTrigger": false, "note": "cratis-chronicle-multi-tenancy" },
+    { "query": "Which roles may call this Arc TypeScript query? Add @roles('Reader').", "shouldTrigger": false, "note": "cratis-arc-query-typescript" },
+    { "query": "Set up Express 5 hosting for our Arc application.", "shouldTrigger": false, "note": "cratis-arc-command-typescript" }
+  ]
+}

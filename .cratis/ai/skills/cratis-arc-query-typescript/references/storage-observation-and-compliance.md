@@ -3,7 +3,7 @@
 
 # Storage observation and protected raw reads
 
-Source: `Cratis/Arc.TypeScript` (source preview, not on npm):
+Source: `Cratis/Arc.TypeScript`:
 `Source/Drizzle/DrizzleOptions.ts`, package exports and observation code,
 `Source/MongoDB/MongoReadModelsOptions.ts`, `Source/Chronicle/releaseRawDocument.ts`,
 `Documentation/sql/observing-tables.md`, `observing-postgresql.md`, and

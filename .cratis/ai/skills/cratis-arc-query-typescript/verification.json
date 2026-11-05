@@ -3,7 +3,7 @@
   "input": "Expose a live list of tasks from an Arc for TypeScript read model.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "is a **source preview**" },
+    { "kind": "skill-contains", "value": "ships as stable 1.0.0 packages on npm" },
     { "kind": "skill-contains", "value": "- the method is `static`," },
     { "kind": "skill-contains", "value": "**Absence is an answer, not an error.**" },
     { "kind": "skill-contains", "value": "`@query({ observable: true }, service(Tasks))`" },

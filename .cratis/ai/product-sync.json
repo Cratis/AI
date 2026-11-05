@@ -909,7 +909,6 @@
       "id": "arc-typescript",
       "name": "Arc.TypeScript",
       "repository": "Cratis/Arc.TypeScript",
-      "track": "prerelease",
       "packages": [
         {
           "ecosystem": "npm",
@@ -917,19 +916,23 @@
         }
       ],
       "synced": {
-        "version": "0.57.2",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "1.0.0",
+        "date": "2026-11-05",
+        "by": "Cratis/AI#1035"
       },
       "covers": {
         "skills": [
           "cratis-arc-command-typescript",
           "cratis-arc-query-typescript",
-          "cratis-arc-validation-typescript"
+          "cratis-arc-validation-typescript",
+          "cratis-arc-tenancy-typescript",
+          "cratis-arc-storage-typescript",
+          "cratis-arc-testing-typescript",
+          "cratis-arc-code-analysis-typescript"
         ],
         "rules": []
       },
-      "notes": "Synced to GitHub pre-release v0.57.2 source in Cratis/AI#620; tracks pre-release tags and does not claim npm publication."
+      "notes": "Packages are published to npm as stable 1.0.0; the skills cover hosting adapters, authentication, tenancy, validation, MongoDB, Drizzle, Chronicle, testing, proxy generation and the ESLint plugin."
     }
   ]
 }
