@@ -78,6 +78,7 @@
           "cratis-arc-command-validation",
           "cratis-arc-ef-core-migration",
           "cratis-arc-hosting",
+          "cratis-arc-neo4j",
           "cratis-arc-observable-query-http",
           "cratis-arc-query-paging",
           "cratis-arc-react-page",

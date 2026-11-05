@@ -1,0 +1,57 @@
+{
+  "skill_name": "cratis-arc-neo4j",
+  "evals": [
+    {
+      "id": 1,
+      "name": "first-graph-query",
+      "prompt": "Set up Cratis.Arc.Neo4j in an Arc host and write a model-bound query that lists the members of a group from a MEMBER_OF graph. Reply only.",
+      "expected_output": "Package install, Cratis:Neo4j options with Server and EventStore and PasswordSecret, WithNeo4j(), and a static [ReadModel] query using IGraphSession.Query with a parameterized Cypher.",
+      "assertions": [
+        "Installs Cratis.Arc.Neo4j and calls WithNeo4j() or AddCratisNeo4j(), not both.",
+        "Configures Server and EventStore and names the password by PasswordSecret instead of writing it.",
+        "Writes a static query on a [ReadModel] taking IGraphSession and calling Query<T> with a parameterized Cypher string.",
+        "Passes the group id as a parameter object and does not concatenate it into the Cypher.",
+        "States the session is read-only and the graph is changed by appending events."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "database-naming",
+      "prompt": "With event store Orders and no prefix, what database does Arc use for namespaces Default, Acme, Acme Corp and for event store 1Orders in Default? Reply only.",
+      "expected_output": "orders, orders-acme, orders-acme-corp-fd6ee09c, and g-1orders, explained by lower-casing, replacing invalid characters, the g- prefix and the SHA-256 suffix.",
+      "assertions": [
+        "Gives orders for Default and orders-acme for Acme, noting case alone adds no hash.",
+        "Gives orders-acme-corp-fd6ee09c for Acme Corp and explains the 8-hex SHA-256 suffix of the unsanitized name.",
+        "Gives g-1orders because the name does not start with a letter.",
+        "Says the name must equal what Chronicle's Neo4j sink writes.",
+        "Does not hand-build names when GraphDatabaseName.For is available."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "single-database-tenancy",
+      "prompt": "We run Neo4j Community Edition in Single database mode. How do we keep tenants apart in our Arc queries? Reply only.",
+      "expected_output": "Use the $namespace parameter against the _namespace property on every node pattern; Single mode is for development and tests only.",
+      "assertions": [
+        "Filters every node pattern with _namespace = $namespace.",
+        "States Single mode is for development and tests, not production, because only the filter separates tenants.",
+        "Notes the $namespace parameter is added by the session and is harmless in PerNamespace mode.",
+        "Mentions Parameters or the session adds the parameter when running through the driver directly.",
+        "Does not suggest a singleton capturing IGraphSession."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "test-the-query",
+      "prompt": "Write a specification for GroupMember.MembersOf that needs no Neo4j server and proves the namespace is bound. Reply only.",
+      "expected_output": "UseGraphSessionSubstitute, Returns with a Cypher fragment, calling the query, and asserting Executions parameters including $namespace.",
+      "assertions": [
+        "Installs Cratis.Arc.Neo4j.Testing and calls UseGraphSessionSubstitute() on a service collection.",
+        "Sets up rows with Returns and a Cypher fragment.",
+        "Calls the query with the substitute as the session.",
+        "Asserts on Executions including the converted parameters.",
+        "Notes Run and Session throw on the substitute and need an integration test."
+      ]
+    }
+  ]
+}

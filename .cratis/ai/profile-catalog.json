@@ -276,6 +276,7 @@
         "cratis-arc-command-operation",
         "cratis-arc-command-validation",
         "cratis-arc-hosting",
+        "cratis-arc-neo4j",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging"
       ],
