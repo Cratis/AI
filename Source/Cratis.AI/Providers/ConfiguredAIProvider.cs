@@ -13,6 +13,7 @@ using Cratis.AI.Providers.RateLimiting;
 using Cratis.AI.Providers.Reconfiguring;
 using Cratis.AI.Providers.Refreshing;
 using Cratis.AI.Providers.Removing;
+using Cratis.AI.Providers.SettingAllowedUsers;
 using Cratis.AI.Providers.SettingConcurrency;
 using Cratis.AI.Providers.SettingHarnesses;
 using Cratis.AI.Providers.SettingTierModels;
@@ -64,6 +65,7 @@ namespace Cratis.AI.Providers;
 [FromEvent<AIProviderHarnessesSet>]
 [FromEvent<AIProviderModelsDiscovered>]
 [FromEvent<AIProviderModelDiscoveryFailed>]
+[FromEvent<AIProviderAllowedUsersSet>]
 [RemovedWith<AIProviderRemoved>]
 [RemovedWith<AIModelRemoved>]
 public record ConfiguredAIProvider(
@@ -205,4 +207,11 @@ public record ConfiguredAIProvider(
     [SetValue<AIProviderModelsDiscovered>("")]
     [SetFrom<AIProviderModelDiscoveryFailed>(nameof(AIProviderModelDiscoveryFailed.Reason))]
     public string ModelDiscoveryFailure { get; init; } = string.Empty;
+
+    /// <summary>
+    /// Gets the people allowed to use this provider - empty for unrestricted, which is how every
+    /// provider starts.
+    /// </summary>
+    [SetFrom<AIProviderAllowedUsersSet>(nameof(AIProviderAllowedUsersSet.AllowedUserIds))]
+    public IReadOnlyList<AIProviderAllowedUserId> AllowedUserIds { get; init; } = [];
 }
