@@ -268,7 +268,7 @@ property)]` and `[FromEvery(property, contextProperty)]`. Name them.
 A graph projection turns events into idempotent operations on a property graph
 instead of folding them into a document. It uses the same observer, event routing,
 key and property expressions, replay and failed-partition handling. Requires
-Chronicle <graph release> (check the installed `Cratis.Chronicle` package version).
+Chronicle 19.129.0 (check the installed `Cratis.Chronicle` package version).
 
 Choose a graph when the questions are traversals (membership, nesting, paths) and a
 document read model when they are lookups by key. Design it by reading the graph
