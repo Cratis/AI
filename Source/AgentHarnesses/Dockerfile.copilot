@@ -30,7 +30,7 @@ RUN npm install -g @github/copilot@${COPILOT_CLI_VERSION}
 # DIRECT_CALLBACK_TOKEN contract the Claude image installs, wired into the session by
 # run_copilot() with --additional-mcp-config rather than reinvented for this harness. Copilot CLI is
 # an MCP client, so the server is consumed verbatim.
-COPY progress-mcp-server.mjs package.json package-lock.json /usr/local/lib/direct-progress-mcp/
+COPY progress-mcp-server.mjs credential-mcp-server.mjs package.json package-lock.json /usr/local/lib/direct-progress-mcp/
 RUN cd /usr/local/lib/direct-progress-mcp && npm ci --omit=dev
 
 # Agent skills - the same authored content the Claude image vendors at ~/.claude/skills, placed at
