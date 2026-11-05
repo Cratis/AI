@@ -22,24 +22,30 @@ ENTRYPOINT="${HERE}/../entrypoint.sh"
 source "${HERE}/lib/scratch.sh"
 scratch_create quota-detection
 WORK="$SCRATCH_ROOT"
-mkdir -p "$WORK/bin"
+mkdir -p "$WORK/bin" "$WORK/home"
+export HOME="$WORK/home"
 export PATH="$WORK/bin:$PATH"
 
 command -v jq >/dev/null || { echo "SKIPPED: jq is not installed"; exit 0; }
 
 lift() {
-    awk -v name="$1" '$0 ~ "^" name "\\(\\)" { inside = 1 } inside { print } inside && /^}$/ { exit }' "$ENTRYPOINT"
+    awk -v name="$1" '$0 ~ "^" name "\\(\\)" { inside = 1 } inside { print } inside && /^[})]$/ { exit }' "$ENTRYPOINT"
 }
 
-lift quota_exhaustion_code > "$WORK/lifted.sh"
+{
+    lift quota_exhaustion_code
+    lift agent_credential_environment
+    lift exec_agent_with_credentials
+    lift prepare_mcp_credentials
+} > "$WORK/lifted.sh"
 lift run_copilot > "$WORK/run_copilot.sh"
 grep -q 'quota_exhaustion_code()' "$WORK/lifted.sh" || { echo "FAILED to lift quota_exhaustion_code out of entrypoint.sh"; exit 1; }
 grep -q 'run_copilot()' "$WORK/run_copilot.sh" || { echo "FAILED to lift run_copilot out of entrypoint.sh"; exit 1; }
 grep -q '/usr/bin/time -v' "$WORK/run_copilot.sh" || { echo "FAILED: run_copilot no longer wraps the CLI in /usr/bin/time -v"; exit 1; }
-sed -i.bak 's#/usr/bin/time -v -o "\$COPILOT_TIME_FILE" -- copilot#copilot#' "$WORK/run_copilot.sh"
+sed -i.bak 's#/usr/bin/time -v -o "[^"]*" -- ##' "$WORK/run_copilot.sh"
 # shellcheck source=/dev/null
 . "$WORK/lifted.sh"
-# shellcheck source=/dev/null
+# shellcheck source=../entrypoint.sh
 . "$WORK/run_copilot.sh"
 
 failures=0
@@ -104,7 +110,7 @@ run_session() {
     : > "$REPORT_FILE"
     PROMPT_FILE="$WORK/prompt.md"
     printf 'Do the work.' > "$PROMPT_FILE"
-    AGENT_PID=""
+    export AGENT_PID=""
     ( run_copilot ) > "$WORK/session.log" 2>&1
 }
 export COPILOT_STUB_STREAM="$WORK/stream.jsonl"
