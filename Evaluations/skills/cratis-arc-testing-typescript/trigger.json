@@ -1,0 +1,22 @@
+{
+  "skill": "cratis-arc-testing-typescript",
+  "queries": [
+    { "query": "how do I write a spec for my Arc Node command that proves the validator and the role check actually run?", "shouldTrigger": true },
+    { "query": "when should I call handle() directly vs use CommandScenario in the Arc TypeScript server tests?", "shouldTrigger": true },
+    { "query": "CommandScenario.for(RegisterTask) but my validator never fires in the spec. what did I miss?", "shouldTrigger": true },
+    { "query": "test that an anonymous caller and a caller without the Planner role are denied by my Arc TS command", "shouldTrigger": true },
+    { "query": "use @cratis/arc.testing with node:test instead of Vitest", "shouldTrigger": true },
+    { "query": "ArcScenario with a full HTTP request to check that authentication handlers and the route work in my Node Arc app", "shouldTrigger": true },
+    { "query": "share fakes between many Arc TypeScript command specs with given() and for_/when_ folders", "shouldTrigger": true },
+    { "query": "assert an operation was compensated in my Arc command spec", "shouldTrigger": true },
+    { "query": "my decorators silently do nothing inside Vitest for the Arc server. what transform settings?", "shouldTrigger": true },
+    { "query": "Write xUnit specs for a C# Arc command with CommandScenario.", "shouldTrigger": false, "note": "cratis-application-slice-specifications" },
+    { "query": "Test our React view model with a mocked generated command proxy.", "shouldTrigger": false, "note": "cratis-application-react-specifications" },
+    { "query": "Naming and folder conventions for TypeScript specifications in a Cratis framework repo.", "shouldTrigger": false, "note": "cratis-specifications-typescript" },
+    { "query": "Write the validator rule that rejects a title longer than 100 characters in the Node Arc server.", "shouldTrigger": false, "note": "cratis-arc-validation-typescript" },
+    { "query": "Specify a Chronicle reducer's read-model state with the ReadModelScenario.", "shouldTrigger": false, "note": "cratis-chronicle-read-model-specifications" },
+    { "query": "Test Kotlin Arc pipeline specifications without Spring Boot.", "shouldTrigger": false, "note": "cratis-arc-testing-kotlin" },
+    { "query": "Add a query to the Arc Node read model class.", "shouldTrigger": false, "note": "cratis-arc-query-typescript" },
+    { "query": "Which tenant sources can the Arc TypeScript server resolve from?", "shouldTrigger": false, "note": "cratis-arc-tenancy-typescript" }
+  ]
+}
