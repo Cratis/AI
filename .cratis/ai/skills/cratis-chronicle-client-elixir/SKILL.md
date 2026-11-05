@@ -283,7 +283,7 @@ and edges are structs with `use Chronicle.Graphs.Node` and `use Chronicle.Graphs
 type: "MEMBER_OF"`. Inside the graph, `node Mod, key: :field do ... end` and
 `edge Mod, source: A, target: B do ... end` hold `from/2` and `removed_with/2`
 (`detach: true` on a node). Register it with `graphs: [Mod]` on `Chronicle.Client`.
-Requires cratis_chronicle <graph release> (check `mix deps`). Read
+Requires cratis_chronicle 3.20.0 (check `mix deps`). Read
 [references/graphs.md](references/graphs.md) for the options, counters, edge identity,
 compiler checks and sink choice. Pin `id:`; renaming it registers a different projection.
 
