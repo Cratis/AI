@@ -13,6 +13,7 @@ using Cratis.AI.Providers.RateLimiting;
 using Cratis.AI.Providers.Reconfiguring;
 using Cratis.AI.Providers.Refreshing;
 using Cratis.AI.Providers.Removing;
+using Cratis.AI.Providers.SettingAllowedMembers;
 using Cratis.AI.Providers.SettingConcurrency;
 using Cratis.AI.Providers.SettingHarnesses;
 using Cratis.AI.Providers.SettingTierModels;
@@ -62,6 +63,7 @@ namespace Cratis.AI.Providers;
 [FromEvent<AIProviderUsageCredentialCleared>]
 [FromEvent<AIProviderUsageCapacitySet>]
 [FromEvent<AIProviderHarnessesSet>]
+[FromEvent<AIProviderAllowedMembersSet>]
 [FromEvent<AIProviderModelsDiscovered>]
 [FromEvent<AIProviderModelDiscoveryFailed>]
 [RemovedWith<AIProviderRemoved>]
@@ -186,6 +188,21 @@ public record ConfiguredAIProvider(
     /// Gets the selected harnesses, or an empty list before a selection has been made.
     /// </summary>
     public IReadOnlyList<Harness> SupportedHarnesses { get; init; } = [];
+
+    /// <summary>
+    /// Whether the provider has an explicit team-member allow-list. Legacy providers have not been
+    /// configured; an explicit empty selection instead disables the provider for every team member -
+    /// see <see cref="AIProviderMemberAccess"/>.
+    /// </summary>
+    [SetValue<AIProviderAllowedMembersSet>(true)]
+    public bool HasAllowedMembersSelection { get; init; }
+
+    /// <summary>
+    /// Gets the team members allowed to use the provider, or an empty list before a selection has
+    /// been made - see <see cref="HasAllowedMembersSelection"/> for what an empty list means before
+    /// and after an explicit selection.
+    /// </summary>
+    public IReadOnlyList<TeamMemberId> AllowedMembers { get; init; } = [];
 
     /// <summary>
     /// Gets the models the provider published the last time it was asked.

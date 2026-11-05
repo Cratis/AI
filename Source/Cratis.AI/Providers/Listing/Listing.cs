@@ -10,6 +10,7 @@ using Cratis.AI.Providers.Copilot;
 using Cratis.AI.Providers.OpenAI;
 using Cratis.AI.Providers.RateLimiting;
 using Cratis.AI.Providers.Reconfiguring;
+using Cratis.AI.Providers.SettingAllowedMembers;
 using Cratis.AI.Providers.SettingConcurrency;
 using Cratis.AI.Providers.SettingHarnesses;
 using Cratis.AI.Providers.SettingTierModels;
@@ -44,6 +45,8 @@ namespace Cratis.AI.Providers.Listing;
 /// <param name="RateLimitedUntil">When the vendor is worth trying again after it turned calls away over its own limits - <see langword="null"/> when it never has. Carried here, not only on <c>ConfiguredAIProvider</c>, because a provider the vendor is currently refusing looks identical to a healthy idle one on the settings page, and that is exactly the state somebody needs to see.</param>
 /// <param name="SupportedHarnesses">The selected harnesses; an empty list disables dispatch only if <paramref name="HasHarnessSelection"/> is true.</param>
 /// <param name="HasHarnessSelection">Whether a harness selection has been recorded; false for legacy providers.</param>
+/// <param name="AllowedMembers">The team members allowed to use this provider; an empty list disables it for everyone only if <paramref name="HasAllowedMembersSelection"/> is true.</param>
+/// <param name="HasAllowedMembersSelection">Whether a team-member allow-list has been recorded; false for a provider open to everyone.</param>
 [ReadModel]
 [FromEvent<CratisAIAdding.AnthropicProviderAdded>]
 [FromEvent<OpenAIProviderAdded>]
@@ -64,6 +67,7 @@ namespace Cratis.AI.Providers.Listing;
 [FromEvent<OpenAICompatibleProviderReconfigured>]
 [FromEvent<ZAIProviderReconfigured>]
 [FromEvent<AIProviderHarnessesSet>]
+[FromEvent<AIProviderAllowedMembersSet>]
 [RemovedWith<CratisAIRemoving.AIProviderRemoved>]
 public record AIProvider(
     AIProviderId Id,
@@ -111,7 +115,10 @@ public record AIProvider(
     DateTimeOffset? RateLimitedUntil = null,
     IReadOnlyList<Harness>? SupportedHarnesses = null,
     [SetValue<AIProviderHarnessesSet>(true)]
-    bool HasHarnessSelection = false)
+    bool HasHarnessSelection = false,
+    IReadOnlyList<TeamMemberId>? AllowedMembers = null,
+    [SetValue<AIProviderAllowedMembersSet>(true)]
+    bool HasAllowedMembersSelection = false)
 {
     /// <summary>
     /// Observes every configured AI provider.
