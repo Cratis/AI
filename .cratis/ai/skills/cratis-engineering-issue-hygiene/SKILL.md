@@ -73,7 +73,9 @@ duplicated or already managed by another active writer. A minimal template is:
 Replace the example with the real scope and remaining work. Use public PR or
 issue URLs when they exist. Summarize a local plan; never link its file path.
 Do not put local paths, harness commands, credentials or private context in
-public issue or PR text. Read [secrets.md](../../rules/secrets.md) before handling
+public issue or PR text. Never name a customer or a customer's customer in an
+issue, comment or PR; describe the situation generically ("a large enterprise
+tenant") and strip identifying products, systems and people. Read [secrets.md](../../rules/secrets.md) before handling
 output, and [local-work-artifacts.md](../../rules/local-work-artifacts.md) before
 creating the private working copy.
 
@@ -132,7 +134,8 @@ For example, use `gh issue view <n> --repo OWNER/REPO --comments` and
    `gh issue list --repo OWNER/REPO --state all --search "<area> in:title,body"`.
    Reuse an existing issue instead of duplicating it; comment only when that
    effect is authorized and adds necessary context.
-3. Group related findings into one checklist issue per area. Include concrete,
+3. Keep every issue generic: no customer or customer-of-customer names, ever.
+   Group related findings into one checklist issue per area. Include concrete,
    testable `## Acceptance criteria`. No speculative hardening, ideas or
    "investigate later" issues. If filing is outside the request, list necessary
    follow-ups in the report instead of creating them.
