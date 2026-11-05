@@ -120,7 +120,8 @@ There is no fast path that checks only the named files or only `--stat`.
 
 ## Public text
 
-No local paths (including the draft file path), model or agent names, session
+No customer or customer-of-customer names (keep every reference generic), local
+paths (including the draft file path), model or agent names, session
 IDs, verification receipts or work-folder names. Use absolute URLs and commit
 permalinks.
 
