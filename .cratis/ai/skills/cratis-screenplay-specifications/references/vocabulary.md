@@ -74,3 +74,9 @@ An enumeration value binds whether it is written bare
 An older compiler binds only the quoted member and the full round-trip instant
 (`"2026-10-05T08:00:00.0000000Z"`) although it accepts all forms - quote members when a
 model must bind on older versions.
+
+## Time zones
+
+- `given time zone "<id>"` is parsed, not runnable. Executable binding refuses it with
+  `PLAY0268`; a repeated or malformed line is `PLAY0814`. Do not author it into an
+  executable model.
