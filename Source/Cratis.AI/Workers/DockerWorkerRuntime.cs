@@ -68,6 +68,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         return new()
         {
             Image = job.Image,
+            Labels = job.Labels is { Count: > 0 } labels ? new Dictionary<string, string>(labels, StringComparer.Ordinal) : null!,
 
             // Only non-secret configuration goes on the container specification, because
             // `docker inspect` reads it back and it outlives the container. Credentials are

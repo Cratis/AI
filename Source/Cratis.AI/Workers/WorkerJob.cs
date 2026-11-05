@@ -28,4 +28,11 @@ public record WorkerJob(
     IReadOnlyDictionary<string, string> EnvironmentVariables,
     IReadOnlyDictionary<string, string> Secrets,
     IReadOnlyDictionary<string, string>? ConfigurationFiles = null,
-    TimeSpan? Deadline = null);
+    TimeSpan? Deadline = null)
+{
+    /// <summary>
+    /// Labels the Docker runtime puts on the worker container, so tools on the host can find or skip it.
+    /// The Kubernetes runtime ignores them.
+    /// </summary>
+    public IReadOnlyDictionary<string, string>? Labels { get; init; }
+}
