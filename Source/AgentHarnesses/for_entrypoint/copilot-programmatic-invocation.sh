@@ -41,9 +41,9 @@ awk '/^run_copilot\(\)/ { inside = 1 }
 grep -q 'run_copilot()' "$LIFTED" || { echo "FAILED to lift run_copilot out of entrypoint.sh"; exit 1; }
 grep -q '/usr/bin/time -v' "$LIFTED" || { echo "FAILED: run_copilot no longer wraps the CLI in /usr/bin/time -v"; exit 1; }
 sed -i.bak 's#/usr/bin/time -v -o "[^"]*" -- ##' "$LIFTED"
-awk '/^agent_credential_environment\(\)|^prepare_mcp_credentials\(\)/ { inside = 1 }
+awk '/^agent_credential_environment\(\)|^exec_agent_with_credentials\(\)|^prepare_mcp_credentials\(\)/ { inside = 1 }
      inside { print }
-     inside && /^}$/ { inside = 0 }' "$ENTRYPOINT" >> "$LIFTED"
+     inside && /^[})]$/ { inside = 0 }' "$ENTRYPOINT" >> "$LIFTED"
 # shellcheck source=../entrypoint.sh
 . "$LIFTED"
 

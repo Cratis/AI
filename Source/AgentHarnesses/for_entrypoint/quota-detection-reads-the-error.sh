@@ -29,12 +29,15 @@ export PATH="$WORK/bin:$PATH"
 command -v jq >/dev/null || { echo "SKIPPED: jq is not installed"; exit 0; }
 
 lift() {
-    awk -v name="$1" '$0 ~ "^" name "\\(\\)" { inside = 1 } inside { print } inside && /^}$/ { exit }' "$ENTRYPOINT"
+    awk -v name="$1" '$0 ~ "^" name "\\(\\)" { inside = 1 } inside { print } inside && /^[})]$/ { exit }' "$ENTRYPOINT"
 }
 
-lift quota_exhaustion_code > "$WORK/lifted.sh"
-lift agent_credential_environment >> "$WORK/lifted.sh"
-lift prepare_mcp_credentials >> "$WORK/lifted.sh"
+{
+    lift quota_exhaustion_code
+    lift agent_credential_environment
+    lift exec_agent_with_credentials
+    lift prepare_mcp_credentials
+} > "$WORK/lifted.sh"
 lift run_copilot > "$WORK/run_copilot.sh"
 grep -q 'quota_exhaustion_code()' "$WORK/lifted.sh" || { echo "FAILED to lift quota_exhaustion_code out of entrypoint.sh"; exit 1; }
 grep -q 'run_copilot()' "$WORK/run_copilot.sh" || { echo "FAILED to lift run_copilot out of entrypoint.sh"; exit 1; }

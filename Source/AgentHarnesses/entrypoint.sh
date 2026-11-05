@@ -355,21 +355,28 @@ export -n DIRECT_CALLBACK_TOKEN DIRECT_CONTEXT_MCP_TOKEN EXA_API_KEY CONTEXT7_AP
     GITHUB_TOKEN GH_TOKEN DIRECT_CLONE_CREDENTIALS DIRECT_PI_OAUTH_CREDENTIAL DIRECT_KUBECONFIG
 
 agent_credential_environment() {
-    AGENT_CREDENTIAL_ENV=()
     local names name
     case "$1" in
         claude-code) names='ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN' ;;
         copilot) names='COPILOT_GITHUB_TOKEN' ;;
-        anthropic) names='ANTHROPIC_API_KEY CLAUDE_CODE_OAUTH_TOKEN' ;;
+        anthropic) names='ANTHROPIC_API_KEY' ;;
         openai) names='OPENAI_API_KEY' ;;
         azure-openai-responses) names='AZURE_OPENAI_API_KEY' ;;
-        direct-provider) names='DIRECT_PROVIDER_API_KEY' ;;
+        direct-openai-compatible) names='DIRECT_PROVIDER_API_KEY' ;;
+        openai-codex) names='' ;; # Pi reads its seeded credential store.
         zai) names='ZAI_API_KEY' ;;
         *) names='' ;;
     esac
     for name in $names; do
-        [[ -z "${!name:-}" ]] || AGENT_CREDENTIAL_ENV+=("$name=${!name}")
+        [[ -z "${!name:-}" ]] || export "${name?}"
     done
+}
+
+# Call sites use a pipeline or background job: that subshell scopes exports, and exec keeps its PID.
+exec_agent_with_credentials() {
+    agent_credential_environment "$1"
+    shift
+    exec "$@"
 }
 
 prepare_mcp_credentials() {
@@ -378,14 +385,14 @@ prepare_mcp_credentials() {
     umask 077
     MCP_CREDENTIAL_DIR=$(mktemp -d "$HOME/.agent-mcp.XXXXXX") || return 1
     printf '%s' "${DIRECT_CALLBACK_TOKEN:-}" > "$MCP_CREDENTIAL_DIR/progress-token"
-    jq -n --arg key "${EXA_API_KEY:-}" \
-        '{url:"https://mcp.exa.ai/mcp",headers:(if $key == "" then {} else {"x-api-key":$key} end)}' \
+    printf '%s' "${EXA_API_KEY:-}" | jq -Rs \
+        '{url:"https://mcp.exa.ai/mcp",headers:(if . == "" then {} else {"x-api-key":.} end)}' \
         > "$MCP_CREDENTIAL_DIR/exa.json"
-    jq -n --arg key "${CONTEXT7_API_KEY:-}" \
-        '{command:"context7-mcp",args:[],env:(if $key == "" then {} else {CONTEXT7_API_KEY:$key} end)}' \
+    printf '%s' "${CONTEXT7_API_KEY:-}" | jq -Rs \
+        '{command:"context7-mcp",args:[],env:(if . == "" then {} else {CONTEXT7_API_KEY:.} end)}' \
         > "$MCP_CREDENTIAL_DIR/context7.json"
-    jq -n --arg url "${DIRECT_CONTEXT_MCP_URL:-}" --arg token "${DIRECT_CONTEXT_MCP_TOKEN:-}" \
-        '{url:$url,headers:{Authorization:("Bearer " + $token)}}' > "$MCP_CREDENTIAL_DIR/context.json"
+    printf '%s' "${DIRECT_CONTEXT_MCP_TOKEN:-}" | jq -Rs --arg url "${DIRECT_CONTEXT_MCP_URL:-}" \
+        '{url:$url,headers:{Authorization:("Bearer " + .)}}' > "$MCP_CREDENTIAL_DIR/context.json"
     umask "$previous_umask"
 }
 
@@ -1499,8 +1506,7 @@ run_claude_code() {
     # CLAUDE.md and .claude/skills from loading, and drops its hooks (the PR-body guard, the Stop
     # quality gate) with them.
     {
-        agent_credential_environment claude-code
-        /usr/bin/time -v -o "$TIME_FILE" -- env "${AGENT_CREDENTIAL_ENV[@]}" claude -p \
+        exec_agent_with_credentials claude-code /usr/bin/time -v -o "$TIME_FILE" -- claude -p \
             --input-format stream-json \
             --output-format stream-json \
             --verbose \
@@ -1715,8 +1721,8 @@ configure_pi_provider() {
             ;;
         zai)
             # Nothing to configure: Pi declares its own zai provider, fixed to Z.ai's public
-            # endpoint, and reads ZAI_API_KEY from the environment directly (load_secrets()
-            # exports it like every other credential). The case exists to say that explicitly -
+            # endpoint, and reads ZAI_API_KEY from its scoped launch environment.
+            # The case exists to say that explicitly -
             # a provider id with no case reads as forgotten rather than deliberate.
             log "Using Pi's built-in Z.ai provider"
             ;;
@@ -1898,8 +1904,7 @@ run_pi() {
     # toolset by name, matching Claude Code's default tool availability - grep/find/ls are off by
     # default in Pi 0.84.x otherwise. --provider is always DIRECT_PROVIDER, resolved server-side
     # against the Direct's own approved-providers allow-list - never a value this script invents.
-    agent_credential_environment "${DIRECT_PROVIDER:-anthropic}"
-    env "${AGENT_CREDENTIAL_ENV[@]}" pi --mode rpc \
+    exec_agent_with_credentials "${DIRECT_PROVIDER:-anthropic}" pi --mode rpc \
         --no-session \
         --no-approve \
         --offline \
@@ -2136,8 +2141,7 @@ run_copilot() {
     # --output-format json emits JSONL, one object per line, which is what makes the stream readable
     # below. --no-color keeps the log free of escape sequences.
     {
-        agent_credential_environment copilot
-        /usr/bin/time -v -o "$COPILOT_TIME_FILE" -- env "${AGENT_CREDENTIAL_ENV[@]}" copilot \
+        exec_agent_with_credentials copilot /usr/bin/time -v -o "$COPILOT_TIME_FILE" -- copilot \
             --prompt "$(cat "$COPILOT_PROMPT_FILE")" \
             --allow-all-tools \
             --allow-all-paths \
