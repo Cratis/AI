@@ -3,7 +3,7 @@
 
 # Observability and trusted host scopes
 
-Source: `Cratis/Arc.TypeScript` (source preview):
+Source: `Cratis/Arc.TypeScript`:
 `Source/Core/execution/WellKnownTelemetryNames.ts`, `observability.ts`,
 `runInScope.ts`, `RunInScopeOptions.ts`, and `Documentation/observability.md`.
 

@@ -10,11 +10,11 @@
 - Observable-query WebSockets from a dev server
 - Storage integrations
 
-Source: `Cratis/Arc.TypeScript` (source preview): `Documentation/overview.md`, `hosts/**`,
+Source: `Cratis/Arc.TypeScript`: `Documentation/overview.md`, `hosts/**`,
 `mongodb/getting-started.md`, `sql/getting-started.md`,
 `chronicle/registration-options.md`, and the `Express`, `Fastify`, `Hono`,
-`MongoDB`, `Drizzle` and `Chronicle` package exports. None of these packages is
-published to npm; install them from a clone or packed tarballs.
+`MongoDB`, `Drizzle` and `Chronicle` package exports. Install each package from
+npm (stable 1.0.0).
 
 ## The host only delivers requests
 

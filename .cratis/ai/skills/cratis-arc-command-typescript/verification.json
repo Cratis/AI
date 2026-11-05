@@ -3,7 +3,7 @@
   "input": "Add a command that registers an author to an Arc for TypeScript server and append an event to Chronicle.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "**None of the server packages is published to npm.**" },
+    { "kind": "skill-contains", "value": "**The server packages are published to npm at stable 1.0.0.**" },
     { "kind": "skill-contains", "value": "**`@cratis/arc` is a different package.**" },
     { "kind": "skill-contains", "value": "ArcApplication.createBuilder()" },
     { "kind": "skill-contains", "value": "**No key is inferred from an unmarked `id`\nfield.**" },
@@ -11,7 +11,7 @@
     { "kind": "skill-contains", "value": "is created through its **constructor** in `handle()`" },
     { "kind": "skill-contains", "value": "`--check-metadata`" },
     { "kind": "skill-contains", "value": "CommandScenario.for(RegisterTask, RegisterTaskValidator)", "file": "references/command-specifications.md" },
-    { "kind": "skill-contains", "value": "(source preview)" },
+    { "kind": "skill-contains", "value": "npm install" },
     { "kind": "skill-contains", "value": "peer `^6.29.0`" },
     { "kind": "skill-contains", "value": "Outside **Development**" },
     { "kind": "skill-contains", "value": "not identity\n  discovery", "file": "references/identity-and-introspection.md" },

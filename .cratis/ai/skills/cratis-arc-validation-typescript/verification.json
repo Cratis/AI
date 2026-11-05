@@ -3,7 +3,7 @@
   "input": "Reject an Arc for TypeScript command when the title is empty or unchanged.",
   "fixtures": [],
   "assertions": [
-    { "kind": "skill-contains", "value": "is a **source preview**" },
+    { "kind": "skill-contains", "value": "ships as stable 1.0.0 packages on npm" },
     { "kind": "skill-contains", "value": "`ValidationResult.information/warning/error(message, options?)`" },
     { "kind": "skill-contains", "value": "`validation(message, members = [], reason = 'rule', severity = Severity.Error)`" },
     { "kind": "skill-contains", "value": "**Keep access control out of validators.**" },

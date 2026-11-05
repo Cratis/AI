@@ -1,10 +1,10 @@
 ## Generate metadata and proxies
 
-Source: `Cratis/Arc.TypeScript` (source preview):
+Source: `Cratis/Arc.TypeScript`:
 `Source/Tools/ProxyGenerator/parseSourceOptions.ts`,
 `Documentation/proxy-generation/getting-started.md`, and sample generator scripts.
 
-`arc-proxygenerator` (package `@cratis/arc.proxygenerator`, also unpublished)
+`arc-proxygenerator` (package `@cratis/arc.proxygenerator`)
 reads the TypeScript source with the compiler API — it never queries a running
 server. It writes server metadata and client proxies in one run. The CLI
 rejects relative paths, and the output folder must exist:

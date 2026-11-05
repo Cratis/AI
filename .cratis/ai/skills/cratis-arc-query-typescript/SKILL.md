@@ -11,8 +11,8 @@ In Arc for TypeScript a read model is a decorated class, and its reads are
 the arguments, resolves services, pages and sorts, and wraps every answer in the
 same `QueryResult` envelope. There is no controller to write.
 
-Arc for TypeScript is a **source preview**: `@cratis/arc.core` and the other
-server packages are not published to npm, and the API may change. `@cratis/arc`
+Arc for TypeScript ships as stable 1.0.0 packages on npm (`@cratis/arc.core`
+and the other server packages). `@cratis/arc`
 is the separate, published **client** that generated query proxies import in a
 frontend. Project setup, the builder, and hosts are in
 `cratis-arc-command-typescript`.
@@ -226,6 +226,8 @@ false`).
 - For an observable query, authorization runs **once**, when the subscription
   opens. A revoked role does not close it; add an observable emission guard when
   access must be re-checked while the stream runs.
+
+Read [references/query-pipeline.md](references/query-pipeline.md) for global query filters, renderers, read-model interceptors, read consistency, hubs and query health.
 
 ## Serve stored read models
 

@@ -11,25 +11,24 @@ of Arc. A command is a decorated class that carries the input and handles itself
 Arc supplies the route, body binding, validation, authorization, and the
 `CommandResult` envelope. There is no controller and no route to write.
 
-## Source preview — read this first
+## Packages — read this first
 
-- **None of the server packages is published to npm.** `@cratis/arc.core`,
+- **The server packages are published to npm at stable 1.0.0.** `@cratis/arc.core`,
   `@cratis/arc.express`, `@cratis/arc.fastify`, `@cratis/arc.hono`,
   `@cratis/arc.testing`, `@cratis/arc.mongodb`, `@cratis/arc.drizzle`,
   `@cratis/arc.chronicle`, `@cratis/cratis`, `@cratis/arc.proxygenerator` and
-`@cratis/eslint-plugin-arc-core` are an unpublished source preview (0.x
-  manifests, GitHub pre-releases). The API may still change. `npm install @cratis/arc.core` fails.
+  `@cratis/eslint-plugin-arc-core` install with `npm install`.
 - **`@cratis/arc` is a different package.** `@cratis/arc`, `@cratis/arc.react` and
   `@cratis/arc.react.mvvm` are the published **client** runtime, built from
   `Cratis/Arc`. Generated proxies import them in the frontend. The server packages
   never depend on them. Never tell a user to install `@cratis/arc` to get a
   server.
-- `@cratis/arc.chronicle` and `@cratis/cratis` are additionally marked
-  **experimental**.
+- `@cratis/arc.chronicle` and `@cratis/cratis` describe their own Chronicle
+  integration as **experimental**; their package READMEs carry that label.
 
 ## Verified product sources
 
-Source: `Cratis/Arc.TypeScript` (source preview), reading package exports, `Documentation/**`, and
+Source: `Cratis/Arc.TypeScript`, reading package exports, `Documentation/**`, and
 `Samples/Tasks` / `Samples/Library`. Behavior on the development branch is excluded.
 
 Requires the Chronicle SDK peer `^6.29.0`, Fundamentals peer `^7.19.6`, `@opentelemetry/api` `^1.9.0` and (optional, for RxJS observable queries) `rxjs` `^7.8.2`.
@@ -57,11 +56,9 @@ when returning or specifying Chronicle events.
 
 Start the server's builder with `ArcApplication.createBuilder()`.
 
-Read [references/project-setup.md](references/project-setup.md) when consuming the source preview in a project, choosing compiler and decorator settings, or wiring `main.ts` and the builder calls (`useGeneratedMetadata` before `discover()`; `build()` validates the graph before any listener opens).
+Read [references/project-setup.md](references/project-setup.md) when installing the packages, choosing compiler and decorator settings, or wiring `main.ts` and the builder calls (`useGeneratedMetadata` before `discover()`; `build()` validates the graph before any listener opens).
 
 ## Secure discovery defaults
-
-Requires Arc for TypeScript 0.56.0 for these defaults.
 
 Outside **Development**, catalogs, identity discovery and `/openapi.json` require
 authentication; without it they are unmapped with a warning. Explicitly requiring
@@ -273,11 +270,19 @@ are in [references/chronicle-events.md](references/chronicle-events.md).
 
 ## Generate metadata and proxies
 
-`arc-proxygenerator` (`@cratis/arc.proxygenerator`, unpublished) reads the TypeScript source and writes server metadata and client proxies in one run. Regenerate after **every** change to a command, read model or validator — `useGeneratedMetadata` throws `Stale generated artifact metadata for <Type>` otherwise — and gate CI with `--check-metadata`. Never edit the committed metadata module.
+`arc-proxygenerator` (`@cratis/arc.proxygenerator`) reads the TypeScript source and writes server metadata and client proxies in one run. Regenerate after **every** change to a command, read model or validator — `useGeneratedMetadata` throws `Stale generated artifact metadata for <Type>` otherwise — and gate CI with `--check-metadata`. Never edit the committed metadata module.
 
-Read [references/proxy-generation.md](references/proxy-generation.md) when wiring the generator script, matching route options to the server, or compiling the generated proxies in a frontend.
+Read [references/proxy-generation.md](references/proxy-generation.md) when wiring the generator script, matching route options to the server, or compiling the generated proxies in a frontend. Read [references/proxy-generator-options.md](references/proxy-generator-options.md) for the full option list, type mapping, copied client validators and file ownership.
+
+## Extend the pipeline or call it from code
+
+Read [references/command-pipeline.md](references/command-pipeline.md) for global command filters, response value handlers, execution scopes, `app.server.executeCommand` from jobs, and low-level `defineCommand`.
+
+Related Arc for TypeScript skills: `cratis-arc-tenancy-typescript`, `cratis-arc-storage-typescript`, `cratis-arc-testing-typescript` and `cratis-arc-code-analysis-typescript`.
 
 ## Host the application
+
+Read [references/configuration.md](references/configuration.md) when setting `ArcOptions`, `appsettings.json` or `Cratis__...` environment variables, route prefixes, body limits or observable-query limits.
 
 `app.run()` is the standalone Node host. To mount the same built application in
 Express 5, Fastify 5, Hono 4, or a Fetch API runtime, keep the builder and swap
