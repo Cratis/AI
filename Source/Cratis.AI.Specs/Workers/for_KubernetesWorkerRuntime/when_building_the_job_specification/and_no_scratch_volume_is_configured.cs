@@ -26,7 +26,9 @@ public class and_no_scratch_volume_is_configured : Specification
     }
 
     [Fact] void should_have_no_init_containers() => _omitted.Spec.Template.Spec.InitContainers.ShouldBeNull();
-    [Fact] void should_not_set_an_fs_group() => _omitted.Spec.Template.Spec.SecurityContext.FsGroup.ShouldBeNull();
+    [Fact] void should_give_mounted_files_the_agents_group() => _omitted.Spec.Template.Spec.SecurityContext.FsGroup.ShouldEqual(1655L);
+    [Fact] void should_only_change_volume_ownership_when_needed() => _omitted.Spec.Template.Spec.SecurityContext.FsGroupChangePolicy.ShouldEqual("OnRootMismatch");
+    [Fact] void should_limit_mounted_file_reads_to_owner_and_group() => _omitted.Spec.Template.Spec.Volumes.Single(volume => volume.Secret is not null).Secret.DefaultMode.ShouldEqual(288);
     [Fact] void should_ignore_a_class_without_a_size() => KubernetesYaml.Serialize(_classOnly).ShouldEqual(KubernetesYaml.Serialize(_omitted));
     [Fact] void should_ignore_a_size_without_a_class() => KubernetesYaml.Serialize(_sizeOnly).ShouldEqual(KubernetesYaml.Serialize(_omitted));
 }

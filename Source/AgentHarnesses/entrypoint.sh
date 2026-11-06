@@ -248,7 +248,7 @@
 #                             vendor-standard variable Pi's built-in azure-openai-responses provider
 #                             reads natively (verified in its @earendil-works/pi-ai dependency's
 #                             source and its own docs/providers.md), so this script does nothing with
-#                             it beyond letting load_secrets() export it like every other secret
+#                             it beyond supplying it to the selected CLI at launch
 #   DIRECT_PROVIDER_API_KEY - the same, for an OpenAI-compatible gateway (Pi harness only). No
 #                             vendor-standard variable exists for this one - it is not a real vendor -
 #                             so configure_pi_provider() (below) writes it into the generated
@@ -265,8 +265,7 @@
 #                             unauthenticated local gateway uses the identical placeholder pattern.
 #   ZAI_API_KEY              - the same, for a Z.ai (GLM) provider on the Pi harness - the
 #                             vendor-standard variable Pi's built-in zai provider reads natively,
-#                             so this script does nothing with it beyond letting load_secrets()
-#                             export it like every other secret. A Z.ai provider on the Claude
+#                             so this script does nothing with it beyond supplying it to the selected CLI at launch. A Z.ai provider on the Claude
 #                             harness instead travels as ANTHROPIC_AUTH_TOKEN above - one provider
 #                             type, one credential, two slots, decided by the harness at dispatch.
 #   COPILOT_GITHUB_TOKEN     - the GitHub credential a Copilot provider's session authenticates with
@@ -275,7 +274,7 @@
 #                             GITHUB_TOKEN - its own documented order), chosen so a container that
 #                             also carries a GH_TOKEN for git operations cannot accidentally decide
 #                             which account the agent reasons as. Read by the CLI natively, so this
-#                             script does nothing with it beyond letting load_secrets() export it.
+#                             script does nothing with it beyond supplying it to the selected CLI at launch.
 #   EXA_API_KEY              - optional. Exa's hosted web-search MCP endpoint (mcp.exa.ai) works
 #                             anonymously, rate-limited, with no key at all - this only lifts that
 #                             limit when the Direct has one to hand out. Claude Code path only, sent
@@ -327,24 +326,75 @@ load_secrets() {
         return
     fi
 
-    set -a
+    set +a
+    # Clear inherited export attributes before assigning the mounted values.
+    local line name
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^([a-zA-Z_][a-zA-Z0-9_]*)= ]]; then
+            name="${BASH_REMATCH[1]}"
+            export -n "${name?}"
+        fi
+    done < "$file"
     # shellcheck source=/dev/null
     if ! . "$file"; then
-        set +a
         log "Could not read ${file} - running without credentials"
         return
     fi
     set +a
 
-    # The file has been read into the environment of this process and its children; removing it
-    # keeps it out of reach of anything the agent later runs that reads the filesystem. This is
-    # best-effort - a read-only Secret volume mount rejects the removal, which is fine, since the
-    # mount itself (not this script) is what keeps the file out of reach of anything else.
+    # Best-effort removal after loading; a read-only volume retains the mounted file.
     rm -f "$file" "$ready" 2>/dev/null
     log "Credentials loaded"
 }
 
 load_secrets
+# Also cover legacy environment-based dispatch. Scope credentials at each launch.
+export -n DIRECT_CALLBACK_TOKEN DIRECT_CONTEXT_MCP_TOKEN EXA_API_KEY CONTEXT7_API_KEY \
+    ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN OPENAI_API_KEY \
+    AZURE_OPENAI_API_KEY DIRECT_PROVIDER_API_KEY ZAI_API_KEY COPILOT_GITHUB_TOKEN \
+    GITHUB_TOKEN GH_TOKEN DIRECT_CLONE_CREDENTIALS DIRECT_PI_OAUTH_CREDENTIAL DIRECT_KUBECONFIG
+
+agent_credential_environment() {
+    local names name
+    case "$1" in
+        claude-code) names='ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN' ;;
+        copilot) names='COPILOT_GITHUB_TOKEN' ;;
+        anthropic) names='ANTHROPIC_API_KEY' ;;
+        openai) names='OPENAI_API_KEY' ;;
+        azure-openai-responses) names='AZURE_OPENAI_API_KEY' ;;
+        direct-openai-compatible) names='DIRECT_PROVIDER_API_KEY' ;;
+        openai-codex) names='' ;; # Pi reads its seeded credential store.
+        zai) names='ZAI_API_KEY' ;;
+        *) names='' ;;
+    esac
+    for name in $names; do
+        [[ -z "${!name:-}" ]] || export "${name?}"
+    done
+}
+
+# Call sites use a pipeline or background job: that subshell scopes exports, and exec keeps its PID.
+exec_agent_with_credentials() {
+    agent_credential_environment "$1"
+    shift
+    exec "$@"
+}
+
+prepare_mcp_credentials() {
+    local previous_umask
+    previous_umask=$(umask)
+    umask 077
+    MCP_CREDENTIAL_DIR=$(mktemp -d "$HOME/.agent-mcp.XXXXXX") || return 1
+    printf '%s' "${DIRECT_CALLBACK_TOKEN:-}" > "$MCP_CREDENTIAL_DIR/progress-token"
+    printf '%s' "${EXA_API_KEY:-}" | jq -Rs \
+        '{url:"https://mcp.exa.ai/mcp",headers:(if . == "" then {} else {"x-api-key":.} end)}' \
+        > "$MCP_CREDENTIAL_DIR/exa.json"
+    printf '%s' "${CONTEXT7_API_KEY:-}" | jq -Rs \
+        '{command:"context7-mcp",args:[],env:(if . == "" then {} else {CONTEXT7_API_KEY:.} end)}' \
+        > "$MCP_CREDENTIAL_DIR/context7.json"
+    printf '%s' "${DIRECT_CONTEXT_MCP_TOKEN:-}" | jq -Rs --arg url "${DIRECT_CONTEXT_MCP_URL:-}" \
+        '{url:$url,headers:{Authorization:("Bearer " + .)}}' > "$MCP_CREDENTIAL_DIR/context.json"
+    umask "$previous_umask"
+}
 
 STREAM_FILE=/tmp/claude-stream.jsonl
 : > "$STREAM_FILE"
@@ -681,7 +731,7 @@ refresh_git_token() {
         log "Direct returned an invalid GitHub token"
         return 1
     fi
-    export GITHUB_TOKEN="$token"
+    GITHUB_TOKEN="$token"
     # Keep the secret out of git config; git's credential helper expands it at invocation time.
     # shellcheck disable=SC2016
     git config --global credential.helper '!f() { echo "username=x-access-token"; echo "password=${GITHUB_TOKEN}"; }; f'
@@ -729,7 +779,7 @@ push_workspaces() {
         # "fatal: --mirror can't be combined with refspecs" and the run's commits are lost. Naming
         # the URL sidesteps the mirror configuration entirely, and works the same for an ordinary
         # clone, so both checkout paths push identically.
-        if git -C "$dest" push "$url" "HEAD:refs/heads/${DIRECT_BRANCH}"; then
+        if GITHUB_TOKEN="${GITHUB_TOKEN:-}" git -C "$dest" push "$url" "HEAD:refs/heads/${DIRECT_BRANCH}"; then
             log "Pushed ${DIRECT_BRANCH} from ${dest}"
             WORKSPACES[index]="${dest}|${head}|${url}"
         else
@@ -893,8 +943,8 @@ clone_into_workspace() {
             # which is the one control surface a `+refs/*:refs/*` fetch on the backend side does
             # not heal.
             local default_ref
-            default_ref=$(git ls-remote --symref "$url" HEAD 2>/dev/null | awk '/^ref:/ {print $2; exit}')
-            if [[ -n "$default_ref" ]] && git -C "$dest" fetch --quiet "$url" "$default_ref"; then
+            default_ref=$(GITHUB_TOKEN="${GITHUB_TOKEN:-}" git ls-remote --symref "$url" HEAD 2>/dev/null | awk '/^ref:/ {print $2; exit}')
+            if [[ -n "$default_ref" ]] && GITHUB_TOKEN="${GITHUB_TOKEN:-}" git -C "$dest" fetch --quiet "$url" "$default_ref"; then
                 start_point=(FETCH_HEAD)
             else
                 log "Could not refresh ${owner}/${name} from origin - starting from the cached mirror's HEAD"
@@ -912,7 +962,7 @@ clone_into_workspace() {
 
     if [[ ! -d "$dest/.git" ]]; then
         log "Cloning $url"
-        git clone "$url" "$dest" || fail "Could not clone $url"
+        GITHUB_TOKEN="${GITHUB_TOKEN:-}" git clone "$url" "$dest" || fail "Could not clone $url"
     fi
     if [[ -n "${DIRECT_BRANCH:-}" ]]; then
         git -C "$dest" checkout -B "$DIRECT_BRANCH"
@@ -937,7 +987,7 @@ clone_restricted_repositories() {
     while IFS=$'\t' read -r repository url path; do
         log "Checking out ${repository} at ${path}"
         mkdir -p "/workspace/$(dirname "$path")" || return 1
-        GIT_TERMINAL_PROMPT=0 git clone "$url" "/workspace/$path" || return 1
+        GIT_TERMINAL_PROMPT=0 DIRECT_CLONE_CREDENTIALS="$DIRECT_CLONE_CREDENTIALS" git clone "$url" "/workspace/$path" || return 1
         [[ -n "$first" ]] || first="/workspace/$path"
     done <<< "$rows"
     link_primary_corpus "$first"
@@ -1327,8 +1377,8 @@ run_claude_code() {
 
     # Wires the report_progress MCP tool into the session (Source/AgentHarnesses/progress-mcp-server.mjs) so
     # the agent can post a live plan/checklist and status updates back to the Direct as it works,
-    # not just at the end. DIRECT_PROGRESS_URL/DIRECT_CALLBACK_TOKEN travel through this file's
-    # own `env` block rather than relying on the server process inheriting them - written even when
+    # not just at the end. The callback credential is read by the progress server from a private
+    # file; this configuration carries only its path - written even when
     # the Direct did not set DIRECT_PROGRESS_URL (a bare Docker/local run, say): the tool then
     # reports every call as a soft failure to the agent instead of the Direct, exactly like a
     # failed report over the real network does, rather than needing this script to special-case it
@@ -1347,12 +1397,12 @@ run_claude_code() {
         mkdir -p "$(dirname "$DIRECT_MEMORY_PATH")"
     fi
 
+    prepare_mcp_credentials || fail "Could not prepare MCP credentials"
     MCP_CONFIG=/tmp/mcp-config.json
     jq -cn \
         --arg progress_url "${DIRECT_PROGRESS_URL:-}" \
-        --arg token "${DIRECT_CALLBACK_TOKEN:-}" \
+        --arg credential_dir "$MCP_CREDENTIAL_DIR" \
         --arg memory_path "${DIRECT_MEMORY_PATH:-/tmp/mcp-memory.jsonl}" \
-        --arg exa_key "${EXA_API_KEY:-}" \
         '{
             mcpServers: {
                 direct_progress: {
@@ -1360,7 +1410,7 @@ run_claude_code() {
                     args: ["/usr/local/lib/direct-progress-mcp/progress-mcp-server.mjs"],
                     env: {
                         DIRECT_PROGRESS_URL: $progress_url,
-                        DIRECT_CALLBACK_TOKEN: $token
+                        DIRECT_CALLBACK_TOKEN_FILE: ($credential_dir + "/progress-token")
                     }
                 },
                 direct_approval: {
@@ -1372,8 +1422,8 @@ run_claude_code() {
                     args: []
                 },
                 context7: {
-                    command: "context7-mcp",
-                    args: []
+                    command: "node",
+                    args: ["/usr/local/lib/direct-progress-mcp/credential-mcp-server.mjs", ($credential_dir + "/context7.json")]
                 },
                 memory: {
                     command: "mcp-server-memory",
@@ -1386,16 +1436,16 @@ run_claude_code() {
                     command: "playwright-mcp",
                     args: ["--headless", "--browser", "chromium", "--no-sandbox"]
                 },
-                exa: ({
-                    type: "http",
-                    url: "https://mcp.exa.ai/mcp"
-                } + (if $exa_key != "" then {headers: {"x-api-key": $exa_key}} else {} end))
+                exa: {
+                    command: "node",
+                    args: ["/usr/local/lib/direct-progress-mcp/credential-mcp-server.mjs", ($credential_dir + "/exa.json")]
+                }
             }
         }' > "$MCP_CONFIG"
 
     if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff && -n "${DIRECT_CONTEXT_MCP_URL:-}" && -n "${DIRECT_CONTEXT_MCP_TOKEN:-}" ]]; then
-        jq --arg url "$DIRECT_CONTEXT_MCP_URL" --arg token "$DIRECT_CONTEXT_MCP_TOKEN" \
-            '.mcpServers.context = {type: "http", url: $url, headers: {Authorization: ("Bearer " + $token)}}' \
+        jq --arg credential_dir "$MCP_CREDENTIAL_DIR" \
+            '.mcpServers.context = {command: "node", args: ["/usr/local/lib/direct-progress-mcp/credential-mcp-server.mjs", ($credential_dir + "/context.json")]}' \
             "$MCP_CONFIG" > /tmp/mcp-context-config.json || fail "Could not configure context MCP"
         mv /tmp/mcp-context-config.json "$MCP_CONFIG" || fail "Could not configure context MCP"
     fi
@@ -1456,7 +1506,7 @@ run_claude_code() {
     # CLAUDE.md and .claude/skills from loading, and drops its hooks (the PR-body guard, the Stop
     # quality gate) with them.
     {
-        /usr/bin/time -v -o "$TIME_FILE" -- claude -p \
+        exec_agent_with_credentials claude-code /usr/bin/time -v -o "$TIME_FILE" -- claude -p \
             --input-format stream-json \
             --output-format stream-json \
             --verbose \
@@ -1671,8 +1721,8 @@ configure_pi_provider() {
             ;;
         zai)
             # Nothing to configure: Pi declares its own zai provider, fixed to Z.ai's public
-            # endpoint, and reads ZAI_API_KEY from the environment directly (load_secrets()
-            # exports it like every other credential). The case exists to say that explicitly -
+            # endpoint, and reads ZAI_API_KEY from its scoped launch environment.
+            # The case exists to say that explicitly -
             # a provider id with no case reads as forgotten rather than deliberate.
             log "Using Pi's built-in Z.ai provider"
             ;;
@@ -1854,7 +1904,7 @@ run_pi() {
     # toolset by name, matching Claude Code's default tool availability - grep/find/ls are off by
     # default in Pi 0.84.x otherwise. --provider is always DIRECT_PROVIDER, resolved server-side
     # against the Direct's own approved-providers allow-list - never a value this script invents.
-    pi --mode rpc \
+    exec_agent_with_credentials "${DIRECT_PROVIDER:-anthropic}" pi --mode rpc \
         --no-session \
         --no-approve \
         --offline \
@@ -2044,10 +2094,11 @@ run_copilot() {
     # the tool then reports every call as a soft failure to the agent instead of special-casing it
     # away here. Passed with --additional-mcp-config so the checkout's own .mcp.json cannot displace
     # it - the session-scoped option has the highest precedence in the CLI's own merge order.
+    prepare_mcp_credentials || fail "Could not prepare MCP credentials"
     COPILOT_MCP_CONFIG=/tmp/copilot-mcp-config.json
     jq -cn \
         --arg progress_url "${DIRECT_PROGRESS_URL:-}" \
-        --arg token "${DIRECT_CALLBACK_TOKEN:-}" \
+        --arg credential_dir "$MCP_CREDENTIAL_DIR" \
         '{
             mcpServers: {
                 direct_progress: {
@@ -2056,7 +2107,7 @@ run_copilot() {
                     args: ["/usr/local/lib/direct-progress-mcp/progress-mcp-server.mjs"],
                     env: {
                         DIRECT_PROGRESS_URL: $progress_url,
-                        DIRECT_CALLBACK_TOKEN: $token
+                        DIRECT_CALLBACK_TOKEN_FILE: ($credential_dir + "/progress-token")
                     },
                     tools: ["*"]
                 }
@@ -2090,7 +2141,7 @@ run_copilot() {
     # --output-format json emits JSONL, one object per line, which is what makes the stream readable
     # below. --no-color keeps the log free of escape sequences.
     {
-        /usr/bin/time -v -o "$COPILOT_TIME_FILE" -- copilot \
+        exec_agent_with_credentials copilot /usr/bin/time -v -o "$COPILOT_TIME_FILE" -- copilot \
             --prompt "$(cat "$COPILOT_PROMPT_FILE")" \
             --allow-all-tools \
             --allow-all-paths \
