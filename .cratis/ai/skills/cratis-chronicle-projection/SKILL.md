@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-projection
-description: Use when populating an existing Chronicle read model through event mappings, structured joins or lifecycle variants, or diagnosing projection startup failures. Not for new query surfaces or external side effects.
+description: Use when populating an existing Chronicle read model through event mappings, structured joins or lifecycle variants, projecting events onto a graph with nodes and edges, or diagnosing projection startup failures. Not for new query surfaces or external side effects.
 license: MIT
 ---
 
@@ -262,6 +262,23 @@ or a reactor rather than annotating the projection.
 
 Their two optional arguments are in **opposite order**: `[FromAll(contextProperty,
 property)]` and `[FromEvery(property, contextProperty)]`. Name them.
+
+## Graph projections — nodes and edges
+
+A graph projection turns events into idempotent operations on a property graph
+instead of folding them into a document. It uses the same observer, event routing,
+key and property expressions, replay and failed-partition handling. Requires
+Chronicle 19.129.0 (check the installed `Cratis.Chronicle` package version).
+
+Choose a graph when the questions are traversals (membership, nesting, paths) and a
+document read model when they are lookups by key. Design it by reading the graph
+backwards: write each question as a path, make hops edge types and stops node labels,
+then name the event that creates and removes each. Mark types with `[Node]` and
+`[Edge("TYPE")]` (an edge's `[Source<T>]` and `[Target<T>]` members hold the end keys),
+or declare the same definition with `IGraphProjection`. A type is never both a graph
+element and a read model (CHR0068). Read
+[references/graph-projections.md](references/graph-projections.md) for the attributes,
+fluent builder, operation model, replay and idempotency, and the sinks.
 
 ## Definition changes replay
 

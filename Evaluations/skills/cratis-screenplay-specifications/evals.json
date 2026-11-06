@@ -48,6 +48,19 @@
         "Reports wrong-rule pins as Contract failures with no redraw/client validation outcome, and opaque validation as Unsupported rather than passed.",
         "Distinguishes reference/executor required pins, older Stage's pin policy and v21 refusal from 4.115.0 all-Proven unpinned rendering, 4.118.0 checksum and 4.119.0 pattern/random; generate rule stays -028."
       ]
+    },
+    {
+      "id": 5,
+      "name": "graph-given-then",
+      "prompt": "Write a specification where removing a person with PersonRemoved also removes their MEMBER_OF edge in the Organization graph. Reply only.",
+      "expected_output": "A specification with given graph seeding has node/has edge, when append PersonRemoved, and then graph with no node and no edge plus a surviving has node.",
+      "assertions": [
+        "Seeds the graph with given graph Organization using only has node and has edge lines.",
+        "Uses when append PersonRemoved with a for event source.",
+        "Asserts removal with then graph using no node and no edge.",
+        "Asserts the unaffected group with has node.",
+        "Does not use no node or no edge under given graph."
+      ]
     }
   ]
 }
