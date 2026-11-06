@@ -171,6 +171,8 @@ rendering a model with generated values. Case tables and whole numbers:
 [case tables and whole numbers](references/case-tables-and-whole-numbers.md).
 Gap-fill `[ProtectedDecision]`/`DecisionRead<T>` use still needs admission and
 unit-of-work enrollment.
+Read [graph rendering](references/graphs.md) when a model declares a `graph`, a graph
+projection or graph specifications: what renders, the Neo4j wiring and the `STAGE-ESM-062`–`-067` refusals.
 
 ## What it emits
 
