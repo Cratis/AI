@@ -41,22 +41,32 @@ module Billing
       command SendInvoice
         invoiceId InvoiceId identifier
         produces event InvoiceSent
+      screen SendInvoice
+        action SendInvoice for screen
     slice StateChange MarkOverdue
       command MarkOverdue
         invoiceId InvoiceId identifier
         produces event InvoiceMarkedOverdue
+      screen MarkOverdue
+        action MarkOverdue for screen
     slice StateChange PayInvoice
       command PayInvoice
         invoiceId InvoiceId identifier
         produces event InvoicePaid
+      screen PayInvoice
+        action PayInvoice for screen
     slice StateChange SendReminder
       command SendReminder
         invoiceId InvoiceId identifier
         produces event ReminderSent
+      screen SendReminder
+        action SendReminder for screen
     slice StateChange WriteOffInvoice
       command WriteOffInvoice
         invoiceId InvoiceId identifier
         produces event InvoiceWrittenOff
+      screen WriteOffInvoice
+        action WriteOffInvoice for screen
     slice StateView InvoiceStatus
       readmodel Invoice
         invoiceId InvoiceId key

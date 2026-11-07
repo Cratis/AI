@@ -39,6 +39,8 @@ module Berths
           boatName = boatName
       event BerthReserved
         boatName BoatName
+      screen ReserveBerth
+        action ReserveBerth for screen
       specification ReservingABerth
         given caller
           authenticated
@@ -73,6 +75,8 @@ module Berths
         produces BerthReleased
           for berthId
       event BerthReleased
+      screen ReleaseBerth
+        action ReleaseBerth for screen
       specification ReleasingABerth
         given caller
           authenticated

@@ -98,6 +98,8 @@ module Visits
         reason VisitReason
         produces event VisitBooked
           reason VisitReason = reason
+      screen BookVisit
+        action BookVisit for screen
       specification BookingATypicalVisit
         when TypicalBooking
           petId = "3f2a1b0c-9d8e-4f7a-b6c5-d4e3f2a1b001"
@@ -131,6 +133,8 @@ module Visits
       description "Pass 0. Evidence: E1"
       command BookVisit
         produces event VisitBooked
+      screen BookVisit
+        action BookVisit for screen
 ```
 
 ## 3. Asking during extraction

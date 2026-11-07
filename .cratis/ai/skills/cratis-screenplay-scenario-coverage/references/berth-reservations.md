@@ -57,6 +57,8 @@ module Berths
         released by ReservationCancelled
       constraint ReserveOnce
         unique event BerthReserved
+      screen ReserveBerth
+        action ReserveBerth for screen
 
       specification ReservingAGuestBerth
         given caller
@@ -231,6 +233,8 @@ module Berths
       constraint CancelOrDepart
         unique event ReservationCancelled
         unique event BoatDeparted
+      screen CancelReservation
+        action CancelReservation for screen
 
       specification CancellingAReservation
         given caller
@@ -353,6 +357,8 @@ module Berths
           BerthDamageReported
             for reservationId
       event BerthDamageReported
+      screen RecordDeparture
+        action RecordDeparture for screen
 
       specification RecordingACleanDeparture
         given caller

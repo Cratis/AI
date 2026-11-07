@@ -55,6 +55,8 @@ module Invoicing
           amount Decimal = amount
       constraint IssueOnce
         unique event InvoiceIssued
+      screen IssueInvoice
+        action IssueInvoice for screen
 
       specification IssuingAnInvoice
         given caller
@@ -101,6 +103,9 @@ module Invoicing
       constraint SettleOrVoid
         unique event InvoiceSettled
         unique event InvoiceVoided
+      screen SettleOrVoidInvoice
+        action SettleInvoice for screen
+        action VoidInvoice for screen
 
       specification SettlingAnInvoice
         given caller
@@ -164,6 +169,8 @@ module Invoicing
       command RequestPayment
         invoiceId InvoiceId identifier
         produces event PaymentRequested
+      screen RequestPayment
+        action RequestPayment for screen
 
       specification RequestingPayment
         given caller
@@ -378,6 +385,8 @@ module Invoicing
           amount > 0 message "A top-up needs an amount above zero"
         produces event CreditToppedUp
           amount Decimal = amount
+      screen TopUpCredit
+        action TopUpCredit for screen
 
       specification ToppingUpCredit
         given caller

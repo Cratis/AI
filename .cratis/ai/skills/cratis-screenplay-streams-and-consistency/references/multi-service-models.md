@@ -69,6 +69,8 @@ module Ordering
                     total = total
             event OrderPlaced
                 total Decimal
+            screen PlaceOrder
+              action PlaceOrder for screen
         slice Translate PublishOrderAccepted
             direction outbound
             public event OrderAccepted

@@ -63,6 +63,8 @@ module Integration
         carrier String
         produces event OrderPacked
           carrier String = carrier
+      screen PackOrder
+        action PackOrder for screen
     slice Translate PublishOrderShipped
       direction outbound
       public event OrderShipped

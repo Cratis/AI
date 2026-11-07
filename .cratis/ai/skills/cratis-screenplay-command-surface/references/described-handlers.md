@@ -28,6 +28,8 @@ module Invoices
           for invoiceId
       event LateFeeApplied
         amount Decimal
+      screen ApplyLateFee
+        action ApplyLateFee for screen
 ```
 
 A pending `implementation` has no `file` or fence. Bare `implementation` is valid;
