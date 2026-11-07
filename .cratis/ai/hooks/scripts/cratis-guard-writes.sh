@@ -193,21 +193,26 @@ control_patterns=('.claude/settings.json' '.claude/settings.local.json' '.mcp.js
 
 # Glob-language intersection, not expansion/eval. A star has an epsilon transition and
 # a character loop. The product automaton accepts iff the two patterns share a spelling.
-# Braces conservatively become a star. A reference bracket is never parsed: it is either a
-# literal '[' or one any-character step to any later ']' in the same segment. Bash's reading
-# is always one of those alternatives, so the class contents can only widen the match.
-# References that mix braces with brackets, hold more than one brace, braces spanning '/', or dense brackets are not
-# modeled at all: they fail closed (exit 2) so the work stays bounded.
+# In a reference, everything from the first '{' to the last '}' becomes one star: brace
+# expansion, however nested, quoted or escaped, only rewrites text inside that span. A
+# reference bracket is never parsed: it is either a literal '[' or one any-character step
+# to any later ']' in the same segment. Bash's reading is always one of those alternatives,
+# so the class contents can only widen the match. References that mix braces with brackets,
+# whose brace span holds '/', or with dense brackets are not modeled at all: they fail
+# closed (exit 2) so the work stays bounded.
 IFS= read -r -d '' glob_program <<'AWK' || true
-function tokens(s, side,    i, c, j, k, t, copy, jumps) {
+function tokens(s, side,    i, c, j, k, t, copy, jumps, first, closing) {
     s = tolower(s)
     if (side == 1) {
         copy = s
         if (index(s, "{") && index(s, "[")) exit 2
-        # Only a single, unnested brace is modeled; any second '{' fails closed.
-        if (gsub(/\{/, "{", copy) > 1) exit 2
-        copy = s
         if (gsub(/\[/, "[", copy) > 64) exit 2
+        first = index(s, "{")
+        for (k = length(s); k > first; k--) if (substr(s, k, 1) == "}") { closing = k; break }
+        if (first && closing) {
+            if (index(substr(s, first, closing - first + 1), "/")) exit 2
+            s = substr(s, 1, first) substr(s, closing)
+        }
     }
     for (i = 1; i <= length(s); i++) {
         c = substr(s, i, 1); t = c; j = i

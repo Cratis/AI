@@ -190,7 +190,7 @@ test('reference classification fails closed for brace-bracket mixes, slash-spann
     const repo = scratchRepository();
     try {
         const dense = '['.repeat(1024) + ']'.repeat(1024);
-        for (const path of ['p{x,[a}]ckage.json', '.m{x,[c}]p.json', '.{x,[e}]nv', '.cr[a{]tis/ai/{rules,foo}', '.cratis/{ai/rules,x}', '.m{x,{c,d}}p.json',
+        for (const path of ['p{x,[a}]ckage.json', '.m{x,[c}]p.json', '.{x,[e}]nv', '.cr[a{]tis/ai/{rules,foo}', '.cratis/{ai/rules,x}',
             '['.repeat(65) + 'x', '['.repeat(64) + ']'.repeat(100), dense]) {
             const started = Date.now();
             const result = spawnSync('bash', [guard, '--references'], {
@@ -206,6 +206,23 @@ test('reference classification fails closed for brace-bracket mixes, slash-spann
         }
     } finally { repo.dispose(); }
 });
+
+for (const path of ['.m{x,{c,d}}p.json', String.raw`.m{x\},c}p.json`, String.raw`p{x\},a}ckage.json`, '.m{x"}",c}p.json', '.claude/settings{x,{.,_}}json']) {
+    test(`reference classification covers nested, escaped and quoted braces: ${path}`, () => {
+        const repo = scratchRepository();
+        try {
+            const result = spawnSync('bash', [guard, '--references'], {
+                cwd: repo.root,
+                input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: [path] } }),
+                encoding: 'utf8',
+                env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+            });
+            assert.equal(result.status, 0, `${path}\n${result.stderr}`);
+            assert.equal(result.stdout, `${path}\n`);
+            assert.equal(result.stderr, '');
+        } finally { repo.dispose(); }
+    });
+}
 
 test('reference classification protects malformed nonempty classes without parsing them', () => {
     const repo = scratchRepository();

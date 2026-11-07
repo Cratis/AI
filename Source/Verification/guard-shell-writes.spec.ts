@@ -161,6 +161,10 @@ test('braces mixed with brackets or spanning a slash are refused rather than mod
             [BLOCK, 'tee .m{x,{c,d}}p.json </dev/null'],
             [BLOCK, 'tee p{x,{a,b}}ckage.json </dev/null'],
             [BLOCK, 'tee .claude/settings{x,{.,_}}json </dev/null'],
+            [BLOCK, String.raw`tee .m{x\},c}p.json </dev/null`],
+            [BLOCK, String.raw`tee p{x\},a}ckage.json </dev/null`],
+            [BLOCK, `tee .m{x"}",c}p.json </dev/null`],
+            [BLOCK, `awk '{print $1} END{print}' notes.txt`],
             [ALLOW, 'cp x notes{1,2}.txt'],
         ], repo.root);
     } finally { repo.dispose(); }
