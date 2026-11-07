@@ -102,8 +102,12 @@ test('protected references deny writers and evaluators across the whole command 
 });
 
 for (const environmentFileExists of [false, true]) {
-    for (const command of ['cp x .[[=e=]]nv', String.raw`cp x .e[\\n]v`]) {
-        test(`unsupported bracket class references block writers with .env ${environmentFileExists ? 'present' : 'absent'}: ${command}`, () => {
+    for (const command of [
+        'cp x .[[=e=]]nv', String.raw`cp x .e[\\n]v`,
+        ...['.e[[=]=]n]v', '.e[[.].]n]v', String.raw`.[\e]nv`, '.[[.e.]]nv', '.[]e]nv', '.[!x]nv', '.[[:alpha:]]nv',
+            '.[[:nosuch:]]nv', '.[[=ab=]]nv', '.[[.ab.]]nv'].map(path => `cp x '${path}'`),
+    ]) {
+        test(`bash bracket class references block writers with .env ${environmentFileExists ? 'present' : 'absent'}: ${command}`, () => {
             const repo = scratchRepository();
             try {
                 if (environmentFileExists) writeFileSync(join(repo.root, '.env'), 'synthetic fixture\n');
@@ -115,6 +119,23 @@ for (const environmentFileExists of [false, true]) {
         });
     }
 }
+
+test('ordinary bracket expressions in command arguments do not cause false refusals', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [ALLOW, String.raw`grep -E '[\w.-]+' notes.txt`],
+            [ALLOW, String.raw`sed 's/[\/&]/x/' notes.txt`],
+            [ALLOW, String.raw`awk -F'[\t]' -f prog.awk notes.txt`],
+            [ALLOW, "jq '.[] | [.number, .title]' metadata.json"],
+            [ALLOW, "jq '[.foo, .]' metadata.json"],
+            [ALLOW, "jq '.[]' metadata.json"],
+            [ALLOW, "jq '[]' metadata.json"],
+            [ALLOW, "cp x '[z-a]x'"],
+            [ALLOW, "cp x 'ordinary[abc'"],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
 
 test('bracket sets with a leading literal closing bracket cannot conceal protected writes', async () => {
     const repo = scratchRepository();

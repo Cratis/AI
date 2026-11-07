@@ -113,6 +113,9 @@ test('reference classification treats empty brackets and jq array tokens as lite
             [['[]'], []], [['.[]'], []], [['[.number,'], []], [['.title]'], []], [['[.number, .title]'], []],
             [['[^]'], []], [['[!]'], []],
             [['.[] | [.number, .title]'], []],
+            [['[.foo, .]', '[z-a]x', 'ordinary[abc'], []],
+            [['[a[.b]x', '[a[=b]x', '[a[:b]x', '[a[.b]x.]', '[a[=b]x=]', '[a[:b]x:]'], []],
+            [[String.raw`[\w.-]+`, String.raw`s/[\/&]/x/`, String.raw`[\t]`], []],
             [['[]', '.[]', '.env', '.mcp.json'], ['.env', '.mcp.json']],
         ];
         for (const [paths, protectedPaths] of cases) {
@@ -163,8 +166,10 @@ for (const path of ['.[]e]nv', '.[]m]cp.json', '.[]c]laude/settings.json', '.[!]
     });
 }
 
-for (const path of ['.[[.e.]]nv', '.[[=e=]]nv', String.raw`.e[\n]v`]) {
-    test(`reference classification fails closed for unsupported bracket class syntax: ${path}`, () => {
+for (const path of ['.e[[=]=]n]v', '.e[[.].]n]v', String.raw`.[\e]nv`, '.[[=e=]]nv', '.[[.e.]]nv', String.raw`.e[\n]v`, '.[[:alpha:]]nv',
+    String.raw`.[\a-\z]nv`, '.[[=a=]-[.z.]]nv', String.raw`.[a\-e]nv`,
+    'x[[:digit:]].env', '.[[=]=]-n]nv']) {
+    test(`reference classification protects bash bracket members: ${path}`, () => {
         const repo = scratchRepository();
         try {
             const result = spawnSync('bash', [guard, '--references'], {
@@ -173,9 +178,9 @@ for (const path of ['.[[.e.]]nv', '.[[=e=]]nv', String.raw`.e[\n]v`]) {
                 encoding: 'utf8',
                 env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
             });
-            assert.equal(result.status, 2, `${path}\n${result.stderr}`);
-            assert.equal(result.stdout, '');
-            assert.match(result.stderr, /BLOCKED by cratis-guard-writes: parser failed; cannot check this tool call\./);
+            assert.equal(result.status, 0, `${path}\n${result.stderr}`);
+            assert.equal(result.stdout, `${path}\n`);
+            assert.equal(result.stderr, '');
         } finally { repo.dispose(); }
     });
 }
@@ -183,7 +188,7 @@ for (const path of ['.[[.e.]]nv', '.[[=e=]]nv', String.raw`.e[\n]v`]) {
 test('reference classification fails closed for malformed nonempty classes', () => {
     const repo = scratchRepository();
     try {
-        for (const path of ['.[[:nosuch:]]nv']) {
+        for (const path of ['.[[:nosuch:]]nv', '.[[=ab=]]nv', '.[[.ab.]]nv', '.[[==]]nv', '.[[..]]nv']) {
             const result = spawnSync('bash', [guard, '--references'], {
                 cwd: repo.root,
                 input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: [path] } }),

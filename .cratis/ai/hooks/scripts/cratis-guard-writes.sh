@@ -195,38 +195,91 @@ control_patterns=('.claude/settings.json' '.claude/settings.local.json' '.mcp.js
 # a character loop. The product automaton accepts iff the two patterns share a spelling.
 # Braces conservatively become a star; bracket classes retain their ordinary meaning.
 IFS= read -r -d '' glob_program <<'AWK' || true
-function tokens(s, side,    i, c, j, k, t, n, body) {
+# Only fixed expressions may classify named members; input is never an awk regexp.
+function named_class(name, c) {
+    if (name == "alpha") return c ~ /^[[:alpha:]]$/
+    if (name == "digit") return c ~ /^[[:digit:]]$/
+    if (name == "alnum") return c ~ /^[[:alnum:]]$/
+    if (name == "upper") return c ~ /^[[:upper:]]$/
+    if (name == "lower") return c ~ /^[[:lower:]]$/
+    if (name == "space") return c ~ /^[[:space:]]$/
+    if (name == "blank") return c ~ /^[[:blank:]]$/
+    if (name == "punct") return c ~ /^[[:punct:]]$/
+    if (name == "print") return c ~ /^[[:print:]]$/
+    if (name == "graph") return c ~ /^[[:graph:]]$/
+    if (name == "cntrl") return c ~ /^[[:cntrl:]]$/
+    if (name == "xdigit") return c ~ /^[[:xdigit:]]$/
+    exit 2
+}
+function bracket(s, start, side, n,    k, c, marker, end, value, count, negate, byte, r, matched) {
+    k = start + 1
+    c = substr(s, k, 1); negate = (c == "!" || c == "^")
+    if (negate) k++
+    for (; k <= length(s); k++) {
+        c = substr(s, k, 1)
+        # A closing bracket is literal only as the first member.
+        if (c == "]" && count) break
+        count++; CHAR[count] = c; NAME[count] = ""; DASH[count] = (c == "-")
+        if (c == "\\" && k < length(s)) {
+            CHAR[count] = substr(s, ++k, 1); DASH[count] = 0
+        } else if (c == "[") {
+            marker = substr(s, k + 1, 1)
+            if (marker == ":" || marker == "=" || marker == ".") {
+                end = index(substr(s, k + 2), marker "]")
+                # An incomplete nested form leaves this opening bracket literal.
+                if (!end) continue
+                value = substr(s, k + 2, end - 1)
+                # Do not search past the class terminator, except for a single literal ].
+                if (index(value, "]") && !(marker != ":" && value == "]")) continue
+                if (marker == ":") {
+                    named_class(value, ""); NAME[count] = value
+                } else {
+                    if (length(value) != 1) exit 2
+                    CHAR[count] = value
+                }
+                k += end + 2
+            }
+        }
+    }
+    if (k > length(s)) return 0
+    SET[side, n] = ""
+    for (byte = 1; byte < 256; byte++) {
+        c = sprintf("%c", byte); matched = 0
+        for (r = 1; r <= count; r++) {
+            if (r + 2 <= count && DASH[r + 1] && NAME[r] == "" && NAME[r + 2] == "") {
+                if (ORD[CHAR[r]] <= byte && byte <= ORD[CHAR[r + 2]]) matched = 1
+                r += 2
+            } else if (NAME[r] != "" ? named_class(NAME[r], c) : CHAR[r] == c) matched = 1
+        }
+        if (matched != negate) SET[side, n] = SET[side, n] c
+    }
+    return k
+}
+function tokens(s, side,    i, c, j, t) {
     s = tolower(s)
     for (i = 1; i <= length(s); i++) {
         c = substr(s, i, 1); t = c
         if (c == "{") { j = index(substr(s, i), "}"); if (j) i += j - 1; t = "*" }
         else if (c == "[") {
-            k = i + 1
-            if (substr(s, k, 1) == "!" || substr(s, k, 1) == "^") k++
-            # A leading closing bracket is a literal set member, not its terminator.
-            if (substr(s, k, 1) == "]") k++
-            j = index(substr(s, k), "]")
-            if (j) {
-                j += k - 1; body = substr(s, k, j - k)
-                t = substr(s, i, j - i + 1); i = j; sub(/^\[!/, "[^", t)
-                if (body ~ /\[\.[^]]*\.$/ || body ~ /\[=[^]]*=$/ || index(body, "\\")) exit 2
-            }
+            j = bracket(s, i, side, N[side] + 1)
+            if (j) { t = "[]"; i = j }
         }
         N[side]++; A[side, N[side]] = t
     }
 }
 function push(i, j,    key) { key = i SUBSEP j; if (!(key in seen)) { seen[key] = 1; L[++last] = i; R[last] = j } }
-function accepts(t, c, side) {
+function accepts(t, c, side, n) {
     if (side == 1 && c == "/" && (t == "*" || t == "?" || length(t) > 1)) return 0
-    return t == "*" || t == "?" || (length(t) > 1 && substr(t, 1, 1) == "[" ? c ~ ("^" t "$") : t == c)
+    return t == "*" || t == "?" || (length(t) > 1 ? index(SET[side, n], c) != 0 : t == c)
 }
-function compatible(a, b,    k, c) {
-    if (length(a) == 1 && a != "*" && a != "?") return accepts(b, a, 2)
-    if (length(b) == 1 && b != "*" && b != "?") return accepts(a, b, 1)
-    for (k = 1; k < 256; k++) { c = sprintf("%c", k); if (accepts(a, c, 1) && accepts(b, c, 2)) return 1 }
+function compatible(a, b, left, right,    k, c) {
+    if (length(a) == 1 && a != "*" && a != "?") return accepts(b, a, 2, right)
+    if (length(b) == 1 && b != "*" && b != "?") return accepts(a, b, 1, left)
+    for (k = 1; k < 256; k++) { c = sprintf("%c", k); if (accepts(a, c, 1, left) && accepts(b, c, 2, right)) return 1 }
     return 0
 }
 BEGIN {
+    for (k = 1; k < 256; k++) ORD[sprintf("%c", k)] = k
     tokens(ENVIRON["REF_LEFT"], 1); tokens(ENVIRON["REF_RIGHT"], 2); push(1, 1)
     while (next_state < last) {
         if (last > 65536) exit 2
@@ -235,7 +288,7 @@ BEGIN {
         a = A[1, i]; b = A[2, j]
         if (a == "*") push(i + 1, j)
         if (b == "*") push(i, j + 1)
-        if (i <= N[1] && j <= N[2] && compatible(a, b)) push(i + (a != "*"), j + (b != "*"))
+        if (i <= N[1] && j <= N[2] && compatible(a, b, i, j)) push(i + (a != "*"), j + (b != "*"))
     }
     exit 1
 }
