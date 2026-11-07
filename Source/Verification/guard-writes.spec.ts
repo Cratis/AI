@@ -132,11 +132,12 @@ test('reference classification treats empty brackets and jq array tokens as lite
     } finally { repo.dispose(); }
 });
 
-test('reference classification preserves nonempty glob classes and unmatched bracket literals', () => {
+test('reference classification treats bracket classes as any character and keeps unmatched bracket literals', () => {
     const repo = scratchRepository();
     try {
-        const protectedPaths = ['.[e]nv', '.[a-z]nv', '.[!x]nv', '.[E]NV', '[p]ackage.json', '.cl[a]ude/settings.json'];
-        const paths = [...protectedPaths, 'ordinary[ab].txt', '[', 'ordinary[abc', '[z-a]', '.[z-a]nv'];
+        // Class contents are not parsed, so even an empty range conservatively counts as protected.
+        const protectedPaths = ['.[e]nv', '.[a-z]nv', '.[!x]nv', '.[E]NV', '[p]ackage.json', '.cl[a]ude/settings.json', '.[z-a]nv'];
+        const paths = [...protectedPaths, 'ordinary[ab].txt', '[', 'ordinary[abc', '[z-a]', '.e[nv', '.[]'];
         const result = spawnSync('bash', [guard, '--references'], {
             cwd: repo.root,
             input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: paths } }),
@@ -168,7 +169,7 @@ for (const path of ['.[]e]nv', '.[]m]cp.json', '.[]c]laude/settings.json', '.[!]
 
 for (const path of ['.e[[=]=]n]v', '.e[[.].]n]v', String.raw`.[\e]nv`, '.[[=e=]]nv', '.[[.e.]]nv', String.raw`.e[\n]v`, '.[[:alpha:]]nv',
     String.raw`.[\a-\z]nv`, '.[[=a=]-[.z.]]nv', String.raw`.[a\-e]nv`,
-    'x[[:digit:]].env', '.[[=]=]-n]nv']) {
+    'x[[:digit:]].env', '.[[=]=]-n]nv', '[![=a=]-[.z.]]ackage.json', '.[[:upper:]]nv', '[A-Z]ackage.json', '.[[:upper:]]NV']) {
     test(`reference classification protects bash bracket members: ${path}`, () => {
         const repo = scratchRepository();
         try {
@@ -185,7 +186,7 @@ for (const path of ['.e[[=]=]n]v', '.e[[.].]n]v', String.raw`.[\e]nv`, '.[[=e=]]
     });
 }
 
-test('reference classification fails closed for malformed nonempty classes', () => {
+test('reference classification protects malformed nonempty classes without parsing them', () => {
     const repo = scratchRepository();
     try {
         for (const path of ['.[[:nosuch:]]nv', '.[[=ab=]]nv', '.[[.ab.]]nv', '.[[==]]nv', '.[[..]]nv']) {
@@ -195,9 +196,9 @@ test('reference classification fails closed for malformed nonempty classes', () 
                 encoding: 'utf8',
                 env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
             });
-            assert.equal(result.status, 2, `${path}\n${result.stderr}`);
-            assert.equal(result.stdout, '');
-            assert.match(result.stderr, /BLOCKED by cratis-guard-writes: parser failed; cannot check this tool call\./);
+            assert.equal(result.status, 0, `${path}\n${result.stderr}`);
+            assert.equal(result.stdout, `${path}\n`);
+            assert.equal(result.stderr, '');
         }
     } finally { repo.dispose(); }
 });
