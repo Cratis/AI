@@ -141,7 +141,7 @@ model still compiles and binds) and its V5 states the scope.
    with no business decisions, rebuild, retest. Never edit a managed file; never add behaviour the
    model does not state. Detail: `references/delivery-protocol.md` section 4.
 7. **Report authored-UI parity.** Require explicit plan/runtime evidence for each authored screen,
-   form, layout, template, toolbar, component, outlet, route, package/icon use, theme and persona view,
+   form, layout, template, slot, toolbar, hook, component, outlet, route, package/icon use, theme and persona view,
    or a blocking diagnostic or "not rendered" with the responsible tool version; silent fallback to
    default composition is a failure (Stage 4.24 rendered the default composition only).
 8. **Drift:** `cratis render ... --check` (exit 6 pending); also compare the manifest's `semanticRevision`
@@ -224,7 +224,7 @@ Before reporting done:
 - A passing test does not claim runtime guarantees (namespace, subject, constraint scope, guarded
   reads, migrations, replay) or omitted UI were delivered.
 - Re-render: drift line present. `Customizations/` changes name the seam and the model element served.
-- Screen delivery: every authored screen/template/form/toolbar/component/outlet/route/package-icon use is either present in generated/runtime evidence or listed as not rendered/unsupported with the responsible tool version.
+- Screen delivery: every authored screen/template/slot/form/toolbar/hook/component/outlet/route/package-icon use is either present in generated/runtime evidence or listed as not rendered/unsupported with the responsible tool version.
 
 ## Route near misses
 

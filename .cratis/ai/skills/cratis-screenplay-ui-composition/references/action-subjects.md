@@ -12,7 +12,10 @@ A plain or toolbar `action` states whether it acts on one chosen record or on th
   create something or that the user fills in through the form.
 
 The clause follows the command name, before an inline `label`. Only action toolbar items
-accept it.
+accept it. A hook (an outlet or toolbar `button` naming a State Change `slice`) takes the same
+`for item` or `for screen` part on its line, and an actions outlet can set it for every button
+(`outlet rowActions of actions for item`); a hook's `enabled when` that reads `item` while it
+acts `for screen` is `PLAY0915` (Requires Screenplay 6.0 or later).
 
 ```screenplay
 concept TaskId : Uuid

@@ -146,7 +146,8 @@ workflow CollectOverdue
   `at`, `manual`), `action <Name> sends <Command> [attempts n] [timeout] [retry after]`,
   `decide <Name> when <condition>` with exactly two outlets, `wait` for an event or a
   duration, `approval <Name> by <Persona or Policy>`, `foreach <Name> over <collection>` and
-  `join all|any|at least n`. Edges are `<outlet> -> <Node>` under their node.
+  `join all|any|at least n`. Edges are `<outlet> -> <Node>` under their node; a workflow
+  outlet is a node's outcome, unrelated to a template's UI outlet.
 - An unconnected negative outlet (`failed`, `rejected`, `expired`) fails the run; an
   unconnected positive outlet ends that branch. Give every event wait and approval an
   `expires after` (PLAY0849 warns otherwise).

@@ -56,7 +56,7 @@ test('UI composition guidance covers the screens-release authoring contract with
         'exposed template configuration',
         'manual form columns',
         'package/icon catalogs',
-        'hierarchical outlets',
+        'hierarchical slots',
         'toolbar',
         'runtime fallback',
     ]) {

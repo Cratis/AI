@@ -124,7 +124,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "hierarchical outlets"
+      "value": "hierarchical slots"
     },
     {
       "kind": "skill-contains",
@@ -140,15 +140,15 @@
     },
     {
       "kind": "skill-contains",
-      "value": "application navigation regions (topbar/sidebar, module inherit/extend/override)"
+      "value": "navigation outlets (topbar/sidebar, inherit/extend/override)"
     },
     {
       "kind": "skill-contains",
-      "value": "toolbar slice buttons"
+      "value": "`contribute to`, hooks and placement"
     },
     {
       "kind": "skill-contains",
-      "value": "## The application shell: regions, slice buttons, blueprint references, sample data"
+      "value": "## The application shell: slots, outlets, hooks, blueprint references, sample data"
     },
     {
       "kind": "skill-contains",
@@ -186,22 +186,22 @@
     },
     {
       "kind": "skill-contains",
-      "value": "`navigation <region> extends`",
+      "value": "`outlet <name> extends`",
       "file": "references/application-shell.md"
     },
     {
       "kind": "skill-contains",
-      "value": "`navigation <region> overrides`",
+      "value": "`outlet <name> overrides`",
       "file": "references/application-shell.md"
     },
     {
       "kind": "skill-contains",
-      "value": "Hierarchy is sidebar only",
+      "value": "`hide <id>` drops an",
       "file": "references/application-shell.md"
     },
     {
       "kind": "skill-contains",
-      "value": "retargeted to\n  the module's own features",
+      "value": "retarget the copied items to the module's own features",
       "file": "references/application-shell.md"
     },
     {
@@ -211,7 +211,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "Stage refuses a screen that\nmixes a top-level `template` directive with other top-level directives",
+      "value": "Stage refuses a screen mixing a top-level `template`",
       "file": "references/application-shell.md"
     },
     {

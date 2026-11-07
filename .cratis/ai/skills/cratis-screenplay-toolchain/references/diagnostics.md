@@ -335,7 +335,7 @@ as errors if gating. Ordinary compile success does not imply these ran:
 | Family | Codes | Checks |
 | --- | --- | --- |
 | data-bindings | PLAY0530/0531 | Conflicting visible bindings; binding/query read-model or cardinality mismatch |
-| input-surfaces | PLAY0532/0533 | Missing command input form/issuing screen; missing reachable issuer |
+| input-surfaces | PLAY0532 | Missing command input form/issuing screen. Since Screenplay 6, PLAY0533 (no reachable issuer) runs on every check and is no longer selected here |
 | field-origins | PLAY0534 | Missing read-model builder or top-level field origin (AutoMap, identity and variants considered) |
 | query-keys | PLAY0535 | Query argument not representable by known identity/fields |
 | event-consumers | PLAY0536 | Latest local event generation lacks an operational consumer; a terminal fact can legitimately be reported |
