@@ -18,7 +18,7 @@ outbound publications run; another slice's never do, so their facts cannot appea
 specification's own slice. A chain across slices is proved link by link: each slice's
 specification states its own link.
 
-```screenplay expect PLAY0469
+```screenplay expect PLAY0469,PLAY0533
 concept InvoiceId : Uuid
 module Collections
   feature Invoices

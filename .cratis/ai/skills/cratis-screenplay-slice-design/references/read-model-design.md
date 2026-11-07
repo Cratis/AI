@@ -224,7 +224,7 @@ instead. The slice `description`, the projection and every spec of the view must
 A complete example (marina berths; the keyed query supplies the view's identity
 for the `then no readmodel` assertion; explicit `key` could supply it instead):
 
-```screenplay
+```screenplay expect PLAY0533
 domain Harbourlight.Berths
 
 concept BookingId : Uuid

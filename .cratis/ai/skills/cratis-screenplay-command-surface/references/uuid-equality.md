@@ -18,7 +18,7 @@ path in `require`; a comparison between command properties needs no preamble.
 
 ## Complete model
 
-```screenplay
+```screenplay expect PLAY0533
 domain Documents
 command reads protected
 concept DocumentId : Uuid

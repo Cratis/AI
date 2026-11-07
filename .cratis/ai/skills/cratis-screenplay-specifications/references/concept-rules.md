@@ -31,7 +31,7 @@ A complete example: the rule lives on the concept, one command exercises it, and
 each concept rule has a rejection (the boundary above the limit and the rule below
 zero), plus an acceptance at the limit.
 
-```screenplay
+```screenplay expect PLAY0533
 concept InvoiceId : Uuid
 concept DiscountPercentage : Int
   validate

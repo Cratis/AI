@@ -52,6 +52,8 @@ module Berths
           night Date = night
           boatName String = boatName
           boatLength Decimal = boatLength
+      screen ReserveBerth
+        action ReserveBerth for screen
       constraint OneBoatPerBerthNight
         unique berth, night on BerthReserved
         released by ReservationCancelled
@@ -228,6 +230,8 @@ module Berths
             message "Only a live reservation can be cancelled"
         produces event ReservationCancelled
           reason String = reason
+      screen CancelReservation
+        action CancelReservation for screen
       constraint CancelOrDepart
         unique event ReservationCancelled
         unique event BoatDeparted
@@ -352,6 +356,8 @@ module Berths
         produces when damageObserved == true
           BerthDamageReported
             for reservationId
+      screen RecordDeparture
+        action RecordDeparture for screen
       event BerthDamageReported
 
       specification RecordingACleanDeparture

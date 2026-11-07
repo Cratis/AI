@@ -100,7 +100,7 @@ module Delivery
 Parent of the `Provisioner` excerpt. The reaction declares no `runs as system`, so the invoked command runs with no caller in the
 reference execution.
 
-```screenplay
+```screenplay expect PLAY0533
 concept WorkspaceId : Uuid
 module Onboarding
   feature Workspaces
@@ -194,7 +194,7 @@ event, on a trigger (with `where` and `invokes`), on a view read and on the cloc
 a capture with its specifications. The excerpts later in this skill have their own
 complete parent documents in `references/complete-examples.md`.
 
-```screenplay expect PLAY0469
+```screenplay expect PLAY0469,PLAY0533
 concept InvoiceId : Uuid
 trigger PaymentFileArrived
   description "The bank's payment file listed a payment for an invoice"

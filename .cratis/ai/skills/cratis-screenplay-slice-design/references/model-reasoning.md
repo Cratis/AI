@@ -13,7 +13,7 @@ query's ordering, "oldest first", for example). A short status marker such as **
 enforced in the model today** or **ASSUMED** stays in `description`, where a reader
 sees it first; the reasoning behind it goes in `documentation`:
 
-````screenplay
+````screenplay expect PLAY0533
 module Billing
   documentation
     ```markdown

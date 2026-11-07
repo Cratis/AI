@@ -25,7 +25,7 @@ fixtures. They are specification data, not operational `seed` events.
 
 This complete example compiles and its two reference scenarios pass:
 
-```screenplay
+```screenplay expect PLAY0533
 concept ProjectId : Uuid
 module Projects
   feature Registration

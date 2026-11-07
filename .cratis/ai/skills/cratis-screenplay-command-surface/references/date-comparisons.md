@@ -55,7 +55,7 @@ example models only interval ordering. `then` matching remains ordinal, as do
 keys, constraints and freshness: preserve the exact produced payload spelling,
 not a different offset that happens to name the same instant.
 
-```screenplay
+```screenplay expect PLAY0533
 concept WindowId : Uuid
 module Retention
   feature Windows

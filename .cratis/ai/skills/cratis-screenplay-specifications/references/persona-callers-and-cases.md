@@ -44,7 +44,7 @@ Use tables for validation matrices whose steps stay the same. Rows are **cases**
 not examples: `example` means a named typed fixture. This complete model's five
 expanded specifications pass in the 4.127.0 reference runner:
 
-```screenplay
+```screenplay expect PLAY0533
 policy IsAccountant
   require role "Accountant"
 policy IsVisitor

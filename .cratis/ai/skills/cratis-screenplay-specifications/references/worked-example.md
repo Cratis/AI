@@ -7,7 +7,7 @@
 A command with an authorization gate, a validation rule and a uniqueness
 constraint, and a read model fed by its event. The `for` values select ESM v2.
 
-```screenplay
+```screenplay expect PLAY0533
 concept InvoiceId : Uuid
 concept InvoiceNumber : String
 policy IsAccountant

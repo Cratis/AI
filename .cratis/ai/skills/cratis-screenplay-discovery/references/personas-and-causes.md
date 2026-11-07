@@ -126,7 +126,7 @@ Complete document: the persona's Cannot line "set or waive season fees" has no c
 (a scope disposition), while "assign a berth" is limited to the Harbourmaster, so the Cannot
 line for the BoatOwner on `AssignBerth` resolves to a gate and a denial spec.
 
-```screenplay
+```screenplay expect PLAY0533
 domain Harbour.Moorings
 
 concept BerthRequestId : Uuid

@@ -19,7 +19,7 @@ v25; see command-surface protected-read admission and Stage refusal. The rules s
 in the design-mode document `invoicing-dues-design.md`,
 never in prose here. It shows the category shapes; for a coverage example see `berth-reservations.md`.
 
-```screenplay
+```screenplay expect PLAY0533
 // Scenario coverage worked example: invoicing club dues (complete document).
 // Backs the excerpts in scenario-examples.md and view-and-story-specs.md: issue an invoice,
 // request payment, an external gateway result captured and translated, an open-invoices todo list family and an accumulating credit balance.

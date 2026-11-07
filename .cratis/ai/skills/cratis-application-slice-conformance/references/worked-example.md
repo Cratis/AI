@@ -5,7 +5,7 @@ query blocks binding (V3, `PLAY0268`: a query must declare one caller-supplied `
 specification runs against it here, and the list stays because the domain asks for a list. After delivery one, the model changes: the
 harbourmaster wants to retire berths, and the list must stop showing them.
 
-```screenplay
+```screenplay expect PLAY0533
 concept BerthId : Uuid
 concept BerthName : String
 concept BoatLength : Int

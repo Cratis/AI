@@ -35,7 +35,7 @@ behavior is claimed; retain it as an explicit gap/owning implementation contract
 
 This complete reference-executable model compiles with the standalone tool:
 
-```screenplay
+```screenplay expect PLAY0533
 concept CustomerId : String
   generate ulid prefix "cus_"
 concept OrderId : String

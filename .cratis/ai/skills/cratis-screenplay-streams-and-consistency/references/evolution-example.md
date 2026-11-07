@@ -8,7 +8,7 @@ It carries `storedName`, but released Stage 4.92.0 does not admit v16: this exam
 does not prove rendered stored-history compatibility.
 See `evolution.md` for source evidence and the deployment boundary.
 
-```screenplay
+```screenplay expect PLAY0533
 // cratis-screenplay-streams-and-consistency: event evolution, complete design-mode example (V1, warnings as errors).
 // - MembershipRenewed: a compatible change (new property with a defined default for old facts),
 //   declared as generation 2 in full beside generation 1, in the same slice.

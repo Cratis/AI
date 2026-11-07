@@ -59,6 +59,8 @@ module Membership
         produces event MemberRegistered
           email Email = email
           name String = name
+      screen RegisterMember
+        action RegisterMember for screen
       constraint UniqueMemberEmail
         unique email on MemberRegistered
         ignore casing
@@ -107,6 +109,8 @@ module Courses
         seats    Int
         produces event CourseOpened
           seats Int = seats
+      screen OpenCourse
+        action OpenCourse for screen
       specification OpeningACourse
         given caller
           authenticated
@@ -179,6 +183,8 @@ module Courses
         produces event MemberEnrolled
           courseId CourseId = courseId          // cross-stream references are payload
           memberId MemberId = memberId
+      screen EnrolMember
+        action EnrolMember for screen
       constraint OneActiveEnrolmentPerMemberAndCourse
         unique courseId, memberId on MemberEnrolled
         released by EnrolmentWithdrawn
@@ -274,6 +280,8 @@ module Courses
             message "The enrolment does not belong to that course"   // NOT enforced today
         produces event EnrolmentWithdrawn
           courseId CourseId = courseId
+      screen WithdrawEnrolment
+        action WithdrawEnrolment for screen
       constraint WithdrawOnce
         unique event EnrolmentWithdrawn
       specification WithdrawingAnEnrolment

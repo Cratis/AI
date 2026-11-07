@@ -6,7 +6,7 @@ berth is a specification, not a note. The complete model validates and its three
 Screenplay 4.127.0; these are reference-runner checks, not rendered-code evidence.
 
 
-````screenplay
+````screenplay expect PLAY0533
 domain Marina.Berths
 
 concept BerthId : Uuid

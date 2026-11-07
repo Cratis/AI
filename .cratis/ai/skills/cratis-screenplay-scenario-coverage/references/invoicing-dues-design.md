@@ -56,6 +56,8 @@ module Invoicing
         produces event InvoiceIssued
           member MemberId = member
           amount Decimal = amount
+      screen IssueInvoice
+        action IssueInvoice for screen
       constraint IssueOnce
         unique event InvoiceIssued
 
@@ -126,6 +128,8 @@ module Invoicing
           require invoice.amount > 0
             message "Only an open invoice can be settled"   // NOT enforced: the view lags (PLAY0268 at binding)
         produces event InvoiceSettled
+      screen SettleInvoice
+        action SettleInvoice for screen
       command VoidInvoice
         invoiceId InvoiceId identifier
         reason    String
@@ -135,6 +139,8 @@ module Invoicing
             message "Only an open, unpaid invoice can be voided"   // NOT enforced: the view lags (PLAY0268 at binding)
         produces event InvoiceVoided
           reason String = reason
+      screen VoidInvoice
+        action VoidInvoice for screen
       constraint SettleOrVoid
         unique event InvoiceSettled
         unique event InvoiceVoided
@@ -186,6 +192,8 @@ module Invoicing
             message "Only a received, not yet reversed payment can be reversed"   // NOT enforced: the view lags (PLAY0268 at binding)
         produces event PaymentReversed
           amount Decimal = amount
+      screen ReversePayment
+        action ReversePayment for screen
 
       specification ReversingAReceivedPayment
         given caller

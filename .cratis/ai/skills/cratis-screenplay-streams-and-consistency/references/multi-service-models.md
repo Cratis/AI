@@ -55,7 +55,7 @@ producer's Chronicle event-store name, the `--name` its model is rendered with.
 
 Producer, `Ordering/Screenplay/ordering.play`:
 
-```screenplay
+```screenplay expect PLAY0533
 domain Shop.Ordering
 concept OrderId : Uuid
 module Ordering

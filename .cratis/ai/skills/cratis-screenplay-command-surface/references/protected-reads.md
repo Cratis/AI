@@ -19,7 +19,7 @@ alone never opts an application in.
 
 Complete model:
 
-```screenplay
+```screenplay expect PLAY0533
 domain Inventory
 command reads protected
 module Stock

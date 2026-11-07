@@ -32,7 +32,7 @@ selects ESM v36.
 This model compiles with `--warnaserror` and its three specifications pass with
 `screenplay test`:
 
-```screenplay
+```screenplay expect PLAY0533
 concept InvoiceId : Uuid
 persona FinanceController
 module Billing

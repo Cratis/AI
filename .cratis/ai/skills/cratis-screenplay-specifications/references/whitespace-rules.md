@@ -38,7 +38,7 @@ Cratis/Screenplay:
 The visually blank literals in `RejectingNextLine...` are U+0085; those in
 `AcceptingByteOrderMark...` are U+FEFF. Preserve their exact code points.
 
-```screenplay
+```screenplay expect PLAY0533
 concept Name : String
   validate
     not empty message "Name is required"

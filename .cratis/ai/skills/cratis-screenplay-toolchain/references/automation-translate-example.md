@@ -4,7 +4,7 @@ Executable Automation and Translate slices. Binds as `executableReady` (ESM v34,
 
 The `Renew` command is ungated so that the reaction can invoke it: this is a syntax demonstration, not a safe production design. Reactions invoke with no caller, so a real model needs a trusted path (see [cratis-screenplay-automations-and-translations](../../cratis-screenplay-automations-and-translations/SKILL.md)).
 
-```screenplay
+```screenplay expect PLAY0533
 // Automation and Translate: ESM v6 forms.
 concept MemberId : Uuid
 

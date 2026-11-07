@@ -63,7 +63,7 @@ both that the stored row is gone and that the keyed query returns nothing. The w
 `ListOpenInvoices => OpenInvoice[]` with one spec that expects one `result` row and one that
 expects the empty list after `PaymentReceived`. Only `filter`, `scoped to` and `performer` queries stay design-mode (a performer query is left out of the executable model, not refused).
 The source document also asserts the other terminal outcomes (`InvoiceVoided`, `InvoiceSettled`) the same way; they are not copied here.
-```screenplay excerpt parent=references/invoicing-dues-example.md#1
+```screenplay excerpt parent=references/invoicing-dues-example.md#1 expect PLAY0533
 specification OpenInvoicesLifecycle1Empty
   given caller
     authenticated

@@ -44,7 +44,7 @@ Requires Screenplay 4.231.0 (ESM v31; `screenplay --version`); older compilers r
 query, such as sign-up. The condition always holds, for callers with and without an
 identity alike. Only a model that declares one selects v31.
 
-```screenplay
+```screenplay expect PLAY0533
 concept SubscriberId : Uuid
 concept EmailAddress : String
 policy PublicAccess

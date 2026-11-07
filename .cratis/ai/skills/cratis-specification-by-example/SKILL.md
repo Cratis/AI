@@ -190,7 +190,7 @@ A specification is only as good as the signal it reads.
     too only when its wording is
     the specified behavior, and name that behavior in the fact.
 
-```screenplay
+```screenplay expect PLAY0533
 concept InvoiceId : Uuid
 concept InvoiceNumber : String
 module Invoicing

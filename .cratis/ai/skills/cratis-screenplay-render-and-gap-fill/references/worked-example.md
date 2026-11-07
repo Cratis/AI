@@ -14,7 +14,7 @@ report. Probed with the standalone compiler and the public CLI (scratch model, o
 
 ## The model
 
-```screenplay
+```screenplay expect PLAY0533
 // cratis-screenplay-render-and-gap-fill: complete model for the refused-render example.
 // Compiles with warnings as errors; `cratis render` 3.53.1 refuses the snapshot list query (STAGE-ESM-010).
 domain Harbour.Marina

@@ -61,6 +61,8 @@ module Cloakroom
         ticketNumber TicketNumber
         produces event CoatTakenIn
           ticketNumber TicketNumber = ticketNumber
+      screen TakeInCoat
+        action TakeInCoat for screen
       constraint UniqueTicketNumber
         unique ticketNumber on CoatTakenIn
         released by CoatHandedBack
@@ -122,6 +124,8 @@ module Cloakroom
           require CoatStatus.onHook == true
             message "That coat is not on a hook"
         produces event CoatHandedBack
+      screen HandBackCoat
+        action HandBackCoat for screen
       specification HandingBackACoat
         given caller
           authenticated

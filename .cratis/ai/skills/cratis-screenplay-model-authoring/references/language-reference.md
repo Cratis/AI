@@ -137,7 +137,7 @@ copying the identifier into payload. It compiles with zero source diagnostics un
 `--warnaserror`; neither check runs its specifications. Inline lowering
 and `optional` spelling do not themselves select a newer ESM version.
 
-```screenplay
+```screenplay expect PLAY0533
 concept ProjectId : Uuid
 concept ProjectName : String
 module Projects

@@ -51,7 +51,7 @@ can observe the new public fact. A route filter therefore cannot select publicat
 
 This complete source uses the released publication specification form:
 
-```screenplay
+```screenplay expect PLAY0533
 domain Contracts
 concept OrderId : Uuid
 concept OrderStatus : String

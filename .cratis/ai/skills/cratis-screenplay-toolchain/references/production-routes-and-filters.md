@@ -56,7 +56,7 @@ or the when-step reaches a transition; ignoring its body cannot prove absence.
 The override and filter select ESM v10. The second production keeps the command
 default, while Booked is routed to Notes and can trigger Follow:
 
-```screenplay
+```screenplay expect PLAY0533
 concept AccountId : String
 eventsource Account
   identifier AccountId

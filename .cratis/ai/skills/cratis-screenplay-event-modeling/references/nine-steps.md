@@ -117,7 +117,7 @@ fact, and fenced Markdown `documentation` when its meaning needs elaboration.
 Prefer `produces event` with typed mappings for an event owned by one command;
 shared events stay standalone with explicit command destinations.
 
-```screenplay excerpt parent=references/invoicing-example.md#1
+```screenplay excerpt parent=references/invoicing-example.md#1 expect PLAY0533
 // Parent: references/invoicing-example.md (complete document), slice RegisterInvoice
 slice StateChange RegisterInvoice
   command RegisterInvoice
@@ -167,7 +167,7 @@ A `from` without a key never inherits another `from`'s key, and a projection-lev
 `key` routes nothing (`PLAY0381`). Excerpt: the complete document is
 [invoicing-example.md](invoicing-example.md); both events target the invoice's event source.
 
-```screenplay excerpt parent=references/invoicing-example.md#1
+```screenplay excerpt parent=references/invoicing-example.md#1 expect PLAY0533
 // Parent: references/invoicing-example.md (complete document), slice InvoiceList
 slice StateView InvoiceList
   readmodel InvoiceListReadModel

@@ -37,7 +37,7 @@ Screenplay specifications.
 
 ## 1. Command: success, rule rejection and denial
 One spec for the success, one per rule (varying only the value the rule checks), one denial.
-```screenplay excerpt parent=references/invoicing-dues-example.md#1
+```screenplay excerpt parent=references/invoicing-dues-example.md#1 expect PLAY0533
 specification IssuingAnInvoice
   given caller
     authenticated
@@ -75,7 +75,7 @@ specification RefusingACallerWithoutTheAccountsRole
 After which earlier facts must the command be refused? Establish the wrong state with its real
 facts, not a description of it. Settling a voided invoice and voiding a settled one are different
 questions: one spec each.
-```screenplay excerpt parent=references/invoicing-dues-example.md#1
+```screenplay excerpt parent=references/invoicing-dues-example.md#1 expect PLAY0533
 specification RejectingSettlementOfAVoidedInvoice
   given caller
     authenticated
@@ -111,7 +111,7 @@ vocabulary; a separate Automation records the local outcome and states it in its
 spec needs `given capture` with the same key's earlier record; the first record's
 fields are not modifications (root, child or nested). See captures-and-reactions
 `references/record-capture-specifications.md` for runnable first/update/repeat cases.
-```screenplay excerpt parent=references/invoicing-dues-example.md#1
+```screenplay excerpt parent=references/invoicing-dues-example.md#1 expect PLAY0533
 specification TranslatingADeclinedCardResult
   when capture PaymentGatewayResults
     reference = "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
@@ -124,7 +124,7 @@ specification TranslatingADeclinedCardResult
 ```
 The Automation that records the local outcome proves its own link in its own slice
 (a specification runs only its slice, Screenplay decision 0115):
-```screenplay excerpt parent=references/invoicing-dues-example.md#1
+```screenplay excerpt parent=references/invoicing-dues-example.md#1 expect PLAY0533
 specification RecordingADeclinedPayment
   when append PaymentGatewayResultReceived
     for "9c1f0a52-6a4e-4b1c-9f55-0d2c7b8e1a01"
@@ -138,7 +138,7 @@ Second, the **retry**. `PaymentRequested` only says we asked the gateway; it is 
 After the decline, requesting again is an ordinary accepted command, and its exact declared
 outcome is `PaymentRequested`, not `PaymentReceived`: the eventual success is a later external
 fact that arrives through the capture, not something this command produces.
-```screenplay excerpt parent=references/invoicing-dues-example.md#1
+```screenplay excerpt parent=references/invoicing-dues-example.md#1 expect PLAY0533
 specification RetryingPaymentAfterADecline
   given caller
     authenticated
@@ -201,7 +201,7 @@ ask. Voiding an issued invoice that is not yet paid is the other compensation (t
 A repeated event type can matter as much as a multi-event lifecycle. Two top-ups of 40 and 70
 walk a balance to 110; give the second occurrence as the action so the accumulation is what is
 tested.
-```screenplay excerpt parent=references/invoicing-dues-example.md#1
+```screenplay excerpt parent=references/invoicing-dues-example.md#1 expect PLAY0533
 specification MemberCreditAccumulatesTopUps
   given caller
     authenticated

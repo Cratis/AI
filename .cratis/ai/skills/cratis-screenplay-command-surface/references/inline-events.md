@@ -12,7 +12,7 @@ documents the destination defaults and calls plain omission legacy omission beha
 
 This complete example declares its payload and mappings together:
 
-````screenplay
+````screenplay expect PLAY0533
 concept ProjectId : Uuid
 concept ProjectName : String
 module Projects

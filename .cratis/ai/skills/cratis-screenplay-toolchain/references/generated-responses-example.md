@@ -7,7 +7,7 @@ diagnostics, binds, and its two specifications pass in the reference runner. Rul
 
 Requires Screenplay 4.68.0 or later (`screenplay --version`); older compilers refuse these constructs with `PLAY0268`.
 
-```screenplay
+```screenplay expect PLAY0533
 // ESM v7 reference-executable example: deterministic generated fixtures, events and command responses.
 concept ProjectId : Uuid
 concept ReceiptId : Uuid

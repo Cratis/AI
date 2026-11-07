@@ -140,7 +140,7 @@ for the self-check contract and compiler-upgrade handling.
 
 ## Declare the use separately
 
-```screenplay
+```screenplay expect PLAY0533
 concept ContactName : String pii
   pii reason "Identifies the customer's contact"
 purpose Billing

@@ -5,7 +5,7 @@ declares no specification, so nothing is lost for running), holding the `Registe
 (Step 5) and the `InvoiceList` slice (Step 6) with the concepts, policy and events they rely on. The excerpts in
 [nine-steps.md](nine-steps.md) are these slices, verbatim.
 
-```screenplay
+```screenplay expect PLAY0533
 domain Acme.Invoicing
 
 concept InvoiceId : Uuid

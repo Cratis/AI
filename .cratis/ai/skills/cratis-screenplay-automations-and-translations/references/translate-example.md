@@ -17,7 +17,7 @@ states what this example does not do. Examples never show the whole integration 
 
 ## Model
 
-```screenplay
+```screenplay expect PLAY0533
 // Translate slice. Correlation is created on OUR side: BookExam allocates the attempt id and the
 // realization hands it to the proctoring service as its reference; the service's webhook echoes
 // it, so the capture `key` lands every record on the attempt's own stream. The external fact keeps

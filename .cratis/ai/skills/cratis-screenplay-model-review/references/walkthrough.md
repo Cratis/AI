@@ -96,7 +96,7 @@ A new slice is sketched by type with the declarations a modeler would write, in 
 vocabulary, and labelled as a proposal. The sketch is not applied and is not complete: it exists so
 the reader sees the shape.
 
-```screenplay
+```screenplay expect PLAY0533
 domain Harbour.Moorings
 
 concept BoatName : String

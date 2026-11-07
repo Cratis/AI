@@ -55,7 +55,7 @@ named `id` (`STAGE-ESM-044` otherwise, found by `cratis render --check`), and th
 `remove with` event. Complete model; it validates with `--executable`, renders with `--check`,
 and the specification passes in `screenplay test`:
 
-```screenplay
+```screenplay expect PLAY0533
 domain Tasks
 command reads protected
 module Work

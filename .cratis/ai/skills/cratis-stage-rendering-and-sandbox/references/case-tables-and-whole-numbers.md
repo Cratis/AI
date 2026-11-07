@@ -26,7 +26,7 @@ then applies its usual `when_<snake>` naming. This complete example yields
 `Registering_Small` and `Registering_Large`, rendered as
 `when_registering_small` and `when_registering_large` (one file/class each):
 
-```screenplay
+```screenplay expect PLAY0533
 concept ProjectId : String
 concept ProjectName : String
 module Projects
@@ -75,7 +75,7 @@ Screenplay's Double-mode whole-number range is
 This routed model selects ESM v8. `Quantity` wraps `long` and
 the fixture renders as `2147483648L`:
 
-```screenplay
+```screenplay expect PLAY0533
 concept StockId : String
 concept Quantity : Int
 eventsource Stock

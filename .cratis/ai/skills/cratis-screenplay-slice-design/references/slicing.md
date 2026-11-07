@@ -57,7 +57,7 @@ importing root). Without one the check is skipped, which does not mean clean
 (`cratis-screenplay-toolchain`). The `remove with BerthAssigned` line below is the kept case:
 the waiting list legitimately drops a request when the later slice assigns it.
 
-```screenplay expect PLAY0516
+```screenplay expect PLAY0516,PLAY0533
 domain Harbour.Moorings
 
 concept BerthRequestId : Uuid

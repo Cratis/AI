@@ -74,7 +74,7 @@ When the generic platform is itself the product being built, its own facts
 no personal data on purpose: a health-record example would need `pii` concepts and a `purpose`
 (command-surface `references/compliance.md`).
 
-```screenplay
+```screenplay expect PLAY0533
 domain Harbour.Moorings
 
 concept BerthNumber : String

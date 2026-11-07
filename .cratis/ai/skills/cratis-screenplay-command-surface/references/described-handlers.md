@@ -11,7 +11,7 @@ described body to reject a command or decide how many events to emit.
 
 Complete model:
 
-```screenplay
+```screenplay expect PLAY0533
 domain Billing
 module Invoices
   feature Fees

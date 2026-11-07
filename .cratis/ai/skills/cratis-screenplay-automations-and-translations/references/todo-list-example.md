@@ -29,7 +29,7 @@ What the model proves and what it does not:
   `runs as system role` (ESM v10), with separate CLI/Stage refusal.
 - Report reference outcomes only after executing the selected scenarios.
 
-```screenplay expect PLAY0469,PLAY0516
+```screenplay expect PLAY0469,PLAY0516,PLAY0533
 // Todo-list automation. Shape: CoursePassed opens an item -> CertificateSender invokes
 // SendCertificate -> CertificateSent closes the item. The once-only FACT is
 // `unique event CertificateSent`; the external send is NOT proven once-only by this model.

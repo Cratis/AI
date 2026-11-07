@@ -9,7 +9,7 @@ A complete marina-berth model that `cratis render` accepts, followed by what the
 render produces and how to check it. Use it as a shape to stay inside when a
 model must be renderable; it is not a template for richer slices (see `admission.md`).
 
-```screenplay
+```screenplay expect PLAY0533
 // cratis-stage-rendering-and-sandbox: a complete renderable model.
 // Two commands with one event each, one projection with a removal, one keyed snapshot query,
 // declarative authorization and three reference specifications. Compiles with warnings as errors

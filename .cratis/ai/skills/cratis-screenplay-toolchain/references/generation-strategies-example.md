@@ -29,7 +29,7 @@ entropy. The clock fixes every UTC pattern segment, not the random digits.
 
 ## Pinned creation and freshness
 
-```screenplay
+```screenplay expect PLAY0533
 concept OrderId : String
   generate typeid "order"
 concept InvoiceNumber : String
@@ -91,7 +91,7 @@ An implementation-specific tenant-bearing reference can instead attach one
 generation rule; its entropy is unknown, not zero. The body gets only Now and
 Tenant. The reference evaluator consumes a String fixture without running code:
 
-````screenplay
+````screenplay expect PLAY0533
 concept TenantOrderReference : String
   generate rule TenantOrder
     ```csharp

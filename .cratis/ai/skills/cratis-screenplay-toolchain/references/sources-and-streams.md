@@ -56,7 +56,7 @@ an explicit Chronicle data migration, not a language repair or invented route.
 
 Requires Screenplay 4.213.3 or later (`screenplay --version`) for the authoring-time PLAY0802 refusal of stored stream `All` and stored source `Default`. Requires 4.150.0 or later for the binding refusal of `All`; earlier compilers accept it silently.
 
-```screenplay
+```screenplay expect PLAY0533
 concept AccountId : Uuid
 concept Month : Int
 eventsource Account

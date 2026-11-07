@@ -81,7 +81,7 @@ deeper pass: it would carry evidence the pass has not gathered. Examples are par
 gives one typed `example` per key command or event, Pass 2 gives realistic values shaped by the
 test fixtures (invented where fixtures hold personal data).
 
-```screenplay
+```screenplay expect PLAY0533
 domain Clinic.Visits
 
 concept PetId : Uuid
@@ -120,7 +120,7 @@ End every pass with: what changed, the sub-journeys found, the open questions, a
 
 A Pass 0 skeleton compiles as a normal candidate:
 
-```screenplay
+```screenplay expect PLAY0533
 domain Clinic.Visits
 
 module Visits

@@ -13,7 +13,7 @@ A warning (it fails `--warnaserror`) in two cases:
 
 This example reports PLAY0690 on `ByMonth`: the instances follow `ResourceId`, not `Month`.
 
-```screenplay expect PLAY0690
+```screenplay expect PLAY0533,PLAY0690
 concept ResourceId : String
 concept Month : String
 module Work
@@ -49,7 +49,7 @@ module Work
 
 To aggregate by a payload value, replace the reducer with a projection that declares a property key on each `from`. The read-model `key` and the `from` key then agree, and the warning is gone:
 
-```screenplay
+```screenplay expect PLAY0533
 concept ResourceId : String
 concept Month : String
 module Work
