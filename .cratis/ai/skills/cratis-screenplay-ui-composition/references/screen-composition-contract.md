@@ -234,18 +234,21 @@ slice's hook instead lets the slice's `fits` choose the place (see
 `application-shell.md`).
 
 ```screenplay excerpt
-toolbar InvoiceToolbar
-  item register action RegisterInvoice
-    label "Register"
-    icon Add
-  item details navigate to InvoiceDetails
-    parameter invoiceId from component invoices.selectedItem.id
-  item compose dialog InvoiceComposer
+screen InvoiceList
+  toolbar InvoiceToolbar
+    item register action RegisterInvoice for screen
+      label "Register"
+      icon Add
+    item details navigate to InvoiceDetails
+      parameter invoiceId from component invoices.selectedItem.id
+    item compose dialog InvoiceComposer
 ```
 
-A toolbar item is `item <name> action <Command>`, `item <name> navigate to <Screen>` or
-`item <name> dialog <DialogTemplate>`. Use a toolbar for reusable groups of actions; use inline `action`
-when a single screen owns the button. A parameter that reads a selection is a typed
+A screen's toolbar item is `item <name> action <Command>`, `item <name> navigate to <Screen>` or
+`item <name> dialog <DialogTemplate>`. Use a screen toolbar for a group of actions one screen owns, and
+inline `action` for a single button. A group of actions a layout or template offers to every screen below
+it is an `outlet <name> of actions` instead (see `application-shell.md`); a feature or module `toolbar` is
+the Screenplay 5 form and reports `PLAY0896`. A parameter that reads a selection is a typed
 `from component <stableId>.<path>` binding (the bare `selected.invoiceId` form parses only as a legacy
 data-context path). A dialog destination must state every input with a typed `with`/`parameter`
 binding; a runtime default is not an authored contract.
