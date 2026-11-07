@@ -192,6 +192,7 @@ test('reference classification fails closed for brace-bracket mixes, slash-spann
         const dense = '['.repeat(1024) + ']'.repeat(1024);
         for (const path of ['p{x,[a}]ckage.json', '.m{x,[c}]p.json', '.{x,[e}]nv', '.cr[a{]tis/ai/{rules,foo}', '.cratis/{ai/rules,x}',
             '.m""{x,{c,d}}p.json', ".$'m'{x,{c,d}}p.json", String.raw`.m{x,c}p\.json`, '.m{x,c}$p.json',
+            '.m``{x,{c,d}}p.json', '.m{x,{c,d}}p``.json', '~/.m{x,c}p.json', '.m{x,c}p.js$()on',
             '['.repeat(65) + 'x', '['.repeat(64) + ']'.repeat(100), dense]) {
             const started = Date.now();
             const result = spawnSync('bash', [guard, '--references'], {

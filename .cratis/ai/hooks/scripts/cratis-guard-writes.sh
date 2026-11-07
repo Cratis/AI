@@ -198,8 +198,8 @@ control_patterns=('.claude/settings.json' '.claude/settings.local.json' '.mcp.js
 # reference bracket is never parsed: it is either a literal '[' or one any-character step
 # to any later ']' in the same segment. Bash's reading is always one of those alternatives,
 # so the class contents can only widen the match. References that mix braces with brackets,
-# whose brace span holds '/', with quoting ('"', "'", '\', '$') outside the brace span, or
-# with dense brackets are not modeled at all: they fail closed (exit 2) so the work stays
+# whose brace span holds '/', with anything but plain path characters outside the brace
+# span (quoting, substitution and expansion syntax), or with dense brackets are not modeled at all: they fail closed (exit 2) so the work stays
 # bounded.
 IFS= read -r -d '' glob_program <<'AWK' || true
 function tokens(s, side,    i, c, j, k, t, copy, jumps, first, closing) {
@@ -212,7 +212,7 @@ function tokens(s, side,    i, c, j, k, t, copy, jumps, first, closing) {
         for (k = length(s); k > first; k--) if (substr(s, k, 1) == "}") { closing = k; break }
         if (first && closing) {
             if (index(substr(s, first, closing - first + 1), "/")) exit 2
-            if (substr(s, 1, first - 1) substr(s, closing + 1) ~ /["'\\$]/) exit 2
+            if (substr(s, 1, first - 1) substr(s, closing + 1) ~ /[^a-z0-9._\/*?,+=:@%-]/) exit 2
             s = substr(s, 1, first) substr(s, closing)
         }
     }
