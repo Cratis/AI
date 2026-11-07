@@ -195,14 +195,22 @@ control_patterns=('.claude/settings.json' '.claude/settings.local.json' '.mcp.js
 # a character loop. The product automaton accepts iff the two patterns share a spelling.
 # Braces conservatively become a star; bracket classes retain their ordinary meaning.
 IFS= read -r -d '' glob_program <<'AWK' || true
-function tokens(s, side,    i, c, j, t, n) {
+function tokens(s, side,    i, c, j, k, t, n, body) {
     s = tolower(s)
     for (i = 1; i <= length(s); i++) {
         c = substr(s, i, 1); t = c
         if (c == "{") { j = index(substr(s, i), "}"); if (j) i += j - 1; t = "*" }
         else if (c == "[") {
-            j = index(substr(s, i + 1), "]")
-            if (j) { t = substr(s, i, j + 1); i += j; sub(/^\[!/, "[^", t) }
+            k = i + 1
+            if (substr(s, k, 1) == "!" || substr(s, k, 1) == "^") k++
+            # A leading closing bracket is a literal set member, not its terminator.
+            if (substr(s, k, 1) == "]") k++
+            j = index(substr(s, k), "]")
+            if (j) {
+                j += k - 1; body = substr(s, k, j - k)
+                t = substr(s, i, j - i + 1); i = j; sub(/^\[!/, "[^", t)
+                if (body ~ /\[\.[^]]*\.$/ || body ~ /\[=[^]]*=$/ || index(body, "\\")) exit 2
+            }
         }
         N[side]++; A[side, N[side]] = t
     }

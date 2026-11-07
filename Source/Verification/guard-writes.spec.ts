@@ -106,6 +106,97 @@ test('the write guard refuses generated output and allows a file that merely men
     }
 });
 
+test('reference classification treats empty brackets and jq array tokens as literals', () => {
+    const repo = scratchRepository();
+    try {
+        const cases: Array<[paths: string[], protectedPaths: string[]]> = [
+            [['[]'], []], [['.[]'], []], [['[.number,'], []], [['.title]'], []], [['[.number, .title]'], []],
+            [['[^]'], []], [['[!]'], []],
+            [['.[] | [.number, .title]'], []],
+            [['[]', '.[]', '.env', '.mcp.json'], ['.env', '.mcp.json']],
+        ];
+        for (const [paths, protectedPaths] of cases) {
+            const result = spawnSync('bash', [guard, '--references'], {
+                cwd: repo.root,
+                input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: paths } }),
+                encoding: 'utf8',
+                env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+            });
+            assert.equal(result.status, 0, `${JSON.stringify(paths)}\n${result.stderr}`);
+            assert.equal(result.stdout, protectedPaths.map(path => `${path}\n`).join(''));
+            assert.equal(result.stderr, '');
+        }
+    } finally { repo.dispose(); }
+});
+
+test('reference classification preserves nonempty glob classes and unmatched bracket literals', () => {
+    const repo = scratchRepository();
+    try {
+        const protectedPaths = ['.[e]nv', '.[a-z]nv', '.[!x]nv', '.[E]NV', '[p]ackage.json', '.cl[a]ude/settings.json'];
+        const paths = [...protectedPaths, 'ordinary[ab].txt', '[', 'ordinary[abc', '[z-a]', '.[z-a]nv'];
+        const result = spawnSync('bash', [guard, '--references'], {
+            cwd: repo.root,
+            input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: paths } }),
+            encoding: 'utf8',
+            env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+        });
+        assert.equal(result.status, 0, result.stderr);
+        assert.equal(result.stdout, protectedPaths.map(path => `${path}\n`).join(''));
+        assert.equal(result.stderr, '');
+    } finally { repo.dispose(); }
+});
+
+for (const path of ['.[]e]nv', '.[]m]cp.json', '.[]c]laude/settings.json', '.[!]x]nv', '.[^]x]nv']) {
+    test(`reference classification protects a bracket set with a leading literal closing bracket: ${path}`, () => {
+        const repo = scratchRepository();
+        try {
+            const result = spawnSync('bash', [guard, '--references'], {
+                cwd: repo.root,
+                input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: [path] } }),
+                encoding: 'utf8',
+                env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+            });
+            assert.equal(result.status, 0, result.stderr);
+            assert.equal(result.stdout, `${path}\n`);
+            assert.equal(result.stderr, '');
+        } finally { repo.dispose(); }
+    });
+}
+
+for (const path of ['.[[.e.]]nv', '.[[=e=]]nv', String.raw`.e[\n]v`]) {
+    test(`reference classification fails closed for unsupported bracket class syntax: ${path}`, () => {
+        const repo = scratchRepository();
+        try {
+            const result = spawnSync('bash', [guard, '--references'], {
+                cwd: repo.root,
+                input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: [path] } }),
+                encoding: 'utf8',
+                env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+            });
+            assert.equal(result.status, 2, `${path}\n${result.stderr}`);
+            assert.equal(result.stdout, '');
+            assert.match(result.stderr, /BLOCKED by cratis-guard-writes: parser failed; cannot check this tool call\./);
+        } finally { repo.dispose(); }
+    });
+}
+
+test('reference classification fails closed for malformed nonempty classes', () => {
+    const repo = scratchRepository();
+    try {
+        for (const path of ['.[[:nosuch:]]nv']) {
+            const result = spawnSync('bash', [guard, '--references'], {
+                cwd: repo.root,
+                input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: [path] } }),
+                encoding: 'utf8',
+                env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+            });
+            assert.equal(result.status, 2, `${path}\n${result.stderr}`);
+            assert.equal(result.stdout, '');
+            assert.match(result.stderr, /BLOCKED by cratis-guard-writes: parser failed; cannot check this tool call\./);
+        }
+    } finally { repo.dispose(); }
+});
+
 test('the write guard resolves every spelling of the same target to the same verdict', () => {
     const repo = scratchRepository();
     try {
