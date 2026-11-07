@@ -140,7 +140,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "application navigation regions (topbar/sidebar, module inherit/extend/override)"
+      "value": "application navigation outlets (topbar/sidebar, module inherit/extend/override)"
     },
     {
       "kind": "skill-contains",
@@ -148,7 +148,7 @@
     },
     {
       "kind": "skill-contains",
-      "value": "## The application shell: regions, slice buttons, blueprint references, sample data"
+      "value": "## The application shell: navigation, toolbars, blueprints and sample data"
     },
     {
       "kind": "skill-contains",
@@ -186,17 +186,17 @@
     },
     {
       "kind": "skill-contains",
-      "value": "`navigation <region> extends`",
+      "value": "`outlet <name> extends`",
       "file": "references/application-shell.md"
     },
     {
       "kind": "skill-contains",
-      "value": "`navigation <region> overrides`",
+      "value": "`outlet <name> overrides`",
       "file": "references/application-shell.md"
     },
     {
       "kind": "skill-contains",
-      "value": "Hierarchy is sidebar only",
+      "value": "hierarchy is not sidebar-only",
       "file": "references/application-shell.md"
     },
     {

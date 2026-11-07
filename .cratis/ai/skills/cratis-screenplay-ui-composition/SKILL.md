@@ -90,9 +90,11 @@ A complete example:
 layout AppShell
   category application
   topbar
-  navigation contributes Navigation
+  navigation
   content
   footer
+
+  outlet Navigation of navigation in navigation
 
   arrangement flow
     column
@@ -103,8 +105,8 @@ layout AppShell
       footer height 32
 ```
 
-A slot is declared once by name, optionally marked
-`contributes <ContributionPoint>` to make it a contribution target.
+A slot is declared once by name; an outlet renders items into it with
+`outlet <Name> of actions|filters|tabs|stats|navigation in <slot>` — see [Outlets](#the-application-shell-navigation-toolbars-blueprints-and-sample-data).
 
 ## `arrangement` — responsive `flow` or pixel-precise `freeform`
 
@@ -200,14 +202,15 @@ not in the language. The screens-release vector
 renderer that admits it renders it and passes the browser run. Report a refused form as a
 capability gap, never a flat-list fallback; Studio production proof is separate.
 
-## The application shell: regions, slice buttons, blueprint references, sample data
+## The application shell: navigation, toolbars, blueprints and sample data
 
-This covers application navigation regions (topbar/sidebar, module inherit/extend/override)
-and toolbar slice buttons alongside blueprint references and sample data.
+This covers application navigation outlets (topbar/sidebar, module inherit/extend/override)
+and toolbar slice buttons, blueprint references and sample data.
 
-The shell's navigation is declared in the `layout` (`navigation topbar` / `navigation sidebar`, with `logo` and nested
-`item` lines) and each `module` states how it relates to a region: **inherit** (the default), **extend** (the
-application's items plus its own) or **override** (its own only). Toolbars gain `button <id> title "<text>" slice
+The shell's navigation is declared in the `layout` as an outlet (`outlet <name> of navigation`, with `logo` and
+nested `item` lines) and each `module` states how it relates to it: **inherit** (the default), **extend** (the
+application's items plus its own) or **override** (its own only). A feature or module adds buttons to an actions
+outlet the same way (`outlet <name> extends`), with `button <id> title "<text>" slice
 <Module>.<Feature>.<Slice>`, which opens a **State Change** slice as a dialog (a State View or Automation slice is
 `PLAY0762`). A screen takes a template from a blueprint with `template blueprint <Blueprint> <Name> version "<range>"`,
 and the `ui profile` selects the one active sample data pack (design and preview only, never in production).
@@ -216,13 +219,12 @@ and the `ui profile` selects the one active sample data pack (design and preview
 layout AppShell
   category application
   content
-
-  navigation sidebar
-    item sales title "Sales" target Sales
+  outlet sidebar of navigation
+    default sales title "Sales" target Sales
       item orders title "Orders" target Sales.Orders
 
 module Sales
-  navigation sidebar extends
+  outlet sidebar extends
     item customers title "Customers" target Sales.Customers
 
   feature Orders
@@ -230,9 +232,9 @@ module Sales
 ```
 
 Read [references/application-shell.md](references/application-shell.md) before writing any of it: the inherit/extend/override
-choice, item target and slot, the module-only target rule (`PLAY0750`), buttons, feature and module toolbars (`toolbar` in a
-`feature` or `module`, `confirm`), blueprint ranges, sample data, MCP editing
-and the review checklist. `contribute to Navigation` stays the flat contribution; a new application uses regions.
+choice, item target and slot, the module-only target rule (`PLAY0750`), buttons, feature and module toolbars (an
+outlet `extends` on a `feature` or `module`, `confirm`), blueprint ranges, sample data, MCP editing
+and the review checklist. `contribute to <outlet>` adds items to any outlet; a new application uses outlets.
 
 ## Interactions — what a click does
 
@@ -294,7 +296,7 @@ A `ui profile` selects the application shell with `root template` (an own layout
 Symptom: a rendered app titled "Cratis Stage" whose buttons and dialogs show raw command names. The renderer
 defaults to those when the model is silent, so declare, in every deliverable app:
 
-- the layout's `logo image "<path>" title "<text>"` inside `navigation topbar` or `navigation sidebar` (the
+- the layout's `logo image "<path>" title "<text>"` inside its navigation outlet (the
   application title the shell shows; `logo initials` is only valid in a profile's `identity`);
 - a `ui profile` with `root template`, shell `option` lines such as `option showFooter false`, and an `identity`
   block (`name`, `logo initials`);
@@ -306,7 +308,7 @@ layout AppShell
   category application
   content
 
-  navigation sidebar
+  outlet sidebar of navigation
     logo image "/assets/solocrm.svg" title "SoloCRM"
     item organizations title "Organizations" target Crm.Organizations
 
