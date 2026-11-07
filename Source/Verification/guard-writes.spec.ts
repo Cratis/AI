@@ -186,6 +186,27 @@ for (const path of ['.e[[=]=]n]v', '.e[[.].]n]v', String.raw`.[\e]nv`, '.[[=e=]]
     });
 }
 
+test('reference classification fails closed for brace-bracket mixes, slash-spanning braces and dense brackets', () => {
+    const repo = scratchRepository();
+    try {
+        const dense = '['.repeat(1024) + ']'.repeat(1024);
+        for (const path of ['p{x,[a}]ckage.json', '.m{x,[c}]p.json', '.{x,[e}]nv', '.cr[a{]tis/ai/{rules,foo}', '.cratis/{ai/rules,x}',
+            '['.repeat(65) + 'x', '['.repeat(64) + ']'.repeat(100), dense]) {
+            const started = Date.now();
+            const result = spawnSync('bash', [guard, '--references'], {
+                cwd: repo.root,
+                input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: [path] } }),
+                encoding: 'utf8',
+                env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+            });
+            assert.equal(result.status, 2, `${path.slice(0, 40)}\n${result.stderr}`);
+            assert.equal(result.stdout, '');
+            assert.match(result.stderr, /BLOCKED by cratis-guard-writes: parser failed; cannot check this tool call\./);
+            assert.ok(Date.now() - started < 10000, `bounded work for ${path.slice(0, 40)}`);
+        }
+    } finally { repo.dispose(); }
+});
+
 test('reference classification protects malformed nonempty classes without parsing them', () => {
     const repo = scratchRepository();
     try {

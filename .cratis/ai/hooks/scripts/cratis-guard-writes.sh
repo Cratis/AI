@@ -196,12 +196,22 @@ control_patterns=('.claude/settings.json' '.claude/settings.local.json' '.mcp.js
 # Braces conservatively become a star. A reference bracket is never parsed: it is either a
 # literal '[' or one any-character step to any later ']' in the same segment. Bash's reading
 # is always one of those alternatives, so the class contents can only widen the match.
+# References that mix braces with brackets, braces spanning '/', or dense brackets are not
+# modeled at all: they fail closed (exit 2) so the work stays bounded.
 IFS= read -r -d '' glob_program <<'AWK' || true
-function tokens(s, side,    i, c, j, k, t) {
+function tokens(s, side,    i, c, j, k, t, copy, jumps) {
     s = tolower(s)
+    if (side == 1) {
+        copy = s
+        if (index(s, "{") && index(s, "[")) exit 2
+        if (gsub(/\[/, "[", copy) > 64) exit 2
+    }
     for (i = 1; i <= length(s); i++) {
         c = substr(s, i, 1); t = c; j = i
-        if (c == "{") { j = index(substr(s, i), "}"); j = j ? i + j - 1 : i; t = "*" }
+        if (c == "{") {
+            j = index(substr(s, i), "}"); j = j ? i + j - 1 : i; t = "*"
+            if (side == 1 && index(substr(s, i, j - i + 1), "/")) exit 2
+        }
         N[side]++; A[side, N[side]] = t
         for (k = i; k <= j; k++) TOKEN[side, k] = N[side]
         if (c == "[" && side == 1) START[N[side]] = i
@@ -216,6 +226,7 @@ function tokens(s, side,    i, c, j, k, t) {
             if (c != "]") continue
             # A ']' inside a brace star re-enters that star, which covers the rest of it.
             j = TOKEN[1, k] == TOKEN[1, k + 1] ? TOKEN[1, k] : TOKEN[1, k + 1]
+            if (++jumps > 4096) exit 2
             JUMP[t, ++JUMPS[t]] = j
         }
     }

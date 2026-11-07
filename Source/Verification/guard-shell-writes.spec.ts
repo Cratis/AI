@@ -149,6 +149,20 @@ test('bracket sets with a leading literal closing bracket cannot conceal protect
     } finally { repo.dispose(); }
 });
 
+test('braces mixed with brackets or spanning a slash are refused rather than modeled', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [BLOCK, 'tee p{x,[a}]ckage.json </dev/null'],
+            [BLOCK, 'cp /dev/null .m{x,[c}]p.json'],
+            [BLOCK, 'cp x .cl{x,[a}]ude/settings.json'],
+            [BLOCK, 'cp x .cr[a{]tis/ai/{rules,foo}'],
+            [BLOCK, 'cp x .cratis/{ai/rules,foo}'],
+            [ALLOW, 'cp x notes{1,2}.txt'],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('no-reference commands bypass the allowlist and protected reads remain read-only', async () => {
     const repo = scratchRepository();
     try {
