@@ -158,6 +158,9 @@ test('braces mixed with brackets or spanning a slash are refused rather than mod
             [BLOCK, 'cp x .cl{x,[a}]ude/settings.json'],
             [BLOCK, 'cp x .cr[a{]tis/ai/{rules,foo}'],
             [BLOCK, 'cp x .cratis/{ai/rules,foo}'],
+            [BLOCK, 'tee .m{x,{c,d}}p.json </dev/null'],
+            [BLOCK, 'tee p{x,{a,b}}ckage.json </dev/null'],
+            [BLOCK, 'tee .claude/settings{x,{.,_}}json </dev/null'],
             [ALLOW, 'cp x notes{1,2}.txt'],
         ], repo.root);
     } finally { repo.dispose(); }

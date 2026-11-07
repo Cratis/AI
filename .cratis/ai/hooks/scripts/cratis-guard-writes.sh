@@ -196,7 +196,7 @@ control_patterns=('.claude/settings.json' '.claude/settings.local.json' '.mcp.js
 # Braces conservatively become a star. A reference bracket is never parsed: it is either a
 # literal '[' or one any-character step to any later ']' in the same segment. Bash's reading
 # is always one of those alternatives, so the class contents can only widen the match.
-# References that mix braces with brackets, braces spanning '/', or dense brackets are not
+# References that mix braces with brackets, hold more than one brace, braces spanning '/', or dense brackets are not
 # modeled at all: they fail closed (exit 2) so the work stays bounded.
 IFS= read -r -d '' glob_program <<'AWK' || true
 function tokens(s, side,    i, c, j, k, t, copy, jumps) {
@@ -204,6 +204,9 @@ function tokens(s, side,    i, c, j, k, t, copy, jumps) {
     if (side == 1) {
         copy = s
         if (index(s, "{") && index(s, "[")) exit 2
+        # Only a single, unnested brace is modeled; any second '{' fails closed.
+        if (gsub(/\{/, "{", copy) > 1) exit 2
+        copy = s
         if (gsub(/\[/, "[", copy) > 64) exit 2
     }
     for (i = 1; i <= length(s); i++) {
