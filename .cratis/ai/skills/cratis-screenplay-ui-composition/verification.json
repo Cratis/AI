@@ -11,6 +11,9 @@
     { "kind": "skill-contains", "value": "theme \"Scene Default Light\"", "file": "references/ui-profile-and-theme.md" },
     { "kind": "skill-contains", "value": "Empty, blank or unterminated quoted names are `PLAY0229`", "file": "references/ui-profile-and-theme.md" },
     { "kind": "skill-contains", "value": "package compatibility check", "file": "references/ui-profile-and-theme.md" },
+    { "kind": "skill-contains", "value": "design system", "file": "SKILL.md" },
+    { "kind": "skill-contains", "value": "implements", "file": "references/design-system-and-themes.md" },
+    { "kind": "skill-contains", "value": "default theme", "file": "references/design-system-and-themes.md" },
     {
       "kind": "skill-contains",
       "value": "PLAY0685",
