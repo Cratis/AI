@@ -1,0 +1,13 @@
+Copyright (c) Cratis. All rights reserved.
+Licensed under the MIT license. See LICENSE file in the canonical Cratis/AI repository for the full license text.
+
+Third-party notices
+
+This skill restates, in Cratis wording, the idea of evidence rows that carry explicit unknowns from
+morluto/rea (https://github.com/morluto/rea), which is released under the MIT licence. No upstream
+text is reused.
+
+This skill refers to material that `cratis-screenplay-legacy-extraction` adapts from agentic-engineer
+and the Eventmodelers Build-Kits by Martin Dilger and Nebulit GmbH (https://nebulit.de), used with
+the explicit consent of Martin Dilger and Nebulit GmbH. That material remains credited to them; see
+the licence file of that skill.

@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-screenplay-reverse-engineering",
+  "input": "We have a running web app we may test and a HAR capture of its booking flow, but no source code. Reverse engineer it into a Screenplay model and get it running.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "## Decision rule" },
+    { "kind": "skill-contains", "value": "cratis-screenplay-legacy-extraction" },
+    { "kind": "skill-contains", "value": "Read-only by default" },
+    { "kind": "skill-contains", "value": "Scrub cookies" },
+    { "kind": "skill-contains", "value": "cratis run <model folder>" },
+    { "kind": "skill-contains", "value": "Never `render --force` without approval" },
+    { "kind": "skill-contains", "value": "keep / change / remove" },
+    { "kind": "skill-contains", "value": "Only claim effects the capture confirms" },
+    { "kind": "skill-contains", "value": "Unknowns stay visible" },
+    { "kind": "skill-contains", "value": "L0 feature inventory" },
+    { "kind": "skill-contains", "value": "outside an isolated sandbox", "file": "references/executable-intake.md" },
+    { "kind": "skill-contains", "value": "CRUD mirror", "file": "references/synthesis-rules.md" },
+    { "kind": "skill-contains", "value": "evidence.jsonl", "file": "references/evidence-format.md" },
+    { "kind": "skill-contains", "value": "morluto/rea", "file": "references/provenance.md" }
+  ]
+}

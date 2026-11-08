@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-screenplay-reverse-engineering",
+  "queries": [
+    { "query": "We have a running web app we may test and no source code. Reverse engineer it into a Screenplay model and run it.", "shouldTrigger": true },
+    { "query": "Here is a HAR capture of our booking flow. Turn it into commands, events and read models and get it running on Stage.", "shouldTrigger": true },
+    { "query": "Walk our staging app with the browser, record what each screen does and build a candidate model from it.", "shouldTrigger": true },
+    { "query": "From this OpenAPI document and a few screenshots, re-imagine the application as a Screenplay model and check it against the original journeys.", "shouldTrigger": true },
+    { "query": "How do I scrub cookies and authorization headers from a HAR before extracting a model from it?", "shouldTrigger": true },
+    { "query": "Re-walk the journeys we observed on the app that cratis run started and report pass or fail per journey.", "shouldTrigger": true },
+    { "query": "We only have the installer and the shipped Electron app. Inventory its features and screens and model them.", "shouldTrigger": true },
+    { "query": "Inspect this APK we own to list the features and endpoints it exposes, then build a model from that.", "shouldTrigger": true },
+    { "query": "List what our desktop executable lets users do before we model anything: a feature inventory.", "shouldTrigger": true },
+    { "query": "Compare the original app's journeys with the model we ran and mark each one pass or fail.", "shouldTrigger": true },
+    { "query": "Migrate our inherited ASP.NET application faithfully, with the source, a loss report and expert verification.", "shouldTrigger": false, "note": "cratis-screenplay-legacy-extraction" },
+    { "query": "Interview the business about a new domain and discover its event timeline.", "shouldTrigger": false, "note": "cratis-screenplay-discovery" },
+    { "query": "Review our finished .play model without editing it.", "shouldTrigger": false, "note": "cratis-screenplay-model-review" },
+    { "query": "Render the accepted model into an application and gap-fill it.", "shouldTrigger": false, "note": "cratis-screenplay-render-and-gap-fill" },
+    { "query": "Rename an existing model concept through Screenplay MCP with identity preservation.", "shouldTrigger": false, "note": "cratis-screenplay-model-authoring" },
+    { "query": "Write the C# command handler and validator for the reservation command.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Which toolchain version and verdict command checks this .play file?", "shouldTrigger": false, "note": "cratis-screenplay-toolchain" },
+    { "query": "Estimate and order the delivery of our accepted model across the team.", "shouldTrigger": false, "note": "cratis-screenplay-delivery-planning" },
+    { "query": "Decide the stream identity and invariants for berth reservations.", "shouldTrigger": false, "note": "cratis-screenplay-streams-and-consistency" },
+    { "query": "Inspect a quarantined observer on our running Chronicle store.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" }
+  ]
+}
