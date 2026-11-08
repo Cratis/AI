@@ -196,6 +196,7 @@
     "goal",
     "grant",
     "graph",
+    "graphs",
     "green",
     "grid",
     "group",
@@ -371,6 +372,7 @@
     "random",
     "reaction",
     "readmodel",
+    "readmodels",
     "reads",
     "reason",
     "receipt",
@@ -438,6 +440,7 @@
     "shows",
     "sidebar",
     "signup",
+    "sink",
     "size",
     "slice",
     "slot",
@@ -554,6 +557,7 @@
     "runs",
     "sample",
     "seed",
+    "sink",
     "statemachine",
     "sticky",
     "system",
@@ -38706,6 +38710,511 @@
       ]
     },
     {
+      "name": "sink",
+      "parseStatus": "accepted",
+      "probes": [
+        {
+          "source": "sink Reporting for readmodels\nmodule M\n  feature F\n    slice StateChange S\n      event Recorded\n        value String\n      readmodel View\n        sink Reporting\n        value String\n      projection View =\u003E View\n        from Recorded\n          value = value\n      query ByValue =\u003E View optional\n        by value String\n",
+          "minimumSemanticVersion": "1.0",
+          "diagnostic": "PLAY0270",
+          "diagnostics": [
+            {
+              "code": "PLAY0270",
+              "severity": "information"
+            },
+            {
+              "code": "PLAY0270",
+              "severity": "information"
+            }
+          ],
+          "admission": [
+            {
+              "esmVersion": 1,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 2,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 3,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 4,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 5,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 6,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 7,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 8,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 9,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 10,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 11,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 12,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 13,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 14,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 15,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 16,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 17,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 18,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 19,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 20,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 21,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 22,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 23,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 24,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 25,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 26,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 27,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 28,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 29,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 30,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 31,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 32,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 33,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 34,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 35,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 36,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 37,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 38,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 40,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            },
+            {
+              "esmVersion": 41,
+              "status": "refused",
+              "diagnostic": "PLAY0270",
+              "issue": null
+            }
+          ]
+        }
+      ],
+      "admission": [
+        {
+          "esmVersion": 1,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 2,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 3,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 4,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 5,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 6,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 7,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 8,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 9,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 10,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 11,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 12,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 13,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 14,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 15,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 16,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 17,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 18,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 19,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 20,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 21,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 22,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 23,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 24,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 25,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 26,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 27,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 28,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 29,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 30,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 31,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 32,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 33,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 34,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 35,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 36,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 37,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 38,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 40,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        },
+        {
+          "esmVersion": 41,
+          "status": "refused",
+          "diagnostic": "PLAY0270",
+          "issue": null
+        }
+      ]
+    },
+    {
       "name": "slice",
       "parseStatus": "accepted",
       "probes": [
@@ -58093,6 +58602,105 @@
         "error"
       ],
       "title": "A theme\u0027s implements, palette, values or mode block is malformed or repeated.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0931",
+      "name": "InvalidSinkDeclaration",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A sink \u003CName\u003E for readmodels|graphs declaration, or a sink \u003CName\u003E directive in a read model or graph, is malformed.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0932",
+      "name": "DuplicateSink",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "Two sinks share a name. Sink names are unique application-wide, compared ordinally and ignoring case.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0933",
+      "name": "UnknownSink",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A graph names a sink the application does not declare. A read model\u0027s sink \u003CName\u003E line naming no declared sink is a property named sink, not this diagnostic.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0934",
+      "name": "SinkKindMismatch",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A read model names a for graphs sink, or a graph names a for readmodels sink.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0935",
+      "name": "PassiveReadModelSink",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A passive read model names a sink; a passive read model is never materialized, so it has no sink.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0936",
+      "name": "ConflictingSinkDirective",
+      "severity": "error",
+      "severities": [
+        "error"
+      ],
+      "title": "A read model or graph names two different sinks.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0937",
+      "name": "RepeatedSinkDirective",
+      "severity": "warning",
+      "severities": [
+        "warning"
+      ],
+      "title": "A read model or graph repeats the same sink directive; the repeat changes nothing.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0938",
+      "name": "UnusedSink",
+      "severity": "warning",
+      "severities": [
+        "warning"
+      ],
+      "title": "A declared sink is named by no read model or graph.",
+      "reserved": false,
+      "retired": false
+    },
+    {
+      "code": "PLAY0939",
+      "name": "SinkNameCaseMismatch",
+      "severity": "warning",
+      "severities": [
+        "warning"
+      ],
+      "title": "A read model\u0027s line sink \u003CType\u003E stays a property named sink, but its type differs only in case from a declared sink, so the author probably meant the sink directive.",
       "reserved": false,
       "retired": false
     }

@@ -11,11 +11,11 @@
 - Phase 7. Rules and their layer (9 checks, E1-E9)
 - Phase 8. Flow and lifecycle (13 checks, F1-F13)
 - Phase 9. Personas, reach and authorization (8 checks, G1-G8)
-- Phase 10. Views, queries and screens (4 checks, H1-H4)
+- Phase 10. Views, queries and screens (5 checks, H1-H5)
 - Phase 11. Strategy checks (13 checks, R1-R13)
 - Closing questions (3, Q1-Q3; each needs an answer in the report; a "no" is a finding)
 
-Eleven phases, 89 checks and three closing questions. Each phase header says how many checks it holds; the report lists
+Eleven phases, 90 checks and three closing questions. Each phase header says how many checks it holds; the report lists
 every phase with its count and, per check, a status, the element and the evidence
 (`report-template.md`). Each check names what to look at, the Screenplay evidence source and the
 tier:
@@ -176,13 +176,14 @@ Nebulit (`provenance.md`).
 | G7 | Every command and query under an inherited module/feature `authorize` has its own `then denied` spec; authorization shared by a feature is declared at feature/module level so new paths inherit it. `require anonymous` is flagged on anything the business did not name public; it must be the whole authorization, preferably in a separate public module, and is not the same as omitting `authorize` | policies, specs | D (major when it exposes another person's data) |
 | G8 | Ownership/claim targets are a supported scalar (text, Uuid, Date or DateTime render; a numeric or Boolean target is always denied; other shapes and a command without exactly one identifier are STAGE-ESM-015): noted | policies | C (renderable mode) |
 
-## Phase 10. Views, queries and screens (4 checks, H1-H4)
+## Phase 10. Views, queries and screens (5 checks, H1-H5)
 | Id | Check | Evidence | Tier |
 |---|---|---|---|
 | H1 | Query shape follows the business view (list where people scan; lookup where they open one) | queries, screens | D |
 | H2 | Executable scope: a keyed `=> RM optional` query with `by` named like a read-model property, or a collection (`=> RM[]`, observable too) with caller-supplied `by` and/or equality filters. `from`, single-result filters, opaque `scoped to` and a list-query `by` block remain PLAY0268; a `performer` query is an opaque read (PLAY0270) left out of the executable model ([version gate](../../cratis-screenplay-toolchain/references/executable-subset.md#code-attachments-what-binds-what-never-does)). A read model with several key parts binds as v27 (Requires Screenplay 4.204.0). The projection routes by the same identity (a `from` key or an event property, or `$eventSourceId`; `$eventSourceId` is not mandated). Filtered models: supported v14 equality filters render within the CLI bundle's ESM ceiling. Renderable scope only: Stage-specific identity/filter limits; keyed optional snapshot lookups and snapshot/observable collections render (Requires Stage 4.90.0 for snapshot lists; older renderers report `STAGE-ESM-010`). Check query concept-validation parity separately; primitive-argument targets answer absence instead of Validation | queries, projections | C (executable); C (render admission, renderable only) |
 | H3 | One builder per read model; projection `key` only on `from` | projections | C |
 | H4 | Screens show one actor's point of view; a form submits one command | screens, forms | D |
+| H5 | Sinks: every declared `sink` is used by a read model or graph (`PLAY0938`), names differ ignoring case (`PLAY0932`), no `passive` read model names one (`PLAY0935`), and no read model's `sink <Type>` line is a property where the directive was meant (`PLAY0939`, or a type spelled exactly like no declared sink). The model names no database; a named sink needs a reason such as separate reporting storage ([sinks](../../cratis-screenplay-read-surface/references/sinks.md)) | `sink` declarations, read models, graphs | C (PLAY0932/0935); D (unused or unneeded sinks) |
 
 ## Phase 11. Strategy checks (13 checks, R1-R13)
 The rejected anti-patterns of the Screenplay strategy, as review checks. They apply to the

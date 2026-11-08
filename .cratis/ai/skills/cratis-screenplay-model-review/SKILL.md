@@ -191,7 +191,7 @@ Read [references/neighbouring-skills.md](references/neighbouring-skills.md) when
 
 ## References (load on demand)
 - Review public leaks, direction, complete keys and effective routes with [public/key/route checks](references/public-keys-and-routes.md).
-- Read `references/checklist.md` when performing the element sweep and phased audit; it contains eleven phases, 89 checks, tiers and evidence sources.
+- Read `references/checklist.md` when performing the element sweep and phased audit; it contains eleven phases, 90 checks, tiers and evidence sources.
 - Read `references/anti-patterns.md` when investigating an anti-pattern signal.
 - Read `references/report-template.md` when classifying findings, deciding the verdict, writing the report or conducting a re-review.
 - Read `references/worked-example.md` when an example of the sweep, lineage or report is needed, or when checking the complete examples: seeded model, filled report, fixed model.

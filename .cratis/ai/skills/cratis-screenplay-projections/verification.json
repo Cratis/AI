@@ -28,6 +28,9 @@
     { "kind": "skill-contains", "value": "The key is **always the event source id**" },
     { "kind": "skill-contains", "value": "**A join never creates an" },
     { "kind": "skill-contains", "value": "Inline code uses a tagged fence" },
-    { "kind": "skill-contains", "value": "PLAY0690", "file": "references/reducer-identity.md" }
+    { "kind": "skill-contains", "value": "PLAY0690", "file": "references/reducer-identity.md" },
+    { "kind": "skill-contains", "value": "**A builder never names a sink.**" },
+    { "kind": "skill-contains", "value": "sink People for graphs", "file": "references/graphs.md" },
+    { "kind": "skill-contains", "value": "every `sink` line in it is the directive", "file": "references/graphs.md" }
   ]
 }

@@ -184,7 +184,7 @@ unknown apply outcome requires recovery, not retry.
 
 All 44 traps, with fixes: `references/traps.md`. Read `references/traps.md` when diagnosing an unexpected compile, binding, rendering or MCP result.
 
-Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE or CLI-RENDER diagnostic needs its meaning and fix. When the Screenplay documentation and the compiler disagree, follow the compiler for what is accepted, keep the intended semantics in the model, and record the gap.
+Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE or CLI-RENDER diagnostic needs its meaning and fix. Sink lines (`PLAY0931`–`PLAY0939`) are realization metadata (PLAY0270): a sink change leaves the ESM revision unchanged. When the Screenplay documentation and the compiler disagree, follow the compiler for what is accepted, keep the intended semantics in the model, and record the gap.
 
 1. Clean V1 is not executable: only MCP (V2) or `render` binds.
 2. Prefer inline `produces event` for a command-owned event; plain command productions need explicit `for <identifier>`.
