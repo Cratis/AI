@@ -10,6 +10,7 @@ building with or contributing to Cratis.
 Source/
   Harness.Setup/     TypeScript tool that maintains repository harness adapters
   Pi.Plugin/         Published @cratis/pi package
+  ScreenplaySession/ Stack-neutral Screenplay guidance published as the session bundle
   Verification/      Corpus, profile, package, and skill behavior verification
 .claude/             Claude Code adapters
 .github/             GitHub Copilot adapters and the quality/release workflow
@@ -20,7 +21,9 @@ Source/
 ```
 
 There is one corpus: `.cratis/ai`. Harness folders point to it and must not carry
-independent copies.
+independent copies. `Source/ScreenplaySession/content` is not a copy: it is the
+stack-neutral Screenplay guidance that build loops inject into agent sessions in
+repositories without the corpus.
 
 ## Managed installation
 
@@ -472,6 +475,9 @@ tooling pipeline.
 the corpus and packages, checks semantic release intent, uses
 `cratis/release-action` to calculate the version after merge, and publishes
 `@cratis/pi` when a release is requested by the merged pull request label.
+Each release also attaches the Screenplay session bundle (`screenplay-session.zip`
+and its `.sha256`) to the GitHub release; see
+[Screenplay session bundle](Documentation/screenplay-session-bundle.md).
 `.github/workflows/verify-pull-request-policy.yml` is a thin caller of the
 organization pull-request policy gate. It checks release intent and fails a
 release-bound pull request whose description would not publish as release
