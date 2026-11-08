@@ -58,7 +58,7 @@ at the phase where they belong and run the downstream gates for the changed scop
 | P3 specifications and coverage | `cratis-screenplay-scenario-coverage` |
 | P4-P5 self-check and independent review | `cratis-screenplay-model-review` |
 | Existing system into a model (replaces P1-P2) | `cratis-screenplay-legacy-extraction` |
-| Running app, HAR or API description into a running model, no source needed (replaces P1-P2) | `cratis-screenplay-reverse-engineering` |
+| Running app, HAR, API description or executable into a running model, no source needed (replaces P1-P2) | `cratis-screenplay-reverse-engineering` |
 | P7-P9 execute, render, fall back, verify | `cratis-screenplay-render-and-gap-fill` |
 | Tools, versions, verdict commands, diagnostics | `cratis-screenplay-toolchain` |
 | Estimate, order or split delivery of an accepted model | `cratis-screenplay-delivery-planning` |

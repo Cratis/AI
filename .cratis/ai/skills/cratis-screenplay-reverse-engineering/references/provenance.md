@@ -1,6 +1,6 @@
 # Provenance
 
-| Content | Source | Licence | How used |
+| Content | Source | License | How used |
 |---|---|---|---|
 | Evidence rows that carry explicit unknowns, source kinds and locators (`references/evidence-format.md`); static before dynamic, per-kind techniques, tracing a feature across IPC, network and storage, and treating process capture as unisolated (`references/executable-intake.md`) | morluto/rea (https://github.com/morluto/rea) | MIT | Ideas only, restated in our own wording and fields; no upstream text or schema is reused |
 | The bounded, state-aware UI walk | Martin Dilger and Nebulit GmbH, agentic-engineer and Eventmodelers Build-Kits, used with their explicit consent; adapted in `cratis-screenplay-legacy-extraction` | see that skill's `LICENSE` and provenance | Referenced, not copied: this skill points to `ui-observation.md` and `signal-to-intent.md` there |

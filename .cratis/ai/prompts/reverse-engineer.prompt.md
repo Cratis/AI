@@ -1,17 +1,18 @@
 ---
 agent: agent
-description: Reverse engineer an observable system (start URL, HAR, OpenAPI document or repository) into a reviewed Screenplay model and run it.
+description: Reverse engineer a running system, its features or its executable (start URL, HAR, OpenAPI document, executable or package) into a reviewed Screenplay model and run it.
 ---
 
 # Reverse Engineer a System
 
 Run the **cratis-screenplay-reverse-engineering** skill end to end for the input the user gave: a
-start URL, a HAR file, an OpenAPI document or a repository. Follow its safety section before
-touching anything.
+start URL, a HAR file, an OpenAPI document, or an executable or package. Source code, if offered,
+is read last. Follow its safety section before touching anything.
 
 ## Confirm first
 
-- **Permission:** the system is owned by the user or the user may test it. If not, stop.
+- **Permission:** the system is owned by the user or the user may test it, and any executable is
+  one the user may analyze. If not, stop. Running an executable also needs a named sandbox.
 - **Discovery questions:** reuse what the user already said. Ask only what is missing, at most
   two, one per turn: the start URL and actor, then any guidance for the walk. Unattended, assume
   read-only, no hosted-model use and no writes, and record the assumptions.
@@ -32,8 +33,10 @@ touching anything.
 
 ## Stop at each approval point
 
-Stop and say what is needed before: any write to the target, a walk beyond the budget, sending
-captures to a hosted model, accepting (committing) the model, and `render --force`. Do not
+Stop and say what is needed before: any write to the target, a walk beyond the budget, any
+executable run (naming the executable, sandbox and actions), first use of an external
+reverse-engineering tool, sending captures to a hosted model, accepting (committing) the model,
+and `render --force`. Do not
 proceed on silence.
 
 ## Report

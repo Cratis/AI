@@ -294,7 +294,7 @@ and one phase skill, then the construct skill needed for syntax.
 | `cratis-screenplay-scenario-coverage` | Coverage matrix, rejection, denial, lifecycle and external-failure scenarios |
 | `cratis-screenplay-model-review` | Independent critique, evidence checklist and business-question explanation |
 | `cratis-screenplay-legacy-extraction` | Evidence-led extraction, expert verification and loss report |
-| `cratis-screenplay-reverse-engineering` | Black-box evidence from a running app, HAR or API description to a reviewed model that runs |
+| `cratis-screenplay-reverse-engineering` | Black-box evidence from a running app, HAR, API description or executable to a reviewed model that runs |
 | `cratis-screenplay-toolchain` | Compiler and CLI versions, verdict commands, diagnostics and executable subsets |
 | `cratis-screenplay-render-and-gap-fill` | Admission, publication, target verification and contract-led hand-written delivery |
 | `cratis-screenplay-delivery-planning` | Slice counts by type, dependency waves, issue tracking and estimates from the team's own history |

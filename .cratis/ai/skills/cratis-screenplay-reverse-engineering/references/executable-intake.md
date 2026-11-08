@@ -19,8 +19,8 @@ reconstruction is out of scope.
 ## Safe handling
 
 - Only executables the user owns or may analyze. Ask once, record the answer. Owning a copy is not
-  permission when the licence or terms forbid analysis.
-- Do not circumvent DRM, licence checks, anti-cheat, authentication, obfuscation, signing or
+  permission when the license or terms forbid analysis.
+- Do not circumvent DRM, license checks, anti-cheat, authentication, obfuscation, signing or
   anti-tamper, and do not extract secrets or copy proprietary code and assets. Stop and report if a
   feature can only be reached that way.
 - Running the executable, attaching to it or instrumenting it executes foreign code with the

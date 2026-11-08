@@ -23,7 +23,7 @@ features first, then the shipped executable, source code last.
 | HAR | exact requests and responses, status codes, field names, ordering | intent, rules that did not trigger, anything not exercised |
 | OpenAPI | the declared surface: routes, inputs, response shapes, auth schemes | behavior, rules, whether a route is used or accurate |
 | Screenshots | what a person saw when no live app is available | structure; treat as weak and say so |
-| Documents | stated purpose, vocabulary, roles, policies | what the system actually does today |
+| Documents | stated purpose, vocabulary, roles, policies | what the system actually does |
 | Executable | exposed commands, menus, routes, strings, embedded schemas, files written, endpoints | whether users reach a feature, rules; see `executable-intake.md` |
 | Source (last, optional) | rules, branches, jobs, schemas | what is deployed or used; see legacy extraction |
 

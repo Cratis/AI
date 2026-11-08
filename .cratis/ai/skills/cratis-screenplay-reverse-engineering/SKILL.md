@@ -30,7 +30,7 @@ run this skill for the walk and the run, and legacy extraction for the source-ba
 
 - Only apps the user owns or has permission to test, and only executables the user owns or may
   analyze. Never walk a third-party production site. Never run an untrusted binary outside an
-  isolated sandbox, violate a licence or EULA, or circumvent protection
+  isolated sandbox, violate a license or EULA, or circumvent protection
   ([references/executable-intake.md](references/executable-intake.md)).
 - **Read-only by default.** A write (form submit, mutating request, anything that sends mail,
   charges or creates records) needs approval naming the target and the action.
@@ -97,8 +97,10 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    pass or fail. Gaps feed back to synthesis. Only claim effects the capture confirms. Read
    [references/fidelity-check.md](references/fidelity-check.md).
 
-Stop at each approval point (walk, writes, hosted-model use, acceptance, `render --force`) and
-say what is needed; do not proceed on silence.
+Stop at each approval point (walk, writes, executable runs, first use of an external
+reverse-engineering tool, hosted-model use, acceptance, `render --force`) and say what is
+needed; do not proceed on silence. Prologue capture and `prologue interpret` belong to
+`cratis-screenplay-legacy-extraction` and keep its approvals.
 
 ## Cost and speed
 
@@ -106,7 +108,7 @@ say what is needed; do not proceed on silence.
 - Prefer page text and the accessibility tree over screenshots; take a screenshot only on a state
   change that text does not show.
 - Use a cheap model for extraction (HAR digests, row drafting) and a stronger model for synthesis
-  and review. Digest large captures with a script or a subagent; do not paste them into context.
+  and review, both under the hosted-model disclosure rule above. Digest large captures with a script or a subagent; do not paste them into context.
 - Re-entry: reread only sources that changed; keep evidence ids stable across runs.
 
 ## Rules

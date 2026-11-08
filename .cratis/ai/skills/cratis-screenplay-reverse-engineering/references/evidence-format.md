@@ -47,7 +47,7 @@ target.
 ## Classification
 
 `intent`, `consequence`, `infrastructure`, `noise` or `unknown`. A write with no visible user
-command behind it is `maintenance`, `correction`, `integration`, `scheduled` (only with an
+command behind it is a `consequence` with a subclass: `maintenance`, `correction`, `integration`, `scheduled` (only with an
 evidenced trigger) or `unexplained`; never assume an automation.
 
 ## Unknowns
@@ -63,7 +63,7 @@ evidenced trigger) or `unexplained`; never assume an automation.
 
 | id | sourceKind | locator | fact | strength | classification | unknowns | candidate | decision |
 |---|---|---|---|---|---|---|---|---|
-| E1 | har | `har:booking.har#12` | `POST /api/berths/reserve` with `berthId`, `memberId`, `from`, `to` returned 201; the next `GET /api/reservations` lists it | Confirmed | intent | who may reserve for another member? overlap rule? | `ReserveBerth` -> `BerthReserved` | undecided |
+| E1 | har | `har:booking.har#12` | `POST /api/berths/reserve` with `berthId`, `memberId`, `from`, `to` returned 201; the next `GET /api/reservations` lists it, and walk `OBS-8` shows it in the list | Confirmed | intent | who may reserve for another member? overlap rule? | `ReserveBerth` -> `BerthReserved` | undecided |
 | E2 | walk | `OBS-9`, `captures/screens/OBS-9.png` | form rejected with "Berth is already taken for these dates" | Observed | intent (rule) | is the check atomic under concurrent requests? | refusal on `ReserveBerth` | undecided |
 
 ## JSON lines example
