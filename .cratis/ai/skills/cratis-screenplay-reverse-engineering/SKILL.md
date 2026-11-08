@@ -103,6 +103,11 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    pass or fail. Gaps feed back to synthesis. Only claim effects the capture confirms. Read
    [references/fidelity-check.md](references/fidelity-check.md).
 
+When the sources are only a website, user docs or a description document, or the run must feel
+like a product on Stage, read
+[references/documentation-intake-and-screens.md](references/documentation-intake-and-screens.md):
+assumptions, plausibility fidelity, navigation layout, joins and current `cratis run` limits.
+
 Stop at each approval point (walk, writes, executable runs, first use of an external
 reverse-engineering tool, hosted-model use, acceptance, `render --force`) and say what is
 needed; do not proceed on silence. Prologue capture and `prologue interpret` belong to

@@ -17,6 +17,8 @@
     { "kind": "skill-contains", "value": "CRUD mirror", "file": "references/synthesis-rules.md" },
     { "kind": "skill-contains", "value": "evidence.jsonl", "file": "references/evidence-format.md" },
     { "kind": "skill-contains", "value": "// boundary: out of scope", "file": "references/scoping.md" },
+    { "kind": "skill-contains", "value": "// assumed: <why>", "file": "references/documentation-intake-and-screens.md" },
+    { "kind": "skill-contains", "value": "plausibility report", "file": "references/documentation-intake-and-screens.md" },
     { "kind": "skill-contains", "value": "morluto/rea", "file": "references/provenance.md" }
   ]
 }

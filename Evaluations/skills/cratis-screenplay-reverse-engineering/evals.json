@@ -38,18 +38,6 @@
     },
     {
       "id": 4,
-      "name": "run-and-fidelity",
-      "prompt": "The accepted model is committed. How do we run it and check it against the original app? Reply only; do not run commands.",
-      "expected_output": "cratis run on the model folder (Stage sandbox, Docker) first; cratis render for real code via render-and-gap-fill, never render --force without approval; re-walk the observed journeys with per-journey pass, fail or not run; gaps return to synthesis; only claim effects the capture confirms.",
-      "assertions": [
-        "Runs cratis run on the model folder first and names cratis render for real code.",
-        "Does not use render --force without approval naming its effect.",
-        "Reports pass, fail or not run per journey and feeds gaps back to synthesis.",
-        "Claims only effects the capture confirms."
-      ]
-    },
-    {
-      "id": 5,
       "name": "focused-scope",
       "prompt": "From our CRM I want only contacts, companies and the deal pipeline, not marketing email or invoicing. A deal shows its company name and an invoice number. How do you scope the reverse engineering run? Reply only; do not write files.",
       "expected_output": "Record scope in and out; tag the L0 inventory in, out or boundary and never walk or model marketing email or invoicing; pull in the company minimally (identity and displayed fields) with the reason; model the invoice number as a typed reference id marked as a boundary, with no invoicing rules; probes and fidelity cover in-scope only; one feature area per file so scope can grow.",
@@ -59,6 +47,19 @@
         "Pulls in only the minimum of a dependency such as company (identity and displayed fields) and records why.",
         "Models the out-of-scope invoice reference as a typed reference id or minimal lookup marked as a boundary, without invoicing rules.",
         "Limits walk, probes and fidelity scoring to in-scope features and lists out-of-scope ones."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "docs-only-product-like",
+      "prompt": "All we have is the public website and user docs of a to-do app. We want a running Stage app that feels like the product. How do you proceed? Reply only; do not write files.",
+      "expected_output": "Record doc sections as Stated sources with URL and section locators; mark every unstated rule or range as an assumption (// assumed comment plus an assumptions.md row) and keep the smallest usable behavior; list out-of-scope features; derive a layout sidebar of the main list screens with a ui profile, commands as actions on those screens, projection joins for display names, row-click navigation to filtered detail screens, avoid child-collection columns; plausibility report instead of match score; screenshot verification; note that opaque queries and authentication are limited under cratis run and record platform gaps.",
+      "assertions": [
+        "Records documentation sources with URL and section locators at strength Stated.",
+        "Marks unstated rules as assumptions in the model and in assumptions.md and keeps the smallest usable behavior.",
+        "Lists out-of-scope features and derives a layout sidebar and ui profile with commands as actions on list screens and joins for display names.",
+        "Runs cratis run first, reports plausibility rather than a match score, and verifies visually.",
+        "Records run limits for opaque queries and authentication as platform gaps without weakening policies."
       ]
     }
   ]
