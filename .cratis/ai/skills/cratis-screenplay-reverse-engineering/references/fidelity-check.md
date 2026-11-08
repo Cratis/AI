@@ -9,6 +9,7 @@ of equivalence, and changed or removed slices are expected to differ.
 - Preconditions
 - Procedure
 - Result table
+- Use it as a user
 - Feeding gaps back
 - Limits
 
@@ -42,6 +43,29 @@ of equivalence, and changed or removed slices are expected to differ.
 | Renew a membership | 3 | fail | step 2: no rejection shown for expired card | E8 | synthesis: add refusal |
 
 Report counts: journeys walked, passed, failed, not run, removed.
+
+## Use it as a user
+
+A journey table can pass while the app is unusable. Walk the main journeys in a real browser
+(the browser tools, or the Lens extension for switching sandbox users) the way someone who
+knows the original product would. A script or HTTP harness does not replace this.
+
+- Start where a user starts: `/`, the sidebar and the home link. Check that each lands on the
+  screen it names, not on a command form.
+- Create the data you need through the UI. Typing a generated id, an empty list after a restart,
+  or a missing input in a dialog are findings.
+- At each step, note what a user of the original would miss or want: a filter, a default view
+  (archived items hidden), a column that renders badly, a confusing label, an error that shows
+  internal text.
+- Record each finding as **bug**, **missing feature** or **wish**, and classify its owner:
+  **model** (fix now, then re-walk), **skill** (missing guidance) or **platform** (the Screenplay
+  language or compiler, the Stage runtime or UI, or the CLI). Check the owning repository for an
+  existing issue before drafting a new one, and keep local paths out of the draft.
+
+| step | expected (original) | actual | kind | owner | next action |
+|---|---|---|---|---|---|
+| Sidebar "Projects" | project list | "New project" form | bug | platform | issue: landing screen |
+| New project | type a title | asked for a GUID | bug | model | generate the id |
 
 ## Feeding gaps back
 

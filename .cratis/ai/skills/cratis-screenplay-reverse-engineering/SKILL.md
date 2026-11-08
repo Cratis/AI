@@ -100,7 +100,9 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    `cratis-screenplay-render-and-gap-fill`. Never `render --force` without approval naming its
    effect and destination. Stage blocks and diagnostics go back to synthesis, not around it.
 6. **Fidelity check.** Re-walk the observed journeys on the running app and mark each journey
-   pass or fail. Gaps feed back to synthesis. Only claim effects the capture confirms. Read
+   pass or fail, then use the app in a browser as a user of the original would and record bugs,
+   missing features and wishes with their owner (model, skill or platform). Gaps feed back to
+   synthesis. Only claim effects the capture confirms. Read
    [references/fidelity-check.md](references/fidelity-check.md).
 
 When the sources are only a website, user docs or a description document, or the run must feel
