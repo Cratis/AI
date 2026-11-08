@@ -73,7 +73,10 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
      default budget 15 states), HAR analysis and approved runs of the executable.
    - **L3 evidence file**: one row per fact with id, source kind, locator, strength,
      classification and unknowns. Unknowns stay visible; never invent them away. Read
-     [references/evidence-format.md](references/evidence-format.md) before writing rows.
+     [references/evidence-format.md](references/evidence-format.md) before writing rows, and
+   [references/probing-and-naming.md](references/probing-and-naming.md) before and during a walk:
+   boundary probes per command, time-based seeding, client versus server rules, naming fidelity,
+   observed defects and opaque queries.
 3. **Synthesis.** Turn evidence rows into candidate elements with the signal rules in
    [references/synthesis-rules.md](references/synthesis-rules.md). Every write goes through the
    Screenplay MCP loop of `cratis-screenplay-model-authoring`: propose, read the proposal, apply.
