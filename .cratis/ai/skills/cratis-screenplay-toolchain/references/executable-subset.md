@@ -102,6 +102,12 @@ Requires Screenplay 4.141.0 or later (`screenplay --version`) to bind concept co
   specifications ending in `then query` or `then readmodel`.
 - `seed`. Personas, screens and descriptions are PLAY0270/PLAY0269 information, not
   blocking.
+- Sinks. `sink <Name> for readmodels|graphs` and a body's `sink <Name>` are PLAY0270 realization
+  metadata outside the ESM: the ESM bytes and revision do not change with them. A compilation
+  exposes them as `SemanticCompilation.Sinks` (declared sinks, defaults never listed),
+  `ReadModelSinks` (by read model identity) and `GraphSinks` (by graph name); in the syntax tree as
+  `ApplicationSyntax.sinks` (`SinkSyntax` with `name`, `stores`), `ReadModelSyntax.sink` and
+  `GraphSyntax.sink`, omitted from JSON when empty. Older tools reject syntax JSON that carries them.
 
 ## Text `not empty` reference correction
 

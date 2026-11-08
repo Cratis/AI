@@ -25,6 +25,12 @@
     { "kind": "skill-contains", "value": "a `Decimal` part or a concept over `Decimal` is always refused", "file": "references/named-keys.md" },
     { "kind": "skill-contains", "value": "a replay can split `1.0` and `1.00` into two instances", "file": "references/named-keys.md" },
     { "kind": "skill-contains", "value": "the decimal refusal lifts with Stage#847 once Chronicle#5427 lands", "file": "references/named-keys.md" },
-    { "kind": "skill-contains", "value": "`when`/`otherwise` on click, double click, select or change:" }
+    { "kind": "skill-contains", "value": "`when`/`otherwise` on click, double click, select or change:" },
+    { "kind": "skill-contains", "value": "`sink <Name>` is the **directive** only when `<Name>` is a sink the application declares", "file": "references/sinks.md" },
+    { "kind": "skill-contains", "value": "`sink Warehouse` with no sink called `Warehouse` declares a property `sink` of type `Warehouse`", "file": "references/sinks.md" },
+    { "kind": "skill-contains", "value": "`@sink <Type>` is always the property", "file": "references/sinks.md" },
+    { "kind": "skill-contains", "value": "| `PLAY0935` | Error | A `passive` read model names a sink |", "file": "references/sinks.md" },
+    { "kind": "skill-contains", "value": "The model never names a database", "file": "references/sinks.md" },
+    { "kind": "skill-contains", "value": "Read [sinks](references/sinks.md) before naming a sink." }
   ]
 }

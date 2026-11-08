@@ -23,7 +23,7 @@ repository is the full list; this page is the authoring summary.
 
 **Top level:** `domain`, `import`, `concept`, `type`, `policy`, `persona`,
 `authentication`, `identity`, `purpose`, `trigger`, `theme`, `layout`, `ui profile`, `behavior`,
-`module`, `seed`, authoring-only `system`, and admitted `eventsource` with its `stream`s (ESM v8).
+`sink`, `module`, `seed`, authoring-only `system`, and admitted `eventsource` with its `stream`s (ESM v8).
 
 **Inside a module:** `description`, `authorize`, `import "<glob>"`,
 `screen`/`dialog` templates, `form`, `contribute`, `on`/`uses` behavior
@@ -70,6 +70,33 @@ Unnumbered enums retain positions. Non-positional numbers bind as ESM v12;
 positional pins preserve older bytes/version. Fixtures and conditions
 still name members. Syntax, stored-number safety and consumer admission:
 command-surface `references/enum-numbers.md`.
+
+**Sinks.** `sink <Name> for readmodels` or `sink <Name> for graphs` at the application root
+declares a named sink; a `readmodel` or `graph` body chooses one with a bare `sink <Name>` line,
+and anything that names none uses its kind's default. In a read model the line is the directive
+only when `<Name>` is declared (in any file of the model), otherwise a property named `sink`;
+`@sink <Type>` is always the property, and in a graph every `sink` line is the directive. The model
+never names a database. In the typed syntax, `ApplicationSyntax.sinks` holds `SinkSyntax`
+(`name`, `stores`), and `ReadModelSyntax.sink` and `GraphSyntax.sink` hold the chosen name; JSON
+omits all three when empty, and older tools reject syntax JSON that carries them. `propose-rename`
+on a sink renames its declaration and every directive naming it. Requires Screenplay 6.4.0
+(`screenplay --version`). Syntax, examples and `PLAY0931`–`PLAY0939`: read surface
+[sinks](../../cratis-screenplay-read-surface/references/sinks.md).
+
+| Code | Severity | Meaning |
+| --- | --- | --- |
+| `PLAY0931` | Error | Malformed sink declaration or graph `sink` line |
+| `PLAY0932` | Error | Duplicate sink name, ignoring case |
+| `PLAY0933` | Error | A graph names an undeclared sink |
+| `PLAY0934` | Error | The sink's kind does not match the read model or graph |
+| `PLAY0935` | Error | A `passive` read model names a sink |
+| `PLAY0936` | Error | Two different sinks on one read model or graph |
+| `PLAY0937` | Warning | A repeated identical `sink` line |
+| `PLAY0938` | Warning | A declared sink nothing uses |
+| `PLAY0939` | Warning | A read-model property `sink` whose type differs only in case from a declared sink |
+
+Each `sink` line is also reported as information `PLAY0270`: realization metadata outside the
+executable model, so the ESM revision does not change with it.
 
 Projections and captures use their dedicated sub-grammars. Inline code uses a
 tagged fence (` ```csharp `); the older language-line form still parses with

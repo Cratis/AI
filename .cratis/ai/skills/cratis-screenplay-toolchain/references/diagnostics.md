@@ -16,6 +16,7 @@
 - Specification metadata, callers, cases and locators
 - Guarded interaction diagnostics
 - UI profile shell: root template, options, appearance
+- Sinks (PLAY0931-PLAY0939)
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
 - Consistency errors (V1: the model contradicts itself)
@@ -326,6 +327,25 @@ Requires Screenplay 4.200.0 or later (`screenplay --version`); 4.197.0 reads the
 | PLAY0797 | E | Color scheme is not `light`, `dark` or `system`, the accent is not a hex colour, the corners are not `sharp`, `default` or `round`, or an `identity` value is outside Scene's rules (initials longer than 2, unknown icon, image that is not a PNG/JPG/SVG/WebP data URI of at most 400 KB). |
 | PLAY0798 | E | More than one `root template` in a profile. |
 | PLAY0799 | E | `new screens use template` cannot start a screen in a feature. |
+
+## Sinks (PLAY0931-PLAY0939)
+
+Requires Screenplay 6.4.0 (`screenplay --version`). A `sink <Name> for readmodels|graphs`
+declaration and a `sink <Name>` line in a read model or graph body choose where it is stored; each
+is information PLAY0270, outside the ESM. The fixes are in
+`../../cratis-screenplay-read-surface/references/sinks.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0931 | E | A malformed sink declaration or graph `sink` line, or lines under a declaration. |
+| PLAY0932 | E | Two sinks share a name, compared ignoring case. Rename one. |
+| PLAY0933 | E | A graph names an undeclared sink. A read model's line naming no declared sink is a property instead. |
+| PLAY0934 | E | A read model names a `for graphs` sink, or a graph a `for readmodels` sink. |
+| PLAY0935 | E | A `passive` read model names a sink; it is never materialized. Remove one of the two. |
+| PLAY0936 | E | A read model or graph names two different sinks. |
+| PLAY0937 | W | A read model or graph repeats the same `sink` line. |
+| PLAY0938 | W | A declared sink no read model or graph uses. |
+| PLAY0939 | W | A read-model property `sink` whose type differs only in case from a declared sink. Spell the sink exactly, or write `@sink <Type>`. |
 
 ## Structural completeness and timeline checks
 

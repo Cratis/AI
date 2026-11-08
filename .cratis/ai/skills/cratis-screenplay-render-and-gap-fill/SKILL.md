@@ -148,6 +148,10 @@ model still compiles and binds) and its V5 states the scope.
    with a fresh render under the same inputs. For hand-written scope, `cratis screenplay conform` gives
    structural code-vs-model evidence (`references/drift-and-fallback-record.md`). For changes since verification,
    follow that reference's "Hand-written code changed since it was last verified" procedure.
+   A sink change does not move `semanticRevision`: sinks are realization metadata outside the ESM,
+   so a renderer or drift check must hash `SemanticCompilation.Sinks`, `ReadModelSinks` and
+   `GraphSinks` into its render input, or a changed `sink` line never triggers a re-render.
+   Map each sink name to deployment storage; never emit a database name from the model.
 9. **Hand off** the packet: verdict lines, spec mapping, edit requests for the modeler, fallback record
    entries, UI omissions, learning candidates (at most 3).
 
