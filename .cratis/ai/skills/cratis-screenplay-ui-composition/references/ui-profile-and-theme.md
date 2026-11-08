@@ -45,9 +45,6 @@ ui profile Desktop
 
   appearance
     color scheme dark
-    accent "#4F46E5"
-    corners round
-    font inter
 
   new screens use template Sheet
 
@@ -77,8 +74,8 @@ ui profile Web
   `logo initials "<AB>"` (1-2 characters), `logo icon <icon>` (`box`, `layers`, `home`, `users`, `receipt`, `package`, `database` or `palette`) or
   `logo image "<data:image/png|jpeg|svg+xml|webp;base64,...>"` (400 KB at most; the logo travels inside the document, never as a file beside it),
   and `show name true|false`. One block per profile, each line once. Give each application its own `identity` so Studio and Stage draw its logo.
-- `appearance`: `color scheme` is `light`, `dark` or `system`; `accent` is a quoted `#RGB`, `#RRGGBB` or `#RRGGBBAA`; `corners` is `sharp`,
-  `default` or `round`; `font` is an id of Scene's font catalog (`inter`, `ibm-plex-sans`, `source-serif-4`, `system-ui`). One block per profile.
+- `appearance`: only `color scheme` (`light`, `dark` or `system`). One block per profile. `accent`, `corners` and `font` still read
+  but warn `PLAY0929`: move them into the selected theme as a `color`, `radius` or `font` token value.
 - `new screens use template`: the template a new screen starts from in a designer. It is an authoring default, it changes no existing
   screen, and it has to be able to start a screen in a feature (not a layout or an application-scope root; a `scopes` list that leaves
   out `feature` is refused).
