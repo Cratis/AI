@@ -22,7 +22,7 @@ repository is the full list; this page is the authoring summary.
 ## Accepted constructs
 
 **Top level:** `domain`, `import`, `concept`, `type`, `policy`, `persona`,
-`authentication`, `identity`, `purpose`, `trigger`, `theme`, `layout`, `ui profile`, `behavior`,
+`authentication`, `identity`, `purpose`, `trigger`, `design system` (one per application: `modes`, `default theme`, `tokens`, `components`, `words`, `rules`), `theme` (`implements`, `compatible with`, `palette`, `values`, a block per mode), `layout`, `ui profile`, `behavior`,
 `module`, `seed`, authoring-only `system`, and admitted `eventsource` with its `stream`s (ESM v8).
 
 **Inside a module:** `description`, `authorize`, `import "<glob>"`,
