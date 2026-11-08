@@ -97,6 +97,15 @@ jobs:
       - name: Verify Pi package contents
         run: cd Source/Pi.Plugin && yarn pack --dry-run
 
+      # Builds the Screenplay session bundle, checks its forms and checksums, and compiles and runs the
+      # example model with the pinned Screenplay tool installed above.
+      - name: Verify the Screenplay session bundle
+        env:
+          CRATIS_REQUIRE_SCREENPLAY: '1'
+        run: |
+          yarn workspace @cratis/ai-screenplay-session run check
+          yarn workspace @cratis/ai-screenplay-session run test
+
       - name: Lint runtime shell scripts
         run: |
           mapfile -t scripts < <(find .cratis/ai/hooks/scripts -maxdepth 1 -name '*.sh' | sort)
@@ -317,6 +326,56 @@ jobs:
       - name: Publish package
         working-directory: Source/Pi.Plugin
         run: npm publish --provenance --access public
+
+  publish-screenplay-session:
+    timeout-minutes: 15
+    name: Publish the Screenplay session bundle
+    if: needs.release.outputs.publish == 'true'
+    needs: [release, release-confirmed]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+
+      - name: Install workspace dependencies
+        run: corepack enable && yarn install --immutable
+
+      - name: Build the bundle
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+        run: yarn workspace @cratis/ai-screenplay-session run bundle --version "$VERSION" --commit "$GITHUB_SHA" --output "$RUNNER_TEMP/screenplay-session"
+
+      # Fixed asset names keep releases/latest/download/screenplay-session.zip stable for consumers.
+      - name: Attach the bundle to the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/screenplay-session"
+          gh release upload "v$VERSION" screenplay-session.zip screenplay-session.zip.sha256 --repo "$GITHUB_REPOSITORY" --clobber
+
+      - name: Verify the published bundle
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/published" && cd "$RUNNER_TEMP/published"
+          gh release download "v$VERSION" --repo "$GITHUB_REPOSITORY" --pattern 'screenplay-session.zip*'
+          sha256sum --check screenplay-session.zip.sha256
+          unzip -q screenplay-session.zip -d bundle
+          test "$(jq -r '.version' bundle/bundle.json)" = "$VERSION"
+          test "$(jq -r '.schemaVersion' bundle/bundle.json)" = 1
 
   publish-dotnet-packages:
     timeout-minutes: 30
@@ -554,7 +613,7 @@ jobs:
     timeout-minutes: 15
     name: Verify a release actually shipped
     if: always() && needs.release.outputs.publish == 'true'
-    needs: [release, publish-pi, publish-dotnet-packages, publish-npm-packages, publish-agent-harnesses, publish-decision-engine]
+    needs: [release, publish-pi, publish-screenplay-session, publish-dotnet-packages, publish-npm-packages, publish-agent-harnesses, publish-decision-engine]
     runs-on: ubuntu-latest
     steps:
       # Cratis.AI (NuGet) and @cratis/ai (npm) are one artifact split across two registries (plan
@@ -576,6 +635,12 @@ jobs:
         if: needs.publish-agent-harnesses.result != 'success'
         run: |
           echo "Release ${{ needs.release.outputs.version }} did not publish the agent-harness images (cratis/ai-agents*) - a product still pointed at these tags would be left on a stale image." >&2
+          exit 1
+
+      - name: Fail if the Screenplay session bundle did not publish
+        if: needs.publish-screenplay-session.result != 'success'
+        run: |
+          echo "Release ${{ needs.release.outputs.version }} did not attach the Screenplay session bundle (screenplay-session.zip) - build loops pinned to this version could not fetch their agent guidance." >&2
           exit 1
 
       - name: Fail if the Decision Engine image did not publish

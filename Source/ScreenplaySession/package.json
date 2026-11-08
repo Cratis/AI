@@ -1,0 +1,15 @@
+{
+  "name": "@cratis/ai-screenplay-session",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "bundle": "tsx src/cli.ts",
+    "test": "node --import tsx --test --test-reporter=spec src/bundle.spec.ts src/content.spec.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
+  }
+}
