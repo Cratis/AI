@@ -54,7 +54,9 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
 
 1. **Intake.** Reuse the brief; ask only what is missing, at most the two discovery questions of
    the UI walk (start URL and actor, then guidance), one per turn. Record the inputs, the
-   environment, the approvals and the walk budget. Unattended: assume read-only, no hosted
+   environment, the approvals, the walk budget and the scope. Scope is the key areas wanted, in
+   and explicitly out; with none given, inventory first, then propose one and ask once. Read
+   [references/scoping.md](references/scoping.md) for a focused run. Unattended: assume read-only, no hosted
    model, no writes, no executable runs, and record each assumption. Order of sources: the
    running system and its features first (UI walk, HAR or network, OpenAPI, docs, screenshots),
    then the shipped executable or package, and source code last and only if offered. Read
@@ -65,7 +67,8 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    - **L0 feature inventory**: list what the system lets users do, before any modeling: features
      and their entry points (screens, navigation, forms, routes in the OpenAPI document or HAR,
      executable commands and menus, documented jobs and emails), each with the source that covers
-     it. Modeling starts only from this list.
+     it, tagged in / out / boundary against the scope. Modeling starts only from this list; out of
+     scope features are listed, never walked or modeled.
    - **L1 static**: OpenAPI, product docs and the static inventory of the executable
      (`references/executable-intake.md`). Source code, if offered, is one more optional input
      (`cratis-screenplay-legacy-extraction`).
@@ -107,7 +110,8 @@ needed; do not proceed on silence. Prologue capture and `prologue interpret` bel
 
 ## Cost and speed
 
-- Budget the walk: 15 observed states by default, then ask before extending.
+- Budget the walk: 15 observed states by default, then ask before extending. Spend it on in-scope
+  features and their boundary only.
 - Prefer page text and the accessibility tree over screenshots; take a screenshot only on a state
   change that text does not show.
 - Use a cheap model for extraction (HAR digests, row drafting) and a stronger model for synthesis

@@ -16,6 +16,9 @@ is read last. Follow its safety section before touching anything.
 - **Discovery questions:** reuse what the user already said. Ask only what is missing, at most
   two, one per turn: the start URL and actor, then any guidance for the walk. Unattended, assume
   read-only, no hosted-model use and no writes, and record the assumptions.
+- **Scope:** the key areas to model, and what is out (for example, contacts, companies and
+  the deal pipeline, not invoicing). If none is given, inventory first, propose a scope and ask
+  once; default to the smallest coherent core. Only in-scope areas become the model.
 - **Model root and slug:** where an accepted model belongs, and the work area
   `.ai-work/screenplay/<slug>/re/`.
 

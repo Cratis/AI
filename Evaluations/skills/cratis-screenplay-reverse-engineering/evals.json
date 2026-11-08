@@ -47,6 +47,19 @@
         "Reports pass, fail or not run per journey and feeds gaps back to synthesis.",
         "Claims only effects the capture confirms."
       ]
+    },
+    {
+      "id": 5,
+      "name": "focused-scope",
+      "prompt": "From our CRM I want only contacts, companies and the deal pipeline, not marketing email or invoicing. A deal shows its company name and an invoice number. How do you scope the reverse engineering run? Reply only; do not write files.",
+      "expected_output": "Record scope in and out; tag the L0 inventory in, out or boundary and never walk or model marketing email or invoicing; pull in the company minimally (identity and displayed fields) with the reason; model the invoice number as a typed reference id marked as a boundary, with no invoicing rules; probes and fidelity cover in-scope only; one feature area per file so scope can grow.",
+      "assertions": [
+        "Records a scope statement with in-scope and explicitly out-of-scope areas.",
+        "Lists marketing email and invoicing as out of scope without walking, probing or modeling them.",
+        "Pulls in only the minimum of a dependency such as company (identity and displayed fields) and records why.",
+        "Models the out-of-scope invoice reference as a typed reference id or minimal lookup marked as a boundary, without invoicing rules.",
+        "Limits walk, probes and fidelity scoring to in-scope features and lists out-of-scope ones."
+      ]
     }
   ]
 }
