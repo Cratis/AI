@@ -1,17 +1,18 @@
 # Fidelity check
 
-After the model runs, walk the observed journeys again on the running application and compare.
-The check measures how closely the re-imagined app reproduces what was kept; it is not a proof
-of equivalence, and changed or removed slices are expected to differ.
-
 ## Contents
 
 - Preconditions
 - Procedure
+- Runnability
 - Result table
 - Use it as a user
 - Feeding gaps back
 - Limits
+
+After the model runs, walk the observed journeys again on the running application and compare.
+The check measures how closely the re-imagined app reproduces what was kept; it is not a proof
+of equivalence, and changed or removed slices are expected to differ.
 
 ## Preconditions
 
@@ -35,6 +36,21 @@ of equivalence, and changed or removed slices are expected to differ.
 4. Mark a journey **not run** with the reason when it was blocked (no identity, approval missing,
    run unavailable). Not run is never pass.
 
+## Runnability
+
+Passing `screenplay test` does not show that Stage can run the model. After `cratis run`:
+
+1. Read `GET /stage/status`; the state must not be `unsupported`.
+2. Execute one command over HTTP. A refusal naming an unsupported model format version means the
+   toolchain is out of range: update it before changing the model. Send date-time values in the
+   full round-trip form with fractional seconds and offset.
+3. If a construct is refused (clock rules, application triggers, query-fed pickers), keep a
+   runnable variant without it and record each dropped rule in `event-model.md` as a platform gap
+   to file. Never keep an unrunnable rule as if it worked.
+4. Check the toolchain is current (`gh release view` on the CLI, Screenplay and Stage
+   repositories); across a major version run the documented migration, for example
+   `screenplay migrate`.
+
 ## Result table
 
 | journey | steps | result | first difference | evidence ids | next action |
@@ -51,7 +67,17 @@ A journey table can pass while the app is unusable. Walk the main journeys in a 
 knows the original product would. A script or HTTP harness does not replace this.
 
 - Start where a user starts: `/`, the sidebar and the home link. Check that each lands on the
-  screen it names, not on a command form.
+  screen it names, not on a command form, and that the landing screen is the first sidebar item.
+- **Click every action for real**, as each sandbox user: is it enabled after a row is selected,
+  does the dialog open and is it visible, do Cancel and Escape close it, does submit give success
+  or a readable message (not engine text), does the list refresh. Watch the console and network
+  for errors, and for validation errors shown before the user typed anything.
+- **Freeze check.** If nothing shows after a click, test whether the app root is inert with no
+  visible dialog (an off-screen or unstyled dialog); Escape usually recovers. A page left
+  unresponsive is a platform bug to record.
+- **Privacy and visibility.** As a second user, check that public feeds and pickers do not list
+  another user's private records and that owner-only actions are refused or hidden.
+- Pickers and rows show display values; a command asks nothing the user cannot know.
 - Create the data you need through the UI. Typing a generated id, an empty list after a restart,
   or a missing input in a dialog are findings.
 - At each step, note what a user of the original would miss or want: a filter, a default view

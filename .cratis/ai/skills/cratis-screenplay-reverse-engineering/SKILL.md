@@ -80,7 +80,7 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    [references/probing-and-naming.md](references/probing-and-naming.md) before and during a walk:
    boundary probes per command, time-based seeding, client versus server rules, naming fidelity,
    observed defects and opaque queries.
-3. **Synthesis.** Turn evidence rows into candidate elements with the signal rules in
+3. **Synthesis.** Write `event-model.md` first (readout before `.play`, see the synthesis rules), then turn evidence rows into candidate elements with the signal rules in
    [references/synthesis-rules.md](references/synthesis-rules.md). Every write goes through the
    Screenplay MCP loop of `cratis-screenplay-model-authoring`: propose, read the proposal, apply.
    Each step validates; never hand-edit around a diagnostic. Follow the phase skills for craft
@@ -99,10 +99,13 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    target: it needs no code. For real code use `cratis render`, then gap-fill; both are owned by
    `cratis-screenplay-render-and-gap-fill`. Never `render --force` without approval naming its
    effect and destination. Stage blocks and diagnostics go back to synthesis, not around it.
+   Use the current released CLI, Screenplay and Stage, and docs from the current main branch; an
+   old toolchain makes supported constructs look impossible. A model that validates and passes
+   `screenplay test` is not yet runnable: prove it on Stage (fidelity check, "Runnability").
 6. **Fidelity check.** Re-walk the observed journeys on the running app and mark each journey
    pass or fail, then use the app in a browser as a user of the original would and record bugs,
-   missing features and wishes with their owner (model, skill or platform). Gaps feed back to
-   synthesis. Only claim effects the capture confirms. Read
+   missing features and wishes with their owner (model, skill or platform). Click every action
+   for real; a script is not enough. Gaps feed back to synthesis. Only claim effects the capture confirms. Read
    [references/fidelity-check.md](references/fidelity-check.md).
 
 When the sources are only a website, user docs or a description document, or the run must feel

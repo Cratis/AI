@@ -1,18 +1,20 @@
 # Synthesis rules
 
-How black-box signals become candidate Screenplay elements. Signals are hypotheses: each result
-is a proposal with evidence ids, decided later by a person. The translation rules for code
-signals (tests, generic engines, reference data, ordering) are in
-`../../cratis-screenplay-legacy-extraction/references/signal-to-intent.md`; do not repeat them.
-
 ## Contents
 
 - Signal to element
+- Event model readout
+- Intent in the mapping
 - Naming
 - Writing through MCP
 - Specifications
 - Slices and flows
 - Stop conditions
+
+How black-box signals become candidate Screenplay elements. Signals are hypotheses: each result
+is a proposal with evidence ids, decided later by a person. The translation rules for code
+signals (tests, generic engines, reference data, ordering) are in
+`../../cratis-screenplay-legacy-extraction/references/signal-to-intent.md`; do not repeat them.
 
 ## Signal to element
 
@@ -28,6 +30,51 @@ signals (tests, generic engines, reference data, ordering) are in
 | Navigation and journeys | slices and flows | a journey groups slices; a page is not a slice boundary |
 | An email, file or call to another system seen after a command | a reaction or translation | only with an evidenced trigger; see `cratis-screenplay-automations-and-translations` |
 | Server-sent state change without a user action | an automation candidate | usually `unknown` until the trigger is evidenced |
+
+## Event model readout
+
+Before the first `.play` write, write `event-model.md` in the work area so the human can
+review the behavior in prose. It holds: the actors; a timeline per stream; each command with its
+rules and evidence citations; each view and what feeds it; automations and cascades; state
+machines as a table (status, allowed commands, rejected with) and a diagram; and open questions.
+Mark each rule `sourced` or `assumed` and keep a count of both, so a sparse source shows up as
+such. Ask which rules the dialect can express before the prose settles; a rule it cannot express
+is recorded here as a gap, not dropped. Keep the file current when the model changes, and list
+every rule or automation left out of the runnable variant with its reason.
+
+## Intent in the mapping
+
+- **Caller identity is not an input.** Model the owner or creator as the signed-in caller
+  (authentication, a policy that matches the claim to the subject, `given caller` in
+  specifications), never an `actor` or `userId` property the user types. Run with sandbox users
+  so the walk can act as each one. Role overrides (host, admin) you cannot express are recorded
+  as a gap.
+- **Ask "what would the user have to type?"** Commands a person runs ask only what that person
+  knows. Values the system already knows (length, status, notice) come from a protected read in
+  the mapping. Derived or internal values (minute of day, minutes until start, day keys) are
+  derived, or recorded as a language gap, never exposed as a field. A value computed from text
+  (tags parsed from content) is a caller input marked `assumed`.
+- **Data decides, not the user.** Behavior chosen by data (needs confirmation, already paid) is
+  one command whose branch lives in a derived property of the read model, not a pair of buttons
+  the user picks between. A `produces when` cannot test read state.
+- **Every constraint and guard gets a user-facing `message`.** Without one the UI shows the
+  engine text. A missing instance behind a `reads` guard is rejected with a generated message;
+  specifications assert that text, not the custom one.
+- **Lists show display values**: the full name or title, not an id, a first name or split
+  columns. Pickers and tables use a joined display value; field labels come from
+  `field <name> label "..."`, and the walk checks that the label shows on Stage.
+- **A `reads` guard needs a small join-free state read model** next to the display view (one per
+  guarded entity, no children, a removal event). A view with joins cannot be the guard.
+- **Public feeds do not list private records.** Express visibility in the read model (a filter,
+  a per-owner view); a list without a filter returns everything the caller can see.
+- **Generated identifiers** are not returned to the HTTP caller unless the command declares a
+  `returns` clause; otherwise clients find the new row by re-querying a view.
+- **Time facts**: state the rule with its time fact and say in `event-model.md` whether the
+  caller or the system supplies it. Without a clock the caller passes the time fact in; with one,
+  use it. Spec the boundary both exactly equal and one below.
+- **Cascades and observed defects**: a cascade (deleting a parent removes its children) is an
+  automation: model it when the dialect allows, else list it in `event-model.md`. Model the
+  intended behavior of an observed defect and flag the defect.
 
 ## Naming
 
@@ -60,6 +107,12 @@ proposal. The contract and the refusal handling belong to that skill; this skill
 - Use observed values for given and expected data; replace personal data with fixtures.
 - A UI success proves a state change was shown. It does not prove uniqueness, idempotency or
   atomicity: those stay `unknown` until a capture or a person confirms them.
+- Optional properties are not defaulted in specifications, so each specification must list
+  them; avoid `optional` on commands and events unless the model needs it, and use typed
+  `example`s instead of repeating fixtures.
+- A list result is written as `item` lines or `none`; a deleted row is a query with no
+  `result`. A read model specification cannot `given` events of another stream, and DateTime
+  values are exact round-trip strings. Check the specification vocabulary skill before guessing.
 - For which scenarios a slice needs (refusals, retries, races, removal), use
   `cratis-screenplay-scenario-coverage`.
 
@@ -69,6 +122,9 @@ proposal. The contract and the refusal handling belong to that skill; this skill
   view. Three to twelve states per flow is typical.
 - A read model is shaped by the screens that use it. Where two screens need conflicting shapes,
   make two read models.
+- Order slices as the user meets them or as events flow; expect "view drawn before its
+  producer" notes either way, they are not defects. A command that records a second stream's
+  fact uses the `produces ... for <field>` form, not a second command.
 - Where the capture shows ordering (create, then list, then edit), keep it as the flow, and
   state which ordering is observed and which is assumed.
 

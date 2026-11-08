@@ -1,10 +1,5 @@
 # Documentation-only intake and product-like screens
 
-Use when the only sources are a product website, user documentation or a single description
-document (no running app, HAR or executable), and when the run must end in a Stage app that feels
-like a product, not a list of command forms. The platform limits in the last section are current
-limits to check against the installed toolchain version, not permanent facts.
-
 ## Contents
 
 - Documentation-only intake
@@ -14,11 +9,18 @@ limits to check against the installed toolchain version, not permanent facts.
 - Running constraints to plan around
 - Verify
 
+Use when the only sources are a product website, user documentation or a single description
+document (no running app, HAR or executable), and when the run must end in a Stage app that feels
+like a product, not a list of command forms. The platform limits in the last section are current
+limits to check against the installed toolchain version, not permanent facts.
+
 ## Documentation-only intake
 
 - Record every page or section as a source with a locator: URL plus section heading or anchor
   (for example `https://example.test/features#tasks`). Evidence strength is `Stated`: the
   documentation says it, nothing was observed.
+- On a large docs site, look first for an `llms.txt` index or a Markdown form of each page, pick
+  the pages per in-scope object and record each as a source id.
 - Docs describe features, not rules. Do not infer server behavior, uniqueness, authorization or
   limits from marketing text; classify them `unknown` until stated.
 - Prefer the smallest usable behavior: the few commands that make each main entity creatable,
@@ -37,6 +39,8 @@ assumption, never a fact:
   needed, the source that came closest, and the question that would settle it.
 - Choose the least restrictive value that still lets the feature work; a wrong strict rule
   blocks users, a wrong loose one only misses a check.
+- A description that states no rules makes almost every rule `assumed`: say so in
+  `event-model.md` with the count of assumed against sourced rules.
 
 ## Fidelity without ground truth
 
@@ -84,6 +88,14 @@ Check each against the installed `cratis` version before relying on it:
   paths.
 - **Layout and profile support in Stage may be reported as deferred** by a diagnostic. Keep them
   in the model when they validate; they still describe the intended product.
+
+- **Run proof beats validation.** Constructs that validate and pass `screenplay test` may still
+  be refused or ignored by Stage (clock rules, application triggers, pickers fed by a query,
+  forms with only labels). Follow "Runnability" in [fidelity-check.md](fidelity-check.md), keep a
+  runnable variant without the refused construct, and record each dropped rule in
+  `event-model.md` as a platform gap to file.
+- **Record each platform defect you work around**, with the workaround, and file it with the
+  owning repository; do not bake the workaround into the model as if it were intent.
 
 ## Verify
 
