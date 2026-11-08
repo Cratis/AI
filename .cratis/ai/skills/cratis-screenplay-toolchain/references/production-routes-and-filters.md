@@ -78,6 +78,8 @@ module Accounts
             streamId = period
         produces event BookRecorded
           for accountId
+      screen Book
+        action Book for screen
     slice Automation FollowBooking
       event Followed
       reaction Follow

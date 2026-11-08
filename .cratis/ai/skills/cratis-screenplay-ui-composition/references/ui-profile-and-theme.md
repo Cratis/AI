@@ -11,7 +11,7 @@ This reference holds the `ui profile` and `theme` excerpts and their rules: the 
 ## The shell: `root template`
 
 A `ui profile` names the template the whole application is drawn in with `root template`. Every screen's template chain is placed in the
-shell's primary outlet (`content`). The reference is the one a `template` assignment uses: an own `layout` or application-scope
+shell's primary slot (the one marked `primary`, such as `content page routed primary`). The reference is the one a `template` assignment uses: an own `layout` or application-scope
 screen template by name, or a template a blueprint ships, `blueprint <Blueprint> <Name>`, with an optional `version "<range>"` pin.
 `ui profile` is the only place that selects the shell; a screen never names it.
 
@@ -102,7 +102,7 @@ ui profile Web
 | `PLAY0799` | Error | The `new screens use template` default cannot start a screen in a feature | Name a feature-scope screen template |
 
 What a blueprint ships is only known where the blueprint is installed, so its checks (`PLAY0790` for a template it lacks, `PLAY0793`,
-the options and outlets of its templates) come from the host that has the catalog (Stage, the `cratis` CLI, the MCP server); the compiler
+the options, slots and outlets of its templates) come from the host that has the catalog (Stage, the `cratis` CLI, the MCP server); the compiler
 decides everything the document alone decides.
 
 ### Negative example: the legacy `layout` line

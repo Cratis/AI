@@ -269,10 +269,11 @@ Constructs: `title`, `data … via query … [by <param>]`, `action <Command>` w
 `label` and `navigate to <Screen> [by <param>]`, `section <name>`,
 `table <target>` with `column <property> [label]` and
 `on row-click navigate to <Screen> [by <param>]`, `summary <ReadModel>` with
-`field <property> label`, and `template <Name>` with slot bodies.
+`field <property> label`, `template <Name>` with slot bodies, `show <Screen> by <param> from <table>.selection`
+in a slot body, and `fits dialog, drawer, pane` (where a State Change screen opens; `cratis-screenplay-ui-composition`).
 
 The screen's `data` and `action` declarations are the typed context for later UI
-composition. Component `context`, toolbar parameters, dialog inputs, outlet routes
+composition. Component `context`, toolbar parameters, dialog inputs, slot routes
 and manual form columns must all trace back to this screen contract, a form's
 command, a selected item, or `$context`. If a generated app shows a default list
 or empty panel because it could not consume one of those directives, treat that as
@@ -344,7 +345,7 @@ binding failures are errors.
 - [ ] A reducer-built view's `by` type matches its events' event-source identity (`PLAY0690`).
 - [ ] No screen reference is left ambiguous or unresolved.
 - [ ] Every UI binding that consumes screen data (component context, toolbar
-      parameter, dialog input, outlet route) has a source in the screen contract
+      parameter, dialog input, slot route) has a source in the screen contract
       or an explicitly provided template/form context.
 
 Read `SKILL.md` in `cratis-screenplay-toolchain` when choosing a tool, reading installed versions, or assessing executable and renderable subsets. Where a construct sits in the
@@ -357,6 +358,6 @@ Read [screen patterns](references/screen-patterns.md) when deciding whether a sc
 Attribution and licences: `references/provenance.md`.
 
 - How events fill the read model: `cratis-screenplay-projections`.
-- Layouts, templates, forms, component bindings, toolbars and slice buttons, outlets, contributions, navigation regions, sample data, packages and themes: `cratis-screenplay-ui-composition`.
+- Layouts, templates, forms, component bindings, toolbars, hooks and placement, slots, outlets, contributions, sample data, packages and themes: `cratis-screenplay-ui-composition`.
 - Asserting query results: `cratis-screenplay-specifications`.
 - Deciding which read models exist: `cratis-screenplay-event-modeling`.

@@ -150,6 +150,8 @@ module Projects
           name not empty message "Project name is required"
         produces event ProjectRegistered
           name ProjectName = name
+      screen RegisterProject
+        action RegisterProject for screen
       specification RegisteringAProject
         when RegisterProject
           projectId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"

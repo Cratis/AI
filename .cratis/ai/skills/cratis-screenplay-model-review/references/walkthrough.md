@@ -111,6 +111,8 @@ module Moorings
         insurer  String
         produces event BoatInsuranceRecorded
           insurer String = insurer
+      screen RecordBoatInsurance
+        action RecordBoatInsurance for screen
 ```
 
 A new screen is described in words (what it shows, which action it offers). Screen design belongs

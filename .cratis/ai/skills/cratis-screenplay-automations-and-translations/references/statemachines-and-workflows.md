@@ -41,22 +41,32 @@ module Billing
       command SendInvoice
         invoiceId InvoiceId identifier
         produces event InvoiceSent
+      screen SendInvoice
+        action SendInvoice for screen
     slice StateChange MarkOverdue
       command MarkOverdue
         invoiceId InvoiceId identifier
         produces event InvoiceMarkedOverdue
+      screen MarkOverdue
+        action MarkOverdue for screen
     slice StateChange PayInvoice
       command PayInvoice
         invoiceId InvoiceId identifier
         produces event InvoicePaid
+      screen PayInvoice
+        action PayInvoice for screen
     slice StateChange SendReminder
       command SendReminder
         invoiceId InvoiceId identifier
         produces event ReminderSent
+      screen SendReminder
+        action SendReminder for screen
     slice StateChange WriteOffInvoice
       command WriteOffInvoice
         invoiceId InvoiceId identifier
         produces event InvoiceWrittenOff
+      screen WriteOffInvoice
+        action WriteOffInvoice for screen
     slice StateView InvoiceStatus
       readmodel Invoice
         invoiceId InvoiceId key
@@ -136,7 +146,8 @@ workflow CollectOverdue
   `at`, `manual`), `action <Name> sends <Command> [attempts n] [timeout] [retry after]`,
   `decide <Name> when <condition>` with exactly two outlets, `wait` for an event or a
   duration, `approval <Name> by <Persona or Policy>`, `foreach <Name> over <collection>` and
-  `join all|any|at least n`. Edges are `<outlet> -> <Node>` under their node.
+  `join all|any|at least n`. Edges are `<outlet> -> <Node>` under their node; a workflow
+  outlet is a node's outcome, unrelated to a template's UI outlet.
 - An unconnected negative outlet (`failed`, `rejected`, `expired`) fails the run; an
   unconnected positive outlet ends that branch. Give every event wait and approval an
   `expires after` (PLAY0849 warns otherwise).

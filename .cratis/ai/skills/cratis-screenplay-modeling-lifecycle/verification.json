@@ -4,6 +4,8 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "`screenplay migrate <model-root> --from 5 --to 6`" },
+    { "kind": "skill-contains", "value": "Never hand-translate the old forms", "file": "references/version-migration.md" },
     { "kind": "skill-contains", "value": "record it as a `question` note anchored to the element" },
     { "kind": "skill-contains", "value": "`refs: [{ \"id\": \"D123\" }]`", "file": "references/stop-or-assume.md" },
     { "kind": "skill-contains", "value": "`by: \"external-decision\"`", "file": "references/stop-or-assume.md" },
