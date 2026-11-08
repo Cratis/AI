@@ -144,6 +144,10 @@ model still compiles and binds) and its V5 states the scope.
    form, layout, template, slot, toolbar, hook, component, outlet, route, package/icon use, theme and persona view,
    or a blocking diagnostic or "not rendered" with the responsible tool version; silent fallback to
    default composition is a failure (Stage 4.24 rendered the default composition only).
+   The design is the same: Stage reads the resolved theme (the profile's theme, else the design system's `default theme`, in the mode
+   its `color scheme` selects) once Cratis/Stage adopts it; until then Stage keeps reading the profile's `appearance` `accent`, `corners` and
+   `font`, so a model that moved them into a theme renders with the default look. Report that as a UI omission naming the Stage version,
+   not as a model defect, and do not put the values back in `appearance` to make it render.
 8. **Drift:** `cratis render ... --check` (exit 6 pending); also compare the manifest's `semanticRevision`
    with a fresh render under the same inputs. For hand-written scope, `cratis screenplay conform` gives
    structural code-vs-model evidence (`references/drift-and-fallback-record.md`). For changes since verification,

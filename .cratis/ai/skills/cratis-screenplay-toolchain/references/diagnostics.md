@@ -16,6 +16,7 @@
 - Specification metadata, callers, cases and locators
 - Guarded interaction diagnostics
 - UI profile shell: root template, options, appearance
+- Design systems and themes (PLAY0916-PLAY0930)
 - Sinks (PLAY0931-PLAY0939)
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
@@ -316,7 +317,7 @@ Requires Screenplay 4.200.0 or later (`screenplay --version`); 4.197.0 reads the
 | Code | Severity | Meaning / fix |
 | --- | --- | --- |
 | PLAY0788 | E | A `root template` / `new screens use template` line is malformed, or pins a version on an own template. |
-| PLAY0789 | E | A malformed or repeated `identity` or `appearance` line, or a second `identity` or `appearance` block. |
+| PLAY0789 | E | A malformed or repeated `identity` or `appearance` line (the deprecated `accent`, `corners` and `font` are still lines it accepts, `PLAY0929`), or a second `identity` or `appearance` block. |
 | PLAY0790 | E | The template is not declared (or the blueprint does not ship it). Declare it or take it from a blueprint. |
 | PLAY0791 | W | The profile selects its shell with the legacy `layout <Name>`. Write `root template <Name>`; the quick fix rewrites it (or removes the ignored line beside a `root template`). |
 | PLAY0792 | E | The blueprint is not in the profile's `packages` (or not installed). |
@@ -324,9 +325,31 @@ Requires Screenplay 4.200.0 or later (`screenplay --version`); 4.197.0 reads the
 | PLAY0794 | E | The root template cannot be the shell (not a layout or application-scope template, fits a slot, `scopes` without `application`). |
 | PLAY0795 | E | The root template has no `content` slot. |
 | PLAY0796 | W | An `option` the shell does not expose. |
-| PLAY0797 | E | Color scheme is not `light`, `dark` or `system`, the accent is not a hex colour, the corners are not `sharp`, `default` or `round`, or an `identity` value is outside Scene's rules (initials longer than 2, unknown icon, image that is not a PNG/JPG/SVG/WebP data URI of at most 400 KB). |
+| PLAY0797 | E | Color scheme is not `light`, `dark` or `system`, or an `identity` value is outside Scene's rules (initials longer than 2, unknown icon, image that is not a PNG, JPG, SVG or WebP data URI of at most 400 KB). The deprecated `accent` and `corners` values are still checked while they read; move them to the theme (`PLAY0929`). |
 | PLAY0798 | E | More than one `root template` in a profile. |
 | PLAY0799 | E | `new screens use template` cannot start a screen in a feature. |
+
+## Design systems and themes (PLAY0916-PLAY0930)
+
+Requires a Screenplay release that carries design systems (next minor after 6.2.0, 6.3.0; `screenplay --version`); earlier compilers do not know the codes, and `screenplay-contract.json` lists them only once the pin moves. Fixes: `../../cratis-screenplay-ui-composition/references/design-system-and-themes.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0916 | E | Malformed `design system`: unknown section, token category, component part or state, bad line shape, a part the component does not declare, or a section twice. |
+| PLAY0917 | E | A second `design system`; an application has exactly one. |
+| PLAY0918 | E | A theme block for a mode the design system's `modes` does not declare. |
+| PLAY0919 | E | A mode, token, component, variant, part, palette entry, value or word declared twice. |
+| PLAY0920 | E | A theme assigns a token the design system does not declare. |
+| PLAY0921 | E | An implementing theme gives a `color` token no value in a declared mode. |
+| PLAY0922 | E | A design reference (`palette.<name>`, `<category>.<token>`) names something undeclared, or a token with no value. |
+| PLAY0923 | E | Design references loop. |
+| PLAY0924 | E | A component part takes a token of a category it cannot take (`background = space.sm`). |
+| PLAY0925 | E | A theme `implements` a design system the application does not declare. |
+| PLAY0926 | E | A `ui profile` selects a theme that does not implement the design system. |
+| PLAY0927 | E | No `default theme`, or it is undeclared or does not implement the design system. |
+| PLAY0928 | W | In some theme and mode a text/background pair is below a `contrast` rule (`disabled` not checked). |
+| PLAY0929 | W | `accent`, `corners` or `font` in a profile's `appearance` is deprecated; put the value in the theme. |
+| PLAY0930 | E | A theme's `implements`, `palette`, `values` or mode block is malformed or repeated. |
 
 ## Sinks (PLAY0931-PLAY0939)
 

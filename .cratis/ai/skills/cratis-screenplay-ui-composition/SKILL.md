@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-ui-composition
-description: Use when declaring Screenplay shells, reusable templates, forms, navigation, interaction wiring or themes. Not for a screen's own query data and action contract; use cratis-screenplay-read-surface.
+description: Use when declaring Screenplay shells, reusable templates, forms, navigation, interaction wiring, design systems or themes. Not for a screen's own query data and action contract; use cratis-screenplay-read-surface.
 license: MIT
 ---
 
@@ -263,15 +263,13 @@ precedence, PLAY0485 and examples.
   button. `on <Trigger>` observes an application trigger and `raise <Trigger>`
   fires one; that is where the two meet.
 
-## `ui profile` and `theme`
+## `design system`, `theme` and `ui profile`
 
-Requires Screenplay 4.227.0 (`screenplay --version`) for a quoted profile reference
-such as `theme "Scene Default Light"`: an undeclared quoted name selects a package
-theme without PLAY0231; a declared one gets PLAY0232 compatibility checks. Bare
-`theme Nordic` still works; declaration headers stay identifier-only. See the
-reference below for escaping and PLAY0229 malformed/blank-name refusals.
+The `design system` is the per-application contract; a `theme` implements it with values; a `ui profile` picks a theme, and `appearance` keeps only `color scheme` (`accent`, `corners`, `font`: `PLAY0929`). Read [references/design-system-and-themes.md](references/design-system-and-themes.md) first.
 
-A `ui profile` selects the application shell with `root template` (an own layout or application-scope screen template, or `blueprint <B> <Name>` with an optional `version` pin), its shell `option` lines, an `appearance` block (`color scheme`, `accent`), the template new screens start from (`new screens use template`), the theme and the `packages`, listed in override-priority order (a later package shadows an earlier one); `target platform` and `target size` accept any identifier, so a typo is silent. The legacy `layout <Name>` line inside a profile still reads but warns `PLAY0791`: write `root template`. `PLAY0790` to `PLAY0799` check the shell. Read [references/ui-profile-and-theme.md](references/ui-profile-and-theme.md) when writing a profile or theme, or fixing a shell diagnostic.
+A quoted theme name such as `theme "Scene Default Light"` needs Screenplay 4.227.0 (rules in the reference below).
+
+A `ui profile` selects the application shell with `root template` (an own layout or application-scope screen template, or `blueprint <B> <Name>` with an optional `version` pin), its shell `option` lines, an `appearance` block (`color scheme`), the template new screens start from (`new screens use template`), the theme and the `packages`, listed in override-priority order (a later package shadows an earlier one); `target platform` and `target size` accept any identifier, so a typo is silent. The legacy `layout <Name>` line inside a profile still reads but warns `PLAY0791`: write `root template`. `PLAY0790` to `PLAY0799` check the shell. Read [references/ui-profile-and-theme.md](references/ui-profile-and-theme.md) when writing a profile or fixing a shell diagnostic.
 
 ## A deliverable app declares its identity, titles and labels
 
