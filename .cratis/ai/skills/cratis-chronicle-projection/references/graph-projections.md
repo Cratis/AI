@@ -139,6 +139,31 @@ services.Configure<ChronicleOptions>(options =>
 });
 ```
 
+To keep one graph in its own Neo4j server, name a sink configured in the Kernel's `sinks` section
+(`cratis-chronicle-hosting`) with `[Sink("name")]` from `Cratis.Chronicle.Sinks`. Put it on an
+`IGraphProjection` class, or on **every** node and edge of a model-bound graph: elements of one
+graph naming different sinks fail registration with `GraphHasConflictingSinks`. Without it the
+graph uses `ChronicleOptions.DefaultGraphSinkName`, then the Kernel's `sinks.graphs`, then its
+`neo4j` server. Requires Chronicle 19.144.0.
+
+```csharp
+using Cratis.Chronicle.Projections.Graphs;
+using Cratis.Chronicle.Sinks;
+
+[Graph("People")]
+[Sink("people")]
+public class PeopleGraph : IGraphProjection
+{
+    public void Define(IGraphProjectionBuilder builder)
+    {
+        // Nodes and edges, as in the fluent graph projection.
+    }
+}
+```
+
+A graph naming a read-model sink (`MongoDB` or `SQL`) is refused with
+`SinkConfigurationIsForAnotherKindOfReadModel`. Changing a graph's sink replays it into the new one.
+
 ## Testing and analyzers
 
 `GraphScenario` runs a graph projection against the in-memory graph sink:

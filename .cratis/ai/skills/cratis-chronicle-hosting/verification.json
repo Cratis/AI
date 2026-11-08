@@ -9,6 +9,10 @@
     { "kind": "skill-contains", "value": "clustering.type=MongoDB" },
     { "kind": "skill-contains", "value": "directly in persistent storage" },
     { "kind": "skill-contains", "file": "references/operations.md", "value": "single globally ordered job step" },
-    { "kind": "skill-contains", "file": "references/operations.md", "value": "GetSequenceNumberError.NotFound" }
+    { "kind": "skill-contains", "file": "references/operations.md", "value": "GetSequenceNumberError.NotFound" },
+    { "kind": "skill-contains", "file": "references/sinks.md", "value": "\"reporting\": { \"type\": \"SQL\", \"connectionDetails\": \"Host=pg;Database=reporting;Username=chronicle\" }" },
+    { "kind": "skill-contains", "file": "references/sinks.md", "value": "\"primary\": { \"type\": \"MongoDB\", \"connectionDetails\": \"mongodb://mongo:27017\" }" },
+    { "kind": "skill-contains", "file": "references/sinks.md", "value": "Cratis__Chronicle__Sinks__Configurations__reporting__Type=SQL" },
+    { "kind": "skill-contains", "value": "[named sinks](references/sinks.md) before adding or changing the section." }
   ]
 }
