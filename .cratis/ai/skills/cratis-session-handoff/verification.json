@@ -8,6 +8,8 @@
     { "kind": "skill-contains", "value": "never mid-atomic-step" },
     { "kind": "skill-contains", "value": "A stale handoff is not a lost one" },
     { "kind": "skill-contains", "value": "A truncated view is never gate evidence" },
-    { "kind": "skill-contains", "value": "cratis-orchestration-lanes" }
+    { "kind": "skill-contains", "value": "cratis-orchestration-lanes" },
+    { "kind": "skill-contains", "value": "cratis-check-handoff.mjs" },
+    { "kind": "skill-contains", "value": "exits 0" }
   ]
 }
