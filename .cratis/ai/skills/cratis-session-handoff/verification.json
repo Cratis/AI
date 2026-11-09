@@ -1,0 +1,13 @@
+{
+  "skill": "cratis-session-handoff",
+  "input": "A long single session is nearly out of context with a CI run in progress and an unanswered question; hand it off.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": ".ai-work/<task>/STATE.md" },
+    { "kind": "skill-contains", "value": "references/handoff-template.md" },
+    { "kind": "skill-contains", "value": "never mid-atomic-step" },
+    { "kind": "skill-contains", "value": "A stale handoff is not a lost one" },
+    { "kind": "skill-contains", "value": "A truncated view is never gate evidence" },
+    { "kind": "skill-contains", "value": "cratis-orchestration-lanes" }
+  ]
+}

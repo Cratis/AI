@@ -1110,6 +1110,7 @@
         "cratis-engineering-release-trains",
         "cratis-engineering-review-rounds",
         "cratis-release-notes",
+        "cratis-session-handoff",
         "cratis-technical-examples"
       ],
       "languages": [
