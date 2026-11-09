@@ -24,6 +24,11 @@
     { "kind": "skill-contains", "value": "plausibility report", "file": "references/documentation-intake-and-screens.md" },
     { "kind": "skill-contains", "value": "morluto/rea", "file": "references/provenance.md" },
     { "kind": "skill-contains", "value": "limit + 1", "file": "references/probing-and-naming.md" },
-    { "kind": "skill-contains", "value": "Without the Screenplay MCP server", "file": "references/target-and-first-validation.md" }
+    { "kind": "skill-contains", "value": "Without the Screenplay MCP server", "file": "references/target-and-first-validation.md" },
+    { "kind": "skill-contains", "value": "probe coverage" },
+    { "kind": "skill-contains", "value": "Managed assembly intake", "file": "references/executable-intake.md" },
+    { "kind": "skill-contains", "value": "Naming (non-leaked)", "file": "references/ground-truth-benchmark.md" },
+    { "kind": "skill-contains", "value": "behavior catalog" },
+    { "kind": "skill-contains", "value": "score-fidelity.mjs" }
   ]
 }

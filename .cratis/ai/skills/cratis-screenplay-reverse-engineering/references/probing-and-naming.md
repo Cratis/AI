@@ -1,19 +1,35 @@
 # Probing, time, naming and defects
 
+## Contents
+
+- Boundary and rejection probes (required per command)
+- Confirm surprises and enumerate the query surface
+- Time-based views
+- Client-side or server-side
+- Naming fidelity
+- Observed defects
+- Queries the renderer can serve
+
 What a walk must exercise beyond the happy path, and how to label what it cannot observe. Rows
 follow [evidence-format.md](evidence-format.md). Probes are writes: they need the write approval
 of the walk, on a target the user owns.
 
-## Boundary probes
+## Boundary and rejection probes (required per command)
 
-Rules that were never submitted are never seen. For every command reached in the walk, probe
-each input and record one row per probe (accepted or rejected, plus the exact message):
+Rules that were never submitted are never seen. For EVERY command in scope, send the probes
+directly to its endpoint (bypass the UI; take the route from the OpenAPI, `/stage/status` or your
+own traffic) with fresh marker ids, and record one row per probe (accepted or rejected, plus the
+exact response and `validationResults[].message`). The eight probe classes:
 
-- empty required text, and whitespace only;
-- over-long text, past any limit the form or schema hints at;
-- zero and negative numbers, and the largest plausible value;
-- repeat submit of the same payload;
-- an unknown or foreign id;
+- a valid baseline;
+- empty required text and whitespace only, each required field alone, and all empty together;
+- over-long text, past any limit the form or schema hints at (the limit and limit + 1; 255 and 256);
+- zero, negative and the largest plausible number plus one;
+- an invalid enum value, format or date;
+- an unknown, never-registered id, for every command that references an existing aggregate;
+- a duplicate create: the same id twice, and the same natural value under a second id;
+- an invalid state transition (archive twice, restore a non-archived item, complete a completed
+  one, move to the current stage);
 - **limit + 1**: when a limit is suspected, probe the boundary and one past it (100 and 101 for a
   100 limit), and the common sibling limits (50, 100, 200, 255) when a sibling field has one;
   "100 accepted" alone proves no limit;
@@ -23,8 +39,17 @@ each input and record one row per probe (accepted or rejected, plus the exact me
 - a duplicate is a second, distinct id with the same value, sent sequentially; read the body.
 
 Read the command schema as well as the form: concept names (`x-concept`), enums, required flags
-and formats show value types the screen hides. A field or probe not run is recorded as
-`not probed`, never left silent.
+and formats show value types the screen hides. When the first call is unknown, request the
+OpenAPI or schema endpoints (`/openapi.json`, `/swagger`, `/api/docs`) before guessing the
+request envelope and auth shape; if none exists, record that and make one read call first.
+
+**Probe coverage gate.** Keep `re/PROBES.md`: one row per command and probe class, each
+accepted, rejected or `not probed: <reason>` (write scope not approved, destructive, no id
+available). Synthesis does not start until every in-scope command has all eight classes
+recorded or explicitly `not probed`. A `not probed` class counts as unknown in the report,
+never as "no rule". Ask for the write approval once, with the matrix attached. Each rule the
+assemblies declare (`executable-intake.md`) gets a probe that tries to violate it; a mismatch
+between assembly and server is an observed defect or dead code, recorded either way.
 
 Copy `validationResults[].message` verbatim into the rule's `message` and note the member and
 the reason: a framework typing failure is not a model rule. Use fresh ids and a marker on test
@@ -48,13 +73,19 @@ the capture. Read the error text for required arguments. A query that returns HT
 ## Time-based views
 
 A query, screen or filter whose name or text mentions time (overdue, due today, dormant, recent)
-has a threshold that only data can reveal. Seed records through the commands' own date fields:
-received or activity dates far in the past, due yesterday, today and tomorrow, done and not done.
-Diff the result sets to find the boundary. If a threshold could not be exercised, record the
+has a threshold that only data can reveal. Seed records through the commands' own date fields
+(for example occurred, due or last-activity dates) at day offsets around the suspected threshold:
+0, 1, N-1, N and N+1 days, today plus and minus one, near local midnight, done and not done.
+Diff the result sets to find the boundary and whether the edge is inclusive; where assemblies
+are available, confirm that the decompiled threshold and the observed one agree. If the server
+refuses backdated writes, record that as its own rule.
+How to model the result, and what the Screenplay surface cannot run, is in
+`synthesis-rules.md` ("Time facts"). If a threshold could not be exercised, record the
 placeholder value as an `unknown` with a question; never ship a guessed number unrecorded.
 The server's time zone and its "today" are standing unknowns: seed near midnight and with
 backdated dates, and look for a zone setting or response header. A today-relative rule the
-dialect cannot express is a comment plus an `event-model.md` gap row, not a guessed filter.
+declarative dialect cannot express goes in a query performer body plus an `event-model.md` gap
+row (`synthesis-rules.md`, Time facts). Never use a comment or a guessed filter.
 
 ## Client-side or server-side
 
@@ -69,8 +100,10 @@ modeled as a question, not a `validate` line.
 When the target exposes artifact names (command, field, concept and route names in the UI,
 schema or OpenAPI), record that those names are `Observed`. Event names, streams, event payloads
 and read-model, query and screen names that are not exposed are `Inferred`: label them as
-inferred in model comments, and report naming fidelity separately from structural fidelity,
-because an exposed command name makes its past-tense event name look confirmed when it is not.
+inferred in model comments, and report naming fidelity separately from behavior fidelity
+(`behavior-catalog.md`), because an exposed command name makes its past-tense event name look
+confirmed when it is not. Names from assemblies are legitimate evidence for a run that has
+them, in their own evidence class.
 
 ## Observed defects
 

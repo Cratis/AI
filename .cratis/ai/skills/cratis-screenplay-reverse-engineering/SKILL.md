@@ -18,7 +18,8 @@ complete or lossless.
 **Positioning.** Owned systems and migration come first. From public material only (a website,
 user docs, a description document) the result is a *plausible* rebuild: label it so in the model
 notes and the final report, never "faithful". To measure a skill change on an owned application
-with a known model, read [references/ground-truth-benchmark.md](references/ground-truth-benchmark.md).
+with a known model, read [references/ground-truth-benchmark.md](references/ground-truth-benchmark.md);
+it scores observable behavior, with names reported separately.
 
 ## Decision rule
 
@@ -67,7 +68,8 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    then the shipped executable or package, and source code last and only if offered. Read
    [references/intake-sources.md](references/intake-sources.md) when choosing or preparing a
    source and [references/executable-intake.md](references/executable-intake.md) for a binary,
-   bundle, APK, installer or container image.
+   bundle, APK, installer or container image. The shipped assemblies of an owned .NET app are
+   read as a standard step ("Managed assembly intake" in that file).
 2. **Evidence** (the L0-L3 shape of legacy extraction, by reference):
    - **L0 feature inventory**: list what the system lets users do, before any modeling: features
      and their entry points (screens, navigation, forms, routes in the OpenAPI document or HAR,
@@ -85,11 +87,13 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
      never invent them away. Read [references/evidence-format.md](references/evidence-format.md)
      for the locator notes before writing rows, and
    [references/probing-and-naming.md](references/probing-and-naming.md) before and during a walk:
-   boundary probes per command (limit + 1, field combinations, a second probe for surprises),
-   the query surface beyond the UI, time-based seeding, client versus server rules, naming
-   fidelity, observed defects and opaque queries. An API probe batch counts as one walk state per
-   command.
-3. **Synthesis.** Write `event-model.md` first (readout before `.play`, see the synthesis rules), then turn evidence rows into candidate elements with the signal rules in
+   required boundary and rejection probes per command (limit + 1, field combinations, unknown
+   ids, duplicates, invalid transitions, a second probe for surprises), the query surface beyond
+   the UI, the time rule recipe, client versus server rules, naming fidelity, observed defects
+   and opaque queries. An API probe batch counts as one walk state per command. **Probe
+   coverage gate:** record every command and probe class in `re/PROBES.md` (accepted, rejected or
+   `not probed: <reason>`); `not probed` counts as unknown, never as no rule.
+3. **Synthesis.** Start only after the probe coverage gate. Write `event-model.md` first (readout before `.play`, see the synthesis rules), then turn evidence rows into candidate elements with the signal rules in
    [references/synthesis-rules.md](references/synthesis-rules.md). Every write goes through the
    Screenplay MCP loop of `cratis-screenplay-model-authoring`: propose, read the proposal, apply.
    Each step validates; never hand-edit around a diagnostic. Without the MCP server, first-pass
@@ -117,7 +121,12 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    pass or fail, then use the app in a browser as a user of the original would and record bugs,
    missing features and wishes with their owner (model, skill or platform). Click every action
    for real; a script is not enough. Gaps feed back to synthesis. Only claim effects the capture confirms. Read
-   [references/fidelity-check.md](references/fidelity-check.md).
+   [references/fidelity-check.md](references/fidelity-check.md). Read
+   [references/behavior-catalog.md](references/behavior-catalog.md) when scoring against a known
+   original; execute `scripts/score-fidelity.mjs` with Node.js on the filled behavior catalog
+   (pass signal: exit 0 and the score block; exit 2 means an invalid catalog). Run
+   `scripts/score-fidelity.mjs --self-test` to check the arithmetic; it executes
+   `scripts/score-fidelity-self-test.mjs` and prints the checked count.
 
 When the sources are only a website, user docs or a description document, or the run must feel
 like a product on Stage, read

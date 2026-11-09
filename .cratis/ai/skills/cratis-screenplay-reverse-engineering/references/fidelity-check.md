@@ -33,7 +33,9 @@ read after write, visibility rule) as a row: an id, its evidence ids and the cas
 evidence shows (positive, refusal, malformed, repeat). A row closes only when every case kind it
 lists has a matching, passing walked case on the running app; a missing or undecided case keeps
 the row **open**, never pass. A journey passes only when every row it covers is closed.
-A model change revises the affected rows, and an earlier pass does not carry over.
+A model change revises the affected rows, and an earlier pass does not carry over. Journeys cover
+flows; rules and rejections are scored by the catalog probes
+([behavior-catalog.md](behavior-catalog.md)).
 
 ## Procedure
 
@@ -75,10 +77,10 @@ Passing `screenplay test` does not show that Stage can run the model. After `cra
 
 ## Result table
 
-| journey | steps | result | first difference | evidence ids | next action |
-|---|---|---|---|---|---|
-| Reserve a berth | 5 | pass | none | E1, E2, E5 | none |
-| Renew a membership | 3 | fail | step 2: no rejection shown for expired card | E8 | synthesis: add refusal |
+| journey | steps | result | first difference | evidence ids | catalog ids | next action |
+|---|---|---|---|---|---|---|
+| Reserve a berth | 5 | pass | none | E1, E2, E5 | F-003 | none |
+| Renew a membership | 3 | fail | step 2: no rejection shown for expired card | E8 | R-014 | synthesis: add refusal |
 
 Report counts: journeys walked, passed, failed, undecided, not run, removed.
 
@@ -138,4 +140,9 @@ knows the original product would. A script or HTTP harness does not replace this
   fact. Re-observe at most twice; stop on a side effect or a contradiction.
 - Keep walks read-only unless writes were approved for the target. Writes on the new
   application still need approval naming it.
+- A today-relative rule cannot be a declarative filter (clock operands are syntax only in
+  query filters). The model carries it in a query performer body, fixture-dated specifications
+  and a platform gap row. The body runs only in a rendered app, never in the executable model.
+  Walk it on the rendered app with backdated data, and on the sandbox mark the journey as
+  not run.
 - A pass list is not a coverage claim: report what was not walked.

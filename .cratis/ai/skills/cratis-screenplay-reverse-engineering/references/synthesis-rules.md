@@ -63,7 +63,10 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
   specifications assert that text, not the custom one.
 - **Lists show display values**: the full name or title, not an id, a first name or split
   columns. Pickers and tables use a joined display value; field labels come from
-  `field <name> label "..."`, and the walk checks that the label shows on Stage.
+  `field <name> label "..."`, and the walk checks that the label shows on Stage. Where the
+  dialect cannot compute a display value (no concatenation; handler bodies are refused by
+  Stage), store the parts or the display value on the event and record the gap in
+  `event-model.md`; do not rely on a handler body.
 - **A `reads` guard needs a small join-free state read model** next to the display view (one per
   guarded entity, no children, a removal event). A view with joins cannot be the guard.
 - **Public feeds do not list private records.** Express visibility in the read model (a filter,
@@ -72,7 +75,21 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
   `returns` clause; otherwise clients find the new row by re-querying a view.
 - **Time facts**: state the rule with its time fact and say in `event-model.md` whether the
   caller or the system supplies it. Without a clock the caller passes the time fact in; with one,
-  use it. Spec the boundary both exactly equal and one below.
+  use it. Spec the boundary both exactly equal and one below. Date and DateTime values compare
+  in command rules on a Screenplay release with Date/DateTime comparisons
+  (`cratis-screenplay-command-surface`). Calendar and clock forms (`today - 7 days`,
+  `date of occurred`, `time zone`) parse but are not runnable: never write them into an
+  executable model. A today-relative query (overdue, due today, dormant) cannot be a declarative
+  filter: query filters admit only caller-supplied equality, and clock operands are syntax only.
+  Do not leave such a rule as a comment. A comment expresses nothing, and Stage cannot serve it.
+  Give the query a `performer` body (`cratis-screenplay-read-surface`, "Performer bodies are
+  rendered") that applies the probed threshold, the inclusive or exclusive edge and the excluded
+  states, and name the threshold as a constant in the body. Stage renders the body, so the
+  rendered app serves the rule. Specify the boundary with `given readmodel` rows on fixed dates
+  (threshold minus one, equal, plus one), and record "today-relative filter not declarative"
+  as a platform gap row in `event-model.md` (check the Screenplay and Stage trackers before
+  filing).
+  An unprobed threshold stays `unknown`; never write a guessed number.
 - **Cascades and observed defects**: a cascade (deleting a parent removes its children) is an
   automation: model it when the dialect allows, else list it in `event-model.md`. Model the
   intended behavior of an observed defect and flag the defect.

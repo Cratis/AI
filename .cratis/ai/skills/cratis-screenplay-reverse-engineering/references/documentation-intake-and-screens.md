@@ -74,6 +74,8 @@ deliberately. Derive these from the documented user journeys:
    and record the gap.
 6. Check a type before using it on an input: Stage may reject some (for example date-time). Use
    a date when the documentation does not evidence a time of day.
+7. A staged pipeline is a table with a move action unless a Stage run of
+   `component Cratis.Blueprint.Default.kanbanBoard` is proven.
 
 ## Running constraints to plan around
 
