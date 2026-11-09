@@ -30,8 +30,9 @@ of equivalence, and changed or removed slices are expected to differ.
 
 Before the walk, list each kept observed behavior (command accepted, rejection with its text,
 read after write, visibility rule) as a row: an id, its evidence ids and the case kinds the
-evidence shows (positive, refusal, malformed, repeat). A journey passes only when every row it
-covers has a walked case on the running app; a row with no walked case is **open**, never pass.
+evidence shows (positive, refusal, malformed, repeat). A row closes only when every case kind it
+lists has a matching, passing walked case on the running app; a missing or undecided case keeps
+the row **open**, never pass. A journey passes only when every row it covers is closed.
 A model change revises the affected rows, and an earlier pass does not carry over.
 
 ## Procedure
@@ -48,9 +49,10 @@ A model change revises the affected rows, and an earlier pass does not carry ove
    nondeterministic, and name the missing observation. Not run and undecided never count as pass.
 5. **Negative control.** For each pass-critical check, show it can fail: run it once against the
    state before the action, or with a deliberately wrong value, and expect a fail. A check that
-   passes both ways verifies nothing; drop it.
-6. **Probe the original (optional).** Only where the original is owned or permitted and reads are
-   approved, replay a few read cases the capture did not make on both systems and diff status,
+   passes both ways verifies nothing: replace it and rerun its control, or leave the rows it
+   supports open.
+6. **Probe the original (optional).** Only where the team owns the original and the reads are
+   approved; never a third-party or production system you do not own. Replay a few read cases the capture did not make on both systems and diff status,
    fields, order and values. Normalize ids and clocks only where the evidence shows they are
    generated. Writes need the usual approval; unobserved parts are listed, not counted as agreement.
 
