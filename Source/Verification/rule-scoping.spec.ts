@@ -241,3 +241,15 @@ test('code-health is a universal, path-scoped, generic rule that general and rev
     assert.ok(readFileSync(join(corpus, 'rules/general.md'), 'utf8').includes('`code-health.md`'));
     assert.ok(readFileSync(join(corpus, 'rules/review-reports.md'), 'utf8').includes('code-health.md'));
 });
+
+test('published-contracts is a universal, path-scoped, generic rule that general, review-reports and the reviewers route to', () => {
+    const rule = readFileSync(join(corpus, 'rules/published-contracts.md'), 'utf8');
+    const fields = frontmatter(rule);
+    assert.ok(!fields.has('profile'), 'published-contracts.md reaches every repository, so it carries no profile');
+    assert.ok(fields.get('paths')?.length, 'published-contracts.md has Claude paths');
+    assert.ok(!fields.get('applyTo')?.includes('**/*'), 'published-contracts.md has narrow Copilot scope');
+    for (const text of ['vectors', 'executable specs', 'blocking finding', 'contract wins', 'say so']) assert.ok(rule.includes(text), text);
+    for (const path of ['rules/general.md', 'rules/review-reports.md', 'agents/code-reviewer.md', 'agents/security-reviewer.md', 'harnesses/pi/agents/code-reviewer.md', 'harnesses/pi/agents/security-reviewer.md', 'harnesses/opencode/agents/code-reviewer.md', 'harnesses/opencode/agents/security-reviewer.md']) {
+        assert.ok(readFileSync(join(corpus, path), 'utf8').includes('published-contracts.md'), path);
+    }
+});
