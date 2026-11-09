@@ -52,8 +52,11 @@ When the context is nearly full:
 3. Write the handoff from it. Read
    [references/handoff-template.md](references/handoff-template.md) for the
    fixed structure, the rules for filling it and a worked example.
-4. Verify it: check every precondition against `git`, confirm each section is
-   present, confirm every running job has a full watch row.
+4. Verify it: run `node .cratis/ai/hooks/scripts/cratis-check-handoff.mjs .ai-work/<task>/handoff.md`;
+   fix every error and either fix or acknowledge each warning (a moved HEAD means
+   update the table). Where the script is not installed, check by hand:
+   preconditions against `git`, each section present, every running job with a
+   full watch row.
 5. End the session, or reset it with your harness's compaction or new-session
    command, starting from the handoff.
 
@@ -102,4 +105,5 @@ resetting anything.
 A handoff is complete when every heading of the template is present in order,
 the repositories and watch tables use the exact header rows, every running job,
 CI watch and subagent has a row with an immutable target, and each user quote
-is verbatim.
+is verbatim. Run `node .cratis/ai/hooks/scripts/cratis-check-handoff.mjs .ai-work/<task>/handoff.md`;
+the checker exits 0. Fix or acknowledge its warnings before ending the session.

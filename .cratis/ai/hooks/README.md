@@ -17,6 +17,7 @@ Three layers:
 | Cleanup of delivered work | `PostToolUse` on `Bash` (`gh pr merge`, `git pull/merge/worktree`) and `SessionStart` (Pi: `tool_result` and `session_start`) | `scripts/cratis-cleanup-worktrees.sh --hook` | zero when the command is unrelated | never blocks; removes delivered worktrees and branches, reports what it kept |
 | Quality gate (Claude) | `Stop` | `scripts/cratis-quality-gate.sh` | one build/test run, only when relevant files changed | exits **2** — the turn does not end |
 | Quality gate (Pi) | explicit `cratis_quality_gate` tool | same script | only at a requested verification checkpoint | error on failure; no turn-end hook |
+| Handoff checker | not wired: run by the skill | `scripts/cratis-check-handoff.mjs` | local files and git only | errors fail; warnings are advisory unless `--strict` |
 
 For false positives, a literal-prefix trailing `*`, including literal directory components, can be
 resolved in a known, readable cwd and parent directory. A single reader may stand alone or appear in
@@ -503,6 +504,26 @@ the managed gates running unchanged.
 build (with `-p:CratisProxiesOutputPath=` per `general.md`, so the proxy generator does not
 re-run and touch already-correct generated files), frontend lint / compile / compile-specs /
 test.
+
+## Handoff checker
+
+The `cratis-session-handoff` skill runs the harness-neutral validator before ending:
+
+```bash
+node .cratis/ai/hooks/scripts/cratis-check-handoff.mjs .ai-work/<task>/handoff.md
+```
+
+It checks the fixed template, paths, watch actions, branch/HEAD and state-note freshness.
+With no path it selects the newest `.ai-work/*/handoff*.md`. Use `--repo <dir>` or
+`--state-note <path>` to override those inputs, `--json` for one report object, and
+`--strict` to promote warnings to errors. Exit **0** means no errors, **1** means
+validation failed, and **2** means invalid arguments or an unreadable/non-handoff input.
+Git checks degrade to explicit skips offline or outside a repository; no network is used.
+
+This is not an agent-stop hook: a hook cannot reliably choose the active handoff,
+a moved-HEAD warning must not trap a deliberately ending session, and Pi has no
+turn-end hook. Follow-up: consider Stop wiring when a handoff newer than the last
+commit can be identified without guessing; keep the standalone command portable.
 
 ## The package drift guards
 
