@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-reverse-engineering
-description: Use when the goal is a working, re-imagined application derived from an observable system and its shipped executable (running app, HAR capture, OpenAPI, docs, binary or package) that ends on Stage. Not for faithful migration from source with loss reports, greenfield discovery or reviewing a finished model.
+description: Use when an owned or test-permitted running system, or only its public docs, HAR captures, OpenAPI or shipped binary, must become a runnable re-imagined model on Stage. Not for faithful migration from source (legacy extraction), greenfield discovery or reviewing a model.
 license: MIT
 ---
 
@@ -14,6 +14,11 @@ API descriptions, documents and the shipped binary or package are enough. The re
 is a *re-imagined* application, not a clone: every slice is kept, changed or removed by a person.
 Evidence shows what happened; intent is proposed and decided. Do not call the result equivalent,
 complete or lossless.
+
+**Positioning.** Owned systems and migration come first. From public material only (a website,
+user docs, a description document) the result is a *plausible* rebuild: label it so in the model
+notes and the final report, never "faithful". To measure a skill change on an owned application
+with a known model, read [references/ground-truth-benchmark.md](references/ground-truth-benchmark.md).
 
 ## Decision rule
 
@@ -75,8 +80,10 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    - **L2 dynamic**: the bounded UI walk (`../cratis-screenplay-legacy-extraction/references/ui-observation.md`;
      default budget 15 states), HAR analysis and approved runs of the executable.
    - **L3 evidence file**: one row per fact with id, source kind, locator, strength,
-     classification and unknowns. Unknowns stay visible; never invent them away. Read
-     [references/evidence-format.md](references/evidence-format.md) before writing rows, and
+     classification and unknowns, in the shared schema of
+     `../cratis-screenplay-event-modeling/references/evidence-format.md`. Unknowns stay visible;
+     never invent them away. Read [references/evidence-format.md](references/evidence-format.md)
+     for the locator notes before writing rows, and
    [references/probing-and-naming.md](references/probing-and-naming.md) before and during a walk:
    boundary probes per command, time-based seeding, client versus server rules, naming fidelity,
    observed defects and opaque queries.
@@ -116,7 +123,9 @@ assumptions, plausibility fidelity, navigation layout, joins and current `cratis
 Stop at each approval point (walk, writes, executable runs, first use of an external
 reverse-engineering tool, hosted-model use, acceptance, `render --force`) and say what is
 needed; do not proceed on silence. Prologue capture and `prologue interpret` belong to
-`cratis-screenplay-legacy-extraction` and keep its approvals.
+`cratis-screenplay-legacy-extraction` and keep its approvals; Prologue rows follow the same
+evidence schema. With mixed inputs start from the `cratis-screenplay-event-modeling`
+`references/understanding-pipeline.md`.
 
 ## Cost and speed
 

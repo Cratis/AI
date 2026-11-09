@@ -98,8 +98,8 @@ stay in this skill.
 
 ## Locators and evidence rows
 
-Each finding is one row in the evidence file (`evidence-format.md`), `sourceKind` `binary` or
-`run`. Locators:
+Each finding is one row in the evidence file (`evidence-format.md`), a `sources` entry of
+`kind: binary`; an approved run is the same kind with a `RUN-<n>` locator. Locators:
 
 - Static: `<path in captures/binary>` plus an offset, symbol, resource name, route or manifest
   entry (`app.exe#resource:Strings/ReserveBerth`, `app.apk#AndroidManifest:activity:BookingActivity`,
