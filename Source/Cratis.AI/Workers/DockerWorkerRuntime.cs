@@ -103,6 +103,10 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
                 // Lets the container reach the consumer's callback endpoint on the host from Linux
                 // engines; Docker Desktop provides the alias out of the box.
                 ExtraHosts = ["host.docker.internal:host-gateway"],
+                Memory = job.Limits?.MemoryBytes ?? 0,
+                MemorySwap = job.Limits?.MemoryBytes ?? 0,
+                NanoCPUs = job.Limits?.NanoCpus ?? 0,
+                PidsLimit = job.Limits is { PidsLimit: not 0 } limits ? limits.PidsLimit : null,
 
                 // The secrets land on a memory-backed mount, so they never touch the container's
                 // writable layer and cannot be recovered from a committed image or a stopped

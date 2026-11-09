@@ -16,3 +16,10 @@ Failed delivery force-removes the container (including its tmpfs), even when the
 A cleanup failure is reported explicitly and requires operator removal of the container; launch never
 reports success in that case. Engine diagnostics from credential delivery are withheld from exceptions
 and logs because they may include payloads. Real-engine verification remains an end-to-end concern.
+
+## Per-job resource limits
+
+Set `WorkerJob.Limits` to a `WorkerLimits` value to cap Docker memory (bytes), CPU (nanocpus),
+and process count. A memory cap also sets the total memory-plus-swap cap to the same value,
+disabling swap for the job. Missing limits or zero fields leave that resource unlimited.
+Kubernetes continues to use its existing resource options.
