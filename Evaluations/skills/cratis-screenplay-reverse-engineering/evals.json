@@ -61,6 +61,17 @@
         "Runs cratis run first, reports plausibility rather than a match score, and verifies visually.",
         "Records run limits for opaque queries and authentication as platform gaps without weakening policies."
       ]
+    },
+    {
+      "id": 6,
+      "name": "cli-help-is-execution",
+      "prompt": "We have a downloaded command-line tool from a vendor and want its commands as a Screenplay model. Start with static inspection only; nobody has approved running it. What do you do first? Reply only; do not write files.",
+      "expected_output": "Inspect without executing: shipped manual pages, help files and embedded usage strings, plus metadata and strings; record subcommands, options and exit codes as hints. Do not run the tool, not even with --help or --version, because that executes it; list the run (in an isolated sandbox with recorded input and output) as a step that needs approval, and ask for it.",
+      "assertions": [
+        "Uses only static sources such as manual pages, help files and embedded usage strings.",
+        "Does not run the tool, including --help or --version, without approval.",
+        "Treats any run as an approved, sandboxed step with recorded input and output and asks for that approval."
+      ]
     }
   ]
 }

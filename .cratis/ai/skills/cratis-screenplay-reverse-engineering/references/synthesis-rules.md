@@ -40,7 +40,8 @@ machines as a table (status, allowed commands, rejected with) and a diagram; and
 Mark each rule `sourced` or `assumed` and keep a count of both, so a sparse source shows up as
 such. Ask which rules the dialect can express before the prose settles; a rule it cannot express
 is recorded here as a gap, not dropped. Keep the file current when the model changes, and list
-every rule or automation left out of the runnable variant with its reason.
+every rule or automation left out of the run-only copy with its reason (the complete model stays
+the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
 
 ## Intent in the mapping
 

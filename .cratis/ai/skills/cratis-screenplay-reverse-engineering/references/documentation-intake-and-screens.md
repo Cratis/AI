@@ -82,20 +82,23 @@ Check each against the installed `cratis` version before relying on it:
 - **Queries written as code (opaque queries) are not served by `cratis run`.** Express each
   query as a projection-backed read model the run can serve; keep an opaque query only as a
   recorded boundary.
-- **Authentication blocks are metadata under `cratis run`**, so a command guarded by an
-  authenticated or owner policy cannot be exercised there. Keep the policy in the model (never
-  weaken it to make the run pass), record a platform gap, and smoke-test the unauthenticated
-  paths.
+- **Authenticated paths need sandbox identities.** Check whether the installed Stage forwards an
+  authenticated identity and enforces policies; where it does, declare sandbox users for the
+  personas and walk each guarded command as them. Where it does not, keep the policy in the model
+  (never weaken it to make the run pass), record a platform gap, and smoke-test the
+  unauthenticated paths. A sandbox pass proves nothing about production security.
 - **Layout and profile support in Stage may be reported as deferred** by a diagnostic. Keep them
   in the model when they validate; they still describe the intended product.
 
 - **Run proof beats validation.** Constructs that validate and pass `screenplay test` may still
   be refused or ignored by Stage (clock rules, application triggers, pickers fed by a query,
-  forms with only labels). Follow "Runnability" in [fidelity-check.md](fidelity-check.md), keep a
-  runnable variant without the refused construct, and record each dropped rule in
-  `event-model.md` as a platform gap to file.
-- **Record each platform defect you work around**, with the workaround, and file it with the
-  owning repository; do not bake the workaround into the model as if it were intent.
+  forms with only labels). Follow "Runnability" in [fidelity-check.md](fidelity-check.md): the
+  complete model stays the deliverable, and a copy without the refused construct is only for the
+  run and the walk.
+- **Record each platform defect you work around**, with the workaround, as an issue draft for the
+  owning repository. Filing it is an external effect: file only when the request covers it, and
+  as a subagent return the draft to your parent. Do not bake the workaround into the model as if
+  it were intent.
 
 ## Verify
 

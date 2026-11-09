@@ -44,9 +44,11 @@ Passing `screenplay test` does not show that Stage can run the model. After `cra
 2. Execute one command over HTTP. A refusal naming an unsupported model format version means the
    toolchain is out of range: update it before changing the model. Send date-time values in the
    full round-trip form with fractional seconds and offset.
-3. If a construct is refused (clock rules, application triggers, query-fed pickers), keep a
-   runnable variant without it and record each dropped rule in `event-model.md` as a platform gap
-   to file. Never keep an unrunnable rule as if it worked.
+3. If a construct is refused (clock rules, application triggers, query-fed pickers), the complete
+   model stays the deliverable: keep the refused rule in it and report the blocked scope as a
+   platform gap in `event-model.md`. To walk the rest, run a copy without the refused construct;
+   that copy exists only for the run and the walk and is never accepted, rendered or handed over
+   as the model.
 4. Check the toolchain is current (`gh release view` on the CLI, Screenplay and Stage
    repositories); across a major version run the documented migration, for example
    `screenplay migrate`.

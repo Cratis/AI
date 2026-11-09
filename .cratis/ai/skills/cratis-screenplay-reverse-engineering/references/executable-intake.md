@@ -51,7 +51,7 @@ Record each kind that applies; "not covered" is a valid entry.
 | .NET assembly | read assembly metadata and CIL: types, public members, calls, native boundaries, embedded resources | none needed for inventory | handler and aggregate names as hints only |
 | JVM or Android package | decompile and read the manifest: activities, services, receivers, permissions, resource strings, endpoints | device or emulator walk | screens, integrations, endpoints |
 | Native binary | exports, imports, user-visible strings, resources, help text, menus | process capture of command line and file effects | commands, outputs, files written |
-| CLI tool | `--help` and manual pages: subcommands, options, exit codes, output formats | scripted runs with recorded input and output | commands and specifications |
+| CLI tool | shipped manual pages, help files and embedded usage strings: subcommands, options, exit codes, output formats | `--help` and scripted runs with recorded input and output, in the sandbox | commands and specifications |
 | Installer or container image | listed contents, services, scheduled jobs, entry point, ports, environment keys, volumes | install or start inside the sandbox | integrations, background work, configuration |
 | Embedded database | tables, columns, indexes, triggers, sample rows | before and after snapshots around one action | persisted state, enumerations |
 | Network capture | HAR, packet capture or proxy log: method, path template, status, body shapes | capture during an approved run | observed commands and queries |
