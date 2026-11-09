@@ -31,6 +31,26 @@ Name any shortfall the user explicitly accepts in the report or PR comment; neve
 Never refactor generated code: proto/gRPC contracts, generated proxies or `obj/`.
 "Could not determine Code Health score" is not a failure.
 
+Optional per-repository recipe for generated code CodeScene still scores: commit a
+`.codescene/code-health-rules.json` at the repository root whose rule set matches the generated
+globs and sets every rule to weight 0.0; scoring then returns 10 and no findings for those
+files, and other files are unaffected (verified on a scratch repository). Tune the globs per
+repository, never exclude domain code such as Chronicle `Migrations`, and run
+`rules_config_validate` first; the CLI lists any unknown rule name. Rule names: Bumpy Road Ahead,
+Complex Conditional, Complex Method, Constructor Over-Injection, Code Duplication, Deep, Nested
+Complexity, Excess Number of Function Arguments, Large Method, Large Assertion Blocks, Duplicated
+Assertion Blocks, Low Cohesion, Brain Class, Brain Method, Overall Code Complexity, Primitive
+Obsession, String Heavy Function Arguments, Lines of Code in a Single File, Number of Functions in
+a Single Module, Global Conditionals, Missing Arguments Abstractions.
+
+```json
+{ "rule_sets": [ { "matching_content_path": "**/*.g.cs",
+  "rules": [ { "name": "Complex Method", "weight": 0.0 } ] } ] }
+```
+
+The example shows one rule; list every rule name above (generic globs: `**/obj/**`, `**/*.g.cs`,
+`**/Generated/**`, `**/Proxies/**`). A corpus install cannot place this file; it is rule text only.
+
 Other Cratis rules take precedence over findings. One-file vertical slices make
 "Lines of Code in a Single File" expected; do not rewrite `ConceptAs` usage or
 spec conventions to satisfy a finding.
