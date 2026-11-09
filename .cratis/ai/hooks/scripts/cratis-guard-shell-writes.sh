@@ -55,56 +55,6 @@ function scan(s,    n, i, c, word, whole) {
     # Braces have a second boundary view; retain the original pattern above too.
     if (s ~ /[{}]/) { gsub(/[{}]/, " ", s); scan(s) }
 }
-# Interpreter strings can execute shell too. Inspect each opening brace independently
-# of its surrounding interpreter quotes, retaining the whole body on ambiguity.
-function shell_braces(s,    i, j, c, q, depth, whitespace, expansion, work) {
-    for (i = 1; i <= length(s); i++) {
-        if (substr(s, i, 1) != "{") continue
-        q = ""; depth = 1; whitespace = expansion = 0
-        for (j = i + 1; j <= length(s); j++) {
-            if (++work > 262144) return 1
-            c = substr(s, j, 1)
-            if (c == "\\" && q != "\047") { j++; continue }
-            if (q != "") { if (c == q) q = ""; continue }
-            if (c == "\047" || c == "\"") { q = c; continue }
-            if (c ~ /[[:space:]]/) whitespace = 1
-            if (depth == 1 && (c == "," || substr(s, j, 2) == "..")) expansion = 1
-            if (c == "{") depth++
-            if (c == "}" && --depth == 0) break
-        }
-        if (depth || (!whitespace && expansion)) return 1
-    }
-    return 0
-}
-# Recognize a whole command, not apparent headers found inside arbitrary shell text.
-# Only a first-line literal consumer, optionally after literal cd &&, and a single
-# quoted heredoc ending the command can suppress braces. Everything else stays intact.
-function literal_heredoc(text,    lines, n, i, header, delimiter, body, copy) {
-    copy = text; sub(/\n$/, "", copy); n = split(copy, lines, "\n")
-    header = lines[1]
-    sub(/^[ \t]*cd[ \t]+(\047[^\047\n]+\047|"[^"$`\\\n]+"|[A-Za-z0-9_.\/@+-]+)[ \t]*&&[ \t]*/, "", header)
-    if (n < 3 || header !~ /^[ \t]*(node|deno|bun|python|python3|ruby|perl|cat)[ \t]+<<-?[ \t]*(\047[A-Za-z_][A-Za-z0-9_]*\047|"[A-Za-z_][A-Za-z0-9_]*"|\\[A-Za-z_][A-Za-z0-9_]*)[ \t]*$/) return text
-    if (text ~ /(^|[^A-Za-z0-9_])(eval|bash|sh|zsh)([^A-Za-z0-9_]|$)/) return text
-    delimiter = header; sub(/^.*<<-?[ \t]*/, "", delimiter); sub(/[ \t]*$/, "", delimiter)
-    if (substr(delimiter, 1, 1) == "\\") delimiter = substr(delimiter, 2)
-    else delimiter = substr(delimiter, 2, length(delimiter) - 2)
-    for (i = 2; i <= n; i++) {
-        copy = lines[i]; if (header ~ /<<-/) sub(/^\t*/, "", copy)
-        if (copy == delimiter) {
-            if (i != n) return text
-            if (shell_braces(body)) return text
-            gsub(/[{}]/, " ", body)
-            return lines[1] "\n" body lines[n]
-        }
-        if (index(copy, "<<")) return text
-        body = body lines[i] "\n"
-    }
-    return text
-}
-function scan_references(text) {
-    text = literal_heredoc(text)
-    scan(text); scan(unquote(text))
-}
 # Reuse ANSI-C decoding for reference spellings, not for interpreting shell code.
 function ansi(s, i,    c, c2, v, k, limit, d, digits) {
     ansi_word = ""
@@ -309,7 +259,7 @@ BEGIN {
     for (i = 0; i < 16; i++) HEX[substr("0123456789abcdef", i + 1, 1)] = i
     ESC["n"] = 10; ESC["r"] = 13; ESC["t"] = 9; ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34
     text = ENVIRON["GSW_COMMAND"]
-    if (ENVIRON["GSW_MODE"] == "references") { scan_references(text); exit 0 }
+    if (ENVIRON["GSW_MODE"] == "references") { scan(text); scan(unquote(text)); exit 0 }
     n = split(ENVIRON["GSW_PROTECTED"], a, "\n"); for (i = 1; i <= n; i++) protected_paths[a[i]] = 1
     exit readonly(text) ? 0 : 1
 }

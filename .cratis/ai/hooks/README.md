@@ -42,10 +42,9 @@ quoted `--glob`/`-g` filters, and numeric/last-line `sed -n …p` scripts are re
 pipelines or other separators. Any file redirection in a cwd-changing chain fails closed because
 its target is not proven against the changed cwd. Mutating commands and protected redirects stay
 blocked. No shell-option assumption is used to dismiss leading-dot intersections.
-Brace suppression applies only to a whole-command, single quoted heredoc with a literal first-line
-non-shell consumer (optionally after literal `cd … &&`) and its delimiter ending the command. Literal
-protected names in the body are still classified. Apparent headers inside quotes, nested heredocs,
-substitutions, eval/shell contexts, unknown consumers and unquoted heredocs retain conservative scans.
+Heredoc bodies receive the same conservative whole-text reference scan as other command text,
+including code-like braces. Interpreter syntax does not exempt embedded shell strings. If an inline
+script is blocked, write it with the edit/write tool and run the script file instead.
 Portable bracket classes are kept; ambiguous backslash-bearing classes are widened instead of passed
 as invalid awk regexes.
 

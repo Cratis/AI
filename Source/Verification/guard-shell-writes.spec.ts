@@ -70,7 +70,7 @@ function scratchRepository(origin = 'https://github.com/example/app.git') {
     return { root, dispose: () => rmSync(root, { recursive: true, force: true }) };
 }
 
-test('read-only globs and whole-command quoted heredocs avoid speculative references', async () => {
+test('read-only globs allow reads while interpreter heredocs retain conservative references', async () => {
     const repo = scratchRepository();
     try {
         for (const present of [false, true]) {
@@ -79,8 +79,8 @@ test('read-only globs and whole-command quoted heredocs avoid speculative refere
                 [ALLOW, "rg -n foo --glob '*.csproj'"], [ALLOW, 'rg -n foo Directory.Build.*'],
                 [BLOCK, 'rg -n foo *.cs'], [BLOCK, 'echo x > *.csproj'],
                 [ALLOW, "rg -n foo -g '*.csproj'"], [BLOCK, 'rg -n .env --glob'], [BLOCK, 'rg -n foo --glob *.csproj'],
-                [ALLOW, "node <<'N'\nconsole.log(`${Object.keys(e || {}).join(',')}`)\nN"],
-                [ALLOW, `cd '${repo.root}' && node <<'N'\nconsole.log(\`\${Object.keys(e || {}).join(',')}\`)\nN`],
+                [BLOCK, "node <<'N'\nconsole.log(`${Object.keys(e || {}).join(',')}`)\nN"],
+                [BLOCK, `cd '${repo.root}' && node <<'N'\nconsole.log(\`\${Object.keys(e || {}).join(',')}\`)\nN`],
                 ...['echo x > .env', 'echo x > .env.local', 'cp x *.env', 'tee *env', 'echo x > .e*',
                     'echo x > .env*', 'echo x > {.env,a}', 'echo x > package*.json',
                     'sed -i s/a/b/ *.json', 'tee Directory.Packages.*',
@@ -175,6 +175,10 @@ test('interpreter heredocs preserve shell brace expansions in embedded shell pay
     const repo = scratchRepository();
     try {
         await checkCases([
+            String.raw`node <<'N'
+require('child_process').execSync('printf x | tee {.\,}env');
+N`,
+            "node <<'N'\nrequire('child_process').execSync('printf x | tee {.' + ',}env');\nN",
             "perl <<'P'\n`printf x > {.,}env`;\nP",
             "ruby <<'R'\n`printf x > {.,}env`\nR",
             "node <<'N'\nrequire('child_process').execSync('printf x > {.,}env');\nN",

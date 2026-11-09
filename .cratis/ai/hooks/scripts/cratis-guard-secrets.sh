@@ -887,11 +887,12 @@ function probe_read_chain(text, prior,    i, c, q, normal, n, k, readers, reader
 function glob_directory(    text, head, dir, prior) {
     dir = ENVIRON["GS_CWD"]; text = CMD
     if (ENVIRON["GS_GLOB_SAFE"] != "1" || dir == "" || dir !~ /^\//) return ""
-    if (text ~ /^[ \t]*cd[ \t]+/) {
+    if (text ~ /^[ \t]*cd([ \t]|&&|$)/) {
         if (!match(text, /^[ \t]*cd[ \t]+(\047[^\047\n]+\047|"[^"$`\\\n]+"|[A-Za-z0-9_.\/@+-]+)[ \t]*&&/)) return ""
         head = substr(text, 1, RLENGTH); text = substr(text, RLENGTH + 1)
         sub(/^[ \t]*cd[ \t]+/, "", head); sub(/[ \t]*&&$/, "", head)
         if (head ~ /^[\047"]/) head = substr(head, 2, length(head) - 2)
+        if (head ~ /^[-~]/) return ""
         if (head !~ /^\// && ENVIRON["CDPATH"] != "") return ""
         if (head ~ /^\//) dir = head; else dir = dir "/" head
         prior = 1

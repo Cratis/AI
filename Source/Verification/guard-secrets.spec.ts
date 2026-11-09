@@ -150,6 +150,24 @@ test('glob probes fail closed on parent segments and logical versus physical cwd
     } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
+test('glob probes refuse cd options and home or previous-directory operands despite decoys', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-glob-cd-decoy-'));
+    try {
+        for (const name of ['-', '-P', '-L', '~', '~decoy']) {
+            mkdirSync(join(directory, name));
+            writeFileSync(join(directory, name, 'server.txt'), 'synthetic fixture');
+        }
+        mkdirSync(join(directory, 'previous'));
+        writeFileSync(join(directory, 'previous/server.pem'), 'synthetic fixture');
+        const env = { OLDPWD: join(directory, 'previous'), HOME: join(directory, 'previous') };
+        for (const target of ['-', "'-'", '"-"', '-P', '-L', '~', "'~'", "'~decoy'", '']) {
+            const command = `cd ${target} && cat server*`;
+            assert.equal(runGuard(command, env, directory).code, 2, command);
+        }
+        assert.equal(runGuard('cd&& cat server*', env, directory).code, 2);
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
 test('literal directory checks retain the process cwd when the payload omits cwd', () => {
     const result = spawnSync('bash', [guard], {
         cwd: repositoryRoot,
