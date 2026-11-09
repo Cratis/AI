@@ -168,6 +168,7 @@ State lives in `.ai-work/screenplay/<model-slug>/STATE.md` (untracked, overwritt
 | Specifications and coverage | `cratis-screenplay-scenario-coverage` |
 | Critic review, business-question pass | `cratis-screenplay-model-review` |
 | Existing system into a model | `cratis-screenplay-legacy-extraction` |
+| Running system or executable into a model, without its source | `cratis-screenplay-reverse-engineering` |
 | Render, gap-fill, fallback, drift | `cratis-screenplay-render-and-gap-fill` |
 | Estimate, order or split delivery of an accepted model | `cratis-screenplay-delivery-planning` |
 
