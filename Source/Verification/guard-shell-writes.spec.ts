@@ -171,6 +171,21 @@ test('heredoc lookalikes and enclosing shell evaluation retain brace references'
     } finally { repo.dispose(); }
 });
 
+test('interpreter heredocs preserve shell brace expansions in embedded shell payloads', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            "perl <<'P'\n`printf x > {.,}env`;\nP",
+            "ruby <<'R'\n`printf x > {.,}env`\nR",
+            "node <<'N'\nrequire('child_process').execSync('printf x > {.,}env');\nN",
+            "python3 <<'P'\nimport os\nos.system('printf x > {.,}env')\nP",
+            "node <<'N'\nrequire('child_process').execSync('printf x > {.env,{a,b}}');\nN",
+            "node <<'N'\nrequire('child_process').execSync('printf x > {1..3}.env');\nN",
+            "node <<'N'\nrequire('child_process').execSync('printf x > {\"a b\",.env}');\nN",
+        ].map(command => [BLOCK, command]), repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('protected references deny writers and evaluators across the whole command text', async () => {
     const repo = scratchRepository();
     try {

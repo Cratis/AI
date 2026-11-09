@@ -896,17 +896,21 @@ function glob_directory(    text, head, dir, prior) {
         if (head ~ /^\//) dir = head; else dir = dir "/" head
         prior = 1
     }
-    if (qi != 1 || !probe_read_chain(text, prior)) return ""
+    if (dir ~ /(^|\/)\.\.(\/|$)/ || qi != 1 || !probe_read_chain(text, prior)) return ""
     return dir
 }
-function glob_secret_match(a,    prefix, dir, script, cmd, line, count, ok, kind, found, name, original, basename, k) {
+function glob_secret_match(a,    prefix, parent, dir, script, cmd, line, count, ok, kind, found, name, original, basename, k) {
     prefix = substr(a, 1, length(a) - 1)
     if (substr(a, length(a), 1) != "\004" || prefix == "" || prefix ~ /[^A-Za-z0-9._\/@+=,:%-]/) return "a key or certificate file"
+    parent = prefix; sub(/[^\/]*$/, "", parent)
     dir = glob_directory()
-    if (dir == "") return "a key or certificate file"
-    script = "unset GLOBIGNORE CDPATH; shopt -u failglob; shopt -s nullglob dotglob nocaseglob; cd -P -- \"$1\" || exit 3; " \
-        "[ -r . ] && [ -x . ] || exit 3; parent=${2%/*}; stem=${2##*/}; [ \"$parent\" != \"$2\" ] || parent=.; " \
-        "cd -P -- \"$parent\" && [ -r . ] && [ -x . ] || exit 3; " \
+    if (dir == "" || parent ~ /(^|\/)\.\.(\/|$)/) return "a key or certificate file"
+    # Compare the actual directories reached under both cd modes before probing.
+    script = "unset GLOBIGNORE CDPATH; shopt -u failglob; shopt -s nullglob dotglob nocaseglob; " \
+        "checked_cd() { local logical; logical=$(cd -L -- \"$1\" && pwd -P) || return 3; " \
+        "cd -P -- \"$1\" || return 3; [ \"$logical\" = \"$PWD\" ] && [ -r . ] && [ -x . ]; }; " \
+        "checked_cd \"$1\" || exit 3; parent=${2%/*}; stem=${2##*/}; [ \"$parent\" != \"$2\" ] || parent=.; " \
+        "checked_cd \"$parent\" || exit 3; " \
         "n=0; for f in \"$stem\"*; do n=$((n+1)); [ \"$n\" -le 200 ] && [ -f \"$f\" ] && [ ! -L \"$f\" ] || exit 3; " \
         "case \"$PWD/$f\" in *[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$PWD/$f\"; done; echo OK"
     cmd = "bash -c " shell_quote(script) " guard-glob " shell_quote(dir) " " shell_quote(prefix) " 2>/dev/null"

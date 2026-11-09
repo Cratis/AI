@@ -133,6 +133,23 @@ test('glob probes never trust a preceding command or lose filesystem context', (
     } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
+test('glob probes fail closed on parent segments and logical versus physical cwd uncertainty', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-glob-logical-cwd-'));
+    try {
+        mkdirSync(join(directory, 'visible'));
+        mkdirSync(join(directory, 'elsewhere/sub'), { recursive: true });
+        symlinkSync('../elsewhere/sub', join(directory, 'visible/link'));
+        writeFileSync(join(directory, 'visible/server.pem'), 'synthetic fixture');
+        writeFileSync(join(directory, 'elsewhere/server.txt'), 'synthetic fixture');
+        for (const command of ['cd visible && cat server*', 'cd visible/link/.. && cat server*',
+            'cat visible/link/../server*', 'cd elsewhere/sub/.. && cat server*',
+            'rg -l foo visible/link/../server*', `cd '${directory}/visible/link/..' && cat server*`]) {
+            assert.equal(runGuard(command, {}, directory).code, 2, command);
+        }
+        assert.equal(runGuard('cat server*', {}, join(directory, 'visible/link/..')).code, 2);
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
 test('literal directory checks retain the process cwd when the payload omits cwd', () => {
     const result = spawnSync('bash', [guard], {
         cwd: repositoryRoot,

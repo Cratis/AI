@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -75,7 +75,7 @@ function assertAwkCase(variant: string, entry: [string, string, number | null], 
     assert.ok(!result.error, `${variant}: ${command}: ${result.error}`);
     assert.ok(result.status === 0 || result.status === 2, `${variant}: ${command}: ${result.stderr}`);
     if (expected !== null) assert.equal(result.status, expected, `${variant}: ${command}: ${result.stderr}`);
-    assert.doesNotMatch(result.stderr, /parser failed|syntax error|nonterminated/);
+    assert.doesNotMatch(result.stderr, /parser failed|syntax error|nonterminated/, `${variant}: ${command}`);
 }
 
 function assertMissingCwd(variant: string, env: NodeJS.ProcessEnv): void {
@@ -92,9 +92,20 @@ function prepareAwkFixture(directory: string): void {
     writeFileSync(join(directory, 'server.txt'), 'synthetic fixture');
     mkdirSync(join(directory, 'keys'));
     writeFileSync(join(directory, 'keys/server.pem'), 'synthetic fixture');
-    mkdirSync(join(directory, 'Source'));
+    mkdirSync(join(directory, 'Source/sub'), { recursive: true });
+    symlinkSync('../Source/sub', join(directory, 'keys/link'));
     mkdirSync(join(directory, '.cratis/ai/rules'), { recursive: true });
     writeFileSync(join(directory, '.cratis/ai/rules/project.md'), 'synthetic fixture');
+}
+
+function interpreterBraceCases(): [string, string, number][] {
+    return [
+        ['cratis-guard-shell-writes.sh', "perl <<'P'\n`printf x > {.,}env`;\nP", 2],
+        ['cratis-guard-shell-writes.sh', "ruby <<'R'\n`printf x > {.,}env`\nR", 2],
+        // Split command strings expose a modeled brace reference, not an ambiguous whole shell string.
+        ['cratis-guard-shell-writes.sh', "node <<'N'\nrequire('child_process').execSync('printf x > ' + '{.,}env');\nN", 2],
+        ['cratis-guard-shell-writes.sh', "python3 <<'P'\nimport os\nos.system('printf x > ' + '{.,}env')\nP", 2],
+    ];
 }
 
 test('available awk variants preserve credential and shell-reference decisions', t => {
@@ -133,6 +144,8 @@ test('available awk variants preserve credential and shell-reference decisions',
                 ['cratis-guard-secrets.sh', "rg -l 'Identity|Hosting' .cratis/ai/rules/project*", 0],
                 ['cratis-guard-secrets.sh', "git diff --cc && rg -n 'Docker|Testcontainers' Directory.Build.* Source/Directory.Build.* && git log -6 --format='%H %s'", 0],
                 ['cratis-guard-secrets.sh', 'rg -n foo keys/server*', 2],
+                ['cratis-guard-secrets.sh', 'cd keys/link/.. && cat server*', 2],
+                ['cratis-guard-secrets.sh', 'cat keys/link/../server*', 2],
                 ['cratis-guard-secrets.sh', 'git diff --cc && rg -n foo Source/Directory.Build.* && z', 2],
                 ['cratis-guard-secrets.sh', 'git add Specs/for_ApplicationCredentials/given/a.cs', 0],
                 ['cratis-guard-secrets.sh', 'git add credentials.json', 2],
@@ -150,6 +163,7 @@ test('available awk variants preserve credential and shell-reference decisions',
                 ['cratis-guard-shell-writes.sh', 'shopt -s dotglob; echo x > *.csproj', 2],
                 ['cratis-guard-shell-writes.sh', "node <<'N'\nconsole.log(`${x || {}}`)\nN", 0],
                 ['cratis-guard-shell-writes.sh', "node <<'N'\nrequire('fs').readFileSync('.env')\nN", 2],
+                ...interpreterBraceCases(),
                 ['cratis-guard-shell-writes.sh', "cat <<'N' | bash\necho x > {.,}env\nN", 2],
                 ['cratis-guard-shell-writes.sh', 'rm -f *.local', 2],
                 ['cratis-guard-shell-writes.sh', 'echo "\ncat <<\'B\'\n"; echo x | tee {.e,}nv\nB', 2],

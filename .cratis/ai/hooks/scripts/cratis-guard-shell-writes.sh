@@ -55,6 +55,27 @@ function scan(s,    n, i, c, word, whole) {
     # Braces have a second boundary view; retain the original pattern above too.
     if (s ~ /[{}]/) { gsub(/[{}]/, " ", s); scan(s) }
 }
+# Interpreter strings can execute shell too. Inspect each opening brace independently
+# of its surrounding interpreter quotes, retaining the whole body on ambiguity.
+function shell_braces(s,    i, j, c, q, depth, whitespace, expansion, work) {
+    for (i = 1; i <= length(s); i++) {
+        if (substr(s, i, 1) != "{") continue
+        q = ""; depth = 1; whitespace = expansion = 0
+        for (j = i + 1; j <= length(s); j++) {
+            if (++work > 262144) return 1
+            c = substr(s, j, 1)
+            if (c == "\\" && q != "\047") { j++; continue }
+            if (q != "") { if (c == q) q = ""; continue }
+            if (c == "\047" || c == "\"") { q = c; continue }
+            if (c ~ /[[:space:]]/) whitespace = 1
+            if (depth == 1 && (c == "," || substr(s, j, 2) == "..")) expansion = 1
+            if (c == "{") depth++
+            if (c == "}" && --depth == 0) break
+        }
+        if (depth || (!whitespace && expansion)) return 1
+    }
+    return 0
+}
 # Recognize a whole command, not apparent headers found inside arbitrary shell text.
 # Only a first-line literal consumer, optionally after literal cd &&, and a single
 # quoted heredoc ending the command can suppress braces. Everything else stays intact.
@@ -71,6 +92,7 @@ function literal_heredoc(text,    lines, n, i, header, delimiter, body, copy) {
         copy = lines[i]; if (header ~ /<<-/) sub(/^\t*/, "", copy)
         if (copy == delimiter) {
             if (i != n) return text
+            if (shell_braces(body)) return text
             gsub(/[{}]/, " ", body)
             return lines[1] "\n" body lines[n]
         }
