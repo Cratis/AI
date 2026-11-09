@@ -12,6 +12,9 @@ syntax are owned by `cratis-screenplay-toolchain`, `cratis-screenplay-render-and
    Neither is `unbound` or `0 executed`: the folder still has errors, so every specification was
    skipped. The gate passes only when the command exits 0 and the executed count equals the
    discovered count, apart from specifications that read an opaque performer, each listed by name.
+   The usual cause of `unbound` is PLAY0524: an event field stamped from `$context.occurred`
+   missing from a `given` or `then`. Paste the final `screenplay test` summary line
+   ("N discovered, N executed") into the report; a run without it is not validation.
    Report that executed count, never a per-file compile result.
 3. Start it with `cratis run <model folder>` (Stage sandbox, needs Docker), or render with
    `cratis render` and gap-fill (`cratis-screenplay-render-and-gap-fill`).

@@ -9,6 +9,7 @@
 - Writing through MCP
 - Specifications
 - Slices and flows
+- Finding crosswalk
 - Stop conditions
 
 How black-box signals become candidate Screenplay elements. Signals are hypotheses: each result
@@ -87,9 +88,19 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
   states, and name the threshold as a constant in the body. Stage renders the body, so the
   rendered app serves the rule. Specify the boundary with `given readmodel` rows on fixed dates
   (threshold minus one, equal, plus one), and record "today-relative filter not declarative"
-  as a platform gap row in `event-model.md` (check the Screenplay and Stage trackers before
-  filing).
+  as a platform gap row in `event-model.md` (search the Screenplay and Stage trackers first and
+  comment on a matching open issue rather than filing a duplicate).
   An unprobed threshold stays `unknown`; never write a guessed number.
+- **Queries**: an optional argument seen in UI traffic, a capture or a probe becomes
+  `filter <name> <Type> optional` on the query; "observed to filter, model does not declare"
+  is not an acceptable note.
+- **Toggles clear what the inverse clears**: when a probe shows the inverse command reset a
+  field (a completed-at timestamp on reopen), the projection resets it too.
+- **Ownership and state-reading authorization** ("only the owner may change X"): probe it as
+  a second caller, record it as an authorization finding, and never drop it. The policy form
+  admits caller conditions only (`authenticated`, roles); a rule that reads state is not
+  expressible, so write a `GAP` line citing the open Cratis/Screenplay issues on state-reading
+  authorization policies (search the tracker for the numbers) and keep the rule as an anchored `question` note. Do not invent syntax.
 - **Cascades and observed defects**: a cascade (deleting a parent removes its children) is an
   automation: model it when the dialect allows, else list it in `event-model.md`. Model the
   intended behavior of an observed defect and flag the defect.
@@ -123,6 +134,9 @@ proposal. The contract and the refusal handling belong to that skill; this skill
 - A specification needs both sides seen: the state before and the state after. One side alone is
   an `unknown`, not a specification.
 - Use observed values for given and expected data; replace personal data with fixtures.
+- An event field stamped from `$context.occurred` (occurredAt, completedAt, changedAt) still
+  needs an explicit value in every `given` and `then` of a specification; a missing one is
+  PLAY0524, an error that skips the whole folder.
 - A UI success proves a state change was shown. It does not prove uniqueness, idempotency or
   atomicity: those stay `unknown` until a capture or a person confirms them.
 - Optional properties are not defaulted in specifications, so each specification must list
@@ -145,6 +159,13 @@ proposal. The contract and the refusal handling belong to that skill; this skill
   fact uses the `produces ... for <field>` form, not a second command.
 - Where the capture shows ordering (create, then list, then edit), keep it as the flow, and
   state which ordering is observed and which is assumed.
+
+## Finding crosswalk
+
+Before validation, list every numbered finding and probe row of `re/PROBES.md` with the model
+construct that encodes it (projection line, `require`, filter, performer, spec) or a `GAP` line
+with its cause: `skill` (not yet encoded), `platform` (the dialect cannot express it) or
+`not probed`. A finding with neither is unfinished; a `skill` cause is fixed now, not reported.
 
 ## Stop conditions
 
