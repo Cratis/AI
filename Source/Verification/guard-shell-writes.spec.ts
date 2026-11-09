@@ -70,6 +70,43 @@ function scratchRepository(origin = 'https://github.com/example/app.git') {
     return { root, dispose: () => rmSync(root, { recursive: true, force: true }) };
 }
 
+test('default Bash dot rules and quoted non-shell heredocs avoid speculative references', async () => {
+    const repo = scratchRepository();
+    try {
+        for (const present of [false, true]) {
+            if (present) writeFileSync(join(repo.root, '.env'), 'synthetic fixture');
+            await checkCases([
+                [ALLOW, "rg -n foo --glob '*.csproj'"], [ALLOW, 'rg -n foo Directory.Build.*'],
+                [ALLOW, 'rg -n foo *.cs'], [ALLOW, 'echo x > *.csproj'],
+                [ALLOW, "node <<'N'\nconsole.log(`${Object.keys(e || {}).join(',')}`)\nN"],
+                [ALLOW, `cd '${repo.root}' && node <<'N'\nconsole.log(\`\${Object.keys(e || {}).join(',')}\`)\nN`],
+                ...['echo x > .env', 'echo x > .env.local', 'cp x *.env', 'tee *env', 'echo x > .e*',
+                    'echo x > .env*', 'echo x > {.env,a}', 'echo x > package*.json',
+                    'sed -i s/a/b/ *.json', 'tee Directory.Packages.*',
+                    'shopt -s dotglob; echo x > *.csproj', 'GLOBIGNORE=x; echo x > *.csproj',
+                    'zsh -c "setopt globdots; echo x > *.csproj"', 'zsh -c "echo x > *.csproj(D)"',
+                    'fish -c "echo x > *.csproj"', 'mystery -c "echo x > *.csproj"', 'source options.sh; echo x > *.csproj',
+                    '. options.sh; echo x > *.csproj',
+                    "node <<'N'\nrequire('fs').writeFileSync('.env','x')\nN",
+                    "node <<'N'\nrequire('fs').readFileSync('.env')\nN",
+                    "node <<'N'\nrequire('fs').writeFileSync('package.json','x')\nN",
+                    "bash <<'N'\necho x > {.env,\"a b\"}\nN", "sh <<'N'\necho x > {.env,a}\nN",
+                    "cat <<'N' | bash\necho x > {.,}env\nN",
+                    "zsh <<'N'\necho x > {.env,a}\nN", "eval <<'N'\necho x > {.env,a}\nN",
+                    'node <<N\n$(echo x > {.env,a})\nN', "cat <<'N' > .env\nx\nN",
+                ].map(command => [BLOCK, command] as [string, string]),
+            ], repo.root);
+        }
+        const unknownShell = runGuard({ cwd: repo.root, tool_name: 'UnknownShell', tool_input: { command: 'echo x > *.csproj' } }, repo.root);
+        assert.equal(unknownShell.verdict, BLOCK);
+        writeFileSync(join(repo.root, 'options.sh'), 'shopt -s dotglob\n');
+        for (const env of [{ GLOBIGNORE: 'x' }, { BASH_ENV: join(repo.root, 'options.sh') }, { ENV: join(repo.root, 'options.sh') }]) {
+            const inherited = runGuard({ cwd: repo.root, tool_name: 'Bash', tool_input: { command: 'echo x > *.csproj' } }, repo.root, env);
+            assert.equal(inherited.verdict, BLOCK);
+        }
+    } finally { repo.dispose(); }
+});
+
 test('protected references deny writers and evaluators across the whole command text', async () => {
     const repo = scratchRepository();
     try {

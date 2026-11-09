@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -64,6 +64,59 @@ test('guards allow ordinary tool calls under the system /bin/bash', { skip: !exi
             assert.equal(result.status, 0, `${guard} under /bin/bash\n${result.stderr}`);
         }
     }
+});
+
+test('available awk variants preserve credential and shell-reference decisions', t => {
+    const variants = [
+        ['BSD/system', '/usr/bin/awk'],
+        ...['gawk', 'mawk'].map(name => [name, spawnSync('which', [name], { encoding: 'utf8' }).stdout.trim()]),
+    ].filter(([, path]) => path);
+    const busybox = spawnSync('which', ['busybox'], { encoding: 'utf8' }).stdout.trim();
+    if (busybox) variants.push(['BusyBox', `${busybox} awk`]);
+    else t.diagnostic('BusyBox awk: not installed');
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-awk-matrix-'));
+    try {
+        writeFileSync(join(directory, 'Directory.Build.props'), 'synthetic fixture');
+        for (const [name, executable] of variants) {
+            const bin = join(directory, name.replace(/\W/g, '-'));
+            mkdirSync(bin);
+            writeFileSync(join(bin, 'awk'), `#!/bin/sh\nexec ${executable} "$@"\n`, { mode: 0o755 });
+            const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, CRATIS_HOOKS_ALLOW_SECRET_READS: '' };
+            const cases: [string, string, number | null][] = [
+                ['cratis-guard-secrets.sh', String.raw`x=[fail\]; cat $x`, null],
+                ['cratis-guard-secrets.sh', String.raw`for f in [fail\]; do cat $f; done`, null],
+                ['cratis-guard-secrets.sh', 'cat ${x:-[fail\\]}', null],
+                ['cratis-guard-secrets.sh', String.raw`cat {a,[fail\]}`, null],
+                ['cratis-guard-secrets.sh', String.raw`rg -n '\[FAIL\]' gate.log`, 0],
+                ['cratis-guard-secrets.sh', String.raw`rg -n '\[FAIL\]' *.log`, 0],
+                ['cratis-guard-secrets.sh', 'cat [.]env', 2],
+                ['cratis-guard-secrets.sh', 'cat .[e]nv', 2],
+                ['cratis-guard-secrets.sh', 'cat id_[r]sa', 2],
+                ['cratis-guard-secrets.sh', 'cat secret.p[[:digit:]]m', 0],
+                ['cratis-guard-secrets.sh', 'cat [a-[:digit:]]', null],
+                ['cratis-guard-secrets.sh', 'cat secret.*', 2],
+                ['cratis-guard-secrets.sh', 'rg -n foo Directory.Build.*', 0],
+                ['cratis-guard-secrets.sh', 'git add Specs/for_ApplicationCredentials/given/a.cs', 0],
+                ['cratis-guard-secrets.sh', 'git add credentials.json', 2],
+                ['cratis-guard-shell-writes.sh', 'echo x > *.csproj', 0],
+                ['cratis-guard-shell-writes.sh', 'shopt -s dotglob; echo x > *.csproj', 2],
+                ['cratis-guard-shell-writes.sh', "node <<'N'\nconsole.log(`${x || {}}`)\nN", 0],
+                ['cratis-guard-shell-writes.sh', "node <<'N'\nrequire('fs').readFileSync('.env')\nN", 2],
+                ['cratis-guard-shell-writes.sh', "cat <<'N' | bash\necho x > {.,}env\nN", 2],
+            ];
+            for (const [script, command, expected] of cases) {
+                const result = spawnSync('bash', [join(scripts, script)], {
+                    input: JSON.stringify({ cwd: directory, tool_name: 'Bash', tool_input: { command } }),
+                    encoding: 'utf8', timeout: 10_000, env,
+                });
+                assert.ok(!result.error, `${name}: ${command}: ${result.error}`);
+                assert.ok(result.status === 0 || result.status === 2, `${name}: ${command}: ${result.stderr}`);
+                if (expected !== null) assert.equal(result.status, expected, `${name}: ${command}: ${result.stderr}`);
+                assert.doesNotMatch(result.stderr, /parser failed|syntax error|nonterminated/);
+            }
+            t.diagnostic(`${name}: ${cases.length}/${cases.length} passed`);
+        }
+    } finally { rmSync(directory, { recursive: true, force: true }); }
 });
 
 for (const tool of ['awk', 'jq']) {

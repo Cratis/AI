@@ -252,6 +252,9 @@ function compatible(a, b) {
     return 1
 }
 BEGIN {
+    # Only the original leading star/question mark gets Bash default dot semantics.
+    # Brace-derived stars and bracket-leading references remain conservative.
+    if (ENVIRON["REF_DOTGLOB"] == "0" && ENVIRON["REF_LEFT"] ~ /^[*?]/ && ENVIRON["REF_RIGHT"] ~ /^\./) exit 1
     tokens(ENVIRON["REF_LEFT"], 1); tokens(ENVIRON["REF_RIGHT"], 2); push(1, 1)
     while (next_state < last) {
         if (last > 65536) exit 2
@@ -272,7 +275,7 @@ names_match() {
     shift
     for pattern in "$@"; do
         if [ "$reference_pattern" = 1 ]; then
-            if REF_LEFT="$value" REF_RIGHT="$pattern" LC_ALL=C awk "$glob_program" </dev/null; then return 0
+            if REF_DOTGLOB="${CRATIS_GSW_DOTGLOB:-1}" REF_LEFT="$value" REF_RIGHT="$pattern" LC_ALL=C awk "$glob_program" </dev/null; then return 0
             else status=$?; [ "$status" = 1 ] || parser_failed; fi
         else
             shopt -s nocasematch
