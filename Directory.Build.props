@@ -38,16 +38,13 @@
         <Configuration>Debug</Configuration>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)'=='Release' AND '$(TargetFramework)'=='' AND '$(TargetFrameworks)'==''">
-        <TargetFramework>net10.0</TargetFramework>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)'=='Debug' AND '$(TargetFramework)'=='' AND '$(TargetFrameworks)'==''">
-        <TargetFramework>net10.0</TargetFramework>
+    <PropertyGroup Condition="'$(TargetFramework)'=='' AND '$(TargetFrameworks)'==''">
+        <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(IsTestProject)'=='true'">
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFramework></TargetFramework>
+        <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
