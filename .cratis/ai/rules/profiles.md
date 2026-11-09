@@ -107,6 +107,8 @@ The `cratis/engineering/dotnet` profiles carry upstream skills under MIT, with a
 
 The `cratis/engineering` profile also carries [issue-assignment.md](./issue-assignment.md): when an agent starts work on a numbered issue in a known repository and nobody is assigned, it assigns the current `gh` user.
 
+It also carries [local-verification-and-delivery.md](./local-verification-and-delivery.md): verify locally instead of relying on CI/CD, push and open a PR only when ready, and ship one consolidated PR per repository when an orchestrator coordinates sub-agents.
+
 ### Language Profiles
 
 | Profile ID | Description |
