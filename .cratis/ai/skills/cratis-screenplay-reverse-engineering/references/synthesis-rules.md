@@ -86,7 +86,10 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
   Give the query a `performer` body (`cratis-screenplay-read-surface`, "Performer bodies are
   rendered") that applies the probed threshold, the inclusive or exclusive edge and the excluded
   states, and name the threshold as a constant in the body. Stage renders the body, so the
-  rendered app serves the rule. Specify the boundary with `given readmodel` rows on fixed dates
+  rendered app serves the rule. The semantic sandbox, `screenplay test` and Stage
+  spec runs leave a performer body out, so verify a performer-held
+  rule against the rendered app (`cratis run --engine eventmodel`, or render) or fixture-dated
+  specs; mark it `performer-held, sandbox-unverified`, never `expressed-and-checked`. Specify the boundary with `given readmodel` rows on fixed dates
   (threshold minus one, equal, plus one), and record "today-relative filter not declarative"
   as a platform gap row in `event-model.md` (search the Screenplay and Stage trackers first and
   comment on a matching open issue rather than filing a duplicate).
@@ -136,7 +139,10 @@ proposal. The contract and the refusal handling belong to that skill; this skill
 - Use observed values for given and expected data; replace personal data with fixtures.
 - An event field stamped from `$context.occurred` (occurredAt, completedAt, changedAt) still
   needs an explicit value in every `given` and `then` of a specification; a missing one is
-  PLAY0524, an error that skips the whole folder.
+  PLAY0524, an error that skips the whole folder, and Stage refuses the whole model for it.
+  Write each such specification with a `given clock` line and use that same timestamp as the
+  field's value in the `then`. Before validation, list every event field mapped from
+  `$context.occurred` and check that each specification of that event supplies it.
 - A UI success proves a state change was shown. It does not prove uniqueness, idempotency or
   atomicity: those stay `unknown` until a capture or a person confirms them.
 - Optional properties are not defaulted in specifications, so each specification must list
@@ -165,7 +171,10 @@ proposal. The contract and the refusal handling belong to that skill; this skill
 Before validation, list every numbered finding and probe row of `re/PROBES.md` with the model
 construct that encodes it (projection line, `require`, filter, performer, spec) or a `GAP` line
 with its cause: `skill` (not yet encoded), `platform` (the dialect cannot express it) or
-`not probed`. A finding with neither is unfinished; a `skill` cause is fixed now, not reported.
+`not probed`. A query that projects a time rule also needs the fields it reads (received-on,
+last-activity, stage status, completed flag): per rule, cite the `from <Event>` line that
+populates each; a finding that an event sets a field with no projection line is a defect.
+A finding with neither is unfinished; a `skill` cause is fixed now, not reported.
 
 ## Stop conditions
 

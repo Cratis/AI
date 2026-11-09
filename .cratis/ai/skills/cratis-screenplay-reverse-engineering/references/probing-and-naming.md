@@ -101,6 +101,10 @@ undefined (a stage or status never created) to see whether it counts as open or 
 How to model the result, and what the Screenplay surface cannot run, is in
 `synthesis-rules.md` ("Time facts"). If a threshold could not be exercised, record the
 placeholder value as an `unknown` with a question; never ship a guessed number unrecorded.
+When the server clock cannot be set, seed relative dates from the host clock (`today`,
+`today±N`), run well away from local and UTC midnight, and record the zone assumption and run
+time in PROBES.md. Probe each state filter (completed, archived, stage open, won, lost,
+undefined) as its own row.
 The server's time zone and its "today" are standing unknowns: seed near midnight and with
 backdated dates, and look for a zone setting or response header. A today-relative rule the
 declarative dialect cannot express goes in a query performer body plus an `event-model.md` gap

@@ -62,7 +62,10 @@ flows; rules and rejections are scored by the catalog probes
 
 Passing `screenplay test` does not show that Stage can run the model. After `cratis run`:
 
-1. Read `GET /stage/status`; the state must not be `unsupported`.
+1. Read `GET /stage/status`; the state must be `ready`. A refused model serves
+   `/stage/semantic/admission` instead and answers every `/api` route with 501, so one issue
+   (for example a specification missing a `$context.occurred` field) blocks the whole walk.
+   Fix every admission issue before walking or scoring; a refused model scores zero.
 2. Execute one command over HTTP. A refusal naming an unsupported model format version means the
    toolchain is out of range: update it before changing the model. Send date-time values in the
    full round-trip form with fractional seconds and offset.
@@ -144,5 +147,10 @@ knows the original product would. A script or HTTP harness does not replace this
   query filters). The model carries it in a query performer body, fixture-dated specifications
   and a platform gap row. The body runs only in a rendered app, never in the executable model.
   Walk it on the rendered app with backdated data, and on the sandbox mark the journey as
-  not run.
+  not run. Time items are scored as pairs: the positive probe (the item appears) and the
+  negative probe (a non-matching item does not appear) must both hold. An unfiltered list
+  passes every positive half and fails every negative one, so a pass whose twin fails is not
+  evidence. Report time fidelity as the paired score. Performer-held rules are verified against
+  the rendered app (`cratis run --engine eventmodel`, or render), since the semantic sandbox
+  leaves performer bodies out.
 - A pass list is not a coverage claim: report what was not walked.
