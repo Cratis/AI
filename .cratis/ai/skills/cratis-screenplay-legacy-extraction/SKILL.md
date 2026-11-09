@@ -141,7 +141,7 @@ chain per slice before handoff (`references/evidence-table-template.md`, "Tracea
      `references/rule-modeling.md`. Every role gate has `authorize` plus a `then denied` spec,
      else a recorded gap; rules you cannot express truthfully are recorded one by one, never
      fabricated.
-3. Keep each slice `description` a business summary with its evidence ids ("Evidence: E3, E7").
+3. Keep each slice `description` a business summary with its evidence ids ("Evidence: LX-E3, LX-E7").
    Put legacy status codes, check order and decisions in slice `documentation`, and open
    assumptions in anchored `question` notes; the promotion step is in
    `references/re-entry-and-passes.md` section 4. `references/intent-example.md` is the complete

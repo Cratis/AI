@@ -178,6 +178,6 @@ only parsing, and record remaining diagnostics.
 
 Capture facts are written in the shared schema of
 [evidence-format.md](../../cratis-screenplay-event-modeling/references/evidence-format.md) as
-`sourceKind: prologue` rows: locator is the capture file plus record, strength `observed`, and
-status codes `unknown` because Prologue ignores them. Approvals stay in
+rows with a `sources` entry `{kind: prologue, locator: <capture file and record>, strength:
+observed}`, ids prefixed `PR-`, and status codes `unknown` because Prologue ignores them. Approvals stay in
 [safety.md](../../cratis-screenplay-modeling-lifecycle/references/safety.md) and sections 1 to 5.

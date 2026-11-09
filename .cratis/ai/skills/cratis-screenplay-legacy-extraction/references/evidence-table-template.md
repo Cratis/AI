@@ -20,7 +20,7 @@ where as-is facts, their sources and the proposed target decisions meet. It is a
 acceptance the history, where each feature lives and the open questions are promoted into the model
 as anchored notes (`re-entry-and-passes.md` section 4); this file stays the home of the rows and
 the line-level locators. Agents and reviewers
-cite row ids (`E12`) instead of pasting code or captures.
+cite row ids (`LX-E12`) instead of pasting code or captures.
 
 Treat the file as confidential when it holds production data. Locators should be route
 templates, table and column names, and path:line, not values.
@@ -37,8 +37,9 @@ templates, table and column names, and path:line, not values.
 ## 2. Evidence rows
 
 Rows use the shared schema in
-[evidence-format.md](../../cratis-screenplay-event-modeling/references/evidence-format.md) (`sourceKind`
-vocabulary, locators, strength, merge rule); this file adds only the extension columns below. Write
+[evidence-format.md](../../cratis-screenplay-event-modeling/references/evidence-format.md) (`sources`
+entries, locators, strength, merge rule, lane ids); this file adds only the extension columns below. Prefix ids
+`LX-` (`PR-` for rows from a Prologue capture) so merged files stay collision-free. Write
 the rows as `evidence.jsonl` with this table as its rendering.
 
 | Extension column | Content |
@@ -52,10 +53,10 @@ Example rows (a `generate` source keeps the generator ladder, such as Exact, in 
 
 | id | sources | observed fact | technical shape | strength | classification | gen. disposition | candidate | decision | decided by | verdict |
 |---|---|---|---|---|---|---|---|---|---|---|
-| E1 | prologue: capture 0007, `POST /api/checkins` | taking in a coat writes two tables | insert `Checkins`; update `Hooks(occupied)`; 201 x41, 409 x3 | Observed | intent (take in) + consequence (hook) | n/a | `TakeInCoat` -> `CoatTakenIn`; occupancy via projection | change | proposed | not asked |
-| E2 | code: `CheckinService.cs` | 409 when the hook is already free, message "That coat is not on a hook" | throws `ConflictException` | Read | intent (rule) | n/a | legacy control: `reads CoatStatus` + `require` without protected opt-in; inspect v25 admission, record refused shape/Stage target gap in LOSS.md | keep | proposed | not asked |
-| E3 | generate: `static.play`, SP0016 at `CheckinValidator` | validation rule held to a condition is emitted unconditionally; the condition is lost | `When(x => x.IsVip)` | Exact (loss) | unknown | Lowered without its condition (semantic mismatch, reported by SP0016) | none yet | undecided | - | question Q4: when does the rule really apply? read `CheckinValidator` and ask an expert |
-| E4 | prologue: uncorrelated txn, `Hooks` nightly 02:00 | hook flags reset without a command | update `Hooks(*)` daily | Observed | unexplained | n/a | none | undecided | - | question Q5 |
+| LX-E1 | prologue: capture 0007, `POST /api/checkins` | taking in a coat writes two tables | insert `Checkins`; update `Hooks(occupied)`; 201 x41, 409 x3 | Observed | intent (take in) + consequence (hook) | n/a | `TakeInCoat` -> `CoatTakenIn`; occupancy via projection | change | proposed | not asked |
+| LX-E2 | code: `CheckinService.cs` | 409 when the hook is already free, message "That coat is not on a hook" | throws `ConflictException` | Read | intent (rule) | n/a | legacy control: `reads CoatStatus` + `require` without protected opt-in; inspect v25 admission, record refused shape/Stage target gap in LOSS.md | keep | proposed | not asked |
+| LX-E3 | generate: `static.play`, SP0016 at `CheckinValidator` | validation rule held to a condition is emitted unconditionally; the condition is lost | `When(x => x.IsVip)` | Exact (loss) | unknown | Lowered without its condition (semantic mismatch, reported by SP0016) | none yet | undecided | - | question Q4: when does the rule really apply? read `CheckinValidator` and ask an expert |
+| LX-E4 | prologue: uncorrelated txn, `Hooks` nightly 02:00 | hook flags reset without a command | update `Hooks(*)` daily | Observed | unexplained | n/a | none | undecided | - | question Q5 |
 
 ## Traceability reconciliation
 

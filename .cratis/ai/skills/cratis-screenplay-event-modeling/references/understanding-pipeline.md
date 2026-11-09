@@ -30,13 +30,16 @@ hosted-model disclosure and Prologue rules are those of the owning skill and
    and the final report, never faithful.
 2. **Run each owning skill's evidence levels** in its own working folder, in the order reverse
    engineering gives: the running system first, then the executable, source last. Each skill
-   writes the schema of [evidence-format.md](evidence-format.md).
+   writes the schema of [evidence-format.md](evidence-format.md) with its own lane id prefix
+   (`RE-`, `LX-`, `PR-`), so local ids never collide.
 3. **Merge** into `.ai-work/screenplay/<slug>/evidence.jsonl` (and the `EVIDENCE.md` rendering) by
    the merge rule of the schema: one row per claim with every source it has, strength recomputed,
-   disagreements kept as two rows. This is one row per fact, not one row per source.
+   disagreements kept as two rows (`conflicts with <id>`). This is one row per fact, not one row
+   per source; a merged row keeps one lane id and lists the others in `aliases`.
 4. **One inventory, one candidate.** Build one L0 inventory and one candidate model from the
-   merged rows, then continue with the lifecycle phases P4-P9
-   (`cratis-screenplay-modeling-lifecycle`). Every rule and refusal row shows which kinds back it;
+   merged rows. Run P3 specification coverage on that merged candidate (derive specifications
+   from the evidenced rules and refusals), then continue with the lifecycle phases P4-P9
+   (`cratis-screenplay-modeling-lifecycle`); P4 expects a model with specifications. Every rule and refusal row shows which kinds back it;
    a rule with a single kind is listed as single-source.
 
 ## Safety

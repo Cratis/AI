@@ -5,6 +5,7 @@
 - Purpose
 - Files
 - Row fields
+- Ids
 - Source kinds and locators
 - Strength
 - Merge rule
@@ -36,7 +37,7 @@ A row is one fact about the system, keyed by `candidate` plus a normalized claim
 
 | Field | Content |
 |---|---|
-| `id` | stable, never renumbered (`E1`, `E2`, ...); a merged row keeps the lowest id and lists the others in `merged` |
+| `id` | lane-prefixed, stable, never renumbered, unique across the merged file (see Ids) |
 | `fact` | what was seen, read or said, in neutral words, no intent |
 | `sources` | array of `{kind, locator, strength, capturedAt?, detail?}`, one entry per independent observation |
 | `strength` | the row level, derived from `sources` (see Strength) |
@@ -46,13 +47,23 @@ A row is one fact about the system, keyed by `candidate` plus a normalized claim
 | `decision` | `undecided`, `keep`, `change` or `remove` |
 | `decidedBy` | user, expert name or `proposed` |
 | `verdict` | optional expert verdict: `confirmed`, `corrected`, `rejected`, `not asked` |
-| `merged` | optional ids folded into this row |
-| `notes` | links to other rows, open question ids, `conflicts with E<n>` |
+| `aliases` | optional lane ids folded into this row by a merge |
+| `notes` | links to other rows, open question ids, `conflicts with <id>` |
 
 Optional extension fields for source-backed work: `technicalShape` (method and route, tables,
 status-code mix), `generatorDisposition` (`Lowered`, `ProvenanceOnly`, `OmittedWithDiagnostic`,
 `Conflicted`, `n/a`). Evidence and decisions stay separate: `fact` through `unknowns` are as-is,
 `candidate` through `verdict` are target.
+
+## Ids
+
+Each working folder prefixes its ids with its lane: `RE-` reverse engineering, `LX-` legacy
+extraction, `PR-` Prologue, `DOC-` documents, `DISC-` discovery (`RE-E1`, `LX-E1`). Local numbering
+then cannot collide when folders are merged, so an id is unique across the merged file. A merged
+row keeps one lane id as `id` and lists the others in `aliases`; ids are never renumbered, and a
+retired id stays resolvable through `aliases` or a note. Cite the full prefixed id in
+`conflicts with`, slice descriptions and reports. An unprefixed older id (`E1`) is read as local to
+its folder and prefixed when merged.
 
 ## Source kinds and locators
 
@@ -93,8 +104,8 @@ with three `sources` and `Confirmed`.
 ## Merge rule
 
 Rows from different working folders that make the same claim about the same candidate become one
-row: union the `sources`, recompute `strength`, keep the lowest id and list the others in
-`merged`. A disagreement is never merged: keep two rows, set `notes` to `conflicts with E<n>` on
+row: union the `sources`, recompute `strength`, keep one lane id as `id` and list the
+others in `aliases`. A disagreement is never merged: keep two rows, set `notes` to `conflicts with <id>` on
 both and classification `unknown`. A row with a single source kind is single-source; the report
 lists it as such.
 
@@ -117,13 +128,13 @@ command behind it is a `consequence` with a subclass: `maintenance`, `correction
 
 | id | fact | sources | strength | classification | unknowns | candidate | decision |
 |---|---|---|---|---|---|---|---|
-| E1 | `POST /api/berths/reserve` returns 201 and the reservation shows in the list; a berth already taken for the dates is refused | har `har:booking.har#12`; code `BerthService.cs` lines 40 to 58 | Confirmed | intent | who may reserve for another member? | `ReserveBerth` -> `BerthReserved` | undecided |
-| E2 | form rejected with "Berth is already taken for these dates" | walk `OBS-9` | Observed | intent (rule) | is the check atomic under concurrent requests? | refusal on `ReserveBerth` | undecided |
+| RE-E1 | `POST /api/berths/reserve` returns 201 and the reservation shows in the list; a berth already taken for the dates is refused | har `har:booking.har#12`; code `BerthService.cs` lines 40 to 58 | Confirmed | intent | who may reserve for another member? | `ReserveBerth` -> `BerthReserved` | undecided |
+| RE-E2 | form rejected with "Berth is already taken for these dates" | walk `OBS-9` | Observed | intent (rule) | is the check atomic under concurrent requests? | refusal on `ReserveBerth` | undecided |
 
 ## JSON lines example
 
 ```json
-{"id":"E1","fact":"POST /api/berths/reserve returns 201; a berth already taken for the dates is refused","sources":[{"kind":"har","locator":"har:booking.har#12","strength":"observed"},{"kind":"code","locator":"BerthService.cs:40-58","strength":"read","detail":"Exact"}],"strength":"Confirmed","classification":"intent","unknowns":["who may reserve for another member"],"candidate":"Booking/ReserveBerth","decision":"undecided","decidedBy":"proposed","merged":["E7"]}
+{"id":"RE-E1","fact":"POST /api/berths/reserve returns 201; a berth already taken for the dates is refused","sources":[{"kind":"har","locator":"har:booking.har#12","strength":"observed"},{"kind":"code","locator":"BerthService.cs:40-58","strength":"read","detail":"Exact"}],"strength":"Confirmed","classification":"intent","unknowns":["who may reserve for another member"],"candidate":"Booking/ReserveBerth","decision":"undecided","decidedBy":"proposed","aliases":["LX-E7"]}
 ```
 
 ## Rules
@@ -132,4 +143,4 @@ command behind it is a `consequence` with a subclass: `maintenance`, `correction
   back to intake.
 - A rule or refusal row shows which kinds back it; a single-kind rule is listed as single-source.
 - Add rows as you go; do not rewrite ids when rows are split or merged, retire them with a note.
-- Cite ids in a slice `description` ("Evidence: E1, E2") and keep the detail in the table.
+- Cite ids in a slice `description` ("Evidence: RE-E1, LX-E7") and keep the detail in the table.

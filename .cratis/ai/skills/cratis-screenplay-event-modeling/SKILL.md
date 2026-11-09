@@ -56,7 +56,7 @@ at the phase where they belong and run the downstream gates for the changed scop
 | P2 reactions, work queues, clocks, captures | `cratis-screenplay-automations-and-translations` |
 | P3 specifications and coverage | `cratis-screenplay-scenario-coverage` |
 | P4-P5 self-check and independent review | `cratis-screenplay-model-review` |
-| Existing system, any mix of source, running app, captures, docs, Prologue (replaces P1-P2) | `understanding-pipeline`, which routes to legacy extraction and reverse engineering |
+| Existing system, any mix of source, running app, captures, docs, Prologue (replaces P1-P2) | `understanding-pipeline`: source to `cratis-screenplay-legacy-extraction`, running app, HAR, docs or binary to `cratis-screenplay-reverse-engineering` |
 | P7-P9 execute, render, fall back, verify | `cratis-screenplay-render-and-gap-fill` |
 | Tools, versions, verdict commands, diagnostics | `cratis-screenplay-toolchain` |
 | Estimate, order or split delivery of an accepted model | `cratis-screenplay-delivery-planning` |

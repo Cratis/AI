@@ -39,13 +39,13 @@
     {
       "id": 4,
       "name": "mixed-inputs-one-model",
-      "prompt": "We own a marina app. We have its running test instance, a HAR capture of the booking flow, the source repository and the vendor's user docs. We want one Screenplay model of it. Where do we start, which skills handle which input, and how do the findings end up in one place? Reply only; do not run anything.",
+      "prompt": "We own a marina app. We have its running test instance, a HAR capture of the booking flow, the source repository and the vendor's user docs. We want one Screenplay model of it. Where do we start, which skills handle which input, and how do the findings end up in one place? Both lanes number their own rows E1, E2 and so on. Reply only; do not run anything.",
       "expected_output": "Start at the understanding pipeline: running app, HAR and docs go to reverse engineering, source goes to legacy extraction. Results merge into one evidence.jsonl with one row per fact and a Confirmed row combining kinds; one model follows. Prologue is not started.",
       "assertions": [
         "Starts from the existing-system understanding pipeline in event modeling rather than picking one skill for everything.",
         "Routes the running app, HAR and docs to cratis-screenplay-reverse-engineering and the source code to cratis-screenplay-legacy-extraction.",
-        "Merges the findings into one evidence.jsonl in a single schema where a rule seen in a capture and found in code is one row with several sources and Confirmed strength.",
-        "Produces one candidate model and lists single-source rules in the report.",
+        "Merges the findings into one evidence.jsonl where a rule seen in a capture and found in code is one row with several sources and Confirmed strength. Prevents id collisions by prefixing ids per lane (such as RE-E1 and LX-E1), keeps one lane id on a merged row with the others as aliases, and never renumbers.",
+        "Produces one candidate model, runs P3 specification coverage on the merged candidate before P4 to P9, and lists single-source rules in the report.",
         "Does not run prologue start or any Extractor; it only proposes commands that need approval."
       ]
     }
