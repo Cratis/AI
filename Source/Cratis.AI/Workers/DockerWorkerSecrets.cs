@@ -65,7 +65,7 @@ internal sealed class DockerWorkerSecrets(IDockerClient client, string container
 
         // Preserve archive ownership, then verify the actual result as the worker. No root exec
         // or capabilities are needed, and unexpected ownership/modes fail rather than fall back.
-        await Execute($"test \"$(stat -c %u:%a {WorkerSecrets.Directory})\" = 1655:700 && test -r {WorkerSecrets.Path} && test -z \"$(find {WorkerSecrets.Directory} -mindepth 1 \\( ! -type f -o ! -user 1655 -o ! -perm 0400 \\) -print)\"");
+        await Execute($"test \"$(stat -c %u:%a {WorkerSecrets.Directory})\" = 1655:700 && test -r {WorkerSecrets.Path} && invalid=$(find {WorkerSecrets.Directory} -mindepth 1 \\( ! -type f -o ! -user 1655 -o ! -perm 0400 \\) -print) && test -z \"$invalid\"");
 
         // A separate final operation: no partial archive or failed permission check can release the gate.
         await Execute($"umask 077; printf 'ready\\n' > {WorkerSecrets.PendingReadyPath} && chmod 0400 {WorkerSecrets.PendingReadyPath} && mv {WorkerSecrets.PendingReadyPath} {WorkerSecrets.ReadyPath}");
