@@ -9,8 +9,14 @@ syntax are owned by `cratis-screenplay-toolchain`, `cratis-screenplay-render-and
 1. Validate the folder with warnings as errors, `screenplay <folder> --warnaserror`
    (`cratis-screenplay-toolchain`). Fix the model, never silence a diagnostic.
 2. Run the reference specifications, `screenplay test <folder>`. `Unsupported` is not a pass.
+   Neither is `unbound` or `0 executed`: the folder still has errors, so every specification was
+   skipped. The gate passes only when the command exits 0 and the executed count equals the
+   discovered count, apart from specifications that read an opaque performer, each listed by name.
+   Report that executed count, never a per-file compile result.
 3. Start it with `cratis run <model folder>` (Stage sandbox, needs Docker), or render with
    `cratis render` and gap-fill (`cratis-screenplay-render-and-gap-fill`).
+   Commands are served over HTTP under `/api/`; read each command's route from the generated
+   OpenAPI or `/stage/status`, do not guess it.
 4. Re-walk the observed journeys on the running app (`fidelity-check.md`).
 
 `render --force`, `prologue` start, the Extractor and `prologue interpret` need approval and stay

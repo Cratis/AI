@@ -123,6 +123,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 - The affected solution/project builds with zero warnings and zero errors.
 - Relevant specs for every affected project pass.
 - For public-facing changes (clients, SDKs, public APIs, developer-facing behavior), documentation is added or updated and its verification passes.
+- When CodeScene tools are available, touched files end at Code Health >= 9.5 and never decline; handle it once, before the gate, and report before/after (`code-health.md`).
 
 ## Where to Look
 
@@ -141,8 +142,8 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Spec patterns — universal `Specification` base (both profiles) | `specs.md`, `specs.csharp.md`, `specs.typescript.md` |
 | Build and spec-run speed: parallel-safe specs, no per-spec startup, cheap analyzers | `fast-feedback.md` |
 | Spec patterns — the four `*Scenario` helpers (application only) | `specs.scenarios.csharp.md` |
-| Strongly-typed values (`ConceptAs<T>`, `EventSourceId<T>`) | `concepts.md` |
-| Shared term definitions (event, projection, reducer, reactor, observer, DCB, …) | `glossary.md` |
+| Strongly-typed values (`ConceptAs<T>`, `EventSourceId<T>`); shared term definitions (event, projection, reducer, reactor, observer, DCB, …) | `concepts.md`; `glossary.md` |
+| Files an AI change touches (Code Health with CodeScene) | `code-health.md` |
 | Diagnosing a misbehaving slice | read model stale or startup crash: **cratis-chronicle-projection** (*Startup-crash traps*); reactor paused or quarantined: **cratis-chronicle-reactor** (*Failure behavior*); proxy missing: **cratis-arc-command** (*Generate the TypeScript proxy*) |
 | Inspecting or operating a **running** Chronicle store (failed partitions, replays, browsing events) with the `cratis` CLI | the **cratis-chronicle-cli-operations** and **cratis-cli-terminal-workbench** skills |
 | EF Core read models / migrations | `efcore.md`, `efcore.specs.md` |
@@ -162,8 +163,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Code-level event modeling / schema migration / calling commands from code / paging / cross-cutting metadata / multi-tenancy | the matching skills |
 | Building or changing behavior in an opted-in repository (see Model first above), or designing an information system, business process or information flow: **model first** | the **cratis-screenplay-event-modeling** skill (decision rule), then **cratis-screenplay-modeling-lifecycle** and one phase skill; per-surface `cratis-screenplay-*` skills for syntax |
 | Building or changing behavior in a Cratis application that is not opted in | `application-profile.md` Phase 0, then the code skills (**cratis-arc-command**, **cratis-chronicle-projection**, ...) |
-| Reviewing or explaining a `.play` model | the **cratis-screenplay-model-review** skill |
-| Turning an existing system into a model | the **cratis-screenplay-legacy-extraction** skill |
+| Reviewing or explaining a `.play` model; turning an existing system into a model | the **cratis-screenplay-model-review** skill; the **cratis-screenplay-legacy-extraction** skill |
 | Rendering or gap-filling an accepted model | the **cratis-screenplay-render-and-gap-fill** skill, then **cratis-stage-rendering-and-sandbox** for renderer facts |
 | Code, security, performance and repository-investigation review reports | `review-reports.md` |
 | Authoring or reviewing skills, rules, agents or prompts | `authoring-skills.md` |

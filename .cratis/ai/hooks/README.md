@@ -37,9 +37,10 @@ The shell-write reference scan keeps conservative leading-dot intersections: a t
 `SHELL`, and the hook process's options do not establish the execution shell's options. Globbed writes
 therefore remain blocked. Read operands under protected paths are not write targets: `rg -n`/`-l`,
 quoted `--glob`/`-g` filters, and numeric/last-line `sed -n …p` scripts are recognized as read-only.
-`sed -n` scripts with writes, execution or extra options are not exempt. New `cd` and
-`git branch --show-current` exemptions permit only `&&`-only read/search chains, not semicolons,
-pipelines or other separators. Any file redirection in a cwd-changing chain fails closed because
+`sed -n` scripts with writes, execution or extra options are not exempt. `cd` permits `&&`
+read/search chains, including pipelines of reviewed readers, but never a piped `cd` or index-changing
+command. `git branch --show-current` retains the `&&`-only restriction; semicolons and other
+separators remain refused for these cwd/branch forms. Any file redirection in a cwd-changing chain fails closed because
 its target is not proven against the changed cwd. Mutating commands and protected redirects stay
 blocked. No shell-option assumption is used to dismiss leading-dot intersections.
 Heredoc bodies receive the same conservative whole-text reference scan as other command text,
@@ -49,8 +50,11 @@ Portable bracket classes are kept; ambiguous backslash-bearing classes are widen
 as invalid awk regexes.
 
 Literal `git ls-files` pathspecs are filename metadata, including `-s`/`--stage` and `--debug`,
-so credential-worded source directories do not taint that single command. Other Git subcommands
-receive no metadata exemption. Bare `git grep` uses grep's pattern/file distinction, including `-e`
+so credential-worded source directories do not taint that single command. Literal non-verbose
+`git status`, summary-only `git diff --stat`/`--numstat`/`--shortstat`/`--name-only`/`--name-status`,
+and non-interactive `git add` of proven directories also permit secret-like source folder names.
+Verbose status, patch diffs and interactive staging receive no such exemption. Credential content
+reads, including `credentials.json` inside source folders, remain refused. Bare `git grep` uses grep's pattern/file distinction, including `-e`
 pattern values; protected pathspecs remain blocked. `git show` and `git cat-file` of secret paths
 remain content reads, not filename metadata.
 
@@ -239,7 +243,8 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | `head`, `tail` | `-n N`, `-nN`, `-c N`, `-N` (numeric counts); no `-f` |
 | `wc` | `-l -w -c -m` |
 | `ls` | `-l -a -A -1 -h -d -R -t -r -F` |
-| `rg` | `-n` only; no long options |
+| `df` | `-h` |
+| `rg` | `-n -l -i`, `--files`; literal `--glob`/`-g` filters |
 | `grep`, `egrep`, `fgrep` | `-n -i -r -R -l -L -c -v -w -x -F -E -H -h -o -q -s`; `-e PATTERN`, `-A N`, `-B N`, `-C N`; no long options |
 | `echo` | `-n -e -E` |
 | `printf`, `test`, `[`, `true`, `false`, `pwd` | None (in particular, no `printf -v`) |
@@ -247,15 +252,16 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | `git diff` | `--stat --numstat --name-only --name-status --cached --staged --check -p -U<N> --no-color` |
 | `git log` | `--oneline --stat --name-only -n N -nN -<N> -p --no-color --format=<fmt> --pretty=<fmt> --follow` |
 | `git show` | `--stat --name-only -p --no-color --format=<fmt>` |
-| `git add` | `-A -u -p` |
-| `git commit` | `-m MSG`, `-mMSG`, `-a`, `-q`; `-F FILE` only for a literal non-protected file; no `--no-verify` |
+| `git add` | `-A -u -p -v --all`, including path globs for installed prompts |
+| `git commit` | `-m MSG`, `--message MSG`, `-mMSG`, `-a`, `-q`; `-F FILE` only for a literal non-protected file; no `--no-verify` |
 | `git blame`, `ls-files`, `rev-parse`, `check-ignore`, `grep` | None |
 
 The only global Git option exemption is a single separate `-C <dir>` with a literal,
 non-empty directory word not starting with `-`, followed by exactly one of these tails:
 `status --short`, `rev-parse HEAD`, `branch --show-current`, or `tag --list <pattern>`.
 The tag tail takes exactly one pattern not starting with `-` (for example, `'*7.321*'`).
-No extra words are accepted. Attached `-Cdir`/`-C=dir`, repeated `-C`, other verbs and
+Those metadata tails accept no extra words. Literal `git -C <dir> add` and `commit` also qualify,
+with the ordinary per-verb option checks above. Attached `-Cdir`/`-C=dir`, repeated `-C`, other verbs and
 all other global options (`-c`, `--git-dir`, `--work-tree`, `--no-pager`, `--exec-path`, etc.)
 remain denied. `-C` gives **no protection** from a hostile repository's configuration:
 fsmonitor, hooks, pager and diff/textconv helpers can still run. This is a syntax filter,
@@ -270,9 +276,9 @@ that references a protected file.
 are not on this list: their option surfaces are deliberately not analysed here.
 
 Assignment prefixes and assignment-only commands are not allowlisted. Neither are wrappers,
-evaluators, shells or writer verbs. `cd`, `pushd` and `popd` are **not** allowlisted when a
-protected reference exists: `cd .claude && echo x > settings.json` refuses without tracking
-cwd or inferring destinations. Shells refuse regardless of stdin descriptor, lone `-`, or
+evaluators, shells or writer verbs. `pushd` and `popd` are **not** allowlisted when a
+protected reference exists. The restricted literal `cd` read-chain exemption still refuses
+`cd .claude && echo x > settings.json` without inferring write destinations. Shells refuse regardless of stdin descriptor, lone `-`, or
 `-c` option spelling. Unparsed complex syntax, including substitutions and heredocs, refuses
 once a protected reference exists; no shell bodies are interpreted.
 
