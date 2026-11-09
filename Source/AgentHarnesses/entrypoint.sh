@@ -647,8 +647,13 @@ if [[ -n "${DOCKER_HOST:-}" ]]; then
 fi
 
 # Route the agent's shell commands through rtk - installs the hook that transparently prefixes
-# supported commands, minimizing token consumption.
-rtk init -g || log "rtk init failed - continuing without token optimization"
+# supported commands, minimizing token consumption. Never prompt on the worker's steering stdin;
+# older images without timeout still initialize non-interactively.
+if command -v timeout >/dev/null 2>&1; then
+    timeout -k 2s 10s rtk init -g --auto-patch </dev/null
+else
+    rtk init -g --auto-patch </dev/null
+fi || log "rtk init failed - continuing without token optimization"
 
 # The container-local Headroom proxy the session's model requests are routed through when the
 # Direct asked for it (DIRECT_HEADROOM, issue #556). rtk trims what the shell hands the agent;
