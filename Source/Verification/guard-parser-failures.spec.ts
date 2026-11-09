@@ -88,6 +88,7 @@ function assertMissingCwd(variant: string, env: NodeJS.ProcessEnv): void {
 }
 
 function prepareAwkFixture(directory: string): void {
+    assert.equal(spawnSync('git', ['init', '-q', directory]).status, 0);
     writeFileSync(join(directory, 'Directory.Build.props'), 'synthetic fixture');
     writeFileSync(join(directory, 'server.txt'), 'synthetic fixture');
     mkdirSync(join(directory, 'keys'));
@@ -95,7 +96,9 @@ function prepareAwkFixture(directory: string): void {
     mkdirSync(join(directory, 'Source/sub'), { recursive: true });
     symlinkSync('../Source/sub', join(directory, 'keys/link'));
     mkdirSync(join(directory, '.cratis/ai/rules'), { recursive: true });
+    writeFileSync(join(directory, '.cratis/ai.manifest.json'), '{}');
     writeFileSync(join(directory, '.cratis/ai/rules/project.md'), 'synthetic fixture');
+    mkdirSync(join(directory, 'Source/AuthProxy/Credentials'), { recursive: true });
 }
 
 function interpreterBraceCases(): [string, string, number][] {
@@ -105,6 +108,28 @@ function interpreterBraceCases(): [string, string, number][] {
         // Split command strings expose a modeled brace reference, not an ambiguous whole shell string.
         ['cratis-guard-shell-writes.sh', "node <<'N'\nrequire('child_process').execSync('printf x > ' + '{.,}env');\nN", 2],
         ['cratis-guard-shell-writes.sh', "python3 <<'P'\nimport os\nos.system('printf x > ' + '{.,}env')\nP", 2],
+    ];
+}
+
+function workflowRegressionCases(directory: string): [string, string, number][] {
+    return [
+        ['cratis-guard-secrets.sh', 'git status --short -- Source/AuthProxy/Credentials', 0],
+        ['cratis-guard-secrets.sh', 'git diff --stat -- Source/AuthProxy/Credentials', 0],
+        ['cratis-guard-secrets.sh', 'git add Source/AuthProxy/Credentials', 0],
+        ['cratis-guard-secrets.sh', 'git status --verbose -- Source/AuthProxy/Credentials', 2],
+        ['cratis-guard-secrets.sh', 'git diff --stat -p -- Source/AuthProxy/Credentials', 2],
+        ['cratis-guard-secrets.sh', 'git add -p Source/AuthProxy/Credentials', 2],
+        ['cratis-guard-secrets.sh', 'cat Source/AuthProxy/Credentials/credentials.json', 2],
+        ['cratis-guard-secrets.sh', 'git grep -e x -- Source/AuthProxy/Credentials/.env', 2],
+        ['cratis-guard-shell-writes.sh', 'git add --all .cratis/ai/prompts/*.md .pi/prompts/reverse-engineer.md', 0],
+        ['cratis-guard-shell-writes.sh', `git -C ${directory} add -v .cratis && git -C ${directory} commit --message 'Update AI'`, 0],
+        ['cratis-guard-shell-writes.sh', `cd ${directory} && cat .ai-work/v2/report.md .ai-work/v2/brief.md .ai-work/v2/report-step2.md && ls .cratis/ai/rules/project && rg --files .ai-work/v2 | rg -i 'arc|spec|md$' && df -h ~`, 0],
+        ['cratis-guard-shell-writes.sh', 'git add --all .cratis && echo x > .cratis/ai/rules/general.md', 2],
+        ['cratis-guard-shell-writes.sh', 'git restore -- .cratis/ai/rules/general.md', 2],
+        ['cratis-guard-shell-writes.sh', 'git apply .cratis/ai/evil.patch', 2],
+        ['cratis-guard-shell-writes.sh', 'cd .cratis && cat ai/rules/general.md | tee ai/rules/general.md', 2],
+        ['cratis-guard-shell-writes.sh', 'ls .cratis/ai/rules && df -h > .env', 2],
+        ['cratis-guard-shell-writes.sh', 'cd .cratis && git add . | cat', 2],
     ];
 }
 
@@ -151,9 +176,11 @@ test('available awk variants preserve credential and shell-reference decisions',
                 ['cratis-guard-secrets.sh', 'git add credentials.json', 2],
                 ['cratis-guard-secrets.sh', 'git grep -n -e credentials -e .env -- Source/AuthProxy', 0],
                 ['cratis-guard-secrets.sh', 'git ls-files Source/AuthProxy/Credentials', 0],
+
                 ['cratis-guard-secrets.sh', 'git grep -e x -- secrets.json', 2],
                 ['cratis-guard-secrets.sh', 'git show HEAD:.env', 2],
                 ['cratis-guard-shell-writes.sh', 'git ls-files --debug -- .env', 0],
+
                 ['cratis-guard-shell-writes.sh', 'echo x > *.csproj', 2],
                 ['cratis-guard-shell-writes.sh', "rg -l 'Identity|Hosting' .cratis/ai/rules/project*", 0],
                 ['cratis-guard-shell-writes.sh', `cd ${directory} && git diff --cc && rg -n Docker Source/Security/*.csproj && git log -6 --format='%H %s'`, 0],
@@ -164,6 +191,7 @@ test('available awk variants preserve credential and shell-reference decisions',
                 ['cratis-guard-shell-writes.sh', "node <<'N'\nconsole.log(`${x || {}}`)\nN", 2],
                 ['cratis-guard-shell-writes.sh', "node <<'N'\nrequire('fs').readFileSync('.env')\nN", 2],
                 ...interpreterBraceCases(),
+                ...workflowRegressionCases(directory),
                 ['cratis-guard-shell-writes.sh', "cat <<'N' | bash\necho x > {.,}env\nN", 2],
                 ['cratis-guard-shell-writes.sh', 'rm -f *.local', 2],
                 ['cratis-guard-shell-writes.sh', 'echo "\ncat <<\'B\'\n"; echo x | tee {.e,}nv\nB', 2],
