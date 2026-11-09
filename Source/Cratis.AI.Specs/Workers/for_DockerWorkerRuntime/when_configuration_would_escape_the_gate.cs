@@ -17,7 +17,7 @@ public class when_configuration_would_escape_the_gate : Specification
             var job = new WorkerJob(AgentSessionId.New(), "image", new Dictionary<string, string>(), new Dictionary<string, string>(), new Dictionary<string, string> { [name] = "fixture-sensitive-value" });
             try
             {
-                using var archive = DockerWorkerSecrets.BuildArchive(job);
+                DockerWorkerSecrets.BuildPayload(job);
             }
             catch (Exception exception)
             {

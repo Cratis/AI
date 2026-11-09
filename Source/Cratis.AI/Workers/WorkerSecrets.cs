@@ -80,6 +80,21 @@ public static class WorkerSecrets
     public const string RequiredVariableName = "CRATIS_WORKER_REQUIRE_SECRETS";
 
     /// <summary>
+    /// The root-owned Docker readiness mount; the worker cannot publish its own readiness.
+    /// </summary>
+    public const string DockerReadyDirectory = "/run/agent-secrets-ready";
+
+    /// <summary>
+    /// The Docker commit marker, readable by the worker but writable only by root.
+    /// </summary>
+    public const string DockerReadyPath = $"{DockerReadyDirectory}/{ReadyFileName}";
+
+    /// <summary>
+    /// The root-owned staging marker for atomic Docker readiness publication.
+    /// </summary>
+    public const string DockerPendingReadyPath = $"{DockerReadyDirectory}/{PendingReadyFileName}";
+
+    /// <summary>
     /// Renders secrets as a POSIX shell script the entrypoint sources.
     /// </summary>
     /// <param name="secrets">The secrets to render, keyed by environment variable name.</param>

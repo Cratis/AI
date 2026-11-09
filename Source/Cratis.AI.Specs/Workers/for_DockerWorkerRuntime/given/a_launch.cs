@@ -17,6 +17,10 @@ public class a_launch : Specification
     protected WorkerJob _job;
     protected List<string> _operations;
     protected List<ContainerExecCreateParameters> _commands;
+    protected List<exec_stream> _streams;
+    protected Dictionary<string, int> _inspections;
+    protected bool _inspectedBeforeDrain;
+    protected bool _verifiedBeforePublication;
     protected DockerWorkerRuntime _runtime;
     protected WorkerRuntimeOptions _options;
     protected Exception _error;
@@ -28,6 +32,8 @@ public class a_launch : Specification
         _logger = Substitute.For<ILogger<DockerWorkerRuntime>>();
         _operations = [];
         _commands = [];
+        _streams = [];
+        _inspections = [];
         _job = new(AgentSessionId.New(), "image", new Dictionary<string, string>(), new Dictionary<string, string> { ["TOKEN"] = "fixture-sensitive-value" });
         _client.Containers.CreateContainerAsync(Arg.Any<CreateContainerParameters>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(new CreateContainerResponse { ID = "worker" }));
@@ -36,20 +42,31 @@ public class a_launch : Specification
             _operations.Add("start");
             return Task.FromResult(true);
         });
-        _client.Containers.ExtractArchiveToContainerAsync("worker", Arg.Any<CopyToContainerParameters>(), Arg.Any<Stream>(), Arg.Any<CancellationToken>()).Returns(_ =>
-        {
-            _operations.Add("extract");
-            return Task.CompletedTask;
-        });
         _client.Exec.CreateContainerExecAsync("worker", Arg.Any<ContainerExecCreateParameters>(), Arg.Any<CancellationToken>()).Returns(call =>
         {
             var command = call.Arg<ContainerExecCreateParameters>();
+            if (command.Cmd[2].Contains("printf", StringComparison.Ordinal))
+            {
+                _verifiedBeforePublication = _inspections.GetValueOrDefault(_commands.Count.ToString(System.Globalization.CultureInfo.InvariantCulture)) == 3;
+            }
             _commands.Add(command);
-            _operations.Add(command.Cmd[2].Contains("printf", StringComparison.Ordinal) ? "ready" : "verify");
+            _operations.Add(command.AttachStdin ? "write" : command.Cmd[2].Contains("printf", StringComparison.Ordinal) ? "ready" : "verify");
             return Task.FromResult(new ContainerExecCreateResponse { ID = _commands.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) });
         });
-        _client.Exec.InspectContainerExecAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-            .Returns(Task.FromResult(new ContainerExecInspectResponse { ExitCode = 0, Running = false }));
+        _client.Exec.StartContainerExecAsync(Arg.Any<string>(), Arg.Any<ContainerExecStartParameters>(), Arg.Any<CancellationToken>()).Returns(_ =>
+        {
+            var stream = new exec_stream();
+            _streams.Add(stream);
+            return Task.FromResult(new MultiplexedStream(stream, multiplexed: true));
+        });
+        _client.Exec.InspectContainerExecAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(call =>
+        {
+            _inspectedBeforeDrain |= !_streams[^1].Drained;
+            var id = call.Arg<string>();
+            var attempt = _inspections.GetValueOrDefault(id) + 1;
+            _inspections[id] = attempt;
+            return Task.FromResult(new ContainerExecInspectResponse { Running = attempt == 1, ExitCode = attempt < 3 ? null : 0 });
+        });
         _options = new();
         _runtime = new(Options.Create(_options), _logger);
     }

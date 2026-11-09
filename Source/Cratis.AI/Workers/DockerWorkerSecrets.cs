@@ -1,7 +1,6 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Formats.Tar;
 using System.Text;
 using Docker.DotNet;
 using Docker.DotNet.Models;
@@ -20,34 +19,24 @@ internal sealed class DockerWorkerSecrets(IDockerClient client, string container
     /// Builds an in-memory payload without a readiness marker.
     /// </summary>
     /// <param name="job">The payload to deliver.</param>
-    /// <returns>The archive positioned for reading.</returns>
+    /// <returns>The files to deliver.</returns>
     /// <exception cref="DockerWorkerLaunchFailed">The payload is invalid.</exception>
-    internal static MemoryStream BuildArchive(WorkerJob job)
+    internal static IReadOnlyDictionary<string, string> BuildPayload(WorkerJob job)
     {
-        var stream = new MemoryStream();
-        try
+        var files = new Dictionary<string, string>
         {
-            using (var writer = new TarWriter(stream, TarEntryFormat.Ustar, leaveOpen: true))
+            [WorkerSecrets.FileName] = WorkerSecrets.Render(job.Secrets),
+            [WorkerPromptFile.FileName] = WorkerPromptFile.Clamp(job.EnvironmentVariables.GetValueOrDefault(WorkerPromptFile.LegacyVariableName, string.Empty))
+        };
+        foreach (var (name, content) in job.ConfigurationFiles ?? new Dictionary<string, string>())
+        {
+            if (!IsConfigurationName(name))
             {
-                WriteEntry(writer, WorkerSecrets.FileName, WorkerSecrets.Render(job.Secrets));
-                WriteEntry(writer, WorkerPromptFile.FileName, WorkerPromptFile.Clamp(job.EnvironmentVariables.GetValueOrDefault(WorkerPromptFile.LegacyVariableName, string.Empty)));
-                foreach (var (name, content) in job.ConfigurationFiles ?? new Dictionary<string, string>())
-                {
-                    if (!IsConfigurationName(name))
-                    {
-                        throw new DockerWorkerLaunchFailed();
-                    }
-                    WriteEntry(writer, name, content);
-                }
+                throw new DockerWorkerLaunchFailed();
             }
-            stream.Position = 0;
-            return stream;
+            files.Add(name, content);
         }
-        catch (Exception)
-        {
-            stream.Dispose();
-            throw new DockerWorkerLaunchFailed();
-        }
+        return files;
     }
 
     /// <summary>
@@ -57,30 +46,22 @@ internal sealed class DockerWorkerSecrets(IDockerClient client, string container
     /// <returns>The delivery task.</returns>
     internal async Task Inject(WorkerJob job)
     {
-        // Check the live mount before sending any credentials. Never fall back to the writable layer.
-        await Execute($"test ! -L {WorkerSecrets.Directory} && test \"$(stat -f -c %T {WorkerSecrets.Directory})\" = tmpfs && test \"$(stat -c %u:%a {WorkerSecrets.Directory})\" = 1655:700");
-        await using var archive = BuildArchive(job);
-        await client.Containers.ExtractArchiveToContainerAsync(
-            container, new CopyToContainerParameters { Path = WorkerSecrets.Directory, CopyUIDGID = true }, archive, cancellationToken);
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        deadline.CancelAfter(TimeSpan.FromSeconds(20));
+        var files = BuildPayload(job);
 
-        // Preserve archive ownership, then verify the actual result as the worker. No root exec
-        // or capabilities are needed, and unexpected ownership/modes fail rather than fall back.
-        await Execute($"test \"$(stat -c %u:%a {WorkerSecrets.Directory})\" = 1655:700 && test -r {WorkerSecrets.Path} && invalid=$(find {WorkerSecrets.Directory} -mindepth 1 \\( ! -type f -o ! -user 1655 -o ! -perm 0400 \\) -print) && test -z \"$invalid\"");
-
-        // A separate final operation: no partial archive or failed permission check can release the gate.
-        await Execute($"umask 077; printf 'ready\\n' > {WorkerSecrets.PendingReadyPath} && chmod 0400 {WorkerSecrets.PendingReadyPath} && mv {WorkerSecrets.PendingReadyPath} {WorkerSecrets.ReadyPath}");
-    }
-
-    static void WriteEntry(TarWriter writer, string name, string content)
-    {
-        using var data = new MemoryStream(Encoding.UTF8.GetBytes(content));
-        writer.WriteEntry(new UstarTarEntry(TarEntryType.RegularFile, name)
+        // Exec resolves paths inside the mounted container namespace; no archive API or layer write.
+        await Execute($"test ! -L {WorkerSecrets.Directory} && test \"$(stat -f -c %T {WorkerSecrets.Directory})\" = tmpfs && test \"$(stat -c %u:%a {WorkerSecrets.Directory})\" = 1655:700 && test ! -L {WorkerSecrets.DockerReadyDirectory} && test \"$(stat -f -c %T {WorkerSecrets.DockerReadyDirectory})\" = tmpfs && test \"$(stat -c %u:%a {WorkerSecrets.DockerReadyDirectory})\" = 0:755 && test ! -w {WorkerSecrets.DockerReadyDirectory} && test ! -e {WorkerSecrets.DockerReadyPath}", deadline.Token);
+        foreach (var (name, content) in files)
         {
-            Uid = 1655,
-            Gid = 1655,
-            Mode = UnixFileMode.UserRead,
-            DataStream = data
-        });
+            await WriteFile(name, content, deadline.Token);
+        }
+        await Execute($"test \"$(stat -c %u:%a {WorkerSecrets.Directory})\" = 1655:700 && test -r {WorkerSecrets.Path} && invalid=$(find {WorkerSecrets.Directory} -mindepth 1 \\( ! -type f -o ! -user 1655 -o ! -group 1655 -o ! -perm 0400 \\) -print) && test -z \"$invalid\"", deadline.Token);
+
+        // A separate final operation: partial delivery or a failed check cannot release the gate.
+        // Publication is the commit point. Any subsequent transport/inspect ambiguity fails and removes
+        // the container, but cannot promise that a worker did not briefly observe the committed marker.
+        await Execute($"umask 077; printf 'ready\\n' > {WorkerSecrets.DockerPendingReadyPath} && chmod 0444 {WorkerSecrets.DockerPendingReadyPath} && mv {WorkerSecrets.DockerPendingReadyPath} {WorkerSecrets.DockerReadyPath}", deadline.Token, user: "0:0");
     }
 
     static bool IsConfigurationName(string name) => name switch
@@ -92,23 +73,64 @@ internal sealed class DockerWorkerSecrets(IDockerClient client, string container
 
     static bool IsFileNameCharacter(char character) => char.IsAsciiLetterOrDigit(character) || character is '.' or '_' or '-';
 
-    async Task Execute(string command)
+    async Task WriteFile(string name, string content, CancellationToken token)
     {
-        // Commands contain only fixed paths and permissions, never secret values. Do not attach
-        // output: an engine error or an unexpected image must not echo credentials into diagnostics.
+        var bytes = Encoding.UTF8.GetBytes(content);
+        var path = $"{WorkerSecrets.Directory}/{name}";
+        try
+        {
+            // Bound stdin by byte count rather than relying on transport-specific half-close support.
+            // A short write fails the size check. Only the length and validated path enter argv.
+            await Execute($"umask 077; head -c {bytes.Length} > '{path}' && test \"$(stat -c %s '{path}')\" = {bytes.Length} && chmod 0400 '{path}'", token, bytes);
+        }
+        finally
+        {
+            Array.Clear(bytes);
+        }
+    }
+
+    async Task Execute(string command, CancellationToken token, byte[]? input = null, string user = "1655:1655")
+    {
         var execution = await client.Exec.CreateContainerExecAsync(
             container,
             new ContainerExecCreateParameters
             {
-                User = "1655",
+                User = user,
+                AttachStdin = input is not null,
+                AttachStdout = true,
+                AttachStderr = true,
                 Cmd = ["/bin/sh", "-c", command]
             },
-            cancellationToken);
-        await client.Exec.StartContainerExecAsync(execution.ID, new ContainerExecStartParameters(), cancellationToken);
-        var result = await client.Exec.InspectContainerExecAsync(execution.ID, cancellationToken);
-        if (result.Running || result.ExitCode != 0)
+            token);
+        using var stream = await client.Exec.StartContainerExecAsync(execution.ID, new ContainerExecStartParameters(), token);
+        if (input is not null)
         {
-            throw new DockerWorkerLaunchFailed();
+            await stream.WriteAsync(input, 0, input.Length, token);
+            stream.CloseWrite();
         }
+
+        // Drain without retaining or reporting untrusted output, then allow inspect state to settle.
+        await stream.CopyOutputToAsync(Stream.Null, Stream.Null, Stream.Null, token);
+        await VerifyCompletion(execution.ID, token);
+    }
+
+    async Task VerifyCompletion(string execution, CancellationToken token)
+    {
+        for (var attempt = 0; attempt < 20; attempt++)
+        {
+            var result = await client.Exec.InspectContainerExecAsync(execution, token);
+            if (!result.Running && result.ExitCode is { } exitCode)
+            {
+                if (exitCode != 0)
+                {
+                    throw new DockerWorkerLaunchFailed();
+                }
+                return;
+            }
+
+            // Infrastructure readiness backoff: EOF may precede the engine's terminal inspect state.
+            await Task.Delay(TimeSpan.FromMilliseconds(25), token);
+        }
+        throw new DockerWorkerLaunchFailed();
     }
 }

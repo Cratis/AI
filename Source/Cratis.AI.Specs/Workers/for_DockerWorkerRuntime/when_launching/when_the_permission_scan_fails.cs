@@ -17,7 +17,7 @@ public class when_the_permission_scan_fails : given.a_launch
             ArgumentList =
             {
                 "--noprofile", "--norc", "-c",
-                "test() { return 0; }; find() { return 1; }; stat() { printf '1655:700'; }; " + _commands[1].Cmd[2]
+                "test() { return 0; }; find() { return 1; }; stat() { printf '1655:700'; }; " + _commands[^2].Cmd[2]
             },
             UseShellExecute = false
         });

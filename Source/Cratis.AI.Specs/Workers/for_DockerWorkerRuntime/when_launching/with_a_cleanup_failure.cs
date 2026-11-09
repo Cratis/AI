@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Docker.DotNet;
 using Docker.DotNet.Models;
 using NSubstitute;
 
@@ -10,8 +11,8 @@ public class with_a_cleanup_failure : given.a_launch
 {
     void Establish()
     {
-        _client.Containers.ExtractArchiveToContainerAsync("worker", Arg.Any<CopyToContainerParameters>(), Arg.Any<Stream>(), Arg.Any<CancellationToken>())
-            .Returns(_ => Task.FromException(new IOException("fixture-sensitive-value")));
+        _client.Exec.StartContainerExecAsync("2", Arg.Any<ContainerExecStartParameters>(), Arg.Any<CancellationToken>())
+            .Returns(_ => Task.FromException<MultiplexedStream>(new IOException("fixture-sensitive-value")));
         _client.Containers.RemoveContainerAsync("worker", Arg.Any<ContainerRemoveParameters>(), Arg.Any<CancellationToken>())
             .Returns(_ => Task.FromException(new IOException("fixture-sensitive-value")));
     }

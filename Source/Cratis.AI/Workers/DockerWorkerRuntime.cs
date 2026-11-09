@@ -18,6 +18,11 @@ namespace Cratis.AI.Workers;
 /// <c>Work.Workers.DockerWorkerRuntime</c> (plan Section 5.6), <c>WorkId</c> generalized to
 /// <see cref="AgentSessionId"/> and <c>ContainerRuntimeOptions</c> to <see cref="WorkerRuntimeOptions"/>.
 /// </summary>
+/// <remarks>
+/// Secure delivery assumes an owner-trusted image selected by a digest allow-list at the caller.
+/// Image code runs before delivery and supplies the verification tools; this is not a sandbox for
+/// hostile images. Root publishes readiness only after worker-identity payload checks complete.
+/// </remarks>
 /// <param name="options">The <see cref="WorkerRuntimeOptions"/> configuring the Docker endpoint.</param>
 /// <param name="logger">The logger.</param>
 public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger<DockerWorkerRuntime> logger) : IWorkerRuntime
@@ -86,7 +91,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
 
             // Only non-secret configuration goes on the container specification, because
             // `docker inspect` reads it back and it outlives the container. Credentials are
-            // copied into the tmpfs below instead; what is named here is a path, not a secret.
+            // streamed into the tmpfs below instead; what is named here is a path, not a secret.
             Name = NameFor(job.Session),
 
             // The prompt is left off for a harder reason than the credentials are: a single
@@ -96,8 +101,8 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             Env =
             [
                 .. job.EnvironmentVariables
-                    .Where(variable => variable.Key != WorkerPromptFile.LegacyVariableName &&
-                        (!restricted || (variable.Key != repositoryCacheEnvironmentVariable && variable.Key != "DIRECT_REPOSITORY_CACHE")))
+                    .Where(variable => !variable.Key.Contains('=') && !variable.Key.Contains('\0') &&
+                        !IsRuntimeEnvironmentVariable(variable.Key, repositoryCacheEnvironmentVariable))
                     .Select(variable => $"{variable.Key}={variable.Value}"),
                 $"{WorkerSecrets.PathVariableName}={WorkerSecrets.Path}",
                 $"{WorkerSecrets.RequiredVariableName}=true",
@@ -116,19 +121,41 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         };
     }
 
+    static bool IsRuntimeEnvironmentVariable(string name, string? repositoryCacheEnvironmentVariable) =>
+        name.Equals(WorkerSecrets.PathVariableName, StringComparison.OrdinalIgnoreCase) ||
+        name.Equals(WorkerSecrets.RequiredVariableName, StringComparison.OrdinalIgnoreCase) ||
+        name.Equals(WorkerPromptFile.PathVariableName, StringComparison.OrdinalIgnoreCase) ||
+        name.Equals(WorkerPromptFile.LegacyVariableName, StringComparison.OrdinalIgnoreCase) ||
+        name.Equals("DIRECT_REPOSITORY_CACHE", StringComparison.OrdinalIgnoreCase) ||
+        name.Equals(repositoryCacheEnvironmentVariable, StringComparison.OrdinalIgnoreCase);
+
+    static void ValidateLimits(WorkerLimits? limits)
+    {
+        if (limits is { MemoryBytes: < 0 } or { NanoCpus: < 0 } or { PidsLimit: < 0 })
+        {
+            throw new DockerWorkerLaunchFailed();
+        }
+    }
+
     static HostConfig BuildHostConfiguration(WorkerJob job, string? repositoryCachePath, bool restricted, bool hardenContainer)
     {
+        ValidateLimits(job.Limits);
         var configuration = new HostConfig
         {
             // Docker Desktop provides this alias; Linux engines need it explicitly.
             ExtraHosts = ["host.docker.internal:host-gateway"],
             Memory = job.Limits?.MemoryBytes ?? 0,
             MemorySwap = job.Limits?.MemoryBytes ?? 0,
+            MemorySwappiness = 0,
             NanoCPUs = job.Limits?.NanoCpus ?? 0,
             PidsLimit = job.Limits is { PidsLimit: not 0 } limits ? limits.PidsLimit : null,
 
             // Never deliver credentials into the writable layer.
-            Tmpfs = new Dictionary<string, string> { [WorkerSecrets.Directory] = "rw,noexec,nosuid,nodev,mode=0700,uid=1655,gid=1655" },
+            Tmpfs = new Dictionary<string, string>
+            {
+                [WorkerSecrets.Directory] = "rw,noexec,nosuid,nodev,size=16m,mode=0700,uid=1655,gid=1655",
+                [WorkerSecrets.DockerReadyDirectory] = "rw,noexec,nosuid,nodev,size=1m,mode=0755,uid=0,gid=0"
+            },
 
             // Restricted checkouts must not expose other repositories in the shared mirror.
             Binds = restricted || string.IsNullOrWhiteSpace(repositoryCachePath)
@@ -186,9 +213,17 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             logger.CouldNotPullImage(new InvalidOperationException("Docker image pull failed; engine diagnostics withheld."), job.Image);
         }
 
-        var response = await client.Containers.CreateContainerAsync(
-            BuildContainerSpecification(job, options.Value.RepositoryCachePath, options.Value.RepositoryCacheEnvironmentVariable, options.Value.DockerHardeningEnabled),
-            cancellationToken);
+        CreateContainerResponse response;
+        try
+        {
+            response = await client.Containers.CreateContainerAsync(
+                BuildContainerSpecification(job, options.Value.RepositoryCachePath, options.Value.RepositoryCacheEnvironmentVariable, options.Value.DockerHardeningEnabled),
+                cancellationToken);
+        }
+        catch (Exception)
+        {
+            throw new DockerWorkerLaunchFailed();
+        }
 
         try
         {

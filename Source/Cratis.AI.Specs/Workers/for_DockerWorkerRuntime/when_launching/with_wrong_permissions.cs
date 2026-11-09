@@ -9,7 +9,7 @@ namespace Cratis.AI.Workers.for_DockerWorkerRuntime.when_launching;
 public class with_wrong_permissions : given.a_launch
 {
     void Establish() => _client.Exec.InspectContainerExecAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-        .Returns(call => Task.FromResult(new ContainerExecInspectResponse { ExitCode = call.Arg<string>() == "2" ? 1 : 0 }));
+        .Returns(call => Task.FromResult(new ContainerExecInspectResponse { ExitCode = call.Arg<string>() == "4" ? 1 : 0 }));
 
     Task Because() => Launch();
 

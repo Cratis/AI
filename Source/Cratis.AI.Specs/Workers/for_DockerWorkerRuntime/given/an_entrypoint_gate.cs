@@ -11,6 +11,8 @@ public class an_entrypoint_gate : Specification
     protected bool _required = true;
     protected int _exitCode;
     protected string _output;
+    protected string _readyDirectory = WorkerSecrets.DockerReadyDirectory;
+    protected string _preamble = string.Empty;
 
     protected async Task RunGate()
     {
@@ -36,7 +38,8 @@ public class an_entrypoint_gate : Specification
         };
         process.Start();
         await process.StandardInput.WriteLineAsync("sleep() { :; }; log() { printf '%s\\n' \"$*\"; }");
-        await process.StandardInput.WriteLineAsync(entrypoint[start..end]);
+        await process.StandardInput.WriteLineAsync(_preamble);
+        await process.StandardInput.WriteLineAsync(entrypoint[start..end].Replace(WorkerSecrets.DockerReadyDirectory, _readyDirectory, StringComparison.Ordinal));
         await process.StandardInput.WriteLineAsync("load_secrets; printf 'agent-started\\n'");
         process.StandardInput.Close();
         var output = process.StandardOutput.ReadToEndAsync();

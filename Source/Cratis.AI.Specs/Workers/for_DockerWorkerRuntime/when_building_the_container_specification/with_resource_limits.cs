@@ -21,6 +21,9 @@ public class with_resource_limits : Specification
 
     [Fact] void should_set_the_memory_ceiling() => _specification.HostConfig.Memory.ShouldEqual(536870912L);
     [Fact] void should_disable_swap_by_matching_the_memory_ceiling() => _specification.HostConfig.MemorySwap.ShouldEqual(_specification.HostConfig.Memory);
+    [Fact] void should_disable_memory_swappiness() => _specification.HostConfig.MemorySwappiness.ShouldEqual(0L);
+    [Fact] void should_bound_payload_tmpfs() => _specification.HostConfig.Tmpfs[WorkerSecrets.Directory].ShouldContain("size=16m");
+    [Fact] void should_protect_the_readiness_mount() => _specification.HostConfig.Tmpfs[WorkerSecrets.DockerReadyDirectory].ShouldEqual("rw,noexec,nosuid,nodev,size=1m,mode=0755,uid=0,gid=0");
     [Fact] void should_set_the_cpu_ceiling() => _specification.HostConfig.NanoCPUs.ShouldEqual(1500000000L);
     [Fact] void should_set_the_process_ceiling() => _specification.HostConfig.PidsLimit.ShouldEqual(256L);
 }

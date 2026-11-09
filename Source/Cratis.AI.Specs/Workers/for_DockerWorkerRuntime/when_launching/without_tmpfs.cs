@@ -13,7 +13,7 @@ public class without_tmpfs : given.a_launch
 
     Task Because() => Launch();
 
-    [Fact] void should_not_send_credentials() => _operations.ShouldNotContain("extract");
+    [Fact] void should_not_send_credentials() => _operations.ShouldNotContain("write");
     [Fact] void should_not_release_the_gate() => _operations.ShouldNotContain("ready");
     [Fact] void should_fail_the_launch() => _error.ShouldBeOfExactType<DockerWorkerLaunchFailed>();
 }
