@@ -989,6 +989,7 @@
         "cratis-screenplay-projections",
         "cratis-screenplay-read-surface",
         "cratis-screenplay-render-and-gap-fill",
+        "cratis-screenplay-reverse-engineering",
         "cratis-screenplay-scenario-coverage",
         "cratis-screenplay-slice-design",
         "cratis-screenplay-specifications",
