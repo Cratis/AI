@@ -26,7 +26,7 @@ tools and tool-output handling are in [codescene.md](../../../rules/codescene.md
 - A touched file that starts below 9.5 is raised to 9.5 in the same change by behavior-preserving refactoring with specs behind it (`guiding-refactoring-with-code-health` where the profile provides it).
 - If that is too large for the task (a red or yellow legacy file), raise it as far as is safe, report before and after, and add the file to the repository's Code Health uplift issue ("Code Health: raise all files to 9.5"; create it if none exists).
 - Urgent security and production fixes may ship below 9.5, but report the gap and file the uplift.
-- Never refactor generated code. "Could not determine Code Health score" is not a failure. Other Cratis rules win over a finding.
+- Never refactor generated code. A "could not determine" Code Health score is not a failure. Other Cratis rules win over a finding.
 - CodeScene has no floor setting, so the check is ours.
 
 ## Checking
