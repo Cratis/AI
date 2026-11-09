@@ -33,3 +33,12 @@ Kubernetes continues to use its existing resource options.
 
 Digest references such as `repo@sha256:<digest>` are pulled as complete references with no separate
 tag. Tagged and untagged image references retain their previous behavior.
+
+## Optional Docker hardening
+
+`Cratis:AI:ContainerRuntime:DockerHardeningEnabled` defaults to `false`. Opt in by setting it to
+`true` to explicitly disable privileged mode, drop all capabilities and set `no-new-privileges`.
+Set it back to `false` to opt out. The existing public container-specification builder retains its
+previous defaults; runtime launches honor the option. Secret delivery requires no root exec or
+capabilities. Prove compatibility with the actual worker images end to end before enabling this.
+Kubernetes security configuration is not changed.

@@ -18,6 +18,7 @@ public class a_launch : Specification
     protected List<string> _operations;
     protected List<ContainerExecCreateParameters> _commands;
     protected DockerWorkerRuntime _runtime;
+    protected WorkerRuntimeOptions _options;
     protected Exception _error;
     protected WorkerLaunchOutcome _outcome;
 
@@ -49,7 +50,8 @@ public class a_launch : Specification
         });
         _client.Exec.InspectContainerExecAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
             .Returns(Task.FromResult(new ContainerExecInspectResponse { ExitCode = 0, Running = false }));
-        _runtime = new(Options.Create(new WorkerRuntimeOptions()), _logger);
+        _options = new();
+        _runtime = new(Options.Create(_options), _logger);
     }
 
     protected async Task Launch(CancellationToken cancellationToken = default)

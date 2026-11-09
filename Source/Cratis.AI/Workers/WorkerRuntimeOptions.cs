@@ -49,6 +49,13 @@ public class WorkerRuntimeOptions
     public string? DockerEndpoint { get; set; }
 
     /// <summary>
+    /// Opts Docker workers into dropping all capabilities and disallowing privilege escalation.
+    /// Defaults to false until end-to-end image compatibility has been proven. Set false to opt out.
+    /// Kubernetes security configuration is unchanged.
+    /// </summary>
+    public bool DockerHardeningEnabled { get; set; }
+
+    /// <summary>
     /// Gets or sets the Kubernetes namespace worker jobs are created in.
     /// </summary>
     public string KubernetesNamespace { get; set; } = "default";

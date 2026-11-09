@@ -59,7 +59,21 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     public static CreateContainerParameters BuildContainerSpecification(
         WorkerJob job,
         string? repositoryCachePath = null,
-        string? repositoryCacheEnvironmentVariable = null)
+        string? repositoryCacheEnvironmentVariable = null) => BuildContainerSpecification(job, repositoryCachePath, repositoryCacheEnvironmentVariable, hardenContainer: false);
+
+    /// <summary>
+    /// Builds a specification with the explicitly selected Docker security profile.
+    /// </summary>
+    /// <param name="job">The worker job.</param>
+    /// <param name="repositoryCachePath">The shared cache path.</param>
+    /// <param name="repositoryCacheEnvironmentVariable">The image's cache variable.</param>
+    /// <param name="hardenContainer">Whether to enable Docker hardening.</param>
+    /// <returns>The container specification.</returns>
+    internal static CreateContainerParameters BuildContainerSpecification(
+        WorkerJob job,
+        string? repositoryCachePath,
+        string? repositoryCacheEnvironmentVariable,
+        bool hardenContainer)
     {
         // A restricted checkout must not expose other repositories through the shared cache,
         // even when the checkout contract is empty or invalid and the entrypoint will reject it.
@@ -98,30 +112,36 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             Tty = true,
             OpenStdin = true,
             StdinOnce = false,
-            HostConfig = new HostConfig
-            {
-                // Lets the container reach the consumer's callback endpoint on the host from Linux
-                // engines; Docker Desktop provides the alias out of the box.
-                ExtraHosts = ["host.docker.internal:host-gateway"],
-                Memory = job.Limits?.MemoryBytes ?? 0,
-                MemorySwap = job.Limits?.MemoryBytes ?? 0,
-                NanoCPUs = job.Limits?.NanoCpus ?? 0,
-                PidsLimit = job.Limits is { PidsLimit: not 0 } limits ? limits.PidsLimit : null,
-
-                // The secrets land on a memory-backed mount, so they never touch the container's
-                // writable layer and cannot be recovered from a committed image or a stopped
-                // container's filesystem.
-                Tmpfs = new Dictionary<string, string> { [WorkerSecrets.Directory] = "rw,noexec,nosuid,nodev,mode=0700,uid=1655,gid=1655" },
-
-                // Shares the host's mirror of every tracked repository with the container, so
-                // clone_into_workspace() in entrypoint.sh can `git clone --shared` against it
-                // instead of cloning fresh from GitHub every run. Host path equals container path,
-                // the same convention the Kubernetes PVC mount uses.
-                Binds = restricted || string.IsNullOrWhiteSpace(repositoryCachePath)
-                    ? []
-                    : [$"{repositoryCachePath}:{repositoryCachePath}"]
-            }
+            HostConfig = BuildHostConfiguration(job, repositoryCachePath, restricted, hardenContainer)
         };
+    }
+
+    static HostConfig BuildHostConfiguration(WorkerJob job, string? repositoryCachePath, bool restricted, bool hardenContainer)
+    {
+        var configuration = new HostConfig
+        {
+            // Docker Desktop provides this alias; Linux engines need it explicitly.
+            ExtraHosts = ["host.docker.internal:host-gateway"],
+            Memory = job.Limits?.MemoryBytes ?? 0,
+            MemorySwap = job.Limits?.MemoryBytes ?? 0,
+            NanoCPUs = job.Limits?.NanoCpus ?? 0,
+            PidsLimit = job.Limits is { PidsLimit: not 0 } limits ? limits.PidsLimit : null,
+
+            // Never deliver credentials into the writable layer.
+            Tmpfs = new Dictionary<string, string> { [WorkerSecrets.Directory] = "rw,noexec,nosuid,nodev,mode=0700,uid=1655,gid=1655" },
+
+            // Restricted checkouts must not expose other repositories in the shared mirror.
+            Binds = restricted || string.IsNullOrWhiteSpace(repositoryCachePath)
+                ? []
+                : [$"{repositoryCachePath}:{repositoryCachePath}"]
+        };
+        if (hardenContainer)
+        {
+            configuration.Privileged = false;
+            configuration.CapDrop = ["ALL"];
+            configuration.SecurityOpt = ["no-new-privileges:true"];
+        }
+        return configuration;
     }
 
     /// <inheritdoc/>
@@ -167,7 +187,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         }
 
         var response = await client.Containers.CreateContainerAsync(
-            BuildContainerSpecification(job, options.Value.RepositoryCachePath, options.Value.RepositoryCacheEnvironmentVariable),
+            BuildContainerSpecification(job, options.Value.RepositoryCachePath, options.Value.RepositoryCacheEnvironmentVariable, options.Value.DockerHardeningEnabled),
             cancellationToken);
 
         try
