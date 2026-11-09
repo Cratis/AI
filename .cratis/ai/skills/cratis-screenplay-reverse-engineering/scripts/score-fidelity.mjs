@@ -1,7 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, realpathSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
 export const DEFAULT_WEIGHTS = { rule: 0.25, rejection: 0.25, flow: 0.25, time: 0.1, authorization: 0.1, 'query-shape': 0.05 };
 export const CLASS_ITEM_WEIGHTS = { rule: 1, rejection: 1, flow: 1, time: 1.5, authorization: 1, 'query-shape': 1 };
@@ -173,4 +174,4 @@ async function main() {
     }
 }
 
-if (import.meta.url === new URL(`file://${process.argv[1]}`).href) await main();
+if (process.argv[1] && realpathSync(process.argv[1]) === realpathSync(fileURLToPath(import.meta.url))) await main();
