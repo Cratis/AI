@@ -140,7 +140,9 @@ knows the original product would. A script or HTTP harness does not replace this
   fact. Re-observe at most twice; stop on a side effect or a contradiction.
 - Keep walks read-only unless writes were approved for the target. Writes on the new
   application still need approval naming it.
-- A today-relative rule cannot run on Stage (clock operands are syntax-only in query filters).
-  The model carries the threshold as fixture-dated specifications and a platform gap row; the
-  walk marks the journey as covering the fixed-date boundary only, never the live clock.
+- A today-relative rule cannot be a declarative filter (clock operands are syntax only in
+  query filters). The model carries it in a query performer body, fixture-dated specifications
+  and a platform gap row. The body runs only in a rendered app, never in the executable model.
+  Walk it on the rendered app with backdated data, and on the sandbox mark the journey as
+  not run.
 - A pass list is not a coverage claim: report what was not walked.

@@ -84,7 +84,8 @@ How to model the result, and what the Screenplay surface cannot run, is in
 placeholder value as an `unknown` with a question; never ship a guessed number unrecorded.
 The server's time zone and its "today" are standing unknowns: seed near midnight and with
 backdated dates, and look for a zone setting or response header. A today-relative rule the
-dialect cannot express is a comment plus an `event-model.md` gap row, not a guessed filter.
+declarative dialect cannot express goes in a query performer body plus an `event-model.md` gap
+row (`synthesis-rules.md`, Time facts). Never use a comment or a guessed filter.
 
 ## Client-side or server-side
 

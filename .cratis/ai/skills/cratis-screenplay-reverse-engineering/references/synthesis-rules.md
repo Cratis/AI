@@ -79,11 +79,16 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
   in command rules on a Screenplay release with Date/DateTime comparisons
   (`cratis-screenplay-command-surface`). Calendar and clock forms (`today - 7 days`,
   `date of occurred`, `time zone`) parse but are not runnable: never write them into an
-  executable model. A today-relative query (overdue, dormant) cannot be declared so that Stage
-  serves it; model the observed threshold as a documented constant, specify the boundary with
-  fixed fixture dates (threshold minus one, equal, plus one), take an explicit `asOf` style
-  argument where the query allows one, and record "today-relative filter not expressible" as a
-  platform gap row in `event-model.md` (check the Screenplay and Stage trackers before filing).
+  executable model. A today-relative query (overdue, due today, dormant) cannot be a declarative
+  filter: query filters admit only caller-supplied equality, and clock operands are syntax only.
+  Do not leave such a rule as a comment. A comment expresses nothing, and Stage cannot serve it.
+  Give the query a `performer` body (`cratis-screenplay-read-surface`, "Performer bodies are
+  rendered") that applies the probed threshold, the inclusive or exclusive edge and the excluded
+  states, and name the threshold as a constant in the body. Stage renders the body, so the
+  rendered app serves the rule. Specify the boundary with `given readmodel` rows on fixed dates
+  (threshold minus one, equal, plus one), and record "today-relative filter not declarative"
+  as a platform gap row in `event-model.md` (check the Screenplay and Stage trackers before
+  filing).
   An unprobed threshold stays `unknown`; never write a guessed number.
 - **Cascades and observed defects**: a cascade (deleting a parent removes its children) is an
   automation: model it when the dialect allows, else list it in `event-model.md`. Model the
