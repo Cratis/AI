@@ -18,20 +18,34 @@ Three layers:
 | Quality gate (Claude) | `Stop` | `scripts/cratis-quality-gate.sh` | one build/test run, only when relevant files changed | exits **2** — the turn does not end |
 | Quality gate (Pi) | explicit `cratis_quality_gate` tool | same script | only at a requested verification checkpoint | error on failure; no turn-end hook |
 
-For false positives, a literal-prefix trailing `*` can be resolved in a known, readable directory,
-including a simple leading literal `cd`. Only a fixed script with quoted positional arguments performs
-that expansion; command text is never evaluated. The check allows at most 200 ordinary file matches,
-blocks protected matches even for filename-only searches, and fails closed on unknown cwd, unreadable
-directories, complex patterns or ambiguous shell state. With no matches, content readers still block;
+For false positives, a basename literal-prefix trailing `*` can be resolved for a first simple reader
+in a known, readable directory, optionally after a literal `cd … &&`. Compound commands, earlier
+commands, functions, quoted command names and shell evaluation do not qualify. Only a fixed script
+with quoted positional arguments performs expansion; command text is never evaluated. The check
+allows at most 200 ordinary, non-symlink matches and scans their absolute physical and original cwd
+contexts. Case-insensitive probing overapproximates case-sensitive and case-insensitive filesystems.
+Protected matches block even filename-only searches. Unknown cwd, unreadable directories, complex
+patterns and ambiguous shell state fail closed. With no matches, content readers still block;
 filename-only searches may pass unless the pattern itself is secret-like (`.env*`, `*.pem`, `*.key`,
-`id_rsa*`). Filesystem checks have a check/use race: this remains best-effort, not a sandbox.
+`id_rsa*`). For ripgrep, `-L` follows symlinks; it is not filename-only mode. Literal directory checks
+retain the process-cwd fallback when a hook payload omits cwd; glob probing does not. Filesystem
+checks have a check/use race: this remains best-effort, not a sandbox.
 
-The shell-write reference scan uses Bash default leading-dot rules only without detected glob-option,
-sourced-code or shell uncertainty (`shopt`, `GLOBIGNORE`, zsh `globdots`/`(D)` and non-Bash shells keep
-conservative matching). Braces in quoted heredocs to known non-shell consumers are not shell glob
-syntax; literal protected names in their bodies are still classified. Unquoted heredocs, unknown
-consumers and shell/eval targets stay conservative. Portable bracket classes are kept; ambiguous
-backslash-bearing classes are widened instead of passed as invalid awk regexes.
+The shell-write reference scan keeps conservative leading-dot intersections: a tool named `Bash`,
+`SHELL`, and the hook process's options do not establish the execution shell's options. Globbed writes
+therefore remain blocked. Quoted `rg --glob`/`-g` filters are recognized as read-only options.
+Brace suppression applies only to a whole-command, single quoted heredoc with a literal first-line
+non-shell consumer (optionally after literal `cd … &&`) and its delimiter ending the command. Literal
+protected names in the body are still classified. Apparent headers inside quotes, nested heredocs,
+substitutions, eval/shell contexts, unknown consumers and unquoted heredocs retain conservative scans.
+Portable bracket classes are kept; ambiguous backslash-bearing classes are widened instead of passed
+as invalid awk regexes.
+
+Literal `git ls-files` pathspecs are filename metadata, including `-s`/`--stage` and `--debug`,
+so credential-worded source directories do not taint that single command. Other Git subcommands
+receive no metadata exemption. Bare `git grep` uses grep's pattern/file distinction, including `-e`
+pattern values; protected pathspecs remain blocked. `git show` and `git cat-file` of secret paths
+remain content reads, not filename metadata.
 
 Consumers receive these hook changes by running `cratis ai update`.
 

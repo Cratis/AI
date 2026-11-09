@@ -55,38 +55,33 @@ function scan(s,    n, i, c, word, whole) {
     # Braces have a second boundary view; retain the original pattern above too.
     if (s ~ /[{}]/) { gsub(/[{}]/, " ", s); scan(s) }
 }
-# Only quoted heredocs of known non-shell consumers suppress brace syntax. Keep
-# the header and scan the body without braces: literal protected names still count.
-# Anything ambiguous (multiple redirects, unknown consumer/delimiter, missing end)
-# retains the ordinary conservative scan of the entire text.
-function scan_references(text,    lines, n, i, j, header, consumer, delimiter, suffix, body, line, found, result) {
-    n = split(text, lines, "\n")
-    for (i = 1; i <= n; i++) {
-        header = lines[i]
-        if (match(header, /<<-?[ \t]*(\047[A-Za-z_][A-Za-z0-9_]*\047|"[A-Za-z_][A-Za-z0-9_]*"|\\[A-Za-z_][A-Za-z0-9_]*)/)) {
-            delimiter = substr(header, RSTART, RLENGTH); consumer = substr(header, 1, RSTART - 1)
-            suffix = substr(header, RSTART + RLENGTH)
-            sub(/^.*[;&|]/, "", consumer); sub(/^[ \t]*/, "", consumer)
-            sub(/[ \t].*$/, "", consumer); sub(/^.*\//, "", consumer)
-            if (consumer ~ /^(node|deno|bun|python|python3|ruby|perl|cat)$/ && suffix ~ /^[ \t]*$/ && header !~ /<<<|<<.*<</) {
-                sub(/^<<-?[ \t]*/, "", delimiter)
-                if (substr(delimiter, 1, 1) == "\\") delimiter = substr(delimiter, 2)
-                else delimiter = substr(delimiter, 2, length(delimiter) - 2)
-                body = ""; found = 0
-                for (j = i + 1; j <= n; j++) {
-                    line = lines[j]; if (header ~ /<<-/) sub(/^\t*/, "", line)
-                    if (line == delimiter) { found = 1; break }
-                    body = body lines[j] "\n"
-                }
-                if (found) {
-                    gsub(/[{}]/, " ", body)
-                    result = result header "\n" body lines[j] "\n"; i = j; continue
-                }
-            }
+# Recognize a whole command, not apparent headers found inside arbitrary shell text.
+# Only a first-line literal consumer, optionally after literal cd &&, and a single
+# quoted heredoc ending the command can suppress braces. Everything else stays intact.
+function literal_heredoc(text,    lines, n, i, header, delimiter, body, copy) {
+    copy = text; sub(/\n$/, "", copy); n = split(copy, lines, "\n")
+    header = lines[1]
+    sub(/^[ \t]*cd[ \t]+(\047[^\047\n]+\047|"[^"$`\\\n]+"|[A-Za-z0-9_.\/@+-]+)[ \t]*&&[ \t]*/, "", header)
+    if (n < 3 || header !~ /^[ \t]*(node|deno|bun|python|python3|ruby|perl|cat)[ \t]+<<-?[ \t]*(\047[A-Za-z_][A-Za-z0-9_]*\047|"[A-Za-z_][A-Za-z0-9_]*"|\\[A-Za-z_][A-Za-z0-9_]*)[ \t]*$/) return text
+    if (text ~ /(^|[^A-Za-z0-9_])(eval|bash|sh|zsh)([^A-Za-z0-9_]|$)/) return text
+    delimiter = header; sub(/^.*<<-?[ \t]*/, "", delimiter); sub(/[ \t]*$/, "", delimiter)
+    if (substr(delimiter, 1, 1) == "\\") delimiter = substr(delimiter, 2)
+    else delimiter = substr(delimiter, 2, length(delimiter) - 2)
+    for (i = 2; i <= n; i++) {
+        copy = lines[i]; if (header ~ /<<-/) sub(/^\t*/, "", copy)
+        if (copy == delimiter) {
+            if (i != n) return text
+            gsub(/[{}]/, " ", body)
+            return lines[1] "\n" body lines[n]
         }
-        result = result header "\n"
+        if (index(copy, "<<")) return text
+        body = body lines[i] "\n"
     }
-    scan(result); scan(unquote(result))
+    return text
+}
+function scan_references(text) {
+    text = literal_heredoc(text)
+    scan(text); scan(unquote(text))
 }
 # Reuse ANSI-C decoding for reference spellings, not for interpreting shell code.
 function ansi(s, i,    c, c2, v, k, limit, d, digits) {
@@ -184,6 +179,10 @@ function options_allowed(verb, first,    i, w) {
                 continue
             }
         }
+        if ((verb == "rg" && (w == "--glob" || w == "-g")) || (verb == "git grep" && (w == "-e" || w == "--regexp"))) {
+            if (++i > argc || globbed[i]) return 0
+            continue
+        }
         if (!short_flags(w, short_options[verb])) return 0
     }
     return 1
@@ -257,8 +256,8 @@ BEGIN {
     policy("git log", "p", "--oneline --stat --name-only --no-color --follow")
     policy("git show", "p", "--stat --name-only --no-color")
     policy("git add", "Aup", ""); policy("git commit", "aq", "")
-    policy("git blame", "", ""); policy("git ls-files", "", "")
-    policy("git rev-parse", "", ""); policy("git check-ignore", "", ""); policy("git grep", "", "")
+    policy("git blame", "", ""); policy("git ls-files", "s", "--stage --debug")
+    policy("git rev-parse", "", ""); policy("git check-ignore", "", ""); policy("git grep", "n", "")
     for (i = 0; i < 16; i++) HEX[substr("0123456789abcdef", i + 1, 1)] = i
     ESC["n"] = 10; ESC["r"] = 13; ESC["t"] = 9; ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34
     text = ENVIRON["GSW_COMMAND"]
@@ -277,19 +276,9 @@ classifier="$script_directory/cratis-guard-writes.sh"
     exit 2
 }
 classifier_input="$(jq -nc --arg cwd "$cwd" --args '{cwd:$cwd,tool_input:{file_paths:$ARGS.positional}}' -- "${candidates[@]}")" || parser_failed
-# The Bash tool has default dot rules only when no shell switch, sourced code or
-# glob-option uncertainty is present. Never inspect/execute sourced scripts here.
-probe="${command_text//[\'\"\\]/}"
-probe_lower="$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" || parser_failed
-dotglob=1
-tool_name="$(jq -r '.tool_name // empty' <<<"$input")" || parser_failed
-case "$tool_name" in Bash|bash) dotglob=0 ;; esac
-case "$probe_lower" in
-    *shopt*|*globignore*|*globdots*|*'(d)'*|*source*|*setopt*|*zsh*|*fish*|*csh*|*ksh*|*ash*|*elvish*|*xonsh*|*shell*) dotglob=1 ;;
-esac
-if [[ "$probe_lower" =~ (^|[[:space:]\;\|\&/])(\.|sh)[[:space:]] || "$probe_lower" =~ [[:space:]]-[a-zA-Z]*c[[:space:]] ]]; then dotglob=1; fi
-if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]] || shopt -q dotglob; then dotglob=1; fi
-references="$(CRATIS_GSW_DOTGLOB="$dotglob" "$BASH" "$classifier" --references <<<"$classifier_input")" || {
+# Tool labels and this hook shell do not establish the execution shell options.
+# Keep conservative dotfile intersections for every command, especially mutators.
+references="$("$BASH" "$classifier" --references <<<"$classifier_input")" || {
     printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: could not check references (write guard failed).' >&2
     exit 2
 }

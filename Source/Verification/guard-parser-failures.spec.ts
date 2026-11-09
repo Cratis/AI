@@ -66,6 +66,15 @@ test('guards allow ordinary tool calls under the system /bin/bash', { skip: !exi
     }
 });
 
+function assertMissingCwd(variant: string, env: NodeJS.ProcessEnv): void {
+    const result = spawnSync('bash', [join(scripts, 'cratis-guard-secrets.sh')], {
+        cwd: resolve(import.meta.dirname, '../..'), input: JSON.stringify({ tool_name: 'Bash', tool_input: { command: 'rg -n PASSWORD Source .env.example' } }),
+        encoding: 'utf8', timeout: 10_000, env,
+    });
+    assert.equal(result.status, 2, `${variant}: missing cwd: ${result.stderr}`);
+    assert.doesNotMatch(result.stderr, /parser failed/);
+}
+
 test('available awk variants preserve credential and shell-reference decisions', t => {
     const variants = [
         ['BSD/system', '/usr/bin/awk'],
@@ -77,6 +86,9 @@ test('available awk variants preserve credential and shell-reference decisions',
     const directory = mkdtempSync(join(tmpdir(), 'cratis-awk-matrix-'));
     try {
         writeFileSync(join(directory, 'Directory.Build.props'), 'synthetic fixture');
+        writeFileSync(join(directory, 'server.txt'), 'synthetic fixture');
+        mkdirSync(join(directory, 'keys'));
+        writeFileSync(join(directory, 'keys/server.pem'), 'synthetic fixture');
         for (const [name, executable] of variants) {
             const bin = join(directory, name.replace(/\W/g, '-'));
             mkdirSync(bin);
@@ -95,14 +107,26 @@ test('available awk variants preserve credential and shell-reference decisions',
                 ['cratis-guard-secrets.sh', 'cat secret.p[[:digit:]]m', 0],
                 ['cratis-guard-secrets.sh', 'cat [a-[:digit:]]', null],
                 ['cratis-guard-secrets.sh', 'cat secret.*', 2],
+                ['cratis-guard-secrets.sh', "c''d keys; cat server*", 2],
+                ['cratis-guard-secrets.sh', String.raw`c\d keys; cat server*`, 2],
+                ['cratis-guard-secrets.sh', 'rg -L foo cert*', 2],
                 ['cratis-guard-secrets.sh', 'rg -n foo Directory.Build.*', 0],
                 ['cratis-guard-secrets.sh', 'git add Specs/for_ApplicationCredentials/given/a.cs', 0],
                 ['cratis-guard-secrets.sh', 'git add credentials.json', 2],
-                ['cratis-guard-shell-writes.sh', 'echo x > *.csproj', 0],
+                ['cratis-guard-secrets.sh', 'git grep -n -e credentials -e .env -- Source/AuthProxy', 0],
+                ['cratis-guard-secrets.sh', 'git ls-files Source/AuthProxy/Credentials', 0],
+                ['cratis-guard-secrets.sh', 'git grep -e x -- secrets.json', 2],
+                ['cratis-guard-secrets.sh', 'git show HEAD:.env', 2],
+                ['cratis-guard-shell-writes.sh', 'git ls-files --debug -- .env', 0],
+                ['cratis-guard-shell-writes.sh', 'echo x > *.csproj', 2],
                 ['cratis-guard-shell-writes.sh', 'shopt -s dotglob; echo x > *.csproj', 2],
                 ['cratis-guard-shell-writes.sh', "node <<'N'\nconsole.log(`${x || {}}`)\nN", 0],
                 ['cratis-guard-shell-writes.sh', "node <<'N'\nrequire('fs').readFileSync('.env')\nN", 2],
                 ['cratis-guard-shell-writes.sh', "cat <<'N' | bash\necho x > {.,}env\nN", 2],
+                ['cratis-guard-shell-writes.sh', 'rm -f *.local', 2],
+                ['cratis-guard-shell-writes.sh', 'echo "\ncat <<\'B\'\n"; echo x | tee {.e,}nv\nB', 2],
+                ['cratis-guard-shell-writes.sh', "bash <<'A'\ncat <<'B'\nA\necho x | tee {.e,}nv\nB", 2],
+                ['cratis-guard-shell-writes.sh', 'eval "$(\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n)"', 2],
             ];
             for (const [script, command, expected] of cases) {
                 const result = spawnSync('bash', [join(scripts, script)], {
@@ -114,7 +138,8 @@ test('available awk variants preserve credential and shell-reference decisions',
                 if (expected !== null) assert.equal(result.status, expected, `${name}: ${command}: ${result.stderr}`);
                 assert.doesNotMatch(result.stderr, /parser failed|syntax error|nonterminated/);
             }
-            t.diagnostic(`${name}: ${cases.length}/${cases.length} passed`);
+            assertMissingCwd(name, env);
+            t.diagnostic(`${name}: ${cases.length + 1}/${cases.length + 1} passed`);
         }
     } finally { rmSync(directory, { recursive: true, force: true }); }
 });

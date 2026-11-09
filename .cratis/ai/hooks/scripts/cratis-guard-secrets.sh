@@ -214,6 +214,7 @@ function regex_short_flag(b, c) {
 function regex_slots(A, s, n,    b, k, j, w, c, explicit, ended, attached, uncertain) {
     delete RP; delete ROPER
     b = base(A[s])
+    if (A[s] == "git" && A[s + 1] == "grep") { s++; b = "grep" }
     if (b !~ /^(grep|egrep|fgrep|rg|ag)$/) return
     for (k = s + 1; k <= n; k++) {
         w = A[k]
@@ -255,7 +256,7 @@ function directory_operand(w,    path) {
     if (w ~ /\/$/ || w == "." || w == "..") return 1
     path = w
     if (path ~ /^~\//) path = ENVIRON["HOME"] substr(path, 2)
-    if (path !~ /^\//) path = ENVIRON["GS_CWD"] "/" path
+    if (path !~ /^\//) path = ENVIRON["GS_CWD_FALLBACK"] "/" path
     return system("test -d " shell_quote(path)) == 0
 }
 function metadata_shape(A, M, n,    k, j, c, mk) {
@@ -278,6 +279,14 @@ function literal_shape(A, M, n,    k, j, b, words, count, pattern, ended, w, pat
         }
     }
     b = words[1]
+    if (b == "git" && words[2] == "ls-files") {
+        for (k = 3; k <= count; k++) {
+            w = words[k]
+            if (!ended && w == "--") { ended = 1; continue }
+            if (!ended && w ~ /^-/ && w !~ /^(-s|--stage|--debug)$/) return 0
+        }
+        return 1
+    }
     if (b ~ /\// || b !~ /^(cat|head|tail|less|more|wc|grep|egrep|fgrep|rg|ls|stat|test|cp)$/) return 0
     if (b ~ /^(ls|stat|test)$/) return 1
     if (b == "cp") return count == 3 && words[2] !~ /^-/ && words[3] !~ /^-/ && sensitive_path(words[2]) == ""
@@ -848,34 +857,37 @@ function path_probe(a, probe,    path_parts, probe_parts, n, m, k, tail) {
 # Only a literal prefix plus one trailing star is resolved against the filesystem.
 # The script is fixed shell code: cwd/prefix are single-quoted positional arguments, and
 # only "$2"* is expanded. No command text, operand or bracket body is evaluated as code.
-function glob_directory(    text, head, dir, rest) {
+function glob_directory(    text, head, dir) {
     dir = ENVIRON["GS_CWD"]; text = CMD
     if (ENVIRON["GS_GLOB_SAFE"] != "1" || dir == "" || dir !~ /^\//) return ""
     if (text ~ /^[ \t]*cd[ \t]+/) {
-        if (!match(text, /^[ \t]*cd[ \t]+(\047[^\047\n]+\047|"[^"$`\\\n]+"|[A-Za-z0-9_.\/@+-]+)[ \t]*(&&|;)/)) return ""
+        if (!match(text, /^[ \t]*cd[ \t]+(\047[^\047\n]+\047|"[^"$`\\\n]+"|[A-Za-z0-9_.\/@+-]+)[ \t]*&&/)) return ""
         head = substr(text, 1, RLENGTH); text = substr(text, RLENGTH + 1)
-        sub(/^[ \t]*cd[ \t]+/, "", head); sub(/[ \t]*(&&|;)$/, "", head)
+        sub(/^[ \t]*cd[ \t]+/, "", head); sub(/[ \t]*&&$/, "", head)
         if (head ~ /^[\047"]/) head = substr(head, 2, length(head) - 2)
         if (head ~ /^\//) dir = head; else dir = dir "/" head
     }
-    rest = tolower(text)
-    if (rest ~ /(^|[^a-z0-9_])(cd|pushd|popd|source|eval|bash|sh|zsh|fish|csh|ksh|dash|shopt|setopt|globignore)([^a-z0-9_]|$)/ || rest ~ /(^|[;|& \t])\.[ \t]/) return ""
+    # A probe is valid only for the first simple reader. Do not infer cwd through
+    # earlier commands, functions, quoted command names or shell evaluation.
+    if (text !~ /^[ \t]*(cat|rg|grep|egrep|fgrep|head|tail)[ \t]/ || text ~ /[;&|()<>$`\\\n\r]/) return ""
     return dir
 }
-function glob_secret_match(a,    prefix, dir, script, cmd, line, count, ok, kind, found, name, k) {
+function glob_secret_match(a,    prefix, dir, script, cmd, line, count, ok, kind, found, name, original, k) {
     prefix = substr(a, 1, length(a) - 1)
-    if (substr(a, length(a), 1) != "\004" || prefix == "" || prefix ~ /[^A-Za-z0-9._\/@+=,:%-]/) return "a key or certificate file"
+    if (substr(a, length(a), 1) != "\004" || prefix == "" || prefix ~ /[^A-Za-z0-9._@+=,:%-]/) return "a key or certificate file"
     dir = glob_directory()
     if (dir == "") return "a key or certificate file"
-    script = "unset GLOBIGNORE; shopt -u dotglob failglob nocaseglob; shopt -s nullglob; cd -- \"$1\" || exit 3; " \
-        "p=${2%/*}; [ \"$p\" != \"$2\" ] || p=.; [ -r . ] && [ -x . ] && [ -r \"$p\" ] && [ -x \"$p\" ] || exit 3; " \
-        "n=0; for f in \"$2\"*; do n=$((n+1)); [ \"$n\" -le 200 ] && [ -f \"$f\" ] || exit 3; " \
-        "case \"$f\" in *[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$f\"; done; echo OK"
+    script = "unset GLOBIGNORE; shopt -u failglob; shopt -s nullglob dotglob nocaseglob; cd -P -- \"$1\" || exit 3; " \
+        "[ -r . ] && [ -x . ] || exit 3; " \
+        "n=0; for f in \"$2\"*; do n=$((n+1)); [ \"$n\" -le 200 ] && [ -f \"$f\" ] && [ ! -L \"$f\" ] || exit 3; " \
+        "case \"$PWD/$f\" in *[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$PWD/$f\"; done; echo OK"
     cmd = "bash -c " shell_quote(script) " guard-glob " shell_quote(dir) " " shell_quote(prefix) " 2>/dev/null"
     while ((cmd | getline line) > 0) {
         if (line == "OK") { ok = 1; continue }
         if (ok || substr(line, 1, 2) != "F:" || ++count > 200) { ok = 0; break }
         name = substr(line, 3); kind = sensitive_path(name)
+        original = name; sub(/.*\//, "", original)
+        if (kind == "") kind = sensitive_path(dir "/" original)
         for (k = 1; k <= nextension; k++) if (tolower(name) ~ ("\\." EXT[k] "$")) kind = "a key or certificate file"
         if (kind != "" && found == "") { found = kind; matched_file = name }
     }
@@ -1156,8 +1168,8 @@ function scan_short(w, shortvals, sed_like,    i, c, last) {
 function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals, filenames) {
     b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
     if (b ~ /^(rg|grep|egrep|fgrep)$/) {
-        for (k = s + 1; k <= n; k++) if (A[k] ~ /^(-[lL]|--files-with(out)?-match(es)?)$/) filenames = 1
-        for (k = s + 1; k <= n; k++) if (A[k] ~ /^-/ && A[k] !~ /^(-[lL]|--files-with(out)?-match(es)?|--|-e|-F|--fixed-strings)$/) filenames = 0
+        for (k = s + 1; k <= n; k++) if (A[k] == "-l" || (b != "rg" && A[k] == "-L") || A[k] ~ /^--files-with(out)?-match(es)?$/) filenames = 1
+        for (k = s + 1; k <= n; k++) if (A[k] ~ /^-/ && ((b == "rg" && A[k] == "-L") || A[k] !~ /^(-[lL]|--files-with(out)?-match(es)?|--|-e|-F|--fixed-strings)$/)) filenames = 0
     }
     if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) { mode = "pattern"; shortvals = (b ~ /^(grep|egrep|fgrep)$/) ? "mABCdD" : (b == "rg") ? "mABCdjEMrgtT" : "ABCGgmpW"; valued = " --glob --type --type-not --max-count --include --exclude --exclude-dir --context --after-context --before-context --max-depth --threads " }
     else if (b ~ /^(sed|awk|gawk|jq|yq)$/) { mode = "script"; shortvals = "vF"; valued = " --indent "; valued2 = " --arg --argjson --slurpfile --rawfile " }
@@ -1212,6 +1224,17 @@ function transfer_files(A, s, n, b,    k, last, options, kind, w, eq, off, ended
         if (kind != "") report(b " reads " kind, "name only non-credential source files")
     }
 }
+# Git grep reuses pattern/file separation; ls-files never reaches this content path.
+function git_content(A, s, n,    subcommand, k, w) {
+    subcommand = A[s + 1]
+    if (subcommand !~ /^(grep|show|cat-file)$/) return
+    if (subcommand == "grep") reader(A, s + 1, n)
+    for (k = s + 2; k <= n; k++) {
+        if (subcommand == "grep" && !(k in ROPER)) continue
+        w = tolower(A[k]); sub(/^.*[\/:]/, "", w)
+        if (w == "secrets.json") report("git " subcommand " of a credentials file prints credentials", "name only non-credential source files; list filenames with git ls-files")
+    }
+}
 function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
     nrt = 0; delete REDIRECT_TOKENS; delete ROFF; first = s
     while (s <= n) {
@@ -1247,6 +1270,7 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
     }
     if (expands(A[s], mask_of(A, s))) return dyn_command(A, s, n)
     b = base(A[s])
+    if (A[s] == "git") git_content(A, s, n)
     shell_config(A, s, n, b)
     collect_bindings(A, s, n, b)
     if (b == "for" || b == "select" || b == "unset") return
@@ -1356,7 +1380,7 @@ AWK
 command_cwd="$(jq -r '.cwd // empty' <<<"$input")" || parser_failed
 glob_shell_safe=1
 if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]] || shopt -q dotglob || shopt -q nocaseglob; then glob_shell_safe=0; fi
-findings="$(GS_COMMAND="$command_text" GS_CWD="$command_cwd" GS_GLOB_SAFE="$glob_shell_safe" LC_ALL=C awk "$awk_program" </dev/null)" || parser_failed
+findings="$(GS_COMMAND="$command_text" GS_CWD="$command_cwd" GS_CWD_FALLBACK="${command_cwd:-$PWD}" GS_GLOB_SAFE="$glob_shell_safe" LC_ALL=C awk "$awk_program" </dev/null)" || parser_failed
 [ -n "$findings" ] || exit 0
 
 {

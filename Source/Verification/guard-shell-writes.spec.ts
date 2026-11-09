@@ -70,14 +70,15 @@ function scratchRepository(origin = 'https://github.com/example/app.git') {
     return { root, dispose: () => rmSync(root, { recursive: true, force: true }) };
 }
 
-test('default Bash dot rules and quoted non-shell heredocs avoid speculative references', async () => {
+test('read-only globs and whole-command quoted heredocs avoid speculative references', async () => {
     const repo = scratchRepository();
     try {
         for (const present of [false, true]) {
             if (present) writeFileSync(join(repo.root, '.env'), 'synthetic fixture');
             await checkCases([
                 [ALLOW, "rg -n foo --glob '*.csproj'"], [ALLOW, 'rg -n foo Directory.Build.*'],
-                [ALLOW, 'rg -n foo *.cs'], [ALLOW, 'echo x > *.csproj'],
+                [BLOCK, 'rg -n foo *.cs'], [BLOCK, 'echo x > *.csproj'],
+                [ALLOW, "rg -n foo -g '*.csproj'"], [BLOCK, 'rg -n .env --glob'], [BLOCK, 'rg -n foo --glob *.csproj'],
                 [ALLOW, "node <<'N'\nconsole.log(`${Object.keys(e || {}).join(',')}`)\nN"],
                 [ALLOW, `cd '${repo.root}' && node <<'N'\nconsole.log(\`\${Object.keys(e || {}).join(',')}\`)\nN`],
                 ...['echo x > .env', 'echo x > .env.local', 'cp x *.env', 'tee *env', 'echo x > .e*',
@@ -104,6 +105,46 @@ test('default Bash dot rules and quoted non-shell heredocs avoid speculative ref
             const inherited = runGuard({ cwd: repo.root, tool_name: 'Bash', tool_input: { command: 'echo x > *.csproj' } }, repo.root, env);
             assert.equal(inherited.verdict, BLOCK);
         }
+    } finally { repo.dispose(); }
+});
+
+test('literal git filename metadata and grep pattern options are read-only', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [ALLOW, 'git grep -n -e SpoofableHeaders.Strip -e ForwardedIdentityForward -e OptionsKey -e CredentialBinding -- Source/AuthProxy'],
+            [ALLOW, 'git ls-files Source/AuthProxy/UserTokens Source/AuthProxy/Credentials Source/AuthProxy/Proxying Source/AuthProxy/ForwardedIdentity'],
+            [ALLOW, 'git ls-files -s -- .env'], [ALLOW, 'git ls-files --debug -- .env'],
+            [ALLOW, 'git grep -n -e credentials -e .env -- Source/AuthProxy'],
+            [BLOCK, 'git ls-files .env; echo x > .env'],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('tool labels and shell snapshots never make globbed writes safe', () => {
+    const repo = scratchRepository();
+    try {
+        for (const shell of ['/bin/zsh', '/bin/bash', '']) {
+            for (const command of ['rm -f *.local', 'cp x *.production', 'truncate -s0 *.production',
+                'printf x > *.local', 'echo x > *.csproj']) {
+                const result = runGuard(payload(command, repo.root), repo.root, { SHELL: shell });
+                assert.equal(result.verdict, BLOCK, `${shell}: ${command}`);
+            }
+        }
+    } finally { repo.dispose(); }
+});
+
+test('heredoc lookalikes and enclosing shell evaluation retain brace references', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            'echo "\ncat <<\'B\'\n"; echo x | tee {.e,}nv\nB',
+            "bash <<'A'\ncat <<'B'\nA\necho x | tee {.e,}nv\nB",
+            'eval "$(\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n)"',
+            'bash -c "$(\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n)"',
+            '`\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n`',
+            "node <<'N'\nconsole.log(`${x || {}}`)\nN\necho x | tee {.,}env",
+        ].map(command => [BLOCK, command]), repo.root);
     } finally { repo.dispose(); }
 });
 
