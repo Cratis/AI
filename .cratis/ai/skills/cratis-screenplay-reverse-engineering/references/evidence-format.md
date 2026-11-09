@@ -16,7 +16,7 @@ combines it with the legacy rows. For the richer table used with source code, se
 - A HAR row cites `har:<file>#<n>` and the route template (`POST /api/berths/reserve`) with field
   names, never values, cookies or tokens.
 - An OpenAPI row cites `openapi:<operation>`; a binary row cites path plus offset, symbol or
-  resource, and `RUN-<n>` for an approved run.
+  resource, and `RUN-<n>` for an approved run. A `binary` row from assembly reading is `Declared`.
 - A person or document row cites the section or the person and date.
 
 ## Probe budget and table
