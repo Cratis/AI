@@ -56,7 +56,7 @@ public class RecentUsageSnapshots : IRecentUsageSnapshots, IDisposable
 
     readonly ConcurrentDictionary<AIProviderId, (DateTimeOffset RecordedAt, ProviderUsageLevel Level)> _levels = new();
     readonly BehaviorSubject<IEnumerable<AIProviderUsageSnapshot>> _snapshots = new([]);
-    readonly object _gate = new();
+    readonly Lock _gate = new();
     readonly TimeProvider _timeProvider;
     readonly Meter _meter = new(MeterName);
 
