@@ -15,36 +15,32 @@ CodeScene needs an account and OAuth `login`. Without an account or available
 CodeScene tools, skip these steps and say so; never block contributors who have
 not opted in.
 
-## Judge the change, not the file
+## Thresholds and checking
 
-The gate is **no Code Health decline in changed files and no new code smells in
-touched functions**. Pre-existing findings are not a reason to refactor. The
-`safeguarding-ai-generated-code` instruction to refactor when a review reports
-problems means problems introduced by the change, not existing debt.
+The floor (touched files end at Code Health 9.5 or higher), the checking steps and the
+no-fix-loops process are the universal rule [code-health.md](./code-health.md). The
+`safeguarding-ai-generated-code` instruction to refactor when a review reports problems
+applies to every touched file, not only to problems the change introduced.
 
-## Thresholds
-
-- New files: at least **9.0**, aiming for **10**.
-- Changed files: **no decline**.
-- Uplift red (below 4) or yellow (4–8.9) files only through a dedicated,
-  issue-tracked task with tests behind it, using
-  `guiding-refactoring-with-code-health`.
-- Project target: **Hotspot Code Health at least 9**, with no downward trend.
-- CodeScene categories, for reference: **10 optimal**, **9–9.9 green**,
-  **4–8.9 yellow**, **1–3.9 red**.
-
-## When to check
-
-Use the `codescene` MCP server's `code_health_review` on changed files after
-editing. Before declaring work done or opening a PR, run
-`pre_commit_code_health_safeguard`, or `analyze_change_set` against the base
-branch. Name any decline the user explicitly accepts in the report or PR comment;
-never hide it.
+CodeScene categories, for reference: **10 optimal**, **9–9.9 green**, **4–8.9 yellow**,
+**1–3.9 red**. Project target: **Hotspot Code Health at least 9**, with no downward trend.
+Name any shortfall the user explicitly accepts in the report or PR comment; never hide it.
 
 ## Exclusions and precedence
 
 Never refactor generated code: proto/gRPC contracts, generated proxies or `obj/`.
 "Could not determine Code Health score" is not a failure.
+
+Optional recipe for generated code CodeScene still scores: a root `.codescene/code-health-rules.json`
+with one `rule_sets` entry whose `matching_content_path` is the generated glob (`**/*.g.cs`,
+`**/Generated/**`, `**/Proxies/**`) and `rules` listing every rule at `"weight": 0.0` scores those
+files 10 and leaves others unchanged (verified). Names: Bumpy Road Ahead, Complex Conditional,
+Complex Method, Constructor Over-Injection, Code Duplication, Deep, Nested Complexity, Excess Number
+of Function Arguments, Large Method, Large Assertion Blocks, Duplicated Assertion Blocks, Low
+Cohesion, Brain Class, Brain Method, Overall Code Complexity, Primitive Obsession, String Heavy
+Function Arguments, Lines of Code in a Single File, Number of Functions in a Single Module, Global
+Conditionals, Missing Arguments Abstractions. Run `rules_config_validate` first; never exclude domain
+code such as Chronicle `Migrations`. The corpus cannot install this file.
 
 Other Cratis rules take precedence over findings. One-file vertical slices make
 "Lines of Code in a Single File" expected; do not rewrite `ConceptAs` usage or

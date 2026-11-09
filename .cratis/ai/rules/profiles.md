@@ -233,7 +233,8 @@ language policy always follows the consuming repository's `go.mod` minimum.
 Select `cratis/codescene` explicitly to load the four upstream CodeScene skills:
 `safeguarding-ai-generated-code`, `guiding-refactoring-with-code-health`,
 `prioritizing-technical-debt` and `risk-based-testing-with-code-health`.
-The [CodeScene policy](./codescene.md) overrides those skills where they differ.
+The [CodeScene policy](./codescene.md) overrides those skills where they differ. The Code Health
+floor itself is the universal rule [code-health.md](./code-health.md); the profile supplies the skills and server.
 No other profile, including `cratis` and `cratis/full`, composes it.
 
 The profile selects the `codescene` stdio server (`cs-mcp`, no arguments) from
