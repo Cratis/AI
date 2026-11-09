@@ -12,12 +12,18 @@ public class when_the_permission_scan_fails : given.a_launch
     async Task Because()
     {
         await Launch();
+
+        // Substitute only the absolute tool calls so this shell-control-flow spec remains
+        // independent of the host's stat dialect and of real container paths.
+        var command = _commands[^2].Cmd[^1]
+            .Replace("/usr/bin/find", "find", StringComparison.Ordinal)
+            .Replace("/usr/bin/stat", "stat", StringComparison.Ordinal);
         using var process = Process.Start(new ProcessStartInfo("bash")
         {
             ArgumentList =
             {
                 "--noprofile", "--norc", "-c",
-                "test() { return 0; }; find() { return 1; }; stat() { printf '1655:700'; }; " + _commands[^2].Cmd[2]
+                "test() { return 0; }; find() { return 1; }; stat() { printf '1655:700'; }; " + command
             },
             UseShellExecute = false
         });

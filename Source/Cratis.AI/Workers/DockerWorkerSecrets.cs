@@ -15,6 +15,8 @@ namespace Cratis.AI.Workers;
 /// <param name="cancellationToken">The cancellation token.</param>
 internal sealed class DockerWorkerSecrets(IDockerClient client, string container, CancellationToken cancellationToken)
 {
+    const string ExecutionPath = "PATH=/usr/sbin:/usr/bin:/sbin:/bin";
+
     /// <summary>
     /// Builds an in-memory payload without a readiness marker.
     /// </summary>
@@ -51,17 +53,17 @@ internal sealed class DockerWorkerSecrets(IDockerClient client, string container
         var files = BuildPayload(job);
 
         // Exec resolves paths inside the mounted container namespace; no archive API or layer write.
-        await Execute($"test ! -L {WorkerSecrets.Directory} && test \"$(stat -f -c %T {WorkerSecrets.Directory})\" = tmpfs && test \"$(stat -c %u:%a {WorkerSecrets.Directory})\" = 1655:700 && test ! -L {WorkerSecrets.DockerReadyDirectory} && test \"$(stat -f -c %T {WorkerSecrets.DockerReadyDirectory})\" = tmpfs && test \"$(stat -c %u:%a {WorkerSecrets.DockerReadyDirectory})\" = 0:755 && test ! -w {WorkerSecrets.DockerReadyDirectory} && test ! -e {WorkerSecrets.DockerReadyPath}", deadline.Token);
+        await Execute($"test ! -L {WorkerSecrets.Directory} && test \"$(/usr/bin/stat -f -c %T {WorkerSecrets.Directory})\" = tmpfs && test \"$(/usr/bin/stat -c %u:%a {WorkerSecrets.Directory})\" = 1655:700 && test ! -L {WorkerSecrets.DockerReadyDirectory} && test \"$(/usr/bin/stat -f -c %T {WorkerSecrets.DockerReadyDirectory})\" = tmpfs && test \"$(/usr/bin/stat -c %u:%a {WorkerSecrets.DockerReadyDirectory})\" = 0:755 && test ! -w {WorkerSecrets.DockerReadyDirectory} && test ! -e {WorkerSecrets.DockerReadyPath}", deadline.Token);
         foreach (var (name, content) in files)
         {
             await WriteFile(name, content, deadline.Token);
         }
-        await Execute($"test \"$(stat -c %u:%a {WorkerSecrets.Directory})\" = 1655:700 && test -r {WorkerSecrets.Path} && invalid=$(find {WorkerSecrets.Directory} -mindepth 1 \\( ! -type f -o ! -user 1655 -o ! -group 1655 -o ! -perm 0400 \\) -print) && test -z \"$invalid\"", deadline.Token);
+        await Execute($"test \"$(/usr/bin/stat -c %u:%a {WorkerSecrets.Directory})\" = 1655:700 && test -r {WorkerSecrets.Path} && invalid=$(/usr/bin/find {WorkerSecrets.Directory} -mindepth 1 \\( ! -type f -o ! -user 1655 -o ! -group 1655 -o ! -perm 0400 \\) -print) && test -z \"$invalid\"", deadline.Token);
 
         // A separate final operation: partial delivery or a failed check cannot release the gate.
         // Publication is the commit point. Any subsequent transport/inspect ambiguity fails and removes
         // the container, but cannot promise that a worker did not briefly observe the committed marker.
-        await Execute($"umask 077; printf 'ready\\n' > {WorkerSecrets.DockerPendingReadyPath} && chmod 0444 {WorkerSecrets.DockerPendingReadyPath} && mv {WorkerSecrets.DockerPendingReadyPath} {WorkerSecrets.DockerReadyPath}", deadline.Token, user: "0:0");
+        await Execute($"umask 077; printf 'ready\\n' > {WorkerSecrets.DockerPendingReadyPath} && /usr/bin/chmod 0444 {WorkerSecrets.DockerPendingReadyPath} && /usr/bin/mv {WorkerSecrets.DockerPendingReadyPath} {WorkerSecrets.DockerReadyPath}", deadline.Token, user: "0:0");
     }
 
     static bool IsConfigurationName(string name) => name switch
@@ -81,7 +83,7 @@ internal sealed class DockerWorkerSecrets(IDockerClient client, string container
         {
             // Bound stdin by byte count rather than relying on transport-specific half-close support.
             // A short write fails the size check. Only the length and validated path enter argv.
-            await Execute($"umask 077; head -c {bytes.Length} > '{path}' && test \"$(stat -c %s '{path}')\" = {bytes.Length} && chmod 0400 '{path}'", token, bytes);
+            await Execute($"umask 077; /usr/bin/head -c {bytes.Length} > '{path}' && test \"$(/usr/bin/stat -c %s '{path}')\" = {bytes.Length} && /usr/bin/chmod 0400 '{path}'", token, bytes);
         }
         finally
         {
@@ -99,7 +101,11 @@ internal sealed class DockerWorkerSecrets(IDockerClient client, string container
                 AttachStdin = input is not null,
                 AttachStdout = true,
                 AttachStderr = true,
-                Cmd = ["/bin/sh", "-c", command]
+
+                // Docker merges Env with the container environment. Clear that inherited state
+                // before starting the shell; the launch filter rejects loader/shell overrides too.
+                Env = [ExecutionPath],
+                Cmd = ["/usr/bin/env", "-i", ExecutionPath, "/bin/sh", "-c", command]
             },
             token);
         using var stream = await client.Exec.StartContainerExecAsync(execution.ID, new ContainerExecStartParameters(), token);

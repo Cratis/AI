@@ -61,6 +61,10 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     /// <c>entrypoint.sh</c> still reads <c>DIRECT_REPOSITORY_CACHE</c> literally).
     /// </param>
     /// <returns>The container creation parameters.</returns>
+    /// <exception cref="DockerWorkerLaunchFailed">
+    /// The job supplies execution-affecting environment variables such as PATH, LD_*, or shell startup overrides.
+    /// These names are rejected case-insensitively before container creation.
+    /// </exception>
     public static CreateContainerParameters BuildContainerSpecification(
         WorkerJob job,
         string? repositoryCachePath = null,
@@ -101,8 +105,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             Env =
             [
                 .. job.EnvironmentVariables
-                    .Where(variable => !variable.Key.Contains('=') && !variable.Key.Contains('\0') &&
-                        !IsRuntimeEnvironmentVariable(variable.Key, repositoryCacheEnvironmentVariable))
+                    .Where(variable => IsJobEnvironmentVariable(variable.Key, repositoryCacheEnvironmentVariable))
                     .Select(variable => $"{variable.Key}={variable.Value}"),
                 $"{WorkerSecrets.PathVariableName}={WorkerSecrets.Path}",
                 $"{WorkerSecrets.RequiredVariableName}=true",
@@ -121,6 +124,16 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         };
     }
 
+    static bool IsJobEnvironmentVariable(string name, string? repositoryCacheEnvironmentVariable)
+    {
+        if (IsExecutionEnvironmentVariable(name))
+        {
+            throw new DockerWorkerLaunchFailed();
+        }
+        return !name.Contains('=') && !name.Contains('\0') &&
+            !IsRuntimeEnvironmentVariable(name, repositoryCacheEnvironmentVariable);
+    }
+
     static bool IsRuntimeEnvironmentVariable(string name, string? repositoryCacheEnvironmentVariable) =>
         name.Equals(WorkerSecrets.PathVariableName, StringComparison.OrdinalIgnoreCase) ||
         name.Equals(WorkerSecrets.RequiredVariableName, StringComparison.OrdinalIgnoreCase) ||
@@ -128,6 +141,16 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         name.Equals(WorkerPromptFile.LegacyVariableName, StringComparison.OrdinalIgnoreCase) ||
         name.Equals("DIRECT_REPOSITORY_CACHE", StringComparison.OrdinalIgnoreCase) ||
         name.Equals(repositoryCacheEnvironmentVariable, StringComparison.OrdinalIgnoreCase);
+
+    static bool IsExecutionEnvironmentVariable(string name) => name.ToUpperInvariant() switch
+    {
+        "PATH" or "BASH_ENV" or "ENV" or "SHELLOPTS" or "BASHOPTS" or "IFS" or "PS4" or "PROMPT_COMMAND" or
+        "GLIBC_TUNABLES" or "GCONV_PATH" or "LOCPATH" or "NLSPATH" or "CDPATH" or "BASH_COMPAT" or "BASH_XTRACEFD" => true,
+        var variable => variable.StartsWith("LD_", StringComparison.Ordinal) ||
+            variable.StartsWith("DYLD_", StringComparison.Ordinal) ||
+            variable.StartsWith("MALLOC_", StringComparison.Ordinal) ||
+            variable.StartsWith("BASH_FUNC_", StringComparison.Ordinal)
+    };
 
     static void ValidateLimits(WorkerLimits? limits)
     {

@@ -45,12 +45,12 @@ public class a_launch : Specification
         _client.Exec.CreateContainerExecAsync("worker", Arg.Any<ContainerExecCreateParameters>(), Arg.Any<CancellationToken>()).Returns(call =>
         {
             var command = call.Arg<ContainerExecCreateParameters>();
-            if (command.Cmd[2].Contains("printf", StringComparison.Ordinal))
+            if (command.Cmd[^1].Contains("printf", StringComparison.Ordinal))
             {
                 _verifiedBeforePublication = _inspections.GetValueOrDefault(_commands.Count.ToString(System.Globalization.CultureInfo.InvariantCulture)) == 3;
             }
             _commands.Add(command);
-            _operations.Add(command.AttachStdin ? "write" : command.Cmd[2].Contains("printf", StringComparison.Ordinal) ? "ready" : "verify");
+            _operations.Add(command.AttachStdin ? "write" : command.Cmd[^1].Contains("printf", StringComparison.Ordinal) ? "ready" : "verify");
             return Task.FromResult(new ContainerExecCreateResponse { ID = _commands.Count.ToString(System.Globalization.CultureInfo.InvariantCulture) });
         });
         _client.Exec.StartContainerExecAsync(Arg.Any<string>(), Arg.Any<ContainerExecStartParameters>(), Arg.Any<CancellationToken>()).Returns(_ =>
