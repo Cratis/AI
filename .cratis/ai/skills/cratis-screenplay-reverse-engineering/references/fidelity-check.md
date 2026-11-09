@@ -65,7 +65,10 @@ Passing `screenplay test` does not show that Stage can run the model. After `cra
 1. Read `GET /stage/status`; the state must be `ready`. A refused model serves
    `/stage/semantic/admission` instead and answers every `/api` route with 501, so one issue
    (for example a specification missing a `$context.occurred` field) blocks the whole walk.
-   Fix every admission issue before walking or scoring; a refused model scores zero.
+   Fix every admission issue before walking or scoring; a refused model scores zero. A `ready`
+   state can still list single artifacts as unsupported: that command answers 501, and every
+   flow that needs it first fails with it (one in round 3 lost 38 of 91 cases). Read the whole
+   admission output, not its first entries, and fix each unsupported artifact.
 2. Execute one command over HTTP. A refusal naming an unsupported model format version means the
    toolchain is out of range: update it before changing the model. Send date-time values in the
    full round-trip form with fractional seconds and offset.

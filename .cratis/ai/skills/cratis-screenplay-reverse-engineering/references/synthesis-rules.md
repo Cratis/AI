@@ -104,6 +104,11 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
   admits caller conditions only (`authenticated`, roles); a rule that reads state is not
   expressible, so write a `GAP` line citing the open Cratis/Screenplay issues on state-reading
   authorization policies (search the tracker for the numbers) and keep the rule as an anchored `question` note. Do not invent syntax.
+- **Cross-field rules** ("a first or a last name"): write a declarative
+  `require <condition>` with a `message`, for example
+  `require firstName != "" or lastName != ""`. A fenced code body is a last resort; its
+  shape (yielded messages, the fields it can read) is in `cratis-screenplay-command-surface`,
+  and a body Stage cannot compile makes that command unsupported.
 - **Cascades and observed defects**: a cascade (deleting a parent removes its children) is an
   automation: model it when the dialect allows, else list it in `event-model.md`. Model the
   intended behavior of an observed defect and flag the defect.

@@ -178,9 +178,12 @@ The model may be offered for acceptance only when each item is a result or "not 
 - The inventory lists every observable entry point with its source or "not covered".
 - Every slice cites evidence ids; every row has a classification; every unknown has a question.
 - Every finding is encoded or carries a `GAP` cause; the probe coverage check has no empty class.
-- `screenplay test` ran with executed equal to discovered; its summary line is in the report.
-- `cratis run` admitted the model: `GET /stage/status` reads `ready` and the admission list is
-  empty. One admission issue refuses every route, so the whole model is unrunnable.
+- `screenplay test` ran with executed equal to discovered and none failed; its summary line is
+  in the report. "Needs an occurrence supplied by the execution request" means the
+  specification lacks a `given clock` line.
+- `cratis run` admitted the model: `GET /stage/status` reads `ready`, the admission list is
+  empty and the detailed admission lists no artifact as unsupported. One admission issue refuses
+  every route; one unsupported command answers 501, and so does every flow that needs it first.
 - V1 clean on the candidate (`cratis-screenplay-toolchain`), warnings as errors.
 - The independent review ran, and each slice has a keep, change or remove decision.
 - Safety: approvals named, captures scrubbed, captures untracked.
