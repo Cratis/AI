@@ -51,33 +51,53 @@ function tableRows(content: string): string[][] {
 /** The scaffold dependency pins from the "Scaffold pins" table, read from the table so a bump only edits it. */
 export function scaffoldPins(content: string): Pin[] {
     const pins: Pin[] = [];
-    for (const [item, value] of tableRows(content).filter(row => row.length >= 2)) {
-        if (item.startsWith('Arc packages')) add(pins, 'Arc', firstVersion(value));
-        else if (item.startsWith('Chronicle client')) add(pins, 'Chronicle', firstVersion(value));
-        else if (item === 'Frontend') {
-            for (const segment of value.split(';')) {
-                const label = ['@cratis/arc', '@cratis/components', '@cratis/scene.*'].find(name => segment.includes(`\`${name}\``));
-                if (label) add(pins, label, firstVersion(segment));
-            }
-        }
-    }
+    for (const [item, value] of tableRows(content).filter(row => row.length >= 2)) pins.push(...scaffoldRowPins(item, value));
     return pins;
+}
+
+function scaffoldRowPins(item: string, value: string): Pin[] {
+    if (item.startsWith('Arc packages')) return pinOf('Arc', firstVersion(value));
+    if (item.startsWith('Chronicle client')) return pinOf('Chronicle', firstVersion(value));
+    return item === 'Frontend' ? value.split(';').flatMap(frontendSegmentPins) : [];
+}
+
+function frontendSegmentPins(segment: string): Pin[] {
+    const label = ['@cratis/arc', '@cratis/components', '@cratis/scene.*'].find(name => segment.includes(`\`${name}\``));
+    return label ? pinOf(label, firstVersion(segment)) : [];
+}
+
+function pinOf(label: string, value: string | undefined): Pin[] {
+    return value ? [{ label, value }] : [];
 }
 
 /** The bundled Cratis.Arc.Screenplay pin from the CLI table. */
 export function bundlePins(content: string): Pin[] {
-    const pins: Pin[] = [];
-    for (const [source, pin] of tableRows(content).filter(row => row.length >= 2)) {
-        if (source.startsWith('Bundled Cratis.Arc.Screenplay')) add(pins, 'Cratis.Arc.Screenplay', firstVersion(pin));
-    }
-    return pins;
-}
-
-function add(pins: Pin[], label: string, value: string | undefined): void {
-    if (value) pins.push({ label, value });
+    return tableRows(content).filter(row => row.length >= 2)
+        .flatMap(([source, pin]) => source.startsWith('Bundled Cratis.Arc.Screenplay') ? pinOf('Cratis.Arc.Screenplay', firstVersion(pin)) : []);
 }
 
 const occurrence = (value: string) => new RegExp(`(?<![\\w.])v?${value.replaceAll('.', '\\.')}(?!\\w|\\.\\d)`);
+
+/** Blanks out each excepted text in the line, recording which exceptions were used; returns the remaining line and the count removed. */
+function withoutExceptions(line: string, path: string, pins: Pin[], exceptions: PinException[], used: Set<PinException>): { remaining: string; removed: number } {
+    let remaining = line;
+    let removed = 0;
+    for (const entry of exceptions.filter(candidate => candidate.file === path && pins.some(pin => occurrence(pin.value).test(candidate.text)))) {
+        while (remaining.includes(entry.text)) {
+            remaining = remaining.replace(entry.text, ' ');
+            used.add(entry);
+            removed++;
+        }
+    }
+    return { remaining, removed };
+}
+
+function exceptionProblems(exceptions: PinException[], used: Set<PinException>): string[] {
+    return exceptions.flatMap(entry => [
+        ...entry.reason?.trim() ? [] : [`Pin exception for ${entry.file} ('${entry.text}') has no reason.`],
+        ...used.has(entry) ? [] : [`Pin exception for ${entry.file} ('${entry.text}') matches nothing any more; remove it.`],
+    ]);
+}
 
 /** Messages for each occurrence of a current pin outside the two central tables that no exception covers, and for each stale exception. */
 export function pinRestatements(files: SourceFile[], pins: Pin[], exceptions: PinException[]): PinReport {
@@ -89,23 +109,14 @@ export function pinRestatements(files: SourceFile[], pins: Pin[], exceptions: Pi
     let allowed = 0;
     for (const file of scanned) {
         file.content.split('\n').forEach((line, index) => {
-            let remaining = line;
-            for (const entry of exceptions.filter(candidate => candidate.file === file.path && pins.some(pin => occurrence(pin.value).test(candidate.text)))) {
-                while (remaining.includes(entry.text)) {
-                    remaining = remaining.replace(entry.text, ' ');
-                    used.add(entry);
-                    allowed++;
-                }
-            }
+            const { remaining, removed } = withoutExceptions(line, file.path, pins, exceptions, used);
+            allowed += removed;
             for (const pin of pins.filter(candidate => occurrence(candidate.value).test(remaining))) {
                 problems.push(`${file.path}:${index + 1} restates the current ${pin.label} pin ${pin.value}; describe the behavior without the pin (current value in ${pin.label === 'Cratis.Arc.Screenplay' ? bundleTable : scaffoldTable}) or list a reasoned exception.`);
             }
         });
     }
-    for (const entry of exceptions) {
-        if (!entry.reason?.trim()) problems.push(`Pin exception for ${entry.file} ('${entry.text}') has no reason.`);
-        if (!used.has(entry)) problems.push(`Pin exception for ${entry.file} ('${entry.text}') matches nothing any more; remove it.`);
-    }
+    problems.push(...exceptionProblems(exceptions, used));
     return { problems, pins: pins.length, scanned: scanned.length, allowed };
 }
 
