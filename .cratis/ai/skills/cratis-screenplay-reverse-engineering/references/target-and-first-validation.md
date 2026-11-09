@@ -27,9 +27,9 @@ Errors that cost iterations on a first pass; each is confirmed in the toolchain 
 - `given clock "<ISO timestamp>"` is one line.
 - Productions from different streams need explicit destinations (PLAY0470).
 - Prove a projection with `given` events, then `when`, then `then readmodel`/`then query`
-  (trap 15). A command spec on an update-style command (archive, rename, complete) needs a
-  `given` of the event that created the row, or the run reports Unsupported; see
-  `cratis-screenplay-specifications`.
+  (trap 15). When an update-style command (archive, rename, complete) depends on state that
+  an earlier event created, give that event in its spec's `given`; a first run that
+  reports Unsupported often lacks it. See `cratis-screenplay-specifications`.
 - Add a per-command screen only when no data screen carries the action; command forms come
   from actions on data screens.
 
