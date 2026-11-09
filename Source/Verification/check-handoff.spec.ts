@@ -286,3 +286,26 @@ test('absolute read paths and an explicit repository root are supported', t => {
     assert.equal(f.report('--repo', f.directory).status, 0);
     assert.equal(readFileSync(f.handoff, 'utf8').includes(f.directory), true);
 });
+
+test('an annotated Files to read bullet resolves its first code span', t => {
+    const f = fixture(t);
+    f.write(f.body.replace('- `tracked.txt`', '- `tracked.txt` (the retry loop, see `other.txt`)'));
+    const result = f.report();
+    assert.equal(result.status, 0);
+    assert.deepEqual(result.data.errors, []);
+});
+
+test('a missing annotated Files to read path is still an error', t => {
+    const f = fixture(t);
+    f.write(f.body.replace('- `tracked.txt`', '- `missing.txt` (the retry loop)'));
+    hasCode(f.report().data.errors, 'files-to-read-missing');
+});
+
+test('command spans in unread results do not warn, missing path spans still do', t => {
+    const f = fixture(t);
+    f.write(f.body.replace('## Finished, results not yet read\nnone',
+        '## Finished, results not yet read\n- run: `gh run view 123`, then `.ai-work/x/review-1.md`'));
+    const warnings = f.report().data.warnings.filter(w => w.code === 'result-missing');
+    assert.equal(warnings.length, 1, JSON.stringify(warnings));
+    assert.match(warnings[0].message, /review-1\.md/);
+});
