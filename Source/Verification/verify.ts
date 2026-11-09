@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { constants, existsSync } from 'node:fs';
 import { access, readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve } from 'node:path';
@@ -354,6 +355,9 @@ if (!process.env.CRATIS_SCREENPLAY_TOOL) {
 const screenplay = await verifyPlayExamples(root);
 failures.push(...screenplay.problems);
 console.log(JSON.stringify({ screenplay }, null, 2));
+
+const scriptSelfTests = spawnSync(process.execPath, ['--import', 'tsx', '--test', 'skill-script-self-tests.spec.ts'], { cwd: import.meta.dirname, stdio: 'inherit' });
+if (scriptSelfTests.status !== 0) failures.push(`Skill script self-tests failed: ${scriptSelfTests.error?.message ?? scriptSelfTests.status}`);
 
 if (failures.length > 0) {
     console.error(JSON.stringify({ passed: false, failures }, null, 2));

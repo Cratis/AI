@@ -29,6 +29,8 @@
     { "kind": "skill-contains", "value": "Managed assembly intake", "file": "references/executable-intake.md" },
     { "kind": "skill-contains", "value": "Naming (non-leaked)", "file": "references/ground-truth-benchmark.md" },
     { "kind": "skill-contains", "value": "behavior catalog" },
-    { "kind": "skill-contains", "value": "score-fidelity.mjs" }
+    { "kind": "skill-contains", "value": "score-fidelity.mjs" },
+    { "kind": "skill-contains", "value": "drift-scope.mjs --self-test" },
+    { "kind": "skill-contains", "value": "structure-only", "file": "references/process-drift.md" }
   ]
 }

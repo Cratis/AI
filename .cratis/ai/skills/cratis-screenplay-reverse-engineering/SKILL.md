@@ -134,6 +134,10 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    (pass signal: exit 0 and the score block; exit 2 means an invalid catalog). Run
    `scripts/score-fidelity.mjs --self-test` to check the arithmetic; it executes
    `scripts/score-fidelity-self-test.mjs` and prints the checked count.
+   For process-drift scoping, run `scripts/drift-scope.mjs --self-test`, which executes
+   `scripts/drift-scope-self-test.mjs`. The [SoloCrm case](scripts/fixtures/solocrm-drift/README.md)
+   uses `scripts/fixtures/solocrm-drift/change.diff`, `scripts/fixtures/solocrm-drift/evidence-map.json`
+   and `scripts/fixtures/solocrm-drift/expected.json`; see [process drift](references/process-drift.md).
 
 When the sources are only a website, user docs or a description document, or the run must feel
 like a product on Stage, read

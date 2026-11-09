@@ -1,0 +1,131 @@
+diff --git a/Source/Crm/Opportunities/Pipeline/Pipeline.cs b/Source/Crm/Opportunities/Pipeline/Pipeline.cs
+index e401bf9..2b47c7c 100644
+--- a/Source/Crm/Opportunities/Pipeline/Pipeline.cs
++++ b/Source/Crm/Opportunities/Pipeline/Pipeline.cs
+@@ -30,4 +30,7 @@ public record Opportunity(global::SoloCrm.Common.OpportunityTitle Title, global:
+     [global::Cratis.Arc.Authorization.AllowAnonymousAttribute]
+     public static global::System.Reactive.Subjects.ISubject<global::System.Collections.Generic.IEnumerable<Opportunity>> AllOpportunities(global::Cratis.Chronicle.ReadModels.IReadModels readModels) => readModels.Observe<Opportunity>();
++
++    [global::Cratis.Arc.Authorization.AllowAnonymousAttribute]
++    public static global::System.Reactive.Subjects.ISubject<global::System.Collections.Generic.IEnumerable<Opportunity>> DormantOpportunities(global::Cratis.Chronicle.ReadModels.IReadModels readModels) => global::SoloCrm.Crm.Today.TodayRules.Where(readModels.Observe<Opportunity>(), global::SoloCrm.Crm.Today.TodayRules.IsDormant);
+ }
+diff --git a/Source/Crm/Tasks/Tasks/Tasks.cs b/Source/Crm/Tasks/Tasks/Tasks.cs
+index 7298e09..422a293 100644
+--- a/Source/Crm/Tasks/Tasks/Tasks.cs
++++ b/Source/Crm/Tasks/Tasks/Tasks.cs
+@@ -25,4 +25,10 @@ public record TaskItem(string RegardingId, global::SoloCrm.Common.TaskTitle Titl
+     [global::Cratis.Arc.Authorization.AllowAnonymousAttribute]
+     public static global::System.Reactive.Subjects.ISubject<global::System.Collections.Generic.IEnumerable<TaskItem>> AllTasks(global::Cratis.Chronicle.ReadModels.IReadModels readModels, bool? isCompleted = null) => readModels.Observe<TaskItem>(instance => (isCompleted == null || global::System.Collections.Generic.EqualityComparer<bool?>.Default.Equals(instance.IsCompleted, isCompleted)));
++
++    [global::Cratis.Arc.Authorization.AllowAnonymousAttribute]
++    public static global::System.Reactive.Subjects.ISubject<global::System.Collections.Generic.IEnumerable<TaskItem>> OverdueTasks(global::Cratis.Chronicle.ReadModels.IReadModels readModels) => global::SoloCrm.Crm.Today.TodayRules.Where(readModels.Observe<TaskItem>(), global::SoloCrm.Crm.Today.TodayRules.IsOverdue);
++
++    [global::Cratis.Arc.Authorization.AllowAnonymousAttribute]
++    public static global::System.Reactive.Subjects.ISubject<global::System.Collections.Generic.IEnumerable<TaskItem>> TasksDueToday(global::Cratis.Chronicle.ReadModels.IReadModels readModels) => global::SoloCrm.Crm.Today.TodayRules.Where(readModels.Observe<TaskItem>(), global::SoloCrm.Crm.Today.TodayRules.IsDueToday);
+ }
+diff --git a/Source/Crm/Today/TodayRules.cs b/Source/Crm/Today/TodayRules.cs
+new file mode 100644
+index 0000000..c00d172
+--- /dev/null
++++ b/Source/Crm/Today/TodayRules.cs
+@@ -0,0 +1,74 @@
++// Copyright (c) Cratis. All rights reserved.
++// Licensed under the MIT license. See LICENSE file in the project root for full license information.
++
++// Hand-written gap-fill: the Today rules from SPEC S1 compare against "today", which the Screenplay
++// executable subset cannot express (`today` and $context date comparisons are PLAY0268). The model
++// declares the OverdueTasks, TasksDueToday and DormantOpportunities queries; these rules narrow them.
++using System.Reactive.Linq;
++using System.Reactive.Subjects;
++using SoloCrm.Common;
++using SoloCrm.Crm.Opportunities.Pipeline;
++using SoloCrm.Crm.Tasks.Tasks;
++
++namespace SoloCrm.Crm.Today;
++
++/// <summary>
++/// The date rules behind the Today view, evaluated in the configured time zone (default Europe/Berlin).
++/// </summary>
++public static class TodayRules
++{
++    /// <summary>The number of calendar days without activity after which an open opportunity is dormant.</summary>
++    public const int DormantAfterDays = 7;
++
++    static readonly TimeZoneInfo _timeZone = ResolveTimeZone();
++
++    /// <summary>Gets today's date in the configured time zone.</summary>
++    public static DateOnly Today => DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, _timeZone).DateTime);
++
++    /// <summary>Whether a task is open and due before today.</summary>
++    /// <param name="task">The task.</param>
++    /// <returns>True when overdue.</returns>
++    public static bool IsOverdue(TaskItem task) => !task.IsCompleted && task.DueDate < Today;
++
++    /// <summary>Whether a task is open and due today.</summary>
++    /// <param name="task">The task.</param>
++    /// <returns>True when due today.</returns>
++    public static bool IsDueToday(TaskItem task) => !task.IsCompleted && task.DueDate == Today;
++
++    /// <summary>Whether an opportunity is open, not archived and has had no activity for the threshold.</summary>
++    /// <param name="opportunity">The opportunity.</param>
++    /// <returns>True when dormant.</returns>
++    public static bool IsDormant(Opportunity opportunity)
++    {
++        if (opportunity.IsArchived || (opportunity.StageStatus is not null && opportunity.StageStatus != StageStatus.Open))
++        {
++            return false;
++        }
++
++        var lastTouched = opportunity.ReceivedOn;
++        if (opportunity.LastActivityAt is { } lastActivity)
++        {
++            var activityDay = DateOnly.FromDateTime(TimeZoneInfo.ConvertTime(lastActivity, _timeZone).DateTime);
++            if (activityDay > lastTouched)
++            {
++                lastTouched = activityDay;
++            }
++        }
++
++        return lastTouched.AddDays(DormantAfterDays) <= Today;
++    }
++
++    /// <summary>Narrows an observed collection with a rule, keeping it observable.</summary>
++    /// <typeparam name="T">The read model type.</typeparam>
++    /// <param name="source">The observed collection.</param>
++    /// <param name="rule">The rule an item must satisfy.</param>
++    /// <returns>A subject producing only the matching items.</returns>
++    public static ISubject<IEnumerable<T>> Where<T>(ISubject<IEnumerable<T>> source, Func<T, bool> rule) =>
++        System.Reactive.Subjects.Subject.Create<IEnumerable<T>>(source, source.Select(items => items.Where(rule).ToArray()));
++
++    static TimeZoneInfo ResolveTimeZone()
++    {
++        var id = Environment.GetEnvironmentVariable("App__TimeZone") ?? "Europe/Berlin";
++        return TimeZoneInfo.TryFindSystemTimeZoneById(id, out var zone) ? zone : TimeZoneInfo.Utc;
++    }
++}
+diff --git a/Source/Crm/Tasks/Tasks/Tasks.ts b/Source/Crm/Tasks/Tasks/Tasks.ts
+new file mode 100644
+index 0000000..dce490a
+--- /dev/null
++++ b/Source/Crm/Tasks/Tasks/Tasks.ts
+@@ -0,0 +1,439 @@
++// Copyright (c) Cratis. All rights reserved.
++// Licensed under the MIT license. See LICENSE file in the project root for full license information.
++
++// @generated by Cratis. Source: SoloCrm.Crm.Tasks.Tasks.TaskItem, SoloCrm.Crm.Tasks.Tasks.TaskItem, SoloCrm.Crm.Tasks.Tasks.TaskItem, SoloCrm.Crm.Tasks.Tasks.TaskItem, SoloCrm.Crm.Tasks.Tasks.TaskItem. Time: 2026-10-22T14:47:52.1631720Z. Hash: DF5CD97919A2A5E11B36B476995EF8E1DC18665058C35D98CEE524C93C1C760D
++// **DO NOT EDIT** - This file is an automatically generated file.
+diff --git a/Source/yarn.lock b/Source/yarn.lock
+new file mode 100644
+index 0000000..0ec6bad
+--- /dev/null
++++ b/Source/yarn.lock
+@@ -0,0 +1,1670 @@
+diff --git a/Source/scene.json b/Source/scene.json
+index 27ad977..6692a21 100644
+--- a/Source/scene.json
++++ b/Source/scene.json
+@@ -1 +1 @@
+diff --git a/Source/src/stage-scene.json b/Source/src/stage-scene.json
+--- a/Source/src/stage-scene.json
++++ b/Source/src/stage-scene.json
+@@ -1 +1 @@
