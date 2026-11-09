@@ -145,7 +145,7 @@ For an implemented application slice, require the applicable changed-lane gates 
 
 For large features with many slices, use these techniques to keep context manageable:
 
-- **`/compact`** after completing each phase to free context space. Add focus notes: `/compact focus on remaining slices and unresolved issues`.
+- Keep a state note and hand off between phases: follow `cratis-session-handoff`.
 - **`/fork`** before exploring an alternative design approach, so the original plan is preserved.
 - Use bounded source inspection for routine research. Request an independent researcher from the parent only when the scope justifies it and the host supports it.
 
