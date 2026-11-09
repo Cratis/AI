@@ -23,3 +23,8 @@ Set `WorkerJob.Limits` to a `WorkerLimits` value to cap Docker memory (bytes), C
 and process count. A memory cap also sets the total memory-plus-swap cap to the same value,
 disabling swap for the job. Missing limits or zero fields leave that resource unlimited.
 Kubernetes continues to use its existing resource options.
+
+## Immutable images
+
+Digest references such as `repo@sha256:<digest>` are pulled as complete references with no separate
+tag. Tagged and untagged image references retain their previous behavior.

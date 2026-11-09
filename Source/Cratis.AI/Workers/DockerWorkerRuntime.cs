@@ -343,8 +343,18 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         return $"cratis-ai-agent-{sanitized}";
     }
 
-    static (string Image, string Tag) SplitImage(string image)
+    /// <summary>
+    /// Separates mutable tags without splitting an immutable digest reference.
+    /// </summary>
+    /// <param name="image">The image reference.</param>
+    /// <returns>The image and optional tag used for pulling.</returns>
+    internal static (string Image, string Tag) SplitImage(string image)
     {
+        if (image.Contains('@'))
+        {
+            return (image, string.Empty);
+        }
+
         var separator = image.LastIndexOf(':');
         return separator > image.LastIndexOf('/')
             ? (image[..separator], image[(separator + 1)..])
