@@ -12,6 +12,11 @@ Configuration names must be single ASCII filenames and cannot replace the creden
 readiness files. The ready marker is published separately, only after delivery and permission checks.
 There is no writable-layer or host-file fallback.
 
+Callers should use `WorkerSecrets.Directory`, `FileName`, `Path`, `ReadyFileName`, `ReadyPath`,
+`PendingReadyFileName` and `PendingReadyPath` rather than duplicating names. `PathVariableName`
+and `RequiredVariableName` name the entrypoint switches. The pending marker is not readiness;
+only the final marker releases the gate.
+
 Failed delivery force-removes the container (including its tmpfs), even when the launch was cancelled.
 A cleanup failure is reported explicitly and requires operator removal of the container; launch never
 reports success in that case. Engine diagnostics from credential delivery are withheld from exceptions
