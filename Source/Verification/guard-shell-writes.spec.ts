@@ -121,6 +121,29 @@ test('literal git filename metadata and grep pattern options are read-only', asy
     } finally { repo.dispose(); }
 });
 
+test('original read lanes never confuse protected read paths with write targets', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai/rules'), { recursive: true });
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        writeFileSync(join(repo.root, '.cratis/ai/rules/project.md'), 'synthetic fixture');
+        await checkCases([
+            [ALLOW, `cd ${repo.root} && git diff --cc && rg -n 'new BearerRouteMiddleware|new\\(next, options|TreatWarnings|EnforceCode|WarningLevel|Configuration|Docker|Testcontainers' Source/AuthProxy.Specs/BearerRoutes Source/AuthProxy.Security.Specs/*.csproj Source/Aspire.Specs/*.csproj Directory.Build.* Source/Directory.Build.* AuthProxy.slnx && git log -6 --format='%H %s'`],
+            [ALLOW, "rg -l 'Identity|Hosting' .cratis/ai/rules/project*"],
+            [ALLOW, `cd ${repo.root} && git branch --show-current && git rev-parse HEAD && git status --short && rg -n 'Infrastructure.csproj' Source --glob '*.csproj' && sed -n '1,130p' Source/Admin.Specs/Admin.Specs.csproj && sed -n '1,120p' Source/Infrastructure/Infrastructure.csproj`],
+            [ALLOW, 'cat .cratis/ai/rules/project.md'], [ALLOW, 'ls .cratis/ai/rules'],
+            [ALLOW, 'sed -n p .cratis/ai/rules/project.md'],
+            ...['sed -i s/a/b/ Source/AuthProxy.Security.Specs/*.csproj', 'echo x > Source/AuthProxy.Security.Specs/*.csproj',
+                'sed -i s/a/b/ .cratis/ai/rules/project.md', 'echo x > .cratis/ai/rules/project.md',
+                "sed -n '1w .env' .cratis/ai/rules/project.md", "sed -n 'e touch marker' .cratis/ai/rules/project.md",
+                'cd .claude && echo x > settings.json', 'echo x > settings.json && cd .claude',
+                'cd .cratis/ai/rules && tee project.md', 'git branch new-branch && cat .env',
+                'rg --pre command .cratis/ai/rules/project.md', 'rg -l --pre command .cratis/ai/rules/project*',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('tool labels and shell snapshots never make globbed writes safe', () => {
     const repo = scratchRepository();
     try {

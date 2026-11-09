@@ -856,8 +856,35 @@ function path_probe(a, probe,    path_parts, probe_parts, n, m, k, tail) {
 }
 # Only a literal prefix plus one trailing star is resolved against the filesystem.
 # The script is fixed shell code: cwd/prefix are single-quoted positional arguments, and
-# only "$2"* is expanded. No command text, operand or bracket body is evaluated as code.
-function glob_directory(    text, head, dir) {
+# only the literal basename prefix plus * is expanded. No command text, operand or bracket body is evaluated as code.
+# Recognize only && chains with one reader and literal read-only Git metadata.
+# Quoted regex/format text is opaque data; expansions and other shell syntax fail
+# closed. The semantic command index binds a probe to that reader, not a later one.
+function probe_read_chain(text, prior,    i, c, q, normal, n, k, readers, reader_index, clause, parts) {
+    for (i = 1; i <= length(text); i++) {
+        c = substr(text, i, 1)
+        if (c ~ /[\001-\010\012-\037\177]/) return 0
+        if (q == "\047") { if (c == q) q = ""; continue }
+        if (c ~ /[$`\\]/) return 0
+        if (q == "\"") { if (c == q) q = ""; continue }
+        if (c == "\047" || c == "\"") { q = c; normal = normal "Q"; continue }
+        if (c == "&" && substr(text, i + 1, 1) == "&") { normal = normal "\034"; i++; continue }
+        if (c ~ /[;&|(){}<>]/) return 0
+        normal = normal c
+    }
+    if (q != "") return 0
+    n = split(normal, parts, "\034")
+    for (k = 1; k <= n; k++) {
+        clause = parts[k]; sub(/^[ \t]+/, "", clause); sub(/[ \t]+$/, "", clause)
+        if (clause ~ /^(cat|rg|grep|egrep|fgrep|head|tail)[ \t]/) { readers++; reader_index = prior + k; continue }
+        if (clause ~ /^git[ \t]+diff([ \t]+(--cc|--stat|--check|--no-color))*$/) continue
+        if (clause ~ /^git[ \t]+log([ \t]+(-[0-9]+|--format=[^ \t]+|--oneline|--no-color))*$/) continue
+        if (clause ~ /^git[ \t]+(branch[ \t]+--show-current|rev-parse[ \t]+HEAD|status[ \t]+--short)$/) continue
+        return 0
+    }
+    return readers == 1 && reader_index == commands
+}
+function glob_directory(    text, head, dir, prior) {
     dir = ENVIRON["GS_CWD"]; text = CMD
     if (ENVIRON["GS_GLOB_SAFE"] != "1" || dir == "" || dir !~ /^\//) return ""
     if (text ~ /^[ \t]*cd[ \t]+/) {
@@ -865,35 +892,38 @@ function glob_directory(    text, head, dir) {
         head = substr(text, 1, RLENGTH); text = substr(text, RLENGTH + 1)
         sub(/^[ \t]*cd[ \t]+/, "", head); sub(/[ \t]*&&$/, "", head)
         if (head ~ /^[\047"]/) head = substr(head, 2, length(head) - 2)
+        if (head !~ /^\// && ENVIRON["CDPATH"] != "") return ""
         if (head ~ /^\//) dir = head; else dir = dir "/" head
+        prior = 1
     }
-    # A probe is valid only for the first simple reader. Do not infer cwd through
-    # earlier commands, functions, quoted command names or shell evaluation.
-    if (text !~ /^[ \t]*(cat|rg|grep|egrep|fgrep|head|tail)[ \t]/ || text ~ /[;&|()<>$`\\\n\r]/) return ""
+    if (qi != 1 || !probe_read_chain(text, prior)) return ""
     return dir
 }
-function glob_secret_match(a,    prefix, dir, script, cmd, line, count, ok, kind, found, name, original, k) {
+function glob_secret_match(a,    prefix, dir, script, cmd, line, count, ok, kind, found, name, original, basename, k) {
     prefix = substr(a, 1, length(a) - 1)
-    if (substr(a, length(a), 1) != "\004" || prefix == "" || prefix ~ /[^A-Za-z0-9._@+=,:%-]/) return "a key or certificate file"
+    if (substr(a, length(a), 1) != "\004" || prefix == "" || prefix ~ /[^A-Za-z0-9._\/@+=,:%-]/) return "a key or certificate file"
     dir = glob_directory()
     if (dir == "") return "a key or certificate file"
-    script = "unset GLOBIGNORE; shopt -u failglob; shopt -s nullglob dotglob nocaseglob; cd -P -- \"$1\" || exit 3; " \
-        "[ -r . ] && [ -x . ] || exit 3; " \
-        "n=0; for f in \"$2\"*; do n=$((n+1)); [ \"$n\" -le 200 ] && [ -f \"$f\" ] && [ ! -L \"$f\" ] || exit 3; " \
+    script = "unset GLOBIGNORE CDPATH; shopt -u failglob; shopt -s nullglob dotglob nocaseglob; cd -P -- \"$1\" || exit 3; " \
+        "[ -r . ] && [ -x . ] || exit 3; parent=${2%/*}; stem=${2##*/}; [ \"$parent\" != \"$2\" ] || parent=.; " \
+        "cd -P -- \"$parent\" && [ -r . ] && [ -x . ] || exit 3; " \
+        "n=0; for f in \"$stem\"*; do n=$((n+1)); [ \"$n\" -le 200 ] && [ -f \"$f\" ] && [ ! -L \"$f\" ] || exit 3; " \
         "case \"$PWD/$f\" in *[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$PWD/$f\"; done; echo OK"
     cmd = "bash -c " shell_quote(script) " guard-glob " shell_quote(dir) " " shell_quote(prefix) " 2>/dev/null"
     while ((cmd | getline line) > 0) {
         if (line == "OK") { ok = 1; continue }
         if (ok || substr(line, 1, 2) != "F:" || ++count > 200) { ok = 0; break }
         name = substr(line, 3); kind = sensitive_path(name)
-        original = name; sub(/.*\//, "", original)
-        if (kind == "") kind = sensitive_path(dir "/" original)
+        basename = name; sub(/.*\//, "", basename)
+        original = prefix; sub(/[^\/]*$/, "", original); original = original basename
+        if (original !~ /^\//) original = dir "/" original
+        if (kind == "") kind = sensitive_path(original)
         for (k = 1; k <= nextension; k++) if (tolower(name) ~ ("\\." EXT[k] "$")) kind = "a key or certificate file"
         if (kind != "" && found == "") { found = kind; matched_file = name }
     }
     close(cmd)
     if (!ok) { matched_file = ""; return "a key or certificate file" }
-    if (!count && !filenames_only) return "a key or certificate file"
+    if (!count && !filenames_only && (base(prefix) ~ /^(secrets?|cert(ificate)?s?|keys?|private|credentials?)([._-]|$)/ || tolower(prefix) ~ /\.(pem|key|p12|pfx|jks|keystore|kdbx|kubeconfig|env)([._-]|$)/ || sensitive_path(dir "/" prefix) != "")) return "a key or certificate file"
     return found
 }
 # Literal words retain the full classifier. Glob words use canonical names and all protected extensions;

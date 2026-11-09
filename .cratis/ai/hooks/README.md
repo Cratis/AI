@@ -18,22 +18,30 @@ Three layers:
 | Quality gate (Claude) | `Stop` | `scripts/cratis-quality-gate.sh` | one build/test run, only when relevant files changed | exits **2** — the turn does not end |
 | Quality gate (Pi) | explicit `cratis_quality_gate` tool | same script | only at a requested verification checkpoint | error on failure; no turn-end hook |
 
-For false positives, a basename literal-prefix trailing `*` can be resolved for a first simple reader
-in a known, readable directory, optionally after a literal `cd … &&`. Compound commands, earlier
-commands, functions, quoted command names and shell evaluation do not qualify. Only a fixed script
-with quoted positional arguments performs expansion; command text is never evaluated. The check
-allows at most 200 ordinary, non-symlink matches and scans their absolute physical and original cwd
-contexts. Case-insensitive probing overapproximates case-sensitive and case-insensitive filesystems.
-Protected matches block even filename-only searches. Unknown cwd, unreadable directories, complex
-patterns and ambiguous shell state fail closed. With no matches, content readers still block;
-filename-only searches may pass unless the pattern itself is secret-like (`.env*`, `*.pem`, `*.key`,
-`id_rsa*`). For ripgrep, `-L` follows symlinks; it is not filename-only mode. Literal directory checks
-retain the process-cwd fallback when a hook payload omits cwd; glob probing does not. Filesystem
-checks have a check/use race: this remains best-effort, not a sandbox.
+For false positives, a literal-prefix trailing `*`, including literal directory components, can be
+resolved in a known, readable cwd and parent directory. A single reader may stand alone or appear in
+an `&&` chain of literal read-only Git metadata commands, optionally after a literal leading `cd`.
+The probe is bound to that reader's parsed command index. Arbitrary earlier/later commands, functions,
+quoted command names, other separators and shell evaluation do not qualify. Quoted search patterns
+and format values remain data. Only fixed code with quoted positional arguments performs expansion;
+command text is never evaluated. At most 200 ordinary, non-symlink matches are checked in both physical
+absolute and original path contexts. Case-insensitive probing overapproximates filesystem case rules.
+Protected matches block even filename-only searches. Unknown cwd, unreadable/missing directories,
+complex patterns and ambiguous shell state fail closed. A successful empty expansion of a non-secret
+prefix may pass; secret-like patterns (`.env*`, `*.pem`, `*.key`, `id_rsa*`) still block. Empty content
+searches with secret/certificate/key-like prefixes also remain blocked. For ripgrep, `-L` follows
+symlinks, not filename-only mode. Literal directory checks retain the process-cwd fallback when the
+payload omits cwd; glob probing does not. Filesystem check/use races remain: this is not a sandbox.
 
 The shell-write reference scan keeps conservative leading-dot intersections: a tool named `Bash`,
 `SHELL`, and the hook process's options do not establish the execution shell's options. Globbed writes
-therefore remain blocked. Quoted `rg --glob`/`-g` filters are recognized as read-only options.
+therefore remain blocked. Read operands under protected paths are not write targets: `rg -n`/`-l`,
+quoted `--glob`/`-g` filters, and numeric/last-line `sed -n …p` scripts are recognized as read-only.
+`sed -n` scripts with writes, execution or extra options are not exempt. New `cd` and
+`git branch --show-current` exemptions permit only `&&`-only read/search chains, not semicolons,
+pipelines or other separators. Any file redirection in a cwd-changing chain fails closed because
+its target is not proven against the changed cwd. Mutating commands and protected redirects stay
+blocked. No shell-option assumption is used to dismiss leading-dot intersections.
 Brace suppression applies only to a whole-command, single quoted heredoc with a literal first-line
 non-shell consumer (optionally after literal `cd … &&`) and its delimiter ending the command. Literal
 protected names in the body are still classified. Apparent headers inside quotes, nested heredocs,

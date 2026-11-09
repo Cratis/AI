@@ -66,6 +66,18 @@ test('guards allow ordinary tool calls under the system /bin/bash', { skip: !exi
     }
 });
 
+function assertAwkCase(variant: string, entry: [string, string, number | null], directory: string, env: NodeJS.ProcessEnv): void {
+    const [script, command, expected] = entry;
+    const result = spawnSync('bash', [join(scripts, script)], {
+        input: JSON.stringify({ cwd: directory, tool_name: 'Bash', tool_input: { command } }),
+        encoding: 'utf8', timeout: 10_000, env,
+    });
+    assert.ok(!result.error, `${variant}: ${command}: ${result.error}`);
+    assert.ok(result.status === 0 || result.status === 2, `${variant}: ${command}: ${result.stderr}`);
+    if (expected !== null) assert.equal(result.status, expected, `${variant}: ${command}: ${result.stderr}`);
+    assert.doesNotMatch(result.stderr, /parser failed|syntax error|nonterminated/);
+}
+
 function assertMissingCwd(variant: string, env: NodeJS.ProcessEnv): void {
     const result = spawnSync('bash', [join(scripts, 'cratis-guard-secrets.sh')], {
         cwd: resolve(import.meta.dirname, '../..'), input: JSON.stringify({ tool_name: 'Bash', tool_input: { command: 'rg -n PASSWORD Source .env.example' } }),
@@ -73,6 +85,16 @@ function assertMissingCwd(variant: string, env: NodeJS.ProcessEnv): void {
     });
     assert.equal(result.status, 2, `${variant}: missing cwd: ${result.stderr}`);
     assert.doesNotMatch(result.stderr, /parser failed/);
+}
+
+function prepareAwkFixture(directory: string): void {
+    writeFileSync(join(directory, 'Directory.Build.props'), 'synthetic fixture');
+    writeFileSync(join(directory, 'server.txt'), 'synthetic fixture');
+    mkdirSync(join(directory, 'keys'));
+    writeFileSync(join(directory, 'keys/server.pem'), 'synthetic fixture');
+    mkdirSync(join(directory, 'Source'));
+    mkdirSync(join(directory, '.cratis/ai/rules'), { recursive: true });
+    writeFileSync(join(directory, '.cratis/ai/rules/project.md'), 'synthetic fixture');
 }
 
 test('available awk variants preserve credential and shell-reference decisions', t => {
@@ -85,10 +107,7 @@ test('available awk variants preserve credential and shell-reference decisions',
     else t.diagnostic('BusyBox awk: not installed');
     const directory = mkdtempSync(join(tmpdir(), 'cratis-awk-matrix-'));
     try {
-        writeFileSync(join(directory, 'Directory.Build.props'), 'synthetic fixture');
-        writeFileSync(join(directory, 'server.txt'), 'synthetic fixture');
-        mkdirSync(join(directory, 'keys'));
-        writeFileSync(join(directory, 'keys/server.pem'), 'synthetic fixture');
+        prepareAwkFixture(directory);
         for (const [name, executable] of variants) {
             const bin = join(directory, name.replace(/\W/g, '-'));
             mkdirSync(bin);
@@ -111,6 +130,10 @@ test('available awk variants preserve credential and shell-reference decisions',
                 ['cratis-guard-secrets.sh', String.raw`c\d keys; cat server*`, 2],
                 ['cratis-guard-secrets.sh', 'rg -L foo cert*', 2],
                 ['cratis-guard-secrets.sh', 'rg -n foo Directory.Build.*', 0],
+                ['cratis-guard-secrets.sh', "rg -l 'Identity|Hosting' .cratis/ai/rules/project*", 0],
+                ['cratis-guard-secrets.sh', "git diff --cc && rg -n 'Docker|Testcontainers' Directory.Build.* Source/Directory.Build.* && git log -6 --format='%H %s'", 0],
+                ['cratis-guard-secrets.sh', 'rg -n foo keys/server*', 2],
+                ['cratis-guard-secrets.sh', 'git diff --cc && rg -n foo Source/Directory.Build.* && z', 2],
                 ['cratis-guard-secrets.sh', 'git add Specs/for_ApplicationCredentials/given/a.cs', 0],
                 ['cratis-guard-secrets.sh', 'git add credentials.json', 2],
                 ['cratis-guard-secrets.sh', 'git grep -n -e credentials -e .env -- Source/AuthProxy', 0],
@@ -119,6 +142,11 @@ test('available awk variants preserve credential and shell-reference decisions',
                 ['cratis-guard-secrets.sh', 'git show HEAD:.env', 2],
                 ['cratis-guard-shell-writes.sh', 'git ls-files --debug -- .env', 0],
                 ['cratis-guard-shell-writes.sh', 'echo x > *.csproj', 2],
+                ['cratis-guard-shell-writes.sh', "rg -l 'Identity|Hosting' .cratis/ai/rules/project*", 0],
+                ['cratis-guard-shell-writes.sh', `cd ${directory} && git diff --cc && rg -n Docker Source/Security/*.csproj && git log -6 --format='%H %s'`, 0],
+                ['cratis-guard-shell-writes.sh', `cd ${directory} && git branch --show-current && git rev-parse HEAD && git status --short && rg -n Infrastructure Source --glob '*.csproj' && sed -n '1,130p' Source/Admin.csproj`, 0],
+                ['cratis-guard-shell-writes.sh', 'sed -i s/a/b/ Source/Security/*.csproj', 2],
+                ['cratis-guard-shell-writes.sh', 'cd Source && echo x > .env', 2],
                 ['cratis-guard-shell-writes.sh', 'shopt -s dotglob; echo x > *.csproj', 2],
                 ['cratis-guard-shell-writes.sh', "node <<'N'\nconsole.log(`${x || {}}`)\nN", 0],
                 ['cratis-guard-shell-writes.sh', "node <<'N'\nrequire('fs').readFileSync('.env')\nN", 2],
@@ -128,16 +156,7 @@ test('available awk variants preserve credential and shell-reference decisions',
                 ['cratis-guard-shell-writes.sh', "bash <<'A'\ncat <<'B'\nA\necho x | tee {.e,}nv\nB", 2],
                 ['cratis-guard-shell-writes.sh', 'eval "$(\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n)"', 2],
             ];
-            for (const [script, command, expected] of cases) {
-                const result = spawnSync('bash', [join(scripts, script)], {
-                    input: JSON.stringify({ cwd: directory, tool_name: 'Bash', tool_input: { command } }),
-                    encoding: 'utf8', timeout: 10_000, env,
-                });
-                assert.ok(!result.error, `${name}: ${command}: ${result.error}`);
-                assert.ok(result.status === 0 || result.status === 2, `${name}: ${command}: ${result.stderr}`);
-                if (expected !== null) assert.equal(result.status, expected, `${name}: ${command}: ${result.stderr}`);
-                assert.doesNotMatch(result.stderr, /parser failed|syntax error|nonterminated/);
-            }
+            for (const entry of cases) assertAwkCase(name, entry, directory, env);
             assertMissingCwd(name, env);
             t.diagnostic(`${name}: ${cases.length + 1}/${cases.length + 1} passed`);
         }
