@@ -1,0 +1,18 @@
+# Docker worker launches
+
+Docker workers require an image using the worker entrypoint and UID 1655. The runtime starts the
+container with `CRATIS_WORKER_REQUIRE_SECRETS=true`; the entrypoint waits up to 30 seconds for
+`WorkerSecrets.ReadyFileName` before starting any agent. Missing or insecure delivery fails closed.
+Kubernetes does not set this switch and keeps its existing mounted-Secret behavior.
+
+The runtime verifies the live secrets mount is tmpfs, owned by UID 1655 with mode 0700, before
+sending credentials. Credentials, prompts and configuration are streamed from memory as regular
+files owned by UID/GID 1655 with mode 0400. Archive ownership is preserved and checked as the worker.
+Configuration names must be single ASCII filenames and cannot replace the credentials, prompt or
+readiness files. The ready marker is published separately, only after delivery and permission checks.
+There is no writable-layer or host-file fallback.
+
+Failed delivery force-removes the container (including its tmpfs), even when the launch was cancelled.
+A cleanup failure is reported explicitly and requires operator removal of the container; launch never
+reports success in that case. Engine diagnostics from credential delivery are withheld from exceptions
+and logs because they may include payloads. Real-engine verification remains an end-to-end concern.

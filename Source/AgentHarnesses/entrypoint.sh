@@ -308,18 +308,37 @@ set -uo pipefail
 log() { printf '[agent-harness] %s\n' "$*"; }
 
 # Load the credentials before anything needs them. The Docker runtime copies the file in after the
-# container is created, so it can still be arriving; the readiness marker is written last and is
+# container is started, so it can still be arriving; the readiness marker is written last and is
 # what proves the file is complete rather than half-extracted.
 load_secrets() {
     local file="${DIRECT_SECRETS_FILE:-}"
+    local required="${CRATIS_WORKER_REQUIRE_SECRETS:-false}"
+    if [[ -z "$file" && "$required" == true ]]; then
+        log "Secure worker secrets were not configured - refusing to start"
+        exit 1
+    fi
     [[ -n "$file" ]] || { log "No secrets file configured - running without credentials"; return; }
 
     local ready="${file%/*}/secrets.ready"
+    local attempts=30
+    [[ "$required" != true ]] || attempts=300
     local waited=0
-    while [[ ! -f "$ready" && $waited -lt 30 ]]; do
+    while [[ ! -f "$ready" && $waited -lt $attempts ]]; do
         sleep 0.1
         waited=$((waited + 1))
     done
+
+    if [[ "$required" == true ]]; then
+        # Docker delivers only into tmpfs, with the worker as sole reader. Fail closed before
+        # sourcing anything; mounted Kubernetes Secrets retain their existing behavior.
+        if [[ ! -f "$ready" || ! -f "$file" || -L "$file" || -L "$ready" ]] ||
+            [[ "$(stat -f -c %T "${file%/*}" 2>/dev/null)" != tmpfs ]] ||
+            [[ "$(stat -c %u:%a "${file%/*}" 2>/dev/null)" != "$(id -u):700" ]] ||
+            [[ "$(stat -c %u:%a "$file" 2>/dev/null)" != "$(id -u):400" ]]; then
+            log "Secure worker secrets were not delivered - refusing to start"
+            exit 1
+        fi
+    fi
 
     if [[ ! -f "$ready" ]]; then
         log "Secrets file did not arrive at ${file} - running without credentials"
@@ -336,7 +355,12 @@ load_secrets() {
         fi
     done < "$file"
     # shellcheck source=/dev/null
-    if ! . "$file"; then
+    if [[ "$required" == true ]]; then
+        if ! . "$file" 2>/dev/null; then
+            log "Could not load worker secrets - refusing to start"
+            exit 1
+        fi
+    elif ! . "$file"; then
         log "Could not read ${file} - running without credentials"
         return
     fi

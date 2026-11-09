@@ -86,6 +86,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
                         (!restricted || (variable.Key != repositoryCacheEnvironmentVariable && variable.Key != "DIRECT_REPOSITORY_CACHE")))
                     .Select(variable => $"{variable.Key}={variable.Value}"),
                 $"{WorkerSecrets.PathVariableName}={WorkerSecrets.Path}",
+                $"{WorkerSecrets.RequiredVariableName}=true",
                 $"{WorkerPromptFile.PathVariableName}={WorkerPromptFile.Path}",
                 .. restricted || string.IsNullOrWhiteSpace(repositoryCachePath) || string.IsNullOrWhiteSpace(repositoryCacheEnvironmentVariable)
                     ? (string[])[]
@@ -106,7 +107,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
                 // The secrets land on a memory-backed mount, so they never touch the container's
                 // writable layer and cannot be recovered from a committed image or a stopped
                 // container's filesystem.
-                Tmpfs = new Dictionary<string, string> { [WorkerSecrets.Directory] = "rw,noexec,nosuid,mode=0700" },
+                Tmpfs = new Dictionary<string, string> { [WorkerSecrets.Directory] = "rw,noexec,nosuid,nodev,mode=0700,uid=1655,gid=1655" },
 
                 // Shares the host's mirror of every tracked repository with the container, so
                 // clone_into_workspace() in entrypoint.sh can `git clone --shared` against it
@@ -132,6 +133,19 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     {
         using var client = CreateClient();
 
+        return await Start(client, job, cancellationToken);
+    }
+
+    /// <summary>
+    /// Launches using the supplied engine connection.
+    /// </summary>
+    /// <param name="client">The Docker client.</param>
+    /// <param name="job">The worker job.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The successful launch outcome.</returns>
+    /// <exception cref="DockerWorkerLaunchFailed">Secure delivery failed; engine details are withheld.</exception>
+    internal async Task<WorkerLaunchOutcome> Start(IDockerClient client, WorkerJob job, CancellationToken cancellationToken = default)
+    {
         var (image, tag) = SplitImage(job.Image);
         try
         {
@@ -141,19 +155,40 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
                 new Progress<JSONMessage>(),
                 cancellationToken);
         }
-        catch (DockerApiException exception)
+        catch (DockerApiException)
         {
             // A locally built image is not pullable - use what the daemon already has.
-            logger.CouldNotPullImage(exception, job.Image);
+            // Engine errors are untrusted and may include credentials.
+            logger.CouldNotPullImage(new InvalidOperationException("Docker image pull failed; engine diagnostics withheld."), job.Image);
         }
 
         var response = await client.Containers.CreateContainerAsync(
             BuildContainerSpecification(job, options.Value.RepositoryCachePath, options.Value.RepositoryCacheEnvironmentVariable),
             cancellationToken);
 
-        await WriteSecrets(client, response.ID, job, cancellationToken);
-
-        await client.Containers.StartContainerAsync(response.ID, new ContainerStartParameters(), cancellationToken);
+        try
+        {
+            if (!await client.Containers.StartContainerAsync(response.ID, new ContainerStartParameters(), cancellationToken))
+            {
+                throw new DockerWorkerLaunchFailed();
+            }
+            await new DockerWorkerSecrets(client, response.ID, cancellationToken).Inject(job);
+        }
+        catch (Exception)
+        {
+            // Docker errors can contain request bodies. Never expose the original exception,
+            // including as InnerException, and do not let caller cancellation skip cleanup.
+            using var cleanup = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            try
+            {
+                await client.Containers.RemoveContainerAsync(response.ID, new ContainerRemoveParameters { Force = true, RemoveVolumes = true }, cleanup.Token);
+            }
+            catch (Exception)
+            {
+                throw new DockerWorkerLaunchFailed(cleanupFailed: true);
+            }
+            throw new DockerWorkerLaunchFailed();
+        }
         logger.StartedWorkerContainer(response.ID, job.Session);
         return WorkerLaunchOutcome.Started;
     }
@@ -185,7 +220,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     /// <inheritdoc/>
     /// <remarks>
     /// Always <see langword="true"/> - a local Docker container has no comparable stuck-creating
-    /// phase the way a Kubernetes pod does. <see cref="Start"/> already waits for the image to be
+    /// phase the way a Kubernetes pod does. <see cref="Start(WorkerJob, CancellationToken)"/> already waits for the image to be
     /// present and the container created before it starts the container, so by the time a caller
     /// could observe this session as running, its container has started.
     /// </remarks>
@@ -302,86 +337,6 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     {
         var sanitized = new string([.. session.Value.Where(char.IsAsciiLetterOrDigit)]).ToLowerInvariant();
         return $"cratis-ai-agent-{sanitized}";
-    }
-
-    static async Task WriteSecrets(DockerClient client, string container, WorkerJob job, CancellationToken cancellationToken)
-    {
-        // A tmpfs is mounted when the container starts, so anything written into that path before
-        // start would be masked by it. Copying into a created-but-not-started container puts the
-        // file on the mount the entrypoint will read, and never on disk on the host.
-        await using var archive = new MemoryStream();
-        WriteTar(archive, job);
-        archive.Position = 0;
-
-        await client.Containers.ExtractArchiveToContainerAsync(
-            container,
-            new CopyToContainerParameters { Path = WorkerSecrets.Directory },
-            archive,
-            cancellationToken);
-    }
-
-    static void WriteTar(Stream stream, WorkerJob job)
-    {
-        // The readiness marker is written after the secrets file - and after the prompt, which is
-        // the larger of the two and the one most likely to still be arriving - so the entrypoint
-        // cannot observe a half-extracted file and read a truncated credential or instruction.
-        WriteTarEntry(stream, WorkerSecrets.FileName, Encoding.UTF8.GetBytes(WorkerSecrets.Render(job.Secrets)));
-        WriteTarEntry(
-            stream,
-            WorkerPromptFile.FileName,
-            Encoding.UTF8.GetBytes(WorkerPromptFile.Clamp(
-                job.EnvironmentVariables.GetValueOrDefault(WorkerPromptFile.LegacyVariableName, string.Empty))));
-        foreach (var (name, content) in job.ConfigurationFiles ?? new Dictionary<string, string>())
-        {
-            WriteTarEntry(stream, name, Encoding.UTF8.GetBytes(content));
-        }
-        WriteTarEntry(stream, WorkerSecrets.ReadyFileName, Encoding.UTF8.GetBytes("ready\n"));
-        stream.Write(new byte[1024]);
-    }
-
-    static void WriteTarEntry(Stream stream, string name, byte[] content)
-    {
-        var header = new byte[512];
-        Encoding.ASCII.GetBytes(name).CopyTo(header, 0);
-        Octal(header, 100, 8, 0b100_000_000);                       // mode 0400 - readable only by the owner
-        Octal(header, 108, 8, 0);                                   // uid
-        Octal(header, 116, 8, 0);                                   // gid
-        Octal(header, 124, 12, content.Length);
-        Octal(header, 136, 12, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-        header[156] = (byte)'0';                                    // a regular file
-        Encoding.ASCII.GetBytes("ustar\0").CopyTo(header, 257);
-        Encoding.ASCII.GetBytes("00").CopyTo(header, 263);
-
-        // The checksum is computed with its own field read as spaces, then written into it.
-        for (var index = 148; index < 156; index++)
-        {
-            header[index] = (byte)' ';
-        }
-
-        var checksum = header.Aggregate(0, (total, value) => total + value);
-        Octal(header, 148, 7, checksum);
-        header[154] = 0;
-        header[155] = (byte)' ';
-
-        stream.Write(header);
-        stream.Write(content);
-
-        var padding = (512 - (content.Length % 512)) % 512;
-        stream.Write(new byte[padding]);
-    }
-
-    /// <summary>
-    /// Writes a tar numeric field: octal digits, zero padded, NUL terminated.
-    /// </summary>
-    /// <param name="header">The header block to write into.</param>
-    /// <param name="offset">The offset of the field.</param>
-    /// <param name="length">The length of the field, including its terminator.</param>
-    /// <param name="value">The value to write.</param>
-    static void Octal(byte[] header, int offset, int length, long value)
-    {
-        var digits = Convert.ToString(value, 8).PadLeft(length - 1, '0');
-        Encoding.ASCII.GetBytes(digits).CopyTo(header, offset);
-        header[offset + length - 1] = 0;
     }
 
     static (string Image, string Tag) SplitImage(string image)

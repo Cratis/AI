@@ -46,6 +46,16 @@ public static class WorkerSecrets
     public const string ReadyFileName = "secrets.ready";
 
     /// <summary>
+    /// The private staging name, renamed only after the marker has its final permissions.
+    /// </summary>
+    public const string PendingReadyFileName = ".secrets.ready";
+
+    /// <summary>
+    /// The staging marker path on the same tmpfs, allowing atomic publication of readiness.
+    /// </summary>
+    public const string PendingReadyPath = $"{Directory}/{PendingReadyFileName}";
+
+    /// <summary>
     /// The full path of the secrets file inside the container.
     /// </summary>
     public const string Path = $"{Directory}/{FileName}";
@@ -62,6 +72,12 @@ public static class WorkerSecrets
     /// env-var contract was deliberately not renamed in the same move as the images themselves.
     /// </summary>
     public const string PathVariableName = "DIRECT_SECRETS_FILE";
+
+    /// <summary>
+    /// The Docker-only entrypoint switch requiring secure, complete delivery before agent startup.
+    /// Kubernetes retains its existing mounted-Secret behavior.
+    /// </summary>
+    public const string RequiredVariableName = "CRATIS_WORKER_REQUIRE_SECRETS";
 
     /// <summary>
     /// Renders secrets as a POSIX shell script the entrypoint sources.
