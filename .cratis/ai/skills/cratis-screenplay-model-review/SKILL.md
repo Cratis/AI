@@ -99,6 +99,10 @@ model's behalf.
     Protection and reaction-privilege checks: [mode compliance](references/mode-compliance.md).
     A client id, secret, authority, sender or mail server in a model is a critical finding: those
     belong in the environment (`cratis-screenplay-authentication-and-onboarding`).
+    **Design system check** (when the model draws a UI): exactly one `design system` with a `default theme` (`PLAY0917`, `PLAY0927`);
+    every theme a profile selects `implements` it and gives each `color` token a value in every mode (`PLAY0926`, `PLAY0921`); no raw
+    `accent`, `corners` or `font` left in a profile's `appearance` (`PLAY0929`); `contrast` rules declared for the text/background pairs
+    components use, and no `PLAY0928` waived without a reason. Detail: `cratis-screenplay-ui-composition`.
 12. **Root causes, classify, report** (`references/report-template.md`). Group findings that share
     a declaration; report the root cause with its symptoms under it; severity critical, major or
     minor; kind defect, question or note; verdict with confidence. Never apply changes.
@@ -187,7 +191,7 @@ Read [references/neighbouring-skills.md](references/neighbouring-skills.md) when
 
 ## References (load on demand)
 - Review public leaks, direction, complete keys and effective routes with [public/key/route checks](references/public-keys-and-routes.md).
-- Read `references/checklist.md` when performing the element sweep and phased audit; it contains eleven phases, 89 checks, tiers and evidence sources.
+- Read `references/checklist.md` when performing the element sweep and phased audit; it contains eleven phases, 90 checks, tiers and evidence sources.
 - Read `references/anti-patterns.md` when investigating an anti-pattern signal.
 - Read `references/report-template.md` when classifying findings, deciding the verdict, writing the report or conducting a re-review.
 - Read `references/worked-example.md` when an example of the sweep, lineage or report is needed, or when checking the complete examples: seeded model, filled report, fixed model.

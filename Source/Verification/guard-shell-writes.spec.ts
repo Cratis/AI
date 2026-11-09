@@ -4,7 +4,7 @@
 /** Whole-text references use the Write/Edit policy; protected references require read-only syntax. */
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -101,11 +101,81 @@ test('protected references deny writers and evaluators across the whole command 
     } finally { repo.dispose(); }
 });
 
+for (const environmentFileExists of [false, true]) {
+    for (const command of [
+        'cp x .[[=e=]]nv', String.raw`cp x .e[\\n]v`,
+        ...['.e[[=]=]n]v', '.e[[.].]n]v', String.raw`.[\e]nv`, '.[[.e.]]nv', '.[]e]nv', '.[!x]nv', '.[[:alpha:]]nv',
+            '.[[:nosuch:]]nv', '.[[=ab=]]nv', '.[[.ab.]]nv'].map(path => `cp x '${path}'`),
+    ]) {
+        test(`bash bracket class references block writers with .env ${environmentFileExists ? 'present' : 'absent'}: ${command}`, () => {
+            const repo = scratchRepository();
+            try {
+                if (environmentFileExists) writeFileSync(join(repo.root, '.env'), 'synthetic fixture\n');
+                const result = runGuard(payload(command, repo.root), repo.root);
+                assert.equal(result.verdict, BLOCK, `${command}\n${result.stderr}`);
+                assert.equal(result.stdout, '');
+                assert.match(result.stderr, /BLOCKED by cratis-guard-shell-writes/);
+            } finally { repo.dispose(); }
+        });
+    }
+}
+
+test('ordinary bracket expressions in command arguments do not cause false refusals', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [ALLOW, String.raw`grep -E '[\w.-]+' notes.txt`],
+            [ALLOW, String.raw`sed 's/[\/&]/x/' notes.txt`],
+            [ALLOW, String.raw`awk -F'[\t]' -f prog.awk notes.txt`],
+            [ALLOW, "jq '.[] | [.number, .title]' metadata.json"],
+            [ALLOW, "jq '[.foo, .]' metadata.json"],
+            [ALLOW, "jq '.[]' metadata.json"],
+            [ALLOW, "jq '[]' metadata.json"],
+            [ALLOW, "cp x '[z-a]x'"],
+            [ALLOW, "cp x 'ordinary[abc'"],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('bracket sets with a leading literal closing bracket cannot conceal protected writes', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [BLOCK, 'echo x > .[]e]nv'],
+            [BLOCK, 'cp x .[]e]nv'],
+            [BLOCK, 'echo x > .[!]x]nv'],
+            [BLOCK, 'cp x .[^]x]nv'],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('braces mixed with brackets or spanning a slash are refused rather than modeled', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [BLOCK, 'tee p{x,[a}]ckage.json </dev/null'],
+            [BLOCK, 'cp /dev/null .m{x,[c}]p.json'],
+            [BLOCK, 'cp x .cl{x,[a}]ude/settings.json'],
+            [BLOCK, 'cp x .cr[a{]tis/ai/{rules,foo}'],
+            [BLOCK, 'cp x .cratis/{ai/rules,foo}'],
+            [BLOCK, 'tee .m{x,{c,d}}p.json </dev/null'],
+            [BLOCK, 'tee p{x,{a,b}}ckage.json </dev/null'],
+            [BLOCK, 'tee .claude/settings{x,{.,_}}json </dev/null'],
+            [BLOCK, String.raw`tee .m{x\},c}p.json </dev/null`],
+            [BLOCK, String.raw`tee p{x\},a}ckage.json </dev/null`],
+            [BLOCK, `tee .m{x"}",c}p.json </dev/null`],
+            [BLOCK, `awk '{print $1} END{print}' notes.txt`],
+            [ALLOW, 'cp x notes{1,2}.txt'],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('no-reference commands bypass the allowlist and protected reads remain read-only', async () => {
     const repo = scratchRepository();
     try {
         const allowed = [
             'npm test', 'dotnet build', 'yarn test', 'npx tsc', 'node -e "console.log(1)"',
+            'cp x a=b.txt',
             'bash --version', 'bash --help', 'bash -', 'bash < script', 'cat f | bash',
             'cd src && echo ok > out.txt', 'echo x > notes.md', 'echo x > Package.json.md',
             'cat package.json', 'grep -n version package.json > /tmp/v.txt', 'git diff -- package.json',
@@ -145,7 +215,7 @@ test('only explicit per-verb options are permitted with protected references', a
             'git diff $OPT .env', 'git diff "$OPT" .env', 'git diff ${OPT} .env', 'cat $FLAGS .env',
             'git diff * .env', 'git diff -- .env ?', 'cat [-]* .env', 'grep x .env *.txt', 'cat -* .env', "cat '-'* .env",
             'echo .env; head -n', 'echo .env; grep -e', 'echo .env; git commit -m',
-            ...['less', 'more', 'rg', 'ag', 'sort', 'uniq', 'cut', 'jq', 'yq', 'stat', 'file', 'diff', 'cmp', 'md5sum', 'shasum', 'sha256sum', 'realpath', 'dirname', 'basename', 'which', 'type', 'gh'].map(verb => `${verb} .env`),
+            ...['less', 'more', 'ag', 'sort', 'uniq', 'cut', 'jq', 'yq', 'stat', 'file', 'diff', 'cmp', 'md5sum', 'shasum', 'sha256sum', 'realpath', 'dirname', 'basename', 'which', 'type', 'gh'].map(verb => `${verb} .env`),
             ...['jq', 'yq', 'sort', 'uniq', 'gh'].map(verb => `${verb} -- .env`),
             ...['cat', 'head', 'tail', 'wc', 'ls', 'grep', 'egrep', 'fgrep', 'echo', 'printf', 'test', '[', 'true', 'false', 'pwd'].flatMap(verb => [`${verb} --unlisted=.env`, `${verb} -z .env`]),
             ...['status', 'diff', 'log', 'show', 'add', 'commit', 'blame', 'ls-files', 'rev-parse', 'check-ignore', 'grep'].map(verb => `git ${verb} --unlisted .env`),
@@ -157,7 +227,7 @@ test('only explicit per-verb options are permitted with protected references', a
             'cat -nb .env', 'cat -- --output=.env', 'cat - .env',
             ...['l', 'w', 'c', 'm'].map(flag => `wc -${flag} .env`),
             ...['l', 'a', 'A', '1', 'h', 'd', 'R', 't', 'r', 'F'].map(flag => `ls -${flag} .env`),
-            'ls -la .claude',
+            'ls -la .claude', 'rg .env',
             ...['grep', 'egrep', 'fgrep'].flatMap(verb => [
                 ...['n', 'i', 'r', 'R', 'l', 'L', 'c', 'v', 'w', 'x', 'F', 'E', 'H', 'h', 'o', 'q', 's'].map(flag => `${verb} -${flag} x .env`),
                 ...['A', 'B', 'C'].map(flag => `${verb} -${flag} 2 x .env`),
@@ -178,6 +248,123 @@ test('only explicit per-verb options are permitted with protected references', a
             'git diff --output=out.txt', 'printf -v result ordinary', 'head -n',
         ];
         await checkCases([...blocked.map(command => [BLOCK, command] as [string, string]), ...allowed.map(command => [ALLOW, command] as [string, string])], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('exact literal git directory metadata shapes permit protected-reference inspection', async () => {
+    const repo = scratchRepository();
+    try {
+        const tails = ['status --short', 'rev-parse HEAD', 'branch --show-current', "tag --list '*7.321*'"];
+        await checkCases([
+            ...tails.map(tail => [ALLOW, `git -C '${repo.root}' ${tail}; ls .claude`] as [string, string]),
+            [ALLOW, "git -C 'literal*directory' status --short; ls .claude"],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('git directory metadata rejects global options, mutation modes and extra operands', async () => {
+    const repo = scratchRepository();
+    try {
+        const prefix = `git -C '${repo.root}'`;
+        const blocked = [
+            `git -C${repo.root} status --short`, `git -C=${repo.root} status --short`,
+            "git -C '' status --short", 'git -C -dir status --short', 'git -C status --short',
+            `${prefix} -C other status --short`, `${prefix} status --short -C other`,
+            ...['-c x=y', '--git-dir=other', '--work-tree=other', '--no-pager', '--exec-path=other'].flatMap(option => [
+                `git ${option} -C '${repo.root}' status --short`, `${prefix} ${option} status --short`,
+            ]),
+            `NAME=value ${prefix} status --short`, `NAME=value; ${prefix} status --short`,
+            ...['status --short', 'rev-parse HEAD', 'branch --show-current', 'tag --list p'].map(tail => `${prefix} ${tail} extra`),
+            ...['status', 'rev-parse', 'branch', 'tag --list', 'branch new-name', 'branch -d old-name',
+                'tag new-name', 'tag -d v1', 'tag --list -x', 'tag --list p q',
+                'tag --list --format=%(refname)', 'tag --list p --format=%(refname)',
+                'tag --list p -n', 'tag --list p --contains HEAD', 'tag --list p --sort=refname',
+                'tag --list p --points-at HEAD', 'diff --numstat', 'log -1', 'show HEAD',
+            ].map(tail => `${prefix} ${tail}`),
+            `${prefix} status --short; tee .mcp.json`, 'git -C "$(pwd)" status --short',
+            'git -C "$dir" status --short', 'git -C * status --short', 'git -C prefix* status --short',
+            'git -C prefix? status --short', 'git -C prefix[a] status --short',
+            `${prefix} tag --list "$(echo p)"`, 'git branch --show-current', 'git tag --list p',
+        ];
+        await checkCases(blocked.map(command => [BLOCK, `${command}; ls .claude`]), repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('numstat and narrow rg options permit reads but not helpers or writers', async () => {
+    const repo = scratchRepository();
+    try {
+        const allowed = ['git diff --numstat -- Generated.ts', "rg -n 'synthetic' notes.md", 'rg -n -- --pre=x notes.md'];
+        const blocked = [
+            ...['--ext-diff', '--textconv', '--output=f'].map(option => `git diff --numstat ${option}`),
+            'rg -n --pre x f', 'rg -nz p f', 'rg -n --search-zip p f', 'rg -n --pre-glob=x p f',
+            'rg -n --hostname-bin=x p f', 'rg -n -f patterns f', 'rg -n -r replacement p f', 'rg -n --json p f',
+            'RIPGREP_CONFIG_PATH=x rg -n p f', 'rg -n p notes.md; tee .mcp.json', 'rg -n "$(echo p)" notes.md',
+        ];
+        await checkCases([
+            ...allowed.map(command => [ALLOW, `${command}; ls .claude`] as [string, string]),
+            ...blocked.map(command => [BLOCK, `${command}; ls .claude`] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('numstat does not invoke a configured textconv helper', () => {
+    const repo = scratchRepository();
+    try {
+        const marker = join(repo.root, 'textconv-marker');
+        const helper = join(repo.root, 'textconv.sh');
+        writeFileSync(helper, `#!/bin/sh\nprintf marker > '${marker}'\ncat "$1"\n`);
+        writeFileSync(join(repo.root, '.gitattributes'), 'tracked.txt diff=synthetic\n');
+        writeFileSync(join(repo.root, 'tracked.txt'), 'before\n');
+        const git = (...args: string[]) => {
+            const result = spawnSync('git', args, { cwd: repo.root, encoding: 'utf8' });
+            assert.equal(result.status, 0, result.stderr);
+            return result.stdout;
+        };
+        git('config', 'diff.synthetic.textconv', `sh '${helper}'`);
+        git('add', '.gitattributes', 'tracked.txt');
+        writeFileSync(join(repo.root, 'tracked.txt'), 'after\n');
+        assert.match(git('diff', '--numstat'), /1\t1\ttracked\.txt/);
+        assert.equal(existsSync(marker), false, 'numstat must not execute textconv');
+        git('diff', '--textconv');
+        assert.equal(existsSync(marker), true, 'the configured helper must be active for textconv diffs');
+    } finally { repo.dispose(); }
+});
+
+test('rg secret reads remain blocked by the secrets guard independently of shell admission', () => {
+    const repo = scratchRepository();
+    try {
+        const command = 'rg -n p .env';
+        assert.equal(runGuard(payload(command, repo.root), repo.root).verdict, ALLOW);
+        const result = spawnSync('bash', [join(guard, '../cratis-guard-secrets.sh')], {
+            cwd: repo.root, input: JSON.stringify(payload(command, repo.root)), encoding: 'utf8',
+            env: { ...environment(), CRATIS_HOOKS_ALLOW_SECRET_READS: '0' },
+        });
+        assert.equal(result.status, 2, result.stderr);
+        assert.match(result.stderr, /BLOCKED by cratis-guard-secrets/);
+    } finally { repo.dispose(); }
+});
+
+test('jq arrays do not crash classification or conceal protected references', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [ALLOW, "jq '.[]' metadata.json"],
+            [ALLOW, "jq '[]' metadata.json"],
+            [ALLOW, "jq '[.number, .title]' metadata.json"],
+            [ALLOW, "gh issue list --json number,title --jq '.[] | [.number, .title]'"],
+            [ALLOW, 'cat .[e]nv'],
+        ], repo.root);
+        for (const command of [
+            "jq '.[]' .env",
+            "jq '.[]' metadata.json; echo x > .env",
+            "jq '[.number, .title]' metadata.json; tee .mcp.json",
+            'echo x > .[e]nv', 'echo x > .[a-z]nv', 'echo x > .[!x]nv', 'echo x > .cl[a]ude/settings.json',
+        ]) {
+            const result = runGuard(payload(command, repo.root), repo.root);
+            assert.equal(result.verdict, BLOCK, `${command}\n${result.stderr}`);
+            assert.equal(result.stdout, '', command);
+            assert.match(result.stderr, /BLOCKED by cratis-guard-shell-writes: protected reference /, command);
+        }
     } finally { repo.dispose(); }
 });
 

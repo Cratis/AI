@@ -110,6 +110,8 @@ module Onboarding
         workspaceId  WorkspaceId
         produces event InvitationAccepted
           workspaceId WorkspaceId = workspaceId
+      screen AcceptInvitation
+        action AcceptInvitation for screen
     slice StateChange SendWelcomeMail
       command SendWelcomeMail
         workspaceId WorkspaceId identifier
@@ -215,6 +217,8 @@ module Collections
         invoiceId InvoiceId
         amount Decimal
         sentAt DateTime
+      screen SendInvoice
+        action SendInvoice for screen
     slice StateChange CloseInvoice
       command CloseInvoice
         invoiceId InvoiceId identifier

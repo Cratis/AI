@@ -63,6 +63,13 @@ trigger/command reads, all-parts fixtures, PLAY0660–0662 and command-read-only
 A `=>` target resolving to an event is an event-target builder, not a read model;
 keep event and read-model names distinct (see projections' public-event targets).
 
+## Where a read model is stored
+
+No `sink` line means the default sink. `sink <Name>` stores it in a root-declared
+`sink <Name> for readmodels`, never on a `passive` read model (`PLAY0935`); it is the directive only
+when `<Name>` is a declared sink, else a property. `@sink <Type>` is always the property.
+Read [sinks](references/sinks.md) before naming a sink.
+
 ## `query`
 
 Excerpt: the concepts, the read model and the policy are declared elsewhere.
@@ -86,7 +93,7 @@ bind, including `observable`. Caller-supplied equality
 filters on collections bind as ESM v14; `from`, single-result filters, `scoped to`,
 and a `by` block on a list query (or on a non-optional single result) remain PLAY0268, each with its reason. A `performer` query is not refused: it is an opaque read (PLAY0270 information) left out of the executable model ([version gate](../cratis-screenplay-toolchain/references/executable-subset.md#code-attachments-what-binds-what-never-does)). Read
 [equality filters](references/equality-filters.md) for the admitted shape, a complete
-compiled specification model and the Stage/CLI ceilings. Keep a list the domain needs.
+compiled specification model and the Stage/CLI ceilings.
 
 Concept keys/supplied filters validate after authorization: invalid means Validation,
 not absence; omitted optional filters are unchecked. Read [query rejections](../cratis-screenplay-specifications/references/query-rejections.md) when specifying this.
@@ -129,9 +136,7 @@ query Everyones => Timesheet[]
 
 ⚠️ **The tenant is the default and stays unstated.** A query is scoped to the
 tenant it runs for unless it says otherwise, so `scoped to global` is how a query
-*opts out* and reaches past the tenant. As the documentation puts it: *"Making the
-narrow case the default means the dangerous case is the one you have to write
-down, rather than the one you get by forgetting."*
+*opts out* and reaches past the tenant: the dangerous case is the one you write down.
 
 **The scope is a name, not a closed set.** `identity` and `global` are the two the
 language documents, but the grammar accepts any name — what scopes exist follows
@@ -156,7 +161,7 @@ to a live query exactly as it binds to a one-shot one. The delivery itself is th
 target runtime's: the executable model binds `observable` queries (delivery `live`) that
 have no opaque scope/performer and, when filtered, only admitted caller-supplied equality filters (ESM v14).
 
-Paging, sorting and change-set delivery for queries are are planned but **not in the language yet**. Do not invent syntax for them.
+Paging, sorting and change-set delivery for queries are planned but **not in the language yet**. Do not invent syntax for them.
 
 ### `performer`
 
@@ -218,7 +223,7 @@ Authorization runs before lookup, ANDed with module/feature gates; policies see
 only `by`, never filters. Pin denial with `given caller` and `then denied`.
 Specs pass `by` and filters by name (PLAY0468 for unknown, repeated or missing
 required arguments); collection results match by read model/key regardless of
-row order. Details and renderer limits: [equality filters](references/equality-filters.md).
+row order.
 
 A reducer-built view is keyed by event-source id, so a single-instance `by` of another
 nominal type warns `PLAY0690`. Rebuild it as a projection keyed on each `from`: projections
@@ -269,10 +274,11 @@ Constructs: `title`, `data … via query … [by <param>]`, `action <Command>` w
 `label` and `navigate to <Screen> [by <param>]`, `section <name>`,
 `table <target>` with `column <property> [label]` and
 `on row-click navigate to <Screen> [by <param>]`, `summary <ReadModel>` with
-`field <property> label`, and `template <Name>` with slot bodies.
+`field <property> label`, `template <Name>` with slot bodies, `show <Screen> by <param> from <table>.selection`
+in a slot body, and `fits dialog, drawer, pane` (where a State Change screen opens; `cratis-screenplay-ui-composition`).
 
 The screen's `data` and `action` declarations are the typed context for later UI
-composition. Component `context`, toolbar parameters, dialog inputs, outlet routes
+composition. Component `context`, toolbar parameters, dialog inputs, slot routes
 and manual form columns must all trace back to this screen contract, a form's
 command, a selected item, or `$context`. If a generated app shows a default list
 or empty panel because it could not consume one of those directives, treat that as
@@ -344,7 +350,7 @@ binding failures are errors.
 - [ ] A reducer-built view's `by` type matches its events' event-source identity (`PLAY0690`).
 - [ ] No screen reference is left ambiguous or unresolved.
 - [ ] Every UI binding that consumes screen data (component context, toolbar
-      parameter, dialog input, outlet route) has a source in the screen contract
+      parameter, dialog input, slot route) has a source in the screen contract
       or an explicitly provided template/form context.
 
 Read `SKILL.md` in `cratis-screenplay-toolchain` when choosing a tool, reading installed versions, or assessing executable and renderable subsets. Where a construct sits in the
@@ -357,6 +363,6 @@ Read [screen patterns](references/screen-patterns.md) when deciding whether a sc
 Attribution and licences: `references/provenance.md`.
 
 - How events fill the read model: `cratis-screenplay-projections`.
-- Layouts, templates, forms, component bindings, toolbars and slice buttons, outlets, contributions, navigation regions, sample data, packages and themes: `cratis-screenplay-ui-composition`.
+- Layouts, templates, forms, component bindings, toolbars, hooks and placement, slots, outlets, contributions, sample data, packages and themes: `cratis-screenplay-ui-composition`.
 - Asserting query results: `cratis-screenplay-specifications`.
 - Deciding which read models exist: `cratis-screenplay-event-modeling`.

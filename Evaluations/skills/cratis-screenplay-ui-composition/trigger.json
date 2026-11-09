@@ -6,7 +6,7 @@
       "shouldTrigger": true
     },
     {
-      "query": "add a toolbar button to the WorkItems screen in our .play model that opens RenameWorkItem as a dialog, and a New order button that starts the PlaceOrder slice (why is a State View slice refused?)",
+      "query": "add a row actions outlet to our ListPage template in the .play model, with a Rename button that opens RenameWorkItem where its screen fits and a New order hook that starts the PlaceOrder slice (why is a State View slice refused?)",
       "shouldTrigger": true
     },
     {
@@ -18,7 +18,7 @@
       "shouldTrigger": true
     },
     {
-      "query": "Our layout has a header and a main outlet. The Settings area needs its own nested outlet with child routes. Show me the .play for hierarchical outlets and routes.",
+      "query": "Our layout has a header and a main content slot. The Settings area needs its own nested slot with child routes. Show me the .play for hierarchical slots and routes.",
       "shouldTrigger": true
     },
     {

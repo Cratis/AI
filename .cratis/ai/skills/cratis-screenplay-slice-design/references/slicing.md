@@ -72,6 +72,8 @@ module Moorings
         boatName       BoatName
         produces event BerthRequested
           boatName BoatName = boatName
+      screen RequestBerth
+        action RequestBerth for screen
     slice StateView WaitingList
       readmodel WaitingRequest
         berthRequestId BerthRequestId

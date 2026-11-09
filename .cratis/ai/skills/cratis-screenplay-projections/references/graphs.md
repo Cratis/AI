@@ -4,6 +4,7 @@
 
 - Declaring a graph
 - Projecting events onto it
+- Storing a graph in a named sink
 - Reading the graph backwards
 - The five operations
 - What a graph projection cannot say
@@ -102,6 +103,61 @@ module Organization
 - An edge `from` creates a missing endpoint as a bare node, so an event may draw an
   edge before the events that create its nodes arrive. A projection owns the edges
   and node properties it declares and never deletes a node it did not declare.
+
+## Storing a graph in a named sink
+
+A graph names no sink by default and is stored in the application's default graph sink. To keep one
+graph apart from another, declare a sink `for graphs` at the application root and put a bare
+`sink <Name>` line in the graph body. The projection never names a sink: it writes to its graph's
+sink. Requires Screenplay 6.4.0 (`screenplay --version`).
+
+```screenplay
+sink People for graphs
+
+concept PersonId : Uuid
+concept GroupId : Uuid
+concept PersonName : String
+
+module Organization
+  feature Chart
+    slice StateView OrganizationChart
+      event PersonRegistered
+        name PersonName
+
+      event GroupCreated
+        name String
+
+      event MemberAdded
+        groupId GroupId
+
+      graph Organization
+        sink People
+        node Person
+          personId PersonId key
+          name     PersonName
+        node Group
+          groupId GroupId key
+          name    String
+        edge MEMBER_OF source Person target Group
+          since DateTime
+
+      projection OrganizationChart => graph Organization
+        node Person
+          from PersonRegistered key $eventSourceId
+            name = name
+        node Group
+          from GroupCreated key $eventSourceId
+            name = name
+        edge MEMBER_OF
+          from MemberAdded source $eventSourceId target groupId
+            since = $eventContext.occurred
+```
+
+A graph body has no properties of its own, so every `sink` line in it is the directive: an
+undeclared name is `PLAY0933`, and a sink declared `for readmodels` is `PLAY0934`. The model never
+names a Neo4j server or database; the deployment maps `People` to one. The read-model side and the
+full `PLAY0931`–`PLAY0939` table are in the read surface's
+[sinks](../../cratis-screenplay-read-surface/references/sinks.md).
 
 ## Reading the graph backwards
 

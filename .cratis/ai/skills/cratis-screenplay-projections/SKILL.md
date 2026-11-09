@@ -65,6 +65,10 @@ build a read model** — two builders is error `PLAY0191`: *a projection or a
 reducer builds it, and only one of them*. A slice may still declare several
 projections, each building a **different** read model.
 
+**A builder never names a sink.** A projection or reducer writes to its read model's sink, and a
+graph projection to its graph's sink; only the `readmodel` or `graph` body carries `sink <Name>`
+(read surface [sinks](../cratis-screenplay-read-surface/references/sinks.md)).
+
 ## Public-event targets and observer filters
 
 In an explicitly outbound Translate slice, `projection P => PublicEvent` or
@@ -248,7 +252,8 @@ Choose a graph for traversals (membership, nesting, paths) and a document read m
 for lookups by key. Design by **reading the graph backwards**: write each question
 as a path, make every hop an edge type and every stop a node label, then name the
 event that creates and the one that removes each. Read
-[references/graphs.md](references/graphs.md) for syntax, operations and `PLAY0862`–`PLAY0877`.
+[references/graphs.md](references/graphs.md) for syntax, operations, a graph in a named sink
+(`sink People for graphs`) and `PLAY0862`–`PLAY0877`.
 
 ## When PDL is not enough — the reducer
 

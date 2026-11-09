@@ -20,8 +20,9 @@
     { "kind": "skill-contains", "value": "business-question" },
     { "kind": "skill-contains", "value": "find-modeling-smells" },
     { "kind": "skill-contains", "value": "entity walk" },
-    { "kind": "skill-contains", "value": "eleven phases, 89 checks" },
+    { "kind": "skill-contains", "value": "eleven phases, 90 checks" },
     { "kind": "skill-contains", "value": "could a non-technical product owner read it and immediately understand" },
-    { "kind": "skill-contains", "value": "a \"simple relay\" is not exempt from having pending work" }
+    { "kind": "skill-contains", "value": "a \"simple relay\" is not exempt from having pending work" },
+    { "kind": "skill-contains", "value": "| H5 | Sinks: every declared `sink` is used by a read model or graph (`PLAY0938`), names differ ignoring case (`PLAY0932`)", "file": "references/checklist.md" }
   ]
 }

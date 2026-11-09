@@ -280,6 +280,14 @@ element and a read model (CHR0068). Read
 [references/graph-projections.md](references/graph-projections.md) for the attributes,
 fluent builder, operation model, replay and idempotency, and the sinks.
 
+## Where the output is stored
+
+A projection never names a sink: it writes to its read model's sink, chosen by `[Sink("name")]` on
+the read-model type (or `DefaultSinkName`, then the Kernel default). Moving a read model to another
+sink replays its projections there under the `observers.definitionEvolution` policy. Read
+[read-model sinks](../cratis-chronicle-read-model/references/sinks.md) for the attribute, client
+defaults and `CHR0069`, and [graph projections](references/graph-projections.md#sinks) for graphs.
+
 ## Definition changes replay
 
 Read [references/definition-changes.md](references/definition-changes.md) when a changed mapping, key, filter, join or child must replay, or when a corrected mapping does not repair existing counters and joins (replay rebuilds them; deploying alone does not).

@@ -141,13 +141,21 @@ model still compiles and binds) and its V5 states the scope.
    with no business decisions, rebuild, retest. Never edit a managed file; never add behaviour the
    model does not state. Detail: `references/delivery-protocol.md` section 4.
 7. **Report authored-UI parity.** Require explicit plan/runtime evidence for each authored screen,
-   form, layout, template, toolbar, component, outlet, route, package/icon use, theme and persona view,
+   form, layout, template, slot, toolbar, hook, component, outlet, route, package/icon use, theme and persona view,
    or a blocking diagnostic or "not rendered" with the responsible tool version; silent fallback to
    default composition is a failure (Stage 4.24 rendered the default composition only).
+   The design is the same: Stage reads the resolved theme (the profile's theme, else the design system's `default theme`, in the mode
+   its `color scheme` selects) once Cratis/Stage adopts it; until then Stage keeps reading the profile's `appearance` `accent`, `corners` and
+   `font`, so a model that moved them into a theme renders with the default look. Report that as a UI omission naming the Stage version,
+   not as a model defect, and do not put the values back in `appearance` to make it render.
 8. **Drift:** `cratis render ... --check` (exit 6 pending); also compare the manifest's `semanticRevision`
    with a fresh render under the same inputs. For hand-written scope, `cratis screenplay conform` gives
    structural code-vs-model evidence (`references/drift-and-fallback-record.md`). For changes since verification,
    follow that reference's "Hand-written code changed since it was last verified" procedure.
+   A sink change does not move `semanticRevision`: sinks are realization metadata outside the ESM,
+   so a renderer or drift check must hash `SemanticCompilation.Sinks`, `ReadModelSinks` and
+   `GraphSinks` into its render input, or a changed `sink` line never triggers a re-render.
+   Map each sink name to deployment storage; never emit a database name from the model.
 9. **Hand off** the packet: verdict lines, spec mapping, edit requests for the modeler, fallback record
    entries, UI omissions, learning candidates (at most 3).
 
@@ -224,7 +232,7 @@ Before reporting done:
 - A passing test does not claim runtime guarantees (namespace, subject, constraint scope, guarded
   reads, migrations, replay) or omitted UI were delivered.
 - Re-render: drift line present. `Customizations/` changes name the seam and the model element served.
-- Screen delivery: every authored screen/template/form/toolbar/component/outlet/route/package-icon use is either present in generated/runtime evidence or listed as not rendered/unsupported with the responsible tool version.
+- Screen delivery: every authored screen/template/slot/form/toolbar/hook/component/outlet/route/package-icon use is either present in generated/runtime evidence or listed as not rendered/unsupported with the responsible tool version.
 
 ## Route near misses
 

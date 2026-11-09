@@ -101,6 +101,14 @@ Ask the batch below only for what the request leaves open: (1) origin of each ac
    (`references/read-model-design.md`). One actor's point of view
    per screen, at a real beat of the story, not one per persona for symmetry; know where the
    actor sees each state change's result. Beyond Level 1: `cratis-screenplay-ui-composition`.
+   **Placement** (Screenplay 6): a State Change slice's screen says what it fits, in order of
+   preference (`fits dialog, drawer, pane`); the hook that starts it (a `button` naming the slice
+   in a template's actions outlet) picks the first fit the page has free, and names a place
+   (`opens dialog|drawer|in slot <name>`) only when it needs another one. A command whose inputs
+   all resolve from the selected row or generated values can be issued by a `runs` hook and needs
+   no screen. Every State Change command needs an issuer (a screen action, a hook, an attached
+   behavior `execute` or a reaction; a form alone is not one), or `PLAY0533` warns on every check. Once the application
+   declares navigation, a screen nothing reaches (no hook, navigation or action leads to it) issues nothing.
 8. **Lineage pass.** After each field edit run `--check field-origins,input-surfaces`. Build the matrix in `references/field-lineage.md` from the `.play` files
    (read them), not from memory or an earlier summary. For each read model, write one line per
    contributing event in its StateView slice `documentation`: which fields it sets and why. An

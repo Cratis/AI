@@ -57,7 +57,7 @@ a separate `case` names an expansion. Argument order is immaterial.
 | PLAY0791 | `profile`, `template` (the layout name) |
 | PLAY0792 | `profile`, `template`, `blueprint` |
 | PLAY0793 | `profile`, `template`, `blueprint`, `version` |
-| PLAY0795 | `profile`, `template`, `blueprint?`, `outlet` |
+| PLAY0795 | `profile`, `template`, `blueprint?`, `slot` |
 | PLAY0796 | `profile`, `template`, `blueprint?`, `option` |
 | PLAY0797 | `profile`, `value` |
 | PLAY0800 | `subject` (required declaration: command) |

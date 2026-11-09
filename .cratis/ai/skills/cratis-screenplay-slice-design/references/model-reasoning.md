@@ -39,6 +39,8 @@ module Billing
         amount Int
         produces event AmountRecorded
           amount Int = amount
+      screen RecordAmount
+        action RecordAmount for screen
       specification RecordingAnAmount
         description "Witnesses that the agreed amount is retained"
         when RecordAmount amount = 10

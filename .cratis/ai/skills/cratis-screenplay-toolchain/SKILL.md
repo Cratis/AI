@@ -70,6 +70,7 @@ superseded statement needs context; exceptions do not change the contract.
 | Scope/checks | `--scope <address>`, `--check <names>`; a scoped pass is not whole-application success | `validate --executable` (bundled binder, no write), `--check <names>`, `--scope`; `render --scope`/`--check`; `cratis screenplay conform`, `cratis screenplay conform-namespace` |
 | Declared gate | `screenplay <root> --print-gate`, `--format json`, `--no-gate-file` | `validate <root> --print-gate`, `--no-gate-file`; the same `screenplay.json` |
 | Reference execution | `screenplay test <root>` or MCP `run-specifications` | Discover bundled MCP capability; target tests are not V4 |
+| Version migration | `screenplay migrate <root> --from <major> [--to <major>] [--dry-run] [--report <file>]` or MCP `migrate` (read-only); exit 2 means review | Use the standalone tool; see `cratis-screenplay-modeling-lifecycle` |
 | MCP | `screenplay mcp <root>`; discover schemas | `cratis screenplay mcp [root]`; registered by `cratis ai install` |
 | Render boundary | Binder admission is not Stage admission | The CLI renders only ESM versions it knows; a newer bound model gets `CLI-RENDER-004` |
 
@@ -183,7 +184,7 @@ unknown apply outcome requires recovery, not retry.
 
 All 44 traps, with fixes: `references/traps.md`. Read `references/traps.md` when diagnosing an unexpected compile, binding, rendering or MCP result.
 
-Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE or CLI-RENDER diagnostic needs its meaning and fix. When the Screenplay documentation and the compiler disagree, follow the compiler for what is accepted, keep the intended semantics in the model, and record the gap.
+Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE or CLI-RENDER diagnostic needs its meaning and fix. Sink lines (`PLAY0931`–`PLAY0939`) are realization metadata (PLAY0270): a sink change leaves the ESM revision unchanged. When the Screenplay documentation and the compiler disagree, follow the compiler for what is accepted, keep the intended semantics in the model, and record the gap.
 
 1. Clean V1 is not executable: only MCP (V2) or `render` binds.
 2. Prefer inline `produces event` for a command-owned event; plain command productions need explicit `for <identifier>`.
