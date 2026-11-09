@@ -141,8 +141,15 @@ function pathFrom(root, value) {
     return resolve(root, path);
 }
 
+function firstCodeSpan(text) {
+    return /`([^`]+)`/.exec(text)?.[1];
+}
+
+const looksLikePath = value => !/\s/.test(value) && (value.includes('/') || /\.[A-Za-z0-9]+$/.test(value));
+
 function readPaths(sections, root, context) {
-    const paths = bullets(sections.get('Files to read')).map(item => ({ ...item, text: clean(item.text) }))
+    const paths = bullets(sections.get('Files to read'))
+        .map(item => ({ ...item, text: firstCodeSpan(item.text) ?? clean(item.text) }))
         .filter(item => !absent(item.text));
     for (const item of paths) {
         const path = pathFrom(root, item.text);
@@ -164,6 +171,7 @@ function watchRows(rows, context) {
 function unreadResults(section, root, context) {
     for (const item of bullets(section)) {
         for (const match of item.text.matchAll(/`([^`]+)`/g)) {
+            if (!looksLikePath(match[1])) continue;
             const path = pathFrom(root, match[1]);
             if (!path || !existsSync(path)) context.warning('result-missing', `Unread result path does not exist: ${match[1]}.`, item.line);
         }
