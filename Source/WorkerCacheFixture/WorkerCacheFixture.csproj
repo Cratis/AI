@@ -5,6 +5,7 @@
     <OutputType>Exe</OutputType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IsPackable>false</IsPackable>
+    <TargetFrameworks></TargetFrameworks>
     <TargetFramework>net11.0</TargetFramework>
     <CratisProxiesOutputPath></CratisProxiesOutputPath>
   </PropertyGroup>
