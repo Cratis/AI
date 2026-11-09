@@ -195,6 +195,35 @@ test('git search patterns and filename metadata do not become credential operand
     ]);
 });
 
+test('source folder metadata and staging never exempt credential content reads', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-source-metadata-'));
+    const folders = ['ForwardedIdentity', 'Authentication', 'Sessions', 'UserTokens', 'Credentials', 'Proxying', 'Tenants']
+        .map(name => `Source/AuthProxy/${name}`).join(' ');
+    try {
+        for (const path of folders.split(' ')) mkdirSync(join(directory, path), { recursive: true });
+        for (const command of [`git ls-files ${folders}`, `ls ${folders}`, `git status --short -- ${folders}`,
+            `git diff --stat -- ${folders}`, `git add ${folders}`, 'git add -v -- Source/AuthProxy/Credentials',
+            'git status --porcelain=v1 -- Source/AuthProxy/Credentials', 'git diff --numstat -- Source/AuthProxy/Credentials']) {
+            const result = runGuard(command, {}, directory);
+            assert.equal(result.code, 0, `${command}\n${result.stderr}`);
+        }
+        for (const command of ['cat Source/AuthProxy/Credentials/.env', 'cat Source/AuthProxy/Credentials/id_rsa',
+            'cat Source/AuthProxy/Credentials/credentials.json', 'cat Source/AuthProxy/Credentials/kubeconfig',
+            'cat Source/AuthProxy/Credentials/token.json', 'cat Source/AuthProxy/Credentials/server.pem',
+            'git show HEAD:.env', 'git grep -e x -- Source/AuthProxy/Credentials/.env',
+            'git grep -e x -- Source/AuthProxy/Credentials/credentials.json',
+            'git status -v -- Source/AuthProxy/Credentials', 'git status --verbose -- Source/AuthProxy/Credentials',
+            'git diff --stat -p -- Source/AuthProxy/Credentials', 'git diff --stat --patch -- Source/AuthProxy/Credentials',
+            'git add -p Source/AuthProxy/Credentials', 'git add --interactive Source/AuthProxy/Credentials',
+            'git -c alias.status=show status Source/AuthProxy/Credentials',
+            'git status --short -- Source/AuthProxy/Credentials && cat .env',
+            'git diff --stat -- Source/AuthProxy/Credentials; git show HEAD:.env',
+            'ls Source/AuthProxy/Credentials/$(cat .env)', 'git add Source/AuthProxy/Credentials/.env']) {
+            assert.equal(runGuard(command, {}, directory).code, 2, command);
+        }
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
 test('original read lanes allow directory globs only with proven read-only context', () => {
     const directory = mkdtempSync(join(tmpdir(), 'cratis-original-read-lanes-'));
     const commands = [
