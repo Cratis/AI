@@ -106,7 +106,9 @@ public class AIUsageReporting(
         // request - it only stops this refresh from waiting on it. The request either finishes on its
         // own later with nothing observing the result, or the vendor's own HTTP timeout ends it.
         var reportTask = For(providerId);
-        var completed = await Task.WhenAny(reportTask, Task.Delay(timeout));
+        using var delayCancellation = new CancellationTokenSource();
+        var completed = await Task.WhenAny(reportTask, Task.Delay(timeout, delayCancellation.Token));
+        await delayCancellation.CancelAsync();
         if (completed != reportTask)
         {
             logger.UsageReportTimedOut(providerId, timeout);
