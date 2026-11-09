@@ -11,6 +11,8 @@ syntax are owned by `cratis-screenplay-toolchain`, `cratis-screenplay-render-and
 2. Run the reference specifications, `screenplay test <folder>`. `Unsupported` is not a pass.
 3. Start it with `cratis run <model folder>` (Stage sandbox, needs Docker), or render with
    `cratis render` and gap-fill (`cratis-screenplay-render-and-gap-fill`).
+   Commands are served over HTTP under `/api/`; read each command's route from the generated
+   OpenAPI or `/stage/status`, do not guess it.
 4. Re-walk the observed journeys on the running app (`fidelity-check.md`).
 
 `render --force`, `prologue` start, the Extractor and `prologue interpret` need approval and stay

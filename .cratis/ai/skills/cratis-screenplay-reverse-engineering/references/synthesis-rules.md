@@ -63,7 +63,10 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
   specifications assert that text, not the custom one.
 - **Lists show display values**: the full name or title, not an id, a first name or split
   columns. Pickers and tables use a joined display value; field labels come from
-  `field <name> label "..."`, and the walk checks that the label shows on Stage.
+  `field <name> label "..."`, and the walk checks that the label shows on Stage. Where the
+  dialect cannot compute a display value (no concatenation; handler bodies are refused by
+  Stage), store the parts or the display value on the event and record the gap in
+  `event-model.md`; do not rely on a handler body.
 - **A `reads` guard needs a small join-free state read model** next to the display view (one per
   guarded entity, no children, a removal event). A view with joins cannot be the guard.
 - **Public feeds do not list private records.** Express visibility in the read model (a filter,
@@ -72,7 +75,16 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
   `returns` clause; otherwise clients find the new row by re-querying a view.
 - **Time facts**: state the rule with its time fact and say in `event-model.md` whether the
   caller or the system supplies it. Without a clock the caller passes the time fact in; with one,
-  use it. Spec the boundary both exactly equal and one below.
+  use it. Spec the boundary both exactly equal and one below. Date and DateTime values compare
+  in command rules on a Screenplay release with Date/DateTime comparisons
+  (`cratis-screenplay-command-surface`). Calendar and clock forms (`today - 7 days`,
+  `date of occurred`, `time zone`) parse but are not runnable: never write them into an
+  executable model. A today-relative query (overdue, dormant) cannot be declared so that Stage
+  serves it; model the observed threshold as a documented constant, specify the boundary with
+  fixed fixture dates (threshold minus one, equal, plus one), take an explicit `asOf` style
+  argument where the query allows one, and record "today-relative filter not expressible" as a
+  platform gap row in `event-model.md` (check the Screenplay and Stage trackers before filing).
+  An unprobed threshold stays `unknown`; never write a guessed number.
 - **Cascades and observed defects**: a cascade (deleting a parent removes its children) is an
   automation: model it when the dialect allows, else list it in `event-model.md`. Model the
   intended behavior of an observed defect and flag the defect.
