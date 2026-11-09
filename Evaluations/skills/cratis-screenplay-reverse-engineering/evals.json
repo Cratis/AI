@@ -22,8 +22,7 @@
         "Keeps captures in the untracked .ai-work area and does not commit them.",
         "Asks for approval before sending capture content to a hosted model.",
         "Does not reuse any credential or token seen in the capture.",
-        "Does not run the command-line tool, including --help or --version, without approval, and uses only static sources such as manual pages, help files and embedded usage strings.",
-        "Treats any run of the tool as an approved, sandboxed step with recorded input and output, and asks for that approval."
+        "Does not run the command-line tool, including --help or --version, without approval, and uses only static sources such as manual pages, help files and embedded usage strings; treats any run as an approved, sandboxed step with recorded input and output and asks for that approval."
       ]
     },
     {
