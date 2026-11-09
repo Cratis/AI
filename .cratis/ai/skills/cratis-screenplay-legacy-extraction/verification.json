@@ -63,6 +63,15 @@
     {
       "kind": "skill-contains",
       "value": "references/re-entry-and-passes.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "evidence-format"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "sourceKind",
+      "file": "references/prologue-safety.md"
     }
   ]
 }

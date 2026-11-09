@@ -7,6 +7,7 @@
 - 3. LLM use in `interpret` (preflight by the main session; a subagent runs interpret only
 - 4. Cleanup DDL to propose (run by the DBA after the Extractor is stopped)
 - 5. Capture verification before interpreting
+- 6. Rows
 
 Sources: Prologue (the version the CLI bundles; Extractor, Configuration,
 Interpretation) and the cratis CLI (`Source/Cli/Commands/Prologue/*`,
@@ -172,3 +173,11 @@ only parsing, and record remaining diagnostics.
 - Write interpret output to its own folder (`legacy/dynamic/`) and validate that folder;
   interpret output is never compiled by
   Prologue and a refined file can be invalid.
+
+## 6. Rows
+
+Capture facts are written in the shared schema of
+[evidence-format.md](../../cratis-screenplay-event-modeling/references/evidence-format.md) as
+`sourceKind: prologue` rows: locator is the capture file plus record, strength `observed`, and
+status codes `unknown` because Prologue ignores them. Approvals stay in
+[safety.md](../../cratis-screenplay-modeling-lifecycle/references/safety.md) and sections 1 to 5.
