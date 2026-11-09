@@ -13,11 +13,37 @@ each input and record one row per probe (accepted or rejected, plus the exact me
 - over-long text, past any limit the form or schema hints at;
 - zero and negative numbers, and the largest plausible value;
 - repeat submit of the same payload;
-- an unknown or foreign id.
+- an unknown or foreign id;
+- **limit + 1**: when a limit is suspected, probe the boundary and one past it (100 and 101 for a
+  100 limit), and the common sibling limits (50, 100, 200, 255) when a sibling field has one;
+  "100 accepted" alone proves no limit;
+- **field combinations**: a rule that fails only when several fields are empty together
+  (at-least-one-of, mutually dependent fields) never shows in per-field probes. Probe all
+  fields empty, each one empty alone, and all filled;
+- a duplicate is a second, distinct id with the same value, sent sequentially; read the body.
 
 Read the command schema as well as the form: concept names (`x-concept`), enums, required flags
 and formats show value types the screen hides. A field or probe not run is recorded as
 `not probed`, never left silent.
+
+Copy `validationResults[].message` verbatim into the rule's `message` and note the member and
+the reason: a framework typing failure is not a model rule. Use fresh ids and a marker on test
+data for every run, in a sandbox instance, so repeated sweeps do not pollute read models.
+An out-of-range or missing value that is coerced or crashes (missing enum defaults to the first
+member, overflow wraps, missing id gives HTTP 500) is an observed defect, not intent: record
+it under "Observed defects" and model the intended behavior.
+
+## Confirm surprises and enumerate the query surface
+
+A result that contradicts a standard pattern (a uniqueness constraint that accepts a duplicate,
+"no validation at all") needs a confirming second probe, designed differently, before it
+becomes a row; until then it is `unconfirmed`. A wrong `Confirmed` row is worse than a gap.
+
+The UI shows only the queries its screens use. On a system the team owns or is authorized to
+probe (the owned-only limit above holds), also enumerate the surface from your own traffic and
+the schema: by-id lookups, filters and argument variants of each query, and the routes seen in
+the capture. Read the error text for required arguments. A query that returns HTTP 202 or
+`isReady: false` is warming up: retry after a few seconds before recording it empty.
 
 ## Time-based views
 
@@ -26,6 +52,9 @@ has a threshold that only data can reveal. Seed records through the commands' ow
 received or activity dates far in the past, due yesterday, today and tomorrow, done and not done.
 Diff the result sets to find the boundary. If a threshold could not be exercised, record the
 placeholder value as an `unknown` with a question; never ship a guessed number unrecorded.
+The server's time zone and its "today" are standing unknowns: seed near midnight and with
+backdated dates, and look for a zone setting or response header. A today-relative rule the
+dialect cannot express is a comment plus an `event-model.md` gap row, not a guessed filter.
 
 ## Client-side or server-side
 

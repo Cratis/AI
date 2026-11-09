@@ -22,6 +22,8 @@
     { "kind": "skill-contains", "value": "// boundary: out of scope", "file": "references/scoping.md" },
     { "kind": "skill-contains", "value": "// assumed: <why>", "file": "references/documentation-intake-and-screens.md" },
     { "kind": "skill-contains", "value": "plausibility report", "file": "references/documentation-intake-and-screens.md" },
-    { "kind": "skill-contains", "value": "morluto/rea", "file": "references/provenance.md" }
+    { "kind": "skill-contains", "value": "morluto/rea", "file": "references/provenance.md" },
+    { "kind": "skill-contains", "value": "limit + 1", "file": "references/probing-and-naming.md" },
+    { "kind": "skill-contains", "value": "Without the Screenplay MCP server", "file": "references/target-and-first-validation.md" }
   ]
 }

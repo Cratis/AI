@@ -19,6 +19,17 @@ combines it with the legacy rows. For the richer table used with source code, se
   resource, and `RUN-<n>` for an approved run.
 - A person or document row cites the section or the person and date.
 
+## Probe budget and table
+
+A batch of API probes against one command counts as one L2 walk state, not one per case, so
+the default walk budget does not forbid boundary sweeps. Keep one compact table per command
+in `captures/` and cite its file from the rule rows:
+
+| case | input | outcome | message |
+|---|---|---|---|
+| name empty | `""` | rejected | verbatim text |
+| name 101 chars | 101 x | rejected | verbatim text |
+
 ## Example row
 
 ```json

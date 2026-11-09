@@ -85,12 +85,16 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
      never invent them away. Read [references/evidence-format.md](references/evidence-format.md)
      for the locator notes before writing rows, and
    [references/probing-and-naming.md](references/probing-and-naming.md) before and during a walk:
-   boundary probes per command, time-based seeding, client versus server rules, naming fidelity,
-   observed defects and opaque queries.
+   boundary probes per command (limit + 1, field combinations, a second probe for surprises),
+   the query surface beyond the UI, time-based seeding, client versus server rules, naming
+   fidelity, observed defects and opaque queries. An API probe batch counts as one walk state per
+   command.
 3. **Synthesis.** Write `event-model.md` first (readout before `.play`, see the synthesis rules), then turn evidence rows into candidate elements with the signal rules in
    [references/synthesis-rules.md](references/synthesis-rules.md). Every write goes through the
    Screenplay MCP loop of `cratis-screenplay-model-authoring`: propose, read the proposal, apply.
-   Each step validates; never hand-edit around a diagnostic. Follow the phase skills for craft
+   Each step validates; never hand-edit around a diagnostic. Without the MCP server, first-pass
+   traps and the run recipe are in
+   [references/target-and-first-validation.md](references/target-and-first-validation.md). Follow the phase skills for craft
    (`cratis-screenplay-discovery`, `cratis-screenplay-slice-design`,
    `cratis-screenplay-streams-and-consistency`, `cratis-screenplay-scenario-coverage`).
 4. **Review loop.**
