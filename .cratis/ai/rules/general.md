@@ -143,7 +143,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Build and spec-run speed: parallel-safe specs, no per-spec startup, cheap analyzers | `fast-feedback.md` |
 | Spec patterns — the four `*Scenario` helpers (application only) | `specs.scenarios.csharp.md` |
 | Strongly-typed values (`ConceptAs<T>`, `EventSourceId<T>`); shared term definitions (event, projection, reducer, reactor, observer, DCB, …) | `concepts.md`; `glossary.md` |
-| Files an AI change touches (Code Health with CodeScene) | `code-health.md` |
+| Files an AI change touches (Code Health with CodeScene); behavior at a trust boundary or wire/protocol surface (cite and conform to the published contract and vectors) | `code-health.md`; `published-contracts.md` |
 | Diagnosing a misbehaving slice | read model stale or startup crash: **cratis-chronicle-projection** (*Startup-crash traps*); reactor paused or quarantined: **cratis-chronicle-reactor** (*Failure behavior*); proxy missing: **cratis-arc-command** (*Generate the TypeScript proxy*) |
 | Inspecting or operating a **running** Chronicle store (failed partitions, replays, browsing events) with the `cratis` CLI | the **cratis-chronicle-cli-operations** and **cratis-cli-terminal-workbench** skills |
 | EF Core read models / migrations | `efcore.md`, `efcore.specs.md` |
