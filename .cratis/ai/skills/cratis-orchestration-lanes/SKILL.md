@@ -105,10 +105,10 @@ Everything else a lane decides, records and reports.
 
 ## Context handoff
 
-When a lane must stop and another session continues, write a handoff that keeps
-verified facts apart from plans and states its preconditions. Read
-[references/context-handoff.md](references/context-handoff.md) when writing or resuming from one. The
-preconditions rule itself lives in
+When a lane must stop and another session continues, write a handoff named
+`handoff-<lane-id>.md` under the task folder. Structure, filling rules and
+resuming follow [cratis-session-handoff](../cratis-session-handoff/SKILL.md);
+the preconditions rule lives in
 [local-work-artifacts.md](../../rules/local-work-artifacts.md).
 
 ## Roll call

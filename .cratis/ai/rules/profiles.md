@@ -87,7 +87,7 @@ profile includes neither Screenplay nor Stage.
 | Profile ID | Description | Automatically Includes |
 |---|---|---|
 | `cratis/engineering` | Engineering conventions and workflows | `cratis/engineering/core`, `cratis/engineering/csharp`, `cratis/engineering/elixir`, `cratis/engineering/go`, `cratis/engineering/kotlin`, `cratis/engineering/react`, `cratis/engineering/typescript` |
-| `cratis/engineering/core` | Shared engineering method skills: `cratis-ci-pipeline-performance`, `cratis-documentation-writing`, `cratis-engineering-ci-gates`, `cratis-engineering-consolidation-guard`, `cratis-engineering-decision-record`, `cratis-engineering-docs-authoring`, `cratis-engineering-effect-boundaries`, `cratis-engineering-issue-hygiene`, `cratis-engineering-issue-design-note`, `cratis-engineering-local-cross-repo-verification`, `cratis-engineering-regression-cluster`, `cratis-engineering-release-trains`, `cratis-engineering-review-rounds`, `cratis-release-notes`, `cratis-technical-examples` | (no child profiles) |
+| `cratis/engineering/core` | Shared engineering method skills: `cratis-ci-pipeline-performance`, `cratis-documentation-writing`, `cratis-engineering-ci-gates`, `cratis-engineering-consolidation-guard`, `cratis-engineering-decision-record`, `cratis-engineering-docs-authoring`, `cratis-engineering-effect-boundaries`, `cratis-engineering-issue-hygiene`, `cratis-engineering-issue-design-note`, `cratis-engineering-local-cross-repo-verification`, `cratis-engineering-regression-cluster`, `cratis-engineering-release-trains`, `cratis-engineering-review-rounds`, `cratis-release-notes`, `cratis-session-handoff`, `cratis-technical-examples` | (no child profiles) |
 | `cratis/engineering/csharp` | C# engineering conventions, .NET engineering skills, and framework Orleans jobs (`cratis-orleans-jobs`, alongside `orleans.md`) | `cratis/engineering/core`, `cratis/engineering/dotnet` |
 | `cratis/engineering/dotnet` | Upstream .NET engineering workflows | `cratis/engineering/dotnet/performance`, `cratis/engineering/dotnet/diagnostics`, `cratis/engineering/dotnet/msbuild`, `cratis/engineering/dotnet/orleans`, `cratis/engineering/dotnet/testing`, `cratis/engineering/dotnet/refactoring` |
 | `cratis/engineering/dotnet/performance` | Microbenchmarking, performance patterns, SIMD, and profiling | (no child profiles) |
@@ -233,7 +233,8 @@ language policy always follows the consuming repository's `go.mod` minimum.
 Select `cratis/codescene` explicitly to load the four upstream CodeScene skills:
 `safeguarding-ai-generated-code`, `guiding-refactoring-with-code-health`,
 `prioritizing-technical-debt` and `risk-based-testing-with-code-health`.
-The [CodeScene policy](./codescene.md) overrides those skills where they differ.
+The [CodeScene policy](./codescene.md) overrides those skills where they differ. The Code Health
+floor itself is the universal rule [code-health.md](./code-health.md); the profile supplies the skills and server.
 No other profile, including `cratis` and `cratis/full`, composes it.
 
 The profile selects the `codescene` stdio server (`cs-mcp`, no arguments) from

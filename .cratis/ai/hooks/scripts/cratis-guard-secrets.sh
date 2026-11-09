@@ -267,6 +267,27 @@ function metadata_shape(A, M, n,    k, j, c, mk) {
     }
     return 1
 }
+# Filename metadata must not exempt verbose/patch modes that print file contents. Staging
+# is limited to proven directories; credential-file operands retain the literal-read rule.
+function git_metadata(words, count,    subcommand, k, w, ended, summary) {
+    subcommand = words[2]
+    if (subcommand !~ /^(status|diff|add)$/) return 0
+    for (k = 3; k <= count; k++) {
+        w = words[k]
+        if (!ended && w == "--") { ended = 1; continue }
+        if (!ended && w ~ /^-/) {
+            if (subcommand == "status" && w ~ /^(-s|-b|-sb|-bs|--short|--branch|--porcelain(=v[12])?)$/) continue
+            if (subcommand == "diff") {
+                if (w ~ /^(--stat|--numstat|--shortstat|--name-only|--name-status)$/) { summary = 1; continue }
+                if (w ~ /^(--cached|--staged|--no-color)$/) continue
+            }
+            if (subcommand == "add" && w ~ /^(-A|-u|-v|--all|--update|--verbose)$/) continue
+            return 0
+        }
+        if (subcommand == "add" && !directory_operand(w)) return 0
+    }
+    return subcommand != "diff" || summary
+}
 function literal_shape(A, M, n,    k, j, b, words, count, pattern, ended, w, paths, flags) {
     if (metadata_shape(A, M, n)) return 1
     delete words
@@ -279,6 +300,7 @@ function literal_shape(A, M, n,    k, j, b, words, count, pattern, ended, w, pat
         }
     }
     b = words[1]
+    if (b == "git" && git_metadata(words, count)) return 1
     if (b == "git" && words[2] == "ls-files") {
         for (k = 3; k <= count; k++) {
             w = words[k]
@@ -592,7 +614,7 @@ function sensitive_path(w,    l, b) {
     if (b == "id_rsa" || b == "id_ed25519" || b == "id_ecdsa" || b == "id_dsa") return "a private key"
     if (b ~ /(^|[._-])tokens?($|[._-])/ && !code_file(b) && !token_ok(l, b)) return "a token file"
     if (b == ".netrc" || b == ".npmrc" || b == ".pgpass" || b == ".pypirc" || b == ".git-credentials") return "a credentials file"
-    if (b == "credentials") return "a credentials file"
+    if (b == "credentials" || b == "credentials.json") return "a credentials file"
     if (l ~ /\.docker\/config\.json$/) return "the Docker registry credentials"
     if (l ~ /\/proc\/[^\/]*\/environ$/) return "a process environment"
     if (l ~ /^\/(var\/)?run\/secrets\//) return "mounted secrets"

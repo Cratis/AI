@@ -147,7 +147,7 @@ function options_allowed(verb, first,    i, w) {
             continue
         }
         if (verb == "git commit") {
-            if (w == "-m") { if (++i > argc) return 0; continue }
+            if (w == "-m" || w == "--message") { if (++i > argc) return 0; continue }
             if (w ~ /^-m./) continue
             if (w == "-F") {
                 if (++i > argc || W[i] ~ /[$`*?\[{]/ || protected(W[i])) return 0
@@ -162,8 +162,8 @@ function options_allowed(verb, first,    i, w) {
     }
     return 1
 }
-# Only git -C <literal-dir> status --short, rev-parse HEAD, branch --show-current,
-# or tag --list <pattern> are exempt, with exact arity; no other global option is.
+# Only literal git -C metadata (with exact arity) or staging/commit commands
+# (with their normal option checks) are exempt; no other global option is.
 # -C gives no protection from hostile repository config (fsmonitor, hooks, pager,
 # diff/textconv helpers). This filter checks syntax, not repository trust.
 function directory_metadata() {
@@ -186,24 +186,33 @@ function allow_command(    verb, first) {
     if (++commands > 64) { bad = 1; return }
     verb = W[1]; first = 2
     if (verb == "cd") {
-        conditional_only = 1
+        directory_only = 1
         if (argc != 2 || W[2] == "" || W[2] ~ /^-/ || globbed[2] || file_redirect) bad = 1
         changed_cwd = 1
         return
     }
     if (verb == "sed") { if (!print_only_sed()) bad = 1; return }
     if (verb == "git" && W[2] == "-C") {
-        if (!directory_metadata()) bad = 1
-        return
-    }
-    if (verb == "git") { verb = verb " " W[2]; first = 3 }
+        if (argc >= 4 && W[3] != "" && W[3] !~ /^-/ && !globbed[3] && W[4] ~ /^(add|commit)$/) {
+            verb = verb " " W[4]; first = 5
+        } else {
+            if (!directory_metadata()) bad = 1
+            return
+        }
+    } else if (verb == "git") { verb = verb " " W[2]; first = 3 }
+    if (verb == "git add" || verb == "git commit") changed_index = 1
     if (verb == "git branch") {
         conditional_only = 1
         if (argc != 3 || W[3] != "--show-current") { bad = 1; return }
     }
     if (!(verb in verbs) || !options_allowed(verb, first)) bad = 1
 }
-function command_end() { endword(); allow_command(); delete W; delete globbed; argc = 0 }
+function command_end(separator) {
+    endword(); allow_command()
+    if (W[1] == "cd" && (separator == "|" || previous_pipe)) bad = 1
+    previous_pipe = (separator == "|")
+    delete W; delete globbed; argc = 0
+}
 function readonly(s,    i, c, c2, sq, dq) {
     for (i = 1; i <= length(s); i++) {
         c = substr(s, i, 1); c2 = substr(s, i + 1, 1)
@@ -229,30 +238,33 @@ function readonly(s,    i, c, c2, sq, dq) {
             if (c2 ~ /[><&|]/) { i++; if (substr(s, i + 1, 1) == ">") i++ }
             continue
         }
-        if (c == "&" && c2 == "&") { command_end(); if (redirect) bad = 1; i++; continue }
-        if (c ~ /[;|&\n]/) { nonconditional_separator = 1; command_end(); if (redirect) bad = 1; continue }
+        if (c == "&" && c2 == "&") { command_end("&&"); if (redirect) bad = 1; i++; continue }
+        if (c == "|" && c2 != "|") { has_pipeline = 1; command_end("|"); if (redirect) bad = 1; continue }
+        if (c ~ /[;|&\n]/) { nonconditional_separator = 1; command_end(c); if (redirect) bad = 1; continue }
         if (c ~ /[ \t\r]/) { endword(); continue }
         word = word c; inword = 1
     }
     command_end()
-    if (sq || dq || redirect || (conditional_only && nonconditional_separator)) bad = 1
+    if (sq || dq || redirect || (conditional_only && (nonconditional_separator || has_pipeline)) ||
+        (directory_only && (nonconditional_separator || (has_pipeline && changed_index)))) bad = 1
     return !bad
 }
 BEGIN {
     policy("cat", "nAvetsb", "")
     policy("head", "", ""); policy("tail", "", "")
     policy("wc", "lwcm", ""); policy("ls", "laA1hdRtrF", "")
-    policy("rg", "nl", "")
+    policy("rg", "nli", "--files")
     policy("grep", "nirRlLcvwxFEHhoqs", "")
     policy("egrep", "nirRlLcvwxFEHhoqs", ""); policy("fgrep", "nirRlLcvwxFEHhoqs", "")
     policy("echo", "neE", "")
     policy("printf", "", ""); policy("test", "", ""); policy("[", "", "")
     policy("true", "", ""); policy("false", "", ""); policy("pwd", "", "")
+    policy("df", "h", "")
     policy("git status", "sb", "--short --porcelain")
     policy("git diff", "p", "--stat --numstat --name-only --name-status --cached --staged --check --no-color --cc")
     policy("git log", "p", "--oneline --stat --name-only --no-color --follow")
     policy("git show", "p", "--stat --name-only --no-color")
-    policy("git add", "Aup", ""); policy("git commit", "aq", "")
+    policy("git add", "Aupv", "--all"); policy("git commit", "aq", "")
     policy("git blame", "", ""); policy("git ls-files", "s", "--stage --debug")
     policy("git branch", "", "--show-current")
     policy("git rev-parse", "", ""); policy("git check-ignore", "", ""); policy("git grep", "n", "")

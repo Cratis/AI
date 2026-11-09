@@ -121,6 +121,51 @@ test('literal git filename metadata and grep pattern options are read-only', asy
     } finally { repo.dispose(); }
 });
 
+test('updated AI prompts can be staged without permitting protected content writes', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            [ALLOW, 'git add .claude/commands/reverse-engineer.md .cursor/commands/reverse-engineer.md .opencode/commands/reverse-engineer.md .pi/prompts/reverse-engineer.md .cratis/ai/prompts/reverse-engineer.prompt.md'],
+            [ALLOW, 'git add -v .cratis skills && git commit --message "Update Cratis AI"'],
+            [ALLOW, 'git add --all -- .cratis skills'],
+            [ALLOW, 'git add .cratis/ai/prompts/*.md skills/cratis-arc-neo4j/'],
+            [ALLOW, `git -C ${repo.root} add .cratis skills && git -C ${repo.root} commit -m 'Update Cratis AI'`],
+            ...['git add --interactive .cratis', 'git add --pathspec-from-file=.cratis/ai/paths',
+                'git -C "$HOME" add .cratis', 'git -c alias.add=checkout add .cratis',
+                'git checkout other -- .cratis/ai/rules/general.md',
+                'git restore -- .cratis/ai/rules/general.md', 'git apply .cratis/ai/evil.patch', 'git am .cratis/ai/evil.patch',
+                'git stash push -- .cratis', 'git mv evil.md .cratis/ai/rules/evil.md', 'git rm .cratis/ai/rules/general.md',
+                'git add .cratis && printf x > .cratis/ai/rules/general.md',
+                'git -C .cratis checkout other -- ai/rules/general.md',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('compound report listing permits disk checks and read-only search pipelines', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            [ALLOW, `cd ${repo.root} && cat .ai-work/v2/report.md .ai-work/v2/brief.md .ai-work/v2/report-step2.md && ls .cratis/ai/rules/project && rg --files .ai-work/v2 | rg -i 'arc|spec|md$' && df -h ~`],
+            [ALLOW, 'ls .cratis/ai/rules/project && df -h .'],
+            [ALLOW, `cd ${repo.root} && cat .cratis/ai/rules/general.md | rg -n scope`],
+            ...['ls .cratis/ai/rules/project && df --output=$(cat .env)',
+                'ls .cratis/ai/rules/project && df -h > .env',
+                'cd .cratis && cat ai/rules/general.md | tee ai/rules/general.md',
+                'cd .cratis && rg --pre command ai/rules/general.md | rg scope',
+                'cd .cratis && git add . | cat', 'cd .cratis | cat ai/rules/general.md',
+                'cd .cratis; cat ai/rules/general.md | rg scope',
+                'cd .cratis && cat ai/rules/general.md | bash',
+                'git branch new-branch | cat .cratis/ai/rules/general.md',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('original read lanes never confuse protected read paths with write targets', async () => {
     const repo = scratchRepository();
     try {
