@@ -235,7 +235,7 @@ test('code-health is a universal, path-scoped, generic rule that general and rev
     const fields = frontmatter(rule);
     assert.ok(!fields.has('profile'), 'code-health.md reaches every repository, so it carries no profile');
     assert.ok(fields.get('paths')?.length, 'code-health.md has Claude paths');
-    assert.ok(!fields.get('applyTo')?.includes('**/*,') && fields.get('applyTo') !== '**/*', 'code-health.md has narrow Copilot scope');
+    assert.ok(!fields.get('applyTo')?.includes('**/*'), 'code-health.md has narrow Copilot scope');
     for (const text of ['9.5', 'code_health_review', 'code_health_score', 'pre_commit_code_health_safeguard', 'analyze_change_set', 'could not determine', 'No fix loops', 'uplift']) assert.ok(rule.includes(text), text);
     assert.ok(!/woksin|\b85913\b|\b108967\b|L0|cs-mcp \d|1\.5\.\d/i.test(rule), 'code-health.md stays generic');
     assert.ok(readFileSync(join(corpus, 'rules/general.md'), 'utf8').includes('`code-health.md`'));
