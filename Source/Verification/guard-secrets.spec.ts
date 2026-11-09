@@ -11,7 +11,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -25,9 +25,9 @@ const guard = join(repositoryRoot, '.cratis', 'ai', 'hooks', 'scripts', 'cratis-
 const BLOCK = 'block';
 const ALLOW = 'allow';
 
-function runGuard(command: string, env: NodeJS.ProcessEnv = {}): { verdict: string; code: number | null; stderr: string } {
+function runGuard(command: string, env: NodeJS.ProcessEnv = {}, cwd = repositoryRoot): { verdict: string; code: number | null; stderr: string } {
     const result = spawnSync('bash', [guard], {
-        input: JSON.stringify({ cwd: repositoryRoot, tool_name: 'Bash', tool_input: { command } }),
+        input: JSON.stringify({ cwd, tool_name: 'Bash', tool_input: { command } }),
         encoding: 'utf8',
         env: { ...process.env, CRATIS_HOOKS_ALLOW_SECRET_READS: '0', ...env },
     });
@@ -48,6 +48,194 @@ function assertVerdicts(cases: Array<[expected: string, command: string]>, env: 
         }
     }
 }
+
+test('credential words embedded in source paths do not taint commands', () => {
+    assertVerdicts([
+        [ALLOW, 'git add Deployment/Specs/for_ApplicationCredentials/given/an_application.cs'],
+        [ALLOW, 'git diff -- Deployment/Specs/for_ApplicationCredentials/when_x/a.cs'],
+        [ALLOW, 'rm Deployment/Specs/for_ApplicationCredentials/when_x/a.cs'],
+        [ALLOW, 'git add Source/Foo/ApplicationCredentials.cs Source/Foo/CredentialsProvider.cs'],
+        [ALLOW, 'cat Deployment/Specs/for_ApplicationCredentials/given/an_application.cs'],
+        [ALLOW, 'mv Specs/for_ApplicationCredentials/a.cs Specs/for_ApplicationCredentials/b.cs'],
+        [ALLOW, 'git add a b && git status'],
+        ...['cat ~/.aws/credentials', 'git add credentials.json', 'git add .aws/credentials',
+            'git add config/credentials/prod.txt', 'git add config/credentials.json/prod.txt', 'cat Source/credentials', 'rm id_rsa',
+            'git add .git-credentials', 'cat for_ApplicationCredentials/credentials',
+            'git add Specs/for_ApplicationCredentials', 'git add x && cat .env'].map(command => [BLOCK, command] as [string, string]),
+    ]);
+});
+
+test('literal-prefix trailing globs inspect bounded real matches, never shell input', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-secret-glob-'));
+    try {
+        writeFileSync(join(directory, 'project.md'), 'synthetic fixture');
+        writeFileSync(join(directory, 'Directory.Build.props'), 'synthetic fixture');
+        mkdirSync(join(directory, 'keys'));
+        writeFileSync(join(directory, 'keys/server.pem'), 'synthetic fixture');
+        for (const command of ['rg -l foo project*', 'rg -c foo project*', 'grep -l foo cert*',
+            'rg -n foo Directory.Build.*', `cd '${directory}' && rg -n foo Directory.Build.*`, `cd '${directory}' && git diff --cc && rg -n foo Directory.Build.* && git log -6 --format=%H`]) {
+            const result = runGuard(command, {}, directory);
+            assert.equal(result.code, 0, `${command}\n${result.stderr}`);
+        }
+        for (const command of ['cat *', 'cat .env*', 'cat *.pem', 'cat *.key', 'cat id_rsa*',
+            'cd "$X" && cat project*', 'pushd d; cat project*', 'cd missing && cat project*',
+            'cd keys && cat server*', 'rg -n foo missing/project*', "rg -n foo 'Dir'$x*"]) {
+            assert.equal(runGuard(command, {}, directory).code, 2, command);
+        }
+        assert.equal(runGuard('cat project*', {}, '').code, 2);
+        writeFileSync(join(directory, 'options.sh'), 'shopt -s nocaseglob\n');
+        for (const env of [{ GLOBIGNORE: 'x' }, { BASH_ENV: join(directory, 'options.sh') }, { ENV: join(directory, 'options.sh') }]) {
+            assert.equal(runGuard('cat project*', env, directory).code, 2);
+        }
+        const unreadable = join(directory, 'unreadable');
+        mkdirSync(unreadable, { mode: 0o000 });
+        try { assert.equal(runGuard('cat unreadable/project*', {}, directory).code, 2); }
+        finally { chmodSync(unreadable, 0o700); }
+        writeFileSync(join(directory, 'cert.pem'), 'synthetic fixture');
+        for (const command of ['cat cert*', 'rg -n foo cert*', 'rg -l foo cert*', 'rg -l --json foo cert*',
+            'rg -l foo server.pem', 'rg -l foo .env', 'rg -l foo .env*', 'rg -l foo id_rsa*', 'rg -l foo *.pem']) {
+            const result = runGuard(command, {}, directory);
+            assert.equal(result.code, 2, `${command}\n${result.stderr}`);
+        }
+        for (const operand of [`project$(touch ${directory}/executed)*`, `project\`touch ${directory}/executed\`*`,
+            `"project';touch executed;'"*`, `"project'quote"*`, `'project"quote'*`, "'project;touch executed'*", "'project\n'*"]) {
+            const result = runGuard(`cat ${operand}`, {}, directory);
+            assert.equal(result.code, 2, `${operand}\n${result.stderr}`);
+            assert.equal(existsSync(join(directory, 'executed')), false);
+        }
+        for (let index = 0; index < 201; index++) writeFileSync(join(directory, `project-${index}`), 'fixture');
+        assert.equal(runGuard('cat project*', {}, directory).code, 2);
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('glob probes never trust a preceding command or lose filesystem context', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-glob-context-'));
+    try {
+        writeFileSync(join(directory, 'server.txt'), 'synthetic fixture');
+        mkdirSync(join(directory, 'keys'));
+        writeFileSync(join(directory, 'keys/server.pem'), 'synthetic fixture');
+        for (const command of ["c''d keys; cat server*", String.raw`c\d keys; cat server*`, '"c"d keys; cat server*',
+            'f(){ cd keys; }; f; cat server*', 'z keys; cat server*',
+            'true; cat server*', 'cat server* && z keys && cat server*',
+            'cd keys; cat server*', 'rg -L foo cert*']) {
+            assert.equal(runGuard(command, {}, directory).code, 2, command);
+        }
+        writeFileSync(join(directory, 'cert.txt'), 'synthetic fixture');
+        writeFileSync(join(directory, 'CERT.pem'), 'synthetic fixture');
+        assert.equal(runGuard('cat cert*', {}, directory).code, 2);
+        symlinkSync(join(directory, 'keys/server.pem'), join(directory, 'notes.txt'));
+        assert.equal(runGuard('cat notes*', {}, directory).code, 2);
+        mkdirSync(join(directory, '.docker'));
+        writeFileSync(join(directory, '.docker/config.json'), 'synthetic fixture');
+        assert.equal(runGuard('cat config*', {}, join(directory, '.docker')).code, 2);
+        symlinkSync(join(directory, '.docker'), join(directory, 'alias'));
+        assert.equal(runGuard('cat config*', {}, join(directory, 'alias')).code, 2);
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('glob probes fail closed on parent segments and logical versus physical cwd uncertainty', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-glob-logical-cwd-'));
+    try {
+        mkdirSync(join(directory, 'visible'));
+        mkdirSync(join(directory, 'elsewhere/sub'), { recursive: true });
+        symlinkSync('../elsewhere/sub', join(directory, 'visible/link'));
+        writeFileSync(join(directory, 'visible/server.pem'), 'synthetic fixture');
+        writeFileSync(join(directory, 'elsewhere/server.txt'), 'synthetic fixture');
+        for (const command of ['cd visible && cat server*', 'cd visible/link/.. && cat server*',
+            'cat visible/link/../server*', 'cd elsewhere/sub/.. && cat server*',
+            'rg -l foo visible/link/../server*', `cd '${directory}/visible/link/..' && cat server*`]) {
+            assert.equal(runGuard(command, {}, directory).code, 2, command);
+        }
+        assert.equal(runGuard('cat server*', {}, join(directory, 'visible/link/..')).code, 2);
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('glob probes refuse cd options and home or previous-directory operands despite decoys', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-glob-cd-decoy-'));
+    try {
+        for (const name of ['-', '-P', '-L', '~', '~decoy']) {
+            mkdirSync(join(directory, name));
+            writeFileSync(join(directory, name, 'server.txt'), 'synthetic fixture');
+        }
+        mkdirSync(join(directory, 'previous'));
+        writeFileSync(join(directory, 'previous/server.pem'), 'synthetic fixture');
+        const env = { OLDPWD: join(directory, 'previous'), HOME: join(directory, 'previous') };
+        for (const target of ['-', "'-'", '"-"', '-P', '-L', '~', "'~'", "'~decoy'", '']) {
+            const command = `cd ${target} && cat server*`;
+            assert.equal(runGuard(command, env, directory).code, 2, command);
+        }
+        assert.equal(runGuard('cd&& cat server*', env, directory).code, 2);
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('literal directory checks retain the process cwd when the payload omits cwd', () => {
+    const result = spawnSync('bash', [guard], {
+        cwd: repositoryRoot,
+        input: JSON.stringify({ tool_name: 'Bash', tool_input: { command: 'rg -n PASSWORD Source .env.example' } }),
+        encoding: 'utf8',
+        env: { ...process.env, CRATIS_HOOKS_ALLOW_SECRET_READS: '' },
+    });
+    assert.equal(result.status, 2, result.stderr);
+});
+
+test('git search patterns and filename metadata do not become credential operands', () => {
+    assertVerdicts([
+        [ALLOW, 'git grep -n -e SpoofableHeaders.Strip -e ForwardedIdentityForward -e OptionsKey -e CredentialBinding -- Source/AuthProxy'],
+        [ALLOW, 'git grep -n -e credentials -e .env -- Source/AuthProxy'],
+        [ALLOW, 'git ls-files Source/AuthProxy/UserTokens Source/AuthProxy/Credentials Source/AuthProxy/Proxying Source/AuthProxy/ForwardedIdentity'],
+        [ALLOW, 'git ls-files -s Source/AuthProxy/Credentials'],
+        [ALLOW, 'git ls-files --debug Source/AuthProxy/Credentials'],
+        [ALLOW, 'git ls-files -s -- .env'], [ALLOW, 'git ls-files --debug -- .env'],
+        ...['git grep -n password -- .env', 'git grep -e x -- secrets.json',
+            'git grep -e x -- credentials.json', 'git grep -f .env -- Source/AuthProxy',
+            'git show HEAD:.env', 'git cat-file -p HEAD:.env', 'git show HEAD:secrets.json',
+            'git cat-file -p HEAD:secrets.json', 'git ls-files .env; cat .env',
+            'git -c alias.ls-files=show ls-files Credentials',
+        ].map(command => [BLOCK, command] as [string, string]),
+    ]);
+});
+
+test('original read lanes allow directory globs only with proven read-only context', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-original-read-lanes-'));
+    const commands = [
+        `cd ${directory} && git diff --cc && rg -n 'new BearerRouteMiddleware|new\\(next, options|TreatWarnings|EnforceCode|WarningLevel|Configuration|Docker|Testcontainers' Source/AuthProxy.Specs/BearerRoutes Source/AuthProxy.Security.Specs/*.csproj Source/Aspire.Specs/*.csproj Directory.Build.* Source/Directory.Build.* AuthProxy.slnx && git log -6 --format='%H %s'`,
+        "rg -l 'Identity|Hosting' .cratis/ai/rules/project*",
+        `cd ${directory} && git branch --show-current && git rev-parse HEAD && git status --short && rg -n 'Infrastructure.csproj' Source --glob '*.csproj' && sed -n '1,130p' Source/Admin.Specs/Admin.Specs.csproj && sed -n '1,120p' Source/Infrastructure/Infrastructure.csproj`,
+    ];
+    try {
+        for (const path of ['Source/AuthProxy.Specs/BearerRoutes', 'Source/AuthProxy.Security.Specs', 'Source/Aspire.Specs', '.cratis/ai/rules', 'Source/Admin.Specs', 'Source/Infrastructure']) mkdirSync(join(directory, path), { recursive: true });
+        for (const path of ['Source/AuthProxy.Security.Specs/Security.csproj', 'Source/Aspire.Specs/Aspire.csproj', 'Directory.Build.props', '.cratis/ai/rules/project.md', 'Source/Admin.Specs/Admin.Specs.csproj', 'Source/Infrastructure/Infrastructure.csproj']) writeFileSync(join(directory, path), 'synthetic fixture');
+        for (const command of commands) assert.equal(runGuard(command, {}, directory).code, 0, command);
+        assert.equal(runGuard('rg -n foo Source/Directory.Build.*', {}, directory).code, 0);
+        assert.equal(runGuard(commands[0], { CDPATH: directory }, directory).code, 0);
+        assert.equal(runGuard('cd Source && rg -n foo Directory.Build.*', { CDPATH: directory }, directory).code, 2);
+        for (const command of ['z keys && rg -n foo Source/Directory.Build.*', 'git diff --cc; rg -n foo Source/Directory.Build.*',
+            'git diff --cc && rg -n foo Source/Directory.Build.* && touch marker', 'rg -l foo missing/project*',
+            'rg -n password .env*', 'git show HEAD:.env']) assert.equal(runGuard(command, {}, directory).code, 2, command);
+        writeFileSync(join(directory, 'Source/Directory.Build.private.key'), 'synthetic fixture');
+        assert.equal(runGuard(commands[0], {}, directory).code, 2);
+        writeFileSync(join(directory, '.cratis/ai/rules/project.pem'), 'synthetic fixture');
+        assert.equal(runGuard(commands[1], {}, directory).code, 2);
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('bracket backslashes never crash the regex parser', () => {
+    for (const command of [String.raw`x=[fail\\]; cat $x`, String.raw`for f in [fail\\]; do cat $f; done`,
+        'cat ${x:-[fail\\\\]}', String.raw`cat {a,[fail\\]}`,
+        String.raw`rg -n "\[FAIL\]" gate.log`, String.raw`rg -n "\[FAIL\]" *.log`, 'cat [a-[:digit:]]']) {
+        const result = runGuard(command);
+        assert.ok(result.code === 0 || result.code === 2, result.stderr);
+        assert.doesNotMatch(result.stderr, /parser failed/);
+    }
+    assertVerdicts([[BLOCK, 'cat [.]env'], [BLOCK, 'cat .[e]nv'], [BLOCK, 'cat id_[r]sa']]);
+});
+
+test('a narrower literal command is the supported remediation', () => {
+    const result = runGuard('cat ~/.aws/credentials');
+    assert.match(result.stderr, /supported route/);
+    assert.match(result.stderr, /Use instead: /);
+    assert.doesNotMatch(result.stderr, /rephrase it/);
+});
 
 function projectionCommand(expression: string, format = 'jsonpath'): string {
     return `kubectl get pods -o ${format}='${expression.replaceAll("'", "'\\''")}'`;

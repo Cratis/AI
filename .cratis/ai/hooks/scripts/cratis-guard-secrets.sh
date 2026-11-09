@@ -110,12 +110,20 @@ function ansi_c(s, i, n,    c, c2, v, d, k, lim, stop, digits) {
 # or operands (`kubectl get > /dev/stdout secrets`). Nothing is exempted: the command itself is still analyzed.
 # A word is a redirection only when its whole operator lies in the word's unquoted prefix (WP: characters before
 # the first quoted or escaped one), so `1">"b` and `">x"` stay operands; input redirections (`< file`) stay too.
-function stem_boundary(t, start, finish, stem,    a, b, before, after) {
+function stem_boundary(t, start, finish, stem,    a, b, before, after, left, right, component) {
     if (stem == "/environ" && substr(t, finish + 1, 1) ~ /[a-z0-9_]/) return 0
     if (stem !~ /^(id_rsa|id_ed25519|id_ecdsa|id_dsa|kubeconfig|credentials)$/) return 1
     a = start; b = finish
     while (a > 1 && substr(t, a - 1, 1) ~ /[a-z0-9_]/) a--
     while (b < length(t) && substr(t, b + 1, 1) ~ /[a-z0-9_]/) b++
+    if (stem == "credentials") {
+        left = a; right = b
+        while (left > 1 && substr(t, left - 1, 1) ~ /[a-z0-9_.-]/) left--
+        while (right < length(t) && substr(t, right + 1, 1) ~ /[a-z0-9_.-]/) right++
+        component = substr(t, left, right - left + 1)
+        if (component !~ /^credentials([.]|$)/ && substr(t, right + 1, 1) == "/") return 0
+        if (code_file(component) && component !~ /^credentials\./) return 0
+    }
     before = substr(t, a - 1, 1); after = substr(t, b + 1)
     return !(before == "$" || before == "-" || (before == "{" && substr(t, a - 2, 1) == "$") || after ~ /^(=|\+=)/)
 }
@@ -206,6 +214,7 @@ function regex_short_flag(b, c) {
 function regex_slots(A, s, n,    b, k, j, w, c, explicit, ended, attached, uncertain) {
     delete RP; delete ROPER
     b = base(A[s])
+    if (A[s] == "git" && A[s + 1] == "grep") { s++; b = "grep" }
     if (b !~ /^(grep|egrep|fgrep|rg|ag)$/) return
     for (k = s + 1; k <= n; k++) {
         w = A[k]
@@ -247,7 +256,7 @@ function directory_operand(w,    path) {
     if (w ~ /\/$/ || w == "." || w == "..") return 1
     path = w
     if (path ~ /^~\//) path = ENVIRON["HOME"] substr(path, 2)
-    if (path !~ /^\//) path = ENVIRON["GS_CWD"] "/" path
+    if (path !~ /^\//) path = ENVIRON["GS_CWD_FALLBACK"] "/" path
     return system("test -d " shell_quote(path)) == 0
 }
 function metadata_shape(A, M, n,    k, j, c, mk) {
@@ -270,6 +279,14 @@ function literal_shape(A, M, n,    k, j, b, words, count, pattern, ended, w, pat
         }
     }
     b = words[1]
+    if (b == "git" && words[2] == "ls-files") {
+        for (k = 3; k <= count; k++) {
+            w = words[k]
+            if (!ended && w == "--") { ended = 1; continue }
+            if (!ended && w ~ /^-/ && w !~ /^(-s|--stage|--debug)$/) return 0
+        }
+        return 1
+    }
     if (b ~ /\// || b !~ /^(cat|head|tail|less|more|wc|grep|egrep|fgrep|rg|ls|stat|test|cp)$/) return 0
     if (b ~ /^(ls|stat|test)$/) return 1
     if (b == "cp") return count == 3 && words[2] !~ /^-/ && words[3] !~ /^-/ && sensitive_path(words[2]) == ""
@@ -648,7 +665,7 @@ function variable_values(name,    k, j, count, result, values, masks, value_part
     value_depth--; delete ACTIVE[name]
     return result
 }
-function param(w, m, i,    c, j, name, inner, op, base, rest, depth, bad, special, kind) {
+function param(w, m, i,    c, j, name, inner, op, base_value, rest, depth, bad, special, kind) {
     delete PC; npc = 1; PC[1] = "$"
     c = substr(w, i + 1, 1); name = ""; op = ""; rest = ""
     if (c == "{") {
@@ -678,8 +695,8 @@ function param(w, m, i,    c, j, name, inner, op, base, rest, depth, bad, specia
     if (name == "_") special = "\001"
     if (bad) { PC[1] = "\001"; return i }
     if (op == "=") bind_value(name, rest, "")
-    base = (special != "") ? special : variable_values(name)
-    delete PC; npc = split(base, PC, "\034")
+    base_value = (special != "") ? special : variable_values(name)
+    delete PC; npc = split(base_value, PC, "\034")
     if (op == "+") { npc = 2; PC[1] = rest; PC[2] = "" }
     else if (op == "-" || op == "=") PC[++npc] = rest
     return i
@@ -746,6 +763,22 @@ function resolve(w, m,    k, j, words, masks, count, resolved_values, nr, failed
 }
 function has_sentinel(b) { return b ~ /[\001-\007]/ }
 function only_runtime(b,    t) { t = b; gsub("\003", "", t); return t == "" }
+# A shell bracket with escapes or nonportable class syntax is widened, never narrowed.
+# In particular a trailing backslash must not escape the closing bracket in an awk regex.
+function bracket_rx(body,    check, k, before, after) {
+    if (body == "" || index(body, "\\")) return "[^/]"
+    if (index(body, "[:") && index(body, "-")) return "[^/]"
+    sub(/^!/, "^", body); check = body
+    # Preserve portable POSIX classes, but never feed unknown classes/collation to awk.
+    gsub(/\[:(alnum|alpha|blank|cntrl|digit|graph|lower|print|punct|space|upper|xdigit):\]/, "x", check)
+    sub(/^\^/, "", check)
+    if (check == "" || check ~ /[\[\]^]/) return "[^/]"
+    for (k = 2; k < length(check); k++) if (substr(check, k, 1) == "-") {
+        before = substr(check, k - 1, 1); after = substr(check, k + 1, 1)
+        if (before == "-" || after == "-" || before > after) return "[^/]"
+    }
+    return "[" body "]"
+}
 # An anchored regex for a name that can hold sentinels: \001 and \003 match any string, \002 one character.
 function rxize(b,    k, c, r, j, bracket) {
     r = ""
@@ -756,7 +789,7 @@ function rxize(b,    k, c, r, j, bracket) {
         else if (c == "\002" || c == "\005") r = r "[^/]"
         else if (c == "\006") {
             j = index(substr(b, k + 1), "\007"); bracket = substr(b, k + 1, j - 1)
-            sub(/^!/, "^", bracket); r = r "[" bracket "]"; k += j
+            r = r bracket_rx(bracket); k += j
         }
         else if (index(".[]()*+?{}|^$\\", c)) r = r "\\" c
         else r = r c
@@ -821,6 +854,83 @@ function path_probe(a, probe,    path_parts, probe_parts, n, m, k, tail) {
     for (k = n-m+2; k <= n; k++) tail = tail "/" path_parts[k]
     return pattern_match(tail, probe)
 }
+# Only a literal prefix plus one trailing star is resolved against the filesystem.
+# The script is fixed shell code: cwd/prefix are single-quoted positional arguments, and
+# only the literal basename prefix plus * is expanded. No command text, operand or bracket body is evaluated as code.
+# Recognize only && chains with one reader and literal read-only Git metadata.
+# Quoted regex/format text is opaque data; expansions and other shell syntax fail
+# closed. The semantic command index binds a probe to that reader, not a later one.
+function probe_read_chain(text, prior,    i, c, q, normal, n, k, readers, reader_index, clause, parts) {
+    for (i = 1; i <= length(text); i++) {
+        c = substr(text, i, 1)
+        if (c ~ /[\001-\010\012-\037\177]/) return 0
+        if (q == "\047") { if (c == q) q = ""; continue }
+        if (c ~ /[$`\\]/) return 0
+        if (q == "\"") { if (c == q) q = ""; continue }
+        if (c == "\047" || c == "\"") { q = c; normal = normal "Q"; continue }
+        if (c == "&" && substr(text, i + 1, 1) == "&") { normal = normal "\034"; i++; continue }
+        if (c ~ /[;&|(){}<>]/) return 0
+        normal = normal c
+    }
+    if (q != "") return 0
+    n = split(normal, parts, "\034")
+    for (k = 1; k <= n; k++) {
+        clause = parts[k]; sub(/^[ \t]+/, "", clause); sub(/[ \t]+$/, "", clause)
+        if (clause ~ /^(cat|rg|grep|egrep|fgrep|head|tail)[ \t]/) { readers++; reader_index = prior + k; continue }
+        if (clause ~ /^git[ \t]+diff([ \t]+(--cc|--stat|--check|--no-color))*$/) continue
+        if (clause ~ /^git[ \t]+log([ \t]+(-[0-9]+|--format=[^ \t]+|--oneline|--no-color))*$/) continue
+        if (clause ~ /^git[ \t]+(branch[ \t]+--show-current|rev-parse[ \t]+HEAD|status[ \t]+--short)$/) continue
+        return 0
+    }
+    return readers == 1 && reader_index == commands
+}
+function glob_directory(    text, head, dir, prior) {
+    dir = ENVIRON["GS_CWD"]; text = CMD
+    if (ENVIRON["GS_GLOB_SAFE"] != "1" || dir == "" || dir !~ /^\//) return ""
+    if (text ~ /^[ \t]*cd([ \t]|&&|$)/) {
+        if (!match(text, /^[ \t]*cd[ \t]+(\047[^\047\n]+\047|"[^"$`\\\n]+"|[A-Za-z0-9_.\/@+-]+)[ \t]*&&/)) return ""
+        head = substr(text, 1, RLENGTH); text = substr(text, RLENGTH + 1)
+        sub(/^[ \t]*cd[ \t]+/, "", head); sub(/[ \t]*&&$/, "", head)
+        if (head ~ /^[\047"]/) head = substr(head, 2, length(head) - 2)
+        if (head ~ /^[-~]/) return ""
+        if (head !~ /^\// && ENVIRON["CDPATH"] != "") return ""
+        if (head ~ /^\//) dir = head; else dir = dir "/" head
+        prior = 1
+    }
+    if (dir ~ /(^|\/)\.\.(\/|$)/ || qi != 1 || !probe_read_chain(text, prior)) return ""
+    return dir
+}
+function glob_secret_match(a,    prefix, parent, dir, script, cmd, line, count, ok, kind, found, name, original, basename, k) {
+    prefix = substr(a, 1, length(a) - 1)
+    if (substr(a, length(a), 1) != "\004" || prefix == "" || prefix ~ /[^A-Za-z0-9._\/@+=,:%-]/) return "a key or certificate file"
+    parent = prefix; sub(/[^\/]*$/, "", parent)
+    dir = glob_directory()
+    if (dir == "" || parent ~ /(^|\/)\.\.(\/|$)/) return "a key or certificate file"
+    # Compare the actual directories reached under both cd modes before probing.
+    script = "unset GLOBIGNORE CDPATH; shopt -u failglob; shopt -s nullglob dotglob nocaseglob; " \
+        "checked_cd() { local logical; logical=$(cd -L -- \"$1\" && pwd -P) || return 3; " \
+        "cd -P -- \"$1\" || return 3; [ \"$logical\" = \"$PWD\" ] && [ -r . ] && [ -x . ]; }; " \
+        "checked_cd \"$1\" || exit 3; parent=${2%/*}; stem=${2##*/}; [ \"$parent\" != \"$2\" ] || parent=.; " \
+        "checked_cd \"$parent\" || exit 3; " \
+        "n=0; for f in \"$stem\"*; do n=$((n+1)); [ \"$n\" -le 200 ] && [ -f \"$f\" ] && [ ! -L \"$f\" ] || exit 3; " \
+        "case \"$PWD/$f\" in *[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$PWD/$f\"; done; echo OK"
+    cmd = "bash -c " shell_quote(script) " guard-glob " shell_quote(dir) " " shell_quote(prefix) " 2>/dev/null"
+    while ((cmd | getline line) > 0) {
+        if (line == "OK") { ok = 1; continue }
+        if (ok || substr(line, 1, 2) != "F:" || ++count > 200) { ok = 0; break }
+        name = substr(line, 3); kind = sensitive_path(name)
+        basename = name; sub(/.*\//, "", basename)
+        original = prefix; sub(/[^\/]*$/, "", original); original = original basename
+        if (original !~ /^\//) original = dir "/" original
+        if (kind == "") kind = sensitive_path(original)
+        for (k = 1; k <= nextension; k++) if (tolower(name) ~ ("\\." EXT[k] "$")) kind = "a key or certificate file"
+        if (kind != "" && found == "") { found = kind; matched_file = name }
+    }
+    close(cmd)
+    if (!ok) { matched_file = ""; return "a key or certificate file" }
+    if (!count && !filenames_only && (base(prefix) ~ /^(secrets?|cert(ificate)?s?|keys?|private|credentials?)([._-]|$)/ || tolower(prefix) ~ /\.(pem|key|p12|pfx|jks|keystore|kdbx|kubeconfig|env)([._-]|$)/ || sensitive_path(dir "/" prefix) != "")) return "a key or certificate file"
+    return found
+}
 # Literal words retain the full classifier. Glob words use canonical names and all protected extensions;
 # substring-only token names outside that canonical set are not glob probes.
 function alt_kind(a,    b, d, kind, k, glob) {
@@ -842,7 +952,7 @@ function alt_kind(a,    b, d, kind, k, glob) {
             if (kind != "") return kind
             if (PROBE[k] == "credentials" || PROBE[k] == ".pypirc") return "a credentials file"
         }
-        for (k = 1; k <= nextension; k++) if (overlap(b, "\004." EXT[k])) return "a key or certificate file"
+        for (k = 1; k <= nextension; k++) if (overlap(b, "\004." EXT[k])) return glob_secret_match(a)
     } else if (glob) {
         for (k = 1; k <= nprobe; k++) if (b == PROBE[k]) {
             kind = sensitive_path(d b)
@@ -855,8 +965,8 @@ function alt_kind(a,    b, d, kind, k, glob) {
     return ""
 }
 # The kind of protected file operand k of A names; via_pattern says the answer came from a pattern or a variable.
-function operand_kind(A, k, off,    w, m, j, kind) {
-    w = A[k]; m = mask_of(A, k); via_pattern = 0
+function operand_kind(A, k, off, filenames,    w, m, j, kind) {
+    w = A[k]; m = mask_of(A, k); via_pattern = 0; matched_file = ""; filenames_only = filenames
     if (off > 0) { w = substr(w, off + 1); m = substr(m, off + 1) }
     if (!expands(w, m)) return sensitive_path(w)
     resolve(w, m); via_pattern = 1
@@ -1090,8 +1200,12 @@ function scan_short(w, shortvals, sed_like,    i, c, last) {
         if (sed_like && c == "i") return
     }
 }
-function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals) {
+function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals, filenames) {
     b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
+    if (b ~ /^(rg|grep|egrep|fgrep)$/) {
+        for (k = s + 1; k <= n; k++) if (A[k] == "-l" || (b != "rg" && A[k] == "-L") || A[k] ~ /^--files-with(out)?-match(es)?$/) filenames = 1
+        for (k = s + 1; k <= n; k++) if (A[k] ~ /^-/ && ((b == "rg" && A[k] == "-L") || A[k] !~ /^(-[lL]|--files-with(out)?-match(es)?|--|-e|-F|--fixed-strings)$/)) filenames = 0
+    }
     if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) { mode = "pattern"; shortvals = (b ~ /^(grep|egrep|fgrep)$/) ? "mABCdD" : (b == "rg") ? "mABCdjEMrgtT" : "ABCGgmpW"; valued = " --glob --type --type-not --max-count --include --exclude --exclude-dir --context --after-context --before-context --max-depth --threads " }
     else if (b ~ /^(sed|awk|gawk|jq|yq)$/) { mode = "script"; shortvals = "vF"; valued = " --indent "; valued2 = " --arg --argjson --slurpfile --rawfile " }
     # The first operand is the pattern or script unless -e/-f/--regexp/--file/--expression supplies it; only the rest are files.
@@ -1113,8 +1227,9 @@ function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued,
             continue
         }
         if (need) { need = 0; continue }
-        kind = operand_kind(A, k, 0)
-        if (kind != "" && via_pattern) report(b " of a name that can match " kind " prints credentials", "list the directory with ls, then name the exact files; for an env template read the .env.example")
+        kind = operand_kind(A, k, 0, filenames)
+        if (kind != "" && matched_file != "") report(b " of " kind " (" matched_file ") prints credentials", "list the directory with ls, then name the exact files; for an env template read the .env.example")
+        else if (kind != "" && via_pattern) report(b " of a glob that may match " kind " prints credentials", "list the directory with ls, then name the exact files; for an env template read the .env.example")
         else if (kind != "") report(b " of " kind " prints credentials", "name the file and the key you need in your report; ask the user to confirm a value instead of printing it; for an env template read the .env.example")
     }
 }
@@ -1142,6 +1257,17 @@ function transfer_files(A, s, n, b,    k, last, options, kind, w, eq, off, ended
         }
         kind = operand_kind(A, k, off)
         if (kind != "") report(b " reads " kind, "name only non-credential source files")
+    }
+}
+# Git grep reuses pattern/file separation; ls-files never reaches this content path.
+function git_content(A, s, n,    subcommand, k, w) {
+    subcommand = A[s + 1]
+    if (subcommand !~ /^(grep|show|cat-file)$/) return
+    if (subcommand == "grep") reader(A, s + 1, n)
+    for (k = s + 2; k <= n; k++) {
+        if (subcommand == "grep" && !(k in ROPER)) continue
+        w = tolower(A[k]); sub(/^.*[\/:]/, "", w)
+        if (w == "secrets.json") report("git " subcommand " of a credentials file prints credentials", "name only non-credential source files; list filenames with git ls-files")
     }
 }
 function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
@@ -1179,6 +1305,7 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
     }
     if (expands(A[s], mask_of(A, s))) return dyn_command(A, s, n)
     b = base(A[s])
+    if (A[s] == "git") git_content(A, s, n)
     shell_config(A, s, n, b)
     collect_bindings(A, s, n, b)
     if (b == "for" || b == "select" || b == "unset") return
@@ -1284,10 +1411,11 @@ BEGIN {
 }
 AWK
 
-# Only literal rg needs the invocation directory to distinguish file and directory operands.
-command_cwd="$PWD"
-case "$probe" in *rg*) command_cwd="$(jq -r '.cwd // empty' <<<"$input")" || parser_failed; command_cwd="${command_cwd:-$PWD}" ;; esac
-findings="$(GS_COMMAND="$command_text" GS_CWD="$command_cwd" LC_ALL=C awk "$awk_program" </dev/null)" || parser_failed
+# Never infer a missing hook cwd for filesystem-dependent glob decisions.
+command_cwd="$(jq -r '.cwd // empty' <<<"$input")" || parser_failed
+glob_shell_safe=1
+if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]] || shopt -q dotglob || shopt -q nocaseglob; then glob_shell_safe=0; fi
+findings="$(GS_COMMAND="$command_text" GS_CWD="$command_cwd" GS_CWD_FALLBACK="${command_cwd:-$PWD}" GS_GLOB_SAFE="$glob_shell_safe" LC_ALL=C awk "$awk_program" </dev/null)" || parser_failed
 [ -n "$findings" ] || exit 0
 
 {
@@ -1306,8 +1434,12 @@ refer to a secret by name (secret/key, environment variable) in notes, briefs an
 If a value has already appeared in output: stop, do not copy it onward, report "SECURITY INCIDENT" with the
 tool-call location and the credential kind, and ask for rotation.
 
-Do not retry this, rephrase it, or work around the guard (another wrapper, a script file, a variable, an
-alias). A person who authorized the read sets CRATIS_HOOKS_ALLOW_SECRET_READS=1 in the environment the agent
+For a false positive, a narrower command naming exact non-credential files is the supported route, not a
+workaround: ls the directory first, then use literal file paths (e.g. Specs/given/an_application.cs or
+rg -l PATTERN literal-file).
+
+Do not retry the same read disguised behind a variable, glob, wrapper, script file or alias, or work around
+the guard. A person who authorized the read sets CRATIS_HOOKS_ALLOW_SECRET_READS=1 in the environment the agent
 harness was started from; setting it inside the command has no effect.
 EOF
     case "$findings" in

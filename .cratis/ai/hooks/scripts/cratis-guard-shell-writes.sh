@@ -95,7 +95,10 @@ function protected(s) { return s in protected_paths }
 function endword() {
     if (!inword) return
     if (redirect) {
-        if (!(redirect == 2 && word ~ /^([0-9]+|-)$/) && (word ~ /[$`*?\[{]/ || protected(word))) bad = 1
+        if (!(redirect == 2 && word ~ /^([0-9]+|-)$/)) {
+            file_redirect = 1
+            if (changed_cwd || word ~ /[$`*?\[{]/ || protected(word)) bad = 1
+        }
         redirect = 0
     } else {
         if (++argc > 256) bad = 1
@@ -151,6 +154,10 @@ function options_allowed(verb, first,    i, w) {
                 continue
             }
         }
+        if ((verb == "rg" && (w == "--glob" || w == "-g")) || (verb == "git grep" && (w == "-e" || w == "--regexp"))) {
+            if (++i > argc || globbed[i]) return 0
+            continue
+        }
         if (!short_flags(w, short_options[verb])) return 0
     }
     return 1
@@ -164,15 +171,36 @@ function directory_metadata() {
     if (argc == 5) return (W[4] == "status" && W[5] == "--short") || (W[4] == "rev-parse" && W[5] == "HEAD") || (W[4] == "branch" && W[5] == "--show-current")
     return argc == 6 && W[4] == "tag" && W[5] == "--list" && W[6] !~ /^-/
 }
+# -n alone is not read-only: sed scripts can still execute or write files.
+# Only numeric/last-line print addresses qualify, with no additional options.
+function print_only_sed(    i, ended) {
+    if (argc < 4 || W[2] != "-n" || W[3] !~ /^([0-9]+(,([0-9]+|\$))?|\$)?p$/) return 0
+    for (i = 4; i <= argc; i++) {
+        if (!ended && W[i] == "--") { ended = 1; continue }
+        if (!ended && W[i] ~ /^-/) return 0
+    }
+    return 1
+}
 function allow_command(    verb, first) {
     if (!argc) return
     if (++commands > 64) { bad = 1; return }
     verb = W[1]; first = 2
+    if (verb == "cd") {
+        conditional_only = 1
+        if (argc != 2 || W[2] == "" || W[2] ~ /^-/ || globbed[2] || file_redirect) bad = 1
+        changed_cwd = 1
+        return
+    }
+    if (verb == "sed") { if (!print_only_sed()) bad = 1; return }
     if (verb == "git" && W[2] == "-C") {
         if (!directory_metadata()) bad = 1
         return
     }
     if (verb == "git") { verb = verb " " W[2]; first = 3 }
+    if (verb == "git branch") {
+        conditional_only = 1
+        if (argc != 3 || W[3] != "--show-current") { bad = 1; return }
+    }
     if (!(verb in verbs) || !options_allowed(verb, first)) bad = 1
 }
 function command_end() { endword(); allow_command(); delete W; delete globbed; argc = 0 }
@@ -201,31 +229,33 @@ function readonly(s,    i, c, c2, sq, dq) {
             if (c2 ~ /[><&|]/) { i++; if (substr(s, i + 1, 1) == ">") i++ }
             continue
         }
-        if (c ~ /[;|&\n]/) { command_end(); if (redirect) bad = 1; continue }
+        if (c == "&" && c2 == "&") { command_end(); if (redirect) bad = 1; i++; continue }
+        if (c ~ /[;|&\n]/) { nonconditional_separator = 1; command_end(); if (redirect) bad = 1; continue }
         if (c ~ /[ \t\r]/) { endword(); continue }
         word = word c; inword = 1
     }
     command_end()
-    if (sq || dq || redirect) bad = 1
+    if (sq || dq || redirect || (conditional_only && nonconditional_separator)) bad = 1
     return !bad
 }
 BEGIN {
     policy("cat", "nAvetsb", "")
     policy("head", "", ""); policy("tail", "", "")
     policy("wc", "lwcm", ""); policy("ls", "laA1hdRtrF", "")
-    policy("rg", "n", "")
+    policy("rg", "nl", "")
     policy("grep", "nirRlLcvwxFEHhoqs", "")
     policy("egrep", "nirRlLcvwxFEHhoqs", ""); policy("fgrep", "nirRlLcvwxFEHhoqs", "")
     policy("echo", "neE", "")
     policy("printf", "", ""); policy("test", "", ""); policy("[", "", "")
     policy("true", "", ""); policy("false", "", ""); policy("pwd", "", "")
     policy("git status", "sb", "--short --porcelain")
-    policy("git diff", "p", "--stat --numstat --name-only --name-status --cached --staged --check --no-color")
+    policy("git diff", "p", "--stat --numstat --name-only --name-status --cached --staged --check --no-color --cc")
     policy("git log", "p", "--oneline --stat --name-only --no-color --follow")
     policy("git show", "p", "--stat --name-only --no-color")
     policy("git add", "Aup", ""); policy("git commit", "aq", "")
-    policy("git blame", "", ""); policy("git ls-files", "", "")
-    policy("git rev-parse", "", ""); policy("git check-ignore", "", ""); policy("git grep", "", "")
+    policy("git blame", "", ""); policy("git ls-files", "s", "--stage --debug")
+    policy("git branch", "", "--show-current")
+    policy("git rev-parse", "", ""); policy("git check-ignore", "", ""); policy("git grep", "n", "")
     for (i = 0; i < 16; i++) HEX[substr("0123456789abcdef", i + 1, 1)] = i
     ESC["n"] = 10; ESC["r"] = 13; ESC["t"] = 9; ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34
     text = ENVIRON["GSW_COMMAND"]
@@ -244,6 +274,8 @@ classifier="$script_directory/cratis-guard-writes.sh"
     exit 2
 }
 classifier_input="$(jq -nc --arg cwd "$cwd" --args '{cwd:$cwd,tool_input:{file_paths:$ARGS.positional}}' -- "${candidates[@]}")" || parser_failed
+# Tool labels and this hook shell do not establish the execution shell options.
+# Keep conservative dotfile intersections for every command, especially mutators.
 references="$("$BASH" "$classifier" --references <<<"$classifier_input")" || {
     printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: could not check references (write guard failed).' >&2
     exit 2

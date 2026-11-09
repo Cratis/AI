@@ -70,6 +70,126 @@ function scratchRepository(origin = 'https://github.com/example/app.git') {
     return { root, dispose: () => rmSync(root, { recursive: true, force: true }) };
 }
 
+test('read-only globs allow reads while interpreter heredocs retain conservative references', async () => {
+    const repo = scratchRepository();
+    try {
+        for (const present of [false, true]) {
+            if (present) writeFileSync(join(repo.root, '.env'), 'synthetic fixture');
+            await checkCases([
+                [ALLOW, "rg -n foo --glob '*.csproj'"], [ALLOW, 'rg -n foo Directory.Build.*'],
+                [BLOCK, 'rg -n foo *.cs'], [BLOCK, 'echo x > *.csproj'],
+                [ALLOW, "rg -n foo -g '*.csproj'"], [BLOCK, 'rg -n .env --glob'], [BLOCK, 'rg -n foo --glob *.csproj'],
+                [BLOCK, "node <<'N'\nconsole.log(`${Object.keys(e || {}).join(',')}`)\nN"],
+                [BLOCK, `cd '${repo.root}' && node <<'N'\nconsole.log(\`\${Object.keys(e || {}).join(',')}\`)\nN`],
+                ...['echo x > .env', 'echo x > .env.local', 'cp x *.env', 'tee *env', 'echo x > .e*',
+                    'echo x > .env*', 'echo x > {.env,a}', 'echo x > package*.json',
+                    'sed -i s/a/b/ *.json', 'tee Directory.Packages.*',
+                    'shopt -s dotglob; echo x > *.csproj', 'GLOBIGNORE=x; echo x > *.csproj',
+                    'zsh -c "setopt globdots; echo x > *.csproj"', 'zsh -c "echo x > *.csproj(D)"',
+                    'fish -c "echo x > *.csproj"', 'mystery -c "echo x > *.csproj"', 'source options.sh; echo x > *.csproj',
+                    '. options.sh; echo x > *.csproj',
+                    "node <<'N'\nrequire('fs').writeFileSync('.env','x')\nN",
+                    "node <<'N'\nrequire('fs').readFileSync('.env')\nN",
+                    "node <<'N'\nrequire('fs').writeFileSync('package.json','x')\nN",
+                    "bash <<'N'\necho x > {.env,\"a b\"}\nN", "sh <<'N'\necho x > {.env,a}\nN",
+                    "cat <<'N' | bash\necho x > {.,}env\nN",
+                    "zsh <<'N'\necho x > {.env,a}\nN", "eval <<'N'\necho x > {.env,a}\nN",
+                    'node <<N\n$(echo x > {.env,a})\nN', "cat <<'N' > .env\nx\nN",
+                ].map(command => [BLOCK, command] as [string, string]),
+            ], repo.root);
+        }
+        const unknownShell = runGuard({ cwd: repo.root, tool_name: 'UnknownShell', tool_input: { command: 'echo x > *.csproj' } }, repo.root);
+        assert.equal(unknownShell.verdict, BLOCK);
+        writeFileSync(join(repo.root, 'options.sh'), 'shopt -s dotglob\n');
+        for (const env of [{ GLOBIGNORE: 'x' }, { BASH_ENV: join(repo.root, 'options.sh') }, { ENV: join(repo.root, 'options.sh') }]) {
+            const inherited = runGuard({ cwd: repo.root, tool_name: 'Bash', tool_input: { command: 'echo x > *.csproj' } }, repo.root, env);
+            assert.equal(inherited.verdict, BLOCK);
+        }
+    } finally { repo.dispose(); }
+});
+
+test('literal git filename metadata and grep pattern options are read-only', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [ALLOW, 'git grep -n -e SpoofableHeaders.Strip -e ForwardedIdentityForward -e OptionsKey -e CredentialBinding -- Source/AuthProxy'],
+            [ALLOW, 'git ls-files Source/AuthProxy/UserTokens Source/AuthProxy/Credentials Source/AuthProxy/Proxying Source/AuthProxy/ForwardedIdentity'],
+            [ALLOW, 'git ls-files -s -- .env'], [ALLOW, 'git ls-files --debug -- .env'],
+            [ALLOW, 'git grep -n -e credentials -e .env -- Source/AuthProxy'],
+            [BLOCK, 'git ls-files .env; echo x > .env'],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('original read lanes never confuse protected read paths with write targets', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai/rules'), { recursive: true });
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        writeFileSync(join(repo.root, '.cratis/ai/rules/project.md'), 'synthetic fixture');
+        await checkCases([
+            [ALLOW, `cd ${repo.root} && git diff --cc && rg -n 'new BearerRouteMiddleware|new\\(next, options|TreatWarnings|EnforceCode|WarningLevel|Configuration|Docker|Testcontainers' Source/AuthProxy.Specs/BearerRoutes Source/AuthProxy.Security.Specs/*.csproj Source/Aspire.Specs/*.csproj Directory.Build.* Source/Directory.Build.* AuthProxy.slnx && git log -6 --format='%H %s'`],
+            [ALLOW, "rg -l 'Identity|Hosting' .cratis/ai/rules/project*"],
+            [ALLOW, `cd ${repo.root} && git branch --show-current && git rev-parse HEAD && git status --short && rg -n 'Infrastructure.csproj' Source --glob '*.csproj' && sed -n '1,130p' Source/Admin.Specs/Admin.Specs.csproj && sed -n '1,120p' Source/Infrastructure/Infrastructure.csproj`],
+            [ALLOW, 'cat .cratis/ai/rules/project.md'], [ALLOW, 'ls .cratis/ai/rules'],
+            [ALLOW, 'sed -n p .cratis/ai/rules/project.md'],
+            ...['sed -i s/a/b/ Source/AuthProxy.Security.Specs/*.csproj', 'echo x > Source/AuthProxy.Security.Specs/*.csproj',
+                'sed -i s/a/b/ .cratis/ai/rules/project.md', 'echo x > .cratis/ai/rules/project.md',
+                "sed -n '1w .env' .cratis/ai/rules/project.md", "sed -n 'e touch marker' .cratis/ai/rules/project.md",
+                'cd .claude && echo x > settings.json', 'echo x > settings.json && cd .claude',
+                'cd .cratis/ai/rules && tee project.md', 'git branch new-branch && cat .env',
+                'rg --pre command .cratis/ai/rules/project.md', 'rg -l --pre command .cratis/ai/rules/project*',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('tool labels and shell snapshots never make globbed writes safe', () => {
+    const repo = scratchRepository();
+    try {
+        for (const shell of ['/bin/zsh', '/bin/bash', '']) {
+            for (const command of ['rm -f *.local', 'cp x *.production', 'truncate -s0 *.production',
+                'printf x > *.local', 'echo x > *.csproj']) {
+                const result = runGuard(payload(command, repo.root), repo.root, { SHELL: shell });
+                assert.equal(result.verdict, BLOCK, `${shell}: ${command}`);
+            }
+        }
+    } finally { repo.dispose(); }
+});
+
+test('heredoc lookalikes and enclosing shell evaluation retain brace references', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            'echo "\ncat <<\'B\'\n"; echo x | tee {.e,}nv\nB',
+            "bash <<'A'\ncat <<'B'\nA\necho x | tee {.e,}nv\nB",
+            'eval "$(\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n)"',
+            'bash -c "$(\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n)"',
+            '`\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n`',
+            "node <<'N'\nconsole.log(`${x || {}}`)\nN\necho x | tee {.,}env",
+        ].map(command => [BLOCK, command]), repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('interpreter heredocs preserve shell brace expansions in embedded shell payloads', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            String.raw`node <<'N'
+require('child_process').execSync('printf x | tee {.\,}env');
+N`,
+            "node <<'N'\nrequire('child_process').execSync('printf x | tee {.' + ',}env');\nN",
+            "perl <<'P'\n`printf x > {.,}env`;\nP",
+            "ruby <<'R'\n`printf x > {.,}env`\nR",
+            "node <<'N'\nrequire('child_process').execSync('printf x > {.,}env');\nN",
+            "python3 <<'P'\nimport os\nos.system('printf x > {.,}env')\nP",
+            "node <<'N'\nrequire('child_process').execSync('printf x > {.env,{a,b}}');\nN",
+            "node <<'N'\nrequire('child_process').execSync('printf x > {1..3}.env');\nN",
+            "node <<'N'\nrequire('child_process').execSync('printf x > {\"a b\",.env}');\nN",
+        ].map(command => [BLOCK, command]), repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('protected references deny writers and evaluators across the whole command text', async () => {
     const repo = scratchRepository();
     try {
