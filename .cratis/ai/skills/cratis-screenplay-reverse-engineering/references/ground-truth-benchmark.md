@@ -6,13 +6,22 @@ compare two scores. It needs an application you own, with its original model and
 
 ## Contents
 
-- Rubric
+- Behavior first
+- Rubric (names)
 - Scores
 - Procedure
 - Quirk classification
 - Regression-suite convention
 
-## Rubric
+## Behavior first
+
+Score what the rebuilt model does, not what it is called. Build a behavior catalog of the original's
+rules, rejections, flows and time rules and mark each item expressed, partial or missing in the
+model, and pass or fail where its probe ran on the rebuilt app
+([behavior-catalog.md](behavior-catalog.md)). The name inventory below is a separate, secondary
+score.
+
+## Rubric (names)
 
 Compare the rebuilt model with the original, category by category, as an inventory: each original
 item is exact, renamed, partial or missing; each rebuilt item with no original is extra.
@@ -35,34 +44,43 @@ compares concept types. Fidelity is `sum(weight x score)`.
 
 ## Scores
 
-Two summary scores carry the result; quote only these:
+Three scores carry the result; quote only these:
 
-- **Structure**: commands, events, read models, screens and concepts.
-- **Rules**: constraints and validation, hand-written rules and specifications.
+- **Behavior** (primary): the catalog score, model read and executed.
+- **Structure (legacy)**: commands, events, read models, screens and concepts, by the formula and
+  weights above, kept so results stay comparable with earlier runs. **Rules (legacy)**
+  (constraints, hand-written rules, specifications) is quoted only for that comparison; it is a
+  name-based score, not the behavior score.
+- **Naming (non-leaked)**: the inventory score without names the original serves verbatim or the
+  assemblies restate. Quote **Naming (all)** only with the leak share; in an earlier run most
+  exact matches were leaked.
 
-A model often gets the structure right and the rules wrong or missing; the split shows it.
+A model often gets the names right and the behavior wrong or missing; the split shows it.
 
 ## Procedure
 
 1. **Blind run.** The runner rebuilds the model from the running app and its allowed inputs, with
    the original model and source hidden from it.
    Blind-run hygiene: the run under test never reads prior scoring, fidelity reports or the
-   original model before its own model is final. Artifacts the original serves that restate its
+   original model or catalog before its own model is final. Artifacts the original serves that restate its
    model (for a Stage/Arc original: the served scene and generated proxies) are excluded, or
    recorded as a separate evidence class and reported, because they inflate structure scores.
-2. **Compare** on read-only copies of both models and the source. Read the generated source for
+2. **Build the catalog** from the original first (assemblies or source), then **compare** on
+   read-only copies of both models and the source; run `scripts/score-fidelity.mjs` on the filled
+   catalog and naming inventory. Read the generated source for
    behavior ground truth. Do not re-run the rebuilt model's own checks as part of the scoring.
 3. **Classify quirks** (below) before counting a difference against the skill.
 4. **Rerun after each skill change** on the same app with the same inputs and weights. If a change
    alters the weights or categories, change this rubric in the same edit.
-5. **Record** the full result in the lane's untracked `.ai-work/` folder; quote only the two
+5. **Record** the full result in the lane's untracked `.ai-work/` folder; quote only the three
    scores in an issue or pull request. Scores never enter the corpus.
 
 ## Quirk classification
 
 Mark each difference as one of:
 
-- **original defect**: the original behaves oddly and the rebuild copied what was observed.
+- **original defect**: the original behaves oddly and the rebuild copied what was observed;
+  the catalog item states the observed behavior, so the copy scores as expressed.
 - **misreading**: the rebuild read the evidence wrongly or invented a rule.
 - **correct**: the rebuild is right and the original model differs only in form.
 
