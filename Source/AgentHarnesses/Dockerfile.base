@@ -12,7 +12,7 @@
 #
 # Contains the toolchain an agent needs to build and test the repositories the organization works
 # with:
-#   - .NET 10 SDK
+#   - .NET 11 SDK with .NET 10 shared runtimes for the installed tools
 #   - Node.js (latest LTS) with Yarn (via corepack)
 #   - Java (Temurin LTS), Kotlin and Gradle/Maven
 #   - Elixir with Erlang/OTP
@@ -49,7 +49,7 @@
 #
 # ── Bump procedure ────────────────────────────────────────────────────────────────────────────────
 # Every FROM and every archive this file curls is pinned - a floating tag (`latest`, `1-slim`,
-# `10.0`) or an unverified download can change the image out from under a build with no diff to
+# `11.0`) or an unverified download can change the image out from under a build with no diff to
 # review. When a pin genuinely needs to move:
 #   1. Version ARGs (HELM_VERSION, GRADLE_VERSION, KOTLIN_VERSION, ELIXIR_VERSION, OTP_VERSION,
 #      RTK_VERSION, CRATIS_CLI_VERSION, ROSLYN_LANGUAGE_SERVER_VERSION, PLAYWRIGHT_VERSION,
@@ -62,10 +62,11 @@
 #        Kotlin: curl -fsSL "https://github.com/JetBrains/kotlin/releases/download/v<version>/kotlin-compiler-<version>.zip.sha256"
 #        OTP:    https://builds.hex.pm/builds/otp/<amd64|arm64>/ubuntu-24.04/builds.txt
 #        Elixir: curl -fsSL "https://github.com/elixir-lang/elixir/releases/download/v<version>/elixir-otp-<otp-major>.zip.sha256sum"
-#   3. The two `FROM ...@sha256:...` base images (rust:1-slim, mcr.microsoft.com/dotnet/sdk:10.0) -
-#      re-resolve the tag's current digest and swap it in:
+#   3. The FROM base images and shared-runtime COPY sources - re-resolve each tag's current
+#      digest and swap it in (update both runtime COPY references together):
 #        docker buildx imagetools inspect rust:1-slim
-#        docker buildx imagetools inspect mcr.microsoft.com/dotnet/sdk:10.0
+#        docker buildx imagetools inspect mcr.microsoft.com/dotnet/sdk:11.0
+#        docker buildx imagetools inspect mcr.microsoft.com/dotnet/aspnet:10.0
 #      (or `skopeo inspect --format '{{.Digest}}' docker://<image>:<tag>` where skopeo is available).
 #      This resolves the manifest-list digest, so it still pulls the right image per platform.
 #   4. Rebuild locally (`docker buildx build --file Source/AgentHarnesses/Dockerfile.base
@@ -81,15 +82,22 @@ RUN apt-get update \
     && cargo install --locked --git https://github.com/rtk-ai/rtk --tag ${RTK_VERSION} rtk \
     && cp /usr/local/cargo/bin/rtk /rtk
 
-# Digest resolved from the mcr.microsoft.com/dotnet/sdk:10.0 tag on 2026-09-05 (docker buildx
-# imagetools inspect).
-FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:e1ffd2a92ae84c1291bc1b6887501f8af98e6331e7af6d4c8d37168c5e87a64c
+# SDK 11.0 manifest-list digest 65f3c7c6a25a239ab3e6719f2896147e7b68242ff2d8818dd70498bde6ef8bea
+# verified on 2026-11-10 with docker buildx imagetools inspect mcr.microsoft.com/dotnet/sdk:11.0.
+FROM mcr.microsoft.com/dotnet/sdk:11.0@sha256:65f3c7c6a25a239ab3e6719f2896147e7b68242ff2d8818dd70498bde6ef8bea
 ARG TARGETARCH
 # The pinned FROM digests are multi-arch indexes. Apt, dotnet tool, npm, Playwright and pip
 # resolve native packages for this target, not the build host. Reject mismatched/unsupported
 # targets before installing anything; package managers verify their repository checksums.
 RUN case "$TARGETARCH" in amd64|arm64) ;; *) echo "Unsupported architecture: $TARGETARCH" >&2; exit 1 ;; esac \
     && test "$(dpkg --print-architecture)" = "$TARGETARCH"
+
+# Cratis.Cli 3.28.3 requires both .NET 10 shared frameworks; even 3.126.0 still targets net10.0.
+# Roslyn's platform tools also target net10.0. Merge the 10.x version folders alongside 11.x,
+# keeping the SDK and host from this image. The source manifest-list digest was resolved with
+# docker buildx imagetools inspect mcr.microsoft.com/dotnet/aspnet:10.0 on 2026-11-10.
+COPY --from=mcr.microsoft.com/dotnet/aspnet:10.0@sha256:bfd912c83295ce66d4b706ebb8541b9f14259b0e76fbb88b2751f58ce2399d2e /usr/share/dotnet/shared/Microsoft.NETCore.App/ /usr/share/dotnet/shared/Microsoft.NETCore.App/
+COPY --from=mcr.microsoft.com/dotnet/aspnet:10.0@sha256:bfd912c83295ce66d4b706ebb8541b9f14259b0e76fbb88b2751f58ce2399d2e /usr/share/dotnet/shared/Microsoft.AspNetCore.App/ /usr/share/dotnet/shared/Microsoft.AspNetCore.App/
 
 # Tools the agent needs for cloning, diffing and interacting with GitHub, plus GNU time - used by
 # entrypoint.sh's run_claude_code() to measure the CPU time and peak memory of the Claude CLI session
@@ -137,6 +145,12 @@ RUN dotnet tool install --tool-path /usr/local/bin --version ${CRATIS_CLI_VERSIO
 ARG ROSLYN_LANGUAGE_SERVER_VERSION=5.12.0-1.26475.2
 RUN dotnet tool install --tool-path /usr/local/bin --version ${ROSLYN_LANGUAGE_SERVER_VERSION} roslyn-language-server \
     && rm -rf /tmp/NuGetScratch /root/.nuget/packages
+
+# `dotnet tool install` succeeds even when the tool's target framework is missing, so prove the
+# .NET 10 shared runtimes the two tools above need are really present. A base-image digest bump that
+# drops or moves them then fails the image build instead of shipping tools that cannot start.
+RUN dotnet --list-runtimes | grep -q '^Microsoft.NETCore.App 10\.' \
+    && dotnet --list-runtimes | grep -q '^Microsoft.AspNetCore.App 10\.'
 
 # Docker CLI (with buildx and compose) and Kubernetes tooling - what an agent investigating an alert
 # needs to look at a running system. Clients only: the daemon and the cluster come from whatever
