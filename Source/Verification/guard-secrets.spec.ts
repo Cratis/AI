@@ -1602,10 +1602,11 @@ test('jq, yq and awk programs that read the process environment are refused', ()
         'jq -en env', 'jq -e -n env', "jq -ne '$ENV'", "jq -n -e '$ENV'", "jq --args -n '$ENV' a", 'gojq -n env', "jaq -n 'env'",
         'yq eval env', "yq e 'env(HOME)'", "yq ea 'strenv(X)'", "yq eval -n 'env(HOME)'", 'yq -n env', "yq -n '{a: env}'",
         "yq -n 'env(HOME)'", "yq -n 'strenv(HOME)'", "yq -n '$ENV'", "jq -n 'getenv'",
+        "yq -n '\"x\" | envsubst'", "yq -n '\"${HOME}\" | envsubst'", "yq e '.a | envsubst' f.yaml", "yq -n '\"x\"|envsubst(nu)'",
     ];
     const allowed = [
-        "jq '{envelope: 1}' c.json", "jq '.environment | keys' c.json", "yq -n '\"x\" | envsubst'",
- "jq -r '.[] | .environment' c.json",
+        "jq '{envelope: 1}' c.json", "jq '.environment | keys' c.json", "yq '.envsubstitution' c.yaml",
+        "jq -r '.[] | .environment' c.json",
         "jq '.environment' c.json", "jq -n '1+1'", 'jq . data.json', "awk '{print $1}' notes.txt", "awk -F, '{print $2}' data.csv",
         "jq --arg envname x '.a' f.json", 'cat env.md',
     ];

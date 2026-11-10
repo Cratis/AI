@@ -1289,11 +1289,11 @@ function report_operand(A, k, b, filenames,    kind) {
 }
 # A jq, yq or awk program that reads the process environment prints every variable, like env and printenv do.
 # Every word of the command is judged, with quotes and backslashes removed, so no flag or subcommand layout is parsed:
-# an environment-access identifier (env, ENV, ENVIRON, strenv, getenv, PROCINFO, SYMTAB) as a whole token refuses the command.
+# an environment-access identifier (env, ENV, ENVIRON, strenv, envsubst, getenv, PROCINFO, SYMTAB) as a whole token refuses the command.
 function env_program(b, p,    t) {
     gsub(/[\\"']/, "", p)
     t = " " p " "
-    if (t !~ /[^A-Za-z0-9_](env|ENV|ENVIRON|strenv|getenv|PROCINFO|SYMTAB)[^A-Za-z0-9_]/) return
+    if (t !~ /[^A-Za-z0-9_](env|ENV|ENVIRON|strenv|envsubst|getenv|PROCINFO|SYMTAB)[^A-Za-z0-9_]/) return
     report(b " program reads the process environment, which can hold credentials", "name one non-credential variable with printenv NAME, or test existence with [ -n \"${NAME:-}\" ] && echo set")
 }
 function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals, filenames) {
