@@ -22,7 +22,9 @@ cat > "$root/bin/git" <<'STUB'
 printf '%s\n' "$*" >> "$CALLS"
 [[ "$GIT_TERMINAL_PROMPT" == 0 && ${GIT_ASKPASS+x} && -z "$GIT_ASKPASS" && ${SSH_ASKPASS+x} && -z "$SSH_ASKPASS" && -z ${SSH_ASKPASS_REQUIRE+x} && "$GCM_INTERACTIVE" == never && "$GIT_SSH_COMMAND" == *BatchMode=yes* ]] || exit 90
 case "$MODE:$*" in
-    sleep:*) trap '' TERM; sleep 30 ;;
+    # exec: one stubborn process that ignores TERM. A child sleep would outlive the KILL on runners
+    # where timeout signals only its direct child, and hold the caller's output pipe open.
+    sleep:*) trap '' TERM; exec sleep 30 ;;
     kill-early:*) exit 137 ;;
     auth:*) echo 'fatal: could not read Username: terminal prompts disabled' >&2; read -r ignored || :; exit 128 ;;
     remote-fails:*ls-remote*) exit 128 ;;
