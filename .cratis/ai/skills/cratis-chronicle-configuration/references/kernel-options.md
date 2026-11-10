@@ -24,7 +24,7 @@ under the root. Defaults describe the production image unless stated.
 | `healthCheckEndpoint` | `/health` | A probe expects another path. A dedicated health port is configured separately (`health`). |
 | `maxReceiveMessageSize` | 100 MiB | Clients send payloads above the limit (`ResourceExhausted`). `null` removes the limit. Keep aligned with the client's send limit. |
 | `shutdown.drainTimeout` | 8 seconds | Orchestrator termination grace is shorter or longer than the drain. |
-| `tls.enabled` | `true` | Only behind a private HTTPS proxy: `false` serves HTTP/2 cleartext (h2c) and must never be reachable directly. |
+| `tls.enabled` | `true` | Only behind a private HTTPS proxy: `false` serves HTTP/2 cleartext (h2c) and must never be reachable directly. With authentication on, it also needs an external HTTPS `authentication.authority`, or startup is refused. |
 | `tls.certificatePath`, `tls.certificatePassword` | not set | The production image refuses to start with TLS on and no certificate. |
 | `features.api` | `true` | Turn off the REST API when unused. |
 | `features.workbench` | `true` | Turn off the Workbench on a hardened deployment. |

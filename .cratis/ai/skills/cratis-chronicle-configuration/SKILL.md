@@ -56,8 +56,10 @@ A setting on one side never changes the other. Where both sides enforce a limit
   URL.
 - **Secrets go in `*File` variants or secret management**, not in committed
   `chronicle.json`, images or logs. Do not quote or invent credential values.
-- **The subdomain namespace resolver is not trusted on its own.** The `Host`
-  header is caller-set; put validation in front of it.
+- **Caller-set namespace resolvers are not trusted on their own.** The default
+  HTTP header resolver (`NamespaceHttpHeader`) and the subdomain resolver both
+  read values the caller sets. Strip or overwrite the header at a trusted
+  gateway, or resolve from an authenticated claim, before it selects a tenant.
 - A settings change is not authorization to restart, redeploy or alter a shared
   environment. State the change and its blast radius first.
 

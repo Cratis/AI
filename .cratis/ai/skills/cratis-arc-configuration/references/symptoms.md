@@ -17,7 +17,7 @@ Each row is a first hypothesis; confirm before changing.
 | Host fails at startup with a time zone error | `Calendar:TimeZone` must be a valid IANA id |
 | Host fails at startup with a MongoDB error | `Cratis:MongoDB:Server` and `Database` are required |
 | `DbContext` types not discovered | `Cratis:EntityFrameworkCore:ConnectionString` empty, or `AutoDiscoverDbContexts` off |
-| Tenant resolved wrongly | `Tenancy:ResolverType`, header, claim or query names; a subdomain resolver trusts a caller-set `Host` |
+| Tenant resolved wrongly | `Tenancy:ResolverType`, header, claim or query names; header, query and subdomain resolvers read caller-set values; trust them only behind a gateway that sets them |
 | Read-protection settings seem ignored | Keys must be root-level `ReadProtection`, not under `Cratis:Arc`; the mode is the `CratisReadProtection` build property |
 | MCP tools served without a scope check | `ExclusiveTools` set to `false` |
 | Setting in appsettings has no effect | A `configureOptions` callback runs after binding and wins; or the key is code-only |

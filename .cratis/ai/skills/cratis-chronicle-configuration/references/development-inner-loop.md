@@ -58,7 +58,7 @@ the `adminUser` bootstrap (see [kernel options](kernel-options.md)).
 | Need | Switch | Notes |
 | --- | --- | --- |
 | Local client against the self-signed development certificate | Nothing; validation is skipped by default | Set `skipTlsValidation=false` to test real verification. |
-| Reach the kernel through a port-forward or private proxy that forwards h2c | Kernel `tls.enabled=false`; client `disableTls=true` | Example connection string: `chronicle://localhost:35001/?disableTls=true&auth=none`. Explicit credentials are refused with `disableTls`. |
+| Reach the kernel through a port-forward or private proxy that forwards h2c | Kernel `tls.enabled=false` and `authentication.enabled=false` (isolated development only); client `disableTls=true` | Example connection string: `chronicle://localhost:35001/?disableTls=true&auth=none`. With authentication on, TLS off refuses to start unless `authentication.authority` is an external HTTPS issuer. Explicit credentials are refused with `disableTls`. |
 | Token from an external identity provider over a proxy | `disableTls=true` with `apiKey=<token>` | The token travels in the clear on that hop; keep it on a private link. |
 | Private CA | `caCertificatePath=<file>` | Client trust only; the kernel still needs its own certificate. |
 

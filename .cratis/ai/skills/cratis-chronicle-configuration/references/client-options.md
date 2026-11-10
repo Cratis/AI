@@ -48,7 +48,7 @@ characters.
 | --- | --- | --- |
 | `NamespaceHttpHeader` | `x-cratis-tenant-id` | Your gateway sends the tenant in another header. |
 | `UseAutomaticMiddleware` | `true` | You order the Chronicle middleware yourself. |
-| Namespace resolver | HTTP header resolver | Tenant comes from a claim, subdomain or fixed value. A subdomain resolver trusts a caller-set `Host`; do not rely on it alone. |
+| Namespace resolver | HTTP header resolver | Tenant comes from a claim, subdomain or fixed value. The header and subdomain resolvers read caller-set values; set or strip the header at a trusted gateway, or use the claims resolver. |
 | Unit-of-work `ReportFailuresBeforeResponseStarts` | `false` | The response should fail before it starts when a unit of work fails. |
 
 ## Connection-string switches

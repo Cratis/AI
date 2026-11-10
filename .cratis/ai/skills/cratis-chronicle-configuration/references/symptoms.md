@@ -50,4 +50,4 @@ is a first hypothesis, not a diagnosis.
 | Kernel starts with empty storage connection | `storage.connectionDetails` or `connectionDetailsFile` (empty by default in production) |
 | Webhook or capture destination rejected locally | `Validation` mode differs per image; `AllowInsecureHttp` works only in the `Development` runtime environment |
 | Several applications indistinguishable in logs | Client `ProgramIdentifier` |
-| Tenant resolved wrongly behind a gateway | `NamespaceHttpHeader`, `ClaimsBasedNamespaceResolverClaimType`; never trust a caller-set `Host` alone |
+| Tenant resolved wrongly behind a gateway | `NamespaceHttpHeader`, `ClaimsBasedNamespaceResolverClaimType`; never trust a caller-set header or `Host` alone |
