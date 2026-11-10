@@ -829,6 +829,14 @@ test('.env is a protected stem only as a whole file stem, not inside a longer wo
         [BLOCK, 'git add .env'],
         [BLOCK, 'git add config/app.env'],
         [BLOCK, 'cat .env && cat Org.Environments.txt'],
+        // Unresolved glob syntax in or after the stem may still resolve to a protected file.
+        [BLOCK, "jq --rawfile x .en?r? -n '$x'"],
+        [BLOCK, 'cat .en?r?'],
+        [BLOCK, 'cat .en[v]rc'],
+        [BLOCK, 'cat .e?v'],
+        [BLOCK, 'cat .e?vrc'],
+        [BLOCK, 'cat app.en?'],
+        [BLOCK, 'cat sub/.en?r*'],
     ]);
 });
 

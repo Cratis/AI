@@ -117,7 +117,9 @@ function stem_boundary(t, start, finish, stem, nonliteral,    a, b, before, afte
     else literal = !nonliteral && t !~ /[][?*{}()$`~^\001-\007]/
     if (stem == "/environ" && substr(t, finish + 1, 1) ~ /[a-z0-9_]/) return 0
     # `.env` followed by a letter or digit is part of a longer word (Org.EnvironmentalReporting); `.envrc` stays protected.
-    if (stem == ".env" && substr(t, finish + 1, 1) ~ /[a-z0-9]/ && substr(t, finish + 1) !~ /^rc([^a-z0-9]|$)/) return 0
+    # Unresolved glob syntax in or after the stem (`.en?r?`, `.e?vx`) may still resolve to `.envrc`, so it stays protected.
+    if (stem == ".env" && substr(t, finish + 1, 1) ~ /[a-z0-9]/ && substr(t, finish + 1) !~ /^rc([^a-z0-9]|$)/ &&
+        substr(t, start, finish - start + 1) !~ /[][?*]/ && substr(t, finish + 1) !~ /^[^\/]*[][?*]/) return 0
     if (stem ~ /^\.(key|jks|keystore|kdbx)$/) {
         if (substr(t, finish + 1, 1) ~ /[a-z0-9_-]/) return 0
         # Ambiguous key words are credential extensions only at the end of a literal filename.
