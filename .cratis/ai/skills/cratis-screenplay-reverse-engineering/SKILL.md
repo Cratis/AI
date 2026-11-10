@@ -28,6 +28,7 @@ it scores observable behavior, with names reported separately.
 | A running app from the system and its executable, no source required | this skill |
 | Faithful migration or documentation with the source, `file:line` evidence, loss report and expert verification | `cratis-screenplay-legacy-extraction` |
 | A new system from interviews, workshops or process documents | `cratis-screenplay-discovery` |
+| An accepted model whose observed system has since changed | this skill, [references/process-drift.md](references/process-drift.md) |
 
 When source exists and the goal is migration, switch to legacy extraction. When both goals hold,
 run this skill for the walk and the run, and legacy extraction for the source-backed claims.
@@ -60,7 +61,8 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
 
 1. **Intake.** Reuse the brief; ask only what is missing, at most the two discovery questions of
    the UI walk (start URL and actor, then guidance), one per turn. Record the inputs, the
-   environment, the approvals, the walk budget and the scope. Scope is the key areas wanted, in
+   environment, the approvals, the walk budget and the scope, and a watermark per source
+   (version, hash or capture date; `references/evidence-format.md`). Scope is the key areas wanted, in
    and explicitly out; with none given, inventory first, then propose one and ask once. Read
    [references/scoping.md](references/scoping.md) for a focused run. Unattended: assume read-only, no hosted
    model, no writes, no executable runs, and record each assumption. Order of sources: the
@@ -74,7 +76,9 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    - **L0 feature inventory**: list what the system lets users do, before any modeling: features
      and their entry points (screens, navigation, forms, routes in the OpenAPI document or HAR,
      executable commands and menus, documented jobs and emails), each with the source that covers
-     it, tagged in / out / boundary against the scope. Modeling starts only from this list; out of
+     it, tagged in / out / boundary against the scope. Break each in-scope feature into flows and take
+     them one at a time, each small enough to review in one sitting
+     (`references/scoping.md`). Modeling starts only from this list; out of
      scope features are listed, never walked or modeled.
    - **L1 static**: OpenAPI, product docs and the static inventory of the executable
      (`references/executable-intake.md`). Source code, if offered, is one more optional input
@@ -92,11 +96,14 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    the UI, the time rule recipe, client versus server rules, naming fidelity, observed defects
    and opaque queries. An API probe batch counts as one walk state per command. **Probe
    coverage gate:** record every command and probe class in `re/PROBES.md` (accepted, rejected or
-   `not probed: <reason>`); `not probed` counts as unknown, never as no rule.
+   `not probed: <reason>`) and close the file with a per-class coverage check (rule, rejection,
+   flow, time, authorization, query shape); `not probed` counts as unknown, never as no rule.
 3. **Synthesis.** Start only after the probe coverage gate. Write `event-model.md` first (readout before `.play`, see the synthesis rules), then turn evidence rows into candidate elements with the signal rules in
    [references/synthesis-rules.md](references/synthesis-rules.md). Every write goes through the
    Screenplay MCP loop of `cratis-screenplay-model-authoring`: propose, read the proposal, apply.
-   Each step validates; never hand-edit around a diagnostic. Without the MCP server, first-pass
+   Before validating, cross-walk every finding to the construct that encodes it or a `GAP` with
+   its cause (`references/synthesis-rules.md`, Finding crosswalk). Each step validates; never
+   hand-edit around a diagnostic. Without the MCP server, first-pass
    traps and the run recipe are in
    [references/target-and-first-validation.md](references/target-and-first-validation.md). Follow the phase skills for craft
    (`cratis-screenplay-discovery`, `cratis-screenplay-slice-design`,
@@ -127,6 +134,10 @@ Work area: `.ai-work/screenplay/<slug>/re/` (`captures/`, `EVIDENCE.md`, optiona
    (pass signal: exit 0 and the score block; exit 2 means an invalid catalog). Run
    `scripts/score-fidelity.mjs --self-test` to check the arithmetic; it executes
    `scripts/score-fidelity-self-test.mjs` and prints the checked count.
+   For process-drift scoping, run `scripts/drift-scope.mjs --self-test`, which executes
+   `scripts/drift-scope-self-test.mjs`. The [SoloCrm case](scripts/fixtures/solocrm-drift/README.md)
+   uses `scripts/fixtures/solocrm-drift/change.diff`, `scripts/fixtures/solocrm-drift/evidence-map.json`
+   and `scripts/fixtures/solocrm-drift/expected.json`; see [process drift](references/process-drift.md).
 
 When the sources are only a website, user docs or a description document, or the run must feel
 like a product on Stage, read
@@ -166,6 +177,13 @@ The model may be offered for acceptance only when each item is a result or "not 
 
 - The inventory lists every observable entry point with its source or "not covered".
 - Every slice cites evidence ids; every row has a classification; every unknown has a question.
+- Every finding is encoded or carries a `GAP` cause; the probe coverage check has no empty class.
+- `screenplay test` ran with executed equal to discovered and none failed; its summary line is
+  in the report. "Needs an occurrence supplied by the execution request" means the
+  specification lacks a `given clock` line.
+- `cratis run` admitted the model: `GET /stage/status` reads `ready`, the admission list is
+  empty and the detailed admission lists no artifact as unsupported. One admission issue refuses
+  every route; one unsupported command answers 501, and so does every flow that needs it first.
 - V1 clean on the candidate (`cratis-screenplay-toolchain`), warnings as errors.
 - The independent review ran, and each slice has a keep, change or remove decision.
 - Safety: approvals named, captures scrubbed, captures untracked.

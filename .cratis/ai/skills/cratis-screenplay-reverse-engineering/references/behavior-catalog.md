@@ -77,6 +77,11 @@ item weights default to 1, and 1.5 for `time` (hardest to infer). A scorer may o
 weight with a reason in `note`. Never change the split or the catalog after the first score is
 seen.
 
+Score a `time` item as a pair: the positive probe and the negative probe of the same rule must
+both hold; an unfiltered list passing only the positive half is a fail. Performer-held time
+rules run only in the rendered app (`cratis run --engine eventmodel`, or render), because the
+semantic sandbox leaves performer bodies out.
+
 ## Naming fidelity is separate
 
 Keep the inventory of names (commands, events, read models and queries, screens, constraints,

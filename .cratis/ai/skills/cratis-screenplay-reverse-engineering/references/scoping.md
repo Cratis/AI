@@ -70,6 +70,12 @@ Record the scope (in, out, boundary and closure reasons) in the provenance or sy
 The fidelity check scores in-scope journeys only and lists the out-of-scope features as not
 covered; do not report them as failed.
 
+## Flow by flow
+
+Break each in-scope feature into flows: one entry point to its persisted or visible effect.
+Take them one at a time, each small enough for a person to read in one sitting and say "right"
+or "wrong" before the next starts; a flow the reviewer cannot judge that way is split.
+
 ## Changing scope later
 
 Narrowing removes the area's slices (a keep / change / remove decision applies) and turns

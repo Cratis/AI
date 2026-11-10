@@ -7,6 +7,7 @@
 - Techniques per kind
 - Managed assembly intake (own .NET app)
 - Trace one feature end to end
+- Driving a live web app from scripts
 - Optional external tooling
 - Locators and evidence rows
 - Feature coverage
@@ -124,6 +125,18 @@ For each feature in the inventory, follow one path from its user entry to its la
 Write each hop as an evidence row with its locator. A static trace names candidates: a reached
 node is not proven to take part. Confirm the path with one observed run before stating it as a
 rule. A feature with no observed effect stays a candidate.
+
+## Driving a live web app from scripts
+
+For an owned or test-permitted web app, script the observation instead of clicking by hand:
+
+- **Query subscriptions.** A read model the UI shows live is an event stream (SSE). Open the
+  query's stream with `curl -N` or a small Node script, run a command in another call, and
+  record the pushed rows: that is the observable effect of the command on that view.
+- **Browser driver.** Drive a headless browser over the DevTools protocol (CDP) from a script
+  to fill forms, click and read page text; one script per flow, output as a probe table.
+- Both run against the sandbox or approved target only, with fresh marker ids, and write their
+  output to `captures/`. Redact tokens from scripts and logs.
 
 ## Optional external tooling
 

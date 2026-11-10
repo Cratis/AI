@@ -77,6 +77,29 @@ function splitFrontmatter(file: string, text: string): { frontmatter: string[]; 
     return { frontmatter: text.slice(4, end).split('\n'), body: text.slice(end + 5) };
 }
 
+function frontmatterScalar(frontmatter: string[], key: string): string | undefined {
+    const line = frontmatter.find(l => l.startsWith(`${key}:`));
+    if (line === undefined) return undefined;
+    const value = line.slice(key.length + 1).trim();
+    if (value === '' || value === '>' || value === '|') return undefined;
+    return value.replace(/^['"]|['"]$/g, '');
+}
+
+function frontmatterList(file: string, frontmatter: string[], key: string): string[] {
+    const index = frontmatter.findIndex(l => l.startsWith(`${key}:`));
+    if (index < 0) return [];
+    const inline = frontmatter[index].slice(key.length + 1).trim();
+    if (inline.startsWith('[')) {
+        return inline.replace(/^\[|\]$/g, '').split(',').map(v => v.trim()).filter(Boolean);
+    }
+    if (inline !== '') throw new Error(`${file}: '${key}:' must be a YAML list, got '${inline}'.`);
+    const items: string[] = [];
+    for (let i = index + 1; i < frontmatter.length && frontmatter[i].startsWith('  - '); i++) {
+        items.push(frontmatter[i].slice(4).trim());
+    }
+    return items;
+}
+
 /**
  * Reads the frontmatter keys this generator needs. The canonical agents use exactly four shapes -
  * `key: value`, `key: >` folded blocks, `key:` followed by `  - item` lines, and `key: [a, b]` - and
@@ -84,27 +107,8 @@ function splitFrontmatter(file: string, text: string): { frontmatter: string[]; 
  */
 export function parseCanonicalAgent(file: string, text: string): CanonicalAgent {
     const { frontmatter, body } = splitFrontmatter(file, text);
-    const scalar = (key: string): string | undefined => {
-        const line = frontmatter.find(l => l.startsWith(`${key}:`));
-        if (line === undefined) return undefined;
-        const value = line.slice(key.length + 1).trim();
-        if (value === '' || value === '>' || value === '|') return undefined;
-        return value.replace(/^['"]|['"]$/g, '');
-    };
-    const list = (key: string): string[] => {
-        const index = frontmatter.findIndex(l => l.startsWith(`${key}:`));
-        if (index < 0) return [];
-        const inline = frontmatter[index].slice(key.length + 1).trim();
-        if (inline.startsWith('[')) {
-            return inline.replace(/^\[|\]$/g, '').split(',').map(v => v.trim()).filter(Boolean);
-        }
-        if (inline !== '') throw new Error(`${file}: '${key}:' must be a YAML list, got '${inline}'.`);
-        const items: string[] = [];
-        for (let i = index + 1; i < frontmatter.length && frontmatter[i].startsWith('  - '); i++) {
-            items.push(frontmatter[i].slice(4).trim());
-        }
-        return items;
-    };
+    const scalar = (key: string) => frontmatterScalar(frontmatter, key);
+    const list = (key: string) => frontmatterList(file, frontmatter, key);
     const name = scalar('name');
     if (!name) throw new Error(`${file} declares no name.`);
     return {
@@ -129,8 +133,7 @@ export function readCanonicalAgents(corpusRoot: string): CanonicalAgent[] {
         .map(name => parseCanonicalAgent(name, readFileSync(join(directory, name), 'utf8')));
 }
 
-/** The OpenCode adapter for one canonical agent. */
-export function generateOpenCodeAgent(agent: CanonicalAgent): GeneratedAgent {
+function requireGeneratable(agent: CanonicalAgent): void {
     const unknown = agent.tools.filter(tool => !(canonicalToolNames as readonly string[]).includes(tool));
     if (unknown.length > 0) {
         throw new Error(`${agent.file} declares tools outside the canonical vocabulary: ${unknown.join(', ')}.`);
@@ -139,17 +142,26 @@ export function generateOpenCodeAgent(agent: CanonicalAgent): GeneratedAgent {
     if (agent.readonly && agent.tools.some(tool => tool === 'Edit' || tool === 'Write')) {
         throw new Error(`${agent.file} is readonly but declares Edit/Write.`);
     }
+}
 
-    // The description travels verbatim (folded block and all); name, tools and readonly are Claude/Cursor
-    // keys OpenCode does not know - and OpenCode forwards unknown keys to the model provider as options.
-    const description: string[] = [];
+/**
+ * The description travels verbatim (folded block and all); name, tools and readonly are Claude/Cursor
+ * keys OpenCode does not know - and OpenCode forwards unknown keys to the model provider as options.
+ */
+function descriptionLines(agent: CanonicalAgent): string[] {
     const descriptionIndex = agent.frontmatter.findIndex(line => line.startsWith('description:'));
     if (descriptionIndex < 0) throw new Error(`${agent.file} declares no description; OpenCode requires one.`);
-    description.push(agent.frontmatter[descriptionIndex]);
+    const description = [agent.frontmatter[descriptionIndex]];
     for (let i = descriptionIndex + 1; i < agent.frontmatter.length && agent.frontmatter[i].startsWith('  '); i++) {
         description.push(agent.frontmatter[i]);
     }
+    return description;
+}
 
+/** The OpenCode adapter for one canonical agent. */
+export function generateOpenCodeAgent(agent: CanonicalAgent): GeneratedAgent {
+    requireGeneratable(agent);
+    const description = descriptionLines(agent);
     const canEdit = agent.tools.includes('Edit') || agent.tools.includes('Write');
     const canBash = agent.tools.includes('Bash');
     const lines = ['---', ...description, 'mode: subagent'];
@@ -174,20 +186,23 @@ export function generateOpenCodeAgents(corpusRoot: string): GeneratedAgent[] {
 export function checkOpenCodeAgents(corpusRoot: string): string[] {
     const expected = generateOpenCodeAgents(corpusRoot);
     const directory = join(corpusRoot, openCodeAgentsDirectory);
-    const failures: string[] = [];
     if (existsSync(directory) && (!lstatSync(directory).isDirectory() || lstatSync(directory).isSymbolicLink())) {
         return [`${openCodeAgentsDirectory} is not a generated adapter directory.`];
     }
-    for (const file of expected) {
-        const path = join(corpusRoot, file.path);
-        if (!existsSync(path)) failures.push(`${file.path} is missing (generated from agents/${file.source}).`);
-        else if (!lstatSync(path).isFile() || readFileSync(path, 'utf8') !== file.content) failures.push(`${file.path} is stale (regenerate from agents/${file.source}).`);
-    }
+    return [...expected.flatMap(file => adapterDrift(corpusRoot, file)), ...orphanAdapters(directory, expected)];
+}
+
+/** The missing or stale message for one expected adapter, if any. */
+function adapterDrift(corpusRoot: string, file: GeneratedAgent): string[] {
+    const path = join(corpusRoot, file.path);
+    if (!existsSync(path)) return [`${file.path} is missing (generated from agents/${file.source}).`];
+    const current = lstatSync(path).isFile() && readFileSync(path, 'utf8') === file.content;
+    return current ? [] : [`${file.path} is stale (regenerate from agents/${file.source}).`];
+}
+
+function orphanAdapters(directory: string, expected: GeneratedAgent[]): string[] {
+    if (!existsSync(directory)) return [];
     const expectedNames = new Set(expected.map(file => basename(file.path)));
-    if (existsSync(directory)) {
-        for (const name of readdirSync(directory)) {
-            if (!expectedNames.has(name)) failures.push(`${openCodeAgentsDirectory}/${name} has no canonical agent (orphan).`);
-        }
-    }
-    return failures;
+    return readdirSync(directory).filter(name => !expectedNames.has(name))
+        .map(name => `${openCodeAgentsDirectory}/${name} has no canonical agent (orphan).`);
 }

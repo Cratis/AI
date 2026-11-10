@@ -19,6 +19,23 @@ combines it with the legacy rows. For the richer table used with source code, se
   resource, and `RUN-<n>` for an approved run. A `binary` row from assembly reading is `Declared`.
 - A person or document row cites the section or the person and date.
 
+## Watermark
+
+Record per feature and per source which state of the system the rows describe, in `STATE.md`
+and, at acceptance, in the feature's `note`:
+
+| Source | Watermark |
+|---|---|
+| source code, if offered | source identity (commit plus input digest, legacy extraction) |
+| OpenAPI or docs | sha256 of the fetched file, its stated version and the fetch date |
+| shipped binary or package | sha256, version string and build date |
+| running app (walk, HAR) | version or build id the system shows, environment and capture date |
+
+A source with no readable version gets its fetch date and the word `unversioned`. A later run
+compares watermarks per feature before walking: unchanged means "unchanged since <watermark>"
+and the feature is left alone; changed or `unversioned` means re-intake that feature only, with
+stable ids (`process-drift.md`).
+
 ## Probe budget and table
 
 A batch of API probes against one command counts as one L2 walk state, not one per case, so
@@ -41,3 +58,9 @@ in `captures/` and cite its file from the rule rows:
 - Every candidate element cites at least one evidence id; a slice with none is removed or sent
   back to intake.
 - Cite ids in a slice `description` ("Evidence: RE-E1, RE-E2") and keep the detail in the table.
+- Each candidate row carries a one-sentence `rationale`: why this evidence became this element
+  and name ("two writes in one POST and a 409 on the second: one command with a guard, not two
+  events"). At acceptance, promote the rationale with the evidence ids and the watermark into
+  the slice `documentation` and the feature `note`, as legacy extraction does
+  (`../../cratis-screenplay-legacy-extraction/references/re-entry-and-passes.md`); otherwise the
+  evidence is lost when `.ai-work` is discarded.
