@@ -29,6 +29,7 @@ import type { AuthoringFinding } from './AuthoringFinding.ts';
 import { alwaysOnHarnessBytes, alwaysOnInputs, alwaysOnSummary } from './always-on-budget.ts';
 import { evaluationCoverageBaseline, evaluationCoverageFindings } from './evaluation-coverage.ts';
 import { checkInstructionDependencies, instructionDependencyMessages } from './instruction-dependencies.ts';
+import { contaminationProblems, contaminationSummary, evaluationTargets, scanEvaluationContamination } from './evaluation-contamination.ts';
 import { skillHygieneFindings, skillHygieneProblems, skillHygieneReport } from './skill-hygiene.ts';
 import { brokenRelativeLinkProblems, referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
 
@@ -252,6 +253,9 @@ for (const exception of assetExceptions) {
         authoringFindings.push({ file: exception.file, line: 1, rule: 'asset-reachability', matchedText: 'Remove the exception for an absent skill.' });
     }
 }
+const contamination = await scanEvaluationContamination(corpus, evaluationTargets);
+console.log(contaminationSummary(contamination));
+failures.push(...contaminationProblems(contamination));
 const authoringReport = skillHygieneReport(authoringFindings);
 failures.push(...skillAuthoringProblems(authoringFindings, skillAuthoringMode));
 console.log(`Skill authoring (${skillAuthoringMode}): checked ${skillDirectories.length} skills and ${referencingFiles.flat().length} instructions; ${authoringReport.total} findings in ${authoringReport.perFile.length} files.`);
