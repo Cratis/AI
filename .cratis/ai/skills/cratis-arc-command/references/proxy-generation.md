@@ -4,6 +4,8 @@
 
 - Wiring
 - MSBuild properties
+- Route settings must match the host and the frontend
+- Skipping generation
 - What the generator extracts for client-side validation
 - Failure modes
 - Blocking severity
@@ -81,6 +83,32 @@ inserted without configuration.
 
 Item groups the target also forwards: `AssemblyToPackageMapping`,
 `ExcludeType`, `ExcludeNamespace`, `NamespaceRoot`, and `TypeToTsType`.
+
+## Route settings must match the host and the frontend
+
+The route properties (`CratisProxiesApiPrefix`, `CratisProxiesSegmentsToSkip`,
+`CratisProxiesSkipCommandNameInRoute`, `CratisProxiesSkipQueryNameInRoute`) shape
+the URLs written into the generated client. The host maps endpoints from
+`Cratis:Arc:GeneratedApis` (`RoutePrefix` default `api`, `SegmentsToSkipForRoute`
+default `0`, `IncludeCommandNameInRoute` and `IncludeQueryNameInRoute` default
+`true`). The skip properties and the include keys are inverses. Arc does not
+compare them: a mismatch is a 404 with no build error. Change both in one
+commit.
+
+On the frontend, the generated route already starts with the API prefix.
+`<Arc apiBasePath>` is only an extra deployment prefix (`/workbench` plus
+`/api/orders` is `/workbench/api/orders`); never repeat `/api` there, and
+`basePath` does nothing. See `cratis-arc-configuration` for the full list.
+
+## Skipping generation
+
+The package has no `DisableProxyGenerator` property. MSBuild accepts unknown
+`-p:` names silently, so passing it looks effective and does nothing. The only
+gate is `CratisProxiesOutputPath`: leave it empty (for a build, pass
+`-p:CratisProxiesOutputPath=`) and the `CratisProxyGenerator` target does not
+run. A repository can define its own `DisableProxyGenerator` property and
+condition its own targets on it, as the Chronicle kernel project does; that is
+repository-local, not part of this package.
 
 ## What the generator extracts for client-side validation
 

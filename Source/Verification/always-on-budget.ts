@@ -47,6 +47,38 @@ export interface LoadedHarnessArtifacts {
     cursorRule?: string;
 }
 
+function instructionHeader(content: string): string {
+    return content.slice(0, content.length - skillBody(content).length);
+}
+
+function hasUniversalScope(header: string): boolean {
+    return scopes(header, 'applyTo').some(glob => universalGlobs.has(glob));
+}
+
+function piLoadsRule(applyTo: string[], paths: string[]): boolean {
+    if (applyTo.length === 0 && paths.length === 0) return true;
+    return [...applyTo, ...paths].some(glob => universalGlobs.has(glob));
+}
+
+function countGeneralRule(totals: Record<string, number>, bytes: number, loaded: LoadedHarnessArtifacts): void {
+    totals['claude-code'] += bytes;
+    totals.pi += bytes;
+    totals.cursor += bytes + Buffer.byteLength(loaded.cursorRule ?? '');
+    totals['codex-opencode'] += bytes;
+}
+
+function countInstruction(totals: Record<string, number>, entry: InstructionEntry, loaded: LoadedHarnessArtifacts): void {
+    const header = instructionHeader(entry.content);
+    const bytes = Buffer.byteLength(entry.content);
+    const applyTo = scopes(header, 'applyTo');
+    const paths = scopes(header, 'paths');
+    const general = entry.file.endsWith('/general.md');
+    if (general) countGeneralRule(totals, bytes, loaded);
+    if (paths.length === 0) totals['claude-code'] += bytes;
+    if (general || (!loaded.copilotAdapters && hasUniversalScope(header))) totals.copilot += bytes;
+    if (piLoadsRule(applyTo, paths)) totals.pi += bytes;
+}
+
 /**
  * Rule bytes loaded at session start per harness, counting the artifacts each one reads:
  * Claude Code reads CLAUDE.md (general.md) and every `.claude/rules` file without `paths`, so general.md arrives twice;
@@ -56,25 +88,9 @@ export interface LoadedHarnessArtifacts {
  */
 export function alwaysOnHarnessBytes(entries: InstructionEntry[], loaded: LoadedHarnessArtifacts = {}): Record<string, number> {
     const totals: Record<string, number> = { 'claude-code': 0, copilot: 0, pi: 0, cursor: 0, 'codex-opencode': 0 };
-    const universal = (header: string): boolean => scopes(header, 'applyTo').some(glob => universalGlobs.has(glob));
-    for (const { file, content } of entries) {
-        const header = content.slice(0, content.length - skillBody(content).length);
-        const bytes = Buffer.byteLength(content);
-        const applyTo = scopes(header, 'applyTo');
-        const paths = scopes(header, 'paths');
-        const general = file.endsWith('/general.md');
-        if (general) {
-            totals['claude-code'] += bytes;
-            totals.pi += bytes;
-            totals.cursor += bytes + Buffer.byteLength(loaded.cursorRule ?? '');
-            totals['codex-opencode'] += bytes;
-        }
-        if (paths.length === 0) totals['claude-code'] += bytes;
-        if (general || (!loaded.copilotAdapters && universal(header))) totals.copilot += bytes;
-        if ((applyTo.length === 0 && paths.length === 0) || [...applyTo, ...paths].some(glob => universalGlobs.has(glob))) totals.pi += bytes;
-    }
+    for (const entry of entries) countInstruction(totals, entry, loaded);
     for (const { content } of loaded.copilotAdapters ?? []) {
-        if (universal(content.slice(0, content.length - skillBody(content).length))) totals.copilot += Buffer.byteLength(content);
+        if (hasUniversalScope(instructionHeader(content))) totals.copilot += Buffer.byteLength(content);
     }
     return totals;
 }
