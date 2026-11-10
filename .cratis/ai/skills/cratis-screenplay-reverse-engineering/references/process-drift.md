@@ -12,7 +12,7 @@ capture sets, or, when source is offered, `<commit>..HEAD` (`cratis-screenplay-l
 ## Source-diff scope helper
 
 Run `node scripts/drift-scope.mjs change.diff evidence-map.json` for JSON work lists;
-`node scripts/drift-scope.mjs --self-test` checks the SoloCrm case and rejection rules.
+`node scripts/drift-scope.mjs --self-test` checks a synthetic library drift case and the rejection rules.
 The map projects evidence rows into `flows: [{id, evidenceIds, paths}]` and carries
 `watermarks: {from: {revision, inputDigest}, to: {revision, inputDigest}}`. Paths are
 repository-relative, case-sensitive exact paths or globs (`*` within a segment,
@@ -34,7 +34,7 @@ These are scope hints, not semantic proof: generated markers must be present to 
 proxies, artifact/formatting changes can still affect behavior, and the keep list means
 no process hunk matched the supplied mapping. Reconcile artifacts with their source and
 inspect uncertain changes before a no-drift verdict. The helper echoes both watermarks;
-it never advances the accepted one. See the [SoloCrm fixture](../scripts/fixtures/solocrm-drift/README.md).
+it never advances the accepted one. The self-test fixture is a synthetic library application: two process hunks in mapped flows, an indentation-only hunk, an unmapped added file that yields a new-flow candidate, and header-only generated, lockfile and scene hunks.
 
 ## Steps
 

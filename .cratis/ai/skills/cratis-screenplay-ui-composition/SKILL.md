@@ -289,7 +289,7 @@ layout AppShell
   content page routed primary
 
   outlet sidebar of navigation
-    logo image "/assets/solocrm.svg" title "SoloCRM"
+    logo image "/assets/shop.svg" title "Shopfront"
     default organizations title "Organizations" target Crm.Organizations
 
 ui profile Desktop
@@ -297,8 +297,8 @@ ui profile Desktop
   root template AppShell
     option showFooter false
   identity
-    name "SoloCRM"
-    logo initials "SC"
+    name "Shopfront"
+    logo initials "SF"
 ```
 
 ```screenplay excerpt
