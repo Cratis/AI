@@ -38,12 +38,9 @@
         <Configuration>Debug</Configuration>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(TargetFramework)'=='' AND '$(TargetFrameworks)'==''">
-        <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(IsTestProject)'=='true'">
-        <TargetFramework></TargetFramework>
+    <!-- Libraries and their specs target both supported runtimes. Executables clear
+         TargetFrameworks and set TargetFramework to net11.0 in their project body. -->
+    <PropertyGroup>
         <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
     </PropertyGroup>
 
