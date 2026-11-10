@@ -840,6 +840,27 @@ test('.env is a protected stem only as a whole file stem, not inside a longer wo
     ]);
 });
 
+test('an expansion marker after or inside the .env stem keeps it protected', () => {
+    const names = [
+        '.env$x',
+        '.env${X}',
+        '.en$v',
+        '.env`cmd`',
+        ".env$'\\x72c'",
+        '.env\\rc',
+        '.env"rc"',
+        ".e'nv'",
+        ".env'rc'",
+        '.env~',
+        '.env{rc,}',
+        '.env{rc,x}',
+    ];
+    assertVerdicts(names.flatMap(name => [
+        [BLOCK, `cat ${name}`],
+        [BLOCK, `jq --rawfile x ${name} -n '$x'`],
+    ] as [typeof BLOCK, string][]));
+});
+
 test('a word that only appears inside a string argument, a comment or a here-document is not a finding', () => {
     assertVerdicts([
         [ALLOW, "echo 'never run kubectl get pods -o json or printenv'"],

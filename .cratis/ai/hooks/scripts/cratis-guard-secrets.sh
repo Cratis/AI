@@ -117,9 +117,14 @@ function stem_boundary(t, start, finish, stem, nonliteral,    a, b, before, afte
     else literal = !nonliteral && t !~ /[][?*{}()$`~^\001-\007]/
     if (stem == "/environ" && substr(t, finish + 1, 1) ~ /[a-z0-9_]/) return 0
     # `.env` followed by a letter or digit is part of a longer word (Org.EnvironmentalReporting); `.envrc` stays protected.
-    # Unresolved glob syntax in or after the stem (`.en?r?`, `.e?vx`) may still resolve to `.envrc`, so it stays protected.
+    # Allowlist: the boundary is released only when the stem is the literal text and the rest of its path component
+    # is plain literal characters. Any expansion, quote, escape, glob or brace there may still resolve to `.envrc`.
     if (stem == ".env" && substr(t, finish + 1, 1) ~ /[a-z0-9]/ && substr(t, finish + 1) !~ /^rc([^a-z0-9]|$)/ &&
-        substr(t, start, finish - start + 1) !~ /[][?*]/ && substr(t, finish + 1) !~ /^[^\/]*[][?*]/) return 0
+        substr(t, start, finish - start + 1) == ".env") {
+        component = substr(t, finish + 1)
+        sub(/[\/ \t\n].*$/, "", component)
+        if (component ~ /^[a-z0-9._-]*$/) return 0
+    }
     if (stem ~ /^\.(key|jks|keystore|kdbx)$/) {
         if (substr(t, finish + 1, 1) ~ /[a-z0-9_-]/) return 0
         # Ambiguous key words are credential extensions only at the end of a literal filename.
@@ -1272,6 +1277,12 @@ function scan_short(w, shortvals, sed_like,    i, c, last) {
         if (sed_like && c == "i") return
     }
 }
+function report_operand(A, k, b, filenames,    kind) {
+    kind = operand_kind(A, k, 0, filenames)
+    if (kind != "" && matched_file != "") report(b " of " kind " (" matched_file ") prints credentials", "list the directory with ls, then name the exact files; for an env template read the .env.example")
+    else if (kind != "" && via_pattern) report(b " of a glob that may match " kind " prints credentials", "list the directory with ls, then name the exact files; for an env template read the .env.example")
+    else if (kind != "") report(b " of " kind " prints credentials", "name the file and the key you need in your report; ask the user to confirm a value instead of printing it; for an env template read the .env.example")
+}
 function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals, filenames) {
     b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
     if (b ~ /^(rg|grep|egrep|fgrep)$/) {
@@ -1295,14 +1306,15 @@ function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued,
         if (!afterdd && substr(w, 1, 1) == "-" && length(w) > 1) {
             if (mode != "" && w ~ /^-[a-zA-Z]/) { scan_short(w, shortvals, b == "sed"); if (sc_skip) k++ }
             else if (mode != "" && (w ~ /^--(regexp|file|expression|from-file)$/ || index(valued, " " w " "))) k++
-            else if (index(valued2, " " w " ")) k += 2
+            else if (index(valued2, " " w " ")) {
+                # --rawfile/--slurpfile name a file that is read, so it is judged like any other operand.
+                if (w ~ /^--(raw|slurp)file$/ && k + 2 <= n) report_operand(A, k + 2, b, filenames)
+                k += 2
+            }
             continue
         }
         if (need) { need = 0; continue }
-        kind = operand_kind(A, k, 0, filenames)
-        if (kind != "" && matched_file != "") report(b " of " kind " (" matched_file ") prints credentials", "list the directory with ls, then name the exact files; for an env template read the .env.example")
-        else if (kind != "" && via_pattern) report(b " of a glob that may match " kind " prints credentials", "list the directory with ls, then name the exact files; for an env template read the .env.example")
-        else if (kind != "") report(b " of " kind " prints credentials", "name the file and the key you need in your report; ask the user to confirm a value instead of printing it; for an env template read the .env.example")
+        report_operand(A, k, b, filenames)
     }
 }
 
