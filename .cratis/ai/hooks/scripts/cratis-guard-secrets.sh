@@ -663,6 +663,8 @@ function sensitive_path(w,    l, b) {
     l = tolower(w); b = l; sub(/.*\//, "", b)
     if (l ~ /(^|\/)\.kube\// || b == "kubeconfig" || b ~ /\.kubeconfig$/) return "a kubeconfig"
     if (b ~ /^\.env/ || b ~ /\.env$/) { if (b ~ /\.(example|sample|template|dist|defaults?)$/) return ""; return "an .env file" }
+    # A named copy or variant (app.env.old, prod.env.local, app.env~) is protected like the file itself; templates and source files are not.
+    if (b ~ /.\.env[.~]/ && b !~ /\.(example|sample|template|dist|defaults?)$/ && !code_file(b)) return "an .env file"
     # Unambiguous credential extensions also protect disguised source suffixes; ambiguous words
     # such as Signing.Key.cs are source unless the credential extension is final.
     if (b ~ /\.(pem|p12|pfx)([.]|$)/ || b ~ /\.(key|jks|keystore|kdbx)[.]*$/) return "a key or certificate file"
