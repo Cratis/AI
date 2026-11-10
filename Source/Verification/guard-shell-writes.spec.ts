@@ -217,6 +217,52 @@ test('leading globs are allowed only on display-only read verbs; every writer an
     } finally { repo.dispose(); }
 });
 
+test('only the exact managed check-pr and cleanup-worktrees invocations are admitted for execution', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        const checker = '.cratis/ai/hooks/scripts/cratis-check-pr.mjs';
+        const cleaner = '.cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh';
+        await checkCases([
+            ...[`node ${checker} --body-file .ai-work/pr-body.md --label patch`,
+                `node ${checker} --body-file .ai-work/pr-body.md --pr 123 --strict`,
+                `node ${checker} --body-file b.md --label patch --add-label x --remove-label y --base main --repo owner/name`,
+                `node "${checker}" --body-file b.md`, `node ${checker} --strict`, `node ${checker}`,
+                `bash ${cleaner}`, `bash ${cleaner} --dry-run --quiet --no-fetch`, `bash ${cleaner} --dry-run`,
+                `git status --short && node ${checker} --body-file b.md --label patch`,
+                `node ${checker} --body-file b.md --label patch | tail -n 5`,
+                `rg -n foo ${checker}`, `sed -n 1,5p ${checker}`, `head -n 5 ${cleaner}`, `cat ${checker}`,
+            ].map(command => [ALLOW, command] as [string, string]),
+            ...[`node ${checker} --hook`, `node ${checker} --unknown`, `node ${checker} --body-file`, `node ${checker} --body-file --label x`,
+                `node ${checker} --body-file ''`, `node ${checker} --body-file=b.md`, `node ${checker} -F b.md`, `node ${checker} b.md`,
+                `node ${checker} --body-file b.md > .claude/settings.json`, `node ${checker} --body-file b.md >> .env`,
+                `node ${checker} --body-file *.md`, `node ${checker} --body-file b.md --label *`, `node ${checker} --body-file $F`,
+                `node ${checker} --body-file \`echo b.md\``, `node ${checker} --body-file $(echo b.md)`, `node ${checker} --body-file b.md\nnode x`,
+                `node ./${checker}`, `node .cratis/ai/hooks/scripts/../scripts/cratis-check-pr.mjs`, `node .cratis/ai/hooks/../hooks/scripts/cratis-check-pr.mjs`,
+                `node ${repo.root}/${checker}`, `node ${checker}x`, `node .cratis/ai/hooks/scripts/cratis-check-pr.mjs.bak`,
+                `node ${checker.replace('cratis-check-pr', 'cratis-check-p*')}`,
+                'node .cratis/ai/hooks/scripts/cratis-guard-writes.sh', 'node .cratis/ai/hooks/scripts/evil.mjs',
+                `node .cratis/ai/hooks/scripts/cratis-guard-shell-writes.sh ${checker}`,
+                `node --eval x ${checker}`, `node --require x ${checker}`, `node -r x ${checker}`, `node --import x ${checker}`,
+                `node -e 1 ${checker}`, `nodejs ${checker}`, `X=1 node ${checker}`, `env node ${checker}`, `/usr/bin/node ${checker}`,
+                `node ${checker}; cp a .mcp.json`, `node ${checker} && echo x > .mcp.json`, `node ${checker} | tee .env`,
+                `node ${checker} || cp a .env`, `node ${checker} & cp a .mcp.json`, `cd /tmp/other && node ${checker} --body-file b.md`,
+                `cd sub; node ${checker}`, `echo x > ${checker}`, `cp x ${checker}`, `tee ${checker}`,
+                `sed -i s/a/b/ ${checker}`, `mv x ${checker}`, `echo x >> ${cleaner}`, `cp x ${cleaner}`, `sed -i s/a/b/ ${cleaner}`,
+                `bash ${cleaner} --include-work-records`, `bash ${cleaner} --hook`, `bash ${cleaner} --self-test`,
+                `bash ${cleaner} --unknown`, `bash ${cleaner} --dry-run --include-work-records`, `bash ${cleaner} extra`,
+                `bash -x ${cleaner}`, `bash -c ${cleaner}`, `sh ${cleaner}`, `zsh ${cleaner}`, `bash ./${cleaner}`,
+                `bash ${cleaner}.bak`, `bash ${cleaner} > .env`, `bash ${cleaner} --quiet > .mcp.json`, `bash ${cleaner}; echo x > .mcp.json`,
+                `bash ${cleaner} && cp a .env`, `bash ${cleaner} $(echo --dry-run)`, `bash ${cleaner} *`,
+                `cd /tmp/other && bash ${cleaner}`, `. ${cleaner}`, `source ${cleaner}`, `exec ${cleaner}`, cleaner,
+                'bash .cratis/ai/hooks/scripts/cratis-guard-shell-writes.sh', 'bash .claude/settings.json', 'bash .pi/extensions/x.sh',
+                'bash .cratis/ai/hooks/scripts/cratis-guard-writes.sh --dry-run',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('literal git filename metadata and grep pattern options are read-only', async () => {
     const repo = scratchRepository();
     try {

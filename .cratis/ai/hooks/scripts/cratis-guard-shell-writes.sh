@@ -243,10 +243,31 @@ function print_only_sed(    i, ended) {
 function glob_safe() {
     return W[1] ~ /^(cat|head|tail|wc|ls|grep|egrep|fgrep)$/ || (W[1] == "git" && W[2] == "ls-files")
 }
+# The two managed corpus scripts are admitted for execution only by exact literal spelling: the path is
+# compared as a whole word (no ./, .., variable, glob or quoting variant can equal it), every other word must
+# be one of the script's own documented options, and nothing is admitted after a directory change, which
+# would select a different checkout's copy. Redirects stay classified by the caller.
+function managed_script(    i) {
+    if (changed_cwd) return 0
+    if (W[1] == "node" && W[2] == ".cratis/ai/hooks/scripts/cratis-check-pr.mjs") {
+        for (i = 3; i <= argc; i++) {
+            if (W[i] == "--strict") continue
+            if (W[i] !~ /^--(body-file|label|add-label|remove-label|pr|base|repo)$/) return 0
+            if (++i > argc || W[i] == "" || W[i] ~ /^-/ || globbed[i]) return 0
+        }
+        return 1
+    }
+    if (W[1] == "bash" && W[2] == ".cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh") {
+        for (i = 3; i <= argc; i++) if (W[i] !~ /^--(dry-run|quiet|no-fetch)$/) return 0
+        return 1
+    }
+    return 0
+}
 function allow_command(    verb, first, i) {
     if (!argc) return
     if (++commands > 64) { fail(); return }
     for (i = 1; i <= argc; i++) if (leading[i] && !glob_safe()) { cmd_failed = 1; return }
+    if (managed_script()) return
     verb = W[1]; first = 2
     if (verb == "cd") {
         directory_only = 1
