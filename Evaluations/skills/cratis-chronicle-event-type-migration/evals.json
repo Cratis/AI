@@ -46,6 +46,19 @@
         "States that registering a new generation starts add-only backfill in the default namespace's event log only.",
         "States new generations should be registered only after every kernel silo is upgraded because an old worker can overwrite content mid-rollout."
       ]
+    },
+    {
+      "id": 5,
+      "name": "explicit-ids-and-derived-identities",
+      "prompt": "We are renaming the persisted event LegacyOrderPlaced (stored id order-placed-v1) to OrderPlaced, adding a new public event OrderShipped, and an outbox deduplication key is derived from each event type id. A repository spec says every public event must pin a UUID id, and no decision record backs it. What do you do for each event and for the deduplication key? Reply only.",
+      "expected_output": "OrderPlaced retains the persisted id explicitly; OrderShipped uses plain [EventType] because the corpus convention wins over an unrecorded repository spec; existing ids are never changed; the derived deduplication key needs the retained id or a store migration.",
+      "assertions": [
+        "Uses plain [EventType] for the new OrderShipped event despite the repository spec, because the corpus convention wins unless an accepted decision record names the corpus rule it replaces.",
+        "Allows an explicit id only to retain a persisted id (OrderPlaced keeps order-placed-v1) or to resolve a cross-package short-name collision.",
+        "Leaves existing pinned and persisted ids unchanged.",
+        "States the deduplication key derived from the event type id is not covered by generations and needs the retained id value or a migration of that store.",
+        "States plain ids are a house convention and Chronicle accepts any string id."
+      ]
     }
   ]
 }
