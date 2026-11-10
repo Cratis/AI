@@ -332,7 +332,7 @@ These are the building blocks. Each type has a specific role in the vertical sli
 | --- | --- |
 | `ConceptAs<T>` | Strongly-typed domain *value* wrapper (see [concepts.md](./concepts.instructions.md)) |
 | `EventSourceId<T>` | Strongly-typed *identity* base — derive event-source ids from this, not `ConceptAs<T>` |
-| `[EventType]` | Marks a record as a Chronicle event — **never** pass arguments for a new event |
+| `[EventType]` | Marks a record as a Chronicle event — plain for a new event (explicit id only per application-profile.md item 7) |
 | `[Command]` | Marks a record as a model-bound command — define `Handle()` directly on the record |
 | `[ReadModel]` | Marks a record as a model-bound query — define static query methods on the record |
 | `CommandValidator<T>` | FluentValidation validator for commands |

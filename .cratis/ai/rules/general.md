@@ -13,7 +13,7 @@ Profile-specific rules declare a **`profile:`** in their frontmatter (`applicati
 
 > **Arc is a standalone CQRS framework — not bound to event sourcing.** Even within the application profile, Arc provides model-bound commands/queries, validation, authorization, and full-stack proxy generation, and works **without** Chronicle (Arc.Core does not depend on Chronicle). A `[Command]` `Handle()` does not *have* to append events — it can return a response, return `void`, or work through injected services. The event-sourcing behavior (a returned event gets appended; `EventForEventSourceId`; "never inject `IEventLog`") comes from the **Arc + Chronicle** integration. This application is event-sourced, so the slice guidance assumes event-sourced commands — read the event-centric rules as the *house default for this app*, not universal Arc laws.
 
-The framework is convention-over-configuration. **Idiomatic Cratis is the goal — not custom abstractions over it.** Recommend the idiomatic way unless explicitly needed otherwise; when unclear, prefer the Cratis convention, do not invent. The rules and skills under `.cratis/ai/` are the authoritative answer — if your question is not answered there, ask rather than inferring framework behavior from package internals.
+The framework is convention-over-configuration. **Idiomatic Cratis is the goal — not custom abstractions over it.** Recommend the idiomatic way; when unclear, prefer the Cratis convention, do not invent. The rules and skills under `.cratis/ai/` are the authoritative answer — if your question is not answered there, ask rather than inferring framework behavior from package internals.
 
 ## Project Philosophy
 
@@ -53,7 +53,7 @@ obtaining credentials, and other local conventions ("Product policy" above).
   use, but it must never contain credential values, tokens, keys, passwords, or
   other secrets.
 - A repository's accepted decision records (`decisions/`) and project rules bind AI work: read those matching your paths, follow them, never work around one.
-- Project-specific guidance wins when it narrows shared behavior for product policy, but may not weaken organization security, authorization, or required quality gates. On idioms and conventions this corpus wins over repository-local specs, design docs, and existing code or checks; a deviation needs an accepted ADR in the repository's decisions folder naming the corpus rule it replaces. Persisted ids and accepted ADRs are never rewritten by this rule.
+- Project-specific guidance wins when it narrows shared behavior for product policy, but may not weaken organization security, authorization, or required quality gates. For `[convention]` idioms the corpus wins over repository-local specs, design docs, and existing code or checks; a deviation needs an accepted ADR in the repository's decisions folder naming the corpus rule it replaces. It never relaxes `[contract]` rules, security, authorization or gates, or rewrites persisted ids.
 - Scope project file concerns with `paths`; put operational workflows in
   `.agents/skills/`, not global `applyTo: "**/*"` rules.
 
