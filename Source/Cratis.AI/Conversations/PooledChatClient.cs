@@ -83,7 +83,7 @@ public sealed class PooledChatClient(
         var dispatch = await Dispatch(
             role,
             candidates,
-            async (client, model, ct) => await client.GetResponseAsync(prompt, WithModel(options, model), ct),
+            new ChatCall<ChatResponse>(async (client, model, ct) => await client.GetResponseAsync(prompt, WithModel(options, model), ct)),
             cancellationToken);
 
         if (dispatch.Outcome != PoolDispatchOutcome.Succeeded)
@@ -108,9 +108,8 @@ public sealed class PooledChatClient(
         var dispatch = await Dispatch(
             role,
             candidates,
-            async (client, model, ct) => await StartedStream.Open(client.GetStreamingResponseAsync(prompt, WithModel(options, model), ct), ct),
-            cancellationToken,
-            holdSlot: true);
+            new ChatCall<StartedStream>(async (client, model, ct) => await StartedStream.Open(client.GetStreamingResponseAsync(prompt, WithModel(options, model), ct), ct), HoldSlot: true),
+            cancellationToken);
 
         if (dispatch.Outcome != PoolDispatchOutcome.Succeeded)
         {
@@ -219,60 +218,21 @@ public sealed class PooledChatClient(
     async Task<ChatDispatch<T>> Dispatch<T>(
         ConfiguredAgent? role,
         IReadOnlyList<AIProviderId> direct,
-        Func<IChatClient, ModelName, CancellationToken, Task<T>> call,
-        CancellationToken cancellationToken,
-        bool holdSlot = false)
+        ChatCall<T> call,
+        CancellationToken cancellationToken)
     {
         var tier = role?.Tier ?? ModelTier.Balanced;
         var hasPool = role?.PoolId is { } poolId && !poolId.Equals(AIProviderPoolId.NotSet);
         var servedBy = AIProviderId.NotSet;
         var reason = $"The {purpose.Value} agent has no AI provider or pool configured. Configure one in Settings under Agents.";
 
-        if (hasPool)
-        {
-            var pool = await readModels.GetInstanceById<AIProviderPool>((EventSourceId)role!.PoolId!);
-            var members = pool?.Members?.ToList();
-            if (members is { Count: > 0 })
-            {
-                var burn = await providerBurn.TrailingWeek(cancellationToken);
-                var usageLevels = await providerUsageLevels.RefreshMany([.. members.Select(member => member.ProviderId)], cancellationToken);
-                var capacities = await CapacitiesOf(members, cancellationToken);
-                var selection = new PoolSelectionData(
-                    burn.Tokens,
-                    burn.Sessions,
-                    recentProviderFailures.CountsSince(providerOptions.Value.RecentFailureWindow),
-                    usageLevels.Where(pair => pair.Value.RemainingCapacity is not null).ToDictionary(pair => pair.Key, pair => pair.Value.RemainingCapacity!.Value))
-                {
-                    HeadroomByProvider = capacities.ToDictionary(pair => pair.Key, pair => pair.Value.Headroom)
-                };
-
-                var dispatch = await PoolDispatcher.Dispatch(
-                    members,
-                    selection,
-                    recentProviderFailures,
-                    $"No member of pool {role.PoolId} could serve this chat",
-                    async (member, ct) => capacities.TryGetValue(member.ProviderId, out var capacity) && !capacity.CanStartWork
-                        ? PoolAttempt<(T Value, AIProviderId Provider)>.Skipped($"AI provider {member.ProviderId} cannot start work: it {capacity.Explain()}")
-                        : await Attempt(member.ProviderId, tier, call, holdSlot, ct),
-                    cancellationToken);
-
-                if (dispatch.Outcome == PoolDispatchOutcome.Succeeded)
-                {
-                    return new(PoolDispatchOutcome.Succeeded, dispatch.Value.Value, dispatch.Value.Provider, string.Empty);
-                }
-
-                reason = dispatch.Reason;
-                servedBy = AIProviderId.NotSet;
-                if (dispatch.Outcome == PoolDispatchOutcome.Stopped)
-                {
-                    return new(PoolDispatchOutcome.Stopped, default, servedBy, reason);
-                }
-            }
-        }
+        var dispatch = hasPool ? await DispatchPool(role!, call, cancellationToken) : null;
+        if (dispatch?.Outcome is PoolDispatchOutcome.Succeeded or PoolDispatchOutcome.Stopped) return dispatch;
+        if (dispatch is not null) reason = dispatch.Reason;
 
         foreach (var providerId in direct)
         {
-            var attempt = await Attempt(providerId, tier, call, holdSlot, cancellationToken);
+            var attempt = await Attempt(providerId, tier, call, cancellationToken);
             if (attempt.Outcome == PoolAttemptOutcome.Succeeded)
             {
                 return new(PoolDispatchOutcome.Succeeded, attempt.Value.Value, attempt.Value.Provider, string.Empty);
@@ -282,6 +242,39 @@ public sealed class PooledChatClient(
         }
 
         return new(PoolDispatchOutcome.Exhausted, default, servedBy, reason);
+    }
+
+    async Task<ChatDispatch<T>?> DispatchPool<T>(ConfiguredAgent role, ChatCall<T> call, CancellationToken cancellationToken)
+    {
+        var pool = await readModels.GetInstanceById<AIProviderPool>((EventSourceId)role.PoolId!);
+        var members = pool?.Members?.ToList();
+        if (members is not { Count: > 0 }) return null;
+
+        var burn = await providerBurn.TrailingWeek(cancellationToken);
+        var usageLevels = await providerUsageLevels.RefreshMany([.. members.Select(member => member.ProviderId)], cancellationToken);
+        var capacities = await CapacitiesOf(members, cancellationToken);
+        var selection = new PoolSelectionData(
+            burn.Tokens,
+            burn.Sessions,
+            recentProviderFailures.CountsSince(providerOptions.Value.RecentFailureWindow),
+            usageLevels.Where(pair => pair.Value.RemainingCapacity is not null).ToDictionary(pair => pair.Key, pair => pair.Value.RemainingCapacity!.Value))
+        {
+            HeadroomByProvider = capacities.ToDictionary(pair => pair.Key, pair => pair.Value.Headroom)
+        };
+
+        var dispatch = await PoolDispatcher.Dispatch(
+            members,
+            selection,
+            recentProviderFailures,
+            $"No member of pool {role.PoolId} could serve this chat",
+            async (member, ct) => capacities.TryGetValue(member.ProviderId, out var capacity) && !capacity.CanStartWork
+                ? PoolAttempt<(T Value, AIProviderId Provider)>.Skipped($"AI provider {member.ProviderId} cannot start work: it {capacity.Explain()}")
+                : await Attempt(member.ProviderId, role.Tier, call, ct),
+            cancellationToken);
+
+        return dispatch.Outcome == PoolDispatchOutcome.Succeeded
+            ? new(PoolDispatchOutcome.Succeeded, dispatch.Value.Value, dispatch.Value.Provider, string.Empty)
+            : new(dispatch.Outcome, default, AIProviderId.NotSet, dispatch.Reason);
     }
 
     async Task<IReadOnlyDictionary<AIProviderId, AIProviderCapacity>> CapacitiesOf(IReadOnlyCollection<AIProviderPoolMember> members, CancellationToken cancellationToken)
@@ -301,8 +294,7 @@ public sealed class PooledChatClient(
     async Task<PoolAttempt<(T Value, AIProviderId Provider)>> Attempt<T>(
         AIProviderId providerId,
         ModelTier tier,
-        Func<IChatClient, ModelName, CancellationToken, Task<T>> call,
-        bool holdSlot,
+        ChatCall<T> call,
         CancellationToken cancellationToken)
     {
         var provider = await readModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)providerId);
@@ -355,13 +347,13 @@ public sealed class PooledChatClient(
         var keepSlot = false;
         try
         {
-            var value = await call(client, model, cancellationToken);
+            var value = await call.Invoke(client, model, cancellationToken);
             if (value is StartedStream stream)
             {
                 // The stream owns the client and the slot from here - released when it ends.
-                stream.Own(client, holdSlot ? slot : null);
-                keepSlot = holdSlot;
-                if (!holdSlot)
+                stream.Own(client, call.HoldSlot ? slot : null);
+                keepSlot = call.HoldSlot;
+                if (!call.HoldSlot)
                 {
                     slot.Dispose();
                 }
@@ -444,6 +436,8 @@ public sealed class PooledChatClient(
             logger.CouldNotRecordChatUsage(exception, purpose);
         }
     }
+
+    sealed record ChatCall<T>(Func<IChatClient, ModelName, CancellationToken, Task<T>> Invoke, bool HoldSlot = false);
 
     sealed record ChatDispatch<T>(PoolDispatchOutcome Outcome, T? Value, AIProviderId ProviderId, string Reason);
 
