@@ -188,6 +188,35 @@ test('jq and read-only awk programs are pure readers; write, exec and option for
     } finally { repo.dispose(); }
 });
 
+test('leading globs are allowed only on display-only read verbs; every writer and option-capable reader stays refused', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            ...['ls *.csproj', 'ls -la *.csproj', 'git ls-files *.csproj', 'git ls-files -s *.csproj', 'cat *.csproj',
+                'wc -l *.csproj', 'head -n 5 *.csproj', 'tail -n 5 *.csproj', 'grep -n Foo *.csproj', 'grep -n Foo src/*.csproj',
+                'egrep Foo *.csproj', 'fgrep Foo *.csproj', 'cat Directory.Build.props', 'ls Source/*/*.csproj',
+                'ls *.csproj | wc -l', 'ls *.csproj; git status --short', 'ls *.csproj && git ls-files *.cs',
+                // Flipped from BLOCK: a read-only verb with a leading glob; secret reads stay with the secrets guard.
+                'grep x .env *.txt', 'cat - * .env',
+            ].map(command => [ALLOW, command] as [string, string]),
+            ...['rg -n foo *.csproj', 'git diff *.cs', 'git log *.cs', 'git show *.cs', 'git grep foo *.cs', 'git blame *.cs',
+                'git status *.cs', 'git -C . ls-files *.csproj', 'git add *.csproj', 'git commit -m x *.csproj', 'git branch *',
+                'sed -n 1p *.csproj', 'jq . *.json', 'awk 1 *.txt', 'echo *.csproj', 'printf %s *.csproj', 'test -f *.csproj',
+                'cd *', 'cp x *.csproj', 'tee *.csproj', 'sed -i s/a/b/ *.csproj', 'echo x > *.csproj',
+                'shopt -s dotglob; echo x > *.csproj', 'ls *.csproj > *.env', 'ls *.csproj > .env', 'cat *.csproj > .mcp.json',
+                'cat *.csproj >> .env', 'ls *.csproj | tee .env', 'ls *.csproj; cp a *.env', 'ls *.csproj; cp a .mcp.json',
+                'cat *.csproj && echo x > .env', 'git ls-files *.csproj > .mcp.json',
+                'git diff * .env', 'cat -* .env', 'cat [-]* .env', 'cat -- -* .env', 'ls [a-z]*.csproj', "cat '-'* .env",
+                'grep x .env *.txt; cp a .env', 'ls *.csproj $(echo .env)', 'ls `echo *.csproj`', 'ls ${X}*.csproj > .env',
+                'wc --files0-from=* .env', 'wc --files0-from *.csproj', 'grep -f *.csproj x', 'ls -* .env; cp a .env',
+                'cat *.csproj > .e*', 'cat *.csproj > {.env,a}', 'ls *.csproj > $X', 'rm *.csproj', 'touch *.csproj .env',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('literal git filename metadata and grep pattern options are read-only', async () => {
     const repo = scratchRepository();
     try {
@@ -459,7 +488,7 @@ test('only explicit per-verb options are permitted with protected references', a
             'git blame -p .env', 'git checkout .env',
             // Expansions and globs could supply option words the per-verb tables never see.
             'git diff $OPT .env', 'git diff "$OPT" .env', 'git diff ${OPT} .env', 'cat $FLAGS .env',
-            'git diff * .env', 'git diff -- .env ?', 'cat [-]* .env', 'grep x .env *.txt', 'cat -* .env', "cat '-'* .env",
+            'git diff * .env', 'git diff -- .env ?', 'cat [-]* .env', 'cat -* .env', "cat '-'* .env",
             'echo .env; head -n', 'echo .env; grep -e', 'echo .env; git commit -m',
             ...['less', 'more', 'ag', 'sort', 'uniq', 'cut', 'yq', 'stat', 'file', 'diff', 'cmp', 'md5sum', 'shasum', 'sha256sum', 'realpath', 'dirname', 'basename', 'which', 'type', 'gh'].map(verb => `${verb} .env`),
             ...['yq', 'sort', 'uniq', 'gh'].map(verb => `${verb} -- .env`),

@@ -136,7 +136,7 @@ function endword() {
     if (redirect) {
         if (!(redirect == 2 && word ~ /^([0-9]+|-)$/)) {
             file_redirect = 1
-            if (changed_cwd) unparsed = 1
+            if (changed_cwd || lead_glob) unparsed = 1
             if (changed_cwd || word ~ /[$`*?\[{]/ || protected(word)) bad = 1
         }
         redirect = 0
@@ -144,8 +144,9 @@ function endword() {
         if (++argc > 256) fail()
         W[argc] = word
         globbed[argc] = glob
+        leading[argc] = lead_glob
     }
-    word = ""; inword = glob = 0
+    word = ""; inword = glob = lead_glob = 0
 }
 # Each exemption permits only the reviewed read/presentation options below. No unknown
 # options, long-option abbreviations or implicit value-taking short clusters are accepted.
@@ -237,9 +238,15 @@ function print_only_sed(    i, ended) {
     }
     return 1
 }
-function allow_command(    verb, first) {
+# Verbs whose reviewed options are display flags only: a word-leading glob that expands to an option-shaped
+# file name can change what they print, never what they write or run. Every other verb refuses a leading glob.
+function glob_safe() {
+    return W[1] ~ /^(cat|head|tail|wc|ls|grep|egrep|fgrep)$/ || (W[1] == "git" && W[2] == "ls-files")
+}
+function allow_command(    verb, first, i) {
     if (!argc) return
     if (++commands > 64) { fail(); return }
+    for (i = 1; i <= argc; i++) if (leading[i] && !glob_safe()) { cmd_failed = 1; return }
     verb = W[1]; first = 2
     if (verb == "cd") {
         directory_only = 1
@@ -276,7 +283,7 @@ function command_end(separator, upto, resume,    silent) {
     seg_start = resume
     previous_pipe = (separator == "|")
     cmd_redirect = force_emit = 0
-    delete W; delete globbed; argc = 0
+    delete W; delete globbed; delete leading; argc = 0
 }
 function readonly(s,    i, c, c2, sq, dq) {
     lexed = s; seg_start = 1
@@ -292,7 +299,11 @@ function readonly(s,    i, c, c2, sq, dq) {
         # Directory metadata requires a literal -C operand, not a pathname expansion.
         if (c == "*" || c == "?" || c == "[") glob = 1
         # A glob that starts a word, or follows a leading dash, may expand to an option word.
-        if ((c == "*" || c == "?" || c == "[") && (word == "" ? !(c == "[" && c2 ~ /[ \t]/) : substr(word, 1, 1) == "-")) fail()
+        # Only a word-leading * or ? is deferred to the per-verb rule; one after a leading dash, or a leading
+        # bracket class (`[-]*` can name an option), is refused outright.
+        if ((c == "*" || c == "?" || c == "[") && (word == "" ? !(c == "[" && c2 ~ /[ \t]/) : substr(word, 1, 1) == "-")) {
+            if (c == "[" || word != "") fail(); else lead_glob = 1
+        }
         if (c == "#" && !inword) { while (i <= length(s) && substr(s, i, 1) != "\n") i++; c = "\n" }
         if (c == "(" || c == ")" || c == "{" || c == "}") fail()
         if (c == ">" || c == "<" || (c == "&" && c2 == ">")) {
