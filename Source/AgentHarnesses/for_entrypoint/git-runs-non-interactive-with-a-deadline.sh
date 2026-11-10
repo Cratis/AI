@@ -5,7 +5,12 @@
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(mktemp -d)"
-trap 'rm -rf "$root"' EXIT
+# Every assertion is a bare test, so a failure would otherwise exit silently: trace to a file
+# and show its tail when the fixture fails.
+exec 9> "$root/trace"
+BASH_XTRACEFD=9
+trap 'status=$?; if [[ $status -ne 0 ]]; then echo "Failed (exit $status); last traced commands:" >&2; tail -n 40 "$root/trace" >&2; fi; rm -rf "$root"' EXIT
+set -x
 entrypoint="$here/../entrypoint.sh"
 for function in configure_git_noninteractive git_deadline_seconds configure_git_deadline git_safe_url git_timeout_detail run_git_bounded clone_failure_detail clone_into_workspace; do
     awk -v name="$function" '$0 == name "() {" { take=1 } take { print } take && /^}$/ { exit }' "$entrypoint" >> "$root/functions"
