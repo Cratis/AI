@@ -69,11 +69,13 @@
     "Commands are pinned to .cratis/ai/rules/general.md 'Quality Gates' and .cratis/ai/hooks/agent-stop.md.",
     "Note the Release build passes -p:CratisProxiesOutputPath= per general.md so the proxy",
     "generator does not re-run and touch already-correct generated files. That property is the",
-    "only gate: the generator's target is Condition=\"'$(CratisProxiesOutputPath)' != ''\", and",
-    "there is no DisableProxyGenerator property \u2014 MSBuild accepts unknown -p: names silently,",
-    "so passing one looks effective and does nothing. The Debug gate deliberately omits the",
-    "override because general.md makes Debug the canonical proxy-regeneration trigger. A",
-    "consuming repository's own CI should split Debug and Release the same way."
+    "Arc off switch: the generator's target is Condition=\"'$(CratisProxiesOutputPath)' != ''\".",
+    "DisableProxyGenerator is not an Arc property, only repository-defined \u2014 MSBuild accepts",
+    "unknown -p: names silently, so passing it elsewhere looks effective and does nothing.",
+    "The Debug/Release split is for these client-side local hooks only: the committing client's",
+    "Debug gate omits the override because general.md makes Debug the canonical proxy-regeneration",
+    "trigger, and the client commits the result. CI never copies that Debug proxy step: it passes",
+    "-p:CratisProxiesOutputPath= in every configuration."
   ],
   "enabled": true,
   "failFast": true,

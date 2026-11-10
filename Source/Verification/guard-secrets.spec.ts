@@ -59,10 +59,306 @@ test('credential words embedded in source paths do not taint commands', () => {
         [ALLOW, 'mv Specs/for_ApplicationCredentials/a.cs Specs/for_ApplicationCredentials/b.cs'],
         [ALLOW, 'git add a b && git status'],
         ...['cat ~/.aws/credentials', 'git add credentials.json', 'git add .aws/credentials',
-            'git add config/credentials/prod.txt', 'git add config/credentials.json/prod.txt', 'cat Source/credentials', 'rm id_rsa',
+            'git add config/credentials.json/prod.txt', 'cat Source/credentials', 'rm id_rsa',
             'git add .git-credentials', 'cat for_ApplicationCredentials/credentials',
-            'git add Specs/for_ApplicationCredentials', 'git add x && cat .env'].map(command => [BLOCK, command] as [string, string]),
+            'git add x && cat .env'].map(command => [BLOCK, command] as [string, string]),
     ]);
+});
+
+test('source-shaped credential names stay usable without exempting credential files (Cratis/AI#1092)', () => {
+    const sourcePaths = [
+        'Source/X/ICredentialScopeAllowlist.cs',
+        'Source/X/PatCredentialScopeAllowlist.cs',
+        'Source/X/Credentials.cs',
+        'Source/X/ApplicationCredentials.py',
+        'Signing.Key.cs',
+        'Source/X/Signing.Keystore.cs',
+        'Source/X/Signing.Jks.cs',
+        'Source/X/Signing.Kdbx.cs',
+        'Source/X/Credentials.spec.ts',
+        'Source/X/Secrets.tsx',
+        'Source/X/TokenProvider.mjs',
+        'Source/X/Credentials.keywords.ts',
+        'Source/App/RecordingCredentials/RecordingCredentials.ts',
+        'SecretRotation.cs',
+        'TokenRefresher.tsx',
+        'PasswordPolicy.kt',
+        'docs/credentials.md',
+        ...['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'cs', 'fs', 'vb', 'kt', 'kts',
+            'java', 'go', 'ex', 'exs', 'py', 'rb', 'rs', 'swift', 'md', 'mdx',
+            'csproj', 'fsproj', 'vbproj', 'props', 'targets', 'sln', 'slnx',
+            'css', 'scss', 'less', 'html', 'htm', 'razor', 'cshtml', 'resx', 'xaml',
+        ].map(extension => `Source/RecordingCredentials/RecordingCredentials.${extension}`),
+    ];
+    const commands = sourcePaths.flatMap(path => [
+        `git add ${path}`,
+        `git checkout --theirs -- ${path}`,
+        `git commit -m "Update scope allowlist" -- ${path}`,
+        `git mv ${path} Source/X/Renamed.cs`,
+        `git rm ${path}`,
+        `git diff --stat -- ${path}`,
+        `git diff --name-only -- ${path}`,
+        `ls ${path}`,
+        `cat ${path}`,
+    ]);
+    assertVerdicts([
+        ...commands.map(command => [ALLOW, command] as [string, string]),
+        [ALLOW, `git add ${sourcePaths[0]} ${sourcePaths[1]}`],
+        // Backup reads retain their classification; path-only Git operations also permit this non-secret name.
+        [ALLOW, 'cat Credentials.ts.bak'],
+        ...['cat .env', 'cat secrets.pem', 'cat ~/.kube/config', 'cat id_rsa',
+            'git add .env', 'git add credentials.json', 'cat token.json',
+            'cat Source/X/credential.cs.pem', 'cat Source/X/credential.pem.cs',
+            'cat Source/X/credential.cs.pem.', 'git add Source/X/credential.cs.pem',
+            'cat server.key', 'cat server.p12', 'cat server.pfx', 'cat server.jks',
+            'cat server.keystore', 'cat server.kdbx',
+            'cat .aws/credentials', 'cat ~/.git-credentials', 'cat secrets.yaml', 'cat secrets.yml',
+            'cat secrets.yaml.ts', 'cat secrets.yml.cs', 'cat app.env', 'cp credentials.json x.ts',
+            'cat credentials.json.ts', 'git add credentials.json.ts',
+            'git checkout --theirs -- credentials.json.ts', 'cat gcp_credential.json.cs',
+            ...['json', 'yaml', 'yml', 'xml', 'ini', 'toml', 'txt', 'conf', 'properties', 'config']
+                .flatMap(extension => [`cat credentials.${extension}`, `cat credentials.${extension}.ts`]),
+        ].map(command => [BLOCK, command] as [string, string]),
+    ]);
+});
+
+test('credential source exemptions fail closed for nonliteral components (Cratis/AI#1092)', () => {
+    assertVerdicts([
+        ...['cat cred*.json', 'cat credential?.json', 'cat crede*.json',
+            'cat cr[e]dentials.json', 'base64 c*s.json',
+            'cat gcp_credentials.json | base64', 'cat *.pem', 'cat .env*',
+            'cat cred*.cs', 'cat cr[e]dentials.cs', 'git add cred*.cs',
+            'cat credential?.cs', 'cat {credentials,other}.json', 'cat Source/Cred*.cs',
+            'cat Credentials${suffix}.cs',
+            "cat Cre$(echo 'dentials.json x').cs",
+            "cat Cre`echo 'dentials.json x'`.cs",
+            'git show HEAD:Cre$(echo dentials.json)',
+            'git add Cre$(echo dentials.json).cs',
+            'git diff -- Credentials${suffix}.cs',
+            'git restore -- Cred$SUFFIX.cs',
+            'git checkout --theirs -- {credentials.json,other.cs}',
+            'cat "$DIRECTORY"/Credentials.cs', 'git add Signing.Key.*',
+            'cat Source/cred*/Credentials.cs',
+        ].map(command => [BLOCK, command] as [string, string]),
+        [ALLOW, 'git add Signing.Key.cs'],
+        [ALLOW, 'cat Source/{Credentials,Other}.cs'],
+    ]);
+});
+
+test('ordinary singular credential words do not taint compound commands (Cratis/AI#1092)', () => {
+    assertVerdicts([
+        ...['grep -rn credential Source && echo done',
+            'rg CredentialProvider Source | head -5',
+            'git log --oneline --grep credential | head',
+            'echo credential-helper; ls',
+            'cd Source && git add CredentialStore.cs',
+            'grep -n credentialScope Source/X/Scope.cs | wc -l',
+        ].map(command => [ALLOW, command] as [string, string]),
+        ...['cat gcp_credential.json | base64', 'cd x && cat credential_settings.json',
+            'cat credential?.json | base64', 'echo x; cat Cred*.json',
+        ].map(command => [BLOCK, command] as [string, string]),
+    ]);
+});
+
+test('file names built from command substitutions fail closed (Cratis/AI#1095)', () => {
+    // Command output is treated as unresolved text that may supply any part of a name.
+    assertVerdicts([
+        ...["cat Cre$(echo 'dentials.json x').cs",
+            "cat Cre`echo 'dentials.json x'`.cs",
+            "base64 id_r$(echo 'sa y').cs",
+            "cat .en$(printf 'v z').md",
+            'git add Cre$(echo dentials.json).cs',
+            "cat Cre\"$(echo 'dentials.json x')\".cs",
+            "cat 'Cre'$(echo 'dentials.json x')'.cs'",
+            "grep x$(printf ' .en')v",
+            "grep x`printf ' .en'`v",
+            "cat Cre${s:-$(printf 'dentials.json x')}.cs",
+            "cat Cre${s:-`printf 'dentials.json x'`}.cs",
+        ].map(command => [BLOCK, command] as [string, string]),
+        ...['echo "$(date)"',
+            'cat "$(git rev-parse --show-toplevel)/README.md"',
+            'cat $(git rev-parse --show-toplevel)/README.md',
+            'git add Source/X/Credentials.cs',
+            'cat Credentials.cs',
+            'ls $(pwd)/Source',
+            'git add $(git diff --name-only)',
+            'cat $(git ls-files Source)',
+            'wc -l $(find Source -name "*.cs") | tail -1',
+            'cd "$(git rev-parse --show-toplevel)" && ls',
+            'git show HEAD:$(git ls-files | head -1)',
+            'grep -n foo $(git diff --name-only origin/main...HEAD)',
+            'grep -rn "$(cat pattern.txt)" Source',
+            'rg "$(git rev-parse HEAD)" .',
+        ].map(command => [ALLOW, command] as [string, string]),
+    ]);
+});
+
+test('path-only Git operations permit non-secret repository paths in both guards', () => {
+    const shellGuard = join(repositoryRoot, '.cratis/ai/hooks/scripts/cratis-guard-shell-writes.sh');
+    const paths = ['Source/X/credentials.proto', 'Source/X/UnknownCredentials.blob', 'Credentials.ts.bak',
+        'Source/AuthProxy/Credentials/handler.blob', 'Source/App/RecordingCredentials/RecordingCredentials.ts',
+        'Specs/for_ApplicationCredentials', 'config/credentials/prod.txt'];
+    for (const path of paths) {
+        const commands = [`git add ${path}`, `git checkout -- ${path}`, `git checkout --theirs -- ${path}`,
+            `git checkout --ours -- ${path}`, `git restore -- ${path}`, `git rm -- ${path}`,
+            `git mv -- ${path} renamed.blob`, `git diff -- ${path}`, `git log -- ${path}`,
+            `git show HEAD:${path}`, `git show -- ${path}`, `git add ${path} && git diff -- ${path}`];
+        for (const command of commands) {
+            const result = runGuard(command);
+            assert.equal(result.code, 0, `${command}\n${result.stderr}`);
+            const shellResult = spawnSync('bash', [shellGuard], {
+                input: JSON.stringify({ cwd: repositoryRoot, tool_name: 'Bash', tool_input: { command } }),
+                encoding: 'utf8',
+            });
+            assert.equal(shellResult.status, 0, `${command}\n${shellResult.stderr}`);
+        }
+    }
+    const protectedPaths = ['credentials.json', '.aws/credentials', '.git-credentials', '.netrc',
+        'secrets.yaml', 'secrets.yml', 'id_rsa', 'id_ed25519', 'server.pem', 'server.key',
+        'server.p12', 'server.pfx', '.env', '.env.local', 'app.env', 'kubeconfig', 'token', 'credentials.json.ts'];
+    assertVerdicts(protectedPaths.flatMap(path => [
+        `git add ${path}`, `git checkout --theirs -- ${path}`, `git restore -- ${path}`, `git rm -- ${path}`,
+        `git mv -- ${path} x.ts`, `git diff -- ${path}`, `git log -- ${path}`, `git show HEAD:${path}`,
+    ]).map(command => [BLOCK, command] as [string, string]));
+});
+
+test('Git option values never receive positional path exemptions', () => {
+    const cases: Array<[string, string]> = [
+        [BLOCK, 'git add --dry-run --pathspec-from-file=token'],
+        [BLOCK, 'git add --pathspec-from-file token'],
+        [BLOCK, 'git diff --output=.env'],
+        [BLOCK, 'git log -- --pathspec-from-file=.env'],
+    ];
+    for (const path of ['token', 'tokens.json', '-token', '.env', 'id_rsa', 'credentials.json']) {
+        for (const option of ['--pathspec-from-file', '--file', '--output', '--patch-from', '--other-file']) {
+            cases.push([BLOCK, `git log ${option}=${path}`], [BLOCK, `git log ${option} ${path}`]);
+        }
+        for (const option of ['-F', '-o', '-X']) {
+            cases.push([BLOCK, `git log ${option}${path}`], [BLOCK, `git log ${option} ${path}`]);
+        }
+    }
+    cases.push([ALLOW, 'git add --dry-run --pathspec-from-file=Source/CredentialsProvider.cs'],
+        [ALLOW, 'git log -FSource/CredentialsProvider.cs'],
+        [ALLOW, 'git log --file=Source/RecordingCredentials.fs'],
+        [ALLOW, 'git add styles/token.json']);
+    assertVerdicts(cases);
+});
+
+test('known Credentials directories never override a protected parent', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-git-parent-'));
+    try {
+        mkdirSync(join(directory, 'Source/Credentials'), { recursive: true });
+        const source = runGuard('git add -- Source/Credentials', {}, directory);
+        assert.equal(source.verdict, ALLOW, source.stderr);
+        for (const parent of ['.kube', '.env', 'id_rsa', '.AWS']) {
+            mkdirSync(join(directory, parent, 'Credentials'), { recursive: true });
+            const result = runGuard(`git add -- ${parent}/Credentials`, {}, directory);
+            assert.equal(result.verdict, BLOCK, `${parent}\n${result.stderr}`);
+        }
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('the design-note routine and hostile corpus retains its measured behavior', () => {
+    const routine = [
+        'git add Source/App/RecordingCredentials/RecordingCredentials.ts',
+        'git checkout --theirs -- Source/App/RecordingCredentials/RecordingCredentials.ts',
+        'git checkout --ours Source/Auth/CredentialsProvider.cs', 'git add CredentialsProvider.cs',
+        'git add Source/Foo/ApplicationCredentials.cs Source/Foo/CredentialsProvider.cs', 'git diff -- Credentials.cs',
+        'git diff -- Deployment/Specs/for_ApplicationCredentials/when_x/a.cs', 'git show HEAD:src/CredentialsProvider.cs',
+        'git show HEAD~1:src/CredentialsProvider.cs', 'git log -- src/CredentialsProvider.cs',
+        'git restore Source/RecordingCredentials.fs', 'git rm Source/Auth/CredentialsProvider.cs',
+        'git mv Source/Auth/CredentialsA.cs Source/Auth/CredentialsB.cs', 'git add Source/Foo/SecretsManager.kt',
+        'git add Source/Foo/PasswordHasher.java', 'git add Source/Foo/TokenService.go',
+        'git diff Source/App/Credentials/Credentials.tsx', 'git show main:Source/Auth/Credentials.ts',
+        'git status', 'git add a b && git status',
+    ];
+    const hostile = [
+        'cat .env', 'cat ~/.kube/config', 'git add .env', 'git show HEAD:.env', 'git show HEAD:{.env}',
+        'git show {HEAD,main}:.env', 'git show HEAD:a:.env', 'git show :2:.env',
+        'git diff --no-index /etc/passwd secrets.pem', 'git add :(glob)**/.env',
+        'git checkout --ours ~/.ssh/id_rsa', 'git restore ../other/.env', 'git add /home/u/.aws/credentials',
+        'git add $SECRETFILE', 'git show HEAD:$(echo .env)', 'git mv a.cs .env',
+        'kubectl get secret foo -o yaml', 'env', 'printenv', 'cat id_rsa',
+        'git show HEAD:config/{prod,.env}', 'git rm `echo .env`', 'cat service.pem', 'git log -p -- .env',
+        'git diff -- ~/.netrc', 'git add Source/Foo/credentials.json', 'git show HEAD:secrets/prod.key',
+        'gh auth token', 'git show HEAD~1:credentials.json',
+        'git diff -- :(attr:credential)CredentialsProvider.cs', 'cat Cre$(echo dentials.json x).cs',
+    ];
+    // Preserve the documented limits: unquoted ~ stays conservative; a nameless runtime value is undecidable.
+    assertVerdicts(routine.map(command => [command.includes('HEAD~1:') ? BLOCK : ALLOW, command] as [string, string]));
+    assertVerdicts(hostile.map(command => [command === 'git add $SECRETFILE' ? ALLOW : BLOCK, command] as [string, string]));
+});
+
+test('Git revision exemptions use a strict simple-ref and path allowlist', () => {
+    assertVerdicts([
+        [BLOCK, 'git show HEAD^{/:}:id_rsa'],
+        [BLOCK, "git show 'HEAD@{0}:.env'"],
+        [BLOCK, 'git show HEAD:a:id_rsa'],
+        [BLOCK, "git show 'HEAD^{commit}:credentials.json'"],
+        [BLOCK, 'git show HEAD~1:credentials.json'],
+        [BLOCK, 'git show HEAD^2:id_rsa'],
+        [ALLOW, 'git show HEAD:src/CredentialsProvider.cs'],
+        [ALLOW, "git show 'HEAD~1:src/CredentialsProvider.cs'"],
+        [ALLOW, "git show 'HEAD^2:src/CredentialsProvider.cs'"],
+        [ALLOW, 'git show feature/source-ref:src/CredentialsProvider.cs'],
+        [ALLOW, 'git add CredentialsProvider.cs'],
+        [ALLOW, 'git diff -- Credentials.cs'],
+    ]);
+});
+
+test('Git index stages and pathspec magic preserve secret-file classification', () => {
+    const paths = [[BLOCK, 'id_rsa'], [BLOCK, '.envrc'], [BLOCK, 'credentials.json'], [BLOCK, '.aws/credentials'],
+        [ALLOW, 'CredentialsProvider.cs'], [ALLOW, 'Source/RecordingCredentials.fs']];
+    const cases: Array<[string, string]> = [];
+    for (const [verdict, path] of paths) {
+        for (const prefix of [':', ':0:', ':1:', ':2:', ':3:', 'HEAD:']) {
+            cases.push([verdict, `git show ${prefix}${path}`]);
+        }
+        for (const prefix of ['', ':(literal)', ':(top,literal)', ':(icase,literal)', ':(exclude,literal)', ':!', ':^', ':/', ':!:']) {
+            // Complex syntax receives only the conservative checks, not a source-path exemption.
+            const expected = prefix.includes('(') || prefix.includes('^') ? BLOCK : verdict;
+            cases.push([expected, `git diff -- '${prefix}${path}'`]);
+            cases.push([expected, `git add '${prefix}${path}'`]);
+        }
+    }
+    // Unsupported syntax with no protected names falls through; it is never granted an exemption.
+    cases.push([BLOCK, "git diff -- ':(unknown)CredentialsProvider.cs'"],
+        [ALLOW, "git diff -- ':(literal'"], [BLOCK, "git diff -- ':?CredentialsProvider.cs'"],
+        [BLOCK, "git diff -- ':(attr:credential)CredentialsProvider.cs'"]);
+    assertVerdicts(cases);
+});
+
+test('Git exemptions never cover no-index reads or paths outside the repository', () => {
+    const cases: Array<[string, string]> = [];
+    for (const path of ['/run/secrets', '~/.kube', '~/.docker/', '/var/run/secrets']) {
+        cases.push([BLOCK, `git diff --no-index /var/empty ${path}`],
+            [BLOCK, `git diff --no-index -- /var/empty ${path}`]);
+    }
+    for (const path of ['../run/secrets', 'Source/../../run/secrets', '../.docker/', '../.kube']) {
+        cases.push([BLOCK, `git diff -- ${path}`]);
+    }
+    cases.push([BLOCK, 'git diff --no-index empty run/secrets'],
+        [BLOCK, 'git show HEAD:/run/secrets'], [BLOCK, "git diff -- ':(literal)/run/secrets'"],
+        [BLOCK, "git diff -- ':(top,literal)../run/secrets'"]);
+    assertVerdicts(cases);
+});
+
+test('singular and plural credential JSON filenames are protected (Cratis/AI#1092)', () => {
+    const files = ['credentials.json', 'application_default_credentials.json',
+        'gcp_credentials.json', 'gcp_credential.json', 'ApplicationCredentials.json',
+        'Source/X/ApplicationCredentials.json', 'Source/X/credential_settings.json',
+        'gcp_credentials.json.'];
+    assertVerdicts(files.flatMap(file => [
+        [BLOCK, `cat ${file}`],
+        [BLOCK, `cat ${file} | base64`],
+        [BLOCK, `git add ${file}`],
+        [BLOCK, `git commit -m "Update config" -- ${file}`],
+        [BLOCK, `git mv ${file} config.json`],
+        [BLOCK, `git rm ${file}`],
+        [BLOCK, `git diff --stat -- ${file}`],
+        [BLOCK, `git diff --name-only -- ${file}`],
+        [ALLOW, `ls ${file}`],
+    ] as Array<[string, string]>));
 });
 
 test('literal-prefix trailing globs inspect bounded real matches, never shell input', () => {
@@ -79,9 +375,13 @@ test('literal-prefix trailing globs inspect bounded real matches, never shell in
         }
         for (const command of ['cat *', 'cat .env*', 'cat *.pem', 'cat *.key', 'cat id_rsa*',
             'cd "$X" && cat project*', 'pushd d; cat project*', 'cd missing && cat project*',
-            'cd keys && cat server*', 'rg -n foo missing/project*', "rg -n foo 'Dir'$x*"]) {
+            'cd keys && cat server*', "rg -n foo 'Dir'$x*"]) {
             assert.equal(runGuard(command, {}, directory).code, 2, command);
         }
+        // A statically missing operand directory is a no-match, not an unreadable directory.
+        assert.equal(runGuard('rg -n foo missing/project*', {}, directory).code, 0);
+        mkdirSync(join(directory, 'project-directory'));
+        assert.equal(runGuard('cat project*', {}, directory).code, 0);
         assert.equal(runGuard('cat project*', {}, '').code, 2);
         writeFileSync(join(directory, 'options.sh'), 'shopt -s nocaseglob\n');
         for (const env of [{ GLOBIGNORE: 'x' }, { BASH_ENV: join(directory, 'options.sh') }, { ENV: join(directory, 'options.sh') }]) {
@@ -203,7 +503,9 @@ test('source folder metadata and staging never exempt credential content reads',
         for (const path of folders.split(' ')) mkdirSync(join(directory, path), { recursive: true });
         for (const command of [`git ls-files ${folders}`, `ls ${folders}`, `git status --short -- ${folders}`,
             `git diff --stat -- ${folders}`, `git add ${folders}`, 'git add -v -- Source/AuthProxy/Credentials',
-            'git status --porcelain=v1 -- Source/AuthProxy/Credentials', 'git diff --numstat -- Source/AuthProxy/Credentials']) {
+            'git status --porcelain=v1 -- Source/AuthProxy/Credentials', 'git diff --numstat -- Source/AuthProxy/Credentials',
+            'git diff --stat -p -- Source/AuthProxy/Credentials', 'git diff --stat --patch -- Source/AuthProxy/Credentials',
+            'git add -p Source/AuthProxy/Credentials', 'git add --interactive Source/AuthProxy/Credentials']) {
             const result = runGuard(command, {}, directory);
             assert.equal(result.code, 0, `${command}\n${result.stderr}`);
         }
@@ -213,8 +515,6 @@ test('source folder metadata and staging never exempt credential content reads',
             'git show HEAD:.env', 'git grep -e x -- Source/AuthProxy/Credentials/.env',
             'git grep -e x -- Source/AuthProxy/Credentials/credentials.json',
             'git status -v -- Source/AuthProxy/Credentials', 'git status --verbose -- Source/AuthProxy/Credentials',
-            'git diff --stat -p -- Source/AuthProxy/Credentials', 'git diff --stat --patch -- Source/AuthProxy/Credentials',
-            'git add -p Source/AuthProxy/Credentials', 'git add --interactive Source/AuthProxy/Credentials',
             'git -c alias.status=show status Source/AuthProxy/Credentials',
             'git status --short -- Source/AuthProxy/Credentials && cat .env',
             'git diff --stat -- Source/AuthProxy/Credentials; git show HEAD:.env',
@@ -236,10 +536,11 @@ test('original read lanes allow directory globs only with proven read-only conte
         for (const path of ['Source/AuthProxy.Security.Specs/Security.csproj', 'Source/Aspire.Specs/Aspire.csproj', 'Directory.Build.props', '.cratis/ai/rules/project.md', 'Source/Admin.Specs/Admin.Specs.csproj', 'Source/Infrastructure/Infrastructure.csproj']) writeFileSync(join(directory, path), 'synthetic fixture');
         for (const command of commands) assert.equal(runGuard(command, {}, directory).code, 0, command);
         assert.equal(runGuard('rg -n foo Source/Directory.Build.*', {}, directory).code, 0);
+        assert.equal(runGuard('rg -l foo missing/project*', {}, directory).code, 0);
         assert.equal(runGuard(commands[0], { CDPATH: directory }, directory).code, 0);
         assert.equal(runGuard('cd Source && rg -n foo Directory.Build.*', { CDPATH: directory }, directory).code, 2);
         for (const command of ['z keys && rg -n foo Source/Directory.Build.*', 'git diff --cc; rg -n foo Source/Directory.Build.*',
-            'git diff --cc && rg -n foo Source/Directory.Build.* && touch marker', 'rg -l foo missing/project*',
+            'git diff --cc && rg -n foo Source/Directory.Build.* && touch marker',
             'rg -n password .env*', 'git show HEAD:.env']) assert.equal(runGuard(command, {}, directory).code, 2, command);
         writeFileSync(join(directory, 'Source/Directory.Build.private.key'), 'synthetic fixture');
         assert.equal(runGuard(commands[0], {}, directory).code, 2);
@@ -659,6 +960,7 @@ test('reading credential files is blocked; templates and source files are not', 
         [BLOCK, "awk '{print}' .env"],
         [BLOCK, "awk -F: '{print $1}' .npmrc"],
         [BLOCK, 'jq . ~/.docker/config.json'],
+        [BLOCK, 'jq . .env'],
         [BLOCK, 'sort .env'],
         [BLOCK, 'base64 -d .env'],
         [BLOCK, 'cut -d= -f2 .env'],
@@ -678,6 +980,65 @@ test('reading credential files is blocked; templates and source files are not', 
         [ALLOW, 'cat Source/Themes/tokens.json'],
         [ALLOW, 'cat Source/Settings/appsettings.json'],
     ]);
+});
+
+test('.env is a protected stem only as a whole file stem, not inside a longer word', () => {
+    assertVerdicts([
+        [ALLOW, 'gh issue view 1 --repo org/Org.DS.EnvironmentalReporting --json state'],
+        [ALLOW, 'gh issue view 120 --repo some-org/Org.DS.EnvironmentalReporting --json state'],
+        [ALLOW, 'dotnet Source/Environments.Specs/bin/Release/net11.0/Cratis.Environments.Specs.dll'],
+        [ALLOW, 'rg -n foo Source/Environments.Specs'],
+        [ALLOW, 'ls Source/Environments.Specs'],
+        [ALLOW, 'git add src/Feature/for_Thing/when_building/for_a_case.environment.txt'],
+        [ALLOW, 'git commit -m "Update Cratis.Environments.Specs goldens"'],
+        [BLOCK, 'cat .env'],
+        [BLOCK, 'cat .env.local'],
+        [BLOCK, 'cat .ENV'],
+        [BLOCK, 'cat .Env.Local'],
+        [BLOCK, 'cat config/app.env'],
+        [BLOCK, 'cat apps/web/.env.production'],
+        [BLOCK, 'head -n 3 .env.production'],
+        [BLOCK, 'cat .envrc'],
+        [BLOCK, 'cat sub/.envrc'],
+        [BLOCK, 'cat .env_local'],
+        [BLOCK, 'cat .env-prod'],
+        [BLOCK, 'cat .env*'],
+        [BLOCK, 'cat .e*'],
+        [BLOCK, 'cat *.env'],
+        [BLOCK, 'cat "$PWD/.env"'],
+        [BLOCK, 'git add .env'],
+        [BLOCK, 'git add config/app.env'],
+        [BLOCK, 'cat .env && cat Org.Environments.txt'],
+        // Unresolved glob syntax in or after the stem may still resolve to a protected file.
+        [BLOCK, "jq --rawfile x .en?r? -n '$x'"],
+        [BLOCK, 'cat .en?r?'],
+        [BLOCK, 'cat .en[v]rc'],
+        [BLOCK, 'cat .e?v'],
+        [BLOCK, 'cat .e?vrc'],
+        [BLOCK, 'cat app.en?'],
+        [BLOCK, 'cat sub/.en?r*'],
+    ]);
+});
+
+test('an expansion marker after or inside the .env stem keeps it protected', () => {
+    const names = [
+        '.env$x',
+        '.env${X}',
+        '.en$v',
+        '.env`cmd`',
+        ".env$'\\x72c'",
+        '.env\\rc',
+        '.env"rc"',
+        ".e'nv'",
+        ".env'rc'",
+        '.env~',
+        '.env{rc,}',
+        '.env{rc,x}',
+    ];
+    assertVerdicts(names.flatMap(name => [
+        [BLOCK, `cat ${name}`],
+        [BLOCK, `jq --rawfile x ${name} -n '$x'`],
+    ] as [typeof BLOCK, string][]));
 });
 
 test('a word that only appears inside a string argument, a comment or a here-document is not a finding', () => {
@@ -704,78 +1065,80 @@ test('a word that only appears inside a string argument, a comment or a here-doc
     ]);
 });
 
+const cheapBypassCases: Array<[expected: string, command: string]> = [
+    [BLOCK, '/usr/bin/env'],
+    [BLOCK, '/usr/bin/printenv TOKEN'],
+    [BLOCK, 'command env'],
+    [BLOCK, 'command -p env'],
+    [ALLOW, '/usr/bin/printenv HOME'],
+    [ALLOW, 'command -v env'],
+    [ALLOW, '/usr/bin/env FOO=1 true'],
+    [BLOCK, 'grep -ePATTERN .env'],
+    [BLOCK, 'grep -nePATTERN .env'],
+    [BLOCK, 'rg -ePATTERN .env'],
+    [BLOCK, 'grep -m5 PATTERN .env'],
+    [BLOCK, "sed -ne 's/a/b/p' .env"],
+    [ALLOW, 'grep -ePATTERN README.md'],
+    [ALLOW, 'grep -m5 PATTERN README.md'],
+    [ALLOW, 'sed -i.bak s/a/b/ README.md'],
+    [ALLOW, 'grep -ePATTERN .env.example'],
+    [BLOCK, "kubectl get pod web -o jsonpath='{.}'"],
+    [BLOCK, "kubectl get pods -ojsonpath={.items[*]}"],
+    [BLOCK, "kubectl get pod web -o go-template='{{.}}'"],
+    [BLOCK, "kubectl get cm app --output=go-template='{{ . }}'"],
+    [BLOCK, "kubectl get pod web -o go-template --template '{{.}}'"],
+    [ALLOW, "kubectl get pod web -o jsonpath='{.metadata.name}'"],
+    [BLOCK, "kubectl get pods -o go-template='{{range .items}}{{.metadata.name}}{{end}}'"],
+    [ALLOW, "kubectl get svc web -o jsonpath='{.}'"],
+    [BLOCK, 'env > /tmp/dump.txt && cat /tmp/dump.txt'],
+    [BLOCK, 'printenv >dump.txt; cat ./dump.txt'],
+    [BLOCK, 'env >> dump.txt; grep . dump.txt'],
+    [BLOCK, 'env > dump.txt; echo done'],
+    [BLOCK, 'export > dump.txt'],
+    [BLOCK, 'declare -x > dump.txt'],
+    [ALLOW, 'printenv HOME > home.txt'],
+    [BLOCK, 'printenv TOKEN > dump.txt'],
+    [BLOCK, 'printenv TOKEN > /dev/stderr'],
+    [BLOCK, 'export -p > /dev/stdout'],
+    [BLOCK, 'printenv TOKEN > /dev/fd/1'],
+    [BLOCK, 'printenv TOKEN > /./dev/stdout'],
+    [BLOCK, 'printenv TOKEN > dump.txt >"/dev/stdout"'],
+    [BLOCK, 'env > //dev/stderr'],
+    [BLOCK, 'O=/dev/stderr; env > $O'],
+    [BLOCK, 'O=/dev/stderr; env > "$O"'],
+    [BLOCK, 'env > ${TTY}'],
+    [BLOCK, 'cd /dev; env > stderr'],
+    [BLOCK, 'env > /proc/self/task/1/fd/1'],
+    [BLOCK, 'kubectl get > /dev/stdout secrets'],
+    [BLOCK, 'kubectl get 2>/dev/null secrets'],
+    [BLOCK, 'docker > /dev/stdout inspect x'],
+    [BLOCK, 'grep x < .env'],
+    [BLOCK, 'grep ">x" .env'],
+    [ALLOW, 'kubectl get > pods.txt pods'],
+    [BLOCK, 'kubectl get > "/dev/stdout" secrets'],
+    [BLOCK, 'kubectl get 2>&1 secrets'],
+    [BLOCK, 'kubectl get &>/dev/null secrets'],
+    [BLOCK, 'kubectl get >| out secrets'],
+    [BLOCK, 'grep 1">"x .env'],
+    [ALLOW, 'kubectl get 1">"x pods'],
+    [ALLOW, 'kubectl get pods 2>&1 | tee pods.txt'],
+    [BLOCK, 'grep -nT PASSWORD .env'],
+    [BLOCK, 'grep -iT x .env'],
+    [BLOCK, 'grep -nT x ~/.netrc'],
+    [BLOCK, 'grep -nT x id_rsa'],
+    [BLOCK, 'grep -T PASSWORD .env'],
+    [BLOCK, 'grep -nt x .env'],
+    [BLOCK, 'grep -ng x .env'],
+    [BLOCK, 'rg -tjs x .env'],
+    [ALLOW, 'grep -nT PASSWORD README.md'],
+    [ALLOW, 'rg -t js x README.md'],
+    [ALLOW, 'echo hi > out.txt; cat out.txt'],
+    [ALLOW, 'kubectl get pods -o name > pods.txt; cat pods.txt'],
+    [BLOCK, 'grep ">" .env'],
+];
+
 test('the cheap bypasses are closed: wrapper paths, attached short options, whole-object projections and redirect dumps (Cratis/AI#871)', () => {
-    assertVerdicts([
-        [BLOCK, '/usr/bin/env'],
-        [BLOCK, '/usr/bin/printenv TOKEN'],
-        [BLOCK, 'command env'],
-        [BLOCK, 'command -p env'],
-        [ALLOW, '/usr/bin/printenv HOME'],
-        [ALLOW, 'command -v env'],
-        [ALLOW, '/usr/bin/env FOO=1 true'],
-        [BLOCK, 'grep -ePATTERN .env'],
-        [BLOCK, 'grep -nePATTERN .env'],
-        [BLOCK, 'rg -ePATTERN .env'],
-        [BLOCK, 'grep -m5 PATTERN .env'],
-        [BLOCK, "sed -ne 's/a/b/p' .env"],
-        [ALLOW, 'grep -ePATTERN README.md'],
-        [ALLOW, 'grep -m5 PATTERN README.md'],
-        [ALLOW, 'sed -i.bak s/a/b/ README.md'],
-        [ALLOW, 'grep -ePATTERN .env.example'],
-        [BLOCK, "kubectl get pod web -o jsonpath='{.}'"],
-        [BLOCK, "kubectl get pods -ojsonpath={.items[*]}"],
-        [BLOCK, "kubectl get pod web -o go-template='{{.}}'"],
-        [BLOCK, "kubectl get cm app --output=go-template='{{ . }}'"],
-        [BLOCK, "kubectl get pod web -o go-template --template '{{.}}'"],
-        [ALLOW, "kubectl get pod web -o jsonpath='{.metadata.name}'"],
-        [BLOCK, "kubectl get pods -o go-template='{{range .items}}{{.metadata.name}}{{end}}'"],
-        [ALLOW, "kubectl get svc web -o jsonpath='{.}'"],
-        [BLOCK, 'env > /tmp/dump.txt && cat /tmp/dump.txt'],
-        [BLOCK, 'printenv >dump.txt; cat ./dump.txt'],
-        [BLOCK, 'env >> dump.txt; grep . dump.txt'],
-        [BLOCK, 'env > dump.txt; echo done'],
-        [BLOCK, 'export > dump.txt'],
-        [BLOCK, 'declare -x > dump.txt'],
-        [ALLOW, 'printenv HOME > home.txt'],
-        [BLOCK, 'printenv TOKEN > dump.txt'],
-        [BLOCK, 'printenv TOKEN > /dev/stderr'],
-        [BLOCK, 'export -p > /dev/stdout'],
-        [BLOCK, 'printenv TOKEN > /dev/fd/1'],
-        [BLOCK, 'printenv TOKEN > /./dev/stdout'],
-        [BLOCK, 'printenv TOKEN > dump.txt >"/dev/stdout"'],
-        [BLOCK, 'env > //dev/stderr'],
-        [BLOCK, 'O=/dev/stderr; env > $O'],
-        [BLOCK, 'O=/dev/stderr; env > "$O"'],
-        [BLOCK, 'env > ${TTY}'],
-        [BLOCK, 'cd /dev; env > stderr'],
-        [BLOCK, 'env > /proc/self/task/1/fd/1'],
-        [BLOCK, 'kubectl get > /dev/stdout secrets'],
-        [BLOCK, 'kubectl get 2>/dev/null secrets'],
-        [BLOCK, 'docker > /dev/stdout inspect x'],
-        [BLOCK, 'grep x < .env'],
-        [BLOCK, 'grep ">x" .env'],
-        [ALLOW, 'kubectl get > pods.txt pods'],
-        [BLOCK, 'kubectl get > "/dev/stdout" secrets'],
-        [BLOCK, 'kubectl get 2>&1 secrets'],
-        [BLOCK, 'kubectl get &>/dev/null secrets'],
-        [BLOCK, 'kubectl get >| out secrets'],
-        [BLOCK, 'grep 1">"x .env'],
-        [ALLOW, 'kubectl get 1">"x pods'],
-        [ALLOW, 'kubectl get pods 2>&1 | tee pods.txt'],
-        [BLOCK, 'grep -nT PASSWORD .env'],
-        [BLOCK, 'grep -iT x .env'],
-        [BLOCK, 'grep -nT x ~/.netrc'],
-        [BLOCK, 'grep -nT x id_rsa'],
-        [BLOCK, 'grep -T PASSWORD .env'],
-        [BLOCK, 'grep -nt x .env'],
-        [BLOCK, 'grep -ng x .env'],
-        [BLOCK, 'rg -tjs x .env'],
-        [ALLOW, 'grep -nT PASSWORD README.md'],
-        [ALLOW, 'rg -t js x README.md'],
-        [ALLOW, 'echo hi > out.txt; cat out.txt'],
-        [ALLOW, 'kubectl get pods -o name > pods.txt; cat pods.txt'],
-        [BLOCK, 'grep ">" .env'],
-    ]);
+    assertVerdicts(cheapBypassCases);
 });
 
 test('the block message names the alternative and the incident procedure', () => {
@@ -1404,4 +1767,48 @@ test('the guard refuses every call when jq is missing', () => {
     } finally {
         isolated.dispose();
     }
+});
+
+test('jq, yq and awk programs that read the process environment are refused', () => {
+    const refused = [
+        'jq -n env', "jq -n '$ENV'", "jq -n 'env.HOME'", "jq -n '$ENV.PATH'", "jq -n '$ENV[\"X\"]'", "jq -rn 'env | keys'",
+        "jq -n '[env|to_entries[]]'", 'jq --arg a 1 -n env', "jq -n --arg a 1 '$ENV'", "jq -n 'env|.[]'", "echo '{}' | jq 'env'",
+        "jq -n 'env' > out.json", 'cat x | jq env',
+        "awk 'BEGIN { print ENVIRON[\"HOME\"] }'", "awk 'BEGIN { for (k in ENVIRON) print k, ENVIRON[k] }'", "gawk 'BEGIN { print ENVIRON[\"X\"] }'",
+        "awk -v x=1 'BEGIN { for (k in ENVIRON) print k }'", "awk -e 'BEGIN { print ENVIRON[\"X\"] }'",
+        "gawk 'BEGIN { print PROCINFO[\"pid\"] }'", "gawk 'BEGIN { print SYMTAB[\"ENV\" \"IRON\"][\"X\"] }'",
+        "mawk 'BEGIN { print ENVIRON[\"X\"] }'", "nawk 'BEGIN { print ENVIRON[\"X\"] }'",
+        "busybox awk 'BEGIN { print ENVIRON[\"X\"] }'",
+        'jq -en env', 'jq -e -n env', "jq -ne '$ENV'", "jq -n -e '$ENV'", "jq --args -n '$ENV' a", 'gojq -n env', "jaq -n 'env'",
+        'yq eval env', "yq e 'env(HOME)'", "yq ea 'strenv(X)'", "yq eval -n 'env(HOME)'", 'yq -n env', "yq -n '{a: env}'",
+        "yq -n 'env(HOME)'", "yq -n 'strenv(HOME)'", "yq -n '$ENV'", "jq -n 'getenv'",
+        "yq -n '\"x\" | envsubst'", "yq -n '\"${HOME}\" | envsubst'", "yq e '.a | envsubst' f.yaml", "yq -n '\"x\"|envsubst(nu)'",
+    ];
+    const allowed = [
+        "jq '{envelope: 1}' c.json", "jq '.environment | keys' c.json", "yq '.envsubstitution' c.yaml",
+        "jq -r '.[] | .environment' c.json",
+        "jq '.environment' c.json", "jq -n '1+1'", 'jq . data.json', "awk '{print $1}' notes.txt", "awk -F, '{print $2}' data.csv",
+        "jq --arg envname x '.a' f.json", 'cat env.md',
+    ];
+    assertVerdicts([
+        ...refused.map(command => [BLOCK, command] as [string, string]),
+        ...allowed.map(command => [ALLOW, command] as [string, string]),
+    ]);
+});
+
+test('named backup and variant copies of env files are protected while templates and source files stay readable', () => {
+    const copies = ['app.env.bak', 'app.env.old', 'foo.env.orig', 'prod.env.local', 'a.env.swp', 'config/app.env~', 'app.env.bak.1',
+        'staging.env.backup', 'x.env.json', '.env.bak', '.env.orig', '.env.swp', '.env~', '.env.old',
+        'app.env.json', 'prod.env.yaml', 'x.env.config', 'app.env.local', 'a.env.yml', 'a.env.xml', 'a.env.ini', 'a.env.txt', 'a.env.conf', 'a.env.properties', 'a.env.dat'];
+    const refused = copies.flatMap(name => [`cat ${name}`, `head ${name}`, `jq --rawfile x ${name} -n '$x'`, `cp ${name} /tmp/y`, `grep k ${name}`]);
+    const allowed = ['.env.example', '.env.sample', '.env.template', 'foo.env.example', 'app.env.template', '.env.dist', '.env.defaults',
+        'Org.DS.EnvironmentalReporting', 'Cratis.Environments.Specs', 'a.environment.txt', 'Cratis.Env.cs', 'a.env.ts', 'app.env.d.ts',
+        'app.env.md', 'src/env.ts', 'env.md', 'Org.Env.Settings.cs',
+        'Org.Env.Specs.csproj', 'Org.Env.sln', 'Org.Env.Settings.props', 'Cratis.Env.Abstractions/Cratis.Env.Abstractions.csproj',
+        'Cratis.Env.dll.config.css', 'my.env.css', 'my.env.html', 'X.Env.targets', 'X.Env.slnx', 'X.Env.fsproj', 'X.Env.vbproj', 'a.env.scss',
+        'a.env.less', 'a.env.htm', 'a.env.razor', 'a.env.cshtml', 'a.env.resx', 'a.env.xaml'].map(name => `cat ${name}`);
+    assertVerdicts([
+        ...refused.map(command => [BLOCK, command] as [string, string]),
+        ...allowed.map(command => [ALLOW, command] as [string, string]),
+    ]);
 });

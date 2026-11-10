@@ -61,7 +61,7 @@ verified slice and an outcome report). `bundle.json` lists them with their paths
   "name": "screenplay-session",
   "version": "1.4.0",
   "source": { "repository": "https://github.com/Cratis/AI", "commit": "<sha>" },
-  "screenplay": { "verifiedWith": "6.4.0" },
+  "screenplay": { "verifiedWith": "6.11.0" },
   "forms": {
     "claude-code": { "plugin": ".", "systemPrompt": "system-prompt.md" },
     "agents-md": { "instructions": "AGENTS.md" },

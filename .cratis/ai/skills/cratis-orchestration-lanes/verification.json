@@ -8,7 +8,7 @@
     { "kind": "skill-contains", "value": "Record every takeover in the register" },
     { "kind": "skill-contains", "value": "references/inbox-and-handover.md" },
     { "kind": "skill-contains", "value": "references/lane-brief.md" },
-    { "kind": "skill-contains", "value": "references/context-handoff.md" },
+    { "kind": "skill-contains", "value": "../cratis-session-handoff/SKILL.md" },
     { "kind": "skill-contains", "value": "Stopping and escalating never wait" },
     { "kind": "skill-contains", "value": "Answer from evidence, not memory" }
   ]

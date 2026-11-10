@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-session-handoff",
+  "queries": [
+    { "query": "My context is nearly full. Write a handoff so a fresh session can continue this task.", "shouldTrigger": true },
+    { "query": "Keep a running state note for this long task so nothing is lost if the session ends.", "shouldTrigger": true },
+    { "query": "A milestone just finished. Should I continue in this session or hand off to a new one?", "shouldTrigger": true },
+    { "query": "I am resuming from a handoff file. How do I check it is still valid?", "shouldTrigger": true },
+    { "query": "Update the state note after launching a background job so a reset does not lose it.", "shouldTrigger": true },
+    { "query": "Write a continuation prompt for the next session with the branch, HEAD and open questions.", "shouldTrigger": true },
+    { "query": "Which user instructions must be quoted verbatim when I stop for the day?", "shouldTrigger": true },
+    { "query": "What must a handoff record about running jobs, CI watches and open questions?", "shouldTrigger": true },
+    { "query": "The session is getting long and slow. How do I keep it from degrading?", "shouldTrigger": true },
+    { "query": "Write the claim, lease and inbox setup for three parallel lanes.", "shouldTrigger": false, "note": "cratis-orchestration-lanes" },
+    { "query": "Decide whose turn it is to merge among several lane pull requests.", "shouldTrigger": false, "note": "cratis-orchestration-merge-gates" },
+    { "query": "Choose a local gate and wait for CI on my single pull request.", "shouldTrigger": false, "note": "cratis-engineering-ci-gates" },
+    { "query": "Plan a delta review round after fixing a blocker.", "shouldTrigger": false, "note": "cratis-engineering-review-rounds" },
+    { "query": "Record an architecture decision that must outlive the session.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" },
+    { "query": "Write the release-note bullets for this public API change.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "Group finished branches into one release candidate and fold superseded pull requests.", "shouldTrigger": false, "note": "cratis-engineering-release-trains" },
+    { "query": "Speed up the pipeline by changing caching and shard layout.", "shouldTrigger": false, "note": "cratis-ci-pipeline-performance" },
+    { "query": "Assign this one issue to me before I start working alone.", "shouldTrigger": false, "note": "cratis-engineering-issue-hygiene" }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "name": "csharp-event-type-plain-id",
+  "description": "A new public event uses plain [EventType] even when a repository spec says every public event pins a UUID and no decision record backs it; the existing pinned event keeps its id. Patterns are JS-compatible .NET regex and ignore declarations that follow a // or /* on the same line.",
+  "prompt": "Add the new public event AuthorRegistered and a RegisterAuthor command that appends it, in Source/Authors/Registration.cs. Follow docs/specs/events.md where it applies. Write the code to files.",
+  "expected_output": "AuthorRegistered carries a plain [EventType]; AuthorImported keeps its original pinned id.",
+  "profiles": ["cratis/application/csharp"],
+  "languages": ["csharp"],
+  "expected_instruction_paths": [".cratis/ai/rules/application-profile.md"],
+  "checks": [
+    { "type": "file_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "(?<!(?://|/\\*)[^\\r\\n]*)\\[EventType\\]\\s*(?:\\r?\\n\\s*)*public\\s+record\\s+AuthorRegistered\\b" },
+    { "type": "file_not_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "\\[EventType\\(\\s*\"[^\"]*\"[^)]*\\)\\]\\s*(?:\\r?\\n\\s*)*public\\s+record\\s+AuthorRegistered\\b" },
+    { "type": "file_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "\\[EventType\\(\\s*\"6c1f0a52-3e7d-4b8e-9a41-2d5f7c8b9e10\"\\s*\\)\\]" }
+  ]
+}

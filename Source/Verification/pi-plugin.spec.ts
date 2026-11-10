@@ -284,7 +284,7 @@ test('packaged Pi delivers unchanged work-artifact safety at C#-only session sta
         assert.ok(!rulesForPath(project, '.ai-work/815/handover.md').some(rule => rule.name === 'local-work-artifacts.md'), 'universal safety is already delivered, not deferred to a path read');
         const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
         assert.ok(result.systemPrompt.includes(safety), 'the actual packaged startup handler delivers the entire safety rule');
-        for (const text of ['`.ai-work/`', 'A session prompt or handover states when it is valid.', 'Check the preconditions before acting on a prompt.', 'A worktree is a work record too.', 'cratis-cleanup-worktrees.sh', 'locked worktrees are always kept', 'Never `--force` a removal']) {
+        for (const text of ['`.ai-work/`', 'A session prompt or handover states when it is valid.', 'Check the preconditions before acting on a prompt.', 'A worktree is a work record too.', '$HOME/.worktrees/<name>', 'cratis-cleanup-worktrees.sh', 'locked worktrees are always kept', 'Never `--force` a removal']) {
             assert.ok(result.systemPrompt.includes(text), text);
         }
         assert.doesNotMatch(result.systemPrompt, /# How to write documentation/);

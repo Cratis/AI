@@ -9,6 +9,7 @@
 - Writing through MCP
 - Specifications
 - Slices and flows
+- Finding crosswalk
 - Stop conditions
 
 How black-box signals become candidate Screenplay elements. Signals are hypotheses: each result
@@ -85,11 +86,29 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
   Give the query a `performer` body (`cratis-screenplay-read-surface`, "Performer bodies are
   rendered") that applies the probed threshold, the inclusive or exclusive edge and the excluded
   states, and name the threshold as a constant in the body. Stage renders the body, so the
-  rendered app serves the rule. Specify the boundary with `given readmodel` rows on fixed dates
+  rendered app serves the rule. The semantic sandbox, `screenplay test` and Stage
+  spec runs leave a performer body out, so verify a performer-held
+  rule against the rendered app (`cratis run --engine eventmodel`, or render) or fixture-dated
+  specs; mark it `performer-held, sandbox-unverified`, never `expressed-and-checked`. Specify the boundary with `given readmodel` rows on fixed dates
   (threshold minus one, equal, plus one), and record "today-relative filter not declarative"
-  as a platform gap row in `event-model.md` (check the Screenplay and Stage trackers before
-  filing).
+  as a platform gap row in `event-model.md` (search the Screenplay and Stage trackers first and
+  comment on a matching open issue rather than filing a duplicate).
   An unprobed threshold stays `unknown`; never write a guessed number.
+- **Queries**: an optional argument seen in UI traffic, a capture or a probe becomes
+  `filter <name> <Type> optional` on the query; "observed to filter, model does not declare"
+  is not an acceptable note.
+- **Toggles clear what the inverse clears**: when a probe shows the inverse command reset a
+  field (a completed-at timestamp on reopen), the projection resets it too.
+- **Ownership and state-reading authorization** ("only the owner may change X"): probe it as
+  a second caller, record it as an authorization finding, and never drop it. The policy form
+  admits caller conditions only (`authenticated`, roles); a rule that reads state is not
+  expressible, so write a `GAP` line citing the open Cratis/Screenplay issues on state-reading
+  authorization policies (search the tracker for the numbers) and keep the rule as an anchored `question` note. Do not invent syntax.
+- **Cross-field rules** ("a first or a last name"): write a declarative
+  `require <condition>` with a `message`, for example
+  `require firstName != "" or lastName != ""`. A fenced code body is a last resort; its
+  shape (yielded messages, the fields it can read) is in `cratis-screenplay-command-surface`,
+  and a body Stage cannot compile makes that command unsupported.
 - **Cascades and observed defects**: a cascade (deleting a parent removes its children) is an
   automation: model it when the dialect allows, else list it in `event-model.md`. Model the
   intended behavior of an observed defect and flag the defect.
@@ -123,6 +142,12 @@ proposal. The contract and the refusal handling belong to that skill; this skill
 - A specification needs both sides seen: the state before and the state after. One side alone is
   an `unknown`, not a specification.
 - Use observed values for given and expected data; replace personal data with fixtures.
+- An event field stamped from `$context.occurred` (occurredAt, completedAt, changedAt) still
+  needs an explicit value in every `given` and `then` of a specification; a missing one is
+  PLAY0524, an error that skips the whole folder, and Stage refuses the whole model for it.
+  Write each such specification with a `given clock` line and use that same timestamp as the
+  field's value in the `then`. Before validation, list every event field mapped from
+  `$context.occurred` and check that each specification of that event supplies it.
 - A UI success proves a state change was shown. It does not prove uniqueness, idempotency or
   atomicity: those stay `unknown` until a capture or a person confirms them.
 - Optional properties are not defaulted in specifications, so each specification must list
@@ -145,6 +170,16 @@ proposal. The contract and the refusal handling belong to that skill; this skill
   fact uses the `produces ... for <field>` form, not a second command.
 - Where the capture shows ordering (create, then list, then edit), keep it as the flow, and
   state which ordering is observed and which is assumed.
+
+## Finding crosswalk
+
+Before validation, list every numbered finding and probe row of `re/PROBES.md` with the model
+construct that encodes it (projection line, `require`, filter, performer, spec) or a `GAP` line
+with its cause: `skill` (not yet encoded), `platform` (the dialect cannot express it) or
+`not probed`. A query that projects a time rule also needs the fields it reads (received-on,
+last-activity, stage status, completed flag): per rule, cite the `from <Event>` line that
+populates each; a finding that an event sets a field with no projection line is a defect.
+A finding with neither is unfinished; a `skill` cause is fixed now, not reported.
 
 ## Stop conditions
 

@@ -1,5 +1,7 @@
 # 0007 - Pin explicit event type ids on every provider CRUD event
 
+> **2026-11-10 — qualified by decision 152.** Pinning explicit event type ids is no longer the default for future events: new events use plain `[EventType]`, and an explicit id is allowed only to retain an already-persisted id or resolve a cross-package short-name collision. Pins already persisted here remain valid. The decision text below is unchanged.
+
 Status: Accepted - the id *values* chosen here (fresh guids) were wrong for Direct's actual cutover;
 see decision 0008, which corrects them to match Direct's own pre-existing implicit ids. The
 standing rule this record establishes (always pin explicitly) is unchanged and still in force.

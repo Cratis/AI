@@ -3,17 +3,17 @@
 Cratis repositories come in **two profiles**, and the rules are scoped to them. **Identify your profile first** — it decides which rules apply.
 
 - **Application profile (default)** — you are *building an application on Cratis*: event-sourced CQRS with **Cratis Chronicle** + **Cratis Arc**, vertical slices, read models persisted to MongoDB/EF Core, and a React + Cratis Components (4.x) frontend in MVVM. Most of this corpus targets this profile.
-- **Framework profile** — you are *contributing to a Cratis framework repository itself* (Arc, Chronicle, Fundamentals, Components, …). These are **libraries** — source generators, the Chronicle kernel (Orleans grains + storage), client SDKs, a React component library — **not** vertical-slice event-sourced apps. The application-architecture rules here **do not apply**; follow **[framework.md](./framework.md)**.
+- **Framework profile** — you are *contributing to a Cratis framework repository itself* (Arc, Chronicle, Fundamentals, Components, …). These are **libraries** (source generators, the Chronicle kernel, client SDKs, a React component library), **not** vertical-slice event-sourced apps. The application-architecture rules here **do not apply**; follow **[framework.md](./framework.md)**.
 
 **How to tell:** if the repo's own package is `Cratis.*` / `@cratis/*` and it *builds* the framework, you are in the framework profile. If it *consumes* Cratis to build a product, you are in the application profile.
 
-**See [profiles.md](./profiles.md) for a complete list of all available profiles and how to configure them.**
+**See [profiles.md](./profiles.md) for all profiles and how to configure them.**
 
-Profile-specific rules declare a **`profile:`** in their frontmatter (`application` or `framework`); a rule **without** one is **universal** and applies everywhere — C#/TypeScript style, code quality, specs (`Cratis.Specifications`), documentation, commits/PRs, American English. In this file, everything from **Project Layout** through the **Implementation Workflow** is *application profile* (skip to the Framework profile section if you're contributing to the framework); Philosophy, Authority, Verification, Quality Gates, and the closing sections are universal.
+Profile-specific rules declare a **`profile:`** in their frontmatter (`application` or `framework`); a rule **without** one is **universal** and applies everywhere — C#/TypeScript style, code quality, specs (`Cratis.Specifications`), documentation, commits/PRs, American English. In this file, everything from **Project Layout** through the **Implementation Workflow** is *application profile* (framework contributors: skip to the Framework profile section); Philosophy, Authority, Verification, Quality Gates, and the closing sections are universal.
 
 > **Arc is a standalone CQRS framework — not bound to event sourcing.** Even within the application profile, Arc provides model-bound commands/queries, validation, authorization, and full-stack proxy generation, and works **without** Chronicle (Arc.Core does not depend on Chronicle). A `[Command]` `Handle()` does not *have* to append events — it can return a response, return `void`, or work through injected services. The event-sourcing behavior (a returned event gets appended; `EventForEventSourceId`; "never inject `IEventLog`") comes from the **Arc + Chronicle** integration. This application is event-sourced, so the slice guidance assumes event-sourced commands — read the event-centric rules as the *house default for this app*, not universal Arc laws.
 
-The framework is convention-over-configuration. **Idiomatic Cratis is the goal — not custom abstractions over it.** Always recommend the idiomatic way unless explicitly needed otherwise. When something is unclear, prefer the Cratis convention; do not invent. The rules and skills under `.cratis/ai/` are the authoritative answer — if your question is not answered there, ask rather than inferring framework behavior from package internals.
+The framework is convention-over-configuration. **Idiomatic Cratis is the goal — not custom abstractions over it.** Recommend the idiomatic way; when unclear, prefer the Cratis convention, do not invent. The rules and skills under `.cratis/ai/` are the authoritative answer — if your question is not answered there, ask rather than inferring framework behavior from package internals.
 
 ## Project Philosophy
 
@@ -22,7 +22,7 @@ Every rule here serves **ease of use**, **productivity**, and **maintainability*
 - **Lovable APIs** — APIs should be pleasant to use: sane defaults, flexible, extensible, overridable. If an API feels awkward, it is wrong.
 - **Easy to do things right, hard to do things wrong** — convention over configuration; artifact discovery by naming/attributes; minimal boilerplate. The framework guides you into the pit of success.
 - **Events are facts** — immutable records of what happened. Past tense, one purpose, never ambiguous. If you reach for a nullable property on an event, you need a second event.
-- **Strongly-typed primitives are the foundation — get them right first.** The most important, load-bearing decisions in every slice are the domain primitives: `ConceptAs<T>` value types and `EventSourceId<T>` identities (never raw `Guid`/`string`/`int` for a domain value); `ConceptValidator<T>` for invariants that travel with a value everywhere it appears; `CommandValidator<T>` for command-level rules; and past-tense, self-describing `[EventType]` names. These are not boilerplate or an afterthought — they are what makes the model type-safe end to end, the rules enforceable in one place, the events trustworthy forever, and the generated proxies meaningful. Treat naming and typing them precisely as the highest-value craftsmanship in the codebase; a slice built on sloppy primitives is wrong no matter how good the rest is.
+- **Strongly-typed primitives are the foundation — get them right first.** The most important, load-bearing decisions in every slice are the domain primitives: `ConceptAs<T>` value types and `EventSourceId<T>` identities (never raw `Guid`/`string`/`int` for a domain value); `ConceptValidator<T>` for invariants that travel with a value everywhere it appears; `CommandValidator<T>` for command-level rules; and past-tense, self-describing `[EventType]` names. They make the model type-safe end to end, rules enforceable in one place and events trustworthy forever; a slice built on sloppy primitives is wrong however good the rest is.
 - **High cohesion through vertical slices** — everything for a behavior lives together: backend, frontend, specs. Navigate by feature, not by technical layer.
 - **Full-stack type safety** — shared models flow from C# through proxy generation to TypeScript. End-to-end typing without manual synchronization.
 - **Specialization over reuse** — focused, purpose-built read models over one model reused across conflicting scenarios.
@@ -53,9 +53,7 @@ obtaining credentials, and other local conventions ("Product policy" above).
   use, but it must never contain credential values, tokens, keys, passwords, or
   other secrets.
 - A repository's accepted decision records (`decisions/`) and project rules bind AI work: read those matching your paths, follow them, never work around one.
-- Project-specific guidance wins when it deliberately narrows shared behavior,
-  but it may not weaken organization security, authorization, or required
-  quality gates.
+- Project-specific guidance wins when it narrows shared behavior for product policy, but may not weaken organization security, authorization, or required quality gates. For `[convention]` idioms the corpus wins over repository-local specs, design docs, and existing code or checks; a deviation needs an accepted ADR in the repository's decisions folder naming the corpus rule it replaces. It never relaxes `[contract]` rules, security, authorization or gates, or rewrites persisted ids.
 - Scope project file concerns with `paths`; put operational workflows in
   `.agents/skills/`, not global `applyTo: "**/*"` rules.
 
@@ -143,7 +141,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Build and spec-run speed: parallel-safe specs, no per-spec startup, cheap analyzers | `fast-feedback.md` |
 | Spec patterns — the four `*Scenario` helpers (application only) | `specs.scenarios.csharp.md` |
 | Strongly-typed values (`ConceptAs<T>`, `EventSourceId<T>`); shared term definitions (event, projection, reducer, reactor, observer, DCB, …) | `concepts.md`; `glossary.md` |
-| Files an AI change touches (Code Health with CodeScene) | `code-health.md` |
+| Files an AI change touches (Code Health with CodeScene); behavior at a trust boundary or wire/protocol surface (cite and conform to the published contract and vectors) | `code-health.md`; `published-contracts.md` |
 | Diagnosing a misbehaving slice | read model stale or startup crash: **cratis-chronicle-projection** (*Startup-crash traps*); reactor paused or quarantined: **cratis-chronicle-reactor** (*Failure behavior*); proxy missing: **cratis-arc-command** (*Generate the TypeScript proxy*) |
 | Inspecting or operating a **running** Chronicle store (failed partitions, replays, browsing events) with the `cratis` CLI | the **cratis-chronicle-cli-operations** and **cratis-cli-terminal-workbench** skills |
 | EF Core read models / migrations | `efcore.md`, `efcore.specs.md` |

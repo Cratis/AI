@@ -1,5 +1,7 @@
 # 0008 - Provider CRUD event ids match Direct's own implicit ones, not fresh guids
 
+> **2026-11-10 — qualified by decision 152.** Pinning explicit event type ids is no longer the default for future events: new events use plain `[EventType]`, and an explicit id is allowed only to retain an already-persisted id or resolve a cross-package short-name collision. Pins and corrected ids already persisted here remain valid. The decision text below is unchanged.
+
 Status: Accepted - corrects decision 0007's choice of id, shipped and superseded the same day.
 Related: decision 0007, decision 0002, decision 0006.
 

@@ -16,17 +16,31 @@ const root = resolve(rootArgument ?? join(import.meta.dirname, '..', '..'));
 const corpus = join(root, '.cratis', 'ai');
 if (!existsSync(corpus)) throw new Error(`No canonical corpus exists at ${corpus}.`);
 
-// Preflight every generated adapter before writing anything; markers identify owned stale output.
-function planAgents(name: string, relativeDirectory: string, files: GeneratedAgent[], marker: string, drift: () => string[]) {
-    const directory = join(corpus, relativeDirectory);
-    requireRealParents(directory, corpus);
+type GeneratedFile = Pick<GeneratedAgent, 'path' | 'content'>;
+
+interface AgentAdapter {
+    name: string;
+    relativeDirectory: string;
+    files: GeneratedFile[];
+    marker: string;
+    drift: () => string[];
+}
+
+/** Expected file names plus every path to write or prune: the generated files and any other entries in the directory. */
+function plannedPaths(directory: string, files: GeneratedFile[], includeExtras: boolean) {
     const expected = new Set(files.map(file => file.path.split('/').pop()));
     const paths = files.map(file => join(corpus, file.path));
+    if (includeExtras) paths.push(...readdirSync(directory).filter(name => !expected.has(name)).map(name => join(directory, name)));
+    return { expected, paths };
+}
+
+// Preflight every generated adapter before writing anything; markers identify owned stale output.
+function planAgents({ name, relativeDirectory, files, marker, drift }: AgentAdapter) {
+    const directory = join(corpus, relativeDirectory);
+    requireRealParents(directory, corpus);
     const current = state(directory);
     const conflict = current && (!current.isDirectory() || current.isSymbolicLink());
-    if (current?.isDirectory() && !current.isSymbolicLink()) {
-        paths.push(...readdirSync(directory).filter(name => !expected.has(name)).map(name => join(directory, name)));
-    }
+    const { expected, paths } = plannedPaths(directory, files, !!current?.isDirectory() && !current.isSymbolicLink());
     if (check || (!force && (conflict || paths.some(path => state(path) && !isGeneratedAgent(path, marker))))) {
         const stale = drift();
         if (stale.length > 0) throw new Error(`${name} agent adapters are out of date:\n${stale.join('\n')}`);
@@ -34,8 +48,8 @@ function planAgents(name: string, relativeDirectory: string, files: GeneratedAge
     return { directory, expected, paths, conflict, files };
 }
 const agentPlans = [
-    planAgents('OpenCode', openCodeAgentsDirectory, generateOpenCodeAgents(corpus), generatedAgentMarkerPrefix, () => checkOpenCodeAgents(corpus)),
-    planAgents('Pi', piAgentsDirectory, generatePiAgents(corpus), piAgentMarkerPrefix, () => checkPiAgents(corpus)),
+    planAgents({ name: 'OpenCode', relativeDirectory: openCodeAgentsDirectory, files: generateOpenCodeAgents(corpus), marker: generatedAgentMarkerPrefix, drift: () => checkOpenCodeAgents(corpus) }),
+    planAgents({ name: 'Pi', relativeDirectory: piAgentsDirectory, files: generatePiAgents(corpus), marker: piAgentMarkerPrefix, drift: () => checkPiAgents(corpus) }),
 ];
 
 function state(path: string): ReturnType<typeof lstatSync> | undefined {
@@ -85,11 +99,7 @@ const copilotDirectory = join(corpus, copilotInstructionsDirectory);
 requireRealParents(copilotDirectory, corpus);
 const copilotDirectoryState = state(copilotDirectory);
 const copilotDirectoryConflict = copilotDirectoryState && !copilotDirectoryState.isDirectory();
-const copilotNames = new Set(copilot.map(file => file.path.split('/').pop()));
-const copilotPaths = copilot.map(file => join(corpus, file.path));
-if (copilotDirectoryState?.isDirectory()) {
-    copilotPaths.push(...readdirSync(copilotDirectory).filter(name => !copilotNames.has(name)).map(name => join(copilotDirectory, name)));
-}
+const { expected: copilotNames, paths: copilotPaths } = plannedPaths(copilotDirectory, copilot, !!copilotDirectoryState?.isDirectory());
 if (check || (!force && (copilotDirectoryConflict || copilotPaths.some(path => state(path) && !ownedCopilot(path))))) {
     const stale = checkCopilotInstructions(corpus);
     if (stale.length > 0) throw new Error(`Copilot instruction adapters are out of date:\n${stale.join('\n')}`);
@@ -140,6 +150,29 @@ add('.opencode/agents', `../.cratis/ai/${openCodeAgentsDirectory}`, 'dir');
 add('.opencode/skills', '../.cratis/ai/skills', 'dir');
 commands('.opencode/commands');
 
+/** A link that exists but may not be replaced: foreign content, with the migration and forced-overwrite exceptions. */
+function blocksLink(link: Link, path: string, migrateInstructions: boolean): boolean {
+    if (!state(path) || ownedLink(path)) return false;
+    if (link.path === '.github/instructions' && migrateInstructions) return false;
+    if (link.path === '.github/copilot-instructions.md' && ownedCopilot(path)) return false;
+    return !force || link.path === '.codex/hooks.json';
+}
+
+function writeGenerated(files: GeneratedFile[]): void {
+    for (const file of files) {
+        const path = join(corpus, file.path);
+        // Unlink before writing so --force cannot write through an occupied symlink.
+        remove(path);
+        writeFileSync(path, file.content);
+    }
+}
+
+function pruneUnexpected(paths: string[], expected: Set<string | undefined>): void {
+    for (const path of paths) {
+        if (!expected.has(path.split('/').pop())) remove(path);
+    }
+}
+
 const failures: string[] = [];
 const instructionsDirectory = join(root, '.github/instructions');
 requireRealParents(instructionsDirectory, root);
@@ -158,7 +191,7 @@ for (const link of links.values()) {
     requireRealParents(path, root);
     const actual = state(path)?.isSymbolicLink() ? readlinkSync(path) : undefined;
     if (actual === link.target) continue;
-    if (check || (state(path) && !ownedLink(path) && !(link.path === '.github/instructions' && migrateInstructions) && !(link.path === '.github/copilot-instructions.md' && ownedCopilot(path)) && (!force || link.path === '.codex/hooks.json'))) {
+    if (check || blocksLink(link, path, migrateInstructions)) {
         failures.push(`${link.path}: expected symbolic link to ${link.target}`);
     }
 }
@@ -171,26 +204,13 @@ if (!check) {
     }
     if (copilotDirectoryConflict) remove(copilotDirectory);
     mkdirSync(copilotDirectory, { recursive: true });
-    for (const path of copilotPaths) {
-        if (!copilotNames.has(path.split('/').pop())) remove(path);
-    }
-    for (const file of copilot) {
-        const path = join(corpus, file.path);
-        remove(path);
-        writeFileSync(path, file.content);
-    }
+    pruneUnexpected(copilotPaths, copilotNames);
+    writeGenerated(copilot);
     for (const plan of agentPlans) {
         if (plan.conflict) remove(plan.directory);
         mkdirSync(plan.directory, { recursive: true });
-        for (const path of plan.paths) {
-            if (!plan.expected.has(path.split('/').pop())) remove(path);
-        }
-        for (const file of plan.files) {
-            const path = join(corpus, file.path);
-            // Unlink before writing so --force cannot write through an occupied symlink.
-            remove(path);
-            writeFileSync(path, file.content);
-        }
+        pruneUnexpected(plan.paths, plan.expected);
+        writeGenerated(plan.files);
     }
     for (const link of links.values()) {
         const path = join(root, link.path);

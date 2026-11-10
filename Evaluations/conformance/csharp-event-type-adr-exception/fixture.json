@@ -1,0 +1,12 @@
+{
+  "name": "csharp-event-type-adr-exception",
+  "description": "An accepted repository decision record that names the corpus rule it replaces wins over the plain-id default: the new public event carries an explicit id. Patterns are JS-compatible .NET regex.",
+  "prompt": "Add the new public event AuthorRegistered in Source/Authors/Registration.cs. Follow the repository's accepted decisions. Write the code to files.",
+  "expected_output": "AuthorRegistered carries an explicit id, as the accepted decision requires.",
+  "profiles": ["cratis/application/csharp"],
+  "languages": ["csharp"],
+  "expected_instruction_paths": [".cratis/ai/rules/application-profile.md"],
+  "checks": [
+    { "type": "file_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "(?<!(?://|/\\*)[^\\r\\n]*)\\[EventType\\(\\s*\"[^\"]+\"[^)]*\\)\\]\\s*(?:\\r?\\n\\s*)*public\\s+record\\s+AuthorRegistered\\b" }
+  ]
+}

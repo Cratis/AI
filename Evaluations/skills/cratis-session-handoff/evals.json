@@ -1,0 +1,53 @@
+{
+  "skill_name": "cratis-session-handoff",
+  "evals": [
+    {
+      "id": 1,
+      "name": "handoff-with-running-job",
+      "prompt": "My session is almost out of context. A CI run is in progress on my pull request and a subagent is still reviewing. What must the handoff contain about these? Reply only; do not run anything.",
+      "expected_output": "A Watch and action row for each running job, CI watch and subagent with an immutable target (run id, pull request head SHA, job id; never 'latest'), the action on completion and how to cancel. Anything already finished but unread goes under the finished-results section.",
+      "assertions": [
+        "Requires one watch row per running job, CI run and subagent.",
+        "Requires an immutable target such as a run id or head SHA, never 'latest'.",
+        "Requires the action on completion and how to cancel in each row.",
+        "Lists finished but unread results in their own section.",
+        "Keeps verified facts apart from plans."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "resume-stale-handoff",
+      "prompt": "I start a fresh session from a handoff, but git rev-parse HEAD differs from the SHA in its preconditions. What do I do? Reply only.",
+      "expected_output": "Treat the handoff as stale, not the work as lost. Do not reset or recreate worktrees. Look at branches, reflog and open pull requests to find where the work moved, reconcile the watch and action rows, then update the handoff.",
+      "assertions": [
+        "Compares preconditions with git before acting.",
+        "Treats a mismatch as a stale handoff, not lost work.",
+        "Does not reset, recreate a worktree or discard anything because of the mismatch.",
+        "Reads finished but unread results first and reconciles the watch rows."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "when-to-hand-off",
+      "prompt": "I am halfway through editing three files and the context is at about 70 percent. Hand off now? Reply only.",
+      "expected_output": "Finish the current atomic step first, never hand off mid-step. Then update the state note, write the handoff, verify it against git, and end the session.",
+      "assertions": [
+        "Finishes the current atomic step before handing off.",
+        "Updates the state note, then writes the handoff from it.",
+        "Verifies the handoff preconditions against git before ending.",
+        "Treats the threshold as a default that a repository or brief may override."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "user-words-verbatim",
+      "prompt": "The user told me earlier: 'Do not touch the public API, and ask before adding a dependency.' How do I put that in the handoff? Reply only.",
+      "expected_output": "Quote it exactly as a blockquote under user constraints (verbatim), never paraphrased. Later instructions go under user instructions since the last handoff, also verbatim.",
+      "assertions": [
+        "Quotes the words exactly in a blockquote.",
+        "Does not paraphrase or summarize the constraint.",
+        "Records later instructions verbatim in their own section."
+      ]
+    }
+  ]
+}
