@@ -124,6 +124,67 @@ test('rules a flow needs before any file is touched stay always-on in every harn
     }
 });
 
+interface GoAdapterProject {
+    project: string;
+    corpus: string;
+    skill: string;
+    projectContext: string;
+}
+
+function assertGoHarnessResources(context: GoAdapterProject): void {
+    const { project, corpus, skill, projectContext } = context;
+    const harnesses = [
+        ['claude', 'CLAUDE.md', '.claude/skills'],
+        ['codex', 'AGENTS.md', '.agents/skills'],
+        ['copilot', '.github/copilot-instructions.md', '.github/skills'],
+        ['cursor', '.cursor/rules/cratis.mdc', '.cursor/skills'],
+        ['opencode', 'AGENTS.md', '.opencode/skills'],
+        ['pi', 'AGENTS.md', '.pi/skills'],
+    ];
+    for (const [harness, entry, skills] of harnesses) {
+        let instructions = readFileSync(join(project, entry), 'utf8');
+        if (harness === 'cursor') {
+            assert.match(instructions, /alwaysApply: true/);
+            assert.match(instructions, /@\.cratis\/ai\/rules\/general\.md/);
+            instructions = readFileSync(join(corpus, 'rules/general.md'), 'utf8');
+        }
+        assert.match(instructions, /\| Go \|.*`go\.md`.*`go-engineering\.md`/, harness);
+        assert.match(instructions, /Project-specific context is the repository's own documentation plus\s+`\.cratis\/ai\/rules\/project\.md`/, harness);
+        assert.equal(readFileSync(join(project, 'README.md'), 'utf8'), projectContext, harness);
+        const actualSkills = readdirSync(join(project, skills)).sort();
+        assert.deepEqual(actualSkills, selectedSkillPaths(project).map(path => path.split('/').pop()).sort(), harness);
+        assert.ok(actualSkills.includes(skill) && actualSkills.includes('cratis-fundamentals-concept-go'), harness);
+        assert.equal(realpathSync(join(project, skills, skill, 'SKILL.md')), realpathSync(join(corpus, 'skills', skill, 'SKILL.md')), harness);
+    }
+}
+
+function assertGoFieldScope(scope: { rule: string; field: string; globs: string[] }): void {
+    const { rule, field, globs } = scope;
+    for (const path of ['main.go', 'Source/nested/main.go', 'go.mod', 'go.sum', 'adapter/go.mod', 'adapter/go.sum']) {
+        assert.ok(globs.some(glob => globToRegExp(glob).test(path)), `${rule} ${field}: ${path}`);
+    }
+    for (const path of ['README.md', 'main.cs', 'main.ts', 'go.mod.backup']) assert.ok(!globs.some(glob => globToRegExp(glob).test(path)), `${rule} ${field}: ${path}`);
+}
+
+function assertGoRuleScopes(context: GoAdapterProject): void {
+    const { project, corpus } = context;
+    // Native Claude paths and Copilot applyTo declare the same scope; Codex/OpenCode/Cursor
+    // traverse the root policy. This is adapter evidence, not a live model obeying that policy.
+    for (const rule of ['go.md', 'go-engineering.md']) {
+        const canonical = readFileSync(join(corpus, 'rules', rule), 'utf8');
+        assert.equal(readFileSync(join(project, '.claude/rules', rule), 'utf8'), canonical);
+        const copilotPath = join(project, '.github/instructions', rule.replace(/\.md$/, '.instructions.md'));
+        const adapted = readFileSync(copilotPath, 'utf8');
+        assert.ok(lstatSync(copilotPath).isFile(), 'Copilot adapters must survive a copied corpus');
+        assert.equal(adapted.replace(/^<!-- cratis-ai: generated Copilot instructions\..* -->\n/m, ''), canonical);
+        const fields = frontmatter(canonical);
+        for (const field of ['paths', 'applyTo']) {
+            const globs = fields.get(field)!;
+            assertGoFieldScope({ rule, field, globs });
+        }
+    }
+}
+
 test('fresh Go adapter trees expose root policy traversal separately from discoverable skills', async () => {
     const workspace = mkdtempSync(join(tmpdir(), 'cratis-go-harness-'));
     try {
@@ -140,47 +201,9 @@ test('fresh Go adapter trees expose root policy traversal separately from discov
             const setup = spawnSync(process.execPath, ['--import', 'tsx', join(repositoryRoot, 'Source/Harness.Setup/setup.ts'), project], { cwd: repositoryRoot, encoding: 'utf8' });
             assert.equal(setup.status, 0, `${setup.stdout}${setup.stderr}`);
 
-            const harnesses = [
-                ['claude', 'CLAUDE.md', '.claude/skills'],
-                ['codex', 'AGENTS.md', '.agents/skills'],
-                ['copilot', '.github/copilot-instructions.md', '.github/skills'],
-                ['cursor', '.cursor/rules/cratis.mdc', '.cursor/skills'],
-                ['opencode', 'AGENTS.md', '.opencode/skills'],
-                ['pi', 'AGENTS.md', '.pi/skills'],
-            ];
-            for (const [harness, entry, skills] of harnesses) {
-                let instructions = readFileSync(join(project, entry), 'utf8');
-                if (harness === 'cursor') {
-                    assert.match(instructions, /alwaysApply: true/);
-                    assert.match(instructions, /@\.cratis\/ai\/rules\/general\.md/);
-                    instructions = readFileSync(join(corpus, 'rules/general.md'), 'utf8');
-                }
-                assert.match(instructions, /\| Go \|.*`go\.md`.*`go-engineering\.md`/, harness);
-                assert.match(instructions, /Project-specific context is the repository's own documentation plus\s+`\.cratis\/ai\/rules\/project\.md`/, harness);
-                assert.equal(readFileSync(join(project, 'README.md'), 'utf8'), projectContext, harness);
-                const actualSkills = readdirSync(join(project, skills)).sort();
-                assert.deepEqual(actualSkills, selectedSkillPaths(project).map(path => path.split('/').pop()).sort(), harness);
-                assert.ok(actualSkills.includes(skill) && actualSkills.includes('cratis-fundamentals-concept-go'), harness);
-                assert.equal(realpathSync(join(project, skills, skill, 'SKILL.md')), realpathSync(join(corpus, 'skills', skill, 'SKILL.md')), harness);
-            }
-            // Native Claude paths and Copilot applyTo declare the same scope; Codex/OpenCode/Cursor
-            // traverse the root policy. This is adapter evidence, not a live model obeying that policy.
-            for (const rule of ['go.md', 'go-engineering.md']) {
-                const canonical = readFileSync(join(corpus, 'rules', rule), 'utf8');
-                assert.equal(readFileSync(join(project, '.claude/rules', rule), 'utf8'), canonical);
-                const copilotPath = join(project, '.github/instructions', rule.replace(/\.md$/, '.instructions.md'));
-                const adapted = readFileSync(copilotPath, 'utf8');
-                assert.ok(lstatSync(copilotPath).isFile(), 'Copilot adapters must survive a copied corpus');
-                assert.equal(adapted.replace(/^<!-- cratis-ai: generated Copilot instructions\..* -->\n/m, ''), canonical);
-                const fields = frontmatter(canonical);
-                for (const field of ['paths', 'applyTo']) {
-                    const globs = fields.get(field)!;
-                    for (const path of ['main.go', 'Source/nested/main.go', 'go.mod', 'go.sum', 'adapter/go.mod', 'adapter/go.sum']) {
-                        assert.ok(globs.some(glob => globToRegExp(glob).test(path)), `${rule} ${field}: ${path}`);
-                    }
-                    for (const path of ['README.md', 'main.cs', 'main.ts', 'go.mod.backup']) assert.ok(!globs.some(glob => globToRegExp(glob).test(path)), `${rule} ${field}: ${path}`);
-                }
-            }
+            const context = { project, corpus, skill, projectContext };
+            assertGoHarnessResources(context);
+            assertGoRuleScopes(context);
             const loader = new DefaultResourceLoader({ cwd: project, agentDir: join(workspace, 'agent'), settingsManager: SettingsManager.inMemory(), noExtensions: true });
             await loader.reload();
             assert.ok(loader.getAgentsFiles().agentsFiles.some(file => file.path === join(project, 'AGENTS.md') && file.content.includes('go-engineering.md')));
