@@ -648,6 +648,17 @@ prepare_host_workspace() {
     git config --global --add safe.directory "$1"
 }
 
+prepare_host_workspace_prompt() {
+    [[ "${CRATIS_WORKSPACE_MODE:-}" == host-prepared ]] || return 0
+    local prompt
+    prompt=$(mktemp) || fail '[workspace] Cannot prepare host-workspace instructions'
+    {
+        printf '%s\n\n' 'Host-prepared workspace: leave results as uncommitted working-tree changes for the host to collect. Do not commit, stage, write refs, or change repository git configuration. Git metadata is mounted read-only.'
+        cat "$PROMPT_FILE"
+    } > "$prompt"
+    PROMPT_FILE="$prompt"
+}
+
 # Definitions are available before startup validation; network git is bounded even on cache hits.
 git_deadline_seconds() {
     local value="${CRATIS_GIT_DEADLINE_SECONDS:-600}"
@@ -1024,11 +1035,15 @@ git_timeout_detail() {
 }
 
 run_git_bounded() {
-    local label="$1" stderr status=0
+    local label="$1" stderr status=0 started_at elapsed
     shift
     GIT_AUTH_FAILED=false
     stderr=$(mktemp) || fail '[git-config] Cannot capture git diagnostics'
+    started_at=$(date +%s)
     "$GIT_TIMEOUT_BIN" --kill-after=10 "$GIT_DEADLINE_SECONDS" git "$@" < /dev/null 2> "$stderr" || status=$?
+    # date has whole-second precision: subtract one to avoid mistaking a second-boundary
+    # crossing for a full elapsed second. timeout's KILL grace is ten seconds.
+    elapsed=$(( $(date +%s) - started_at - 1 ))
     # Git itself may include the URL in diagnostics. Never replay userinfo from it.
     sed -E 's#(://)[^/@[:space:]]*@#\1#g' "$stderr" >&2
     if grep -Eq 'terminal prompts disabled|could not read (Username|Password)|Authentication failed' "$stderr"; then
@@ -1036,7 +1051,7 @@ run_git_bounded() {
         log "git ${label} needs a credential but none is available (GITHUB_TOKEN missing or rejected); terminal prompts are disabled"
     fi
     rm -f "$stderr"
-    if [[ "$status" -eq 124 || "$status" -eq 137 ]]; then
+    if [[ "$status" -eq 124 ]] || { [[ "$status" -eq 137 ]] && (( elapsed >= 10#$GIT_DEADLINE_SECONDS )); }; then
         log "git ${label} exceeded the ${GIT_DEADLINE_SECONDS}s deadline and was stopped"
         return 124
     fi
@@ -1509,6 +1524,7 @@ else
     fail "No prompt provided"
 fi
 
+prepare_host_workspace_prompt
 report started "Worker started"
 bundle_phase agentRunning
 

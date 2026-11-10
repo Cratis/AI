@@ -14,6 +14,7 @@ public class with_a_host_prepared_job : given.a_launch
         _root = Directory.CreateTempSubdirectory();
         _options.HostWorkspaceRoot = _root.FullName;
         var workspace = Directory.CreateDirectory(Path.Combine(_root.FullName, "workspace"));
+        Directory.CreateDirectory(Path.Combine(workspace.FullName, ".git"));
         _job = _job with
         {
             EnvironmentVariables = new Dictionary<string, string>

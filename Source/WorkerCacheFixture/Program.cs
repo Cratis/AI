@@ -102,13 +102,17 @@ public static class Program
         arguments.AddRange([job.Image, "-c",
             $"test \"$CRATIS_WORKSPACE_MODE\" = host-prepared && test \"$CRATIS_WORKSPACE_PATH\" = /workspace && " +
             $"test -z \"${{CRATIS_WORKSPACE_HOST_PATH+x}}\" && test -z \"${{DIRECT_REPOSITORY_CACHE+x}}\" && ! test -e '{cache}' && " +
-            "test \"$(git -c safe.directory='*' -C /workspace show HEAD:sentinel)\" = out-of-grant-source && echo host-written > /workspace/sentinel"]);
+            "test \"$(git -c safe.directory='*' -C /workspace show HEAD:sentinel)\" = out-of-grant-source && " +
+            "! git -c safe.directory='*' -C /workspace config core.fsmonitor malicious && " +
+            "! touch /workspace/.git/hooks/worker-hook && ! touch /workspace/.git/commondir && " +
+            "! mkdir /workspace/.git/modules && ! mv /workspace/.git /workspace/replaced-git && " +
+            "echo host-written > /workspace/sentinel"]);
         await Run("docker", arguments);
         if ((await File.ReadAllTextAsync(Path.Combine(repository, "sentinel"))).Trim() != "host-written")
         {
             throw new FixtureFailed("host-prepared write-back", 1);
         }
-        Console.WriteLine("PASS Docker host-prepared: only checkout mounted, cache absent, host write-back verified");
+        Console.WriteLine("PASS Docker host-prepared: git metadata read-only, cache absent, uncommitted host write-back verified");
     }
 
     static async Task Run(string executable, IEnumerable<string> arguments)

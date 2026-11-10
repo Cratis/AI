@@ -21,7 +21,7 @@ public class and_the_job_is_host_prepared : for_HostWorkspace.given.a_workspace
 
     void Because() => _result = DockerWorkerRuntime.BuildContainerSpecification(_job, "/repos", "CUSTOM_CACHE", _workspace);
 
-    [Fact] void should_mount_only_the_prepared_directory() => _result.HostConfig.Binds.ShouldEqual(new[] { $"{_workspace}:/workspace:rw" });
+    [Fact] void should_overlay_read_only_git_metadata_after_the_writable_tree() => _result.HostConfig.Binds.ShouldEqual(new[] { $"{_workspace}:/workspace:rw", $"{Path.Combine(_workspace, ".git")}:/workspace/.git:ro" });
     [Fact] void should_set_the_fixed_container_path() => _result.Env.ShouldContain("CRATIS_WORKSPACE_PATH=/workspace");
     [Fact] void should_set_the_mode_once() => _result.Env.Count(value => value == "CRATIS_WORKSPACE_MODE=host-prepared").ShouldEqual(1);
     [Fact] void should_not_leak_the_host_path() => _result.Env.ShouldNotContain(value => value.StartsWith("CRATIS_WORKSPACE_HOST_PATH=", StringComparison.Ordinal));

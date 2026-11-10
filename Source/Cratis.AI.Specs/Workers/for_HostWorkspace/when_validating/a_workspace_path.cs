@@ -11,6 +11,10 @@ public class a_workspace_path : given.a_workspace
     string _parentLink;
     string _fileLink;
     string _file;
+    string _nested;
+    string _outsideGitFile;
+    string _gitLink;
+    string _missingGit;
 
     void Establish()
     {
@@ -22,6 +26,12 @@ public class a_workspace_path : given.a_workspace
         Directory.CreateSymbolicLink(_parentLink, _root);
         _fileLink = Path.Combine(_root, "file-link");
         File.CreateSymbolicLink(_fileLink, _file);
+        _nested = Directory.CreateDirectory(Path.Combine(_workspace, "nested")).FullName;
+        _outsideGitFile = Directory.CreateDirectory(Path.Combine(_root, "outside-gitfile")).FullName;
+        File.WriteAllText(Path.Combine(_outsideGitFile, ".git"), $"gitdir: {Path.Combine(_workspace, ".git")}\n");
+        _gitLink = Directory.CreateDirectory(Path.Combine(_root, "git-link")).FullName;
+        Directory.CreateSymbolicLink(Path.Combine(_gitLink, ".git"), Path.Combine(_workspace, ".git"));
+        _missingGit = Directory.CreateDirectory(Path.Combine(_root, "missing-git")).FullName;
     }
 
     void Because()
@@ -51,7 +61,11 @@ public class a_workspace_path : given.a_workspace
             ["parent-link"] = Validate(Path.Combine(_parentLink, "workspace")),
             ["file-link"] = Validate(_fileLink),
             ["missing"] = Validate(Path.Combine(_root, "missing")),
-            ["file"] = Validate(_file)
+            ["file"] = Validate(_file),
+            ["nested"] = Validate(_nested),
+            ["outside-gitfile"] = Validate(_outsideGitFile),
+            ["git-link"] = Validate(_gitLink),
+            ["missing-git"] = Validate(_missingGit)
         };
     }
 
@@ -78,8 +92,12 @@ public class a_workspace_path : given.a_workspace
     [Fact] void should_refuse_a_sibling_with_the_same_prefix() => _rejections["sibling-prefix"].ShouldEqual(HostWorkspaceVerdictKind.OutsideRoot);
     [Fact] void should_refuse_an_outside_path() => _rejections["outside"].ShouldEqual(HostWorkspaceVerdictKind.OutsideRoot);
     [Fact] void should_refuse_an_outside_symlink_target() => _rejections["leaf-link"].ShouldEqual(HostWorkspaceVerdictKind.Symlink);
-    [Fact] void should_refuse_a_middle_symlink_even_to_an_allowed_directory() => _rejections["parent-link"].ShouldEqual(HostWorkspaceVerdictKind.Symlink);
+    [Fact] void should_refuse_a_middle_symlink_even_to_an_allowed_directory() => _rejections["parent-link"].ShouldEqual(HostWorkspaceVerdictKind.NestedPath);
     [Fact] void should_refuse_a_symlink_to_a_file() => _rejections["file-link"].ShouldEqual(HostWorkspaceVerdictKind.Symlink);
     [Fact] void should_refuse_a_missing_directory() => _rejections["missing"].ShouldEqual(HostWorkspaceVerdictKind.NotADirectory);
     [Fact] void should_refuse_a_file() => _rejections["file"].ShouldEqual(HostWorkspaceVerdictKind.NotADirectory);
+    [Fact] void should_refuse_a_nested_workspace() => _rejections["nested"].ShouldEqual(HostWorkspaceVerdictKind.NestedPath);
+    [Fact] void should_refuse_a_gitfile_pointing_outside_the_workspace() => _rejections["outside-gitfile"].ShouldEqual(HostWorkspaceVerdictKind.InvalidGitMetadata);
+    [Fact] void should_refuse_a_git_metadata_symlink() => _rejections["git-link"].ShouldEqual(HostWorkspaceVerdictKind.Symlink);
+    [Fact] void should_require_a_git_entry() => _rejections["missing-git"].ShouldEqual(HostWorkspaceVerdictKind.InvalidGitMetadata);
 }

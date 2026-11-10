@@ -18,6 +18,7 @@ printf '%s\n' "$*" >> "$CALLS"
 [[ "$GIT_TERMINAL_PROMPT" == 0 && ${GIT_ASKPASS+x} && -z "$GIT_ASKPASS" && ${SSH_ASKPASS+x} && -z "$SSH_ASKPASS" && -z ${SSH_ASKPASS_REQUIRE+x} && "$GCM_INTERACTIVE" == never && "$GIT_SSH_COMMAND" == *BatchMode=yes* ]] || exit 90
 case "$MODE:$*" in
     sleep:*) trap '' TERM; sleep 30 ;;
+    kill-early:*) exit 137 ;;
     auth:*) echo 'fatal: could not read Username: terminal prompts disabled' >&2; read -r ignored || :; exit 128 ;;
     remote-fails:*ls-remote*) exit 128 ;;
     remote-timeout:*ls-remote*) exit 124 ;;
@@ -58,6 +59,12 @@ for command in clone fetch ls-remote; do
     if grep -q "$password" "$root/error"; then exit 1; fi
     [[ "$output$detail" != *"$password"* ]]
 done
+MODE=kill-early; export MODE
+if GIT_DEADLINE_SECONDS=30 run_git_bounded clone clone "$url" 2> "$root/error"; then exit 1; else [[ $? -eq 137 ]]; fi
+if grep -q 'exceeded' "$root/error"; then exit 1; fi
+if ( DIRECT_REPOSITORY_CACHE='' GIT_DEADLINE_SECONDS=30 clone_into_workspace "$url" "$root/killed" ) > "$root/error" 2>&1; then exit 1; fi
+grep -q '^Could not clone https://github.com/o/r.git' "$root/error"
+if grep -q '\[git-timeout\]' "$root/error"; then exit 1; fi
 MODE=auth; export MODE
 if run_git_bounded clone clone "$url" < /dev/zero 2> "$root/error"; then exit 1; else [[ $? -eq 128 ]]; fi
 grep -q 'needs a credential but none is available' "$root/error"

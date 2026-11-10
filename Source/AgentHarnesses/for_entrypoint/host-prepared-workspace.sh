@@ -6,11 +6,13 @@ here="$(cd "$(dirname "$0")" && pwd)"
 root="$(mktemp -d)"
 root="$(cd "$root" && pwd -P)"
 trap 'rm -rf "$root"' EXIT
+export GIT_CONFIG_GLOBAL="$root/gitconfig" HOME="$root/home" TMPDIR="$root"
+mkdir "$HOME"
 entrypoint="$here/../entrypoint.sh"
-for function in validate_workspace_mode validate_host_prepared_workspace prepare_host_workspace push_workspaces; do
+for function in validate_workspace_mode validate_host_prepared_workspace prepare_host_workspace prepare_host_workspace_prompt push_workspaces; do
     awk -v name="$function" '$0 == name "() {" { take=1 } take { print } take && /^}$/ { exit }' "$entrypoint" >> "$root/functions"
 done
-[[ $(grep -c '^}$' "$root/functions") -eq 4 ]] || { echo 'Missing host-workspace functions'; exit 1; }
+[[ $(grep -c '^}$' "$root/functions") -eq 5 ]] || { echo 'Missing host-workspace functions'; exit 1; }
 fail() { printf '%s\n' "$*" >&2; exit 1; }
 log() { :; }
 clone_into_workspace() { exit 99; }
@@ -31,7 +33,8 @@ cat > "$root/bin/git" <<'STUB'
 #!/usr/bin/env bash
 printf '%s\n' "$*" >> "$CALLS"
 case " $* " in
-    *' clone '*|*' fetch '*|*' ls-remote '*|*' push '*|*' checkout '*|*' branch '*|*credential.helper*) exit 99 ;;
+    *' clone '*|*' fetch '*|*' ls-remote '*|*' push '*|*' checkout '*|*' branch '*|*' add '*|*' commit '*|*' update-ref '*|*' symbolic-ref '*|*credential.helper*) exit 99 ;;
+    *' config '*) [[ " $* " == *' config --global '* ]] || exit 99 ;;
 esac
 exec "$REAL_GIT" "$@"
 STUB
@@ -78,6 +81,15 @@ WORKSPACES=("$root/work|old|https://github.com/o/r.git")
 export DIRECT_BRANCH=forced-branch
 [[ ${#WORKSPACES[@]} -eq 1 ]]
 push_workspaces
-if grep -Eq 'clone|fetch|ls-remote|push|checkout|branch|credential.helper' "$CALLS"; then exit 1; fi
+if grep -Eq 'clone|fetch|ls-remote|push|checkout|branch|credential.helper| commit | add |update-ref|symbolic-ref' "$CALLS"; then exit 1; fi
 grep -q 'config --global --add safe.directory' "$CALLS"
+[[ "$(git config --global --get-all safe.directory)" == "$root/work" ]]
+printf 'original fixture prompt\n' > "$root/prompt"
+export PROMPT_FILE="$root/prompt"
+prepare_host_workspace_prompt
+[[ "$PROMPT_FILE" != "$root/prompt" ]]
+grep -q 'uncommitted working-tree changes' "$PROMPT_FILE"
+grep -q 'Do not commit, stage, write refs, or change repository git configuration' "$PROMPT_FILE"
+grep -q 'original fixture prompt' "$PROMPT_FILE"
+[[ $(cat "$root/prompt") == 'original fixture prompt' ]]
 echo 'host-prepared: modes, nine refused inputs, hostile paths, local preparation and push guard checked'

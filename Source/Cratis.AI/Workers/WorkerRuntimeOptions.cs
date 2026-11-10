@@ -51,8 +51,9 @@ public class WorkerRuntimeOptions
     /// <summary>
     /// Gets or sets the trusted absolute root for Docker host-prepared workspaces, configured at
     /// Cratis:AI:ContainerRuntime:HostWorkspaceRoot. Null or empty disables the mode. Workspaces must
-    /// be existing strict descendants without symlinks/reparse points below this root. The host
-    /// must keep paths stable between validation and mounting. Kubernetes does not support it.
+    /// be existing direct children without symlinks/reparse points and with a non-symlink .git
+    /// entry. Git metadata is mounted read-only; results remain uncommitted. The host must keep
+    /// paths and metadata stable between validation and mounting. Kubernetes does not support it.
     /// </summary>
     public string? HostWorkspaceRoot { get; set; }
 

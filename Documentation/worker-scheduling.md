@@ -56,26 +56,53 @@ CRATIS_WORKSPACE_MODE=host-prepared
 CRATIS_WORKSPACE_HOST_PATH=/srv/workspaces/job-123
 ```
 
-`job-123` must already be a readable, writable git work-tree root under the configured
-root (for example `/srv/workspaces`). The runtime checks the host path before contacting
-Docker, binds only that directory read-write at `/workspace`, removes the host-only
-path from the container environment, and sets `CRATIS_WORKSPACE_PATH=/workspace`.
-The entrypoint validates the mounted checkout and registers it as a safe directory;
-it does not clone, fetch, create a branch, attach repository credentials, or push.
+`job-123` must already be a readable, writable git work-tree root that is a **direct
+child** of the configured root (for example `/srv/workspaces`). The runtime checks the
+host path before contacting Docker, binds the tree read-write at `/workspace`, then
+overlays its `.git` entry read-only at `/workspace/.git`. The entry must exist directly
+in the workspace and must not be a symlink. A gitfile pointing outside the workspace
+is unsupported and refused. Internal gitfiles must use relative gitdir paths without
+traversal or symlinks; absolute host paths cannot follow the `/workspace` remapping.
+Their metadata's top-level subtree is also mounted read-only, preventing writable
+ancestors from redirecting the gitfile.
+The runtime removes the host-only path from the container environment and sets
+`CRATIS_WORKSPACE_PATH=/workspace`.
+
+**Results are uncommitted working-tree changes; the host collects them.** The entrypoint
+validates the mounted checkout and registers it in the container's global safe-directory
+configuration, but never commits, stages, writes refs or changes repository configuration.
+It does not clone, fetch, create a branch, attach repository credentials, or push.
 Repository cache mounts and their environment variables are suppressed in this mode.
-This does not sandbox an agent that independently invokes git: the host remains
-responsible for the checkout, the worker's capabilities and its changes.
+The host remains responsible for the checkout, the worker's capabilities and its changes.
+
+The read-only metadata overlay prevents a worker from changing host git configuration,
+hooks, common-directory pointers or submodule gitdirs. As defense in depth, the host must
+still read results using hardened git: `-c core.fsmonitor=false -c core.hooksPath=/dev/null`,
+**no host `safe.directory` trust of the workspace** (including wildcards), and **no submodule
+recursion**. Worktree content such as `.gitattributes` is still writable. For example,
+collect a diff as the checkout's host owner, without optional index writes, external diff
+commands, text conversion or submodule inspection:
+
+```sh
+git --no-optional-locks -c core.fsmonitor=false -c core.hooksPath=/dev/null \
+    -C /srv/workspaces/job-123 diff --no-ext-diff --no-textconv --ignore-submodules=all
+```
+
+Do not bypass an ownership refusal by trusting the checkout on the host. The
+entrypoint's safe-directory registration applies only inside the container.
 
 Unset or empty `CRATIS_WORKSPACE_MODE` keeps the existing clone workflow. Only the
 exact lowercase value `host-prepared` opts in; other non-empty values are errors,
 including `clone`, `true`, `1`, mixed case and whitespace. The trusted root is never
 inferred: unset, empty, relative or nonexistent roots refuse host-prepared launches.
-Workspaces must be strict descendants, not the root itself or a sibling with the
-same prefix. Relative paths, traversal (`.`/`..`), empty path segments, trailing
+Workspaces must be direct children (a relative path of exactly one segment), not the
+root itself, a nested directory, or a sibling with the same prefix. Relative paths, traversal (`.`/`..`), empty path segments, trailing
 separators, newlines, colons, commas, and symlinks/reparse points below the trusted
 root are rejected. The container also rejects symlinks in the mounted path's ancestors.
 The host must keep the root and its descendants stable between validation and mount;
-validation cannot prevent an administrator from swapping a directory afterward.
+validation cannot prevent an administrator from swapping a directory or its `.git`
+entry afterward. The trusted root's immediate children must remain host-owned; a
+running worker must not be able to replace them.
 
 Host-prepared mode refuses these repository inputs in either environment or secrets,
 **even when their value is empty**: `GITHUB_TOKEN`, `GH_TOKEN`, `DIRECT_PUSH_TOKEN_URL`,
@@ -102,7 +129,9 @@ to 600 seconds. Invalid values or a missing timeout binary fail immediately with
 command, safe repository URL, duration and override variable. URL userinfo is removed
 from these details and git diagnostics. An ordinary cache refresh failure still falls
 back to the cached HEAD; a timed-out refresh is a terminal failure, not a cache hit.
-No push deadline is added by this setting.
+Exit 137 alone is not evidence of a deadline: it is classified as a timeout only when
+the elapsed wall time has reached the deadline; an earlier kill remains a non-timeout
+git failure. No push deadline is added by this setting.
 
 ## Running-worker protection
 

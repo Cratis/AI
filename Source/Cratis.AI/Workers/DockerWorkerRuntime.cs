@@ -56,12 +56,14 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     /// <c>entrypoint.sh</c> still reads <c>DIRECT_REPOSITORY_CACHE</c> literally).
     /// </param>
     /// <param name="hostWorkspacePath">The prevalidated canonical host workspace path, or null for the legacy clone path.</param>
+    /// <param name="hostGitMetadataPath">The prevalidated internal gitfile metadata subtree to protect, when applicable.</param>
     /// <returns>The container creation parameters.</returns>
     public static CreateContainerParameters BuildContainerSpecification(
         WorkerJob job,
         string? repositoryCachePath = null,
         string? repositoryCacheEnvironmentVariable = null,
-        string? hostWorkspacePath = null)
+        string? hostWorkspacePath = null,
+        string? hostGitMetadataPath = null)
     {
         var hostPrepared = hostWorkspacePath is not null;
         // A restricted checkout must not expose other repositories through the shared cache,
@@ -105,7 +107,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
                 // instead of cloning fresh from GitHub every run. Host path equals container path,
                 // the same convention the Kubernetes PVC mount uses.
                 Binds = hostPrepared
-                    ? [$"{hostWorkspacePath}:{HostWorkspace.ContainerPath}:rw"]
+                    ? BuildHostWorkspaceBinds(hostWorkspacePath!, hostGitMetadataPath)
                     : restricted || string.IsNullOrWhiteSpace(repositoryCachePath)
                         ? []
                         : [$"{repositoryCachePath}:{repositoryCachePath}"]
@@ -149,7 +151,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         }
 
         var response = await client.Containers.CreateContainerAsync(
-            BuildContainerSpecification(job, options.Value.RepositoryCachePath, options.Value.RepositoryCacheEnvironmentVariable, verdict.Path),
+            BuildContainerSpecification(job, options.Value.RepositoryCachePath, options.Value.RepositoryCacheEnvironmentVariable, verdict.Path, verdict.GitMetadataPath),
             cancellationToken);
 
         await WriteSecrets(client, response.ID, job, cancellationToken);
@@ -303,6 +305,16 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     {
         var sanitized = new string([.. session.Value.Where(char.IsAsciiLetterOrDigit)]).ToLowerInvariant();
         return $"cratis-ai-agent-{sanitized}";
+    }
+
+    static List<string> BuildHostWorkspaceBinds(string workspace, string? metadata)
+    {
+        return
+        [
+            $"{workspace}:{HostWorkspace.ContainerPath}:rw",
+            $"{Path.Combine(workspace, ".git")}:{HostWorkspace.ContainerPath}/.git:ro",
+            .. metadata is null ? (string[])[] : [$"{metadata}:{HostWorkspace.ContainerPath}/{Path.GetRelativePath(workspace, metadata)}:ro"]
+        ];
     }
 
     static List<string> BuildEnvironmentVariables(WorkerJob job, string? cachePath, string? cacheVariable, bool hostPrepared)

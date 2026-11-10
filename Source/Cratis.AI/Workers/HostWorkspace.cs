@@ -19,10 +19,12 @@ internal enum HostWorkspaceVerdictKind
     NotADirectory,
     ForbiddenCredential,
     ConflictsWithBundleDiff,
-    UnsupportedRuntime
+    UnsupportedRuntime,
+    NestedPath,
+    InvalidGitMetadata
 }
 
-internal sealed record HostWorkspaceVerdict(HostWorkspaceVerdictKind Kind, string? Path = null);
+internal sealed record HostWorkspaceVerdict(HostWorkspaceVerdictKind Kind, string? Path = null, string? GitMetadataPath = null);
 
 internal static class HostWorkspace
 {
@@ -87,6 +89,11 @@ internal static class HostWorkspace
         {
             return new(HostWorkspaceVerdictKind.OutsideRoot);
         }
+        var relativePath = Path.GetRelativePath(canonicalRoot, canonicalPath);
+        if (relativePath.Contains(Path.DirectorySeparatorChar))
+        {
+            return new(HostWorkspaceVerdictKind.NestedPath);
+        }
         return ValidateDescendant(canonicalRoot, canonicalPath);
     }
 
@@ -103,13 +110,81 @@ internal static class HostWorkspace
             }
         }
         return Directory.Exists(path)
-            ? new(HostWorkspaceVerdictKind.Valid, path)
+            ? ValidateGitMetadata(path)
             : new(HostWorkspaceVerdictKind.NotADirectory);
+    }
+
+    static HostWorkspaceVerdict ValidateGitMetadata(string workspace)
+    {
+        var entry = Path.Combine(workspace, ".git");
+        if (IsLink(new DirectoryInfo(entry)) || IsLink(new FileInfo(entry)))
+        {
+            return new(HostWorkspaceVerdictKind.Symlink);
+        }
+        if (Directory.Exists(entry))
+        {
+            return new(HostWorkspaceVerdictKind.Valid, workspace);
+        }
+        if (!File.Exists(entry))
+        {
+            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
+        }
+        try
+        {
+            return ValidateGitFile(workspace, File.ReadAllText(entry).TrimEnd('\r', '\n'));
+        }
+        catch (IOException)
+        {
+            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
+        }
+    }
+
+    static HostWorkspaceVerdict ValidateGitFile(string workspace, string content)
+    {
+        const string prefix = "gitdir: ";
+        if (!content.StartsWith(prefix, StringComparison.Ordinal))
+        {
+            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
+        }
+        var target = content[prefix.Length..];
+        // Absolute host gitdir names do not resolve under the container's /workspace remapping.
+        if (string.IsNullOrWhiteSpace(target) || target != target.Trim() || Path.IsPathFullyQualified(target) || target.IndexOfAny(['\n', '\r', '\0', ':', ',']) >= 0)
+        {
+            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
+        }
+        var targetSegments = target.Split(Path.DirectorySeparatorChar);
+        if (targetSegments.Any(segment => segment is "" or "." or ".."))
+        {
+            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
+        }
+        var gitDirectory = Path.GetFullPath(target, workspace);
+        if (!gitDirectory.StartsWith(workspace + Path.DirectorySeparatorChar, StringComparison.Ordinal) || !Directory.Exists(gitDirectory))
+        {
+            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
+        }
+        var relative = Path.GetRelativePath(workspace, gitDirectory);
+        var current = workspace;
+        foreach (var segment in relative.Split(Path.DirectorySeparatorChar))
+        {
+            current = Path.Combine(current, segment);
+            if (IsLink(new DirectoryInfo(current)))
+            {
+                return new(HostWorkspaceVerdictKind.Symlink);
+            }
+        }
+        // Protect the top-level metadata subtree: writable ancestors could otherwise be renamed
+        // to redirect an immutable gitfile around a read-only bind of just its final gitdir.
+        var metadataRoot = Path.Combine(workspace, relative.Split(Path.DirectorySeparatorChar)[0]);
+        return new(HostWorkspaceVerdictKind.Valid, workspace, metadataRoot);
     }
 
     static bool RootIsConfigured(string? root) => !string.IsNullOrWhiteSpace(root) && Path.IsPathFullyQualified(root) && Directory.Exists(root);
 
-    static bool IsLink(DirectoryInfo directory) => directory.LinkTarget is not null || (directory.Exists && directory.Attributes.HasFlag(FileAttributes.ReparsePoint));
+    static bool IsLink(FileSystemInfo entry) => entry.LinkTarget is not null || (entry.Exists && entry.Attributes.HasFlag(FileAttributes.ReparsePoint));
 
     static HostWorkspaceVerdictKind? ValidateLexicalPath(string? path)
     {
