@@ -1617,11 +1617,15 @@ test('jq, yq and awk programs that read the process environment are refused', ()
 
 test('named backup and variant copies of env files are protected while templates and source files stay readable', () => {
     const copies = ['app.env.bak', 'app.env.old', 'foo.env.orig', 'prod.env.local', 'a.env.swp', 'config/app.env~', 'app.env.bak.1',
-        'staging.env.backup', 'x.env.json', '.env.bak', '.env.orig', '.env.swp', '.env~', '.env.old'];
+        'staging.env.backup', 'x.env.json', '.env.bak', '.env.orig', '.env.swp', '.env~', '.env.old',
+        'app.env.json', 'prod.env.yaml', 'x.env.config', 'app.env.local', 'a.env.yml', 'a.env.xml', 'a.env.ini', 'a.env.txt', 'a.env.conf', 'a.env.properties', 'a.env.dat'];
     const refused = copies.flatMap(name => [`cat ${name}`, `head ${name}`, `jq --rawfile x ${name} -n '$x'`, `cp ${name} /tmp/y`, `grep k ${name}`]);
     const allowed = ['.env.example', '.env.sample', '.env.template', 'foo.env.example', 'app.env.template', '.env.dist', '.env.defaults',
         'Org.DS.EnvironmentalReporting', 'Cratis.Environments.Specs', 'a.environment.txt', 'Cratis.Env.cs', 'a.env.ts', 'app.env.d.ts',
-        'app.env.md', 'src/env.ts', 'env.md', 'Org.Env.Settings.cs'].map(name => `cat ${name}`);
+        'app.env.md', 'src/env.ts', 'env.md', 'Org.Env.Settings.cs',
+        'Org.Env.Specs.csproj', 'Org.Env.sln', 'Org.Env.Settings.props', 'Cratis.Env.Abstractions/Cratis.Env.Abstractions.csproj',
+        'Cratis.Env.dll.config.css', 'my.env.css', 'my.env.html', 'X.Env.targets', 'X.Env.slnx', 'X.Env.fsproj', 'X.Env.vbproj', 'a.env.scss',
+        'a.env.less', 'a.env.htm', 'a.env.razor', 'a.env.cshtml', 'a.env.resx', 'a.env.xaml'].map(name => `cat ${name}`);
     assertVerdicts([
         ...refused.map(command => [BLOCK, command] as [string, string]),
         ...allowed.map(command => [ALLOW, command] as [string, string]),

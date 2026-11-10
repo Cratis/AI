@@ -652,6 +652,8 @@ function is_assign(w) { return w ~ /^[A-Za-z_][A-Za-z0-9_]*(\[[^]]*\])?\+?=/ }
 
 # ── file classification for the reader commands ──
 function code_file(b) { return b ~ /\.(cs|ts|tsx|js|jsx|mjs|cjs|go|py|java|kt|rs|md)$/ }
+# Build and markup files cannot hold values, so a dotted Env segment in their names (Cratis.Env.Tool.csproj) is not an env copy.
+function build_file(b) { return b ~ /\.(csproj|fsproj|vbproj|sln|slnx|props|targets|css|scss|less|html|htm|razor|cshtml|resx|xaml)$/ }
 # A design-token file is not a credential: a stylesheet, or a file under a design, theme or style directory, is
 # fine unless it sits in a secrets or credentials directory. A bare token.json (an OAuth refresh-token file) is not.
 function token_ok(l, b) {
@@ -664,7 +666,7 @@ function sensitive_path(w,    l, b) {
     if (l ~ /(^|\/)\.kube\// || b == "kubeconfig" || b ~ /\.kubeconfig$/) return "a kubeconfig"
     if (b ~ /^\.env/ || b ~ /\.env$/) { if (b ~ /\.(example|sample|template|dist|defaults?)$/) return ""; return "an .env file" }
     # A named copy or variant (app.env.old, prod.env.local, app.env~) is protected like the file itself; templates and source files are not.
-    if (b ~ /.\.env[.~]/ && b !~ /\.(example|sample|template|dist|defaults?)$/ && !code_file(b)) return "an .env file"
+    if (b ~ /.\.env[.~]/ && b !~ /\.(example|sample|template|dist|defaults?)$/ && !code_file(b) && !build_file(b)) return "an .env file"
     # Unambiguous credential extensions also protect disguised source suffixes; ambiguous words
     # such as Signing.Key.cs are source unless the credential extension is final.
     if (b ~ /\.(pem|p12|pfx)([.]|$)/ || b ~ /\.(key|jks|keystore|kdbx)[.]*$/) return "a key or certificate file"
