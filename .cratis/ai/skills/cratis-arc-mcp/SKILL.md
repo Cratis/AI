@@ -95,7 +95,7 @@ not found.
 Defaults are `<ApplicationName>:read` and `<ApplicationName>:write`. With no
 application name and no explicit scope, startup fails with `McpToolHasNoScope`.
 
-- Add requirements with `[RequiresScope("notes:admin-read")]`
+- Add requirements with `[RequiresScope("notes:restricted-read")]`
   (`Cratis.Arc.Authorization`); repeatable, the caller must hold all of them.
   The attribute targets classes and methods only: put it on the command type or
   its handler method, and on the read model type, the performer type or the
@@ -108,8 +108,9 @@ application name and no explicit scope, startup fails with `McpToolHasNoScope`.
   and refuses calls (HTTP 403 `forbidden`). It cannot grant.
 - Every scope a tool requires, including `[RequiresScope]` extras, must be in
   `PatOptions.AllowedScopes`, or no PAT can call the tool. The list is empty by
-  default, case-sensitive, with no wildcards and no `admin` or `approve`
-  scope.
+  default, case-sensitive, with no wildcards. A scope with an `admin` or
+  `approve` segment (split on `:`, `.`, `/`, `-`) is never allowed on a PAT,
+  so a tool that requires one cannot be called with a PAT at all.
 
 ## Host setup (summary)
 
