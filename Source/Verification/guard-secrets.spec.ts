@@ -1594,15 +1594,20 @@ test('jq, yq and awk programs that read the process environment are refused', ()
         'jq -n env', "jq -n '$ENV'", "jq -n 'env.HOME'", "jq -n '$ENV.PATH'", "jq -n '$ENV[\"X\"]'", "jq -rn 'env | keys'",
         "jq -n '[env|to_entries[]]'", 'jq --arg a 1 -n env', "jq -n --arg a 1 '$ENV'", "jq -n 'env|.[]'", "echo '{}' | jq 'env'",
         "jq -n 'env' > out.json", 'cat x | jq env',
-        "awk 'BEGIN print ENVIRON[\"HOME\"]'", "awk 'BEGIN for (k in ENVIRON) print k, ENVIRON[k]'", "gawk 'BEGIN print ENVIRON[\"X\"]'",
-        "awk -v x=1 'BEGIN print ENVIRON[\"X\"]' f", "awk -e 'BEGIN print ENVIRON[\"X\"]'",
-        "yq -n 'env(HOME)'", "yq -n 'strenv(HOME)'", "yq -n '\"x\" | envsubst'", "yq -n '$ENV'",
+        "awk 'BEGIN { print ENVIRON[\"HOME\"] }'", "awk 'BEGIN { for (k in ENVIRON) print k, ENVIRON[k] }'", "gawk 'BEGIN { print ENVIRON[\"X\"] }'",
+        "awk -v x=1 'BEGIN { for (k in ENVIRON) print k }'", "awk -e 'BEGIN { print ENVIRON[\"X\"] }'",
+        "gawk 'BEGIN { print PROCINFO[\"pid\"] }'", "gawk 'BEGIN { print SYMTAB[\"ENV\" \"IRON\"][\"X\"] }'",
+        "mawk 'BEGIN { print ENVIRON[\"X\"] }'", "nawk 'BEGIN { print ENVIRON[\"X\"] }'",
+        "busybox awk 'BEGIN { print ENVIRON[\"X\"] }'",
+        'jq -en env', 'jq -e -n env', "jq -ne '$ENV'", "jq -n -e '$ENV'", "jq --args -n '$ENV' a", 'gojq -n env', "jaq -n 'env'",
+        'yq eval env', "yq e 'env(HOME)'", "yq ea 'strenv(X)'", "yq eval -n 'env(HOME)'", 'yq -n env', "yq -n '{a: env}'",
+        "yq -n 'env(HOME)'", "yq -n 'strenv(HOME)'", "yq -n '$ENV'", "jq -n 'getenv'",
     ];
     const allowed = [
-        "jq '{env: .x}' c.json", "jq '{\"env\": .x}' c.json",
+        "jq '{envelope: 1}' c.json", "jq '.environment | keys' c.json", "yq -n '\"x\" | envsubst'",
  "jq -r '.[] | .environment' c.json",
         "jq '.environment' c.json", "jq -n '1+1'", 'jq . data.json', "awk '{print $1}' notes.txt", "awk -F, '{print $2}' data.csv",
-        "jq --arg env x '.a' f.json", "jq -n '$env'", 'cat env.md', 'jq . env',
+        "jq --arg envname x '.a' f.json", 'cat env.md',
     ];
     assertVerdicts([
         ...refused.map(command => [BLOCK, command] as [string, string]),

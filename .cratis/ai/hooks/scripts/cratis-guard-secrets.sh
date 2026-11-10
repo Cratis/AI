@@ -1286,24 +1286,24 @@ function report_operand(A, k, b, filenames,    kind) {
     else if (kind != "") report(b " of " kind " prints credentials", "name the file and the key you need in your report; ask the user to confirm a value instead of printing it; for an env template read the .env.example")
 }
 # A jq, yq or awk program that reads the process environment prints every variable, like env and printenv do.
-# jq and yq are judged on the program operand; awk on every word so -e/--source programs are covered.
+# Every word of the command is judged, with quotes and backslashes removed, so no flag or subcommand layout is parsed:
+# an environment-access identifier (env, ENV, ENVIRON, strenv, getenv, PROCINFO, SYMTAB) as a whole token refuses the command.
 function env_program(b, p,    t) {
+    gsub(/[\\"']/, "", p)
     t = " " p " "
-    if (b ~ /^(awk|gawk)$/) { if (t !~ /[^A-Za-z0-9_]ENVIRON[^A-Za-z0-9_]/) return; }
-    else if (b == "jq") { if (t !~ /[$]ENV[^A-Za-z0-9_]/ && t !~ /[^A-Za-z0-9_.$"']env[^A-Za-z0-9_:]/) return }
-    else if (b == "yq") { if (t !~ /[$]ENV[^A-Za-z0-9_]/ && t !~ /[^A-Za-z0-9_](str)?env[(]/ && t !~ /envsubst/) return }
-    else return
+    if (t !~ /[^A-Za-z0-9_](env|ENV|ENVIRON|strenv|getenv|PROCINFO|SYMTAB)[^A-Za-z0-9_]/) return
     report(b " program reads the process environment, which can hold credentials", "name one non-credential variable with printenv NAME, or test existence with [ -n \"${NAME:-}\" ] && echo set")
 }
 function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals, filenames) {
     b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
-    if (b ~ /^(awk|gawk)$/) for (k = s + 1; k <= n; k++) env_program(b, A[k])
+    if (b == "busybox") { if (base(A[s + 1]) == "awk") reader(A, s + 1, n); return }
+    if (b ~ /^(awk|gawk|mawk|nawk|jq|yq|gojq|jaq)$/) for (k = s + 1; k <= n; k++) env_program(b, A[k])
     if (b ~ /^(rg|grep|egrep|fgrep)$/) {
         for (k = s + 1; k <= n; k++) if (A[k] == "-l" || (b != "rg" && A[k] == "-L") || A[k] ~ /^--files-with(out)?-match(es)?$/) filenames = 1
         for (k = s + 1; k <= n; k++) if (A[k] ~ /^-/ && ((b == "rg" && A[k] == "-L") || A[k] !~ /^(-[lL]|--files-with(out)?-match(es)?|--|-e|-F|--fixed-strings)$/)) filenames = 0
     }
     if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) { mode = "pattern"; shortvals = (b ~ /^(grep|egrep|fgrep)$/) ? "mABCdD" : (b == "rg") ? "mABCdjEMrgtT" : "ABCGgmpW"; valued = " --glob --type --type-not --max-count --include --exclude --exclude-dir --context --after-context --before-context --max-depth --threads " }
-    else if (b ~ /^(sed|awk|gawk|jq|yq)$/) { mode = "script"; shortvals = "vF"; valued = " --indent "; valued2 = " --arg --argjson --slurpfile --rawfile " }
+    else if (b ~ /^(sed|awk|gawk|mawk|nawk|jq|yq|gojq|jaq)$/) { mode = "script"; shortvals = "vF"; valued = " --indent "; valued2 = " --arg --argjson --slurpfile --rawfile " }
     # The first operand is the pattern or script unless -e/-f/--regexp/--file/--expression supplies it; only the rest are files.
     havepat = 0
     if (mode != "") for (k = s + 1; k <= n; k++) {
@@ -1326,7 +1326,7 @@ function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued,
             }
             continue
         }
-        if (need) { need = 0; env_program(b, w); continue }
+        if (need) { need = 0; continue }
         report_operand(A, k, b, filenames)
     }
 }
@@ -1461,7 +1461,7 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
         if (p && names == 0) report(b " -p/-x with no variable name prints the whole environment, including credentials", "printenv with the one non-credential variable you need")
         return
     }
-    if (b ~ /^(cat|tac|nl|less|more|head|tail|bat|batcat|strings|xxd|od|hexdump|cut|sort|uniq|base64|wc|grep|egrep|fgrep|rg|ag|sed|awk|gawk|jq|yq)$/) {
+    if (b ~ /^(cat|tac|nl|less|more|head|tail|bat|batcat|strings|xxd|od|hexdump|cut|sort|uniq|base64|wc|grep|egrep|fgrep|rg|ag|sed|awk|gawk|mawk|nawk|busybox|jq|yq|gojq|jaq)$/) {
         reader(A, s, n)
         for (k = 1; k <= nrt; k++) {
             if (REDIRECT_TOKENS[k] > n || operand_kind(A, REDIRECT_TOKENS[k], ROFF[k]) == "") continue
@@ -1488,7 +1488,7 @@ BEGIN {
     nprobe = split(".env .env.local .env.production .envrc id_rsa id_ed25519 id_ecdsa id_dsa credentials token token.json tokens.json github_token .netrc .npmrc .pypirc .pgpass .git-credentials kubeconfig", PROBE, " ")
     nprobe2 = split(".kube/config .aws/credentials .docker/config.json /proc/1/environ /run/secrets/token /var/run/secrets/token", PROBE2, " ")
     nextension = split("pem key p12 pfx jks keystore kdbx kubeconfig env", EXT, " ")
-    ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt set setopt unsetopt emulate grep egrep fgrep rg ag sed awk gawk jq yq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
+    ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt set setopt unsetopt emulate grep egrep fgrep rg ag sed awk gawk mawk nawk busybox jq yq gojq jaq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
     nstem = split(".env .pem .key .p12 .pfx .jks .keystore .kdbx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials credential .docker/ /environ run/secrets", STEM, " ")
     CMD = ENVIRON["GS_COMMAND"]
     for (pass = 1; pass <= 2; pass++) {
