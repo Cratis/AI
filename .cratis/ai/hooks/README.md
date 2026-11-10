@@ -34,6 +34,10 @@ searches with secret/certificate/key-like prefixes also remain blocked. For ripg
 symlinks, not filename-only mode. Literal directory checks retain the process-cwd fallback when the
 payload omits cwd; glob probing does not. Filesystem check/use races remain: this is not a sandbox.
 
+A Pi session runs guards from its starting checkout. Refresh the corpus there with `cratis ai update`,
+or start a new session in the checkout you change. Selecting a newer installed guard corpus per call
+is tracked in [Cratis/AI#1114](https://github.com/Cratis/AI/issues/1114).
+
 The shell-write guard classifies **write-target words**, not every word. It lexes the command into
 simple commands. When every command is a reviewed reader or staging verb (`cat`, `head`, `tail`, `wc`,
 `ls`, `rg`, `grep`, `echo`, `git status|diff|log|show|add|commit`, `git ls-files`, `jq`, read-only

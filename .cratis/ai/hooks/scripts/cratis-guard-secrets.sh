@@ -436,15 +436,53 @@ function split_scan(w, m,    k, r, hit) {
     }
     return ""
 }
-function end_cmd(    k, m, w, j, hit, exempt, path_git) {
+# Only fully modeled literal non-readers can distinguish data slots from paths.
+function nonreader(A, M, n,    i, w, first, read) {
+    delete DATA
+    for (i = 1; i <= n; i++) if (expands(A[i], M[i]) || index(A[i], "`") || A[i] ~ /^</) return 0
+    first = tolower(base(A[1]))
+    if (first == "dotnet") return A[2] ~ /^(test|build)$/
+    if (first == "git" && A[2] == "clone") {
+        for (i = 3; i <= n; i++) if (A[i] ~ /^(https?|ssh|git):\/\// || A[i] ~ /^git@/) DATA[i] = 1
+        return 1
+    }
+    if (first == "shellcheck") return 1
+    if (first == "find") {
+        for (i = 2; i <= n; i++) {
+            w = A[i]
+            if (w ~ /^>/) { if (w == ">" || w == ">>") i++; continue }
+            if (w ~ /^-(name|iname|path|regex|wholename)$/) { if (++i > n) return 0; DATA[i] = 1; continue }
+            if (w ~ /^-(maxdepth|mindepth)$/) { if (++i > n || A[i] !~ /^[0-9]+$/) return 0; DATA[i] = 1; continue }
+            if (w ~ /^-/ && w !~ /^-(print|print0|type|L|P|H)$/) return 0
+            if (w == "-type") { if (++i > n || A[i] !~ /^[bcdflps]$/) return 0 }
+        }
+        return 1
+    }
+    if (first != "gh") return 0
+    read = A[2] " " A[3]
+    if (A[2] != "api" && read !~ /^(repo (view|list)|issue (view|list|status)|pr (view|list|status|diff|checks)|release (view|list)|run (view|list|watch)|search (issues|prs|repos|commits|code))$/) return 0
+    for (i = A[2] == "api" ? 3 : 4; i <= n; i++) {
+        w = A[i]
+        if (w ~ /^>/) { if (w == ">" || w == ">>") i++; continue }
+        if (w ~ /^(--jq|-q|--template|-t)$/) { if (++i > n) return 0; DATA[i] = 1; continue }
+        if (w ~ /^(--json|--repo|-R|--limit|-L|--hostname|--header|-H)$/) { if (++i > n) return 0; DATA[i] = 1; continue }
+        if (A[2] == "api" && w ~ /^(--method|-X)$/) { if (++i > n || A[i] !~ /^(GET|HEAD)$/) return 0; continue }
+        if (w ~ /^-/ && w !~ /^(--paginate|--slurp|--include|--silent|--log|--log-failed|--web)$/) return 0
+        if (A[2] != "api") DATA[i] = 1
+    }
+    return 1
+}
+function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only) {
     flush_word()
     if (nw > 0) {
         commands++
+        paths_only = nonreader(W, WM, nw)
         regex_slots(W, 1, nw)
         path_git = git_paths(W, WM, nw)
         for (k = 1; k <= nw; k++) {
             if (path_git && W[k] !~ /^-/) continue
             if (is_assign(W[k])) set_var(W[k], WM[k])
+            if (paths_only && ((k in DATA) || sensitive_path(W[k]) == "")) continue
             exempt = (k in RP) && !WU[k]
             if (exempt && RP[k] < 0) continue
             w = exempt ? substr(W[k], 1, RP[k]) : W[k]
@@ -735,6 +773,7 @@ function sensitive_path(w,    l, b) {
         b ~ /credentials.*\.(yaml|yml|xml|ini|toml|txt|conf|properties|config)([.]|$)/ ||
         b ~ /secrets\.ya?ml([.]|$)/) return "a credentials file"
     if (l ~ /\.docker\/config\.json$/) return "the Docker registry credentials"
+    if (l ~ /(^|\/)(\.ssh|\.aws)\/?$/) return "a credential directory"
     if (l ~ /\/proc\/[^\/]*\/environ$/) return "a process environment"
     if (l ~ /^\/(var\/)?run\/secrets\//) return "mounted secrets"
     return ""
@@ -1017,7 +1056,10 @@ function probe_read_chain(text, prior,    i, c, q, normal, n, k, readers, reader
     n = split(normal, parts, "\034")
     for (k = 1; k <= n; k++) {
         clause = parts[k]; sub(/^[ \t]+/, "", clause); sub(/[ \t]+$/, "", clause)
-        if (clause ~ /^(cat|rg|grep|egrep|fgrep|head|tail)[ \t]/) { readers++; reader_index = prior + k; continue }
+        if (clause ~ /^(cat|rg|grep|egrep|fgrep|head|tail|wc)[ \t]/) {
+            glob_recursive = clause ~ /^rg[ \t]/ || clause ~ /[ \t]--recursive([ \t]|$)/ || clause ~ /[ \t]-[A-Za-z]*[rR][A-Za-z]*([ \t]|$)/
+            readers++; reader_index = prior + k; continue
+        }
         if (clause ~ /^git[ \t]+diff([ \t]+(--cc|--stat|--check|--no-color))*$/) continue
         if (clause ~ /^git[ \t]+log([ \t]+(-[0-9]+|--format=[^ \t]+|--oneline|--no-color))*$/) continue
         if (clause ~ /^git[ \t]+(branch[ \t]+--show-current|rev-parse[ \t]+HEAD|status[ \t]+--short)$/) continue
@@ -1052,10 +1094,13 @@ function glob_secret_match(a,    prefix, parent, dir, script, cmd, line, count, 
         "checked_cd() { local logical; logical=$(cd -L -- \"$1\" && pwd -P) || return 3; " \
         "cd -P -- \"$1\" || return 3; [ \"$logical\" = \"$PWD\" ] && [ -r . ] && [ -x . ]; }; " \
         "checked_cd \"$1\" || exit 3; parent=${2%/*}; stem=${2##*/}; [ \"$parent\" != \"$2\" ] || parent=.; " \
-        "checked_cd \"$parent\" || exit 3; " \
-        "n=0; for f in \"$stem\"*; do n=$((n+1)); [ \"$n\" -le 200 ] && [ -f \"$f\" ] && [ ! -L \"$f\" ] || exit 3; " \
+        "probe=$parent; while [ ! -e \"$probe\" ]; do [ ! -L \"$probe\" ] || exit 3; next=${probe%/*}; " \
+        "[ \"$next\" != \"$probe\" ] || next=.; probe=$next; done; " \
+        "checked_cd \"$probe\" || exit 3; [ \"$probe\" = \"$parent\" ] || { echo OK; exit 0; }; " \
+        "n=0; for f in \"$stem\"*; do n=$((n+1)); [ \"$n\" -le 200 ] && [ ! -L \"$f\" ] || exit 3; " \
+        "if [ -d \"$f\" ]; then [ \"$3\" != 1 ] || exit 3; continue; fi; [ -f \"$f\" ] || exit 3; " \
         "case \"$PWD/$f\" in *[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$PWD/$f\"; done; echo OK"
-    cmd = "bash -c " shell_quote(script) " guard-glob " shell_quote(dir) " " shell_quote(prefix) " 2>/dev/null"
+    cmd = "bash -c " shell_quote(script) " guard-glob " shell_quote(dir) " " shell_quote(prefix) " " shell_quote(glob_recursive ? "1" : "0") " 2>/dev/null"
     while ((cmd | getline line) > 0) {
         if (line == "OK") { ok = 1; continue }
         if (ok || substr(line, 1, 2) != "F:" || ++count > 200) { ok = 0; break }
@@ -1069,6 +1114,10 @@ function glob_secret_match(a,    prefix, parent, dir, script, cmd, line, count, 
     }
     close(cmd)
     if (!ok) { matched_file = ""; return "a key or certificate file" }
+    # Explicit credential-name prefixes stay protected even before those files exist.
+    if (!count && base(prefix) != "") for (k = 1; k <= nprobe; k++) {
+        if (index(PROBE[k], tolower(base(prefix))) == 1 && sensitive_path(PROBE[k]) != "") return sensitive_path(PROBE[k])
+    }
     if (!count && !filenames_only && (base(prefix) ~ /^(secrets?|cert(ificate)?s?|keys?|private|credentials?)([._-]|$)/ || tolower(prefix) ~ /\.(pem|key|p12|pfx|jks|keystore|kdbx|kubeconfig|env)([._-]|$)/ || sensitive_path(dir "/" prefix) != "")) return "a key or certificate file"
     return found
 }
@@ -1080,6 +1129,8 @@ function alt_kind(a,    b, d, kind, k, glob) {
     b = a; sub(/.*\//, "", b)
     glob = (a ~ /[\004-\006]/)
     if (!has_sentinel(a)) return sensitive_path(a)
+    # A supported reader glob is judged by its real regular-file matches, not possible key basenames.
+    if (glob && substr(a, length(a), 1) == "\004") return glob_secret_match(a)
     if (!glob) {
         kind = sensitive_path(a)
         if (kind != "") return kind

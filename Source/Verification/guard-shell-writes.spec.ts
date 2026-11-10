@@ -77,7 +77,8 @@ test('read-only globs allow reads while interpreter heredocs retain conservative
             if (present) writeFileSync(join(repo.root, '.env'), 'synthetic fixture');
             await checkCases([
                 [ALLOW, "rg -n foo --glob '*.csproj'"], [ALLOW, 'rg -n foo Directory.Build.*'],
-                [BLOCK, 'rg -n foo *.cs'], [BLOCK, 'echo x > *.csproj'],
+                // Real reader expansion does not become a writer; unresolved mutation globs still refuse.
+                [ALLOW, 'rg -n foo *.cs'], [BLOCK, 'echo x > *.csproj'],
                 [ALLOW, "rg -n foo -g '*.csproj'"], [BLOCK, 'rg -n .env --glob'], [BLOCK, 'rg -n foo --glob *.csproj'],
                 [BLOCK, "node <<'N'\nconsole.log(`${Object.keys(e || {}).join(',')}`)\nN"],
                 [BLOCK, `cd '${repo.root}' && node <<'N'\nconsole.log(\`\${Object.keys(e || {}).join(',')}\`)\nN`],
@@ -188,7 +189,7 @@ test('jq and read-only awk programs are pure readers; write, exec and option for
     } finally { repo.dispose(); }
 });
 
-test('leading globs are allowed only on display-only read verbs; every writer and option-capable reader stays refused', async () => {
+test('leading reader globs stay read-only; writers and unchecked option-capable readers stay refused', async () => {
     const repo = scratchRepository();
     try {
         mkdirSync(join(repo.root, '.cratis'));
@@ -199,9 +200,9 @@ test('leading globs are allowed only on display-only read verbs; every writer an
                 'egrep Foo *.csproj', 'fgrep Foo *.csproj', 'cat Directory.Build.props', 'ls Source/*/*.csproj',
                 'ls *.csproj | wc -l', 'ls *.csproj; git status --short', 'ls *.csproj && git ls-files *.cs',
                 // Flipped from BLOCK: a read-only verb with a leading glob; secret reads stay with the secrets guard.
-                'grep x .env *.txt', 'cat - * .env',
+                'grep x .env *.txt', 'cat - * .env', 'rg -n foo *.csproj',
             ].map(command => [ALLOW, command] as [string, string]),
-            ...['rg -n foo *.csproj', 'git diff *.cs', 'git log *.cs', 'git show *.cs', 'git grep foo *.cs', 'git blame *.cs',
+            ...['git diff *.cs', 'git log *.cs', 'git show *.cs', 'git grep foo *.cs', 'git blame *.cs',
                 'git status *.cs', 'git -C . ls-files *.csproj', 'git add *.csproj', 'git commit -m x *.csproj', 'git branch *',
                 'sed -n 1p *.csproj', 'jq . *.json', 'awk 1 *.txt', 'echo *.csproj', 'printf %s *.csproj', 'test -f *.csproj',
                 'cd *', 'cp x *.csproj', 'tee *.csproj', 'sed -i s/a/b/ *.csproj', 'echo x > *.csproj',

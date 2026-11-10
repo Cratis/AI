@@ -375,9 +375,13 @@ test('literal-prefix trailing globs inspect bounded real matches, never shell in
         }
         for (const command of ['cat *', 'cat .env*', 'cat *.pem', 'cat *.key', 'cat id_rsa*',
             'cd "$X" && cat project*', 'pushd d; cat project*', 'cd missing && cat project*',
-            'cd keys && cat server*', 'rg -n foo missing/project*', "rg -n foo 'Dir'$x*"]) {
+            'cd keys && cat server*', "rg -n foo 'Dir'$x*"]) {
             assert.equal(runGuard(command, {}, directory).code, 2, command);
         }
+        // A statically missing operand directory is a no-match, not an unreadable directory.
+        assert.equal(runGuard('rg -n foo missing/project*', {}, directory).code, 0);
+        mkdirSync(join(directory, 'project-directory'));
+        assert.equal(runGuard('cat project*', {}, directory).code, 0);
         assert.equal(runGuard('cat project*', {}, '').code, 2);
         writeFileSync(join(directory, 'options.sh'), 'shopt -s nocaseglob\n');
         for (const env of [{ GLOBIGNORE: 'x' }, { BASH_ENV: join(directory, 'options.sh') }, { ENV: join(directory, 'options.sh') }]) {
@@ -532,10 +536,11 @@ test('original read lanes allow directory globs only with proven read-only conte
         for (const path of ['Source/AuthProxy.Security.Specs/Security.csproj', 'Source/Aspire.Specs/Aspire.csproj', 'Directory.Build.props', '.cratis/ai/rules/project.md', 'Source/Admin.Specs/Admin.Specs.csproj', 'Source/Infrastructure/Infrastructure.csproj']) writeFileSync(join(directory, path), 'synthetic fixture');
         for (const command of commands) assert.equal(runGuard(command, {}, directory).code, 0, command);
         assert.equal(runGuard('rg -n foo Source/Directory.Build.*', {}, directory).code, 0);
+        assert.equal(runGuard('rg -l foo missing/project*', {}, directory).code, 0);
         assert.equal(runGuard(commands[0], { CDPATH: directory }, directory).code, 0);
         assert.equal(runGuard('cd Source && rg -n foo Directory.Build.*', { CDPATH: directory }, directory).code, 2);
         for (const command of ['z keys && rg -n foo Source/Directory.Build.*', 'git diff --cc; rg -n foo Source/Directory.Build.*',
-            'git diff --cc && rg -n foo Source/Directory.Build.* && touch marker', 'rg -l foo missing/project*',
+            'git diff --cc && rg -n foo Source/Directory.Build.* && touch marker',
             'rg -n password .env*', 'git show HEAD:.env']) assert.equal(runGuard(command, {}, directory).code, 2, command);
         writeFileSync(join(directory, 'Source/Directory.Build.private.key'), 'synthetic fixture');
         assert.equal(runGuard(commands[0], {}, directory).code, 2);
