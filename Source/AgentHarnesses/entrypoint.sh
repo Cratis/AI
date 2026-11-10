@@ -399,6 +399,28 @@ prepare_mcp_credentials() {
 STREAM_FILE=/tmp/claude-stream.jsonl
 : > "$STREAM_FILE"
 
+# Classifies stdin without returning any of the original text. Precedence is permission, auth,
+# hook, non-fast-forward, network, unknown: specific rejections/auth markers beat generic transport
+# messages such as "unable to access". A non-fast-forward needs git's [rejected] marker too.
+classify_push_failure() {
+    local message
+    message=$(cat)
+    if grep -Eiq '(^|[^0-9])403([^0-9]|$)|permission to .* denied|permission denied|write access to repository not granted' <<<"$message"; then
+        echo rejected-permission
+    elif grep -Eiq 'authentication failed|could not read username|invalid username or password|(^|[^0-9])401([^0-9]|$)' <<<"$message"; then
+        echo auth-failed
+    elif grep -Eiq 'pre-receive hook declined|protected branch hook declined|GH006|GH013' <<<"$message" ||
+         { grep -Eiq 'remote rejected' <<<"$message" && grep -Eiq 'hook' <<<"$message"; }; then
+        echo rejected-hook
+    elif grep -Eiq '\[rejected\]' <<<"$message" && grep -Eiq 'non-fast-forward|fetch first|stale info' <<<"$message"; then
+        echo rejected-non-fast-forward
+    elif grep -Eiq 'could not resolve host|connection timed out|connection refused|failed to connect|RPC failed|early EOF|unable to access' <<<"$message"; then
+        echo network
+    else
+        echo unknown
+    fi
+}
+
 report() {
     local status="$1"
     local detail="${2:-}"
@@ -440,12 +462,16 @@ report() {
             --arg provider "$provider" \
             --arg model "$model" \
             --arg vendorCode "$vendor_code" \
+            --arg pushCategory "${PUSH_FAILURE_CATEGORY:-}" \
             '{status: $status, detail: $detail, inputTokens: $inputTokens, outputTokens: $outputTokens, costUsd: $costUsd, durationMs: $durationMs, cpuSeconds: $cpuSeconds, memoryBytes: $memoryBytes}
              + (if $reason == "" then {} else
                    {reason: $reason}
                    + (if $provider == "" then {} else {provider: $provider} end)
                    + (if $model == "" then {} else {model: $model} end)
                    + (if $vendorCode == "" then {} else {vendorCode: $vendorCode} end)
+                end)
+             + (if $status != "failed" or $pushCategory == "" then {} else
+                   {pushFailure: {category: (if (["rejected-permission", "rejected-non-fast-forward", "rejected-hook", "auth-failed", "network", "unknown"] | index($pushCategory)) == null then "unknown" else $pushCategory end)}}
                 end)' |
         curl -fsS --retry 6 --retry-max-time 90 --retry-connrefused --retry-all-errors \
             -X POST "${DIRECT_CALLBACK_URL}" -H 'Content-Type: application/json' "${auth_args[@]}" -d @- \
@@ -697,6 +723,10 @@ stop_headroom() {
 # no upstream to compare against on a branch that has never been pushed, and an empty branch pushed
 # anyway would litter the remote with one dead ref per run that did nothing.
 WORKSPACES=()
+# First push failure wins, including across retries and callback-free exit/termination traps.
+# report() sends only the validated category on failed callbacks: pushFailure: {category}.
+# There is no worker identity in the harness; DIRECT_WORK_ID identifies scheduled work, not a worker.
+PUSH_FAILURE_CATEGORY=""
 
 # The process id of the running agent session, while there is one - see run_claude_code/run_pi
 # below. Only the termination trap reads it, to stop the agent making further commits while the
@@ -756,7 +786,7 @@ push_workspaces() {
     [[ -z "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]] || return 0
     [[ -z "${DIRECT_BRANCH:-}" ]] && return 0
     [[ ${#WORKSPACES[@]} -eq 0 ]] && return 0
-    local index entry dest started_at url head failed=0
+    local index entry dest started_at url head push_stderr failed=0
     for index in "${!WORKSPACES[@]}"; do
         entry="${WORKSPACES[$index]}"
         [[ -z "$entry" ]] && continue
@@ -768,6 +798,7 @@ push_workspaces() {
         fi
 
         if ! refresh_git_token; then
+            PUSH_FAILURE_CATEGORY="${PUSH_FAILURE_CATEGORY:-auth-failed}"
             log "FAILED to prepare push of ${DIRECT_BRANCH} from ${dest}"
             failed=1
             continue
@@ -779,13 +810,25 @@ push_workspaces() {
         # "fatal: --mirror can't be combined with refspecs" and the run's commits are lost. Naming
         # the URL sidesteps the mirror configuration entirely, and works the same for an ordinary
         # clone, so both checkout paths push identically.
-        if GITHUB_TOKEN="${GITHUB_TOKEN:-}" git -C "$dest" push "$url" "HEAD:refs/heads/${DIRECT_BRANCH}"; then
+        # mktemp creates a private (0600) file in the worker's scratch area. Git stderr may
+        # contain credentials: replay it only to the worker console, never to report()/detail.
+        if ! push_stderr=$(mktemp "${TMPDIR:-/tmp}/push-stderr.XXXXXX"); then
+            PUSH_FAILURE_CATEGORY="${PUSH_FAILURE_CATEGORY:-unknown}"
+            log "FAILED to capture push diagnostics from ${dest}"
+            failed=1
+            continue
+        fi
+        if GITHUB_TOKEN="${GITHUB_TOKEN:-}" git -C "$dest" push "$url" "HEAD:refs/heads/${DIRECT_BRANCH}" 2>"$push_stderr"; then
+            cat "$push_stderr" >&2
             log "Pushed ${DIRECT_BRANCH} from ${dest}"
             WORKSPACES[index]="${dest}|${head}|${url}"
         else
+            cat "$push_stderr" >&2
+            PUSH_FAILURE_CATEGORY="${PUSH_FAILURE_CATEGORY:-$(classify_push_failure < "$push_stderr")}"
             log "FAILED to push ${DIRECT_BRANCH} from ${dest} - the work in this checkout is about to be lost"
             failed=1
         fi
+        rm -f "$push_stderr"
     done
     return "$failed"
 }
