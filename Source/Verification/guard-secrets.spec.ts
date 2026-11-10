@@ -1588,3 +1588,24 @@ test('the guard refuses every call when jq is missing', () => {
         isolated.dispose();
     }
 });
+
+test('jq, yq and awk programs that read the process environment are refused', () => {
+    const refused = [
+        'jq -n env', "jq -n '$ENV'", "jq -n 'env.HOME'", "jq -n '$ENV.PATH'", "jq -n '$ENV[\"X\"]'", "jq -rn 'env | keys'",
+        "jq -n '[env|to_entries[]]'", 'jq --arg a 1 -n env', "jq -n --arg a 1 '$ENV'", "jq -n 'env|.[]'", "echo '{}' | jq 'env'",
+        "jq -n 'env' > out.json", 'cat x | jq env',
+        "awk 'BEGIN print ENVIRON[\"HOME\"]'", "awk 'BEGIN for (k in ENVIRON) print k, ENVIRON[k]'", "gawk 'BEGIN print ENVIRON[\"X\"]'",
+        "awk -v x=1 'BEGIN print ENVIRON[\"X\"]' f", "awk -e 'BEGIN print ENVIRON[\"X\"]'",
+        "yq -n 'env(HOME)'", "yq -n 'strenv(HOME)'", "yq -n '\"x\" | envsubst'", "yq -n '$ENV'",
+    ];
+    const allowed = [
+        "jq '{env: .x}' c.json", "jq '{\"env\": .x}' c.json",
+ "jq -r '.[] | .environment' c.json",
+        "jq '.environment' c.json", "jq -n '1+1'", 'jq . data.json', "awk '{print $1}' notes.txt", "awk -F, '{print $2}' data.csv",
+        "jq --arg env x '.a' f.json", "jq -n '$env'", 'cat env.md', 'jq . env',
+    ];
+    assertVerdicts([
+        ...refused.map(command => [BLOCK, command] as [string, string]),
+        ...allowed.map(command => [ALLOW, command] as [string, string]),
+    ]);
+});

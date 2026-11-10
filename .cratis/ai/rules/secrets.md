@@ -13,7 +13,7 @@ they also hold without it.
 - **[contract] Never run a command whose output contains credentials:** `kubectl get … -o json|yaml`
   or `kubectl describe` on pods, deployments, statefulsets, daemonsets, jobs, configmaps or
   secrets; `kubectl get secret`; `kubectl config view --raw`; `env`, `printenv`, `export -p`
-  (including `env | …`); `docker inspect`; `gh secret`, `gh api …/secrets`, `gh auth token`;
+  (including `env | …`); `jq`/`yq`/`awk` programs that read the environment (`env`, `$ENV`, `ENVIRON`); `docker inspect`; `gh secret`, `gh api …/secrets`, `gh auth token`;
   `vault read`, `vault kv get`; cloud secret-manager reads; `pulumi … --show-secrets`;
   `cratis config get … --show-secret`; reading kubeconfigs, `.env*` files, private keys or token files.
 - **[contract] Project the field you need and say which one:** `-o jsonpath='{.spec.containers[*].image}'`,

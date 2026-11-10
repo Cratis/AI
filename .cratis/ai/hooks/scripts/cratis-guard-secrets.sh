@@ -1283,8 +1283,19 @@ function report_operand(A, k, b, filenames,    kind) {
     else if (kind != "" && via_pattern) report(b " of a glob that may match " kind " prints credentials", "list the directory with ls, then name the exact files; for an env template read the .env.example")
     else if (kind != "") report(b " of " kind " prints credentials", "name the file and the key you need in your report; ask the user to confirm a value instead of printing it; for an env template read the .env.example")
 }
+# A jq, yq or awk program that reads the process environment prints every variable, like env and printenv do.
+# jq and yq are judged on the program operand; awk on every word so -e/--source programs are covered.
+function env_program(b, p,    t) {
+    t = " " p " "
+    if (b ~ /^(awk|gawk)$/) { if (t !~ /[^A-Za-z0-9_]ENVIRON[^A-Za-z0-9_]/) return; }
+    else if (b == "jq") { if (t !~ /[$]ENV[^A-Za-z0-9_]/ && t !~ /[^A-Za-z0-9_.$"']env[^A-Za-z0-9_:]/) return }
+    else if (b == "yq") { if (t !~ /[$]ENV[^A-Za-z0-9_]/ && t !~ /[^A-Za-z0-9_](str)?env[(]/ && t !~ /envsubst/) return }
+    else return
+    report(b " program reads the process environment, which can hold credentials", "name one non-credential variable with printenv NAME, or test existence with [ -n \"${NAME:-}\" ] && echo set")
+}
 function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals, filenames) {
     b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
+    if (b ~ /^(awk|gawk)$/) for (k = s + 1; k <= n; k++) env_program(b, A[k])
     if (b ~ /^(rg|grep|egrep|fgrep)$/) {
         for (k = s + 1; k <= n; k++) if (A[k] == "-l" || (b != "rg" && A[k] == "-L") || A[k] ~ /^--files-with(out)?-match(es)?$/) filenames = 1
         for (k = s + 1; k <= n; k++) if (A[k] ~ /^-/ && ((b == "rg" && A[k] == "-L") || A[k] !~ /^(-[lL]|--files-with(out)?-match(es)?|--|-e|-F|--fixed-strings)$/)) filenames = 0
@@ -1313,7 +1324,7 @@ function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued,
             }
             continue
         }
-        if (need) { need = 0; continue }
+        if (need) { need = 0; env_program(b, w); continue }
         report_operand(A, k, b, filenames)
     }
 }
