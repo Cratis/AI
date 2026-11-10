@@ -28,31 +28,44 @@ const argumentsKey = /\bargs["']?\s*[:=]\s*\[/;
 const source = /--(?:registry|source)\b|(?:extra-)?index-url\b|\bnuget\.org\b|\bregistry\.npmjs\.org\b|https?:\/\/[^\s<>"'`]*(?:registry|nuget|feeds?|packages|artifactory|nexus|pypi|\/v3\/index\.json|\/simple\b)[^\s<>"'`]*|(?:["'](?:registry|source|index-url)["']\s*:|<add\b[^>]*\bvalue=)[^\r\n]*https?:\/\//i;
 const declaration = /<PackageReference\b|["'](?:devDependencies|peerDependencies|optionalDependencies|dependencies)["']\s*:|@[a-z0-9._-]+\/[a-z0-9._-]+/i;
 
+/** The JSON/TOML block context carried between logical lines: an open dependency map, an MCP launcher and its args list. */
+class BlockContext {
+    private dependencies = false;
+    private launcher = false;
+    private argumentsList = false;
+
+    /** Whether the logical line is a dependency or source claim, given the context entering it; then closes any block it ends. */
+    inspect(text: string): boolean {
+        if (/["'](?:devDependencies|peerDependencies|optionalDependencies|dependencies)["']\s*:\s*\{/.test(text)) this.dependencies = true;
+        if (/^\s*(?:}|\[(?!\s*["']))/.test(text)) { this.launcher = false; this.argumentsList = false; }
+        if (commandKey.test(text)) this.launcher = mcpCommand.test(text);
+        if (this.launcher && argumentsKey.test(text)) this.argumentsList = true;
+        const suspicious = isDependencyClaim(text)
+            || (this.argumentsList && /["'][^"']+["']/.test(text))
+            || (this.dependencies && /["'][^"']+["']\s*:/.test(text));
+        if (this.dependencies && /}/.test(text)) this.dependencies = false;
+        if (this.argumentsList && /\]/.test(text)) this.argumentsList = false;
+        return suspicious;
+    }
+}
+
+function isDependencyClaim(text: string): boolean {
+    return install.some(pattern => pattern.test(text)) || source.test(text) || declaration.test(text) || mcpCommand.test(text);
+}
+
 /** Inspect only added lines, retaining unchanged surrounding dependency blocks and continued shell commands. */
 export function instructionDependencyFindings(file: string, content: string, added: Set<number>): AuthoringFinding[] {
     const findings: AuthoringFinding[] = [];
     const lines = content.split(/\r?\n/);
-    let dependencies = false;
-    let launcher = false;
-    let argumentsList = false;
+    const context = new BlockContext();
     for (let index = 0; index < lines.length; index++) {
         const first = index;
         while (/\\\s*$/.test(lines[index]) && index + 1 < lines.length) index++;
         const text = lines.slice(first, index + 1).join('\n').replace(/\\\s*\n/g, ' ');
-        if (/["'](?:devDependencies|peerDependencies|optionalDependencies|dependencies)["']\s*:\s*\{/.test(text)) dependencies = true;
-        if (/^\s*(?:}|\[(?!\s*["']))/.test(text)) { launcher = false; argumentsList = false; }
-        if (commandKey.test(text)) launcher = mcpCommand.test(text);
-        if (launcher && argumentsKey.test(text)) argumentsList = true;
-        const suspicious = install.some(pattern => pattern.test(text)) || source.test(text) || declaration.test(text) || mcpCommand.test(text)
-            || (argumentsList && /["'][^"']+["']/.test(text))
-            || (dependencies && /["'][^"']+["']\s*:/.test(text));
-        if (suspicious) {
-            for (let line = first + 1; line <= index + 1; line++) {
-                if (added.has(line)) findings.push({ file, line, rule: 'instruction-dependencies', matchedText: lines[line - 1].trim() });
-            }
+        if (!context.inspect(text)) continue;
+        for (let line = first + 1; line <= index + 1; line++) {
+            if (added.has(line)) findings.push({ file, line, rule: 'instruction-dependencies', matchedText: lines[line - 1].trim() });
         }
-        if (dependencies && /}/.test(text)) dependencies = false;
-        if (argumentsList && /\]/.test(text)) argumentsList = false;
     }
     return findings;
 }
@@ -87,6 +100,24 @@ function instructionContent(path: string): string {
     return lstatSync(path).isSymbolicLink() ? readlinkSync(path) : readFileSync(path, 'utf8');
 }
 
+interface Comparison {
+    root: string;
+    base: string;
+    changed: Map<string, string>;
+    untracked: string[];
+    readInstruction: (path: string) => string;
+}
+
+function fileFindings(comparison: Comparison, file: string): AuthoringFinding[] {
+    const { root, base, changed, untracked } = comparison;
+    const content = comparison.readInstruction(join(root, file));
+    const original = changed.get(file);
+    const paths = original && original !== file ? [original, file] : [file];
+    const added = untracked.includes(file) ? new Set(content.split('\n').map((_, index) => index + 1))
+        : addedLines(comparisonGit(root, 'diff', '--no-ext-diff', '--no-textconv', '-M', '--unified=0', base, '--', ...paths));
+    return instructionDependencyFindings(file, content, added);
+}
+
 /** Compare the working tree (including staged, unstaged and new unignored files) to the Git merge base. */
 export function checkInstructionDependencies(root: string, readInstruction = instructionContent): InstructionDependencyReport {
     let base: string;
@@ -98,14 +129,10 @@ export function checkInstructionDependencies(root: string, readInstruction = ins
         const untracked = git('ls-files', '--others', '--exclude-standard', '-z').split('\0').filter(isInstructionFile);
         const files = [...new Set([...changed.keys(), ...untracked])];
         const skippedFiles: Array<{ file: string; reason: string }> = [];
+        const comparison: Comparison = { root, base, changed, untracked, readInstruction };
         const findings = files.flatMap(file => {
             try {
-                const content = readInstruction(join(root, file));
-                const original = changed.get(file);
-                const paths = original && original !== file ? [original, file] : [file];
-                const added = untracked.includes(file) ? new Set(content.split('\n').map((_, index) => index + 1))
-                    : addedLines(git('diff', '--no-ext-diff', '--no-textconv', '-M', '--unified=0', base, '--', ...paths));
-                return instructionDependencyFindings(file, content, added);
+                return fileFindings(comparison, file);
             } catch (error) {
                 skippedFiles.push({ file, reason: error instanceof Error ? error.message : String(error) });
                 return [];

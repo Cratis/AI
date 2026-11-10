@@ -12,22 +12,30 @@ const descriptionMetaPattern = /\b(?:pinned|provenance|ledger|probe\w*|contradic
 const timePattern = /\b(?:today|currently|not yet|yet to|soon|planned|upcoming|recently|as of|new in|latest)\b/gi;
 const historyPattern = /\b(?:read at v(?=\d|\b)|(?:decision 0\d{3}|ledger|drift report|historical|unreleased|released in|probed on)\b)/gi;
 
+interface Fence { character: string; length: number }
+
+function fenceOpening(text: string): Fence | undefined {
+    const opening = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(text);
+    if (!opening || (opening[1][0] === '`' && opening[2].includes('`'))) return undefined;
+    return { character: opening[1][0], length: opening[1].length };
+}
+
+function closesFence(text: string, fence: Fence): boolean {
+    const closing = /^ {0,3}(`{3,}|~{3,})\s*$/.exec(text);
+    return closing !== null && closing[1][0] === fence.character && closing[1].length >= fence.length;
+}
+
 /** Preserve physical, one-based line numbers while excluding Requires lines and Markdown fences. */
 export function proseLines(content: string, start: number) {
-    let fence: { character: string; length: number } | undefined;
+    let fence: Fence | undefined;
     return content.split(/\r?\n/).flatMap((text, index) => {
         if (index < start) return [];
         if (fence) {
-            const closing = /^ {0,3}(`{3,}|~{3,})\s*$/.exec(text);
-            if (closing && closing[1][0] === fence.character && closing[1].length >= fence.length) fence = undefined;
+            if (closesFence(text, fence)) fence = undefined;
             return [];
         }
-        const opening = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(text);
-        if (opening && (opening[1][0] !== '`' || !opening[2].includes('`'))) {
-            fence = { character: opening[1][0], length: opening[1].length };
-            return [];
-        }
-        if (/^\s*(?:(?:[-*+]|\d+[.)])\s+)?Requires /.test(text)) return [];
+        fence = fenceOpening(text);
+        if (fence || /^\s*(?:(?:[-*+]|\d+[.)])\s+)?Requires /.test(text)) return [];
         return [{ text, line: index + 1 }];
     });
 }
@@ -44,14 +52,32 @@ function descriptionFindings(file: string, content: string, closing: number, aut
     if (document.errors.length > 0) return [];
     const description = document.get('description', true);
     if (!isScalar(description) || typeof description.value !== 'string' || !description.range) return [];
-    const start = openingOffset + description.range[0];
-    const end = openingOffset + description.range[1];
+    const [rangeStart, rangeEnd] = description.range;
+    const start = openingOffset + rangeStart;
+    const end = openingOffset + rangeEnd;
     const firstLine = content.slice(0, start).split('\n').length;
     // Scan the scalar's source range, not its folded value, to keep multiline locations accurate.
     const sourceLines = content.slice(start, end).split(/\r?\n/).map((text, index) => ({ text, line: firstLine + index }));
     return [
         ...matches(file, sourceLines, 'description-version', versionPattern),
         ...(authoring ? matches(file, sourceLines, 'description-meta', descriptionMetaPattern) : []),
+    ];
+}
+
+/** Index of the closing `---` of the frontmatter, or -1 when the content has none. */
+function frontmatterClosing(content: string): number {
+    const lines = content.split(/\r?\n/);
+    return lines[0] === '---' ? lines.findIndex((line, index) => index > 0 && line === '---') : -1;
+}
+
+function versionsExceedBudget(skill: boolean, versionCount: number, content: string): boolean {
+    return skill ? versionCount > 3 : versionCount * 40 > lineCount(content);
+}
+
+function skillOnlyFindings(file: string, prose: Array<{ text: string; line: number }>) {
+    return [
+        ...matches(file, prose, 'commit-hash', hashPattern).filter(finding => /\d/.test(finding.matchedText) && /[a-f]/i.test(finding.matchedText)),
+        ...matches(file, prose, 'history-language', historyPattern),
     ];
 }
 
@@ -65,18 +91,14 @@ export function skillHygieneFindings(file: string, content: string, authoring = 
     const skill = /(?:^|\/)SKILL\.md$/.test(path);
     const reference = /(?:^|\/)references\/.+\.md$/.test(path);
     if (!skill && !reference) return [];
-    const lines = content.split(/\r?\n/);
-    const closing = skill && lines[0] === '---' ? lines.findIndex((line, index) => index > 0 && line === '---') : -1;
+    const closing = skill ? frontmatterClosing(content) : -1;
     const prose = proseLines(content, closing > 0 ? closing + 1 : 0);
     const versions = matches(file, prose, skill ? 'skill-version-budget' : 'reference-version-density', versionPattern);
     const findings = closing > 0 ? descriptionFindings(file, content, closing, authoring) : [];
-    if (skill ? versions.length > 3 : versions.length * 40 > lineCount(content)) findings.push(...versions);
+    if (versionsExceedBudget(skill, versions.length, content)) findings.push(...versions);
     findings.push(...matches(file, prose, 'issue-reference', issuePattern));
     findings.push(...matches(file, prose, 'source-line-citation', sourceLinePattern));
-    if (skill) {
-        findings.push(...matches(file, prose, 'commit-hash', hashPattern).filter(finding => /\d/.test(finding.matchedText) && /[a-f]/i.test(finding.matchedText)));
-        findings.push(...matches(file, prose, 'history-language', historyPattern));
-    }
+    if (skill) findings.push(...skillOnlyFindings(file, prose));
     if (authoring) findings.push(...matches(file, prose, 'time-words', timePattern));
     return findings.sort((left, right) => left.line - right.line || left.rule.localeCompare(right.rule));
 }
@@ -84,8 +106,7 @@ export function skillHygieneFindings(file: string, content: string, authoring = 
 /** Hygiene for scoped instructions; every version is informational, without a skill-body budget. */
 export function instructionHygieneFindings(file: string, content: string) {
     if (!/(?:^|\/)(?:rules|agents|prompts)\/[^/]+\.md$/.test(file.replaceAll('\\', '/'))) return [];
-    const lines = content.split(/\r?\n/);
-    const closing = lines[0] === '---' ? lines.findIndex((line, index) => index > 0 && line === '---') : -1;
+    const closing = frontmatterClosing(content);
     const prose = proseLines(content, closing > 0 ? closing + 1 : 0);
     return [
         ...matches(file, prose, 'instruction-version', versionPattern),
