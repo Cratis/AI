@@ -261,13 +261,58 @@ function directory_metadata() {
     if (argc == 5) return (W[4] == "status" && W[5] == "--short") || (W[4] == "rev-parse" && W[5] == "HEAD") || (W[4] == "branch" && W[5] == "--show-current")
     return argc == 6 && W[4] == "tag" && W[5] == "--list" && W[6] !~ /^-/
 }
-# -n alone is not read-only: sed scripts can still execute or write files.
-# Only numeric/last-line print addresses qualify, with no additional options.
-function print_only_sed(    i, ended) {
+# Keep this bounded sed grammar in sync with the secrets guard. Program files and unknown commands
+# remain conservative; only print/substitution scripts without execution or file-write flags qualify.
+function safe_sed_script(p,    delimiter, i, c, spans) {
+    if (p ~ /^([0-9]+(,([0-9]+|\$))?|\$)?p$/) return 1
+    if (substr(p, 1, 1) != "s" || length(p) < 4) return 0
+    delimiter = substr(p, 2, 1)
+    if (delimiter ~ /[A-Za-z0-9\\ \t\n]/) return 0
+    for (i = 3; i <= length(p); i++) {
+        c = substr(p, i, 1)
+        if (c == "\n") return 0
+        if (c == "\\") { if (++i > length(p) || substr(p, i, 1) == "\n") return 0; continue }
+        if (c == delimiter && ++spans == 2) return substr(p, i + 1) ~ /^[gpI0-9]*$/
+    }
+    return 0
+}
+function sed_slots(A, s, n,    i, w, program, explicit, ended, scripts) {
+    delete SED_DATA
+    for (i = s + 1; i <= n && A[i] != "--"; i++) if (A[i] ~ /^(-e|--expression)(=|$)/ || A[i] ~ /^-e./) explicit = 1
+    for (i = s + 1; i <= n; i++) {
+        w = A[i]
+        if (!ended && w == "--") { ended = 1; continue }
+        if (!ended && (w ~ /^-[nEr]+$/ || w ~ /^--(quiet|silent|regexp-extended)$/)) continue
+        if (!ended && (w == "-e" || w == "--expression")) { if (++i > n) return 0; program = A[i] }
+        else if (!ended && w ~ /^(-e.|--expression=)/) { program = w; sub(/^(-e|--expression=)/, "", program) }
+        else if (!ended && w ~ /^-/) return 0
+        else if (!explicit && !scripts) program = w
+        else continue
+        if (!safe_sed_script(program)) return 0
+        SED_DATA[i] = 1; scripts++
+    }
+    return scripts > 0
+}
+# Preserve the original protected-file read lane exactly; newly admitted programs below retain
+# the pre-existing conservative file-operand check rather than broadening this exception.
+function legacy_print_sed(    i, ended) {
     if (argc < 4 || W[2] != "-n" || W[3] !~ /^([0-9]+(,([0-9]+|\$))?|\$)?p$/) return 0
     for (i = 4; i <= argc; i++) {
         if (!ended && W[i] == "--") { ended = 1; continue }
         if (!ended && W[i] ~ /^-/) return 0
+    }
+    return 1
+}
+function print_only_sed(    i, ended) {
+    if (legacy_print_sed()) return 1
+    if (!sed_slots(W, 1, argc)) return 0
+    for (i = 2; i <= argc; i++) {
+        if (i in SED_DATA) { if (globbed[i]) return 0; continue }
+        if (!ended && W[i] == "--") { ended = 1; continue }
+        if (!ended && W[i] ~ /^-/) continue
+        # Exempt script data, never the input paths: retain the existing protected-input refusal.
+        redirect_words = redirect_words " " W[i]
+        if (protected(W[i])) return 0
     }
     return 1
 }
@@ -342,8 +387,72 @@ function managed_script(    i) {
     }
     return 0
 }
+# Inspect descendants only for commands that can recursively remove them. Unknown expansion/cwd
+# cannot establish a narrower target; refuse recursive mode, never evaluate command text.
+function recursive_path(i, path) {
+    path = i ? W[i] : "."
+    if (changed_cwd || path == "" || path ~ /[$`*?\[{~()\n\r\t]/) { recursive_uncertain = 1; return }
+    recursive_targets[path] = 1
+}
+function destructive_targets(    i, w, recurse, ended, paths, action, first, directory, verb, offset) {
+    if (W[1] == "command") {
+        offset = 1
+        if (W[2] == "--" || W[2] == "-p") offset = 2
+        else if (W[2] ~ /^-/) return
+    }
+    verb = W[1 + offset]; sub(/.*\//, "", verb)
+    if (verb == "find") {
+        for (i = 2 + offset; i <= argc; i++) {
+            if (W[i] == "-delete") action = 1
+            if (W[i] ~ /^-(exec|execdir|ok|okdir)$/) { recursive_uncertain = 1; return }
+        }
+        if (!action) return
+        for (i = 2 + offset; i <= argc; i++) {
+            if (W[i] ~ /^-[HLP]$/ && !paths) continue
+            if (W[i] ~ /^-/ || W[i] ~ /^[(!]/) break
+            recursive_path(i); paths++
+        }
+        if (!paths) recursive_path(0)
+        return
+    }
+    if (verb == "rm") {
+        for (i = 2 + offset; i <= argc && W[i] != "--"; i++)
+            if (W[i] ~ /^--recursive$/ || (W[i] ~ /^-[^-]/ && W[i] ~ /[rR]/)) recurse = 1
+        if (!recurse) return
+        for (i = 2 + offset; i <= argc; i++) {
+            if (!ended && W[i] == "--") { ended = 1; continue }
+            if (!ended && W[i] ~ /^-/) continue
+            recursive_path(i)
+        }
+        return
+    }
+    if (verb != "git") return
+    first = 3 + offset
+    if (W[2 + offset] == "-C" && W[4 + offset] == "clean") { directory = W[3 + offset]; first = 5 + offset }
+    else if (W[2 + offset] != "clean") return
+    for (i = first; i <= argc && W[i] != "--"; i++) {
+        w = W[i]
+        if (w == "-e" || w == "--exclude") { i++; continue }
+        if (w == "-n" || w == "--dry-run") return
+        if (w ~ /^-[^-]/ && w ~ /[dx]/) recurse = 1
+    }
+    if (!recurse) return
+    for (i = first; i <= argc; i++) {
+        w = W[i]
+        if (!ended && w == "--") { ended = 1; continue }
+        if (!ended && (w == "-e" || w == "--exclude")) { i++; continue }
+        if (!ended && w ~ /^-/) continue
+        if (directory != "" && w !~ /^\//) W[i] = directory "/" w
+        recursive_path(i); paths++
+    }
+    if (!paths) {
+        if (directory != "") { W[argc + 1] = directory; recursive_path(argc + 1) }
+        else recursive_path(0)
+    }
+}
 function allow_command(    verb, first, i) {
     if (!argc) return
+    destructive_targets()
     if (++commands > 64) { fail(); return }
     for (i = 1; i <= argc; i++) if (leading[i] && !glob_safe()) { cmd_failed = 1; return }
     if (managed_script()) return
@@ -459,8 +568,13 @@ BEGIN {
     ESC["n"] = 10; ESC["r"] = 13; ESC["t"] = 9; ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34
     text = ENVIRON["GSW_COMMAND"]
     if (ENVIRON["GSW_MODE"] == "references") { emit_text(text); exit 0 }
-    if (ENVIRON["GSW_MODE"] == "targets") {
+    if (ENVIRON["GSW_MODE"] == "targets" || ENVIRON["GSW_MODE"] == "recursive") {
         readonly(text)
+        if (ENVIRON["GSW_MODE"] == "recursive") {
+            if (recursive_uncertain) exit 2
+            for (path in recursive_targets) print path
+            exit 0
+        }
         if (unparsed) emit_text(text)
         else for (i = 1; i <= emitted_count; i++) emit_text(emitted[i])
         exit 0
@@ -497,6 +611,17 @@ references="$("$BASH" "$classifier" --references <<<"$classifier_input" 2>"$clas
     printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: could not check references (write guard failed).' >&2
     exit 2
 }
+recursive_text="$(GSW_COMMAND="$command_text" GSW_MODE=recursive GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" LC_ALL=C awk "$program" </dev/null)" || parser_failed
+if [ -n "$recursive_text" ]; then
+    recursive_paths=()
+    while IFS= read -r candidate; do recursive_paths[${#recursive_paths[@]}]="$candidate"; done <<<"$recursive_text"
+    recursive_input="$(jq -nc --arg cwd "$cwd" --args '{cwd:$cwd,tool_input:{file_paths:$ARGS.positional}}' -- "${recursive_paths[@]}")" || parser_failed
+    recursive_references="$("$BASH" "$classifier" --recursive-references <<<"$recursive_input")" || parser_failed
+    if [ -n "$recursive_references" ]; then
+        printf "BLOCKED by cratis-guard-shell-writes: recursive removal reaches a protected target under '%s' (cratis-guard-writes). Use the edit/write tools, or report the intended change.\n" "${recursive_references%%$'\n'*}" >&2
+        exit 2
+    fi
+fi
 [ -n "$references" ] || exit 0
 if GSW_COMMAND="$command_text" GSW_MODE=readonly GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_PROTECTED="$references" LC_ALL=C awk "$program" </dev/null; then exit 0; fi
 printf "BLOCKED by cratis-guard-shell-writes: protected reference '%s' (cratis-guard-writes). Use the edit/write tools, or report the intended change; for a read, name literal paths or use the Read/Grep tools.\n" "${references%%$'\n'*}" >&2

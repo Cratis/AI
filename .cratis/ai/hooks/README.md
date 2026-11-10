@@ -38,6 +38,13 @@ A Pi session runs guards from its starting checkout. Refresh the corpus there wi
 or start a new session in the checkout you change. Selecting a newer installed guard corpus per call
 is tracked in [Cratis/AI#1114](https://github.com/Cratis/AI/issues/1114).
 
+Reader glob probes skip directories only when decoded options establish a nonrecursive reader;
+unknown or recursive grep options keep directory matches conservative. Simple sed print/substitution
+programs are data only without in-place edits, execution, or file writes; `-f` remains a file operand.
+GitHub API endpoints are normalized before checking sensitive paths, and output filters may not read
+the process environment. Recursive removals check existing descendants with the shared write policy;
+uncertain targets, symlinks, incomplete walks, and walks exceeding 256 entries refuse.
+
 The shell-write guard classifies **write-target words**, not every word. It lexes the command into
 simple commands. When every command is a reviewed reader or staging verb (`cat`, `head`, `tail`, `wc`,
 `ls`, `rg`, `grep`, `echo`, `git status|diff|log|show|add|commit`, `git ls-files`, `jq`, read-only

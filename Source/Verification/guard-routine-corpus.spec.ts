@@ -85,7 +85,9 @@ function repository(managed: boolean) {
     assert.equal(spawnSync('git', ['-C', root, 'remote', 'add', 'origin', 'https://github.com/Cratis/AI.git']).status, 0);
     const files: Record<string, string> = {
         '.cratis/ai/hooks/scripts/example.sh': '#!/bin/sh\necho fixture\n', '.cratis/ai/hooks/README.md': 'fixture',
-        '.cratis/ai/rules/a.md': 'fixture', 'Source/Foo/A.cs': '// fixture', 'Source/Foo/A.ts': '// fixture',
+        '.cratis/ai/rules/a.md': 'fixture', '.cratis/abc/nested/.env': 'synthetic fixture',
+        '.mcp.json': '{}', '.claude/settings.json': '{}', 'sub/.env': 'synthetic fixture', 'ordinary/file.md': 'fixture',
+        'Source/Foo/A.cs': '// fixture', 'Source/Foo/A.ts': '// fixture',
         'Source/Foo/README.md': 'fixture', 'Source/Foo/nested/.env': 'synthetic fixture',
         'Source/Verification/guard-fixture.ts': '// fixture',
         '.env': 'synthetic fixture', 'credentials.json': '{}', 'keys/server.pem': 'synthetic fixture',
@@ -157,6 +159,86 @@ test('reader globs cannot supply executable rg options, but -- keeps filenames a
             { command: 'rg -n foo *.cs', expected: [0, 2, 0], hostile: true },
             { command: 'rg -n foo -- *.cs', expected: [0, 0, 0] },
         ]);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('API endpoint normalization preserves sensitive-path refusals', async () => {
+    const root = repository(true);
+    try {
+        for (const command of [
+            "gh api 'repos/o/r/contents/credentials.json?ref=main'",
+            "gh api -X GET 'repos/o/r/contents/production.env?ref=main'",
+            "gh api --method GET 'repos/o/r/contents/server.key#fragment'",
+            "gh api --method=GET 'repos/o/r/contents/%2Eenv?ref=main'",
+            "gh api 'https://api.github.com/repos/o/r//contents//%63redentials.json/'",
+            "gh api 'repos/o/r/contents/%2eENV/'", "command gh api 'repos/o/r/contents/server%2Ekey/'",
+        ]) assert.equal(await verdict({ guard: 'secrets', cwd: root, command }), 2, command);
+        await checkRows(root, [{ command: "gh api 'repos/o/r/contents/README.md?ref=main'", expected: [0, 0, 0] }]);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('decoded grep options cannot hide recursive directory reads', async () => {
+    const root = repository(true);
+    try {
+        for (const flags of ["'-r'", '"-rn"', "'-nR'", '--recursive', '--dereference-recursive', '--recur',
+            '-d recurse', '-drecurse', '-hd recurse', '--directories=recurse', '--directories recurse',
+            "--include='*.env' -r", "-r --include '*.env'",
+        ]) {
+            const command = `grep ${flags} foo .cratis/a*`;
+            assert.equal(await verdict({ guard: 'secrets', cwd: root, command }), 2, command);
+        }
+        for (const command of ['grep -d recurse X s*', 'rg foo .cratis/a*']) {
+            assert.equal(await verdict({ guard: 'secrets', cwd: root, command }), 2, command);
+        }
+        await checkRows(root, ['grep -n foo .cratis/a*', 'cat .cratis/a*'].map(command => ({ command, expected: [0, 0, 0] })));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('sed script data stays distinct from program files, reads and writes', async () => {
+    const root = repository(true);
+    try {
+        await checkRows(root, [
+            String.raw`sed -E 's/.*(x).*/\1/'`, String.raw`sed -E 's/.*(x).*/\1/' ordinary/file.md`,
+            String.raw`sed -E -e 's/.*(x).*/\1/' ordinary/file.md`,
+            String.raw`sed --expression='s/.*(x).*/\1/' ordinary/file.md`,
+            "sed -e 's/.env/credentials.json/' ordinary/file.md",
+        ].map(command => ({ command, expected: [0, 0, 0] })));
+        for (const command of ["sed -e 'r .env' ordinary/file.md", "sed -e 'R .env' ordinary/file.md", 'sed -f .env ordinary/file.md', "sed .env -e 'p'", "sed .env --expression=p"]) {
+            assert.equal(await verdict({ guard: 'secrets', cwd: root, command }), 2, command);
+        }
+        for (const command of ["sed -e 'w .mcp.json' ordinary/file.md", "sed -e 'W .mcp.json' ordinary/file.md",
+            "sed -E 's/x/y/e' .cratis/ai/rules/a.md", "sed -E 's/x/y/w .mcp.json' ordinary/file.md",
+            "sed -i -E 's/x/y/' .cratis/ai/rules/a.md", 'sed -f .cratis/ai/rules/a.md ordinary/file.md',
+        ]) assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command }), 2, command);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('recursive destructive commands cannot reach protected descendants', async () => {
+    const root = repository(true);
+    try {
+        for (const command of ['find . -delete', 'find . -type f -delete', 'find .cratis -delete',
+            'rm -rf .', 'rm -rf ./', 'rm -rf "$PWD"', 'rm --recursive .', 'rm -R .claude',
+            "find . -exec rm {} +", "find . -execdir rm {} +", "find . -ok rm {} +", 'git clean -fd', 'git clean -fx',
+            'rm -rf Source', 'git clean -fdx -- Source', 'git -C Source clean -fdx',
+            '/bin/rm -rf .', '/usr/bin/find . -delete', 'command rm -rf .',
+        ]) assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command }), 2, command);
+        for (const command of ['rm -rf ordinary', 'find ordinary -type f -delete', 'git clean -fd -- ordinary', 'git -C ordinary clean -fd -- .', 'rm -f ordinary/file.md']) {
+            assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command }), 0, command);
+        }
+        writeFileSync(join(root, 'ordinary/generated.cs'), '// @generated by Cratis. DO NOT EDIT.\n');
+        assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command: 'rm -rf ordinary' }), 2);
+        assert.equal(await verdict({ guard: 'shell-writes', cwd: join(root, 'ordinary'), command: 'rm -rf "$TARGET"' }), 2);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('gh output filters cannot read the process environment', async () => {
+    const root = repository(true);
+    try {
+        for (const command of ["gh api user --jq env", "gh api user -q env.GITHUB_TOKEN", "gh api user --jq '$ENV.GH_TOKEN'",
+            "gh api user --jq=env", "gh api user -qenv", "gh issue view 1 --template '{{ env \"GH_TOKEN\" }}'",
+            "gh pr view 1 -t '{{ $ENV }}'", "gh api user --template='{{ env }}'", String.raw`gh api user --jq '"\(env)"'`,
+        ]) assert.equal(await verdict({ guard: 'secrets', cwd: root, command }), 2, command);
+        await checkRows(root, ["gh api user --jq '.environment'", "gh api user --jq '\"env\"'"].map(command => ({ command, expected: [0, 0, 0] })));
     } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

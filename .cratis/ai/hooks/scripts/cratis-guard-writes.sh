@@ -45,7 +45,11 @@ parser_failed() {
 # The process substitution's exit status does not reach the reading group, and Bash 3.2 (macOS /bin/bash)
 # cannot wait on its PID, so a sentinel field is written only after jq succeeds.
 reference_mode=0
-[ "${1:-}" != --references ] || reference_mode=1
+recursive_reference_mode=0
+case "${1:-}" in
+    --references) reference_mode=1 ;;
+    --recursive-references) reference_mode=1; recursive_reference_mode=1 ;;
+esac
 cwd="" file="" notebook="" new_content="" new_string="" references="" parser_status=""
 {
     IFS= read -r -d '' cwd
@@ -311,6 +315,7 @@ agent_control_target() {
     local target="$1" directory policy_root target_rel managed pattern
     dir_of "$target"
     directory="$REPLY"
+    if [ "$recursive_reference_mode" = 1 ] && [ -d "$target" ]; then directory="$target"; fi
     # Keep the addressed spelling here, even when an adapter directory is a symlink.
     # .git is a directory in a checkout and a file in a linked worktree.
     while [ ! -e "$directory/.git" ]; do
@@ -319,6 +324,8 @@ agent_control_target() {
         directory="$REPLY"
     done
     policy_root="$directory"
+    # The repository itself is an ancestor of its permission files, even in an authored corpus.
+    if [ "$recursive_reference_mode" = 1 ] && [ "$target" = "$policy_root" ]; then return 0; fi
     relative_to "$target" "$policy_root"
     target_rel="$REPLY"
     if [ -f "$policy_root/.cratis/ai.manifest.json" ]; then
@@ -414,6 +421,21 @@ classify_file() {
     return 1
 }
 
+# Recursive removals must also respect existing protected descendants. Keep the same policy function,
+# with a bounded, NUL-delimited walk; uncertain symlinks or an incomplete walk never authorize removal.
+protected_descendant() {
+    local target descendant count=0 complete=0
+    abspath "$1" "$cwd"; normalize_target_path "$REPLY"; target="$REPLY"
+    [ -d "$target" ] || return 1
+    while IFS= read -r -d '' descendant; do
+        if [ "$descendant" = complete ]; then complete=1; break; fi
+        count=$((count + 1)); [ "$count" -le 256 ] || parser_failed
+        if [ -L "$descendant" ] || classify_file "$descendant"; then return 0; fi
+    done < <(find -H "$target" -print0 2>/dev/null && printf 'complete\0')
+    [ "$complete" = 1 ] || parser_failed
+    return 1
+}
+
 if [ "$reference_mode" = 1 ]; then
     candidates=() parser_status=""
     while IFS= read -r -d '' candidate; do candidates[${#candidates[@]}]="$candidate"; done < <(
@@ -430,6 +452,7 @@ if [ "$reference_mode" = 1 ]; then
         reference_pattern=0
         case "$candidate" in *'*'* | *'?'* | *'['* | *'{'* | *'@('* | *'+('* | *'!('*) reference_pattern=1 ;; esac
         if classify_file "$candidate" "$reference_pattern"; then printf '%s\n' "$candidate"; continue; fi
+        if [ "$recursive_reference_mode" = 1 ] && protected_descendant "$candidate"; then printf '%s\n' "$candidate"; continue; fi
         # Existing generated files can have arbitrary names; inspect actual glob matches too.
         if [ "$reference_pattern" = 1 ]; then
             count=0
