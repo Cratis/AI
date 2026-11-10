@@ -72,18 +72,46 @@ function raw_brace_scan(s,    n, i, c, word) {
     }
     raw_brace_word(word)
 }
-function scan(s,    n, i, c, word, whole, flat) {
+# After an expansion (or a leading tilde) the prefix of a path is unknown and could be the repository root, so the
+# literal remainder is also judged as a path relative to the working directory: the word without its variable name
+# and every suffix that starts after a slash. A variable holding a whole protected path stays unseen.
+function remainder(word,    rest, tail, count, slash) {
+    if (word == "") return
+    rest = word
+    if (!sub(/^\{[^}]*\}/, "", rest)) sub(/^[A-Za-z0-9_~]+/, "", rest)
+    candidate(rest)
+    tail = word
+    while (count++ < 16 && (slash = index(tail, "/")) > 0) { tail = substr(tail, slash + 1); candidate(tail) }
+}
+# Expansion syntax is not parsed: a whitespace-delimited chunk holding any of $ ` ~ ( ) { } is judged by every
+# suffix that follows a slash in it, so a path after a substitution, a tilde form or a nested expansion is seen
+# even when the lexer split the substitution at an inner space.
+function chunk_suffixes(chunk,    slash, count) {
+    gsub(/["\047\\]/, "", chunk)
+    if (chunk !~ /[$`~(){}]/) return
+    while (count++ < 16 && (slash = index(chunk, "/")) > 0) { chunk = substr(chunk, slash + 1); candidate(chunk) }
+}
+function scan(s,    n, i, c, word, whole, flat, expanded, chunk) {
     flat = extglob_star(s)
     if (flat != s) scan(flat)
     n = length(s)
     for (i = 1; i <= n; i++) {
         c = substr(s, i, 1)
-        if (c ~ /[ \t\n\r;|&<>()\047"`$=\\]/) { candidate(word); word = "" }
+        if (c ~ /[ \t\n\r;|&<>]/) { chunk_suffixes(chunk); chunk = "" }
+        else chunk = chunk c
+        if (c ~ /[ \t\n\r;|&<>()\047"`$=\\]/) {
+            candidate(word)
+            if (expanded || word ~ /^~/) remainder(word)
+            word = ""
+            if (c ~ /[`$]/) expanded = 1
+            else if (c ~ /[ \t\n\r;|&<>]/) expanded = 0
+        }
         else word = word c
         if (c ~ /[ \t\n\r;|&<>()\047"`$]/) { candidate(whole); whole = "" }
         else whole = whole c
     }
-    candidate(word); candidate(whole)
+    candidate(word); candidate(whole); chunk_suffixes(chunk)
+    if (expanded || word ~ /^~/) remainder(word)
     # Braces have a second boundary view; retain the original pattern above too.
     if (s ~ /[{}]/) { gsub(/[{}]/, " ", s); scan(s) }
 }
@@ -137,7 +165,7 @@ function endword() {
         if (!(redirect == 2 && word ~ /^([0-9]+|-)$/)) {
             file_redirect = 1
             if (changed_cwd || lead_glob) unparsed = 1
-            if (changed_cwd || word ~ /[$`*?\[{]/ || protected(word)) bad = 1
+            if (changed_cwd || word ~ /[$`*?\[{~()]/ || protected(word)) bad = 1
         }
         redirect = 0
     } else {

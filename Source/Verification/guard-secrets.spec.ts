@@ -1588,3 +1588,47 @@ test('the guard refuses every call when jq is missing', () => {
         isolated.dispose();
     }
 });
+
+test('jq, yq and awk programs that read the process environment are refused', () => {
+    const refused = [
+        'jq -n env', "jq -n '$ENV'", "jq -n 'env.HOME'", "jq -n '$ENV.PATH'", "jq -n '$ENV[\"X\"]'", "jq -rn 'env | keys'",
+        "jq -n '[env|to_entries[]]'", 'jq --arg a 1 -n env', "jq -n --arg a 1 '$ENV'", "jq -n 'env|.[]'", "echo '{}' | jq 'env'",
+        "jq -n 'env' > out.json", 'cat x | jq env',
+        "awk 'BEGIN { print ENVIRON[\"HOME\"] }'", "awk 'BEGIN { for (k in ENVIRON) print k, ENVIRON[k] }'", "gawk 'BEGIN { print ENVIRON[\"X\"] }'",
+        "awk -v x=1 'BEGIN { for (k in ENVIRON) print k }'", "awk -e 'BEGIN { print ENVIRON[\"X\"] }'",
+        "gawk 'BEGIN { print PROCINFO[\"pid\"] }'", "gawk 'BEGIN { print SYMTAB[\"ENV\" \"IRON\"][\"X\"] }'",
+        "mawk 'BEGIN { print ENVIRON[\"X\"] }'", "nawk 'BEGIN { print ENVIRON[\"X\"] }'",
+        "busybox awk 'BEGIN { print ENVIRON[\"X\"] }'",
+        'jq -en env', 'jq -e -n env', "jq -ne '$ENV'", "jq -n -e '$ENV'", "jq --args -n '$ENV' a", 'gojq -n env', "jaq -n 'env'",
+        'yq eval env', "yq e 'env(HOME)'", "yq ea 'strenv(X)'", "yq eval -n 'env(HOME)'", 'yq -n env', "yq -n '{a: env}'",
+        "yq -n 'env(HOME)'", "yq -n 'strenv(HOME)'", "yq -n '$ENV'", "jq -n 'getenv'",
+        "yq -n '\"x\" | envsubst'", "yq -n '\"${HOME}\" | envsubst'", "yq e '.a | envsubst' f.yaml", "yq -n '\"x\"|envsubst(nu)'",
+    ];
+    const allowed = [
+        "jq '{envelope: 1}' c.json", "jq '.environment | keys' c.json", "yq '.envsubstitution' c.yaml",
+        "jq -r '.[] | .environment' c.json",
+        "jq '.environment' c.json", "jq -n '1+1'", 'jq . data.json', "awk '{print $1}' notes.txt", "awk -F, '{print $2}' data.csv",
+        "jq --arg envname x '.a' f.json", 'cat env.md',
+    ];
+    assertVerdicts([
+        ...refused.map(command => [BLOCK, command] as [string, string]),
+        ...allowed.map(command => [ALLOW, command] as [string, string]),
+    ]);
+});
+
+test('named backup and variant copies of env files are protected while templates and source files stay readable', () => {
+    const copies = ['app.env.bak', 'app.env.old', 'foo.env.orig', 'prod.env.local', 'a.env.swp', 'config/app.env~', 'app.env.bak.1',
+        'staging.env.backup', 'x.env.json', '.env.bak', '.env.orig', '.env.swp', '.env~', '.env.old',
+        'app.env.json', 'prod.env.yaml', 'x.env.config', 'app.env.local', 'a.env.yml', 'a.env.xml', 'a.env.ini', 'a.env.txt', 'a.env.conf', 'a.env.properties', 'a.env.dat'];
+    const refused = copies.flatMap(name => [`cat ${name}`, `head ${name}`, `jq --rawfile x ${name} -n '$x'`, `cp ${name} /tmp/y`, `grep k ${name}`]);
+    const allowed = ['.env.example', '.env.sample', '.env.template', 'foo.env.example', 'app.env.template', '.env.dist', '.env.defaults',
+        'Org.DS.EnvironmentalReporting', 'Cratis.Environments.Specs', 'a.environment.txt', 'Cratis.Env.cs', 'a.env.ts', 'app.env.d.ts',
+        'app.env.md', 'src/env.ts', 'env.md', 'Org.Env.Settings.cs',
+        'Org.Env.Specs.csproj', 'Org.Env.sln', 'Org.Env.Settings.props', 'Cratis.Env.Abstractions/Cratis.Env.Abstractions.csproj',
+        'Cratis.Env.dll.config.css', 'my.env.css', 'my.env.html', 'X.Env.targets', 'X.Env.slnx', 'X.Env.fsproj', 'X.Env.vbproj', 'a.env.scss',
+        'a.env.less', 'a.env.htm', 'a.env.razor', 'a.env.cshtml', 'a.env.resx', 'a.env.xaml'].map(name => `cat ${name}`);
+    assertVerdicts([
+        ...refused.map(command => [BLOCK, command] as [string, string]),
+        ...allowed.map(command => [ALLOW, command] as [string, string]),
+    ]);
+});
