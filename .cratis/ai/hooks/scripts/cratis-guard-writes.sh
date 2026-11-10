@@ -221,7 +221,8 @@ function tokens(s, side,    i, c, j, k, t, copy, jumps, first, closing) {
     for (i = 1; i <= length(s); i++) {
         c = substr(s, i, 1); t = c; j = i
         if (c == "{") {
-            j = index(substr(s, i), "}"); j = j ? i + j - 1 : i; t = "*"
+            j = index(substr(s, i), "}")
+            if (j) { j = i + j - 1; t = "*" } else j = i
             if (side == 1 && index(substr(s, i, j - i + 1), "/")) exit 2
         }
         N[side]++; A[side, N[side]] = t

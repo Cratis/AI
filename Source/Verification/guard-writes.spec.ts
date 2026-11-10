@@ -186,7 +186,7 @@ for (const path of ['.e[[=]=]n]v', '.e[[.].]n]v', String.raw`.[\e]nv`, '.[[=e=]]
     });
 }
 
-test('reference classification keeps plain brace and fragment verdicts', () => {
+test('reference classification treats unmatched braces literally and preserves balanced alternatives', () => {
     const repo = scratchRepository();
     try {
         const result = spawnSync('bash', [guard, '--references'], {
@@ -196,7 +196,8 @@ test('reference classification keeps plain brace and fragment verdicts', () => {
             env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
         });
         assert.equal(result.status, 0, result.stderr);
-        assert.equal(result.stdout, '{a,b}.txt\n{print\n.{e,x}nv\n');
+        // {print is literal data; balanced alternatives still cover possible protected names.
+        assert.equal(result.stdout, '{a,b}.txt\n.{e,x}nv\n');
         assert.equal(result.stderr, '');
     } finally { repo.dispose(); }
 });

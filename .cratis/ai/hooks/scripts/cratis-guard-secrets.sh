@@ -436,15 +436,91 @@ function split_scan(w, m,    k, r, hit) {
     }
     return ""
 }
-function end_cmd(    k, m, w, j, hit, exempt, path_git) {
+# Admit only print/substitution scripts without secondary commands, execution or file writes.
+function safe_sed_script(p,    delimiter, i, c, spans) {
+    if (p ~ /^([0-9]+(,([0-9]+|\$))?|\$)?p$/) return 1
+    if (substr(p, 1, 1) != "s" || length(p) < 4) return 0
+    delimiter = substr(p, 2, 1)
+    if (delimiter ~ /[A-Za-z0-9\\ \t\n]/) return 0
+    for (i = 3; i <= length(p); i++) {
+        c = substr(p, i, 1)
+        if (c == "\n") return 0
+        if (c == "\\") { if (++i > length(p) || substr(p, i, 1) == "\n") return 0; continue }
+        if (c == delimiter && ++spans == 2) return substr(p, i + 1) ~ /^[gpI0-9]*$/
+    }
+    return 0
+}
+function sed_slots(A, s, n,    i, w, program, explicit, ended, scripts) {
+    delete SED_DATA
+    for (i = s + 1; i <= n && A[i] != "--"; i++) if (A[i] ~ /^(-e|--expression)(=|$)/ || A[i] ~ /^-e./) explicit = 1
+    for (i = s + 1; i <= n; i++) {
+        w = A[i]
+        if (!ended && w == "--") { ended = 1; continue }
+        if (!ended && (w ~ /^-[nEr]+$/ || w ~ /^--(quiet|silent|regexp-extended)$/)) continue
+        if (!ended && (w == "-e" || w == "--expression")) { if (++i > n) return 0; program = A[i] }
+        else if (!ended && w ~ /^(-e.|--expression=)/) { program = w; sub(/^(-e|--expression=)/, "", program) }
+        else if (!ended && w ~ /^-/) return 0
+        else if (!explicit && !scripts) program = w
+        else continue
+        if (!safe_sed_script(program)) return 0
+        SED_DATA[i] = 1; scripts++
+    }
+    return scripts > 0
+}
+# Only fully modeled literal non-readers can distinguish data slots from paths.
+function nonreader(A, M, n,    i, w, first, read) {
+    delete DATA
+    for (i = 1; i <= n; i++) if (expands(A[i], M[i]) || index(A[i], "`") || A[i] ~ /^</) return 0
+    first = tolower(base(A[1]))
+    if (first == "sed") {
+        if (!sed_slots(A, 1, n)) return 0
+        for (i in SED_DATA) DATA[i] = 1
+        return 1
+    }
+    if (first == "dotnet") return A[2] ~ /^(test|build)$/
+    if (first == "git" && A[2] == "clone") {
+        for (i = 3; i <= n; i++) if (A[i] ~ /^(https?|ssh|git):\/\// || A[i] ~ /^git@/) DATA[i] = 1
+        return 1
+    }
+    if (first == "shellcheck") return 1
+    if (first == "find") {
+        for (i = 2; i <= n; i++) {
+            w = A[i]
+            if (w ~ /^>/) { if (w == ">" || w == ">>") i++; continue }
+            if (w ~ /^-(name|iname|path|regex|wholename)$/) { if (++i > n) return 0; DATA[i] = 1; continue }
+            if (w ~ /^-(maxdepth|mindepth)$/) { if (++i > n || A[i] !~ /^[0-9]+$/) return 0; DATA[i] = 1; continue }
+            if (w ~ /^-/ && w !~ /^-(print|print0|type|L|P|H)$/) return 0
+            if (w == "-type") { if (++i > n || A[i] !~ /^[bcdflps]$/) return 0 }
+        }
+        return 1
+    }
+    if (first != "gh") return 0
+    read = A[2] " " A[3]
+    if (A[2] != "api" && read !~ /^(repo (view|list)|issue (view|list|status)|pr (view|list|status|diff|checks)|release (view|list)|run (view|list|watch)|search (issues|prs|repos|commits|code))$/) return 0
+    for (i = A[2] == "api" ? 3 : 4; i <= n; i++) {
+        w = A[i]
+        if (w ~ /^>/) { if (w == ">" || w == ">>") i++; continue }
+        if (w ~ /^(--jq|-q|--template|-t)$/) { if (++i > n) return 0; DATA[i] = 1; continue }
+        if (w ~ /^(--json|--repo|-R|--limit|-L|--hostname|--header|-H)$/) { if (++i > n) return 0; DATA[i] = 1; continue }
+        if (A[2] == "api" && w ~ /^(--method|-X)$/) { if (++i > n || A[i] !~ /^(GET|HEAD)$/) return 0; continue }
+        if (w ~ /^-/ && w !~ /^(--paginate|--slurp|--include|--silent|--log|--log-failed|--web)$/) return 0
+        if (A[2] != "api") DATA[i] = 1
+    }
+    return 1
+}
+function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only) {
     flush_word()
     if (nw > 0) {
         commands++
+        delete PROBE_WORDS; PROBE_COUNT = nw
+        for (k = 1; k <= nw; k++) PROBE_WORDS[k] = W[k]
+        paths_only = nonreader(W, WM, nw)
         regex_slots(W, 1, nw)
         path_git = git_paths(W, WM, nw)
         for (k = 1; k <= nw; k++) {
             if (path_git && W[k] !~ /^-/) continue
             if (is_assign(W[k])) set_var(W[k], WM[k])
+            if (paths_only && ((k in DATA) || sensitive_path(W[k]) == "")) continue
             exempt = (k in RP) && !WU[k]
             if (exempt && RP[k] < 0) continue
             w = exempt ? substr(W[k], 1, RP[k]) : W[k]
@@ -735,6 +811,7 @@ function sensitive_path(w,    l, b) {
         b ~ /credentials.*\.(yaml|yml|xml|ini|toml|txt|conf|properties|config)([.]|$)/ ||
         b ~ /secrets\.ya?ml([.]|$)/) return "a credentials file"
     if (l ~ /\.docker\/config\.json$/) return "the Docker registry credentials"
+    if (l ~ /(^|\/)(\.ssh|\.aws)\/?$/) return "a credential directory"
     if (l ~ /\/proc\/[^\/]*\/environ$/) return "a process environment"
     if (l ~ /^\/(var\/)?run\/secrets\//) return "mounted secrets"
     return ""
@@ -1017,13 +1094,35 @@ function probe_read_chain(text, prior,    i, c, q, normal, n, k, readers, reader
     n = split(normal, parts, "\034")
     for (k = 1; k <= n; k++) {
         clause = parts[k]; sub(/^[ \t]+/, "", clause); sub(/[ \t]+$/, "", clause)
-        if (clause ~ /^(cat|rg|grep|egrep|fgrep|head|tail)[ \t]/) { readers++; reader_index = prior + k; continue }
+        if (clause ~ /^(cat|rg|grep|egrep|fgrep|head|tail|wc)[ \t]/) {
+            glob_recursive = reader_may_recurse(PROBE_WORDS, PROBE_COUNT)
+            readers++; reader_index = prior + k; continue
+        }
         if (clause ~ /^git[ \t]+diff([ \t]+(--cc|--stat|--check|--no-color))*$/) continue
         if (clause ~ /^git[ \t]+log([ \t]+(-[0-9]+|--format=[^ \t]+|--oneline|--no-color))*$/) continue
         if (clause ~ /^git[ \t]+(branch[ \t]+--show-current|rev-parse[ \t]+HEAD|status[ \t]+--short)$/) continue
         return 0
     }
     return readers == 1 && reader_index == commands
+}
+# Options are decoded by tokenize, not inferred from quote-masked command text.
+# Only known nonrecursive grep flags can justify skipping a directory. Unknown/value options refuse.
+function reader_may_recurse(A, n,    i, j, w, b, ended, pattern) {
+    b = base(A[1])
+    if (b ~ /^(cat|head|tail|wc)$/) return 0
+    if (b !~ /^(grep|egrep|fgrep)$/) return 1
+    for (i = 2; i <= n; i++) {
+        w = A[i]
+        if (!ended && w == "--") { ended = 1; continue }
+        if (!ended && w ~ /^-/) {
+            if (w == "-e" || w == "--regexp") { if (++i > n) return 1; pattern = 1; continue }
+            if (w ~ /^(-e.|--regexp=)/) { pattern = 1; continue }
+            if (w ~ /^--/ || w !~ /^-[EFGPivwxcnNlLoqsaHIhVzuUSyZ0]+$/) return 1
+            continue
+        }
+        if (!pattern) pattern = 1
+    }
+    return 0
 }
 function glob_directory(    text, head, dir, prior) {
     dir = ENVIRON["GS_CWD"]; text = CMD
@@ -1052,10 +1151,13 @@ function glob_secret_match(a,    prefix, parent, dir, script, cmd, line, count, 
         "checked_cd() { local logical; logical=$(cd -L -- \"$1\" && pwd -P) || return 3; " \
         "cd -P -- \"$1\" || return 3; [ \"$logical\" = \"$PWD\" ] && [ -r . ] && [ -x . ]; }; " \
         "checked_cd \"$1\" || exit 3; parent=${2%/*}; stem=${2##*/}; [ \"$parent\" != \"$2\" ] || parent=.; " \
-        "checked_cd \"$parent\" || exit 3; " \
-        "n=0; for f in \"$stem\"*; do n=$((n+1)); [ \"$n\" -le 200 ] && [ -f \"$f\" ] && [ ! -L \"$f\" ] || exit 3; " \
+        "probe=$parent; while [ ! -e \"$probe\" ]; do [ ! -L \"$probe\" ] || exit 3; next=${probe%/*}; " \
+        "[ \"$next\" != \"$probe\" ] || next=.; probe=$next; done; " \
+        "checked_cd \"$probe\" || exit 3; [ \"$probe\" = \"$parent\" ] || { echo OK; exit 0; }; " \
+        "n=0; for f in \"$stem\"*; do n=$((n+1)); [ \"$n\" -le 200 ] && [ ! -L \"$f\" ] || exit 3; " \
+        "if [ -d \"$f\" ]; then [ \"$3\" != 1 ] || exit 3; continue; fi; [ -f \"$f\" ] || exit 3; " \
         "case \"$PWD/$f\" in *[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$PWD/$f\"; done; echo OK"
-    cmd = "bash -c " shell_quote(script) " guard-glob " shell_quote(dir) " " shell_quote(prefix) " 2>/dev/null"
+    cmd = "bash -c " shell_quote(script) " guard-glob " shell_quote(dir) " " shell_quote(prefix) " " shell_quote(glob_recursive ? "1" : "0") " 2>/dev/null"
     while ((cmd | getline line) > 0) {
         if (line == "OK") { ok = 1; continue }
         if (ok || substr(line, 1, 2) != "F:" || ++count > 200) { ok = 0; break }
@@ -1069,6 +1171,10 @@ function glob_secret_match(a,    prefix, parent, dir, script, cmd, line, count, 
     }
     close(cmd)
     if (!ok) { matched_file = ""; return "a key or certificate file" }
+    # Explicit credential-name prefixes stay protected even before those files exist.
+    if (!count && base(prefix) != "") for (k = 1; k <= nprobe; k++) {
+        if (index(PROBE[k], tolower(base(prefix))) == 1 && sensitive_path(PROBE[k]) != "") return sensitive_path(PROBE[k])
+    }
     if (!count && !filenames_only && (base(prefix) ~ /^(secrets?|cert(ificate)?s?|keys?|private|credentials?)([._-]|$)/ || tolower(prefix) ~ /\.(pem|key|p12|pfx|jks|keystore|kdbx|kubeconfig|env)([._-]|$)/ || sensitive_path(dir "/" prefix) != "")) return "a key or certificate file"
     return found
 }
@@ -1080,6 +1186,8 @@ function alt_kind(a,    b, d, kind, k, glob) {
     b = a; sub(/.*\//, "", b)
     glob = (a ~ /[\004-\006]/)
     if (!has_sentinel(a)) return sensitive_path(a)
+    # A supported reader glob is judged by its real regular-file matches, not possible key basenames.
+    if (glob && substr(a, length(a), 1) == "\004") return glob_secret_match(a)
     if (!glob) {
         kind = sensitive_path(a)
         if (kind != "") return kind
@@ -1284,7 +1392,21 @@ function dock(A, s, n,    off, sub1, nxt, insp, k, listing) {
     }
     if (sub1 == "exec" && np >= 3 + off) analyze(A, PI[3 + off], n)
 }
-function gh(A, s, n,    i, w, mutating, k) {
+function endpoint_path(path,    i, pair, value, decoded) {
+    sub(/[?#].*$/, "", path)
+    endpoint_uncertain = 0
+    for (i = 1; i <= length(path); i++) {
+        pair = tolower(substr(path, i + 1, 2))
+        if (substr(path, i, 1) == "%" && length(pair) == 2 && pair ~ /^[0-9a-f][0-9a-f]$/) {
+            value = HEX[substr(pair, 1, 1)] * 16 + HEX[substr(pair, 2, 1)]
+            if (value < 32 || value == 127) { endpoint_uncertain = 1; return "" }
+            decoded = decoded sprintf("%c", value); i += 2
+        } else decoded = decoded substr(path, i, 1)
+    }
+    sub(/[?#].*$/, "", decoded); gsub(/\/\/+/, "/", decoded); sub(/\/+$/, "", decoded)
+    return decoded
+}
+function gh(A, s, n,    i, w, mutating, k, path, kind) {
     kparse(A, s + 1, n, "XHfFqtR")
     if (P[1] == "secret") {
         if (P[2] != "set" && P[2] != "delete" && P[2] != "remove")
@@ -1298,6 +1420,10 @@ function gh(A, s, n,    i, w, mutating, k) {
         return
     }
     if (P[1] == "api") {
+        for (k = 2; k <= np; k++) {
+            path = endpoint_path(P[k]); kind = sensitive_path(path)
+            if (endpoint_uncertain || kind != "") report("gh api endpoint names a protected file", "request only non-credential file contents; list filenames instead")
+        }
         mutating = 0
         for (i = s + 1; i < n; i++) if (A[i] == "-X" || A[i] == "--method") { w = toupper(A[i + 1]); if (w == "PUT" || w == "PATCH" || w == "DELETE") mutating = 1 }
         if (!mutating)
@@ -1358,6 +1484,11 @@ function env_program(b, p,    t) {
 }
 function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals, filenames) {
     b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
+    if (b == "sed") {
+        sed_slots(A, s, n)
+        for (k = s + 1; k <= n; k++) if (!(k in SED_DATA) && A[k] !~ /^-/) report_operand(A, k, b, 0)
+        return
+    }
     if (b == "busybox") { if (base(A[s + 1]) == "awk") reader(A, s + 1, n); return }
     if (b ~ /^(awk|gawk|mawk|nawk|jq|yq|gojq|jaq)$/) for (k = s + 1; k <= n; k++) env_program(b, A[k])
     if (b ~ /^(rg|grep|egrep|fgrep)$/) {

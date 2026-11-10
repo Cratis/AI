@@ -57,6 +57,9 @@ function quoted_literal(s) {
     return s
 }
 function raw_brace_word(w,    quote, first, bare) {
+    # Unknown interpreter/program text may concatenate brace fragments: retain its conservative refusal.
+    # Modeled readers never send their opaque filters through this fallback.
+    if (unparsed && index(w, "{") && !index(w, "}")) candidate("*")
     if (!(w ~ /[$`"\047\\]/)) return
     first = substr(w, 1, 1); quote = (first == "\047" || first == "\"") ? first : ""
     if (quote != "" && substr(w, length(w), 1) == quote && index(substr(w, 2, length(w) - 2), quote) == 0) return
@@ -164,6 +167,7 @@ function endword() {
     if (redirect) {
         if (!(redirect == 2 && word ~ /^([0-9]+|-)$/)) {
             file_redirect = 1
+            redirect_words = redirect_words " " word
             if (changed_cwd || lead_glob) unparsed = 1
             if (changed_cwd || word ~ /[$`*?\[{~()]/ || protected(word)) bad = 1
         }
@@ -211,6 +215,7 @@ function options_allowed(verb, first,    i, w) {
             }
         }
         if (verb == "git diff" && w ~ /^-U[0-9]+$/) continue
+        if (verb == "shellcheck" && w ~ /^--severity=(error|warning|info|style)$/) continue
         if ((verb == "git log" && w ~ /^--(format|pretty)=/) || (verb == "git show" && w ~ /^--format=/)) {
             if (index(w, "%(")) return 0
             continue
@@ -256,9 +261,41 @@ function directory_metadata() {
     if (argc == 5) return (W[4] == "status" && W[5] == "--short") || (W[4] == "rev-parse" && W[5] == "HEAD") || (W[4] == "branch" && W[5] == "--show-current")
     return argc == 6 && W[4] == "tag" && W[5] == "--list" && W[6] !~ /^-/
 }
-# -n alone is not read-only: sed scripts can still execute or write files.
-# Only numeric/last-line print addresses qualify, with no additional options.
-function print_only_sed(    i, ended) {
+# Keep this bounded sed grammar in sync with the secrets guard. Program files and unknown commands
+# remain conservative; only print/substitution scripts without execution or file-write flags qualify.
+function safe_sed_script(p,    delimiter, i, c, spans) {
+    if (p ~ /^([0-9]+(,([0-9]+|\$))?|\$)?p$/) return 1
+    if (substr(p, 1, 1) != "s" || length(p) < 4) return 0
+    delimiter = substr(p, 2, 1)
+    if (delimiter ~ /[A-Za-z0-9\\ \t\n]/) return 0
+    for (i = 3; i <= length(p); i++) {
+        c = substr(p, i, 1)
+        if (c == "\n") return 0
+        if (c == "\\") { if (++i > length(p) || substr(p, i, 1) == "\n") return 0; continue }
+        if (c == delimiter && ++spans == 2) return substr(p, i + 1) ~ /^[gpI0-9]*$/
+    }
+    return 0
+}
+function sed_slots(A, s, n,    i, w, program, explicit, ended, scripts) {
+    delete SED_DATA
+    for (i = s + 1; i <= n && A[i] != "--"; i++) if (A[i] ~ /^(-e|--expression)(=|$)/ || A[i] ~ /^-e./) explicit = 1
+    for (i = s + 1; i <= n; i++) {
+        w = A[i]
+        if (!ended && w == "--") { ended = 1; continue }
+        if (!ended && (w ~ /^-[nEr]+$/ || w ~ /^--(quiet|silent|regexp-extended)$/)) continue
+        if (!ended && (w == "-e" || w == "--expression")) { if (++i > n) return 0; program = A[i] }
+        else if (!ended && w ~ /^(-e.|--expression=)/) { program = w; sub(/^(-e|--expression=)/, "", program) }
+        else if (!ended && w ~ /^-/) return 0
+        else if (!explicit && !scripts) program = w
+        else continue
+        if (!safe_sed_script(program)) return 0
+        SED_DATA[i] = 1; scripts++
+    }
+    return scripts > 0
+}
+# Preserve the original protected-file read lane exactly; newly admitted programs below retain
+# the pre-existing conservative file-operand check rather than broadening this exception.
+function legacy_print_sed(    i, ended) {
     if (argc < 4 || W[2] != "-n" || W[3] !~ /^([0-9]+(,([0-9]+|\$))?|\$)?p$/) return 0
     for (i = 4; i <= argc; i++) {
         if (!ended && W[i] == "--") { ended = 1; continue }
@@ -266,10 +303,69 @@ function print_only_sed(    i, ended) {
     }
     return 1
 }
+function print_only_sed(    i, ended) {
+    if (legacy_print_sed()) return 1
+    if (!sed_slots(W, 1, argc)) return 0
+    for (i = 2; i <= argc; i++) {
+        if (i in SED_DATA) { if (globbed[i]) return 0; continue }
+        if (!ended && W[i] == "--") { ended = 1; continue }
+        if (!ended && W[i] ~ /^-/) continue
+        # Exempt script data, never the input paths: retain the existing protected-input refusal.
+        redirect_words = redirect_words " " W[i]
+        if (protected(W[i])) return 0
+    }
+    return 1
+}
 # Verbs whose reviewed options are display flags only: a word-leading glob that expands to an option-shaped
 # file name can change what they print, never what they write or run. Every other verb refuses a leading glob.
+function shell_quote(s) { gsub(/\047/, "\047\\\047\047", s); return "\047" s "\047" }
+# rg can execute --pre supplied by a filename. Check real leading-glob matches, never command text.
+function reader_globs(    i, cmd, line, count, ok, script) {
+    if (changed_cwd || ENVIRON["GSW_GLOB_SAFE"] != "1") return 0
+    script = "cd -- \"$1\" && [ -r . ] && [ -x . ] || exit 3; unset GLOBIGNORE; shopt -s nullglob dotglob nocaseglob; " \
+        "n=0; while IFS= read -r f; do n=$((n+1)); [ \"$n\" -le 200 ] || exit 3; " \
+        "case $f in -*|*[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$f\"; done < <(compgen -G \"$2\"); echo OK"
+    for (i = 2; i <= argc; i++) {
+        if (W[i] == "--") return 1
+        if (!leading[i]) continue
+        cmd = "bash -c " shell_quote(script) " guard-glob " shell_quote(ENVIRON["GSW_CWD"]) " " shell_quote(W[i]) " 2>/dev/null"
+        ok = count = 0
+        while ((cmd | getline line) > 0) {
+            if (line == "OK") { ok = 1; continue }
+            if (ok || substr(line, 1, 2) != "F:" || ++count > 200) { ok = 0; break }
+        }
+        if (close(cmd) != 0 || !ok) return 0
+    }
+    return 1
+}
 function glob_safe() {
-    return W[1] ~ /^(cat|head|tail|wc|ls|grep|egrep|fgrep)$/ || (W[1] == "git" && W[2] == "ls-files")
+    return W[1] ~ /^(cat|head|tail|wc|ls|grep|egrep|fgrep|shellcheck)$/ || (W[1] == "rg" && reader_globs()) || (W[1] == "git" && W[2] == "ls-files")
+}
+function find_allowed(    i, w, predicates) {
+    for (i = 2; i <= argc; i++) {
+        w = W[i]
+        if (w ~ /^-(name|iname|path|regex|wholename)$/) { if (++i > argc || globbed[i]) return 0; predicates++; continue }
+        if (w ~ /^-(maxdepth|mindepth)$/) { if (++i > argc || W[i] !~ /^[0-9]+$/) return 0; continue }
+        if (w ~ /^-/ && w !~ /^-(print|print0|type|L|P|H)$/) return 0
+        if (w == "-type") { if (++i > argc || W[i] !~ /^[bcdflps]$/) return 0 }
+    }
+    return predicates > 0
+}
+function gh_allowed(    i, w, subcommand, read) {
+    subcommand = W[2] " " W[3]
+    read = subcommand ~ /^(repo (view|list)|issue (view|list|status)|pr (view|list|status|diff|checks)|release (view|list)|run (view|list|watch)|search (issues|prs|repos|commits|code))$/
+    if (W[2] != "api" && !read) return 0
+    for (i = W[2] == "api" ? 3 : 4; i <= argc; i++) {
+        w = W[i]
+        if (globbed[i]) return 0
+        if (w ~ /^(--jq|-q|--json|-t|--template|--repo|-R|--limit|-L|--hostname|--header|-H)$/) {
+            if (++i > argc || globbed[i]) return 0
+            continue
+        }
+        if (W[2] == "api" && w ~ /^(--method|-X)$/) { if (++i > argc || W[i] !~ /^(GET|HEAD)$/) return 0; continue }
+        if (w ~ /^-/ && w !~ /^(--paginate|--slurp|--include|--silent|--log|--log-failed|--web)$/) return 0
+    }
+    return 1
 }
 # The two managed corpus scripts are admitted for execution only by exact literal spelling: the path is
 # compared as a whole word (no ./, .., variable, glob or quoting variant can equal it), every other word must
@@ -304,6 +400,8 @@ function allow_command(    verb, first, i) {
         return
     }
     if (verb == "sed") { if (!print_only_sed()) cmd_failed = 1; return }
+    if (verb == "find") { if (!find_allowed()) cmd_failed = 1; return }
+    if (verb == "gh") { if (!gh_allowed()) cmd_failed = 1; return }
     if (verb == "git" && W[2] == "-C") {
         if (argc >= 4 && W[3] != "" && W[3] !~ /^-/ && !globbed[3] && W[4] ~ /^(add|commit)$/) {
             verb = verb " " W[4]; first = 5
@@ -327,11 +425,12 @@ function command_end(separator, upto, resume,    silent) {
     endword(); cmd_failed = 0; allow_command()
     if (cmd_failed) { bad = 1; unparsed = 1 }
     if (W[1] == "cd" && (separator == "|" || previous_pipe)) fail()
-    silent = argc && !cmd_failed && !cmd_redirect && !force_emit && W[1] != "cd"
+    silent = argc && !cmd_failed && !input_redirect && !force_emit && W[1] != "cd"
+    if (silent && redirect_words != "") emitted[++emitted_count] = redirect_words
     if (!silent && upto > seg_start) emitted[++emitted_count] = substr(lexed, seg_start, upto - seg_start)
     seg_start = resume
     previous_pipe = (separator == "|")
-    cmd_redirect = force_emit = 0
+    cmd_redirect = force_emit = input_redirect = 0; redirect_words = ""
     delete W; delete globbed; delete leading; argc = 0
 }
 function readonly(s,    i, c, c2, sq, dq) {
@@ -357,6 +456,7 @@ function readonly(s,    i, c, c2, sq, dq) {
         if (c == "(" || c == ")" || c == "{" || c == "}") fail()
         if (c == ">" || c == "<" || (c == "&" && c2 == ">")) {
             cmd_redirect = 1
+            if (c == "<") input_redirect = 1
             if (inword && word ~ /^[0-9]+$/) { word = ""; inword = 0 } else endword()
             if (redirect) fail()
             if (c == "<" && (c2 == "<" || c2 == "(")) fail()
@@ -391,6 +491,7 @@ BEGIN {
     # operand. No value-taking option is accepted (--arg, -f, -L, --rawfile, --slurpfile, --from-file, --indent).
     policy("jq", "rcesnRSjaMC", "--raw-output --compact-output --slurp --null-input --exit-status --raw-input --sort-keys --join-output --ascii-output --monochrome-output --tab")
     policy("awk", "", "")
+    policy("shellcheck", "x", "--external-sources")
     policy("git status", "sb", "--short --porcelain")
     policy("git diff", "p", "--stat --numstat --name-only --name-status --cached --staged --check --no-color --cc")
     policy("git log", "p", "--oneline --stat --name-only --no-color --follow")
@@ -413,7 +514,9 @@ BEGIN {
     exit readonly(text) ? 0 : 1
 }
 AWK
-candidates_text="$(GSW_COMMAND="$command_text" GSW_MODE=targets LC_ALL=C awk "$program" </dev/null)" || parser_failed
+glob_shell_safe=1
+if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]]; then glob_shell_safe=0; fi
+candidates_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_MODE=targets LC_ALL=C awk "$program" </dev/null)" || parser_failed
 [ -n "$candidates_text" ] || exit 0
 candidates=()
 while IFS= read -r candidate; do candidates[${#candidates[@]}]="$candidate"; done <<<"$candidates_text"
@@ -431,7 +534,7 @@ references="$("$BASH" "$classifier" --references <<<"$classifier_input" 2>"$clas
     # A command that is not read-only is refused whatever the classifier could model, so an unmodeled word
     # (for example program text inside an interpreter heredoc) must not hide the refusal behind a parser
     # failure. A read-only command keeps the fail-closed parser failure.
-    if ! GSW_COMMAND="$command_text" GSW_MODE=readonly GSW_PROTECTED="" LC_ALL=C awk "$program" </dev/null; then
+    if ! GSW_COMMAND="$command_text" GSW_MODE=readonly GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_PROTECTED="" LC_ALL=C awk "$program" </dev/null; then
         printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: this command is not read-only and its references could not all be modeled; use the edit/write tools, or report the intended change.' >&2
         exit 2
     fi
@@ -440,6 +543,6 @@ references="$("$BASH" "$classifier" --references <<<"$classifier_input" 2>"$clas
     exit 2
 }
 [ -n "$references" ] || exit 0
-if GSW_COMMAND="$command_text" GSW_MODE=readonly GSW_PROTECTED="$references" LC_ALL=C awk "$program" </dev/null; then exit 0; fi
+if GSW_COMMAND="$command_text" GSW_MODE=readonly GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_PROTECTED="$references" LC_ALL=C awk "$program" </dev/null; then exit 0; fi
 printf "BLOCKED by cratis-guard-shell-writes: protected reference '%s' (cratis-guard-writes). Use the edit/write tools, or report the intended change; for a read, name literal paths or use the Read/Grep tools.\n" "${references%%$'\n'*}" >&2
 exit 2
