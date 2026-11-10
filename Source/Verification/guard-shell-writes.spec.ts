@@ -117,6 +117,7 @@ test('literal git filename metadata and grep pattern options are read-only', asy
             [ALLOW, 'git ls-files -s -- .env'], [ALLOW, 'git ls-files --debug -- .env'],
             [ALLOW, 'git grep -n -e credentials -e .env -- Source/AuthProxy'],
             [BLOCK, 'git ls-files .env; echo x > .env'],
+            [ALLOW, 'git add src/x/for_a_case.environment.txt'],
         ], repo.root);
     } finally { repo.dispose(); }
 });
