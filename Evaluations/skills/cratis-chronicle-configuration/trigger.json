@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-chronicle-configuration",
+  "queries": [
+    { "query": "Our Chronicle client fails with ResourceExhausted when appending a large event. Which setting do I raise?", "shouldTrigger": true },
+    { "query": "What is the default ConnectTimeout and RegistrationRetry for ChronicleOptions, and when should I change them?", "shouldTrigger": true },
+    { "query": "How do I set the Chronicle kernel storage connection string through an environment variable in a container?", "shouldTrigger": true },
+    { "query": "What does disableTls do in a Chronicle connection string and when is it safe?", "shouldTrigger": true },
+    { "query": "How do I get into the Workbench for the first time on the latest-development image?", "shouldTrigger": true },
+    { "query": "Observers time out waiting for my subscriber. Which kernel setting controls that and what is its default?", "shouldTrigger": true },
+    { "query": "Limit Reactors.MaxConcurrentPartitions because my handler is not thread-safe.", "shouldTrigger": true },
+    { "query": "Which Authentication Authority value should I set when the kernel uses our external identity provider?", "shouldTrigger": true },
+    { "query": "Plan a three-node production Chronicle cluster with MongoDB membership and backups.", "shouldTrigger": false, "note": "cratis-chronicle-hosting" },
+    { "query": "Wire AddCratisChronicle into my .NET worker service.", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" },
+    { "query": "Which ArcOptions key changes the tenant header?", "shouldTrigger": false, "note": "cratis-arc-configuration" },
+    { "query": "Choose a namespace resolver design for tenants sharing one event store.", "shouldTrigger": false, "note": "cratis-chronicle-multi-tenancy" },
+    { "query": "Write a Chronicle projection for OrderPlaced.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
+    { "query": "Mark personal event fields for erasure.", "shouldTrigger": false, "note": "cratis-chronicle-compliance" },
+    { "query": "Add a reactor that sends an email when InvoiceSent is appended.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
+    { "query": "Migrate an event type to a new generation after events were stored.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" }
+  ]
+}

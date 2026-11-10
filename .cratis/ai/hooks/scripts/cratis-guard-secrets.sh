@@ -47,8 +47,8 @@ probe=${probe//[\'\"\\]/}
 probe_lower="$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" || parser_failed
 case "$probe_lower" in
     *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
-    *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.p12*|*.pfx*|*token*|*.netrc*|*.npmrc*|\
-    *credentials*|*.pgpass*|*pypirc*|*secrets*|*oc*) ;;
+    *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.key*|*.p12*|*.pfx*|*.jks*|*.kdbx*|*token*|*.netrc*|*.npmrc*|\
+    *credential*|*.pgpass*|*pypirc*|*secrets*|*oc*) ;;
     *)
         case "$command_text" in
             *'$'*|*'*'*|*'?'*|*'['*|*'{'*|*'('*|*'^'*|*'~'*|*'`'*) ;;
@@ -77,8 +77,8 @@ function addw(text, kind,    k) {
     for (k = 1; k <= length(text); k++) { wmask = wmask (quote_boundary ? toupper(kind) : kind); quote_boundary = 0 }
 }
 function flush_word() {
-    if (inword) { W[++nw] = word; WP[nw] = wplain; WM[nw] = wmask }
-    word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; quote_boundary = 0
+    if (inword) { W[++nw] = word; WP[nw] = wplain; WM[nw] = wmask; WU[nw] = wunquoted }
+    word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; quote_boundary = 0; wunquoted = 0
 }
 # Decodes the body of an ANSI-C string $'...' (i is just after the opening quote) into the word and returns the
 # position after the closing quote. The same decoder is in cratis-guard-store-mutations.sh (`ansi_c`).
@@ -110,19 +110,31 @@ function ansi_c(s, i, n,    c, c2, v, d, k, lim, stop, digits) {
 # or operands (`kubectl get > /dev/stdout secrets`). Nothing is exempted: the command itself is still analyzed.
 # A word is a redirection only when its whole operator lies in the word's unquoted prefix (WP: characters before
 # the first quoted or escaped one), so `1">"b` and `">x"` stay operands; input redirections (`< file`) stay too.
-function stem_boundary(t, start, finish, stem,    a, b, before, after, left, right, component) {
+function stem_boundary(t, start, finish, stem, nonliteral,    a, b, before, after, left, right, component, literal) {
+    # Raw text of an expanding word is judged after expansion: braces and parameters are resolved
+    # alternatives scanned separately; only unresolved globs and expansion markers stay non-literal.
+    if (nonliteral == "expanding") literal = t !~ /[][?*()`~^\001-\007]/
+    else literal = !nonliteral && t !~ /[][?*{}()$`~^\001-\007]/
     if (stem == "/environ" && substr(t, finish + 1, 1) ~ /[a-z0-9_]/) return 0
-    if (stem !~ /^(id_rsa|id_ed25519|id_ecdsa|id_dsa|kubeconfig|credentials)$/) return 1
+    if (stem ~ /^\.(key|jks|keystore|kdbx)$/) {
+        if (substr(t, finish + 1, 1) ~ /[a-z0-9_-]/) return 0
+        # Ambiguous key words are credential extensions only at the end of a literal filename.
+        if (literal && t !~ /\.(key|jks|keystore|kdbx)[.]*$/) return 0
+    }
+    if (stem !~ /^(id_rsa|id_ed25519|id_ecdsa|id_dsa|kubeconfig|credentials?)$/) return 1
     a = start; b = finish
     while (a > 1 && substr(t, a - 1, 1) ~ /[a-z0-9_]/) a--
     while (b < length(t) && substr(t, b + 1, 1) ~ /[a-z0-9_]/) b++
-    if (stem == "credentials") {
+    if (stem ~ /^credentials?$/) {
         left = a; right = b
-        while (left > 1 && substr(t, left - 1, 1) ~ /[a-z0-9_.-]/) left--
-        while (right < length(t) && substr(t, right + 1, 1) ~ /[a-z0-9_.-]/) right++
+        while (left > 1 && substr(t, left - 1, 1) != "/") left--
+        while (right < length(t) && substr(t, right + 1, 1) != "/") right++
         component = substr(t, left, right - left + 1)
-        if (component !~ /^credentials([.]|$)/ && substr(t, right + 1, 1) == "/") return 0
-        if (code_file(component) && component !~ /^credentials\./) return 0
+        if (literal && component !~ /^credentials([.]|$)/ && substr(t, right + 1, 1) == "/") return 0
+        # Never infer a source file from a partial component or an expansion. JSON is not source.
+        if (literal && code_file(component)) return 0
+        # The singular word is ordinary vocabulary; it marks a protected file only in credential JSON names.
+        if (stem == "credential" && literal && component !~ /credential[^\/]*\.json[.]*$/) return 0
     }
     before = substr(t, a - 1, 1); after = substr(t, b + 1)
     return !(before == "$" || before == "-" || (before == "{" && substr(t, a - 2, 1) == "$") || after ~ /^(=|\+=)/)
@@ -166,13 +178,13 @@ function stem_units(t, m, start, stem) {
     delete SM
     return stem_match(t, stem, start, 1, 0, 0)
 }
-function stem_scan(text, mode,    t, k, stem, pos, offset, first, found, end, p, candidate) {
+function stem_scan(text, mode, nonliteral,    t, k, stem, pos, offset, first, found, end, p, candidate) {
     t = tolower(text)
     for (k = 1; k <= nstem; k++) {
         stem = STEM[k]; offset = 0
         while ((pos = index(substr(t, offset + 1), stem)) > 0) {
             pos += offset; end = pos + length(stem) - 1
-            if (stem_boundary(t, pos, end, stem) && (!first || pos < first)) { first = pos; found = stem; break }
+            if (stem_boundary(t, pos, end, stem, nonliteral) && (!first || pos < first)) { first = pos; found = stem; break }
             offset = pos
         }
         if (stem == ".kube/") {
@@ -187,7 +199,7 @@ function stem_scan(text, mode,    t, k, stem, pos, offset, first, found, end, p,
                 stem = STEM[k]
                 if (candidate != substr(stem, 1, 1) && candidate !~ /[*?[(@+!~^]/) continue
                 end = stem_units(t, mode, p, stem)
-                if (end && stem_boundary(t, p, end, stem)) { first = p; found = stem; break }
+                if (end && stem_boundary(t, p, end, stem, nonliteral)) { first = p; found = stem; break }
             }
         }
     }
@@ -340,17 +352,49 @@ function literal_shape(A, M, n,    k, j, b, words, count, pattern, ended, w, pat
     }
     return b != "rg" || paths > 0
 }
-function end_cmd(    k, m, w, j, hit) {
+# Every character that can come from command output, directly or through a parameter expansion holding it, is a wildcard.
+function output_wild(w, m,    k, j, x, depth, found, r, span) {
+    delete span
+    for (k = 1; k <= length(w); k++) {
+        if (substr(w, k, 2) != "$" "{" || tolower(substr(m, k, 1)) == "l") continue
+        depth = 0; found = 0
+        for (j = k + 1; j <= length(w); j++) {
+            if (tolower(substr(m, j, 1)) == "c") found = 1
+            else if (substr(w, j, 1) == "{") depth++
+            else if (substr(w, j, 1) == "}" && --depth == 0) break
+        }
+        if (found) for (x = k; x <= j; x++) span[x] = 1
+    }
+    for (k = 1; k <= length(w); k++) r = r ((k in span) || tolower(substr(m, k, 1)) == "c" ? "*" : substr(w, k, 1))
+    return r
+}
+# Unquoted output can also split into several words: scan each suffix that starts at output text.
+function split_scan(w, m,    k, r, hit) {
+    r = output_wild(w, m)
+    for (k = 1; k <= length(r); k++) {
+        if (substr(r, k, 1) != "*" || substr(r, k + 1, 1) == "*") continue
+        hit = stem_scan(substr(r, k), "raw", "expanding"); if (hit != "") return hit
+        if (substr(r, k + 1, 1) !~ /^[\/]?$/) { hit = stem_scan("." substr(r, k), "raw", "expanding"); if (hit != "") return hit }
+    }
+    return ""
+}
+function end_cmd(    k, m, w, j, hit, exempt) {
     flush_word()
     if (nw > 0) {
         commands++
         regex_slots(W, 1, nw)
         for (k = 1; k <= nw; k++) {
             if (is_assign(W[k])) set_var(W[k], WM[k])
-            if ((k in RP) && RP[k] < 0) continue
-            w = (k in RP) ? substr(W[k], 1, RP[k]) : W[k]
-            hit = stem_scan(w, "raw"); if (TAINT == "") TAINT = hit
-            if (!(k in RP) && expands(W[k], WM[k])) {
+            exempt = (k in RP) && !WU[k]
+            if (exempt && RP[k] < 0) continue
+            w = exempt ? substr(W[k], 1, RP[k]) : W[k]
+            hit = stem_scan(w, "raw", expands(w, WM[k]) ? "expanding" : 0); if (TAINT == "") TAINT = hit
+            # Command output may supply any text, including several names: judge it as an unresolved wildcard.
+            if (!exempt && index(WM[k], "c") + index(WM[k], "C") > 0) {
+                hit = stem_scan(output_wild(W[k], WM[k]), "raw", "expanding"); if (TAINT == "") TAINT = hit
+                if (WU[k]) { hit = split_scan(W[k], WM[k]); if (TAINT == "") TAINT = hit }
+            }
+            if (!exempt && expands(W[k], WM[k])) {
                 resolve(W[k], WM[k])
                 for (j = 1; j <= nalt; j++) { hit = stem_scan(ALT[j], "resolved"); if (TAINT == "") TAINT = hit }
             }
@@ -367,7 +411,7 @@ function end_cmd(    k, m, w, j, hit) {
         V[++m] = w; VM[m] = WM[k]
     }
     if (m > 0) { check_inputs(V, 1, m); analyze(V, 1, m) }
-    delete W; delete WP; delete WM; delete V; delete VM; nw = 0
+    delete W; delete WP; delete WM; delete WU; delete V; delete VM; nw = 0
 }
 function cmdsub(s, i, n,    start, depth, c, j) {
     complex = 1
@@ -405,7 +449,7 @@ function read_heredocs(s, i, n,    h, e, line, cmp, body) {
     return i
 }
 function tokenize(s,    i, n, c, c2, j, dash, delim) {
-    n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; nheredoc = 0; hd_shell = 0; quote_boundary = 0
+    n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; wunquoted = 0; nheredoc = 0; hd_shell = 0; quote_boundary = 0
     delete W; delete WP; delete WM
     while (i <= n) {
         c = substr(s, i, 1)
@@ -439,10 +483,10 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             }
             continue
         }
-        if (c == "$" && substr(s, i + 1, 1) == "(") { wquoted = 1; inword = 1; i = cmdsub(s, i + 2, n); addw("x", "c"); continue }
+        if (c == "$" && substr(s, i + 1, 1) == "(") { wquoted = 1; inword = 1; wunquoted = 1; i = cmdsub(s, i + 2, n); addw("x", "c"); continue }
         if (c == "`") {
             complex = 1
-            wquoted = 1; inword = 1
+            wquoted = 1; inword = 1; wunquoted = 1
             j = index(substr(s, i + 1), "`")
             if (j == 0) { i = n + 1; continue }
             enqueue(substr(s, i + 1, j - 1)); i += j + 1; addw("x", "c"); continue
@@ -610,11 +654,13 @@ function sensitive_path(w,    l, b) {
     l = tolower(w); b = l; sub(/.*\//, "", b)
     if (l ~ /(^|\/)\.kube\// || b == "kubeconfig" || b ~ /\.kubeconfig$/) return "a kubeconfig"
     if (b ~ /^\.env/ || b ~ /\.env$/) { if (b ~ /\.(example|sample|template|dist|defaults?)$/) return ""; return "an .env file" }
-    if (b ~ /\.(pem|p12|pfx)$/) return "a key or certificate file"
+    # Unambiguous credential extensions also protect disguised source suffixes; ambiguous words
+    # such as Signing.Key.cs are source unless the credential extension is final.
+    if (b ~ /\.(pem|p12|pfx)([.]|$)/ || b ~ /\.(key|jks|keystore|kdbx)[.]*$/) return "a key or certificate file"
     if (b == "id_rsa" || b == "id_ed25519" || b == "id_ecdsa" || b == "id_dsa") return "a private key"
     if (b ~ /(^|[._-])tokens?($|[._-])/ && !code_file(b) && !token_ok(l, b)) return "a token file"
     if (b == ".netrc" || b == ".npmrc" || b == ".pgpass" || b == ".pypirc" || b == ".git-credentials") return "a credentials file"
-    if (b == "credentials" || b == "credentials.json") return "a credentials file"
+    if (b == "credentials" || b ~ /credential.*\.json[.]*$/) return "a credentials file"
     if (l ~ /\.docker\/config\.json$/) return "the Docker registry credentials"
     if (l ~ /\/proc\/[^\/]*\/environ$/) return "a process environment"
     if (l ~ /^\/(var\/)?run\/secrets\//) return "mounted secrets"
@@ -1414,7 +1460,7 @@ BEGIN {
     nprobe2 = split(".kube/config .aws/credentials .docker/config.json /proc/1/environ /run/secrets/token /var/run/secrets/token", PROBE2, " ")
     nextension = split("pem key p12 pfx jks keystore kdbx kubeconfig env", EXT, " ")
     ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt set setopt unsetopt emulate grep egrep fgrep rg ag sed awk gawk jq yq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
-    nstem = split(".env .pem .p12 .pfx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials .docker/ /environ run/secrets", STEM, " ")
+    nstem = split(".env .pem .key .p12 .pfx .jks .keystore .kdbx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials credential .docker/ /environ run/secrets", STEM, " ")
     CMD = ENVIRON["GS_COMMAND"]
     for (pass = 1; pass <= 2; pass++) {
         delete queue; queued = 0; qi = 0; delete seen; reports = ""

@@ -277,6 +277,7 @@
         "cratis-arc-command-execution",
         "cratis-arc-command-operation",
         "cratis-arc-command-validation",
+        "cratis-arc-configuration",
         "cratis-arc-hosting",
         "cratis-arc-mcp",
         "cratis-arc-neo4j",
@@ -532,6 +533,7 @@
       "availableTargets": [
         "cratis-commits-and-pull-requests",
         "cratis-rtk",
+        "cratis-chronicle-configuration",
         "cratis-chronicle-decision-reads",
         "cratis-chronicle-event-constraints",
         "cratis-chronicle-event-modeling",
