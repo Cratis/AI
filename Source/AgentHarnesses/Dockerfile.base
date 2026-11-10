@@ -83,7 +83,7 @@ RUN apt-get update \
 
 # Digest resolved from the mcr.microsoft.com/dotnet/sdk:10.0 tag on 2026-09-05 (docker buildx
 # imagetools inspect).
-FROM mcr.microsoft.com/dotnet/sdk:10.0@sha256:e1ffd2a92ae84c1291bc1b6887501f8af98e6331e7af6d4c8d37168c5e87a64c
+FROM mcr.microsoft.com/dotnet/sdk:11.0@sha256:65f3c7c6a25a239ab3e6719f2896147e7b68242ff2d8818dd70498bde6ef8bea
 ARG TARGETARCH
 # The pinned FROM digests are multi-arch indexes. Apt, dotnet tool, npm, Playwright and pip
 # resolve native packages for this target, not the build host. Reject mismatched/unsupported
