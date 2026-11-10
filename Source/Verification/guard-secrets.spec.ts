@@ -222,6 +222,23 @@ test('path-only Git operations permit non-secret repository paths in both guards
     ]).map(command => [BLOCK, command] as [string, string]));
 });
 
+test('Git revision exemptions use a strict simple-ref and path allowlist', () => {
+    assertVerdicts([
+        [BLOCK, 'git show HEAD^{/:}:id_rsa'],
+        [BLOCK, "git show 'HEAD@{0}:.env'"],
+        [BLOCK, 'git show HEAD:a:id_rsa'],
+        [BLOCK, "git show 'HEAD^{commit}:credentials.json'"],
+        [BLOCK, 'git show HEAD~1:credentials.json'],
+        [BLOCK, 'git show HEAD^2:id_rsa'],
+        [ALLOW, 'git show HEAD:src/CredentialsProvider.cs'],
+        [ALLOW, "git show 'HEAD~1:src/CredentialsProvider.cs'"],
+        [ALLOW, "git show 'HEAD^2:src/CredentialsProvider.cs'"],
+        [ALLOW, 'git show feature/source-ref:src/CredentialsProvider.cs'],
+        [ALLOW, 'git add CredentialsProvider.cs'],
+        [ALLOW, 'git diff -- Credentials.cs'],
+    ]);
+});
+
 test('Git index stages and pathspec magic preserve secret-file classification', () => {
     const paths = [[BLOCK, 'id_rsa'], [BLOCK, '.envrc'], [BLOCK, 'credentials.json'], [BLOCK, '.aws/credentials'],
         [ALLOW, 'CredentialsProvider.cs'], [ALLOW, 'Source/RecordingCredentials.fs']];
@@ -231,12 +248,15 @@ test('Git index stages and pathspec magic preserve secret-file classification', 
             cases.push([verdict, `git show ${prefix}${path}`]);
         }
         for (const prefix of ['', ':(literal)', ':(top,literal)', ':(icase,literal)', ':(exclude,literal)', ':!', ':^', ':/', ':!:']) {
-            cases.push([verdict, `git diff -- '${prefix}${path}'`]);
-            cases.push([verdict, `git add '${prefix}${path}'`]);
+            // Complex syntax receives only the conservative checks, not a source-path exemption.
+            const expected = prefix.includes('(') || prefix.includes('^') ? BLOCK : verdict;
+            cases.push([expected, `git diff -- '${prefix}${path}'`]);
+            cases.push([expected, `git add '${prefix}${path}'`]);
         }
     }
+    // Unsupported syntax with no protected names falls through; it is never granted an exemption.
     cases.push([BLOCK, "git diff -- ':(unknown)CredentialsProvider.cs'"],
-        [BLOCK, "git diff -- ':(literal'"], [BLOCK, "git diff -- ':?CredentialsProvider.cs'"],
+        [ALLOW, "git diff -- ':(literal'"], [BLOCK, "git diff -- ':?CredentialsProvider.cs'"],
         [BLOCK, "git diff -- ':(attr:credential)CredentialsProvider.cs'"]);
     assertVerdicts(cases);
 });

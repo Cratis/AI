@@ -311,38 +311,30 @@ function git_metadata(words, count,    subcommand, k, w, ended, summary) {
     return subcommand != "diff" || summary
 }
 # Path-only Git operations do not turn credential vocabulary into a secret filename.
-# Literal operands retain their Git context: pathspec magic differs from revision:path.
-function git_path_kind(w, pathspec, repo_only,    parts, count, k, kind, closing, magic) {
-    sub(/^--[^=]*=/, "", w)
-    if (w ~ /^:\(/) {
-        closing = index(w, ")")
-        if (!closing) return "an unparsed Git pathspec"
-        magic = substr(w, 3, closing - 3)
-        count = split(magic, parts, ",")
-        for (k = 1; k <= count; k++) {
-            if (parts[k] !~ /^(top|literal|icase|exclude)$/) return "an unparsed Git pathspec"
-        }
-        if (!count) return "an unparsed Git pathspec"
-        w = substr(w, closing + 1)
-    } else if (w ~ /^:[!^\/]/) {
-        sub(/^:[!^\/]+:?/, "", w)
-    } else if (!pathspec && w ~ /^:[0-3]:/) {
-        sub(/^:[0-3]:/, "", w)
-    } else if (!pathspec && w ~ /^:[^:]/) {
-        sub(/^:/, "", w)
-    } else if (!pathspec && w ~ /^[^:]+:/) {
-        sub(/^[^:]+:/, "", w)
-    } else if (w ~ /^:/) return "an unparsed Git pathspec"
-    if (repo_only && (w ~ /^(\/|~)/ || w ~ /(^|\/)\.\.(\/|$)/)) return "a path outside the repository"
+# Exempt only plain relative paths or one-colon object specs with a simple ref.
+# Never interpret complex Git grammar; keep the original operand for conservative checks.
+function git_path_kind(w, pathspec, repo_only,    parts, count, k, kind, path, allowed) {
+    count = split(w, parts, ":")
+    path = w
+    allowed = count == 1
+    if (!pathspec && count == 2 && parts[1] ~ /^[A-Za-z0-9_.\/-]+([~^][0-9]+)?$/) {
+        path = parts[2]
+        allowed = 1
+    }
+    allowed = allowed && path ~ /^[A-Za-z0-9_.\/-]+$/ && path !~ /^\// && path !~ /(^|\/)\.\.(\/|$)/
+    if (repo_only && !allowed) return "an operand outside the Git path allowlist"
+    if (allowed) w = path
     if (tolower(base(w)) == "credentials" && w !~ /(^|\/)\.aws\/credentials$/ && directory_operand(w)) return ""
     kind = sensitive_path(w)
     if (kind != "") return kind
-    count = split(w, parts, "/")
-    for (k = 1; k < count; k++) {
-        if (tolower(parts[k]) == "credentials") continue
+    # Inspect every component without guessing where unsupported revision/pathspec syntax ends.
+    count = split(w, parts, /[\/:]/)
+    for (k = 1; k <= count; k++) {
+        if ((allowed && k == count) || (k < count && tolower(parts[k]) == "credentials")) continue
         kind = sensitive_path(parts[k])
         if (kind != "") return kind
     }
+    if (!allowed && stem_scan(w, "raw") != "") return "a protected Git operand"
     return ""
 }
 function git_paths(A, M, n,    k, ended, pathspec) {
