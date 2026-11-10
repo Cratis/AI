@@ -23,7 +23,7 @@ case "$MODE:$*" in
     remote-fails:*ls-remote*) exit 128 ;;
     remote-timeout:*ls-remote*) exit 124 ;;
     fetch-timeout:*ls-remote*) printf 'ref: refs/heads/main\tHEAD\n' ;;
-    fetch-timeout:*fetch*) exit 124 ;;
+    fetch-timeout:*' fetch '*) exit 124 ;;
     *) exit 0 ;;
 esac
 STUB
@@ -82,6 +82,6 @@ MODE=remote-timeout; export MODE
 if ( clone_into_workspace https://github.com/o/r.git "$root/other" ) > "$root/error" 2>&1; then exit 1; fi
 grep -q '^\[git-timeout\] git ls-remote' "$root/error"
 MODE=fetch-timeout; export MODE
-if ( clone_into_workspace https://github.com/o/r.git "$root/fetch-timeout" ) > "$root/error" 2>&1; then exit 1; fi
+if ( clone_into_workspace https://github.com/o/r.git "$root/stalled" ) > "$root/error" 2>&1; then exit 1; fi
 grep -q '^\[git-timeout\] git fetch' "$root/error"
 echo 'bounded git: environment, deadlines, authentication, redaction and cache fallback checked'
