@@ -157,6 +157,37 @@ test('only write-target words are classified: pure readers drop out, everything 
     } finally { repo.dispose(); }
 });
 
+test('jq and read-only awk programs are pure readers; write, exec and option forms stay refused', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            ...["awk '{print $1}' notes.txt", "awk '{print $1} END{print}' notes.txt", "awk -F, '{print $2}' data.csv",
+                "awk -F ',' '$1 == \"x\" {print}' data.csv", "jq '{a: .b}' data.json", "jq '{a: .[0]}' data.json",
+                "jq -r '.[] | [.number, .title] | @tsv' data.json", "jq '.[]' metadata.json", "jq '[]' metadata.json",
+                "cat data.json | jq '{a: .b}'", "rg foo . | awk '{print $1}'",
+                "jq '{a: .b}' .claude/settings.json", "awk '{print $1}' .cratis/ai/rules/general.md",
+                'jq .env', 'jq -- .env', "awk '{print ENVIRON[\"HOME\"]}' notes.txt",
+            ].map(command => [ALLOW, command] as [string, string]),
+            ...["awk 'BEGIN{print \"x\" > \".env\"}' f", "awk '{print > \".mcp.json\"}' f",
+                "awk '{print >> \".claude/settings.json\"}' f", "awk '{print | \"tee .env\"}' f",
+                "awk 'BEGIN{system(\"cp a .mcp.json\")}'", "awk '{ \"date\" | getline x }' f .env",
+                "awk 'BEGIN{SYSTEM(\"cp a .mcp.json\")}'", "awk '{getline x < \"f\"}' .env", "awk '{close(\"x\")}' .env",
+                "awk '{fflush()}' .env", "awk -f prog.awk .env", "awk -i inplace '{print}' .mcp.json",
+                "awk --include x '{print}' .env", "awk -v a=1 '{print}' .env", "awk -e '{print}' .env",
+                "awk '@include \"x\"' .env", "awk '{print $1}' f > .env", "awk -- '{print}' .env", "awk -F, -f p .env",
+                "awk '{print}' -f .env", "awk -F \"$X\" '{print}' .env", 'awk -F* \'{print}\' .env', 'awk *.awk .env',
+                "awk '{print}' f; cp a .mcp.json", "awk '{print}' f | tee .env", 'awk "{print \\$1}" .env; cp a .env',
+                'jq -i . .env', 'jq -f prog.jq .env', 'jq --rawfile a .env . x', 'jq -L .mcp.json . x', 'jq --arg a b . .env',
+                'jq --from-file p .env', 'jq --slurpfile a .env . x', 'jq . x > .mcp.json', "jq '{a:1}' x | tee .env",
+                'jq --indent 2 . .env', 'jq --args . .env', 'jq --jsonargs . .env', 'jq --seq . .env',
+                'jq -r $(echo .env)', 'jq . .env; cp a .mcp.json', 'jq . x >> .claude/settings.json',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('literal git filename metadata and grep pattern options are read-only', async () => {
     const repo = scratchRepository();
     try {
@@ -291,7 +322,7 @@ test('protected references deny writers and evaluators across the whole command 
         const blocked = [
             ...['>', '>>', '>|', '&>', '&>>', '2>', '1>>', '>&', '<>'].map(op => `echo x ${op} .mcp.json`),
             'echo x>.mcp.json', 'echo x > linked-control', 'echo x >> Source/Accounts/Registration.ts',
-            ...['cp x .env', 'cp .env .', 'cp .env build/', 'cp -t build .env', 'cp --no-target-directory x .env', 'cp a b .env', 'mv .env out', 'install -D -m600 x .env', 'install -t build .env', 'install -Sdir x .env', 'ln -sf x .env', 'ln -t build .env', 'tee -a .env', 'tee -a -- .env', 'tee -p .env', 'sed -i s/a/b/ Package.JSON', "sed -i'' -e s/a/b/ .env", 'sed -i.bak s/a/b/ .env', 'sed --in-place=.bak s/a/b/ .env', 'perl -pi -e s/a/b/ .env', 'perl -i.bak -e s/a/b/ .env', 'dd if=x of=.env', 'truncate -s 0 .env', 'truncate --size=0 .env', 'truncate -r ref .env', 'touch .env', 'rm .env', 'chmod 600 .env', 'awk print .env', 'find .env', 'node -e "write(.env)"'],
+            ...['cp x .env', 'cp .env .', 'cp .env build/', 'cp -t build .env', 'cp --no-target-directory x .env', 'cp a b .env', 'mv .env out', 'install -D -m600 x .env', 'install -t build .env', 'install -Sdir x .env', 'ln -sf x .env', 'ln -t build .env', 'tee -a .env', 'tee -a -- .env', 'tee -p .env', 'sed -i s/a/b/ Package.JSON', "sed -i'' -e s/a/b/ .env", 'sed -i.bak s/a/b/ .env', 'sed --in-place=.bak s/a/b/ .env', 'perl -pi -e s/a/b/ .env', 'perl -i.bak -e s/a/b/ .env', 'dd if=x of=.env', 'truncate -s 0 .env', 'truncate --size=0 .env', 'truncate -r ref .env', 'touch .env', 'rm .env', 'chmod 600 .env', 'find .env', 'node -e "write(.env)"'],
             'cp .env.example .env', 'cp .mcp.json /tmp/backup.json', 'sed s/a/b/ .env',
             'cp a.ts .pi/extensions/', 'cp -t.pi/extensions a.ts', 'install -t.pi/extensions a.ts', 'env -C.claude tee settings.json',
             'sudo tee .mcp.json', 'command cat .env', 'builtin echo .env', 'env FOO=1 cat .env',
@@ -379,7 +410,7 @@ test('braces mixed with brackets or spanning a slash are refused rather than mod
             [BLOCK, String.raw`tee .m{x\},c}p.json </dev/null`],
             [BLOCK, String.raw`tee p{x\},a}ckage.json </dev/null`],
             [BLOCK, `tee .m{x"}",c}p.json </dev/null`],
-            [BLOCK, `awk '{print $1} END{print}' notes.txt`],
+            [ALLOW, `awk '{print $1} END{print}' notes.txt`],
             [ALLOW, 'cp x notes{1,2}.txt'],
         ], repo.root);
     } finally { repo.dispose(); }
@@ -430,8 +461,8 @@ test('only explicit per-verb options are permitted with protected references', a
             'git diff $OPT .env', 'git diff "$OPT" .env', 'git diff ${OPT} .env', 'cat $FLAGS .env',
             'git diff * .env', 'git diff -- .env ?', 'cat [-]* .env', 'grep x .env *.txt', 'cat -* .env', "cat '-'* .env",
             'echo .env; head -n', 'echo .env; grep -e', 'echo .env; git commit -m',
-            ...['less', 'more', 'ag', 'sort', 'uniq', 'cut', 'jq', 'yq', 'stat', 'file', 'diff', 'cmp', 'md5sum', 'shasum', 'sha256sum', 'realpath', 'dirname', 'basename', 'which', 'type', 'gh'].map(verb => `${verb} .env`),
-            ...['jq', 'yq', 'sort', 'uniq', 'gh'].map(verb => `${verb} -- .env`),
+            ...['less', 'more', 'ag', 'sort', 'uniq', 'cut', 'yq', 'stat', 'file', 'diff', 'cmp', 'md5sum', 'shasum', 'sha256sum', 'realpath', 'dirname', 'basename', 'which', 'type', 'gh'].map(verb => `${verb} .env`),
+            ...['yq', 'sort', 'uniq', 'gh'].map(verb => `${verb} -- .env`),
             ...['cat', 'head', 'tail', 'wc', 'ls', 'grep', 'egrep', 'fgrep', 'echo', 'printf', 'test', '[', 'true', 'false', 'pwd'].flatMap(verb => [`${verb} --unlisted=.env`, `${verb} -z .env`]),
             ...['status', 'diff', 'log', 'show', 'add', 'commit', 'blame', 'ls-files', 'rev-parse', 'check-ignore', 'grep'].map(verb => `git ${verb} --unlisted .env`),
         ];
@@ -570,8 +601,9 @@ test('jq arrays do not crash classification or conceal protected references', as
             [ALLOW, 'cat .[e]nv'],
         ], repo.root);
         for (const command of [
-            "jq '.[]' .env",
             "jq '.[]' metadata.json; echo x > .env",
+            "jq '.[]' metadata.json | tee .env",
+            "jq '.[]' x > .env",
             "jq '[.number, .title]' metadata.json; tee .mcp.json",
             'echo x > .[e]nv', 'echo x > .[a-z]nv', 'echo x > .[!x]nv', 'echo x > .cl[a]ude/settings.json',
         ]) {

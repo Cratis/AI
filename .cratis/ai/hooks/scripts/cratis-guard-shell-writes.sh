@@ -204,6 +204,20 @@ function options_allowed(verb, first,    i, w) {
     }
     return 1
 }
+# awk is read-only only for the shape awk [-F sep] 'program' operands. Every other option (-f, -v, -e, -i,
+# --include, --, ...) is refused. awk output, execution and file reads need one of > | system getline close
+# fflush or the gawk @ directives; a program containing any of them (in any letter case) is not accepted.
+# This deny-list relies on awk having no other output primitive, which holds for POSIX, gawk, mawk and BSD awk.
+function awk_allowed(    i, w, program) {
+    i = 2
+    if (W[i] == "-F") { if (++i > argc || W[i] ~ /[$`]/ || globbed[i]) return 0; i++ }
+    else if (W[i] ~ /^-F/) { if (W[i] ~ /[$`]/ || globbed[i]) return 0; i++ }
+    if (i > argc || W[i] ~ /^-/ || globbed[i]) return 0
+    program = tolower(W[i])
+    if (program ~ /[>|@]/ || index(program, "system") || index(program, "getline") || index(program, "close") || index(program, "fflush")) return 0
+    for (i++; i <= argc; i++) if (W[i] ~ /^-/ && W[i] != "-") return 0
+    return 1
+}
 # Only literal git -C metadata (with exact arity) or staging/commit commands
 # (with their normal option checks) are exempt; no other global option is.
 # -C gives no protection from hostile repository config (fsmonitor, hooks, pager,
@@ -247,6 +261,7 @@ function allow_command(    verb, first) {
         conditional_only = 1
         if (argc != 3 || W[3] != "--show-current") { cmd_failed = 1; return }
     }
+    if (verb == "awk") { if (!awk_allowed()) cmd_failed = 1; return }
     if (!(verb in verbs) || !options_allowed(verb, first)) cmd_failed = 1
 }
 # `upto` is the index just past the command's raw text; `resume` is where the next command's raw text starts.
@@ -312,6 +327,10 @@ BEGIN {
     policy("printf", "", ""); policy("test", "", ""); policy("[", "", "")
     policy("true", "", ""); policy("false", "", ""); policy("pwd", "", "")
     policy("df", "h", "")
+    # jq has no file-write or exec primitive (output goes to stdout, debug to stderr), so its filter is a plain
+    # operand. No value-taking option is accepted (--arg, -f, -L, --rawfile, --slurpfile, --from-file, --indent).
+    policy("jq", "rcesnRSjaMC", "--raw-output --compact-output --slurp --null-input --exit-status --raw-input --sort-keys --join-output --ascii-output --monochrome-output --tab")
+    policy("awk", "", "")
     policy("git status", "sb", "--short --porcelain")
     policy("git diff", "p", "--stat --numstat --name-only --name-status --cached --staged --check --no-color --cc")
     policy("git log", "p", "--oneline --stat --name-only --no-color --follow")
