@@ -59,9 +59,9 @@ test('credential words embedded in source paths do not taint commands', () => {
         [ALLOW, 'mv Specs/for_ApplicationCredentials/a.cs Specs/for_ApplicationCredentials/b.cs'],
         [ALLOW, 'git add a b && git status'],
         ...['cat ~/.aws/credentials', 'git add credentials.json', 'git add .aws/credentials',
-            'git add config/credentials/prod.txt', 'git add config/credentials.json/prod.txt', 'cat Source/credentials', 'rm id_rsa',
+            'git add config/credentials.json/prod.txt', 'cat Source/credentials', 'rm id_rsa',
             'git add .git-credentials', 'cat for_ApplicationCredentials/credentials',
-            'git add Specs/for_ApplicationCredentials', 'git add x && cat .env'].map(command => [BLOCK, command] as [string, string]),
+            'git add x && cat .env'].map(command => [BLOCK, command] as [string, string]),
     ]);
 });
 
@@ -79,9 +79,20 @@ test('source-shaped credential names stay usable without exempting credential fi
         'Source/X/Secrets.tsx',
         'Source/X/TokenProvider.mjs',
         'Source/X/Credentials.keywords.ts',
+        'Source/App/RecordingCredentials/RecordingCredentials.ts',
+        'SecretRotation.cs',
+        'TokenRefresher.tsx',
+        'PasswordPolicy.kt',
+        'docs/credentials.md',
+        ...['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'cs', 'fs', 'vb', 'kt', 'kts',
+            'java', 'go', 'ex', 'exs', 'py', 'rb', 'rs', 'swift', 'md', 'mdx',
+            'csproj', 'fsproj', 'vbproj', 'props', 'targets', 'sln', 'slnx',
+            'css', 'scss', 'less', 'html', 'htm', 'razor', 'cshtml', 'resx', 'xaml',
+        ].map(extension => `Source/RecordingCredentials/RecordingCredentials.${extension}`),
     ];
     const commands = sourcePaths.flatMap(path => [
         `git add ${path}`,
+        `git checkout --theirs -- ${path}`,
         `git commit -m "Update scope allowlist" -- ${path}`,
         `git mv ${path} Source/X/Renamed.cs`,
         `git rm ${path}`,
@@ -93,13 +104,20 @@ test('source-shaped credential names stay usable without exempting credential fi
     assertVerdicts([
         ...commands.map(command => [ALLOW, command] as [string, string]),
         [ALLOW, `git add ${sourcePaths[0]} ${sourcePaths[1]}`],
+        // Backup reads retain their classification; path-only Git operations also permit this non-secret name.
+        [ALLOW, 'cat Credentials.ts.bak'],
         ...['cat .env', 'cat secrets.pem', 'cat ~/.kube/config', 'cat id_rsa',
             'git add .env', 'git add credentials.json', 'cat token.json',
             'cat Source/X/credential.cs.pem', 'cat Source/X/credential.pem.cs',
             'cat Source/X/credential.cs.pem.', 'git add Source/X/credential.cs.pem',
             'cat server.key', 'cat server.p12', 'cat server.pfx', 'cat server.jks',
             'cat server.keystore', 'cat server.kdbx',
-            'git add Source/X/UnknownCredentials.blob',
+            'cat .aws/credentials', 'cat ~/.git-credentials', 'cat secrets.yaml', 'cat secrets.yml',
+            'cat secrets.yaml.ts', 'cat secrets.yml.cs', 'cat app.env', 'cp credentials.json x.ts',
+            'cat credentials.json.ts', 'git add credentials.json.ts',
+            'git checkout --theirs -- credentials.json.ts', 'cat gcp_credential.json.cs',
+            ...['json', 'yaml', 'yml', 'xml', 'ini', 'toml', 'txt', 'conf', 'properties', 'config']
+                .flatMap(extension => [`cat credentials.${extension}`, `cat credentials.${extension}.ts`]),
         ].map(command => [BLOCK, command] as [string, string]),
     ]);
 });
@@ -112,6 +130,13 @@ test('credential source exemptions fail closed for nonliteral components (Cratis
             'cat cred*.cs', 'cat cr[e]dentials.cs', 'git add cred*.cs',
             'cat credential?.cs', 'cat {credentials,other}.json', 'cat Source/Cred*.cs',
             'cat Credentials${suffix}.cs',
+            "cat Cre$(echo 'dentials.json x').cs",
+            "cat Cre`echo 'dentials.json x'`.cs",
+            'git show HEAD:Cre$(echo dentials.json)',
+            'git add Cre$(echo dentials.json).cs',
+            'git diff -- Credentials${suffix}.cs',
+            'git restore -- Cred$SUFFIX.cs',
+            'git checkout --theirs -- {credentials.json,other.cs}',
             'cat "$DIRECTORY"/Credentials.cs', 'git add Signing.Key.*',
             'cat Source/cred*/Credentials.cs',
         ].map(command => [BLOCK, command] as [string, string]),
@@ -168,6 +193,156 @@ test('file names built from command substitutions fail closed (Cratis/AI#1095)',
     ]);
 });
 
+test('path-only Git operations permit non-secret repository paths in both guards', () => {
+    const shellGuard = join(repositoryRoot, '.cratis/ai/hooks/scripts/cratis-guard-shell-writes.sh');
+    const paths = ['Source/X/credentials.proto', 'Source/X/UnknownCredentials.blob', 'Credentials.ts.bak',
+        'Source/AuthProxy/Credentials/handler.blob', 'Source/App/RecordingCredentials/RecordingCredentials.ts',
+        'Specs/for_ApplicationCredentials', 'config/credentials/prod.txt'];
+    for (const path of paths) {
+        const commands = [`git add ${path}`, `git checkout -- ${path}`, `git checkout --theirs -- ${path}`,
+            `git checkout --ours -- ${path}`, `git restore -- ${path}`, `git rm -- ${path}`,
+            `git mv -- ${path} renamed.blob`, `git diff -- ${path}`, `git log -- ${path}`,
+            `git show HEAD:${path}`, `git show -- ${path}`, `git add ${path} && git diff -- ${path}`];
+        for (const command of commands) {
+            const result = runGuard(command);
+            assert.equal(result.code, 0, `${command}\n${result.stderr}`);
+            const shellResult = spawnSync('bash', [shellGuard], {
+                input: JSON.stringify({ cwd: repositoryRoot, tool_name: 'Bash', tool_input: { command } }),
+                encoding: 'utf8',
+            });
+            assert.equal(shellResult.status, 0, `${command}\n${shellResult.stderr}`);
+        }
+    }
+    const protectedPaths = ['credentials.json', '.aws/credentials', '.git-credentials', '.netrc',
+        'secrets.yaml', 'secrets.yml', 'id_rsa', 'id_ed25519', 'server.pem', 'server.key',
+        'server.p12', 'server.pfx', '.env', '.env.local', 'app.env', 'kubeconfig', 'token', 'credentials.json.ts'];
+    assertVerdicts(protectedPaths.flatMap(path => [
+        `git add ${path}`, `git checkout --theirs -- ${path}`, `git restore -- ${path}`, `git rm -- ${path}`,
+        `git mv -- ${path} x.ts`, `git diff -- ${path}`, `git log -- ${path}`, `git show HEAD:${path}`,
+    ]).map(command => [BLOCK, command] as [string, string]));
+});
+
+test('Git option values never receive positional path exemptions', () => {
+    const cases: Array<[string, string]> = [
+        [BLOCK, 'git add --dry-run --pathspec-from-file=token'],
+        [BLOCK, 'git add --pathspec-from-file token'],
+        [BLOCK, 'git diff --output=.env'],
+        [BLOCK, 'git log -- --pathspec-from-file=.env'],
+    ];
+    for (const path of ['token', 'tokens.json', '-token', '.env', 'id_rsa', 'credentials.json']) {
+        for (const option of ['--pathspec-from-file', '--file', '--output', '--patch-from', '--other-file']) {
+            cases.push([BLOCK, `git log ${option}=${path}`], [BLOCK, `git log ${option} ${path}`]);
+        }
+        for (const option of ['-F', '-o', '-X']) {
+            cases.push([BLOCK, `git log ${option}${path}`], [BLOCK, `git log ${option} ${path}`]);
+        }
+    }
+    cases.push([ALLOW, 'git add --dry-run --pathspec-from-file=Source/CredentialsProvider.cs'],
+        [ALLOW, 'git log -FSource/CredentialsProvider.cs'],
+        [ALLOW, 'git log --file=Source/RecordingCredentials.fs'],
+        [ALLOW, 'git add styles/token.json']);
+    assertVerdicts(cases);
+});
+
+test('known Credentials directories never override a protected parent', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-git-parent-'));
+    try {
+        mkdirSync(join(directory, 'Source/Credentials'), { recursive: true });
+        const source = runGuard('git add -- Source/Credentials', {}, directory);
+        assert.equal(source.verdict, ALLOW, source.stderr);
+        for (const parent of ['.kube', '.env', 'id_rsa', '.AWS']) {
+            mkdirSync(join(directory, parent, 'Credentials'), { recursive: true });
+            const result = runGuard(`git add -- ${parent}/Credentials`, {}, directory);
+            assert.equal(result.verdict, BLOCK, `${parent}\n${result.stderr}`);
+        }
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('the design-note routine and hostile corpus retains its measured behavior', () => {
+    const routine = [
+        'git add Source/App/RecordingCredentials/RecordingCredentials.ts',
+        'git checkout --theirs -- Source/App/RecordingCredentials/RecordingCredentials.ts',
+        'git checkout --ours Source/Auth/CredentialsProvider.cs', 'git add CredentialsProvider.cs',
+        'git add Source/Foo/ApplicationCredentials.cs Source/Foo/CredentialsProvider.cs', 'git diff -- Credentials.cs',
+        'git diff -- Deployment/Specs/for_ApplicationCredentials/when_x/a.cs', 'git show HEAD:src/CredentialsProvider.cs',
+        'git show HEAD~1:src/CredentialsProvider.cs', 'git log -- src/CredentialsProvider.cs',
+        'git restore Source/RecordingCredentials.fs', 'git rm Source/Auth/CredentialsProvider.cs',
+        'git mv Source/Auth/CredentialsA.cs Source/Auth/CredentialsB.cs', 'git add Source/Foo/SecretsManager.kt',
+        'git add Source/Foo/PasswordHasher.java', 'git add Source/Foo/TokenService.go',
+        'git diff Source/App/Credentials/Credentials.tsx', 'git show main:Source/Auth/Credentials.ts',
+        'git status', 'git add a b && git status',
+    ];
+    const hostile = [
+        'cat .env', 'cat ~/.kube/config', 'git add .env', 'git show HEAD:.env', 'git show HEAD:{.env}',
+        'git show {HEAD,main}:.env', 'git show HEAD:a:.env', 'git show :2:.env',
+        'git diff --no-index /etc/passwd secrets.pem', 'git add :(glob)**/.env',
+        'git checkout --ours ~/.ssh/id_rsa', 'git restore ../other/.env', 'git add /home/u/.aws/credentials',
+        'git add $SECRETFILE', 'git show HEAD:$(echo .env)', 'git mv a.cs .env',
+        'kubectl get secret foo -o yaml', 'env', 'printenv', 'cat id_rsa',
+        'git show HEAD:config/{prod,.env}', 'git rm `echo .env`', 'cat service.pem', 'git log -p -- .env',
+        'git diff -- ~/.netrc', 'git add Source/Foo/credentials.json', 'git show HEAD:secrets/prod.key',
+        'gh auth token', 'git show HEAD~1:credentials.json',
+        'git diff -- :(attr:credential)CredentialsProvider.cs', 'cat Cre$(echo dentials.json x).cs',
+    ];
+    // Preserve the documented limits: unquoted ~ stays conservative; a nameless runtime value is undecidable.
+    assertVerdicts(routine.map(command => [command.includes('HEAD~1:') ? BLOCK : ALLOW, command] as [string, string]));
+    assertVerdicts(hostile.map(command => [command === 'git add $SECRETFILE' ? ALLOW : BLOCK, command] as [string, string]));
+});
+
+test('Git revision exemptions use a strict simple-ref and path allowlist', () => {
+    assertVerdicts([
+        [BLOCK, 'git show HEAD^{/:}:id_rsa'],
+        [BLOCK, "git show 'HEAD@{0}:.env'"],
+        [BLOCK, 'git show HEAD:a:id_rsa'],
+        [BLOCK, "git show 'HEAD^{commit}:credentials.json'"],
+        [BLOCK, 'git show HEAD~1:credentials.json'],
+        [BLOCK, 'git show HEAD^2:id_rsa'],
+        [ALLOW, 'git show HEAD:src/CredentialsProvider.cs'],
+        [ALLOW, "git show 'HEAD~1:src/CredentialsProvider.cs'"],
+        [ALLOW, "git show 'HEAD^2:src/CredentialsProvider.cs'"],
+        [ALLOW, 'git show feature/source-ref:src/CredentialsProvider.cs'],
+        [ALLOW, 'git add CredentialsProvider.cs'],
+        [ALLOW, 'git diff -- Credentials.cs'],
+    ]);
+});
+
+test('Git index stages and pathspec magic preserve secret-file classification', () => {
+    const paths = [[BLOCK, 'id_rsa'], [BLOCK, '.envrc'], [BLOCK, 'credentials.json'], [BLOCK, '.aws/credentials'],
+        [ALLOW, 'CredentialsProvider.cs'], [ALLOW, 'Source/RecordingCredentials.fs']];
+    const cases: Array<[string, string]> = [];
+    for (const [verdict, path] of paths) {
+        for (const prefix of [':', ':0:', ':1:', ':2:', ':3:', 'HEAD:']) {
+            cases.push([verdict, `git show ${prefix}${path}`]);
+        }
+        for (const prefix of ['', ':(literal)', ':(top,literal)', ':(icase,literal)', ':(exclude,literal)', ':!', ':^', ':/', ':!:']) {
+            // Complex syntax receives only the conservative checks, not a source-path exemption.
+            const expected = prefix.includes('(') || prefix.includes('^') ? BLOCK : verdict;
+            cases.push([expected, `git diff -- '${prefix}${path}'`]);
+            cases.push([expected, `git add '${prefix}${path}'`]);
+        }
+    }
+    // Unsupported syntax with no protected names falls through; it is never granted an exemption.
+    cases.push([BLOCK, "git diff -- ':(unknown)CredentialsProvider.cs'"],
+        [ALLOW, "git diff -- ':(literal'"], [BLOCK, "git diff -- ':?CredentialsProvider.cs'"],
+        [BLOCK, "git diff -- ':(attr:credential)CredentialsProvider.cs'"]);
+    assertVerdicts(cases);
+});
+
+test('Git exemptions never cover no-index reads or paths outside the repository', () => {
+    const cases: Array<[string, string]> = [];
+    for (const path of ['/run/secrets', '~/.kube', '~/.docker/', '/var/run/secrets']) {
+        cases.push([BLOCK, `git diff --no-index /var/empty ${path}`],
+            [BLOCK, `git diff --no-index -- /var/empty ${path}`]);
+    }
+    for (const path of ['../run/secrets', 'Source/../../run/secrets', '../.docker/', '../.kube']) {
+        cases.push([BLOCK, `git diff -- ${path}`]);
+    }
+    cases.push([BLOCK, 'git diff --no-index empty run/secrets'],
+        [BLOCK, 'git show HEAD:/run/secrets'], [BLOCK, "git diff -- ':(literal)/run/secrets'"],
+        [BLOCK, "git diff -- ':(top,literal)../run/secrets'"]);
+    assertVerdicts(cases);
+});
+
 test('singular and plural credential JSON filenames are protected (Cratis/AI#1092)', () => {
     const files = ['credentials.json', 'application_default_credentials.json',
         'gcp_credentials.json', 'gcp_credential.json', 'ApplicationCredentials.json',
@@ -180,8 +355,8 @@ test('singular and plural credential JSON filenames are protected (Cratis/AI#109
         [BLOCK, `git commit -m "Update config" -- ${file}`],
         [BLOCK, `git mv ${file} config.json`],
         [BLOCK, `git rm ${file}`],
-        [ALLOW, `git diff --stat -- ${file}`],
-        [ALLOW, `git diff --name-only -- ${file}`],
+        [BLOCK, `git diff --stat -- ${file}`],
+        [BLOCK, `git diff --name-only -- ${file}`],
         [ALLOW, `ls ${file}`],
     ] as Array<[string, string]>));
 });
@@ -324,7 +499,9 @@ test('source folder metadata and staging never exempt credential content reads',
         for (const path of folders.split(' ')) mkdirSync(join(directory, path), { recursive: true });
         for (const command of [`git ls-files ${folders}`, `ls ${folders}`, `git status --short -- ${folders}`,
             `git diff --stat -- ${folders}`, `git add ${folders}`, 'git add -v -- Source/AuthProxy/Credentials',
-            'git status --porcelain=v1 -- Source/AuthProxy/Credentials', 'git diff --numstat -- Source/AuthProxy/Credentials']) {
+            'git status --porcelain=v1 -- Source/AuthProxy/Credentials', 'git diff --numstat -- Source/AuthProxy/Credentials',
+            'git diff --stat -p -- Source/AuthProxy/Credentials', 'git diff --stat --patch -- Source/AuthProxy/Credentials',
+            'git add -p Source/AuthProxy/Credentials', 'git add --interactive Source/AuthProxy/Credentials']) {
             const result = runGuard(command, {}, directory);
             assert.equal(result.code, 0, `${command}\n${result.stderr}`);
         }
@@ -334,8 +511,6 @@ test('source folder metadata and staging never exempt credential content reads',
             'git show HEAD:.env', 'git grep -e x -- Source/AuthProxy/Credentials/.env',
             'git grep -e x -- Source/AuthProxy/Credentials/credentials.json',
             'git status -v -- Source/AuthProxy/Credentials', 'git status --verbose -- Source/AuthProxy/Credentials',
-            'git diff --stat -p -- Source/AuthProxy/Credentials', 'git diff --stat --patch -- Source/AuthProxy/Credentials',
-            'git add -p Source/AuthProxy/Credentials', 'git add --interactive Source/AuthProxy/Credentials',
             'git -c alias.status=show status Source/AuthProxy/Credentials',
             'git status --short -- Source/AuthProxy/Credentials && cat .env',
             'git diff --stat -- Source/AuthProxy/Credentials; git show HEAD:.env',
