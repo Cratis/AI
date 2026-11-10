@@ -42,8 +42,13 @@ Reader glob probes skip directories only when decoded options establish a nonrec
 unknown or recursive grep options keep directory matches conservative. Simple sed print/substitution
 programs are data only without in-place edits, execution, or file writes; `-f` remains a file operand.
 GitHub API endpoints are normalized before checking sensitive paths, and output filters may not read
-the process environment. Recursive removals check existing descendants with the shared write policy;
-uncertain targets, symlinks, incomplete walks, and walks exceeding 256 entries refuse.
+the process environment. Short output-filter options are scoped to read commands; `-t` titles on
+create/edit commands remain ordinary text. Recursive removals check normalized targets against fixed
+controls and protected paths in the Git index, without walking untracked output trees. Unknown targets
+remain refused; indexed protected descendants still block removal. Generated-output cleanup is allowed,
+but explicitly naming a generated file retains the hand-edit protection. Git clean dry runs are previews,
+including clustered `-n` flags; interactive removal remains conservative. Known command wrappers retain
+recursive checks, and unmodeled wrapper options refuse.
 
 The shell-write guard classifies **write-target words**, not every word. It lexes the command into
 simple commands. When every command is a reviewed reader or staging verb (`cat`, `head`, `tail`, `wc`,

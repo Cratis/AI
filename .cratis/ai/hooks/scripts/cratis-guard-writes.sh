@@ -328,6 +328,7 @@ agent_control_target() {
     if [ "$recursive_reference_mode" = 1 ] && [ "$target" = "$policy_root" ]; then return 0; fi
     relative_to "$target" "$policy_root"
     target_rel="$REPLY"
+    if [ "$recursive_reference_mode" = 1 ] && control_match "$target_rel" '.cratis/ai/*' "${control_patterns[@]}"; then return 0; fi
     if [ -f "$policy_root/.cratis/ai.manifest.json" ]; then
         if control_match "$target_rel" '.cratis/ai/*'; then return 0; fi
         if control_match "$target_rel" '.claude/*' '.pi/*'; then
@@ -421,18 +422,26 @@ classify_file() {
     return 1
 }
 
-# Recursive removals must also respect existing protected descendants. Keep the same policy function,
-# with a bounded, NUL-delimited walk; uncertain symlinks or an incomplete walk never authorize removal.
+# Recursive cleanup never walks output trees. Fixed controls are checked lexically above;
+# only the Git index supplies additional protected descendants (not untracked build output).
 protected_descendant() {
-    local target descendant count=0 complete=0
+    local target directory root descendant complete=0
     abspath "$1" "$cwd"; normalize_target_path "$REPLY"; target="$REPLY"
-    [ -d "$target" ] || return 1
+    physical_target_path "$target" || physical_file=""
+    if [ -n "$physical_file" ]; then normalize_target_path "$physical_file"; target="$REPLY"; fi
+    directory="$target"
+    while [ ! -d "$directory" ]; do
+        [ "$directory" != / ] || break
+        dir_of "$directory"; directory="$REPLY"
+    done
+    root="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null || git -C "$cwd" rev-parse --show-toplevel 2>/dev/null || printf '%s\n' "$cwd")"
+    case "$root/" in "$target/"*) return 0 ;; esac
     while IFS= read -r -d '' descendant; do
         if [ "$descendant" = complete ]; then complete=1; break; fi
-        count=$((count + 1)); [ "$count" -le 256 ] || parser_failed
-        if [ -L "$descendant" ] || classify_file "$descendant"; then return 0; fi
-    done < <(find -H "$target" -print0 2>/dev/null && printf 'complete\0')
-    [ "$complete" = 1 ] || parser_failed
+        if classify_file "$root/$descendant"; then return 0; fi
+    done < <(git -C "$root" ls-files -z -- "$target" 2>/dev/null && printf 'complete\0')
+    # An unavailable index leaves only the fixed-list policy; never fall back to a tree walk.
+    [ "$complete" = 1 ] || return 1
     return 1
 }
 

@@ -1417,14 +1417,20 @@ function gh_filter(p,    i, c, q, plain) {
     }
     env_program("gh", plain)
 }
-function gh(A, s, n,    i, w, mutating, k, path, kind) {
+# Short formatting options are command-specific: -t is a title on create/edit.
+# These read commands expose jq/template output; long filter spellings always retain scrutiny.
+function gh_short_filters(group, subcommand) {
+    return group == "api" || group == "search" || subcommand ~ /^(list|view|status|checks|field-list|item-list)$/
+}
+function gh(A, s, n,    i, w, mutating, k, path, kind, short_filters) {
+    kparse(A, s + 1, n, "XHfFqtR")
+    short_filters = gh_short_filters(P[1], P[2])
     for (i = s + 1; i <= n; i++) {
         w = A[i]
-        if (w ~ /^(--jq|--template|-q|-t)$/ && i < n) gh_filter(A[++i])
+        if ((w ~ /^(--jq|--template)$/ || (short_filters && w ~ /^-[qt]$/)) && i < n) gh_filter(A[++i])
         else if (w ~ /^--(jq|template)=/) { sub(/^--[^=]*=/, "", w); gh_filter(w) }
-        else if (w ~ /^-[qt]./) gh_filter(substr(w, 3))
+        else if (short_filters && w ~ /^-[qt]./) gh_filter(substr(w, 3))
     }
-    kparse(A, s + 1, n, "XHfFqtR")
     if (P[1] == "secret") {
         if (P[2] != "set" && P[2] != "delete" && P[2] != "remove")
             report("gh secret " P[2] " reads the repository secret store", "gh secret set NAME (writes nothing to the output); refer to secrets by name only")
