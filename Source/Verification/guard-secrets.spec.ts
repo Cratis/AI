@@ -135,6 +135,27 @@ test('ordinary singular credential words do not taint compound commands (Cratis/
     ]);
 });
 
+test('file names built from command substitutions fail closed (Cratis/AI#1095)', () => {
+    // Command output is treated as unresolved text that may supply any part of a name.
+    assertVerdicts([
+        ...["cat Cre$(echo 'dentials.json x').cs",
+            "cat Cre`echo 'dentials.json x'`.cs",
+            "base64 id_r$(echo 'sa y').cs",
+            "cat .en$(printf 'v z').md",
+            'git add Cre$(echo dentials.json).cs',
+            "cat Cre\"$(echo 'dentials.json x')\".cs",
+            "cat 'Cre'$(echo 'dentials.json x')'.cs'",
+        ].map(command => [BLOCK, command] as [string, string]),
+        ...['echo "$(date)"',
+            'cat "$(git rev-parse --show-toplevel)/README.md"',
+            'cat $(git rev-parse --show-toplevel)/README.md',
+            'git add Source/X/Credentials.cs',
+            'cat Credentials.cs',
+            'ls $(pwd)/Source',
+        ].map(command => [ALLOW, command] as [string, string]),
+    ]);
+});
+
 test('singular and plural credential JSON filenames are protected (Cratis/AI#1092)', () => {
     const files = ['credentials.json', 'application_default_credentials.json',
         'gcp_credentials.json', 'gcp_credential.json', 'ApplicationCredentials.json',

@@ -352,6 +352,10 @@ function literal_shape(A, M, n,    k, j, b, words, count, pattern, ended, w, pat
     }
     return b != "rg" || paths > 0
 }
+function output_wild(w, m,    k, r) {
+    for (k = 1; k <= length(w); k++) r = r (tolower(substr(m, k, 1)) == "c" ? "*" : substr(w, k, 1))
+    return r
+}
 function end_cmd(    k, m, w, j, hit) {
     flush_word()
     if (nw > 0) {
@@ -362,6 +366,10 @@ function end_cmd(    k, m, w, j, hit) {
             if ((k in RP) && RP[k] < 0) continue
             w = (k in RP) ? substr(W[k], 1, RP[k]) : W[k]
             hit = stem_scan(w, "raw", expands(w, WM[k]) ? "expanding" : 0); if (TAINT == "") TAINT = hit
+            # Command output may supply any text, including several names: judge it as an unresolved wildcard.
+            if (!(k in RP) && index(WM[k], "c") + index(WM[k], "C") > 0) {
+                hit = stem_scan(output_wild(W[k], WM[k]), "raw", "expanding"); if (TAINT == "") TAINT = hit
+            }
             if (!(k in RP) && expands(W[k], WM[k])) {
                 resolve(W[k], WM[k])
                 for (j = 1; j <= nalt; j++) { hit = stem_scan(ALT[j], "resolved"); if (TAINT == "") TAINT = hit }
