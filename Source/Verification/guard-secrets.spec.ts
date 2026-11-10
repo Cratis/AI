@@ -65,6 +65,41 @@ test('credential words embedded in source paths do not taint commands', () => {
     ]);
 });
 
+test('source-shaped credential names stay usable without exempting credential files (Cratis/AI#1092)', () => {
+    const sourcePaths = [
+        'Source/X/ICredentialScopeAllowlist.cs',
+        'Source/X/PatCredentialScopeAllowlist.cs',
+        'Source/X/Credentials.cs',
+        'Source/X/ApplicationCredentials.json',
+        'Source/X/Credentials.spec.ts',
+        'Source/X/Secrets.tsx',
+        'Source/X/TokenProvider.mjs',
+        'Source/X/Credentials.keywords.ts',
+    ];
+    const commands = sourcePaths.flatMap(path => [
+        `git add ${path}`,
+        `git commit -m "Update scope allowlist" -- ${path}`,
+        `git mv ${path} Source/X/Renamed.cs`,
+        `git rm ${path}`,
+        `git diff --stat -- ${path}`,
+        `git diff --name-only -- ${path}`,
+        `ls ${path}`,
+        `cat ${path}`,
+    ]);
+    assertVerdicts([
+        ...commands.map(command => [ALLOW, command] as [string, string]),
+        [ALLOW, `git add ${sourcePaths[0]} ${sourcePaths[1]}`],
+        ...['cat .env', 'cat secrets.pem', 'cat ~/.kube/config', 'cat id_rsa',
+            'git add .env', 'git add credentials.json', 'cat token.json',
+            'cat Source/X/credential.cs.pem', 'cat Source/X/credential.pem.cs',
+            'cat Source/X/credential.cs.pem.', 'git add Source/X/credential.cs.pem',
+            'cat server.key', 'cat server.p12', 'cat server.pfx', 'cat server.jks',
+            'cat server.keystore', 'cat server.kdbx',
+            'git add Source/X/UnknownCredentials.blob',
+        ].map(command => [BLOCK, command] as [string, string]),
+    ]);
+});
+
 test('literal-prefix trailing globs inspect bounded real matches, never shell input', () => {
     const directory = mkdtempSync(join(tmpdir(), 'cratis-secret-glob-'));
     try {

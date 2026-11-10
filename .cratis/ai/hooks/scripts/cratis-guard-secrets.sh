@@ -47,7 +47,7 @@ probe=${probe//[\'\"\\]/}
 probe_lower="$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" || parser_failed
 case "$probe_lower" in
     *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
-    *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.p12*|*.pfx*|*token*|*.netrc*|*.npmrc*|\
+    *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.key*|*.p12*|*.pfx*|*.jks*|*.keystore*|*.kdbx*|*token*|*.netrc*|*.npmrc*|\
     *credentials*|*.pgpass*|*pypirc*|*secrets*|*oc*) ;;
     *)
         case "$command_text" in
@@ -112,6 +112,7 @@ function ansi_c(s, i, n,    c, c2, v, d, k, lim, stop, digits) {
 # the first quoted or escaped one), so `1">"b` and `">x"` stay operands; input redirections (`< file`) stay too.
 function stem_boundary(t, start, finish, stem,    a, b, before, after, left, right, component) {
     if (stem == "/environ" && substr(t, finish + 1, 1) ~ /[a-z0-9_]/) return 0
+    if (stem ~ /^\.(key|jks|keystore|kdbx)$/ && substr(t, finish + 1, 1) ~ /[a-z0-9_-]/) return 0
     if (stem !~ /^(id_rsa|id_ed25519|id_ecdsa|id_dsa|kubeconfig|credentials)$/) return 1
     a = start; b = finish
     while (a > 1 && substr(t, a - 1, 1) ~ /[a-z0-9_]/) a--
@@ -122,7 +123,9 @@ function stem_boundary(t, start, finish, stem,    a, b, before, after, left, rig
         while (right < length(t) && substr(t, right + 1, 1) ~ /[a-z0-9_.-]/) right++
         component = substr(t, left, right - left + 1)
         if (component !~ /^credentials([.]|$)/ && substr(t, right + 1, 1) == "/") return 0
-        if (code_file(component) && component !~ /^credentials\./) return 0
+        # Source suffixes describe code, even for Credentials.cs. JSON is ambiguous only for
+        # the canonical credentials.json; other credential-named JSON source/spec files are safe.
+        if (code_file(component) || (component ~ /\.json$/ && component != "credentials.json")) return 0
     }
     before = substr(t, a - 1, 1); after = substr(t, b + 1)
     return !(before == "$" || before == "-" || (before == "{" && substr(t, a - 2, 1) == "$") || after ~ /^(=|\+=)/)
@@ -610,7 +613,8 @@ function sensitive_path(w,    l, b) {
     l = tolower(w); b = l; sub(/.*\//, "", b)
     if (l ~ /(^|\/)\.kube\// || b == "kubeconfig" || b ~ /\.kubeconfig$/) return "a kubeconfig"
     if (b ~ /^\.env/ || b ~ /\.env$/) { if (b ~ /\.(example|sample|template|dist|defaults?)$/) return ""; return "an .env file" }
-    if (b ~ /\.(pem|p12|pfx)$/) return "a key or certificate file"
+    # Credential extensions take precedence over source suffixes and trailing-dot tricks.
+    if (b ~ /\.(pem|key|p12|pfx|jks|keystore|kdbx)([.]|$)/) return "a key or certificate file"
     if (b == "id_rsa" || b == "id_ed25519" || b == "id_ecdsa" || b == "id_dsa") return "a private key"
     if (b ~ /(^|[._-])tokens?($|[._-])/ && !code_file(b) && !token_ok(l, b)) return "a token file"
     if (b == ".netrc" || b == ".npmrc" || b == ".pgpass" || b == ".pypirc" || b == ".git-credentials") return "a credentials file"
@@ -1414,7 +1418,7 @@ BEGIN {
     nprobe2 = split(".kube/config .aws/credentials .docker/config.json /proc/1/environ /run/secrets/token /var/run/secrets/token", PROBE2, " ")
     nextension = split("pem key p12 pfx jks keystore kdbx kubeconfig env", EXT, " ")
     ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt set setopt unsetopt emulate grep egrep fgrep rg ag sed awk gawk jq yq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
-    nstem = split(".env .pem .p12 .pfx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials .docker/ /environ run/secrets", STEM, " ")
+    nstem = split(".env .pem .key .p12 .pfx .jks .keystore .kdbx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials .docker/ /environ run/secrets", STEM, " ")
     CMD = ENVIRON["GS_COMMAND"]
     for (pass = 1; pass <= 2; pass++) {
         delete queue; queued = 0; qi = 0; delete seen; reports = ""
