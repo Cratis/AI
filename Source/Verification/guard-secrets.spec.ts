@@ -65,6 +65,94 @@ test('credential words embedded in source paths do not taint commands', () => {
     ]);
 });
 
+test('source-shaped credential names stay usable without exempting credential files (Cratis/AI#1092)', () => {
+    const sourcePaths = [
+        'Source/X/ICredentialScopeAllowlist.cs',
+        'Source/X/PatCredentialScopeAllowlist.cs',
+        'Source/X/Credentials.cs',
+        'Source/X/ApplicationCredentials.py',
+        'Signing.Key.cs',
+        'Source/X/Signing.Keystore.cs',
+        'Source/X/Signing.Jks.cs',
+        'Source/X/Signing.Kdbx.cs',
+        'Source/X/Credentials.spec.ts',
+        'Source/X/Secrets.tsx',
+        'Source/X/TokenProvider.mjs',
+        'Source/X/Credentials.keywords.ts',
+    ];
+    const commands = sourcePaths.flatMap(path => [
+        `git add ${path}`,
+        `git commit -m "Update scope allowlist" -- ${path}`,
+        `git mv ${path} Source/X/Renamed.cs`,
+        `git rm ${path}`,
+        `git diff --stat -- ${path}`,
+        `git diff --name-only -- ${path}`,
+        `ls ${path}`,
+        `cat ${path}`,
+    ]);
+    assertVerdicts([
+        ...commands.map(command => [ALLOW, command] as [string, string]),
+        [ALLOW, `git add ${sourcePaths[0]} ${sourcePaths[1]}`],
+        ...['cat .env', 'cat secrets.pem', 'cat ~/.kube/config', 'cat id_rsa',
+            'git add .env', 'git add credentials.json', 'cat token.json',
+            'cat Source/X/credential.cs.pem', 'cat Source/X/credential.pem.cs',
+            'cat Source/X/credential.cs.pem.', 'git add Source/X/credential.cs.pem',
+            'cat server.key', 'cat server.p12', 'cat server.pfx', 'cat server.jks',
+            'cat server.keystore', 'cat server.kdbx',
+            'git add Source/X/UnknownCredentials.blob',
+        ].map(command => [BLOCK, command] as [string, string]),
+    ]);
+});
+
+test('credential source exemptions fail closed for nonliteral components (Cratis/AI#1092)', () => {
+    assertVerdicts([
+        ...['cat cred*.json', 'cat credential?.json', 'cat crede*.json',
+            'cat cr[e]dentials.json', 'base64 c*s.json',
+            'cat gcp_credentials.json | base64', 'cat *.pem', 'cat .env*',
+            'cat cred*.cs', 'cat cr[e]dentials.cs', 'git add cred*.cs',
+            'cat credential?.cs', 'cat {credentials,other}.json', 'cat Source/Cred*.cs',
+            'cat Credentials${suffix}.cs',
+            'cat "$DIRECTORY"/Credentials.cs', 'git add Signing.Key.*',
+            'cat Source/cred*/Credentials.cs',
+        ].map(command => [BLOCK, command] as [string, string]),
+        [ALLOW, 'git add Signing.Key.cs'],
+        [ALLOW, 'cat Source/{Credentials,Other}.cs'],
+    ]);
+});
+
+test('ordinary singular credential words do not taint compound commands (Cratis/AI#1092)', () => {
+    assertVerdicts([
+        ...['grep -rn credential Source && echo done',
+            'rg CredentialProvider Source | head -5',
+            'git log --oneline --grep credential | head',
+            'echo credential-helper; ls',
+            'cd Source && git add CredentialStore.cs',
+            'grep -n credentialScope Source/X/Scope.cs | wc -l',
+        ].map(command => [ALLOW, command] as [string, string]),
+        ...['cat gcp_credential.json | base64', 'cd x && cat credential_settings.json',
+            'cat credential?.json | base64', 'echo x; cat Cred*.json',
+        ].map(command => [BLOCK, command] as [string, string]),
+    ]);
+});
+
+test('singular and plural credential JSON filenames are protected (Cratis/AI#1092)', () => {
+    const files = ['credentials.json', 'application_default_credentials.json',
+        'gcp_credentials.json', 'gcp_credential.json', 'ApplicationCredentials.json',
+        'Source/X/ApplicationCredentials.json', 'Source/X/credential_settings.json',
+        'gcp_credentials.json.'];
+    assertVerdicts(files.flatMap(file => [
+        [BLOCK, `cat ${file}`],
+        [BLOCK, `cat ${file} | base64`],
+        [BLOCK, `git add ${file}`],
+        [BLOCK, `git commit -m "Update config" -- ${file}`],
+        [BLOCK, `git mv ${file} config.json`],
+        [BLOCK, `git rm ${file}`],
+        [ALLOW, `git diff --stat -- ${file}`],
+        [ALLOW, `git diff --name-only -- ${file}`],
+        [ALLOW, `ls ${file}`],
+    ] as Array<[string, string]>));
+});
+
 test('literal-prefix trailing globs inspect bounded real matches, never shell input', () => {
     const directory = mkdtempSync(join(tmpdir(), 'cratis-secret-glob-'));
     try {
