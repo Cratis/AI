@@ -25,7 +25,7 @@
 - Formatting and recovery limits
 - Code attachments
 
-The standalone MCP server lists 47 tools from Screenplay 6.0 (including the MCP-Apps visualization tool and `migrate`); `tools/list` is the authority for the installed server, and the CLI-bundled MCP (`cratis screenplay mcp`) can be an older Screenplay that lacks newer tools.
+The standalone MCP server lists 48 tools from Screenplay 6.0 (including the MCP-Apps visualization tool and `migrate`); `tools/list` is the authority for the installed server, and the CLI-bundled MCP (`cratis screenplay mcp`) can be an older Screenplay that lacks newer tools.
 
 The supported CLI launch is `cratis screenplay mcp <model-root>`, or `cratis screenplay mcp`
 alone inside a project, where the CLI reuses existing model/workspace roots.

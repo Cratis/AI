@@ -5,7 +5,7 @@
 
 Use these forms when writing or reviewing `.play`. Acceptance of an older
 spelling is not a recommendation to teach it. Information diagnostics do not
-fail `--warnaserror`; the corpus verification gate rejects the fourteen style codes
+fail `--warnaserror`; the corpus verification gate rejects the fifteen style codes
 below even when a fence declares `expect`, unless an exact, reasoned migration
 exception exists in the verifier's preferred-syntax allowlist. That allowlist also
 covers deliberate legacy explanations in prose; stale entries fail.
@@ -30,6 +30,7 @@ covers deliberate legacy explanations in prose; stale entries fail.
 | Profile appearance | `color scheme` in `appearance`; the accent, corner style and font as a palette entry and token values in the selected `theme` of the `design system` | `accent`, `corners` or `font` in a `ui profile`'s `appearance` | PLAY0929 (warning; quick fix moves the values into the theme) |
 | Literal text rules | `starts with`, `ends with`, `contains`, `not contains` or equality, preserving message and severity | Exact deprecated Studio `matches` shapes | PLAY0787 (warning; not arbitrary regex rewriting) |
 | Objects and lists | An indented block under the name: `member = value` lines, one `item` line per element, `<name> none` for an empty list | Inline JSON (`= {...}`, `= [...]`) - not accepted; Screenplay has no JSON | PLAY0833 (error; quick fix, and printing converts) |
+| Slice visibility | One `shows event <Name>` or `shows readmodel <Name>` line per element | Repeating a `shows` line for an element the slice already shows, or already declares | PLAY0955 (warning) |
 
 `query Q => observable?` is not a legacy optional type suffix and has no keyword
 replacement. Reaction/Translate `where` is current syntax, not an interaction
