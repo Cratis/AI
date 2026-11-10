@@ -23,11 +23,15 @@ public class a_workspace : Specification
         _root = current;
         _workspace = Directory.CreateDirectory(Path.Combine(_root, "workspace")).FullName;
         Directory.CreateDirectory(Path.Combine(_workspace, ".git"));
-        _job = new(AgentSessionId.New(), "worker:latest", new Dictionary<string, string>
-        {
-            [HostWorkspace.ModeVariable] = HostWorkspace.ModeValue,
-            [HostWorkspace.HostPathVariable] = _workspace
-        }, new Dictionary<string, string>());
+        _job = new(
+            AgentSessionId.New(),
+            "worker:latest",
+            new Dictionary<string, string>
+            {
+                [HostWorkspace.ModeVariable] = HostWorkspace.ModeValue,
+                [HostWorkspace.HostPathVariable] = _workspace
+            },
+            new Dictionary<string, string>());
     }
 
     protected WorkerJob WithPath(string path) => _job with

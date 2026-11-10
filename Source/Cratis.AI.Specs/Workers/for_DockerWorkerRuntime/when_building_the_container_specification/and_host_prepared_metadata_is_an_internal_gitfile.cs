@@ -27,10 +27,10 @@ public class and_host_prepared_metadata_is_an_internal_gitfile : for_HostWorkspa
 
     [Fact] void should_accept_an_internal_gitfile() => _verdict.Kind.ShouldEqual(HostWorkspaceVerdictKind.Valid);
     [Fact] void should_protect_the_metadata_ancestor_against_renaming() => _verdict.GitMetadataPath.ShouldEqual(_metadata);
-    [Fact] void should_protect_both_the_gitfile_and_its_metadata_subtree() => _result.HostConfig.Binds.ShouldEqual(new[]
-    {
+    [Fact] void should_protect_both_the_gitfile_and_its_metadata_subtree() => _result.HostConfig.Binds.ShouldEqual<string>(
+    [
         $"{_workspace}:/workspace:rw",
         $"{Path.Combine(_workspace, ".git")}:/workspace/.git:ro",
         $"{_metadata}:/workspace/.metadata:ro"
-    });
+    ]);
 }

@@ -66,6 +66,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         string? hostGitMetadataPath = null)
     {
         var hostPrepared = hostWorkspacePath is not null;
+
         // A restricted checkout must not expose other repositories through the shared cache,
         // even when the checkout contract is empty or invalid and the entrypoint will reject it.
         var restricted = job.EnvironmentVariables.ContainsKey("DIRECT_REPOSITORY_CHECKOUTS");
@@ -84,7 +85,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             // environment variable over MAX_ARG_STRLEN makes the kernel refuse the whole execve, so
             // a large enough prompt stops the container starting at all. It is copied in as a file
             // below - see WorkerPromptFile - and what goes here is the path to it.
-            Env = BuildEnvironmentVariables(job, repositoryCachePath, repositoryCacheEnvironmentVariable, hostPrepared),
+            Env = new DockerWorkerEnvironment(job, repositoryCachePath, repositoryCacheEnvironmentVariable, hostPrepared).Build(),
 
             // A TTY keeps the log a single raw stream, which also gives a live console a clean
             // line-by-line feed. Stdin stays open so steering text can be sent to the running session.
@@ -315,35 +316,6 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             $"{Path.Combine(workspace, ".git")}:{HostWorkspace.ContainerPath}/.git:ro",
             .. metadata is null ? (string[])[] : [$"{metadata}:{HostWorkspace.ContainerPath}/{Path.GetRelativePath(workspace, metadata)}:ro"]
         ];
-    }
-
-    static List<string> BuildEnvironmentVariables(WorkerJob job, string? cachePath, string? cacheVariable, bool hostPrepared)
-    {
-        var restricted = job.EnvironmentVariables.ContainsKey("DIRECT_REPOSITORY_CHECKOUTS");
-        var includeCache = !restricted && !hostPrepared && !string.IsNullOrWhiteSpace(cachePath) && !string.IsNullOrWhiteSpace(cacheVariable);
-        return
-        [
-            .. job.EnvironmentVariables
-                .Where(variable => IncludeEnvironmentVariable(variable.Key, cacheVariable, restricted, hostPrepared))
-                .Select(variable => $"{variable.Key}={variable.Value}"),
-            $"{WorkerSecrets.PathVariableName}={WorkerSecrets.Path}",
-            $"{WorkerPromptFile.PathVariableName}={WorkerPromptFile.Path}",
-            .. hostPrepared ? (string[])[$"{HostWorkspace.ModeVariable}={HostWorkspace.ModeValue}", $"{HostWorkspace.ContainerPathVariable}={HostWorkspace.ContainerPath}"] : [],
-            .. includeCache ? (string[])[$"{cacheVariable}={cachePath}"] : []
-        ];
-    }
-
-    static bool IncludeEnvironmentVariable(string name, string? cacheVariable, bool restricted, bool hostPrepared)
-    {
-        if (name == WorkerPromptFile.LegacyVariableName)
-        {
-            return false;
-        }
-        if ((restricted || hostPrepared) && (name == cacheVariable || name == "DIRECT_REPOSITORY_CACHE"))
-        {
-            return false;
-        }
-        return !hostPrepared || name is not (HostWorkspace.ModeVariable or HostWorkspace.ContainerPathVariable or HostWorkspace.HostPathVariable);
     }
 
     static async Task WriteSecrets(DockerClient client, string container, WorkerJob job, CancellationToken cancellationToken)

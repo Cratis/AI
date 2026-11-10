@@ -5,7 +5,7 @@ namespace Cratis.AI.Workers.for_HostWorkspace.when_validating;
 
 public class the_workspace_contract : given.a_workspace
 {
-    static readonly string[] RepositoryInputs =
+    static readonly string[] _repositoryInputs =
     [
         "GITHUB_TOKEN", "GH_TOKEN", "DIRECT_PUSH_TOKEN_URL", "DIRECT_CLONE_CREDENTIALS",
         "DIRECT_REPOSITORY_URL", "DIRECT_REPOSITORY_URLS", "DIRECT_REPOSITORY_CHECKOUTS",
@@ -55,7 +55,7 @@ public class the_workspace_contract : given.a_workspace
         return HostWorkspace.Validate(_job with { EnvironmentVariables = environment }, _root).Kind;
     }
 
-    bool RefusesEveryRepositoryInput(bool secret, string value) => RepositoryInputs.All(name =>
+    bool RefusesEveryRepositoryInput(bool secret, string value) => _repositoryInputs.All(name =>
         secret
             ? HostWorkspace.Validate(_job with { Secrets = new Dictionary<string, string> { [name] = value } }, _root).Kind == HostWorkspaceVerdictKind.ForbiddenCredential
             : WithEnvironment(name, value) == HostWorkspaceVerdictKind.ForbiddenCredential);

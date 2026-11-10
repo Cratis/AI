@@ -84,11 +84,15 @@ public static class Program
 
     static async Task CheckHostWorkspace(string cache, string repository)
     {
-        var job = new WorkerJob(AgentSessionId.New(), "alpine/git@sha256:a4bb51f1a3553df194ce679fc1db721d8bfba2046fa1a88fe9d4ac551ffbce25", new Dictionary<string, string>
-        {
-            ["CRATIS_WORKSPACE_MODE"] = "host-prepared",
-            ["CRATIS_WORKSPACE_HOST_PATH"] = repository
-        }, new Dictionary<string, string>());
+        var job = new WorkerJob(
+            AgentSessionId.New(),
+            "alpine/git@sha256:a4bb51f1a3553df194ce679fc1db721d8bfba2046fa1a88fe9d4ac551ffbce25",
+            new Dictionary<string, string>
+            {
+                ["CRATIS_WORKSPACE_MODE"] = "host-prepared",
+                ["CRATIS_WORKSPACE_HOST_PATH"] = repository
+            },
+            new Dictionary<string, string>());
         var specification = DockerWorkerRuntime.BuildContainerSpecification(job, cache, "DIRECT_REPOSITORY_CACHE", repository);
         var arguments = new List<string> { "run", "--rm", "--network", "none", "--entrypoint", "sh" };
         foreach (var bind in specification.HostConfig.Binds)
@@ -100,7 +104,7 @@ public static class Program
             arguments.AddRange(["--env", variable]);
         }
         arguments.AddRange([job.Image, "-c",
-            $"test \"$CRATIS_WORKSPACE_MODE\" = host-prepared && test \"$CRATIS_WORKSPACE_PATH\" = /workspace && " +
+            "test \"$CRATIS_WORKSPACE_MODE\" = host-prepared && test \"$CRATIS_WORKSPACE_PATH\" = /workspace && " +
             $"test -z \"${{CRATIS_WORKSPACE_HOST_PATH+x}}\" && test -z \"${{DIRECT_REPOSITORY_CACHE+x}}\" && ! test -e '{cache}' && " +
             "test \"$(git -c safe.directory='*' -C /workspace show HEAD:sentinel)\" = out-of-grant-source && " +
             "! git -c safe.directory='*' -C /workspace config core.fsmonitor malicious && " +

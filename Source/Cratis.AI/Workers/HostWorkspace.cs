@@ -3,44 +3,104 @@
 
 namespace Cratis.AI.Workers;
 
+/// <summary>
+/// Identifies the first failed host-workspace check, or an accepted workspace mode.
+/// </summary>
 internal enum HostWorkspaceVerdictKind
 {
+    /// <summary>The job uses the default workspace mode.</summary>
     NotHostPrepared,
+
+    /// <summary>The host workspace is valid.</summary>
     Valid,
+
+    /// <summary>The workspace mode is unknown.</summary>
     UnknownMode,
+
+    /// <summary>The host has no usable workspace root.</summary>
     NotConfigured,
+
+    /// <summary>The job has no workspace path.</summary>
     PathMissing,
+
+    /// <summary>The path is not absolute.</summary>
     NotAbsolute,
+
+    /// <summary>The path contains noncanonical segments.</summary>
     Traversal,
+
+    /// <summary>The path contains unsafe characters.</summary>
     InvalidCharacters,
+
+    /// <summary>The path or Git metadata is a symbolic link.</summary>
     Symlink,
+
+    /// <summary>The path is outside the configured root.</summary>
     OutsideRoot,
+
+    /// <summary>The path names the root itself.</summary>
     IsRoot,
+
+    /// <summary>The path does not name an existing directory.</summary>
     NotADirectory,
+
+    /// <summary>The job supplies a forbidden repository input.</summary>
     ForbiddenCredential,
+
+    /// <summary>The job requests the incompatible bundle-diff mode.</summary>
     ConflictsWithBundleDiff,
+
+    /// <summary>The runtime cannot mount a host workspace.</summary>
     UnsupportedRuntime,
+
+    /// <summary>The workspace is not a direct child of the root.</summary>
     NestedPath,
+
+    /// <summary>The Git metadata cannot be protected by read-only binds.</summary>
     InvalidGitMetadata
 }
 
+/// <summary>
+/// Captures validation status and the accepted paths to mount.
+/// </summary>
+/// <param name="Kind">The validation outcome.</param>
+/// <param name="Path">The accepted workspace path.</param>
+/// <param name="GitMetadataPath">An additional metadata subtree to protect.</param>
 internal sealed record HostWorkspaceVerdict(HostWorkspaceVerdictKind Kind, string? Path = null, string? GitMetadataPath = null);
 
+/// <summary>
+/// Validates host-prepared jobs before contacting a container runtime.
+/// </summary>
 internal static class HostWorkspace
 {
+    /// <summary>The workspace mode environment variable.</summary>
     internal const string ModeVariable = "CRATIS_WORKSPACE_MODE";
+
+    /// <summary>The host-prepared mode value.</summary>
     internal const string ModeValue = "host-prepared";
+
+    /// <summary>The host workspace path environment variable.</summary>
     internal const string HostPathVariable = "CRATIS_WORKSPACE_HOST_PATH";
+
+    /// <summary>The container workspace path environment variable.</summary>
     internal const string ContainerPathVariable = "CRATIS_WORKSPACE_PATH";
+
+    /// <summary>The fixed container workspace path.</summary>
     internal const string ContainerPath = "/workspace";
 
-    static readonly string[] ForbiddenInputs =
+    static readonly string[] _forbiddenInputs =
     [
         "GITHUB_TOKEN", "GH_TOKEN", "DIRECT_PUSH_TOKEN_URL", "DIRECT_CLONE_CREDENTIALS",
         "DIRECT_REPOSITORY_URL", "DIRECT_REPOSITORY_URLS", "DIRECT_REPOSITORY_CHECKOUTS",
         "DIRECT_REPOSITORY_CACHE", "DIRECT_BRANCH"
     ];
 
+    /// <summary>
+    /// Validates the job's workspace mode, repository inputs, path, and Git metadata.
+    /// </summary>
+    /// <param name="job">The requested job.</param>
+    /// <param name="root">The host's configured workspace root.</param>
+    /// <returns>The first validation failure or the accepted workspace.</returns>
     internal static HostWorkspaceVerdict Validate(WorkerJob job, string? root)
     {
         job.EnvironmentVariables.TryGetValue(ModeVariable, out var mode);
@@ -61,7 +121,7 @@ internal static class HostWorkspace
         {
             return new(HostWorkspaceVerdictKind.ConflictsWithBundleDiff);
         }
-        return ForbiddenInputs.Any(input => job.EnvironmentVariables.ContainsKey(input) || job.Secrets.ContainsKey(input))
+        return _forbiddenInputs.Any(input => job.EnvironmentVariables.ContainsKey(input) || job.Secrets.ContainsKey(input))
             ? new(HostWorkspaceVerdictKind.ForbiddenCredential)
             : null;
     }
@@ -73,7 +133,7 @@ internal static class HostWorkspace
             return new(HostWorkspaceVerdictKind.NotConfigured);
         }
         job.EnvironmentVariables.TryGetValue(HostPathVariable, out var path);
-        var lexicalError = ValidateLexicalPath(path);
+        var lexicalError = new HostWorkspacePath(path).Validate();
         if (lexicalError is not null)
         {
             return new(lexicalError.Value);
@@ -110,152 +170,16 @@ internal static class HostWorkspace
             }
         }
         return Directory.Exists(path)
-            ? ValidateGitMetadata(path)
+            ? new HostWorkspaceMetadata(new DirectoryInfo(path)).Validate()
             : new(HostWorkspaceVerdictKind.NotADirectory);
-    }
-
-    static HostWorkspaceVerdict ValidateGitMetadata(string workspace)
-    {
-        var entry = Path.Combine(workspace, ".git");
-        if (IsLink(new DirectoryInfo(entry)) || IsLink(new FileInfo(entry)))
-        {
-            return new(HostWorkspaceVerdictKind.Symlink);
-        }
-        if (Directory.Exists(entry))
-        {
-            return ValidateCommonDirectory(entry, entry, new(HostWorkspaceVerdictKind.Valid, workspace));
-        }
-        if (!File.Exists(entry))
-        {
-            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
-        }
-        try
-        {
-            return ValidateGitFile(workspace, File.ReadAllText(entry).TrimEnd('\r', '\n'));
-        }
-        catch (IOException)
-        {
-            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
-        }
-    }
-
-    static HostWorkspaceVerdict ValidateGitFile(string workspace, string content)
-    {
-        const string prefix = "gitdir: ";
-        if (!content.StartsWith(prefix, StringComparison.Ordinal))
-        {
-            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
-        }
-        var directory = ResolveMetadataDirectory(workspace, workspace, content[prefix.Length..]);
-        if (directory.Kind != HostWorkspaceVerdictKind.Valid)
-        {
-            return directory;
-        }
-        // Protect the top-level metadata subtree: writable ancestors could otherwise be renamed
-        // to redirect an immutable gitfile around a read-only bind of just its final gitdir.
-        var relative = Path.GetRelativePath(workspace, directory.Path!);
-        var metadataRoot = Path.Combine(workspace, relative.Split(Path.DirectorySeparatorChar)[0]);
-        return ValidateCommonDirectory(directory.Path!, metadataRoot, new(HostWorkspaceVerdictKind.Valid, workspace, metadataRoot));
-    }
-
-    static HostWorkspaceVerdict ValidateCommonDirectory(string gitDirectory, string metadataRoot, HostWorkspaceVerdict accepted)
-    {
-        try
-        {
-            var entry = Path.Combine(gitDirectory, "commondir");
-            if (IsLink(new FileInfo(entry)) || IsLink(new DirectoryInfo(entry)) || Directory.Exists(entry))
-            {
-                return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
-            }
-            if (!File.Exists(entry))
-            {
-                return accepted;
-            }
-            var target = File.ReadAllText(entry).TrimEnd('\r', '\n');
-            var directory = ResolveMetadataDirectory(accepted.Path!, gitDirectory, target);
-            if (directory.Kind != HostWorkspaceVerdictKind.Valid)
-            {
-                return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
-            }
-            return directory.Path!.StartsWith(metadataRoot + Path.DirectorySeparatorChar, StringComparison.Ordinal)
-                ? accepted
-                : new(HostWorkspaceVerdictKind.InvalidGitMetadata);
-        }
-        catch (IOException)
-        {
-            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
-        }
-    }
-
-    static HostWorkspaceVerdict ResolveMetadataDirectory(string workspace, string relativeTo, string target)
-    {
-        if (!IsRelativeMetadataTarget(target))
-        {
-            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
-        }
-        var directory = Path.GetFullPath(target, relativeTo);
-        if (!directory.StartsWith(workspace + Path.DirectorySeparatorChar, StringComparison.Ordinal) || !Directory.Exists(directory))
-        {
-            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
-        }
-        var current = workspace;
-        foreach (var segment in Path.GetRelativePath(workspace, directory).Split(Path.DirectorySeparatorChar))
-        {
-            current = Path.Combine(current, segment);
-            if (IsLink(new DirectoryInfo(current)))
-            {
-                return new(HostWorkspaceVerdictKind.Symlink);
-            }
-        }
-        return new(HostWorkspaceVerdictKind.Valid, directory);
-    }
-
-    static bool IsRelativeMetadataTarget(string target)
-    {
-        if (string.IsNullOrWhiteSpace(target) || target != target.Trim())
-        {
-            return false;
-        }
-        // Absolute host metadata names do not resolve under the container's /workspace remapping.
-        if (Path.IsPathFullyQualified(target) || target.IndexOfAny(['\n', '\r', '\0', ':', ',']) >= 0)
-        {
-            return false;
-        }
-        return !target.Split(Path.DirectorySeparatorChar).Any(segment => segment is "" or "." or "..");
     }
 
     static bool RootIsConfigured(string? root) => !string.IsNullOrWhiteSpace(root) && Path.IsPathFullyQualified(root) && Directory.Exists(root);
 
-    static bool IsLink(FileSystemInfo entry) => entry.LinkTarget is not null || (entry.Exists && entry.Attributes.HasFlag(FileAttributes.ReparsePoint));
-
-    static HostWorkspaceVerdictKind? ValidateLexicalPath(string? path)
-    {
-        if (string.IsNullOrEmpty(path))
-        {
-            return HostWorkspaceVerdictKind.PathMissing;
-        }
-        if (path.IndexOfAny(['\n', '\r', '\0', ':', ',']) >= 0)
-        {
-            return HostWorkspaceVerdictKind.InvalidCharacters;
-        }
-        if (!Path.IsPathFullyQualified(path))
-        {
-            return HostWorkspaceVerdictKind.NotAbsolute;
-        }
-        if (path == Path.GetPathRoot(path))
-        {
-            return HostWorkspaceVerdictKind.IsRoot;
-        }
-        return path[Path.GetPathRoot(path)!.Length..].Split(Path.DirectorySeparatorChar).Any(segment => segment is "" or "." or "..")
-            ? HostWorkspaceVerdictKind.Traversal
-            : null;
-    }
+    /// <summary>
+    /// Checks existing entries and dangling links without following them.
+    /// </summary>
+    /// <param name="entry">The filesystem entry.</param>
+    /// <returns>Whether the entry is a symbolic link or reparse point.</returns>
+    internal static bool IsLink(FileSystemInfo entry) => entry.LinkTarget is not null || (entry.Exists && entry.Attributes.HasFlag(FileAttributes.ReparsePoint));
 }
