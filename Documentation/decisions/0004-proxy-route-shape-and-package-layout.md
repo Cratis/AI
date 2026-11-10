@@ -66,6 +66,9 @@ Fixed by conditioning `CratisProxiesOutputPath` itself to `'$(TargetFramework)' 
 exactly once regardless of how many TFMs the configuration builds. Verified with three consecutive
 clean Release builds locally (previously non-deterministic, now consistently clean).
 
+Update (.NET 11 upgrade): the TFM list quoted above (`net8.0;net9.0;net10.0`) is superseded;
+`Directory.Build.props` now multi-targets `net10.0;net11.0`. The guard on `net10.0` is unchanged.
+
 ## Consequences
 
 - Every future command/query the package grows lands under `/api/a-i/...` automatically - no route

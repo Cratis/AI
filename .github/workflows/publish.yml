@@ -50,9 +50,8 @@ jobs:
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: |
-            8.0.x
-            9.0.x
             10.0.x
+            11.0.100
 
       - name: Use Node.js 24
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -225,9 +224,8 @@ jobs:
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: |
-            8.0.x
-            9.0.x
             10.0.x
+            11.0.100
 
       - name: Restore
         run: dotnet restore Cratis.AI.slnx
@@ -240,6 +238,9 @@ jobs:
 
       - name: Run specs
         run: Source/Cratis.AI.Specs/bin/Debug/net10.0/Cratis.AI.Specs
+
+      - name: Run specs (net11.0)
+        run: Source/Cratis.AI.Specs/bin/Debug/net11.0/Cratis.AI.Specs
 
       - name: Verify restricted workers cannot read the shared cache sentinel
         run: dotnet run --project Source/WorkerCacheFixture/WorkerCacheFixture.csproj --configuration Release -p:CratisProxiesOutputPath= -warnaserror
@@ -395,9 +396,8 @@ jobs:
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: |
-            8.0.x
-            9.0.x
             10.0.x
+            11.0.100
 
       - name: Build
         run: dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release
@@ -432,9 +432,8 @@ jobs:
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
         with:
           dotnet-version: |
-            8.0.x
-            9.0.x
             10.0.x
+            11.0.100
 
       - name: Use Node.js 24
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
