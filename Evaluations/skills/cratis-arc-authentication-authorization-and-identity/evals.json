@@ -36,6 +36,18 @@
         "Separates admission from revocation and uses IGuardObservableQueryEmission with authoritative current state.",
         "Includes plain HTTP snapshots/waits/long polls in guard coverage since 22.69.1 and does not use producer ambient identity."
       ]
+    },
+    {
+      "id": 4,
+      "name": "headless-module-host-owns-ui",
+      "prompt": "We want a reusable identity module that works in any host application. What should it ship, and who owns sign-in, consent and profile screens? Reply only.",
+      "expected_output": "The module ships backend contracts only and the host application owns and composes the UI.",
+      "assertions": [
+        "States the module exposes backend contracts only: commands, queries, events and claims or identity integration.",
+        "States the module ships no pages, routes, styling or UI components.",
+        "States sign-in, consent and profile UI belong to the host application.",
+        "States the host composes the module's endpoints."
+      ]
     }
   ]
 }

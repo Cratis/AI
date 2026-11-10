@@ -151,7 +151,7 @@ multi-trigger refusal groups, localized `$refusal.message`, or `$refusal.constra
 when several constraints can fail together report STAGE-ESM-039. Unsupported branch
 conditions/routes/mappings retain -039, specification shapes -011.
 
-Differing event pins render as `[EventType("storedName")]`; the class follows the
+Differing event pins render as `[EventType("storedName")]` (a retained stored id); the class follows the
 model name. Destination event-id changes or unreadable existing ids block every
 publication scope with STAGE-EVENT-002 / CLI-RENDER-016, even under `--force`.
 Requires Cratis CLI 3.60.0 (`cratis --version`) for this publication check; older

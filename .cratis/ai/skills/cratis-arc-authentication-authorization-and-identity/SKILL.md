@@ -212,6 +212,13 @@ behavior.
 Arc tenancy is request-scoped tenant *resolution*. It is not Chronicle's tenant
 namespace isolation — that is separate guidance.
 
+## Headless reusable modules
+
+A reusable module that must work in any host ships backend contracts only:
+commands, queries, events and the identity/claims integration. It has no pages,
+routes, styling or UI components. Sign-in, consent and profile UI belong to the
+host application, which composes the module's endpoints.
+
 ## Frontend
 
 Read [references/frontend.md](references/frontend.md#identity-hook-examples) when you need the `<Arc>` provider and `useIdentity`/`RequireRole` examples.
