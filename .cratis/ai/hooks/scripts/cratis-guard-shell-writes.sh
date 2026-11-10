@@ -397,7 +397,17 @@ classifier="$script_directory/cratis-guard-writes.sh"
 classifier_input="$(jq -nc --arg cwd "$cwd" --args '{cwd:$cwd,tool_input:{file_paths:$ARGS.positional}}' -- "${candidates[@]}")" || parser_failed
 # Tool labels and this hook shell do not establish the execution shell options.
 # Keep conservative dotfile intersections for every command, especially mutators.
-references="$("$BASH" "$classifier" --references <<<"$classifier_input")" || {
+classifier_error="$(mktemp)" || parser_failed
+trap 'rm -f "$classifier_error"' EXIT
+references="$("$BASH" "$classifier" --references <<<"$classifier_input" 2>"$classifier_error")" || {
+    # A command that is not read-only is refused whatever the classifier could model, so an unmodeled word
+    # (for example program text inside an interpreter heredoc) must not hide the refusal behind a parser
+    # failure. A read-only command keeps the fail-closed parser failure.
+    if ! GSW_COMMAND="$command_text" GSW_MODE=readonly GSW_PROTECTED="" LC_ALL=C awk "$program" </dev/null; then
+        printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: this command is not read-only and its references could not all be modeled; use the edit/write tools, or report the intended change.' >&2
+        exit 2
+    fi
+    cat "$classifier_error" >&2
     printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: could not check references (write guard failed).' >&2
     exit 2
 }
