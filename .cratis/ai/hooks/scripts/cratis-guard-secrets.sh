@@ -311,10 +311,29 @@ function git_metadata(words, count,    subcommand, k, w, ended, summary) {
     return subcommand != "diff" || summary
 }
 # Path-only Git operations do not turn credential vocabulary into a secret filename.
-# Literal operands are still checked as paths, including revision:path spelling.
-function git_path_kind(w,    parts, count, k, kind) {
-    sub(/^[^:]*:/, "", w)
+# Literal operands retain their Git context: pathspec magic differs from revision:path.
+function git_path_kind(w, pathspec, repo_only,    parts, count, k, kind, closing, magic) {
     sub(/^--[^=]*=/, "", w)
+    if (w ~ /^:\(/) {
+        closing = index(w, ")")
+        if (!closing) return "an unparsed Git pathspec"
+        magic = substr(w, 3, closing - 3)
+        count = split(magic, parts, ",")
+        for (k = 1; k <= count; k++) {
+            if (parts[k] !~ /^(top|literal|icase|exclude)$/) return "an unparsed Git pathspec"
+        }
+        if (!count) return "an unparsed Git pathspec"
+        w = substr(w, closing + 1)
+    } else if (w ~ /^:[!^\/]/) {
+        sub(/^:[!^\/]+:?/, "", w)
+    } else if (!pathspec && w ~ /^:[0-3]:/) {
+        sub(/^:[0-3]:/, "", w)
+    } else if (!pathspec && w ~ /^:[^:]/) {
+        sub(/^:/, "", w)
+    } else if (!pathspec && w ~ /^[^:]+:/) {
+        sub(/^[^:]+:/, "", w)
+    } else if (w ~ /^:/) return "an unparsed Git pathspec"
+    if (repo_only && (w ~ /^(\/|~)/ || w ~ /(^|\/)\.\.(\/|$)/)) return "a path outside the repository"
     if (tolower(base(w)) == "credentials" && w !~ /(^|\/)\.aws\/credentials$/ && directory_operand(w)) return ""
     kind = sensitive_path(w)
     if (kind != "") return kind
@@ -326,10 +345,15 @@ function git_path_kind(w,    parts, count, k, kind) {
     }
     return ""
 }
-function git_paths(A, M, n,    k) {
+function git_paths(A, M, n,    k, ended, pathspec) {
     if (A[1] != "git" || A[2] !~ /^(add|checkout|restore|rm|mv|diff|log|show)$/) return 0
     for (k = 1; k <= n; k++) {
-        if (expands(A[k], M[k]) || !literal_word(A[k], M[k]) || A[k] ~ /[*?\[]/ || git_path_kind(A[k]) != "") return 0
+        if (expands(A[k], M[k]) || !literal_word(A[k], M[k]) || A[k] ~ /[*?\[]/) return 0
+        if (k <= 2) continue
+        if (!ended && A[k] == "--") { ended = 1; continue }
+        if (!ended && A[2] == "diff" && A[k] ~ /^--no-index($|=)/) return 0
+        pathspec = ended || A[2] ~ /^(add|checkout|restore|rm|mv)$/
+        if (git_path_kind(A[k], pathspec, 1) != "") return 0
     }
     return 1
 }
@@ -1395,11 +1419,13 @@ function transfer_files(A, s, n, b,    k, last, options, kind, w, eq, off, ended
     }
 }
 # Git grep reuses pattern/file separation; ls-files never reaches this content path.
-function git_content(A, s, n,    subcommand, k, w, kind) {
+function git_content(A, s, n,    subcommand, k, w, kind, ended, pathspec) {
     subcommand = A[s + 1]
     if (subcommand ~ /^(add|checkout|restore|rm|mv|diff|log|show)$/) {
         for (k = s + 2; k <= n; k++) {
-            kind = git_path_kind(A[k])
+            if (!ended && A[k] == "--") { ended = 1; continue }
+            pathspec = ended || subcommand ~ /^(add|checkout|restore|rm|mv)$/
+            kind = git_path_kind(A[k], pathspec)
             if (kind != "") report("git " subcommand " names " kind, "name only non-credential source files; list filenames with git ls-files")
         }
     }

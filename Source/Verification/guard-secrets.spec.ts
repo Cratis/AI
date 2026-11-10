@@ -222,6 +222,40 @@ test('path-only Git operations permit non-secret repository paths in both guards
     ]).map(command => [BLOCK, command] as [string, string]));
 });
 
+test('Git index stages and pathspec magic preserve secret-file classification', () => {
+    const paths = [[BLOCK, 'id_rsa'], [BLOCK, '.envrc'], [BLOCK, 'credentials.json'], [BLOCK, '.aws/credentials'],
+        [ALLOW, 'CredentialsProvider.cs'], [ALLOW, 'Source/RecordingCredentials.fs']];
+    const cases: Array<[string, string]> = [];
+    for (const [verdict, path] of paths) {
+        for (const prefix of [':', ':0:', ':1:', ':2:', ':3:', 'HEAD:']) {
+            cases.push([verdict, `git show ${prefix}${path}`]);
+        }
+        for (const prefix of ['', ':(literal)', ':(top,literal)', ':(icase,literal)', ':(exclude,literal)', ':!', ':^', ':/', ':!:']) {
+            cases.push([verdict, `git diff -- '${prefix}${path}'`]);
+            cases.push([verdict, `git add '${prefix}${path}'`]);
+        }
+    }
+    cases.push([BLOCK, "git diff -- ':(unknown)CredentialsProvider.cs'"],
+        [BLOCK, "git diff -- ':(literal'"], [BLOCK, "git diff -- ':?CredentialsProvider.cs'"],
+        [BLOCK, "git diff -- ':(attr:credential)CredentialsProvider.cs'"]);
+    assertVerdicts(cases);
+});
+
+test('Git exemptions never cover no-index reads or paths outside the repository', () => {
+    const cases: Array<[string, string]> = [];
+    for (const path of ['/run/secrets', '~/.kube', '~/.docker/', '/var/run/secrets']) {
+        cases.push([BLOCK, `git diff --no-index /var/empty ${path}`],
+            [BLOCK, `git diff --no-index -- /var/empty ${path}`]);
+    }
+    for (const path of ['../run/secrets', 'Source/../../run/secrets', '../.docker/', '../.kube']) {
+        cases.push([BLOCK, `git diff -- ${path}`]);
+    }
+    cases.push([BLOCK, 'git diff --no-index empty run/secrets'],
+        [BLOCK, 'git show HEAD:/run/secrets'], [BLOCK, "git diff -- ':(literal)/run/secrets'"],
+        [BLOCK, "git diff -- ':(top,literal)../run/secrets'"]);
+    assertVerdicts(cases);
+});
+
 test('singular and plural credential JSON filenames are protected (Cratis/AI#1092)', () => {
     const files = ['credentials.json', 'application_default_credentials.json',
         'gcp_credentials.json', 'gcp_credential.json', 'ApplicationCredentials.json',
