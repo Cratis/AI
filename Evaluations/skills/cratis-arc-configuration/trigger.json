@@ -1,0 +1,21 @@
+{
+  "skill": "cratis-arc-configuration",
+  "queries": [
+    { "query": "Which appsettings key sets the tenant header for Arc and what is its default?", "shouldTrigger": true },
+    { "query": "My generated proxies return 404 after I changed the API prefix. What setting did I miss?", "shouldTrigger": true },
+    { "query": "Why does ExposeExceptionDetails stay off when I run with DOTNET_ENVIRONMENT=Development?", "shouldTrigger": true },
+    { "query": "AddCratis() returns 401 for everyone. What setting controls forwarded identity headers?", "shouldTrigger": true },
+    { "query": "Where do I configure the ReadProtection MaximumMode and why does Cratis:Arc:ReadProtection do nothing?", "shouldTrigger": true },
+    { "query": "What are the required Cratis:MongoDB keys and the EnableResilience default?", "shouldTrigger": true },
+    { "query": "What should apiBasePath be when the React app is served under /workbench?", "shouldTrigger": true },
+    { "query": "Restrict observable query WebSocket origins for production in Arc.", "shouldTrigger": true },
+    { "query": "Define a command with a validator and a handler returning an event.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Create the Arc host project and map endpoints.", "shouldTrigger": false, "note": "cratis-arc-hosting" },
+    { "query": "Design sign-in and authorization policies for the application.", "shouldTrigger": false, "note": "cratis-arc-authentication-authorization-and-identity" },
+    { "query": "Raise the Chronicle gRPC message size for the kernel.", "shouldTrigger": false, "note": "cratis-chronicle-configuration" },
+    { "query": "Add server-side paging to an existing list query.", "shouldTrigger": false, "note": "cratis-arc-query-paging" },
+    { "query": "Add a column to an EF Core table with a migration.", "shouldTrigger": false, "note": "cratis-arc-ef-core-migration" },
+    { "query": "Build a data page with a command dialog in React.", "shouldTrigger": false, "note": "cratis-arc-react-page" },
+    { "query": "Choose how a Chronicle read model is queried from Arc.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" }
+  ]
+}
