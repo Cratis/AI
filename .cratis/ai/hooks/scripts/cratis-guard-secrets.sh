@@ -133,6 +133,8 @@ function stem_boundary(t, start, finish, stem, nonliteral,    a, b, before, afte
         if (literal && component !~ /^credentials([.]|$)/ && substr(t, right + 1, 1) == "/") return 0
         # Never infer a source file from a partial component or an expansion. JSON is not source.
         if (literal && code_file(component)) return 0
+        # The singular word is ordinary vocabulary; it marks a protected file only in credential JSON names.
+        if (stem == "credential" && literal && component !~ /credential[^\/]*\.json[.]*$/) return 0
     }
     before = substr(t, a - 1, 1); after = substr(t, b + 1)
     return !(before == "$" || before == "-" || (before == "{" && substr(t, a - 2, 1) == "$") || after ~ /^(=|\+=)/)

@@ -120,6 +120,21 @@ test('credential source exemptions fail closed for nonliteral components (Cratis
     ]);
 });
 
+test('ordinary singular credential words do not taint compound commands (Cratis/AI#1092)', () => {
+    assertVerdicts([
+        ...['grep -rn credential Source && echo done',
+            'rg CredentialProvider Source | head -5',
+            'git log --oneline --grep credential | head',
+            'echo credential-helper; ls',
+            'cd Source && git add CredentialStore.cs',
+            'grep -n credentialScope Source/X/Scope.cs | wc -l',
+        ].map(command => [ALLOW, command] as [string, string]),
+        ...['cat gcp_credential.json | base64', 'cd x && cat credential_settings.json',
+            'cat credential?.json | base64', 'echo x; cat Cred*.json',
+        ].map(command => [BLOCK, command] as [string, string]),
+    ]);
+});
+
 test('singular and plural credential JSON filenames are protected (Cratis/AI#1092)', () => {
     const files = ['credentials.json', 'application_default_credentials.json',
         'gcp_credentials.json', 'gcp_credential.json', 'ApplicationCredentials.json',
