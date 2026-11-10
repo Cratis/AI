@@ -186,6 +186,21 @@ for (const path of ['.e[[=]=]n]v', '.e[[.].]n]v', String.raw`.[\e]nv`, '.[[=e=]]
     });
 }
 
+test('reference classification keeps plain brace and fragment verdicts', () => {
+    const repo = scratchRepository();
+    try {
+        const result = spawnSync('bash', [guard, '--references'], {
+            cwd: repo.root,
+            input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: ['{a,b}.txt', '{print', '.{e,x}nv'] } }),
+            encoding: 'utf8',
+            env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+        });
+        assert.equal(result.status, 0, result.stderr);
+        assert.equal(result.stdout, '{a,b}.txt\n{print\n.{e,x}nv\n');
+        assert.equal(result.stderr, '');
+    } finally { repo.dispose(); }
+});
+
 test('reference classification fails closed for brace-bracket mixes, slash-spanning braces and dense brackets', () => {
     const repo = scratchRepository();
     try {
@@ -193,6 +208,9 @@ test('reference classification fails closed for brace-bracket mixes, slash-spann
         for (const path of ['p{x,[a}]ckage.json', '.m{x,[c}]p.json', '.{x,[e}]nv', '.cr[a{]tis/ai/{rules,foo}', '.cratis/{ai/rules,x}',
             '.m""{x,{c,d}}p.json', ".$'m'{x,{c,d}}p.json", String.raw`.m{x,c}p\.json`, '.m{x,c}$p.json',
             '.m``{x,{c,d}}p.json', '.m{x,{c,d}}p``.json', '~/.m{x,c}p.json', '.m{x,c}p.js$()on',
+            '.e@(n)v', '.env@(|.local)', '?(.)env', '+(.)env', '!(a)env', '.e*(n)v',
+            String.raw`.m{x\},c}p.json`, String.raw`p{x\},a}ckage.json`, '.m{x"}",c}p.json', // formerly classified as references, now refused unparsed
+            '.{m"c",x}p.json', ".{m'c',x}p.json", '.{m$X,x}p.json', '.{m`c`,x}p.json', String.raw`.{m\c,x}p.json`,
             '['.repeat(65) + 'x', '['.repeat(64) + ']'.repeat(100), dense]) {
             const started = Date.now();
             const result = spawnSync('bash', [guard, '--references'], {
@@ -209,7 +227,7 @@ test('reference classification fails closed for brace-bracket mixes, slash-spann
     } finally { repo.dispose(); }
 });
 
-for (const path of ['.m{x,{c,d}}p.json', String.raw`.m{x\},c}p.json`, String.raw`p{x\},a}ckage.json`, '.m{x"}",c}p.json', '.claude/settings{x,{.,_}}json']) {
+for (const path of ['.m{x,{c,d}}p.json', '.claude/settings{x,{.,_}}json']) {
     test(`reference classification covers nested, escaped and quoted braces: ${path}`, () => {
         const repo = scratchRepository();
         try {

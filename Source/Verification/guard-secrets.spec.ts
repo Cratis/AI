@@ -780,6 +780,7 @@ test('reading credential files is blocked; templates and source files are not', 
         [BLOCK, "awk '{print}' .env"],
         [BLOCK, "awk -F: '{print $1}' .npmrc"],
         [BLOCK, 'jq . ~/.docker/config.json'],
+        [BLOCK, 'jq . .env'],
         [BLOCK, 'sort .env'],
         [BLOCK, 'base64 -d .env'],
         [BLOCK, 'cut -d= -f2 .env'],
@@ -799,6 +800,65 @@ test('reading credential files is blocked; templates and source files are not', 
         [ALLOW, 'cat Source/Themes/tokens.json'],
         [ALLOW, 'cat Source/Settings/appsettings.json'],
     ]);
+});
+
+test('.env is a protected stem only as a whole file stem, not inside a longer word', () => {
+    assertVerdicts([
+        [ALLOW, 'gh issue view 1 --repo org/Org.DS.EnvironmentalReporting --json state'],
+        [ALLOW, 'gh issue view 120 --repo some-org/Org.DS.EnvironmentalReporting --json state'],
+        [ALLOW, 'dotnet Source/Environments.Specs/bin/Release/net11.0/Cratis.Environments.Specs.dll'],
+        [ALLOW, 'rg -n foo Source/Environments.Specs'],
+        [ALLOW, 'ls Source/Environments.Specs'],
+        [ALLOW, 'git add src/Feature/for_Thing/when_building/for_a_case.environment.txt'],
+        [ALLOW, 'git commit -m "Update Cratis.Environments.Specs goldens"'],
+        [BLOCK, 'cat .env'],
+        [BLOCK, 'cat .env.local'],
+        [BLOCK, 'cat .ENV'],
+        [BLOCK, 'cat .Env.Local'],
+        [BLOCK, 'cat config/app.env'],
+        [BLOCK, 'cat apps/web/.env.production'],
+        [BLOCK, 'head -n 3 .env.production'],
+        [BLOCK, 'cat .envrc'],
+        [BLOCK, 'cat sub/.envrc'],
+        [BLOCK, 'cat .env_local'],
+        [BLOCK, 'cat .env-prod'],
+        [BLOCK, 'cat .env*'],
+        [BLOCK, 'cat .e*'],
+        [BLOCK, 'cat *.env'],
+        [BLOCK, 'cat "$PWD/.env"'],
+        [BLOCK, 'git add .env'],
+        [BLOCK, 'git add config/app.env'],
+        [BLOCK, 'cat .env && cat Org.Environments.txt'],
+        // Unresolved glob syntax in or after the stem may still resolve to a protected file.
+        [BLOCK, "jq --rawfile x .en?r? -n '$x'"],
+        [BLOCK, 'cat .en?r?'],
+        [BLOCK, 'cat .en[v]rc'],
+        [BLOCK, 'cat .e?v'],
+        [BLOCK, 'cat .e?vrc'],
+        [BLOCK, 'cat app.en?'],
+        [BLOCK, 'cat sub/.en?r*'],
+    ]);
+});
+
+test('an expansion marker after or inside the .env stem keeps it protected', () => {
+    const names = [
+        '.env$x',
+        '.env${X}',
+        '.en$v',
+        '.env`cmd`',
+        ".env$'\\x72c'",
+        '.env\\rc',
+        '.env"rc"',
+        ".e'nv'",
+        ".env'rc'",
+        '.env~',
+        '.env{rc,}',
+        '.env{rc,x}',
+    ];
+    assertVerdicts(names.flatMap(name => [
+        [BLOCK, `cat ${name}`],
+        [BLOCK, `jq --rawfile x ${name} -n '$x'`],
+    ] as [typeof BLOCK, string][]));
 });
 
 test('a word that only appears inside a string argument, a comment or a here-document is not a finding', () => {
