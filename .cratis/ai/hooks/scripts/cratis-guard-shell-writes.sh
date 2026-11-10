@@ -42,7 +42,39 @@ function candidate(s) {
     # A generic attached option prefix must not hide a path spelling (-t.pi/...).
     if (s ~ /^-/ && match(s, /[.\/]/) && RSTART > 1) candidate(substr(s, RSTART))
 }
-function scan(s,    n, i, c, word, whole) {
+# An extended-glob group (`@(a|b)`, `*(x)`) is also read as one star, so `.e@(n)v` meets `.env`.
+# A word with a brace span and quoting or expansion syntax is also kept whole, so the classifier sees it unsplit.
+# Whole-quoted words and `${...}` parameter expansions do not brace-expand and are not kept.
+function extglob_star(s,    guard) {
+    while (guard++ < 64 && match(s, /[@?*+!]\([^()]*\)/)) s = substr(s, 1, RSTART - 1) "*" substr(s, RSTART + RLENGTH)
+    return s
+}
+# Quoted text never brace-expands or opens an extended glob, so its quoting, expansion and group syntax is
+# neutralized before the classifier, which refuses that syntax in an unquoted spelling.
+function quoted_literal(s) {
+    if (index(s, "{")) gsub(/[$`"\047\\]/, "_", s)
+    gsub(/[@?*+!]\(/, "__", s)
+    return s
+}
+function raw_brace_word(w,    quote, first, bare) {
+    if (!(w ~ /[$`"\047\\]/)) return
+    first = substr(w, 1, 1); quote = (first == "\047" || first == "\"") ? first : ""
+    if (quote != "" && substr(w, length(w), 1) == quote && index(substr(w, 2, length(w) - 2), quote) == 0) return
+    bare = w; gsub(/\$\{/, "", bare)
+    if (index(bare, "{")) candidate(w)
+}
+function raw_brace_scan(s,    n, i, c, word) {
+    n = length(s)
+    for (i = 1; i <= n; i++) {
+        c = substr(s, i, 1)
+        if (c ~ /[ \t\n\r;|&<>]/) { raw_brace_word(word); word = "" }
+        else word = word c
+    }
+    raw_brace_word(word)
+}
+function scan(s,    n, i, c, word, whole, flat) {
+    flat = extglob_star(s)
+    if (flat != s) scan(flat)
     n = length(s)
     for (i = 1; i <= n; i++) {
         c = substr(s, i, 1)
@@ -84,7 +116,7 @@ function unquote(s,    i, c, c2, q, out, quoted) {
         if (c == "$" && c2 == "\047" && q != "\047") { i = ansi(s, i + 2) - 1; out = out ansi_word; continue }
         if (c == "\\" && q != "\047") { if (c2 != "\n") { out = out c2; quoted = quoted c2 }; i++; continue }
         if ((c == "\047" || c == "\"") && (q == "" || q == c)) {
-            if (q == c) { candidate(quoted); quoted = ""; q = "" } else q = c
+            if (q == c) { candidate(quoted_literal(quoted)); quoted = ""; q = "" } else q = c
             continue
         }
         out = out c; if (q != "") quoted = quoted c
@@ -271,7 +303,7 @@ BEGIN {
     for (i = 0; i < 16; i++) HEX[substr("0123456789abcdef", i + 1, 1)] = i
     ESC["n"] = 10; ESC["r"] = 13; ESC["t"] = 9; ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34
     text = ENVIRON["GSW_COMMAND"]
-    if (ENVIRON["GSW_MODE"] == "references") { scan(text); scan(unquote(text)); exit 0 }
+    if (ENVIRON["GSW_MODE"] == "references") { scan(text); scan(unquote(text)); raw_brace_scan(text); exit 0 }
     n = split(ENVIRON["GSW_PROTECTED"], a, "\n"); for (i = 1; i <= n; i++) protected_paths[a[i]] = 1
     exit readonly(text) ? 0 : 1
 }

@@ -108,6 +108,24 @@ test('read-only globs allow reads while interpreter heredocs retain conservative
     } finally { repo.dispose(); }
 });
 
+test('quoted brace spans and extended globs in write targets are refused', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            ...['echo x > {.env,"a b"}', 'echo x > .e{n"",x}v', "echo x > {.m'c'p,a}.json",
+                'echo x > .{mcp$X,y}.json', "printf x > {a,$'\\x2e'env}", 'echo x > .{e\\nv,a}',
+                'echo x > .{cratis$X,y}ai/z', 'echo x > .{cratis"/"ai,y}/z',
+                'shopt -s extglob; echo x > .e@(n)v', 'shopt -s extglob; echo x > .env@(|.local)',
+                'shopt -s extglob; echo x > ?(.)env', 'shopt -s extglob; echo x > +(.)env',
+                'shopt -s extglob; echo x > !(a)env', 'shopt -s extglob; echo x > .e*(n)v',
+            ].map(command => [BLOCK, command] as [string, string]),
+            [ALLOW, 'git commit -m "fix @(x)"'],             [ALLOW, "echo '{\"a\":1}' > out.json"],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('literal git filename metadata and grep pattern options are read-only', async () => {
     const repo = scratchRepository();
     try {
