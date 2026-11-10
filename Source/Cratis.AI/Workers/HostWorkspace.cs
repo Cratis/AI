@@ -123,7 +123,7 @@ internal static class HostWorkspace
         }
         if (Directory.Exists(entry))
         {
-            return new(HostWorkspaceVerdictKind.Valid, workspace);
+            return ValidateCommonDirectory(entry, entry, new(HostWorkspaceVerdictKind.Valid, workspace));
         }
         if (!File.Exists(entry))
         {
@@ -150,25 +150,64 @@ internal static class HostWorkspace
         {
             return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
         }
-        var target = content[prefix.Length..];
-        // Absolute host gitdir names do not resolve under the container's /workspace remapping.
-        if (string.IsNullOrWhiteSpace(target) || target != target.Trim() || Path.IsPathFullyQualified(target) || target.IndexOfAny(['\n', '\r', '\0', ':', ',']) >= 0)
+        var directory = ResolveMetadataDirectory(workspace, workspace, content[prefix.Length..]);
+        if (directory.Kind != HostWorkspaceVerdictKind.Valid)
+        {
+            return directory;
+        }
+        // Protect the top-level metadata subtree: writable ancestors could otherwise be renamed
+        // to redirect an immutable gitfile around a read-only bind of just its final gitdir.
+        var relative = Path.GetRelativePath(workspace, directory.Path!);
+        var metadataRoot = Path.Combine(workspace, relative.Split(Path.DirectorySeparatorChar)[0]);
+        return ValidateCommonDirectory(directory.Path!, metadataRoot, new(HostWorkspaceVerdictKind.Valid, workspace, metadataRoot));
+    }
+
+    static HostWorkspaceVerdict ValidateCommonDirectory(string gitDirectory, string metadataRoot, HostWorkspaceVerdict accepted)
+    {
+        try
+        {
+            var entry = Path.Combine(gitDirectory, "commondir");
+            if (IsLink(new FileInfo(entry)) || IsLink(new DirectoryInfo(entry)) || Directory.Exists(entry))
+            {
+                return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
+            }
+            if (!File.Exists(entry))
+            {
+                return accepted;
+            }
+            var target = File.ReadAllText(entry).TrimEnd('\r', '\n');
+            var directory = ResolveMetadataDirectory(accepted.Path!, gitDirectory, target);
+            if (directory.Kind != HostWorkspaceVerdictKind.Valid)
+            {
+                return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
+            }
+            return directory.Path!.StartsWith(metadataRoot + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+                ? accepted
+                : new(HostWorkspaceVerdictKind.InvalidGitMetadata);
+        }
+        catch (IOException)
         {
             return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
         }
-        var targetSegments = target.Split(Path.DirectorySeparatorChar);
-        if (targetSegments.Any(segment => segment is "" or "." or ".."))
+        catch (UnauthorizedAccessException)
         {
             return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
         }
-        var gitDirectory = Path.GetFullPath(target, workspace);
-        if (!gitDirectory.StartsWith(workspace + Path.DirectorySeparatorChar, StringComparison.Ordinal) || !Directory.Exists(gitDirectory))
+    }
+
+    static HostWorkspaceVerdict ResolveMetadataDirectory(string workspace, string relativeTo, string target)
+    {
+        if (!IsRelativeMetadataTarget(target))
         {
             return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
         }
-        var relative = Path.GetRelativePath(workspace, gitDirectory);
+        var directory = Path.GetFullPath(target, relativeTo);
+        if (!directory.StartsWith(workspace + Path.DirectorySeparatorChar, StringComparison.Ordinal) || !Directory.Exists(directory))
+        {
+            return new(HostWorkspaceVerdictKind.InvalidGitMetadata);
+        }
         var current = workspace;
-        foreach (var segment in relative.Split(Path.DirectorySeparatorChar))
+        foreach (var segment in Path.GetRelativePath(workspace, directory).Split(Path.DirectorySeparatorChar))
         {
             current = Path.Combine(current, segment);
             if (IsLink(new DirectoryInfo(current)))
@@ -176,10 +215,21 @@ internal static class HostWorkspace
                 return new(HostWorkspaceVerdictKind.Symlink);
             }
         }
-        // Protect the top-level metadata subtree: writable ancestors could otherwise be renamed
-        // to redirect an immutable gitfile around a read-only bind of just its final gitdir.
-        var metadataRoot = Path.Combine(workspace, relative.Split(Path.DirectorySeparatorChar)[0]);
-        return new(HostWorkspaceVerdictKind.Valid, workspace, metadataRoot);
+        return new(HostWorkspaceVerdictKind.Valid, directory);
+    }
+
+    static bool IsRelativeMetadataTarget(string target)
+    {
+        if (string.IsNullOrWhiteSpace(target) || target != target.Trim())
+        {
+            return false;
+        }
+        // Absolute host metadata names do not resolve under the container's /workspace remapping.
+        if (Path.IsPathFullyQualified(target) || target.IndexOfAny(['\n', '\r', '\0', ':', ',']) >= 0)
+        {
+            return false;
+        }
+        return !target.Split(Path.DirectorySeparatorChar).Any(segment => segment is "" or "." or "..");
     }
 
     static bool RootIsConfigured(string? root) => !string.IsNullOrWhiteSpace(root) && Path.IsPathFullyQualified(root) && Directory.Exists(root);

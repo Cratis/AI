@@ -45,7 +45,13 @@ sandbox, push deadlines, and general containment of every agent capability are o
   read-only: protecting only the gitfile, or only the final gitdir below writable ancestors,
   would still permit metadata replacement or redirection. Gitdir traversal and symlink
   segments are refused. Internal gitfiles must be relative: absolute host paths cannot
-  follow the container's `/workspace` remapping and are refused at launch.
+  follow the container's `/workspace` remapping and are refused at launch. For both a
+  `.git` directory and an internal gitfile's gitdir, an existing `commondir` file is
+  resolved using the same relative-pointer, traversal and symlink rules. Neither that
+  file nor any target segment may be a symlink. Its target must remain inside the
+  already read-only metadata subtree; otherwise launch returns invalid metadata rather
+  than adding another bind. Protecting the pointer alone would leave an outside target's
+  configuration and hooks writable.
 - The result is **uncommitted working-tree changes**, collected by the host. The entrypoint
   never stages, commits, writes refs, changes repository configuration or pushes in this
   mode. Its safe-directory registration writes only container-global configuration. A

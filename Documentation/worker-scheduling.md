@@ -64,7 +64,10 @@ in the workspace and must not be a symlink. A gitfile pointing outside the works
 is unsupported and refused. Internal gitfiles must use relative gitdir paths without
 traversal or symlinks; absolute host paths cannot follow the `/workspace` remapping.
 Their metadata's top-level subtree is also mounted read-only, preventing writable
-ancestors from redirecting the gitfile.
+ancestors from redirecting the gitfile. In either layout, an existing `<gitdir>/commondir`
+file and its target must not be symlinks, and its relative target must stay inside the
+already read-only metadata subtree. Absolute pointers, traversal and symlink segments
+are refused under the same rules as gitdir pointers; no additional bind is added.
 The runtime removes the host-only path from the container environment and sets
 `CRATIS_WORKSPACE_PATH=/workspace`.
 
