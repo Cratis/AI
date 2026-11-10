@@ -72,18 +72,36 @@ function raw_brace_scan(s,    n, i, c, word) {
     }
     raw_brace_word(word)
 }
-function scan(s,    n, i, c, word, whole, flat) {
+# After an expansion (or a leading tilde) the prefix of a path is unknown and could be the repository root, so the
+# literal remainder is also judged as a path relative to the working directory: the word without its variable name
+# and every suffix that starts after a slash. A variable holding a whole protected path stays unseen.
+function remainder(word,    rest, tail, count, slash) {
+    if (word == "") return
+    rest = word
+    if (!sub(/^\{[^}]*\}/, "", rest)) sub(/^[A-Za-z0-9_~]+/, "", rest)
+    candidate(rest)
+    tail = word
+    while (count++ < 16 && (slash = index(tail, "/")) > 0) { tail = substr(tail, slash + 1); candidate(tail) }
+}
+function scan(s,    n, i, c, word, whole, flat, expanded) {
     flat = extglob_star(s)
     if (flat != s) scan(flat)
     n = length(s)
     for (i = 1; i <= n; i++) {
         c = substr(s, i, 1)
-        if (c ~ /[ \t\n\r;|&<>()\047"`$=\\]/) { candidate(word); word = "" }
+        if (c ~ /[ \t\n\r;|&<>()\047"`$=\\]/) {
+            candidate(word)
+            if (expanded || word ~ /^~/) remainder(word)
+            word = ""
+            if (c ~ /[`$]/) expanded = 1
+            else if (c ~ /[ \t\n\r;|&<>]/) expanded = 0
+        }
         else word = word c
         if (c ~ /[ \t\n\r;|&<>()\047"`$]/) { candidate(whole); whole = "" }
         else whole = whole c
     }
     candidate(word); candidate(whole)
+    if (expanded || word ~ /^~/) remainder(word)
     # Braces have a second boundary view; retain the original pattern above too.
     if (s ~ /[{}]/) { gsub(/[{}]/, " ", s); scan(s) }
 }

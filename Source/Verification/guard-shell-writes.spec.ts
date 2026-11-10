@@ -217,6 +217,29 @@ test('leading globs are allowed only on display-only read verbs; every writer an
     } finally { repo.dispose(); }
 });
 
+test('a protected path written behind a variable, tilde or substitution prefix is judged by its literal remainder', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        const script = '.cratis/ai/hooks/scripts/cratis-check-pr.mjs';
+        const cleaner = '.cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh';
+        await checkCases([
+            ...['echo x > "$PWD/.cratis/ai/hooks/scripts/foo.sh"', 'echo x > $PWD/.cratis/ai/hooks/scripts/foo.sh',
+                'echo x > ${PWD}/.cratis/ai/hooks/scripts/foo.sh', 'cp a $HOME/../repo/.claude/settings.json', 'cp a "$HOME"/../repo/.claude/settings.json',
+                'cp a ~/../repo/.claude/settings.json', 'tee "$REPO/.mcp.json" < a', 'echo x > "$X.cratis/ai/foo"',
+                'echo x > "`pwd`/.cratis/ai/foo.sh"', 'echo x >> "${ROOT:-.}/.claude/settings.json"',
+                'mv a --target-directory="$PWD/.pi/extensions"', 'cp a "$PWD/.pi/extensions/x.ts"',
+                `node $PWD/${script}`, `node "$PWD/${script}" --strict`, `bash \${PWD}/${cleaner}`,
+                `bash "$HOME/repo/${cleaner}"`,
+            ].map(command => [BLOCK, command] as [string, string]),
+            ...['cat "$PWD/README.md"', 'cat $HOME/notes.txt', 'ls "$PWD/Source"', 'echo x > "$TMPDIR/out.txt"', 'cp a "$PWD/build/out.txt"',
+                `node ${script} --strict`, `bash ${cleaner} --dry-run`, 'cp a "$PWD/Source/Accounts/x.ts"',
+            ].map(command => [ALLOW, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('only the exact managed check-pr and cleanup-worktrees invocations are admitted for execution', async () => {
     const repo = scratchRepository();
     try {
