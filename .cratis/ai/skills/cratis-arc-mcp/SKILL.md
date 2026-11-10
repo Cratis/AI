@@ -110,7 +110,15 @@ application name and no explicit scope, startup fails with `McpToolHasNoScope`.
   `PatOptions.AllowedScopes`, or no PAT can call the tool. The list is empty by
   default, case-sensitive, with no wildcards. A scope with an `admin` or
   `approve` segment (split on `:`, `.`, `/`, `-`) is never allowed on a PAT,
-  so a tool that requires one cannot be called with a PAT at all.
+  so a tool that requires one cannot be called with a PAT at all. Use a name
+  such as `notes:restricted-read`, not `notes:admin-read`.
+- Startup logs warning event 5103 (`MCP requires scope '<scope>', which
+  PatOptions.AllowedScopes does not allow. PATs cannot satisfy this tool
+  scope.`) once per missing scope, only for a tool that no scope set in
+  `AllowedScopes` satisfies (required scopes and every alternative set are
+  checked). Startup still succeeds and no PAT can call that tool. Fix: add the
+  scope to `AllowedScopes`, or change the tool's scopes. Without a PAT
+  installation the check does not run.
 
 ## Host setup (summary)
 
@@ -132,7 +140,7 @@ builder.AddCratisArc(
     configureBuilder: arc => arc
         .WithCapabilities(o => o.GatedEndpoints = new CapabilityEndpointSelector())
         .WithPersonalAccessTokens(
-            new PatOptions("notes") { AllowedScopes = ["notes:read", "notes:write"] },
+            new PatOptions("stage-notes") { AllowedScopes = ["notes:read", "notes:write"] },
             callers => callers
                 .ForResource("https://notes.example.test", "notes", "production")
                 .UsePersonDirectory<PersonDirectory>())
@@ -154,6 +162,10 @@ development PAT adapters.
 
 Rules to keep in mind:
 
+- The `PatOptions` resource key must be `direct`, `studio` or `stage-<app>`
+  (`<app>`: lowercase letters, digits and hyphens, 1 to 48 characters, starting
+  and ending with a letter or digit). Any other key, such as `local` or
+  `notes`, throws `ArgumentException`.
 - `GatedEndpoints` is a capability hosting option, not an MCP option, and is
   required; `WithMcp` adds the MCP endpoint to the selection.
 - The endpoint is served only on the capabilities port. Bind a listener on it
@@ -163,7 +175,9 @@ Rules to keep in mind:
   authorization server.
 - `UseDevelopmentPersonalAccessTokenAdapters()` is Development-only: in-memory,
   lost on restart, host startup throws elsewhere. Never combine with
-  production adapters.
+  production adapters. It is the only public development PAT type; the adapter
+  classes behind it are internal, so never reference them. A production host
+  implements the public `IPatAuthority`, `IPatPolicy` and `IPatRecoveryEpoch`.
 - Keep `ExclusiveTools = true` (default). Turning it off serves tools outside
   the ceiling with no scope checks.
 - Keep `AllowedOrigins` empty unless a browser client needs it.
@@ -171,7 +185,8 @@ Rules to keep in mind:
 ## What the agent sees
 
 - A request with no accepted caller, or a credential kind the profile refuses,
-  gets HTTP 401 `unauthorized` before any tool list.
+  gets HTTP 401 `unauthorized` before any tool list. Its `WWW-Authenticate`
+  carries the realm (`PatOnly`) or the resource metadata URL, not scopes.
 - `tools/list` shows only tools whose scopes the caller holds and every
   authorizer allows. A token with only the read scope never sees a command
   tool; a token with no MCP scopes gets an empty list.
@@ -222,7 +237,7 @@ caller is not audited.
 | `ExposeQuery` string typo or wrong casing | `McpExposedOperationUnknown` at startup |
 | No description | `McpToolDescriptionMissing` |
 | No `ApplicationName`, `ReadScope` or `WriteScope` | `McpToolHasNoScope` |
-| MCP scopes missing from `PatOnly` `AllowedScopes` | 401 for a PAT that looks right; warning event 5103 at startup |
+| MCP scopes missing from `PatOnly` `AllowedScopes` | 401 for a PAT that looks right; warning event 5103 at startup when no PAT can satisfy a tool |
 | `GatedEndpoints` not set | `McpRequiresGatedEndpoints` |
 | Listener not bound on the capabilities port | Not found on the default port, or no connection |
 | Exposing a `[RequiresApproval]` command | `McpApprovalRequiredCommandExposed` |

@@ -31,15 +31,25 @@ Validation runs in order; fix the first error.
 | `McpToolOutputSchemaInvalid` | Curated `OutputSchema` is not a JSON object schema | Fix the schema |
 | Startup fails for a command you did not expose | Authorization is validated for every discovered command and query | Fix the missing or invalid policy it names |
 
-Warning event 5103 at startup: `PatOptions.AllowedScopes` does not contain a
-scope MCP requires. PATs cannot satisfy the tool until it is added.
+Warning event 5103 at startup: `MCP requires scope '<scope>', which
+PatOptions.AllowedScopes does not allow. PATs cannot satisfy this tool scope.`
+It is logged once per missing scope, and only for a tool that no scope set in
+`AllowedScopes` satisfies (required scopes and every alternative set are
+checked). A tool a PAT can already satisfy raises no warning. Startup still
+succeeds; no PAT can call that tool. Fix: add the scope to
+`PatOptions.AllowedScopes`, or adjust `ReadScope`/`WriteScope` and the tool's
+scope declarations. A scope with an `admin` or `approve` segment can never be
+allowed on a PAT. Without a PAT installation the check does not run.
+
+`PatOptions` with a resource key other than `direct`, `studio` or `stage-<app>`
+(for example `local`) throws `ArgumentException` ("Invalid PAT resource key.").
 
 ## HTTP errors
 
 | Status and body | Cause | Fix |
 |---|---|---|
 | 403 `origin_not_allowed` | `Origin` not `PublicOrigin` or in `AllowedOrigins` | Add the exact origin; Debug log of `McpAdmission` shows it |
-| 401 `unauthorized` | No caller, or a credential kind the profile refuses | Send `Authorization: Bearer <PAT>`; check expiry and revocation |
+| 401 `unauthorized` | No caller, or a credential kind the profile refuses. `WWW-Authenticate` has the realm (`PatOnly`) or the metadata URL, no scopes | Send `Authorization: Bearer <PAT>`; check expiry and revocation |
 | 401 for a PAT that looks right | Token holds a scope not in `AllowedScopes` | Add every MCP scope, issue a new token |
 | 403 `insufficient_scope` | Tool needs a scope the caller lacks | Issue a token with the scopes in `WWW-Authenticate` (it lists all scopes the tool requires, not only the missing ones) |
 | 403 `forbidden` | An `IMcpToolAuthorizer` denied the call | Check the authorizer rule |

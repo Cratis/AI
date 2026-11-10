@@ -48,7 +48,12 @@ runs when the host starts.
   a second installation is rejected. Process-local nonce storage is a
   single-process development choice. Full example: the PAT adapter guide,
   section "Compose browser issuance and PAT callers".
-- `PatOptions.AllowedScopes` must list every scope an MCP tool requires.
+- `PatOptions.AllowedScopes` must list every scope an MCP tool requires. The
+  `PatOptions` resource key must be `direct`, `studio` or `stage-<app>`
+  (`<app>`: lowercase letters, digits, hyphens, 1 to 48 characters, starting
+  and ending with a letter or digit); `local` is invalid and throws
+  `ArgumentException`. Startup logs warning event 5103 for a tool no PAT can
+  satisfy; see the troubleshooting reference.
 
 ## Issuing a token
 
@@ -64,7 +69,7 @@ runs when the host starts.
 - The three adapters are registered and the policy permits the record.
 
 Otherwise the result is a refusal code such as `pat_issuance_refused`,
-`pat_policy_refused` or `pat_authority_unavailable`.
+`pat_policy_refused`, `pat_commit_refused` or `pat_authority_unavailable`.
 
 Limits to state to the user, not to work around:
 
@@ -161,6 +166,9 @@ mcp.Configure(o => o.AllowedOrigins.Add("http://localhost:6274")); // Inspector,
 `IPatAuthority`, `IPatPolicy` and `IPatRecoveryEpoch`. It follows
 `WithPersonalAccessTokens` in any order and uses its limits.
 
+- This extension method is the only public development PAT type. The
+  authority, policy and recovery-epoch classes it registers are internal: do
+  not reference or construct them.
 - Credentials live in memory and disappear on restart.
 - Host startup throws `InvalidOperationException` outside the Development
   environment, and each adapter also fails closed there.
