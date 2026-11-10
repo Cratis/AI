@@ -22,6 +22,7 @@
 # Set SPEC_KEEP_SCRATCH=1 to keep the tree for debugging; the path is printed on exit.
 
 SCRATCH_ROOT=""
+SCRATCH_OWNER_PID=""
 SCRATCH_PIDS=()
 SCRATCH_HAS_PGREP=1
 SCRATCH_HAS_PKILL=1
@@ -30,6 +31,7 @@ SCRATCH_HAS_PKILL=1
 scratch_create() {
     local tmp="${TMPDIR:-/tmp}"
     SCRATCH_ROOT="$(mktemp -d "${tmp%/}/entrypoint-${1}.XXXXXX")" || exit 1
+    SCRATCH_OWNER_PID="$BASHPID"
     trap scratch_cleanup EXIT
     trap 'exit 130' INT
     trap 'exit 143' TERM
@@ -133,6 +135,8 @@ scratch_kill_by_path() {
 
 scratch_cleanup() {
     local status=$? pid found victims=()
+    # Subshells inherit the EXIT trap; only the shell that created the scratch tree may remove it.
+    [[ "$BASHPID" == "$SCRATCH_OWNER_PID" ]] || return "$status"
     # A fixture may run under set -e; a cleanup step that finds nothing to do must not abort the rest.
     set +e
 
