@@ -126,6 +126,37 @@ test('quoted brace spans and extended globs in write targets are refused', async
     } finally { repo.dispose(); }
 });
 
+test('only write-target words are classified: pure readers drop out, everything else stays refused', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            // Unparseable shapes fall back to classifying the whole text.
+            ...['cat $(echo .env)', 'echo x > "$(printf .env)"', "eval 'echo x > .env'", "bash -c 'echo x > .env'",
+                'echo x > .env; cat <<EOF\nbody\nEOF', "echo x > '.env", 'cd sub && echo x > .env',
+                '(echo x > .env)', '{ echo x > .env; }', 'echo x > {.env,a}',
+                'cat a\\\n; echo x > .env',
+                // A directory change is never silent: it can move a later relative write.
+                'cd .claude && cp x settings.json', 'cd .cratis/ai && cp x general.md',
+            ].map(command => [BLOCK, command] as [string, string]),
+            // A reader never hides a write elsewhere in the command.
+            ...['cat a.txt; cp x .env', 'ls | tee .mcp.json', 'cat a > .env', 'cat a >> .env', 'cat a 2> .env',
+                'cat a &> .env', 'cat a >| .env', 'grep x f | sed -i s/a/b/ .env',
+                'sed -i s/a/b/ .claude/settings.json', 'cp x .pi/settings.json', 'mv x .cratis/ai/rules/general.md',
+                'dd of=.env', 'install x .mcp.json',
+                'curl -o .claude/settings.json http://x', 'git apply .cratis/ai/evil.patch', 'rm .mcp.json',
+                'touch .env', 'truncate -s0 .env', 'ls *.csproj; echo x > .env', 'git status && cp a .mcp.json',
+                'git commit -F .env', 'git commit -F.env', 'cat a < b > .env', 'echo a |& tee .env',
+                'X=1 cp a .mcp.json', 'echo ok || cp a .mcp.json', 'cat a & cp a .env',
+            ].map(command => [BLOCK, command] as [string, string]),
+            // Quoted brace and bracket text in a pure reader is data, not a write target.
+            [ALLOW, "rg -n 'a{1,2}[x]' notes.md"], [ALLOW, "grep -E 'x{2}[ab]' notes.md"],
+            [ALLOW, "echo '{\"a\":1}' > out.json"],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('literal git filename metadata and grep pattern options are read-only', async () => {
     const repo = scratchRepository();
     try {

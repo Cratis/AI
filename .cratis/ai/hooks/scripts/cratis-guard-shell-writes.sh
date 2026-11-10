@@ -124,16 +124,24 @@ function unquote(s,    i, c, c2, q, out, quoted) {
     return out
 }
 function protected(s) { return s in protected_paths }
+# A lexical or structural failure: the command text is not modeled, so write-target mode falls back to
+# classifying the whole text. A command the policy does not accept (cmd_failed) does the same: a protected
+# reference anywhere in a command that is not entirely read-only must keep refusing it.
+# Only when every command is accepted are the words of pure readers dropped from classification.
+function fail() { bad = unparsed = 1 }
+# Reference extraction for one stretch of raw command text.
+function emit_text(t) { scan(t); scan(unquote(t)); raw_brace_scan(t) }
 function endword() {
     if (!inword) return
     if (redirect) {
         if (!(redirect == 2 && word ~ /^([0-9]+|-)$/)) {
             file_redirect = 1
+            if (changed_cwd) unparsed = 1
             if (changed_cwd || word ~ /[$`*?\[{]/ || protected(word)) bad = 1
         }
         redirect = 0
     } else {
-        if (++argc > 256) bad = 1
+        if (++argc > 256) fail()
         W[argc] = word
         globbed[argc] = glob
     }
@@ -182,6 +190,8 @@ function options_allowed(verb, first,    i, w) {
             if (w == "-m" || w == "--message") { if (++i > argc) return 0; continue }
             if (w ~ /^-m./) continue
             if (w == "-F") {
+                # Whether the file is protected is decided from the reference list, so its words are kept.
+                force_emit = 1
                 if (++i > argc || W[i] ~ /[$`*?\[{]/ || protected(W[i])) return 0
                 continue
             }
@@ -215,70 +225,80 @@ function print_only_sed(    i, ended) {
 }
 function allow_command(    verb, first) {
     if (!argc) return
-    if (++commands > 64) { bad = 1; return }
+    if (++commands > 64) { fail(); return }
     verb = W[1]; first = 2
     if (verb == "cd") {
         directory_only = 1
-        if (argc != 2 || W[2] == "" || W[2] ~ /^-/ || globbed[2] || file_redirect) bad = 1
+        if (argc != 2 || W[2] == "" || W[2] ~ /^-/ || globbed[2] || file_redirect) fail()
         changed_cwd = 1
         return
     }
-    if (verb == "sed") { if (!print_only_sed()) bad = 1; return }
+    if (verb == "sed") { if (!print_only_sed()) cmd_failed = 1; return }
     if (verb == "git" && W[2] == "-C") {
         if (argc >= 4 && W[3] != "" && W[3] !~ /^-/ && !globbed[3] && W[4] ~ /^(add|commit)$/) {
             verb = verb " " W[4]; first = 5
         } else {
-            if (!directory_metadata()) bad = 1
+            if (!directory_metadata()) cmd_failed = 1
             return
         }
     } else if (verb == "git") { verb = verb " " W[2]; first = 3 }
     if (verb == "git add" || verb == "git commit") changed_index = 1
     if (verb == "git branch") {
         conditional_only = 1
-        if (argc != 3 || W[3] != "--show-current") { bad = 1; return }
+        if (argc != 3 || W[3] != "--show-current") { cmd_failed = 1; return }
     }
-    if (!(verb in verbs) || !options_allowed(verb, first)) bad = 1
+    if (!(verb in verbs) || !options_allowed(verb, first)) cmd_failed = 1
 }
-function command_end(separator) {
-    endword(); allow_command()
-    if (W[1] == "cd" && (separator == "|" || previous_pipe)) bad = 1
+# `upto` is the index just past the command's raw text; `resume` is where the next command's raw text starts.
+# A command whose policy accepts it, with no redirect and no directory change, is a pure reader and its words
+# are not write targets; every other command keeps all of its raw text classified.
+function command_end(separator, upto, resume,    silent) {
+    endword(); cmd_failed = 0; allow_command()
+    if (cmd_failed) { bad = 1; unparsed = 1 }
+    if (W[1] == "cd" && (separator == "|" || previous_pipe)) fail()
+    silent = argc && !cmd_failed && !cmd_redirect && !force_emit && W[1] != "cd"
+    if (!silent && upto > seg_start) emitted[++emitted_count] = substr(lexed, seg_start, upto - seg_start)
+    seg_start = resume
     previous_pipe = (separator == "|")
+    cmd_redirect = force_emit = 0
     delete W; delete globbed; argc = 0
 }
 function readonly(s,    i, c, c2, sq, dq) {
+    lexed = s; seg_start = 1
     for (i = 1; i <= length(s); i++) {
         c = substr(s, i, 1); c2 = substr(s, i + 1, 1)
         if (sq) { if (c == "\047") sq = 0; else word = word c; continue }
-        if (c == "\\") { if (c2 != "\n") { word = word c2; inword = 1 }; i++; continue }
+        if (c == "\\") { if (c2 != "\n") { word = word c2; inword = 1 } else unparsed = 1; i++; continue }
         if (c == "\047" && !dq) { sq = inword = 1; continue }
         if (c == "\"") { dq = !dq; inword = 1; continue }
         # Expansions and globs can supply option words the per-verb tables never see.
-        if (c == "`" || c == "$") bad = 1
+        if (c == "`" || c == "$") fail()
         if (dq) { word = word c; continue }
         # Directory metadata requires a literal -C operand, not a pathname expansion.
         if (c == "*" || c == "?" || c == "[") glob = 1
         # A glob that starts a word, or follows a leading dash, may expand to an option word.
-        if ((c == "*" || c == "?" || c == "[") && (word == "" ? !(c == "[" && c2 ~ /[ \t]/) : substr(word, 1, 1) == "-")) bad = 1
+        if ((c == "*" || c == "?" || c == "[") && (word == "" ? !(c == "[" && c2 ~ /[ \t]/) : substr(word, 1, 1) == "-")) fail()
         if (c == "#" && !inword) { while (i <= length(s) && substr(s, i, 1) != "\n") i++; c = "\n" }
-        if (c == "(" || c == ")" || c == "{" || c == "}") bad = 1
+        if (c == "(" || c == ")" || c == "{" || c == "}") fail()
         if (c == ">" || c == "<" || (c == "&" && c2 == ">")) {
+            cmd_redirect = 1
             if (inword && word ~ /^[0-9]+$/) { word = ""; inword = 0 } else endword()
-            if (redirect) bad = 1
-            if (c == "<" && (c2 == "<" || c2 == "(")) bad = 1
+            if (redirect) fail()
+            if (c == "<" && (c2 == "<" || c2 == "(")) fail()
             redirect = c == ">" || c == "&" || (c == "<" && c2 == ">")
             if (c == ">" && c2 == "&") redirect = 2
             if (c2 ~ /[><&|]/) { i++; if (substr(s, i + 1, 1) == ">") i++ }
             continue
         }
-        if (c == "&" && c2 == "&") { command_end("&&"); if (redirect) bad = 1; i++; continue }
-        if (c == "|" && c2 != "|") { has_pipeline = 1; command_end("|"); if (redirect) bad = 1; continue }
-        if (c ~ /[;|&\n]/) { nonconditional_separator = 1; command_end(c); if (redirect) bad = 1; continue }
+        if (c == "&" && c2 == "&") { command_end("&&", i, i + 2); if (redirect) fail(); i++; continue }
+        if (c == "|" && c2 != "|") { has_pipeline = 1; command_end("|", i, i + 1); if (redirect) fail(); continue }
+        if (c ~ /[;|&\n]/) { nonconditional_separator = 1; command_end(c, i, i + 1); if (redirect) fail(); continue }
         if (c ~ /[ \t\r]/) { endword(); continue }
         word = word c; inword = 1
     }
-    command_end()
+    command_end("", length(s) + 1, length(s) + 1)
     if (sq || dq || redirect || (conditional_only && (nonconditional_separator || has_pipeline)) ||
-        (directory_only && (nonconditional_separator || (has_pipeline && changed_index)))) bad = 1
+        (directory_only && (nonconditional_separator || (has_pipeline && changed_index)))) fail()
     return !bad
 }
 BEGIN {
@@ -303,12 +323,18 @@ BEGIN {
     for (i = 0; i < 16; i++) HEX[substr("0123456789abcdef", i + 1, 1)] = i
     ESC["n"] = 10; ESC["r"] = 13; ESC["t"] = 9; ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34
     text = ENVIRON["GSW_COMMAND"]
-    if (ENVIRON["GSW_MODE"] == "references") { scan(text); scan(unquote(text)); raw_brace_scan(text); exit 0 }
+    if (ENVIRON["GSW_MODE"] == "references") { emit_text(text); exit 0 }
+    if (ENVIRON["GSW_MODE"] == "targets") {
+        readonly(text)
+        if (unparsed) emit_text(text)
+        else for (i = 1; i <= emitted_count; i++) emit_text(emitted[i])
+        exit 0
+    }
     n = split(ENVIRON["GSW_PROTECTED"], a, "\n"); for (i = 1; i <= n; i++) protected_paths[a[i]] = 1
     exit readonly(text) ? 0 : 1
 }
 AWK
-candidates_text="$(GSW_COMMAND="$command_text" GSW_MODE=references LC_ALL=C awk "$program" </dev/null)" || parser_failed
+candidates_text="$(GSW_COMMAND="$command_text" GSW_MODE=targets LC_ALL=C awk "$program" </dev/null)" || parser_failed
 [ -n "$candidates_text" ] || exit 0
 candidates=()
 while IFS= read -r candidate; do candidates[${#candidates[@]}]="$candidate"; done <<<"$candidates_text"
