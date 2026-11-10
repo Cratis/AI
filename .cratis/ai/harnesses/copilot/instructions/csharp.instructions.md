@@ -58,6 +58,10 @@ Every rule here reduces noise. `var` avoids redundant type repetition. Expressio
 - The `Cratis.Architecture.CodeAnalysis` analyzer package (26 diagnostics, `CRARCH0001`–`CRARCH0026`; verified at `v1.0.2`) enforces these and others: `CRARCH0003` postfixes, `0004` `.Features.` namespaces, `0005` regions, `0006`/`0024` `LoggerMessage`, `0007` `IServiceProvider` injection, `0008` `is null`, `0017` namespace matches folder, `0019` `Async` suffix, `0022` explicit `private`, `0023` typed logger category; `0012` (`async void`) and `0014` (test types in production) are errors. When a repository has the package, a `CRARCH` warning is the house convention, not noise.
 - For types with no implementation body, omit the braces (e.g. `public interface IMyInterface;`).
 - Prefer `record` types for immutable data structures (events, commands, read models, concepts) — they give you value equality, immutability, and concise syntax for free.
+- Set `LangVersion` to `latest` in every repository. Language-only features of newer C# versions are safe on every target of a multi-targeted library; a new runtime or library API needs `#if NET11_0_OR_GREATER` with a net10 fallback.
+- Use collection expression arguments (`[with(capacity: n), .. items]`, `[with(comparer), ..]`) instead of constructor calls, and labeled `break`/`continue` instead of Boolean flags or `goto` in nested loops (IDE0410).
+- Do not introduce `union` types, runtime-async, or the memory-safety preview features, and do not retrofit `closed` onto an existing public type — a public API change is a major version.
+- Keep IDE style rule severities at `suggestion`, never `warning`: Release builds treat warnings as errors.
 
 ## Nullable Reference Types
 
