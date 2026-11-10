@@ -403,5 +403,5 @@ references="$("$BASH" "$classifier" --references <<<"$classifier_input")" || {
 }
 [ -n "$references" ] || exit 0
 if GSW_COMMAND="$command_text" GSW_MODE=readonly GSW_PROTECTED="$references" LC_ALL=C awk "$program" </dev/null; then exit 0; fi
-printf "BLOCKED by cratis-guard-shell-writes: protected reference '%s' (cratis-guard-writes). Use the edit/write tools, or report the intended change.\n" "${references%%$'\n'*}" >&2
+printf "BLOCKED by cratis-guard-shell-writes: protected reference '%s' (cratis-guard-writes). Use the edit/write tools, or report the intended change; for a read, name literal paths or use the Read/Grep tools.\n" "${references%%$'\n'*}" >&2
 exit 2
