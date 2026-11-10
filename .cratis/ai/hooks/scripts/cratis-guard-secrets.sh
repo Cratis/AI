@@ -77,8 +77,8 @@ function addw(text, kind,    k) {
     for (k = 1; k <= length(text); k++) { wmask = wmask (quote_boundary ? toupper(kind) : kind); quote_boundary = 0 }
 }
 function flush_word() {
-    if (inword) { W[++nw] = word; WP[nw] = wplain; WM[nw] = wmask }
-    word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; quote_boundary = 0
+    if (inword) { W[++nw] = word; WP[nw] = wplain; WM[nw] = wmask; WU[nw] = wunquoted }
+    word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; quote_boundary = 0; wunquoted = 0
 }
 # Decodes the body of an ANSI-C string $'...' (i is just after the opening quote) into the word and returns the
 # position after the closing quote. The same decoder is in cratis-guard-store-mutations.sh (`ansi_c`).
@@ -352,17 +352,49 @@ function literal_shape(A, M, n,    k, j, b, words, count, pattern, ended, w, pat
     }
     return b != "rg" || paths > 0
 }
-function end_cmd(    k, m, w, j, hit) {
+# Every character that can come from command output, directly or through a parameter expansion holding it, is a wildcard.
+function output_wild(w, m,    k, j, x, depth, found, r, span) {
+    delete span
+    for (k = 1; k <= length(w); k++) {
+        if (substr(w, k, 2) != "$" "{" || tolower(substr(m, k, 1)) == "l") continue
+        depth = 0; found = 0
+        for (j = k + 1; j <= length(w); j++) {
+            if (tolower(substr(m, j, 1)) == "c") found = 1
+            else if (substr(w, j, 1) == "{") depth++
+            else if (substr(w, j, 1) == "}" && --depth == 0) break
+        }
+        if (found) for (x = k; x <= j; x++) span[x] = 1
+    }
+    for (k = 1; k <= length(w); k++) r = r ((k in span) || tolower(substr(m, k, 1)) == "c" ? "*" : substr(w, k, 1))
+    return r
+}
+# Unquoted output can also split into several words: scan each suffix that starts at output text.
+function split_scan(w, m,    k, r, hit) {
+    r = output_wild(w, m)
+    for (k = 1; k <= length(r); k++) {
+        if (substr(r, k, 1) != "*" || substr(r, k + 1, 1) == "*") continue
+        hit = stem_scan(substr(r, k), "raw", "expanding"); if (hit != "") return hit
+        if (substr(r, k + 1, 1) !~ /^[\/]?$/) { hit = stem_scan("." substr(r, k), "raw", "expanding"); if (hit != "") return hit }
+    }
+    return ""
+}
+function end_cmd(    k, m, w, j, hit, exempt) {
     flush_word()
     if (nw > 0) {
         commands++
         regex_slots(W, 1, nw)
         for (k = 1; k <= nw; k++) {
             if (is_assign(W[k])) set_var(W[k], WM[k])
-            if ((k in RP) && RP[k] < 0) continue
-            w = (k in RP) ? substr(W[k], 1, RP[k]) : W[k]
+            exempt = (k in RP) && !WU[k]
+            if (exempt && RP[k] < 0) continue
+            w = exempt ? substr(W[k], 1, RP[k]) : W[k]
             hit = stem_scan(w, "raw", expands(w, WM[k]) ? "expanding" : 0); if (TAINT == "") TAINT = hit
-            if (!(k in RP) && expands(W[k], WM[k])) {
+            # Command output may supply any text, including several names: judge it as an unresolved wildcard.
+            if (!exempt && index(WM[k], "c") + index(WM[k], "C") > 0) {
+                hit = stem_scan(output_wild(W[k], WM[k]), "raw", "expanding"); if (TAINT == "") TAINT = hit
+                if (WU[k]) { hit = split_scan(W[k], WM[k]); if (TAINT == "") TAINT = hit }
+            }
+            if (!exempt && expands(W[k], WM[k])) {
                 resolve(W[k], WM[k])
                 for (j = 1; j <= nalt; j++) { hit = stem_scan(ALT[j], "resolved"); if (TAINT == "") TAINT = hit }
             }
@@ -379,7 +411,7 @@ function end_cmd(    k, m, w, j, hit) {
         V[++m] = w; VM[m] = WM[k]
     }
     if (m > 0) { check_inputs(V, 1, m); analyze(V, 1, m) }
-    delete W; delete WP; delete WM; delete V; delete VM; nw = 0
+    delete W; delete WP; delete WM; delete WU; delete V; delete VM; nw = 0
 }
 function cmdsub(s, i, n,    start, depth, c, j) {
     complex = 1
@@ -417,7 +449,7 @@ function read_heredocs(s, i, n,    h, e, line, cmp, body) {
     return i
 }
 function tokenize(s,    i, n, c, c2, j, dash, delim) {
-    n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; nheredoc = 0; hd_shell = 0; quote_boundary = 0
+    n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; wunquoted = 0; nheredoc = 0; hd_shell = 0; quote_boundary = 0
     delete W; delete WP; delete WM
     while (i <= n) {
         c = substr(s, i, 1)
@@ -451,10 +483,10 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             }
             continue
         }
-        if (c == "$" && substr(s, i + 1, 1) == "(") { wquoted = 1; inword = 1; i = cmdsub(s, i + 2, n); addw("x", "c"); continue }
+        if (c == "$" && substr(s, i + 1, 1) == "(") { wquoted = 1; inword = 1; wunquoted = 1; i = cmdsub(s, i + 2, n); addw("x", "c"); continue }
         if (c == "`") {
             complex = 1
-            wquoted = 1; inword = 1
+            wquoted = 1; inword = 1; wunquoted = 1
             j = index(substr(s, i + 1), "`")
             if (j == 0) { i = n + 1; continue }
             enqueue(substr(s, i + 1, j - 1)); i += j + 1; addw("x", "c"); continue
