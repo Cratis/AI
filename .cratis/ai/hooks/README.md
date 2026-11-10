@@ -841,9 +841,10 @@ source root is not `Source/` re-scopes the `paths` globs there too.
 
 **One property gates the proxy generator.** The generator's MSBuild target is
 `Condition="'$(CratisProxiesOutputPath)' != ''"`, so clearing that property with
-`-p:CratisProxiesOutputPath=` is the *only* way to make it no-op. There is no
-`DisableProxyGenerator` property — MSBuild silently accepts unknown `-p:` names, so passing one
-looks like it works and changes nothing. A consuming repository's build workflow should split the
+`-p:CratisProxiesOutputPath=` is Arc's off switch. `DisableProxyGenerator` is not an Arc
+property; it works only where a repository defines it — MSBuild silently accepts unknown `-p:`
+names, so passing it elsewhere looks like it works and changes nothing. Proxies are generated and
+committed by the client, never in CI, so CI builds always clear the path. A consuming repository's build workflow should split the
 two configurations the way the shipped gates do: Release clears the path, Debug does not, because
 `general.md` makes the Debug build the canonical trigger for regenerating the TypeScript proxies
 the frontend phase depends on.

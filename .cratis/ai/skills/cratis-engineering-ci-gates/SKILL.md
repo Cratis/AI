@@ -59,6 +59,10 @@ before an external effect. A request to verify does not authorize a push.
 7. A change to a command, read model or query shape runs the repository's proxy
    and API regeneration checks; never hand-edit generated files. A package bump
    regenerates the checked-in snapshots that pin versions, in the same commit.
+   Arc TypeScript proxies are generated and committed by the client, never in CI:
+   CI and CI-matched local builds pass `-p:CratisProxiesOutputPath=` (empty; the
+   `DisableProxyGenerator` name is repository-defined, not Arc's). See the
+   **cratis-arc-command** proxy-generation reference.
 
 Use affected-project checks while coding and writing specifications. Build once
 at the end: run the full local gate when the work is believed complete, not after
