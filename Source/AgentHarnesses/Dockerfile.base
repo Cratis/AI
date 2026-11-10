@@ -145,6 +145,12 @@ ARG ROSLYN_LANGUAGE_SERVER_VERSION=5.12.0-1.26475.2
 RUN dotnet tool install --tool-path /usr/local/bin --version ${ROSLYN_LANGUAGE_SERVER_VERSION} roslyn-language-server \
     && rm -rf /tmp/NuGetScratch /root/.nuget/packages
 
+# `dotnet tool install` succeeds even when the tool's target framework is missing, so prove the
+# .NET 10 shared runtimes the two tools above need are really present. A base-image digest bump that
+# drops or moves them then fails the image build instead of shipping tools that cannot start.
+RUN dotnet --list-runtimes | grep -q '^Microsoft.NETCore.App 10\.' \
+    && dotnet --list-runtimes | grep -q '^Microsoft.AspNetCore.App 10\.'
+
 # Docker CLI (with buildx and compose) and Kubernetes tooling - what an agent investigating an alert
 # needs to look at a running system. Clients only: the daemon and the cluster come from whatever
 # DOCKER_HOST and kubeconfig the Direct injects, and neither is baked in here.
