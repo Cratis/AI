@@ -313,24 +313,31 @@ function git_metadata(words, count,    subcommand, k, w, ended, summary) {
 # Path-only Git operations do not turn credential vocabulary into a secret filename.
 # Exempt only plain relative paths or one-colon object specs with a simple ref.
 # Never interpret complex Git grammar; keep the original operand for conservative checks.
-function git_path_kind(w, pathspec, repo_only,    parts, count, k, kind, path, allowed) {
+function git_path_kind(w, pathspec, repo_only,    parts, count, k, kind, path, allowed, option, directory) {
+    option = w ~ /^-/
+    if (option) {
+        kind = sensitive_path(w)
+        if (kind != "") return kind
+    }
+    if (w ~ /^--[^=]*=/) sub(/^--[^=]*=/, "", w)
+    else if (w ~ /^-[A-Za-z].+/) sub(/^-[A-Za-z]=?/, "", w)
     count = split(w, parts, ":")
     path = w
-    allowed = count == 1
-    if (!pathspec && count == 2 && parts[1] ~ /^[A-Za-z0-9_.\/-]+([~^][0-9]+)?$/) {
+    allowed = !option && count == 1
+    if (!option && !pathspec && count == 2 && parts[1] ~ /^[A-Za-z0-9_.\/-]+([~^][0-9]+)?$/) {
         path = parts[2]
         allowed = 1
     }
     allowed = allowed && path ~ /^[A-Za-z0-9_.\/-]+$/ && path !~ /^\// && path !~ /(^|\/)\.\.(\/|$)/
     if (repo_only && !allowed) return "an operand outside the Git path allowlist"
     if (allowed) w = path
-    if (tolower(base(w)) == "credentials" && w !~ /(^|\/)\.aws\/credentials$/ && directory_operand(w)) return ""
+    directory = allowed && tolower(base(w)) == "credentials" && tolower(w) !~ /(^|\/)\.aws\/credentials$/ && directory_operand(w)
     kind = sensitive_path(w)
-    if (kind != "") return kind
+    if (kind != "" && !(directory && kind == "a credentials file")) return kind
     # Inspect every component without guessing where unsupported revision/pathspec syntax ends.
     count = split(w, parts, /[\/:]/)
     for (k = 1; k <= count; k++) {
-        if ((allowed && k == count) || (k < count && tolower(parts[k]) == "credentials")) continue
+        if ((k == count && index(w, ":") == 0) || (k < count && tolower(parts[k]) == "credentials")) continue
         kind = sensitive_path(parts[k])
         if (kind != "") return kind
     }
@@ -345,7 +352,8 @@ function git_paths(A, M, n,    k, ended, pathspec) {
         if (!ended && A[k] == "--") { ended = 1; continue }
         if (!ended && A[2] == "diff" && A[k] ~ /^--no-index($|=)/) return 0
         pathspec = ended || A[2] ~ /^(add|checkout|restore|rm|mv)$/
-        if (git_path_kind(A[k], pathspec, 1) != "") return 0
+        # Options are checked for sensitive values but are never positional path exemptions.
+        if (git_path_kind(A[k], pathspec, A[k] !~ /^-/) != "") return 0
     }
     return 1
 }
@@ -435,7 +443,7 @@ function end_cmd(    k, m, w, j, hit, exempt, path_git) {
         regex_slots(W, 1, nw)
         path_git = git_paths(W, WM, nw)
         for (k = 1; k <= nw; k++) {
-            if (path_git) continue
+            if (path_git && W[k] !~ /^-/) continue
             if (is_assign(W[k])) set_var(W[k], WM[k])
             exempt = (k in RP) && !WU[k]
             if (exempt && RP[k] < 0) continue

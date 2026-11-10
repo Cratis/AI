@@ -222,6 +222,73 @@ test('path-only Git operations permit non-secret repository paths in both guards
     ]).map(command => [BLOCK, command] as [string, string]));
 });
 
+test('Git option values never receive positional path exemptions', () => {
+    const cases: Array<[string, string]> = [
+        [BLOCK, 'git add --dry-run --pathspec-from-file=token'],
+        [BLOCK, 'git add --pathspec-from-file token'],
+        [BLOCK, 'git diff --output=.env'],
+        [BLOCK, 'git log -- --pathspec-from-file=.env'],
+    ];
+    for (const path of ['token', 'tokens.json', '-token', '.env', 'id_rsa', 'credentials.json']) {
+        for (const option of ['--pathspec-from-file', '--file', '--output', '--patch-from', '--other-file']) {
+            cases.push([BLOCK, `git log ${option}=${path}`], [BLOCK, `git log ${option} ${path}`]);
+        }
+        for (const option of ['-F', '-o', '-X']) {
+            cases.push([BLOCK, `git log ${option}${path}`], [BLOCK, `git log ${option} ${path}`]);
+        }
+    }
+    cases.push([ALLOW, 'git add --dry-run --pathspec-from-file=Source/CredentialsProvider.cs'],
+        [ALLOW, 'git log -FSource/CredentialsProvider.cs'],
+        [ALLOW, 'git log --file=Source/RecordingCredentials.fs'],
+        [ALLOW, 'git add styles/token.json']);
+    assertVerdicts(cases);
+});
+
+test('known Credentials directories never override a protected parent', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-git-parent-'));
+    try {
+        mkdirSync(join(directory, 'Source/Credentials'), { recursive: true });
+        const source = runGuard('git add -- Source/Credentials', {}, directory);
+        assert.equal(source.verdict, ALLOW, source.stderr);
+        for (const parent of ['.kube', '.env', 'id_rsa', '.AWS']) {
+            mkdirSync(join(directory, parent, 'Credentials'), { recursive: true });
+            const result = runGuard(`git add -- ${parent}/Credentials`, {}, directory);
+            assert.equal(result.verdict, BLOCK, `${parent}\n${result.stderr}`);
+        }
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+test('the design-note routine and hostile corpus retains its measured behavior', () => {
+    const routine = [
+        'git add Source/App/RecordingCredentials/RecordingCredentials.ts',
+        'git checkout --theirs -- Source/App/RecordingCredentials/RecordingCredentials.ts',
+        'git checkout --ours Source/Auth/CredentialsProvider.cs', 'git add CredentialsProvider.cs',
+        'git add Source/Foo/ApplicationCredentials.cs Source/Foo/CredentialsProvider.cs', 'git diff -- Credentials.cs',
+        'git diff -- Deployment/Specs/for_ApplicationCredentials/when_x/a.cs', 'git show HEAD:src/CredentialsProvider.cs',
+        'git show HEAD~1:src/CredentialsProvider.cs', 'git log -- src/CredentialsProvider.cs',
+        'git restore Source/RecordingCredentials.fs', 'git rm Source/Auth/CredentialsProvider.cs',
+        'git mv Source/Auth/CredentialsA.cs Source/Auth/CredentialsB.cs', 'git add Source/Foo/SecretsManager.kt',
+        'git add Source/Foo/PasswordHasher.java', 'git add Source/Foo/TokenService.go',
+        'git diff Source/App/Credentials/Credentials.tsx', 'git show main:Source/Auth/Credentials.ts',
+        'git status', 'git add a b && git status',
+    ];
+    const hostile = [
+        'cat .env', 'cat ~/.kube/config', 'git add .env', 'git show HEAD:.env', 'git show HEAD:{.env}',
+        'git show {HEAD,main}:.env', 'git show HEAD:a:.env', 'git show :2:.env',
+        'git diff --no-index /etc/passwd secrets.pem', 'git add :(glob)**/.env',
+        'git checkout --ours ~/.ssh/id_rsa', 'git restore ../other/.env', 'git add /home/u/.aws/credentials',
+        'git add $SECRETFILE', 'git show HEAD:$(echo .env)', 'git mv a.cs .env',
+        'kubectl get secret foo -o yaml', 'env', 'printenv', 'cat id_rsa',
+        'git show HEAD:config/{prod,.env}', 'git rm `echo .env`', 'cat service.pem', 'git log -p -- .env',
+        'git diff -- ~/.netrc', 'git add Source/Foo/credentials.json', 'git show HEAD:secrets/prod.key',
+        'gh auth token', 'git show HEAD~1:credentials.json',
+        'git diff -- :(attr:credential)CredentialsProvider.cs', 'cat Cre$(echo dentials.json x).cs',
+    ];
+    // Preserve the documented limits: unquoted ~ stays conservative; a nameless runtime value is undecidable.
+    assertVerdicts(routine.map(command => [command.includes('HEAD~1:') ? BLOCK : ALLOW, command] as [string, string]));
+    assertVerdicts(hostile.map(command => [command === 'git add $SECRETFILE' ? ALLOW : BLOCK, command] as [string, string]));
+});
+
 test('Git revision exemptions use a strict simple-ref and path allowlist', () => {
     assertVerdicts([
         [BLOCK, 'git show HEAD^{/:}:id_rsa'],
