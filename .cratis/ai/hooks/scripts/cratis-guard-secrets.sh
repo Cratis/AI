@@ -141,9 +141,10 @@ function stem_boundary(t, start, finish, stem, nonliteral,    a, b, before, afte
         component = substr(t, left, right - left + 1)
         if (literal && component !~ /^credentials([.]|$)/ && substr(t, right + 1, 1) == "/") return 0
         # Never infer a source file from a partial component or an expansion. JSON is not source.
-        if (literal && code_file(component)) return 0
+        if (literal && !nonliteral && (code_file(component) || build_file(component)) &&
+            component !~ /credential.*\.(json|yaml|yml|xml|ini|toml|txt|conf|properties|config)([.]|$)/) return 0
         # The singular word is ordinary vocabulary; it marks a protected file only in credential JSON names.
-        if (stem == "credential" && literal && component !~ /credential[^\/]*\.json[.]*$/) return 0
+        if (stem == "credential" && literal && component !~ /credential[^\/]*\.json([.]|$)/) return 0
     }
     before = substr(t, a - 1, 1); after = substr(t, b + 1)
     return !(before == "$" || before == "-" || (before == "{" && substr(t, a - 2, 1) == "$") || after ~ /^(=|\+=)/)
@@ -309,7 +310,31 @@ function git_metadata(words, count,    subcommand, k, w, ended, summary) {
     }
     return subcommand != "diff" || summary
 }
+# Path-only Git operations do not turn credential vocabulary into a secret filename.
+# Literal operands are still checked as paths, including revision:path spelling.
+function git_path_kind(w,    parts, count, k, kind) {
+    sub(/^[^:]*:/, "", w)
+    sub(/^--[^=]*=/, "", w)
+    if (tolower(base(w)) == "credentials" && w !~ /(^|\/)\.aws\/credentials$/ && directory_operand(w)) return ""
+    kind = sensitive_path(w)
+    if (kind != "") return kind
+    count = split(w, parts, "/")
+    for (k = 1; k < count; k++) {
+        if (tolower(parts[k]) == "credentials") continue
+        kind = sensitive_path(parts[k])
+        if (kind != "") return kind
+    }
+    return ""
+}
+function git_paths(A, M, n,    k) {
+    if (A[1] != "git" || A[2] !~ /^(add|checkout|restore|rm|mv|diff|log|show)$/) return 0
+    for (k = 1; k <= n; k++) {
+        if (expands(A[k], M[k]) || !literal_word(A[k], M[k]) || A[k] ~ /[*?\[]/ || git_path_kind(A[k]) != "") return 0
+    }
+    return 1
+}
 function literal_shape(A, M, n,    k, j, b, words, count, pattern, ended, w, paths, flags) {
+    if (git_paths(A, M, n)) return 1
     if (metadata_shape(A, M, n)) return 1
     delete words
     for (k = 1; k <= n; k++) {
@@ -387,12 +412,14 @@ function split_scan(w, m,    k, r, hit) {
     }
     return ""
 }
-function end_cmd(    k, m, w, j, hit, exempt) {
+function end_cmd(    k, m, w, j, hit, exempt, path_git) {
     flush_word()
     if (nw > 0) {
         commands++
         regex_slots(W, 1, nw)
+        path_git = git_paths(W, WM, nw)
         for (k = 1; k <= nw; k++) {
+            if (path_git) continue
             if (is_assign(W[k])) set_var(W[k], WM[k])
             exempt = (k in RP) && !WU[k]
             if (exempt && RP[k] < 0) continue
@@ -405,7 +432,14 @@ function end_cmd(    k, m, w, j, hit, exempt) {
             }
             if (!exempt && expands(W[k], WM[k])) {
                 resolve(W[k], WM[k])
-                for (j = 1; j <= nalt; j++) { hit = stem_scan(ALT[j], "resolved"); if (TAINT == "") TAINT = hit }
+                for (j = 1; j <= nalt; j++) {
+                    w = ALT[j]
+                    if (w ~ /[\001\003]/) {
+                        gsub(/[\001\003]/, "*", w)
+                        hit = stem_scan(w, "raw", "expanding")
+                    } else hit = stem_scan(w, "resolved")
+                    if (TAINT == "") TAINT = hit
+                }
             }
         }
         if (!literal_shape(W, WM, nw)) simple_ok = 0
@@ -651,7 +685,7 @@ function skipopts(A, s, n, vals) {
 function is_assign(w) { return w ~ /^[A-Za-z_][A-Za-z0-9_]*(\[[^]]*\])?\+?=/ }
 
 # ── file classification for the reader commands ──
-function code_file(b) { return b ~ /\.(cs|ts|tsx|js|jsx|mjs|cjs|go|py|java|kt|rs|md)$/ }
+function code_file(b) { return b ~ /\.(cs|fs|vb|ts|tsx|js|jsx|mjs|cjs|go|py|java|kt|kts|ex|exs|rb|rs|swift|md|mdx)$/ }
 # Build and markup files cannot hold values, so a dotted Env segment in their names (Cratis.Env.Tool.csproj) is not an env copy.
 function build_file(b) { return b ~ /\.(csproj|fsproj|vbproj|sln|slnx|props|targets|css|scss|less|html|htm|razor|cshtml|resx|xaml)$/ }
 # A design-token file is not a credential: a stylesheet, or a file under a design, theme or style directory, is
@@ -673,7 +707,9 @@ function sensitive_path(w,    l, b) {
     if (b == "id_rsa" || b == "id_ed25519" || b == "id_ecdsa" || b == "id_dsa") return "a private key"
     if (b ~ /(^|[._-])tokens?($|[._-])/ && !code_file(b) && !token_ok(l, b)) return "a token file"
     if (b == ".netrc" || b == ".npmrc" || b == ".pgpass" || b == ".pypirc" || b == ".git-credentials") return "a credentials file"
-    if (b == "credentials" || b ~ /credential.*\.json[.]*$/) return "a credentials file"
+    if (b == "credentials" || b ~ /credential.*\.json([.]|$)/ ||
+        b ~ /credentials.*\.(yaml|yml|xml|ini|toml|txt|conf|properties|config)([.]|$)/ ||
+        b ~ /secrets\.ya?ml([.]|$)/) return "a credentials file"
     if (l ~ /\.docker\/config\.json$/) return "the Docker registry credentials"
     if (l ~ /\/proc\/[^\/]*\/environ$/) return "a process environment"
     if (l ~ /^\/(var\/)?run\/secrets\//) return "mounted secrets"
@@ -1359,8 +1395,14 @@ function transfer_files(A, s, n, b,    k, last, options, kind, w, eq, off, ended
     }
 }
 # Git grep reuses pattern/file separation; ls-files never reaches this content path.
-function git_content(A, s, n,    subcommand, k, w) {
+function git_content(A, s, n,    subcommand, k, w, kind) {
     subcommand = A[s + 1]
+    if (subcommand ~ /^(add|checkout|restore|rm|mv|diff|log|show)$/) {
+        for (k = s + 2; k <= n; k++) {
+            kind = git_path_kind(A[k])
+            if (kind != "") report("git " subcommand " names " kind, "name only non-credential source files; list filenames with git ls-files")
+        }
+    }
     if (subcommand !~ /^(grep|show|cat-file)$/) return
     if (subcommand == "grep") reader(A, s + 1, n)
     for (k = s + 2; k <= n; k++) {
@@ -1491,7 +1533,7 @@ BEGIN {
     nprobe2 = split(".kube/config .aws/credentials .docker/config.json /proc/1/environ /run/secrets/token /var/run/secrets/token", PROBE2, " ")
     nextension = split("pem key p12 pfx jks keystore kdbx kubeconfig env", EXT, " ")
     ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt set setopt unsetopt emulate grep egrep fgrep rg ag sed awk gawk mawk nawk busybox jq yq gojq jaq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
-    nstem = split(".env .pem .key .p12 .pfx .jks .keystore .kdbx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials credential .docker/ /environ run/secrets", STEM, " ")
+    nstem = split(".env .pem .key .p12 .pfx .jks .keystore .kdbx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials credential secrets.yaml secrets.yml .docker/ /environ run/secrets", STEM, " ")
     CMD = ENVIRON["GS_COMMAND"]
     for (pass = 1; pass <= 2; pass++) {
         delete queue; queued = 0; qi = 0; delete seen; reports = ""
