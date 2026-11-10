@@ -43,6 +43,15 @@
 #                               (local/Docker dev), or a repository with no entry yet (first-ever
 #                               use), falls back to an ordinary `git clone` - unconditionally, so that
 #                               fallback path is what every non-Kubernetes/local run still takes.
+#   CRATIS_WORKSPACE_MODE   - unset/empty clones normally; "host-prepared" uses a mounted tree,
+#                               never clones or pushes, and refuses repository credentials/inputs:
+#                               GITHUB_TOKEN, GH_TOKEN, DIRECT_PUSH_TOKEN_URL, DIRECT_CLONE_CREDENTIALS,
+#                               DIRECT_REPOSITORY_URL(S), DIRECT_REPOSITORY_CHECKOUTS,
+#                               DIRECT_REPOSITORY_CACHE and DIRECT_BRANCH (even when empty).
+#   CRATIS_WORKSPACE_PATH   - required as exactly /workspace in host-prepared mode.
+#   CRATIS_GIT_DEADLINE_SECONDS - clone/fetch/ls-remote deadline, integer 1-3600, default 600.
+#                               Git prompts/askpass are disabled, SSH uses BatchMode; failed details
+#                               use [git-timeout], [git-auth] or [git-config] prefixes.
 #   DIRECT_BRANCH           - branch to create for the work
 #   DIRECT_WORK_ID          - unique id of the scheduled work item
 #   DIRECT_PROMPT_FILE      - path to a file holding the instructions for the agent (markdown).
@@ -354,6 +363,15 @@ export -n DIRECT_CALLBACK_TOKEN DIRECT_CONTEXT_MCP_TOKEN EXA_API_KEY CONTEXT7_AP
     AZURE_OPENAI_API_KEY DIRECT_PROVIDER_API_KEY ZAI_API_KEY COPILOT_GITHUB_TOKEN \
     GITHUB_TOKEN GH_TOKEN DIRECT_CLONE_CREDENTIALS DIRECT_PI_OAUTH_CREDENTIAL DIRECT_KUBECONFIG
 
+configure_git_noninteractive() {
+    export GIT_TERMINAL_PROMPT=0 GIT_ASKPASS='' SSH_ASKPASS='' GCM_INTERACTIVE=never
+    unset SSH_ASKPASS_REQUIRE
+    export GIT_SSH_COMMAND='ssh -o BatchMode=yes'
+    export GIT_HTTP_LOW_SPEED_LIMIT=1000 GIT_HTTP_LOW_SPEED_TIME=60
+}
+
+configure_git_noninteractive
+
 agent_credential_environment() {
     local names name
     case "$1" in
@@ -593,6 +611,75 @@ quota_exhaustion_code() {
 }
 
 
+validate_workspace_mode() {
+    case "${CRATIS_WORKSPACE_MODE:-}" in
+        '') return 0 ;;
+        host-prepared) ;;
+        *) fail "[workspace] Unknown CRATIS_WORKSPACE_MODE '${CRATIS_WORKSPACE_MODE}' (expected 'host-prepared')" ;;
+    esac
+    [[ "${DIRECT_RUN_MODE:-}" != bundle-diff ]] || fail '[workspace] host-prepared cannot be combined with DIRECT_RUN_MODE=bundle-diff'
+    local variable
+    for variable in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDENTIALS \
+        DIRECT_REPOSITORY_URL DIRECT_REPOSITORY_URLS DIRECT_REPOSITORY_CHECKOUTS DIRECT_REPOSITORY_CACHE DIRECT_BRANCH; do
+        [[ -z "${!variable+x}" ]] || fail "[workspace] host-prepared mode refuses ${variable}"
+    done
+}
+
+validate_host_prepared_workspace() {
+    local path="$1" prefix='' segment resolved top
+    [[ -n "$path" && "$path" == /* && "$path" != / ]] || fail '[workspace] An absolute non-root workspace is required'
+    [[ "$path" != *$'\n'* && "$path" != *:* && "$path" != *,* ]] || fail '[workspace] Invalid workspace characters'
+    [[ "$path" != *//* && "$path" != */ && "/${path#/}/" != */./* && "/${path#/}/" != */../* ]] || fail '[workspace] Workspace traversal is forbidden'
+    local -a segments
+    IFS=/ read -r -a segments <<< "${path#/}"
+    for segment in "${segments[@]}"; do
+        prefix="$prefix/$segment"
+        [[ ! -L "$prefix" ]] || fail '[workspace] Workspace symlinks are forbidden'
+    done
+    [[ -d "$path" && -r "$path" && -w "$path" ]] || fail '[workspace] Workspace must be a readable writable directory'
+    resolved=$(cd "$path" && pwd -P) || fail '[workspace] Cannot resolve workspace'
+    [[ "$resolved" == "$path" ]] || fail '[workspace] Workspace must be canonical'
+    top=$(git -c "safe.directory=$path" -C "$path" rev-parse --show-toplevel 2>/dev/null) || fail '[workspace] Workspace must be a git work tree'
+    [[ "$top" == "$path" ]] || fail '[workspace] Workspace must be the git work-tree root'
+}
+
+prepare_host_workspace() {
+    validate_host_prepared_workspace "$1"
+    git config --global --add safe.directory "$1"
+}
+
+prepare_host_workspace_prompt() {
+    [[ "${CRATIS_WORKSPACE_MODE:-}" == host-prepared ]] || return 0
+    local prompt
+    prompt=$(mktemp) || fail '[workspace] Cannot prepare host-workspace instructions'
+    {
+        printf '%s\n\n' 'Host-prepared workspace: leave results as uncommitted working-tree changes for the host to collect. Do not commit, stage, write refs, or change repository git configuration. Git metadata is mounted read-only.'
+        cat "$PROMPT_FILE"
+    } > "$prompt"
+    PROMPT_FILE="$prompt"
+}
+
+# Definitions are available before startup validation; network git is bounded even on cache hits.
+git_deadline_seconds() {
+    local value="${CRATIS_GIT_DEADLINE_SECONDS:-600}"
+    if [[ ! "$value" =~ ^[0-9]{1,4}$ ]] || (( 10#$value < 1 || 10#$value > 3600 )); then
+        fail "[git-config] CRATIS_GIT_DEADLINE_SECONDS must be an integer 1-3600, got '$value'"
+    fi
+    printf '%s\n' "$value"
+}
+
+configure_git_deadline() {
+    GIT_DEADLINE_SECONDS=$(git_deadline_seconds) || exit 1
+    GIT_TIMEOUT_BIN=$(command -v timeout || command -v gtimeout) || fail "[git-config] no 'timeout' available to bound git"
+}
+
+validate_workspace_mode
+if [[ "${CRATIS_WORKSPACE_MODE:-}" == host-prepared ]]; then
+    [[ "${CRATIS_WORKSPACE_PATH:-}" == /workspace ]] || fail '[workspace] CRATIS_WORKSPACE_PATH must be /workspace'
+elif [[ "${DIRECT_RUN_MODE:-}" != bundle-diff ]]; then
+    configure_git_deadline
+fi
+
 # Bundle mode never accepts a repository credential or a remote checkout input, even an empty one.
 if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
     for variable in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDENTIALS \
@@ -782,6 +869,7 @@ refresh_git_token() {
 # already been pushed records that head as its new starting point, so the next call has nothing to
 # do for it. A push that *failed* records nothing, so it is retried instead.
 push_workspaces() {
+    [[ "${CRATIS_WORKSPACE_MODE:-}" != host-prepared ]] || return 0
     [[ "${DIRECT_RUN_MODE:-}" != bundle-diff ]] || return 0
     # Clone-only investigations never publish, even if an agent makes local commits.
     [[ -z "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]] || return 0
@@ -937,6 +1025,47 @@ stop_pipe_holder() {
 # webhooks (see Source/Direct/Repositories/Caching), and it runs `git` inside those mirrors with
 # far more privilege than this container has - so a mirror this container could write would be a
 # mirror this container could use to run code over there.
+git_safe_url() {
+    printf '%s' "$1" | sed -E 's#(://)[^/@]*@#\1#'
+}
+
+git_timeout_detail() {
+    printf '[git-timeout] git %s %s exceeded the %ss deadline (CRATIS_GIT_DEADLINE_SECONDS) and was stopped' \
+        "$1" "$(git_safe_url "$2")" "$GIT_DEADLINE_SECONDS"
+}
+
+run_git_bounded() {
+    local label="$1" stderr status=0 started_at elapsed
+    shift
+    GIT_AUTH_FAILED=false
+    stderr=$(mktemp) || fail '[git-config] Cannot capture git diagnostics'
+    started_at=$(date +%s)
+    "$GIT_TIMEOUT_BIN" --kill-after=10 "$GIT_DEADLINE_SECONDS" git "$@" < /dev/null 2> "$stderr" || status=$?
+    # date has whole-second precision: subtract one to avoid mistaking a second-boundary
+    # crossing for a full elapsed second. timeout's KILL grace is ten seconds.
+    elapsed=$(( $(date +%s) - started_at - 1 ))
+    # Git itself may include the URL in diagnostics. Never replay userinfo from it.
+    sed -E 's#(://)[^/@[:space:]]*@#\1#g' "$stderr" >&2
+    if grep -Eq 'terminal prompts disabled|could not read (Username|Password)|Authentication failed' "$stderr"; then
+        GIT_AUTH_FAILED=true
+        log "git ${label} needs a credential but none is available (GITHUB_TOKEN missing or rejected); terminal prompts are disabled"
+    fi
+    rm -f "$stderr"
+    if [[ "$status" -eq 124 ]] || { [[ "$status" -eq 137 ]] && (( elapsed >= 10#$GIT_DEADLINE_SECONDS )); }; then
+        log "git ${label} exceeded the ${GIT_DEADLINE_SECONDS}s deadline and was stopped"
+        return 124
+    fi
+    return "$status"
+}
+
+clone_failure_detail() {
+    if [[ "${GIT_AUTH_FAILED:-false}" == true ]]; then
+        printf '[git-auth] Could not clone %s: no usable credential (terminal prompts are disabled)' "$(git_safe_url "$1")"
+    else
+        printf 'Could not clone %s' "$(git_safe_url "$1")"
+    fi
+}
+
 clone_into_workspace() {
     local url="$1" dest="$2"
     local without_suffix="${url%.git}"
@@ -975,7 +1104,10 @@ clone_into_workspace() {
             # pull request. A local clone borrows the cache's objects through `alternates` for reads
             # and keeps its own writable object store for anything new, so the checkout is as cheap
             # as a worktree and nothing ever writes to the shared volume.
-            git clone --shared "$cache_repo" "$dest" || fail "Could not check out ${owner}/${name} from the cache"
+            local status=0
+            run_git_bounded clone clone --shared "$cache_repo" "$dest" || status=$?
+            [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail clone "$cache_repo")"
+            [[ "$status" -eq 0 ]] || fail "Could not check out ${owner}/${name} from the cache"
 
             # Bring the fresh checkout up to the remote's current default branch, in this
             # container's own object store rather than in the cache - the mirror may be a push or
@@ -986,11 +1118,17 @@ clone_into_workspace() {
             # The default branch is asked of the remote rather than read from the mirror's HEAD,
             # which is the one control surface a `+refs/*:refs/*` fetch on the backend side does
             # not heal.
-            local default_ref
-            default_ref=$(GITHUB_TOKEN="${GITHUB_TOKEN:-}" git ls-remote --symref "$url" HEAD 2>/dev/null | awk '/^ref:/ {print $2; exit}')
-            if [[ -n "$default_ref" ]] && GITHUB_TOKEN="${GITHUB_TOKEN:-}" git -C "$dest" fetch --quiet "$url" "$default_ref"; then
-                start_point=(FETCH_HEAD)
-            else
+            local default_ref remote_refs
+            status=0
+            remote_refs=$(GITHUB_TOKEN="${GITHUB_TOKEN:-}" run_git_bounded ls-remote ls-remote --symref "$url" HEAD) || status=$?
+            [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail ls-remote "$url")"
+            default_ref=$(printf '%s\n' "$remote_refs" | awk '/^ref:/ {print $2; exit}')
+            if [[ -n "$default_ref" && "$status" -eq 0 ]]; then
+                GITHUB_TOKEN="${GITHUB_TOKEN:-}" run_git_bounded fetch -C "$dest" fetch --quiet "$url" "$default_ref" || status=$?
+                [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail fetch "$url")"
+                [[ "$status" -ne 0 ]] || start_point=(FETCH_HEAD)
+            fi
+            if [[ ${#start_point[@]} -eq 0 ]]; then
                 log "Could not refresh ${owner}/${name} from origin - starting from the cached mirror's HEAD"
             fi
         fi
@@ -1005,8 +1143,11 @@ clone_into_workspace() {
     fi
 
     if [[ ! -d "$dest/.git" ]]; then
-        log "Cloning $url"
-        GITHUB_TOKEN="${GITHUB_TOKEN:-}" git clone "$url" "$dest" || fail "Could not clone $url"
+        log "Cloning $(git_safe_url "$url")"
+        local status=0
+        GITHUB_TOKEN="${GITHUB_TOKEN:-}" run_git_bounded clone clone "$url" "$dest" || status=$?
+        [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail clone "$url")"
+        [[ "$status" -eq 0 ]] || fail "$(clone_failure_detail "$url")"
     fi
     if [[ -n "${DIRECT_BRANCH:-}" ]]; then
         git -C "$dest" checkout -B "$DIRECT_BRANCH"
@@ -1031,7 +1172,15 @@ clone_restricted_repositories() {
     while IFS=$'\t' read -r repository url path; do
         log "Checking out ${repository} at ${path}"
         mkdir -p "/workspace/$(dirname "$path")" || return 1
-        GIT_TERMINAL_PROMPT=0 DIRECT_CLONE_CREDENTIALS="$DIRECT_CLONE_CREDENTIALS" git clone "$url" "/workspace/$path" || return 1
+        local status=0
+        GIT_TERMINAL_PROMPT=0 DIRECT_CLONE_CREDENTIALS="$DIRECT_CLONE_CREDENTIALS" run_git_bounded clone clone "$url" "/workspace/$path" || status=$?
+        [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail clone "$url")"
+        if [[ "$status" -ne 0 ]]; then
+            if [[ "${GIT_AUTH_FAILED:-false}" == true ]]; then
+                RESTRICTED_CLONE_FAILURE_DETAIL=$(clone_failure_detail "$url")
+            fi
+            return 1
+        fi
         [[ -n "$first" ]] || first="/workspace/$path"
     done <<< "$rows"
     link_primary_corpus "$first"
@@ -1330,8 +1479,11 @@ complete_worker() {
 # /workspace/<name>, leaving /workspace itself without a corpus (Cratis/Stagehand#603).
 if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
     prepare_bundle_workspace
+elif [[ "${CRATIS_WORKSPACE_MODE:-}" == host-prepared ]]; then
+    prepare_host_workspace /workspace
+    log 'Using host-prepared workspace /workspace'
 elif [[ -n "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]]; then
-    clone_restricted_repositories || fail "Could not check out every scheduled repository"
+    clone_restricted_repositories || fail "${RESTRICTED_CLONE_FAILURE_DETAIL:-Could not check out every scheduled repository}"
 elif [[ -n "${DIRECT_REPOSITORY_URLS:-}" ]]; then
     read -r -a urls <<< "${DIRECT_REPOSITORY_URLS}"
     if [[ ${#urls[@]} -eq 1 ]]; then
@@ -1372,6 +1524,7 @@ else
     fail "No prompt provided"
 fi
 
+prepare_host_workspace_prompt
 report started "Worker started"
 bundle_phase agentRunning
 

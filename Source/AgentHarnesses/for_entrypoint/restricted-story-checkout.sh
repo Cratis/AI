@@ -14,7 +14,18 @@ entrypoint="$here/../entrypoint.sh"
 awk '/^if \[\[ -n "\$\{DIRECT_REPOSITORY_CHECKOUTS:-\}"/ { take=1 } take { print } take && /^fi$/ { exit }' "$entrypoint" > "$root/auth"
 awk '/^clone_restricted_repositories\(\)/ { take=1 } take { print } take && /^}$/ { exit }' "$entrypoint" | perl -pe 's@/workspace@\$ROOT/workspace@g' > "$root/functions"
 awk '/^push_workspaces\(\)/ { take=1 } take { print } take && /^}$/ { exit }' "$entrypoint" >> "$root/functions"
-[[ $(grep -c '^}$' "$root/functions") -eq 2 ]] || exit 2
+for function in run_git_bounded git_safe_url git_timeout_detail clone_failure_detail; do
+    awk -v name="$function" '$0 == name "() {" { take=1 } take { print } take && /^}$/ { exit }' "$entrypoint" >> "$root/functions"
+done
+[[ $(grep -c '^}$' "$root/functions") -eq 6 ]] || exit 2
+GIT_DEADLINE_SECONDS=600
+GIT_TIMEOUT_BIN="$(command -v timeout || command -v gtimeout || :)"
+if [[ -z "$GIT_TIMEOUT_BIN" ]]; then
+    # This fixture uses only synchronous local clones; the separate deadline fixture tests timeout.
+    GIT_TIMEOUT_BIN="$root/bin/local-timeout"
+    printf '#!/usr/bin/env bash\nshift 2\nexec "$@"\n' > "$GIT_TIMEOUT_BIN"
+    chmod +x "$GIT_TIMEOUT_BIN"
+fi
 "$REAL_GIT" init -q "$root/source"
 "$REAL_GIT" -C "$root/source" -c user.name=Spec -c user.email=spec@example.invalid commit -qm initial --allow-empty
 "$REAL_GIT" clone -q --bare "$root/source" "$root/private.git"
