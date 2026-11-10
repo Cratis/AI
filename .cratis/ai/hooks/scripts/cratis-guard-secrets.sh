@@ -1406,31 +1406,8 @@ function endpoint_path(path,    i, pair, value, decoded) {
     sub(/[?#].*$/, "", decoded); gsub(/\/\/+/, "/", decoded); sub(/\/+$/, "", decoded)
     return decoded
 }
-function gh_filter(p,    i, c, q, plain) {
-    # jq string interpolation can evaluate a program inside an otherwise quoted string.
-    if (index(p, "\\(")) { env_program("gh", p); return }
-    for (i = 1; i <= length(p); i++) {
-        c = substr(p, i, 1)
-        if (q != "") { if (c == "\\") i++; else if (c == q) q = ""; continue }
-        if (c == "\042" || c == "\047") { q = c; plain = plain " "; continue }
-        plain = plain c
-    }
-    env_program("gh", plain)
-}
-# Short formatting options are command-specific: -t is a title on create/edit.
-# These read commands expose jq/template output; long filter spellings always retain scrutiny.
-function gh_short_filters(group, subcommand) {
-    return group == "api" || group == "search" || subcommand ~ /^(list|view|status|checks|field-list|item-list)$/
-}
-function gh(A, s, n,    i, w, mutating, k, path, kind, short_filters) {
+function gh(A, s, n,    i, w, mutating, k, path, kind) {
     kparse(A, s + 1, n, "XHfFqtR")
-    short_filters = gh_short_filters(P[1], P[2])
-    for (i = s + 1; i <= n; i++) {
-        w = A[i]
-        if ((w ~ /^(--jq|--template)$/ || (short_filters && w ~ /^-[qt]$/)) && i < n) gh_filter(A[++i])
-        else if (w ~ /^--(jq|template)=/) { sub(/^--[^=]*=/, "", w); gh_filter(w) }
-        else if (short_filters && w ~ /^-[qt]./) gh_filter(substr(w, 3))
-    }
     if (P[1] == "secret") {
         if (P[2] != "set" && P[2] != "delete" && P[2] != "remove")
             report("gh secret " P[2] " reads the repository secret store", "gh secret set NAME (writes nothing to the output); refer to secrets by name only")

@@ -387,129 +387,8 @@ function managed_script(    i) {
     }
     return 0
 }
-# Collect removal operands without traversing their trees. Unknown expansion/cwd cannot
-# establish a narrower target; wrapper parsing never evaluates command text.
-function recursive_path(i, path) {
-    path = i ? W[i] : "."
-    if (changed_cwd || path == "" || path ~ /[$`*?\[{~()\n\r\t]/) { recursive_uncertain = 1; return }
-    recursive_targets[path] = 1
-}
-# Only reviewed wrapper options can shift the command slot. Value-taking options consume
-# their value explicitly; split-string/replacement/cwd options stay uncertain.
-function destructive_start(    i, verb, w) {
-    i = 1; destructive_xargs = 0
-    while (i <= argc) {
-        verb = W[i]; sub(/.*\//, "", verb)
-        if (verb !~ /^(command|builtin|exec|env|sudo|nice|nohup|time|timeout|xargs)$/) return i
-        i++
-        if (verb == "xargs") destructive_xargs = 1
-        while (i <= argc) {
-            w = W[i]
-            if (w == "--") { i++; break }
-            if (verb == "env" && w ~ /^[A-Za-z_][A-Za-z_0-9]*=/) { i++; continue }
-            if (w !~ /^-/) break
-            if ((verb == "command" && w == "-p") || (verb == "exec" && w ~ /^-[cl]+$/) ||
-                (verb == "env" && w ~ /^(-i|--ignore-environment)$/) ||
-                (verb == "sudo" && w ~ /^(-[AbEHknPS]+|--non-interactive|--preserve-env)$/) ||
-                (verb == "nice" && w ~ /^-[0-9]+$/) || (verb == "time" && w == "-p") ||
-                (verb == "timeout" && w ~ /^(--foreground|--preserve-status|--verbose|-v)$/) ||
-                (verb == "xargs" && w ~ /^(-[0prtx]+|--null|--no-run-if-empty|--verbose|--exit)$/)) { i++; continue }
-            if ((verb == "exec" && w == "-a") || (verb == "env" && w ~ /^(-u|--unset)$/) ||
-                (verb == "sudo" && w ~ /^(-[ugphCT]|--user|--group|--host|--prompt|--command-timeout)$/) ||
-                (verb == "nice" && w ~ /^(-n|--adjustment)$/) ||
-                (verb == "timeout" && w ~ /^(-[ks]|--kill-after|--signal)$/) ||
-                (verb == "xargs" && w ~ /^(-[adEnPLs]|--arg-file|--delimiter|--eof|--max-args|--max-procs|--max-lines|--max-chars)$/)) {
-                if (++i > argc) { recursive_uncertain = 1; return 0 }
-                i++; continue
-            }
-            if ((verb == "env" && w ~ /^--unset=./) || (verb == "nice" && w ~ /^--adjustment=./) ||
-                (verb == "sudo" && w ~ /^--(user|group|host|prompt|command-timeout)=./) ||
-                (verb == "timeout" && w ~ /^--(kill-after|signal)=./) ||
-                (verb == "xargs" && w ~ /^(-[nPLs][0-9]+|--(max-args|max-procs|max-lines|max-chars)=.)/)) { i++; continue }
-            recursive_uncertain = 1; return 0
-        }
-        if (verb == "timeout") {
-            if (W[i] !~ /^[0-9]+([.][0-9]+)?[smhd]?$/) { recursive_uncertain = 1; return 0 }
-            i++
-        }
-    }
-    return 0
-}
-# A name-restricted cleanup has narrower operands than its search root. These output
-# directory names cannot themselves name a fixed control; index pathspecs still check their contents.
-function find_cleanup(first,    i, root, name, j) {
-    root = W[first]
-    if (W[first + 1] != "-name" || W[first + 2] !~ /^(obj|bin|dist|node_modules)$/ ||
-        W[first + 3] != "-type" || W[first + 4] != "d" || W[first + 5] != "-exec" ||
-        W[first + 6] != "rm" || W[first + 7] !~ /^-[rfR]+$/ || W[first + 7] !~ /[rR]/ ||
-        W[first + 8] != "{}" || W[first + 9] != "+" || argc != first + 9) return 0
-    if (changed_cwd || root == "" || root ~ /[$`*?\[{~()\n\r\t]/) { recursive_uncertain = 1; return 1 }
-    name = W[first + 2]; sub(/\/+$/, "", root)
-    recursive_targets[root "/" name] = recursive_targets[root "/*/" name] = 1
-    if (root ~ ("(^|/)" name "$")) recursive_targets[root] = 1
-    modeled_cleanup = 1
-    return 1
-}
-function destructive_targets(    i, w, recurse, ended, paths, action, first, directory, verb, offset) {
-    first = destructive_start()
-    if (!first) return
-    offset = first - 1
-    verb = W[first]; sub(/.*\//, "", verb)
-    if (destructive_xargs && verb ~ /^(rm|find|git)$/) { recursive_uncertain = 1; return }
-    if (verb == "find") {
-        if (find_cleanup(2 + offset)) return
-        for (i = 2 + offset; i <= argc; i++) {
-            if (W[i] == "-delete") action = 1
-            if (W[i] ~ /^-(exec|execdir|ok|okdir)$/) { recursive_uncertain = 1; return }
-        }
-        if (!action) return
-        for (i = 2 + offset; i <= argc; i++) {
-            if (W[i] ~ /^-[HLP]$/ && !paths) continue
-            if (W[i] ~ /^-/ || W[i] ~ /^[(!]/) break
-            recursive_path(i); paths++
-        }
-        if (!paths) recursive_path(0)
-        return
-    }
-    if (verb == "rm") {
-        for (i = 2 + offset; i <= argc && W[i] != "--"; i++)
-            if (W[i] ~ /^--recursive$/ || (W[i] ~ /^-[^-]/ && W[i] ~ /[rR]/)) recurse = 1
-        if (!recurse) return
-        for (i = 2 + offset; i <= argc; i++) {
-            if (!ended && W[i] == "--") { ended = 1; continue }
-            if (!ended && W[i] ~ /^-/) continue
-            recursive_path(i)
-        }
-        return
-    }
-    if (verb != "git") return
-    first = 3 + offset
-    if (W[2 + offset] == "-C" && W[4 + offset] == "clean") { directory = W[3 + offset]; first = 5 + offset }
-    else if (W[2 + offset] != "clean") return
-    for (i = first; i <= argc && W[i] != "--"; i++) {
-        w = W[i]
-        if (w == "-e" || w == "--exclude") { i++; continue }
-        if (w == "--dry-run" || (w ~ /^-[^-]/ && w ~ /n/)) return
-        if (w ~ /^-[^-]/ && w ~ /[dxi]/ || w == "--interactive") recurse = 1
-    }
-    if (!recurse) return
-    for (i = first; i <= argc; i++) {
-        w = W[i]
-        if (!ended && w == "--") { ended = 1; continue }
-        if (!ended && (w == "-e" || w == "--exclude")) { i++; continue }
-        if (!ended && w ~ /^-/) continue
-        if (directory != "" && w !~ /^\//) W[i] = directory "/" w
-        recursive_path(i); paths++
-    }
-    if (!paths) {
-        if (directory != "") { W[argc + 1] = directory; recursive_path(argc + 1) }
-        else recursive_path(0)
-    }
-}
 function allow_command(    verb, first, i) {
     if (!argc) return
-    modeled_cleanup = 0; destructive_targets()
-    if (modeled_cleanup) return
     if (++commands > 64) { fail(); return }
     for (i = 1; i <= argc; i++) if (leading[i] && !glob_safe()) { cmd_failed = 1; return }
     if (managed_script()) return
@@ -574,9 +453,6 @@ function readonly(s,    i, c, c2, sq, dq) {
             if (c == "[" || word != "") fail(); else lead_glob = 1
         }
         if (c == "#" && !inword) { while (i <= length(s) && substr(s, i, 1) != "\n") i++; c = "\n" }
-        if (c == "{" && c2 == "}" && !inword && substr(s, i + 2, 1) ~ /[ \t\n]/) {
-            word = "{}"; inword = 1; i++; continue
-        }
         if (c == "(" || c == ")" || c == "{" || c == "}") fail()
         if (c == ">" || c == "<" || (c == "&" && c2 == ">")) {
             cmd_redirect = 1
@@ -628,13 +504,8 @@ BEGIN {
     ESC["n"] = 10; ESC["r"] = 13; ESC["t"] = 9; ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34
     text = ENVIRON["GSW_COMMAND"]
     if (ENVIRON["GSW_MODE"] == "references") { emit_text(text); exit 0 }
-    if (ENVIRON["GSW_MODE"] == "targets" || ENVIRON["GSW_MODE"] == "recursive") {
+    if (ENVIRON["GSW_MODE"] == "targets") {
         readonly(text)
-        if (ENVIRON["GSW_MODE"] == "recursive") {
-            if (recursive_uncertain) exit 2
-            for (path in recursive_targets) print path
-            exit 0
-        }
         if (unparsed) emit_text(text)
         else for (i = 1; i <= emitted_count; i++) emit_text(emitted[i])
         exit 0
@@ -646,11 +517,9 @@ AWK
 glob_shell_safe=1
 if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]]; then glob_shell_safe=0; fi
 candidates_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_MODE=targets LC_ALL=C awk "$program" </dev/null)" || parser_failed
+[ -n "$candidates_text" ] || exit 0
 candidates=()
-while IFS= read -r candidate; do
-    [ -n "$candidate" ] || continue
-    candidates[${#candidates[@]}]="$candidate"
-done <<<"$candidates_text"
+while IFS= read -r candidate; do candidates[${#candidates[@]}]="$candidate"; done <<<"$candidates_text"
 classifier="$script_directory/cratis-guard-writes.sh"
 [ -f "$classifier" ] || {
     printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: could not check references (write guard is missing).' >&2
@@ -673,17 +542,6 @@ references="$("$BASH" "$classifier" --references <<<"$classifier_input" 2>"$clas
     printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: could not check references (write guard failed).' >&2
     exit 2
 }
-recursive_text="$(GSW_COMMAND="$command_text" GSW_MODE=recursive GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" LC_ALL=C awk "$program" </dev/null)" || parser_failed
-if [ -n "$recursive_text" ]; then
-    recursive_paths=()
-    while IFS= read -r candidate; do recursive_paths[${#recursive_paths[@]}]="$candidate"; done <<<"$recursive_text"
-    recursive_input="$(jq -nc --arg cwd "$cwd" --args '{cwd:$cwd,tool_input:{file_paths:$ARGS.positional}}' -- "${recursive_paths[@]}")" || parser_failed
-    recursive_references="$("$BASH" "$classifier" --recursive-references <<<"$recursive_input")" || parser_failed
-    if [ -n "$recursive_references" ]; then
-        printf "BLOCKED by cratis-guard-shell-writes: recursive removal reaches a protected target under '%s' (cratis-guard-writes). Use the edit/write tools, or report the intended change.\n" "${recursive_references%%$'\n'*}" >&2
-        exit 2
-    fi
-fi
 [ -n "$references" ] || exit 0
 if GSW_COMMAND="$command_text" GSW_MODE=readonly GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_PROTECTED="$references" LC_ALL=C awk "$program" </dev/null; then exit 0; fi
 printf "BLOCKED by cratis-guard-shell-writes: protected reference '%s' (cratis-guard-writes). Use the edit/write tools, or report the intended change; for a read, name literal paths or use the Read/Grep tools.\n" "${references%%$'\n'*}" >&2

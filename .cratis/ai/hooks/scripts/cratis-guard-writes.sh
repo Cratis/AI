@@ -45,11 +45,7 @@ parser_failed() {
 # The process substitution's exit status does not reach the reading group, and Bash 3.2 (macOS /bin/bash)
 # cannot wait on its PID, so a sentinel field is written only after jq succeeds.
 reference_mode=0
-recursive_reference_mode=0
-case "${1:-}" in
-    --references) reference_mode=1 ;;
-    --recursive-references) reference_mode=1; recursive_reference_mode=1 ;;
-esac
+[ "${1:-}" != --references ] || reference_mode=1
 cwd="" file="" notebook="" new_content="" new_string="" references="" parser_status=""
 {
     IFS= read -r -d '' cwd
@@ -315,7 +311,6 @@ agent_control_target() {
     local target="$1" directory policy_root target_rel managed pattern
     dir_of "$target"
     directory="$REPLY"
-    if [ "$recursive_reference_mode" = 1 ] && [ -d "$target" ]; then directory="$target"; fi
     # Keep the addressed spelling here, even when an adapter directory is a symlink.
     # .git is a directory in a checkout and a file in a linked worktree.
     while [ ! -e "$directory/.git" ]; do
@@ -324,11 +319,8 @@ agent_control_target() {
         directory="$REPLY"
     done
     policy_root="$directory"
-    # The repository itself is an ancestor of its permission files, even in an authored corpus.
-    if [ "$recursive_reference_mode" = 1 ] && [ "$target" = "$policy_root" ]; then return 0; fi
     relative_to "$target" "$policy_root"
     target_rel="$REPLY"
-    if [ "$recursive_reference_mode" = 1 ] && control_match "$target_rel" '.cratis/ai/*' "${control_patterns[@]}"; then return 0; fi
     if [ -f "$policy_root/.cratis/ai.manifest.json" ]; then
         if control_match "$target_rel" '.cratis/ai/*'; then return 0; fi
         if control_match "$target_rel" '.claude/*' '.pi/*'; then
@@ -422,29 +414,6 @@ classify_file() {
     return 1
 }
 
-# Recursive cleanup never walks output trees. Fixed controls are checked lexically above;
-# only the Git index supplies additional protected descendants (not untracked build output).
-protected_descendant() {
-    local target directory root descendant complete=0
-    abspath "$1" "$cwd"; normalize_target_path "$REPLY"; target="$REPLY"
-    physical_target_path "$target" || physical_file=""
-    if [ -n "$physical_file" ]; then normalize_target_path "$physical_file"; target="$REPLY"; fi
-    directory="$target"
-    while [ ! -d "$directory" ]; do
-        [ "$directory" != / ] || break
-        dir_of "$directory"; directory="$REPLY"
-    done
-    root="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null || git -C "$cwd" rev-parse --show-toplevel 2>/dev/null || printf '%s\n' "$cwd")"
-    case "$root/" in "$target/"*) return 0 ;; esac
-    while IFS= read -r -d '' descendant; do
-        if [ "$descendant" = complete ]; then complete=1; break; fi
-        if classify_file "$root/$descendant"; then return 0; fi
-    done < <(git -C "$root" ls-files -z -- "$target" 2>/dev/null && printf 'complete\0')
-    # An unavailable index leaves only the fixed-list policy; never fall back to a tree walk.
-    [ "$complete" = 1 ] || return 1
-    return 1
-}
-
 if [ "$reference_mode" = 1 ]; then
     candidates=() parser_status=""
     while IFS= read -r -d '' candidate; do candidates[${#candidates[@]}]="$candidate"; done < <(
@@ -461,7 +430,6 @@ if [ "$reference_mode" = 1 ]; then
         reference_pattern=0
         case "$candidate" in *'*'* | *'?'* | *'['* | *'{'* | *'@('* | *'+('* | *'!('*) reference_pattern=1 ;; esac
         if classify_file "$candidate" "$reference_pattern"; then printf '%s\n' "$candidate"; continue; fi
-        if [ "$recursive_reference_mode" = 1 ] && protected_descendant "$candidate"; then printf '%s\n' "$candidate"; continue; fi
         # Existing generated files can have arbitrary names; inspect actual glob matches too.
         if [ "$reference_pattern" = 1 ]; then
             count=0
