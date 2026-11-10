@@ -55,6 +55,24 @@ classifies auth-failed "fatal: unable to access 'https://github.com/o/r.git/': A
 classifies auth-failed "fatal: could not read Username for 'https://github.com': No such device or address"
 classifies auth-failed 'remote: Invalid username or password'
 classifies auth-failed 'HTTP 401'
+classifies auth-failed 'fatal: The requested URL returned error: 401'
+classifies auth-failed 'error: 401'
+classifies rejected-permission 'HTTP 403'
+classifies rejected-permission 'HTTP/2 403'
+classifies rejected-permission 'error: 403'
+classifies unknown 'HTTP 4030'
+classifies unknown 'error: 4010'
+# Branch names and URL paths are not HTTP diagnostics, including in rejection output.
+for status in 403 401; do
+    classifies rejected-hook " ! [remote rejected] HEAD -> feature-${status} (pre-receive hook declined)"
+    classifies rejected-non-fast-forward " ! [rejected] HEAD -> feature-${status} (non-fast-forward)"
+    classifies rejected-hook "To https://github.com/o/${status}/r.git
+ ! [remote rejected] HEAD -> work (pre-receive hook declined)"
+    classifies rejected-non-fast-forward "To https://github.com/o/${status}/r.git
+ ! [rejected] HEAD -> work (non-fast-forward)"
+    classifies network "fatal: unable to access 'https://github.com/o/${status}/r.git/': Could not resolve host: github.com"
+    classifies unknown "To https://github.com/o/${status}/r.git"
+done
 classifies network 'fatal: Could not resolve host: github.com'
 classifies network 'fatal: Connection timed out'
 classifies network 'fatal: Connection refused'

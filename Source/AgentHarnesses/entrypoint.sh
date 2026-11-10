@@ -401,13 +401,14 @@ STREAM_FILE=/tmp/claude-stream.jsonl
 
 # Classifies stdin without returning any of the original text. Precedence is permission, auth,
 # hook, non-fast-forward, network, unknown: specific rejections/auth markers beat generic transport
-# messages such as "unable to access". A non-fast-forward needs git's [rejected] marker too.
+# messages such as "unable to access". Numeric statuses require HTTP/error diagnostic context,
+# never just a number in a branch or URL. A non-fast-forward needs git's [rejected] marker too.
 classify_push_failure() {
     local message
     message=$(cat)
-    if grep -Eiq '(^|[^0-9])403([^0-9]|$)|permission to .* denied|permission denied|write access to repository not granted' <<<"$message"; then
+    if grep -Eiq '(^|[[:blank:]])(HTTP(/[0-9.]+)?[[:blank:]]+|error:[[:blank:]]*)403([^0-9]|$)|permission to .* denied|permission denied|write access to repository not granted' <<<"$message"; then
         echo rejected-permission
-    elif grep -Eiq 'authentication failed|could not read username|invalid username or password|(^|[^0-9])401([^0-9]|$)' <<<"$message"; then
+    elif grep -Eiq 'authentication failed|could not read username|invalid username or password|(^|[[:blank:]])(HTTP(/[0-9.]+)?[[:blank:]]+|error:[[:blank:]]*)401([^0-9]|$)' <<<"$message"; then
         echo auth-failed
     elif grep -Eiq 'pre-receive hook declined|protected branch hook declined|GH006|GH013' <<<"$message" ||
          { grep -Eiq 'remote rejected' <<<"$message" && grep -Eiq 'hook' <<<"$message"; }; then
