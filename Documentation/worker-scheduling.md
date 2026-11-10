@@ -45,6 +45,65 @@ images: an entrypoint-only upgrade cannot remove a mount supplied by an older ru
 This closes the shared-cache source-read path, not every possible credential, network,
 or consumer-supplied file exposure.
 
+## Host-prepared workspaces (Docker only)
+
+A host that already owns a checkout can launch a Docker worker without a clone or
+push. Configure a trusted, existing absolute root at
+`Cratis:AI:ContainerRuntime:HostWorkspaceRoot`, then set these job environment values:
+
+```text
+CRATIS_WORKSPACE_MODE=host-prepared
+CRATIS_WORKSPACE_HOST_PATH=/srv/workspaces/job-123
+```
+
+`job-123` must already be a readable, writable git work-tree root under the configured
+root (for example `/srv/workspaces`). The runtime checks the host path before contacting
+Docker, binds only that directory read-write at `/workspace`, removes the host-only
+path from the container environment, and sets `CRATIS_WORKSPACE_PATH=/workspace`.
+The entrypoint validates the mounted checkout and registers it as a safe directory;
+it does not clone, fetch, create a branch, attach repository credentials, or push.
+Repository cache mounts and their environment variables are suppressed in this mode.
+This does not sandbox an agent that independently invokes git: the host remains
+responsible for the checkout, the worker's capabilities and its changes.
+
+Unset or empty `CRATIS_WORKSPACE_MODE` keeps the existing clone workflow. Only the
+exact lowercase value `host-prepared` opts in; other non-empty values are errors,
+including `clone`, `true`, `1`, mixed case and whitespace. The trusted root is never
+inferred: unset, empty, relative or nonexistent roots refuse host-prepared launches.
+Workspaces must be strict descendants, not the root itself or a sibling with the
+same prefix. Relative paths, traversal (`.`/`..`), empty path segments, trailing
+separators, newlines, colons, commas, and symlinks/reparse points below the trusted
+root are rejected. The container also rejects symlinks in the mounted path's ancestors.
+The host must keep the root and its descendants stable between validation and mount;
+validation cannot prevent an administrator from swapping a directory afterward.
+
+Host-prepared mode refuses these repository inputs in either environment or secrets,
+**even when their value is empty**: `GITHUB_TOKEN`, `GH_TOKEN`, `DIRECT_PUSH_TOKEN_URL`,
+`DIRECT_CLONE_CREDENTIALS`, `DIRECT_REPOSITORY_URL`, `DIRECT_REPOSITORY_URLS`,
+`DIRECT_REPOSITORY_CHECKOUTS`, `DIRECT_REPOSITORY_CACHE`, and `DIRECT_BRANCH`.
+Provider credentials such as `COPILOT_GITHUB_TOKEN` remain allowed. It cannot be
+combined with `DIRECT_RUN_MODE=bundle-diff`. Invalid jobs return
+`WorkerLaunchOutcome.InvalidWorkspace` without creating or removing engine resources;
+the caller must fix the job, not retry it. Kubernetes refuses this mode before
+contacting the cluster: use a PVC-specific design rather than a node-local bind.
+
+## Non-interactive git and deadlines
+
+Workers disable terminal and askpass prompts, credential-manager interaction and
+interactive SSH (`BatchMode=yes`), including inherited overrides. Missing/rejected
+repository credentials fail with a `[git-auth]` detail instead of waiting for input.
+Git HTTP transfers also use a low-speed floor of 1000 bytes/second for 60 seconds.
+
+Every harness clone, fetch and `ls-remote` is bounded by GNU `timeout` (provided by
+`coreutils` in the worker image), with a 10-second kill-after grace period. Set
+`CRATIS_GIT_DEADLINE_SECONDS` to an integer from 1 through 3600; unset or empty defaults
+to 600 seconds. Invalid values or a missing timeout binary fail immediately with
+`[git-config]`. A deadline expiry returns a `[git-timeout]` failure detail naming the
+command, safe repository URL, duration and override variable. URL userinfo is removed
+from these details and git diagnostics. An ordinary cache refresh failure still falls
+back to the cached HEAD; a timed-out refresh is a terminal failure, not a cache hit.
+No push deadline is added by this setting.
+
 ## Running-worker protection
 
 Every worker pod template carries

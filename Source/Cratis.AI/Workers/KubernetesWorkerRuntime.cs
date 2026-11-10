@@ -472,6 +472,12 @@ public class KubernetesWorkerRuntime(
     /// </remarks>
     public async Task<WorkerLaunchOutcome> Start(WorkerJob job, CancellationToken cancellationToken = default)
     {
+        var verdict = HostWorkspace.Validate(job, options.Value.HostWorkspaceRoot);
+        if (verdict.Kind != HostWorkspaceVerdictKind.NotHostPrepared)
+        {
+            logger.InvalidHostWorkspace(job.Session, verdict.Kind == HostWorkspaceVerdictKind.Valid ? HostWorkspaceVerdictKind.UnsupportedRuntime : verdict.Kind);
+            return WorkerLaunchOutcome.InvalidWorkspace;
+        }
         var files = BuildMountedFiles(job);
         var sizes = files.Select(file => new { file.Key, Bytes = (long)Encoding.UTF8.GetByteCount(file.Value) }).ToArray();
         var totalBytes = sizes.Sum(file => file.Bytes);

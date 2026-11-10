@@ -12,6 +12,9 @@ namespace Cratis.AI.Workers;
 /// </summary>
 internal static partial class WorkerRuntimeLog
 {
+    [LoggerMessage(LogLevel.Warning, "Refused to launch worker for session {Session}: host-prepared workspace is invalid ({Reason})")]
+    internal static partial void InvalidHostWorkspace(this ILogger logger, AgentSessionId session, HostWorkspaceVerdictKind reason);
+
     [LoggerMessage(LogLevel.Debug, "Could not pull image '{Image}' - assuming it exists locally")]
     internal static partial void CouldNotPullImage(this ILogger logger, Exception exception, string image);
 
