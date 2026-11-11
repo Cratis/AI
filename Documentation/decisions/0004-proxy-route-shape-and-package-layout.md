@@ -1,6 +1,7 @@
 # 0004 - `@cratis/ai` route shape and generated-package layout
 
 Status: Accepted
+Superseded in part by: `0020-ci-never-generates-arc-proxies.md` (item 4 only).
 Related: `/Volumes/Code/Cratis/ai-consolidation-plan.md` Section 6 (the `@cratis/ai` npm package),
 Section 6.4 (route shape), risk #12. `Documentation/migration-status.md` flagged this as one of two
 decisions still open before Phase 3b could start.

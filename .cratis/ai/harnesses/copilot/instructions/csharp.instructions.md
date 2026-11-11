@@ -62,6 +62,16 @@ Every rule here reduces noise. `var` avoids redundant type repetition. Expressio
 - Use collection expression arguments (`[with(capacity: n), .. items]`, `[with(comparer), ..]`) instead of constructor calls, and labeled `break`/`continue` instead of Boolean flags or `goto` in nested loops (IDE0410).
 - Do not introduce `union` types, runtime-async, or the memory-safety preview features, and do not retrofit `closed` onto an existing public type — a public API change is a major version.
 - Keep IDE style rule severities at `suggestion`, never `warning`: Release builds treat warnings as errors.
+- Under the .NET 11 SDK, IDE0370 (unnecessary null-forgiving operator) and IDE0001/IDE0002 (simplify names and member access) surface wherever code style is enforced: `dotnet format --verify-no-changes`, or `EnforceCodeStyleInBuild` with warnings as errors and `dotnet_analyzer_diagnostic.severity = warning`. IDE0001/IDE0002 are `EnforceOnBuild=Never`, so only `dotnet format` and the IDE surface them; IDE0370 is `WhenExplicitlyEnabled`, so the build enforces it only when something enables it explicitly, such as an all-analyzers severity line. A repository that already enforces style at `warning` keeps that severity and fixes these findings in its .NET 11 change.
+- Exception for multi-target libraries only (for example `net10.0;net11.0`): IDE0370 is analyzed per compilation and can flag a `!` another target still needs ([roslyn#81632](https://github.com/dotnet/roslyn/issues/81632), [roslyn#82003](https://github.com/dotnet/roslyn/issues/82003)). Remove every `!` that is unnecessary on all targets. If target-dependent ones remain, add this to that repository's `.editorconfig`, with a tracking issue, and verify with a build of all target frameworks:
+
+  ```ini
+  # IDE0370 is analyzed per target framework and flags null-forgiving operators another target still needs.
+  # See https://github.com/dotnet/roslyn/issues/81632 and https://github.com/dotnet/roslyn/issues/82003. Tracked in <issue>.
+  dotnet_diagnostic.IDE0370.severity = suggestion
+  ```
+
+  Never `none`, never in shared or global config, and never for `net11.0`-only executables.
 
 ## Nullable Reference Types
 
