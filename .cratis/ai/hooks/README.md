@@ -890,8 +890,8 @@ The Debug/Release split applies to the shipped client-side local gates only: Rel
 path, and the committing client's Debug gate does not, because `general.md` makes the Debug build
 the canonical trigger for regenerating the TypeScript proxies the frontend phase depends on, and
 the client commits the result. A consuming repository's CI never copies the Debug proxy step; it
-passes `-p:CratisProxiesSkip=true` (older Arc: `-p:CratisProxiesOutputPath=`) in every
-configuration.
+passes `-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath=` (Skip needs Arc 22.185.1 or
+later) in every configuration.
 
 ## Unattended runs
 

@@ -77,14 +77,14 @@ Tagged **[contract]** (framework-enforced) or **[convention]** (house default). 
 - **Phase 2 — Specs.** Mandatory for every slice type. Start with plain calls for pure command/validator/reducer decisions with supplied read-model state; add the scenarios the decision table in [specs.scenarios.csharp.md](./specs.scenarios.csharp.instructions.md) obligates, and follow it for shared setup and cost budgets. **Gate:** tests pass.
 - **Phase 3 — Frontend.** Build from the generated proxies, register in the composition page, wire routing. **Gate:** lint, conditional test, build.
 
-**Backend before frontend, always** — the frontend depends on proxies that exist only after a successful build. Generate proxies from the **Debug** build (house convention); verify Release without re-running the generator: `dotnet build -c Release -p:CratisProxiesSkip=true` (Arc 22.185.1+; older Arc: `-p:CratisProxiesOutputPath=`). Why that property, and what to do when nothing is generated: the **cratis-arc-command** skill's proxy-generation reference.
+**Backend before frontend, always** — the frontend depends on proxies that exist only after a successful build. Generate proxies from the **Debug** build (house convention); verify Release without re-running the generator: `dotnet build -c Release -p:CratisProxiesSkip=true -p:CratisProxiesOutputPath=` (Skip needs Arc 22.185.1 or later; the empty path covers earlier Arc). Why that property, and what to do when nothing is generated: the **cratis-arc-command** skill's proxy-generation reference.
 
 ## Quality Gates
 
 | Phase | Command (app-pinned) | Pass criteria |
 | --- | --- | --- |
 | Backend | build (Debug) | zero errors, zero warnings — validates `#if DEBUG` spec code and regenerates proxies |
-| Backend | build (Release) | zero errors, zero warnings — build-only check; pass `-p:CratisProxiesSkip=true` (older Arc: empty `-p:CratisProxiesOutputPath=`) to skip proxy generation |
+| Backend | build (Release) | zero errors, zero warnings — build-only check; pass `-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath=` (Skip needs Arc 22.185.1 or later) to skip proxy generation |
 | Specs | test | zero failures |
 | Frontend | lint | zero errors |
 | Frontend | test | zero failures when frontend specs/behavior changed |

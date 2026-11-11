@@ -75,7 +75,7 @@
     "The Debug/Release split is for these client-side local hooks only: the committing client's",
     "Debug gate omits the override because general.md makes Debug the canonical proxy-regeneration",
     "trigger, and the client commits the result. CI never copies that Debug proxy step: it passes",
-    "-p:CratisProxiesSkip=true (older Arc: -p:CratisProxiesOutputPath=) in every configuration."
+    "-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath= (Skip needs Arc 22.185.1 or later) in every configuration."
   ],
   "enabled": true,
   "failFast": true,

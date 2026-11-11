@@ -28,7 +28,8 @@ queries and read models, and set an output path:
 Install `@cratis/arc` and `@cratis/arc.react` on the frontend side.
 
 The package adds a `CratisProxyGenerator` target that runs `AfterTargets="AfterBuild"`,
-and its condition is `'$(CratisProxiesOutputPath)' != ''`. **A missing output
+and its condition is `'$(CratisProxiesOutputPath)' != '' and '$(CratisProxiesSkip)' != 'true'
+and '$(DisableProxyGenerator)' != 'true'` (earlier Arc checks only the path). **A missing output
 path is not an error — the target simply never runs and nothing is generated.**
 That is the first thing to check when a build succeeds but no proxies appear.
 
@@ -107,8 +108,8 @@ On the frontend, the generated route already starts with the API prefix.
 changes a command or query builds Debug, generates the proxies and commits them
 with the change. CI builds compile against the committed proxies; a CI build that
 regenerates them produces diffs nobody commits or drift that exists only on the
-runner. Every CI build of an Arc project passes `-p:CratisProxiesSkip=true`
-in every configuration.
+runner. Every CI build of an Arc project passes `-p:CratisProxiesSkip=true
+-p:CratisProxiesOutputPath=` in every configuration.
 
 Requires Arc 22.185.1 or later for `-p:CratisProxiesSkip=true`, Arc's off switch; fall
 back to an empty `-p:CratisProxiesOutputPath=` on older Arc.
