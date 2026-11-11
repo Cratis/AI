@@ -105,8 +105,8 @@ capacity numbers into workflows or guidance.
 ## Arc proxies
 
 - Workflows never generate Arc TypeScript proxies; the client commits them. Every `dotnet
-  build`/`publish` of an Arc project passes `-p:CratisProxiesOutputPath=` (empty, Arc's off
-  switch; `DisableProxyGenerator` is repository-defined, not Arc's). See the
+  build`/`publish` of an Arc project passes `-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath=`
+  (Skip needs Arc 22.185.1 or later; the empty path covers earlier Arc). See the
   **cratis-arc-command** proxy-generation reference.
 
 ## Automation that writes back

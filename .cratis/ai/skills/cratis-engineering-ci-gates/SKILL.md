@@ -60,8 +60,8 @@ before an external effect. A request to verify does not authorize a push.
    and API regeneration checks; never hand-edit generated files. A package bump
    regenerates the checked-in snapshots that pin versions, in the same commit.
    Arc TypeScript proxies are generated and committed by the client, never in CI:
-   CI, and local gates that mirror CI, pass `-p:CratisProxiesOutputPath=` (empty;
-   the `DisableProxyGenerator` name is repository-defined, not Arc's); only the
+   CI, and local gates that mirror CI, pass `-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath=`
+   (Skip needs Arc 22.185.1 or later; the empty path covers earlier Arc); only the
    client's own Debug hook regenerates proxies. See the
    **cratis-arc-command** proxy-generation reference.
 

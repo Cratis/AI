@@ -28,7 +28,8 @@ queries and read models, and set an output path:
 Install `@cratis/arc` and `@cratis/arc.react` on the frontend side.
 
 The package adds a `CratisProxyGenerator` target that runs `AfterTargets="AfterBuild"`,
-and its condition is `'$(CratisProxiesOutputPath)' != ''`. **A missing output
+and its condition is `'$(CratisProxiesOutputPath)' != '' and '$(CratisProxiesSkip)' != 'true'
+and '$(DisableProxyGenerator)' != 'true'` (earlier Arc checks only the path). **A missing output
 path is not an error — the target simply never runs and nothing is generated.**
 That is the first thing to check when a build succeeds but no proxies appear.
 
@@ -48,6 +49,7 @@ switches without a declared default are off when absent.
 | Property | Default | Effect |
 | --- | --- | --- |
 | `CratisProxiesOutputPath` | empty | Where to write. Empty disables generation entirely |
+| `CratisProxiesSkip` | off | `true` skips the generator even when the output path is set (see Skipping generation) |
 | `CratisProxiesInputAssembly` | empty | Overrides the assembly to read |
 | `CratisProxiesIncremental` | `true` | Requires Arc 22.138.0; reuse unchanged owned output; set `false` to regenerate every build |
 | `CratisProxiesFileHeader` | project setting | Requires Arc 22.123.0; otherwise uses `.editorconfig` `file_header_template`, or no header; `none` disables it |
@@ -106,16 +108,18 @@ On the frontend, the generated route already starts with the API prefix.
 changes a command or query builds Debug, generates the proxies and commits them
 with the change. CI builds compile against the committed proxies; a CI build that
 regenerates them produces diffs nobody commits or drift that exists only on the
-runner. Every CI build of an Arc project passes `-p:CratisProxiesOutputPath=`
-(empty), in every configuration.
+runner. Every CI build of an Arc project passes `-p:CratisProxiesSkip=true
+-p:CratisProxiesOutputPath=` in every configuration.
 
-`-p:CratisProxiesOutputPath=` is Arc's off switch: the `CratisProxyGenerator`
-target runs only when `CratisProxiesOutputPath` is non-empty, so an empty value
-makes it a no-op. `DisableProxyGenerator` is **not an Arc property**; it works only
-in a repository that defines it itself (for example a project that gates
-`CratisProxiesOutputPath` and the generator reference on it, as the Chronicle
-kernel `Core.csproj` does). MSBuild accepts unknown `-p:` names silently, so passing
-it where it is not defined looks effective and does nothing.
+Requires Arc 22.185.1 or later for `-p:CratisProxiesSkip=true`, Arc's off switch; fall
+back to an empty `-p:CratisProxiesOutputPath=` on older Arc.
+
+The `CratisProxyGenerator` target runs only when `CratisProxiesOutputPath` is non-empty
+and `CratisProxiesSkip` is not `true`, so Skip works even when the project sets the
+output path. Older Arc ignores `CratisProxiesSkip` silently (MSBuild accepts unknown
+`-p:` names), so a build that must work on both passes both. Prefer `CratisProxiesSkip`;
+`DisableProxyGenerator` is only an alias of it in current Arc, and elsewhere works only
+where a repository defines it (the Chronicle kernel `Core.csproj` does).
 
 ## What the generator extracts for client-side validation
 
@@ -153,7 +157,7 @@ property.
 
 | Symptom | Cause |
 | --- | --- |
-| Nothing is generated | `CratisProxiesOutputPath` is unset, or the project did not build |
+| Nothing is generated | `CratisProxiesOutputPath` is unset, `CratisProxiesSkip` is `true`, or the project did not build |
 | Files appear under an unexpected folder | The folder mirrors the namespace; change the namespace or use `NamespaceRoot`/`CratisProxiesSegmentsToSkip` |
 | Stale proxies after a rename | `dotnet clean` then `dotnet build`; the generator does not delete by default |
 | A rule validates on the server but not in the browser | The rule is not in the extractable set above |

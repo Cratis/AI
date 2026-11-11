@@ -67,15 +67,15 @@
     "  { \"gates\": [ { \"id\": \"frontend-lint\", \"workingDirectory\": \"Source/App\" } ] }",
     "",
     "Commands are pinned to .cratis/ai/rules/general.md 'Quality Gates' and .cratis/ai/hooks/agent-stop.md.",
-    "Note the Release build passes -p:CratisProxiesOutputPath= per general.md so the proxy",
-    "generator does not re-run and touch already-correct generated files. That property is the",
-    "Arc off switch: the generator's target is Condition=\"'$(CratisProxiesOutputPath)' != ''\".",
-    "DisableProxyGenerator is not an Arc property, only repository-defined \u2014 MSBuild accepts",
-    "unknown -p: names silently, so passing it elsewhere looks effective and does nothing.",
+    "Note the Release build passes -p:CratisProxiesSkip=true per general.md so the proxy",
+    "generator does not re-run and touch already-correct generated files. From Arc 22.185.1 that",
+    "is the off switch: the target skips when CratisProxiesSkip is true even if the output path is",
+    "set. Older Arc ignores it silently, so the command also clears CratisProxiesOutputPath, which",
+    "older Arc honors (the target requires it to be non-empty).",
     "The Debug/Release split is for these client-side local hooks only: the committing client's",
     "Debug gate omits the override because general.md makes Debug the canonical proxy-regeneration",
     "trigger, and the client commits the result. CI never copies that Debug proxy step: it passes",
-    "-p:CratisProxiesOutputPath= in every configuration."
+    "-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath= (Skip needs Arc 22.185.1 or later) in every configuration."
   ],
   "enabled": true,
   "failFast": true,
@@ -186,6 +186,7 @@
         "build",
         "--configuration",
         "Release",
+        "-p:CratisProxiesSkip=true",
         "-p:CratisProxiesOutputPath="
       ]
     },

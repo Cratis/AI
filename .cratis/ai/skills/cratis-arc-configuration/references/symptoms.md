@@ -4,7 +4,7 @@ Each row is a first hypothesis; confirm before changing.
 
 | Symptom | Setting to check |
 | --- | --- |
-| Build succeeds but no TypeScript proxies appear | `CratisProxiesOutputPath` is empty; the generator target runs only when it is set |
+| Build succeeds but no TypeScript proxies appear | `CratisProxiesOutputPath` is empty, or `-p:CratisProxiesSkip=true` is set; the generator target runs only when the path is set and Skip is not `true` |
 | Generated client calls return 404 | Generator and host route settings differ: prefix, segments to skip, name inclusion (skip and include are inverses) |
 | Requests go to the wrong path behind a gateway | `apiBasePath` duplicated `/api` or missing the deployment prefix; `origin` bypassing the dev proxy |
 | Every request is anonymous after `AddCratis()`; endpoints return 401 | `TrustForwardedIdentityHeaders` is `false` by default; enable only behind an ingress that authenticates and replaces the headers |
