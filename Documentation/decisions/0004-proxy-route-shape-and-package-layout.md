@@ -35,7 +35,9 @@ package's own `package.json`/`tsconfig.json`/`rollup.config.mjs`/hand-written `i
    `AI/` folder inside it), via `--namespace-root=Cratis.AI=.`. This is a folder-layout convenience
    only, independent of the route decision above - routes are still derived from `SegmentsToSkip`,
    not from `NamespaceRoot`.
-4. **The CI drift gate (`publish.yml`'s `verify` job) checks only `Source/Cratis.AI.Proxies/generated`**,
+4. **Superseded in part (Cratis/AI#1130): pull request CI no longer runs this drift gate or generates
+   proxies; the npm release build regenerates them, and contributors refresh the committed tree locally
+   with `dotnet build Source/Cratis.AI/Cratis.AI.csproj`.** The original gate (`publish.yml`'s `verify` job) checked only `Source/Cratis.AI.Proxies/generated`,
    not the whole proxies package - the hand-authored files at the package root legitimately change on
    their own and must not trip a gate meant to catch a stale *generated* proxy. The gate rebuilds
    `Cratis.AI` first (`dotnet build`, Debug) so the diff is against a freshly regenerated tree, not

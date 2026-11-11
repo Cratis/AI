@@ -24,8 +24,8 @@
              the .ts beside the .cs, which is right for an app but would make the npm package root the
              C# project directory. Written to a sibling Cratis.AI.Proxies project instead, and NOT
              deleted on every build (SkipOutputDeletion=false, the opposite of both donors) so a
-             deleted command can never leave a stale proxy behind in a published package - the CI
-             drift gate in publish.yml's verify job depends on that. Route decision (plan Section 6.4,
+             deleted command can never leave a stale proxy behind in a published package. Pull request CI
+             builds pass -p:CratisProxiesOutputPath= so they never generate; the npm release build does. Route decision (plan Section 6.4,
              decision 0003): SegmentsToSkip=1 skips only the leading "Cratis" namespace segment, giving
              routes like /api/a-i/usage/record-agent-session-usage - distinct and collision-proof
              against either product's own routes, and identical in both hosts since both load the same
