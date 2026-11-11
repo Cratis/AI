@@ -76,8 +76,11 @@ option-looking operands, mutation flags and extra options are not admitted. Thes
 `&&`-only chain restriction. `git branch -l` is not a list exemption.
 Reference extraction discards only the non-value-bearing match text of simple `${NAME%pattern}`,
 `${NAME%%pattern}`, `${NAME#pattern}`, `${NAME##pattern}`, case-conversion operators (`^`, `^^`, `,`, `,,`),
-and numeric offset/length forms. This is not shell evaluation: nested, malformed, default/assignment,
-replacement and command-substitution bodies remain visible, and the command lexer still rejects expansions.
+and numeric offset/length forms. An opaque placeholder preserves the expansion marker and unknown path-prefix
+and segment views of a plain parameter; an additional empty-value view retains adjacent literal spellings.
+This is not shell evaluation: nested, malformed, default/assignment, replacement and command-substitution
+bodies remain visible, and the command lexer still rejects expansions. Literal or decoded placeholder
+collisions disable the rewrite.
 
 `cp`, `rsync` and `install` have a separate, closed destination grammar. Reviewed options must precede
 operands; unknown/abbreviated options, options after operands, remote rsync destinations, directory changes
@@ -87,7 +90,9 @@ include `-t`, trailing slashes, existing directories and multiple-source copies;
 checked as both files and directories. `-T` selects a file destination. Existing file destinations permit
 renames. Protected source paths themselves are reads (the secrets guard still applies); for example,
 `cp .mcp.json /tmp/backup.json` is admitted, but `cp .env .` is not. Source globs may copy to literal external
-directories such as `cp Source/Foo/*.md /tmp/cratis-out/`. Inside repositories, possibly protected implicit
+directories such as `cp Source/Foo/*.md /tmp/cratis-out/`. Their real matched basenames are still classified:
+protected environment names remain writes even outside repositories. Missing or uncertain matches retain
+conservative glob classification. Inside repositories, possibly protected implicit
 glob basenames and rsync directory contents fail closed; leading wildcard basenames conservatively include
 dotfiles. Globs that can supply option-shaped source filenames are not admitted. No copy command is executed
 by the check; only literal path metadata is queried.

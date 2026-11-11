@@ -35,6 +35,7 @@ cwd="${cwd:-$PWD}"
 
 IFS= read -r -d '' program <<'AWK' || true
 function candidate(s) {
+    if (checking_marker) return
     if (s == "" || s ~ /[\n\r\t]/) return
     if (collecting) {
         if (s in collected) return
@@ -106,6 +107,15 @@ function scan(s,    n, i, c, word, whole, flat, expanded, chunk) {
     if (flat != s) scan(flat)
     n = length(s)
     for (i = 1; i <= n; i++) {
+        # The placeholder is one opaque expansion, not a variable name or literal path segment.
+        # Preserve the same unknown-prefix suffix views as ${NAME}, without its operator operand.
+        if (match_placeholders && substr(s, i, length(MATCH_MARKER)) == MATCH_MARKER) {
+            candidate(word); candidate(whole)
+            if (expanded || word ~ /^~/) remainder(word)
+            word = whole = ""; expanded = 1; chunk = chunk "$"
+            i += length(MATCH_MARKER) - 1
+            continue
+        }
         c = substr(s, i, 1)
         if (c ~ /[ \t\n\r;|&<>]/) { chunk_suffixes(chunk); chunk = "" }
         else chunk = chunk c
@@ -171,6 +181,8 @@ function fail() { bad = unparsed = 1 }
 # Rewrite extraction data only; the lexer still rejects expansions. Nested and value-bearing
 # bodies stay visible because their text can supply a protected path or execute another command.
 function strip_expansion_operators(t,    out, start, rest, body, name, op, depth, i, c, count) {
+    match_placeholders = 0
+    if (!match_rewrite_safe || index(t, MATCH_MARKER)) return t
     while ((start = index(t, "${")) && ++count <= 256) {
         out = out substr(t, 1, start - 1); rest = substr(t, start + 2); depth = 1
         for (i = 1; i <= length(rest); i++) {
@@ -183,10 +195,10 @@ function strip_expansion_operators(t,    out, start, rest, body, name, op, depth
         if (match(body, /^[A-Za-z_][A-Za-z0-9_]*/)) {
             name = substr(body, 1, RLENGTH); op = substr(body, RLENGTH + 1)
         }
-        # An opaque match expansion can be empty: retain adjacent literals without merging them
-        # into a variable name (.e${x%y}nv must still expose .env). Never rewrite value-bearing bodies.
-        if (!(name != "" && (op ~ /^(##?|%%?|\^\^?|,,?)[^$`(){}"\047\\;|&<>[:space:]]*$/ ||
-            op ~ /^:([0-9]+| -?[0-9]+)(:([0-9]+| -?[0-9]+))?$/))) out = out "${" body "}"
+        if (name != "" && (op ~ /^(##?|%%?|\^\^?|,,?)[^$`(){}"\047\\;|&<>[:space:]]*$/ ||
+            op ~ /^:([0-9]+| -?[0-9]+)(:([0-9]+| -?[0-9]+))?$/)) {
+            out = out MATCH_MARKER; match_placeholders = 1
+        } else out = out "${" body "}"
         t = substr(rest, i + 1)
     }
     return out t
@@ -194,6 +206,12 @@ function strip_expansion_operators(t,    out, start, rest, body, name, op, depth
 function emit_text(t) {
     t = strip_expansion_operators(t)
     scan(t); scan(unquote(t)); raw_brace_scan(t)
+    if (match_placeholders) {
+        # Also retain the possible empty-value spelling, e.g. .e${x%y}nv -> .env. It supplements,
+        # never replaces, the expanded/unknown-prefix view above.
+        gsub(/\$__CRATIS_MATCH__/, "", t); match_placeholders = 0
+        scan(t); scan(unquote(t)); raw_brace_scan(t)
+    }
 }
 function destination_allowed(w, implicit,    s) {
     if (!implicit && w ~ /[$`*?\[{~()]/) return 0
@@ -458,6 +476,24 @@ function copy_write_target(w, implicit) {
     if (ENVIRON["GSW_MODE"] == "targets") { candidate(w); emit_text(w) }
     return destination_allowed(w, implicit)
 }
+# External copies still write environment files. Expand source globs as literal metadata, judging
+# each effective basename; if there are no matches, retain the conservative glob-path classifier.
+function copy_external_glob(dest, source, base,    script, cmd, line, count, ok, valid, path) {
+    if (ENVIRON["GSW_GLOB_SAFE"] != "1") return 0
+    script = "cd -- \"$1\" && [ -r . ] && [ -x . ] || exit 3; unset GLOBIGNORE; shopt -s nullglob dotglob nocaseglob; " \
+        "n=0; while IFS= read -r f; do n=$((n+1)); [ \"$n\" -le 200 ] || exit 3; " \
+        "case $f in -*|*[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$f\"; done < <(compgen -G \"$2\"); echo OK"
+    cmd = "bash -c " shell_quote(script) " guard-copy-glob " shell_quote(ENVIRON["GSW_CWD"]) " " shell_quote(source) " 2>/dev/null"
+    valid = 1
+    while ((cmd | getline line) > 0) {
+        if (line == "OK") { ok = 1; continue }
+        if (ok || substr(line, 1, 2) != "F:" || ++count > 200) { valid = 0; break }
+        path = substr(line, 3); sub(/^.*\//, "", path)
+        if (path == "" || !copy_write_target(dest "/" path, 1)) { valid = 0; break }
+    }
+    if (close(cmd) != 0 || !ok || !valid) return 0
+    return count ? 1 : copy_write_target(dest "/" base, 1)
+}
 # Judge both explicit destinations and the basenames utilities append to directory destinations.
 # rsync directory contents may introduce protected names; do not infer a safe listing inside a repo.
 function copy_effective_targets(verb, targets, sources, dirs, no_target, explicit_dirs,    i, j, dest, kind, base) {
@@ -474,11 +510,13 @@ function copy_effective_targets(verb, targets, sources, dirs, no_target, explici
             }
             base = copy_sources[j]; sub(/\/+$/, "", base); sub(/^.*\//, "", base)
             if (base == "") return 0
-            # Outside a repository, source globs are reads, not explicit destination patterns.
-            # Inside, a leading wildcard can supply dotfiles; keep that possibility separate from
-            # dependency-manifest matches, whose classifier exemption does not authorize dotfiles.
+            # Keep possible dotfiles separate from dependency-manifest exemptions. External glob
+            # matches are classified too: environment filenames are protected outside repositories.
             if (base ~ /[*?\[]/) {
-                if (kind == "outside") continue
+                if (kind == "outside") {
+                    if (!copy_external_glob(dest, copy_sources[j], base)) return 0
+                    continue
+                }
                 if (base ~ /^[*?\[]/ && !copy_write_target(dest "/.*", 1)) return 0
             }
             if (!copy_write_target(dest "/" base, 1)) return 0
@@ -658,6 +696,11 @@ BEGIN {
     for (i = 0; i < 16; i++) HEX[substr("0123456789abcdef", i + 1, 1)] = i
     ESC["n"] = 10; ESC["r"] = 13; ESC["t"] = 9; ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34
     text = ENVIRON["GSW_COMMAND"]
+    MATCH_MARKER = "$__CRATIS_MATCH__"
+    # Never interpret user-supplied or ANSI-decoded marker text as an internal token. Collisions
+    # disable admission rather than assigning special meaning to an existing parameter or literal.
+    checking_marker = 1; decoded = unquote(text); checking_marker = 0
+    match_rewrite_safe = !index(text, MATCH_MARKER) && !index(decoded, MATCH_MARKER)
     if (ENVIRON["GSW_MODE"] == "references") { emit_text(text); exit 0 }
     if (ENVIRON["GSW_MODE"] == "targets") {
         readonly(text)

@@ -74,6 +74,9 @@ const routine = [
 const issueHostile = [
     'cp x .cratis/ai/rules/a.md', 'cp x .cratis/ai/rules/', 'cp x .cratis/ai', 'cp x .mcp.json',
     'cp x .env', 'cp x .ENV', 'cp -- x .env', 'cp -r x .cratis/ai',
+    'echo x > "${PWD%/}/.cratis/ai/rules/a.md"', 'echo x > "${HOME#/}/.cratis/ai/x"',
+    'cp x "${PWD%/}/.cratis/ai"', 'cp x "${PWD^^}/.cratis/ai/"',
+    'cp .env* /tmp/out/', 'cp ordinary/.e* /tmp/out/',
     'cp .env .', 'cp x/.env ordinary/', 'cp -t . .mcp.json', 'cp .ENV ordinary',
     'cp x/.env y ordinary/', 'install -t . .mcp.json', 'rsync -a .cratis/ai/ ordinary/',
     'rsync -a ordinary/ ordinary/copy/', 'cp .cratis/ai/rules/a.md .cratis/ai/rules/',
@@ -159,6 +162,7 @@ function repository(managed: boolean) {
         'Source/Foo/README.md': 'fixture', 'Source/Foo/nested/.env': 'synthetic fixture',
         'Source/Verification/guard-fixture.ts': '// fixture',
         '.env': 'synthetic fixture', 'credentials.json': '{}', 'keys/server.pem': 'synthetic fixture',
+        'root.md': 'fixture',
         '.aws/credentials': 'synthetic fixture', 'files/ordinary.txt': 'fixture',
     };
     if (managed) files['.cratis/ai.manifest.json'] = '{"Files":[]}';
@@ -304,6 +308,37 @@ test('pattern and copy admissions retain managed hostile baselines', async () =>
         ]);
         // Substitution replacement text remains unrewritten; it is not a required admission.
         assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command: 'echo "${p/a/.env}"' }), 2);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('opaque match expansions retain plain-parameter protected path semantics', async () => {
+    const root = repository(true);
+    try {
+        for (const parameter of ['PWD%/', 'HOME#/', 'PWD^^', 'PWD:1', 'PWD%%:*', 'PWD##*/']) {
+            for (const prefix of ['', 'ordinary/']) {
+                const tail = '/.cratis/ai/rules/a.md';
+                const plain = `echo x > "${prefix}\${PWD}${tail}"`;
+                const matched = `echo x > "${prefix}\${${parameter}}${tail}"`;
+                assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command: plain }), 2, plain);
+                assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command: matched }), 2, matched);
+            }
+        }
+        for (const command of [
+            'echo x > ".e${x%y}${z#q}nv"',
+            'echo "${p%%:*}" \'$__CRATIS_MATCH__\'',
+            'echo "${p%%:*}" $\'\\x24__CRATIS_MATCH__\'',
+        ]) assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command }), 2, command);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('external glob destinations still protect matched environment basenames', async () => {
+    const root = repository(true);
+    try {
+        const command = 'cp ordinary/*.md /tmp/out/';
+        assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command }), 0, command);
+        writeFileSync(join(root, 'ordinary/.env.fixture.md'), 'synthetic fixture');
+        assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command }), 2, command);
+        assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command: 'cp missing/*.md /tmp/out/' }), 2);
     } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
