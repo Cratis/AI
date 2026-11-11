@@ -1040,7 +1040,11 @@ run_git_bounded() {
     GIT_AUTH_FAILED=false
     stderr=$(mktemp) || fail '[git-config] Cannot capture git diagnostics'
     started_at=$(date +%s)
-    "$GIT_TIMEOUT_BIN" --kill-after=10 "$GIT_DEADLINE_SECONDS" git "$@" < /dev/null 2> "$stderr" || status=$?
+    if [[ -n "${GIT_CAPTURE_FILE:-}" ]]; then
+        "$GIT_TIMEOUT_BIN" --kill-after=10 "$GIT_DEADLINE_SECONDS" git "$@" < /dev/null > "$GIT_CAPTURE_FILE" 2> "$stderr" || status=$?
+    else
+        "$GIT_TIMEOUT_BIN" --kill-after=10 "$GIT_DEADLINE_SECONDS" git "$@" < /dev/null 2> "$stderr" || status=$?
+    fi
     # date has whole-second precision: subtract one to avoid mistaking a second-boundary
     # crossing for a full elapsed second. timeout's KILL grace is ten seconds.
     elapsed=$(( $(date +%s) - started_at - 1 ))
@@ -1118,9 +1122,14 @@ clone_into_workspace() {
             # The default branch is asked of the remote rather than read from the mirror's HEAD,
             # which is the one control surface a `+refs/*:refs/*` fetch on the backend side does
             # not heal.
-            local default_ref remote_refs
+            local default_ref remote_refs capture
             status=0
-            remote_refs=$(GITHUB_TOKEN="${GITHUB_TOKEN:-}" run_git_bounded ls-remote ls-remote --symref "$url" HEAD) || status=$?
+            capture=$(mktemp) || fail '[git-config] Cannot capture git output'
+            # A helper surviving timeout may keep stdout open. Read a regular file, not a pipe,
+            # so capturing the result cannot extend the git deadline.
+            GIT_CAPTURE_FILE="$capture" GITHUB_TOKEN="${GITHUB_TOKEN:-}" run_git_bounded ls-remote ls-remote --symref "$url" HEAD || status=$?
+            remote_refs=$(cat "$capture")
+            rm -f "$capture"
             [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail ls-remote "$url")"
             default_ref=$(printf '%s\n' "$remote_refs" | awk '/^ref:/ {print $2; exit}')
             if [[ -n "$default_ref" && "$status" -eq 0 ]]; then
