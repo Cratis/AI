@@ -85,7 +85,7 @@ For an explicitly requested large application scope, adapt this optional numbere
 
 ### Phase 3 — Build  [run: Debug, then Release]
 3. Run `dotnet build -c Debug` to validate spec code and generate TypeScript proxies.
-4. Run `dotnet build -c Release -p:CratisProxiesOutputPath=` as a build-only release check.
+4. Run `dotnet build -c Release -p:CratisProxiesSkip=true` (older Arc: `-p:CratisProxiesOutputPath=`) as a build-only release check.
 
 ### Phase 4 — Frontend  [delegate to: frontend-developer]
 5. Create React component(s) beside the slice in `<AppSourceRoot>/<Module?>/<Feature>/<Slice>/`.

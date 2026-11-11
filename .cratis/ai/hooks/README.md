@@ -564,7 +564,7 @@ the managed gates running unchanged.
 
 **Gated** (`Stop`, exit 2): the app-pinned commands from the Quality Gates table in
 `general.md` and the steps in [`agent-stop.md`](./agent-stop.md) — Debug build, specs, Release
-build (with `-p:CratisProxiesOutputPath=` per `general.md`, so the proxy generator does not
+build (with `-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath=` per `general.md`, so the proxy generator does not
 re-run and touch already-correct generated files), frontend lint / compile / compile-specs /
 test.
 
@@ -879,18 +879,19 @@ Fundamentals, Components — see [`../rules/framework.md`](../rules/framework.md
 slices and should disable them in its `cratis-patterns.local.json`; a repository whose application
 source root is not `Source/` re-scopes the `paths` globs there too.
 
-**One property gates the proxy generator.** The generator's MSBuild target is
-`Condition="'$(CratisProxiesOutputPath)' != ''"`, so clearing that property with
-`-p:CratisProxiesOutputPath=` is Arc's off switch. `DisableProxyGenerator` is not an Arc
-property; it works only where a repository defines it — MSBuild silently accepts unknown `-p:`
-names, so passing it elsewhere looks like it works and changes nothing. Proxies are generated and
-committed by the client, never in CI, so CI builds always clear the path.
+**`CratisProxiesSkip` is the proxy generator's off switch.** From Arc 22.185.1 the generator's
+target runs only when `CratisProxiesOutputPath` is non-empty and `CratisProxiesSkip` is not
+`true`, so `-p:CratisProxiesSkip=true` skips it even when the output path is set. Before 22.185.1
+an empty `-p:CratisProxiesOutputPath=` is the off switch, and older Arc ignores `CratisProxiesSkip`
+silently (MSBuild accepts unknown `-p:` names), so the shipped gates pass both. Proxies are
+generated and committed by the client, never in CI, so CI builds always skip generation.
 
 The Debug/Release split applies to the shipped client-side local gates only: Release clears the
 path, and the committing client's Debug gate does not, because `general.md` makes the Debug build
 the canonical trigger for regenerating the TypeScript proxies the frontend phase depends on, and
 the client commits the result. A consuming repository's CI never copies the Debug proxy step; it
-passes `-p:CratisProxiesOutputPath=` in every configuration.
+passes `-p:CratisProxiesSkip=true` (older Arc: `-p:CratisProxiesOutputPath=`) in every
+configuration.
 
 ## Unattended runs
 

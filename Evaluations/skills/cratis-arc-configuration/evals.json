@@ -29,11 +29,11 @@
       "id": 3,
       "name": "no-proxies-generated",
       "prompt": "dotnet build succeeds but no TypeScript proxies appear, and someone suggests -p:DisableProxyGenerator=true to stop regeneration in CI. Evaluate.",
-      "expected_output": "CratisProxiesOutputPath empty means nothing is generated; DisableProxyGenerator is not a property of the package.",
+      "expected_output": "CratisProxiesSkip=true (Arc 22.185.1 or later) is the off switch; an empty CratisProxiesOutputPath also means nothing is generated.",
       "assertions": [
-        "Identifies an empty CratisProxiesOutputPath as the reason nothing is generated.",
-        "States the package has no DisableProxyGenerator property and MSBuild silently accepts unknown properties.",
-        "Says to pass an empty CratisProxiesOutputPath to skip generation."
+        "Identifies an empty CratisProxiesOutputPath, or CratisProxiesSkip=true, as a reason nothing is generated.",
+        "Recommends CratisProxiesSkip=true for Arc 22.185.1 or later rather than DisableProxyGenerator, which is only an alias or repository-defined elsewhere.",
+        "Says older Arc ignores CratisProxiesSkip silently, so an empty CratisProxiesOutputPath is the fallback there."
       ]
     }
   ]

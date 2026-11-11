@@ -27,6 +27,7 @@ of scope because it is not released.
 ## Decision
 
 - Pull request and verify builds pass `-p:CratisProxiesOutputPath=`, which disables generation.
+- Amendment: from Arc 22.185.1, CI passes `-p:CratisProxiesSkip=true`, Arc's released skip property, instead of the empty output path. The decision itself (CI never generates) is unchanged.
 - The proxy-only build and the "Verify generated proxies are up to date" drift gate are removed.
 - The npm release build keeps generating, so the published `@cratis/ai` always ships fresh proxies.
 - Contributors refresh the committed tree locally with
