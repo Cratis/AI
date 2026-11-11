@@ -67,7 +67,7 @@ public record AgentTierPreview(
             return [AgentTierPreviews.Refused(agentId, poolId, tier, $"Agent {agentId} has no AI provider or pool configured.")];
         }
 
-        var rows = new List<AgentTierPreview>();
+        List<AgentTierPreview> rows = [];
         foreach (var providerId in providerIds)
         {
             var provider = providerId == AIProviderId.NotSet ? null : await readModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)providerId);

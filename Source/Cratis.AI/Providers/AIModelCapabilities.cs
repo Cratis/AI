@@ -30,7 +30,7 @@ public static class AIModelCapabilities
     public static IReadOnlySet<AIModelCapability> For(ModelName model)
     {
         var identifier = model.Value.ToLowerInvariant();
-        var capabilities = new HashSet<AIModelCapability>();
+        HashSet<AIModelCapability> capabilities = [];
         if (_nonConversationalMarkers.Any(identifier.Contains))
         {
             return capabilities;
