@@ -55,6 +55,69 @@ const routine = [
     "gh issue view 1 --json body --jq '.body | select(test(\".env\"))'",
     "gh api x --jq '.[]|{id,body}' > ordinary.json", "find . -name '*.env' > ordinary.txt",
     'shellcheck .cratis/ai/hooks/scripts/*.sh > ordinary.txt', 'rg -n foo *.cs',
+    "git branch --list 'dotnet11*'", "git tag -l 'v*'", "git tag --list 'v*' 'x*'",
+    "grep -rn TODO --include='*.md' Source/Foo", "grep -rn x --exclude='*.md' Source/Foo",
+    "grep -rn x --include '*.md' Source/Foo", "rg -g '*.md' foo", "rg --glob '*.md' foo",
+    "find . -name '*.md'", "find . -iname '*.md'", "find . -path '*Foo*'",
+    'for p in a:b; do echo "${p%%:*}"; done', 'echo "${p%%:*}"',
+    'echo "${p##*/}" "${p%.md}" "${p%/*}" "${p#.md}"',
+    'echo "${p^*.md}" "${p^^*.md}" "${p,*.md}" "${p,,*.md}"',
+    'echo "${p:1}" "${p:1:2}" "${p: -1}" "${p:1: -2}"',
+    'cp ordinary/*.md /tmp/cratis-out/', 'cp Source/Foo/*.md /tmp/cratis-out/',
+    'cp Source/Foo/*.md ordinary/file.md',
+    'rsync -a ordinary/*.md /tmp/cratis-out/', 'rsync -a ordinary/ Source/Foo/ /tmp/cratis-out/',
+    'cp -t /tmp/cratis-out ordinary/*.md', 'cp --target-directory=/tmp/cratis-out ordinary/file.md',
+    'install -m 755 ordinary/file.md /tmp/cratis-out/x', 'install -d /tmp/cratis-out/a /tmp/cratis-out/b',
+    'install -t /tmp/cratis-out ordinary/file.md',
+];
+// These command strings are guard input only, never executed by the fixture.
+const issueHostile = [
+    'cp x .cratis/ai/rules/a.md', 'cp x .cratis/ai/rules/', 'cp x .cratis/ai', 'cp x .mcp.json',
+    'cp x .env', 'cp x .ENV', 'cp -- x .env', 'cp -r x .cratis/ai',
+    'cp .env .', 'cp x/.env ordinary/', 'cp -t . .mcp.json', 'cp .ENV ordinary',
+    'cp x/.env y ordinary/', 'install -t . .mcp.json', 'rsync -a .cratis/ai/ ordinary/',
+    'rsync -a ordinary/ ordinary/copy/', 'cp .cratis/ai/rules/a.md .cratis/ai/rules/',
+    'cp .env ordinary', 'cp .env ordinary/', 'cp .env /tmp/ok',
+    'cp .e* ordinary/', 'cp *.json .', 'cp .env existing-directory',
+    'rsync -a x .cratis/ai/', 'rsync -a x y .cratis/ai/', 'install x .mcp.json',
+    'install -m 644 x .cratis/ai/rules/a.md', "cp x '.e*'", 'cp x .e*', 'cp x *.json',
+    'cp x ".e*"', 'cp x .cratis/ai/rules/*', "rsync -a x '.c*/'",
+    'cp -t .cratis/ai x', 'cp -t.cratis/ai x', 'cp -rt .cratis/ai x', 'cp -rt.cratis/ai x',
+    'cp --target-directory=.cratis/ai x', 'cp --target-directory .cratis/ai x',
+    'cp -t /tmp/ok -t .cratis/ai x', 'cp -t .env x', 'install -t .cratis/ai x',
+    'install -d .cratis/ai/newdir', 'install -d /tmp/ok .cratis/ai/newdir', 'install -dm 755 .cratis/ai/x',
+    'cp x -t /tmp/ok .cratis/ai', 'cp x y -t .cratis/ai', 'rsync x -a .cratis/ai/',
+    'cp --target-dir=/tmp/ok x .cratis/ai', 'cp --no-target x .cratis/ai/a',
+    'cp -s x .cratis/ai/a', 'cp --backup x .cratis/ai/a',
+    'install -D x .cratis/ai/a',
+    'cd .cratis/ai/rules && cp x a.md', 'cd .cratis/ai && install -m 644 x a',
+    'cd .cratis/ai/rules; rsync -a x .', 'cp ordinary/file.md /tmp/ok > .env',
+    'cp x y > .cratis/ai/rules/a.md', 'cp .env; cat x', 'echo x > .ENV',
+    'echo "${x:=.env}"', 'echo "${x:-.env}"', 'echo "${x:+.env}"', 'echo "${x:?.env}"',
+    'echo "${x-.env}"', 'echo "${x=.env}"', 'x=a; echo x > "${x/a/.env}"',
+    'echo x > "${x//a/.env}"', 'echo x > "${x:=.env}"', 'echo x > "${x:-.cratis/ai/rules/a.md}"',
+    'echo "${x%$(touch .env)}"', 'echo "${x#`touch .env`}"', 'echo "${x%${y:-.env}}"',
+    ': "${x%$(cat .env)}"', 'echo "${x%.env}" > .env', 'echo x > ".e${x%y}nv"',
+    'echo "${p%%:*"', 'echo ${x%;touch .env;}',
+    'git branch --list x -D .env', "git branch --list '.e*' -D x",
+    'git tag -l x -d .cratis/ai/rules/a.md', 'git branch --list x; cp y .env',
+    'git branch --list x > .env', 'git branch --list *',
+    'grep --incl=x y .env', 'grep --include=*.md y .env', 'grep --include *.md y .env',
+    "grep -r --include='*.md' x . > .env", 'grep --exclude-dir=.git x .env',
+];
+const issueUnparsed = [
+    'cp x -t /tmp/ok y', 'rsync --remove-source-files -a x /tmp/ok', "rsync -e 'sh -c y' x /tmp/ok",
+    'install -s x /tmp/ok', 'install -o root x /tmp/ok', 'cp', 'cp -t /tmp/ok',
+    'install -d', 'rsync -a x', 'grep --include y', 'grep --include-from x', 'grep --exclude-from x',
+    'cp -T -t /tmp/ok x', 'install -d -t /tmp/ok x', 'install -m u+x x /tmp/ok',
+    'cp -t /tmp/ok .env < ordinary/file.md', 'cp --preserve=all .env /tmp/ok',
+    'cp --parents .env /tmp/ok', 'cp -l .env /tmp/ok', 'rsync -P .env /tmp/ok',
+];
+const issueBaselineAllowed = [
+    'git branch --list x -D y', 'git branch --list -D x', 'git branch -D x', 'git branch -l x',
+    'git tag -l x -d y', 'git tag -d x', 'git tag -l -a x', 'git tag -l x -m msg',
+    'git tag -l -f x', 'git tag --list --sort=x', 'git branch --list x | xargs git branch -D',
+    'rsync -a x host:.cratis/ai/',
 ];
 // Residual interpreter bodies and xargs (#1076), substitutions/process substitutions (#1095) stay unmodeled.
 const secretReads = [
@@ -216,6 +279,46 @@ test('sed script data stays distinct from program files, reads and writes', asyn
             "sed -E 's/x/y/e' .cratis/ai/rules/a.md", "sed -E 's/x/y/w .mcp.json' ordinary/file.md",
             "sed -i -E 's/x/y/' .cratis/ai/rules/a.md", 'sed -f .cratis/ai/rules/a.md ordinary/file.md',
         ]) assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command }), 2, command);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('pattern and copy admissions retain managed hostile baselines', async () => {
+    const root = repository(true);
+    try {
+        mkdirSync(join(root, 'existing-directory'));
+        symlinkSync('.mcp.json', join(root, 'control with spaces'));
+        symlinkSync('.mcp.json', join(root, "control'quote"));
+        for (const command of ['cp x "control with spaces"', 'cp x "control\'quote"']) {
+            assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command }), 2, command);
+        }
+        for (const command of issueHostile) assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command }), 2, command);
+        for (const command of issueUnparsed) assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command: `${command}; echo .env` }), 2, command);
+        await checkRows(root, [
+            ...issueBaselineAllowed.map(command => ({ command, expected: [0, 0, 0] as Verdicts })),
+            { command: "echo '${x%'; echo .env; echo '}'", expected: [2, 0, 0], hostile: true },
+            { command: 'cp .env ordinary/file.md', expected: [2, 0, 0], hostile: true },
+            { command: 'echo "${p#.env}"', expected: [2, 0, 0], hostile: true },
+            { command: 'echo "${p:-x}"', expected: [0, 2, 0] },
+            { command: 'cp .cratis/ai/rules/a.md /tmp/ok', expected: [0, 0, 0] },
+            { command: 'grep --include=x y .env', expected: [2, 0, 0], hostile: true },
+        ]);
+        // Substitution replacement text remains unrewritten; it is not a required admission.
+        assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command: 'echo "${p/a/.env}"' }), 2);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('copy source globs cannot supply option-shaped filenames', async () => {
+    const root = repository(true);
+    try {
+        await checkRows(root, [
+            { command: 'cp *.md /tmp/ok', expected: [0, 0, 0] },
+            { command: 'cp ?x /tmp/ok', expected: [0, 0, 0] },
+        ]);
+        writeFileSync(join(root, '-t.md'), 'fixture');
+        writeFileSync(join(root, '-x'), 'fixture');
+        for (const command of ['cp *.md /tmp/ok', 'cp ?x /tmp/ok', 'rsync -a *.md /tmp/ok', 'install *.md /tmp/ok']) {
+            assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command: `${command}; echo .env` }), 2, command);
+        }
     } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

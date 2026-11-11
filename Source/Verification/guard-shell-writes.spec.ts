@@ -429,7 +429,7 @@ test('protected references deny writers and evaluators across the whole command 
             ...['>', '>>', '>|', '&>', '&>>', '2>', '1>>', '>&', '<>'].map(op => `echo x ${op} .mcp.json`),
             'echo x>.mcp.json', 'echo x > linked-control', 'echo x >> Source/Accounts/Registration.ts',
             ...['cp x .env', 'cp .env .', 'cp .env build/', 'cp -t build .env', 'cp --no-target-directory x .env', 'cp a b .env', 'mv .env out', 'install -D -m600 x .env', 'install -t build .env', 'install -Sdir x .env', 'ln -sf x .env', 'ln -t build .env', 'tee -a .env', 'tee -a -- .env', 'tee -p .env', 'sed -i s/a/b/ Package.JSON', "sed -i'' -e s/a/b/ .env", 'sed -i.bak s/a/b/ .env', 'sed --in-place=.bak s/a/b/ .env', 'perl -pi -e s/a/b/ .env', 'perl -i.bak -e s/a/b/ .env', 'dd if=x of=.env', 'truncate -s 0 .env', 'truncate --size=0 .env', 'truncate -r ref .env', 'touch .env', 'rm .env', 'chmod 600 .env', 'find .env', 'node -e "write(.env)"'],
-            'cp .env.example .env', 'cp .mcp.json /tmp/backup.json', 'sed s/a/b/ .env',
+            'cp .env.example .env', 'sed s/a/b/ .env',
             'cp a.ts .pi/extensions/', 'cp -t.pi/extensions a.ts', 'install -t.pi/extensions a.ts', 'env -C.claude tee settings.json',
             'sudo tee .mcp.json', 'command cat .env', 'builtin echo .env', 'env FOO=1 cat .env',
             'sudo -D .claude tee settings.json', 'sudo --chdir=.claude tee settings.json',
@@ -449,7 +449,11 @@ test('protected references deny writers and evaluators across the whole command 
             'uniq .env out', 'jq -i .env', 'yq --inplace .env', 'gh api .env -X POST', 'gh api .env --method=DELETE',
             'gh api .env -f x=y', 'gh api .env -F file=@x', 'gh api .env --input body',
         ];
-        await checkCases(blocked.map(command => [BLOCK, command]), repo.root);
+        await checkCases([
+            ...blocked.map(command => [BLOCK, command] as [string, string]),
+            // Explicit renames read the managed source; directory basenames remain write targets.
+            [ALLOW, 'cp .mcp.json /tmp/backup.json'],
+        ], repo.root);
     } finally { repo.dispose(); }
 });
 
@@ -542,6 +546,41 @@ test('no-reference commands bypass the allowlist and protected reads remain read
     } finally { repo.dispose(); }
 });
 
+test('copy grammar reviews only explicit option spellings and destination roles', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            ...[
+                'cp .env notes.md', 'cp -rf .env notes.md', 'cp -rt /tmp/ok .mcp.json',
+                'cp -rt/tmp/ok .mcp.json', 'cp --target-directory=/tmp/ok .mcp.json',
+                'cp --target-directory /tmp/ok .mcp.json', 'cp -T .env /tmp/ok',
+                'rsync -arvnuztp .env notes.md', 'rsync --times .env notes.md',
+                'install -m755 .env notes.md', 'install -m 0755 .env notes.md',
+                'install -cvCp .env notes.md', 'install -t/tmp/ok .mcp.json',
+            ].map(command => [ALLOW, command] as [string, string]),
+            ...[
+                'cp -s .env /tmp/ok', 'cp .env -t /tmp/ok', 'install -D .env /tmp/ok',
+                'rsync --delete .env /tmp/ok', 'cp -t /tmp/ok; echo .env',
+                'cp .env /tmp/ok < notes.md', 'cd sub && cp .env /tmp/ok',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('parameter match operators are data but value-bearing expansions stay visible', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [ALLOW, 'echo "${p%%:*}" "${p##*/}" "${p%.env}" "${p#.env}"'],
+            [ALLOW, 'echo "${p^^*.md}" "${p,,*.md}" "${p:1: -2}"'],
+            [BLOCK, 'echo "${x:=.env}"'], [BLOCK, 'echo "${x:-.env}"'],
+            [BLOCK, 'echo "${x%$(touch .env)}"'], [BLOCK, 'echo "${x%${y:-.env}}"'],
+            [BLOCK, 'echo "${p%.env}" > .env'], [BLOCK, 'echo "${p/a/.env}"'],
+            [BLOCK, 'echo "${p%%:*}"; touch .env'],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('only explicit per-verb options are permitted with protected references', async () => {
     const repo = scratchRepository();
     try {
@@ -554,7 +593,10 @@ test('only explicit per-verb options are permitted with protected references', a
             'gh run download 1 --dir .claude', 'gh run download 1 --dir=.claude',
             'echo .env; gh pr checkout 5', 'gh pr checkout 5 .env', 'gh issue develop 1 .env',
             'head -f .env', 'tail -f .env', 'head --bytes=20 .env', 'head -c20 .env',
-            'grep --include=x y .env', 'grep --incl=x y .env', 'grep -ePATTERN .env', 'grep -A5 x .env',
+            'grep --incl=x y .env', 'grep --include-from x .env', 'grep --exclude-dir=x y .env',
+            'grep --include= x .env', 'grep --exclude= x .env', 'echo .env; grep --include',
+            'grep --include *.md y .env', 'grep -ePATTERN .env', 'grep -A5 x .env',
+            'git branch -l .env', 'git branch --list -D .env', 'git tag --list --sort=x .env',
             'cat --number .env', 'cat -nZ .env', 'wc --bytes .env', 'ls --sort=name .env',
             'printf -v result .env', 'pwd -L .env', 'test -f .env',
             'git status --porcelain=v1 .env', 'git status --sho .env', 'git diff -U 3 .env',
@@ -580,10 +622,13 @@ test('only explicit per-verb options are permitted with protected references', a
             ...['l', 'w', 'c', 'm'].map(flag => `wc -${flag} .env`),
             ...['l', 'a', 'A', '1', 'h', 'd', 'R', 't', 'r', 'F'].map(flag => `ls -${flag} .env`),
             'ls -la .claude', 'rg .env',
+            "git branch --list '.e*'", "git tag -l '.e*'", "git tag --list '.e*' '.c*'",
             ...['grep', 'egrep', 'fgrep'].flatMap(verb => [
                 ...['n', 'i', 'r', 'R', 'l', 'L', 'c', 'v', 'w', 'x', 'F', 'E', 'H', 'h', 'o', 'q', 's'].map(flag => `${verb} -${flag} x .env`),
                 ...['A', 'B', 'C'].map(flag => `${verb} -${flag} 2 x .env`),
                 `${verb} -e --include=x .env`, `${verb} -ni x .env`,
+                `${verb} --include=x y .env`, `${verb} --exclude=x y .env`,
+                `${verb} --include '*.md' x .env`, `${verb} --exclude '*.md' x .env`,
             ]),
             ...['n', 'e', 'E'].map(flag => `echo -${flag} .env`),
             'printf -- -v .env', 'test -- .env', '[ -- .env',

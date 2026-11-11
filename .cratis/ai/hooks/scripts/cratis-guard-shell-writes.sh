@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Whole-command reference filter, not a shell interpreter or sandbox.
 # The Write/Edit guard is the only protected-path policy. With any protected reference,
-# accept only the small read-only command language below; never infer write destinations.
+# accept only the reviewed command language below and its explicit copy-destination grammar.
 set -euo pipefail
 export LC_ALL=C
 script_directory="${BASH_SOURCE[0]%/*}"
@@ -35,9 +35,16 @@ cwd="${cwd:-$PWD}"
 
 IFS= read -r -d '' program <<'AWK' || true
 function candidate(s) {
-    if (s == "" || s ~ /[\n\r\t]/ || (s in seen)) return
-    if (++candidates > 256 || length(s) > 4096) exit 2
-    seen[s] = 1; print s
+    if (s == "" || s ~ /[\n\r\t]/) return
+    if (collecting) {
+        if (s in collected) return
+        if (++collected_count > 256 || length(s) > 4096) exit 2
+        collected[s] = 1
+    } else {
+        if (s in seen) return
+        if (++candidates > 256 || length(s) > 4096) exit 2
+        seen[s] = 1; print s
+    }
     if (s != tolower(s)) candidate(tolower(s))
     # A generic attached option prefix must not hide a path spelling (-t.pi/...).
     if (s ~ /^-/ && match(s, /[.\/]/) && RSTART > 1) candidate(substr(s, RSTART))
@@ -161,7 +168,41 @@ function protected(s) { return s in protected_paths }
 # Only when every command is accepted are the words of pure readers dropped from classification.
 function fail() { bad = unparsed = 1 }
 # Reference extraction for one stretch of raw command text.
-function emit_text(t) { scan(t); scan(unquote(t)); raw_brace_scan(t) }
+# Rewrite extraction data only; the lexer still rejects expansions. Nested and value-bearing
+# bodies stay visible because their text can supply a protected path or execute another command.
+function strip_expansion_operators(t,    out, start, rest, body, name, op, depth, i, c, count) {
+    while ((start = index(t, "${")) && ++count <= 256) {
+        out = out substr(t, 1, start - 1); rest = substr(t, start + 2); depth = 1
+        for (i = 1; i <= length(rest); i++) {
+            c = substr(rest, i, 1)
+            if (c == "{") depth++
+            if (c == "}") { depth--; if (!depth) break }
+        }
+        if (depth) return out substr(t, start)
+        body = substr(rest, 1, i - 1); name = op = ""
+        if (match(body, /^[A-Za-z_][A-Za-z0-9_]*/)) {
+            name = substr(body, 1, RLENGTH); op = substr(body, RLENGTH + 1)
+        }
+        # An opaque match expansion can be empty: retain adjacent literals without merging them
+        # into a variable name (.e${x%y}nv must still expose .env). Never rewrite value-bearing bodies.
+        if (!(name != "" && (op ~ /^(##?|%%?|\^\^?|,,?)[^$`(){}"\047\\;|&<>[:space:]]*$/ ||
+            op ~ /^:([0-9]+| -?[0-9]+)(:([0-9]+| -?[0-9]+))?$/))) out = out "${" body "}"
+        t = substr(rest, i + 1)
+    }
+    return out t
+}
+function emit_text(t) {
+    t = strip_expansion_operators(t)
+    scan(t); scan(unquote(t)); raw_brace_scan(t)
+}
+function destination_allowed(w, implicit,    s) {
+    if (!implicit && w ~ /[$`*?\[{~()]/) return 0
+    delete collected; collected_count = 0; collecting = 1
+    candidate(w); emit_text(w)
+    collecting = 0
+    for (s in collected) if (protected(s)) return 0
+    return 1
+}
 function endword() {
     if (!inword) return
     if (redirect) {
@@ -194,11 +235,11 @@ function short_flags(w, flags,    k) {
     return 1
 }
 function number(s) { return s ~ /^[+-]?[0-9]+$/ }
-function options_allowed(verb, first,    i, w) {
+function options_allowed(verb, first,    i, w, filters, patterns) {
     for (i = first; i <= argc; i++) {
         w = W[i]
         if (w == "--") return 1
-        if (w !~ /^-/ || w == "-") continue
+        if (w !~ /^-/ || w == "-") { patterns++; continue }
         if ((verb, w) in long_options) continue
         if (verb == "head" || verb == "tail" || verb == "git log") {
             if (w == "-n" || (verb != "git log" && w == "-c")) {
@@ -208,7 +249,12 @@ function options_allowed(verb, first,    i, w) {
             if (w ~ /^-n[+-]?[0-9]+$/ || w ~ /^-[0-9]+$/) continue
         }
         if (verb == "grep" || verb == "egrep" || verb == "fgrep") {
-            if (w == "-e") { if (++i > argc) return 0; continue }
+            if (w == "-e") { if (++i > argc) return 0; patterns++; continue }
+            if (w ~ /^--(include|exclude)=./) { filters++; continue }
+            if (w == "--include" || w == "--exclude") {
+                if (++i > argc || W[i] == "" || globbed[i]) return 0
+                filters++; continue
+            }
             if (w == "-A" || w == "-B" || w == "-C") {
                 if (++i > argc || !number(W[i])) return 0
                 continue
@@ -236,7 +282,7 @@ function options_allowed(verb, first,    i, w) {
         }
         if (!short_flags(w, short_options[verb])) return 0
     }
-    return 1
+    return !filters || patterns > 0
 }
 # awk is read-only only for the shape awk [-F sep] 'program' operands. Every other option (-f, -v, -e, -i,
 # --include, --, ...) is refused. awk output, execution and file reads need one of > | system getline close
@@ -339,7 +385,7 @@ function reader_globs(    i, cmd, line, count, ok, script) {
     return 1
 }
 function glob_safe() {
-    return W[1] ~ /^(cat|head|tail|wc|ls|grep|egrep|fgrep|shellcheck)$/ || (W[1] == "rg" && reader_globs()) || (W[1] == "git" && W[2] == "ls-files")
+    return W[1] ~ /^(cat|head|tail|wc|ls|grep|egrep|fgrep|shellcheck)$/ || (W[1] ~ /^(rg|cp|rsync|install)$/ && reader_globs()) || (W[1] == "git" && W[2] == "ls-files")
 }
 function find_allowed(    i, w, predicates) {
     for (i = 2; i <= argc; i++) {
@@ -387,6 +433,112 @@ function managed_script(    i) {
     }
     return 0
 }
+function list_pattern_allowed(verb, first,    i) {
+    if (W[first] != "--list" && !(verb == "git tag" && W[first] == "-l")) return 0
+    for (i = first + 1; i <= argc; i++) if (W[i] == "" || W[i] ~ /^-/ || globbed[i]) return 0
+    return 1
+}
+# Query literal paths only, never command text. Unknown destinations are directory candidates too.
+# Looking up the nearest existing ancestor also handles missing directories and directory symlinks.
+function copy_path_kind(w,    script, cmd, kind) {
+    if (w in PATH_KIND) return PATH_KIND[w]
+    script = "cd -- \"$1\" || exit 3; p=$2; case $p in /*) ;; *) p=$PWD/$p;; esac; " \
+        "if [ -f \"$p\" ]; then echo file; exit; fi; " \
+        "while [ ! -d \"$p\" ]; do p=${p%/*}; [ -n \"$p\" ] || p=/; done; " \
+        "if git -C \"$p\" rev-parse --show-toplevel >/dev/null 2>&1; then echo inside; else echo outside; fi"
+    cmd = "bash -c " shell_quote(script) " guard-copy " shell_quote(ENVIRON["GSW_CWD"]) " " shell_quote(w) " 2>/dev/null"
+    if ((cmd | getline kind) != 1) kind = ""
+    if (close(cmd) != 0 || kind !~ /^(file|inside|outside)$/) return ""
+    PATH_KIND[w] = kind
+    return kind
+}
+function copy_write_target(w, implicit) {
+    # Keep exact decoded words (including spaces and quotes), as well as the normal suffix views.
+    # A later parser failure still emits the whole command; these extra destinations only narrow it.
+    if (ENVIRON["GSW_MODE"] == "targets") { candidate(w); emit_text(w) }
+    return destination_allowed(w, implicit)
+}
+# Judge both explicit destinations and the basenames utilities append to directory destinations.
+# rsync directory contents may introduce protected names; do not infer a safe listing inside a repo.
+function copy_effective_targets(verb, targets, sources, dirs, no_target, explicit_dirs,    i, j, dest, kind, base) {
+    for (i = 1; i <= targets; i++) {
+        dest = destinations[i]
+        if (!copy_write_target(dest, 0)) return 0
+        if (dirs) continue
+        kind = copy_path_kind(dest)
+        if (kind == "") return 0
+        if (no_target || (kind == "file" && !explicit_dirs && sources == 1 && dest !~ /\/$/)) continue
+        for (j = 1; j <= sources; j++) {
+            if (verb == "rsync" && copy_sources[j] ~ /\/$/ && kind == "inside") {
+                if (!copy_write_target(dest "/.*", 1)) return 0
+            }
+            base = copy_sources[j]; sub(/\/+$/, "", base); sub(/^.*\//, "", base)
+            if (base == "") return 0
+            # Outside a repository, source globs are reads, not explicit destination patterns.
+            # Inside, a leading wildcard can supply dotfiles; keep that possibility separate from
+            # dependency-manifest matches, whose classifier exemption does not authorize dotfiles.
+            if (base ~ /[*?\[]/) {
+                if (kind == "outside") continue
+                if (base ~ /^[*?\[]/ && !copy_write_target(dest "/.*", 1)) return 0
+            }
+            if (!copy_write_target(dest "/" base, 1)) return 0
+        }
+    }
+    return 1
+}
+# Options precede operands so BSD and GNU agree about the destination. Source paths themselves
+# are reads; only explicit and effective destinations are collected for the write classifier.
+function copy_targets(verb,    i, w, j, ch, tail, value, targets, dirs, no_target, operands, last, flags, longs, explicit_dirs) {
+    if (changed_cwd || input_redirect) return 0
+    flags = verb == "cp" ? "rRpafvniuTLPH" : (verb == "rsync" ? "arvnuztp" : "cvCp")
+    longs = verb == "cp" ? " --recursive --force --verbose --no-clobber --archive --no-target-directory " : \
+        (verb == "rsync" ? " --archive --recursive --verbose --dry-run --update --compress --times --perms " : " ")
+    delete destinations; delete copy_sources
+    for (i = 2; i <= argc; i++) {
+        w = W[i]
+        if (w == "--") { i++; break }
+        if (w == "-" || w !~ /^-/) break
+        if (globbed[i]) return 0
+        if (verb != "rsync" && w ~ /^--target-directory(=|$)/) {
+            value = substr(w, 20)
+            if (w == "--target-directory") { if (++i > argc) return 0; value = W[i] }
+            if (value == "" || value ~ /^-/ || globbed[i]) return 0
+            destinations[++targets] = value; continue
+        }
+        if (w ~ /^--/) {
+            if (index(longs, " " w " ") == 0) return 0
+            if (w == "--no-target-directory") no_target = 1
+            continue
+        }
+        for (j = 2; j <= length(w); j++) {
+            ch = substr(w, j, 1)
+            if (verb != "rsync" && (ch == "t" || (verb == "install" && ch == "m"))) {
+                tail = substr(w, j + 1); value = tail
+                if (tail == "") { if (++i > argc) return 0; value = W[i] }
+                if (value == "" || value ~ /^-/ || globbed[i]) return 0
+                if (ch == "m") { if (value !~ /^[0-7][0-7][0-7][0-7]?$/) return 0 }
+                else destinations[++targets] = value
+                break
+            }
+            if (verb == "install" && ch == "d") { dirs = 1; continue }
+            if (index(flags, ch) == 0) return 0
+            if (ch == "T") no_target = 1
+        }
+    }
+    for (; i <= argc; i++) {
+        if (W[i] == "" || W[i] ~ /^-/) return 0
+        operands++; last = W[i]; copy_sources[operands] = W[i]
+        if (dirs) destinations[operands] = W[i]
+    }
+    if ((targets && (dirs || no_target)) || !operands) return 0
+    explicit_dirs = targets > 0
+    if (dirs) targets = operands
+    else if (!targets) {
+        if (operands < 2 || (verb == "rsync" && index(last, ":"))) return 0
+        destinations[++targets] = last; operands--
+    }
+    return copy_effective_targets(verb, targets, operands, dirs, no_target, explicit_dirs)
+}
 function allow_command(    verb, first, i) {
     if (!argc) return
     if (++commands > 64) { fail(); return }
@@ -399,6 +551,7 @@ function allow_command(    verb, first, i) {
         changed_cwd = 1
         return
     }
+    if (verb ~ /^(cp|rsync|install)$/) { if (!copy_targets(verb)) cmd_failed = 1; return }
     if (verb == "sed") { if (!print_only_sed()) cmd_failed = 1; return }
     if (verb == "find") { if (!find_allowed()) cmd_failed = 1; return }
     if (verb == "gh") { if (!gh_allowed()) cmd_failed = 1; return }
@@ -413,8 +566,10 @@ function allow_command(    verb, first, i) {
     if (verb == "git add" || verb == "git commit") changed_index = 1
     if (verb == "git branch") {
         conditional_only = 1
-        if (argc != 3 || W[3] != "--show-current") { cmd_failed = 1; return }
+        if (!(argc == 3 && W[3] == "--show-current") && !list_pattern_allowed(verb, first)) cmd_failed = 1
+        return
     }
+    if (verb == "git tag") { conditional_only = 1; if (!list_pattern_allowed(verb, first)) cmd_failed = 1; return }
     if (verb == "awk") { if (!awk_allowed()) cmd_failed = 1; return }
     if (!(verb in verbs) || !options_allowed(verb, first)) cmd_failed = 1
 }
