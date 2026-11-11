@@ -69,7 +69,33 @@ best-effort lexical check, not enforcement: a variable holding the whole path st
 The shell-write reference scan keeps conservative leading-dot intersections: a tool named `Bash`,
 `SHELL`, and the hook process's options do not establish the execution shell's options. Globbed writes
 therefore remain blocked. Read operands under protected paths are not write targets: `rg -n`/`-l`,
-quoted `--glob`/`-g` filters, and numeric/last-line `sed -n …p` scripts are recognized as read-only.
+quoted `--glob`/`-g` filters, `grep`/`egrep`/`fgrep` filename filters (`--include`/`--exclude` with a non-empty
+`=value` or separate literal value, never an unquoted glob), and numeric/last-line `sed -n …p` scripts are recognized as read-only.
+Plain `git branch --list` and `git tag -l`/`--list` accept literal pattern operands, including quoted globs;
+option-looking operands, mutation flags and extra options are not admitted. These list forms retain the
+`&&`-only chain restriction. `git branch -l` is not a list exemption.
+Reference extraction discards only the non-value-bearing match text of simple `${NAME%pattern}`,
+`${NAME%%pattern}`, `${NAME#pattern}`, `${NAME##pattern}`, case-conversion operators (`^`, `^^`, `,`, `,,`),
+and numeric offset/length forms. An opaque placeholder preserves the expansion marker and unknown path-prefix
+and segment views of a plain parameter; an additional empty-value view retains adjacent literal spellings.
+This is not shell evaluation: nested, malformed, default/assignment, replacement and command-substitution
+bodies remain visible, and the command lexer still rejects expansions. Literal or decoded placeholder
+collisions disable the rewrite.
+
+`cp`, `rsync` and `install` have a separate, closed destination grammar. Reviewed options must precede
+operands; unknown/abbreviated options, options after operands, remote rsync destinations, directory changes
+and input redirects fall back to whole-command classification. Explicit destinations, redirects, and
+implicit directory/basename write targets remain classified by the Write/Edit guard. Directory destinations
+include `-t`, trailing slashes, existing directories and multiple-source copies; uncertain destinations are
+checked as both files and directories. `-T` selects a file destination. Existing file destinations permit
+renames. Protected source paths themselves are reads (the secrets guard still applies); for example,
+`cp .mcp.json /tmp/backup.json` is admitted, but `cp .env .` is not. Source globs may copy to literal external
+directories such as `cp Source/Foo/*.md /tmp/cratis-out/`. Their real matched basenames are still classified:
+protected environment names remain writes even outside repositories. Missing or uncertain matches retain
+conservative glob classification. Inside repositories, possibly protected implicit
+glob basenames and rsync directory contents fail closed; leading wildcard basenames conservatively include
+dotfiles. Globs that can supply option-shaped source filenames are not admitted. No copy command is executed
+by the check; only literal path metadata is queried.
 `sed -n` scripts with writes, execution or extra options are not exempt. `cd` permits `&&`
 read/search chains, including pipelines of reviewed readers, but never a piped `cd` or index-changing
 command. `git branch --show-current` retains the `&&`-only restriction; semicolons and other
@@ -278,7 +304,7 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | `ls` | `-l -a -A -1 -h -d -R -t -r -F` |
 | `df` | `-h` |
 | `rg` | `-n -l -i`, `--files`; literal `--glob`/`-g` filters |
-| `grep`, `egrep`, `fgrep` | `-n -i -r -R -l -L -c -v -w -x -F -E -H -h -o -q -s`; `-e PATTERN`, `-A N`, `-B N`, `-C N`; no long options |
+| `grep`, `egrep`, `fgrep` | `-n -i -r -R -l -L -c -v -w -x -F -E -H -h -o -q -s`; `-e PATTERN`, `-A N`, `-B N`, `-C N`; `--include=PATTERN`, `--exclude=PATTERN` or a separate literal pattern value; a search pattern is still required |
 | `echo` | `-n -e -E` |
 | `printf`, `test`, `[`, `true`, `false`, `pwd` | None (in particular, no `printf -v`) |
 | `git status` | `-s -b --short --porcelain` |
@@ -288,6 +314,11 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | `git add` | `-A -u -p -v --all`, including path globs for installed prompts |
 | `git commit` | `-m MSG`, `--message MSG`, `-mMSG`, `-a`, `-q`; `-F FILE` only for a literal non-protected file; no `--no-verify` |
 | `git blame`, `ls-files`, `rev-parse`, `check-ignore`, `grep` | None |
+| `git branch` | Exactly `--show-current`, or `--list` followed only by literal patterns |
+| `git tag` | `-l` or `--list`, followed only by literal patterns |
+| `cp` | `-r -R -p -a -f -v -n -i -u -T -L -P -H`; `--recursive --force --verbose --no-clobber --archive --no-target-directory`; `-t DIR`, `-tDIR`, `--target-directory DIR`, `--target-directory=DIR` (also in short-flag groups) |
+| `rsync` | `-a -r -v -n -u -z -t -p`; `--archive --recursive --verbose --dry-run --update --compress --times --perms` |
+| `install` | `-c -v -C -p`; `-d` directory operands; `-m MODE`/`-mMODE` (three or four octal digits); the same target-directory forms as `cp` |
 
 The only global Git option exemption is a single separate `-C <dir>` with a literal,
 non-empty directory word not starting with `-`, followed by exactly one of these tails:
