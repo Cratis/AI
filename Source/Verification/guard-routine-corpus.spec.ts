@@ -148,7 +148,7 @@ const protectedWrites = [
 
 type Verdicts = [number, number, number];
 type Row = { command: string; expected: Verdicts; hostile?: boolean };
-type Request = { guard: string; cwd: string; command: string; tool?: string; path?: string };
+type Request = { guard: string; cwd: string; command: string; tool?: string; path?: string; bash?: string; searchPath?: string };
 
 function repository(managed: boolean) {
     const root = mkdtempSync(join(tmpdir(), 'cratis-routine-'));
@@ -174,10 +174,10 @@ function repository(managed: boolean) {
     return root;
 }
 
-async function verdict({ guard, cwd, command, tool = 'Bash', path = '' }: Request): Promise<number> {
+async function verdict({ guard, cwd, command, tool = 'Bash', path = '', bash = 'bash', searchPath = process.env.PATH }: Request): Promise<number> {
     return new Promise((resolveRun, reject) => {
-        const child = spawn('bash', [join(scripts, `cratis-guard-${guard}.sh`)], {
-            cwd, env: { ...process.env, CRATIS_HOOKS_ALLOW_SECRET_READS: '0', CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+        const child = spawn(bash, [join(scripts, `cratis-guard-${guard}.sh`)], {
+            cwd, env: { ...process.env, PATH: searchPath, CRATIS_HOOKS_ALLOW_SECRET_READS: '0', CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
         });
         let stdout = ''; let stderr = '';
         child.stdout.on('data', data => { stdout += data; });
@@ -341,6 +341,30 @@ test('external glob destinations still protect matched environment basenames', a
         assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command: 'cp missing/*.md /tmp/out/' }), 2);
     } finally { rmSync(root, { recursive: true, force: true }); }
 });
+
+const defaultBash = spawnSync('bash', ['-c', 'printf "%s" "$BASH"'], { encoding: 'utf8' });
+assert.equal(defaultBash.status, 0, 'the default Bash runtime must be available');
+const systemBashVersion = spawnSync('/bin/bash', ['-c', 'printf "%s" "$BASH_VERSION"'], { encoding: 'utf8' });
+for (const runtime of [
+    { name: 'default bash', bash: defaultBash.stdout, skip: false },
+    { name: '/bin/bash 3.2', bash: '/bin/bash', skip: systemBashVersion.status === 0 && systemBashVersion.stdout.startsWith('3.2.') ? false : '/bin/bash 3.2 is not installed' },
+]) {
+    test(`external glob enumeration includes protected dotfiles under ${runtime.name}`, { skip: runtime.skip }, async () => {
+        const root = repository(true);
+        try {
+            const bin = join(root, 'runtime-bin');
+            mkdirSync(bin);
+            symlinkSync(runtime.bash, join(bin, 'bash'));
+            const searchPath = `${bin}:${process.env.PATH ?? ''}`;
+            writeFileSync(join(root, 'ordinary/.env.fixture.md'), 'synthetic fixture');
+            for (const command of ['cp .env* /tmp/out/', 'cp ordinary/.e* /tmp/out/', 'cp ordinary/*.md /tmp/out/']) {
+                assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command, bash: runtime.bash, searchPath }), 2, command);
+            }
+            // A normal source still works, so failure to enumerate is not mistaken for correct refusal.
+            assert.equal(await verdict({ guard: 'shell-writes', cwd: root, command: 'cp Source/Foo/*.md /tmp/out/', bash: runtime.bash, searchPath }), 0);
+        } finally { rmSync(root, { recursive: true, force: true }); }
+    });
+}
 
 test('copy source globs cannot supply option-shaped filenames', async () => {
     const root = repository(true);

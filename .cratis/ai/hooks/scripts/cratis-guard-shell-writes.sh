@@ -383,12 +383,18 @@ function print_only_sed(    i, ended) {
 # Verbs whose reviewed options are display flags only: a word-leading glob that expands to an option-shaped
 # file name can change what they print, never what they write or run. Every other verb refuses a leading glob.
 function shell_quote(s) { gsub(/\047/, "\047\\\047\047", s); return "\047" s "\047" }
+# Bash 3.2 initializes compgen glob flags only after pathname expansion. Prime that state in
+# the same shell after setting and verifying every required option; never enumerate unchecked.
+function glob_enumeration_script() {
+    return "cd -- \"$1\" && [ -r . ] && [ -x . ] || exit 3; unset GLOBIGNORE; " \
+        "shopt -s nullglob dotglob nocaseglob && shopt -q nullglob dotglob nocaseglob || exit 3; : *; " \
+        "n=0; while IFS= read -r f; do n=$((n+1)); [ \"$n\" -le 200 ] || exit 3; " \
+        "case $f in -*|*[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$f\"; done < <(compgen -G \"$2\"); echo OK"
+}
 # rg can execute --pre supplied by a filename. Check real leading-glob matches, never command text.
 function reader_globs(    i, cmd, line, count, ok, script) {
     if (changed_cwd || ENVIRON["GSW_GLOB_SAFE"] != "1") return 0
-    script = "cd -- \"$1\" && [ -r . ] && [ -x . ] || exit 3; unset GLOBIGNORE; shopt -s nullglob dotglob nocaseglob; " \
-        "n=0; while IFS= read -r f; do n=$((n+1)); [ \"$n\" -le 200 ] || exit 3; " \
-        "case $f in -*|*[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$f\"; done < <(compgen -G \"$2\"); echo OK"
+    script = glob_enumeration_script()
     for (i = 2; i <= argc; i++) {
         if (W[i] == "--") return 1
         if (!leading[i]) continue
@@ -480,9 +486,7 @@ function copy_write_target(w, implicit) {
 # each effective basename; if there are no matches, retain the conservative glob-path classifier.
 function copy_external_glob(dest, source, base,    script, cmd, line, count, ok, valid, path) {
     if (ENVIRON["GSW_GLOB_SAFE"] != "1") return 0
-    script = "cd -- \"$1\" && [ -r . ] && [ -x . ] || exit 3; unset GLOBIGNORE; shopt -s nullglob dotglob nocaseglob; " \
-        "n=0; while IFS= read -r f; do n=$((n+1)); [ \"$n\" -le 200 ] || exit 3; " \
-        "case $f in -*|*[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$f\"; done < <(compgen -G \"$2\"); echo OK"
+    script = glob_enumeration_script()
     cmd = "bash -c " shell_quote(script) " guard-copy-glob " shell_quote(ENVIRON["GSW_CWD"]) " " shell_quote(source) " 2>/dev/null"
     valid = 1
     while ((cmd | getline line) > 0) {
