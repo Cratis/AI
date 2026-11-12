@@ -18,6 +18,11 @@ namespace Cratis.AI.Workers;
 /// <c>Work.Workers.DockerWorkerRuntime</c> (plan Section 5.6), <c>WorkId</c> generalized to
 /// <see cref="AgentSessionId"/> and <c>ContainerRuntimeOptions</c> to <see cref="WorkerRuntimeOptions"/>.
 /// </summary>
+/// <remarks>
+/// Secure delivery assumes an owner-trusted image selected by a digest allow-list at the caller.
+/// Image code runs before delivery and supplies the verification tools; this is not a sandbox for
+/// hostile images. Root publishes readiness only after worker-identity payload checks complete.
+/// </remarks>
 /// <param name="options">The <see cref="WorkerRuntimeOptions"/> configuring the Docker endpoint.</param>
 /// <param name="logger">The logger.</param>
 public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger<DockerWorkerRuntime> logger) : IWorkerRuntime
@@ -58,10 +63,32 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     /// <param name="hostWorkspacePath">The prevalidated canonical host workspace path, or null for the legacy clone path.</param>
     /// <param name="hostGitMetadataPath">The prevalidated internal gitfile metadata subtree to protect, when applicable.</param>
     /// <returns>The container creation parameters.</returns>
+    /// <exception cref="DockerWorkerLaunchFailed">
+    /// The job supplies execution-affecting environment variables such as PATH, LD_*, or shell startup overrides.
+    /// These names are rejected case-insensitively before container creation.
+    /// </exception>
     public static CreateContainerParameters BuildContainerSpecification(
         WorkerJob job,
         string? repositoryCachePath = null,
         string? repositoryCacheEnvironmentVariable = null,
+        string? hostWorkspacePath = null,
+        string? hostGitMetadataPath = null) => BuildContainerSpecification(job, repositoryCachePath, repositoryCacheEnvironmentVariable, hardenContainer: false, hostWorkspacePath, hostGitMetadataPath);
+
+    /// <summary>
+    /// Builds a specification with the explicitly selected Docker security profile.
+    /// </summary>
+    /// <param name="job">The worker job.</param>
+    /// <param name="repositoryCachePath">The shared cache path.</param>
+    /// <param name="repositoryCacheEnvironmentVariable">The image's cache variable.</param>
+    /// <param name="hardenContainer">Whether to enable Docker hardening.</param>
+    /// <param name="hostWorkspacePath">The prevalidated canonical host workspace path.</param>
+    /// <param name="hostGitMetadataPath">The prevalidated internal gitfile metadata subtree to protect.</param>
+    /// <returns>The container specification.</returns>
+    internal static CreateContainerParameters BuildContainerSpecification(
+        WorkerJob job,
+        string? repositoryCachePath,
+        string? repositoryCacheEnvironmentVariable,
+        bool hardenContainer,
         string? hostWorkspacePath = null,
         string? hostGitMetadataPath = null)
     {
@@ -78,42 +105,109 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
 
             // Only non-secret configuration goes on the container specification, because
             // `docker inspect` reads it back and it outlives the container. Credentials are
-            // copied into the tmpfs below instead; what is named here is a path, not a secret.
+            // streamed into the tmpfs below instead; what is named here is a path, not a secret.
             Name = NameFor(job.Session),
 
             // The prompt is left off for a harder reason than the credentials are: a single
             // environment variable over MAX_ARG_STRLEN makes the kernel refuse the whole execve, so
             // a large enough prompt stops the container starting at all. It is copied in as a file
             // below - see WorkerPromptFile - and what goes here is the path to it.
-            Env = new DockerWorkerEnvironment(job, repositoryCachePath, repositoryCacheEnvironmentVariable, hostPrepared).Build(),
+            Env = BuildEnvironment(job, repositoryCachePath, repositoryCacheEnvironmentVariable, hostPrepared),
 
             // A TTY keeps the log a single raw stream, which also gives a live console a clean
             // line-by-line feed. Stdin stays open so steering text can be sent to the running session.
             Tty = true,
             OpenStdin = true,
             StdinOnce = false,
-            HostConfig = new HostConfig
-            {
-                // Lets the container reach the consumer's callback endpoint on the host from Linux
-                // engines; Docker Desktop provides the alias out of the box.
-                ExtraHosts = ["host.docker.internal:host-gateway"],
-
-                // The secrets land on a memory-backed mount, so they never touch the container's
-                // writable layer and cannot be recovered from a committed image or a stopped
-                // container's filesystem.
-                Tmpfs = new Dictionary<string, string> { [WorkerSecrets.Directory] = "rw,noexec,nosuid,mode=0700" },
-
-                // Shares the host's mirror of every tracked repository with the container, so
-                // clone_into_workspace() in entrypoint.sh can `git clone --shared` against it
-                // instead of cloning fresh from GitHub every run. Host path equals container path,
-                // the same convention the Kubernetes PVC mount uses.
-                Binds = hostPrepared
-                    ? BuildHostWorkspaceBinds(hostWorkspacePath!, hostGitMetadataPath)
-                    : restricted || string.IsNullOrWhiteSpace(repositoryCachePath)
-                        ? []
-                        : [$"{repositoryCachePath}:{repositoryCachePath}"]
-            }
+            HostConfig = BuildHostConfiguration(job, repositoryCachePath, restricted, hardenContainer, hostWorkspacePath, hostGitMetadataPath)
         };
+    }
+
+    static List<string> BuildEnvironment(WorkerJob job, string? cachePath, string? cacheVariable, bool hostPrepared)
+    {
+        var filteredJob = job with
+        {
+            EnvironmentVariables = job.EnvironmentVariables
+                .Where(variable => IsJobEnvironmentVariable(variable.Key, cacheVariable))
+                .ToDictionary(variable => variable.Key, variable => variable.Value)
+        };
+        return
+        [
+            .. new DockerWorkerEnvironment(filteredJob, cachePath, cacheVariable, hostPrepared).Build(),
+            $"{WorkerSecrets.RequiredVariableName}=true"
+        ];
+    }
+
+    static bool IsJobEnvironmentVariable(string name, string? repositoryCacheEnvironmentVariable)
+    {
+        if (IsExecutionEnvironmentVariable(name))
+        {
+            throw new DockerWorkerLaunchFailed();
+        }
+        return !name.Contains('=') && !name.Contains('\0') &&
+            !IsRuntimeEnvironmentVariable(name, repositoryCacheEnvironmentVariable);
+    }
+
+    static bool IsRuntimeEnvironmentVariable(string name, string? repositoryCacheEnvironmentVariable) =>
+        name.Equals(WorkerSecrets.PathVariableName, StringComparison.OrdinalIgnoreCase) ||
+        name.Equals(WorkerSecrets.RequiredVariableName, StringComparison.OrdinalIgnoreCase) ||
+        name.Equals(WorkerPromptFile.PathVariableName, StringComparison.OrdinalIgnoreCase) ||
+        name.Equals(WorkerPromptFile.LegacyVariableName, StringComparison.OrdinalIgnoreCase) ||
+        name.Equals("DIRECT_REPOSITORY_CACHE", StringComparison.OrdinalIgnoreCase) ||
+        name.Equals(repositoryCacheEnvironmentVariable, StringComparison.OrdinalIgnoreCase);
+
+    static bool IsExecutionEnvironmentVariable(string name) => name.ToUpperInvariant() switch
+    {
+        "PATH" or "BASH_ENV" or "ENV" or "SHELLOPTS" or "BASHOPTS" or "IFS" or "PS4" or "PROMPT_COMMAND" or
+        "GLIBC_TUNABLES" or "GCONV_PATH" or "LOCPATH" or "NLSPATH" or "CDPATH" or "BASH_COMPAT" or "BASH_XTRACEFD" => true,
+        var variable => variable.StartsWith("LD_", StringComparison.Ordinal) ||
+            variable.StartsWith("DYLD_", StringComparison.Ordinal) ||
+            variable.StartsWith("MALLOC_", StringComparison.Ordinal) ||
+            variable.StartsWith("BASH_FUNC_", StringComparison.Ordinal)
+    };
+
+    static void ValidateLimits(WorkerLimits? limits)
+    {
+        if (limits is { MemoryBytes: < 0 } or { NanoCpus: < 0 } or { PidsLimit: < 0 })
+        {
+            throw new DockerWorkerLaunchFailed();
+        }
+    }
+
+    static HostConfig BuildHostConfiguration(WorkerJob job, string? repositoryCachePath, bool restricted, bool hardenContainer, string? hostWorkspacePath, string? hostGitMetadataPath)
+    {
+        ValidateLimits(job.Limits);
+        var configuration = new HostConfig
+        {
+            // Docker Desktop provides this alias; Linux engines need it explicitly.
+            ExtraHosts = ["host.docker.internal:host-gateway"],
+            Memory = job.Limits?.MemoryBytes ?? 0,
+            MemorySwap = job.Limits?.MemoryBytes ?? 0,
+            MemorySwappiness = 0,
+            NanoCPUs = job.Limits?.NanoCpus ?? 0,
+            PidsLimit = job.Limits is { PidsLimit: not 0 } limits ? limits.PidsLimit : null,
+
+            // Never deliver credentials into the writable layer.
+            Tmpfs = new Dictionary<string, string>
+            {
+                [WorkerSecrets.Directory] = "rw,noexec,nosuid,nodev,size=16m,mode=0700,uid=1655,gid=1655",
+                [WorkerSecrets.DockerReadyDirectory] = "rw,noexec,nosuid,nodev,size=1m,mode=0755,uid=0,gid=0"
+            },
+
+            // Host-prepared workspaces protect Git metadata and never expose the shared mirror.
+            Binds = hostWorkspacePath is not null
+                ? BuildHostWorkspaceBinds(hostWorkspacePath, hostGitMetadataPath)
+                : restricted || string.IsNullOrWhiteSpace(repositoryCachePath)
+                    ? []
+                    : [$"{repositoryCachePath}:{repositoryCachePath}"]
+        };
+        if (hardenContainer)
+        {
+            configuration.Privileged = false;
+            configuration.CapDrop = ["ALL"];
+            configuration.SecurityOpt = ["no-new-privileges:true"];
+        }
+        return configuration;
     }
 
     /// <inheritdoc/>
@@ -136,6 +230,25 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         }
         using var client = CreateClient();
 
+        return await Start(client, job, cancellationToken);
+    }
+
+    /// <summary>
+    /// Launches using the supplied engine connection.
+    /// </summary>
+    /// <param name="client">The Docker client.</param>
+    /// <param name="job">The worker job.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The successful launch outcome.</returns>
+    /// <exception cref="DockerWorkerLaunchFailed">Secure delivery failed; engine details are withheld.</exception>
+    internal async Task<WorkerLaunchOutcome> Start(IDockerClient client, WorkerJob job, CancellationToken cancellationToken = default)
+    {
+        var verdict = HostWorkspace.Validate(job, options.Value.HostWorkspaceRoot);
+        if (verdict.Kind is not (HostWorkspaceVerdictKind.NotHostPrepared or HostWorkspaceVerdictKind.Valid))
+        {
+            logger.InvalidHostWorkspace(job.Session, verdict.Kind);
+            return WorkerLaunchOutcome.InvalidWorkspace;
+        }
         var (image, tag) = SplitImage(job.Image);
         try
         {
@@ -145,19 +258,48 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
                 new Progress<JSONMessage>(),
                 cancellationToken);
         }
-        catch (DockerApiException exception)
+        catch (DockerApiException)
         {
             // A locally built image is not pullable - use what the daemon already has.
-            logger.CouldNotPullImage(exception, job.Image);
+            // Engine errors are untrusted and may include credentials.
+            logger.CouldNotPullImage(new InvalidOperationException("Docker image pull failed; engine diagnostics withheld."), job.Image);
         }
 
-        var response = await client.Containers.CreateContainerAsync(
-            BuildContainerSpecification(job, options.Value.RepositoryCachePath, options.Value.RepositoryCacheEnvironmentVariable, verdict.Path, verdict.GitMetadataPath),
-            cancellationToken);
+        CreateContainerResponse response;
+        try
+        {
+            response = await client.Containers.CreateContainerAsync(
+                BuildContainerSpecification(job, options.Value.RepositoryCachePath, options.Value.RepositoryCacheEnvironmentVariable, options.Value.DockerHardeningEnabled, verdict.Path, verdict.GitMetadataPath),
+                cancellationToken);
+        }
+        catch (Exception)
+        {
+            throw new DockerWorkerLaunchFailed();
+        }
 
-        await WriteSecrets(client, response.ID, job, cancellationToken);
-
-        await client.Containers.StartContainerAsync(response.ID, new ContainerStartParameters(), cancellationToken);
+        try
+        {
+            if (!await client.Containers.StartContainerAsync(response.ID, new ContainerStartParameters(), cancellationToken))
+            {
+                throw new DockerWorkerLaunchFailed();
+            }
+            await new DockerWorkerSecrets(client, response.ID, cancellationToken).Inject(job);
+        }
+        catch (Exception)
+        {
+            // Docker errors can contain request bodies. Never expose the original exception,
+            // including as InnerException, and do not let caller cancellation skip cleanup.
+            using var cleanup = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            try
+            {
+                await client.Containers.RemoveContainerAsync(response.ID, new ContainerRemoveParameters { Force = true, RemoveVolumes = true }, cleanup.Token);
+            }
+            catch (Exception)
+            {
+                throw new DockerWorkerLaunchFailed(cleanupFailed: true);
+            }
+            throw new DockerWorkerLaunchFailed();
+        }
         logger.StartedWorkerContainer(response.ID, job.Session);
         return WorkerLaunchOutcome.Started;
     }
@@ -189,7 +331,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     /// <inheritdoc/>
     /// <remarks>
     /// Always <see langword="true"/> - a local Docker container has no comparable stuck-creating
-    /// phase the way a Kubernetes pod does. <see cref="Start"/> already waits for the image to be
+    /// phase the way a Kubernetes pod does. <see cref="Start(WorkerJob, CancellationToken)"/> already waits for the image to be
     /// present and the container created before it starts the container, so by the time a caller
     /// could observe this session as running, its container has started.
     /// </remarks>
@@ -318,88 +460,18 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         ];
     }
 
-    static async Task WriteSecrets(DockerClient client, string container, WorkerJob job, CancellationToken cancellationToken)
-    {
-        // A tmpfs is mounted when the container starts, so anything written into that path before
-        // start would be masked by it. Copying into a created-but-not-started container puts the
-        // file on the mount the entrypoint will read, and never on disk on the host.
-        await using var archive = new MemoryStream();
-        WriteTar(archive, job);
-        archive.Position = 0;
-
-        await client.Containers.ExtractArchiveToContainerAsync(
-            container,
-            new CopyToContainerParameters { Path = WorkerSecrets.Directory },
-            archive,
-            cancellationToken);
-    }
-
-    static void WriteTar(Stream stream, WorkerJob job)
-    {
-        // The readiness marker is written after the secrets file - and after the prompt, which is
-        // the larger of the two and the one most likely to still be arriving - so the entrypoint
-        // cannot observe a half-extracted file and read a truncated credential or instruction.
-        WriteTarEntry(stream, WorkerSecrets.FileName, Encoding.UTF8.GetBytes(WorkerSecrets.Render(job.Secrets)));
-        WriteTarEntry(
-            stream,
-            WorkerPromptFile.FileName,
-            Encoding.UTF8.GetBytes(WorkerPromptFile.Clamp(
-                job.EnvironmentVariables.GetValueOrDefault(WorkerPromptFile.LegacyVariableName, string.Empty))));
-        foreach (var (name, content) in job.ConfigurationFiles ?? new Dictionary<string, string>())
-        {
-            WriteTarEntry(stream, name, Encoding.UTF8.GetBytes(content));
-        }
-        WriteTarEntry(stream, WorkerSecrets.ReadyFileName, Encoding.UTF8.GetBytes("ready\n"));
-        stream.Write(new byte[1024]);
-    }
-
-    static void WriteTarEntry(Stream stream, string name, byte[] content)
-    {
-        var header = new byte[512];
-        Encoding.ASCII.GetBytes(name).CopyTo(header, 0);
-        Octal(header, 100, 8, 0b100_000_000);                       // mode 0400 - readable only by the owner
-        Octal(header, 108, 8, 0);                                   // uid
-        Octal(header, 116, 8, 0);                                   // gid
-        Octal(header, 124, 12, content.Length);
-        Octal(header, 136, 12, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-        header[156] = (byte)'0';                                    // a regular file
-        Encoding.ASCII.GetBytes("ustar\0").CopyTo(header, 257);
-        Encoding.ASCII.GetBytes("00").CopyTo(header, 263);
-
-        // The checksum is computed with its own field read as spaces, then written into it.
-        for (var index = 148; index < 156; index++)
-        {
-            header[index] = (byte)' ';
-        }
-
-        var checksum = header.Aggregate(0, (total, value) => total + value);
-        Octal(header, 148, 7, checksum);
-        header[154] = 0;
-        header[155] = (byte)' ';
-
-        stream.Write(header);
-        stream.Write(content);
-
-        var padding = (512 - (content.Length % 512)) % 512;
-        stream.Write(new byte[padding]);
-    }
-
     /// <summary>
-    /// Writes a tar numeric field: octal digits, zero padded, NUL terminated.
+    /// Separates mutable tags without splitting an immutable digest reference.
     /// </summary>
-    /// <param name="header">The header block to write into.</param>
-    /// <param name="offset">The offset of the field.</param>
-    /// <param name="length">The length of the field, including its terminator.</param>
-    /// <param name="value">The value to write.</param>
-    static void Octal(byte[] header, int offset, int length, long value)
+    /// <param name="image">The image reference.</param>
+    /// <returns>The image and optional tag used for pulling.</returns>
+    internal static (string Image, string Tag) SplitImage(string image)
     {
-        var digits = Convert.ToString(value, 8).PadLeft(length - 1, '0');
-        Encoding.ASCII.GetBytes(digits).CopyTo(header, offset);
-        header[offset + length - 1] = 0;
-    }
+        if (image.Contains('@'))
+        {
+            return (image, string.Empty);
+        }
 
-    static (string Image, string Tag) SplitImage(string image)
-    {
         var separator = image.LastIndexOf(':');
         return separator > image.LastIndexOf('/')
             ? (image[..separator], image[(separator + 1)..])

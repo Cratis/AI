@@ -49,6 +49,13 @@ public class WorkerRuntimeOptions
     public string? DockerEndpoint { get; set; }
 
     /// <summary>
+    /// Opts Docker workers into dropping all capabilities and disallowing privilege escalation.
+    /// Defaults to false until end-to-end image compatibility has been proven. Set false to opt out.
+    /// Kubernetes security configuration is unchanged.
+    /// </summary>
+    public bool DockerHardeningEnabled { get; set; }
+
+    /// <summary>
     /// Gets or sets the trusted absolute root for Docker host-prepared workspaces, configured at
     /// Cratis:AI:ContainerRuntime:HostWorkspaceRoot. Null or empty disables the mode. Workspaces must
     /// be existing direct children without symlinks/reparse points and with a non-symlink .git

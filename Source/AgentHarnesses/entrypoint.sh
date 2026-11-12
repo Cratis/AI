@@ -316,19 +316,43 @@ set -uo pipefail
 
 log() { printf '[agent-harness] %s\n' "$*"; }
 
-# Load the credentials before anything needs them. The Docker runtime copies the file in after the
-# container is created, so it can still be arriving; the readiness marker is written last and is
-# what proves the file is complete rather than half-extracted.
+# Load credentials only after the trusted runtime commits readiness. Docker streams files into
+# tmpfs, verifies them, then publishes a marker on a separate root-owned mount.
 load_secrets() {
     local file="${DIRECT_SECRETS_FILE:-}"
+    local required="${CRATIS_WORKER_REQUIRE_SECRETS:-false}"
+    if [[ -z "$file" && "$required" == true ]]; then
+        log "Secure worker secrets were not configured - refusing to start"
+        exit 1
+    fi
     [[ -n "$file" ]] || { log "No secrets file configured - running without credentials"; return; }
 
     local ready="${file%/*}/secrets.ready"
+    [[ "$required" != true ]] || ready=/run/agent-secrets-ready/secrets.ready
+    local attempts=30
+    [[ "$required" != true ]] || attempts=300
     local waited=0
-    while [[ ! -f "$ready" && $waited -lt 30 ]]; do
+    while [[ ! -f "$ready" && $waited -lt $attempts ]]; do
         sleep 0.1
         waited=$((waited + 1))
     done
+
+    if [[ "$required" == true ]]; then
+        # Docker delivers only into tmpfs, with the worker as sole reader. Fail closed before
+        # sourcing anything; mounted Kubernetes Secrets retain their existing behavior.
+        if [[ ! -f "$ready" || ! -f "$file" || -L "$file" || -L "$ready" ]] ||
+            [[ "$(stat -f -c %T "${file%/*}" 2>/dev/null)" != tmpfs ]] ||
+            [[ "$(stat -c %u:%a "${file%/*}" 2>/dev/null)" != "$(id -u):700" ]] ||
+            [[ "$(stat -c %u:%a "$file" 2>/dev/null)" != "$(id -u):400" ]] ||
+            [[ -L "${ready%/*}" ]] ||
+            [[ "$(stat -f -c %T "${ready%/*}" 2>/dev/null)" != tmpfs ]] ||
+            [[ "$(stat -c %u:%a "${ready%/*}" 2>/dev/null)" != 0:755 ]] ||
+            [[ -w "${ready%/*}" ]] ||
+            [[ "$(stat -c %u:%a "$ready" 2>/dev/null)" != 0:444 ]]; then
+            log "Secure worker secrets were not delivered - refusing to start"
+            exit 1
+        fi
+    fi
 
     if [[ ! -f "$ready" ]]; then
         log "Secrets file did not arrive at ${file} - running without credentials"
@@ -345,7 +369,12 @@ load_secrets() {
         fi
     done < "$file"
     # shellcheck source=/dev/null
-    if ! . "$file"; then
+    if [[ "$required" == true ]]; then
+        if ! . "$file" 2>/dev/null; then
+            log "Could not load worker secrets - refusing to start"
+            exit 1
+        fi
+    elif ! . "$file"; then
         log "Could not read ${file} - running without credentials"
         return
     fi
@@ -732,8 +761,13 @@ if [[ -n "${DOCKER_HOST:-}" ]]; then
 fi
 
 # Route the agent's shell commands through rtk - installs the hook that transparently prefixes
-# supported commands, minimizing token consumption.
-rtk init -g || log "rtk init failed - continuing without token optimization"
+# supported commands, minimizing token consumption. Never prompt on the worker's steering stdin;
+# older images without timeout still initialize non-interactively.
+if command -v timeout >/dev/null 2>&1; then
+    timeout -k 2s 10s rtk init -g --auto-patch </dev/null
+else
+    rtk init -g --auto-patch </dev/null
+fi || log "rtk init failed - continuing without token optimization"
 
 # The container-local Headroom proxy the session's model requests are routed through when the
 # Direct asked for it (DIRECT_HEADROOM, issue #556). rtk trims what the shell hands the agent;
