@@ -26,7 +26,7 @@ public record UpdateAgentSkill(AgentId Id, SkillId Skill, SkillName Name, SkillC
     public IEnumerable<object> Handle(Agent? agent)
     {
         var current = (agent?.Skills ?? []).FirstOrDefault(candidate => candidate.SkillId == Skill);
-        var events = new List<object>();
+        List<object> events = [];
         if (current?.Name != Name)
         {
             events.Add(new AgentSkillRenamed(Skill, Name));

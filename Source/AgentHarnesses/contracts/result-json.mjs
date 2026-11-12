@@ -27,40 +27,55 @@ function stringEnd(json, start) {
     throw new Error('Unterminated string in parsed JSON');
 }
 
-function valueEnd(json, start) {
-    const first = json.charCodeAt(start);
-    if (first === 34) return stringEnd(json, start);
-    if (first !== 123 && first !== 91) {
-        let end = start;
-        while (end < json.length && !space(json.charCodeAt(end)) && ![44, 125, 93].includes(json.charCodeAt(end))) end++;
-        return end;
-    }
+const opensContainer = code => code === 123 || code === 91;
+const closesContainer = code => code === 125 || code === 93;
+const endsPrimitive = code => space(code) || [44, 125, 93].includes(code);
+
+function primitiveEnd(json, start) {
+    let end = start;
+    while (end < json.length && !endsPrimitive(json.charCodeAt(end))) end++;
+    return end;
+}
+
+function containerEnd(json, start) {
     let depth = 0;
     for (let i = start; i < json.length; i++) {
         const code = json.charCodeAt(i);
         if (code === 34) i = stringEnd(json, i) - 1;
-        else if (code === 123 || code === 91) depth++;
-        else if ((code === 125 || code === 93) && --depth === 0) return i + 1;
+        else if (opensContainer(code)) depth++;
+        else if (closesContainer(code) && --depth === 0) return i + 1;
     }
     throw new Error('Unterminated object in parsed JSON');
+}
+
+function valueEnd(json, start) {
+    const first = json.charCodeAt(start);
+    if (first === 34) return stringEnd(json, start);
+    return opensContainer(first) ? containerEnd(json, start) : primitiveEnd(json, start);
+}
+
+function skipWhitespace(json, start) {
+    while (space(json.charCodeAt(start))) start++;
+    return start;
+}
+
+function memberValueStart(json, keyEnd) {
+    let start = skipWhitespace(json, keyEnd);
+    if (json.charCodeAt(start++) !== 58) throw new Error('Missing colon in parsed JSON');
+    return skipWhitespace(json, start);
 }
 
 // Linear, non-recursive scanning of already parsed JSON; no regex ever visits a large diff.
 export function members(json) {
     const spans = [];
-    let i = 0;
-    while (space(json.charCodeAt(i))) i++;
+    let i = skipWhitespace(json, 0);
     if (json.charCodeAt(i++) !== 123) return spans;
     while (i < json.length) {
         while (space(json.charCodeAt(i)) || json.charCodeAt(i) === 44) i++;
         if (json.charCodeAt(i) === 125) break;
         const end = stringEnd(json, i);
         const key = JSON.parse(json.slice(i, end));
-        i = end;
-        while (space(json.charCodeAt(i))) i++;
-        if (json.charCodeAt(i++) !== 58) throw new Error('Missing colon in parsed JSON');
-        while (space(json.charCodeAt(i))) i++;
-        const start = i;
+        const start = memberValueStart(json, end);
         i = valueEnd(json, start);
         spans.push({ key, start, end: i });
     }

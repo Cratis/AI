@@ -1,6 +1,7 @@
 # 0004 - `@cratis/ai` route shape and generated-package layout
 
 Status: Accepted
+Superseded in part by: `0020-ci-never-generates-arc-proxies.md` (item 4 only).
 Related: `/Volumes/Code/Cratis/ai-consolidation-plan.md` Section 6 (the `@cratis/ai` npm package),
 Section 6.4 (route shape), risk #12. `Documentation/migration-status.md` flagged this as one of two
 decisions still open before Phase 3b could start.
@@ -65,6 +66,9 @@ Fixed by conditioning `CratisProxiesOutputPath` itself to `'$(TargetFramework)' 
 `Cratis.AI.csproj` - the generator's target guards on that property being non-empty, so it now runs
 exactly once regardless of how many TFMs the configuration builds. Verified with three consecutive
 clean Release builds locally (previously non-deterministic, now consistently clean).
+
+Update (.NET 11 upgrade): the TFM list quoted above (`net8.0;net9.0;net10.0`) is superseded;
+`Directory.Build.props` now multi-targets `net10.0;net11.0`. The guard on `net10.0` is unchanged.
 
 ## Consequences
 

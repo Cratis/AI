@@ -229,3 +229,27 @@ test('new skill fixtures have valid structure, balanced routing inputs and match
         }
     }
 });
+
+test('code-health is a universal, path-scoped, generic rule that general and review-reports route to', () => {
+    const rule = readFileSync(join(corpus, 'rules/code-health.md'), 'utf8');
+    const fields = frontmatter(rule);
+    assert.ok(!fields.has('profile'), 'code-health.md reaches every repository, so it carries no profile');
+    assert.ok(fields.get('paths')?.length, 'code-health.md has Claude paths');
+    assert.ok(!fields.get('applyTo')?.includes('**/*'), 'code-health.md has narrow Copilot scope');
+    for (const text of ['9.5', 'code_health_review', 'code_health_score', 'pre_commit_code_health_safeguard', 'analyze_change_set', 'could not determine', 'No fix loops', 'uplift']) assert.ok(rule.includes(text), text);
+    assert.ok(!/woksin|\b85913\b|\b108967\b|L0|cs-mcp \d|1\.5\.\d/i.test(rule), 'code-health.md stays generic');
+    assert.ok(readFileSync(join(corpus, 'rules/general.md'), 'utf8').includes('`code-health.md`'));
+    assert.ok(readFileSync(join(corpus, 'rules/review-reports.md'), 'utf8').includes('code-health.md'));
+});
+
+test('published-contracts is a universal, path-scoped, generic rule that general, review-reports and the reviewers route to', () => {
+    const rule = readFileSync(join(corpus, 'rules/published-contracts.md'), 'utf8');
+    const fields = frontmatter(rule);
+    assert.ok(!fields.has('profile'), 'published-contracts.md reaches every repository, so it carries no profile');
+    assert.ok(fields.get('paths')?.length, 'published-contracts.md has Claude paths');
+    assert.ok(!fields.get('applyTo')?.includes('**/*'), 'published-contracts.md has narrow Copilot scope');
+    for (const text of ['vectors', 'executable specs', 'blocking finding', 'contract wins', 'say so']) assert.ok(rule.includes(text), text);
+    for (const path of ['rules/general.md', 'rules/review-reports.md', 'agents/code-reviewer.md', 'agents/security-reviewer.md', 'harnesses/pi/agents/code-reviewer.md', 'harnesses/pi/agents/security-reviewer.md', 'harnesses/opencode/agents/code-reviewer.md', 'harnesses/opencode/agents/security-reviewer.md']) {
+        assert.ok(readFileSync(join(corpus, path), 'utf8').includes('published-contracts.md'), path);
+    }
+});

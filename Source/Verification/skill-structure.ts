@@ -32,36 +32,54 @@ export function skillBody(content: string): string {
     return closing < 0 ? content : content.slice(lines[closing].end);
 }
 
-export function skillStructureProblems(subject: string, content: string): string[] {
-    const problems: string[] = [];
+/** Parsed frontmatter mapping, or undefined when absent, malformed (reported by the frontmatter validator) or not a mapping. */
+function frontmatterFields(content: string): Record<string, unknown> | undefined {
     const lines = linesOf(content);
     const closing = lines.findIndex((line, index) => index > 0 && line.text === '---');
-    if (lines[0].text === '---' && closing > 0) {
-        const document = parseDocument(content.slice(lines[0].end, lines[closing].start));
-        // The existing frontmatter validator reports malformed YAML, so do not duplicate that diagnostic.
-        if (document.errors.length === 0) {
-            let fields: unknown;
-            try { fields = document.toJS(); } catch { fields = undefined; }
-            if (typeof fields === 'object' && fields !== null && !Array.isArray(fields)) {
-                const { name, description, compatibility } = fields as Record<string, unknown>;
-                if (typeof name !== 'string' || name.length < 1 || name.length > 64 || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name) || /anthropic|claude/.test(name)) {
-                    problems.push(`${subject} name must be 1–64 lowercase letters, digits or hyphens, with no leading/trailing hyphen, consecutive hyphens, 'anthropic' or 'claude'.`);
-                }
-                if (typeof description !== 'string' || description.length < 1 || description.length > 1024) {
-                    problems.push(`${subject} description must be a string of 1–1024 characters.`);
-                } else if (/<[^>]*>/.test(description)) {
-                    problems.push(`${subject} description must not contain XML/HTML tags (including generic type text).`);
-                }
-                if (Object.hasOwn(fields, 'compatibility') && (typeof compatibility !== 'string' || compatibility.length < 1 || compatibility.length > 500)) {
-                    problems.push(`${subject} compatibility must be a string of 1–500 characters when present.`);
-                }
-            }
-        }
+    if (lines[0].text !== '---' || closing <= 0) return undefined;
+    const document = parseDocument(content.slice(lines[0].end, lines[closing].start));
+    // The existing frontmatter validator reports malformed YAML, so do not duplicate that diagnostic.
+    if (document.errors.length > 0) return undefined;
+    let fields: unknown;
+    try { fields = document.toJS(); } catch { fields = undefined; }
+    return typeof fields === 'object' && fields !== null && !Array.isArray(fields) ? fields as Record<string, unknown> : undefined;
+}
+
+function isTextWithin(value: unknown, maximum: number): value is string {
+    return typeof value === 'string' && value.length >= 1 && value.length <= maximum;
+}
+
+function isValidSkillName(name: unknown): boolean {
+    return isTextWithin(name, 64) && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(name) && !/anthropic|claude/.test(name);
+}
+
+function descriptionProblems(subject: string, description: unknown): string[] {
+    if (!isTextWithin(description, 1024)) return [`${subject} description must be a string of 1–1024 characters.`];
+    return /<[^>]*>/.test(description) ? [`${subject} description must not contain XML/HTML tags (including generic type text).`] : [];
+}
+
+function frontmatterProblems(subject: string, fields: Record<string, unknown>): string[] {
+    const problems: string[] = [];
+    if (!isValidSkillName(fields.name)) {
+        problems.push(`${subject} name must be 1–64 lowercase letters, digits or hyphens, with no leading/trailing hyphen, consecutive hyphens, 'anthropic' or 'claude'.`);
     }
-    const body = skillBody(content);
+    problems.push(...descriptionProblems(subject, fields.description));
+    if (Object.hasOwn(fields, 'compatibility') && !isTextWithin(fields.compatibility, 500)) {
+        problems.push(`${subject} compatibility must be a string of 1–500 characters when present.`);
+    }
+    return problems;
+}
+
+function bodySizeProblems(subject: string, body: string): string[] {
+    const problems: string[] = [];
     if (lineCount(body) > maximumSkillBodyLines) problems.push(`${subject} body exceeds ${maximumSkillBodyLines} lines (${lineCount(body)}).`);
     if (body.length > maximumSkillBodyCharacters) problems.push(`${subject} body exceeds ~5000-token budget (${maximumSkillBodyCharacters} chars; ${body.length} found).`);
     return problems;
+}
+
+export function skillStructureProblems(subject: string, content: string): string[] {
+    const fields = frontmatterFields(content);
+    return [...fields ? frontmatterProblems(subject, fields) : [], ...bodySizeProblems(subject, skillBody(content))];
 }
 
 /**
@@ -78,22 +96,34 @@ export function skillReferenceProblems(subject: string, body: string, paths: str
         `${subject} must directly reference '${path}'; that file is only reachable through another file, or not at all.`);
 }
 
+interface Fence { character: string; length: number }
+
+function fenceOpening(text: string): Fence | undefined {
+    const opening = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(text);
+    if (!opening || (opening[1][0] === '`' && opening[2].includes('`'))) return undefined;
+    return { character: opening[1][0], length: opening[1].length };
+}
+
+function closesFence(text: string, fence: Fence): boolean {
+    const closing = /^ {0,3}(`{3,}|~{3,})\s*$/.exec(text);
+    return closing !== null && closing[1][0] === fence.character && closing[1].length >= fence.length;
+}
+
+function headingOf(line: { text: string; start: number; end: number }, index: number) {
+    const heading = /^ {0,3}(#{1,6})(?:[ \t]+(.*?)|[ \t]*)$/.exec(line.text);
+    return heading ? [{ level: heading[1].length, text: (heading[2] ?? '').replace(/[ \t]+#+[ \t]*$/, '').trim(), line: index, start: line.start, end: line.end }] : [];
+}
+
 /** ATX headings outside backtick/tilde fences, including fences with language/info strings. */
 export function markdownHeadings(content: string) {
-    let fence: { character: string; length: number } | undefined;
+    let fence: Fence | undefined;
     return linesOf(content).flatMap((line, index) => {
         if (fence) {
-            const closing = /^ {0,3}(`{3,}|~{3,})\s*$/.exec(line.text);
-            if (closing && closing[1][0] === fence.character && closing[1].length >= fence.length) fence = undefined;
+            if (closesFence(line.text, fence)) fence = undefined;
             return [];
         }
-        const opening = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line.text);
-        if (opening && (opening[1][0] !== '`' || !opening[2].includes('`'))) {
-            fence = { character: opening[1][0], length: opening[1].length };
-            return [];
-        }
-        const heading = /^ {0,3}(#{1,6})(?:[ \t]+(.*?)|[ \t]*)$/.exec(line.text);
-        return heading ? [{ level: heading[1].length, text: (heading[2] ?? '').replace(/[ \t]+#+[ \t]*$/, '').trim(), line: index, start: line.start, end: line.end }] : [];
+        fence = fenceOpening(line.text);
+        return fence ? [] : headingOf(line, index);
     });
 }
 
@@ -139,25 +169,31 @@ export const exampleListingIntroductionLines = 30;
  * first fence opens within the introduction window.
  */
 export function isExampleListing(content: string): boolean {
-    let fence: { character: string; length: number } | undefined;
+    let fence: Fence | undefined;
     let fenced = 0;
     let firstFence: number | undefined;
     const lines = linesOf(content);
     lines.forEach((line, index) => {
         if (fence) {
             fenced++;
-            const closing = /^ {0,3}(`{3,}|~{3,})\s*$/.exec(line.text);
-            if (closing && closing[1][0] === fence.character && closing[1].length >= fence.length) fence = undefined;
+            if (closesFence(line.text, fence)) fence = undefined;
             return;
         }
-        const opening = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line.text);
-        if (opening && (opening[1][0] !== '`' || !opening[2].includes('`'))) {
-            fence = { character: opening[1][0], length: opening[1].length };
+        fence = fenceOpening(line.text);
+        if (fence) {
             fenced++;
             firstFence ??= index;
         }
     });
     return firstFence !== undefined && firstFence < exampleListingIntroductionLines && fenced / lines.length >= exampleListingFencedShare;
+}
+
+function contentsListMatches(content: string, section: { end: number; sectionEnd: number }, entries: string[]): boolean {
+    const actual = content.slice(section.end, section.sectionEnd).split(/\r?\n/).filter(line => line.trim() !== '');
+    const secondLevel = markdownHeadings(content).filter(heading => heading.level === 2 && heading.text !== 'Contents');
+    // Nested H3 navigation is optional when H2s are sufficient; it must still be a bullet list.
+    const relevant = secondLevel.length >= 2 ? actual.filter(line => !/^  - /.test(line)) : actual;
+    return actual.every(line => /^(?:  )?- .+/.test(line)) && JSON.stringify(relevant) === JSON.stringify(entries);
 }
 
 export function referenceContentsProblems(subject: string, content: string): string[] {
@@ -171,15 +207,26 @@ export function referenceContentsProblems(subject: string, content: string): str
     if (sections.length !== 1 || sections[0].start !== contentsPosition(content)) {
         return [`${subject} requires one '## Contents' list at the top, directly after its H1 title and blank line (or at line 1 without an H1).`];
     }
-    const section = sections[0];
-    const actual = content.slice(section.end, section.sectionEnd).split(/\r?\n/).filter(line => line.trim() !== '');
-    const secondLevel = markdownHeadings(content).filter(heading => heading.level === 2 && heading.text !== 'Contents');
-    // Nested H3 navigation is optional when H2s are sufficient; it must still be a bullet list.
-    const relevant = secondLevel.length >= 2 ? actual.filter(line => !/^  - /.test(line)) : actual;
-    if (actual.some(line => !/^(?:  )?- .+/.test(line)) || JSON.stringify(relevant) !== JSON.stringify(entries)) {
-        return [`${subject} Contents entries must exactly match its H2 headings in order (H3 fallback when fewer than two H2 headings).`];
+    return contentsListMatches(content, sections[0], entries) ? [] : [`${subject} Contents entries must exactly match its H2 headings in order (H3 fallback when fewer than two H2 headings).`];
+}
+
+/** A block ending the file keeps a file that had no trailing newline without one. */
+function blockForEnd(block: string, content: string, atEnd: boolean): string {
+    return atEnd && !content.endsWith('\n') ? block.replace(/(?:\r?\n)+$/, '') : block;
+}
+
+function insertContentsBlock(content: string, block: string, newline: string): string {
+    const position = contentsPosition(content);
+    const needsBlank = position > 0 && !content.slice(0, position).endsWith(newline + newline);
+    return content.slice(0, position) + (needsBlank ? newline : '') + blockForEnd(block, content, position === content.length) + content.slice(position);
+}
+
+function removeContentsSections(content: string, sections: { start: number; sectionEnd: number }[]): string {
+    let remaining = content;
+    for (const existing of [...sections].reverse()) {
+        remaining = remaining.slice(0, existing.start) + remaining.slice(existing.sectionEnd);
     }
-    return [];
+    return remaining;
 }
 
 /** Returns unchanged text when correct; only the Contents section is replaced, never the rest of the file. */
@@ -190,23 +237,13 @@ export function withReferenceContents(content: string): string {
     const sections = contentsSections(content);
     const newline = content.includes('\r\n') ? '\r\n' : '\n';
     const block = ['## Contents', '', ...entries, ''].join(newline) + newline;
-    if (sections.length > 0) {
-        const section = sections[0];
-        if (sections.length === 1 && section.start === contentsPosition(content)) {
-            const ending = section.sectionEnd === content.length && !content.endsWith('\n') ? block.replace(/(?:\r?\n)+$/, '') : block;
-            return content.slice(0, section.start) + ending + content.slice(section.sectionEnd);
-        }
-        // Remove only misplaced/duplicate lists, then insert at the title; all prose remains untouched.
-        let withoutContents = content;
-        for (const existing of [...sections].reverse()) {
-            withoutContents = withoutContents.slice(0, existing.start) + withoutContents.slice(existing.sectionEnd);
-        }
-        return withReferenceContents(withoutContents);
+    if (sections.length === 0) return insertContentsBlock(content, block, newline);
+    const section = sections[0];
+    if (sections.length === 1 && section.start === contentsPosition(content)) {
+        return content.slice(0, section.start) + blockForEnd(block, content, section.sectionEnd === content.length) + content.slice(section.sectionEnd);
     }
-    const position = contentsPosition(content);
-    const needsBlank = position > 0 && !content.slice(0, position).endsWith(newline + newline);
-    const ending = position === content.length && !content.endsWith('\n') ? block.replace(/(?:\r?\n)+$/, '') : block;
-    return content.slice(0, position) + (needsBlank ? newline : '') + ending + content.slice(position);
+    // Remove only misplaced/duplicate lists, then insert at the title; all prose remains untouched.
+    return withReferenceContents(removeContentsSections(content, sections));
 }
 
 /** Check both POSIX and Windows spellings regardless of the verifier's host platform. */

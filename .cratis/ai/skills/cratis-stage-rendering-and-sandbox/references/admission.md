@@ -151,7 +151,7 @@ multi-trigger refusal groups, localized `$refusal.message`, or `$refusal.constra
 when several constraints can fail together report STAGE-ESM-039. Unsupported branch
 conditions/routes/mappings retain -039, specification shapes -011.
 
-Differing event pins render as `[EventType("storedName")]`; the class follows the
+Differing event pins render as `[EventType("storedName")]` (a retained stored id); the class follows the
 model name. Destination event-id changes or unreadable existing ids block every
 publication scope with STAGE-EVENT-002 / CLI-RENDER-016, even under `--force`.
 Requires Cratis CLI 3.60.0 (`cratis --version`) for this publication check; older
@@ -264,11 +264,16 @@ Stage renders two projection forms; the restrictions differ.
   inside a child are admitted), `nested`
   over an optional composite property, and `every`/`all` with set-from-event-source mappings. Keys
   are an event property or the event source. The key establishes the identifier, so it must
-  end up unmapped: a mapping onto it is refused unless it restates the key (the key's own
-  event property, `$eventSourceId` for an event-source key, or the same literal)
+  end up unmapped: in a `from`, a mapping onto it is refused unless it restates the key (the key's own
+  event property, `$eventSourceId` for an event-source key, or the same literal);
+  `join` and `every` refuse any mapping onto the identifier
   (`STAGE-ESM-017`). Auto-map
-  counts as a mapping: if the event carries a property with the identifier's name and type,
-  declare `no automap` and map the other properties explicitly. `from E` and
+  counts as a mapping, and it restates the key only when the event property it maps from is the key.
+  When the event carries a property with the identifier's name and that property is the intended key,
+  key the `from` by it (`from E key <property>`); the auto-mapped identifier then restates the key and is
+  admitted. Declare `no automap` only when the event's identifier-named property is not the key, and map
+  the other properties explicitly. `no automap` alone does not fix routing: with the key left on the event
+  source, every event goes to the event source's instance, not the one the payload names. `from E` and
   `from E key $eventSourceId` render when the identifier ends up unmapped, whether or not
   the event repeats the identifier.
 - `all` renders as Chronicle `FromAll` for event-source-identity mappings, including
@@ -359,5 +364,5 @@ Query-performer gaps are a separate contract: see [bodies and implementation gap
 
 | Draft | Diagnostic | Fix that rendered |
 | --- | --- | --- |
-| Projection `from BerthReserved` with `berthId = $eventSourceId` (mapping the identifier) | `STAGE-ESM-017`: mappings cannot overwrite the key | Do not map the identifier; the key establishes it, so map only the other properties. `from E key $eventSourceId` plus the same mapping is also refused |
+| Projection `from BerthReserved` with `berthId = $eventSourceId` (mapping the identifier) | `STAGE-ESM-017`: mappings cannot overwrite the key | Leave the identifier unmapped (the key establishes it), or restate the key in a `from`: `berthId = $eventSourceId` under the default or `key $eventSourceId` key is admitted, and so is mapping the key's own event property. Only a plain set of the key's own value (its event property, `$eventSourceId` or the same literal) is admitted; any other mapping onto the key is refused, and `join` and `every` refuse any identifier mapping. If the payload property is the intended key, write `from E key <property>` |
 | A `then query` spec in the view slice, then one without `then <Event>` | `PLAY0273`, then `STAGE-ESM-011` | Put the spec in the command slice with `given caller`, `when`, the `then` event and `then query` |

@@ -142,16 +142,13 @@ public readonly record struct PoolAttempt<T>(PoolAttemptOutcome Outcome, T? Valu
 /// <param name="AnyTransientFailure">Whether at least one member's real call failed transiently - worth another whole attempt later, as opposed to an exhaustion made only of members that were never really tried.</param>
 public readonly record struct PoolDispatchResult<T>(PoolDispatchOutcome Outcome, T? Value, string Reason, bool AnyTransientFailure)
 {
-    readonly IReadOnlyList<AIProviderId>? _triedProviders;
-    readonly IReadOnlyList<AIProviderId>? _quotaExhaustedProviders;
-
     /// <summary>
     /// Gets the providers a real call was made to, in the order they were tried.
     /// </summary>
     public IReadOnlyList<AIProviderId> TriedProviders
     {
-        get => _triedProviders ?? [];
-        init => _triedProviders = value;
+        get => field ?? [];
+        init;
     }
 
     /// <summary>
@@ -160,8 +157,8 @@ public readonly record struct PoolDispatchResult<T>(PoolDispatchOutcome Outcome,
     /// </summary>
     public IReadOnlyList<AIProviderId> QuotaExhaustedProviders
     {
-        get => _quotaExhaustedProviders ?? [];
-        init => _quotaExhaustedProviders = value;
+        get => field ?? [];
+        init;
     }
 
     /// <summary>
@@ -271,8 +268,8 @@ public static class PoolDispatcher
         var remaining = members.ToList();
         var lastReason = exhaustedReason;
         var anyTransientFailure = false;
-        var tried = new List<AIProviderId>();
-        var quotaExhausted = new List<AIProviderId>();
+        List<AIProviderId> tried = [];
+        List<AIProviderId> quotaExhausted = [];
         PoolAttempt<T>? firstRejection = null;
 
         while (remaining.Count > 0)

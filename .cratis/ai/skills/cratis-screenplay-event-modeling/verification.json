@@ -100,6 +100,20 @@
     {
       "kind": "skill-contains",
       "value": "Ask only what the step needs"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "understanding-pipeline"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "evidence.jsonl",
+      "file": "references/understanding-pipeline.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "one row per claim",
+      "file": "references/understanding-pipeline.md"
     }
   ]
 }

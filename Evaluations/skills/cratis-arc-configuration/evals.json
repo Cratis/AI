@@ -1,0 +1,40 @@
+{
+  "skill_name": "cratis-arc-configuration",
+  "evals": [
+    {
+      "id": 1,
+      "name": "route-prefix-mismatch",
+      "prompt": "We set CratisProxiesApiPrefix to v1 and CratisProxiesSkipCommandNameInRoute to true. The frontend now gets 404 on every command. What else must change and why? Answer without editing.",
+      "expected_output": "The host's GeneratedApis keys must match: RoutePrefix v1 and IncludeCommandNameInRoute false; Arc does not compare them.",
+      "assertions": [
+        "Names Cratis:Arc:GeneratedApis:RoutePrefix as the host counterpart of CratisProxiesApiPrefix.",
+        "Explains the skip property is the inverse of IncludeCommandNameInRoute, so true maps to false.",
+        "States that Arc does not compare the two sides, so a mismatch is a 404 without a build error or log.",
+        "Says to change both in one commit and does not suggest putting the prefix into apiBasePath."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "anonymous-after-addcratis",
+      "prompt": "After AddCratis() every request is anonymous and secured endpoints return 401. The app sits behind an ingress. What do we check?",
+      "expected_output": "TrustForwardedIdentityHeaders defaults to false; enable only when the ingress authenticates and replaces the headers.",
+      "assertions": [
+        "Names Cratis:Arc:TrustForwardedIdentityHeaders and its default of false.",
+        "Warns to enable it only when every request passes an ingress that authenticates callers and replaces the identity headers.",
+        "Mentions the startup warning or registering a validating authentication scheme as the alternative.",
+        "Does not suggest switching the host to Development to restore access."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "no-proxies-generated",
+      "prompt": "dotnet build succeeds but no TypeScript proxies appear, and someone suggests -p:DisableProxyGenerator=true to stop regeneration in CI. Evaluate.",
+      "expected_output": "CratisProxiesSkip=true (Arc 22.185.1 or later) is the off switch; an empty CratisProxiesOutputPath also means nothing is generated.",
+      "assertions": [
+        "Identifies an empty CratisProxiesOutputPath, or CratisProxiesSkip=true, as a reason nothing is generated.",
+        "Recommends CratisProxiesSkip=true for Arc 22.185.1 or later rather than DisableProxyGenerator, which is only an alias or repository-defined elsewhere.",
+        "Says older Arc ignores CratisProxiesSkip silently, so an empty CratisProxiesOutputPath is the fallback there."
+      ]
+    }
+  ]
+}

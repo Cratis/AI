@@ -25,7 +25,7 @@
 - Formatting and recovery limits
 - Code attachments
 
-The standalone MCP server lists 47 tools from Screenplay 6.0 (including the MCP-Apps visualization tool and `migrate`); `tools/list` is the authority for the installed server, and the CLI-bundled MCP (`cratis screenplay mcp`) can be an older Screenplay that lacks newer tools.
+The standalone MCP server lists 48 tools as of Screenplay 6.11 (including the MCP-Apps visualization tool, `migrate` and `list-storylines`); `tools/list` is the authority for the installed server, and the CLI-bundled MCP (`cratis screenplay mcp`) can be an older Screenplay that lacks newer tools.
 
 The supported CLI launch is `cratis screenplay mcp <model-root>`, or `cratis screenplay mcp`
 alone inside a project, where the CLI reuses existing model/workspace roots.
@@ -66,7 +66,7 @@ the [MCP loop](mcp-loop.md).
 
 | Group | Tools | Intent |
 | --- | --- | --- |
-| Understanding | `describe-application`, `search-declarations`, `find-declaration`, `declaration-details` | Navigate logical hierarchy and inspect bounded details |
+| Understanding | `describe-application`, `search-declarations`, `find-declaration`, `declaration-details`, `list-storylines` (one optional argument) | Navigate logical hierarchy, inspect bounded details and list storylines |
 | References and examples | `find-references`, `dependencies`, `dependency-graph`, `find-fixtures`, `find-assertion-gaps`, `find-specification-obligations`, `find-modeling-smells`, `trace-lineage`, `semantic-diff` | Inspect declared relationships and authored examples, not executed coverage |
 | Source and validation | `diagnostics`, `ui-profiles` (also the design system, themes and resolved values per mode), `read-document`, `merged-document`, `syntax-schema` | Read exact source or typed structure and diagnose problems |
 | Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace`, `repair-capabilities` | Obtain current identities, handles, readiness, code attachment requirements, source-map locations, durable-state status and the repair catalog |

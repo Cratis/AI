@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using System.Collections.Frozen;
 using Cratis.AI.LanguageModels;
 using Cratis.DependencyInjection;
 
@@ -44,13 +45,13 @@ public interface IDefaultAgentInvocationModes
 [Singleton]
 public class DefaultAgentInvocationModes : IDefaultAgentInvocationModes
 {
-    static readonly HashSet<LanguageModelPurpose> _runAsJobs =
-    [
+    static readonly FrozenSet<LanguageModelPurpose> _runAsJobs = new[]
+    {
         AgentPurposes.WorkExecution,
         AgentPurposes.ContentAuthoring,
         AgentPurposes.TaskExecution,
         AgentPurposes.BugFixing
-    ];
+    }.ToFrozenSet();
 
     /// <inheritdoc/>
     public AgentInvocationMode For(LanguageModelPurpose purpose) =>

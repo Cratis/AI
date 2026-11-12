@@ -89,7 +89,7 @@ statemachine InvoiceLifecycle
     on InvoiceMarkedOverdue -> Overdue
     on InvoicePaid -> Paid
   state Overdue
-    entering start CollectOverdue
+    entering starts CollectOverdue
     on InvoicePaid -> Paid
     on InvoiceWrittenOff -> WrittenOff
   state Paid final
@@ -108,13 +108,13 @@ workflow CollectOverdue
   for Invoice
   trigger when InvoiceLifecycle enters Overdue
     -> Remind
-  action Remind sends SendReminder
+  action Remind invokes SendReminder
     next -> AwaitPayment
   wait AwaitPayment for InvoicePaid expires after 14 days
     expired -> ApproveWriteOff
   approval ApproveWriteOff by FinanceController expires after 7 days
     approved -> WriteOff
-  action WriteOff sends WriteOffInvoice
+  action WriteOff invokes WriteOffInvoice
 
   specification AnUnpaidInvoiceIsWrittenOff
     given InvoiceSent
@@ -123,8 +123,8 @@ workflow CollectOverdue
       for "9c858901-8a57-4791-81fe-4c455b099bc9"
     outcome AwaitPayment expired
     outcome ApproveWriteOff approved
-    then sends SendReminder
-    then sends WriteOffInvoice
+    then invokes SendReminder
+    then invokes WriteOffInvoice
     then completes
 
   specification TheRunWaitsForPayment
@@ -132,7 +132,7 @@ workflow CollectOverdue
       for "9c858901-8a57-4791-81fe-4c455b099bc9"
     when append InvoiceMarkedOverdue
       for "9c858901-8a57-4791-81fe-4c455b099bc9"
-    then sends SendReminder
+    then invokes SendReminder
     then waits at AwaitPayment
 ```
 
@@ -143,7 +143,7 @@ workflow CollectOverdue
   transition on it, in declaration order across the whole machine, whose condition holds and
   whose target the current state allows. Anything else is ignored, not an error.
 - Workflow nodes: `trigger` (`on <Event>`, `when <StateMachine> enters <State>`, `every`,
-  `at`, `manual`), `action <Name> sends <Command> [attempts n] [timeout] [retry after]`,
+  `at`, `manual`), `action <Name> invokes <Command> [attempts n] [timeout] [retry after]`,
   `decide <Name> when <condition>` with exactly two outlets, `wait` for an event or a
   duration, `approval <Name> by <Persona or Policy>`, `foreach <Name> over <collection>` and
   `join all|any|at least n`. Edges are `<outlet> -> <Node>` under their node; a workflow
@@ -156,8 +156,8 @@ workflow CollectOverdue
 
 | Construct | Lines |
 | --- | --- |
-| `statemachine` | `given <Event>`, `when append <Event>`, `then is <State>`, `then sends <Command>`, `then starts <Workflow>` (every command and workflow, in order) |
-| `workflow` | `given <Event>`, `when append <Event>` or `when start <key>`, `outcome <Node> <outlet>`, `then sends <Command>` (every one, in order), `then completes`, `then fails at <Node>`, `then waits at <Node>` |
+| `statemachine` | `given <Event>`, `when append <Event>`, `then is <State>`, `then invokes <Command>`, `then starts <Workflow>` (every command and workflow, in order) |
+| `workflow` | `given <Event>`, `when append <Event>` or `when start <key>`, `outcome <Node> <outlet>`, `then invokes <Command>` (every one, in order), `then completes`, `then fails at <Node>`, `then waits at <Node>` |
 
 The reference evaluator steps the run deterministically. A wait or approval with no stated
 `outcome` suspends the run (`then waits at`); an action defaults to `next`; a wait for a

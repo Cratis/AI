@@ -102,6 +102,13 @@ capacity numbers into workflows or guidance.
 - **Never** route `pull_request`-triggered jobs of a *public* repository to self-hosted
   runners — that hands code execution on our infrastructure to any fork.
 
+## Arc proxies
+
+- Workflows never generate Arc TypeScript proxies; the client commits them. Every `dotnet
+  build`/`publish` of an Arc project passes `-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath=`
+  (Skip needs Arc 22.185.1 or later; the empty path covers earlier Arc). See the
+  **cratis-arc-command** proxy-generation reference.
+
 ## Automation that writes back
 
 - A bot that pushes to a branch must **retry with `git pull --rebase`** — the branch

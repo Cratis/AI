@@ -1,0 +1,42 @@
+{
+  "skill_name": "cratis-chronicle-configuration",
+  "evals": [
+    {
+      "id": 1,
+      "name": "resource-exhausted-message-size",
+      "prompt": "Appending a 150 MB batch fails with ResourceExhausted. Which settings should change and in what order? Answer without editing anything.",
+      "expected_output": "Message size is enforced on both ends; raise the receiver first, then the sender, keeping client and kernel aligned.",
+      "assertions": [
+        "Names the client MaxReceiveMessageSize and MaxSendMessageSize and the kernel maxReceiveMessageSize.",
+        "States the 100 MiB default for these limits.",
+        "Says to raise the receiving side first, then the sending side, and keep both sides aligned.",
+        "Does not claim that changing only the client fixes a kernel-side limit."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "port-forward-without-tls",
+      "prompt": "I port-forward a kernel pod to localhost:35001 and the kernel runs with TLS disabled behind a private proxy. How should the .NET client connect, and what must I avoid?",
+      "expected_output": "Use disableTls with auth none or an external token; explicit client credentials are refused; keep it off untrusted networks.",
+      "assertions": [
+        "Uses a connection string with disableTls=true on the forwarded port, for example with auth=none.",
+        "States that explicit client credentials are refused with disableTls and that the development credential fallback does not apply.",
+        "Offers apiKey from an external authority as the token route and warns the token travels unencrypted on that hop.",
+        "Does not recommend disableTls across an untrusted network or invent an authPort option for the .NET client."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "leaving-development",
+      "prompt": "We are moving from latest-development to a shared environment. List the settings and leftovers to review. Do not deploy or print any credential.",
+      "expected_output": "Production image pinned, TLS validation on with real certificate, development application and credentials removed, Validation modes reviewed, authority is an external issuer.",
+      "assertions": [
+        "Says DEVELOPMENT is a compile-time property of the image and not an environment variable.",
+        "Tells the client to set skipTlsValidation=false and the kernel to have a real certificate.",
+        "Warns that the persisted development client application and the default administrator password must be removed or replaced.",
+        "Notes webhook and capture Validation defaults differ by image while AllowInsecureHttp follows the Development runtime environment.",
+        "Does not quote any credential value."
+      ]
+    }
+  ]
+}

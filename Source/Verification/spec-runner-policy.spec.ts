@@ -35,7 +35,7 @@ const executableSites = [
     'skills/cratis-engineering-ci-gates/SKILL.md',
     'skills/cratis-engineering-local-cross-repo-verification/SKILL.md',
     'skills/cratis-engineering-local-cross-repo-verification/references/worked-examples.md',
-    'skills/cratis-orchestration-lanes/references/context-handoff.md',
+    'skills/cratis-session-handoff/references/handoff-template.md',
     'skills/cratis-orchestration-lanes/references/lane-brief.md',
     'skills/csharp-refactoring/SKILL.md',
     'skills/coverage-analysis/references/setup-discovery.md',

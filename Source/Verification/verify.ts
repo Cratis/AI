@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { constants, existsSync } from 'node:fs';
 import { access, readFile, readdir, realpath, stat } from 'node:fs/promises';
 import { basename, dirname, join, relative, resolve } from 'node:path';
@@ -28,6 +29,7 @@ import type { AuthoringFinding } from './AuthoringFinding.ts';
 import { alwaysOnHarnessBytes, alwaysOnInputs, alwaysOnSummary } from './always-on-budget.ts';
 import { evaluationCoverageBaseline, evaluationCoverageFindings } from './evaluation-coverage.ts';
 import { checkInstructionDependencies, instructionDependencyMessages } from './instruction-dependencies.ts';
+import { contaminationProblems, contaminationSummary, evaluationTargets, scanEvaluationContamination } from './evaluation-contamination.ts';
 import { skillHygieneFindings, skillHygieneProblems, skillHygieneReport } from './skill-hygiene.ts';
 import { brokenRelativeLinkProblems, referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems, skillReferenceProblems, skillStructureProblems } from './skill-structure.ts';
 
@@ -251,6 +253,9 @@ for (const exception of assetExceptions) {
         authoringFindings.push({ file: exception.file, line: 1, rule: 'asset-reachability', matchedText: 'Remove the exception for an absent skill.' });
     }
 }
+const contamination = await scanEvaluationContamination(corpus, evaluationTargets);
+console.log(contaminationSummary(contamination));
+failures.push(...contaminationProblems(contamination));
 const authoringReport = skillHygieneReport(authoringFindings);
 failures.push(...skillAuthoringProblems(authoringFindings, skillAuthoringMode));
 console.log(`Skill authoring (${skillAuthoringMode}): checked ${skillDirectories.length} skills and ${referencingFiles.flat().length} instructions; ${authoringReport.total} findings in ${authoringReport.perFile.length} files.`);
@@ -354,6 +359,9 @@ if (!process.env.CRATIS_SCREENPLAY_TOOL) {
 const screenplay = await verifyPlayExamples(root);
 failures.push(...screenplay.problems);
 console.log(JSON.stringify({ screenplay }, null, 2));
+
+const scriptSelfTests = spawnSync(process.execPath, ['--import', 'tsx', '--test', 'skill-script-self-tests.spec.ts'], { cwd: import.meta.dirname, stdio: 'inherit' });
+if (scriptSelfTests.status !== 0) failures.push(`Skill script self-tests failed: ${scriptSelfTests.error?.message ?? scriptSelfTests.status}`);
 
 if (failures.length > 0) {
     console.error(JSON.stringify({ passed: false, failures }, null, 2));
