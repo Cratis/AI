@@ -310,6 +310,7 @@ and one phase skill, then the construct skill needed for syntax.
 | `cratis-screenplay-ui-composition` | `layout`, templates, `form`, `contribute`, `ui profile`, `theme`, `$strings`, `file` |
 | `cratis-screenplay-captures-and-reactions` | The Change Data Capture Language, `reaction`, `trigger` |
 | `cratis-screenplay-authentication-and-onboarding` | `authentication`, `onboarding`, and the environment keys derived from them |
+| `cratis-screenplay-extension-packages` | Authoring, verifying, locking and restoring extension packages that realize a `system` |
 | `cratis-screenplay-specifications` | Given/when/then and the reference execution |
 | `cratis-screenplay-model-authoring` | Typed MCP authoring, model navigation/refactoring, compiler diagnostics, and source-versus-executable readiness |
 

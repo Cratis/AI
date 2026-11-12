@@ -263,6 +263,8 @@ precedence, PLAY0485 and examples.
   button. `on <Trigger>` observes an application trigger and `raise <Trigger>`
   fires one; that is where the two meet.
 
+Extension components: [reference](references/extension-components.md).
+
 ## `design system`, `theme` and `ui profile`
 
 The `design system` is the per-application contract; a `theme` implements it with values; a `ui profile` picks a theme, and `appearance` keeps only `color scheme` (`accent`, `corners`, `font`: `PLAY0929`). Read [references/design-system-and-themes.md](references/design-system-and-themes.md) first.
