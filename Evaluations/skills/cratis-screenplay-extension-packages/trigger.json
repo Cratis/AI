@@ -1,0 +1,69 @@
+{
+  "skill": "cratis-screenplay-extension-packages",
+  "queries": [
+    {
+      "query": "We want to ship a Stripe integration as a Cratis extension package with a Go backend and a React payment form. How do I scaffold it and check it before publishing?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Compiling our model fails with PLAY1108 for the cratis/stripe extension. What does screenplay.lock do and how do I restore the contract in CI?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "How do I move our model's extension references to the newest release in their range and see what changed in each contract?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "What goes in the contract.play manifest of an extension package, and why is my component placeholder rejected with PLAY1113?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Our build runs offline. How do we vendor the locked extension packages into the repository so the compiler finds their contracts?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "cratis extension verify reports the backend check as skipped. Is the package ready to publish?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "The CLI says a publisher is unallowed for the extension we reference. How does the allow-list in .cratis/extensions.json work and who may edit it?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We want to replace our Mailgun extension with another provider. What must the new extension offer so the model keeps compiling?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "In our Screenplay model, add a reaction that invokes Carrier.BookPickup when OrderPacked and produces PickupBooked from the returned tracking number.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Set the StripeKey secret for the development environment with cratis config.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Add a toolbar action and a column to the work item list screen in the .play model.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write a C# Arc command that registers a project and returns the ProjectRegistered event.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Declare a Warehouse system with a Reserve ability, an OutOfStock outcome and the idempotent effect class.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "How do I install a VS Code extension that highlights .play files?",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Write a specification for a state machine that moves an order from Placed to Paid.",
+      "shouldTrigger": false
+    },
+    {
+      "query": "Which Chronicle projection attribute maps an event onto a read model property?",
+      "shouldTrigger": false
+    }
+  ]
+}

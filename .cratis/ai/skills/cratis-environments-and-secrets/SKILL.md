@@ -73,6 +73,30 @@ cratis config --missing ./model          # keys the model needs and the environm
 All accept `-o json`. Exit codes: `0` success, `1` not found, `4` authentication failed (wrong
 passphrase), `5` validation, including any key missing under `--missing`.
 
+## Extension settings and secrets
+
+A Screenplay system realized by an extension needs values that belong to the environment, not the model. The model says where each value comes from; the environment holds the value. Never put a value in the model, the lock or a brief.
+
+| The model says | Environment key | Kind |
+|---|---|---|
+| Nothing about a setting the extension's contract declares | `systems.<System>.<setting>` | Secret when the contract declares the setting `secret`, otherwise plain |
+| `secret <Name>`, used by `setting <name> from secret <Name>` | `secrets.<Name>` | Always a secret; one value for every system that maps it |
+| `setting <name> = <literal>` (non-secret settings only) | `systems.<System>.<name>` | Optional; the environment value overrides the literal |
+
+```bash
+cratis config --requires ./model                 # keys, kind (setting or secret), set or missing; never prints a value
+cratis config set secrets.StripeKey              # always stored as a secret; stdin or hidden prompt
+cratis config set systems.Payments.accountId acct_123
+cratis run ./model -e development
+```
+
+- A key under `secrets.` is stored as a secret with or without `--secret` and is never read from an argument.
+- `--requires` exits `5` while any key is missing, and when an extension is not restored, because its contract's settings cannot be known. `--missing` remains the narrower check.
+- `activation always` or `activation on demand [idle after <n> <unit>]` on the system overrides the extension contract's default; neither is an environment key.
+- A literal on a `secret` setting, an unknown setting, an unused secret and a duplicate mapping are errors (`PLAY0990` to `PLAY0997`).
+- Registry credentials for private extension packages are environment keys too: `extensions.registry.<host>.token`, or `.username` with `.password`, set as secrets. See [extension packages](../cratis-screenplay-extension-packages/SKILL.md).
+- `cratis run` hands the Stage the settings and secrets of the admitted extensions; read the CLI environments and `run` pages for details rather than assuming.
+
 ## Choosing a secrets provider
 
 Default to **passphrase** for a project with one team and a committed environment file. Choose a
