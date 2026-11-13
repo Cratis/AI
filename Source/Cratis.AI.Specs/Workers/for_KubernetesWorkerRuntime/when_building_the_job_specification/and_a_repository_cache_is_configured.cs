@@ -17,7 +17,6 @@ public class and_a_repository_cache_is_configured : Specification
             "repository-cache",
             "DIRECT_REPOSITORY_CACHE");
 
-    [Fact] void should_mount_the_cache_read_only() => _result.Spec.Template.Spec.Containers[0].VolumeMounts.ShouldContain(mount => mount.MountPath == "/repos" && mount.ReadOnlyProperty == true);
-    [Fact] void should_reference_the_cache_claim_read_only() => _result.Spec.Template.Spec.Volumes.ShouldContain(volume => volume.PersistentVolumeClaim?.ClaimName == "repository-cache" && volume.PersistentVolumeClaim.ReadOnlyProperty == true);
-    [Fact] void should_set_the_cache_environment() => _result.Spec.Template.Spec.Containers[0].Env.ShouldContain(variable => variable.Name == "DIRECT_REPOSITORY_CACHE" && variable.Value == "/repos");
+    [Fact] void should_not_mount_an_unrequested_cache() => _result.Spec.Template.Spec.Volumes.ShouldNotContain(volume => volume.PersistentVolumeClaim is not null);
+    [Fact] void should_not_set_cache_environment() => _result.Spec.Template.Spec.Containers[0].Env.ShouldNotContain(variable => variable.Name == "DIRECT_REPOSITORY_CACHE");
 }

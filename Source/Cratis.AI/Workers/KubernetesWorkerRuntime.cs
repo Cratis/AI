@@ -183,91 +183,15 @@ public class KubernetesWorkerRuntime(
         TimeSpan? workerDeadline = null)
     {
         var name = DockerWorkerRuntime.NameFor(job.Session);
-        var workspace = scratch ?? WorkerScratch.None;
-
-        // Removing checkout credentials alone cannot hide other repositories on a shared PVC.
-        var restricted = job.EnvironmentVariables.ContainsKey("DIRECT_REPOSITORY_CHECKOUTS");
-
-        var volumes = new List<V1Volume>
+        var inputs = new SpecificationInputs
         {
-            new()
-            {
-                Name = SecretVolumeName,
-
-                // Root owns mounted files; the pod's FsGroup gives the worker read access (0440).
-                Secret = new V1SecretVolumeSource { SecretName = name, DefaultMode = 288 }
-            }
+            Cache = KubernetesWorkerCacheVolumes.Build(job, repositoryCachePath, repositoryCacheClaimName, repositoryCacheEnvironmentVariable),
+            CacheVariable = repositoryCacheEnvironmentVariable,
+            ImagePullSecret = imagePullSecretName,
+            NodePoolWorkload = nodePoolWorkload,
+            Resources = resources ?? WorkerResources.None,
+            Workspace = scratch ?? WorkerScratch.None
         };
-
-        var volumeMounts = new List<V1VolumeMount>
-        {
-            new()
-            {
-                Name = SecretVolumeName,
-                MountPath = WorkerSecrets.Directory,
-                ReadOnlyProperty = true
-            }
-        };
-
-        // Only non-secret configuration goes on the specification. The credentials arrive through
-        // the mount above, so `kubectl get job -o yaml` shows a volume reference rather than a token.
-        //
-        // The prompt is left off it too, and for a harder reason than taste: a single environment
-        // variable over MAX_ARG_STRLEN makes the kernel refuse the whole execve, so a large enough
-        // prompt means the container never starts at all. It travels as a file - see
-        // WorkerPromptFile - and what goes here is the path to it.
-        List<V1EnvVar> env =
-        [
-            .. job.EnvironmentVariables
-                .Where(variable => variable.Key != WorkerPromptFile.LegacyVariableName &&
-                    (!restricted || (variable.Key != repositoryCacheEnvironmentVariable && variable.Key != "DIRECT_REPOSITORY_CACHE")))
-                .Select(variable => new V1EnvVar { Name = variable.Key, Value = variable.Value }),
-            new() { Name = WorkerSecrets.PathVariableName, Value = WorkerSecrets.Path },
-            new() { Name = WorkerPromptFile.PathVariableName, Value = WorkerPromptFile.Path }
-        ];
-
-        if (!restricted && !string.IsNullOrWhiteSpace(repositoryCachePath) && !string.IsNullOrWhiteSpace(repositoryCacheClaimName))
-        {
-            // Read-only, on the claim and on the mount both, and that is a security boundary rather
-            // than an optimization: the consumer's own pod runs `git` inside these mirrors with far
-            // more privilege than this worker has, and a git repository a lower-trust principal can
-            // write is a git repository that decides what the higher-trust one executes - a planted
-            // `hooks/pre-receive` or a rewritten `remote.origin.url` is enough. This container only
-            // ever reads the cache anyway; it takes its checkout with `git clone --shared`, which
-            // borrows objects without writing any (see Source/AgentHarnesses/entrypoint.sh).
-            //
-            // Kubernetes lets any number of pods mount the same RWX PVC concurrently - this worker
-            // and every other one, plus the consumer's own pod, which is the single writer and is
-            // what keeps it current from GitHub push webhooks. Referenced by name only; the
-            // consumer's own infrastructure provisions the claim itself.
-            volumes.Add(new V1Volume
-            {
-                Name = repositoryCacheClaimName,
-                PersistentVolumeClaim = new V1PersistentVolumeClaimVolumeSource
-                {
-                    ClaimName = repositoryCacheClaimName,
-                    ReadOnlyProperty = true
-                }
-            });
-            volumeMounts.Add(new V1VolumeMount
-            {
-                Name = repositoryCacheClaimName,
-                MountPath = repositoryCachePath,
-                ReadOnlyProperty = true
-            });
-            if (!string.IsNullOrWhiteSpace(repositoryCacheEnvironmentVariable))
-            {
-                env.Add(new V1EnvVar { Name = repositoryCacheEnvironmentVariable, Value = repositoryCachePath });
-            }
-        }
-
-        List<V1Container>? initContainers = null;
-        if (workspace.IsSet)
-        {
-            volumes.Add(workspace.ToVolume());
-            volumeMounts.Add(workspace.ToWorkspaceMount());
-            initContainers = [workspace.ToInitContainer(job.Image)];
-        }
 
         return new V1Job
         {
@@ -295,114 +219,7 @@ public class KubernetesWorkerRuntime(
                             ["cluster-autoscaler.kubernetes.io/safe-to-evict"] = "false"
                         }
                     },
-                    Spec = new V1PodSpec
-                    {
-                        RestartPolicy = "Never",
-
-                        // A worker runs untrusted, prompt-injectable model output (Cratis/Stagehand#246);
-                        // it has no legitimate reason to talk to the Kubernetes API, and an unmounted
-                        // token is one a foothold there cannot use to widen itself.
-                        AutomountServiceAccountToken = false,
-
-                        // Every image this Job ever runs (Source/AgentHarnesses/Dockerfile.base and its
-                        // derivatives) ends its build with `USER agent` - a *named* user, not a numeric
-                        // one. The kubelet cannot resolve a name to a UID from outside the container to
-                        // verify RunAsNonRoot against, so with no RunAsUser here it refuses to start the
-                        // container at all: "container has runAsNonRoot and image has non-numeric user
-                        // (agent), cannot verify user is non-root" - every single time, not
-                        // intermittently. RunAsUser/RunAsGroup must therefore be pinned to the exact
-                        // numeric UID/GID `useradd` assigns `agent` in Dockerfile.base, and the two are
-                        // kept in lockstep deliberately: bump one, bump the other. It is 1655, not the
-                        // usual 1000, because the dotnet/sdk:10.0 base image already takes 1654 for its
-                        // own `app` user.
-                        //
-                        // ReadOnlyRootFilesystem is deliberately absent, unlike a terminal pod's: a
-                        // worker's whole job is to clone a repository and run its build into the
-                        // container's own writable layer, so a read-only root would fail every session
-                        // immediately. That layer's growth is what EphemeralStorageLimit bounds instead
-                        // (Cratis/Stagehand#461).
-                        SecurityContext = new V1PodSecurityContext
-                        {
-                            RunAsNonRoot = true,
-                            RunAsUser = AgentUid,
-                            RunAsGroup = AgentUid,
-                            SeccompProfile = new V1SeccompProfile { Type = "RuntimeDefault" },
-
-                            // Mounted credentials and optional scratch storage need the worker's group.
-                            FsGroup = AgentUid,
-                            FsGroupChangePolicy = "OnRootMismatch"
-                        },
-                        InitContainers = initContainers,
-                        TerminationGracePeriodSeconds = TerminationGracePeriodSeconds,
-                        Volumes = volumes,
-                        ImagePullSecrets = string.IsNullOrWhiteSpace(imagePullSecretName)
-                            ? null
-                            : [new V1LocalObjectReference { Name = imagePullSecretName }],
-                        NodeSelector = string.IsNullOrWhiteSpace(nodePoolWorkload)
-                            ? null
-                            : new Dictionary<string, string> { [NodePoolLabelKey] = nodePoolWorkload },
-                        Tolerations = string.IsNullOrWhiteSpace(nodePoolWorkload)
-                            ? null
-                            :
-                            [
-                                new V1Toleration
-                                {
-                                    Key = NodePoolLabelKey,
-                                    OperatorProperty = "Equal",
-                                    Value = nodePoolWorkload,
-                                    Effect = "NoSchedule"
-                                }
-                            ],
-
-                        // Batch workers prefer nodes already running batch work, across namespaces.
-                        // Keep the existing soft spread for every other pool; neither preference
-                        // overrides resource requests or the node selector and toleration above.
-                        Affinity = nodePoolWorkload == "batch" ? BatchPodAffinity : null,
-                        TopologySpreadConstraints = nodePoolWorkload == "batch" ? null :
-                        [
-                            new V1TopologySpreadConstraint
-                            {
-                                MaxSkew = 1,
-                                TopologyKey = "kubernetes.io/hostname",
-                                WhenUnsatisfiable = "ScheduleAnyway",
-                                LabelSelector = new V1LabelSelector { MatchLabels = WorkerPodLabels }
-                            }
-                        ],
-                        Containers =
-                        [
-                            new V1Container
-                            {
-                                Name = "worker",
-                                Image = job.Image,
-                                Env = env,
-                                VolumeMounts = volumeMounts,
-                                Resources = (resources ?? WorkerResources.None).ToRequirements(),
-
-                                // The entrypoint hands the harness CLI its prompt through a pipe
-                                // whose writers are a session-long holder and a feeder reading the
-                                // container's real stdin through a dup'd fd (entrypoint.sh, run_pi/
-                                // run_claude_code). This container allocating stdin is what makes
-                                // that feeder actually receive steering lines: Docker's OpenStdin
-                                // keeps the stream open across attach sessions, and the Kubernetes
-                                // counterpart is Stdin = true with StdinOnce left false - without
-                                // it, reads on the container's stdin are EOF, the feeder exits, and
-                                // steering (SendInput) is silently dead while the session itself
-                                // survives on the holder. Allocating stdin also matches the Docker
-                                // runtime's OpenStdin, so both runtimes hand the entrypoint the same
-                                // contract.
-                                Stdin = true,
-
-                                // No capability in the default set is one a repository build legitimately
-                                // needs - CHOWN/DAC_OVERRIDE/SETUID/SETGID and the rest are what the base
-                                // image's own USER already sidesteps by not being root in the first place.
-                                SecurityContext = new V1SecurityContext
-                                {
-                                    AllowPrivilegeEscalation = false,
-                                    Capabilities = new V1Capabilities { Drop = ["ALL"] }
-                                }
-                            }
-                        ]
-                    }
+                    Spec = BuildPodSpecification(job, inputs)
                 }
             }
         };
@@ -478,6 +295,11 @@ public class KubernetesWorkerRuntime(
             logger.InvalidHostWorkspace(job.Session, verdict.Kind == HostWorkspaceVerdictKind.Valid ? HostWorkspaceVerdictKind.UnsupportedRuntime : verdict.Kind);
             return WorkerLaunchOutcome.InvalidWorkspace;
         }
+        if (!WorkerCacheMounts.TryCreate(job.Cache, out var cache))
+        {
+            logger.InvalidWorkerCache(job.Session, cache.Reason);
+            return WorkerLaunchOutcome.InvalidCache;
+        }
         var files = BuildMountedFiles(job);
         var sizes = files.Select(file => new { file.Key, Bytes = (long)Encoding.UTF8.GetByteCount(file.Value) }).ToArray();
         var totalBytes = sizes.Sum(file => file.Bytes);
@@ -498,6 +320,169 @@ public class KubernetesWorkerRuntime(
             return WorkerLaunchOutcome.RefusedByCluster;
         }
     }
+
+    static V1PodSpec BuildPodSpecification(WorkerJob job, SpecificationInputs inputs)
+    {
+        var storage = BuildWorkerVolumes(job, inputs);
+        return new V1PodSpec
+        {
+            RestartPolicy = "Never",
+
+            // A worker runs untrusted, prompt-injectable model output (Cratis/Stagehand#246);
+            // it has no legitimate reason to talk to the Kubernetes API, and an unmounted
+            // token is one a foothold there cannot use to widen itself.
+            AutomountServiceAccountToken = false,
+            SecurityContext = BuildPodSecurityContext(),
+            InitContainers = storage.InitContainers,
+            TerminationGracePeriodSeconds = TerminationGracePeriodSeconds,
+            Volumes = storage.Volumes,
+            ImagePullSecrets = string.IsNullOrWhiteSpace(inputs.ImagePullSecret)
+                ? null
+                : [new V1LocalObjectReference { Name = inputs.ImagePullSecret }],
+            NodeSelector = string.IsNullOrWhiteSpace(inputs.NodePoolWorkload)
+                ? null
+                : new Dictionary<string, string> { [NodePoolLabelKey] = inputs.NodePoolWorkload },
+            Tolerations = string.IsNullOrWhiteSpace(inputs.NodePoolWorkload)
+                ? null
+                :
+                [
+                    new V1Toleration
+                    {
+                        Key = NodePoolLabelKey,
+                        OperatorProperty = "Equal",
+                        Value = inputs.NodePoolWorkload,
+                        Effect = "NoSchedule"
+                    }
+                ],
+
+            // Batch workers prefer nodes already running batch work, across namespaces.
+            // Keep the existing soft spread for every other pool; neither preference
+            // overrides resource requests or the node selector and toleration above.
+            Affinity = inputs.NodePoolWorkload == "batch" ? BatchPodAffinity : null,
+            TopologySpreadConstraints = inputs.NodePoolWorkload == "batch" ? null :
+            [
+                new V1TopologySpreadConstraint
+                {
+                    MaxSkew = 1,
+                    TopologyKey = "kubernetes.io/hostname",
+                    WhenUnsatisfiable = "ScheduleAnyway",
+                    LabelSelector = new V1LabelSelector { MatchLabels = WorkerPodLabels }
+                }
+            ],
+            Containers = [BuildWorkerContainer(job, inputs, storage.Mounts)]
+        };
+    }
+
+    static (List<V1Volume> Volumes, List<V1VolumeMount> Mounts, List<V1Container>? InitContainers) BuildWorkerVolumes(WorkerJob job, SpecificationInputs inputs)
+    {
+        var volumes = new List<V1Volume>
+        {
+            new()
+            {
+                Name = SecretVolumeName,
+
+                // Root owns mounted files; the pod's FsGroup gives the worker read access (0440).
+                Secret = new V1SecretVolumeSource { SecretName = DockerWorkerRuntime.NameFor(job.Session), DefaultMode = 288 }
+            }
+        };
+        var mounts = new List<V1VolumeMount>
+        {
+            new() { Name = SecretVolumeName, MountPath = WorkerSecrets.Directory, ReadOnlyProperty = true }
+        };
+        if (inputs.Cache.Volume is not null)
+        {
+            volumes.Add(inputs.Cache.Volume);
+            mounts.AddRange(inputs.Cache.Mounts);
+        }
+        List<V1Container>? initContainers = null;
+        if (inputs.Workspace.IsSet)
+        {
+            volumes.Add(inputs.Workspace.ToVolume());
+            mounts.Add(inputs.Workspace.ToWorkspaceMount());
+            initContainers = [inputs.Workspace.ToInitContainer(job.Image)];
+        }
+        return (volumes, mounts, initContainers);
+    }
+
+    static List<V1EnvVar> BuildWorkerEnvironment(WorkerJob job, SpecificationInputs inputs) =>
+    [
+
+        // Only non-secret configuration goes on the specification. The credentials arrive through
+        // the mount above, so `kubectl get job -o yaml` shows a volume reference rather than a token.
+        //
+        // The prompt is left off it too, and for a harder reason than taste: a single environment
+        // variable over MAX_ARG_STRLEN makes the kernel refuse the whole execve, so a large enough
+        // prompt means the container never starts at all. It travels as a file - see
+        // WorkerPromptFile - and what goes here is the path to it.
+        .. job.EnvironmentVariables
+            .Where(variable => variable.Key != WorkerPromptFile.LegacyVariableName &&
+                !WorkerCacheMounts.IsEnvironmentVariable(variable.Key, inputs.CacheVariable))
+            .Select(variable => new V1EnvVar { Name = variable.Key, Value = variable.Value }),
+        new() { Name = WorkerSecrets.PathVariableName, Value = WorkerSecrets.Path },
+        new() { Name = WorkerPromptFile.PathVariableName, Value = WorkerPromptFile.Path },
+        .. inputs.Cache.Environment
+    ];
+
+    static V1PodSecurityContext BuildPodSecurityContext() => new()
+    {
+        // Every image this Job ever runs (Source/AgentHarnesses/Dockerfile.base and its
+        // derivatives) ends its build with `USER agent` - a *named* user, not a numeric
+        // one. The kubelet cannot resolve a name to a UID from outside the container to
+        // verify RunAsNonRoot against, so with no RunAsUser here it refuses to start the
+        // container at all: "container has runAsNonRoot and image has non-numeric user
+        // (agent), cannot verify user is non-root" - every single time, not
+        // intermittently. RunAsUser/RunAsGroup must therefore be pinned to the exact
+        // numeric UID/GID `useradd` assigns `agent` in Dockerfile.base, and the two are
+        // kept in lockstep deliberately: bump one, bump the other. It is 1655, not the
+        // usual 1000, because the dotnet/sdk:10.0 base image already takes 1654 for its
+        // own `app` user.
+        //
+        // ReadOnlyRootFilesystem is deliberately absent, unlike a terminal pod's: a
+        // worker's whole job is to clone a repository and run its build into the
+        // container's own writable layer, so a read-only root would fail every session
+        // immediately. That layer's growth is what EphemeralStorageLimit bounds instead
+        // (Cratis/Stagehand#461).
+        RunAsNonRoot = true,
+        RunAsUser = AgentUid,
+        RunAsGroup = AgentUid,
+        SeccompProfile = new V1SeccompProfile { Type = "RuntimeDefault" },
+
+        // Mounted credentials and optional scratch storage need the worker's group.
+        FsGroup = AgentUid,
+        FsGroupChangePolicy = "OnRootMismatch"
+    };
+
+    static V1Container BuildWorkerContainer(WorkerJob job, SpecificationInputs inputs, List<V1VolumeMount> mounts) => new()
+    {
+        Name = "worker",
+        Image = job.Image,
+        Env = BuildWorkerEnvironment(job, inputs),
+        VolumeMounts = mounts,
+        Resources = inputs.Resources.ToRequirements(),
+
+        // The entrypoint hands the harness CLI its prompt through a pipe
+        // whose writers are a session-long holder and a feeder reading the
+        // container's real stdin through a dup'd fd (entrypoint.sh, run_pi/
+        // run_claude_code). This container allocating stdin is what makes
+        // that feeder actually receive steering lines: Docker's OpenStdin
+        // keeps the stream open across attach sessions, and the Kubernetes
+        // counterpart is Stdin = true with StdinOnce left false - without
+        // it, reads on the container's stdin are EOF, the feeder exits, and
+        // steering (SendInput) is silently dead while the session itself
+        // survives on the holder. Allocating stdin also matches the Docker
+        // runtime's OpenStdin, so both runtimes hand the entrypoint the same
+        // contract.
+        Stdin = true,
+
+        // No capability in the default set is one a repository build legitimately
+        // needs - CHOWN/DAC_OVERRIDE/SETUID/SETGID and the rest are what the base
+        // image's own USER already sidesteps by not being root in the first place.
+        SecurityContext = new V1SecurityContext
+        {
+            AllowPrivilegeEscalation = false,
+            Capabilities = new V1Capabilities { Drop = ["ALL"] }
+        }
+    };
 
     /// <summary>
     /// Whether a failed launch says something about the cluster rather than about the work.
@@ -1031,5 +1016,15 @@ public class KubernetesWorkerRuntime(
             // left behind, which is the only thing this guarantees.
             logger.CouldNotDeleteWorkerSecret(exception, name);
         }
+    }
+
+    sealed record SpecificationInputs
+    {
+        internal required KubernetesWorkerCacheVolumes Cache { get; init; }
+        internal string? CacheVariable { get; init; }
+        internal string? ImagePullSecret { get; init; }
+        internal string? NodePoolWorkload { get; init; }
+        internal required WorkerResources Resources { get; init; }
+        internal required WorkerScratch Workspace { get; init; }
     }
 }

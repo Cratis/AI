@@ -1112,7 +1112,7 @@ clone_into_workspace() {
     local owner="${rest##*/}"
     local cache_repo="${DIRECT_REPOSITORY_CACHE:-}/${owner}/${name}.git"
 
-    if [[ -n "${DIRECT_REPOSITORY_CACHE:-}" && -d "$cache_repo" ]]; then
+    if [[ -n "${DIRECT_REPOSITORY_CACHE:-}" && -d "$cache_repo/objects" && -d "$cache_repo/refs" && -f "$cache_repo/HEAD" ]]; then
         # What the work branch is created from. Empty means "wherever the checkout already is",
         # which is what an existing checkout and a failed refresh both fall back to.
         local -a start_point=()

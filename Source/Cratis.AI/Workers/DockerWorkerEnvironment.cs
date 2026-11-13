@@ -7,49 +7,33 @@ namespace Cratis.AI.Workers;
 /// Builds worker environment variables while omitting mode-specific repository inputs.
 /// </summary>
 /// <param name="job">The requested worker job.</param>
-/// <param name="cachePath">The optional repository cache path.</param>
+/// <param name="cachePath">The applied repository cache path, or null.</param>
 /// <param name="cacheVariable">The cache environment variable name.</param>
 /// <param name="hostPrepared">Whether the host prepared the workspace.</param>
 internal sealed class DockerWorkerEnvironment(WorkerJob job, string? cachePath, string? cacheVariable, bool hostPrepared)
 {
-    readonly bool _restricted = job.EnvironmentVariables.ContainsKey("DIRECT_REPOSITORY_CHECKOUTS");
+    /// <summary>Builds the filtered environment.</summary>
+    /// <returns>The non-secret runtime environment.</returns>
+    internal List<string> Build() =>
+    [
+        .. job.EnvironmentVariables.Where(variable => Include(variable.Key)).Select(variable => $"{variable.Key}={variable.Value}"),
+        $"{WorkerSecrets.PathVariableName}={WorkerSecrets.Path}",
+        $"{WorkerPromptFile.PathVariableName}={WorkerPromptFile.Path}",
+        .. hostPrepared ? (string[])[$"{HostWorkspace.ModeVariable}={HostWorkspace.ModeValue}", $"{HostWorkspace.ContainerPathVariable}={HostWorkspace.ContainerPath}"] : [],
+        .. CacheEnvironment()
+    ];
 
-    /// <summary>
-    /// Renders the filtered job variables and runtime-owned paths.
-    /// </summary>
-    /// <returns>The container environment.</returns>
-    internal List<string> Build()
+    IEnumerable<string> CacheEnvironment()
     {
-        return
-        [
-            .. job.EnvironmentVariables
-                .Where(variable => Include(variable.Key))
-                .Select(variable => $"{variable.Key}={variable.Value}"),
-            $"{WorkerSecrets.PathVariableName}={WorkerSecrets.Path}",
-            $"{WorkerPromptFile.PathVariableName}={WorkerPromptFile.Path}",
-            .. hostPrepared ? (string[])[$"{HostWorkspace.ModeVariable}={HostWorkspace.ModeValue}", $"{HostWorkspace.ContainerPathVariable}={HostWorkspace.ContainerPath}"] : [],
-            .. IncludeCache() ? (string[])[$"{cacheVariable}={cachePath}"] : []
-        ];
+        var plan = WorkerCacheMounts.Create(job.Cache);
+        return plan.AppliesTo(job, cachePath, hostPrepared)
+            ? plan.Environment(cachePath!, cacheVariable).Select(pair => $"{pair.Key}={pair.Value}")
+            : [];
     }
 
     bool Include(string name)
     {
-        if (name == WorkerPromptFile.LegacyVariableName)
-        {
-            return false;
-        }
-        if (SuppressCache() && IsCacheVariable(name))
-        {
-            return false;
-        }
+        if (name == WorkerPromptFile.LegacyVariableName || WorkerCacheMounts.IsEnvironmentVariable(name, cacheVariable)) return false;
         return !hostPrepared || name is not (HostWorkspace.ModeVariable or HostWorkspace.ContainerPathVariable or HostWorkspace.HostPathVariable);
     }
-
-    bool IncludeCache() => !SuppressCache() && CacheIsConfigured();
-
-    bool CacheIsConfigured() => !string.IsNullOrWhiteSpace(cachePath) && !string.IsNullOrWhiteSpace(cacheVariable);
-
-    bool SuppressCache() => _restricted || hostPrepared;
-
-    bool IsCacheVariable(string name) => name == cacheVariable || name == "DIRECT_REPOSITORY_CACHE";
 }

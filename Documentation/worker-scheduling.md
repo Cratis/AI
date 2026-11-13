@@ -29,21 +29,72 @@ no packing affinity. Resource requests, limits, node selectors, and tolerations 
 apply. Packing is a preference, not a requirement: the first worker can start without
 an existing matching pod, and capacity can place subsequent workers elsewhere.
 
-## Restricted checkout cache isolation
+## Scoped worker cache access
 
-A shared repository cache exposes source from repositories beyond a job's checkout list,
-even when mounted read-only. When `WorkerJob.EnvironmentVariables` contains
-`DIRECT_REPOSITORY_CHECKOUTS`, both `KubernetesWorkerRuntime` and `DockerWorkerRuntime`
-omit the configured repository-cache PVC or bind mount and its environment variable.
-They also remove caller-supplied `DIRECT_REPOSITORY_CACHE` and the configured cache
-variable. Presence of the checkout key is sufficient, including an empty contract;
-invalid checkout contracts remain the entrypoint's responsibility to reject.
+Set `WorkerJob.Cache` to a `WorkerCacheAccess` selecting one memory key and the
+repository mirrors the job needs. A null request mounts no cache, even when
+`RepositoryCachePath` and `RepositoryCacheClaimName` are configured. The runtime
+mounts only the selected mirrors read-only and `<cache>/.agent-memory/<key>`
+read-write. No mount covers the cache root or the `.agent-memory` parent.
 
-Ordinary jobs retain their existing cache mounts and environment. Restricted jobs
-clone fresh instead. Upgrade the `Cratis.AI` runtime package as well as the harness
-images: an entrypoint-only upgrade cannot remove a mount supplied by an older runtime.
-This closes the shared-cache source-read path, not every possible credential, network,
-or consumer-supplied file exposure.
+`MemoryKey` is exactly `v1-` followed by 64 lowercase hexadecimal characters.
+The consumer derives this opaque key from its identity context. `Repositories`
+contains at most 256 relative paths, each at most 512 characters. Slash-separated
+segments contain only ASCII letters, digits, dots, underscores and hyphens, cannot
+start with a dot, and cannot be empty. The last segment must have a nonempty name
+ending in `.git`. Absolute paths, traversal, backslashes, control characters and
+nested repository paths are invalid. Ordinal duplicates collapse; an empty list
+selects memory only.
+
+The runtime sets `DIRECT_MEMORY_PATH` to
+`<cache>/.agent-memory/<key>/memory.jsonl` and the configured cache environment
+variable to `<cache>`. It always removes caller-supplied `DIRECT_MEMORY_PATH`,
+`DIRECT_REPOSITORY_CACHE` and the configured cache variable, case-insensitively.
+Malformed requests return `WorkerLaunchOutcome.InvalidCache` before engine or
+cluster resources are created; fix the job rather than retrying it unchanged.
+Direct calls to the pure specification builders throw `ArgumentException` instead.
+
+### Provisioning and ownership
+
+For Kubernetes, configure a claim supporting read-write worker attachment
+(`ReadWriteMany` for concurrent workers across nodes). The runtime attaches one
+claim with per-directory `subPath` mounts. Only the memory-key mount is writable;
+previous whole-claim read-only mounts did not provide persistent writable memory.
+Pre-create its directory with ownership or group permissions allowing uid/gid 1655
+to write, accounting for `fsGroup` and the NFS export's permission rules. A
+kubelet-created directory may be root-owned and not writable by the worker.
+Only list mirrors already cached. If an absent subPath becomes an empty directory,
+the entrypoint uses the normal network clone path rather than a shared clone.
+Target-cluster subPath behavior and NFS write permissions require deployment checks.
+
+Docker checks descendants of the trusted configured cache root for symlinks,
+reparse points and non-directories before launch and again immediately before
+container creation. The root itself may be a symlink. Missing mirrors are omitted
+and clone normally. Docker creates a missing memory leaf with Unix mode `0770`
+without changing existing ownership or parent permissions; operators must still
+provide the worker's group access. Unsuitable paths or creation failures return
+`InvalidCache`. Trusted cache writers must keep descendants stable during launch:
+these checks do not eliminate Docker's check-to-bind window.
+
+Legacy `.agent-memory/<owner>` directories are never mounted, migrated or deleted
+by this runtime. Back them up and retire them as a separate operator action.
+
+### Restricted and host-prepared jobs
+
+Presence of `DIRECT_REPOSITORY_CHECKOUTS`, including an empty contract, suppresses
+all cache and memory mounts and their environment values. Host-prepared jobs also
+mount no cache. These modes retain their minimal filesystem exposure; memory stays
+session-local through the entrypoint's temporary-file fallback. Invalid cache
+requests are still refused. Checkout-contract validation remains the entrypoint's
+responsibility.
+
+### Upgrade
+
+Consumers relying on implicit whole-volume mounts must now set `WorkerJob.Cache`;
+there is no environment-variable fallback. The coordinated Direct package-pin
+upgrade must supply the key and mirror list for every cache-enabled job. Upgrade
+the runtime package and harness images together so both use the scoped contract.
+See [the scoped cache decision](decisions/0021-worker-cache-scoped-mounts.md).
 
 ## Host-prepared workspaces (Docker only)
 

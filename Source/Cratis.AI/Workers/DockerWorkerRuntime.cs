@@ -63,6 +63,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     /// <param name="hostWorkspacePath">The prevalidated canonical host workspace path, or null for the legacy clone path.</param>
     /// <param name="hostGitMetadataPath">The prevalidated internal gitfile metadata subtree to protect, when applicable.</param>
     /// <returns>The container creation parameters.</returns>
+    /// <exception cref="ArgumentException">The cache request is invalid.</exception>
     /// <exception cref="DockerWorkerLaunchFailed">
     /// The job supplies execution-affecting environment variables such as PATH, LD_*, or shell startup overrides.
     /// These names are rejected case-insensitively before container creation.
@@ -72,31 +73,30 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         string? repositoryCachePath = null,
         string? repositoryCacheEnvironmentVariable = null,
         string? hostWorkspacePath = null,
-        string? hostGitMetadataPath = null) => BuildContainerSpecification(job, repositoryCachePath, repositoryCacheEnvironmentVariable, hardenContainer: false, hostWorkspacePath, hostGitMetadataPath);
+        string? hostGitMetadataPath = null) => BuildContainerSpecification(job, new SpecificationInputs
+        {
+            CachePath = repositoryCachePath, CacheVariable = repositoryCacheEnvironmentVariable,
+            HostWorkspacePath = hostWorkspacePath, HostGitMetadataPath = hostGitMetadataPath
+        });
 
     /// <summary>
-    /// Builds a specification with the explicitly selected Docker security profile.
+    /// Builds a container specification using prevalidated scoped cache binds resolved on the Docker host.
     /// </summary>
     /// <param name="job">The worker job.</param>
-    /// <param name="repositoryCachePath">The shared cache path.</param>
-    /// <param name="repositoryCacheEnvironmentVariable">The image's cache variable.</param>
-    /// <param name="hardenContainer">Whether to enable Docker hardening.</param>
-    /// <param name="hostWorkspacePath">The prevalidated canonical host workspace path.</param>
-    /// <param name="hostGitMetadataPath">The prevalidated internal gitfile metadata subtree to protect.</param>
+    /// <param name="cacheBinds">The resolved read-only mirror and writable memory-directory binds.</param>
+    /// <param name="repositoryCachePath">The configured cache root.</param>
+    /// <param name="repositoryCacheEnvironmentVariable">The configured cache variable.</param>
     /// <returns>The container specification.</returns>
-    internal static CreateContainerParameters BuildContainerSpecification(
-        WorkerJob job,
-        string? repositoryCachePath,
-        string? repositoryCacheEnvironmentVariable,
-        bool hardenContainer,
-        string? hostWorkspacePath = null,
-        string? hostGitMetadataPath = null)
-    {
-        var hostPrepared = hostWorkspacePath is not null;
+    /// <exception cref="ArgumentException">The cache request is invalid.</exception>
+    public static CreateContainerParameters BuildContainerSpecificationWithCacheBinds(
+        WorkerJob job, IReadOnlyList<string> cacheBinds, string? repositoryCachePath = null, string? repositoryCacheEnvironmentVariable = null) =>
+        BuildContainerSpecification(job, new SpecificationInputs { CachePath = repositoryCachePath, CacheVariable = repositoryCacheEnvironmentVariable, CacheBinds = cacheBinds });
 
-        // A restricted checkout must not expose other repositories through the shared cache,
-        // even when the checkout contract is empty or invalid and the entrypoint will reject it.
-        var restricted = job.EnvironmentVariables.ContainsKey("DIRECT_REPOSITORY_CHECKOUTS");
+    static CreateContainerParameters BuildContainerSpecification(WorkerJob job, SpecificationInputs inputs)
+    {
+        var hostPrepared = inputs.HostWorkspacePath is not null;
+        var cache = WorkerCacheMounts.Create(job.Cache);
+        var binds = cache.AppliesTo(job, inputs.CachePath, hostPrepared) ? inputs.CacheBinds : [];
 
         return new()
         {
@@ -112,49 +112,48 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             // environment variable over MAX_ARG_STRLEN makes the kernel refuse the whole execve, so
             // a large enough prompt stops the container starting at all. It is copied in as a file
             // below - see WorkerPromptFile - and what goes here is the path to it.
-            Env = BuildEnvironment(job, repositoryCachePath, repositoryCacheEnvironmentVariable, hostPrepared),
+            Env = BuildEnvironment(job, inputs with { CachePath = binds.Count > 0 ? inputs.CachePath : null }),
 
             // A TTY keeps the log a single raw stream, which also gives a live console a clean
             // line-by-line feed. Stdin stays open so steering text can be sent to the running session.
             Tty = true,
             OpenStdin = true,
             StdinOnce = false,
-            HostConfig = BuildHostConfiguration(job, repositoryCachePath, restricted, hardenContainer, hostWorkspacePath, hostGitMetadataPath)
+            HostConfig = BuildHostConfiguration(job, inputs with { CacheBinds = binds })
         };
     }
 
-    static List<string> BuildEnvironment(WorkerJob job, string? cachePath, string? cacheVariable, bool hostPrepared)
+    static List<string> BuildEnvironment(WorkerJob job, SpecificationInputs inputs)
     {
         var filteredJob = job with
         {
             EnvironmentVariables = job.EnvironmentVariables
-                .Where(variable => IsJobEnvironmentVariable(variable.Key, cacheVariable))
+                .Where(variable => IsJobEnvironmentVariable(variable.Key, inputs))
                 .ToDictionary(variable => variable.Key, variable => variable.Value)
         };
         return
         [
-            .. new DockerWorkerEnvironment(filteredJob, cachePath, cacheVariable, hostPrepared).Build(),
+            .. new DockerWorkerEnvironment(filteredJob, inputs.CachePath, inputs.CacheVariable, inputs.HostWorkspacePath is not null).Build(),
             $"{WorkerSecrets.RequiredVariableName}=true"
         ];
     }
 
-    static bool IsJobEnvironmentVariable(string name, string? repositoryCacheEnvironmentVariable)
+    static bool IsJobEnvironmentVariable(string name, SpecificationInputs inputs)
     {
         if (IsExecutionEnvironmentVariable(name))
         {
             throw new DockerWorkerLaunchFailed();
         }
         return !name.Contains('=') && !name.Contains('\0') &&
-            !IsRuntimeEnvironmentVariable(name, repositoryCacheEnvironmentVariable);
+            !IsRuntimeEnvironmentVariable(name, inputs);
     }
 
-    static bool IsRuntimeEnvironmentVariable(string name, string? repositoryCacheEnvironmentVariable) =>
+    static bool IsRuntimeEnvironmentVariable(string name, SpecificationInputs inputs) =>
         name.Equals(WorkerSecrets.PathVariableName, StringComparison.OrdinalIgnoreCase) ||
         name.Equals(WorkerSecrets.RequiredVariableName, StringComparison.OrdinalIgnoreCase) ||
         name.Equals(WorkerPromptFile.PathVariableName, StringComparison.OrdinalIgnoreCase) ||
         name.Equals(WorkerPromptFile.LegacyVariableName, StringComparison.OrdinalIgnoreCase) ||
-        name.Equals("DIRECT_REPOSITORY_CACHE", StringComparison.OrdinalIgnoreCase) ||
-        name.Equals(repositoryCacheEnvironmentVariable, StringComparison.OrdinalIgnoreCase);
+        WorkerCacheMounts.IsEnvironmentVariable(name, inputs.CacheVariable);
 
     static bool IsExecutionEnvironmentVariable(string name) => name.ToUpperInvariant() switch
     {
@@ -174,7 +173,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         }
     }
 
-    static HostConfig BuildHostConfiguration(WorkerJob job, string? repositoryCachePath, bool restricted, bool hardenContainer, string? hostWorkspacePath, string? hostGitMetadataPath)
+    static HostConfig BuildHostConfiguration(WorkerJob job, SpecificationInputs inputs)
     {
         ValidateLimits(job.Limits);
         var configuration = new HostConfig
@@ -195,13 +194,11 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             },
 
             // Host-prepared workspaces protect Git metadata and never expose the shared mirror.
-            Binds = hostWorkspacePath is not null
-                ? BuildHostWorkspaceBinds(hostWorkspacePath, hostGitMetadataPath)
-                : restricted || string.IsNullOrWhiteSpace(repositoryCachePath)
-                    ? []
-                    : [$"{repositoryCachePath}:{repositoryCachePath}"]
+            Binds = inputs.HostWorkspacePath is not null
+                ? BuildHostWorkspaceBinds(inputs.HostWorkspacePath, inputs.HostGitMetadataPath)
+                : [.. inputs.CacheBinds]
         };
-        if (hardenContainer)
+        if (inputs.HardenContainer)
         {
             configuration.Privileged = false;
             configuration.CapDrop = ["ALL"];
@@ -228,6 +225,7 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             logger.InvalidHostWorkspace(job.Session, verdict.Kind);
             return WorkerLaunchOutcome.InvalidWorkspace;
         }
+        if (!TryPrepareCache(job, verdict.Path is not null, out _)) return WorkerLaunchOutcome.InvalidCache;
         using var client = CreateClient();
 
         return await Start(client, job, cancellationToken);
@@ -249,27 +247,20 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             logger.InvalidHostWorkspace(job.Session, verdict.Kind);
             return WorkerLaunchOutcome.InvalidWorkspace;
         }
-        var (image, tag) = SplitImage(job.Image);
-        try
-        {
-            await client.Images.CreateImageAsync(
-                new ImagesCreateParameters { FromImage = image, Tag = tag },
-                null,
-                new Progress<JSONMessage>(),
-                cancellationToken);
-        }
-        catch (DockerApiException)
-        {
-            // A locally built image is not pullable - use what the daemon already has.
-            // Engine errors are untrusted and may include credentials.
-            logger.CouldNotPullImage(new InvalidOperationException("Docker image pull failed; engine diagnostics withheld."), job.Image);
-        }
+        if (!TryPrepareCache(job, verdict.Path is not null, out _)) return WorkerLaunchOutcome.InvalidCache;
+        await PullImage(client, job, cancellationToken);
 
+        if (!TryPrepareCache(job, verdict.Path is not null, out var cacheBinds)) return WorkerLaunchOutcome.InvalidCache;
         CreateContainerResponse response;
         try
         {
             response = await client.Containers.CreateContainerAsync(
-                BuildContainerSpecification(job, options.Value.RepositoryCachePath, options.Value.RepositoryCacheEnvironmentVariable, options.Value.DockerHardeningEnabled, verdict.Path, verdict.GitMetadataPath),
+                BuildContainerSpecification(job, new SpecificationInputs
+                {
+                    CachePath = options.Value.RepositoryCachePath, CacheVariable = options.Value.RepositoryCacheEnvironmentVariable,
+                    HardenContainer = options.Value.DockerHardeningEnabled, HostWorkspacePath = verdict.Path,
+                    HostGitMetadataPath = verdict.GitMetadataPath, CacheBinds = cacheBinds
+                }),
                 cancellationToken);
         }
         catch (Exception)
@@ -478,6 +469,45 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             : (image, "latest");
     }
 
+    async Task PullImage(IDockerClient client, WorkerJob job, CancellationToken cancellationToken)
+    {
+        var (image, tag) = SplitImage(job.Image);
+        try
+        {
+            await client.Images.CreateImageAsync(
+                new ImagesCreateParameters { FromImage = image, Tag = tag },
+                null,
+                new Progress<JSONMessage>(),
+                cancellationToken);
+        }
+        catch (DockerApiException)
+        {
+            // A locally built image is not pullable - use what the daemon already has.
+            // Engine errors are untrusted and may include credentials.
+            logger.CouldNotPullImage(new InvalidOperationException("Docker image pull failed; engine diagnostics withheld."), job.Image);
+        }
+    }
+
+    bool TryPrepareCache(WorkerJob job, bool hostPrepared, out IReadOnlyList<string> binds)
+    {
+        binds = [];
+        if (!WorkerCacheMounts.TryCreate(job.Cache, out var plan))
+        {
+            logger.InvalidWorkerCache(job.Session, plan.Reason);
+            return false;
+        }
+        var root = options.Value.RepositoryCachePath;
+        var resolved = WorkerCacheHostPaths.Resolve(plan, root, plan.AppliesTo(job, root, hostPrepared));
+        if (!resolved.IsValid)
+        {
+            logger.InvalidWorkerCache(job.Session, resolved.Reason);
+            return false;
+        }
+        if (resolved.HasMissingRepositories) logger.MissingWorkerCacheRepository(job.Session);
+        binds = resolved.Binds;
+        return true;
+    }
+
     DockerClient CreateClient()
     {
         // The builder resolves the endpoint the same way the docker CLI does (DOCKER_HOST, contexts,
@@ -489,5 +519,15 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         }
 
         return builder.Build();
+    }
+
+    sealed record SpecificationInputs
+    {
+        internal string? CachePath { get; init; }
+        internal string? CacheVariable { get; init; }
+        internal IReadOnlyList<string> CacheBinds { get; init; } = [];
+        internal bool HardenContainer { get; init; }
+        internal string? HostWorkspacePath { get; init; }
+        internal string? HostGitMetadataPath { get; init; }
     }
 }
