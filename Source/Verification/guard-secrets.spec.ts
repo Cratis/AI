@@ -1843,11 +1843,22 @@ test('allowlisted git shapes classify files by real secret patterns, not by cred
 
 test('a leading variable assignment is admitted only before a safe shape with a plain value', () => {
     assertVerdicts([
-        [ALLOW, 'FOO=1 git status'],
-        [ALLOW, 'FOO=1 cat README.md'],
-        [ALLOW, 'FOO=1 cat .env.example'],
-        [BLOCK, 'FOO=1 cat .env'],
-        [BLOCK, 'FOO=.env cat README.md'],
+        [ALLOW, 'NO_COLOR=1 git status'],
+        [ALLOW, 'NO_COLOR=1 cat README.md'],
+        [ALLOW, 'CI=1 cat .env.example'],
+        [BLOCK, 'NO_COLOR=1 cat .env'],
+        [BLOCK, 'NO_COLOR=.env cat README.md'],
+        [BLOCK, 'FOO=1 cat .env.example'],
+        [BLOCK, 'RIPGREP_CONFIG_PATH=/tmp/config rg -e x .env.example'],
+        [BLOCK, 'GREP_OPTIONS=-f cat .env.example'],
+        [BLOCK, 'GIT_CONFIG_COUNT=1 cat .env.example'],
+        [BLOCK, 'NODE_OPTIONS=-r cat .env.example'],
+        [BLOCK, 'PAGER=x cat .env.example'],
+        [BLOCK, 'HOME=/tmp cat .env.example'],
+        [BLOCK, 'IFS=x cat .env.example'],
+        [BLOCK, 'ENV=/tmp/x cat .env.example'],
+        [BLOCK, 'DYLD_INSERT_LIBRARIES=/tmp/x cat .env.example'],
+        [BLOCK, 'lowercase=1 cat .env.example'],
         [BLOCK, 'GIT_DIR=x cat .env'],
         [BLOCK, 'PATH=/tmp cat .env.example'],
         [BLOCK, 'LD_PRELOAD=/tmp/x.so cat .env.example'],
@@ -1911,6 +1922,8 @@ test('a link whose target is a protected file is refused while a harmless link i
             [BLOCK, 'cat absolute.txt'],
             [BLOCK, 'cat sub/up.txt'],
             [ALLOW, 'cat harmless.txt'],
+            [BLOCK, 'git commit -Fnotes.txt'],
+            [BLOCK, `cat plain.txt ${Array.from({ length: 450 }, (_, index) => `a${index}`).join(' ')} notes.txt`],
             [ALLOW, 'cat plain.txt'],
         ]) {
             assert.equal(runGuard(command, {}, directory).verdict, expected, command);

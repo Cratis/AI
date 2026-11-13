@@ -84,7 +84,10 @@ link_chain_protected() {
 linked_protected_word() {
     local word="$1" directory resolved logical
     [ -n "$word" ] || return 1
-    case "$word" in -*) return 1 ;; esac
+    case "$word" in
+        --*) return 1 ;;
+        -?*) word="${word#-?}"; [ -n "$word" ] || return 1 ;;
+    esac
     if [ -L "$word" ]; then link_chain_protected "$word"; return; fi
     case "$word" in */*) ;; *) return 1 ;; esac
     directory="${word%/*}"; [ -n "$directory" ] || directory=/
@@ -103,7 +106,8 @@ first_linked_word() {
     set -f
     for link_word in $link_words; do
         link_count=$((link_count + 1))
-        [ "$link_count" -le 48 ] || break
+        # A command too long to check word by word is refused rather than partly checked.
+        if [ "$link_count" -gt 5000 ]; then printf '%s' "$link_word"; return 0; fi
         if linked_protected_word "$link_word"; then printf '%s' "$link_word"; return 0; fi
     done
 }
@@ -436,7 +440,9 @@ function safe_assign(w, m,    k, name, value) {
     if (k < 2 || length(m) != length(w)) return 0
     name = substr(w, 1, k - 1); value = substr(w, k + 1)
     if (name !~ /^[A-Z][A-Z0-9_]*$/) return 0
-    if (name ~ /^(LD_|DYLD_|GIT_|BASH|PATH$|ENV$|IFS$|SHELL|PS[0-9]|PROMPT|PAGER|LESS|MANPAGER|EDITOR|VISUAL|HOME$|XDG_|CDPATH|GLOBIGNORE|NODE_|PYTHON|PERL|RUBY|CRATIS|TMPDIR|GREP_|SSH_|GH_|GITHUB|KUBE|AWS_|AZURE_|DOCKER|TERM|LC_|LANG)/) return 0
+    # Explicit list of presentation and locale names only; every other name, including any tool or loader
+    # configuration variable, is refused.
+    if (name !~ /^(NO_COLOR|FORCE_COLOR|CLICOLOR|CLICOLOR_FORCE|CI|COLUMNS|LINES|TZ|LANG|LC_ALL)$/) return 0
     if (value !~ "^[A-Za-z0-9_.,:@%+/-]*$") return 0
     return stem_scan(value, "raw") == ""
 }
