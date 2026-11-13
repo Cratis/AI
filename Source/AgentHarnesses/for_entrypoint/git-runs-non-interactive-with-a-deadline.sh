@@ -21,6 +21,7 @@ cat > "$root/bin/git" <<'STUB'
 #!/usr/bin/env bash
 printf '%s\n' "$*" >> "$CALLS"
 [[ "$GIT_TERMINAL_PROMPT" == 0 && ${GIT_ASKPASS+x} && -z "$GIT_ASKPASS" && ${SSH_ASKPASS+x} && -z "$SSH_ASKPASS" && -z ${SSH_ASKPASS_REQUIRE+x} && "$GCM_INTERACTIVE" == never && "$GIT_SSH_COMMAND" == *BatchMode=yes* ]] || exit 90
+if [[ "$*" == *' rev-parse --is-bare-repository' ]]; then echo true; exit 0; fi
 case "$MODE:$*" in
     # exec: one stubborn process that ignores TERM. A child sleep would outlive the KILL on runners
     # where timeout signals only its direct child, and hold the caller's output pipe open.
@@ -81,7 +82,9 @@ grep -q 'needs a credential but none is available' "$root/error"
 if ( export PATH="$root/empty"; configure_git_deadline ) > "$root/error" 2>&1; then exit 1; fi
 grep -q '^\[git-config\]' "$root/error"
 [[ ! -s "$CALLS" ]]
-mkdir -p "$root/cache/o/r.git"
+mkdir -p "$root/cache/o/r.git/objects" "$root/cache/o/r.git/refs"
+touch "$root/cache/o/r.git/HEAD"
+export CRATIS_WORKER_REPOSITORY_MIRRORS=$'https://github.com/o/r.git\t'"$root/cache/o/r.git"
 export DIRECT_REPOSITORY_CACHE="$root/cache" DIRECT_BRANCH=direct/spec
 MODE=remote-fails; export MODE
 clone_into_workspace https://github.com/o/r.git "$root/checkout"

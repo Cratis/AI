@@ -11,10 +11,12 @@ public class and_the_job_is_host_prepared : for_HostWorkspace.given.a_workspace
 
     void Establish() => _job = _job with
     {
+        Cache = new("v1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", [new("https://example.invalid/owner/repo.git", "owner/repo.git")]),
         EnvironmentVariables = new Dictionary<string, string>(_job.EnvironmentVariables)
         {
             [HostWorkspace.ContainerPathVariable] = "/caller-path",
             ["CUSTOM_CACHE"] = "/repos",
+            ["DIRECT_MEMORY_PATH"] = "/other",
             ["UNCHANGED"] = "value"
         }
     };
@@ -27,6 +29,7 @@ public class and_the_job_is_host_prepared : for_HostWorkspace.given.a_workspace
     [Fact] void should_not_leak_the_host_path() => _result.Env.ShouldNotContain(value => value.StartsWith("CRATIS_WORKSPACE_HOST_PATH=", StringComparison.Ordinal));
     [Fact] void should_omit_the_cache_environment() => _result.Env.ShouldNotContain(value => value.StartsWith("CUSTOM_CACHE=", StringComparison.Ordinal) || value.StartsWith("DIRECT_REPOSITORY_CACHE=", StringComparison.Ordinal));
     [Fact] void should_not_supply_repository_authentication() => _result.Env.ShouldNotContain(value => value.StartsWith("GITHUB_TOKEN=", StringComparison.Ordinal) || value.StartsWith("GH_TOKEN=", StringComparison.Ordinal));
+    [Fact] void should_omit_memory_environment() => _result.Env.ShouldNotContain(value => value.StartsWith("DIRECT_MEMORY_PATH=", StringComparison.Ordinal));
     [Fact] void should_preserve_other_environment() => _result.Env.ShouldContain("UNCHANGED=value");
     [Fact] void should_not_keep_the_caller_container_path() => _result.Env.ShouldNotContain("CRATIS_WORKSPACE_PATH=/caller-path");
 }
