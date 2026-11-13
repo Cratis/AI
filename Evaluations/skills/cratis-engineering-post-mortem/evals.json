@@ -1,0 +1,64 @@
+{
+  "skill_name": "cratis-engineering-post-mortem",
+  "evals": [
+    {
+      "id": 1,
+      "name": "unverified-claims-stay-labelled",
+      "prompt": "Write the summary, verified facts and unverified claims sections of a post-mortem. Evidence: the deploy log shows release 7 was deployed at 10:08 UTC; a teammate said in chat that the cache was probably stale; no log or metric mentions the cache. Reply only; do not run anything.",
+      "expected_output": "The deploy is a verified fact with its source. The cache statement sits in the unverified claims list with confidence Unverified, who raised it, why it is unverified and how to verify it, and is not stated as fact in the summary or root cause.",
+      "assertions": [
+        "Lists the deploy as a verified fact and cites its source.",
+        "Puts the cache statement in the unverified claims list with confidence Unverified, who raised it, why it is unverified and how to verify it.",
+        "Does not state the stale cache as a fact or as a root cause in the summary.",
+        "Tags unverified material inline so a reader cannot mistake it for fact."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "utc-timeline-and-impact",
+      "prompt": "Write the timeline and impact sections of a post-mortem. Events: the build failed at 09:15 Oslo time (CI log), the rollback finished at 08:40 UTC (deploy log), and a user said it started 'around nine'. About 300 users were affected, estimated from request counts. Reply only; do not run anything.",
+      "expected_output": "Every row in ISO-8601 UTC with the original zone noted, each with a source and a confidence of exactly Verified, Inferred or Unverified, and the user count in an Affected list item with its confidence and marked as an estimate with its measure.",
+      "assertions": [
+        "Shows every timeline time in UTC and notes the original zone for the converted time.",
+        "Gives each timeline row a source and a confidence that is exactly Verified, Inferred or Unverified, in the columns Time (UTC), Event, Source, Confidence.",
+        "Gives the impact as short text plus an Affected list whose items each carry a confidence; marks the user count as an estimate and names the measure it came from.",
+        "Tags the user's 'around nine' recollection Unverified, and any derived time Inferred with what it is inferred from."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "every-action-owned-and-linked",
+      "prompt": "Produce the actions section of a post-mortem for three follow-ups: add an alert on backup age in the infrastructure repository, fix the smoke test in the application repository, and add a deploy-provenance record, which the application repository already tracks in an open issue. Reply only; do not run anything.",
+      "expected_output": "One row per action with a type, one accountable owner and one linked tracker item in the repository that owns the work. The already-tracked action links the existing item after a duplicate search instead of filing a new one.",
+      "assertions": [
+        "Gives every action exactly one owner and exactly one tracker link, with no TBD or empty cells.",
+        "Files or drafts the alert action in the infrastructure repository and the smoke test action in the application repository, not in the reviewing repository.",
+        "Links the existing open item for deploy provenance after a duplicate search rather than filing a second one.",
+        "Uses the columns #, Action, Type, Owner, Issue, Status with Type from prevent, detect, mitigate, fix, verify or process, and treats a missing named owner or linked issue as a Draft that blocks Final (a proposed owner and Status Needs decision are allowed only in a Draft)."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "public-safe-wording",
+      "prompt": "Summarize this evidence for a public post-mortem: the failing log line contains 'token=ghp_EXAMPLEEXAMPLE', the config was read from /Users/jane/work/infra/app.yaml on host db-17.internal.example, and Jane Doe approved the change. Reply only; do not run anything.",
+      "expected_output": "A blameless summary that reproduces none of the token, the local path, the internal hostname or the person's name, uses roles and redaction markers, and ends with a redaction note.",
+      "assertions": [
+        "Does not reproduce the token value.",
+        "Does not reproduce the local filesystem path or the internal hostname.",
+        "Refers to the approver by role, not by name.",
+        "Includes a redaction note describing the categories removed."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "provider-neutral-incident-record",
+      "prompt": "The incident is tracked in a ticket system that is not GitHub, and you have no write access to it. Describe how you gather evidence and hand over the follow-up actions. Reply only; do not run anything.",
+      "expected_output": "The same method applied to the linked runs, change requests and issues from that tracker, with unreadable sources listed as evidence gaps, and ready-to-file drafts with the issue column pending instead of invented links.",
+      "assertions": [
+        "Uses the same method without assuming GitHub-only commands or vocabulary.",
+        "Lists any source it cannot read as an evidence gap instead of inventing its content.",
+        "Produces ready-to-file issue drafts and leaves the issue link pending rather than inventing one."
+      ]
+    }
+  ]
+}
