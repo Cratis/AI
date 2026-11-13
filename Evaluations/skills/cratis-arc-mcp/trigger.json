@@ -1,0 +1,25 @@
+{
+  "skill": "cratis-arc-mcp",
+  "queries": [
+    { "query": "how do I expose an Arc command to Claude as an MCP tool?", "shouldTrigger": true },
+    { "query": "startup throws McpToolHasNoScope, what do I set?", "shouldTrigger": true },
+    { "query": "WithMcp says GatedEndpoints is required, how do I configure capability hosting?", "shouldTrigger": true },
+    { "query": "my PAT gets 401 on /mcp even though the token is valid", "shouldTrigger": true },
+    { "query": "how do I let MCP Inspector in the browser call my Arc app, origin_not_allowed", "shouldTrigger": true },
+    { "query": "which scopes does an MCP query tool need and how do I add a custom [RequiresScope]?", "shouldTrigger": true },
+    { "query": "should I expose my approval-required command over MCP?", "shouldTrigger": true },
+    { "query": "how do I connect Claude Code or VS Code to my Arc MCP endpoint with a personal access token?", "shouldTrigger": true },
+    { "query": "can I use UseDevelopmentPersonalAccessTokenAdapters in staging?", "shouldTrigger": true },
+    { "query": "what does the agent see in tools/list and structuredContent for an Arc tool?", "shouldTrigger": true },
+    { "query": "Write the Handle method and validator for a new Arc command.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "How do I add paging to a model-bound query?", "shouldTrigger": false, "note": "cratis-arc-query-paging" },
+    { "query": "How do I set up Chronicle's own MCP server?", "shouldTrigger": false },
+    { "query": "How do I configure cookie authentication and authorization policies in Arc?", "shouldTrigger": false, "note": "cratis-arc-authentication-authorization-and-identity" },
+    { "query": "Generate TypeScript proxies for my commands.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Write a Playwright spec for my login page.", "shouldTrigger": false },
+    { "query": "How do I issue and validate JWT cookies for browser sign-in?", "shouldTrigger": false },
+    { "query": "How do I add an event to Chronicle and project it to a read model?", "shouldTrigger": false },
+    { "query": "How do I add a REST controller endpoint without Arc?", "shouldTrigger": false },
+    { "query": "How do I configure Orleans clustering for my silo?", "shouldTrigger": false }
+  ]
+}
