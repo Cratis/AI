@@ -252,10 +252,10 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             return WorkerLaunchOutcome.InvalidWorkspace;
         }
         WorkerSecrets.ValidateNames(job.Secrets, options.Value.RepositoryCacheEnvironmentVariable);
-        if (!TryPrepareCache(job, verdict.Path is not null, out var cacheBinds)) return WorkerLaunchOutcome.InvalidCache;
+        if (!TryPrepareCache(job, verdict.Path is not null, out _)) return WorkerLaunchOutcome.InvalidCache;
         using var client = CreateClient();
 
-        return await Start(client, job, verdict, cacheBinds, cancellationToken);
+        return await Start(client, job, verdict, cancellationToken);
     }
 
     /// <summary>
@@ -275,13 +275,14 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             return WorkerLaunchOutcome.InvalidWorkspace;
         }
         WorkerSecrets.ValidateNames(job.Secrets, options.Value.RepositoryCacheEnvironmentVariable);
-        if (!TryPrepareCache(job, verdict.Path is not null, out var cacheBinds)) return WorkerLaunchOutcome.InvalidCache;
-        return await Start(client, job, verdict, cacheBinds, cancellationToken);
+        if (!TryPrepareCache(job, verdict.Path is not null, out _)) return WorkerLaunchOutcome.InvalidCache;
+        return await Start(client, job, verdict, cancellationToken);
     }
 
-    async Task<WorkerLaunchOutcome> Start(IDockerClient client, WorkerJob job, HostWorkspaceVerdict verdict, IReadOnlyList<string> cacheBinds, CancellationToken cancellationToken)
+    async Task<WorkerLaunchOutcome> Start(IDockerClient client, WorkerJob job, HostWorkspaceVerdict verdict, CancellationToken cancellationToken)
     {
         await PullImage(client, job, cancellationToken);
+        if (!TryPrepareCache(job, verdict.Path is not null, out var cacheBinds)) return WorkerLaunchOutcome.InvalidCache;
 
         CreateContainerResponse response;
         try

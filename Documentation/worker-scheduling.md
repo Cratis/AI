@@ -88,7 +88,9 @@ throughout pod startup; the verifier is not a lock on the PVC. Target-cluster
 subPath behavior and NFS write permissions require deployment checks.
 
 Docker checks descendants of the trusted configured cache root for symlinks,
-reparse points and non-directories once before contacting Docker. The root itself may be a symlink. Missing mirrors are omitted
+reparse points and non-directories before contacting Docker and again after image
+pulling, immediately before container creation. The fresh check supplies the bind
+paths used for creation. The root itself may be a symlink. Missing mirrors are omitted
 and clone normally. Docker creates a missing memory leaf with Unix mode `0770`
 without changing existing ownership or parent permissions; operators must still
 provide the worker's group access. Unsuitable paths or creation failures return

@@ -112,8 +112,10 @@ verifier. The image must supply `/bin/sh` and `realpath`. The verifier has minim
 environment and no worker secrets; worker mounts remain unchanged. Provisioners
 must protect ancestors from untrusted writers throughout startup.
 
-Docker checks selected descendants once before runtime contact, omits missing mirrors, creates
-a missing memory leaf with Unix mode `0770`, and refuses linked descendants without
+Docker checks selected descendants before runtime contact and again after image
+pulling, immediately before container creation, using the freshly resolved binds.
+It omits missing mirrors, creates a missing memory leaf with Unix mode `0770`,
+and refuses linked descendants without
 changing existing ownership. Its configured root is trusted and may be a symlink;
 trusted cache writers must keep descendants stable during the check-to-bind window.
 
