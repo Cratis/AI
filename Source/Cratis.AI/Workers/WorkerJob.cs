@@ -35,4 +35,10 @@ public record WorkerJob(
     /// The Kubernetes runtime ignores them.
     /// </summary>
     public IReadOnlyDictionary<string, string>? Labels { get; init; }
+
+    /// <summary>
+    /// Optional Docker resource ceilings. Missing or zero values leave the resource unlimited.
+    /// The Kubernetes runtime continues to use its existing resource options.
+    /// </summary>
+    public WorkerLimits? Limits { get; init; }
 }

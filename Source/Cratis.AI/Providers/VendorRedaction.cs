@@ -25,7 +25,7 @@ internal sealed record VendorRedaction(IReadOnlyList<string> Secrets, IReadOnlyL
     /// <returns>The <see cref="VendorRedaction"/>.</returns>
     internal static VendorRedaction For(AIProviderApiKey? apiKey, string model, AIProviderId providerId)
     {
-        var secrets = new List<string>();
+        List<string> secrets = [];
         if (apiKey is not null && !string.IsNullOrWhiteSpace(apiKey.Value))
         {
             secrets.Add(apiKey.Value);

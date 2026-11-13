@@ -304,6 +304,8 @@ Chronicle's constraints enforce **uniqueness only**; use one when two concurrent
 A policy has **exactly one** `require` line (`PLAY0441`) **or** one implementation, never both (`PLAY0440`). Read [references/policy-persona-seed.md](references/policy-persona-seed.md) when
 declaring a policy (including `require anonymous` for a deliberately public command or query), a persona, or a `seed` block.
 
+`authorize` says who may act; whether the command exists for the caller at all is `available`, with `provide` for `$context` values: `cratis-screenplay-availability`.
+
 ## Event data subject
 
 A trailing `subject` on an event property is report-only (`PLAY0270`); see [compliance](references/compliance.md#event-data-subject).

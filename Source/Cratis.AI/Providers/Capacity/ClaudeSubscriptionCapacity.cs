@@ -91,7 +91,7 @@ public class ClaudeSubscriptionCapacity(IHttpClientFactory httpClientFactory, IO
     public static IReadOnlyList<UsageWindow> ParseHeaders(IReadOnlyDictionary<string, string> headers)
     {
         var lookup = new Dictionary<string, string>(headers, StringComparer.OrdinalIgnoreCase);
-        var windows = new List<UsageWindow>();
+        List<UsageWindow> windows = [];
         foreach (var (window, kind, name) in _headerWindows)
         {
             if (!lookup.TryGetValue($"anthropic-ratelimit-unified-{window}-utilization", out var utilization) ||

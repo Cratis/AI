@@ -17,6 +17,8 @@
 - Guarded interaction diagnostics
 - UI profile shell: root template, options, appearance
 - Design systems and themes (PLAY0916-PLAY0930)
+- Provided values (PLAY1119-PLAY1129)
+- Audiences and availability (PLAY1130-PLAY1141)
 - Sinks (PLAY0931-PLAY0939)
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
@@ -350,6 +352,35 @@ Requires a Screenplay release that carries design systems (next minor after 6.2.
 | PLAY0928 | W | In some theme and mode a text/background pair is below a `contrast` rule (`disabled` not checked). |
 | PLAY0929 | W | `accent`, `corners` or `font` in a profile's `appearance` is deprecated; put the value in the theme. |
 | PLAY0930 | E | A theme's `implements`, `palette`, `values` or mode block is malformed or repeated. |
+
+## Provided values (PLAY1119-PLAY1129)
+
+`provide` needs Screenplay 6.25.0. Fix by changing the model; PLAY0268 reports executing it.
+
+| Code | Fix |
+| --- | --- |
+| PLAY1119-PLAY1122 | write `provide <name> <Type> [optional] from <source>`; a source is `query`, `host`, a literal, a `$context` expression, a `file` or an inline body, never a body beside `from` |
+| PLAY1123 | one declaration per name per level; override lower down instead |
+| PLAY1124 | `tenant`, `identity`, `causedBy`, `causation`, `occurred`, `audiences`, `command`, `arguments` are reserved; rename |
+| PLAY1125 | an override keeps the type |
+| PLAY1126-PLAY1128 | the source query must be declared once, keyed, snapshot (not observable) and return the provided type |
+| PLAY1129 | break the read cycle between provided values |
+
+## Audiences and availability (PLAY1130-PLAY1141)
+
+Requires Screenplay 6.26.0. Errors fix the line; warnings leave the gate closed, never open.
+
+| Code | Fix |
+| --- | --- |
+| PLAY1130-PLAY1132 | shapes: `audience <Name>` with `description` only; `availability <Name>` with `description`, `for`, `when`, `with`; `available for \| when \| with <operand>` |
+| PLAY1133, PLAY1134 | declare each audience and availability once |
+| PLAY1135, PLAY1136 | W: declare the audience or availability, or correct the name; undeclared means nothing can grant it |
+| PLAY1137 | break the `with` cycle |
+| PLAY1138 | W: provide the value at or above the gate, or change the condition |
+| PLAY1139 | W: align the audiences of invoker and command, or accept the refusal; `when` is skipped, reactions are never gated |
+| PLAY1140, PLAY1141 | an `available for`/`with` line holds names, `and`, `or` and balanced parentheses only |
+
+See `../../cratis-screenplay-availability/SKILL.md`.
 
 ## Sinks (PLAY0931-PLAY0939)
 

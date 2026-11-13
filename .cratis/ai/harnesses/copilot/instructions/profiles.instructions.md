@@ -293,6 +293,7 @@ and one phase skill, then the construct skill needed for syntax.
 | `cratis-screenplay-slice-design` | Commands, refusals, views, field lineage and slice boundaries |
 | `cratis-screenplay-streams-and-consistency` | Business identities, atomic invariants, concurrency, evolution and ownership |
 | `cratis-screenplay-automations-and-translations` | Follow-up work, external data to our facts, recovery and deduplication |
+| `cratis-screenplay-availability` | `audience`, `available`, `provide` |
 | `cratis-screenplay-scenario-coverage` | Coverage matrix, rejection, denial, lifecycle and external-failure scenarios |
 | `cratis-screenplay-model-review` | Independent critique, evidence checklist and business-question explanation |
 | `cratis-screenplay-legacy-extraction` | Evidence-led extraction, expert verification and loss report |
@@ -311,6 +312,7 @@ and one phase skill, then the construct skill needed for syntax.
 | `cratis-screenplay-ui-composition` | `layout`, templates, `form`, `contribute`, `ui profile`, `theme`, `$strings`, `file` |
 | `cratis-screenplay-captures-and-reactions` | The Change Data Capture Language, `reaction`, `trigger` |
 | `cratis-screenplay-authentication-and-onboarding` | `authentication`, `onboarding`, and the environment keys derived from them |
+| `cratis-screenplay-extension-packages` | Authoring, verifying, locking and restoring extension packages that realize a `system` |
 | `cratis-screenplay-specifications` | Given/when/then and the reference execution |
 | `cratis-screenplay-model-authoring` | Typed MCP authoring, model navigation/refactoring, compiler diagnostics, and source-versus-executable readiness |
 

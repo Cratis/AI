@@ -69,7 +69,7 @@ public class ProviderUsageLevels(
         var freshness = options.Value.UsageSnapshotFreshness;
 
         var result = new Dictionary<AIProviderId, ProviderUsageLevel>();
-        var stale = new List<AIProviderId>();
+        List<AIProviderId> stale = [];
         foreach (var providerId in ids)
         {
             var cached = recentSnapshots.Get(providerId, freshness);

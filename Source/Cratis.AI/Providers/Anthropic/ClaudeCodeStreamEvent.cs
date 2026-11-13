@@ -307,27 +307,47 @@ internal sealed record ClaudeCodeStreamEvent
         _ => ChatFinishReason.Stop,
     };
 
-    static ClaudeCodeStreamEvent ParseResult(JsonElement body)
-    {
-        var reportedError = body.TryGetProperty("is_error", out var errorElement) && errorElement.ValueKind != JsonValueKind.False;
-        var succeededSubtype = body.TryGetProperty("subtype", out var subtype) && subtype.ValueKind == JsonValueKind.String && subtype.GetString() == "success";
-        var hasResultText = body.TryGetProperty("result", out var resultElement) && resultElement.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(resultElement.GetString());
-        var hasStructuredOutput = body.TryGetProperty("structured_output", out var structured) && structured.ValueKind == JsonValueKind.Object;
-        var succeeded = !reportedError && succeededSubtype && (hasResultText || hasStructuredOutput);
+    static bool HasResultText(JsonElement body, out JsonElement result) =>
+        body.TryGetProperty("result", out result) && result.ValueKind == JsonValueKind.String && !string.IsNullOrWhiteSpace(result.GetString());
 
-        int? httpStatus = body.TryGetProperty("api_error_status", out var status) && status.ValueKind == JsonValueKind.Number && status.TryGetInt32(out var code) ? code : null;
-        var failureKind = ClaudeCodeFailureText.KindOfStatus(httpStatus);
-        string? failureReason = null;
-        if (!succeeded)
-        {
-            failureReason = httpStatus is not null
-                ? ClaudeCodeFailureText.For(failureKind, null, httpStatus, ClaudeCodeFailureText.Excerpt(hasResultText ? resultElement.GetString() : null))
-                : "Claude Code did not complete the conversation. Check the configured subscription and model.";
-        }
+    static int? ReadErrorStatus(JsonElement body) =>
+        body.TryGetProperty("api_error_status", out var status) && status.ValueKind == JsonValueKind.Number && status.TryGetInt32(out var code) ? code : null;
 
-        var modelId = body.TryGetProperty("modelUsage", out var modelUsage) && modelUsage.ValueKind == JsonValueKind.Object
+    static string ResultFailureReason(int? status, ClaudeCodeFailureKind kind, string? text) =>
+        status is not null
+            ? ClaudeCodeFailureText.For(kind, null, status, ClaudeCodeFailureText.Excerpt(text))
+            : "Claude Code did not complete the conversation. Check the configured subscription and model.";
+
+    static string? ResultModelId(JsonElement body) =>
+        body.TryGetProperty("modelUsage", out var modelUsage) && modelUsage.ValueKind == JsonValueKind.Object
             ? modelUsage.EnumerateObject().Select(property => property.Name).FirstOrDefault()
             : null;
+
+    static bool ReportedError(JsonElement body) =>
+        body.TryGetProperty("is_error", out var error) && error.ValueKind != JsonValueKind.False;
+
+    static bool SucceededSubtype(JsonElement body) =>
+        body.TryGetProperty("subtype", out var subtype) && subtype.ValueKind == JsonValueKind.String && subtype.GetString() == "success";
+
+    static ResultContent ReadResultContent(JsonElement body)
+    {
+        var reportedError = ReportedError(body);
+        var succeededSubtype = SucceededSubtype(body);
+        var hasText = HasResultText(body, out var text);
+        var hasStructuredOutput = body.TryGetProperty("structured_output", out var structured) && structured.ValueKind == JsonValueKind.Object;
+        var succeeded = !reportedError && succeededSubtype && (hasText || hasStructuredOutput);
+        var failureText = hasText ? text.GetString() : null;
+        return new(succeeded, hasStructuredOutput, hasStructuredOutput ? structured.GetRawText() : failureText, failureText);
+    }
+
+    static ClaudeCodeStreamEvent ParseResult(JsonElement body)
+    {
+        var content = ReadResultContent(body);
+        var httpStatus = ReadErrorStatus(body);
+        var failureKind = ClaudeCodeFailureText.KindOfStatus(httpStatus);
+        var failureReason = content.Succeeded ? null : ResultFailureReason(httpStatus, failureKind, content.FailureText);
+
+        var modelId = ResultModelId(body);
 
         var usage = ClaudeCodeUsage.Read(body);
         var reason = body.TryGetProperty("stop_reason", out var stop) && stop.ValueKind == JsonValueKind.String ? stop.GetString() : null;
@@ -335,13 +355,13 @@ internal sealed record ClaudeCodeStreamEvent
         return new ClaudeCodeStreamEvent
         {
             IsResult = true,
-            IsFailure = !succeeded,
+            IsFailure = !content.Succeeded,
             FailureReason = failureReason,
             FailureKind = failureKind,
             HttpStatus = httpStatus,
             SessionId = body.TryGetProperty("session_id", out var sessionElement) ? sessionElement.GetString() : null,
-            ResultText = hasStructuredOutput ? structured.GetRawText() : hasResultText ? resultElement.GetString() : null,
-            HasStructuredOutput = hasStructuredOutput,
+            ResultText = content.Text,
+            HasStructuredOutput = content.IsStructured,
             FinishReason = FinishReasonFor(reason),
             HasStopReason = reason is not null,
             ModelId = modelId,
@@ -349,4 +369,6 @@ internal sealed record ClaudeCodeStreamEvent
             CostUsd = ClaudeCodeUsage.CostUsd(body),
         };
     }
+
+    sealed record ResultContent(bool Succeeded, bool IsStructured, string? Text, string? FailureText);
 }

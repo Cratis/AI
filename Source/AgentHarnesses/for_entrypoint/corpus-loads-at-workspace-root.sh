@@ -50,6 +50,12 @@ seed_repo one "marker: repo one"
 seed_repo two "marker: repo two"
 
 mkdir -p "$ROOT/bin"
+# All clones here are synchronous local fixtures, not deadline tests. macOS has no GNU timeout.
+# The dedicated deadline fixture exercises the real process-group timeout on Linux.
+if ! command -v timeout >/dev/null && ! command -v gtimeout >/dev/null; then
+    printf '#!/usr/bin/env bash\nshift 2\nexec "$@"\n' > "$ROOT/bin/timeout"
+    chmod +x "$ROOT/bin/timeout"
+fi
 printf '#!/bin/sh\nexit 0\n' > "$ROOT/bin/rtk"
 # Stands in for the agent CLI: emits the one stream-json event the harness reads its result out
 # of, and exits 0. This spec is about where the checkout lands, not what the agent does with it.

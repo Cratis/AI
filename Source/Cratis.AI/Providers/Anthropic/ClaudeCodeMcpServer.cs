@@ -133,6 +133,44 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
         }
     }
 
+    static bool IsRequestId(JsonElement id) => id.ValueKind is JsonValueKind.String or JsonValueKind.Number;
+
+    static bool IsRpcRequest(JsonElement root, out JsonElement method)
+    {
+        method = default;
+        return root.ValueKind == JsonValueKind.Object &&
+            HasRpcVersion(root) &&
+            root.TryGetProperty("method", out method) && method.ValueKind == JsonValueKind.String &&
+            (!root.TryGetProperty("params", out var parameters) || parameters.ValueKind == JsonValueKind.Object);
+    }
+
+    static bool HasRpcVersion(JsonElement root) =>
+        root.TryGetProperty("jsonrpc", out var version) && version.ValueKind == JsonValueKind.String && version.GetString() == "2.0";
+
+    static bool HasInitializationParameters(JsonElement request, out JsonElement version)
+    {
+        version = default;
+        return request.TryGetProperty("params", out var parameters) &&
+            parameters.TryGetProperty("protocolVersion", out version) && version.ValueKind == JsonValueKind.String &&
+            HasObjectProperty(parameters, "capabilities") &&
+            parameters.TryGetProperty("clientInfo", out var client) && client.ValueKind == JsonValueKind.Object &&
+            HasClientIdentity(client);
+    }
+
+    static bool HasObjectProperty(JsonElement element, string name) =>
+        element.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.Object;
+
+    static bool HasClientIdentity(JsonElement client) =>
+        client.TryGetProperty("name", out var name) && name.ValueKind == JsonValueKind.String &&
+        client.TryGetProperty("version", out var version) && version.ValueKind == JsonValueKind.String;
+
+    static bool HasToolName(JsonElement request, out JsonElement parameters, out JsonElement name)
+    {
+        name = default;
+        return request.TryGetProperty("params", out parameters) &&
+            parameters.TryGetProperty("name", out name) && name.ValueKind == JsonValueKind.String;
+    }
+
     async Task Drain()
     {
         var cancellationFailed = false;
@@ -200,29 +238,9 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
     {
         try
         {
-            if (context.Request.HttpMethod != "POST")
+            if (RequestRejection(context.Request) is { } rejection)
             {
-                Close(context, HttpStatusCode.MethodNotAllowed);
-                return;
-            }
-
-            var protocol = context.Request.Headers["MCP-Protocol-Version"];
-            if (context.Request.Url?.AbsolutePath != Endpoint.AbsolutePath ||
-                (protocol is not null && !_protocolVersions.Contains(protocol, StringComparer.Ordinal)))
-            {
-                Close(context, HttpStatusCode.BadRequest);
-                return;
-            }
-
-            if (context.Request.ContentType?.Split(';')[0].Trim() != "application/json")
-            {
-                Close(context, HttpStatusCode.UnsupportedMediaType);
-                return;
-            }
-
-            if (context.Request.ContentLength64 > MaxRequestBytes)
-            {
-                Close(context, HttpStatusCode.RequestEntityTooLarge);
+                Close(context, rejection);
                 return;
             }
 
@@ -244,10 +262,7 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
 
             using var document = JsonDocument.Parse(body.ToArray());
             var root = document.RootElement;
-            if (root.ValueKind != JsonValueKind.Object ||
-                !root.TryGetProperty("jsonrpc", out var version) || version.ValueKind != JsonValueKind.String || version.GetString() != "2.0" ||
-                !root.TryGetProperty("method", out var method) || method.ValueKind != JsonValueKind.String ||
-                (root.TryGetProperty("params", out var parameters) && parameters.ValueKind != JsonValueKind.Object))
+            if (!IsRpcRequest(root, out var method))
             {
                 Close(context, HttpStatusCode.BadRequest);
                 return;
@@ -259,7 +274,7 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
                 return;
             }
 
-            if (id.ValueKind is not (JsonValueKind.String or JsonValueKind.Number))
+            if (!IsRequestId(id))
             {
                 Close(context, HttpStatusCode.BadRequest);
                 return;
@@ -289,6 +304,21 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
         }
     }
 
+    HttpStatusCode? RequestRejection(HttpListenerRequest request)
+    {
+        if (request.HttpMethod != "POST") return HttpStatusCode.MethodNotAllowed;
+
+        var protocol = request.Headers["MCP-Protocol-Version"];
+        if (request.Url?.AbsolutePath != Endpoint.AbsolutePath ||
+            (protocol is not null && !_protocolVersions.Contains(protocol, StringComparer.Ordinal)))
+        {
+            return HttpStatusCode.BadRequest;
+        }
+
+        if (request.ContentType?.Split(';')[0].Trim() != "application/json") return HttpStatusCode.UnsupportedMediaType;
+        return request.ContentLength64 > MaxRequestBytes ? HttpStatusCode.RequestEntityTooLarge : null;
+    }
+
     Task<object> Dispatch(string? method, JsonElement request) => method switch
     {
         "initialize" => Task.FromResult(Initialize(request)),
@@ -303,12 +333,7 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
 
     object Initialize(JsonElement request)
     {
-        if (!request.TryGetProperty("params", out var parameters) ||
-            !parameters.TryGetProperty("protocolVersion", out var version) || version.ValueKind != JsonValueKind.String ||
-            !parameters.TryGetProperty("capabilities", out var capabilities) || capabilities.ValueKind != JsonValueKind.Object ||
-            !parameters.TryGetProperty("clientInfo", out var client) || client.ValueKind != JsonValueKind.Object ||
-            !client.TryGetProperty("name", out var name) || name.ValueKind != JsonValueKind.String ||
-            !client.TryGetProperty("version", out var clientVersion) || clientVersion.ValueKind != JsonValueKind.String)
+        if (!HasInitializationParameters(request, out var version))
         {
             return new RpcError(-32602, "Invalid initialization parameters.");
         }
@@ -325,8 +350,7 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
 
     async Task<object> CallTool(JsonElement request)
     {
-        if (!request.TryGetProperty("params", out var parameters) ||
-            !parameters.TryGetProperty("name", out var name) || name.ValueKind != JsonValueKind.String ||
+        if (!HasToolName(request, out var parameters, out var name) ||
             !_functions.TryGetValue(name.GetString()!, out var function))
         {
             return new RpcError(-32602, "Invalid tool name or parameters.");
@@ -347,6 +371,11 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
             return new RpcError(-32602, "Missing tool arguments.");
         }
 
+        return await InvokeTool(function, arguments);
+    }
+
+    async Task<object> InvokeTool(AIFunction function, AIFunctionArguments arguments)
+    {
         try
         {
             InvocationStarting?.Invoke();

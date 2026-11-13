@@ -1,0 +1,13 @@
+{
+  "skill": "cratis-screenplay-extension-packages",
+  "input": "We want to build a Stripe extension package with a Go backend and a React component, lock it in our model and restore it in CI.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "cratis extension new" },
+    { "kind": "skill-contains", "value": "cratis extension verify" },
+    { "kind": "skill-contains", "value": "`screenplay.lock`" },
+    { "kind": "skill-contains", "value": "`--locked` is for CI" },
+    { "kind": "skill-contains", "value": "`.cratis/extensions.json`" },
+    { "kind": "skill-contains", "value": "PLAY1106" }
+  ]
+}

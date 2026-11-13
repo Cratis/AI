@@ -148,27 +148,11 @@ public class ProviderAwareLanguageModel(
         string? poolFailureReason = null;
         try
         {
-            if (hasPool)
-            {
-                var (result, exhaustedTransiently, outOfQuota, failureReason) = await CompleteThroughPool(prompt, purpose, role!.PoolId!, tier, effort, cancellationToken);
-                if (result is not null)
-                {
-                    return result;
-                }
-
-                poolExhaustedTransiently = exhaustedTransiently;
-                poolOutOfQuota = outOfQuota;
-                poolFailureReason = failureReason;
-            }
-
-            if (hasProvider)
-            {
-                var result = await CompleteThroughProvider(prompt, purpose, role!.ProviderId!, tier, effort, cancellationToken);
-                if (result is not null)
-                {
-                    return result;
-                }
-            }
+            var dispatch = await DispatchCompletion(new(prompt, purpose, tier, effort), role, cancellationToken);
+            if (dispatch.Result is not null) return dispatch.Result;
+            poolExhaustedTransiently = dispatch.ExhaustedTransiently;
+            poolOutOfQuota = dispatch.OutOfQuota;
+            poolFailureReason = dispatch.FailureReason;
         }
         catch (OperationCanceledException) when (!callerCancellationToken.IsCancellationRequested)
         {
@@ -197,18 +181,23 @@ public class ProviderAwareLanguageModel(
         // the time it tries again, which a same-provider hammering retry never gave the pool a chance
         // to benefit from (issue #1060).
         logger.NothingTheAgentNamedCouldServe(purpose);
-        if (poolOutOfQuota is not null)
+        return PoolFailureResult(purpose, new(poolExhaustedTransiently, poolOutOfQuota, poolFailureReason));
+    }
+
+    static LanguageModelResult PoolFailureResult(LanguageModelPurpose purpose, PoolFailure failure)
+    {
+        if (failure.OutOfQuota is not null)
         {
             // Members ran out of quota - say so and name them, rather than pointing at the log. Only
             // worth the whole-call retry when some member also failed transiently; a spent quota does
             // not come back within a retry's backoff.
-            return poolExhaustedTransiently
-                ? LanguageModelResult.TransientFailure(poolOutOfQuota)
-                : LanguageModelResult.QuotaExhausted(poolOutOfQuota);
+            return failure.ExhaustedTransiently
+                ? LanguageModelResult.TransientFailure(failure.OutOfQuota)
+                : LanguageModelResult.QuotaExhausted(failure.OutOfQuota);
         }
 
-        var reason = $"The AI provider configured for the {purpose.Value} agent could not serve this request. {poolFailureReason ?? "See the log for which step gave up."}";
-        return poolExhaustedTransiently ? LanguageModelResult.TransientFailure(reason) : LanguageModelResult.Failure(reason);
+        var reason = $"The AI provider configured for the {purpose.Value} agent could not serve this request. {failure.Reason ?? "See the log for which step gave up."}";
+        return failure.ExhaustedTransiently ? LanguageModelResult.TransientFailure(reason) : LanguageModelResult.Failure(reason);
     }
 
     static Dictionary<AIProviderId, long> RemainingCapacityByProvider(IReadOnlyDictionary<AIProviderId, ProviderUsageLevel> usageLevels) =>
@@ -216,7 +205,20 @@ public class ProviderAwareLanguageModel(
             .Where(pair => pair.Value.RemainingCapacity is not null)
             .ToDictionary(pair => pair.Key, pair => pair.Value.RemainingCapacity!.Value);
 
-    async Task<(LanguageModelResult? Result, bool ExhaustedTransiently, string? OutOfQuota, string? FailureReason)> CompleteThroughPool(string prompt, LanguageModelPurpose purpose, AIProviderPoolId poolId, ModelTier tier, Effort effort, CancellationToken cancellationToken)
+    async Task<(LanguageModelResult? Result, bool ExhaustedTransiently, string? OutOfQuota, string? FailureReason)> DispatchCompletion(
+        CompletionRequest request, ConfiguredAgent? role, CancellationToken cancellationToken)
+    {
+        (LanguageModelResult? Result, bool ExhaustedTransiently, string? OutOfQuota, string? FailureReason) dispatch = role?.PoolId is { } poolId && !poolId.Equals(AIProviderPoolId.NotSet)
+            ? await CompleteThroughPool(request, poolId, cancellationToken)
+            : (null, false, null, null);
+        if (dispatch.Result is not null) return dispatch;
+        if (role?.ProviderId is not { } providerId || providerId.Equals(AIProviderId.NotSet)) return dispatch;
+
+        var result = await CompleteThroughProvider(request, providerId, cancellationToken);
+        return dispatch with { Result = result };
+    }
+
+    async Task<(LanguageModelResult? Result, bool ExhaustedTransiently, string? OutOfQuota, string? FailureReason)> CompleteThroughPool(CompletionRequest request, AIProviderPoolId poolId, CancellationToken cancellationToken)
     {
         var pool = await readModels.GetInstanceById<AIProviderPool>((EventSourceId)poolId);
         if (pool is null)
@@ -248,7 +250,7 @@ public class ProviderAwareLanguageModel(
             $"No member of pool {poolId} could serve this completion",
             (member, ct) => capacities.TryGetValue(member.ProviderId, out var capacity) && !capacity.CanStartWork
                 ? Task.FromResult(SkipWithoutCapacity(capacity))
-                : AttemptCompletion(prompt, purpose, member, tier, effort, ct),
+                : AttemptCompletion(request, member, ct),
             cancellationToken);
 
         switch (dispatch.Outcome)
@@ -289,9 +291,9 @@ public class ProviderAwareLanguageModel(
         return PoolAttempt<LanguageModelResult>.Skipped($"AI provider {capacity.Provider} cannot start work: it {capacity.Explain()}");
     }
 
-    async Task<PoolAttempt<LanguageModelResult>> AttemptCompletion(string prompt, LanguageModelPurpose purpose, AIProviderPoolMember member, ModelTier tier, Effort effort, CancellationToken cancellationToken)
+    async Task<PoolAttempt<LanguageModelResult>> AttemptCompletion(CompletionRequest request, AIProviderPoolMember member, CancellationToken cancellationToken)
     {
-        var result = await CompleteThroughProvider(prompt, purpose, member.ProviderId, tier, effort, cancellationToken);
+        var result = await CompleteThroughProvider(request, member.ProviderId, cancellationToken);
         if (result is null)
         {
             // Never reached a real call - unconfigured, incompatible, saturated, rate-limited. Not
@@ -322,7 +324,7 @@ public class ProviderAwareLanguageModel(
             : PoolAttempt<LanguageModelResult>.Rejected(result, result.FailureReason);
     }
 
-    async Task<LanguageModelResult?> CompleteThroughProvider(string prompt, LanguageModelPurpose purpose, AIProviderId providerId, ModelTier tier, Effort effort, CancellationToken cancellationToken)
+    async Task<LanguageModelResult?> CompleteThroughProvider(CompletionRequest request, AIProviderId providerId, CancellationToken cancellationToken)
     {
         var provider = await readModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)providerId);
         if (provider is null)
@@ -331,9 +333,9 @@ public class ProviderAwareLanguageModel(
             return null;
         }
 
-        if (!compatibility.Supports(purpose, provider.Type))
+        if (!compatibility.Supports(request.Purpose, provider.Type))
         {
-            logger.ProviderDoesNotSatisfyAgentCapabilities(providerId, provider.Type, purpose);
+            logger.ProviderDoesNotSatisfyAgentCapabilities(providerId, provider.Type, request.Purpose);
             return null;
         }
 
@@ -346,18 +348,18 @@ public class ProviderAwareLanguageModel(
 
         // Mappings and discovered models win. Subscription-only providers without a catalog use
         // official Claude Code aliases, never a guessed Messages API model identifier.
-        var resolution = TierModelResolution.Explain(provider, tier);
+        var resolution = TierModelResolution.Explain(provider, request.Tier);
         if (resolution.Source == TierModelSource.Unsatisfied)
         {
-            logger.NoModelResolvedForTier(providerId, provider.Type, tier, resolution.Reason);
+            logger.NoModelResolvedForTier(providerId, provider.Type, request.Tier, resolution.Reason);
             return LanguageModelResult.Failure(resolution.Reason);
         }
 
         var resolvedModel = resolution.Model;
-        var mode = defaultAgentModes.For(purpose);
+        var mode = defaultAgentModes.For(request.Purpose);
         if (!AIModelCapabilities.Supports(mode, resolvedModel))
         {
-            logger.ModelDoesNotSatisfyAgentCapabilities(providerId, resolvedModel, purpose);
+            logger.ModelDoesNotSatisfyAgentCapabilities(providerId, resolvedModel, request.Purpose);
             return null;
         }
 
@@ -387,7 +389,7 @@ public class ProviderAwareLanguageModel(
             // The stored key is protected at rest with the tenant's Vault-held encryption key (or is
             // a legacy plaintext value the protector passes through) - it is revealed only here, at
             // the moment it is spent, and the revealed value goes no further than the vendor call.
-            var result = await client.Complete(prompt, provider, resolvedModel, effort, cancellationToken);
+            var result = await client.Complete(request.Prompt, provider, resolvedModel, request.Effort, cancellationToken);
             result = result with { ProviderId = providerId };
 
             // The completion path has the vendor's actual status code, unlike a worker's failure
@@ -404,4 +406,8 @@ public class ProviderAwareLanguageModel(
             return result;
         }
     }
+
+    sealed record PoolFailure(bool ExhaustedTransiently, string? OutOfQuota, string? Reason);
+
+    sealed record CompletionRequest(string Prompt, LanguageModelPurpose Purpose, ModelTier Tier, Effort Effort);
 }

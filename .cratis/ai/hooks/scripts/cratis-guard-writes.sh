@@ -206,12 +206,14 @@ function tokens(s, side,    i, c, j, k, t, copy, jumps, first, closing) {
     s = tolower(s)
     if (side == 1) {
         copy = s
+        if (s ~ /[@?*+!]\(/) exit 2
         if (index(s, "{") && index(s, "[")) exit 2
         if (gsub(/\[/, "[", copy) > 64) exit 2
         first = index(s, "{")
         for (k = length(s); k > first; k--) if (substr(s, k, 1) == "}") { closing = k; break }
         if (first && closing) {
             if (index(substr(s, first, closing - first + 1), "/")) exit 2
+            if (substr(s, first, closing - first + 1) ~ /[$`'"\\]/) exit 2
             if (substr(s, 1, first - 1) substr(s, closing + 1) ~ /[^a-z0-9._\/*?,+=:@%-]/) exit 2
             s = substr(s, 1, first) substr(s, closing)
         }
@@ -219,7 +221,8 @@ function tokens(s, side,    i, c, j, k, t, copy, jumps, first, closing) {
     for (i = 1; i <= length(s); i++) {
         c = substr(s, i, 1); t = c; j = i
         if (c == "{") {
-            j = index(substr(s, i), "}"); j = j ? i + j - 1 : i; t = "*"
+            j = index(substr(s, i), "}")
+            if (j) { j = i + j - 1; t = "*" } else j = i
             if (side == 1 && index(substr(s, i, j - i + 1), "/")) exit 2
         }
         N[side]++; A[side, N[side]] = t
@@ -425,7 +428,7 @@ if [ "$reference_mode" = 1 ]; then
     new_content=""
     for candidate in "${candidates[@]}"; do
         reference_pattern=0
-        case "$candidate" in *'*'* | *'?'* | *'['* | *'{'*) reference_pattern=1 ;; esac
+        case "$candidate" in *'*'* | *'?'* | *'['* | *'{'* | *'@('* | *'+('* | *'!('*) reference_pattern=1 ;; esac
         if classify_file "$candidate" "$reference_pattern"; then printf '%s\n' "$candidate"; continue; fi
         # Existing generated files can have arbitrary names; inspect actual glob matches too.
         if [ "$reference_pattern" = 1 ]; then

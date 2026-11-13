@@ -99,6 +99,8 @@ for MCP initialization, source identity and reporting. Without MCP, report
 version, source identity and any blocking codes; MCP `modelRevision` is semantic,
 not the source identity.
 
+A model whose systems name an `extension` also needs `screenplay.lock` and restored contracts: every compile is strict about them (`PLAY1107` not locked, `PLAY1108` not restored, `PLAY1109` contract differs, `PLAY1110` other range, `PLAY1111` malformed lock). Restore with `cratis extension restore` or `screenplay restore [<folder>] [--locked] [--update] [--source <directory>] [--vendor]`; the language server and MCP restore on opening a model root and report warnings until then. See [extension packages](../cratis-screenplay-extension-packages/SKILL.md).
+
 Read [observation comparison](references/observation-comparison.md) when asking whether a running namespace holds what the model declares, or when reading a `conform-namespace` verdict. It differs from model comparison (model versus model) and `conform` (model versus code).
 
 PLAY0516 ordering is presentation-only, not execution. For a wildcard-import
@@ -171,6 +173,8 @@ with ordered imports means future files need explicit imports.
   (PLAY0653). Purposes/checks/processing records and event `subject` are report-only,
   not legal compliance, retention or runtime subject realization. See
   command-surface `references/context.md` and `references/compliance.md`.
+
+`audience`, `availability`, `available` and `provide` diagnostics are PLAY1119-PLAY1141; executing a `provide` reports PLAY0268. Specifications and the reference evaluator treat every gate as available; opaque sources are unsupported, never allowed. See `cratis-screenplay-availability`.
 
 ## Edit strategy
 

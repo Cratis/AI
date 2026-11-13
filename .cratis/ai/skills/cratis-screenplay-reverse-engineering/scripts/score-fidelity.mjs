@@ -150,6 +150,19 @@ function parseArguments(args) {
     return options;
 }
 
+function readCatalog(path) {
+    try {
+        return JSON.parse(readFileSync(path, 'utf8'));
+    } catch (error) {
+        throw new CatalogError(`cannot read ${path}: ${error.message}`);
+    }
+}
+
+function writeScore(options) {
+    const result = score(readCatalog(options.catalog), options.naming ? readCatalog(options.naming) : undefined);
+    console.log(options.json ? JSON.stringify(roundDeep(result)) : format(result));
+}
+
 async function main() {
     try {
         const options = parseArguments(process.argv.slice(2));
@@ -159,15 +172,7 @@ async function main() {
             return;
         }
         if (!options.catalog) throw new CatalogError('Usage: node score-fidelity.mjs <catalog.json> [--naming <naming.json>] [--json] | --self-test');
-        const read = path => {
-            try {
-                return JSON.parse(readFileSync(path, 'utf8'));
-            } catch (error) {
-                throw new CatalogError(`cannot read ${path}: ${error.message}`);
-            }
-        };
-        const result = score(read(options.catalog), options.naming ? read(options.naming) : undefined);
-        console.log(options.json ? JSON.stringify(roundDeep(result)) : format(result));
+        writeScore(options);
     } catch (error) {
         console.error(`score-fidelity: ${error.message}`);
         process.exitCode = error instanceof CatalogError ? 2 : 1;

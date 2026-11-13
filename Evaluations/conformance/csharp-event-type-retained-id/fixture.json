@@ -1,0 +1,14 @@
+{
+  "name": "csharp-event-type-retained-id",
+  "description": "Renaming a persisted event keeps its stored id explicitly, so the plain-id default is not over-applied. Patterns are JS-compatible .NET regex.",
+  "prompt": "Rename the event LegacyOrderPlaced to OrderPlaced in Source/Orders/Placement.cs. Events with the old name are already stored in production under the id order-placed-v1. Write the code to files.",
+  "expected_output": "OrderPlaced carries [EventType(\"order-placed-v1\")] to retain the persisted id.",
+  "profiles": ["cratis/application/csharp"],
+  "languages": ["csharp"],
+  "expected_instruction_paths": [".cratis/ai/rules/application-profile.md"],
+  "checks": [
+    { "type": "file_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "(?<!(?://|/\\*)[^\\r\\n]*)\\[EventType\\(\\s*\"order-placed-v1\"" },
+    { "type": "file_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "(?<!(?://|/\\*)[^\\r\\n]*)\\brecord\\s+OrderPlaced\\b" },
+    { "type": "file_not_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "(?<!(?://|/\\*)[^\\r\\n]*)\\brecord\\s+LegacyOrderPlaced\\b" }
+  ]
+}
