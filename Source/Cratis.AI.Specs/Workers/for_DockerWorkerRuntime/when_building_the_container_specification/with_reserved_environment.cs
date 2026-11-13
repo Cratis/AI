@@ -30,6 +30,6 @@ public class with_reserved_environment : Specification
     [Fact] void should_require_delivery() => _result.Env.ShouldContain($"{WorkerSecrets.RequiredVariableName}=true");
     [Fact] void should_use_the_runtime_secret_path() => _result.Env.ShouldContain($"{WorkerSecrets.PathVariableName}={WorkerSecrets.Path}");
     [Fact] void should_use_the_runtime_prompt_path() => _result.Env.ShouldContain($"{WorkerPromptFile.PathVariableName}={WorkerPromptFile.Path}");
-    [Fact] void should_use_the_runtime_cache() => _result.Env.ShouldContain("CUSTOM_CACHE=/repos");
+    [Fact] void should_not_expose_an_unrequested_cache() => _result.Env.ShouldNotContain("CUSTOM_CACHE=/repos");
     [Fact] void should_preserve_non_reserved_environment() => _result.Env.ShouldContain("UNCHANGED=value");
 }

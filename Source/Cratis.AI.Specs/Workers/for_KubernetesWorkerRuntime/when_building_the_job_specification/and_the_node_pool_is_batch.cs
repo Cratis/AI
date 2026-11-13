@@ -19,7 +19,10 @@ public class and_the_node_pool_is_batch : Specification
 
     void Because()
     {
-        var worker = new WorkerJob(AgentSessionId.New(), "cratis/ai-agents-pi:latest", new Dictionary<string, string>(), new Dictionary<string, string>());
+        var worker = new WorkerJob(AgentSessionId.New(), "cratis/ai-agents-pi:latest", new Dictionary<string, string>(), new Dictionary<string, string>())
+        {
+            Cache = new("v1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", [new("https://example.invalid/owner/repo.git", "owner/repo.git")])
+        };
         _job = KubernetesWorkerRuntime.BuildJobSpecification(
             worker,
             repositoryCachePath: "/cache",
@@ -52,7 +55,7 @@ public class and_the_node_pool_is_batch : Specification
     [Fact] void should_keep_the_network_policy_identity() => _job.Spec.Template.Metadata.Labels["cratis.io/agent-workload"].ShouldEqual("worker");
     [Fact] void should_keep_resource_requests() => _pod.Containers.Single().Resources.Requests["cpu"].ToString().ShouldEqual("1");
     [Fact] void should_keep_resource_limits() => _pod.Containers.Single().Resources.Limits["memory"].ToString().ShouldEqual("4Gi");
-    [Fact] void should_keep_the_read_only_repository_cache() => _pod.Volumes.Single(volume => volume.Name == "repository-cache").PersistentVolumeClaim.ReadOnlyProperty.ShouldEqual(true);
+    [Fact] void should_keep_the_read_only_repository_cache() => _pod.Containers.Single().VolumeMounts.Single(mount => mount.SubPath == "owner/repo.git").ReadOnlyProperty.ShouldEqual(true);
     [Fact] void should_keep_the_scratch_volume() => _pod.Volumes.Single(volume => volume.Name == WorkerScratch.VolumeName).Ephemeral.VolumeClaimTemplate.Spec.StorageClassName.ShouldEqual("scratch");
     [Fact] void should_keep_the_image_pull_secret() => _pod.ImagePullSecrets.Single().Name.ShouldEqual("registry");
     [Fact] void should_keep_service_account_tokens_unmounted() => _pod.AutomountServiceAccountToken.ShouldEqual(false);

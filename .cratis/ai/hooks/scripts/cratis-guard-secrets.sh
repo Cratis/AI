@@ -13,6 +13,9 @@
 # The guard is conservative: a command naming a protected file runs only as a single literal read or template
 # copy, and other such commands must be split into literal calls. Names produced by programs, inherited values,
 # aliases, functions, script files and recursive searches without named files remain outside its text analysis.
+# Allowlisted safe shapes (each commented where it is implemented, each with specs): source-file names classified by
+# real secret patterns, a leading plain NAME=VALUE, quoted commit and pull request text, literal here-document
+# text, and link-target checks. Anything else naming a protected file is refused.
 #
 # Escape hatch for a human who authorized the read — set in the environment the agent harness was started
 # from, never inside the command (an assignment in the command is ignored):
@@ -44,6 +47,78 @@ command_text="$(jq -r '.tool_input.command // empty' <<<"$input")" || parser_fai
 # character: this list must stay a superset of the protected stems the parser can resolve.
 probe=${command_text//\\$'\n'/}
 probe=${probe//[\'\"\\]/}
+# Allowlist for symbolic links: a literal word that is a link, or sits under a linked directory, is followed
+# through the working directory, and the command is refused when the final target is a protected file. This
+# only adds refusals; it never admits a command the text analysis below refuses. The word list is a plain
+# split of the unquoted text, so it can miss a word the awk analysis would see, never the reverse.
+protected_target_name() {
+    local lowered base
+    [ -d "$1" ] && return 1
+    lowered="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" || return 1
+    base="${lowered##*/}"
+    case "$base" in
+        .env.example|.env.sample|.env.template|.env.dist|.env.default|.env.defaults) return 1 ;;
+        .env|.env.*|*.env|.envrc|id_rsa|id_ed25519|id_ecdsa|id_dsa|*.pem|*.key|*.p12|*.pfx|*.jks|*.keystore|*.kdbx|.netrc|.npmrc|.pgpass|.pypirc|.git-credentials|kubeconfig|*.kubeconfig|credentials|credentials.json|secrets.yaml|secrets.yml|token|token.json|tokens.json|github_token) return 0 ;;
+    esac
+    case "/$lowered" in
+        */.kube/*|*/.aws/credentials|*/.docker/config.json|/run/secrets/*|/var/run/secrets/*) return 0 ;;
+    esac
+    return 1
+}
+# Follows a chain of links one step at a time (bash 3.2, BSD readlink: no readlink -f, no realpath). Returns
+# 0 when the chain ends at a protected name or cannot be followed, 1 when it is harmless.
+link_chain_protected() {
+    local current="$1" hops=0 target parent
+    while [ -L "$current" ]; do
+        hops=$((hops + 1))
+        [ "$hops" -le 16 ] || return 0
+        target="$(readlink -- "$current")" || return 0
+        case "$target" in
+            /*) current="$target" ;;
+            *) parent="${current%/*}"; [ "$parent" != "$current" ] || parent=.; current="$parent/$target" ;;
+        esac
+        if protected_target_name "$current"; then return 0; fi
+    done
+    return 1
+}
+linked_protected_word() {
+    local word="$1" directory resolved logical
+    [ -n "$word" ] || return 1
+    case "$word" in
+        --*) return 1 ;;
+        -?*) word="${word#-?}"; [ -n "$word" ] || return 1 ;;
+    esac
+    if [ -L "$word" ]; then link_chain_protected "$word"; return; fi
+    case "$word" in */*) ;; *) return 1 ;; esac
+    directory="${word%/*}"; [ -n "$directory" ] || directory=/
+    [ -d "$directory" ] || return 1
+    resolved="$(cd -P -- "$directory" 2>/dev/null && pwd -P)" || return 1
+    logical="$(cd -- "$directory" 2>/dev/null && pwd)" || return 1
+    [ "$resolved" != "$logical" ] || return 1
+    resolved="$resolved/${word##*/}"
+    if protected_target_name "$resolved"; then return 0; fi
+    link_chain_protected "$resolved"
+}
+first_linked_word() {
+    local link_words link_word link_count=0
+    link_words="$(printf '%s' "$probe" | tr ';|&<>(){}=,' ' ')" || return 0
+    cd -- "$1" || return 0
+    set -f
+    for link_word in $link_words; do
+        link_count=$((link_count + 1))
+        # A command too long to check word by word is refused rather than partly checked.
+        if [ "$link_count" -gt 5000 ]; then printf '%s' "$link_word"; return 0; fi
+        if linked_protected_word "$link_word"; then printf '%s' "$link_word"; return 0; fi
+    done
+}
+link_cwd="$(jq -r '.cwd // empty' <<<"$input")" || parser_failed
+if [ -n "$link_cwd" ] && [ -d "$link_cwd" ]; then
+    linked_word="$(first_linked_word "$link_cwd")" || parser_failed
+    if [ -n "$linked_word" ]; then
+        printf 'BLOCKED by cratis-guard-secrets: %s is a symbolic link or sits under one, and it resolves to a protected file. Use instead: name the real non-credential file; do not read a protected file through a link.\n' "$linked_word" >&2
+        exit 2
+    fi
+fi
 probe_lower="$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" || parser_failed
 case "$probe_lower" in
     *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
@@ -357,9 +432,75 @@ function git_paths(A, M, n,    k, ended, pathspec) {
     }
     return 1
 }
-function literal_shape(A, M, n,    k, j, b, words, count, pattern, ended, w, paths, flags) {
+# Allowlist: a leading NAME=VALUE assignment is admitted before an allowlisted shape only when the name is not
+# one that changes how a program loads, resolves or runs, and the value is plain literal text naming no protected
+# file. A value is never expanded here, so it cannot select what the command reads.
+function safe_assign(w, m,    k, name, value) {
+    k = index(w, "=")
+    if (k < 2 || length(m) != length(w)) return 0
+    name = substr(w, 1, k - 1); value = substr(w, k + 1)
+    if (name !~ /^[A-Z][A-Z0-9_]*$/) return 0
+    # Explicit list of presentation and locale names only; every other name, including any tool or loader
+    # configuration variable, is refused.
+    if (name !~ /^(NO_COLOR|FORCE_COLOR|CLICOLOR|CLICOLOR_FORCE|CI|COLUMNS|LINES|TZ|LANG|LC_ALL)$/) return 0
+    if (value !~ "^[A-Za-z0-9_.,:@%+/-]*$") return 0
+    return stem_scan(value, "raw") == ""
+}
+# Allowlist: a quoted value of a message or title option of `git commit` or `gh pr|issue create|edit|comment`
+# is data, because the shell never runs it as a command and these commands only publish it. The value must be
+# quoted throughout and free of expansion; command and backtick substitutions are already queued as nested
+# commands and refuse the whole command. Path-valued options (-F, --file, --body-file, -C) are not in the
+# table, so naming a protected file through them is still refused. Fills MDATA with the data word positions.
+function data_value(w, m) {
+    if (w == "" || length(m) != length(w)) return 0
+    if (m !~ /[uUcC]/ && !expands(w, m)) return 1
+    return w !~ /^-/ && literal_word(w, m) && stem_scan(w, "raw") == ""
+}
+function data_option(w, m, nextw, nextm, k,    eq) {
+    if (w ~ /^(-m|--message|--title|-t|--body|-b)$/) { if (!data_value(nextw, nextm)) return 0; MDATA[k + 1] = 1; return 2 }
+    eq = index(w, "=")
+    if (w ~ /^--(message|title|body)=/ && data_value(substr(w, eq + 1), substr(m, eq + 1)) && substr(m, 1, eq) !~ /[cC]/) { MDATA[k] = 1; return 1 }
+    return 0
+}
+function plain_value(w, m) { return w != "" && w !~ /^-/ && literal_word(w, m) && stem_scan(w, "raw") == "" }
+function data_shape(A, M, n,    k, step, w, numbers) {
+    delete MDATA
+    if (A[1] == "git" && A[2] == "commit") {
+        for (k = 3; k <= n; k++) {
+            w = A[k]
+            if (w ~ /^(-a|--all|-s|--signoff|-q|--quiet|-v|--verbose|-n|--no-verify|--allow-empty|--no-edit)$/) continue
+            if (w ~ /^-[asqnv]+m$/) { if (!data_value(A[k + 1], M[k + 1])) return 0; MDATA[++k] = 1; continue }
+            step = data_option(w, M[k], A[k + 1], M[k + 1], k)
+            if (step == 0 || (w ~ /^(-t|--title|-b|--body|--title=.*|--body=.*)$/)) return 0
+            k += step - 1
+        }
+        return 1
+    }
+    if (A[1] != "gh" || A[2] !~ /^(pr|issue)$/ || A[3] !~ /^(create|edit|comment)$/) return 0
+    for (k = 4; k <= n; k++) {
+        w = A[k]
+        if (w ~ /^(--draft|--fill|--no-maintainer-edit)$/) continue
+        if (w ~ /^[0-9]+$/ && !numbers++) continue
+        if (w ~ /^(--base|-B|--head|-H|--label|-l|--assignee|-a|--repo|-R|--milestone|--reviewer|-r|--project|-p)$/) {
+            if (!plain_value(A[k + 1], M[k + 1])) return 0
+            k++; continue
+        }
+        step = data_option(w, M[k], A[k + 1], M[k + 1], k)
+        if (step == 0 || w ~ /^(-m|--message|--message=.*)$/) return 0
+        k += step - 1
+    }
+    return 1
+}
+function literal_shape(A, M, n,    k, j, b, words, count, pattern, ended, w, paths, flags, m) {
     if (git_paths(A, M, n)) return 1
     if (metadata_shape(A, M, n)) return 1
+    if (data_shape(A, M, n)) return 1
+    for (k = 1; k <= n && is_assign(A[k]); k++) if (!safe_assign(A[k], M[k])) return 0
+    if (k > 1 && k <= n) {
+        delete SA; delete SM
+        for (m = 0; k <= n; k++) { SA[++m] = A[k]; SM[m] = M[k] }
+        return literal_shape(SA, SM, m)
+    }
     delete words
     for (k = 1; k <= n; k++) {
         if (is_assign(A[k]) || !literal_word(A[k], M[k])) return 0
@@ -517,7 +658,9 @@ function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only) {
         paths_only = nonreader(W, WM, nw)
         regex_slots(W, 1, nw)
         path_git = git_paths(W, WM, nw)
+        msg_shape = data_shape(W, WM, nw)
         for (k = 1; k <= nw; k++) {
+            if (msg_shape && (k in MDATA)) continue
             if (path_git && W[k] !~ /^-/) continue
             if (is_assign(W[k])) set_var(W[k], WM[k])
             if (paths_only && ((k in DATA) || sensitive_path(W[k]) == "")) continue
@@ -575,7 +718,44 @@ function cmdsub(s, i, n,    start, depth, c, j) {
     enqueue(substr(s, start, i - start))
     return i + 1
 }
-function read_heredocs(s, i, n,    h, e, line, cmp, body) {
+# An unquoted here-document delimiter lets the shell run command and backtick substitutions in the body, so
+# their text is analyzed like any other command. A quoted delimiter makes the body plain data.
+function heredoc_substitutions(body,    i, n, c, j) {
+    n = length(body); i = 1
+    while (i <= n) {
+        c = substr(body, i, 1)
+        if (c == "\\") { i += 2; continue }
+        if (c == "$" && substr(body, i + 1, 1) == "(") { i = cmdsub(body, i + 2, n); continue }
+        if (c == "`") {
+            complex = 1
+            j = index(substr(body, i + 1), "`")
+            if (j == 0) { enqueue(substr(body, i + 1)); break }
+            enqueue(substr(body, i + 1, j - 1)); i += j + 1; continue
+        }
+        i++
+    }
+}
+# Program text fed to an interpreter can read any file, so a body that names a protected file is refused.
+# This stays a best-effort text check: the stems below are matched at word boundaries so ordinary program text
+# (process.env.NAME, a key property) is not a finding.
+function interpreter_hit(body,    t, k, stem, from, p, before, after, kind) {
+    t = tolower(body)
+    for (k = 1; k <= ninterp; k++) {
+        stem = INTERP[k]; from = 1
+        while ((p = index(substr(t, from), stem)) > 0) {
+            p += from - 1
+            before = (p > 1) ? substr(t, p - 1, 1) : ""
+            after = substr(t, p + length(stem), 1)
+            kind = INTERP_KIND[k]
+            if (kind == "env" && before !~ /[]a-z0-9_)]/ && after !~ /[a-z0-9_]/) return stem
+            if (kind == "ext" && (after == "\"" || after == "\047" || after == "`")) return stem
+            if (kind == "name" && after !~ /[a-z0-9_]/) return stem
+            from = p + 1
+        }
+    }
+    return ""
+}
+function read_heredocs(s, i, n,    h, e, line, cmp, body, hit) {
     for (h = 1; h <= nheredoc; h++) {
         body = ""
         while (i <= n) {
@@ -587,12 +767,16 @@ function read_heredocs(s, i, n,    h, e, line, cmp, body) {
             body = body line "\n"
         }
         if (hd_shell) enqueue(body)
+        else {
+            if (!HDQ[h]) heredoc_substitutions(body)
+            if (hd_interp && (hit = interpreter_hit(body)) != "") { complex = 1; if (TAINT == "") TAINT = hit }
+        }
     }
-    nheredoc = 0; hd_shell = 0
+    nheredoc = 0; hd_shell = 0; hd_interp = 0
     return i
 }
 function tokenize(s,    i, n, c, c2, j, dash, delim) {
-    n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; wunquoted = 0; nheredoc = 0; hd_shell = 0; quote_boundary = 0
+    n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; wunquoted = 0; nheredoc = 0; hd_shell = 0; hd_interp = 0; quote_boundary = 0
     delete W; delete WP; delete WM
     while (i <= n) {
         c = substr(s, i, 1)
@@ -661,14 +845,15 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             flush_word(); i += 2; dash = 0
             if (substr(s, i, 1) == "-") { dash = 1; i++ }
             while (substr(s, i, 1) == " " || substr(s, i, 1) == "\t") i++
-            delim = ""
+            delim = ""; delim_quoted = 0
             while (i <= n) {
                 c = substr(s, i, 1)
                 if (c ~ /[ \t\n;&|()<>]/) break
                 if (c != "\047" && c != "\"" && c != "\\") delim = delim c
+                else delim_quoted = 1
                 i++
             }
-            nheredoc++; HD[nheredoc] = delim; HDDASH[nheredoc] = dash
+            nheredoc++; HD[nheredoc] = delim; HDDASH[nheredoc] = dash; HDQ[nheredoc] = delim_quoted
             continue
         }
         if (c == "<") {
@@ -1603,6 +1788,7 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
     }
     if (expands(A[s], mask_of(A, s))) return dyn_command(A, s, n)
     b = base(A[s])
+    if (nheredoc > 0 && b ~ /^(node|nodejs|deno|bun|python[0-9.]*|ruby|perl|php|lua|osascript|pwsh|powershell|dotnet|java|jshell|rscript|tclsh|julia|groovy|tsx|ts-node)$/) hd_interp = 1
     if (A[s] == "git") git_content(A, s, n)
     shell_config(A, s, n, b)
     collect_bindings(A, s, n, b)
@@ -1690,11 +1876,13 @@ BEGIN {
     nprobe2 = split(".kube/config .aws/credentials .docker/config.json /proc/1/environ /run/secrets/token /var/run/secrets/token", PROBE2, " ")
     nextension = split("pem key p12 pfx jks keystore kdbx kubeconfig env", EXT, " ")
     ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt set setopt unsetopt emulate grep egrep fgrep rg ag sed awk gawk mawk nawk busybox jq yq gojq jaq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
+    ninterp = split(".env|env .env.local|name .env.production|name .envrc|name id_rsa|name id_ed25519|name id_ecdsa|name id_dsa|name .netrc|name .npmrc|name .pgpass|name .pypirc|name .git-credentials|name kubeconfig|name .kube/|name .aws/|name .docker/config.json|name credentials.json|name secrets.yaml|name secrets.yml|name .pem|ext .key|ext .p12|ext .pfx|ext .jks|ext .keystore|ext .kdbx|ext", INTERP_SPEC, " ")
+    for (i = 1; i <= ninterp; i++) { split(INTERP_SPEC[i], L, "|"); INTERP[i] = L[1]; INTERP_KIND[i] = L[2] }
     nstem = split(".env .pem .key .p12 .pfx .jks .keystore .kdbx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials credential secrets.yaml secrets.yml .docker/ /environ run/secrets", STEM, " ")
     CMD = ENVIRON["GS_COMMAND"]
     for (pass = 1; pass <= 2; pass++) {
         delete queue; queued = 0; qi = 0; delete seen; reports = ""
-        nheredoc = 0; hd_shell = 0; commands = 0; complex = 0; simple_ok = 1; TAINT = ""
+        nheredoc = 0; hd_shell = 0; hd_interp = 0; commands = 0; complex = 0; simple_ok = 1; TAINT = ""
         enqueue(CMD)
         while (qi < queued) { qi++; tokenize(queue[qi]) }
         if (pass == 1 && bindings > 0) continue

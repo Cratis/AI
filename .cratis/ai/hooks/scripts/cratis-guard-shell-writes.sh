@@ -421,8 +421,29 @@ function find_allowed(    i, w, predicates) {
     }
     return predicates > 0
 }
+# Allowlist: `gh pr|issue create|edit|comment` publishes text, it never writes a repository file. Only a title or
+# body given as a literal word is admitted; a file-valued option (--body-file, -F), an expansion, an escape or
+# a glob refuses, and every other option value must be plain text.
+function gh_publish_allowed(    i, w) {
+    for (i = 4; i <= argc; i++) {
+        w = W[i]
+        if (globbed[i]) return 0
+        if (w ~ /^(--title|-t|--body|-b)$/) {
+            if (++i > argc || globbed[i] || W[i] ~ /[$`\\]/) return 0
+            continue
+        }
+        if (w ~ /^(--base|-B|--head|-H|--label|-l|--assignee|-a|--repo|-R|--milestone|--reviewer|-r|--project|-p)$/) {
+            if (++i > argc || W[i] !~ /^[A-Za-z0-9_.,:@%+\/-]+$/ || W[i] ~ /^-/ || W[i] ~ /(^|\/)\./) return 0
+            continue
+        }
+        if (w ~ /^(--draft|--fill)$/ || w ~ /^[0-9]+$/) continue
+        return 0
+    }
+    return 1
+}
 function gh_allowed(    i, w, subcommand, read) {
     subcommand = W[2] " " W[3]
+    if (subcommand ~ /^(pr|issue) (create|edit|comment)$/) return gh_publish_allowed()
     read = subcommand ~ /^(repo (view|list)|issue (view|list|status)|pr (view|list|status|diff|checks)|release (view|list)|run (view|list|watch)|search (issues|prs|repos|commits|code))$/
     if (W[2] != "api" && !read) return 0
     for (i = W[2] == "api" ? 3 : 4; i <= argc; i++) {

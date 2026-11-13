@@ -15,6 +15,12 @@ internal static partial class WorkerRuntimeLog
     [LoggerMessage(LogLevel.Warning, "Refused to launch worker for session {Session}: host-prepared workspace is invalid ({Reason})")]
     internal static partial void InvalidHostWorkspace(this ILogger logger, AgentSessionId session, HostWorkspaceVerdictKind reason);
 
+    [LoggerMessage(LogLevel.Warning, "Refused to launch worker for session {Session}: cache configuration is invalid ({Reason})")]
+    internal static partial void InvalidWorkerCache(this ILogger logger, AgentSessionId session, WorkerCacheMounts.Rejection reason);
+
+    [LoggerMessage(LogLevel.Information, "Worker cache for session {Session}: an uncached repository will use the normal clone path")]
+    internal static partial void MissingWorkerCacheRepository(this ILogger logger, AgentSessionId session);
+
     [LoggerMessage(LogLevel.Debug, "Could not pull image '{Image}' - assuming it exists locally")]
     internal static partial void CouldNotPullImage(this ILogger logger, Exception exception, string image);
 
