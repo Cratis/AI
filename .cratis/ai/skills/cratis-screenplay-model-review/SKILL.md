@@ -151,6 +151,10 @@ Be a sharp business analyst seeing the domain fresh: walk each persona's journey
 ## Independent review
 P5 uses a fresh reviewer who authored nothing in scope; record reviewer/author models or `model: not exposed`, label a same-model review and let the user decide sufficiency. Read lifecycle "Independent review" when arranging P5; the model-family rationale is in `references/report-template.md` ("Independent review").
 
+## Availability and context pass
+
+For a model with `available` or `provide`, check: a gate no persona can satisfy, unreferenced or undeclared audiences, a gate used as authorization (or the reverse), a `provide` whose key cannot be resolved for a command, a rule reading identity-derived values, and specifications that depend on a gate. Read [review checks](../cratis-screenplay-availability/references/review-checks.md).
+
 ## Rules
 - Compiler contracts (defects when the mode needs them): V1 must pass with warnings
   as errors; PLAY0029 means a construct was silently dropped. Current source checks

@@ -304,6 +304,8 @@ choosing a whole action list rather than one labeled command, use block-form
 `when`/`otherwise` on click, double click, select or change:
 [guarded interactions](../cratis-screenplay-ui-composition/references/guarded-interactions.md).
 
+`available` and `provide`: `cratis-screenplay-availability`.
+
 ## How a bare name resolves
 
 **Inside out:** the slice, then the enclosing feature, then the module, then the

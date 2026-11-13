@@ -150,6 +150,8 @@ Ask the batch below only for what the request leaves open: (1) origin of each ac
 Ask `references/review-questions.md` (reachability, forms in disguise, secrets, fan-in,
 collections, invariants, who sees which rows); report a finding only with a domain consequence.
 
+**Gate versus authorize.** A slice that exists only for some tenants, users or the system (a package, a rollout, a switch) takes `available` on the slice or its feature; who may act inside it stays `authorize`. A value a gate or code needs that the request lacks is a slice-level `provide` naming `$context.command.<key>` or `$context.arguments.<key>`. Box Office modules, audiences and Chronicle routing audiences are different things. See `cratis-screenplay-availability`.
+
 ## Public boundaries and view identity
 
 Translate crosses an application boundary (inbound consumes foreign public events; outbound folds private facts into exactly one local public event type); commands never publish public events. Mark view identity with trailing `key`; flat composite view keys bind as ESM v27 (Requires Screenplay 4.204.0) - keep the true identity. Read [references/public-boundaries-and-keys.md](references/public-boundaries-and-keys.md) when a slice crosses an application boundary or a view needs a composite identity.
