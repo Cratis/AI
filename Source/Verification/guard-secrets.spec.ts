@@ -1812,3 +1812,112 @@ test('named backup and variant copies of env files are protected while templates
         ...allowed.map(command => [ALLOW, command] as [string, string]),
     ]);
 });
+
+// Fail-closed allowlist (Cratis/AI#1076): a command is admitted only when it matches a known-safe shape.
+
+test('index-stage git commands on a source file that merely contains a credential word stay allowed', () => {
+    assertVerdicts([
+        [ALLOW, 'git checkout --theirs -- Source/Recording/RecordingCredentials.ts'],
+        [ALLOW, 'git diff :2:Source/Recording/RecordingCredentials.ts'],
+        [ALLOW, 'git show :3:Source/Recording/RecordingCredentials.ts'],
+        [ALLOW, 'git add Source/Recording/RecordingCredentials.ts'],
+        [BLOCK, 'git show :2:.env'],
+        [BLOCK, 'git show :0:id_rsa'],
+    ]);
+});
+
+test('allowlisted git shapes classify files by real secret patterns, not by credential words in a source file name (Cratis/AI#1153)', () => {
+    const sources = ['Source/Recording/RecordingCredentials.ts', 'Source/X/ApiKey.cs', 'Source/X/SecretStore.cs', 'Source/X/TokenProvider.tsx',
+        'docs/Secrets.md', 'Source/X/KeyVault.cs', 'docs/Token.md', 'Source/X/Credentials.tsx', 'Source/X/SecretKey.ts'];
+    const secrets = ['.ENV', 'Source/.Env', 'Source/x/.env.local', 'Source/x/ID_RSA', 'Source/server.PEM', 'Source/k.KEY', 'a/credentials.json',
+        '.aws/credentials', '.docker/config.json', '.kube/config', 'kubeconfig', 'secrets.yaml', 'Source/secrets.yml', '.npmrc', '.netrc',
+        '.pypirc', 'id_ed25519', 'keys.p12', 'a.pfx'];
+    const shapes = ['git add', 'git diff --', 'git checkout --theirs --', 'git restore --staged', 'git rm'];
+    assertVerdicts([
+        ...shapes.flatMap(shape => sources.map(path => [ALLOW, `${shape} ${path}`] as [string, string])),
+        ...shapes.flatMap(shape => secrets.map(path => [BLOCK, `${shape} ${path}`] as [string, string])),
+        [ALLOW, 'git add .env.example'],
+        [BLOCK, 'git add .env.local'],
+    ]);
+});
+
+test('a leading variable assignment is admitted only before a safe shape with a plain value', () => {
+    assertVerdicts([
+        [ALLOW, 'FOO=1 git status'],
+        [ALLOW, 'FOO=1 cat README.md'],
+        [ALLOW, 'FOO=1 cat .env.example'],
+        [BLOCK, 'FOO=1 cat .env'],
+        [BLOCK, 'FOO=.env cat README.md'],
+        [BLOCK, 'GIT_DIR=x cat .env'],
+        [BLOCK, 'PATH=/tmp cat .env.example'],
+        [BLOCK, 'LD_PRELOAD=/tmp/x.so cat .env.example'],
+        [BLOCK, 'BASH_ENV=/tmp/x cat .env.example'],
+        [BLOCK, 'FOO=$(cat .env.example) cat .env.example'],
+        [BLOCK, 'CRATIS_HOOKS_ALLOW_SECRET_READS=1 cat .env'],
+    ]);
+});
+
+test('a quoted commit or pull request message is data while every other shape naming a protected file is refused', () => {
+    assertVerdicts([
+        [ALLOW, 'git commit -m "mentions .env file"'],
+        [ALLOW, "git commit -m 'mentions .env file'"],
+        [ALLOW, 'git commit --message "mentions .env file"'],
+        [ALLOW, 'gh pr create --title x --body "see .env"'],
+        [ALLOW, "gh pr create --title x --body 'see .env'"],
+        [ALLOW, 'gh pr comment 5 --body "see .env"'],
+        [ALLOW, 'gh pr create --body-file notes.md'],
+        [BLOCK, 'git commit -m "$(cat .env)"'],
+        [BLOCK, 'git commit -m "`cat .env`"'],
+        [BLOCK, 'gh pr create --body-file .env'],
+        [BLOCK, 'gh api -F body=@.env x'],
+        [BLOCK, 'git commit -m "x" .env'],
+        [BLOCK, 'git commit -F .env'],
+    ]);
+});
+
+test('heredoc bodies are data only for a quoted delimiter or a plain consumer; substitutions and interpreters are refused', () => {
+    assertVerdicts([
+        [ALLOW, 'cat <<EOF > notes.txt\nmentions .env here\nEOF'],
+        [ALLOW, "cat <<'EOF' > notes.txt\nmentions .env here\nEOF"],
+        [ALLOW, 'cat <<-EOF\n\tmention .env\n\tEOF'],
+        [ALLOW, 'git commit -F - <<EOF\nmention .env\nEOF'],
+        [BLOCK, 'cat <<EOF > notes.txt\n$(cat .env)\nEOF'],
+        [BLOCK, 'git commit -F - <<EOF\n$(cat .env)\nEOF'],
+        [BLOCK, 'node <<EOF\nrequire("fs").readFileSync(".env")\nEOF'],
+        [BLOCK, 'python3 <<EOF\nopen(".env").read()\nEOF'],
+        [BLOCK, 'cat <<EOF | bash\ncat .env\nEOF'],
+        [BLOCK, 'cat <<EOF | node\nrequire("fs").readFileSync(".env")\nEOF'],
+    ]);
+});
+
+test('a link whose target is a protected file is refused while a harmless link is allowed', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-link-target-'));
+    try {
+        writeFileSync(join(directory, '.env'), 'X=1\n');
+        writeFileSync(join(directory, 'plain.txt'), 'x\n');
+        mkdirSync(join(directory, 'sub'));
+        symlinkSync('.env', join(directory, 'notes.txt'));
+        symlinkSync('notes.txt', join(directory, 'chain.txt'));
+        symlinkSync(join(directory, '.env'), join(directory, 'absolute.txt'));
+        symlinkSync('../.env', join(directory, 'sub', 'up.txt'));
+        symlinkSync('plain.txt', join(directory, 'harmless.txt'));
+        symlinkSync('loop.txt', join(directory, 'loop.txt'));
+        for (const [expected, command] of [
+            [BLOCK, 'cat notes.txt'],
+            [BLOCK, 'git add notes.txt'],
+            [BLOCK, 'git add chain.txt'],
+            [ALLOW, 'git add harmless.txt'],
+            [BLOCK, 'cat chain.txt'],
+            [BLOCK, 'cat absolute.txt'],
+            [BLOCK, 'cat sub/up.txt'],
+            [ALLOW, 'cat harmless.txt'],
+            [ALLOW, 'cat plain.txt'],
+        ]) {
+            assert.equal(runGuard(command, {}, directory).verdict, expected, command);
+        }
+        assert.ok([0, 2].includes(runGuard('cat loop.txt', {}, directory).code ?? -1), 'a link loop must not hang or crash');
+        assert.ok([0, 2].includes(runGuard('cat notes.txt', {}, join(directory, 'missing')).code ?? -1), 'a missing directory must not crash');
+    } finally {
+        rmSync(directory, { recursive: true, force: true });
+    }
+});

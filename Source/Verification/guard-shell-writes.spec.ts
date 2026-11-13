@@ -854,3 +854,19 @@ test('the Pi bridge blocks protected writes but permits a protected read', async
         repo.dispose();
     }
 });
+
+test('gh publish commands treat a literal title or body as data and refuse file-valued or expanded input (Cratis/AI#1076)', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [ALLOW, 'gh pr create --title x --body "mentions .mcp.json"'], [ALLOW, 'gh pr comment 5 --body "mentions .mcp.json"'],
+            [ALLOW, 'gh issue create --title "a .mcp.json" --body b --label bug'],
+            [BLOCK, 'gh pr create --body-file .mcp.json'], [BLOCK, 'gh pr create --title x -F .mcp.json'],
+            [BLOCK, 'gh pr create --body "$(cat .mcp.json)"'], [BLOCK, 'gh pr create --body "`cat .mcp.json`"'],
+            [BLOCK, 'gh pr create --body x > .mcp.json'], [BLOCK, 'gh pr create --title x --body "a" --base .mcp.json'],
+            [BLOCK, 'gh pr create --title x --body "a" .mcp.json'], [BLOCK, 'gh pr merge 5 .mcp.json'],
+        ], repo.root);
+    } finally {
+        repo.dispose();
+    }
+});
