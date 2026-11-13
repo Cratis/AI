@@ -109,8 +109,7 @@ Portable bracket classes are kept; ambiguous backslash-bearing classes are widen
 as invalid awk regexes.
 
 **Allowlisted safe shapes (Cratis/AI#1076, #1153).** A command naming a protected file is admitted only when
-it matches one of these shapes; everything else is refused. Each shape has sibling allow and refuse specs in
-`Source/Verification/guard-secrets.spec.ts` (and `guard-shell-writes.spec.ts` for the `gh` shape).
+it matches one of these shapes; everything else is refused. Each shape has sibling allow and refuse specs.
 
 | Shape | Admitted | Still refused |
 | --- | --- | --- |
