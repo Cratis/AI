@@ -6,6 +6,7 @@
 - Status and scope
 - Impact
 - Timeline (UTC)
+- Evidence
 - Verified facts
 - Unverified claims
 - Detection
@@ -29,8 +30,8 @@ versions are generalized.
 
 # Post-mortem: Live data broken after an edge proxy upgrade
 
-Blameless. Status: **Final**. Times UTC on `<date>` unless a row says
-otherwise. Every claim carries a confidence: Verified, Inferred or Unverified.
+Blameless. Status: **Final**. Times UTC; `<date>` is the day of the outage and
+`<date-n>` is n days earlier. A time marked approximate is never Verified. Every claim carries a confidence: Verified, Inferred or Unverified.
 Evidence was gathered read-only from pipeline runs, change requests and
 issues; no cluster access, so pod facts come from cited run data.
 
@@ -69,27 +70,41 @@ acknowledgement, replica recovery).
 ## Timeline (UTC)
 | Time (UTC) | Event | Source | Confidence |
 |---|---|---|---|
-| Day -3, 19:48 | Proxy change opened by an automated agent identity, no linked issue | Change request | Verified |
-| Day -3, 19:54 | Merged with 0 reviews; released at 19:54:52. The release note does not disclose the routing refusal | Change request, release | Verified |
-| Day -3 to -0 | Several later proxy releases all carry the bug | Release list | Verified |
-| Day -1 | A targeted upgrade review of the proxy exists and missed the routing regression | Review notes | Verified |
-| 09:49:55 | Application change merged with 0 reviews; moves the production proxy pin to an affected version | Change request | Verified |
-| **10:08:12** | **The pipeline for an unrelated release checks out the main branch (not the release commit) and updates both proxy deployments. Outage start** | Pipeline run | Verified |
-| 10:29 to 10:31 | A later pipeline run updates only the application; smoke passes | Pipeline run | Verified |
-| 10:47 to 11:08 | A manual production deploy fails rollout verification; unrelated to the bug | Pipeline run | Inferred (from the failure being in rollout verification of a different deployment) |
-| Morning | Agents report production healthy; the health endpoint and TCP probes cannot see the path | Incident notes | Verified |
-| 15:33 | Fix change request opened by a maintainer; his comment at 15:33 is the earliest diagnosis found. First user report | Fix change request | Unverified |
-| 15:39:17 | Fix merged; released at 15:39:31 | Fix change request | Verified |
-| 15:46 | Application pin change opened; root-cause comment at 15:47 | Change request | Verified |
-| 16:11 | An event-schema acknowledgement is added; without it the pipeline stops at the schema guard | Change request comment | Verified |
-| About 16:20 | A manual break-glass patch is blocked: it needs an override from the owner, and the proposed rollback target was the broken version | Incident notes | Verified |
-| About 16:25 | The application deployment is scaled to zero by an unknown actor; a comment says another operator changed replicas | Change request comment | Unverified |
-| 16:41 | Scaled back to one | Change request comment | Verified |
-| 17:32:32 | Pin change merged; pipeline starts 17:32:36, behind two queued runs | Change request | Verified |
-| **18:21:28** | **Both proxies on the fixed version; application ready 18:21:30. Outage end** | Change request comment | Verified |
-| 18:31:49 | Anonymous public check: live paths now answer 401 instead of 404. Signed-in confirmation | Change request comment | Unverified |
+| <date-3> 19:48Z | Proxy change opened by an automated agent identity, no linked issue | Change request | Verified |
+| <date-3> 19:54:52Z | Merged with 0 reviews; released. The release note does not disclose the routing refusal | Change request, release | Verified |
+| <date-3> to <date> (approximate; no single instant) | Several later proxy releases all carry the bug | Release list | Unverified (release times not anchored here) |
+| <date-1> (approximate; time of day unknown) | A targeted upgrade review of the proxy exists and missed the routing regression | Review notes | Unverified (review time not recorded) |
+| <date> 09:49:55Z | Application change merged with 0 reviews; moves the production proxy pin to an affected version | Change request | Verified |
+| **<date> 10:08:12Z** | **The pipeline for an unrelated release checks out the main branch (not the release commit) and updates both proxy deployments. Outage start** | Pipeline run | Verified |
+| <date> 10:29Z to 10:31Z | A later pipeline run updates only the application; smoke passes | Pipeline run | Verified |
+| <date> 10:47Z to 11:08Z | A manual production deploy fails rollout verification; unrelated to the bug | Pipeline run | Inferred (from the failure being in rollout verification of a different deployment) |
+| <date> morning (approximate) | Agents report production healthy; the health endpoint and TCP probes cannot see the path | Incident notes | Unverified (time not anchored) |
+| <date> 15:33Z | Fix change request opened by a maintainer, with the earliest diagnosis comment found | Fix change request | Verified |
+| <date> 15:33Z | A first user report is mentioned; its author and time are not cited | Fix change request | Unverified |
+| <date> 15:39:17Z | Fix merged; released at 15:39:31Z | Fix change request | Verified |
+| <date> 15:46Z | Application pin change opened; root-cause comment at 15:47Z | Change request | Verified |
+| <date> 16:11Z | An event-schema acknowledgement is added; without it the pipeline stops at the schema guard | Change request comment | Verified |
+| <date> about 16:20Z (approximate) | A manual break-glass patch is blocked: it needs an override from the owner, and the proposed rollback target was the broken version | Incident notes | Unverified (approximate time) |
+| <date> about 16:25Z (approximate) | The application deployment is scaled to zero by an unknown actor; a comment says another operator changed replicas | Change request comment | Unverified |
+| <date> 16:41Z | Scaled back to one | Change request comment | Verified |
+| <date> 17:32:32Z | Pin change merged; pipeline starts 17:32:36Z, behind two queued runs | Change request | Verified |
+| **<date> 18:21:28Z** | **Both proxies on the fixed version; application ready 18:21:30. Outage end** | Change request comment | Verified |
+| <date> 18:31:49Z | Anonymous public check: live paths now answer 401 instead of 404 | Change request comment | Verified |
+| <date> 18:31:49Z | Signed-in confirmation of the fix | Change request comment | Unverified |
 
 Durations: total 8h13m16s; to fix release 5h31m; fix release to deployed 2h42m.
+
+## Evidence
+- Pipeline runs for the unrelated release, the later application run and the
+  manual deploy, with the workflow definition.
+- The proxy change request, its release, the fix change request and the
+  application pin change requests, with their comments.
+- The smoke script and the release list.
+- Incident notes kept by the people responding.
+
+**Evidence gaps:** proxy access logs, the cluster audit log and any user-report
+records were not read, so the first failed request, the actor behind the scale
+to zero and the number of affected users are unknown.
 
 ## Verified facts
 - The release commit's proxy pin was not what the pipeline deployed; the
