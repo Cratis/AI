@@ -108,6 +108,21 @@ script is blocked, write it with the edit/write tool and run the script file ins
 Portable bracket classes are kept; ambiguous backslash-bearing classes are widened instead of passed
 as invalid awk regexes.
 
+**Allowlisted safe shapes (Cratis/AI#1076, #1153).** A command naming a protected file is admitted only when
+it matches one of these shapes; everything else is refused. Each shape has sibling allow and refuse specs in
+`Source/Verification/guard-secrets.spec.ts` (and `guard-shell-writes.spec.ts` for the `gh` shape).
+
+| Shape | Admitted | Still refused |
+| --- | --- | --- |
+| Source file whose name only contains a credential word (`RecordingCredentials.ts`) for `git add`, `diff`, `checkout`, `restore`, `rm`, `mv` | Files are classified by real secret patterns (whole file stems such as the env file family, key and certificate extensions, cloud and cluster config files), not by substring | Every real secret pattern in any case or subfolder, and index-stage forms (`:2:`, `:3:`) of them |
+| Leading `NAME=value` before another allowlisted shape | A plain value on a name that does not change how programs load or resolve | Loader, path, shell, git and tool-config names, values naming a protected file, expansions |
+| Quoted message, title or body of `git commit` and `gh pr\|issue create\|edit\|comment` | Literal quoted text is data | File-valued options (`-F`, `--file`, `--body-file`), substitutions, trailing positional paths |
+| Here-document body | Quoted delimiter body, or an unquoted body without substitutions, fed to a plain consumer | Substitutions in an unquoted body, any body fed to an interpreter or shell (permanent: write a script file with the edit tool instead) |
+
+A symbolic link, or a path below a linked directory, is followed through the working directory (bounded hops);
+a chain that ends at a protected name, loops or cannot be followed is refused, so a source-looking link name
+gives no exemption.
+
 Literal `git ls-files` pathspecs are filename metadata, including `-s`/`--stage` and `--debug`,
 so credential-worded source directories do not taint that single command. Literal non-verbose
 `git status`, summary-only `git diff --stat`/`--numstat`/`--shortstat`/`--name-only`/`--name-status`,
@@ -335,7 +350,7 @@ allowances, not general shell execution permission. Output-to-file options such 
 `git diff --output=...` are never exempt, even with a non-protected destination on a line
 that references a protected file.
 
-`gh` (all subcommands), `ag`, `sort`, `uniq`, `cut`, `jq`, `yq`, `less`, `more`, `stat`,
+`gh` (apart from the literal publish shape above), `ag`, `sort`, `uniq`, `cut`, `jq`, `yq`, `less`, `more`, `stat`,
 `file`, `diff`, `cmp`, checksum tools, `realpath`, `dirname`, `basename`, `which` and `type`
 are not on this list: their option surfaces are deliberately not analysed here.
 
