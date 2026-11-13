@@ -89,11 +89,25 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     /// <returns>The container specification.</returns>
     /// <exception cref="ArgumentException">The cache request is invalid.</exception>
     public static CreateContainerParameters BuildContainerSpecificationWithCacheBinds(
-        WorkerJob job, IReadOnlyList<string> cacheBinds, string? repositoryCachePath = null, string? repositoryCacheEnvironmentVariable = null) =>
-        BuildContainerSpecification(job, new SpecificationInputs { CachePath = repositoryCachePath, CacheVariable = repositoryCacheEnvironmentVariable, CacheBinds = cacheBinds });
+        WorkerJob job, IReadOnlyList<string> cacheBinds, string? repositoryCachePath = null, string? repositoryCacheEnvironmentVariable = null)
+    {
+        var plan = WorkerCacheMounts.Create(job.Cache);
+        if (plan.AppliesTo(job, repositoryCachePath))
+        {
+            var allowed = plan.MirrorPaths.Select(repository => $"{WorkerCacheMounts.ContainerPath(repositoryCachePath!, repository)}:{WorkerCacheMounts.ContainerPath(repositoryCachePath!, repository)}:ro")
+                .Append($"{WorkerCacheMounts.ContainerPath(repositoryCachePath!, plan.MemoryDirectory)}:{WorkerCacheMounts.ContainerPath(repositoryCachePath!, plan.MemoryDirectory)}:rw")
+                .ToHashSet(StringComparer.Ordinal);
+            if (cacheBinds.Any(bind => !allowed.Contains(bind)))
+            {
+                throw new ArgumentException("Cache binds must match the job's selected directories and access modes.", nameof(cacheBinds));
+            }
+        }
+        return BuildContainerSpecification(job, new SpecificationInputs { CachePath = repositoryCachePath, CacheVariable = repositoryCacheEnvironmentVariable, CacheBinds = cacheBinds });
+    }
 
     static CreateContainerParameters BuildContainerSpecification(WorkerJob job, SpecificationInputs inputs)
     {
+        WorkerSecrets.ValidateNames(job.Secrets, inputs.CacheVariable);
         var hostPrepared = inputs.HostWorkspacePath is not null;
         var cache = WorkerCacheMounts.Create(job.Cache);
         var binds = cache.AppliesTo(job, inputs.CachePath, hostPrepared) ? inputs.CacheBinds : [];
@@ -154,6 +168,18 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
         name.Equals(WorkerPromptFile.PathVariableName, StringComparison.OrdinalIgnoreCase) ||
         name.Equals(WorkerPromptFile.LegacyVariableName, StringComparison.OrdinalIgnoreCase) ||
         WorkerCacheMounts.IsEnvironmentVariable(name, inputs.CacheVariable);
+
+    /// <summary>Determines whether a secret name is reserved by the runtime.</summary>
+    /// <param name="name">The environment name.</param>
+    /// <param name="cacheVariable">The configured cache environment name.</param>
+    /// <returns>Whether the name must not be supplied as a secret.</returns>
+    internal static bool IsReservedEnvironmentVariable(string name, string? cacheVariable) =>
+        IsExecutionEnvironmentVariable(name) ||
+        IsRuntimeEnvironmentVariable(name, new SpecificationInputs { CacheVariable = cacheVariable }) ||
+        name.Equals(HostWorkspace.ModeVariable, StringComparison.OrdinalIgnoreCase) ||
+        name.Equals(HostWorkspace.ContainerPathVariable, StringComparison.OrdinalIgnoreCase) ||
+        name.Equals(HostWorkspace.HostPathVariable, StringComparison.OrdinalIgnoreCase) ||
+        name.Equals("DIRECT_REPOSITORY_CHECKOUTS", StringComparison.OrdinalIgnoreCase);
 
     static bool IsExecutionEnvironmentVariable(string name) => name.ToUpperInvariant() switch
     {
@@ -225,10 +251,11 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             logger.InvalidHostWorkspace(job.Session, verdict.Kind);
             return WorkerLaunchOutcome.InvalidWorkspace;
         }
-        if (!TryPrepareCache(job, verdict.Path is not null, out _)) return WorkerLaunchOutcome.InvalidCache;
+        WorkerSecrets.ValidateNames(job.Secrets, options.Value.RepositoryCacheEnvironmentVariable);
+        if (!TryPrepareCache(job, verdict.Path is not null, out var cacheBinds)) return WorkerLaunchOutcome.InvalidCache;
         using var client = CreateClient();
 
-        return await Start(client, job, cancellationToken);
+        return await Start(client, job, verdict, cacheBinds, cancellationToken);
     }
 
     /// <summary>
@@ -247,10 +274,15 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
             logger.InvalidHostWorkspace(job.Session, verdict.Kind);
             return WorkerLaunchOutcome.InvalidWorkspace;
         }
-        if (!TryPrepareCache(job, verdict.Path is not null, out _)) return WorkerLaunchOutcome.InvalidCache;
+        WorkerSecrets.ValidateNames(job.Secrets, options.Value.RepositoryCacheEnvironmentVariable);
+        if (!TryPrepareCache(job, verdict.Path is not null, out var cacheBinds)) return WorkerLaunchOutcome.InvalidCache;
+        return await Start(client, job, verdict, cacheBinds, cancellationToken);
+    }
+
+    async Task<WorkerLaunchOutcome> Start(IDockerClient client, WorkerJob job, HostWorkspaceVerdict verdict, IReadOnlyList<string> cacheBinds, CancellationToken cancellationToken)
+    {
         await PullImage(client, job, cancellationToken);
 
-        if (!TryPrepareCache(job, verdict.Path is not null, out var cacheBinds)) return WorkerLaunchOutcome.InvalidCache;
         CreateContainerResponse response;
         try
         {

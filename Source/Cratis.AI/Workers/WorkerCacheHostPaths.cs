@@ -8,8 +8,8 @@ namespace Cratis.AI.Workers;
 /// </summary>
 /// <remarks>
 /// The operator-configured root may itself be a symlink. All descendants must be ordinary directories.
-/// Checks precede binding; trusted cache writers must not rename directories during launch.
-/// Docker has a check-to-bind window, so launch repeats this check immediately before creation.
+/// Checks precede binding. Ancestors must be protected from untrusted writers, and trusted
+/// cache writers must not rename directories during Docker's check-to-bind window.
 /// </remarks>
 internal sealed class WorkerCacheHostPaths
 {
@@ -48,7 +48,7 @@ internal sealed class WorkerCacheHostPaths
     {
         var binds = new List<string>();
         var missing = false;
-        foreach (var repository in mounts.Repositories)
+        foreach (var repository in mounts.MirrorPaths)
         {
             if (!Check(root, repository)) return Invalid();
             var path = WorkerCacheMounts.ContainerPath(root, repository);
@@ -66,6 +66,8 @@ internal sealed class WorkerCacheHostPaths
     static bool Check(string root, string relative)
     {
         var current = root;
+
+        // Inspect every ancestor below the trusted root, not just the selected leaf.
         foreach (var segment in relative.Split('/'))
         {
             current = Path.Combine(current, segment);

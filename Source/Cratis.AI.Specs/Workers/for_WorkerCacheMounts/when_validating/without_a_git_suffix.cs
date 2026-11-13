@@ -5,5 +5,5 @@ namespace Cratis.AI.Workers.for_WorkerCacheMounts.when_validating;
 
 public class without_a_git_suffix : Specification
 {
-    [Fact] void should_refuse_the_path() => WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), ["a/b"]), out _).ShouldBeFalse();
+    [Fact] void should_refuse_the_path() => WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [new("https://example.invalid/repo.git", "a/b")]), out _).ShouldBeFalse();
 }

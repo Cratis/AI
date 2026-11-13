@@ -5,5 +5,5 @@ namespace Cratis.AI.Workers.for_WorkerCacheMounts.when_validating;
 
 public class with_non_ascii_characters : Specification
 {
-    [Fact] void should_refuse_the_path() => WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), ["a/répo.git"]), out _).ShouldBeFalse();
+    [Fact] void should_refuse_the_path() => WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [new("https://example.invalid/repo.git", "a/répo.git")]), out _).ShouldBeFalse();
 }

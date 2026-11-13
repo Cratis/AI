@@ -23,7 +23,7 @@ public class and_a_restricted_checkout_has_a_configured_cache : Specification
         };
         var job = new WorkerJob(AgentSessionId.New(), "worker:latest", environment, new Dictionary<string, string>())
         {
-            Cache = new("v1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", ["owner/repo.git"])
+            Cache = new("v1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", [new("https://example.invalid/owner/repo.git", "owner/repo.git")])
         };
         _result = KubernetesWorkerRuntime.BuildJobSpecification(job, "/repos", "repository-cache", "CUSTOM_CACHE");
         environment["DIRECT_REPOSITORY_CHECKOUTS"] = string.Empty;

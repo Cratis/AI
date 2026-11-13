@@ -182,6 +182,7 @@ public class KubernetesWorkerRuntime(
         WorkerScratch? scratch = null,
         TimeSpan? workerDeadline = null)
     {
+        WorkerSecrets.ValidateNames(job.Secrets, repositoryCacheEnvironmentVariable);
         var name = DockerWorkerRuntime.NameFor(job.Session);
         var inputs = new SpecificationInputs
         {
@@ -300,6 +301,7 @@ public class KubernetesWorkerRuntime(
             logger.InvalidWorkerCache(job.Session, cache.Reason);
             return WorkerLaunchOutcome.InvalidCache;
         }
+        WorkerSecrets.ValidateNames(job.Secrets, options.Value.RepositoryCacheEnvironmentVariable);
         var files = BuildMountedFiles(job);
         var sizes = files.Select(file => new { file.Key, Bytes = (long)Encoding.UTF8.GetByteCount(file.Value) }).ToArray();
         var totalBytes = sizes.Sum(file => file.Bytes);
@@ -394,12 +396,12 @@ public class KubernetesWorkerRuntime(
             volumes.Add(inputs.Cache.Volume);
             mounts.AddRange(inputs.Cache.Mounts);
         }
-        List<V1Container>? initContainers = null;
+        List<V1Container>? initContainers = inputs.Cache.Verification is { } verification ? [verification] : null;
         if (inputs.Workspace.IsSet)
         {
             volumes.Add(inputs.Workspace.ToVolume());
             mounts.Add(inputs.Workspace.ToWorkspaceMount());
-            initContainers = [inputs.Workspace.ToInitContainer(job.Image)];
+            (initContainers ??= []).Add(inputs.Workspace.ToInitContainer(job.Image));
         }
         return (volumes, mounts, initContainers);
     }

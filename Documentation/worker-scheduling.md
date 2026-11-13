@@ -39,17 +39,30 @@ read-write. No mount covers the cache root or the `.agent-memory` parent.
 
 `MemoryKey` is exactly `v1-` followed by 64 lowercase hexadecimal characters.
 The consumer derives this opaque key from its identity context. `Repositories`
-contains at most 256 relative paths, each at most 512 characters. Slash-separated
+is an `IReadOnlyList<WorkerCacheRepository>`: each entry has `CloneUrl` and
+`MirrorPath`. `CloneUrl` must be a well-formed absolute HTTPS URL without user
+information, query, fragment, whitespace or control characters. `MirrorPath` is
+the consumer-selected relative mirror path (for example,
+`git.example/owner/team/repo.git`), not a path inferred from the URL. The list
+contains at most 256 entries; each mirror path is at most 512 characters. Slash-separated
 segments contain only ASCII letters, digits, dots, underscores and hyphens, cannot
 start with a dot, and cannot be empty. The last segment must have a nonempty name
 ending in `.git`. Absolute paths, traversal, backslashes, control characters and
-nested repository paths are invalid. Ordinal duplicates collapse; an empty list
-selects memory only.
+nested repository paths are invalid. Duplicate clone URLs or mirror paths are
+refused using ordinal comparison; an empty list selects memory only. URL spelling
+is preserved, including case, trailing slash and `.git` suffix.
 
 The runtime sets `DIRECT_MEMORY_PATH` to
 `<cache>/.agent-memory/<key>/memory.jsonl` and the configured cache environment
-variable to `<cache>`. It always removes caller-supplied `DIRECT_MEMORY_PATH`,
-`DIRECT_REPOSITORY_CACHE` and the configured cache variable, case-insensitively.
+variable to `<cache>`. It also sets `CRATIS_WORKER_REPOSITORY_MIRRORS` to one line
+per repository: `<CloneUrl>\t<container mount path>` (a literal tab, newline-separated).
+The entrypoint selects a mirror only for an ordinal, exact clone-URL match to that
+mapping. No match, an empty mapping or an invalid bare mirror uses a full network
+clone, without guessing other paths. It always removes caller-supplied
+`DIRECT_MEMORY_PATH`, `DIRECT_REPOSITORY_CACHE`, `CRATIS_WORKER_REPOSITORY_MIRRORS`
+and the configured cache variable, case-insensitively. Worker secrets also reject
+these and all runtime-owned/execution environment names with a clear error, before
+runtime resources are created.
 Malformed requests return `WorkerLaunchOutcome.InvalidCache` before engine or
 cluster resources are created; fix the job rather than retrying it unchanged.
 Direct calls to the pure specification builders throw `ArgumentException` instead.
@@ -63,13 +76,19 @@ previous whole-claim read-only mounts did not provide persistent writable memory
 Pre-create its directory with ownership or group permissions allowing uid/gid 1655
 to write, accounting for `fsGroup` and the NFS export's permission rules. A
 kubelet-created directory may be root-owned and not writable by the worker.
-Only list mirrors already cached. If an absent subPath becomes an empty directory,
-the entrypoint uses the normal network clone path rather than a shared clone.
-Target-cluster subPath behavior and NFS write permissions require deployment checks.
+Only list mirrors already cached. Before the worker starts, a non-root init
+container using the same image mounts the PVC root read-only, with no worker
+secrets and only a minimal environment. It checks every selected memory and mirror
+component is a real directory, not a symlink, with its canonical path equal to the
+expected path. Any missing directory or mismatch refuses startup. The image must
+provide `/bin/sh` and `realpath`. Null cache requests add no verifier. Worker
+mounts remain memory read-write and mirrors read-only. An existing empty or invalid
+mirror uses the normal network clone path. Protect ancestors from untrusted writers
+throughout pod startup; the verifier is not a lock on the PVC. Target-cluster
+subPath behavior and NFS write permissions require deployment checks.
 
 Docker checks descendants of the trusted configured cache root for symlinks,
-reparse points and non-directories before launch and again immediately before
-container creation. The root itself may be a symlink. Missing mirrors are omitted
+reparse points and non-directories once before contacting Docker. The root itself may be a symlink. Missing mirrors are omitted
 and clone normally. Docker creates a missing memory leaf with Unix mode `0770`
 without changing existing ownership or parent permissions; operators must still
 provide the worker's group access. Unsuitable paths or creation failures return

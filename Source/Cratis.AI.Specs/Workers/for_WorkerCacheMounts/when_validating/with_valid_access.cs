@@ -9,9 +9,9 @@ public class with_valid_access : Specification
     WorkerCacheMounts _plan;
     bool _valid;
 
-    void Because() => _valid = WorkerCacheMounts.TryCreate(new(Key, ["repo.git", "a/b/c.git"]), out _plan);
+    void Because() => _valid = WorkerCacheMounts.TryCreate(new(Key, [new("https://example.invalid/repo.git", "repo.git"), new("https://example.invalid/a/b/c.git", "a/b/c.git")]), out _plan);
 
     [Fact] void should_accept_the_request() => _valid.ShouldBeTrue();
-    [Fact] void should_preserve_nested_owner_segments() => _plan.Repositories.ShouldContain("a/b/c.git");
+    [Fact] void should_preserve_nested_owner_segments() => _plan.MirrorPaths.ShouldContain("a/b/c.git");
     [Fact] void should_select_only_the_memory_key() => _plan.MemoryDirectory.ShouldEqual($".agent-memory/{Key}");
 }

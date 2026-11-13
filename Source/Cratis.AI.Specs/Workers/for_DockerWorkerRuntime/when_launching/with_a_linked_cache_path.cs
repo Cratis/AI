@@ -29,7 +29,7 @@ public class with_a_linked_cache_path : Specification
             var runtime = new DockerWorkerRuntime(Options.Create(options), Microsoft.Extensions.Logging.Abstractions.NullLogger<DockerWorkerRuntime>.Instance);
             var job = new WorkerJob(AgentSessionId.New(), "worker", new Dictionary<string, string>(), new Dictionary<string, string>())
             {
-                Cache = new("v1-" + new string('a', 64), ["owner/repo.git"])
+                Cache = new("v1-" + new string('a', 64), [new("https://example.invalid/owner/repo.git", "owner/repo.git")])
             };
             var client = Substitute.For<IDockerClient>();
             (await runtime.Start(job, TestContext.Current.CancellationToken)).ShouldEqual(WorkerLaunchOutcome.InvalidCache);

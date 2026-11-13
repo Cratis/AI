@@ -53,8 +53,8 @@ public static class Program
     {
         var cache = cacheDirectory.FullName;
         var repository = repositoryDirectory.FullName;
-        Directory.CreateDirectory(Path.Combine(cache, "owner"));
-        await Run("git", ["clone", "--bare", repository, Path.Combine(cache, "owner", "allowed.git")]);
+        Directory.CreateDirectory(Path.Combine(cache, "example.invalid", "owner"));
+        await Run("git", ["clone", "--bare", repository, Path.Combine(cache, "example.invalid", "owner", "allowed.git")]);
         foreach (var key in new[] { MemoryKey, OtherKey, "Cratis" })
         {
             var directory = Path.Combine(cache, ".agent-memory", key);
@@ -78,7 +78,7 @@ public static class Program
         if (mode == "restricted") environment["DIRECT_REPOSITORY_CHECKOUTS"] = "[]";
         var job = new WorkerJob(AgentSessionId.New(), Image, environment, new Dictionary<string, string>())
         {
-            Cache = mode == "absent" ? null : new(MemoryKey, ["owner/allowed.git"])
+            Cache = mode == "absent" ? null : new(MemoryKey, [new("https://example.invalid/owner/allowed.git", "example.invalid/owner/allowed.git")])
         };
         var arguments = new List<string> { "run", "--rm", "--network", "none", "--user", "1655:1655", "--entrypoint", "sh" };
         AddCacheArguments(arguments, runtime, job, cacheDirectory);
@@ -102,7 +102,7 @@ public static class Program
         var cache = cacheDirectory.FullName;
         if (runtime == "Docker")
         {
-            var repository = Path.Combine(cache, "owner", "allowed.git");
+            var repository = Path.Combine(cache, "example.invalid", "owner", "allowed.git");
             var memory = Path.Combine(cache, ".agent-memory", MemoryKey);
             var specification = DockerWorkerRuntime.BuildContainerSpecificationWithCacheBinds(
                 job,
@@ -132,13 +132,14 @@ public static class Program
     static string ScopedCheck(DirectoryInfo cacheDirectory)
     {
         var cache = cacheDirectory.FullName;
-        var repository = $"{cache}/owner/allowed.git";
+        var repository = $"{cache}/example.invalid/owner/allowed.git";
         return $"git -c safe.directory='{repository}' clone --shared '{repository}' /tmp/checkout && " +
             "test \"$(cat /tmp/checkout/sentinel)\" = out-of-grant-source && " +
             "echo local > /tmp/checkout/local && git -C /tmp/checkout add local && " +
             "git -C /tmp/checkout -c user.name=Fixture -c user.email=fixture@example.invalid commit -m local && " +
             $"! test -e '{cache}/outside/private.git' && ! test -e '{cache}/.agent-memory/{OtherKey}' && ! test -e '{cache}/.agent-memory/Cratis' && " +
             $"! touch '{repository}/worker-write' && ! sh -c \"echo change >> '{repository}/config'\" && " +
+            $"test \"$CRATIS_WORKER_REPOSITORY_MIRRORS\" = 'https://example.invalid/owner/allowed.git\t{repository}' && " +
             $"test \"$DIRECT_MEMORY_PATH\" = '{cache}/.agent-memory/{MemoryKey}/memory.jsonl' && echo own-memory >> \"$DIRECT_MEMORY_PATH\"";
     }
 

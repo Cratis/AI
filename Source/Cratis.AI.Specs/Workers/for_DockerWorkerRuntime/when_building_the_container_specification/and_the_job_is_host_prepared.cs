@@ -11,7 +11,7 @@ public class and_the_job_is_host_prepared : for_HostWorkspace.given.a_workspace
 
     void Establish() => _job = _job with
     {
-        Cache = new("v1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", ["owner/repo.git"]),
+        Cache = new("v1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", [new("https://example.invalid/owner/repo.git", "owner/repo.git")]),
         EnvironmentVariables = new Dictionary<string, string>(_job.EnvironmentVariables)
         {
             [HostWorkspace.ContainerPathVariable] = "/caller-path",

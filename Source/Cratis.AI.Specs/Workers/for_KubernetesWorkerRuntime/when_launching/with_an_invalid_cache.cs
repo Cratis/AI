@@ -7,7 +7,7 @@ namespace Cratis.AI.Workers.for_KubernetesWorkerRuntime.when_launching;
 
 public class with_an_invalid_cache : given.a_launch
 {
-    void Establish() => _job = _job with { Cache = new("owner", ["owner/repo.git"]) };
+    void Establish() => _job = _job with { Cache = new("owner", [new("https://example.invalid/owner/repo.git", "owner/repo.git")]) };
     async Task Because() => _outcome = await Start();
 
     [Fact] void should_refuse_the_cache_request() => _outcome.ShouldEqual(WorkerLaunchOutcome.InvalidCache);

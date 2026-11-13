@@ -17,7 +17,7 @@ public class with_an_invalid_cache : Specification
     async Task should_refuse_before_contacting_the_engine(string key, string repository)
     {
         var runtime = new DockerWorkerRuntime(Options.Create(new WorkerRuntimeOptions { DockerEndpoint = "http://127.0.0.1:1" }), Microsoft.Extensions.Logging.Abstractions.NullLogger<DockerWorkerRuntime>.Instance);
-        var job = new WorkerJob(AgentSessionId.New(), "worker", new Dictionary<string, string>(), new Dictionary<string, string>()) { Cache = new(key, [repository]) };
+        var job = new WorkerJob(AgentSessionId.New(), "worker", new Dictionary<string, string>(), new Dictionary<string, string>()) { Cache = new(key, [new("https://example.invalid/repo.git", repository)]) };
         var client = Substitute.For<IDockerClient>();
         (await runtime.Start(job, TestContext.Current.CancellationToken)).ShouldEqual(WorkerLaunchOutcome.InvalidCache);
         (await runtime.Start(client, job, TestContext.Current.CancellationToken)).ShouldEqual(WorkerLaunchOutcome.InvalidCache);

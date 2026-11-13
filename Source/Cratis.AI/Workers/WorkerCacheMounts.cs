@@ -10,6 +10,9 @@ namespace Cratis.AI.Workers;
 /// </summary>
 internal sealed partial class WorkerCacheMounts
 {
+    /// <summary>The runtime-owned exact clone URL mapping variable.</summary>
+    internal const string MirrorsVariable = "CRATIS_WORKER_REPOSITORY_MIRRORS";
+
     /// <summary>Identifies a cache rejection without including caller-supplied values.</summary>
     internal enum Rejection
     {
@@ -25,6 +28,12 @@ internal sealed partial class WorkerCacheMounts
         /// <summary>A repository path is invalid.</summary>
         RepositoryPath,
 
+        /// <summary>A clone URL is invalid.</summary>
+        RepositoryUrl,
+
+        /// <summary>A clone URL or mirror path is repeated.</summary>
+        DuplicateRepository,
+
         /// <summary>Repository paths overlap.</summary>
         NestedRepositories,
 
@@ -38,8 +47,11 @@ internal sealed partial class WorkerCacheMounts
     /// <summary>Gets the relative memory-key directory.</summary>
     internal string MemoryDirectory { get; private init; } = string.Empty;
 
-    /// <summary>Gets the distinct relative mirror paths.</summary>
-    internal IReadOnlyList<string> Repositories { get; private init; } = [];
+    /// <summary>Gets the validated exact clone URL mappings.</summary>
+    internal IReadOnlyList<WorkerCacheRepository> Repositories { get; private init; } = [];
+
+    /// <summary>Gets the selected relative mirror paths.</summary>
+    internal IEnumerable<string> MirrorPaths => Repositories.Select(repository => repository.MirrorPath);
 
     /// <summary>Gets the rejection category.</summary>
     internal Rejection Reason { get; private init; }
@@ -60,7 +72,7 @@ internal sealed partial class WorkerCacheMounts
         {
             IsRequested = true,
             MemoryDirectory = $".agent-memory/{cache.MemoryKey}",
-            Repositories = cache.Repositories.Distinct(StringComparer.Ordinal).ToArray()
+            Repositories = cache.Repositories.ToArray()
         };
         return true;
     }
@@ -77,6 +89,7 @@ internal sealed partial class WorkerCacheMounts
     /// <param name="configuredVariable">The configured cache variable.</param>
     /// <returns>Whether the runtime owns the variable.</returns>
     internal static bool IsEnvironmentVariable(string name, string? configuredVariable) =>
+        name.Equals(MirrorsVariable, StringComparison.OrdinalIgnoreCase) ||
         name.Equals("DIRECT_MEMORY_PATH", StringComparison.OrdinalIgnoreCase) ||
         name.Equals("DIRECT_REPOSITORY_CACHE", StringComparison.OrdinalIgnoreCase) ||
         name.Equals(configuredVariable, StringComparison.OrdinalIgnoreCase);
@@ -108,6 +121,7 @@ internal sealed partial class WorkerCacheMounts
             yield return new(variable, root);
         }
         yield return new("DIRECT_MEMORY_PATH", ContainerPath(root, $"{MemoryDirectory}/memory.jsonl"));
+        yield return new(MirrorsVariable, string.Join('\n', Repositories.Select(repository => $"{repository.CloneUrl}\t{ContainerPath(root, repository.MirrorPath)}")));
     }
 
     static Rejection Validate(WorkerCacheAccess? cache)
@@ -115,8 +129,31 @@ internal sealed partial class WorkerCacheMounts
         if (cache is null) return Rejection.None;
         if (cache.MemoryKey is null || !MemoryKeyPattern().IsMatch(cache.MemoryKey)) return Rejection.MemoryKey;
         if (cache.Repositories is null || cache.Repositories.Count > 256) return Rejection.RepositoryList;
-        if (cache.Repositories.Any(path => !IsRepository(path))) return Rejection.RepositoryPath;
-        return HasNestedPaths(cache.Repositories) ? Rejection.NestedRepositories : Rejection.None;
+        return ValidateRepositories(cache.Repositories);
+    }
+
+    static Rejection ValidateRepositories(IReadOnlyList<WorkerCacheRepository> repositories)
+    {
+        if (repositories.Any(repository => repository is null || !IsRepository(repository.MirrorPath))) return Rejection.RepositoryPath;
+        if (repositories.Any(repository => !IsCloneUrl(repository.CloneUrl))) return Rejection.RepositoryUrl;
+        var paths = repositories.Select(repository => repository.MirrorPath).ToArray();
+        if (HasDuplicates(paths) || HasDuplicates(repositories.Select(repository => repository.CloneUrl))) return Rejection.DuplicateRepository;
+        return HasNestedPaths(paths) ? Rejection.NestedRepositories : Rejection.None;
+    }
+
+    static bool HasDuplicates(IEnumerable<string> values)
+    {
+        var seen = new HashSet<string>(StringComparer.Ordinal);
+        return values.Any(value => !seen.Add(value));
+    }
+
+    static bool IsCloneUrl(string? url)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri)) return false;
+        if (uri.Scheme != Uri.UriSchemeHttps || !uri.IsWellFormedOriginalString()) return false;
+        if (url.Any(char.IsWhiteSpace) || url.Any(char.IsControl)) return false;
+        if (url.Contains('?') || url.Contains('#')) return false;
+        return !url[8..].Split('/')[0].Contains('@');
     }
 
     static bool IsRepository(string? path)

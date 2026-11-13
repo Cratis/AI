@@ -9,5 +9,5 @@ public class with_nested_paths : Specification
     [InlineData("a/b.git", "a/b.git/x.git")]
     [InlineData("a/b.git/x.git", "a/b.git")]
     void should_refuse_overlapping_mounts(string first, string second) =>
-        WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [first, second]), out _).ShouldBeFalse();
+        WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [new("https://example.invalid/first.git", first), new("https://example.invalid/second.git", second)]), out _).ShouldBeFalse();
 }

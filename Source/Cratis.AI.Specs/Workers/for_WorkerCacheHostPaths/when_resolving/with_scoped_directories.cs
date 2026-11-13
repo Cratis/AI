@@ -17,7 +17,7 @@ public class with_scoped_directories : Specification
         _memory = Path.Combine(_root.FullName, ".agent-memory", Key);
     }
 
-    void Because() => _result = WorkerCacheHostPaths.Resolve(WorkerCacheMounts.Create(new(Key, ["owner/allowed.git", "owner/missing.git"])), _root.FullName, true);
+    void Because() => _result = WorkerCacheHostPaths.Resolve(WorkerCacheMounts.Create(new(Key, [new("https://example.invalid/owner/allowed.git", "owner/allowed.git"), new("https://example.invalid/owner/missing.git", "owner/missing.git")])), _root.FullName, true);
 
     [Fact] void should_accept_the_directories() => _result.IsValid.ShouldBeTrue();
     [Fact] void should_bind_the_repository_read_only() => _result.Binds.ShouldContain($"{_root.FullName}/owner/allowed.git:{_root.FullName}/owner/allowed.git:ro");

@@ -1110,9 +1110,16 @@ clone_into_workspace() {
     local name="${without_suffix##*/}"
     local rest="${without_suffix%/*}"
     local owner="${rest##*/}"
-    local cache_repo="${DIRECT_REPOSITORY_CACHE:-}/${owner}/${name}.git"
+    local cache_repo="" mapping_url mapping_path
+    while IFS=$'\t' read -r mapping_url mapping_path; do
+        if [[ "$mapping_url" == "$url" && -n "$mapping_path" ]]; then
+            cache_repo="$mapping_path"
+            break
+        fi
+    done <<< "${CRATIS_WORKER_REPOSITORY_MIRRORS:-}"
 
-    if [[ -n "${DIRECT_REPOSITORY_CACHE:-}" && -d "$cache_repo/objects" && -d "$cache_repo/refs" && -f "$cache_repo/HEAD" ]]; then
+    if [[ -n "$cache_repo" && -d "$cache_repo/objects" && -d "$cache_repo/refs" && -f "$cache_repo/HEAD" ]] &&
+        [[ "$(git -c safe.directory="$cache_repo" --git-dir="$cache_repo" rev-parse --is-bare-repository 2>/dev/null)" == true ]]; then
         # What the work branch is created from. Empty means "wherever the checkout already is",
         # which is what an existing checkout and a failed refresh both fall back to.
         local -a start_point=()

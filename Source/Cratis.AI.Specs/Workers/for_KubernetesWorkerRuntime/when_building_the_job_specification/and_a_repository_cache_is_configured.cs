@@ -18,5 +18,6 @@ public class and_a_repository_cache_is_configured : Specification
             "DIRECT_REPOSITORY_CACHE");
 
     [Fact] void should_not_mount_an_unrequested_cache() => _result.Spec.Template.Spec.Volumes.ShouldNotContain(volume => volume.PersistentVolumeClaim is not null);
+    [Fact] void should_not_verify_an_unrequested_cache() => _result.Spec.Template.Spec.InitContainers.ShouldBeNull();
     [Fact] void should_not_set_cache_environment() => _result.Spec.Template.Spec.Containers[0].Env.ShouldNotContain(variable => variable.Name == "DIRECT_REPOSITORY_CACHE");
 }

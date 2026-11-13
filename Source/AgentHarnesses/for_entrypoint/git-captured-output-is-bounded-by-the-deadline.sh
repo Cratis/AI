@@ -33,6 +33,7 @@ cat > "$root/bin/git" <<'STUB'
 #!/usr/bin/env bash
 printf '%s\n' "$*" >> "$CALLS"
 [[ "$GIT_TERMINAL_PROMPT" == 0 && ${GIT_ASKPASS+x} && -z "$GIT_ASKPASS" && ${SSH_ASKPASS+x} && -z "$SSH_ASKPASS" && -z ${SSH_ASKPASS_REQUIRE+x} && "$GCM_INTERACTIVE" == never && "$GIT_SSH_COMMAND" == *BatchMode=yes* ]] || exit 90
+if [[ "$*" == *' rev-parse --is-bare-repository' ]]; then echo true; exit 0; fi
 case "$MODE:$*" in
     leaky-ls-remote:ls-remote\ *)
         # Job control gives this helper its own process group, outside timeout's signals.
@@ -60,6 +61,9 @@ configure_git_deadline
 clone_into_workspace https://github.com/o/r.git "$root/$MODE"
 SCENARIO
 export root PATH="$root/bin:$PATH" CALLS="$root/calls" PIDS="$root/pids" TMPDIR="$root/captures"
+mkdir -p "$root/cache/o/r.git/objects" "$root/cache/o/r.git/refs"
+touch "$root/cache/o/r.git/HEAD"
+export CRATIS_WORKER_REPOSITORY_MIRRORS=$'https://github.com/o/r.git\t'"$root/cache/o/r.git"
 export DIRECT_REPOSITORY_CACHE="$root/cache" DIRECT_BRANCH=direct/spec CRATIS_GIT_DEADLINE_SECONDS=1
 # shellcheck source=/dev/null
 . "$root/functions"

@@ -43,9 +43,18 @@ of those tools must also be checked end to end.
 Both runtimes use `WorkerJob.Cache` (`WorkerCacheAccess`) to select read-only
 repository mirrors and one read-write `.agent-memory/<key>` directory. Null mounts
 nothing, even with cache options configured. Keys are `v1-` plus 64 lowercase hex
-characters; mirror paths are validated relative `.git` paths. The runtime owns
-`DIRECT_MEMORY_PATH`, `DIRECT_REPOSITORY_CACHE` and the configured cache environment
-name, filtering caller values case-insensitively. Invalid requests return
+characters. `Repositories` is `IReadOnlyList<WorkerCacheRepository>`, with
+`CloneUrl` (absolute HTTPS, no user information/query/fragment/whitespace/control
+characters) and `MirrorPath` (validated relative `.git` directory). Duplicate URLs
+or paths are refused using ordinal comparison. Direct uses host-qualified paths
+such as `git.example/owner/repo.git`; the runtime does not infer them from URLs.
+The runtime owns `DIRECT_MEMORY_PATH`, `DIRECT_REPOSITORY_CACHE`,
+`CRATIS_WORKER_REPOSITORY_MIRRORS` and the configured cache environment name,
+filtering caller values case-insensitively. Secrets cannot use these or other
+runtime-owned/execution environment names. The mapping is newline-separated
+`<CloneUrl>\t<container mount path>` with a literal tab. Only an exact URL match to
+a valid bare mirror selects shared cloning; otherwise the entrypoint clones over
+the network without path guessing. Invalid requests return
 `WorkerLaunchOutcome.InvalidCache` before engine or cluster creation. Restricted
 checkout and host-prepared jobs mount neither mirrors nor persistent memory.
 
@@ -54,7 +63,12 @@ workers across nodes), list only existing mirrors, and pre-create the memory-key
 directory writable by uid/gid 1655 using suitable ownership/group permissions.
 Account for `fsGroup` and NFS permissions. Repository subPaths are read-only; only
 the memory-key subPath is writable. This adds persistent writable memory where
-the earlier whole-volume read-only mount could not provide it.
+the earlier whole-volume read-only mount could not provide it. A non-root init
+container using the same worker image verifies every selected path component and
+its canonical path from a read-only PVC-root mount, without job secrets. Missing,
+linked or noncanonical directories refuse worker startup. Images need `/bin/sh`
+and `realpath`. Null cache requests add no verifier. Protect directory ancestors
+from untrusted writers throughout startup.
 
 Docker omits missing mirrors, refuses linked or unsuitable descendants, and creates
 a missing memory leaf with Unix mode `0770`. Existing ownership is unchanged;

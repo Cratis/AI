@@ -9,5 +9,5 @@ public class with_a_bare_git_suffix : Specification
     [InlineData("a/.git")]
     [InlineData(".git")]
     void should_refuse_the_path(string path) =>
-        WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [path]), out _).ShouldBeFalse();
+        WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [new("https://example.invalid/repo.git", path)]), out _).ShouldBeFalse();
 }

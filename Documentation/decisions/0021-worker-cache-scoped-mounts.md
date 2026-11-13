@@ -35,12 +35,20 @@ whole-volume read-only mount could not provide persistent writable memory.
 ## Decision
 
 A job selects its cache through `WorkerJob.Cache`, a typed `WorkerCacheAccess`
-containing an opaque memory key and relative repository mirror paths. The runtime
+containing an opaque memory key and `WorkerCacheRepository(CloneUrl, MirrorPath)`
+entries. URLs are absolute HTTPS without user information, query or fragment;
+whitespace and control characters are refused. Mirror paths retain conservative
+relative `.git` validation. Duplicate URLs or paths are refused ordinally. The runtime
 validates the request before creating resources, mounts only those mirrors
 read-only and the key directory read-write, and sets the cache and memory paths
 itself. Null mounts nothing; restricted checkout and host-prepared modes retain
 no cache mounts. Invalid requests return `InvalidCache`. The runtime never mounts
-the cache root or legacy memory directories and never migrates or deletes them.
+the cache root or legacy memory directories in the worker and never migrates or
+deletes them. The reserved `CRATIS_WORKER_REPOSITORY_MIRRORS` value maps each exact
+URL to its mounted path, one tab-separated pair per line. The entrypoint uses only
+that mapping, never URL-derived paths; absent matches and invalid bare mirrors use
+full network clones. Reserved runtime environment names are also refused as secret
+keys before creating resources.
 
 ## Options considered
 
@@ -87,14 +95,24 @@ cluster separately; Docker translation of the pod mounts does not prove them.
 
 Consumers that relied on implicit whole-volume mounting must now set `Cache`.
 Keys are `v1-` plus 64 lowercase hexadecimal characters. Mirror paths are bounded,
-relative `.git` paths with nonempty, non-hidden ASCII segments; duplicates collapse
-and nested paths are rejected. The consumer controls key derivation and mirror
-layout. Runtime-owned environment values cannot be replaced by job values.
+relative `.git` paths with nonempty, non-hidden ASCII segments; duplicates and
+nested paths are rejected. The consumer controls key derivation and mirror layout
+(Direct uses `<host>/<owner...>/<name>.git`). URL spelling is preserved for exact
+matching, including case, trailing slash and `.git` suffix. Runtime-owned environment
+values cannot be replaced by job environment or secrets.
 
 Kubernetes requires read-write claim attachment (`ReadWriteMany` for workers across
 nodes), existing mirrors and a pre-created memory directory writable by uid/gid
 1655 using suitable ownership/group permissions and NFS configuration. Empty mirror
-directories use the network clone fallback. Docker omits missing mirrors, creates
+directories use the network clone fallback. Before the worker starts, a non-root
+init container in the same image checks selected components from a read-only
+PVC-root mount: every component must be a real directory and resolve to its exact
+expected path. Missing or linked directories refuse startup. No cache means no
+verifier. The image must supply `/bin/sh` and `realpath`. The verifier has minimal
+environment and no worker secrets; worker mounts remain unchanged. Provisioners
+must protect ancestors from untrusted writers throughout startup.
+
+Docker checks selected descendants once before runtime contact, omits missing mirrors, creates
 a missing memory leaf with Unix mode `0770`, and refuses linked descendants without
 changing existing ownership. Its configured root is trusted and may be a symlink;
 trusted cache writers must keep descendants stable during the check-to-bind window.

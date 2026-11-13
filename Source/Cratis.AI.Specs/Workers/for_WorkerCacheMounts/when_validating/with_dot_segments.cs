@@ -9,5 +9,5 @@ public class with_dot_segments : Specification
     [InlineData("./x.git")]
     [InlineData("a/./x.git")]
     void should_refuse_current_directory_segments(string path) =>
-        WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [path]), out _).ShouldBeFalse();
+        WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [new("https://example.invalid/repo.git", path)]), out _).ShouldBeFalse();
 }

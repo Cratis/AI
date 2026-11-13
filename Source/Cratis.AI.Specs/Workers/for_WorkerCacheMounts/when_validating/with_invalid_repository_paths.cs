@@ -10,5 +10,5 @@ public class with_invalid_repository_paths : Specification
     [InlineData("a/../b.git")]
     [InlineData("a/..")]
     void should_refuse_parent_traversal(string path) =>
-        WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [path]), out _).ShouldBeFalse();
+        WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [new("https://example.invalid/repo.git", path)]), out _).ShouldBeFalse();
 }

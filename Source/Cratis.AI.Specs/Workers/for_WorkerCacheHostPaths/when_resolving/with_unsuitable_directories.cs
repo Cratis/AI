@@ -9,7 +9,8 @@ public class with_unsuitable_directories : Specification
 
     [Theory]
     [InlineData("owner")]
-    [InlineData("owner/allowed.git")]
+    [InlineData("owner/group")]
+    [InlineData("owner/group/allowed.git")]
     [InlineData(".agent-memory")]
     [InlineData(".agent-memory/" + Key)]
     void should_refuse_a_symlinked_component(string relative)
@@ -65,5 +66,5 @@ public class with_unsuitable_directories : Specification
         }
     }
 
-    static WorkerCacheHostPaths Resolve(string root) => WorkerCacheHostPaths.Resolve(WorkerCacheMounts.Create(new(Key, ["owner/allowed.git"])), root, true);
+    static WorkerCacheHostPaths Resolve(string root) => WorkerCacheHostPaths.Resolve(WorkerCacheMounts.Create(new(Key, [new("https://example.invalid/owner/group/allowed.git", "owner/group/allowed.git")])), root, true);
 }

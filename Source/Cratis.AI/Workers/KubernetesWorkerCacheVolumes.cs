@@ -17,6 +17,9 @@ internal sealed class KubernetesWorkerCacheVolumes
     /// <summary>Gets the scoped read-only mirror and writable memory mounts.</summary>
     internal IReadOnlyList<V1VolumeMount> Mounts { get; private init; } = [];
 
+    /// <summary>Gets the optional pre-start directory verification.</summary>
+    internal V1Container? Verification { get; private init; }
+
     /// <summary>Gets the runtime-owned cache environment.</summary>
     internal IReadOnlyList<V1EnvVar> Environment { get; private init; } = [];
 
@@ -33,7 +36,8 @@ internal sealed class KubernetesWorkerCacheVolumes
         return new()
         {
             Volume = new() { Name = claim, PersistentVolumeClaim = new() { ClaimName = claim, ReadOnlyProperty = false } },
-            Mounts = [.. plan.Repositories.Select(repository => Mount(claim, root!, repository, true)), Mount(claim, root!, plan.MemoryDirectory, false)],
+            Verification = KubernetesWorkerCacheVerification.Build(job.Image, claim, plan),
+            Mounts = [.. plan.MirrorPaths.Select(repository => Mount(claim, root!, repository, true)), Mount(claim, root!, plan.MemoryDirectory, false)],
             Environment = plan.Environment(root!, variable).Select(pair => new V1EnvVar { Name = pair.Key, Value = pair.Value }).ToArray()
         };
     }

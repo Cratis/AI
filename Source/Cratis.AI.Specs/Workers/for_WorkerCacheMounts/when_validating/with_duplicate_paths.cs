@@ -5,10 +5,9 @@ namespace Cratis.AI.Workers.for_WorkerCacheMounts.when_validating;
 
 public class with_duplicate_paths : Specification
 {
-    WorkerCacheMounts _plan;
+    [Fact]
+    void should_refuse_duplicate_mirror_paths() => WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [new("https://example.invalid/first.git", "repo.git"), new("https://example.invalid/second.git", "repo.git")]), out _).ShouldBeFalse();
 
-    void Because() => _plan = WorkerCacheMounts.Create(new("v1-" + new string('a', 64), ["repo.git", "repo.git", "Repo.git"]));
-
-    [Fact] void should_collapse_ordinal_duplicates() => _plan.Repositories.Count.ShouldEqual(2);
-    [Fact] void should_preserve_different_casing() => _plan.Repositories.ShouldContain("Repo.git");
+    [Fact]
+    void should_refuse_duplicate_clone_urls() => WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [new("https://example.invalid/repo.git", "first.git"), new("https://example.invalid/repo.git", "second.git")]), out _).ShouldBeFalse();
 }

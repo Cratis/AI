@@ -3,15 +3,11 @@
 
 namespace Cratis.AI.Workers;
 
-/// <summary>
-/// Selects the only shared cache directories a worker may access.
-/// </summary>
-/// <param name="MemoryKey">A <c>v1-</c> prefix followed by exactly 64 lowercase hexadecimal characters.</param>
-/// <param name="Repositories">Relative mirror paths, using slash-separated ASCII letters, digits, dots,
-/// underscores and hyphens. Segments cannot start with a dot; the final segment must end in
-/// <c>.git</c> and have a nonempty name. Paths cannot overlap. At most 256 paths of 512 characters each.</param>
-/// <remarks>
-/// The runtime mounts the selected mirrors read-only and only this memory key's directory read-write.
-/// No other cache directories are mounted. Duplicate repository paths are collapsed ordinally.
-/// </remarks>
-public record WorkerCacheAccess(string MemoryKey, IReadOnlyList<string> Repositories);
+/// <summary>Selects only the cache directories a worker job needs. Null on the job mounts no cache.</summary>
+/// <param name="MemoryKey">An opaque key: exactly v1- followed by 64 lowercase hexadecimal characters.</param>
+/// <param name="Repositories">Exact clone URL to relative mirror path mappings, at most 256 entries.
+/// URLs are absolute HTTPS without user information, query or fragment. Paths are at most 512
+/// characters; slash-separated ASCII segments cannot start with a dot, and the final segment is
+/// a nonempty name ending in .git. Duplicate URLs or paths (ordinal), nested paths, absolute paths,
+/// traversal, backslashes and control characters are invalid. An empty list requests memory only.</param>
+public record WorkerCacheAccess(string MemoryKey, IReadOnlyList<WorkerCacheRepository> Repositories);

@@ -10,5 +10,5 @@ public class with_unsupported_characters : Specification
     [InlineData("a/b:rw.git")]
     [InlineData("a/b c.git")]
     void should_refuse_the_path(string path) =>
-        WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [path]), out _).ShouldBeFalse();
+        WorkerCacheMounts.TryCreate(new("v1-" + new string('a', 64), [new("https://example.invalid/repo.git", path)]), out _).ShouldBeFalse();
 }
