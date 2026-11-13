@@ -79,7 +79,6 @@
           "cratis-arc-configuration",
           "cratis-arc-ef-core-migration",
           "cratis-arc-hosting",
-          "cratis-arc-mcp",
           "cratis-arc-neo4j",
           "cratis-arc-observable-query-http",
           "cratis-arc-query-paging",
