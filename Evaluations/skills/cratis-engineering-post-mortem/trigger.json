@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-engineering-post-mortem",
+  "queries": [
+    { "query": "Write a post-mortem for last night's outage using the incident ticket and the linked pipeline runs.", "shouldTrigger": true },
+    { "query": "Build the timeline of yesterday's failed release from these deploy runs and the change request.", "shouldTrigger": true },
+    { "query": "Here is a postmortem draft. Which of these statements are verified and which are just hearsay?", "shouldTrigger": true },
+    { "query": "Turn the lessons from the incident into owned follow-up issues, one per action, in the repositories that own the work.", "shouldTrigger": true },
+    { "query": "Do a blameless incident review of the backup failure we found today. No names, please.", "shouldTrigger": true },
+    { "query": "We had a production regression after a deploy. Write up what happened, the root causes and the detection gaps.", "shouldTrigger": true },
+    { "query": "Draft a post-incident review that I can publish, with a UTC timeline and an impact section.", "shouldTrigger": true },
+    { "query": "Our monitoring missed a two-month failure. Document the incident and the actions so it cannot happen silently again.", "shouldTrigger": true },
+    { "query": "Check this post-mortem for unowned actions and make sure every action links to a tracker item.", "shouldTrigger": true },
+    { "query": "This is the third bug on the backlog filter screen this month. What failure class do they share?", "shouldTrigger": false, "note": "cratis-engineering-regression-cluster" },
+    { "query": "Write the release notes for version 2.4.", "shouldTrigger": false, "note": "cratis-release-notes" },
+    { "query": "The deploy pipeline is failing right now. Fix it.", "shouldTrigger": false, "note": "fixing the defect; no review requested" },
+    { "query": "Claim this issue and update its status when the work is done.", "shouldTrigger": false, "note": "cratis-engineering-issue-hygiene" },
+    { "query": "Review this pull request for security problems.", "shouldTrigger": false, "note": "cratis-security-review" },
+    { "query": "Record why we chose queue-based retries over a cron job.", "shouldTrigger": false, "note": "cratis-engineering-decision-record" },
+    { "query": "Plan which CI gates should run before we push.", "shouldTrigger": false, "note": "cratis-engineering-ci-gates" },
+    { "query": "Write handoff notes so the next session can continue this work.", "shouldTrigger": false, "note": "cratis-session-handoff" },
+    { "query": "Diagnose why this integration test is flaky.", "shouldTrigger": false, "note": "investigation, not a post-incident review" }
+  ]
+}
