@@ -979,6 +979,7 @@
         "cratis-rtk",
         "cratis-screenplay-authentication-and-onboarding",
         "cratis-screenplay-automations-and-translations",
+        "cratis-screenplay-availability",
         "cratis-screenplay-captures-and-reactions",
         "cratis-screenplay-command-surface",
         "cratis-screenplay-delivery-planning",

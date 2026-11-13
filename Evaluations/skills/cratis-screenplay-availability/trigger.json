@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-screenplay-availability",
+  "queries": [
+    { "query": "how do I make the DataQuality feature only available to tenants on the Plus package in the .play model?", "shouldTrigger": true },
+    { "query": "my screenplay says PLAY1135 on an available for line, what does it mean?", "shouldTrigger": true },
+    { "query": "add a provide line so a gate can read the vessel the user is looking at as $context.vessel", "shouldTrigger": true },
+    { "query": "is a screenplay audience the same as the aud claim in the token or a Box Office module?", "shouldTrigger": true },
+    { "query": "should hiding a part for a rollout use authorize or an availability block?", "shouldTrigger": true },
+    { "query": "the compiler warns PLAY1139 on my screen action that invokes a command, how do I fix it?", "shouldTrigger": true },
+    { "query": "what happens in a screenplay gate when the provided value is missing, is that a denial or an error?", "shouldTrigger": true },
+    { "query": "can a specification say given availability Plus to test my gated slice?", "shouldTrigger": true },
+    { "query": "a provide from query fails with PLAY1128, what is wrong with the query key?", "shouldTrigger": true },
+    { "query": "which persona can ever satisfy my available for Plus and Pro gate?", "shouldTrigger": true },
+    { "query": "write a policy that requires the Admin role before CancelOrder runs", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" },
+    { "query": "which stream should an order's events live on and how do two commands race?", "shouldTrigger": false, "note": "cratis-screenplay-streams-and-consistency" },
+    { "query": "Which compiler release admits ESM v6 and what does the CLI report when it does not?", "shouldTrigger": false, "note": "cratis-screenplay-toolchain" },
+    { "query": "On row click open a dialog with a form and refresh the table afterwards.", "shouldTrigger": false, "note": "cratis-screenplay-ui-composition" },
+    { "query": "Configure how Chronicle routes events between event stores using audiences in options.", "shouldTrigger": false, "note": "cratis-chronicle-multi-tenancy" },
+    { "query": "Add a tenant to an Arc application and resolve the tenant id from the request.", "shouldTrigger": false, "note": "cratis-arc-authentication-authorization-and-identity" },
+    { "query": "Write a read model projection from OrderPlaced that sets the total.", "shouldTrigger": false, "note": "cratis-screenplay-projections" },
+    { "query": "Validate a command so the amount must be greater than zero.", "shouldTrigger": false, "note": "cratis-arc-command-validation" }
+  ]
+}

@@ -293,6 +293,7 @@ and one phase skill, then the construct skill needed for syntax.
 | `cratis-screenplay-slice-design` | Commands, refusals, views, field lineage and slice boundaries |
 | `cratis-screenplay-streams-and-consistency` | Business identities, atomic invariants, concurrency, evolution and ownership |
 | `cratis-screenplay-automations-and-translations` | Follow-up work, external data to our facts, recovery and deduplication |
+| `cratis-screenplay-availability` | `audience`, `available`, `provide` |
 | `cratis-screenplay-scenario-coverage` | Coverage matrix, rejection, denial, lifecycle and external-failure scenarios |
 | `cratis-screenplay-model-review` | Independent critique, evidence checklist and business-question explanation |
 | `cratis-screenplay-legacy-extraction` | Evidence-led extraction, expert verification and loss report |
