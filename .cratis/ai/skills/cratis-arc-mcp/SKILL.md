@@ -53,15 +53,15 @@ public record AddNote([property: Description("The note text, plain text.")] stri
 public record NoteReadModel(string Text)
 {
     [ExposeOverMcp("list_notes", Description = "Lists notes, newest first. Use page_size to limit the result.")]
-    public static IEnumerable<NoteReadModel> All() => [];
+    public static IQueryable<NoteReadModel> All() => Enumerable.Empty<NoteReadModel>().AsQueryable();
 }
 ```
 
 Use the builder only when the type cannot carry the attribute:
 `mcp.Expose<AddNote>("add_note", "Adds a note.")` and
-`mcp.ExposeQuery("Notes.NoteReadModel.All", "list_notes", "Lists notes.")`. The
-`ExposeQuery` name is a string, `<read model full type name>.<method>`; a typo
-fails only at startup with `McpExposedOperationUnknown`.
+`mcp.ExposeQuery<NoteReadModel>(nameof(NoteReadModel.All), "list_notes", "Lists notes.")`.
+The method name is checked at startup (`McpExposedOperationUnknown`); the string
+overload `ExposeQuery("Ns.Type.Method", ...)` is obsolete, do not use it.
 
 Only a command that has `[Command]` **and** a `Handle` method, and a read
 model (`[ReadModel]`) query method, are discoverable. Without them the tool is
@@ -81,8 +81,10 @@ not found.
   property (`[property: Description]` on a record parameter) and every query
   method parameter. It becomes the argument's `description` in the input
   schema. Arc does not infer it from names or XML comments.
-- Query tools take the query parameters as arguments; paging applies only when
-  `page_size` is given (optional `page`). Argument values are scalars, or arrays
+- Query tools take the query parameters as arguments; paging applies only to
+  queries returning `IQueryable<T>`; those tools accept `page_size` (optional
+  `page`). An `IEnumerable<T>` query has no paging arguments and supplying them
+  is an invalid-arguments error. Argument values are scalars, or arrays
   for collection parameters.
 
 ## Scopes
@@ -138,7 +140,7 @@ PAT-only installation:
 builder.AddCratisArc(
     options => options.EndpointGroups.Assign("capabilities", capabilityPort),
     configureBuilder: arc => arc
-        .WithCapabilities(o => o.GatedEndpoints = new CapabilityEndpointSelector())
+        .WithCapabilities()
         .WithPersonalAccessTokens(
             new PatOptions("stage-notes") { AllowedScopes = ["notes:read", "notes:write"] },
             callers => callers
@@ -152,11 +154,11 @@ builder.AddCratisArc(
 
 var app = builder.Build();
 app.UseCratisArc();
-app.MapCratisArcMcp();
+app.MapArcMcp();
 ```
 
 Read [references/setup-and-profiles.md](references/setup-and-profiles.md) for
-the full prerequisites (ports and listeners, `GatedEndpoints`, verified
+the full prerequisites (ports and listeners, gating, verified
 callers), the credential profiles, `Origin` and `AllowedOrigins`, and the
 development PAT adapters.
 
@@ -166,8 +168,11 @@ Rules to keep in mind:
   (`<app>`: lowercase letters, digits and hyphens, 1 to 48 characters, starting
   and ending with a letter or digit). Any other key, such as `local` or
   `notes`, throws `ArgumentException`.
-- `GatedEndpoints` is a capability hosting option, not an MCP option, and is
-  required; `WithMcp` adds the MCP endpoint to the selection.
+- Use `WithCapabilities()` without a `GatedEndpoints` selector: the whole
+  capabilities port is then gated after routing, including health and readiness
+  probes (only OAuth resource metadata stays anonymous). Selective gating is an
+  explicit opt-out: set `CapabilitiesOptions.GatedEndpoints` to a selector
+  (`WithMcp` adds MCP to it) and keep other routes you need outside the gate.
 - The endpoint is served only on the capabilities port. Bind a listener on it
   as well as the default listener.
 - Default profile `PatOnly` suits CLI and IDE clients. Hosted connectors cannot
@@ -234,11 +239,11 @@ caller is not audited.
 | Mistake | Symptom |
 |---|---|
 | No `[Command]` or no `Handle` | `McpExposedOperationUnknown` |
-| `ExposeQuery` string typo or wrong casing | `McpExposedOperationUnknown` at startup |
+| `ExposeQuery<T>` method name that does not exist | `McpExposedOperationUnknown` at startup |
 | No description | `McpToolDescriptionMissing` |
 | No `ApplicationName`, `ReadScope` or `WriteScope` | `McpToolHasNoScope` |
 | MCP scopes missing from `PatOnly` `AllowedScopes` | 401 for a PAT that looks right; warning event 5103 at startup when no PAT can satisfy a tool |
-| `GatedEndpoints` not set | `McpRequiresGatedEndpoints` |
+| Probes left on the capabilities port with `GatedEndpoints` unset | Probes require a verified caller; move them or set an explicit selector |
 | Listener not bound on the capabilities port | Not found on the default port, or no connection |
 | Exposing a `[RequiresApproval]` command | `McpApprovalRequiredCommandExposed` |
 | Browser client without `AllowedOrigins` | 403 `origin_not_allowed` |

@@ -29,13 +29,13 @@
       "id": 3,
       "name": "host-setup-pat-only",
       "prompt": "Show the host setup so Claude Code can call our MCP endpoint with a personal access token. We have no browser sign-in forwarding. Reply with code; do not write files.",
-      "expected_output": "WithCapabilities with GatedEndpoints, a capabilities port with a bound listener, WithPersonalAccessTokens with AllowedScopes and callers.ForResource(...).UsePersonDirectory<T>() and no AllowPersonalAccessTokenCallers, WithMcp with ApplicationName and PublicOrigin, MapCratisArcMcp after UseCratisArc, PatOnly profile.",
+      "expected_output": "WithCapabilities() without a GatedEndpoints selector, a capabilities port with a bound listener, WithPersonalAccessTokens with AllowedScopes and callers.ForResource(...).UsePersonDirectory<T>() and no AllowPersonalAccessTokenCallers, WithMcp with ApplicationName and PublicOrigin, MapArcMcp after UseCratisArc, PatOnly profile.",
       "assertions": [
-        "Sets GatedEndpoints on the capability options.",
+        "Uses WithCapabilities() without setting GatedEndpoints, so the whole capabilities port stays gated; does not claim GatedEndpoints is required.",
         "Assigns a capabilities port and notes a listener must be bound on it.",
         "Does not call AllowPersonalAccessTokenCallers without signed forwarding configuration.",
         "Keeps the default PatOnly profile for a command-line client.",
-        "Calls MapCratisArcMcp after UseCratisArc."
+        "Calls MapArcMcp (not the obsolete MapCratisArcMcp) after UseCratisArc."
       ]
     },
     {

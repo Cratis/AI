@@ -22,10 +22,13 @@ runs when the host starts.
 - Capability hosting: `WithCapabilities(...)`.
 - A port for the capabilities endpoint group:
   `options.EndpointGroups.Assign("capabilities", port)`.
-- `CapabilitiesOptions.GatedEndpoints` set (for example
-  `new CapabilityEndpointSelector()`). `WithMcp` adds MCP to that selection.
-  Missing capability hosting or selection throws `McpRequiresCapabilities` or
-  `McpRequiresGatedEndpoints`.
+- `GatedEndpoints` is optional. Unset (the default), every endpoint on the
+  capabilities port is gated after routing, including health and readiness
+  probes; only the OAuth protected resource metadata route stays anonymous.
+  Selective gating is an explicit opt-out: set
+  `CapabilitiesOptions.GatedEndpoints` to a `CapabilityEndpointSelector` and
+  `WithMcp` adds MCP to that selection, leaving other routes outside the gate.
+  Missing capability hosting throws `McpRequiresCapabilities`.
 - A verified-caller installation: `WithPersonalAccessTokens(PatOptions, callers => ...)`
   or `WithVerifiedCallers(...)`. Startup does not check that one is present;
   without it no caller is admitted.
@@ -89,7 +92,7 @@ Limits to state to the user, not to work around:
 Assigning the port does not bind it. Bind both the default public listener and a
 listener on the capabilities port (Kestrel or `UseUrls`), even when the host
 serves only `/mcp`. A request on the default port is not served. Map the
-endpoint with `app.MapCratisArcMcp()` after `app.UseCratisArc()`.
+endpoint with `app.MapArcMcp()` after `app.UseCratisArc()`.
 
 ## Credential profiles
 

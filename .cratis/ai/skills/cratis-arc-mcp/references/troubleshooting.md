@@ -18,12 +18,12 @@ Validation runs in order; fix the first error.
 |---|---|---|
 | `McpRequiresCapabilities` | `WithMcp` without capability hosting | Add `WithCapabilities(...)` |
 | `Capability endpoint group '<group>' has no port` | No port for the capabilities group | `EndpointGroups.Assign("capabilities", port)` |
-| `McpRequiresGatedEndpoints` | `GatedEndpoints` is null | `WithCapabilities(o => o.GatedEndpoints = new CapabilityEndpointSelector())` |
+| Health or readiness probe on the capabilities port is rejected | `GatedEndpoints` unset gates the whole port | Move probes off the capabilities port, or set an explicit `GatedEndpoints` selector (`WithMcp` adds `/mcp`) |
 | `McpOptionsInvalid` | An option is invalid for the profile | OAuth profiles: `PublicOrigin`, `Resource` = `PublicOrigin` + `Path`, `AuthorizationServers`. Also bad `WriteScopes` |
 | `McpToolNameInvalid` | Name outside `^[a-z][a-z0-9_]{0,63}$` | Lowercase letters, digits, underscores, start with a letter |
 | `McpToolNameDuplicated` | Duplicate name | Rename one |
 | `McpToolDescriptionMissing` | No description | Add `Description` or the builder argument |
-| `McpExposedOperationUnknown` | Wrong `ExposeQuery` name, or the command has no handler | `<ReadModel full type name>.<Method>`; add `[Command]` and `Handle` |
+| `McpExposedOperationUnknown` | Wrong `ExposeQuery<T>` method name, or the command has no handler | `nameof(ReadModel.Method)`; add `[Command]` and `Handle` |
 | `McpApprovalRequiredCommandExposed` | Command has `[RequiresApproval]` | Do not expose it |
 | `McpToolHasNoScope`, `McpToolScopeBlank` | No application name or explicit scope; blank scope | Set `ApplicationName`, or `ReadScope` and `WriteScope` |
 | `McpWriteToolLacksWriteScope` | A write tool (usually curated) needs only read scopes | Require `WriteScope` or a `WriteScopes` entry |

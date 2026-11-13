@@ -3,7 +3,7 @@
   "queries": [
     { "query": "how do I expose an Arc command to Claude as an MCP tool?", "shouldTrigger": true },
     { "query": "startup throws McpToolHasNoScope, what do I set?", "shouldTrigger": true },
-    { "query": "WithMcp says GatedEndpoints is required, how do I configure capability hosting?", "shouldTrigger": true },
+    { "query": "WithMcp throws McpRequiresCapabilities, how do I configure capability hosting and gating?", "shouldTrigger": true },
     { "query": "my PAT gets 401 on /mcp even though the token is valid", "shouldTrigger": true },
     { "query": "how do I let MCP Inspector in the browser call my Arc app, origin_not_allowed", "shouldTrigger": true },
     { "query": "which scopes does an MCP query tool need and how do I add a custom [RequiresScope]?", "shouldTrigger": true },
