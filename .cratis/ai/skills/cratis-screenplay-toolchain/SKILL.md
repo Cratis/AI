@@ -174,6 +174,8 @@ with ordered imports means future files need explicit imports.
   not legal compliance, retention or runtime subject realization. See
   command-surface `references/context.md` and `references/compliance.md`.
 
+`audience`, `availability`, `available` and `provide` diagnostics are PLAY1119-PLAY1141; executing a `provide` reports PLAY0268. Specifications and the reference evaluator treat every gate as available; opaque sources are unsupported, never allowed. See `cratis-screenplay-availability`.
+
 ## Edit strategy
 
 Read [the MCP authoring loop](../cratis-screenplay-model-authoring/references/mcp-loop.md)

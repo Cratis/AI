@@ -172,6 +172,22 @@ are PLAY0565 information and repeated markers are PLAY0653 warning. Event `subje
 is report-only lineage; processing purposes/checks/reports declare use, not lawful
 processing or runtime retention. See command-surface `references/compliance.md`.
 
+`audiences` and provided names are also `$context.` paths beneath their level. Syntax (6.25.0 and 6.26.0; see command-surface and availability skills):
+
+```text
+audience Plus
+  description "Plus package"
+availability Sold
+  for Plus
+  when $context.vessel.hasReported == true
+provide vessel Vessel optional from query VesselByKey by $context.arguments.vesselId
+available for Plus or (Preview and Early)
+available when $context.region == "Nordics"
+available with Sold
+```
+
+`available` is allowed on a module, feature, slice, command, query and screen; `provide` at application, module, feature and slice. Specifications run with every gate available.
+
 ## `$eventContext.` (projections)
 `eventType{.id,.generation,.tombstone}`, `eventSourceType`, `eventSourceId`, `eventStreamType`,
 `eventStreamId`, `sequenceNumber`, `occurred`, `occurred.Week`, `eventStore`, `namespace`,

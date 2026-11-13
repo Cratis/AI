@@ -1,0 +1,18 @@
+{
+  "skill": "cratis-screenplay-availability",
+  "input": "Gate the DataQuality feature to the Plus package and provide the vessel being viewed for a gate.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "Unknown never opens a gate" },
+    { "kind": "skill-contains", "value": "NotAvailable" },
+    { "kind": "skill-contains", "value": "Specifications always run with everything available" },
+    { "kind": "skill-contains", "value": "Persona `audience` lines are authoring only" },
+    { "kind": "skill-contains", "value": "PLAY1139" },
+    { "kind": "skill-contains", "value": "$context.identity.claims.aud" },
+    { "kind": "skill-contains", "value": "PLAY1124" },
+    { "kind": "skill-contains", "file": "references/runtime-ownership.md", "value": "Showrunner GuestList" },
+    { "kind": "skill-contains", "file": "references/review-checks.md", "value": "A gate no persona can satisfy" },
+    { "kind": "skill-contains", "file": "references/review-checks.md", "value": "A rule reading identity-derived values" }
+  ]
+}
