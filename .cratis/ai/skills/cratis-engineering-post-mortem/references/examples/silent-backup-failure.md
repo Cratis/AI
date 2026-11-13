@@ -76,19 +76,19 @@ of the dumps until the encryption key for it exists.
 ## Timeline (UTC)
 | Time (UTC) | Event | Source | Confidence |
 |---|---|---|---|
-| Day -62, 23:00Z | Last `ready` snapshot of the managed tool | Backup tool list | Verified |
-| **Day -62** | **Outage start.** Operator upgrade chain in one day: the backup tool across seven versions, plus a database major version and a feature-compatibility change. From a middle version the tool switched its object-storage client library | Change history, tool release notes | Verified |
-| Day -62 onward | Hourly snapshots all end in `error`. Earlier failures were a connection-pool exhaustion, fixed upstream later | Backup tool list, upstream report | Verified |
-| Throughout | The watchdog monitors only the dump job; no check exists for the managed tool, so no alert was possible | Watchdog configuration | Verified |
-| About 33 and 48 days before discovery | Two earlier watchdog jobs are in a Failed state; whether the watchdog was down while backups failed | Job list | Unverified |
-| `<date>` about 02:52Z | Deploy of the tool upgrade plus the first watchdog check for the managed tool, every 5 minutes, alerting by mail and chat for new findings | Deploy run | Verified |
-| After deploy | An on-demand backup fails in 43 seconds with a `PutObject` 400 checksum mismatch | Backup tool log | Verified |
-| 03:09Z to 03:12Z | Restore test of the dumps into a scratch namespace: pass | Restore command output | Verified |
-| After 03:12Z | Storage type changed to the S3-compatible client; merged and deployed | Change request | Verified |
-| From 03:13Z | Operator-triggered resync walks the whole bucket root, because no prefix is set. It holds the tool's lock and blocks backups; the agent is busy, not hung | Backup tool log | Verified |
-| Before 04:09Z | New empty storage prefix deployed; old objects left unlisted in the bucket root. Lock cleared by restarting the agents on two pods, then a one-second forced resync | Change request, tool status | Verified |
-| 04:09:04Z | First `ready` snapshot since the gap starts | Backup tool list | Verified |
-| **04:20:04Z** | **Outage end.** Snapshot finished (about 2.4 GiB, logical); watchdog run healthy, finding cleared | Backup tool list, watchdog log | Verified |
+| <date-62> 23:00Z | Last `ready` snapshot of the managed tool | Backup tool list | Verified |
+| **<date-62> (approximate; the day after the last good snapshot)** | **Outage start.** Operator upgrade chain in one day: the backup tool across seven versions, plus a database major version and a feature-compatibility change. From a middle version the tool switched its object-storage client library | Change history, tool release notes | Unverified (the exact upgrade times are not anchored) |
+| <date-62> onward (hourly, approximate) | Hourly snapshots all end in `error`. Earlier failures were a connection-pool exhaustion, fixed upstream later | Backup tool list, upstream report | Unverified (time not anchored) |
+| <date-62> to <date> 02:52Z (approximate; whole window) | The watchdog monitors only the dump job; no check exists for the managed tool, so no alert was possible | Watchdog configuration | Unverified (time not anchored) |
+| <date-48> and <date-33> (approximate) | Two earlier watchdog jobs are in a Failed state; whether the watchdog was down while backups failed | Job list | Unverified |
+| <date> about 02:52Z (approximate) | Deploy of the tool upgrade plus the first watchdog check for the managed tool, every 5 minutes, alerting by mail and chat for new findings | Deploy run | Unverified (approximate time) |
+| <date> after 02:52Z (approximate) | An on-demand backup fails in 43 seconds with a `PutObject` 400 checksum mismatch | Backup tool log | Unverified (time not anchored) |
+| <date> 03:09Z to 03:12Z | Restore test of the dumps into a scratch namespace: pass | Restore command output | Verified |
+| <date> after 03:12Z (approximate) | Storage type changed to the S3-compatible client; merged and deployed | Change request | Unverified (time not anchored) |
+| <date> 03:13Z | Operator-triggered resync walks the whole bucket root, because no prefix is set. It holds the tool's lock and blocks backups; the agent is busy, not hung | Backup tool log | Verified |
+| <date> before 04:09Z (approximate) | New empty storage prefix deployed; old objects left unlisted in the bucket root. Lock cleared by restarting the agents on two pods, then a one-second forced resync | Change request, tool status | Unverified (time not anchored) |
+| <date> 04:09:04Z | First `ready` snapshot since the gap starts | Backup tool list | Verified |
+| **<date> 04:20:04Z** | **Outage end.** Snapshot finished (about 2.4 GiB, logical); watchdog run healthy, finding cleared | Backup tool list, watchdog log | Verified |
 
 Durations: gap 62 days; discovery to first good snapshot about 1h20m.
 
