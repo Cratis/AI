@@ -87,6 +87,11 @@
     { "kind": "skill-contains", "value": "`PLAY0520`", "file": "references/examples-and-routes.md" },
     { "kind": "skill-contains", "value": "Requires Screenplay 6.15.0", "file": "references/producerless-events.md" },
     { "kind": "skill-contains", "value": "Never\nadd a producer command only to make a specification compile", "file": "references/producerless-events.md" },
-    { "kind": "skill-contains", "value": "references/producerless-events.md" }
+    { "kind": "skill-contains", "value": "references/producerless-events.md" },
+    { "kind": "skill-contains", "value": "`$eventContext.occurred` is materialized", "file": "references/graph-steps.md" },
+    { "kind": "skill-contains", "value": "given clock \"2026-10-05T07:00:00Z\"", "file": "references/graph-steps.md" },
+    { "kind": "skill-contains", "value": "references/host-body-execution.md" },
+    { "kind": "skill-contains", "value": "ScreenplayMcpRun", "file": "references/host-body-execution.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 4.255.0 or later", "file": "references/host-body-execution.md" }
   ]
 }
