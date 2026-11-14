@@ -5,6 +5,7 @@
 - Steps
 - Example
 - Asserting a graph query
+- Asserting collected rows
 - Rules
 
 ## Steps
@@ -160,6 +161,15 @@ module Organization
             person = "Ada Lovelace"
             since = "2026-10-05T07:00:00Z"
 ```
+
+## Asserting collected rows
+
+Requires Screenplay 6.29.0 or later (`screenplay --version`). A query that `collect`s nested rows
+(see [collect nested rows](../../cratis-screenplay-projections/references/graphs.md#collect-nested-rows))
+is asserted under `then query` with structured values (an indented `item` block per row; Screenplay has no JSON, `PLAY0833`): the collected
+property on its own line, one `item` block per row, in order; `<property> none` asserts an empty
+list and `<property> = null` an absent optional row. List rows compare in order: the reached node's
+key, then the edge's `identified by` value.
 
 ## Rules
 

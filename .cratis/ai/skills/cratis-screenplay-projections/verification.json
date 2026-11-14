@@ -38,6 +38,8 @@
     { "kind": "skill-contains", "value": "Requires Screenplay 5.10.0 or later", "file": "references/graphs.md" },
     { "kind": "skill-contains", "value": "runs in the reference runner as UTC text" },
     { "kind": "skill-contains", "value": "`PLAY1142` (`SecretConceptProjected`)", "file": "references/secret-concepts.md" },
-    { "kind": "skill-contains", "value": "references/secret-concepts.md" }
+    { "kind": "skill-contains", "value": "references/secret-concepts.md" },
+    { "kind": "skill-contains", "value": "## Collect nested rows", "file": "references/graphs.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 6.29.0 or later", "file": "references/graphs.md" }
   ]
 }

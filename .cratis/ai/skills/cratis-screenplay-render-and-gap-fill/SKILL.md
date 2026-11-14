@@ -217,6 +217,8 @@ whole re-render. What to do:
 - Screens reported as `PLAY0269` are information that the backend profile defers them. They are not
   proof of a rendered screen: check the running app (`cratis-screenplay-toolchain` `references/fast-path.md`)
   and list any authored screen that is missing as not rendered.
+- A graph query that `collect`s nested rows is ESM v54: Stage must admit v54 before it renders it. A refusal
+  is a drift event, so keep the query ([graphs](../cratis-stage-rendering-and-sandbox/references/graphs.md)).
 
 ## Gate
 

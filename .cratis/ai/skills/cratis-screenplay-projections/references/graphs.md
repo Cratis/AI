@@ -8,6 +8,7 @@
 - Storing a graph in a named sink
 - Reading the graph backwards
 - Reading a graph with a query
+- Collect nested rows
 - The five operations
 - What a graph projection cannot say
 - Diagnostics
@@ -273,6 +274,97 @@ The read-surface side is in
 query in a specification with `then query`
 ([graph steps](../../cratis-screenplay-specifications/references/graph-steps.md)).
 
+## Collect nested rows
+
+Requires Screenplay 6.29.0 or later (`screenplay --version`); a collecting query selects ESM v54.
+
+A query returns nested rows with a `return` assignment of the form
+`<property> = collect <root> -[alias:]TYPE-> [alias:]Label` (or `<-[alias:]TYPE-` for an incoming
+edge), followed by one line per row property:
+
+```screenplay
+concept PersonId : Uuid
+concept GroupId  : Uuid
+concept Name     : String
+
+type GroupMembership
+  id    GroupId
+  name  Name
+  since DateTime optional
+
+type GroupSummary
+  id   GroupId
+  name Name
+
+module Organization
+  feature Chart
+    slice StateView OrganizationViews
+      graph Organization
+        node Person
+          personId PersonId key
+          name     Name
+        node Group
+          groupId GroupId key
+          name    Name
+        edge MEMBER_OF source Person target Group
+          since DateTime optional
+        edge PART_OF source Group target Group
+
+      readmodel PersonWithGroups
+        id     PersonId key
+        name   Name
+        groups GroupMembership[]
+
+      readmodel GroupWithParent
+        id     GroupId key
+        name   Name
+        parent GroupSummary optional
+
+      query PeopleInGroup => PersonWithGroups[] graph Organization
+        filter groupId GroupId
+        match person:Person
+        where group.groupId = $groupId
+        return
+          id     = person.personId
+          name   = person.name
+          groups = collect person -membership:MEMBER_OF-> group:Group
+            id    = group.groupId
+            name  = group.name
+            since = membership.since
+
+      query GroupsWithParent => GroupWithParent[] graph Organization
+        match group:Group
+        return
+          id     = group.groupId
+          name   = group.name
+          parent = collect group -PART_OF-> parent:Group
+            id   = parent.groupId
+            name = parent.name
+```
+
+- **The root.** The query reads like a view: one `match <alias>:<Label>` of its root alone, no hops
+  and no `optional match`. Scalar returns come from the root; each result row is one root node,
+  distinct by key and ordered by the key (`PLAY1147` otherwise).
+- **The edge.** A collect follows one declared edge from the root, outgoing or incoming; the arrow
+  settles the direction, so an edge whose source and target share a label (`PART_OF`) is never
+  ambiguous. Name the edge (`-membership:MEMBER_OF->`) to read one of its properties.
+- **The rows.** The property is a list of a composite type (`GroupMembership[]`) or an optional one
+  (`GroupSummary optional`), and the lines under the collect assign every required property of the
+  type (`PLAY1145`). A list has one row per edge reached, ordered by the reached node's key and then
+  the edge's `identified by` value, and is empty when nothing is reached; an optional row is the
+  first of those, or null.
+- **Conditions select roots.** A `where` on a collected node keeps the roots with at least one
+  reached node that satisfies every condition on that alias; it never narrows what is collected. A
+  condition on a collected edge is `PLAY1147`.
+- **Absent properties.** A node created only by an edge has none of its other properties yet; a row
+  reads them as null.
+- **One level.** A collect inside a collect is `PLAY1146`; a malformed collect is `PLAY1144`.
+
+Assert collected rows in a specification with structured values: see
+[graph steps](../../cratis-screenplay-specifications/references/graph-steps.md#asserting-collected-rows).
+Stage may not render a collecting query; see the ESM v54 row in
+[language admission](../../cratis-screenplay-toolchain/references/language-admission.md).
+
 ## The five operations
 
 Every sink applies the same idempotent operations: `UpsertNode`, `SetProperties`,
@@ -316,3 +408,7 @@ an event leaves a graph projection reported as unknown.
 | `PLAY0884` | Graph query uses the same alias twice |
 | `PLAY0885` | Graph query uses variable-length paths, `or`, ranges, functions or aggregates |
 | `PLAY0886` | `foreach` names a collection inside another, or something that is not a list of a composite type of the event |
+| `PLAY1144` | Malformed `collect` (shape, start at the root, row lines) |
+| `PLAY1145` | `collect` does not fit the read model: not `Row[]` or `Row optional`, or a row property unknown, duplicate, missing or mistyped |
+| `PLAY1146` | `collect` nested inside another `collect` |
+| `PLAY1147` | Collecting query is not view-shaped, or has a `where` condition on a collected edge |

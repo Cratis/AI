@@ -34,6 +34,7 @@ exact language/semantic pairs; binding, reference execution and rendering are se
 | v35 | Reserved for handler result contract v2 (decision 0119); no construct selects it | | |
 | v36 | `statemachine` and `workflow` declarations (decision 0124; PLAY0834-PLAY0851) | Serializes `stateMachines` and `workflows`; specifications run them; earlier models keep their version and bytes | Stage refuses v36 models with `STAGE-ESM-016` |
 | v53 | `audience`, `availability` and `available` gates (decision 0162; PLAY1130-PLAY1141) | Serializes the gates; specifications and the reference evaluator treat every gate as available and report opaque `provide` sources as unsupported; earlier models keep their version and bytes | Admission by Stage is separate: a refusal such as `STAGE-ESM-016` means the model is not renderable yet, never a reason to drop the gate. See `../../cratis-screenplay-availability/SKILL.md` |
+| v54 | A graph query `collect` (decision 0163; PLAY1144-PLAY1147) | Serializes the collects on the query; earlier models keep their version and bytes | Admission by Stage is separate: a refusal means the model is not renderable yet, never a reason to drop the collect. Check `cratis render` |
 
 Constructs of decision 0098 with no executable-model content need no version: application-level hooks in a layout's actions outlet (`default <id> title "..." slice <Slice>` with an optional indented `authorize <Policy>`), and a capture over events that copies a list (`lines = $.lines`) or fans out with `children lines identified by sku`. Check `screenplay --version` against the release that admitted v29 and v30 before relying on them. Decision 0115 withdrew 0098's command specification that states the public event its outbound Translate slice publishes: a specification runs only its own slice, so the Translate slice states the public event in its own `when append` specification.
 
@@ -59,6 +60,8 @@ Requires Screenplay 4.204.0 (ESM v27; `screenplay --version`) for composite read
 Requires Screenplay 4.205.0 (ESM v28; `screenplay --version`) for Uuid equality in command conditions; older binders report PLAY0268.
 
 Requires Screenplay 6.26.0 (ESM v53; `screenplay --version`) for audiences, availabilities and gates, and 6.25.0 for `provide`; older compilers report the lines as unknown.
+
+Requires Screenplay 6.29.0 (ESM v54; `screenplay --version`) for graph query `collect`; older compilers do not admit it.
 
 Current renderer versus semantic-execution support is owned by
 [Stage target boundaries](../../cratis-stage-rendering-and-sandbox/references/current-boundaries.md),

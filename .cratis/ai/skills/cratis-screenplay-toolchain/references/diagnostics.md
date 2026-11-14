@@ -22,6 +22,7 @@
 - Sinks (PLAY0931-PLAY0939)
 - Passive read models (PLAY0858-PLAY0860)
 - Graph queries and `foreach` (PLAY0878-PLAY0886)
+- Graph query `collect` (PLAY1144-PLAY1147)
 - Screen visuals and slice placements (PLAY0950-PLAY0955)
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
@@ -439,6 +440,19 @@ codes PLAY0862-PLAY0877 are listed there too.
 | PLAY0884 | E | The same alias is used twice. |
 | PLAY0885 | E | It uses variable-length paths, `or`, ranges, functions or aggregates; none exist. |
 | PLAY0886 | E | A graph handler's `foreach` names a collection inside another, or something that is not a list of a composite type of the event. |
+
+## Graph query `collect` (PLAY1144-PLAY1147)
+
+Requires Screenplay 6.29.0 or later (`screenplay --version`); a collecting query selects ESM v54.
+Both compilers report these codes. The rules are in
+`../../cratis-screenplay-projections/references/graphs.md#collect-nested-rows`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| `PLAY1144` | E | A `collect` is malformed: not `<property> = collect <root> -[alias:]TYPE-> [alias:]Label` (or `<-[alias:]TYPE-`), not starting at the query's root, without row lines, or a row line that is not `<property> = <alias>.<property>`. |
+| `PLAY1145` | E | A `collect` does not fit the read model: the property is not `Row[]` or `Row optional` of a composite type, or a row assigns an unknown, duplicate or mistyped property or leaves a required one out. |
+| `PLAY1146` | E | A `collect` is nested inside another; collect from the root in a collect of its own. |
+| `PLAY1147` | E | The query does not have the shape of a view: one `match <alias>:<Label>` of the root alone, scalar returns from the root, and no `where` condition on a collected edge. |
 
 ## Screen visuals and slice placements (PLAY0950-PLAY0955)
 
