@@ -466,7 +466,7 @@ public class ProviderAwareLanguageModel(
         // a legacy plaintext value the protector passes through) - it is revealed only here, at
         // the moment it is spent, and the revealed value goes no further than the vendor call.
         var result = request.Images.Count > 0 && client is IAIProviderImageClient imageClient
-            ? await imageClient.Complete(request.Prompt, request.Images, provider, resolvedModel, request.Effort, cancellationToken)
+            ? await imageClient.Complete(new(request.Prompt, request.Images, provider, resolvedModel, request.Effort), cancellationToken)
             : await client.Complete(request.Prompt, provider, resolvedModel, request.Effort, cancellationToken);
         result = result with { ProviderId = providerId };
 

@@ -49,41 +49,22 @@ public static class OpenAIChatCompletionsProtocol
         IAIProviderQuotaTracker quotaTracker,
         ILogger logger,
         CancellationToken cancellationToken = default) =>
-        Complete(httpClient, requestUri, model, prompt, [], effort, configureHeaders, vendor, providerId, apiKey, quotaTracker, logger, cancellationToken);
+        Send(new(httpClient, requestUri, model, configureHeaders, vendor, providerId, apiKey, quotaTracker, logger), BuildPayload(model, prompt, effort), cancellationToken);
 
     /// <summary>
     /// Sends a chat-completions request that carries images and interprets the response as a <see cref="LanguageModelResult"/>.
     /// </summary>
-    /// <param name="httpClient">The <see cref="HttpClient"/> to send the request with.</param>
-    /// <param name="requestUri">The absolute chat-completions endpoint to send the request to.</param>
-    /// <param name="model">The model to run the completion on.</param>
-    /// <param name="prompt">The prompt.</param>
-    /// <param name="images">The images the prompt is about - sent as <c>image_url</c> data URLs ahead of the prompt text.</param>
-    /// <param name="effort">The reasoning effort to run the completion at - translated to <c>reasoning_effort</c>.</param>
-    /// <param name="configureHeaders">Sets the vendor's own authentication header(s) on the request.</param>
-    /// <param name="vendor">The vendor the request is sent to.</param>
-    /// <param name="providerId">The configured provider the request was sent as.</param>
-    /// <param name="apiKey">The credential the request is authenticated with - withheld by exact value from any failure diagnostics.</param>
-    /// <param name="quotaTracker">Records what the response's rate-limit headers, if any, reported about the provider's remaining quota.</param>
-    /// <param name="logger">The logger a failed or empty response is recorded on.</param>
+    /// <param name="call">Where and how the request is sent.</param>
+    /// <param name="request">The prompt, images and reasoning effort to send.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
     /// <returns>The <see cref="LanguageModelResult"/>.</returns>
-    public static async Task<LanguageModelResult> Complete(
-        HttpClient httpClient,
-        Uri requestUri,
-        string model,
-        string prompt,
-        IReadOnlyList<LanguageModelImage> images,
-        Effort effort,
-        Action<HttpRequestHeaders> configureHeaders,
-        AIProviderType vendor,
-        AIProviderId providerId,
-        AIProviderApiKey apiKey,
-        IAIProviderQuotaTracker quotaTracker,
-        ILogger logger,
-        CancellationToken cancellationToken = default)
+    public static Task<LanguageModelResult> Complete(ChatCompletionsCall call, ImageCompletionRequest request, CancellationToken cancellationToken = default) =>
+        Send(call, BuildPayload(call.Model, request.Prompt, request.Images, request.Effort), cancellationToken);
+
+    static async Task<LanguageModelResult> Send(ChatCompletionsCall call, JsonObject requestBody, CancellationToken cancellationToken)
     {
-        var payload = BuildPayload(model, prompt, images, effort).ToJsonString();
+        var (httpClient, requestUri, model, configureHeaders, vendor, providerId, apiKey, quotaTracker, logger) = call;
+        var payload = requestBody.ToJsonString();
 
         using var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
         {

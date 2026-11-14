@@ -31,11 +31,13 @@ public class AnthropicProviderClient(
 
     /// <inheritdoc/>
     public Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default) =>
-        Complete(prompt, [], provider, model, effort, cancellationToken);
+        Complete(new(prompt, [], provider, model, effort), cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<LanguageModelResult> Complete(string prompt, IReadOnlyList<LanguageModelImage> images, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
+    public async Task<LanguageModelResult> Complete(ImageCompletionRequest request, CancellationToken cancellationToken = default)
     {
+        var (prompt, images, provider, model, effort) = request;
+
         // A Claude subscription authenticates with an OAuth token that the messages API rejects
         // outright - it is only accepted by the Claude Code transport, so the credential decides
         // which way the completion goes rather than any configuration.
@@ -52,17 +54,17 @@ public class AnthropicProviderClient(
         using var httpClient = httpClientFactory.CreateClient();
         var payload = BuildPayload(model, prompt, images, effort).ToJsonString();
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/v1/messages")
+        using var message = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/v1/messages")
         {
             Content = new StringContent(payload, Encoding.UTF8, "application/json"),
         };
-        AddCredential(request, provider.ApiKey);
-        request.Headers.Add("anthropic-version", "2023-06-01");
+        AddCredential(message, provider.ApiKey);
+        message.Headers.Add("anthropic-version", "2023-06-01");
 
         HttpResponseMessage response;
         try
         {
-            response = await VendorResponses.Send(httpClient, request, cancellationToken);
+            response = await VendorResponses.Send(httpClient, message, cancellationToken);
         }
         catch (HttpRequestException exception)
         {

@@ -11,7 +11,7 @@ package (`IsPackable=false`).
 Abstractions/    the seams a consumer implements - never references Direct.* or Studio.*
 Common/          cross-cutting concepts and helpers (WeekKey, MonthKey, ModelName, command-pipeline helpers)
 Agents/          agent identity, causation, and the IAgentExecution scope
-LanguageModels/  the single-shot completion contract (ILanguageModel, LanguageModelResult, ManagedLanguageModel)
+LanguageModels/  the single-shot completion contract (ILanguageModel, IVisionLanguageModel for image input, LanguageModelResult, ManagedLanguageModel)
 Providers/       provider vocabulary, vendor clients, pools, tiers, resolution
 Usage/           the usage subsystem: concepts, the event, the command, the read models
 Workers/         worker/harness scheduling contract (IWorkerRuntime) and its Docker and Kubernetes runtimes

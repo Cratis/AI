@@ -41,17 +41,19 @@ public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvider
 
     /// <inheritdoc/>
     public Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default) =>
-        Complete(prompt, [], provider, model, effort, cancellationToken);
+        Complete(new(prompt, [], provider, model, effort), cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<LanguageModelResult> Complete(string prompt, IReadOnlyList<LanguageModelImage> images, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
+    public async Task<LanguageModelResult> Complete(ImageCompletionRequest request, CancellationToken cancellationToken = default)
     {
+        var (prompt, images, provider, model, effort) = request;
+
         var endpoint = (provider.Endpoint is { } configured && configured != AIProviderEndpoint.NotSet
             ? configured.Value
             : DefaultEndpoint).TrimEnd('/');
 
         using var httpClient = httpClientFactory.CreateClient();
-        using var request = new HttpRequestMessage(HttpMethod.Post, $"{endpoint}/v1/messages")
+        using var message = new HttpRequestMessage(HttpMethod.Post, $"{endpoint}/v1/messages")
         {
             // Z.ai's Anthropic-compatible surface is the Messages API the Anthropic client already
             // translates Effort for - one payload shape, one place it lives.
@@ -61,13 +63,13 @@ public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvider
         // Z.ai authenticates its gateway-style keys as a bearer token, the same credential contract
         // a Claude-style harness honors through ANTHROPIC_AUTH_TOKEN. An x-api-key header, the
         // Anthropic-native slot, is answered with a 401 that names neither.
-        request.Headers.Add("authorization", $"Bearer {provider.ApiKey.ForUse()}");
-        request.Headers.Add("anthropic-version", "2023-06-01");
+        message.Headers.Add("authorization", $"Bearer {provider.ApiKey.ForUse()}");
+        message.Headers.Add("anthropic-version", "2023-06-01");
 
         HttpResponseMessage response;
         try
         {
-            response = await VendorResponses.Send(httpClient, request, cancellationToken);
+            response = await VendorResponses.Send(httpClient, message, cancellationToken);
         }
         catch (HttpRequestException exception)
         {

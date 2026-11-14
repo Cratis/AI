@@ -19,12 +19,12 @@ public class image_clients : all_dependencies
     {
         _anthropicImageClient = Substitute.For<IAIProviderImageClient>();
         _anthropicImageClient.Type.Returns(AIProviderType.Anthropic);
-        _anthropicImageClient.Complete(Arg.Any<string>(), Arg.Any<IReadOnlyList<LanguageModelImage>>(), Arg.Any<ConfiguredAIProvider>(), Arg.Any<ModelName>(), Arg.Any<Effort>(), Arg.Any<CancellationToken>())
+        _anthropicImageClient.Complete(Arg.Any<ImageCompletionRequest>(), Arg.Any<CancellationToken>())
             .Returns(LanguageModelResult.Success("from-anthropic-images"));
 
         _openAIImageClient = Substitute.For<IAIProviderImageClient>();
         _openAIImageClient.Type.Returns(AIProviderType.OpenAI);
-        _openAIImageClient.Complete(Arg.Any<string>(), Arg.Any<IReadOnlyList<LanguageModelImage>>(), Arg.Any<ConfiguredAIProvider>(), Arg.Any<ModelName>(), Arg.Any<Effort>(), Arg.Any<CancellationToken>())
+        _openAIImageClient.Complete(Arg.Any<ImageCompletionRequest>(), Arg.Any<CancellationToken>())
             .Returns(LanguageModelResult.Success("from-openai-images"));
 
         _model = CreateModel(_anthropicImageClient, _openAIImageClient);

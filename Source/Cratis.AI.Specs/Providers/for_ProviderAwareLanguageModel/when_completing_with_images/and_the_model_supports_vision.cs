@@ -26,5 +26,7 @@ public class and_the_model_supports_vision : given.image_clients
 
     [Fact]
     void should_pass_the_images_to_the_client() =>
-        _anthropicImageClient.Received(1).Complete("prompt", Images, Arg.Any<ConfiguredAIProvider>(), "claude-sonnet-4-5", Arg.Any<Effort>(), Arg.Any<CancellationToken>());
+        _anthropicImageClient.Received(1).Complete(
+            Arg.Is<ImageCompletionRequest>(request => request.Prompt == "prompt" && request.Images == Images && request.Model == "claude-sonnet-4-5"),
+            Arg.Any<CancellationToken>());
 }

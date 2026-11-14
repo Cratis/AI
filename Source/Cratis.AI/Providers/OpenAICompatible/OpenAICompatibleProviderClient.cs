@@ -26,37 +26,37 @@ public class OpenAICompatibleProviderClient(IHttpClientFactory httpClientFactory
 
     /// <inheritdoc/>
     public Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default) =>
-        Complete(prompt, [], provider, model, effort, cancellationToken);
+        Complete(new(prompt, [], provider, model, effort), cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<LanguageModelResult> Complete(string prompt, IReadOnlyList<LanguageModelImage> images, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
+    public async Task<LanguageModelResult> Complete(ImageCompletionRequest request, CancellationToken cancellationToken = default)
     {
+        var provider = request.Provider;
         var endpoint = provider.Endpoint?.Value.TrimEnd('/') ?? string.Empty;
         var requestUri = new Uri($"{endpoint}/v1/chat/completions");
         var apiKey = provider.ApiKey.ForUse();
 
         using var httpClient = httpClientFactory.CreateClient();
         return await OpenAIChatCompletionsProtocol.Complete(
-            httpClient,
-            requestUri,
-            model,
-            prompt,
-            images,
-            effort,
-            headers =>
-            {
-                // Many local gateways accept requests unauthenticated - only set the header when
-                // there is a key, rather than sending an empty Bearer token.
-                if (!string.IsNullOrEmpty(apiKey))
+            new(
+                httpClient,
+                requestUri,
+                request.Model,
+                headers =>
                 {
-                    headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-                }
-            },
-            Type,
-            provider.Id,
-            provider.ApiKey,
-            quotaTracker,
-            logger,
+                    // Many local gateways accept requests unauthenticated - only set the header when
+                    // there is a key, rather than sending an empty Bearer token.
+                    if (!string.IsNullOrEmpty(apiKey))
+                    {
+                        headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+                    }
+                },
+                Type,
+                provider.Id,
+                provider.ApiKey,
+                quotaTracker,
+                logger),
+            request,
             cancellationToken);
     }
 }

@@ -27,28 +27,28 @@ public class AzureOpenAIProviderClient(IHttpClientFactory httpClientFactory, IAI
 
     /// <inheritdoc/>
     public Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default) =>
-        Complete(prompt, [], provider, model, effort, cancellationToken);
+        Complete(new(prompt, [], provider, model, effort), cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<LanguageModelResult> Complete(string prompt, IReadOnlyList<LanguageModelImage> images, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
+    public async Task<LanguageModelResult> Complete(ImageCompletionRequest request, CancellationToken cancellationToken = default)
     {
+        var provider = request.Provider;
         var endpoint = provider.Endpoint?.Value.TrimEnd('/') ?? string.Empty;
-        var requestUri = new Uri($"{endpoint}/openai/deployments/{Uri.EscapeDataString(model.Value)}/chat/completions?api-version={ApiVersion}");
+        var requestUri = new Uri($"{endpoint}/openai/deployments/{Uri.EscapeDataString(request.Model.Value)}/chat/completions?api-version={ApiVersion}");
 
         using var httpClient = httpClientFactory.CreateClient();
         return await OpenAIChatCompletionsProtocol.Complete(
-            httpClient,
-            requestUri,
-            model,
-            prompt,
-            images,
-            effort,
-            headers => headers.Add("api-key", provider.ApiKey.ForUse()),
-            Type,
-            provider.Id,
-            provider.ApiKey,
-            quotaTracker,
-            logger,
+            new(
+                httpClient,
+                requestUri,
+                request.Model,
+                headers => headers.Add("api-key", provider.ApiKey.ForUse()),
+                Type,
+                provider.Id,
+                provider.ApiKey,
+                quotaTracker,
+                logger),
+            request,
             cancellationToken);
     }
 }

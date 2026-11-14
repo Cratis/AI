@@ -26,11 +26,13 @@ public class OpenAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvi
 
     /// <inheritdoc/>
     public Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default) =>
-        Complete(prompt, [], provider, model, effort, cancellationToken);
+        Complete(new(prompt, [], provider, model, effort), cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<LanguageModelResult> Complete(string prompt, IReadOnlyList<LanguageModelImage> images, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
+    public async Task<LanguageModelResult> Complete(ImageCompletionRequest request, CancellationToken cancellationToken = default)
     {
+        var provider = request.Provider;
+
         // A ChatGPT subscription authenticates against the ChatGPT backend a Codex-style harness
         // provider talks to, not against api.openai.com - which answers 401 to it. That is the same
         // shape of failure a `claude setup-token` token pasted into an Anthropic API key field
@@ -46,18 +48,17 @@ public class OpenAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvi
 
         using var httpClient = httpClientFactory.CreateClient();
         return await OpenAIChatCompletionsProtocol.Complete(
-            httpClient,
-            new Uri(ChatCompletionsUrl),
-            model,
-            prompt,
-            images,
-            effort,
-            headers => headers.Authorization = new AuthenticationHeaderValue("Bearer", provider.ApiKey.ForUse()),
-            Type,
-            provider.Id,
-            provider.ApiKey,
-            quotaTracker,
-            logger,
+            new(
+                httpClient,
+                new Uri(ChatCompletionsUrl),
+                request.Model,
+                headers => headers.Authorization = new AuthenticationHeaderValue("Bearer", provider.ApiKey.ForUse()),
+                Type,
+                provider.Id,
+                provider.ApiKey,
+                quotaTracker,
+                logger),
+            request,
             cancellationToken);
     }
 }
