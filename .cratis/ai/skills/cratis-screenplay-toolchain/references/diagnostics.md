@@ -21,6 +21,8 @@
 - Audiences and availability (PLAY1130-PLAY1141)
 - Sinks (PLAY0931-PLAY0939)
 - Passive read models (PLAY0858-PLAY0860)
+- Graph queries and `foreach` (PLAY0878-PLAY0886)
+- Screen visuals and slice placements (PLAY0950-PLAY0955)
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
 - Consistency errors (V1: the model contradicts itself)
@@ -51,6 +53,7 @@ then STAGE (V5 admission). Tool differences: `../SKILL.md` ("Tool versions and t
 | PLAY0381 | projection-level `key` routes nothing | put `key` on each `from` |
 | PLAY0455 | quoted import glob matches no file | fix the glob |
 | PLAY0196/0197/0198 | unknown query/screen; ambiguous bare name | declare or qualify `Slice.Name` |
+| PLAY1142 | a projection mapping, AutoMap or reducer copies a `secret` concept into a read model (Screenplay 6.28.0+) | leave it out or map a non-secret derived value |
 
 ## Source reference and identifier checks
 
@@ -60,6 +63,7 @@ These are V1 source checks, not binding-only gaps:
 | --- | --- | --- |
 | PLAY0514 | W | Projection mapping, children or nested target absent from the declared read-model/element shape; unknown/imported shapes are not guessed |
 | PLAY0166 | W | Unknown event, including `remove with`, `remove via join on` and capture `append` |
+| PLAY1142 | W | Projection or reducer copies a `secret` (incl. `pii secret`) concept into a read-model property; no automatic repair (Screenplay 6.28.0+) |
 | PLAY0515 | E | Personal/secret concept in a command identifier, typed `for` destination, event-source identity, stream-id type/part or route mapping source (including nested paths); keep a surrogate identity and protected data in payload |
 
 Legacy compliance spellings (`@pii`/`@sensitive`) do not evade PLAY0515.
@@ -415,6 +419,41 @@ marks one that only informs command decisions. The fixes are in
 | PLAY0860 | W | No command `reads` the passive read model. Add the read or remove `passive`. |
 
 Only the C# compiler reports PLAY0859 and PLAY0860; the TypeScript compiler reports PLAY0858 only.
+
+## Graph queries and `foreach` (PLAY0878-PLAY0886)
+
+Requires Screenplay 5.8.0 or later (`screenplay --version`); `foreach` (PLAY0886) needs 5.10.0. A
+`query` ending in `graph <Graph>` follows a path with `match` and `return`. The complete model and
+fixes are in
+`../../cratis-screenplay-projections/references/graphs.md`; the graph declaration and projection
+codes PLAY0862-PLAY0877 are listed there too.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0878 | E | A graph query is malformed: header, `match` pattern, `where` condition or `return` block. |
+| PLAY0879 | E | It names an undeclared graph, node label, edge type, alias or property. |
+| PLAY0880 | E | A hop uses an edge that does not connect those two labels in that direction. |
+| PLAY0881 | E | It does not return exactly the properties its read model requires, or returns the wrong type. |
+| PLAY0882 | E | A condition uses an undeclared argument or compares values of different types. |
+| PLAY0883 | E | An `optional match` value goes to a read-model property that is not optional. Make it optional. |
+| PLAY0884 | E | The same alias is used twice. |
+| PLAY0885 | E | It uses variable-length paths, `or`, ranges, functions or aggregates; none exist. |
+| PLAY0886 | E | A graph handler's `foreach` names a collection inside another, or something that is not a list of a composite type of the event. |
+
+## Screen visuals and slice placements (PLAY0950-PLAY0955)
+
+Requires Screenplay 6.7.0 or later (`screenplay --version`). Both are presentation-only; neither
+changes the executable model. Details: `../../cratis-screenplay-ui-composition/references/screen-visuals.md`
+and `../../cratis-screenplay-slice-design/references/slicing.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0950 | E | A screen `sketch`, `mockup` or `image` line names no file. |
+| PLAY0951 | W | An `image` is not PNG, JPG, GIF, SVG or WebP, or a `mockup` is not an HTML page. |
+| PLAY0952 | W | The file does not exist beside the model, or its path leaves the model root. |
+| PLAY0953 | E | A slice `shows` line is not `shows event <Name>` or `shows readmodel <Name>`. |
+| PLAY0954 | W | A `shows` line names no declared event or read model. |
+| PLAY0955 | W | A slice shows an element it declares itself, or shows the same element twice. |
 
 ## Structural completeness and timeline checks
 

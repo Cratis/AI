@@ -4,6 +4,8 @@
   "fixtures": [],
   "assertions": [
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "shows readmodel OpenOrders", "file": "references/slicing.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 6.7.0 or later", "file": "references/slicing.md" },
     {
       "kind": "skill-contains",
       "value": "NOT enforced in the model today"

@@ -74,6 +74,8 @@ It is never inferred, and a query or screen that consumes it is error `PLAY0859`
 
 ## `query`
 
+A query that ends in `graph <Graph>` reads a graph: see [graph queries](references/graph-queries.md).
+
 Excerpt: the concepts, the read model and the policy are declared elsewhere.
 
 ```screenplay excerpt
