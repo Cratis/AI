@@ -58,5 +58,11 @@ public enum WorkerLaunchOutcome
     /// The cache request is malformed or its host paths are unsuitable. Nothing was created in the
     /// container runtime. The caller must fix the job or cache configuration rather than retry it.
     /// </summary>
-    InvalidCache
+    InvalidCache,
+
+    /// <summary>
+    /// The work initiator cannot use the selected provider, or its current access state is unknown.
+    /// Nothing was created or removed. Reconcile access before scheduling another attempt.
+    /// </summary>
+    ProviderAccessDenied
 }
