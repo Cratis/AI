@@ -44,7 +44,7 @@ public class and_the_first_member_is_known_exhausted : Specification
         var quotaTracker = Substitute.For<IAIProviderQuotaTracker>();
         quotaTracker.IsKnownExhausted(_first).Returns(true);
 
-        _dispatcher = new AIProviderPoolDispatcher([_client], providerBurn, quotaTracker, Substitute.For<Microsoft.Extensions.Logging.ILogger<AIProviderPoolDispatcher>>());
+        _dispatcher = new AIProviderPoolDispatcher([_client], providerBurn, quotaTracker, Substitute.For<Microsoft.Extensions.Logging.ILogger<AIProviderPoolDispatcher>>(), given.member_access.Allowed());
     }
 
     async Task Because() => _result = await _dispatcher.Complete(

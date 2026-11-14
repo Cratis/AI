@@ -13,16 +13,25 @@ const isObject = (item: unknown): item is Entry => typeof item === 'object' && i
 const isStrings = (item: unknown): item is string[] => Array.isArray(item) && item.every(entry => typeof entry === 'string');
 const isUnique = (values: string[]) => new Set(values).size === values.length;
 
+function isTextList(list: unknown): boolean {
+    if (!isStrings(list)) return false;
+    return list.length > 0 && isUnique(list);
+}
+
 function requireTextList(value: Entry, key: string): void {
-    const list = value[key];
-    if (!isStrings(list) || list.length === 0 || !isUnique(list)) throw new Error(`Invalid contract ${key}.`);
+    if (!isTextList(value[key])) throw new Error(`Invalid contract ${key}.`);
+}
+
+function isDiagnostic(entry: Entry): boolean {
+    if (!/^PLAY\d{4}$/.test(entry.code as string)) return false;
+    return typeof entry.reserved === 'boolean' && typeof entry.retired === 'boolean';
 }
 
 /** Entry-specific checks that run after the shared identity checks, keyed by contract section. */
 const entryChecks: Record<string, (entries: Entry[]) => void> = {
     constructs: () => undefined,
     diagnostics: entries => {
-        if (!entries.every(entry => /^PLAY\d{4}$/.test(entry.code as string) && typeof entry.reserved === 'boolean' && typeof entry.retired === 'boolean')) throw new Error('Invalid contract diagnostics.');
+        if (!entries.every(isDiagnostic)) throw new Error('Invalid contract diagnostics.');
     },
     mcpTools: entries => {
         if (!entries.every(entry => isStrings(entry.requiredParameters) && isStrings(entry.optionalParameters))) throw new Error('Invalid contract MCP parameters.');
@@ -32,11 +41,21 @@ const entryChecks: Record<string, (entries: Entry[]) => void> = {
     },
 };
 
+function isEntryList(entries: unknown): entries is Entry[] {
+    if (!Array.isArray(entries)) return false;
+    return entries.length > 0 && entries.every(isObject);
+}
+
+function hasUniqueIdentities(entries: Entry[], identity: string): boolean {
+    if (!entries.every(entry => typeof entry[identity] === 'string')) return false;
+    return isUnique(entries.map(entry => entry[identity] as string));
+}
+
 function requireEntries(value: Entry, key: string): void {
     const entries = value[key];
-    if (!Array.isArray(entries) || entries.length === 0 || !entries.every(isObject)) throw new Error(`Invalid contract ${key}.`);
+    if (!isEntryList(entries)) throw new Error(`Invalid contract ${key}.`);
     const identity = key === 'diagnostics' ? 'code' : 'name';
-    if (!entries.every(entry => typeof entry[identity] === 'string') || !isUnique(entries.map(entry => entry[identity] as string))) throw new Error(`Invalid or duplicate contract ${key} identities.`);
+    if (!hasUniqueIdentities(entries, identity)) throw new Error(`Invalid or duplicate contract ${key} identities.`);
     entryChecks[key](entries);
 }
 
@@ -98,15 +117,21 @@ function cliOptionDefect(subject: Subject, contract: Contract): string | undefin
     return globalAliases.includes(subject.value) || command?.options.includes(subject.value) ? undefined : `unknown screenplay ${subject.owner} option ${subject.value}`;
 }
 
+function mcpToolDefect(subject: Subject, contract: Contract): string | undefined {
+    return contract.mcpTools.some(item => item.name === subject.value) ? undefined : `unknown MCP tool ${subject.value}`;
+}
+
+function cliCommandDefect(subject: Subject, contract: Contract): string | undefined {
+    return contract.cliCommands.some(item => item.name === subject.value || item.aliases.includes(subject.value)) ? undefined : `unknown screenplay CLI command ${subject.value}`;
+}
+
 function defect(subject: Subject, contract: Contract): string | undefined {
     switch (subject.kind) {
         case Kind.Diagnostic: return diagnosticDefect(subject, contract);
-        case Kind.McpTool:
-            return contract.mcpTools.some(item => item.name === subject.value) ? undefined : `unknown MCP tool ${subject.value}`;
+        case Kind.McpTool: return mcpToolDefect(subject, contract);
         case Kind.McpParameter: return mcpParameterDefect(subject, contract);
         case Kind.ToolCount: return toolCountDefect(subject, contract);
-        case Kind.CliCommand:
-            return contract.cliCommands.some(item => item.name === subject.value || item.aliases.includes(subject.value)) ? undefined : `unknown screenplay CLI command ${subject.value}`;
+        case Kind.CliCommand: return cliCommandDefect(subject, contract);
         case Kind.CliOption: return cliOptionDefect(subject, contract);
     }
 }
