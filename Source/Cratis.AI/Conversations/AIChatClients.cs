@@ -34,6 +34,7 @@ namespace Cratis.AI.Conversations;
 /// <param name="timeProvider">The <see cref="TimeProvider"/> cooldowns are measured against.</param>
 /// <param name="options">The <see cref="AIProviderOptions"/>.</param>
 /// <param name="loggerFactory">The logger factory.</param>
+/// <param name="initiation">The independently scoped work initiator.</param>
 public class AIChatClients(
     IReadModels readModels,
     IAgentProviderCompatibility compatibility,
@@ -48,7 +49,8 @@ public class AIChatClients(
     ICommandPipeline commandPipeline,
     TimeProvider timeProvider,
     IOptions<AIProviderOptions> options,
-    ILoggerFactory loggerFactory) : IAIChatClients
+    ILoggerFactory loggerFactory,
+    IWorkInitiation? initiation = null) : IAIChatClients
 {
     /// <inheritdoc/>
     public IChatClient For(LanguageModelPurpose purpose) => Create(purpose, null);
@@ -87,6 +89,7 @@ public class AIChatClients(
             timeProvider,
             options,
             logger,
-            role);
+            role,
+            initiation);
     }
 }

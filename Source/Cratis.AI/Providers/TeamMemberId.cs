@@ -14,6 +14,11 @@ namespace Cratis.AI.Providers;
 public record TeamMemberId(string Value) : ConceptAs<string>(Value)
 {
     /// <summary>
+    /// An unknown work initiator. Never grants access to a restricted provider.
+    /// </summary>
+    public static readonly TeamMemberId NotSet = new(string.Empty);
+
+    /// <summary>
     /// Implicitly convert from <see cref="string"/> to <see cref="TeamMemberId"/>.
     /// </summary>
     /// <param name="value">The value to convert from.</param>

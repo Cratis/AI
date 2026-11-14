@@ -8,7 +8,15 @@ public class and_the_selection_is_empty : Specification
     FluentValidation.Results.ValidationResult _result;
     SetAIProviderAllowedTeamMembersValidator _validator;
 
-    void Establish() => _validator = new();
+    void Establish()
+    {
+        var authority = Substitute.For<IProviderSelectionAuthority>();
+        authority.CanSet(Arg.Any<AIProviderId>()).Returns(true);
+        var readModels = Substitute.For<Cratis.Chronicle.ReadModels.IReadModels>();
+        readModels.GetInstanceById<ConfiguredAIProvider>(Arg.Any<Cratis.Chronicle.ReadModels.ReadModelKey>())
+            .Returns(new ConfiguredAIProvider(AIProviderId.New(), AIProviderType.OpenAI, "test"));
+        _validator = new(authority, readModels);
+    }
 
     async Task Because() => _result = await _validator.ValidateAsync(new SetAIProviderAllowedTeamMembers(AIProviderId.New(), []));
 

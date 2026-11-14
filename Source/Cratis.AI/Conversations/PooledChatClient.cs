@@ -55,6 +55,7 @@ namespace Cratis.AI.Conversations;
 /// <param name="providerOptions">The <see cref="AIProviderOptions"/>.</param>
 /// <param name="logger">The logger.</param>
 /// <param name="explicitRole">The agent to talk as, when the caller owns where the agent is defined - read from the configured agents when <see langword="null"/>.</param>
+/// <param name="initiation">The independently scoped work initiator.</param>
 public sealed class PooledChatClient(
     LanguageModelPurpose purpose,
     IReadModels readModels,
@@ -72,8 +73,10 @@ public sealed class PooledChatClient(
     TimeProvider timeProvider,
     IOptions<AIProviderOptions> providerOptions,
     ILogger logger,
-    ConfiguredAgent? explicitRole = null) : IChatClient
+    ConfiguredAgent? explicitRole = null,
+    IWorkInitiation? initiation = null) : IChatClient
 {
+    readonly IProviderMemberAccess _memberAccess = new ProviderMemberAccess(readModels, initiation ?? new WorkInitiation());
     /// <inheritdoc/>
     public async Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
     {
@@ -304,6 +307,11 @@ public sealed class PooledChatClient(
             return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} is not configured");
         }
 
+        if (!await _memberAccess.IsAllowed(providerId))
+        {
+            return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} is not available to the work initiator");
+        }
+
         if (!compatibility.Supports(purpose, provider.Type))
         {
             logger.ChatProviderDoesNotSatisfyAgent(providerId, provider.Type, purpose);
@@ -337,6 +345,11 @@ public sealed class PooledChatClient(
             return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} is saturated");
         }
 
+        if (!await _memberAccess.IsAllowed(providerId))
+        {
+            slot.Dispose();
+            return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} is not available to the work initiator");
+        }
         var client = await chatClientFactory.Create(provider, model);
         if (client is null)
         {
@@ -368,34 +381,7 @@ public sealed class PooledChatClient(
         {
             logger.ChatCallFailed(exception, providerId, purpose);
 
-            // A spent quota moves the same messages and options on to the next member and parks this
-            // provider until it resets - unless a Claude Code turn may already have run a tool, where
-            // replaying the turn elsewhere could repeat its effects.
-            var where = $"AI provider {providerId} ({provider.Type}, model {model.Value})";
-            if (IsQuotaExhausted(exception))
-            {
-                await rateLimitRecorder.Record(providerId, exception.Message);
-                return PoolAttempt<(T, AIProviderId)>.QuotaExhausted($"{where}: {exception.Message}");
-            }
-
-            // This provider's own credential, plan or model was refused: another member of the pool may well
-            // still serve the call, so move on - the reason is kept for when none can.
-            if (exception is ClaudeCodeConversationFailed { FunctionInvocationAttempted: false, Kind: ClaudeCodeFailureKind.Authentication or ClaudeCodeFailureKind.Billing or ClaudeCodeFailureKind.InvalidRequest })
-            {
-                return PoolAttempt<(T, AIProviderId)>.Rejected(default, $"{where}: {exception.Message}");
-            }
-
-            if (!IsTransient(exception))
-            {
-                return PoolAttempt<(T, AIProviderId)>.PermanentFailure(default, $"{where}: {exception.Message}");
-            }
-
-            if (ProviderRateLimit.IsIndicatedBy(exception.Message) || exception is ClientResultException { Status: (int)HttpStatusCode.TooManyRequests })
-            {
-                await rateLimitRecorder.Record(providerId, exception.Message);
-            }
-
-            return PoolAttempt<(T, AIProviderId)>.TransientFailure($"{where}: {exception.Message}");
+            return await FailedAttempt<T>(exception, provider, model);
         }
         finally
         {
@@ -406,6 +392,39 @@ public sealed class PooledChatClient(
 
             client?.Dispose();
         }
+    }
+
+    async Task<PoolAttempt<(T, AIProviderId)>> FailedAttempt<T>(Exception exception, ConfiguredAIProvider provider, ModelName model)
+    {
+        var providerId = provider.Id;
+        // A spent quota moves the same messages and options on to the next member and parks this
+        // provider until it resets - unless a Claude Code turn may already have run a tool, where
+        // replaying the turn elsewhere could repeat its effects.
+        var where = $"AI provider {providerId} ({provider.Type}, model {model.Value})";
+        if (IsQuotaExhausted(exception))
+        {
+            await rateLimitRecorder.Record(providerId, exception.Message);
+            return PoolAttempt<(T, AIProviderId)>.QuotaExhausted($"{where}: {exception.Message}");
+        }
+
+        // This provider's own credential, plan or model was refused: another member of the pool may well
+        // still serve the call, so move on - the reason is kept for when none can.
+        if (exception is ClaudeCodeConversationFailed { FunctionInvocationAttempted: false, Kind: ClaudeCodeFailureKind.Authentication or ClaudeCodeFailureKind.Billing or ClaudeCodeFailureKind.InvalidRequest })
+        {
+            return PoolAttempt<(T, AIProviderId)>.Rejected(default, $"{where}: {exception.Message}");
+        }
+
+        if (!IsTransient(exception))
+        {
+            return PoolAttempt<(T, AIProviderId)>.PermanentFailure(default, $"{where}: {exception.Message}");
+        }
+
+        if (ProviderRateLimit.IsIndicatedBy(exception.Message) || exception is ClientResultException { Status: (int)HttpStatusCode.TooManyRequests })
+        {
+            await rateLimitRecorder.Record(providerId, exception.Message);
+        }
+
+        return PoolAttempt<(T, AIProviderId)>.TransientFailure($"{where}: {exception.Message}");
     }
 
     async Task RecordUsage(string? modelId, UsageDetails? usage, AIProviderId providerId)

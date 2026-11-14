@@ -46,7 +46,7 @@ public interface IAIProviderPoolDispatcher
 /// <see cref="ProviderAwareLanguageModel"/> makes.
 /// </summary>
 /// <remarks>
-/// Registered as a singleton, so it does not consult <see cref="Capacity.IAIProviderCapacities"/>,
+/// Does not consult <see cref="Capacity.IAIProviderCapacities"/>,
 /// which reads the caller's tenant; a caller that wants headroom-aware ranking dispatches through
 /// <see cref="ProviderAwareLanguageModel"/>. For the same reason it does not park a member that ran
 /// out of quota: recording a rate limit is tenant-scoped, so it only fails over. A caller that needs
@@ -58,12 +58,14 @@ public interface IAIProviderPoolDispatcher
 /// <param name="quotaTracker">What each provider's own responses most recently reported about its remaining quota.</param>
 /// <param name="timeProvider">The <see cref="TimeProvider"/> a recorded rate limit is checked against.</param>
 /// <param name="logger">The logger.</param>
+/// <param name="memberAccess">Checks fresh access for each attempt; absent means denied.</param>
 public class AIProviderPoolDispatcher(
     IEnumerable<IAIProviderClient> clients,
     IProviderBurn providerBurn,
     IAIProviderQuotaTracker quotaTracker,
     TimeProvider timeProvider,
-    ILogger<AIProviderPoolDispatcher> logger) : IAIProviderPoolDispatcher
+    ILogger<AIProviderPoolDispatcher> logger,
+    IProviderMemberAccess? memberAccess = null) : IAIProviderPoolDispatcher
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="AIProviderPoolDispatcher"/> class measuring
@@ -74,12 +76,14 @@ public class AIProviderPoolDispatcher(
     /// <param name="providerBurn">What each provider has burnt recently.</param>
     /// <param name="quotaTracker">What each provider's own responses most recently reported about its remaining quota.</param>
     /// <param name="logger">The logger.</param>
+    /// <param name="memberAccess">Checks fresh access for each attempt; absent means denied.</param>
     public AIProviderPoolDispatcher(
         IEnumerable<IAIProviderClient> clients,
         IProviderBurn providerBurn,
         IAIProviderQuotaTracker quotaTracker,
-        ILogger<AIProviderPoolDispatcher> logger)
-        : this(clients, providerBurn, quotaTracker, TimeProvider.System, logger)
+        ILogger<AIProviderPoolDispatcher> logger,
+        IProviderMemberAccess? memberAccess = null)
+        : this(clients, providerBurn, quotaTracker, TimeProvider.System, logger, memberAccess)
     {
     }
 
@@ -110,6 +114,12 @@ public class AIProviderPoolDispatcher(
             return LanguageModelResult.Failure("The pool has no members");
         }
 
+        ordered = await AccessibleMembers(ordered);
+        if (ordered.Count == 0)
+        {
+            return LanguageModelResult.Failure("Access to every available pool member is denied for the work initiator");
+        }
+
         // Skip a member already known to be exhausted from its own last-reported quota - but only
         // when that leaves at least one candidate: a known-exhausted reading can itself be stale
         // (the vendor's own window may have already rolled over since the last call), and refusing
@@ -122,6 +132,7 @@ public class AIProviderPoolDispatcher(
         LanguageModelResult? last = null;
         var anyRateLimited = false;
         var anyTransient = false;
+        var anyAccessDenied = false;
         var tried = new List<AIProviderId>();
         var outOfQuota = new List<AIProviderId>();
         foreach (var member in candidates)
@@ -129,6 +140,12 @@ public class AIProviderPoolDispatcher(
             if (!configuredProviders.TryGetValue(member.ProviderId, out var provider))
             {
                 logger.PoolMemberNotConfigured(member.ProviderId);
+                continue;
+            }
+
+            if (!await HasAccess(member.ProviderId))
+            {
+                anyAccessDenied = true;
                 continue;
             }
 
@@ -177,9 +194,32 @@ public class AIProviderPoolDispatcher(
                 : LanguageModelResult.QuotaExhausted(reason);
         }
 
-        return last ?? (anyRateLimited
+        return last ?? Unavailable(anyAccessDenied, anyRateLimited);
+    }
+
+    static LanguageModelResult Unavailable(bool accessDenied, bool rateLimited)
+    {
+        if (accessDenied) return LanguageModelResult.Failure("Access to every available pool member is denied for the work initiator");
+        return rateLimited
             ? LanguageModelResult.TransientFailure("Every reachable pool member is over its own usage limit")
-            : LanguageModelResult.Failure("No pool member could be reached"));
+            : LanguageModelResult.Failure("No pool member could be reached");
+    }
+
+    async Task<List<AIProviderPoolMember>> AccessibleMembers(IEnumerable<AIProviderPoolMember> members)
+    {
+        var allowed = new List<AIProviderPoolMember>();
+        foreach (var member in members)
+        {
+            if (await HasAccess(member.ProviderId)) allowed.Add(member);
+        }
+        return allowed;
+    }
+
+    async Task<bool> HasAccess(AIProviderId provider)
+    {
+        if (memberAccess is not null && await memberAccess.IsAllowed(provider)) return true;
+        logger.PoolMemberAccessDenied(provider);
+        return false;
     }
 }
 
@@ -188,6 +228,9 @@ public class AIProviderPoolDispatcher(
 /// </summary>
 internal static partial class AIProviderPoolDispatcherLog
 {
+    [LoggerMessage(LogLevel.Warning, "Access to pool member {ProviderId} is denied for the work initiator - skipping it")]
+    internal static partial void PoolMemberAccessDenied(this ILogger logger, AIProviderId providerId);
+
     [LoggerMessage(LogLevel.Warning, "Pool member {ProviderId} has no configured provider - skipping it")]
     internal static partial void PoolMemberNotConfigured(this ILogger logger, AIProviderId providerId);
 

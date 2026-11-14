@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Providers.SettingAllowedTeamMembers;
 
 /// <summary>
@@ -11,13 +13,22 @@ namespace Cratis.AI.Providers.SettingAllowedTeamMembers;
 /// <param name="Provider">The provider whose allowed team members are being set.</param>
 /// <param name="AllowedTeamMembers">The complete set of team members allowed to use the provider.</param>
 [Command]
+[Authorize]
 public record SetAIProviderAllowedTeamMembers(AIProviderId Provider, IReadOnlyList<TeamMemberId> AllowedTeamMembers)
 {
     /// <summary>
     /// Records the complete selection on the provider's event stream.
     /// </summary>
-    /// <returns>The selected team members.</returns>
-    public AIProviderAllowedTeamMembersSet Handle() => new(AllowedTeamMembers.ToArray());
+    /// <param name="authority">The consumer's administrative authority.</param>
+    /// <returns>The selected team members when authorized.</returns>
+    public async Task<AIProviderAllowedTeamMembersSet> Handle(IProviderSelectionAuthority authority)
+    {
+        if (!await authority.CanSet(Provider))
+        {
+            throw new UnauthorizedAccessException("Not authorized to change provider selection");
+        }
+        return new(AllowedTeamMembers.ToArray());
+    }
 }
 
 /// <summary>
@@ -29,13 +40,24 @@ public class SetAIProviderAllowedTeamMembersValidator : CommandValidator<SetAIPr
     /// <summary>
     /// Initializes the validator.
     /// </summary>
-    public SetAIProviderAllowedTeamMembersValidator()
+    /// <param name="authority">The consumer's administrative policy; absent means denied.</param>
+    /// <param name="readModels">The provider read models; absent means the provider cannot be verified.</param>
+    public SetAIProviderAllowedTeamMembersValidator(IProviderSelectionAuthority? authority = null, IReadModels? readModels = null)
     {
+        RuleFor(_ => _.Provider).MustAsync((provider, _) =>
+            (authority ?? new DenyProviderSelectionAuthority()).CanSet(provider))
+            .WithMessage("Not authorized to change provider selection");
         RuleFor(_ => _.Provider).NotEqual(AIProviderId.NotSet).WithMessage("A provider is required");
+        RuleFor(_ => _.Provider).MustAsync(async (provider, _) => readModels is not null &&
+            await readModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)provider) is not null)
+            .WithMessage("Provider must exist");
         RuleFor(_ => _.AllowedTeamMembers).NotNull().WithMessage("A team member selection is required");
         RuleFor(_ => _).Must(_ => _.AllowedTeamMembers is null ||
             _.AllowedTeamMembers.Distinct().Count() == _.AllowedTeamMembers.Count)
             .WithMessage("Team members must be distinct");
+        RuleFor(_ => _.AllowedTeamMembers).Must(members => members is null ||
+            members.All(member => member is not null && !string.IsNullOrWhiteSpace(member.Value)))
+            .WithMessage("Team members must have an identity");
     }
 }
 

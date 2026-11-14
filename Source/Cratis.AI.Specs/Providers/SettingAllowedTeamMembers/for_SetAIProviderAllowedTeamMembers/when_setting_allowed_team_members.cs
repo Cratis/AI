@@ -7,7 +7,12 @@ public class when_setting_allowed_team_members : Specification
 {
     AIProviderAllowedTeamMembersSet _result;
 
-    void Because() => _result = new SetAIProviderAllowedTeamMembers(AIProviderId.New(), [(TeamMemberId)"alice", (TeamMemberId)"bob"]).Handle();
+    async Task Because()
+    {
+        var authority = Substitute.For<IProviderSelectionAuthority>();
+        authority.CanSet(Arg.Any<AIProviderId>()).Returns(true);
+        _result = await new SetAIProviderAllowedTeamMembers(AIProviderId.New(), [(TeamMemberId)"alice", (TeamMemberId)"bob"]).Handle(authority);
+    }
 
     [Fact] void should_record_the_whole_selection() => _result.AllowedTeamMembers.ShouldContainOnly((TeamMemberId)"alice", (TeamMemberId)"bob");
 }

@@ -49,6 +49,7 @@ namespace Cratis.AI.Providers;
 /// <param name="timeProvider">The <see cref="TimeProvider"/> the rate-limit cooldown and the rate-limit consult check are measured against.</param>
 /// <param name="options">The <see cref="AIProviderOptions"/> the completion deadline and rate-limit cooldown are read from.</param>
 /// <param name="logger">The logger - every resolution miss is logged here, so a completion that failed because of configuration is never indistinguishable from one that failed at the vendor.</param>
+/// <param name="initiation">The independently scoped work initiator.</param>
 public class ProviderAwareLanguageModel(
     IInstancesOf<IAIProviderClient> providerClients,
     IAgentProviderCompatibility compatibility,
@@ -62,8 +63,10 @@ public class ProviderAwareLanguageModel(
     ICommandPipeline commandPipeline,
     TimeProvider timeProvider,
     IOptions<AIProviderOptions> options,
-    ILogger<ProviderAwareLanguageModel> logger) : ILanguageModel
+    ILogger<ProviderAwareLanguageModel> logger,
+    IWorkInitiation? initiation = null) : ILanguageModel
 {
+    readonly IProviderMemberAccess _memberAccess = new ProviderMemberAccess(readModels, initiation ?? new WorkInitiation());
     readonly ProviderRateLimitRecorder _rateLimitRecorder = new(providerCapacities, commandPipeline, timeProvider, options, logger);
 
     /// <summary>
@@ -333,6 +336,11 @@ public class ProviderAwareLanguageModel(
             return null;
         }
 
+        if (!await _memberAccess.IsAllowed(providerId))
+        {
+            return LanguageModelResult.Failure($"AI provider {providerId} is not available to the work initiator");
+        }
+
         if (!compatibility.Supports(request.Purpose, provider.Type))
         {
             logger.ProviderDoesNotSatisfyAgentCapabilities(providerId, provider.Type, request.Purpose);
@@ -386,25 +394,34 @@ public class ProviderAwareLanguageModel(
 
         using (slot)
         {
-            // The stored key is protected at rest with the tenant's Vault-held encryption key (or is
-            // a legacy plaintext value the protector passes through) - it is revealed only here, at
-            // the moment it is spent, and the revealed value goes no further than the vendor call.
-            var result = await client.Complete(request.Prompt, provider, resolvedModel, request.Effort, cancellationToken);
-            result = result with { ProviderId = providerId };
-
-            // The completion path has the vendor's actual status code, unlike a worker's failure
-            // text - so a 429/quota transient failure is recorded against the provider here rather
-            // than waiting for a worker to report the same thing in words (issue #1060).
-            // A spent quota is recorded the same way, so the provider is skipped until it resets - the
-            // reset the vendor stated, else when its capacity says it is available again, else the
-            // bounded RateLimitCooldown.
-            if (result.IsQuotaExhausted || (result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason)))
-            {
-                await _rateLimitRecorder.Record(providerId, result.FailureReason);
-            }
-
-            return result;
+            return await DispatchProvider(request, providerId, provider, client, resolvedModel, cancellationToken);
         }
+    }
+
+    async Task<LanguageModelResult> DispatchProvider(CompletionRequest request, AIProviderId providerId, ConfiguredAIProvider provider, IAIProviderClient client, ModelName resolvedModel, CancellationToken cancellationToken)
+    {
+        if (!await _memberAccess.IsAllowed(providerId))
+        {
+            return LanguageModelResult.Failure($"AI provider {providerId} is not available to the work initiator");
+        }
+        // The stored key is protected at rest with the tenant's Vault-held encryption key (or is
+        // a legacy plaintext value the protector passes through) - it is revealed only here, at
+        // the moment it is spent, and the revealed value goes no further than the vendor call.
+        var result = await client.Complete(request.Prompt, provider, resolvedModel, request.Effort, cancellationToken);
+        result = result with { ProviderId = providerId };
+
+        // The completion path has the vendor's actual status code, unlike a worker's failure
+        // text - so a 429/quota transient failure is recorded against the provider here rather
+        // than waiting for a worker to report the same thing in words (issue #1060).
+        // A spent quota is recorded the same way, so the provider is skipped until it resets - the
+        // reset the vendor stated, else when its capacity says it is available again, else the
+        // bounded RateLimitCooldown.
+        if (result.IsQuotaExhausted || (result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason)))
+        {
+            await _rateLimitRecorder.Record(providerId, result.FailureReason);
+        }
+
+        return result;
     }
 
     sealed record PoolFailure(bool ExhaustedTransiently, string? OutOfQuota, string? Reason);

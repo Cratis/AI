@@ -40,7 +40,7 @@ public class and_the_first_member_has_a_recorded_rate_limit : Specification
         var timeProvider = Substitute.For<TimeProvider>();
         timeProvider.GetUtcNow().Returns(_now);
 
-        _dispatcher = new AIProviderPoolDispatcher([_client], providerBurn, Substitute.For<IAIProviderQuotaTracker>(), timeProvider, Substitute.For<Microsoft.Extensions.Logging.ILogger<AIProviderPoolDispatcher>>());
+        _dispatcher = new AIProviderPoolDispatcher([_client], providerBurn, Substitute.For<IAIProviderQuotaTracker>(), timeProvider, Substitute.For<Microsoft.Extensions.Logging.ILogger<AIProviderPoolDispatcher>>(), given.member_access.Allowed());
     }
 
     async Task Because() => _result = await _dispatcher.Complete(
