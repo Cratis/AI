@@ -3,8 +3,10 @@
 
 using Cratis.AI.Abstractions;
 using Cratis.AI.Agents;
+using Cratis.AI.Providers;
 using Cratis.AI.Providers.Pools;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Cratis.AI.Configuration;
 
@@ -50,6 +52,9 @@ public static class CratisAIServiceCollectionExtensions
         services.AddSingleton<IAIAlerts, NoOpAIAlerts>();
         services.AddSingleton<IDefaultAgentInvocationModes, DefaultAgentInvocationModes>();
         services.AddSingleton<IAIUsageAttribution, NoAttributionAIUsageAttribution>();
+        services.TryAddSingleton<IWorkInitiation, WorkInitiation>();
+        services.TryAddTransient<IProviderSelectionAuthority, DenyProviderSelectionAuthority>();
+        services.TryAddTransient<IProviderMemberAccess, ProviderMemberAccess>();
 
         configure(builder);
 
@@ -61,7 +66,7 @@ public static class CratisAIServiceCollectionExtensions
         // AIProviderPoolDispatcher need to agree on the same instance for a report from one call to
         // be visible to the next (Cratis/AI#337).
         services.AddSingleton<IAIProviderQuotaTracker, AIProviderQuotaTracker>();
-        services.AddSingleton<IAIProviderPoolDispatcher, AIProviderPoolDispatcher>();
+        services.AddTransient<IAIProviderPoolDispatcher, AIProviderPoolDispatcher>();
 
         AssertLoadedIntoTypeUniverse();
 

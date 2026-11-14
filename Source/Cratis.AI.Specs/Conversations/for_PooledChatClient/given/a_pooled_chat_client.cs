@@ -38,6 +38,7 @@ public class a_pooled_chat_client : Specification
     protected IAIProviderCapacities _capacities;
     protected IAgentExecution _execution;
     protected ProviderBurn _burn;
+    protected WorkInitiation _initiation;
 
     void Establish()
     {
@@ -90,7 +91,8 @@ public class a_pooled_chat_client : Specification
             _recorder = new ProviderRateLimitRecorder(capacities, _commandPipeline, TimeProvider.System, options, Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance),
             TimeProvider.System,
             options,
-            Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance);
+            Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance,
+            initiation: _initiation = new WorkInitiation());
     }
 
     protected void AgentNamesProvider(AIProviderId provider) =>
