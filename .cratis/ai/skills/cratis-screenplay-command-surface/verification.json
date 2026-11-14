@@ -110,6 +110,7 @@
     { "kind": "skill-contains", "value": "`Concurrency`", "file": "references/generated-values-and-responses.md" },
     { "kind": "skill-contains", "value": "PLAY0682", "file": "references/generated-values-and-responses.md" },
     { "kind": "skill-contains", "value": "zero trailing bits", "file": "references/generated-values-and-responses.md" },
-    { "kind": "skill-contains", "value": "STAGE-ESM-038", "file": "references/generated-values-and-responses.md" }
+    { "kind": "skill-contains", "value": "STAGE-ESM-038", "file": "references/generated-values-and-responses.md" },
+    { "kind": "skill-contains", "value": "file Validations/AllowedEmailDomain.cs", "file": "references/validate-rules.md" }
   ]
 }

@@ -102,6 +102,7 @@
     { "kind": "skill-contains", "value": "references/unknown-preserving-reader.md" },
     { "kind": "skill-contains", "value": "| PLAY0885 | E |", "file": "references/diagnostics.md" },
     { "kind": "skill-contains", "value": "| PLAY0886 | E |", "file": "references/diagnostics.md" },
-    { "kind": "skill-contains", "value": "| PLAY0955 | W |", "file": "references/diagnostics.md" }
+    { "kind": "skill-contains", "value": "| PLAY0955 | W |", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "does not establish runtime identity safety", "file": "references/executable-subset.md" }
   ]
 }

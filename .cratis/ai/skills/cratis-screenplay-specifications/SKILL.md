@@ -98,6 +98,9 @@ or target tests; name engine, version and expected/discovered selection.
   UnsupportedValidation, not a successful check. Read
   [text and match rules](../cratis-screenplay-command-surface/references/text-and-match-rules.md)
   for boundary values and PLAY0699/0787. Reference success is not Stage admission.
+- Opaque rule, validation and reducer bodies run only when a host supplies a body execution
+  provider; the standalone tool never does. Read
+  [host body execution](references/host-body-execution.md).
 
 ## Chronological command date comparisons
 
