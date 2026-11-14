@@ -5,7 +5,9 @@ Requires Screenplay 4.248.0 or later (`screenplay --version`). Source: Screenpla
 
 A plain or toolbar `action` states whether it acts on one chosen record or on the screen:
 
-- `for item`: the nearest single `data` record, or the selected row of a collection. Inputs bind
+- `for item`: the nearest single `data` record, or the selected row of a collection. When a screen
+  declares several `data` and a `table` in scope shows exactly one collection, that collection is the
+  subject (see [table narrowing](#table-narrowing)). Inputs bind
   from it: explicit `with <input> from item.<field>` first, then case-sensitive same-name
   fields, then one key field with the same declared concept.
 - `for screen`: independent of selection; no row fills the inputs. Use it for actions that
@@ -55,6 +57,25 @@ module Work
         table OpenTask
           column title label "Task"
 ```
+
+## Table narrowing
+
+Requires Screenplay 6.18.0 or later (`screenplay --version`). A screen often shows a header
+record next to a table of rows. An authored plain or toolbar `for item` action then acts on the
+one collection `data` that a `table` in scope shows, so the header does not make it ambiguous:
+
+```play
+data Header via query HeaderOf
+data Row[] via query Rows
+table Row
+action RetryItem for item
+```
+
+Unchanged and still ambiguous: a table over a record, two tables over two collections, and no
+table. Guarded actions and inferred (omitted) subjects are unchanged. PLAY0346 names the candidate
+`data`; use that list to pick the explicit fix: show one table, or move the action into a screen
+section or slot with its own local `data`. The subject is a modeling statement, so do not
+restructure a screen only to satisfy `for item`.
 
 State the subject on every plain and toolbar action. Without it, the compiler infers `for item`
 when there is exactly one collection `data`, one required non-generated identifier and one key
