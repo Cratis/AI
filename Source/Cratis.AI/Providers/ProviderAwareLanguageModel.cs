@@ -49,6 +49,7 @@ namespace Cratis.AI.Providers;
 /// <param name="timeProvider">The <see cref="TimeProvider"/> the rate-limit cooldown and the rate-limit consult check are measured against.</param>
 /// <param name="options">The <see cref="AIProviderOptions"/> the completion deadline and rate-limit cooldown are read from.</param>
 /// <param name="logger">The logger - every resolution miss is logged here, so a completion that failed because of configuration is never indistinguishable from one that failed at the vendor.</param>
+/// <param name="initiation">The independently scoped work initiator.</param>
 public class ProviderAwareLanguageModel(
     IInstancesOf<IAIProviderClient> providerClients,
     IAgentProviderCompatibility compatibility,
@@ -62,8 +63,10 @@ public class ProviderAwareLanguageModel(
     ICommandPipeline commandPipeline,
     TimeProvider timeProvider,
     IOptions<AIProviderOptions> options,
-    ILogger<ProviderAwareLanguageModel> logger) : ILanguageModel
+    ILogger<ProviderAwareLanguageModel> logger,
+    IWorkInitiation? initiation = null) : ILanguageModel
 {
+    readonly ProviderMemberAccess _memberAccess = new(readModels, initiation ?? new WorkInitiation());
     readonly ProviderRateLimitRecorder _rateLimitRecorder = new(providerCapacities, commandPipeline, timeProvider, options, logger);
 
     /// <summary>
@@ -115,75 +118,6 @@ public class ProviderAwareLanguageModel(
     {
     }
 
-    /// <inheritdoc/>
-    public async Task<LanguageModelResult> Complete(string prompt, LanguageModelPurpose purpose, CancellationToken cancellationToken = default)
-    {
-        // Bounds the whole completion - not just the vendor HTTP call, everything below - so a vendor
-        // that stops responding without erroring degrades into an ordinary failed completion instead
-        // of wedging the caller (often a Chronicle reactor, whose single-threaded observer stalls
-        // behind a call that never returns) forever.
-        var callerCancellationToken = cancellationToken;
-        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        deadline.CancelAfter(options.Value.CompletionTimeout);
-        cancellationToken = deadline.Token;
-
-        var role = await ConfiguredAgent.For(readModels, purpose);
-
-        // What was configured on the agent travels into the completion, exactly as it does into a
-        // worker container's prompt. Without this, skills only reached the agents that happen to run
-        // as a job - so configuring one on a chat-completion agent quietly did nothing.
-        prompt = AgentSkillPrompt.Ahead(prompt, role?.Skills);
-
-        var hasPool = role?.PoolId is { } configuredPool && !configuredPool.Equals(AIProviderPoolId.NotSet);
-        var hasProvider = role?.ProviderId is { } configuredProvider && !configuredProvider.Equals(AIProviderId.NotSet);
-
-        var effort = role?.Effort ?? Effort.High;
-
-        // The role's capability tier (#865) - the provider each path below resolves to translates it
-        // into the concrete model it offers for that tier.
-        var tier = role?.Tier ?? ModelTier.Balanced;
-
-        var poolExhaustedTransiently = false;
-        string? poolOutOfQuota = null;
-        string? poolFailureReason = null;
-        try
-        {
-            var dispatch = await DispatchCompletion(new(prompt, purpose, tier, effort), role, cancellationToken);
-            if (dispatch.Result is not null) return dispatch.Result;
-            poolExhaustedTransiently = dispatch.ExhaustedTransiently;
-            poolOutOfQuota = dispatch.OutOfQuota;
-            poolFailureReason = dispatch.FailureReason;
-        }
-        catch (OperationCanceledException) when (!callerCancellationToken.IsCancellationRequested)
-        {
-            // The linked token above can be canceled for two different reasons that look identical
-            // from here on out - the caller's own token, or CompletionTimeout simply running out - and
-            // only the caller's own token is genuine cancellation. Checking the *original*, un-linked
-            // token is what tells them apart: it is only set when the caller asked to stop, never by
-            // CancelAfter. A deadline expiry degrades into the ordinary failed completion the
-            // CompletionTimeout doc comment promises, exactly like a vendor answering with an error
-            // would; true caller cancellation still propagates, unchanged.
-            logger.CompletionTimedOut(purpose, options.Value.CompletionTimeout);
-            return LanguageModelResult.TransientFailure($"The completion did not finish within {options.Value.CompletionTimeout}");
-        }
-
-        if (!hasPool && !hasProvider)
-        {
-            logger.AgentNamesNoProvider(purpose, role is null);
-            return LanguageModelResult.Failure(
-                $"The {purpose.Value} agent has no AI provider or pool configured. Configure one in Settings under Agents.");
-        }
-
-        // Everything the agent named resolved dead - the specific reason is already logged by
-        // whichever step gave up. When the pool ran out of members purely because of transient
-        // failures - never because the request itself was wrong - this is worth
-        // ManagedLanguageModel's whole-call retry: burn and rate-limit state can look different by
-        // the time it tries again, which a same-provider hammering retry never gave the pool a chance
-        // to benefit from (issue #1060).
-        logger.NothingTheAgentNamedCouldServe(purpose);
-        return PoolFailureResult(purpose, new(poolExhaustedTransiently, poolOutOfQuota, poolFailureReason));
-    }
-
     static LanguageModelResult PoolFailureResult(LanguageModelPurpose purpose, PoolFailure failure)
     {
         if (failure.OutOfQuota is not null)
@@ -204,6 +138,81 @@ public class ProviderAwareLanguageModel(
         usageLevels
             .Where(pair => pair.Value.RemainingCapacity is not null)
             .ToDictionary(pair => pair.Key, pair => pair.Value.RemainingCapacity!.Value);
+
+    static bool ShouldRecordRateLimit(LanguageModelResult result)
+    {
+        if (result.IsQuotaExhausted) return true;
+        return result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason);
+    }
+
+    /// <inheritdoc/>
+    public async Task<LanguageModelResult> Complete(string prompt, LanguageModelPurpose purpose, CancellationToken cancellationToken = default)
+    {
+        // Bounds the whole completion - not just the vendor HTTP call, everything below - so a vendor
+        // that stops responding without erroring degrades into an ordinary failed completion instead
+        // of wedging the caller (often a Chronicle reactor, whose single-threaded observer stalls
+        // behind a call that never returns) forever.
+        var callerCancellationToken = cancellationToken;
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        deadline.CancelAfter(options.Value.CompletionTimeout);
+        cancellationToken = deadline.Token;
+
+        var role = await ConfiguredAgent.For(readModels, purpose);
+
+        // What was configured on the agent travels into the completion, exactly as it does into a
+        // worker container's prompt. Without this, skills only reached the agents that happen to run
+        // as a job - so configuring one on a chat-completion agent quietly did nothing.
+        prompt = AgentSkillPrompt.Ahead(prompt, role?.Skills);
+
+        var effort = role?.Effort ?? Effort.High;
+
+        // The role's capability tier (#865) - the provider each path below resolves to translates it
+        // into the concrete model it offers for that tier.
+        var tier = role?.Tier ?? ModelTier.Balanced;
+
+        PoolFailure failure;
+        try
+        {
+            var dispatch = await DispatchCompletion(new(prompt, purpose, tier, effort), role, cancellationToken);
+            if (dispatch.Result is not null) return dispatch.Result;
+            failure = new(dispatch.ExhaustedTransiently, dispatch.OutOfQuota, dispatch.FailureReason);
+        }
+        catch (OperationCanceledException) when (!callerCancellationToken.IsCancellationRequested)
+        {
+            // The linked token above can be canceled for two different reasons that look identical
+            // from here on out - the caller's own token, or CompletionTimeout simply running out - and
+            // only the caller's own token is genuine cancellation. Checking the *original*, un-linked
+            // token is what tells them apart: it is only set when the caller asked to stop, never by
+            // CancelAfter. A deadline expiry degrades into the ordinary failed completion the
+            // CompletionTimeout doc comment promises, exactly like a vendor answering with an error
+            // would; true caller cancellation still propagates, unchanged.
+            logger.CompletionTimedOut(purpose, options.Value.CompletionTimeout);
+            return LanguageModelResult.TransientFailure($"The completion did not finish within {options.Value.CompletionTimeout}");
+        }
+
+        return UnservedCompletion(purpose, role, failure);
+    }
+
+    LanguageModelResult UnservedCompletion(LanguageModelPurpose purpose, ConfiguredAgent? role, PoolFailure failure)
+    {
+        var hasPool = role?.PoolId is { } configuredPool && !configuredPool.Equals(AIProviderPoolId.NotSet);
+        var hasProvider = role?.ProviderId is { } configuredProvider && !configuredProvider.Equals(AIProviderId.NotSet);
+        if (!hasPool && !hasProvider)
+        {
+            logger.AgentNamesNoProvider(purpose, role is null);
+            return LanguageModelResult.Failure(
+                $"The {purpose.Value} agent has no AI provider or pool configured. Configure one in Settings under Agents.");
+        }
+
+        // Everything the agent named resolved dead - the specific reason is already logged by
+        // whichever step gave up. When the pool ran out of members purely because of transient
+        // failures - never because the request itself was wrong - this is worth
+        // ManagedLanguageModel's whole-call retry: burn and rate-limit state can look different by
+        // the time it tries again, which a same-provider hammering retry never gave the pool a chance
+        // to benefit from (issue #1060).
+        logger.NothingTheAgentNamedCouldServe(purpose);
+        return PoolFailureResult(purpose, failure);
+    }
 
     async Task<(LanguageModelResult? Result, bool ExhaustedTransiently, string? OutOfQuota, string? FailureReason)> DispatchCompletion(
         CompletionRequest request, ConfiguredAgent? role, CancellationToken cancellationToken)
@@ -234,6 +243,12 @@ public class ProviderAwareLanguageModel(
             return (null, false, null, null);
         }
 
+        return await DispatchPoolMembers(request, members, poolId, cancellationToken);
+    }
+
+    async Task<(LanguageModelResult? Result, bool ExhaustedTransiently, string? OutOfQuota, string? FailureReason)> DispatchPoolMembers(
+        CompletionRequest request, IReadOnlyList<AIProviderPoolMember> members, AIProviderPoolId poolId, CancellationToken cancellationToken)
+    {
         var burn = await providerBurn.TrailingWeek(cancellationToken);
         var usageLevels = await providerUsageLevels.RefreshMany([.. members.Select(member => member.ProviderId)], cancellationToken);
         var remainingCapacity = RemainingCapacityByProvider(usageLevels);
@@ -333,6 +348,11 @@ public class ProviderAwareLanguageModel(
             return null;
         }
 
+        if (!await _memberAccess.IsAllowed(providerId))
+        {
+            return LanguageModelResult.Failure($"AI provider {providerId} is not available to the work initiator");
+        }
+
         if (!compatibility.Supports(request.Purpose, provider.Type))
         {
             logger.ProviderDoesNotSatisfyAgentCapabilities(providerId, provider.Type, request.Purpose);
@@ -355,7 +375,12 @@ public class ProviderAwareLanguageModel(
             return LanguageModelResult.Failure(resolution.Reason);
         }
 
-        var resolvedModel = resolution.Model;
+        return await CompleteResolvedProvider(request, new(providerId, provider, client, resolution.Model), cancellationToken);
+    }
+
+    async Task<LanguageModelResult?> CompleteResolvedProvider(CompletionRequest request, ProviderCompletion completion, CancellationToken cancellationToken)
+    {
+        var (providerId, provider, _, resolvedModel) = completion;
         var mode = defaultAgentModes.For(request.Purpose);
         if (!AIModelCapabilities.Supports(mode, resolvedModel))
         {
@@ -386,26 +411,39 @@ public class ProviderAwareLanguageModel(
 
         using (slot)
         {
-            // The stored key is protected at rest with the tenant's Vault-held encryption key (or is
-            // a legacy plaintext value the protector passes through) - it is revealed only here, at
-            // the moment it is spent, and the revealed value goes no further than the vendor call.
-            var result = await client.Complete(request.Prompt, provider, resolvedModel, request.Effort, cancellationToken);
-            result = result with { ProviderId = providerId };
-
-            // The completion path has the vendor's actual status code, unlike a worker's failure
-            // text - so a 429/quota transient failure is recorded against the provider here rather
-            // than waiting for a worker to report the same thing in words (issue #1060).
-            // A spent quota is recorded the same way, so the provider is skipped until it resets - the
-            // reset the vendor stated, else when its capacity says it is available again, else the
-            // bounded RateLimitCooldown.
-            if (result.IsQuotaExhausted || (result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason)))
-            {
-                await _rateLimitRecorder.Record(providerId, result.FailureReason);
-            }
-
-            return result;
+            return await DispatchProvider(request, completion, cancellationToken);
         }
     }
+
+    async Task<LanguageModelResult> DispatchProvider(CompletionRequest request, ProviderCompletion completion, CancellationToken cancellationToken)
+    {
+        var (providerId, provider, client, resolvedModel) = completion;
+        if (!await _memberAccess.IsAllowed(providerId))
+        {
+            return LanguageModelResult.Failure($"AI provider {providerId} is not available to the work initiator");
+        }
+
+        // The stored key is protected at rest with the tenant's Vault-held encryption key (or is
+        // a legacy plaintext value the protector passes through) - it is revealed only here, at
+        // the moment it is spent, and the revealed value goes no further than the vendor call.
+        var result = await client.Complete(request.Prompt, provider, resolvedModel, request.Effort, cancellationToken);
+        result = result with { ProviderId = providerId };
+
+        // The completion path has the vendor's actual status code, unlike a worker's failure
+        // text - so a 429/quota transient failure is recorded against the provider here rather
+        // than waiting for a worker to report the same thing in words (issue #1060).
+        // A spent quota is recorded the same way, so the provider is skipped until it resets - the
+        // reset the vendor stated, else when its capacity says it is available again, else the
+        // bounded RateLimitCooldown.
+        if (ShouldRecordRateLimit(result))
+        {
+            await _rateLimitRecorder.Record(providerId, result.FailureReason);
+        }
+
+        return result;
+    }
+
+    sealed record ProviderCompletion(AIProviderId Id, ConfiguredAIProvider Provider, IAIProviderClient Client, ModelName Model);
 
     sealed record PoolFailure(bool ExhaustedTransiently, string? OutOfQuota, string? Reason);
 

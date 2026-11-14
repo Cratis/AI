@@ -100,10 +100,13 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
 - **Toggles clear what the inverse clears**: when a probe shows the inverse command reset a
   field (a completed-at timestamp on reopen), the projection resets it too.
 - **Ownership and state-reading authorization** ("only the owner may change X"): probe it as
-  a second caller, record it as an authorization finding, and never drop it. The policy form
-  admits caller conditions only (`authenticated`, roles); a rule that reads state is not
-  expressible, so write a `GAP` line citing the open Cratis/Screenplay issues on state-reading
-  authorization policies (search the tracker for the numbers) and keep the rule as an anchored `question` note. Do not invent syntax.
+  a second caller, record it as an authorization finding, and never drop it. Model it as a
+  state-reading policy: `reads <Model> as <alias> by <property>` plus a state condition in
+  `require` (`article.author == $identity.id`), as in command-surface
+  [policies that decide from recorded state](../../cratis-screenplay-command-surface/references/policy-persona-seed.md#policies-that-decide-from-recorded-state).
+  Admitted shapes are limited (the caller's identifier is `$identity.id`, compared with `==` or `!=`;
+  constants only); a rule outside them is a `GAP` line citing the matching open Cratis/Screenplay issue
+  (search the tracker) with the rule kept as an anchored `question` note. Do not invent syntax.
 - **Cross-field rules** ("a first or a last name"): write a declarative
   `require <condition>` with a `message`, for example
   `require firstName != "" or lastName != ""`. A fenced code body is a last resort; its

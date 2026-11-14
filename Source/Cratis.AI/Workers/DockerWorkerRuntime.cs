@@ -4,6 +4,7 @@
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Channels;
+using Cratis.AI.Providers;
 using Cratis.AI.Usage;
 using Docker.DotNet;
 using Docker.DotNet.Models;
@@ -25,7 +26,8 @@ namespace Cratis.AI.Workers;
 /// </remarks>
 /// <param name="options">The <see cref="WorkerRuntimeOptions"/> configuring the Docker endpoint.</param>
 /// <param name="logger">The logger.</param>
-public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger<DockerWorkerRuntime> logger) : IWorkerRuntime
+/// <param name="memberAccess">Fresh provider access for the ambient initiator; absent means denied.</param>
+public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger<DockerWorkerRuntime> logger, IProviderMemberAccess? memberAccess = null) : IWorkerRuntime
 {
     /// <summary>
     /// How long the Docker engine waits between the SIGTERM it sends a stopped worker container and
@@ -245,6 +247,10 @@ public class DockerWorkerRuntime(IOptions<WorkerRuntimeOptions> options, ILogger
     /// </remarks>
     public async Task<WorkerLaunchOutcome> Start(WorkerJob job, CancellationToken cancellationToken = default)
     {
+        if (!await WorkerProviderAccess.IsAllowed(job, memberAccess))
+        {
+            return WorkerLaunchOutcome.ProviderAccessDenied;
+        }
         var verdict = HostWorkspace.Validate(job, options.Value.HostWorkspaceRoot);
         if (verdict.Kind is not (HostWorkspaceVerdictKind.NotHostPrepared or HostWorkspaceVerdictKind.Valid))
         {

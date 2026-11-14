@@ -109,6 +109,22 @@ describe('when extracting Screenplay contract subjects', () => {
         const content = '`screenplay <root>` with `--scope Module`\n\n| Layer | Route |\n| --- | --- |\n| Source | `screenplay <root>` |\n| Scope | `--scope Module` |\n| CLI | `cratis screenplay validate <root>` |\n| CLI option | `--warnings-as-errors` |\n\n`--unowned`\n';
         assert.deepEqual(extract('options.md', content, specimen).filter(subject => subject.kind === Kind.CliOption).map(subject => subject.value), ['--scope', '--scope']);
     });
+    it('should deduplicate repeated claims per line while retaining owners, source text and physical lines', () => {
+        const subjects = extract('duplicates.md', '# MCP\r\nPLAY0001 PLAY0001\r\nMCP tool `read-workspace(view: "a", view: "b")`\r\n`screenplay test --filter X --filter Y`\r\nscreenplay <root> --scope Module\r\n', specimen);
+        assert.deepEqual(subjects.map(subject => [subject.line, subject.kind, subject.value, subject.owner]), [
+            [2, Kind.Diagnostic, 'PLAY0001', undefined], [3, Kind.McpTool, 'read-workspace', undefined],
+            [3, Kind.McpParameter, 'view', 'read-workspace'], [4, Kind.CliCommand, 'test', undefined],
+            [4, Kind.CliOption, '--filter', 'test'], [5, Kind.CliCommand, '', undefined], [5, Kind.CliOption, '--scope', 'validate']
+        ]);
+        assert.equal(subjects[1].text, 'MCP tool `read-workspace(view: "a", view: "b")`');
+        assert.ok(subjects.every(subject => subject.file === 'duplicates.md'));
+    });
+    it('should reset tool context at peer headings and option ownership at new tables and cratis spans', () => {
+        const content = '# MCP\n1 tools\n\n# Other\n99 tools\n\n| Route |\n| --- |\n| `screenplay test <root>` |\n| `--filter X` |\n\n| Route |\n| --- |\n| `--unowned` |\n\n`screenplay test <root>` `cratis screenplay validate <root>` `--unowned`\n';
+        const subjects = extract('context.md', content, specimen);
+        assert.deepEqual(subjects.filter(subject => subject.kind === Kind.ToolCount).map(subject => subject.value), ['1']);
+        assert.deepEqual(subjects.filter(subject => subject.kind === Kind.CliOption).map(subject => [subject.value, subject.owner]), [['--filter', 'test']]);
+    });
     it('should retain removed pinned tool names when comparing an incoming release', () => {
         const next = { ...specimen, mcpTools: [{ name: 'replacement-tool', requiredParameters: [], optionalParameters: [] }] };
         const result = check(next, [cleanDocument, { file: 'prose.md', content: '# MCP\nRead `read-workspace`.' }], [], false, specimen);
@@ -190,6 +206,34 @@ describe('when checking Screenplay facts', () => {
     });
     it('should detect every planted defect in the self-test', () => {
         assert.doesNotThrow(selfTest);
+    });
+});
+
+describe('when validating contract shapes and report ordering', () => {
+    it('should report required contract collections in their validation order', () => {
+        assert.throws(() => parseContract({ ...specimen, keywords: [], diagnostics: [] }), { message: 'Invalid contract keywords.' });
+        assert.throws(() => parseContract({ ...specimen, diagnostics: [{ code: 'PLAY0001', reserved: 'false', retired: false }] }), { message: 'Invalid contract diagnostics.' });
+        assert.throws(() => parseContract({ ...specimen, cliCommands: [{ name: '', options: [1], aliases: [] }] }), { message: 'Invalid contract CLI options.' });
+        assert.throws(() => parseContract({ ...specimen, constructs: [{ name: 'command' }, { name: 'command' }] }), { message: 'Invalid or duplicate contract constructs identities.' });
+        const permitted = { ...specimen, constructs: [{ name: '' }], cliCommands: [{ name: '', options: ['--scope', '--scope'], aliases: [] }] };
+        assert.deepEqual(parseContract(permitted), permitted);
+    });
+    it('should reject malformed exceptions before duplicate detection', () => {
+        assert.throws(() => parseExceptions({}), { message: 'Every contract exception needs file, exact text, kind, value and a nonempty reason.' });
+        assert.throws(() => parseExceptions([{ ...exception, kind: 'unknown' }]), { message: 'Every contract exception needs file, exact text, kind, value and a nonempty reason.' });
+        assert.throws(() => parseExceptions([exception, exception]), { message: 'Duplicate contract exceptions.' });
+    });
+    it('should preserve problem insertion order and suppression accounting', () => {
+        const bad = { file: 'bad.md', content: '# MCP\nPLAY9999 PLAY0003\nMCP tool `unknown-tool(bogus: true)`; 99 tools.\n`screenplay unknown --bogus`' };
+        const result = check(specimen, [cleanDocument, bad], [exception]);
+        assert.deepEqual(result.problems, [
+            'bad.md:2 unknown diagnostic PLAY9999.', 'bad.md:2 retired diagnostic PLAY0003.',
+            'bad.md:3 MCP tool count 99, contract has 1.', 'bad.md:3 unknown MCP tool unknown-tool.',
+            'bad.md:3 unknown MCP parameter unknown-tool.bogus.', 'bad.md:4 unknown screenplay CLI command unknown.',
+            'bad.md:4 unknown screenplay unknown option --bogus.', 'old.md:1 unnecessary contract exception for toolCount 29; remove it or re-check its exact text.'
+        ]);
+        assert.equal(result.exempted.length, 0);
+        assert.equal(check(specimen, [cleanDocument, { file: exception.file, content: exception.text }], [exception]).exempted.length, 1);
     });
 });
 
