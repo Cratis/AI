@@ -28,7 +28,11 @@ export class WriteGuard {
         // intentionally nothing
     }
 
+    guards(toolName: string): boolean {
+        return this.guardedTools.has(toolName);
+    }
+
     blocks(toolName: string): boolean {
-        return this.guardedTools.has(toolName) && this.current !== 'open';
+        return this.guards(toolName) && this.current !== 'open';
     }
 }

@@ -78,6 +78,8 @@ export class FakeGateway implements DirectGateway {
     closed = 0;
     claimFails = false;
     heartbeatFails = false;
+    /** When set, a heartbeat stays pending until this promise settles. */
+    heartbeatPending: Promise<void> | undefined;
     epoch = 1;
     claimed: WorkClaimed = {
         workHandle: 'work-1', claimId: 'claim-1', epoch: 1, leaseSeconds: 30, heartbeatSeconds: 10,
@@ -92,6 +94,7 @@ export class FakeGateway implements DirectGateway {
 
     async heartbeat(request: HeartbeatRequest): Promise<HeartbeatResult> {
         this.heartbeats.push(request);
+        await this.heartbeatPending;
         if (this.heartbeatFails) throw new Error('stale epoch');
         this.epoch = request.epoch + 1;
         return { epoch: this.epoch, leaseSeconds: 30 };

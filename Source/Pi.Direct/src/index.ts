@@ -82,9 +82,12 @@ export function createExtension(extensionEnvironment: ExtensionEnvironment): (pi
             announced = true;
             return { message: { customType: workMessageType, content: describeWork(session.payload), display: true } };
         });
-        pi.on('tool_call', event => guard.blocks(event.toolName)
-            ? { block: true, reason: 'Claim authority for this Direct work is not live; this session can no longer write.' }
-            : undefined);
+        pi.on('tool_call', event => {
+            if (guard.guards(event.toolName)) session?.checkLease();
+            return guard.blocks(event.toolName)
+                ? { block: true, reason: 'Claim authority for this Direct work is not live; this session can no longer write.' }
+                : undefined;
+        });
         pi.on('session_shutdown', async () => { await session?.shutdown(); });
         pi.registerCommand('direct-link', {
             description: 'Direct local sessions: login --tenant <id> | status',

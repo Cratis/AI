@@ -29,6 +29,7 @@ export class ClaimedSession {
     private epoch: number;
     private leaseEndsAt: number;
     private released = false;
+    private releaseDone = false;
     private readonly heartbeat: HeartbeatLoop;
 
     private constructor(
@@ -63,9 +64,18 @@ export class ClaimedSession {
         }
     }
 
+    /**
+     * Authority ends at the granted lease deadline whether or not a heartbeat is still pending. Called before every
+     * guarded write: once the deadline has passed the guard is terminal and the person is told once.
+     */
+    checkLease(): void {
+        if (this.dependencies.guard.state === 'open' && this.leaseExpired()) this.loseAuthority();
+    }
+
     status(): SessionStatus {
         const { guard, clock, environment } = this.dependencies;
-        const authority = this.released ? 'released' : guard.state === 'open' ? 'live' : 'lost';
+        this.checkLease();
+        const authority = guard.state === 'lost' ? 'lost' : this.releaseDone ? 'released' : 'live';
         return {
             workHandle: environment.workHandle,
             epoch: this.epoch,
@@ -77,11 +87,13 @@ export class ClaimedSession {
     /** Releases with an outcome exactly once; a lost claim cannot release. */
     async finish(outcome: ReleaseOutcome, reason?: string): Promise<void> {
         if (this.released) throw new SessionRefused('already-released');
+        this.checkLease();
         if (this.dependencies.guard.state !== 'open') throw new SessionRefused('authority-lost');
         this.released = true;
         this.heartbeat.stop();
         try {
             await this.dependencies.gateway.release({ workHandle: this.dependencies.environment.workHandle, claimId: this.claimId, epoch: this.epoch, outcome, reason });
+            this.releaseDone = true;
         } catch {
             this.loseAuthority();
             throw new SessionRefused('refused');
@@ -103,12 +115,19 @@ export class ClaimedSession {
     private async beat(): Promise<void> {
         const { gateway, environment, clock } = this.dependencies;
         const result = await gateway.heartbeat({ workHandle: environment.workHandle, claimId: this.claimId, epoch: this.epoch });
+        this.checkLease();
+        if (this.dependencies.guard.state !== 'open') return; // a late answer never revives expired authority
         this.epoch = result.epoch;
         this.leaseEndsAt = clock.now() + result.leaseSeconds * 1000;
     }
 
+    private leaseExpired(): boolean {
+        return this.dependencies.clock.now() >= this.leaseEndsAt;
+    }
+
     private loseAuthority(): void {
         this.heartbeat.stop();
+        if (this.dependencies.guard.state === 'lost') return;
         this.dependencies.guard.markLost();
         this.dependencies.notify(new SessionRefused('authority-lost').message);
     }
