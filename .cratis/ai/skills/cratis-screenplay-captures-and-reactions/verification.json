@@ -69,6 +69,9 @@
     {
       "kind": "skill-contains",
       "value": "[ExecuteCommandsAsSystem]"
-    }
+    },
+    { "kind": "skill-contains", "value": "ISemanticBodyExecutionProvider", "file": "references/reaction-forms.md" },
+    { "kind": "skill-contains", "value": "`PerformAsync` is a provider contract only", "file": "references/reaction-forms.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 4.258.0", "file": "references/reaction-forms.md" }
   ]
 }

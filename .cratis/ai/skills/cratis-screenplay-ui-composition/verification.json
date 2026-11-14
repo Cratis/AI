@@ -3,6 +3,10 @@
   "input": "Declare the application shell, a screen template and a command form.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "PLAY0819", "file": "references/action-subjects.md" },
+    { "kind": "skill-contains", "value": "never bulk-accept", "file": "references/action-subjects.md" },
+    { "kind": "skill-contains", "value": "Repair repeated advisories one occurrence at a time", "file": "references/action-subjects.md" },
+    { "kind": "skill-contains", "value": "Handles are revision-bound: refetch them after every apply.", "file": "references/action-subjects.md" },
     { "kind": "skill-contains", "value": "registerQueryIdentity", "file": "references/scene-runtime-boundaries.md" },
     { "kind": "skill-contains", "value": "legacy plus identity registration", "file": "references/scene-runtime-boundaries.md" },
     { "kind": "skill-contains", "value": "Optional empty strings remain present", "file": "references/scene-runtime-boundaries.md" },
@@ -258,6 +262,13 @@
     { "kind": "skill-contains", "value": "where item.status == \"accepted\"", "file": "references/change-alternatives.md" },
     { "kind": "skill-contains", "value": "including the `otherwise` list", "file": "references/change-alternatives.md" },
     { "kind": "skill-contains", "value": "Compiler admission is not proof that a Stage renderer executes the gesture.", "file": "references/change-alternatives.md" },
-    { "kind": "skill-contains", "value": "references/change-alternatives.md" }
+    { "kind": "skill-contains", "value": "references/change-alternatives.md" },
+    { "kind": "skill-contains", "value": "## Table narrowing", "file": "references/action-subjects.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 6.18.0", "file": "references/action-subjects.md" },
+    { "kind": "skill-contains", "value": "PLAY0346 names the candidate", "file": "references/action-subjects.md" },
+    { "kind": "skill-contains", "value": "action-subjects.md#table-narrowing", "file": "references/guarded-interactions.md" },
+    { "kind": "skill-contains", "value": "references/screen-visuals.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 6.7.0 or later", "file": "references/screen-visuals.md" },
+    { "kind": "skill-contains", "value": "`PLAY0951` | Warning", "file": "references/screen-visuals.md" }
   ]
 }

@@ -37,6 +37,9 @@ exact language/semantic pairs; binding, reference execution and rendering are se
 
 Constructs of decision 0098 with no executable-model content need no version: application-level hooks in a layout's actions outlet (`default <id> title "..." slice <Slice>` with an optional indented `authorize <Policy>`), and a capture over events that copies a list (`lines = $.lines`) or fans out with `children lines identified by sku`. Check `screenplay --version` against the release that admitted v29 and v30 before relying on them. Decision 0115 withdrew 0098's command specification that states the public event its outbound Translate slice publishes: a specification runs only its own slice, so the Translate slice states the public event in its own `when append` specification.
 
+Read-model property order is opt-in ESM 37.1 metadata: see
+[read-model property order](read-model-property-order.md).
+
 ## Compiler and target minimums
 
 Requires Screenplay 4.181.0 or later (`screenplay --version`) for atomic batches; older compilers cannot admit the preamble.
@@ -131,3 +134,5 @@ Requires Stage 4.145.0 for reach-scoped reducer/validation-body refusals
 handlers retain STAGE-IMPL-002; renderer implementation admission is unchanged.
 Read [sandbox boundaries](../../cratis-stage-rendering-and-sandbox/references/sandbox-and-specrunner.md)
 when a semantic run reaches a body or uses an authored reaction clock.
+Read [unknown-preserving reader](unknown-preserving-reader.md) when a consumer
+must retain unknown additions of a minor it does not register, without executing them.
