@@ -74,7 +74,7 @@ It is never inferred, and a query or screen that consumes it is error `PLAY0859`
 
 ## `query`
 
-A query that ends in `graph <Graph>` reads a graph: see [graph queries](references/graph-queries.md).
+A query that ends in `graph <Graph>` reads a graph: see [graph queries](references/graph-queries.md). Such a query may return nested rows with `collect` (a view-shaped query; see [collect nested rows](../cratis-screenplay-projections/references/graphs.md#collect-nested-rows)).
 
 Excerpt: the concepts, the read model and the policy are declared elsewhere.
 
