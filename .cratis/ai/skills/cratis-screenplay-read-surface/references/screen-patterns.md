@@ -126,6 +126,10 @@ so write the clause. With a header record beside one table of rows, `for item` a
 [table narrowing](../../cratis-screenplay-ui-composition/references/action-subjects.md#table-narrowing)).
 Source: Screenplay `Documentation/screenplay/action-subjects.md`.
 
+Property declaration order is not preserved by default; a C# host can opt in to ESM 37.1 metadata,
+but it does not let a model control a generated constructor (see
+[read-model property order](../../cratis-screenplay-toolchain/references/read-model-property-order.md)).
+
 ## What a screen pattern is not
 
 - Not a column or a lane: a screen is a declaration in a slice, not a position on a timeline.

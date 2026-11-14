@@ -94,8 +94,10 @@
     { "kind": "skill-contains", "value": "Requires Screenplay 5.6.0", "file": "references/unknown-preserving-reader.md" },
     { "kind": "skill-contains", "value": "InvalidSemanticContract", "file": "references/unknown-preserving-reader.md" },
     { "kind": "skill-contains", "value": "unknown-preserving-reader.md", "file": "references/language-admission.md" },
-    { "kind": "skill-contains", "value": "### Read-model property order (ESM 37.1)", "file": "references/language-admission.md" },
-    { "kind": "skill-contains", "value": "PropertyOrderMetadataRefusal", "file": "references/language-admission.md" },
-    { "kind": "skill-contains", "value": "is **not** preserved by default", "file": "references/language-admission.md" }
+    { "kind": "skill-contains", "value": "# Read-model property order (ESM 37.1)", "file": "references/read-model-property-order.md" },
+    { "kind": "skill-contains", "value": "PropertyOrderMetadataRefusal", "file": "references/read-model-property-order.md" },
+    { "kind": "skill-contains", "value": "is **not** preserved by default", "file": "references/read-model-property-order.md" },
+    { "kind": "skill-contains", "value": "references/read-model-property-order.md" },
+    { "kind": "skill-contains", "value": "references/unknown-preserving-reader.md" }
   ]
 }

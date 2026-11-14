@@ -140,6 +140,8 @@ with ordered imports means future files need explicit imports.
   report PLAY0268); one explicit `key` keeps its earlier version. Read
   `references/production-routes-and-filters.md`, [language admission](references/language-admission.md)
   and read-surface `references/named-keys.md`.
+- **Minor versions:** read [unknown-preserving reader](references/unknown-preserving-reader.md) and
+  [read-model property order](references/read-model-property-order.md).
 - **Enum numbers (v12):** read command-surface `references/enum-numbers.md` for
   pins, stored numbers and Stage output; `references/diagnostics.md` owns PLAY0667–0671.
 - **Concept strategies (v15):** read

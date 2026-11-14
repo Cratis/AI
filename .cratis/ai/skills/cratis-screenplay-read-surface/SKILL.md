@@ -62,9 +62,6 @@ Read [named keys](references/named-keys.md) for one complete executable example,
 trigger/command reads, all-parts fixtures, PLAY0660–0662 and command-read-only PLAY0661 repair.
 A `=>` target resolving to an event is an event-target builder, not a read model;
 keep event and read-model names distinct (see projections' public-event targets).
-Property declaration order is not preserved by default; a C# host can opt in to ESM 37.1 metadata,
-but it does not let a model control a generated constructor (see
-[read-model property order](../cratis-screenplay-toolchain/references/language-admission.md#read-model-property-order-esm-371)).
 
 ## Where a read model is stored
 
