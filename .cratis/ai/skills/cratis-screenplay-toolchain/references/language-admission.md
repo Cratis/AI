@@ -131,3 +131,5 @@ Requires Stage 4.145.0 for reach-scoped reducer/validation-body refusals
 handlers retain STAGE-IMPL-002; renderer implementation admission is unchanged.
 Read [sandbox boundaries](../../cratis-stage-rendering-and-sandbox/references/sandbox-and-specrunner.md)
 when a semantic run reaches a body or uses an authored reaction clock.
+Read [unknown-preserving reader](unknown-preserving-reader.md) (Requires Screenplay 5.6.0) when a consumer
+must retain unknown additions of a minor it does not register, without executing them.

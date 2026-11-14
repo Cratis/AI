@@ -35,7 +35,8 @@ Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`; read it b
 ## Language modes that block target delivery
 
 Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
-for version selection, and [current Stage boundaries](../cratis-stage-rendering-and-sandbox/references/current-boundaries.md)
+for version selection ([unknown-preserving reads](../cratis-screenplay-toolchain/references/unknown-preserving-reader.md)
+are not render admission), and [current Stage boundaries](../cratis-stage-rendering-and-sandbox/references/current-boundaries.md)
 for realization. Bounded atomic batches, source-event Translate captures/publication and resolved
 C# validation bodies now render. Described handlers still refuse even in Stub
 mode; query-performer gaps are a separate contract, not completed behavior. Protected reads still need an admitted shape. Semantic Host/executor

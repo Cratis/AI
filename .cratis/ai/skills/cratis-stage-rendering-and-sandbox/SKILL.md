@@ -26,7 +26,9 @@ against Stage v4.197.0: matched language/ESM 1.0–30.0 and 32.0 are admitted, n
 Stage then applies matched-pair and construct gates. V32 needs a direct caller of
 the reviewed Stage baseline. See [CLI bundle details](../cratis-screenplay-toolchain/references/language-admission.md#stage-admission-and-execution).
 Renderer, semantic Host/specification execution and legacy syntax admission are
-separate gates.
+separate gates. Reading a model that carries unknown additions is a further separate gate:
+[the unknown-preserving reader](../cratis-screenplay-toolchain/references/unknown-preserving-reader.md)
+retains them without executing or rendering them, so renderer admission of such a model is not implied.
 Bounded atomic batches render; unverifiable query performers can produce explicit
 gaps, not completed behavior. Described handlers still refuse even in Stub mode.
 Keep protection and report remaining refusals.

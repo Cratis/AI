@@ -65,6 +65,7 @@
     { "kind": "skill-contains", "value": "Stage#847 lands, which needs Chronicle#5427", "file": "references/current-boundaries.md" },
     { "kind": "skill-contains", "value": "required single non-date, non-decimal primitive/concept", "file": "references/current-boundaries.md" },
     { "kind": "skill-contains", "value": "Single-instance lookup by parts remains `STAGE-ESM-047`", "file": "references/current-boundaries.md" },
-    { "kind": "skill-contains", "value": "including DateTime and decimal key parts", "file": "SKILL.md" }
+    { "kind": "skill-contains", "value": "including DateTime and decimal key parts", "file": "SKILL.md" },
+    { "kind": "skill-contains", "value": "unknown-preserving-reader.md", "file": "SKILL.md" }
   ]
 }
