@@ -3,6 +3,7 @@
 
 import { isScalar, parseDocument } from 'yaml';
 import { lineCount } from './skill-structure.ts';
+import type { HygieneSource } from './HygieneSource.ts';
 
 const versionPattern = /(?<![\w.])v?\d+\.\d+\.\d+(?!\w|\.\d)/g;
 const issuePattern = /(?<![\w#])(?:[\w.-]+\/[\w.-]+#\d+|#\d{3,})(?!\w)/g;
@@ -14,13 +15,14 @@ const historyPattern = /\b(?:read at v(?=\d|\b)|(?:decision 0\d{3}|ledger|drift 
 
 interface Fence { character: string; length: number }
 
-function fenceOpening(text: string): Fence | undefined {
+function fenceOpening({ text }: { text: string }): Fence | undefined {
     const opening = /^ {0,3}(`{3,}|~{3,})(.*)$/.exec(text);
-    if (!opening || (opening[1][0] === '`' && opening[2].includes('`'))) return undefined;
+    if (!opening) return undefined;
+    if (opening[1][0] === '`' && opening[2].includes('`')) return undefined;
     return { character: opening[1][0], length: opening[1].length };
 }
 
-function closesFence(text: string, fence: Fence): boolean {
+function closesFence({ text }: { text: string }, fence: Fence): boolean {
     const closing = /^ {0,3}(`{3,}|~{3,})\s*$/.exec(text);
     return closing !== null && closing[1][0] === fence.character && closing[1].length >= fence.length;
 }
@@ -30,28 +32,32 @@ export function proseLines(content: string, start: number) {
     let fence: Fence | undefined;
     return content.split(/\r?\n/).flatMap((text, index) => {
         if (index < start) return [];
+        const line = { text, line: index + 1 };
         if (fence) {
-            if (closesFence(text, fence)) fence = undefined;
+            if (closesFence(line, fence)) fence = undefined;
             return [];
         }
-        fence = fenceOpening(text);
+        fence = fenceOpening(line);
         if (fence || /^\s*(?:(?:[-*+]|\d+[.)])\s+)?Requires /.test(text)) return [];
-        return [{ text, line: index + 1 }];
+        return [line];
     });
 }
 
-function matches(file: string, lines: Array<{ text: string; line: number }>, rule: string, pattern: RegExp) {
+function matches({ file }: HygieneSource, lines: Array<{ text: string; line: number }>, rule: string, pattern: RegExp) {
     return lines.flatMap(({ text, line }) => [...text.matchAll(pattern)].map(match => ({ file, line, rule, matchedText: match[0] })));
 }
 
-function descriptionFindings(file: string, content: string, closing: number, authoring: boolean) {
+function descriptionFindings(source: HygieneSource, closing: number) {
+    const { content, authoring } = source;
     const lines = content.split('\n');
     const openingOffset = lines[0].length + 1;
     const document = parseDocument(lines.slice(1, closing).join('\n') + '\n');
     // Malformed YAML is already reported by the frontmatter validator.
     if (document.errors.length > 0) return [];
     const description = document.get('description', true);
-    if (!isScalar(description) || typeof description.value !== 'string' || !description.range) return [];
+    if (!isScalar(description)) return [];
+    if (typeof description.value !== 'string') return [];
+    if (!description.range) return [];
     const [rangeStart, rangeEnd] = description.range;
     const start = openingOffset + rangeStart;
     const end = openingOffset + rangeEnd;
@@ -59,25 +65,29 @@ function descriptionFindings(file: string, content: string, closing: number, aut
     // Scan the scalar's source range, not its folded value, to keep multiline locations accurate.
     const sourceLines = content.slice(start, end).split(/\r?\n/).map((text, index) => ({ text, line: firstLine + index }));
     return [
-        ...matches(file, sourceLines, 'description-version', versionPattern),
-        ...(authoring ? matches(file, sourceLines, 'description-meta', descriptionMetaPattern) : []),
+        ...matches(source, sourceLines, 'description-version', versionPattern),
+        ...(authoring ? matches(source, sourceLines, 'description-meta', descriptionMetaPattern) : []),
     ];
 }
 
 /** Index of the closing `---` of the frontmatter, or -1 when the content has none. */
-function frontmatterClosing(content: string): number {
+function frontmatterClosing({ content }: HygieneSource): number {
     const lines = content.split(/\r?\n/);
     return lines[0] === '---' ? lines.findIndex((line, index) => index > 0 && line === '---') : -1;
 }
 
-function versionsExceedBudget(skill: boolean, versionCount: number, content: string): boolean {
-    return skill ? versionCount > 3 : versionCount * 40 > lineCount(content);
+function isSkillSource({ file }: HygieneSource): boolean {
+    return /(?:^|\/)SKILL\.md$/.test(file.replaceAll('\\', '/'));
 }
 
-function skillOnlyFindings(file: string, prose: Array<{ text: string; line: number }>) {
+function versionsExceedBudget(source: HygieneSource, versions: ReturnType<typeof matches>): boolean {
+    return isSkillSource(source) ? versions.length > 3 : versions.length * 40 > lineCount(source.content);
+}
+
+function skillOnlyFindings(source: HygieneSource, prose: Array<{ text: string; line: number }>) {
     return [
-        ...matches(file, prose, 'commit-hash', hashPattern).filter(finding => /\d/.test(finding.matchedText) && /[a-f]/i.test(finding.matchedText)),
-        ...matches(file, prose, 'history-language', historyPattern),
+        ...matches(source, prose, 'commit-hash', hashPattern).filter(finding => /\d/.test(finding.matchedText) && /[a-f]/i.test(finding.matchedText)),
+        ...matches(source, prose, 'history-language', historyPattern),
     ];
 }
 
@@ -87,33 +97,44 @@ function skillOnlyFindings(file: string, prose: Array<{ text: string; line: numb
  * Reference density uses all physical file lines: versions * 40 > lines, without rounding.
  */
 export function skillHygieneFindings(file: string, content: string, authoring = false) {
-    const path = file.replaceAll('\\', '/');
-    const skill = /(?:^|\/)SKILL\.md$/.test(path);
-    const reference = /(?:^|\/)references\/.+\.md$/.test(path);
-    if (!skill && !reference) return [];
-    const closing = skill ? frontmatterClosing(content) : -1;
-    const prose = proseLines(content, closing > 0 ? closing + 1 : 0);
-    const versions = matches(file, prose, skill ? 'skill-version-budget' : 'reference-version-density', versionPattern);
-    const findings = closing > 0 ? descriptionFindings(file, content, closing, authoring) : [];
-    if (versionsExceedBudget(skill, versions.length, content)) findings.push(...versions);
-    findings.push(...matches(file, prose, 'issue-reference', issuePattern));
-    findings.push(...matches(file, prose, 'source-line-citation', sourceLinePattern));
-    if (skill) findings.push(...skillOnlyFindings(file, prose));
-    if (authoring) findings.push(...matches(file, prose, 'time-words', timePattern));
+    const source = { file, content, authoring };
+    const reference = /(?:^|\/)references\/.+\.md$/.test(file.replaceAll('\\', '/'));
+    if (!isSkillSource(source) && !reference) return [];
+    return scopedSkillFindings(source);
+}
+
+function scopedSkillFindings(source: HygieneSource) {
+    const closing = isSkillSource(source) ? frontmatterClosing(source) : -1;
+    const prose = proseLines(source.content, closing > 0 ? closing + 1 : 0);
+    const findings = closing > 0 ? descriptionFindings(source, closing) : [];
+    findings.push(...bodyFindings(source, prose));
     return findings.sort((left, right) => left.line - right.line || left.rule.localeCompare(right.rule));
+}
+
+function bodyFindings(source: HygieneSource, prose: Array<{ text: string; line: number }>) {
+    const skill = isSkillSource(source);
+    const versions = matches(source, prose, skill ? 'skill-version-budget' : 'reference-version-density', versionPattern);
+    return [
+        ...(versionsExceedBudget(source, versions) ? versions : []),
+        ...matches(source, prose, 'issue-reference', issuePattern),
+        ...matches(source, prose, 'source-line-citation', sourceLinePattern),
+        ...(skill ? skillOnlyFindings(source, prose) : []),
+        ...(source.authoring ? matches(source, prose, 'time-words', timePattern) : []),
+    ];
 }
 
 /** Hygiene for scoped instructions; every version is informational, without a skill-body budget. */
 export function instructionHygieneFindings(file: string, content: string) {
     if (!/(?:^|\/)(?:rules|agents|prompts)\/[^/]+\.md$/.test(file.replaceAll('\\', '/'))) return [];
-    const closing = frontmatterClosing(content);
+    const source = { file, content, authoring: true };
+    const closing = frontmatterClosing(source);
     const prose = proseLines(content, closing > 0 ? closing + 1 : 0);
     return [
-        ...matches(file, prose, 'instruction-version', versionPattern),
-        ...matches(file, prose, 'issue-reference', issuePattern),
-        ...matches(file, prose, 'source-line-citation', sourceLinePattern),
-        ...matches(file, prose, 'history-language', historyPattern),
-        ...matches(file, prose, 'time-words', timePattern),
+        ...matches(source, prose, 'instruction-version', versionPattern),
+        ...matches(source, prose, 'issue-reference', issuePattern),
+        ...matches(source, prose, 'source-line-citation', sourceLinePattern),
+        ...matches(source, prose, 'history-language', historyPattern),
+        ...matches(source, prose, 'time-words', timePattern),
     ];
 }
 
