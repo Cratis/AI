@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.AI.Providers;
 using Cratis.AI.Usage;
 
 namespace Cratis.AI.Workers;
@@ -30,6 +31,12 @@ public record WorkerJob(
     IReadOnlyDictionary<string, string>? ConfigurationFiles = null,
     TimeSpan? Deadline = null)
 {
+    /// <summary>
+    /// The provider whose credential this job uses. Consumers must set this whenever injecting
+    /// a provider credential, so the runtime can check current access before launching.
+    /// </summary>
+    public AIProviderId? Provider { get; init; }
+
     /// <summary>
     /// Labels the Docker runtime puts on the worker container, so tools on the host can find or skip it.
     /// The Kubernetes runtime ignores them.

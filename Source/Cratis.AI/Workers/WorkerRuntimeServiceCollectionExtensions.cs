@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.AI.Providers;
 using k8s;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,7 +29,7 @@ public static class WorkerRuntimeServiceCollectionExtensions
     public static IServiceCollection AddWorkerRuntime(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<WorkerRuntimeOptions>(configuration.GetSection(WorkerRuntimeOptions.SectionName));
-        services.AddSingleton<IWorkerRuntime>(serviceProvider =>
+        services.AddTransient<IWorkerRuntime>(serviceProvider =>
         {
             var options = serviceProvider.GetRequiredService<IOptions<WorkerRuntimeOptions>>();
             var type = options.Value.Type;
@@ -38,8 +39,8 @@ public static class WorkerRuntimeServiceCollectionExtensions
             }
 
             return type == ContainerRuntimeType.Kubernetes
-                ? new KubernetesWorkerRuntime(options, serviceProvider.GetRequiredService<ILogger<KubernetesWorkerRuntime>>())
-                : new DockerWorkerRuntime(options, serviceProvider.GetRequiredService<ILogger<DockerWorkerRuntime>>());
+                ? new KubernetesWorkerRuntime(options, serviceProvider.GetRequiredService<ILogger<KubernetesWorkerRuntime>>(), memberAccess: serviceProvider.GetService<IProviderMemberAccess>())
+                : new DockerWorkerRuntime(options, serviceProvider.GetRequiredService<ILogger<DockerWorkerRuntime>>(), serviceProvider.GetService<IProviderMemberAccess>());
         });
 
         return services;

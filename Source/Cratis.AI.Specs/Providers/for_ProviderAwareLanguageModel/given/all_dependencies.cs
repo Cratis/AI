@@ -35,6 +35,7 @@ public class all_dependencies : Specification
     protected ICommandPipeline _commandPipeline;
     protected TimeProvider _timeProvider;
     protected ProviderAwareLanguageModel _model;
+    protected WorkInitiation _initiation;
 
     void Establish()
     {
@@ -88,7 +89,8 @@ public class all_dependencies : Specification
             _commandPipeline,
             _timeProvider,
             Options.Create(new AIProviderOptions()),
-            _logger);
+            _logger,
+            _initiation = new WorkInitiation());
     }
 
     protected void AgentIs(Agent agent) =>

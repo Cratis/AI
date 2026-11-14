@@ -38,7 +38,7 @@ public class and_every_member_fails_transiently : Specification
 
         var quotaTracker = Substitute.For<IAIProviderQuotaTracker>();
 
-        _dispatcher = new AIProviderPoolDispatcher([_client], providerBurn, quotaTracker, Substitute.For<Microsoft.Extensions.Logging.ILogger<AIProviderPoolDispatcher>>());
+        _dispatcher = new AIProviderPoolDispatcher([_client], providerBurn, quotaTracker, Substitute.For<Microsoft.Extensions.Logging.ILogger<AIProviderPoolDispatcher>>(), given.member_access.Allowed());
     }
 
     async Task Because() => _result = await _dispatcher.Complete(
