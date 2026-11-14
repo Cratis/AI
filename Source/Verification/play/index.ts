@@ -6,7 +6,9 @@ import { tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { skillAssertionFileProblem } from '../skill-structure.ts';
 import { compileOutcome, couldNotRunProblems, testOutcome, versionOutcome } from './classify.ts';
+import type { Compilation } from './Compilation.ts';
 import type { Fence } from './Fence.ts';
+import type { Skill } from './Skill.ts';
 import { insideParent, parseFences, pinnedVersion } from './fences.ts';
 import { Outcome } from './Outcome.ts';
 import type { Report } from './Report.ts';
@@ -67,9 +69,9 @@ async function loadPreferred(root: string, skills: string): Promise<Loaded<Prefe
     }
 }
 
-async function scanSkillFences(state: Verification, skillDirectory: string): Promise<Fence[]> {
+async function scanSkillFences(state: Verification, skill: Skill): Promise<Fence[]> {
     const fences: Fence[] = [];
-    for (const file of await markdownFiles(skillDirectory)) {
+    for (const file of await markdownFiles(skill.directory)) {
         const content = await readFile(file, 'utf8');
         const name = relative(state.root, file);
         const parsed = parseFences(name, content);
@@ -80,7 +82,8 @@ async function scanSkillFences(state: Verification, skillDirectory: string): Pro
     return fences;
 }
 
-async function readAssertions(state: Verification, skillName: string, skillDirectory: string, hasFences: boolean): Promise<Assertion[]> {
+async function readAssertions(state: Verification, skill: Skill, hasFences: boolean): Promise<Assertion[]> {
+    const { name: skillName, directory: skillDirectory } = skill;
     let assertions: Assertion[] = [];
     try {
         const manifest = JSON.parse(await readFile(join(skillDirectory, 'verification.json'), 'utf8')) as { skill?: unknown; assertions?: unknown };
@@ -103,11 +106,11 @@ function selectorMatches(selector: string | undefined, file: string, fence: Fenc
     return selector === undefined || selector === file || selector === `${file}#${fence.number}`;
 }
 
-function playSelectors(state: Verification, skillName: string, assertions: Assertion[]): Array<string | undefined> {
+function playSelectors(state: Verification, skill: Skill, assertions: Assertion[]): Array<string | undefined> {
     const selectors: Array<string | undefined> = [];
     for (const assertion of assertions.filter(candidate => candidate.kind === 'play-compiles')) {
         if (isInvalidSelector(assertion)) {
-            state.report.problems.push(`${skillName}/verification.json play-compiles value must be a skill-relative Markdown path, optionally #fence-number; omit it for all fences.`);
+            state.report.problems.push(`${skill.name}/verification.json play-compiles value must be a skill-relative Markdown path, optionally #fence-number; omit it for all fences.`);
             continue;
         }
         selectors.push(assertion.value as string | undefined);
@@ -118,12 +121,14 @@ function playSelectors(state: Verification, skillName: string, assertions: Asser
 function markdownParentSource(path: string, content: string, selected: string | undefined): string {
     const parsed = parseFences(path, content);
     const parent = parsed.fences[Number(selected ?? 1) - 1];
-    if (parsed.problems.length || !parent || parent.excerpt) throw new Error('Parent must select a complete, valid Screenplay fence.');
+    if (parsed.problems.length) throw new Error('Parent must select a complete, valid Screenplay fence.');
+    if (!parent || parent.excerpt) throw new Error('Parent must select a complete, valid Screenplay fence.');
     return parent.source;
 }
 
 /** The fence source, composed into its declared parent template or fence when it has one. */
-async function sourceWithParent(skillDirectory: string, fence: Fence): Promise<string> {
+async function sourceWithParent(skill: Skill, fence: Fence): Promise<string> {
+    const skillDirectory = skill.directory;
     if (!fence.parent) return fence.source;
     const [path, selected] = fence.parent.split('#');
     const parentPath = await realpath(join(skillDirectory, path));
@@ -134,7 +139,9 @@ async function sourceWithParent(skillDirectory: string, fence: Fence): Promise<s
     throw new Error('Parent must be a .play template or a .md fence selector.');
 }
 
-async function testSpecification(state: Verification, fence: Fence, model: string, directory: string, location: string): Promise<void> {
+async function testSpecification(state: Verification, compilation: Compilation): Promise<void> {
+    const { fence, directory, location } = compilation;
+    const model = join(directory, 'example.play');
     const { report } = state;
     const tested = await state.runner(state.tool, ['test', model, '--format', 'json'], directory);
     const outcome = testOutcome(tested, fence.unbound);
@@ -144,7 +151,8 @@ async function testSpecification(state: Verification, fence: Fence, model: strin
     else report.tested++;
 }
 
-async function compileAndTest(state: Verification, fence: Fence, source: string, directory: string, location: string): Promise<void> {
+async function compileAndTest(state: Verification, compilation: Compilation): Promise<void> {
+    const { fence, source, directory, location } = compilation;
     const { report } = state;
     const model = join(directory, 'example.play');
     await writeFile(model, source);
@@ -159,51 +167,54 @@ async function compileAndTest(state: Verification, fence: Fence, source: string,
     report.compiled++;
     if (fence.expectedCodes.length) report.expectedDiagnostics++;
     if (compiled.exit === 1) report.expectedFailure++;
-    if (compiled.exit === 0 && /^[ \t]*specification\s/m.test(source)) await testSpecification(state, fence, model, directory, location);
+    if (compiled.exit === 0 && /^[ \t]*specification\s/m.test(source)) await testSpecification(state, compilation);
     else if (fence.unbound) report.problems.push(`${location}: test=unbound did not run specifications.`);
 }
 
-async function verifyFence(state: Verification, skillDirectory: string, fence: Fence, location: string): Promise<void> {
+async function verifyFence(state: Verification, skill: Skill, fence: Fence): Promise<void> {
+    const location = `${fence.file}:${fence.line}`;
     let source: string;
     try {
-        source = await sourceWithParent(skillDirectory, fence);
+        source = await sourceWithParent(skill, fence);
     } catch (error) {
         state.report.problems.push(`${location}: ${String(error)}`);
         return;
     }
     const directory = await mkdtemp(join(tmpdir(), 'cratis-screenplay-'));
     try {
-        await compileAndTest(state, fence, source, directory, location);
+        await compileAndTest(state, { fence, source, directory, location });
     } finally {
         await rm(directory, { recursive: true, force: true });
     }
 }
 
-function queueFences(state: Verification, skillName: string, skillDirectory: string, fences: Fence[], selectors: Array<string | undefined>): void {
-    const { report } = state;
+function unmatchedSelectors(state: Verification, skill: Skill, fences: Fence[], selectors: Array<string | undefined>): void {
     for (const selector of selectors) {
-        if (!fences.some(fence => selectorMatches(selector, relative(skillDirectory, resolve(state.root, fence.file)), fence))) {
-            report.problems.push(`${skillName}/verification.json play-compiles selector '${selector ?? 'all'}' selects no fences.`);
-        }
-    }
-    for (const fence of fences) {
-        const location = `${fence.file}:${fence.line}`;
-        const file = relative(skillDirectory, resolve(state.root, fence.file));
-        if (!selectors.some(selector => selectorMatches(selector, file, fence))) {
-            report.problems.push(`${location} has no play-compiles assertion covering it in ${skillName}/verification.json.`);
-        } else if (fence.excerpt && !fence.parent) {
-            report.skipped.push({ location, reason: 'excerpt has no declared parent' });
-        } else {
-            state.jobs.push(() => verifyFence(state, skillDirectory, fence, location));
+        if (!fences.some(fence => selectorMatches(selector, relative(skill.directory, resolve(state.root, fence.file)), fence))) {
+            state.report.problems.push(`${skill.name}/verification.json play-compiles selector '${selector ?? 'all'}' selects no fences.`);
         }
     }
 }
 
-async function discoverSkill(state: Verification, skillsDirectory: string, skillName: string): Promise<void> {
-    const skillDirectory = join(skillsDirectory, skillName);
-    const fences = await scanSkillFences(state, skillDirectory);
-    const assertions = await readAssertions(state, skillName, skillDirectory, fences.length > 0);
-    queueFences(state, skillName, skillDirectory, fences, playSelectors(state, skillName, assertions));
+function queueFence(state: Verification, skill: Skill, fence: Fence, selectors: Array<string | undefined>): void {
+    const { report } = state;
+    const location = `${fence.file}:${fence.line}`;
+    const file = relative(skill.directory, resolve(state.root, fence.file));
+    if (!selectors.some(selector => selectorMatches(selector, file, fence))) {
+        report.problems.push(`${location} has no play-compiles assertion covering it in ${skill.name}/verification.json.`);
+    } else if (fence.excerpt && !fence.parent) {
+        report.skipped.push({ location, reason: 'excerpt has no declared parent' });
+    } else {
+        state.jobs.push(() => verifyFence(state, skill, fence));
+    }
+}
+
+async function discoverSkill(state: Verification, skill: Skill): Promise<void> {
+    const fences = await scanSkillFences(state, skill);
+    const assertions = await readAssertions(state, skill, fences.length > 0);
+    const selectors = playSelectors(state, skill, assertions);
+    unmatchedSelectors(state, skill, fences, selectors);
+    for (const fence of fences) queueFence(state, skill, fence, selectors);
 }
 
 async function scanAgentGuidance(state: Verification): Promise<void> {
@@ -256,7 +267,7 @@ export async function verifyPlayExamples(root: string, runner: Runner = run, env
     };
     // Discovery and marker validation still run when the executable is absent.
     for (const directory of (await readdir(skills, { withFileTypes: true })).filter(entry => entry.isDirectory())) {
-        await discoverSkill(state, skills, directory.name);
+        await discoverSkill(state, { name: directory.name, directory: join(skills, directory.name) });
     }
     await scanAgentGuidance(state);
     await runJobs(state, version.value);

@@ -56,6 +56,41 @@ test('wrong-typed values are rejected, not coerced to empty', () => {
     assert.ok(problems(fixture({ bounds: { max_turns: null } })).length > 0);
 });
 
+test('invalid fields retain their diagnostic order before invalid checks', () => {
+    assert.deepEqual(problems(fixture({
+        extra: true, name: 'Bad', description: '', prompt: '', expected_output: '',
+        profiles: ['unknown'], languages: ['unknown'], harnesses: ['unknown'],
+        expected_instruction_paths: ['../escape'], bounds: { extra: true, max_turns: -0.5 },
+        checks: [{ type: 'command', phase: 'install', optional: null, exit_code: 0.5, path: '/absolute', glob: '', pattern: '', run: [] }]
+    })), [
+        "unknown key 'extra'.", 'name must be kebab-case.', 'description requires text.', 'prompt requires text.',
+        'expected_output must be nonempty text when present.', "profiles 'unknown' is not in the profile catalog.",
+        "languages 'unknown' is not in the profile catalog.", 'harnesses must be a subset of claude, codex, copilot, pi, cursor, opencode.',
+        "expected_instruction_paths '../escape' must be relative with no '..' segment.", "bounds: unknown key 'extra'.",
+        'bounds.max_turns must be a positive number.', 'bounds.max_turns must be an integer.',
+        'checks[0].optional must be boolean.', 'checks[0].exit_code must be an integer.',
+        "checks[0].path must be relative with no '..' segment.", 'checks[0].glob must be nonempty text.',
+        'checks[0]: command is not allowed in the install phase.', 'checks[0].run requires a nonempty array of strings.',
+        'checks[0]: command takes run and exit_code, not path, glob or pattern.',
+        'requires at least one non-optional result-phase check.'
+    ].map(message => `f.json: ${message}`));
+});
+
+test('an unknown check type reports unknown keys before stopping type validation', () => {
+    assert.deepEqual(problems(fixture({ checks: [{ type: 'other', extra: true, phase: 'other' }] })), [
+        "f.json: checks[0]: unknown key 'extra'.",
+        'f.json: checks[0].type must be one of file_exists, file_absent, file_matches, file_not_matches, command.',
+        'f.json: requires at least one non-optional result-phase check.'
+    ]);
+});
+
+test('catalog extraction ignores malformed entries while retaining profile order and unique languages', () => {
+    assert.deepEqual(catalogFrom({ publicProfiles: [null, { id: 'first', languages: ['csharp', '', null] }], engineeringProfiles: [{ id: 'second', languages: ['csharp', 'typescript'] }] }), {
+        profiles: ['first', 'second'], languages: ['csharp', 'typescript']
+    });
+    assert.deepEqual(catalogFrom(null), { profiles: [], languages: [] });
+});
+
 const fixturesRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'Evaluations', 'conformance');
 async function patterns(folder: string, type: string): Promise<RegExp[]> {
     const document = JSON.parse(await readFile(join(fixturesRoot, folder, 'fixture.json'), 'utf8')) as { checks: { type: string; pattern?: string }[] };
