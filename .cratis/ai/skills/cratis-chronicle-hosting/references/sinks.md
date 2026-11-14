@@ -46,12 +46,14 @@ client marks `[Sink("reporting")]` go to PostgreSQL:
   "sinks": {
     "readModels": "primary",
     "configurations": {
-      "primary": { "type": "MongoDB", "connectionDetails": "mongodb://mongo:27017" },
+      "primary": { "type": "MongoDB", "connectionDetails": "<mongodb-connection-string>" },
       "reporting": { "type": "SQL", "connectionDetails": "Host=pg;Database=reporting;Username=chronicle" }
     }
   }
 }
 ```
+
+In these examples `<mongodb-connection-string>` stands for the MongoDB connection string for host `mongo`, port `27017`; write it in your own configuration.
 
 Keep credentials out of the file: supply them through approved configuration, or let
 [storage resolution](storage-resolution.md) resolve the connection. A named SQL or Neo4j sink
@@ -69,7 +71,7 @@ MongoDB, and a Kernel on MongoDB can keep some in PostgreSQL:
   "sinks": {
     "readModels": "documents",
     "configurations": {
-      "documents": { "type": "MongoDB", "connectionDetails": "mongodb://mongo:27017" }
+      "documents": { "type": "MongoDB", "connectionDetails": "<mongodb-connection-string>" }
     }
   }
 }
@@ -99,7 +101,7 @@ The same keys under the `Cratis__Chronicle__` prefix:
 ```bash
 Cratis__Chronicle__Sinks__ReadModels=primary
 Cratis__Chronicle__Sinks__Configurations__primary__Type=MongoDB
-Cratis__Chronicle__Sinks__Configurations__primary__ConnectionDetails=mongodb://mongo:27017
+Cratis__Chronicle__Sinks__Configurations__primary__ConnectionDetails='<mongodb-connection-string>'
 Cratis__Chronicle__Sinks__Configurations__reporting__Type=SQL
 Cratis__Chronicle__Sinks__Configurations__reporting__ConnectionDetails=Host=pg;Database=reporting;Username=chronicle
 ```
