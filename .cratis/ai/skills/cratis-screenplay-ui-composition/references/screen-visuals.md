@@ -7,7 +7,7 @@ builds it. Requires Screenplay 6.7.0 or later (`screenplay --version`).
 The compiler warns `PLAY0952` while a named file is missing, so this fence asserts that code; a
 model whose files exist beside it compiles clean.
 
-```screenplay expect=PLAY0952
+```screenplay expect PLAY0952
 module Ordering
   feature Orders
     slice StateView OpenOrdersView
