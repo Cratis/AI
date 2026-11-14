@@ -286,7 +286,7 @@ function modelDispatch(ctx: ExtensionContext) {
 
 function needsProjectConfirmation(params: Static<typeof SubagentParams>, ctx: ExtensionContext): boolean {
 	if (params.agentScope === 'user') return false;
-	return Boolean(params.confirmProjectAgents && ctx.hasUI);
+	return (params.confirmProjectAgents ?? false) && Boolean(ctx.hasUI);
 }
 
 async function approveProjectAgents(params: Static<typeof SubagentParams>, ctx: ExtensionContext, discovery: ReturnType<typeof discoverAgents>): Promise<boolean> {
