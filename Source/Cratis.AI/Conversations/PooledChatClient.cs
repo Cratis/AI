@@ -352,19 +352,35 @@ public sealed class PooledChatClient(
             return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} is saturated");
         }
 
-        if (!await _memberAccess.IsAllowed(providerId))
-        {
-            slot.Dispose();
-            return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} is not available to the work initiator");
-        }
-        var client = await chatClientFactory.Create(provider, model);
-        if (client is null)
-        {
-            slot.Dispose();
-            return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} has no conversational client");
-        }
+        return await AttemptWithSlot(resolved, call, slot, cancellationToken);
+    }
 
-        return await InvokeChat(resolved, call, (client, slot), cancellationToken);
+    async Task<PoolAttempt<(T Value, AIProviderId Provider)>> AttemptWithSlot<T>(
+        ResolvedChatProvider resolved, ChatCall<T> call, IDisposable slot, CancellationToken cancellationToken)
+    {
+        var (providerId, provider, model) = resolved;
+        var transferred = false;
+        try
+        {
+            if (!await _memberAccess.IsAllowed(providerId))
+            {
+                return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} is not available to the work initiator");
+            }
+
+            var client = await chatClientFactory.Create(provider, model);
+            if (client is null)
+            {
+                return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} has no conversational client");
+            }
+
+            // InvokeChat owns cleanup from here, including transfer to a live stream.
+            transferred = true;
+            return await InvokeChat(resolved, call, (client, slot), cancellationToken);
+        }
+        finally
+        {
+            if (!transferred) slot.Dispose();
+        }
     }
 
     async Task<PoolAttempt<(T Value, AIProviderId Provider)>> InvokeChat<T>(
