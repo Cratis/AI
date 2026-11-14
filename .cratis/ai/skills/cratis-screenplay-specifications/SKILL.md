@@ -28,8 +28,7 @@ reference execution. Use `screenplay test` or MCP `run-specifications` for V4; S
 tests are separate evidence. Propose → review → `run-specifications` with `proposalId` → apply.
 PLAY0285 (an impossible `then`) unbinds the whole model and blocks every spec.
 Unsupported/unbound is never a pass. Typed examples and
-route assertions: [examples and routes](references/examples-and-routes.md); events with no
-producer: [producerless events](references/producerless-events.md).
+routes: [examples](references/examples-and-routes.md); [producerless events](references/producerless-events.md).
 
 Requires Screenplay 4.145.0 or later (`screenplay --version`) for `run-specifications` with `proposalId`.
 

@@ -32,6 +32,6 @@
     { "kind": "skill-contains", "value": "**A builder never names a sink.**" },
     { "kind": "skill-contains", "value": "sink People for graphs", "file": "references/graphs.md" },
     { "kind": "skill-contains", "value": "every `sink` line in it is the directive", "file": "references/graphs.md" },
-    { "kind": "skill-contains", "value": "read-model-property-order-esm-371" }
+    { "kind": "skill-contains", "value": "read-model-property-order.md" }
   ]
 }
