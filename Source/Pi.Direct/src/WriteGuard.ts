@@ -1,7 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-export type GuardState = 'unclaimed' | 'open' | 'lost';
+export type GuardState = 'unclaimed' | 'open' | 'lost' | 'released';
 
 /**
  * Blocks the session's write tools unless a claim is live. Lost authority is terminal: nothing but a new session
@@ -20,7 +20,12 @@ export class WriteGuard {
     }
 
     markLost(): void {
-        this.current = 'lost';
+        if (this.current !== 'released') this.current = 'lost';
+    }
+
+    /** The work was released: writes stay refused, and the state is not a loss. */
+    markReleased(): void {
+        if (this.current === 'open') this.current = 'released';
     }
 
     /** The person's acknowledgement dismisses a notification; it never lifts the guard. */

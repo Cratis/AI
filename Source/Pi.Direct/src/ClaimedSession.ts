@@ -24,12 +24,14 @@ export interface SessionStatus {
     readonly authority: 'live' | 'lost' | 'released';
 }
 
+/** The one lifecycle: live, then releasing, then released or lost. Expiry and failure only ever act on a live or releasing session. */
+type SessionPhase = 'live' | 'releasing' | 'released' | 'lost';
+
 /** One claimed work item: keeps the lease by heartbeat, releases exactly once, and turns lost authority into a terminal guard. */
 export class ClaimedSession {
     private epoch: number;
     private leaseEndsAt: number;
-    private released = false;
-    private releaseDone = false;
+    private phase: SessionPhase = 'live';
     private readonly heartbeat: HeartbeatLoop;
 
     private constructor(
@@ -69,13 +71,13 @@ export class ClaimedSession {
      * guarded write: once the deadline has passed the guard is terminal and the person is told once.
      */
     checkLease(): void {
-        if (this.dependencies.guard.state === 'open' && this.leaseExpired()) this.loseAuthority();
+        if (this.phase === 'live' && this.leaseExpired()) this.loseAuthority();
     }
 
     status(): SessionStatus {
-        const { guard, clock, environment } = this.dependencies;
+        const { clock, environment } = this.dependencies;
         this.checkLease();
-        const authority = guard.state === 'lost' ? 'lost' : this.releaseDone ? 'released' : 'live';
+        const authority = this.phase === 'releasing' ? 'live' : this.phase;
         return {
             workHandle: environment.workHandle,
             epoch: this.epoch,
@@ -86,14 +88,15 @@ export class ClaimedSession {
 
     /** Releases with an outcome exactly once; a lost claim cannot release. */
     async finish(outcome: ReleaseOutcome, reason?: string): Promise<void> {
-        if (this.released) throw new SessionRefused('already-released');
+        if (this.phase === 'releasing' || this.phase === 'released') throw new SessionRefused('already-released');
         this.checkLease();
-        if (this.dependencies.guard.state !== 'open') throw new SessionRefused('authority-lost');
-        this.released = true;
+        if (this.phase !== 'live') throw new SessionRefused('authority-lost');
+        this.phase = 'releasing';
         this.heartbeat.stop();
         try {
             await this.dependencies.gateway.release({ workHandle: this.dependencies.environment.workHandle, claimId: this.claimId, epoch: this.epoch, outcome, reason });
-            this.releaseDone = true;
+            this.phase = 'released';
+            this.dependencies.guard.markReleased();
         } catch {
             this.loseAuthority();
             throw new SessionRefused('refused');
@@ -105,7 +108,8 @@ export class ClaimedSession {
     /** Session shutdown: release as Abandoned, best effort, when nothing else released the work. */
     async shutdown(): Promise<void> {
         this.heartbeat.stop();
-        if (!this.released && this.dependencies.guard.state === 'open') {
+        this.checkLease();
+        if (this.phase === 'live') {
             await this.finish('Abandoned').catch(() => undefined);
             return;
         }
@@ -116,7 +120,7 @@ export class ClaimedSession {
         const { gateway, environment, clock } = this.dependencies;
         const result = await gateway.heartbeat({ workHandle: environment.workHandle, claimId: this.claimId, epoch: this.epoch });
         this.checkLease();
-        if (this.dependencies.guard.state !== 'open') return; // a late answer never revives expired authority
+        if (this.phase !== 'live') return; // a late answer never revives expired authority
         this.epoch = result.epoch;
         this.leaseEndsAt = clock.now() + result.leaseSeconds * 1000;
     }
@@ -127,7 +131,8 @@ export class ClaimedSession {
 
     private loseAuthority(): void {
         this.heartbeat.stop();
-        if (this.dependencies.guard.state === 'lost') return;
+        if (this.phase === 'lost' || this.phase === 'released') return;
+        this.phase = 'lost';
         this.dependencies.guard.markLost();
         this.dependencies.notify(new SessionRefused('authority-lost').message);
     }
