@@ -4,10 +4,15 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { parse } from 'yaml';
+import { check } from './contract/check.ts';
+import { summary } from './contract/index.ts';
+import { cleanDocument, specimen } from './contract/self-test.ts';
+import { reportComparison } from './contract/sync.ts';
 
 const workflow = parse(readFileSync(new URL('../../.github/workflows/publish.yml', import.meta.url), 'utf8'));
 const verify = workflow.jobs.verify;
@@ -72,8 +77,25 @@ test('should compare the external Screenplay contract independently of skipped v
     assert.equal(comparison.run, 'yarn workspace @cratis/ai-verification exec tsx contract/sync.ts --root "$GITHUB_WORKSPACE" --contract "$CONTRACT_PATH" --version "$CONTRACT_VERSION"');
 });
 
+for (const findings of [[], ['New release needs a corpus update.']]) {
+    test(`should report ${findings.length} drift findings successfully without hiding real reporting errors`, async () => {
+        const directory = await mkdtemp(join(tmpdir(), 'sync-report-'));
+        try {
+            const result = { ...check(specimen, [cleanDocument]), problems: findings, files: 1, pinnedVersion: '1.2.3', contractSource: 'latest.json' };
+            const output: string[] = [];
+            const path = join(directory, 'summary.md');
+            assert.equal(await reportComparison('2.3.4', result, path, line => output.push(line)), 0);
+            assert.ok((await readFile(path, 'utf8')).includes(summary(result)));
+            assert.deepEqual(output, findings.length ? ['::warning::Screenplay 2.3.4 contract drift: 1 findings'] : []);
+            await assert.rejects(reportComparison('2.3.4', result, directory, () => undefined));
+        } finally {
+            await rm(directory, { recursive: true, force: true });
+        }
+    });
+}
+
 for (const status of [0, 1, 2]) {
-    test(`should preserve the contract comparison result and drift report (exit ${status})`, () => {
+    test(`should preserve the sync script exit status without workflow error suppression (exit ${status})`, () => {
         const comparison = screenplaySync.steps.at(-1);
         // Stub the issue-reconciling command: never contact GitHub or mutate a tracking issue.
         const result = spawnSync('bash', ['--noprofile', '--norc', '-e', '-o', 'pipefail'], {

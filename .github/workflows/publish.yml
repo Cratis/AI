@@ -144,6 +144,7 @@ jobs:
       - name: Run entrypoint fixtures
         run: bash Source/AgentHarnesses/run-entrypoint-fixtures.sh
 
+  # Drift is advisory; releases verify against the pinned Screenplay contract.
   screenplay-sync:
     name: Compare the published Screenplay contract
     if: github.event_name == 'repository_dispatch' || github.event_name == 'schedule'

@@ -18,27 +18,32 @@ namespace Cratis.AI.LanguageModels.for_ManagedLanguageModel.given;
 public class an_inner_model : Specification
 {
     protected ILanguageModel Inner;
+    protected IVisionLanguageModel VisionInner;
+    protected IAIAgents Agents;
     protected ICommandPipeline CommandPipeline;
     protected Func<TimeSpan, CancellationToken, Task> Delay;
     protected ManagedLanguageModel Model;
 
     protected void Establish()
     {
+        VisionInner = Substitute.For<IVisionLanguageModel, ILanguageModel>();
         Inner = Substitute.For<ILanguageModel>();
         CommandPipeline = Substitute.For<ICommandPipeline>();
 
         Delay = Substitute.For<Func<TimeSpan, CancellationToken, Task>>();
         Delay.Invoke(Arg.Any<TimeSpan>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
-        var agents = Substitute.For<IAIAgents>();
-        agents.FindByPurpose(Arg.Any<LanguageModelPurpose>()).Returns((AgentDescriptor?)null);
+        Agents = Substitute.For<IAIAgents>();
+        Agents.FindByPurpose(Arg.Any<LanguageModelPurpose>()).Returns((AgentDescriptor?)null);
 
-        Model = new ManagedLanguageModel(
-            Inner,
-            CommandPipeline,
-            agents,
-            new AgentExecution(new Cratis.Chronicle.Identities.BaseIdentityProvider(), new Cratis.Chronicle.Auditing.CausationManager(), agents),
-            Substitute.For<ILogger<ManagedLanguageModel>>(),
-            Delay);
+        Model = CreateModel(Inner);
     }
+
+    protected ManagedLanguageModel CreateModel(ILanguageModel inner) => new(
+        inner,
+        CommandPipeline,
+        Agents,
+        new AgentExecution(new Cratis.Chronicle.Identities.BaseIdentityProvider(), new Cratis.Chronicle.Auditing.CausationManager(), Agents),
+        Substitute.For<ILogger<ManagedLanguageModel>>(),
+        Delay);
 }

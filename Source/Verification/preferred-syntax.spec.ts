@@ -19,9 +19,23 @@ function checker(): PreferredSyntax {
 }
 
 describe('when selecting preferred syntax diagnostics', () => {
-    it('should select exactly the fifteen non-error style diagnostics from the pinned contract', async () => {
+    it('should select active non-error legacy, redundant and deprecated diagnostics from the pinned contract', async () => {
         const contract = JSON.parse(await readFile('../../.cratis/ai/skills/cratis-screenplay-toolchain/references/screenplay-contract.json', 'utf8'));
-        assert.deepEqual(styleCodes(contract.diagnostics), ['PLAY0290', 'PLAY0397', 'PLAY0445', 'PLAY0471', 'PLAY0479', 'PLAY0507', 'PLAY0564', 'PLAY0565', 'PLAY0664', 'PLAY0786', 'PLAY0787', 'PLAY0791', 'PLAY0824', 'PLAY0929', 'PLAY0955']);
+        const expected = (contract.diagnostics as StyleDiagnostic[]).filter(item =>
+            item.reserved === false && item.retired === false && item.severities.length > 0
+            && !item.severities.includes('error') && ['Legacy', 'Redundant', 'Deprecated'].some(word => item.name.includes(word)))
+            .map(item => item.code).sort();
+        assert.ok(expected.length > 0);
+        assert.deepEqual(styleCodes(contract.diagnostics), expected);
+    });
+    it('should document every selected style diagnostic in the preferred-syntax table', async () => {
+        const references = '../../.cratis/ai/skills/cratis-screenplay-toolchain/references';
+        const contract = JSON.parse(await readFile(`${references}/screenplay-contract.json`, 'utf8'));
+        const document = await readFile(`${references}/preferred-syntax.md`, 'utf8');
+        const documented = new Set(document.split('\n').filter(line => line.startsWith('|')).flatMap(line => line.match(/\bPLAY\d{4}\b/g) ?? []));
+        const selected = styleCodes(contract.diagnostics);
+        assert.ok(selected.length > 0);
+        assert.deepEqual(selected.filter(code => !documented.has(code)), [], 'Selected style diagnostics are missing from the preferred-syntax table.');
     });
     it('should exclude error-capable, reserved and retired diagnostics', () => {
         assert.deepEqual(styleCodes([{ ...diagnostic, severities: ['information', 'error'] }, { ...diagnostic, reserved: true }, { ...diagnostic, retired: true }]), []);

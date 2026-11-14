@@ -76,22 +76,31 @@ public class all_dependencies : Specification
         _recentProviderFailures.CountsSince(Arg.Any<TimeSpan>()).Returns(new Dictionary<AIProviderId, int>());
         _commandPipeline = Substitute.For<ICommandPipeline>();
         _timeProvider = TimeProvider.System;
-        _model = new(
-            new Cratis.Types.KnownInstancesOf<IAIProviderClient>(_anthropicClient, _openAIClient),
-            _compatibility,
-            _readModels,
-            new ProviderBurn(_sessions, TimeProvider.System),
-            _providerUsageLevels,
-            _providerCapacities,
-            _recentProviderFailures,
-            _providerGate,
-            new DefaultAgentInvocationModes(),
-            _commandPipeline,
-            _timeProvider,
-            Options.Create(new AIProviderOptions()),
-            _logger,
-            _initiation = new WorkInitiation());
+        _initiation = new WorkInitiation();
+        _model = CreateModel(_anthropicClient, _openAIClient);
     }
+
+    /// <summary>
+    /// Creates the model under specification over exactly the given vendor clients - for specs that
+    /// need a client of a different shape (one that can take images) than the defaults.
+    /// </summary>
+    /// <param name="clients">The vendor clients the model discovers.</param>
+    /// <returns>The model.</returns>
+    protected ProviderAwareLanguageModel CreateModel(params IAIProviderClient[] clients) => new(
+        new Cratis.Types.KnownInstancesOf<IAIProviderClient>(clients),
+        _compatibility,
+        _readModels,
+        new ProviderBurn(_sessions, TimeProvider.System),
+        _providerUsageLevels,
+        _providerCapacities,
+        _recentProviderFailures,
+        _providerGate,
+        new DefaultAgentInvocationModes(),
+        _commandPipeline,
+        _timeProvider,
+        Options.Create(new AIProviderOptions()),
+        _logger,
+        _initiation);
 
     protected void AgentIs(Agent agent) =>
         _readModels.GetInstanceById<Agent>((EventSourceId)AgentId.For((LanguageModelPurpose)Purpose)).Returns(agent);
