@@ -1,0 +1,66 @@
+[63662:620272710:1109/023314.464982:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[63662:620272710:1109/023314.466244:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[63662:620272710:1109/023314.466350:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[63662:620272710:1109/023314.466447:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[63662:620272710:1109/023314.467621:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[63662:620272710:1109/023314.467748:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[63662:620272710:1109/023314.467925:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+Trying to load the allocator multiple times. This is *not* supported.
+[63662:620272710:1109/023323.751848:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[63662:620272710:1109/023323.782452:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[63662:620272710:1109/023323.837771:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[63662:620272710:1109/023323.873876:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[63662:620272710:1109/023323.920940:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[63662:620272710:1109/023323.960582:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[63662:620272710:1109/023324.025725:ERROR:ui/display/mac/cv_display_link_mac.mm:188] CVDisplayLinkCreateWithCGDisplay failed. CVReturn: -6670
+[68475:620295379:1109/023409.726419:VERBOSE1:chrome/updater/updater.cc:375] Version: 157.0.8089.0, opt, ARM_64, command line: /Users/sindrewilting/Library/Application Support/Google/GoogleUpdater/157.0.8089.0/GoogleUpdater.app/Contents/MacOS/GoogleUpdater --wake-all --enable-logging --vmodule=*/components/update_client/*=2,*/chrome/enterprise_companion/*=2,*/chrome/updater/*=2
+[68475:620295379:1109/023409.727261:VERBOSE1:chrome/updater/updater.cc:378] OS version: 26.6.2, arch: arm64, System uptime (seconds): 2027001, parent pid: 63646
+[68475:620295379:1109/023409.731187:VERBOSE1:chrome/updater/updater.cc:383] Available disk space in install directory (/Users/sindrewilting/Library/Application Support/Google/GoogleUpdater): 39917002752B (37.176GiB) / 494384795648B (460.432GiB)
+[68475:620295379:1109/023409.731900:VERBOSE1:chrome/updater/updater.cc:387] Available disk space in temporary directory (/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/): 39917002752B (37.176GiB) / 494384795648B (460.432GiB)
+[68475:620295379:1109/023409.732457:VERBOSE2:chrome/updater/event_history.cc:266] Emitted a UPDATER_PROCESS START event to the history log
+[68483:620295389:1109/023409.748396:VERBOSE1:chrome/updater/updater.cc:375] Version: 157.0.8089.0, opt, ARM_64, command line: /Users/sindrewilting/Library/Application Support/Google/GoogleUpdater/157.0.8089.0/GoogleUpdater.app/Contents/MacOS/GoogleUpdater --crash-handler --database=/Users/sindrewilting/Library/Application Support/Google/GoogleUpdater/157.0.8089.0/Crashpad --url=https://clients2.google.com/cr/report --annotation=prod=Update4 --annotation=ver=157.0.8089.0 --handshake-fd=6 --enable-logging --vmodule=*/components/update_client/*=2,*/chrome/enterprise_companion/*=2,*/chrome/updater/*=2
+[68483:620295389:1109/023409.749077:VERBOSE1:chrome/updater/updater.cc:378] OS version: 26.6.2, arch: arm64, System uptime (seconds): 2027001, parent pid: 1
+[68483:620295389:1109/023409.751145:VERBOSE1:chrome/updater/updater.cc:383] Available disk space in install directory (/Users/sindrewilting/Library/Application Support/Google/GoogleUpdater): 39916990464B (37.176GiB) / 494384795648B (460.432GiB)
+[68483:620295389:1109/023409.751214:VERBOSE1:chrome/updater/updater.cc:387] Available disk space in temporary directory (/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/): 39916990464B (37.176GiB) / 494384795648B (460.432GiB)
+[68483:620295389:1109/023409.751573:VERBOSE2:chrome/updater/event_history.cc:266] Emitted a UPDATER_PROCESS START event to the history log
+[68475:620295379:1109/023409.752899:VERBOSE1:chrome/updater/crash_reporter.cc:123] Crash handler launched and ready.
+[68475:620295379:1109/023409.754346:VERBOSE1:chrome/updater/crash_client.cc:109] Found 0 completed crash reports
+[68475:620295379:1109/023409.754433:VERBOSE1:chrome/updater/crash_client.cc:132] Found 0 pending crash reports
+[68475:620295379:1109/023409.754517:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /Users/sindrewilting/Library/Application Support/Google/Chrome Dev/Crashpad/settings.dat: No such file or directory (2)
+[68475:620295379:1109/023409.754529:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /Users/sindrewilting/Library/Application Support/Google/RLZ/Crashpad/settings.dat: No such file or directory (2)
+[68475:620295379:1109/023409.754537:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /Users/sindrewilting/Library/Application Support/Google/Chrome Beta/Crashpad/settings.dat: No such file or directory (2)
+[68475:620295379:1109/023409.754837:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /Users/sindrewilting/Library/Application Support/Google/Chrome Canary/Crashpad/settings.dat: No such file or directory (2)
+[68475:620295379:1109/023409.754854:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /Users/sindrewilting/Library/Application Support/Google/Chrome-headless/Crashpad/settings.dat: No such file or directory (2)
+[68475:620295379:1109/023409.754867:VERBOSE1:chrome/updater/updater.cc:107] Crash reporting initialized.
+[68475:620295407:1109/023409.755302:VERBOSE1:chrome/updater/app/app_wakeall.cc:58] Launching `/Users/sindrewilting/Library/Application Support/Google/GoogleUpdater/157.0.8089.0/GoogleUpdater.app/Contents/MacOS/GoogleUpdater --wake`
+[68489:620295413:1109/023409.769766:VERBOSE1:chrome/updater/updater.cc:375] Version: 157.0.8089.0, opt, ARM_64, command line: /Users/sindrewilting/Library/Application Support/Google/GoogleUpdater/157.0.8089.0/GoogleUpdater.app/Contents/MacOS/GoogleUpdater --wake --enable-logging --vmodule=*/components/update_client/*=2,*/chrome/enterprise_companion/*=2,*/chrome/updater/*=2
+[68489:620295413:1109/023409.770669:VERBOSE1:chrome/updater/updater.cc:378] OS version: 26.6.2, arch: arm64, System uptime (seconds): 2027001, parent pid: 68475
+[68489:620295413:1109/023409.773138:VERBOSE1:chrome/updater/updater.cc:383] Available disk space in install directory (/Users/sindrewilting/Library/Application Support/Google/GoogleUpdater): 39916920832B (37.176GiB) / 494384795648B (460.432GiB)
+[68489:620295413:1109/023409.773166:VERBOSE1:chrome/updater/updater.cc:387] Available disk space in temporary directory (/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/): 39916920832B (37.176GiB) / 494384795648B (460.432GiB)
+[68489:620295413:1109/023409.773219:VERBOSE2:chrome/updater/event_history.cc:266] Emitted a UPDATER_PROCESS START event to the history log
+[68497:620295433:1109/023409.792836:VERBOSE1:chrome/updater/updater.cc:375] Version: 157.0.8089.0, opt, ARM_64, command line: /Users/sindrewilting/Library/Application Support/Google/GoogleUpdater/157.0.8089.0/GoogleUpdater.app/Contents/MacOS/GoogleUpdater --crash-handler --database=/Users/sindrewilting/Library/Application Support/Google/GoogleUpdater/157.0.8089.0/Crashpad --url=https://clients2.google.com/cr/report --annotation=prod=Update4 --annotation=ver=157.0.8089.0 --handshake-fd=6 --enable-logging --vmodule=*/components/update_client/*=2,*/chrome/enterprise_companion/*=2,*/chrome/updater/*=2
+[68497:620295433:1109/023409.793524:VERBOSE1:chrome/updater/updater.cc:378] OS version: 26.6.2, arch: arm64, System uptime (seconds): 2027001, parent pid: 1
+[68497:620295433:1109/023409.796174:VERBOSE1:chrome/updater/updater.cc:383] Available disk space in install directory (/Users/sindrewilting/Library/Application Support/Google/GoogleUpdater): 39916507136B (37.175GiB) / 494384795648B (460.432GiB)
+[68497:620295433:1109/023409.796219:VERBOSE1:chrome/updater/updater.cc:387] Available disk space in temporary directory (/var/folders/n2/c0514trj2wld924nfm754j8h0000gn/T/): 39916507136B (37.175GiB) / 494384795648B (460.432GiB)
+[68497:620295433:1109/023409.796299:VERBOSE2:chrome/updater/event_history.cc:266] Emitted a UPDATER_PROCESS START event to the history log
+[68489:620295413:1109/023409.796953:VERBOSE1:chrome/updater/crash_reporter.cc:123] Crash handler launched and ready.
+[68489:620295413:1109/023409.798050:VERBOSE1:chrome/updater/crash_client.cc:109] Found 0 completed crash reports
+[68489:620295413:1109/023409.798143:VERBOSE1:chrome/updater/crash_client.cc:132] Found 0 pending crash reports
+[68489:620295413:1109/023409.798224:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /Users/sindrewilting/Library/Application Support/Google/Chrome Dev/Crashpad/settings.dat: No such file or directory (2)
+[68489:620295413:1109/023409.798235:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /Users/sindrewilting/Library/Application Support/Google/RLZ/Crashpad/settings.dat: No such file or directory (2)
+[68489:620295413:1109/023409.798260:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /Users/sindrewilting/Library/Application Support/Google/Chrome Beta/Crashpad/settings.dat: No such file or directory (2)
+[68489:620295413:1109/023409.798305:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /Users/sindrewilting/Library/Application Support/Google/Chrome Canary/Crashpad/settings.dat: No such file or directory (2)
+[68489:620295413:1109/023409.798313:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /Users/sindrewilting/Library/Application Support/Google/Chrome-headless/Crashpad/settings.dat: No such file or directory (2)
+[68489:620295413:1109/023409.798323:VERBOSE1:chrome/updater/updater.cc:107] Crash reporting initialized.
+[68489:620295413:1109/023409.798531:VERBOSE1:chrome/updater/ipc/update_service_internal_proxy_mojo.cc:61] Run
+[68489:620295413:1109/023423.947271:VERBOSE1:chrome/updater/app/app.cc:52] Shutdown: 0
+[68489:620295413:1109/023423.948205:VERBOSE2:chrome/updater/event_history.cc:266] Emitted a UPDATER_PROCESS END event to the history log
+[68489:620295413:1109/023423.948327:VERBOSE1:chrome/updater/updater.cc:420] UpdaterMain (--wake) returned 0.
+[68475:620295407:1109/023424.025763:VERBOSE1:chrome/updater/app/app_wakeall.cc:68] `/Users/sindrewilting/Library/Application Support/Google/GoogleUpdater/157.0.8089.0/GoogleUpdater.app/Contents/MacOS/GoogleUpdater --wake` exited 0
+[68475:620295379:1109/023424.026225:VERBOSE1:chrome/updater/app/app.cc:52] Shutdown: 0
+[68475:620295379:1109/023424.026923:VERBOSE2:chrome/updater/event_history.cc:266] Emitted a UPDATER_PROCESS END event to the history log
+[68475:620295379:1109/023424.026963:VERBOSE1:chrome/updater/updater.cc:420] UpdaterMain (--wake-all) returned 0.
+[68497:620295433:1109/023433.963166:VERBOSE2:chrome/updater/event_history.cc:266] Emitted a UPDATER_PROCESS END event to the history log
+[68497:620295433:1109/023433.963237:VERBOSE1:chrome/updater/updater.cc:420] UpdaterMain (--crash-handler) returned 0.
+[68483:620295389:1109/023433.966055:VERBOSE2:chrome/updater/event_history.cc:266] Emitted a UPDATER_PROCESS END event to the history log
+[68483:620295389:1109/023433.966104:VERBOSE1:chrome/updater/updater.cc:420] UpdaterMain (--crash-handler) returned 0.
