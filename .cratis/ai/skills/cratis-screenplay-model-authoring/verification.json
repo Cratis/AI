@@ -271,6 +271,7 @@
     { "kind": "skill-contains", "value": "repaired occurrence by occurrence, never by message text or in bulk" },
     { "kind": "skill-contains", "value": "GraphCollectSyntax", "file": "references/mcp-tools.md" },
     {"kind":"skill-contains","value":"screenplay rename","file":"references/mcp-tools.md"},
-    {"kind":"skill-contains","value":"ScreensRefused","file":"references/mcp-tools.md"}
+    {"kind":"skill-contains","value":"ScreensRefused","file":"references/mcp-tools.md"},
+    {"kind":"skill-contains","value":"api-description","file":"references/mcp-tools.md"}
   ]
 }

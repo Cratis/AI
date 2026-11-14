@@ -8,7 +8,7 @@ Requires Screenplay 6.1.0 or later (`screenplay --version`).
 
 ## Export
 
-`screenplay export [PATH] [--format esm] [--screens] [--scope <Module>[.<Feature>[.<Slice>]]] [--output <path>]`
+`screenplay export [PATH] [--format esm|openapi|ui] [--screens] [--scope <Module>[.<Feature>[.<Slice>]]] [--output <path>]`
 
 - `esm` (the default) writes the executable semantic model, byte-identical to `SemanticModelSerializer.Serialize`, including `schemaVersion` and `revision`. `PATH` defaults to the current folder; without `--output` the bytes go to stdout; an identical existing file is left untouched.
 - `--scope` keeps one module, feature or slice plus the application-wide declarations (concepts, types, policies, triggers, event sources, lifecycles, graphs). The excerpt's `revision` identifies the excerpt.
@@ -18,6 +18,19 @@ Requires Screenplay 6.1.0 or later (`screenplay --version`).
 | 0 | Written |
 | 1 | No executable model for the sources, or `--screens` refused |
 | 2 | Invalid arguments or scope, or unreadable sources |
+
+### OpenAPI and UI contract formats
+
+Requires Screenplay 6.5.0 or later (`screenplay --version`).
+
+| `--format` | Output | Needs an executable model | Exit |
+| --- | --- | --- | --- |
+| `openapi` | OpenAPI 3.1 of every command and query | Yes | 1 without one; `--scope` narrows |
+| `ui` | Stack-neutral `screenplay-ui/1` JSON: data, actions, navigation, layout, optional Scene layer | No, only sources | 0 even without one (identities and routes are then absent and stderr says so); `--scope` keeps that module, feature or slice's screens |
+
+`--format openapi`: a command is a `POST` with its inputs as the JSON body plus `POST <route>/validate`; a query is a `GET` with the `by` key and filters in the query string, and list queries take `page`, `pageSize`, `sortBy`, `sortDirection`. Observable queries carry `x-screenplay-observable` (open them as a WebSocket). `x-screenplay-authorization` is `anonymous: true` when nothing applies, else `requires` with the policy names; `x-screenplay-policies` lists the policies; each operation has `x-screenplay-kind` (`command`, `query`, `validation`), `x-screenplay-id` and `x-screenplay-slice`. Responses use the `CommandResult` and `QueryResult` envelopes, `info.version` is the executable-model revision, and the same model gives the same bytes.
+
+MCP `read-workspace` `view: "api-description"` (format `openapi-3.1.0`) and `"ui-contract"` (`screenplay-ui/1`) page the decoded bytes like `executable-model` (`limit` 1 to 196608, `expectedRevision`, `expectedModelRevision`). `api-description` reports `available: false` without bytes when there is no executable model; `ui-contract` stays available with `modelRevision: null`.
 
 ### Screens in the export
 
