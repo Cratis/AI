@@ -1,0 +1,55 @@
+{
+  "name": "@cratis/pi-direct",
+  "version": "0.0.0",
+  "description": "Pi package for Cratis Direct local sessions: claim, heartbeat and release the work a runner launched",
+  "type": "module",
+  "files": [
+    "src",
+    "!src/**/for_*",
+    "!src/given.ts",
+    "!src/chai-should.d.ts",
+    "!src/vitest.setup.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "check": "tsc --noEmit",
+    "lint:ci": "yarn g:lint:ci src",
+    "test": "yarn g:test",
+    "verify:pack": "node scripts/verify-pack.mjs"
+  },
+  "keywords": [
+    "cratis",
+    "pi-package",
+    "direct"
+  ],
+  "homepage": "https://www.cratis.io/ai/",
+  "author": "Cratis",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Cratis/AI",
+    "directory": "Source/Pi.Direct"
+  },
+  "bugs": "https://github.com/Cratis/AI/issues",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.32.1"
+  },
+  "devDependencies": {
+    "chai": "^6.2.2",
+    "typescript": "^5.8.0"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  },
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  }
+}
