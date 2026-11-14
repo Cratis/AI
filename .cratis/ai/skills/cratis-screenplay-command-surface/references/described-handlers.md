@@ -88,8 +88,8 @@ the body against the declared contract as authorized gap-fill; do not claim that
 pending requirement is implementation evidence. Moving the body into `handler file`
 keeps its RequirementId; beside unconditional `produces` it binds like any resolved
 attached handler (above), while with no `produces`, `produces ... when`, or an empty
-or unresolved body it still fails PLAY0800. Stage still refuses it, so a resolved
-body is binding, not render readiness.
+or unresolved body it still fails PLAY0800. Stage renders a body resolved in C#, but
+still refuses a pending body or one resolved in another language with STAGE-IMPL-002.
 
 Validate the model root with `screenplay <root> --warnaserror`; expect no errors or
 warnings and PLAY0695 information. Run `screenplay test <root>` separately: body-reaching

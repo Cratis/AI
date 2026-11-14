@@ -101,7 +101,7 @@ The same keys under the `Cratis__Chronicle__` prefix:
 ```bash
 Cratis__Chronicle__Sinks__ReadModels=primary
 Cratis__Chronicle__Sinks__Configurations__primary__Type=MongoDB
-Cratis__Chronicle__Sinks__Configurations__primary__ConnectionDetails=<mongodb-connection-string>
+Cratis__Chronicle__Sinks__Configurations__primary__ConnectionDetails='<mongodb-connection-string>'
 Cratis__Chronicle__Sinks__Configurations__reporting__Type=SQL
 Cratis__Chronicle__Sinks__Configurations__reporting__ConnectionDetails=Host=pg;Database=reporting;Username=chronicle
 ```
