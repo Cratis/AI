@@ -20,6 +20,7 @@
 - Provided values (PLAY1119-PLAY1129)
 - Audiences and availability (PLAY1130-PLAY1141)
 - Sinks (PLAY0931-PLAY0939)
+- Passive read models (PLAY0858-PLAY0860)
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
 - Consistency errors (V1: the model contradicts itself)
@@ -400,6 +401,20 @@ is information PLAY0270, outside the ESM. The fixes are in
 | PLAY0937 | W | A read model or graph repeats the same `sink` line. |
 | PLAY0938 | W | A declared sink no read model or graph uses. |
 | PLAY0939 | W | A read-model property `sink` whose type differs only in case from a declared sink. Spell the sink exactly, or write `@sink <Type>`. |
+
+## Passive read models (PLAY0858-PLAY0860)
+
+Requires Screenplay 5.3.0 (`screenplay --version`). A bare `passive` line in a read model body
+marks one that only informs command decisions. The fixes are in
+`../../cratis-screenplay-read-surface/references/passive.md`; a passive read model that names a sink is PLAY0935.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0858 | W | A read model repeats the `passive` line. Keep one. |
+| PLAY0859 | E | A `query` returns a passive read model, or a `screen` `data` line binds one. Only commands may read it: remove `passive` or use an active read model. |
+| PLAY0860 | W | No command `reads` the passive read model. Add the read or remove `passive`. |
+
+Only the C# compiler reports PLAY0859 and PLAY0860; the TypeScript compiler reports PLAY0858 only.
 
 ## Structural completeness and timeline checks
 
