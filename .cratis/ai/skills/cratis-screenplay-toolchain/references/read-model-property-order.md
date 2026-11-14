@@ -13,8 +13,9 @@ which returns a `SemanticBindingOptionsResult` (`Compilation`, `Refusal`, `Succe
   application calendar or a clock does the model select language/semantic **37.1**. `schemaVersion`
   stays 37 and each read model gains an optional `propertyOrder` after `properties`: a permutation of
   every property identity, key included. `properties` stays id-sorted.
-- Any other model gets `PropertyOrderMetadataRefusal` with no executable value; a model with no read
-  models keeps its version. Default `Bind` and default options keep existing versions, bytes and
+- A model that emits no metadata (no read models, or every read model already in canonical property
+  order) keeps its version and binds successfully. Any other model that is not a 37.0 candidate gets
+  `PropertyOrderMetadataRefusal` with no executable value. Default `Bind` and default options keep existing versions, bytes and
   revisions.
 - The golden is `full-esm-v37.1.json`, reached with `EsmGoldenVectors.GetMinor(SemanticVersion.V37_1)`;
   `Get(int)` and `Versions` describe only `.0` goldens.
@@ -22,4 +23,4 @@ which returns a `SemanticBindingOptionsResult` (`Compilation`, `Refusal`, `Succe
   keeps the member as opaque bytes with the same revision.
 
 Do not tell modelers that declaration order controls a generated constructor's parameter order: that
-rendering is a Stage change tracked in Stage#896; confirm it shipped before claiming otherwise.
+rendering is a Stage change; confirm it shipped before claiming otherwise.

@@ -3,9 +3,9 @@
 
 # Unknown-preserving semantic model reader
 
-Requires Screenplay 5.6.0 or later (`screenplay --version`). Source: Screenplay
+Requires Screenplay 4.256.0 or later (`screenplay --version`). Source: Screenplay
 `Documentation/screenplay/interoperability.md` ("Minor versions and unknown-preserving
-admission") and decision 0118.
+admission").
 
 A consumer that must retain unknown additions without executing them reads a model with
 `UnknownPreservingSemanticModelReader.Read(bytes, EsmAdmissionRange)`. It is an opt-in reader beside

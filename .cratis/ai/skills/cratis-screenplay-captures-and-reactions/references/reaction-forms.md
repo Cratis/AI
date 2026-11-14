@@ -61,7 +61,7 @@ rules for validation, not as a way around condition admission.
 ## Reaction bodies run through a host provider
 
 Requires Screenplay 4.258.0 or later (`screenplay --version`). Source: Screenplay
-`Documentation/screenplay/reactions.md` and decision 0121.
+`Documentation/screenplay/reactions.md`.
 
 A reference run executes an attached reaction body only when the host supplies an
 `ISemanticBodyExecutionProvider` and a resolved, content-verified attachment. The run calls
