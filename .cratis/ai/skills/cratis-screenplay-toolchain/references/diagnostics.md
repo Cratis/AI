@@ -21,7 +21,7 @@
 - Audiences and availability (PLAY1130-PLAY1141)
 - Sinks (PLAY0931-PLAY0939)
 - Passive read models (PLAY0858-PLAY0860)
-- Graph queries (PLAY0878-PLAY0885)
+- Graph queries and `foreach` (PLAY0878-PLAY0886)
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
 - Consistency errors (V1: the model contradicts itself)
@@ -417,10 +417,11 @@ marks one that only informs command decisions. The fixes are in
 
 Only the C# compiler reports PLAY0859 and PLAY0860; the TypeScript compiler reports PLAY0858 only.
 
-## Graph queries (PLAY0878-PLAY0885)
+## Graph queries and `foreach` (PLAY0878-PLAY0886)
 
-Requires Screenplay 5.8.0 or later (`screenplay --version`). A `query` ending in `graph <Graph>`
-follows a path with `match` and `return`. The complete model and fixes are in
+Requires Screenplay 5.8.0 or later (`screenplay --version`); `foreach` (PLAY0886) needs 5.10.0. A
+`query` ending in `graph <Graph>` follows a path with `match` and `return`. The complete model and
+fixes are in
 `../../cratis-screenplay-projections/references/graphs.md`; the graph declaration and projection
 codes PLAY0862-PLAY0877 are listed there too.
 
@@ -434,6 +435,7 @@ codes PLAY0862-PLAY0877 are listed there too.
 | PLAY0883 | E | An `optional match` value goes to a read-model property that is not optional. Make it optional. |
 | PLAY0884 | E | The same alias is used twice. |
 | PLAY0885 | E | It uses variable-length paths, `or`, ranges, functions or aggregates; none exist. |
+| PLAY0886 | E | A graph handler's `foreach` names a collection inside another, or something that is not a list of a composite type of the event. |
 
 ## Structural completeness and timeline checks
 

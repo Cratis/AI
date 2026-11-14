@@ -228,7 +228,7 @@ Choose a graph for traversals and a document read model for lookups by key. Desi
 **reading the graph backwards**: write each question as a path, make every hop an edge type
 and every stop a node label, then name the event that creates and removes each. Read
 [references/graphs.md](references/graphs.md) for syntax, operations, a graph in a named sink
-(`sink People for graphs`), graph queries (`match`/`return`) and `PLAY0862`–`PLAY0885`.
+(`sink People for graphs`), graph queries (`match`/`return`), `foreach` over an event's list and `PLAY0862`–`PLAY0886`.
 
 ## When PDL is not enough — the reducer
 

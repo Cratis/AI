@@ -4,6 +4,7 @@
 
 - Declaring a graph
 - Projecting events onto it
+- One element per item of a collection (`foreach`)
 - Storing a graph in a named sink
 - Reading the graph backwards
 - Reading a graph with a query
@@ -104,6 +105,49 @@ module Organization
 - An edge `from` creates a missing endpoint as a bare node, so an event may draw an
   edge before the events that create its nodes arrive. A projection owns the edges
   and node properties it declares and never deletes a node it did not declare.
+
+## One element per item of a collection (`foreach`)
+
+An event that carries a list can draw one node or edge per item. Write `foreach <collection>` after
+the event name in `from` or `remove with` (`from <Event> foreach <collection> key ...`, `from <Event>
+foreach <collection> source ... target ...`). Requires Screenplay 5.10.0 or later
+(`screenplay --version`); a model that uses it selects ESM version 41.
+
+```screenplay
+type ModelSlot
+  slot   String
+  series Uuid
+
+module Scoring
+  feature Models
+    slice StateView ModelScores
+      event ModelDefined
+        slots ModelSlot[]
+
+      event ModelRetired
+        slots ModelSlot[]
+
+      graph Scoring
+        node Model
+          modelId Uuid key
+        node Series
+          seriesId Uuid key
+        edge SCORES source Model target Series identified by slot
+          slot String
+
+      projection ModelScores => graph Scoring
+        edge SCORES
+          from ModelDefined foreach slots source $eventSourceId target slots.series identified by slots.slot
+            slot = slots.slot
+          remove with ModelRetired foreach slots source $eventSourceId target slots.series identified by slots.slot
+```
+
+- The handler runs once per item. An item's properties are written `<collection>.<property>`
+  (`slots.series`); every other expression is the event's (`$eventSourceId`).
+- The collection is a property of the event that is a list of a composite type; anything else, and
+  a collection inside another (`foreach slots.parts`), is `PLAY0886`. Iteration goes one level deep.
+- An absent or empty list does nothing.
+- Chronicle runs the handler once per item (Chronicle 19.134 and later).
 
 ## Storing a graph in a named sink
 
@@ -271,3 +315,4 @@ an event leaves a graph projection reported as unknown.
 | `PLAY0883` | Optional-match value assigned to a read-model property that is not optional |
 | `PLAY0884` | Graph query uses the same alias twice |
 | `PLAY0885` | Graph query uses variable-length paths, `or`, ranges, functions or aggregates |
+| `PLAY0886` | `foreach` names a collection inside another, or something that is not a list of a composite type of the event |
