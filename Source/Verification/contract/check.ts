@@ -184,7 +184,8 @@ function unusedExceptionProblems(exceptions: Exception[], used: Set<Exception>):
 }
 
 function emptyKindProblems(counts: Record<string, number>): string[] {
-    return Object.entries(counts).filter(([, count]) => count === 0)
+    // Numeric tool claims are optional; name coverage is required instead.
+    return Object.entries(counts).filter(([kind, count]) => kind !== Kind.ToolCount && count === 0)
         .map(([kind]) => `Screenplay contract: checked zero ${kind} subjects (matcher or corpus scope is empty).`);
 }
 
