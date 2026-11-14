@@ -64,7 +64,7 @@ public class ProviderAwareLanguageModel(
     TimeProvider timeProvider,
     IOptions<AIProviderOptions> options,
     ILogger<ProviderAwareLanguageModel> logger,
-    IWorkInitiation? initiation = null) : ILanguageModel
+    IWorkInitiation? initiation = null) : ILanguageModel, IVisionLanguageModel
 {
     readonly ProviderMemberAccess _memberAccess = new(readModels, initiation ?? new WorkInitiation());
     readonly ProviderRateLimitRecorder _rateLimitRecorder = new(providerCapacities, commandPipeline, timeProvider, options, logger);
@@ -118,6 +118,26 @@ public class ProviderAwareLanguageModel(
     {
     }
 
+    // Refuses a completion that carries images when the resolved model lacks the Vision capability or
+    // the vendor client cannot send them - the images are never silently dropped. The failure carries
+    // no provider id, so a pool treats it as a skipped member and keeps the reason.
+    static LanguageModelResult? CannotTakeImages(CompletionRequest request, ProviderCompletion completion)
+    {
+        if (request.Images.Count == 0)
+        {
+            return null;
+        }
+
+        var hasVision = AIModelCapabilities.For(completion.Provider.Type, completion.Model).Contains(AIModelCapability.Vision);
+        if (hasVision && completion.Client is IAIProviderImageClient)
+        {
+            return null;
+        }
+
+        return LanguageModelResult.Failure(
+            $"The model {completion.Model} on AI provider {completion.Id} cannot take images (it lacks the Vision capability, or its provider client cannot send images). Configure a vision-capable model for the {request.Purpose.Value} agent.");
+    }
+
     static LanguageModelResult PoolFailureResult(LanguageModelPurpose purpose, PoolFailure failure)
     {
         if (failure.OutOfQuota is not null)
@@ -146,7 +166,20 @@ public class ProviderAwareLanguageModel(
     }
 
     /// <inheritdoc/>
-    public async Task<LanguageModelResult> Complete(string prompt, LanguageModelPurpose purpose, CancellationToken cancellationToken = default)
+    public Task<LanguageModelResult> Complete(string prompt, LanguageModelPurpose purpose, CancellationToken cancellationToken = default) =>
+        CompleteWithImages(prompt, [], purpose, cancellationToken);
+
+    /// <inheritdoc/>
+    public Task<LanguageModelResult> Complete(string prompt, IReadOnlyList<LanguageModelImage> images, LanguageModelPurpose purpose, CancellationToken cancellationToken = default)
+    {
+        // An unusable image is the caller's mistake - refused before anything is resolved or sent.
+        var problem = images.Select(image => image.FindProblem()).FirstOrDefault(found => found is not null);
+        return problem is null
+            ? CompleteWithImages(prompt, images, purpose, cancellationToken)
+            : Task.FromResult(LanguageModelResult.Failure(problem));
+    }
+
+    async Task<LanguageModelResult> CompleteWithImages(string prompt, IReadOnlyList<LanguageModelImage> images, LanguageModelPurpose purpose, CancellationToken cancellationToken)
     {
         // Bounds the whole completion - not just the vendor HTTP call, everything below - so a vendor
         // that stops responding without erroring degrades into an ordinary failed completion instead
@@ -173,7 +206,7 @@ public class ProviderAwareLanguageModel(
         PoolFailure failure;
         try
         {
-            var dispatch = await DispatchCompletion(new(prompt, purpose, tier, effort), role, cancellationToken);
+            var dispatch = await DispatchCompletion(new(prompt, images, purpose, tier, effort), role, cancellationToken);
             if (dispatch.Result is not null) return dispatch.Result;
             failure = new(dispatch.ExhaustedTransiently, dispatch.OutOfQuota, dispatch.FailureReason);
         }
@@ -388,6 +421,12 @@ public class ProviderAwareLanguageModel(
             return null;
         }
 
+        if (CannotTakeImages(request, completion) is { } refusal)
+        {
+            logger.ModelCannotTakeImages(providerId, resolvedModel, request.Purpose);
+            return refusal;
+        }
+
         // A provider that turned work away over its own usage limit is not a usable pick until the
         // allowance has had time to come back - the same check ActingAgentResolver.ResolveProvider
         // already makes for work dispatch (issue #1060). Skipping it here, before spending a
@@ -426,7 +465,9 @@ public class ProviderAwareLanguageModel(
         // The stored key is protected at rest with the tenant's Vault-held encryption key (or is
         // a legacy plaintext value the protector passes through) - it is revealed only here, at
         // the moment it is spent, and the revealed value goes no further than the vendor call.
-        var result = await client.Complete(request.Prompt, provider, resolvedModel, request.Effort, cancellationToken);
+        var result = request.Images.Count > 0 && client is IAIProviderImageClient imageClient
+            ? await imageClient.Complete(new(request.Prompt, request.Images, provider, resolvedModel, request.Effort), cancellationToken)
+            : await client.Complete(request.Prompt, provider, resolvedModel, request.Effort, cancellationToken);
         result = result with { ProviderId = providerId };
 
         // The completion path has the vendor's actual status code, unlike a worker's failure
@@ -447,5 +488,5 @@ public class ProviderAwareLanguageModel(
 
     sealed record PoolFailure(bool ExhaustedTransiently, string? OutOfQuota, string? Reason);
 
-    sealed record CompletionRequest(string Prompt, LanguageModelPurpose Purpose, ModelTier Tier, Effort Effort);
+    sealed record CompletionRequest(string Prompt, IReadOnlyList<LanguageModelImage> Images, LanguageModelPurpose Purpose, ModelTier Tier, Effort Effort);
 }

@@ -11,14 +11,14 @@ namespace Cratis.AI.Providers.AzureOpenAI;
 
 /// <summary>
 /// An <see cref="IAIProviderClient"/> for an Azure OpenAI deployment - the <c>model</c> parameter on
-/// <see cref="Complete"/> is the Azure deployment name, since Azure OpenAI addresses a model by the
+/// <see cref="Complete(string, ConfiguredAIProvider, ModelName, Effort, CancellationToken)"/> is the Azure deployment name, since Azure OpenAI addresses a model by the
 /// name it was deployed under rather than a shared model identifier. Ported from Direct's
 /// <c>AIProviders.AzureOpenAI.AzureOpenAIProviderClient</c> (plan Section 5.2 step 3).
 /// </summary>
 /// <param name="httpClientFactory">Creates the <see cref="HttpClient"/> requests are sent with.</param>
 /// <param name="quotaTracker">Records what the response's rate-limit headers reported about the provider's remaining quota (Cratis/AI#337).</param>
 /// <param name="logger">The logger.</param>
-public class AzureOpenAIProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<AzureOpenAIProviderClient> logger) : IAIProviderClient
+public class AzureOpenAIProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<AzureOpenAIProviderClient> logger) : IAIProviderImageClient
 {
     const string ApiVersion = "2024-06-01";
 
@@ -26,24 +26,29 @@ public class AzureOpenAIProviderClient(IHttpClientFactory httpClientFactory, IAI
     public AIProviderType Type => AIProviderType.AzureOpenAI;
 
     /// <inheritdoc/>
-    public async Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
+    public Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default) =>
+        Complete(new(prompt, [], provider, model, effort), cancellationToken);
+
+    /// <inheritdoc/>
+    public async Task<LanguageModelResult> Complete(ImageCompletionRequest request, CancellationToken cancellationToken = default)
     {
+        var provider = request.Provider;
         var endpoint = provider.Endpoint?.Value.TrimEnd('/') ?? string.Empty;
-        var requestUri = new Uri($"{endpoint}/openai/deployments/{Uri.EscapeDataString(model.Value)}/chat/completions?api-version={ApiVersion}");
+        var requestUri = new Uri($"{endpoint}/openai/deployments/{Uri.EscapeDataString(request.Model.Value)}/chat/completions?api-version={ApiVersion}");
 
         using var httpClient = httpClientFactory.CreateClient();
         return await OpenAIChatCompletionsProtocol.Complete(
-            httpClient,
-            requestUri,
-            model,
-            prompt,
-            effort,
-            headers => headers.Add("api-key", provider.ApiKey.ForUse()),
-            Type,
-            provider.Id,
-            provider.ApiKey,
-            quotaTracker,
-            logger,
+            new(
+                httpClient,
+                requestUri,
+                request.Model,
+                headers => headers.Add("api-key", provider.ApiKey.ForUse()),
+                Type,
+                provider.Id,
+                provider.ApiKey,
+                quotaTracker,
+                logger),
+            request,
             cancellationToken);
     }
 }
