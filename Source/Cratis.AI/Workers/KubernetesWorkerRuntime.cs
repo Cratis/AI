@@ -173,6 +173,7 @@ public class KubernetesWorkerRuntime(
     /// container's writable layer.
     /// </param>
     /// <param name="workerDeadline">The default Kubernetes Job deadline. Non-positive values use 48 hours; a positive job deadline takes precedence.</param>
+    /// <param name="priorityClassName">The worker pod's PriorityClass name. Null, empty, or whitespace omits the field.</param>
     /// <returns>The Job specification.</returns>
     public static V1Job BuildJobSpecification(
         WorkerJob job,
@@ -183,7 +184,8 @@ public class KubernetesWorkerRuntime(
         string? nodePoolWorkload = null,
         WorkerResources? resources = null,
         WorkerScratch? scratch = null,
-        TimeSpan? workerDeadline = null)
+        TimeSpan? workerDeadline = null,
+        string? priorityClassName = null)
     {
         WorkerSecrets.ValidateNames(job.Secrets, repositoryCacheEnvironmentVariable);
         var name = DockerWorkerRuntime.NameFor(job.Session);
@@ -193,6 +195,7 @@ public class KubernetesWorkerRuntime(
             CacheVariable = repositoryCacheEnvironmentVariable,
             ImagePullSecret = imagePullSecretName,
             NodePoolWorkload = nodePoolWorkload,
+            PriorityClassName = priorityClassName,
             Resources = resources ?? WorkerResources.None,
             Workspace = scratch ?? WorkerScratch.None
         };
@@ -336,6 +339,7 @@ public class KubernetesWorkerRuntime(
         return new V1PodSpec
         {
             RestartPolicy = "Never",
+            PriorityClassName = string.IsNullOrWhiteSpace(inputs.PriorityClassName) ? null : inputs.PriorityClassName,
 
             // A worker runs untrusted, prompt-injectable model output (Cratis/Stagehand#246);
             // it has no legitimate reason to talk to the Kubernetes API, and an unmounted
@@ -746,7 +750,8 @@ public class KubernetesWorkerRuntime(
                 options.Value.EphemeralStorageRequest,
                 options.Value.EphemeralStorageLimit),
             new WorkerScratch(options.Value.ScratchStorageClassName, options.Value.ScratchSize),
-            options.Value.WorkerDeadline);
+            options.Value.WorkerDeadline,
+            options.Value.PriorityClassName);
 
         try
         {
@@ -1033,6 +1038,7 @@ public class KubernetesWorkerRuntime(
         internal string? CacheVariable { get; init; }
         internal string? ImagePullSecret { get; init; }
         internal string? NodePoolWorkload { get; init; }
+        internal string? PriorityClassName { get; init; }
         internal required WorkerResources Resources { get; init; }
         internal required WorkerScratch Workspace { get; init; }
     }
