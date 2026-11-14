@@ -21,7 +21,7 @@ repository is the full list; this page is the authoring summary.
 
 ## Accepted constructs
 
-**Top level:** `domain`, `import`, `concept`, `type`, `policy`, `persona`,
+**Top level:** `domain`, `import`, `concept`, `type`, `policy`, `persona`, `user` (development identity; [users](../../cratis-screenplay-command-surface/references/policy-persona-seed.md#users)),
 `authentication`, `identity`, `purpose`, `storyline` (authoring-only; [storylines](storylines.md)), `trigger`, `design system` (one per application: `modes`, `default theme`, `tokens`, `components`, `words`, `rules`), `theme` (`implements`, `compatible with`, `palette`, `values`, a block per mode), `layout`, `ui profile`, `behavior`,
 `sink`, `module`, `seed`, authoring-only `system`, and admitted `eventsource` with its `stream`s (ESM v8).
 

@@ -6,6 +6,8 @@ license: MIT
 
 # Use Lens against a running Arc application
 
+Screenplay `user` declarations (`cratis-screenplay-command-surface`, "Users") are development identities Stage can offer to Lens when its development mode and explicit users switch are both on.
+
 Lens is a Manifest V3 browser extension that impersonates a user and a tenant
 against an Arc application you are developing, and executes that application's
 commands and queries from a popup. It changes nothing in the application: it

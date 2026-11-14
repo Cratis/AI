@@ -116,6 +116,7 @@
     {"kind":"skill-contains","value":"esm-v<major>.schema.json","file":"references/language-admission.md"},
     {"kind":"skill-contains","value":"shape, not admission","file":"references/language-admission.md"},
     {"kind":"skill-contains","value":"`PLAY0942`","file":"references/diagnostics.md"},
-    {"kind":"skill-contains","value":"--direction","file":"references/model-export-diff-rename.md"}
+    {"kind":"skill-contains","value":"--direction","file":"references/model-export-diff-rename.md"},
+    {"kind":"skill-contains","value":"`PLAY0889`","file":"references/diagnostics.md"}
   ]
 }

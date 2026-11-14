@@ -236,6 +236,8 @@ declaring a policy (including `require anonymous` for a deliberately public comm
 A policy that decides from recorded state declares `reads <Model> [as alias] [by property]` and a state condition in `require`
 (`plan.dataQuality == true`, `article.author == $identity.id`); an absent read denies. See the same reference, "Policies that decide from recorded state".
 
+A `user` line names a development session identity and the personas it plays; see the same reference, "Users".
+
 `authorize` says who may act; whether the command exists for the caller at all is `available`, with `provide` for `$context` values: `cratis-screenplay-availability`.
 
 ## Event data subject

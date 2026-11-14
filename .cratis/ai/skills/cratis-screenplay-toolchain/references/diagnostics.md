@@ -24,6 +24,7 @@
 - Graph queries and `foreach` (PLAY0878-PLAY0886)
 - Graph query `collect` (PLAY1144-PLAY1147)
 - Set once, dictionary keys and children ordering (PLAY0956-PLAY0963)
+- Development users (PLAY0888-PLAY0889)
 - Storylines (PLAY0940-PLAY0943)
 - Screen visuals and slice placements (PLAY0950-PLAY0955)
 - Structural completeness and timeline checks
@@ -470,6 +471,15 @@ Requires Screenplay 6.9.0 or later (`screenplay --version`). Rules and fixes: `.
 | PLAY0961 | W | A `.$eventContent` path the handled event does not have. |
 | PLAY0962 | W | A dynamic key writes into a declared read-model property; Screenplay has no dictionary type. |
 | PLAY0963 | E | `clear` with a dynamic key; write `remove`. |
+
+## Development users (PLAY0888-PLAY0889)
+
+Requires Screenplay 5.11.0 or later (`screenplay --version`). See `../../cratis-screenplay-command-surface/references/policy-persona-seed.md#users`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| `PLAY0888` | E | A `user` plays a persona that no `persona` declaration names. |
+| `PLAY0889` | E | Two `user` declarations carry the same name. |
 
 ## Storylines (PLAY0940-PLAY0943)
 

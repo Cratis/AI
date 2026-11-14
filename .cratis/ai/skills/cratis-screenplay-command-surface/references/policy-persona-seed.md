@@ -3,6 +3,7 @@
 ## Contents
 
 - `policy` and `persona`
+- Users
 - Anonymous policy
 - Policy negation
 - Policies that decide from recorded state
@@ -37,6 +38,29 @@ runner; a code policy binds as opaque ESM v3 and needs a target to evaluate it.
 A `persona` is authoring metadata: the binder reports it as information `PLAY0270`
 (report-only) and it does not block binding; an unknown policy it lists is an error.
 Personas an `onboarding` block invites or grants must be declared here; see `cratis-screenplay-authentication-and-onboarding`.
+
+## Users
+
+Requires Screenplay 5.11.0 or later (`screenplay --version`). A `user` is a person a development or test session can act as: one top-level line naming the personas it plays. Personas are roles (`Accountant`); users are people (`kari`).
+
+```screenplay
+policy IsAccountant
+  require role "Accountant"
+policy IsInvoiceManager
+  require role "InvoiceManager"
+
+persona Accountant
+  policy IsAccountant
+persona InvoiceManager
+  policy IsInvoiceManager
+
+user kari "Kari Nordmann" as Accountant, InvoiceManager
+user guest "Guest"
+```
+
+The name is the identity a session presents; the quoted display name is optional. A user plays only declared personas (`PLAY0888`), names are unique (`PLAY0889`), and a user with no persona is authenticated and holds no roles, which tests a signed-in person without access. A user holds the roles and claims its personas' policies give it.
+
+Like `persona`, a user is syntax-only: it never enters the executable model, so the bytes and revision are unchanged and a model without users compiles as before. Users exist for tooling that exercises a running application; Stage offers them to Lens only when its development mode and its explicit users switch are both on, never in a published or rendered application.
 
 ## Anonymous policy
 
