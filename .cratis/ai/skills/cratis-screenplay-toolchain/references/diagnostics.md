@@ -22,6 +22,7 @@
 - Sinks (PLAY0931-PLAY0939)
 - Passive read models (PLAY0858-PLAY0860)
 - Graph queries and `foreach` (PLAY0878-PLAY0886)
+- Screen visuals and slice placements (PLAY0950-PLAY0955)
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
 - Consistency errors (V1: the model contradicts itself)
@@ -436,6 +437,21 @@ codes PLAY0862-PLAY0877 are listed there too.
 | PLAY0884 | E | The same alias is used twice. |
 | PLAY0885 | E | It uses variable-length paths, `or`, ranges, functions or aggregates; none exist. |
 | PLAY0886 | E | A graph handler's `foreach` names a collection inside another, or something that is not a list of a composite type of the event. |
+
+## Screen visuals and slice placements (PLAY0950-PLAY0955)
+
+Requires Screenplay 6.7.0 or later (`screenplay --version`). Both are presentation-only; neither
+changes the executable model. Details: `../../cratis-screenplay-ui-composition/references/screen-visuals.md`
+and `../../cratis-screenplay-slice-design/references/slicing.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0950 | E | A screen `sketch`, `mockup` or `image` line names no file. |
+| PLAY0951 | W | An `image` is not PNG, JPG, GIF, SVG or WebP, or a `mockup` is not an HTML page. |
+| PLAY0952 | W | The file does not exist beside the model, or its path leaves the model root. |
+| PLAY0953 | E | A slice `shows` line is not `shows event <Name>` or `shows readmodel <Name>`. |
+| PLAY0954 | W | A `shows` line names no declared event or read model. |
+| PLAY0955 | W | A slice shows an element it declares itself, or shows the same element twice. |
 
 ## Structural completeness and timeline checks
 

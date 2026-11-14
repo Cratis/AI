@@ -319,6 +319,8 @@ Localized text lives in companion `.strings` files and is referenced unquoted as
 
 `file` is a backend attachment, a screen realization file or declaration provenance; use repository-relative paths (`PLAY0264`) and never let it replace the declaration. **Loaded is not run.** Read [references/file-references.md](references/file-references.md) when attaching or checking a `file`, or diagnosing `PLAY0430`–`PLAY0434`.
 
+A screen can also keep `sketch`, `mockup` and `image` lines: authoring metadata, never part of the executable model. Read [references/screen-visuals.md](references/screen-visuals.md) for the lines and `PLAY0950`–`PLAY0952`.
+
 ## Verify
 
 - [ ] `screenplay <model> --warnaserror` (standalone) reports zero errors and zero

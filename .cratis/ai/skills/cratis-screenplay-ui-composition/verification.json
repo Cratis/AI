@@ -262,6 +262,9 @@
     { "kind": "skill-contains", "value": "## Table narrowing", "file": "references/action-subjects.md" },
     { "kind": "skill-contains", "value": "Requires Screenplay 6.18.0", "file": "references/action-subjects.md" },
     { "kind": "skill-contains", "value": "PLAY0346 names the candidate", "file": "references/action-subjects.md" },
-    { "kind": "skill-contains", "value": "action-subjects.md#table-narrowing", "file": "references/guarded-interactions.md" }
+    { "kind": "skill-contains", "value": "action-subjects.md#table-narrowing", "file": "references/guarded-interactions.md" },
+    { "kind": "skill-contains", "value": "references/screen-visuals.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 6.7.0 or later", "file": "references/screen-visuals.md" },
+    { "kind": "skill-contains", "value": "`PLAY0951` | Warning", "file": "references/screen-visuals.md" }
   ]
 }
