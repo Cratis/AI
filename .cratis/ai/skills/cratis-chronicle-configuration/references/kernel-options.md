@@ -80,7 +80,7 @@ Sinks, per-namespace storage and encryption certificates are covered by
   development image and `BlockLocalAddresses` in the production image (compile
   time). `AllowInsecureHttp` and the loopback exemption follow the runtime
   environment (`Development`), not the image.
-- The development image uses MongoDB at `mongodb://localhost:27017` and a
+- The development image uses MongoDB at host `localhost`, port `27017` and a
   `chronicle.json` with a 5 second subscriber timeout and replay on definition
   change.
 - The development client application created by a development kernel persists
