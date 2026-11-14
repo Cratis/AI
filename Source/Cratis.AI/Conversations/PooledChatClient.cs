@@ -76,7 +76,8 @@ public sealed class PooledChatClient(
     ConfiguredAgent? explicitRole = null,
     IWorkInitiation? initiation = null) : IChatClient
 {
-    readonly IProviderMemberAccess _memberAccess = new ProviderMemberAccess(readModels, initiation ?? new WorkInitiation());
+    readonly ProviderMemberAccess _memberAccess = new(readModels, initiation ?? new WorkInitiation());
+
     /// <inheritdoc/>
     public async Task<ChatResponse> GetResponseAsync(IEnumerable<ChatMessage> messages, ChatOptions? options = null, CancellationToken cancellationToken = default)
     {
@@ -370,8 +371,8 @@ public sealed class PooledChatClient(
         ResolvedChatProvider resolved, ChatCall<T> call, (IChatClient Client, IDisposable Slot) resources, CancellationToken cancellationToken)
     {
         var (providerId, provider, model) = resolved;
-        IChatClient? client = resources.Client;
-        IDisposable? slot = resources.Slot;
+        var client = resources.Client;
+        var slot = resources.Slot;
         var keepSlot = false;
         try
         {
@@ -412,6 +413,7 @@ public sealed class PooledChatClient(
     async Task<PoolAttempt<(T, AIProviderId)>> FailedAttempt<T>(Exception exception, ConfiguredAIProvider provider, ModelName model)
     {
         var providerId = provider.Id;
+
         // A spent quota moves the same messages and options on to the next member and parks this
         // provider until it resets - unless a Claude Code turn may already have run a tool, where
         // replaying the turn elsewhere could repeat its effects.

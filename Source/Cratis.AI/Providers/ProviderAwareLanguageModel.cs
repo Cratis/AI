@@ -66,7 +66,7 @@ public class ProviderAwareLanguageModel(
     ILogger<ProviderAwareLanguageModel> logger,
     IWorkInitiation? initiation = null) : ILanguageModel
 {
-    readonly IProviderMemberAccess _memberAccess = new ProviderMemberAccess(readModels, initiation ?? new WorkInitiation());
+    readonly ProviderMemberAccess _memberAccess = new(readModels, initiation ?? new WorkInitiation());
     readonly ProviderRateLimitRecorder _rateLimitRecorder = new(providerCapacities, commandPipeline, timeProvider, options, logger);
 
     /// <summary>
@@ -116,6 +116,33 @@ public class ProviderAwareLanguageModel(
             options,
             logger)
     {
+    }
+
+    static LanguageModelResult PoolFailureResult(LanguageModelPurpose purpose, PoolFailure failure)
+    {
+        if (failure.OutOfQuota is not null)
+        {
+            // Members ran out of quota - say so and name them, rather than pointing at the log. Only
+            // worth the whole-call retry when some member also failed transiently; a spent quota does
+            // not come back within a retry's backoff.
+            return failure.ExhaustedTransiently
+                ? LanguageModelResult.TransientFailure(failure.OutOfQuota)
+                : LanguageModelResult.QuotaExhausted(failure.OutOfQuota);
+        }
+
+        var reason = $"The AI provider configured for the {purpose.Value} agent could not serve this request. {failure.Reason ?? "See the log for which step gave up."}";
+        return failure.ExhaustedTransiently ? LanguageModelResult.TransientFailure(reason) : LanguageModelResult.Failure(reason);
+    }
+
+    static Dictionary<AIProviderId, long> RemainingCapacityByProvider(IReadOnlyDictionary<AIProviderId, ProviderUsageLevel> usageLevels) =>
+        usageLevels
+            .Where(pair => pair.Value.RemainingCapacity is not null)
+            .ToDictionary(pair => pair.Key, pair => pair.Value.RemainingCapacity!.Value);
+
+    static bool ShouldRecordRateLimit(LanguageModelResult result)
+    {
+        if (result.IsQuotaExhausted) return true;
+        return result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason);
     }
 
     /// <inheritdoc/>
@@ -186,27 +213,6 @@ public class ProviderAwareLanguageModel(
         logger.NothingTheAgentNamedCouldServe(purpose);
         return PoolFailureResult(purpose, failure);
     }
-
-    static LanguageModelResult PoolFailureResult(LanguageModelPurpose purpose, PoolFailure failure)
-    {
-        if (failure.OutOfQuota is not null)
-        {
-            // Members ran out of quota - say so and name them, rather than pointing at the log. Only
-            // worth the whole-call retry when some member also failed transiently; a spent quota does
-            // not come back within a retry's backoff.
-            return failure.ExhaustedTransiently
-                ? LanguageModelResult.TransientFailure(failure.OutOfQuota)
-                : LanguageModelResult.QuotaExhausted(failure.OutOfQuota);
-        }
-
-        var reason = $"The AI provider configured for the {purpose.Value} agent could not serve this request. {failure.Reason ?? "See the log for which step gave up."}";
-        return failure.ExhaustedTransiently ? LanguageModelResult.TransientFailure(reason) : LanguageModelResult.Failure(reason);
-    }
-
-    static Dictionary<AIProviderId, long> RemainingCapacityByProvider(IReadOnlyDictionary<AIProviderId, ProviderUsageLevel> usageLevels) =>
-        usageLevels
-            .Where(pair => pair.Value.RemainingCapacity is not null)
-            .ToDictionary(pair => pair.Key, pair => pair.Value.RemainingCapacity!.Value);
 
     async Task<(LanguageModelResult? Result, bool ExhaustedTransiently, string? OutOfQuota, string? FailureReason)> DispatchCompletion(
         CompletionRequest request, ConfiguredAgent? role, CancellationToken cancellationToken)
@@ -416,6 +422,7 @@ public class ProviderAwareLanguageModel(
         {
             return LanguageModelResult.Failure($"AI provider {providerId} is not available to the work initiator");
         }
+
         // The stored key is protected at rest with the tenant's Vault-held encryption key (or is
         // a legacy plaintext value the protector passes through) - it is revealed only here, at
         // the moment it is spent, and the revealed value goes no further than the vendor call.
@@ -434,12 +441,6 @@ public class ProviderAwareLanguageModel(
         }
 
         return result;
-    }
-
-    static bool ShouldRecordRateLimit(LanguageModelResult result)
-    {
-        if (result.IsQuotaExhausted) return true;
-        return result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason);
     }
 
     sealed record ProviderCompletion(AIProviderId Id, ConfiguredAIProvider Provider, IAIProviderClient Client, ModelName Model);

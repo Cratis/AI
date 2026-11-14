@@ -5,8 +5,8 @@ using Cratis.AI.Abstractions;
 using Cratis.AI.Agents;
 using Cratis.AI.Providers;
 using Cratis.AI.Providers.Pools;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Cratis.AI.Configuration;
 

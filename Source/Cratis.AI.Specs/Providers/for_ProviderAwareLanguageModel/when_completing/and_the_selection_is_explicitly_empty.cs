@@ -19,5 +19,5 @@ public class and_the_selection_is_explicitly_empty : given.a_restricted_provider
     }
 
     [Fact] void should_deny_everyone() => _result.Succeeded.ShouldBeFalse();
-    [Fact] void should_not_call_the_vendor() => _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, default);
+    [Fact] void should_not_call_the_vendor() => _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, TestContext.Current.CancellationToken);
 }

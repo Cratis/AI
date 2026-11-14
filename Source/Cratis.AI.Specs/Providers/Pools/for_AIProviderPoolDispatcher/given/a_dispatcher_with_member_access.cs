@@ -50,8 +50,7 @@ public class a_dispatcher_with_member_access : Specification
         var burn = Substitute.For<IProviderBurn>();
         burn.TrailingWeek(Arg.Any<CancellationToken>()).Returns(new ProviderBurnOverTrailingWeek(
             new Dictionary<AIProviderId, long> { [_restrictedId] = 0, [_allowedId] = 100 }, new Dictionary<AIProviderId, int>()));
-        _dispatcher = new([_restrictedClient, _allowedClient], burn, Substitute.For<IAIProviderQuotaTracker>(),
-            TimeProvider.System, NullLogger<AIProviderPoolDispatcher>.Instance, memberAccess: new ProviderMemberAccess(_readModels, _initiation));
+        _dispatcher = new([_restrictedClient, _allowedClient], burn, Substitute.For<IAIProviderQuotaTracker>(), TimeProvider.System, NullLogger<AIProviderPoolDispatcher>.Instance, memberAccess: new ProviderMemberAccess(_readModels, _initiation));
     }
 
     protected Task<LanguageModels.LanguageModelResult> Dispatch() => _dispatcher.Complete("prompt", _pool.Members, _snapshot, "model", default);

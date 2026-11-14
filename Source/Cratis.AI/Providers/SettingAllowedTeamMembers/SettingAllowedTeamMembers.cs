@@ -21,15 +21,20 @@ public record SetAIProviderAllowedTeamMembers(AIProviderId Provider, IReadOnlyLi
     /// </summary>
     /// <param name="authority">The consumer's administrative authority.</param>
     /// <returns>The selected team members when authorized.</returns>
+    /// <exception cref="AIProviderSelectionNotAuthorized">The caller may not change the selection.</exception>
     public async Task<AIProviderAllowedTeamMembersSet> Handle(IProviderSelectionAuthority authority)
     {
         if (!await authority.CanSet(Provider))
         {
-            throw new UnauthorizedAccessException("Not authorized to change provider selection");
+            throw new AIProviderSelectionNotAuthorized();
         }
+
         return new(AllowedTeamMembers.ToArray());
     }
 }
+
+/// <summary>The caller may not change the allowed-team-members selection.</summary>
+public sealed class AIProviderSelectionNotAuthorized() : UnauthorizedAccessException("Not authorized to change provider selection");
 
 /// <summary>
 /// Validates the selection's own shape - this package has no directory of team members to check
@@ -55,8 +60,7 @@ public class SetAIProviderAllowedTeamMembersValidator : CommandValidator<SetAIPr
         RuleFor(_ => _).Must(_ => _.AllowedTeamMembers is null ||
             _.AllowedTeamMembers.Distinct().Count() == _.AllowedTeamMembers.Count)
             .WithMessage("Team members must be distinct");
-        RuleFor(_ => _.AllowedTeamMembers).Must(members => members is null ||
-            members.All(member => member is not null && !string.IsNullOrWhiteSpace(member.Value)))
+        RuleFor(_ => _.AllowedTeamMembers).Must(members => members?.All(member => member is not null && !string.IsNullOrWhiteSpace(member.Value)) != false)
             .WithMessage("Team members must have an identity");
     }
 }

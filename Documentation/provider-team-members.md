@@ -18,7 +18,8 @@ Execute `SetAIProviderAllowedTeamMembers` with the provider's `AIProviderId` and
 authentication (`[Authorize]`) and an `IProviderSelectionAuthority` that permits the caller to change
 that provider. **The default authority denies every change**, including direct command handling.
 The host must register its own authority, using its authenticated caller context and administrative
-policy. Being allowed to use a provider does not authorize changing its selection.
+policy. Direct command handling throws `AIProviderSelectionNotAuthorized`, an
+`UnauthorizedAccessException`, when the authority denies the change. Being allowed to use a provider does not authorize changing its selection.
 
 Validation rejects unknown providers, duplicate members, null selections, and blank identifiers.
 `TeamMemberId` is an opaque, ordinal, case-sensitive identifier. The host supplies a stable canonical

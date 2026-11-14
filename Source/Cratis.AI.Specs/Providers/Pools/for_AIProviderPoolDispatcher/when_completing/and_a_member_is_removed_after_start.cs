@@ -22,5 +22,5 @@ public class and_a_member_is_removed_after_start : given.a_dispatcher_with_membe
 
     [Fact] void should_allow_the_first_dispatch() => _first.Succeeded.ShouldBeTrue();
     [Fact] void should_ignore_the_stale_unrestricted_snapshot() => _result.Succeeded.ShouldBeFalse();
-    [Fact] void should_call_the_vendor_only_once() => _allowedClient.ReceivedWithAnyArgs(1).Complete(default!, default!, default!, default, default);
+    [Fact] void should_call_the_vendor_only_once() => _allowedClient.ReceivedWithAnyArgs(1).Complete(default!, default!, default!, default, TestContext.Current.CancellationToken);
 }

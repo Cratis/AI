@@ -13,5 +13,5 @@ public class and_the_initiator_is_not_established : given.a_restricted_provider
     async Task Because() => _result = await _model.Complete("prompt", (LanguageModelPurpose)Purpose);
 
     [Fact] void should_deny_unattributed_work() => _result.Succeeded.ShouldBeFalse();
-    [Fact] void should_not_call_the_vendor() => _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, default);
+    [Fact] void should_not_call_the_vendor() => _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, TestContext.Current.CancellationToken);
 }

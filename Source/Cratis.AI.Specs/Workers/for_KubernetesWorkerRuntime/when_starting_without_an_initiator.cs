@@ -1,8 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Cratis.AI.Usage;
 using Cratis.AI.Providers;
+using Cratis.AI.Usage;
 using Cratis.Chronicle.ReadModels;
 using Microsoft.Extensions.Options;
 
@@ -26,8 +26,7 @@ public class when_starting_without_an_initiator : Specification
                 AllowedTeamMembers = [(TeamMemberId)"alice"]
             });
         _factory = Substitute.For<IKubernetesClientFactory>();
-        _runtime = new(Options.Create(new WorkerRuntimeOptions()), NullLogger<KubernetesWorkerRuntime>.Instance,
-            _factory, new ProviderMemberAccess(readModels, new WorkInitiation()));
+        _runtime = new(Options.Create(new WorkerRuntimeOptions()), NullLogger<KubernetesWorkerRuntime>.Instance, _factory, new ProviderMemberAccess(readModels, new WorkInitiation()));
         _job = new(AgentSessionId.New(), "image", new Dictionary<string, string>(), new Dictionary<string, string>()) { Provider = id };
     }
 

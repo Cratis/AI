@@ -12,7 +12,8 @@ public class and_the_initiator_is_unknown : Specification
         {
             HasAllowedTeamMembersSelection = true,
             AllowedTeamMembers = [TeamMemberId.NotSet]
-        }, TeamMemberId.NotSet);
+        },
+        TeamMemberId.NotSet);
 
     [Fact] void should_deny_even_when_the_sentinel_is_selected() => _allowed.ShouldBeFalse();
 }

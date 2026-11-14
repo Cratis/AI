@@ -12,5 +12,5 @@ public class and_no_member_is_allowed : given.a_dispatcher_with_member_access
     [Fact] void should_fail_closed() => _result.Succeeded.ShouldBeFalse();
     [Fact] void should_not_retry() => _result.IsTransient.ShouldBeFalse();
     [Fact] void should_explain_access() => _result.FailureReason.ShouldContain("work initiator");
-    [Fact] void should_not_call_the_vendor() => _restrictedClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, default);
+    [Fact] void should_not_call_the_vendor() => _restrictedClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, TestContext.Current.CancellationToken);
 }

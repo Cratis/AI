@@ -12,6 +12,8 @@ public class when_no_authority_is_configured : Specification
         new SetAIProviderAllowedTeamMembers(AIProviderId.New(), [(TeamMemberId)"alice"])
             .Handle(new DenyProviderSelectionAuthority()));
 
-    [Fact] void should_reject_the_change() => _error.ShouldBeOfExactType<UnauthorizedAccessException>();
+    [Fact] void should_reject_the_change() => _error.ShouldBeOfExactType<AIProviderSelectionNotAuthorized>();
+    [Fact] void should_retain_unauthorized_access_handling() => (_error is UnauthorizedAccessException).ShouldBeTrue();
+    [Fact] void should_explain_the_denial() => _error.Message.ShouldEqual("Not authorized to change provider selection");
     [Fact] void should_not_produce_an_event() => _event.ShouldBeNull();
 }

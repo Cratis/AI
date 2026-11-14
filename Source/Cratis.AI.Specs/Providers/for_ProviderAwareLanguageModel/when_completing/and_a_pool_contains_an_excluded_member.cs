@@ -28,5 +28,5 @@ public class and_a_pool_contains_an_excluded_member : given.a_restricted_provide
     }
 
     [Fact] void should_use_the_allowed_member() => _result.Text.ShouldEqual("from-openai");
-    [Fact] void should_not_call_the_excluded_member() => _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, default);
+    [Fact] void should_not_call_the_excluded_member() => _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, TestContext.Current.CancellationToken);
 }

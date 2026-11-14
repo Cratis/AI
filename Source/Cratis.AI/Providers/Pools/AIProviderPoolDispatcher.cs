@@ -87,6 +87,33 @@ public class AIProviderPoolDispatcher(
     {
     }
 
+    static bool IsFinal(LanguageModelResult result)
+    {
+        if (result.Succeeded) return true;
+        return !result.IsTransient && !result.IsQuotaExhausted;
+    }
+
+    static LanguageModelResult Exhausted(CompletionProgress progress)
+    {
+        if (progress.OutOfQuota.Count > 0)
+        {
+            var reason = $"No pool member could serve this completion: the pool is exhausted. Tried {string.Join(", ", progress.Tried)}; out of quota: {string.Join(", ", progress.OutOfQuota)}. Last failure: {progress.Last!.FailureReason}";
+            return progress.AnyTransient || progress.AnyRateLimited
+                ? LanguageModelResult.TransientFailure(reason)
+                : LanguageModelResult.QuotaExhausted(reason);
+        }
+
+        return progress.Last ?? Unavailable(progress.AnyAccessDenied, progress.AnyRateLimited);
+    }
+
+    static LanguageModelResult Unavailable(bool accessDenied, bool rateLimited)
+    {
+        if (accessDenied) return LanguageModelResult.Failure("Access to every available pool member is denied for the work initiator");
+        return rateLimited
+            ? LanguageModelResult.TransientFailure("Every reachable pool member is over its own usage limit")
+            : LanguageModelResult.Failure("No pool member could be reached");
+    }
+
     /// <inheritdoc/>
     public async Task<LanguageModelResult> Complete(
         string prompt,
@@ -178,12 +205,6 @@ public class AIProviderPoolDispatcher(
         return new(await client.Complete(request.Prompt, provider, request.Model, request.Effort, cancellationToken));
     }
 
-    static bool IsFinal(LanguageModelResult result)
-    {
-        if (result.Succeeded) return true;
-        return !result.IsTransient && !result.IsQuotaExhausted;
-    }
-
     void RememberRetry(CompletionProgress progress, AIProviderId providerId, LanguageModelResult result)
     {
         // A spent quota fails over exactly like a transient failure - the same prompt goes to the
@@ -200,27 +221,6 @@ public class AIProviderPoolDispatcher(
         }
 
         progress.Last = result;
-    }
-
-    static LanguageModelResult Exhausted(CompletionProgress progress)
-    {
-        if (progress.OutOfQuota.Count > 0)
-        {
-            var reason = $"No pool member could serve this completion: the pool is exhausted. Tried {string.Join(", ", progress.Tried)}; out of quota: {string.Join(", ", progress.OutOfQuota)}. Last failure: {progress.Last!.FailureReason}";
-            return progress.AnyTransient || progress.AnyRateLimited
-                ? LanguageModelResult.TransientFailure(reason)
-                : LanguageModelResult.QuotaExhausted(reason);
-        }
-
-        return progress.Last ?? Unavailable(progress.AnyAccessDenied, progress.AnyRateLimited);
-    }
-
-    static LanguageModelResult Unavailable(bool accessDenied, bool rateLimited)
-    {
-        if (accessDenied) return LanguageModelResult.Failure("Access to every available pool member is denied for the work initiator");
-        return rateLimited
-            ? LanguageModelResult.TransientFailure("Every reachable pool member is over its own usage limit")
-            : LanguageModelResult.Failure("No pool member could be reached");
     }
 
     async Task<List<AIProviderPoolMember>> AccessibleMembers(IEnumerable<AIProviderPoolMember> members)

@@ -24,6 +24,6 @@ public class and_every_pool_member_is_excluded : given.a_restricted_provider
     [Fact] void should_fail_closed() => _result.Succeeded.ShouldBeFalse();
     [Fact] void should_not_retry() => _result.IsTransient.ShouldBeFalse();
     [Fact] void should_explain_access() => _result.FailureReason.ShouldContain("work initiator");
-    [Fact] void should_not_call_the_vendor() => _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, default);
+    [Fact] void should_not_call_the_vendor() => _anthropicClient.DidNotReceiveWithAnyArgs().Complete(default!, default!, default!, default, TestContext.Current.CancellationToken);
     [Fact] void should_not_record_a_vendor_failure() => _recentProviderFailures.DidNotReceive().Record(_provider);
 }
