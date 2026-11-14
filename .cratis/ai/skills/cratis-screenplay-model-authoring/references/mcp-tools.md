@@ -407,6 +407,8 @@ Requires Screenplay 4.153.0 or later (`screenplay --version`) for `propose-renam
 
 `syntax-schema` exposes graph query collects as `GraphQuerySyntax.collects` (`GraphCollectSyntax` with `property`, `from`, `hop`, `returns`; Screenplay 6.29.0 or later, `screenplay --version`); `propose-ast` adds, replaces and removes them through the ordinary typed operations, and the member is omitted when a query collects nothing.
 
+`screenplay rename` is the scriptable, identity-preserving alternative to `propose-rename` plus `apply` (Screenplay 6.1.0 or later; see [export, compare and rename](../../cratis-screenplay-toolchain/references/model-export-diff-rename.md)).
+
 `propose-rename` consults release-baseline mutability: without a
 baseline it conservatively pins the previous effective name; an unadmitted event
 gets no new pin, while any admitted revision requires preserving its stored name.

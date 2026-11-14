@@ -52,6 +52,7 @@
     { "kind": "skill-contains", "value": "responsible tool version" },
     { "kind": "skill-contains", "value": "`GraphSinks` into its render input, or a changed `sink` line never triggers a re-render" },
     { "kind": "skill-contains", "value": "unknown-preserving-reader.md" },
-    { "kind": "skill-contains", "value": "not a constructor-order promise" }
+    { "kind": "skill-contains", "value": "not a constructor-order promise" },
+    {"kind":"skill-contains","value":"screenplay diff"}
   ]
 }
