@@ -15,7 +15,7 @@ import { StdioConnection } from '../../.cratis/ai/harnesses/pi/extensions/cratis
  * `eager: true` unless a spec states its own `eager` (or passes no ids to keep the deferred default).
  */
 export function withEager(configuration: unknown, ids: string[]): unknown {
-    if (!ids.length || !object(configuration) || (configuration.mcpServers !== undefined && !object(configuration.mcpServers))) return configuration;
+    if (!ids.length || !object(configuration) || !isEagerTarget(configuration.mcpServers)) return configuration;
     const servers: Record<string, unknown> = { ...(configuration.mcpServers as Record<string, unknown> | undefined) };
     for (const id of ids) {
         if (servers[id] !== undefined && !object(servers[id])) continue;
@@ -23,6 +23,8 @@ export function withEager(configuration: unknown, ids: string[]): unknown {
     }
     return { ...configuration, mcpServers: servers };
 }
+
+const isEagerTarget = (mcpServers: unknown): boolean => mcpServers === undefined || object(mcpServers);
 
 function object(value: unknown): value is Record<string, unknown> {
     return value !== null && typeof value === 'object' && !Array.isArray(value);

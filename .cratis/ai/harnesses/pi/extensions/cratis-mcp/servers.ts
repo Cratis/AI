@@ -30,9 +30,12 @@ function readOverride(overrides: unknown, id: string): Override {
     if (override === undefined) return { enabled: true, eager: false };
     if (!object(override)) return { error: 'the mcpServers configuration must be an object' };
     if (override.enabled === false) return { enabled: false, eager: false };
-    if (override.enabled !== undefined && override.enabled !== true) return { error: 'mcpServers enabled must be a boolean' };
-    if (override.eager !== undefined && typeof override.eager !== 'boolean') return { error: 'mcpServers eager must be a boolean' };
-    return { enabled: true, eager: override.eager === true };
+    const error = invalidFlag(override.enabled, 'enabled') ?? invalidFlag(override.eager, 'eager');
+    return error ? { error } : { enabled: true, eager: override.eager === true };
+}
+
+function invalidFlag(value: unknown, name: string): string | undefined {
+    return value === undefined || typeof value === 'boolean' ? undefined : `mcpServers ${name} must be a boolean`;
 }
 
 /** Select every stdio server whose profiles intersect the explicitly listed profiles (never composed ones), except Screenplay which keeps its own path. */
