@@ -6,7 +6,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
-import { check, coverage, parseContract, parseExceptions, pinProblems } from './contract/check.ts';
+import { check, coverage, parseContract, parseExceptions, pinProblems, undocumentedToolProblems } from './contract/check.ts';
 import type { Exception } from './contract/Exception.ts';
 import { expandCodes, extract } from './contract/extract.ts';
 import type { Github } from './contract/Github.ts';
@@ -59,6 +59,16 @@ function fakeGithub(issues: number[], labels = ['screenplay-sync']) {
     };
     return { calls, github };
 }
+
+describe('when requiring documented MCP tool names', () => {
+    it('should fail missing names and accept names anywhere in the Screenplay corpus', () => {
+        const missing = check(specimen, [{ file: 'empty.md', content: 'No tools here.' }]);
+        assert.equal(undocumentedToolProblems(missing.coverage.mcpTools).length, specimen.mcpTools.length);
+        assert.ok(undocumentedToolProblems(missing.coverage.mcpTools).every(problem => /undocumented MCP tool/.test(problem)));
+        const named = { file: 'other-reference.md', content: specimen.mcpTools.map(tool => `MCP tool \`${tool.name}\``).join('\n') };
+        assert.deepEqual(undocumentedToolProblems(check(specimen, [named]).coverage.mcpTools), []);
+    });
+});
 
 describe('when extracting Screenplay contract subjects', () => {
     it('should retain exact locations and expand diagnostic ranges and slash shorthand', () => {
@@ -133,6 +143,16 @@ describe('when extracting Screenplay contract subjects', () => {
 });
 
 describe('when checking Screenplay facts', () => {
+    it('should allow no numeric tool-count claim while rejecting a stale claim when present', () => {
+        const document = { ...cleanDocument, content: cleanDocument.content.replace('; 1 tools.', '.') };
+        const withoutCount = check(specimen, [document]);
+        assert.equal(withoutCount.counts[Kind.ToolCount], 0);
+        assert.deepEqual(withoutCount.problems, []);
+        const withStaleCount = check(specimen, [document, { file: 'counts.md', content: '# MCP\n99 tools.' }]);
+        assert.equal(withStaleCount.counts[Kind.ToolCount], 1);
+        assert.equal(withStaleCount.problems.length, 1);
+        assert.match(withStaleCount.problems[0], /^counts\.md:2 MCP tool count 99/);
+    });
     it('should fail for unknown and retired codes including interior range members', () => {
         const result = check(specimen, [cleanDocument, { file: 'bad.md', content: 'PLAY0001-0004' }]);
         assert.ok(result.problems.includes('bad.md:1 retired diagnostic PLAY0003.'));
@@ -186,9 +206,10 @@ describe('when checking Screenplay facts', () => {
     it('should check command-specific options rather than their global union', () => {
         assert.ok(check(specimen, [cleanDocument, { file: 'bad.md', content: '`screenplay test <root> --scope Module`' }]).problems.some(problem => problem.includes('unknown screenplay test option --scope')));
     });
-    it('should fail independently when any subject lane is empty', () => {
+    it('should fail independently when any required subject lane is empty', () => {
         const result = check(specimen, []);
-        assert.equal(result.problems.length, Object.values(Kind).length);
+        const requiredKinds = Object.values(Kind).filter(kind => kind !== Kind.ToolCount);
+        assert.deepEqual(result.problems, requiredKinds.map(kind => `Screenplay contract: checked zero ${kind} subjects (matcher or corpus scope is empty).`));
         assert.ok(Object.values(result.counts).every(count => count === 0));
         assert.deepEqual(check(specimen, [cleanDocument]).problems, []);
     });

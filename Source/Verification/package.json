@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "check": "tsc --noEmit",
+    "bump": "tsx contract/bump.ts",
     "test": "tsx test-subsets.ts full",
     "test:hooks": "tsx test-subsets.ts hooks",
     "test:adapters": "tsx test-subsets.ts adapters",
