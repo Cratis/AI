@@ -4,6 +4,7 @@
   "fixtures": [],
   "assertions": [
     { "kind": "skill-contains", "value": "proof of approval" },
+    { "kind": "skill-contains", "value": "never pick the newest" },
     { "kind": "skill-contains", "value": "git merge-base --is-ancestor <base> origin/<target>" },
     { "kind": "skill-contains", "value": "never writes to" },
     { "kind": "skill-contains", "value": "gh api -X PATCH repos/OWNER/REPO/issues/comments/<id>" }
