@@ -19,13 +19,17 @@ namespace Cratis.AI.Providers.OpenAICompatible;
 /// <param name="httpClientFactory">Creates the <see cref="HttpClient"/> requests are sent with.</param>
 /// <param name="quotaTracker">Records what the response's rate-limit headers reported about the provider's remaining quota (Cratis/AI#337) - most gateways of this kind send none, so this is usually a no-op.</param>
 /// <param name="logger">The logger.</param>
-public class OpenAICompatibleProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<OpenAICompatibleProviderClient> logger) : IAIProviderClient
+public class OpenAICompatibleProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<OpenAICompatibleProviderClient> logger) : IAIProviderImageClient
 {
     /// <inheritdoc/>
     public AIProviderType Type => AIProviderType.OpenAICompatible;
 
     /// <inheritdoc/>
-    public async Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
+    public Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default) =>
+        Complete(prompt, [], provider, model, effort, cancellationToken);
+
+    /// <inheritdoc/>
+    public async Task<LanguageModelResult> Complete(string prompt, IReadOnlyList<LanguageModelImage> images, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
     {
         var endpoint = provider.Endpoint?.Value.TrimEnd('/') ?? string.Empty;
         var requestUri = new Uri($"{endpoint}/v1/chat/completions");
@@ -37,6 +41,7 @@ public class OpenAICompatibleProviderClient(IHttpClientFactory httpClientFactory
             requestUri,
             model,
             prompt,
+            images,
             effort,
             headers =>
             {

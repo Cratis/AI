@@ -17,7 +17,7 @@ namespace Cratis.AI.Providers.OpenAI;
 /// <param name="httpClientFactory">Creates the <see cref="HttpClient"/> requests are sent with.</param>
 /// <param name="quotaTracker">Records what the response's rate-limit headers reported about the provider's remaining quota (Cratis/AI#337).</param>
 /// <param name="logger">The logger.</param>
-public class OpenAIProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<OpenAIProviderClient> logger) : IAIProviderClient
+public class OpenAIProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<OpenAIProviderClient> logger) : IAIProviderImageClient
 {
     const string ChatCompletionsUrl = "https://api.openai.com/v1/chat/completions";
 
@@ -25,7 +25,11 @@ public class OpenAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvi
     public AIProviderType Type => AIProviderType.OpenAI;
 
     /// <inheritdoc/>
-    public async Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
+    public Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default) =>
+        Complete(prompt, [], provider, model, effort, cancellationToken);
+
+    /// <inheritdoc/>
+    public async Task<LanguageModelResult> Complete(string prompt, IReadOnlyList<LanguageModelImage> images, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
     {
         // A ChatGPT subscription authenticates against the ChatGPT backend a Codex-style harness
         // provider talks to, not against api.openai.com - which answers 401 to it. That is the same
@@ -46,6 +50,7 @@ public class OpenAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvi
             new Uri(ChatCompletionsUrl),
             model,
             prompt,
+            images,
             effort,
             headers => headers.Authorization = new AuthenticationHeaderValue("Bearer", provider.ApiKey.ForUse()),
             Type,

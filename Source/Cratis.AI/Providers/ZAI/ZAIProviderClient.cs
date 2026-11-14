@@ -29,7 +29,7 @@ namespace Cratis.AI.Providers.ZAI;
 /// two must never drift apart, since the harness container and this in-app client need to agree on
 /// which Z.ai gateway a provider with no explicit endpoint configured actually means.
 /// </remarks>
-public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<ZAIProviderClient> logger) : IAIProviderClient
+public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProviderQuotaTracker quotaTracker, ILogger<ZAIProviderClient> logger) : IAIProviderImageClient
 {
     /// <summary>
     /// Z.ai's public Anthropic-compatible gateway - what a provider with no explicit endpoint means.
@@ -40,7 +40,11 @@ public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvider
     public AIProviderType Type => AIProviderType.ZAI;
 
     /// <inheritdoc/>
-    public async Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
+    public Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default) =>
+        Complete(prompt, [], provider, model, effort, cancellationToken);
+
+    /// <inheritdoc/>
+    public async Task<LanguageModelResult> Complete(string prompt, IReadOnlyList<LanguageModelImage> images, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
     {
         var endpoint = (provider.Endpoint is { } configured && configured != AIProviderEndpoint.NotSet
             ? configured.Value
@@ -51,7 +55,7 @@ public class ZAIProviderClient(IHttpClientFactory httpClientFactory, IAIProvider
         {
             // Z.ai's Anthropic-compatible surface is the Messages API the Anthropic client already
             // translates Effort for - one payload shape, one place it lives.
-            Content = new StringContent(AnthropicProviderClient.BuildPayload(model, prompt, effort).ToJsonString(), Encoding.UTF8, "application/json"),
+            Content = new StringContent(AnthropicProviderClient.BuildPayload(model, prompt, images, effort).ToJsonString(), Encoding.UTF8, "application/json"),
         };
 
         // Z.ai authenticates its gateway-style keys as a bearer token, the same credential contract

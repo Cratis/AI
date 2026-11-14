@@ -22,7 +22,7 @@ public class AnthropicProviderClient(
     IHttpClientFactory httpClientFactory,
     IAIProviderQuotaTracker quotaTracker,
     IClaudeCodeCompletion claudeCode,
-    ILogger<AnthropicProviderClient> logger) : IAIProviderClient
+    ILogger<AnthropicProviderClient> logger) : IAIProviderImageClient
 {
     const string BaseUrl = "https://api.anthropic.com";
 
@@ -30,18 +30,27 @@ public class AnthropicProviderClient(
     public AIProviderType Type => AIProviderType.Anthropic;
 
     /// <inheritdoc/>
-    public async Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
+    public Task<LanguageModelResult> Complete(string prompt, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default) =>
+        Complete(prompt, [], provider, model, effort, cancellationToken);
+
+    /// <inheritdoc/>
+    public async Task<LanguageModelResult> Complete(string prompt, IReadOnlyList<LanguageModelImage> images, ConfiguredAIProvider provider, ModelName model, Effort effort, CancellationToken cancellationToken = default)
     {
         // A Claude subscription authenticates with an OAuth token that the messages API rejects
         // outright - it is only accepted by the Claude Code transport, so the credential decides
         // which way the completion goes rather than any configuration.
         if (AnthropicCredential.IsOAuthToken(provider.ApiKey))
         {
+            if (images.Count > 0)
+            {
+                return LanguageModelResult.Failure("Image completions need an Anthropic API key - a Claude subscription cannot take images");
+            }
+
             return await claudeCode.Complete(prompt, provider.ApiKey, model, effort, cancellationToken);
         }
 
         using var httpClient = httpClientFactory.CreateClient();
-        var payload = BuildPayload(model, prompt, effort).ToJsonString();
+        var payload = BuildPayload(model, prompt, images, effort).ToJsonString();
 
         using var request = new HttpRequestMessage(HttpMethod.Post, $"{BaseUrl}/v1/messages")
         {
@@ -94,14 +103,26 @@ public class AnthropicProviderClient(
     /// <param name="prompt">The prompt.</param>
     /// <param name="effort">The reasoning effort to translate.</param>
     /// <returns>The request body.</returns>
-    internal static JsonObject BuildPayload(ModelName model, string prompt, Effort effort)
+    internal static JsonObject BuildPayload(ModelName model, string prompt, Effort effort) => BuildPayload(model, prompt, [], effort);
+
+    /// <summary>
+    /// Builds the Messages API request body for a prompt with images: <c>content</c> becomes an array
+    /// of base64 <c>image</c> blocks followed by the prompt's <c>text</c> block. With no images the
+    /// body is exactly the text-only one.
+    /// </summary>
+    /// <param name="model">The model to run the completion on.</param>
+    /// <param name="prompt">The prompt.</param>
+    /// <param name="images">The images the prompt is about.</param>
+    /// <param name="effort">The reasoning effort to translate.</param>
+    /// <returns>The request body.</returns>
+    internal static JsonObject BuildPayload(ModelName model, string prompt, IReadOnlyList<LanguageModelImage> images, Effort effort)
     {
         var (budgetTokens, maxTokens) = ThinkingBudgetFor(effort);
         var payload = new JsonObject
         {
             ["model"] = model.Value,
             ["max_tokens"] = maxTokens,
-            ["messages"] = new JsonArray(new JsonObject { ["role"] = "user", ["content"] = prompt }),
+            ["messages"] = new JsonArray(new JsonObject { ["role"] = "user", ["content"] = ContentFor(prompt, images) }),
         };
 
         if (budgetTokens is { } budget)
@@ -120,6 +141,27 @@ public class AnthropicProviderClient(
         }
 
         return payload;
+    }
+
+    static JsonNode ContentFor(string prompt, IReadOnlyList<LanguageModelImage> images)
+    {
+        if (images.Count == 0)
+        {
+            return JsonValue.Create(prompt);
+        }
+
+        var blocks = new JsonArray();
+        foreach (var image in images)
+        {
+            blocks.Add(new JsonObject
+            {
+                ["type"] = "image",
+                ["source"] = new JsonObject { ["type"] = "base64", ["media_type"] = image.MediaType, ["data"] = Convert.ToBase64String(image.Data.Span) },
+            });
+        }
+
+        blocks.Add(new JsonObject { ["type"] = "text", ["text"] = prompt });
+        return blocks;
     }
 
     /// <summary>

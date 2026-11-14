@@ -68,6 +68,9 @@ internal static partial class ProviderAwareLanguageModelLog
     [LoggerMessage(LogLevel.Warning, "AI provider {ProviderId} is out of quota ({Reason}) - failing over to the next pool member with the same request")]
     internal static partial void PoolMemberOutOfQuota(this ILogger logger, AIProviderId providerId, string reason);
 
+    [LoggerMessage(LogLevel.Warning, "AI provider {ProviderId} cannot take the images of the {Purpose} completion - model {Model} lacks the Vision capability, or its client cannot send images")]
+    internal static partial void ModelCannotTakeImages(this ILogger logger, AIProviderId providerId, ModelName model, LanguageModelPurpose purpose);
+
     [LoggerMessage(LogLevel.Warning, "Could not read the capacity of the members of AI provider pool {PoolId} - every member is ranked as fully available instead")]
     internal static partial void CouldNotReadPoolCapacity(this ILogger logger, Exception exception, AIProviderPoolId poolId);
 }
