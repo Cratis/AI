@@ -217,12 +217,7 @@ whole re-render. What to do:
 - Screens reported as `PLAY0269` are information that the backend profile defers them. They are not
   proof of a rendered screen: check the running app (`cratis-screenplay-toolchain` `references/fast-path.md`)
   and list any authored screen that is missing as not rendered.
-- `screenplay diff <before> <after> --format json` finds what changed between two model versions; `screenplay export --scope <slice>` hands one slice's ESM to a builder ([CLI reference](../cratis-screenplay-toolchain/references/model-export-diff-rename.md)).
-- A builder for another stack can read screens from an ESM v42 export (`screenplay export --screens`; .NET `UiContractBuilder.For(model)`); refresh, state, notifications and dialogs are not carried.
-- A builder for another stack reads routes and payloads from `screenplay export --format openapi` and screens from `--format ui` instead of copying a renderer's conventions ([formats](../cratis-screenplay-toolchain/references/model-export-diff-rename.md#openapi-and-ui-contract-formats)).
-- After a model change, read `slices` (MCP `semantic-diff`, `ModelDifference.Slices` or `screenplay diff --format json`) to choose the slices to re-render or re-gap-fill; a non-empty `modelWide` may affect every slice.
-- A graph query that `collect`s nested rows is ESM v54: Stage must admit v54 before it renders it. A refusal
-  is a drift event, so keep the query ([graphs](../cratis-stage-rendering-and-sandbox/references/graphs.md)).
+- Scope a re-render with `screenplay diff --format json` (`slices`, `modelWide`); other stacks read ESM v42 or `--format ui`: [exports](references/renderability-gate.md#cli-exports-and-diffs).
 
 ## Gate
 

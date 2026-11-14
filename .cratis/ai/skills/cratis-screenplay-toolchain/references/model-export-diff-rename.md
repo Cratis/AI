@@ -56,7 +56,7 @@ A reference the executable model does not hold refuses admission: CLI exit 1 wit
 
 ## Trace a value's lineage
 
-Requires Screenplay 6.6.0 or later (`screenplay --version`) for command, event and screen-field addresses and `--direction`.
+Requires Screenplay 6.6.0 or later (`screenplay --version`) for command, event and screen-field addresses and the direction option.
 
 `screenplay lineage <address> [PATH] [--direction upstream|downstream|both] [--format json]` prints the tree MCP `trace-lineage` pages, all at once: `->` is where the value goes, `<-` where it comes from, and a break (missing mapping, ambiguous name, code the trace cannot read) appears in brackets with its reason. `--format json` prints every hop. Exit 0 complete, 1 with breaks, 2 cannot run (for example the address names nothing).
 

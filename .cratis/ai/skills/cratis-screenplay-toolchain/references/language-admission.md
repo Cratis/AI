@@ -6,6 +6,7 @@
 ## Contents
 
 - Version selection
+- ESM JSON Schemas
 - Compiler and target minimums
 - Construct guidance
 - Stage admission and execution

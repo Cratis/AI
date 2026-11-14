@@ -8,7 +8,7 @@ Requires Screenplay 6.6.0 or later (`screenplay --version`).
 
 A `storyline` is authoring metadata: the executable model, the semantic revision and every generated artifact are identical with or without it.
 
-```screenplay
+```text
 storyline <Name> ["<title>"]
   [description "<text>"]
   <kind> <reference> ["<note>"]*
@@ -19,7 +19,7 @@ storyline <Name> ["<title>"]
 - `<reference>` is the element's name; qualify it (`Returns.Requests`, `Requests.RequestReturn`) when several elements of that kind match (`PLAY0198`, warning).
 - A storyline is declared at the top level, in exactly one file of a folder model.
 
-```screenplay
+```screenplay expect PLAY0533
 concept ItemId : Uuid
 
 module Returns
