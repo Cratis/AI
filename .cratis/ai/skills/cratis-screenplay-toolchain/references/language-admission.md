@@ -43,6 +43,10 @@ Constructs of decision 0098 with no executable-model content need no version: ap
 Read-model property order is opt-in ESM 37.1 metadata: see
 [read-model property order](read-model-property-order.md).
 
+## ESM JSON Schemas
+
+Requires Screenplay 6.2.0 or later (`screenplay --version`). A JSON Schema (draft 2020-12) is published per released ESM version from 1.0 (v39 was never released) at `https://raw.githubusercontent.com/Cratis/Screenplay/main/Documentation/screenplay/esm/esm-v<major>.schema.json` (`.0` versions) or `.../esm-v<major>.<minor>.schema.json` (minors); pick it from the document's `semanticVersion`. A schema checks shape, not admission: a document that validates is well-formed, but only the Screenplay reader (and a consumer's admission rules) accepts it. Ajv needs `allowUnionTypes`. In .NET, `EsmJsonSchema.For(version)` returns the same text.
+
 ## Compiler and target minimums
 
 Requires Screenplay 4.181.0 or later (`screenplay --version`) for atomic batches; older compilers cannot admit the preamble.

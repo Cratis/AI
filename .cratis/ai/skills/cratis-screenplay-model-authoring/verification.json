@@ -272,6 +272,7 @@
     { "kind": "skill-contains", "value": "GraphCollectSyntax", "file": "references/mcp-tools.md" },
     {"kind":"skill-contains","value":"screenplay rename","file":"references/mcp-tools.md"},
     {"kind":"skill-contains","value":"ScreensRefused","file":"references/mcp-tools.md"},
-    {"kind":"skill-contains","value":"api-description","file":"references/mcp-tools.md"}
+    {"kind":"skill-contains","value":"api-description","file":"references/mcp-tools.md"},
+    {"kind":"skill-contains","value":"`slices`","file":"references/mcp-tools.md"}
   ]
 }

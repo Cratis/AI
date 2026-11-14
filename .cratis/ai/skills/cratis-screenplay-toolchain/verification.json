@@ -112,6 +112,8 @@
     {"kind":"skill-contains","value":"`--screens`","file":"references/model-export-diff-rename.md"},
     {"kind":"skill-contains","value":"ESM v42","file":"references/language-admission.md"},
     {"kind":"skill-contains","value":"--format openapi","file":"references/model-export-diff-rename.md"},
-    {"kind":"skill-contains","value":"screenplay-ui/1","file":"references/model-export-diff-rename.md"}
+    {"kind":"skill-contains","value":"screenplay-ui/1","file":"references/model-export-diff-rename.md"},
+    {"kind":"skill-contains","value":"esm-v<major>.schema.json","file":"references/language-admission.md"},
+    {"kind":"skill-contains","value":"shape, not admission","file":"references/language-admission.md"}
   ]
 }

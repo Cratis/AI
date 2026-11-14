@@ -236,6 +236,8 @@ unresolved questions: the standalone tool has `--open-questions fail`; `cratis s
 does through `--open-questions report|fail`. It is separate from compilation and `--warnaserror`.
 Requires Cratis CLI 3.60.0 or later (`cratis --version`) for that option; older CLIs lack it.
 
+Read [language admission](references/language-admission.md#esm-json-schemas) for the published ESM JSON Schemas (shape, not admission).
+
 Read [export, compare and rename](references/model-export-diff-rename.md) for `screenplay export`, `diff` and `rename` and persisted identities.
 
 Read [fast path](references/fast-path.md) for the ordered requirements-to-running-app checklist (validate, `render --check`, render, build, run, check in a browser, run the specs).
