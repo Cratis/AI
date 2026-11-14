@@ -164,7 +164,8 @@ Others send an edit request ([MCP loop](references/mcp-loop.md)).
    on disk while open, so after an apply do not re-request it; just say what changed.
 
 Handles are revision-bound, not durable IDs. Modules/features span fragments;
-after apply fetch fresh handles/revisions.
+after apply fetch fresh handles/revisions. Repeated identical advisories (such as
+PLAY0818/PLAY0819) are repaired occurrence by occurrence, never by message text or in bulk.
 
 On refusal, use `failureKind`, never message text ([failures/limits](references/mcp-loop.md#failures-use-failurekind-never-message-text)).
 After revision/disk/identity drift, reopen and re-propose. For `ApplyOutcomeUnknown`

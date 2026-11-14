@@ -74,3 +74,15 @@ A model written before 4.248.0 can report PLAY0818/PLAY0819 on every list-screen
 each one against what the action means; a create action is `for screen` even when the row has a
 matching identifier. Compiler inference is authoring evidence only: Scene owns the runtime
 selection and form-input behavior.
+
+### Repair repeated advisories one occurrence at a time
+
+PLAY0818 and PLAY0819 repeat with identical text for every action on a list screen. Never
+repair by message text, by code or in bulk. For each occurrence:
+
+1. Read that diagnostic's own location and occurrence handle from `read-ast` or the repairs
+   view. Handles are revision-bound: refetch them after every apply.
+2. Decide what that action means: a create action is `for screen`; a row action is `for item`,
+   with explicit `with <input> from item.<field>` when several keys could bind.
+3. Propose one edit for that occurrence, apply it, and re-read.
+4. Confirm only that occurrence's diagnostic cleared and the others remain until decided.
