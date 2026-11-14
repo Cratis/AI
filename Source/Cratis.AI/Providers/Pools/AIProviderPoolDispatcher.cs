@@ -128,73 +128,91 @@ public class AIProviderPoolDispatcher(
         var reachable = ordered.Where(member => !quotaTracker.IsKnownExhausted(member.ProviderId)).ToList();
         var candidates = reachable.Count > 0 ? reachable : ordered;
 
+        return await CompleteCandidates(candidates, new(prompt, configuredProviders, model, effort), cancellationToken);
+    }
+
+    async Task<LanguageModelResult> CompleteCandidates(
+        IEnumerable<AIProviderPoolMember> candidates, PoolCompletion request, CancellationToken cancellationToken)
+    {
         var now = timeProvider.GetUtcNow();
-        LanguageModelResult? last = null;
-        var anyRateLimited = false;
-        var anyTransient = false;
-        var anyAccessDenied = false;
-        var tried = new List<AIProviderId>();
-        var outOfQuota = new List<AIProviderId>();
+        var progress = new CompletionProgress();
         foreach (var member in candidates)
         {
-            if (!configuredProviders.TryGetValue(member.ProviderId, out var provider))
-            {
-                logger.PoolMemberNotConfigured(member.ProviderId);
-                continue;
-            }
+            var attempt = await CompleteMember(member.ProviderId, request, now, cancellationToken);
+            progress.AnyAccessDenied |= attempt.AccessDenied;
+            progress.AnyRateLimited |= attempt.RateLimited;
+            if (attempt.Result is not { } result) continue;
 
-            if (!await HasAccess(member.ProviderId))
-            {
-                anyAccessDenied = true;
-                continue;
-            }
-
-            if (provider.RateLimitedUntil > now)
-            {
-                logger.PoolMemberRateLimited(member.ProviderId, provider.RateLimitedUntil);
-                anyRateLimited = true;
-                continue;
-            }
-
-            var client = clients.FirstOrDefault(candidate => candidate.Type == provider.Type);
-            if (client is null)
-            {
-                logger.NoClientForProviderType(member.ProviderId, provider.Type);
-                continue;
-            }
-
-            var result = await client.Complete(prompt, provider, model, effort, cancellationToken);
-            tried.Add(member.ProviderId);
-            if (result.Succeeded || !(result.IsTransient || result.IsQuotaExhausted))
-            {
-                return result;
-            }
-
-            // A spent quota fails over exactly like a transient failure - the same prompt goes to the
-            // next member - but is remembered, so an exhausted pool says which members ran out.
-            if (result.IsQuotaExhausted)
-            {
-                logger.PoolMemberQuotaExhausted(member.ProviderId, result.FailureReason);
-                outOfQuota.Add(member.ProviderId);
-            }
-            else
-            {
-                logger.FailingOverToNextPoolMember(member.ProviderId, result.FailureReason);
-                anyTransient = true;
-            }
-
-            last = result;
+            progress.Tried.Add(member.ProviderId);
+            if (IsFinal(result)) return result;
+            RememberRetry(progress, member.ProviderId, result);
         }
 
-        if (outOfQuota.Count > 0)
+        return Exhausted(progress);
+    }
+
+    async Task<MemberCompletion> CompleteMember(
+        AIProviderId providerId, PoolCompletion request, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        if (!request.ConfiguredProviders.TryGetValue(providerId, out var provider))
         {
-            var reason = $"No pool member could serve this completion: the pool is exhausted. Tried {string.Join(", ", tried)}; out of quota: {string.Join(", ", outOfQuota)}. Last failure: {last!.FailureReason}";
-            return anyTransient || anyRateLimited
+            logger.PoolMemberNotConfigured(providerId);
+            return new(null);
+        }
+
+        if (!await HasAccess(providerId)) return new(null, AccessDenied: true);
+
+        if (provider.RateLimitedUntil > now)
+        {
+            logger.PoolMemberRateLimited(providerId, provider.RateLimitedUntil);
+            return new(null, RateLimited: true);
+        }
+
+        var client = clients.FirstOrDefault(candidate => candidate.Type == provider.Type);
+        if (client is null)
+        {
+            logger.NoClientForProviderType(providerId, provider.Type);
+            return new(null);
+        }
+
+        return new(await client.Complete(request.Prompt, provider, request.Model, request.Effort, cancellationToken));
+    }
+
+    static bool IsFinal(LanguageModelResult result)
+    {
+        if (result.Succeeded) return true;
+        return !result.IsTransient && !result.IsQuotaExhausted;
+    }
+
+    void RememberRetry(CompletionProgress progress, AIProviderId providerId, LanguageModelResult result)
+    {
+        // A spent quota fails over exactly like a transient failure - the same prompt goes to the
+        // next member - but is remembered, so an exhausted pool says which members ran out.
+        if (result.IsQuotaExhausted)
+        {
+            logger.PoolMemberQuotaExhausted(providerId, result.FailureReason);
+            progress.OutOfQuota.Add(providerId);
+        }
+        else
+        {
+            logger.FailingOverToNextPoolMember(providerId, result.FailureReason);
+            progress.AnyTransient = true;
+        }
+
+        progress.Last = result;
+    }
+
+    static LanguageModelResult Exhausted(CompletionProgress progress)
+    {
+        if (progress.OutOfQuota.Count > 0)
+        {
+            var reason = $"No pool member could serve this completion: the pool is exhausted. Tried {string.Join(", ", progress.Tried)}; out of quota: {string.Join(", ", progress.OutOfQuota)}. Last failure: {progress.Last!.FailureReason}";
+            return progress.AnyTransient || progress.AnyRateLimited
                 ? LanguageModelResult.TransientFailure(reason)
                 : LanguageModelResult.QuotaExhausted(reason);
         }
 
-        return last ?? Unavailable(anyAccessDenied, anyRateLimited);
+        return progress.Last ?? Unavailable(progress.AnyAccessDenied, progress.AnyRateLimited);
     }
 
     static LanguageModelResult Unavailable(bool accessDenied, bool rateLimited)
@@ -220,6 +238,20 @@ public class AIProviderPoolDispatcher(
         if (memberAccess is not null && await memberAccess.IsAllowed(provider)) return true;
         logger.PoolMemberAccessDenied(provider);
         return false;
+    }
+
+    sealed record PoolCompletion(string Prompt, IReadOnlyDictionary<AIProviderId, ConfiguredAIProvider> ConfiguredProviders, ModelName Model, Effort Effort);
+
+    sealed record MemberCompletion(LanguageModelResult? Result, bool AccessDenied = false, bool RateLimited = false);
+
+    sealed class CompletionProgress
+    {
+        public List<AIProviderId> Tried { get; } = [];
+        public List<AIProviderId> OutOfQuota { get; } = [];
+        public LanguageModelResult? Last { get; set; }
+        public bool AnyAccessDenied { get; set; }
+        public bool AnyRateLimited { get; set; }
+        public bool AnyTransient { get; set; }
     }
 }
 

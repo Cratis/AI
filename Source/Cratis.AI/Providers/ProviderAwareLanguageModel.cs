@@ -137,25 +137,18 @@ public class ProviderAwareLanguageModel(
         // as a job - so configuring one on a chat-completion agent quietly did nothing.
         prompt = AgentSkillPrompt.Ahead(prompt, role?.Skills);
 
-        var hasPool = role?.PoolId is { } configuredPool && !configuredPool.Equals(AIProviderPoolId.NotSet);
-        var hasProvider = role?.ProviderId is { } configuredProvider && !configuredProvider.Equals(AIProviderId.NotSet);
-
         var effort = role?.Effort ?? Effort.High;
 
         // The role's capability tier (#865) - the provider each path below resolves to translates it
         // into the concrete model it offers for that tier.
         var tier = role?.Tier ?? ModelTier.Balanced;
 
-        var poolExhaustedTransiently = false;
-        string? poolOutOfQuota = null;
-        string? poolFailureReason = null;
+        PoolFailure failure;
         try
         {
             var dispatch = await DispatchCompletion(new(prompt, purpose, tier, effort), role, cancellationToken);
             if (dispatch.Result is not null) return dispatch.Result;
-            poolExhaustedTransiently = dispatch.ExhaustedTransiently;
-            poolOutOfQuota = dispatch.OutOfQuota;
-            poolFailureReason = dispatch.FailureReason;
+            failure = new(dispatch.ExhaustedTransiently, dispatch.OutOfQuota, dispatch.FailureReason);
         }
         catch (OperationCanceledException) when (!callerCancellationToken.IsCancellationRequested)
         {
@@ -170,6 +163,13 @@ public class ProviderAwareLanguageModel(
             return LanguageModelResult.TransientFailure($"The completion did not finish within {options.Value.CompletionTimeout}");
         }
 
+        return UnservedCompletion(purpose, role, failure);
+    }
+
+    LanguageModelResult UnservedCompletion(LanguageModelPurpose purpose, ConfiguredAgent? role, PoolFailure failure)
+    {
+        var hasPool = role?.PoolId is { } configuredPool && !configuredPool.Equals(AIProviderPoolId.NotSet);
+        var hasProvider = role?.ProviderId is { } configuredProvider && !configuredProvider.Equals(AIProviderId.NotSet);
         if (!hasPool && !hasProvider)
         {
             logger.AgentNamesNoProvider(purpose, role is null);
@@ -184,7 +184,7 @@ public class ProviderAwareLanguageModel(
         // the time it tries again, which a same-provider hammering retry never gave the pool a chance
         // to benefit from (issue #1060).
         logger.NothingTheAgentNamedCouldServe(purpose);
-        return PoolFailureResult(purpose, new(poolExhaustedTransiently, poolOutOfQuota, poolFailureReason));
+        return PoolFailureResult(purpose, failure);
     }
 
     static LanguageModelResult PoolFailureResult(LanguageModelPurpose purpose, PoolFailure failure)
@@ -237,6 +237,12 @@ public class ProviderAwareLanguageModel(
             return (null, false, null, null);
         }
 
+        return await DispatchPoolMembers(request, members, poolId, cancellationToken);
+    }
+
+    async Task<(LanguageModelResult? Result, bool ExhaustedTransiently, string? OutOfQuota, string? FailureReason)> DispatchPoolMembers(
+        CompletionRequest request, IReadOnlyList<AIProviderPoolMember> members, AIProviderPoolId poolId, CancellationToken cancellationToken)
+    {
         var burn = await providerBurn.TrailingWeek(cancellationToken);
         var usageLevels = await providerUsageLevels.RefreshMany([.. members.Select(member => member.ProviderId)], cancellationToken);
         var remainingCapacity = RemainingCapacityByProvider(usageLevels);
@@ -363,7 +369,12 @@ public class ProviderAwareLanguageModel(
             return LanguageModelResult.Failure(resolution.Reason);
         }
 
-        var resolvedModel = resolution.Model;
+        return await CompleteResolvedProvider(request, new(providerId, provider, client, resolution.Model), cancellationToken);
+    }
+
+    async Task<LanguageModelResult?> CompleteResolvedProvider(CompletionRequest request, ProviderCompletion completion, CancellationToken cancellationToken)
+    {
+        var (providerId, provider, _, resolvedModel) = completion;
         var mode = defaultAgentModes.For(request.Purpose);
         if (!AIModelCapabilities.Supports(mode, resolvedModel))
         {
@@ -394,12 +405,13 @@ public class ProviderAwareLanguageModel(
 
         using (slot)
         {
-            return await DispatchProvider(request, providerId, provider, client, resolvedModel, cancellationToken);
+            return await DispatchProvider(request, completion, cancellationToken);
         }
     }
 
-    async Task<LanguageModelResult> DispatchProvider(CompletionRequest request, AIProviderId providerId, ConfiguredAIProvider provider, IAIProviderClient client, ModelName resolvedModel, CancellationToken cancellationToken)
+    async Task<LanguageModelResult> DispatchProvider(CompletionRequest request, ProviderCompletion completion, CancellationToken cancellationToken)
     {
+        var (providerId, provider, client, resolvedModel) = completion;
         if (!await _memberAccess.IsAllowed(providerId))
         {
             return LanguageModelResult.Failure($"AI provider {providerId} is not available to the work initiator");
@@ -416,13 +428,21 @@ public class ProviderAwareLanguageModel(
         // A spent quota is recorded the same way, so the provider is skipped until it resets - the
         // reset the vendor stated, else when its capacity says it is available again, else the
         // bounded RateLimitCooldown.
-        if (result.IsQuotaExhausted || (result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason)))
+        if (ShouldRecordRateLimit(result))
         {
             await _rateLimitRecorder.Record(providerId, result.FailureReason);
         }
 
         return result;
     }
+
+    static bool ShouldRecordRateLimit(LanguageModelResult result)
+    {
+        if (result.IsQuotaExhausted) return true;
+        return result.IsTransient && ProviderRateLimit.IsIndicatedBy(result.FailureReason);
+    }
+
+    sealed record ProviderCompletion(AIProviderId Id, ConfiguredAIProvider Provider, IAIProviderClient Client, ModelName Model);
 
     sealed record PoolFailure(bool ExhaustedTransiently, string? OutOfQuota, string? Reason);
 

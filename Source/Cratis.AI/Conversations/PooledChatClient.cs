@@ -325,7 +325,13 @@ public sealed class PooledChatClient(
             return PoolAttempt<(T, AIProviderId)>.Skipped(resolution.Reason);
         }
 
-        var model = resolution.Model;
+        return await AttemptResolved(new(providerId, provider, resolution.Model), call, cancellationToken);
+    }
+
+    async Task<PoolAttempt<(T Value, AIProviderId Provider)>> AttemptResolved<T>(
+        ResolvedChatProvider resolved, ChatCall<T> call, CancellationToken cancellationToken)
+    {
+        var (providerId, provider, model) = resolved;
         if (!chatClientFactory.CanServe(provider, model))
         {
             logger.ChatProviderCannotServe(providerId, provider.Type, purpose);
@@ -357,6 +363,15 @@ public sealed class PooledChatClient(
             return PoolAttempt<(T, AIProviderId)>.Skipped($"AI provider {providerId} has no conversational client");
         }
 
+        return await InvokeChat(resolved, call, (client, slot), cancellationToken);
+    }
+
+    async Task<PoolAttempt<(T Value, AIProviderId Provider)>> InvokeChat<T>(
+        ResolvedChatProvider resolved, ChatCall<T> call, (IChatClient Client, IDisposable Slot) resources, CancellationToken cancellationToken)
+    {
+        var (providerId, provider, model) = resolved;
+        IChatClient? client = resources.Client;
+        IDisposable? slot = resources.Slot;
         var keepSlot = false;
         try
         {
@@ -455,6 +470,8 @@ public sealed class PooledChatClient(
             logger.CouldNotRecordChatUsage(exception, purpose);
         }
     }
+
+    sealed record ResolvedChatProvider(AIProviderId Id, ConfiguredAIProvider Provider, ModelName Model);
 
     sealed record ChatCall<T>(Func<IChatClient, ModelName, CancellationToken, Task<T>> Invoke, bool HoldSlot = false);
 
