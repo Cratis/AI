@@ -52,7 +52,8 @@ item, and clearing selection runs nothing; change uses the item that changed (se
 single item or selected row, with guarded actions' sibling precedence. Check named
 behaviors at each `uses` site. Component `context` or `selectedItem` bindings do
 not supply the subject in this version; unresolved/equally near subjects report
-PLAY0346.
+PLAY0346, which names the candidate data (see
+[table narrowing](action-subjects.md#table-narrowing)).
 
 Submit, event, interval and application triggers have no alternatives.
 The one-line `on row-click navigate to … by …` remains unchanged. Opaque `where`

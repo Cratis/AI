@@ -344,7 +344,9 @@ query with PLAY0268 and leave the whole model unbound. Everything else binds as 
 execute: reducer transitions, rule predicates, command and concept code validation, policy
 predicates and reaction effects. Reaction effects bind only when the trigger has no
 `reads`; a trigger with `reads` plus a `file` or inline effect fails binding. Reaction
-bodies still leave their owner non-executable.
+bodies still leave their owner non-executable, unless the host supplies a body execution provider for a
+standalone single-event reaction body (Requires Screenplay 4.258.0; see
+[reaction bodies](../../cratis-screenplay-captures-and-reactions/references/reaction-forms.md#reaction-bodies-run-through-a-host-provider)).
 
 - A `file` constraint **never binds**: PLAY0268 "file implementation is not admitted by
   the executable model". Chronicle file constraints

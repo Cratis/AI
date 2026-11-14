@@ -146,6 +146,9 @@ nested and variant block starts fresh sets. See [event scope](references/pdl-gra
 
 ## Property mapping and AutoMap
 
+The order of a read model's properties is not a projection input; only a C# host's opt-in ESM 37.1
+metadata records it ([property order](../cratis-screenplay-toolchain/references/read-model-property-order.md)).
+
 ⚠️ **AutoMap is on by default.** Matching property names are copied before your
 explicit mappings run, and explicit mappings win. Turn it off with `no automap` at
 **projection**, `every`/`all`, `join`, `children` or `nested` level — it
