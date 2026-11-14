@@ -185,52 +185,18 @@ public class KubernetesWorkerRuntime(
         WorkerResources? resources = null,
         WorkerScratch? scratch = null,
         TimeSpan? workerDeadline = null,
-        string? priorityClassName = null)
-    {
-        WorkerSecrets.ValidateNames(job.Secrets, repositoryCacheEnvironmentVariable);
-        var name = DockerWorkerRuntime.NameFor(job.Session);
-        var inputs = new SpecificationInputs
+        string? priorityClassName = null) => BuildJobSpecificationFromParameters(job, new JobSpecificationParameters
         {
-            Cache = KubernetesWorkerCacheVolumes.Build(job, repositoryCachePath, repositoryCacheClaimName, repositoryCacheEnvironmentVariable),
-            CacheVariable = repositoryCacheEnvironmentVariable,
-            ImagePullSecret = imagePullSecretName,
+            RepositoryCachePath = repositoryCachePath,
+            RepositoryCacheClaimName = repositoryCacheClaimName,
+            RepositoryCacheEnvironmentVariable = repositoryCacheEnvironmentVariable,
+            ImagePullSecretName = imagePullSecretName,
             NodePoolWorkload = nodePoolWorkload,
-            PriorityClassName = priorityClassName,
-            Resources = resources ?? WorkerResources.None,
-            Workspace = scratch ?? WorkerScratch.None
-        };
-
-        return new V1Job
-        {
-            Metadata = new V1ObjectMeta
-            {
-                Name = name,
-                Labels = ManagedByCratisAI
-            },
-            Spec = new V1JobSpec
-            {
-                BackoffLimit = 0,
-                TtlSecondsAfterFinished = 3600,
-                ActiveDeadlineSeconds = DeadlineSeconds(job.Deadline, workerDeadline),
-                Template = new V1PodTemplateSpec
-                {
-                    // The pod carries the label too, not just the Job. Kubernetes copies neither -
-                    // it adds its own job-name and controller-uid and nothing else - and the spread
-                    // constraint below selects on this one, so without it every worker is a topology
-                    // domain of one and the constraint quietly does nothing.
-                    Metadata = new V1ObjectMeta
-                    {
-                        Labels = WorkerPodLabels,
-                        Annotations = new Dictionary<string, string>
-                        {
-                            ["cluster-autoscaler.kubernetes.io/safe-to-evict"] = "false"
-                        }
-                    },
-                    Spec = BuildPodSpecification(job, inputs)
-                }
-            }
-        };
-    }
+            Resources = resources,
+            Scratch = scratch,
+            WorkerDeadline = workerDeadline,
+            PriorityClassName = priorityClassName
+        });
 
     /// <summary>
     /// Whether a worker's Job is still going to produce something.
@@ -331,6 +297,53 @@ public class KubernetesWorkerRuntime(
             logger.WorkerLaunchRefusedByCluster(exception, job.Session);
             return WorkerLaunchOutcome.RefusedByCluster;
         }
+    }
+
+    static V1Job BuildJobSpecificationFromParameters(WorkerJob job, JobSpecificationParameters parameters)
+    {
+        WorkerSecrets.ValidateNames(job.Secrets, parameters.RepositoryCacheEnvironmentVariable);
+        var name = DockerWorkerRuntime.NameFor(job.Session);
+        var inputs = new SpecificationInputs
+        {
+            Cache = KubernetesWorkerCacheVolumes.Build(job, parameters.RepositoryCachePath, parameters.RepositoryCacheClaimName, parameters.RepositoryCacheEnvironmentVariable),
+            CacheVariable = parameters.RepositoryCacheEnvironmentVariable,
+            ImagePullSecret = parameters.ImagePullSecretName,
+            NodePoolWorkload = parameters.NodePoolWorkload,
+            PriorityClassName = parameters.PriorityClassName,
+            Resources = parameters.Resources ?? WorkerResources.None,
+            Workspace = parameters.Scratch ?? WorkerScratch.None
+        };
+
+        return new V1Job
+        {
+            Metadata = new V1ObjectMeta
+            {
+                Name = name,
+                Labels = ManagedByCratisAI
+            },
+            Spec = new V1JobSpec
+            {
+                BackoffLimit = 0,
+                TtlSecondsAfterFinished = 3600,
+                ActiveDeadlineSeconds = DeadlineSeconds(job.Deadline, parameters.WorkerDeadline),
+                Template = new V1PodTemplateSpec
+                {
+                    // The pod carries the label too, not just the Job. Kubernetes copies neither -
+                    // it adds its own job-name and controller-uid and nothing else - and the spread
+                    // constraint below selects on this one, so without it every worker is a topology
+                    // domain of one and the constraint quietly does nothing.
+                    Metadata = new V1ObjectMeta
+                    {
+                        Labels = WorkerPodLabels,
+                        Annotations = new Dictionary<string, string>
+                        {
+                            ["cluster-autoscaler.kubernetes.io/safe-to-evict"] = "false"
+                        }
+                    },
+                    Spec = BuildPodSpecification(job, inputs)
+                }
+            }
+        };
     }
 
     static V1PodSpec BuildPodSpecification(WorkerJob job, SpecificationInputs inputs)
@@ -679,6 +692,25 @@ public class KubernetesWorkerRuntime(
         return deadline is { TotalSeconds: > 0 } positive ? (long)Math.Ceiling(positive.TotalSeconds) : DefaultDeadlineSeconds;
     }
 
+    V1Job BuildConfiguredJobSpecification(WorkerJob job) => BuildJobSpecificationFromParameters(job, new JobSpecificationParameters
+    {
+        RepositoryCachePath = options.Value.RepositoryCachePath,
+        RepositoryCacheClaimName = options.Value.RepositoryCacheClaimName,
+        RepositoryCacheEnvironmentVariable = options.Value.RepositoryCacheEnvironmentVariable,
+        ImagePullSecretName = options.Value.ImagePullSecretName,
+        NodePoolWorkload = options.Value.NodePoolWorkload,
+        Resources = new WorkerResources(
+            options.Value.CpuRequest,
+            options.Value.CpuLimit,
+            options.Value.MemoryRequest,
+            options.Value.MemoryLimit,
+            options.Value.EphemeralStorageRequest,
+            options.Value.EphemeralStorageLimit),
+        Scratch = new WorkerScratch(options.Value.ScratchStorageClassName, options.Value.ScratchSize),
+        WorkerDeadline = options.Value.WorkerDeadline,
+        PriorityClassName = options.Value.PriorityClassName
+    });
+
     async Task<WorkerLaunchOutcome> Launch(WorkerJob job, Dictionary<string, string> files, CancellationToken cancellationToken)
     {
         using var client = _clients.Create();
@@ -735,23 +767,7 @@ public class KubernetesWorkerRuntime(
             options.Value.KubernetesNamespace,
             cancellationToken: cancellationToken);
 
-        var kubernetesJob = BuildJobSpecification(
-            job,
-            options.Value.RepositoryCachePath,
-            options.Value.RepositoryCacheClaimName,
-            options.Value.RepositoryCacheEnvironmentVariable,
-            options.Value.ImagePullSecretName,
-            options.Value.NodePoolWorkload,
-            new WorkerResources(
-                options.Value.CpuRequest,
-                options.Value.CpuLimit,
-                options.Value.MemoryRequest,
-                options.Value.MemoryLimit,
-                options.Value.EphemeralStorageRequest,
-                options.Value.EphemeralStorageLimit),
-            new WorkerScratch(options.Value.ScratchStorageClassName, options.Value.ScratchSize),
-            options.Value.WorkerDeadline,
-            options.Value.PriorityClassName);
+        var kubernetesJob = BuildConfiguredJobSpecification(job);
 
         try
         {
@@ -1030,6 +1046,19 @@ public class KubernetesWorkerRuntime(
             // left behind, which is the only thing this guarantees.
             logger.CouldNotDeleteWorkerSecret(exception, name);
         }
+    }
+
+    sealed record JobSpecificationParameters
+    {
+        internal string? RepositoryCachePath { get; init; }
+        internal string? RepositoryCacheClaimName { get; init; }
+        internal string? RepositoryCacheEnvironmentVariable { get; init; }
+        internal string? ImagePullSecretName { get; init; }
+        internal string? NodePoolWorkload { get; init; }
+        internal WorkerResources? Resources { get; init; }
+        internal WorkerScratch? Scratch { get; init; }
+        internal TimeSpan? WorkerDeadline { get; init; }
+        internal string? PriorityClassName { get; init; }
     }
 
     sealed record SpecificationInputs
