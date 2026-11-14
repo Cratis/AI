@@ -7,9 +7,9 @@
 
 - Choose the artifact
 - Anchors and independent state
+- Link elements to issues
 - List with bounded, pinned reads
 - Propose, review, apply
-- Link elements to issues
 - Resolve by evidence, then carry the answer into the model
 - Source proposals can orphan notes
 - Question gate is independent of compilation

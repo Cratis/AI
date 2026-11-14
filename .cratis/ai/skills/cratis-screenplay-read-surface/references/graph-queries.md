@@ -1,7 +1,9 @@
 # Graph queries
 
 A graph query is a query: it has a name, filters, and returns a read model. Only its header and
-body differ. Requires Screenplay 5.8.0 or later (`screenplay --version`).
+body differ.
+
+Requires Screenplay 5.8.0 or later (`screenplay --version`).
 
 - The header ends in `graph <Graph>` instead of reading a stored read model:
   `query MembersOf => Membership[] graph Organization`.
