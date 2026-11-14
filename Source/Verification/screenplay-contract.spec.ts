@@ -109,6 +109,22 @@ describe('when extracting Screenplay contract subjects', () => {
         const content = '`screenplay <root>` with `--scope Module`\n\n| Layer | Route |\n| --- | --- |\n| Source | `screenplay <root>` |\n| Scope | `--scope Module` |\n| CLI | `cratis screenplay validate <root>` |\n| CLI option | `--warnings-as-errors` |\n\n`--unowned`\n';
         assert.deepEqual(extract('options.md', content, specimen).filter(subject => subject.kind === Kind.CliOption).map(subject => subject.value), ['--scope', '--scope']);
     });
+    it('should deduplicate repeated claims per line while retaining owners, source text and physical lines', () => {
+        const subjects = extract('duplicates.md', '# MCP\r\nPLAY0001 PLAY0001\r\nMCP tool `read-workspace(view: "a", view: "b")`\r\n`screenplay test --filter X --filter Y`\r\nscreenplay <root> --scope Module\r\n', specimen);
+        assert.deepEqual(subjects.map(subject => [subject.line, subject.kind, subject.value, subject.owner]), [
+            [2, Kind.Diagnostic, 'PLAY0001', undefined], [3, Kind.McpTool, 'read-workspace', undefined],
+            [3, Kind.McpParameter, 'view', 'read-workspace'], [4, Kind.CliCommand, 'test', undefined],
+            [4, Kind.CliOption, '--filter', 'test'], [5, Kind.CliCommand, '', undefined], [5, Kind.CliOption, '--scope', 'validate']
+        ]);
+        assert.equal(subjects[1].text, 'MCP tool `read-workspace(view: "a", view: "b")`');
+        assert.ok(subjects.every(subject => subject.file === 'duplicates.md'));
+    });
+    it('should reset tool context at peer headings and option ownership at new tables and cratis spans', () => {
+        const content = '# MCP\n1 tools\n\n# Other\n99 tools\n\n| Route |\n| --- |\n| `screenplay test <root>` |\n| `--filter X` |\n\n| Route |\n| --- |\n| `--unowned` |\n\n`screenplay test <root>` `cratis screenplay validate <root>` `--unowned`\n';
+        const subjects = extract('context.md', content, specimen);
+        assert.deepEqual(subjects.filter(subject => subject.kind === Kind.ToolCount).map(subject => subject.value), ['1']);
+        assert.deepEqual(subjects.filter(subject => subject.kind === Kind.CliOption).map(subject => [subject.value, subject.owner]), [['--filter', 'test']]);
+    });
     it('should retain removed pinned tool names when comparing an incoming release', () => {
         const next = { ...specimen, mcpTools: [{ name: 'replacement-tool', requiredParameters: [], optionalParameters: [] }] };
         const result = check(next, [cleanDocument, { file: 'prose.md', content: '# MCP\nRead `read-workspace`.' }], [], false, specimen);
