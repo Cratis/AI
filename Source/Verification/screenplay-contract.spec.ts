@@ -193,6 +193,34 @@ describe('when checking Screenplay facts', () => {
     });
 });
 
+describe('when validating contract shapes and report ordering', () => {
+    it('should report required contract collections in their validation order', () => {
+        assert.throws(() => parseContract({ ...specimen, keywords: [], diagnostics: [] }), { message: 'Invalid contract keywords.' });
+        assert.throws(() => parseContract({ ...specimen, diagnostics: [{ code: 'PLAY0001', reserved: 'false', retired: false }] }), { message: 'Invalid contract diagnostics.' });
+        assert.throws(() => parseContract({ ...specimen, cliCommands: [{ name: '', options: [1], aliases: [] }] }), { message: 'Invalid contract CLI options.' });
+        assert.throws(() => parseContract({ ...specimen, constructs: [{ name: 'command' }, { name: 'command' }] }), { message: 'Invalid or duplicate contract constructs identities.' });
+        const permitted = { ...specimen, constructs: [{ name: '' }], cliCommands: [{ name: '', options: ['--scope', '--scope'], aliases: [] }] };
+        assert.deepEqual(parseContract(permitted), permitted);
+    });
+    it('should reject malformed exceptions before duplicate detection', () => {
+        assert.throws(() => parseExceptions({}), { message: 'Every contract exception needs file, exact text, kind, value and a nonempty reason.' });
+        assert.throws(() => parseExceptions([{ ...exception, kind: 'unknown' }]), { message: 'Every contract exception needs file, exact text, kind, value and a nonempty reason.' });
+        assert.throws(() => parseExceptions([exception, exception]), { message: 'Duplicate contract exceptions.' });
+    });
+    it('should preserve problem insertion order and suppression accounting', () => {
+        const bad = { file: 'bad.md', content: '# MCP\nPLAY9999 PLAY0003\nMCP tool `unknown-tool(bogus: true)`; 99 tools.\n`screenplay unknown --bogus`' };
+        const result = check(specimen, [cleanDocument, bad], [exception]);
+        assert.deepEqual(result.problems, [
+            'bad.md:2 unknown diagnostic PLAY9999.', 'bad.md:2 retired diagnostic PLAY0003.',
+            'bad.md:3 MCP tool count 99, contract has 1.', 'bad.md:3 unknown MCP tool unknown-tool.',
+            'bad.md:3 unknown MCP parameter unknown-tool.bogus.', 'bad.md:4 unknown screenplay CLI command unknown.',
+            'bad.md:4 unknown screenplay unknown option --bogus.', 'old.md:1 unnecessary contract exception for toolCount 29; remove it or re-check its exact text.'
+        ]);
+        assert.equal(result.exempted.length, 0);
+        assert.equal(check(specimen, [cleanDocument, { file: exception.file, content: exception.text }], [exception]).exempted.length, 1);
+    });
+});
+
 describe('when computing advisory coverage', () => {
     it('should report gaps by exact token, tool and non-reserved diagnostic family without failing facts', () => {
         const documents = [cleanDocument, { file: 'words.md', content: 'queryExtra commands' }];
