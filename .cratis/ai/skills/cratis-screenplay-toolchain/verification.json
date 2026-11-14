@@ -88,6 +88,7 @@
     { "kind": "skill-contains", "value": "(a `change` keeps it)", "file": "references/preferred-syntax.md" },
     { "kind": "skill-contains", "value": "| PLAY0935 | E | A `passive` read model names a sink", "file": "references/diagnostics.md" },
     { "kind": "skill-contains", "value": "| PLAY0939 | W | A read-model property `sink`", "file": "references/diagnostics.md" },
-    { "kind": "skill-contains", "value": "`ApplicationSyntax.sinks` (`SinkSyntax` with `name`, `stores`)", "file": "references/executable-subset.md" }
+    { "kind": "skill-contains", "value": "`ApplicationSyntax.sinks` (`SinkSyntax` with `name`, `stores`)", "file": "references/executable-subset.md" },
+    { "kind": "skill-contains", "value": "reaction-forms.md#reaction-bodies-run-through-a-host-provider", "file": "references/executable-subset.md" }
   ]
 }

@@ -143,7 +143,7 @@ Read [references/capture-map-and-example.md](references/capture-map-and-example.
 
 ## `reaction`
 
-Read [reaction forms](references/reaction-forms.md) when choosing a trigger,
+Read [reaction forms](references/reaction-forms.md) (including how a host provider runs a reaction body) when choosing a trigger,
 selecting occurrence values or mapping `produces` and `invokes`; complete documents
 remain in `references/complete-examples.md`.
 
