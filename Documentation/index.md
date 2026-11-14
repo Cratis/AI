@@ -10,8 +10,8 @@ This repository is two things sharing one source of truth:
 
 It also carries a separate, parallel effort - the TypeScript corpus/profile-distribution content
 under `Source/Harness.Setup`, `Source/Pi.Plugin`, `Source/Verification` and `.cratis/ai/` - which
-is described in part by [Agent adapters](./agent-adapters.md). See that content's own `AGENTS.md`/`CLAUDE.md` and
-`AIConsolidation.md` at the repository root.
+is described in part by [Agent adapters](./agent-adapters.md). See that content's own `AGENTS.md`/`CLAUDE.md`
+at the repository root.
 
 ## Where to start
 
@@ -45,7 +45,7 @@ is described in part by [Agent adapters](./agent-adapters.md). See that content'
 ## The source document
 
 The full consolidation plan, including the investigation findings behind every decision referenced
-throughout this documentation, lives outside this repository at
-`/Volumes/Code/Cratis/ai-consolidation-plan.md` (donor repositories: `Cratis/Direct` and
-`Cratis/Studio`; scaffolding reference: `Cratis/Arc` and `Cratis/Chronicle`). Section numbers cited
-throughout this `Documentation/` folder (e.g. "plan Section 5.3b") refer to that document.
+throughout this documentation, is an internal planning document that is not published in this
+repository (donor repositories: `Cratis/Direct` and `Cratis/Studio`; scaffolding reference:
+`Cratis/Arc` and `Cratis/Chronicle`). Section numbers cited throughout this `Documentation/` folder
+(e.g. "plan Section 5.3b") refer to that document.
