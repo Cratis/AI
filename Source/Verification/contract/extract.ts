@@ -145,6 +145,19 @@ function earlierParagraphCommand(scan: Scan, paragraphStart: number, index: numb
     return paragraphCommand;
 }
 
+function addCliOptions(line: Line, arguments_: string, owner: string): void {
+    for (const option of arguments_.matchAll(/--[a-z][a-z-]*\b/g)) line.add(Kind.CliOption, option[0], owner || 'validate');
+}
+
+function addCliCommand(scan: Scan, line: Line, command: RegExpExecArray, column: number): string {
+    const arguments_ = command[1].split(/\s+(?:or|and)\s+/)[0];
+    const name = cliCommandName(arguments_, scan.commandNames);
+    if (line.cells.length) scan.tableCommands.set(column, name);
+    line.add(Kind.CliCommand, name);
+    addCliOptions(line, arguments_, name);
+    return name;
+}
+
 /** Records the span's CLI claims and returns the paragraph's command owner afterwards. */
 function scanCommandSpan(scan: Scan, line: Line, span: { text: string; index: number }, paragraphCommand: string | undefined): string | undefined {
     const column = line.text.slice(0, span.index).split('|').length - 1;
@@ -153,17 +166,10 @@ function scanCommandSpan(scan: Scan, line: Line, span: { text: string; index: nu
         return undefined;
     }
     const command = /^\s*(?:\$\s*)?screenplay\s+([^`\n;]+)/.exec(span.text);
-    if (command) {
-        const arguments_ = command[1].split(/\s+(?:or|and)\s+/)[0];
-        const name = cliCommandName(arguments_, scan.commandNames);
-        if (line.cells.length) scan.tableCommands.set(column, name);
-        line.add(Kind.CliCommand, name);
-        for (const option of arguments_.matchAll(/--[a-z][a-z-]*\b/g)) line.add(Kind.CliOption, option[0], name || 'validate');
-        return name;
-    }
+    if (command) return addCliCommand(scan, line, command, column);
     if (/^--[a-z]/.test(span.text)) {
         const owner = line.cells.length ? scan.tableCommands.get(column) : paragraphCommand;
-        if (owner !== undefined) for (const option of span.text.matchAll(/--[a-z][a-z-]*\b/g)) line.add(Kind.CliOption, option[0], owner || 'validate');
+        if (owner !== undefined) addCliOptions(line, span.text, owner);
     }
     return paragraphCommand;
 }
@@ -173,12 +179,15 @@ function scanCliCommands(scan: Scan, line: Line, paragraphStart: number): void {
     for (const span of commandSpans(line.text)) paragraphCommand = scanCommandSpan(scan, line, span, paragraphCommand);
 }
 
+function hasSubject(scan: Scan, claim: Subject): boolean {
+    return scan.subjects.some(subject => subject.line === claim.line && subject.kind === claim.kind && subject.value === claim.value && subject.owner === claim.owner);
+}
+
 function scanLine(scan: Scan, index: number): void {
     const text = scan.lines[index];
     const add: Add = (kind, value, owner) => {
-        if (!scan.subjects.some(subject => subject.line === index + 1 && subject.kind === kind && subject.value === value && subject.owner === owner)) {
-            scan.subjects.push({ file: scan.file, line: index + 1, text, kind, value, ...(owner ? { owner } : {}) });
-        }
+        const claim = { file: scan.file, line: index + 1, text, kind, value, owner };
+        if (!hasSubject(scan, claim)) scan.subjects.push({ file: scan.file, line: index + 1, text, kind, value, ...(owner ? { owner } : {}) });
     };
     const line: Line = { index, text, cells: text.startsWith('|') ? text.split('|') : [], add };
     scanDiagnostics(scan, line);

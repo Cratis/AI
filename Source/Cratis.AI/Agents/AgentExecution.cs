@@ -3,6 +3,7 @@
 
 using Cratis.AI.Abstractions;
 using Cratis.AI.LanguageModels;
+using Cratis.AI.Providers;
 using Cratis.Chronicle.Auditing;
 using ChronicleIdentity = Cratis.Chronicle.Identities.Identity;
 using ChronicleIdentityProvider = Cratis.Chronicle.Identities.IIdentityProvider;
@@ -16,7 +17,8 @@ namespace Cratis.AI.Agents;
 /// <param name="identityProvider">The Chronicle <see cref="ChronicleIdentityProvider"/> events get attributed through.</param>
 /// <param name="causationManager">The <see cref="ICausationManager"/> the scope's causation is recorded under.</param>
 /// <param name="agents">The <see cref="IAIAgents"/> lookup resolving an agent's identity and display name.</param>
-public class AgentExecution(ChronicleIdentityProvider identityProvider, ICausationManager causationManager, IAIAgents agents) : IAgentExecution
+/// <param name="initiation">The independently scoped work initiator, used only for attribution.</param>
+public class AgentExecution(ChronicleIdentityProvider identityProvider, ICausationManager causationManager, IAIAgents agents, IWorkInitiation? initiation = null) : IAgentExecution
 {
     /// <inheritdoc/>
     public IDisposable As(AgentId agentId, IDictionary<string, string>? extraCausationProperties = null)
@@ -51,9 +53,12 @@ public class AgentExecution(ChronicleIdentityProvider identityProvider, ICausati
         var previousIdentity = identityProvider.GetCurrent();
         identityProvider.SetCurrentIdentity(identity);
 
-        var causation = causationManager.BeginScope(
-            AIAgentCausation.Type,
-            AIAgentCausation.PropertiesFor(agent.Id, agent.Name, purpose, extra: extraCausationProperties));
+        var properties = AIAgentCausation.PropertiesFor(agent.Id, agent.Name, purpose, extra: extraCausationProperties);
+        if (initiation?.Current.Member is { } member)
+        {
+            properties[AIAgentCausation.InitiatorProperty] = member.Value;
+        }
+        var causation = causationManager.BeginScope(AIAgentCausation.Type, properties);
 
         return new Scope(identityProvider, previousIdentity, causation);
     }

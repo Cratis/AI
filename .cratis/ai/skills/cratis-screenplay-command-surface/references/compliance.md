@@ -198,6 +198,12 @@ Move legal declarations out of old reasons by hand; repairs never guess them.
 
 ## Identify the person, not the stream
 
+**Identifiers cannot be personal data or secrets.** PLAY0515 is a source error
+for command identifiers, typed `for` destinations, event-source identities,
+scalar/composite stream-id types and nested route mapping sources, including legacy
+markers. Keep a surrogate identity and carry protected data in the payload.
+Chronicle likewise rejects `[PII]`/`[Encrypted]` identifiers (CHR0034/CHR0052).
+
 An event property may end in `subject`, last among modifiers (before `=` on an
 inline mapping). Each generation may choose one mark independently:
 

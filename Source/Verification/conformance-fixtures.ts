@@ -60,10 +60,24 @@ function pathProblems(label: string, key: string, value: unknown): string[] {
     return unsafePath(value) ? [`${label}.${key} must be relative with no '..' segment.`] : [];
 }
 
+function invalidPhase(phase: unknown): boolean {
+    if (phase === undefined) return false;
+    return typeof phase !== 'string' || !phases.includes(phase);
+}
+
+function hasAnyField(check: Record<string, unknown>, keys: string[]): boolean {
+    return keys.some(key => check[key] !== undefined);
+}
+
+function isCommandRun(value: unknown): boolean {
+    if (!Array.isArray(value)) return false;
+    return value.length > 0 && value.every(item => typeof item === 'string');
+}
+
 /** Fields every check type shares, in the order they are reported. */
 function commonCheckProblems(label: string, check: Record<string, unknown>): string[] {
     const problems: string[] = [];
-    if (check.phase !== undefined && (typeof check.phase !== 'string' || !phases.includes(check.phase))) problems.push(`${label}.phase must be 'install' or 'result'.`);
+    if (invalidPhase(check.phase)) problems.push(`${label}.phase must be 'install' or 'result'.`);
     if (check.optional !== undefined && typeof check.optional !== 'boolean') problems.push(`${label}.optional must be boolean.`);
     if (check.exit_code !== undefined && !Number.isInteger(check.exit_code)) problems.push(`${label}.exit_code must be an integer.`);
     return [...problems, ...pathProblems(label, 'path', check.path), ...pathProblems(label, 'glob', check.glob)];
@@ -72,19 +86,22 @@ function commonCheckProblems(label: string, check: Record<string, unknown>): str
 function commandCheckProblems(label: string, check: Record<string, unknown>): string[] {
     const problems: string[] = [];
     if (check.phase === 'install') problems.push(`${label}: command is not allowed in the install phase.`);
-    if (!Array.isArray(check.run) || check.run.length === 0 || !check.run.every(item => typeof item === 'string')) problems.push(`${label}.run requires a nonempty array of strings.`);
-    if (check.path !== undefined || check.glob !== undefined || check.pattern !== undefined) problems.push(`${label}: command takes run and exit_code, not path, glob or pattern.`);
+    if (!isCommandRun(check.run)) problems.push(`${label}.run requires a nonempty array of strings.`);
+    if (hasAnyField(check, ['path', 'glob', 'pattern'])) problems.push(`${label}: command takes run and exit_code, not path, glob or pattern.`);
     return problems;
+}
+
+function patternProblems(label: string, check: Record<string, unknown>): string[] {
+    const matches = check.type === 'file_matches' || check.type === 'file_not_matches';
+    if (matches) return text(check.pattern) ? [] : [`${label}.pattern is required for ${check.type}.`];
+    return check.pattern === undefined ? [] : [`${label}.pattern applies only to file_matches and file_not_matches.`];
 }
 
 function fileCheckProblems(label: string, check: Record<string, unknown>): string[] {
     const problems: string[] = [];
-    if (check.run !== undefined || check.exit_code !== undefined) problems.push(`${label}: run and exit_code apply only to command.`);
+    if (hasAnyField(check, ['run', 'exit_code'])) problems.push(`${label}: run and exit_code apply only to command.`);
     if ((check.path === undefined) === (check.glob === undefined)) problems.push(`${label} requires exactly one of path or glob.`);
-    const matches = check.type === 'file_matches' || check.type === 'file_not_matches';
-    if (matches && !text(check.pattern)) problems.push(`${label}.pattern is required for ${check.type}.`);
-    if (!matches && check.pattern !== undefined) problems.push(`${label}.pattern applies only to file_matches and file_not_matches.`);
-    return problems;
+    return [...problems, ...patternProblems(label, check)];
 }
 
 function checkProblems(index: number, check: unknown): string[] {
@@ -120,14 +137,24 @@ function fixtureBoundsProblems(bounds: unknown): string[] {
     return isObject(bounds) ? boundsProblems(bounds) : ['bounds must be an object.'];
 }
 
-/** Everything before the checks, reported in the schema's field order. */
-function fixtureFieldProblems(folder: string, fixture: Record<string, unknown>, catalog: ConformanceCatalog): string[] {
-    const problems = [...unknownKeyProblems(fixture, fixtureKeys, key => `unknown key '${key}'.`), ...nameProblems(folder, fixture.name)];
+function harnessProblems(value: unknown): string[] {
+    if (value === undefined) return [];
+    const valid = Array.isArray(value) && value.every(item => typeof item === 'string' && harnesses.includes(item));
+    return valid ? [] : [`harnesses must be a subset of ${harnesses.join(', ')}.`];
+}
+
+function descriptionProblems(fixture: Record<string, unknown>): string[] {
+    const problems: string[] = [];
     if (!text(fixture.description)) problems.push('description requires text.');
     if (!text(fixture.prompt)) problems.push('prompt requires text.');
     if (fixture.expected_output !== undefined && !text(fixture.expected_output)) problems.push('expected_output must be nonempty text when present.');
-    problems.push(...catalogListProblems(fixture, catalog));
-    if (fixture.harnesses !== undefined && (!Array.isArray(fixture.harnesses) || !fixture.harnesses.every(item => typeof item === 'string' && harnesses.includes(item)))) problems.push(`harnesses must be a subset of ${harnesses.join(', ')}.`);
+    return problems;
+}
+
+/** Everything before the checks, reported in the schema's field order. */
+function fixtureFieldProblems(folder: string, fixture: Record<string, unknown>, catalog: ConformanceCatalog): string[] {
+    const problems = [...unknownKeyProblems(fixture, fixtureKeys, key => `unknown key '${key}'.`), ...nameProblems(folder, fixture.name)];
+    problems.push(...descriptionProblems(fixture), ...catalogListProblems(fixture, catalog), ...harnessProblems(fixture.harnesses));
     return [...problems, ...instructionPathProblems(fixture.expected_instruction_paths), ...fixtureBoundsProblems(fixture.bounds)];
 }
 

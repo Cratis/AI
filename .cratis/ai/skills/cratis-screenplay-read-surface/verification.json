@@ -14,7 +14,7 @@
     { "kind": "skill-contains", "value": "filter status     InvoiceStatus optional" },
     { "kind": "skill-contains", "value": "query Q => observable?" },
     { "kind": "skill-contains", "value": "information `PLAY0479`" },
-    { "kind": "skill-contains", "value": "Look first for the project's existing `.play` files" },
+    { "kind": "skill-contains", "value": "The folder holding the project's existing `.play` files" },
     { "kind": "skill-contains", "value": "`cratis ai install` manages `.cratis/ai/`, never model files" },
     { "kind": "skill-contains", "value": "The tenant is the default and stays unstated" },
     { "kind": "skill-contains", "value": "belongs on a `from` parameter, never on a `filter`" },
@@ -31,6 +31,9 @@
     { "kind": "skill-contains", "value": "`@sink <Type>` is always the property", "file": "references/sinks.md" },
     { "kind": "skill-contains", "value": "| `PLAY0935` | Error | A `passive` read model names a sink |", "file": "references/sinks.md" },
     { "kind": "skill-contains", "value": "The model never names a database", "file": "references/sinks.md" },
-    { "kind": "skill-contains", "value": "Read [sinks](references/sinks.md) before naming a sink." }
+    { "kind": "skill-contains", "value": "Read [sinks](references/sinks.md) before naming a sink." },
+    { "kind": "skill-contains", "value": "[passive read models](references/passive.md) before declaring one" },
+    { "kind": "skill-contains", "value": "| `PLAY0859` | Error | A `query` returns a passive read model", "file": "references/passive.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 5.3.0", "file": "references/passive.md" }
   ]
 }

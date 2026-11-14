@@ -4,6 +4,7 @@
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Cratis.AI.Providers;
 using Cratis.AI.Usage;
 using k8s;
 using k8s.Autorest;
@@ -27,10 +28,12 @@ namespace Cratis.AI.Workers;
 /// seam exists so a spec can substitute a fake client and exercise <see cref="Launch"/>'s decision not
 /// to delete a live worker, without either shape needing to know about the other's reason for being.
 /// </param>
+/// <param name="memberAccess">Fresh provider access for the ambient initiator; absent means denied.</param>
 public class KubernetesWorkerRuntime(
     IOptions<WorkerRuntimeOptions> options,
     ILogger<KubernetesWorkerRuntime> logger,
-    IKubernetesClientFactory? clientFactory = null) : IWorkerRuntime
+    IKubernetesClientFactory? clientFactory = null,
+    IProviderMemberAccess? memberAccess = null) : IWorkerRuntime
 {
     const string SecretVolumeName = "agent-secrets";
 
@@ -290,6 +293,10 @@ public class KubernetesWorkerRuntime(
     /// </remarks>
     public async Task<WorkerLaunchOutcome> Start(WorkerJob job, CancellationToken cancellationToken = default)
     {
+        if (!await WorkerProviderAccess.IsAllowed(job, memberAccess))
+        {
+            return WorkerLaunchOutcome.ProviderAccessDenied;
+        }
         var verdict = HostWorkspace.Validate(job, options.Value.HostWorkspaceRoot);
         if (verdict.Kind != HostWorkspaceVerdictKind.NotHostPrepared)
         {

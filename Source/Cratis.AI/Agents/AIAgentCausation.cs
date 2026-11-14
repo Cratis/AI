@@ -44,6 +44,11 @@ public static class AIAgentCausation
     public const string SessionProperty = "session";
 
     /// <summary>
+    /// The work initiator, recorded for attribution only. Never an authorization input.
+    /// </summary>
+    public const string InitiatorProperty = "initiator";
+
+    /// <summary>
     /// The <see cref="CausationType"/> for agent-caused work.
     /// </summary>
     public static readonly CausationType Type = new("Cratis.AI.AgentWork");

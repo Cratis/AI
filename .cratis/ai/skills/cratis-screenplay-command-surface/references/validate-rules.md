@@ -4,6 +4,7 @@
 
 - Rule vocabulary
 - `require` message
+- Code bodies
 - Date and DateTime comparisons
 - `not empty` means non-blank text
 - Rules whose logic is code
@@ -41,6 +42,12 @@ validate
   require to >= from
     message "The end must not be before the start"
 ```
+
+## Code bodies
+
+Built-in inline languages are `csharp`, `typescript`, `react`, `html`, `sql` and `java`;
+the body is opaque and travels unchanged, and the Cratis render target refuses `java` bodies
+(Requires Screenplay 4.244.0, `screenplay --version`).
 
 ## Date and DateTime comparisons
 

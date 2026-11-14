@@ -159,14 +159,20 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
   in Studio - decision 0013) is done, and confirmed consumed for real: `Cratis/Studio#1402` rewrote
   both to delegate to the package (real CI green, 4,319/4,319 specs, 118 of them exercising this
   exact code directly). This is the first change since the whole effort started that actually alters
-  Studio's production AI call path, not just its configuration surface. Still not started: the
-  actual reconciliation between this and `ProviderAwareLanguageModel`'s pool/tier/concurrency
-  resolution (so a conversation benefits from failover/quota tracking the way a worker-dispatched
-  session already does), `ConversationContext`/`Message`/`Request`/`Surroundings`, `Acting/`, `Mcp/`
-  tool exposure, and the 7 other `ChatClient` partials. This remaining piece is flagged in the plan
-  itself as "the largest single judgement call in the whole plan" (Section 5.4) and should be
-  budgeted accordingly - decision 0013 explains explicitly why it was scoped out of the same change
-  that added the factory, rather than attempted in a rush.
+  Studio's production AI call path, not just its configuration surface.
+  The pool/tier/concurrency reconciliation is now in the package: `IAIChatClients` (added in
+  `f03701ce4` and extended in `06b88956f`, both 2026-10-07) hands out `IChatClient`s dispatched
+  through the same provider pool, concurrency gate, rate-limit cooldown and usage recording as
+  `ILanguageModel`, with multi-turn, streaming and tool calls. Failover keeps its boundaries: a
+  streaming call moves to another pool member only until its first update arrives, and a Claude Code
+  turn stops failing over once a caller function invocation was attempted, so tool effects are not
+  replayed (see `provider-capacity.md`). This page does not record whether Direct or Studio now
+  route their conversations through `IAIChatClients`; check each consumer before assuming they do.
+  Still not started in the package: `ConversationContext`/`Message`/`Request`/`Surroundings`,
+  `Acting/`, `Mcp/` tool exposure, and the 7 other `ChatClient` partials. Historical note: before
+  2026-10-07 this entry listed the pool reconciliation as not started; the plan flagged the whole
+  piece as "the largest single judgement call in the whole plan" (Section 5.4), and decision 0013
+  explains why it was scoped out of the change that added the factory.
 - ~~Worker runtime implementations~~ (`DockerWorkerRuntime`, `KubernetesWorkerRuntime`) - done
   (`feat/agent-harnesses`, decision 0011). Still open from the same area: the callback contract
   (`WorkerCallbackTokens`, `WorkerResults`), reconciling Direct's `Containers/` with Studio's
