@@ -263,6 +263,10 @@ or a reactor rather than annotating the projection.
 Their two optional arguments are in **opposite order**: `[FromAll(contextProperty,
 property)]` and `[FromEvery(property, contextProperty)]`. Name them.
 
+## Dictionary keys, set once and ordering
+
+Requires Chronicle 19.150.0 (check the installed `Cratis.Chronicle` package). Fluent `.SetOnce(...)`, keyed `.Set/.Add/.Subtract/.Increment/.Decrement/.Count(m => m.Dict, e => key)`, `.RemoveKey(...)`, and children `.Prepend()`, `.OrderBy(...)`, `.OrderByDescending(...)`; model-bound `SetOnce = true`, `Prepend = true`, `OrderBy`/`OrderByDescending`. See [dictionaries, set once and ordering](references/dictionaries-set-once-ordering.md).
+
 ## Graph projections — nodes and edges
 
 A graph projection turns events into idempotent operations on a property graph

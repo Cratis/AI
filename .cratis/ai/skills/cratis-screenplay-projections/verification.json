@@ -40,6 +40,10 @@
     { "kind": "skill-contains", "value": "`PLAY1142` (`SecretConceptProjected`)", "file": "references/secret-concepts.md" },
     { "kind": "skill-contains", "value": "references/secret-concepts.md" },
     { "kind": "skill-contains", "value": "## Collect nested rows", "file": "references/graphs.md" },
-    { "kind": "skill-contains", "value": "Requires Screenplay 6.29.0 or later", "file": "references/graphs.md" }
+    { "kind": "skill-contains", "value": "Requires Screenplay 6.29.0 or later", "file": "references/graphs.md" },
+    { "kind": "skill-contains", "value": "insert first", "file": "references/dictionaries-and-ordering.md" },
+    { "kind": "skill-contains", "value": "sort by", "file": "references/dictionaries-and-ordering.md" },
+    { "kind": "skill-contains", "value": "`PLAY0963`", "file": "references/dictionaries-and-ordering.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 6.9.0", "file": "references/dictionaries-and-ordering.md" }
   ]
 }
