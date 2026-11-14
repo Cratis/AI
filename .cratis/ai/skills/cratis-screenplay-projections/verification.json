@@ -31,6 +31,8 @@
     { "kind": "skill-contains", "value": "**A builder never names a sink.**" },
     { "kind": "skill-contains", "value": "sink People for graphs", "file": "references/graphs.md" },
     { "kind": "skill-contains", "value": "every `sink` line in it is the directive", "file": "references/graphs.md" },
-    { "kind": "skill-contains", "value": "read-model-property-order.md" }
+    { "kind": "skill-contains", "value": "read-model-property-order.md" },
+    { "kind": "skill-contains", "value": "## Reading a graph with a query", "file": "references/graphs.md" },
+    { "kind": "skill-contains", "value": "`PLAY0885` | Graph query uses variable-length paths", "file": "references/graphs.md" }
   ]
 }

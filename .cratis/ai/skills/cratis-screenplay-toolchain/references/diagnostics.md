@@ -21,6 +21,7 @@
 - Audiences and availability (PLAY1130-PLAY1141)
 - Sinks (PLAY0931-PLAY0939)
 - Passive read models (PLAY0858-PLAY0860)
+- Graph queries (PLAY0878-PLAY0885)
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
 - Consistency errors (V1: the model contradicts itself)
@@ -415,6 +416,24 @@ marks one that only informs command decisions. The fixes are in
 | PLAY0860 | W | No command `reads` the passive read model. Add the read or remove `passive`. |
 
 Only the C# compiler reports PLAY0859 and PLAY0860; the TypeScript compiler reports PLAY0858 only.
+
+## Graph queries (PLAY0878-PLAY0885)
+
+Requires Screenplay 5.8.0 or later (`screenplay --version`). A `query` ending in `graph <Graph>`
+follows a path with `match` and `return`. The complete model and fixes are in
+`../../cratis-screenplay-projections/references/graphs.md`; the graph declaration and projection
+codes PLAY0862-PLAY0877 are listed there too.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0878 | E | A graph query is malformed: header, `match` pattern, `where` condition or `return` block. |
+| PLAY0879 | E | It names an undeclared graph, node label, edge type, alias or property. |
+| PLAY0880 | E | A hop uses an edge that does not connect those two labels in that direction. |
+| PLAY0881 | E | It does not return exactly the properties its read model requires, or returns the wrong type. |
+| PLAY0882 | E | A condition uses an undeclared argument or compares values of different types. |
+| PLAY0883 | E | An `optional match` value goes to a read-model property that is not optional. Make it optional. |
+| PLAY0884 | E | The same alias is used twice. |
+| PLAY0885 | E | It uses variable-length paths, `or`, ranges, functions or aggregates; none exist. |
 
 ## Structural completeness and timeline checks
 

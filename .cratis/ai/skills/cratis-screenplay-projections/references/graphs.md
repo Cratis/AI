@@ -6,6 +6,7 @@
 - Projecting events onto it
 - Storing a graph in a named sink
 - Reading the graph backwards
+- Reading a graph with a query
 - The five operations
 - What a graph projection cannot say
 - Diagnostics
@@ -169,6 +170,64 @@ full `PLAY0931`–`PLAY0939` table are in the read surface's
    to the graph.
 5. Add `detach` to any node removal whose label has attached edges.
 6. A question that is a lookup by key, not a path, belongs in a document read model.
+7. Write each path question as a `query` ending in `graph <Graph>`; see
+   [Reading a graph with a query](#reading-a-graph-with-a-query).
+
+## Reading a graph with a query
+
+A query that ends in `graph <Graph>` follows a path over the graph's declared nodes and edges and
+returns an ordinary read model. Requires Screenplay 5.8.0 or later (`screenplay --version`).
+
+```screenplay
+concept PersonId : Uuid
+concept GroupId : Uuid
+concept Name : String
+
+module Organization
+  feature Chart
+    slice StateView OrganizationChart
+      graph Organization
+        node Person
+          personId PersonId key
+          name     Name
+        node Group
+          groupId GroupId key
+          title   Name
+        edge MEMBER_OF source Person target Group
+          since DateTime optional
+
+      readmodel Membership
+        personId PersonId key
+        person   Name
+        since    DateTime optional
+
+      query MembersOf => Membership[] graph Organization
+        filter groupId GroupId
+        match person:Person -link:MEMBER_OF-> group:Group
+        where group.groupId = $groupId
+        return
+          personId = person.personId
+          person   = person.name
+          since    = link.since
+```
+
+- `match` is a path of `alias:Label`, `-alias:TYPE->` (outgoing) and `<-alias:TYPE-` (incoming)
+  steps; an alias is needed only where `where` or `return` names it.
+- `optional match` follows a path that may be absent, so what it returns must go to optional
+  read-model properties (`PLAY0883`).
+- `where` joins equality tests with `and`; each compares a node or edge property with a
+  `$argument` the query declares or a literal.
+- `return` assigns exactly the read model's required properties, each from a node or edge
+  property of the pattern with the same type (`PLAY0881`).
+- Variable-length paths, `or`, ranges, functions and aggregates do not exist (`PLAY0885`); there
+  is no engine-native query text.
+- A hop must use an edge that connects those two labels in that direction (`PLAY0880`); an
+  alias is used once (`PLAY0884`).
+
+The read-surface side is in
+[graph queries](../../cratis-screenplay-read-surface/references/graph-queries.md); assert a graph
+query in a specification with `then query`
+([graph steps](../../cratis-screenplay-specifications/references/graph-steps.md)).
 
 ## The five operations
 
@@ -204,3 +263,11 @@ an event leaves a graph projection reported as unknown.
 | `PLAY0875` | Malformed `given graph` / `then graph` step |
 | `PLAY0876` | Specification names an undeclared graph, label or edge type |
 | `PLAY0877` | Graph projection declared outside a slice |
+| `PLAY0878` | Malformed graph query: header, `match` pattern, `where` condition or `return` block |
+| `PLAY0879` | Graph query names an undeclared graph, node label, edge type, alias or property |
+| `PLAY0880` | Graph query hop uses an edge that does not connect those labels in that direction |
+| `PLAY0881` | Graph query does not return exactly the read model's required properties, or returns the wrong type |
+| `PLAY0882` | Graph query condition uses an undeclared argument or compares different types |
+| `PLAY0883` | Optional-match value assigned to a read-model property that is not optional |
+| `PLAY0884` | Graph query uses the same alias twice |
+| `PLAY0885` | Graph query uses variable-length paths, `or`, ranges, functions or aggregates |
