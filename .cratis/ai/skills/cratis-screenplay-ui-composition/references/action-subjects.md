@@ -1,5 +1,10 @@
 # Action subjects: `for item` and `for screen`
 
+## Contents
+
+- Table narrowing
+  - Repair repeated advisories one occurrence at a time
+
 Requires Screenplay 4.248.0 or later (`screenplay --version`). Source: Screenplay
 `Documentation/screenplay/action-subjects.md` (decision 0110).
 
