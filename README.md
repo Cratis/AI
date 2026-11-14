@@ -1,7 +1,22 @@
 # Cratis AI
 
-Cratis AI is the canonical set of rules, agents, prompts, and skills used when
-building with or contributing to Cratis.
+This repository ships two things from one source of truth:
+
+- **`Cratis.AI` (NuGet)** is the backend package: AI providers, pools, tiers,
+  concurrency, conversations, agents, worker/harness scheduling, and usage.
+- **The Cratis AI corpus and tooling** are the canonical set of rules, agents,
+  prompts, and skills used when building with or contributing to Cratis, plus the
+  tools that install and verify them.
+
+## Which entry point do you need?
+
+| You want to | Start here |
+| --- | --- |
+| Use the backend package in an application | [Documentation index](./Documentation/index.md), then [Architecture](./Documentation/architecture.md) |
+| Give a repository the rules, agents, prompts, and skills | [Managed installation](#managed-installation) below |
+| Use the corpus from a single harness | [Native plugins](#native-plugins) below |
+
+The rest of this README covers the corpus and its tooling.
 
 ## Repository layout
 

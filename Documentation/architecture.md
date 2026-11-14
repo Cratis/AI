@@ -15,13 +15,30 @@ LanguageModels/  the single-shot completion contract (ILanguageModel, LanguageMo
 Providers/       provider vocabulary and (once ported) vendor clients, pools, tiers, resolution
 Usage/           the usage subsystem: concepts, the event, the command, the read models
 Workers/         worker/harness scheduling contract (IWorkerRuntime) and (once ported) implementations
-Conversations/   the conversational/tool-calling API (ported from Studio's ChatClient) - not yet started
+Conversations/   the conversational API: IAIChatClients hands out pooled IChatClients (multi-turn, streaming, tool calls)
 Configuration/   AddCratisAI() and the builder consumers configure seams through
 ```
 
 Each layer only depends on the ones above it in this list. `Abstractions/` has no dependency on
-anything else in the package; `Conversations/` (once it exists) will depend on `Providers/` for
-resolution the same way `LanguageModels/` already does.
+anything else in the package; `Conversations/` depends on `Providers/` for
+resolution the same way `LanguageModels/` does.
+
+### Conversations
+
+`IAIChatClients.For(purpose)` returns a Microsoft.Extensions.AI `IChatClient` whose provider is
+resolved per call from the agent behind the purpose: an explicit provider is used directly, and a
+pool dispatches to its least-burnt member. `For(purpose, ChatAgentTarget)` does the same for an agent
+the caller defines. Each call goes through the provider concurrency gate, a 429 parks the provider
+through the rate-limit cooldown, and tokens spent are recorded as agent usage.
+
+Failover has boundaries. A streaming call can move to another pool member only until its first update
+arrives; after that a failure is surfaced to the caller. A Claude Code turn also stops failing over
+once the caller's function invocation has been attempted, even if the tool failed, because its effects
+may already have happened. The package does not replay arbitrary effects. See
+[`provider-capacity.md`](./provider-capacity.md) for how pools rank and skip members.
+
+This describes the package. It does not say every consumer has moved its conversations onto it;
+[`migration-status.md`](./migration-status.md) records what remains.
 
 ## Why Abstractions comes first
 
