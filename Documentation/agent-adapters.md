@@ -42,10 +42,54 @@ and goes stale, and generation refuses an agent that carries one. Each agent dec
   than the author where the harness can select one (see `review-reports.md`).
 
 Corpus verification fails an agent without a valid `modelTier`. The harness or product
-binds a tier to a concrete model; the corpus does not. Bind it with a `model:` in a
-project-level override of the agent: `.pi/agents/<name>.md` for Pi, `.claude/agents` for
-Claude Code, and the agent override for OpenCode (`provider/model`). The Pi subagent
-extension does not resolve a tier on its own yet.
+binds a tier to a concrete model; the corpus does not. Other harnesses bind models through
+their own overrides: `.claude/agents` for Claude Code and the agent override for OpenCode
+(`provider/model`). External Pi loaders follow their own model-selection rules.
+
+### Cratis Pi subagent configuration
+
+The Cratis `subagent` extension resolves models in this order:
+
+1. An explicit `model:` in a user or project agent override (for example,
+   `.pi/agents/<name>.md`). This wins even when unavailable or on the author's provider.
+2. The agent's `modelTier` in your user-owned `<getAgentDir()>/cratis-models.json`
+   (normally `~/.pi/agent/cratis-models.json`; Pi's agent-directory override also applies).
+3. The dispatching session's model when no tier candidate is available.
+
+For example, using illustrative provider/model names rather than a model recommendation:
+
+```json
+{
+  "schemaVersion": "1.0",
+  "tiers": {
+    "scoped": "provider-a/small-model",
+    "strongest": "provider-a/large-model",
+    "reviewer": ["provider-b/review-model", "provider-a/review-model"]
+  }
+}
+```
+
+Each tier accepts a string or an ordered list of `provider/id` candidates. Tier candidates
+are filtered using Pi's available models. For `reviewIndependence: different-provider`,
+the first available candidate whose provider differs from the dispatching session wins.
+Provider identity is the prefix before the first slash. An explicit `model:` is never
+replaced by tier resolution.
+
+If independence is impossible, the reviewer still runs on the first available tier
+candidate, or on the session model if none is available. The result is marked
+`single-provider` and includes a visible warning that the review is **not independent**.
+An explicit same-provider reviewer override gets the same warning. Warnings appear in
+tool output in single, chain and parallel modes, and once per dispatch in an interactive
+session. Only ordinary session-model inheritance carries the session's thinking level;
+explicit selections, tier selections and reviewer fallbacks do not.
+
+Keep this optional configuration in your user agent directory, not in the corpus or
+`.cratis/ai.json`: it reflects your model access and cost choices. It survives repository
+`cratis ai install` updates, which manage repository files, not this user-owned file.
+Missing configuration preserves session-model inheritance; reviewers still warn when not
+independent. Invalid JSON, unsupported schema versions (only `1.x` is supported), invalid
+known-tier mappings and files larger than 64 KiB are ignored with a dispatch warning.
+Unknown tier keys are ignored.
 
 The `@cratis/pi` package declares its generated agent directory through
 `pi.subagents.agents` for external loaders that support package resources.

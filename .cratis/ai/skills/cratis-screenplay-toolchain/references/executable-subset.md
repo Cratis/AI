@@ -344,7 +344,9 @@ query with PLAY0268 and leave the whole model unbound. Everything else binds as 
 execute: reducer transitions, rule predicates, command and concept code validation, policy
 predicates and reaction effects. Reaction effects bind only when the trigger has no
 `reads`; a trigger with `reads` plus a `file` or inline effect fails binding. Reaction
-bodies still leave their owner non-executable.
+bodies still leave their owner non-executable, unless the host supplies a body execution provider for a
+standalone single-event reaction body (Requires Screenplay 4.258.0; see
+[reaction bodies](../../cratis-screenplay-captures-and-reactions/references/reaction-forms.md#reaction-bodies-run-through-a-host-provider)).
 
 - A `file` constraint **never binds**: PLAY0268 "file implementation is not admitted by
   the executable model". Chronicle file constraints
@@ -371,13 +373,17 @@ bodies still leave their owner non-executable.
 - Stage admits only pure reducer bodies (Roslyn allowlist, STAGE-ESM-019 and 022);
   code validation is refused (STAGE-ESM-005). Opaque pure policies render.
 - The reference runner returns Unsupported for the opaque bodies that do bind (rule and
-  policy predicates, code validation, reducer transitions); a specification that needs one
-  never passes. Attached handlers and file constraints (and reaction effects on a trigger with
-  `reads`) are different: under strict binding (`ISemanticModelCompiler.Compile`) they leave the
-  whole model unbound, so no specification runs at all.
-- **Admissible compilation is narrower than that.** `CompileAdmissible` (the opt-in
-  `IAdmissibleSemanticModelCompiler`) binds the supported subset of a source-valid application
-  and lists what it removed in `Exclusions`. A top-level `trigger` that fails to bind is excluded
+  policy predicates, code validation, reducer transitions) when no host body execution provider
+  is supplied (the standalone tool supplies none); a specification that needs one never passes.
+  A host can opt in: [host body execution](../../cratis-screenplay-specifications/references/host-body-execution.md). Attached handlers and file constraints (and reaction effects on a trigger with
+  `reads`) are different: under strict binding (`ISemanticModelCompiler.Compile`, which the standalone
+  tool uses) they leave the whole model unbound, so no specification runs at all.
+- **Admissible compilation is narrower than that.** `CompileAdmissible` (the opt-in host API
+  `IAdmissibleSemanticModelCompiler`; Requires Screenplay 4.254.0 or later) binds the supported
+  subset of a source-valid application and lists what it removed in `Exclusions`: refused
+  specifications, slices, imports and policies, each with a typed `Cause` (`Root` or `Dependent`)
+  and `DependsOn`. Security dependencies fail closed: a refused policy or protected read removes
+  everything it protects. It does not establish runtime identity safety. A top-level `trigger` that fails to bind is excluded
   (kind `Trigger`, cause `Root`, carrying the original binder diagnostic; it has no code of its own).
   The reactions and specifications it sets off stop binding and are excluded on later passes as
   `Dependent` exclusions whose `DependsOn` names the trigger. Independent slices stay in the

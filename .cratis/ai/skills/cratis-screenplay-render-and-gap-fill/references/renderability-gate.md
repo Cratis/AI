@@ -8,7 +8,10 @@ probe reports and choosing what to do. Do not copy the code table here.
 
 ## Pipeline that produces the codes
 1. The CLI compiles and binds the **whole** model with its **bundled** Screenplay (the ESM level it renders is bounded by the bundle; older bundles bound less). Binding is never scoped:
-   any binding error blocks even a `--scope` render. Binding errors are `PLAY0268` (outside the admitted vertical), `PLAY0269`
+   any binding error blocks even a `--scope` render. That is strict `Compile` and the standalone tool;
+   a host that opts in to `CompileAdmissible` (Requires Screenplay 4.254.0) excludes the refused
+   specifications, slices, imports and policies and reports them instead, which does not establish
+   runtime identity safety. Binding errors are `PLAY0268` (outside the admitted vertical), `PLAY0269`
    (deferred), `PLAY0270` (report-only information), `PLAY0271` (legacy semantics) and `PLAY0273`
    (a specification shape). A file/inline command handler without unconditional `produces`
    or a resolved body instead reports PLAY0800 (`CommandHandlerRequiresAttachment`); beside

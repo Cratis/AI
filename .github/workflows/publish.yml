@@ -144,6 +144,7 @@ jobs:
       - name: Run entrypoint fixtures
         run: bash Source/AgentHarnesses/run-entrypoint-fixtures.sh
 
+  # Drift is advisory; releases verify against the pinned Screenplay contract.
   screenplay-sync:
     name: Compare the published Screenplay contract
     if: github.event_name == 'repository_dispatch' || github.event_name == 'schedule'
@@ -509,6 +510,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@594f3bf4285d9ea8dc53c9a0c9c4092420091003 # v4.4.0
@@ -521,13 +524,19 @@ jobs:
 
       # Each derivative uses the base just pushed for its own architecture. Only the merge job
       # updates public version/latest tags, after all eight architecture-specific builds succeed.
+      # Each build records the pushed digest (--metadata-file); the merge job merges by those
+      # digests, not by the mutable $VERSION-$ARCH tags. --provenance=false keeps the pushed result
+      # a plain image manifest, so the two per-architecture digests merge into one flat index
+      # instead of nesting attestation indexes.
       - name: Build and push the base image
         env:
           VERSION: ${{ needs.release.outputs.version }}
           ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
-          scripts/docker-build-push-retry.sh --push --platform "linux/$ARCH" \
+          mkdir -p "$RUNNER_TEMP/digests"
+          scripts/docker-build-push-retry.sh --push --provenance=false --platform "linux/$ARCH" \
+            --metadata-file "$RUNNER_TEMP/digests/ai-agents-$ARCH.json" \
             --file Source/AgentHarnesses/Dockerfile.base \
             --tag "cratis/ai-agents:$VERSION-$ARCH" Source/AgentHarnesses
 
@@ -538,11 +547,41 @@ jobs:
         run: |
           set -euo pipefail
           for harness in claude pi copilot; do
-            scripts/docker-build-push-retry.sh --push --platform "linux/$ARCH" \
+            scripts/docker-build-push-retry.sh --push --provenance=false --platform "linux/$ARCH" \
+              --metadata-file "$RUNNER_TEMP/digests/ai-agents-$harness-$ARCH.json" \
               --file "Source/AgentHarnesses/Dockerfile.$harness" \
               --build-arg "BASE_IMAGE=cratis/ai-agents:$VERSION-$ARCH" \
               --tag "cratis/ai-agents-$harness:$VERSION-$ARCH" Source/AgentHarnesses
           done
+
+      - name: Record the pushed image digests
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/digests"
+          count=0
+          for metadata in ai-agents*-"$ARCH".json; do
+            digest=$(jq -r '.["containerimage.digest"] // empty' "$metadata")
+            case "$digest" in
+              sha256:*) ;;
+              *) echo "::error::No image digest recorded in $metadata"; exit 1 ;;
+            esac
+            echo "$digest" > "${metadata%.json}.txt"
+            count=$((count + 1))
+          done
+          if [ "$count" -ne 4 ]; then
+            echo "::error::Expected 4 image digests for $ARCH, found $count"
+            exit 1
+          fi
+
+      - name: Upload the pushed image digests
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: harness-digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*.txt
+          if-no-files-found: error
+          retention-days: 1
 
   publish-agent-harnesses:
     timeout-minutes: 15
@@ -562,22 +601,75 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Download the pushed image digests
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: harness-digests-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/digests
+
+      # Two phases, because a moved :latest is public and cannot be rolled back. Phase 1 creates and
+      # verifies the :VERSION manifest of all four images; only when every one is proven does
+      # phase 2 move :latest. A failure in phase 1 therefore leaves :latest untouched for every
+      # image. Manifests are built from the digests the architecture jobs pushed, never from the
+      # mutable $VERSION-$ARCH tags, and every registry call is retried like the build wrapper.
       - name: Publish and verify multi-architecture manifests
         env:
           VERSION: ${{ needs.release.outputs.version }}
           PRERELEASE: ${{ needs.release.outputs.prerelease }}
+          DIGESTS: ${{ runner.temp }}/digests
         run: |
           set -euo pipefail
-          for image in ai-agents ai-agents-claude ai-agents-pi ai-agents-copilot; do
-            tags=(--tag "cratis/$image:$VERSION")
-            if [ "$PRERELEASE" != "true" ]; then
-              tags+=(--tag "cratis/$image:latest")
-            fi
-            docker buildx imagetools create "${tags[@]}" \
-              "cratis/$image:$VERSION-amd64" "cratis/$image:$VERSION-arm64"
-            docker buildx imagetools inspect --raw "cratis/$image:$VERSION" \
-              | jq -e '[.manifests[].platform | select(.os == "linux") | .architecture] | sort == ["amd64", "arm64"]'
+          images=(ai-agents ai-agents-claude ai-agents-pi ai-agents-copilot)
+
+          retry() {
+            local attempt
+            for attempt in 1 2 3; do
+              if "$@"; then return 0; fi
+              if [ "$attempt" -lt 3 ]; then
+                echo "::warning::Attempt $attempt of 3 failed: $*"
+                sleep "${RETRY_DELAY:-15}"
+              fi
+            done
+            echo "::error::Failed after 3 attempts: $*"
+            return 1
+          }
+
+          digest() {
+            local file="$DIGESTS/$1-$2.txt" value
+            [ -f "$file" ] || { echo "::error::Missing digest file $file" >&2; return 1; }
+            value=$(cat "$file")
+            case "$value" in
+              sha256:*) echo "$value" ;;
+              *) echo "::error::Invalid digest in $file" >&2; return 1 ;;
+            esac
+          }
+
+          verify() {
+            docker buildx imagetools inspect --raw "$1" \
+              | jq -e '(.manifests | length) == 2 and ([.manifests[].platform | select(.os == "linux") | .architecture] | sort == ["amd64", "arm64"])'
+          }
+
+          # Fail before any registry call when a digest is missing or malformed.
+          for image in "${images[@]}"; do
+            digest "$image" amd64 > /dev/null
+            digest "$image" arm64 > /dev/null
           done
+
+          # Phase 1: create and verify every :VERSION manifest.
+          for image in "${images[@]}"; do
+            retry docker buildx imagetools create --tag "cratis/$image:$VERSION" \
+              "cratis/$image@$(digest "$image" amd64)" "cratis/$image@$(digest "$image" arm64)"
+            retry verify "cratis/$image:$VERSION"
+          done
+
+          # Phase 2: move :latest from the same digests, never for a prerelease.
+          if [ "$PRERELEASE" != "true" ]; then
+            for image in "${images[@]}"; do
+              retry docker buildx imagetools create --tag "cratis/$image:latest" \
+                "cratis/$image@$(digest "$image" amd64)" "cratis/$image@$(digest "$image" arm64)"
+            done
+          fi
 
   # Publishes the shared Decision Engine image to Docker Hub. Infrastructure deploys this by tag
   # and nothing else builds it, so without this job a Decision Engine deployment would reference an

@@ -28,7 +28,7 @@ reference execution. Use `screenplay test` or MCP `run-specifications` for V4; S
 tests are separate evidence. Propose → review → `run-specifications` with `proposalId` → apply.
 PLAY0285 (an impossible `then`) unbinds the whole model and blocks every spec.
 Unsupported/unbound is never a pass. Typed examples and
-route assertions are in [examples and routes](references/examples-and-routes.md).
+routes: [examples](references/examples-and-routes.md); [producerless events](references/producerless-events.md).
 
 Requires Screenplay 4.145.0 or later (`screenplay --version`) for `run-specifications` with `proposalId`.
 
@@ -98,21 +98,18 @@ or target tests; name engine, version and expected/discovered selection.
   UnsupportedValidation, not a successful check. Read
   [text and match rules](../cratis-screenplay-command-surface/references/text-and-match-rules.md)
   for boundary values and PLAY0699/0787. Reference success is not Stage admission.
+- Opaque rule, validation and reducer bodies run only when a host supplies a body execution
+  provider; the standalone tool never does. Read
+  [host body execution](references/host-body-execution.md).
 
 ## Chronological command date comparisons
 
 Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`); older binders refuse
-these comparisons with PLAY0268. DateTime conditions compare UTC instants at tick
-precision: cover equal instants with different offsets, increasing endpoints,
-an inverted interval and a one-tick boundary. Every participating DateTime input
-without an offset or `Z` rejects with Validation before rules, even when its
-comparison is skipped; add a missing-offset rejection, not a clock fixture workaround.
-`then` matching stays ordinal: expected event values keep the exact produced text,
-not an equivalent offset. Read the complete [retention-window specifications](../cratis-screenplay-command-surface/references/date-comparisons.md)
-for `require to >= from`, PLAY0268/0273 and Stage's v26 refusal. The missing-offset
-runtime case needs an evaluator-request or target input test: putting the invalid
-value in a typed `.play` fixture instead fails binding with PLAY0273; `then error`
-does not exercise runtime validation.
+these comparisons with PLAY0268.
+
+DateTime conditions compare UTC instants at tick precision, and an input without an
+offset rejects with Validation before rules. Read [date comparisons](references/date-comparisons.md)
+for the cases to cover, ordinal `then` matching and the runtime-validation test.
 
 ## Descriptions, persona callers and case tables
 
