@@ -162,6 +162,50 @@ describe('when verifying a corpus with an injected runner', () => {
         assert.ok(result.problems.some(problem => problem.includes('selects no fences')));
         assert.ok(result.problems.some(problem => problem.includes('no play-compiles assertion')));
     }));
+    it('should report invalid selectors, uncovered fences and empty selection before invoking a tool', async () => withCorpus(async (root, skill) => {
+        await writeFile(join(skill, 'verification.json'), JSON.stringify({ skill: 'wrong', assertions: [{ kind: 'play-compiles', value: '../escape.md' }, { kind: 'play-compiles', value: 'missing.md' }] }));
+        const calls: string[][] = [];
+        const result = await verifyPlayExamples(root, async (_tool, arguments_) => { calls.push(arguments_); return cleanCompile; }, {});
+        assert.deepEqual(calls, []);
+        assert.deepEqual(result.problems, [
+            '.cratis/ai/skills/cratis-screenplay-example/SKILL.md:1 has no play-compiles assertion covering it in cratis-screenplay-example/verification.json.',
+            'No Screenplay example was selected for compilation; play-compiles would pass vacuously.',
+            'cratis-screenplay-example/verification.json must identify its own skill for play-compiles.',
+            "cratis-screenplay-example/verification.json play-compiles selector 'missing.md' selects no fences.",
+            'cratis-screenplay-example/verification.json play-compiles value must be a skill-relative Markdown path, optionally #fence-number; omit it for all fences.'
+        ]);
+        assert.equal(result.outcome, Outcome.Defects);
+    }));
+    it('should select numbered Markdown parents and reject incomplete parent fences without compiling them', async () => withCorpus(async (root, skill) => {
+        await writeFile(join(skill, 'parent.md'), '```screenplay excerpt\ncommand Excerpt\n```\n```screenplay\nmodule Example\n  // @excerpt\n```');
+        await writeFile(join(skill, 'SKILL.md'), '```screenplay excerpt parent=parent.md#2\ncommand Example\n```\n```screenplay excerpt parent=parent.md#1\ncommand Example\n```');
+        await writeFile(join(skill, 'verification.json'), JSON.stringify({ skill: 'cratis-screenplay-example', assertions: [{ kind: 'play-compiles', value: 'SKILL.md' }, { kind: 'play-compiles', value: 'parent.md#1' }, { kind: 'play-compiles', value: 'parent.md#2' }] }));
+        const sources: string[] = [];
+        const inspected: Runner = async (tool, arguments_, directory) => {
+            if (arguments_[0] !== '--version') sources.push(await readFile(arguments_[0], 'utf8'));
+            return runner(tool, arguments_, directory);
+        };
+        const result = await verifyPlayExamples(root, inspected, {});
+        assert.deepEqual(sources.sort(), ['module Example\n  // @excerpt\n', 'module Example\n  command Example\n'].sort());
+        assert.deepEqual(result.problems, ['.cratis/ai/skills/cratis-screenplay-example/SKILL.md:4: Error: Parent must select a complete, valid Screenplay fence.']);
+        assert.deepEqual(result.skipped, [{ location: '.cratis/ai/skills/cratis-screenplay-example/parent.md:1', reason: 'excerpt has no declared parent' }]);
+        assert.equal(result.compiled, 2);
+    }));
+    it('should account for expected failures and unbound fences that cannot run specifications', async () => withCorpus(async (root, skill) => {
+        await writeFile(join(skill, 'SKILL.md'), '```screenplay expect PLAY0123\nmodule Example\n```\n```screenplay excerpt parent=parent.play test=unbound\ncommand Example\n```');
+        await writeFile(join(skill, 'parent.play'), 'module Example\n  // @excerpt\n');
+        const expected: Runner = async (tool, arguments_, directory) => {
+            if (arguments_[0] === '--version') return runner(tool, arguments_, directory);
+            const source = await readFile(arguments_[0], 'utf8');
+            return source === 'module Example\n' ? { exit: 1, output: 'error PLAY0123: expected error\n' } : cleanCompile;
+        };
+        const result = await verifyPlayExamples(root, expected, {});
+        assert.equal(result.compiled, 2);
+        assert.equal(result.expectedDiagnostics, 1);
+        assert.equal(result.expectedFailure, 1);
+        assert.equal(result.unbound, 0);
+        assert.deepEqual(result.problems, ['.cratis/ai/skills/cratis-screenplay-example/SKILL.md:4: test=unbound did not run specifications.']);
+    }));
     it('should compile the inserted source and enforce an expected unbound result', async () => withCorpus(async (root, skill) => {
         await writeFile(join(skill, 'parent.play'), 'module Example\n  // @excerpt\n');
         await writeFile(join(skill, 'SKILL.md'), '```screenplay excerpt parent=parent.play test=unbound\nspecification Example\n```');

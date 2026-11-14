@@ -375,8 +375,18 @@ standalone single-event reaction body (Requires Screenplay 4.258.0; see
 - The reference runner returns Unsupported for the opaque bodies that do bind (rule and
   policy predicates, code validation, reducer transitions); a specification that needs one
   never passes. Attached handlers and file constraints (and reaction effects on a trigger with
-  `reads`) are different: they leave the whole model unbound, so no specification runs at
-  all.
+  `reads`) are different: under strict binding (`ISemanticModelCompiler.Compile`) they leave the
+  whole model unbound, so no specification runs at all.
+- **Admissible compilation is narrower than that.** `CompileAdmissible` (the opt-in
+  `IAdmissibleSemanticModelCompiler`) binds the supported subset of a source-valid application
+  and lists what it removed in `Exclusions`. A top-level `trigger` that fails to bind is excluded
+  (kind `Trigger`, cause `Root`, carrying the original binder diagnostic; it has no code of its own).
+  The reactions and specifications it sets off stop binding and are excluded on later passes as
+  `Dependent` exclusions whose `DependsOn` names the trigger. Independent slices stay in the
+  model. A trigger declared more than once, or named `Startup` or `Shutdown`, is not pruned.
+  Requires Screenplay 5.2.0 (`screenplay --version`); earlier compilers drop the whole model for
+  one failing trigger. The strict path, and a host that calls only `Compile`, still refuse the
+  whole model, so name which compiler a result came from.
 
 ## Refused (code, reason): fix, or record as a mode gap
 
