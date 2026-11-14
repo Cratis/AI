@@ -88,7 +88,7 @@ Independent results, not a ladder. Read `references/verdicts.md` for the command
 | --- | --- | --- |
 | V1 | authorable (compiles, warnings as errors) | the folder command above |
 | V2 | executable diagnostics read | MCP `open-workspace`, then `read-workspace view=executable-diagnostics` |
-| V3 | binding-ready (binds, no blocking executable diagnostics) | `executableReady` true and no error-severity diagnostic in V2; informational PLAY0269/0270 are reported separately |
+| V3 | binding-ready (binds, no blocking executable diagnostics) | `executableReady` true and no error-severity diagnostic in V2; informational PLAY0269/0270 are reported separately; screens are deferred by default and admitted on request as ESM v42 (`export --screens`) |
 | V4 | reference specifications run | `screenplay test` or MCP `run-specifications`; unsupported/unbound is not a pass; rendered Debug tests are V5.tests, never V4 |
 | V5 | rendered and target-verified | `cratis render`, then Debug build and tests; report admission, publication, build and tests separately |
 

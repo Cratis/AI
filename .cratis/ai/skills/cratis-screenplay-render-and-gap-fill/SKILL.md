@@ -218,6 +218,7 @@ whole re-render. What to do:
   proof of a rendered screen: check the running app (`cratis-screenplay-toolchain` `references/fast-path.md`)
   and list any authored screen that is missing as not rendered.
 - `screenplay diff <before> <after> --format json` finds what changed between two model versions; `screenplay export --scope <slice>` hands one slice's ESM to a builder ([CLI reference](../cratis-screenplay-toolchain/references/model-export-diff-rename.md)).
+- A builder for another stack can read screens from an ESM v42 export (`screenplay export --screens`; .NET `UiContractBuilder.For(model)`); refresh, state, notifications and dialogs are not carried.
 - A graph query that `collect`s nested rows is ESM v54: Stage must admit v54 before it renders it. A refusal
   is a drift event, so keep the query ([graphs](../cratis-stage-rendering-and-sandbox/references/graphs.md)).
 

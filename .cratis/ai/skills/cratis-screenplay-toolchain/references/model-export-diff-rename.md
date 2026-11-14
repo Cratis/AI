@@ -8,7 +8,7 @@ Requires Screenplay 6.1.0 or later (`screenplay --version`).
 
 ## Export
 
-`screenplay export [PATH] [--format esm] [--scope <Module>[.<Feature>[.<Slice>]]] [--output <path>]`
+`screenplay export [PATH] [--format esm] [--screens] [--scope <Module>[.<Feature>[.<Slice>]]] [--output <path>]`
 
 - `esm` (the default) writes the executable semantic model, byte-identical to `SemanticModelSerializer.Serialize`, including `schemaVersion` and `revision`. `PATH` defaults to the current folder; without `--output` the bytes go to stdout; an identical existing file is left untouched.
 - `--scope` keeps one module, feature or slice plus the application-wide declarations (concepts, types, policies, triggers, event sources, lifecycles, graphs). The excerpt's `revision` identifies the excerpt.
@@ -16,8 +16,16 @@ Requires Screenplay 6.1.0 or later (`screenplay --version`).
 | Exit | Meaning |
 | --- | --- |
 | 0 | Written |
-| 1 | No executable model for the sources |
+| 1 | No executable model for the sources, or `--screens` refused |
 | 2 | Invalid arguments or scope, or unreadable sources |
+
+### Screens in the export
+
+Requires Screenplay 6.8.0 or later (`screenplay --version`). Screens are deferred from the executable model by default (`PLAY0269`, information) and an export keeps its version and bytes. `screenplay export --screens` (ESM format only; with another format it is rejected) admits them as ESM v42 (language and semantic `42.0`, `schemaVersion: 42`); a screen that places an extension component makes it ESM v52 and lists the extensions needed. MCP `read-workspace` with `view: "executable-model"` and `screens: true` does the same (pass it on every page so `modelRevision` stays pinned).
+
+Each slice then carries an optional final `screens` member: `id`, `name`, `title`, optional `description`, ordered `data` (query identity, optional `by`, shown `fields`), `actions` (command identity, `label`, `subject`, every command input as a property identity with optional `from`, optional `when`, optional `then` screen), `navigation` (target screen, `trigger`, optional `by`, `opens`) and a `layout` of `fits` and nested `regions`. Refresh, state, notifications and dialogs are not carried.
+
+A reference the executable model does not hold refuses admission: CLI exit 1 with the reasons on stderr, MCP `ScreensRefused`. A model without an executable model has nothing to admit. In .NET, `ExecutableScreens.Admit(workspace)` admits them and `UiContractBuilder.For(ExecutableSemanticModel)` in `Cratis.Screenplay.Ui` reads them.
 
 ## Compare two model versions
 

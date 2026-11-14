@@ -38,7 +38,7 @@ limits. These host APIs are not new `.play` syntax and do not verify UI renderin
 
 Every construct on this page is deferred from the executable model with
 information `PLAY0269`: it never blocks binding, and it is not evidence that a
-target renders it.
+target renders it. `screenplay export --screens` admits the neutral members (data, actions, navigation, layout) as ESM v42; Scene and behavior wiring are not carried.
 
 The screens-release surface adds component data-context bindings,
 exposed template configuration, package/icon catalogs, manual form columns, hierarchical slots,

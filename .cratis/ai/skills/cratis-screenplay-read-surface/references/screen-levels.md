@@ -47,5 +47,5 @@ a dropped UI construct, not as an acceptable Level 1 screen.
 selection, submit or screen entry *does* beyond that — confirm, execute, refresh,
 open a dialog, branch on success or failure — is an interaction: an inline `on`
 block or a named `behavior` attached with `uses`. See
-`cratis-screenplay-ui-composition`. Screens and interactions are deferred from the
-executable model (information `PLAY0269`); they never block binding.
+`cratis-screenplay-ui-composition`. Screens and interactions are deferred by default
+(information `PLAY0269`) and admitted on request as ESM v42 with `screenplay export --screens`; they never block binding.

@@ -33,6 +33,7 @@ exact language/semantic pairs; binding, reference execution and rendering are se
 | v34 | A specification `then invokes <Command>` (decision 0115; PLAY0815/PLAY0816) | Writes `thenInvocations` only when present. When one is stated, the slice's recorded invocations must match in count and order, comparing only stated values; a refused invocation counts | Stage spec runner compares it; the Cratis renderer refuses models after v33 with `STAGE-ESM-016` |
 | v35 | Reserved for handler result contract v2 (decision 0119); no construct selects it | | |
 | v36 | `statemachine` and `workflow` declarations (decision 0124; PLAY0834-PLAY0851) | Serializes `stateMachines` and `workflows`; specifications run them; earlier models keep their version and bytes | Stage refuses v36 models with `STAGE-ESM-016` |
+| v42 | Screens admitted on request with `screenplay export --screens` (decision 0149) | Adds optional `screens` to each slice (data, actions, navigation, layout); screens are not a version selector by default and earlier models keep their bytes | Admission by Stage is separate; screens are not evidence a target renders them |
 | v43 | `set once` or a `children` ordering line (PLAY0956-PLAY0963) | Serializes the `setOnce` operation and `ordering`; earlier models keep their version and bytes | Admission by Stage is separate; a refusal means the model is not renderable yet |
 | v53 | `audience`, `availability` and `available` gates (decision 0162; PLAY1130-PLAY1141) | Serializes the gates; specifications and the reference evaluator treat every gate as available and report opaque `provide` sources as unsupported; earlier models keep their version and bytes | Admission by Stage is separate: a refusal such as `STAGE-ESM-016` means the model is not renderable yet, never a reason to drop the gate. See `../../cratis-screenplay-availability/SKILL.md` |
 | v54 | A graph query `collect` (decision 0163; PLAY1144-PLAY1147) | Serializes the collects on the query; earlier models keep their version and bytes | Admission by Stage is separate: a refusal means the model is not renderable yet, never a reason to drop the collect. Check `cratis render` |
@@ -59,6 +60,8 @@ Requires Screenplay 4.199.0 (ESM v26; `screenplay --version`) for date compariso
 Requires Screenplay 4.204.0 (ESM v27; `screenplay --version`) for composite read-model keys; older binders report PLAY0268.
 
 Requires Screenplay 4.205.0 (ESM v28; `screenplay --version`) for Uuid equality in command conditions; older binders report PLAY0268.
+
+Requires Screenplay 6.8.0 (ESM v42; `screenplay --version`) for screens in the executable model via `export --screens`.
 
 Requires Screenplay 6.9.0 (ESM v43; `screenplay --version`) for `set once` and children ordering.
 

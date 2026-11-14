@@ -405,6 +405,8 @@ advisory.
 
 Requires Screenplay 4.153.0 or later (`screenplay --version`) for `propose-rename` to consult release-baseline mutability; before it, `propose-rename` pins the previous effective name without a baseline.
 
+`read-workspace` with `view: "executable-model"` and `screens: true` admits screens (ESM v42; Screenplay 6.8.0 or later); a reference the model does not hold is refused with `ScreensRefused`.
+
 `syntax-schema` exposes graph query collects as `GraphQuerySyntax.collects` (`GraphCollectSyntax` with `property`, `from`, `hop`, `returns`; Screenplay 6.29.0 or later, `screenplay --version`); `propose-ast` adds, replaces and removes them through the ordinary typed operations, and the member is omitted when a query collects nothing.
 
 `screenplay rename` is the scriptable, identity-preserving alternative to `propose-rename` plus `apply` (Screenplay 6.1.0 or later; see [export, compare and rename](../../cratis-screenplay-toolchain/references/model-export-diff-rename.md)).

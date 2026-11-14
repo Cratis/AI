@@ -216,7 +216,7 @@ screen InvoiceList
 `html`, `csharp`). A screen's `data` and `action` declarations are the typed context for UI
 composition: if a generated app shows a default list or empty panel because it could not consume
 one of those directives, treat that as a dropped UI construct, not an acceptable Level 1 screen.
-Screens and interactions are deferred from the executable model (information `PLAY0269`); what a
+Screens and interactions are deferred by default (information `PLAY0269`); `screenplay export --screens` admits the neutral parts as ESM v42 (data, actions, navigation, layout; never blocking binding); what a
 click or submit *does* is an interaction (`cratis-screenplay-ui-composition`). Read
 [screen levels](references/screen-levels.md) for the Level 2 example and the construct list.
 
