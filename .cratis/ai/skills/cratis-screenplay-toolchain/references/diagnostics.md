@@ -53,6 +53,7 @@ then STAGE (V5 admission). Tool differences: `../SKILL.md` ("Tool versions and t
 | PLAY0381 | projection-level `key` routes nothing | put `key` on each `from` |
 | PLAY0455 | quoted import glob matches no file | fix the glob |
 | PLAY0196/0197/0198 | unknown query/screen; ambiguous bare name | declare or qualify `Slice.Name` |
+| PLAY1142 | a projection mapping, AutoMap or reducer copies a `secret` concept into a read model (Screenplay 6.28.0+) | leave it out or map a non-secret derived value |
 
 ## Source reference and identifier checks
 
@@ -62,6 +63,7 @@ These are V1 source checks, not binding-only gaps:
 | --- | --- | --- |
 | PLAY0514 | W | Projection mapping, children or nested target absent from the declared read-model/element shape; unknown/imported shapes are not guessed |
 | PLAY0166 | W | Unknown event, including `remove with`, `remove via join on` and capture `append` |
+| PLAY1142 | W | Projection or reducer copies a `secret` (incl. `pii secret`) concept into a read-model property; no automatic repair (Screenplay 6.28.0+) |
 | PLAY0515 | E | Personal/secret concept in a command identifier, typed `for` destination, event-source identity, stream-id type/part or route mapping source (including nested paths); keep a surrogate identity and protected data in payload |
 
 Legacy compliance spellings (`@pii`/`@sensitive`) do not evade PLAY0515.

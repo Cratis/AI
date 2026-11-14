@@ -273,6 +273,11 @@ of a document a reader cannot check at a glance.
 
 Read [pdl-grammar.md](references/pdl-grammar.md) when checking exact syntax, interpreting a projection diagnostic code, or needing a worked example.
 
+## Secret concepts and read models
+
+A `secret` concept copied into a read-model property (explicit mapping, AutoMap or reducer) raises warning
+`PLAY1142`. Read [secret concepts](references/secret-concepts.md) before projecting a protected event value.
+
 ## `STAGE-ESM-017` passes `validate` and fails at `render`
 
 `validate --executable` binds only Screenplay's model; Stage's admission runs only in `render`.
