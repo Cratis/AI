@@ -266,7 +266,7 @@ test('the Pi package filters rules for framework CSharp documentation repositori
         assert.ok(rulesForPath(project, 'Documentation/page.md').some(rule => /# How to write documentation/.test(rule.content)));
         // Shared file concerns reach source paths regardless of the selected implementation language;
         // language-specific TypeScript conventions remain excluded.
-        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['code-quality.md', 'framework.md', 'glossary.md']);
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['code-health.md', 'code-quality.md', 'framework.md', 'glossary.md']);
         for (const name of ['framework.md', 'code-quality.md', 'glossary.md']) assert.ok(!universalRules(project).some(rule => rule.name === name));
     } finally {
         rmSync(project, { recursive: true, force: true });
@@ -284,7 +284,7 @@ test('packaged Pi delivers unchanged work-artifact safety at C#-only session sta
         assert.ok(!rulesForPath(project, '.ai-work/815/handover.md').some(rule => rule.name === 'local-work-artifacts.md'), 'universal safety is already delivered, not deferred to a path read');
         const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
         assert.ok(result.systemPrompt.includes(safety), 'the actual packaged startup handler delivers the entire safety rule');
-        for (const text of ['`.ai-work/`', 'A session prompt or handover states when it is valid.', 'Check the preconditions before acting on a prompt.', 'A worktree is a work record too.', 'cratis-cleanup-worktrees.sh', 'locked worktrees are always kept', 'Never `--force` a removal']) {
+        for (const text of ['`.ai-work/`', 'A session prompt or handover states when it is valid.', 'Check the preconditions before acting on a prompt.', 'A worktree is a work record too.', '$HOME/.worktrees/<name>', 'cratis-cleanup-worktrees.sh', 'locked worktrees are always kept', 'Never `--force` a removal']) {
             assert.ok(result.systemPrompt.includes(text), text);
         }
         assert.doesNotMatch(result.systemPrompt, /# How to write documentation/);
@@ -326,12 +326,12 @@ test('path-scoped rules from the packaged corpus follow the selected languages a
 
         configure({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] });
         assert.ok(rulesForPath(project, 'Source/Thing.cs').length > 0, 'csharp is selected');
-        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['code-quality.md', 'framework.md', 'glossary.md'], 'only shared source concerns reach TypeScript in a csharp-only repository');
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.ts').map(rule => rule.name), ['code-health.md', 'code-quality.md', 'framework.md', 'glossary.md'], 'only shared source concerns reach TypeScript in a csharp-only repository');
         assert.deepEqual(rulesForPath(project, 'Documentation/page.md').map(rule => rule.name), ['glossary.md'], 'shared terminology reaches documentation, but documentation-specific rules require cratis/documentation');
 
         configure({ profiles: ['cratis/engineering/typescript', 'cratis/documentation'], languages: ['typescript'] });
         assert.ok(rulesForPath(project, 'Source/Thing.ts').length > 0, 'typescript is selected');
-        assert.deepEqual(rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name), ['code-quality.md', 'framework.md', 'glossary.md'], 'only shared source concerns reach C# in a typescript-only repository');
+        assert.deepEqual(rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name), ['code-health.md', 'code-quality.md', 'framework.md', 'glossary.md'], 'only shared source concerns reach C# in a typescript-only repository');
         assert.ok(rulesForPath(project, 'Documentation/page.md').length > 0, 'cratis/documentation is selected');
 
         rmSync(join(project, '.cratis', 'ai.json'));
@@ -411,7 +411,7 @@ test('Go rules match source and module files only for selected Go languages', ()
         assert.ok(!managedRules(project).some(rule => ['go.md', 'go-engineering.md'].includes(rule.name)));
         // Shared source/manifests guidance now reaches these paths; dedicated Go conventions remain excluded.
         for (const path of paths) {
-            const shared = path.endsWith('.go') ? ['code-quality.md', 'framework.md', 'glossary.md'] : path.endsWith('go.mod') ? ['framework.md'] : [];
+            const shared = path.endsWith('.go') ? ['code-health.md', 'code-quality.md', 'framework.md', 'glossary.md'] : path.endsWith('go.mod') ? ['framework.md'] : [];
             assert.deepEqual(rulesForPath(project, path).map(rule => rule.name), shared, path);
         }
     } finally {
@@ -443,7 +443,7 @@ test('Go profile composition keeps Arc HTTP and Chronicle client skills separate
     assert.ok(!csharp.includes('cratis-chronicle-client-go'));
 });
 
-const arcTypeScriptServerSkills = ['cratis-arc-command-typescript', 'cratis-arc-query-typescript', 'cratis-arc-validation-typescript'];
+const arcTypeScriptServerSkills = ['cratis-arc-command-typescript', 'cratis-arc-query-typescript', 'cratis-arc-validation-typescript', 'cratis-arc-tenancy-typescript', 'cratis-arc-storage-typescript', 'cratis-arc-testing-typescript', 'cratis-arc-code-analysis-typescript'];
 
 function resolvedSkills(configuration: { profiles: string[]; languages?: string[] }): (string | undefined)[] {
     const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));

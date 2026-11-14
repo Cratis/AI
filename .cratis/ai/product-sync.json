@@ -76,8 +76,11 @@
           "cratis-arc-command-execution",
           "cratis-arc-command-operation",
           "cratis-arc-command-validation",
+          "cratis-arc-configuration",
           "cratis-arc-ef-core-migration",
           "cratis-arc-hosting",
+          "cratis-arc-mcp",
+          "cratis-arc-neo4j",
           "cratis-arc-observable-query-http",
           "cratis-arc-query-paging",
           "cratis-arc-react-page",
@@ -179,6 +182,7 @@
         "skills": [
           "cratis-application-slice-conformance",
           "cratis-screenplay-automations-and-translations",
+          "cratis-screenplay-availability",
           "cratis-screenplay-captures-and-reactions",
           "cratis-screenplay-command-surface",
           "cratis-screenplay-delivery-planning",
@@ -297,6 +301,7 @@
           "cratis-chronicle-cli-operations",
           "cratis-chronicle-client-dotnet",
           "cratis-chronicle-compliance",
+          "cratis-chronicle-configuration",
           "cratis-chronicle-decision-reads",
           "cratis-chronicle-event-constraints",
           "cratis-chronicle-event-modeling",
@@ -324,6 +329,32 @@
         "rules": []
       },
       "notes": "Reviewed all 60 stable releases 19.82.0-19.110.1 against tagged v19.110.1 source: append uncertainty and constraint-index repair, .NET keyed appends and multi-scope guards, request completion ownership, concurrent reactor/reducer partitions and returned-event receipts, projection replay/upgrade repairs, seeded scenarios, SQL/composite indexes, SQL membership/schema ownership, Localhost single-writer fencing, health probes, Azure identity/Key Vault purge, webhook target validation/retries/managed identity/real-delivery probes, and disabled-by-default projection-generation groundwork. 19.110.0 .NET packages were not published; use 19.110.1. Other covered skills were reviewed for release relevance without mechanical changes. Existing protected-read guidance retained. No new kernel/transport probe or capability."
+    },
+    {
+      "id": "arc-elixir",
+      "name": "Arc.Elixir",
+      "repository": "Cratis/Arc.Elixir",
+      "packages": [
+        {
+          "ecosystem": "hex",
+          "id": "cratis_arc"
+        },
+        {
+          "ecosystem": "hex",
+          "id": "cratis_arc_mongodb"
+        }
+      ],
+      "synced": null,
+      "covers": {
+        "skills": [
+          "cratis-arc-elixir"
+        ],
+        "rules": [
+          "elixir.md"
+        ]
+      },
+      "coverage": "tracked",
+      "notes": "Initial skill for the source preview (Cratis/Arc.Elixir#11): commands, queries, SSE and WebSocket hubs with delta transfer, tenancy, filters, MongoDB, identity, proxies and vertical slices. Not yet published to Hex: pin a git ref."
     },
     {
       "id": "arc-go",
@@ -883,7 +914,6 @@
       "id": "arc-typescript",
       "name": "Arc.TypeScript",
       "repository": "Cratis/Arc.TypeScript",
-      "track": "prerelease",
       "packages": [
         {
           "ecosystem": "npm",
@@ -891,19 +921,23 @@
         }
       ],
       "synced": {
-        "version": "0.57.2",
-        "date": "2026-10-12",
-        "by": "Cratis/AI#620"
+        "version": "1.0.0",
+        "date": "2026-11-05",
+        "by": "Cratis/AI#1035"
       },
       "covers": {
         "skills": [
           "cratis-arc-command-typescript",
           "cratis-arc-query-typescript",
-          "cratis-arc-validation-typescript"
+          "cratis-arc-validation-typescript",
+          "cratis-arc-tenancy-typescript",
+          "cratis-arc-storage-typescript",
+          "cratis-arc-testing-typescript",
+          "cratis-arc-code-analysis-typescript"
         ],
         "rules": []
       },
-      "notes": "Synced to GitHub pre-release v0.57.2 source in Cratis/AI#620; tracks pre-release tags and does not claim npm publication."
+      "notes": "Packages are published to npm as stable 1.0.0; the skills cover hosting adapters, authentication, tenancy, validation, MongoDB, Drizzle, Chronicle, testing, proxy generation and the ESLint plugin."
     }
   ]
 }

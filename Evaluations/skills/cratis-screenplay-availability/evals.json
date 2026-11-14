@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-screenplay-availability",
+  "evals": [
+    {
+      "id": 1,
+      "name": "package-gate-not-policy",
+      "prompt": "In a Screenplay model the Data Quality feature must exist only for tenants that bought the Plus package, and a Preview rollout group should also see its QualityScores view. A teammate proposes a policy `PlusOnly` with `authorize PlusOnly` on the feature. Explain what is wrong and show the model change. Give the code in your reply; do not write files.",
+      "expected_output": "Whether a part exists for a tenant is availability, not authorization: declare `audience Plus` and `audience Preview` with descriptions, gate the feature with `available for Plus` (or an `availability` block used with `available with`) and the slice with `available for Plus or Preview`. The model never lists members. An unavailable part is refused as NotAvailable before authorize. Unknown never opens a gate.",
+      "assertions": [
+        "Declares `audience` blocks with descriptions and does not list who is in them.",
+        "Uses `available for` (or `available with` an `availability`) on the feature and slice instead of a policy.",
+        "States that availability is decided before authorize and refuses as NotAvailable, not a denial.",
+        "States that unknown or missing audiences leave the part unavailable."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "review-gate-and-provide",
+      "prompt": "Review this Screenplay fragment for availability and context problems and list the findings.\n\n```\naudience Plus\n  description \"Plus\"\n\naudience Legacy\n  description \"Old package\"\n\nmodule Fleet\n  feature Quality\n    provide vessel Vessel optional from query VesselByKey by $context.arguments.vesselId\n    available for Plus and Pro\n    slice StateChange ReportVessel\n      command ReportVessel\n        require $context.vessel.hasReported == false\n```\n\nPersonas: Operator (audience Plus). Give findings only; do not write files.",
+      "expected_output": "Pro is not declared (PLAY1135, the gate stays closed so nobody can satisfy it); Legacy is unreferenced; the feature-level provide keys on arguments, which a command cannot resolve (it needs $context.command.<key> at the slice); persona audience lines are authoring-only and no persona satisfies `Plus and Pro`.",
+      "assertions": [
+        "Flags the undeclared audience Pro and that no persona can satisfy the gate.",
+        "Flags the unreferenced audience Legacy.",
+        "Flags that $context.arguments cannot resolve the key for a command and asks for a slice-level provide using $context.command.",
+        "Does not edit the model and does not invent a `given availability` specification form."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "audience-versus-aud-and-box-office",
+      "prompt": "A teammate wants `available when $context.identity.claims.aud == \"Plus\"` to gate a feature because the Plus customers' tokens carry that audience, and also wants Chronicle's audience event option to record the package. Explain what is wrong and what to do instead. Do not write files.",
+      "expected_output": "The token `aud` claim says who the token is for, Chronicle's routing audience is an event option, and a Screenplay audience is a declared group granted at runtime; they are unrelated. Declare `audience Plus` and gate with `available for Plus`. Box Office module entitlements stay separate and can be read through a host-provided value if needed.",
+      "assertions": [
+        "Separates the three meanings: Screenplay audience, Chronicle routing audience and token aud claim.",
+        "Recommends `audience Plus` with `available for Plus`.",
+        "Says Chronicle's audience stays in event options and is not an event field.",
+        "Mentions that Box Office entitlements are a separate mechanism, readable through a host-provided value."
+      ]
+    }
+  ]
+}

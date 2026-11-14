@@ -45,6 +45,13 @@ these runtimes launch; this decision moves the .NET code that launches them.
   entirely from Direct's own domain state. See decision 0010 for the fuller reasoning; nothing about
   it changed with this PR.
 
+> **2026-11-13 — cache behavior superseded in part in the implementation.**
+> Configuring `RepositoryCache*` alone no longer mounts a shared cache. Jobs select
+> scoped mirrors and a memory-key directory through `WorkerJob.Cache`; null mounts
+> nothing. [Decision 0021](0021-worker-cache-scoped-mounts.md) records this change as
+> proposed, pending named-decider attribution; this note does not grant acceptance.
+> The original runtime-extraction decision text remains unchanged.
+
 ## Consequences
 
 - A consumer adopting this runtime for the first time (Studio, eventually) must independently

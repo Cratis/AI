@@ -48,6 +48,19 @@
         "Qualifies the ambiguous query with a trailing scope part such as `Queue.All`, using the shortest unambiguous form.",
         "Says `by id BoatId` on the query header line is a declaration error and belongs on its own `by` line in the body."
       ]
+    },
+    {
+      "id": 5,
+      "name": "named-sink-and-sink-property",
+      "prompt": "Our Screenplay model has `readmodel CustomerRevenue` (customerId CustomerId key, total Money) built by a projection, and reporting read models must live in a separate reporting database. Another read model, `Dispatch`, already has a line `sink Warehouse` where `Warehouse` is a concept. Store CustomerRevenue in the reporting store and tell me whether the Dispatch line changes meaning. Show the .play changes in your reply; do not write files.",
+      "expected_output": "Declares `sink Reporting for readmodels` once at the application root and adds a bare `sink Reporting` line to the CustomerRevenue body, without naming a database, engine or connection in the model and without naming a sink on the projection or query. Explains that `sink Warehouse` in Dispatch stays a property named `sink` of type `Warehouse`, because no sink called `Warehouse` is declared, and that `@sink <Type>` always means the property.",
+      "assertions": [
+        "Declares the sink once at the application root as `sink Reporting for readmodels` (any name), not inside a module or read model.",
+        "Adds a bare `sink <Name>` line to the CustomerRevenue read model body and names no sink on the projection or the query.",
+        "Names no database, engine, connection string or server in the model; says the deployment maps the sink name to storage.",
+        "Says `sink Warehouse` in Dispatch stays a property named `sink` of type `Warehouse` because no sink called `Warehouse` is declared.",
+        "Mentions that `@sink <Type>` always declares the property, or that a `passive` read model cannot name a sink (PLAY0935)."
+      ]
     }
   ]
 }

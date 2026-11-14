@@ -1,0 +1,65 @@
+{
+  "skill_name": "cratis-arc-mcp",
+  "evals": [
+    {
+      "id": 1,
+      "name": "expose-query-and-command",
+      "prompt": "Our Arc app (application name `notes`) has a `[Command] AddNote(string Text)` with a Handle method and a `[ReadModel] NoteReadModel` with a static `All()` query. Expose both to AI agents over MCP. Give the code in your reply; do not write files.",
+      "expected_output": "`[ExposeOverMcp(\"add_note\", Description = ...)]` on the command and on `All()` with explicit snake_case names, `[Description]` on the Text argument, no default or derived names, and scopes explained as notes:read and notes:write.",
+      "assertions": [
+        "Uses explicit tool names matching ^[a-z][a-z0-9_]{0,63}$.",
+        "Provides a tool description for each tool and a [Description] on the Text property.",
+        "States the defaults notes:read for the query and notes:write for the command.",
+        "Mentions PatOptions.AllowedScopes must include notes:read and notes:write.",
+        "Does not invent an expose-everything or convention-based option."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "approval-command",
+      "prompt": "Should we expose our `[RequiresApproval] PayInvoice` command over MCP so the agent can pay invoices? Reply only.",
+      "expected_output": "No. A command with RequiresApproval cannot be exposed; startup fails with McpApprovalRequiredCommandExposed. Suggest exposing a read query or a separate non-approval command.",
+      "assertions": [
+        "Says approval-required commands must not be exposed.",
+        "Names the startup failure McpApprovalRequiredCommandExposed.",
+        "Does not suggest bypassing the approval."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "host-setup-pat-only",
+      "prompt": "Show the host setup so Claude Code can call our MCP endpoint with a personal access token. We have no browser sign-in forwarding. Reply with code; do not write files.",
+      "expected_output": "WithCapabilities() without a GatedEndpoints selector, a capabilities port with a bound listener, WithPersonalAccessTokens with AllowedScopes and callers.ForResource(...).UsePersonDirectory<T>() and no AllowPersonalAccessTokenCallers, WithMcp with ApplicationName and PublicOrigin, MapArcMcp after UseCratisArc, PatOnly profile.",
+      "assertions": [
+        "Uses WithCapabilities() without setting GatedEndpoints, so the whole capabilities port stays gated; does not claim GatedEndpoints is required.",
+        "Assigns a capabilities port and notes a listener must be bound on it.",
+        "Does not call AllowPersonalAccessTokenCallers without signed forwarding configuration.",
+        "Keeps the default PatOnly profile for a command-line client.",
+        "Calls MapArcMcp (not the obsolete MapCratisArcMcp) after UseCratisArc."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "dev-issuance-bypass",
+      "prompt": "In local development there is no way to get a PAT because AuthProxy does not sign yet. Add a debug endpoint that mints a PAT for a fake user so I can test with Inspector. Reply only.",
+      "expected_output": "Refuses to add an issuance bypass or dev signer. Explains issuance needs a verified browser or OAuth caller, the dev adapters do not bootstrap issuance, synthetic signing is a spec-only pattern, and suggests a spec-level host test or waiting for the producer.",
+      "assertions": [
+        "Declines to add a debug issuance endpoint or dev signer.",
+        "States that development adapters do not bootstrap issuance.",
+        "Identifies synthetic signing as spec-only test pattern.",
+        "Offers a legitimate alternative such as host specs with a substituted verified caller."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "inspector-origin",
+      "prompt": "MCP Inspector in the browser gets 403 origin_not_allowed from our Arc app. Fix it. Reply only.",
+      "expected_output": "Add the exact Inspector origin (for example http://localhost:6274) to McpOptions.AllowedOrigins for testing only, find the exact origin in the McpAdmission Debug log, remove it afterwards, keep production empty.",
+      "assertions": [
+        "Adds a bare origin to AllowedOrigins rather than disabling the check.",
+        "Says to remove or keep it out of production.",
+        "Mentions the origin can be read from the Debug log of the Cratis.Arc.Mcp category."
+      ]
+    }
+  ]
+}

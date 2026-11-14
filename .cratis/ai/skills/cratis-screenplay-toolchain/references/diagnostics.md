@@ -16,6 +16,10 @@
 - Specification metadata, callers, cases and locators
 - Guarded interaction diagnostics
 - UI profile shell: root template, options, appearance
+- Design systems and themes (PLAY0916-PLAY0930)
+- Provided values (PLAY1119-PLAY1129)
+- Audiences and availability (PLAY1130-PLAY1141)
+- Sinks (PLAY0931-PLAY0939)
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
 - Consistency errors (V1: the model contradicts itself)
@@ -315,7 +319,7 @@ Requires Screenplay 4.200.0 or later (`screenplay --version`); 4.197.0 reads the
 | Code | Severity | Meaning / fix |
 | --- | --- | --- |
 | PLAY0788 | E | A `root template` / `new screens use template` line is malformed, or pins a version on an own template. |
-| PLAY0789 | E | A malformed or repeated `identity` or `appearance` line, or a second `identity` or `appearance` block. |
+| PLAY0789 | E | A malformed or repeated `identity` or `appearance` line (the deprecated `accent`, `corners` and `font` are still lines it accepts, `PLAY0929`), or a second `identity` or `appearance` block. |
 | PLAY0790 | E | The template is not declared (or the blueprint does not ship it). Declare it or take it from a blueprint. |
 | PLAY0791 | W | The profile selects its shell with the legacy `layout <Name>`. Write `root template <Name>`; the quick fix rewrites it (or removes the ignored line beside a `root template`). |
 | PLAY0792 | E | The blueprint is not in the profile's `packages` (or not installed). |
@@ -323,9 +327,79 @@ Requires Screenplay 4.200.0 or later (`screenplay --version`); 4.197.0 reads the
 | PLAY0794 | E | The root template cannot be the shell (not a layout or application-scope template, fits a slot, `scopes` without `application`). |
 | PLAY0795 | E | The root template has no `content` slot. |
 | PLAY0796 | W | An `option` the shell does not expose. |
-| PLAY0797 | E | Color scheme is not `light`, `dark` or `system`, the accent is not a hex colour, the corners are not `sharp`, `default` or `round`, or an `identity` value is outside Scene's rules (initials longer than 2, unknown icon, image that is not a PNG/JPG/SVG/WebP data URI of at most 400 KB). |
+| PLAY0797 | E | Color scheme is not `light`, `dark` or `system`, or an `identity` value is outside Scene's rules (initials longer than 2, unknown icon, image that is not a PNG, JPG, SVG or WebP data URI of at most 400 KB). The deprecated `accent` and `corners` values are still checked while they read; move them to the theme (`PLAY0929`). |
 | PLAY0798 | E | More than one `root template` in a profile. |
 | PLAY0799 | E | `new screens use template` cannot start a screen in a feature. |
+
+## Design systems and themes (PLAY0916-PLAY0930)
+
+Requires a Screenplay release that carries design systems (next minor after 6.2.0, 6.3.0; `screenplay --version`); earlier compilers do not know the codes, and `screenplay-contract.json` lists them only once the pin moves. Fixes: `../../cratis-screenplay-ui-composition/references/design-system-and-themes.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0916 | E | Malformed `design system`: unknown section, token category, component part or state, bad line shape, a part the component does not declare, or a section twice. |
+| PLAY0917 | E | A second `design system`; an application has exactly one. |
+| PLAY0918 | E | A theme block for a mode the design system's `modes` does not declare. |
+| PLAY0919 | E | A mode, token, component, variant, part, palette entry, value or word declared twice. |
+| PLAY0920 | E | A theme assigns a token the design system does not declare. |
+| PLAY0921 | E | An implementing theme gives a `color` token no value in a declared mode. |
+| PLAY0922 | E | A design reference (`palette.<name>`, `<category>.<token>`) names something undeclared, or a token with no value. |
+| PLAY0923 | E | Design references loop. |
+| PLAY0924 | E | A component part takes a token of a category it cannot take (`background = space.sm`). |
+| PLAY0925 | E | A theme `implements` a design system the application does not declare. |
+| PLAY0926 | E | A `ui profile` selects a theme that does not implement the design system. |
+| PLAY0927 | E | No `default theme`, or it is undeclared or does not implement the design system. |
+| PLAY0928 | W | In some theme and mode a text/background pair is below a `contrast` rule (`disabled` not checked). |
+| PLAY0929 | W | `accent`, `corners` or `font` in a profile's `appearance` is deprecated; put the value in the theme. |
+| PLAY0930 | E | A theme's `implements`, `palette`, `values` or mode block is malformed or repeated. |
+
+## Provided values (PLAY1119-PLAY1129)
+
+`provide` needs Screenplay 6.25.0. Fix by changing the model; PLAY0268 reports executing it.
+
+| Code | Fix |
+| --- | --- |
+| PLAY1119-PLAY1122 | write `provide <name> <Type> [optional] from <source>`; a source is `query`, `host`, a literal, a `$context` expression, a `file` or an inline body, never a body beside `from` |
+| PLAY1123 | one declaration per name per level; override lower down instead |
+| PLAY1124 | `tenant`, `identity`, `causedBy`, `causation`, `occurred`, `audiences`, `command`, `arguments` are reserved; rename |
+| PLAY1125 | an override keeps the type |
+| PLAY1126-PLAY1128 | the source query must be declared once, keyed, snapshot (not observable) and return the provided type |
+| PLAY1129 | break the read cycle between provided values |
+
+## Audiences and availability (PLAY1130-PLAY1141)
+
+Requires Screenplay 6.26.0. Errors fix the line; warnings leave the gate closed, never open.
+
+| Code | Fix |
+| --- | --- |
+| PLAY1130-PLAY1132 | shapes: `audience <Name>` with `description` only; `availability <Name>` with `description`, `for`, `when`, `with`; `available for \| when \| with <operand>` |
+| PLAY1133, PLAY1134 | declare each audience and availability once |
+| PLAY1135, PLAY1136 | W: declare the audience or availability, or correct the name; undeclared means nothing can grant it |
+| PLAY1137 | break the `with` cycle |
+| PLAY1138 | W: provide the value at or above the gate, or change the condition |
+| PLAY1139 | W: align the audiences of invoker and command, or accept the refusal; `when` is skipped, reactions are never gated |
+| PLAY1140, PLAY1141 | an `available for`/`with` line holds names, `and`, `or` and balanced parentheses only |
+
+See `../../cratis-screenplay-availability/SKILL.md`.
+
+## Sinks (PLAY0931-PLAY0939)
+
+Requires Screenplay 6.4.0 (`screenplay --version`). A `sink <Name> for readmodels|graphs`
+declaration and a `sink <Name>` line in a read model or graph body choose where it is stored; each
+is information PLAY0270, outside the ESM. The fixes are in
+`../../cratis-screenplay-read-surface/references/sinks.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0931 | E | A malformed sink declaration or graph `sink` line, or lines under a declaration. |
+| PLAY0932 | E | Two sinks share a name, compared ignoring case. Rename one. |
+| PLAY0933 | E | A graph names an undeclared sink. A read model's line naming no declared sink is a property instead. |
+| PLAY0934 | E | A read model names a `for graphs` sink, or a graph a `for readmodels` sink. |
+| PLAY0935 | E | A `passive` read model names a sink; it is never materialized. Remove one of the two. |
+| PLAY0936 | E | A read model or graph names two different sinks. |
+| PLAY0937 | W | A read model or graph repeats the same `sink` line. |
+| PLAY0938 | W | A declared sink no read model or graph uses. |
+| PLAY0939 | W | A read-model property `sink` whose type differs only in case from a declared sink. Spell the sink exactly, or write `@sink <Type>`. |
 
 ## Structural completeness and timeline checks
 
@@ -335,7 +409,7 @@ as errors if gating. Ordinary compile success does not imply these ran:
 | Family | Codes | Checks |
 | --- | --- | --- |
 | data-bindings | PLAY0530/0531 | Conflicting visible bindings; binding/query read-model or cardinality mismatch |
-| input-surfaces | PLAY0532/0533 | Missing command input form/issuing screen; missing reachable issuer |
+| input-surfaces | PLAY0532 | Missing command input form/issuing screen. Since Screenplay 6, PLAY0533 (no reachable issuer) runs on every check and is no longer selected here |
 | field-origins | PLAY0534 | Missing read-model builder or top-level field origin (AutoMap, identity and variants considered) |
 | query-keys | PLAY0535 | Query argument not representable by known identity/fields |
 | event-consumers | PLAY0536 | Latest local event generation lacks an operational consumer; a terminal fact can legitimately be reported |

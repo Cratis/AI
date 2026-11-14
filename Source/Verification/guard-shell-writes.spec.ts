@@ -4,7 +4,7 @@
 /** Whole-text references use the Write/Edit policy; protected references require read-only syntax. */
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { copyFileSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -70,14 +70,366 @@ function scratchRepository(origin = 'https://github.com/example/app.git') {
     return { root, dispose: () => rmSync(root, { recursive: true, force: true }) };
 }
 
+test('read-only globs allow reads while interpreter heredocs retain conservative references', async () => {
+    const repo = scratchRepository();
+    try {
+        for (const present of [false, true]) {
+            if (present) writeFileSync(join(repo.root, '.env'), 'synthetic fixture');
+            await checkCases([
+                [ALLOW, "rg -n foo --glob '*.csproj'"], [ALLOW, 'rg -n foo Directory.Build.*'],
+                // Real reader expansion does not become a writer; unresolved mutation globs still refuse.
+                [ALLOW, 'rg -n foo *.cs'], [BLOCK, 'echo x > *.csproj'],
+                [ALLOW, "rg -n foo -g '*.csproj'"], [BLOCK, 'rg -n .env --glob'], [BLOCK, 'rg -n foo --glob *.csproj'],
+                [BLOCK, "node <<'N'\nconsole.log(`${Object.keys(e || {}).join(',')}`)\nN"],
+                [BLOCK, `cd '${repo.root}' && node <<'N'\nconsole.log(\`\${Object.keys(e || {}).join(',')}\`)\nN`],
+                ...['echo x > .env', 'echo x > .env.local', 'cp x *.env', 'tee *env', 'echo x > .e*',
+                    'echo x > .env*', 'echo x > {.env,a}', 'echo x > package*.json',
+                    'sed -i s/a/b/ *.json', 'tee Directory.Packages.*',
+                    'shopt -s dotglob; echo x > *.csproj', 'GLOBIGNORE=x; echo x > *.csproj',
+                    'zsh -c "setopt globdots; echo x > *.csproj"', 'zsh -c "echo x > *.csproj(D)"',
+                    'fish -c "echo x > *.csproj"', 'mystery -c "echo x > *.csproj"', 'source options.sh; echo x > *.csproj',
+                    '. options.sh; echo x > *.csproj',
+                    "node <<'N'\nrequire('fs').writeFileSync('.env','x')\nN",
+                    "node <<'N'\nrequire('fs').readFileSync('.env')\nN",
+                    "node <<'N'\nrequire('fs').writeFileSync('package.json','x')\nN",
+                    "bash <<'N'\necho x > {.env,\"a b\"}\nN", "sh <<'N'\necho x > {.env,a}\nN",
+                    "cat <<'N' | bash\necho x > {.,}env\nN",
+                    "zsh <<'N'\necho x > {.env,a}\nN", "eval <<'N'\necho x > {.env,a}\nN",
+                    'node <<N\n$(echo x > {.env,a})\nN', "cat <<'N' > .env\nx\nN",
+                ].map(command => [BLOCK, command] as [string, string]),
+            ], repo.root);
+        }
+        const unknownShell = runGuard({ cwd: repo.root, tool_name: 'UnknownShell', tool_input: { command: 'echo x > *.csproj' } }, repo.root);
+        assert.equal(unknownShell.verdict, BLOCK);
+        writeFileSync(join(repo.root, 'options.sh'), 'shopt -s dotglob\n');
+        for (const env of [{ GLOBIGNORE: 'x' }, { BASH_ENV: join(repo.root, 'options.sh') }, { ENV: join(repo.root, 'options.sh') }]) {
+            const inherited = runGuard({ cwd: repo.root, tool_name: 'Bash', tool_input: { command: 'echo x > *.csproj' } }, repo.root, env);
+            assert.equal(inherited.verdict, BLOCK);
+        }
+    } finally { repo.dispose(); }
+});
+
+test('quoted brace spans and extended globs in write targets are refused', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            ...['echo x > {.env,"a b"}', 'echo x > .e{n"",x}v', "echo x > {.m'c'p,a}.json",
+                'echo x > .{mcp$X,y}.json', "printf x > {a,$'\\x2e'env}", 'echo x > .{e\\nv,a}',
+                'echo x > .{cratis$X,y}ai/z', 'echo x > .{cratis"/"ai,y}/z',
+                'shopt -s extglob; echo x > .e@(n)v', 'shopt -s extglob; echo x > .env@(|.local)',
+                'shopt -s extglob; echo x > ?(.)env', 'shopt -s extglob; echo x > +(.)env',
+                'shopt -s extglob; echo x > !(a)env', 'shopt -s extglob; echo x > .e*(n)v',
+            ].map(command => [BLOCK, command] as [string, string]),
+            [ALLOW, 'git commit -m "fix @(x)"'],             [ALLOW, "echo '{\"a\":1}' > out.json"],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('only write-target words are classified: pure readers drop out, everything else stays refused', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            // Unparseable shapes fall back to classifying the whole text.
+            ...['cat $(echo .env)', 'echo x > "$(printf .env)"', "eval 'echo x > .env'", "bash -c 'echo x > .env'",
+                'echo x > .env; cat <<EOF\nbody\nEOF', "echo x > '.env", 'cd sub && echo x > .env',
+                '(echo x > .env)', '{ echo x > .env; }', 'echo x > {.env,a}',
+                'cat a\\\n; echo x > .env',
+                // A directory change is never silent: it can move a later relative write.
+                'cd .claude && cp x settings.json', 'cd .cratis/ai && cp x general.md',
+            ].map(command => [BLOCK, command] as [string, string]),
+            // A reader never hides a write elsewhere in the command.
+            ...['cat a.txt; cp x .env', 'ls | tee .mcp.json', 'cat a > .env', 'cat a >> .env', 'cat a 2> .env',
+                'cat a &> .env', 'cat a >| .env', 'grep x f | sed -i s/a/b/ .env',
+                'sed -i s/a/b/ .claude/settings.json', 'cp x .pi/settings.json', 'mv x .cratis/ai/rules/general.md',
+                'dd of=.env', 'install x .mcp.json',
+                'curl -o .claude/settings.json http://x', 'git apply .cratis/ai/evil.patch', 'rm .mcp.json',
+                'touch .env', 'truncate -s0 .env', 'ls *.csproj; echo x > .env', 'git status && cp a .mcp.json',
+                'git commit -F .env', 'git commit -F.env', 'cat a < b > .env', 'echo a |& tee .env',
+                'X=1 cp a .mcp.json', 'echo ok || cp a .mcp.json', 'cat a & cp a .env',
+            ].map(command => [BLOCK, command] as [string, string]),
+            // Quoted brace and bracket text in a pure reader is data, not a write target.
+            [ALLOW, "rg -n 'a{1,2}[x]' notes.md"], [ALLOW, "grep -E 'x{2}[ab]' notes.md"],
+            [ALLOW, "echo '{\"a\":1}' > out.json"],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('jq and read-only awk programs are pure readers; write, exec and option forms stay refused', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            ...["awk '{print $1}' notes.txt", "awk '{print $1} END{print}' notes.txt", "awk -F, '{print $2}' data.csv",
+                "awk -F ',' '$1 == \"x\" {print}' data.csv", "jq '{a: .b}' data.json", "jq '{a: .[0]}' data.json",
+                "jq -r '.[] | [.number, .title] | @tsv' data.json", "jq '.[]' metadata.json", "jq '[]' metadata.json",
+                "cat data.json | jq '{a: .b}'", "rg foo . | awk '{print $1}'",
+                "jq '{a: .b}' .claude/settings.json", "awk '{print $1}' .cratis/ai/rules/general.md",
+                'jq .env', 'jq -- .env', "awk '{print ENVIRON[\"HOME\"]}' notes.txt",
+            ].map(command => [ALLOW, command] as [string, string]),
+            ...["awk 'BEGIN{print \"x\" > \".env\"}' f", "awk '{print > \".mcp.json\"}' f",
+                "awk '{print >> \".claude/settings.json\"}' f", "awk '{print | \"tee .env\"}' f",
+                "awk 'BEGIN{system(\"cp a .mcp.json\")}'", "awk '{ \"date\" | getline x }' f .env",
+                "awk 'BEGIN{SYSTEM(\"cp a .mcp.json\")}'", "awk '{getline x < \"f\"}' .env", "awk '{close(\"x\")}' .env",
+                "awk '{fflush()}' .env", "awk -f prog.awk .env", "awk -i inplace '{print}' .mcp.json",
+                "awk --include x '{print}' .env", "awk -v a=1 '{print}' .env", "awk -e '{print}' .env",
+                "awk '@include \"x\"' .env", "awk '{print $1}' f > .env", "awk -- '{print}' .env", "awk -F, -f p .env",
+                "awk '{print}' -f .env", "awk -F \"$X\" '{print}' .env", 'awk -F* \'{print}\' .env', 'awk *.awk .env',
+                "awk '{print}' f; cp a .mcp.json", "awk '{print}' f | tee .env", 'awk "{print \\$1}" .env; cp a .env',
+                'jq -i . .env', 'jq -f prog.jq .env', 'jq --rawfile a .env . x', 'jq -L .mcp.json . x', 'jq --arg a b . .env',
+                'jq --from-file p .env', 'jq --slurpfile a .env . x', 'jq . x > .mcp.json', "jq '{a:1}' x | tee .env",
+                'jq --indent 2 . .env', 'jq --args . .env', 'jq --jsonargs . .env', 'jq --seq . .env',
+                'jq -r $(echo .env)', 'jq . .env; cp a .mcp.json', 'jq . x >> .claude/settings.json',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('leading reader globs stay read-only; writers and unchecked option-capable readers stay refused', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            ...['ls *.csproj', 'ls -la *.csproj', 'git ls-files *.csproj', 'git ls-files -s *.csproj', 'cat *.csproj',
+                'wc -l *.csproj', 'head -n 5 *.csproj', 'tail -n 5 *.csproj', 'grep -n Foo *.csproj', 'grep -n Foo src/*.csproj',
+                'egrep Foo *.csproj', 'fgrep Foo *.csproj', 'cat Directory.Build.props', 'ls Source/*/*.csproj',
+                'ls *.csproj | wc -l', 'ls *.csproj; git status --short', 'ls *.csproj && git ls-files *.cs',
+                // Flipped from BLOCK: a read-only verb with a leading glob; secret reads stay with the secrets guard.
+                'grep x .env *.txt', 'cat - * .env', 'rg -n foo *.csproj',
+            ].map(command => [ALLOW, command] as [string, string]),
+            ...['git diff *.cs', 'git log *.cs', 'git show *.cs', 'git grep foo *.cs', 'git blame *.cs',
+                'git status *.cs', 'git -C . ls-files *.csproj', 'git add *.csproj', 'git commit -m x *.csproj', 'git branch *',
+                'sed -n 1p *.csproj', 'jq . *.json', 'awk 1 *.txt', 'echo *.csproj', 'printf %s *.csproj', 'test -f *.csproj',
+                'cd *', 'cp x *.csproj', 'tee *.csproj', 'sed -i s/a/b/ *.csproj', 'echo x > *.csproj',
+                'shopt -s dotglob; echo x > *.csproj', 'ls *.csproj > *.env', 'ls *.csproj > .env', 'cat *.csproj > .mcp.json',
+                'cat *.csproj >> .env', 'ls *.csproj | tee .env', 'ls *.csproj; cp a *.env', 'ls *.csproj; cp a .mcp.json',
+                'cat *.csproj && echo x > .env', 'git ls-files *.csproj > .mcp.json',
+                'git diff * .env', 'cat -* .env', 'cat [-]* .env', 'cat -- -* .env', 'ls [a-z]*.csproj', "cat '-'* .env",
+                'grep x .env *.txt; cp a .env', 'ls *.csproj $(echo .env)', 'ls `echo *.csproj`', 'ls ${X}*.csproj > .env',
+                'wc --files0-from=* .env', 'wc --files0-from *.csproj', 'grep -f *.csproj x', 'ls -* .env; cp a .env',
+                'cat *.csproj > .e*', 'cat *.csproj > {.env,a}', 'ls *.csproj > $X', 'rm *.csproj', 'touch *.csproj .env',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('a protected path written behind a variable, tilde or substitution prefix is judged by its literal remainder', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        const script = '.cratis/ai/hooks/scripts/cratis-check-pr.mjs';
+        const cleaner = '.cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh';
+        await checkCases([
+            ...['echo x > "$PWD/.cratis/ai/hooks/scripts/foo.sh"', 'echo x > $PWD/.cratis/ai/hooks/scripts/foo.sh',
+                'echo x > ${PWD}/.cratis/ai/hooks/scripts/foo.sh', 'cp a $HOME/../repo/.claude/settings.json', 'cp a "$HOME"/../repo/.claude/settings.json',
+                'cp a ~/../repo/.claude/settings.json', 'tee "$REPO/.mcp.json" < a', 'echo x > "$X.cratis/ai/foo"',
+                'echo x > "`pwd`/.cratis/ai/foo.sh"', 'echo x >> "${ROOT:-.}/.claude/settings.json"',
+                'mv a --target-directory="$PWD/.pi/extensions"', 'cp a "$PWD/.pi/extensions/x.ts"',
+                `node $PWD/${script}`, `node "$PWD/${script}" --strict`, `bash \${PWD}/${cleaner}`,
+                `bash "$HOME/repo/${cleaner}"`,
+                'echo x > "$(pwd -P)/.mcp.json"', 'echo x > "$(pwd )/.claude/settings.json"', 'echo x > "$(pwd;)/.claude/settings.json"',
+                'echo x > $(pwd -P)/.mcp.json', 'echo x > "$(cd /tmp && pwd)/.mcp.json"', 'echo x > "$(printf %s a b)/.cratis/ai/foo"',
+                'echo x > ~+/.mcp.json', 'printf x > ~+/.claude/settings.json', 'echo x >> ~/../repo/.claude/settings.json',
+                'echo x &> ~+/.mcp.json', 'echo x > ~-/.mcp.json', 'echo x > ~user/.cratis/ai/foo', 'cp a ~+/.mcp.json', 'cp a ~-/.mcp.json',
+                'echo x > "${A}/b/.claude/settings.json"', 'echo x > "${A:-x y}/.claude/settings.json"',
+                'echo x > "$(echo $(pwd -P))/.mcp.json"', 'echo x > "`pwd -P`/.mcp.json"', 'tee "$(pwd -P)/.mcp.json" < a',
+            ].map(command => [BLOCK, command] as [string, string]),
+            ...['cat "$PWD/README.md"', 'cat $HOME/notes.txt', 'ls "$PWD/Source"', 'echo x > "$TMPDIR/out.txt"', 'cp a "$PWD/build/out.txt"', 'echo x > ~/notes.txt',
+                'echo x > "$(pwd -P)/out.txt"', 'echo x > ~+/out.txt',
+                `node ${script} --strict`, `bash ${cleaner} --dry-run`, 'cp a "$PWD/Source/Accounts/x.ts"',
+            ].map(command => [ALLOW, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('only the exact managed check-pr and cleanup-worktrees invocations are admitted for execution', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        const checker = '.cratis/ai/hooks/scripts/cratis-check-pr.mjs';
+        const cleaner = '.cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh';
+        await checkCases([
+            ...[`node ${checker} --body-file .ai-work/pr-body.md --label patch`,
+                `node ${checker} --body-file .ai-work/pr-body.md --pr 123 --strict`,
+                `node ${checker} --body-file b.md --label patch --add-label x --remove-label y --base main --repo owner/name`,
+                `node "${checker}" --body-file b.md`, `node ${checker} --strict`, `node ${checker}`,
+                `bash ${cleaner}`, `bash ${cleaner} --dry-run --quiet --no-fetch`, `bash ${cleaner} --dry-run`,
+                `git status --short && node ${checker} --body-file b.md --label patch`,
+                `node ${checker} --body-file b.md --label patch | tail -n 5`,
+                `rg -n foo ${checker}`, `sed -n 1,5p ${checker}`, `head -n 5 ${cleaner}`, `cat ${checker}`,
+            ].map(command => [ALLOW, command] as [string, string]),
+            ...[`node ${checker} --hook`, `node ${checker} --unknown`, `node ${checker} --body-file`, `node ${checker} --body-file --label x`,
+                `node ${checker} --body-file ''`, `node ${checker} --body-file=b.md`, `node ${checker} -F b.md`, `node ${checker} b.md`,
+                `node ${checker} --body-file b.md > .claude/settings.json`, `node ${checker} --body-file b.md >> .env`,
+                `node ${checker} --body-file *.md`, `node ${checker} --body-file b.md --label *`, `node ${checker} --body-file $F`,
+                `node ${checker} --body-file \`echo b.md\``, `node ${checker} --body-file $(echo b.md)`, `node ${checker} --body-file b.md\nnode x`,
+                `node ./${checker}`, `node .cratis/ai/hooks/scripts/../scripts/cratis-check-pr.mjs`, `node .cratis/ai/hooks/../hooks/scripts/cratis-check-pr.mjs`,
+                `node ${repo.root}/${checker}`, `node ${checker}x`, `node .cratis/ai/hooks/scripts/cratis-check-pr.mjs.bak`,
+                `node ${checker.replace('cratis-check-pr', 'cratis-check-p*')}`,
+                'node .cratis/ai/hooks/scripts/cratis-guard-writes.sh', 'node .cratis/ai/hooks/scripts/evil.mjs',
+                `node .cratis/ai/hooks/scripts/cratis-guard-shell-writes.sh ${checker}`,
+                `node --eval x ${checker}`, `node --require x ${checker}`, `node -r x ${checker}`, `node --import x ${checker}`,
+                `node -e 1 ${checker}`, `nodejs ${checker}`, `X=1 node ${checker}`, `env node ${checker}`, `/usr/bin/node ${checker}`,
+                `node ${checker}; cp a .mcp.json`, `node ${checker} && echo x > .mcp.json`, `node ${checker} | tee .env`,
+                `node ${checker} || cp a .env`, `node ${checker} & cp a .mcp.json`, `cd /tmp/other && node ${checker} --body-file b.md`,
+                `cd sub; node ${checker}`, `echo x > ${checker}`, `cp x ${checker}`, `tee ${checker}`,
+                `sed -i s/a/b/ ${checker}`, `mv x ${checker}`, `echo x >> ${cleaner}`, `cp x ${cleaner}`, `sed -i s/a/b/ ${cleaner}`,
+                `bash ${cleaner} --include-work-records`, `bash ${cleaner} --hook`, `bash ${cleaner} --self-test`,
+                `bash ${cleaner} --unknown`, `bash ${cleaner} --dry-run --include-work-records`, `bash ${cleaner} extra`,
+                `bash -x ${cleaner}`, `bash -c ${cleaner}`, `sh ${cleaner}`, `zsh ${cleaner}`, `bash ./${cleaner}`,
+                `bash ${cleaner}.bak`, `bash ${cleaner} > .env`, `bash ${cleaner} --quiet > .mcp.json`, `bash ${cleaner}; echo x > .mcp.json`,
+                `bash ${cleaner} && cp a .env`, `bash ${cleaner} $(echo --dry-run)`, `bash ${cleaner} *`,
+                `cd /tmp/other && bash ${cleaner}`, `. ${cleaner}`, `source ${cleaner}`, `exec ${cleaner}`, cleaner,
+                'bash .cratis/ai/hooks/scripts/cratis-guard-shell-writes.sh', 'bash .claude/settings.json', 'bash .pi/extensions/x.sh',
+                'bash .cratis/ai/hooks/scripts/cratis-guard-writes.sh --dry-run',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('literal git filename metadata and grep pattern options are read-only', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [ALLOW, 'git grep -n -e SpoofableHeaders.Strip -e ForwardedIdentityForward -e OptionsKey -e CredentialBinding -- Source/AuthProxy'],
+            [ALLOW, 'git ls-files Source/AuthProxy/UserTokens Source/AuthProxy/Credentials Source/AuthProxy/Proxying Source/AuthProxy/ForwardedIdentity'],
+            [ALLOW, 'git ls-files -s -- .env'], [ALLOW, 'git ls-files --debug -- .env'],
+            [ALLOW, 'git grep -n -e credentials -e .env -- Source/AuthProxy'],
+            [BLOCK, 'git ls-files .env; echo x > .env'],
+            [ALLOW, 'git add src/x/for_a_case.environment.txt'],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('updated AI prompts can be staged without permitting protected content writes', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            [ALLOW, 'git add .claude/commands/reverse-engineer.md .cursor/commands/reverse-engineer.md .opencode/commands/reverse-engineer.md .pi/prompts/reverse-engineer.md .cratis/ai/prompts/reverse-engineer.prompt.md'],
+            [ALLOW, 'git add -v .cratis skills && git commit --message "Update Cratis AI"'],
+            [ALLOW, 'git add --all -- .cratis skills'],
+            [ALLOW, 'git add .cratis/ai/prompts/*.md skills/cratis-arc-neo4j/'],
+            [ALLOW, `git -C ${repo.root} add .cratis skills && git -C ${repo.root} commit -m 'Update Cratis AI'`],
+            ...['git add --interactive .cratis', 'git add --pathspec-from-file=.cratis/ai/paths',
+                'git -C "$HOME" add .cratis', 'git -c alias.add=checkout add .cratis',
+                'git checkout other -- .cratis/ai/rules/general.md',
+                'git restore -- .cratis/ai/rules/general.md', 'git apply .cratis/ai/evil.patch', 'git am .cratis/ai/evil.patch',
+                'git stash push -- .cratis', 'git mv evil.md .cratis/ai/rules/evil.md', 'git rm .cratis/ai/rules/general.md',
+                'git add .cratis && printf x > .cratis/ai/rules/general.md',
+                'git -C .cratis checkout other -- ai/rules/general.md',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('compound report listing permits disk checks and read-only search pipelines', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            [ALLOW, `cd ${repo.root} && cat .ai-work/v2/report.md .ai-work/v2/brief.md .ai-work/v2/report-step2.md && ls .cratis/ai/rules/project && rg --files .ai-work/v2 | rg -i 'arc|spec|md$' && df -h ~`],
+            [ALLOW, 'ls .cratis/ai/rules/project && df -h .'],
+            [ALLOW, `cd ${repo.root} && cat .cratis/ai/rules/general.md | rg -n scope`],
+            ...['ls .cratis/ai/rules/project && df --output=$(cat .env)',
+                'ls .cratis/ai/rules/project && df -h > .env',
+                'cd .cratis && cat ai/rules/general.md | tee ai/rules/general.md',
+                'cd .cratis && rg --pre command ai/rules/general.md | rg scope',
+                'cd .cratis && git add . | cat', 'cd .cratis | cat ai/rules/general.md',
+                'cd .cratis; cat ai/rules/general.md | rg scope',
+                'cd .cratis && cat ai/rules/general.md | bash',
+                'git branch new-branch | cat .cratis/ai/rules/general.md',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('original read lanes never confuse protected read paths with write targets', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai/rules'), { recursive: true });
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        writeFileSync(join(repo.root, '.cratis/ai/rules/project.md'), 'synthetic fixture');
+        await checkCases([
+            [ALLOW, `cd ${repo.root} && git diff --cc && rg -n 'new BearerRouteMiddleware|new\\(next, options|TreatWarnings|EnforceCode|WarningLevel|Configuration|Docker|Testcontainers' Source/AuthProxy.Specs/BearerRoutes Source/AuthProxy.Security.Specs/*.csproj Source/Aspire.Specs/*.csproj Directory.Build.* Source/Directory.Build.* AuthProxy.slnx && git log -6 --format='%H %s'`],
+            [ALLOW, "rg -l 'Identity|Hosting' .cratis/ai/rules/project*"],
+            [ALLOW, `cd ${repo.root} && git branch --show-current && git rev-parse HEAD && git status --short && rg -n 'Infrastructure.csproj' Source --glob '*.csproj' && sed -n '1,130p' Source/Admin.Specs/Admin.Specs.csproj && sed -n '1,120p' Source/Infrastructure/Infrastructure.csproj`],
+            [ALLOW, 'cat .cratis/ai/rules/project.md'], [ALLOW, 'ls .cratis/ai/rules'],
+            [ALLOW, 'sed -n p .cratis/ai/rules/project.md'],
+            ...['sed -i s/a/b/ Source/AuthProxy.Security.Specs/*.csproj', 'echo x > Source/AuthProxy.Security.Specs/*.csproj',
+                'sed -i s/a/b/ .cratis/ai/rules/project.md', 'echo x > .cratis/ai/rules/project.md',
+                "sed -n '1w .env' .cratis/ai/rules/project.md", "sed -n 'e touch marker' .cratis/ai/rules/project.md",
+                'cd .claude && echo x > settings.json', 'echo x > settings.json && cd .claude',
+                'cd .cratis/ai/rules && tee project.md', 'git branch new-branch && cat .env',
+                'rg --pre command .cratis/ai/rules/project.md', 'rg -l --pre command .cratis/ai/rules/project*',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('tool labels and shell snapshots never make globbed writes safe', () => {
+    const repo = scratchRepository();
+    try {
+        for (const shell of ['/bin/zsh', '/bin/bash', '']) {
+            for (const command of ['rm -f *.local', 'cp x *.production', 'truncate -s0 *.production',
+                'printf x > *.local', 'echo x > *.csproj']) {
+                const result = runGuard(payload(command, repo.root), repo.root, { SHELL: shell });
+                assert.equal(result.verdict, BLOCK, `${shell}: ${command}`);
+            }
+        }
+    } finally { repo.dispose(); }
+});
+
+test('heredoc lookalikes and enclosing shell evaluation retain brace references', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            'echo "\ncat <<\'B\'\n"; echo x | tee {.e,}nv\nB',
+            "bash <<'A'\ncat <<'B'\nA\necho x | tee {.e,}nv\nB",
+            'eval "$(\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n)"',
+            'bash -c "$(\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n)"',
+            '`\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n`',
+            "node <<'N'\nconsole.log(`${x || {}}`)\nN\necho x | tee {.,}env",
+        ].map(command => [BLOCK, command]), repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('interpreter heredocs preserve shell brace expansions in embedded shell payloads', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            String.raw`node <<'N'
+require('child_process').execSync('printf x | tee {.\,}env');
+N`,
+            "node <<'N'\nrequire('child_process').execSync('printf x | tee {.' + ',}env');\nN",
+            "perl <<'P'\n`printf x > {.,}env`;\nP",
+            "ruby <<'R'\n`printf x > {.,}env`\nR",
+            "node <<'N'\nrequire('child_process').execSync('printf x > {.,}env');\nN",
+            "python3 <<'P'\nimport os\nos.system('printf x > {.,}env')\nP",
+            "node <<'N'\nrequire('child_process').execSync('printf x > {.env,{a,b}}');\nN",
+            "node <<'N'\nrequire('child_process').execSync('printf x > {1..3}.env');\nN",
+            "node <<'N'\nrequire('child_process').execSync('printf x > {\"a b\",.env}');\nN",
+        ].map(command => [BLOCK, command]), repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('protected references deny writers and evaluators across the whole command text', async () => {
     const repo = scratchRepository();
     try {
         const blocked = [
             ...['>', '>>', '>|', '&>', '&>>', '2>', '1>>', '>&', '<>'].map(op => `echo x ${op} .mcp.json`),
             'echo x>.mcp.json', 'echo x > linked-control', 'echo x >> Source/Accounts/Registration.ts',
-            ...['cp x .env', 'cp .env .', 'cp .env build/', 'cp -t build .env', 'cp --no-target-directory x .env', 'cp a b .env', 'mv .env out', 'install -D -m600 x .env', 'install -t build .env', 'install -Sdir x .env', 'ln -sf x .env', 'ln -t build .env', 'tee -a .env', 'tee -a -- .env', 'tee -p .env', 'sed -i s/a/b/ Package.JSON', "sed -i'' -e s/a/b/ .env", 'sed -i.bak s/a/b/ .env', 'sed --in-place=.bak s/a/b/ .env', 'perl -pi -e s/a/b/ .env', 'perl -i.bak -e s/a/b/ .env', 'dd if=x of=.env', 'truncate -s 0 .env', 'truncate --size=0 .env', 'truncate -r ref .env', 'touch .env', 'rm .env', 'chmod 600 .env', 'awk print .env', 'find .env', 'node -e "write(.env)"'],
-            'cp .env.example .env', 'cp .mcp.json /tmp/backup.json', 'sed s/a/b/ .env',
+            ...['cp x .env', 'cp .env .', 'cp .env build/', 'cp -t build .env', 'cp --no-target-directory x .env', 'cp a b .env', 'mv .env out', 'install -D -m600 x .env', 'install -t build .env', 'install -Sdir x .env', 'ln -sf x .env', 'ln -t build .env', 'tee -a .env', 'tee -a -- .env', 'tee -p .env', 'sed -i s/a/b/ Package.JSON', "sed -i'' -e s/a/b/ .env", 'sed -i.bak s/a/b/ .env', 'sed --in-place=.bak s/a/b/ .env', 'perl -pi -e s/a/b/ .env', 'perl -i.bak -e s/a/b/ .env', 'dd if=x of=.env', 'truncate -s 0 .env', 'truncate --size=0 .env', 'truncate -r ref .env', 'touch .env', 'rm .env', 'chmod 600 .env', 'find .env', 'node -e "write(.env)"'],
+            'cp .env.example .env', 'sed s/a/b/ .env',
             'cp a.ts .pi/extensions/', 'cp -t.pi/extensions a.ts', 'install -t.pi/extensions a.ts', 'env -C.claude tee settings.json',
             'sudo tee .mcp.json', 'command cat .env', 'builtin echo .env', 'env FOO=1 cat .env',
             'sudo -D .claude tee settings.json', 'sudo --chdir=.claude tee settings.json',
@@ -97,7 +449,80 @@ test('protected references deny writers and evaluators across the whole command 
             'uniq .env out', 'jq -i .env', 'yq --inplace .env', 'gh api .env -X POST', 'gh api .env --method=DELETE',
             'gh api .env -f x=y', 'gh api .env -F file=@x', 'gh api .env --input body',
         ];
-        await checkCases(blocked.map(command => [BLOCK, command]), repo.root);
+        await checkCases([
+            ...blocked.map(command => [BLOCK, command] as [string, string]),
+            // Explicit renames read the managed source; directory basenames remain write targets.
+            [ALLOW, 'cp .mcp.json /tmp/backup.json'],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+for (const environmentFileExists of [false, true]) {
+    for (const command of [
+        'cp x .[[=e=]]nv', String.raw`cp x .e[\\n]v`,
+        ...['.e[[=]=]n]v', '.e[[.].]n]v', String.raw`.[\e]nv`, '.[[.e.]]nv', '.[]e]nv', '.[!x]nv', '.[[:alpha:]]nv',
+            '.[[:nosuch:]]nv', '.[[=ab=]]nv', '.[[.ab.]]nv'].map(path => `cp x '${path}'`),
+    ]) {
+        test(`bash bracket class references block writers with .env ${environmentFileExists ? 'present' : 'absent'}: ${command}`, () => {
+            const repo = scratchRepository();
+            try {
+                if (environmentFileExists) writeFileSync(join(repo.root, '.env'), 'synthetic fixture\n');
+                const result = runGuard(payload(command, repo.root), repo.root);
+                assert.equal(result.verdict, BLOCK, `${command}\n${result.stderr}`);
+                assert.equal(result.stdout, '');
+                assert.match(result.stderr, /BLOCKED by cratis-guard-shell-writes/);
+            } finally { repo.dispose(); }
+        });
+    }
+}
+
+test('ordinary bracket expressions in command arguments do not cause false refusals', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [ALLOW, String.raw`grep -E '[\w.-]+' notes.txt`],
+            [ALLOW, String.raw`sed 's/[\/&]/x/' notes.txt`],
+            [ALLOW, String.raw`awk -F'[\t]' -f prog.awk notes.txt`],
+            [ALLOW, "jq '.[] | [.number, .title]' metadata.json"],
+            [ALLOW, "jq '[.foo, .]' metadata.json"],
+            [ALLOW, "jq '.[]' metadata.json"],
+            [ALLOW, "jq '[]' metadata.json"],
+            [ALLOW, "cp x '[z-a]x'"],
+            [ALLOW, "cp x 'ordinary[abc'"],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('bracket sets with a leading literal closing bracket cannot conceal protected writes', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [BLOCK, 'echo x > .[]e]nv'],
+            [BLOCK, 'cp x .[]e]nv'],
+            [BLOCK, 'echo x > .[!]x]nv'],
+            [BLOCK, 'cp x .[^]x]nv'],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('braces mixed with brackets or spanning a slash are refused rather than modeled', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [BLOCK, 'tee p{x,[a}]ckage.json </dev/null'],
+            [BLOCK, 'cp /dev/null .m{x,[c}]p.json'],
+            [BLOCK, 'cp x .cl{x,[a}]ude/settings.json'],
+            [BLOCK, 'cp x .cr[a{]tis/ai/{rules,foo}'],
+            [BLOCK, 'cp x .cratis/{ai/rules,foo}'],
+            [BLOCK, 'tee .m{x,{c,d}}p.json </dev/null'],
+            [BLOCK, 'tee p{x,{a,b}}ckage.json </dev/null'],
+            [BLOCK, 'tee .claude/settings{x,{.,_}}json </dev/null'],
+            [BLOCK, String.raw`tee .m{x\},c}p.json </dev/null`],
+            [BLOCK, String.raw`tee p{x\},a}ckage.json </dev/null`],
+            [BLOCK, `tee .m{x"}",c}p.json </dev/null`],
+            [ALLOW, `awk '{print $1} END{print}' notes.txt`],
+            [ALLOW, 'cp x notes{1,2}.txt'],
+        ], repo.root);
     } finally { repo.dispose(); }
 });
 
@@ -106,6 +531,7 @@ test('no-reference commands bypass the allowlist and protected reads remain read
     try {
         const allowed = [
             'npm test', 'dotnet build', 'yarn test', 'npx tsc', 'node -e "console.log(1)"',
+            'cp x a=b.txt',
             'bash --version', 'bash --help', 'bash -', 'bash < script', 'cat f | bash',
             'cd src && echo ok > out.txt', 'echo x > notes.md', 'echo x > Package.json.md',
             'cat package.json', 'grep -n version package.json > /tmp/v.txt', 'git diff -- package.json',
@@ -117,6 +543,41 @@ test('no-reference commands bypass the allowlist and protected reads remain read
             "c'a't .env", 'cat Source/Accounts/Registration.ts', 'cat .ENV', 'ls .e*', 'cat .env notes/*.md',
         ];
         await checkCases(allowed.map(command => [ALLOW, command]), repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('copy grammar reviews only explicit option spellings and destination roles', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            ...[
+                'cp .env notes.md', 'cp -rf .env notes.md', 'cp -rt /tmp/ok .mcp.json',
+                'cp -rt/tmp/ok .mcp.json', 'cp --target-directory=/tmp/ok .mcp.json',
+                'cp --target-directory /tmp/ok .mcp.json', 'cp -T .env /tmp/ok',
+                'rsync -arvnuztp .env notes.md', 'rsync --times .env notes.md',
+                'install -m755 .env notes.md', 'install -m 0755 .env notes.md',
+                'install -cvCp .env notes.md', 'install -t/tmp/ok .mcp.json',
+            ].map(command => [ALLOW, command] as [string, string]),
+            ...[
+                'cp -s .env /tmp/ok', 'cp .env -t /tmp/ok', 'install -D .env /tmp/ok',
+                'rsync --delete .env /tmp/ok', 'cp -t /tmp/ok; echo .env',
+                'cp .env /tmp/ok < notes.md', 'cd sub && cp .env /tmp/ok',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('parameter match operators are data but value-bearing expansions stay visible', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [ALLOW, 'echo "${p%%:*}" "${p##*/}" "${p%.env}" "${p#.env}"'],
+            [ALLOW, 'echo "${p^^*.md}" "${p,,*.md}" "${p:1: -2}"'],
+            [BLOCK, 'echo "${x:=.env}"'], [BLOCK, 'echo "${x:-.env}"'],
+            [BLOCK, 'echo "${x%$(touch .env)}"'], [BLOCK, 'echo "${x%${y:-.env}}"'],
+            [BLOCK, 'echo "${p%.env}" > .env'], [BLOCK, 'echo "${p/a/.env}"'],
+            [BLOCK, 'echo "${p%%:*}"; touch .env'],
+        ], repo.root);
     } finally { repo.dispose(); }
 });
 
@@ -132,7 +593,10 @@ test('only explicit per-verb options are permitted with protected references', a
             'gh run download 1 --dir .claude', 'gh run download 1 --dir=.claude',
             'echo .env; gh pr checkout 5', 'gh pr checkout 5 .env', 'gh issue develop 1 .env',
             'head -f .env', 'tail -f .env', 'head --bytes=20 .env', 'head -c20 .env',
-            'grep --include=x y .env', 'grep --incl=x y .env', 'grep -ePATTERN .env', 'grep -A5 x .env',
+            'grep --incl=x y .env', 'grep --include-from x .env', 'grep --exclude-dir=x y .env',
+            'grep --include= x .env', 'grep --exclude= x .env', 'echo .env; grep --include',
+            'grep --include *.md y .env', 'grep -ePATTERN .env', 'grep -A5 x .env',
+            'git branch -l .env', 'git branch --list -D .env', 'git tag --list --sort=x .env',
             'cat --number .env', 'cat -nZ .env', 'wc --bytes .env', 'ls --sort=name .env',
             'printf -v result .env', 'pwd -L .env', 'test -f .env',
             'git status --porcelain=v1 .env', 'git status --sho .env', 'git diff -U 3 .env',
@@ -143,10 +607,10 @@ test('only explicit per-verb options are permitted with protected references', a
             'git blame -p .env', 'git checkout .env',
             // Expansions and globs could supply option words the per-verb tables never see.
             'git diff $OPT .env', 'git diff "$OPT" .env', 'git diff ${OPT} .env', 'cat $FLAGS .env',
-            'git diff * .env', 'git diff -- .env ?', 'cat [-]* .env', 'grep x .env *.txt', 'cat -* .env', "cat '-'* .env",
+            'git diff * .env', 'git diff -- .env ?', 'cat [-]* .env', 'cat -* .env', "cat '-'* .env",
             'echo .env; head -n', 'echo .env; grep -e', 'echo .env; git commit -m',
-            ...['less', 'more', 'rg', 'ag', 'sort', 'uniq', 'cut', 'jq', 'yq', 'stat', 'file', 'diff', 'cmp', 'md5sum', 'shasum', 'sha256sum', 'realpath', 'dirname', 'basename', 'which', 'type', 'gh'].map(verb => `${verb} .env`),
-            ...['jq', 'yq', 'sort', 'uniq', 'gh'].map(verb => `${verb} -- .env`),
+            ...['less', 'more', 'ag', 'sort', 'uniq', 'cut', 'yq', 'stat', 'file', 'diff', 'cmp', 'md5sum', 'shasum', 'sha256sum', 'realpath', 'dirname', 'basename', 'which', 'type', 'gh'].map(verb => `${verb} .env`),
+            ...['yq', 'sort', 'uniq', 'gh'].map(verb => `${verb} -- .env`),
             ...['cat', 'head', 'tail', 'wc', 'ls', 'grep', 'egrep', 'fgrep', 'echo', 'printf', 'test', '[', 'true', 'false', 'pwd'].flatMap(verb => [`${verb} --unlisted=.env`, `${verb} -z .env`]),
             ...['status', 'diff', 'log', 'show', 'add', 'commit', 'blame', 'ls-files', 'rev-parse', 'check-ignore', 'grep'].map(verb => `git ${verb} --unlisted .env`),
         ];
@@ -157,11 +621,14 @@ test('only explicit per-verb options are permitted with protected references', a
             'cat -nb .env', 'cat -- --output=.env', 'cat - .env',
             ...['l', 'w', 'c', 'm'].map(flag => `wc -${flag} .env`),
             ...['l', 'a', 'A', '1', 'h', 'd', 'R', 't', 'r', 'F'].map(flag => `ls -${flag} .env`),
-            'ls -la .claude',
+            'ls -la .claude', 'rg .env',
+            "git branch --list '.e*'", "git tag -l '.e*'", "git tag --list '.e*' '.c*'",
             ...['grep', 'egrep', 'fgrep'].flatMap(verb => [
                 ...['n', 'i', 'r', 'R', 'l', 'L', 'c', 'v', 'w', 'x', 'F', 'E', 'H', 'h', 'o', 'q', 's'].map(flag => `${verb} -${flag} x .env`),
                 ...['A', 'B', 'C'].map(flag => `${verb} -${flag} 2 x .env`),
                 `${verb} -e --include=x .env`, `${verb} -ni x .env`,
+                `${verb} --include=x y .env`, `${verb} --exclude=x y .env`,
+                `${verb} --include '*.md' x .env`, `${verb} --exclude '*.md' x .env`,
             ]),
             ...['n', 'e', 'E'].map(flag => `echo -${flag} .env`),
             'printf -- -v .env', 'test -- .env', '[ -- .env',
@@ -178,6 +645,124 @@ test('only explicit per-verb options are permitted with protected references', a
             'git diff --output=out.txt', 'printf -v result ordinary', 'head -n',
         ];
         await checkCases([...blocked.map(command => [BLOCK, command] as [string, string]), ...allowed.map(command => [ALLOW, command] as [string, string])], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('exact literal git directory metadata shapes permit protected-reference inspection', async () => {
+    const repo = scratchRepository();
+    try {
+        const tails = ['status --short', 'rev-parse HEAD', 'branch --show-current', "tag --list '*7.321*'"];
+        await checkCases([
+            ...tails.map(tail => [ALLOW, `git -C '${repo.root}' ${tail}; ls .claude`] as [string, string]),
+            [ALLOW, "git -C 'literal*directory' status --short; ls .claude"],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('git directory metadata rejects global options, mutation modes and extra operands', async () => {
+    const repo = scratchRepository();
+    try {
+        const prefix = `git -C '${repo.root}'`;
+        const blocked = [
+            `git -C${repo.root} status --short`, `git -C=${repo.root} status --short`,
+            "git -C '' status --short", 'git -C -dir status --short', 'git -C status --short',
+            `${prefix} -C other status --short`, `${prefix} status --short -C other`,
+            ...['-c x=y', '--git-dir=other', '--work-tree=other', '--no-pager', '--exec-path=other'].flatMap(option => [
+                `git ${option} -C '${repo.root}' status --short`, `${prefix} ${option} status --short`,
+            ]),
+            `NAME=value ${prefix} status --short`, `NAME=value; ${prefix} status --short`,
+            ...['status --short', 'rev-parse HEAD', 'branch --show-current', 'tag --list p'].map(tail => `${prefix} ${tail} extra`),
+            ...['status', 'rev-parse', 'branch', 'tag --list', 'branch new-name', 'branch -d old-name',
+                'tag new-name', 'tag -d v1', 'tag --list -x', 'tag --list p q',
+                'tag --list --format=%(refname)', 'tag --list p --format=%(refname)',
+                'tag --list p -n', 'tag --list p --contains HEAD', 'tag --list p --sort=refname',
+                'tag --list p --points-at HEAD', 'diff --numstat', 'log -1', 'show HEAD',
+            ].map(tail => `${prefix} ${tail}`),
+            `${prefix} status --short; tee .mcp.json`, 'git -C "$(pwd)" status --short',
+            'git -C "$dir" status --short', 'git -C * status --short', 'git -C prefix* status --short',
+            'git -C prefix? status --short', 'git -C prefix[a] status --short',
+            `${prefix} tag --list "$(echo p)"`, 'git branch --show-current', 'git tag --list p',
+        ];
+        await checkCases(blocked.map(command => [BLOCK, `${command}; ls .claude`]), repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('numstat and narrow rg options permit reads but not helpers or writers', async () => {
+    const repo = scratchRepository();
+    try {
+        const allowed = ['git diff --numstat -- Generated.ts', "rg -n 'synthetic' notes.md", 'rg -n -- --pre=x notes.md'];
+        const blocked = [
+            ...['--ext-diff', '--textconv', '--output=f'].map(option => `git diff --numstat ${option}`),
+            'rg -n --pre x f', 'rg -nz p f', 'rg -n --search-zip p f', 'rg -n --pre-glob=x p f',
+            'rg -n --hostname-bin=x p f', 'rg -n -f patterns f', 'rg -n -r replacement p f', 'rg -n --json p f',
+            'RIPGREP_CONFIG_PATH=x rg -n p f', 'rg -n p notes.md; tee .mcp.json', 'rg -n "$(echo p)" notes.md',
+        ];
+        await checkCases([
+            ...allowed.map(command => [ALLOW, `${command}; ls .claude`] as [string, string]),
+            ...blocked.map(command => [BLOCK, `${command}; ls .claude`] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('numstat does not invoke a configured textconv helper', () => {
+    const repo = scratchRepository();
+    try {
+        const marker = join(repo.root, 'textconv-marker');
+        const helper = join(repo.root, 'textconv.sh');
+        writeFileSync(helper, `#!/bin/sh\nprintf marker > '${marker}'\ncat "$1"\n`);
+        writeFileSync(join(repo.root, '.gitattributes'), 'tracked.txt diff=synthetic\n');
+        writeFileSync(join(repo.root, 'tracked.txt'), 'before\n');
+        const git = (...args: string[]) => {
+            const result = spawnSync('git', args, { cwd: repo.root, encoding: 'utf8' });
+            assert.equal(result.status, 0, result.stderr);
+            return result.stdout;
+        };
+        git('config', 'diff.synthetic.textconv', `sh '${helper}'`);
+        git('add', '.gitattributes', 'tracked.txt');
+        writeFileSync(join(repo.root, 'tracked.txt'), 'after\n');
+        assert.match(git('diff', '--numstat'), /1\t1\ttracked\.txt/);
+        assert.equal(existsSync(marker), false, 'numstat must not execute textconv');
+        git('diff', '--textconv');
+        assert.equal(existsSync(marker), true, 'the configured helper must be active for textconv diffs');
+    } finally { repo.dispose(); }
+});
+
+test('rg secret reads remain blocked by the secrets guard independently of shell admission', () => {
+    const repo = scratchRepository();
+    try {
+        const command = 'rg -n p .env';
+        assert.equal(runGuard(payload(command, repo.root), repo.root).verdict, ALLOW);
+        const result = spawnSync('bash', [join(guard, '../cratis-guard-secrets.sh')], {
+            cwd: repo.root, input: JSON.stringify(payload(command, repo.root)), encoding: 'utf8',
+            env: { ...environment(), CRATIS_HOOKS_ALLOW_SECRET_READS: '0' },
+        });
+        assert.equal(result.status, 2, result.stderr);
+        assert.match(result.stderr, /BLOCKED by cratis-guard-secrets/);
+    } finally { repo.dispose(); }
+});
+
+test('jq arrays do not crash classification or conceal protected references', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [ALLOW, "jq '.[]' metadata.json"],
+            [ALLOW, "jq '[]' metadata.json"],
+            [ALLOW, "jq '[.number, .title]' metadata.json"],
+            [ALLOW, "gh issue list --json number,title --jq '.[] | [.number, .title]'"],
+            [ALLOW, 'cat .[e]nv'],
+        ], repo.root);
+        for (const command of [
+            "jq '.[]' metadata.json; echo x > .env",
+            "jq '.[]' metadata.json | tee .env",
+            "jq '.[]' x > .env",
+            "jq '[.number, .title]' metadata.json; tee .mcp.json",
+            'echo x > .[e]nv', 'echo x > .[a-z]nv', 'echo x > .[!x]nv', 'echo x > .cl[a]ude/settings.json',
+        ]) {
+            const result = runGuard(payload(command, repo.root), repo.root);
+            assert.equal(result.verdict, BLOCK, `${command}\n${result.stderr}`);
+            assert.equal(result.stdout, '', command);
+            assert.match(result.stderr, /BLOCKED by cratis-guard-shell-writes: protected reference /, command);
+        }
     } finally { repo.dispose(); }
 });
 
@@ -266,6 +851,22 @@ test('the Pi bridge blocks protected writes but permits a protected read', async
     } finally {
         if (saved === undefined) delete process.env.CRATIS_HOOKS_ALLOW_PROTECTED_WRITES;
         else process.env.CRATIS_HOOKS_ALLOW_PROTECTED_WRITES = saved;
+        repo.dispose();
+    }
+});
+
+test('gh publish commands treat a literal title or body as data and refuse file-valued or expanded input (Cratis/AI#1076)', async () => {
+    const repo = scratchRepository();
+    try {
+        await checkCases([
+            [ALLOW, 'gh pr create --title x --body "mentions .mcp.json"'], [ALLOW, 'gh pr comment 5 --body "mentions .mcp.json"'],
+            [ALLOW, 'gh issue create --title "a .mcp.json" --body b --label bug'],
+            [BLOCK, 'gh pr create --body-file .mcp.json'], [BLOCK, 'gh pr create --title x -F .mcp.json'],
+            [BLOCK, 'gh pr create --body "$(cat .mcp.json)"'], [BLOCK, 'gh pr create --body "`cat .mcp.json`"'],
+            [BLOCK, 'gh pr create --body x > .mcp.json'], [BLOCK, 'gh pr create --title x --body "a" --base .mcp.json'],
+            [BLOCK, 'gh pr create --title x --body "a" .mcp.json'], [BLOCK, 'gh pr merge 5 .mcp.json'],
+        ], repo.root);
+    } finally {
         repo.dispose();
     }
 });

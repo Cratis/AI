@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-projections
-description: Use when declaring Screenplay event-to-state mappings or diagnosing a .play projection's keys, joins, children or lifecycle variants. Not for hand-written C# Chronicle projections or read-model query contracts.
+description: Use when declaring Screenplay event-to-state mappings, a graph projection onto nodes and edges, or diagnosing a .play projection's keys, joins, children or lifecycle variants. Not for hand-written C# Chronicle projections or read-model query contracts.
 license: MIT
 ---
 
@@ -64,6 +64,10 @@ it; the projection or reducer points at it with `=>`. **Exactly one thing may
 build a read model** — two builders is error `PLAY0191`: *a projection or a
 reducer builds it, and only one of them*. A slice may still declare several
 projections, each building a **different** read model.
+
+**A builder never names a sink.** A projection or reducer writes to its read model's sink, and a
+graph projection to its graph's sink; only the `readmodel` or `graph` body carries `sink <Name>`
+(read surface [sinks](../cratis-screenplay-read-surface/references/sinks.md)).
 
 ## Public-event targets and observer filters
 
@@ -238,6 +242,19 @@ coexist.
 
 Each `variant` is its own read model created only by its `enters on` events, and mutual exclusion works through the event source identity: keep the event source equal to the entity identifier or the issue stays in both variants. Read [references/variants.md](references/variants.md) when modeling an entity with exclusive lifecycle shapes or fixing `PLAY0382`–`PLAY0385`.
 
+## Graph targets — `projection X => graph G`
+
+A `graph` declares node labels (one `key` each) and edge types; `projection X => graph G`
+builds it with `node` and `edge` blocks. Nothing writes to a graph except events.
+Requires Screenplay 5.7.0 (`screenplay --version`).
+
+Choose a graph for traversals (membership, nesting, paths) and a document read model
+for lookups by key. Design by **reading the graph backwards**: write each question
+as a path, make every hop an edge type and every stop a node label, then name the
+event that creates and the one that removes each. Read
+[references/graphs.md](references/graphs.md) for syntax, operations, a graph in a named sink
+(`sink People for graphs`) and `PLAY0862`–`PLAY0877`.
+
 ## When PDL is not enough — the reducer
 
 Excerpt: the events and the `AccountBalance` read model are declared elsewhere.
@@ -332,6 +349,7 @@ method: `cratis-screenplay-modeling-lifecycle` and `cratis-screenplay-slice-desi
 
 - Deciding which read models exist at all: `cratis-screenplay-event-modeling`.
 - Read-model shape, queries and screens: `cratis-screenplay-read-surface`.
-- Specifying projection behavior: `cratis-screenplay-specifications`.
+- Specifying projection behavior, including `given graph` and `then graph`: `cratis-screenplay-specifications`.
+- Reading a graph from Arc code: `cratis-arc-neo4j`.
 - Hand-written C# Chronicle projections: `cratis-chronicle-projection`.
 - Hand-written C# Chronicle reducers: `cratis-chronicle-reducer`.

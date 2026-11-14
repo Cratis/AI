@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-arc-storage-typescript",
+  "evals": [
+    {
+      "id": 1,
+      "name": "mongodb-paged-read-model",
+      "prompt": "In an Arc for TypeScript server, serve a TaskRecord (Guid id, string title) from MongoDB as a paged, sortable list. Show the model, query and builder registration. Give the code in your reply; do not write files.",
+      "expected_output": "A TaskRecord with @field and @key() id, a mongoCollection token injected with service(), queryOptions() and queryPage({}, options), and withMongoDB registering the model in readModels.",
+      "assertions": [
+        "Declares @field metadata and marks the id with @key().",
+        "Injects mongoCollection(TaskRecord) with service(...) and uses queryPage(filter, options) instead of slicing in memory.",
+        "Registers the model with withMongoDB({ client, database, readModels: [TaskRecord] }).",
+        "Notes that the database follows the resolved tenant rather than a query argument."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "drizzle-column-codecs",
+      "prompt": "Our Arc for TypeScript read model has a Guid id, a string title and a DateOnly dueOn, stored in PostgreSQL through Drizzle. Show the table, the model and the registration, and say who creates the column. Reply only.",
+      "expected_output": "pgTable with pgColumn(guidCodec(DrizzleDialect.PostgreSQL)) primary key, pgColumn(dateOnlyCodec) for dueOn, matching @field properties, withDrizzle with readModels table mapping; Arc never alters the schema.",
+      "assertions": [
+        "Uses guidCodec and dateOnlyCodec wrapped by pgColumn.",
+        "Matches each @field to a table column under the same property key and requires a primary key.",
+        "Registers with withDrizzle({ dialect, database or databaseFactory, readModels: [{ type, table }] }).",
+        "States Arc never creates or migrates the database; the application owns the migration."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "postgres-observation",
+      "prompt": "A live Arc for TypeScript query over a Drizzle PostgreSQL table must update when another process writes. What do we configure and what are the limits? Reply only.",
+      "expected_output": "DrizzleObservation.PostgreSQLNotify with a trigger installed by an application migration (postgresqlChangeTrigger) and a dedicated pg.Client listener via nodePostgresListener; NOTIFY is not durable.",
+      "assertions": [
+        "Selects DrizzleObservation.PostgreSQLNotify rather than InProcess for other processes.",
+        "Installs triggers through an application migration using postgresqlChangeTrigger because Arc creates no database objects at runtime.",
+        "Supplies a new dedicated pg.Client per tenant through nodePostgresListener.",
+        "Warns that NOTIFY is not a durable log and intermediate states during a disconnect are not replayed."
+      ]
+    }
+  ]
+}

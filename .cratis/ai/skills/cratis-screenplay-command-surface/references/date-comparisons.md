@@ -70,6 +70,8 @@ module Retention
         produces event WindowKept
           from DateTime = from
           to DateTime = to
+      screen KeepWindow
+        action KeepWindow for screen
       specification AcceptingEqualInstantsWithDifferentOffsets
         when KeepWindow
           windowId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"

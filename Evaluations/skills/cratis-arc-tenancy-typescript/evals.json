@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-arc-tenancy-typescript",
+  "evals": [
+    {
+      "id": 1,
+      "name": "claim-then-header-with-membership",
+      "prompt": "Our Arc for TypeScript server serves several customers. The token carries a `tenants` claim (comma separated) and sometimes a `tenant` claim; the web app also sends x-cratis-tenant-id. Configure tenancy so a missing tenant fails and a caller cannot name a tenant they do not belong to. Give the code in your reply; do not write files.",
+      "expected_output": "ArcApplication.createBuilder with authentication handlers and tenancy sources [Claim, Header], claimType 'tenant', membershipClaim 'tenants', required true, explaining 400 for no tenant and 403 for non-members.",
+      "assertions": [
+        "Uses tenancy.sources with TenantResolverType.Claim before TenantResolverType.Header and sets claimType.",
+        "Sets membershipClaim to the comma-separated claim and required: true.",
+        "States that a missing tenant answers 400 and a tenant not in the claim answers 403.",
+        "Says a header selects but does not prove membership."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "custom-resolver-lowercase",
+      "prompt": "Membership is stored in our own database, so a claim lookup is not enough. How do we resolve and check the tenant in an Arc for TypeScript server, and what must the resolver return to keep MongoDB, Drizzle and Chronicle aligned? Reply only.",
+      "expected_output": "Use tenancy.resolve(request, principal), which is final and skips sources, required, membershipClaim and lowercasing; check membership inside it and return lowercase DNS-label ids.",
+      "assertions": [
+        "Uses tenancy.resolve(request, principal) and notes it may be async.",
+        "States that Arc does not apply sources, required, membershipClaim or lowercasing to its answer.",
+        "Tells the resolver to check membership itself and return lowercase ids.",
+        "Does not put the membership check in a validator."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "storage-mapping-and-singletons",
+      "prompt": "Tenant acme works for HTTP requests but a nightly job and a cached repository return Globex data in our Arc for TypeScript server. Explain how each storage integration maps the tenant and what is wrong. Reply only.",
+      "expected_output": "Mongo uses database tasks+acme, Drizzle calls databaseFactory, Chronicle uses namespace; singletons caching handles keep the first tenant; jobs must pass a tenantId in the context they give app.server.",
+      "assertions": [
+        "Describes MongoDB database <database>+<tenant>, Drizzle databaseFactory(tenant, context) and Chronicle namespace.",
+        "Identifies a singleton caching a collection or connection as holding the first tenant and recommends scoped services.",
+        "Tells background work calling the server directly to pass a tenantId on purpose.",
+        "Recommends tests for no tenant, default, two named tenants, a denied selection and concurrent requests."
+      ]
+    }
+  ]
+}

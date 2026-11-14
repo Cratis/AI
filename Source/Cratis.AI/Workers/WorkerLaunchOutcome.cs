@@ -46,5 +46,17 @@ public enum WorkerLaunchOutcome
     /// removed; the caller must reduce the configuration before retrying. The runtime log names
     /// the total UTF-8 bytes, payload limit, and largest files without exposing their contents.
     /// </summary>
-    ConfigurationTooLarge
+    ConfigurationTooLarge,
+
+    /// <summary>
+    /// The host-prepared workspace is unset, invalid, unsupported, or carries forbidden
+    /// credentials. Nothing was created or removed. The caller must fix the job, not retry it.
+    /// </summary>
+    InvalidWorkspace,
+
+    /// <summary>
+    /// The cache request is malformed or its host paths are unsuitable. Nothing was created in the
+    /// container runtime. The caller must fix the job or cache configuration rather than retry it.
+    /// </summary>
+    InvalidCache
 }

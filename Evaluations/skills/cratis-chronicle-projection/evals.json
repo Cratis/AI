@@ -50,14 +50,15 @@
     },
     {
       "id": 5,
-      "name": "ordered-catchup-and-failed-lookup",
-      "prompt": "On Chronicle 19.50.1 we increased maxConcurrentPartitions to accelerate a projection catch-up. A new source failed during catch-up and the next-event storage lookup also errored. Can healthy sources keep catching up, can the observer fast-forward, and will completing replay end quarantine? Reply only.",
-      "expected_output": "Projection replay/catch-up each use one globally ordered step; new catch-up failure stops that step. Storage error does not prove absence or advance position. Quarantine does not end on completion.",
+      "name": "graph-attributes-and-replay",
+      "prompt": "Using Chronicle C#, project PersonRegistered, MemberAdded and MemberRemoved onto Person and Group nodes and a MEMBER_OF edge with a Since timestamp. What happens on redelivery and on replay? Reply only.",
+      "expected_output": "Node and edge records marked [Node]/[Edge] with [Key], [Source<>]/[Target<>], [EdgeFrom<>] and [EdgeRemovedWith<>], a detach on node removal, watermark skipping and mark-and-sweep replay.",
       "assertions": [
-        "Explains projection catch-up and replay each use a single globally ordered job step, not concurrent per-source steps.",
-        "Explains a new failure during projection catch-up stops the ordered step, distinct from ordinary live partition isolation.",
-        "States a next-event lookup error leaves the saved position unchanged and retries rather than fast-forwarding; only NotFound proves absence.",
-        "States replay/catch-up completion does not end observer quarantine or repair historical skipped events automatically."
+        "Marks nodes with [Node] and [Key] and the edge with [Edge(\"MEMBER_OF\")], [Source<Person>] and [Target<Group>].",
+        "Uses [EdgeFrom<MemberAdded>] and [EdgeRemovedWith<MemberRemoved>] naming the source and target key properties.",
+        "Uses RemovedWith with detach: true when deleting a node whose edges must go too.",
+        "States a write at or below the stored watermark is skipped, so redelivery does not apply twice.",
+        "States replay is mark and sweep with a new generation, rebuilding counters from zero and deleting unwritten elements."
       ]
     }
   ]

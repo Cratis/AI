@@ -10,7 +10,7 @@
 - Recovery follows commit facts
 - Chronicle aggregates (experimental)
 
-Source: `Cratis/Arc.TypeScript` (source preview, not on npm):
+Source: `Cratis/Arc.TypeScript`:
 `Source/Core/commands/CommandOperation.ts`, operation execution/recovery code,
 `Source/Chronicle/ChronicleCommandScope.ts`, `commandAggregate.ts`,
 `Documentation/commands/operations/reference.md`, and

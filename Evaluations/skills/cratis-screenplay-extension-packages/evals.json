@@ -1,0 +1,41 @@
+{
+  "skill_name": "cratis-screenplay-extension-packages",
+  "evals": [
+    {
+      "id": 1,
+      "name": "scaffold-and-verify",
+      "prompt": "We need an extension package named OrderTracking with a TypeScript backend and a React component, publisher acme. How do we create it and what do we run before publishing? Show the commands in your reply; do not write files.",
+      "expected_output": "Uses cratis extension new with the backend, frontend and publisher flags, notes that the scaffold already verifies, then runs cratis extension verify and reads its per-check statuses, treating skipped checks as not passed.",
+      "assertions": [
+        "Uses `cratis extension new` with `--backend typescript`, `--frontend react` and `--publisher acme` rather than hand-writing the package.",
+        "Runs `cratis extension verify` before publishing and explains that a skipped check is never a pass.",
+        "Notes that a React component needs a static HTML placeholder with no scripts or external references.",
+        "Does not publish to a registry or change the project allow-list without being asked."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "lock-and-trust",
+      "prompt": "CI fails when compiling our model with the extension 'cratis/stripe' reported as not locked, and a later run says the publisher is unallowed. Explain what to do. Do not run anything.",
+      "expected_output": "Explains screenplay.lock pinning, restoring or pinning with cratis extension restore locally and committing the lock, running restore with --locked in CI, and that an unallowed publisher needs a human review of the allow-list entry rather than an automatic trust.",
+      "assertions": [
+        "Explains that the lock pins the digest and contract hash, and that the compiler never resolves a version range.",
+        "Says to pin with `cratis extension restore` locally and commit `screenplay.lock`, and to use `--locked` in CI.",
+        "Says the allow-list in `.cratis/extensions.json` is edited only after a human reviews the publisher, and that CI cannot ask.",
+        "Does not invent diagnostic codes or flags beyond the documented ones."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "consume-with-settings",
+      "prompt": "Our model needs the cratis/stripe extension for a Payments system, with its secret key coming from a named secret. Show the system declaration and say where the secret value is set. Do not write files.",
+      "expected_output": "Declares the system with an extension line and a setting mapped from a named secret, declares no abilities on the system, and says the value is set in the environment with cratis config under secrets.<Name>, never in the model or lock.",
+      "assertions": [
+        "Declares `extension \"cratis/stripe\"` on the Payments system and maps the setting with `setting <name> from secret <Name>`.",
+        "Does not declare abilities on the system that names the extension, because the contract supplies them.",
+        "Says the secret value is set with `cratis config set secrets.<Name>` and never appears in the model or lock.",
+        "Mentions that the contract must be restored and locked before the compiler can check it."
+      ]
+    }
+  ]
+}

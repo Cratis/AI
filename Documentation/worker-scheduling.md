@@ -29,21 +29,184 @@ no packing affinity. Resource requests, limits, node selectors, and tolerations 
 apply. Packing is a preference, not a requirement: the first worker can start without
 an existing matching pod, and capacity can place subsequent workers elsewhere.
 
-## Restricted checkout cache isolation
+## Scoped worker cache access
 
-A shared repository cache exposes source from repositories beyond a job's checkout list,
-even when mounted read-only. When `WorkerJob.EnvironmentVariables` contains
-`DIRECT_REPOSITORY_CHECKOUTS`, both `KubernetesWorkerRuntime` and `DockerWorkerRuntime`
-omit the configured repository-cache PVC or bind mount and its environment variable.
-They also remove caller-supplied `DIRECT_REPOSITORY_CACHE` and the configured cache
-variable. Presence of the checkout key is sufficient, including an empty contract;
-invalid checkout contracts remain the entrypoint's responsibility to reject.
+Set `WorkerJob.Cache` to a `WorkerCacheAccess` selecting one memory key and the
+repository mirrors the job needs. A null request mounts no cache, even when
+`RepositoryCachePath` and `RepositoryCacheClaimName` are configured. The runtime
+mounts only the selected mirrors read-only and `<cache>/.agent-memory/<key>`
+read-write. No mount covers the cache root or the `.agent-memory` parent.
 
-Ordinary jobs retain their existing cache mounts and environment. Restricted jobs
-clone fresh instead. Upgrade the `Cratis.AI` runtime package as well as the harness
-images: an entrypoint-only upgrade cannot remove a mount supplied by an older runtime.
-This closes the shared-cache source-read path, not every possible credential, network,
-or consumer-supplied file exposure.
+`MemoryKey` is exactly `v1-` followed by 64 lowercase hexadecimal characters.
+The consumer derives this opaque key from its identity context. `Repositories`
+is an `IReadOnlyList<WorkerCacheRepository>`: each entry has `CloneUrl` and
+`MirrorPath`. `CloneUrl` must be a well-formed absolute HTTPS URL without user
+information, query, fragment, whitespace or control characters. `MirrorPath` is
+the consumer-selected relative mirror path (for example,
+`git.example/owner/team/repo.git`), not a path inferred from the URL. The list
+contains at most 256 entries; each mirror path is at most 512 characters. Slash-separated
+segments contain only ASCII letters, digits, dots, underscores and hyphens, cannot
+start with a dot, and cannot be empty. The last segment must have a nonempty name
+ending in `.git`. Absolute paths, traversal, backslashes, control characters and
+nested repository paths are invalid. Duplicate clone URLs or mirror paths are
+refused using ordinal comparison; an empty list selects memory only. URL spelling
+is preserved, including case, trailing slash and `.git` suffix.
+
+The runtime sets `DIRECT_MEMORY_PATH` to
+`<cache>/.agent-memory/<key>/memory.jsonl` and the configured cache environment
+variable to `<cache>`. It also sets `CRATIS_WORKER_REPOSITORY_MIRRORS` to one line
+per repository: `<CloneUrl>\t<container mount path>` (a literal tab, newline-separated).
+The entrypoint selects a mirror only for an ordinal, exact clone-URL match to that
+mapping. No match, an empty mapping or an invalid bare mirror uses a full network
+clone, without guessing other paths. It always removes caller-supplied
+`DIRECT_MEMORY_PATH`, `DIRECT_REPOSITORY_CACHE`, `CRATIS_WORKER_REPOSITORY_MIRRORS`
+and the configured cache variable, case-insensitively. Worker secrets also reject
+these and all runtime-owned/execution environment names with a clear error, before
+runtime resources are created.
+Malformed requests return `WorkerLaunchOutcome.InvalidCache` before engine or
+cluster resources are created; fix the job rather than retrying it unchanged.
+Direct calls to the pure specification builders throw `ArgumentException` instead.
+
+### Provisioning and ownership
+
+For Kubernetes, configure a claim supporting read-write worker attachment
+(`ReadWriteMany` for concurrent workers across nodes). The runtime attaches one
+claim with per-directory `subPath` mounts. Only the memory-key mount is writable;
+previous whole-claim read-only mounts did not provide persistent writable memory.
+Pre-create its directory with ownership or group permissions allowing uid/gid 1655
+to write, accounting for `fsGroup` and the NFS export's permission rules. A
+kubelet-created directory may be root-owned and not writable by the worker.
+Only list mirrors already cached. Before the worker starts, a non-root init
+container using the same image mounts the PVC root read-only, with no worker
+secrets and only a minimal environment. It checks every selected memory and mirror
+component is a real directory, not a symlink, with its canonical path equal to the
+expected path. Any missing directory or mismatch refuses startup. The image must
+provide `/bin/sh` and `realpath`. Null cache requests add no verifier. Worker
+mounts remain memory read-write and mirrors read-only. An existing empty or invalid
+mirror uses the normal network clone path. Protect ancestors from untrusted writers
+throughout pod startup; the verifier is not a lock on the PVC. Target-cluster
+subPath behavior and NFS write permissions require deployment checks.
+
+Docker checks descendants of the trusted configured cache root for symlinks,
+reparse points and non-directories before contacting Docker and again after image
+pulling, immediately before container creation. The fresh check supplies the bind
+paths used for creation. The root itself may be a symlink. Missing mirrors are omitted
+and clone normally. Docker creates a missing memory leaf with Unix mode `0770`
+without changing existing ownership or parent permissions; operators must still
+provide the worker's group access. Unsuitable paths or creation failures return
+`InvalidCache`. Trusted cache writers must keep descendants stable during launch:
+these checks do not eliminate Docker's check-to-bind window.
+
+Legacy `.agent-memory/<owner>` directories are never mounted, migrated or deleted
+by this runtime. Back them up and retire them as a separate operator action.
+
+### Restricted and host-prepared jobs
+
+Presence of `DIRECT_REPOSITORY_CHECKOUTS`, including an empty contract, suppresses
+all cache and memory mounts and their environment values. Host-prepared jobs also
+mount no cache. These modes retain their minimal filesystem exposure; memory stays
+session-local through the entrypoint's temporary-file fallback. Invalid cache
+requests are still refused. Checkout-contract validation remains the entrypoint's
+responsibility.
+
+### Upgrade
+
+Consumers relying on implicit whole-volume mounts must now set `WorkerJob.Cache`;
+there is no environment-variable fallback. The coordinated Direct package-pin
+upgrade must supply the key and mirror list for every cache-enabled job. Upgrade
+the runtime package and harness images together so both use the scoped contract.
+See [the scoped cache decision](decisions/0021-worker-cache-scoped-mounts.md).
+
+## Host-prepared workspaces (Docker only)
+
+A host that already owns a checkout can launch a Docker worker without a clone or
+push. Configure a trusted, existing absolute root at
+`Cratis:AI:ContainerRuntime:HostWorkspaceRoot`, then set these job environment values:
+
+```text
+CRATIS_WORKSPACE_MODE=host-prepared
+CRATIS_WORKSPACE_HOST_PATH=/srv/workspaces/job-123
+```
+
+`job-123` must already be a readable, writable git work-tree root that is a **direct
+child** of the configured root (for example `/srv/workspaces`). The runtime checks the
+host path before contacting Docker, binds the tree read-write at `/workspace`, then
+overlays its `.git` entry read-only at `/workspace/.git`. The entry must exist directly
+in the workspace and must not be a symlink. A gitfile pointing outside the workspace
+is unsupported and refused. Internal gitfiles must use relative gitdir paths without
+traversal or symlinks; absolute host paths cannot follow the `/workspace` remapping.
+Their metadata's top-level subtree is also mounted read-only, preventing writable
+ancestors from redirecting the gitfile. In either layout, an existing `<gitdir>/commondir`
+file and its target must not be symlinks, and its relative target must stay inside the
+already read-only metadata subtree. Absolute pointers, traversal and symlink segments
+are refused under the same rules as gitdir pointers; no additional bind is added.
+The runtime removes the host-only path from the container environment and sets
+`CRATIS_WORKSPACE_PATH=/workspace`.
+
+**Results are uncommitted working-tree changes; the host collects them.** The entrypoint
+validates the mounted checkout and registers it in the container's global safe-directory
+configuration, but never commits, stages, writes refs or changes repository configuration.
+It does not clone, fetch, create a branch, attach repository credentials, or push.
+Repository cache mounts and their environment variables are suppressed in this mode.
+The host remains responsible for the checkout, the worker's capabilities and its changes.
+
+The read-only metadata overlay prevents a worker from changing host git configuration,
+hooks, common-directory pointers or submodule gitdirs. As defense in depth, the host must
+still read results using hardened git: `-c core.fsmonitor=false -c core.hooksPath=/dev/null`,
+**no host `safe.directory` trust of the workspace** (including wildcards), and **no submodule
+recursion**. Worktree content such as `.gitattributes` is still writable. For example,
+collect a diff as the checkout's host owner, without optional index writes, external diff
+commands, text conversion or submodule inspection:
+
+```sh
+git --no-optional-locks -c core.fsmonitor=false -c core.hooksPath=/dev/null \
+    -C /srv/workspaces/job-123 diff --no-ext-diff --no-textconv --ignore-submodules=all
+```
+
+Do not bypass an ownership refusal by trusting the checkout on the host. The
+entrypoint's safe-directory registration applies only inside the container.
+
+Unset or empty `CRATIS_WORKSPACE_MODE` keeps the existing clone workflow. Only the
+exact lowercase value `host-prepared` opts in; other non-empty values are errors,
+including `clone`, `true`, `1`, mixed case and whitespace. The trusted root is never
+inferred: unset, empty, relative or nonexistent roots refuse host-prepared launches.
+Workspaces must be direct children (a relative path of exactly one segment), not the
+root itself, a nested directory, or a sibling with the same prefix. Relative paths, traversal (`.`/`..`), empty path segments, trailing
+separators, newlines, colons, commas, and symlinks/reparse points below the trusted
+root are rejected. The container also rejects symlinks in the mounted path's ancestors.
+The host must keep the root and its descendants stable between validation and mount;
+validation cannot prevent an administrator from swapping a directory or its `.git`
+entry afterward. The trusted root's immediate children must remain host-owned; a
+running worker must not be able to replace them.
+
+Host-prepared mode refuses these repository inputs in either environment or secrets,
+**even when their value is empty**: `GITHUB_TOKEN`, `GH_TOKEN`, `DIRECT_PUSH_TOKEN_URL`,
+`DIRECT_CLONE_CREDENTIALS`, `DIRECT_REPOSITORY_URL`, `DIRECT_REPOSITORY_URLS`,
+`DIRECT_REPOSITORY_CHECKOUTS`, `DIRECT_REPOSITORY_CACHE`, and `DIRECT_BRANCH`.
+Provider credentials such as `COPILOT_GITHUB_TOKEN` remain allowed. It cannot be
+combined with `DIRECT_RUN_MODE=bundle-diff`. Invalid jobs return
+`WorkerLaunchOutcome.InvalidWorkspace` without creating or removing engine resources;
+the caller must fix the job, not retry it. Kubernetes refuses this mode before
+contacting the cluster: use a PVC-specific design rather than a node-local bind.
+
+## Non-interactive git and deadlines
+
+Workers disable terminal and askpass prompts, credential-manager interaction and
+interactive SSH (`BatchMode=yes`), including inherited overrides. Missing/rejected
+repository credentials fail with a `[git-auth]` detail instead of waiting for input.
+Git HTTP transfers also use a low-speed floor of 1000 bytes/second for 60 seconds.
+
+Every harness clone, fetch and `ls-remote` is bounded by GNU `timeout` (provided by
+`coreutils` in the worker image), with a 10-second kill-after grace period. Set
+`CRATIS_GIT_DEADLINE_SECONDS` to an integer from 1 through 3600; unset or empty defaults
+to 600 seconds. Invalid values or a missing timeout binary fail immediately with
+`[git-config]`. A deadline expiry returns a `[git-timeout]` failure detail naming the
+command, safe repository URL, duration and override variable. URL userinfo is removed
+from these details and git diagnostics. An ordinary cache refresh failure still falls
+back to the cached HEAD; a timed-out refresh is a terminal failure, not a cache hit.
+Exit 137 alone is not evidence of a deadline: it is classified as a timeout only when
+the elapsed wall time has reached the deadline; an earlier kill remains a non-timeout
+git failure. No push deadline is added by this setting.
 
 ## Running-worker protection
 

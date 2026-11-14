@@ -74,6 +74,8 @@ module Banking
           streamId = month
         produces event Deposited
           amount Decimal = amount
+      screen Deposit
+        action Deposit for screen
       specification Depositing
         when Deposit
           accountId = "3fa85f64-5717-4562-b3fc-2c963f66afa6"

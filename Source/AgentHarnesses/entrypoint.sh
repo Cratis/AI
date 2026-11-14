@@ -43,6 +43,15 @@
 #                               (local/Docker dev), or a repository with no entry yet (first-ever
 #                               use), falls back to an ordinary `git clone` - unconditionally, so that
 #                               fallback path is what every non-Kubernetes/local run still takes.
+#   CRATIS_WORKSPACE_MODE   - unset/empty clones normally; "host-prepared" uses a mounted tree,
+#                               never clones or pushes, and refuses repository credentials/inputs:
+#                               GITHUB_TOKEN, GH_TOKEN, DIRECT_PUSH_TOKEN_URL, DIRECT_CLONE_CREDENTIALS,
+#                               DIRECT_REPOSITORY_URL(S), DIRECT_REPOSITORY_CHECKOUTS,
+#                               DIRECT_REPOSITORY_CACHE and DIRECT_BRANCH (even when empty).
+#   CRATIS_WORKSPACE_PATH   - required as exactly /workspace in host-prepared mode.
+#   CRATIS_GIT_DEADLINE_SECONDS - clone/fetch/ls-remote deadline, integer 1-3600, default 600.
+#                               Git prompts/askpass are disabled, SSH uses BatchMode; failed details
+#                               use [git-timeout], [git-auth] or [git-config] prefixes.
 #   DIRECT_BRANCH           - branch to create for the work
 #   DIRECT_WORK_ID          - unique id of the scheduled work item
 #   DIRECT_PROMPT_FILE      - path to a file holding the instructions for the agent (markdown).
@@ -248,7 +257,7 @@
 #                             vendor-standard variable Pi's built-in azure-openai-responses provider
 #                             reads natively (verified in its @earendil-works/pi-ai dependency's
 #                             source and its own docs/providers.md), so this script does nothing with
-#                             it beyond letting load_secrets() export it like every other secret
+#                             it beyond supplying it to the selected CLI at launch
 #   DIRECT_PROVIDER_API_KEY - the same, for an OpenAI-compatible gateway (Pi harness only). No
 #                             vendor-standard variable exists for this one - it is not a real vendor -
 #                             so configure_pi_provider() (below) writes it into the generated
@@ -265,8 +274,7 @@
 #                             unauthenticated local gateway uses the identical placeholder pattern.
 #   ZAI_API_KEY              - the same, for a Z.ai (GLM) provider on the Pi harness - the
 #                             vendor-standard variable Pi's built-in zai provider reads natively,
-#                             so this script does nothing with it beyond letting load_secrets()
-#                             export it like every other secret. A Z.ai provider on the Claude
+#                             so this script does nothing with it beyond supplying it to the selected CLI at launch. A Z.ai provider on the Claude
 #                             harness instead travels as ANTHROPIC_AUTH_TOKEN above - one provider
 #                             type, one credential, two slots, decided by the harness at dispatch.
 #   COPILOT_GITHUB_TOKEN     - the GitHub credential a Copilot provider's session authenticates with
@@ -275,7 +283,7 @@
 #                             GITHUB_TOKEN - its own documented order), chosen so a container that
 #                             also carries a GH_TOKEN for git operations cannot accidentally decide
 #                             which account the agent reasons as. Read by the CLI natively, so this
-#                             script does nothing with it beyond letting load_secrets() export it.
+#                             script does nothing with it beyond supplying it to the selected CLI at launch.
 #   EXA_API_KEY              - optional. Exa's hosted web-search MCP endpoint (mcp.exa.ai) works
 #                             anonymously, rate-limited, with no key at all - this only lifts that
 #                             limit when the Direct has one to hand out. Claude Code path only, sent
@@ -308,46 +316,158 @@ set -uo pipefail
 
 log() { printf '[agent-harness] %s\n' "$*"; }
 
-# Load the credentials before anything needs them. The Docker runtime copies the file in after the
-# container is created, so it can still be arriving; the readiness marker is written last and is
-# what proves the file is complete rather than half-extracted.
+# Load credentials only after the trusted runtime commits readiness. Docker streams files into
+# tmpfs, verifies them, then publishes a marker on a separate root-owned mount.
 load_secrets() {
     local file="${DIRECT_SECRETS_FILE:-}"
+    local required="${CRATIS_WORKER_REQUIRE_SECRETS:-false}"
+    if [[ -z "$file" && "$required" == true ]]; then
+        log "Secure worker secrets were not configured - refusing to start"
+        exit 1
+    fi
     [[ -n "$file" ]] || { log "No secrets file configured - running without credentials"; return; }
 
     local ready="${file%/*}/secrets.ready"
+    [[ "$required" != true ]] || ready=/run/agent-secrets-ready/secrets.ready
+    local attempts=30
+    [[ "$required" != true ]] || attempts=300
     local waited=0
-    while [[ ! -f "$ready" && $waited -lt 30 ]]; do
+    while [[ ! -f "$ready" && $waited -lt $attempts ]]; do
         sleep 0.1
         waited=$((waited + 1))
     done
+
+    if [[ "$required" == true ]]; then
+        # Docker delivers only into tmpfs, with the worker as sole reader. Fail closed before
+        # sourcing anything; mounted Kubernetes Secrets retain their existing behavior.
+        if [[ ! -f "$ready" || ! -f "$file" || -L "$file" || -L "$ready" ]] ||
+            [[ "$(stat -f -c %T "${file%/*}" 2>/dev/null)" != tmpfs ]] ||
+            [[ "$(stat -c %u:%a "${file%/*}" 2>/dev/null)" != "$(id -u):700" ]] ||
+            [[ "$(stat -c %u:%a "$file" 2>/dev/null)" != "$(id -u):400" ]] ||
+            [[ -L "${ready%/*}" ]] ||
+            [[ "$(stat -f -c %T "${ready%/*}" 2>/dev/null)" != tmpfs ]] ||
+            [[ "$(stat -c %u:%a "${ready%/*}" 2>/dev/null)" != 0:755 ]] ||
+            [[ -w "${ready%/*}" ]] ||
+            [[ "$(stat -c %u:%a "$ready" 2>/dev/null)" != 0:444 ]]; then
+            log "Secure worker secrets were not delivered - refusing to start"
+            exit 1
+        fi
+    fi
 
     if [[ ! -f "$ready" ]]; then
         log "Secrets file did not arrive at ${file} - running without credentials"
         return
     fi
 
-    set -a
+    set +a
+    # Clear inherited export attributes before assigning the mounted values.
+    local line name
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^([a-zA-Z_][a-zA-Z0-9_]*)= ]]; then
+            name="${BASH_REMATCH[1]}"
+            export -n "${name?}"
+        fi
+    done < "$file"
     # shellcheck source=/dev/null
-    if ! . "$file"; then
-        set +a
+    if [[ "$required" == true ]]; then
+        if ! . "$file" 2>/dev/null; then
+            log "Could not load worker secrets - refusing to start"
+            exit 1
+        fi
+    elif ! . "$file"; then
         log "Could not read ${file} - running without credentials"
         return
     fi
     set +a
 
-    # The file has been read into the environment of this process and its children; removing it
-    # keeps it out of reach of anything the agent later runs that reads the filesystem. This is
-    # best-effort - a read-only Secret volume mount rejects the removal, which is fine, since the
-    # mount itself (not this script) is what keeps the file out of reach of anything else.
+    # Best-effort removal after loading; a read-only volume retains the mounted file.
     rm -f "$file" "$ready" 2>/dev/null
     log "Credentials loaded"
 }
 
 load_secrets
+# Also cover legacy environment-based dispatch. Scope credentials at each launch.
+export -n DIRECT_CALLBACK_TOKEN DIRECT_CONTEXT_MCP_TOKEN EXA_API_KEY CONTEXT7_API_KEY \
+    ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN OPENAI_API_KEY \
+    AZURE_OPENAI_API_KEY DIRECT_PROVIDER_API_KEY ZAI_API_KEY COPILOT_GITHUB_TOKEN \
+    GITHUB_TOKEN GH_TOKEN DIRECT_CLONE_CREDENTIALS DIRECT_PI_OAUTH_CREDENTIAL DIRECT_KUBECONFIG
+
+configure_git_noninteractive() {
+    export GIT_TERMINAL_PROMPT=0 GIT_ASKPASS='' SSH_ASKPASS='' GCM_INTERACTIVE=never
+    unset SSH_ASKPASS_REQUIRE
+    export GIT_SSH_COMMAND='ssh -o BatchMode=yes'
+    export GIT_HTTP_LOW_SPEED_LIMIT=1000 GIT_HTTP_LOW_SPEED_TIME=60
+}
+
+configure_git_noninteractive
+
+agent_credential_environment() {
+    local names name
+    case "$1" in
+        claude-code) names='ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN' ;;
+        copilot) names='COPILOT_GITHUB_TOKEN' ;;
+        anthropic) names='ANTHROPIC_API_KEY' ;;
+        openai) names='OPENAI_API_KEY' ;;
+        azure-openai-responses) names='AZURE_OPENAI_API_KEY' ;;
+        direct-openai-compatible) names='DIRECT_PROVIDER_API_KEY' ;;
+        openai-codex) names='' ;; # Pi reads its seeded credential store.
+        zai) names='ZAI_API_KEY' ;;
+        *) names='' ;;
+    esac
+    for name in $names; do
+        [[ -z "${!name:-}" ]] || export "${name?}"
+    done
+}
+
+# Call sites use a pipeline or background job: that subshell scopes exports, and exec keeps its PID.
+exec_agent_with_credentials() {
+    agent_credential_environment "$1"
+    shift
+    exec "$@"
+}
+
+prepare_mcp_credentials() {
+    local previous_umask
+    previous_umask=$(umask)
+    umask 077
+    MCP_CREDENTIAL_DIR=$(mktemp -d "$HOME/.agent-mcp.XXXXXX") || return 1
+    printf '%s' "${DIRECT_CALLBACK_TOKEN:-}" > "$MCP_CREDENTIAL_DIR/progress-token"
+    printf '%s' "${EXA_API_KEY:-}" | jq -Rs \
+        '{url:"https://mcp.exa.ai/mcp",headers:(if . == "" then {} else {"x-api-key":.} end)}' \
+        > "$MCP_CREDENTIAL_DIR/exa.json"
+    printf '%s' "${CONTEXT7_API_KEY:-}" | jq -Rs \
+        '{command:"context7-mcp",args:[],env:(if . == "" then {} else {CONTEXT7_API_KEY:.} end)}' \
+        > "$MCP_CREDENTIAL_DIR/context7.json"
+    printf '%s' "${DIRECT_CONTEXT_MCP_TOKEN:-}" | jq -Rs --arg url "${DIRECT_CONTEXT_MCP_URL:-}" \
+        '{url:$url,headers:{Authorization:("Bearer " + .)}}' > "$MCP_CREDENTIAL_DIR/context.json"
+    umask "$previous_umask"
+}
 
 STREAM_FILE=/tmp/claude-stream.jsonl
 : > "$STREAM_FILE"
+
+# Classifies stdin without returning any of the original text. Precedence is permission, auth,
+# hook, non-fast-forward, network, unknown: specific rejections/auth markers beat generic transport
+# messages such as "unable to access". Numeric statuses require HTTP/error diagnostic context,
+# never just a number in a branch or URL. A non-fast-forward needs git's [rejected] marker too.
+classify_push_failure() {
+    local message
+    message=$(cat)
+    if grep -Eiq '(^|[[:blank:]])(HTTP(/[0-9.]+)?[[:blank:]]+|error:[[:blank:]]*)403([^0-9]|$)|permission to .* denied|permission denied|write access to repository not granted' <<<"$message"; then
+        echo rejected-permission
+    elif grep -Eiq 'authentication failed|could not read username|invalid username or password|(^|[[:blank:]])(HTTP(/[0-9.]+)?[[:blank:]]+|error:[[:blank:]]*)401([^0-9]|$)' <<<"$message"; then
+        echo auth-failed
+    elif grep -Eiq 'pre-receive hook declined|protected branch hook declined|GH006|GH013' <<<"$message" ||
+         { grep -Eiq 'remote rejected' <<<"$message" && grep -Eiq 'hook' <<<"$message"; }; then
+        echo rejected-hook
+    elif grep -Eiq '\[rejected\]' <<<"$message" && grep -Eiq 'non-fast-forward|fetch first|stale info' <<<"$message"; then
+        echo rejected-non-fast-forward
+    elif grep -Eiq 'could not resolve host|connection timed out|connection refused|failed to connect|RPC failed|early EOF|unable to access' <<<"$message"; then
+        echo network
+    else
+        echo unknown
+    fi
+}
 
 report() {
     local status="$1"
@@ -390,12 +510,16 @@ report() {
             --arg provider "$provider" \
             --arg model "$model" \
             --arg vendorCode "$vendor_code" \
+            --arg pushCategory "${PUSH_FAILURE_CATEGORY:-}" \
             '{status: $status, detail: $detail, inputTokens: $inputTokens, outputTokens: $outputTokens, costUsd: $costUsd, durationMs: $durationMs, cpuSeconds: $cpuSeconds, memoryBytes: $memoryBytes}
              + (if $reason == "" then {} else
                    {reason: $reason}
                    + (if $provider == "" then {} else {provider: $provider} end)
                    + (if $model == "" then {} else {model: $model} end)
                    + (if $vendorCode == "" then {} else {vendorCode: $vendorCode} end)
+                end)
+             + (if $status != "failed" or $pushCategory == "" then {} else
+                   {pushFailure: {category: (if (["rejected-permission", "rejected-non-fast-forward", "rejected-hook", "auth-failed", "network", "unknown"] | index($pushCategory)) == null then "unknown" else $pushCategory end)}}
                 end)' |
         curl -fsS --retry 6 --retry-max-time 90 --retry-connrefused --retry-all-errors \
             -X POST "${DIRECT_CALLBACK_URL}" -H 'Content-Type: application/json' "${auth_args[@]}" -d @- \
@@ -516,6 +640,75 @@ quota_exhaustion_code() {
 }
 
 
+validate_workspace_mode() {
+    case "${CRATIS_WORKSPACE_MODE:-}" in
+        '') return 0 ;;
+        host-prepared) ;;
+        *) fail "[workspace] Unknown CRATIS_WORKSPACE_MODE '${CRATIS_WORKSPACE_MODE}' (expected 'host-prepared')" ;;
+    esac
+    [[ "${DIRECT_RUN_MODE:-}" != bundle-diff ]] || fail '[workspace] host-prepared cannot be combined with DIRECT_RUN_MODE=bundle-diff'
+    local variable
+    for variable in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDENTIALS \
+        DIRECT_REPOSITORY_URL DIRECT_REPOSITORY_URLS DIRECT_REPOSITORY_CHECKOUTS DIRECT_REPOSITORY_CACHE DIRECT_BRANCH; do
+        [[ -z "${!variable+x}" ]] || fail "[workspace] host-prepared mode refuses ${variable}"
+    done
+}
+
+validate_host_prepared_workspace() {
+    local path="$1" prefix='' segment resolved top
+    [[ -n "$path" && "$path" == /* && "$path" != / ]] || fail '[workspace] An absolute non-root workspace is required'
+    [[ "$path" != *$'\n'* && "$path" != *:* && "$path" != *,* ]] || fail '[workspace] Invalid workspace characters'
+    [[ "$path" != *//* && "$path" != */ && "/${path#/}/" != */./* && "/${path#/}/" != */../* ]] || fail '[workspace] Workspace traversal is forbidden'
+    local -a segments
+    IFS=/ read -r -a segments <<< "${path#/}"
+    for segment in "${segments[@]}"; do
+        prefix="$prefix/$segment"
+        [[ ! -L "$prefix" ]] || fail '[workspace] Workspace symlinks are forbidden'
+    done
+    [[ -d "$path" && -r "$path" && -w "$path" ]] || fail '[workspace] Workspace must be a readable writable directory'
+    resolved=$(cd "$path" && pwd -P) || fail '[workspace] Cannot resolve workspace'
+    [[ "$resolved" == "$path" ]] || fail '[workspace] Workspace must be canonical'
+    top=$(git -c "safe.directory=$path" -C "$path" rev-parse --show-toplevel 2>/dev/null) || fail '[workspace] Workspace must be a git work tree'
+    [[ "$top" == "$path" ]] || fail '[workspace] Workspace must be the git work-tree root'
+}
+
+prepare_host_workspace() {
+    validate_host_prepared_workspace "$1"
+    git config --global --add safe.directory "$1"
+}
+
+prepare_host_workspace_prompt() {
+    [[ "${CRATIS_WORKSPACE_MODE:-}" == host-prepared ]] || return 0
+    local prompt
+    prompt=$(mktemp) || fail '[workspace] Cannot prepare host-workspace instructions'
+    {
+        printf '%s\n\n' 'Host-prepared workspace: leave results as uncommitted working-tree changes for the host to collect. Do not commit, stage, write refs, or change repository git configuration. Git metadata is mounted read-only.'
+        cat "$PROMPT_FILE"
+    } > "$prompt"
+    PROMPT_FILE="$prompt"
+}
+
+# Definitions are available before startup validation; network git is bounded even on cache hits.
+git_deadline_seconds() {
+    local value="${CRATIS_GIT_DEADLINE_SECONDS:-600}"
+    if [[ ! "$value" =~ ^[0-9]{1,4}$ ]] || (( 10#$value < 1 || 10#$value > 3600 )); then
+        fail "[git-config] CRATIS_GIT_DEADLINE_SECONDS must be an integer 1-3600, got '$value'"
+    fi
+    printf '%s\n' "$value"
+}
+
+configure_git_deadline() {
+    GIT_DEADLINE_SECONDS=$(git_deadline_seconds) || exit 1
+    GIT_TIMEOUT_BIN=$(command -v timeout || command -v gtimeout) || fail "[git-config] no 'timeout' available to bound git"
+}
+
+validate_workspace_mode
+if [[ "${CRATIS_WORKSPACE_MODE:-}" == host-prepared ]]; then
+    [[ "${CRATIS_WORKSPACE_PATH:-}" == /workspace ]] || fail '[workspace] CRATIS_WORKSPACE_PATH must be /workspace'
+elif [[ "${DIRECT_RUN_MODE:-}" != bundle-diff ]]; then
+    configure_git_deadline
+fi
+
 # Bundle mode never accepts a repository credential or a remote checkout input, even an empty one.
 if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
     for variable in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDENTIALS \
@@ -568,8 +761,13 @@ if [[ -n "${DOCKER_HOST:-}" ]]; then
 fi
 
 # Route the agent's shell commands through rtk - installs the hook that transparently prefixes
-# supported commands, minimizing token consumption.
-rtk init -g || log "rtk init failed - continuing without token optimization"
+# supported commands, minimizing token consumption. Never prompt on the worker's steering stdin;
+# older images without timeout still initialize non-interactively.
+if command -v timeout >/dev/null 2>&1; then
+    timeout -k 2s 10s rtk init -g --auto-patch </dev/null
+else
+    rtk init -g --auto-patch </dev/null
+fi || log "rtk init failed - continuing without token optimization"
 
 # The container-local Headroom proxy the session's model requests are routed through when the
 # Direct asked for it (DIRECT_HEADROOM, issue #556). rtk trims what the shell hands the agent;
@@ -647,6 +845,10 @@ stop_headroom() {
 # no upstream to compare against on a branch that has never been pushed, and an empty branch pushed
 # anyway would litter the remote with one dead ref per run that did nothing.
 WORKSPACES=()
+# First push failure wins, including across retries and callback-free exit/termination traps.
+# report() sends only the validated category on failed callbacks: pushFailure: {category}.
+# There is no worker identity in the harness; DIRECT_WORK_ID identifies scheduled work, not a worker.
+PUSH_FAILURE_CATEGORY=""
 
 # The process id of the running agent session, while there is one - see run_claude_code/run_pi
 # below. Only the termination trap reads it, to stop the agent making further commits while the
@@ -681,7 +883,7 @@ refresh_git_token() {
         log "Direct returned an invalid GitHub token"
         return 1
     fi
-    export GITHUB_TOKEN="$token"
+    GITHUB_TOKEN="$token"
     # Keep the secret out of git config; git's credential helper expands it at invocation time.
     # shellcheck disable=SC2016
     git config --global credential.helper '!f() { echo "username=x-access-token"; echo "password=${GITHUB_TOKEN}"; }; f'
@@ -701,12 +903,13 @@ refresh_git_token() {
 # already been pushed records that head as its new starting point, so the next call has nothing to
 # do for it. A push that *failed* records nothing, so it is retried instead.
 push_workspaces() {
+    [[ "${CRATIS_WORKSPACE_MODE:-}" != host-prepared ]] || return 0
     [[ "${DIRECT_RUN_MODE:-}" != bundle-diff ]] || return 0
     # Clone-only investigations never publish, even if an agent makes local commits.
     [[ -z "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]] || return 0
     [[ -z "${DIRECT_BRANCH:-}" ]] && return 0
     [[ ${#WORKSPACES[@]} -eq 0 ]] && return 0
-    local index entry dest started_at url head failed=0
+    local index entry dest started_at url head push_stderr failed=0
     for index in "${!WORKSPACES[@]}"; do
         entry="${WORKSPACES[$index]}"
         [[ -z "$entry" ]] && continue
@@ -718,6 +921,7 @@ push_workspaces() {
         fi
 
         if ! refresh_git_token; then
+            PUSH_FAILURE_CATEGORY="${PUSH_FAILURE_CATEGORY:-auth-failed}"
             log "FAILED to prepare push of ${DIRECT_BRANCH} from ${dest}"
             failed=1
             continue
@@ -729,13 +933,25 @@ push_workspaces() {
         # "fatal: --mirror can't be combined with refspecs" and the run's commits are lost. Naming
         # the URL sidesteps the mirror configuration entirely, and works the same for an ordinary
         # clone, so both checkout paths push identically.
-        if git -C "$dest" push "$url" "HEAD:refs/heads/${DIRECT_BRANCH}"; then
+        # mktemp creates a private (0600) file in the worker's scratch area. Git stderr may
+        # contain credentials: replay it only to the worker console, never to report()/detail.
+        if ! push_stderr=$(mktemp "${TMPDIR:-/tmp}/push-stderr.XXXXXX"); then
+            PUSH_FAILURE_CATEGORY="${PUSH_FAILURE_CATEGORY:-unknown}"
+            log "FAILED to capture push diagnostics from ${dest}"
+            failed=1
+            continue
+        fi
+        if GITHUB_TOKEN="${GITHUB_TOKEN:-}" git -C "$dest" push "$url" "HEAD:refs/heads/${DIRECT_BRANCH}" 2>"$push_stderr"; then
+            cat "$push_stderr" >&2
             log "Pushed ${DIRECT_BRANCH} from ${dest}"
             WORKSPACES[index]="${dest}|${head}|${url}"
         else
+            cat "$push_stderr" >&2
+            PUSH_FAILURE_CATEGORY="${PUSH_FAILURE_CATEGORY:-$(classify_push_failure < "$push_stderr")}"
             log "FAILED to push ${DIRECT_BRANCH} from ${dest} - the work in this checkout is about to be lost"
             failed=1
         fi
+        rm -f "$push_stderr"
     done
     return "$failed"
 }
@@ -843,15 +1059,67 @@ stop_pipe_holder() {
 # webhooks (see Source/Direct/Repositories/Caching), and it runs `git` inside those mirrors with
 # far more privilege than this container has - so a mirror this container could write would be a
 # mirror this container could use to run code over there.
+git_safe_url() {
+    printf '%s' "$1" | sed -E 's#(://)[^/@]*@#\1#'
+}
+
+git_timeout_detail() {
+    printf '[git-timeout] git %s %s exceeded the %ss deadline (CRATIS_GIT_DEADLINE_SECONDS) and was stopped' \
+        "$1" "$(git_safe_url "$2")" "$GIT_DEADLINE_SECONDS"
+}
+
+run_git_bounded() {
+    local label="$1" stderr status=0 started_at elapsed
+    shift
+    GIT_AUTH_FAILED=false
+    stderr=$(mktemp) || fail '[git-config] Cannot capture git diagnostics'
+    started_at=$(date +%s)
+    if [[ -n "${GIT_CAPTURE_FILE:-}" ]]; then
+        "$GIT_TIMEOUT_BIN" --kill-after=10 "$GIT_DEADLINE_SECONDS" git "$@" < /dev/null > "$GIT_CAPTURE_FILE" 2> "$stderr" || status=$?
+    else
+        "$GIT_TIMEOUT_BIN" --kill-after=10 "$GIT_DEADLINE_SECONDS" git "$@" < /dev/null 2> "$stderr" || status=$?
+    fi
+    # date has whole-second precision: subtract one to avoid mistaking a second-boundary
+    # crossing for a full elapsed second. timeout's KILL grace is ten seconds.
+    elapsed=$(( $(date +%s) - started_at - 1 ))
+    # Git itself may include the URL in diagnostics. Never replay userinfo from it.
+    sed -E 's#(://)[^/@[:space:]]*@#\1#g' "$stderr" >&2
+    if grep -Eq 'terminal prompts disabled|could not read (Username|Password)|Authentication failed' "$stderr"; then
+        GIT_AUTH_FAILED=true
+        log "git ${label} needs a credential but none is available (GITHUB_TOKEN missing or rejected); terminal prompts are disabled"
+    fi
+    rm -f "$stderr"
+    if [[ "$status" -eq 124 ]] || { [[ "$status" -eq 137 ]] && (( elapsed >= 10#$GIT_DEADLINE_SECONDS )); }; then
+        log "git ${label} exceeded the ${GIT_DEADLINE_SECONDS}s deadline and was stopped"
+        return 124
+    fi
+    return "$status"
+}
+
+clone_failure_detail() {
+    if [[ "${GIT_AUTH_FAILED:-false}" == true ]]; then
+        printf '[git-auth] Could not clone %s: no usable credential (terminal prompts are disabled)' "$(git_safe_url "$1")"
+    else
+        printf 'Could not clone %s' "$(git_safe_url "$1")"
+    fi
+}
+
 clone_into_workspace() {
     local url="$1" dest="$2"
     local without_suffix="${url%.git}"
     local name="${without_suffix##*/}"
     local rest="${without_suffix%/*}"
     local owner="${rest##*/}"
-    local cache_repo="${DIRECT_REPOSITORY_CACHE:-}/${owner}/${name}.git"
+    local cache_repo="" mapping_url mapping_path
+    while IFS=$'\t' read -r mapping_url mapping_path; do
+        if [[ "$mapping_url" == "$url" && -n "$mapping_path" ]]; then
+            cache_repo="$mapping_path"
+            break
+        fi
+    done <<< "${CRATIS_WORKER_REPOSITORY_MIRRORS:-}"
 
-    if [[ -n "${DIRECT_REPOSITORY_CACHE:-}" && -d "$cache_repo" ]]; then
+    if [[ -n "$cache_repo" && -d "$cache_repo/objects" && -d "$cache_repo/refs" && -f "$cache_repo/HEAD" ]] &&
+        [[ "$(git -c safe.directory="$cache_repo" --git-dir="$cache_repo" rev-parse --is-bare-repository 2>/dev/null)" == true ]]; then
         # What the work branch is created from. Empty means "wherever the checkout already is",
         # which is what an existing checkout and a failed refresh both fall back to.
         local -a start_point=()
@@ -881,7 +1149,10 @@ clone_into_workspace() {
             # pull request. A local clone borrows the cache's objects through `alternates` for reads
             # and keeps its own writable object store for anything new, so the checkout is as cheap
             # as a worktree and nothing ever writes to the shared volume.
-            git clone --shared "$cache_repo" "$dest" || fail "Could not check out ${owner}/${name} from the cache"
+            local status=0
+            run_git_bounded clone clone --shared "$cache_repo" "$dest" || status=$?
+            [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail clone "$cache_repo")"
+            [[ "$status" -eq 0 ]] || fail "Could not check out ${owner}/${name} from the cache"
 
             # Bring the fresh checkout up to the remote's current default branch, in this
             # container's own object store rather than in the cache - the mirror may be a push or
@@ -892,11 +1163,22 @@ clone_into_workspace() {
             # The default branch is asked of the remote rather than read from the mirror's HEAD,
             # which is the one control surface a `+refs/*:refs/*` fetch on the backend side does
             # not heal.
-            local default_ref
-            default_ref=$(git ls-remote --symref "$url" HEAD 2>/dev/null | awk '/^ref:/ {print $2; exit}')
-            if [[ -n "$default_ref" ]] && git -C "$dest" fetch --quiet "$url" "$default_ref"; then
-                start_point=(FETCH_HEAD)
-            else
+            local default_ref remote_refs capture
+            status=0
+            capture=$(mktemp) || fail '[git-config] Cannot capture git output'
+            # A helper surviving timeout may keep stdout open. Read a regular file, not a pipe,
+            # so capturing the result cannot extend the git deadline.
+            GIT_CAPTURE_FILE="$capture" GITHUB_TOKEN="${GITHUB_TOKEN:-}" run_git_bounded ls-remote ls-remote --symref "$url" HEAD || status=$?
+            remote_refs=$(cat "$capture")
+            rm -f "$capture"
+            [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail ls-remote "$url")"
+            default_ref=$(printf '%s\n' "$remote_refs" | awk '/^ref:/ {print $2; exit}')
+            if [[ -n "$default_ref" && "$status" -eq 0 ]]; then
+                GITHUB_TOKEN="${GITHUB_TOKEN:-}" run_git_bounded fetch -C "$dest" fetch --quiet "$url" "$default_ref" || status=$?
+                [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail fetch "$url")"
+                [[ "$status" -ne 0 ]] || start_point=(FETCH_HEAD)
+            fi
+            if [[ ${#start_point[@]} -eq 0 ]]; then
                 log "Could not refresh ${owner}/${name} from origin - starting from the cached mirror's HEAD"
             fi
         fi
@@ -911,8 +1193,11 @@ clone_into_workspace() {
     fi
 
     if [[ ! -d "$dest/.git" ]]; then
-        log "Cloning $url"
-        git clone "$url" "$dest" || fail "Could not clone $url"
+        log "Cloning $(git_safe_url "$url")"
+        local status=0
+        GITHUB_TOKEN="${GITHUB_TOKEN:-}" run_git_bounded clone clone "$url" "$dest" || status=$?
+        [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail clone "$url")"
+        [[ "$status" -eq 0 ]] || fail "$(clone_failure_detail "$url")"
     fi
     if [[ -n "${DIRECT_BRANCH:-}" ]]; then
         git -C "$dest" checkout -B "$DIRECT_BRANCH"
@@ -937,7 +1222,15 @@ clone_restricted_repositories() {
     while IFS=$'\t' read -r repository url path; do
         log "Checking out ${repository} at ${path}"
         mkdir -p "/workspace/$(dirname "$path")" || return 1
-        GIT_TERMINAL_PROMPT=0 git clone "$url" "/workspace/$path" || return 1
+        local status=0
+        GIT_TERMINAL_PROMPT=0 DIRECT_CLONE_CREDENTIALS="$DIRECT_CLONE_CREDENTIALS" run_git_bounded clone clone "$url" "/workspace/$path" || status=$?
+        [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail clone "$url")"
+        if [[ "$status" -ne 0 ]]; then
+            if [[ "${GIT_AUTH_FAILED:-false}" == true ]]; then
+                RESTRICTED_CLONE_FAILURE_DETAIL=$(clone_failure_detail "$url")
+            fi
+            return 1
+        fi
         [[ -n "$first" ]] || first="/workspace/$path"
     done <<< "$rows"
     link_primary_corpus "$first"
@@ -1236,8 +1529,11 @@ complete_worker() {
 # /workspace/<name>, leaving /workspace itself without a corpus (Cratis/Stagehand#603).
 if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
     prepare_bundle_workspace
+elif [[ "${CRATIS_WORKSPACE_MODE:-}" == host-prepared ]]; then
+    prepare_host_workspace /workspace
+    log 'Using host-prepared workspace /workspace'
 elif [[ -n "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]]; then
-    clone_restricted_repositories || fail "Could not check out every scheduled repository"
+    clone_restricted_repositories || fail "${RESTRICTED_CLONE_FAILURE_DETAIL:-Could not check out every scheduled repository}"
 elif [[ -n "${DIRECT_REPOSITORY_URLS:-}" ]]; then
     read -r -a urls <<< "${DIRECT_REPOSITORY_URLS}"
     if [[ ${#urls[@]} -eq 1 ]]; then
@@ -1278,6 +1574,7 @@ else
     fail "No prompt provided"
 fi
 
+prepare_host_workspace_prompt
 report started "Worker started"
 bundle_phase agentRunning
 
@@ -1327,8 +1624,8 @@ run_claude_code() {
 
     # Wires the report_progress MCP tool into the session (Source/AgentHarnesses/progress-mcp-server.mjs) so
     # the agent can post a live plan/checklist and status updates back to the Direct as it works,
-    # not just at the end. DIRECT_PROGRESS_URL/DIRECT_CALLBACK_TOKEN travel through this file's
-    # own `env` block rather than relying on the server process inheriting them - written even when
+    # not just at the end. The callback credential is read by the progress server from a private
+    # file; this configuration carries only its path - written even when
     # the Direct did not set DIRECT_PROGRESS_URL (a bare Docker/local run, say): the tool then
     # reports every call as a soft failure to the agent instead of the Direct, exactly like a
     # failed report over the real network does, rather than needing this script to special-case it
@@ -1347,12 +1644,12 @@ run_claude_code() {
         mkdir -p "$(dirname "$DIRECT_MEMORY_PATH")"
     fi
 
+    prepare_mcp_credentials || fail "Could not prepare MCP credentials"
     MCP_CONFIG=/tmp/mcp-config.json
     jq -cn \
         --arg progress_url "${DIRECT_PROGRESS_URL:-}" \
-        --arg token "${DIRECT_CALLBACK_TOKEN:-}" \
+        --arg credential_dir "$MCP_CREDENTIAL_DIR" \
         --arg memory_path "${DIRECT_MEMORY_PATH:-/tmp/mcp-memory.jsonl}" \
-        --arg exa_key "${EXA_API_KEY:-}" \
         '{
             mcpServers: {
                 direct_progress: {
@@ -1360,7 +1657,7 @@ run_claude_code() {
                     args: ["/usr/local/lib/direct-progress-mcp/progress-mcp-server.mjs"],
                     env: {
                         DIRECT_PROGRESS_URL: $progress_url,
-                        DIRECT_CALLBACK_TOKEN: $token
+                        DIRECT_CALLBACK_TOKEN_FILE: ($credential_dir + "/progress-token")
                     }
                 },
                 direct_approval: {
@@ -1372,8 +1669,8 @@ run_claude_code() {
                     args: []
                 },
                 context7: {
-                    command: "context7-mcp",
-                    args: []
+                    command: "node",
+                    args: ["/usr/local/lib/direct-progress-mcp/credential-mcp-server.mjs", ($credential_dir + "/context7.json")]
                 },
                 memory: {
                     command: "mcp-server-memory",
@@ -1386,16 +1683,16 @@ run_claude_code() {
                     command: "playwright-mcp",
                     args: ["--headless", "--browser", "chromium", "--no-sandbox"]
                 },
-                exa: ({
-                    type: "http",
-                    url: "https://mcp.exa.ai/mcp"
-                } + (if $exa_key != "" then {headers: {"x-api-key": $exa_key}} else {} end))
+                exa: {
+                    command: "node",
+                    args: ["/usr/local/lib/direct-progress-mcp/credential-mcp-server.mjs", ($credential_dir + "/exa.json")]
+                }
             }
         }' > "$MCP_CONFIG"
 
     if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff && -n "${DIRECT_CONTEXT_MCP_URL:-}" && -n "${DIRECT_CONTEXT_MCP_TOKEN:-}" ]]; then
-        jq --arg url "$DIRECT_CONTEXT_MCP_URL" --arg token "$DIRECT_CONTEXT_MCP_TOKEN" \
-            '.mcpServers.context = {type: "http", url: $url, headers: {Authorization: ("Bearer " + $token)}}' \
+        jq --arg credential_dir "$MCP_CREDENTIAL_DIR" \
+            '.mcpServers.context = {command: "node", args: ["/usr/local/lib/direct-progress-mcp/credential-mcp-server.mjs", ($credential_dir + "/context.json")]}' \
             "$MCP_CONFIG" > /tmp/mcp-context-config.json || fail "Could not configure context MCP"
         mv /tmp/mcp-context-config.json "$MCP_CONFIG" || fail "Could not configure context MCP"
     fi
@@ -1456,7 +1753,7 @@ run_claude_code() {
     # CLAUDE.md and .claude/skills from loading, and drops its hooks (the PR-body guard, the Stop
     # quality gate) with them.
     {
-        /usr/bin/time -v -o "$TIME_FILE" -- claude -p \
+        exec_agent_with_credentials claude-code /usr/bin/time -v -o "$TIME_FILE" -- claude -p \
             --input-format stream-json \
             --output-format stream-json \
             --verbose \
@@ -1671,8 +1968,8 @@ configure_pi_provider() {
             ;;
         zai)
             # Nothing to configure: Pi declares its own zai provider, fixed to Z.ai's public
-            # endpoint, and reads ZAI_API_KEY from the environment directly (load_secrets()
-            # exports it like every other credential). The case exists to say that explicitly -
+            # endpoint, and reads ZAI_API_KEY from its scoped launch environment.
+            # The case exists to say that explicitly -
             # a provider id with no case reads as forgotten rather than deliberate.
             log "Using Pi's built-in Z.ai provider"
             ;;
@@ -1854,7 +2151,7 @@ run_pi() {
     # toolset by name, matching Claude Code's default tool availability - grep/find/ls are off by
     # default in Pi 0.84.x otherwise. --provider is always DIRECT_PROVIDER, resolved server-side
     # against the Direct's own approved-providers allow-list - never a value this script invents.
-    pi --mode rpc \
+    exec_agent_with_credentials "${DIRECT_PROVIDER:-anthropic}" pi --mode rpc \
         --no-session \
         --no-approve \
         --offline \
@@ -2044,10 +2341,11 @@ run_copilot() {
     # the tool then reports every call as a soft failure to the agent instead of special-casing it
     # away here. Passed with --additional-mcp-config so the checkout's own .mcp.json cannot displace
     # it - the session-scoped option has the highest precedence in the CLI's own merge order.
+    prepare_mcp_credentials || fail "Could not prepare MCP credentials"
     COPILOT_MCP_CONFIG=/tmp/copilot-mcp-config.json
     jq -cn \
         --arg progress_url "${DIRECT_PROGRESS_URL:-}" \
-        --arg token "${DIRECT_CALLBACK_TOKEN:-}" \
+        --arg credential_dir "$MCP_CREDENTIAL_DIR" \
         '{
             mcpServers: {
                 direct_progress: {
@@ -2056,7 +2354,7 @@ run_copilot() {
                     args: ["/usr/local/lib/direct-progress-mcp/progress-mcp-server.mjs"],
                     env: {
                         DIRECT_PROGRESS_URL: $progress_url,
-                        DIRECT_CALLBACK_TOKEN: $token
+                        DIRECT_CALLBACK_TOKEN_FILE: ($credential_dir + "/progress-token")
                     },
                     tools: ["*"]
                 }
@@ -2090,7 +2388,7 @@ run_copilot() {
     # --output-format json emits JSONL, one object per line, which is what makes the stream readable
     # below. --no-color keeps the log free of escape sequences.
     {
-        /usr/bin/time -v -o "$COPILOT_TIME_FILE" -- copilot \
+        exec_agent_with_credentials copilot /usr/bin/time -v -o "$COPILOT_TIME_FILE" -- copilot \
             --prompt "$(cat "$COPILOT_PROMPT_FILE")" \
             --allow-all-tools \
             --allow-all-paths \

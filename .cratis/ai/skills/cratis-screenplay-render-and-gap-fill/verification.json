@@ -49,6 +49,7 @@
     { "kind": "skill-contains", "value": "Requires Stage 4.146.0" },
     { "kind": "skill-contains", "value": "Unsupported generated\ntypes (`STAGE-ESM-028`) and result combinations (`-038`)" },
     { "kind": "skill-contains", "value": "authored-UI parity" },
-    { "kind": "skill-contains", "value": "responsible tool version" }
+    { "kind": "skill-contains", "value": "responsible tool version" },
+    { "kind": "skill-contains", "value": "`GraphSinks` into its render input, or a changed `sink` line never triggers a re-render" }
   ]
 }

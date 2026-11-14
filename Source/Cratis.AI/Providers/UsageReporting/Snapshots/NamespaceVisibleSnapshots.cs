@@ -18,7 +18,7 @@ internal static class NamespaceVisibleSnapshots
     /// <returns>The readings visible in the current namespace.</returns>
     internal static async Task<IEnumerable<AIProviderUsageSnapshot>> Filter(IEnumerable<AIProviderUsageSnapshot> readings, IReadModels readModels)
     {
-        var visible = new List<AIProviderUsageSnapshot>();
+        List<AIProviderUsageSnapshot> visible = [];
         foreach (var reading in readings)
         {
             if (await IsVisible(reading, readModels))

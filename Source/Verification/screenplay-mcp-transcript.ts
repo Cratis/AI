@@ -146,7 +146,7 @@ async function callTool<T>(name: string, toolArgs: Record<string, unknown>): Pro
     return parseToolResult<T>(await request('tools/call', { name, arguments: toolArgs }));
 }
 
-async function main() {
+async function initializeSession() {
     await request('initialize', {
         protocolVersion: '2024-11-05',
         capabilities: {},
@@ -160,6 +160,48 @@ async function main() {
         assertCondition(toolNames.has(required), `MCP server did not expose ${required}`);
     }
 
+    return toolNames;
+}
+
+async function proposeAndApply(open: WorkspaceResult, replacements: { operation: string; documentId: string; source: string }[]) {
+    const proposal = await callTool<ProposalResult>('propose-source', {
+        expectedRevision: open.revision,
+        expectedCatalogRevision: open.catalogRevision,
+        formatting: 'CanonicalizeTouchedDocuments',
+        validation: 'Executable',
+        includeContent: false,
+        documents: replacements
+    });
+    assertCondition(proposal.success, `proposal was not accepted: ${JSON.stringify(proposal)}`);
+    assertCondition(proposal.proposalId, 'proposal did not return an id');
+
+    const proposalChanges = await callTool<unknown>('read-proposal', {
+        proposalId: proposal.proposalId,
+        view: 'changes',
+        offset: 0,
+        limit: 200
+    });
+
+    const staleApply = await callTool<ApplyResult>('apply', {
+        proposalId: proposal.proposalId,
+        expectedRevision: `${open.revision.slice(0, -1)}x`,
+        expectedCatalogRevision: open.catalogRevision,
+        includeContent: false
+    });
+    assertCondition(!staleApply.success && staleApply.failureKind === 'StaleRevision', 'stale apply did not fail closed');
+
+    const applied = await callTool<ApplyResult>('apply', {
+        proposalId: proposal.proposalId,
+        expectedRevision: open.revision,
+        expectedCatalogRevision: open.catalogRevision,
+        includeContent: false
+    });
+    assertCondition(applied.success, `apply failed: ${JSON.stringify(applied)}`);
+    return { proposal, proposalChanges, staleApply, applied };
+}
+
+async function main() {
+    const toolNames = await initializeSession();
     const open = await callTool<WorkspaceResult>('open-workspace', {});
     assertCondition(open.sourceSuccess, 'workspace source did not open cleanly');
     assertCondition(open.semanticSuccess, 'workspace semantic model did not bind cleanly');
@@ -194,39 +236,7 @@ async function main() {
         });
     }
 
-    const proposal = await callTool<ProposalResult>('propose-source', {
-        expectedRevision: open.revision,
-        expectedCatalogRevision: open.catalogRevision,
-        formatting: 'CanonicalizeTouchedDocuments',
-        validation: 'Executable',
-        includeContent: false,
-        documents: replacements
-    });
-    assertCondition(proposal.success, `proposal was not accepted: ${JSON.stringify(proposal)}`);
-    assertCondition(proposal.proposalId, 'proposal did not return an id');
-
-    const proposalChanges = await callTool<unknown>('read-proposal', {
-        proposalId: proposal.proposalId,
-        view: 'changes',
-        offset: 0,
-        limit: 200
-    });
-
-    const staleApply = await callTool<ApplyResult>('apply', {
-        proposalId: proposal.proposalId,
-        expectedRevision: `${open.revision.slice(0, -1)}x`,
-        expectedCatalogRevision: open.catalogRevision,
-        includeContent: false
-    });
-    assertCondition(!staleApply.success && staleApply.failureKind === 'StaleRevision', 'stale apply did not fail closed');
-
-    const applied = await callTool<ApplyResult>('apply', {
-        proposalId: proposal.proposalId,
-        expectedRevision: open.revision,
-        expectedCatalogRevision: open.catalogRevision,
-        includeContent: false
-    });
-    assertCondition(applied.success, `apply failed: ${JSON.stringify(applied)}`);
+    const { proposal, proposalChanges, staleApply, applied } = await proposeAndApply(open, replacements);
 
     const reopened = await callTool<WorkspaceResult>('open-workspace', {});
     const finalSource = readFileSync(sourcePath, 'utf8');

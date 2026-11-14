@@ -23,10 +23,14 @@ function skillPath(skill: string): string {
     return join(corpusRoot, 'skills', skill);
 }
 
-function allSkillPaths(): string[] {
-    return [...new Set(profiles.flatMap(profile => profile.availableTargets ?? []))]
+function skillPathsOf(selected: Profile[]): string[] {
+    return [...new Set(selected.flatMap(profile => profile.availableTargets ?? []))]
         .sort()
         .map(skillPath);
+}
+
+function allSkillPaths(): string[] {
+    return skillPathsOf(profiles);
 }
 
 function supportsLanguage(profile: Profile, languages: Set<string>): boolean {
@@ -34,11 +38,8 @@ function supportsLanguage(profile: Profile, languages: Set<string>): boolean {
     return profile.languages.some(language => language === 'language-agnostic' || languages.has(language));
 }
 
-export function selectedSkillPaths(cwd: string): string[] {
-    const configurationPath = join(cwd, '.cratis', 'ai.json');
-    if (!existsSync(configurationPath)) return allSkillPaths();
-
-    const configuration = JSON.parse(readFileSync(configurationPath, 'utf8')) as AiConfiguration;
+/** The ids of the configured profiles and, transitively, the composed profiles that support the configured languages. */
+function selectedProfileIds(configuration: AiConfiguration): Set<string> {
     const languages = new Set(configuration.languages ?? []);
     const selected = new Set<string>();
     const select = (id: string, explicitSelection: boolean): void => {
@@ -50,9 +51,16 @@ export function selectedSkillPaths(cwd: string): string[] {
         profile.composes?.forEach(child => select(child, false));
     };
     configuration.profiles?.forEach(profile => select(profile, true));
-    return [...new Set(profiles.filter(profile => selected.has(profile.id)).flatMap(profile => profile.availableTargets ?? []))]
-        .sort()
-        .map(skillPath);
+    return selected;
+}
+
+export function selectedSkillPaths(cwd: string): string[] {
+    const configurationPath = join(cwd, '.cratis', 'ai.json');
+    if (!existsSync(configurationPath)) return allSkillPaths();
+
+    const configuration = JSON.parse(readFileSync(configurationPath, 'utf8')) as AiConfiguration;
+    const selected = selectedProfileIds(configuration);
+    return skillPathsOf(profiles.filter(profile => selected.has(profile.id)));
 }
 
 function isManagedInstallation(cwd: string): boolean {
@@ -68,35 +76,39 @@ function frontmatterValue(content: string, name: string): string | undefined {
     return line?.slice(prefix.length).trim().replace(/^"|"$/g, '');
 }
 
-function ruleMatchesConfiguration(path: string, content: string, configuration: AiConfiguration): boolean {
-    const selectedProfiles = configuration.profiles ?? [];
-    const profile = frontmatterValue(content, 'profile');
-    const hasApplicationProfile = selectedProfiles.some(candidate => candidate.startsWith('cratis/application'));
-    const hasEngineeringProfile = selectedProfiles.some(candidate => candidate.startsWith('cratis/engineering'));
-    if (profile === 'application' && !hasApplicationProfile) return false;
-    if (profile === 'framework' && !hasEngineeringProfile) return false;
-    if (profile?.startsWith('cratis/') && !selectedProfiles.some(candidate => candidate === profile || candidate.startsWith(`${profile}/`))) return false;
+function profileMatchesSelection(profile: string | undefined, selectedProfiles: string[]): boolean {
+    if (profile === 'application') return selectedProfiles.some(candidate => candidate.startsWith('cratis/application'));
+    if (profile === 'framework') return selectedProfiles.some(candidate => candidate.startsWith('cratis/engineering'));
+    if (profile?.startsWith('cratis/')) return selectedProfiles.some(candidate => candidate === profile || candidate.startsWith(`${profile}/`));
+    return true;
+}
 
-    const languages = configuration.languages ?? [];
-    if (languages.length === 0) return true;
+/** A scope kind a rule can name through `applyTo`, and the configuration that satisfies it. */
+interface ScopeKind {
+    named: (applyTo: string, path: string) => boolean;
+    satisfied: (configuration: AiConfiguration) => boolean;
+}
+
+const hasLanguage = (language: string) => (configuration: AiConfiguration) => (configuration.languages ?? []).includes(language);
+
+const scopeKinds: ScopeKind[] = [
+    { named: applyTo => applyTo.includes('.cs'), satisfied: hasLanguage('csharp') },
+    { named: (applyTo, path) => applyTo.includes('.ts') || path.endsWith('/rtk.md'), satisfied: hasLanguage('typescript') },
+    { named: applyTo => applyTo.includes('.go') || applyTo.includes('go.mod') || applyTo.includes('go.sum'), satisfied: hasLanguage('go') },
+    { named: applyTo => applyTo.includes('.kt'), satisfied: hasLanguage('kotlin') },
+    { named: applyTo => applyTo.includes('.java'), satisfied: hasLanguage('java') },
+    { named: applyTo => applyTo.includes('.ex'), satisfied: hasLanguage('elixir') },
+    { named: applyTo => applyTo.includes('md'), satisfied: configuration => (configuration.profiles ?? []).includes('cratis/documentation') },
+];
+
+function ruleMatchesConfiguration(path: string, content: string, configuration: AiConfiguration): boolean {
+    if (!profileMatchesSelection(frontmatterValue(content, 'profile'), configuration.profiles ?? [])) return false;
+    if ((configuration.languages ?? []).length === 0) return true;
     const applyTo = frontmatterValue(content, 'applyTo') ?? '';
-    const needsCSharp = applyTo.includes('.cs');
-    const needsTypeScript = applyTo.includes('.ts') || path.endsWith('/rtk.md');
-    const needsGo = applyTo.includes('.go') || applyTo.includes('go.mod') || applyTo.includes('go.sum');
-    const needsKotlin = applyTo.includes('.kt');
-    const needsJava = applyTo.includes('.java');
-    const needsElixir = applyTo.includes('.ex');
-    const needsDocumentation = applyTo.includes('md');
     // A scope that also names model files (`.play`) is not tied to one language, so it is always kept.
     if (applyTo.includes('.play')) return true;
-    if (!needsCSharp && !needsTypeScript && !needsGo && !needsKotlin && !needsJava && !needsElixir && !needsDocumentation) return true;
-    return (needsCSharp && languages.includes('csharp')) ||
-        (needsTypeScript && languages.includes('typescript')) ||
-        (needsGo && languages.includes('go')) ||
-        (needsKotlin && languages.includes('kotlin')) ||
-        (needsJava && languages.includes('java')) ||
-        (needsElixir && languages.includes('elixir')) ||
-        (needsDocumentation && selectedProfiles.includes('cratis/documentation'));
+    const named = scopeKinds.filter(kind => kind.named(applyTo, path));
+    return named.length === 0 || named.some(kind => kind.satisfied(configuration));
 }
 
 /**

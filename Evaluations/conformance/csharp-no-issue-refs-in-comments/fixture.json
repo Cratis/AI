@@ -1,0 +1,13 @@
+{
+  "name": "csharp-no-issue-refs-in-comments",
+  "description": "Code comments do not cite issue numbers or spec sections even when the prompt mentions them. Patterns are JS-compatible .NET regex.",
+  "prompt": "Implement issue #42 (spec section 3.2): make RegisterAuthor in Source/Authors/Registration.cs take a Name string and add a short comment explaining why the name is trimmed. Write the code to files.",
+  "expected_output": "RegisterAuthor takes Name; any comment explains why, with no issue or spec reference.",
+  "profiles": ["cratis/application/csharp"],
+  "languages": ["csharp"],
+  "expected_instruction_paths": [".cratis/ai/rules/code-quality.md"],
+  "checks": [
+    { "type": "file_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "\\bRegisterAuthor\\s*\\([^)]*\\bstring\\s+Name\\b" },
+    { "type": "file_not_matches", "phase": "result", "glob": "Source/**/*.cs", "pattern": "//[^\\r\\n]*(#\\d+|[Ss]pec\\s*§|[Ss]ection\\s*\\d|[Ss]pec\\s+section)" }
+  ]
+}

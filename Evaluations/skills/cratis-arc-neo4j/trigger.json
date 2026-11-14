@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-arc-neo4j",
+  "queries": [
+    {"query": "Add Neo4j to our Arc host so a query can list the members of a group.", "shouldTrigger": true},
+    {"query": "How do I inject IGraphSession into a model-bound query?", "shouldTrigger": true},
+    {"query": "Which Neo4j database does Arc pick for tenant acme in event store Orders?", "shouldTrigger": true},
+    {"query": "Our Arc graph query returns data from other tenants in single database mode. What filter is missing?", "shouldTrigger": true},
+    {"query": "Bind a ConceptAs<Guid> as a Cypher parameter in an Arc query.", "shouldTrigger": true},
+    {"query": "Configure Neo4j credentials per tenant with Arc connection resolution.", "shouldTrigger": true},
+    {"query": "Substitute IGraphSession in a specification with UseGraphSessionSubstitute.", "shouldTrigger": true},
+    {"query": "Why does a write Cypher statement fail in my Arc query session?", "shouldTrigger": true},
+    {"query": "Does WithNeo4j need Chronicle, and what package do I install?", "shouldTrigger": true},
+    {"query": "Which graph database name does Arc compute for event store 1Orders in the Default namespace?", "shouldTrigger": true},
+    {"query": "Project PersonRegistered events onto Person nodes in Chronicle.", "shouldTrigger": false, "note": "cratis-chronicle-projection"},
+    {"query": "Declare a graph and projection in my .play model.", "shouldTrigger": false, "note": "cratis-screenplay-projections"},
+    {"query": "Page and sort an Arc MongoDB list query.", "shouldTrigger": false, "note": "cratis-arc-query-paging"},
+    {"query": "Create an Arc query over a Chronicle read model stored in MongoDB.", "shouldTrigger": false, "note": "cratis-chronicle-read-model"},
+    {"query": "Host Arc in ASP.NET Core and map endpoints.", "shouldTrigger": false, "note": "cratis-arc-hosting"},
+    {"query": "Write given graph and then graph steps for a specification.", "shouldTrigger": false, "note": "cratis-screenplay-specifications"},
+    {"query": "Resolve MongoDB connections per tenant in Arc.", "shouldTrigger": false, "note": "cratis-arc-hosting"},
+    {"query": "Declare nodes and edges with the Elixir Chronicle client.", "shouldTrigger": false, "note": "cratis-chronicle-client-elixir"}
+  ]
+}

@@ -47,7 +47,7 @@
       "note": "cratis-screenplay-render-and-gap-fill"
     },
     {
-      "query": "Declare a toolbar dialog and nested outlets in the .play model.",
+      "query": "Declare a toolbar dialog and nested slots in the .play model.",
       "shouldTrigger": false,
       "note": "cratis-screenplay-ui-composition"
     },

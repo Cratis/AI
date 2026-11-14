@@ -17,10 +17,14 @@ public class and_a_restricted_checkout_has_a_configured_cache : Specification
         {
             ["DIRECT_REPOSITORY_CHECKOUTS"] = "[{}]",
             ["DIRECT_REPOSITORY_CACHE"] = "/repos",
+            ["DIRECT_MEMORY_PATH"] = "/other",
             ["CUSTOM_CACHE"] = "/repos",
             ["UNCHANGED"] = "value"
         };
-        var job = new WorkerJob(AgentSessionId.New(), "worker:latest", environment, new Dictionary<string, string>());
+        var job = new WorkerJob(AgentSessionId.New(), "worker:latest", environment, new Dictionary<string, string>())
+        {
+            Cache = new("v1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", [new("https://example.invalid/owner/repo.git", "owner/repo.git")])
+        };
         _result = DockerWorkerRuntime.BuildContainerSpecification(job, "/repos", "CUSTOM_CACHE");
         environment["DIRECT_REPOSITORY_CHECKOUTS"] = string.Empty;
         _emptyContract = DockerWorkerRuntime.BuildContainerSpecification(job, "/repos", "CUSTOM_CACHE");
@@ -28,6 +32,7 @@ public class and_a_restricted_checkout_has_a_configured_cache : Specification
 
     [Fact] void should_omit_the_shared_cache() => _result.HostConfig.Binds.ShouldBeEmpty();
     [Fact] void should_omit_cache_environment_even_if_supplied_by_the_caller() => _result.Env.ShouldNotContain(variable => variable.StartsWith("CUSTOM_CACHE=", StringComparison.Ordinal) || variable.StartsWith("DIRECT_REPOSITORY_CACHE=", StringComparison.Ordinal));
+    [Fact] void should_omit_memory_environment() => _result.Env.ShouldNotContain(variable => variable.StartsWith("DIRECT_MEMORY_PATH=", StringComparison.Ordinal));
     [Fact] void should_preserve_other_environment() => _result.Env.ShouldContain("UNCHANGED=value");
     [Fact] void should_omit_the_cache_for_an_empty_contract() => _emptyContract.HostConfig.Binds.ShouldBeEmpty();
 }

@@ -71,3 +71,11 @@ report unsupported, never flatten them into plain actions.
 
 Authority: Screenplay `interactions.md`, `diagnostics.md`,
 `mcp/authoring-tools.md`.
+
+## Availability on screens, forms and actions
+
+A guard decides which action a click runs. `available` decides whether a screen, form or action
+exists for the caller's tenant, user or system at all, before `authorize`, and is refused as
+`NotAvailable` so a client can hide the entry. A persona `audience` line is documentation for the
+board and Studio and changes nothing at runtime. An action or form that `invokes` a command whose
+audiences can be off while the invoker's are on warns (PLAY1139). See `../../cratis-screenplay-availability/SKILL.md`.

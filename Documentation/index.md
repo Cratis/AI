@@ -37,6 +37,9 @@ is described in part by [Agent adapters](./agent-adapters.md). See that content'
   and Studio into the package, what has not, and what each still-open PR contains. Read this first
   if you are picking this work up mid-stream.
 - [`compatibility.md`](./compatibility.md) - the product releases the AI corpus is checked against: the Cratis CLI bundle and the Stage rendered-application scaffold pins. Maintainer reference, not agent-loaded.
+- [`screenplay-session-bundle.md`](./screenplay-session-bundle.md) - the stack-neutral Screenplay guidance
+  each release publishes for build loops to inject into coding-agent sessions: format, versions and how
+  to consume it.
 - [`decisions/`](./decisions/) - architecture decision records. Each documents the context, the
   decision, its consequences, and the alternatives that were rejected - read these before
   revisiting a decision that looks wrong; the reasoning for it is here, not only in the code.

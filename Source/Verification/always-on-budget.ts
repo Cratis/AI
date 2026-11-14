@@ -18,9 +18,12 @@ import { skillBody } from './skill-structure.ts';
  * Cratis/AI#909 method pointers in pull-requests.md, issue-assignment.md, review-reports.md, profiles.md: +1087 bytes (claude-code, pi), +1002 (copilot).
  * fast-feedback.md general.md routing row: budgets raised by 150 bytes (copilot, pi) and 109 (cursor, codex-opencode).
  * Cratis/AI#969 secrets.md `cratis config get … --show-secret` in the guarded commands: +39 bytes (claude-code, copilot, pi); the Pi budget is raised by 50.
+ * local-verification-and-delivery.md (engineering profile): budgets raised by 200 bytes (claude-code) and 450 (pi).
+ * Published-contracts rule: general.md routing row (merged into the Code Health row) and review-reports.md blocker sentence: +250 (claude-code), +100 (copilot, cursor, codex-opencode), +300 (pi).
+ * Code Health rule: general.md routing row and DoD bullet, review-reports.md rounds note, codescene.md exclusion recipe: +210 bytes (copilot), up to +905 (claude-code, pi).
  */
 // File scoping and on-demand operation skills reduce Claude Code, Copilot and Pi; other caps stay unchanged.
-export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 74_500, copilot: 51_400, pi: 76_950, cursor: 23_400, 'codex-opencode': 23_100 };
+export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 75_900, copilot: 51_750, pi: 78_600, cursor: 23_500, 'codex-opencode': 23_200 };
 
 const remedy = 'Displace or demote text to an on-demand skill, or raise the budget in Source/Verification/always-on-budget.ts in a reviewed change.';
 
@@ -44,6 +47,38 @@ export interface LoadedHarnessArtifacts {
     cursorRule?: string;
 }
 
+function instructionHeader(content: string): string {
+    return content.slice(0, content.length - skillBody(content).length);
+}
+
+function hasUniversalScope(header: string): boolean {
+    return scopes(header, 'applyTo').some(glob => universalGlobs.has(glob));
+}
+
+function piLoadsRule(applyTo: string[], paths: string[]): boolean {
+    if (applyTo.length === 0 && paths.length === 0) return true;
+    return [...applyTo, ...paths].some(glob => universalGlobs.has(glob));
+}
+
+function countGeneralRule(totals: Record<string, number>, bytes: number, loaded: LoadedHarnessArtifacts): void {
+    totals['claude-code'] += bytes;
+    totals.pi += bytes;
+    totals.cursor += bytes + Buffer.byteLength(loaded.cursorRule ?? '');
+    totals['codex-opencode'] += bytes;
+}
+
+function countInstruction(totals: Record<string, number>, entry: InstructionEntry, loaded: LoadedHarnessArtifacts): void {
+    const header = instructionHeader(entry.content);
+    const bytes = Buffer.byteLength(entry.content);
+    const applyTo = scopes(header, 'applyTo');
+    const paths = scopes(header, 'paths');
+    const general = entry.file.endsWith('/general.md');
+    if (general) countGeneralRule(totals, bytes, loaded);
+    if (paths.length === 0) totals['claude-code'] += bytes;
+    if (general || (!loaded.copilotAdapters && hasUniversalScope(header))) totals.copilot += bytes;
+    if (piLoadsRule(applyTo, paths)) totals.pi += bytes;
+}
+
 /**
  * Rule bytes loaded at session start per harness, counting the artifacts each one reads:
  * Claude Code reads CLAUDE.md (general.md) and every `.claude/rules` file without `paths`, so general.md arrives twice;
@@ -53,25 +88,9 @@ export interface LoadedHarnessArtifacts {
  */
 export function alwaysOnHarnessBytes(entries: InstructionEntry[], loaded: LoadedHarnessArtifacts = {}): Record<string, number> {
     const totals: Record<string, number> = { 'claude-code': 0, copilot: 0, pi: 0, cursor: 0, 'codex-opencode': 0 };
-    const universal = (header: string): boolean => scopes(header, 'applyTo').some(glob => universalGlobs.has(glob));
-    for (const { file, content } of entries) {
-        const header = content.slice(0, content.length - skillBody(content).length);
-        const bytes = Buffer.byteLength(content);
-        const applyTo = scopes(header, 'applyTo');
-        const paths = scopes(header, 'paths');
-        const general = file.endsWith('/general.md');
-        if (general) {
-            totals['claude-code'] += bytes;
-            totals.pi += bytes;
-            totals.cursor += bytes + Buffer.byteLength(loaded.cursorRule ?? '');
-            totals['codex-opencode'] += bytes;
-        }
-        if (paths.length === 0) totals['claude-code'] += bytes;
-        if (general || (!loaded.copilotAdapters && universal(header))) totals.copilot += bytes;
-        if ((applyTo.length === 0 && paths.length === 0) || [...applyTo, ...paths].some(glob => universalGlobs.has(glob))) totals.pi += bytes;
-    }
+    for (const entry of entries) countInstruction(totals, entry, loaded);
     for (const { content } of loaded.copilotAdapters ?? []) {
-        if (universal(content.slice(0, content.length - skillBody(content).length))) totals.copilot += Buffer.byteLength(content);
+        if (hasUniversalScope(instructionHeader(content))) totals.copilot += Buffer.byteLength(content);
     }
     return totals;
 }

@@ -17,10 +17,14 @@ public class and_a_restricted_checkout_has_a_configured_cache : Specification
         {
             ["DIRECT_REPOSITORY_CHECKOUTS"] = "[{}]",
             ["DIRECT_REPOSITORY_CACHE"] = "/repos",
+            ["DIRECT_MEMORY_PATH"] = "/other",
             ["CUSTOM_CACHE"] = "/repos",
             ["UNCHANGED"] = "value"
         };
-        var job = new WorkerJob(AgentSessionId.New(), "worker:latest", environment, new Dictionary<string, string>());
+        var job = new WorkerJob(AgentSessionId.New(), "worker:latest", environment, new Dictionary<string, string>())
+        {
+            Cache = new("v1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", [new("https://example.invalid/owner/repo.git", "owner/repo.git")])
+        };
         _result = KubernetesWorkerRuntime.BuildJobSpecification(job, "/repos", "repository-cache", "CUSTOM_CACHE");
         environment["DIRECT_REPOSITORY_CHECKOUTS"] = string.Empty;
         _emptyContract = KubernetesWorkerRuntime.BuildJobSpecification(job, "/repos", "repository-cache", "CUSTOM_CACHE");
@@ -29,6 +33,7 @@ public class and_a_restricted_checkout_has_a_configured_cache : Specification
     [Fact] void should_omit_the_shared_cache() => _result.Spec.Template.Spec.Volumes.ShouldNotContain(volume => volume.PersistentVolumeClaim is not null);
     [Fact] void should_omit_cache_environment_even_if_supplied_by_the_caller() => _result.Spec.Template.Spec.Containers[0].Env.ShouldNotContain(variable => variable.Name == "CUSTOM_CACHE" || variable.Name == "DIRECT_REPOSITORY_CACHE");
     [Fact] void should_omit_the_cache_mount() => _result.Spec.Template.Spec.Containers[0].VolumeMounts.ShouldNotContain(mount => mount.MountPath == "/repos");
+    [Fact] void should_omit_memory_environment() => _result.Spec.Template.Spec.Containers[0].Env.ShouldNotContain(variable => variable.Name == "DIRECT_MEMORY_PATH");
     [Fact] void should_preserve_other_environment() => _result.Spec.Template.Spec.Containers[0].Env.ShouldContain(variable => variable.Name == "UNCHANGED" && variable.Value == "value");
     [Fact] void should_omit_the_cache_for_an_empty_contract() => _emptyContract.Spec.Template.Spec.Volumes.ShouldNotContain(volume => volume.PersistentVolumeClaim is not null);
 }

@@ -19,7 +19,7 @@ const piToolFor: Record<string, string | null> = { Read: 'read', Grep: 'grep', G
 const canonicalAgents = readCanonicalAgents(corpusRoot);
 
 test('every canonical agent declares a non-empty tools list in the canonical vocabulary', () => {
-    assert.equal(canonicalAgents.length, 16);
+    assert.equal(canonicalAgents.length, 17);
     for (const agent of canonicalAgents) {
         assert.ok(agent.tools.length > 0, `${agent.file} declares no tools`);
         assert.equal(agent.model, undefined, `${agent.file} must not pin a native model; declare modelTier instead`);

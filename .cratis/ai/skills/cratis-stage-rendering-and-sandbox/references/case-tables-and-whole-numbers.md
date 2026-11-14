@@ -40,6 +40,8 @@ module Projects
           name = name
       event ProjectRegistered
         name ProjectName
+      screen Register
+        action RegisterProject for screen
       specification Registering
         parameter name ProjectName
         case Small name = "small"
@@ -93,6 +95,8 @@ module Inventory
           quantity = quantity
       event StockRecorded
         quantity Quantity
+      screen Record
+        action RecordStock for screen
       specification RecordingLargeQuantity
         when RecordStock
           stockId = "stock-1"

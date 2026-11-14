@@ -35,4 +35,16 @@ public record WorkerJob(
     /// The Kubernetes runtime ignores them.
     /// </summary>
     public IReadOnlyDictionary<string, string>? Labels { get; init; }
+
+    /// <summary>
+    /// Optional Docker resource ceilings. Missing or zero values leave the resource unlimited.
+    /// The Kubernetes runtime continues to use its existing resource options.
+    /// </summary>
+    public WorkerLimits? Limits { get; init; }
+
+    /// <summary>
+    /// Optional scoped cache access. When unset, no cache directories or memory paths are exposed.
+    /// Restricted and host-prepared workspaces do not mount the cache, even when requested.
+    /// </summary>
+    public WorkerCacheAccess? Cache { get; init; }
 }

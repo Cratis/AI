@@ -48,6 +48,19 @@
         "Says the reference runner cannot compute reducer state, so a specification reading it reports unsupported and never passes.",
         "Says a reducer is code and a projection is preferred wherever one will do."
       ]
+    },
+    {
+      "id": 5,
+      "name": "graph-projection-backwards",
+      "prompt": "Design a .play graph for a company: people belong to groups and groups nest. Show the graph and its projection, and say whether a document read model fits better. Reply only.",
+      "expected_output": "A slice-level graph with keyed nodes and edges, a projection => graph with node/edge blocks and detach, designed by reading the traversal questions backwards, with no JSON or Cypher.",
+      "assertions": [
+        "Declares graph nodes each with exactly one key property and edges naming declared source and target labels.",
+        "Writes projection X => graph G with node and edge from and remove with blocks, adding detach on the node removal.",
+        "Derives the nodes and edges from the traversal questions, then names the creating and removing event for each.",
+        "Says a document read model fits lookups by key while a graph fits traversals such as nested membership.",
+        "Writes no JSON, Cypher or read-model-only constructs such as children or join in the graph projection."
+      ]
     }
   ]
 }

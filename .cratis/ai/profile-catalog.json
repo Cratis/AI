@@ -19,6 +19,7 @@
         "cratis/arc/core",
         "cratis/arc/csharp",
         "cratis/arc/ef-core",
+        "cratis/arc/elixir",
         "cratis/arc/go",
         "cratis/arc/identity",
         "cratis/arc/java",
@@ -173,6 +174,7 @@
     {
       "id": "cratis/application/elixir",
       "composes": [
+        "cratis/arc/elixir",
         "cratis/chronicle/client-elixir",
         "cratis/language/elixir",
         "cratis/screenplay"
@@ -275,7 +277,10 @@
         "cratis-arc-command-execution",
         "cratis-arc-command-operation",
         "cratis-arc-command-validation",
+        "cratis-arc-configuration",
         "cratis-arc-hosting",
+        "cratis-arc-mcp",
+        "cratis-arc-neo4j",
         "cratis-arc-observable-query-http",
         "cratis-arc-query-paging"
       ],
@@ -309,6 +314,19 @@
       ],
       "languages": [
         "csharp"
+      ]
+    },
+    {
+      "id": "cratis/arc/elixir",
+      "composes": [
+        "cratis/chronicle/client-elixir",
+        "cratis/language/elixir"
+      ],
+      "availableTargets": [
+        "cratis-arc-elixir"
+      ],
+      "languages": [
+        "elixir"
       ]
     },
     {
@@ -379,7 +397,11 @@
         "cratis-rtk",
         "cratis-arc-command-typescript",
         "cratis-arc-query-typescript",
-        "cratis-arc-validation-typescript"
+        "cratis-arc-validation-typescript",
+        "cratis-arc-tenancy-typescript",
+        "cratis-arc-storage-typescript",
+        "cratis-arc-testing-typescript",
+        "cratis-arc-code-analysis-typescript"
       ],
       "languages": [
         "typescript"
@@ -511,6 +533,7 @@
       "availableTargets": [
         "cratis-commits-and-pull-requests",
         "cratis-rtk",
+        "cratis-chronicle-configuration",
         "cratis-chronicle-decision-reads",
         "cratis-chronicle-event-constraints",
         "cratis-chronicle-event-modeling",
@@ -957,11 +980,13 @@
         "cratis-rtk",
         "cratis-screenplay-authentication-and-onboarding",
         "cratis-screenplay-automations-and-translations",
+        "cratis-screenplay-availability",
         "cratis-screenplay-captures-and-reactions",
         "cratis-screenplay-command-surface",
         "cratis-screenplay-delivery-planning",
         "cratis-screenplay-discovery",
         "cratis-screenplay-event-modeling",
+        "cratis-screenplay-extension-packages",
         "cratis-screenplay-legacy-extraction",
         "cratis-screenplay-model-authoring",
         "cratis-screenplay-model-review",
@@ -969,6 +994,7 @@
         "cratis-screenplay-projections",
         "cratis-screenplay-read-surface",
         "cratis-screenplay-render-and-gap-fill",
+        "cratis-screenplay-reverse-engineering",
         "cratis-screenplay-scenario-coverage",
         "cratis-screenplay-slice-design",
         "cratis-screenplay-specifications",
@@ -1085,10 +1111,12 @@
         "cratis-engineering-issue-hygiene",
         "cratis-engineering-issue-design-note",
         "cratis-engineering-local-cross-repo-verification",
+        "cratis-engineering-post-mortem",
         "cratis-engineering-regression-cluster",
         "cratis-engineering-release-trains",
         "cratis-engineering-review-rounds",
         "cratis-release-notes",
+        "cratis-session-handoff",
         "cratis-technical-examples"
       ],
       "languages": [

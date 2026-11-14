@@ -19,7 +19,10 @@ public class and_the_node_pool_is_batch : Specification
 
     void Because()
     {
-        var worker = new WorkerJob(AgentSessionId.New(), "cratis/ai-agents-pi:latest", new Dictionary<string, string>(), new Dictionary<string, string>());
+        var worker = new WorkerJob(AgentSessionId.New(), "cratis/ai-agents-pi:latest", new Dictionary<string, string>(), new Dictionary<string, string>())
+        {
+            Cache = new("v1-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", [new("https://example.invalid/owner/repo.git", "owner/repo.git")])
+        };
         _job = KubernetesWorkerRuntime.BuildJobSpecification(
             worker,
             repositoryCachePath: "/cache",
@@ -38,7 +41,7 @@ public class and_the_node_pool_is_batch : Specification
     [Fact] void should_match_managed_workers_independently() => _terms[1].PodAffinityTerm.LabelSelector.MatchLabels.ShouldContainOnly(new KeyValuePair<string, string>("app.kubernetes.io/managed-by", "cratis-ai-agents"));
     [Fact] void should_not_add_conjunctive_expressions() => _terms.All(term => term.PodAffinityTerm.LabelSelector.MatchExpressions is null).ShouldBeTrue();
     [Fact] void should_pack_on_nodes() => _terms.All(term => term.PodAffinityTerm.TopologyKey == "kubernetes.io/hostname").ShouldBeTrue();
-    [Fact] void should_serialize_an_empty_namespace_selector_for_each_alternative() => JsonDocument.Parse(KubernetesJson.Serialize(_job)).RootElement.GetProperty("spec").GetProperty("template").GetProperty("spec").GetProperty("affinity").GetProperty("podAffinity").GetProperty("preferredDuringSchedulingIgnoredDuringExecution").EnumerateArray().All(term => !term.GetProperty("podAffinityTerm").GetProperty("namespaceSelector").EnumerateObject().Any()).ShouldBeTrue();
+    [Fact] void should_serialize_an_empty_namespace_selector_for_each_alternative() => JsonElement.Parse(KubernetesJson.Serialize(_job)).GetProperty("spec").GetProperty("template").GetProperty("spec").GetProperty("affinity").GetProperty("podAffinity").GetProperty("preferredDuringSchedulingIgnoredDuringExecution").EnumerateArray().All(term => !term.GetProperty("podAffinityTerm").GetProperty("namespaceSelector").EnumerateObject().Any()).ShouldBeTrue();
     [Fact] void should_not_restrict_namespaces_by_name() => _terms.All(term => term.PodAffinityTerm.Namespaces is null).ShouldBeTrue();
     [Fact] void should_not_require_existing_batch_pods() => _pod.Affinity.PodAffinity.RequiredDuringSchedulingIgnoredDuringExecution.ShouldBeNull();
     [Fact] void should_not_counteract_packing_with_spread() => _pod.TopologySpreadConstraints.ShouldBeNull();
@@ -52,7 +55,7 @@ public class and_the_node_pool_is_batch : Specification
     [Fact] void should_keep_the_network_policy_identity() => _job.Spec.Template.Metadata.Labels["cratis.io/agent-workload"].ShouldEqual("worker");
     [Fact] void should_keep_resource_requests() => _pod.Containers.Single().Resources.Requests["cpu"].ToString().ShouldEqual("1");
     [Fact] void should_keep_resource_limits() => _pod.Containers.Single().Resources.Limits["memory"].ToString().ShouldEqual("4Gi");
-    [Fact] void should_keep_the_read_only_repository_cache() => _pod.Volumes.Single(volume => volume.Name == "repository-cache").PersistentVolumeClaim.ReadOnlyProperty.ShouldEqual(true);
+    [Fact] void should_keep_the_read_only_repository_cache() => _pod.Containers.Single().VolumeMounts.Single(mount => mount.SubPath == "owner/repo.git").ReadOnlyProperty.ShouldEqual(true);
     [Fact] void should_keep_the_scratch_volume() => _pod.Volumes.Single(volume => volume.Name == WorkerScratch.VolumeName).Ephemeral.VolumeClaimTemplate.Spec.StorageClassName.ShouldEqual("scratch");
     [Fact] void should_keep_the_image_pull_secret() => _pod.ImagePullSecrets.Single().Name.ShouldEqual("registry");
     [Fact] void should_keep_service_account_tokens_unmounted() => _pod.AutomountServiceAccountToken.ShouldEqual(false);

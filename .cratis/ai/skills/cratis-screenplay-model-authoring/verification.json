@@ -262,6 +262,9 @@
       "kind": "skill-contains",
       "value": "Both sides reload",
       "file": "references/mcp-tools.md"
-    }
+    },
+    { "kind": "skill-contains", "value": "`sink`, `module`, `seed`", "file": "references/language-reference.md" },
+    { "kind": "skill-contains", "value": "| `PLAY0937` | Warning | A repeated identical `sink` line |", "file": "references/language-reference.md" },
+    { "kind": "skill-contains", "value": "`ReadModelSyntax.sink` and `GraphSyntax.sink` hold the chosen name", "file": "references/language-reference.md" }
   ]
 }

@@ -1,0 +1,13 @@
+{
+  "skill": "cratis-engineering-post-mortem",
+  "input": "Write a post-mortem from an incident record with linked runs and a hearsay claim, with owned and linked actions.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "UTC" },
+    { "kind": "skill-contains", "value": "is derived from verified evidence" },
+    { "kind": "skill-contains", "value": "**Primary**" },
+    { "kind": "skill-contains", "value": "exactly one" },
+    { "kind": "skill-contains", "value": "search that tracker for an existing item" },
+    { "kind": "skill-contains", "value": "../../rules/secrets.md" }
+  ]
+}

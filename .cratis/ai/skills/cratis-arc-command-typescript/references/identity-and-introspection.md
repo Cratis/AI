@@ -3,7 +3,7 @@
 
 # Identity, authorization and discovery access
 
-Source: `Cratis/Arc.TypeScript` (GitHub pre-release, not on npm):
+Source: `Cratis/Arc.TypeScript`:
 `Source/Core/authentication/**`, `identity/**`, `introspection/**`,
 `Documentation/core/authentication.md`, `authorization.md`,
 `Documentation/identity/**`, `hosts/native-principal.md`, and
@@ -62,8 +62,6 @@ belongs on every operation. Local users/tenants are development fixtures, not
 production credentials; keep simulated identities on loopback hosts.
 
 ## Secure introspection defaults
-
-Requires Arc for TypeScript 0.56.0 for these defaults.
 
 `/.cratis/commands`, `/.cratis/queries`, `/.cratis/identity-details/schema`,
 `/.cratis/users`, `/.cratis/tenants`, and `/openapi.json` are anonymous only in

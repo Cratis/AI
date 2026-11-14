@@ -70,6 +70,7 @@ superseded statement needs context; exceptions do not change the contract.
 | Scope/checks | `--scope <address>`, `--check <names>`; a scoped pass is not whole-application success | `validate --executable` (bundled binder, no write), `--check <names>`, `--scope`; `render --scope`/`--check`; `cratis screenplay conform`, `cratis screenplay conform-namespace` |
 | Declared gate | `screenplay <root> --print-gate`, `--format json`, `--no-gate-file` | `validate <root> --print-gate`, `--no-gate-file`; the same `screenplay.json` |
 | Reference execution | `screenplay test <root>` or MCP `run-specifications` | Discover bundled MCP capability; target tests are not V4 |
+| Version migration | `screenplay migrate <root> --from <major> [--to <major>] [--dry-run] [--report <file>]` or MCP `migrate` (read-only); exit 2 means review | Use the standalone tool; see `cratis-screenplay-modeling-lifecycle` |
 | MCP | `screenplay mcp <root>`; discover schemas | `cratis screenplay mcp [root]`; registered by `cratis ai install` |
 | Render boundary | Binder admission is not Stage admission | The CLI renders only ESM versions it knows; a newer bound model gets `CLI-RENDER-004` |
 
@@ -97,6 +98,8 @@ for MCP initialization, source identity and reporting. Without MCP, report
 `V2 not run: no MCP in this agent`. Report each verdict separately with tool,
 version, source identity and any blocking codes; MCP `modelRevision` is semantic,
 not the source identity.
+
+A model whose systems name an `extension` also needs `screenplay.lock` and restored contracts: every compile is strict about them (`PLAY1107` not locked, `PLAY1108` not restored, `PLAY1109` contract differs, `PLAY1110` other range, `PLAY1111` malformed lock). Restore with `cratis extension restore` or `screenplay restore [<folder>] [--locked] [--update] [--source <directory>] [--vendor]`; the language server and MCP restore on opening a model root and report warnings until then. See [extension packages](../cratis-screenplay-extension-packages/SKILL.md).
 
 Read [observation comparison](references/observation-comparison.md) when asking whether a running namespace holds what the model declares, or when reading a `conform-namespace` verdict. It differs from model comparison (model versus model) and `conform` (model versus code).
 
@@ -171,6 +174,8 @@ with ordered imports means future files need explicit imports.
   not legal compliance, retention or runtime subject realization. See
   command-surface `references/context.md` and `references/compliance.md`.
 
+`audience`, `availability`, `available` and `provide` diagnostics are PLAY1119-PLAY1141; executing a `provide` reports PLAY0268. Specifications and the reference evaluator treat every gate as available; opaque sources are unsupported, never allowed. See `cratis-screenplay-availability`.
+
 ## Edit strategy
 
 Read [the MCP authoring loop](../cratis-screenplay-model-authoring/references/mcp-loop.md)
@@ -183,7 +188,7 @@ unknown apply outcome requires recovery, not retry.
 
 All 44 traps, with fixes: `references/traps.md`. Read `references/traps.md` when diagnosing an unexpected compile, binding, rendering or MCP result.
 
-Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE or CLI-RENDER diagnostic needs its meaning and fix. When the Screenplay documentation and the compiler disagree, follow the compiler for what is accepted, keep the intended semantics in the model, and record the gap.
+Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE or CLI-RENDER diagnostic needs its meaning and fix. Sink lines (`PLAY0931`–`PLAY0939`) are realization metadata (PLAY0270): a sink change leaves the ESM revision unchanged. When the Screenplay documentation and the compiler disagree, follow the compiler for what is accepted, keep the intended semantics in the model, and record the gap.
 
 1. Clean V1 is not executable: only MCP (V2) or `render` binds.
 2. Prefer inline `produces event` for a command-owned event; plain command productions need explicit `for <identifier>`.
