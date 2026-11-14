@@ -4,7 +4,7 @@
 import { readFile, readdir } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
 import { pinnedVersion } from '../play/fences.ts';
-import { check, parseContract, parseExceptions, pinProblems } from './check.ts';
+import { check, parseContract, parseExceptions, pinProblems, undocumentedToolProblems } from './check.ts';
 
 export const referenceDirectory = '.cratis/ai/skills/cratis-screenplay-toolchain/references';
 
@@ -28,7 +28,7 @@ export async function verifyContract(root: string, override?: string) {
     const documents = await Promise.all([...skillFiles, ...agents, ...rules].sort().map(async path => ({ file: relative(root, path).replaceAll('\\', '/'), content: await readFile(path, 'utf8') })));
     const scoped = documents.filter(document => !document.file.startsWith('.cratis/ai/rules/') || /Screenplay/i.test(document.content));
     const result = check(contract, scoped, exceptions, !override, pinned);
-    result.problems.push(...pinProblems(pin, version));
+    result.problems.push(...pinProblems(pin, version), ...undocumentedToolProblems(result.coverage.mcpTools));
     return { ...result, files: scoped.length, pinnedVersion: version, contractSource: override ?? `${referenceDirectory}/screenplay-contract.json` };
 }
 

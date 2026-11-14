@@ -156,6 +156,11 @@ export function coverage(contract: Contract, documents: Array<{ file: string; co
     };
 }
 
+/** Coverage is name-based across Screenplay guidance, not tied to a prose catalog count. */
+export function undocumentedToolProblems(missingTools: string[]): string[] {
+    return missingTools.map(name => `Screenplay contract: undocumented MCP tool ${name}.`);
+}
+
 /** Subjects that violate the contract, split into those an exception covers and the problems of those it does not. */
 function classifyDefects(subjects: Subject[], contract: Contract, exceptions: Exception[]) {
     const used = new Set<Exception>();

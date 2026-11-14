@@ -6,7 +6,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
-import { check, coverage, parseContract, parseExceptions, pinProblems } from './contract/check.ts';
+import { check, coverage, parseContract, parseExceptions, pinProblems, undocumentedToolProblems } from './contract/check.ts';
 import type { Exception } from './contract/Exception.ts';
 import { expandCodes, extract } from './contract/extract.ts';
 import type { Github } from './contract/Github.ts';
@@ -59,6 +59,16 @@ function fakeGithub(issues: number[], labels = ['screenplay-sync']) {
     };
     return { calls, github };
 }
+
+describe('when requiring documented MCP tool names', () => {
+    it('should fail missing names and accept names anywhere in the Screenplay corpus', () => {
+        const missing = check(specimen, [{ file: 'empty.md', content: 'No tools here.' }]);
+        assert.equal(undocumentedToolProblems(missing.coverage.mcpTools).length, specimen.mcpTools.length);
+        assert.ok(undocumentedToolProblems(missing.coverage.mcpTools).every(problem => /undocumented MCP tool/.test(problem)));
+        const named = { file: 'other-reference.md', content: specimen.mcpTools.map(tool => `MCP tool \`${tool.name}\``).join('\n') };
+        assert.deepEqual(undocumentedToolProblems(check(specimen, [named]).coverage.mcpTools), []);
+    });
+});
 
 describe('when extracting Screenplay contract subjects', () => {
     it('should retain exact locations and expand diagnostic ranges and slash shorthand', () => {
