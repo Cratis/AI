@@ -37,6 +37,29 @@ exact language/semantic pairs; binding, reference execution and rendering are se
 
 Constructs of decision 0098 with no executable-model content need no version: application-level hooks in a layout's actions outlet (`default <id> title "..." slice <Slice>` with an optional indented `authorize <Policy>`), and a capture over events that copies a list (`lines = $.lines`) or fans out with `children lines identified by sku`. Check `screenplay --version` against the release that admitted v29 and v30 before relying on them. Decision 0115 withdrew 0098's command specification that states the public event its outbound Translate slice publishes: a specification runs only its own slice, so the Translate slice states the public event in its own `when append` specification.
 
+### Read-model property order (ESM 37.1)
+
+Requires Screenplay 5.6.0 or later (`screenplay --version`). Read-model declaration order is optional,
+ignorable metadata and is **not** preserved by default: the CLI, MCP, TypeScript compiler and editors
+never request it, and it adds no `.play` syntax or diagnostic. A C# host opts in with
+`SemanticModelBinder.Bind(name, document, documents, new SemanticBindingOptions(PreserveReadModelPropertyOrder: true))`,
+which returns a `SemanticBindingOptionsResult` (`Compilation`, `Refusal`, `Success`).
+
+- Only when the option is used and removing the metadata leaves a valid 37.0 model that reads the
+  application calendar or a clock does the model select language/semantic **37.1**. `schemaVersion`
+  stays 37 and each read model gains an optional `propertyOrder` after `properties`: a permutation of
+  every property identity, key included. `properties` stays id-sorted.
+- Any other model gets `PropertyOrderMetadataRefusal` with no executable value; a model with no read
+  models keeps its version. Default `Bind` and default options keep existing versions, bytes and
+  revisions.
+- The golden is `full-esm-v37.1.json`, reached with `EsmGoldenVectors.GetMinor(SemanticVersion.V37_1)`;
+  `Get(int)` and `Versions` describe only `.0` goldens.
+- A 37.0 consumer that reads through the [unknown-preserving reader](unknown-preserving-reader.md)
+  keeps the member as opaque bytes with the same revision.
+
+Do not tell modelers that declaration order controls a generated constructor's parameter order: that
+rendering is a Stage change tracked in Stage#896; confirm it shipped before claiming otherwise.
+
 ## Compiler and target minimums
 
 Requires Screenplay 4.181.0 or later (`screenplay --version`) for atomic batches; older compilers cannot admit the preamble.

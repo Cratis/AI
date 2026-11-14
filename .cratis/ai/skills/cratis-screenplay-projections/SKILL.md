@@ -157,6 +157,9 @@ for grouped events, removals and compiler compatibility.
 
 ## Property mapping and AutoMap
 
+The order of a read model's properties is not a projection input; only a C# host's opt-in ESM 37.1
+metadata records it ([property order](../cratis-screenplay-toolchain/references/language-admission.md#read-model-property-order-esm-371)).
+
 ⚠️ **AutoMap is on by default.** Matching property names are copied before your
 explicit mappings run, and explicit mappings win. Turn it off with `no automap` at
 **projection**, `every`/`all`, `join`, `children` or `nested` level — it

@@ -32,6 +32,7 @@
     { "kind": "skill-contains", "value": "| `PLAY0935` | Error | A `passive` read model names a sink |", "file": "references/sinks.md" },
     { "kind": "skill-contains", "value": "The model never names a database", "file": "references/sinks.md" },
     { "kind": "skill-contains", "value": "Read [sinks](references/sinks.md) before naming a sink." },
-    { "kind": "skill-contains", "value": "acts on that table's collection", "file": "references/screen-patterns.md" }
+    { "kind": "skill-contains", "value": "acts on that table's collection", "file": "references/screen-patterns.md" },
+    { "kind": "skill-contains", "value": "Property declaration order is not preserved by default" }
   ]
 }
