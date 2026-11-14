@@ -66,6 +66,7 @@ model's behalf.
    or literal, to the screen, reaction or integration that supplies it. Trace a field with the
    `screenplay` MCP server's `trace-lineage` tool (paged tree, breaks, branches and opaque hops
    are reported) rather than stitching `dependencies` calls; confirm each hop in the model.
+   Trace both directions (`direction`: `upstream`, `downstream`, `both`); `screenplay lineage <address> [PATH] [--direction ...] [--format json]` prints the same tree for scripts (exit 0 complete, 1 breaks, 2 cannot run; Screenplay 6.6.0 or later for command, event and screen-field addresses).
    Requires Screenplay 4.223.0 (`screenplay --version`); on older releases use `dependencies`. AutoMap fills same-named
    fields silently: count them. Forward: every event to a consumer or a terminal reason; every
    command input to an event field or a rule. Before calling data missing, search the model.

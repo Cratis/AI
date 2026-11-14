@@ -54,6 +54,12 @@ A reference the executable model does not hold refuses admission: CLI exit 1 wit
 
 `screenplay rename <address> <new-name> [<folder>] [--kind <Command|EventContract|ReadModel|...>]` is the scriptable form of MCP `propose-rename` plus `apply`: it repairs references across files, keeps the element's semantic identity, pins a renamed event's stored type name with `id`, and writes (creating on the first rename) `.screenplay/identities.json`. Exit 0 renamed, 1 refused, 2 could not run.
 
+## Trace a value's lineage
+
+Requires Screenplay 6.6.0 or later (`screenplay --version`) for command, event and screen-field addresses and `--direction`.
+
+`screenplay lineage <address> [PATH] [--direction upstream|downstream|both] [--format json]` prints the tree MCP `trace-lineage` pages, all at once: `->` is where the value goes, `<-` where it comes from, and a break (missing mapping, ambiguous name, code the trace cannot read) appears in brackets with its reason. `--format json` prints every hop. Exit 0 complete, 1 with breaks, 2 cannot run (for example the address names nothing).
+
 ## Persisted identities
 
 `test`, `export`, `diff` and `rename` open a folder with `.screenplay/identities.json` when one exists, so the CLI and the MCP server report the same persisted identities the MCP server uses.

@@ -67,7 +67,7 @@ the [MCP loop](mcp-loop.md).
 | Group | Tools | Intent |
 | --- | --- | --- |
 | Understanding | `describe-application`, `search-declarations`, `find-declaration`, `declaration-details`, `list-storylines` (one optional argument) | Navigate logical hierarchy, inspect bounded details and list storylines |
-| References and examples | `find-references`, `dependencies`, `dependency-graph`, `find-fixtures`, `find-assertion-gaps`, `find-specification-obligations`, `find-modeling-smells`, `trace-lineage`, `semantic-diff` | Inspect declared relationships and authored examples, not executed coverage |
+| References and examples | `list-storylines`, `find-references`, `dependencies`, `dependency-graph`, `find-fixtures`, `find-assertion-gaps`, `find-specification-obligations`, `find-modeling-smells`, `trace-lineage`, `semantic-diff` | Inspect declared relationships and authored examples, not executed coverage |
 | Source and validation | `diagnostics`, `ui-profiles` (also the design system, themes and resolved values per mode), `read-document`, `merged-document`, `syntax-schema` | Read exact source or typed structure and diagnose problems |
 | Workspace inspection | `open-workspace`, `read-workspace`, `read-ast`, `workspace-state`, `export-workspace`, `repair-capabilities` | Obtain current identities, handles, readiness, code attachment requirements, source-map locations, durable-state status and the repair catalog |
 | Visual (MCP-Apps hosts only) | `visualize-model` | Draw the board for the model or a `proposalId`; its `sketch` argument previews a what-if of whole documents. Reads only |
@@ -396,7 +396,7 @@ leave the event standalone; never work around it with text edits.
 
 Requires Screenplay 4.223.0 (`screenplay --version`) for `trace-lineage`.
 
-`trace-lineage` takes a read-model property `address` and returns a paged tree
+Requires Screenplay 6.6.0 or later (`screenplay --version`) for `direction` and for command, event and screen-field addresses. `trace-lineage` takes a property `address` (a command, event or read-model property: the owner's address and the member; or a screen field: the screen's or form's address and the bound property) and a `direction` (`upstream`, `downstream` or `both`, the default). Downstream a command property goes to the event properties its productions set, to the read-model properties its projections set (and the command properties a reaction's `invokes` sets), then to the queries and screens that show it; a form input field has only downstream hops and a shown field only upstream ones; a command with a `handler` stops at `opaque`. Hops carry `id`, `parent`, `depth`, `direction`, `role`, `status`, `kind`, `address`, `location` (and, for projections, `mode` and `block`). It returns a paged tree
 (`limit`, `offset`) from the property through projection or reducer mappings, joins and
 child mappings to the event property, then to the producing command property or capture
 source. A broken hop is reported where the chain breaks, several sources appear as

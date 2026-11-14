@@ -273,6 +273,9 @@
     {"kind":"skill-contains","value":"screenplay rename","file":"references/mcp-tools.md"},
     {"kind":"skill-contains","value":"ScreensRefused","file":"references/mcp-tools.md"},
     {"kind":"skill-contains","value":"api-description","file":"references/mcp-tools.md"},
-    {"kind":"skill-contains","value":"`slices`","file":"references/mcp-tools.md"}
+    {"kind":"skill-contains","value":"`slices`","file":"references/mcp-tools.md"},
+    {"kind":"skill-contains","value":"list-storylines","file":"references/mcp-tools.md"},
+    {"kind":"skill-contains","value":"storyline ReturnAnItem","file":"references/storylines.md"},
+    {"kind":"skill-contains","value":"`direction`","file":"references/mcp-tools.md"}
   ]
 }
