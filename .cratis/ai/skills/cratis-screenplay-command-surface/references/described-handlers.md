@@ -86,7 +86,10 @@ Stage admits v23 but refuses described handlers with STAGE-IMPL-002 in the rende
 Host and specification executor, including Stub mode: it emits no stubs. Hand-write
 the body against the declared contract as authorized gap-fill; do not claim that a
 pending requirement is implementation evidence. Moving the body into `handler file`
-keeps its RequirementId but does not admit that attached handler alongside `produces`.
+keeps its RequirementId; beside unconditional `produces` it binds like any resolved
+attached handler (above), while with no `produces`, `produces ... when`, or an empty
+or unresolved body it still fails PLAY0800. Stage still refuses it, so a resolved
+body is binding, not render readiness.
 
 Validate the model root with `screenplay <root> --warnaserror`; expect no errors or
 warnings and PLAY0695 information. Run `screenplay test <root>` separately: body-reaching
