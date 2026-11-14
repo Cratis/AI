@@ -10,13 +10,31 @@ import type { ExtensionAPI, ExtensionContext, ToolDefinition } from '@earendil-w
 import { registerBridge } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/index.ts';
 import { StdioConnection } from '../../.cratis/ai/harnesses/pi/extensions/cratis-mcp/StdioConnection.ts';
 
-export function projectFixture(configuration: unknown = { profiles: ['cratis/screenplay'] }, distributedCorpus?: string) {
+/**
+ * Servers are deferred by default; most specs exercise the registered behavior, so fixtures opt the given server ids into
+ * `eager: true` unless a spec states its own `eager` (or passes no ids to keep the deferred default).
+ */
+export function withEager(configuration: unknown, ids: string[]): unknown {
+    if (!ids.length || !object(configuration) || (configuration.mcpServers !== undefined && !object(configuration.mcpServers))) return configuration;
+    const servers: Record<string, unknown> = { ...(configuration.mcpServers as Record<string, unknown> | undefined) };
+    for (const id of ids) {
+        if (servers[id] !== undefined && !object(servers[id])) continue;
+        servers[id] = { eager: true, ...(servers[id] as Record<string, unknown> | undefined) };
+    }
+    return { ...configuration, mcpServers: servers };
+}
+
+function object(value: unknown): value is Record<string, unknown> {
+    return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+export function projectFixture(configuration: unknown = { profiles: ['cratis/screenplay'] }, distributedCorpus?: string, eagerIds: string[] = ['screenplay']) {
     const workspace = process.env.AI_WORK_OUTPUT ?? resolve(import.meta.dirname, '../../.ai-work/pi-mcp-specs');
     mkdirSync(workspace, { recursive: true });
     const project = realpathSync(mkdtempSync(join(workspace, 'project-')));
     const corpus = distributedCorpus ?? join(project, 'corpus');
     mkdirSync(join(project, '.cratis'), { recursive: true });
-    const configure = (value: unknown) => writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(value));
+    const configure = (value: unknown) => writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(withEager(value, eagerIds)));
     configure(configuration);
     const syntheticDescriptor = {
         schemaVersion: '1.0', servers: [{ id: 'screenplay', profiles: ['cratis/screenplay'], transport: 'stdio', command: 'cratis', args: ['screenplay', 'mcp'] }],
@@ -81,6 +99,21 @@ export function fakeChild() {
     };
 }
 
+/** A connect function that serves `discovered` from a fresh fake child per call and records each child. */
+export function fakeServerConnect(fixture: ReturnType<typeof projectFixture>, discovered: ReturnType<typeof tool>[], children: ReturnType<typeof fakeChild>[]) {
+    return (project: string): StdioConnection => {
+        if (project !== fixture.project) throw new Error('Wrong physical project');
+        const child = fakeChild();
+        child.onRequest(request => {
+            if (request.method === 'initialize') child.result(request, { protocolVersion: '2025-06-18', capabilities: { tools: { listChanged: false } }, serverInfo: { name: 'cratis.screenplay' } });
+            if (request.method === 'tools/list') child.result(request, { tools: discovered });
+            if (request.method === 'tools/call') child.result(request, { content: [{ type: 'text', text: 'done' }], structuredContent: { success: true }, isError: false });
+        });
+        children.push(child);
+        return new StdioConnection(child.child, 1000);
+    };
+}
+
 export function nativeHarness(
     fixture: ReturnType<typeof projectFixture>, discovered = [tool('diagnostics'), tool('apply')], excluded: string[] = [],
     checkVersion = async (_project: string) => true, connect?: (project: string) => StdioConnection,
@@ -111,17 +144,7 @@ export function nativeHarness(
         setActiveTools(names: string[]) { active = names.filter(name => !excluded.includes(name)); },
         on(name: string, handler: (event: Record<string, unknown>, context: ExtensionContext) => unknown) { handlers.set(name, handler); return () => handlers.delete(name); },
     } as unknown as ExtensionAPI;
-    registerBridge(api, fixture.corpus, connect ?? (project => {
-        if (project !== fixture.project) throw new Error('Wrong physical project');
-        const child = fakeChild();
-        child.onRequest(request => {
-            if (request.method === 'initialize') child.result(request, { protocolVersion: '2025-06-18', capabilities: { tools: { listChanged: false } }, serverInfo: { name: 'cratis.screenplay' } });
-            if (request.method === 'tools/list') child.result(request, { tools: discovered });
-            if (request.method === 'tools/call') child.result(request, { content: [{ type: 'text', text: 'done' }], structuredContent: { success: true }, isError: false });
-        });
-        children.push(child);
-        return new StdioConnection(child.child, 1000);
-    }), project => { versionProjects.push(project); return checkVersion(project); });
+    registerBridge(api, fixture.corpus, connect ?? fakeServerConnect(fixture, discovered, children), project => { versionProjects.push(project); return checkVersion(project); });
     return {
         registered, children, versionProjects, notices, context, api,
         approve(value: boolean) { approved = value; },

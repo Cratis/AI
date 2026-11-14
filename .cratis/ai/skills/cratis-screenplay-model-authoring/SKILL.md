@@ -11,6 +11,12 @@ Read [preferred syntax](../cratis-screenplay-toolchain/references/preferred-synt
 Prefer the Screenplay MCP tools to text/regex edits: the compiler owns declaration,
 reference, hierarchy and source evidence for the declarative document set.
 
+In Pi the Screenplay tools are not registered at session start: call
+`cratis_enable_mcp` with `{"server": "screenplay"}` first. The `screenplay_*` tools are
+available from the next step, not in the same parallel tool batch, so enable alone, then
+use them. Other harnesses expose the tools natively; skip this there. A project
+that sets `mcpServers.screenplay.eager` to `true` already has them.
+
 **Valid source is not necessarily executable.** Stage owns rendering/runtime
 admission. Read the [language reference](references/language-reference.md) for
 construct syntax, source-versus-execution states and a complete compiled model.
