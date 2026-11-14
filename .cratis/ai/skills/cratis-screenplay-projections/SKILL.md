@@ -160,8 +160,11 @@ Requires Screenplay 4.212.4 (`screenplay --version`) for joined-event auto-map
 overrides in executable binding; older binders replace the setting with the level's.
 
 Mapping sources are a property path, a literal, `$eventSourceId` and `$eventContext.<path>`.
-⚠️ Only the event source identity runs in the reference runner; any other `$eventContext`
-path (such as `occurred` in the shape above) binds but its specifications cannot run there.
+`$eventContext.occurred` in a property assignment of `from`, `every` (including `all`) and
+`children` runs in the reference runner as UTC text. Keys, joins, arithmetic, `every` with joins,
+nested-object scopes and other paths (`sequenceNumber`, `correlationId`) still bind but their
+specifications cannot run there. A missing occurrence fails the projection with no partial state:
+supply it with `given clock` or an explicit fact timestamp.
 `clear <property>` removes a value; prefer it to `= null`. Read
 [mapping sources](references/mapping-sources.md) for the catalog, `PLAY0295` and `clear` paths.
 
@@ -228,7 +231,7 @@ Choose a graph for traversals and a document read model for lookups by key. Desi
 **reading the graph backwards**: write each question as a path, make every hop an edge type
 and every stop a node label, then name the event that creates and removes each. Read
 [references/graphs.md](references/graphs.md) for syntax, operations, a graph in a named sink
-(`sink People for graphs`) and `PLAY0862`–`PLAY0877`.
+(`sink People for graphs`), graph queries (`match`/`return`), `foreach` over an event's list and `PLAY0862`–`PLAY0886`.
 
 ## When PDL is not enough — the reducer
 
@@ -270,6 +273,11 @@ of a document a reader cannot check at a glance.
 
 Read [pdl-grammar.md](references/pdl-grammar.md) when checking exact syntax, interpreting a projection diagnostic code, or needing a worked example.
 
+## Secret concepts and read models
+
+A `secret` concept copied into a read-model property (explicit mapping, AutoMap or reducer) raises warning
+`PLAY1142`. Read [secret concepts](references/secret-concepts.md) before projecting a protected event value.
+
 ## `STAGE-ESM-017` passes `validate` and fails at `render`
 
 `validate --executable` binds only Screenplay's model; Stage's admission runs only in `render`.
@@ -291,7 +299,7 @@ with `STAGE-ESM-017` after `validate` exits 0.
 - [ ] Every `children` block's `from` declares `parent`.
 - [ ] Every `nested` block contains at least one `from`.
 - [ ] Where the model must run: no `$causedBy`, template or `sequence`; no `$eventContext`
-      path other than `eventSourceId`, no projection-level `remove via join`, no
+      path other than `eventSourceId` or an `occurred` property assignment, no projection-level `remove via join`, no
       `all` beside removals, `children` or `nested`, and no `join`, `children` or
       `remove via join` inside `nested`.
 - [ ] Variant entering events use the event source identity as the entity's

@@ -99,6 +99,11 @@
     { "kind": "skill-contains", "value": "PropertyOrderMetadataRefusal", "file": "references/read-model-property-order.md" },
     { "kind": "skill-contains", "value": "is **not** preserved by default", "file": "references/read-model-property-order.md" },
     { "kind": "skill-contains", "value": "references/read-model-property-order.md" },
-    { "kind": "skill-contains", "value": "references/unknown-preserving-reader.md" }
+    { "kind": "skill-contains", "value": "references/unknown-preserving-reader.md" },
+    { "kind": "skill-contains", "value": "| PLAY0885 | E |", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "| PLAY0886 | E |", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "| PLAY0955 | W |", "file": "references/diagnostics.md" },
+    { "kind": "skill-contains", "value": "does not establish runtime identity safety", "file": "references/executable-subset.md" },
+    { "kind": "skill-contains", "value": "| PLAY1142 | W |", "file": "references/diagnostics.md" }
   ]
 }
