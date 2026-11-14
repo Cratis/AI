@@ -27,6 +27,8 @@ is described in part by [Agent adapters](./agent-adapters.md). See that content'
 - [`worker-console.md`](./worker-console.md) - console readiness, cancellation, and application-owned archiving.
 - [Kubernetes worker scheduling](./worker-scheduling.md) - batch packing and running-worker eviction protection.
 - [`provider-harnesses.md`](./provider-harnesses.md) - select supported worker harnesses per provider and migrate away from per-agent selection.
+- [`provider-team-members.md`](./provider-team-members.md) - restrict a provider to specific team
+  members, and what enforcing that selection during dispatch is left to the consumer.
 - [`provider-capacity.md`](./provider-capacity.md) - how much of each provider's subscription
   windows is left, how pools rank and skip members by it, and how long a hit limit stays parked.
 - [`usage.md`](./usage.md) - the usage subsystem: concepts, `AgentSessionUsageRecorded`, the
