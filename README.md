@@ -4,6 +4,8 @@ This repository ships two things from one source of truth:
 
 - **`Cratis.AI` (NuGet)** is the backend package: AI providers, pools, tiers,
   concurrency, conversations, agents, worker/harness scheduling, and usage.
+  Add it with `dotnet add package Cratis.AI`; backend documentation starts at
+  [Documentation/index.md](./Documentation/index.md).
 - **The Cratis AI corpus and tooling** are the canonical set of rules, agents,
   prompts, and skills used when building with or contributing to Cratis, plus the
   tools that install and verify them.

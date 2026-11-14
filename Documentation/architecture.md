@@ -12,9 +12,9 @@ Abstractions/    the seams a consumer implements - never references Direct.* or 
 Common/          cross-cutting concepts and helpers (WeekKey, MonthKey, ModelName, command-pipeline helpers)
 Agents/          agent identity, causation, and the IAgentExecution scope
 LanguageModels/  the single-shot completion contract (ILanguageModel, LanguageModelResult, ManagedLanguageModel)
-Providers/       provider vocabulary and (once ported) vendor clients, pools, tiers, resolution
+Providers/       provider vocabulary, vendor clients, pools, tiers, resolution
 Usage/           the usage subsystem: concepts, the event, the command, the read models
-Workers/         worker/harness scheduling contract (IWorkerRuntime) and (once ported) implementations
+Workers/         worker/harness scheduling contract (IWorkerRuntime) and its Docker and Kubernetes runtimes
 Conversations/   the conversational API: IAIChatClients hands out pooled IChatClients (multi-turn, streaming, tool calls)
 Configuration/   AddCratisAI() and the builder consumers configure seams through
 ```
@@ -27,14 +27,25 @@ resolution the same way `LanguageModels/` does.
 
 `IAIChatClients.For(purpose)` returns a Microsoft.Extensions.AI `IChatClient` whose provider is
 resolved per call from the agent behind the purpose: an explicit provider is used directly, and a
-pool dispatches to its least-burnt member. `For(purpose, ChatAgentTarget)` does the same for an agent
+pool ranks its members and tries them best first. A member that failed a real call recently ranks last;
+then a member with no headroom or exhausted capacity ranks after the rest; then the most headroom in
+the vendor-reported usage windows wins, then known remaining capacity, then the fewest tokens burnt over
+the trailing week, with job count and declaration order as tie-breakers
+(`PoolMemberSelector`). `For(purpose, ChatAgentTarget)` does the same for an agent
 the caller defines. Each call goes through the provider concurrency gate, a 429 parks the provider
 through the rate-limit cooldown, and tokens spent are recorded as agent usage.
 
 Failover has boundaries. A streaming call can move to another pool member only until its first update
 arrives; after that a failure is surfaced to the caller. A Claude Code turn also stops failing over
 once the caller's function invocation has been attempted, even if the tool failed, because its effects
-may already have happened. The package does not replay arbitrary effects. See
+may already have happened. The package does not replay arbitrary effects.
+
+For other providers, the pool sees one model request at a time. When you wrap the client with
+`UseFunctionInvocation()`, the tool loop runs outside the pool: each model request in the loop is
+dispatched on its own, and a failover resends that request's messages, including earlier tool results,
+to another member. The tools themselves are executed by the caller's loop, not by the pool, so the
+pool never re-runs one. The pool does not track whether tools ran earlier in the conversation; only
+Claude Code reports a tool attempt inside a turn, so only it carries that stop. See
 [`provider-capacity.md`](./provider-capacity.md) for how pools rank and skip members.
 
 This describes the package. It does not say every consumer has moved its conversations onto it;
