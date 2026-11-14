@@ -136,6 +136,8 @@ but it does not let a model control a generated constructor (see
   One screen per step is not a rule; a screen hosts every action the person can reasonably take
   there, and an action may be reachable from several screens.
 - Not a mockup: a drawn page is never evidence for the model, and a Level 1 screen is a data and
-  action contract that a renderer or a person fills in (`cratis-screenplay-ui-composition`).
+  action contract that a renderer or a person fills in (`cratis-screenplay-ui-composition`). A
+  sketch, mockup or screenshot may still travel with the screen as `sketch`, `mockup` or `image`
+  lines, which are authoring metadata ([screen visuals](../../cratis-screenplay-ui-composition/references/screen-visuals.md)).
 - Not mandatory to render: a screen that stays design-only is still a contract for lineage and
   review.
