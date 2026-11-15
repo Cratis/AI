@@ -391,6 +391,8 @@ dotnet build Cratis.AI.slnx --configuration Debug --no-restore -p:CratisProxiesO
 dotnet build Cratis.AI.slnx --configuration Release --no-restore -p:CratisProxiesOutputPath=
 Source/Cratis.AI.Specs/bin/Debug/net10.0/Cratis.AI.Specs
 Source/Cratis.AI.Specs/bin/Debug/net11.0/Cratis.AI.Specs
+Source/Cratis.AI.ReverseProxy.Specs/bin/Debug/net10.0/Cratis.AI.ReverseProxy.Specs
+Source/Cratis.AI.ReverseProxy.Specs/bin/Debug/net11.0/Cratis.AI.ReverseProxy.Specs
 dotnet run --project Source/WorkerCacheFixture/WorkerCacheFixture.csproj --configuration Release -p:CratisProxiesOutputPath= -warnaserror
 ```
 

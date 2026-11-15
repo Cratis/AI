@@ -228,6 +228,12 @@ jobs:
       - name: Run specs (net11.0)
         run: Source/Cratis.AI.Specs/bin/Debug/net11.0/Cratis.AI.Specs
 
+      - name: Run reverse proxy specs
+        run: Source/Cratis.AI.ReverseProxy.Specs/bin/Debug/net10.0/Cratis.AI.ReverseProxy.Specs
+
+      - name: Run reverse proxy specs (net11.0)
+        run: Source/Cratis.AI.ReverseProxy.Specs/bin/Debug/net11.0/Cratis.AI.ReverseProxy.Specs
+
       - name: Verify restricted workers cannot read the shared cache sentinel
         run: dotnet run --project Source/WorkerCacheFixture/WorkerCacheFixture.csproj --configuration Release -p:CratisProxiesOutputPath= -warnaserror
 
@@ -419,10 +425,14 @@ jobs:
             11.0.100
 
       - name: Build
-        run: dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release
+        run: |
+          dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release
+          dotnet build Source/Cratis.AI.ReverseProxy/Cratis.AI.ReverseProxy.csproj --configuration Release
 
-      - name: Create NuGet package
-        run: dotnet pack Source/Cratis.AI/Cratis.AI.csproj --no-build --configuration Release -o ./Artifacts/NuGet -p:PackageVersion=${{ needs.release.outputs.version }}
+      - name: Create NuGet packages
+        run: |
+          dotnet pack Source/Cratis.AI/Cratis.AI.csproj --no-build --configuration Release -o ./Artifacts/NuGet -p:PackageVersion=${{ needs.release.outputs.version }}
+          dotnet pack Source/Cratis.AI.ReverseProxy/Cratis.AI.ReverseProxy.csproj --no-build --configuration Release -o ./Artifacts/NuGet -p:PackageVersion=${{ needs.release.outputs.version }}
 
       - name: NuGet login (OIDC -> temp API key)
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
