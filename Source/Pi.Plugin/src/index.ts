@@ -34,7 +34,7 @@ function allSkillPaths(): string[] {
 }
 
 function supportsLanguage(profile: Profile, languages: Set<string>): boolean {
-    if (!profile.languages?.length) return true;
+    if (!languages.size || !profile.languages?.length) return true;
     return profile.languages.some(language => language === 'language-agnostic' || languages.has(language));
 }
 

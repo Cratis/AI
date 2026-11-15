@@ -50,6 +50,41 @@ test('isolated runs stage only the explicit corpus dependency closure, preservin
     } finally { await source.remove(); }
 });
 
+test('missing explicit dependencies remain absent without preventing other dependencies from staging', async () => {
+    const source = await workspace();
+    const corpus = join(source.path, '.cratis/ai');
+    try {
+        await put(corpus, 'skills/example/SKILL.md', '[missing](../../rules/missing.md)\n[present](../../rules/present.md)');
+        await put(corpus, 'rules/present.md', '[missing transitive dependency](../prompts/missing.prompt.md)');
+        const isolated = await isolateBatch(join(corpus, 'skills'), Harness.Claude);
+        try {
+            assert.equal(await readFile(join(isolated.withWorkspace, '.cratis/ai/rules/present.md'), 'utf8'), '[missing transitive dependency](../prompts/missing.prompt.md)');
+            await assert.rejects(access(join(isolated.withWorkspace, '.cratis/ai/rules/missing.md')), { code: 'ENOENT' });
+            await assert.rejects(access(join(isolated.withWorkspace, '.cratis/ai/prompts')), { code: 'ENOENT' });
+        } finally { await isolated.remove(); }
+    } finally { await source.remove(); }
+});
+
+test('dependency scanning follows symlinked skill directories only within the corpus', async () => {
+    const source = await workspace();
+    const corpus = join(source.path, '.cratis/ai');
+    try {
+        await put(corpus, 'skills/example/SKILL.md', '# Example');
+        await put(corpus, 'references/guide.md', '[gates](../../../rules/gates.md)');
+        await put(corpus, 'rules/gates.md', 'gates');
+        await put(corpus, 'rules/private.md', 'not a dependency');
+        await put(source.path, 'host/guide.md', '[private](../../../rules/private.md)');
+        await symlink(join(corpus, 'references'), join(corpus, 'skills/example/references'));
+        await symlink(join(source.path, 'host'), join(corpus, 'skills/example/host'));
+        const isolated = await isolateBatch(join(corpus, 'skills'), Harness.Claude);
+        try {
+            assert.equal(await readFile(join(isolated.withWorkspace, '.cratis/ai/rules/gates.md'), 'utf8'), 'gates');
+            assert.equal((await lstat(join(isolated.skillsDirectory, 'example/references'))).isSymbolicLink(), false);
+            await assert.rejects(access(join(isolated.withWorkspace, '.cratis/ai/rules/private.md')), { code: 'ENOENT' });
+        } finally { await isolated.remove(); }
+    } finally { await source.remove(); }
+});
+
 test('dependency links cannot expose evaluation data or escape the corpus through symlinks', async () => {
     const source = await workspace();
     const corpus = join(source.path, '.cratis/ai');

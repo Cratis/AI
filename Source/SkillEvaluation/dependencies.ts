@@ -6,11 +6,15 @@ import { dirname, join, relative, resolve, sep } from 'node:path';
 
 const dependencyAreas = new Set(['rules', 'prompts', 'hooks']);
 
-async function files(directory: string): Promise<string[]> {
+async function files(directory: string, boundary: string, ancestors = new Set<string>()): Promise<string[]> {
+    const actual = await realpath(directory);
+    if (ancestors.has(actual)) return [];
+    const visited = new Set([...ancestors, actual]);
     const entries = await readdir(directory, { withFileTypes: true });
-    const paths = await Promise.all(entries.map(entry => {
+    const paths = await Promise.all(entries.map(async entry => {
         const path = join(directory, entry.name);
-        return entry.isDirectory() ? files(path) : [path];
+        if (relative(boundary, await realpath(path)).split(sep)[0] === '..') return [];
+        return (await stat(path)).isDirectory() ? files(path, boundary, visited) : [path];
     }));
     return paths.flat();
 }
@@ -47,7 +51,7 @@ async function stageReference(corpus: string, source: string, reference: string,
 /** Stage only explicitly referenced files in rules, prompts and hooks, including their transitive references. */
 export async function stageDependencies(corpusSkills: string, destination: string): Promise<void> {
     const corpus = dirname(corpusSkills);
-    const pending = await files(corpusSkills);
+    const pending = await files(corpusSkills, await realpath(corpus));
     const visited = new Set<string>(pending);
     while (pending.length) {
         const source = pending.pop()!;
