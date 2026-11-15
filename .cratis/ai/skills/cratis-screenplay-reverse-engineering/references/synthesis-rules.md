@@ -79,9 +79,10 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
   use it. Spec the boundary both exactly equal and one below. Date and DateTime values compare
   in command rules on a Screenplay release with Date/DateTime comparisons
   (`cratis-screenplay-command-surface`). Calendar and clock forms (`today - 7 days`,
-  `date of occurred`, `time zone`) parse but are not runnable: never write them into an
-  executable model. A today-relative query (overdue, due today, dormant) cannot be a declarative
-  filter: query filters admit only caller-supplied equality, and clock operands are syntax only.
+  `date of occurred`, `time zone`) bind from ESM v37 (Screenplay 5.5.0), but only in command
+  conditions; see command-surface `references/date-comparisons.md`. A today-relative query
+  (overdue, due today, dormant) cannot be a declarative filter: query filters admit only
+  caller-supplied equality, and a clock operand there is PLAY0268.
   Do not leave such a rule as a comment. A comment expresses nothing, and Stage cannot serve it.
   Give the query a `performer` body (`cratis-screenplay-read-surface`, "Performer bodies are
   rendered") that applies the probed threshold, the inclusive or exclusive edge and the excluded
@@ -100,10 +101,13 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
 - **Toggles clear what the inverse clears**: when a probe shows the inverse command reset a
   field (a completed-at timestamp on reopen), the projection resets it too.
 - **Ownership and state-reading authorization** ("only the owner may change X"): probe it as
-  a second caller, record it as an authorization finding, and never drop it. The policy form
-  admits caller conditions only (`authenticated`, roles); a rule that reads state is not
-  expressible, so write a `GAP` line citing the open Cratis/Screenplay issues on state-reading
-  authorization policies (search the tracker for the numbers) and keep the rule as an anchored `question` note. Do not invent syntax.
+  a second caller, record it as an authorization finding, and never drop it. Model it as a
+  state-reading policy: `reads <Model> as <alias> by <property>` plus a state condition in
+  `require` (`article.author == $identity.id`), as in command-surface
+  [policies that decide from recorded state](../../cratis-screenplay-command-surface/references/policy-persona-seed.md#policies-that-decide-from-recorded-state).
+  Admitted shapes are limited (the caller's identifier is `$identity.id`, compared with `==` or `!=`;
+  constants only); a rule outside them is a `GAP` line citing the matching open Cratis/Screenplay issue
+  (search the tracker) with the rule kept as an anchored `question` note. Do not invent syntax.
 - **Cross-field rules** ("a first or a last name"): write a declarative
   `require <condition>` with a `message`, for example
   `require firstName != "" or lastName != ""`. A fenced code body is a last resort; its

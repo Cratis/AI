@@ -88,7 +88,7 @@ Independent results, not a ladder. Read `references/verdicts.md` for the command
 | --- | --- | --- |
 | V1 | authorable (compiles, warnings as errors) | the folder command above |
 | V2 | executable diagnostics read | MCP `open-workspace`, then `read-workspace view=executable-diagnostics` |
-| V3 | binding-ready (binds, no blocking executable diagnostics) | `executableReady` true and no error-severity diagnostic in V2; informational PLAY0269/0270 are reported separately |
+| V3 | binding-ready (binds, no blocking executable diagnostics) | `executableReady` true and no error-severity diagnostic in V2; informational PLAY0269/0270 are reported separately; screens are deferred by default and admitted on request as ESM v42 (`export --screens`) |
 | V4 | reference specifications run | `screenplay test` or MCP `run-specifications`; unsupported/unbound is not a pass; rendered Debug tests are V5.tests, never V4 |
 | V5 | rendered and target-verified | `cratis render`, then Debug build and tests; report admission, publication, build and tests separately |
 
@@ -140,6 +140,8 @@ with ordered imports means future files need explicit imports.
   report PLAY0268); one explicit `key` keeps its earlier version. Read
   `references/production-routes-and-filters.md`, [language admission](references/language-admission.md)
   and read-surface `references/named-keys.md`.
+- **Minor versions:** read [unknown-preserving reader](references/unknown-preserving-reader.md) and
+  [read-model property order](references/read-model-property-order.md).
 - **Enum numbers (v12):** read command-surface `references/enum-numbers.md` for
   pins, stored numbers and Stage output; `references/diagnostics.md` owns PLAY0667–0671.
 - **Concept strategies (v15):** read
@@ -233,6 +235,10 @@ Read [model notes gate](references/verdicts.md#model-notes-gate) when checking
 unresolved questions: the standalone tool has `--open-questions fail`; `cratis screenplay validate`
 does through `--open-questions report|fail`. It is separate from compilation and `--warnaserror`.
 Requires Cratis CLI 3.60.0 or later (`cratis --version`) for that option; older CLIs lack it.
+
+Read [language admission](references/language-admission.md#esm-json-schemas) for the published ESM JSON Schemas (shape, not admission).
+
+Read [export, compare and rename](references/model-export-diff-rename.md) for `screenplay export`, `diff` and `rename` and persisted identities.
 
 Read [fast path](references/fast-path.md) for the ordered requirements-to-running-app checklist (validate, `render --check`, render, build, run, check in a browser, run the specs).
 

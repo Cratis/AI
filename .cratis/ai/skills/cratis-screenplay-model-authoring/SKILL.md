@@ -11,6 +11,12 @@ Read [preferred syntax](../cratis-screenplay-toolchain/references/preferred-synt
 Prefer the Screenplay MCP tools to text/regex edits: the compiler owns declaration,
 reference, hierarchy and source evidence for the declarative document set.
 
+In Pi the Screenplay tools are not registered at session start: call
+`cratis_enable_mcp` with `{"server": "screenplay"}` first. The `screenplay_*` tools are
+available from the next step, not in the same parallel tool batch, so enable alone, then
+use them. Other harnesses expose the tools natively; skip this there. A project
+that sets `mcpServers.screenplay.eager` to `true` already has them.
+
 **Valid source is not necessarily executable.** Stage owns rendering/runtime
 admission. Read the [language reference](references/language-reference.md) for
 construct syntax, source-versus-execution states and a complete compiled model.
@@ -28,6 +34,8 @@ still need binding and otherwise substitute their own slice. Inspect
 `containerIdentities` in `open-workspace` / `workspace-state` for missing or
 ambiguous identities; fix parse/placement errors first. Read the notes reference
 for refusals, `ambiguous: true`, typed targets and every `substitutions` entry.
+
+Read [storylines](references/storylines.md) to name a journey across modules, features and slices.
 
 ## Choosing a strategy
 
@@ -164,7 +172,8 @@ Others send an edit request ([MCP loop](references/mcp-loop.md)).
    on disk while open, so after an apply do not re-request it; just say what changed.
 
 Handles are revision-bound, not durable IDs. Modules/features span fragments;
-after apply fetch fresh handles/revisions.
+after apply fetch fresh handles/revisions. Repeated identical advisories (such as
+PLAY0818/PLAY0819) are repaired occurrence by occurrence, never by message text or in bulk.
 
 On refusal, use `failureKind`, never message text ([failures/limits](references/mcp-loop.md#failures-use-failurekind-never-message-text)).
 After revision/disk/identity drift, reopen and re-propose. For `ApplyOutcomeUnknown`

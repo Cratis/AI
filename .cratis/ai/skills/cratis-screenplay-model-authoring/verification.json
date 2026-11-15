@@ -34,6 +34,8 @@
     { "kind": "skill-contains", "value": "A renderer admits only the ESM versions it bundles", "file": "references/mcp-tools.md", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "Existing `All` history reads as", "file": "references/mcp-tools.md" },
     { "kind": "play-compiles" },
+    { "kind": "skill-contains", "value": "## Link elements to issues", "file": "references/model-notes.md" },
+    { "kind": "skill-contains", "value": "`question`, `task`, `note`, `issue`", "file": "references/model-notes.md" },
     { "kind": "skill-contains", "value": "Edit through MCP proposals, not hand-edited text" },
     { "kind": "skill-contains", "value": "The CLI-bundled MCP can be older than the standalone tool" },
     { "kind": "skill-contains", "value": "`previewArguments`", "file": "references/mcp-tools.md" },
@@ -265,6 +267,15 @@
     },
     { "kind": "skill-contains", "value": "`sink`, `module`, `seed`", "file": "references/language-reference.md" },
     { "kind": "skill-contains", "value": "| `PLAY0937` | Warning | A repeated identical `sink` line |", "file": "references/language-reference.md" },
-    { "kind": "skill-contains", "value": "`ReadModelSyntax.sink` and `GraphSyntax.sink` hold the chosen name", "file": "references/language-reference.md" }
+    { "kind": "skill-contains", "value": "`ReadModelSyntax.sink` and `GraphSyntax.sink` hold the chosen name", "file": "references/language-reference.md" },
+    { "kind": "skill-contains", "value": "repaired occurrence by occurrence, never by message text or in bulk" },
+    { "kind": "skill-contains", "value": "GraphCollectSyntax", "file": "references/mcp-tools.md" },
+    {"kind":"skill-contains","value":"screenplay rename","file":"references/mcp-tools.md"},
+    {"kind":"skill-contains","value":"ScreensRefused","file":"references/mcp-tools.md"},
+    {"kind":"skill-contains","value":"api-description","file":"references/mcp-tools.md"},
+    {"kind":"skill-contains","value":"`slices`","file":"references/mcp-tools.md"},
+    {"kind":"skill-contains","value":"list-storylines","file":"references/mcp-tools.md"},
+    {"kind":"skill-contains","value":"storyline ReturnAnItem","file":"references/storylines.md"},
+    {"kind":"skill-contains","value":"`direction`","file":"references/mcp-tools.md"}
   ]
 }

@@ -11,6 +11,8 @@
     { "kind": "skill-contains", "value": "Never quote an accuracy", "file": "SKILL.md" },
     { "kind": "skill-contains", "value": "Estimate fit", "file": "references/velocity-and-capacity.md" },
     { "kind": "skill-contains", "value": "Wave 1", "file": "references/parallel-delivery.md" },
-    { "kind": "skill-contains", "value": "One GitHub issue per slice group", "file": "references/parallel-delivery.md" }
+    { "kind": "skill-contains", "value": "One GitHub issue per slice group", "file": "references/parallel-delivery.md" },
+    {"kind":"skill-contains","value":"--scope <slice>"},
+    {"kind":"skill-contains","value":"affectedSlices"}
   ]
 }

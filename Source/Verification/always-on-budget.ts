@@ -21,9 +21,10 @@ import { skillBody } from './skill-structure.ts';
  * local-verification-and-delivery.md (engineering profile): budgets raised by 200 bytes (claude-code) and 450 (pi).
  * Published-contracts rule: general.md routing row (merged into the Code Health row) and review-reports.md blocker sentence: +250 (claude-code), +100 (copilot, cursor, codex-opencode), +300 (pi).
  * Code Health rule: general.md routing row and DoD bullet, review-reports.md rounds note, codescene.md exclusion recipe: +210 bytes (copilot), up to +905 (claude-code, pi).
+ * Cratis/AI#469 observability.md general.md routing row: +100 bytes (claude-code), +80 (pi), +60 (copilot, cursor, codex-opencode).
  */
 // File scoping and on-demand operation skills reduce Claude Code, Copilot and Pi; other caps stay unchanged.
-export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 75_900, copilot: 51_750, pi: 78_600, cursor: 23_500, 'codex-opencode': 23_200 };
+export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 76_000, copilot: 51_810, pi: 78_680, cursor: 23_560, 'codex-opencode': 23_260 };
 
 const remedy = 'Displace or demote text to an on-demand skill, or raise the budget in Source/Verification/always-on-budget.ts in a reviewed change.';
 

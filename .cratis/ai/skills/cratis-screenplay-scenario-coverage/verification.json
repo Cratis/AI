@@ -14,6 +14,7 @@
     { "kind": "skill-contains", "value": "One behaviour per spec" },
     { "kind": "skill-contains", "value": "No command has only two specs" },
     { "kind": "skill-contains", "value": "not scenario-complete" },
-    { "kind": "skill-contains", "value": "per-view judgment was skipped" }
+    { "kind": "skill-contains", "value": "per-view judgment was skipped" },
+    { "kind": "skill-contains", "value": "references/producerless-events.md", "file": "references/spec-forms-by-mode.md" }
   ]
 }

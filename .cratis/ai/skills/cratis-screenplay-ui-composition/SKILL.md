@@ -38,7 +38,7 @@ limits. These host APIs are not new `.play` syntax and do not verify UI renderin
 
 Every construct on this page is deferred from the executable model with
 information `PLAY0269`: it never blocks binding, and it is not evidence that a
-target renders it.
+target renders it. `screenplay export --screens` admits the neutral members (data, actions, navigation, layout) as ESM v42; Scene and behavior wiring are not carried. A consumer of the `screenplay-ui/1` contract (`--format ui`) does not need Scene.
 
 The screens-release surface adds component data-context bindings,
 exposed template configuration, package/icon catalogs, manual form columns, hierarchical slots,
@@ -276,40 +276,9 @@ A `ui profile` selects the application shell with `root template` (an own layout
 ## A deliverable app declares its identity, titles and labels
 
 Symptom: a rendered app titled "Cratis Stage" whose buttons and dialogs show raw command names. The renderer
-defaults to those when the model is silent, so declare, in every deliverable app:
-
-- the layout's `logo image "<path>" title "<text>"` inside a navigation outlet (the
-  application title the shell shows; `logo initials` is only valid in a profile's `identity`);
-- a `ui profile` with `root template`, shell `option` lines such as `option showFooter false`, and an `identity`
-  block (`name`, `logo initials`);
-- a `title "<text>"` in each screen and a navigation item `<id> title "<text>" target <Module.Feature>` per screen;
-- `label "<text>"` on **every** `action`.
-
-```screenplay excerpt
-layout AppShell
-  category application
-  content page routed primary
-
-  outlet sidebar of navigation
-    logo image "/assets/shop.svg" title "Shopfront"
-    default organizations title "Organizations" target Crm.Organizations
-
-ui profile Desktop
-  target platform web
-  root template AppShell
-    option showFooter false
-  identity
-    name "Shopfront"
-    logo initials "SF"
-```
-
-```screenplay excerpt
-screen Organizations
-  data OrganizationOverview[] via query AllOrganizations
-  title "Organizations"
-  action RegisterOrganization
-    label "New organization"
-```
+defaults to those when the model is silent, so declare the layout logo and title, a `ui profile` with `identity`,
+a `title` per screen and navigation item, and a `label` on **every** `action`. Read
+[references/deliverable-identity.md](references/deliverable-identity.md) for the full list and an example.
 
 ## Localized strings
 
@@ -318,6 +287,8 @@ Localized text lives in companion `.strings` files and is referenced unquoted as
 ## `file` — implementation or provenance, never a substitute
 
 `file` is a backend attachment, a screen realization file or declaration provenance; use repository-relative paths (`PLAY0264`) and never let it replace the declaration. **Loaded is not run.** Read [references/file-references.md](references/file-references.md) when attaching or checking a `file`, or diagnosing `PLAY0430`–`PLAY0434`.
+
+A screen can also keep `sketch`, `mockup` and `image` lines: authoring metadata, never part of the executable model. Read [references/screen-visuals.md](references/screen-visuals.md) for the lines and `PLAY0950`–`PLAY0952`.
 
 ## Verify
 

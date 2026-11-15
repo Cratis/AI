@@ -249,8 +249,8 @@
 #                             needs to keep itself authenticated - Pi refuses a record missing either
 #                             as invalid_state (verified against the real, installed 0.84.3 CLI). It
 #                             is not an environment variable Pi reads: configure_pi_provider() below
-#                             writes it into ~/.pi/agent/auth.json under the provider id, which is
-#                             where Pi's own credential store lives. Exactly one of this and
+#                             writes it onto tmpfs under the provider id, with ~/.pi/agent/auth.json
+#                             symlinked to Pi's credential store there. Exactly one of this and
 #                             OPENAI_API_KEY is ever set - the Direct decides which from the
 #                             credential's own shape (HarnessCompatibility.ApiKeyVariableFor).
 #   AZURE_OPENAI_API_KEY     - the same, for an Azure OpenAI provider (Pi harness only) - the
@@ -304,7 +304,7 @@
 #   DIRECT_LOKI_URL         - base URL of Loki, queried with curl
 #   DIRECT_GRAFANA_URL      - base URL of Grafana
 # and, from the secrets file:
-#   DIRECT_KUBECONFIG       - kubeconfig YAML, written to ~/.kube/config for kubectl and helm
+#   DIRECT_KUBECONFIG       - kubeconfig YAML, written to tmpfs via KUBECONFIG for kubectl and helm
 #   DIRECT_LOKI_USERNAME    - Loki credentials, when it is protected
 #   DIRECT_LOKI_PASSWORD
 #   DIRECT_GRAFANA_TOKEN    - Grafana API token
@@ -385,6 +385,18 @@ load_secrets() {
     log "Credentials loaded"
 }
 
+credential_scratch_dir() {
+    local file="${DIRECT_SECRETS_FILE:-}" candidate
+    for candidate in "${file%/*}" /dev/shm; do
+        [[ -n "$candidate" && -d "$candidate" && ! -L "$candidate" && -w "$candidate" ]] || continue
+        [[ "$(stat -f -c %T "$candidate" 2>/dev/null)" == tmpfs ]] || continue
+        printf '%s\n' "$candidate"
+        return 0
+    done
+    log "No writable tmpfs is available for worker credential files" >&2
+    return 1
+}
+
 load_secrets
 # Also cover legacy environment-based dispatch. Scope credentials at each launch.
 export -n DIRECT_CALLBACK_TOKEN DIRECT_CONTEXT_MCP_TOKEN EXA_API_KEY CONTEXT7_API_KEY \
@@ -427,10 +439,11 @@ exec_agent_with_credentials() {
 }
 
 prepare_mcp_credentials() {
-    local previous_umask
+    local scratch previous_umask
+    scratch=$(credential_scratch_dir) || return 1
     previous_umask=$(umask)
     umask 077
-    MCP_CREDENTIAL_DIR=$(mktemp -d "$HOME/.agent-mcp.XXXXXX") || return 1
+    MCP_CREDENTIAL_DIR=$(mktemp -d "$scratch/.agent-mcp.XXXXXX") || { umask "$previous_umask"; return 1; }
     printf '%s' "${DIRECT_CALLBACK_TOKEN:-}" > "$MCP_CREDENTIAL_DIR/progress-token"
     printf '%s' "${EXA_API_KEY:-}" | jq -Rs \
         '{url:"https://mcp.exa.ai/mcp",headers:(if . == "" then {} else {"x-api-key":.} end)}' \
@@ -741,20 +754,30 @@ if [[ -n "${DIRECT_GIT_USER_EMAIL:-}" ]]; then
     git config --global user.email "${DIRECT_GIT_USER_EMAIL}"
 fi
 
-# Operational access, when the deployment granted any. The kubeconfig arrives as an environment
-# variable and has to land on disk where kubectl and helm look for it - written 0600 because it
-# carries a cluster credential.
-if [[ -n "${DIRECT_KUBECONFIG:-}" ]]; then
-    mkdir -p "${HOME}/.kube"
+# Operational access, when the deployment granted any. kubectl and helm read the credential
+# from tmpfs through KUBECONFIG, written 0600 because it carries a cluster credential.
+configure_kubernetes_access() {
+    [[ -n "${DIRECT_KUBECONFIG:-}" ]] || return 0
+    local scratch previous_umask
+    scratch=$(credential_scratch_dir) || { log "Could not configure Kubernetes access"; return 0; }
+    previous_umask=$(umask)
     umask 077
-    printf '%s\n' "${DIRECT_KUBECONFIG}" > "${HOME}/.kube/config"
-    umask 022
+    if ! printf '%s\n' "${DIRECT_KUBECONFIG}" > "$scratch/kubeconfig"; then
+        umask "$previous_umask"
+        log "Could not configure Kubernetes access"
+        return 0
+    fi
+    chmod 600 "$scratch/kubeconfig"
+    umask "$previous_umask"
+    export KUBECONFIG="$scratch/kubeconfig"
     if [[ -n "${DIRECT_KUBE_NAMESPACE:-}" ]]; then
         kubectl config set-context --current --namespace "${DIRECT_KUBE_NAMESPACE}" >/dev/null 2>&1 \
             || log "Could not set the current namespace to ${DIRECT_KUBE_NAMESPACE}"
     fi
     log "Kubernetes access configured"
-fi
+}
+
+configure_kubernetes_access
 
 if [[ -n "${DOCKER_HOST:-}" ]]; then
     log "Docker access configured (${DOCKER_HOST})"
@@ -1947,8 +1970,14 @@ configure_pi_provider() {
             # file is all that is needed - Pi reads it as its own, and refreshes the credential from
             # the refresh token inside it when the access token expires, which is the whole reason
             # the subscription travels as a record rather than as a bare token.
-            local agent_dir="${HOME}/.pi/agent"
+            local agent_dir="${HOME}/.pi/agent" scratch previous_umask
+            scratch=$(credential_scratch_dir) || {
+                log "Could not read the ${DIRECT_PROVIDER} subscription credential - the session will not authenticate"
+                return 0
+            }
             mkdir -p "$agent_dir"
+            previous_umask=$(umask)
+            umask 077
 
             # --argjson parses the record rather than embedding it as a string, so a malformed one
             # fails here instead of reaching Pi as a credential shaped like nothing it knows. The
@@ -1957,14 +1986,16 @@ configure_pi_provider() {
             if jq -n \
                 --arg provider "$DIRECT_PROVIDER" \
                 --argjson credential "${DIRECT_PI_OAUTH_CREDENTIAL:-null}" \
-                '{($provider): $credential}' > "${agent_dir}/auth.json.tmp" 2>/dev/null; then
-                mv "${agent_dir}/auth.json.tmp" "${agent_dir}/auth.json"
-                chmod 600 "${agent_dir}/auth.json"
+                '{($provider): $credential}' > "$scratch/pi-auth.json.tmp" 2>/dev/null \
+                && mv "$scratch/pi-auth.json.tmp" "$scratch/pi-auth.json" \
+                && chmod 600 "$scratch/pi-auth.json" \
+                && ln -sfn "$scratch/pi-auth.json" "${agent_dir}/auth.json"; then
                 log "Seeded Pi's credential store for ${DIRECT_PROVIDER}"
             else
-                rm -f "${agent_dir}/auth.json.tmp"
+                rm -f "$scratch/pi-auth.json.tmp"
                 log "Could not read the ${DIRECT_PROVIDER} subscription credential - the session will not authenticate"
             fi
+            umask "$previous_umask"
             ;;
         zai)
             # Nothing to configure: Pi declares its own zai provider, fixed to Z.ai's public

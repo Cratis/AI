@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: |
             10.0.x
@@ -69,6 +69,7 @@ jobs:
         run: |
           yarn workspace @cratis/harness-setup run check
           yarn workspace @cratis/pi run check
+          yarn workspace @cratis/pi-direct run check
           yarn workspace @cratis/ai-verification run check
           yarn workspace @cratis/ai-skill-evaluation run check
 
@@ -88,13 +89,19 @@ jobs:
           SCREENS_SMOKE_BROWSER: '1'
         run: Source/Verification/screens-smoke/screens-smoke.sh "$RUNNER_TEMP/screens-smoke"
 
+      - name: Lint Pi Direct package
+        run: yarn workspace @cratis/pi-direct run lint:ci
+
       - name: Test Pi package behavior
         run: |
           yarn workspace @cratis/ai-verification run test
           yarn workspace @cratis/ai-skill-evaluation run test
+          yarn workspace @cratis/pi-direct run test
 
       - name: Verify Pi package contents
-        run: cd Source/Pi.Plugin && yarn pack --dry-run
+        run: |
+          cd Source/Pi.Plugin && yarn pack --dry-run
+          yarn workspace @cratis/pi-direct run verify:pack
 
       # Builds the Screenplay session bundle, checks its forms and checksums, and compiles and runs the
       # example model with the pinned Screenplay tool installed above.
@@ -137,6 +144,7 @@ jobs:
       - name: Run entrypoint fixtures
         run: bash Source/AgentHarnesses/run-entrypoint-fixtures.sh
 
+  # Drift is advisory; releases verify against the pinned Screenplay contract.
   screenplay-sync:
     name: Compare the published Screenplay contract
     if: github.event_name == 'repository_dispatch' || github.event_name == 'schedule'
@@ -199,7 +207,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: |
             10.0.x
@@ -219,6 +227,12 @@ jobs:
 
       - name: Run specs (net11.0)
         run: Source/Cratis.AI.Specs/bin/Debug/net11.0/Cratis.AI.Specs
+
+      - name: Run reverse proxy specs
+        run: Source/Cratis.AI.ReverseProxy.Specs/bin/Debug/net10.0/Cratis.AI.ReverseProxy.Specs
+
+      - name: Run reverse proxy specs (net11.0)
+        run: Source/Cratis.AI.ReverseProxy.Specs/bin/Debug/net11.0/Cratis.AI.ReverseProxy.Specs
 
       - name: Verify restricted workers cannot read the shared cache sentinel
         run: dotnet run --project Source/WorkerCacheFixture/WorkerCacheFixture.csproj --configuration Release -p:CratisProxiesOutputPath= -warnaserror
@@ -306,6 +320,39 @@ jobs:
         working-directory: Source/Pi.Plugin
         run: npm publish --provenance --access public
 
+  # Same single repository release and version as publish-pi: the release job emits one version and
+  # every package job stamps it with `npm pkg set version=`, so @cratis/pi-direct is versioned with
+  # the repository release. It is a dedicated job so a failure in either package never blocks the other.
+  publish-pi-direct:
+    timeout-minutes: 30
+    name: Publish Pi Direct package
+    if: needs.release.outputs.publish == 'true'
+    needs: [release, release-confirmed]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Use Node.js 24
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - name: Install workspace dependencies
+        run: corepack enable && yarn install --immutable
+
+      - name: Set package version
+        working-directory: Source/Pi.Direct
+        run: npm pkg set version=${{ needs.release.outputs.version }}
+
+      - name: Publish package
+        working-directory: Source/Pi.Direct
+        run: npm publish --provenance --access public
+
   publish-screenplay-session:
     timeout-minutes: 15
     name: Publish the Screenplay session bundle
@@ -371,17 +418,21 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: |
             10.0.x
             11.0.100
 
       - name: Build
-        run: dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release
+        run: |
+          dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release
+          dotnet build Source/Cratis.AI.ReverseProxy/Cratis.AI.ReverseProxy.csproj --configuration Release
 
-      - name: Create NuGet package
-        run: dotnet pack Source/Cratis.AI/Cratis.AI.csproj --no-build --configuration Release -o ./Artifacts/NuGet -p:PackageVersion=${{ needs.release.outputs.version }}
+      - name: Create NuGet packages
+        run: |
+          dotnet pack Source/Cratis.AI/Cratis.AI.csproj --no-build --configuration Release -o ./Artifacts/NuGet -p:PackageVersion=${{ needs.release.outputs.version }}
+          dotnet pack Source/Cratis.AI.ReverseProxy/Cratis.AI.ReverseProxy.csproj --no-build --configuration Release -o ./Artifacts/NuGet -p:PackageVersion=${{ needs.release.outputs.version }}
 
       - name: NuGet login (OIDC -> temp API key)
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
@@ -407,7 +458,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: |
             10.0.x
@@ -469,6 +520,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@594f3bf4285d9ea8dc53c9a0c9c4092420091003 # v4.4.0
@@ -481,13 +534,19 @@ jobs:
 
       # Each derivative uses the base just pushed for its own architecture. Only the merge job
       # updates public version/latest tags, after all eight architecture-specific builds succeed.
+      # Each build records the pushed digest (--metadata-file); the merge job merges by those
+      # digests, not by the mutable $VERSION-$ARCH tags. --provenance=false keeps the pushed result
+      # a plain image manifest, so the two per-architecture digests merge into one flat index
+      # instead of nesting attestation indexes.
       - name: Build and push the base image
         env:
           VERSION: ${{ needs.release.outputs.version }}
           ARCH: ${{ matrix.arch }}
         run: |
           set -euo pipefail
-          scripts/docker-build-push-retry.sh --push --platform "linux/$ARCH" \
+          mkdir -p "$RUNNER_TEMP/digests"
+          scripts/docker-build-push-retry.sh --push --provenance=false --platform "linux/$ARCH" \
+            --metadata-file "$RUNNER_TEMP/digests/ai-agents-$ARCH.json" \
             --file Source/AgentHarnesses/Dockerfile.base \
             --tag "cratis/ai-agents:$VERSION-$ARCH" Source/AgentHarnesses
 
@@ -498,11 +557,41 @@ jobs:
         run: |
           set -euo pipefail
           for harness in claude pi copilot; do
-            scripts/docker-build-push-retry.sh --push --platform "linux/$ARCH" \
+            scripts/docker-build-push-retry.sh --push --provenance=false --platform "linux/$ARCH" \
+              --metadata-file "$RUNNER_TEMP/digests/ai-agents-$harness-$ARCH.json" \
               --file "Source/AgentHarnesses/Dockerfile.$harness" \
               --build-arg "BASE_IMAGE=cratis/ai-agents:$VERSION-$ARCH" \
               --tag "cratis/ai-agents-$harness:$VERSION-$ARCH" Source/AgentHarnesses
           done
+
+      - name: Record the pushed image digests
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/digests"
+          count=0
+          for metadata in ai-agents*-"$ARCH".json; do
+            digest=$(jq -r '.["containerimage.digest"] // empty' "$metadata")
+            case "$digest" in
+              sha256:*) ;;
+              *) echo "::error::No image digest recorded in $metadata"; exit 1 ;;
+            esac
+            echo "$digest" > "${metadata%.json}.txt"
+            count=$((count + 1))
+          done
+          if [ "$count" -ne 4 ]; then
+            echo "::error::Expected 4 image digests for $ARCH, found $count"
+            exit 1
+          fi
+
+      - name: Upload the pushed image digests
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: harness-digests-${{ matrix.arch }}
+          path: ${{ runner.temp }}/digests/*.txt
+          if-no-files-found: error
+          retention-days: 1
 
   publish-agent-harnesses:
     timeout-minutes: 15
@@ -522,22 +611,75 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Download the pushed image digests
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: harness-digests-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/digests
+
+      # Two phases, because a moved :latest is public and cannot be rolled back. Phase 1 creates and
+      # verifies the :VERSION manifest of all four images; only when every one is proven does
+      # phase 2 move :latest. A failure in phase 1 therefore leaves :latest untouched for every
+      # image. Manifests are built from the digests the architecture jobs pushed, never from the
+      # mutable $VERSION-$ARCH tags, and every registry call is retried like the build wrapper.
       - name: Publish and verify multi-architecture manifests
         env:
           VERSION: ${{ needs.release.outputs.version }}
           PRERELEASE: ${{ needs.release.outputs.prerelease }}
+          DIGESTS: ${{ runner.temp }}/digests
         run: |
           set -euo pipefail
-          for image in ai-agents ai-agents-claude ai-agents-pi ai-agents-copilot; do
-            tags=(--tag "cratis/$image:$VERSION")
-            if [ "$PRERELEASE" != "true" ]; then
-              tags+=(--tag "cratis/$image:latest")
-            fi
-            docker buildx imagetools create "${tags[@]}" \
-              "cratis/$image:$VERSION-amd64" "cratis/$image:$VERSION-arm64"
-            docker buildx imagetools inspect --raw "cratis/$image:$VERSION" \
-              | jq -e '[.manifests[].platform | select(.os == "linux") | .architecture] | sort == ["amd64", "arm64"]'
+          images=(ai-agents ai-agents-claude ai-agents-pi ai-agents-copilot)
+
+          retry() {
+            local attempt
+            for attempt in 1 2 3; do
+              if "$@"; then return 0; fi
+              if [ "$attempt" -lt 3 ]; then
+                echo "::warning::Attempt $attempt of 3 failed: $*"
+                sleep "${RETRY_DELAY:-15}"
+              fi
+            done
+            echo "::error::Failed after 3 attempts: $*"
+            return 1
+          }
+
+          digest() {
+            local file="$DIGESTS/$1-$2.txt" value
+            [ -f "$file" ] || { echo "::error::Missing digest file $file" >&2; return 1; }
+            value=$(cat "$file")
+            case "$value" in
+              sha256:*) echo "$value" ;;
+              *) echo "::error::Invalid digest in $file" >&2; return 1 ;;
+            esac
+          }
+
+          verify() {
+            docker buildx imagetools inspect --raw "$1" \
+              | jq -e '(.manifests | length) == 2 and ([.manifests[].platform | select(.os == "linux") | .architecture] | sort == ["amd64", "arm64"])'
+          }
+
+          # Fail before any registry call when a digest is missing or malformed.
+          for image in "${images[@]}"; do
+            digest "$image" amd64 > /dev/null
+            digest "$image" arm64 > /dev/null
           done
+
+          # Phase 1: create and verify every :VERSION manifest.
+          for image in "${images[@]}"; do
+            retry docker buildx imagetools create --tag "cratis/$image:$VERSION" \
+              "cratis/$image@$(digest "$image" amd64)" "cratis/$image@$(digest "$image" arm64)"
+            retry verify "cratis/$image:$VERSION"
+          done
+
+          # Phase 2: move :latest from the same digests, never for a prerelease.
+          if [ "$PRERELEASE" != "true" ]; then
+            for image in "${images[@]}"; do
+              retry docker buildx imagetools create --tag "cratis/$image:latest" \
+                "cratis/$image@$(digest "$image" amd64)" "cratis/$image@$(digest "$image" arm64)"
+            done
+          fi
 
   # Publishes the shared Decision Engine image to Docker Hub. Infrastructure deploys this by tag
   # and nothing else builds it, so without this job a Decision Engine deployment would reference an

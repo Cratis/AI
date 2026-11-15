@@ -4,6 +4,7 @@
 
 - Rule vocabulary
 - `require` message
+- Code bodies
 - Date and DateTime comparisons
 - `not empty` means non-blank text
 - Rules whose logic is code
@@ -41,6 +42,12 @@ validate
   require to >= from
     message "The end must not be before the start"
 ```
+
+## Code bodies
+
+Built-in inline languages are `csharp`, `typescript`, `react`, `html`, `sql` and `java`;
+the body is opaque and travels unchanged, and the Cratis render target refuses `java` bodies
+(Requires Screenplay 4.244.0, `screenplay --version`).
 
 ## Date and DateTime comparisons
 
@@ -95,6 +102,20 @@ validate
   orgNumber rule BeAValidOrganizationNumber message "Must be a valid organization number"
     file Validations/BeAValidOrganizationNumber.cs
 ```
+
+A concept or command-property imperative `validate` body can also live in a file instead of a fence
+(compiled with the pinned 6.26.0 tool; the shipped version is not tag-verified, so no minimum is
+stated). The path is relative to the model root and stays inside it; the file holds the body that
+would sit inside the fence, including its `yield return` lines:
+
+```text
+concept EmailAddress : String pii
+  validate
+    file Validations/AllowedEmailDomain.cs
+```
+
+A missing or refused path reports the attachment diagnostics `PLAY0432` or `PLAY0430`; consumers
+see the same opaque requirement with file provenance instead of an inline span.
 
 A bodied rule or fenced block on a validation, rule or policy binds as opaque code
 (ESM v3): the reference runner reports it unsupported, and a target must supply the

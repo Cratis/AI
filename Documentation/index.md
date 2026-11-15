@@ -31,6 +31,8 @@ at the repository root.
   members, and what enforcing that selection during dispatch is left to the consumer.
 - [`provider-capacity.md`](./provider-capacity.md) - how much of each provider's subscription
   windows is left, how pools rank and skip members by it, and how long a hit limit stays parked.
+- [`reverse-proxy.md`](./reverse-proxy.md) - `Cratis.AI.ReverseProxy`: expose models served by other machines
+  over the OpenAI and Claude protocols with YARP, routed by model name over a pluggable transport.
 - [`usage.md`](./usage.md) - the usage subsystem: concepts, `AgentSessionUsageRecorded`, the
   command, the read models, and how event-type changes are handled without migrations.
 - [`migration-status.md`](./migration-status.md) - a living record of what has moved from Direct

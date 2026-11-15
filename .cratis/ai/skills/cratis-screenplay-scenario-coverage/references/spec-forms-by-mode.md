@@ -18,7 +18,7 @@ Typed example/override forms: `cratis-screenplay-specifications`
 | Form | design | executable | renderable |
 |---|---|---|---|
 | `when <Cmd>` -> `then <Event>` / `then error` / `then denied` | yes | yes | yes |
-| `given <Event>` with `for` | yes | yes (needed for keyed views) | yes |
+| `given <Event>` with `for` | yes | yes (needed for keyed views); no producing command needed when a root projection supplies the identity type, see `cratis-screenplay-specifications` `references/producerless-events.md` | yes |
 | `given readmodel` | yes | yes (complete instance with key) | only as the query-only lookup below |
 | `when append <Event>` | yes | yes | supported single-hop reaction effects/invocation only; fan-out, deeper cascades and other refused assertions retain STAGE-ESM-011 |
 | `then readmodel` / `then query` (keyed `ById`, `arguments`, `result`) | yes | yes | yes |

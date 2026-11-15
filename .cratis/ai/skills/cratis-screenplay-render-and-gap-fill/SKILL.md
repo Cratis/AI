@@ -35,7 +35,9 @@ Tool versions are covered in `cratis-screenplay-toolchain` `SKILL.md`; read it b
 ## Language modes that block target delivery
 
 Read [language admission](../cratis-screenplay-toolchain/references/language-admission.md)
-for version selection, and [current Stage boundaries](../cratis-stage-rendering-and-sandbox/references/current-boundaries.md)
+for version selection ([unknown-preserving reads](../cratis-screenplay-toolchain/references/unknown-preserving-reader.md)
+are not render admission; read-model [property order](../cratis-screenplay-toolchain/references/read-model-property-order.md)
+is opt-in 37.1 metadata, not a constructor-order promise), and [current Stage boundaries](../cratis-stage-rendering-and-sandbox/references/current-boundaries.md)
 for realization. Bounded atomic batches, source-event Translate captures/publication and resolved
 C# validation bodies now render. Described handlers still refuse even in Stub
 mode; query-performer gaps are a separate contract, not completed behavior. Protected reads still need an admitted shape. Semantic Host/executor
@@ -215,6 +217,7 @@ whole re-render. What to do:
 - Screens reported as `PLAY0269` are information that the backend profile defers them. They are not
   proof of a rendered screen: check the running app (`cratis-screenplay-toolchain` `references/fast-path.md`)
   and list any authored screen that is missing as not rendered.
+- Scope a re-render with `screenplay diff --format json` (`slices`, `modelWide`); other stacks read ESM v42 or `--format ui`: [exports](references/renderability-gate.md#cli-exports-and-diffs).
 
 ## Gate
 
