@@ -88,7 +88,11 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<
     Cratis.Chronicle.Identities.IIdentityProvider,
     Cratis.Chronicle.AspNetCore.Identities.IdentityProvider>();
-builder.AddCratis(configureArcBuilder: arc => arc.WithMongoDB());
+builder.AddCratis(configureArcBuilder: arc => arc.WithMongoDB(mongo =>
+{
+    mongo.Server = "mongodb://localhost:27017";
+    mongo.Database = "HelloChat";
+}));
 
 var app = builder.Build();
 app.UseCratis();
@@ -102,9 +106,10 @@ app.MapPost("/setup", async (ICommandPipeline commands, IConfiguration configura
         new AddOpenAIProvider("OpenAI", configuration["OPENAI_API_KEY"] ?? string.Empty, 0));
     if (!provider.IsSuccess || provider.Response is null) return Results.BadRequest(provider);
 
-    await commands.Execute(new SetAIProviderTierModels(
+    var tiers = await commands.Execute(new SetAIProviderTierModels(
         provider.Response,
         TierModels.NotSet with { Fast = "gpt-4.1-mini" }));
+    if (!tiers.IsSuccess) return Results.BadRequest(tiers);
 
     var agent = await commands.Execute(new ConfigureAgent(
         greeting,
@@ -155,7 +160,9 @@ The package needs two things from your application:
   name is ambiguous.
 
 `AddCratis` with `WithMongoDB()` sets up Arc and Chronicle with MongoDB read models, and
-`UseCratis()` adds them to the request pipeline.
+`UseCratis()` adds them to the request pipeline. `WithMongoDB` needs the MongoDB server and
+database name; the example sets them in code, and you can bind them from configuration instead.
+Change the server address if your MongoDB does not run on `localhost:27017`.
 
 ### 2. Configure one provider and point the purpose at it
 
