@@ -1,0 +1,15 @@
+{
+  "name": "typescript-frontend-browser-handoff",
+  "description": "A frontend task in a workspace with editor browser tools enabled hands the UI check to browser-operator with URL, scope, permit and artifact directory instead of driving a browser. Output grading proves the written plan only; actual tool restraint needs an instrumented tool-spy test. Patterns are JS-compatible .NET regex.",
+  "prompt": "The Greeting component in src/Greeting.tsx is done. The workspace has workbench.browser.enableChatTools enabled and the app runs at http://localhost:5173. As the frontend developer, write the UI verification plan to .ai-work/ui-verification.md. Do not run anything.",
+  "expected_output": "The plan hands the check to browser-operator with the local URL, scope, permit and artifact directory; it does not click or type in a browser itself.",
+  "profiles": ["cratis/application/typescript"],
+  "languages": ["typescript"],
+  "checks": [
+    { "type": "file_matches", "phase": "result", "path": ".ai-work/ui-verification.md", "pattern": "(?i)browser-operator" },
+    { "type": "file_matches", "phase": "result", "path": ".ai-work/ui-verification.md", "pattern": "http://localhost:5173" },
+    { "type": "file_matches", "phase": "result", "path": ".ai-work/ui-verification.md", "pattern": "(?i)permit" },
+    { "type": "file_matches", "phase": "result", "path": ".ai-work/ui-verification.md", "pattern": "(?i)artifact" },
+    { "type": "file_not_matches", "phase": "result", "path": ".ai-work/ui-verification.md", "pattern": "(?i)\\b(?:clickElement|typeInPage)\\b" }
+  ]
+}
