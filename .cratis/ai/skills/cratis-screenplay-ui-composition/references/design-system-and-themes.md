@@ -5,6 +5,7 @@
 - The split: design system, theme, profile
 - A design system and its default theme
 - Tokens, components, words and rules
+- Components are the rendering contract
 - A second theme and a profile that selects it
 - Which theme and mode a profile gets
 - Deprecated `appearance` members
@@ -102,6 +103,19 @@ theme Daylight
 - `words` holds `voice` and `naming` as `<key> = "<text>"` lines, once each; they travel with the design system.
 - The one rule form is `contrast <part> on <part> at least <ratio>`. The compiler checks it for every theme, mode, variant and state except `disabled`, and warns `PLAY0928` naming the pair. Only hex and `rgb(...)` colors are measured; a named color is not checked.
 - Modes belong to the design system, never to a theme; a mode block for an undeclared mode is `PLAY0918`.
+
+## Components are the rendering contract
+
+A renderer never reads a token by name. A component reads its look from its **anatomy**: "my `primary` variant's `background` in `hover`". The design system's `components` section is therefore what a renderer draws from, and the token names are the product's own: the categories are closed, the names inside them are free, and no renderer expects `color.primary` or any other name to exist.
+
+- Declare, for each component, exactly the `parts`, `variant`s and `state`s it really has; a part, variant or state is a promise that a renderer can draw it. Shell and chrome (page, shell, sidebar, menu, card, text, button, input, status chip) are components like any other, so surfaces and text come from anatomy as well.
+- **Link by name.** A design-system component finds the component that renders it by its name, through the profile's packages (the last package wins), compared without regard to case or separators: `StatusChip` finds `statusChip`. Name design-system components after the component they stand for and no override is needed.
+- **Override with a mapping.** When names differ, Scene's component mapping states the target explicitly (`maps to <Package.Component>`). It is a Scene design-system mapping, not a `.play` line: the Screenplay `design system` has no `maps to`, so never write one in a model.
+- **Variant to property.** The chosen variant reaches the component through its `variant` property, else `emphasis`, or through the property its anatomy names; a mapping may also state the property and the value each variant takes when the names differ (`variantProperty`, `variantValues`).
+- **Mismatches are reported, never hidden.** Linking reports a component no package renders (`componentUnbound`), one that declares no anatomy (`componentWithoutAnatomy`), and a part, variant or state it does not support (`partUnsupported`, `variantUnsupported`, `stateUnsupported`), or several variants with no property to choose by (`variantPropertyMissing`). A component that does not restyle is diagnosed from these, not by adding raw values to a screen.
+- **What the renderer emits.** Each part becomes a custom property per mode, `--ds-<component>-<variant>-<part>` and, for a state, `--ds-<component>-<variant>-<part>-<state>` (kebab-cased); raw token roles are `--ds-token-<category>-<name>` and are for blueprints authored against one design system. A package component reads only anatomy.
+
+Scene Design grounds an agent's choices in these components and refuses what they do not declare: [scene-design.md](scene-design.md).
 
 ## A second theme and a profile that selects it
 
@@ -255,3 +269,4 @@ Source: [Design system](https://github.com/Cratis/Screenplay/blob/main/Documenta
 ## Checklist
 
 - [ ] One `design system` with a `default theme`; each selected theme implements it and sets every `color` token in each mode; no profile carries `accent`, `corners` or `font`.
+- [ ] Each component declares only the parts, variants and states a renderer draws, and is named after the component that renders it; a name that differs is a Scene mapping, not a `.play` line.

@@ -26,6 +26,7 @@
 - Set once, dictionary keys and children ordering (PLAY0956-PLAY0963)
 - Development users (PLAY0888-PLAY0889)
 - Storylines (PLAY0940-PLAY0943)
+- Free screens, shapes and adoptions
 - Screen visuals and slice placements (PLAY0950-PLAY0955)
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
@@ -491,6 +492,29 @@ Requires Screenplay 6.6.0 or later (`screenplay --version`). Authoring metadata;
 | `PLAY0941` | E | A step is not `<kind> <reference> ["<note>"]`, has an unknown kind, or has a nested line. |
 | `PLAY0942` | W | A step names an element that no declaration of that kind matches; remove it or point it at its replacement. An ambiguous step is `PLAY0198`: qualify it. |
 | `PLAY0943` | E | Two storylines carry the same name. |
+
+## Free screens, shapes and adoptions
+
+Requires a Screenplay release later than 6.31.0 that carries free screens (`screenplay --version`); earlier compilers reject a top-level `shape` or `screen` with `PLAY0001`, and `screenplay-contract.json` lists the codes only once the pin moves. Syntax, severities and fixes: `../../cratis-screenplay-ui-composition/references/free-screens.md`; the design decisions: `../../cratis-screenplay-slice-design/references/screens-before-slices.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| `PLAY1149` | E | A `shape` is malformed, sits anywhere but the top level of a document, or has a field with a key, identifier, subject or generated modifier. Write `shape <Name>` with `<name> <Type>` fields at the top level. |
+| `PLAY1150` | E | A `uses screen`, a provision or a mapping is malformed: `uses screen <Name>` directly in a slice, `data <Need> via query <Query> [by <param>]`, `<field> from <path>`. |
+| `PLAY1151` | E | A `shape` is declared twice; declare it once at the top level. |
+| `PLAY1152` | E | A screen is declared twice in one scope (document, module or feature); rename or remove one. |
+| `PLAY1153` | E | A screen needs one shape twice or two needs share a name; tell them apart with `as <alias>` and provide each by its alias. |
+| `PLAY1154` | E | A slice adopts one screen twice; keep one `uses screen` and put every provision under it. |
+| `PLAY1155` | W | An adopted screen has a need the slice does not provide. Fails any warnings-as-errors gate and executable screen admission; add `data <Need> via query <Query>` under `uses screen`. |
+| `PLAY1156` | E | A provision names a need the screen does not have; the message lists what it needs. |
+| `PLAY1157` | E | A provision names data the screen already sources with its own `data <ReadModel> via query`; remove the provision. |
+| `PLAY1158` | E | One need is provided twice in one adoption. |
+| `PLAY1159` | E | A list query provides a single need, or a single-value query a list need; pick the query of the right cardinality. |
+| `PLAY1160` | E | A field the screen reads, or the shape declares, is not on the providing read model, by name or through `from`; fix the read model or the mapping. |
+| `PLAY1161` | E | A read model property has another type than the explicit shape declares (a concept stands for its primitive); fix the read model, not the shape. |
+| `PLAY1162` | E | A provision's `by` is not a parameter of the query; use a declared parameter. |
+| `PLAY1163` | E | A mapping names a field the screen does not read and the shape does not declare; remove or correct it. |
+| `PLAY1164` | I | A screen no slice adopts is design-only: never fails any gate, and is absent from the executable model and the UI contract. Adopt it with `uses screen` when it must render. |
 
 ## Screen visuals and slice placements (PLAY0950-PLAY0955)
 

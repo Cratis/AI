@@ -199,7 +199,8 @@ PLAY0268, PLAY0468 and the reducer-view `PLAY0690` warning.
 ## `screen` — three levels
 
 Excerpts: each screen sits in a slice, and the queries, commands and screens it names are
-declared elsewhere.
+declared elsewhere. A screen declared outside a slice states `data <Shape>[]` with no
+`via query` (a need) and a slice provides it: `cratis-screenplay-ui-composition`, `references/free-screens.md`.
 
 **Level 1 — intent.** Data and actions; the tool generates the component.
 

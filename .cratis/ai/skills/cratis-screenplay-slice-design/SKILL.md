@@ -100,7 +100,7 @@ Ask the batch below only for what the request leaves open: (1) origin of each ac
    components has one `data` line per component, each from its own read model
    (`references/read-model-design.md`). One actor's point of view
    per screen, at a real beat of the story, not one per persona for symmetry; know where the
-   actor sees each state change's result. Beyond Level 1: `cratis-screenplay-ui-composition`.
+   actor sees each state change's result. A screen drawn before its slice is a free screen whose `data <Shape>[]` is a need the adopting slice provides: `references/screens-before-slices.md`. Beyond Level 1: `cratis-screenplay-ui-composition`.
    **Placement** (Screenplay 6): a State Change slice's screen says what it fits, in order of
    preference (`fits dialog, drawer, pane`); the hook that starts it (a `button` naming the slice
    in a template's actions outlet) picks the first fit the page has free, and names a place
@@ -207,6 +207,7 @@ Read [references/neighbouring-skills.md](references/neighbouring-skills.md) when
 - `references/slicing.md` - slice naming, dependencies, state table, generic edits, coverage,
   next slice.
 - `references/worked-example.md` - parcel lockers, design mode, complete and compiling.
+- `references/screens-before-slices.md` - where a screen lives, design order for free screens, shape lineage, reporting.
 
 ## Lineage
 

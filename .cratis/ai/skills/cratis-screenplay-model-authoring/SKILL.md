@@ -23,6 +23,7 @@ construct syntax, source-versus-execution states and a complete compiled model.
 
 For screens, read `references/screen-authoring-workflow.md`; use the
 same model root or workspace export for all checks. Syntax: `cratis-screenplay-ui-composition`.
+Read [free screens](references/free-screens-proposals.md) when a proposal touches shapes, screens declared outside a slice, `uses screen` or provisions.
 
 Record open modeling questions as `question` notes in committed
 `.screenplay/notes.json`, not chat or `description` text. Never put secrets or

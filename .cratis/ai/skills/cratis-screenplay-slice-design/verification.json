@@ -65,6 +65,10 @@
     {
       "kind": "skill-contains",
       "value": "one `data` line per component"
-    }
+    },
+    { "kind": "skill-contains", "value": "references/screens-before-slices.md" },
+    { "kind": "skill-contains", "value": "Name the need as a shape, not as a read model.", "file": "references/screens-before-slices.md" },
+    { "kind": "skill-contains", "value": "Never delete the field from the screen or the shape", "file": "references/screens-before-slices.md" },
+    { "kind": "skill-contains", "value": "A design-only screen is design intent", "file": "references/screens-before-slices.md" }
   ]
 }
