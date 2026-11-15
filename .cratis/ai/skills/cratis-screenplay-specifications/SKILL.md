@@ -137,7 +137,7 @@ Rules the binder enforces:
 - **`then result` and `then no result` need `when query`**, and `when query`
   needs one of them, `then denied` or a sole validation `then error` (`PLAY0465`). Each argument is a `by` or
   `filter` parameter of the query (`PLAY0468`).
-- **A clock instant is ISO 8601 with an offset or `Z`** (PLAY0461); one `given clock` maximum. `given time zone` is not runnable: read `references/vocabulary.md`.
+- **A clock instant is ISO 8601 with an offset or `Z`** (PLAY0461); one `given clock` maximum. `given time zone` is admitted from ESM v37: read `references/vocabulary.md`.
 - **`then` contains either events or an error — never both.** A rejection
   specification has exactly one rejection and no success outcome.
 - **`then denied` stands alone**: not with events, errors or state assertions
