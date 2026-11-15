@@ -139,7 +139,8 @@ export function createServerBridge(pi: ExtensionAPI, corpus: string, connect: (p
         for (const outcome of outcomes) { register(outcome, claimed); messages.push(...outcome.messages); }
         claimed.forEach(name => registered.add(name));
         restoreActive(claimed, oldNames, previouslyActive);
-        paused.clear();
+        // Only names restored above leave `paused`; deferred servers keep theirs until `enable` reactivates them.
+        claimed.forEach(name => paused.delete(name));
         notify(context, messages);
     };
 

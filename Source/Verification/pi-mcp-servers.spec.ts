@@ -195,6 +195,23 @@ test('cratis_enable_mcp starts only the named server once and registers its name
     run.bridge.dispose();
 });
 
+test('a new-session refresh keeps an enabled deferred server paused and a later enable reactivates its tools', async () => {
+    const run = harness(serversFixture([playwright, codescene], undefined, '1.0', true));
+    await run.bridge.refresh(run.context, true);
+    await enableServer(run, 'playwright');
+    await run.bridge.refresh(run.context, true);
+    assert.equal(run.active().includes('playwright_browser_navigate'), false, 'the stopped server is not callable');
+    await enableServer(run, 'playwright');
+    assert.ok(run.active().includes('playwright_browser_navigate'));
+    await enableServer(run, 'playwright');
+    await run.bridge.refresh(run.context, true);
+    await enableServer(run, 'playwright');
+    assert.ok(run.active().includes('playwright_browser_navigate'), 'refresh, enable, refresh, enable leaves the tools usable');
+    const result = await run.registered.get('playwright_browser_navigate')!.execute('call', {}, undefined, undefined, run.context);
+    assert.deepEqual(result.content, [{ type: 'text', text: 'ran playwright' }]);
+    run.bridge.dispose();
+});
+
 test('mcpServers.<id>.eager starts that server at refresh while the others stay deferred; a non-boolean skips only that server', async () => {
     const profiles = ['cratis/playwright', 'cratis/codescene'];
     const run = harness(serversFixture([playwright, codescene], { profiles, mcpServers: { playwright: { eager: true } } }, '1.0', true));
