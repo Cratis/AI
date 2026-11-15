@@ -36,7 +36,7 @@ public static class OpenAIChatCompletionsProtocol
     /// <param name="logger">The logger a failed or empty response is recorded on.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
     /// <returns>The <see cref="LanguageModelResult"/>.</returns>
-    public static async Task<LanguageModelResult> Complete(
+    public static Task<LanguageModelResult> Complete(
         HttpClient httpClient,
         Uri requestUri,
         string model,
@@ -48,9 +48,23 @@ public static class OpenAIChatCompletionsProtocol
         AIProviderApiKey apiKey,
         IAIProviderQuotaTracker quotaTracker,
         ILogger logger,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default) =>
+        Send(new(httpClient, requestUri, model, configureHeaders, vendor, providerId, apiKey, quotaTracker, logger), BuildPayload(model, prompt, effort), cancellationToken);
+
+    /// <summary>
+    /// Sends a chat-completions request that carries images and interprets the response as a <see cref="LanguageModelResult"/>.
+    /// </summary>
+    /// <param name="call">Where and how the request is sent.</param>
+    /// <param name="request">The prompt, images and reasoning effort to send.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
+    /// <returns>The <see cref="LanguageModelResult"/>.</returns>
+    public static Task<LanguageModelResult> Complete(ChatCompletionsCall call, ImageCompletionRequest request, CancellationToken cancellationToken = default) =>
+        Send(call, BuildPayload(call.Model, request.Prompt, request.Images, request.Effort), cancellationToken);
+
+    static async Task<LanguageModelResult> Send(ChatCompletionsCall call, JsonObject requestBody, CancellationToken cancellationToken)
     {
-        var payload = BuildPayload(model, prompt, effort).ToJsonString();
+        var (httpClient, requestUri, model, configureHeaders, vendor, providerId, apiKey, quotaTracker, logger) = call;
+        var payload = requestBody.ToJsonString();
 
         using var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
         {
@@ -114,12 +128,42 @@ public static class OpenAIChatCompletionsProtocol
     /// <param name="prompt">The prompt.</param>
     /// <param name="effort">The reasoning effort to translate.</param>
     /// <returns>The request body.</returns>
-    internal static JsonObject BuildPayload(string model, string prompt, Effort effort) => new()
+    internal static JsonObject BuildPayload(string model, string prompt, Effort effort) => BuildPayload(model, prompt, [], effort);
+
+    /// <summary>
+    /// Builds the chat-completions request body for a prompt with images: <c>content</c> becomes an
+    /// array of <c>image_url</c> parts (base64 data URLs) followed by the prompt's <c>text</c> part.
+    /// With no images the body is exactly the text-only one.
+    /// </summary>
+    /// <param name="model">The model to run the completion on.</param>
+    /// <param name="prompt">The prompt.</param>
+    /// <param name="images">The images the prompt is about.</param>
+    /// <param name="effort">The reasoning effort to translate.</param>
+    /// <returns>The request body.</returns>
+    internal static JsonObject BuildPayload(string model, string prompt, IReadOnlyList<LanguageModelImage> images, Effort effort) => new()
     {
         ["model"] = model,
         ["reasoning_effort"] = ReasoningEffortFor(effort),
-        ["messages"] = new JsonArray(new JsonObject { ["role"] = "user", ["content"] = prompt }),
+        ["messages"] = new JsonArray(new JsonObject { ["role"] = "user", ["content"] = ContentFor(prompt, images) }),
     };
+
+    static JsonNode ContentFor(string prompt, IReadOnlyList<LanguageModelImage> images)
+    {
+        if (images.Count == 0)
+        {
+            return JsonValue.Create(prompt);
+        }
+
+        var parts = new JsonArray();
+        foreach (var image in images)
+        {
+            var url = $"data:{image.MediaType};base64,{Convert.ToBase64String(image.Data.Span)}";
+            parts.Add(new JsonObject { ["type"] = "image_url", ["image_url"] = new JsonObject { ["url"] = url } });
+        }
+
+        parts.Add(new JsonObject { ["type"] = "text", ["text"] = prompt });
+        return parts;
+    }
 
     /// <summary>
     /// Maps an <see cref="Effort"/> tier to the <c>reasoning_effort</c> value OpenAI's chat-completions

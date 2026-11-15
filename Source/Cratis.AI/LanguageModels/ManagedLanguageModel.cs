@@ -34,7 +34,7 @@ public class ManagedLanguageModel(
     IAIAgents agents,
     IAgentExecution agentExecution,
     ILogger<ManagedLanguageModel> logger,
-    Func<TimeSpan, CancellationToken, Task>? delay = null) : ILanguageModel
+    Func<TimeSpan, CancellationToken, Task>? delay = null) : ILanguageModel, IVisionLanguageModel
 {
     /// <summary>
     /// How many attempts a completion gets in total - the first, plus <see cref="_backoff"/>'s two retries.
@@ -53,41 +53,64 @@ public class ManagedLanguageModel(
     /// <inheritdoc/>
     public async Task<LanguageModelResult> Complete(string prompt, LanguageModelPurpose purpose, CancellationToken cancellationToken = default)
     {
-        var result = await CompleteWithRetries(prompt, purpose, cancellationToken);
+        var result = await CompleteWithRetries(purpose, ct => inner.Complete(prompt, purpose, ct), cancellationToken);
+        await RecordUsage(result, purpose);
+        return result;
+    }
 
-        if (result.Usage is { } usage)
+    /// <inheritdoc/>
+    public async Task<LanguageModelResult> Complete(string prompt, IReadOnlyList<LanguageModelImage> images, LanguageModelPurpose purpose, CancellationToken cancellationToken = default)
+    {
+        if (images.Count == 0)
         {
-            try
-            {
-                // Every provider client answers with the model it actually called, so there is
-                // nothing left to fall back to for the usage record - a completion that produced
-                // usage necessarily went through one of them. NotSet records the usage rather than
-                // dropping it in the impossible case, since the tokens were spent either way.
-                var model = result.Model ?? ModelName.NotSet;
-                var agent = agents.FindByPurpose(purpose);
-
-                using var scope = agentExecution.As(purpose);
-                var command = new RecordAgentSessionUsage(
-                    AgentSessionId.New(),
-                    agent?.Id ?? AgentId.NotSet,
-                    model,
-                    purpose,
-                    result.ProviderId,
-                    InputTokens: usage.InputTokens,
-                    OutputTokens: usage.OutputTokens,
-                    CachedTokens: usage.CachedTokens,
-                    CostUsd: usage.CostUsd,
-                    Duration: usage.Duration);
-                await commandPipeline.ExecuteAndReport(command, logger);
-            }
-            catch (Exception ex)
-            {
-                // Losing a usage record is not worth failing the caller's actual completion over.
-                logger.FailedToRecordUsage(ex, purpose);
-            }
+            return await Complete(prompt, purpose, cancellationToken);
         }
 
+        if (inner is not IVisionLanguageModel vision)
+        {
+            return LanguageModelResult.Failure($"The language model configured for the {purpose.Value} agent cannot take images - it does not implement {nameof(IVisionLanguageModel)}");
+        }
+
+        var result = await CompleteWithRetries(purpose, ct => vision.Complete(prompt, images, purpose, ct), cancellationToken);
+        await RecordUsage(result, purpose);
         return result;
+    }
+
+    async Task RecordUsage(LanguageModelResult result, LanguageModelPurpose purpose)
+    {
+        if (result.Usage is not { } usage)
+        {
+            return;
+        }
+
+        try
+        {
+            // Every provider client answers with the model it actually called, so there is
+            // nothing left to fall back to for the usage record - a completion that produced
+            // usage necessarily went through one of them. NotSet records the usage rather than
+            // dropping it in the impossible case, since the tokens were spent either way.
+            var model = result.Model ?? ModelName.NotSet;
+            var agent = agents.FindByPurpose(purpose);
+
+            using var scope = agentExecution.As(purpose);
+            var command = new RecordAgentSessionUsage(
+                AgentSessionId.New(),
+                agent?.Id ?? AgentId.NotSet,
+                model,
+                purpose,
+                result.ProviderId,
+                InputTokens: usage.InputTokens,
+                OutputTokens: usage.OutputTokens,
+                CachedTokens: usage.CachedTokens,
+                CostUsd: usage.CostUsd,
+                Duration: usage.Duration);
+            await commandPipeline.ExecuteAndReport(command, logger);
+        }
+        catch (Exception ex)
+        {
+            // Losing a usage record is not worth failing the caller's actual completion over.
+            logger.FailedToRecordUsage(ex, purpose);
+        }
     }
 
     /// <summary>
@@ -98,15 +121,15 @@ public class ManagedLanguageModel(
     /// plus the extra attempts, never the underlying call's own timeout - stays well inside the ~30s
     /// a Chronicle reactor's subscriber has before it is considered stuck.
     /// </summary>
-    /// <param name="prompt">The prompt.</param>
     /// <param name="purpose">What the completion is for.</param>
+    /// <param name="complete">Runs one attempt of the completion.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/> for the operation.</param>
     /// <returns>The <see cref="LanguageModelResult"/> the last attempt settled on.</returns>
-    async Task<LanguageModelResult> CompleteWithRetries(string prompt, LanguageModelPurpose purpose, CancellationToken cancellationToken)
+    async Task<LanguageModelResult> CompleteWithRetries(LanguageModelPurpose purpose, Func<CancellationToken, Task<LanguageModelResult>> complete, CancellationToken cancellationToken)
     {
         for (var attempt = 1; ; attempt++)
         {
-            var result = await inner.Complete(prompt, purpose, cancellationToken);
+            var result = await complete(cancellationToken);
             if (result.Succeeded || !result.IsTransient || attempt == MaxAttempts)
             {
                 return result;
