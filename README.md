@@ -349,17 +349,59 @@ descriptions and do not use held-out failures to guide edits.
 
 ## Verify quality
 
-All quality checks live in `Source/Verification` or the package they compile:
+The required checks mirror the `verify` and `dotnet verify` jobs in
+`.github/workflows/publish.yml`. The TypeScript projects form one Yarn workspace
+with a single root `yarn.lock`; install once at the repository root, never per package:
 
 ```bash
-npm ci --prefix Source/Pi.Plugin
-npm ci --prefix Source/Verification
-npm run check --prefix Source/Pi.Plugin
-npm run check --prefix Source/Verification
-npm run verify --prefix Source/Verification
-npm test --prefix Source/Verification
-(cd Source/Pi.Plugin && npm pack --dry-run)
+corepack enable && yarn install --immutable
 ```
+
+Type checks, corpus verification and specs:
+
+```bash
+yarn workspace @cratis/harness-setup run check
+yarn workspace @cratis/pi run check
+yarn workspace @cratis/pi-direct run check
+yarn workspace @cratis/ai-verification run check
+yarn workspace @cratis/ai-skill-evaluation run check
+yarn workspace @cratis/ai-verification run tool:screenplay
+yarn workspace @cratis/ai-verification run verify
+yarn workspace @cratis/pi-direct run lint:ci
+yarn workspace @cratis/ai-verification run test
+yarn workspace @cratis/ai-skill-evaluation run test
+yarn workspace @cratis/pi-direct run test
+yarn workspace @cratis/ai-screenplay-session run check
+yarn workspace @cratis/ai-screenplay-session run test
+git diff --check
+```
+
+Package validation:
+
+```bash
+(cd Source/Pi.Plugin && yarn pack --dry-run)
+yarn workspace @cratis/pi-direct run verify:pack
+```
+
+.NET checks, a separate phase (the `dotnet verify` job):
+
+```bash
+dotnet restore Cratis.AI.slnx
+dotnet build Cratis.AI.slnx --configuration Debug --no-restore -p:CratisProxiesOutputPath=
+dotnet build Cratis.AI.slnx --configuration Release --no-restore -p:CratisProxiesOutputPath=
+Source/Cratis.AI.Specs/bin/Debug/net10.0/Cratis.AI.Specs
+Source/Cratis.AI.Specs/bin/Debug/net11.0/Cratis.AI.Specs
+dotnet run --project Source/WorkerCacheFixture/WorkerCacheFixture.csproj --configuration Release -p:CratisProxiesOutputPath= -warnaserror
+```
+
+CI also lints the hook scripts with `shellcheck`, replays the screens authoring workflow
+(`Source/Verification/screens-smoke/screens-smoke.sh`, which needs Docker and Chromium), and
+checks `Source/AgentHarnesses`, which sits outside the workspace with its own `package-lock.json`
+(`npm ci && npm test` in that directory, then `bash Source/AgentHarnesses/run-entrypoint-fixtures.sh`).
+Corpus changes also run the Conformance workflow's install-phase checks
+(`cratis ai test --source . --install-only --output json`). Skill model evaluation
+([Evaluate skills](#evaluate-skills)) makes paid model calls and is optional, never part of
+required verification.
 
 While iterating, run the named subset that matches what you changed; each prints its ten
 slowest specs. The full `test` suite stays the gate before you call work done.
