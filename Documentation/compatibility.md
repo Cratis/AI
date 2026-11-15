@@ -17,6 +17,38 @@ CI installs and which must match `references/screenplay-contract.version` in the
 The published `screenplay-contract.json` beside the toolchain skill's references is byte-identical to
 this release's contract, and `screenplay-contract.version` names the same version.
 
+## Bumping the Screenplay pin
+
+To sync the corpus to a reviewed Screenplay release, install workspace dependencies,
+then run from the repository root with the release's `X.Y.Z` version:
+
+```sh
+yarn workspace @cratis/ai-verification run bump <version>
+```
+
+The command uses the authenticated GitHub CLI to download the release's
+`screenplay-contract.json`. To use an already downloaded asset instead, add
+`--contract <path>`. It validates the version, contract schema and compatibility
+row before updating the contract JSON, `screenplay-contract.version` and the
+standalone Screenplay row above together. The asset's formatting is preserved.
+
+Install the newly pinned tool and check the corpus before committing:
+
+```sh
+yarn workspace @cratis/ai-verification run tool:screenplay
+yarn workspace @cratis/ai-verification run verify
+yarn workspace @cratis/ai-verification run test
+```
+
+Resolve any findings, including flagged entries in `pin-restatement-exceptions.json`
+or `screenplay-contract-exceptions.json`. The bump changes the pin; it does not
+update examples or establish product coverage automatically.
+
+The scheduled or dispatched Publish `screenplay-sync` job compares newer contracts
+and maintains an issue labeled `screenplay-sync`. Drift produces a run warning and
+job summary, not a failed run; download, parse and GitHub failures still fail the job.
+Release verification uses the committed pin, independently of this advisory comparison.
+
 ## Cratis CLI
 
 | Item | Value |

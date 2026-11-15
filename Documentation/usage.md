@@ -63,6 +63,18 @@ never is.
 not, that reported usage gets it recorded through this command, with a fresh `AgentSessionId` per
 completion - a direct completion is just a session that never reports CPU or memory.
 
+### Completions with images
+
+A completion about an image goes through `IVisionLanguageModel`, a sibling of `ILanguageModel`
+that takes a list of `LanguageModelImage` (raw bytes plus a media type) next to the prompt; an
+empty list behaves exactly like a text completion. The supported media types are `image/png`,
+`image/jpeg`, `image/gif` and `image/webp`, and anything else is refused before a provider is
+resolved. Usage is recorded under the purpose exactly as for text. Images are never silently
+dropped: a model without the `Vision` capability, or a provider client that cannot send images,
+answers with a failed result that says so, and a pool skips such a member - without counting it as
+a provider failure - and tries the next. A Claude subscription token cannot take images; the
+Anthropic provider needs an API key for them.
+
 ## Read models
 
 - **`Usage/Trends/AgentUsageByWeek`, `AgentUsageByMonth`** - accumulating projections off
