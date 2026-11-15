@@ -4,7 +4,7 @@
     {
       "id": 1,
       "name": "stage-ordering",
-      "prompt": "In a Cratis.Orleans Job<RecoveryRequest, RecoveryState>, IRepairIndex steps must all finish before IRebuildCatalog starts, and the catalog step needs data the repair produced. Show PrepareSteps and say how the dependency on repair output must be read. Give C# in your reply; do not write files.",
+      "prompt": "In a Cratis.Choreography Job<RecoveryRequest, RecoveryState>, IRepairIndex steps must all finish before IRebuildCatalog starts, and the catalog step needs data the repair produced. Show PrepareSteps and say how the dependency on repair output must be read. Give C# in your reply; do not write files.",
       "expected_output": "PrepareSteps returns Task<IImmutableList<JobStepDetails>> using CreateStep<TStep>(request, stage: n) with the grain interface and stages 0 and 10 (JobStepStage, implicit int). Steps within a stage run in parallel; stages are barriers. All steps are prepared up front so later-stage preparation cannot see earlier effects; read such dependencies in PerformStep.",
       "assertions": [
         "Uses CreateStep with the grain interfaces (IRepairIndex, IRebuildCatalog), not the implementation classes, and gives the later step a higher stage.",
@@ -28,7 +28,7 @@
     {
       "id": 3,
       "name": "sql-schema-and-options",
-      "prompt": "We register AddCratisOrleansSqlJobsStorage. The product docs say create the schema yourself. Do we? Also `Configure<JobsOptions>(o => o.MaxParallelSteps = 4)` does not compile. Explain both and the right approach. Reply only.",
+      "prompt": "We register AddCratisChoreographySqlJobsStorage. The product docs say create the schema yourself. Do we? Also `Configure<JobsOptions>(o => o.MaxParallelSteps = 4)` does not compile. Explain both and the right approach. Reply only.",
       "expected_output": "Source: SqlJobsStorage.GetFor calls EnsureSchema which calls Database.Migrate(); migration v1_0_0; do not substitute EnsureCreated or hand-create tables; the connection needs permission to apply the migration; Reset() clears the cache and migrates again. JobsOptions properties are init-only: supply a constructed instance via options registration.",
       "assertions": [
         "Says the SQL provider applies migrations automatically by calling Migrate when storage is resolved, so the schema is not hand-created.",
@@ -52,7 +52,7 @@
     {
       "id": 5,
       "name": "grain-types-and-step-shape",
-      "prompt": "List what must be true of a new job and step class pair in Cratis.Orleans regarding base classes, the three step methods, the persistent state attribute and grain type names, plus how PerformStep should treat state. Reply only.",
+      "prompt": "List what must be true of a new job and step class pair in Cratis.Choreography regarding base classes, the three step methods, the persistent state attribute and grain type names, plus how PerformStep should treat state. Reply only.",
       "expected_output": "Job derives Job<TRequest,TJobState> with IJobRequest request and JobState state; step derives JobStep<TRequest,TResult,TState> with JobStepState; PrepareStep returns Task<Result<PrepareJobStepError>>, InitializeState returns ValueTask, PerformStep(TState, CancellationToken) returns Task<Catch<JobStepResult>>. Unique [GrainType] names per concrete job and step. PerformStep runs outside the activation context on a snapshot; mutating it does not persist, don't touch grain State directly.",
       "assertions": [
         "Names the base classes Job<TRequest, TJobState> and JobStep<TRequest, TResult, TState> with request and state types implementing IJobRequest, JobState and JobStepState.",
