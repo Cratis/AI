@@ -65,6 +65,18 @@
         "Separates static selection mapping from runtime proof, requires per-project nonzero executed specs and jobs/results for the exact head, rejects filters excluding all specs or skipped jobs as coverage, and fails closed on empty/unknown discovery, unresolved mapping or missing results.",
         "Allows repository policy to defer integration only when CI actually runs it and it passes before merge; names unavailable hosted-service/OS coverage and the uncovered project in reviewer notes without claiming a local pass."
       ]
+    },
+    {
+      "id": 6,
+      "name": "integration-deferral-cases",
+      "prompt": "Tier 1 passed locally in Release. Three repositories have integration projects you did not run locally: (1) CI runs and requires them before merge, and policy allows CI-backed integration; (2) no CI job runs them; (3) the project policy says integration must pass locally before every push. For each, state whether you may push and how to report integration. Reply only.",
+      "expected_output": "(1) Push is allowed: Tier 1 passed locally; integration is deferred to CI, reported as deferred with reviewer notes, passing before merge, never as a local pass. (2) Do not claim integration verified: required integration has neither local proof nor enforced CI coverage, so fail closed, add CI coverage or run it locally, and report it unverified. (3) The stricter local-only policy wins: run integration locally first; the CI exception does not apply.",
+      "assertions": [
+        "Allows deferral in case 1 only because CI runs the coverage and it must pass before merge, says it was deferred to CI in reviewer notes, and never calls it a local pass.",
+        "Fails closed in case 2: reports integration as unverified and requires local proof or enforced CI coverage before claiming it.",
+        "Honors the explicit local-only policy in case 3 as stricter, running integration locally before pushing instead of using the CI exception.",
+        "Does not weaken the local Tier 1 gate in any case."
+      ]
     }
   ]
 }

@@ -17,12 +17,12 @@
       "id": 2,
       "name": "four-line-v5",
       "prompt": "We rendered only `--scope Booking` and the generated Debug tests pass. The team lead writes 'V5 passed: whole application verified, including denial behavior since it ran in the cratis run sandbox'. Correct this and tell me how V5 should be reported and in what order the steps run. Reply only; do not write files.",
-      "expected_output": "V5 is four separate lines: admission, publication, build (Debug) and tests (Debug), each a result or `not run: <reason>`, stating the scope. A whole-application V5 is never claimed from a subset. Build runs first, tests only if it passed, Debug only. The sandbox enforces neither validation nor authorization on its default engine, so it is no denial evidence.",
+      "expected_output": "V5 is four separate lines: admission, publication, build (Debug) and tests (Debug), each a result or `not run: <reason>`, stating the scope. A whole-application V5 is never claimed from a subset. Build runs first, tests only if it passed, Debug only. A `cratis run` sandbox on the default semantic engine is a behavior walk, not V5 and not proof that every denial case was tested; the legacy EventModel engine, selected only explicitly (or by CLI older than 3.73.0), enforces no authorization and only simple literal validation, so it is no denial evidence.",
       "assertions": [
         "Says V5 is reported as four separate lines: admission, publication, build and tests, each a result or `not run` with a reason.",
         "Says a whole-application V5 is never claimed from a `--scope` subset and the scope must be stated.",
         "Says build and test each run as their own bounded call, tests only if the build passed, and Debug only.",
-        "Says the `cratis run` sandbox's default engine enforces no authorization and only simple literal validation rules, so it is not evidence for denial behavior."
+        "Says a `cratis run` sandbox is not V5 and does not by itself prove every denial case was tested (denial evidence comes from Debug tests of the render), and qualifies the limitation by engine: only the legacy EventModel engine, selected explicitly or by a CLI older than 3.73.0, enforces no authorization and only simple literal validation rules, not the semantic default."
       ]
     },
     {

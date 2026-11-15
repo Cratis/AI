@@ -29,12 +29,12 @@
       "id": 3,
       "name": "supersede-not-rewrite",
       "prompt": "Accepted record DR-0012 says we use polling. We now use push. A teammate already edited DR-0012's decision text to say push. What is wrong, and what is the correct procedure from here? Reply only.",
-      "expected_output": "Editing an accepted decision's text in place is the invisible failure that makes decisions/ untrustworthy. Supersede with a new record: new one names DR-0012 in supersedes, DR-0012 becomes superseded with a superseded-by pointer and original text preserved, and citations are swept. Typos or context only under a dated banner.",
+      "expected_output": "Editing an accepted decision's text in place is the invisible failure that makes decisions/ untrustworthy. Supersede with a new record: new one names DR-0012 in supersedes, DR-0012 becomes superseded with a superseded-by pointer and original text preserved, and the old committed trailer stays as written while new work cites the new record. Typos or context only under a dated banner.",
       "assertions": [
         "Says accepted decision text must never be edited in place because readers relied on it and cannot tell what changed.",
         "Says the choice change requires a new record that names the old one in supersedes.",
         "Says the old record's status becomes superseded with a superseded-by pointer and its original text preserved.",
-        "Says to find work items, pull request bodies and commit trailers citing the old id and point them to the new one."
+        "Keeps the committed commit trailer and historical issue and pull request text unchanged, rejects amend, rebase or other history rewrites, and uses the new id only on new commits and new work."
       ]
     },
     {
@@ -47,6 +47,18 @@
         "States at least one significance-test trigger such as someone re-litigating the choice, binding paths beyond the one being changed, costly reversal, or rejecting an obvious option.",
         "Says stage verified needs a signal observed this time, such as a command, gate or observed behavior, not just a green build.",
         "Says accepted is not implemented and implemented is not verified."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "supersession-preserves-history",
+      "prompt": "DR-0007 (polling) is superseded by DR-0015 (push). Commit abc123 on main carries `Decision: DR-0007`, and issue #42 is open and cites DR-0007. You were asked only to write the new record. How do you handle the old trailer and the open issue? Reply only.",
+      "expected_output": "Keep the abc123 trailer as written: it records which decision governed that implementation, and changing it needs amend or rebase, which is forbidden. Link the records with supersedes in DR-0015 and a superseded-by pointer in DR-0007 with its text preserved; new commits cite DR-0015. Writing the record does not authorize editing issue #42; add a forward link there only if the user or an applicable policy authorizes that exact effect, otherwise propose it. A later reader can tell DR-0007 governed abc123.",
+      "assertions": [
+        "Retains the original `Decision: DR-0007` trailer and rejects amend, rebase or other history rewrites to change it.",
+        "Links the records through supersedes and superseded-by, preserves the old record's text, and cites DR-0015 only on new commits and work.",
+        "Separates authority to write the record from authority to edit issue #42: adds a scoped forward link only when authorized, otherwise proposes it, and does not rewrite the original text.",
+        "Ensures a later reader can tell that DR-0007 governed the original implementation."
       ]
     }
   ]
