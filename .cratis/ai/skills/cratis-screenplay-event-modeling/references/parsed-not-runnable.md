@@ -1,5 +1,14 @@
 # Parsed is not runnable: ESM versions and dispositions
 
+## Contents
+
+- Which ESM version a model needs
+- Dispositions to keep apart
+- The Step 7 clock example
+- Trigger reads and event generations
+- What binds depends on which tool
+- A CLI and Stage that admit v15
+
 Checked: `SemanticModelBinder.cs`, `Versions.cs`,
 `Documentation/screenplay/{commands,operations,event-sources,reactions,tool,interoperability}.md`.
 The binder selects v8 for event routes, v10 for declared reaction identity, v11 for retained
