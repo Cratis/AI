@@ -1,6 +1,8 @@
 <Solution>
     <Folder Name="/Source/">
         <Project Path="Source/Cratis.AI/Cratis.AI.csproj" />
+        <Project Path="Source/Cratis.AI.ReverseProxy/Cratis.AI.ReverseProxy.csproj" />
+        <Project Path="Source/Cratis.AI.ReverseProxy.Specs/Cratis.AI.ReverseProxy.Specs.csproj" />
         <Project Path="Source/Cratis.AI.Specs/Cratis.AI.Specs.csproj" />
     </Folder>
 </Solution>
