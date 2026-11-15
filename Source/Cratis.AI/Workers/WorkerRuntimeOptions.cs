@@ -125,6 +125,13 @@ public class WorkerRuntimeOptions
     public string? NodePoolWorkload { get; set; }
 
     /// <summary>
+    /// Gets or sets the Kubernetes PriorityClass name for worker pods. Null, empty, or whitespace
+    /// (the default) omits <c>priorityClassName</c>. The cluster owner provisions the class; the
+    /// runtime does not validate that it exists. Docker ignores this setting.
+    /// </summary>
+    public string? PriorityClassName { get; set; }
+
+    /// <summary>
     /// Gets or sets the CPU a worker container reserves, as a Kubernetes quantity (<c>"1"</c>,
     /// <c>"500m"</c>). Unset (the default) declares no request.
     /// </summary>

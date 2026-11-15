@@ -10,6 +10,15 @@ description: Batch packing and autoscaler eviction protection for Kubernetes wor
 with the matching `workload` label and tolerate the matching `NoSchedule` taint.
 An omitted, null, empty, or whitespace value leaves node placement unrestricted.
 
+## Worker priority
+
+Set `Cratis:AI:ContainerRuntime:PriorityClassName` to the name of a Kubernetes
+`PriorityClass` to set `spec.template.spec.priorityClassName` on worker Jobs.
+The optional `WorkerRuntimeOptions.PriorityClassName` string defaults to null;
+null, empty, and whitespace values omit the field, preserving cluster defaults.
+The cluster owner provisions the cluster-scoped class. The runtime passes the
+name through without checking that the class exists. Docker ignores this setting.
+
 ## Batch packing
 
 Only the exact value `batch` enables packing. Worker pods prefer nodes hosting either:
