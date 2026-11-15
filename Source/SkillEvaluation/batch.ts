@@ -43,7 +43,7 @@ export async function runBatch(root: string, options: Options): Promise<string> 
 
 async function runIsolatedBatch(root: string, options: Options, selected: Manifest['tasks'], isolated: Awaited<ReturnType<typeof isolateBatch>>): Promise<string> {
     const manifest: Manifest = { version: 1, options: { ...options, runDirectory: undefined },
-        tasks: selected, corpusDigest: isolated.digest };
+        tasks: selected, corpusDigest: isolated.digest, corpusCondition: 'skills-with-dependencies' };
     const directory = options.runDirectory ? runPath(root, options.runDirectory) : join(root, '.ai-work/skill-evaluations',
         `${new Date().toISOString().replaceAll(':', '-')}-${options.command}-${randomUUID().slice(0, 8)}`);
     await mkdir(directory, { recursive: true });
@@ -66,7 +66,7 @@ async function runIsolatedBatch(root: string, options: Options, selected: Manife
                     options.timeout, options.command === 'trigger' ? 6 : undefined,
                     { target: task.skill, corpusSkills: isolated.corpusSkills, withSkills: task.withSkills });
                 if (options.command === 'outputs' && !result.transcript.text.trim()) throw new Error(`No answer text: ${transcriptPath}`);
-                appendLine(resultsPath, { ...task, skillsRead: [...result.transcript.skillsRead], listedSkills: result.transcript.listedSkills,
+                appendLine(resultsPath, { ...task, corpusCondition: task.withSkills ? manifest.corpusCondition : 'none', skillsRead: [...result.transcript.skillsRead], listedSkills: result.transcript.listedSkills,
                     text: result.transcript.text, usage: result.transcript.usage, durationSeconds: result.durationSeconds,
                     stopped: result.stopped, transcript: relative(directory, transcriptPath) } satisfies Result);
                 console.log(`${task.key}: ${result.stopped ?? 'complete'}; skills: ${[...result.transcript.skillsRead].join(', ') || 'none'}`);

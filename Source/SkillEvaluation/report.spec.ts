@@ -33,6 +33,12 @@ test('trigger report names failing queries and skills that took them', () => {
     assert.match(report(manifest, [], []), /INCOMPLETE/);
 });
 
+test('reports distinguish dependency-staged batches from legacy isolated-skills batches', () => {
+    const manifest: Manifest = { version: 1, options: parseOptions(['trigger']), corpusDigest: 'test', tasks: [] };
+    assert.match(report(manifest, [], []), /Corpus condition: isolated-skills \(legacy\); baseline: none/);
+    assert.match(report({ ...manifest, corpusCondition: 'skills-with-dependencies' }, [], []), /Corpus condition: skills-with-dependencies; baseline: none/);
+});
+
 test('output report computes paired deltas and distinguishes useful, both-pass and both-fail assertions', () => {
     const withRow = result('with', true), withoutRow = result('without', false);
     const manifest: Manifest = { version: 1, options: parseOptions(['outputs']), corpusDigest: 'test', tasks: [withRow, withoutRow] };

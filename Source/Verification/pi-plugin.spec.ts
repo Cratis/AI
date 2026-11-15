@@ -176,6 +176,37 @@ test('managed and packaged Pi filter exact Cratis rule profiles without changing
     }
 });
 
+test('composed profiles deliver inherited rules in both Pi loaders without enabling opt-in profiles', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const cases = [
+            { profiles: ['cratis'], application: true, framework: false, codescene: false },
+            { profiles: ['cratis/full'], application: true, framework: false, codescene: false },
+            { profiles: ['cratis/application'], application: true, framework: false, codescene: false },
+            { profiles: ['cratis/engineering'], application: false, framework: true, codescene: false },
+            { profiles: ['cratis/engineering/csharp'], application: false, framework: true, codescene: false },
+            { profiles: ['cratis/full', 'cratis/codescene'], application: true, framework: false, codescene: true },
+            { profiles: [], application: false, framework: false, codescene: false },
+        ];
+        for (const entry of cases) {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: entry.profiles, languages: ['csharp', 'typescript'] }));
+            const names = managedRules(project).map(rule => rule.name);
+            assert.equal(names.includes('application-profile.md'), entry.application, JSON.stringify(entry));
+            assert.equal(names.includes('framework.md'), entry.framework, JSON.stringify(entry));
+            assert.equal(names.includes('codescene.md'), entry.codescene, JSON.stringify(entry));
+            const delivered = rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name);
+            assert.equal(delivered.includes('application-profile.md'), entry.application, JSON.stringify(entry));
+            assert.equal(delivered.includes('framework.md'), entry.framework, JSON.stringify(entry));
+            const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+            assert.equal(result.systemPrompt, `base\n\n${universalRules(project).map(rule => rule.content).join('\n\n')}`, JSON.stringify(entry));
+            assert.equal(result.systemPrompt.includes('# Verify locally, deliver once'), entry.framework, JSON.stringify(entry));
+            assert.equal(result.systemPrompt.includes('# CodeScene Code Health policy'), entry.codescene, JSON.stringify(entry));
+            assert.equal(names.includes('local-verification-and-delivery.md'), entry.framework, JSON.stringify(entry));
+        }
+    } finally { rmSync(project, { recursive: true, force: true }); }
+});
+
 test('CodeScene resolves only through its explicit opt-in profile', () => {
     const expected = [
         'guiding-refactoring-with-code-health', 'prioritizing-technical-debt',
