@@ -10,7 +10,7 @@ import { childEnvironment, startServer } from '../../.cratis/ai/harnesses/pi/ext
 import { fakeChild } from './pi-mcp-helpers.ts';
 
 const server: CorpusServer = {
-    id: 'playwright', command: 'npx', args: ['--yes', '@playwright/mcp@0.0.68'], env: { MCP_TEST_SETTING: 'literal value' },
+    id: 'playwright', command: 'npx', args: ['--yes', '@playwright/mcp@0.0.68'], env: { MCP_TEST_SETTING: 'literal value' }, eager: false,
 };
 const entryPoint = join(dirname(process.execPath), 'node_modules', 'npm', 'bin', 'npx-cli.js');
 
