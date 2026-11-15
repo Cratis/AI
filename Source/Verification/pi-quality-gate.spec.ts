@@ -18,6 +18,20 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { bridge, scratch } from './pi-quality-gate.fixture.ts';
 
+async function assertStopped(child: number, message: string) {
+    const deadline = Date.now() + 5_000;
+    while (true) {
+        const state = spawnSync('ps', ['-p', String(child), '-o', 'stat='], { encoding: 'utf8', timeout: 1_000 });
+        assert.ifError(state.error);
+        // A zombie has stopped executing, but its PID still exists until its parent reaps it.
+        if (state.status === 1) return;
+        assert.equal(state.status, 0, state.stderr);
+        if (state.stdout.trim().startsWith('Z')) return;
+        assert.ok(Date.now() < deadline, `${message}: ${state.stdout.trim()}`);
+        await new Promise(resolve => setTimeout(resolve, 30));
+    }
+}
+
 test('the Pi bridge has no automatic gate handler at any turn boundary', () => {
     const { handlers, tool } = bridge();
     assert.deepEqual([...handlers.keys()].sort(), ['session_shutdown', 'session_start', 'tool_call', 'tool_result']);
@@ -46,8 +60,7 @@ test('a per-gate timeout is a named tool failure and kills TERM-resistant descen
             return true;
         });
         const child = Number(readFileSync(join(repo.root, 'child.pid'), 'utf8').trim());
-        const state = spawnSync('ps', ['-p', String(child), '-o', 'stat='], { encoding: 'utf8' });
-        assert.ok(state.status !== 0 || state.stdout.trim().startsWith('Z'), `the test host survived its gate deadline: ${state.stdout.trim()}`);
+        await assertStopped(child, 'the test host survived its gate deadline');
     } finally {
         repo.dispose();
     }
@@ -69,7 +82,7 @@ test('cancellation also stops commands running with their own per-gate deadline'
         const child = Number(readFileSync(join(repo.root, 'child.pid'), 'utf8').trim());
         controller.abort();
         await cancelled;
-        assert.throws(() => process.kill(child, 0), 'the timed command must not escape Pi cancellation');
+        await assertStopped(child, 'the timed command must not escape Pi cancellation');
     } finally {
         controller.abort();
         repo.dispose();
