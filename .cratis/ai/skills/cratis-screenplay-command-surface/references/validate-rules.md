@@ -4,6 +4,7 @@
 
 - Rule vocabulary
 - `require` message
+- A `rule <predicate>` outside `validate`
 - Code bodies
 - Date and DateTime comparisons
 - `not empty` means non-blank text
@@ -42,6 +43,14 @@ validate
   require to >= from
     message "The end must not be before the start"
 ```
+
+## A `rule <predicate>` outside `validate`
+
+A predicate rule such as `rule not empty` or `rule > 0` written directly in a command or concept body is
+rejected: rules live beneath `validate`. The rejection appends a
+hint to declare `validate` and indent the rule beneath it (`<property> <predicate>` in a command, the bare
+predicate in a concept). The hint is guidance, not a repair: the parser still rejects the line until you move
+it. A named `rule <Name>` and other unknown directives keep the generic diagnostic.
 
 ## Code bodies
 

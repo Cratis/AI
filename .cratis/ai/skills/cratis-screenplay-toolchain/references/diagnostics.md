@@ -66,7 +66,7 @@ These are V1 source checks, not binding-only gaps:
 | Code | Severity | Meaning |
 | --- | --- | --- |
 | PLAY0514 | W | Projection mapping, children or nested target absent from the declared read-model/element shape; unknown/imported shapes are not guessed |
-| PLAY0166 | W | Unknown event, including `remove with`, `remove via join on` and capture `append` |
+| PLAY0166 | W/E | Unknown event, including `remove with`, `remove via join on` and capture `append`. An unresolved qualified `from` input of a `source events` capture is an error (Screenplay 5.4.0); unknown bare inputs and other usages stay warnings |
 | PLAY1142 | W | Projection or reducer copies a `secret` (incl. `pii secret`) concept into a read-model property; no automatic repair (Screenplay 6.28.0+) |
 | PLAY0515 | E | Personal/secret concept in a command identifier, typed `for` destination, event-source identity, stream-id type/part or route mapping source (including nested paths); keep a surrogate identity and protected data in payload |
 

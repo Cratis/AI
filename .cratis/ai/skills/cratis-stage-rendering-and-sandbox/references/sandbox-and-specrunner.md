@@ -257,7 +257,10 @@ invalid semantic option.
   `Passed`, `Failed`, `Unsupported` (carrying kind, construct id and reason) or
   `Cancelled`. Not supported: given read models, conditional production, implicit identity
   allocation, external effects, composite values, queries other than optional snapshots, and
-  a reached opaque authorization policy (reported as `Unsupported`). Unsupported is never a pass. Do not feed the file to a legacy reader.
+  a reached opaque authorization policy (reported as `Unsupported`). An exact `Int64` overflow in a
+  whole-number projection product (the product or one of its operands), reached directly or through a
+  command append, is also `Unsupported` (projection capability): it names the event and product
+  instead of failing in the executor. Unsupported is never a pass. Do not feed the file to a legacy reader.
 
 The runner and generated-fixture checks use Screenplay's public
 `SemanticValidationRules.Check`. This shared rule check does not execute opaque
