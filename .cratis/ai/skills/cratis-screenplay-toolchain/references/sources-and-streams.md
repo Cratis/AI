@@ -22,8 +22,8 @@ with CLI-RENDER-004. Keep routing intact when a target refuses it;
 never remove routing to obtain a render. Per-production
 v10 overrides and observer filters: `production-routes-and-filters.md`.
 
-Systems/operations and `numbers exact` source mode still report
-PLAY0268; they are separate capabilities, not evidence against v8 routing.
+Operations, systems in a model where none declares an ability, and `numbers exact`
+source mode still report PLAY0268 (any ability admits every system at ESM v50); they are separate capabilities, not evidence against v8 routing.
 
 ## Declare and route
 

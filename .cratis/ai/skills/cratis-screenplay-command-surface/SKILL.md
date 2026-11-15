@@ -208,7 +208,7 @@ Mapping sources that bind: a command property, a literal, `$context.occurred` an
 
 ## Routes and external operations
 
-Commands never produce public events; external work stays unadmitted (`PLAY0268`). Read [references/routes-and-external-operations.md](references/routes-and-external-operations.md) when choosing routes, `stream` overrides, public or foreign events, or `system`/`uses`/`operation` declarations (see also [operation intent](references/operations.md)).
+Commands never produce public events; external operations stay unadmitted (`PLAY0268`); systems are admitted once any declares an ability (ESM v50). Read [references/routes-and-external-operations.md](references/routes-and-external-operations.md) when choosing routes, `stream` overrides, public or foreign events, or `system`/`uses`/`operation` declarations (see also [operation intent](references/operations.md)).
 
 ## `concurrency`
 
