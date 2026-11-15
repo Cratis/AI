@@ -79,9 +79,10 @@ the deliverable; see "Runnability" in [fidelity-check.md](fidelity-check.md)).
   use it. Spec the boundary both exactly equal and one below. Date and DateTime values compare
   in command rules on a Screenplay release with Date/DateTime comparisons
   (`cratis-screenplay-command-surface`). Calendar and clock forms (`today - 7 days`,
-  `date of occurred`, `time zone`) parse but are not runnable: never write them into an
-  executable model. A today-relative query (overdue, due today, dormant) cannot be a declarative
-  filter: query filters admit only caller-supplied equality, and clock operands are syntax only.
+  `date of occurred`, `time zone`) bind from ESM v37 (Screenplay 5.5.0), but only in command
+  conditions; see command-surface `references/date-comparisons.md`. A today-relative query
+  (overdue, due today, dormant) cannot be a declarative filter: query filters admit only
+  caller-supplied equality, and a clock operand there is PLAY0268.
   Do not leave such a rule as a comment. A comment expresses nothing, and Stage cannot serve it.
   Give the query a `performer` body (`cratis-screenplay-read-surface`, "Performer bodies are
   rendered") that applies the probed threshold, the inclusive or exclusive edge and the excluded
