@@ -187,7 +187,7 @@ test('composed profiles deliver inherited rules in both Pi loaders without enabl
             { profiles: ['cratis/full/csharp'], application: true, framework: false, codescene: false },
             { profiles: ['cratis/full'], languages: [], application: true, framework: false, codescene: false },
             { profiles: ['cratis/documentation'], application: false, framework: false, codescene: false },
-            { profiles: ['cratis/full'], languages: ['elixir'], application: false, framework: false, codescene: false },
+            { profiles: ['cratis/full'], languages: ['elixir'], application: true, framework: false, codescene: false },
             { profiles: ['cratis/application'], application: true, framework: false, codescene: false },
             { profiles: ['cratis/engineering'], application: false, framework: true, codescene: false },
             { profiles: ['cratis/engineering/csharp'], application: false, framework: true, codescene: false },
