@@ -63,9 +63,7 @@
         "Requires adding and running a repository-specific executable CI coverage gate that independently discovers spec projects and compares them to test commands, expanding matrices and resolving conditional jobs and test filters rather than inventing a universal scanner.",
         "Identifies Integration/Recovery.Specs as uncovered and requires execution in CI or removal; rejects green selected jobs, build-only coverage and solution membership as proof and prints actionable omitted project paths with missing/excluding job, command or filter details.",
         "Separates static selection mapping from runtime proof, requires per-project nonzero executed specs and jobs/results for the exact head, rejects filters excluding all specs or skipped jobs as coverage, and fails closed on empty/unknown discovery, unresolved mapping or missing results.",
-        "Allows repository policy to defer integration only when CI actually runs it and it passes before merge; names unavailable hosted-service/OS coverage and the uncovered project in reviewer notes without claiming a local pass.",
-        "Fails closed in case 2: reports integration as unverified and requires local proof or enforced CI coverage before claiming it.",
-        "Honors the explicit local-only policy in case 3 as stricter, running integration locally before pushing instead of using the CI exception."
+        "Allows repository policy to defer integration only when CI actually runs it and it passes before merge, naming unavailable hosted-service/OS coverage and the uncovered project in reviewer notes without claiming a local pass; fails closed in case 2 by reporting integration as unverified until local proof or enforced CI coverage exists; honors the explicit local-only policy in case 3 as stricter, running integration locally before pushing."
       ]
     }
   ]
