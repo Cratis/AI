@@ -158,7 +158,8 @@ degradations a reviewer can see without measuring:
   with supplied read-model state; scenarios cover exactly the obligations in the
   per-artifact decision table of `specs.scenarios.csharp.md` (pipeline and
   authorization, constraints, projection and reducer dispatch, reactor dispatch
-  and routing) plus application-owned race-policy proof.
+  and routing) and none beyond it. A rule that must hold under concurrent
+  writers is proven from supplied read-model state, not a race scenario.
 - Every State Change command has a happy-path specification.
 - Every validation rule has a direct-call failure spec. Pipeline validation
   specs assert **both** `ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()`.
