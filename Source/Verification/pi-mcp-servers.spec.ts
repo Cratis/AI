@@ -20,8 +20,8 @@ const playwright = { id: 'playwright', profiles: ['cratis/playwright'], transpor
 const codescene = { id: 'codescene', profiles: ['cratis/codescene'], transport: 'stdio', command: 'cs-mcp', args: [] };
 const screenplay = { id: 'screenplay', profiles: ['cratis/screenplay'], transport: 'stdio', command: 'cratis', args: ['screenplay', 'mcp'] };
 
-function serversFixture(servers: unknown[], configuration: unknown = { profiles: ['cratis/playwright', 'cratis/codescene'] }, schemaVersion = '1.0') {
-    const fixture = projectFixture(configuration);
+function serversFixture(servers: unknown[], configuration: unknown = { profiles: ['cratis/playwright', 'cratis/codescene'] }, schemaVersion = '1.0', deferred = false) {
+    const fixture = projectFixture(configuration, undefined, deferred ? [] : ['screenplay', 'playwright', 'codescene', 'a', 'a_b']);
     writeFileSync(join(fixture.corpus, 'profile-catalog.json'), JSON.stringify({
         publicProfiles: [
             { id: 'cratis/screenplay', languages: ['language-agnostic'] },
@@ -62,7 +62,7 @@ test('Screenplay reached through composition is still selected', () => {
 test('command, args and literal env are carried verbatim', () => {
     const fixture = serversFixture([{ ...playwright, env: { FIRST: '$HOME', SECOND: 'two' } }], { profiles: ['cratis/playwright'] });
     assert.deepEqual(selectedCorpusServers(fixture.project, fixture.corpus), {
-        servers: [{ id: 'playwright', command: 'npx', args: ['-y', '@playwright/mcp@0.0.83'], env: { FIRST: '$HOME', SECOND: 'two' } }], messages: [],
+        servers: [{ id: 'playwright', command: 'npx', args: ['-y', '@playwright/mcp@0.0.83'], env: { FIRST: '$HOME', SECOND: 'two' }, eager: true }], messages: [],
     });
 });
 
@@ -103,7 +103,7 @@ test('a duplicate id skips every entry with that id with one message', () => {
 test('mcpServers.<id>.enabled opts one server out; a non-boolean is an error for that server only', () => {
     const profiles = ['cratis/playwright', 'cratis/codescene'];
     const off = serversFixture([playwright, codescene], { profiles, mcpServers: { playwright: { enabled: false } } });
-    assert.deepEqual(selectedCorpusServers(off.project, off.corpus), { servers: [{ id: 'codescene', command: 'cs-mcp', args: [], env: {} }], messages: [] });
+    assert.deepEqual(selectedCorpusServers(off.project, off.corpus), { servers: [{ id: 'codescene', command: 'cs-mcp', args: [], env: {}, eager: true }], messages: [] });
     const invalid = serversFixture([playwright, codescene], { profiles, mcpServers: { playwright: { enabled: 'no' } } });
     const selection = selectedCorpusServers(invalid.project, invalid.corpus);
     assert.deepEqual(selection.servers.map(server => server.id), ['codescene']);
@@ -166,6 +166,89 @@ test('a selected server starts with its own connection and namespaced tools, and
     assert.deepEqual(result.content, [{ type: 'text', text: 'ran playwright' }]);
     run.bridge.dispose();
     assert.equal(run.active().includes('playwright_browser_navigate'), false);
+});
+
+const enableServer = (run: ReturnType<typeof harness>, server: string) => run.registered.get('cratis_enable_mcp')!.execute('call', { server }, undefined, undefined, run.context);
+
+test('selected servers are deferred by default: nothing starts and only cratis_enable_mcp is registered', async () => {
+    const run = harness(serversFixture([playwright, codescene], undefined, '1.0', true));
+    await run.bridge.refresh(run.context, true);
+    assert.deepEqual(run.launched, []);
+    assert.deepEqual([...run.registered.keys()], ['cratis_enable_mcp']);
+    assert.deepEqual((run.registered.get('cratis_enable_mcp')!.parameters as { properties: { server: { enum: string[] } } }).properties.server.enum, ['playwright', 'codescene']);
+});
+
+test('cratis_enable_mcp starts only the named server once and registers its namespaced tools', async () => {
+    const run = harness(serversFixture([playwright, codescene], undefined, '1.0', true));
+    await run.bridge.refresh(run.context, true);
+    const [first, second] = await Promise.all([enableServer(run, 'playwright'), enableServer(run, 'playwright')]);
+    assert.deepEqual(first, second);
+    assert.match(JSON.stringify(first.content), /next step.*playwright_browser_navigate/);
+    assert.match(JSON.stringify((await enableServer(run, 'playwright')).content), /already enabled/);
+    assert.deepEqual(run.launched.map(server => server.id), ['playwright']);
+    assert.deepEqual([...run.registered.keys()], ['cratis_enable_mcp', 'playwright_browser_navigate']);
+    assert.ok(run.active().includes('playwright_browser_navigate'));
+    const result = await run.registered.get('playwright_browser_navigate')!.execute('call', {}, undefined, undefined, run.context);
+    assert.deepEqual(result.content, [{ type: 'text', text: 'ran playwright' }]);
+    await run.bridge.refresh(run.context, false);
+    assert.equal(run.launched.length, 1, 'an unchanged selection keeps the activated server');
+    run.bridge.dispose();
+});
+
+test('a new-session refresh keeps an enabled deferred server paused and a later enable reactivates its tools', async () => {
+    const run = harness(serversFixture([playwright, codescene], undefined, '1.0', true));
+    await run.bridge.refresh(run.context, true);
+    await enableServer(run, 'playwright');
+    await run.bridge.refresh(run.context, true);
+    assert.equal(run.active().includes('playwright_browser_navigate'), false, 'the stopped server is not callable');
+    await enableServer(run, 'playwright');
+    assert.ok(run.active().includes('playwright_browser_navigate'));
+    await enableServer(run, 'playwright');
+    await run.bridge.refresh(run.context, true);
+    await enableServer(run, 'playwright');
+    assert.ok(run.active().includes('playwright_browser_navigate'), 'refresh, enable, refresh, enable leaves the tools usable');
+    const result = await run.registered.get('playwright_browser_navigate')!.execute('call', {}, undefined, undefined, run.context);
+    assert.deepEqual(result.content, [{ type: 'text', text: 'ran playwright' }]);
+    run.bridge.dispose();
+});
+
+test('mcpServers.<id>.eager starts that server at refresh while the others stay deferred; a non-boolean skips only that server', async () => {
+    const profiles = ['cratis/playwright', 'cratis/codescene'];
+    const run = harness(serversFixture([playwright, codescene], { profiles, mcpServers: { playwright: { eager: true } } }, '1.0', true));
+    await run.bridge.refresh(run.context, true);
+    assert.deepEqual(run.launched.map(server => server.id), ['playwright']);
+    assert.deepEqual([...run.registered.keys()], ['cratis_enable_mcp', 'playwright_browser_navigate']);
+    const invalid = serversFixture([playwright, codescene], { profiles, mcpServers: { playwright: { eager: 'yes' } } }, '1.0', true);
+    const selection = selectedCorpusServers(invalid.project, invalid.corpus);
+    assert.deepEqual(selection.servers.map(server => [server.id, server.eager]), [['codescene', false]]);
+    assert.match(selection.messages.join('\n'), /eager must be a boolean/);
+});
+
+test('a failed enable is a tool error and a later enable retries', async () => {
+    const behaviors: Record<string, 'ok' | 'exit'> = { codescene: 'exit' };
+    const run = harness(serversFixture([codescene], { profiles: ['cratis/codescene'] }, '1.0', true), behaviors);
+    await run.bridge.refresh(run.context, true);
+    await assert.rejects(enableServer(run, 'codescene'), /'codescene' is unavailable/);
+    behaviors.codescene = 'ok';
+    assert.match(JSON.stringify((await enableServer(run, 'codescene')).content), /codescene_browser_navigate/);
+    assert.equal(run.launched.length, 2);
+});
+
+test('enabling a server whose tool name is already taken skips it with a message', async () => {
+    const first = { ...codescene, id: 'a_b' };
+    const second = { ...playwright, id: 'a' };
+    const run = harness(serversFixture([first, second], { profiles: ['cratis/codescene', 'cratis/playwright'] }, '1.0', true));
+    run.setTools({ a_b: ['x'], a: ['b_x'] });
+    await run.bridge.refresh(run.context, true);
+    await enableServer(run, 'a_b');
+    assert.match(JSON.stringify((await enableServer(run, 'a')).content), /'a' tool 'b_x' was skipped/);
+    assert.equal(run.registered.get('a_b_x')!.label, 'a_b x');
+});
+
+test('cratis_enable_mcp refuses an id that is not deferred', async () => {
+    const run = harness(serversFixture([playwright], { profiles: ['cratis/playwright'] }, '1.0', true));
+    await run.bridge.refresh(run.context, true);
+    await assert.rejects(enableServer(run, 'codescene'), /not deferred/);
 });
 
 test('nothing starts without a selected server profile', async () => {
