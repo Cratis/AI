@@ -12,24 +12,36 @@ WORK="$SCRATCH_ROOT"
 mkdir -p "$WORK/home" "$WORK/bin" "$WORK/observations"
 export HOME="$WORK/home"
 REAL_JQ="$(command -v jq)"
-export REAL_JQ
+REAL_STAT="$(command -v stat)"
+export REAL_JQ REAL_STAT
+mkdir -p "$WORK/tmpfs"
+cat > "$WORK/bin/stat" <<'STUB'
+#!/usr/bin/env bash
+if [[ "$1 $2 $3" == '-f -c %T' ]]; then
+    [[ "$4" == "${DIRECT_SECRETS_FILE%/*}" ]] && { echo tmpfs; exit 0; }
+    echo ext4
+    exit 0
+fi
+exec "$REAL_STAT" "$@"
+STUB
+chmod +x "$WORK/bin/stat"
 export PATH="$WORK/bin:$PATH"
 export FIXTURE_ARGV_LOG="$WORK/observations/argv.log"
 
-for function in load_secrets agent_credential_environment exec_agent_with_credentials prepare_mcp_credentials; do
+for function in load_secrets credential_scratch_dir agent_credential_environment exec_agent_with_credentials prepare_mcp_credentials; do
     eval "$(awk -v fn="$function" '$0 ~ "^" fn "\\(\\)" { inside=1 } inside { print } inside && /^[})]$/ { exit }' "$ENTRYPOINT")"
 done
 log() { :; }
 fail() { echo "FAIL: $1" >&2; exit 1; }
 
 # Synthetic values only. Start exported to cover inherited export attributes as well as new values.
-NAMES='DIRECT_CALLBACK_TOKEN DIRECT_CONTEXT_MCP_TOKEN EXA_API_KEY CONTEXT7_API_KEY GITHUB_TOKEN DIRECT_CLONE_CREDENTIALS ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN OPENAI_API_KEY AZURE_OPENAI_API_KEY DIRECT_PROVIDER_API_KEY COPILOT_GITHUB_TOKEN ZAI_API_KEY DIRECT_PI_OAUTH_CREDENTIAL'
-DIRECT_SECRETS_FILE="$WORK/credentials"
+NAMES='DIRECT_CALLBACK_TOKEN DIRECT_CONTEXT_MCP_TOKEN EXA_API_KEY CONTEXT7_API_KEY GITHUB_TOKEN DIRECT_CLONE_CREDENTIALS ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN OPENAI_API_KEY AZURE_OPENAI_API_KEY DIRECT_PROVIDER_API_KEY COPILOT_GITHUB_TOKEN ZAI_API_KEY DIRECT_PI_OAUTH_CREDENTIAL DIRECT_KUBECONFIG'
+export DIRECT_SECRETS_FILE="$WORK/tmpfs/credentials"
 for name in $NAMES; do
     export "$name=fixture-${name}"
     printf '%s=%s\n' "$name" "fixture-${name}" >> "$DIRECT_SECRETS_FILE"
 done
-touch "$WORK/secrets.ready"
+touch "$WORK/tmpfs/secrets.ready"
 load_secrets
 [[ "$DIRECT_CALLBACK_TOKEN" == fixture-DIRECT_CALLBACK_TOKEN ]] || fail 'parent lost its callback value'
 read -r -a credential_names <<< "$NAMES"
@@ -46,7 +58,7 @@ printf 'agent argv: %s\n' "$*" >> "$FIXTURE_ARGV_LOG"
 ps -p "$$" -o command= >> "$FIXTURE_ARGV_LOG"
 ps -p "$PPID" -o command= >> "$FIXTURE_ARGV_LOG"
 [[ -z "${FIXTURE_AGENT_PID_FILE:-}" ]] || printf '%s\n' "$$" > "$FIXTURE_AGENT_PID_FILE"
-for name in DIRECT_CALLBACK_TOKEN DIRECT_CONTEXT_MCP_TOKEN EXA_API_KEY CONTEXT7_API_KEY GITHUB_TOKEN DIRECT_CLONE_CREDENTIALS DIRECT_PI_OAUTH_CREDENTIAL; do
+for name in DIRECT_CALLBACK_TOKEN DIRECT_CONTEXT_MCP_TOKEN EXA_API_KEY CONTEXT7_API_KEY GITHUB_TOKEN DIRECT_CLONE_CREDENTIALS DIRECT_PI_OAUTH_CREDENTIAL DIRECT_KUBECONFIG; do
     [[ -z "${!name+x}" ]] || exit 1
 done
 for name in ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN OPENAI_API_KEY AZURE_OPENAI_API_KEY DIRECT_PROVIDER_API_KEY COPILOT_GITHUB_TOKEN ZAI_API_KEY; do
@@ -119,6 +131,7 @@ export DIRECT_CONTEXT_MCP_URL='https://context.example/mcp'
 configuration=$(awk '/^run_claude_code\(\)/ { fn=1 } fn && /prepare_mcp_credentials \|\|/ { inside=1 } inside && /^    PIPE=/ { exit } inside { print }' "$ENTRYPOINT")
 [[ -n "$configuration" ]] || fail 'configuration block was not found'
 eval "$configuration"
+[[ "$MCP_CREDENTIAL_DIR" == "$WORK/tmpfs/"* ]] || fail 'MCP credential files are not on the selected tmpfs'
 cp "$MCP_CONFIG" "$WORK/observations/mcp-config.json"
 jq -e '.mcpServers.context.command == "node" and .mcpServers.exa.command == "node" and .mcpServers.context7.command == "node" and (.mcpServers.direct_progress.env | has("DIRECT_CALLBACK_TOKEN") | not)' "$MCP_CONFIG" >/dev/null
 node - "$MCP_CREDENTIAL_DIR" "$WORK/observations" <<'NODE'
@@ -135,4 +148,7 @@ for (const file of fs.readdirSync(observations)) {
     assert.ok(!/fixture-[A-Z_]+/.test(fs.readFileSync(`${observations}/${file}`, 'utf8')), `Credential canary in ${file}`);
 }
 NODE
+if find "$HOME" -type f -exec grep -l 'fixture-' {} + | grep -q .; then
+    fail 'a regular file under HOME contains a credential canary'
+fi
 echo '  PASS: private MCP files receive credentials without copying them into argv, reports, logs or client configuration'

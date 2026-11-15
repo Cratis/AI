@@ -71,6 +71,8 @@ check_contains() {
 ORDER_FILE="$WORK/order"
 REPORT_FILE="$WORK/report"
 log() { printf '[agent-harness] %s\n' "$*"; }
+# Storage selection is covered by credential-files-on-tmpfs.sh.
+credential_scratch_dir() { printf '%s\n' "$WORK"; }
 report() { printf '%s\n' "report $*" >> "$ORDER_FILE"; printf '%s\n' "$*" > "$REPORT_FILE"; }
 push_workspaces() { printf 'push\n' >> "$ORDER_FILE"; [[ "${PUSH_FAIL:-0}" != 1 ]]; }
 claude_cpu_seconds_from_time_file() { printf '0'; }
