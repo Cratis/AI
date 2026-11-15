@@ -5,6 +5,8 @@ import { lstatSync, readFileSync, readlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import type { AuthoringFinding } from './AuthoringFinding.ts';
 import type { InstructionDependencyReport } from './InstructionDependencyReport.ts';
+import type { InstructionDependencySource } from './InstructionDependencySource.ts';
+import type { LogicalInstructionLine } from './LogicalInstructionLine.ts';
 import { comparisonGit, instructionMergeBase } from './git-base.ts';
 
 /** Include canonical instructions, executable hooks/configuration and the repository's native adapters. */
@@ -35,37 +37,62 @@ class BlockContext {
     private argumentsList = false;
 
     /** Whether the logical line is a dependency or source claim, given the context entering it; then closes any block it ends. */
-    inspect(text: string): boolean {
+    inspect(line: LogicalInstructionLine): boolean {
+        this.openBlocks(line);
+        const suspicious = this.isSuspicious(line);
+        this.closeBlocks(line);
+        return suspicious;
+    }
+
+    private openBlocks({ text }: LogicalInstructionLine): void {
         if (/["'](?:devDependencies|peerDependencies|optionalDependencies|dependencies)["']\s*:\s*\{/.test(text)) this.dependencies = true;
         if (/^\s*(?:}|\[(?!\s*["']))/.test(text)) { this.launcher = false; this.argumentsList = false; }
         if (commandKey.test(text)) this.launcher = mcpCommand.test(text);
         if (this.launcher && argumentsKey.test(text)) this.argumentsList = true;
-        const suspicious = isDependencyClaim(text)
-            || (this.argumentsList && /["'][^"']+["']/.test(text))
-            || (this.dependencies && /["'][^"']+["']\s*:/.test(text));
+    }
+
+    private isSuspicious(line: LogicalInstructionLine): boolean {
+        return isDependencyClaim(line)
+            || (this.argumentsList && /["'][^"']+["']/.test(line.text))
+            || (this.dependencies && /["'][^"']+["']\s*:/.test(line.text));
+    }
+
+    private closeBlocks({ text }: LogicalInstructionLine): void {
         if (this.dependencies && /}/.test(text)) this.dependencies = false;
         if (this.argumentsList && /\]/.test(text)) this.argumentsList = false;
-        return suspicious;
     }
 }
 
-function isDependencyClaim(text: string): boolean {
+function isDependencyClaim({ text }: LogicalInstructionLine): boolean {
     return install.some(pattern => pattern.test(text)) || source.test(text) || declaration.test(text) || mcpCommand.test(text);
 }
 
 /** Inspect only added lines, retaining unchanged surrounding dependency blocks and continued shell commands. */
 export function instructionDependencyFindings(file: string, content: string, added: Set<number>): AuthoringFinding[] {
-    const findings: AuthoringFinding[] = [];
-    const lines = content.split(/\r?\n/);
-    const context = new BlockContext();
+    return sourceFindings({ file, lines: content.split(/\r?\n/), added });
+}
+
+function* logicalLines({ lines }: InstructionDependencySource): Generator<LogicalInstructionLine> {
     for (let index = 0; index < lines.length; index++) {
         const first = index;
         while (/\\\s*$/.test(lines[index]) && index + 1 < lines.length) index++;
-        const text = lines.slice(first, index + 1).join('\n').replace(/\\\s*\n/g, ' ');
-        if (!context.inspect(text)) continue;
-        for (let line = first + 1; line <= index + 1; line++) {
-            if (added.has(line)) findings.push({ file, line, rule: 'instruction-dependencies', matchedText: lines[line - 1].trim() });
-        }
+        yield { first, last: index, text: lines.slice(first, index + 1).join('\n').replace(/\\\s*\n/g, ' ') };
+    }
+}
+
+function addedFindings({ file, lines, added }: InstructionDependencySource, logical: LogicalInstructionLine): AuthoringFinding[] {
+    const findings: AuthoringFinding[] = [];
+    for (let line = logical.first + 1; line <= logical.last + 1; line++) {
+        if (added.has(line)) findings.push({ file, line, rule: 'instruction-dependencies', matchedText: lines[line - 1].trim() });
+    }
+    return findings;
+}
+
+function sourceFindings(source: InstructionDependencySource): AuthoringFinding[] {
+    const findings: AuthoringFinding[] = [];
+    const context = new BlockContext();
+    for (const line of logicalLines(source)) {
+        if (context.inspect(line)) findings.push(...addedFindings(source, line));
     }
     return findings;
 }
