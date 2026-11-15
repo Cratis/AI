@@ -3,9 +3,9 @@
   "queries": [
     { "query": "we need a rebuild-catalog task in our Orleans silo that survives restarts and runs steps in parallel. should that be a Job with job steps?", "shouldTrigger": true },
     { "query": "job step PerformStep mutates the state snapshot but after restart the progress is gone", "shouldTrigger": true },
-    { "query": "index repair must finish before the catalog rebuild starts, but the repair steps can run in parallel. how do I order them with Cratis.Orleans?", "shouldTrigger": true },
+    { "query": "index repair must finish before the catalog rebuild starts, but the repair steps can run in parallel. how do I order them with Cratis.Choreography?", "shouldTrigger": true },
     { "query": "IJobsManager.Resume returned false and my code waited forever for a completion callback", "shouldTrigger": true },
-    { "query": "Do I have to create the SQL tables for Cratis.Orleans.Storage.Sql jobs by hand or does the provider do it?", "shouldTrigger": true },
+    { "query": "Do I have to create the SQL tables for Cratis.Choreography.Storage.Sql jobs by hand or does the provider do it?", "shouldTrigger": true },
     { "query": "our job step charges the payment provider and after a crash it charged twice. is exactly-once possible with these jobs?", "shouldTrigger": true },
     { "query": "completed job state is kept but I can't read the successful step's result later. where did it go?", "shouldTrigger": true },
     { "query": "how to set MaxParallelSteps and checkpoint intervals, Configure(options => options.MaxParallelSteps = 4) doesn't compile", "shouldTrigger": true },
