@@ -100,7 +100,7 @@ into an approval ceremony merely because this skill is available.
 11. **Point both ways; cite the new record only on new work.** The new record
     names the one it replaces in `supersedes`; the replaced record's `status`
     becomes `superseded` and it gains a `superseded-by` pointer forward, with
-    its original text preserved. Keep committed trailers and historical issue and
+    its original text preserved. Keep committed trailers and existing issue and
     pull request text as written: they record which decision governed that work,
     and updating a committed trailer means rewriting history, which
     `git-commits` forbids. Cite the new id on new commits and new work. For

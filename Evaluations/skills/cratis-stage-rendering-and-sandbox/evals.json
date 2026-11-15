@@ -17,14 +17,17 @@
     {
       "id": 2,
       "name": "behavior-walk-findings",
-      "prompt": "Our accepted model passes V3 and renders. A domain expert wants to walk each persona's commands in the sandbox to see what changes, and then fix whatever feels wrong directly in the generated code. How do you run it, what do you record, and what happens to the findings?",
-      "expected_output": "An optional walk after V3 on the sandbox's semantic engine, started with `cratis run`, which uses the semantic engine by default (or `--engine semantic` explicitly). Per persona, act then compare queries before and after; record findings such as an action that changes nothing visible, an empty screen nothing feeds, a to-do view that never empties, or an expected refusal the model lacks. Findings go to the model owner as edit requests or review findings; no code or Stage-managed edits, and it is not V4 or V5 evidence.",
+      "prompt": "Our accepted model passes V3 and renders. A domain expert wants to walk each persona's commands in the sandbox to see what changes, and then fix whatever feels wrong directly in the generated code. Teammates also ran plain `cratis run`, `cratis run --engine semantic` and `cratis run --engine eventmodel`; the last accepted a denied command. Which engine does each use and what may each conclude? How do you run the walk, what do you record, and what happens to the findings?",
+      "expected_output": "An optional walk after V3 on the sandbox's semantic engine, started with `cratis run`, which uses the semantic engine by default (or `--engine semantic` explicitly). Per persona, act then compare queries before and after; record findings such as an action that changes nothing visible, an empty screen nothing feeds, a to-do view that never empties, or an expected refusal the model lacks. Findings go to the model owner as edit requests or review findings; no code or Stage-managed edits, and it is not V4 or V5 evidence. Plain `cratis run` and `--engine semantic` use the semantic engine (the default of `cratis run` and Stage); explicit `--engine eventmodel` is the legacy engine, which enforces no authorization and only part of validation, so its acceptance is no denial evidence. Semantic sandbox answers still carry the unsigned-header caveat and are not completed verification.",
       "assertions": [
         "Treats the walk as optional after V3 and requires the model to admit and render, with Docker available.",
         "Runs the walk with `cratis run`, whose engine is semantic by default (or selected explicitly with `--engine semantic`), and does not require the obsolete direct-container workaround; scopes any lack of authorization or validation to an explicit legacy EventModel engine rather than to the default.",
         "Walks each persona by acting and then comparing what changed, recording evidence such as persona, steps, outcome and the model declaration involved.",
         "Names finding kinds such as an action with no visible change, a screen nothing feeds, a to-do view that never empties and a missing expected refusal.",
-        "Routes findings to the model owner as edit requests or review findings, rejects code fixes or edits of managed output, and does not report the walk as V4 or V5 evidence."
+        "Routes findings to the model owner as edit requests or review findings, rejects code fixes or edits of managed output, and does not report the walk as V4 or V5 evidence.",
+        "Says plain `cratis run` on the recorded CLI baseline and `--engine semantic` both use the semantic engine, without claiming `cratis run` has no engine option.",
+        "Says the explicit `--engine eventmodel` run is the legacy engine, which enforces no authorization and only part of modeled validation, so its accepted command is not evidence about denial.",
+        "Does not treat a semantic sandbox run alone as proof that every denial case was tested or as completed verification; keeps the unsigned-header caveat and points to Debug tests of a render."
       ]
     },
     {
@@ -63,18 +66,6 @@
         "Distinguishes Stage 4.109.0 restrictions from released 4.115.0 all-Proven unpinned specs, 4.117.0 warning/info rules, 4.118.0 checksum and 4.119.0 pattern/random factories with receipt-time dates and long ranges; generate rule stays -028, bad pins -011 and Unproven pins -038.",
         "Explains `cratis run --tag` changes only the sandbox image, not the renderer.",
         "Names explicit BeforeFirst whole-source scopes and atomic ConcurrencyViolation without append/response/retry, contrasts no-serialized-strategy Unguarded models even at v20, and distinguishes receipt-time from older wall-clock factories without claiming Debug execution."
-      ]
-    },
-    {
-      "id": 6,
-      "name": "engine-selection-and-limits",
-      "prompt": "Three teammates run the sandbox: A runs plain `cratis run ./model` with CLI 3.100.0, B runs `cratis run ./model --engine semantic`, C runs `cratis run ./model --engine eventmodel` and reports that a denied command was accepted. What engine does each use, and what may each conclude about authorization and validation? Reply only.",
-      "expected_output": "A and B both run the semantic engine (the default of `cratis run` and of Stage); the sandbox evaluates authorization and validation, but a sandbox answer is still not production authorization proof, since caller headers are unsigned. C runs the legacy EventModel engine, which enforces no authorization and only part of modeled validation, so its acceptance proves nothing; rerun on semantic or use Debug tests of a render. A behavior walk is not completed verification.",
-      "assertions": [
-        "Says plain `cratis run` on the recorded CLI baseline and `--engine semantic` both use the semantic engine, without claiming `cratis run` has no engine option.",
-        "Says the explicit `--engine eventmodel` run is the legacy engine, which enforces no authorization and only part of modeled validation, so its accepted command is not evidence about denial.",
-        "Qualifies authorization and validation limitations by engine instead of attributing them to the default.",
-        "Does not treat a semantic sandbox run alone as proof that every denial case was tested or as completed verification; keeps the unsigned-header caveat and points to Debug tests of a render."
       ]
     }
   ]
