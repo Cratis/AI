@@ -13,7 +13,7 @@
 - Chronological command date comparisons (ESM v26)
 - Flat composite read-model keys (ESM v27)
 - Uuid equality in command conditions (ESM v28)
-- Parsed, not runnable: clocks, calendars and time zones
+- Clocks, calendars and time zones (ESM v37)
 - Code attachments (what binds, what never does)
 - Refused (code, reason): fix, or record as a mode gap
 - Not refused, but do not rely on it
@@ -315,15 +315,21 @@ binding and reference execution. Read command-surface
 [Uuid equality](../../cratis-screenplay-command-surface/references/uuid-equality.md) for the
 complete example.
 
-## Parsed, not runnable: clocks, calendars and time zones
+## Clocks, calendars and time zones (ESM v37)
 
-Application-root `time zone` / `time zone configurable default`, command `calendar` /
-`calendar from $context.<member>`, specification `given time zone`, and the condition
-operands `today - 7 days`, `now + 2 hours`, `date of occurred` and `date of now` parse and
-print, but executable binding refuses them with PLAY0268 and they select no ESM version.
-Do not author them into executable models. PLAY0812, PLAY0813 and PLAY0814 are the
-syntax diagnostics (Requires Screenplay 4.242.0; `screenplay --version`). Bare `today` and
-`now` remain ordinary paths. Detail: command-surface `references/date-comparisons.md`.
+Requires Screenplay 5.5.0 (`screenplay --version`); older binders refuse them with PLAY0268.
+Application-root `time zone` / `time zone configurable default` and `context` time-zone
+members, command `calendar` / `calendar from $context.<member>`, specification
+`given time zone`, and the condition operands `today - 7 days`, `now + 2 hours`,
+`date of occurred` and `date of now` bind and execute in the reference evaluator, selecting
+ESM v37. They are admitted in command `validate`/`require`, `produces when` and `validate`
+comparison rules; a clock operand in a concept, reaction or screen is PLAY0268. A bare `today`
+or `now` is a clock operand unless a command property of that name shadows it. Consumers must
+admit v37 and evaluate the clock in the stated zone, or refuse the model. Stage admits 37.0 but
+refuses clock members per scope (`STAGE-ESM-016`: the commands and specifications that use
+them; every specification when an application zone or context member exists; the renderer
+refuses the model), so execution here is not rendering or clock-trigger realization. Detail: command-surface
+`references/date-comparisons.md`; admission: [language admission](language-admission.md).
 
 ## Code attachments (what binds, what never does)
 
@@ -403,7 +409,7 @@ standalone single-event reaction body (Requires Screenplay 4.258.0; see
 | `query` with a `by` block over a list, or `by ... from` context-derived arguments | PLAY0268 | a `by` block binds only on an optional single-instance query (v27). An optional scalar snapshot lookup, an unfiltered list (`RM[]`) and a list narrowed by one caller-supplied `by` key bind, in their `observable` form too |
 | Context `from`, single-result filters, `scoped to` | PLAY0268 | Typed query context, filtering of single results and opaque scope remain unadmitted; a `performer` query is not refused (PLAY0270 information, left out of the executable model); each refusal names its reason. Caller-supplied collection equality filters bind as v14. `observable` goes in the return position (`=> observable RM[]`); as a body line it is PLAY0048 |
 | `contains` or `starts with` in conditions only | PLAY0268 | conditions admit scalar equality (Uuid from v28) and numeric ordering, plus same-primitive command date comparisons from v26; property/concept text rules bind as v24 |
-| Date comparisons with mixed primitives, `$context` (including occurred), `today`, protected read paths, optional condition operands, concept rules or reaction `where` | PLAY0268 | v26 admits only command conditions and command/property literal validation rules |
+| Date comparisons with mixed primitives, `$context` (including occurred), protected read paths, optional condition operands, concept rules or reaction `where`; clock operands outside command conditions and `validate` comparison rules, clock against clock, a `today` offset in hours or minutes | PLAY0268 | v26 admits only command conditions and command/property literal validation rules; v37 adds the clock operands there |
 | Rule on a nested path (`lines.qty all > 0`) | PLAY0268 | put the rule on the nested value's concept |
 | Read paths without protected opt-in, or in `produces when` | PLAY0268 | v25 admits single-level paths only in `require` and produced-event mappings; a Uuid read path compared with `==`/`!=` follows the same positions |
 | Uuid comparison with `<`, `>`, different concepts, optional operands, a validation rule or a concept rule | PLAY0268 | v28 admits `==`/`!=` in command conditions only, between the same concept or a bare Uuid and a concept |
