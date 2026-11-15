@@ -35,6 +35,8 @@ still need binding and otherwise substitute their own slice. Inspect
 ambiguous identities; fix parse/placement errors first. Read the notes reference
 for refusals, `ambiguous: true`, typed targets and every `substitutions` entry.
 
+Read [storylines](references/storylines.md) to name a journey across modules, features and slices.
+
 ## Choosing a strategy
 
 Read [shop strategies and entropy](references/choosing-generation.md) before

@@ -22,6 +22,10 @@
 - Sinks (PLAY0931-PLAY0939)
 - Passive read models (PLAY0858-PLAY0860)
 - Graph queries and `foreach` (PLAY0878-PLAY0886)
+- Graph query `collect` (PLAY1144-PLAY1147)
+- Set once, dictionary keys and children ordering (PLAY0956-PLAY0963)
+- Development users (PLAY0888-PLAY0889)
+- Storylines (PLAY0940-PLAY0943)
 - Screen visuals and slice placements (PLAY0950-PLAY0955)
 - Structural completeness and timeline checks
 - Editor versus C# verdicts
@@ -439,6 +443,54 @@ codes PLAY0862-PLAY0877 are listed there too.
 | PLAY0884 | E | The same alias is used twice. |
 | PLAY0885 | E | It uses variable-length paths, `or`, ranges, functions or aggregates; none exist. |
 | PLAY0886 | E | A graph handler's `foreach` names a collection inside another, or something that is not a list of a composite type of the event. |
+
+## Graph query `collect` (PLAY1144-PLAY1147)
+
+Requires Screenplay 6.29.0 or later (`screenplay --version`); a collecting query selects ESM v54.
+Both compilers report these codes. The rules are in
+`../../cratis-screenplay-projections/references/graphs.md#collect-nested-rows`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| `PLAY1144` | E | A `collect` is malformed: not `<property> = collect <root> -[alias:]TYPE-> [alias:]Label` (or `<-[alias:]TYPE-`), not starting at the query's root, without row lines, or a row line that is not `<property> = <alias>.<property>`. |
+| `PLAY1145` | E | A `collect` does not fit the read model: the property is not `Row[]` or `Row optional` of a composite type, or a row assigns an unknown, duplicate or mistyped property or leaves a required one out. |
+| `PLAY1146` | E | A `collect` is nested inside another; collect from the root in a collect of its own. |
+| `PLAY1147` | E | The query does not have the shape of a view: one `match <alias>:<Label>` of the root alone, scalar returns from the root, and no `where` condition on a collected edge. |
+
+## Set once, dictionary keys and children ordering (PLAY0956-PLAY0963)
+
+Requires Screenplay 6.9.0 or later (`screenplay --version`). Rules and fixes: `../../cratis-screenplay-projections/references/dictionaries-and-ordering.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| PLAY0956 | E | `remove <target>` without a dynamic key; end the target in `.$eventContent.<property>`, `.$eventContext.<path>` or `.$causedBy.<member>`, or use `clear` to empty the property. |
+| PLAY0957 | E | `.$eventContent` names no event property, or `.$causedBy` names a member other than `subject`, `name`, `userName`. |
+| PLAY0958 | E | A children ordering line is malformed, has indented lines, or stands outside `children`. |
+| PLAY0959 | E | A `children` block declares more than one ordering line. |
+| PLAY0960 | W | `sort by` names a property the child type does not declare. |
+| PLAY0961 | W | A `.$eventContent` path the handled event does not have. |
+| PLAY0962 | W | A dynamic key writes into a declared read-model property; Screenplay has no dictionary type. |
+| PLAY0963 | E | `clear` with a dynamic key; write `remove`. |
+
+## Development users (PLAY0888-PLAY0889)
+
+Requires Screenplay 5.11.0 or later (`screenplay --version`). See `../../cratis-screenplay-command-surface/references/policy-persona-seed.md#users`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| `PLAY0888` | E | A `user` plays a persona that no `persona` declaration names. |
+| `PLAY0889` | E | Two `user` declarations carry the same name. |
+
+## Storylines (PLAY0940-PLAY0943)
+
+Requires Screenplay 6.6.0 or later (`screenplay --version`). Authoring metadata; see `../../cratis-screenplay-model-authoring/references/storylines.md`.
+
+| Code | Severity | Meaning / fix |
+| --- | --- | --- |
+| `PLAY0940` | E | A `storyline` declaration is not `storyline <Name> ["<title>"]`. |
+| `PLAY0941` | E | A step is not `<kind> <reference> ["<note>"]`, has an unknown kind, or has a nested line. |
+| `PLAY0942` | W | A step names an element that no declaration of that kind matches; remove it or point it at its replacement. An ambiguous step is `PLAY0198`: qualify it. |
+| `PLAY0943` | E | Two storylines carry the same name. |
 
 ## Screen visuals and slice placements (PLAY0950-PLAY0955)
 

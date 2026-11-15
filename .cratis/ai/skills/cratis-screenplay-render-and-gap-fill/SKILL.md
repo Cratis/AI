@@ -217,6 +217,7 @@ whole re-render. What to do:
 - Screens reported as `PLAY0269` are information that the backend profile defers them. They are not
   proof of a rendered screen: check the running app (`cratis-screenplay-toolchain` `references/fast-path.md`)
   and list any authored screen that is missing as not rendered.
+- Scope a re-render with `screenplay diff --format json` (`slices`, `modelWide`); other stacks read ESM v42 or `--format ui`: [exports](references/renderability-gate.md#cli-exports-and-diffs).
 
 ## Gate
 

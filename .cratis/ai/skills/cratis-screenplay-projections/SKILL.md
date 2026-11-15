@@ -201,6 +201,7 @@ nested billingContact
 - **`nested <property>`** — a single nullable object. It **must** contain at least
   one `from` (error `PLAY0067`), and `clear with <Event>` drops the whole object
   back to null. To clear one property instead, use a `clear <property>` mapping.
+- **Ordering, `set once` and dictionary keys**: a `children` block may carry `insert first` or `sort by <property>`; `set once` keeps a first value; a target may end in `.$eventContent.<path>`. See [dictionaries and ordering](references/dictionaries-and-ordering.md).
 
 ## Removal
 

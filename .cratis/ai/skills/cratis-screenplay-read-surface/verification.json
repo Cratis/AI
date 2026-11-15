@@ -37,6 +37,8 @@
     { "kind": "skill-contains", "value": "[passive read models](references/passive.md) before declaring one" },
     { "kind": "skill-contains", "value": "| `PLAY0859` | Error | A `query` returns a passive read model", "file": "references/passive.md" },
     { "kind": "skill-contains", "value": "Requires Screenplay 5.3.0", "file": "references/passive.md" },
-    { "kind": "skill-contains", "value": "[graph queries](references/graph-queries.md)" }
+    { "kind": "skill-contains", "value": "[graph queries](references/graph-queries.md)" },
+    { "kind": "skill-contains", "value": "collect nested rows" },
+    {"kind":"skill-contains","value":"ESM v42"}
   ]
 }

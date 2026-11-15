@@ -6,6 +6,7 @@
 ## Contents
 
 - Version selection
+- ESM JSON Schemas
 - Compiler and target minimums
 - Construct guidance
 - Stage admission and execution
@@ -33,12 +34,19 @@ exact language/semantic pairs; binding, reference execution and rendering are se
 | v34 | A specification `then invokes <Command>` (decision 0115; PLAY0815/PLAY0816) | Writes `thenInvocations` only when present. When one is stated, the slice's recorded invocations must match in count and order, comparing only stated values; a refused invocation counts | Stage spec runner compares it; the Cratis renderer refuses models after v33 with `STAGE-ESM-016` |
 | v35 | Reserved for handler result contract v2 (decision 0119); no construct selects it | | |
 | v36 | `statemachine` and `workflow` declarations (decision 0124; PLAY0834-PLAY0851) | Serializes `stateMachines` and `workflows`; specifications run them; earlier models keep their version and bytes | Stage refuses v36 models with `STAGE-ESM-016` |
+| v42 | Screens admitted on request with `screenplay export --screens` (decision 0149) | Adds optional `screens` to each slice (data, actions, navigation, layout); screens are not a version selector by default and earlier models keep their bytes | Admission by Stage is separate; screens are not evidence a target renders them |
+| v43 | `set once` or a `children` ordering line (PLAY0956-PLAY0963) | Serializes the `setOnce` operation and `ordering`; earlier models keep their version and bytes | Admission by Stage is separate; a refusal means the model is not renderable yet |
 | v53 | `audience`, `availability` and `available` gates (decision 0162; PLAY1130-PLAY1141) | Serializes the gates; specifications and the reference evaluator treat every gate as available and report opaque `provide` sources as unsupported; earlier models keep their version and bytes | Admission by Stage is separate: a refusal such as `STAGE-ESM-016` means the model is not renderable yet, never a reason to drop the gate. See `../../cratis-screenplay-availability/SKILL.md` |
+| v54 | A graph query `collect` (decision 0163; PLAY1144-PLAY1147) | Serializes the collects on the query; earlier models keep their version and bytes | Admission by Stage is separate: a refusal means the model is not renderable yet, never a reason to drop the collect. Check `cratis render` |
 
 Constructs of decision 0098 with no executable-model content need no version: application-level hooks in a layout's actions outlet (`default <id> title "..." slice <Slice>` with an optional indented `authorize <Policy>`), and a capture over events that copies a list (`lines = $.lines`) or fans out with `children lines identified by sku`. Check `screenplay --version` against the release that admitted v29 and v30 before relying on them. Decision 0115 withdrew 0098's command specification that states the public event its outbound Translate slice publishes: a specification runs only its own slice, so the Translate slice states the public event in its own `when append` specification.
 
 Read-model property order is opt-in ESM 37.1 metadata: see
 [read-model property order](read-model-property-order.md).
+
+## ESM JSON Schemas
+
+Requires Screenplay 6.2.0 or later (`screenplay --version`). A JSON Schema (draft 2020-12) is published per released ESM version from 1.0 (v39 was never released) at `https://raw.githubusercontent.com/Cratis/Screenplay/main/Documentation/screenplay/esm/esm-v<major>.schema.json` (`.0` versions) or `.../esm-v<major>.<minor>.schema.json` (minors); pick it from the document's `semanticVersion`. A schema checks shape, not admission: a document that validates is well-formed, but only the Screenplay reader (and a consumer's admission rules) accepts it. Ajv needs `allowUnionTypes`. In .NET, `EsmJsonSchema.For(version)` returns the same text.
 
 ## Compiler and target minimums
 
@@ -58,7 +66,13 @@ Requires Screenplay 4.204.0 (ESM v27; `screenplay --version`) for composite read
 
 Requires Screenplay 4.205.0 (ESM v28; `screenplay --version`) for Uuid equality in command conditions; older binders report PLAY0268.
 
+Requires Screenplay 6.8.0 (ESM v42; `screenplay --version`) for screens in the executable model via `export --screens`.
+
+Requires Screenplay 6.9.0 (ESM v43; `screenplay --version`) for `set once` and children ordering.
+
 Requires Screenplay 6.26.0 (ESM v53; `screenplay --version`) for audiences, availabilities and gates, and 6.25.0 for `provide`; older compilers report the lines as unknown.
+
+Requires Screenplay 6.29.0 (ESM v54; `screenplay --version`) for graph query `collect`; older compilers do not admit it.
 
 Current renderer versus semantic-execution support is owned by
 [Stage target boundaries](../../cratis-stage-rendering-and-sandbox/references/current-boundaries.md),

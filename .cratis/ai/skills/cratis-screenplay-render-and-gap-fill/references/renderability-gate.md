@@ -80,6 +80,14 @@ generated values/responses Stage#175 (now render on the pinned bundle). Closed: 
 Stage#178, ESM v7 Stage#201. Check that an issue is still open before citing
 it, and cite only numbers you have just read. A closed issue is a trigger to probe again.
 
+## CLI exports and diffs
+
+- `screenplay diff <before> <after> --format json` finds what changed between two model versions; `screenplay export --scope <slice>` hands one slice's ESM to a builder ([CLI reference](../../cratis-screenplay-toolchain/references/model-export-diff-rename.md)).
+- After a model change, read `slices` (MCP `semantic-diff`, `ModelDifference.Slices` or `screenplay diff --format json`) to choose the slices to re-render or re-gap-fill; a non-empty `modelWide` may affect every slice.
+- A builder for another stack can read screens from an ESM v42 export (`screenplay export --screens`; .NET `UiContractBuilder.For(model)`); refresh, state, notifications and dialogs are not carried.
+- A builder for another stack reads routes and payloads from `screenplay export --format openapi` and screens from `--format ui` instead of copying a renderer's conventions ([formats](../../cratis-screenplay-toolchain/references/model-export-diff-rename.md#openapi-and-ui-contract-formats)).
+- A graph query that `collect`s nested rows is ESM v54: Stage must admit v54 before it renders it. A refusal is a drift event, so keep the query ([graphs](../../cratis-stage-rendering-and-sandbox/references/graphs.md)).
+
 ## Reference outcomes
 - The complete marina model of `cratis-stage-rendering-and-sandbox` `references/render-example.md`:
   admission ok, Debug build ok and its tests passed on the public CLI.
