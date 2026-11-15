@@ -45,8 +45,10 @@ servers. Deselecting/uninstalling removes only unchanged owned entries. Foreign
 or modified entries remain conflicts, even with force. Resolve a conflict by
 intentionally renaming/removing your entry or disabling that server with
 `mcpServers.<id>.enabled = false` in the project configuration; do not overwrite
-it speculatively. Pi supports only Screenplay through its native extension and
-reports other servers unsupported. An invalid selected descriptor is reported
+it speculatively. In Pi, the native extension registers a selected server's tools on
+demand: the model calls `cratis_enable_mcp` with the server id and the tools appear from
+the next step. `mcpServers.<id>.eager = true` (Pi only, boolean) registers them at
+session start instead. An invalid selected descriptor is reported
 and skipped; successful guidance installation does not prove MCP availability.
 Installing a server does not authorize its tools or commands.
 

@@ -132,7 +132,7 @@ for (const [profile, language] of [
     ['cratis/application/chronicle-dotnet', 'csharp'],
 ]) {
     test(`${profile} selects Screenplay without a model or configured root`, t => {
-        const fixture = projectFixture({ profiles: [profile], languages: [language] }, distributedCorpus);
+        const fixture = projectFixture({ profiles: [profile], languages: [language] }, distributedCorpus, []);
         assertApplicationConsumer(t, fixture);
         assert.equal(existsSync(join(fixture.project, 'Screenplay')), false);
         assert.equal(existsSync(join(fixture.project, 'Source')), false);
