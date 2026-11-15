@@ -253,3 +253,19 @@ test('published-contracts is a universal, path-scoped, generic rule that general
         assert.ok(readFileSync(join(corpus, path), 'utf8').includes('published-contracts.md'), path);
     }
 });
+
+test('observability is a universal rule scoped to telemetry files only', () => {
+    const fields = frontmatter(readFileSync(join(corpus, 'rules/observability.md'), 'utf8'));
+    assert.ok(!fields.has('profile'), 'observability.md reaches every repository, so it carries no profile');
+    assert.ok(fields.get('paths')?.length, 'observability.md has Claude paths');
+    assert.ok(!fields.get('applyTo')?.includes('**/*'), 'observability.md has narrow Copilot scope');
+    const project = workspace(true);
+    try {
+        assert.ok(!universalRules(project).some(rule => rule.name === 'observability.md'), 'observability.md is not always-on');
+        const selected = (path: string) => rulesForPath(project, path).some(rule => rule.name === 'observability.md');
+        for (const path of ['Source/X/OrderMetrics.cs', 'Source/X/OrderTraces.cs', 'Source/X/Telemetry/Foo.cs', 'web/observability.ts', 'Foo.Observation.kt', 'Foo.Observation.java']) assert.ok(selected(path), path);
+        for (const path of ['Source/X/Order.cs', 'README.md']) assert.ok(!selected(path), path);
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
