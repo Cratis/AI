@@ -39,11 +39,11 @@
       "id": 4,
       "name": "recoverable-jobs-ownership",
       "prompt": "Without calling tools, a user wants a long import that resumes after a silo restart and suggests Orleans DurableJobs or Journaling. Who owns this and what do you say?",
-      "expected_output": "Defer recoverable job work to cratis-orleans-jobs; DurableJobs/Journaling are experimental and not interchangeable with Cratis.Orleans jobs.",
+      "expected_output": "Defer recoverable job work to cratis-orleans-jobs; DurableJobs/Journaling are experimental and not interchangeable with Cratis.Choreography jobs.",
       "assertions": [
         "Names cratis-orleans-jobs as the owner of recoverable job work.",
         "States DurableJobs and Journaling are experimental.",
-        "States they are not interchangeable with Cratis.Orleans jobs."
+        "States they are not interchangeable with Cratis.Choreography jobs."
       ]
     },
     {
