@@ -4,8 +4,9 @@ This repository ships two things from one source of truth:
 
 - **`Cratis.AI` (NuGet)** is the backend package: AI providers, pools, tiers,
   concurrency, conversations, agents, worker/harness scheduling, and usage.
-  Add it with `dotnet add package Cratis.AI`; backend documentation starts at
-  [Documentation/index.md](./Documentation/index.md).
+  Add it with `dotnet add package Cratis.AI`; the
+  [backend quick start](./Documentation/backend-quick-start.md) takes you to a first chat call,
+  and backend documentation starts at [Documentation/index.md](./Documentation/index.md).
 - **The Cratis AI corpus and tooling** are the canonical set of rules, agents,
   prompts, and skills used when building with or contributing to Cratis, plus the
   tools that install and verify them.
@@ -14,7 +15,7 @@ This repository ships two things from one source of truth:
 
 | You want to | Start here |
 | --- | --- |
-| Use the backend package in an application | [Documentation index](./Documentation/index.md), then [Architecture](./Documentation/architecture.md) |
+| Use the backend package in an application | [Backend quick start](./Documentation/backend-quick-start.md), then the [Documentation index](./Documentation/index.md) and [Architecture](./Documentation/architecture.md) |
 | Give a repository the rules, agents, prompts, and skills | [Managed installation](#managed-installation) below |
 | Use the corpus from a single harness | [Native plugins](#native-plugins) below |
 
