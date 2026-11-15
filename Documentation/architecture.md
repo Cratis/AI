@@ -10,17 +10,21 @@ package (`IsPackable=false`).
 ```text
 Abstractions/    the seams a consumer implements - never references Direct.* or Studio.*
 Common/          cross-cutting concepts and helpers (WeekKey, MonthKey, ModelName, command-pipeline helpers)
+Harnesses/       the CLI harness a job session runs under (Harness: Claude, Pi, Copilot)
 Agents/          agent identity, causation, and the IAgentExecution scope
 LanguageModels/  the single-shot completion contract (ILanguageModel, IVisionLanguageModel for image input, LanguageModelResult, ManagedLanguageModel)
 Providers/       provider vocabulary, vendor clients, pools, tiers, resolution
 Usage/           the usage subsystem: concepts, the event, the command, the read models
+Decisions/       bounded decisions (IDecisions): context in, a probability distribution over the caller's choices out
 Workers/         worker/harness scheduling contract (IWorkerRuntime) and its Docker and Kubernetes runtimes
 Conversations/   the conversational API: IAIChatClients hands out pooled IChatClients (multi-turn, streaming, tool calls)
 Configuration/   AddCratisAI() and the builder consumers configure seams through
 ```
 
 Each layer only depends on the ones above it in this list. `Abstractions/` has no dependency on
-anything else in the package; `Conversations/` depends on `Providers/` for
+anything else in the package; `Harnesses/` has none either, and `Agents/`, `Providers/` and
+`Usage/` name a session's harness through it. `Decisions/` builds on `Common/` and records its own
+usage through `Usage/`. `Conversations/` depends on `Providers/` for
 resolution the same way `LanguageModels/` does.
 
 ### Conversations

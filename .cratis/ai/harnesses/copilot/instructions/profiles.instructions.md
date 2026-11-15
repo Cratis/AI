@@ -46,7 +46,9 @@ Profiles determine which rules and skills apply to your work. They define the sc
 
 ## Profile Catalog
 
-The complete list of available profiles is defined in [profile-catalog.json](../../../profile-catalog.json). This catalog includes:
+The complete list of available profiles is defined in [profile-catalog.json](../../../profile-catalog.json).
+Every profile selection also delivers two baseline skills, `cratis-commits-and-pull-requests` and
+`cratis-rtk`; the tables below leave them out of each profile's skills. This catalog includes:
 
 ### Application Profiles
 
@@ -88,7 +90,7 @@ profile includes neither Screenplay nor Stage.
 | Profile ID | Description | Automatically Includes |
 |---|---|---|
 | `cratis/engineering` | Engineering conventions and workflows | `cratis/engineering/core`, `cratis/engineering/csharp`, `cratis/engineering/elixir`, `cratis/engineering/go`, `cratis/engineering/kotlin`, `cratis/engineering/react`, `cratis/engineering/typescript` |
-| `cratis/engineering/core` | Shared engineering method skills: `cratis-ci-pipeline-performance`, `cratis-documentation-writing`, `cratis-engineering-ci-gates`, `cratis-engineering-consolidation-guard`, `cratis-engineering-decision-record`, `cratis-engineering-docs-authoring`, `cratis-engineering-effect-boundaries`, `cratis-engineering-issue-hygiene`, `cratis-engineering-issue-design-note`, `cratis-engineering-local-cross-repo-verification`, `cratis-engineering-post-mortem`, `cratis-engineering-regression-cluster`, `cratis-engineering-release-trains`, `cratis-engineering-review-rounds`, `cratis-release-notes`, `cratis-session-handoff`, `cratis-technical-examples` | (no child profiles) |
+| `cratis/engineering/core` | Shared engineering method skills (besides the two baseline skills): `cratis-ci-pipeline-performance`, `cratis-documentation-writing`, `cratis-engineering-ci-gates`, `cratis-engineering-consolidation-guard`, `cratis-engineering-decision-record`, `cratis-engineering-docs-authoring`, `cratis-engineering-effect-boundaries`, `cratis-engineering-issue-hygiene`, `cratis-engineering-issue-design-note`, `cratis-engineering-local-cross-repo-verification`, `cratis-engineering-post-mortem`, `cratis-engineering-regression-cluster`, `cratis-engineering-release-trains`, `cratis-engineering-review-rounds`, `cratis-release-notes`, `cratis-session-handoff`, `cratis-technical-examples` | (no child profiles) |
 | `cratis/engineering/csharp` | C# engineering conventions, .NET engineering skills, and framework Orleans jobs (`cratis-orleans-jobs`, alongside `orleans.md`) | `cratis/engineering/core`, `cratis/engineering/dotnet` |
 | `cratis/engineering/dotnet` | Upstream .NET engineering workflows | `cratis/engineering/dotnet/performance`, `cratis/engineering/dotnet/diagnostics`, `cratis/engineering/dotnet/msbuild`, `cratis/engineering/dotnet/orleans`, `cratis/engineering/dotnet/testing`, `cratis/engineering/dotnet/refactoring` |
 | `cratis/engineering/dotnet/performance` | Microbenchmarking, performance patterns, SIMD, and profiling | (no child profiles) |
@@ -219,7 +221,7 @@ language policy always follows the consuming repository's `go.mod` minimum.
 | `cratis/content` | Release notes, social feed posts, voice review, content length, and developer marketing and distribution |
 | `cratis/review` | Code review, performance, security |
 | `cratis/codescene` | Opt-in CodeScene Code Health change gates, refactoring, debt prioritization and risk-based testing; requires an account and available MCP tools; each user registers the MCP server (see below) |
-| `cratis/playwright` | Opt-in Playwright browser automation MCP server declaration for exploratory checks; carries no skills or rules and each user registers the server (see below) |
+| `cratis/playwright` | Opt-in Playwright browser automation MCP server declaration for exploratory checks; carries no skills or rules beyond the two baseline skills, and each user registers the server (see below) |
 | `cratis/studio` | Studio MCP safety guidance |
 | `cratis/cli` | CLI operations, project environments and secrets |
 | `cratis/cli/terminal-workbench` | Human-operated terminal Workbench |
@@ -253,8 +255,8 @@ The MCP catalog has no install-hints field and does not install the executable.
 Select `cratis/playwright` explicitly to declare the `playwright` stdio server
 (`npx -y @playwright/mcp@0.0.83 --headless --isolated`) in `mcp-servers.json`.
 The flags keep the browser headless and isolated: no persistent profile, so no
-personal cookies or logins are reused. The profile carries no skills or rules, and
-no other profile composes it.
+personal cookies or logins are reused. The profile carries no skills or rules beyond the two
+baseline skills, and no other profile composes it.
 
 Today `cratis ai install` registers only Screenplay and Pi's `cratis-mcp` extension
 loads only Screenplay, so Playwright, like CodeScene, is not registered for you.

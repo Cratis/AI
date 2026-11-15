@@ -153,7 +153,7 @@ export const AddProject = ({ closeDialog }: DialogProps) => {
 };
 ```
 
-(If the app has a localization convention, route these labels through it — see [typescript.md](../rules/typescript.md). It is product policy, not a Cratis rule.)
+(If the app has a localization convention, route these labels through it — see the `typescript.md` rule. It is product policy, not a Cratis rule.)
 
 ### Non-command dialog — use `Dialog` from `@cratis/components/Dialogs`
 
