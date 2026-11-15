@@ -93,10 +93,14 @@ app.Run();
 - Give grain implementations a unique `[GrainType("unique-name")]`. Orleans'
   default type name derives from the class name alone; a collision across
   assemblies prevents silo startup.
-- Reminders deliberately use Orleans' in-memory service in both clustering
-  modes; they do not survive a full restart. Jobs rehydrate from durable jobs
-  storage and do not use reminders. Do not switch to the incompatible MongoDB
-  reminder table merely because clustering uses MongoDB.
+- Silos configured by `AddCratisOrleans` deliberately use Orleans' in-memory
+  reminder service in both clustering modes; their reminders do not survive a
+  full restart. Jobs rehydrate from durable jobs storage and do not use
+  reminders. Do not point such a silo at the MongoDB reminder table merely
+  because clustering uses MongoDB: that provider is a 9.x binary, and on the
+  10.x runtime it made the reminder service stop responding in these hosts. Hosts that build their own silo choose separately; the
+  Chronicle kernel uses MongoDB reminders with MongoDB storage and in-memory
+  reminders with in-memory storage.
 - `AddCratisOrleans` enables activity propagation itself. If a host keeps an
   explicit `AddActivityPropagation()` call, it must be **before**, never after,
   `AddCratisOrleans`, to avoid duplicate Orleans propagation filters/spans.
