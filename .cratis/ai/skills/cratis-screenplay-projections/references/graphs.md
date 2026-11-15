@@ -373,8 +373,9 @@ identified by label and key; edges by type, source, target and the `identified b
 
 ## What a graph projection cannot say
 
-`children`, `nested`, `join`, `all`, `clear with`, `remove via join`, `variant`, a
-projection-level `key` or `sequence`, and `automap` blocks are `PLAY0872`. There is
+`children`, `nested`, `join`, `all`, `clear with`, `variant`, a
+projection-level `key` or `sequence`, and `automap` blocks are `PLAY0872`;
+`remove via join` is read as a malformed removal and is `PLAY0873`. There is
 no engine-native block: whatever the language cannot say is not supported. The event
 model board, find-references and rename do not follow graph projections, so renaming
 an event leaves a graph projection reported as unknown.
