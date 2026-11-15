@@ -22,7 +22,8 @@
 What the binder admits, and what it refuses with which code, depends on the compiler: the
 standalone tool binds the newest ESM versions, while the compiler bundled in the CLI (and the
 renderer that uses it) admits through an older version. Operations, the `numbers exact`
-**source mode** (PLAY0268) remain unadmitted. Routes bind as
+**source mode** (PLAY0268) and systems in a model where none declares an ability remain
+unadmitted; any ability admits every system at v50. Routes bind as
 ESM v8, public/direction constructs as v9, identity/overrides/filters as v10, qualifying
 non-route Double literals (exact lowering of Double-mode literals) as v11, non-positional enum
 numbers as v12, concept compliance as v13, caller-supplied collection equality filters as v14,
@@ -420,7 +421,7 @@ standalone single-event reaction body (Requires Screenplay 4.258.0; see
 | `$eventContext.occurred.Week` | PLAY0273 | derived value |
 | Projection `parent p` where `p` is not on the child event | PLAY0273 | "Event property not found" |
 | `generated` or `returns` on an older compiler | PLAY0268 | admitted from ESM v7, see above |
-| Operations or systems, `numbers exact` source mode | PLAY0268 | not admitted by any supported ESM version; one such construct leaves the **whole** application without an executable model. Event sources/streams/routes instead bind as ESM v8 on the current compiler (`sources-and-streams.md`) |
+| Operations, systems when no system declares an ability, `numbers exact` source mode | PLAY0268 | not admitted by any supported ESM version (once any system declares an ability, all systems bind at v50); one such construct leaves the **whole** application without an executable model. Event sources/streams/routes instead bind as ESM v8 on the current compiler (`sources-and-streams.md`) |
 | Spec of a gated command or query without `given caller` | PLAY0389 | module and feature gates count |
 | `given` or `then readmodel` missing key parts | PLAY0351 | explicit `key` marks replace inference; composite fixtures need every part (v27) |
 | When-less spec asserting events or errors | PLAY0352 | |

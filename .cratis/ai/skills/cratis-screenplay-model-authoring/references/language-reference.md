@@ -23,7 +23,7 @@ repository is the full list; this page is the authoring summary.
 
 **Top level:** `domain`, `import`, `concept`, `type`, `policy`, `persona`, `user` (development identity; [users](../../cratis-screenplay-command-surface/references/policy-persona-seed.md#users)),
 `authentication`, `identity`, `purpose`, `storyline` (authoring-only; [storylines](storylines.md)), `trigger`, `design system` (one per application: `modes`, `default theme`, `tokens`, `components`, `words`, `rules`), `theme` (`implements`, `compatible with`, `palette`, `values`, a block per mode), `layout`, `ui profile`, `behavior`,
-`sink`, `module`, `seed`, authoring-only `system`, and admitted `eventsource` with its `stream`s (ESM v8).
+`sink`, `module`, `seed`, `system` (admitted at ESM v50 once any system declares an ability; otherwise authoring-only), and admitted `eventsource` with its `stream`s (ESM v8).
 
 **Inside a module:** `description`, `authorize`, `import "<glob>"`,
 `screen`/`dialog` templates, `form`, `contribute`, `on`/`uses` behavior
@@ -305,7 +305,7 @@ See read-surface `references/named-keys.md` for the collection-key exclusion alg
 | Binds as opaque code (v3); reference runner reports unsupported | Bodied reducers, bodied named rules, fenced `validate` blocks, code or file policies. A pure reducer body is the only attachment Stage admits |
 | Information only, never blocks | `persona` (report-only: `PLAY0270`, the policies it lists must exist), `authentication`, `onboarding` (see `cratis-screenplay-authentication-and-onboarding`), `domain`, `seed`, descriptions and `file` provenance. A persona does not block binding and does not change behavior, so state persona scope in a description or a policy the model uses |
 | Binds as ESM v7 (`PLAY0268` on a compiler that stops before v7) | `generated` properties and `returns` responses, generated fixtures and `then returns`: bound and executed by the reference runner; a policy, rule or requirement that references a generated value is `PLAY0273`, and generated-concept rules select v20 with PLAY0688/0689 proof diagnostics. Stage renders supported UUID/String strategies, scalar/named responses and fixtures; unsupported types/result combinations remain `-028`/`-038` |
-| Authorable, not executable (PLAY0268) | Systems/operations, the `numbers exact` source mode (PLAY0268; exact lowering of qualifying Double literals is the admitted v11) remain unadmitted |
+| Authorable, not executable (PLAY0268) | Operations, systems when no system declares an ability (any ability admits every system at v50), the `numbers exact` source mode (PLAY0268; exact lowering of qualifying Double literals is the admitted v11) remain unadmitted |
 | Concept generation strategies (ESM v15) | Required scalar generatable Uuid/String concepts; concept-owned uuid/uuidv7/ulid/typeid/nanoid/bytes strategies and admitted modifiers. Strict fixture encoding; Guarded whole-source freshness rejects Concurrency with no append/retry. Generated secrets and sequence remain refused; generated-concept rules select v20, pattern/random/rule and checksum validation select v21. Stage renders supported strategies: command-surface `references/generated-values-and-responses.md` |
 | Response-name UI continuations (no ESM change) | Form submit and execute-success scopes, own failure PLAY0685, nested shadowing and outer success in inner failure; field/parameter precedence. An older bundled compiler lacks resolution; Scene runtime binding remains downstream. UI composition `references/response-continuations.md` |
 | Collection equality filters (ESM v14) | Caller-supplied `filter name Type [optional]`, no `from`, matching a same-named scalar primitive/concept/enum read-model property with the same nominal type. AND with `by`; optional omission does not narrow, supplied null is refused. PLAY0468 covers unknown/repeated/missing required spec arguments; result rows compare by read-model/key regardless of order. Read read-surface `references/equality-filters.md` for the compiled example and renderer ceilings |
@@ -349,7 +349,7 @@ full historical shapes, not deployed-schema immutability or a working migrator.
 Code attachment/source-map support likewise does not prove code round-trip
 execution equivalence.
 
-Operations remain authorable/unadmitted (PLAY0268). Named event sources/streams
+Operations remain authorable/unadmitted (PLAY0268); systems are admitted once any system declares an ability. Named event sources/streams
 and routes bind and reference-execute as v8; reaction identity as v10.
 Use standalone `screenplay test` or MCP `run-specifications` for a reference
 verdict, and independently check CLI/Stage admission. Never drop a contract to bind.
