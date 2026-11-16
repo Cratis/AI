@@ -22,7 +22,7 @@ Every rule here serves **ease of use**, **productivity**, and **maintainability*
 - **Lovable APIs** — APIs should be pleasant to use: sane defaults, flexible, extensible, overridable. If an API feels awkward, it is wrong.
 - **Easy to do things right, hard to do things wrong** — convention over configuration; artifact discovery by naming/attributes; minimal boilerplate. The framework guides you into the pit of success.
 - **Events are facts** — immutable records of what happened. Past tense, one purpose, never ambiguous. If you reach for a nullable property on an event, you need a second event.
-- **Strongly-typed primitives are the foundation — get them right first.** The most important, load-bearing decisions in every slice are the domain primitives: `ConceptAs<T>` value types and `EventSourceId<T>` identities (never raw `Guid`/`string`/`int` for a domain value); `ConceptValidator<T>` for invariants that travel with a value everywhere it appears; `CommandValidator<T>` for command-level rules; and past-tense, self-describing `[EventType]` names. They make the model type-safe end to end, rules enforceable in one place and events trustworthy forever; a slice built on sloppy primitives is wrong however good the rest is.
+- **Strongly-typed primitives are the foundation — get them right first.** The most important, load-bearing decisions in every slice are the domain primitives: `ConceptAs<T>` value types and `EventSourceId<T>` identities (never raw `Guid`/`string`/`int` for a domain value); `ConceptValidator<T>` for invariants that travel with a value everywhere it appears; `CommandValidator<T>` for command-level rules; and past-tense, self-describing `[EventType]` names. They keep the model type-safe, rules enforceable in one place and events trustworthy; a slice on sloppy primitives is wrong however good the rest is.
 - **High cohesion through vertical slices** — everything for a behavior lives together: backend, frontend, specs. Navigate by feature, not by technical layer.
 - **Full-stack type safety** — shared models flow from C# through proxy generation to TypeScript. End-to-end typing without manual synchronization.
 - **Specialization over reuse** — focused, purpose-built read models over one model reused across conflicting scenarios.
@@ -96,8 +96,8 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 - **Check at the right frequency.** Run affected-project checks while iterating; a prompt ending is not task completion. Before claiming a task complete or pushing/opening a PR, run the full CI-equivalent gates required for that repository (including its Tier 1/2 policy where applicable). A change-selected hook gate is not a substitute for the repository's full CI matrix. After a fix, re-run the gate that failed. Don't argue yourself to green.
 - **Gate configuration:** shipped defaults `.cratis/ai/hooks/scripts/quality-gates.json`; project overrides `.cratis/ai/quality-gates.project.json` shallow-merge by gate id (command without requires drops inherited packageScripts). `CRATIS_HOOKS_GATES` replaces defaults; project overrides still apply.
 - **A green build is not behavioral correctness.** Compilation proves it builds, not that the slice does the right thing — that's what specs and exercising the UI are for.
-- **Report the conclusion and what you didn't verify, in a line or two.** Show the output when asked, when a claim is contested, or when the check failed — see [verification-discipline.md](./verification-discipline.md).
-
+- **Incidents:** analyse the cause first; choose the narrowest fix for it; state its cost and when it can be removed (**cratis-engineering-post-mortem**).
+- **Report the conclusion and what you didn't verify, in a line or two.** Show output when asked, contested or failed — see [verification-discipline.md](./verification-discipline.md).
 ---
 
 # Application profile
@@ -172,9 +172,9 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 
 - **Rules define invariants; skills define workflows.** A skill may refine how to apply a rule but must not contradict it. On conflict, follow the stricter invariant and fix the stale artifact.
 - The user's instructions take precedence over guidelines provided in a skill. This does not override safety rules or hooks; skills must still follow rules.
-- **Skills and rules are the authoritative answer.** If not answered there, ask. Don't infer Cratis behavior from package internals.
+- **Skills and rules are authoritative.** If unanswered, ask; don't infer Cratis behavior from package internals.
 - Only make high-confidence suggestions.
-- When a user asks how to get help, has a question not answered by the docs, or wants to discuss design, point them to the [Cratis Discord](https://discord.gg/kt4AMpV8WV); direct confirmed bugs to GitHub issues.
+- For help, unanswered questions or design discussion, point users to the [Cratis Discord](https://discord.gg/kt4AMpV8WV); direct confirmed bugs to GitHub issues.
 - In Cratis organization repositories (a `github.com/Cratis/<repo>` Git `origin`), update dependency manifests / lockfiles / `global.json` / NuGet config as needed for the task; avoid unrelated version churn and call out version bumps in the PR description. In other repositories, don't change them unless explicitly asked.
 - When asked to **ship** or **land** changes, use the **ship-changes** prompt (`.cratis/ai/prompts/ship-changes.prompt.md`); invoking it is what authorizes the branch → commits → push → PR → merge → cleanup chain it describes. A request to only commit, only push, or only open a PR authorizes exactly that step, under [Git commits](./git-commits.md) and [Pull requests](./pull-requests.md) — do not route it through ship-changes and do not add the later steps.
 
@@ -182,7 +182,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 
 - **American English** in all code, comments, and docs (initialize, behavior, color, serialize…).
 - Treat warnings as errors; never suppress warning output.
-- Reuse the active terminal for commands; create a new one only when the current one is busy or fails.
+- Reuse the active terminal; open a new one only when it is busy or fails.
 - All files start with the standard license header:
 
 ```csharp

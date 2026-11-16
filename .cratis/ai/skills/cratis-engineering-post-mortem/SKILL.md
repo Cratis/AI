@@ -90,6 +90,16 @@ to verify it; the
 checklist in the public-safe reference finds nothing. Zero violations is a
 pass.
 
+## Fix proportionately
+
+An error, failed run or production incident is first a question, not a mandate for new rules. Analyse it, then pick the narrowest change that addresses the analysed cause.
+
+- **Analyse first:** reproduce it or collect the evidence, find the root cause, and size it: how often, who is affected, the blast radius, and whether it is already fixed upstream.
+- **Separate containment from the fix.** Containment is temporary, reversible, scoped to the incident, and has an expiry or removal condition. The fix is the smallest change at the root cause.
+- **Prefer fixing the defect over adding policy.** A new rule, gate, ban, mandatory manual step or blanket hardening needs evidence that the failure recurs or is severe, a stated ongoing cost (what it slows or blocks for everyone), the narrower alternatives considered, an owner and a review condition. One incident is not a pattern.
+- **Never trade a rare failure for permanent friction** on every change or release. If the mitigation costs more than the failure it prevents, it is the wrong mitigation.
+- **Remove it when the cause is fixed.** Link the incident from the rule so a later reader can retire it.
+
 ## Pitfalls
 
 - **Hearsay as fact.** "Someone said" belongs in the unverified claims list until a
@@ -102,6 +112,9 @@ pass.
 - **A check that accepts any answer.** A smoke test or health check that cannot
   see the failing path, or that accepts the wrong status, is a detection gap;
   name it and assert the exact result.
+- **One incident, one blanket.** A new gate, ban or freeze for a single incident, with
+  no cost or removal condition. Pick the narrowest fix for the analysed cause; see
+  "Fix proportionately".
 - **A protective hold with no end.** A disabled job, a freeze or a manual
   override needs an owner, an expiry and something that watches it; otherwise
   the protection becomes the next incident. Prefer a gate that blocks the
