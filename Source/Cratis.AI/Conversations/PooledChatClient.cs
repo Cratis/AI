@@ -483,7 +483,7 @@ public sealed class PooledChatClient(
                 InputTokens: usage.InputTokenCount is { } input ? new InputTokens(input) : null,
                 OutputTokens: usage.OutputTokenCount is { } output ? new OutputTokens(output) : null,
                 CachedTokens: usage.CachedInputTokenCount is { } cached ? new CachedTokens(cached) : null);
-            using var systemScope = systemExecution.AsSystem();
+            using var systemScope = AIInternalExecution.Begin(systemExecution);
             await commandPipeline.ExecuteAndReport(command, logger);
         }
         catch (Exception exception)

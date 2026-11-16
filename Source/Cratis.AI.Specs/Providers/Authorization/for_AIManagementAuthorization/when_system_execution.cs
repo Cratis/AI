@@ -9,5 +9,5 @@ public class when_system_execution : given.a_management_policy
 {
     void Establish() => _principal = SystemPrincipal.WithRoles();
     Task Because() => Evaluate();
-    [Fact] void should_allow_access() => _authorized.ShouldBeTrue();
+    [Fact] void should_require_administrator_authority() => _authorized.ShouldBeFalse();
 }

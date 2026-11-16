@@ -13,8 +13,7 @@ public class when_checking_principals : Specification
     async Task Because()
     {
         var authority = new DenyAIAdministrators();
-        ClaimsPrincipal[] principals = [new(new ClaimsIdentity()), new(new ClaimsIdentity("test")), SystemPrincipal.WithRoles(), new(new ClaimsIdentity([new Claim(ClaimTypes.Role, "Administrator")], "test"))];
-        foreach (var principal in principals)
+        foreach (var principal in (ClaimsPrincipal[])[new(new ClaimsIdentity()), new(new ClaimsIdentity("test")), SystemPrincipal.WithRoles(), new(new ClaimsIdentity([new Claim(ClaimTypes.Role, "Administrator")], "test"))])
         {
             _results.Add(await authority.IsAdministrator(principal, CancellationToken.None));
         }

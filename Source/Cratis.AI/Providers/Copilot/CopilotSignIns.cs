@@ -68,7 +68,7 @@ public class CopilotSignIns(
 
     async Task WaitForAuthorization(AIProviderId provider, CopilotDeviceAuthorization authorization)
     {
-        using var systemScope = systemExecution.AsSystem();
+        using var systemScope = AIInternalExecution.Begin(systemExecution);
         try
         {
             var interval = TimeSpan.FromSeconds(authorization.IntervalSeconds);

@@ -115,8 +115,13 @@ public class SubscriptionCredentials(
             // would otherwise be spent by a container and lost, leaving the stored one retired at the
             // vendor - the exact dead end central refreshing exists to prevent.
             var recorded = refreshed.ToApiKey();
-            using var systemScope = systemExecution.AsSystem();
-            await commandPipeline.ExecuteAndReport(new RecordRefreshedOpenAISubscription(provider, recorded), logger);
+            using var systemScope = AIInternalExecution.Begin(systemExecution);
+            var result = await commandPipeline.ExecuteAndReport(new RecordRefreshedOpenAISubscription(provider, recorded), logger);
+            if (!result.IsSuccess)
+            {
+                return null;
+            }
+
             logger.RefreshedSubscriptionCredential(provider, refreshed.ExpiresAt);
             return recorded;
         }

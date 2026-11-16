@@ -107,7 +107,7 @@ public class ManagedLanguageModel(
                 CachedTokens: usage.CachedTokens,
                 CostUsd: usage.CostUsd,
                 Duration: usage.Duration);
-            using var systemScope = systemExecution.AsSystem();
+            using var systemScope = AIInternalExecution.Begin(systemExecution);
             await commandPipeline.ExecuteAndReport(command, logger);
         }
         catch (Exception ex)

@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.AI.Common;
 using Cratis.AI.Providers;
 using Cratis.Arc.Authorization;
 using Cratis.Arc.Http;
@@ -24,7 +25,7 @@ public class ManagementCommandScenario<TCommand> : CommandScenario<TCommand>
 
     public new async Task<CommandResult> Execute(TCommand command)
     {
-        using var systemScope = _systemExecution.AsSystem();
+        using var systemScope = AIInternalExecution.Begin(_systemExecution);
         return await base.Execute(command);
     }
 }

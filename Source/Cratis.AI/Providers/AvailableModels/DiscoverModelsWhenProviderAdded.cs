@@ -133,7 +133,7 @@ public class DiscoverModelsWhenProviderAdded(
 
     async Task Ask(EventContext context)
     {
-        using var scope = systemExecution.AsSystem();
+        using var scope = AIInternalExecution.Begin(systemExecution);
 
         var providerId = new AIProviderId(Guid.Parse(context.EventSourceId.Value));
         await commandPipeline.ExecuteAndReport(new RefreshAvailableModels(providerId), logger);

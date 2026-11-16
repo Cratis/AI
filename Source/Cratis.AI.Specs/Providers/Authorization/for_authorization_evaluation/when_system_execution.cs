@@ -9,5 +9,5 @@ public class when_system_execution : given.composed_management_authorization
 {
     void Establish() => _principal = SystemPrincipal.WithRoles();
     Task Because() => Evaluate();
-    [Fact] void should_allow_commands_and_queries() => _results.ShouldEachConformTo(result => result);
+    [Fact] void should_require_administrator_authority() => _results.ShouldEachConformTo(result => !result);
 }

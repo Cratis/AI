@@ -75,7 +75,7 @@ public class ProviderRateLimitRecorder(
 
             // Reported, never discarded - a dropped result here is the cooldown itself going missing,
             // and the next attempts rediscover the same 429 over and over.
-            using var systemScope = systemExecution.AsSystem();
+            using var systemScope = AIInternalExecution.Begin(systemExecution);
             await commandPipeline.ExecuteAndReport(new RecordProviderRateLimited(providerId, until), logger);
         }
         catch (Exception exception)

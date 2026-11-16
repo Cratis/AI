@@ -39,12 +39,18 @@ Administrator permission is separate from permission to use a provider. Updating
 members also requires the existing `IProviderSelectionAuthority` check, including when calling its
 handler directly. See [provider team members](provider-team-members.md).
 
-Package-owned background operations use Arc's in-process `ISystemExecution.AsSystem()` scope for
-credential refresh, sign-in completion, model discovery, rate limits and usage recording. The policy
-recognizes Arc's system authentication type together with its system subject. This is a server-side
-execution scope, not an application-user role. Hosts must reserve that authentication type and
-subject combination for Arc system execution; application authentication must not issue identities
-with that combination.
+Package-owned operations use an internal asynchronous execution scope together with Arc's
+`ISystemExecution.AsSystem()` for credential refresh, sign-in completion, model discovery, rate limits
+and usage recording. The internal scope remains available across asynchronous command execution,
+including execution within an ordinary user's request, and is cleared when the operation completes.
+System identity claims alone do not grant management permission; callers outside the package-owned
+scope must satisfy `IAIAdministrators`.
+
+**Breaking behavior:** consuming applications executing management commands in-process through
+`ISystemExecution.AsSystem()` must now be admitted by their `IAIAdministrators` implementation.
+
+A refreshed subscription credential is returned only after its recording command succeeds. A refused
+or failed recording command does not produce a refreshed credential.
 
 Authorization is enforced through Arc's command/query pipeline. Calling other handlers directly is
 not a replacement for running that pipeline.

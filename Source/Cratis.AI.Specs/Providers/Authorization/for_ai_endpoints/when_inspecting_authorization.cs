@@ -24,7 +24,7 @@ public class when_inspecting_authorization : Specification
     [Fact] void should_find_the_endpoint_inventory() => _endpoints.Length.ShouldBeGreaterThanOrEqual(75);
     [Fact] void should_find_the_query_inventory() => _queries.Length.ShouldBeGreaterThanOrEqual(19);
 
-    [Fact] void should_require_the_management_policy_on_every_endpoint() => _endpoints.ShouldEachConformTo(type => HasManagementPolicy(type));
+    [Fact] void should_require_the_management_policy_on_every_endpoint() => _endpoints.ShouldEachConformTo(HasManagementPolicy);
 
     [Fact] void should_require_the_management_policy_on_every_declared_query() => _queries.ShouldEachConformTo(method =>
         HasManagementPolicy(method) || HasManagementPolicy(method.DeclaringType!));

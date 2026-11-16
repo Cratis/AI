@@ -55,7 +55,11 @@ public static class CratisAIServiceCollectionExtensions
         services.AddSingleton<IAIUsageAttribution, NoAttributionAIUsageAttribution>();
         services.TryAddSingleton<IWorkInitiation, WorkInitiation>();
         services.TryAddTransient<IAIAdministrators, DenyAIAdministrators>();
-        services.AddArcAuthorizationPolicy<AIManagementAuthorization>(AIManagementPolicy.Name);
+        var managementPolicy = new AuthorizationPolicyRegistration(AIManagementPolicy.Name, typeof(AIManagementAuthorization));
+        if (!services.Any(service => managementPolicy.Equals(service.ImplementationInstance)))
+        {
+            services.AddArcAuthorizationPolicy<AIManagementAuthorization>(AIManagementPolicy.Name);
+        }
         services.TryAddTransient<IProviderSelectionAuthority, DenyProviderSelectionAuthority>();
         services.TryAddTransient<IProviderMemberAccess, ProviderMemberAccess>();
 

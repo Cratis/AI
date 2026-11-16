@@ -126,7 +126,7 @@ public class AIProviderModelCatalogPass(
         }
 
         var commandPipeline = services.GetRequiredService<ICommandPipeline>();
-        using var systemScope = services.GetRequiredService<ISystemExecution>().AsSystem();
+        using var systemScope = AIInternalExecution.Begin(services.GetRequiredService<ISystemExecution>());
 
         foreach (var provider in due)
         {

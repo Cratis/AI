@@ -4,6 +4,7 @@
 using Cratis.AI.Abstractions;
 using Cratis.AI.Providers.OpenAI;
 using Cratis.Arc.Authorization;
+using Cratis.Execution;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -33,6 +34,7 @@ public class all_dependencies : Specification
         _provider = AIProviderId.New();
         _tokens = Substitute.For<IOpenAISubscriptionTokens>();
         _commandPipeline = Substitute.For<ICommandPipeline>();
+        _commandPipeline.Execute(Arg.Any<object>()).Returns(CommandResult.Success(CorrelationId.New()));
         _alerts = Substitute.For<IAIAlerts>();
         _options = new AIProviderOptions();
         _credentials = new(_tokens, _commandPipeline, Substitute.For<ISystemExecution>(), _alerts, Options.Create(_options), Substitute.For<Microsoft.Extensions.Logging.ILogger<SubscriptionCredentials>>());

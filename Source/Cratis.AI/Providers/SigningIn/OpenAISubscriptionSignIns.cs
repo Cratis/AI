@@ -76,7 +76,7 @@ public class OpenAISubscriptionSignIns(
 
     async Task WaitForAuthorization(AIProviderId provider, OpenAIDeviceAuthorization authorization, DateTimeOffset expiresAt)
     {
-        using var systemScope = systemExecution.AsSystem();
+        using var systemScope = AIInternalExecution.Begin(systemExecution);
         try
         {
             var interval = TimeSpan.FromSeconds(authorization.IntervalSeconds);

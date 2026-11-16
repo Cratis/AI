@@ -40,9 +40,8 @@ public class composed_management_authorization : Specification
     protected async Task Evaluate()
     {
         using var principalScope = _accessor.BeginScope(_principal);
-        using var services = _services.CreateScope();
-        System.Reflection.MemberInfo[] targets = [typeof(AddOpenAIProvider), typeof(ReconfigureOpenAIProvider), typeof(Listing.AIProvider).GetMethod(nameof(Listing.AIProvider.AllAIProviders))!];
-        foreach (var target in targets)
+        await using var services = _services.CreateAsyncScope();
+        foreach (var target in (System.Reflection.MemberInfo[])[typeof(AddOpenAIProvider), typeof(ReconfigureOpenAIProvider), typeof(Listing.AIProvider).GetMethod(nameof(Listing.AIProvider.AllAIProviders))!])
         {
             _results.Add(await _evaluation.IsAuthorized(target, new object(), services.ServiceProvider, CancellationToken.None));
         }
