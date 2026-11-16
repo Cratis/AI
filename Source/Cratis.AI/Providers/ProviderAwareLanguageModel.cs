@@ -10,6 +10,7 @@ using Cratis.AI.Providers.Pools.Listing;
 using Cratis.AI.Providers.RateLimiting;
 using Cratis.AI.Providers.UsageReporting;
 using Cratis.Arc.Authorization;
+using Cratis.Arc.Http;
 using Cratis.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -48,6 +49,7 @@ namespace Cratis.AI.Providers;
 /// <param name="defaultAgentModes">Says what a purpose is invoked as when no agent claims it.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> a 429/quota transient failure is recorded against its provider through, so the pool stops picking it before the cooldown lifts (issue #1060).</param>
 /// <param name="systemExecution">Scopes internal command execution.</param>
+/// <param name="requests">The current request context accessor.</param>
 /// <param name="timeProvider">The <see cref="TimeProvider"/> the rate-limit cooldown and the rate-limit consult check are measured against.</param>
 /// <param name="options">The <see cref="AIProviderOptions"/> the completion deadline and rate-limit cooldown are read from.</param>
 /// <param name="logger">The logger - every resolution miss is logged here, so a completion that failed because of configuration is never indistinguishable from one that failed at the vendor.</param>
@@ -64,13 +66,14 @@ public class ProviderAwareLanguageModel(
     IDefaultAgentInvocationModes defaultAgentModes,
     ICommandPipeline commandPipeline,
     ISystemExecution systemExecution,
+    IHttpRequestContextAccessor requests,
     TimeProvider timeProvider,
     IOptions<AIProviderOptions> options,
     ILogger<ProviderAwareLanguageModel> logger,
     IWorkInitiation? initiation = null) : ILanguageModel, IVisionLanguageModel
 {
     readonly ProviderMemberAccess _memberAccess = new(readModels, initiation ?? new WorkInitiation());
-    readonly ProviderRateLimitRecorder _rateLimitRecorder = new(providerCapacities, commandPipeline, systemExecution, timeProvider, options, logger);
+    readonly ProviderRateLimitRecorder _rateLimitRecorder = new(providerCapacities, commandPipeline, systemExecution, requests, timeProvider, options, logger);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ProviderAwareLanguageModel"/> class without
@@ -89,6 +92,7 @@ public class ProviderAwareLanguageModel(
     /// <param name="defaultAgentModes">Says what a purpose is invoked as when no agent claims it.</param>
     /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> a rate limit is recorded through.</param>
     /// <param name="systemExecution">Scopes internal command execution.</param>
+    /// <param name="requests">The current request context accessor.</param>
     /// <param name="timeProvider">The <see cref="TimeProvider"/> the rate-limit cooldown is measured against.</param>
     /// <param name="options">The <see cref="AIProviderOptions"/>.</param>
     /// <param name="logger">The logger.</param>
@@ -103,6 +107,7 @@ public class ProviderAwareLanguageModel(
         IDefaultAgentInvocationModes defaultAgentModes,
         ICommandPipeline commandPipeline,
         ISystemExecution systemExecution,
+        IHttpRequestContextAccessor requests,
         TimeProvider timeProvider,
         IOptions<AIProviderOptions> options,
         ILogger<ProviderAwareLanguageModel> logger)
@@ -118,6 +123,7 @@ public class ProviderAwareLanguageModel(
             defaultAgentModes,
             commandPipeline,
             systemExecution,
+            requests,
             timeProvider,
             options,
             logger)

@@ -4,6 +4,7 @@
 using Cratis.AI.Common;
 using Cratis.AI.Providers.Capacity;
 using Cratis.Arc.Authorization;
+using Cratis.Arc.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -18,6 +19,7 @@ namespace Cratis.AI.Providers.RateLimiting;
 /// <param name="providerCapacities">The headroom each vendor reports - what a limit's expiry falls back to when the failure does not state one.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> the limit is recorded through.</param>
 /// <param name="systemExecution">Scopes internal command execution.</param>
+/// <param name="requests">The current request context accessor.</param>
 /// <param name="timeProvider">The <see cref="TimeProvider"/> the cooldown is measured against.</param>
 /// <param name="options">The <see cref="AIProviderOptions"/> the cooldown is read from.</param>
 /// <param name="logger">The logger a failure to record is reported to.</param>
@@ -25,6 +27,7 @@ public class ProviderRateLimitRecorder(
     IAIProviderCapacities providerCapacities,
     ICommandPipeline commandPipeline,
     ISystemExecution systemExecution,
+    IHttpRequestContextAccessor requests,
     TimeProvider timeProvider,
     IOptions<AIProviderOptions> options,
     ILogger logger)
@@ -75,7 +78,7 @@ public class ProviderRateLimitRecorder(
 
             // Reported, never discarded - a dropped result here is the cooldown itself going missing,
             // and the next attempts rediscover the same 429 over and over.
-            using var systemScope = AIInternalExecution.Begin(systemExecution);
+            using var systemScope = AIInternalExecution.Begin(systemExecution, requests);
             await commandPipeline.ExecuteAndReport(new RecordProviderRateLimited(providerId, until), logger);
         }
         catch (Exception exception)

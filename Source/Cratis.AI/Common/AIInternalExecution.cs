@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.Arc.Authorization;
+using Cratis.Arc.Http;
 
 namespace Cratis.AI.Common;
 
@@ -21,15 +22,26 @@ internal static class AIInternalExecution
     /// Begins a package-owned execution scope.
     /// </summary>
     /// <param name="systemExecution">The system identity scope provider.</param>
+    /// <param name="requests">The current execution flow's request context accessor.</param>
     /// <returns>A scope that restores the preceding execution state when disposed.</returns>
-    internal static IDisposable Begin(ISystemExecution systemExecution)
+    internal static IDisposable Begin(ISystemExecution systemExecution, IHttpRequestContextAccessor requests)
     {
-        var scope = new Scope(_current.Value, systemExecution.AsSystem());
-        _current.Value = scope;
-        return scope;
+        var request = requests.Current;
+        requests.Current = null;
+        try
+        {
+            var scope = new Scope(_current.Value, systemExecution.AsSystem(), requests, request);
+            _current.Value = scope;
+            return scope;
+        }
+        catch
+        {
+            requests.Current = request;
+            throw;
+        }
     }
 
-    sealed class Scope(Scope? previous, IDisposable systemScope) : IDisposable
+    sealed class Scope(Scope? previous, IDisposable systemScope, IHttpRequestContextAccessor requests, IHttpRequestContext? request) : IDisposable
     {
         internal bool IsActive { get; private set; } = true;
 
@@ -42,7 +54,14 @@ internal static class AIInternalExecution
 
             IsActive = false;
             _current.Value = previous;
-            systemScope.Dispose();
+            try
+            {
+                systemScope.Dispose();
+            }
+            finally
+            {
+                requests.Current = request;
+            }
         }
     }
 }

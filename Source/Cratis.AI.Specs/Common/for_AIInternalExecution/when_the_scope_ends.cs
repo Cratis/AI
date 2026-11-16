@@ -15,16 +15,15 @@ public class when_the_scope_ends : Specification
 
     async Task Because()
     {
-        var requests = Substitute.For<IHttpRequestContextAccessor>();
-        requests.Current.Returns((IHttpRequestContext?)null);
+        var requests = new HttpRequestContextAccessor();
         var systemExecution = new SystemExecution(new CurrentPrincipalAccessor(requests));
         var release = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
         Task<bool> captured;
-        using (AIInternalExecution.Begin(systemExecution))
+        using (AIInternalExecution.Begin(systemExecution, requests))
         {
             await Task.Yield();
             _inside = AIInternalExecution.IsActive;
-            using (AIInternalExecution.Begin(systemExecution))
+            using (AIInternalExecution.Begin(systemExecution, requests))
             {
                 await Task.Yield();
             }

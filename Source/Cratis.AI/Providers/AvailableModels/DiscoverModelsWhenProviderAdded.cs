@@ -7,6 +7,7 @@ using Cratis.AI.Providers.Adding;
 using Cratis.AI.Providers.OpenAI;
 using Cratis.AI.Providers.Reconfiguring;
 using Cratis.Arc.Authorization;
+using Cratis.Arc.Http;
 using Cratis.Chronicle.Reactors;
 using Microsoft.Extensions.Logging;
 using CratisAIAdding = Cratis.AI.Providers.Adding;
@@ -40,6 +41,7 @@ namespace Cratis.AI.Providers.AvailableModels;
 /// </remarks>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> the refresh command runs through.</param>
 /// <param name="systemExecution">The <see cref="ISystemExecution"/> the command runs as - a reactor has no HTTP request behind it.</param>
+/// <param name="requests">The current request context accessor.</param>
 /// <param name="logger">The logger.</param>
 [SuppressMessage(
     "Style",
@@ -48,6 +50,7 @@ namespace Cratis.AI.Providers.AvailableModels;
 public class DiscoverModelsWhenProviderAdded(
     ICommandPipeline commandPipeline,
     ISystemExecution systemExecution,
+    IHttpRequestContextAccessor requests,
     ILogger<DiscoverModelsWhenProviderAdded> logger) : IReactor
 {
     /// <summary>Asks a newly registered Anthropic provider for its catalog.</summary>
@@ -133,7 +136,7 @@ public class DiscoverModelsWhenProviderAdded(
 
     async Task Ask(EventContext context)
     {
-        using var scope = AIInternalExecution.Begin(systemExecution);
+        using var scope = AIInternalExecution.Begin(systemExecution, requests);
 
         var providerId = new AIProviderId(Guid.Parse(context.EventSourceId.Value));
         await commandPipeline.ExecuteAndReport(new RefreshAvailableModels(providerId), logger);

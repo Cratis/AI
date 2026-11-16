@@ -3,6 +3,7 @@
 
 using Cratis.AI.Common;
 using Cratis.Arc.Authorization;
+using Cratis.Arc.Http;
 using Cratis.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -40,12 +41,14 @@ public interface ICopilotSignIns
 /// <param name="tokens">Talks to GitHub's device endpoints.</param>
 /// <param name="commandPipeline">Records the credential and the outcome.</param>
 /// <param name="systemExecution">Scopes internal command execution.</param>
+/// <param name="requests">The current request context accessor.</param>
 /// <param name="logger">The logger.</param>
 [Singleton]
 public class CopilotSignIns(
     ICopilotDeviceTokens tokens,
     ICommandPipeline commandPipeline,
     ISystemExecution systemExecution,
+    IHttpRequestContextAccessor requests,
     ILogger<CopilotSignIns> logger) : ICopilotSignIns
 {
     /// <inheritdoc/>
@@ -68,7 +71,6 @@ public class CopilotSignIns(
 
     async Task WaitForAuthorization(AIProviderId provider, CopilotDeviceAuthorization authorization)
     {
-        using var systemScope = AIInternalExecution.Begin(systemExecution);
         try
         {
             var interval = TimeSpan.FromSeconds(authorization.IntervalSeconds);
@@ -90,8 +92,8 @@ public class CopilotSignIns(
 
                 if (result.Credential is { } credential)
                 {
-                    await commandPipeline.ExecuteAndReport(new ReconfigureCopilotProvider(provider, credential), logger);
-                    await commandPipeline.ExecuteAndReport(new EndCopilotSignIn(provider, true, string.Empty), logger);
+                    await Record(new ReconfigureCopilotProvider(provider, credential));
+                    await Record(new EndCopilotSignIn(provider, true, string.Empty));
                     logger.SignInCompleted(provider);
                     return;
                 }
@@ -105,22 +107,24 @@ public class CopilotSignIns(
                 // here rather than left to expire, so the reason reaches the person while they are
                 // still looking at the row that shows it.
                 logger.SignInRefused(provider, result.Failure);
-                await commandPipeline.ExecuteAndReport(new EndCopilotSignIn(provider, false, result.Failure), logger);
+                await Record(new EndCopilotSignIn(provider, false, result.Failure));
                 return;
             }
 
             logger.SignInExpired(provider);
-            await commandPipeline.ExecuteAndReport(
-                new EndCopilotSignIn(provider, false, "Nobody authorized the sign-in before the code expired. Start another one."),
-                logger);
+            await Record(new EndCopilotSignIn(provider, false, "Nobody authorized the sign-in before the code expired. Start another one."));
         }
         catch (Exception exception)
         {
             logger.SignInFailed(provider, exception);
-            await commandPipeline.ExecuteAndReport(
-                new EndCopilotSignIn(provider, false, "The sign-in could not be completed. Start another one."),
-                logger);
+            await Record(new EndCopilotSignIn(provider, false, "The sign-in could not be completed. Start another one."));
         }
+    }
+
+    async Task Record(object command)
+    {
+        using var scope = AIInternalExecution.Begin(systemExecution, requests);
+        await commandPipeline.ExecuteAndReport(command, logger, nameof(WaitForAuthorization));
     }
 }
 

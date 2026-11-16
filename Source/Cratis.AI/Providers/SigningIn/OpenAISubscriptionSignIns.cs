@@ -5,6 +5,7 @@ using Cratis.AI.Common;
 using Cratis.AI.Providers.OpenAI;
 using Cratis.AI.Providers.Refreshing;
 using Cratis.Arc.Authorization;
+using Cratis.Arc.Http;
 using Cratis.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -42,12 +43,14 @@ public interface IOpenAISubscriptionSignIns
 /// <param name="tokens">Talks to OpenAI's device-code endpoints.</param>
 /// <param name="commandPipeline">Records the credential and the outcome.</param>
 /// <param name="systemExecution">Scopes internal command execution.</param>
+/// <param name="requests">The current request context accessor.</param>
 /// <param name="logger">The logger.</param>
 [Singleton]
 public class OpenAISubscriptionSignIns(
     IOpenAISubscriptionTokens tokens,
     ICommandPipeline commandPipeline,
     ISystemExecution systemExecution,
+    IHttpRequestContextAccessor requests,
     ILogger<OpenAISubscriptionSignIns> logger) : IOpenAISubscriptionSignIns
 {
     /// <summary>
@@ -76,7 +79,6 @@ public class OpenAISubscriptionSignIns(
 
     async Task WaitForAuthorization(AIProviderId provider, OpenAIDeviceAuthorization authorization, DateTimeOffset expiresAt)
     {
-        using var systemScope = AIInternalExecution.Begin(systemExecution);
         try
         {
             var interval = TimeSpan.FromSeconds(authorization.IntervalSeconds);
@@ -95,30 +97,32 @@ public class OpenAISubscriptionSignIns(
 
                 // The credential is recorded through the same command a rotation uses, so a sign-in
                 // and a refresh leave the store in exactly the same shape.
-                await commandPipeline.ExecuteAndReport(new RecordRefreshedOpenAISubscription(provider, credential.ToApiKey()), logger);
-                await commandPipeline.ExecuteAndReport(new EndOpenAISubscriptionSignIn(provider, true, string.Empty), logger);
+                await Record(new RecordRefreshedOpenAISubscription(provider, credential.ToApiKey()));
+                await Record(new EndOpenAISubscriptionSignIn(provider, true, string.Empty));
                 logger.SignInCompleted(provider);
                 return;
             }
 
             logger.SignInExpired(provider);
-            await commandPipeline.ExecuteAndReport(
-                new EndOpenAISubscriptionSignIn(
-                    provider,
-                    false,
-                    "Nobody authorized the sign-in before the code expired. Start another one."),
-                logger);
+            await Record(new EndOpenAISubscriptionSignIn(
+                provider,
+                false,
+                "Nobody authorized the sign-in before the code expired. Start another one."));
         }
         catch (Exception exception)
         {
             logger.SignInFailed(provider, exception);
-            await commandPipeline.ExecuteAndReport(
-                new EndOpenAISubscriptionSignIn(
-                    provider,
-                    false,
-                    "The sign-in could not be completed. Start another one."),
-                logger);
+            await Record(new EndOpenAISubscriptionSignIn(
+                provider,
+                false,
+                "The sign-in could not be completed. Start another one."));
         }
+    }
+
+    async Task Record(object command)
+    {
+        using var scope = AIInternalExecution.Begin(systemExecution, requests);
+        await commandPipeline.ExecuteAndReport(command, logger, nameof(WaitForAuthorization));
     }
 }
 

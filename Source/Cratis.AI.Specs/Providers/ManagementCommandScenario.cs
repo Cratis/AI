@@ -13,19 +13,18 @@ public class ManagementCommandScenario<TCommand> : CommandScenario<TCommand>
     where TCommand : class
 {
     readonly ISystemExecution _systemExecution;
+    readonly IHttpRequestContextAccessor _requests = new HttpRequestContextAccessor();
 
     public ManagementCommandScenario()
     {
         Services.AddTransient<IAIAdministrators, DenyAIAdministrators>();
         Services.AddArcAuthorizationPolicy<AIManagementAuthorization>(AIManagementPolicy.Name);
-        var requests = Substitute.For<IHttpRequestContextAccessor>();
-        requests.Current.Returns((IHttpRequestContext?)null);
-        _systemExecution = new SystemExecution(new CurrentPrincipalAccessor(requests));
+        _systemExecution = new SystemExecution(new CurrentPrincipalAccessor(_requests));
     }
 
     public new async Task<CommandResult> Execute(TCommand command)
     {
-        using var systemScope = AIInternalExecution.Begin(_systemExecution);
+        using var systemScope = AIInternalExecution.Begin(_systemExecution, _requests);
         return await base.Execute(command);
     }
 }

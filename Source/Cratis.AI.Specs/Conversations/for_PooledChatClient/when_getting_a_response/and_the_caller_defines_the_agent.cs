@@ -3,6 +3,7 @@
 
 using Cratis.AI.Providers;
 using Cratis.Arc.Authorization;
+using Cratis.Arc.Http;
 using Microsoft.Extensions.AI;
 
 namespace Cratis.AI.Conversations.for_PooledChatClient.when_getting_a_response;
@@ -33,6 +34,7 @@ public class and_the_caller_defines_the_agent : given.a_pooled_chat_client
             _execution,
             _commandPipeline,
             Substitute.For<ISystemExecution>(),
+            new HttpRequestContextAccessor(),
             _recorder,
             TimeProvider.System,
             _options,

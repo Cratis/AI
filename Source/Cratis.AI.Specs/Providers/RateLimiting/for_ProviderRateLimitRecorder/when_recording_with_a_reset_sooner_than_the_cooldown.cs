@@ -3,6 +3,7 @@
 
 using Cratis.AI.Providers.Capacity;
 using Cratis.Arc.Authorization;
+using Cratis.Arc.Http;
 using Microsoft.Extensions.Options;
 
 namespace Cratis.AI.Providers.RateLimiting.for_ProviderRateLimitRecorder;
@@ -27,7 +28,7 @@ public class when_recording_with_a_reset_sooner_than_the_cooldown : Specificatio
         _commandPipeline = Substitute.For<ICommandPipeline>();
         var time = Substitute.For<TimeProvider>();
         time.GetUtcNow().Returns(_now);
-        _recorder = new ProviderRateLimitRecorder(capacities, _commandPipeline, Substitute.For<ISystemExecution>(), time, Options.Create(new AIProviderOptions()), Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance);
+        _recorder = new ProviderRateLimitRecorder(capacities, _commandPipeline, Substitute.For<ISystemExecution>(), new HttpRequestContextAccessor(), time, Options.Create(new AIProviderOptions()), Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance);
     }
 
     async Task Because() => await _recorder.Record(_provider, "Claude Code's model request failed");
