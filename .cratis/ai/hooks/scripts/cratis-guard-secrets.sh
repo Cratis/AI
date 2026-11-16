@@ -1004,7 +1004,7 @@ function absolute_path(w, dir,    parts, count, k, path, depth, segments) {
         segments[++depth] = parts[k]
     }
     for (k = 1; k <= depth; k++) path = path "/" segments[k]
-    sub(/^\/proc\/(self|thread-self|[0-9]+)\/root(\/|$)/, "/", path)
+    while (sub(/^\/proc\/(self|thread-self|[0-9]+)\/root(\/|$)/, "/", path)) {}
     return path == "" ? "/" : path
 }
 # All recursive roots use this matcher, including defaults and directory changes. Expansion is symbolic:
@@ -1812,7 +1812,7 @@ function add_bulk_root(w, m, dir) {
 }
 # One root model for all recursive/bulk readers. ROOT carries sources only; ROOT_DIR captures the cwd at
 # that operand, including ordered tar -C switches. Search defaults and find defaults enter the same model.
-function bulk_roots(A, s, n, b,    k, j, w, m, dir, ended, enabled, target, skip, value, c, values, key, eq, start) {
+function bulk_roots(A, s, n, b,    k, j, w, m, dir, ended, enabled, target, skip, value, c, values, key, eq, start, stdin_list) {
     delete ROOT; delete ROOT_MASK; delete ROOT_DIR; nr = 0; bulk_find = 0; bulk_reads = 1
     dir = effective_dir
     if (b == "git") {
@@ -1875,12 +1875,15 @@ function bulk_roots(A, s, n, b,    k, j, w, m, dir, ended, enabled, target, skip
         if (key == "--directory") {
             dir = literal_directory(value, dir)
         }
-        if (key == "--files-from") add_bulk_root("\001", "", dir)
+        if (key == "--files-from") {
+            if (b != "tar") add_bulk_root("\001", "", dir)
+            else if (value == "-") stdin_list = 1
+        }
     }
     if (!enabled) { nr = 0; return 0 }
     if (b ~ /^(cp|rsync|scp)$/ && !target && nr > 0) nr--
     if (b == "zip" && nr > 0) { for (k = 1; k < nr; k++) { ROOT[k] = ROOT[k + 1]; ROOT_MASK[k] = ROOT_MASK[k + 1]; ROOT_DIR[k] = ROOT_DIR[k + 1] } nr-- }
-    if (b == "cpio") add_bulk_root("\001", "", dir)
+    if (pipe_input && (b == "cpio" || stdin_list)) read_pending_find()
     return nr
 }
 function check_bulk_roots(A, s, n, b,    k, d) {

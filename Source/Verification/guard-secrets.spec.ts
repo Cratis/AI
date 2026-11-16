@@ -2062,7 +2062,7 @@ test('literal bulk patterns are checked against the mounted-secret ancestors', (
     assertVerdicts([
         'grep -r x /r*', 'grep -r x /{run,tmp}', 'grep -r x ~/../../',
         'rg foo /*', 'rg foo /va*', 'grep -r foo /v[a]r', 'rg foo ~/../..',
-        'cpio -o', 'find /run | cpio -o',
+        'find /run | cpio -o',
     ].map(command => [BLOCK, command]), { HOME: '/home/ordinary' });
 });
 
@@ -2150,6 +2150,31 @@ test('ordinary dynamic operands and scoped directories remain usable', () => {
         'git -C Source --no-pager grep --no-index foo',
     ].map(command => [ALLOW, command]));
     assertVerdicts([[ALLOW, 'echo foo | rg foo'], [ALLOW, 'rg foo < /dev/null']], {}, { cwd: '/run' });
+});
+
+test('archive file lists permit ordinary repository paths', () => {
+    assertVerdicts([
+        'tar -cf out.tar -T list.txt', 'tar --files-from=list.txt -cf x.tar',
+        "find . -name '*.md' | cpio -o > x.cpio",
+        'git ls-files | tar -cf out.tar -T -', 'tar -cf out.tar --files-from=-',
+        'cpio -o',
+    ].map(command => [ALLOW, command]));
+    assertVerdicts([[BLOCK, 'rsync -a --files-from=list.txt Source destination']]);
+    for (const root of ['/', '/run']) {
+        assertVerdicts([
+            `find ${root} | cpio -o`, `find ${root} | tar -cf x.tar -T -`,
+            `find ${root} | tar --files-from=- -cf x.tar`,
+            `tar -cf x.tar -T list.txt ${root}`,
+        ].map(command => [BLOCK, command]));
+    }
+});
+
+test('repeated process-root prefixes retain the mounted-path check', () => {
+    assertVerdicts([
+        'cat /proc/self/root/proc/self/root/run/secrets/db',
+        'grep -r x /proc/self/root/proc/self/root/run',
+        'rg foo /proc/1/root/proc/2/root/',
+    ].map(command => [BLOCK, command]));
 });
 
 test('ordinary source globs keep their protected-file checks', () => {
