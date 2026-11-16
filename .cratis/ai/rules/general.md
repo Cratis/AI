@@ -98,6 +98,16 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 - **A green build is not behavioral correctness.** Compilation proves it builds, not that the slice does the right thing — that's what specs and exercising the UI are for.
 - **Report the conclusion and what you didn't verify, in a line or two.** Show the output when asked, when a claim is contested, or when the check failed — see [verification-discipline.md](./verification-discipline.md).
 
+## Incidents and Errors: Analyse First, Fix Proportionately
+
+An error, failed run or production incident is first a question, not a mandate for new rules. Analyse it before changing anything, then pick the narrowest change that addresses the analysed cause.
+
+- **Analyse first:** reproduce it or collect the evidence, find the root cause, and size it: how often, who is affected, the blast radius, and whether it is already fixed upstream.
+- **Separate containment from the fix.** Containment is temporary, reversible, scoped to the incident, and has an expiry or removal condition. The fix is the smallest change at the root cause.
+- **Prefer fixing the defect over adding policy.** A new rule, gate, ban, mandatory manual step or blanket hardening needs evidence that the failure recurs or is severe, a stated ongoing cost (what it slows or blocks for everyone), the narrower alternatives considered, an owner and a review condition. One incident is not a pattern.
+- **Never trade a rare failure for permanent friction** on every change or release. If the mitigation costs more than the failure it prevents, it is the wrong mitigation.
+- **Remove it when the cause is fixed.** Link the incident from the rule so a later reader can retire it; see the **cratis-engineering-post-mortem** skill.
+
 ---
 
 # Application profile

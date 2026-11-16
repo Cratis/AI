@@ -102,6 +102,9 @@ pass.
 - **A check that accepts any answer.** A smoke test or health check that cannot
   see the failing path, or that accepts the wrong status, is a detection gap;
   name it and assert the exact result.
+- **One incident, one blanket.** A new gate, ban or freeze for a single incident, with
+  no cost or removal condition. Pick the narrowest fix for the analysed cause; see
+  "Incidents and Errors" in the general rules.
 - **A protective hold with no end.** A disabled job, a freeze or a manual
   override needs an owner, an expiry and something that watches it; otherwise
   the protection becomes the next incident. Prefer a gate that blocks the
