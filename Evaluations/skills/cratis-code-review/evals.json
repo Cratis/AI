@@ -54,13 +54,14 @@
     {
       "id": 5,
       "name": "routing-and-convention-vs-contract",
-      "prompt": "While reviewing, a teammate says 'the framework requires every slice to be in its own folder and requires a single file per slice' and asks you to also include a full security audit and a deep replay-performance analysis in the same report. How do you handle it? Reply only.",
+      "prompt": "While reviewing, a teammate says 'the framework requires every slice to be in its own folder and requires a single file per slice' and asks you to also include a full security audit and a deep replay-performance analysis in the same report. The change also adds `public record OrderId(Guid Value);` and `public record AuditEntry(string Message);`. How do you handle it? Reply only.",
       "expected_output": "Slice folder shape and single-file default are house conventions, not framework contracts; Handle() on the record and [Path] are contracts. Don't call a convention a framework requirement. A focused security audit goes to cratis-security-review; scalability analysis to cratis-performance-review; do not restate specialist performance findings; only flag visible performance items in passing.",
       "assertions": [
         "Says the slice folder shape and single-file default are house conventions, not framework contracts.",
         "Names Handle() on the record or the [Path] attribute as framework contracts.",
         "Routes a focused security audit to the security review skill and a scalability analysis to the performance review skill.",
-        "Says the report states what was not reviewed."
+        "Says the report states what was not reviewed.",
+        "Finds single-value records lacking a base type by a mechanical search, then judges each semantically: OrderId is a concept-shaped finding to derive from EventSourceId<T> or ConceptAs<T>, while a genuine DTO is not rejected automatically."
       ]
     }
   ]

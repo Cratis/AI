@@ -17,13 +17,14 @@
     {
       "id": 2,
       "name": "unsafe-first-path",
-      "prompt": "Our tutorial's first snippet configures the server with a hardcoded admin password, binds it to 0.0.0.0, and explains four alternative hosting options before the reader sees a result. Critique this against our documentation rules. Reply only.",
+      "prompt": "Our tutorial's first snippet configures the server with a hardcoded admin password, binds it to 0.0.0.0, and explains four alternative hosting options before the reader sees a result. It also says 'tokens are never written to logs', which only another docs page states. Critique this against our documentation rules. Reply only.",
       "expected_output": "The first path must be the smallest safe configuration that runs: bind to loopback, label development credentials as such, and move host and configuration alternatives into linked how-to guides. The reader reaches a first success before options.",
       "assertions": [
         "Says local services bind to loopback in the first path rather than 0.0.0.0.",
         "Says development credentials must be labeled as development credentials.",
         "Moves hosting and configuration alternatives to linked how-to guides rather than showing them in the tutorial.",
-        "Says the first working path should be safe to run on a developer machine as written and need no up-front choice among alternatives."
+        "Says the first working path should be safe to run on a developer machine as written and need no up-front choice among alternatives.",
+        "Says the 'never written to logs' security claim must be verified against the code that implements it, not another docs page, and narrowed or dropped if it cannot be shown."
       ]
     },
     {
