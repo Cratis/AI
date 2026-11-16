@@ -53,8 +53,9 @@ separate commands, or attach a resolved body.
 A resolved, nonempty, language-tagged handler can instead declare a `may produce` block
 (ESM v35, handler result contract v2): the body returns an ordered subset or multiset of the
 listed events, each with a destination (`for <property>` or `for one of <collection property>`).
-It cannot sit beside `produces` (PLAY0822/PLAY0823). A pending `handler implementation`
-also binds.
+It cannot sit beside `produces` (PLAY0822/PLAY0823). Declaring `may produce` does not waive
+the body requirement: an empty or unresolved body still fails PLAY0800. A pending
+`handler implementation` binds as a described command.
 
 Requires Screenplay 4.250.0 (`screenplay --version`) for attached handlers beside `produces` to bind; 4.210.0 to 4.249.x refuse every attached handler with PLAY0800, and older binders use PLAY0268. Hosts switch on the code and read `arguments.subject`, never parse the message.
 
@@ -99,8 +100,9 @@ Host and specification executor, including Stub mode: it emits no stubs. Hand-wr
 the body against the declared contract as authorized gap-fill; do not claim that a
 pending requirement is implementation evidence. Moving the body into `handler file`
 keeps its RequirementId; beside unconditional `produces` it binds like any resolved
-attached handler (above), while with no `produces`, `produces ... when`, or an empty
-or unresolved body, and no `may produce` block, it still fails PLAY0800. Stage renders a body resolved in C#, but
+attached handler (above), while with neither `produces` nor a `may produce` block, with
+`produces ... when`, or with an empty or unresolved body (even beside a `may produce` block)
+it still fails PLAY0800. Stage renders a body resolved in C#, but
 still refuses a pending body or one resolved in another language with STAGE-IMPL-002.
 
 Validate the model root with `screenplay <root> --warnaserror`; expect no errors or

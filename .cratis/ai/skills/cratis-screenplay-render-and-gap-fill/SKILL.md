@@ -44,8 +44,8 @@ mode; query-performer gaps are a separate contract, not completed behavior. Prot
 support is not generated-app protection.
 Preserve contracts; reference success is not target realization.
 
-A file/inline command handler binds beside unconditional `produces` with a resolved
-body (v23 result contract, Screenplay 4.250.0); without them or `may produce` it refuses PLAY0800 with a
+A file/inline command handler binds beside unconditional `produces` or `may produce` with a resolved
+body (v23/v35, Screenplay 4.250.0); otherwise it refuses PLAY0800 with a
 required typed `arguments.subject`. 4.210.0-4.249.x refuse every attached handler
 with PLAY0800; older binders use PLAY0268. Read [renderability gate](references/renderability-gate.md)
 when classifying a handler or binding refusal; never parse message text.

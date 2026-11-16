@@ -323,8 +323,8 @@ paths; unsupported body/context shapes still refuse. An attached command handler
 beside unconditional `produces` with a resolved body binds as the v23 result contract
 (Screenplay 4.250.0, decision 0117); Stage renders a C# body (`STAGE-IMPL-LANGUAGE` when
 no `csharp` body exists) and its semantic Host and executor report a reached body as
-`Unsupported(ImplementationBody)`. Without `produces`, with `produces ... when` or with
-an unresolved body the handler refuses `PLAY0800` at binding; 4.210.0 to 4.249.x refuse
+`Unsupported(ImplementationBody)`. Without `produces` or a `may produce` block, with `produces ... when`
+or with an unresolved body (even beside `may produce`) the handler refuses `PLAY0800` at binding; 4.210.0 to 4.249.x refuse
 every attached handler with it and older binders use PLAY0268. Read the required typed
 `arguments.subject` for the command rather than the message.
 A pending handler beside unconditional productions binds as a described v23
