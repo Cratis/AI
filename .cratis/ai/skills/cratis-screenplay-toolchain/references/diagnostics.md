@@ -495,7 +495,7 @@ Requires Screenplay 6.6.0 or later (`screenplay --version`). Authoring metadata;
 
 ## Free screens, shapes and adoptions
 
-Requires a Screenplay release later than 6.31.0 that carries free screens (`screenplay --version`); earlier compilers reject a top-level `shape` or `screen` with `PLAY0001`, and `screenplay-contract.json` lists the codes only once the pin moves. Syntax, severities and fixes: `../../cratis-screenplay-ui-composition/references/free-screens.md`; the design decisions: `../../cratis-screenplay-slice-design/references/screens-before-slices.md`.
+Requires Screenplay 6.32.0 or later (`screenplay --version`); earlier compilers reject a top-level `shape` or `screen` with `PLAY0001`. Syntax, severities and fixes: `../../cratis-screenplay-ui-composition/references/free-screens.md`; the design decisions: `../../cratis-screenplay-slice-design/references/screens-before-slices.md`.
 
 | Code | Severity | Meaning / fix |
 | --- | --- | --- |

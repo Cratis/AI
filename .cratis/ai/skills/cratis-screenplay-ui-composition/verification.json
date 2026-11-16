@@ -272,7 +272,7 @@
     { "kind": "skill-contains", "value": "`PLAY0951` | Warning", "file": "references/screen-visuals.md" },
     { "kind": "skill-contains", "value": "references/free-screens.md" },
     { "kind": "skill-contains", "value": "references/scene-design.md" },
-    { "kind": "skill-contains", "value": "Requires a Screenplay release later than 6.31.0 whose contract lists", "file": "references/free-screens.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 6.32.0 or later, whose contract lists", "file": "references/free-screens.md" },
     { "kind": "skill-contains", "value": "with **no `via query`** is a **need**", "file": "references/free-screens.md" },
     { "kind": "skill-contains", "value": "data overdue via query ListOverdue", "file": "references/free-screens.md" },
     { "kind": "skill-contains", "value": "There is no separate release flag", "file": "references/free-screens.md" },

@@ -110,13 +110,10 @@ test('free-screen examples never use the rejected forms', () => {
     }
 });
 
-test('the free-screen examples are compiled once the pinned contract carries free screens', () => {
+test('the free-screen examples are compiled against the pinned contract', () => {
     const contract = JSON.parse(read(contractPath)) as { diagnostics: Array<{ code: string }> };
-    const carried = contract.diagnostics.some(diagnostic => diagnostic.code === 'PLAY1149');
-    for (const fence of fencesOf(freeScreens)) {
-        if (carried) assert.equal(fence.excerpt, false, `${fence.file}:${fence.line} the pinned compiler knows free screens: drop the excerpt marker so the example compiles (a design-only screen needs expect PLAY1164)`);
-        else assert.equal(fence.excerpt, true, `${fence.file}:${fence.line} the pinned compiler cannot compile free screens yet: keep the example an excerpt`);
-    }
+    for (const code of freeScreenDiagnostics) assert.ok(contract.diagnostics.some(diagnostic => diagnostic.code === code), `the pinned contract must carry ${code}`);
+    for (const fence of fencesOf(freeScreens)) assert.equal(fence.excerpt, false, `${fence.file}:${fence.line} free-screen examples compile against the pin: drop the excerpt marker (a design-only screen needs expect PLAY1164)`);
 });
 
 test('the guidance states the severities and the gate the compiler actually has', () => {

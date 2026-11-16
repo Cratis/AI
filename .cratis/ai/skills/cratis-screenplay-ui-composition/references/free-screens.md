@@ -14,7 +14,7 @@
 - Traps
 - Checklist
 
-Requires a Screenplay release later than 6.31.0 whose contract lists the free-screen diagnostics (check `screenplay --version` and the toolchain skill's `screenplay-contract.json`). An older compiler rejects a top-level `shape` or `screen` with `PLAY0001`. Syntax the installed compiler rejects is never papered over with a stub: report the missing release.
+Requires Screenplay 6.32.0 or later, whose contract lists the free-screen diagnostics (check `screenplay --version` and the toolchain skill's `screenplay-contract.json`). An older compiler rejects a top-level `shape` or `screen` with `PLAY0001`. Syntax the installed compiler rejects is never papered over with a stub: report the missing release.
 
 ## When a screen is free
 
@@ -28,7 +28,7 @@ Which slice should serve a screen, and what its read model must supply: [screens
 
 `data <Shape>[]` (a list) or `data <Shape>` (one value) with **no `via query`** is a **need**: data the screen reads and an adopting slice provides. A screen that names where its data comes from (`data <ReadModel> via query <Query>`) is an ordinary screen.
 
-```screenplay excerpt
+```screenplay expect PLAY1164
 shape Invoice
   number String
   customer String
@@ -67,7 +67,7 @@ Declare the shape explicitly when the types matter: several adopters, sample dat
 
 A slice adopts a screen with `uses screen <Name>` and provides each need from one of its queries with `data <Need> via query <Query> [by <param>]`. Where the read model's property name differs from the shape's field, a nested `<field> from <path>` maps it; a name that matches needs no line.
 
-```screenplay excerpt
+```screenplay
 shape Invoice
   number String
   customer String
@@ -121,7 +121,7 @@ Fix a failure in the slice (the read model, the query, the mapping), not by loos
 
 A screen that needs the same shape twice tells the needs apart with `as <alias>`. The alias is the need's name in the screen's directives and in the provision. Two needs with one name are `PLAY1153`.
 
-```screenplay excerpt
+```screenplay
 shape Invoice
   number String
   amount Decimal
@@ -154,7 +154,7 @@ module Invoicing
 - **Navigation reaches every screen.** `navigate to`, `show` and a storyline `screen` step resolve to a free screen or a slice screen alike, adopted or not.
 - **Sample data may name a shape.** `sample data ... shape <Name>` checks its rows against the declared `shape`'s typed fields (`PLAY0710`, `PLAY0711`), as it does against a read model; rows for a screen nobody has adopted can exist before any read model does.
 
-```screenplay excerpt
+```screenplay expect PLAY1164
 shape Invoice
   number String
   amount Decimal
