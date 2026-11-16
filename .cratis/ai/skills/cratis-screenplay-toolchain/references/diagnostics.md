@@ -66,7 +66,7 @@ These are V1 source checks, not binding-only gaps:
 | Code | Severity | Meaning |
 | --- | --- | --- |
 | PLAY0514 | W | Projection mapping, children or nested target absent from the declared read-model/element shape; unknown/imported shapes are not guessed |
-| PLAY0166 | W | Unknown event, including `remove with`, `remove via join on` and capture `append` |
+| PLAY0166 | W/E | Unknown event, including `remove with`, `remove via join on` and capture `append`. An unresolved qualified `from` input of a `source events` capture is an error (Screenplay 5.4.0); unknown bare inputs and other usages stay warnings |
 | PLAY1142 | W | Projection or reducer copies a `secret` (incl. `pii secret`) concept into a read-model property; no automatic repair (Screenplay 6.28.0+) |
 | PLAY0515 | E | Personal/secret concept in a command identifier, typed `for` destination, event-source identity, stream-id type/part or route mapping source (including nested paths); keep a surrogate identity and protected data in payload |
 
@@ -625,12 +625,12 @@ Requires Stage 4.129.0 for semantic Host/executor protected reads; older engines
 
 ## Binding (V2 and V3) - see `executable-subset.md` for the full table
 
-Requires Screenplay 4.210.0 (`screenplay --version`) for PLAY0800 and its required typed `subject`; older binders attribute attached command handlers to PLAY0268. From Screenplay 4.250.0 an attached handler beside unconditional `produces` with a resolved body binds instead. Other PLAY0268 refusal families are unchanged.
+Requires Screenplay 4.210.0 (`screenplay --version`) for PLAY0800 and its required typed `subject`; older binders attribute attached command handlers to PLAY0268. From Screenplay 4.250.0 an attached handler beside unconditional `produces` with a resolved body binds instead, as does one beside a `may produce` block (ESM v35) with a resolved body; an unresolved body still fails. Other PLAY0268 refusal families are unchanged.
 
 | Code | Meaning | Fix |
 |---|---|---|
 | PLAY0268 | construct not representable in a supported ESM version yet (`executable-subset.md` lists unsupported query shapes, protected enum/identity concepts, read paths without opt-in or in `produces when`, Uuid ordering, different Uuid concepts and Uuid rules, and older bundled-compiler limits) | stay in design mode, or change the construct if the domain allows; never strip `pii`/authorization |
-| PLAY0800 | error `CommandHandlerRequiresAttachment`: a file/inline command handler has no unconditional `produces` result contract or no resolved, nonempty, language-tagged body; required typed `subject` identifies the command | declare unconditional `produces` beside a resolved body, split variable outcomes into separate commands, or gap-fill the slice in code; hosts switch on the code and read `arguments.subject`, never match the message |
+| PLAY0800 | error `CommandHandlerRequiresAttachment`: a file/inline command handler has neither an unconditional `produces` nor a `may produce` block (ESM v35, result contract v2), or no resolved, nonempty, language-tagged body; required typed `subject` identifies the command | declare unconditional `produces` or a `may produce` block beside a resolved body, split variable outcomes into separate commands, or gap-fill the slice in code; hosts switch on the code and read `arguments.subject`, never match the message |
 | PLAY0269 / 0270 | UI deferred / authoring metadata (I) | none |
 | PLAY0271 | legacy `reads` or a `concurrency` block keeps its legacy meaning and cannot bind (error) | opt eligible command reads into v25 with reviewed preamble repair; `concurrency` remains unbound; uniqueness uses a constraint, target realization stays separate |
 | PLAY0273 | incoherent: ambiguous `for`, property not on event revision, operand type mismatch, derived `$eventContext` path, unparsable date literal or offset-less DateTime literal in an admitted v26 comparison, or a Uuid comparison literal that is not lowercase hyphenated (v28) | fix the reference or literal; DateTime needs offset/Z; Uuid literals are lowercase hyphenated |

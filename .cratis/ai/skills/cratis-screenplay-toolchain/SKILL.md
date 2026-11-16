@@ -118,8 +118,8 @@ with ordered imports means future files need explicit imports.
   read-surface [equality filters](../cratis-screenplay-read-surface/references/equality-filters.md).
   Pending handlers beside unconditional productions bind as described commands (v23),
   but reached bodies are Unsupported; attached file/inline handlers bind the same way
-  beside unconditional `produces` with a resolved body and otherwise
-  refuse PLAY0800.
+  beside unconditional `produces` or a `may produce` block (v35) with a resolved body and
+  otherwise refuse PLAY0800.
   Requires Screenplay 4.210.0 (`screenplay --version`); older binders use PLAY0268 for this refusal. Read `arguments.subject`, not the message, for the command.
   Eligible protected reads opt into v25; legacy reads and `concurrency` retain PLAY0271.
   Concept compliance binds as v13 (precise refusals: command-surface `references/compliance.md`);
@@ -212,7 +212,7 @@ Read [references/diagnostics.md](references/diagnostics.md) when a PLAY, STAGE o
 11. Declare an event once, in its producing slice.
 12. Quoted `import "glob"` is your own files; unquoted `import Ctx.Event` is a foreign
     contract and does not bind.
-13. Pending described handlers bind but do not execute their bodies; attached handlers and `numbers exact` do not bind. Descriptions render as XML doc comments, not behavior.
+13. Pending described handlers bind but do not execute their bodies; `numbers exact` does not bind; attached handlers bind only beside `produces`/`may produce` with a resolved body. Descriptions render as XML doc comments, not behavior.
 
 ## Gate
 
