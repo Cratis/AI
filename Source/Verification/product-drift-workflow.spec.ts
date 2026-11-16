@@ -20,7 +20,8 @@ test('the drift workflow is weekly and manual, serialized, and has only the need
 test('actions are SHA-pinned to the same revisions as publishing', () => {
     const publish = readFileSync(resolve(root, '.github/workflows/publish.yml'), 'utf8');
     const actions = workflow.jobs.drift.steps.filter((step: { uses?: string }) => step.uses);
-    assert.equal(actions.length, 2);
+    assert.equal(actions.length, 3);
+    assert.equal(actions.filter((action: { uses: string }) => action.uses.startsWith('Cratis/Workflows/.github/actions/yarn-cache@')).length, 1);
     for (const action of actions) {
         assert.match(action.uses, /@[a-f0-9]{40}$/);
         assert.ok(publish.includes(action.uses));
