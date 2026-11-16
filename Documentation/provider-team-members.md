@@ -14,9 +14,9 @@ may use it, independently of which agent acts on that person's behalf.
 ## Set the selection
 
 Execute `SetAIProviderAllowedTeamMembers` with the provider's `AIProviderId` and the complete
-`AllowedTeamMembers` list. Each call replaces the previous selection. The command requires Arc
-authentication (`[Authorize]`) and an `IProviderSelectionAuthority` that permits the caller to change
-that provider. **The default authority denies every change**, including direct command handling.
+`AllowedTeamMembers` list. Each call replaces the previous selection. The command requires the
+[AI administration policy](provider-administration.md) and an `IProviderSelectionAuthority` that
+permits the caller to change that provider. **The default authority denies every change**, including direct command handling.
 The host must register its own authority, using its authenticated caller context and administrative
 policy. Direct command handling throws `AIProviderSelectionNotAuthorized`, an
 `UnauthorizedAccessException`, when the authority denies the change. Being allowed to use a provider does not authorize changing its selection.

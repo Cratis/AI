@@ -5,6 +5,7 @@ using Cratis.AI.Abstractions;
 using Cratis.AI.Agents;
 using Cratis.AI.Providers;
 using Cratis.AI.Providers.Pools;
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -53,6 +54,12 @@ public static class CratisAIServiceCollectionExtensions
         services.AddSingleton<IDefaultAgentInvocationModes, DefaultAgentInvocationModes>();
         services.AddSingleton<IAIUsageAttribution, NoAttributionAIUsageAttribution>();
         services.TryAddSingleton<IWorkInitiation, WorkInitiation>();
+        services.TryAddTransient<IAIAdministrators, DenyAIAdministrators>();
+        var managementPolicy = new AuthorizationPolicyRegistration(AIManagementPolicy.Name, typeof(AIManagementAuthorization));
+        if (!services.Any(service => managementPolicy.Equals(service.ImplementationInstance)))
+        {
+            services.AddArcAuthorizationPolicy<AIManagementAuthorization>(AIManagementPolicy.Name);
+        }
         services.TryAddTransient<IProviderSelectionAuthority, DenyProviderSelectionAuthority>();
         services.TryAddTransient<IProviderMemberAccess, ProviderMemberAccess>();
 

@@ -13,7 +13,7 @@ namespace Cratis.AI.Providers.SettingAllowedTeamMembers;
 /// <param name="Provider">The provider whose allowed team members are being set.</param>
 /// <param name="AllowedTeamMembers">The complete set of team members allowed to use the provider.</param>
 [Command]
-[Authorize]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record SetAIProviderAllowedTeamMembers(AIProviderId Provider, IReadOnlyList<TeamMemberId> AllowedTeamMembers)
 {
     /// <summary>

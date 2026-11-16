@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Common;
+using Cratis.AI.Providers;
+using Cratis.Arc.Authorization;
 using MongoDB.Driver;
 
 namespace Cratis.AI.Decisions.Usage;
@@ -23,6 +25,7 @@ namespace Cratis.AI.Decisions.Usage;
 /// <param name="DurationMs">How long the calls took in total, in milliseconds.</param>
 [Obsolete("Decision usage is no longer appended; removed in the next major release (Cratis/AI#651)")]
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 
 // Preserve the historical projection for replay until the next major release.
 #pragma warning disable CS0618

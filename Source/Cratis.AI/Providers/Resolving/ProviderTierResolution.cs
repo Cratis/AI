@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Common;
+using Cratis.Arc.Authorization;
 using Cratis.Chronicle;
 
 namespace Cratis.AI.Providers.Resolving;
@@ -17,6 +18,7 @@ namespace Cratis.AI.Providers.Resolving;
 /// <param name="ModelDiscoveryFailure">Why the last catalog read failed, empty when it succeeded.</param>
 /// <param name="ModelsDiscoveredAt">When a catalog was last read successfully, default before discovery.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [Passive]
 public record ProviderTierResolution(
     ModelTier Tier,

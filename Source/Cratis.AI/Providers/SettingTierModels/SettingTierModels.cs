@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Providers.SettingTierModels;
 
 /// <summary>
@@ -16,6 +18,7 @@ namespace Cratis.AI.Providers.SettingTierModels;
 /// <param name="Provider">The provider to set the mapping on - the identity the event's stream is bound to.</param>
 /// <param name="Models">The mapping - every tier <c>NotSet</c> means "back to the vendor defaults".</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record SetAIProviderTierModels(AIProviderId Provider, TierModels Models)
 {
     /// <summary>

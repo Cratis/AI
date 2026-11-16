@@ -7,7 +7,7 @@ public class and_the_content_is_too_long : Specification
 {
     static readonly AgentId _agent = AgentId.For("IssueTriage");
 
-    CommandScenario<AddAgentSkill> _scenario;
+    ManagementCommandScenario<AddAgentSkill> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

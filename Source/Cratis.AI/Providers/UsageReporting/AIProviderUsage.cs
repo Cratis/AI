@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Usage.Daily;
+using Cratis.Arc.Authorization;
 
 namespace Cratis.AI.Providers.UsageReporting;
 
@@ -19,6 +20,7 @@ namespace Cratis.AI.Providers.UsageReporting;
 /// <param name="JobsTotal">Sessions over all time.</param>
 /// <param name="TokensUsedTotal">Tokens spent over all time.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [Passive]
 public record AIProviderUsage(
     AIProviderId ProviderId,

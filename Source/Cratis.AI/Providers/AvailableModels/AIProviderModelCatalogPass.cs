@@ -4,6 +4,7 @@
 using Cratis.AI.Common;
 using Cratis.AI.Providers.Listing;
 using Cratis.Arc.Authorization;
+using Cratis.Arc.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -126,7 +127,7 @@ public class AIProviderModelCatalogPass(
         }
 
         var commandPipeline = services.GetRequiredService<ICommandPipeline>();
-        using var systemScope = services.GetRequiredService<ISystemExecution>().AsSystem();
+        using var systemScope = AIInternalExecution.Begin(services.GetRequiredService<ISystemExecution>(), services.GetRequiredService<IHttpRequestContextAccessor>());
 
         foreach (var provider in due)
         {

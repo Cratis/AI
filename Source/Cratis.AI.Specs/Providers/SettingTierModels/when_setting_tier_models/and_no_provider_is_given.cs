@@ -5,7 +5,7 @@ namespace Cratis.AI.Providers.SettingTierModels.when_setting_tier_models;
 
 public class and_no_provider_is_given : Specification
 {
-    CommandScenario<SetAIProviderTierModels> _scenario;
+    ManagementCommandScenario<SetAIProviderTierModels> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

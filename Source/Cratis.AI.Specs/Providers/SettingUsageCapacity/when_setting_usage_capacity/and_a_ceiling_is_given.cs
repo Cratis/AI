@@ -7,7 +7,7 @@ public class and_a_ceiling_is_given : Specification
 {
     static readonly AIProviderId _provider = AIProviderId.New();
 
-    CommandScenario<SetAIProviderUsageCapacity> _scenario;
+    ManagementCommandScenario<SetAIProviderUsageCapacity> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

@@ -3,6 +3,9 @@
 
 using Cratis.AI.Common;
 
+using Cratis.AI.Providers;
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Decisions.Configuring;
 
 /// <summary>
@@ -22,6 +25,7 @@ namespace Cratis.AI.Decisions.Configuring;
 /// </para>
 /// </remarks>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [Passive]
 [FromEvent<BuiltInDecisionEngineSelected>]
 [FromEvent<JevDecisionEngineSelected>]

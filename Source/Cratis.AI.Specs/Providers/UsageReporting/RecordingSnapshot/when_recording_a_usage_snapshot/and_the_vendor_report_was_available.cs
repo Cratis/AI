@@ -11,7 +11,7 @@ public class and_the_vendor_report_was_available : Specification
 
     // Verify the retained legacy command until its major-release removal.
 #pragma warning disable CS0618
-    CommandScenario<RecordAIProviderUsageSnapshot> _scenario;
+    ManagementCommandScenario<RecordAIProviderUsageSnapshot> _scenario;
 #pragma warning restore CS0618
     CommandResult _result;
 

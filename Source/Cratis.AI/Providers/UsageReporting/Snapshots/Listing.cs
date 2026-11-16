@@ -6,6 +6,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Cratis.AI.Providers.UsageReporting;
 using Cratis.AI.Providers.UsageReporting.RecordingSnapshot;
+using Cratis.Arc.Authorization;
 
 namespace Cratis.AI.Providers.UsageReporting.Snapshots;
 
@@ -19,6 +20,7 @@ namespace Cratis.AI.Providers.UsageReporting.Snapshots;
 /// <param name="UsedLocalBurnFallback">Whether <paramref name="ConsumedTokens"/> came from Direct's own trailing-week burn rather than the vendor's usage report.</param>
 /// <param name="RecordedAt">When this level was refreshed - <see langword="null"/> only for the instant between creation and the projection setting it from the same event.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 
 // Retain the legacy projection until the next major release for existing stores.
 #pragma warning disable CS0618

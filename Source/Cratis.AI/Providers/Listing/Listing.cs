@@ -16,6 +16,7 @@ using Cratis.AI.Providers.SettingHarnesses;
 using Cratis.AI.Providers.SettingTierModels;
 using Cratis.AI.Providers.SettingUsageCapacity;
 using Cratis.AI.Providers.UsageReporting.SettingCredential;
+using Cratis.Arc.Authorization;
 using MongoDB.Driver;
 using CratisAIAdding = Cratis.AI.Providers.Adding;
 using CratisAIRemoving = Cratis.AI.Providers.Removing;
@@ -48,6 +49,7 @@ namespace Cratis.AI.Providers.Listing;
 /// <param name="AllowedTeamMembers">The team members allowed to use this provider; an empty list denies everyone only if <paramref name="HasAllowedTeamMembersSelection"/> is true.</param>
 /// <param name="HasAllowedTeamMembersSelection">Whether a team member selection has been recorded; false means the provider is open to everyone.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [FromEvent<CratisAIAdding.AnthropicProviderAdded>]
 [FromEvent<OpenAIProviderAdded>]
 [FromEvent<CratisAIAdding.AzureOpenAIProviderAdded>]

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Abstractions;
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
 
 namespace Cratis.AI.Providers.Reconfiguring;
@@ -15,6 +16,7 @@ namespace Cratis.AI.Providers.Reconfiguring;
 /// <param name="Endpoint">The new endpoint.</param>
 /// <param name="ApiKey">The new API key - blank keeps the current one.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record ReconfigureZAIProvider(AIProviderId Provider, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey)
 {
     /// <summary>

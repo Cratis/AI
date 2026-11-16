@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Abstractions;
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
 
 namespace Cratis.AI.Providers.UsageReporting.SettingCredential;
@@ -24,6 +25,7 @@ namespace Cratis.AI.Providers.UsageReporting.SettingCredential;
 /// <param name="Provider">The provider to set the usage credential for.</param>
 /// <param name="UsageApiKey">The usage Admin API key.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record SetAIProviderUsageCredential(AIProviderId Provider, AIProviderApiKey UsageApiKey)
 {
     /// <summary>
@@ -65,6 +67,7 @@ public class SetAIProviderUsageCredentialValidator : CommandValidator<SetAIProvi
 /// </summary>
 /// <param name="Provider">The provider to clear the usage credential on.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record ClearAIProviderUsageCredential(AIProviderId Provider)
 {
     /// <summary>

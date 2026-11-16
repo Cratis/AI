@@ -8,6 +8,8 @@ using Cratis.AI.Providers;
 using Cratis.AI.Providers.Anthropic;
 using Cratis.AI.Providers.Pools;
 using Cratis.AI.Providers.RateLimiting;
+using Cratis.Arc.Authorization;
+using Cratis.Arc.Http;
 using Microsoft.Extensions.AI;
 
 namespace Cratis.AI.Conversations.for_PooledChatClient.given;
@@ -57,7 +59,7 @@ public class a_native_claude_rate_limit : a_pooled_chat_client
         _functionResource = Substitute.For<IDisposable>();
         var gate = Substitute.For<IProviderConcurrencyGate>();
         gate.TryEnter(Arg.Any<AIProviderId>(), Arg.Any<CancellationToken>()).Returns(_slot);
-        _client = new((LanguageModels.LanguageModelPurpose)Purpose, _readModels, _compatibility, _burn, _usageLevels, _capacities, _failures, gate, _factory, _agents, _execution, _commandPipeline, _recorder, TimeProvider.System, _options, Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance);
+        _client = new((LanguageModels.LanguageModelPurpose)Purpose, _readModels, _compatibility, _burn, _usageLevels, _capacities, _failures, gate, _factory, _agents, _execution, _commandPipeline, Substitute.For<ISystemExecution>(), new HttpRequestContextAccessor(), _recorder, TimeProvider.System, _options, Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance);
         _first = AIProviderId.New();
         _second = AIProviderId.New();
         var pool = AIProviderPoolId.New();
@@ -127,19 +129,7 @@ public class a_native_claude_rate_limit : a_pooled_chat_client
         var (url, authorization) = await Connection(info);
         _http.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", authorization);
         yield return """{"type":"system","subtype":"init","mcp_servers":[{"name":"cratis","status":"connected"}]}""";
-        if (_invokeTool)
-        {
-            var request = CallTool(url);
-            if (_rateLimitDuringTool)
-            {
-                _pendingRequest = request;
-                await WaitForToolStart(request);
-            }
-            else
-            {
-                await CompleteToolCall(request);
-            }
-        }
+        await InvokeTool(url);
 
         if (_emitText)
         {
@@ -159,8 +149,25 @@ public class a_native_claude_rate_limit : a_pooled_chat_client
             throw _cancelled;
         }
 
-        if (_endWithoutResult || _malformedOutput || _failDirectoryCleanup) yield break;
+        if (ShouldEndWithoutResult) yield break;
         throw _transportError ?? _failure;
+    }
+
+    bool ShouldEndWithoutResult => _endWithoutResult || _malformedOutput || _failDirectoryCleanup;
+
+    async Task InvokeTool(string url)
+    {
+        if (!_invokeTool) return;
+        var request = CallTool(url);
+        if (_rateLimitDuringTool)
+        {
+            _pendingRequest = request;
+            await WaitForToolStart(request);
+        }
+        else
+        {
+            await CompleteToolCall(request);
+        }
     }
 
     async Task WaitForToolStart(Task<HttpResponseMessage> request)

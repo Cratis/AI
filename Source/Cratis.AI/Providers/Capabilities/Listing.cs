@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Providers.Capabilities;
 
 /// <summary>
@@ -9,6 +11,7 @@ namespace Cratis.AI.Providers.Capabilities;
 /// <param name="Type">The provider type.</param>
 /// <param name="Capabilities">The intrinsic capabilities offered by the provider type.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record AIProviderCapabilityDescription(AIProviderType Type, IReadOnlySet<AIProviderCapability> Capabilities)
 {
     /// <summary>

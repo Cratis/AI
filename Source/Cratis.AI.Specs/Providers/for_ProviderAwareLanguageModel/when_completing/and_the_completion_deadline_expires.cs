@@ -5,6 +5,8 @@ using Cratis.AI.Agents;
 using Cratis.AI.Agents.Listing;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
+using Cratis.Arc.Authorization;
+using Cratis.Arc.Http;
 using Microsoft.Extensions.Options;
 
 namespace Cratis.AI.Providers.for_ProviderAwareLanguageModel.when_completing;
@@ -44,6 +46,8 @@ public class and_the_completion_deadline_expires : given.all_dependencies
             _providerGate,
             new DefaultAgentInvocationModes(),
             _commandPipeline,
+            Substitute.For<ISystemExecution>(),
+            new HttpRequestContextAccessor(),
             _timeProvider,
             Options.Create(new AIProviderOptions { CompletionTimeout = TimeSpan.FromMilliseconds(20) }),
             _logger);

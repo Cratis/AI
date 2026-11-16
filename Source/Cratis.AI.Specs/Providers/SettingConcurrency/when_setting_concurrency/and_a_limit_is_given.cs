@@ -7,7 +7,7 @@ public class and_a_limit_is_given : Specification
 {
     static readonly AIProviderId _provider = AIProviderId.New();
 
-    CommandScenario<SetAIProviderConcurrency> _scenario;
+    ManagementCommandScenario<SetAIProviderConcurrency> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

@@ -3,6 +3,7 @@
 
 using Cratis.AI.Abstractions;
 using Cratis.AI.Common;
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
 
 namespace Cratis.AI.Providers.Configuring;
@@ -18,6 +19,7 @@ namespace Cratis.AI.Providers.Configuring;
 /// <param name="Endpoint">The Azure OpenAI resource endpoint.</param>
 /// <param name="ApiKey">The Azure OpenAI API key.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record AddAzureOpenAIProvider(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey)
 {
     /// <summary>
@@ -62,6 +64,7 @@ public class AddAzureOpenAIProviderValidator : CommandValidator<AddAzureOpenAIPr
 /// <param name="Endpoint">The new endpoint.</param>
 /// <param name="ApiKey">The new API key - blank keeps the current one.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record ReconfigureAzureOpenAIProvider(AIProviderId Id, AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey)
 {
     /// <summary>
