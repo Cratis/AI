@@ -116,6 +116,24 @@ public sealed class ClaudeCodeChatClient(IClaudeCodeStreamingProcess process, AI
         return result;
     }
 
+    static List<AIFunction> ToolsFor(ChatOptions? options) =>
+        options?.ToolMode == ChatToolMode.None ? [] : options?.Tools?.OfType<AIFunction>().ToList() ?? [];
+
+    static void ApplyResponseSchema(ProcessStartInfo startInfo, ChatOptions? options)
+    {
+        if (options?.ResponseFormat is not ChatResponseFormatJson { Schema: { } schema }) return;
+        startInfo.ArgumentList.Add("--json-schema");
+        startInfo.ArgumentList.Add(schema.GetRawText());
+    }
+
+    static void ApplyTurnMetadata(ChatResponseUpdate final, TurnStream stream, TurnRequest request)
+    {
+        if (!stream.Result!.HasStopReason && stream.StopReason is not null) final.FinishReason = stream.StopReason;
+        if (request.OmittedControls.Count == 0) return;
+        final.AdditionalProperties ??= [];
+        final.AdditionalProperties["vendor_controlled_options"] = request.OmittedControls;
+    }
+
     async IAsyncEnumerable<ChatResponseUpdate> RunTurn(IReadOnlyList<ChatMessage> messages, ChatOptions? options, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         var omittedControls = UseVendorDefaults ? ClaudeCodeChatOptions.OmittedControls(options) : [];
@@ -131,8 +149,8 @@ public sealed class ClaudeCodeChatClient(IClaudeCodeStreamingProcess process, AI
 
     async IAsyncEnumerable<ChatResponseUpdate> RunTurnCore(TurnRequest request, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var (messages, options, omittedControls, invocationStarting) = request;
-        var tools = options?.ToolMode == ChatToolMode.None ? [] : options?.Tools?.OfType<AIFunction>().ToList() ?? [];
+        var (messages, options, _, invocationStarting) = request;
+        var tools = ToolsFor(options);
 
         // Drain tools before directory cleanup, even if cleanup fails.
         string? directory = null;
@@ -143,18 +161,8 @@ public sealed class ClaudeCodeChatClient(IClaudeCodeStreamingProcess process, AI
             await using var server = tools.Count > 0 ? new ClaudeCodeMcpServer(tools, cancellationToken: cancellationToken) { InvocationStarting = invocationStarting } : null;
             server?.Start();
             var startInfo = StartInfo(directory, credential, options?.ModelId ?? modelId, effort, systemPrompt, server);
-            if (options?.ResponseFormat is ChatResponseFormatJson { Schema: { } schema })
-            {
-                startInfo.ArgumentList.Add("--json-schema");
-                startInfo.ArgumentList.Add(schema.GetRawText());
-            }
-
-            string? responseId = null;
-            ClaudeCodeStreamEvent? result = null;
-            var streamedAnyText = false;
-            int? retriedStatus = null;
-            var initialized = false;
-            ChatFinishReason? stopReason = null;
+            ApplyResponseSchema(startInfo, options);
+            var stream = new TurnStream(server, options);
 
             await foreach (var line in process.Run(startInfo, transcript, cancellationToken))
             {
@@ -163,62 +171,14 @@ public sealed class ClaudeCodeChatClient(IClaudeCodeStreamingProcess process, AI
                     continue;
                 }
 
-                if (parsed.IsRetry)
-                {
-                    // The CLI retries a failed API call before giving up and names the HTTP status it got; keep
-                    // it so the failure that follows says more than that the request failed.
-                    retriedStatus = parsed.HttpStatus ?? retriedStatus;
-                    continue;
-                }
-
-                if (parsed.IsInit)
-                {
-                    ValidateInitialization(parsed, server);
-                    initialized = true;
-                    responseId = parsed.SessionId;
-                    continue;
-                }
-
-                if (server is not null && !initialized)
-                {
-                    throw new ClaudeCodeConversationFailed("Claude Code did not confirm the invocation's tool server connection.");
-                }
-
-                ThrowIfFailure(parsed, retriedStatus);
-
-                if (parsed.HasStopReason) stopReason = parsed.FinishReason;
-
-                if (parsed.IsPartialText && options?.ResponseFormat is not ChatResponseFormatJson)
-                {
-                    streamedAnyText = true;
-                    yield return new ChatResponseUpdate(ChatRole.Assistant, parsed.DeltaText) { ResponseId = responseId };
-                    continue;
-                }
-
-                if (parsed.IsResult)
-                {
-                    result = parsed;
-                }
+                if (stream.Read(parsed) is { } update) yield return update;
             }
 
-            result = ValidateResult(result, options);
+            var result = ValidateResult(stream.Result, options);
+            if (stream.Fallback(result) is { } fallback) yield return fallback;
 
-            // The streamed deltas are the normal path and already compose this text; the result's own
-            // copy is used only as a fallback for a turn that produced no partial events at all (a very
-            // short answer, or a run without --include-partial-messages taking effect).
-            if (!streamedAnyText && !string.IsNullOrEmpty(result.ResultText))
-            {
-                yield return new ChatResponseUpdate(ChatRole.Assistant, result.ResultText) { ResponseId = responseId ?? result.SessionId };
-            }
-
-            var final = FinalUpdate(responseId ?? result.SessionId, result, options?.ModelId);
-            if (!result.HasStopReason && stopReason is not null) final.FinishReason = stopReason;
-            if (omittedControls.Count > 0)
-            {
-                final.AdditionalProperties ??= [];
-                final.AdditionalProperties["vendor_controlled_options"] = omittedControls;
-            }
-
+            var final = FinalUpdate(stream.ResponseId ?? result.SessionId, result, options?.ModelId);
+            ApplyTurnMetadata(final, stream, request);
             yield return final;
         }
         finally
@@ -335,6 +295,69 @@ public sealed class ClaudeCodeChatClient(IClaudeCodeStreamingProcess process, AI
         }
 
         return info;
+    }
+
+    sealed class TurnStream(ClaudeCodeMcpServer? server, ChatOptions? options)
+    {
+        bool _streamedAnyText;
+        bool _initialized;
+        int? _retriedStatus;
+
+        internal string? ResponseId { get; private set; }
+
+        internal ClaudeCodeStreamEvent? Result { get; private set; }
+
+        internal ChatFinishReason? StopReason { get; private set; }
+
+        internal ChatResponseUpdate? Read(ClaudeCodeStreamEvent parsed)
+        {
+            if (parsed.IsRetry)
+            {
+                // Keep the HTTP status of the CLI's retry so a later failure explains the request failure.
+                _retriedStatus = parsed.HttpStatus ?? _retriedStatus;
+                return null;
+            }
+
+            if (parsed.IsInit)
+            {
+                ValidateInitialization(parsed, server);
+                _initialized = true;
+                ResponseId = parsed.SessionId;
+                return null;
+            }
+
+            RequireInitialization();
+            ThrowIfFailure(parsed, _retriedStatus);
+            if (parsed.HasStopReason) StopReason = parsed.FinishReason;
+            return ReadAnswer(parsed);
+        }
+
+        internal ChatResponseUpdate? Fallback(ClaudeCodeStreamEvent result)
+        {
+            // Streamed deltas already compose this text; use the result only if none were forwarded.
+            if (_streamedAnyText || string.IsNullOrEmpty(result.ResultText)) return null;
+            return new ChatResponseUpdate(ChatRole.Assistant, result.ResultText) { ResponseId = ResponseId ?? result.SessionId };
+        }
+
+        void RequireInitialization()
+        {
+            if (server is not null && !_initialized)
+            {
+                throw new ClaudeCodeConversationFailed("Claude Code did not confirm the invocation's tool server connection.");
+            }
+        }
+
+        ChatResponseUpdate? ReadAnswer(ClaudeCodeStreamEvent parsed)
+        {
+            if (parsed.IsPartialText && options?.ResponseFormat is not ChatResponseFormatJson)
+            {
+                _streamedAnyText = true;
+                return new ChatResponseUpdate(ChatRole.Assistant, parsed.DeltaText) { ResponseId = ResponseId };
+            }
+
+            if (parsed.IsResult) Result = parsed;
+            return null;
+        }
     }
 
     sealed record TurnRequest(IReadOnlyList<ChatMessage> Messages, ChatOptions? Options, IReadOnlyList<string> OmittedControls, Action InvocationStarting);
