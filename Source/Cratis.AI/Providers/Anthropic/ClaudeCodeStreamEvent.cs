@@ -129,18 +129,7 @@ internal sealed record ClaudeCodeStreamEvent
                 return false;
             }
 
-            var candidate = typeElement.GetString() switch
-            {
-                "system" when IsApiRetry(body) => ParseApiRetry(body),
-                "system" => ParseInit(body),
-                "stream_event" => ParsePartialText(body),
-                "result" => ParseResult(body),
-                "assistant" when body.TryGetProperty("error", out var error) && error.ValueKind != JsonValueKind.Null => ParseAssistantError(body, error),
-                "assistant" when body.TryGetProperty("message", out var message) && message.ValueKind == JsonValueKind.Object => ParseFinish(message),
-                "rate_limit_event" when body.TryGetProperty("rate_limit_info", out var limit) && limit.ValueKind == JsonValueKind.Object &&
-                    limit.TryGetProperty("status", out var status) && status.ValueKind == JsonValueKind.String && status.GetString() == "rejected" => Failure("Claude Code's model request was rate limited (HTTP 429).", ClaudeCodeFailureKind.RateLimit),
-                _ => null,
-            };
+            var candidate = ParseEvent(typeElement.GetString(), body);
 
             if (candidate is null)
             {
@@ -156,7 +145,39 @@ internal sealed record ClaudeCodeStreamEvent
         }
     }
 
-    static ClaudeCodeStreamEvent Failure(string message, ClaudeCodeFailureKind kind) => new() { IsFailure = true, FailureReason = message, FailureKind = kind };
+    static ClaudeCodeStreamEvent? ParseEvent(string? type, JsonElement body) => type switch
+    {
+        "system" => IsApiRetry(body) ? ParseApiRetry(body) : ParseInit(body),
+        "stream_event" => ParsePartialText(body),
+        "result" => ParseResult(body),
+        "assistant" => ParseAssistant(body),
+        "rate_limit_event" => ParseRateLimit(body),
+        _ => null,
+    };
+
+    static ClaudeCodeStreamEvent? ParseAssistant(JsonElement body)
+    {
+        if (body.TryGetProperty("error", out var error) && error.ValueKind != JsonValueKind.Null)
+        {
+            return ParseAssistantError(body, error);
+        }
+
+        return TryGetObject(body, "message", out var message) ? ParseFinish(message) : null;
+    }
+
+    static ClaudeCodeStreamEvent? ParseRateLimit(JsonElement body) =>
+        TryGetObject(body, "rate_limit_info", out var limit) && ReadString(limit, "status") == "rejected"
+            ? new ClaudeCodeStreamEvent { IsFailure = true, FailureReason = "Claude Code's model request was rate limited (HTTP 429).", FailureKind = ClaudeCodeFailureKind.RateLimit }
+            : null;
+
+    static bool TryGetObject(JsonElement body, string name, out JsonElement value) =>
+        body.TryGetProperty(name, out value) && value.ValueKind == JsonValueKind.Object;
+
+    static bool TryGetArray(JsonElement body, string name, out JsonElement value) =>
+        body.TryGetProperty(name, out value) && value.ValueKind == JsonValueKind.Array;
+
+    static string? ReadString(JsonElement body, string name) =>
+        body.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
 
     static bool IsApiRetry(JsonElement body) =>
         body.TryGetProperty("subtype", out var subtype) && subtype.ValueKind == JsonValueKind.String && subtype.GetString() == "api_retry";
@@ -187,35 +208,24 @@ internal sealed record ClaudeCodeStreamEvent
 
     static string? AssistantText(JsonElement body)
     {
-        if (!body.TryGetProperty("message", out var message) || message.ValueKind != JsonValueKind.Object ||
-            !message.TryGetProperty("content", out var content) || content.ValueKind != JsonValueKind.Array)
+        if (!TryGetObject(body, "message", out var message) || !TryGetArray(message, "content", out var content))
         {
             return null;
         }
 
         // The CLI words some failures itself, as a message from its own "<synthetic>" model ("There's an issue with the
         // selected model ..."): that text is the CLI's, not the model's and not the user's, so it is safe to excerpt.
-        var synthetic = message.TryGetProperty("model", out var model) && model.ValueKind == JsonValueKind.String && model.GetString() == "<synthetic>";
-        foreach (var part in content.EnumerateArray())
-        {
-            if (part.ValueKind != JsonValueKind.Object || !part.TryGetProperty("text", out var textElement) || textElement.ValueKind != JsonValueKind.String)
-            {
-                continue;
-            }
+        var synthetic = ReadString(message, "model") == "<synthetic>";
+        return content.EnumerateArray()
+            .Where(part => part.ValueKind == JsonValueKind.Object)
+            .Select(part => AssistantErrorDetail(ReadString(part, "text"), synthetic))
+            .FirstOrDefault(detail => detail is not null);
+    }
 
-            var text = textElement.GetString();
-            if (VendorMessageIn(text) is { } vendorMessage)
-            {
-                return vendorMessage;
-            }
-
-            if (synthetic && !string.IsNullOrWhiteSpace(text))
-            {
-                return text;
-            }
-        }
-
-        return null;
+    static string? AssistantErrorDetail(string? text, bool synthetic)
+    {
+        if (VendorMessageIn(text) is { } vendorMessage) return vendorMessage;
+        return synthetic && !string.IsNullOrWhiteSpace(text) ? text : null;
     }
 
     // The vendor's error message from the API error body the CLI echoes after its own "API Error: <status>" prefix.
@@ -231,16 +241,39 @@ internal sealed record ClaudeCodeStreamEvent
         {
             using var document = JsonDocument.Parse(text[start..]);
             var root = document.RootElement;
-            var holder = root.ValueKind == JsonValueKind.Object && root.TryGetProperty("error", out var error) && error.ValueKind == JsonValueKind.Object ? error : root;
-            return holder.ValueKind == JsonValueKind.Object && holder.TryGetProperty("message", out var message) && message.ValueKind == JsonValueKind.String
-                ? message.GetString()
-                : null;
+            return VendorErrorMessage(root);
         }
         catch (JsonException)
         {
             return null;
         }
     }
+
+    static string? VendorErrorMessage(JsonElement root)
+    {
+        if (root.ValueKind != JsonValueKind.Object) return null;
+        var holder = TryGetObject(root, "error", out var error) ? error : root;
+        return ReadString(holder, "message");
+    }
+
+    static bool HasServerErrors(JsonElement body) =>
+        body.TryGetProperty("mcp_server_errors", out var errors) && errors.ValueKind switch
+        {
+            JsonValueKind.Array => errors.GetArrayLength() > 0,
+            JsonValueKind.Object => errors.EnumerateObject().Any(),
+            _ => false,
+        };
+
+    static bool IsConnectedServer(JsonElement server) =>
+        server.ValueKind == JsonValueKind.Object && HasConnectedIdentity(server);
+
+    static bool HasConnectedIdentity(JsonElement server) =>
+        ReadString(server, "status") == "connected" && ReadString(server, "name") is not null;
+
+    static string[] ConnectedServerNames(JsonElement body) =>
+        TryGetArray(body, "mcp_servers", out var servers)
+            ? servers.EnumerateArray().Where(IsConnectedServer).Select(server => server.GetProperty("name").GetString()!).ToArray()
+            : [];
 
     static ClaudeCodeStreamEvent? ParseInit(JsonElement body)
     {
@@ -251,9 +284,7 @@ internal sealed record ClaudeCodeStreamEvent
 
         var sessionId = body.TryGetProperty("session_id", out var sessionElement) ? sessionElement.GetString() : null;
 
-        if (body.TryGetProperty("mcp_server_errors", out var errors) &&
-            ((errors.ValueKind == JsonValueKind.Array && errors.GetArrayLength() > 0) ||
-             (errors.ValueKind == JsonValueKind.Object && errors.EnumerateObject().Any())))
+        if (HasServerErrors(body))
         {
             return new ClaudeCodeStreamEvent
             {
@@ -264,14 +295,17 @@ internal sealed record ClaudeCodeStreamEvent
             };
         }
 
-        var connected = body.TryGetProperty("mcp_servers", out var servers) && servers.ValueKind == JsonValueKind.Array
-            ? servers.EnumerateArray().Where(server => server.ValueKind == JsonValueKind.Object &&
-                server.TryGetProperty("status", out var status) && status.ValueKind == JsonValueKind.String && status.GetString() == "connected" &&
-                server.TryGetProperty("name", out var name) && name.ValueKind == JsonValueKind.String)
-                .Select(server => server.GetProperty("name").GetString()!).ToArray()
-            : [];
-        return new ClaudeCodeStreamEvent { IsInit = true, SessionId = sessionId, ConnectedServers = connected };
+        return new ClaudeCodeStreamEvent { IsInit = true, SessionId = sessionId, ConnectedServers = ConnectedServerNames(body) };
     }
+
+    static bool TryGetDelta(JsonElement body, out JsonElement delta)
+    {
+        delta = default;
+        return TryGetObject(body, "event", out var streamEvent) && TryGetObject(streamEvent, "delta", out delta);
+    }
+
+    static bool IsTextDelta(JsonElement delta) =>
+        delta.TryGetProperty("type", out var type) && type.GetString() == "text_delta";
 
     static ClaudeCodeStreamEvent? ParsePartialText(JsonElement body)
     {
@@ -282,15 +316,10 @@ internal sealed record ClaudeCodeStreamEvent
             return null;
         }
 
-        if (!body.TryGetProperty("event", out var streamEvent) || streamEvent.ValueKind != JsonValueKind.Object ||
-            !streamEvent.TryGetProperty("delta", out var delta) || delta.ValueKind != JsonValueKind.Object ||
-            !delta.TryGetProperty("type", out var deltaType) || deltaType.GetString() != "text_delta")
-        {
-            return body.TryGetProperty("event", out var ending) && ending.ValueKind == JsonValueKind.Object &&
-                ending.TryGetProperty("delta", out var endingDelta) && endingDelta.ValueKind == JsonValueKind.Object ? ParseFinish(endingDelta) : null;
-        }
+        if (!TryGetDelta(body, out var delta)) return null;
+        if (!IsTextDelta(delta)) return ParseFinish(delta);
 
-        var text = delta.TryGetProperty("text", out var textElement) && textElement.ValueKind == JsonValueKind.String ? textElement.GetString() : null;
+        var text = ReadString(delta, "text");
         return string.IsNullOrEmpty(text) ? null : new ClaudeCodeStreamEvent { IsPartialText = true, DeltaText = text };
     }
 

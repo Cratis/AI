@@ -171,6 +171,38 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
             parameters.TryGetProperty("name", out name) && name.ValueKind == JsonValueKind.String;
     }
 
+    static bool IsSupportedProtocol(string? protocol) =>
+        protocol is null || _protocolVersions.Contains(protocol, StringComparer.Ordinal);
+
+    static object ReadArguments(JsonElement parameters, JsonElement schema)
+    {
+        var arguments = new AIFunctionArguments();
+        if (parameters.TryGetProperty("arguments", out var supplied))
+        {
+            if (supplied.ValueKind != JsonValueKind.Object || !ClaudeCodeToolArguments.IsValid(supplied, schema))
+            {
+                return new RpcError(-32602, "Invalid tool arguments.");
+            }
+
+            foreach (var property in supplied.EnumerateObject()) arguments.Add(property.Name, property.Value);
+        }
+        else if (schema.TryGetProperty("required", out var required) && required.GetArrayLength() > 0)
+        {
+            return new RpcError(-32602, "Missing tool arguments.");
+        }
+
+        return arguments;
+    }
+
+    static string ToolResultText(object? result, JsonSerializerOptions options) => result switch
+    {
+        null => string.Empty,
+        string asText => asText,
+        JsonElement { ValueKind: JsonValueKind.String } element => element.GetString() ?? string.Empty,
+        JsonElement element => element.GetRawText(),
+        _ => JsonSerializer.Serialize(result, options),
+    };
+
     async Task Drain()
     {
         var cancellationFailed = false;
@@ -213,25 +245,56 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
                 return;
             }
 
-            // Authenticate before reading the body or allocating a request slot. Browser origins
-            // are never allowed, even if they somehow obtain an invocation's bearer credential.
-            var authorization = context.Request.Headers["Authorization"] ?? string.Empty;
-            if (context.Request.Headers["Origin"] is not null ||
-                !CryptographicOperations.FixedTimeEquals(_authorizationHash, SHA256.HashData(Encoding.UTF8.GetBytes(authorization))))
-            {
-                Close(context, HttpStatusCode.Unauthorized);
-                continue;
-            }
-
-            _requests.RemoveAll(task => task.IsCompleted);
-            if (_requests.Count >= MaxConcurrentRequests)
-            {
-                Close(context, HttpStatusCode.TooManyRequests);
-                continue;
-            }
-
-            _requests.Add(HandleRequest(context));
+            AdmitRequest(context);
         }
+    }
+
+    void AdmitRequest(HttpListenerContext context)
+    {
+        // Authenticate before reading the body or allocating a request slot. Browser origins
+        // are never allowed, even if they somehow obtain an invocation's bearer credential.
+        if (!IsAuthenticated(context.Request))
+        {
+            Close(context, HttpStatusCode.Unauthorized);
+            return;
+        }
+
+        _requests.RemoveAll(task => task.IsCompleted);
+        if (_requests.Count >= MaxConcurrentRequests)
+        {
+            Close(context, HttpStatusCode.TooManyRequests);
+            return;
+        }
+
+        _requests.Add(HandleRequest(context));
+    }
+
+    bool IsAuthenticated(HttpListenerRequest request)
+    {
+        var authorization = request.Headers["Authorization"] ?? string.Empty;
+        return request.Headers["Origin"] is null &&
+            CryptographicOperations.FixedTimeEquals(_authorizationHash, SHA256.HashData(Encoding.UTF8.GetBytes(authorization)));
+    }
+
+    async Task<byte[]?> ReadBody(HttpListenerContext context)
+    {
+        using var deadline = CancellationTokenSource.CreateLinkedTokenSource(_linked.Token);
+        deadline.CancelAfter(TimeSpan.FromSeconds(30));
+        await using var body = new MemoryStream();
+        var buffer = new byte[8192];
+        int read;
+        while ((read = await context.Request.InputStream.ReadAsync(buffer, deadline.Token)) > 0)
+        {
+            if (body.Length + read > MaxRequestBytes)
+            {
+                Close(context, HttpStatusCode.RequestEntityTooLarge);
+                return null;
+            }
+
+            await body.WriteAsync(buffer.AsMemory(0, read), deadline.Token);
+        }
+
+        return body.ToArray();
     }
 
     async Task HandleRequest(HttpListenerContext context)
@@ -244,50 +307,10 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
                 return;
             }
 
-            using var deadline = CancellationTokenSource.CreateLinkedTokenSource(_linked.Token);
-            deadline.CancelAfter(TimeSpan.FromSeconds(30));
-            await using var body = new MemoryStream();
-            var buffer = new byte[8192];
-            int read;
-            while ((read = await context.Request.InputStream.ReadAsync(buffer, deadline.Token)) > 0)
-            {
-                if (body.Length + read > MaxRequestBytes)
-                {
-                    Close(context, HttpStatusCode.RequestEntityTooLarge);
-                    return;
-                }
-
-                await body.WriteAsync(buffer.AsMemory(0, read), deadline.Token);
-            }
-
-            using var document = JsonDocument.Parse(body.ToArray());
-            var root = document.RootElement;
-            if (!IsRpcRequest(root, out var method))
-            {
-                Close(context, HttpStatusCode.BadRequest);
-                return;
-            }
-
-            if (!root.TryGetProperty("id", out var id))
-            {
-                Close(context, method.GetString() == "notifications/initialized" ? HttpStatusCode.Accepted : HttpStatusCode.BadRequest);
-                return;
-            }
-
-            if (!IsRequestId(id))
-            {
-                Close(context, HttpStatusCode.BadRequest);
-                return;
-            }
-
-            var result = await Dispatch(method.GetString(), root);
-            object envelope = result is RpcError error
-                ? new { jsonrpc = "2.0", id, error = new { code = error.Code, message = error.Message } }
-                : new { jsonrpc = "2.0", id, result };
-            var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope);
-            context.Response.ContentType = "application/json";
-            context.Response.ContentLength64 = bytes.Length;
-            await context.Response.OutputStream.WriteAsync(bytes, _linked.Token);
+            var body = await ReadBody(context);
+            if (body is null) return;
+            using var document = JsonDocument.Parse(body);
+            await HandleRpcRequest(context, document.RootElement);
         }
         catch (JsonException)
         {
@@ -304,13 +327,48 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
         }
     }
 
+    async Task HandleRpcRequest(HttpListenerContext context, JsonElement root)
+    {
+        if (!IsRpcRequest(root, out var method))
+        {
+            Close(context, HttpStatusCode.BadRequest);
+            return;
+        }
+
+        if (!root.TryGetProperty("id", out var id))
+        {
+            Close(context, method.GetString() == "notifications/initialized" ? HttpStatusCode.Accepted : HttpStatusCode.BadRequest);
+            return;
+        }
+
+        if (!IsRequestId(id))
+        {
+            Close(context, HttpStatusCode.BadRequest);
+            return;
+        }
+
+        var result = await Dispatch(method.GetString(), root);
+        await WriteResult(context.Response, id, result);
+    }
+
+    async Task WriteResult(HttpListenerResponse response, JsonElement id, object result)
+    {
+        object envelope = result is RpcError error
+            ? new { jsonrpc = "2.0", id, error = new { code = error.Code, message = error.Message } }
+            : new { jsonrpc = "2.0", id, result };
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(envelope);
+        response.ContentType = "application/json";
+        response.ContentLength64 = bytes.Length;
+        await response.OutputStream.WriteAsync(bytes, _linked.Token);
+    }
+
     HttpStatusCode? RequestRejection(HttpListenerRequest request)
     {
         if (request.HttpMethod != "POST") return HttpStatusCode.MethodNotAllowed;
 
         var protocol = request.Headers["MCP-Protocol-Version"];
         if (request.Url?.AbsolutePath != Endpoint.AbsolutePath ||
-            (protocol is not null && !_protocolVersions.Contains(protocol, StringComparer.Ordinal)))
+            !IsSupportedProtocol(protocol))
         {
             return HttpStatusCode.BadRequest;
         }
@@ -356,22 +414,8 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
             return new RpcError(-32602, "Invalid tool name or parameters.");
         }
 
-        var arguments = new AIFunctionArguments();
-        if (parameters.TryGetProperty("arguments", out var supplied))
-        {
-            if (supplied.ValueKind != JsonValueKind.Object || !ClaudeCodeToolArguments.IsValid(supplied, function.JsonSchema))
-            {
-                return new RpcError(-32602, "Invalid tool arguments.");
-            }
-
-            foreach (var property in supplied.EnumerateObject()) arguments.Add(property.Name, property.Value);
-        }
-        else if (function.JsonSchema.TryGetProperty("required", out var required) && required.GetArrayLength() > 0)
-        {
-            return new RpcError(-32602, "Missing tool arguments.");
-        }
-
-        return await InvokeTool(function, arguments);
+        var arguments = ReadArguments(parameters, function.JsonSchema);
+        return arguments is AIFunctionArguments valid ? await InvokeTool(function, valid) : arguments;
     }
 
     async Task<object> InvokeTool(AIFunction function, AIFunctionArguments arguments)
@@ -381,14 +425,7 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
             InvocationStarting?.Invoke();
             var result = await function.InvokeAsync(arguments, _linked.Token);
             if (result is Exception) return ToolFailure();
-            var text = result switch
-            {
-                null => string.Empty,
-                string asText => asText,
-                JsonElement { ValueKind: JsonValueKind.String } element => element.GetString() ?? string.Empty,
-                JsonElement element => element.GetRawText(),
-                _ => JsonSerializer.Serialize(result, function.JsonSerializerOptions),
-            };
+            var text = ToolResultText(result, function.JsonSerializerOptions);
             return new { content = new[] { new { type = "text", text } }, isError = false };
         }
         catch (Exception)
