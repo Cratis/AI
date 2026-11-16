@@ -10,6 +10,7 @@
     { "query": "a screen where the user acts on an existing order: what data does it have to show?", "shouldTrigger": true },
     { "query": "build the state-transition table for the booking entity, including refused transitions", "shouldTrigger": true },
     { "query": "the command has a confirmsAvailability true input to prove the boat is free. is that fine?", "shouldTrigger": true },
+    { "query": "a designer drew the invoice list before any slice exists. which slice should serve it and what does its read model need to supply?", "shouldTrigger": true },
     { "query": "Which stream identity should these events share, and where is the cross-stream invariant enforced?", "shouldTrigger": false, "note": "cratis-screenplay-streams-and-consistency" },
     { "query": "Model what happens automatically after the parcel is delivered, with retries.", "shouldTrigger": false, "note": "cratis-screenplay-automations-and-translations" },
     { "query": "Which scenarios should we write for the locker commands?", "shouldTrigger": false, "note": "cratis-screenplay-scenario-coverage" },
@@ -18,6 +19,7 @@
     { "query": "Write the projection with children and joins for the locker overview.", "shouldTrigger": false, "note": "cratis-screenplay-projections" },
     { "query": "Write the C# command record and its Handle method for ReassignLocker.", "shouldTrigger": false, "note": "cratis-arc-command" },
     { "query": "Lay out the screen with a MasterDetail template and a form.", "shouldTrigger": false, "note": "cratis-screenplay-ui-composition" },
-    { "query": "Write the validate and authorize lines for the command in .play syntax.", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" }
+    { "query": "Write the validate and authorize lines for the command in .play syntax.", "shouldTrigger": false, "note": "cratis-screenplay-command-surface" },
+    { "query": "What is the exact syntax for a shape, an alias on a need and a provision with a from mapping?", "shouldTrigger": false, "note": "cratis-screenplay-ui-composition" }
   ]
 }

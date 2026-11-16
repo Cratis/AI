@@ -17,6 +17,7 @@ storyline <Name> ["<title>"]
 - `<Name>` is unique among the application's storylines (`PLAY0943`); the optional title is what a board shows.
 - `<kind>` is `module`, `feature`, `slice`, `command`, `event`, `readmodel`, `query`, `screen` or `reaction`; line order is path order.
 - `<reference>` is the element's name; qualify it (`Returns.Requests`, `Requests.RequestReturn`) when several elements of that kind match (`PLAY0198`, warning).
+- A `screen` step names any screen: one declared in a slice, or a free screen declared at the top level, in a module or in a feature, whether or not a slice has adopted it yet ([free screens](free-screens-proposals.md)).
 - A storyline is declared at the top level, in exactly one file of a folder model.
 
 ```screenplay expect PLAY0533

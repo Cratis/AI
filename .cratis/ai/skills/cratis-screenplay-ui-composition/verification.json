@@ -269,6 +269,22 @@
     { "kind": "skill-contains", "value": "action-subjects.md#table-narrowing", "file": "references/guarded-interactions.md" },
     { "kind": "skill-contains", "value": "references/screen-visuals.md" },
     { "kind": "skill-contains", "value": "Requires Screenplay 6.7.0 or later", "file": "references/screen-visuals.md" },
-    { "kind": "skill-contains", "value": "`PLAY0951` | Warning", "file": "references/screen-visuals.md" }
+    { "kind": "skill-contains", "value": "`PLAY0951` | Warning", "file": "references/screen-visuals.md" },
+    { "kind": "skill-contains", "value": "references/free-screens.md" },
+    { "kind": "skill-contains", "value": "references/scene-design.md" },
+    { "kind": "skill-contains", "value": "Requires a Screenplay release later than 6.31.0 whose contract lists", "file": "references/free-screens.md" },
+    { "kind": "skill-contains", "value": "with **no `via query`** is a **need**", "file": "references/free-screens.md" },
+    { "kind": "skill-contains", "value": "data overdue via query ListOverdue", "file": "references/free-screens.md" },
+    { "kind": "skill-contains", "value": "There is no separate release flag", "file": "references/free-screens.md" },
+    { "kind": "skill-contains", "value": "A free screen no slice adopts is **design-only**", "file": "references/free-screens.md" },
+    { "kind": "skill-contains", "value": "`PLAY1155` | Warning", "file": "references/free-screens.md" },
+    { "kind": "skill-contains", "value": "`PLAY1164` | Information", "file": "references/free-screens.md" },
+    { "kind": "skill-contains", "value": "A renderer never reads a token by name.", "file": "references/design-system-and-themes.md" },
+    { "kind": "skill-contains", "value": "the Screenplay `design system` has no `maps to`", "file": "references/design-system-and-themes.md" },
+    { "kind": "skill-contains", "value": "`variantProperty`, `variantValues`", "file": "references/design-system-and-themes.md" },
+    { "kind": "skill-contains", "value": "`freeStylingNotAllowed`", "file": "references/scene-design.md" },
+    { "kind": "skill-contains", "value": "The canvas edits **screens only**.", "file": "references/scene-design.md" },
+    { "kind": "skill-contains", "value": "design-system **draft**", "file": "references/scene-design.md" },
+    { "kind": "skill-contains", "value": "Repair inside the loop.", "file": "references/scene-design.md" }
   ]
 }

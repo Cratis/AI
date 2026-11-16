@@ -49,6 +49,18 @@
         "Says a screen with neither `data` nor `action` is a gap.",
         "Says a caller-supplied `filter ownerId` is not access control, because whose rows a view shows is part of the view's design."
       ]
+    },
+    {
+      "id": 5,
+      "name": "screen-before-slice",
+      "prompt": "A designer drew the InvoiceList screen before any slice existed. It shows number, customer, amount and due date. The existing ListInvoices slice has a read model with invoiceNumber, customer and amount, and a list query. How should the screen and the slice be modeled and connected? Reply only; do not write files.",
+      "expected_output": "The screen is a free screen declared outside the slice whose data is a need (a shape, not a read model); the slice adopts it with uses screen and provides the need from ListInvoices, mapping invoiceNumber to number. The missing due date is a read model gap to fix in the slice and trace to an event, not a field to drop from the screen. Until adopted the screen is design-only.",
+      "assertions": [
+        "Declares InvoiceList outside the slice with its data as a need (`data Invoice[]` or a similar shape name) rather than naming the slice's read model.",
+        "Has ListInvoices adopt the screen with `uses screen` and provide the need from its list query, mapping `number from invoiceNumber`.",
+        "Treats the missing due date as a read model gap to add and trace to an event, and says not to drop the field from the screen or shape to pass the check.",
+        "Says the screen is design-only until a slice adopts it and that the model must compile with no unprovided need under warnings as errors."
+      ]
     }
   ]
 }

@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-ui-composition
-description: Use when declaring Screenplay shells, reusable templates, forms, navigation, interaction wiring, design systems or themes. Not for a screen's own query data and action contract; use cratis-screenplay-read-surface.
+description: Use when declaring Screenplay shells, reusable templates, forms, navigation, interaction wiring, design systems, themes or free screens a slice adopts. Not for a screen's own query data and action contract; use cratis-screenplay-read-surface.
 license: MIT
 ---
 
@@ -19,11 +19,9 @@ a trigger value named `file` is written `@file`.
 
 ## Locate the model
 
-Look first for the project's existing `.play` files: their folder is the model.
-Reuse existing model/workspace roots; code-only `Source/` or `src/` does not
-qualify. Otherwise use repository-root `Screenplay/` ([discovery/version gates](../cratis-screenplay-event-modeling/references/file-layout.md#locate-the-model)). Never put a model under `.cratis/` or hand-copy it between repositories.
-`cratis ai install` manages `.cratis/ai/`, never model files. Keep explanatory
-Markdown in project documentation; `.play` is the single flow model.
+Look first for the project's existing `.play` files: their folder is the model;
+code-only `Source/` or `src/` does not qualify. Otherwise use repository-root `Screenplay/` ([discovery/version gates](../cratis-screenplay-event-modeling/references/file-layout.md#locate-the-model)). Never put a model under `.cratis/` or hand-copy it between repositories;
+`cratis ai install` manages `.cratis/ai/`, never model files. Keep explanatory Markdown in project documentation.
 
 ## Product sources
 
@@ -34,7 +32,7 @@ Tool versions: toolchain `SKILL.md`. UI statements come from Screenplay
 runtime sources: scaffold Scene tag, `Source/JavaScript/**`. See
 [Scene v4.82.0 runtime boundaries](references/scene-runtime-boundaries.md) for
 exact query registration/submission, root-profile serialization and interaction
-limits. These host APIs are not new `.play` syntax and do not verify UI rendering.
+limits.
 
 Every construct on this page is deferred from the executable model with
 information `PLAY0269`: it never blocks binding, and it is not evidence that a
@@ -45,9 +43,8 @@ exposed template configuration, package/icon catalogs, manual form columns, hier
 routes, toolbars and dialog destinations, each with a separate support level
 (authoring accepted, executable admitted, runtime implemented). Discover the
 installed shape through MCP `syntax-schema`; details:
-`references/screen-composition-contract.md`.
-
-Absent editor highlighting is never evidence that a construct is wrong: check `screenplay`, not the editor (see [references/screen-composition-contract.md](references/screen-composition-contract.md)).
+[references/screen-composition-contract.md](references/screen-composition-contract.md).
+Absent editor highlighting is never evidence that a construct is wrong: check `screenplay`, not the editor.
 
 
 ## Compose in this order
@@ -79,7 +76,11 @@ work on a screen whose purpose is unsettled is rework.
 6. **Report each screen in two or three sentences**: what it shows and what the
    user can do. Not everyone reviewing can see a board.
 
-Read `references/worked-flow.md` when a complete example is needed before composing a flow; it contains two Level-1 screens, their command, read model and form, with the field trace.
+Read `references/worked-flow.md` for a complete example: two Level-1 screens, their command, read model and form, with the field trace.
+
+## Free screens and Scene Design
+
+A `screen` may be declared at the top level, in a module, a feature or a slice. A free screen states the data it needs (`data <Shape>[]`); a slice adopts it with `uses screen` and provides each need from a query. Read [references/free-screens.md](references/free-screens.md) before declaring, adopting or reviewing one: shapes, aliases, provisions, severities, design-only screens and their diagnostics. Read [references/scene-design.md](references/scene-design.md) when an agent designs screens through the Scene Design catalogue and operations or must refuse free styling.
 
 ## `layout` — the application shell
 
@@ -222,16 +223,12 @@ MCP editing and the review checklist.
 
 An interaction wires an `on <thing>` trigger to actions, inline or through named
 `behavior` + `uses`. This is closed UI wiring, not scripting; validation stays on
-the command. Trigger/action syntax is in [interaction example](references/interaction-example.md)
+the command. Trigger/action syntax, including a named confirmation behavior with an inline
+refresh, is in [interaction example](references/interaction-example.md)
 and [guarded interactions](references/guarded-interactions.md).
 
-Guarded alternatives and `where` deprecation:
-[guarded interactions](references/guarded-interactions.md).
 Read [change alternatives](references/change-alternatives.md) when a component's
 `on change` should choose an action list by the changed item, such as a kanban move.
-
-Read [interaction example](references/interaction-example.md) when wiring a
-named confirmation behavior and an inline refresh to the same screen.
 
 State every plain and toolbar `action`'s subject: `for item` (the chosen record fills its
 inputs) or `for screen` (no row does). Omitted, the compiler infers it from types, and a
@@ -241,7 +238,7 @@ PLAY0817-PLAY0821 appear.
 Scalar/named `returns` bind and reference-execute (ESM v7).
 Renderer generation/response limits: command-surface `references/generated-values-and-responses.md`.
 Screenplay resolves response names in form submit and execute success (Requires Screenplay 4.148.0 or later);
-own failure use is PLAY0685. No ESM change; Scene runtime binding remains downstream.
+own failure use is PLAY0685. No ESM change.
 An existing success continuation does not imply a response contract.
 Read [response continuations](references/response-continuations.md) for scope,
 precedence, PLAY0485 and examples.
@@ -267,7 +264,7 @@ Extension components: [reference](references/extension-components.md).
 
 ## `design system`, `theme` and `ui profile`
 
-The `design system` is the per-application contract; a `theme` implements it with values; a `ui profile` picks a theme, and `appearance` keeps only `color scheme` (`accent`, `corners`, `font`: `PLAY0929`). Read [references/design-system-and-themes.md](references/design-system-and-themes.md) first.
+The `design system` is the per-application contract; a `theme` implements it with values; a `ui profile` picks a theme, and `appearance` keeps only `color scheme` (`accent`, `corners`, `font`: `PLAY0929`). Read [references/design-system-and-themes.md](references/design-system-and-themes.md) first; components are the rendering contract (anatomy and link conventions).
 
 A quoted theme name such as `theme "Scene Default Light"` needs Screenplay 4.227.0 (rules in the reference below).
 
@@ -302,6 +299,7 @@ A screen can also keep `sketch`, `mockup` and `image` lines: authoring metadata,
       no Screenplay 5 form (`navigation topbar|sidebar`, `contributes`, feature `toolbar`, region `outlet`) remains.
 - [ ] Every State Change screen says what it `fits`; a hook names a place only when the automatic choice is wrong.
 - [ ] No `dialog template` declares `fits slot`.
+- [ ] Every adopted free screen provides every need (no `PLAY1155`); unadopted screens are reported as design-only.
 - [ ] Each `ui profile` names its shell with `root template`, not the legacy `layout` line (`PLAY0791`); a blueprint shell is listed under `packages` and its `version` pin is deliberate.
 - [ ] `packages` are ordered deliberately — later shadows earlier.
 - [ ] Every theme a profile selects is `compatible with` one of its packages.
