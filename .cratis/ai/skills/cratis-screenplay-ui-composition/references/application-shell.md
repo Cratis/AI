@@ -383,6 +383,12 @@ The template offers places, the slice says which it fits, and the hook picks one
 - A `sample data <Name>` pack holds rows per shape (`shape <ReadModel>` then `row` with `<field> = <literal>`), and an
   optional `title` and `locale`. Fields must be properties of the read model (`PLAY0710`) and literals must fit
   their types (`PLAY0711`).
+- **A collection of a declared top-level `type` uses nested rows** (decision 0136): write the
+  collection field bare, then a `row` block per element with that element's fields beneath it, recursively. A bare
+  field with no rows is an **explicit empty list**; omitting the field leaves it absent for generation or preview
+  fallback, which is not the same. Primitive collections and a single composite object take no nested rows
+  (`PLAY0711`), and scalar-list literals and JSON are not collection syntax. Preview needs matching Stage/Studio
+  conversion support.
 - **The active pack is chosen once, in the `ui profile`** (`sample data` then `active <Pack>` or `active blueprint <id>`),
   never per screen, slice or component. A pack the document does not declare is `PLAY0714`. `shape <Shape> maps to
   <ReadModel>` maps a differently named shape; `bind <ReadModel> to <Pack>` is a rare per-read-model override.
