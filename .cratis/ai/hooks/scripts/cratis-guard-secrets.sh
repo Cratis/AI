@@ -41,95 +41,69 @@ parser_failed() {
 command_text="$(jq -r '.tool_input.command // empty' <<<"$input")" || parser_failed
 [ -n "$command_text" ] || exit 0
 
-# Cheap exit for the overwhelming majority of shell commands, which mention none of these words. The shell
-# reads a word after removing quotes, escapes and line continuations, so the words are looked for in that
-# form. A command that still shows none is parsed anyway when its raw text has an expansion, glob or brace
-# character: this list must stay a superset of the protected stems the parser can resolve.
-probe=${command_text//\\$'\n'/}
-probe=${probe//[\'\"\\]/}
-# Allowlist for symbolic links: a literal word that is a link, or sits under a linked directory, is followed
-# through the working directory, and the command is refused when the final target is a protected file. This
-# only adds refusals; it never admits a command the text analysis below refuses. The word list is a plain
-# split of the unquoted text, so it can miss a word the awk analysis would see, never the reverse.
-protected_target_name() {
-    local lowered base
-    [ -d "$1" ] && return 1
-    lowered="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" || return 1
-    base="${lowered##*/}"
-    case "$base" in
-        .env.example|.env.sample|.env.template|.env.dist|.env.default|.env.defaults) return 1 ;;
-        .env|.env.*|*.env|.envrc|id_rsa|id_ed25519|id_ecdsa|id_dsa|*.pem|*.key|*.p12|*.pfx|*.jks|*.keystore|*.kdbx|.netrc|.npmrc|.pgpass|.pypirc|.git-credentials|kubeconfig|*.kubeconfig|credentials|credentials.json|secrets.yaml|secrets.yml|token|token.json|tokens.json|github_token) return 0 ;;
-    esac
-    case "/$lowered" in
-        */.kube/*|*/.aws/credentials|*/.docker/config.json|/run/secrets/*|/var/run/secrets/*) return 0 ;;
-    esac
-    return 1
+# Filesystem resolution only returns link targets. The awk classifier below judges both these targets
+# and decoded command words, so file-name exceptions cannot diverge between the two paths.
+IFS= read -r -d '' link_program <<'LINKS' || true
+emit_target() {
+    [ -d "$1" ] && return 0
+    case "$1" in *'
+'*) printf 'E\n' ;; *) printf 'P:%s\n' "$1" ;; esac
 }
-# Follows a chain of links one step at a time (bash 3.2, BSD readlink: no readlink -f, no realpath). Returns
-# 0 when the chain ends at a protected name or cannot be followed, 1 when it is harmless.
-link_chain_protected() {
+link_chain_targets() {
     local current="$1" hops=0 target parent
     while [ -L "$current" ]; do
         hops=$((hops + 1))
-        [ "$hops" -le 16 ] || return 0
-        target="$(readlink -- "$current")" || return 0
+        [ "$hops" -le 16 ] || { printf 'E\n'; return; }
+        target="$(readlink -- "$current")" || { printf 'E\n'; return; }
         case "$target" in
             /*) current="$target" ;;
             *) parent="${current%/*}"; [ "$parent" != "$current" ] || parent=.; current="$parent/$target" ;;
         esac
-        if protected_target_name "$current"; then return 0; fi
+        emit_target "$current"
     done
-    return 1
 }
-linked_protected_word() {
+linked_targets_word() {
     local word="$1" directory resolved logical
-    [ -n "$word" ] || return 1
+    [ -n "$word" ] || return 0
     case "$word" in
-        --*) return 1 ;;
-        -?*) word="${word#-?}"; [ -n "$word" ] || return 1 ;;
+        --*) return 0 ;;
+        -?*) word="${word#-?}"; [ -n "$word" ] || return 0 ;;
     esac
-    if [ -L "$word" ]; then link_chain_protected "$word"; return; fi
-    case "$word" in */*) ;; *) return 1 ;; esac
+    if [ -L "$word" ]; then link_chain_targets "$word"; return; fi
+    case "$word" in */*) ;; *) return 0 ;; esac
     directory="${word%/*}"; [ -n "$directory" ] || directory=/
-    [ -d "$directory" ] || return 1
-    resolved="$(cd -P -- "$directory" 2>/dev/null && pwd -P)" || return 1
-    logical="$(cd -- "$directory" 2>/dev/null && pwd)" || return 1
-    [ "$resolved" != "$logical" ] || return 1
+    [ -d "$directory" ] || return 0
+    resolved="$(cd -P -- "$directory" 2>/dev/null && pwd -P)" || return 0
+    logical="$(cd -- "$directory" 2>/dev/null && pwd)" || return 0
+    [ "$resolved" != "$logical" ] || return 0
     resolved="$resolved/${word##*/}"
-    if protected_target_name "$resolved"; then return 0; fi
-    link_chain_protected "$resolved"
+    emit_target "$resolved"
+    link_chain_targets "$resolved"
 }
-first_linked_word() {
-    local link_words link_word link_count=0
-    link_words="$(printf '%s' "$probe" | tr ';|&<>(){}=,' ' ')" || return 0
-    cd -- "$1" || return 0
-    set -f
-    for link_word in $link_words; do
-        link_count=$((link_count + 1))
-        # A command too long to check word by word is refused rather than partly checked.
-        if [ "$link_count" -gt 5000 ]; then printf '%s' "$link_word"; return 0; fi
-        if linked_protected_word "$link_word"; then printf '%s' "$link_word"; return 0; fi
-    done
-}
-link_cwd="$(jq -r '.cwd // empty' <<<"$input")" || parser_failed
-if [ -n "$link_cwd" ] && [ -d "$link_cwd" ]; then
-    linked_word="$(first_linked_word "$link_cwd")" || parser_failed
-    if [ -n "$linked_word" ]; then
-        printf 'BLOCKED by cratis-guard-secrets: %s is a symbolic link or sits under one, and it resolves to a protected file. Use instead: name the real non-credential file; do not read a protected file through a link.\n' "$linked_word" >&2
-        exit 2
-    fi
-fi
-probe_lower="$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" || parser_failed
-case "$probe_lower" in
-    *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
-    *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.key*|*.p12*|*.pfx*|*.jks*|*.kdbx*|*token*|*.netrc*|*.npmrc*|\
-    *credential*|*.pgpass*|*pypirc*|*secrets*|*oc*) ;;
-    *)
-        case "$command_text" in
+unset CDPATH
+cd -- "$1" 2>/dev/null || exit 0
+shift
+[ "$#" -le 5000 ] || { printf 'E\n'; exit 0; }
+for link_word in "$@"; do linked_targets_word "$link_word"; done
+LINKS
+
+# Without a supplied working directory there are no literal links to resolve. Keep the cheap textual
+# pre-filter, but always parse bulk-reader families: even a root operand can cover mounted secrets.
+command_cwd="$(jq -r '.cwd // empty' <<<"$input")" || parser_failed
+if [ -z "$command_cwd" ]; then
+    probe=${command_text//\\$'\n'/}
+    probe=${probe//[\'\"\\]/}
+    probe_lower="$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" || parser_failed
+    case "$probe_lower" in
+        *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
+        *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.key*|*.p12*|*.pfx*|*.jks*|*.kdbx*|*token*|*.netrc*|*.npmrc*|\
+        *credential*|*.pgpass*|*pypirc*|*secrets*|*oc*|*grep*|*rg*|*ag*|*find*|*tar*|*cp*|*rsync*|*zip*|*diff*|*cd*) ;;
+        *) case "$command_text" in
             *'$'*|*'*'*|*'?'*|*'['*|*'{'*|*'('*|*'^'*|*'~'*|*'`'*) ;;
             *) exit 0 ;;
         esac ;;
-esac
+    esac
+fi
 
 IFS= read -r -d '' awk_program <<'AWK' || true
 function report(what, alt) {
@@ -137,9 +111,11 @@ function report(what, alt) {
     seen[what] = 1
     reports = reports sprintf("%s\t%s\n", what, alt)
 }
-function enqueue(text) {
+function enqueue(text,    k) {
     if (text == "" || queued >= 64) return
     queue[++queued] = text
+    QUEUE_COUNT[queued] = ncd
+    for (k = 1; k <= ncd; k++) QUEUE_DIR[queued, k] = cwd_at(k)
 }
 function base(word) { word = tolower(word); sub(/.*\//, "", word); return word }
 
@@ -308,18 +284,23 @@ function regex_flag(w) {
     return w ~ /^--(ignore-case|no-ignore-case|word-regexp|line-regexp|fixed-strings|basic-regexp|extended-regexp|perl-regexp|invert-match|line-number|no-line-number|count|files-with-matches|files-without-match|only-matching|quiet|silent|text|binary|no-messages|with-filename|no-filename|heading|no-heading|no-ignore|hidden|no-hidden|recursive|help|version|color|colour)$/
 }
 function regex_value(w) {
-    return w ~ /^--(file|glob|iglob|include|exclude|exclude-dir|type|type-not|type-add|type-clear|max-count|max-depth|maxdepth|max-filesize|encoding|engine|pre|pre-glob|sort|sortr|threads|replace|label|colors|after-context|before-context|context|ignore-file|path-separator|hostname-bin)$/
+    return w ~ /^--(file|glob|iglob|include|exclude|exclude-dir|type|type-not|type-add|type-clear|max-count|max-depth|maxdepth|max-filesize|encoding|engine|pre|pre-glob|sort|sortr|threads|replace|label|directories|colors|after-context|before-context|context|ignore-file|path-separator|hostname-bin)$/
 }
 function regex_short_flag(b, c) {
     return c ~ /^[EFGPivwxcnNlLoqsaHIhVzuUSyZ0]$/ || (c ~ /^[rRT]$/ && b != "rg")
 }
 function regex_slots(A, s, n,    b, k, j, w, c, explicit, ended, attached, uncertain) {
-    delete RP; delete ROPER
+    delete RP; delete ROPER; regex_input = 0
     b = base(A[s])
     if (A[s] == "git" && A[s + 1] == "grep") { s++; b = "grep" }
     if (b !~ /^(grep|egrep|fgrep|rg|ag)$/) return
     for (k = s + 1; k <= n; k++) {
         w = A[k]
+        if (w ~ /^[0-9]*[<>]/ && tolower(substr(mask_of(A, k), 1, 1)) == "u") {
+            if (w ~ /^[0-9]*</) regex_input = 1
+            if (w ~ /^[0-9]*[<>]+&?-?$/) k++
+            continue
+        }
         if (!ended && w == "--") { ended = 1; continue }
         if (!ended && w ~ /^--/) {
             if (w ~ /^--(regexp|file)(=|$)/) explicit = 1
@@ -654,9 +635,20 @@ function nonreader(A, M, n,    i, w, first, read) {
     }
     return 1
 }
+function check_links(A, n,    k, cmd, line, kind) {
+    if (ENVIRON["GS_CWD"] == "") return
+    cmd = "bash -c " shell_quote(ENVIRON["GS_LINK_PROGRAM"]) " guard-links " shell_quote(ENVIRON["GS_CWD"])
+    for (k = 1; k <= n; k++) cmd = cmd " " shell_quote(A[k])
+    while ((cmd | getline line) > 0) {
+        kind = substr(line, 1, 2) == "P:" ? sensitive_path(substr(line, 3)) : "an unresolved link target"
+        if (kind != "") report("a symbolic link resolves to " kind, "name the real non-credential file; do not read a protected file through a link")
+    }
+    if (close(cmd) != 0) report("link resolution failed", "name the real non-credential file")
+}
 function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only, test_filter) {
     flush_word()
     if (nw > 0) {
+        check_links(W, nw)
         commands++
         delete PROBE_WORDS; PROBE_COUNT = nw
         for (k = 1; k <= nw; k++) PROBE_WORDS[k] = W[k]
@@ -703,6 +695,7 @@ function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only, test_filter)
         V[++m] = w; VM[m] = WM[k]
     }
     if (m > 0) { check_inputs(V, 1, m); analyze(V, 1, m) }
+    nwrap = 0
     delete W; delete WP; delete WM; delete WU; delete V; delete VM; nw = 0
 }
 function cmdsub(s, i, n,    start, depth, c, j) {
@@ -782,6 +775,10 @@ function read_heredocs(s, i, n,    h, e, line, cmp, body, hit) {
     return i
 }
 function tokenize(s,    i, n, c, c2, j, dash, delim) {
+    delete CWD; ncd = QUEUE_COUNT[qi]
+    for (i = 1; i <= ncd; i++) CWD[i] = QUEUE_DIR[qi, i]
+    effective_dir = CWD[1]; cwd_depth = 0; cwd_conditional = 0; nwrap = 0
+    clear_pipeline(); pipe_input = 0
     n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; wunquoted = 0; nheredoc = 0; hd_shell = 0; hd_interp = 0; quote_boundary = 0
     delete W; delete WP; delete WM
     while (i <= n) {
@@ -831,7 +828,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
         }
         if (c == " " || c == "\t" || c == "\r") { flush_word(); i++; continue }
         if (c == "\n") {
-            end_cmd(); i++
+            end_cmd(); clear_pipeline(); pipe_input = 0; cwd_conditional = 0; i++
             if (nheredoc > 0) i = read_heredocs(s, i, n)
             continue
         }
@@ -843,6 +840,17 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
         }
         if (c == ";" || c == "&" || c == "|" || c == "(" || c == ")") {
             end_cmd()
+            c2 = substr(s, i + 1, 1)
+            if (c == "(") push_cwd_scope()
+            else if (c == ")") pop_cwd_scope()
+            else if (c == "|" && c2 != "|") {
+                pipe_input = 1
+                if (c2 == "&") i++
+            } else {
+                clear_pipeline(); pipe_input = 0
+                cwd_conditional = (c ~ /[&|]/ && c2 == c)
+                if (cwd_conditional) i++
+            }
             complex = 1
             i++; continue
         }
@@ -986,7 +994,48 @@ function token_ok(l, b) {
     if (b ~ /\.(css|scss|less)$/) return 1
     return l ~ /(^|\/)(design|design-tokens|themes?|styles?)\//
 }
-function sensitive_path(w,    l, b) {
+function absolute_path(w, dir,    parts, count, k, path, depth, segments) {
+    if (dir == "") dir = effective_dir != "" ? effective_dir : ENVIRON["GS_CWD_FALLBACK"]
+    if (w !~ /^\//) w = dir "/" w
+    count = split(w, parts, "/")
+    for (k = 1; k <= count; k++) {
+        if (parts[k] == "" || parts[k] == ".") continue
+        if (parts[k] == "..") { if (depth > 0) depth--; continue }
+        segments[++depth] = parts[k]
+    }
+    for (k = 1; k <= depth; k++) path = path "/" segments[k]
+    while (sub(/^\/proc\/(self|thread-self|[0-9]+)\/root(\/|$)/, "/", path)) {}
+    return path == "" ? "/" : path
+}
+# All recursive roots use this matcher, including defaults and directory changes. Expansion is symbolic:
+# shell text is never evaluated, and patterns are intersected only with the finite mount ancestor chain.
+function mount_ancestor(w, m, dir,    path, mount, parent, k, paths, count, home, literal) {
+    if (w ~ /[$`]/ || m ~ /[cC]/ || dir ~ /[$`]/) return 0
+    if (dir == "\001") return 1
+    if (w ~ /^~/) {
+        if (w !~ /^~(\/|$)/ || ENVIRON["HOME"] == "") return 1
+        home = ENVIRON["HOME"]; literal = home; gsub(/./, "l", literal)
+        w = home substr(w, 2); m = literal substr(m, 2)
+    }
+    resolve(w, m)
+    count = nalt
+    for (k = 1; k <= count; k++) paths[k] = ALT[k]
+    for (k = 1; k <= count; k++) {
+        if (paths[k] ~ /[\001\003]/ && w != "\001") continue
+        if (w == "\001") return 1
+        path = absolute_path(paths[k], dir)
+        for (mount in SECRET_MOUNT) {
+            parent = mount
+            while (parent != "") {
+                if (pattern_match(path, parent)) return 1
+                sub(/\/[^\/]*$/, "", parent)
+            }
+            if (pattern_match(path, "/")) return 1
+        }
+    }
+    return 0
+}
+function sensitive_path(w,    l, b, mount, normalized, k) {
     l = tolower(w); b = l; sub(/.*\//, "", b)
     if (l ~ /(^|\/)\.kube\// || b == "kubeconfig" || b ~ /\.kubeconfig$/) return "a kubeconfig"
     # Every name starting with .env stays protected (.env2, .envprod, .envrc.local, .env-prod); only the
@@ -1006,7 +1055,10 @@ function sensitive_path(w,    l, b) {
     if (l ~ /\.docker\/config\.json$/) return "the Docker registry credentials"
     if (l ~ /(^|\/)(\.ssh|\.aws)\/?$/) return "a credential directory"
     if (l ~ /\/proc\/[^\/]*\/environ$/) return "a process environment"
-    if (l ~ /^\/(var\/)?run\/secrets\//) return "mounted secrets"
+    for (k = 1; k <= ncd; k++) {
+        normalized = tolower(absolute_path(w, cwd_at(k)))
+        for (mount in SECRET_MOUNT) if (l == mount || index(l, mount "/") == 1 || normalized == mount || index(normalized, mount "/") == 1) return "mounted secrets"
+    }
     return ""
 }
 
@@ -1319,6 +1371,7 @@ function reader_may_recurse(A, n,    i, j, w, b, ended, pattern) {
 }
 function glob_directory(    text, head, dir, prior) {
     dir = ENVIRON["GS_CWD"]; text = CMD
+    if (dir == "" && recursive_search(PROBE_WORDS, 1, PROBE_COUNT)) dir = ENVIRON["GS_CWD_FALLBACK"]
     if (ENVIRON["GS_GLOB_SAFE"] != "1" || dir == "" || dir !~ /^\//) return ""
     if (text ~ /^[ \t]*cd([ \t]|&&|$)/) {
         if (!match(text, /^[ \t]*cd[ \t]+(\047[^\047\n]+\047|"[^"$`\\\n]+"|[A-Za-z0-9_.\/@+-]+)[ \t]*&&/)) return ""
@@ -1338,6 +1391,11 @@ function glob_secret_match(a,    prefix, parent, dir, script, cmd, line, count, 
     if (substr(a, length(a), 1) != "\004" || prefix == "" || prefix ~ /[^A-Za-z0-9._\/@+=,:%-]/) return "a key or certificate file"
     parent = prefix; sub(/[^\/]*$/, "", parent)
     dir = glob_directory()
+    if (glob_recursive) for (k = 2; k <= PROBE_COUNT; k++) {
+        if (PROBE_WORDS[k] ~ /^--(follow|dereference-recursive)$/ ||
+            (base(PROBE_WORDS[1]) == "rg" && PROBE_WORDS[k] ~ /^-[^-]*L/) ||
+            (base(PROBE_WORDS[1]) ~ /^(grep|egrep|fgrep)$/ && PROBE_WORDS[k] ~ /^-[^-]*R/)) return "a key or certificate file"
+    }
     if (dir == "" || parent ~ /(^|\/)\.\.(\/|$)/) return "a key or certificate file"
     # Compare the actual directories reached under both cd modes before probing.
     script = "unset GLOBIGNORE CDPATH; shopt -u failglob; shopt -s nullglob dotglob nocaseglob; " \
@@ -1347,13 +1405,20 @@ function glob_secret_match(a,    prefix, parent, dir, script, cmd, line, count, 
         "probe=$parent; while [ ! -e \"$probe\" ]; do [ ! -L \"$probe\" ] || exit 3; next=${probe%/*}; " \
         "[ \"$next\" != \"$probe\" ] || next=.; probe=$next; done; " \
         "checked_cd \"$probe\" || exit 3; [ \"$probe\" = \"$parent\" ] || { echo OK; exit 0; }; " \
-        "n=0; for f in \"$stem\"*; do n=$((n+1)); [ \"$n\" -le 200 ] && [ ! -L \"$f\" ] || exit 3; " \
-        "if [ -d \"$f\" ]; then [ \"$3\" != 1 ] || exit 3; continue; fi; [ -f \"$f\" ] || exit 3; " \
-        "case \"$PWD/$f\" in *[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$PWD/$f\"; done; echo OK"
+        "scan_file() { local f=\"$1\" depth=\"$2\" child; seen=$((seen+1)); " \
+        "[ \"$seen\" -le 20000 ] && [ \"$depth\" -le 64 ] || return 3; " \
+        "if [ -L \"$f\" ]; then [ \"$depth\" -gt 0 ] && return 0; return 3; fi; " \
+        "case \"$PWD/$f\" in *[!a-zA-Z0-9._/@+=,:%-]*) return 3;; esac; " \
+        "if [ -d \"$f\" ]; then [ -r \"$f\" ] && [ -x \"$f\" ] || return 3; " \
+        "for child in \"$f\"/*; do scan_file \"$child\" $((depth+1)) || return 3; done; " \
+        "else [ -f \"$f\" ] || return 3; printf \"F:%s\\n\" \"$PWD/$f\"; fi; }; " \
+        "n=0; seen=0; for f in \"$stem\"*; do n=$((n+1)); [ \"$n\" -le 200 ] && [ ! -L \"$f\" ] || exit 3; " \
+        "if [ -d \"$f\" ] && [ \"$3\" != 1 ]; then continue; fi; " \
+        "scan_file \"$f\" 0 || exit 3; done; echo OK"
     cmd = "bash -c " shell_quote(script) " guard-glob " shell_quote(dir) " " shell_quote(prefix) " " shell_quote(glob_recursive ? "1" : "0") " 2>/dev/null"
     while ((cmd | getline line) > 0) {
         if (line == "OK") { ok = 1; continue }
-        if (ok || substr(line, 1, 2) != "F:" || ++count > 200) { ok = 0; break }
+        if (ok || substr(line, 1, 2) != "F:" || ++count > 20000) { ok = 0; break }
         name = substr(line, 3); kind = sensitive_path(name)
         basename = name; sub(/.*\//, "", basename)
         original = prefix; sub(/[^\/]*$/, "", original); original = original basename
@@ -1675,6 +1740,164 @@ function env_program(b, p,    t) {
     if (t !~ /[^A-Za-z0-9_](env|ENV|ENVIRON|strenv|envsubst|getenv|PROCINFO|SYMTAB)[^A-Za-z0-9_]/) return
     report(b " program reads the process environment, which can hold credentials", "name one non-credential variable with printenv NAME, or test existence with [ -n \"${NAME:-}\" ] && echo set")
 }
+function recursive_search(A, s, n,    k, j, b, w, c, value) {
+    b = base(A[s])
+    if (b == "rg" || b == "ag") return 1
+    if (b !~ /^(grep|egrep|fgrep)$/) return 0
+    for (k = s + 1; k <= n && A[k] != "--"; k++) {
+        w = A[k]
+        if (w ~ /^--(recursive|dereference-recursive)$/ || w == "--directories=recurse") return 1
+        if (w == "--directories") { if (A[++k] == "recurse") return 1; continue }
+        if (w ~ /^--/) { if (regex_value(w)) k++; continue }
+        if (w !~ /^-./) continue
+        for (j = 2; j <= length(w); j++) {
+            c = substr(w, j, 1)
+            if (c ~ /^[rR]$/) return 1
+            if (index("efmABCdD", c)) {
+                value = j < length(w) ? substr(w, j + 1) : A[++k]
+                if (c == "d" && value == "recurse") return 1
+                break
+            }
+        }
+    }
+    return 0
+}
+function literal_directory(w, dir) {
+    if (w ~ /^~(\/|$)/) w = ENVIRON["HOME"] substr(w, 2)
+    if (w == "" || w ~ /[$`*?\[{}]/ || w ~ /^[-+~]/ || w ~ /[\001\003]/) return dir
+    return absolute_path(w, dir)
+}
+function cwd_at(k,    j, dir) {
+    dir = CWD[k]
+    for (j = 1; j <= nwrap; j++) dir = literal_directory(WRAP_DIR[j], dir)
+    return dir
+}
+function push_cwd_scope(    k) {
+    cwd_depth++; SAVED_COUNT[cwd_depth] = ncd; SAVED_CONDITION[cwd_depth] = cwd_conditional
+    PIPE_SCOPE[cwd_depth] = pipe_input || (cwd_depth > 1 && PIPE_SCOPE[cwd_depth - 1])
+    for (k = 1; k <= ncd; k++) SAVED_CWD[cwd_depth, k] = CWD[k]
+}
+function pop_cwd_scope(    k) {
+    if (cwd_depth == 0) return
+    delete CWD; ncd = SAVED_COUNT[cwd_depth]; cwd_conditional = SAVED_CONDITION[cwd_depth]
+    for (k = 1; k <= ncd; k++) CWD[k] = SAVED_CWD[cwd_depth, k]
+    effective_dir = CWD[1]; cwd_depth--
+}
+function change_directory(A, s, n, b,    k, j, w, dir, count, nextdir, seen) {
+    if (b == "popd") return
+    k = s + 1
+    while (k <= n && A[k] ~ /^(-[LP]|--)$/) k++
+    w = k <= n ? A[k] : ENVIRON["HOME"]
+    for (k = 1; k <= ncd; k++) {
+        if (cwd_conditional && !(CWD[k] in seen)) { seen[CWD[k]] = 1; nextdir[++count] = CWD[k] }
+        dir = literal_directory(w, CWD[k])
+        if (!(dir in seen)) { seen[dir] = 1; nextdir[++count] = dir }
+    }
+    delete CWD; ncd = count
+    for (j = 1; j <= ncd; j++) CWD[j] = nextdir[j]
+    effective_dir = CWD[1]
+}
+function clear_pipeline() {
+    if (cwd_depth > 0 && PIPE_SCOPE[cwd_depth]) return
+    delete PF_ROOT; delete PF_MASK; delete PF_DIR; npf = 0
+}
+function report_mount_read(w, m, dir, b) {
+    if (mount_ancestor(w, m, dir)) report(b " recursively reads an ancestor of mounted secrets", "name only non-credential source files or an unrelated directory")
+}
+function read_pending_find(    k) {
+    for (k = 1; k <= npf; k++) report_mount_read(PF_ROOT[k], PF_MASK[k], PF_DIR[k], "find")
+}
+function add_bulk_root(w, m, dir) {
+    ROOT[++nr] = w; ROOT_MASK[nr] = m; ROOT_DIR[nr] = dir
+}
+# One root model for all recursive/bulk readers. ROOT carries sources only; ROOT_DIR captures the cwd at
+# that operand, including ordered tar -C switches. Search defaults and find defaults enter the same model.
+function bulk_roots(A, s, n, b,    k, j, w, m, dir, ended, enabled, target, skip, value, c, values, key, eq, start, stdin_list) {
+    delete ROOT; delete ROOT_MASK; delete ROOT_DIR; nr = 0; bulk_find = 0; bulk_reads = 1
+    dir = effective_dir
+    if (b == "git") {
+        s++
+        while (s <= n && A[s] ~ /^-/) {
+            w = A[s]
+            if (w == "-C" || w == "--work-tree") { dir = literal_directory(A[s + 1], dir); s += 2 }
+            else if (w ~ /^-C./) { dir = literal_directory(substr(w, 3), dir); s++ }
+            else if (w ~ /^--work-tree=/) { dir = literal_directory(substr(w, 13), dir); s++ }
+            else if (w == "-c" || w == "--git-dir") s += 2
+            else s++
+        }
+        if (A[s] != "grep") return 0
+        for (k = s + 1; k <= n; k++) if (A[k] == "--no-index") enabled = 1
+        if (!enabled) return 0
+        b = "grep"
+    } else if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) enabled = recursive_search(A, s, n)
+    if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) {
+        if (!enabled) return 0
+        regex_slots(A, s, n)
+        for (k = s + 1; k <= n; k++) if (k in ROPER) { add_bulk_root(A[k], mask_of(A, k), dir); skip = 1 }
+        if (!skip && (b !~ /^(rg|ag)$/ || (!pipe_input && nrt == 0 && !regex_input))) add_bulk_root(".", "u", dir)
+        return nr
+    }
+    if (b == "find") {
+        bulk_find = 1; bulk_reads = 0; k = s + 1
+        while (k <= n) {
+            if (A[k] ~ /^-[HLP]$/ || A[k] ~ /^-O[0-9]+$/) k++
+            else if (A[k] == "-D") k += 2
+            else break
+        }
+        for (; k <= n && A[k] !~ /^[-(!]/; k++) add_bulk_root(A[k], mask_of(A, k), dir)
+        if (nr == 0) add_bulk_root(".", "u", dir)
+        for (; k <= n; k++) if (A[k] ~ /^-(exec|execdir|ok|okdir)$/) bulk_reads = 1
+        return nr
+    }
+    if (b !~ /^(cp|rsync|scp|tar|zip|cpio|diff)$/) return 0
+    values = b == "tar" ? "fCXTb" : b == "cp" ? "tS" : b == "scp" ? "PofilJS" : b == "rsync" ? "eBfT" : ""
+    for (k = s + 1; k <= n; k++) {
+        w = A[k]; m = mask_of(A, k); key = ""; value = ""
+        if (w ~ /^[0-9]*[<>]/) { if (w ~ /^[0-9]*[<>]+&?-?$/) k++; continue }
+        if (!ended && w == "--") { ended = 1; continue }
+        if (!ended && w ~ /^--/) {
+            eq = index(w, "="); key = eq ? substr(w, 1, eq - 1) : w
+            if (key ~ /^--(recursive|archive|create)$/ || (b == "tar" && key ~ /^--(append|update)$/)) enabled = 1
+            if (key ~ /^--(directory|target-directory|file|files-from|exclude|include|exclude-from|include-from|filter|rsh|suffix|block-size)$/) value = eq ? substr(w, eq + 1) : A[++k]
+        } else if (!ended && (w ~ /^-./ || (b == "tar" && k == s + 1 && w ~ /^[A-Za-z]+$/))) {
+            start = w ~ /^-/ ? 2 : 1
+            for (j = start; j <= length(w); j++) {
+                c = substr(w, j, 1)
+                if ((b == "tar" && c ~ /^[cru]$/) || (b == "cpio" && c == "o") || (b !~ /^(tar|cpio)$/ && c ~ /^[rR]$/) || (b ~ /^(cp|rsync)$/ && c == "a")) enabled = 1
+                if (index(values, c)) {
+                    key = c == "C" ? "--directory" : c == "t" ? "--target-directory" : c == "T" && b == "tar" ? "--files-from" : "--value"
+                    value = j < length(w) ? substr(w, j + 1) : A[++k]
+                    break
+                }
+            }
+        } else { add_bulk_root(w, m, dir); continue }
+        if (key == "--target-directory") target = 1
+        if (key == "--directory") {
+            dir = literal_directory(value, dir)
+        }
+        if (key == "--files-from") {
+            if (b != "tar") add_bulk_root("\001", "", dir)
+            else if (value == "-") stdin_list = 1
+        }
+    }
+    if (!enabled) { nr = 0; return 0 }
+    if (b ~ /^(cp|rsync|scp)$/ && !target && nr > 0) nr--
+    if (b == "zip" && nr > 0) { for (k = 1; k < nr; k++) { ROOT[k] = ROOT[k + 1]; ROOT_MASK[k] = ROOT_MASK[k + 1]; ROOT_DIR[k] = ROOT_DIR[k + 1] } nr-- }
+    if (pipe_input && (b == "cpio" || stdin_list)) read_pending_find()
+    return nr
+}
+function check_bulk_roots(A, s, n, b,    k, d) {
+    for (d = 1; d <= ncd; d++) {
+        effective_dir = cwd_at(d)
+        bulk_roots(A, s, n, b)
+        for (k = 1; k <= nr; k++) {
+            if (ROOT[k] == "-") continue
+            if (bulk_find) { PF_ROOT[++npf] = ROOT[k]; PF_MASK[npf] = ROOT_MASK[k]; PF_DIR[npf] = ROOT_DIR[k] }
+            if (bulk_reads) report_mount_read(ROOT[k], ROOT_MASK[k], ROOT_DIR[k], b)
+        }
+    }
+    effective_dir = CWD[1]
+}
 function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals, filenames) {
     b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
     if (b == "sed") {
@@ -1762,7 +1985,7 @@ function git_content(A, s, n,    subcommand, k, w, kind, ended, pathspec) {
     }
 }
 function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
-    nrt = 0; delete REDIRECT_TOKENS; delete ROFF; first = s
+    nrt = 0; nwrap = 0; delete REDIRECT_TOKENS; delete ROFF; first = s
     while (s <= n) {
         w = A[s]; b = base(w)
         if (is_assign(w)) { if (protected_config(w)) config_report(); s++; continue }
@@ -1770,7 +1993,7 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
         if (b in KW) { s++; continue }
         if (b == "command" || b == "builtin") { s++; if (s <= n && (A[s] == "-v" || A[s] == "-V")) return; if (s <= n && A[s] == "-p") s++; if (A[s] == "--") s++; continue }
         if (b == "sudo" || b == "doas") { s = skipopts(A, s + 1, n, "ugChprtUD"); continue }
-        if (b == "xargs") { s = skipopts(A, s + 1, n, "IniPLdsEa"); continue }
+        if (b == "xargs") { read_pending_find(); s = skipopts(A, s + 1, n, "IniPLdsEa"); continue }
         if (b == "timeout") { s = skipopts(A, s + 1, n, "ks") + 1; continue }
         if (b == "nice" || b == "watch") { s = skipopts(A, s + 1, n, "n"); continue }
         if (b == "nohup" || b == "time" || b == "exec" || b == "setsid") { s = skipopts(A, s + 1, n, ""); continue }
@@ -1781,7 +2004,10 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
                 w = A[s]
                 if (is_assign(w)) { if (protected_config(w)) config_report(); s++ }
                 else if (w ~ /^[0-9]*[<>]/) s += (w ~ /^[0-9]*[<>]+&?-?$/) ? 2 : 1
-                else if (w == "-u" || w == "-C" || w == "-S" || w == "--unset" || w == "--chdir" || w == "--split-string") s += 2
+                else if (w == "-C" || w == "--chdir") { WRAP_DIR[++nwrap] = A[s + 1]; s += 2 }
+                else if (w ~ /^--chdir=/) { WRAP_DIR[++nwrap] = substr(w, 9); s++ }
+                else if (w ~ /^-C./) { WRAP_DIR[++nwrap] = substr(w, 3); s++ }
+                else if (w == "-u" || w == "-S" || w == "--unset" || w == "--split-string") s += 2
                 else if (substr(w, 1, 1) == "-") s++
                 else break
             }
@@ -1797,17 +2023,20 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
     if (expands(A[s], mask_of(A, s))) return dyn_command(A, s, n)
     b = base(A[s])
     if (nheredoc > 0 && b ~ /^(node|nodejs|deno|bun|python[0-9.]*|ruby|perl|php|lua|osascript|pwsh|powershell|dotnet|java|jshell|rscript|tclsh|julia|groovy|tsx|ts-node)$/) hd_interp = 1
+    if (b == "cd" || b == "pushd" || b == "popd") { change_directory(A, s, n, b); return }
+    check_bulk_roots(A, s, n, b)
     if (A[s] == "git") git_content(A, s, n)
     shell_config(A, s, n, b)
     collect_bindings(A, s, n, b)
     if (b == "for" || b == "select" || b == "unset") return
+    if (b == "find") return
     if (b == "dd") {
         for (k = s + 1; k <= n; k++) if (A[k] ~ /^if=/ && (config = operand_kind(A, k, 3)) != "") report("dd reads " config, "name only a non-credential input file")
         return
     }
     if (b ~ /^(cp|mv|ln|rsync|scp|tar|zip)$/) { transfer_files(A, s, n, b); return }
     if (b ~ /^(export|declare|typeset|local|readonly)$/) for (k = s + 1; k <= n; k++) if (is_assign(A[k])) set_var(A[k], mask_of(A, k))
-    if (b == "bash" || b == "sh" || b == "zsh" || b == "dash" || b == "ksh") { shell_invocation(A, s, n); return }
+    if (b == "bash" || b == "sh" || b == "zsh" || b == "dash" || b == "ksh") { if (pipe_input || (cwd_depth > 0 && PIPE_SCOPE[cwd_depth])) read_pending_find(); shell_invocation(A, s, n); return }
     if (b == "eval") { p = ""; for (k = s + 1; k <= n; k++) p = p " " A[k]; enqueue(p); return }
     if (b == "kubectl" || b == "oc") return kube(A, s, n)
     if (b == "docker" || b == "podman") return dock(A, s, n)
@@ -1882,6 +2111,9 @@ BEGIN {
     ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34; ESC["?"] = 63
     nprobe = split(".env .env.local .env.production .envrc id_rsa id_ed25519 id_ecdsa id_dsa credentials token token.json tokens.json github_token .netrc .npmrc .pypirc .pgpass .git-credentials kubeconfig", PROBE, " ")
     nprobe2 = split(".kube/config .aws/credentials .docker/config.json /proc/1/environ /run/secrets/token /var/run/secrets/token", PROBE2, " ")
+    for (i = 1; i <= nprobe2; i++) if (PROBE2[i] ~ /^\/(var\/)?run\/secrets\//) {
+        mount = PROBE2[i]; sub(/\/[^\/]*$/, "", mount); SECRET_MOUNT[mount] = 1
+    }
     nextension = split("pem key p12 pfx jks keystore kdbx kubeconfig env", EXT, " ")
     ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt set setopt unsetopt emulate grep egrep fgrep rg ag sed awk gawk mawk nawk busybox jq yq gojq jaq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
     ninterp = split(".env|env .env.local|name .env.production|name .envrc|name id_rsa|name id_ed25519|name id_ecdsa|name id_dsa|name .netrc|name .npmrc|name .pgpass|name .pypirc|name .git-credentials|name kubeconfig|name .kube/|name .aws/|name .docker/config.json|name credentials.json|name secrets.yaml|name secrets.yml|name .pem|ext .key|ext .p12|ext .pfx|ext .jks|ext .keystore|ext .kdbx|ext", INTERP_SPEC, " ")
@@ -1889,7 +2121,8 @@ BEGIN {
     nstem = split(".env .pem .key .p12 .pfx .jks .keystore .kdbx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials credential secrets.yaml secrets.yml .docker/ /environ run/secrets", STEM, " ")
     CMD = ENVIRON["GS_COMMAND"]
     for (pass = 1; pass <= 2; pass++) {
-        delete queue; queued = 0; qi = 0; delete seen; reports = ""
+        delete queue; delete QUEUE_DIR; delete QUEUE_COUNT; queued = 0; qi = 0; delete seen; reports = ""
+        delete CWD; ncd = 1; nwrap = 0; CWD[1] = ENVIRON["GS_CWD_FALLBACK"]; effective_dir = CWD[1]
         nheredoc = 0; hd_shell = 0; hd_interp = 0; commands = 0; complex = 0; simple_ok = 1; TAINT = ""
         enqueue(CMD)
         while (qi < queued) { qi++; tokenize(queue[qi]) }
@@ -1906,10 +2139,9 @@ BEGIN {
 AWK
 
 # Never infer a missing hook cwd for filesystem-dependent glob decisions.
-command_cwd="$(jq -r '.cwd // empty' <<<"$input")" || parser_failed
 glob_shell_safe=1
 if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]] || shopt -q dotglob || shopt -q nocaseglob; then glob_shell_safe=0; fi
-findings="$(GS_COMMAND="$command_text" GS_CWD="$command_cwd" GS_CWD_FALLBACK="${command_cwd:-$PWD}" GS_GLOB_SAFE="$glob_shell_safe" LC_ALL=C awk "$awk_program" </dev/null)" || parser_failed
+findings="$(GS_LINK_PROGRAM="$link_program" GS_COMMAND="$command_text" GS_CWD="$command_cwd" GS_CWD_FALLBACK="${command_cwd:-$PWD}" GS_GLOB_SAFE="$glob_shell_safe" LC_ALL=C awk "$awk_program" </dev/null)" || parser_failed
 [ -n "$findings" ] || exit 0
 
 {
