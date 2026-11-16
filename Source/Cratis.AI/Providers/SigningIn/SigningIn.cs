@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Reactive.Subjects;
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
 using MongoDB.Driver;
 
@@ -19,6 +20,7 @@ namespace Cratis.AI.Providers.SigningIn;
 /// </summary>
 /// <param name="Provider">The provider being signed in.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record StartOpenAISubscriptionSignIn(AIProviderId Provider) : ICanProvideEventSourceId
 {
     /// <inheritdoc/>
@@ -59,6 +61,7 @@ public record StartOpenAISubscriptionSignIn(AIProviderId Provider) : ICanProvide
 /// <param name="Succeeded">Whether the person authorized it.</param>
 /// <param name="Reason">Why it did not succeed, when it did not.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record EndOpenAISubscriptionSignIn(AIProviderId Provider, bool Succeeded, string Reason) : ICanProvideEventSourceId
 {
     /// <inheritdoc/>
@@ -106,6 +109,7 @@ public record OpenAISubscriptionSignInFailed(string Reason);
 /// <param name="VerificationUrl">Where to type it.</param>
 /// <param name="ExpiresAt">When the code stops being accepted.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [FromEvent<OpenAISubscriptionSignInStarted>]
 [RemovedWith<OpenAISubscriptionSignInCompleted>]
 [RemovedWith<OpenAISubscriptionSignInFailed>]

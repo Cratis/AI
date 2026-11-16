@@ -3,6 +3,7 @@
 
 using Cratis.AI.Abstractions;
 using Cratis.AI.Common;
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
 
 namespace Cratis.AI.Providers.Configuring;
@@ -18,6 +19,7 @@ namespace Cratis.AI.Providers.Configuring;
 /// <param name="Name">The name the organization knows the provider by.</param>
 /// <param name="ApiKey">The Anthropic API key.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record AddAnthropicProvider(AIProviderName Name, AIProviderApiKey ApiKey)
 {
     /// <summary>
@@ -57,6 +59,7 @@ public class AddAnthropicProviderValidator : CommandValidator<AddAnthropicProvid
 /// <param name="Name">The name the organization knows the provider by.</param>
 /// <param name="ApiKey">The new API key - blank keeps the current one.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record ReconfigureAnthropicProvider(AIProviderId Id, AIProviderName Name, AIProviderApiKey ApiKey)
 {
     /// <summary>

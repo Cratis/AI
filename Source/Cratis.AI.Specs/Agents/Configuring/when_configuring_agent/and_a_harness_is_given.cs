@@ -8,7 +8,7 @@ namespace Cratis.AI.Agents.Configuring.when_configuring_agent;
 
 public class and_a_harness_is_given : Specification
 {
-    CommandScenario<ConfigureAgent> _scenario;
+    ManagementCommandScenario<ConfigureAgent> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Providers.SettingUsageCapacity;
 
 /// <summary>
@@ -14,6 +16,7 @@ namespace Cratis.AI.Providers.SettingUsageCapacity;
 /// <param name="Provider">The provider to bound.</param>
 /// <param name="UsageCapacity">How many tokens it may consume within its usage window - zero for no ceiling.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record SetAIProviderUsageCapacity(AIProviderId Provider, AIProviderUsageCapacity UsageCapacity)
 {
     /// <summary>

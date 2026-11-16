@@ -5,7 +5,7 @@ namespace Cratis.AI.Providers.SettingConcurrency.when_setting_concurrency;
 
 public class and_the_limit_is_negative : Specification
 {
-    CommandScenario<SetAIProviderConcurrency> _scenario;
+    ManagementCommandScenario<SetAIProviderConcurrency> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

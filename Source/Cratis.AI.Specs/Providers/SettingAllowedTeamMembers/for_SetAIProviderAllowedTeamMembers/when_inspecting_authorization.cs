@@ -8,4 +8,5 @@ namespace Cratis.AI.Providers.SettingAllowedTeamMembers.for_SetAIProviderAllowed
 public class when_inspecting_authorization : Specification
 {
     [Fact] void should_require_authentication() => Attribute.IsDefined(typeof(SetAIProviderAllowedTeamMembers), typeof(AuthorizeAttribute)).ShouldBeTrue();
+    [Fact] void should_require_the_management_policy() => ((AuthorizeAttribute)Attribute.GetCustomAttribute(typeof(SetAIProviderAllowedTeamMembers), typeof(AuthorizeAttribute))!).Policy.ShouldEqual(AIManagementPolicy.Name);
 }

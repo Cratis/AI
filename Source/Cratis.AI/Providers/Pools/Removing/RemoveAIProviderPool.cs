@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Providers.Pools.Removing;
 
 /// <summary>
@@ -9,6 +11,7 @@ namespace Cratis.AI.Providers.Pools.Removing;
 /// </summary>
 /// <param name="Pool">The identity of the pool to remove.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record RemoveAIProviderPool(AIProviderPoolId Pool)
 {
     /// <summary>

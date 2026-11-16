@@ -11,7 +11,7 @@ namespace Cratis.AI.Providers.Adding.when_adding_openai_provider;
 /// </summary>
 public class and_a_complete_subscription_record_is_given : Specification
 {
-    CommandScenario<AddOpenAIProvider> _scenario;
+    ManagementCommandScenario<AddOpenAIProvider> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

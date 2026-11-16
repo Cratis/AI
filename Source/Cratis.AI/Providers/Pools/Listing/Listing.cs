@@ -7,6 +7,7 @@ using Cratis.AI.Providers.Pools.Creating;
 using Cratis.AI.Providers.Pools.Removing;
 using Cratis.AI.Providers.Pools.RemovingProvider;
 using Cratis.AI.Providers.Pools.Renaming;
+using Cratis.Arc.Authorization;
 using MongoDB.Driver;
 
 namespace Cratis.AI.Providers.Pools.Listing;
@@ -28,6 +29,7 @@ public record AIProviderPoolMember(AIProviderId ProviderId);
 /// <param name="Name">The pool's display name.</param>
 /// <param name="Members">The providers in the pool - each a bare provider reference, the acting agent's tier deciding the model on it.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [FromEvent<AIProviderPoolCreated>]
 [RemovedWith<AIProviderPoolRemoved>]
 public record AIProviderPool(

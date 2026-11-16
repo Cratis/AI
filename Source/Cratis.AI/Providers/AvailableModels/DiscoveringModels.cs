@@ -3,6 +3,7 @@
 
 using Cratis.AI.Common;
 using Cratis.AI.Providers.SettingTierModels;
+using Cratis.Arc.Authorization;
 using Cratis.Chronicle;
 
 namespace Cratis.AI.Providers.AvailableModels;
@@ -27,6 +28,7 @@ namespace Cratis.AI.Providers.AvailableModels;
 /// </remarks>
 /// <param name="Provider">The provider to ask - the identity the events' stream is bound to.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record RefreshAvailableModels(AIProviderId Provider) : ICanProvideEventSourceId
 {
     /// <inheritdoc/>
@@ -124,6 +126,7 @@ public record AIProviderModelDiscoveryFailed(string Reason, DateTimeOffset Attem
 /// <param name="Failure">Why the catalog could not be read, or an empty string when it was.</param>
 /// <param name="DiscoveredAt">When the provider was last asked - the default when it never has been.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [Passive]
 public record AvailableAIModelDiscovery(
     ModelName Id,

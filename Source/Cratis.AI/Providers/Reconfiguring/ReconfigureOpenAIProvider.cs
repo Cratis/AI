@@ -3,6 +3,7 @@
 
 using Cratis.AI.Abstractions;
 using Cratis.AI.Providers.OpenAI;
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
 
 namespace Cratis.AI.Providers.Reconfiguring;
@@ -14,6 +15,7 @@ namespace Cratis.AI.Providers.Reconfiguring;
 /// <param name="Provider">The provider to reconfigure.</param>
 /// <param name="ApiKey">The new API key - blank keeps the current one.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record ReconfigureOpenAIProvider(AIProviderId Provider, AIProviderApiKey ApiKey)
 {
     /// <summary>

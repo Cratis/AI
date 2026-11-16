@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Providers.Pools.Renaming;
 
 /// <summary>
@@ -9,6 +11,7 @@ namespace Cratis.AI.Providers.Pools.Renaming;
 /// <param name="Pool">The pool to rename.</param>
 /// <param name="Name">The new display name.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record RenameAIProviderPool(AIProviderPoolId Pool, AIProviderPoolName Name)
 {
     /// <summary>

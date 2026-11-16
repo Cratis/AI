@@ -6,6 +6,7 @@ using Cratis.AI.Providers;
 using Cratis.AI.Providers.Pools;
 using Cratis.AI.Providers.Pools.Listing;
 using Cratis.AI.Providers.Resolving;
+using Cratis.Arc.Authorization;
 
 namespace Cratis.AI.Agents.Listing;
 
@@ -18,6 +19,7 @@ namespace Cratis.AI.Agents.Listing;
 /// <param name="PoolId">The assigned pool, or the unset identity for a direct provider assignment.</param>
 /// <param name="Resolution">The effective model, source, refusal or borrowing reason, and catalog status.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [Passive]
 public record AgentTierPreview(
     AgentId AgentId,

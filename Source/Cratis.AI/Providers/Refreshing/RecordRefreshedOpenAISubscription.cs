@@ -2,7 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Providers.OpenAI;
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
+
 namespace Cratis.AI.Providers.Refreshing;
 
 /// <summary>
@@ -23,6 +25,7 @@ namespace Cratis.AI.Providers.Refreshing;
 /// <param name="Provider">The provider whose credential was rotated.</param>
 /// <param name="Credential">The freshly minted credential, unprotected - protected here before it lands on the event.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record RecordRefreshedOpenAISubscription(AIProviderId Provider, AIProviderApiKey Credential)
 {
     /// <summary>

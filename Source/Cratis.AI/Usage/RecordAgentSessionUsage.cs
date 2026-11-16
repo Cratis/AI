@@ -7,6 +7,7 @@ using Cratis.AI.Harnesses;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
 using Cratis.AI.Usage.Daily;
+using Cratis.Arc.Authorization;
 
 namespace Cratis.AI.Usage;
 
@@ -30,6 +31,7 @@ namespace Cratis.AI.Usage;
 /// <param name="MemoryBytes">The peak memory a harness measured for the session.</param>
 /// <param name="Duration">How long the session took.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record RecordAgentSessionUsage(
     AgentSessionId Session,
     AgentId Agent,

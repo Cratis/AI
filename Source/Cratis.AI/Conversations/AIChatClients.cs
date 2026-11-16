@@ -11,6 +11,8 @@ using Cratis.AI.Providers.Pools;
 using Cratis.AI.Providers.RateLimiting;
 using Cratis.AI.Providers.UsageReporting;
 using Cratis.AI.Usage;
+using Cratis.Arc.Authorization;
+using Cratis.Arc.Http;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -31,6 +33,8 @@ namespace Cratis.AI.Conversations;
 /// <param name="agents">The configured agents, to attribute usage.</param>
 /// <param name="agentExecution">Scopes usage recording to the calling agent.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> usage and rate limits are recorded through.</param>
+/// <param name="systemExecution">Scopes internal command execution.</param>
+/// <param name="requests">The current request context accessor.</param>
 /// <param name="timeProvider">The <see cref="TimeProvider"/> cooldowns are measured against.</param>
 /// <param name="options">The <see cref="AIProviderOptions"/>.</param>
 /// <param name="loggerFactory">The logger factory.</param>
@@ -47,6 +51,8 @@ public class AIChatClients(
     IAIAgents agents,
     IAgentExecution agentExecution,
     ICommandPipeline commandPipeline,
+    ISystemExecution systemExecution,
+    IHttpRequestContextAccessor requests,
     TimeProvider timeProvider,
     IOptions<AIProviderOptions> options,
     ILoggerFactory loggerFactory,
@@ -85,7 +91,9 @@ public class AIChatClients(
             agents,
             agentExecution,
             commandPipeline,
-            new ProviderRateLimitRecorder(providerCapacities, commandPipeline, timeProvider, options, logger),
+            systemExecution,
+            requests,
+            new ProviderRateLimitRecorder(providerCapacities, commandPipeline, systemExecution, requests, timeProvider, options, logger),
             timeProvider,
             options,
             logger,

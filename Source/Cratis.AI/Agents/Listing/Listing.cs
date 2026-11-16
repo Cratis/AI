@@ -9,6 +9,7 @@ using Cratis.AI.Harnesses;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
 using Cratis.AI.Providers.Pools;
+using Cratis.Arc.Authorization;
 using MongoDB.Driver;
 
 namespace Cratis.AI.Agents.Listing;
@@ -38,6 +39,7 @@ namespace Cratis.AI.Agents.Listing;
 /// Chronicle bug is fixed this remark - not the missing defaults - is what should be removed.
 /// </remarks>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [FromEvent<AgentConfigured>]
 public record Agent(
     AgentId Id,

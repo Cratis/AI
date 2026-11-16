@@ -5,7 +5,7 @@ namespace Cratis.AI.Providers.SettingUsageCapacity.when_setting_usage_capacity;
 
 public class and_the_ceiling_is_negative : Specification
 {
-    CommandScenario<SetAIProviderUsageCapacity> _scenario;
+    ManagementCommandScenario<SetAIProviderUsageCapacity> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

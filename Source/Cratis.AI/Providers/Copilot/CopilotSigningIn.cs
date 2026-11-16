@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
 
 namespace Cratis.AI.Providers.Copilot;
@@ -17,6 +18,7 @@ namespace Cratis.AI.Providers.Copilot;
 /// </summary>
 /// <param name="Provider">The provider being signed in.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record StartCopilotSignIn(AIProviderId Provider) : ICanProvideEventSourceId
 {
     /// <inheritdoc/>
@@ -58,6 +60,7 @@ public record StartCopilotSignIn(AIProviderId Provider) : ICanProvideEventSource
 /// <param name="Succeeded">Whether the person authorized it.</param>
 /// <param name="Reason">Why it did not succeed, when it did not.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record EndCopilotSignIn(AIProviderId Provider, bool Succeeded, string Reason) : ICanProvideEventSourceId
 {
     /// <inheritdoc/>

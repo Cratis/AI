@@ -7,7 +7,7 @@ public class and_a_mapping_is_given : Specification
 {
     static readonly AIProviderId _provider = AIProviderId.New();
 
-    CommandScenario<SetAIProviderTierModels> _scenario;
+    ManagementCommandScenario<SetAIProviderTierModels> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

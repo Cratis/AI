@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Providers.SettingConcurrency;
 
 /// <summary>
@@ -11,6 +13,7 @@ namespace Cratis.AI.Providers.SettingConcurrency;
 /// <param name="Provider">The provider to bound.</param>
 /// <param name="MaxConcurrentJobs">How many units of work may run on it at once - zero for no limit.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record SetAIProviderConcurrency(AIProviderId Provider, MaxConcurrentJobs MaxConcurrentJobs)
 {
     /// <summary>

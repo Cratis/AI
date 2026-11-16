@@ -2,7 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Common;
+using Cratis.AI.Providers;
 using Cratis.AI.Usage;
+using Cratis.Arc.Authorization;
 
 namespace Cratis.AI.Decisions.Usage;
 
@@ -22,6 +24,7 @@ namespace Cratis.AI.Decisions.Usage;
 /// <param name="Duration">How long the call took.</param>
 [Obsolete("Decision usage is no longer appended; removed in the next major release (Cratis/AI#651)")]
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record RecordDecisionUsage(
     DecisionUsageId Usage,
     DecisionEngineType Engine,

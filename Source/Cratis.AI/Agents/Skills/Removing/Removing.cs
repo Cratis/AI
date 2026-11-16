@@ -3,6 +3,9 @@
 
 using Cratis.AI.Agents.Listing;
 
+using Cratis.AI.Providers;
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Agents.Skills.Removing;
 
 /// <summary>
@@ -11,6 +14,7 @@ namespace Cratis.AI.Agents.Skills.Removing;
 /// <param name="Id">The agent the skill belongs to.</param>
 /// <param name="Skill">The skill to remove.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record RemoveAgentSkill(AgentId Id, SkillId Skill)
 {
     /// <summary>

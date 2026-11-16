@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Providers.Pools.Creating;
 
 /// <summary>
@@ -10,6 +12,7 @@ namespace Cratis.AI.Providers.Pools.Creating;
 /// </summary>
 /// <param name="Name">The pool's display name.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record CreateAIProviderPool(AIProviderPoolName Name)
 {
     /// <summary>

@@ -1,6 +1,7 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
 
 namespace Cratis.AI.Providers.Copilot;
@@ -11,6 +12,7 @@ namespace Cratis.AI.Providers.Copilot;
 /// <param name="Name">The provider's display name.</param>
 /// <param name="MaxConcurrentJobs">How many worker jobs may use the entitlement concurrently.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record AddCopilotProvider(AIProviderName Name, MaxConcurrentJobs MaxConcurrentJobs)
 {
     /// <summary>
@@ -44,6 +46,7 @@ public class AddCopilotProviderValidator : CommandValidator<AddCopilotProvider>
 /// <param name="Provider">The provider being configured.</param>
 /// <param name="ApiKey">The GitHub token the Copilot CLI will authenticate with.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record ReconfigureCopilotProvider(AIProviderId Provider, AIProviderApiKey ApiKey) : ICanProvideEventSourceId
 {
     /// <inheritdoc/>
@@ -80,6 +83,7 @@ public record ReconfigureCopilotProvider(AIProviderId Provider, AIProviderApiKey
 /// </summary>
 /// <param name="Provider">The provider to disconnect.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record DisconnectCopilotProvider(AIProviderId Provider) : ICanProvideEventSourceId
 {
     /// <inheritdoc/>
