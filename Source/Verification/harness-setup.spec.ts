@@ -7,7 +7,7 @@ import { cpSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, 
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
-import { checkOpenCodeAgents } from '../Harness.Setup/opencode-agents.ts';
+import { checkOpenCodeAgents, generateOpenCodeAgent, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
 import { checkCopilotInstructions, copilotInstructionsDirectory } from '../Harness.Setup/copilot-instructions.ts';
 import { checkPiAgents, piAgentsDirectory } from '../Harness.Setup/pi-agents.ts';
 
@@ -17,6 +17,84 @@ const setupPath = join(repositoryRoot, 'Source/Harness.Setup/setup.ts');
 function setup(project: string, check = false, force = false) {
     return spawnSync(process.execPath, ['--import', 'tsx', setupPath, project, ...(check ? ['--check'] : []), ...(force ? ['--force'] : [])], { cwd: repositoryRoot, encoding: 'utf8' });
 }
+
+test('OpenCode parsing preserves scalar, block-list and description bytes', () => {
+    const agent = parseCanonicalAgent('fixture.md', '---\nname: "Fixture"\ndescription: >\n  First line.\n  Second line.\ntools:\n  - Read\n  - Bash\nmodel: |\nmodelTier: \'scoped\'\nreviewIndependence: >\nreadonly: true\n---\n\nBody without a final newline');
+    assert.equal(agent.name, 'Fixture');
+    assert.deepEqual(agent.tools, ['Read', 'Bash']);
+    assert.equal(agent.model, undefined);
+    assert.equal(agent.modelTier, 'scoped');
+    assert.equal(agent.reviewIndependence, undefined);
+    assert.equal(agent.readonly, true);
+    assert.equal(parseCanonicalAgent('blank.md', '---\nname: Blank\nmodel:\n---\n').model, undefined);
+    assert.equal(generateOpenCodeAgent(agent).content, '---\ndescription: >\n  First line.\n  Second line.\nmode: subagent\npermission:\n  edit: deny\n  bash: allow\n---\n<!-- cratis-ai: generated OpenCode adapter of agents/fixture.md. Do not edit; the canonical agent is the source. -->\n\nBody without a final newline');
+});
+
+test('OpenCode generation preserves validation precedence and exact diagnostics', () => {
+    const agent = parseCanonicalAgent('fixture.md', '---\nname: Fixture\ntools: [Unknown, Edit, Write]\nmodel: native\nreadonly: true\n---\nbody\n');
+    assert.throws(() => generateOpenCodeAgent(agent), { message: 'fixture.md declares tools outside the canonical vocabulary: Unknown.' });
+    agent.tools = ['Edit', 'Write'];
+    assert.throws(() => generateOpenCodeAgent(agent), { message: 'fixture.md pins a model; canonical agents must declare modelTier (scoped | strongest | reviewer) instead of a native model.' });
+    agent.model = undefined;
+    assert.throws(() => generateOpenCodeAgent(agent), { message: 'fixture.md is readonly but declares Edit/Write.' });
+    agent.readonly = false;
+    assert.throws(() => generateOpenCodeAgent(agent), { message: 'fixture.md declares no description; OpenCode requires one.' });
+});
+
+test('OpenCode parsing rejects unsupported frontmatter shapes with exact diagnostics', () => {
+    for (const [text, message] of [
+        ['name: Fixture\n', 'fixture.md has no frontmatter.'],
+        ['---\nname: Fixture\n', 'fixture.md has an unterminated frontmatter block.'],
+        ['---\nname: >\n---\nbody', 'fixture.md declares no name.'],
+        ['---\nname: Fixture\ntools: Read\n---\nbody', "fixture.md: 'tools:' must be a YAML list, got 'Read'."],
+    ]) {
+        assert.throws(() => parseCanonicalAgent('fixture.md', text), { message });
+    }
+});
+
+test('adapter preflight refuses a foreign Pi directory before updating owned OpenCode output', () => {
+    const project = fixture();
+    try {
+        const corpus = join(project, '.cratis/ai');
+        const adapter = join(corpus, 'harnesses/opencode/agents/backend-developer.md');
+        const before = readFileSync(adapter, 'utf8');
+        const canonical = join(corpus, 'agents/backend-developer.md');
+        writeFileSync(canonical, `${readFileSync(canonical, 'utf8')}\nChanged canonical body.\n`);
+        rmSync(join(corpus, piAgentsDirectory), { recursive: true });
+        writeFileSync(join(corpus, piAgentsDirectory), 'Local directory replacement\n');
+        const refused = setup(project);
+        assert.notEqual(refused.status, 0);
+        assert.match(refused.stderr, /Pi agent adapters are out of date:/);
+        assert.equal(readFileSync(adapter, 'utf8'), before);
+        assert.equal(readFileSync(join(corpus, piAgentsDirectory), 'utf8'), 'Local directory replacement\n');
+        assert.equal(setup(project, false, true).status, 0);
+        assert.deepEqual(checkOpenCodeAgents(corpus), []);
+        assert.deepEqual(checkPiAgents(corpus), []);
+    } finally { rmSync(project, { recursive: true, force: true }); }
+});
+
+test('OpenCode directory conflicts are reported without following a foreign symlink', () => {
+    const project = fixture();
+    try {
+        const corpus = join(project, '.cratis/ai');
+        const directory = join(corpus, 'harnesses/opencode/agents');
+        const local = join(project, 'local-agents');
+        mkdirSync(local);
+        writeFileSync(join(local, 'local.md'), 'Local agent\n');
+        rmSync(directory, { recursive: true });
+        symlinkSync(local, directory, 'dir');
+        assert.deepEqual(checkOpenCodeAgents(corpus), ['harnesses/opencode/agents is not a generated adapter directory.']);
+        for (const check of [false, true]) {
+            const refused = setup(project, check);
+            assert.notEqual(refused.status, 0);
+            assert.match(refused.stderr, /OpenCode agent adapters are out of date:/);
+            assert.equal(readlinkSync(directory), local);
+        }
+        assert.equal(setup(project, false, true).status, 0);
+        assert.equal(readFileSync(join(local, 'local.md'), 'utf8'), 'Local agent\n');
+        assert.deepEqual(checkOpenCodeAgents(corpus), []);
+    } finally { rmSync(project, { recursive: true, force: true }); }
+});
 
 test('Codex setup links only native shell hooks, is idempotent and repairs owned links', () => {
     const project = fixture();
