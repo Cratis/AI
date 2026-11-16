@@ -111,10 +111,11 @@ function report(what, alt) {
     seen[what] = 1
     reports = reports sprintf("%s\t%s\n", what, alt)
 }
-function enqueue(text) {
+function enqueue(text,    k) {
     if (text == "" || queued >= 64) return
     queue[++queued] = text
-    QUEUE_DIR[queued] = effective_dir; QUEUE_UNKNOWN[queued] = effective_unknown
+    QUEUE_COUNT[queued] = ncd
+    for (k = 1; k <= ncd; k++) QUEUE_DIR[queued, k] = cwd_at(k)
 }
 function base(word) { word = tolower(word); sub(/.*\//, "", word); return word }
 
@@ -289,12 +290,17 @@ function regex_short_flag(b, c) {
     return c ~ /^[EFGPivwxcnNlLoqsaHIhVzuUSyZ0]$/ || (c ~ /^[rRT]$/ && b != "rg")
 }
 function regex_slots(A, s, n,    b, k, j, w, c, explicit, ended, attached, uncertain) {
-    delete RP; delete ROPER
+    delete RP; delete ROPER; regex_input = 0
     b = base(A[s])
     if (A[s] == "git" && A[s + 1] == "grep") { s++; b = "grep" }
     if (b !~ /^(grep|egrep|fgrep|rg|ag)$/) return
     for (k = s + 1; k <= n; k++) {
         w = A[k]
+        if (w ~ /^[0-9]*[<>]/ && tolower(substr(mask_of(A, k), 1, 1)) == "u") {
+            if (w ~ /^[0-9]*</) regex_input = 1
+            if (w ~ /^[0-9]*[<>]+&?-?$/) k++
+            continue
+        }
         if (!ended && w == "--") { ended = 1; continue }
         if (!ended && w ~ /^--/) {
             if (w ~ /^--(regexp|file)(=|$)/) explicit = 1
@@ -689,6 +695,7 @@ function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only, test_filter)
         V[++m] = w; VM[m] = WM[k]
     }
     if (m > 0) { check_inputs(V, 1, m); analyze(V, 1, m) }
+    nwrap = 0
     delete W; delete WP; delete WM; delete WU; delete V; delete VM; nw = 0
 }
 function cmdsub(s, i, n,    start, depth, c, j) {
@@ -768,7 +775,9 @@ function read_heredocs(s, i, n,    h, e, line, cmp, body, hit) {
     return i
 }
 function tokenize(s,    i, n, c, c2, j, dash, delim) {
-    effective_dir = QUEUE_DIR[qi]; effective_unknown = QUEUE_UNKNOWN[qi]
+    delete CWD; ncd = QUEUE_COUNT[qi]
+    for (i = 1; i <= ncd; i++) CWD[i] = QUEUE_DIR[qi, i]
+    effective_dir = CWD[1]; cwd_depth = 0; cwd_conditional = 0; nwrap = 0
     clear_pipeline(); pipe_input = 0
     n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; wunquoted = 0; nheredoc = 0; hd_shell = 0; hd_interp = 0; quote_boundary = 0
     delete W; delete WP; delete WM
@@ -819,7 +828,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
         }
         if (c == " " || c == "\t" || c == "\r") { flush_word(); i++; continue }
         if (c == "\n") {
-            end_cmd(); clear_pipeline(); pipe_input = 0; i++
+            end_cmd(); clear_pipeline(); pipe_input = 0; cwd_conditional = 0; i++
             if (nheredoc > 0) i = read_heredocs(s, i, n)
             continue
         }
@@ -831,9 +840,17 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
         }
         if (c == ";" || c == "&" || c == "|" || c == "(" || c == ")") {
             end_cmd()
-            if (c == "|" && substr(s, i + 1, 1) != "|") pipe_input = 1
-            else { clear_pipeline(); pipe_input = 0 }
-            if (substr(s, i + 1, 1) == c && c ~ /[&|]/) i++
+            c2 = substr(s, i + 1, 1)
+            if (c == "(") push_cwd_scope()
+            else if (c == ")") pop_cwd_scope()
+            else if (c == "|" && c2 != "|") {
+                pipe_input = 1
+                if (c2 == "&") i++
+            } else {
+                clear_pipeline(); pipe_input = 0
+                cwd_conditional = (c ~ /[&|]/ && c2 == c)
+                if (cwd_conditional) i++
+            }
             complex = 1
             i++; continue
         }
@@ -987,12 +1004,14 @@ function absolute_path(w, dir,    parts, count, k, path, depth, segments) {
         segments[++depth] = parts[k]
     }
     for (k = 1; k <= depth; k++) path = path "/" segments[k]
+    sub(/^\/proc\/(self|thread-self|[0-9]+)\/root(\/|$)/, "/", path)
     return path == "" ? "/" : path
 }
 # All recursive roots use this matcher, including defaults and directory changes. Expansion is symbolic:
 # shell text is never evaluated, and patterns are intersected only with the finite mount ancestor chain.
 function mount_ancestor(w, m, dir,    path, mount, parent, k, paths, count, home, literal) {
-    if (effective_unknown || dir == "\001" || w ~ /[$`]/ || m ~ /[cC]/) return 1
+    if (w ~ /[$`]/ || m ~ /[cC]/ || dir ~ /[$`]/) return 0
+    if (dir == "\001") return 1
     if (w ~ /^~/) {
         if (w !~ /^~(\/|$)/ || ENVIRON["HOME"] == "") return 1
         home = ENVIRON["HOME"]; literal = home; gsub(/./, "l", literal)
@@ -1002,7 +1021,8 @@ function mount_ancestor(w, m, dir,    path, mount, parent, k, paths, count, home
     count = nalt
     for (k = 1; k <= count; k++) paths[k] = ALT[k]
     for (k = 1; k <= count; k++) {
-        if (paths[k] ~ /[\001\003]/) return 1
+        if (paths[k] ~ /[\001\003]/ && w != "\001") continue
+        if (w == "\001") return 1
         path = absolute_path(paths[k], dir)
         for (mount in SECRET_MOUNT) {
             parent = mount
@@ -1015,7 +1035,7 @@ function mount_ancestor(w, m, dir,    path, mount, parent, k, paths, count, home
     }
     return 0
 }
-function sensitive_path(w,    l, b, mount, normalized) {
+function sensitive_path(w,    l, b, mount, normalized, k) {
     l = tolower(w); b = l; sub(/.*\//, "", b)
     if (l ~ /(^|\/)\.kube\// || b == "kubeconfig" || b ~ /\.kubeconfig$/) return "a kubeconfig"
     # Every name starting with .env stays protected (.env2, .envprod, .envrc.local, .env-prod); only the
@@ -1035,8 +1055,10 @@ function sensitive_path(w,    l, b, mount, normalized) {
     if (l ~ /\.docker\/config\.json$/) return "the Docker registry credentials"
     if (l ~ /(^|\/)(\.ssh|\.aws)\/?$/) return "a credential directory"
     if (l ~ /\/proc\/[^\/]*\/environ$/) return "a process environment"
-    normalized = tolower(absolute_path(w))
-    for (mount in SECRET_MOUNT) if (l == mount || index(l, mount "/") == 1 || normalized == mount || index(normalized, mount "/") == 1) return "mounted secrets"
+    for (k = 1; k <= ncd; k++) {
+        normalized = tolower(absolute_path(w, cwd_at(k)))
+        for (mount in SECRET_MOUNT) if (l == mount || index(l, mount "/") == 1 || normalized == mount || index(normalized, mount "/") == 1) return "mounted secrets"
+    }
     return ""
 }
 
@@ -1740,16 +1762,45 @@ function recursive_search(A, s, n,    k, j, b, w, c, value) {
     }
     return 0
 }
-function change_directory(A, s, n, b,    k, w, m) {
-    if (b == "popd") { effective_unknown = 1; return }
+function literal_directory(w, dir) {
+    if (w ~ /^~(\/|$)/) w = ENVIRON["HOME"] substr(w, 2)
+    if (w == "" || w ~ /[$`*?\[{}]/ || w ~ /^[-+~]/ || w ~ /[\001\003]/) return dir
+    return absolute_path(w, dir)
+}
+function cwd_at(k,    j, dir) {
+    dir = CWD[k]
+    for (j = 1; j <= nwrap; j++) dir = literal_directory(WRAP_DIR[j], dir)
+    return dir
+}
+function push_cwd_scope(    k) {
+    cwd_depth++; SAVED_COUNT[cwd_depth] = ncd; SAVED_CONDITION[cwd_depth] = cwd_conditional
+    PIPE_SCOPE[cwd_depth] = pipe_input || (cwd_depth > 1 && PIPE_SCOPE[cwd_depth - 1])
+    for (k = 1; k <= ncd; k++) SAVED_CWD[cwd_depth, k] = CWD[k]
+}
+function pop_cwd_scope(    k) {
+    if (cwd_depth == 0) return
+    delete CWD; ncd = SAVED_COUNT[cwd_depth]; cwd_conditional = SAVED_CONDITION[cwd_depth]
+    for (k = 1; k <= ncd; k++) CWD[k] = SAVED_CWD[cwd_depth, k]
+    effective_dir = CWD[1]; cwd_depth--
+}
+function change_directory(A, s, n, b,    k, j, w, dir, count, nextdir, seen) {
+    if (b == "popd") return
     k = s + 1
     while (k <= n && A[k] ~ /^(-[LP]|--)$/) k++
-    w = k <= n ? A[k] : ENVIRON["HOME"]; m = mask_of(A, k)
-    if (w ~ /^~(\/|$)/) w = ENVIRON["HOME"] substr(w, 2)
-    if (w == "" || w ~ /[$`*?\[{}]/ || m ~ /[cC]/ || w ~ /^[-+~]/ || (effective_unknown && w !~ /^\//)) { effective_unknown = 1; return }
-    effective_dir = absolute_path(w); effective_unknown = 0
+    w = k <= n ? A[k] : ENVIRON["HOME"]
+    for (k = 1; k <= ncd; k++) {
+        if (cwd_conditional && !(CWD[k] in seen)) { seen[CWD[k]] = 1; nextdir[++count] = CWD[k] }
+        dir = literal_directory(w, CWD[k])
+        if (!(dir in seen)) { seen[dir] = 1; nextdir[++count] = dir }
+    }
+    delete CWD; ncd = count
+    for (j = 1; j <= ncd; j++) CWD[j] = nextdir[j]
+    effective_dir = CWD[1]
 }
-function clear_pipeline() { delete PF_ROOT; delete PF_MASK; delete PF_DIR; npf = 0 }
+function clear_pipeline() {
+    if (cwd_depth > 0 && PIPE_SCOPE[cwd_depth]) return
+    delete PF_ROOT; delete PF_MASK; delete PF_DIR; npf = 0
+}
 function report_mount_read(w, m, dir, b) {
     if (mount_ancestor(w, m, dir)) report(b " recursively reads an ancestor of mounted secrets", "name only non-credential source files or an unrelated directory")
 }
@@ -1757,23 +1808,33 @@ function read_pending_find(    k) {
     for (k = 1; k <= npf; k++) report_mount_read(PF_ROOT[k], PF_MASK[k], PF_DIR[k], "find")
 }
 function add_bulk_root(w, m, dir) {
-    ROOT[++nr] = w; ROOT_MASK[nr] = m; ROOT_DIR[nr] = effective_unknown ? "\001" : dir
+    ROOT[++nr] = w; ROOT_MASK[nr] = m; ROOT_DIR[nr] = dir
 }
 # One root model for all recursive/bulk readers. ROOT carries sources only; ROOT_DIR captures the cwd at
 # that operand, including ordered tar -C switches. Search defaults and find defaults enter the same model.
 function bulk_roots(A, s, n, b,    k, j, w, m, dir, ended, enabled, target, skip, value, c, values, key, eq, start) {
     delete ROOT; delete ROOT_MASK; delete ROOT_DIR; nr = 0; bulk_find = 0; bulk_reads = 1
     dir = effective_dir
-    if (b == "git" && A[s + 1] == "grep") {
-        for (k = s + 2; k <= n; k++) if (A[k] == "--no-index") enabled = 1
+    if (b == "git") {
+        s++
+        while (s <= n && A[s] ~ /^-/) {
+            w = A[s]
+            if (w == "-C" || w == "--work-tree") { dir = literal_directory(A[s + 1], dir); s += 2 }
+            else if (w ~ /^-C./) { dir = literal_directory(substr(w, 3), dir); s++ }
+            else if (w ~ /^--work-tree=/) { dir = literal_directory(substr(w, 13), dir); s++ }
+            else if (w == "-c" || w == "--git-dir") s += 2
+            else s++
+        }
+        if (A[s] != "grep") return 0
+        for (k = s + 1; k <= n; k++) if (A[k] == "--no-index") enabled = 1
         if (!enabled) return 0
-        s++; b = "grep"
+        b = "grep"
     } else if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) enabled = recursive_search(A, s, n)
     if (b ~ /^(grep|egrep|fgrep|rg|ag)$/) {
         if (!enabled) return 0
         regex_slots(A, s, n)
         for (k = s + 1; k <= n; k++) if (k in ROPER) { add_bulk_root(A[k], mask_of(A, k), dir); skip = 1 }
-        if (!skip && !pipe_input && nrt == 0) add_bulk_root(".", "u", dir)
+        if (!skip && (b !~ /^(rg|ag)$/ || (!pipe_input && nrt == 0 && !regex_input))) add_bulk_root(".", "u", dir)
         return nr
     }
     if (b == "find") {
@@ -1796,13 +1857,13 @@ function bulk_roots(A, s, n, b,    k, j, w, m, dir, ended, enabled, target, skip
         if (!ended && w == "--") { ended = 1; continue }
         if (!ended && w ~ /^--/) {
             eq = index(w, "="); key = eq ? substr(w, 1, eq - 1) : w
-            if (key ~ /^--(recursive|archive|create)$/) enabled = 1
+            if (key ~ /^--(recursive|archive|create)$/ || (b == "tar" && key ~ /^--(append|update)$/)) enabled = 1
             if (key ~ /^--(directory|target-directory|file|files-from|exclude|include|exclude-from|include-from|filter|rsh|suffix|block-size)$/) value = eq ? substr(w, eq + 1) : A[++k]
         } else if (!ended && (w ~ /^-./ || (b == "tar" && k == s + 1 && w ~ /^[A-Za-z]+$/))) {
             start = w ~ /^-/ ? 2 : 1
             for (j = start; j <= length(w); j++) {
                 c = substr(w, j, 1)
-                if ((b == "tar" && c == "c") || (b == "cpio" && c == "o") || (b !~ /^(tar|cpio)$/ && c ~ /^[rR]$/) || (b ~ /^(cp|rsync)$/ && c == "a")) enabled = 1
+                if ((b == "tar" && c ~ /^[cru]$/) || (b == "cpio" && c == "o") || (b !~ /^(tar|cpio)$/ && c ~ /^[rR]$/) || (b ~ /^(cp|rsync)$/ && c == "a")) enabled = 1
                 if (index(values, c)) {
                     key = c == "C" ? "--directory" : c == "t" ? "--target-directory" : c == "T" && b == "tar" ? "--files-from" : "--value"
                     value = j < length(w) ? substr(w, j + 1) : A[++k]
@@ -1812,8 +1873,7 @@ function bulk_roots(A, s, n, b,    k, j, w, m, dir, ended, enabled, target, skip
         } else { add_bulk_root(w, m, dir); continue }
         if (key == "--target-directory") target = 1
         if (key == "--directory") {
-            if (value ~ /[$`*?\[{}~]/ || mask_of(A, k) ~ /[cC]/ || dir == "\001") dir = "\001"
-            else dir = absolute_path(value, dir)
+            dir = literal_directory(value, dir)
         }
         if (key == "--files-from") add_bulk_root("\001", "", dir)
     }
@@ -1823,13 +1883,17 @@ function bulk_roots(A, s, n, b,    k, j, w, m, dir, ended, enabled, target, skip
     if (b == "cpio") add_bulk_root("\001", "", dir)
     return nr
 }
-function check_bulk_roots(A, s, n, b,    k) {
-    bulk_roots(A, s, n, b)
-    for (k = 1; k <= nr; k++) {
-        if (ROOT[k] == "-") continue
-        if (bulk_find) { PF_ROOT[++npf] = ROOT[k]; PF_MASK[npf] = ROOT_MASK[k]; PF_DIR[npf] = ROOT_DIR[k] }
-        if (bulk_reads) report_mount_read(ROOT[k], ROOT_MASK[k], ROOT_DIR[k], b)
+function check_bulk_roots(A, s, n, b,    k, d) {
+    for (d = 1; d <= ncd; d++) {
+        effective_dir = cwd_at(d)
+        bulk_roots(A, s, n, b)
+        for (k = 1; k <= nr; k++) {
+            if (ROOT[k] == "-") continue
+            if (bulk_find) { PF_ROOT[++npf] = ROOT[k]; PF_MASK[npf] = ROOT_MASK[k]; PF_DIR[npf] = ROOT_DIR[k] }
+            if (bulk_reads) report_mount_read(ROOT[k], ROOT_MASK[k], ROOT_DIR[k], b)
+        }
     }
+    effective_dir = CWD[1]
 }
 function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals, filenames) {
     b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
@@ -1918,7 +1982,7 @@ function git_content(A, s, n,    subcommand, k, w, kind, ended, pathspec) {
     }
 }
 function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
-    nrt = 0; delete REDIRECT_TOKENS; delete ROFF; first = s
+    nrt = 0; nwrap = 0; delete REDIRECT_TOKENS; delete ROFF; first = s
     while (s <= n) {
         w = A[s]; b = base(w)
         if (is_assign(w)) { if (protected_config(w)) config_report(); s++; continue }
@@ -1937,7 +2001,10 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
                 w = A[s]
                 if (is_assign(w)) { if (protected_config(w)) config_report(); s++ }
                 else if (w ~ /^[0-9]*[<>]/) s += (w ~ /^[0-9]*[<>]+&?-?$/) ? 2 : 1
-                else if (w == "-u" || w == "-C" || w == "-S" || w == "--unset" || w == "--chdir" || w == "--split-string") s += 2
+                else if (w == "-C" || w == "--chdir") { WRAP_DIR[++nwrap] = A[s + 1]; s += 2 }
+                else if (w ~ /^--chdir=/) { WRAP_DIR[++nwrap] = substr(w, 9); s++ }
+                else if (w ~ /^-C./) { WRAP_DIR[++nwrap] = substr(w, 3); s++ }
+                else if (w == "-u" || w == "-S" || w == "--unset" || w == "--split-string") s += 2
                 else if (substr(w, 1, 1) == "-") s++
                 else break
             }
@@ -1966,7 +2033,7 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
     }
     if (b ~ /^(cp|mv|ln|rsync|scp|tar|zip)$/) { transfer_files(A, s, n, b); return }
     if (b ~ /^(export|declare|typeset|local|readonly)$/) for (k = s + 1; k <= n; k++) if (is_assign(A[k])) set_var(A[k], mask_of(A, k))
-    if (b == "bash" || b == "sh" || b == "zsh" || b == "dash" || b == "ksh") { shell_invocation(A, s, n); return }
+    if (b == "bash" || b == "sh" || b == "zsh" || b == "dash" || b == "ksh") { if (pipe_input || (cwd_depth > 0 && PIPE_SCOPE[cwd_depth])) read_pending_find(); shell_invocation(A, s, n); return }
     if (b == "eval") { p = ""; for (k = s + 1; k <= n; k++) p = p " " A[k]; enqueue(p); return }
     if (b == "kubectl" || b == "oc") return kube(A, s, n)
     if (b == "docker" || b == "podman") return dock(A, s, n)
@@ -2051,8 +2118,8 @@ BEGIN {
     nstem = split(".env .pem .key .p12 .pfx .jks .keystore .kdbx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials credential secrets.yaml secrets.yml .docker/ /environ run/secrets", STEM, " ")
     CMD = ENVIRON["GS_COMMAND"]
     for (pass = 1; pass <= 2; pass++) {
-        delete queue; delete QUEUE_DIR; delete QUEUE_UNKNOWN; queued = 0; qi = 0; delete seen; reports = ""
-        effective_dir = ENVIRON["GS_CWD_FALLBACK"]; effective_unknown = 0
+        delete queue; delete QUEUE_DIR; delete QUEUE_COUNT; queued = 0; qi = 0; delete seen; reports = ""
+        delete CWD; ncd = 1; nwrap = 0; CWD[1] = ENVIRON["GS_CWD_FALLBACK"]; effective_dir = CWD[1]
         nheredoc = 0; hd_shell = 0; hd_interp = 0; commands = 0; complex = 0; simple_ok = 1; TAINT = ""
         enqueue(CMD)
         while (qi < queued) { qi++; tokenize(queue[qi]) }

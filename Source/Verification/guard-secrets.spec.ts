@@ -2058,14 +2058,11 @@ for (const root of ['/', '/run']) {
     });
 }
 
-test('dynamic bulk roots are checked against the mounted-secret ancestors', () => {
+test('literal bulk patterns are checked against the mounted-secret ancestors', () => {
     assertVerdicts([
         'grep -r x /r*', 'grep -r x /{run,tmp}', 'grep -r x ~/../../',
-        'grep -r x $HOME/../../run', 'P=/; grep -r x $P', 'grep -r x "$(echo /)"',
         'rg foo /*', 'rg foo /va*', 'grep -r foo /v[a]r', 'rg foo ~/../..',
-        'd=/; rg foo $d', 'rg foo $(echo /)', 'rg foo `echo /`',
-        'cd "$D" && rg foo Source', 'pushd $(echo /run); grep -r foo .',
-        'tar -cf - -C "$D" ordinary', 'cpio -o', 'find /run | cpio -o',
+        'cpio -o', 'find /run | cpio -o',
     ].map(command => [BLOCK, command]), { HOME: '/home/ordinary' });
 });
 
@@ -2095,6 +2092,64 @@ test('bulk roots exclude destinations and unrelated pipelines', () => {
     for (const command of ['rg foo .', 'grep -r foo .', 'rg foo', 'ag foo', 'grep -r foo']) {
         assertVerdicts([[ALLOW, command]], {}, { cwd: '' });
     }
+});
+
+for (const root of ['/', '/run']) {
+    test(`pipeline groups and literal wrapper roots are checked at ${root}`, () => {
+        assertVerdicts([
+            `find ${root} -name x |& xargs cat`, `find ${root} |& xargs -0 head`,
+            `find ${root} | (xargs cat)`, `find ${root} | (echo ordinary; xargs cat)`,
+            `find ${root} | sh -c 'xargs cat'`, `find ${root} | bash -c 'xargs cat'`,
+            `find ${root} | sh -c 'wc -l'`,
+            `env -C ${root} rg foo`, `env --chdir=${root} grep -r foo .`,
+            `env --chdir ${root} sh -c 'rg foo'`,
+            `git --no-pager grep --no-index foo ${root}`,
+            `git -c core.x=y grep --no-index foo ${root}`,
+            `git -C ${root} grep --no-index foo`,
+            `git -C ${root} -C . --no-pager -c core.x=y grep --no-index foo`,
+            `git --git-dir .git --work-tree=${root} grep --no-index foo`,
+            `git --git-dir=.git --work-tree ${root} grep --no-index foo`,
+            `tar -rf /tmp/ordinary.tar ${root}`, `tar -uf /tmp/ordinary.tar ${root}`,
+            `tar --append -f /tmp/ordinary.tar ${root}`, `tar --update -f /tmp/ordinary.tar ${root}`,
+            `tar -f /tmp/ordinary.tar -r -C ${root} .`,
+            `true && cd ${root}; rg foo .`, `false || pushd ${root}; rg foo .`,
+        ].map(command => [BLOCK, command]));
+        assertVerdicts([
+            '(cd /tmp); rg foo .', 'true || cd /tmp; rg foo .',
+            'false && pushd /tmp; grep -r foo .', 'true && cd /tmp; rg foo .',
+            'echo x | grep -r foo', 'true | egrep -r foo', 'printf foo | fgrep -r foo',
+            'grep -r foo < /dev/null', 'echo | grep -d recurse foo',
+            'true | git --no-pager grep --no-index foo',
+        ].map(command => [BLOCK, command]), {}, { cwd: root });
+    });
+}
+
+test('process-root prefixes share the mounted-path normalization', () => {
+    assertVerdicts([
+        'cat /proc/1/root/run/secrets/db', 'cat /proc/self/root/run/./secrets/db',
+        'cat /proc/123/root/var/../run/secrets/db',
+        'grep -r x /proc/self/root/run', 'rg foo /proc/1/root/',
+        'tar -rf /tmp/ordinary.tar /proc/self/root/run',
+        'cd /proc/self/root/run; grep -r foo',
+    ].map(command => [BLOCK, command]));
+});
+
+test('ordinary dynamic operands and scoped directories remain usable', () => {
+    assertVerdicts([
+        'cd "$(git rev-parse --show-toplevel)" && rg foo',
+        'grep -rn foo $(git ls-files)', 'rg foo "$DIR"',
+        'for d in Source Documentation; do rg foo $d; done', 'popd; rg foo',
+        'P=/; grep -r x $P', 'grep -r x "$(echo /)"', 'rg foo `echo /`',
+        'cd "$D" && rg foo Source', 'pushd $(echo /run); grep -r foo .',
+        'tar -cf - -C "$D" ordinary',
+        '(cd /run); rg foo .', '(pushd /); grep -r foo .',
+        'find Source | (xargs cat)', 'find Source | sh -c "xargs cat"',
+        'find /run -name status.txt | (wc -l)',
+        'find /run -name status.txt; sh -c "xargs cat"',
+        'env -C Source rg foo', 'env --chdir=Source grep -r foo',
+        'git -C Source --no-pager grep --no-index foo',
+    ].map(command => [ALLOW, command]));
+    assertVerdicts([[ALLOW, 'echo foo | rg foo'], [ALLOW, 'rg foo < /dev/null']], {}, { cwd: '/run' });
 });
 
 test('ordinary source globs keep their protected-file checks', () => {
