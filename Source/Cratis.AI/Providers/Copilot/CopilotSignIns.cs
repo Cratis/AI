@@ -2,10 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Common;
-using Cratis.Arc.Authorization;
-using Cratis.Arc.Http;
+using Cratis.AI.Providers.SigningIn;
+using Cratis.Arc.Tenancy;
+using Cratis.Chronicle;
 using Cratis.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Cratis.AI.Providers.Copilot;
 
@@ -39,16 +41,16 @@ public interface ICopilotSignIns
 /// </para>
 /// </summary>
 /// <param name="tokens">Talks to GitHub's device endpoints.</param>
-/// <param name="commandPipeline">Records the credential and the outcome.</param>
-/// <param name="systemExecution">Scopes internal command execution.</param>
-/// <param name="requests">The current request context accessor.</param>
+/// <param name="client">Records events independently of the originating request.</param>
+/// <param name="options">The configured event store.</param>
+/// <param name="tenants">The tenant to capture before detaching.</param>
 /// <param name="logger">The logger.</param>
 [Singleton]
 public class CopilotSignIns(
     ICopilotDeviceTokens tokens,
-    ICommandPipeline commandPipeline,
-    ISystemExecution systemExecution,
-    IHttpRequestContextAccessor requests,
+    IChronicleClient client,
+    IOptions<ChronicleClientOptions> options,
+    ITenantIdAccessor tenants,
     ILogger<CopilotSignIns> logger) : ICopilotSignIns
 {
     /// <inheritdoc/>
@@ -64,12 +66,16 @@ public class CopilotSignIns(
 
         // Detached deliberately - see the class remarks. Exceptions are caught inside rather than
         // left to fault an unobserved task.
-        _ = Task.Run(() => WaitForAuthorization(provider, authorization));
+        var target = new SignInRecordingTarget(options.Value.EventStore, tenants.Current);
+        using (ExecutionContext.SuppressFlow())
+        {
+            _ = Task.Run(() => WaitForAuthorization(provider, authorization, target));
+        }
 
         return new(authorization.UserCode, authorization.VerificationUrl, authorization.ExpiresAt);
     }
 
-    async Task WaitForAuthorization(AIProviderId provider, CopilotDeviceAuthorization authorization)
+    async Task WaitForAuthorization(AIProviderId provider, CopilotDeviceAuthorization authorization, SignInRecordingTarget target)
     {
         try
         {
@@ -92,8 +98,8 @@ public class CopilotSignIns(
 
                 if (result.Credential is { } credential)
                 {
-                    await Record(new ReconfigureCopilotProvider(provider, credential));
-                    await Record(new EndCopilotSignIn(provider, true, string.Empty));
+                    await RecordCredential(target, provider, credential);
+                    await Record(target, new EndCopilotSignIn(provider, true, string.Empty));
                     logger.SignInCompleted(provider);
                     return;
                 }
@@ -107,24 +113,49 @@ public class CopilotSignIns(
                 // here rather than left to expire, so the reason reaches the person while they are
                 // still looking at the row that shows it.
                 logger.SignInRefused(provider, result.Failure);
-                await Record(new EndCopilotSignIn(provider, false, result.Failure));
+                await Record(target, new EndCopilotSignIn(provider, false, result.Failure));
                 return;
             }
 
             logger.SignInExpired(provider);
-            await Record(new EndCopilotSignIn(provider, false, "Nobody authorized the sign-in before the code expired. Start another one."));
+            await Record(target, new EndCopilotSignIn(provider, false, "Nobody authorized the sign-in before the code expired. Start another one."));
         }
         catch (Exception exception)
         {
             logger.SignInFailed(provider, exception);
-            await Record(new EndCopilotSignIn(provider, false, "The sign-in could not be completed. Start another one."));
+            await Record(target, new EndCopilotSignIn(provider, false, "The sign-in could not be completed. Start another one."));
         }
     }
 
-    async Task Record(object command)
+    async Task RecordCredential(SignInRecordingTarget target, AIProviderId provider, AIProviderApiKey credential)
     {
-        using var scope = AIInternalExecution.Begin(systemExecution, requests);
-        await commandPipeline.ExecuteAndReport(command, logger, nameof(WaitForAuthorization));
+        var store = await target.GetEventStore(client);
+        var current = await store.ReadModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)provider);
+        var result = new ReconfigureCopilotProvider(provider, credential).Handle(current);
+        if (result.TryGetResult(out var connected))
+        {
+            var appended = await store.EventLog.Append((EventSourceId)provider, connected);
+            Report(appended.ToCommandResult(), nameof(ReconfigureCopilotProvider));
+        }
+        else if (result.TryGetError(out var error))
+        {
+            logger.CommandNotSuccessful(nameof(ReconfigureCopilotProvider), nameof(WaitForAuthorization), error.Message);
+        }
+    }
+
+    async Task Record(SignInRecordingTarget target, EndCopilotSignIn command)
+    {
+        var store = await target.GetEventStore(client);
+        var result = await store.EventLog.Append(command.GetEventSourceId(), command.Handle());
+        Report(result.ToCommandResult(), nameof(EndCopilotSignIn));
+    }
+
+    void Report(CommandResult result, string command)
+    {
+        if (!result.IsSuccess)
+        {
+            logger.CommandNotSuccessful(command, nameof(WaitForAuthorization), result.Describe());
+        }
     }
 }
 

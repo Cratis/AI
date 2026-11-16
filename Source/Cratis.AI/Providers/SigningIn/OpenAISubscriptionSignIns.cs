@@ -4,10 +4,11 @@
 using Cratis.AI.Common;
 using Cratis.AI.Providers.OpenAI;
 using Cratis.AI.Providers.Refreshing;
-using Cratis.Arc.Authorization;
-using Cratis.Arc.Http;
+using Cratis.Arc.Tenancy;
+using Cratis.Chronicle;
 using Cratis.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Cratis.AI.Providers.SigningIn;
 
@@ -41,16 +42,16 @@ public interface IOpenAISubscriptionSignIns
 /// </para>
 /// </summary>
 /// <param name="tokens">Talks to OpenAI's device-code endpoints.</param>
-/// <param name="commandPipeline">Records the credential and the outcome.</param>
-/// <param name="systemExecution">Scopes internal command execution.</param>
-/// <param name="requests">The current request context accessor.</param>
+/// <param name="client">Records events independently of the originating request.</param>
+/// <param name="options">The configured event store.</param>
+/// <param name="tenants">The tenant to capture before detaching.</param>
 /// <param name="logger">The logger.</param>
 [Singleton]
 public class OpenAISubscriptionSignIns(
     IOpenAISubscriptionTokens tokens,
-    ICommandPipeline commandPipeline,
-    ISystemExecution systemExecution,
-    IHttpRequestContextAccessor requests,
+    IChronicleClient client,
+    IOptions<ChronicleClientOptions> options,
+    ITenantIdAccessor tenants,
     ILogger<OpenAISubscriptionSignIns> logger) : IOpenAISubscriptionSignIns
 {
     /// <summary>
@@ -72,12 +73,16 @@ public class OpenAISubscriptionSignIns(
 
         // Detached deliberately - see the class remarks. Exceptions are caught inside rather than
         // left to fault an unobserved task.
-        _ = Task.Run(() => WaitForAuthorization(provider, authorization, expiresAt));
+        var target = new SignInRecordingTarget(options.Value.EventStore, tenants.Current);
+        using (ExecutionContext.SuppressFlow())
+        {
+            _ = Task.Run(() => WaitForAuthorization(provider, authorization, expiresAt, target));
+        }
 
         return new(authorization.UserCode, OpenAISubscriptionTokens.VerificationUrl, expiresAt);
     }
 
-    async Task WaitForAuthorization(AIProviderId provider, OpenAIDeviceAuthorization authorization, DateTimeOffset expiresAt)
+    async Task WaitForAuthorization(AIProviderId provider, OpenAIDeviceAuthorization authorization, DateTimeOffset expiresAt, SignInRecordingTarget target)
     {
         try
         {
@@ -95,16 +100,15 @@ public class OpenAISubscriptionSignIns(
                     continue;
                 }
 
-                // The credential is recorded through the same command a rotation uses, so a sign-in
-                // and a refresh leave the store in exactly the same shape.
-                await Record(new RecordRefreshedOpenAISubscription(provider, credential.ToApiKey()));
-                await Record(new EndOpenAISubscriptionSignIn(provider, true, string.Empty));
+                // Share the rotation handler's validation and events without entering a command pipeline.
+                await RecordCredential(target, provider, credential.ToApiKey());
+                await Record(target, new EndOpenAISubscriptionSignIn(provider, true, string.Empty));
                 logger.SignInCompleted(provider);
                 return;
             }
 
             logger.SignInExpired(provider);
-            await Record(new EndOpenAISubscriptionSignIn(
+            await Record(target, new EndOpenAISubscriptionSignIn(
                 provider,
                 false,
                 "Nobody authorized the sign-in before the code expired. Start another one."));
@@ -112,17 +116,42 @@ public class OpenAISubscriptionSignIns(
         catch (Exception exception)
         {
             logger.SignInFailed(provider, exception);
-            await Record(new EndOpenAISubscriptionSignIn(
+            await Record(target, new EndOpenAISubscriptionSignIn(
                 provider,
                 false,
                 "The sign-in could not be completed. Start another one."));
         }
     }
 
-    async Task Record(object command)
+    async Task RecordCredential(SignInRecordingTarget target, AIProviderId provider, AIProviderApiKey credential)
     {
-        using var scope = AIInternalExecution.Begin(systemExecution, requests);
-        await commandPipeline.ExecuteAndReport(command, logger, nameof(WaitForAuthorization));
+        var store = await target.GetEventStore(client);
+        var current = await store.ReadModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)provider);
+        var result = new RecordRefreshedOpenAISubscription(provider, credential).Handle(current);
+        if (result.TryGetResult(out var events))
+        {
+            var appended = await store.EventLog.AppendMany((EventSourceId)provider, events);
+            Report(appended.ToCommandResult(), nameof(RecordRefreshedOpenAISubscription));
+        }
+        else if (result.TryGetError(out var error))
+        {
+            logger.CommandNotSuccessful(nameof(RecordRefreshedOpenAISubscription), nameof(WaitForAuthorization), error.Message);
+        }
+    }
+
+    async Task Record(SignInRecordingTarget target, EndOpenAISubscriptionSignIn command)
+    {
+        var store = await target.GetEventStore(client);
+        var result = await store.EventLog.Append(command.GetEventSourceId(), command.Handle());
+        Report(result.ToCommandResult(), nameof(EndOpenAISubscriptionSignIn));
+    }
+
+    void Report(CommandResult result, string command)
+    {
+        if (!result.IsSuccess)
+        {
+            logger.CommandNotSuccessful(command, nameof(WaitForAuthorization), result.Describe());
+        }
     }
 }
 
