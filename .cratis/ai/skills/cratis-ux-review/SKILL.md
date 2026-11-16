@@ -23,7 +23,7 @@ Ask for what is missing and stop until the goal is known; severity is anchored t
 
 1. **User goal and journey**: who the user is, what they are trying to finish, and the ordered screens or states of the journey.
 2. **Project rules**: the repository's frontend rules, page templates, state conventions, tokens and type scale. Read them before judging. Project rules win over this skill (see below).
-3. **Captures** produced by the `browser-operator` agent under the visual-qa discipline of `.cratis/ai/rules/browser.md`. Hand it the URL or story, scope, permit and artifact directory; the main session does not drive the browser.
+3. **Captures** produced by the `browser-operator` agent, following the permit, artifact and evidence rules of `.cratis/ai/rules/browser.md`. Hand it the URL or story, scope, permit and artifact directory; the main session does not drive the browser.
 
 Capture matrix:
 
