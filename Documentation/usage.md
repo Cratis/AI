@@ -80,9 +80,10 @@ Anthropic provider needs an API key for them.
 - **`Usage/Trends/AgentUsageByWeek`, `AgentUsageByMonth`** - accumulating projections off
   `AgentSessionUsageRecorded`, one document per calendar week/month across every session, keyed on
   the event's own precomputed `WeekKey`/`MonthKey`.
-- **`Usage/Daily/AgentUsageByDay`** - an on-demand (`[Passive]`) aggregation bucketed by
-  provider/agent/purpose/model, the shape a usage page's filters narrow without a second round trip
-  per filter. Reads from one source (`IRecordedAgentSessions`) rather than Direct's original two
+- **`Usage/Daily/AgentUsageByDay`** - an accumulating projection off `AgentSessionUsageRecorded`,
+  one document per day/provider/agent/purpose/model bucket, keyed on the event's own precomputed
+  `DailyBucketKey`. That is the shape a usage page's filters narrow without a second round trip per
+  filter. It accumulates from the one consolidated event rather than Direct's original two sources
   (`IRecordedWork` + `ILanguageModelJobs`) - simpler because the event consolidation makes it
   simpler, not because anything was dropped.
 

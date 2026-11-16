@@ -15,6 +15,9 @@ at the repository root.
 
 ## Where to start
 
+- [`backend-quick-start.md`](./backend-quick-start.md) - from an empty application to a first chat
+  response: what a `LanguageModelPurpose` is, how it maps to a provider and model, and one
+  complete example.
 - [`architecture.md`](./architecture.md) - the layered design: what each folder under
   `Source/Cratis.AI/` owns, and the seams between them.
 - [`abstractions.md`](./abstractions.md) - the seams a consumer implements to adopt the package
@@ -42,6 +45,8 @@ at the repository root.
 - [`screenplay-session-bundle.md`](./screenplay-session-bundle.md) - the stack-neutral Screenplay guidance
   each release publishes for build loops to inject into coding-agent sessions: format, versions and how
   to consume it.
+- [`third-party/tstack.md`](./third-party/tstack.md) - attribution for the tstack review protocol
+  concepts the review-rounds skill and review-reports rule adapt, and how the adaptation differs.
 - [`decisions/`](./decisions/) - architecture decision records. Each documents the context, the
   decision, its consequences, and the alternatives that were rejected - read these before
   revisiting a decision that looks wrong; the reasoning for it is here, not only in the code.
