@@ -174,19 +174,19 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
     static bool IsSupportedProtocol(string? protocol) =>
         protocol is null || _protocolVersions.Contains(protocol, StringComparer.Ordinal);
 
-    static object ReadArguments(JsonElement parameters, JsonElement schema)
+    static object ReadArguments(JsonElement parameters, AIFunction function)
     {
         var arguments = new AIFunctionArguments();
         if (parameters.TryGetProperty("arguments", out var supplied))
         {
-            if (supplied.ValueKind != JsonValueKind.Object || !ClaudeCodeToolArguments.IsValid(supplied, schema))
+            if (supplied.ValueKind != JsonValueKind.Object || !ClaudeCodeToolArguments.IsValid(supplied, function.JsonSchema))
             {
                 return new RpcError(-32602, "Invalid tool arguments.");
             }
 
             foreach (var property in supplied.EnumerateObject()) arguments.Add(property.Name, property.Value);
         }
-        else if (schema.TryGetProperty("required", out var required) && required.GetArrayLength() > 0)
+        else if (function.JsonSchema.TryGetProperty("required", out var required) && required.GetArrayLength() > 0)
         {
             return new RpcError(-32602, "Missing tool arguments.");
         }
@@ -194,13 +194,13 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
         return arguments;
     }
 
-    static string ToolResultText(object? result, JsonSerializerOptions options) => result switch
+    static string ToolResultText(object? result, AIFunction function) => result switch
     {
         null => string.Empty,
         string asText => asText,
         JsonElement { ValueKind: JsonValueKind.String } element => element.GetString() ?? string.Empty,
         JsonElement element => element.GetRawText(),
-        _ => JsonSerializer.Serialize(result, options),
+        _ => JsonSerializer.Serialize(result, function.JsonSerializerOptions),
     };
 
     async Task Drain()
@@ -414,7 +414,7 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
             return new RpcError(-32602, "Invalid tool name or parameters.");
         }
 
-        var arguments = ReadArguments(parameters, function.JsonSchema);
+        var arguments = ReadArguments(parameters, function);
         return arguments is AIFunctionArguments valid ? await InvokeTool(function, valid) : arguments;
     }
 
@@ -425,7 +425,7 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
             InvocationStarting?.Invoke();
             var result = await function.InvokeAsync(arguments, _linked.Token);
             if (result is Exception) return ToolFailure();
-            var text = ToolResultText(result, function.JsonSerializerOptions);
+            var text = ToolResultText(result, function);
             return new { content = new[] { new { type = "text", text } }, isError = false };
         }
         catch (Exception)
