@@ -114,6 +114,7 @@ export function report(manifest: Manifest, results: Result[], grades: Grade[]): 
     const pending = pendingTasks(manifest.tasks, results);
     const lines = ['# Skill evaluation', '', `Harness: ${manifest.options.harness}/${manifest.options.model}. ${results.length}/${manifest.tasks.length} runs recorded.`,
         `Listing budget: ${manifest.options.listingBudget ?? 'default'}; thinking: ${manifest.options.thinking}; repetitions: ${manifest.options.runs}; timeout: ${manifest.options.timeout}s.`,
+        `Corpus condition: ${manifest.corpusCondition ?? 'isolated-skills (legacy)'}; baseline: none.`,
         'Trigger cutoff is the first skill load or six tool calls; prerequisite loads can prevent observing a later target load.',
         pending.length ? `Incomplete: ${pending.length} calls pending (not a pass).` : 'All requested calls recorded.',
         'Claude may retain bundled skills and usage-dependent listing truncation; pi has no listing budget. Compare like configurations.', ''];

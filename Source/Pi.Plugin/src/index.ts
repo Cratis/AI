@@ -34,17 +34,23 @@ function allSkillPaths(): string[] {
 }
 
 function supportsLanguage(profile: Profile, languages: Set<string>): boolean {
-    if (!profile.languages?.length) return true;
+    if (!languages.size || !profile.languages?.length) return true;
     return profile.languages.some(language => language === 'language-agnostic' || languages.has(language));
 }
 
+function profileForId(selection: { id: string; allowUnknown: boolean }): Profile {
+    const profile = profiles.find(candidate => candidate.id === selection.id);
+    if (profile) return profile;
+    if (!selection.allowUnknown) throw new Error(`Unknown Cratis AI profile '${selection.id}'.`);
+    return { id: selection.id };
+}
+
 /** The ids of the configured profiles and, transitively, the composed profiles that support the configured languages. */
-function selectedProfileIds(configuration: AiConfiguration): Set<string> {
+function selectedProfileIds(configuration: AiConfiguration, allowUnknown = false): Set<string> {
     const languages = new Set(configuration.languages ?? []);
     const selected = new Set<string>();
     const select = (id: string, explicitSelection: boolean): void => {
-        const profile = profiles.find(candidate => candidate.id === id);
-        if (!profile) throw new Error(`Unknown Cratis AI profile '${id}'.`);
+        const profile = profileForId({ id, allowUnknown });
         if (!explicitSelection && !supportsLanguage(profile, languages)) return;
         if (selected.has(id)) return;
         selected.add(id);
@@ -101,13 +107,13 @@ const scopeKinds: ScopeKind[] = [
     { named: applyTo => applyTo.includes('md'), satisfied: configuration => (configuration.profiles ?? []).includes('cratis/documentation') },
 ];
 
-function ruleMatchesConfiguration(path: string, content: string, configuration: AiConfiguration): boolean {
-    if (!profileMatchesSelection(frontmatterValue(content, 'profile'), configuration.profiles ?? [])) return false;
+function ruleMatchesConfiguration(rule: { path: string; content: string }, configuration: AiConfiguration): boolean {
+    if (!profileMatchesSelection(frontmatterValue(rule.content, 'profile'), configuration.profiles ?? [])) return false;
     if ((configuration.languages ?? []).length === 0) return true;
-    const applyTo = frontmatterValue(content, 'applyTo') ?? '';
+    const applyTo = frontmatterValue(rule.content, 'applyTo') ?? '';
     // A scope that also names model files (`.play`) is not tied to one language, so it is always kept.
     if (applyTo.includes('.play')) return true;
-    const named = scopeKinds.filter(kind => kind.named(applyTo, path));
+    const named = scopeKinds.filter(kind => kind.named(applyTo, rule.path));
     return named.length === 0 || named.some(kind => kind.satisfied(configuration));
 }
 
@@ -127,11 +133,12 @@ function rules(cwd: string): string {
     const configuration = existsSync(configurationPath)
         ? JSON.parse(readFileSync(configurationPath, 'utf8')) as AiConfiguration
         : undefined;
+    const effective = configuration ? { ...configuration, profiles: [...selectedProfileIds(configuration, true)] } : undefined;
     return readdirSync(root, { recursive: true, encoding: 'utf8' })
         .filter((entry): entry is string => entry.endsWith('.md'))
         .sort()
         .map(entry => ({ path: join(root, entry), content: readFileSync(join(root, entry), 'utf8') }))
-        .filter(rule => !configuration || ruleMatchesConfiguration(rule.path, rule.content, configuration))
+        .filter(rule => !effective || ruleMatchesConfiguration(rule, effective))
         .filter(rule => isUniversalRule(rule.content))
         .map(rule => rule.content)
         .join('\n\n');
