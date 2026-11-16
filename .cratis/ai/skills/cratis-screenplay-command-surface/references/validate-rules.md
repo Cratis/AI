@@ -4,6 +4,7 @@
 
 - Rule vocabulary
 - `require` message
+- A `rule <predicate>` outside `validate`
 - Code bodies
 - Date and DateTime comparisons
 - `not empty` means non-blank text
@@ -42,6 +43,14 @@ validate
   require to >= from
     message "The end must not be before the start"
 ```
+
+## A `rule <predicate>` outside `validate`
+
+A predicate rule such as `rule not empty` or `rule > 0` written directly in a command or concept body is
+rejected: rules live beneath `validate`. The rejection appends a
+hint to declare `validate` and indent the rule beneath it (`<property> <predicate>` in a command, the bare
+predicate in a concept). The hint is guidance, not a repair: the parser still rejects the line until you move
+it. A named `rule <Name>` and other unknown directives keep the generic diagnostic.
 
 ## Code bodies
 
@@ -119,8 +128,8 @@ see the same opaque requirement with file provenance instead of an inline span.
 
 A bodied rule or fenced block on a validation, rule or policy binds as opaque code
 (ESM v3): the reference runner reports it unsupported, and a target must supply the
-implementation. Attached command handlers bind beside unconditional `produces` with a
-resolved body (Screenplay 4.250.0) and otherwise refuse PLAY0800; `file` constraints
+implementation. Attached command handlers bind beside unconditional `produces` (Screenplay 4.250.0) or a
+`may produce` block (ESM v35) with a resolved body, and otherwise refuse PLAY0800; `file` constraints
 retain PLAY0268 (only `unique` constraints bind). Pending and attached command handlers
 beside unconditional `produces` share the v23 result contract; see
 [described handlers](described-handlers.md).
