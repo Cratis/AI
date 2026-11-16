@@ -73,8 +73,9 @@ Keep to it.
 
 A file/code `handler` beside unconditional `produces`, with a resolved nonempty body,
 binds as the v23 result contract: `produces` fixes the
-events and the body owns their property values. Without `produces`, with `produces ... when`,
-or with an unresolved body it fails binding with PLAY0800. A pending
+events and the body owns their property values. Without `produces` or a `may produce` block
+(ESM v35: the body returns an ordered subset of the declared events), with `produces ... when`,
+or with an unresolved body (even with `may produce`) it fails binding with PLAY0800. A pending
 `handler implementation` beside unconditional `produces` is a described command (ESM v23).
 Prefer plain `produces` for declarative logic. Read [described handlers](references/described-handlers.md)
 for the result contract, version gates, PLAY0695–0698 and Stage's STAGE-IMPL-002 refusal.
@@ -208,7 +209,7 @@ Mapping sources that bind: a command property, a literal, `$context.occurred` an
 
 ## Routes and external operations
 
-Commands never produce public events; external work stays unadmitted (`PLAY0268`). Read [references/routes-and-external-operations.md](references/routes-and-external-operations.md) when choosing routes, `stream` overrides, public or foreign events, or `system`/`uses`/`operation` declarations (see also [operation intent](references/operations.md)).
+Commands never produce public events; external operations stay unadmitted (`PLAY0268`); systems are admitted once any declares an ability (ESM v50). Read [references/routes-and-external-operations.md](references/routes-and-external-operations.md) when choosing routes, `stream` overrides, public or foreign events, or `system`/`uses`/`operation` declarations (see also [operation intent](references/operations.md)).
 
 ## `concurrency`
 

@@ -39,8 +39,8 @@ Two engines:
 
 | Engine | Selected by | Behaviour |
 | --- | --- | --- |
-| EventModel (legacy; the image's default) | nothing | Commands evaluate their modeled `produces` mappings, append the facts to Chronicle and echo the payload. **Only part of modeled validation is enforced, and no authorization.** See [What the EventModel engine enforces](#what-the-eventmodel-engine-enforces). It registers Chronicle projections. Named event sources, streams and routes are refused with `STAGE-ESM-030` (`/stage/status` reports `state: "unsupported"` and `/api/**` answers 501), so a routed model does not run here |
-| Semantic (`cratis run`'s default) | `Stage__Runtime__Engine=semantic` | Evaluates validation, requirements, authorization, conditional production and constraints before accepting a command; appends one batch; denied is HTTP 403, validation or constraint failure HTTP 400, an unsupported command HTTP 501. `GET /stage/semantic/admission` lists what is admitted. Executes routes and event-triggered reactions (including `where`, `runs as`, `from`, productions, invocations and cascades), settling them with the initiating command in one batch. Refuses a model it cannot execute (`state: "unsupported"`, `/api/**` returns 501). Read models are in-process, not Chronicle projections in the Workbench; the history is unbounded, so use it for short sessions |
+| EventModel (legacy; explicit only) | `--engine eventmodel` on `cratis run`, or `Stage__Runtime__Engine=eventmodel` | Commands evaluate their modeled `produces` mappings, append the facts to Chronicle and echo the payload. **Only part of modeled validation is enforced, and no authorization.** See [What the EventModel engine enforces](#what-the-eventmodel-engine-enforces). It registers Chronicle projections. Named event sources, streams and routes are refused with `STAGE-ESM-030` (`/stage/status` reports `state: "unsupported"` and `/api/**` answers 501), so a routed model does not run here |
+| Semantic (the default of `cratis run` and of Stage) | nothing, `--engine semantic`, or `Stage__Runtime__Engine=semantic` | Evaluates validation, requirements, authorization, conditional production and constraints before accepting a command; appends one batch; denied is HTTP 403, validation or constraint failure HTTP 400, an unsupported command HTTP 501. `GET /stage/semantic/admission` lists what is admitted. Executes routes and event-triggered reactions (including `where`, `runs as`, `from`, productions, invocations and cascades), settling them with the initiating command in one batch. Refuses a model it cannot execute (`state: "unsupported"`, `/api/**` returns 501). Read models are in-process, not Chronicle projections in the Workbench; the history is unbounded, so use it for short sessions |
 
 Do not read an answering sandbox as evidence of correct authorization. Callers are
 built from unsigned `x-ms-client-principal` headers that anyone who can reach the host can
@@ -114,7 +114,7 @@ evidence about the rest.
 ## Protected command reads
 
 Requires Stage 4.129.0 for semantic Host and specification-executor protected reads;
-older engines refuse them with `STAGE-ESM-044`. The default EventModel Host and
+older engines refuse them with `STAGE-ESM-044`. The EventModel Host and
 structural runner still refuse the preamble with `STAGE-ESM-044`; the structural
 runner exits `1` without a report. The Cratis renderer renders protected reads only from Stage 4.138.0 and refuses unpreservable shapes with `-044`:
 executing a model here does not make it renderable.
@@ -257,7 +257,10 @@ invalid semantic option.
   `Passed`, `Failed`, `Unsupported` (carrying kind, construct id and reason) or
   `Cancelled`. Not supported: given read models, conditional production, implicit identity
   allocation, external effects, composite values, queries other than optional snapshots, and
-  a reached opaque authorization policy (reported as `Unsupported`). Unsupported is never a pass. Do not feed the file to a legacy reader.
+  a reached opaque authorization policy (reported as `Unsupported`). An exact `Int64` overflow in a
+  whole-number projection product (the product or one of its operands), reached directly or through a
+  command append, is also `Unsupported` (projection capability): it names the event and product
+  instead of failing in the executor. Unsupported is never a pass. Do not feed the file to a legacy reader.
 
 The runner and generated-fixture checks use Screenplay's public
 `SemanticValidationRules.Check`. This shared rule check does not execute opaque

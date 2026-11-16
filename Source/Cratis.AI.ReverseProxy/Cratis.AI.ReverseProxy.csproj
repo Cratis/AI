@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Cratis.AI.ReverseProxy</AssemblyName>
+        <RootNamespace>Cratis.AI.ReverseProxy</RootNamespace>
+        <Description>A YARP-based reverse proxy that exposes models served by other machines (Ollama, LM Studio, vLLM, llama.cpp and the like) over both the OpenAI and the Anthropic (Claude) protocols, routed by model name, over a pluggable transport.</Description>
+        <PackageTags>$(PackageTags);yarp;reverse-proxy;openai;anthropic;ollama</PackageTags>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Yarp.ReverseProxy" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)../../README.md" Pack="true" PackagePath="/" />
+        <None Include="$(MSBuildThisFileDirectory)../../logo.png" Pack="true" PackagePath="/" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Cratis.AI.ReverseProxy.Specs" />
+    </ItemGroup>
+</Project>

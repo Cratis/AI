@@ -47,7 +47,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: |
             10.0.x
@@ -59,10 +59,19 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
+      - name: Cache Yarn dependency archives
+        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
+        with:
+          path: .yarn/cache
+          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
+          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
+
       # The three TypeScript projects moved into a yarn workspace in the .NET-scaffolding PR - a
       # single `yarn install` at the root replaces the old per-project `npm ci --prefix`, which
       # would now fail outright (their package-lock.json files were deleted in that move).
       - name: Install project dependencies
+        env:
+          YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
       - name: Type check
@@ -164,7 +173,16 @@ jobs:
         with:
           node-version: 24
 
+      - name: Cache Yarn dependency archives
+        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
+        with:
+          path: .yarn/cache
+          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
+          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
+
       - name: Install project dependencies
+        env:
+          YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
       - name: Download the released contract
@@ -207,7 +225,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: |
             10.0.x
@@ -227,6 +245,12 @@ jobs:
 
       - name: Run specs (net11.0)
         run: Source/Cratis.AI.Specs/bin/Debug/net11.0/Cratis.AI.Specs
+
+      - name: Run reverse proxy specs
+        run: Source/Cratis.AI.ReverseProxy.Specs/bin/Debug/net10.0/Cratis.AI.ReverseProxy.Specs
+
+      - name: Run reverse proxy specs (net11.0)
+        run: Source/Cratis.AI.ReverseProxy.Specs/bin/Debug/net11.0/Cratis.AI.ReverseProxy.Specs
 
       - name: Verify restricted workers cannot read the shared cache sentinel
         run: dotnet run --project Source/WorkerCacheFixture/WorkerCacheFixture.csproj --configuration Release -p:CratisProxiesOutputPath= -warnaserror
@@ -303,7 +327,16 @@ jobs:
       # yarn install, not `npm ci` - Source/Pi.Plugin is a yarn workspace member (converted in the
       # .NET-scaffolding PR) and no longer carries its own package-lock.json for `npm ci` to read.
       # `npm publish` itself needs no lockfile, only the node_modules yarn already populated.
+      - name: Cache Yarn dependency archives
+        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
+        with:
+          path: .yarn/cache
+          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
+          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
+
       - name: Install workspace dependencies
+        env:
+          YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
       - name: Set package version
@@ -336,7 +369,16 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
+      - name: Cache Yarn dependency archives
+        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
+        with:
+          path: .yarn/cache
+          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
+          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
+
       - name: Install workspace dependencies
+        env:
+          YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
       - name: Set package version
@@ -366,7 +408,16 @@ jobs:
         with:
           node-version: 24
 
+      - name: Cache Yarn dependency archives
+        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
+        with:
+          path: .yarn/cache
+          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
+          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
+
       - name: Install workspace dependencies
+        env:
+          YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
       - name: Build the bundle
@@ -412,17 +463,21 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: |
             10.0.x
             11.0.100
 
       - name: Build
-        run: dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release
+        run: |
+          dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release
+          dotnet build Source/Cratis.AI.ReverseProxy/Cratis.AI.ReverseProxy.csproj --configuration Release
 
-      - name: Create NuGet package
-        run: dotnet pack Source/Cratis.AI/Cratis.AI.csproj --no-build --configuration Release -o ./Artifacts/NuGet -p:PackageVersion=${{ needs.release.outputs.version }}
+      - name: Create NuGet packages
+        run: |
+          dotnet pack Source/Cratis.AI/Cratis.AI.csproj --no-build --configuration Release -o ./Artifacts/NuGet -p:PackageVersion=${{ needs.release.outputs.version }}
+          dotnet pack Source/Cratis.AI.ReverseProxy/Cratis.AI.ReverseProxy.csproj --no-build --configuration Release -o ./Artifacts/NuGet -p:PackageVersion=${{ needs.release.outputs.version }}
 
       - name: NuGet login (OIDC -> temp API key)
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1.2.0
@@ -448,7 +503,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4.3.1
+        uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
         with:
           dotnet-version: |
             10.0.x
@@ -467,7 +522,16 @@ jobs:
       - name: Build Cratis.AI (regenerates the proxy tree)
         run: dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release
 
+      - name: Cache Yarn dependency archives
+        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
+        with:
+          path: .yarn/cache
+          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
+          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
+
       - name: Install workspace dependencies
+        env:
+          YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
       # @cratis/ai and Cratis.AI (NuGet) are published from this one release run, at this one

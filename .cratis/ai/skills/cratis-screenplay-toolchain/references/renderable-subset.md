@@ -109,8 +109,8 @@ ids into routing to fit a renderer (PLAY0515).
   older renderers refuse snapshot lists with STAGE-ESM-010.
   context/single-result filters, and opaque `scoped to` block binding; a `performer` query is left out of the executable model ([version gate](executable-subset.md#code-attachments-what-binds-what-never-does)). Keep a list the domain needs and report
   the capability gap; marking it `observable` or keying it is a modeling decision for the user.
-- Attached file/inline handlers bind beside unconditional `produces` with a resolved body
-  and Stage renders a C# body; otherwise they refuse PLAY0800 (version gate:
+- Attached file/inline handlers bind beside unconditional `produces`, or a `may produce` block
+  (ESM v35), with a resolved body; Stage renders a C# body beside `produces`. Otherwise they refuse PLAY0800 (version gate:
   [executable subset](executable-subset.md)).
   Pending handlers beside unconditional
   productions bind v23 but Stage still refuses rendering STAGE-IMPL-002 even in

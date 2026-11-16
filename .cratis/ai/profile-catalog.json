@@ -383,7 +383,8 @@
       ],
       "availableTargets": [
         "cratis-application-react-specifications",
-        "cratis-arc-react-page"
+        "cratis-arc-react-page",
+        "cratis-ux-review"
       ],
       "languages": [
         "react",
@@ -701,7 +702,8 @@
         "cratis-components-schema-editor",
         "cratis-components-stepper-command-dialog",
         "cratis-components-styling",
-        "cratis-components-toolbar"
+        "cratis-components-toolbar",
+        "cratis-ux-review"
       ],
       "languages": [
         "react",
@@ -1109,6 +1111,7 @@
         "cratis-engineering-docs-authoring",
         "cratis-engineering-effect-boundaries",
         "cratis-engineering-issue-hygiene",
+        "cratis-engineering-inherited-work",
         "cratis-engineering-issue-design-note",
         "cratis-engineering-local-cross-repo-verification",
         "cratis-engineering-post-mortem",

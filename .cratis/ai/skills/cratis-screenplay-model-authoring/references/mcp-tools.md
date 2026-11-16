@@ -497,7 +497,7 @@ cannot rename a part through `propose-rename`. Operations and
 exact numeric mode remain unadmitted. Check installed schemas, especially when
 the CLI bundle predates the standalone tool.
 
-Systems/operations remain authoring-only (PLAY0268). Sources/streams and their
+Operations remain authoring-only (PLAY0268), as do systems when no system declares an ability; any ability admits every system at ESM v50. Sources/streams and their
 routes are admitted v8, not syntax-only; see toolchain `references/sources-and-streams.md`.
 `generated` properties and `returns` responses are admitted as ESM v7 and bind. The server reads and edits them: `declaration-details` exposes `isGenerated`
 and a command `response` view, `route` and `streams` views; `read-workspace` offers

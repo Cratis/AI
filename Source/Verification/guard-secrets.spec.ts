@@ -34,12 +34,12 @@ function runGuard(command: string, env: NodeJS.ProcessEnv = {}, cwd = repository
     return { verdict: result.status === 2 ? BLOCK : ALLOW, code: result.status, stderr: result.stderr };
 }
 
-function assertVerdicts(cases: Array<[expected: string, command: string]>, env: NodeJS.ProcessEnv = {}): void {
+function assertVerdicts(cases: Array<[expected: string, command: string]>, env: NodeJS.ProcessEnv = {}, options: { cwd?: string } = {}): void {
     const cliCases = cases.flatMap(([expected, command]): Array<[string, string]> => command.includes('kubectl')
         ? [[expected, command], [expected, command.replaceAll('kubectl', 'oc')]]
         : [[expected, command]]);
     for (const [expected, command] of cliCases) {
-        const { verdict, code, stderr } = runGuard(command, env);
+        const { verdict, code, stderr } = runGuard(command, env, options.cwd);
         assert.ok(code === 0 || code === 2, `${command}\nexited ${code}, which is neither allow nor block\n${stderr}`);
         assert.equal(verdict, expected, `${command}\n${stderr}`);
         if (expected === BLOCK) {
@@ -990,12 +990,36 @@ test('.env is a protected stem only as a whole file stem, not inside a longer wo
         [ALLOW, 'rg -n foo Source/Environments.Specs'],
         [ALLOW, 'ls Source/Environments.Specs'],
         [ALLOW, 'git add src/Feature/for_Thing/when_building/for_a_case.environment.txt'],
+        [ALLOW, 'git restore --source=origin/main --worktree -- x.environment.txt'],
+        [ALLOW, 'git checkout --theirs -- x.environment.txt'],
+        [ALLOW, 'cat x.environment.txt'],
+        [ALLOW, 'cat expected/ad-hoc.environment.txt'],
+        [ALLOW, 'cat expected/.environment.txt'],
+        [ALLOW, 'git restore --source=origin/main --worktree -- expected/.environment.txt'],
+        [ALLOW, 'git checkout --theirs -- expected/.environment.txt'],
+        [ALLOW, 'cat .env.example'],
+        [ALLOW, 'cat .env.sample'],
         [ALLOW, 'git commit -m "Update Cratis.Environments.Specs goldens"'],
         [BLOCK, 'cat .env'],
         [BLOCK, 'cat .env.local'],
         [BLOCK, 'cat .ENV'],
         [BLOCK, 'cat .Env.Local'],
         [BLOCK, 'cat config/app.env'],
+        [BLOCK, 'git show HEAD:.env'],
+        [BLOCK, 'git restore --source=x -- .env.local'],
+        [BLOCK, 'git checkout --theirs -- .envrc'],
+        [BLOCK, 'git restore --source=x -- .envrc.local'],
+        [BLOCK, 'git add .env-prod'],
+        [BLOCK, 'git add .env_local'],
+        [BLOCK, 'git show HEAD:.env~'],
+        [BLOCK, 'cat x.environment.txt && cat .env'],
+        [BLOCK, 'cat .env2'],
+        [BLOCK, 'cat .envprod'],
+        [BLOCK, 'cat .envlocal'],
+        [BLOCK, 'cat .envrc2'],
+        [BLOCK, 'cat .envbackup'],
+        [BLOCK, 'cat "expected/.environment fixture.txt"'],
+        [BLOCK, 'cat expected/.environmentx.txt'],
         [BLOCK, 'cat apps/web/.env.production'],
         [BLOCK, 'head -n 3 .env.production'],
         [BLOCK, 'cat .envrc'],
@@ -1018,6 +1042,52 @@ test('.env is a protected stem only as a whole file stem, not inside a longer wo
         [BLOCK, 'cat app.en?'],
         [BLOCK, 'cat sub/.en?r*'],
     ]);
+});
+
+test('test filters ending in run globs do not name the secrets mount', () => {
+    assertVerdicts([
+        [ALLOW, "cd /work/direct && DIRECT_RECORD_WORKER_PROMPTS=1 DIRECT_RECORD_WORKER_ENVIRONMENTS=1 ~/.pi/agent/bin/pi-phase run --kind test --label 2335-regenerate-goldens --queue-timeout 3600 --timeout 120 --expect-red --log .ai-work/2335-redeliver/regenerate-goldens.log -- Source/Direct/bin/Debug/net11.0/Direct -method 'Direct.Global.Work.Workers.for_WorkerPrompts.when_rendering_every_prompt.should_preserve_task_run*' -method 'Direct.Global.Work.Workers.for_WorkerPrompts.when_rendering_every_prompt.should_preserve_ad_hoc*' -class Direct.Global.Work.Workers.for_WorkerEnvironment.when_building_every_purpose.for_a_task_run -class Direct.Global.Work.Workers.for_WorkerEnvironment.when_building_every_purpose.for_ad_hoc_work"],
+        [ALLOW, "DIRECT_RECORD_WORKER_PROMPTS=1 DIRECT_RECORD_WORKER_ENVIRONMENTS=1 ~/.pi/agent/bin/pi-phase run --kind test --label 2335-regenerate-goldens -- Source/Direct/bin/Debug/net11.0/Direct -method 'X' -class Direct.Global.Work.Workers.for_WorkerEnvironment.when_building_every_purpose.for_a_task_run"],
+        [ALLOW, "pi-phase run --kind test -- Source/Direct/bin/Debug/net11.0/Direct -method 'should_preserve_task_run*'"],
+        [ALLOW, "DIRECT_RECORD_WORKER_ENVIRONMENT=1 pi-phase run --kind test -- Direct -method 'should_preserve_task_run*'"],
+        [ALLOW, "dotnet test Source/Direct.Specs/Direct.Specs.csproj --filter 'FullyQualifiedName~should_preserve_task_run*'"],
+        [ALLOW, "pi-phase run --kind test -- Direct -method 'should_preserve_task_run?'"],
+        [ALLOW, "pi-phase run --kind test -- Direct -method 'should_preserve_task_run[0-9]'"],
+        ...['-method', '-class', '-namespace', '-trait', '--filter', '--filter-method', '--filter-class', '--filter-namespace', '--treenode-filter']
+            .flatMap(option => [
+                [ALLOW, `pi-phase run --kind test -- Direct ${option} 'X.should_preserve_task_run*'`],
+                ...(option.startsWith('--') ? [[ALLOW, `pi-phase run --kind test -- Direct ${option}='X.should_preserve_task_run*'`]] : []),
+            ] as Array<[string, string]>),
+        [BLOCK, "pi-phase run --kind test -- Direct -label 'X.should_preserve_task_run*'"],
+        [BLOCK, "pi-phase run --kind test -- Direct --filter-file='X.should_preserve_task_run*'"],
+        [BLOCK, "pi-phase run --kind test -- Direct -method; cat 'run*'"],
+        [BLOCK, 'pi-phase run --kind test -- Direct -method run${UNKNOWN}'],
+        [BLOCK, 'pi-phase run --kind test -- Direct --filter=run${UNKNOWN}'],
+        [BLOCK, "pi-phase run --kind test -- Direct --filter='run/secrets*'"],
+        [BLOCK, "pi-phase run --kind test -- Direct -method '.env*'"],
+        [BLOCK, 'cat /run/secrets/x'],
+        [BLOCK, 'cat run/secrets/token'],
+        [BLOCK, 'pi-phase run --kind test -- cat /run/secrets/token'],
+        [BLOCK, 'bash -c "cat /run/secrets/x"'],
+        [BLOCK, "gh issue list --search 'run/secrets'"],
+        [BLOCK, 'cat /run/se*'],
+        [BLOCK, 'cat /r?n/secrets/token'],
+        [BLOCK, 'cat /run*/secrets/token'],
+        [BLOCK, 'cat run$(printf /secrets/x)'],
+        [BLOCK, 'cat run${UNKNOWN}'],
+        [BLOCK, "pi-phase run --kind test -- Direct -method 'should_preserve_task_run*' && cat /run/secrets/x"],
+    ]);
+});
+
+test('non-filter globs that can match the secrets mount stay protected from the filesystem root', () => {
+    assertVerdicts([
+        [BLOCK, "find / -path '*run*' -exec cat {} +"],
+        [BLOCK, "find / -ipath '*ru*' | xargs cat"],
+        [BLOCK, "find . -path 'ru*' -exec cat {} +"],
+        [BLOCK, "rg --no-ignore -g '*run*' . /"],
+        [BLOCK, "tar cf - --wildcards '*run*' /"],
+        [BLOCK, "grep -r --include='*run*' . /"],
+    ], {}, { cwd: '/' });
 });
 
 test('an expansion marker after or inside the .env stem keeps it protected', () => {

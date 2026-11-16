@@ -9,7 +9,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 source "$HERE/lib/scratch.sh"
 scratch_create bundle-diff
 ROOT="$SCRATCH_ROOT"
-mkdir -p "$ROOT/bin" "$ROOT/tmp"
+mkdir -p "$ROOT/bin" "$ROOT/tmp" "$ROOT/shm"
 cp -R "$HERE/../contracts" "$ROOT/contracts"
 CORRELATION=$(jq -c '.correlation + {nested: {feature: 7}}' "$ROOT/contracts/agent-worker-result.sample.json")
 mkfifo "$ROOT/hold"
@@ -26,10 +26,16 @@ git -C "$ROOT/seed" bundle create "$ROOT/baseline.bundle" --all
 jq -cn --arg base "$BASE" '{baseCommit: $base}' > "$ROOT/request.json"
 # Only container-specific paths are changed; no shipped behavior is stripped out.
 sed -e "s#/tmp/#$ROOT/tmp/#g" -e "s#/workspace#$ROOT/workspace#g" \
-    -e "s#/usr/bin/time#$ROOT/bin/time#g" \
+    -e "s#/usr/bin/time#$ROOT/bin/time#g" -e "s#/dev/shm#$ROOT/shm#g" \
     -e "s#/usr/local/share/direct/pi-extension-allow-list.sh#$HERE/../pi-extensions/allow-list.sh#g" \
     "$HERE/../entrypoint.sh" > "$ROOT/entrypoint.sh"
 printf '#!/bin/sh\nexit 0\n' > "$ROOT/bin/rtk"
+# Storage selection is covered by credential-files-on-tmpfs.sh.
+cat > "$ROOT/bin/stat" <<'STUB'
+#!/usr/bin/env bash
+if [[ "$1 $2 $3" == '-f -c %T' ]]; then echo tmpfs; exit 0; fi
+exec /usr/bin/stat "$@"
+STUB
 # Keep FIFO writers alive on BSD as well as GNU sleep; no production code is changed.
 cat > "$ROOT/bin/sleep" <<'STUB'
 #!/usr/bin/env bash

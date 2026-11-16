@@ -135,7 +135,7 @@ test('managed Pi drops profile-specific rules the repository does not select', (
     }
 });
 
-test('managed and packaged Pi filter exact Cratis rule profiles without changing legacy selection', () => {
+test('managed and packaged Pi expand composed rule profiles when languages are unspecified', () => {
     const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
     try {
         mkdirSync(join(project, '.cratis'));
@@ -143,8 +143,9 @@ test('managed and packaged Pi filter exact Cratis rule profiles without changing
             { profiles: ['cratis/codescene'], codescene: true, application: false, framework: false },
             { profiles: ['cratis/codescene/team'], codescene: true, application: false, framework: false },
             { profiles: ['cratis/codescene-other'], codescene: false, application: false, framework: false },
-            { profiles: ['cratis'], codescene: false, application: false, framework: false },
-            { profiles: ['cratis/full'], codescene: false, application: false, framework: false },
+            { profiles: ['cratis'], codescene: false, application: true, framework: false },
+            { profiles: ['cratis/full'], codescene: false, application: true, framework: false },
+            { profiles: ['cratis/full/csharp'], codescene: false, application: true, framework: false },
             { profiles: ['cratis/application/csharp'], codescene: false, application: true, framework: false },
             { profiles: ['cratis/engineering/csharp'], codescene: false, application: false, framework: true },
             { profiles: ['cratis/application'], codescene: false, application: true, framework: false },
@@ -174,6 +175,65 @@ test('managed and packaged Pi filter exact Cratis rule profiles without changing
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
+});
+
+test('composed profiles deliver inherited rules in both Pi loaders without enabling opt-in profiles', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const cases: Array<{ profiles: string[]; languages?: string[]; application: boolean; framework: boolean; codescene: boolean }> = [
+            { profiles: ['cratis'], application: true, framework: false, codescene: false },
+            { profiles: ['cratis/full'], application: true, framework: false, codescene: false },
+            { profiles: ['cratis/full/csharp'], application: true, framework: false, codescene: false },
+            { profiles: ['cratis/full'], languages: [], application: true, framework: false, codescene: false },
+            { profiles: ['cratis/documentation'], application: false, framework: false, codescene: false },
+            { profiles: ['cratis/full'], languages: ['elixir'], application: true, framework: false, codescene: false },
+            { profiles: ['cratis/application'], application: true, framework: false, codescene: false },
+            { profiles: ['cratis/engineering'], application: false, framework: true, codescene: false },
+            { profiles: ['cratis/engineering/csharp'], application: false, framework: true, codescene: false },
+            { profiles: ['cratis/full', 'cratis/codescene'], application: true, framework: false, codescene: true },
+            { profiles: [], application: false, framework: false, codescene: false },
+        ];
+        for (const entry of cases) {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: entry.profiles, languages: entry.languages ?? ['csharp', 'typescript'] }));
+            const names = managedRules(project).map(rule => rule.name);
+            if (entry.languages?.includes('elixir')) {
+                assert.ok(names.includes('elixir.md'));
+                assert.ok(!names.includes('csharp.md'));
+            }
+            assert.equal(names.includes('application-profile.md'), entry.application, JSON.stringify(entry));
+            assert.equal(names.includes('framework.md'), entry.framework, JSON.stringify(entry));
+            assert.equal(names.includes('codescene.md'), entry.codescene, JSON.stringify(entry));
+            const delivered = rulesForPath(project, 'Source/Thing.cs').map(rule => rule.name);
+            assert.equal(delivered.includes('application-profile.md'), entry.application, JSON.stringify(entry));
+            assert.equal(delivered.includes('framework.md'), entry.framework, JSON.stringify(entry));
+            const result = pluginHandlers().get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+            assert.equal(result.systemPrompt, `base\n\n${universalRules(project).map(rule => rule.content).join('\n\n')}`, JSON.stringify(entry));
+            assert.equal(result.systemPrompt.includes('# Verify locally, deliver once'), entry.framework, JSON.stringify(entry));
+            assert.equal(result.systemPrompt.includes('# CodeScene Code Health policy'), entry.codescene, JSON.stringify(entry));
+            assert.equal(names.includes('local-verification-and-delivery.md'), entry.framework, JSON.stringify(entry));
+        }
+    } finally { rmSync(project, { recursive: true, force: true }); }
+});
+
+test('CLI-managed Pi installations retain inherited profiles and trust installed language scopes', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-managed-'));
+    try {
+        const installed = join(project, '.cratis/ai/rules');
+        mkdirSync(installed, { recursive: true });
+        writeFileSync(join(project, '.cratis/ai.json'), JSON.stringify({ profiles: ['cratis/full/csharp'], languages: ['csharp'] }));
+        writeFileSync(join(project, '.cratis/ai.manifest.json'), '{}');
+        for (const name of ['application-profile.md', 'framework.md', 'csharp.md', 'elixir.md']) {
+            writeFileSync(join(installed, name), readFileSync(join(repositoryRoot, '.cratis/ai/rules', name)));
+        }
+        const names = managedRules(project).map(rule => rule.name);
+        assert.ok(names.includes('application-profile.md'));
+        assert.ok(!names.includes('framework.md'));
+        assert.ok(names.includes('elixir.md'), 'CLI-resolved language scopes are not filtered again');
+        assert.ok(rulesForPath(project, 'Source/Thing.cs').some(rule => rule.name === 'application-profile.md'));
+        const event = { cwd: project, systemPrompt: 'base' };
+        assert.equal(pluginHandlers().get('before_agent_start')?.(event, { cwd: project }), undefined, 'the managed install owns rule delivery');
+    } finally { rmSync(project, { recursive: true, force: true }); }
 });
 
 test('CodeScene resolves only through its explicit opt-in profile', () => {

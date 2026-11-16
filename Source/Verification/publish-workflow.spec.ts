@@ -8,6 +8,7 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 import { parse } from 'yaml';
 import { check } from './contract/check.ts';
 import { summary } from './contract/index.ts';
@@ -23,6 +24,58 @@ const confirmation = workflow.jobs['release-confirmed'];
 const releaseCheck = confirmation.steps.find((step: { name: string }) => step.name === 'Verify the GitHub release exists');
 const publishingJobs = Object.entries(workflow.jobs)
     .filter(([name, job]) => name !== 'release-confirmed' && (job as { if?: string }).if === "needs.release.outputs.publish == 'true'");
+
+type WorkflowStep = { run?: string; uses?: string; with?: Record<string, string>; env?: Record<string, string>; if?: string };
+const installCommand = 'corepack enable && yarn install --immutable';
+const cacheOptions = {
+    path: '.yarn/cache',
+    'key-prefix': "yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}",
+    mode: "${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}",
+};
+const cachedWorkflows = {
+    publish: workflow,
+    'product-drift': parse(readFileSync(new URL('../../.github/workflows/product-drift.yml', import.meta.url), 'utf8')),
+};
+
+for (const [workflowName, document] of Object.entries(cachedWorkflows)) {
+    const installingJobs = Object.entries(document.jobs).filter(([, job]) =>
+        (job as { steps?: WorkflowStep[] }).steps?.some(step => step.run === installCommand));
+
+    test(`should cache every root Yarn install in ${workflowName}`, () => {
+        assert.equal(installingJobs.length, workflowName === 'publish' ? 6 : 1);
+    });
+
+    for (const [jobName, job] of installingJobs) {
+        const steps = (job as { steps: WorkflowStep[] }).steps;
+        const installIndex = steps.findIndex(step => step.run === installCommand);
+        const cache = steps[installIndex - 1];
+        const install = steps[installIndex];
+
+        test(`should restore only pinned dependency archives before the unconditional ${workflowName}/${jobName} install`, () => {
+            assert.equal(cache.uses, 'Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1');
+            assert.deepEqual(cache.with, cacheOptions);
+            assert.equal(cache.if, undefined);
+            assert.equal(install.if, undefined);
+            assert.equal(install.env?.YARN_CHECKSUM_BEHAVIOR, 'throw');
+        });
+
+        test(`should allow only trusted default-branch cache writers in ${workflowName}/${jobName}`, () => {
+            assert.ok(cache.with?.mode);
+            for (const defaultBranch of ['main', 'trunk']) {
+                for (const event of ['push', 'schedule', 'workflow_dispatch', 'pull_request', 'pull_request_target', 'repository_dispatch', 'release']) {
+                    for (const ref of [`refs/heads/${defaultBranch}`, 'refs/heads/feature', 'refs/pull/1/merge']) {
+                        const mode = runInNewContext(cache.with.mode.slice(3, -2), {
+                            github: { ref, event_name: event, event: { repository: { default_branch: defaultBranch } } },
+                            format: (template: string, value: string) => template.replace('{0}', value),
+                        }, { timeout: 100 });
+                        const trusted = ref === `refs/heads/${defaultBranch}` && ['push', 'schedule', 'workflow_dispatch'].includes(event);
+                        assert.equal(mode, trusted ? 'save' : 'restore', `${event} on ${ref}`);
+                    }
+                }
+            }
+        });
+    }
+}
 
 // Interpret only the event comparisons used by these job guards, not arbitrary Actions expressions.
 function allowsEvent(condition: string | undefined, event: string): boolean {

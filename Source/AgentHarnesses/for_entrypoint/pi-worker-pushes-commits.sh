@@ -58,7 +58,14 @@ echo "real behavior lives here" > "$ROOT/seed/file.cs"
 git -C "$ROOT/seed" add .; git "${GIT_HERMETIC[@]}" -C "$ROOT/seed" commit -qm init
 git -C "$ROOT/seed" push -q "$ROOT/upstream.git" HEAD:refs/heads/main
 
-mkdir -p "$ROOT/bin"
+mkdir -p "$ROOT/bin" "$ROOT/shm"
+# Storage selection is covered by credential-files-on-tmpfs.sh; keep this fixture's files private.
+cat > "$ROOT/bin/stat" <<'STUB'
+#!/usr/bin/env bash
+if [[ "$1 $2 $3" == '-f -c %T' ]]; then echo tmpfs; exit 0; fi
+exec /usr/bin/stat "$@"
+STUB
+chmod +x "$ROOT/bin/stat"
 printf '#!/bin/sh\nexit 0\n' > "$ROOT/bin/rtk"
 cat > "$ROOT/bin/curl" <<'STUB'
 #!/usr/bin/env bash
@@ -103,7 +110,7 @@ start_worker() {
     local label="$1" agent="$2"
     SCRIPT="$ROOT/entrypoint-${label}.sh"
 
-    sed "s#/workspace#${ROOT}/workspace#g" "$ENTRYPOINT" > "$SCRIPT"
+    sed -e "s#/workspace#${ROOT}/workspace#g" -e "s#/dev/shm#${ROOT}/shm#g" "$ENTRYPOINT" > "$SCRIPT"
     rm -rf "$ROOT/workspace" "$ROOT/home" "$ROOT/committed" "$ROOT/stop"
     rm -f /tmp/pi-in /tmp/pi-done /tmp/pi-rejected /tmp/pi-consumer-done /tmp/pi-stream.jsonl
     mkdir -p "$ROOT/home"

@@ -30,7 +30,7 @@ test('batch copies skills without links and links only pi authentication, never 
             assert.equal((await lstat(join(isolated.agentDirectory!, 'auth.json'))).isSymbolicLink(), true);
             await writeFile(join(isolated.agentDirectory!, 'auth.json'), 'refreshed token');
             assert.equal(await readFile(join(host, 'auth.json'), 'utf8'), 'refreshed token');
-            assert.equal(isolated.digest, await corpusDigest(isolated.skillsDirectory));
+            assert.equal(isolated.digest, await corpusDigest(join(isolated.withWorkspace, '.claude')));
             await writeFile(join(skill, 'SKILL.md'), 'changed after snapshot');
             assert.equal(await readFile(join(isolated.skillsDirectory, 'cratis-arc-command/SKILL.md'), 'utf8'), 'skill body');
             await assert.rejects(access(join(isolated.withoutWorkspace, '.claude/skills')));

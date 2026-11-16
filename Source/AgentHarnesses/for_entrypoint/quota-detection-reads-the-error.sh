@@ -22,6 +22,8 @@ ENTRYPOINT="${HERE}/../entrypoint.sh"
 source "${HERE}/lib/scratch.sh"
 scratch_create quota-detection
 WORK="$SCRATCH_ROOT"
+# Storage selection is covered by credential-files-on-tmpfs.sh.
+credential_scratch_dir() { printf '%s\n' "$WORK"; }
 mkdir -p "$WORK/bin" "$WORK/home"
 export HOME="$WORK/home"
 export PATH="$WORK/bin:$PATH"
