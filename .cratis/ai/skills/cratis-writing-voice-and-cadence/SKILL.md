@@ -63,6 +63,8 @@ Before accepting any rewrite, confirm that:
 - the propositions, polarity, quantities and necessary identifiers retain their meaning;
 - qualifiers such as not, never, only, may, unless and until survive in substance;
 - consequential limitations remain clear, even when their wording is awkward;
+- a trim for length keeps every limit, hedge and warning: cut examples and
+  repetition first, and re-read the shortened text for a widened claim;
 - important warnings precede the affected action and limits stay beside the behavior they
   qualify. A closing caveat can move there without weakening its scope. Internal proof notes
   and verification provenance belong in the private change or review record, not a public

@@ -64,7 +64,10 @@ there is nothing to review under a red build.
 - Events are `record` types: past tense, no mutable and no nullable properties,
   never carrying the event-source id, and each has an XML `<summary>`.
 - Identity concepts derive from `EventSourceId<T>`, not `ConceptAs<Guid>`.
-- Domain values are concepts, not raw `Guid`, `string`, or `int`.
+- Domain values are concepts, not raw `Guid`, `string`, or `int`. Search the change
+  for single-value records (`record \w+\((Guid|string|int|long) Value\)`) with no
+  base type, then judge each: a concept-shaped candidate is a finding, a
+  genuine DTO is not an automatic rejection.
 - Projections consume events, never read models. AutoMap is on by default —
   `.AutoMap()` appears only inside a scope disabled with `.NoAutoMap()`.
 - A `[Projection]` id, once given explicitly and deployed, is permanent. The
@@ -182,6 +185,9 @@ that leaves changed behavior unverified belong in Blockers when they require
 correction before merge. Style preferences and maintainability improvements
 without such a consequence belong in Suggestions. Apply the shared verdict
 vocabulary to those findings.
+
+For a quick review, report at most the few findings that matter most and say what
+was not reviewed.
 
 For a follow-up round after blockers were fixed, review only the delta and carry prior
 findings forward; see `cratis-engineering-review-rounds`.
