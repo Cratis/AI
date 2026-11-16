@@ -99,26 +99,29 @@ app.UseCratis();
 
 var greeting = new LanguageModelPurpose("Greeting");
 
-// 2. Configure one provider and point the purpose at it.
-app.MapPost("/setup", async (ICommandPipeline commands, IConfiguration configuration) =>
+// 2. Configure one provider and point the purpose at it (local development only).
+if (app.Environment.IsDevelopment())
 {
-    var provider = await commands.Execute<AIProviderId>(
-        new AddOpenAIProvider("OpenAI", configuration["OPENAI_API_KEY"] ?? string.Empty, 0));
-    if (!provider.IsSuccess || provider.Response is null) return Results.BadRequest(provider);
+    app.MapPost("/setup", async (ICommandPipeline commands, IConfiguration configuration) =>
+    {
+        var provider = await commands.Execute<AIProviderId>(
+            new AddOpenAIProvider("OpenAI", configuration["OPENAI_API_KEY"] ?? string.Empty, 0));
+        if (!provider.IsSuccess || provider.Response is null) return Results.BadRequest(provider);
 
-    var tiers = await commands.Execute(new SetAIProviderTierModels(
-        provider.Response,
-        TierModels.NotSet with { Fast = "gpt-4.1-mini" }));
-    if (!tiers.IsSuccess) return Results.BadRequest(tiers);
+        var tiers = await commands.Execute(new SetAIProviderTierModels(
+            provider.Response,
+            TierModels.NotSet with { Fast = "gpt-4.1-mini" }));
+        if (!tiers.IsSuccess) return Results.BadRequest(tiers);
 
-    var agent = await commands.Execute(new ConfigureAgent(
-        greeting,
-        "Greeter",
-        "Answers the hello-chat sample.",
-        ModelTier.Fast,
-        ProviderId: provider.Response));
-    return agent.IsSuccess ? Results.Ok() : Results.BadRequest(agent);
-});
+        var agent = await commands.Execute(new ConfigureAgent(
+            greeting,
+            "Greeter",
+            "Answers the hello-chat sample.",
+            ModelTier.Fast,
+            ProviderId: provider.Response));
+        return agent.IsSuccess ? Results.Ok() : Results.BadRequest(agent);
+    });
+}
 
 // 3. Ask for a chat client by purpose and send one message.
 app.MapGet("/hello", async (IAIChatClients chatClients) =>
@@ -179,6 +182,12 @@ send. The `/setup` endpoint runs them through `ICommandPipeline`:
 
 Run setup once. The configuration is stored in Chronicle and survives a restart.
 
+The example maps `/setup` only in the `Development` environment, because it is unauthenticated:
+anyone who can reach it could add providers that use your API key and repoint the purpose. In a
+real application, send these commands from an administration screen or command endpoint that
+requires an administrator, and keep provider configuration out of anonymous or low-privilege
+reach.
+
 ### 3. Ask for a chat client by purpose and send one message
 
 `IAIChatClients.For(purpose)` returns a standard `Microsoft.Extensions.AI` `IChatClient` for
@@ -192,7 +201,7 @@ API: `GetResponseAsync` sends the message and returns the response.
 
    ```shell
    export OPENAI_API_KEY="<your OpenAI API key>"
-   dotnet run
+   dotnet run --environment Development
    ```
 
 3. Configure the provider and the purpose, then ask for a greeting. Use the address `dotnet run`
