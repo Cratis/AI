@@ -263,7 +263,10 @@ function stem_units(t, m, start, stem) {
     delete SM
     return stem_match(t, stem, start, 1, 0, 0)
 }
-function stem_scan(text, mode, nonliteral,    t, k, stem, pos, offset, first, found, end, p, candidate) {
+function test_filter_option(w) {
+    return w ~ /^(-method|-class|-namespace|-trait|--filter|--filter-method|--filter-class|--filter-namespace|--treenode-filter)$/
+}
+function stem_scan(text, mode, nonliteral, test_filter,    t, k, stem, pos, offset, first, found, end, p, candidate) {
     t = tolower(text)
     for (k = 1; k <= nstem; k++) {
         stem = STEM[k]; offset = 0
@@ -283,6 +286,8 @@ function stem_scan(text, mode, nonliteral,    t, k, stem, pos, offset, first, fo
             for (k = 1; k <= nstem; k++) {
                 stem = STEM[k]
                 if (candidate != substr(stem, 1, 1) && candidate !~ /[*?[(@+!~^]/) continue
+                # Test-filter values are data; other programs can match globs across path separators.
+                if (stem == "run/secrets" && test_filter && nonliteral != "expanding" && !index(t, "/")) continue
                 end = stem_units(t, mode, p, stem)
                 if (end && stem_boundary(t, p, end, stem, nonliteral)) { first = p; found = stem; break }
             }
@@ -649,7 +654,7 @@ function nonreader(A, M, n,    i, w, first, read) {
     }
     return 1
 }
-function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only) {
+function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only, test_filter) {
     flush_word()
     if (nw > 0) {
         commands++
@@ -667,7 +672,8 @@ function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only) {
             exempt = (k in RP) && !WU[k]
             if (exempt && RP[k] < 0) continue
             w = exempt ? substr(W[k], 1, RP[k]) : W[k]
-            hit = stem_scan(w, "raw", expands(w, WM[k]) ? "expanding" : 0); if (TAINT == "") TAINT = hit
+            test_filter = test_filter_option(W[k - 1]) || (w ~ /^--[^=]+=/ && test_filter_option(substr(w, 1, index(w, "=") - 1)))
+            hit = stem_scan(w, "raw", expands(w, WM[k]) ? "expanding" : 0, test_filter); if (TAINT == "") TAINT = hit
             # Command output may supply any text, including several names: judge it as an unresolved wildcard.
             if (!exempt && index(WM[k], "c") + index(WM[k], "C") > 0) {
                 hit = stem_scan(output_wild(W[k], WM[k]), "raw", "expanding"); if (TAINT == "") TAINT = hit
