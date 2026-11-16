@@ -8,5 +8,7 @@ export interface Manifest {
     version: 1;
     options: Options;
     corpusDigest: string;
+    /** Absent on older manifests, which staged skills without corpus dependencies. */
+    corpusCondition?: 'skills-with-dependencies';
     tasks: Task[];
 }
