@@ -66,6 +66,11 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
     internal Action? InvocationStarting { get; init; }
 
     /// <summary>
+    /// Gets the deadline for each tool call.
+    /// </summary>
+    internal TimeSpan ToolCallTimeout { get; init; } = TimeSpan.FromSeconds(60);
+
+    /// <summary>
     /// Starts accepting bounded authenticated requests.
     /// </summary>
     public void Start()
@@ -174,8 +179,17 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
     static bool IsSupportedProtocol(string? protocol) =>
         protocol is null || _protocolVersions.Contains(protocol, StringComparer.Ordinal);
 
+    static bool HasValidRequiredList(JsonElement schema) =>
+        !schema.TryGetProperty("required", out var required) ||
+        (required.ValueKind == JsonValueKind.Array && required.EnumerateArray().All(name => name.ValueKind == JsonValueKind.String));
+
     static object ReadArguments(JsonElement parameters, AIFunction function)
     {
+        if (!HasValidRequiredList(function.JsonSchema))
+        {
+            return new RpcError(-32602, "Invalid tool arguments.");
+        }
+
         var arguments = new AIFunctionArguments();
         if (parameters.TryGetProperty("arguments", out var supplied))
         {
@@ -422,8 +436,10 @@ public sealed class ClaudeCodeMcpServer : IAsyncDisposable
     {
         try
         {
+            using var deadline = CancellationTokenSource.CreateLinkedTokenSource(_linked.Token);
+            deadline.CancelAfter(ToolCallTimeout);
             InvocationStarting?.Invoke();
-            var result = await function.InvokeAsync(arguments, _linked.Token);
+            var result = await function.InvokeAsync(arguments, deadline.Token);
             if (result is Exception) return ToolFailure();
             var text = ToolResultText(result, function);
             return new { content = new[] { new { type = "text", text } }, isError = false };
