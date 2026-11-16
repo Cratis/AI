@@ -1971,6 +1971,65 @@ test('heredoc bodies are data only for a quoted delimiter or a plain consumer; s
     ]);
 });
 
+for (const target of ['.envrc.local', '.env-prod', '.env_local']) {
+    test(`link targets named ${target} use the protected-path classifier`, () => {
+        const directory = mkdtempSync(join(tmpdir(), 'cratis-link-classification-'));
+        try {
+            writeFileSync(join(directory, target), 'X=1\n');
+            symlinkSync(target, join(directory, 'notes.txt'));
+            assertVerdicts([[BLOCK, 'cat notes.txt']], {}, { cwd: directory });
+        } finally {
+            rmSync(directory, { recursive: true, force: true });
+        }
+    });
+}
+
+test('quoted link names with spaces resolve to their protected targets', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-quoted-link-'));
+    try {
+        writeFileSync(join(directory, '.env'), 'X=1\n');
+        writeFileSync(join(directory, 'plain.txt'), 'x\n');
+        symlinkSync('.env', join(directory, 'my link'));
+        symlinkSync('plain.txt', join(directory, 'plain link'));
+        assertVerdicts([
+            [BLOCK, 'cat "my link"'],
+            [BLOCK, "cat 'my link'"],
+            [BLOCK, 'cat my\\ link'],
+            [ALLOW, 'cat "plain link"'],
+        ], {}, { cwd: directory });
+    } finally {
+        rmSync(directory, { recursive: true, force: true });
+    }
+});
+
+for (const root of ['/run/secrets', '/run', '/var/run/secrets', '/var/run', '/var', '/']) {
+    test(`recursive readers refuse the mounted-secret ancestor ${root}`, () => {
+        assertVerdicts([
+            `grep -r foo ${root}`,
+            `grep --recursive foo ${root}`,
+            `rg foo ${root}`,
+            `find ${root} -type f -exec cat {} +`,
+            `find ${root} -type f -exec head {} +`,
+            `find ${root} -type f -print0 | xargs -0 cat`,
+            `tar -cf - ${root}`,
+            `tar c ${root}`,
+            `cp -r ${root} /tmp/ordinary-copy`,
+            `rsync -a ${root} /tmp/ordinary-copy`,
+        ].map(command => [BLOCK, command]));
+    });
+}
+
+test('ordinary ancestor listings and unrelated recursive reads stay usable', () => {
+    assertVerdicts([
+        'ls /', 'ls /run', 'ls /var/run',
+        'cat /run/ordinary/status.txt', 'cat /var/run/ordinary/status.txt',
+        'rg foo /run/ordinary', 'grep -r foo /run/ordinary',
+        'rg foo .', 'grep -r foo Source', "find . -name '*.ts'",
+        'find /run -name status.txt', 'grep foo /run/ordinary/status.txt',
+        'tar -cf - Source', 'cp -r Source /tmp/ordinary-copy',
+    ].map(command => [ALLOW, command]));
+});
+
 test('a link whose target is a protected file is refused while a harmless link is allowed', () => {
     const directory = mkdtempSync(join(tmpdir(), 'cratis-link-target-'));
     try {

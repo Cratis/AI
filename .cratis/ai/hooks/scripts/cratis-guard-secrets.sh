@@ -41,95 +41,69 @@ parser_failed() {
 command_text="$(jq -r '.tool_input.command // empty' <<<"$input")" || parser_failed
 [ -n "$command_text" ] || exit 0
 
-# Cheap exit for the overwhelming majority of shell commands, which mention none of these words. The shell
-# reads a word after removing quotes, escapes and line continuations, so the words are looked for in that
-# form. A command that still shows none is parsed anyway when its raw text has an expansion, glob or brace
-# character: this list must stay a superset of the protected stems the parser can resolve.
-probe=${command_text//\\$'\n'/}
-probe=${probe//[\'\"\\]/}
-# Allowlist for symbolic links: a literal word that is a link, or sits under a linked directory, is followed
-# through the working directory, and the command is refused when the final target is a protected file. This
-# only adds refusals; it never admits a command the text analysis below refuses. The word list is a plain
-# split of the unquoted text, so it can miss a word the awk analysis would see, never the reverse.
-protected_target_name() {
-    local lowered base
-    [ -d "$1" ] && return 1
-    lowered="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')" || return 1
-    base="${lowered##*/}"
-    case "$base" in
-        .env.example|.env.sample|.env.template|.env.dist|.env.default|.env.defaults) return 1 ;;
-        .env|.env.*|*.env|.envrc|id_rsa|id_ed25519|id_ecdsa|id_dsa|*.pem|*.key|*.p12|*.pfx|*.jks|*.keystore|*.kdbx|.netrc|.npmrc|.pgpass|.pypirc|.git-credentials|kubeconfig|*.kubeconfig|credentials|credentials.json|secrets.yaml|secrets.yml|token|token.json|tokens.json|github_token) return 0 ;;
-    esac
-    case "/$lowered" in
-        */.kube/*|*/.aws/credentials|*/.docker/config.json|/run/secrets/*|/var/run/secrets/*) return 0 ;;
-    esac
-    return 1
+# Filesystem resolution only returns link targets. The awk classifier below judges both these targets
+# and decoded command words, so file-name exceptions cannot diverge between the two paths.
+IFS= read -r -d '' link_program <<'LINKS' || true
+emit_target() {
+    [ -d "$1" ] && return 0
+    case "$1" in *'
+'*) printf 'E\n' ;; *) printf 'P:%s\n' "$1" ;; esac
 }
-# Follows a chain of links one step at a time (bash 3.2, BSD readlink: no readlink -f, no realpath). Returns
-# 0 when the chain ends at a protected name or cannot be followed, 1 when it is harmless.
-link_chain_protected() {
+link_chain_targets() {
     local current="$1" hops=0 target parent
     while [ -L "$current" ]; do
         hops=$((hops + 1))
-        [ "$hops" -le 16 ] || return 0
-        target="$(readlink -- "$current")" || return 0
+        [ "$hops" -le 16 ] || { printf 'E\n'; return; }
+        target="$(readlink -- "$current")" || { printf 'E\n'; return; }
         case "$target" in
             /*) current="$target" ;;
             *) parent="${current%/*}"; [ "$parent" != "$current" ] || parent=.; current="$parent/$target" ;;
         esac
-        if protected_target_name "$current"; then return 0; fi
+        emit_target "$current"
     done
-    return 1
 }
-linked_protected_word() {
+linked_targets_word() {
     local word="$1" directory resolved logical
-    [ -n "$word" ] || return 1
+    [ -n "$word" ] || return 0
     case "$word" in
-        --*) return 1 ;;
-        -?*) word="${word#-?}"; [ -n "$word" ] || return 1 ;;
+        --*) return 0 ;;
+        -?*) word="${word#-?}"; [ -n "$word" ] || return 0 ;;
     esac
-    if [ -L "$word" ]; then link_chain_protected "$word"; return; fi
-    case "$word" in */*) ;; *) return 1 ;; esac
+    if [ -L "$word" ]; then link_chain_targets "$word"; return; fi
+    case "$word" in */*) ;; *) return 0 ;; esac
     directory="${word%/*}"; [ -n "$directory" ] || directory=/
-    [ -d "$directory" ] || return 1
-    resolved="$(cd -P -- "$directory" 2>/dev/null && pwd -P)" || return 1
-    logical="$(cd -- "$directory" 2>/dev/null && pwd)" || return 1
-    [ "$resolved" != "$logical" ] || return 1
+    [ -d "$directory" ] || return 0
+    resolved="$(cd -P -- "$directory" 2>/dev/null && pwd -P)" || return 0
+    logical="$(cd -- "$directory" 2>/dev/null && pwd)" || return 0
+    [ "$resolved" != "$logical" ] || return 0
     resolved="$resolved/${word##*/}"
-    if protected_target_name "$resolved"; then return 0; fi
-    link_chain_protected "$resolved"
+    emit_target "$resolved"
+    link_chain_targets "$resolved"
 }
-first_linked_word() {
-    local link_words link_word link_count=0
-    link_words="$(printf '%s' "$probe" | tr ';|&<>(){}=,' ' ')" || return 0
-    cd -- "$1" || return 0
-    set -f
-    for link_word in $link_words; do
-        link_count=$((link_count + 1))
-        # A command too long to check word by word is refused rather than partly checked.
-        if [ "$link_count" -gt 5000 ]; then printf '%s' "$link_word"; return 0; fi
-        if linked_protected_word "$link_word"; then printf '%s' "$link_word"; return 0; fi
-    done
-}
-link_cwd="$(jq -r '.cwd // empty' <<<"$input")" || parser_failed
-if [ -n "$link_cwd" ] && [ -d "$link_cwd" ]; then
-    linked_word="$(first_linked_word "$link_cwd")" || parser_failed
-    if [ -n "$linked_word" ]; then
-        printf 'BLOCKED by cratis-guard-secrets: %s is a symbolic link or sits under one, and it resolves to a protected file. Use instead: name the real non-credential file; do not read a protected file through a link.\n' "$linked_word" >&2
-        exit 2
-    fi
-fi
-probe_lower="$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" || parser_failed
-case "$probe_lower" in
-    *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
-    *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.key*|*.p12*|*.pfx*|*.jks*|*.kdbx*|*token*|*.netrc*|*.npmrc*|\
-    *credential*|*.pgpass*|*pypirc*|*secrets*|*oc*) ;;
-    *)
-        case "$command_text" in
+unset CDPATH
+cd -- "$1" 2>/dev/null || exit 0
+shift
+[ "$#" -le 5000 ] || { printf 'E\n'; exit 0; }
+for link_word in "$@"; do linked_targets_word "$link_word"; done
+LINKS
+
+# Without a supplied working directory there are no literal links to resolve. Keep the cheap textual
+# pre-filter, but always parse bulk-reader families: even a root operand can cover mounted secrets.
+command_cwd="$(jq -r '.cwd // empty' <<<"$input")" || parser_failed
+if [ -z "$command_cwd" ]; then
+    probe=${command_text//\\$'\n'/}
+    probe=${probe//[\'\"\\]/}
+    probe_lower="$(printf '%s' "$probe" | tr '[:upper:]' '[:lower:]')" || parser_failed
+    case "$probe_lower" in
+        *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
+        *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.key*|*.p12*|*.pfx*|*.jks*|*.kdbx*|*token*|*.netrc*|*.npmrc*|\
+        *credential*|*.pgpass*|*pypirc*|*secrets*|*oc*|*grep*|*rg*|*find*|*tar*|*cp*|*rsync*) ;;
+        *) case "$command_text" in
             *'$'*|*'*'*|*'?'*|*'['*|*'{'*|*'('*|*'^'*|*'~'*|*'`'*) ;;
             *) exit 0 ;;
         esac ;;
-esac
+    esac
+fi
 
 IFS= read -r -d '' awk_program <<'AWK' || true
 function report(what, alt) {
@@ -654,9 +628,20 @@ function nonreader(A, M, n,    i, w, first, read) {
     }
     return 1
 }
+function check_links(A, n,    k, cmd, line, kind) {
+    if (ENVIRON["GS_CWD"] == "") return
+    cmd = "bash -c " shell_quote(ENVIRON["GS_LINK_PROGRAM"]) " guard-links " shell_quote(ENVIRON["GS_CWD"])
+    for (k = 1; k <= n; k++) cmd = cmd " " shell_quote(A[k])
+    while ((cmd | getline line) > 0) {
+        kind = substr(line, 1, 2) == "P:" ? sensitive_path(substr(line, 3)) : "an unresolved link target"
+        if (kind != "") report("a symbolic link resolves to " kind, "name the real non-credential file; do not read a protected file through a link")
+    }
+    if (close(cmd) != 0) report("link resolution failed", "name the real non-credential file")
+}
 function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only, test_filter) {
     flush_word()
     if (nw > 0) {
+        check_links(W, nw)
         commands++
         delete PROBE_WORDS; PROBE_COUNT = nw
         for (k = 1; k <= nw; k++) PROBE_WORDS[k] = W[k]
@@ -986,7 +971,30 @@ function token_ok(l, b) {
     if (b ~ /\.(css|scss|less)$/) return 1
     return l ~ /(^|\/)(design|design-tokens|themes?|styles?)\//
 }
-function sensitive_path(w,    l, b) {
+function absolute_path(w,    parts, count, k, path, depth, segments) {
+    if (w !~ /^\//) w = ENVIRON["GS_CWD"] "/" w
+    count = split(w, parts, "/")
+    for (k = 1; k <= count; k++) {
+        if (parts[k] == "" || parts[k] == ".") continue
+        if (parts[k] == "..") { if (depth > 0) depth--; continue }
+        segments[++depth] = parts[k]
+    }
+    for (k = 1; k <= depth; k++) path = path "/" segments[k]
+    return path == "" ? "/" : path
+}
+function mount_ancestor(w,    path, mount, parent) {
+    path = absolute_path(w)
+    for (mount in SECRET_MOUNT) {
+        parent = mount
+        while (parent != "") {
+            if (path == parent) return 1
+            sub(/\/[^\/]*$/, "", parent)
+        }
+        if (path == "/") return 1
+    }
+    return 0
+}
+function sensitive_path(w,    l, b, mount) {
     l = tolower(w); b = l; sub(/.*\//, "", b)
     if (l ~ /(^|\/)\.kube\// || b == "kubeconfig" || b ~ /\.kubeconfig$/) return "a kubeconfig"
     # Every name starting with .env stays protected (.env2, .envprod, .envrc.local, .env-prod); only the
@@ -1006,7 +1014,7 @@ function sensitive_path(w,    l, b) {
     if (l ~ /\.docker\/config\.json$/) return "the Docker registry credentials"
     if (l ~ /(^|\/)(\.ssh|\.aws)\/?$/) return "a credential directory"
     if (l ~ /\/proc\/[^\/]*\/environ$/) return "a process environment"
-    if (l ~ /^\/(var\/)?run\/secrets\//) return "mounted secrets"
+    for (mount in SECRET_MOUNT) if (l == mount || index(l, mount "/") == 1) return "mounted secrets"
     return ""
 }
 
@@ -1675,6 +1683,21 @@ function env_program(b, p,    t) {
     if (t !~ /[^A-Za-z0-9_](env|ENV|ENVIRON|strenv|envsubst|getenv|PROCINFO|SYMTAB)[^A-Za-z0-9_]/) return
     report(b " program reads the process environment, which can hold credentials", "name one non-credential variable with printenv NAME, or test existence with [ -n \"${NAME:-}\" ] && echo set")
 }
+function recursive_search(A, s, n,    k, b) {
+    b = base(A[s])
+    if (b == "rg" || b == "ag") return 1
+    if (b !~ /^(grep|egrep|fgrep)$/) return 0
+    for (k = s + 1; k <= n && A[k] != "--"; k++) if (A[k] ~ /^--(recursive|dereference-recursive)$/ || A[k] ~ /^-[^-]*[rR]/) return 1
+    return 0
+}
+function report_mount_read(w, b) {
+    if (mount_ancestor(w)) report(b " recursively reads an ancestor of mounted secrets", "name only non-credential source files or an unrelated directory")
+}
+function find_content(A, s, n,    k, reads) {
+    for (k = s + 1; k <= n; k++) if (A[k] ~ /^-(exec|execdir|ok|okdir)$/ && base(A[k + 1]) ~ /^(cat|head|tail|grep|rg|sed|awk|base64|xxd|strings|less|more|bat)$/) reads = 1
+    if (CMD ~ /[|][^|]*xargs[^|]*(cat|head|tail|grep|rg|sed|awk|base64|xxd|strings|less|more|bat)/) reads = 1
+    if (reads) for (k = s + 1; k <= n && A[k] !~ /^[-(!]/; k++) report_mount_read(A[k], "find")
+}
 function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued, valued2, shortvals, filenames) {
     b = base(A[s]); mode = ""; valued = " "; valued2 = " "; shortvals = ""
     if (b == "sed") {
@@ -1713,6 +1736,7 @@ function reader(A, s, n,    b, k, w, mode, havepat, need, afterdd, kind, valued,
             continue
         }
         if (need) { need = 0; continue }
+        if (recursive_search(A, s, n)) report_mount_read(w, b)
         report_operand(A, k, b, filenames)
     }
 }
@@ -1726,6 +1750,15 @@ function drop_redirects(A, s, n,    k, m, w) {
     }
     return m
 }
+function recursive_transfer(A, s, n, b,    k, w) {
+    if (b == "tar" && A[s + 1] ~ /^-?[A-Za-z]*c[A-Za-z]*$/) return 1
+    for (k = s + 1; k <= n && A[k] != "--"; k++) {
+        w = A[k]
+        if (b == "tar" && w == "--create") return 1
+        if (b ~ /^(cp|rsync)$/ && (w == "--recursive" || w == "--archive" || w ~ /^-[^-]*[rRa]/)) return 1
+    }
+    return 0
+}
 function transfer_files(A, s, n, b,    k, last, options, kind, w, eq, off, ended) {
     for (k = s + 1; k <= n; k++) if (A[k] ~ /^-./) options = 1
     last = n
@@ -1738,6 +1771,7 @@ function transfer_files(A, s, n, b,    k, last, options, kind, w, eq, off, ended
             if (w !~ /^--/ || !eq) continue
             off = eq
         }
+        if (recursive_transfer(A, s, n, b)) report_mount_read(substr(w, off + 1), b)
         kind = operand_kind(A, k, off)
         if (kind != "") report(b " reads " kind, "name only non-credential source files")
     }
@@ -1801,6 +1835,7 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
     shell_config(A, s, n, b)
     collect_bindings(A, s, n, b)
     if (b == "for" || b == "select" || b == "unset") return
+    if (b == "find") { find_content(A, s, n); return }
     if (b == "dd") {
         for (k = s + 1; k <= n; k++) if (A[k] ~ /^if=/ && (config = operand_kind(A, k, 3)) != "") report("dd reads " config, "name only a non-credential input file")
         return
@@ -1882,6 +1917,9 @@ BEGIN {
     ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34; ESC["?"] = 63
     nprobe = split(".env .env.local .env.production .envrc id_rsa id_ed25519 id_ecdsa id_dsa credentials token token.json tokens.json github_token .netrc .npmrc .pypirc .pgpass .git-credentials kubeconfig", PROBE, " ")
     nprobe2 = split(".kube/config .aws/credentials .docker/config.json /proc/1/environ /run/secrets/token /var/run/secrets/token", PROBE2, " ")
+    for (i = 1; i <= nprobe2; i++) if (PROBE2[i] ~ /^\/(var\/)?run\/secrets\//) {
+        mount = PROBE2[i]; sub(/\/[^\/]*$/, "", mount); SECRET_MOUNT[mount] = 1
+    }
     nextension = split("pem key p12 pfx jks keystore kdbx kubeconfig env", EXT, " ")
     ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt set setopt unsetopt emulate grep egrep fgrep rg ag sed awk gawk mawk nawk busybox jq yq gojq jaq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
     ninterp = split(".env|env .env.local|name .env.production|name .envrc|name id_rsa|name id_ed25519|name id_ecdsa|name id_dsa|name .netrc|name .npmrc|name .pgpass|name .pypirc|name .git-credentials|name kubeconfig|name .kube/|name .aws/|name .docker/config.json|name credentials.json|name secrets.yaml|name secrets.yml|name .pem|ext .key|ext .p12|ext .pfx|ext .jks|ext .keystore|ext .kdbx|ext", INTERP_SPEC, " ")
@@ -1906,10 +1944,9 @@ BEGIN {
 AWK
 
 # Never infer a missing hook cwd for filesystem-dependent glob decisions.
-command_cwd="$(jq -r '.cwd // empty' <<<"$input")" || parser_failed
 glob_shell_safe=1
 if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]] || shopt -q dotglob || shopt -q nocaseglob; then glob_shell_safe=0; fi
-findings="$(GS_COMMAND="$command_text" GS_CWD="$command_cwd" GS_CWD_FALLBACK="${command_cwd:-$PWD}" GS_GLOB_SAFE="$glob_shell_safe" LC_ALL=C awk "$awk_program" </dev/null)" || parser_failed
+findings="$(GS_LINK_PROGRAM="$link_program" GS_COMMAND="$command_text" GS_CWD="$command_cwd" GS_CWD_FALLBACK="${command_cwd:-$PWD}" GS_GLOB_SAFE="$glob_shell_safe" LC_ALL=C awk "$awk_program" </dev/null)" || parser_failed
 [ -n "$findings" ] || exit 0
 
 {
