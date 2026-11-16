@@ -457,7 +457,8 @@
           "cratis-components-stepper-command-dialog",
           "cratis-components-styling",
           "cratis-components-toolbar",
-          "cratis-performance-review"
+          "cratis-performance-review",
+          "cratis-ux-review"
         ],
         "rules": [
           "components.md"
