@@ -27,7 +27,7 @@ const ALLOW = 'allow';
 
 function runGuard(command: string, env: NodeJS.ProcessEnv = {}, cwd = repositoryRoot): { verdict: string; code: number | null; stderr: string } {
     const result = spawnSync('bash', [guard], {
-        input: JSON.stringify({ cwd, tool_name: 'Bash', tool_input: { command } }),
+        input: JSON.stringify({ ...(cwd ? { cwd } : {}), tool_name: 'Bash', tool_input: { command } }),
         encoding: 'utf8',
         env: { ...process.env, CRATIS_HOOKS_ALLOW_SECRET_READS: '0', ...env },
     });
@@ -1969,6 +1969,225 @@ test('heredoc bodies are data only for a quoted delimiter or a plain consumer; s
         [BLOCK, 'cat <<EOF | bash\ncat .env\nEOF'],
         [BLOCK, 'cat <<EOF | node\nrequire("fs").readFileSync(".env")\nEOF'],
     ]);
+});
+
+for (const target of ['.envrc.local', '.env-prod', '.env_local']) {
+    test(`link targets named ${target} use the protected-path classifier`, () => {
+        const directory = mkdtempSync(join(tmpdir(), 'cratis-link-classification-'));
+        try {
+            writeFileSync(join(directory, target), 'X=1\n');
+            symlinkSync(target, join(directory, 'notes.txt'));
+            assertVerdicts([[BLOCK, 'cat notes.txt']], {}, { cwd: directory });
+        } finally {
+            rmSync(directory, { recursive: true, force: true });
+        }
+    });
+}
+
+test('quoted link names with spaces resolve to their protected targets', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-quoted-link-'));
+    try {
+        writeFileSync(join(directory, '.env'), 'X=1\n');
+        writeFileSync(join(directory, 'plain.txt'), 'x\n');
+        symlinkSync('.env', join(directory, 'my link'));
+        symlinkSync('plain.txt', join(directory, 'plain link'));
+        assertVerdicts([
+            [BLOCK, 'cat "my link"'],
+            [BLOCK, "cat 'my link'"],
+            [BLOCK, 'cat my\\ link'],
+            [ALLOW, 'cat "plain link"'],
+        ], {}, { cwd: directory });
+    } finally {
+        rmSync(directory, { recursive: true, force: true });
+    }
+});
+
+for (const root of ['/run/secrets', '/run', '/var/run/secrets', '/var/run', '/var', '/']) {
+    test(`recursive readers refuse the mounted-secret ancestor ${root}`, () => {
+        assertVerdicts([
+            `grep -r foo ${root}`,
+            `grep --recursive foo ${root}`,
+            `rg foo ${root}`,
+            `find ${root} -type f -exec cat {} +`,
+            `find ${root} -type f -exec head {} +`,
+            `find ${root} -type f -print0 | xargs -0 cat`,
+            `tar -cf - ${root}`,
+            `tar c ${root}`,
+            `cp -r ${root} /tmp/ordinary-copy`,
+            `rsync -a ${root} /tmp/ordinary-copy`,
+        ].map(command => [BLOCK, command]));
+    });
+}
+
+test('ordinary ancestor listings and unrelated recursive reads stay usable', () => {
+    assertVerdicts([
+        'ls /', 'ls /run', 'ls /var/run',
+        'cat /run/ordinary/status.txt', 'cat /var/run/ordinary/status.txt',
+        'rg foo /run/ordinary', 'grep -r foo /run/ordinary',
+        'rg foo .', 'grep -r foo Source', "find . -name '*.ts'",
+        'find /run -name status.txt', 'grep foo /run/ordinary/status.txt',
+        'tar -cf - Source', 'cp -r Source /tmp/ordinary-copy',
+    ].map(command => [ALLOW, command]));
+});
+
+for (const root of ['/', '/run']) {
+    test(`bulk readers check explicit, default and changed-directory roots at ${root}`, () => {
+        const commands = [
+            `grep -d recurse foo ${root}`, `grep -drecurse foo ${root}`,
+            `grep --directories=recurse foo ${root}`, `grep -R foo ${root}`,
+            `git grep --no-index foo ${root}`, `ag foo ${root}`,
+            `find -L ${root} -type f -exec cat {} +`,
+            `find -H ${root} -exec tac {} +`, `find -P ${root} -exec od -c {} +`,
+            `find -O2 -D tree ${root} -exec cp {} /tmp/ordinary-copy \\;`,
+            `find ${root} -exec sh -c 'cat "$1"' _ {} \\;`,
+            ...['-exec', '-execdir', '-ok', '-okdir'].map(action => `find ${root} ${action} echo {} \\;`),
+            `find ${root} | xargs tac`, `find ${root} | sort | xargs echo`,
+            `tar -v -cf - ${root}`, `tar -f - -c ${root}`, `tar -f - --create ${root}`,
+            `zip -r - ${root}`, `scp -r ${root} host:/tmp`, `diff -r ${root} /tmp/ordinary`,
+            `cp -r -t /tmp/ordinary-copy ${root}`, `rsync -a ${root} /tmp/ordinary-copy`,
+            `cd ${root} && rg foo`, `pushd ${root}; grep -r foo .`,
+            `cd ${root} && find -L -exec cat {} +`,
+            `tar -cf - -C ${root} .`,
+        ];
+        assertVerdicts(commands.map(command => [BLOCK, command]));
+        assertVerdicts([
+            'rg foo', 'ag foo', 'grep -r foo', 'grep -d recurse foo',
+            'find -exec cat {} +', 'find -L -exec cat {} +', 'find | xargs echo',
+            'rg foo .', 'grep -r foo .',
+        ].map(command => [BLOCK, command]), {}, { cwd: root });
+    });
+}
+
+test('literal bulk patterns are checked against the mounted-secret ancestors', () => {
+    assertVerdicts([
+        'grep -r x /r*', 'grep -r x /{run,tmp}', 'grep -r x ~/../../',
+        'rg foo /*', 'rg foo /va*', 'grep -r foo /v[a]r', 'rg foo ~/../..',
+        'find /run | cpio -o',
+    ].map(command => [BLOCK, command]), { HOME: '/home/ordinary' });
+});
+
+test('mounted file names are normalized before direct reads', () => {
+    assertVerdicts([
+        'cat /run//secrets/db-password', 'cat /run/./secrets/db-password',
+        'cat /var/../run/secrets/db-password', 'cat ../../../../../../../run/secrets/db-password',
+    ].map(command => [BLOCK, command]));
+    assertVerdicts([[BLOCK, 'cat secrets/db-password']], {}, { cwd: '/run' });
+    assertVerdicts([[BLOCK, 'cd /run && cat secrets/db-password']]);
+});
+
+test('bulk roots exclude destinations and unrelated pipelines', () => {
+    assertVerdicts([
+        'cp -r Source /var', 'cp -r dist /', 'rsync -a Source /var', 'rsync -a build/ /var/',
+        'cp -r -t / Source', 'cp -r --target-directory /run Source',
+        'cp -r --target-directory=/var Source', 'rsync -a --exclude ordinary Source /var',
+        'tar -cf /tmp/out.tar -C /run ordinary', 'tar -cf - -C /run ordinary',
+        'tar -cf - -C / -C run ordinary',
+        'find /run -name status.txt; find Source -name "*.ts" | xargs cat',
+        'find /run -name status.txt; echo "| xargs cat"',
+        'find /run -name "| xargs cat"', 'find /run -name status.txt | cat',
+        'rg foo Source/{One,Two}',
+        'cd Source && rg foo .', 'cd Source && grep -r foo',
+        'rg foo -', 'grep -r foo -',
+    ].map(command => [ALLOW, command]));
+    for (const command of ['rg foo .', 'grep -r foo .', 'rg foo', 'ag foo', 'grep -r foo']) {
+        assertVerdicts([[ALLOW, command]], {}, { cwd: '' });
+    }
+});
+
+for (const root of ['/', '/run']) {
+    test(`pipeline groups and literal wrapper roots are checked at ${root}`, () => {
+        assertVerdicts([
+            `find ${root} -name x |& xargs cat`, `find ${root} |& xargs -0 head`,
+            `find ${root} | (xargs cat)`, `find ${root} | (echo ordinary; xargs cat)`,
+            `find ${root} | sh -c 'xargs cat'`, `find ${root} | bash -c 'xargs cat'`,
+            `find ${root} | sh -c 'wc -l'`,
+            `env -C ${root} rg foo`, `env --chdir=${root} grep -r foo .`,
+            `env --chdir ${root} sh -c 'rg foo'`,
+            `git --no-pager grep --no-index foo ${root}`,
+            `git -c core.x=y grep --no-index foo ${root}`,
+            `git -C ${root} grep --no-index foo`,
+            `git -C ${root} -C . --no-pager -c core.x=y grep --no-index foo`,
+            `git --git-dir .git --work-tree=${root} grep --no-index foo`,
+            `git --git-dir=.git --work-tree ${root} grep --no-index foo`,
+            `tar -rf /tmp/ordinary.tar ${root}`, `tar -uf /tmp/ordinary.tar ${root}`,
+            `tar --append -f /tmp/ordinary.tar ${root}`, `tar --update -f /tmp/ordinary.tar ${root}`,
+            `tar -f /tmp/ordinary.tar -r -C ${root} .`,
+            `true && cd ${root}; rg foo .`, `false || pushd ${root}; rg foo .`,
+        ].map(command => [BLOCK, command]));
+        assertVerdicts([
+            '(cd /tmp); rg foo .', 'true || cd /tmp; rg foo .',
+            'false && pushd /tmp; grep -r foo .', 'true && cd /tmp; rg foo .',
+            'echo x | grep -r foo', 'true | egrep -r foo', 'printf foo | fgrep -r foo',
+            'grep -r foo < /dev/null', 'echo | grep -d recurse foo',
+            'true | git --no-pager grep --no-index foo',
+        ].map(command => [BLOCK, command]), {}, { cwd: root });
+    });
+}
+
+test('process-root prefixes share the mounted-path normalization', () => {
+    assertVerdicts([
+        'cat /proc/1/root/run/secrets/db', 'cat /proc/self/root/run/./secrets/db',
+        'cat /proc/123/root/var/../run/secrets/db',
+        'grep -r x /proc/self/root/run', 'rg foo /proc/1/root/',
+        'tar -rf /tmp/ordinary.tar /proc/self/root/run',
+        'cd /proc/self/root/run; grep -r foo',
+    ].map(command => [BLOCK, command]));
+});
+
+test('ordinary dynamic operands and scoped directories remain usable', () => {
+    assertVerdicts([
+        'cd "$(git rev-parse --show-toplevel)" && rg foo',
+        'grep -rn foo $(git ls-files)', 'rg foo "$DIR"',
+        'for d in Source Documentation; do rg foo $d; done', 'popd; rg foo',
+        'P=/; grep -r x $P', 'grep -r x "$(echo /)"', 'rg foo `echo /`',
+        'cd "$D" && rg foo Source', 'pushd $(echo /run); grep -r foo .',
+        'tar -cf - -C "$D" ordinary',
+        '(cd /run); rg foo .', '(pushd /); grep -r foo .',
+        'find Source | (xargs cat)', 'find Source | sh -c "xargs cat"',
+        'find /run -name status.txt | (wc -l)',
+        'find /run -name status.txt; sh -c "xargs cat"',
+        'env -C Source rg foo', 'env --chdir=Source grep -r foo',
+        'git -C Source --no-pager grep --no-index foo',
+    ].map(command => [ALLOW, command]));
+    assertVerdicts([[ALLOW, 'echo foo | rg foo'], [ALLOW, 'rg foo < /dev/null']], {}, { cwd: '/run' });
+});
+
+test('archive file lists permit ordinary repository paths', () => {
+    assertVerdicts([
+        'tar -cf out.tar -T list.txt', 'tar --files-from=list.txt -cf x.tar',
+        "find . -name '*.md' | cpio -o > x.cpio",
+        'git ls-files | tar -cf out.tar -T -', 'tar -cf out.tar --files-from=-',
+        'cpio -o',
+    ].map(command => [ALLOW, command]));
+    assertVerdicts([[BLOCK, 'rsync -a --files-from=list.txt Source destination']]);
+    for (const root of ['/', '/run']) {
+        assertVerdicts([
+            `find ${root} | cpio -o`, `find ${root} | tar -cf x.tar -T -`,
+            `find ${root} | tar --files-from=- -cf x.tar`,
+            `tar -cf x.tar -T list.txt ${root}`,
+        ].map(command => [BLOCK, command]));
+    }
+});
+
+test('repeated process-root prefixes retain the mounted-path check', () => {
+    assertVerdicts([
+        'cat /proc/self/root/proc/self/root/run/secrets/db',
+        'grep -r x /proc/self/root/proc/self/root/run',
+        'rg foo /proc/1/root/proc/2/root/',
+    ].map(command => [BLOCK, command]));
+});
+
+test('ordinary source globs keep their protected-file checks', () => {
+    const directory = mkdtempSync(join(tmpdir(), 'cratis-bulk-source-glob-'));
+    try {
+        mkdirSync(join(directory, 'Source/Feature'), { recursive: true });
+        writeFileSync(join(directory, 'Source/Feature/plain.ts'), 'synthetic fixture');
+        assertVerdicts([[ALLOW, 'rg foo Source/*'], [ALLOW, 'grep -r foo Source/*']], {}, { cwd: directory });
+        writeFileSync(join(directory, 'Source/Feature/.env'), 'synthetic fixture');
+        assertVerdicts([[BLOCK, 'rg foo Source/*'], [BLOCK, 'grep -r foo Source/*']], {}, { cwd: directory });
+    } finally {
+        rmSync(directory, { recursive: true, force: true });
+    }
 });
 
 test('a link whose target is a protected file is refused while a harmless link is allowed', () => {
