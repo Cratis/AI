@@ -38,7 +38,7 @@ export async function isolateBatch(source: string, harness: Harness, environment
                 if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
             }
         }
-        return { skillsDirectory, corpusSkills, digest: await corpusDigest(skillsDirectory), agentDirectory,
+        return { skillsDirectory, corpusSkills, digest: await corpusDigest(join(withWorkspace, '.claude')), agentDirectory,
             withWorkspace, withoutWorkspace, remove: () => rm(path, { recursive: true }) };
     } catch (error) {
         await rm(path, { recursive: true });

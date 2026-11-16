@@ -171,5 +171,5 @@ duration resumes at once.
   without exactly two outlets PLAY0848, an undeclared reference PLAY0851); PLAY0839 and
   PLAY0841 are shared.
 - Stage refuses ESM v36 models with `STAGE-ESM-016`; every other model renders as
-  before. The durable engine is Cratis.Orleans; its hosting and adapters are outside this
+  before. The durable engine is Cratis.Choreography; its hosting and adapters are outside this
   reference.

@@ -2,9 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { isMap, isScalar, isSeq, parseDocument } from 'yaml';
-import { frontmatterBlock, frontmatterText, quotedScalar } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
+import { type FrontmatterBlock, type FrontmatterEntry, frontmatterBlock, frontmatterText, quotedScalar } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { globProblem } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
 import { skillTriggerGlobs, skillTriggerKey, splitSkillTriggerGlobs } from '../../.cratis/ai/harnesses/pi/extensions/shared/skillFrontmatter.ts';
+
+import type { SkillFrontmatterSource } from './SkillFrontmatterSource.ts';
 
 /** The top-level `SKILL.md` frontmatter keys the Agent Skills format allows. Anything Cratis-specific belongs under `metadata`. */
 export const allowedSkillKeys = ['name', 'description', 'license', 'compatibility', 'metadata', 'allowed-tools'] as const;
@@ -12,7 +14,7 @@ export const allowedSkillKeys = ['name', 'description', 'license', 'compatibilit
 const howToWrite = `write it as one double-quoted string on a single line, indented two spaces under 'metadata:', with no comment after it: ${skillTriggerKey}: "<glob> <glob>"`;
 
 /** Why a raw `metadata.cratis-hint-paths` value is not the one supported form, or `undefined` when it is that form. */
-function unsupportedForm(raw: string, indent: number, continues: boolean): string | undefined {
+function unsupportedForm({ raw, indent, continues }: FrontmatterEntry): string | undefined {
     if (indent !== 2) return 'its key is not indented exactly two spaces';
     if (/^[|>][-+\d]*\s*(#.*)?$/.test(raw)) return 'a block scalar (|, > or a variant) is not supported';
     if (continues) return raw === '' ? 'the value is on the following lines' : 'the value is spread over several lines';
@@ -38,7 +40,7 @@ function yamlGlobs(value: unknown): string[] {
 }
 
 /** The problems with the hint value a real YAML parse found under `metadata`: it must be a non-empty string of valid globs. */
-function hintValueProblems(subject: string, value: unknown): string[] {
+function hintValueProblems({ subject }: SkillFrontmatterSource, value: unknown): string[] {
     const globs = yamlGlobs(value);
     if (typeof value !== 'string' || globs.length === 0) {
         return [`${subject} declares 'metadata.${skillTriggerKey}' without any glob; it must be a non-empty string of whitespace-separated globs: ${skillTriggerKey}: "<glob> <glob>".`];
@@ -70,10 +72,10 @@ function nonStringMetadataKeys(document: ReturnType<typeof parseDocument>): stri
  * The problems with the shape of `metadata`: Agent Skills maps strings to strings, so it must be absent or a plain map
  * whose values are all strings. The hint's own value is left to `hintValueProblems`, which explains what it must hold.
  */
-function metadataShapeProblems(subject: string, fields: Record<string, unknown>): string[] {
+function metadataShapeProblems({ subject }: SkillFrontmatterSource, fields: Record<string, unknown>): string[] {
     if (!Object.hasOwn(fields, 'metadata')) return [];
     const metadata = fields.metadata;
-    if (typeof metadata !== 'object' || metadata === null || Array.isArray(metadata)) {
+    if (!isMetadataMap(metadata)) {
         return [`${subject} has 'metadata' that is ${kindOf(metadata)}; it must be a map of strings to strings (Agent Skills metadata maps strings to strings).`];
     }
     return Object.entries(metadata)
@@ -85,7 +87,8 @@ function metadataShapeProblems(subject: string, fields: Record<string, unknown>)
 const flowMapKey = new RegExp(`[{,]\\s*["']?${skillTriggerKey}["']?\\s*:`);
 
 /** The message for `metadata:` written inline, or with an anchor or tag, or `undefined` when its line is plain. */
-function inlineMetadataProblem(subject: string, inline: string, hasEntry: boolean): string | undefined {
+function inlineMetadataProblem({ subject }: SkillFrontmatterSource, { inline, entries }: FrontmatterBlock): string | undefined {
+    const hasEntry = entries.has(skillTriggerKey);
     const flowMap = `${subject} declares 'metadata' inline (a flow map), which the path hints do not read; put it on its own lines and ${howToWrite}.`;
     if (!hasEntry) return flowMapKey.test(inline) ? flowMap : undefined;
     // A flow map that continues on the following lines reads as entries, but is still not the supported block form.
@@ -100,14 +103,15 @@ function inlineMetadataProblem(subject: string, inline: string, hasEntry: boolea
  * unquoted or commented value, a wrong indent, a flow map), or an empty list when it recognizes none. This reads the
  * raw lines like the runtime does, so it also works when the frontmatter is not valid YAML at all.
  */
-function knownFormProblems(subject: string, content: string): string[] {
+function knownFormProblems(source: SkillFrontmatterSource): string[] {
+    const { subject, content } = source;
     const block = frontmatterBlock(content, 'metadata');
     if (!block) return [];
     const entry = block.entries.get(skillTriggerKey);
-    const inlineProblem = inlineMetadataProblem(subject, block.inline, entry !== undefined);
+    const inlineProblem = inlineMetadataProblem(source, block);
     if (inlineProblem) return [inlineProblem];
     if (!entry) return [];
-    const reason = unsupportedForm(entry.raw, entry.indent, entry.continues);
+    const reason = unsupportedForm(entry);
     return reason ? [`${subject} has an unsupported 'metadata.${skillTriggerKey}' value (${reason}); ${howToWrite}.`] : [];
 }
 
@@ -116,12 +120,13 @@ function knownFormProblems(subject: string, content: string): string[] {
  * a hint at all, so text that merely mentions the key (inside a string, say) is never blamed; the raw-line reading then
  * names the form. A hint that YAML reads as a list, or inside a flow map, is named from the parse itself.
  */
-function parsedFormProblems(subject: string, content: string, document: ReturnType<typeof parseDocument>): string[] {
+function parsedFormProblems(source: SkillFrontmatterSource, document: ReturnType<typeof parseDocument>): string[] {
+    const { subject } = source;
     const metadata = isMap(document.contents) ? document.contents.get('metadata', true) : undefined;
     if (!isMap(metadata) || !metadata.has(skillTriggerKey)) return [];
     if (metadata.flow) return [`${subject} declares 'metadata' inline (a flow map), which the path hints do not read; put it on its own lines and ${howToWrite}.`];
     if (isSeq(metadata.get(skillTriggerKey, true))) return [`${subject} has an unsupported 'metadata.${skillTriggerKey}' value (the value is a list); ${howToWrite}.`];
-    return knownFormProblems(subject, content);
+    return knownFormProblems(source);
 }
 
 /**
@@ -146,33 +151,47 @@ export function skillFrontmatterProblems(subject: string, content: string): stri
     if (text === undefined) return [];
     // A blank line stands in for the opening `---`, so the parser's line numbers match the SKILL.md.
     const document = parseDocument(`\n${text}`, { uniqueKeys: true });
-    if (document.errors.length > 0) return notYamlProblems(subject, content, document.errors[0].message);
+    const source = { subject, content };
+    if (document.errors.length > 0) return notYamlProblems(source, document.errors[0].message);
+    return documentProblems(source, document);
+}
+
+function isMetadataMap(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function documentProblems(source: SkillFrontmatterSource, document: ReturnType<typeof parseDocument>): string[] {
     let data: unknown;
     try {
         data = document.toJS();
     } catch (error) {
         // Some errors, such as an alias with no anchor (an unquoted value that starts with `*`), only surface when the document is read.
-        return notYamlProblems(subject, content, error instanceof Error ? error.message : String(error));
+        return notYamlProblems(source, error instanceof Error ? error.message : String(error));
     }
+    return dataProblems(source, document, data);
+}
+
+function dataProblems(source: SkillFrontmatterSource, document: ReturnType<typeof parseDocument>, data: unknown): string[] {
     if (data === null || data === undefined) return [];
-    if (typeof data !== 'object' || Array.isArray(data)) return [`${subject} has frontmatter that is not a YAML map of keys and values.`];
-    return parsedFrontmatterProblems(subject, content, document, data as Record<string, unknown>);
+    if (!isMetadataMap(data)) return [`${source.subject} has frontmatter that is not a YAML map of keys and values.`];
+    return parsedFrontmatterProblems(source, document, data);
 }
 
 /**
  * Invalid YAML has no parse to consult: the parser's own error always leads, and a raw-line reading of the hint is
  * added only as a possible further cause, never in place of the error that actually broke the file.
  */
-function notYamlProblems(subject: string, content: string, message: string): string[] {
+function notYamlProblems(source: SkillFrontmatterSource, message: string): string[] {
+    const { subject, content } = source;
     return [
         `${subject} has frontmatter that is not valid YAML: ${message.split('\n')[0]}`,
         // Only a hint entry the raw reader actually found is described; a mere mention of the key is not.
-        ...(frontmatterBlock(content, 'metadata')?.entries.has(skillTriggerKey) ? knownFormProblems(subject, content) : []),
+        ...(frontmatterBlock(content, 'metadata')?.entries.has(skillTriggerKey) ? knownFormProblems(source) : []),
     ];
 }
 
 /** The top-level keys outside the Agent Skills set, and the two with their own messages. */
-function topLevelKeyProblems(subject: string, keys: string[]): string[] {
+function topLevelKeyProblems({ subject }: SkillFrontmatterSource, keys: string[]): string[] {
     return [
         ...keys
             .filter(key => !(allowedSkillKeys as readonly string[]).includes(key) && key !== skillTriggerKey && key !== 'paths')
@@ -183,11 +202,12 @@ function topLevelKeyProblems(subject: string, keys: string[]): string[] {
 }
 
 /** The hint's own value and the check that the runtime reader agrees with YAML; only meaningful when no known form was named. */
-function hintProblems(subject: string, content: string, fields: Record<string, unknown>): string[] {
+function hintProblems(source: SkillFrontmatterSource, fields: Record<string, unknown>): string[] {
+    const { subject, content } = source;
     const metadata = fields.metadata;
-    const declared = typeof metadata === 'object' && metadata !== null && !Array.isArray(metadata) && Object.hasOwn(metadata, skillTriggerKey);
-    const value = declared ? (metadata as Record<string, unknown>)[skillTriggerKey] : undefined;
-    const problems = declared ? hintValueProblems(subject, value) : [];
+    const declared = isMetadataMap(metadata) && Object.hasOwn(metadata, skillTriggerKey);
+    const value = declared ? metadata[skillTriggerKey] : undefined;
+    const problems = declared ? hintValueProblems(source, value) : [];
     const runtime = skillTriggerGlobs(content);
     const expected = yamlGlobs(value);
     if (runtime.join('\n') !== expected.join('\n')) {
@@ -196,13 +216,14 @@ function hintProblems(subject: string, content: string, fields: Record<string, u
     return problems;
 }
 
-function parsedFrontmatterProblems(subject: string, content: string, document: ReturnType<typeof parseDocument>, fields: Record<string, unknown>): string[] {
-    const known = parsedFormProblems(subject, content, document);
+function parsedFrontmatterProblems(source: SkillFrontmatterSource, document: ReturnType<typeof parseDocument>, fields: Record<string, unknown>): string[] {
+    const { subject } = source;
+    const known = parsedFormProblems(source, document);
     return [
-        ...topLevelKeyProblems(subject, Object.keys(fields)),
-        ...metadataShapeProblems(subject, fields),
+        ...topLevelKeyProblems(source, Object.keys(fields)),
+        ...metadataShapeProblems(source, fields),
         ...nonStringMetadataKeys(document).map(key => `${subject} declares the metadata key '${key}', which is not a string; metadata keys must be strings (Agent Skills metadata maps strings to strings), so quote it.`),
         ...known,
-        ...known.length === 0 ? hintProblems(subject, content, fields) : [],
+        ...known.length === 0 ? hintProblems(source, fields) : [],
     ];
 }

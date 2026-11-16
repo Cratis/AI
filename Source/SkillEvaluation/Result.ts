@@ -4,6 +4,7 @@
 import type { Task } from './Task.ts';
 
 export interface Result extends Task {
+    corpusCondition?: 'skills-with-dependencies' | 'none';
     skillsRead: string[];
     listedSkills?: string[];
     text: string;
