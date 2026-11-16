@@ -283,6 +283,8 @@ function stem_scan(text, mode, nonliteral,    t, k, stem, pos, offset, first, fo
             for (k = 1; k <= nstem; k++) {
                 stem = STEM[k]
                 if (candidate != substr(stem, 1, 1) && candidate !~ /[*?[(@+!~^]/) continue
+                # A filename glob cannot supply a path separator. Unknown expansions still can.
+                if (stem == "run/secrets" && nonliteral != "expanding" && !index(t, "/")) continue
                 end = stem_units(t, mode, p, stem)
                 if (end && stem_boundary(t, p, end, stem, nonliteral)) { first = p; found = stem; break }
             }

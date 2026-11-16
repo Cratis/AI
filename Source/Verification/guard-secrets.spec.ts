@@ -1044,6 +1044,29 @@ test('.env is a protected stem only as a whole file stem, not inside a longer wo
     ]);
 });
 
+test('test filters ending in run globs do not name the secrets mount', () => {
+    assertVerdicts([
+        [ALLOW, "cd /Volumes/sourcecode/repos/cratis/.worktrees/l168-direct-2335-l && DIRECT_RECORD_WORKER_PROMPTS=1 DIRECT_RECORD_WORKER_ENVIRONMENTS=1 /Users/sindrewilting/.pi/agent/bin/pi-phase run --kind test --label 2335-regenerate-goldens --queue-timeout 3600 --timeout 120 --expect-red --log .ai-work/2335-redeliver/regenerate-goldens.log -- Source/Direct/bin/Debug/net11.0/Direct -method 'Direct.Global.Work.Workers.for_WorkerPrompts.when_rendering_every_prompt.should_preserve_task_run*' -method 'Direct.Global.Work.Workers.for_WorkerPrompts.when_rendering_every_prompt.should_preserve_ad_hoc*' -class Direct.Global.Work.Workers.for_WorkerEnvironment.when_building_every_purpose.for_a_task_run -class Direct.Global.Work.Workers.for_WorkerEnvironment.when_building_every_purpose.for_ad_hoc_work"],
+        [ALLOW, "DIRECT_RECORD_WORKER_PROMPTS=1 DIRECT_RECORD_WORKER_ENVIRONMENTS=1 ~/.pi/agent/bin/pi-phase run --kind test --label 2335-regenerate-goldens -- Source/Direct/bin/Debug/net11.0/Direct -method 'X' -class Direct.Global.Work.Workers.for_WorkerEnvironment.when_building_every_purpose.for_a_task_run"],
+        [ALLOW, "pi-phase run --kind test -- Source/Direct/bin/Debug/net11.0/Direct -method 'should_preserve_task_run*'"],
+        [ALLOW, "DIRECT_RECORD_WORKER_ENVIRONMENT=1 pi-phase run --kind test -- Direct -method 'should_preserve_task_run*'"],
+        [ALLOW, "dotnet test Source/Direct.Specs/Direct.Specs.csproj --filter 'FullyQualifiedName~should_preserve_task_run*'"],
+        [ALLOW, "pi-phase run --kind test -- Direct -method 'should_preserve_task_run?'"],
+        [ALLOW, "pi-phase run --kind test -- Direct -method 'should_preserve_task_run[0-9]'"],
+        [BLOCK, 'cat /run/secrets/x'],
+        [BLOCK, 'cat run/secrets/token'],
+        [BLOCK, 'pi-phase run --kind test -- cat /run/secrets/token'],
+        [BLOCK, 'bash -c "cat /run/secrets/x"'],
+        [BLOCK, "gh issue list --search 'run/secrets'"],
+        [BLOCK, 'cat /run/se*'],
+        [BLOCK, 'cat /r?n/secrets/token'],
+        [BLOCK, 'cat /run*/secrets/token'],
+        [BLOCK, 'cat run$(printf /secrets/x)'],
+        [BLOCK, 'cat run${UNKNOWN}'],
+        [BLOCK, "pi-phase run --kind test -- Direct -method 'should_preserve_task_run*' && cat /run/secrets/x"],
+    ]);
+});
+
 test('an expansion marker after or inside the .env stem keeps it protected', () => {
     const names = [
         '.env$x',
