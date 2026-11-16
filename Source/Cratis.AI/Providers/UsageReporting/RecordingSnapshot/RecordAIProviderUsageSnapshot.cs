@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Providers.UsageReporting;
+using Cratis.Arc.Authorization;
 
 namespace Cratis.AI.Providers.UsageReporting.RecordingSnapshot;
 
@@ -18,6 +19,7 @@ namespace Cratis.AI.Providers.UsageReporting.RecordingSnapshot;
 /// <param name="UsedLocalBurnFallback">Whether <paramref name="ConsumedTokens"/> came from Direct's own trailing-week burn rather than the vendor's usage report.</param>
 [Obsolete("Provider usage snapshots are no longer appended; removed in the next major release (Cratis/AI#651)")]
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record RecordAIProviderUsageSnapshot(AIProviderId Provider, AIUsageReportAvailability Availability, long ConsumedTokens, bool UsedLocalBurnFallback)
 {
     /// <summary>

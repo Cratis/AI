@@ -4,6 +4,7 @@
 using Cratis.AI.Abstractions;
 using Cratis.AI.Agents;
 using Cratis.AI.LanguageModels;
+using Cratis.Arc.Authorization;
 using Cratis.Arc.Commands;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -42,6 +43,7 @@ public class an_inner_model : Specification
     protected ManagedLanguageModel CreateModel(ILanguageModel inner) => new(
         inner,
         CommandPipeline,
+        Substitute.For<ISystemExecution>(),
         Agents,
         new AgentExecution(new Cratis.Chronicle.Identities.BaseIdentityProvider(), new Cratis.Chronicle.Auditing.CausationManager(), Agents),
         Substitute.For<ILogger<ManagedLanguageModel>>(),

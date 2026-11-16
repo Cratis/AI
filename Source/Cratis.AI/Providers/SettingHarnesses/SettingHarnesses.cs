@@ -3,6 +3,7 @@
 
 using Cratis.AI.Harnesses;
 using Cratis.AI.Providers.HarnessSupport;
+using Cratis.Arc.Authorization;
 using Cratis.Types;
 
 namespace Cratis.AI.Providers.SettingHarnesses;
@@ -14,6 +15,7 @@ namespace Cratis.AI.Providers.SettingHarnesses;
 /// <param name="Provider">The provider whose harnesses are being set.</param>
 /// <param name="SupportedHarnesses">The complete set of allowed harnesses.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record SetAIProviderHarnesses(AIProviderId Provider, IReadOnlyList<Harness> SupportedHarnesses)
 {
     /// <summary>

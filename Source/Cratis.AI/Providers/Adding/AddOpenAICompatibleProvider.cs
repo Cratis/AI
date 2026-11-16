@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Abstractions;
+using Cratis.Arc.Authorization;
 
 namespace Cratis.AI.Providers.Adding;
 
@@ -16,6 +17,7 @@ namespace Cratis.AI.Providers.Adding;
 /// <param name="ApiKey">The API key, when the endpoint requires one.</param>
 /// <param name="MaxConcurrentJobs">How many worker sessions may run on it at once - zero for no limit.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record AddOpenAICompatibleProvider(AIProviderName Name, AIProviderEndpoint Endpoint, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs)
 {
     /// <summary>

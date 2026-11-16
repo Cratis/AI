@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.AI.Providers;
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
 using Microsoft.Extensions.Options;
 
@@ -14,6 +16,7 @@ namespace Cratis.AI.Decisions.Configuring;
 /// (<see cref="BuiltInDecisionEngineOptions"/>), so choosing it is a choice and nothing more.
 /// </remarks>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record UseBuiltInDecisionEngine : ICanProvideEventSourceId
 {
     /// <summary>

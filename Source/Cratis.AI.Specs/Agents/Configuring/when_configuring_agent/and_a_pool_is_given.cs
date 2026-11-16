@@ -10,7 +10,7 @@ public class and_a_pool_is_given : Specification
 {
     static readonly AIProviderPoolId _pool = AIProviderPoolId.New();
 
-    CommandScenario<ConfigureAgent> _scenario;
+    ManagementCommandScenario<ConfigureAgent> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Common;
+using Cratis.AI.Providers;
+using Cratis.Arc.Authorization;
 using MongoDB.Driver;
 
 namespace Cratis.AI.Usage.Trends;
@@ -15,6 +17,7 @@ namespace Cratis.AI.Usage.Trends;
 /// <param name="CpuSeconds">The total CPU time accumulated across every session that month.</param>
 /// <param name="MemoryBytes">The total peak memory accumulated across every session that month.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [FromEvent<AgentSessionUsageRecorded>(key: nameof(AgentSessionUsageRecorded.MonthKey))]
 public record AgentUsageByMonth(
     [Key][SetFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.MonthKey))] MonthKey Month,

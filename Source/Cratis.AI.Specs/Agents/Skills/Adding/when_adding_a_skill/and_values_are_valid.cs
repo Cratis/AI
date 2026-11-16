@@ -7,7 +7,7 @@ public class and_values_are_valid : Specification
 {
     static readonly AgentId _agent = AgentId.For("IssueTriage");
 
-    CommandScenario<AddAgentSkill> _scenario;
+    ManagementCommandScenario<AddAgentSkill> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

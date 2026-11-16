@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Providers.Capacity;
 
 /// <summary>
@@ -29,6 +31,7 @@ namespace Cratis.AI.Providers.Capacity;
 /// it has no projection, which stops it registering a dead observer and sink.
 /// </remarks>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [Passive]
 public record AIProviderCapacity(
     AIProviderId Provider,

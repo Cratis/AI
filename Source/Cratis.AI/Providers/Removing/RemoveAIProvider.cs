@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Providers.Removing;
 
 /// <summary>
@@ -11,6 +13,7 @@ namespace Cratis.AI.Providers.Removing;
 /// </summary>
 /// <param name="Provider">The identity of the provider to remove.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record RemoveAIProvider(AIProviderId Provider)
 {
     /// <summary>

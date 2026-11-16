@@ -3,6 +3,7 @@
 
 using Cratis.AI.Abstractions;
 using Cratis.AI.Providers.OpenAI;
+using Cratis.Arc.Authorization;
 
 namespace Cratis.AI.Providers.Adding;
 
@@ -19,6 +20,7 @@ namespace Cratis.AI.Providers.Adding;
 /// <param name="ApiKey">The OpenAI API key.</param>
 /// <param name="MaxConcurrentJobs">How many worker sessions may run on it at once - zero for no limit.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record AddOpenAIProvider(AIProviderName Name, AIProviderApiKey ApiKey, MaxConcurrentJobs MaxConcurrentJobs)
 {
     /// <summary>

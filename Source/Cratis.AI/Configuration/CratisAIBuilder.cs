@@ -8,6 +8,7 @@ using Cratis.AI.Decisions.BuiltIn;
 using Cratis.AI.Decisions.Health;
 using Cratis.AI.Decisions.Jev;
 using Cratis.AI.Decisions.Usage;
+using Cratis.AI.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -24,6 +25,19 @@ public class CratisAIBuilder(IServiceCollection services)
     /// Gets the underlying <see cref="IServiceCollection"/>.
     /// </summary>
     public IServiceCollection Services { get; } = services;
+
+    /// <summary>
+    /// Supplies the consuming application's AI administrator authority. Without an authority,
+    /// all application-user management calls are denied; the host must explicitly grant access.
+    /// </summary>
+    /// <typeparam name="TAdministrators">The administrator authority.</typeparam>
+    /// <returns>This builder for chaining.</returns>
+    public CratisAIBuilder WithAdministrators<TAdministrators>()
+        where TAdministrators : class, IAIAdministrators
+    {
+        Services.Replace(ServiceDescriptor.Transient<IAIAdministrators, TAdministrators>());
+        return this;
+    }
 
     /// <summary>
     /// Registers the <see cref="IAIAgents"/> lookup the package resolves agent identity and display

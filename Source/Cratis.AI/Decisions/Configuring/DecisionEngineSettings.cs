@@ -3,6 +3,8 @@
 
 using Cratis.AI.Decisions.Health;
 using Cratis.AI.Decisions.Jev;
+using Cratis.AI.Providers;
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.Options;
 
 namespace Cratis.AI.Decisions.Configuring;
@@ -23,6 +25,7 @@ namespace Cratis.AI.Decisions.Configuring;
 /// <param name="IsReachable">Whether the engine in force answered its last health check.</param>
 /// <param name="Detail">What the last health check found.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record DecisionEngineSettings(
     DecisionEngineType Type,
     bool IsExplicitlyChosen,

@@ -13,6 +13,7 @@ using Cratis.AI.Providers.Pools.Listing;
 using Cratis.AI.Providers.RateLimiting;
 using Cratis.AI.Providers.UsageReporting;
 using Cratis.AI.Usage.Daily;
+using Cratis.Arc.Authorization;
 using Cratis.Chronicle.ReadModels;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
@@ -88,7 +89,8 @@ public class a_pooled_chat_client : Specification
             _agents,
             execution,
             _commandPipeline,
-            _recorder = new ProviderRateLimitRecorder(capacities, _commandPipeline, TimeProvider.System, options, Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance),
+            Substitute.For<ISystemExecution>(),
+            _recorder = new ProviderRateLimitRecorder(capacities, _commandPipeline, Substitute.For<ISystemExecution>(), TimeProvider.System, options, Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance),
             TimeProvider.System,
             options,
             Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance,

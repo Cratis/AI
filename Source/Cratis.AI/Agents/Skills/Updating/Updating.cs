@@ -4,6 +4,9 @@
 using Cratis.AI.Agents.Listing;
 using Cratis.AI.Agents.Skills.Adding;
 
+using Cratis.AI.Providers;
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Agents.Skills.Updating;
 
 /// <summary>
@@ -14,6 +17,7 @@ namespace Cratis.AI.Agents.Skills.Updating;
 /// <param name="Name">The skill's name.</param>
 /// <param name="Content">What the skill teaches, in markdown.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record UpdateAgentSkill(AgentId Id, SkillId Skill, SkillName Name, SkillContent Content)
 {
     /// <summary>

@@ -4,6 +4,7 @@
 using Cratis.AI.Common;
 using Cratis.AI.Providers.OpenAI;
 using Cratis.AI.Providers.Refreshing;
+using Cratis.Arc.Authorization;
 using Cratis.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -40,11 +41,13 @@ public interface IOpenAISubscriptionSignIns
 /// </summary>
 /// <param name="tokens">Talks to OpenAI's device-code endpoints.</param>
 /// <param name="commandPipeline">Records the credential and the outcome.</param>
+/// <param name="systemExecution">Scopes internal command execution.</param>
 /// <param name="logger">The logger.</param>
 [Singleton]
 public class OpenAISubscriptionSignIns(
     IOpenAISubscriptionTokens tokens,
     ICommandPipeline commandPipeline,
+    ISystemExecution systemExecution,
     ILogger<OpenAISubscriptionSignIns> logger) : IOpenAISubscriptionSignIns
 {
     /// <summary>
@@ -73,6 +76,7 @@ public class OpenAISubscriptionSignIns(
 
     async Task WaitForAuthorization(AIProviderId provider, OpenAIDeviceAuthorization authorization, DateTimeOffset expiresAt)
     {
+        using var systemScope = systemExecution.AsSystem();
         try
         {
             var interval = TimeSpan.FromSeconds(authorization.IntervalSeconds);

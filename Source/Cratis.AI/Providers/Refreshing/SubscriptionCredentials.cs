@@ -4,6 +4,7 @@
 using Cratis.AI.Abstractions;
 using Cratis.AI.Common;
 using Cratis.AI.Providers.OpenAI;
+using Cratis.Arc.Authorization;
 using Cratis.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -43,6 +44,7 @@ public interface ISubscriptionCredentials
 /// </summary>
 /// <param name="tokens">Performs the exchange against OpenAI's token endpoint.</param>
 /// <param name="commandPipeline">Records the rotation, so the credential survives this process.</param>
+/// <param name="systemExecution">Scopes internal command execution.</param>
 /// <param name="alerts">Where a credential failure that stops all work is reported.</param>
 /// <param name="options">Where the refresh margin is read from.</param>
 /// <param name="logger">The logger.</param>
@@ -50,6 +52,7 @@ public interface ISubscriptionCredentials
 public class SubscriptionCredentials(
     IOpenAISubscriptionTokens tokens,
     ICommandPipeline commandPipeline,
+    ISystemExecution systemExecution,
     IAIAlerts alerts,
     IOptions<AIProviderOptions> options,
     ILogger<SubscriptionCredentials> logger) : ISubscriptionCredentials, IDisposable
@@ -112,6 +115,7 @@ public class SubscriptionCredentials(
             // would otherwise be spent by a container and lost, leaving the stored one retired at the
             // vendor - the exact dead end central refreshing exists to prevent.
             var recorded = refreshed.ToApiKey();
+            using var systemScope = systemExecution.AsSystem();
             await commandPipeline.ExecuteAndReport(new RecordRefreshedOpenAISubscription(provider, recorded), logger);
             logger.RefreshedSubscriptionCredential(provider, refreshed.ExpiresAt);
             return recorded;

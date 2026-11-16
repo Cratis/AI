@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
+
 namespace Cratis.AI.Providers.RateLimiting;
 
 /// <summary>
@@ -29,6 +31,7 @@ public record AIProviderRateLimited(DateTimeOffset Until);
 /// <param name="Provider">The provider that was rate-limited - its own identity resolves the event source.</param>
 /// <param name="Until">When the provider is worth trying again.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record RecordProviderRateLimited(AIProviderId Provider, DateTimeOffset Until)
 {
     /// <summary>
@@ -52,6 +55,7 @@ public record AIProviderRateLimitCleared();
 /// </summary>
 /// <param name="Provider">The provider to lift the pause of - its own identity resolves the event source.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record ClearProviderRateLimit(AIProviderId Provider)
 {
     /// <summary>

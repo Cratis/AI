@@ -17,6 +17,7 @@ using Cratis.AI.Providers.Pools.Listing;
 using Cratis.AI.Providers.RateLimiting;
 using Cratis.AI.Providers.UsageReporting;
 using Cratis.AI.Usage;
+using Cratis.Arc.Authorization;
 using Cratis.Chronicle.ReadModels;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
@@ -50,6 +51,7 @@ namespace Cratis.AI.Conversations;
 /// <param name="agents">The configured agents, to attribute usage.</param>
 /// <param name="agentExecution">Scopes usage recording to the calling agent.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> usage is recorded through.</param>
+/// <param name="systemExecution">Scopes internal command execution.</param>
 /// <param name="rateLimitRecorder">Records a provider's rate limit.</param>
 /// <param name="timeProvider">The <see cref="TimeProvider"/> cooldowns are measured against.</param>
 /// <param name="providerOptions">The <see cref="AIProviderOptions"/>.</param>
@@ -69,6 +71,7 @@ public sealed class PooledChatClient(
     IAIAgents agents,
     IAgentExecution agentExecution,
     ICommandPipeline commandPipeline,
+    ISystemExecution systemExecution,
     ProviderRateLimitRecorder rateLimitRecorder,
     TimeProvider timeProvider,
     IOptions<AIProviderOptions> providerOptions,
@@ -480,6 +483,7 @@ public sealed class PooledChatClient(
                 InputTokens: usage.InputTokenCount is { } input ? new InputTokens(input) : null,
                 OutputTokens: usage.OutputTokenCount is { } output ? new OutputTokens(output) : null,
                 CachedTokens: usage.CachedInputTokenCount is { } cached ? new CachedTokens(cached) : null);
+            using var systemScope = systemExecution.AsSystem();
             await commandPipeline.ExecuteAndReport(command, logger);
         }
         catch (Exception exception)

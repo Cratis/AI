@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Common;
+using Cratis.Arc.Authorization;
 using Cratis.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -38,11 +39,13 @@ public interface ICopilotSignIns
 /// </summary>
 /// <param name="tokens">Talks to GitHub's device endpoints.</param>
 /// <param name="commandPipeline">Records the credential and the outcome.</param>
+/// <param name="systemExecution">Scopes internal command execution.</param>
 /// <param name="logger">The logger.</param>
 [Singleton]
 public class CopilotSignIns(
     ICopilotDeviceTokens tokens,
     ICommandPipeline commandPipeline,
+    ISystemExecution systemExecution,
     ILogger<CopilotSignIns> logger) : ICopilotSignIns
 {
     /// <inheritdoc/>
@@ -65,6 +68,7 @@ public class CopilotSignIns(
 
     async Task WaitForAuthorization(AIProviderId provider, CopilotDeviceAuthorization authorization)
     {
+        using var systemScope = systemExecution.AsSystem();
         try
         {
             var interval = TimeSpan.FromSeconds(authorization.IntervalSeconds);

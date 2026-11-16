@@ -1,7 +1,9 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
+
 namespace Cratis.AI.Providers.Codex;
 
 /// <summary>
@@ -10,6 +12,7 @@ namespace Cratis.AI.Providers.Codex;
 /// <param name="Name">The provider's display name.</param>
 /// <param name="MaxConcurrentJobs">How many worker jobs may use the subscription concurrently.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record AddOpenAICodexProvider(AIProviderName Name, MaxConcurrentJobs MaxConcurrentJobs)
 {
     /// <summary>
@@ -38,6 +41,7 @@ public class AddOpenAICodexProviderValidator : CommandValidator<AddOpenAICodexPr
 /// </summary>
 /// <param name="Provider">The provider to disconnect.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record DisconnectOpenAICodexProvider(AIProviderId Provider) : ICanProvideEventSourceId
 {
     /// <inheritdoc/>

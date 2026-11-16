@@ -8,7 +8,7 @@ public class and_values_are_given : Specification
     static readonly AIProviderPoolId _pool = AIProviderPoolId.New();
     static readonly AIProviderId _provider = AIProviderId.New();
 
-    CommandScenario<AddProviderToPool> _scenario;
+    ManagementCommandScenario<AddProviderToPool> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

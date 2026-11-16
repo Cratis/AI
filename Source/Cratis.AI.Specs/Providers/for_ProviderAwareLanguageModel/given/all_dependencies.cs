@@ -10,6 +10,7 @@ using Cratis.AI.Providers.Pools;
 using Cratis.AI.Providers.Pools.Listing;
 using Cratis.AI.Providers.UsageReporting;
 using Cratis.AI.Usage.Daily;
+using Cratis.Arc.Authorization;
 using Cratis.Chronicle.ReadModels;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -97,6 +98,7 @@ public class all_dependencies : Specification
         _providerGate,
         new DefaultAgentInvocationModes(),
         _commandPipeline,
+        Substitute.For<ISystemExecution>(),
         _timeProvider,
         Options.Create(new AIProviderOptions()),
         _logger,

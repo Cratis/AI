@@ -11,7 +11,7 @@ public class and_the_skill_is_unknown : Specification
 {
     static readonly AgentId _agent = AgentId.For("IssueTriage");
 
-    CommandScenario<UpdateAgentSkill> _scenario;
+    ManagementCommandScenario<UpdateAgentSkill> _scenario;
     CommandResult _result;
 
     void Establish() => _scenario = new();

@@ -3,6 +3,7 @@
 
 using Cratis.AI.Abstractions;
 using Cratis.AI.Common;
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
 
 namespace Cratis.AI.Providers.Configuring;
@@ -16,6 +17,7 @@ namespace Cratis.AI.Providers.Configuring;
 /// <param name="Name">The name the organization knows the provider by.</param>
 /// <param name="ApiKey">The OpenAI API key.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record AddOpenAIProvider(AIProviderName Name, AIProviderApiKey ApiKey)
 {
     /// <summary>
@@ -55,6 +57,7 @@ public class AddOpenAIProviderValidator : CommandValidator<AddOpenAIProvider>
 /// <param name="Name">The name the organization knows the provider by.</param>
 /// <param name="ApiKey">The new API key - blank keeps the current one.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record ReconfigureOpenAIProvider(AIProviderId Id, AIProviderName Name, AIProviderApiKey ApiKey)
 {
     /// <summary>

@@ -19,6 +19,7 @@ using Cratis.AI.Providers.SettingHarnesses;
 using Cratis.AI.Providers.SettingTierModels;
 using Cratis.AI.Providers.SettingUsageCapacity;
 using Cratis.AI.Providers.UsageReporting.SettingCredential;
+using Cratis.Arc.Authorization;
 
 namespace Cratis.AI.Providers;
 
@@ -47,6 +48,7 @@ namespace Cratis.AI.Providers;
 /// <param name="Type">The vendor the provider talks to.</param>
 /// <param name="ApiKey">The credential completions are authenticated with.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [Passive]
 [FromEvent<AnthropicProviderAdded>]
 [FromEvent<OpenAIProviderAdded>]

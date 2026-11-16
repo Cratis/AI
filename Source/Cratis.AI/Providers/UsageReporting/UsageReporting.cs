@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Common;
+using Cratis.Arc.Authorization;
 
 namespace Cratis.AI.Providers.UsageReporting;
 
@@ -71,6 +72,7 @@ public record AIProviderCostDay(DateOnly Date, decimal CostInUsd);
 /// and sink.
 /// </remarks>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [Passive]
 public record AIProviderUsageReport(
     AIProviderId ProviderId,

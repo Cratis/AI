@@ -3,6 +3,8 @@
 
 using Cratis.AI.Common;
 using Cratis.AI.Decisions.Jev;
+using Cratis.AI.Providers;
+using Cratis.Arc.Authorization;
 using Cratis.Monads;
 
 namespace Cratis.AI.Decisions.Configuring;
@@ -18,6 +20,7 @@ namespace Cratis.AI.Decisions.Configuring;
 /// this is a selection, not an addition to a list.
 /// </remarks>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record UseJevDecisionEngine(
     DecisionEngineApiKey ApiKey,
     ModelName Model,

@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Providers;
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.AI;
 
 namespace Cratis.AI.Conversations.for_PooledChatClient.when_getting_a_response;
@@ -31,6 +32,7 @@ public class and_the_caller_defines_the_agent : given.a_pooled_chat_client
             _agents,
             _execution,
             _commandPipeline,
+            Substitute.For<ISystemExecution>(),
             _recorder,
             TimeProvider.System,
             _options,

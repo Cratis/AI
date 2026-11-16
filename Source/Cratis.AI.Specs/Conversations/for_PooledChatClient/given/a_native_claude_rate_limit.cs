@@ -8,6 +8,7 @@ using Cratis.AI.Providers;
 using Cratis.AI.Providers.Anthropic;
 using Cratis.AI.Providers.Pools;
 using Cratis.AI.Providers.RateLimiting;
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.AI;
 
 namespace Cratis.AI.Conversations.for_PooledChatClient.given;
@@ -57,7 +58,7 @@ public class a_native_claude_rate_limit : a_pooled_chat_client
         _functionResource = Substitute.For<IDisposable>();
         var gate = Substitute.For<IProviderConcurrencyGate>();
         gate.TryEnter(Arg.Any<AIProviderId>(), Arg.Any<CancellationToken>()).Returns(_slot);
-        _client = new((LanguageModels.LanguageModelPurpose)Purpose, _readModels, _compatibility, _burn, _usageLevels, _capacities, _failures, gate, _factory, _agents, _execution, _commandPipeline, _recorder, TimeProvider.System, _options, Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance);
+        _client = new((LanguageModels.LanguageModelPurpose)Purpose, _readModels, _compatibility, _burn, _usageLevels, _capacities, _failures, gate, _factory, _agents, _execution, _commandPipeline, Substitute.For<ISystemExecution>(), _recorder, TimeProvider.System, _options, Microsoft.Extensions.Logging.Abstractions.NullLogger.Instance);
         _first = AIProviderId.New();
         _second = AIProviderId.New();
         var pool = AIProviderPoolId.New();

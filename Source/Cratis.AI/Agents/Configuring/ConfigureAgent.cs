@@ -6,6 +6,7 @@ using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
 using Cratis.AI.Providers.Pools;
 using Cratis.AI.Providers.Pools.Listing;
+using Cratis.Arc.Authorization;
 
 namespace Cratis.AI.Agents.Configuring;
 
@@ -25,6 +26,7 @@ namespace Cratis.AI.Agents.Configuring;
 /// <param name="Harness">Deprecated per-agent harness preference, retained for older callers and fallback when a provider has no selection. Configure provider harnesses instead.</param>
 /// <param name="Effort">The reasoning effort the agent's AI provider runs completions at - each <c>IAIProviderClient</c> translates it to its own vendor's mechanism.</param>
 [Command]
+[Authorize(Policy = AIManagementPolicy.Name)]
 public record ConfigureAgent(LanguageModelPurpose Purpose, AgentName Name, AgentDescription Description, ModelTier Tier, AIProviderId? ProviderId = null, AIProviderPoolId? PoolId = null, Harness Harness = Harness.Pi, Effort Effort = Effort.High) : ICanProvideEventSourceId
 {
     /// <summary>

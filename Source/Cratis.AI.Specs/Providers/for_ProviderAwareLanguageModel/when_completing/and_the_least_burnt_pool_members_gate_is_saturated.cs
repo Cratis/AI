@@ -7,6 +7,7 @@ using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
 using Cratis.AI.Providers.Pools;
 using Cratis.AI.Providers.Pools.Listing;
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.Options;
 
 namespace Cratis.AI.Providers.for_ProviderAwareLanguageModel.when_completing;
@@ -42,6 +43,7 @@ public class and_the_least_burnt_pool_members_gate_is_saturated : given.all_depe
             _providerGate,
             new DefaultAgentInvocationModes(),
             _commandPipeline,
+            Substitute.For<ISystemExecution>(),
             _timeProvider,
             Options.Create(options),
             _logger);

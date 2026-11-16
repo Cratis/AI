@@ -5,6 +5,7 @@ using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
+using Cratis.Arc.Authorization;
 using MongoDB.Driver;
 
 namespace Cratis.AI.Usage.Daily;
@@ -44,6 +45,7 @@ namespace Cratis.AI.Usage.Daily;
 /// <param name="CpuSeconds">The CPU time those sessions consumed in total - what answers "how much CPU went to investigation versus planning versus implementation" once bucketed by <see cref="Purpose"/>.</param>
 /// <param name="MemoryBytes">The peak memory those sessions consumed, summed - the same convention <c>AgentUsageByWeek</c>/<c>AgentUsageByMonth</c> already use for a resource figure that is really a per-session peak, not a naturally additive quantity.</param>
 [ReadModel]
+[Authorize(Policy = AIManagementPolicy.Name)]
 [FromEvent<AgentSessionUsageRecorded>(key: nameof(AgentSessionUsageRecorded.DailyBucketKey))]
 public record AgentUsageByDay(
     [Key][SetFrom<AgentSessionUsageRecorded>(nameof(AgentSessionUsageRecorded.DailyBucketKey))] AgentUsageBucketKey BucketKey,

@@ -5,6 +5,7 @@ using Cratis.AI.Abstractions;
 using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.Usage;
+using Cratis.Arc.Authorization;
 using Microsoft.Extensions.Logging;
 
 namespace Cratis.AI.LanguageModels;
@@ -20,6 +21,7 @@ namespace Cratis.AI.LanguageModels;
 /// </summary>
 /// <param name="inner">The real provider to call - resolved and wired up explicitly rather than constructor-injected, so the container never has two competing <see cref="ILanguageModel"/> registrations to resolve between.</param>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> usage is recorded through.</param>
+/// <param name="systemExecution">Scopes internal command execution.</param>
 /// <param name="agents">The <see cref="IAIAgents"/> lookup <see cref="IAgentExecution"/> resolves the acting agent through.</param>
 /// <param name="agentExecution">The <see cref="IAgentExecution"/> scope that attributes the usage event to the agent serving the purpose.</param>
 /// <param name="logger">The logger.</param>
@@ -31,6 +33,7 @@ namespace Cratis.AI.LanguageModels;
 public class ManagedLanguageModel(
     ILanguageModel inner,
     ICommandPipeline commandPipeline,
+    ISystemExecution systemExecution,
     IAIAgents agents,
     IAgentExecution agentExecution,
     ILogger<ManagedLanguageModel> logger,
@@ -104,6 +107,7 @@ public class ManagedLanguageModel(
                 CachedTokens: usage.CachedTokens,
                 CostUsd: usage.CostUsd,
                 Duration: usage.Duration);
+            using var systemScope = systemExecution.AsSystem();
             await commandPipeline.ExecuteAndReport(command, logger);
         }
         catch (Exception ex)
