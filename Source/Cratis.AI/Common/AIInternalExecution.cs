@@ -3,6 +3,8 @@
 
 using Cratis.Arc.Authorization;
 using Cratis.Arc.Http;
+using Cratis.Arc.Tenancy;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Cratis.AI.Common;
 
@@ -27,6 +29,9 @@ internal static class AIInternalExecution
     internal static IDisposable Begin(ISystemExecution systemExecution, IHttpRequestContextAccessor requests)
     {
         var request = requests.Current;
+
+        // Arc caches the tenant on this execution flow; resolve it while the request is available.
+        _ = request?.RequestServices.GetService<ITenantIdAccessor>()?.Current;
         requests.Current = null;
         try
         {

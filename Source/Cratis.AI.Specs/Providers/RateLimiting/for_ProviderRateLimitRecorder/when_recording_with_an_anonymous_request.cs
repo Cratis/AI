@@ -17,6 +17,8 @@ public class when_recording_with_an_anonymous_request : given.internal_recording
 
     Task Because() => RecordAndCheckOutside();
 
+    [Fact] void should_execute_under_the_request_tenant() => _pipelineTenant.ShouldEqual(_tenant);
+    [Fact] void should_preserve_the_tenant_after_recording() => _tenantAfterRecording.ShouldEqual(_tenant);
     [Fact] void should_record_with_an_anonymous_request() => _recorded.IsSuccess.ShouldBeTrue();
     [Fact] void should_clear_internal_execution() => _activeAfterRecording.ShouldBeFalse();
     [Fact] void should_deny_the_request_outside_the_scope() => _outside.IsAuthorized.ShouldBeFalse();
