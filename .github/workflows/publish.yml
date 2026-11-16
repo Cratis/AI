@@ -59,10 +59,19 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
+      - name: Cache Yarn dependency archives
+        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
+        with:
+          path: .yarn/cache
+          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
+          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
+
       # The three TypeScript projects moved into a yarn workspace in the .NET-scaffolding PR - a
       # single `yarn install` at the root replaces the old per-project `npm ci --prefix`, which
       # would now fail outright (their package-lock.json files were deleted in that move).
       - name: Install project dependencies
+        env:
+          YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
       - name: Type check
@@ -164,7 +173,16 @@ jobs:
         with:
           node-version: 24
 
+      - name: Cache Yarn dependency archives
+        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
+        with:
+          path: .yarn/cache
+          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
+          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
+
       - name: Install project dependencies
+        env:
+          YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
       - name: Download the released contract
@@ -309,7 +327,16 @@ jobs:
       # yarn install, not `npm ci` - Source/Pi.Plugin is a yarn workspace member (converted in the
       # .NET-scaffolding PR) and no longer carries its own package-lock.json for `npm ci` to read.
       # `npm publish` itself needs no lockfile, only the node_modules yarn already populated.
+      - name: Cache Yarn dependency archives
+        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
+        with:
+          path: .yarn/cache
+          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
+          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
+
       - name: Install workspace dependencies
+        env:
+          YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
       - name: Set package version
@@ -342,7 +369,16 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
+      - name: Cache Yarn dependency archives
+        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
+        with:
+          path: .yarn/cache
+          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
+          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
+
       - name: Install workspace dependencies
+        env:
+          YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
       - name: Set package version
@@ -372,7 +408,16 @@ jobs:
         with:
           node-version: 24
 
+      - name: Cache Yarn dependency archives
+        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
+        with:
+          path: .yarn/cache
+          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
+          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
+
       - name: Install workspace dependencies
+        env:
+          YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
       - name: Build the bundle
@@ -477,7 +522,16 @@ jobs:
       - name: Build Cratis.AI (regenerates the proxy tree)
         run: dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release
 
+      - name: Cache Yarn dependency archives
+        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
+        with:
+          path: .yarn/cache
+          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
+          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
+
       - name: Install workspace dependencies
+        env:
+          YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
       # @cratis/ai and Cratis.AI (NuGet) are published from this one release run, at this one
