@@ -983,7 +983,9 @@ function token_ok(l, b) {
 function sensitive_path(w,    l, b) {
     l = tolower(w); b = l; sub(/.*\//, "", b)
     if (l ~ /(^|\/)\.kube\// || b == "kubeconfig" || b ~ /\.kubeconfig$/) return "a kubeconfig"
-    if (b ~ /^\.env/ || b ~ /\.env$/) { if (b ~ /\.(example|sample|template|dist|defaults?)$/) return ""; return "an .env file" }
+    # Every name starting with .env stays protected (.env2, .envprod, .envrc.local, .env-prod); only the
+    # dictionary words .environment, .environments and .envs, as a whole stem, are ordinary file names.
+    if ((b ~ /^\.env/ && b !~ /^\.(environments?|envs)([.]|$)/) || b ~ /\.env$/) { if (b ~ /\.(example|sample|template|dist|defaults?)$/) return ""; return "an .env file" }
     # A named copy or variant (app.env.old, prod.env.local, app.env~) is protected like the file itself; templates and source files are not.
     if (b ~ /.\.env[.~]/ && b !~ /\.(example|sample|template|dist|defaults?)$/ && !code_file(b) && !build_file(b)) return "an .env file"
     # Unambiguous credential extensions also protect disguised source suffixes; ambiguous words

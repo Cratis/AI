@@ -74,9 +74,29 @@ test('read-only globs allow reads while interpreter heredocs retain conservative
     const repo = scratchRepository();
     try {
         for (const present of [false, true]) {
-            if (present) writeFileSync(join(repo.root, '.env'), 'synthetic fixture');
+            if (present) {
+                writeFileSync(join(repo.root, '.env'), 'synthetic fixture');
+                mkdirSync(join(repo.root, 'Source/Direct'));
+                writeFileSync(join(repo.root, 'Source/Direct/Direct.csproj'), '<Project />');
+            }
             await checkCases([
                 [ALLOW, "rg -n foo --glob '*.csproj'"], [ALLOW, 'rg -n foo Directory.Build.*'],
+                [ALLOW, 'git diff --stat -- Source/Accounts/Registration.ts'],
+                [ALLOW, "git status --short; rg -l 'Cratis.Specifications' -g '*.csproj' Source"],
+                [ALLOW, 'ls Source/Direct/*.csproj'],
+                [ALLOW, 'grep -n foo Directory.Build.props'],
+                [ALLOW, 'git show HEAD:Directory.Build.props'],
+                [ALLOW, 'git log -- Directory.Build.props'],
+                [ALLOW, 'git status --short -- Directory.Build.props'],
+                [BLOCK, 'git diff > Source/Accounts/Registration.ts'],
+                [BLOCK, 'git diff >> Source/Accounts/Registration.ts'],
+                [BLOCK, 'rg x | tee Source/Accounts/Registration.ts'],
+                [BLOCK, 'ls; echo x > Source/Accounts/Registration.ts'],
+                [BLOCK, 'sed -i s/a/b/ Source/Accounts/Registration.ts'],
+                [BLOCK, 'cp notes.md Source/Accounts/Registration.ts'],
+                [BLOCK, 'mv notes.md Source/Accounts/Registration.ts'],
+                [BLOCK, 'rm Source/Accounts/Registration.ts'],
+                [BLOCK, 'git checkout -- Source/Accounts/Registration.ts'],
                 // Real reader expansion does not become a writer; unresolved mutation globs still refuse.
                 [ALLOW, 'rg -n foo *.cs'], [BLOCK, 'echo x > *.csproj'],
                 [ALLOW, "rg -n foo -g '*.csproj'"], [BLOCK, 'rg -n .env --glob'], [BLOCK, 'rg -n foo --glob *.csproj'],
