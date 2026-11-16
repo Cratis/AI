@@ -15,6 +15,9 @@ at the repository root.
 
 ## Where to start
 
+- [`backend-quick-start.md`](./backend-quick-start.md) - from an empty application to a first chat
+  response: what a `LanguageModelPurpose` is, how it maps to a provider and model, and one
+  complete example.
 - [`architecture.md`](./architecture.md) - the layered design: what each folder under
   `Source/Cratis.AI/` owns, and the seams between them.
 - [`abstractions.md`](./abstractions.md) - the seams a consumer implements to adopt the package
