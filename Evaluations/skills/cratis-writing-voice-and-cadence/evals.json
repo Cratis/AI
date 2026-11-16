@@ -29,13 +29,14 @@
     {
       "id": 3,
       "name": "batch-sameness",
-      "prompt": "Here are the first sentences of ten release posts: 1) 'A registration test can fail silently.' 2) 'A projection can lag behind.' 3) 'A reducer can drop an event.' 4) 'A reactor can run twice.' 5) 'A command can return a tuple.' 6) 'A constraint can reject a write.' 7) 'We shipped replay.' 8) 'A query can stream.' 9) 'A read model can be rebuilt.' 10) 'A client can reconnect.' Nine end with a one-line maxim. What do you conclude, and what fix do you recommend? Reply only.",
+      "prompt": "Here are the first sentences of ten release posts: 1) 'A registration test can fail silently.' 2) 'A projection can lag behind.' 3) 'A reducer can drop an event.' 4) 'A reactor can run twice.' 5) 'A command can return a tuple.' 6) 'A constraint can reject a write.' 7) 'We shipped replay.' 8) 'A query can stream.' 9) 'A read model can be rebuilt.' 10) 'A client can reconnect.' Nine end with a one-line maxim. The editor also wants a shorter version of post 4 and proposes cutting 'A reactor can run twice, so side effects must be idempotent; replay is not supported for external calls.' down to 'A reactor can run twice.' What do you conclude, and what fix do you recommend? Reply only.",
       "expected_output": "Structural sameness across the batch: nine of ten open with an abstract assertion and nine close on a maxim, so the format is doing the writing. The fix is not a better template (swapping all to questions yields ten question openings); let subject and purpose determine shape and add a missing fact: artifact, version, reason from the author. Flag concentration in the batch, not one outlier.",
       "assertions": [
         "Identifies that most openings share the same abstract-assertion shape and most closes are maxims, so the batch reads as a template.",
         "Says the fix is not a better template and that swapping every opening for a question would produce ten question openings.",
         "Recommends adding specifics such as the named artifact, the version or a reason the author owns, and letting the subject determine the shape.",
-        "Says to flag concentration in the batch rather than a single outlier."
+        "Says to flag concentration in the batch rather than a single outlier.",
+        "Rejects the trim to 'A reactor can run twice.' because it drops the idempotency requirement and the replay limit, and says a length trim must keep every limit, hedge and warning, cutting examples and repetition first."
       ]
     },
     {

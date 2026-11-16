@@ -41,12 +41,14 @@
     {
       "id": 4,
       "name": "multi-language-tabs",
-      "prompt": "We have a C# example and need to add a Kotlin tab. The Kotlin client doesn't exist yet for this feature, and the tabs name the id type differently (Guid vs String). A teammate suggests translating the C# call by hand and explaining in prose which name each tab uses. Reply only.",
-      "expected_output": "Do not translate a C# call by guess; offer only implementations that exist, compiled against their own SDK, using the established client-owned snippet mechanism. Use the same domain type names in every tab; if prose must explain names, fix the snippets. State each backend's id and response wire type and keep one id type per concept across a series.",
+      "prompt": "We have a C# example and need to add a Kotlin tab. The Kotlin client doesn't exist yet for this feature, and the tabs name the id type differently (Guid vs String). A teammate suggests translating the C# call by hand and explaining in prose which name each tab uses. The paragraph after the tab group says 'the handler returns the new id', but the TypeScript tab returns nothing; the Kotlin tab carries a note 'no live updates in this client' nobody checked against that client's source; and the C# tab declares `public record OrderId(Guid Value);` copied from client docs with `string customerName` as a raw event property. Also we plan to change the id type in this page and leave the rest of the series. Reply only.",
+      "expected_output": "Do not translate a C# call by guess; offer only implementations that exist, compiled against their own SDK, using the established client-owned snippet mechanism. Use the same domain type names in every tab; if prose must explain names, fix the snippets. State each backend's id and response wire type and keep one id type per concept across a series. Read the prose around the tab group against every tab, check tab notes against that client's source, grep the series before changing a repeated fact, and check snippets against the concepts rule (ConceptAs, no raw primitives for domain values) even when copied from client docs.",
       "assertions": [
         "Refuses to hand-translate the C# call and says to offer only implementations that exist, compiled against their own SDK.",
         "Says to use the same domain type names in every tab and to fix the snippets instead of explaining names in prose.",
-        "Says to state each backend's id and command-response wire type and keep one id type per concept across every page of a series."
+        "Says to state each backend's id and command-response wire type and keep one id type per concept across every page of a series.",
+        "Says the prose around the tab group must be read against every tab, fixing or scoping the sentence the TypeScript tab contradicts, and that a changed repeated fact such as the id type needs a grep of the whole series.",
+        "Treats the Kotlin absence note as a claim to check against that client's source, showing the real shape rather than an unverified 'no live updates', and flags the concept-shaped record without ConceptAs and the raw string domain value against the concepts rule even though they were copied from client docs."
       ]
     },
     {

@@ -48,6 +48,11 @@ A page is done when:
 - Examples are source-verified, complete at their stated scope, and show a
   checkable result; longer examples come from compiling sample or spec source.
   Explanations of what happened match the backend the reader built.
+- Security, privacy and data-loss claims ("never logged", "encrypted", "safe to
+  retry") are verified against the code that implements them, not only against
+  other docs; narrow or drop one that cannot be shown.
+- A page that describes a UI was checked by exercising a seeded system and
+  comparing what appears with the prose; recommended, not required.
 - The entry point, terminology, and next-step links fit the surrounding docs.
 - A new or materially changed journey has fresh-context reader evidence, or
   explicitly reports that review as unavailable. Missing steps and guessed
