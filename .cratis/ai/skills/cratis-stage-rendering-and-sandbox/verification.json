@@ -4,7 +4,7 @@
   "fixtures": [],
   "assertions": [
     { "kind": "skill-contains", "value": "reducer `from` filters" },
-    { "kind": "skill-contains", "value": "enumerated values combined with a named validation", "file": "references/admission.md" },
+    { "kind": "skill-contains", "value": "enumerated values combined with any validation", "file": "references/admission.md" },
     { "kind": "skill-contains", "value": "exact `Int64` overflow in a\n  whole-number projection product", "file": "references/sandbox-and-specrunner.md" },
     { "kind": "skill-contains", "value": "references/scene-runtime.md" },
     { "kind": "skill-contains", "value": "`@cratis/scene` is **not** a package", "file": "references/rendered-application.md" },

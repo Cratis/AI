@@ -364,7 +364,8 @@ standalone single-event reaction body (Requires Screenplay 4.258.0; see
   beside unconditional `produces` with a resolved, nonempty, language-tagged body:
   `produces` fixes the events, the body owns their
   values, and a reached body is Unsupported (`ImplementationBody`). With no `produces`,
-  with `produces ... when` or with an unresolved body it refuses PLAY0800; hosts read the
+  with `produces ... when` or with an unresolved body it refuses PLAY0800 (a `may produce` block
+  instead binds at ESM v35, result contract v2); hosts read the
   required typed `arguments.subject` for the command rather than matching message text.
   Requires Screenplay 4.250.0 or later (`screenplay --version`) for an attached handler beside `produces` to bind; 4.210.0 to 4.249.x refuse every attached handler with PLAY0800 and older binders use PLAY0268.
   A pending intent instead selects v23 with unconditional productions (PLAY0695 information).
@@ -415,7 +416,7 @@ standalone single-event reaction body (Requires Screenplay 4.258.0; see
 | Uuid comparison with `<`, `>`, different concepts, optional operands, a validation rule or a concept rule | PLAY0268 | v28 admits `==`/`!=` in command conditions only, between the same concept or a bare Uuid and a concept |
 | Legacy `reads <View> ...` on a command | PLAY0271 (error) | `command reads protected` opts eligible views into v25; see command-surface protected reads |
 | `concurrency` block on a command | PLAY0271 (error) | "concurrency metadata keeps its legacy meaning and cannot bind to ESM v1" |
-| File/inline `handler` without unconditional `produces` or a resolved body (see above) | PLAY0800 | declare unconditional `produces` beside a resolved body or gap-fill in code; pending and attached handlers beside `produces` bind v23, with body execution/rendering separate |
+| File/inline `handler` without unconditional `produces` or `may produce`, or without a resolved body (see above) | PLAY0800 | declare unconditional `produces` beside a resolved body or gap-fill in code; pending and attached handlers beside `produces` bind v23, with body execution/rendering separate |
 | `$context.tenant`, roles, claims, causation | PLAY0268 | no portable scalar counterpart |
 | Arithmetic or raw expression in a `produces` mapping | PLAY0268 | |
 | Template `` `${x}` `` or `$causedBy` in a projection | PLAY0268 | |

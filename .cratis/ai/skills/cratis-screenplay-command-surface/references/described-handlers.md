@@ -3,6 +3,11 @@
 
 # Described command handlers
 
+## Contents
+
+- Result contract v1
+- Execution and realization
+
 Requires Screenplay 4.182.0 or later (`screenplay --version`); older compilers refuse pending handlers with PLAY0268.
 
 Use a described command when payload computation needs words rather than an invented
@@ -39,10 +44,17 @@ an attached handler. Beside unconditional `produces`, with a resolved, nonempty,
 language-tagged body, it binds with the same v23 result contract (Screenplay 4.250.0,
 decision 0117): the productions fix event types, count, order and destinations, and
 the body owns property values. Reaching the body in reference execution is Unsupported
-(`ImplementationBody`) and appends nothing. An attached handler with no `produces`,
-with `produces ... when`, or with an empty or unresolved body fails binding with PLAY0800
-(`CommandHandlerRequiresAttachment`): declare unconditional `produces`, split variable
-outcomes into separate commands, or attach a resolved body.
+(`ImplementationBody`) and appends nothing. An attached handler with neither unconditional
+`produces` nor a `may produce` block, with `produces ... when`, or with an empty or
+unresolved body fails binding with PLAY0800 (`CommandHandlerRequiresAttachment`): declare
+unconditional `produces`, declare a `may produce` block, split variable outcomes into
+separate commands, or attach a resolved body.
+
+A resolved, nonempty, language-tagged handler can instead declare a `may produce` block
+(ESM v35, handler result contract v2): the body returns an ordered subset or multiset of the
+listed events, each with a destination (`for <property>` or `for one of <collection property>`).
+It cannot sit beside `produces` (PLAY0822/PLAY0823). A pending `handler implementation`
+also binds.
 
 Requires Screenplay 4.250.0 (`screenplay --version`) for attached handlers beside `produces` to bind; 4.210.0 to 4.249.x refuse every attached handler with PLAY0800, and older binders use PLAY0268. Hosts switch on the code and read `arguments.subject`, never parse the message.
 
@@ -67,7 +79,7 @@ explicitly admit this version, never silently drop the body.
 
 | Diagnostic | Meaning and action |
 | --- | --- |
-| PLAY0800 (error) | File/inline handler without unconditional `produces` or a resolved, nonempty body; `subject` identifies the command |
+| PLAY0800 (error) | File/inline handler with neither unconditional `produces` nor a `may produce` block, or without a resolved, nonempty body; `subject` identifies the command |
 | PLAY0695 (information) | Described command admitted; command and RequirementId name the missing body |
 | PLAY0696 (error) | No productions, including response-only; add unconditional productions |
 | PLAY0697 (error) | Conditional productions; result v1 needs unconditional events |
@@ -88,7 +100,7 @@ the body against the declared contract as authorized gap-fill; do not claim that
 pending requirement is implementation evidence. Moving the body into `handler file`
 keeps its RequirementId; beside unconditional `produces` it binds like any resolved
 attached handler (above), while with no `produces`, `produces ... when`, or an empty
-or unresolved body it still fails PLAY0800. Stage renders a body resolved in C#, but
+or unresolved body, and no `may produce` block, it still fails PLAY0800. Stage renders a body resolved in C#, but
 still refuses a pending body or one resolved in another language with STAGE-IMPL-002.
 
 Validate the model root with `screenplay <root> --warnaserror`; expect no errors or

@@ -14,7 +14,7 @@ probe reports and choosing what to do. Do not copy the code table here.
    runtime identity safety. Binding errors are `PLAY0268` (outside the admitted vertical), `PLAY0269`
    (deferred), `PLAY0270` (report-only information), `PLAY0271` (legacy semantics) and `PLAY0273`
    (a specification shape). A file/inline command handler without unconditional `produces`
-   or a resolved body instead reports PLAY0800 (`CommandHandlerRequiresAttachment`); beside
+   (or a `may produce` block, ESM v35) or a resolved body instead reports PLAY0800 (`CommandHandlerRequiresAttachment`); beside
    unconditional `produces` with a resolved body it binds as the v23 result contract.
    Requires Screenplay 4.250.0 (`screenplay --version`); 4.210.0 to 4.249.x refuse every
    attached handler with PLAY0800 and older bundled binders use PLAY0268 for these handlers. Hosts read the required typed `arguments.subject`

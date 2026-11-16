@@ -73,7 +73,8 @@ Keep to it.
 
 A file/code `handler` beside unconditional `produces`, with a resolved nonempty body,
 binds as the v23 result contract: `produces` fixes the
-events and the body owns their property values. Without `produces`, with `produces ... when`,
+events and the body owns their property values. Without `produces` or a `may produce` block
+(ESM v35: the body returns an ordered subset of the declared events), with `produces ... when`,
 or with an unresolved body it fails binding with PLAY0800. A pending
 `handler implementation` beside unconditional `produces` is a described command (ESM v23).
 Prefer plain `produces` for declarative logic. Read [described handlers](references/described-handlers.md)
