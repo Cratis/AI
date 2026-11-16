@@ -65,8 +65,11 @@ A member whose capacity says it cannot start work is skipped without being calle
 When a provider turns work away over its own limit, the rate limit is recorded until:
 
 - the reset stated in the failure, such as "resets Oct 9, 2am (UTC)", or
-- failing that, the capacity's `AvailableAgainAt`,
-- and never less than `RateLimitCooldown`.
+- failing that, the capacity's `AvailableAgainAt`, or
+- when neither says when the limit lifts, `RateLimitCooldown` from now.
+
+A known reset more than 31 days away is treated as a misread and ignored, so the cooldown applies
+instead. However the end is chosen, a recorded rate limit lasts at least 2 minutes.
 
 Its cached capacity is then forgotten, so the next read is fresh.
 
@@ -147,7 +150,7 @@ Bound from `Cratis:AI:Providers` (`AIProviderOptions`):
 | `MinimumHeadroomToStartWork` | `0.02` | How much of the tightest window must be left for work to start. Slightly above zero, because a worker session started on a nearly spent window is likely to be turned away part-way through. |
 | `CapacityFreshness` | 5 minutes | How long a vendor's figures are served from the cache. It is also the first back-off after a failed read, which doubles up to an hour. |
 | `CapacityReportTimeout` | 10 seconds | How long a vendor's usage surface may take. |
-| `RateLimitCooldown` | 1 hour | The shortest a recorded rate limit lasts, and the whole of it when nothing states a reset. |
+| `RateLimitCooldown` | 15 minutes | How long a recorded rate limit lasts when neither the failure nor the capacity says when the limit lifts. |
 
 ## Add a vendor
 

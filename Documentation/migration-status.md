@@ -46,6 +46,26 @@ published a release - nothing was batched or held back to the end.
 | (pending) | `fix/worker-launch-result` | Fixed the violation #354's rule was written for: `IWorkerRuntime.Start` now returns `Task<WorkerLaunchOutcome>` (`Started`/`AlreadyRunning`/`StillGoingAway`/`RefusedByCluster`) instead of throwing `WorkerIsAlreadyRunning`/`WorkerIsStillGoingAway`/`WorkerLaunchWasRefused` for three entirely anticipated outcomes; those three exception types deleted; added spec coverage for the two branches that previously threw - decision 0012 |
 | (pending) | `feat/ai-provider-usage-reporting` | `Providers/UsageReporting/` - `ICanReportAIUsage`, `AnthropicUsageReporting`/`OpenAIUsageReporting` (Console/organization usage+cost readers), `IAIUsageReporting`/`AIUsageReporting` orchestrator, `AIProviderUsageReport` live `[Passive]` query; `Providers/UsageReporting/SettingCredential/` - `SetAIProviderUsageCredential`/`ClearAIProviderUsageCredential`; `ConfiguredAIProvider` gained `UsageApiKey`. Deliberately excludes the pool-selection snapshot/level-refresh layer (`ProviderUsageLevels` and friends stay in Direct) - decision 0014 |
 
+### Delivered after the PR table
+
+These provider-layer pieces exist in `Source/Cratis.AI` today. They landed after the table above
+stopped being kept per PR, so they are listed by area rather than by PR:
+
+- **`ProviderAwareLanguageModel`** (`Providers/ProviderAwareLanguageModel.cs`) - the resolution layer
+  `ManagedLanguageModel` sits in front of.
+- **Rate limiting and harness support** - `Providers/RateLimiting/` (`ProviderRateLimitRecorder`,
+  `ProviderRateLimit`) and `Providers/HarnessSupport/` (`IHarnessSupport`, `ProviderHarnessSupport`).
+- **Provider settings and listing** - `Providers/SettingConcurrency/`, `Providers/SettingTierModels/`,
+  `Providers/SettingUsageCapacity/` and `Providers/Listing/`.
+- **Pool CRUD** - `Providers/Pools/Creating/`, `Renaming/`, `Removing/`, `AddingProvider/`,
+  `RemovingProvider/` and `Listing/`.
+- **Available-model discovery** - `Providers/AvailableModels/`.
+- **Usage snapshots** - the pool-selection snapshot layer under `Providers/UsageReporting/`
+  (`ProviderUsageLevels`, `RecentUsageSnapshots`, `RecordingSnapshot/`, `Snapshots/`).
+- **Codex as a provider** - `Providers/Codex/` adds and disconnects an OpenAI Codex provider, and
+  `Providers/SigningIn/` connects it to a ChatGPT account. It still has no chat client; see
+  "What does not exist yet".
+
 ### Dependency alignment (plan Section 2.5 / risk #6)
 
 Studio was already on `Cratis`/`Cratis.Arc` 22.14.0 and `Cratis.Chronicle` 18.1.6 - the set `Cratis.AI`
@@ -89,8 +109,8 @@ about before anyone else hits them:
 - The full usage subsystem (concepts, event, command, Trends + Daily read models) - 25 specs.
 - `ILanguageModel`/`LanguageModelResult`/`ManagedLanguageModel`, wired onto the above - 9 more specs
   (34 total).
-- `IWorkerRuntime`'s contract (no implementation yet) with Direct's incident-derived doc comments
-  preserved verbatim.
+- `IWorkerRuntime`'s contract with Direct's incident-derived doc comments preserved verbatim, and its
+  two implementations, `DockerWorkerRuntime` and `KubernetesWorkerRuntime` (decision 0011).
 - Provider vocabulary concepts.
 - Five of six vendor clients: `OpenAICompatible`, `Anthropic`, `OpenAI`, `AzureOpenAI`, `ZAI` -
   each a real, working `IAIProviderClient` (plain `HttpClient` + JSON, no vendor SDK dependency),
@@ -117,39 +137,17 @@ about before anyone else hits them:
 
 In roughly the order the plan's Section 10 sequence suggests tackling it:
 
-- **Codex** - the one vendor deliberately not given an `IAIProviderClient`: it is subscription-based
-  rather than API-key and is an agent-harness provider only, so there is no chat-completion surface
-  for it to implement. It needs the worker/harness scheduling layer (plan Section 5.6) instead.
-- **`ProviderAwareLanguageModel`** (the actual resolution layer `ManagedLanguageModel` is meant to
-  sit in front of) - the selection/burn/tier machinery it needs now all exists; what is missing is
-  the agent model it resolves a purpose's provider/pool/tier/effort from (plan Section 5.5) and the
-  real `ConfiguredAIProvider`/`AIProviderPool` projections below. Read
-  `AIProviders/ProviderAwareLanguageModel.cs` in Direct before starting this - it is ~215 lines with
-  real production reasoning (issue #103) behind almost every branch.
-- **Provider commands/projections** - complete for both real donor shapes now. Direct's:
-  `Adding/`/`Reconfiguring/` (all 5 vendors, "blank keeps the existing value" semantics included),
-  `Renaming/`, `Removing/` (decision 0006). Studio's, differently shaped (one event covers
-  add+reconfigure, a `Model` field, no concurrency bound): `Configuring/` (4 vendors - Studio has no
-  ZAI) plus its own `RenameAIProvider`/`RemoveAIProvider` (decision 0009). `ConfiguredAIProvider` is
-  a real `[ReadModel][Passive]` projection accumulating from both. Still missing for both:
-  `SettingConcurrency/`, `SettingTierModels/`, `Listing/` (the display-name-bearing model a UI lists
-  providers from - `ConfiguredAIProvider` deliberately has no name, matching both donors). OpenAI's
-  subscription-credential-kind classification event (Direct-only) is also not yet ported (belongs
-  with Codex, below).
-- **Pool CRUD/projections** (create/rename/remove pool, add/remove provider, `Listing/`) - needed
-  before `AIProviderPoolMember` (#330) is populated by anything other than a consumer constructing
-  it directly.
-- **Rate limiting & harness support** (`RateLimiting/`, `HarnessSupport/`) - the last provider-layer
-  pieces before `ProviderAwareLanguageModel` itself. Everything else it resolves through
-  (concurrency gate, tier resolution, pool selection, capability checks) now exists.
-- **Available-model discovery**, reconciled from both donors.
+- **A Codex chat client** - Codex exists as a provider (see "Delivered after the PR table"), but it
+  is the one vendor deliberately not given an `IAIProviderClient`: it is subscription-based rather
+  than API-key and is an agent-harness provider only, so there is no chat-completion surface for it
+  to implement. It runs through the worker/harness scheduling layer (plan Section 5.6) instead.
+- ~~Provider commands, pool CRUD, rate limiting, harness support, available-model discovery,
+  `ProviderAwareLanguageModel`~~ - done; see "Delivered after the PR table".
 - ~~Usage reporting~~ (vendor billing API readers) - done for the reporting engine itself
   (`ICanReportAIUsage`, `AnthropicUsageReporting`/`OpenAIUsageReporting`, `AIUsageReporting`
   orchestrator, `AIProviderUsageReport` live query, `SetAIProviderUsageCredential`/
-  `ClearAIProviderUsageCredential`) - decision 0014. Deliberately still missing: the
-  pool-selection snapshot/level-refresh layer (`ProviderUsageLevels`, `RecentUsageSnapshots`,
-  `RecordAIProviderUsageSnapshot`, `AIProviderUsageSnapshot`) and `SettingUsageCapacity/` - both
-  stay in Direct until a pool-selection migration slice gives them a package-side consumer.
+  `ClearAIProviderUsageCredential`) - decision 0014. The pool-selection snapshot layer and
+  `SettingUsageCapacity/` followed; see "Delivered after the PR table".
 - **Agents & AI configuration** - the full agent model (Direct's `Agents/` reconciled with Studio's
   `Settings/Agents/`), `AIConfiguration/`, and the explicit decision on Studio's legacy singleton AI
   settings (plan Section 5.5). `IAIAgents` exists as a lookup seam a consumer implements; the

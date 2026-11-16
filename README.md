@@ -431,7 +431,7 @@ files) runs the full suite and returns its exit status. Changed paths are everyt
 `origin/main`: committed, staged, unstaged and untracked files.
 
 The verification suite uses Pi's `DefaultResourceLoader` directly, without a
-model or credentials, to prove that project context, every skill, 18 prompts,
+model or credentials, to prove that project context, every skill, 20 prompts,
 and the managed extensions are actually discovered. It also verifies the
 canonical skill and rule paths exposed to Claude, Codex, Copilot, Cursor, and
 OpenCode.
