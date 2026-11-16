@@ -85,6 +85,11 @@
       "query": "Review our whole .play model for missing specifications and wrong stream boundaries before we accept it.",
       "shouldTrigger": false,
       "note": "cratis-screenplay-model-review"
+    },
+    {
+      "query": "Our InvoiceList screen was drawn before the slice. Which existing slice should serve it, and which read model fields are we missing?",
+      "shouldTrigger": false,
+      "note": "cratis-screenplay-slice-design"
     }
   ]
 }

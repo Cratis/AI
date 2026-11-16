@@ -276,6 +276,11 @@
     {"kind":"skill-contains","value":"`slices`","file":"references/mcp-tools.md"},
     {"kind":"skill-contains","value":"list-storylines","file":"references/mcp-tools.md"},
     {"kind":"skill-contains","value":"storyline ReturnAnItem","file":"references/storylines.md"},
-    {"kind":"skill-contains","value":"`direction`","file":"references/mcp-tools.md"}
+    {"kind":"skill-contains","value":"`direction`","file":"references/mcp-tools.md"},
+    {"kind":"skill-contains","value":"references/free-screens-proposals.md"},
+    {"kind":"skill-contains","value":"`ScreenProvisionSyntax`, `ScreenProvisionMappingSyntax`","file":"references/free-screens-proposals.md"},
+    {"kind":"skill-contains","value":"accepted with warning","file":"references/free-screens-proposals.md"},
+    {"kind":"skill-contains","value":"**cannot be applied**","file":"references/free-screens-proposals.md"},
+    {"kind":"skill-contains","value":"A `screen` step names any screen","file":"references/storylines.md"}
   ]
 }
