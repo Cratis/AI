@@ -88,15 +88,15 @@ test('read-only globs allow reads while interpreter heredocs retain conservative
                 [ALLOW, 'git show HEAD:Directory.Build.props'],
                 [ALLOW, 'git log -- Directory.Build.props'],
                 [ALLOW, 'git status --short -- Directory.Build.props'],
-                [BLOCK, 'git diff > Source/Accounts/Registration.ts'],
-                [BLOCK, 'git diff >> Source/Accounts/Registration.ts'],
-                [BLOCK, 'rg x | tee Source/Accounts/Registration.ts'],
-                [BLOCK, 'ls; echo x > Source/Accounts/Registration.ts'],
-                [BLOCK, 'sed -i s/a/b/ Source/Accounts/Registration.ts'],
-                [BLOCK, 'cp notes.md Source/Accounts/Registration.ts'],
-                [BLOCK, 'mv notes.md Source/Accounts/Registration.ts'],
-                [BLOCK, 'rm Source/Accounts/Registration.ts'],
-                [BLOCK, 'git checkout -- Source/Accounts/Registration.ts'],
+                [ALLOW, 'git diff > Source/Accounts/Registration.ts'],
+                [ALLOW, 'git diff >> Source/Accounts/Registration.ts'],
+                [ALLOW, 'rg x | tee Source/Accounts/Registration.ts'],
+                [ALLOW, 'ls; echo x > Source/Accounts/Registration.ts'],
+                [ALLOW, 'sed -i s/a/b/ Source/Accounts/Registration.ts'],
+                [ALLOW, 'cp notes.md Source/Accounts/Registration.ts'],
+                [ALLOW, 'mv notes.md Source/Accounts/Registration.ts'],
+                [ALLOW, 'rm Source/Accounts/Registration.ts'],
+                [ALLOW, 'git checkout -- Source/Accounts/Registration.ts'],
                 // Real reader expansion does not become a writer; unresolved mutation globs still refuse.
                 [ALLOW, 'rg -n foo *.cs'], [BLOCK, 'echo x > *.csproj'],
                 [ALLOW, "rg -n foo -g '*.csproj'"], [BLOCK, 'rg -n .env --glob'], [BLOCK, 'rg -n foo --glob *.csproj'],
@@ -447,7 +447,7 @@ test('protected references deny writers and evaluators across the whole command 
     try {
         const blocked = [
             ...['>', '>>', '>|', '&>', '&>>', '2>', '1>>', '>&', '<>'].map(op => `echo x ${op} .mcp.json`),
-            'echo x>.mcp.json', 'echo x > linked-control', 'echo x >> Source/Accounts/Registration.ts',
+            'echo x>.mcp.json', 'echo x > linked-control',
             ...['cp x .env', 'cp .env .', 'cp .env build/', 'cp -t build .env', 'cp --no-target-directory x .env', 'cp a b .env', 'mv .env out', 'install -D -m600 x .env', 'install -t build .env', 'install -Sdir x .env', 'ln -sf x .env', 'ln -t build .env', 'tee -a .env', 'tee -a -- .env', 'tee -p .env', 'sed -i s/a/b/ Package.JSON', "sed -i'' -e s/a/b/ .env", 'sed -i.bak s/a/b/ .env', 'sed --in-place=.bak s/a/b/ .env', 'perl -pi -e s/a/b/ .env', 'perl -i.bak -e s/a/b/ .env', 'dd if=x of=.env', 'truncate -s 0 .env', 'truncate --size=0 .env', 'truncate -r ref .env', 'touch .env', 'rm .env', 'chmod 600 .env', 'find .env', 'node -e "write(.env)"'],
             'cp .env.example .env', 'sed s/a/b/ .env',
             'cp a.ts .pi/extensions/', 'cp -t.pi/extensions a.ts', 'install -t.pi/extensions a.ts', 'env -C.claude tee settings.json',
@@ -786,6 +786,33 @@ test('jq arrays do not crash classification or conceal protected references', as
     } finally { repo.dispose(); }
 });
 
+test('generated proxies can be regenerated, staged, restored and committed without relaxing other protections', async () => {
+    const repo = scratchRepository();
+    try {
+        const proxy = 'Source/Accounts/Registration.ts';
+        await checkCases([
+            [ALLOW, 'dotnet build -c Debug'],
+            [ALLOW, 'dotnet build -c Release'],
+            [ALLOW, `git add -- ${proxy}`],
+            [ALLOW, 'git add Source/Accounts/*.ts'],
+            [ALLOW, `git restore -- ${proxy}`],
+            [ALLOW, `git restore --staged -- ${proxy}`],
+            [ALLOW, `git checkout -- ${proxy}`],
+            [ALLOW, `git stash push -- ${proxy}`],
+            [ALLOW, `git rm -- ${proxy}`],
+            [ALLOW, `git mv ${proxy} Source/Accounts/Renamed.ts`],
+            [ALLOW, `git reset -- ${proxy}`],
+            [ALLOW, `git commit -m "Regenerate proxies" -- ${proxy}`],
+            [ALLOW, `git add -- ${proxy} && git commit -m "Regenerate proxies"`],
+            [ALLOW, `cp notes.md ${proxy}`],
+            [ALLOW, `echo x >> ${proxy}`],
+            [BLOCK, `cp ${proxy} .env`],
+            [BLOCK, `mv ${proxy} .mcp.json`],
+            [BLOCK, `git add ${proxy} && echo x > .env`],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('the batch classifier is the policy source for names, patterns, generated files and installed trees', () => {
     const repo = scratchRepository();
     try {
@@ -794,7 +821,7 @@ test('the batch classifier is the policy source for names, patterns, generated f
         const paths = ['.ENV', './missing/../Package.JSON', '.e*', '*crets.env', '.{env,ENV}', '.cl*/settings.json', '.Cratis/AI/rules/x.md', 'Source/Accounts/Registration.ts', 'linked-control', '*.txt', 'notes.md', 'ordinary*.txt'];
         const result = spawnSync('bash', [join(guard, '../cratis-guard-writes.sh'), '--references'], { cwd: repo.root, input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: paths } }), encoding: 'utf8', env: environment() });
         assert.equal(result.status, 0, result.stderr);
-        assert.deepEqual(result.stdout.trim().split('\n'), paths.slice(0, -2));
+        assert.deepEqual(result.stdout.trim().split('\n'), paths.slice(0, -2).filter(path => path !== 'Source/Accounts/Registration.ts'));
         assert.equal(result.stderr, '');
         assert.equal(runGuard(payload('touch .Cratis/AI/rules/x.md', repo.root), repo.root).verdict, BLOCK);
     } finally { repo.dispose(); }
