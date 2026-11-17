@@ -6,11 +6,9 @@ profile: cratis/codescene
 
 This policy applies only when the repository explicitly selects `cratis/codescene`
 or a descendant profile. It overrides the vendored CodeScene skills where they
-differ. Neither the Cratis CLI nor any harness registers the CodeScene MCP server,
-because it needs a per-user CodeScene account and a locally installed binary.
-Each user registers it in their own user-level MCP configuration, never in
-committed project files: `cs-mcp` over stdio (`brew install cs-mcp`), or
-`npx -y @codescene/codehealth-mcp`.
+differ. Only Pi's `cratis-mcp` extension can start the CodeScene MCP server (see
+[profiles.md](./profiles.md)); other harnesses add it at user level, never in committed
+project files: `cs-mcp` over stdio (`brew install cs-mcp`), or `npx -y @codescene/codehealth-mcp`.
 CodeScene needs an account and OAuth `login`. Without an account or available
 CodeScene tools, skip these steps and say so; never block contributors who have
 not opted in.
