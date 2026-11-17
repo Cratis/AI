@@ -47,12 +47,32 @@
 #                               never clones or pushes, and refuses repository credentials/inputs:
 #                               GITHUB_TOKEN, GH_TOKEN, DIRECT_PUSH_TOKEN_URL, DIRECT_CLONE_CREDENTIALS,
 #                               DIRECT_REPOSITORY_URL(S), DIRECT_REPOSITORY_CHECKOUTS,
-#                               DIRECT_REPOSITORY_CACHE and DIRECT_BRANCH (even when empty).
+#                               DIRECT_REPOSITORY_CACHE, DIRECT_BRANCH and DIRECT_FETCH_BRANCHES
+#                               (even when empty).
 #   CRATIS_WORKSPACE_PATH   - required as exactly /workspace in host-prepared mode.
 #   CRATIS_GIT_DEADLINE_SECONDS - clone/fetch/ls-remote deadline, integer 1-3600, default 600.
 #                               Git prompts/askpass are disabled, SSH uses BatchMode; failed details
 #                               use [git-timeout], [git-auth] or [git-config] prefixes.
-#   DIRECT_BRANCH           - branch to create for the work
+#   DIRECT_BRANCH           - the branch the work is committed on and pushed to. When it already
+#                               exists on the remote (an earlier attempt, an open pull request) the
+#                               checkout starts from it, so the harness's push - never forced -
+#                               fast-forwards it; that is how the Direct updates an existing pull
+#                               request. Otherwise it starts from the default branch. When the
+#                               remote cannot be asked, the checkout's own copy of the branch is
+#                               used if it has one, the default branch otherwise.
+#   DIRECT_FETCH_BRANCHES   - optional space-separated branch names to fetch for local use only,
+#                               each into refs/remotes/origin/<name>; a name ending in `*` is a
+#                               prefix pattern (`direct/*`, `fix-*`). The agent has no credential
+#                               and never fetches itself (Direct DR-039), so a pull request's base
+#                               branch for a merge, or an earlier attempt's branch, must be named
+#                               here. The remote's default branch is always fetched into
+#                               refs/remotes/origin/<default> as well, so `git merge
+#                               origin/<default>` works. A name missing on a repository is logged
+#                               and skipped; a name git would refuse as a branch (`..`, a leading
+#                               `-`, control characters, a bare `*`, ...) fails the run with a
+#                               [git-config] detail. Refused by host-prepared and bundle-diff mode,
+#                               and by restricted investigations (DIRECT_REPOSITORY_CHECKOUTS),
+#                               whose clone-only credentials name exactly what they may read.
 #   DIRECT_WORK_ID          - unique id of the scheduled work item
 #   DIRECT_PROMPT_FILE      - path to a file holding the instructions for the agent (markdown).
 #                               The prompt travels as a file rather than a variable because a single
@@ -662,7 +682,8 @@ validate_workspace_mode() {
     [[ "${DIRECT_RUN_MODE:-}" != bundle-diff ]] || fail '[workspace] host-prepared cannot be combined with DIRECT_RUN_MODE=bundle-diff'
     local variable
     for variable in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDENTIALS \
-        DIRECT_REPOSITORY_URL DIRECT_REPOSITORY_URLS DIRECT_REPOSITORY_CHECKOUTS DIRECT_REPOSITORY_CACHE DIRECT_BRANCH; do
+        DIRECT_REPOSITORY_URL DIRECT_REPOSITORY_URLS DIRECT_REPOSITORY_CHECKOUTS DIRECT_REPOSITORY_CACHE DIRECT_BRANCH \
+        DIRECT_FETCH_BRANCHES; do
         [[ -z "${!variable+x}" ]] || fail "[workspace] host-prepared mode refuses ${variable}"
     done
 }
@@ -715,6 +736,30 @@ configure_git_deadline() {
     GIT_TIMEOUT_BIN=$(command -v timeout || command -v gtimeout) || fail "[git-config] no 'timeout' available to bound git"
 }
 
+# Parses DIRECT_FETCH_BRANCHES into FETCH_BRANCHES, before anything is cloned: a name the run cannot
+# honor is a dispatch error, reported as one rather than discovered by the agent halfway through a
+# merge. Each entry is a branch name or, ending in `*`, a branch-name prefix. The names travel into
+# refspecs and ls-remote patterns, so git's own branch-name rules decide what is valid; the explicit
+# checks before it only make the common mistakes read as what they are.
+validate_fetch_branches() {
+    local value="${DIRECT_FETCH_BRANCHES:-}" entry name
+    local -a entries
+    FETCH_BRANCHES=()
+    [[ "$value" != *[[:cntrl:]]* ]] || fail '[git-config] DIRECT_FETCH_BRANCHES must be space-separated branch names without control characters'
+    read -r -a entries <<< "$value"
+    for entry in "${entries[@]}"; do
+        name="${entry%\*}"
+        [[ -n "$name" ]] || fail "[git-config] DIRECT_FETCH_BRANCHES entry '${entry}' names no branch"
+        [[ "$name" != -* && "$name" != *..* && "$name" != *\** ]] ||
+            fail "[git-config] DIRECT_FETCH_BRANCHES entry '${entry}' is not a valid branch name"
+        # A prefix is checked as the shortest branch it could match, so 'direct/' passes as 'direct/x'.
+        [[ "$entry" == "$name" ]] || name="${name}x"
+        git check-ref-format --branch "$name" > /dev/null 2>&1 ||
+            fail "[git-config] DIRECT_FETCH_BRANCHES entry '${entry}' is not a valid branch name"
+        FETCH_BRANCHES+=("$entry")
+    done
+}
+
 validate_workspace_mode
 if [[ "${CRATIS_WORKSPACE_MODE:-}" == host-prepared ]]; then
     [[ "${CRATIS_WORKSPACE_PATH:-}" == /workspace ]] || fail '[workspace] CRATIS_WORKSPACE_PATH must be /workspace'
@@ -725,7 +770,7 @@ fi
 # Bundle mode never accepts a repository credential or a remote checkout input, even an empty one.
 if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
     for variable in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDENTIALS \
-        DIRECT_REPOSITORY_URL DIRECT_REPOSITORY_URLS DIRECT_REPOSITORY_CHECKOUTS DIRECT_BRANCH; do
+        DIRECT_REPOSITORY_URL DIRECT_REPOSITORY_URLS DIRECT_REPOSITORY_CHECKOUTS DIRECT_BRANCH DIRECT_FETCH_BRANCHES; do
         [[ -z "${!variable+x}" ]] || fail "Bundle-diff mode refuses ${variable}"
     done
     [[ -n "${DIRECT_BUNDLE_URL:-}" && -n "${DIRECT_RESULT_URL:-}" ]] || fail "Bundle-diff mode requires DIRECT_BUNDLE_URL and DIRECT_RESULT_URL"
@@ -735,6 +780,8 @@ fi
 if [[ -n "${DIRECT_REPOSITORY_CHECKOUTS:-}" ]]; then
     [[ -n "${DIRECT_CLONE_CREDENTIALS:-}" ]] || fail "Clone-read credentials are missing"
     [[ -z "${GITHUB_TOKEN:-}${GH_TOKEN:-}${DIRECT_PUSH_TOKEN_URL:-}" ]] || fail "Restricted checkout received write-capable authentication"
+    # Its credentials name exactly the repositories it may read; extra branches are not part of that.
+    [[ -z "${DIRECT_FETCH_BRANCHES+x}" ]] || fail "[git-config] Restricted checkout refuses DIRECT_FETCH_BRANCHES"
     git config --global credential.helper ''
     git config --global credential.useHttpPath true
     # Resolve only the exact HTTPS repository path; never offer a token for another repository.
@@ -747,6 +794,7 @@ elif [[ -n "${GITHUB_TOKEN:-}" ]]; then
     # shellcheck disable=SC2016
     git config --global credential.helper '!f() { echo "username=x-access-token"; echo "password=${GITHUB_TOKEN}"; }; f'
 fi
+validate_fetch_branches
 if [[ -n "${DIRECT_GIT_USER_NAME:-}" ]]; then
     git config --global user.name "${DIRECT_GIT_USER_NAME}"
 fi
@@ -1127,6 +1175,61 @@ clone_failure_detail() {
     fi
 }
 
+# The same wording clone_failure_detail uses, for git network calls other than the clone itself.
+git_failure_detail() {
+    if [[ "${GIT_AUTH_FAILED:-false}" == true ]]; then
+        printf '[git-auth] %s %s: no usable credential (terminal prompts are disabled)' "$1" "$(git_safe_url "$2")"
+    else
+        printf '%s %s' "$1" "$(git_safe_url "$2")"
+    fi
+}
+
+# Decides where DIRECT_BRANCH starts in a checkout, as WORK_BRANCH_START: the remote's branch when
+# it already exists there, empty for "wherever the checkout already is" (the default branch).
+#
+# The branch exists already whenever the Direct comes back to work it has published before - a
+# pull request needing another round, an earlier attempt being continued. Creating it from the
+# default branch then made the harness's push (never forced) a non-fast-forward, and the run's
+# commits were refused. Starting from the remote's tip makes that push an ordinary fast-forward,
+# which is what updates the existing pull request. The agent cannot do this itself: it holds no
+# provider credential and never touches the network (Direct DR-039).
+#
+# Asked of the remote, with the harness's own token, rather than read from the checkout: a checkout
+# taken from the repository cache only knows the mirror's last refresh. When the remote cannot be
+# asked at all, the checkout's own copy of the branch is the best evidence left - a push may still
+# fast-forward from it - and the default branch is used only when there is not even that.
+start_work_branch() {
+    local dest="$1" url="$2"
+    local branch_ref="refs/heads/${DIRECT_BRANCH}" tracking="refs/remotes/origin/${DIRECT_BRANCH}"
+    local capture listing status=0
+    WORK_BRANCH_START=""
+    capture=$(mktemp) || fail '[git-config] Cannot capture git output'
+    GIT_CAPTURE_FILE="$capture" GITHUB_TOKEN="${GITHUB_TOKEN:-}" run_git_bounded ls-remote ls-remote --heads "$url" "$branch_ref" || status=$?
+    listing=$(cat "$capture")
+    rm -f "$capture"
+    [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail ls-remote "$url")"
+    if [[ "$status" -eq 0 ]]; then
+        # ls-remote matches patterns by their tail; only the exact ref counts.
+        if ! printf '%s\n' "$listing" | awk -F'\t' -v ref="$branch_ref" '$2 == ref { found=1 } END { exit !found }'; then
+            log "${DIRECT_BRANCH} does not exist on $(git_safe_url "$url") yet - starting it from the default branch"
+            return 0
+        fi
+        GITHUB_TOKEN="${GITHUB_TOKEN:-}" run_git_bounded fetch -C "$dest" fetch --quiet --no-tags "$url" "+${branch_ref}:${tracking}" || status=$?
+        [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail fetch "$url")"
+        if [[ "$status" -eq 0 ]]; then
+            WORK_BRANCH_START="$tracking"
+            log "${DIRECT_BRANCH} already exists on $(git_safe_url "$url") - continuing from it"
+            return 0
+        fi
+    fi
+    if git -C "$dest" rev-parse --verify --quiet "${tracking}^{commit}" > /dev/null; then
+        WORK_BRANCH_START="$tracking"
+        log "Could not ask $(git_safe_url "$url") for ${DIRECT_BRANCH} - continuing from the checkout's own copy of it"
+    else
+        log "Could not ask $(git_safe_url "$url") for ${DIRECT_BRANCH} - starting it from the default branch"
+    fi
+}
+
 clone_into_workspace() {
     local url="$1" dest="$2"
     local without_suffix="${url%.git}"
@@ -1209,8 +1312,11 @@ clone_into_workspace() {
         # A clone of a mirror is an ordinary repository, so the branch is created here rather than
         # by the checkout itself.
         if [[ -n "${DIRECT_BRANCH:-}" ]]; then
+            start_work_branch "$dest" "$url"
+            [[ -z "$WORK_BRANCH_START" ]] || start_point=("$WORK_BRANCH_START")
             git -C "$dest" checkout -qB "$DIRECT_BRANCH" "${start_point[@]}" || fail "Could not create ${DIRECT_BRANCH} in ${dest}"
         fi
+        # After the branch is in place: push_workspaces pushes only when HEAD moved past this.
         remember_workspace "$dest" "$url"
         return
     fi
@@ -1223,9 +1329,65 @@ clone_into_workspace() {
         [[ "$status" -eq 0 ]] || fail "$(clone_failure_detail "$url")"
     fi
     if [[ -n "${DIRECT_BRANCH:-}" ]]; then
-        git -C "$dest" checkout -B "$DIRECT_BRANCH"
+        start_work_branch "$dest" "$url"
+        git -C "$dest" checkout -B "$DIRECT_BRANCH" ${WORK_BRANCH_START:+"$WORK_BRANCH_START"} ||
+            fail "Could not create ${DIRECT_BRANCH} in ${dest}"
     fi
+    # After the branch is in place: push_workspaces pushes only when HEAD moved past this.
     remember_workspace "$dest" "$url"
+}
+
+# Fetches what the run needs beyond its own branch, for local use only: the remote's default branch
+# (so `git merge origin/<default>` works in every checkout) and every DIRECT_FETCH_BRANCHES entry,
+# each into refs/remotes/origin/<name>. The agent holds no provider credential and never fetches
+# itself (Direct DR-039) - a merge-conflict resolution needs its pull request's base branch, a
+# continuation its earlier attempt's branch, and the Direct names them here instead.
+#
+# One ls-remote per repository decides what exists, so a name the repository does not have is
+# logged and skipped rather than failing the whole fetch - a run spanning several repositories
+# routinely names a branch only some of them have. Fetched to the URL with explicit refspecs, never
+# through "origin": a checkout taken from the cache has the read-only mirror as its origin.
+# Remote-tracking refs only - the checked-out branch is never touched, and nothing is forced but
+# those refs themselves.
+fetch_requested_branches() {
+    local entry dest started_at url capture listing status default_ref name pattern
+    local -a patterns refspecs heads
+    for entry in "${WORKSPACES[@]}"; do
+        [[ -n "$entry" ]] || continue
+        IFS='|' read -r dest started_at url <<<"$entry"
+        patterns=(HEAD)
+        for name in "${FETCH_BRANCHES[@]}"; do patterns+=("refs/heads/${name}"); done
+        status=0
+        capture=$(mktemp) || fail '[git-config] Cannot capture git output'
+        GIT_CAPTURE_FILE="$capture" GITHUB_TOKEN="${GITHUB_TOKEN:-}" run_git_bounded ls-remote ls-remote --symref "$url" "${patterns[@]}" || status=$?
+        listing=$(cat "$capture")
+        rm -f "$capture"
+        [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail ls-remote "$url")"
+        [[ "$status" -eq 0 ]] || fail "$(git_failure_detail 'Could not list the branches of' "$url")"
+        default_ref=$(printf '%s\n' "$listing" | awk '/^ref:/ && $NF == "HEAD" { print $2; exit }')
+        mapfile -t heads < <(printf '%s\n' "$listing" | awk -F'\t' '$2 ~ /^refs\/heads\// { print $2 }')
+        refspecs=()
+        [[ "$default_ref" != refs/heads/* ]] || refspecs+=("+${default_ref}:refs/remotes/origin/${default_ref#refs/heads/}")
+        for name in "${FETCH_BRANCHES[@]}"; do
+            pattern="${name%\*}"
+            if [[ "$pattern" == "$name" ]]; then
+                if printf '%s\n' "${heads[@]}" | grep -Fqx -- "refs/heads/${name}"; then
+                    refspecs+=("+refs/heads/${name}:refs/remotes/origin/${name}")
+                    continue
+                fi
+            elif printf '%s\n' "${heads[@]}" | awk -v prefix="refs/heads/${pattern}" 'index($0, prefix) == 1 { found=1 } END { exit !found }'; then
+                refspecs+=("+refs/heads/${pattern}*:refs/remotes/origin/${pattern}*")
+                continue
+            fi
+            log "No branch matches ${name} on $(git_safe_url "$url") - skipped"
+        done
+        [[ ${#refspecs[@]} -gt 0 ]] || continue
+        status=0
+        GITHUB_TOKEN="${GITHUB_TOKEN:-}" run_git_bounded fetch -C "$dest" fetch --quiet --no-tags "$url" "${refspecs[@]}" || status=$?
+        [[ "$status" -ne 124 ]] || fail "$(git_timeout_detail fetch "$url")"
+        [[ "$status" -eq 0 ]] || fail "$(git_failure_detail 'Could not fetch the requested branches of' "$url")"
+        log "Fetched ${#refspecs[@]} branch reference(s) into ${dest} for local use"
+    done
 }
 
 # Investigations use an explicit owner-qualified mapping, including single-repository work.
@@ -1568,8 +1730,10 @@ elif [[ -n "${DIRECT_REPOSITORY_URLS:-}" ]]; then
         done
         link_primary_corpus "/workspace/$(basename "${urls[0]}" .git)"
     fi
+    fetch_requested_branches
 elif [[ -n "${DIRECT_REPOSITORY_URL:-}" ]]; then
     clone_into_workspace "${DIRECT_REPOSITORY_URL}" /workspace
+    fetch_requested_branches
 fi
 
 # Checked, because this script runs without `set -e`: an unchecked `cd` that fails would leave the
