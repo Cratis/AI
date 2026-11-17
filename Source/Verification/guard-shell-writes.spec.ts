@@ -70,6 +70,28 @@ function scratchRepository(origin = 'https://github.com/example/app.git') {
     return { root, dispose: () => rmSync(root, { recursive: true, force: true }) };
 }
 
+for (const target of ['.env', 'package.json']) {
+    test(`the shell-write guard blocks a redirect through an ordinary symlink name targeting ${target}`, () => {
+        const repo = scratchRepository();
+        try {
+            writeFileSync(join(repo.root, target), 'synthetic fixture');
+            symlinkSync(target, join(repo.root, 'notes.txt'));
+            const result = runGuard(payload('echo x > notes.txt', repo.root), repo.root);
+            assert.equal(result.verdict, BLOCK, result.stderr);
+            assert.match(result.stderr, /BLOCKED by cratis-guard-shell-writes/);
+        } finally { repo.dispose(); }
+    });
+}
+
+test('the shell-write guard allows a redirect through an ordinary symlink target', () => {
+    const repo = scratchRepository();
+    try {
+        writeFileSync(join(repo.root, 'ordinary.txt'), 'synthetic fixture');
+        symlinkSync('ordinary.txt', join(repo.root, 'notes.txt'));
+        assert.equal(runGuard(payload('echo x > notes.txt', repo.root), repo.root).verdict, ALLOW);
+    } finally { repo.dispose(); }
+});
+
 test('read-only globs allow reads while interpreter heredocs retain conservative references', async () => {
     const repo = scratchRepository();
     try {

@@ -82,6 +82,46 @@ function scratchRepository(origin?: string): { root: string; generated: string; 
     return { root, generated, mention, manifest, dispose: () => rmSync(root, { recursive: true, force: true }) };
 }
 
+for (const target of ['.env', 'package.json']) {
+    test(`the write guard blocks an ordinary symlink name targeting ${target}`, () => {
+        const repo = scratchRepository();
+        try {
+            writeFileSync(join(repo.root, target), 'synthetic fixture');
+            const link = join(repo.root, 'notes.txt');
+            symlinkSync(target, link);
+            const result = runGuard({ cwd: repo.root, tool_name: 'Write', tool_input: { file_path: link, content: 'x' } }, repo.root);
+            assert.equal(result.verdict, BLOCK, result.stderr);
+            assert.match(result.stderr, /BLOCKED by cratis-guard-writes/);
+        } finally { repo.dispose(); }
+    });
+}
+
+test('the write guard allows an ordinary symlink target', () => {
+    const repo = scratchRepository();
+    try {
+        writeFileSync(join(repo.root, 'ordinary.txt'), 'synthetic fixture');
+        const link = join(repo.root, 'notes.txt');
+        symlinkSync('ordinary.txt', link);
+        assert.equal(runGuard({ cwd: repo.root, tool_name: 'Write', tool_input: { file_path: link, content: 'x' } }, repo.root).verdict, ALLOW);
+    } finally { repo.dispose(); }
+});
+
+for (const [name, target] of [['package.json', '.env'], ['.env', 'package.json']] as const) {
+    test(`an allowed manifest policy cannot override ${name} targeting ${target}`, () => {
+        const repo = scratchRepository();
+        try {
+            writeFileSync(join(repo.root, target), 'synthetic fixture');
+            const link = join(repo.root, name);
+            symlinkSync(target, link);
+            mkdirSync(join(repo.root, '.cratis'), { recursive: true });
+            writeFileSync(join(repo.root, '.cratis', 'ai.json'), '{"allowDependencyManifestWrites": true}');
+            const result = runGuard({ cwd: repo.root, tool_name: 'Write', tool_input: { file_path: link, content: 'x' } }, repo.root);
+            assert.equal(result.verdict, BLOCK, result.stderr);
+            assert.match(result.stderr, /is an environment file/);
+        } finally { repo.dispose(); }
+    });
+}
+
 test('the write guard allows generated output without relaxing other protected classes', () => {
     const repo = scratchRepository();
     try {
