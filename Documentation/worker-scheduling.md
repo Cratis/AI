@@ -191,8 +191,8 @@ running worker must not be able to replace them.
 Host-prepared mode refuses these repository inputs in either environment or secrets,
 **even when their value is empty**: `GITHUB_TOKEN`, `GH_TOKEN`, `DIRECT_PUSH_TOKEN_URL`,
 `DIRECT_CLONE_CREDENTIALS`, `DIRECT_REPOSITORY_URL`, `DIRECT_REPOSITORY_URLS`,
-`DIRECT_REPOSITORY_CHECKOUTS`, `DIRECT_REPOSITORY_CACHE`, and `DIRECT_BRANCH`.
-Provider credentials such as `COPILOT_GITHUB_TOKEN` remain allowed. It cannot be
+`DIRECT_REPOSITORY_CHECKOUTS`, `DIRECT_REPOSITORY_CACHE`, `DIRECT_BRANCH`, and
+`DIRECT_FETCH_BRANCHES`. Provider credentials such as `COPILOT_GITHUB_TOKEN` remain allowed. It cannot be
 combined with `DIRECT_RUN_MODE=bundle-diff`. Invalid jobs return
 `WorkerLaunchOutcome.InvalidWorkspace` without creating or removing engine resources;
 the caller must fix the job, not retry it. Kubernetes refuses this mode before
@@ -216,6 +216,31 @@ back to the cached HEAD; a timed-out refresh is a terminal failure, not a cache 
 Exit 137 alone is not evidence of a deadline: it is classified as a timeout only when
 the elapsed wall time has reached the deadline; an earlier kill remains a non-timeout
 git failure. No push deadline is added by this setting.
+
+## Branches and Direct tools
+
+The agent never receives a provider credential: `GITHUB_TOKEN` and `GH_TOKEN` stay with
+the harness. Agents use git locally only, and the harness prepares every branch a run needs.
+Anything else the agent needs from the outside world goes through tools Direct exposes.
+
+- **`DIRECT_BRANCH`**: when the branch already exists on the remote, the checkout starts
+  from it, so the harness's push (never forced) fast-forwards it and updates its open pull
+  request. Otherwise the branch starts from the default branch. The harness pushes only
+  when the agent committed something new.
+- **`DIRECT_FETCH_BRANCHES`**: optional, space-separated branch names to fetch for local
+  use, each into `refs/remotes/origin/<name>`. A name ending in `*` is a prefix pattern,
+  for example `release/*`. The remote's default branch is always fetched into
+  `refs/remotes/origin/<default>` as well, so `git merge origin/<default>` works. A name
+  a repository does not have is logged and skipped. A name git refuses as a branch fails
+  the run with `[git-config]`. Host-prepared, bundle-diff and restricted
+  (`DIRECT_REPOSITORY_CHECKOUTS`) jobs refuse the variable, even when it is empty.
+- **`DIRECT_TOOLS_MCP_URL`**: optional `http`/`https` MCP endpoint for the Direct tools
+  scoped to this unit of work. The harness adds it as MCP server `direct_tools` for
+  Claude Code in every mode, and for Copilot in every mode except bundle-diff. The
+  credential bridge sends `DIRECT_CALLBACK_TOKEN` as `Authorization: Bearer`. The token
+  stays in a private credential file and never appears in the client configuration or on
+  a command line. Pi does not get the server, because its tool allow-list excludes the MCP
+  adapter's gateway tool. Any other scheme, or a missing callback token, fails the run.
 
 ## Running-worker protection
 
@@ -266,6 +291,7 @@ The mode accepts these ordinary environment variables:
 | `DIRECT_PROGRESS_URL` | Optional phase and Claude agent progress POST target. |
 | `DIRECT_CORRELATION` | Optional opaque JSON object, forwarded without interpreting its keys. Invalid JSON or a non-object logs a warning and becomes `{}`. |
 | `DIRECT_CONTEXT_MCP_URL` | Optional read-only HTTP MCP endpoint, configured as Claude server `context` only when its token is also supplied. |
+| `DIRECT_TOOLS_MCP_URL` | Optional Direct tools MCP endpoint, configured as Claude server `direct_tools` and authenticated with `DIRECT_CALLBACK_TOKEN` (see [Branches and Direct tools](#branches-and-direct-tools)). |
 | `DIRECT_WORK_ID` | Phase `runId`. |
 | `DIRECT_HARNESS`, `DIRECT_MODEL`, `DIRECT_PROVIDER` | Existing harness and model selection. Claude Code is the V1 target; Pi and Copilot also deliver results, without MCP. |
 | `DIRECT_STRUCTURED_RESULT_FILE` | Worker-exported `/tmp/agent-result.json`, outside `/workspace`. Tell the agent in your prompt to write its optional structured result there. |
@@ -278,8 +304,8 @@ header shape. Provider credentials retain their existing names and handling.
 
 The worker refuses even empty settings of `GITHUB_TOKEN`, `GH_TOKEN`,
 `DIRECT_PUSH_TOKEN_URL`, `DIRECT_CLONE_CREDENTIALS`, `DIRECT_REPOSITORY_URL`,
-`DIRECT_REPOSITORY_URLS`, `DIRECT_REPOSITORY_CHECKOUTS`, or `DIRECT_BRANCH`.
-It verifies the bundle and checks out `baseCommit` on a local branch in
+`DIRECT_REPOSITORY_URLS`, `DIRECT_REPOSITORY_CHECKOUTS`, `DIRECT_BRANCH`, or
+`DIRECT_FETCH_BRANCHES`. It verifies the bundle and checks out `baseCommit` on a local branch in
 `/workspace`, without configuring a remote, cloning remotely, or pushing.
 A local git identity is supplied when you do not provide one. This mode's
 entrypoint contract is not a network sandbox: isolate the worker and expose
