@@ -241,11 +241,11 @@ floor itself is the universal rule [code-health.md](./code-health.instructions.m
 No other profile, including `cratis` and `cratis/full`, composes it.
 
 The profile selects the `codescene` stdio server (`cs-mcp`, no arguments) from
-`mcp-servers.json`, but neither the Cratis CLI nor any harness registers it,
-because it needs a per-user CodeScene account and a locally installed binary.
-Each user registers it in their own user-level MCP configuration, never in
-committed project files: `cs-mcp` over stdio (`brew install cs-mcp`), or
-`npx -y @codescene/codehealth-mcp`.
+`mcp-servers.json`. The CLI does not register it for Claude, Copilot, Cursor, Codex or OpenCode
+(per-user account, local binary): add it at user level, never in committed project files.
+Pi's `cratis-mcp` extension enables it via `cratis_enable_mcp`, or at session start with
+`mcpServers.codescene.eager: true`; a missing binary fails the enable or is a startup notice, and
+`mcpServers.codescene.enabled: false` opts out.
 CodeScene needs an account and OAuth `login`; without an account or available
 CodeScene tools, skip its steps and say so rather than blocking contributors.
 The MCP catalog has no install-hints field and does not install the executable.
@@ -258,16 +258,14 @@ The flags keep the browser headless and isolated: no persistent profile, so no
 personal cookies or logins are reused. The profile carries no skills or rules beyond the two
 baseline skills, and no other profile composes it.
 
-Today `cratis ai install` registers only Screenplay and Pi's `cratis-mcp` extension
-loads only Screenplay, so Playwright, like CodeScene, is not registered for you.
-Each user registers it in their own user-level MCP configuration, never in committed
-project files. For Claude Code:
+`cratis ai install` registers only Screenplay for Claude, Copilot, Cursor, Codex and
+OpenCode; add Playwright at user level, never in project files. For Claude Code:
 
 ```bash
 claude mcp add --scope user playwright -- npx -y @playwright/mcp@0.0.83 --headless --isolated
 ```
 
-Pi users register it through a Pi MCP adapter or extension of their choice. Use it
+Pi's `cratis-mcp` extension can start it the same way. Use it
 for exploratory browser checks; repeatable checks stay in the repository's own
 Playwright tests. Without the server registered, skip browser steps and say so.
 

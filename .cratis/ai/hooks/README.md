@@ -275,8 +275,6 @@ Rule numbers refer to the numbered list in [`../rules/general.md`](../rules/gene
 
 **Blocked outright** (`PreToolUse`, exit 2):
 
-- Editing a file whose header marks it as Cratis-generated output — rule 15 `[contract]`
-- Writing content that opens with such a header (hand-authoring a "generated" proxy)
 - `package.json`, `Directory.Packages.props`, `global.json`, `NuGet.config` (also `NuGet.Config` and `nuget.config`),
   `yarn.lock`, `package-lock.json`, `pnpm-lock.yaml`, `packages.lock.json` — unless the
   repository's dependency-manifest policy allows them (see below)
@@ -378,13 +376,15 @@ this deliberately over-conservative.
 
 This is **best-effort, not a sandbox**. Runtime names assembled from variables without a
 protected name appearing literally are out of scope, as are aliases/functions, external
-scripts, tool configuration/hooks and symlinks created during execution. Existing generated
-headers are classified; content that would create a new generated header is not inspected by
-the shell filter. OS permissions/sandboxing remain the primary boundary. Do not use another
+scripts, tool configuration/hooks and symlinks created during execution.
+OS permissions/sandboxing remain the primary boundary. Do not use another
 route to work around a refusal.
 
-The generated-file check is anchored: the marker must be a comment opener at the start of one of
-the first five lines. A rule file or a document that merely *mentions* the marker is not blocked.
+Generated-file headers do not trigger a block in either write guard. Regenerating proxies with
+`dotnet build`, staging, restoring, committing and other Git index/worktree operations, and direct
+writes (including copies, moves and redirections) are allowed for generated files. For durable
+proxy changes, change the C# source and rebuild rather than hand-editing generated output.
+Other protected classes still apply regardless of a generated header.
 
 ### Dependency-manifest writes
 
@@ -407,9 +407,8 @@ and Pi:
 
 `false` re-enables the manifest block in a Cratis repository; `true` allows manifest writes
 in any repository. Merge this property into the existing configuration. An absent, malformed,
-or non-boolean setting uses the origin-based default. This setting never permits generated
-output or `.env` writes. The protected basename list is unchanged; `package.json` is not
-part of this guard's manifest category.
+or non-boolean setting uses the origin-based default. This setting never permits `.env` writes.
+The protected basename list is unchanged; `package.json` is not part of this guard's manifest category.
 
 This allowance is not authorization for unrelated upgrades: keep changes task-focused and
 call out version bumps in the PR description. Other repositories retain the rule requiring
@@ -938,7 +937,7 @@ Each is an explicit, auditable opt-out — none of them is a default.
 
 | Variable | Effect |
 |---|---|
-| `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` | bypasses both Write/Edit and shell-write guards, including generated files, `.env`, agent controls and installed trees, while set in the harness environment; use only for an explicitly requested protected write. Repository-scoped manifest allowance uses `.cratis/ai.json` instead and never bypasses those protections |
+| `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` | bypasses both Write/Edit and shell-write guards, including `.env`, agent controls and installed trees, while set in the harness environment; use only for an explicitly requested protected write. Repository-scoped manifest allowance uses `.cratis/ai.json` instead and never bypasses those protections |
 | `CRATIS_HOOKS_SKIP_SCAN=1` | disables the pattern pass |
 | `CRATIS_HOOKS_SKIP_GATE=1` | disables the quality gate |
 | `CRATIS_HOOKS_GATE_DRYRUN=1` | prints which gates would run, and why, then exits 0 |
