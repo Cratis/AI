@@ -405,8 +405,9 @@ if [ "$reference_mode" = 1 ]; then
     unset 'candidates[last]'
     new_content=""
     for candidate in "${candidates[@]}"; do
-        # Reflog selectors name revisions, unless the prefix itself is protected.
-        if [[ "$candidate" =~ ^[A-Za-z0-9._/-]*@\{(-?[0-9]+|upstream|push|u)\}$ ]] && ! classify_file "${candidate%@*}"; then continue; fi
+        # Reflog selectors name revisions, unless the prefix or the literal path (or its symlink target) is protected.
+        if [[ "$candidate" =~ ^[A-Za-z0-9._/-]*@\{(-?[0-9]+|upstream|push|u)\}$ ]] \
+            && ! classify_file "${candidate%@*}" && ! classify_file "$candidate"; then continue; fi
         reference_pattern=0
         case "$candidate" in *'*'* | *'?'* | *'['* | *'{'* | *'@('* | *'+('* | *'!('*) reference_pattern=1 ;; esac
         if classify_file "$candidate" "$reference_pattern"; then printf '%s\n' "$candidate"; continue; fi

@@ -168,6 +168,21 @@ test('git reflog selectors are revisions without hiding protected paths or globs
     } finally { repo.dispose(); }
 });
 
+test('a reflog-shaped symlink to a protected target is still a protected write', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        symlinkSync(join(repo.root, '.mcp.json'), join(repo.root, 'stash@{0}'));
+        await checkCases([
+            [ALLOW, 'git stash show stash@{1}'],
+            [ALLOW, 'git log main@{upstream}'],
+            [BLOCK, 'echo x > stash@{0}'],
+            [BLOCK, 'touch stash@{0}'],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('quoted brace spans and extended globs in write targets are refused', async () => {
     const repo = scratchRepository();
     try {

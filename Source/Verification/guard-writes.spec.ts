@@ -163,6 +163,23 @@ test('reference classification skips reflog selectors only when their prefixes a
     } finally { repo.dispose(); }
 });
 
+test('reference classification keeps reflog-shaped symlinks to protected targets', () => {
+    const repo = scratchRepository();
+    try {
+        symlinkSync(join(repo.root, '.mcp.json'), join(repo.root, 'stash@{0}'));
+        const paths = ['stash@{1}', 'main@{upstream}', 'stash@{0}', 'HEAD@{1}'];
+        const result = spawnSync('bash', [guard, '--references'], {
+            cwd: repo.root,
+            input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: paths } }),
+            encoding: 'utf8',
+            env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+        });
+        assert.equal(result.status, 0, result.stderr);
+        assert.equal(result.stdout, 'stash@{0}\n');
+        assert.equal(result.stderr, '');
+    } finally { repo.dispose(); }
+});
+
 test('reference classification treats bracket classes as any character and keeps unmatched bracket literals', () => {
     const repo = scratchRepository();
     try {
