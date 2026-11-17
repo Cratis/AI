@@ -50,7 +50,7 @@ done
 export CRATIS_WORKSPACE_MODE=host-prepared
 validate_workspace_mode
 if ( export DIRECT_RUN_MODE=bundle-diff; validate_workspace_mode ) > "$root/error" 2>&1; then exit 1; fi
-for variable in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDENTIALS DIRECT_REPOSITORY_URL DIRECT_REPOSITORY_URLS DIRECT_REPOSITORY_CHECKOUTS DIRECT_REPOSITORY_CACHE DIRECT_BRANCH; do
+for variable in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDENTIALS DIRECT_REPOSITORY_URL DIRECT_REPOSITORY_URLS DIRECT_REPOSITORY_CHECKOUTS DIRECT_REPOSITORY_CACHE DIRECT_BRANCH DIRECT_FETCH_BRANCHES; do
     for value in '' synthetic-fixture-value; do
         if ( export "$variable=$value"; validate_workspace_mode ) > "$root/error" 2>&1; then exit 1; fi
         grep -q "host-prepared mode refuses $variable" "$root/error"

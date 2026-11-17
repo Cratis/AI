@@ -24,10 +24,10 @@ cleanup() {
 trap cleanup EXIT
 set -x
 entrypoint="${ENTRYPOINT_UNDER_TEST:-$here/../entrypoint.sh}"
-for function in configure_git_noninteractive git_deadline_seconds configure_git_deadline git_safe_url git_timeout_detail run_git_bounded clone_failure_detail clone_into_workspace; do
+for function in configure_git_noninteractive git_deadline_seconds configure_git_deadline git_safe_url git_timeout_detail run_git_bounded clone_failure_detail start_work_branch clone_into_workspace; do
     awk -v name="$function" '$0 == name "() {" { take=1 } take { print } take && /^}$/ { exit }' "$entrypoint" >> "$root/functions"
 done
-[[ $(grep -c '^}$' "$root/functions") -eq 8 ]] || { echo 'Missing bounded-git functions'; exit 1; }
+[[ $(grep -c '^}$' "$root/functions") -eq 9 ]] || { echo 'Missing bounded-git functions'; exit 1; }
 mkdir -p "$root/bin" "$root/cache/o/r.git" "$root/captures"
 cat > "$root/bin/git" <<'STUB'
 #!/usr/bin/env bash

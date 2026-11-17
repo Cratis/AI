@@ -320,7 +320,7 @@ for invalid in missing absent; do
     jq -se 'any(.[]; .status == "failed")' "$ROOT/http.jsonl" >/dev/null
 done
 jq -cn --arg base "$BASE" '{baseCommit: $base}' > "$ROOT/request.json"
-for credential in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDENTIALS DIRECT_REPOSITORY_URL DIRECT_REPOSITORY_URLS DIRECT_REPOSITORY_CHECKOUTS DIRECT_BRANCH; do
+for credential in GITHUB_TOKEN GH_TOKEN DIRECT_PUSH_TOKEN_URL DIRECT_CLONE_CREDENTIALS DIRECT_REPOSITORY_URL DIRECT_REPOSITORY_URLS DIRECT_REPOSITORY_CHECKOUTS DIRECT_BRANCH DIRECT_FETCH_BRANCHES; do
     run_worker credential claude-code "$credential="
     await_worker
     [[ $STATUS == 1 && ! -d "$ROOT/workspace" && ! -f "$ROOT/http.log" ]]
