@@ -12,6 +12,22 @@
 #   DIRECT_REQUEST_FILE     - mounted request.json path; .baseCommit is required in bundle-diff mode.
 #   DIRECT_CORRELATION      - optional JSON object forwarded unchanged; invalid input becomes {}.
 #   DIRECT_CONTEXT_MCP_URL  - optional read-only HTTP MCP endpoint, Claude only, paired with its token.
+#   DIRECT_TOOLS_MCP_URL    - optional http(s) MCP endpoint of the tools the Direct exposes to this one
+#                               unit of work. The agent holds no provider credential (see the
+#                               `export -n` after load_secrets), so anything beyond local git - a
+#                               pull request, a comment, a branch the harness did not prepare - is
+#                               asked of the Direct through these tools (Direct DR-039). Added to
+#                               the agent's MCP configuration as the server `direct_tools` through
+#                               credential-mcp-server.mjs, authenticated with the per-run
+#                               DIRECT_CALLBACK_TOKEN as `Authorization: Bearer`, read from a 0600
+#                               file on tmpfs - never from the command line, the client
+#                               configuration or the logs. Claude Code gets it in every mode;
+#                               Copilot in every mode except bundle-diff, where it gets no MCP
+#                               servers at all. Pi does not get it: run_pi() allow-lists Pi's
+#                               built-in tools with --tools, which keeps pi-mcp-adapter's `mcp`
+#                               gateway tool out of the session, and exposing that gateway (it can
+#                               also add servers by URL) is a trust-boundary decision of its own.
+#                               Requires DIRECT_CALLBACK_TOKEN; anything but an http(s) URL fails.
 #   DIRECT_STRUCTURED_RESULT_FILE - exported by bundle-diff as /tmp/agent-result.json, outside the tree;
 #                               the agent may write {outcome, gaps, summary, selfChecks} there.
 #   DIRECT_REPOSITORY_URL   - HTTPS clone URL of the repository to work on (issue work)
@@ -236,7 +252,8 @@
 # arrive as a file of shell assignments this script sources, named by DIRECT_SECRETS_FILE
 # (Kubernetes mounts a Secret; Docker copies the file onto a tmpfs). From that file:
 #   DIRECT_CONTEXT_MCP_TOKEN - optional bearer token for DIRECT_CONTEXT_MCP_URL (Claude only).
-#   DIRECT_CALLBACK_TOKEN   - bearer token for callbacks, progress, bundle GET and result POST
+#   DIRECT_CALLBACK_TOKEN   - bearer token for callbacks, progress, bundle GET, result POST and the
+#                               direct_tools MCP server (DIRECT_TOOLS_MCP_URL)
 #   GITHUB_TOKEN             - a short-lived GitHub App installation token, used for git and the GitHub CLI;
 #                               refreshed through Direct before pushing committed work
 #   ANTHROPIC_API_KEY        - the acting agent's AI provider key when the provider is Anthropic and
@@ -473,6 +490,12 @@ prepare_mcp_credentials() {
         > "$MCP_CREDENTIAL_DIR/context7.json"
     printf '%s' "${DIRECT_CONTEXT_MCP_TOKEN:-}" | jq -Rs --arg url "${DIRECT_CONTEXT_MCP_URL:-}" \
         '{url:$url,headers:{Authorization:("Bearer " + .)}}' > "$MCP_CREDENTIAL_DIR/context.json"
+    # The work-scoped Direct tools take the same per-run callback token the progress server uses.
+    # It reaches jq on stdin, never as an argument another process could read from /proc.
+    if [[ -n "${DIRECT_TOOLS_MCP_URL:-}" ]]; then
+        printf '%s' "${DIRECT_CALLBACK_TOKEN:-}" | jq -Rs --arg url "$DIRECT_TOOLS_MCP_URL" \
+            '{url:$url,headers:{Authorization:("Bearer " + .)}}' > "$MCP_CREDENTIAL_DIR/direct-tools.json"
+    fi
     umask "$previous_umask"
 }
 
@@ -760,6 +783,16 @@ validate_fetch_branches() {
     done
 }
 
+# The tool server is reached by URL from the bridge process; anything but http(s) is not an MCP
+# endpoint the bridge can speak to, and without the callback token it could only be called
+# anonymously - a dispatch error either way, so the run fails before the agent starts.
+validate_direct_tools() {
+    [[ -n "${DIRECT_TOOLS_MCP_URL:-}" ]] || return 0
+    [[ "$DIRECT_TOOLS_MCP_URL" =~ ^https?://[^[:space:][:cntrl:]]+$ ]] ||
+        fail '[mcp] DIRECT_TOOLS_MCP_URL must be an http or https URL'
+    [[ -n "${DIRECT_CALLBACK_TOKEN:-}" ]] || fail '[mcp] DIRECT_TOOLS_MCP_URL requires DIRECT_CALLBACK_TOKEN'
+}
+
 validate_workspace_mode
 if [[ "${CRATIS_WORKSPACE_MODE:-}" == host-prepared ]]; then
     [[ "${CRATIS_WORKSPACE_PATH:-}" == /workspace ]] || fail '[workspace] CRATIS_WORKSPACE_PATH must be /workspace'
@@ -795,6 +828,7 @@ elif [[ -n "${GITHUB_TOKEN:-}" ]]; then
     git config --global credential.helper '!f() { echo "username=x-access-token"; echo "password=${GITHUB_TOKEN}"; }; f'
 fi
 validate_fetch_branches
+validate_direct_tools
 if [[ -n "${DIRECT_GIT_USER_NAME:-}" ]]; then
     git config --global user.name "${DIRECT_GIT_USER_NAME}"
 fi
@@ -1884,6 +1918,15 @@ run_claude_code() {
         mv /tmp/mcp-context-config.json "$MCP_CONFIG" || fail "Could not configure context MCP"
     fi
 
+    # The Direct's work-scoped tools, in every mode - the agent's only route to anything beyond
+    # local git. The configuration names the private credential file, never the token.
+    if [[ -n "${DIRECT_TOOLS_MCP_URL:-}" ]]; then
+        jq --arg credential_dir "$MCP_CREDENTIAL_DIR" \
+            '.mcpServers.direct_tools = {command: "node", args: ["/usr/local/lib/direct-progress-mcp/credential-mcp-server.mjs", ($credential_dir + "/direct-tools.json")]}' \
+            "$MCP_CONFIG" > /tmp/mcp-direct-tools-config.json || fail "Could not configure Direct tools MCP"
+        mv /tmp/mcp-direct-tools-config.json "$MCP_CONFIG" || fail "Could not configure Direct tools MCP"
+    fi
+
     PIPE=/tmp/claude-in
     mkfifo "$PIPE"
 
@@ -2244,6 +2287,9 @@ run_pi() {
     # discovery; these explicit local package roots are the only reviewed extension code Pi loads.
     # shellcheck source=/dev/null
     source /usr/local/share/direct/pi-extension-allow-list.sh
+    # No direct_tools server here (DIRECT_TOOLS_MCP_URL): --tools below allow-lists the built-in tools,
+    # which keeps pi-mcp-adapter's `mcp` gateway out of the session in every mode. Exposing that
+    # gateway - it can also add servers by URL - is its own trust-boundary decision.
     # Keep reviewed extensions (including authentication); only the MCP adapter is omitted.
     if [[ "${DIRECT_RUN_MODE:-}" == bundle-diff ]]; then
         local extensions=() index
@@ -2555,6 +2601,12 @@ run_copilot() {
                 }
             }
         }' > "$COPILOT_MCP_CONFIG"
+    if [[ -n "${DIRECT_TOOLS_MCP_URL:-}" ]]; then
+        jq --arg credential_dir "$MCP_CREDENTIAL_DIR" \
+            '.mcpServers.direct_tools = {type: "local", command: "node", args: ["/usr/local/lib/direct-progress-mcp/credential-mcp-server.mjs", ($credential_dir + "/direct-tools.json")], tools: ["*"]}' \
+            "$COPILOT_MCP_CONFIG" > /tmp/copilot-mcp-direct-tools-config.json || fail "Could not configure Direct tools MCP"
+        mv /tmp/copilot-mcp-direct-tools-config.json "$COPILOT_MCP_CONFIG" || fail "Could not configure Direct tools MCP"
+    fi
 
     COPILOT_MCP_ARGS=(--additional-mcp-config "@${COPILOT_MCP_CONFIG}")
     [[ "${DIRECT_RUN_MODE:-}" != bundle-diff ]] || COPILOT_MCP_ARGS=()
