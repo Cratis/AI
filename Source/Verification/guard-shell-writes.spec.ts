@@ -129,6 +129,45 @@ test('read-only globs allow reads while interpreter heredocs retain conservative
     } finally { repo.dispose(); }
 });
 
+test('non-reflog baselines distinguish protected writes from literal reads', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            ...['cat .env', 'cat .env.local', 'git show HEAD:.env',
+                'touch stash/.claude/settings.json',
+            ].map(command => [ALLOW, command] as [string, string]),
+            ...['git stash push -- .cratis', 'git stash apply stash && touch .env',
+                'cat x@{.env}', 'cat x@{a,b}', 'touch stash/.env', 'touch stash/*.env',
+                'touch .env', 'touch package.json',
+                'touch .mcp.json', 'touch .claude/settings.json',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('git reflog selectors are revisions without hiding protected paths or globs', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
+        await checkCases([
+            ...['git stash show stash@{0}', 'git stash apply stash@{0}', 'git stash apply stash@{1}',
+                'git stash show -p stash@{1}', 'git log stash@{0}', 'git show HEAD@{1}',
+                'git reflog show HEAD@{1}', 'git diff main@{upstream}', 'git show main@{push}',
+                'git show main@{u}', 'git show @{-1}', 'git stash list',
+                'git push origin stash@{0}:refs/heads/x',
+            ].map(command => [ALLOW, command] as [string, string]),
+            ...['git stash push -- .cratis', 'git stash apply stash@{0} && touch .env',
+                'cat x@{.env}', 'cat x@{a,b}', 'touch stash@{0}/.env', 'touch stash@{0}/*.env',
+                'touch .env@{upstream}',
+                'touch package.json@{0}', 'touch .mcp.json@{1}', 'touch .claude/settings.json@{0}',
+            ].map(command => [BLOCK, command] as [string, string]),
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('quoted brace spans and extended globs in write targets are refused', async () => {
     const repo = scratchRepository();
     try {
@@ -791,10 +830,10 @@ test('the batch classifier is the policy source for names, patterns, generated f
     try {
         mkdirSync(join(repo.root, '.cratis'));
         writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
-        const paths = ['.ENV', './missing/../Package.JSON', '.e*', '*crets.env', '.{env,ENV}', '.cl*/settings.json', '.Cratis/AI/rules/x.md', 'Source/Accounts/Registration.ts', 'linked-control', '*.txt', 'notes.md', 'ordinary*.txt'];
+        const paths = ['.ENV', './missing/../Package.JSON', '.e*', '*crets.env', '.{env,ENV}', '.cl*/settings.json', '.Cratis/AI/rules/x.md', 'Source/Accounts/Registration.ts', 'linked-control', '*.txt', '.env@{0}', 'stash@{0}', 'notes.md', 'ordinary*.txt'];
         const result = spawnSync('bash', [join(guard, '../cratis-guard-writes.sh'), '--references'], { cwd: repo.root, input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: paths } }), encoding: 'utf8', env: environment() });
         assert.equal(result.status, 0, result.stderr);
-        assert.deepEqual(result.stdout.trim().split('\n'), paths.slice(0, -2));
+        assert.deepEqual(result.stdout.trim().split('\n'), paths.slice(0, -3));
         assert.equal(result.stderr, '');
         assert.equal(runGuard(payload('touch .Cratis/AI/rules/x.md', repo.root), repo.root).verdict, BLOCK);
     } finally { repo.dispose(); }

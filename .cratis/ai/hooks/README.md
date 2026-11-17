@@ -66,6 +66,8 @@ suffix that follows a slash in it (`$PWD/.cratis/x` and `~+/.cratis/x` are treat
 directory), without parsing the expansion, and refused if a suffix is protected, which includes a read of a protected path through a variable. This is a
 best-effort lexical check, not enforcement: a variable holding the whole path still passes.
 
+Git reflog selectors with unprotected prefixes (`stash@{0}`, `HEAD@{1}`, `branch@{upstream}`) are revisions, not paths.
+
 The shell-write reference scan keeps conservative leading-dot intersections: a tool named `Bash`,
 `SHELL`, and the hook process's options do not establish the execution shell's options. Globbed writes
 therefore remain blocked. Read operands under protected paths are not write targets: `rg -n`/`-l`,

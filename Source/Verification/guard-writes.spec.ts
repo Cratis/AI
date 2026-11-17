@@ -132,6 +132,24 @@ test('reference classification treats empty brackets and jq array tokens as lite
     } finally { repo.dispose(); }
 });
 
+test('reference classification skips reflog selectors only when their prefixes are unprotected', () => {
+    const repo = scratchRepository();
+    try {
+        const protectedPaths = ['.env@{0}', '.env.local@{1}', '.mcp.json@{u}', 'package.json@{push}',
+            '.claude/settings.json@{upstream}', 'x@{.env}', 'x@{a,b}', 'stash@{0}/.env'];
+        const paths = ['stash@{0}', 'HEAD@{1}', 'main@{upstream}', 'main@{push}', 'main@{u}', '@{-1}', ...protectedPaths];
+        const result = spawnSync('bash', [guard, '--references'], {
+            cwd: repo.root,
+            input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: paths } }),
+            encoding: 'utf8',
+            env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+        });
+        assert.equal(result.status, 0, result.stderr);
+        assert.equal(result.stdout, protectedPaths.map(path => `${path}\n`).join(''));
+        assert.equal(result.stderr, '');
+    } finally { repo.dispose(); }
+});
+
 test('reference classification treats bracket classes as any character and keeps unmatched bracket literals', () => {
     const repo = scratchRepository();
     try {
