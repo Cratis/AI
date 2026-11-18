@@ -83,6 +83,24 @@ function scratchRepository(origin?: string): { root: string; generated: string; 
     return { root, generated, mention, manifest, dispose: () => rmSync(root, { recursive: true, force: true }) };
 }
 
+function writeAuthoringLayout(root: string): string[] {
+    const files: Record<string, string> = {
+        'Cratis.AI.slnx': '<Solution />\n',
+        'Source/Pi.Plugin/package.json': JSON.stringify({ name: '@cratis/pi', type: 'module' }),
+        '.cratis/ai/hooks/scripts/cratis-guard-writes.sh': '# fixture\n',
+    };
+    for (const [name, content] of Object.entries(files)) {
+        mkdirSync(resolve(root, name, '..'), { recursive: true });
+        writeFileSync(join(root, name), content);
+    }
+    return Object.keys(files);
+}
+
+function commitAuthoringLayout(root: string): void {
+    assert.equal(spawnSync('git', ['-C', root, 'add', '--', ...writeAuthoringLayout(root)]).status, 0);
+    assert.equal(spawnSync('git', ['-C', root, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--no-verify', '-qm', 'Authoring fixture']).status, 0);
+}
+
 for (const target of ['.env', 'package.json']) {
     test(`the write guard blocks an ordinary symlink name targeting ${target}`, () => {
         const repo = scratchRepository();
@@ -699,6 +717,7 @@ test('agent controls and installed trees are protected without blocking authored
     const managed = ['.cratis/ai/hooks/settings.template.json', '.cratis/ai/skills/custom/SKILL.md', '.claude/agents/custom.md', '.pi/agents/custom.md'];
     const ordinary = ['Source/Ordinary.cs', '.cratis/ai.json.backup', '.cratis/ai.manifest.json.backup', '.claude-like/settings.json', '.pi-like/settings.json', '.mcp.json.backup', '.claude/skills/x/SKILL.md', '.claude/commands/local.md', '.claude/settings.fragments/local.json', '.pi/skills/x/SKILL.md'];
     try {
+        commitAuthoringLayout(source.root);
         mkdirSync(join(consumer.root, '.cratis', 'ai', 'hooks'), { recursive: true });
         mkdirSync(join(consumer.root, '.claude'), { recursive: true });
         const template = join(consumer.root, '.cratis', 'ai', 'hooks', 'settings.template.json');
@@ -741,6 +760,52 @@ async function assertShellParity(root: string, command: string, expected: string
     const bridged = await toolCall({ toolName: 'bash', input: { command } }, { cwd: root }) as { block?: boolean } | undefined;
     assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${command}`);
 }
+
+test('path placeholders remain protected through shell and Pi', async () => {
+    const repo = scratchRepository();
+    const toolCall = piToolCall();
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai/hooks'), { recursive: true });
+        const commands = [
+            'echo .json | xargs -I {} rm .cratis/ai.manifest{}',
+            'echo .json | xargs -I {} rm .cratis/ai{}',
+            'echo .json | xargs -I {} rm .mcp{}',
+            'echo .sh | xargs -I {} rm .cratis/ai/hooks/guard{}',
+            'echo guard | xargs -I {} rm .cratis/ai/hooks/{}.sh',
+            'echo guard | xargs -I {} rm .cratis/ai/hooks/{}',
+            'echo .mcp | xargs -I {} rm {}.json',
+        ];
+        await forEachConcurrently(commands, command => assertShellParity(repo.root, command, BLOCK, toolCall));
+    } finally { repo.dispose(); }
+});
+
+test('consumer corpus protection survives an origin change and uncommitted authoring files', async () => {
+    const repo = scratchRepository('https://github.com/Consumer/App.git');
+    const toolCall = piToolCall();
+    const context = { consumer: repo, source: repo, toolCall };
+    const target = { name: '.cratis/ai/skills/new/SKILL.md', expected: true, installed: false };
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai/skills'), { recursive: true });
+        await assertInstalledTarget(context, target);
+        assert.equal(spawnSync('git', ['-C', repo.root, 'remote', 'set-url', 'origin', 'https://github.com/Cratis/AI.git']).status, 0);
+        await assertInstalledTarget(context, target);
+        assert.equal(spawnSync('git', ['-C', repo.root, 'add', '--', ...writeAuthoringLayout(repo.root)]).status, 0);
+        await assertInstalledTarget(context, target);
+        await assertShellParity(repo.root, 'echo x > .cratis/ai/skills/new/SKILL.md', BLOCK, toolCall);
+    } finally { repo.dispose(); }
+});
+
+test('committed authoring source stays editable independently of the origin', async () => {
+    const repo = scratchRepository('https://github.com/Consumer/App.git');
+    const toolCall = piToolCall();
+    try {
+        commitAuthoringLayout(repo.root);
+        await assertInstalledTarget({ consumer: repo, source: repo, toolCall }, {
+            name: '.cratis/ai/skills/new/SKILL.md', expected: false, installed: false,
+        });
+        await assertShellParity(repo.root, 'echo x > .cratis/ai/skills/new/SKILL.md', ALLOW, toolCall);
+    } finally { repo.dispose(); }
+});
 
 test('empty brace placeholders remain literal through reference checks, shell and Pi', async () => {
     const repo = scratchRepository('https://github.com/Cratis/AI.git');

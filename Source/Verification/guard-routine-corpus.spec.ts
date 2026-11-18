@@ -161,6 +161,9 @@ function repository(managed: boolean) {
         'Source/Foo/A.cs': '// fixture', 'Source/Foo/A.ts': '// fixture',
         'Source/Foo/README.md': 'fixture', 'Source/Foo/nested/.env': 'synthetic fixture',
         'Source/Verification/guard-fixture.ts': '// fixture',
+        'Source/Pi.Plugin/package.json': JSON.stringify({ name: '@cratis/pi', type: 'module' }),
+        'Cratis.AI.slnx': '<Solution />\n',
+        '.cratis/ai/hooks/scripts/cratis-guard-writes.sh': '# fixture\n',
         '.env': 'synthetic fixture', 'credentials.json': '{}', 'keys/server.pem': 'synthetic fixture',
         'root.md': 'fixture',
         '.aws/credentials': 'synthetic fixture', 'files/ordinary.txt': 'fixture',
@@ -169,6 +172,10 @@ function repository(managed: boolean) {
     for (const [name, contents] of Object.entries(files)) {
         mkdirSync(resolve(root, name, '..'), { recursive: true });
         writeFileSync(join(root, name), contents);
+    }
+    if (!managed) {
+        assert.equal(spawnSync('git', ['-C', root, 'add', '--', 'Cratis.AI.slnx', 'Source/Pi.Plugin/package.json', '.cratis/ai/hooks/scripts/cratis-guard-writes.sh']).status, 0);
+        assert.equal(spawnSync('git', ['-C', root, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--no-verify', '-qm', 'Authoring fixture']).status, 0);
     }
     symlinkSync('../keys/server.pem', join(root, 'files/notes.txt'));
     return root;
