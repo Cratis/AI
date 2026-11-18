@@ -44,6 +44,11 @@ Reader glob probes skip directories only when decoded options establish a nonrec
 unknown or recursive grep options keep directory matches conservative. Simple sed print/substitution
 programs are data only without in-place edits, execution, or file writes; `-f` remains a file operand.
 GitHub API endpoints are normalized before checking sensitive paths.
+GitHub output filters (`--jq`/`-q`, `--template`/`-t`) may select response fields such as `.env`,
+but may not read the process environment through `env` or `$ENV`, including within expressions.
+Quoted strings and comments in jq filters remain data. Bundled filter flags are checked too;
+`-t` is a title or subject only for `pr`/`issue`/`release` create/edit, `pr merge`, and
+`ssh-key`/`gpg-key` add. API endpoint names never opt out of template checks.
 
 The shell-write guard classifies **write-target words**, not every word. It lexes the command into
 simple commands. When every command is a reviewed reader or staging verb (`cat`, `head`, `tail`, `wc`,
