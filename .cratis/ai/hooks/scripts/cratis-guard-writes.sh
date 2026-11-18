@@ -187,7 +187,7 @@ origin_matches() {
 # One policy vocabulary for normal Write/Edit and whole-command reference checks.
 manifest_patterns=(package.json Directory.Packages.props global.json NuGet.config yarn.lock package-lock.json pnpm-lock.yaml packages.lock.json)
 environment_patterns=('.env' '.env.*' '*.env')
-control_patterns=('.claude/settings.json' '.claude/settings.local.json' '.mcp.json' '.pi/settings.json' '.pi/extensions/*')
+control_patterns=('.claude/settings.json' '.claude/settings.local.json' '.mcp.json' '.pi/settings.json' '.pi/extensions/*' '.cratis/ai.manifest.json' '.cratis/ai.json')
 
 # Glob-language intersection, not expansion/eval. A star has an epsilon transition and
 # a character loop. The product automaton accepts iff the two patterns share a spelling.
@@ -209,18 +209,19 @@ function tokens(s, side,    i, c, j, k, t, copy, jumps, first, closing) {
         if (gsub(/\[/, "[", copy) > 64) exit 2
         first = index(s, "{")
         for (k = length(s); k > first; k--) if (substr(s, k, 1) == "}") { closing = k; break }
-        if (first && closing) {
+        if (first && closing > first + 1) {
             if (index(substr(s, first, closing - first + 1), "/")) exit 2
             if (substr(s, first, closing - first + 1) ~ /[$`'"\\]/) exit 2
             if (substr(s, 1, first - 1) substr(s, closing + 1) ~ /[^a-z0-9._\/*?,+=:@%-]/) exit 2
-            s = substr(s, 1, first) substr(s, closing)
+            s = substr(s, 1, first - 1) "*" substr(s, closing + 1)
         }
     }
     for (i = 1; i <= length(s); i++) {
         c = substr(s, i, 1); t = c; j = i
         if (c == "{") {
             j = index(substr(s, i), "}")
-            if (j) { j = i + j - 1; t = "*" } else j = i
+            # Empty braces are literal shell text, including xargs placeholders.
+            if (j > 2) { j = i + j - 1; t = "*" } else j = i
             if (side == 1 && index(substr(s, i, j - i + 1), "/")) exit 2
         }
         N[side]++; A[side, N[side]] = t
@@ -319,9 +320,18 @@ agent_control_target() {
     policy_root="$directory"
     relative_to "$target" "$policy_root"
     target_rel="$REPLY"
-    if [ -f "$policy_root/.cratis/ai.manifest.json" ]; then
+    # Policy files remain controls even in the authored corpus repository.
+    if control_match "$target_rel" '.cratis/ai.manifest.json' '.cratis/ai.json'; then return 0; fi
+    if [ ! -f "$policy_root/.cratis/ai.manifest.json" ]; then
+        # The corpus is authored source in Cratis/AI, not a managed installation.
+        repository_origin "$policy_root"
+        if origin_matches '^(https://github\.com/|git@github\.com:|ssh://git@github\.com(:[0-9]+)?/)cratis/ai(\.git)?/?$'; then
+            return 1
+        fi
+    fi
+    if [ -f "$policy_root/.cratis/ai.manifest.json" ] || [ -d "$policy_root/.cratis/ai" ]; then
         if control_match "$target_rel" '.cratis/ai/*'; then return 0; fi
-        if control_match "$target_rel" '.claude/*' '.pi/*'; then
+        if [ -f "$policy_root/.cratis/ai.manifest.json" ] && control_match "$target_rel" '.claude/*' '.pi/*'; then
             # Integration paths, not corpus Files, establish adapter ownership.
             managed="$(jq -r '
                 (.Integrations // []) | if type != "array" then empty else
@@ -334,12 +344,6 @@ agent_control_target() {
                 [ -n "$pattern" ] || continue
                 if control_match "$target_rel" "$pattern"; then return 0; fi
             done <<<"$managed"
-        fi
-    else
-        # The corpus is authored source in Cratis/AI, not a managed installation.
-        repository_origin "$policy_root"
-        if origin_matches '^(https://github\.com/|git@github\.com:|ssh://git@github\.com(:[0-9]+)?/)cratis/ai(\.git)?/?$'; then
-            return 1
         fi
     fi
     control_match "$target_rel" "${control_patterns[@]}"
