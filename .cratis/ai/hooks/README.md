@@ -308,6 +308,9 @@ only these standalone install/repair operations (Node must be available):
   that guard. Hook, agent, guard, extension and workflow trees cannot be repaired with `ln`, even
   when a manifest lists the link. Recognized repairs that fail validation are blocked outright,
   rather than falling back to an uninstalled repository's more permissive reference policy.
+  Only links whose lexical or physical target lands in the corpus enter these repair checks.
+  Ordinary non-corpus links and calls outside Git retain the original reference policy; a
+  symlinked link parent or target alias cannot disguise a physical corpus target.
 - These exceptions accept simple whole-word quoting, but no `cd` prefix, chaining, pipes,
   redirects, substitutions, expansions, escapes, comments, globs or multiline shell constructs.
   Existing directories cannot be replaced; an existing symlink to a directory requires `-sfn`

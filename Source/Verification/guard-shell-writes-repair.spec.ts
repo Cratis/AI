@@ -152,6 +152,68 @@ test('a corpus without a manifest never admits link repairs, including former bo
     } finally { repo.dispose(); }
 });
 
+for (const installed of [false, true]) {
+    test(`ordinary non-corpus links keep reference policy with manifest=${installed}`, async () => {
+        const repo = scratchRepository();
+        try {
+            prepareRepairTree(repo);
+            if (!installed) rmSync(join(repo.root, '.cratis/ai.manifest.json'));
+            await checkCases([
+                [ALLOW, 'ln -s ../AGENTS.md .github/copilot-instructions.md'],
+                [ALLOW, 'ln -s ../docs/CONTRIBUTING.md .github/CONTRIBUTING.md'],
+                [BLOCK, 'ln -s ../AGENTS.md .claude/settings.json'],
+            ], repo);
+        } finally { repo.dispose(); }
+    });
+
+    test(`physical corpus targets cannot hide behind aliases with manifest=${installed}`, async () => {
+        const repo = scratchRepository();
+        try {
+            prepareRepairTree(repo);
+            symlinkSync(join(repo.root, '.cratis/ai/prompts'), join(repo.root, '.github/corpus-alias'), 'dir');
+            symlinkSync(join(repo.root, '.cratis/ai/missing'), join(repo.root, '.github/missing-alias'), 'dir');
+            symlinkSync(join(repo.root, '.cratis/ai'), join(repo.root, '.github/corpus-root'), 'dir');
+            const manifest = join(repo.root, '.cratis/ai.manifest.json');
+            if (installed) {
+                writeFileSync(manifest, JSON.stringify({ Integrations: [
+                    { Path: '.github/CONTRIBUTING.md', Target: '../docs/CONTRIBUTING.md' },
+                    { Path: '.github/workflows/x.yml', Target: '../../docs/workflow.yml' },
+                ] }));
+            } else rmSync(manifest);
+            await checkCases([
+                [BLOCK, 'ln -s corpus-alias/new.md .github/CONTRIBUTING.md'],
+                [BLOCK, 'ln -s missing-alias/new.md .github/CONTRIBUTING.md'],
+                [BLOCK, 'ln -s corpus-root .github/CONTRIBUTING.md'],
+                [BLOCK, 'ln -s corpus-alias/../new.md .github/CONTRIBUTING.md'],
+                [BLOCK, 'ln -s ../corpus-alias/new.md .github/workflows/x.yml'],
+                [BLOCK, 'ln -s ../.cratis/ai .github/CONTRIBUTING.md'],
+            ], repo);
+        } finally { repo.dispose(); }
+    });
+}
+
+test('ordinary links outside a Git checkout fall back to reference policy', async () => {
+    const repo = scratchRepository();
+    try {
+        rmSync(join(repo.root, '.git'), { recursive: true });
+        await checkCases([[ALLOW, 'ln -s /a /b']], repo);
+    } finally { repo.dispose(); }
+});
+
+test('a symlinked link parent cannot disguise relative corpus targets as ordinary links', async () => {
+    const repo = scratchRepository();
+    try {
+        prepareRepairTree(repo);
+        rmSync(join(repo.root, '.cratis/ai.manifest.json'));
+        rmSync(join(repo.root, '.github'), { recursive: true });
+        symlinkSync(join(repo.root, '.cratis/ai/prompts'), join(repo.root, '.github'), 'dir');
+        await checkCases([
+            [BLOCK, 'ln -s ../AGENTS.md .github/copilot-instructions.md'],
+            [BLOCK, 'ln -s ../docs/CONTRIBUTING.md .github/CONTRIBUTING.md'],
+        ], repo);
+    } finally { repo.dispose(); }
+});
+
 function controlLinkNames(repo: ReturnType<typeof scratchRepository>) {
     const names = [
         '.claude/settings.json', '.claude/settings.local.json', '.claude/SETTINGS.JSON',

@@ -4,7 +4,7 @@
 // Non-applicable commands fall back to reference checks; recognized invalid repairs fail closed.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, lstatSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, readlinkSync, realpathSync, statSync } from 'node:fs';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
 
 const managedFolders = ['.pi', '.claude', '.cursor', '.opencode', '.github'];
@@ -27,19 +27,21 @@ function inside(path, directory) {
     return !['', '..'].includes(suffix.split(sep)[0]);
 }
 
-function physicalPath(path) {
-    // Walk components first: realpathSync normalizes '..' before following a preceding symlink.
-    // Missing suffixes stay lexical, but existing ancestors are resolved before the next component.
+function addressedTarget(link, target) {
+    return isAbsolute(target) ? target : `${dirname(link)}/${target}`;
+}
+
+function physicalPath(path, depth = 0) {
+    if (depth >= 40) throw new Error('Symlink resolution limit');
+    // Follow each symlink before '..', even when its destination does not exist yet.
     let physical = sep;
     for (const component of path.split(sep).filter(Boolean)) {
         const candidate = resolve(physical, component);
-        physical = existingTarget(candidate) ? realpathSync(candidate) : candidate;
+        physical = lstatIfPresent(candidate)?.isSymbolicLink()
+            ? physicalPath(addressedTarget(candidate, readlinkSync(candidate)), depth + 1)
+            : candidate;
     }
     return physical;
-}
-
-function existingTarget(path) {
-    return existsSync(path) || lstatIfPresent(path)?.isSymbolicLink();
 }
 
 function lstatIfPresent(path) {
@@ -100,10 +102,20 @@ function parentInFolder(root, link, folder) {
     return parent === managedFolder || inside(parent, managedFolder);
 }
 
+function atOrInside(path, directory) {
+    return path === directory || inside(path, directory);
+}
+
+function corpusRepair(root, link, target) {
+    const addressed = addressedTarget(link, target);
+    const corpus = resolve(root, '.cratis/ai');
+    return atOrInside(resolve(addressed), corpus) || atOrInside(physicalPath(addressed), corpus);
+}
+
 function corpusTarget(root, link, target) {
-    const addressed = isAbsolute(target) ? target : `${dirname(link)}/${target}`;
+    const addressed = addressedTarget(link, target);
     if (!inside(resolve(addressed), resolve(root, '.cratis/ai'))) return false;
-    return inside(physicalPath(addressed), resolve(realpathSync(root), '.cratis/ai'));
+    return inside(physicalPath(addressed), resolve(root, '.cratis/ai'));
 }
 
 function replaceableDestination(link, flag) {
@@ -115,32 +127,48 @@ function replaceableDestination(link, flag) {
     return !statSync(link).isDirectory() || flag === '-sfn';
 }
 
+function repositoryRoot(cwd) {
+    try {
+        const repository = execFileSync('git', ['-C', cwd, 'rev-parse', '--show-toplevel'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+        return realpathSync(repository);
+    } catch { return undefined; }
+}
+
+function validateRepair(root, link, folder, { target, flag }) {
+    try {
+        assert(!controlLink(root, link), 'Agent control link');
+        assert(managedEntry(root, link), 'Unmanaged link');
+        assert(parentInFolder(root, link, folder), 'Redirected link parent');
+        assert(corpusTarget(root, link, target), 'Non-corpus target');
+        assert(replaceableDestination(link, flag), 'Directory destination');
+    } catch {
+        // Once identified as a corpus repair, unreadable/invalid policy or paths must not permit fallback.
+        assert.fail('Corpus repair validation failed');
+    }
+}
+
 function repairLink(cwd, words) {
     const operands = linkOperands(words);
     if (!operands) return false;
-    const repository = execFileSync('git', ['-C', cwd, 'rev-parse', '--show-toplevel'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-    const root = realpathSync(repository);
-    const { target, name, flag } = operands;
+    const root = repositoryRoot(cwd);
+    if (!root) return false;
     // Git reports the physical root on macOS; align the cwd alias without resolving the link itself.
-    const link = resolve(realpathSync(cwd), name);
+    const link = resolve(realpathSync(cwd), operands.name);
     const folder = managedFolders.find(folder => inside(link, resolve(root, folder)));
     if (!folder) return false;
-    assert(!controlLink(root, link), 'Agent control link');
-    assert(managedEntry(root, link), 'Unmanaged link');
-    assert(parentInFolder(root, link, folder), 'Redirected link parent');
-    assert(corpusTarget(root, link, target), 'Non-corpus target');
-    assert(replaceableDestination(link, flag), 'Directory destination');
+    if (!corpusRepair(root, link, operands.target)) return false;
+    validateRepair(root, link, folder, operands);
     return true;
 }
 
 function admitted(cwd, command) {
     const words = literalWords(command);
     if (['cratis ai init', 'cratis ai update', 'cratis ai restore'].includes(words.slice(0, 3).join(' '))) {
-        if (!words.slice(3).every(word => ['--force', '--dry-run'].includes(word))) throw new Error('Unsupported installer arguments');
+        assert(words.slice(3).every(word => ['--force', '--dry-run'].includes(word)), 'Unsupported installer arguments');
         return true;
     }
     return repairLink(cwd, words);
 }
 
 try { process.exitCode = admitted(process.argv[2], process.argv[3]) ? 0 : 1; }
-catch { process.exitCode = 2; } // A recognized repair failure is a refusal, not a permissive-policy fallback.
+catch (error) { process.exitCode = error instanceof assert.AssertionError ? 2 : 1; }
