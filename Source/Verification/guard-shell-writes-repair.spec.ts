@@ -70,9 +70,9 @@ test('standalone corpus installers allow literal arguments but never conceal ano
     try {
         prepareRepairTree(repo);
         const allowed = ['init', 'update', 'restore'].flatMap(verb => [
-            `cratis ai ${verb} --source .cratis/ai`,
-            `cratis ai ${verb} --force --source '.cratis/ai/local source'`,
-            `  cratis ai ${verb}  --force --source ".cratis/ai/local source"  `,
+            `cratis ai ${verb}`,
+            `cratis ai ${verb} --force`,
+            `  cratis ai ${verb}  --force --dry-run  `,
         ]);
         const blocked = [
             'echo "cratis ai update" > .cratis/ai/x',
@@ -90,6 +90,11 @@ test('standalone corpus installers allow literal arguments but never conceal ano
             'env cratis ai update --source .cratis/ai',
             "cratis ai 'up'date --source .cratis/ai",
             'cratis ai update --source "unterminated .cratis/ai',
+            'cratis ai update --output .claude/settings.json',
+            'cratis ai update --output /tmp/elsewhere',
+            'cratis ai update .claude/settings.json',
+            'cratis ai update --force .cratis/ai/x',
+            'cratis ai update --source .cratis/ai',
         ];
         await checkCases([
             ...allowed.map(command => [ALLOW, command] as [string, string]),
@@ -130,15 +135,66 @@ test('standalone symbolic links repair only managed folders with corpus targets'
     } finally { repo.dispose(); }
 });
 
-test('without a manifest, folder and corpus-target checks admit bootstrap link creation', async () => {
+test('a corpus without a manifest never admits link repairs, including former bootstrap links', async () => {
     const repo = scratchRepository();
     try {
         prepareRepairTree(repo);
         rmSync(join(repo.root, '.cratis/ai.manifest.json'));
         mkdirSync(join(repo.root, '.pi/extensions'));
-        await checkCases([[ALLOW, 'ln -s ../../.cratis/ai/prompts .pi/extensions/prompts']], repo);
+        await checkCases([
+            [BLOCK, 'ln -s ../../.cratis/ai/prompts .pi/extensions/prompts'],
+            [BLOCK, 'ln -s ../.cratis/ai/prompts .pi/prompts'],
+            [BLOCK, 'ln -s ../.cratis/ai/skills .claude/skills'],
+            [ALLOW, 'cratis ai init --force'],
+            [ALLOW, 'cratis ai update --dry-run'],
+            [ALLOW, 'cratis ai restore'],
+        ], repo);
     } finally { repo.dispose(); }
 });
+
+function controlLinkNames(repo: ReturnType<typeof scratchRepository>) {
+    const names = [
+        '.claude/settings.json', '.claude/settings.local.json', '.claude/SETTINGS.JSON',
+        '.claude/hooks/guard.sh', '.claude/agents/guard.md', '.github/workflows/x.yml',
+        '.pi/settings.json', '.pi/extensions', '.pi/extensions/guard.ts', '.pi/agents/guard.md',
+        '.cursor/agents/guard.md', '.opencode/agents/guard.md',
+    ];
+    const aliases = [
+        ['.claude/prompt-links', '.claude', 'settings.json'],
+        ['.claude/hook-links', '.claude/hooks', 'guard.sh'],
+        ['.github/prompt-links', '.github/workflows', 'x.yml'],
+        ['.pi/prompts', '.pi/extensions', 'guard.ts'],
+    ];
+    for (const [alias, target, child] of aliases) {
+        mkdirSync(join(repo.root, target), { recursive: true });
+        symlinkSync(join(repo.root, target), join(repo.root, alias), 'dir');
+        names.push(`${alias}/${child}`);
+    }
+    mkdirSync(join(repo.root, '.claude/plain'));
+    symlinkSync(join(repo.root, '.claude/plain'), join(repo.root, '.claude/hooks/relocated'), 'dir');
+    names.push('.claude/hooks/relocated/guard.md');
+    writeFileSync(join(repo.root, '.pi/settings.json'), '{}');
+    symlinkSync(join(repo.root, '.pi/settings.json'), join(repo.root, '.pi/indirect'));
+    names.push('.pi/indirect');
+    return names;
+}
+
+for (const installed of [false, true]) {
+    test(`control link names and physical destinations stay blocked with manifest=${installed}`, async () => {
+        const repo = scratchRepository();
+        try {
+            prepareRepairTree(repo);
+            const names = controlLinkNames(repo);
+            const manifest = join(repo.root, '.cratis/ai.manifest.json');
+            if (installed) {
+                writeFileSync(manifest, JSON.stringify({ Integrations: names.map(Path => ({
+                    Path, Target: '../.cratis/ai/prompts', IsDirectory: false,
+                })) }));
+            } else rmSync(manifest);
+            await checkCases(names.map(name => [BLOCK, `ln -sfn '${repo.root}/.cratis/ai/prompts' '${name}'`]), repo);
+        } finally { repo.dispose(); }
+    });
+}
 
 test('a present manifest requires an exact managed link entry and fails closed when malformed', async () => {
     const repo = scratchRepository();

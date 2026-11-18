@@ -1,7 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-// Admission only: a refusal falls back to the unchanged whole-command reference guard.
+// Non-applicable commands fall back to reference checks; recognized invalid repairs fail closed.
+import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path';
@@ -49,9 +50,31 @@ function lstatIfPresent(path) {
     }
 }
 
+function controlPatterns() {
+    // Read the write guard's literal policy, never execute/source it or maintain a second copy.
+    const source = readFileSync(new URL('./cratis-guard-writes.sh', import.meta.url), 'utf8');
+    const definition = source.match(/^control_patterns=\((.*)\)$/m)?.[1] ?? '';
+    const words = definition.match(/'[a-z0-9_./*-]+'/g) ?? [];
+    if (!words.length || words.join(' ') !== definition) throw new Error('Unsupported control policy');
+    return words.map(unquote);
+}
+
+function matchesControl(name, pattern) {
+    const expression = pattern.split('*').map(part => part.replaceAll('.', '\\.')).join('.*');
+    return new RegExp(`^${expression}(?:/.*)?$`).test(name) || pattern.startsWith(`${name}/`);
+}
+
+function controlLink(root, link) {
+    const names = [link, physicalPath(link)].map(path => relative(root, path).toLowerCase());
+    const patterns = controlPatterns();
+    // Repairs are also forbidden in executable/agent-definition trees, even if a manifest lists them.
+    const executableTree = /(?:^|\/)(?:hooks|agents|guards|extensions|workflows)(?:\/|$)/;
+    return names.some(name => executableTree.test(name) || patterns.some(pattern => matchesControl(name, pattern)));
+}
+
 function managedEntry(root, link) {
     const manifest = resolve(root, '.cratis/ai.manifest.json');
-    if (!existsSync(manifest)) return true; // Bootstrap: only a folder + corpus-target link is admitted.
+    if (!existsSync(manifest)) return false;
     const { Integrations } = JSON.parse(readFileSync(manifest, 'utf8'));
     return Array.isArray(Integrations) && Integrations.some(entry =>
         entry?.Path === relative(root, link) && typeof entry.Target === 'string');
@@ -102,17 +125,22 @@ function repairLink(cwd, words) {
     const link = resolve(realpathSync(cwd), name);
     const folder = managedFolders.find(folder => inside(link, resolve(root, folder)));
     if (!folder) return false;
-    if (!managedEntry(root, link)) return false;
-    if (!parentInFolder(root, link, folder)) return false;
-    if (!corpusTarget(root, link, target)) return false;
-    return replaceableDestination(link, flag);
+    assert(!controlLink(root, link), 'Agent control link');
+    assert(managedEntry(root, link), 'Unmanaged link');
+    assert(parentInFolder(root, link, folder), 'Redirected link parent');
+    assert(corpusTarget(root, link, target), 'Non-corpus target');
+    assert(replaceableDestination(link, flag), 'Directory destination');
+    return true;
 }
 
 function admitted(cwd, command) {
     const words = literalWords(command);
-    if (['cratis ai init', 'cratis ai update', 'cratis ai restore'].includes(words.slice(0, 3).join(' '))) return true;
+    if (['cratis ai init', 'cratis ai update', 'cratis ai restore'].includes(words.slice(0, 3).join(' '))) {
+        if (!words.slice(3).every(word => ['--force', '--dry-run'].includes(word))) throw new Error('Unsupported installer arguments');
+        return true;
+    }
     return repairLink(cwd, words);
 }
 
 try { process.exitCode = admitted(process.argv[2], process.argv[3]) ? 0 : 1; }
-catch { process.exitCode = 1; } // Missing/invalid manifest or unresolved paths never grant an exception.
+catch { process.exitCode = 2; } // A recognized repair failure is a refusal, not a permissive-policy fallback.
