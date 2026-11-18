@@ -42,8 +42,9 @@ parser_failed() {
 # as a command substitution would drop them); a missing, null or false path is empty.
 # The process substitution's exit status does not reach the reading group, and Bash 3.2 (macOS /bin/bash)
 # cannot wait on its PID, so a sentinel field is written only after jq succeeds.
-reference_mode=0
+reference_mode=0 destructive_mode=0 reference_root=""
 [ "${1:-}" != --references ] || reference_mode=1
+if [ "${1:-}" = --destructive-references ]; then reference_mode=1; destructive_mode=1; fi
 cwd="" file="" notebook="" new_content="" new_string="" references="" parser_status=""
 {
     IFS= read -r -d '' cwd
@@ -296,6 +297,7 @@ control_match() {
     # Do not turn a standalone placeholder into a path by appending descendants.
     [ "$value" != '{}' ] || return 1
     [ "$reference_mode" = 1 ] || return 1
+    [ "$destructive_mode" != 1 ] || [ "$value" != '.' ] || return 0
     if [ "$reference_pattern" = 0 ]; then
         shopt -s nocasematch
         for pattern in "$@"; do
@@ -329,6 +331,13 @@ agent_control_target() {
     local target="$1" directory policy_root target_rel managed pattern
     dir_of "$target"
     directory="$REPLY"
+    if [ "$destructive_mode" = 1 ]; then
+        [ ! -d "$target" ] || directory="$target"
+        # A mutation of the repository or any containing directory reaches its controls too.
+        if [[ -n "$reference_root" && ( "$target" == / || "$reference_root" == "$target" || "$reference_root" == "$target"/* ) ]]; then
+            directory="$reference_root"
+        fi
+    fi
     # Keep the addressed spelling here, even when an adapter directory is a symlink.
     # .git is a directory in a checkout and a file in a linked worktree.
     while [ ! -e "$directory/.git" ]; do
@@ -337,8 +346,8 @@ agent_control_target() {
         directory="$REPLY"
     done
     policy_root="$directory"
-    relative_to "$target" "$policy_root"
-    target_rel="$REPLY"
+    if [[ "$destructive_mode" == 1 && ( "$target" == / || "$policy_root" == "$target" || "$policy_root" == "$target"/* ) ]]; then target_rel='.'
+    else relative_to "$target" "$policy_root"; target_rel="$REPLY"; fi
     # Policy files remain controls even in the authored corpus repository.
     if control_match "$target_rel" '.cratis/ai.manifest.json' '.cratis/ai.json'; then return 0; fi
     if [ ! -f "$policy_root/.cratis/ai.manifest.json" ] && authored_corpus_repository "$policy_root"; then
@@ -419,6 +428,11 @@ classify_file() {
 }
 
 if [ "$reference_mode" = 1 ]; then
+    reference_root="$cwd"
+    while [ ! -e "$reference_root/.git" ]; do
+        if [ "$reference_root" = / ]; then reference_root=''; break; fi
+        dir_of "$reference_root"; reference_root="$REPLY"
+    done
     candidates=() parser_status=""
     while IFS= read -r -d '' candidate; do candidates[${#candidates[@]}]="$candidate"; done < <(
         jq -j 'if type == "array" and length <= 256 and all(.[]; type == "string" and (explode | all(.[]; . != 0 and . != 9 and . != 10 and . != 13)))

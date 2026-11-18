@@ -752,6 +752,313 @@ BEGIN {
     exit readonly(text) ? 0 : 1
 }
 AWK
+# This stage is independent of the readonly/reference grammar above. Prefix syntax is
+# never a reason to refuse a reader: only a discovered destructive operation has operands.
+IFS= read -r -d '' destructive_program <<'AWK' || true
+function base(word) { sub(/^.*\//, "", word); return word }
+function member(list, word) { return index(" " list " ", " " word " ") > 0 }
+function destructive(word) { return member("rm rmdir unlink shred mv", base(word)) }
+function shell(word) { return member("sh bash dash zsh ksh ash", base(word)) }
+function reader(word) {
+    return member("echo printf grep egrep fgrep rg ag man which whereis type help cat head tail less wc ls stat file diff test [ true false jq yq sed awk cp tar unzip chmod chown", base(word))
+}
+function prefix_reader(word) { return member("git gh npm yarn dotnet docker", base(word)) }
+function emit(path) { if (path != "" && !seen[path]++) print path }
+# Expand only the documented literal prefixes; never evaluate shell text.
+function resolved(word, quoted, cwd, uncertain,    suffix, rest) {
+    if (word ~ /^\$PWD(\/|$)/) word = cwd substr(word, 5)
+    else if (word ~ /^\$\{PWD\}(\/|$)/) word = cwd substr(word, 7)
+    else if (word ~ /^\$HOME(\/|$)/) word = ENVIRON["HOME"] substr(word, 6)
+    else if (word ~ /^\$\{HOME\}(\/|$)/) word = ENVIRON["HOME"] substr(word, 8)
+    else if (!quoted && word ~ /^~(\/|$)/) word = ENVIRON["HOME"] substr(word, 2)
+    if (word ~ /[$`]/) {
+        # A variable prefix with a literal suffix is not evidence of a root operand.
+        rest = word
+        if (rest ~ /^\$\{[A-Za-z_][A-Za-z0-9_]*\}\//) sub(/^\$\{[A-Za-z_][A-Za-z0-9_]*\}\//, "", rest)
+        else if (rest ~ /^\$[A-Za-z_][A-Za-z0-9_]*\//) sub(/^\$[A-Za-z_][A-Za-z0-9_]*\//, "", rest)
+        else return "!"
+        if (rest == "" || rest ~ /[$`]/) return "!"
+        word = rest
+    }
+    if (word ~ /^\//) return word
+    if (uncertain) return "!"
+    return cwd "/" word
+}
+function operand(word, quoted, cwd, uncertain) {
+    if (word != "" && word != "{}") emit(resolved(word, quoted, cwd, uncertain))
+}
+# Return a substitution body without executing it. Its end offset is returned separately.
+function substitution(text, start, tick,    i, c, quote, nesting, body) {
+    nesting = 1; quote = ""
+    for (i = start; i <= length(text); i++) {
+        c = substr(text, i, 1)
+        if (c == "\\") { body = body c substr(text, ++i, 1); continue }
+        if (tick) { if (c == "`") break }
+        else {
+            if (quote != "") { if (c == quote) quote = "" }
+            else if (c == "\047" || c == "\"") quote = c
+            else if (c == "(") nesting++
+            else if (c == ")" && !--nesting) break
+        }
+        body = body c
+    }
+    sub_end = i
+    return body
+}
+function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k) {
+    n = 0; quote = ""; word = ""; active = 0; quoted = 0
+    for (i = 1; i <= length(text); i++) {
+        c = substr(text, i, 1); nextc = substr(text, i + 1, 1)
+        if (quote != "\047" && (c == "`" || (c == "$" && nextc == "("))) {
+            body = substitution(text, i + (c == "`" ? 1 : 2), c == "`")
+            B[d, n + 1, ++BC[d, n + 1]] = body
+            i = sub_end; word = word "$__sub"; active = 1; continue
+        }
+        if (quote != "") {
+            if (c == quote) { quote = ""; continue }
+            if (c == "\\" && quote != "\047" && nextc ~ /[$`"\\]/) c = substr(text, ++i, 1)
+            word = word c; continue
+        }
+        if (c == "\047" || c == "\"" || (c == "$" && nextc == "\047")) {
+            if (c == "$") c = substr(text, ++i, 1)
+            quote = c; quoted = 1; active = 1; continue
+        }
+        if (c == "\\") { word = word substr(text, ++i, 1); active = 1; continue }
+        # Parameter expansion braces and find placeholders are words, not groups.
+        if (c == "$" && nextc == "{") {
+            k = i + 2
+            while (k <= length(text) && substr(text, k, 1) != "}") k++
+            word = word substr(text, i, k - i + 1); i = k; active = 1; continue
+        }
+        if (c == "{" && nextc == "}") { word = word "{}"; i++; active = 1; continue }
+        if (c ~ /[ \t\r\n;&|(){}<>]/) {
+            if (active) { W[d, ++n] = word; Q[d, n] = quoted; K[d, n] = "word"; word = ""; active = quoted = 0 }
+            if (c ~ /[ \t\r]/) continue
+            if (c == ">" || (c == "&" && nextc == ">")) {
+                if (c == "&") { i++; nextc = substr(text, i + 1, 1) }
+                if (nextc == ">") { i++; c = ">>" }
+                else { if (nextc == "|") i++; c = ">" }
+            } else if ((c == "&" || c == "|") && nextc == c) { i++; c = c c }
+            W[d, ++n] = c; K[d, n] = c
+            continue
+        }
+        word = word c; active = 1
+    }
+    if (active) { W[d, ++n] = word; Q[d, n] = quoted; K[d, n] = "word" }
+    return n
+}
+function uncertain_prefix(d, start, verb,    i, w) {
+    if (member("chroot nsenter", base(W[d, start]))) return 1
+    for (i = start; i < verb; i++) {
+        w = W[d, i]
+        if (w ~ /^(-C|-D|-R|--chdir|--chroot|--directory)(=|$)/) return 1
+    }
+    return 0
+}
+function removal(d, verb, end, cwd, uncertain, findpaths,    i, w, count, options, target, j, sources) {
+    count = 0; options = 1; target = 0; sources = 0
+    for (i = verb + 1; i <= end; i++) {
+        w = W[d, i]
+        if (w == ";" || w == "+" || w == "<" || K[d, i] == ">" || K[d, i] == ">>") break
+        if (options && w == "--") { options = 0; continue }
+        if (options && base(W[d, verb]) == "mv") {
+            if (w == "-t" || w == "--target-directory") { target = 1; i++; continue }
+            if (w ~ /^--target-directory=/ || w ~ /^-t./) { target = 1; continue }
+        }
+        if (options && w ~ /^-/) continue
+        O[d, ++count] = w; OQ[d, count] = Q[d, i]
+    }
+    if (base(W[d, verb]) == "mv" && !target) count--
+    for (j = 1; j <= count; j++) {
+        w = O[d, j]
+        if (w == "{}") {
+            if (findpaths != "") emit(findpaths)
+            else emit("!")
+        } else operand(w, OQ[d, j], cwd, uncertain)
+        sources++
+    }
+    if (!sources) {
+        for (j = 1; j < verb; j++) if (base(W[d, j]) == "xargs") { emit("!"); break }
+    }
+}
+function git_clean(d, verb, end, cwd, uncertain, findpaths, depth,    i, w, subcommand, unknown, dry, paths, skip, alias, name, call, script) {
+    unknown = 0; subcommand = 0; call = ++git_call
+    for (i = verb + 1; i <= end; i++) {
+        w = W[d, i]
+        if (w == "-C") {
+            cwd = resolved(W[d, ++i], Q[d, i], cwd, uncertain)
+            if (cwd == "!") uncertain = 1
+        } else if (w == "-c") {
+            alias = W[d, ++i]
+            if (alias ~ /^alias\.[^=]+=/) {
+                name = alias; sub(/^alias\./, "", name); sub(/=.*/, "", name)
+                sub(/^[^=]*=/, "", alias); A[call, name] = alias
+            }
+        } else if (w ~ /^(--git-dir|--work-tree|--namespace|--exec-path)$/) i++
+        else if (w ~ /^(--git-dir|--work-tree|--namespace|--exec-path)=/) continue
+        else if (w ~ /^-/) { if (!member("-P -p --no-pager --paginate --bare --literal-pathspecs", w)) unknown = 1 }
+        else { subcommand = i; break }
+    }
+    if (!subcommand) return
+    if (A[call, W[d, subcommand]] != "") {
+        script = A[call, W[d, subcommand]]
+        if (substr(script, 1, 1) == "!") script = substr(script, 2)
+        else script = "git " script
+        for (i = subcommand + 1; i <= end; i++) script = script " " quote_path(W[d, i])
+        parse(script, cwd, uncertain, depth + 1)
+        return
+    }
+    if (W[d, subcommand] != "clean") {
+        if (!unknown) return
+        while (++subcommand <= end && W[d, subcommand] != "clean") {}
+        if (subcommand > end) return
+    }
+    dry = 0; paths = 0; skip = 0
+    for (i = subcommand + 1; i <= end; i++) {
+        w = W[d, i]
+        if (!skip && w == "--") { skip = 1; continue }
+        if (!skip && (w == "-e" || w == "--exclude")) { i++; continue }
+        if (!skip && (w == "--dry-run" || w ~ /^-[^-]*n/)) dry = 1
+    }
+    if (dry) return
+    skip = 0
+    for (i = subcommand + 1; i <= end; i++) {
+        w = W[d, i]
+        if (!skip && w == "--") { skip = 1; continue }
+        if (!skip && (w == "-e" || w == "--exclude")) { i++; continue }
+        if (!skip && w ~ /^-/) continue
+        paths++
+        if (w ~ /^:\// || w ~ /^:\(top/) emit(ENVIRON["GSW_ROOT"])
+        else if (w ~ /^:\(/) emit("!")
+        else if (w == "{}" && findpaths != "") emit(findpaths)
+        else operand(w, Q[d, i], cwd, uncertain)
+    }
+    if (!paths) operand(".", 0, cwd, uncertain)
+}
+function find_command(d, verb, end, cwd, uncertain, depth,    i, j, start, paths, w, action, have, deleted, p) {
+    paths = ""; have = 0; deleted = 0
+    for (i = verb + 1; i <= end; i++) {
+        w = W[d, i]
+        if (member("-H -L -P", w)) continue
+        if (w ~ /^-/ || w == "!" || w == "(") break
+        p = resolved(w, Q[d, i], cwd, uncertain)
+        FP[depth, ++have] = p
+    }
+    if (!have) FP[depth, ++have] = resolved(".", 0, cwd, uncertain)
+    for (j = 1; j <= have; j++) paths = paths (j == 1 ? "" : "\n") FP[depth, j]
+    for (; i <= end; i++) {
+        w = W[d, i]
+        if (w == "-delete") deleted = 1
+        if (member("-exec -execdir -ok -okdir", w)) {
+            start = i + 1
+            while (++i <= end && W[d, i] != ";" && W[d, i] != "+") {}
+            segment(d, start, i - 1, cwd, uncertain, depth, paths)
+        }
+    }
+    if (deleted) for (j = 1; j <= have; j++) emit(FP[depth, j])
+}
+function segment(d, start, end, cwd, uncertain, depth, findpaths,    head, i, j, k, w, script, context, n, tail) {
+    if (start > end) return
+    head = start
+    while (head <= end && W[d, head] ~ /^[A-Za-z_][A-Za-z0-9_]*=/) head++
+    # Substitutions execute even in a reader's arguments; quoted script data does not.
+    for (i = start; i <= end; i++) {
+        for (k = 1; k <= BC[d, i]; k++) parse(B[d, i, k], cwd, uncertain, depth + 1)
+        if (K[d, i] == ">" && i < end && W[d, i + 1] !~ /[$`]/ && W[d, i + 1] != "/dev/null") operand(W[d, i + 1], Q[d, i + 1], cwd, uncertain)
+    }
+    if (reader(W[d, head])) return
+    for (i = head; i <= end; i++) {
+        w = base(W[d, i])
+        # Git/other tool arguments are data; git itself still gets its clean rule.
+        if (prefix_reader(W[d, head]) && i != head) break
+        context = uncertain || uncertain_prefix(d, head, i)
+        if (reader(w)) break
+        if (w == "git") { git_clean(d, i, end, cwd, context, findpaths, depth); break }
+        if (prefix_reader(w)) break
+        if (w == "find") { find_command(d, i, end, cwd, context, depth + 1); break }
+        if (destructive(w)) { removal(d, i, end, cwd, context, findpaths); break }
+        if (w == "eval") {
+            script = ""
+            for (j = i + 1; j <= end; j++) script = script (j == i + 1 ? "" : " ") W[d, j]
+            parse(script, cwd, context, depth + 1); break
+        }
+        if (shell(w)) {
+            for (j = i + 1; j <= end; j++) if (W[d, j] ~ /^-[A-Za-z]*c[A-Za-z]*$/) {
+                for (k = j + 1; k <= end; k++) {
+                    if (W[d, k] == "--") { k++; break }
+                    if (W[d, k] == "-o" || W[d, k] == "+o") { k++; continue }
+                    if (W[d, k] !~ /^[-+]/) break
+                }
+                if (k <= end) parse(W[d, k], cwd, context, depth + 1)
+                return
+            }
+            return
+        }
+    }
+}
+function parse(text, cwd, uncertain, depth,    n, i, start, kind, level, head, path, old, j) {
+    if (depth > 4) {
+        if (text ~ /(^|[ \t;|&])(rm|rmdir|unlink|shred|mv)([ \t]|$)/ || text ~ /git[ \t]+clean|find.*-delete/) emit("!")
+        return
+    }
+    # A depth slot may be reused by several script words.
+    for (i = 1; i <= N[depth]; i++) { delete W[depth, i]; delete Q[depth, i]; delete K[depth, i]; BC[depth, i] = 0 }
+    n = lex(text, depth); N[depth] = n; start = 1; level = 0
+    for (i = 1; i <= n + 1; i++) {
+        kind = K[depth, i]
+        if (i <= n && kind != ";" && kind != "\n" && kind != "&" && kind != "&&" && kind != "|" && kind != "||" && kind != "(" && kind != ")" && kind != "{" && kind != "}") continue
+        segment(depth, start, i - 1, cwd, uncertain, depth, "")
+        head = start
+        while (head < i && W[depth, head] ~ /^[A-Za-z_][A-Za-z0-9_]*=/) head++
+        if (kind != "|" && member("cd pushd popd", W[depth, head])) {
+            path = W[depth, head + 1]
+            if (path == "--") path = W[depth, head + 2]
+            if (W[depth, head] == "popd" || path == "" || path == "-") uncertain = 1
+            else {
+                if (path ~ /[$`]/ && path !~ /^\$(PWD|HOME)(\/|$)/ && path !~ /^\$\{(PWD|HOME)\}(\/|$)/) old = "!"
+                else old = resolved(path, Q[depth, head + 1], cwd, uncertain)
+                if (old == "!") uncertain = 1
+                else { cwd = old; uncertain = 0 }
+            }
+        }
+        if (kind == "(") { CWD[depth, ++level] = cwd; UNC[depth, level] = uncertain }
+        if (kind == ")" && level > 0) { cwd = CWD[depth, level]; uncertain = UNC[depth, level--] }
+        start = i + 1
+    }
+}
+function quote_path(path,    q) { q = "\047"; gsub(/\047/, "\047\\\047\047", path); return q path q }
+BEGIN { parse(ENVIRON["GSW_COMMAND"], ENVIRON["GSW_CWD"], 0, 0) }
+AWK
+classifier="$script_directory/cratis-guard-writes.sh"
+repository_root="$cwd"
+while [ ! -e "$repository_root/.git" ]; do
+    if [ "$repository_root" = / ]; then repository_root=''; break; fi
+    repository_root="${repository_root%/*}"
+    [ -n "$repository_root" ] || repository_root=/
+done
+destructive_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_ROOT="$repository_root" LC_ALL=C awk "$destructive_program" </dev/null)" || parser_failed
+if [ -n "$destructive_text" ]; then
+    destructive_candidates=()
+    while IFS= read -r candidate; do
+        if [ "$candidate" = '!' ]; then
+            printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: a destructive command targets an operand that could not be resolved; use explicit paths or report the intended change.' >&2
+            exit 2
+        fi
+        destructive_candidates[${#destructive_candidates[@]}]="$candidate"
+    done <<<"$destructive_text"
+    destructive_input="$(jq -nc --arg cwd "$cwd" --args '{cwd:$cwd,tool_input:{file_paths:$ARGS.positional}}' -- "${destructive_candidates[@]}")" || parser_failed
+    destructive_references="$("$BASH" "$classifier" --destructive-references <<<"$destructive_input")" || {
+        printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: could not check references (write guard failed).' >&2
+        exit 2
+    }
+    if [ -n "$destructive_references" ]; then
+        destructive_reference="${destructive_references%%$'\n'*}"
+        destructive_reference="${destructive_reference#"$cwd"/}"
+        destructive_reference="${destructive_reference#./}"
+        printf "BLOCKED by cratis-guard-shell-writes: protected reference '%s' (cratis-guard-writes). Use the edit/write tools, or report the intended change; for a read, name literal paths or use the Read/Grep tools.\n" "$destructive_reference" >&2
+        exit 2
+    fi
+fi
 glob_shell_safe=1
 if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]]; then glob_shell_safe=0; fi
 candidates_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_MODE=targets LC_ALL=C awk "$program" </dev/null)" || parser_failed

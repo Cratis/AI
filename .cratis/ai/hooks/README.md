@@ -66,7 +66,14 @@ is admitted after a `cd`, and writes to those files stay refused. The working di
 copy runs. A write-target word with expansion syntax (`$`, backtick, `~`, parentheses or braces) is judged by every
 suffix that follows a slash in it (`$PWD/.cratis/x` and `~+/.cratis/x` are treated as `.cratis/x` in the working
 directory), without parsing the expansion, and refused if a suffix is protected, which includes a read of a protected path through a variable. This is a
-best-effort lexical check, not enforcement: a variable holding the whole path still passes.
+best-effort lexical check, not enforcement: a variable holding the whole path still passes for ordinary commands.
+A separate destructive-operand scan refuses removal, move sources, `find -delete` and `git clean` operands
+that reach protected controls or their ancestors, even through unfamiliar wrappers. Literal cwd changes
+are resolved: `cd node_modules && rm -rf .` is allowed when that directory contains no controls; an
+uncertain cwd or unresolved destructive operand is refused. Safe literal operands under unknown wrappers
+remain allowed, and non-destructive commands are not refused by this additional scan. It does not execute
+command text and is not a sandbox: expansion-produced verbs (`r=rm; $r -rf .`) remain a known limitation.
+Run `cratis ai update` to receive this protection.
 
 Git reflog selectors with unprotected prefixes (`stash@{0}`, `HEAD@{1}`, `branch@{upstream}`) are revisions, not paths.
 
