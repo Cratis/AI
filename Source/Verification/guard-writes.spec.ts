@@ -13,7 +13,7 @@
 
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, relative, resolve } from 'node:path';
 import test from 'node:test';
@@ -23,6 +23,7 @@ import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const guard = join(repositoryRoot, '.cratis', 'ai', 'hooks', 'scripts', 'cratis-guard-writes.sh');
+const shellGuard = join(repositoryRoot, '.cratis', 'ai', 'hooks', 'scripts', 'cratis-guard-shell-writes.sh');
 
 const BLOCK = 'block';
 const ALLOW = 'allow';
@@ -43,9 +44,9 @@ function runGuard(payload: object, cwd: string, env: NodeJS.ProcessEnv = {}): { 
 }
 
 /** Same contract as runGuard without blocking the event loop, so independent cases can overlap their process spawns. */
-function runGuardAsync(payload: object, cwd: string, env: NodeJS.ProcessEnv = {}): Promise<{ verdict: string; stdout: string; stderr: string }> {
+function runGuardAsync(payload: object, cwd: string, env: NodeJS.ProcessEnv = {}, script = guard): Promise<{ verdict: string; stdout: string; stderr: string }> {
     return new Promise((resolveRun, reject) => {
-        const child = spawn('bash', [guard], { cwd, env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0', ...env } });
+        const child = spawn('bash', [script], { cwd, env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0', ...env } });
         let stdout = '';
         let stderr = '';
         child.stdout.setEncoding('utf8').on('data', chunk => { stdout += chunk; });
@@ -80,6 +81,24 @@ function scratchRepository(origin?: string): { root: string; generated: string; 
     const manifest = join(root, 'Directory.Packages.props');
     writeFileSync(manifest, '<Project />\n');
     return { root, generated, mention, manifest, dispose: () => rmSync(root, { recursive: true, force: true }) };
+}
+
+function writeAuthoringLayout(root: string): string[] {
+    const files: Record<string, string> = {
+        'Cratis.AI.slnx': '<Solution />\n',
+        'Source/Pi.Plugin/package.json': JSON.stringify({ name: '@cratis/pi', type: 'module' }),
+        '.cratis/ai/hooks/scripts/cratis-guard-writes.sh': '# fixture\n',
+    };
+    for (const [name, content] of Object.entries(files)) {
+        mkdirSync(resolve(root, name, '..'), { recursive: true });
+        writeFileSync(join(root, name), content);
+    }
+    return Object.keys(files);
+}
+
+function commitAuthoringLayout(root: string): void {
+    assert.equal(spawnSync('git', ['-C', root, 'add', '--', ...writeAuthoringLayout(root)]).status, 0);
+    assert.equal(spawnSync('git', ['-C', root, '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--no-verify', '-qm', 'Authoring fixture']).status, 0);
 }
 
 for (const target of ['.env', 'package.json']) {
@@ -598,7 +617,7 @@ test('the Pi bridge preserves the harness-environment escape hatch even with the
         mkdirSync(join(repo.root, '.cratis'), { recursive: true });
         writeFileSync(join(repo.root, '.cratis', 'ai.json'), '{"allowDependencyManifestWrites": false}');
         writeFileSync(join(repo.root, '.cratis', 'ai.manifest.json'), '{}');
-        for (const path of [repo.manifest, repo.generated, join(repo.root, '.env'), join(repo.root, '.mcp.json'), join(repo.root, '.cratis', 'ai', 'skills', 'new', 'SKILL.md')]) {
+        for (const path of [repo.manifest, repo.generated, join(repo.root, '.env'), join(repo.root, '.mcp.json'), join(repo.root, '.cratis', 'ai.json'), join(repo.root, '.cratis', 'ai.manifest.json'), join(repo.root, '.cratis', 'ai', 'skills', 'new', 'SKILL.md')]) {
             process.env.CRATIS_HOOKS_ALLOW_PROTECTED_WRITES = '0';
             const blocked = await toolCall({ toolName: 'edit', input: { path, edits: [{ oldText: 'a', newText: 'b' }] } }, { cwd: repo.root }) as { block?: boolean } | undefined;
             assert.equal(blocked?.block ?? false, path !== repo.generated);
@@ -660,7 +679,8 @@ async function assertInstalledTrees(context: TreeProtectionContext, paths: TreeP
         for (const name of [...controls, ...controlAliases, ...managed, ...managedAliases, ...ordinary]) {
             const expected = installed
                 ? !ordinary.includes(name)
-                : controls.includes(name) || controlAliases.includes(name);
+                : controls.includes(name) || controlAliases.includes(name) || name.startsWith('.cratis/ai/')
+                    || name.startsWith('corpus-alias/') || name.startsWith('.claude/skills/shared/');
             await assertInstalledTarget(context, { name, expected, installed });
         }
     }
@@ -693,10 +713,11 @@ test('agent controls and installed trees are protected without blocking authored
     const consumer = scratchRepository('https://github.com/Consumer/App.git');
     const source = scratchRepository('git@github.com:Cratis/AI.git');
     const toolCall = piToolCall();
-    const controls = ['.claude/settings.json', '.claude/settings.local.json', '.mcp.json', '.pi/settings.json', '.pi/extensions/custom/index.ts'];
+    const controls = ['.claude/settings.json', '.claude/settings.local.json', '.mcp.json', '.pi/settings.json', '.pi/extensions/custom/index.ts', '.cratis/ai.json', '.cratis/ai.manifest.json'];
     const managed = ['.cratis/ai/hooks/settings.template.json', '.cratis/ai/skills/custom/SKILL.md', '.claude/agents/custom.md', '.pi/agents/custom.md'];
-    const ordinary = ['Source/Ordinary.cs', '.cratis/ai.json', '.claude-like/settings.json', '.pi-like/settings.json', '.mcp.json.backup', '.claude/skills/x/SKILL.md', '.claude/commands/local.md', '.claude/settings.fragments/local.json', '.pi/skills/x/SKILL.md'];
+    const ordinary = ['Source/Ordinary.cs', '.cratis/ai.json.backup', '.cratis/ai.manifest.json.backup', '.claude-like/settings.json', '.pi-like/settings.json', '.mcp.json.backup', '.claude/skills/x/SKILL.md', '.claude/commands/local.md', '.claude/settings.fragments/local.json', '.pi/skills/x/SKILL.md'];
     try {
+        commitAuthoringLayout(source.root);
         mkdirSync(join(consumer.root, '.cratis', 'ai', 'hooks'), { recursive: true });
         mkdirSync(join(consumer.root, '.claude'), { recursive: true });
         const template = join(consumer.root, '.cratis', 'ai', 'hooks', 'settings.template.json');
@@ -720,7 +741,8 @@ test('agent controls and installed trees are protected without blocking authored
         assert.equal(runGuard({ tool_input: { file_path: join(consumer.root, '.claude', 'commands', 'managed-like', 'ship.md'), content: 'x' } }, source.root).verdict, ALLOW, 'a directory prefix look-alike is not owned');
         await assertManifestVariants(context, paths);
         for (const name of [...controls, ...managed]) {
-            assert.equal(runGuard({ cwd: consumer.root, tool_input: { file_path: join(source.root, name), content: 'x' } }, consumer.root).verdict, ALLOW, `authored Cratis/AI: ${name}`);
+            const expected = ['.cratis/ai.json', '.cratis/ai.manifest.json'].includes(name) ? BLOCK : ALLOW;
+            assert.equal(runGuard({ cwd: consumer.root, tool_input: { file_path: join(source.root, name), content: 'x' } }, consumer.root).verdict, expected, `authored Cratis/AI: ${name}`);
         }
         for (const toolName of ['read', 'grep', 'bash']) {
             assert.equal(await toolCall({ toolName, input: { path: template, command: 'cratis ai update' } }, { cwd: source.root }), undefined, toolName);
@@ -729,6 +751,139 @@ test('agent controls and installed trees are protected without blocking authored
         consumer.dispose();
         source.dispose();
     }
+});
+
+async function assertShellParity(root: string, command: string, expected: string, toolCall: ReturnType<typeof piToolCall>): Promise<void> {
+    const payload = { cwd: root, tool_name: 'Bash', tool_input: { command } };
+    const result = await runGuardAsync(payload, root, {}, shellGuard);
+    assert.equal(result.verdict, expected, `${command}: ${result.stderr}`);
+    const bridged = await toolCall({ toolName: 'bash', input: { command } }, { cwd: root }) as { block?: boolean } | undefined;
+    assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${command}`);
+}
+
+test('path placeholders remain protected through shell and Pi', async () => {
+    const repo = scratchRepository();
+    const toolCall = piToolCall();
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai/hooks'), { recursive: true });
+        const commands = [
+            'echo .json | xargs -I {} rm .cratis/ai.manifest{}',
+            'echo .json | xargs -I {} rm .cratis/ai{}',
+            'echo .json | xargs -I {} rm .mcp{}',
+            'echo .sh | xargs -I {} rm .cratis/ai/hooks/guard{}',
+            'echo guard | xargs -I {} rm .cratis/ai/hooks/{}.sh',
+            'echo guard | xargs -I {} rm .cratis/ai/hooks/{}',
+            'echo .mcp | xargs -I {} rm {}.json',
+        ];
+        await forEachConcurrently(commands, command => assertShellParity(repo.root, command, BLOCK, toolCall));
+    } finally { repo.dispose(); }
+});
+
+test('consumer corpus protection survives an origin change and uncommitted authoring files', async () => {
+    const repo = scratchRepository('https://github.com/Consumer/App.git');
+    const toolCall = piToolCall();
+    const context = { consumer: repo, source: repo, toolCall };
+    const target = { name: '.cratis/ai/skills/new/SKILL.md', expected: true, installed: false };
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai/skills'), { recursive: true });
+        await assertInstalledTarget(context, target);
+        assert.equal(spawnSync('git', ['-C', repo.root, 'remote', 'set-url', 'origin', 'https://github.com/Cratis/AI.git']).status, 0);
+        await assertInstalledTarget(context, target);
+        assert.equal(spawnSync('git', ['-C', repo.root, 'add', '--', ...writeAuthoringLayout(repo.root)]).status, 0);
+        await assertInstalledTarget(context, target);
+        await assertShellParity(repo.root, 'echo x > .cratis/ai/skills/new/SKILL.md', BLOCK, toolCall);
+    } finally { repo.dispose(); }
+});
+
+test('committed authoring source stays editable independently of the origin', async () => {
+    const repo = scratchRepository('https://github.com/Consumer/App.git');
+    const toolCall = piToolCall();
+    try {
+        commitAuthoringLayout(repo.root);
+        await assertInstalledTarget({ consumer: repo, source: repo, toolCall }, {
+            name: '.cratis/ai/skills/new/SKILL.md', expected: false, installed: false,
+        });
+        await assertShellParity(repo.root, 'echo x > .cratis/ai/skills/new/SKILL.md', ALLOW, toolCall);
+    } finally { repo.dispose(); }
+});
+
+test('empty brace placeholders remain literal through reference checks, shell and Pi', async () => {
+    const repo = scratchRepository('https://github.com/Cratis/AI.git');
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai'), { recursive: true });
+        const result = spawnSync('bash', [guard, '--references'], {
+            cwd: repo.root,
+            input: JSON.stringify({ cwd: repo.root, tool_input: { file_paths: ['{}'] } }),
+            encoding: 'utf8',
+            env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+        });
+        assert.equal(result.status, 0, result.stderr);
+        assert.equal(result.stdout, '');
+        assert.equal(result.stderr, '');
+        await assertShellParity(repo.root, 'xargs -I {} echo {}', ALLOW, piToolCall());
+    } finally { repo.dispose(); }
+});
+
+for (const manifest of ['{}', 'not json', undefined]) {
+    test(`corpus policy and files stay protected through shell and Pi with manifest=${manifest}`, async () => {
+        const repo = scratchRepository('https://github.com/Consumer/App.git');
+        const toolCall = piToolCall();
+        try {
+            mkdirSync(join(repo.root, '.cratis/ai/hooks'), { recursive: true });
+            if (manifest !== undefined) writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), manifest);
+            const targets = ['.cratis/ai.manifest.json', '.cratis/ai.json', '.cratis/ai/hooks/guard.sh'];
+            const blocked = targets.flatMap(target => [
+                `rm ${target}`, `mv ${target} notes.md`, `mv notes.md ${target}`,
+                `echo x > ${target}`, `sed -i s/a/b/ ${target}`, `cp notes.md ${target}`, `echo x | tee ${target}`,
+            ]);
+            blocked.push('rm .cratis/ai.manifest.json && echo x > .cratis/ai/hooks/guard.sh');
+            const allowed = [
+                ...targets.map(target => `cat ${target}`), 'echo x > notes.md',
+                ...['init', 'update', 'restore'].map(verb => `cratis ai ${verb} --force --dry-run`),
+            ];
+            await forEachConcurrently(blocked, command => assertShellParity(repo.root, command, BLOCK, toolCall));
+            await forEachConcurrently(allowed, command => assertShellParity(repo.root, command, ALLOW, toolCall));
+        } finally { repo.dispose(); }
+    });
+}
+
+test('removing a manifest leaves the corpus protected identically through shell and Pi', async () => {
+    const repo = scratchRepository();
+    const toolCall = piToolCall();
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai/skills'), { recursive: true });
+        const manifest = join(repo.root, '.cratis/ai.manifest.json');
+        writeFileSync(manifest, '{}');
+        await assertShellParity(repo.root, 'rm .cratis/ai.manifest.json', BLOCK, toolCall);
+        rmSync(manifest);
+        await assertInstalledTarget({ consumer: repo, source: repo, toolCall }, {
+            name: '.cratis/ai/skills/new/SKILL.md', expected: true, installed: false,
+        });
+        await assertShellParity(repo.root, 'echo x > .cratis/ai/skills/new/SKILL.md', BLOCK, toolCall);
+    } finally { repo.dispose(); }
+});
+
+test('manifest edits cannot authorize an unlisted integration repair through shell or Pi', async () => {
+    const repo = scratchRepository();
+    const toolCall = piToolCall();
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai/prompts'), { recursive: true });
+        mkdirSync(join(repo.root, '.pi'));
+        const manifest = join(repo.root, '.cratis/ai.manifest.json');
+        const original = JSON.stringify({ Integrations: [{ Path: '.pi/prompts', Target: '../.cratis/ai/prompts', IsDirectory: true }] });
+        const proposed = JSON.stringify({ Integrations: [{ Path: '.pi/unlisted', Target: '../.cratis/ai/prompts', IsDirectory: true }] });
+        writeFileSync(manifest, original);
+        for (const toolName of ['write', 'edit']) {
+            const result = await runGuardAsync({ cwd: repo.root, tool_input: { file_path: manifest, content: proposed, new_string: proposed } }, repo.root);
+            assert.equal(result.verdict, BLOCK, result.stderr);
+            const bridged = await toolCall({ toolName, input: { path: manifest, content: proposed, edits: [{ oldText: original, newText: proposed }] } }, { cwd: repo.root }) as { block?: boolean } | undefined;
+            assert.equal(bridged?.block, true, `Pi: ${toolName}`);
+        }
+        await assertShellParity(repo.root, `echo '${proposed}' > .cratis/ai.manifest.json`, BLOCK, toolCall);
+        assert.equal(readFileSync(manifest, 'utf8'), original);
+        await assertShellParity(repo.root, 'ln -s ../.cratis/ai/prompts .pi/unlisted', BLOCK, toolCall);
+        await assertShellParity(repo.root, 'ln -s ../.cratis/ai/prompts .pi/prompts', ALLOW, toolCall);
+    } finally { repo.dispose(); }
 });
 
 test('the Pi bridge classifies write-shaped calls through the guard and never blocks a read of a protected file', async () => {

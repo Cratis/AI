@@ -282,11 +282,15 @@ Rule numbers refer to the numbered list in [`../rules/general.md`](../rules/gene
   repository's dependency-manifest policy allows them (see below)
 - `.env`, `.env.*`, `*.env` — secrets
 - Agent controls: `.claude/settings.json`, `.claude/settings.local.json`, `.mcp.json`,
-  `.pi/settings.json` and `.pi/extensions/**`
-- With `.cratis/ai.manifest.json` present, the installed `.cratis/ai/**`, `.claude/**` and `.pi/**`
-  trees. Both addressed paths and symlink destinations are checked, including the Claude settings
-  link to the hook template. The uninstalled Cratis/AI source repository is exempt from this
-  agent-control category so its authored corpus and harness adapters remain editable.
+  `.pi/settings.json`, `.pi/extensions/**`, `.cratis/ai.manifest.json` and `.cratis/ai.json`
+- The installed `.cratis/ai/**` corpus, including when its manifest is missing or unreadable.
+  Adapter paths in `.claude/**` and `.pi/**` are protected according to the manifest's
+  `Integrations` entries. Both addressed paths and symlink destinations are checked, including
+  the Claude settings link to the hook template. Without an installation manifest, authored
+  corpus and harness adapters remain editable only when Git `HEAD` records the authoring layout:
+  `Cratis.AI.slnx`, the guard source and the `@cratis/pi` package in `Source/Pi.Plugin`. Changing a
+  remote URL or adding uncommitted files does not establish this source-repository exception.
+  The two policy JSON files remain protected in the source repository.
 
 For agent controls, report the intended change rather than rewriting permissions or hooks.
 A person edits settings; `cratis ai update` replaces managed files using the CLI's filesystem
