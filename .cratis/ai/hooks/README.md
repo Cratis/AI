@@ -71,7 +71,45 @@ is admitted after a `cd`, and writes to those files stay refused. The working di
 copy runs. A write-target word with expansion syntax (`$`, backtick, `~`, parentheses or braces) is judged by every
 suffix that follows a slash in it (`$PWD/.cratis/x` and `~+/.cratis/x` are treated as `.cratis/x` in the working
 directory), without parsing the expansion, and refused if a suffix is protected, which includes a read of a protected path through a variable. This is a
-best-effort lexical check, not enforcement: a variable holding the whole path still passes.
+best-effort lexical check, not enforcement: a variable holding the whole path still passes for ordinary commands.
+A separate destructive-operand scan refuses removal, move sources, `find -delete` and `git clean` operands
+that reach protected controls or their ancestors. Literal cwd changes are resolved:
+`cd node_modules && rm -rf .` is allowed when that directory contains no controls; an uncertain cwd or
+unresolved destructive operand is refused only after a destructive operation is identified.
+
+Command positions are exposed only by assignments and these established execution prefixes:
+`sudo`, `doas`, `env`, `command`, `builtin`, `exec`, `nohup`, `nice`, `ionice`, `timeout`, `time`,
+`stdbuf`, `xargs`, `setsid`, `chroot`, `nsenter`, and `busybox`. The scan also handles `eval`, literal
+`sh`/`bash`/`dash`/`zsh`/`ksh`/`ash` scripts (`-c`, including option arguments), `find` actions
+(`-exec`, `-execdir`, `-ok`, `-okdir`, `-delete`), and Git global options before `clean` (including
+value-taking `--attr-source`, `--config-env`, and legacy `--super-prefix`). `env -S`/`--split-string`
+values are split into argv (whitespace, quotes and supported escapes), never parsed as shell source;
+argument punctuation remains data. Unsupported split-string shapes use the uncertainty rule below.
+Every wrapper uses the same argv dispatch, retaining the original command's redirections, heredoc
+bodies and inherited pipeline input through nested prefixes and split strings. Destructive `xargs`
+executions have unresolved stdin operands even with replacement strings or safe literal operands.
+Literal shell stdin from here-strings, heredocs, and `echo`, simple `printf`, or `cat` pipelines is
+inspected, including shells selecting `-`, `/dev/stdin`, `/dev/fd/0`, or `/proc/self/fd/0`. Input
+redirections are applied in order: fd-0 aliases retain inherited data, `/dev/null` or other opaque
+files replace it, and nonzero input descriptors do not replace stdin. Arbitrary file contents are not read.
+Only stdout that still feeds the pipeline is propagated; `|&` is a pipe operator with a conservative
+merged-descriptor route. Effective non-interactive `-n`/`-o noexec` scripts are not executed. Calling-shell substitutions are still inspected, including for syntax-only
+shells. Ordinary reader data, comments, and properly terminated non-executed heredoc bodies remain data.
+Arithmetic shifts are not heredoc redirections. Unquoted heredoc substitutions are checked accordingly.
+
+An unclassified execution boundary uses one uncertainty rule: refuse when its remaining executable text
+contains destructive-verb, Git-clean, or find-delete evidence; otherwise allow. This includes nesting
+beyond four recursive script levels, unterminated or ambiguous heredocs/arithmetic, and unknown option
+value shapes. Known heredoc bodies are removed from the depth fallback unless selected as shell stdin.
+
+This guard is cooperative, not a sandbox. Arbitrary wrappers, script files, interpreter programs, and
+unknown-program arguments are not inspected; for example, `unknown-program rm -rf .` is allowed.
+Expansion-produced verbs (`r=rm; $r -rf .`), dynamic stdin scripts,
+filesystem changes earlier in the command (including newly created symlinks), and `CDPATH`
+effects remain limitations. Tools outside the destructive verb set (such as `rsync --delete`,
+`tar --remove-files`, `zip -m`, and interpreter one-liners) are not covered. No command text is executed
+by the guard. The separate existing reference/readonly and secrets checks still apply.
+Run `cratis ai update` to receive this protection.
 
 Git reflog selectors with unprotected prefixes (`stash@{0}`, `HEAD@{1}`, `branch@{upstream}`) are revisions, not paths.
 
