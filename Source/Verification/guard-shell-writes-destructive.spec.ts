@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, relative, resolve } from 'node:path';
@@ -51,7 +51,7 @@ add('block', [
     'sudo -D / rm -rf tmp', 'sudo -R / rm -rf tmp', 'sudo --chdir=/ rm -rf tmp', 'sudo --chroot / rm -rf tmp', 'env --chdir=/ rm -rf tmp',
     'git -C . clean -fdx', 'git -C ../.. clean -fdx', 'git -c a.b=c clean -fdx', 'git -c alias.c=clean c -fdx',
     'git --git-dir=.git clean -fdx', 'git --git-dir .git clean -fdx', 'git --work-tree=. clean -fdx', 'git --work-tree . clean -fdx',
-    'git -P -C . clean -fdx', 'git -C Source -C ../. clean -fdx', 'git --unknown-opt value clean -fdx',
+    'git -P -C . clean -fdx', 'git -C Source -C ../. clean -fdx',
     'git clean -fdx :/', "git clean -fdx ':(top)'", "git clean -fdx ':(top)Source/Foo/bin'", "git clean -fdx ':(glob)*'", "git clean -fdx ':(literal)node_modules'",
     'git clean -ffdx', 'git clean -fdx --exclude node_modules', 'git clean -fdx -- .cratis',
     'popd && rm -rf .', '(cd Source; ls); rm -rf .', 'cd "$DIR" && rm -rf .', 'cd - && rm -rf .', 'cd $(pwd) && rm -rf .',
@@ -79,6 +79,62 @@ add('allow', [
     // Known limitation: expansion-produced verbs are not recognized; this is not a sandbox.
     'r=rm; $r -rf .',
 ], 'base allows and R1/R2/R3 non-destructive regressions');
+// R1 B2: option values containing n are not dry-run flags.
+add('block', ['git clean -fdx -enode_modules', 'git clean -fdxe -n', 'git clean -fdxenode_modules', 'git clean -fdxe --dry-run'], 'exclude consumes its attached or next value');
+add('allow', ['git clean -fdxn -enode_modules', 'git clean -fdxne node_modules', 'git clean -fdx -e node_modules -n'], 'genuine dry-run before/after excludes');
+// R1 B3: tilde expansion applies only to unquoted operands, including cwd transitions.
+add('block', ['rm -rf ~+', 'rm -rf ~+/', 'rm -rf ~+"/"', 'rm -rf ~-', 'rm -rf ~-/', 'rm -rf ~operator', 'cd ~+ && rm -rf .cratis/..', 'cd ~- && rm -rf .'], 'tilde cwd or unresolved home');
+add('allow', ["rm -rf '~+'", "rm -rf '~-/'", 'rm -rf \\~+', 'rm -rf ~+/node_modules', 'cd ~+ && rm -rf node_modules', 'cd ~- && dotnet build .'], 'quoted tilde and safe/non-destructive targets');
+// R1 B6/B7/B11 and A1/A4: only established prefixes expose command positions.
+add('allow', [
+    'du -sh /bin/rm .', 'realpath /bin/rm .', './scripts/cli.sh rm "$id"', 'node build.js mv "$a" b',
+    'node tool.js rm .', 'pnpm rm "$pkg"', 'podman rm -f $(podman ps -aq)', 'unknown-program rm -rf .',
+    'ssh host rm -rf .', 'kubectl exec pod -- rm -rf /', 'sudo node tool.js rm .',
+    'git --no-optional-locks log --grep clean', 'git --no-optional-locks log', 'git --unknown-opt value clean -fdx',
+], 'unknown program arguments and established non-clean git subcommands are data');
+add('block', ['sudo rm -rf .', 'busybox rm -rf .', 'git --no-optional-locks clean -fdx', 'unknown-program "$(rm -rf .)"'], 'known execution prefixes and calling-shell substitutions still execute');
+// R1 B8: every destructive xargs execution has unresolved stdin operands, regardless of literals.
+add('block', [
+    'echo . | xargs -I X rm -rf X', 'echo . | xargs -I% rm -rf %', 'echo . | xargs -IQ rm -rf Q',
+    'echo . | xargs --replace=Z rm -rf Z', 'find . -maxdepth 0 | xargs -I@ rm -rf @', 'xargs -J % rm -rf % <<< .',
+    "printf '. ' | xargs rm -rf node_modules", 'xargs -I X sudo rm -rf X', 'xargs sh -c "rm -rf node_modules"',
+    'xargs git clean -fdx -- node_modules', 'xargs find node_modules -delete',
+], 'xargs replacements and appended stdin targets are never safe literals');
+add('allow', ['echo . | xargs -I X echo rm -rf X', 'xargs echo rm -rf .', 'xargs git clean -ndx', 'xargs unknown-program rm .'], 'xargs without discovered destruction stays lenient');
+// R1 B9: shell options consume values without confusing them with the script.
+// The extra combined -cO spelling is already refused by Pi's independent secrets guard.
+for (const flags of ['-c -O extglob', '-c +O extglob', '-c +o pipefail', '--noprofile -c -O extglob']) {
+    add('block', [`bash ${flags} 'rm -rf .'`], 'shell option argument before actual script');
+    add('allow', [`bash ${flags} 'echo rm -rf .'`, `bash ${flags} 'rm -rf node_modules'`], 'shell option argument does not turn data into a command');
+}
+// R1 B1/B5/B11: comments and heredoc bodies are data, not top-level commands.
+add('allow', [
+    '# rm -rf .\ngit status', '# rm -rf .\nls', 'echo ready # rm -rf .',
+    "cat > cleanup.sh <<'EOF'\n#!/bin/sh\nrm -rf \"$BUILD_DIR\"\nEOF",
+    'cat > README.md <<EOF\nUse it like this: mv "$src" dest\nEOF',
+    `git commit -m "$(cat <<'EOF'\nFix rm -rf . handling\nEOF\n)"`,
+    "git commit -F - <<'EOF'\nrm -rf .\nEOF",
+    `gh pr create --body "$(cat <<'EOF'\nFix rm -rf . handling\nEOF\n)"`,
+    "cat > notes.md <<'EOF'\nWe do not mv . anywhere\nEOF", 'cat <<EOF\nmv . x\nEOF',
+    "cat <<'EOF'\n$(rm -rf .)\nEOF", "cat <<\\EOF\n$(rm -rf .)\nEOF",
+    "cat <<-'EOF'\n\trm -rf .\n\tEOF", "cat <<A <<'B'\nrm -rf .\nA\nrm -rf .\nB",
+    "cat <<EOF\n$(echo 'rm -rf .')\nEOF", `echo "$(cat <<'EOF'\n) rm -rf .\nEOF\n)"`,
+], 'quoted/unquoted heredoc data, comments and delimiters inside substitutions');
+add('block', ['# harmless comment\nrm -rf .', 'cat <<EOF\n$(rm -rf .)\nEOF'], 'actual commands and unquoted heredoc substitutions still execute');
+// R1 B4/B10: literal shell stdin is executable only when a shell consumes it.
+add('block', [
+    `bash <<< 'rm -rf .'`, `echo 'rm -rf .' | bash`, `echo 'rm -rf .' | sh -s`,
+    `printf '%s\\n' 'rm -rf .' | bash`, `cat <<< 'rm -rf .' | sh`,
+    "bash -s <<'EOF'\nrm -rf .\nEOF", "cat <<'EOF' | bash\nrm -rf .\nEOF",
+    'bash <<A <<B\necho ready\nA\nrm -rf .\nB',
+], 'literal here-strings, heredocs and reader-to-shell pipelines');
+add('allow', [
+    `cat <<< 'rm -rf .'`, `echo 'rm -rf .' | cat`, `printf '%s\\n' 'rm -rf .' | cat`,
+    `bash <<< 'echo rm -rf .'`, `echo 'rm -rf node_modules' | sh -s`,
+    `bash script.sh <<< 'rm -rf .'`, `echo 'rm -rf .' | bash script.sh`,
+    `echo 'rm -rf .' | cat README.md | bash`, 'bash script.sh',
+    "cat <<'EOF' | bash\necho rm -rf .\nEOF",
+], 'reader data and opaque script files are not executed as shell stdin');
 add('block', ['git clean -fdx :/', "git clean -fdx ':(top)'", 'nice git clean -fdx :/', 'rm -rf ../..'], 'subdirectory ancestor', 'sub');
 add('allow', ['rm -rf .'], 'unprotected subdirectory', 'sub');
 
@@ -91,21 +147,34 @@ function scratchRepository() {
     symlinkSync('.cratis', join(root, 'control-link'));
     return root;
 }
-function shellVerdict(command: string, cwd: string, override = '0') {
-    const result = spawnSync('/bin/bash', [guard], {
-        cwd, input: JSON.stringify({ cwd, tool_name: 'Bash', tool_input: { command } }), encoding: 'utf8',
-        env: { ...process.env, HOME: tmpdir(), CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: override },
+function shellVerdict(command: string, cwd: string, override = '0', signal?: AbortSignal): Promise<{ status: number | null; stderr: string }> {
+    return new Promise((resolve, reject) => {
+        const child = spawn('/bin/bash', [guard], {
+            cwd, signal, timeout: 20000,
+            env: { ...process.env, HOME: tmpdir(), CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: override },
+        });
+        let stderr = '';
+        let stdout = '';
+        child.stderr.setEncoding('utf8').on('data', chunk => { stderr += chunk; });
+        child.stdout.setEncoding('utf8').on('data', chunk => { stdout += chunk; });
+        child.on('error', reject);
+        child.on('close', status => {
+            try {
+                assert.ok(status === 0 || status === 2, stderr);
+                assert.equal(stdout, '', command);
+                resolve({ status, stderr });
+            } catch (error) { reject(error); }
+        });
+        child.stdin.on('error', reject);
+        child.stdin.end(JSON.stringify({ cwd, tool_name: 'Bash', tool_input: { command } }));
     });
-    assert.ok(result.status === 0 || result.status === 2, result.stderr);
-    assert.equal(result.stdout, '', command);
-    return result;
 }
 function restoreVariable(name: string, value: string | undefined) {
     if (value === undefined) delete process.env[name];
     else process.env[name] = value;
 }
 
-test('destructive operands protect controls without executing any command (direct and Pi)', async context => {
+test('destructive operands protect controls without executing any command (direct and Pi)', { concurrency: 2 }, async context => {
     const root = scratchRepository();
     const saved = process.env.CRATIS_HOOKS_ALLOW_PROTECTED_WRITES;
     const savedHome = process.env.HOME;
@@ -121,11 +190,11 @@ test('destructive operands protect controls without executing any command (direc
     ];
     const all = [...rows, ...dynamicRows];
     try {
-        for (const row of all) {
-            await context.test(`${row.expect} [${row.cwd}] ${row.command}`, async () => {
+        await Promise.all(all.map(row =>
+            context.test(`${row.expect} [${row.cwd}] ${row.command}`, { timeout: 60000 }, async scenario => {
                 const cwd = row.cwd === 'sub' ? join(root, 'Source/Foo') : root;
-                for (const command of [row.command, `echo ok; ${row.command}; echo ok`]) {
-                    const direct = shellVerdict(command, cwd);
+                for (const command of [row.command, `echo ok;\n${row.command}\necho ok`]) {
+                    const direct = await shellVerdict(command, cwd, '0', scenario.signal);
                     assert.equal(direct.status, row.expect === 'block' ? 2 : 0, `${row.why}: ${command}\n${direct.stderr}`);
                     const pi = await call({ toolName: 'bash', input: { command } }, { cwd }) as { block?: boolean; reason?: string } | undefined;
                     if (row.expect === 'allow') assert.equal(pi, undefined, `${command}: ${pi?.reason}`);
@@ -134,14 +203,29 @@ test('destructive operands protect controls without executing any command (direc
                         assert.match(pi?.reason ?? '', /BLOCKED by cratis-guard-shell-writes/, command);
                     }
                 }
-            });
-        }
-        assert.equal(shellVerdict('rm -rf .', root, '1').status, 0);
+            })
+        ));
+        assert.equal((await shellVerdict('rm -rf .', root, '1', context.signal)).status, 0);
         for (const file of ['.mcp.json', '.cratis/ai.manifest.json', '.cratis/ai/hooks']) assert.ok(existsSync(join(root, file)), file);
         context.diagnostic(`${all.filter(row => row.expect === 'block').length} block / ${all.filter(row => row.expect === 'allow').length} allow rows, each direct + Pi and prefixed/suffixed; commands only passed as JSON`);
     } finally {
         restoreVariable('HOME', savedHome);
         restoreVariable('CRATIS_HOOKS_ALLOW_PROTECTED_WRITES', saved);
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
+test('large command-like comment data completes without executing or recursively inspecting it', { timeout: 5000 }, async context => {
+    const root = scratchRepository();
+    try {
+        const command = `echo ready # ${'xargs -I{} sh -c "rm -rf ."; '.repeat(1024)}`;
+        const start = performance.now();
+        const verdict = await shellVerdict(command, root, '0', context.signal);
+        const elapsed = performance.now() - start;
+        assert.equal(verdict.status, 0, verdict.stderr);
+        assert.ok(elapsed < 2000, `guard took ${elapsed.toFixed(1)} ms for ${command.length} bytes`);
+        context.diagnostic(`${command.length} bytes in ${elapsed.toFixed(1)} ms; two-second wall bound includes process startup`);
+    } finally {
         rmSync(root, { recursive: true, force: true });
     }
 });

@@ -44,6 +44,11 @@ Reader glob probes skip directories only when decoded options establish a nonrec
 unknown or recursive grep options keep directory matches conservative. Simple sed print/substitution
 programs are data only without in-place edits, execution, or file writes; `-f` remains a file operand.
 GitHub API endpoints are normalized before checking sensitive paths.
+GitHub output filters (`--jq`/`-q`, `--template`/`-t`) may select response fields such as `.env`,
+but may not read the process environment through `env` or `$ENV`, including within expressions.
+Quoted strings and comments in jq filters remain data. Bundled filter flags are checked too;
+`-t` is a title or subject only for `pr`/`issue`/`release` create/edit, `pr merge`, and
+`ssh-key`/`gpg-key` add. API endpoint names never opt out of template checks.
 
 The shell-write guard classifies **write-target words**, not every word. It lexes the command into
 simple commands. When every command is a reviewed reader or staging verb (`cat`, `head`, `tail`, `wc`,
@@ -68,11 +73,27 @@ suffix that follows a slash in it (`$PWD/.cratis/x` and `~+/.cratis/x` are treat
 directory), without parsing the expansion, and refused if a suffix is protected, which includes a read of a protected path through a variable. This is a
 best-effort lexical check, not enforcement: a variable holding the whole path still passes for ordinary commands.
 A separate destructive-operand scan refuses removal, move sources, `find -delete` and `git clean` operands
-that reach protected controls or their ancestors, even through unfamiliar wrappers. Literal cwd changes
-are resolved: `cd node_modules && rm -rf .` is allowed when that directory contains no controls; an
-uncertain cwd or unresolved destructive operand is refused. Safe literal operands under unknown wrappers
-remain allowed, and non-destructive commands are not refused by this additional scan. It does not execute
-command text and is not a sandbox: expansion-produced verbs (`r=rm; $r -rf .`) remain a known limitation.
+that reach protected controls or their ancestors. Literal cwd changes are resolved:
+`cd node_modules && rm -rf .` is allowed when that directory contains no controls; an uncertain cwd or
+unresolved destructive operand is refused only after a destructive operation is identified.
+
+Command positions are exposed only by assignments and these established execution prefixes:
+`sudo`, `doas`, `env`, `command`, `builtin`, `exec`, `nohup`, `nice`, `ionice`, `timeout`, `time`,
+`stdbuf`, `xargs`, `setsid`, `chroot`, `nsenter`, and `busybox`. The scan also handles `eval`, literal
+`sh`/`bash`/`dash`/`zsh`/`ksh`/`ash` scripts (`-c`, including option arguments), `find` actions
+(`-exec`, `-execdir`, `-ok`, `-okdir`, `-delete`), and `git` options such as `-C` before `clean`.
+Destructive `xargs` executions have unresolved stdin operands even with replacement strings or safe
+literal operands. Literal shell stdin from here-strings, heredocs, and `echo`, simple `printf`, or `cat`
+pipelines is inspected; ordinary reader data, comments, and non-executed heredoc bodies are not commands.
+Unquoted heredoc substitutions are still executed by the calling shell and checked accordingly.
+
+This guard is cooperative, not a sandbox. Arbitrary wrappers, script files, interpreter programs, and
+unknown-program arguments are not inspected; for example, `unknown-program rm -rf .` is allowed.
+Expansion-produced verbs (`r=rm; $r -rf .`), dynamic stdin scripts, nesting beyond four recursive script
+levels, filesystem changes earlier in the command (including newly created symlinks), and `CDPATH`
+effects remain limitations. Tools outside the destructive verb set (such as `rsync --delete`,
+`tar --remove-files`, `zip -m`, and interpreter one-liners) are not covered. No command text is executed
+by the guard. The separate existing reference/readonly and secrets checks still apply.
 Run `cratis ai update` to receive this protection.
 
 Git reflog selectors with unprotected prefixes (`stash@{0}`, `HEAD@{1}`, `branch@{upstream}`) are revisions, not paths.
