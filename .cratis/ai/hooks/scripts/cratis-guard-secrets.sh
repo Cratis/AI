@@ -595,7 +595,18 @@ function sed_slots(A, s, n,    i, w, program, explicit, ended, scripts) {
     return scripts > 0
 }
 # Only fully modeled literal non-readers can distinguish data slots from paths.
-function nonreader(A, M, n,    i, w, first, read) {
+function gh_reader_bundle(A, i, n,    j, flag) {
+    for (j = 2; j <= length(A[i]); j++) {
+        flag = substr(A[i], j, 1)
+        if (flag ~ /^[icwd]$/) continue
+        if (flag != "q" && flag != "t") return 0
+        DATA[i] = 1
+        if (j == length(A[i])) { if (++i > n) return 0; DATA[i] = 1 }
+        return i
+    }
+    return i
+}
+function nonreader(A, M, n,    i, w, first, read, nexti) {
     delete DATA
     for (i = 1; i <= n; i++) if (expands(A[i], M[i]) || index(A[i], "`") || A[i] ~ /^</) return 0
     first = tolower(base(A[1]))
@@ -627,9 +638,11 @@ function nonreader(A, M, n,    i, w, first, read) {
     for (i = A[2] == "api" ? 3 : 4; i <= n; i++) {
         w = A[i]
         if (w ~ /^>/) { if (w == ">" || w == ">>") i++; continue }
+        if (w ~ /^--(jq|template)=/) { DATA[i] = 1; continue }
         if (w ~ /^(--jq|-q|--template|-t)$/) { if (++i > n) return 0; DATA[i] = 1; continue }
         if (w ~ /^(--json|--repo|-R|--limit|-L|--hostname|--header|-H)$/) { if (++i > n) return 0; DATA[i] = 1; continue }
         if (A[2] == "api" && w ~ /^(--method|-X)$/) { if (++i > n || A[i] !~ /^(GET|HEAD)$/) return 0; continue }
+        if (w ~ /^-[^-]/) { nexti = gh_reader_bundle(A, i, n); if (!nexti) return 0; i = nexti; continue }
         if (w ~ /^-/ && w !~ /^(--paginate|--slurp|--include|--silent|--log|--log-failed|--web)$/) return 0
         if (A[2] != "api") DATA[i] = 1
     }
@@ -885,7 +898,19 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
 }
 
 # ── option parsing shared by the CLIs: positionals P/PI, output format, -f/--format value, --raw ──
-function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
+function gh_short_options(A, i, shortvals, output_filters,    j, f, rest, value) {
+    for (j = 2; j <= length(A[i]); j++) {
+        f = substr(A[i], j, 1)
+        if (!index(shortvals, f)) continue
+        rest = substr(A[i], j + 1)
+        if (rest == "") value = A[++i]
+        else { value = rest; sub(/^=/, "", value) }
+        if (f == "q" || (f == "t" && output_filters == 1)) check_gh_filter(value)
+        return i
+    }
+    return i
+}
+function kparse(A, s, n, shortvals, output_filters,    i, w, eq, key, val, f, rest) {
     delete P; delete PI
     np = 0; outfmt = ""; fmtval = ""; tmpl = ""; tmplfile = 0; dd = 0; raw = 0
     for (i = s; i <= n; i++) {
@@ -894,7 +919,11 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
         if (substr(w, 1, 2) == "--") {
             eq = index(w, "="); key = w; val = ""
             if (eq) { key = substr(w, 1, eq - 1); val = substr(w, eq + 1) }
-            if (key == "--output") { if (!eq) { i++; val = A[i] } outfmt = tolower(val) }
+            if (output_filters && (key == "--jq" || key == "--template")) {
+                if (!eq) { i++; val = A[i] }
+                check_gh_filter(val)
+            }
+            else if (key == "--output") { if (!eq) { i++; val = A[i] } outfmt = tolower(val) }
             else if (key == "--format") { if (!eq) { i++; val = A[i] } fmtval = val }
             else if (key == "--template") {
                 if (!eq) { i++; val = A[i] } tmpl = val
@@ -906,6 +935,7 @@ function kparse(A, s, n, shortvals,    i, w, eq, key, val, f, rest) {
             continue
         }
         if (substr(w, 1, 1) == "-" && length(w) > 1) {
+            if (output_filters) { i = gh_short_options(A, i, shortvals, output_filters); continue }
             f = substr(w, 2, 1); rest = substr(w, 3)
             if (f == "o") {
                 if (rest == "") { i++; val = A[i] } else val = (substr(rest, 1, 1) == "=" ? substr(rest, 2) : rest)
@@ -1664,8 +1694,45 @@ function endpoint_path(path,    i, pair, value, decoded) {
     sub(/[?#].*$/, "", decoded); gsub(/\/\/+/, "/", decoded); sub(/\/+$/, "", decoded)
     return decoded
 }
+# Ignore string literals and field names, but inspect expressions inside string interpolation.
+function filter_reads_environment(s,    i, c, nextc, quoted, depth, parens, token, previous, level, containers, object_key) {
+    for (i = 1; i <= length(s); i++) {
+        c = substr(s, i, 1); nextc = substr(s, i + 1, 1)
+        if (quoted) {
+            if (c == "\\") {
+                if (nextc == "(") { parens[++depth] = 1; quoted = 0; previous = "" }
+                i++
+            } else if (c == "\"") quoted = 0
+            continue
+        }
+        if (c == "\"") { quoted = 1; previous = "string"; continue }
+        if (c == "#") { while (i <= length(s) && substr(s, i, 1) != "\n") i++; continue }
+        if (depth && c == "(") parens[depth]++
+        if (depth && c == ")" && --parens[depth] == 0) { depth--; quoted = 1; continue }
+        if (c == "[" || c == "{") containers[++level] = c
+        if (c == "]" || c == "}") { delete containers[level]; level-- }
+        if (c ~ /[A-Za-z_]/) {
+            token = c
+            while (substr(s, i + 1, 1) ~ /[A-Za-z0-9_]/) token = token substr(s, ++i, 1)
+            object_key = containers[level] == "{" && (previous == "{" || previous == ",") && substr(s, i + 1) ~ /^[[:space:]]*:[^:]/
+            if ((token == "env" && previous != "." && previous != "$" && !object_key) || (token == "ENV" && previous == "$")) return 1
+            previous = token
+        } else if (c !~ /[[:space:]]/) previous = c
+    }
+    return 0
+}
+function check_gh_filter(value) {
+    if (filter_reads_environment(value))
+        report("gh output filter reads the process environment, including credentials", "select response fields without env or $ENV")
+}
+function gh_title_option() {
+    return (P[1] ~ /^(pr|issue|release)$/ && P[2] ~ /^(create|edit)$/) ||
+        (P[1] == "pr" && P[2] == "merge") || (P[1] ~ /^(ssh-key|gpg-key)$/ && P[2] == "add")
+}
 function gh(A, s, n,    i, w, mutating, k, path, kind) {
     kparse(A, s + 1, n, "XHfFqtR")
+    # Only named command pairs use -t for a title or subject rather than an output template.
+    kparse(A, s + 1, n, "XHfFqtR", (gh_title_option() ? 2 : 1))
     if (P[1] == "secret") {
         if (P[2] != "set" && P[2] != "delete" && P[2] != "remove")
             report("gh secret " P[2] " reads the repository secret store", "gh secret set NAME (writes nothing to the output); refer to secrets by name only")
