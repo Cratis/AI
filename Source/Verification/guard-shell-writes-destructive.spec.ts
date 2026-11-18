@@ -11,10 +11,10 @@ import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
 
 const guard = resolve(import.meta.dirname, '../../.cratis/ai/hooks/scripts/cratis-guard-shell-writes.sh');
-type Row = { command: string; cwd: 'root' | 'sub'; expect: 'block' | 'allow'; why: string };
+type Row = { command: string; cwd: 'root' | 'sub'; expect: 'block' | 'allow'; why: string; piGuard?: 'secrets' };
 const rows: Row[] = [];
-function add(expect: Row['expect'], commands: string[], why: string, cwd: Row['cwd'] = 'root') {
-    rows.push(...commands.map(command => ({ command, cwd, expect, why })));
+function add(expect: Row['expect'], commands: string[], why: string, cwd: Row['cwd'] = 'root', piGuard?: Row['piGuard']) {
+    rows.push(...commands.map(command => ({ command, cwd, expect, why, piGuard })));
 }
 function cross(wrappers: ((command: string) => string)[], cores: string[], expect: Row['expect']) {
     for (const wrapper of wrappers) add(expect, cores.map(wrapper), 'verb-first wrapper scan');
@@ -90,7 +90,7 @@ add('allow', [
     'du -sh /bin/rm .', 'realpath /bin/rm .', './scripts/cli.sh rm "$id"', 'node build.js mv "$a" b',
     'node tool.js rm .', 'pnpm rm "$pkg"', 'podman rm -f $(podman ps -aq)', 'unknown-program rm -rf .',
     'ssh host rm -rf .', 'kubectl exec pod -- rm -rf /', 'sudo node tool.js rm .',
-    'git --no-optional-locks log --grep clean', 'git --no-optional-locks log', 'git --unknown-opt value clean -fdx',
+    'git --no-optional-locks log --grep clean', 'git --no-optional-locks log',
 ], 'unknown program arguments and established non-clean git subcommands are data');
 add('block', ['sudo rm -rf .', 'busybox rm -rf .', 'git --no-optional-locks clean -fdx', 'unknown-program "$(rm -rf .)"'], 'known execution prefixes and calling-shell substitutions still execute');
 // R1 B8: every destructive xargs execution has unresolved stdin operands, regardless of literals.
@@ -135,6 +135,77 @@ add('allow', [
     `echo 'rm -rf .' | cat README.md | bash`, 'bash script.sh',
     "cat <<'EOF' | bash\necho rm -rf .\nEOF",
 ], 'reader data and opaque script files are not executed as shell stdin');
+// R2: uncertainty never silently hides executable text; known data stays opaque.
+add('block', [
+    '(( x = 1 << 2 ))\nrm -rf .', 'x=$[1<<2]\nrm -rf .', 'for (( i=1<<2; i<8; i++ )); do echo ready; done\nrm -rf .',
+    'echo $((1<<2))\nrm -rf .', 'echo "$( (( x=1<<2 )); rm -rf . )"',
+    '(( 1 << 2\nrm -rf .', 'x=$[1<<2\nrm -rf .', 'echo $((1 + $(rm -rf .)))',
+    'cat <<EOF\nrm -rf .', "cat <<'EOF\nrm -rf .", 'cat << # missing delimiter\nrm -rf .',
+    'sudo --future-setting value rm -rf .',
+    'git --unknown-opt value clean -fdx', 'git --unknown-opt=setting clean -fdx',
+], 'arithmetic, malformed heredoc and option-shape uncertainty');
+add('allow', [
+    '(( x = 1 << 2 ))', 'x=$[1<<2]', 'echo $((1<<2))', 'for (( i=1<<2; i<8; i++ )); do echo ready; done',
+    'echo "$( (( x=1<<2 )); echo ready )"', '(( 1 << 2', 'x=$[1<<2',
+    'cat <<EOF\necho ready', "cat <<'EOF\necho ready", 'cat << # missing delimiter\necho ready',
+    'sudo --future-setting value dotnet build .',
+    'git --unknown-opt value status', 'git log --grep clean',
+    "cat <<''\nrm -rf .\n\n", "unknown-program '(( 1<<2 ))\nrm -rf .'",
+], 'benign uncertainty, arithmetic, terminated data and established subcommands');
+// These spellings are independently refused by Pi's secrets guard; still assert the write verdict too.
+add('block', ['bash --future-setting value -c "rm -rf ."'], 'unknown shell option shape', 'root', 'secrets');
+add('allow', ['bash --future-setting value -c "echo ready"'], 'benign unknown shell option shape', 'root', 'secrets');
+for (const [option, value] of [
+    ['--attr-source', 'HEAD'], ['--super-prefix', 'prefix/'], ['--config-env', 'key=VALUE_SOURCE'],
+    ['--git-dir', '.git'], ['--work-tree', '.'], ['--namespace', 'space'], ['--shallow-file', '/tmp/shallow'],
+]) {
+    add('block', [`git ${option} ${value} clean -fdx`], 'all separated Git global value options');
+    add('allow', [`git ${option} ${value} log --grep clean`, `git ${option} ${value} clean -fdx -- node_modules`], 'Git global value and established subcommand remain separate');
+    if (option !== '--shallow-file') add('block', [`git ${option}=${value} clean -fdx`], 'attached Git global value options');
+}
+for (const option of ['--no-advice', '--no-lazy-fetch', '--no-replace-objects', '--literal-pathspecs', '--no-literal-pathspecs', '--glob-pathspecs', '--noglob-pathspecs', '--icase-pathspecs']) {
+    add('block', [`git ${option} clean -fdx`], 'Git global no-value options do not consume clean');
+    add('allow', [`git ${option} log --grep clean`], 'Git read subcommands keep their arguments as data');
+}
+add('allow', ['git --exec-path clean -fdx', 'git --html-path clean', 'git --list-cmds=main clean', 'git --help clean', 'git --version clean'], 'Git query options terminate without executing clean');
+function quoteScript(script: string) { return `'${script.replaceAll("'", "'\\''")}'`; }
+function nestedShell(script: string) { return Array.from({ length: 5 }).reduce<string>(value => `sh -c ${quoteScript(value)}`, script); }
+for (const command of ['rm -rf .', 'git clean -fdx', 'find . -delete']) {
+    add('block', ['eval '.repeat(5) + command, nestedShell(command)], 'depth-limit fallback for each destructive family');
+}
+add('allow', [
+    'eval '.repeat(9) + 'echo ready', nestedShell('echo ready'),
+    nestedShell("cat <<'EOF'\nrm -rf .\nEOF"),
+], 'deep benign execution and properly terminated heredoc data');
+add('block', [nestedShell("bash <<'EOF'\nrm -rf .\nEOF")], 'depth fallback still sees executable shell stdin');
+for (const selector of ['-', '/dev/stdin', '/dev/fd/0', '/proc/self/fd/0']) {
+    add('block', [`echo 'rm -rf .' | bash ${selector}`, `bash ${selector} <<< 'rm -rf .'`], 'explicit stdin script selectors');
+    add('allow', [`echo 'echo rm -rf .' | bash ${selector}`, `bash ${selector} <<< 'echo ready'`], 'stdin script selectors with non-destructive commands');
+}
+for (const prefix of ['env -S ', 'env --split-string ', 'env -S', 'env --split-string=', 'env -iS']) {
+    add('block', [`${prefix}'rm -rf .'`], 'env split string executes its value', 'root', 'secrets');
+    add('block', [`${prefix}'sh -c' 'rm -rf .'`], 'env split string executes remaining argv');
+    add('allow', [`${prefix}'echo rm -rf .'`, `${prefix}'rm -rf node_modules'`], 'env split-string data and unprotected operands', 'root', 'secrets');
+}
+add('block', [
+    `echo 'rm -rf .' 2>/dev/null | sh`, `echo 'rm -rf .' 2>&1 | sh`, `echo 'rm -rf .' 1>&1 | sh`,
+    `echo 'rm -rf .' 3>&1 >/dev/null 1>&3 | sh`, `echo 'rm -rf .' >&$FD | sh`,
+    `bash -n +n -c 'rm -rf .'`, `bash -in -c 'rm -rf .'`,
+    `bash -n -c "$(rm -rf .)"`,
+], 'stdout still reaches pipe, effective execution toggles and calling-shell substitutions');
+add('allow', [
+    `echo 'rm -rf .' >/dev/null | sh`, `echo 'rm -rf .' 1>/dev/null | sh`, `echo 'rm -rf .' >>/dev/null | sh`,
+    `printf '%s\\n' 'rm -rf .' >/dev/null | sh`, `echo 'rm -rf .' &>/dev/null | sh`, `echo 'rm -rf .' >&2 | sh`,
+    `echo 'rm -rf .' >/dev/null 2>&1 | sh`, "cat <<'EOF' >/dev/null | bash\nrm -rf .\nEOF",
+    `echo 'rm -rf .' | sh -n`, `bash -n <<< 'rm -rf .'`, `bash -n -c 'rm -rf .'`,
+    `bash +n -n -c 'rm -rf .'`, `bash -n -c 'echo ready'`,
+], 'redirected stdout and syntax-only shells do not execute literal data');
+add('block', [
+    `bash -o noexec +o noexec -c 'rm -rf .'`, `bash -oc pipefail 'rm -rf .'`, `bash -cO extglob 'rm -rf .'`,
+], 'shell option values and effective execution toggles', 'root', 'secrets');
+add('allow', [
+    `bash -o noexec -c 'rm -rf .'`, `bash -n -c 'set +n; rm -rf .'`, `echo 'rm -rf .' | bash -o noexec`,
+], 'syntax-only shell option contexts', 'root', 'secrets');
 add('block', ['git clean -fdx :/', "git clean -fdx ':(top)'", 'nice git clean -fdx :/', 'rm -rf ../..'], 'subdirectory ancestor', 'sub');
 add('allow', ['rm -rf .'], 'unprotected subdirectory', 'sub');
 
@@ -197,7 +268,10 @@ test('destructive operands protect controls without executing any command (direc
                     const direct = await shellVerdict(command, cwd, '0', scenario.signal);
                     assert.equal(direct.status, row.expect === 'block' ? 2 : 0, `${row.why}: ${command}\n${direct.stderr}`);
                     const pi = await call({ toolName: 'bash', input: { command } }, { cwd }) as { block?: boolean; reason?: string } | undefined;
-                    if (row.expect === 'allow') assert.equal(pi, undefined, `${command}: ${pi?.reason}`);
+                    if (row.piGuard === 'secrets') {
+                        assert.equal(pi?.block, true, command);
+                        assert.match(pi?.reason ?? '', /BLOCKED by cratis-guard-secrets/, command);
+                    } else if (row.expect === 'allow') assert.equal(pi, undefined, `${command}: ${pi?.reason}`);
                     else {
                         assert.equal(pi?.block, true, command);
                         assert.match(pi?.reason ?? '', /BLOCKED by cratis-guard-shell-writes/, command);
@@ -211,6 +285,24 @@ test('destructive operands protect controls without executing any command (direc
     } finally {
         restoreVariable('HOME', savedHome);
         restoreVariable('CRATIS_HOOKS_ALLOW_PROTECTED_WRITES', saved);
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
+test('shell option values and read-only glob operands stay data (other guard contexts independent)', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    try {
+        const commands = [
+            `bash -oc pipefail 'echo rm -rf .'`, `bash -cO extglob 'echo rm -rf .'`,
+            `bash -Oc extglob 'rm -rf node_modules'`, `bash -oOc noexec extglob 'rm -rf .'`,
+            `bash -oOc pipefail extglob 'echo rm -rf .'`,
+            "find . -name 'X*'", 'ls -d */', "find . -name '*.workflow.jsonl'",
+        ];
+        await Promise.all(commands.map(command => context.test(command, { timeout: 60000 }, async scenario => {
+            const verdict = await shellVerdict(command, root, '0', scenario.signal);
+            assert.equal(verdict.status, 0, verdict.stderr);
+        })));
+    } finally {
         rmSync(root, { recursive: true, force: true });
     }
 });

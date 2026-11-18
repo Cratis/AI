@@ -764,6 +764,51 @@ function wrapper(word) {
     return member("sudo doas env command builtin exec nohup nice ionice timeout time stdbuf xargs setsid chroot nsenter busybox", base(word))
 }
 function emit(path) { if (path != "" && !seen[path]++) print path }
+# Every unclassified execution boundary uses the same fail-closed evidence rule.
+# Callers pass only the remaining uncertain region, never known heredoc data.
+function unclassified(text) {
+    gsub(/["\047\\]/, "", text)
+    if (text ~ /(^|[[:space:];|&()`\/])(rm|rmdir|unlink|shred|mv)([[:space:];|&()`]|$)/ ||
+        (text ~ /(^|[[:space:];|&()`\/])git[[:space:]]/ && text ~ /(^|[[:space:]])clean([[:space:]]|$)/) ||
+        (text ~ /(^|[[:space:];|&()`\/])find[[:space:]]/ && text ~ /(^|[[:space:]])-delete([[:space:]]|$)/)) emit("!")
+}
+function remaining(d, start, end,    i, j, text) {
+    for (i = start; i <= end; i++) {
+        text = text " " W[d, i]
+        for (j = 1; j <= BC[d, i]; j++) text = text " " B[d, i, j]
+    }
+    return text
+}
+# Arithmetic shifts are not redirections. Consume balanced arithmetic as one word;
+# its contents are otherwise uncertain, including any nested executable substitution.
+function arithmetic(text, start, bracket,    i, c, quote, level, parens) {
+    level = bracket ? 1 : 2; quote = ""; arithmetic_complete = 0
+    for (i = start; i <= length(text); i++) {
+        c = substr(text, i, 1)
+        if (c == "\\") { i++; continue }
+        if (quote != "") { if (c == quote) quote = ""; continue }
+        if (c == "\047" || c == "\"") { quote = c; continue }
+        if (bracket) {
+            if (c == "(") parens++
+            else if (c == ")" && parens) parens--
+            else if (!parens && c == "[") level++
+            else if (!parens && c == "]") level--
+        } else {
+            if (c == "(") level++
+            else if (c == ")") level--
+        }
+        if (!level) { arithmetic_complete = 1; break }
+    }
+    arithmetic_end = i
+    return substr(text, start, i - start)
+}
+function arithmetic_prefix(text, i, quoted) {
+    arithmetic_bracket = substr(text, i, 2) == "$["
+    if (arithmetic_bracket) return i + 2
+    if (substr(text, i, 3) == "$((") return i + 3
+    if (!quoted && substr(text, i, 2) == "((") return i + 2
+    return 0
+}
 # Expand only the documented literal prefixes; never evaluate shell text.
 function resolved(word, quoted, cwd, uncertain,    suffix, rest) {
     if (word ~ /^\$PWD(\/|$)/) word = cwd substr(word, 5)
@@ -790,35 +835,36 @@ function operand(word, quoted, cwd, uncertain) {
     if (word != "" && word != "{}") emit(resolved(word, quoted, cwd, uncertain))
 }
 # Heredoc delimiters are quote-removed, never expanded or executed.
-function heredoc_word(text, start,    i, c, quote, word) {
-    hd_quoted = 0; quote = ""
+function heredoc_word(text, start,    i, c, quote, word, active) {
+    hd_quoted = 0; quote = ""; active = 0
     for (i = start; substr(text, i, 1) ~ /[ \t]/; i++) {}
     for (; i <= length(text); i++) {
         c = substr(text, i, 1)
         if (quote != "") { if (c == quote) quote = ""; else word = word c; continue }
-        if (c == "\047" || c == "\"") { quote = c; hd_quoted = 1; continue }
-        if (c == "\\") { word = word substr(text, ++i, 1); hd_quoted = 1; continue }
-        if (c ~ /[ \t\r\n;&|()<>]/) break
-        word = word c
+        if (c == "\047" || c == "\"") { quote = c; hd_quoted = active = 1; continue }
+        if (c == "\\") { word = word substr(text, ++i, 1); hd_quoted = active = 1; continue }
+        if (c ~ /[ \t\r\n;&|()<>]/ || (c == "#" && !active)) break
+        word = word c; active = 1
     }
+    hd_valid = active && quote == "" && i <= length(text) + 1
     hd_end = i - 1
     return word
 }
 function heredoc_body(text, start, delimiter, strip,    i, size, line, body) {
-    i = start
+    i = start; hd_complete = 0
     while (i <= length(text)) {
         size = index(substr(text, i), "\n")
         if (!size) size = length(text) - i + 2
         line = substr(text, i, size - 1)
         if (strip) sub(/^\t+/, "", line)
-        if (line == delimiter) { hd_end = i + size - 1; return body }
+        if (line == delimiter) { hd_complete = 1; hd_end = i + size - 1; return body }
         body = body line "\n"; i += size
     }
     hd_end = length(text)
     return body
 }
 # Return a substitution body without executing it. Ignore parentheses in data/comments.
-function substitution(text, start, tick,    i, c, quote, nesting, body, id, count, j, delimiter, strip, end) {
+function substitution(text, start, tick,    i, c, quote, nesting, body, id, count, j, delimiter, strip, end, k) {
     nesting = 1; quote = ""; id = ++sub_id; count = 0
     for (i = start; i <= length(text); i++) {
         c = substr(text, i, 1)
@@ -829,9 +875,13 @@ function substitution(text, start, tick,    i, c, quote, nesting, body, id, coun
         else if (c == "#" && (i == start || substr(text, i - 1, 1) ~ /[ \t\n;&|()]/)) {
             while (i <= length(text) && substr(text, i, 1) != "\n") body = body substr(text, i++, 1)
             i--; continue
+        } else if ((k = arithmetic_prefix(text, i, 0))) {
+            arithmetic(text, k, arithmetic_bracket)
+            body = body substr(text, i, arithmetic_end - i + 1); i = arithmetic_end; continue
         } else if (c == "<" && substr(text, i, 2) == "<<" && substr(text, i, 3) != "<<<") {
             strip = substr(text, i + 2, 1) == "-"
             delimiter = heredoc_word(text, i + 2 + strip)
+            if (!hd_valid) { unclassified(substr(text, i)); sub_end = length(text); return body }
             SD[id, ++count] = delimiter; SS[id, count] = strip
             body = body substr(text, i, hd_end - i + 1); i = hd_end; continue
         } else if (c == "(") nesting++
@@ -840,19 +890,24 @@ function substitution(text, start, tick,    i, c, quote, nesting, body, id, coun
         if (c == "\n" && quote == "" && count) {
             for (j = 1; j <= count; j++) {
                 end = i
-                heredoc_body(text, i + 1, SD[id, j], SS[id, j])
+                delimiter = heredoc_body(text, i + 1, SD[id, j], SS[id, j])
+                if (!hd_complete) unclassified(delimiter)
                 i = hd_end; body = body substr(text, end + 1, i - end)
             }
             count = 0
         }
     }
+    if (i > length(text) || count) unclassified(body)
     sub_end = i
     return body
 }
-function data_substitutions(text, d, word,    i, c, body) {
+function data_substitutions(text, d, word,    i, c, body, k) {
     for (i = 1; i <= length(text); i++) {
         c = substr(text, i, 1)
         if (c == "\\") { i++; continue }
+        if ((k = arithmetic_prefix(text, i, 1))) {
+            body = arithmetic(text, k, arithmetic_bracket); unclassified(body); i = arithmetic_end; continue
+        }
         if (c == "`" || substr(text, i, 2) == "$(") {
             body = substitution(text, i + (c == "`" ? 1 : 2), c == "`")
             B[d, word, ++BC[d, word]] = body; i = sub_end
@@ -863,6 +918,10 @@ function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, p
     n = 0; quote = ""; word = ""; active = 0; quoted = 0; pending = 0
     for (i = 1; i <= length(text); i++) {
         c = substr(text, i, 1); nextc = substr(text, i + 1, 1)
+        if (quote != "\047" && (k = arithmetic_prefix(text, i, quote != ""))) {
+            body = arithmetic(text, k, arithmetic_bracket); unclassified(body)
+            i = arithmetic_end; word = word "$__arithmetic"; active = 1; continue
+        }
         if (quote != "\047" && (c == "`" || (c == "$" && nextc == "("))) {
             body = substitution(text, i + (c == "`" ? 1 : 2), c == "`")
             B[d, n + 1, ++BC[d, n + 1]] = body
@@ -890,27 +949,32 @@ function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, p
         }
         if (c == "{" && nextc == "}") { word = word "{}"; i++; active = 1; continue }
         if (c ~ /[ \t\r\n;&|(){}<>]/) {
-            if (active) { W[d, ++n] = word; Q[d, n] = quoted; K[d, n] = "word"; word = ""; active = quoted = 0 }
+            if (active) { W[d, ++n] = word; Q[d, n] = quoted; K[d, n] = "word"; T[d, n] = i - 1; F[d, n] = !quoted && word ~ /^[0-9]+$/ && substr(text, i - length(word), length(word)) == word; word = ""; active = quoted = 0 }
             if (c ~ /[ \t\r]/) continue
             if (c == "<" && nextc == "<") {
                 if (substr(text, i, 3) == "<<<") { W[d, ++n] = "<<<"; K[d, n] = "<<<"; i += 2; continue }
                 strip = substr(text, i + 2, 1) == "-"
                 delimiter = heredoc_word(text, i + 2 + strip)
+                if (!hd_valid) { unclassified(substr(text, i)); return n }
                 W[d, ++n] = "<<"; K[d, n] = "<<"
                 W[d, ++n] = delimiter; K[d, n] = "word"; Q[d, n] = hd_quoted
                 HS[d, n] = strip; HP[d, ++pending] = n
                 i = hd_end; continue
             }
-            if (c == ">" || (c == "&" && nextc == ">")) {
-                if (c == "&") { i++; nextc = substr(text, i + 1, 1) }
-                if (nextc == ">") { i++; c = ">>" }
-                else { if (nextc == "|") i++; c = ">" }
+            end = i
+            if (c == "&" && nextc == ">") {
+                c = "&>"; i++
+                if (substr(text, i + 1, 1) == ">") { c = "&>>"; i++ }
+            } else if (c == ">") {
+                if (nextc == ">" || nextc == "&") { c = c nextc; i++ }
+                else if (nextc == "|") i++
             } else if ((c == "&" || c == "|") && nextc == c) { i++; c = c c }
-            W[d, ++n] = c; K[d, n] = c
+            W[d, ++n] = c; K[d, n] = c; T[d, n] = end
             if (c == "\n" && pending) {
                 for (k = 1; k <= pending; k++) {
                     hd_index = HP[d, k]
                     H[d, hd_index] = heredoc_body(text, i + 1, W[d, hd_index], HS[d, hd_index]); i = hd_end
+                    if (!hd_complete) unclassified(H[d, hd_index])
                     if (!Q[d, hd_index]) data_substitutions(H[d, hd_index], d, hd_index)
                 }
                 pending = 0
@@ -920,10 +984,11 @@ function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, p
         word = word c; active = 1
     }
     if (active) { W[d, ++n] = word; Q[d, n] = quoted; K[d, n] = "word" }
+    if (quote != "" || pending) unclassified(remaining(d, 1, n))
     return n
 }
 function wrapper_value(program, option) {
-    if (program == "env") return member("-u --unset -C --chdir -S --split-string", option)
+    if (program == "env") return member("-u --unset -C --chdir -a --argv0", option)
     if (program == "sudo") return member("-u -g -h -p -C -T -r -t -D -R -U -a -c --user --group --host --prompt --close-from --command-timeout --role --type --chdir --chroot", option)
     if (program == "doas") return member("-u -C", option)
     if (program == "exec") return option == "-a"
@@ -937,8 +1002,21 @@ function wrapper_value(program, option) {
     if (program == "nsenter") return member("-t -S -G --target --setuid --setgid --root --wd --wdns", option)
     return 0
 }
-function executable(d, start, end,    i, program, option) {
-    prefix_uncertain = 0; prefix_fed = 0; i = start
+function wrapper_flag(program, option) {
+    if (program == "env") return option ~ /^-[i0v]+$/ || member("--ignore-environment --null --debug --list-signal-handling --default-signal --ignore-signal --block-signal", option)
+    if (program == "sudo") return option ~ /^-[nEHKSbklvVeis]+$/ || member("--non-interactive --preserve-env --set-home --reset-timestamp --remove-timestamp --stdin --background --validate --list --edit --login --shell", option)
+    if (program == "doas") return member("-n -s -L", option)
+    if (program == "command") return option == "-p"
+    if (program == "exec") return member("-c -l", option)
+    if (program == "time") return member("-p -v -q --portability --verbose --quiet", option)
+    if (program == "xargs") return member("-0 -r -t -p -x -i --null --no-run-if-empty --verbose --interactive --exit --show-limits --replace", option)
+    if (program == "setsid") return member("-c -f -w --ctty --fork --wait", option)
+    if (program == "chroot") return option == "--skip-chdir"
+    if (program == "nsenter") return member("-a -m -u -i -n -p -U -C -T --all --mount --uts --ipc --net --pid --user --cgroup --time --preserve-credentials --no-fork --follow-context", option)
+    return 0
+}
+function executable(d, start, end,    i, j, program, option, split_at) {
+    prefix_uncertain = 0; prefix_fed = 0; prefix_script_set = 0; prefix_script = ""; i = start
     while (i <= end) {
         if (W[d, i] ~ /^[A-Za-z_][A-Za-z0-9_]*=/) { i++; continue }
         program = base(W[d, i])
@@ -949,9 +1027,22 @@ function executable(d, start, end,    i, program, option) {
         while (i <= end && W[d, i] ~ /^-/) {
             option = W[d, i++]
             if (option == "--") break
-            if (member("--help --version", option) || (program == "command" && member("-v -V", option))) return 0
-            if ((program == "env" && option ~ /^(-C|--chdir)(=|$)/) || (program == "sudo" && option ~ /^(-D|-R|--chdir|--chroot)(=|$)/)) prefix_uncertain = 1
-            if (wrapper_value(program, option)) i++
+            if (member("--help --version", option) || (program == "command" && member("-v -V", option)) || (program == "busybox" && member("--list --list-full", option))) return 0
+            if ((program == "env" && (option ~ /^-C/ || option ~ /^--chdir(=|$)/)) || (program == "sudo" && (option ~ /^-[DR]/ || option ~ /^--(chdir|chroot)(=|$)/))) prefix_uncertain = 1
+            if (program == "env" && (option ~ /^-[i0v]*S/ || option ~ /^--split-string(=|$)/)) {
+                prefix_script_set = 1
+                if (option == "--split-string" || option ~ /^-[i0v]*S$/) prefix_script = W[d, i++]
+                else if (option ~ /^--/) prefix_script = substr(option, 16)
+                else { split_at = index(option, "S"); prefix_script = substr(option, split_at + 1) }
+                for (j = i; j <= end; j++) {
+                    if (K[d, j] ~ /^[<>]/ || K[d, j] ~ /^&>/) { j++; continue }
+                    prefix_script = prefix_script " " quote_path(W[d, j])
+                }
+                return 0
+            }
+            if (wrapper_value(program, option)) { i++; continue }
+            if (wrapper_flag(program, option) || option ~ /^--[^=]+=/ || (length(option) > 2 && wrapper_value(program, substr(option, 1, 2)))) continue
+            unclassified(remaining(d, i - 1, end)); return 0
         }
         if (program == "timeout" || program == "chroot") i++
     }
@@ -993,9 +1084,12 @@ function git_clean(d, verb, end, cwd, uncertain, findpaths, depth, fed,    i, j,
                 name = alias; sub(/^alias\./, "", name); sub(/=.*/, "", name)
                 sub(/^[^=]*=/, "", alias); A[call, name] = alias
             }
-        } else if (w ~ /^(--git-dir|--work-tree|--namespace|--exec-path)$/) i++
-        else if (w ~ /^(--git-dir|--work-tree|--namespace|--exec-path)=/) continue
-        else if (w ~ /^-/) continue
+        # Git 2.50.1 git.c handle_options(), plus legacy --super-prefix.
+        } else if (member("--git-dir --work-tree --namespace --config-env --attr-source --super-prefix --shallow-file", w)) i++
+        else if (w ~ /^--(git-dir|work-tree|namespace|config-env|attr-source|super-prefix|exec-path)=/) continue
+        else if (member("-h --help -v --version --html-path --man-path --info-path --exec-path", w) || w ~ /^--list-cmds=/) return
+        else if (member("-p --paginate -P --no-pager --no-replace-objects --no-lazy-fetch --no-optional-locks --no-advice --bare --literal-pathspecs --no-literal-pathspecs --glob-pathspecs --noglob-pathspecs --icase-pathspecs", w)) continue
+        else if (w ~ /^-/) { unclassified("git " remaining(d, i, end)); return }
         else { subcommand = i; break }
     }
     if (!subcommand) return
@@ -1073,11 +1167,31 @@ function stdin_data(d, start, end, pipe,    i, data) {
     }
     return data
 }
+function descriptor(d, i) { return F[d, i] && T[d, i] + 1 == T[d, i + 1] && (K[d, i + 1] ~ /^[<>]/ || K[d, i + 1] ~ /^&>/) }
+function stdout_pipe(d, head, end,    i, fd, target, kind, call) {
+    call = ++redirect_call; RD[call, 1] = 1; RD[call, 2] = 0
+    for (i = head + 1; i <= end; i++) {
+        kind = K[d, i]
+        if (kind !~ /^>/ && kind !~ /^&>/) continue
+        fd = descriptor(d, i - 1) ? W[d, i - 1] : 1
+        target = W[d, ++i]
+        if (kind ~ /^&>/) { RD[call, 1] = RD[call, 2] = 0; continue }
+        if (kind == ">&") {
+            if (target == "-") RD[call, fd] = 0
+            else if (target ~ /^[0-9]+$/) RD[call, fd] = ((call SUBSEP target) in RD) ? RD[call, target] : -1
+            else RD[call, fd] = -1
+        } else RD[call, fd] = 0
+    }
+    if (RD[call, 1] < 0) unclassified(remaining(d, head, end))
+    return RD[call, 1] == 1
+}
 function reader_data(d, head, end, pipe,    program, i, word, data, format) {
     program = base(W[d, head])
+    if (!member("cat echo printf", program) || !stdout_pipe(d, head, end)) return ""
     if (program == "cat") {
         for (i = head + 1; i <= end; i++) {
-            if (K[d, i] ~ /^[<>]/) { i++; continue }
+            if (descriptor(d, i)) continue
+            if (K[d, i] ~ /^[<>]/ || K[d, i] ~ /^&>/) { i++; continue }
             if (W[d, i] !~ /^-/) return ""
         }
         return stdin_data(d, head + 1, end, pipe)
@@ -1090,33 +1204,47 @@ function reader_data(d, head, end, pipe,    program, i, word, data, format) {
         if (format !~ /%/) { gsub(/\\n/, "\n", format); return format }
     } else while (i <= end && W[d, i] ~ /^-[neE]+$/) i++
     for (; i <= end; i++) {
-        if (K[d, i] ~ /^[<>]/) { i++; continue }
+        if (descriptor(d, i)) continue
+        if (K[d, i] ~ /^[<>]/ || K[d, i] ~ /^&>/) { i++; continue }
         word = W[d, i]
         if (program == "printf") data = data word (format == "%s\\n" ? "\n" : "")
         else data = data (data == "" ? "" : " ") word
     }
     return data
 }
-function shell_command(d, head, end, cwd, uncertain, depth, pipe, fed,    i, word, command, stdin, script) {
-    command = 0; stdin = 0; i = head + 1
+function shell_command(d, head, end, cwd, uncertain, depth, pipe, fed,    i, j, word, option, value, enabled, command, stdin, noexec, interactive, script) {
+    command = stdin = noexec = interactive = 0; i = head + 1
     while (i <= end) {
         word = W[d, i]
-        if (K[d, i] ~ /^[<>]/) { i += 2; continue }
-        if (word ~ /^[0-9]+$/ && K[d, i + 1] ~ /^[<>]/) { i++; continue }
-        if (word == "--") { i++; break }
-        if (member("-o +o -O +O --rcfile --init-file", word)) { i += 2; continue }
-        if (word ~ /^--/) { i++; continue }
+        if (K[d, i] ~ /^[<>]/ || K[d, i] ~ /^&>/) { i += 2; continue }
+        if (descriptor(d, i)) { i++; continue }
+        if (word == "--" || word == "-") { if (word == "-") stdin = 1; i++; break }
+        if (member("--help --version", word)) return
+        if (member("--rcfile --init-file", word)) { i += 2; continue }
+        if (member("--noprofile --norc --posix --restricted --verbose --debugger --login --noediting --dump-strings --dump-po-strings --pretty-print", word)) { i++; continue }
         if (word ~ /^[-+][A-Za-z]+$/) {
-            if (word ~ /^-[A-Za-z]*c/) command = 1
-            if (word ~ /^-[A-Za-z]*s/) stdin = 1
+            enabled = substr(word, 1, 1) == "-"
             i++
-            if (word ~ /[oO]$/) i++
+            for (j = 2; j <= length(word); j++) {
+                option = substr(word, j, 1)
+                if (option == "c" && enabled) command = 1
+                else if (option == "s") stdin = enabled
+                else if (option == "n") noexec = enabled
+                else if (option == "i") interactive = enabled
+                else if (option == "o" || option == "O") {
+                    value = W[d, i++]
+                    if (option == "o" && value == "noexec") noexec = enabled
+                } else if (option !~ /^[abefhkmptuvxBCEHPTirl]$/) { unclassified(remaining(d, head, end)); return }
+            }
             continue
         }
+        if (word ~ /^[-+]/) { unclassified(remaining(d, head, end)); return }
         break
     }
+    if (noexec && !interactive) return
     if (command) { if (i <= end) parse(W[d, i], cwd, uncertain, depth + 1, fed); return }
-    # Without -s, a positional script file wins over any stdin feed; its contents are opaque.
+    # Standard fd-0 aliases select stdin; ordinary script files remain opaque.
+    if (member("- /dev/stdin /dev/fd/0 /proc/self/fd/0", W[d, i])) stdin = 1
     if (i <= end && !stdin) return
     script = stdin_data(d, head + 1, end, pipe)
     if (script != "") parse(script, cwd, uncertain, depth + 1, fed)
@@ -1126,10 +1254,11 @@ function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed,    
     # Substitutions/redirections execute in the calling shell, even for unknown programs.
     for (i = start; i <= end; i++) {
         for (k = 1; k <= BC[d, i]; k++) parse(B[d, i, k], cwd, uncertain, depth + 1, 0)
-        if (K[d, i] == ">" && i < end && W[d, i + 1] !~ /[$`]/ && W[d, i + 1] != "/dev/null") operand(W[d, i + 1], Q[d, i + 1], cwd, uncertain)
+        if ((K[d, i] == ">" || K[d, i] == "&>") && i < end && W[d, i + 1] !~ /[$`]/ && W[d, i + 1] != "/dev/null") operand(W[d, i + 1], Q[d, i + 1], cwd, uncertain)
     }
     head = executable(d, start, end)
     context = uncertain || prefix_uncertain; fed = fed || prefix_fed
+    if (prefix_script_set) { parse(prefix_script, cwd, context, depth + 1, fed); return "" }
     if (!head) return ""
     w = base(W[d, head])
     if (w == "git") git_clean(d, head, end, cwd, context, findpaths, depth, fed)
@@ -1147,15 +1276,20 @@ function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed,    
     return ""
 }
 function parse(text, cwd, uncertain, depth, fed,    n, i, start, kind, level, head, path, old, j, pipe, data) {
-    # A cooperative, bounded inspection: exceeding the limit is not itself destructive evidence.
-    if (depth > 4) return
+    # Lex before the depth fallback so properly terminated heredoc bodies stay data.
     # A depth slot may be reused by several script words.
-    for (i = 1; i <= N[depth]; i++) { delete W[depth, i]; delete Q[depth, i]; delete K[depth, i]; delete H[depth, i]; BC[depth, i] = 0 }
+    for (i = 1; i <= N[depth]; i++) { delete W[depth, i]; delete Q[depth, i]; delete K[depth, i]; delete H[depth, i]; delete T[depth, i]; delete F[depth, i]; BC[depth, i] = 0 }
     n = lex(text, depth); N[depth] = n; start = 1; level = 0
     for (i = 1; i <= n + 1; i++) {
         kind = K[depth, i]
         if (i <= n && kind != ";" && kind != "\n" && kind != "&" && kind != "&&" && kind != "|" && kind != "||" && kind != "(" && kind != ")" && kind != "{" && kind != "}") continue
-        data = segment(depth, start, i - 1, cwd, uncertain, depth, "", pipe, fed)
+        if (depth > 4) {
+            unclassified(remaining(depth, start, i - 1))
+            head = executable(depth, start, i - 1)
+            if (prefix_script_set) unclassified(prefix_script)
+            if (head && shell(base(W[depth, head]))) unclassified(stdin_data(depth, head + 1, i - 1, pipe))
+            data = ""
+        } else data = segment(depth, start, i - 1, cwd, uncertain, depth, "", pipe, fed)
         pipe = (kind == "|" ? data : "")
         head = start
         while (head < i && W[depth, head] ~ /^[A-Za-z_][A-Za-z0-9_]*=/) head++

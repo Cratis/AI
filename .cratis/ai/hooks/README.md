@@ -81,16 +81,26 @@ Command positions are exposed only by assignments and these established executio
 `sudo`, `doas`, `env`, `command`, `builtin`, `exec`, `nohup`, `nice`, `ionice`, `timeout`, `time`,
 `stdbuf`, `xargs`, `setsid`, `chroot`, `nsenter`, and `busybox`. The scan also handles `eval`, literal
 `sh`/`bash`/`dash`/`zsh`/`ksh`/`ash` scripts (`-c`, including option arguments), `find` actions
-(`-exec`, `-execdir`, `-ok`, `-okdir`, `-delete`), and `git` options such as `-C` before `clean`.
+(`-exec`, `-execdir`, `-ok`, `-okdir`, `-delete`), and Git global options before `clean` (including
+value-taking `--attr-source`, `--config-env`, and legacy `--super-prefix`). `env -S`/`--split-string`
+values are inspected as command text, with remaining arguments kept as arguments.
 Destructive `xargs` executions have unresolved stdin operands even with replacement strings or safe
 literal operands. Literal shell stdin from here-strings, heredocs, and `echo`, simple `printf`, or `cat`
-pipelines is inspected; ordinary reader data, comments, and non-executed heredoc bodies are not commands.
-Unquoted heredoc substitutions are still executed by the calling shell and checked accordingly.
+pipelines is inspected, including shells selecting `-`, `/dev/stdin`, `/dev/fd/0`, or `/proc/self/fd/0`.
+Only stdout that still feeds the pipeline is propagated; effective non-interactive `-n`/`-o noexec`
+scripts are not executed. Calling-shell substitutions are still inspected, including for syntax-only
+shells. Ordinary reader data, comments, and properly terminated non-executed heredoc bodies remain data.
+Arithmetic shifts are not heredoc redirections. Unquoted heredoc substitutions are checked accordingly.
+
+An unclassified execution boundary uses one uncertainty rule: refuse when its remaining executable text
+contains destructive-verb, Git-clean, or find-delete evidence; otherwise allow. This includes nesting
+beyond four recursive script levels, unterminated or ambiguous heredocs/arithmetic, and unknown option
+value shapes. Known heredoc bodies are removed from the depth fallback unless selected as shell stdin.
 
 This guard is cooperative, not a sandbox. Arbitrary wrappers, script files, interpreter programs, and
 unknown-program arguments are not inspected; for example, `unknown-program rm -rf .` is allowed.
-Expansion-produced verbs (`r=rm; $r -rf .`), dynamic stdin scripts, nesting beyond four recursive script
-levels, filesystem changes earlier in the command (including newly created symlinks), and `CDPATH`
+Expansion-produced verbs (`r=rm; $r -rf .`), dynamic stdin scripts,
+filesystem changes earlier in the command (including newly created symlinks), and `CDPATH`
 effects remain limitations. Tools outside the destructive verb set (such as `rsync --delete`,
 `tar --remove-files`, `zip -m`, and interpreter one-liners) are not covered. No command text is executed
 by the guard. The separate existing reference/readonly and secrets checks still apply.
