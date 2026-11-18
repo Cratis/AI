@@ -290,7 +290,26 @@ Rule numbers refer to the numbered list in [`../rules/general.md`](../rules/gene
 
 For agent controls, report the intended change rather than rewriting permissions or hooks.
 A person edits settings; `cratis ai update` replaces managed files using the CLI's filesystem
-operations, not agent Write/Edit calls. The shell-write guard scans the **whole command text**
+operations, not agent Write/Edit calls. Before reference classification, the shell guard admits
+only these standalone install/repair operations (Node must be available):
+
+- Literal `cratis ai init`, `cratis ai update` or `cratis ai restore`, with optional literal arguments
+  such as `--force`. This invokes the CLI rather than granting file-content writes.
+- `ln -s`, `ln -sf` or `ln -sfn` with exactly a target and a link. The link must be below `.pi/`,
+  `.claude/`, `.cursor/`, `.opencode/` or `.github/` in the current repository. Resolve the target
+  relative to the link's directory: both its lexical path and its physical path (existing ancestors
+  resolved, including symlinks) must stay inside that repository's `.cratis/ai/`. The link's parent
+  must physically stay in its managed folder. A present `.cratis/ai.manifest.json` must contain an
+  exact `Integrations` link entry (`Path` and a string `Target`); missing/invalid entries or invalid
+  JSON deny the exception. Without a manifest, folder plus corpus-target validation permits
+  bootstrap repairs before installation has recorded its entries.
+- These exceptions accept simple whole-word quoting, but no `cd` prefix, chaining, pipes,
+  redirects, substitutions, expansions, escapes, comments, globs or multiline shell constructs.
+  Existing directories cannot be replaced; an existing symlink to a directory requires `-sfn`
+  so `ln` cannot follow it and write into its target. File Write/Edit calls, including writes
+  through repaired links, remain protected as before.
+
+All other commands retain the existing policy. The shell-write guard scans the **whole command text**
 for protected references, including nested strings, heredoc bodies and option values. It
 removes simple quoting/escapes, checks case-insensitive spellings, and asks the write guard's
 `--references` batch mode to classify candidate paths relative to the hook cwd. Original

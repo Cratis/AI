@@ -96,6 +96,26 @@ for (const target of ['.env', 'package.json']) {
     });
 }
 
+test('managed link repair never authorizes writing file contents through the link', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai/prompts'), { recursive: true });
+        mkdirSync(join(repo.root, '.pi'));
+        writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), JSON.stringify({ Integrations: [
+            { Path: '.pi/prompts', Target: '../.cratis/ai/prompts', IsDirectory: true },
+        ] }));
+        symlinkSync('../.cratis/ai/prompts', join(repo.root, '.pi/prompts'), 'dir');
+        await forEachConcurrently(['.pi/prompts', '.pi/prompts/new.md', '.cratis/ai/prompts/new.md'], async name => {
+            for (const toolName of ['Write', 'Edit']) {
+                const result = await runGuardAsync({ cwd: repo.root, tool_name: toolName, tool_input: {
+                    file_path: join(repo.root, name), content: '../.cratis/ai/prompts', new_string: 'x',
+                } }, repo.root);
+                assert.equal(result.verdict, BLOCK, `${toolName}: ${name}: ${result.stderr}`);
+            }
+        });
+    } finally { repo.dispose(); }
+});
+
 test('the write guard allows an ordinary symlink target', () => {
     const repo = scratchRepository();
     try {
