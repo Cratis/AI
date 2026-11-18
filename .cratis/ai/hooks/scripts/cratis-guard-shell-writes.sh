@@ -952,11 +952,11 @@ function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, p
             if (active) { W[d, ++n] = word; Q[d, n] = quoted; K[d, n] = "word"; T[d, n] = i - 1; F[d, n] = !quoted && word ~ /^[0-9]+$/ && substr(text, i - length(word), length(word)) == word; word = ""; active = quoted = 0 }
             if (c ~ /[ \t\r]/) continue
             if (c == "<" && nextc == "<") {
-                if (substr(text, i, 3) == "<<<") { W[d, ++n] = "<<<"; K[d, n] = "<<<"; i += 2; continue }
+                if (substr(text, i, 3) == "<<<") { W[d, ++n] = "<<<"; K[d, n] = "<<<"; T[d, n] = i; i += 2; continue }
                 strip = substr(text, i + 2, 1) == "-"
                 delimiter = heredoc_word(text, i + 2 + strip)
                 if (!hd_valid) { unclassified(substr(text, i)); return n }
-                W[d, ++n] = "<<"; K[d, n] = "<<"
+                W[d, ++n] = "<<"; K[d, n] = "<<"; T[d, n] = i
                 W[d, ++n] = delimiter; K[d, n] = "word"; Q[d, n] = hd_quoted
                 HS[d, n] = strip; HP[d, ++pending] = n
                 i = hd_end; continue
@@ -968,7 +968,8 @@ function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, p
             } else if (c == ">") {
                 if (nextc == ">" || nextc == "&") { c = c nextc; i++ }
                 else if (nextc == "|") i++
-            } else if ((c == "&" || c == "|") && nextc == c) { i++; c = c c }
+            } else if (c == "<" && nextc == "&") { c = "<&"; i++ }
+            else if ((c == "&" || c == "|") && (nextc == c || (c == "|" && nextc == "&"))) { i++; c = c nextc }
             W[d, ++n] = c; K[d, n] = c; T[d, n] = end
             if (c == "\n" && pending) {
                 for (k = 1; k <= pending; k++) {
@@ -1015,12 +1016,72 @@ function wrapper_flag(program, option) {
     if (program == "nsenter") return member("-a -m -u -i -n -p -U -C -T --all --mount --uts --ipc --net --pid --user --cgroup --time --preserve-credentials --no-fork --follow-context", option)
     return 0
 }
-function executable(d, start, end,    i, j, program, option, split_at) {
-    prefix_uncertain = 0; prefix_fed = 0; prefix_script_set = 0; prefix_script = ""; i = start
+# Dispatch uses an argv copy, never shell source. Every prefix shares the same
+# redirection tail and inherited pipe input; splitting env argv cannot discard either.
+function copy_token(source, from, dest, to,    j) {
+    W[dest, to] = W[source, from]; Q[dest, to] = Q[source, from]; K[dest, to] = K[source, from]
+    H[dest, to] = H[source, from]; T[dest, to] = T[source, from]; F[dest, to] = F[source, from]
+    BC[dest, to] = BC[source, from]
+    for (j = 1; j <= BC[source, from]; j++) B[dest, to, j] = B[source, from, j]
+}
+function redirection(d, i) { return K[d, i] ~ /^[<>]/ || K[d, i] ~ /^&>/ }
+function dispatch(d, start, end,    slot, redirects, i, n, r) {
+    slot = --dispatch_id; redirects = --dispatch_id
+    for (i = start; i <= end; i++) {
+        if (F[d, i] && redirection(d, i + 1) && T[d, i] + 1 == T[d, i + 1]) {
+            copy_token(d, i++, redirects, ++r)
+        }
+        if (redirection(d, i)) {
+            copy_token(d, i, redirects, ++r)
+            if (i < end) copy_token(d, ++i, redirects, ++r)
+        } else copy_token(d, i, slot, ++n)
+    }
+    for (i = 1; i <= r; i++) copy_token(redirects, i, slot, ++n)
+    dispatch_head = executable(slot, 1, n)
+    return slot
+}
+# env -S recognizes whitespace, quotes and escapes, not shell operators or substitutions.
+# Unsupported expansion/escape shapes use the shared destructive-evidence fallback.
+function env_words(text, slot,    i, c, nextc, quote, word, active, n) {
+    for (i = 1; i <= length(text) + 1; i++) {
+        c = substr(text, i, 1); nextc = substr(text, i + 1, 1)
+        if (c == "" || (quote == "" && c ~ /[[:space:]]/)) {
+            if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word"; word = ""; active = 0 }
+            continue
+        }
+        if (quote == "" && c == "#" && !active) break
+        if (c == "\\" && quote != "\047") {
+            i++
+            if (nextc == "c") break
+            if (nextc == "_") {
+                if (quote == "") {
+                    if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word"; word = ""; active = 0 }
+                    continue
+                }
+                c = " "
+            } else if (nextc == "n") c = "\n"
+            else if (nextc == "r") c = "\r"
+            else if (nextc == "t") c = "\t"
+            else if (nextc == "v") c = "\v"
+            else if (nextc == "f") c = "\f"
+            else if (nextc ~ /[\\#\$"\047]/) c = nextc
+            else { unclassified(text); return -1 }
+        } else if (c == "\047" || c == "\"") {
+            if (quote == "") { quote = c; active = 1; continue }
+            if (quote == c) { quote = ""; continue }
+        } else if (c == "$" && quote != "\047") { unclassified(text); return -1 }
+        word = word c; active = 1
+    }
+    if (quote != "") { unclassified(text); return -1 }
+    if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word" }
+    return n
+}
+function executable(d, start, end,    i, j, program, option, split_at, text, slot, count, first, expansions) {
+    prefix_uncertain = 0; prefix_fed = 0; dispatch_end = end; i = start
     while (i <= end) {
         if (W[d, i] ~ /^[A-Za-z_][A-Za-z0-9_]*=/) { i++; continue }
         program = base(W[d, i])
-        if (!wrapper(program)) return i
+        if (!wrapper(program)) return redirection(d, i) ? 0 : i
         if (member("chroot nsenter", program)) prefix_uncertain = 1
         if (program == "xargs") prefix_fed = 1
         i++
@@ -1030,15 +1091,18 @@ function executable(d, start, end,    i, j, program, option, split_at) {
             if (member("--help --version", option) || (program == "command" && member("-v -V", option)) || (program == "busybox" && member("--list --list-full", option))) return 0
             if ((program == "env" && (option ~ /^-C/ || option ~ /^--chdir(=|$)/)) || (program == "sudo" && (option ~ /^-[DR]/ || option ~ /^--(chdir|chroot)(=|$)/))) prefix_uncertain = 1
             if (program == "env" && (option ~ /^-[i0v]*S/ || option ~ /^--split-string(=|$)/)) {
-                prefix_script_set = 1
-                if (option == "--split-string" || option ~ /^-[i0v]*S$/) prefix_script = W[d, i++]
-                else if (option ~ /^--/) prefix_script = substr(option, 16)
-                else { split_at = index(option, "S"); prefix_script = substr(option, split_at + 1) }
-                for (j = i; j <= end; j++) {
-                    if (K[d, j] ~ /^[<>]/ || K[d, j] ~ /^&>/) { j++; continue }
-                    prefix_script = prefix_script " " quote_path(W[d, j])
-                }
-                return 0
+                first = i - 1
+                if (option == "--split-string" || option ~ /^-[i0v]*S$/) text = W[d, i++]
+                else if (option ~ /^--/) text = substr(option, 16)
+                else { split_at = index(option, "S"); text = substr(option, split_at + 1) }
+                if (++expansions > 64) { unclassified(text " " remaining(d, i, end)); return 0 }
+                slot = --dispatch_id; count = env_words(text, slot)
+                if (count < 0) { unclassified(remaining(d, i, end)); return 0 }
+                # Stage the suffix before replacing tokens, including all original redirects.
+                for (j = i; j <= end; j++) copy_token(d, j, slot, count + j - i + 1)
+                for (j = 1; j <= count + end - i + 1; j++) copy_token(slot, j, d, first + j - 1)
+                end += count - (i - first); dispatch_end = end; i = first
+                continue
             }
             if (wrapper_value(program, option)) { i++; continue }
             if (wrapper_flag(program, option) || option ~ /^--[^=]+=/ || (length(option) > 2 && wrapper_value(program, substr(option, 1, 2)))) continue
@@ -1052,7 +1116,7 @@ function removal(d, verb, end, cwd, uncertain, findpaths,    i, w, count, option
     count = 0; options = 1; target = 0; sources = 0
     for (i = verb + 1; i <= end; i++) {
         w = W[d, i]
-        if (w == ";" || w == "+" || K[d, i] ~ /^[<>]/) break
+        if (redirection(d, i)) break
         if (options && w == "--") { options = 0; continue }
         if (options && base(W[d, verb]) == "mv") {
             if (w == "-t" || w == "--target-directory") { target = 1; i++; continue }
@@ -1158,18 +1222,29 @@ function find_command(d, verb, end, cwd, uncertain, depth, fed,    i, j, start, 
         else for (j = 1; j <= have; j++) emit(FP[depth, j])
     }
 }
-function stdin_data(d, start, end, pipe,    i, data) {
+function stdin_data(d, start, end, pipe,    i, data, kind, fd, target) {
     data = pipe
     for (i = start; i <= end; i++) {
-        if (K[d, i] == "<<<") data = W[d, ++i]
-        else if (K[d, i] == "<<") data = H[d, ++i]
-        else if (K[d, i] == "<") { data = ""; i++ }
+        kind = K[d, i]
+        if (kind !~ /^</) continue
+        fd = descriptor(d, i - 1) ? W[d, i - 1] : 0
+        target = W[d, ++i]
+        if (fd != 0) continue
+        if (kind == "<<<") data = target
+        else if (kind == "<<") data = H[d, i]
+        # Unknown files stay opaque, exactly as for an unwrapped shell. fd-0 aliases
+        # preserve the inherited input, and later redirects replace earlier ones.
+        else if (kind == "<" && member("/dev/stdin /dev/fd/0 /proc/self/fd/0", target)) continue
+        else if (kind == "<&" && target == "0") continue
+        else data = ""
     }
     return data
 }
 function descriptor(d, i) { return F[d, i] && T[d, i] + 1 == T[d, i + 1] && (K[d, i + 1] ~ /^[<>]/ || K[d, i + 1] ~ /^&>/) }
-function stdout_pipe(d, head, end,    i, fd, target, kind, call) {
-    call = ++redirect_call; RD[call, 1] = 1; RD[call, 2] = 0
+function stdout_pipe(d, head, end, outgoing,    i, fd, target, kind, call) {
+    # |& can feed either descriptor to the consumer; conservatively retain both
+    # routes when explicit descriptor duplication precedes the implicit merge.
+    call = ++redirect_call; RD[call, 1] = 1; RD[call, 2] = outgoing == "|&"
     for (i = head + 1; i <= end; i++) {
         kind = K[d, i]
         if (kind !~ /^>/ && kind !~ /^&>/) continue
@@ -1185,9 +1260,9 @@ function stdout_pipe(d, head, end,    i, fd, target, kind, call) {
     if (RD[call, 1] < 0) unclassified(remaining(d, head, end))
     return RD[call, 1] == 1
 }
-function reader_data(d, head, end, pipe,    program, i, word, data, format) {
+function reader_data(d, head, end, pipe, outgoing,    program, i, word, data, format) {
     program = base(W[d, head])
-    if (!member("cat echo printf", program) || !stdout_pipe(d, head, end)) return ""
+    if (!member("cat echo printf", program) || !stdout_pipe(d, head, end, outgoing)) return ""
     if (program == "cat") {
         for (i = head + 1; i <= end; i++) {
             if (descriptor(d, i)) continue
@@ -1249,17 +1324,22 @@ function shell_command(d, head, end, cwd, uncertain, depth, pipe, fed,    i, j, 
     script = stdin_data(d, head + 1, end, pipe)
     if (script != "") parse(script, cwd, uncertain, depth + 1, fed)
 }
-function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed,    head, i, j, k, w, script, context) {
+function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed, outgoing,    head, i, j, k, w, script, context) {
     if (start > end) return ""
     # Substitutions/redirections execute in the calling shell, even for unknown programs.
-    for (i = start; i <= end; i++) {
+    if (depth > 4) unclassified(remaining(d, start, end))
+    for (i = start; depth <= 4 && i <= end; i++) {
         for (k = 1; k <= BC[d, i]; k++) parse(B[d, i, k], cwd, uncertain, depth + 1, 0)
         if ((K[d, i] == ">" || K[d, i] == "&>") && i < end && W[d, i + 1] !~ /[$`]/ && W[d, i + 1] != "/dev/null") operand(W[d, i + 1], Q[d, i + 1], cwd, uncertain)
     }
-    head = executable(d, start, end)
+    d = dispatch(d, start, end); head = dispatch_head; end = dispatch_end
     context = uncertain || prefix_uncertain; fed = fed || prefix_fed
-    if (prefix_script_set) { parse(prefix_script, cwd, context, depth + 1, fed); return "" }
     if (!head) return ""
+    if (depth > 4) {
+        unclassified(remaining(d, head, end))
+        if (shell(base(W[d, head]))) unclassified(stdin_data(d, head + 1, end, pipe))
+        return ""
+    }
     w = base(W[d, head])
     if (w == "git") git_clean(d, head, end, cwd, context, findpaths, depth, fed)
     else if (w == "find") find_command(d, head, end, cwd, context, depth + 1, fed)
@@ -1272,7 +1352,7 @@ function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed,    
         for (j = head + 1; j <= end; j++) script = script (j == head + 1 ? "" : " ") W[d, j]
         parse(script, cwd, context, depth + 1, fed)
     } else if (shell(w)) shell_command(d, head, end, cwd, context, depth, pipe, fed)
-    else if (!fed) return reader_data(d, head, end, pipe)
+    else if (!fed) return reader_data(d, head, end, pipe, outgoing)
     return ""
 }
 function parse(text, cwd, uncertain, depth, fed,    n, i, start, kind, level, head, path, old, j, pipe, data) {
@@ -1282,18 +1362,12 @@ function parse(text, cwd, uncertain, depth, fed,    n, i, start, kind, level, he
     n = lex(text, depth); N[depth] = n; start = 1; level = 0
     for (i = 1; i <= n + 1; i++) {
         kind = K[depth, i]
-        if (i <= n && kind != ";" && kind != "\n" && kind != "&" && kind != "&&" && kind != "|" && kind != "||" && kind != "(" && kind != ")" && kind != "{" && kind != "}") continue
-        if (depth > 4) {
-            unclassified(remaining(depth, start, i - 1))
-            head = executable(depth, start, i - 1)
-            if (prefix_script_set) unclassified(prefix_script)
-            if (head && shell(base(W[depth, head]))) unclassified(stdin_data(depth, head + 1, i - 1, pipe))
-            data = ""
-        } else data = segment(depth, start, i - 1, cwd, uncertain, depth, "", pipe, fed)
-        pipe = (kind == "|" ? data : "")
+        if (i <= n && kind != ";" && kind != "\n" && kind != "&" && kind != "&&" && kind != "|" && kind != "|&" && kind != "||" && kind != "(" && kind != ")" && kind != "{" && kind != "}") continue
+        data = segment(depth, start, i - 1, cwd, uncertain, depth, "", pipe, fed, kind)
+        pipe = (kind == "|" || kind == "|&" ? data : "")
         head = start
         while (head < i && W[depth, head] ~ /^[A-Za-z_][A-Za-z0-9_]*=/) head++
-        if (kind != "|" && member("cd pushd popd", W[depth, head])) {
+        if (kind != "|" && kind != "|&" && member("cd pushd popd", W[depth, head])) {
             path = W[depth, head + 1]
             if (path == "--") path = W[depth, head + 2]
             if (W[depth, head] == "popd" || path == "" || path == "-") uncertain = 1

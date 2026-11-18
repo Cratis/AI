@@ -307,6 +307,57 @@ test('shell option values and read-only glob operands stay data (other guard con
     }
 });
 
+test('all wrapper dispatches preserve stdin and redirections (direct guard)', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    const commands = [
+        ...prefixes.map(prefix => `${prefix}bash -`),
+        'chroot / bash -', 'nsenter bash -', 'busybox bash -', 'xargs bash -',
+        `env -S 'bash -'`, `env --split-string='bash -'`, `env -S 'nice bash -'`,
+        `sudo env -S 'nice timeout 5 bash -'`, `nice env -S 'bash -'`,
+    ];
+    const forms = [
+        (command: string, data: string) => `${command} <<< '${data}'`,
+        (command: string, data: string) => `echo '${data}' | ${command}`,
+        (command: string, data: string) => `${command} <<'EOF'\n${data}\nEOF`,
+        (command: string, data: string) => `echo '${data}' | ${command} < /dev/stdin`,
+        (command: string, data: string) => `${command} 0<<< '${data}'`,
+    ];
+    const cases = commands.flatMap(command => forms.flatMap(form => [
+        { command: form(command, 'rm -rf .'), status: 2 },
+        { command: form(command, 'echo hi'), status: 0 },
+    ]));
+    cases.push(
+        ...[
+            `echo 'rm -rf .' |& bash`, `echo 'rm -rf .' 1>&2 |& bash`,
+            `echo 'rm -rf .' |& env -S 'nice bash -'`,
+            `env -S 'echo rm -rf .' | bash`, `env -S 'cat' <<< 'rm -rf .' | bash`,
+            `<<< 'rm -rf .' env -S 'bash -'`,
+            `echo 'rm -rf .' | env -S 'bash -' 0<&0`,
+            `env -S 'bash -' < /dev/null <<< 'rm -rf .'`,
+            `env -S 'bash -c "rm -rf ."'`, `env -S 'rm ";" -rf .'`, `env -S 'rm + -rf .'`,
+        ].map(command => ({ command, status: 2 })),
+        ...[
+            `echo hi |& bash`, `echo hi |& env -S 'bash -'`, `env -S 'ls -la'`,
+            `env -S 'echo hello; rm -rf .'`, `env -S 'echo hello | rm -rf .'`,
+            `env -S 'echo hi' | bash`, `env -S 'cat' <<< 'echo hi' | bash`,
+            `echo 'rm -rf .' | env -S 'bash -' < /dev/null`,
+            `env -S 'bash -' <<< 'rm -rf .' < /dev/null`,
+            `env -S 'bash -' 3<<< 'rm -rf .'`,
+            `env -S 'echo rm -rf .' >/dev/null | bash`,
+            `echo 'rm -rf .' | env -S 'bash -' 0<&-`,
+            `env -S 'bash -c "echo hi"'`, `env -S 'echo "rm -rf ."'`,
+        ].map(command => ({ command, status: 0 })),
+    );
+    try {
+        await Promise.all(cases.map(({ command, status }) => context.test(command, { timeout: 60000 }, async scenario => {
+            const verdict = await shellVerdict(command, root, '0', scenario.signal);
+            assert.equal(verdict.status, status, `${command}\n${verdict.stderr}`);
+        })));
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
 test('large command-like comment data completes without executing or recursively inspecting it', { timeout: 5000 }, async context => {
     const root = scratchRepository();
     try {

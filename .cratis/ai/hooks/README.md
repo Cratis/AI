@@ -83,12 +83,17 @@ Command positions are exposed only by assignments and these established executio
 `sh`/`bash`/`dash`/`zsh`/`ksh`/`ash` scripts (`-c`, including option arguments), `find` actions
 (`-exec`, `-execdir`, `-ok`, `-okdir`, `-delete`), and Git global options before `clean` (including
 value-taking `--attr-source`, `--config-env`, and legacy `--super-prefix`). `env -S`/`--split-string`
-values are inspected as command text, with remaining arguments kept as arguments.
-Destructive `xargs` executions have unresolved stdin operands even with replacement strings or safe
-literal operands. Literal shell stdin from here-strings, heredocs, and `echo`, simple `printf`, or `cat`
-pipelines is inspected, including shells selecting `-`, `/dev/stdin`, `/dev/fd/0`, or `/proc/self/fd/0`.
-Only stdout that still feeds the pipeline is propagated; effective non-interactive `-n`/`-o noexec`
-scripts are not executed. Calling-shell substitutions are still inspected, including for syntax-only
+values are split into argv (whitespace, quotes and supported escapes), never parsed as shell source;
+argument punctuation remains data. Unsupported split-string shapes use the uncertainty rule below.
+Every wrapper uses the same argv dispatch, retaining the original command's redirections, heredoc
+bodies and inherited pipeline input through nested prefixes and split strings. Destructive `xargs`
+executions have unresolved stdin operands even with replacement strings or safe literal operands.
+Literal shell stdin from here-strings, heredocs, and `echo`, simple `printf`, or `cat` pipelines is
+inspected, including shells selecting `-`, `/dev/stdin`, `/dev/fd/0`, or `/proc/self/fd/0`. Input
+redirections are applied in order: fd-0 aliases retain inherited data, `/dev/null` or other opaque
+files replace it, and nonzero input descriptors do not replace stdin. Arbitrary file contents are not read.
+Only stdout that still feeds the pipeline is propagated; `|&` is a pipe operator with a conservative
+merged-descriptor route. Effective non-interactive `-n`/`-o noexec` scripts are not executed. Calling-shell substitutions are still inspected, including for syntax-only
 shells. Ordinary reader data, comments, and properly terminated non-executed heredoc bodies remain data.
 Arithmetic shifts are not heredoc redirections. Unquoted heredoc substitutions are checked accordingly.
 
