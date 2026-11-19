@@ -1557,10 +1557,12 @@ candidates_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_GLOB_SAFE="$gl
 # longest existing prefix of the original spelling exists and its lowercase spelling provably does not
 # (a case-sensitive lookup that names nothing). Any doubt keeps the alias (return 0).
 alias_needed() {
-    local original="$1" base="" prefix lower
+    local original="$1" base="" prefix lower parent
     case "$original" in *[A-Z]*) ;; *) return 0 ;; esac
     [ -d "$cwd" ] || return 0
     case "$original" in /*) ;; *) base="$cwd/" ;; esac
+    # A `..` component (also in the working directory) is resolved by the classifier lexically before symlinks.
+    case "/$base$original/" in */../*) return 0 ;; esac
     prefix="$original"
     while :; do
         while [ "${#prefix}" -gt 1 ] && [ "${prefix%/}" != "$prefix" ]; do prefix="${prefix%/}"; done
@@ -1572,6 +1574,16 @@ alias_needed() {
     lower="${2:0:${#prefix}}"
     [ "${#lower}" -eq "${#prefix}" ] || return 0
     if [ -e "$base$lower" ] || [ -L "$base$lower" ]; then return 0; fi
+    # Absence only counts when the nearest existing ancestor of that spelling is a searchable directory
+    # (the lookup then ends in "no such entry", not in a permission or other lookup error).
+    parent="$lower"
+    while :; do
+        case "$parent" in */*) parent="${parent%/*}" ;; *) parent="" ;; esac
+        [ -n "$parent" ] || [ "${lower#/}" = "$lower" ] || parent="/"
+        if [ -z "$parent" ]; then parent="${base:-/}"; break; fi
+        if [ -e "$base$parent" ] || [ -L "$base$parent" ]; then parent="$base$parent"; break; fi
+    done
+    [ -d "$parent" ] && [ -x "$parent" ] || return 0
     return 1
 }
 candidates=()
