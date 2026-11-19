@@ -14,7 +14,7 @@ export async function execute(command: string[], harness: Harness, cwd: string, 
         transcript: Transcript; durationSeconds: number; stopped?: 'skill-loaded' | 'tool-cap';
     }> {
     const started = performance.now();
-    const transcript = new Transcript(harness, expectation);
+    const transcript = new Transcript(harness, expectation, cwd);
     const file = openSync(transcriptPath, 'w');
     const child = spawn(command[0], command.slice(1), { cwd, env: environment, stdio: ['ignore', 'pipe', 'pipe'], detached: process.platform !== 'win32' });
     let stopped: 'skill-loaded' | 'tool-cap' | undefined;
@@ -38,11 +38,11 @@ export async function execute(command: string[], harness: Harness, cwd: string, 
     const removeInterrupt = onInterrupt(() => { failure = 'Interrupted; unfinished runs can be resumed.'; stop(); });
     const timer = setTimeout(() => { failure = `Timed out after ${timeoutSeconds}s`; stop(); }, timeoutSeconds * 1000);
     const consume = (line: string) => {
-        transcript.consume(line);
+        transcript.consume(line, !stopped);
         if (transcript.error) { stop(); return; }
         if (toolCap && !stopped) {
-            if (transcript.skillsRead.size) stopped = 'skill-loaded';
-            else if (transcript.seenCalls.size >= toolCap) stopped = 'tool-cap';
+            if (transcript.targetLoaded) stopped = 'skill-loaded';
+            else if (transcript.seenCalls.size >= toolCap && !transcript.pendingSkills.size) stopped = 'tool-cap';
             if (stopped) stop();
         }
     };

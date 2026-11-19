@@ -1,0 +1,43 @@
+{
+  "copyright": "Copyright (c) Cratis. All rights reserved. Licensed under the MIT license. See LICENSE file in the project root for full license information.",
+  "provenance": "Constructed from the observed Claude stream-json assistant tool_use and user tool_result envelopes. Successful Skill content follows the observed 'Launching skill: research' result, with a substituted installed name. Missing/denied Read and Skill rejection strings are constructed test data, not captured failures. /corpus is replaced with the test workspace.",
+  "scenarios": [
+    { "name": "start-only", "confirmed": [], "events": [
+      { "type": "assistant", "message": { "content": [{ "type": "tool_use", "id": "target", "name": "Skill", "input": { "skill": "cratis-arc-command" } }] } }
+    ] },
+    { "name": "missing Read", "confirmed": [], "events": [
+      { "type": "assistant", "message": { "content": [{ "type": "tool_use", "id": "target", "name": "Read", "input": { "file_path": "/corpus/skills/cratis-arc-command/SKILL.md" } }] } },
+      { "type": "user", "message": { "content": [{ "type": "tool_result", "tool_use_id": "target", "content": "File does not exist.", "is_error": true }] } }
+    ] },
+    { "name": "denied Read", "confirmed": [], "events": [
+      { "type": "assistant", "message": { "content": [{ "type": "tool_use", "id": "target", "name": "Read", "input": { "file_path": "/corpus/skills/cratis-arc-command/SKILL.md" } }] } },
+      { "type": "user", "message": { "content": [{ "type": "tool_result", "tool_use_id": "target", "content": "Permission denied.", "is_error": true }] } }
+    ] },
+    { "name": "rejected Skill", "confirmed": [], "events": [
+      { "type": "assistant", "message": { "content": [{ "type": "tool_use", "id": "target", "name": "Skill", "input": { "skill": "cratis-arc-command" } }] } },
+      { "type": "user", "message": { "content": [{ "type": "tool_result", "tool_use_id": "target", "content": "Skill invocation denied.", "is_error": true }] } }
+    ] },
+    { "name": "outside-root Read", "confirmed": [], "events": [
+      { "type": "assistant", "message": { "content": [{ "type": "tool_use", "id": "target", "name": "Read", "input": { "file_path": "/outside/skills/cratis-arc-command/SKILL.md" } }] } },
+      { "type": "user", "message": { "content": [{ "type": "tool_result", "tool_use_id": "target", "content": "Skill content" }] } }
+    ] },
+    { "name": "uninstalled Skill", "confirmed": [], "events": [
+      { "type": "assistant", "message": { "content": [{ "type": "tool_use", "id": "target", "name": "Skill", "input": { "skill": "uninstalled" } }] } },
+      { "type": "user", "message": { "content": [{ "type": "tool_result", "tool_use_id": "target", "content": "Launching skill: uninstalled" }] } }
+    ] },
+    { "name": "successful Read", "confirmed": ["cratis-arc-command"], "events": [
+      { "type": "assistant", "message": { "content": [{ "type": "tool_use", "id": "target", "name": "Read", "input": { "file_path": "/corpus/skills/cratis-arc-command/SKILL.md" } }] } },
+      { "type": "user", "message": { "content": [{ "type": "tool_result", "tool_use_id": "target", "content": [{ "type": "text", "text": "Skill content" }] }] } }
+    ] },
+    { "name": "successful target", "confirmed": ["cratis-arc-command"], "events": [
+      { "type": "assistant", "message": { "content": [{ "type": "tool_use", "id": "target", "name": "Skill", "input": { "skill": "cratis-arc-command" } }] } },
+      { "type": "user", "message": { "content": [{ "type": "tool_result", "tool_use_id": "target", "content": "Launching skill: cratis-arc-command" }] } }
+    ] },
+    { "name": "sibling-first then target", "confirmed": ["cratis-chronicle-projection", "cratis-arc-command"], "events": [
+      { "type": "assistant", "message": { "content": [{ "type": "tool_use", "id": "sibling", "name": "Skill", "input": { "skill": "cratis-chronicle-projection" } }] } },
+      { "type": "user", "message": { "content": [{ "type": "tool_result", "tool_use_id": "sibling", "content": "Launching skill: cratis-chronicle-projection" }] } },
+      { "type": "assistant", "message": { "content": [{ "type": "tool_use", "id": "target", "name": "Skill", "input": { "skill": "cratis-arc-command" } }] } },
+      { "type": "user", "message": { "content": [{ "type": "tool_result", "tool_use_id": "target", "content": "Launching skill: cratis-arc-command" }] } }
+    ] }
+  ]
+}
