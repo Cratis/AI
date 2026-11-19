@@ -9,7 +9,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -40,13 +40,21 @@ function installGuards(checkout: string, owner: string, marker: string, refusal:
 }
 
 /**
- * Writes a manifest the way an installer would: a source commit, an explicit orderable revision (the real manifest has
- * none, which is what makes "newer" undecidable) and the sha256 of every installed script, computed from what is on disk.
+ * Writes `.cratis/ai.manifest.json` in the schema `cratis ai install` writes: `SourceRevision` (a 40-hex source commit) and
+ * `Files: [{ Source, Destination, Hash }]`, where `Destination` is relative to `.cratis/ai` and `Hash` is the uppercase
+ * hex SHA-256 of the installed file's bytes (checked against a real installed manifest). The hash is computed from what
+ * is on disk, so a schema-validating selector would accept the manifest.
+ *
+ * Ordering is hypothetical: the real manifest carries no orderable revision, which is why "newer" is undecidable. Here
+ * release `n` is the 40-hex string of digit `n`, and a larger `n` stands for a newer release.
  */
-function writeManifest(checkout: string, sourceCommit: string, revision: number): void {
-    const files: Record<string, string> = {};
-    for (const name of guardNames) files[`.cratis/ai/hooks/scripts/${name}`] = createHash('sha256').update(readFileSync(join(scriptsOf(checkout), name))).digest('hex');
-    writeFileSync(join(checkout, '.cratis', 'ai.manifest.json'), JSON.stringify({ sourceCommit, revision, files }));
+function writeManifest(checkout: string, release: number): void {
+    const Files = guardNames.map((name) => ({
+        Source: `hooks/scripts/${name}`,
+        Destination: `hooks/scripts/${name}`,
+        Hash: createHash('sha256').update(readFileSync(join(scriptsOf(checkout), name))).digest('hex').toUpperCase(),
+    }));
+    writeFileSync(join(checkout, '.cratis', 'ai.manifest.json'), JSON.stringify({ SourceRevision: String(release).repeat(40), Files, Integrations: [] }));
 }
 
 const SESSION_REVISION = 5;
@@ -64,7 +72,7 @@ function fixture(options: { managedSession?: boolean; targetMode?: Mode; targetL
     spawnSync('git', ['init', '-q'], { cwd: session });
     if (options.managedSession !== false) {
         installGuards(session, 'session', marker, SESSION_REFUSAL, 'session');
-        writeManifest(session, 'session-commit', SESSION_REVISION);
+        writeManifest(session, SESSION_REVISION);
     }
     const targetMode = options.targetMode ?? 'permissive';
     if (options.targetLink) {
@@ -80,7 +88,7 @@ function fixture(options: { managedSession?: boolean; targetMode?: Mode; targetL
             unlinkSync(script);
             symlinkSync(join(scriptsOf(outside), guardNames[0]), script);
         }
-        writeManifest(target, 'target-newer', SESSION_REVISION + 1);
+        writeManifest(target, SESSION_REVISION + 1);
     } else {
         installGuards(target, 'target', marker, TARGET_REFUSAL, targetMode);
     }
@@ -105,11 +113,11 @@ const bash = (command: string) => ({ toolName: 'bash', input: { command } });
 const weaken = (target: string): void => { for (const name of guardNames) writeFileSync(join(scriptsOf(target), name), standIn('target', join(target, '..', 'marker.log'), TARGET_REFUSAL, 'permissive')); };
 const manifests: Array<[string, (target: string) => void]> = [
     ['no manifest (unmanaged)', () => { /* none */ }],
-    [`a valid manifest, newer than the session (revision ${SESSION_REVISION + 1})`, (target) => writeManifest(target, 'target-newer', SESSION_REVISION + 1)],
-    [`a valid manifest, equal to the session (revision ${SESSION_REVISION})`, (target) => writeManifest(target, 'target-equal', SESSION_REVISION)],
-    [`a valid manifest, older than the session (revision ${SESSION_REVISION - 1})`, (target) => writeManifest(target, 'target-older', SESSION_REVISION - 1)],
-    ['hashes that no longer match the scripts (tampered after install)', (target) => { writeManifest(target, 'target-newer', SESSION_REVISION + 1); weaken(target); }],
-    ['a manifest recomputed after weakening the scripts (forged)', (target) => { weaken(target); writeManifest(target, 'target-newer', SESSION_REVISION + 1); }],
+    [`a valid manifest, newer than the session (revision ${SESSION_REVISION + 1})`, (target) => writeManifest(target, SESSION_REVISION + 1)],
+    [`a valid manifest, equal to the session (revision ${SESSION_REVISION})`, (target) => writeManifest(target, SESSION_REVISION)],
+    [`a valid manifest, older than the session (revision ${SESSION_REVISION - 1})`, (target) => writeManifest(target, SESSION_REVISION - 1)],
+    ['hashes that no longer match the scripts (tampered after install)', (target) => { writeManifest(target, SESSION_REVISION + 1); for (const name of guardNames) appendFileSync(join(scriptsOf(target), name), '# edited after install\n'); }],
+    ['a manifest recomputed after weakening the scripts (forged)', (target) => { weaken(target); writeManifest(target, SESSION_REVISION + 1); }],
 ];
 
 for (const [label, prepare] of manifests) {
