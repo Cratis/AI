@@ -5,6 +5,7 @@
   "assertions": [
     { "kind": "skill-contains", "value": "PLAY0819", "file": "references/action-subjects.md" },
     { "kind": "skill-contains", "value": "never bulk-accept", "file": "references/action-subjects.md" },
+    { "kind": "skill-contains", "value": "contextual words, not reserved names", "file": "references/action-subjects.md" },
     { "kind": "skill-contains", "value": "Repair repeated advisories one occurrence at a time", "file": "references/action-subjects.md" },
     { "kind": "skill-contains", "value": "Handles are revision-bound: refetch them after every apply.", "file": "references/action-subjects.md" },
     { "kind": "skill-contains", "value": "registerQueryIdentity", "file": "references/scene-runtime-boundaries.md" },
