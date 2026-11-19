@@ -24,17 +24,27 @@ function object(value: unknown): Record<string, unknown> {
     return value !== null && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
+function redactString(value: string): string {
+    return sensitiveValue.test(value) || urlCredentials.test(value) ? '[redacted]' : value.slice(0, 200);
+}
+
+function redactEntry([key, value]: [string, unknown]): [string, unknown] {
+    return [key, sensitiveKey.test(key) ? '[redacted]' : redact(value)];
+}
+
 export function redact(value: unknown): unknown {
-    if (typeof value === 'string') {
-        return sensitiveValue.test(value) || urlCredentials.test(value) ? '[redacted]' : value.slice(0, 200);
-    }
+    if (typeof value === 'string') return redactString(value);
     if (Array.isArray(value)) return value.map(redact);
     if (value === null || typeof value !== 'object') return value;
-    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, sensitiveKey.test(key) ? '[redacted]' : redact(entry)]));
+    return Object.fromEntries(Object.entries(value).map(redactEntry));
+}
+
+function nonemptyString(value: unknown): value is string {
+    return typeof value === 'string' && value.length > 0;
 }
 
 function capturedCall(id: unknown, name: unknown, arguments_: unknown, source: CapturedToolCall['source']): CapturedToolCall[] {
-    if (typeof id !== 'string' || !id || typeof name !== 'string' || !name) return [];
+    if (!nonemptyString(id) || !nonemptyString(name)) return [];
     return [{ id, name, arguments: object(redact(object(arguments_))), source }];
 }
 
