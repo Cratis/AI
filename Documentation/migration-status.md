@@ -86,7 +86,7 @@ does too). Generates today: `RecordAgentSessionUsage` (1 command) and `AgentUsag
 `AgentUsageByMonth.RecentMonths`/`AgentUsageByDay.LastYear` (3 queries), routed under `/api/a-i/...`
 per decision 0004. `yarn workspace @cratis/ai run ci` (clean, lint, build) passes; pull request CI
 never generates proxies (`-p:CratisProxiesOutputPath=`, or `-p:CratisProxiesSkip=true` from Arc 22.185.1, decision 0020); the npm release build regenerates them. To refresh
-the committed tree locally, run `dotnet build Source/Cratis.AI/Cratis.AI.csproj` and commit the changes under
+the committed tree locally, run `dotnet build Source/Cratis.AI/Cratis.AI.csproj -p:CratisAIGenerateProxies=true` and commit the changes under
 `Source/Cratis.AI.Proxies/generated`.
 
 Two real bugs surfaced and fixed getting this far, both documented in decision 0004 - worth knowing
