@@ -408,8 +408,7 @@ a state-dependent permission or ownership rule written there is decision-safe. U
 an `[Unprotected]` command (or a model or method marked `[Unprotected("why")]`) the
 read is advisory, so the rule is **not decision-safe**. A `[ProtectedDecision]`
 command without `On` runs only certified, parameterless validators and refuses a
-validator whose constructor takes dependencies; put such a rule in `Provide()` or
-`Handle()` using `DecisionRead<T>` or `IDecisionReads`. Hand-registered scoped,
+validator whose constructor takes dependencies; take the read model as a `Handle()` parameter (`[LookUpBy]`) under `On`; `DecisionRead<T>` is the legacy opt-in, and direct `IDecisionReads` is a reasoned exception outside the command path. Hand-registered scoped,
 singleton, factory or instance validators are refused under `On`. Keep
 static/service-locator state out of validators: a guard covers reads Arc can see.
 Source: [protected validator boundary](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md).

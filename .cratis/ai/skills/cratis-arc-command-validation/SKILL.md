@@ -153,12 +153,15 @@ metadata. Do not conflate metadata coverage with validator certification.
 parameters resolve from dependency injection; the command instance is `this`.
 
 ```csharp
-public async Task<Result<Customer, ValidationResult>> Provide(IReadModels readModels)
+public async Task<Result<Quote, ValidationResult>> Provide(IQuoteService quotes)
 {
-    var customer = await readModels.GetInstanceById<Customer>((EventSourceId)CustomerId);
-    return customer is null ? ValidationResult.Error("Customer must exist.") : customer;
+    var quote = await quotes.For(ProductId);
+    return quote is null ? ValidationResult.Error("No quote for the product.") : quote;
 }
 ```
+
+Read models are not fetched here: inject them as `Handle()`/validator parameters
+(`[LookUpBy]`), see Step 3. Direct `IReadModels` in a command is refused under read protection `On`.
 
 - Returning a `ValidationResult`, an `IEnumerable<ValidationResult>`, an
   `AuthorizationResult`, or a `CommandResult` short-circuits: `Handle()` is

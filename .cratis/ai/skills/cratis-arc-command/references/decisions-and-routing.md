@@ -58,7 +58,8 @@ Requires Arc 22.106.0 for read protection. Older Arc has only the per-command
   `Handle` (`EventsWithConcurrencyScopes`); a competing append conflicts, including
   two competing first appends.
 - **Computed key or another stream or source.** `[LookUpBy<TProvider>]`, a flat lookup
-  projection or a per-stream read model parameter. Otherwise `[Unprotected("why")]`
+  projection. A per-stream read model parameter works only for the command's own route
+  (`[LookUpBy]` and providers are rejected with `InvalidLookUpBy`). Otherwise `[Unprotected("why")]`
   paired with a guard on the append (kernel constraint, another guarded typed parameter,
   or an explicit scope captured before the read), reason "<key read> … guarded by <guard>".
   Direct `IDecisionReads` is a deliberate exception outside the command path, with a

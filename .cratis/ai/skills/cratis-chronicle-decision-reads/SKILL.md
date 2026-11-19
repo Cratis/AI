@@ -134,8 +134,12 @@ projection also needs an explicit stream id, not the default wildcard.
 In Arc, prefer a per-stream read model
 (`[ReadModel, EventStream<TSource>("Transactions")]` on a command routed with
 `[EventSource<TSource>("Transactions")]` and `[EventStreamId("{Month}")]`); use
-a stream read-model parameter or `[LookUpBy<TProvider>]` for another stream or
-source (direct `IDecisionReads` stream overloads only outside the command path). Requires Arc 22.81.0 for the stream overloads inside Arc commands to use
+a per-stream read model only for the command's own route: `PerStreamReadModelBinding.Route` requires the
+command to append to that source and stream, and rejects `[LookUpBy]` and `[LookUpBy<TProvider>]`
+redirection (`InvalidLookUpBy`). For another stream or source no typed parameter exists: use a reasoned
+`[Unprotected("why")]` read paired with a named append guard (kernel constraint, another guarded typed parameter,
+or an explicit scope captured before the read); direct `IDecisionReads` stream overloads belong outside the
+command path. Requires Arc 22.81.0 for the stream overloads inside Arc commands to use
 command protection, caching and enrollment; older Arc refuses them.
 
 ## Commit and inspect conflicts
