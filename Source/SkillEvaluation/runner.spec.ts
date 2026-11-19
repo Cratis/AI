@@ -2,11 +2,12 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, access } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, access, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import { Harness } from './Harness.ts';
+import type { Result } from './Result.ts';
 import { harnessCommand, harnessEnvironment, graderCommand } from './commands.ts';
 import { parseOptions } from './arguments.ts';
 import { parseGrade } from './grading.ts';
@@ -57,6 +58,29 @@ test('resumability skips recorded keys and round-trips JSONL', async () => {
     } finally { await rm(directory, { recursive: true }); }
 });
 
+test('legacy result files load with absent confirmation fields and retain their original scores', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'skill-legacy-results-'));
+    try {
+        const path = join(directory, 'results.jsonl');
+        const historical: Result = { key: 'legacy', skill: 'cratis-arc-command', index: 0, run: 1, prompt: 'query', withSkills: true,
+            shouldTrigger: true, skillsRead: ['cratis-arc-command'], text: '', usage: undefined, durationSeconds: 1,
+            stopped: 'skill-loaded', transcript: 'raw/legacy.jsonl' };
+        appendLine(path, historical);
+        const original = await readFile(path, 'utf8');
+        const [loaded] = await readLines<Result>(path);
+        assert.equal(loaded.confirmedSkills, undefined);
+        assert.equal(loaded.attemptedSkills, undefined);
+        assert.deepEqual(loaded.skillsRead, historical.skillsRead);
+        assert.equal(loaded.stopped, 'skill-loaded');
+        assert.deepEqual(pendingTasks([historical], [loaded]), []);
+        assert.equal(await readFile(path, 'utf8'), original);
+        appendLine(path, { ...historical, key: 'confirmed', confirmedSkills: [], attemptedSkills: ['cratis-arc-command'] } satisfies Result);
+        const [, current] = await readLines<Result>(path);
+        assert.deepEqual(current.confirmedSkills, []);
+        assert.deepEqual(current.attemptedSkills, ['cratis-arc-command']);
+    } finally { await rm(directory, { recursive: true }); }
+});
+
 test('concurrency never exceeds the bound and stops scheduling on failure', async () => {
     let active = 0, maximum = 0;
     await concurrent([1, 2, 3, 4], 2, async () => {
@@ -89,15 +113,51 @@ test('silent harness hangs are timed out; missing binaries and nonzero exits are
     } finally { await temporary.remove(); }
 });
 
-test('trigger cutoff is deliberate success but output stream must actually complete', async () => {
+for (const harness of [Harness.Pi, Harness.Claude]) {
+    test(`${harness} cutoff waits for the confirmed target, including sibling-first recovery`, async () => {
+        const temporary = await workspace();
+        const expectation = { target: 'cratis-arc-command', corpusSkills: ['cratis-arc-command', 'cratis-chronicle-projection'], withSkills: true };
+        try {
+            for (const skill of expectation.corpusSkills) {
+                const directory = join(temporary.path, 'skills', skill);
+                await mkdir(directory, { recursive: true });
+                await writeFile(join(directory, 'SKILL.md'), 'Skill content');
+            }
+            const fixture = JSON.parse(await readFile(new URL(`./fixtures/${harness}.json`, import.meta.url), 'utf8')) as {
+                scenarios: Array<{ name: string; confirmed: string[]; events: Record<string, unknown>[] }>;
+            };
+            const path = join(temporary.path, 'raw.jsonl');
+            const init = harness === Harness.Claude ? [{ type: 'system', subtype: 'init', skills: expectation.corpusSkills }] : [];
+            for (const name of ['successful target', 'sibling-first then target']) {
+                const scenario = fixture.scenarios.find(scenario => scenario.name === name)!;
+                const lines = [...init, ...scenario.events].map(event => JSON.stringify(event).replaceAll('/corpus', temporary.path));
+                // Separate writes make a premature stop at either start or sibling observable.
+                const script = `const lines = ${JSON.stringify(lines)}; let index = 0; setInterval(() => { if (index < lines.length) console.log(lines[index++]); }, 20);`;
+                const result = await execute([process.execPath, '-e', script], harness, temporary.path, {}, path, 2, name === 'successful target' ? 1 : 6, expectation);
+                assert.equal(result.stopped, 'skill-loaded');
+                assert.deepEqual([...result.transcript.skillsRead], scenario.confirmed);
+            }
+            const start = fixture.scenarios.find(scenario => scenario.name === 'start-only')!;
+            const lines = [...init, ...start.events].map(event => JSON.stringify(event).replaceAll('/corpus', temporary.path));
+            const hang = `for (const line of ${JSON.stringify(lines)}) console.log(line); setInterval(() => {}, 1000);`;
+            await assert.rejects(execute([process.execPath, '-e', hang], harness, temporary.path, {}, path, 0.2, 6, expectation), /Timed out/);
+            const incomplete = `for (const line of ${JSON.stringify(lines)}) console.log(line);`;
+            await assert.rejects(execute([process.execPath, '-e', incomplete], harness, temporary.path, {}, path, 1, 6, expectation), /could not complete/);
+        } finally { await temporary.remove(); }
+    });
+}
+
+test('a model error remains a failure even after a target confirmation', async () => {
     const temporary = await workspace();
     try {
-        const path = join(temporary.path, 'raw.jsonl');
-        const event = { type: 'tool_execution_start', toolCallId: '1', toolName: 'read', args: { path: '/skills/cratis-arc-command/SKILL.md' } };
-        const script = `console.log(${JSON.stringify(JSON.stringify(event))}); setInterval(() => {}, 1000);`;
-        const result = await execute([process.execPath, '-e', script], Harness.Pi, temporary.path, {}, path, 1, 6);
-        assert.equal(result.stopped, 'skill-loaded');
-        assert.deepEqual([...result.transcript.skillsRead], ['cratis-arc-command']);
-        await assert.rejects(execute([process.execPath, '-e', 'console.log("not a result")'], Harness.Pi, temporary.path, {}, path, 1), /could not complete/);
+        const events = [
+            { type: 'system', subtype: 'init', skills: ['cratis-arc-command'] },
+            { type: 'assistant', message: { content: [{ type: 'tool_use', id: 'target', name: 'Skill', input: { skill: 'cratis-arc-command' } }] } },
+            { type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: 'target', content: 'Launching skill' }] } },
+            { type: 'result', is_error: true, result: 'Usage limit reached' },
+        ];
+        const script = `process.stdout.write(${JSON.stringify(events.map(event => JSON.stringify(event)).join('\n') + '\n')}); setInterval(() => {}, 1000);`;
+        await assert.rejects(execute([process.execPath, '-e', script], Harness.Claude, temporary.path, {}, join(temporary.path, 'raw.jsonl'), 1, 6,
+            { target: 'cratis-arc-command', corpusSkills: ['cratis-arc-command'], withSkills: true }));
     } finally { await temporary.remove(); }
 });

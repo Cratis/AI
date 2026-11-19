@@ -6,11 +6,11 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { describe, it } from 'node:test';
 import { parse } from 'yaml';
+import { browserTool } from './captured-tool-calls.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const adapterNames = ['pi', 'opencode'];
 const read = (path: string) => readFileSync(resolve(repositoryRoot, path), 'utf8');
-const browserTool = /browser|playwright|clickElement|typeInPage|\*/i;
 
 type Adapter = { name: string; content: string };
 
@@ -95,10 +95,10 @@ describe('frontend browser tool-grant restraint (static contract, not live tool-
         }
     });
 
-    it('should link the unavailable-operator fixture to this static contract without claiming live restraint proof', () => {
+    it('should link the unavailable-operator fixture to the static contract and recorded-session restraint specs', () => {
         const fixture = JSON.parse(read('Evaluations/conformance/typescript-frontend-browser-operator-unavailable/fixture.json'));
         assert.match(fixture.description, /action-restraint\.spec\.ts/);
         assert.match(fixture.description, /text only/);
-        assert.match(fixture.description, /live tool-call capture/i);
+        assert.match(fixture.description, /captured-tool-calls\.spec\.ts/);
     });
 });

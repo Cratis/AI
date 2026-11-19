@@ -67,6 +67,7 @@ async function runIsolatedBatch(root: string, options: Options, selected: Manife
                     { target: task.skill, corpusSkills: isolated.corpusSkills, withSkills: task.withSkills });
                 if (options.command === 'outputs' && !result.transcript.text.trim()) throw new Error(`No answer text: ${transcriptPath}`);
                 appendLine(resultsPath, { ...task, corpusCondition: task.withSkills ? manifest.corpusCondition : 'none', skillsRead: [...result.transcript.skillsRead], listedSkills: result.transcript.listedSkills,
+                    confirmedSkills: [...result.transcript.skillsRead], attemptedSkills: [...result.transcript.attemptedSkills],
                     text: result.transcript.text, usage: result.transcript.usage, durationSeconds: result.durationSeconds,
                     stopped: result.stopped, transcript: relative(directory, transcriptPath) } satisfies Result);
                 console.log(`${task.key}: ${result.stopped ?? 'complete'}; skills: ${[...result.transcript.skillsRead].join(', ') || 'none'}`);

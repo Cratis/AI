@@ -2,6 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import assert from 'node:assert/strict';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import test from 'node:test';
 import { Harness } from './Harness.ts';
 import { Transcript, skillSignal } from './signals.ts';
@@ -11,19 +14,88 @@ const piRead = '{"type":"tool_execution_start","toolCallId":"call_9e4c","toolNam
 const claudeLimit = '{"type":"result","is_error":true,"result":"Usage limit reached","usage":{"input_tokens":0,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":0},"num_turns":1}';
 const claudeSkill = '{"type":"assistant","message":{"content":[{"type":"tool_use","id":"tool_1","name":"Skill","input":{"skill":"cratis-arc-command"}}]}}';
 
-test('pi reads and Claude Skill invocations are deduplicated, not mentions or grep searches', () => {
+test('tool attempts are deduplicated, not mentions or grep searches', () => {
     const pi = new Transcript(Harness.Pi);
     pi.consume(piRead); pi.consume(piRead);
     pi.consume('{"type":"tool_execution_start","toolCallId":"search","toolName":"grep","args":{"path":"/corpus/skills/cratis-chronicle-projection/SKILL.md"}}');
-    assert.deepEqual([...pi.skillsRead], ['cratis-arc-command']);
+    assert.deepEqual([...pi.skillsRead], []);
+    assert.deepEqual([...pi.attemptedSkills], ['cratis-arc-command']);
     assert.equal(pi.seenCalls.size, 2);
     const claude = new Transcript(Harness.Claude);
     claude.consume(claudeSkill); claude.consume(claudeSkill);
-    assert.deepEqual([...claude.skillsRead], ['cratis-arc-command']);
+    assert.deepEqual([...claude.skillsRead], []);
+    assert.deepEqual([...claude.attemptedSkills], ['cratis-arc-command']);
     assert.equal(claude.seenCalls.size, 1);
     assert.equal(skillSignal('Read', { file_path: '/corpus/skills/cratis-chronicle-projection/SKILL.md' }), 'cratis-chronicle-projection');
     assert.equal(skillSignal('read', { path: '/corpus/skills/cratis-arc-command/references/a.md' }), undefined);
     assert.equal(skillSignal('Skill', { command: 'plugin:cratis-arc-command' }), 'cratis-arc-command');
+});
+
+const expectation = { target: 'cratis-arc-command', corpusSkills: ['cratis-arc-command', 'cratis-chronicle-projection'], withSkills: true };
+
+for (const harness of [Harness.Pi, Harness.Claude]) {
+    test(`${harness} fixtures require a matching successful installed skill load`, async context => {
+        const root = mkdtempSync(join(tmpdir(), 'skill-signals-'));
+        try {
+            for (const skill of [...expectation.corpusSkills, 'uninstalled']) {
+                const directory = join(root, 'skills', skill);
+                mkdirSync(directory, { recursive: true });
+                writeFileSync(join(directory, 'SKILL.md'), 'Skill content');
+            }
+            const fixture = JSON.parse(readFileSync(new URL(`./fixtures/${harness}.json`, import.meta.url), 'utf8')) as {
+                scenarios: Array<{ name: string; confirmed: string[]; events: Record<string, unknown>[] }>;
+            };
+            for (const scenario of fixture.scenarios) await context.test(scenario.name, () => {
+                const transcript = new Transcript(harness, expectation, root);
+                for (const event of scenario.events) transcript.consume(JSON.stringify(event).replaceAll('/corpus', root));
+                assert.deepEqual([...transcript.skillsRead], scenario.confirmed);
+                assert.equal(transcript.targetLoaded, scenario.confirmed.includes(expectation.target));
+                assert.ok(transcript.attemptedSkills.size > 0);
+                for (const event of scenario.events) transcript.consume(JSON.stringify(event).replaceAll('/corpus', root));
+                assert.deepEqual([...transcript.skillsRead], scenario.confirmed, 'duplicate events are idempotent');
+            });
+        } finally { rmSync(root, { recursive: true }); }
+    });
+}
+
+test('mismatched and missing correlation IDs cannot confirm, and failures cannot be upgraded', () => {
+    const transcript = new Transcript(Harness.Claude, expectation);
+    transcript.consume(claudeSkill);
+    const result = (id: string, failed = false) => JSON.stringify({ type: 'user', message: { content: [{ type: 'tool_result', tool_use_id: id, is_error: failed }] } });
+    transcript.consume(result('other'));
+    transcript.consume(result(''));
+    assert.equal(transcript.skillsRead.size, 0);
+    transcript.consume(result('tool_1', true));
+    transcript.consume(result('tool_1'));
+    assert.equal(transcript.skillsRead.size, 0);
+    transcript.consume('{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Skill","input":{"skill":"cratis-arc-command"}}]}}');
+    transcript.consume('{"type":"user","message":{"content":[{"type":"tool_result"}]}}');
+    assert.equal(transcript.skillsRead.size, 0);
+});
+
+test('baseline invocations do not confirm corpus skills', () => {
+    const transcript = new Transcript(Harness.Claude, { ...expectation, withSkills: false });
+    transcript.consume(claudeSkill);
+    transcript.consume('{"type":"user","message":{"content":[{"type":"tool_result","tool_use_id":"tool_1","content":"Launching skill"}]}}');
+    assert.equal(transcript.targetLoaded, false);
+});
+
+test('read containment rejects traversal, sibling prefixes and symlink escapes', () => {
+    const parent = mkdtempSync(join(tmpdir(), 'skill-containment-'));
+    const root = join(parent, 'root');
+    const outside = join(parent, 'root-other', 'skills', expectation.target);
+    mkdirSync(root);
+    mkdirSync(outside, { recursive: true });
+    writeFileSync(join(outside, 'SKILL.md'), 'Outside skill');
+    symlinkSync(join(parent, 'root-other', 'skills'), join(root, 'skills'));
+    try {
+        for (const path of [join(outside, 'SKILL.md'), `../root-other/skills/${expectation.target}/SKILL.md`, `skills/${expectation.target}/SKILL.md`]) {
+            const transcript = new Transcript(Harness.Pi, expectation, root);
+            transcript.consume(JSON.stringify({ type: 'tool_execution_start', toolCallId: 'read', toolName: 'read', args: { path } }));
+            transcript.consume('{"type":"tool_execution_end","toolCallId":"read","isError":false}');
+            assert.equal(transcript.targetLoaded, false);
+        }
+    } finally { rmSync(parent, { recursive: true }); }
 });
 
 test('Claude usage limits are an execution error, not a negative trigger verdict', () => {
