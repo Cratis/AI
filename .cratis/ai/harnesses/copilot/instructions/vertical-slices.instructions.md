@@ -141,13 +141,7 @@ public record PlaceOrder(OrderId OrderId, CustomerId CustomerId) : ICanProvideEv
 {
     public EventSourceId GetEventSourceId() => OrderId;
 
-    public async Task<Result<Customer, ValidationResult>> Provide(IReadModels readModels)
-    {
-        var customer = await readModels.GetInstanceById<Customer>((EventSourceId)CustomerId);
-        return customer is null ? ValidationResult.Error("Customer must exist.") : customer;
-    }
-
-    public OrderPlaced Handle(Customer customer) => new(customer.Name);
+    public OrderPlaced Handle([LookUpBy(nameof(PlaceOrder.CustomerId))] Customer customer) => new(customer.Name);
 }
 ```
 
@@ -307,7 +301,7 @@ query reference for versioned behavior and composition trade-offs.
 
 ### Choosing read-model access in command-side code **[convention]**
 
-Ladder, first that fits: (1) direct read-model injection — guarded under read protection `On`, advisory under `Off`; keyed by the command's own event-source id, or by `[LookUpBy]`; (2) a `[Passive]` projection; (3) `IReadModels.GetInstanceById<T>((EventSourceId)key)` for a different/derived key; (4) a materialized projection. A lookup *interface* is justified **only** for a genuine non-key search (e.g. find-by-email) — never to wrap a keyed `GetInstanceById`.
+Ladder, first that fits: (1) direct read-model injection — guarded under read protection `On`, advisory under `Off`; keyed by the command's own event-source id, or by `[LookUpBy]`; (2) a `[Passive]` projection; (3) `[LookUpBy<TProvider>]` for a runtime-computed key, or a flat lookup projection keyed by what the command carries; (4) `[Unprotected("why")]` for a read no injected model can cover, paired with what guards the append: a kernel constraint, another guarded typed parameter, or an explicit scope captured before the read (reason: "<key read> … guarded by <guard of the append>"). Never add an explicit scope on a source a typed injected read already guards: a race then throws `ExplicitScopeDoesNotCoverReads` instead of a clean concurrency violation. Direct `IDecisionReads`, `IReadModels` or `IEventStore` use is a deliberate exception outside the command path (reactors, services, startup checks), with a stated reason; never the default in a command. A lookup *interface* is justified **only** for a genuine non-key search (e.g. find-by-email) — never to wrap a keyed `GetInstanceById`.
 
 **[convention] One read model per consumer scenario, and dispatch never reads a UI model.** When a second consumer needs different semantics (board vs list vs count vs control flow), add a projection instead of extending the existing model; a command, reactor or job deciding what to do reads a model built for that decision, never a screen's listing model. The tell is a read model many slices import or one that projects many unrelated slices. Judgment-shaped; no gate.
 
@@ -421,7 +415,7 @@ Redaction is a system-event request that removes payload availability from the e
 
 ## Cross-slice patterns **[convention]**
 
-Cross-slice access is **read-only and goes through Chronicle** — inject another slice's read model (validator/`Provide()`/`Handle()`), read by explicit key with `IReadModels.GetInstanceById`, mark a `[Passive]` projection for a current read (a rule that must hold under concurrency needs read protection `On`, a stream decision or a constraint, see the `cratis-chronicle-decision-reads` skill's `references/choosing-how-a-rule-holds.md`), or react to its events. **Never** instantiate or DI another slice's command/handler/service.
+Cross-slice access is **read-only and goes through Chronicle** — inject another slice's read model (validator/`Provide()`/`Handle()`), read it from a reactor or service with `IReadModels.GetInstanceById` (a deliberate, reasoned exception, not a command read), mark a `[Passive]` projection for a current read (a rule that must hold under concurrency needs read protection `On`, a stream decision or a constraint, see the `cratis-chronicle-decision-reads` skill's `references/choosing-how-a-rule-holds.md`), or react to its events. **Never** instantiate or DI another slice's command/handler/service.
 
 **[convention] Prompts are content.** In an AI-backed feature, keep prompt bodies as resources (embedded files/templates) assembled by a typed composer, not as string literals in classes; the tell is a class dominated by multi-line prompt text. Judgment-shaped; no gate.
 

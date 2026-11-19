@@ -103,8 +103,7 @@ c. **accept and compensate**: allow the over-commit, detect it in a view or auto
    record a compensating fact (`EnrolmentWaitlisted`); only when the business agrees.
 
 Target realization (for the handoff, not the model): in an Arc/Chronicle target (Arc 22.39.0 or
-later, Chronicle 19.23 or later; see the Requires line below) the rule is a `[ProtectedDecision]` command reading `DecisionRead<T>` (or `IDecisionReads.Get<T>(key)` for
-another event source) in `Provide()`/`Handle()` and returning a validation result; a conflict
+later, Chronicle 19.23 or later; see the Requires line below) the rule is a `[ProtectedDecision]` command taking the read model as a typed parameter (`[LookUpBy]`/`[LookUpBy<TProvider>]` for another event source) in `Handle()` and returning a validation result; a conflict
 at commit is reported as a concurrency violation. Equivalently a Chronicle decision-consistency
 read with a `concurrency` scope on the event source or stream. A passive read is fresh
 computation, not an atomic read-and-append; a plain materialized view and a validator are

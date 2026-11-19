@@ -257,8 +257,8 @@ public Result<ItemAddedToCart, ValidationResult> Handle(CartSummary? cart) =>
   statements above compile without wrapping.
 - **Return the error; never throw it.**
 - One parameter per logical read model; several reads mean several parameters.
-- Keep the fetch for a *computed* key in `Provide()` with `IDecisionReads.Get`;
-  under `On`, `IReadModels` there is refused.
+- A *computed* key uses `[LookUpBy<TProvider>]` or a flat lookup projection; under `On`,
+  `IReadModels` or `IDecisionReads` in a command is not the default (`IReadModels` is refused).
 
 Read references/read-model-resolution.md when choosing lookup keys, handling a
 missing injected model, or distinguishing registration from slice conventions.

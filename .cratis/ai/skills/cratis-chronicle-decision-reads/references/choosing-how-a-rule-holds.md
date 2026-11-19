@@ -79,8 +79,7 @@ published scenario catalogue.
    (S5: approve a period once), a stream decision with `IStreamReads`.
 8. **Process stream with steps and completion** (S6): a definition with a stream per
    process, declared concurrency and a closed stream.
-9. **Gapless numbers** (S7): a numbering source read with `IDecisionReads` in
-   `Provide()`; `[Unique]` alone gives no duplicates but allows gaps.
+9. **Gapless numbers** (S7): a numbering source injected as a read-model parameter (`[LookUpBy]` or provider); `[Unique]` alone gives no duplicates but allows gaps.
 10. **Rich behaviour over one lifecycle** (S8: order lines, pay, ship, cancel): an
     aggregate root, returning `Commit()` last. An aggregate and a protected read
     of the same source in one command are refused.
@@ -237,8 +236,7 @@ conflicting event. Outside Development, a 500 message is replaced unless
 Common 500 refusals: `ReadCannotBeProtected` (shape, above),
 `AmbiguousReadModelLookup` (add `[LookUpBy]`), `ImmediateAppendWhileReadsAreProtected`
 (return the event), `ReadRefusedWhileReadsAreProtected` and
-`DetachedReadWhileReadsAreProtected` (parameter, `IDecisionReads.Get` in
-`Provide()`, or `[Unprotected("why")]`), `ReadAfterProtectedCommit` (read first,
+`DetachedReadWhileReadsAreProtected` (parameter, or `[Unprotected("why")]` naming what guards the append), `ReadAfterProtectedCommit` (read first,
 return `Commit()` last), `ReadOfSourceWithStagedEvents`, `ExplicitScopeDoesNotCoverReads`,
 `DeclaredRoutingNotCoveredByExplicitScope`, `ConflictingReadProtection`,
 `ReadModelStreamNotOnCommandRoute`.

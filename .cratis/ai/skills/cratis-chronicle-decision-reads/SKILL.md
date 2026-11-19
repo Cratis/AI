@@ -77,7 +77,7 @@ for the covered APIs, scope lifetime, rollback and immediate-append boundary.
   command/handler shapes and Arc `IStreamReads`, use **cratis-arc-command** and
   **cratis-arc-command-validation**; do not recreate their unit-of-work ownership in
   a handler. The Chronicle `IDecisionReads` below is for code outside an Arc
-  command (endpoints, services, `Provide()` for a computed key), not a license to
+  command (endpoints, services, reactors, startup checks), a deliberate exception with a stated reason; never the default read in a command, and not a license to
   invent an Arc wrapper shape.
 - For a unique value claimed atomically or a closed stream, use
   **cratis-chronicle-event-constraints**. A decision read guards one key's
@@ -134,8 +134,8 @@ projection also needs an explicit stream id, not the default wildcard.
 In Arc, prefer a per-stream read model
 (`[ReadModel, EventStream<TSource>("Transactions")]` on a command routed with
 `[EventSource<TSource>("Transactions")]` and `[EventStreamId("{Month}")]`); use
-the stream overloads of `IDecisionReads` in `Provide()` for another stream or
-source. Requires Arc 22.81.0 for the stream overloads inside Arc commands to use
+a stream read-model parameter or `[LookUpBy<TProvider>]` for another stream or
+source (direct `IDecisionReads` stream overloads only outside the command path). Requires Arc 22.81.0 for the stream overloads inside Arc commands to use
 command protection, caching and enrollment; older Arc refuses them.
 
 ## Commit and inspect conflicts
