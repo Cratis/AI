@@ -268,11 +268,16 @@ function short_flags(w, flags,    k) {
     return 1
 }
 function number(s) { return s ~ /^[+-]?[0-9]+$/ }
-function options_allowed(verb, first,    i, w, filters, patterns) {
+function options_allowed(verb, first,    i, w, filters, patterns, ended) {
     for (i = first; i <= argc; i++) {
         w = W[i]
-        if (w == "--") return 1
-        if (w !~ /^-/ || w == "-") { patterns++; continue }
+        if (!ended && w == "--") { if (verb !~ /^(sort|uniq)$/) return 1; ended = 1; continue }
+        if (ended || w !~ /^-/ || w == "-") {
+            # Admit sort/uniq only as stdin filters. File operands, including after
+            # --, retain whole-command classification and every existing refusal.
+            if (verb ~ /^(sort|uniq)$/) return 0
+            patterns++; continue
+        }
         if ((verb, w) in long_options) continue
         if (verb == "head" || verb == "tail" || verb == "git log") {
             if (w == "-n" || (verb != "git log" && w == "-c")) {
@@ -293,7 +298,12 @@ function options_allowed(verb, first,    i, w, filters, patterns) {
                 continue
             }
         }
-        if (verb == "git diff" && w ~ /^-U[0-9]+$/) continue
+        if (verb == "rg" && w ~ /^(--context|-C|--before-context|-B|--after-context|-A|--max-count|-m)$/) {
+            if (++i > argc || globbed[i] || W[i] !~ /^[0-9]+$/) return 0
+            continue
+        }
+        if (verb == "rg" && w ~ /^(--context|--before-context|--after-context|--max-count)=[0-9]+$/) continue
+        if (verb == "git diff" && w ~ /^(-U[0-9]+|--unified=[0-9]+|--diff-filter=[ACDMRTUXBacdmrtuxb*]+)$/) continue
         if (verb == "shellcheck" && w ~ /^--severity=(error|warning|info|style)$/) continue
         if ((verb == "git log" && w ~ /^--(format|pretty)=/) || (verb == "git show" && w ~ /^--format=/)) {
             if (index(w, "%(")) return 0
@@ -309,7 +319,7 @@ function options_allowed(verb, first,    i, w, filters, patterns) {
                 continue
             }
         }
-        if ((verb == "rg" && (w == "--glob" || w == "-g")) || (verb == "git grep" && (w == "-e" || w == "--regexp"))) {
+        if ((verb == "rg" && w ~ /^(--glob|-g|--iglob|--regexp|-e|--type|-t|--type-not|-T)$/) || (verb == "git grep" && (w == "-e" || w == "--regexp"))) {
             if (++i > argc || globbed[i]) return 0
             continue
         }
@@ -424,7 +434,7 @@ function reader_globs(    i, cmd, line, count, ok, script) {
     return 1
 }
 function glob_safe() {
-    return W[1] ~ /^(cat|head|tail|wc|ls|grep|egrep|fgrep|shellcheck)$/ || (W[1] ~ /^(rg|cp|rsync|install)$/ && reader_globs()) || (W[1] == "git" && W[2] == "ls-files")
+    return W[1] ~ /^(cat|head|tail|wc|ls|grep|egrep|fgrep|sort|uniq|shellcheck)$/ || (W[1] ~ /^(rg|cp|rsync|install)$/ && reader_globs()) || (W[1] == "git" && W[2] == "ls-files")
 }
 function find_allowed(    i, w, predicates) {
     for (i = 2; i <= argc; i++) {
@@ -478,7 +488,7 @@ function gh_allowed(    i, w, subcommand, read) {
 # be one of the script's own documented options, and nothing is admitted after a directory change, which
 # would select a different checkout's copy. Redirects stay classified by the caller.
 function managed_script(    i) {
-    if (changed_cwd) return 0
+    if (changed_cwd && !at_repository_root) return 0
     if (W[1] == "node" && W[2] == ".cratis/ai/hooks/scripts/cratis-check-pr.mjs") {
         for (i = 3; i <= argc; i++) {
             if (W[i] == "--strict") continue
@@ -487,6 +497,19 @@ function managed_script(    i) {
         }
         return 1
     }
+    if (W[1] == "node" && W[2] == ".cratis/ai/hooks/scripts/cratis-check-handoff.mjs") {
+        for (i = 3; i <= argc; i++) {
+            if (globbed[i]) return 0
+            if (W[i] ~ /^(--json|--strict)$/) continue
+            if (W[i] ~ /^(--repo|--state-note)$/) {
+                if (++i > argc || globbed[i] || W[i] == "" || W[i] ~ /^-/) return 0
+                continue
+            }
+            if (W[i] == "" || W[i] ~ /^-/) return 0
+        }
+        return 1
+    }
+    if (changed_cwd) return 0
     if (W[1] == "bash" && W[2] == ".cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh") {
         for (i = 3; i <= argc; i++) if (W[i] !~ /^--(dry-run|quiet|no-fetch)$/) return 0
         return 1
@@ -626,6 +649,9 @@ function allow_command(    verb, first, i) {
     if (verb == "cd") {
         directory_only = 1
         if (argc != 2 || W[2] == "" || W[2] ~ /^-/ || globbed[2] || file_redirect) fail()
+        # Only an initial literal cd to this exact checkout root proves which managed
+        # script a later command will execute. No realpath or environment expansion.
+        at_repository_root = commands == 1 && W[2] == ENVIRON["GSW_ROOT"]
         changed_cwd = 1
         return
     }
@@ -709,11 +735,46 @@ function readonly(s,    i, c, c2, sq, dq) {
         (directory_only && (nonconditional_separator || (has_pipeline && changed_index)))) fail()
     return !bad
 }
+# Only a complete, top-level literal cat heredoc is data. A quote, substitution,
+# comment, backslash or previous heredoc before its opening leaves the whole text
+# unclassified: the apparent cat might otherwise be inside another shell construct.
+# Reference mode retains the opening and terminator; reader mode reduces the proven
+# empty heredoc to cat plus its original output redirection. Never execute the text.
+function strip_data_heredocs(text, reader,    lines, count, i, j, line, before, after, delimiter, quoted, body, prefix, out) {
+    count = split(text, lines, "\n")
+    for (i = 1; i <= count; i++) {
+        line = lines[i]
+        if (prefix !~ /[\047"\\$`#<>]/ &&
+            line ~ /^[ \t]*cat[ \t]+((>|>>)[ \t]*[-.\/A-Za-z0-9_]+[ \t]+)?<<[ \t]*(\047[A-Za-z_][A-Za-z0-9_]*\047|"[A-Za-z_][A-Za-z0-9_]*"|[A-Za-z_][A-Za-z0-9_]*)[ \t]*((>|>>)[ \t]*[-.\/A-Za-z0-9_]+)?[ \t]*$/) {
+            before = substr(line, 1, index(line, "<<") - 1)
+            after = substr(line, index(line, "<<") + 2)
+            if (!(index(before, ">") && index(after, ">"))) {
+                sub(/^[ \t]+/, "", after); sub(/[ \t]*(>|>>).*$/, "", after); sub(/[ \t]+$/, "", after)
+                quoted = after ~ /^[\047"]/
+                delimiter = after; gsub(/[\047"]/, "", delimiter)
+                body = ""
+                for (j = i + 1; j <= count && lines[j] != delimiter; j++) body = body lines[j] "\n"
+                if (j <= count && (quoted || body !~ /[$`\\]/)) {
+                    if (reader) sub(/<<[ \t]*(\047[A-Za-z_][A-Za-z0-9_]*\047|"[A-Za-z_][A-Za-z0-9_]*"|[A-Za-z_][A-Za-z0-9_]*)/, "", line)
+                    out = out (i > 1 ? "\n" : "") line (reader ? "" : "\n" delimiter)
+                    for (; i < j; i++) prefix = prefix lines[i] "\n"
+                    prefix = prefix lines[i] "\n"
+                    continue
+                }
+            }
+        }
+        out = out (i > 1 ? "\n" : "") line
+        prefix = prefix line "\n"
+    }
+    return out
+}
 BEGIN {
     policy("cat", "nAvetsb", "")
     policy("head", "", ""); policy("tail", "", "")
     policy("wc", "lwcm", ""); policy("ls", "laA1hdRtrF", "")
-    policy("rg", "nli", "--files")
+    policy("rg", "nlisSovFux", "--files --hidden --no-heading --heading --smart-case --only-matching --invert-match --files-with-matches --files-without-match")
+    policy("sort", "nrufb", "--numeric-sort --reverse --unique --ignore-case --ignore-leading-blanks")
+    policy("uniq", "cdui", "--count --repeated --unique --ignore-case")
     policy("grep", "nirRlLcvwxFEHhoqs", "")
     policy("egrep", "nirRlLcvwxFEHhoqs", ""); policy("fgrep", "nirRlLcvwxFEHhoqs", "")
     policy("echo", "neE", "")
@@ -726,7 +787,7 @@ BEGIN {
     policy("awk", "", "")
     policy("shellcheck", "x", "--external-sources")
     policy("git status", "sb", "--short --porcelain")
-    policy("git diff", "p", "--stat --numstat --name-only --name-status --cached --staged --check --no-color --cc")
+    policy("git diff", "pwM", "--stat --numstat --name-only --name-status --cached --staged --check --no-color --cc --shortstat --summary --no-renames --no-ext-diff --color=never")
     policy("git log", "p", "--oneline --stat --name-only --no-color --follow")
     policy("git show", "p", "--stat --name-only --no-color")
     policy("git add", "Aupv", "--all"); policy("git commit", "aq", "")
@@ -735,7 +796,7 @@ BEGIN {
     policy("git rev-parse", "", ""); policy("git check-ignore", "", ""); policy("git grep", "n", "")
     for (i = 0; i < 16; i++) HEX[substr("0123456789abcdef", i + 1, 1)] = i
     ESC["n"] = 10; ESC["r"] = 13; ESC["t"] = 9; ESC["\\"] = 92; ESC["\047"] = 39; ESC["\""] = 34
-    text = ENVIRON["GSW_COMMAND"]
+    text = strip_data_heredocs(ENVIRON["GSW_COMMAND"], 0)
     MATCH_MARKER = "$__CRATIS_MATCH__"
     # Never interpret user-supplied or ANSI-decoded marker text as an internal token. Collisions
     # disable admission rather than assigning special meaning to an existing parameter or literal.
@@ -743,13 +804,13 @@ BEGIN {
     match_rewrite_safe = !index(text, MATCH_MARKER) && !index(decoded, MATCH_MARKER)
     if (ENVIRON["GSW_MODE"] == "references") { emit_text(text); exit 0 }
     if (ENVIRON["GSW_MODE"] == "targets") {
-        readonly(text)
+        readonly(strip_data_heredocs(ENVIRON["GSW_COMMAND"], 1))
         if (unparsed) emit_text(text)
         else for (i = 1; i <= emitted_count; i++) emit_text(emitted[i])
         exit 0
     }
     n = split(ENVIRON["GSW_PROTECTED"], a, "\n"); for (i = 1; i <= n; i++) protected_paths[a[i]] = 1
-    exit readonly(text) ? 0 : 1
+    exit readonly(strip_data_heredocs(ENVIRON["GSW_COMMAND"], 1)) ? 0 : 1
 }
 AWK
 # This stage is independent of the readonly/reference grammar above. Prefix syntax is
@@ -1498,7 +1559,7 @@ if [ -n "$destructive_text" ]; then
 fi
 glob_shell_safe=1
 if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]]; then glob_shell_safe=0; fi
-candidates_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_MODE=targets LC_ALL=C awk "$program" </dev/null)" || parser_failed
+candidates_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_ROOT="$repository_root" GSW_GLOB_SAFE="$glob_shell_safe" GSW_MODE=targets LC_ALL=C awk "$program" </dev/null)" || parser_failed
 [ -n "$candidates_text" ] || exit 0
 candidates=()
 while IFS= read -r candidate; do candidates[${#candidates[@]}]="$candidate"; done <<<"$candidates_text"
@@ -1525,6 +1586,6 @@ references="$("$BASH" "$classifier" --references <<<"$classifier_input" 2>"$clas
     exit 2
 }
 [ -n "$references" ] || exit 0
-if GSW_COMMAND="$command_text" GSW_MODE=readonly GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_PROTECTED="$references" LC_ALL=C awk "$program" </dev/null; then exit 0; fi
+if GSW_COMMAND="$command_text" GSW_MODE=readonly GSW_CWD="$cwd" GSW_ROOT="$repository_root" GSW_GLOB_SAFE="$glob_shell_safe" GSW_PROTECTED="$references" LC_ALL=C awk "$program" </dev/null; then exit 0; fi
 printf "BLOCKED by cratis-guard-shell-writes: protected reference '%s' (cratis-guard-writes). Use the edit/write tools, or report the intended change; for a read, name literal paths or use the Read/Grep tools.\n" "${references%%$'\n'*}" >&2
 exit 2
