@@ -1125,6 +1125,10 @@ test('test filters never exempt secret paths, expansions or other arguments (Cra
         [BLOCK, "echo ready\ndotnet run --project Source/App/App.csproj -- -filterVSTest 'App.Credentials'"],
         [BLOCK, "dotnet run --project Source/App/App.csproj -- -filterVSTest 'App.Tests' App.Credentials"],
         [BLOCK, "dotnet run --project Source/App/App.csproj -- -label 'App.Credentials'"],
+        ...['-p:RunCommand=/bin/cat -p:RunArguments=--', '/p:RunCommand=/bin/cat', '--property:RunCommand=/bin/cat', '--launch-profile Reader']
+            .map(override => [BLOCK, `dotnet run --project Source/App/App.csproj --no-build ${override} -- -class App.Credentials`] as [string, string]),
+        [BLOCK, 'RunCommand=/bin/cat RunArguments=-- dotnet run -- -class App.Credentials'],
+        [BLOCK, 'env RunCommand=/bin/cat dotnet run -- -class App.Credentials'],
         [BLOCK, "dotnet run -- -class 'App.Credentials"],
         [BLOCK, 'dotnet run -- -class "App.Credentials'],
         [BLOCK, "dotnet run -- -class $'App.Credentials"],
