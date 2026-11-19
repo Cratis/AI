@@ -65,8 +65,7 @@ export async function execute(command: string[], harness: Harness, cwd: string, 
         transcript.validateInitialization();
         failure ??= transcript.error;
         if (failure) throw new Error(`${command[0]}: ${failure}. Transcript: ${transcriptPath}`);
-        const failedExit = exit !== null && exit !== 0;
-        if (failedExit || (!stopped && (exit !== 0 || !transcript.completed))) {
+        if (!stopped && (exit !== 0 || !transcript.completed)) {
             throw new Error(`${command[0]} could not complete (exit ${exit}). Check the binary and login/usage limits. ${diagnostics.trim()} Transcript: ${transcriptPath}`);
         }
         return { transcript, durationSeconds: (performance.now() - started) / 1000, stopped };
