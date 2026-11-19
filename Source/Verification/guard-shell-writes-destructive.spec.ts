@@ -11,10 +11,10 @@ import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
 
 const guard = resolve(import.meta.dirname, '../../.cratis/ai/hooks/scripts/cratis-guard-shell-writes.sh');
-type Row = { command: string; cwd: 'root' | 'sub'; expect: 'block' | 'allow'; why: string; piGuard?: 'secrets' };
+type Row = { command: string; cwd: 'root' | 'sub'; expect: 'block' | 'allow'; why: string; piGuard?: 'secrets'; standaloneOnly?: boolean };
 const rows: Row[] = [];
-function add(expect: Row['expect'], commands: string[], why: string, cwd: Row['cwd'] = 'root', piGuard?: Row['piGuard']) {
-    rows.push(...commands.map(command => ({ command, cwd, expect, why, piGuard })));
+function add(expect: Row['expect'], commands: string[], why: string, cwd: Row['cwd'] = 'root', piGuard?: Row['piGuard'], options: Pick<Row, 'standaloneOnly'> = {}) {
+    rows.push(...commands.map(command => ({ command, cwd, expect, why, piGuard, ...options })));
 }
 function cross(wrappers: ((command: string) => string)[], cores: string[], expect: Row['expect']) {
     for (const wrapper of wrappers) add(expect, cores.map(wrapper), 'verb-first wrapper scan');
@@ -59,22 +59,21 @@ add('block', [
     "'rm' -rf .", '\\rm -rf .', '/bin/rm -rf .', "sh -c 'rm \"$1\"' _ .",
 ], 'ancestor, expansion, git, context and redirect regressions');
 add('allow', [
-    'rm -rf ./Source/Foo/bin/', 'mv Source/Foo/bin /tmp/build-destination', 'rm -rf "$PWD/node_modules"', 'rm -rf "${PWD}/Source/Foo/bin"',
-    'rm -rf "$HOME/node_modules"', 'rm -rf ~/node_modules', 'find . -print', 'git status', 'echo "$PWD"',
+    'rm -rf ./Source/Foo/bin/', 'mv Source/Foo/bin /tmp/build-destination', 'find . -print', 'git status', 'echo "$PWD"',
     'cratis ai init', 'cratis ai update', 'cratis ai restore', 'dotnet format .', 'docker build -t x .', 'npx prettier --write .',
     'yarn eslint --fix .', 'npx eslint .', 'cp README.md .', 'cp src/a.txt ./', 'mv Source/Verification/README.md .',
     'mv -t . Source/Verification/README.md', 'mv --target-directory=. README.md', 'tar -czf /tmp/o.tgz .', 'unzip x.zip -d .',
     'chmod -R u+w .', 'git checkout -- .', 'git restore .', 'find .', 'find . -type f', 'find . -exec echo {} \\;', 'find . -exec ls {} +',
     'rmdir Source/Foo/bin', 'git clean -ndx :/', "git clean -ndx ':(top)'", 'git clean -fdx --exclude -n -- node_modules',
     'cd Source && dotnet build .', 'pushd Source && npx prettier --write .', 'cd node_modules && rm -rf .', 'find . -exec echo rm {} \\;', 'find . -ok echo rm {} \\;',
-    'rm -f notes.txt~', 'rm -rf "build (old)"', "rm -f '~'", 'rm -rf "$PWD/build (old)"', 'sudo -u operator dotnet build .',
+    'rm -f notes.txt~', 'rm -rf "build (old)"', "rm -f '~'", 'sudo -u operator dotnet build .',
     'env -i -u X dotnet build .', 'nice -n 1 rm -rf node_modules', 'git -C . clean -fdx -- node_modules', 'git -P clean -fdx -- node_modules',
     'git --work-tree=. clean -fdx -- node_modules', 'git -C Source/Foo clean -fdx', 'git -C . -C Source/Foo clean -fdx', 'echo . | xargs echo rm',
     'bash -c "echo ready"', `sh -c 'echo "$1"' _ 'rm -rf .'`, 'sh script.sh rm -rf .', 'setsid npm run rm -- .', 'git -c alias.c=clean status', 'eval echo ready', '(dotnet build .)', 'cp x .', 'mv f .', 'docker build .',
     'sudo --preserve-env=PATH dotnet build .', 'git -C "$DIR" status', "find . -exec sh -c 'echo \"$0\"' {} \\;",
     'gh api user -q .login', "gh api repos/x/y -q '.[] | .name'", "gh pr list --json title -q '.[].title'",
     // Main's Pi secrets guard already refuses xargs -J and env -S; outside this advisory.
-    'echo rm -rf .', 'grep -r "rm -rf ." docs', 'cmd > "$out"', 'echo x > /dev/null', 'rm -rf "$TMPDIR/build"', '(cd Source && ls); ls',
+    'echo rm -rf .', 'grep -r "rm -rf ." docs', 'cmd > "$out"', 'echo x > /dev/null', '(cd Source && ls); ls',
     'echo x >> .', 'echo ready | cat',
     // Known limitation: expansion-produced verbs are not recognized; this is not a sandbox.
     'r=rm; $r -rf .',
@@ -84,7 +83,12 @@ add('block', ['git clean -fdx -enode_modules', 'git clean -fdxe -n', 'git clean 
 add('allow', ['git clean -fdxn -enode_modules', 'git clean -fdxne node_modules', 'git clean -fdx -e node_modules -n'], 'genuine dry-run before/after excludes');
 // R1 B3: tilde expansion applies only to unquoted operands, including cwd transitions.
 add('block', ['rm -rf ~+', 'rm -rf ~+/', 'rm -rf ~+"/"', 'rm -rf ~-', 'rm -rf ~-/', 'rm -rf ~operator', 'cd ~+ && rm -rf .cratis/..', 'cd ~- && rm -rf .'], 'tilde cwd or unresolved home');
-add('allow', ["rm -rf '~+'", "rm -rf '~-/'", 'rm -rf \\~+', 'rm -rf ~+/node_modules', 'cd ~+ && rm -rf node_modules', 'cd ~- && dotnet build .'], 'quoted tilde and safe/non-destructive targets');
+add('allow', ["rm -rf '~+'", "rm -rf '~-/'", 'rm -rf \\~+', 'cd ~- && dotnet build .'], 'quoted tilde and safe/non-destructive targets');
+// Expansion allowances require standalone tool input; automatic echo wrappers must fail closed.
+add('allow', [
+    'rm -rf "$PWD/node_modules"', 'rm -rf "${PWD}/Source/Foo/bin"', 'rm -rf "$HOME/node_modules"', 'rm -rf ~/node_modules',
+    'rm -rf "$PWD/build (old)"', 'rm -rf "$TMPDIR/build"', 'rm -rf ~+/node_modules', 'cd ~+ && rm -rf node_modules',
+], 'standalone expansion allowances', 'root', undefined, { standaloneOnly: true });
 // R1 B6/B7/B11 and A1/A4: only established prefixes expose command positions.
 add('allow', [
     'du -sh /bin/rm .', 'realpath /bin/rm .', './scripts/cli.sh rm "$id"', 'node build.js mv "$a" b',
@@ -264,14 +268,16 @@ test('destructive operands protect controls without executing any command (direc
         await Promise.all(all.map(row =>
             context.test(`${row.expect} [${row.cwd}] ${row.command}`, { timeout: 60000 }, async scenario => {
                 const cwd = row.cwd === 'sub' ? join(root, 'Source/Foo') : root;
-                for (const command of [row.command, `echo ok;\n${row.command}\necho ok`]) {
+                for (const wrapped of [false, true]) {
+                    const command = wrapped ? `echo ok;\n${row.command}\necho ok` : row.command;
+                    const expectBlock = row.expect === 'block' || (wrapped && row.standaloneOnly === true);
                     const direct = await shellVerdict(command, cwd, '0', scenario.signal);
-                    assert.equal(direct.status, row.expect === 'block' ? 2 : 0, `${row.why}: ${command}\n${direct.stderr}`);
+                    assert.equal(direct.status, expectBlock ? 2 : 0, `${row.why}: ${command}\n${direct.stderr}`);
                     const pi = await call({ toolName: 'bash', input: { command } }, { cwd }) as { block?: boolean; reason?: string } | undefined;
                     if (row.piGuard === 'secrets') {
                         assert.equal(pi?.block, true, command);
                         assert.match(pi?.reason ?? '', /BLOCKED by cratis-guard-secrets/, command);
-                    } else if (row.expect === 'allow') assert.equal(pi, undefined, `${command}: ${pi?.reason}`);
+                    } else if (!expectBlock) assert.equal(pi, undefined, `${command}: ${pi?.reason}`);
                     else {
                         assert.equal(pi?.block, true, command);
                         assert.match(pi?.reason ?? '', /BLOCKED by cratis-guard-shell-writes/, command);
