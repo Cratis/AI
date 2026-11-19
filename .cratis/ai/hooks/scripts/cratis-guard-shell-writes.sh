@@ -759,6 +759,11 @@ function base(word) { sub(/^.*\//, "", word); return word }
 function member(list, word) { return index(" " list " ", " " word " ") > 0 }
 function destructive(word) { return member("rm rmdir unlink shred mv", base(word)) }
 function shell(word) { return member("sh bash dash zsh ksh ash", base(word)) }
+# Command-head recognition is shared by dispatch and directory tracking. time retains
+# its option-aware wrapper handling below; grouping delimiters also split segments.
+function command_prefix(word) {
+    return word ~ /^[A-Za-z_][A-Za-z0-9_]*=/ || member("then do else elif ! if while until { ( coproc", word)
+}
 # Only these established execution prefixes expose another command position.
 function wrapper(word) {
     return member("sudo doas env command builtin exec nohup nice ionice timeout time stdbuf xargs setsid chroot nsenter busybox", base(word))
@@ -809,30 +814,77 @@ function arithmetic_prefix(text, i, quoted) {
     if (!quoted && substr(text, i, 2) == "((") return i + 2
     return 0
 }
-# Expand only the documented literal prefixes; never evaluate shell text.
-function resolved(word, quoted, cwd, uncertain,    suffix, rest) {
-    if (word ~ /^\$PWD(\/|$)/) word = cwd substr(word, 5)
-    else if (word ~ /^\$\{PWD\}(\/|$)/) word = cwd substr(word, 7)
-    else if (word ~ /^\$HOME(\/|$)/) word = ENVIRON["HOME"] substr(word, 6)
-    else if (word ~ /^\$\{HOME\}(\/|$)/) word = ENVIRON["HOME"] substr(word, 8)
-    else if (!quoted && word ~ /^~(\/|$)/) word = ENVIRON["HOME"] substr(word, 2)
-    else if (!quoted && word ~ /^~\+(\/|$)/) word = cwd substr(word, 3)
-    else if (!quoted && word ~ /^~/) return "!"
-    if (word ~ /[$`]/) {
-        # A variable prefix with a literal suffix is not evidence of a root operand.
-        rest = word
-        if (rest ~ /^\$\{[A-Za-z_][A-Za-z0-9_]*\}\//) sub(/^\$\{[A-Za-z_][A-Za-z0-9_]*\}\//, "", rest)
-        else if (rest ~ /^\$[A-Za-z_][A-Za-z0-9_]*\//) sub(/^\$[A-Za-z_][A-Za-z0-9_]*\//, "", rest)
-        else return "!"
-        if (rest == "" || rest ~ /[$`]/) return "!"
-        word = rest
+# Exceptions need a whole-tool simple command, not a guess about earlier mutations.
+# Quoted parentheses and parameter braces remain word data in the lexer.
+function simple_command(text, d, n,    i, head) {
+    head = base(W[d, 1])
+    if (!destructive(head) && head != "git" && head != "find") return 0
+    if (text ~ /`|\$\(/) return 0
+    for (i = 1; i <= n; i++) {
+        if (BC[d, i] || (K[d, i] != "word" && K[d, i] !~ /^(>|>>|>&|&>|&>>|<|<&)$/)) return 0
     }
+    return 1
+}
+function unquoted_expansion(raw,    i, c, quote) {
+    for (i = 1; i <= length(raw); i++) {
+        c = substr(raw, i, 1)
+        if (c == "\\" && quote != "\047") { i++; continue }
+        if (quote != "") { if (c == quote) quote = ""; continue }
+        if (c == "\047" || c == "\"") { quote = c; continue }
+        if (c == "*" || c == "?" || c == "[" || c == "$" || c == "`") return 1
+    }
+    return 0
+}
+# Raw-source proof excludes splitting and mixed unquoted globs. A value of 2
+# marks quoted predicate data, not an eligible environment path prefix.
+function quoted_prefix(raw) {
+    if (raw ~ /^~/) return !unquoted_expansion(raw)
+    if (raw ~ /^"\$(\{(PWD|HOME|TMPDIR)\}|PWD|HOME|TMPDIR)(\/|")/ && !unquoted_expansion(raw)) return 1
+    return (raw ~ /^"[^"]*"$/ || raw ~ /^\047[^\047]*\047$/) ? 2 : 0
+}
+# Only raw, unquoted ~+ with a literal suffix can establish the initial cwd.
+function literal_current_directory(raw, word) {
+    return raw == word && word ~ /^~\+(\/|$)/ && substr(word, 3) !~ /[$`~*?\[{}]/
+}
+# A destructive expansion exception must name only real descendant components.
+function descendant_suffix(suffix,    parts, count, i) {
+    if (suffix !~ /^\// || suffix ~ /[$`*?\[{}~]/ || index(suffix, "]") || index(suffix, "\\")) return 0
+    gsub(/\/+/, "/", suffix)
+    sub(/\/$/, "", suffix)
+    count = split(substr(suffix, 2), parts, "/")
+    if (!count) return 0
+    for (i = 1; i <= count; i++) {
+        if (parts[i] == "" || parts[i] == "." || parts[i] == "..") return 0
+    }
+    return 1
+}
+function environment_prefix(word, require_descendant,    name, suffix, end) {
+    if (word ~ /^\$\{(PWD|HOME|TMPDIR)\}(\/|$)/) {
+        end = index(word, "}"); name = substr(word, 3, end - 3); suffix = substr(word, end + 1)
+    } else if (word ~ /^\$(PWD|HOME|TMPDIR)(\/|$)/) {
+        name = substr(word, 2); sub(/\/.*/, "", name); suffix = substr(word, length(name) + 2)
+    } else return "!"
+    if (require_descendant && !descendant_suffix(suffix)) return "!"
+    return (name == "PWD" ? ENVIRON["GSW_CWD"] : ENVIRON[name]) suffix
+}
+function resolved(word, quoted, cwd, uncertain, double_quoted, ordinary,    expanded, suffix) {
+    expanded = word ~ /^\$/ || (!quoted && word ~ /^~/)
+    if (expanded && !ordinary && (!exception_allowed || double_quoted != 1)) return "!"
+    if (word ~ /^\$/) word = double_quoted == 1 ? environment_prefix(word, !ordinary) : "!"
+    else if (!quoted && word ~ /^~(\/|$)/) {
+        suffix = substr(word, 2)
+        word = ordinary || descendant_suffix(suffix) ? ENVIRON["HOME"] suffix : "!"
+    } else if (!quoted && word ~ /^~\+(\/|$)/) {
+        suffix = substr(word, 3)
+        word = ordinary || descendant_suffix(suffix) ? ENVIRON["GSW_CWD"] suffix : "!"
+    } else if (!quoted && word ~ /^~/) return "!"
+    if (word == "!" || word ~ /[$`]/ || (expanded && word ~ /^-/)) return "!"
     if (word ~ /^\//) return word
     if (uncertain) return "!"
     return cwd "/" word
 }
-function operand(word, quoted, cwd, uncertain) {
-    if (word != "" && word != "{}") emit(resolved(word, quoted, cwd, uncertain))
+function operand(word, quoted, cwd, uncertain, double_quoted) {
+    if (word != "" && word != "{}") emit(resolved(word, quoted, cwd, uncertain, double_quoted))
 }
 # Heredoc delimiters are quote-removed, never expanded or executed.
 function heredoc_word(text, start,    i, c, quote, word, active) {
@@ -914,10 +966,11 @@ function data_substitutions(text, d, word,    i, c, body, k) {
         }
     }
 }
-function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, pending, delimiter, strip, hd_index, end) {
+function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, pending, delimiter, strip, hd_index, end, word_start) {
     n = 0; quote = ""; word = ""; active = 0; quoted = 0; pending = 0
     for (i = 1; i <= length(text); i++) {
         c = substr(text, i, 1); nextc = substr(text, i + 1, 1)
+        if (!active) word_start = i
         if (quote != "\047" && (k = arithmetic_prefix(text, i, quote != ""))) {
             body = arithmetic(text, k, arithmetic_bracket); unclassified(body)
             i = arithmetic_end; word = word "$__arithmetic"; active = 1; continue
@@ -949,7 +1002,7 @@ function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, p
         }
         if (c == "{" && nextc == "}") { word = word "{}"; i++; active = 1; continue }
         if (c ~ /[ \t\r\n;&|(){}<>]/) {
-            if (active) { W[d, ++n] = word; Q[d, n] = quoted; K[d, n] = "word"; T[d, n] = i - 1; F[d, n] = !quoted && word ~ /^[0-9]+$/ && substr(text, i - length(word), length(word)) == word; word = ""; active = quoted = 0 }
+            if (active) { W[d, ++n] = word; Q[d, n] = quoted; DQ[d, n] = quoted_prefix(substr(text, word_start, i - word_start)); CT[d, n] = literal_current_directory(substr(text, word_start, i - word_start), word); K[d, n] = "word"; T[d, n] = i - 1; F[d, n] = !quoted && word ~ /^[0-9]+$/ && substr(text, i - length(word), length(word)) == word; word = ""; active = quoted = 0 }
             if (c ~ /[ \t\r]/) continue
             if (c == "<" && nextc == "<") {
                 if (substr(text, i, 3) == "<<<") { W[d, ++n] = "<<<"; K[d, n] = "<<<"; T[d, n] = i; i += 2; continue }
@@ -984,7 +1037,7 @@ function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, p
         }
         word = word c; active = 1
     }
-    if (active) { W[d, ++n] = word; Q[d, n] = quoted; K[d, n] = "word" }
+    if (active) { W[d, ++n] = word; Q[d, n] = quoted; DQ[d, n] = quoted_prefix(substr(text, word_start)); CT[d, n] = literal_current_directory(substr(text, word_start), word); K[d, n] = "word" }
     if (quote != "" || pending) unclassified(remaining(d, 1, n))
     return n
 }
@@ -1019,7 +1072,7 @@ function wrapper_flag(program, option) {
 # Dispatch uses an argv copy, never shell source. Every prefix shares the same
 # redirection tail and inherited pipe input; splitting env argv cannot discard either.
 function copy_token(source, from, dest, to,    j) {
-    W[dest, to] = W[source, from]; Q[dest, to] = Q[source, from]; K[dest, to] = K[source, from]
+    W[dest, to] = W[source, from]; Q[dest, to] = Q[source, from]; DQ[dest, to] = DQ[source, from]; K[dest, to] = K[source, from]
     H[dest, to] = H[source, from]; T[dest, to] = T[source, from]; F[dest, to] = F[source, from]
     BC[dest, to] = BC[source, from]
     for (j = 1; j <= BC[source, from]; j++) B[dest, to, j] = B[source, from, j]
@@ -1079,7 +1132,7 @@ function env_words(text, slot,    i, c, nextc, quote, word, active, n) {
 function executable(d, start, end,    i, j, program, option, split_at, text, slot, count, first, expansions) {
     prefix_uncertain = 0; prefix_fed = 0; dispatch_end = end; i = start
     while (i <= end) {
-        if (W[d, i] ~ /^[A-Za-z_][A-Za-z0-9_]*=/) { i++; continue }
+        if (command_prefix(W[d, i])) { i++; continue }
         program = base(W[d, i])
         if (!wrapper(program)) return redirection(d, i) ? 0 : i
         if (member("chroot nsenter", program)) prefix_uncertain = 1
@@ -1123,7 +1176,7 @@ function removal(d, verb, end, cwd, uncertain, findpaths,    i, w, count, option
             if (w ~ /^--target-directory=/ || w ~ /^-t./) { target = 1; continue }
         }
         if (options && w ~ /^-/) continue
-        O[d, ++count] = w; OQ[d, count] = Q[d, i]
+        O[d, ++count] = w; OQ[d, count] = Q[d, i]; ODQ[d, count] = DQ[d, i]
     }
     if (base(W[d, verb]) == "mv" && !target) count--
     for (j = 1; j <= count; j++) {
@@ -1131,7 +1184,7 @@ function removal(d, verb, end, cwd, uncertain, findpaths,    i, w, count, option
         if (w == "{}") {
             if (findpaths != "") emit(findpaths)
             else emit("!")
-        } else operand(w, OQ[d, j], cwd, uncertain)
+        } else operand(w, OQ[d, j], cwd, uncertain, ODQ[d, j])
         sources++
     }
 }
@@ -1140,7 +1193,7 @@ function git_clean(d, verb, end, cwd, uncertain, findpaths, depth, fed,    i, j,
     for (i = verb + 1; i <= end; i++) {
         w = W[d, i]
         if (w == "-C") {
-            cwd = resolved(W[d, ++i], Q[d, i], cwd, uncertain)
+            cwd = resolved(W[d, ++i], Q[d, i], cwd, uncertain, DQ[d, i])
             if (cwd == "!") uncertain = 1
         } else if (w == "-c") {
             alias = W[d, ++i]
@@ -1148,8 +1201,9 @@ function git_clean(d, verb, end, cwd, uncertain, findpaths, depth, fed,    i, j,
                 name = alias; sub(/^alias\./, "", name); sub(/=.*/, "", name)
                 sub(/^[^=]*=/, "", alias); A[call, name] = alias
             }
+        } else if (w ~ /[$`]/) { emit("!"); return }
         # Git 2.50.1 git.c handle_options(), plus legacy --super-prefix.
-        } else if (member("--git-dir --work-tree --namespace --config-env --attr-source --super-prefix --shallow-file", w)) i++
+        else if (member("--git-dir --work-tree --namespace --config-env --attr-source --super-prefix --shallow-file", w)) i++
         else if (w ~ /^--(git-dir|work-tree|namespace|config-env|attr-source|super-prefix|exec-path)=/) continue
         else if (member("-h --help -v --version --html-path --man-path --info-path --exec-path", w) || w ~ /^--list-cmds=/) return
         else if (member("-p --paginate -P --no-pager --no-replace-objects --no-lazy-fetch --no-optional-locks --no-advice --bare --literal-pathspecs --no-literal-pathspecs --glob-pathspecs --noglob-pathspecs --icase-pathspecs", w)) continue
@@ -1171,6 +1225,9 @@ function git_clean(d, verb, end, cwd, uncertain, findpaths, depth, fed,    i, j,
     for (i = subcommand + 1; i <= end; i++) {
         w = W[d, i]
         if (K[d, i] ~ /^[<>]/) break
+        # An expansion may supply Git options, even when shell-quoted. Only an
+        # eligible, fully double-quoted environment path has a proven argv shape.
+        if (w ~ /[$`]/ && (!DQ[d, i] || resolved(w, Q[d, i], cwd, uncertain, DQ[d, i]) == "!")) { emit("!"); return }
         if (!skip && w == "--") { skip = 1; continue }
         if (!skip && w == "--exclude") { i++; continue }
         if (!skip && w ~ /^--exclude=/) continue
@@ -1193,7 +1250,7 @@ function git_clean(d, verb, end, cwd, uncertain, findpaths, depth, fed,    i, j,
         if (w ~ /^:\// || w ~ /^:\(top/) emit(ENVIRON["GSW_ROOT"])
         else if (w ~ /^:\(/) emit("!")
         else if (w == "{}" && findpaths != "") emit(findpaths)
-        else operand(w, Q[d, i], cwd, uncertain)
+        else operand(w, Q[d, i], cwd, uncertain, DQ[d, i])
     }
     if (!paths) operand(".", 0, cwd, uncertain)
 }
@@ -1202,14 +1259,24 @@ function find_command(d, verb, end, cwd, uncertain, depth, fed,    i, j, start, 
     for (i = verb + 1; i <= end; i++) {
         w = W[d, i]
         if (member("-H -L -P", w)) continue
+        # A bare expanded word may be a predicate rather than a starting path;
+        # an unquoted expansion can additionally supply several argument words.
+        if (w ~ /[$`]/ && (!Q[d, i] || (w !~ /\// && environment_prefix(w) == "!"))) { emit("!"); return }
         if (w ~ /^-/ || w == "!" || w == "(") break
-        p = resolved(w, Q[d, i], cwd, uncertain)
+        p = resolved(w, Q[d, i], cwd, uncertain, DQ[d, i])
         FP[depth, ++have] = p
     }
     if (!have) FP[depth, ++have] = resolved(".", 0, cwd, uncertain)
     for (j = 1; j <= have; j++) paths = paths (j == 1 ? "" : "\n") FP[depth, j]
     for (; i <= end; i++) {
         w = W[d, i]
+        # Arguments to known predicates are data, not possible injected actions.
+        if (member("-name -iname -path -ipath -wholename -iwholename -regex -iregex -lname -ilname -type -xtype -size -user -group -uid -gid -perm -mtime -atime -ctime -mmin -amin -cmin -newer -newermt -maxdepth -mindepth -printf -fprint -fprint0 -samefile -links -inum -fstype -used -context", w)) {
+            i++
+            if (W[d, i] ~ /[$`]/ && !DQ[d, i]) { emit("!"); return }
+            continue
+        }
+        if (w ~ /[$`]/) { emit("!"); return }
         if (w == "-delete") deleted = 1
         if (member("-exec -execdir -ok -okdir", w)) {
             start = i + 1
@@ -1324,13 +1391,17 @@ function shell_command(d, head, end, cwd, uncertain, depth, pipe, fed,    i, j, 
     script = stdin_data(d, head + 1, end, pipe)
     if (script != "") parse(script, cwd, uncertain, depth + 1, fed)
 }
-function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed, outgoing,    head, i, j, k, w, script, context) {
+function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed, outgoing,    head, i, j, k, w, script, context, target) {
     if (start > end) return ""
+    exception_allowed = simple_tool && d == 0 && start == 1 && end == N[0]
     # Substitutions/redirections execute in the calling shell, even for unknown programs.
     if (depth > 4) unclassified(remaining(d, start, end))
     for (i = start; depth <= 4 && i <= end; i++) {
         for (k = 1; k <= BC[d, i]; k++) parse(B[d, i, k], cwd, uncertain, depth + 1, 0)
-        if ((K[d, i] == ">" || K[d, i] == "&>") && i < end && W[d, i + 1] !~ /[$`]/ && W[d, i + 1] != "/dev/null") operand(W[d, i + 1], Q[d, i + 1], cwd, uncertain)
+        if ((K[d, i] == ">" || K[d, i] == "&>") && i < end && W[d, i + 1] !~ /[$`]/ && W[d, i + 1] != "/dev/null") {
+            target = resolved(W[d, i + 1], Q[d, i + 1], cwd, uncertain, DQ[d, i + 1], 1)
+            emit(target)
+        }
     }
     d = dispatch(d, start, end); head = dispatch_head; end = dispatch_end
     context = uncertain || prefix_uncertain; fed = fed || prefix_fed
@@ -1358,22 +1429,31 @@ function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed, out
 function parse(text, cwd, uncertain, depth, fed,    n, i, start, kind, level, head, path, old, j, pipe, data) {
     # Lex before the depth fallback so properly terminated heredoc bodies stay data.
     # A depth slot may be reused by several script words.
-    for (i = 1; i <= N[depth]; i++) { delete W[depth, i]; delete Q[depth, i]; delete K[depth, i]; delete H[depth, i]; delete T[depth, i]; delete F[depth, i]; BC[depth, i] = 0 }
+    for (i = 1; i <= N[depth]; i++) { delete W[depth, i]; delete Q[depth, i]; delete DQ[depth, i]; delete CT[depth, i]; delete K[depth, i]; delete H[depth, i]; delete T[depth, i]; delete F[depth, i]; BC[depth, i] = 0 }
     n = lex(text, depth); N[depth] = n; start = 1; level = 0
+    if (depth == 0) simple_tool = simple_command(text, depth, n)
     for (i = 1; i <= n + 1; i++) {
         kind = K[depth, i]
         if (i <= n && kind != ";" && kind != "\n" && kind != "&" && kind != "&&" && kind != "|" && kind != "|&" && kind != "||" && kind != "(" && kind != ")" && kind != "{" && kind != "}") continue
         data = segment(depth, start, i - 1, cwd, uncertain, depth, "", pipe, fed, kind)
         pipe = (kind == "|" || kind == "|&" ? data : "")
         head = start
-        while (head < i && W[depth, head] ~ /^[A-Za-z_][A-Za-z0-9_]*=/) head++
+        while (head < i && command_prefix(W[depth, head])) head++
         if (kind != "|" && kind != "|&" && member("cd pushd popd", W[depth, head])) {
-            path = W[depth, head + 1]
-            if (path == "--") path = W[depth, head + 2]
-            if (W[depth, head] == "popd" || path == "" || path == "-") uncertain = 1
+            old = ""
+            for (j = head + 1; j < i; j++) {
+                if (K[depth, j] == "word" && W[depth, j] ~ /^-/) { old = "!"; break }
+            }
+            j = head + 1
+            path = W[depth, j]
+            if (old == "!" || W[depth, head] == "popd" || path == "") uncertain = 1
             else {
-                if (path ~ /[$`]/ && path !~ /^\$(PWD|HOME)(\/|$)/ && path !~ /^\$\{(PWD|HOME)\}(\/|$)/) old = "!"
-                else old = resolved(path, Q[depth, head + 1], cwd, uncertain)
+                # The sole expansion proof is an initial, top-level cd ~+/literal.
+                # Nested/later destinations never consult an environment prefix.
+                if (depth == 0 && level == 0 && start == 1 && head == 1 && W[depth, head] == "cd" && CT[depth, j] && !uncertain) old = ENVIRON["GSW_CWD"] substr(path, 3)
+                else if (path ~ /[$`~*?\[{}]/) old = "!"
+                else if (path ~ /^\//) old = path
+                else old = uncertain ? "!" : cwd "/" path
                 if (old == "!") uncertain = 1
                 else { cwd = old; uncertain = 0 }
             }
