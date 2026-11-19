@@ -268,11 +268,16 @@ function short_flags(w, flags,    k) {
     return 1
 }
 function number(s) { return s ~ /^[+-]?[0-9]+$/ }
-function options_allowed(verb, first,    i, w, filters, patterns) {
+function options_allowed(verb, first,    i, w, filters, patterns, ended) {
     for (i = first; i <= argc; i++) {
         w = W[i]
-        if (w == "--") return 1
-        if (w !~ /^-/ || w == "-") { patterns++; continue }
+        if (!ended && w == "--") { if (verb !~ /^(sort|uniq)$/) return 1; ended = 1; continue }
+        if (ended || w !~ /^-/ || w == "-") {
+            # Admit sort/uniq only as stdin filters. File operands, including after
+            # --, retain whole-command classification and every existing refusal.
+            if (verb ~ /^(sort|uniq)$/) return 0
+            patterns++; continue
+        }
         if ((verb, w) in long_options) continue
         if (verb == "head" || verb == "tail" || verb == "git log") {
             if (w == "-n" || (verb != "git log" && w == "-c")) {
@@ -709,11 +714,48 @@ function readonly(s,    i, c, c2, sq, dq) {
         (directory_only && (nonconditional_separator || (has_pipeline && changed_index)))) fail()
     return !bad
 }
+# Only a complete, top-level literal cat heredoc is data. A quote, substitution,
+# comment, backslash or previous heredoc before its opening leaves the whole text
+# unclassified: the apparent cat might otherwise be inside another shell construct.
+# Reference extraction always uses the original text, including every body. Only
+# the read-only check reduces a proven heredoc to cat and its output redirection.
+# Protected bodies may be printed but never materialized to a file. Never execute text.
+function strip_data_heredocs(text,    lines, count, i, j, line, before, after, delimiter, quoted, body, prefix, out) {
+    count = split(text, lines, "\n")
+    for (i = 1; i <= count; i++) {
+        line = lines[i]
+        if (prefix !~ /[\047"\\$`#<>]/ &&
+            line ~ /^[ \t]*cat[ \t]+((>|>>)[ \t]*[-.\/A-Za-z0-9_]+[ \t]+)?<<[ \t]*(\047[A-Za-z_][A-Za-z0-9_]*\047|"[A-Za-z_][A-Za-z0-9_]*"|[A-Za-z_][A-Za-z0-9_]*)[ \t]*((>|>>)[ \t]*[-.\/A-Za-z0-9_]+)?[ \t]*$/) {
+            before = substr(line, 1, index(line, "<<") - 1)
+            after = substr(line, index(line, "<<") + 2)
+            if (!(index(before, ">") && index(after, ">"))) {
+                sub(/^[ \t]+/, "", after); sub(/[ \t]*(>|>>).*$/, "", after); sub(/[ \t]+$/, "", after)
+                quoted = after ~ /^[\047"]/
+                delimiter = after; gsub(/[\047"]/, "", delimiter)
+                body = ""
+                for (j = i + 1; j <= count && lines[j] != delimiter; j++) body = body lines[j] "\n"
+                if (j <= count && (quoted || body !~ /[$`\\]/)) {
+                    if (index(before, ">") || index(line, ">")) heredoc_writes = 1
+                    sub(/<<[ \t]*(\047[A-Za-z_][A-Za-z0-9_]*\047|"[A-Za-z_][A-Za-z0-9_]*"|[A-Za-z_][A-Za-z0-9_]*)/, "", line)
+                    out = out (i > 1 ? "\n" : "") line
+                    for (; i < j; i++) prefix = prefix lines[i] "\n"
+                    prefix = prefix lines[i] "\n"
+                    continue
+                }
+            }
+        }
+        out = out (i > 1 ? "\n" : "") line
+        prefix = prefix line "\n"
+    }
+    return out
+}
 BEGIN {
     policy("cat", "nAvetsb", "")
     policy("head", "", ""); policy("tail", "", "")
     policy("wc", "lwcm", ""); policy("ls", "laA1hdRtrF", "")
     policy("rg", "nli", "--files")
+    policy("sort", "nrufb", "--numeric-sort --reverse --unique --ignore-case --ignore-leading-blanks")
+    policy("uniq", "cdui", "--count --repeated --unique --ignore-case")
     policy("grep", "nirRlLcvwxFEHhoqs", "")
     policy("egrep", "nirRlLcvwxFEHhoqs", ""); policy("fgrep", "nirRlLcvwxFEHhoqs", "")
     policy("echo", "neE", "")
@@ -743,13 +785,17 @@ BEGIN {
     match_rewrite_safe = !index(text, MATCH_MARKER) && !index(decoded, MATCH_MARKER)
     if (ENVIRON["GSW_MODE"] == "references") { emit_text(text); exit 0 }
     if (ENVIRON["GSW_MODE"] == "targets") {
-        readonly(text)
-        if (unparsed) emit_text(text)
+        reduced = strip_data_heredocs(text)
+        readonly(reduced)
+        # Reducing data must never erase a protected reference and skip the final
+        # read-only check, even when the reduced command itself has no targets.
+        if (unparsed || reduced != text) emit_text(text)
         else for (i = 1; i <= emitted_count; i++) emit_text(emitted[i])
         exit 0
     }
     n = split(ENVIRON["GSW_PROTECTED"], a, "\n"); for (i = 1; i <= n; i++) protected_paths[a[i]] = 1
-    exit readonly(text) ? 0 : 1
+    reduced = strip_data_heredocs(text)
+    exit (readonly(reduced) && !heredoc_writes) ? 0 : 1
 }
 AWK
 # This stage is independent of the readonly/reference grammar above. Prefix syntax is
