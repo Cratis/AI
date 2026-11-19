@@ -23,7 +23,7 @@ In a managed session the bundled corpus is the same set of files as the session'
 
 Do not select a guard corpus per call. A session runs the guards of its starting checkout (or the bundled corpus when that checkout has none), and never executes scripts from a checkout that a command or path merely names. The bridge changes nothing; a specification pins the behavior.
 
-Exception, tracked separately in [Cratis/AI#1256](https://github.com/Cratis/AI/issues/1256): the session's `cratis-guard-writes.sh` reads *policy* about the write target's repository when it decides dependency-manifest writes. The target's boolean `allowDependencyManifestWrites` in its `.cratis/ai.json` overrides; when that is absent, the target's GitHub `Cratis/*` origin decides. That reads data about the target; it never runs the target's scripts.
+Related, decided in [Cratis/AI#1256](https://github.com/Cratis/AI/issues/1256): the session's `cratis-guard-writes.sh` reads *policy* about the write target's repository when it decides dependency-manifest writes, but the session's own policy decides. The target's `allowDependencyManifestWrites` or `Cratis/*` origin can only tighten that (block), never unlock a write the session's policy blocks. That reads data about the target; it never runs the target's scripts.
 
 Remedy for a false refusal: run `cratis ai update` in the starting checkout (scripts are read per call, so no restart), or start the session in the checkout you change.
 
