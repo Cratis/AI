@@ -1,0 +1,4 @@
+{"type":"session","id":"synthetic-pi-forbidden","synthetic":true}
+{"type":"tool_execution_start","toolCallId":"pi-read-1","toolName":"read","args":{"path":"src/Greeting.tsx"}}
+{"type":"tool_execution_end","toolCallId":"pi-read-1","toolName":"read","result":{"content":[{"type":"text","text":"Greeting component"}]}}
+{"type":"tool_execution_start","toolCallId":"pi-browser-1","toolName":"browser_click","args":{"selector":"#greeting","token":"ghp_abcdefgh12345"}}
