@@ -175,10 +175,12 @@ public async Task<Result<Customer, ValidationResult>> Provide(IReadModels readMo
 
 ## Step 5 — Guard a concurrency-sensitive decision
 
-Read protection `On` is the default from Arc 23; on Arc 22 set
-`<CratisReadProtection>On</CratisReadProtection>`
-in the project (or `[ReadProtection(ReadProtectionMode.On)]` on one command). Under
-`On`, the read-model parameters of `Handle()` and of the validator constructor are
+Read protection `On` is the default from Arc 23: leave `<CratisReadProtection>` unset
+and do not add `[ReadProtection(ReadProtectionMode.On)]`. (Legacy, Arc 22.106.0 and later 22.x:
+the default was `Off`; set `<CratisReadProtection>On</CratisReadProtection>`.) Opt out only
+where needed, narrowest first and with a reason: `[Unprotected("why")]` on one read-model
+parameter, `[Unprotected("why")]` or `[ReadProtection(ReadProtectionMode.Off)]` on one command.
+Under `On`, the read-model parameters of `Handle()` and of the validator constructor are
 the guard, so the state rule is a validator and `Handle()` returns the events.
 Requires Arc 22.106.0. Under `Off` (set explicitly, or the Arc 22 behavior) a plain read guards nothing, even
 inside `Handle()` returning `Result<,>`. Choose the first boundary that fits:
