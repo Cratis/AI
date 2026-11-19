@@ -155,6 +155,8 @@ function ansi_c(s, i, n,    c, c2, v, d, k, lim, stop, digits) {
         if (v == 0) stop = 1
         else if (!stop) addw(CH[v], "l")
     }
+    # An unterminated string leaves word boundaries uncertain: no test-filter exemption applies.
+    filter_compound = 1
     return i
 }
 # Output redirections are removed before a command is analyzed, so a redirect never shifts a CLI's subcommand
@@ -244,15 +246,17 @@ function test_filter_option(w) {
 }
 # Only inert type/namespace data can release credential vocabulary; literal secret filenames stay protected.
 function inert_test_filter(w, m) {
-    return w != "" && length(w) == length(m) && w !~ /^[-.~]/ &&
+    return w != "" && length(w) == length(m) && w !~ /^[-.~@]/ &&
         w !~ /[\/\\$`<>;|&[:cntrl:]]/ && !expands(w, m) && sensitive_path(w) == ""
 }
 function credential_filter_slots(A, M, n,    k, w, eq) {
     delete CF
     # Compound commands keep the existing fail-closed credential verdict across command separators.
     if (filter_compound) return
-    # Start after the program, and consume exactly one value even when it is another option or is unsafe.
-    for (k = 2; k <= n; k++) {
+    # Only the .NET test runner takes filter data; a reader's operand that looks like an option stays a path.
+    if (tolower(base(A[1])) != "dotnet" || A[2] !~ /^(test|run)$/) return
+    # Start after the subcommand, and consume exactly one value even when it is another option or is unsafe.
+    for (k = 3; k <= n; k++) {
         w = A[k]
         if (test_filter_option(w)) {
             k++
@@ -828,17 +832,17 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
         if (c == "\047") {
             wquoted = 1; inword = 1; quote_boundary = 1
             j = index(substr(s, i + 1), "\047")
-            if (j == 0) { addw(substr(s, i + 1), "l"); i = n + 1; continue }
+            if (j == 0) { addw(substr(s, i + 1), "l"); filter_compound = 1; i = n + 1; continue }
             addw(substr(s, i + 1, j - 1), "l"); quote_boundary = 1; i += j + 1; continue
         }
         if (c == "$" && substr(s, i + 1, 1) == "\047") { wquoted = 1; inword = 1; quote_boundary = 1; i = ansi_c(s, i + 2, n); quote_boundary = 1; continue }
         if (c == "$" && substr(s, i + 1, 1) == "\"") { i++; c = "\"" }
         if (c == "\"") {
-            wquoted = 1; inword = 1; quote_boundary = 1; i++
+            wquoted = 1; inword = 1; quote_boundary = 1; i++; dq_closed = 0
             while (i <= n) {
                 c = substr(s, i, 1)
                 if (c == "\\") { addw(substr(s, i + 1, 1), "l"); i += 2; continue }
-                if (c == "\"") { quote_boundary = 1; i++; break }
+                if (c == "\"") { quote_boundary = 1; dq_closed = 1; i++; break }
                 if (c == "$" && substr(s, i + 1, 1) == "(") { i = cmdsub(s, i + 2, n); addw("x", "c"); continue }
                 if (c == "`") {
                     complex = 1
@@ -848,6 +852,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
                 }
                 addw(c, "d"); i++
             }
+            if (!dq_closed) filter_compound = 1
             continue
         }
         if (c == "$" && substr(s, i + 1, 1) == "(") { wquoted = 1; inword = 1; wunquoted = 1; i = cmdsub(s, i + 2, n); addw("x", "c"); continue }
