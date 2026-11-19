@@ -132,12 +132,29 @@ working_directory_lost() {
     exit 2
 }
 
+# Whether $1 cannot be resolved for a reason other than being absent: the nearest existing ancestor is a
+# non-directory, a symlink that does not resolve (dangling or looping), or a directory that is not searchable.
+# A genuinely missing path is not an error. Builtins only.
+path_resolution_error() {
+    local candidate="$1"
+    while :; do
+        if [ -d "$candidate" ]; then
+            [ -x "$candidate" ] && return 1
+            return 0
+        fi
+        if [ -e "$candidate" ] || [ -L "$candidate" ]; then return 0; fi
+        candidate="${candidate%/*}"
+        [ -n "$candidate" ] || candidate=/
+    done
+}
+
 # The path the kernel opens: each directory before a parent reference is resolved physically
 # (symlinks followed) before the reference applies. A missing prefix keeps the lexical result; a prefix
-# through a dangling symlink sets kernel_strict so the caller fails closed. Returns through REPLY.
+# that fails to resolve for another reason sets kernel_strict so the caller fails closed (it is also set by
+# physical_target_path). Returns through REPLY.
 kernel_strict=0
 kernel_target_path() {
-    local remaining="$1" resolved="" component dangling=0 start="$PWD"
+    local remaining="$1" resolved="" component start="$PWD"
     kernel_strict=0
     while [ -n "$remaining" ]; do
         component="${remaining%%/*}"
@@ -152,14 +169,13 @@ kernel_target_path() {
                 if cd -P -- "${resolved:-/}" 2>/dev/null; then
                     resolved="$PWD"
                     cd "$start" 2>/dev/null || working_directory_lost
-                elif [ "$dangling" = 1 ]; then
+                elif path_resolution_error "${resolved:-/}"; then
                     kernel_strict=1
                 fi
                 resolved="${resolved%/*}"
                 ;;
             *)
                 resolved="$resolved/$component"
-                if [ -L "$resolved" ] && [ ! -e "$resolved" ]; then dangling=1; fi
                 ;;
         esac
     done
@@ -184,8 +200,9 @@ physical_target_path() {
     physical_file=""
     while [ -L "$target" ]; do
         hops=$((hops + 1))
-        [ "$hops" -le 40 ] || return 1
-        link="$(readlink "$target")" || return 1
+        # A loop or an unreadable link is an error, not a missing destination.
+        [ "$hops" -le 40 ] || { kernel_strict=1; return 1; }
+        link="$(readlink "$target")" || { kernel_strict=1; return 1; }
         dir_of "$target"
         abspath "$link" "$REPLY"
         target="$REPLY"
@@ -194,6 +211,7 @@ physical_target_path() {
     directory="$REPLY"
     base_of "$target"
     suffix="/$REPLY"
+    if [ ! -d "$directory" ] && path_resolution_error "$directory"; then kernel_strict=1; return 1; fi
     while [ ! -d "$directory" ]; do
         [ "$directory" != "/" ] || return 1
         base_of "$directory"
@@ -201,7 +219,7 @@ physical_target_path() {
         dir_of "$directory"
         directory="$REPLY"
     done
-    cd -P "$directory" 2>/dev/null || return 1
+    cd -P "$directory" 2>/dev/null || { kernel_strict=1; return 1; }
     directory="$PWD"
     cd "$start" 2>/dev/null || working_directory_lost
     physical_file="${directory%/}$suffix"
