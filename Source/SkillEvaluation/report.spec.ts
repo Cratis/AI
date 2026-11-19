@@ -24,13 +24,38 @@ test('threshold is inclusive for positives and exclusive for near misses; zero r
 });
 
 test('trigger report names failing queries and skills that took them', () => {
-    const row = { ...result('with', true), shouldTrigger: true, skillsRead: ['cratis-chronicle-read-model'] };
+    const row = { ...result('with', true), shouldTrigger: true, skillsRead: ['cratis-chronicle-read-model'],
+        confirmedSkills: ['cratis-chronicle-read-model'], attemptedSkills: ['cratis-chronicle-read-model', 'cratis-arc-command'] };
     const manifest: Manifest = { version: 1, options: parseOptions(['trigger', '--runs', '1']), corpusDigest: 'test', tasks: [row] };
     const text = report(manifest, [row], []);
     assert.match(text, /Should-trigger: 0\/1/);
     assert.match(text, /FAIL/);
     assert.match(text, /query — skills: cratis-chronicle-read-model/);
+    assert.match(text, /Attempts \(counts\).*Confirmed skills \(counts\).*Sibling-first/);
+    assert.match(text, /cratis-chronicle-read-model × 1, cratis-arc-command × 1/);
+    assert.match(text, /\| cratis-chronicle-read-model × 1 \| cratis-chronicle-read-model × 1 \|/);
+    assert.doesNotMatch(text, /first skill load or six tool calls/);
     assert.match(report(manifest, [], []), /INCOMPLETE/);
+});
+
+test('historical start-only results remain readable but are not silently rescored', () => {
+    const row = { ...result('with', true), shouldTrigger: true };
+    const manifest: Manifest = { version: 1, options: parseOptions(['trigger']), corpusDigest: 'test', tasks: [row] };
+    const before = JSON.stringify(row);
+    const text = report(manifest, [row], []);
+    assert.match(text, /Historical results without confirmation fields are unmeasured, not rescored/);
+    assert.match(text, /not measured \| INCOMPLETE/);
+    assert.doesNotMatch(text, /\| PASS \|/);
+    assert.equal(JSON.stringify(row), before);
+});
+
+test('only confirmed target loads affect trigger rates while recovered sibling loads remain visible', () => {
+    const row = { ...result('with', true), shouldTrigger: true, confirmedSkills: ['cratis-chronicle-read-model', 'cratis-arc-command'],
+        attemptedSkills: ['cratis-chronicle-read-model', 'cratis-arc-command'] };
+    const manifest: Manifest = { version: 1, options: parseOptions(['trigger']), corpusDigest: 'test', tasks: [row] };
+    const text = report(manifest, [row], []);
+    assert.match(text, /\| 1\/1 \| PASS \|/);
+    assert.match(text, /\| cratis-chronicle-read-model × 1 \|/);
 });
 
 test('reports distinguish dependency-staged batches from legacy isolated-skills batches', () => {
