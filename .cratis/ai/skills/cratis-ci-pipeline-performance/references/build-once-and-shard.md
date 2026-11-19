@@ -133,17 +133,21 @@ build-affecting property. Every tuple that is built, tested or shipped has
 **exactly one** owning build that runs the analyzers with warnings as errors:
 never zero, and a second owner only repeats the cost.
 
-- **Default owner: the shared build that feeds the specs.** The specs run on
-  analyzed output, and no analyzer job can be forgotten or left out of the required
-  checks.
-- **Alternative owner: a parallel required job**, only when the measured analyzer
-  cost delays the spec path (see
-  [analyzer cost](test-setup-cost.md#analyzer-cost)). Then the shared build passes
-  `-p:RunAnalyzers=false` and the analyzer job is a required check that fails early.
+- **Default owner: a parallel required job.** It builds the same tuple as the spec
+  build with the analyzers on and warnings as errors, and fails early on compile and
+  analyzer errors. The spec build is a non-owner and passes `-p:RunAnalyzers=false`.
+  The owning job is a required check: never leave it out of branch protection, and
+  the pre-push gate runs the analyzers too (see
+  [analyzer cost](test-setup-cost.md#analyzer-cost)).
+- **Alternative owner: the shared spec build.** A repository may choose, by its own
+  decision record, that the build feeding the specs owns the analyzers, so the specs
+  run on analyzed output. Then no separate analyzer job exists for that tuple.
 - **Non-owners** pass `-p:RunAnalyzers=false` (and `-p:EnforceCodeStyleInBuild=false`
-  where code style runs in the build). They never set `EnableNETAnalyzers=false`
-  and never remove `Analyzer` items: that also stops source generators, and the
-  output loses its generated code.
+  where code style runs in the build). Use `RunAnalyzers`/`RunAnalyzersDuringBuild`
+  as the owner switch: `EnableNETAnalyzers=false` only turns off the .NET SDK's own
+  analyzers and leaves other analysis running, so it is not an owner switch. Never
+  remove `Analyzer` items either: generators are delivered as analyzer references,
+  so the output would lose its generated code.
 - **Check generators survived.** Assert that a known generated file or type is in a
   non-owner build's output before trusting it.
 - **A tuple that is packed or published is always owned**, so shipped binaries were

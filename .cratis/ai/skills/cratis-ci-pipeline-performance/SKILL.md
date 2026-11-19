@@ -146,8 +146,9 @@ queue. Read `references/required-checks-and-path-filters.md`.
 
 **Compile once, analyze once.** Fits any workflow where one push compiles the same
 code several times. Exactly one build owns the analyzers per build tuple, never
-zero: the shared build that feeds the specs unless measured analyzer cost delays the
-spec path. In that case: build the spec path without analyzers
+zero: by default a parallel required job on the same tuple, while the spec path is
+built by a non-owner; a repository may instead let the shared spec build own them by
+its own decision record. Default: build the spec path without analyzers
 (`-p:RunAnalyzers=false`) and reuse the output; enforce every analyzer with warnings
 as errors in one parallel **required** job that fails early on compile and analyzer
 errors, while the local fast loop may skip analyzers and the pre-push gate runs them.
