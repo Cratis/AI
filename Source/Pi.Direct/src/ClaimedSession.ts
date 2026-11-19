@@ -24,42 +24,45 @@ export interface SessionStatus {
     readonly authority: 'live' | 'lost' | 'released';
 }
 
-/** The one lifecycle: live, then releasing, then released or lost. Expiry and failure only ever act on a live or releasing session. */
-type SessionPhase = 'live' | 'releasing' | 'released' | 'lost';
+/** A claim must be confirmed before going live; released and lost authority are terminal. */
+type SessionPhase = 'claimed' | 'live' | 'releasing' | 'released' | 'lost';
 
 /** One claimed work item: keeps the lease by heartbeat, releases exactly once, and turns lost authority into a terminal guard. */
 export class ClaimedSession {
     private epoch: number;
     private leaseEndsAt: number;
-    private phase: SessionPhase = 'live';
+    private phase: SessionPhase = 'claimed';
     private readonly heartbeat: HeartbeatLoop;
 
     private constructor(
         private readonly dependencies: SessionDependencies,
         private readonly claimId: string,
         epoch: number,
-        leaseSeconds: number,
-        heartbeatSeconds: number,
+        claimDeadline: number,
         readonly payload: WorkPayload) {
         this.epoch = epoch;
-        this.leaseEndsAt = dependencies.clock.now() + leaseSeconds * 1000;
+        this.leaseEndsAt = claimDeadline;
         this.heartbeat = new HeartbeatLoop(dependencies.clock, () => this.beat(), () => this.loseAuthority());
-        this.heartbeat.start(heartbeatSeconds);
     }
 
     /** One claim attempt: any refusal is final and generic. The proof buffer is zeroed whatever the outcome. */
     static async claim(dependencies: SessionDependencies, proof: Buffer): Promise<ClaimedSession> {
-        const { environment, gateway, guard } = dependencies;
+        const { environment, gateway, guard, clock } = dependencies;
         try {
+            const claimSentAt = clock.now();
             const claimed = await gateway.claim({
                 workHandle: environment.workHandle,
                 session: environment.sessionId,
                 harness: environment.harness,
                 launchProof: proof.toString('latin1')
             });
-            guard.open();
-            return new ClaimedSession(dependencies, claimed.claimId, claimed.epoch, claimed.leaseSeconds, claimed.heartbeatSeconds, claimed.payload);
+            const claimDeadline = claimSentAt + claimed.leaseSeconds * 1000;
+            if (clock.now() >= claimDeadline) throw new SessionRefused('refused');
+            const session = new ClaimedSession(dependencies, claimed.claimId, claimed.epoch, claimDeadline, claimed.payload);
+            await session.confirm(claimed.heartbeatSeconds);
+            return session;
         } catch {
+            guard.markLost();
             throw new SessionRefused('refused');
         } finally {
             proof.fill(0);
@@ -77,7 +80,7 @@ export class ClaimedSession {
     status(): SessionStatus {
         const { clock, environment } = this.dependencies;
         this.checkLease();
-        const authority = this.phase === 'releasing' ? 'live' : this.phase;
+        const authority = this.phase === 'lost' || this.phase === 'released' ? this.phase : 'live';
         return {
             workHandle: environment.workHandle,
             epoch: this.epoch,
@@ -116,13 +119,37 @@ export class ClaimedSession {
         await this.dependencies.gateway.close().catch(() => undefined);
     }
 
+    /** Only the confirming heartbeat's own send-time deadline can authorize the first write. */
+    private async confirm(heartbeatSeconds: number): Promise<void> {
+        const { gateway, environment, clock, guard } = this.dependencies;
+        try {
+            const sentAt = clock.now();
+            const result = await gateway.heartbeat({ workHandle: environment.workHandle, claimId: this.claimId, epoch: this.epoch });
+            this.leaseEndsAt = sentAt + result.leaseSeconds * 1000;
+            if (this.leaseExpired()) throw new SessionRefused('refused');
+            this.epoch = result.epoch;
+            this.phase = 'live';
+            guard.open();
+            this.heartbeat.start(heartbeatSeconds);
+        } catch (error) {
+            this.phase = 'lost';
+            throw error;
+        }
+    }
+
     private async beat(): Promise<void> {
         const { gateway, environment, clock } = this.dependencies;
+        const sentAt = clock.now();
         const result = await gateway.heartbeat({ workHandle: environment.workHandle, claimId: this.claimId, epoch: this.epoch });
         this.checkLease();
         if (this.phase !== 'live') return; // a late answer never revives expired authority
+        const deadline = sentAt + result.leaseSeconds * 1000;
+        if (clock.now() >= deadline) {
+            this.loseAuthority();
+            return;
+        }
+        this.leaseEndsAt = deadline;
         this.epoch = result.epoch;
-        this.leaseEndsAt = clock.now() + result.leaseSeconds * 1000;
     }
 
     private leaseExpired(): boolean {
