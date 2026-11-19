@@ -9,8 +9,12 @@
 #
 # While jq is missing the guard cannot read the tool call, so it refuses every call.
 #
-# .cratis/ai.json allowDependencyManifestWrites overrides only the manifest policy:
-# true allows them in any repository; false blocks them even in a Cratis repository.
+# The manifest policy belongs to the session, never to the write target. The session repository is
+# CLAUDE_PROJECT_DIR (else the checkout holding this script); its .cratis/ai.json
+# allowDependencyManifestWrites (true allows, false blocks) decides, else its github.com/Cratis origin.
+# The target repository can only tighten that: an explicit false, a non-Cratis origin without a setting,
+# or no Git repository blocks; a target's true or Cratis origin never unlocks a blocking session.
+# A session that cannot be determined blocks. Only manifests are affected; .env stays blocked.
 #
 # Escape hatch for the "unless explicitly asked" case — the user asks, you set it for the call:
 #   CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1
@@ -374,9 +378,41 @@ agent_control_target() {
 }
 
 # ── Dependency manifests, lockfiles, SDK and NuGet configuration ──────────────
+# Policy of one repository root: a boolean allowDependencyManifestWrites wins, else a github.com/Cratis origin.
+repository_manifest_policy() {
+    local setting="" root="$1"
+    if [ -f "$root/.cratis/ai.json" ]; then
+        # Only actual booleans override the default; jq's `// empty` would discard false.
+        setting="$(jq -r '.allowDependencyManifestWrites | select(type == "boolean") | tostring' "$root/.cratis/ai.json" 2>/dev/null)" || parser_failed
+    fi
+    case "$setting" in
+        true) return 0 ;;
+        false) return 1 ;;
+    esac
+    repository_origin "$root"
+    # Anchor host, owner and the single repository segment; never infer ownership from profiles.
+    origin_matches '^(https://github\.com/|git@github\.com:|ssh://git@github\.com(:[0-9]+)?/)cratis/[a-z0-9_.-]+/?$'
+}
+
+# The session's policy, computed once. The session is fixed by the harness (CLAUDE_PROJECT_DIR, else the checkout
+# holding this script), never by the write target, the payload cwd or the shell's working directory.
+# Anything that cannot be determined blocks.
+session_manifest_policy=""
+session_manifests_allowed() {
+    if [ -z "$session_manifest_policy" ]; then
+        local session_root
+        session_manifest_policy=1
+        if session_root="$(hook_repo_root 2>/dev/null)" && session_root="$(git -C "$session_root" rev-parse --show-toplevel 2>/dev/null)"; then
+            if repository_manifest_policy "$session_root"; then session_manifest_policy=0; fi
+        fi
+    fi
+    return "$session_manifest_policy"
+}
+
 manifest_writes_allowed() {
-    local setting="" directory policy_root start="$PWD"
-    # Authorization belongs to the write target, which may be outside the session's checkout.
+    local directory policy_root start="$PWD"
+    # The session decides first; the target is only consulted to tighten it.
+    session_manifests_allowed || return 1
     # New files can have nonexistent parents; find their nearest existing directory first.
     dir_of "$file"
     directory="$REPLY"
@@ -390,17 +426,7 @@ manifest_writes_allowed() {
     directory="$PWD"
     cd "$start" 2>/dev/null || true
     policy_root="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null)" || return 1
-    if [ -f "$policy_root/.cratis/ai.json" ]; then
-        # Only actual booleans override the default; jq's `// empty` would discard false.
-        setting="$(jq -r '.allowDependencyManifestWrites | select(type == "boolean") | tostring' "$policy_root/.cratis/ai.json" 2>/dev/null)" || parser_failed
-    fi
-    case "$setting" in
-        true) return 0 ;;
-        false) return 1 ;;
-    esac
-    repository_origin "$policy_root"
-    # Anchor host, owner and the single repository segment; never infer ownership from profiles.
-    origin_matches '^(https://github\.com/|git@github\.com:|ssh://git@github\.com(:[0-9]+)?/)cratis/[a-z0-9_.-]+/?$'
+    repository_manifest_policy "$policy_root"
 }
 
 # Return the category, leaving normal Write/Edit diagnostics unchanged below.

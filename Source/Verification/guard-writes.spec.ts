@@ -13,9 +13,9 @@
 
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, join, relative, resolve } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import { pathWithout } from './fixtures/path-without-tool.ts';
@@ -37,16 +37,17 @@ function runGuard(payload: object, cwd: string, env: NodeJS.ProcessEnv = {}): { 
         cwd,
         input: JSON.stringify(payload),
         encoding: 'utf8',
-        env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0', ...env },
+        env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0', CLAUDE_PROJECT_DIR: cwd, ...env },
     });
     assert.ok(result.status === 0 || result.status === 2, `unexpected guard exit ${result.status}: ${result.stderr}`);
     return { verdict: result.status === 2 ? BLOCK : ALLOW, stdout: result.stdout, stderr: result.stderr };
 }
 
+/** The manifest policy comes from the session (CLAUDE_PROJECT_DIR); both runners default it to the case's cwd repository. */
 /** Same contract as runGuard without blocking the event loop, so independent cases can overlap their process spawns. */
 function runGuardAsync(payload: object, cwd: string, env: NodeJS.ProcessEnv = {}, script = guard): Promise<{ verdict: string; stdout: string; stderr: string }> {
     return new Promise((resolveRun, reject) => {
-        const child = spawn('bash', [script], { cwd, env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0', ...env } });
+        const child = spawn('bash', [script], { cwd, env: { ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0', CLAUDE_PROJECT_DIR: cwd, ...env } });
         let stdout = '';
         let stderr = '';
         child.stdout.setEncoding('utf8').on('data', chunk => { stdout += chunk; });
@@ -465,7 +466,18 @@ test('the manifest default depends on the exact GitHub origin, not installed pro
     }
 });
 
-function piToolCall() {
+/** The bridge reads the session root (process.cwd()) once at registration, so register inside the session repository and restore afterwards. */
+function piToolCall(sessionRoot?: string) {
+    const previousCwd = process.cwd();
+    if (sessionRoot) process.chdir(sessionRoot);
+    try {
+        return registerBridge();
+    } finally {
+        process.chdir(previousCwd);
+    }
+}
+
+function registerBridge() {
     const handlers = new Map<string, (event: unknown, ctx: unknown) => Promise<unknown> | unknown>();
     const api = { on: (event: string, handler: (event: unknown, ctx: unknown) => Promise<unknown> | unknown) => handlers.set(event, handler), registerTool: () => {} } as unknown as ExtensionAPI;
     registerCratisHooks(api);
@@ -474,12 +486,12 @@ function piToolCall() {
     return toolCall;
 }
 
-test('manifest policy follows the write target across repositories and nonexistent directories, not the session cwd', async () => {
+test('manifest policy comes from the session; the write target can only tighten it', async () => {
     const cratis = scratchRepository('git@github.com:Cratis/AI.git');
     const consumer = scratchRepository('https://github.com/Consumer/App.git');
     const optedOut = scratchRepository('https://github.com/Cratis/Arc.git');
     const outside = mkdtempSync(join(tmpdir(), 'cratis-guard-outside-'));
-    const toolCall = piToolCall();
+    const toolCalls = new Map([cratis, consumer].map(session => [session.root, piToolCall(session.root)]));
     try {
         assert.notEqual(spawnSync('git', ['-C', outside, 'rev-parse', '--show-toplevel']).status, 0, 'outside fixture is not in a Git repository');
         mkdirSync(join(optedOut.root, '.cratis'), { recursive: true });
@@ -488,20 +500,20 @@ test('manifest policy follows the write target across repositories and nonexiste
         writeFileSync(join(outside, '.cratis', 'ai.json'), '{"allowDependencyManifestWrites": true}');
         const cases: Array<[cwd: string, target: string, expected: string]> = [
             [cratis.root, consumer.manifest, BLOCK],
-            [consumer.root, cratis.manifest, ALLOW],
+            [consumer.root, cratis.manifest, BLOCK],
             [cratis.root, optedOut.manifest, BLOCK],
             [cratis.root, join(cratis.root, 'New', 'Nested', 'Directory.Packages.props'), ALLOW],
-            [consumer.root, join(cratis.root, 'New', 'Nested', 'Directory.Packages.props'), ALLOW],
+            [consumer.root, join(cratis.root, 'New', 'Nested', 'Directory.Packages.props'), BLOCK],
             [cratis.root, join(optedOut.root, 'New', 'Nested', 'global.json'), BLOCK],
             [cratis.root, join(outside, 'New', 'Nested', 'global.json'), BLOCK],
         ];
         const spellings = cases.flatMap(([cwd, target, expected]) => [target, relative(cwd, target)].map(path => [cwd, path, expected] as [string, string, string]));
         await forEachConcurrently(spellings, async ([cwd, path, expected]) => {
             const payload = { cwd, tool_input: { file_path: path, content: 'x' } };
-            const result = await runGuardAsync(payload, cwd);
+            const result = await runGuardAsync(payload, cwd, { CLAUDE_PROJECT_DIR: cwd });
             assert.equal(result.verdict, expected, `${cwd} -> ${path}: ${result.stderr}`);
             if (expected === ALLOW) assert.equal(result.stdout + result.stderr, '');
-            const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd }) as { block?: boolean } | undefined;
+            const bridged = await toolCalls.get(cwd)!({ toolName: 'write', input: { path, content: 'x' } }, { cwd }) as { block?: boolean } | undefined;
             assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${cwd} -> ${path}`);
         });
         assert.equal(runGuard({ cwd: cratis.root, tool_input: { file_path: join(outside, 'global.json'), content: 'x' } }, cratis.root, { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' }).verdict, ALLOW);
@@ -516,7 +528,7 @@ test('manifest policy follows the write target across repositories and nonexiste
 test('manifest policy normalizes missing path components and follows physical directory ownership in the shell and Pi', async () => {
     const cratis = scratchRepository('git@github.com:Cratis/AI.git');
     const consumer = scratchRepository('https://github.com/Consumer/App.git');
-    const toolCall = piToolCall();
+    const toolCalls = new Map([cratis, consumer].map(session => [session.root, piToolCall(session.root)]));
     try {
         const linked = join(cratis.root, 'Linked Consumer');
         symlinkSync(consumer.root, linked, 'dir');
@@ -524,20 +536,20 @@ test('manifest policy normalizes missing path components and follows physical di
             [cratis.root, `Missing/../../${basename(consumer.root)}/global.json`, BLOCK],
             [cratis.root, `./Missing//../..//${basename(consumer.root)}/./global.json`, BLOCK],
             [cratis.root, `./../${basename(consumer.root)}//./global.json`, BLOCK],
-            [consumer.root, `./Missing/../../${basename(cratis.root)}//./global.json`, ALLOW],
+            [consumer.root, `./Missing/../../${basename(cratis.root)}//./global.json`, BLOCK],
             [cratis.root, './New//Missing/.././global.json', ALLOW],
             [cratis.root, `${cratis.root}//./global.json`, ALLOW],
             [cratis.root, './Linked Consumer//./global.json', BLOCK],
             [cratis.root, './Linked Consumer//New/Missing/.././global.json', BLOCK],
             [cratis.root, `/../../..${consumer.root}//./global.json`, BLOCK],
-            [consumer.root, `/../../..${cratis.root}//./global.json`, ALLOW],
+            [consumer.root, `/../../..${cratis.root}//./global.json`, BLOCK],
         ];
         await forEachConcurrently(cases, async ([cwd, path, expected]) => {
             const result = await runGuardAsync({ cwd, tool_input: { file_path: path, content: 'x' } }, cwd);
             assert.equal(result.verdict, expected, `${cwd} -> ${path}: ${result.stderr}`);
             if (expected === ALLOW) assert.equal(result.stdout + result.stderr, '');
             // Pi forwards this original path and cwd unchanged; the shared script normalizes them.
-            const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd }) as { block?: boolean } | undefined;
+            const bridged = await toolCalls.get(cwd)!({ toolName: 'write', input: { path, content: 'x' } }, { cwd }) as { block?: boolean } | undefined;
             assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${cwd} -> ${path}`);
         });
     } finally {
@@ -546,8 +558,153 @@ test('manifest policy normalizes missing path components and follows physical di
     }
 });
 
+type ScratchRepository = ReturnType<typeof scratchRepository>;
+
+function configure(repository: { root: string }, configuration: string): void {
+    mkdirSync(join(repository.root, '.cratis'), { recursive: true });
+    writeFileSync(join(repository.root, '.cratis', 'ai.json'), configuration);
+}
+
+const manifestTargets = ['package.json', 'global.json', 'NuGet.config', 'yarn.lock', 'Directory.Packages.props'];
+const allowTrue = '{"allowDependencyManifestWrites": true}';
+const allowFalse = '{"allowDependencyManifestWrites": false}';
+
+/** Protected classes other than manifests ignore every configuration. */
+function assertOtherClassesStayBlocked(sessions: Array<{ root: string }>, target: string): void {
+    for (const session of sessions) {
+        for (const name of ['.env', '.mcp.json', '.claude/settings.json', '.cratis/ai.json']) {
+            assert.equal(runGuard({ cwd: session.root, tool_input: { file_path: join(target, name), content: 'x' } }, session.root).verdict, BLOCK, name);
+        }
+    }
+}
+
+test('a target repository can never loosen the session manifest policy, whatever it declares', async () => {
+    const consumer = scratchRepository('https://github.com/Consumer/App.git');
+    const consumerOptedIn = scratchRepository('https://github.com/Consumer/Other.git');
+    const consumerMalformed = scratchRepository('git@github.com:Cratis/AI.git');
+    const cratis = scratchRepository('git@github.com:Cratis/AI.git');
+    const cratisOptedOut = scratchRepository('git@github.com:Cratis/AI.git');
+    const agentCreated = scratchRepository();
+    const agentOptedOut = scratchRepository();
+    const cratisPeer = scratchRepository('https://github.com/Cratis/Arc.git');
+    const cratisOptedIn = scratchRepository('https://github.com/Cratis/Chronicle.git');
+    const nonBoolean = scratchRepository('https://github.com/Consumer/Strings.git');
+    const plain = mkdtempSync(join(tmpdir(), 'cratis-guard-plain-'));
+    const created: ScratchRepository[] = [consumer, consumerOptedIn, consumerMalformed, cratis, cratisOptedOut, agentCreated, agentOptedOut, cratisPeer, cratisOptedIn, nonBoolean];
+    try {
+        for (const [repository, configuration] of [[consumerOptedIn, allowTrue], [consumerMalformed, 'not json'], [cratisOptedOut, allowFalse], [agentCreated, allowTrue], [agentOptedOut, allowFalse], [cratisOptedIn, allowTrue], [nonBoolean, '{"allowDependencyManifestWrites": "true"}']] as const) configure(repository, configuration);
+        const nested = join(consumer.root, 'agent-made'); // created by the agent under the session checkout, declaring itself permissive
+        mkdirSync(nested);
+        assert.equal(spawnSync('git', ['init', '-q', nested]).status, 0);
+        configure({ root: nested }, allowTrue);
+        const toolCalls = new Map(created.map(session => [session.root, piToolCall(session.root)]));
+        const rows: Array<[session: ScratchRepository, target: string, expected: string]> = [
+            [consumer, agentCreated.root, BLOCK],
+            [consumer, nested, BLOCK],
+            [consumer, cratis.root, BLOCK],
+            [consumer, cratisOptedIn.root, BLOCK],
+            [consumer, plain, BLOCK],
+            [consumerOptedIn, consumerOptedIn.root, ALLOW],
+            [consumerOptedIn, agentCreated.root, ALLOW],
+            [consumerOptedIn, agentOptedOut.root, BLOCK],
+            [consumerOptedIn, cratisOptedOut.root, BLOCK],
+            [consumerOptedIn, consumer.root, BLOCK],
+            [consumerOptedIn, plain, BLOCK],
+            [cratisOptedOut, agentCreated.root, BLOCK],
+            [cratisOptedOut, cratis.root, BLOCK],
+            [cratisOptedOut, cratisOptedOut.root, BLOCK],
+            [consumerMalformed, cratis.root, BLOCK],
+            [cratis, cratisPeer.root, ALLOW],
+            [cratis, cratisOptedIn.root, ALLOW],
+            [cratis, agentCreated.root, ALLOW],
+            [cratis, cratisOptedOut.root, BLOCK],
+            [cratis, agentOptedOut.root, BLOCK],
+            [cratis, consumer.root, BLOCK],
+            [cratis, plain, BLOCK],
+            [nonBoolean, nonBoolean.root, BLOCK],
+            [nonBoolean, cratis.root, BLOCK],
+        ];
+        const cases = rows.flatMap(([session, target, expected]) => manifestTargets.flatMap(name => [
+            [session, join(target, name), expected],
+            [session, join(target, 'New', 'Nested', name), expected],
+        ] as Array<[ScratchRepository, string, string]>));
+        await forEachConcurrently(cases, async ([session, path, expected]) => {
+            const payload = { cwd: session.root, tool_input: { file_path: path, content: 'x' } };
+            const result = await runGuardAsync(payload, session.root, { CLAUDE_PROJECT_DIR: session.root });
+            assert.equal(result.verdict, expected, `${session.root} -> ${path}: ${result.stderr}`);
+            const bridged = await toolCalls.get(session.root)!({ toolName: 'write', input: { path, content: 'x' } }, { cwd: session.root }) as { block?: boolean } | undefined;
+            assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${session.root} -> ${path}`);
+            const escaped = await runGuardAsync(payload, session.root, { CLAUDE_PROJECT_DIR: session.root, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' });
+            assert.equal(escaped.verdict, ALLOW);
+        });
+        assertOtherClassesStayBlocked([consumerOptedIn, cratis], agentCreated.root);
+    } finally {
+        for (const repository of created) repository.dispose();
+        rmSync(plain, { recursive: true, force: true });
+    }
+});
+
+test('the manifest policy ignores the payload cwd and path spellings that point at a permissive repository', async () => {
+    const strict = scratchRepository('https://github.com/Consumer/App.git');
+    const permissive = scratchRepository('git@github.com:Cratis/AI.git');
+    const toolCall = piToolCall(strict.root);
+    try {
+        configure(permissive, allowTrue);
+        symlinkSync(permissive.root, join(strict.root, 'Linked'), 'dir');
+        const peer = basename(permissive.root);
+        const paths = [
+            'Linked/global.json', 'Linked/New/x/global.json', './Linked//New/Missing/.././global.json',
+            `../${peer}/global.json`, `Missing/../../${peer}/global.json`, `//./${permissive.root}/global.json`, `/../../..${permissive.root}/global.json`,
+            join(permissive.root, 'global.json'), join(permissive.root, 'New', 'package.json'),
+        ];
+        await forEachConcurrently(paths, async path => {
+            for (const cwd of [strict.root, permissive.root]) {
+                // A payload cwd inside the permissive repository must not select its policy; relative paths resolve there.
+                const target = cwd === strict.root ? path : 'global.json';
+                const result = await runGuardAsync({ cwd, tool_input: { file_path: target, content: 'x' } }, cwd, { CLAUDE_PROJECT_DIR: strict.root });
+                assert.equal(result.verdict, BLOCK, `${cwd} -> ${target}: ${result.stderr}`);
+            }
+            const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd: strict.root }) as { block?: boolean } | undefined;
+            assert.equal(bridged?.block, true, `Pi: ${path}`);
+        });
+        // The same path with the permissive session is allowed, so the blocks above come from the session.
+        const allowed = await runGuardAsync({ cwd: permissive.root, tool_input: { file_path: 'global.json', content: 'x' } }, permissive.root, { CLAUDE_PROJECT_DIR: permissive.root });
+        assert.equal(allowed.verdict, ALLOW);
+    } finally {
+        strict.dispose();
+        permissive.dispose();
+    }
+});
+
+test('an undeterminable session never allows manifests because of the target', async () => {
+    const permissive = scratchRepository('git@github.com:Cratis/AI.git');
+    const agentCreated = scratchRepository();
+    const detached = mkdtempSync(join(tmpdir(), 'cratis-guard-detached-'));
+    try {
+        configure(agentCreated, allowTrue);
+        // The hook scripts installed in a directory that is not a Git repository: no session repository exists.
+        const installedScripts = join(detached, '.cratis', 'ai', 'hooks', 'scripts');
+        mkdirSync(installedScripts, { recursive: true });
+        cpSync(dirname(guard), installedScripts, { recursive: true });
+        assert.notEqual(spawnSync('git', ['-C', detached, 'rev-parse', '--show-toplevel']).status, 0, 'detached fixture is not in a Git repository');
+        const detachedGuard = join(installedScripts, 'cratis-guard-writes.sh');
+        for (const target of [permissive.root, agentCreated.root]) {
+            for (const name of manifestTargets) {
+                const payload = { cwd: target, tool_input: { file_path: join(target, name), content: 'x' } };
+                for (const sessionRoot of ['', '/nonexistent-cratis-session']) {
+                    const result = await runGuardAsync(payload, target, { CLAUDE_PROJECT_DIR: sessionRoot }, detachedGuard);
+                    assert.equal(result.verdict, BLOCK, `[${sessionRoot}] ${target}/${name}`);
+                }
+            }
+        }
+    } finally {
+        permissive.dispose();
+        agentCreated.dispose();
+        rmSync(detached, { recursive: true, force: true });
+    }
+});
+
 test('repository manifest settings override the origin default identically through the shell and Pi', async () => {
-    const toolCall = piToolCall();
     const configurations: Array<[configuration: string, override: string | undefined]> = [
         ['{}', undefined],
         ['{"allowDependencyManifestWrites": true}', ALLOW],
@@ -559,6 +716,7 @@ test('repository manifest settings override the origin default identically throu
     const protectedNames = ['package.json', 'Package.json', 'Directory.Packages.props', 'global.json', 'NuGet.config', 'NuGet.Config', 'nuget.config', 'yarn.lock', 'package-lock.json', 'pnpm-lock.yaml', 'packages.lock.json'];
     for (const [origin, defaultVerdict] of [['git@github.com:Cratis/AI.git', ALLOW], ['https://github.com/Consumer/App.git', BLOCK]]) {
         const repo = scratchRepository(origin);
+        const toolCall = piToolCall(repo.root);
         try {
             mkdirSync(join(repo.root, '.cratis'), { recursive: true });
             for (const [configuration, override] of configurations) {
@@ -583,7 +741,7 @@ test('repository manifest settings override the origin default identically throu
 
 test('generated writes are allowed while environment writes still require the explicit escape hatch', async () => {
     const repo = scratchRepository('https://github.com/Cratis/AI.git');
-    const toolCall = piToolCall();
+    const toolCall = piToolCall(repo.root);
     try {
         mkdirSync(join(repo.root, '.cratis'), { recursive: true });
         for (const configuration of ['{}', '{"allowDependencyManifestWrites": true}']) {
@@ -611,7 +769,7 @@ test('generated writes are allowed while environment writes still require the ex
 
 test('the Pi bridge preserves the harness-environment escape hatch even with the Cratis manifest block re-enabled', async () => {
     const repo = scratchRepository('git@github.com:Cratis/AI.git');
-    const toolCall = piToolCall();
+    const toolCall = piToolCall(repo.root);
     const previous = process.env.CRATIS_HOOKS_ALLOW_PROTECTED_WRITES;
     try {
         mkdirSync(join(repo.root, '.cratis'), { recursive: true });

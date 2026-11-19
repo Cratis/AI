@@ -464,14 +464,23 @@ Other protected classes still apply regardless of a generated header.
 
 ### Dependency-manifest writes
 
-Manifest writes are allowed **silently by default** when Git's `origin` points to
+The policy comes from the **session**, not from the file being written. The session repository is
+`CLAUDE_PROJECT_DIR` (else the checkout that holds the installed hook; in Pi, the working directory
+Pi was started in). Its `.cratis/ai.json` `allowDependencyManifestWrites` decides; without a boolean, manifest
+writes are allowed **silently by default** when that repository's Git `origin` points to
 `github.com/Cratis/<repo>` over HTTPS or SSH (including `git@github.com:Cratis/<repo>.git`;
-host and owner are case-insensitive). The hook resolves the policy repository from the write
-target, resolving relative paths against the tool's working directory, lexically collapsing
-repeated separators, `.` and `..`, then walking up to the nearest existing directory for new
-files. That directory is resolved physically before Git lookup, so symlinked directories use
-the repository they actually point into. Nested directories and linked worktrees work too.
-A missing or non-Cratis origin keeps the block; targets outside any Git repository are blocked. Installed corpus files and selected profiles do **not** prove organization
+host and owner are case-insensitive). A missing or non-Cratis origin keeps the block.
+
+The repository that owns the write target is consulted only to **tighten** the decision. The hook
+resolves it from the target, resolving relative paths against the tool's working directory, lexically
+collapsing repeated separators, `.` and `..`, then walking up to the nearest existing directory for new
+files; that directory is resolved physically before Git lookup, so symlinked directories use the
+repository they actually point into. The write is allowed only if the session policy **and** the target
+repository's own policy (same rule: its setting, else its Cratis origin) both allow it. A target's `true`
+or Cratis origin can never unlock a session that blocks, so an agent-created repository cannot opt itself
+in. A target outside any Git repository is blocked, and so is any session whose repository cannot be
+determined. `.cratis/ai.json` is itself a protected control, so the agent cannot edit the session policy.
+Installed corpus files and selected profiles do **not** prove organization
 ownership: consumer applications can have exactly the same installation and profiles.
 
 Set a repository-owned boolean in `.cratis/ai.json` to override that default in both Claude Code
@@ -482,7 +491,7 @@ and Pi:
 ```
 
 `false` re-enables the manifest block in a Cratis repository; `true` allows manifest writes
-in any repository. Merge this property into the existing configuration. An absent, malformed,
+in any repository, for targets that do not themselves block (see above). Merge this property into the existing configuration. An absent, malformed,
 or non-boolean setting uses the origin-based default. This setting never permits `.env` writes.
 The protected basename list is unchanged; `package.json` is not part of this guard's manifest category.
 
