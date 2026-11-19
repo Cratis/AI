@@ -47,3 +47,34 @@ test('rules that load while reading C# carry no connection URIs or credential st
     const findings = scanned.flatMap(file => connectionStringFindings(readFileSync(file, 'utf8')).map(finding => `${file}: ${finding}`));
     assert.deepEqual(findings, []);
 });
+
+const skills = resolve(import.meta.dirname, '../../.cratis/ai/skills');
+
+// Built by concatenation so this file does not itself contain credential-shaped text.
+const userInfoUri = new RegExp('[a-z][a-z0-9+.-]*:' + '//[^\\s/@]+' + '@', 'i');
+// Connection-string literals have no space before the equals sign; a C# property assignment reading configuration is fine.
+const credentialKeyLiteral = /\b(?:Password|Pwd|AccountKey|SharedAccessKey|SharedAccessSignature)=/i;
+const connectionStringSetting = /ConnectionString\s*:\s*\S/;
+
+export function credentialFindings(content: string): string[] {
+    return content.split('\n').flatMap((line, index) =>
+        userInfoUri.test(line) || credentialKeyLiteral.test(line) || connectionStringSetting.test(line)
+            ? [`line ${index + 1}: ${line.trim()}`]
+            : []);
+}
+
+test('the credential detector flags user-info URIs, credential keys and connection string settings', () => {
+    assert.equal(credentialFindings('chronicle:' + '//' + 'a:b' + '@host:35000').length, 1);
+    assert.equal(credentialFindings('postgres:' + '//' + '${USER}' + '@h/db').length, 1);
+    assert.equal(credentialFindings('AccountKey' + '=sample;').length, 1);
+    assert.equal(credentialFindings('  Cratis__Chronicle__ConnectionString' + ': value').length, 1);
+    assert.equal(credentialFindings('mongodb://mongodb:27017/?replicaSet=rs0').length, 0);
+    assert.equal(credentialFindings("builder.withChronicle({ connectionString: 'chronicle://localhost:35000' });").length, 0);
+});
+
+test('rules and skills, including references, carry no credential-shaped connection samples', () => {
+    const files = [...ruleFiles(rules), ...ruleFiles(skills)];
+    assert.ok(files.length > 0, 'rule and skill files are scanned');
+    const findings = files.flatMap(file => credentialFindings(readFileSync(file, 'utf8')).map(finding => `${file}: ${finding}`));
+    assert.deepEqual(findings, []);
+});
