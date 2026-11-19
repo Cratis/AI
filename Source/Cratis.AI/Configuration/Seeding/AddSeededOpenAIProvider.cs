@@ -4,6 +4,7 @@
 using Cratis.AI.Providers;
 using Cratis.AI.Providers.Adding;
 using Cratis.Arc.Authorization;
+using Cratis.Monads;
 
 namespace Cratis.AI.Configuration.Seeding;
 
@@ -16,7 +17,9 @@ namespace Cratis.AI.Configuration.Seeding;
 /// is right for an administrator and wrong for a seed that runs on every start. Giving the provider a
 /// stable identity lets the seed ask the provider's own stream - strongly consistent, and not a read
 /// model that may be behind - whether it was already added. It appends the same
-/// <see cref="OpenAIProviderAdded"/> event, so everything downstream treats it like any other provider.
+/// <see cref="OpenAIProviderAdded"/> event, so everything downstream treats it like any other provider,
+/// and appends nothing when the provider exists, so it can neither duplicate a provider nor reset an
+/// existing one's type or credentials - even called over HTTP by an authorized caller.
 /// </remarks>
 /// <param name="Id">The provider's identity, derived from the seed name.</param>
 /// <param name="Name">The provider's display name.</param>
@@ -29,10 +32,20 @@ public record AddSeededOpenAIProvider(AIProviderId Id, AIProviderName Name, AIPr
     public EventSourceId GetEventSourceId() => Id;
 
     /// <summary>
-    /// Handles the command by appending an <see cref="OpenAIProviderAdded"/> event with no concurrency limit.
+    /// Handles the command by appending an <see cref="OpenAIProviderAdded"/> event with no concurrency limit
+    /// when the provider does not exist yet.
     /// </summary>
-    /// <returns>The event.</returns>
-    public OpenAIProviderAdded Handle() => new(Name, ApiKey, MaxConcurrentJobs.NotSet);
+    /// <param name="current">The provider as configured so far - <see langword="null"/> when there is none.</param>
+    /// <returns>The events - none when the provider already exists.</returns>
+    public Result<IEnumerable<object>, ValidationResult> Handle(ConfiguredAIProvider? current)
+    {
+        if (current is not null)
+        {
+            return Result<IEnumerable<object>, ValidationResult>.Success([]);
+        }
+
+        return Result<IEnumerable<object>, ValidationResult>.Success([new OpenAIProviderAdded(Name, ApiKey, MaxConcurrentJobs.NotSet)]);
+    }
 }
 
 /// <summary>

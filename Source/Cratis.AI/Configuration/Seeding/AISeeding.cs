@@ -1,13 +1,32 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Cratis.AI.Agents.Configuring;
 using Cratis.AI.Common;
 using Cratis.AI.Providers;
-using Cratis.AI.Providers.SettingTierModels;
 using Microsoft.Extensions.Logging;
 
 namespace Cratis.AI.Configuration.Seeding;
+
+/// <summary>
+/// What applying a <see cref="SeededOpenAIProvider"/> came to.
+/// </summary>
+public enum SeedOutcome
+{
+    /// <summary>
+    /// Nothing was sent - the seed has no API key.
+    /// </summary>
+    Skipped,
+
+    /// <summary>
+    /// A command was refused or failed - the seed is incomplete and worth another attempt.
+    /// </summary>
+    Failed,
+
+    /// <summary>
+    /// Every command was accepted. Whatever already existed was left exactly as it was.
+    /// </summary>
+    Completed
+}
 
 /// <summary>
 /// Applies a <see cref="SeededOpenAIProvider"/> through the package's own commands - so validation,
@@ -15,12 +34,12 @@ namespace Cratis.AI.Configuration.Seeding;
 /// </summary>
 /// <remarks>
 /// <para>
-/// A seed only ever creates. When the provider already exists nothing at all is sent, which is what
-/// makes a restart a no-op and lets an administrator change the provider, its tier models or its
-/// agents afterwards without the next start putting them back. Existence is read from the provider's
-/// own stream through the passive <see cref="ConfiguredAIProvider"/>, never from a list read model
-/// that may still be catching up. The agents and tier models are seeded only in the run that created
-/// the provider, so they are not subject to that lag either.
+/// A seed only ever creates. Each step is a create-once command that decides on the stream it would
+/// append to (the passive <see cref="ConfiguredAIProvider"/>, the passive <see cref="SeededAgentPresence"/>)
+/// and appends nothing when its part already exists - never a list read model that may still be
+/// catching up. That makes a restart a no-op, lets an administrator change the provider, its tier
+/// models or its agents afterwards without the next start putting them back, and lets a run that
+/// stopped after creating the provider finish its tier models and agents later.
 /// </para>
 /// <para>
 /// A removed provider has no stream left to find, so it is seeded again on the next start. Remove the
@@ -28,51 +47,48 @@ namespace Cratis.AI.Configuration.Seeding;
 /// </para>
 /// </remarks>
 /// <param name="commandPipeline">The <see cref="ICommandPipeline"/> the commands are sent through.</param>
-/// <param name="readModels">The <see cref="IReadModels"/> the provider's existence is read from.</param>
 /// <param name="logger">The logger.</param>
-public class AISeeding(ICommandPipeline commandPipeline, IReadModels readModels, ILogger<AISeeding> logger)
+public class AISeeding(ICommandPipeline commandPipeline, ILogger<AISeeding> logger)
 {
     /// <summary>
-    /// Creates the seed's provider, tier models and agents when the provider does not exist yet.
+    /// Creates whatever part of the seed - provider, tier models, agents - does not exist yet.
     /// </summary>
     /// <param name="seed">The <see cref="SeededOpenAIProvider"/> to apply.</param>
-    /// <returns><see langword="true"/> when the seed created the provider; <see langword="false"/> when it was skipped or failed.</returns>
-    public async Task<bool> Apply(SeededOpenAIProvider seed)
+    /// <returns>What it came to.</returns>
+    public async Task<SeedOutcome> Apply(SeededOpenAIProvider seed)
     {
         if (string.IsNullOrWhiteSpace(seed.ApiKey))
         {
             logger.SeedHasNoApiKey(seed.Name);
-            return false;
+            return SeedOutcome.Skipped;
         }
 
-        var id = seed.ProviderId;
-        if (await readModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)id) is not null)
+        foreach (var step in StepsFor(seed))
         {
-            logger.SeedAlreadyApplied(seed.Name);
-            return false;
-        }
-
-        var added = await commandPipeline.ExecuteAndReport(new AddSeededOpenAIProvider(id, seed.Name, seed.ApiKey), logger);
-        if (!added.IsSuccess)
-        {
-            return false;
-        }
-
-        await SeedTierModels(seed, id);
-        foreach (var agent in seed.Agents)
-        {
-            await commandPipeline.ExecuteAndReport(new ConfigureAgent(agent.Purpose, agent.Name, agent.Description, agent.Tier, ProviderId: id), logger);
+            var result = await commandPipeline.ExecuteAndReport(step, logger);
+            if (!result.IsSuccess)
+            {
+                logger.SeedIncomplete(seed.Name);
+                return SeedOutcome.Failed;
+            }
         }
 
         logger.SeedApplied(seed.Name, seed.Agents.Count);
-        return true;
+        return SeedOutcome.Completed;
     }
 
-    async Task SeedTierModels(SeededOpenAIProvider seed, AIProviderId id)
+    static IEnumerable<object> StepsFor(SeededOpenAIProvider seed)
     {
+        var id = seed.ProviderId;
+        yield return new AddSeededOpenAIProvider(id, seed.Name, seed.ApiKey);
         if (seed.TierModels is { } tierModels)
         {
-            await commandPipeline.ExecuteAndReport(new SetAIProviderTierModels(id, tierModels), logger);
+            yield return new SeedAIProviderTierModels(id, tierModels);
+        }
+
+        foreach (var agent in seed.Agents)
+        {
+            yield return new SeedAgent(agent.Purpose, agent.Name, agent.Description, agent.Tier, id);
         }
     }
 }
@@ -85,9 +101,9 @@ internal static partial class AISeedingLog
     [LoggerMessage(LogLevel.Warning, "Not seeding AI provider '{ProviderName}': no API key was supplied")]
     internal static partial void SeedHasNoApiKey(this ILogger logger, string providerName);
 
-    [LoggerMessage(LogLevel.Debug, "AI provider '{ProviderName}' already exists - seed skipped")]
-    internal static partial void SeedAlreadyApplied(this ILogger logger, string providerName);
+    [LoggerMessage(LogLevel.Warning, "AI provider seed '{ProviderName}' is incomplete: a step failed")]
+    internal static partial void SeedIncomplete(this ILogger logger, string providerName);
 
-    [LoggerMessage(LogLevel.Information, "Seeded AI provider '{ProviderName}' with {AgentCount} agent(s)")]
+    [LoggerMessage(LogLevel.Information, "AI provider '{ProviderName}' is seeded with {AgentCount} agent(s)")]
     internal static partial void SeedApplied(this ILogger logger, string providerName, int agentCount);
 }

@@ -67,6 +67,8 @@ public static class CratisAIServiceCollectionExtensions
 
         // Defaults for what a first host would otherwise have to write. Registered after `configure`
         // with TryAdd so anything the host supplied - WithAgents, or an identity provider of its own - wins.
+        // TryAdd only yields to a registration made BEFORE this call; a host that registers its own
+        // IIdentityProvider afterwards with a plain Add also wins, as the last registration.
         services.TryAddSingleton<IAIAgents, PurposeAgents>();
         services.AddHttpContextAccessor();
         services.TryAddSingleton<Cratis.Chronicle.Identities.IIdentityProvider, Cratis.Chronicle.AspNetCore.Identities.IdentityProvider>();

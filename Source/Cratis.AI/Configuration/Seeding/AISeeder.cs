@@ -47,8 +47,8 @@ public class AISeeder(
     /// <summary>
     /// Applies the seeds now rather than after the startup delay.
     /// </summary>
-    /// <returns>Awaitable task.</returns>
-    public async Task RunOnce()
+    /// <returns><see langword="false"/> when a seed was left incomplete and is worth another attempt.</returns>
+    public async Task<bool> RunOnce()
     {
         using var scope = scopeFactory.CreateScope();
         var services = scope.ServiceProvider;
@@ -56,10 +56,13 @@ public class AISeeder(
             services.GetRequiredService<ISystemExecution>(),
             services.GetRequiredService<IHttpRequestContextAccessor>());
         var seeding = ActivatorUtilities.CreateInstance<AISeeding>(services);
+        var complete = true;
         foreach (var seed in seeds)
         {
-            await seeding.Apply(seed);
+            complete &= await seeding.Apply(seed) != SeedOutcome.Failed;
         }
+
+        return complete;
     }
 
     /// <inheritdoc/>
@@ -88,8 +91,13 @@ public class AISeeder(
     {
         try
         {
-            await RunOnce();
-            return true;
+            var complete = await RunOnce();
+            if (!complete)
+            {
+                logger.SeedingIncomplete(attempt, MaxAttempts);
+            }
+
+            return complete;
         }
         catch (Exception exception)
         {
@@ -104,6 +112,9 @@ public class AISeeder(
 /// </summary>
 internal static partial class AISeederLog
 {
+    [LoggerMessage(LogLevel.Warning, "AI seeding left a seed incomplete (attempt {Attempt} of {MaxAttempts})")]
+    internal static partial void SeedingIncomplete(this ILogger logger, int attempt, int maxAttempts);
+
     [LoggerMessage(LogLevel.Warning, "AI seeding could not run (attempt {Attempt} of {MaxAttempts})")]
     internal static partial void CouldNotSeed(this ILogger logger, int attempt, int maxAttempts, Exception exception);
 }
