@@ -5,9 +5,9 @@
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
@@ -1064,6 +1064,45 @@ test('copy-style writes into protected names under a mixed-case root stay blocke
         cases.push([BLOCK, `cp x ${repo.root}//.ENV`], [BLOCK, `cp x ${repo.root}/.ENV/`], [BLOCK, `cp -t ${repo.root}/Source x ${repo.root}/.ENV`]);
         await checkCases(cases, repo.root);
     } finally { repo.dispose(); }
+});
+
+// The classifier folds `..` lexically before it resolves symlinks, so a `..` after a symlink names another repository
+// than the one it is judged against. The lowercase alias is what still reaches the real target on a case-sensitive volume.
+test('a dot-dot component after a symlink never drops the lowercase alias of a mixed-case session root', async () => {
+    const open = scratchRepository('https://github.com/example/app.git', 'mixed');
+    const closed = scratchRepository('https://github.com/example/app.git', 'lowercase');
+    try {
+        mkdirSync(join(open.root, '.cratis'));
+        writeFileSync(join(open.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":true}');
+        mkdirSync(join(closed.root, '.cratis'));
+        writeFileSync(join(closed.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":false}');
+        mkdirSync(join(closed.root, 'child'));
+        symlinkSync(join(closed.root, 'child'), join(open.root, 'Jump'));
+        await checkCases([
+            [BLOCK, `cp x ${open.root}/Jump/../package.json`], [BLOCK, `rsync x ${open.root}/Jump/../NuGet.config`],
+            [BLOCK, `cp x ${open.root}/Source/../Jump/../package.json`],
+            [ALLOW, `cp x ${open.root}/package.json`], [ALLOW, 'cp x package.json'],
+        ], open.root);
+        // A relative spelling from a working directory above the session root reaches it through the alias too.
+        const above = dirname(open.root);
+        const relative = `cp x ${basename(open.root)}/Jump/../package.json`;
+        assert.equal(runGuard(payload(relative, above), above, { CLAUDE_PROJECT_DIR: open.root }).verdict, BLOCK, relative);
+    } finally { open.dispose(); closed.dispose(); }
+});
+
+test('an unsearchable lowercase parent is a lookup error, so the lowercase alias is kept', onlyCaseSensitive, () => {
+    const repo = scratchRepository('https://github.com/example/app.git', 'mixed');
+    const name = repo.root.slice(repo.root.lastIndexOf('/') + 1);
+    const hidden = join(tmpdir(), name.toLowerCase());
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":true}');
+        mkdirSync(join(repo.root, 'Sub'));
+        mkdirSync(hidden, { mode: 0o000 });
+        const command = `cp x ${repo.root}/Sub/package.json`;
+        if (process.getuid?.() === 0) return;
+        assert.equal(runGuard(payload(command, repo.root), repo.root).verdict, BLOCK, command);
+    } finally { chmodSync(hidden, 0o700); rmSync(hidden, { recursive: true, force: true }); repo.dispose(); }
 });
 
 test('the lowercase alias never hides a real candidate with the same text', async () => {
