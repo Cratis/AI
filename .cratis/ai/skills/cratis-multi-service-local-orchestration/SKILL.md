@@ -67,23 +67,22 @@ var mongo = builder.AddCratisChronicleMongoDB();
 var chronicle = builder.AddCratisChronicle("chronicle", c => c.WithMongoDB(mongo));
 var grpc = chronicle.GetEndpoint("grpc");
 
-AddService<Projects.Ordering>("ordering", "Ordering");
-AddService<Projects.Billing>("billing", "Billing");
-
-builder.Build().Run();
-
 // The development client id and secret come from the AppHost's own configuration
 // (see `cratis-chronicle-client-dotnet`), never from literals in source.
 const string scheme = "chronicle://";
 var chronicleClient = builder.Configuration["Chronicle:Client"];
 var chronicleSecret = builder.Configuration["Chronicle:Secret"];
 
+AddService<Projects.Ordering>("ordering", "Ordering");
+AddService<Projects.Billing>("billing", "Billing");
+
+builder.Build().Run();
+
 void AddService<TProject>(string name, string eventStore)
     where TProject : IProjectMetadata, new() =>
     builder.AddProject<TProject>(name)
         .WithEnvironment("Cratis__Chronicle__ConnectionString",
-            ReferenceExpression.Create(
-                $"{scheme}{chronicleClient}:{chronicleSecret}@{grpc.Property(EndpointProperty.HostAndPort)}"))
+            $"{scheme}{chronicleClient}:{chronicleSecret}@{grpc.Property(EndpointProperty.HostAndPort)}")
         .WithEnvironment("Cratis__Chronicle__EventStore", eventStore)
         .WithEnvironment("Cratis__MongoDB__Server", mongo.Resource.ConnectionStringExpression)
         .WithEnvironment("Cratis__MongoDB__Database", eventStore)
