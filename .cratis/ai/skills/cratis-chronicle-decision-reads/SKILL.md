@@ -20,7 +20,7 @@ when the question is which mechanism to use, or before writing code that reads
 state and then appends. It carries the routing by rule shape, the matrix with what
 not to use, the refusals, rollout with Measure, testing and the traps.
 
-In an Arc application read protection `On` is the default from Arc 23 (on Arc 22 set
+In an Arc application using `Cratis.Arc.Chronicle`, read protection `On` is the default from Arc 23 (on Arc 22 set
 `<CratisReadProtection>On</CratisReadProtection>`; `Off` was the Arc 22 behavior). Under `On` the read model is a parameter of `Handle()` or of the
 `CommandValidator<T>` constructor, and the read guards the append; under `Off` and
 `Measure` a validator over a plain read is a hint that guards nothing. A plain read under
