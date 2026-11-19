@@ -32,7 +32,7 @@ Published guides this agrees with:
 ## Defaults
 
 - Read protection is `On` unless the project sets it (the default from Arc 23).
-  Leave `<CratisReadProtection>` unset; do not write `On` or add
+  Leave `<CratisReadProtection>` unset (the default comes from `Cratis.Arc.Chronicle`'s build props, `Source/DotNET/Chronicle/build/Cratis.Arc.Chronicle.props`; a project not importing them has no default); do not write `On` or add
   `[ReadProtection(ReadProtectionMode.On)]` per command. Opt out only where
   needed; see [Opting out](#opting-out-of-read-protection). Legacy: on Arc 22 the
   default was `Off`, so new code set `<CratisReadProtection>On</CratisReadProtection>`
@@ -292,6 +292,15 @@ Only where a read must stay advisory, always with a stated reason, narrowest fir
 
 1. `[Unprotected("why")]` on a read-model parameter, the model type, or the method
    (`Cratis.Arc.Chronicle.ReadModels`): that read is advisory.
+   The method form covers only raw reads in the method body, never its injected
+   read-model parameters; combining it with protected read-model parameters raises
+   `ARCCHR0034`, so put `[Unprotected]` on the specific parameter. For a key computed
+   at runtime, `IDecisionReads.Get<T>(key)` in `Provide` or a validator is a protected
+   read; method-level `[Unprotected]` is only for reads the guard cannot cover (joins,
+   children, other sequences, raw event store, external stores) and its reason names
+   what guards the append. Arc 23 key metadata is strict by default:
+   `CommandReadModelKeysMissing` (`ReadProtection:RequireGeneratedMetadata`) and
+   `ProtectedReadModelKeyOptions.Strict`.
 2. `[Unprotected("why")]` or `[ReadProtection(ReadProtectionMode.Off)]` on one command
    (`Measure` also works there). Command `[Unprotected]` wins over any
    `[ReadProtection]`; an explicit `On`/`Measure` beside it throws

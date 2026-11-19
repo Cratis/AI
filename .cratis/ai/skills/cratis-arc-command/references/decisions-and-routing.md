@@ -23,13 +23,14 @@ recommended with Arc and is not an investment target. A computed key stays in
 Arc will pin protected parameters so the idiomatic shape needs no further ceremony.
 
 Under read protection `On`, the default from Arc 23 when nothing is set (leave
-`<CratisReadProtection>` unset; do not write `On` or `[ReadProtection(ReadProtectionMode.On)]`), a read model that is a
+`<CratisReadProtection>` unset (the default comes from `Cratis.Arc.Chronicle`'s build props, `Source/DotNET/Chronicle/build/Cratis.Arc.Chronicle.props`; a project not importing them has no default); do not write `On` or `[ReadProtection(ReadProtectionMode.On)]`), a read model that is a
 parameter of `Handle()` or of a `CommandValidator<T>` constructor is read fresh from
 the event log and guards the command's append. Opt out narrowest first, with a reason:
-`[Unprotected("why")]` on the parameter, model type or method (one advisory read), then
+`[Unprotected("why")]` on the parameter, model type or method (one advisory read; the method form covers only raw reads in the method body, never injected read-model parameters, and combining it with protected read-model parameters raises ARCCHR0034, so put `[Unprotected]` on the specific parameter), then
 `[Unprotected("why")]` or `[ReadProtection(ReadProtectionMode.Off)]` on the command; project-level
 `Off`/`Measure` is a temporary adoption step. Under `Off` and `Measure` those reads are plain, a hint that guards nothing
 (`Off` was the Arc 22 default).
+For a key computed at runtime, `IDecisionReads.Get<T>(key)` in `Provide()` or a validator is a protected read; method-level `[Unprotected]` is only for reads the guard cannot cover (joins, children, other sequences, raw event store, external stores), and its reason names what guards the append. Arc 23 read-model key metadata is strict by default: missing generated metadata fails with `CommandReadModelKeysMissing` (`ReadProtection:RequireGeneratedMetadata`), and `ProtectedReadModelKeyOptions.Strict` requires composite key accessors.
 A `Result<TEvent, ValidationResult>` rejects a request but does not enroll a guard.
 Uniqueness and create-once belong to a Chronicle constraint, not to any read. For the
 routing by rule shape, the matrix and the traps read
