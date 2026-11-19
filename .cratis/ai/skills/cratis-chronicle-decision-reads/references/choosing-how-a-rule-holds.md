@@ -11,6 +11,7 @@
 - Refusals
 - Arc traps
 - Chronicle-only traps
+- Opting out of read protection
 - Roll out with Measure
 - Specify the business decision
 - Costs

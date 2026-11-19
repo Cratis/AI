@@ -13,7 +13,7 @@
 
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import test from 'node:test';
@@ -1099,5 +1099,82 @@ test('the guard refuses every write when jq is missing', () => {
     } finally {
         isolated.dispose();
         repo.dispose();
+    }
+});
+
+/** Two repositories (one allowing manifest writes, one not) joined by directory symlinks that a parent reference climbs out of. */
+// A mode-000 directory is still searchable by root, so those cases only apply to other users.
+const isRoot = process.getuid?.() === 0;
+
+function symlinkedParentLayout() {
+    const root = mkdtempSync(join(tmpdir(), 'cratis-guard-parent-'));
+    const repository = (name: string, setting: boolean | undefined) => {
+        const directory = join(root, name);
+        mkdirSync(join(directory, '.cratis'), { recursive: true });
+        assert.equal(spawnSync('git', ['init', '-q', directory]).status, 0);
+        if (setting !== undefined) writeFileSync(join(directory, '.cratis', 'ai.json'), JSON.stringify({ allowDependencyManifestWrites: setting }));
+        return directory;
+    };
+    const open = repository('open', true);
+    const closed = repository('closed', false);
+    const managed = repository('managed', true);
+    mkdirSync(join(closed, 'child', 'x'), { recursive: true });
+    mkdirSync(join(managed, 'child'), { recursive: true });
+    mkdirSync(join(managed, '.cratis', 'ai'), { recursive: true });
+    mkdirSync(join(open, 'sub'), { recursive: true });
+    mkdirSync(join(open, 'a'), { recursive: true });
+    symlinkSync('../closed/child', join(open, 'jump'));
+    symlinkSync(join(closed, 'child'), join(open, 'jump-absolute'));
+    symlinkSync('../../closed/child', join(open, 'a', 'jump'));
+    symlinkSync('../managed/child', join(open, 'managed-jump'));
+    symlinkSync('../sub', join(open, 'a', 'same'));
+    symlinkSync('missing-target', join(open, 'dangling'));
+    writeFileSync(join(closed, 'package.json'), '{}');
+    mkdirSync(join(open, 'sub', 'child'), { recursive: true });
+    symlinkSync('sub/child', join(open, 'inner'));
+    symlinkSync('../../closed/package.json', join(open, 'sub', 'alias'));
+    symlinkSync('../closed/package.json', join(open, 'alias-direct'));
+    symlinkSync('loop', join(open, 'loop'));
+    symlinkSync('global.json', join(open, 'global.json'));
+    mkdirSync(join(open, 'locked'));
+    if (!isRoot) chmodSync(join(open, 'locked'), 0o000);
+    return { root, open, dispose: () => { if (!isRoot) chmodSync(join(open, 'locked'), 0o700); rmSync(root, { recursive: true, force: true }); } };
+}
+
+test('a parent reference after a symlinked directory is judged where the kernel resolves it', async () => {
+    const layout = symlinkedParentLayout();
+    const toolCall = piToolCall(layout.open);
+    try {
+        const cases: Array<[path: string, expected: string]> = [
+            ['jump/../package.json', BLOCK],
+            ['./jump/./../package.json', BLOCK],
+            ['jump//../package.json', BLOCK],
+            ['jump-absolute/../global.json', BLOCK],
+            ['a/jump/x/../../package.json', BLOCK],
+            ['dangling/../package.json', BLOCK],
+            ['inner/../alias', BLOCK],
+            ['loop/../package.json', BLOCK],
+            ['loop/x/../package.json', BLOCK],
+            ['global.json', BLOCK],
+            ...(isRoot ? [] : [['locked/package.json', BLOCK], ['locked/x/../package.json', BLOCK], ['locked/README.md', ALLOW]] as Array<[string, string]>),
+            ['alias-direct', BLOCK],
+            ['jump/../.env', BLOCK],
+            ['managed-jump/../.cratis/ai/rules.md', BLOCK],
+            ['managed-jump/../.cratis/ai.json', BLOCK],
+            ['jump/../README.md', ALLOW],
+            ['jump/x/../notes.txt', ALLOW],
+            ['sub/../package.json', ALLOW],
+            ['a/same/../package.json', ALLOW],
+        ];
+        const spellings = cases.flatMap(([path, expected]) => [path, `${layout.open}/${path}`].map(spelling => [spelling, expected] as [string, string]));
+        await forEachConcurrently(spellings, async ([path, expected]) => {
+            const result = await runGuardAsync({ cwd: layout.open, tool_input: { file_path: path, content: 'x' } }, layout.open);
+            assert.equal(result.verdict, expected, `${path}: ${result.stderr}`);
+            if (expected === ALLOW) assert.equal(result.stdout + result.stderr, '');
+            const bridged = await toolCall({ toolName: 'write', input: { path, content: 'x' } }, { cwd: layout.open }) as { block?: boolean } | undefined;
+            assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${path}`);
+        });
+    } finally {
+        layout.dispose();
     }
 });
