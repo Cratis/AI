@@ -1,7 +1,7 @@
 # Backend quick start: hello chat
 
 This page takes you from an empty ASP.NET Core application to a first chat response from
-`Cratis.AI`. It registers the backend, configures one provider, asks for a chat client by
+`Cratis.AI`. It registers the backend, seeds one provider, asks for a chat client by
 purpose, and sends one message. Along the way it explains what a `LanguageModelPurpose` is and
 how the package turns one into a concrete provider and model.
 
@@ -68,26 +68,26 @@ Replace `Program.cs` with the following. Its three numbered parts are explained 
 
 ```csharp
 using Cratis.AI.Abstractions;
-using Cratis.AI.Agents;
-using Cratis.AI.Agents.Configuring;
 using Cratis.AI.Configuration;
+using Cratis.AI.Configuration.Seeding;
 using Cratis.AI.Conversations;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
-using Cratis.AI.Providers.Adding;
 using Cratis.AI.Providers.SettingTierModels;
 using Cratis.Arc;
-using Cratis.Arc.Commands;
 using Microsoft.Extensions.AI;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var greeting = new LanguageModelPurpose("Greeting");
+
 // 1. Register the backend. AddCratisAI must come before AddCratis.
-builder.Services.AddCratisAI(ai => ai.WithAgents<PurposeAgents>());
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddSingleton<
-    Cratis.Chronicle.Identities.IIdentityProvider,
-    Cratis.Chronicle.AspNetCore.Identities.IdentityProvider>();
+// 2. Seed one provider and a purpose.
+builder.Services.AddCratisAI(ai => ai.SeedOpenAIProvider(new SeededOpenAIProvider(
+    "OpenAI",
+    builder.Configuration["OPENAI_API_KEY"],
+    [new SeededAgent(greeting, "Greeter", "Answers the hello-chat sample.", ModelTier.Fast)],
+    TierModels.NotSet with { Fast = "gpt-4.1-mini" })));
 builder.AddCratis(configureArcBuilder: arc => arc.WithMongoDB(mongo =>
 {
     mongo.Server = "mongodb://localhost:27017";
@@ -97,32 +97,6 @@ builder.AddCratis(configureArcBuilder: arc => arc.WithMongoDB(mongo =>
 var app = builder.Build();
 app.UseCratis();
 
-var greeting = new LanguageModelPurpose("Greeting");
-
-// 2. Configure one provider and point the purpose at it (local development only).
-if (app.Environment.IsDevelopment())
-{
-    app.MapPost("/setup", async (ICommandPipeline commands, IConfiguration configuration) =>
-    {
-        var provider = await commands.Execute<AIProviderId>(
-            new AddOpenAIProvider("OpenAI", configuration["OPENAI_API_KEY"] ?? string.Empty, 0));
-        if (!provider.IsSuccess || provider.Response is null) return Results.BadRequest(provider);
-
-        var tiers = await commands.Execute(new SetAIProviderTierModels(
-            provider.Response,
-            TierModels.NotSet with { Fast = "gpt-4.1-mini" }));
-        if (!tiers.IsSuccess) return Results.BadRequest(tiers);
-
-        var agent = await commands.Execute(new ConfigureAgent(
-            greeting,
-            "Greeter",
-            "Answers the hello-chat sample.",
-            ModelTier.Fast,
-            ProviderId: provider.Response));
-        return agent.IsSuccess ? Results.Ok() : Results.BadRequest(agent);
-    });
-}
-
 // 3. Ask for a chat client by purpose and send one message.
 app.MapGet("/hello", async (IAIChatClients chatClients) =>
 {
@@ -131,18 +105,6 @@ app.MapGet("/hello", async (IAIChatClients chatClients) =>
 });
 
 await app.RunAsync();
-
-/// <summary>
-/// Names the agent behind each purpose, so the events a chat causes are attributed to it.
-/// </summary>
-sealed class PurposeAgents : IAIAgents
-{
-    /// <inheritdoc/>
-    public AgentDescriptor? Find(AgentId id) => new(id, id.Value);
-
-    /// <inheritdoc/>
-    public AgentDescriptor? FindByPurpose(LanguageModelPurpose purpose) => new(AgentId.For(purpose), purpose.Value);
-}
 ```
 
 ### 1. Register the backend
@@ -151,42 +113,41 @@ sealed class PurposeAgents : IAIAgents
 sees the package's events, projections and commands (see [Abstractions](./abstractions.md) for
 why the order matters).
 
-The package needs two things from your application:
+It also registers the two seams a first application would otherwise write itself:
 
-- **An `IAIAgents` implementation**, registered with `WithAgents<T>()`. It tells the package
-  which agent stands behind each purpose, so every event a chat causes names the agent that
-  caused it. `PurposeAgents` is the smallest version: it names one agent per purpose, using
-  `AgentId.For(purpose)` as the identity. A real application looks its agents up instead.
-- **A Chronicle `IIdentityProvider`**, so events record who caused them. The example registers
-  the ASP.NET Core identity provider and the `IHttpContextAccessor` it reads from. Write both type
-  names in full: Arc also has an `IIdentityProvider`, and with both namespaces imported the short
-  name is ambiguous.
+- **An `IAIAgents` lookup**, `PurposeAgents`: one agent per purpose, identified by
+  `AgentId.For(purpose)`, so every event a chat causes names the agent that caused it. Replace it
+  with `ai.WithAgents<T>()` when your application looks its agents up.
+- **A Chronicle `IIdentityProvider`**, the ASP.NET Core one, so events record who caused them. It
+  is registered only when you have not registered one, so your own wins.
 
 `AddCratis` with `WithMongoDB()` sets up Arc and Chronicle with MongoDB read models, and
 `UseCratis()` adds them to the request pipeline. `WithMongoDB` needs the MongoDB server and
 database name; the example sets them in code, and you can bind them from configuration instead.
 Change the server address if your MongoDB does not run on `localhost:27017`.
 
-### 2. Configure one provider and point the purpose at it
+### 2. Seed one provider and a purpose
 
 Configuration is recorded as events, through the same commands an administration screen would
-send. The `/setup` endpoint runs them through `ICommandPipeline`:
+send. `SeedOpenAIProvider` sends them for you at startup:
 
-- `AddOpenAIProvider` adds an OpenAI provider named `OpenAI` with the key from `OPENAI_API_KEY`.
-  The last argument is the provider's maximum number of concurrent worker sessions; `0` means
-  no limit. The command's response is the new provider's `AIProviderId`.
-- `SetAIProviderTierModels` maps the provider's `Fast` tier to the `gpt-4.1-mini` model. Start
-  from `TierModels.NotSet` and set only the tiers you want to pin.
-- `ConfigureAgent` connects the `Greeting` purpose to an agent named `Greeter` that uses the
-  `Fast` tier on that provider.
+- It adds an OpenAI provider named `OpenAI` with the key from `OPENAI_API_KEY`. The key comes
+  from configuration and is never written to the log. When it is empty, nothing is seeded and a
+  warning is logged.
+- It maps the provider's `Fast` tier to the `gpt-4.1-mini` model. Start from `TierModels.NotSet`
+  and set only the tiers you want to pin.
+- It connects the `Greeting` purpose to an agent named `Greeter` that uses the `Fast` tier on that
+  provider.
 
-Run setup once. The configuration is stored in Chronicle and survives a restart.
+Seeding only creates. When the provider already exists a restart sends nothing, so anything an
+administrator changed afterwards with `SetAIProviderTierModels` or `ConfigureAgent` is kept. The
+provider is identified by its name, so renaming it in code seeds a second provider. The seed runs a
+few seconds after startup and retries while Chronicle and the read models come up, so the first
+request can arrive before it has finished.
 
-The example maps `/setup` only in the `Development` environment, because it is unauthenticated:
-anyone who can reach it could add providers that use your API key and repoint the purpose. In a
-real application, send these commands from an administration screen or command endpoint that
-requires an administrator, and keep provider configuration out of anonymous or low-privilege
-reach.
+Seeding runs with the package's own authority and has no endpoint, so only your server code can
+trigger it. For production, prefer an administration screen or command endpoint that requires an
+administrator, and remove the seed once the provider is administered by hand.
 
 ### 3. Ask for a chat client by purpose and send one message
 
@@ -204,15 +165,13 @@ API: `GetResponseAsync` sends the message and returns the response.
    dotnet run --environment Development
    ```
 
-3. Configure the provider and the purpose, then ask for a greeting. Use the address `dotnet run`
-   prints:
+3. Ask for a greeting once the seed has run. Use the address `dotnet run` prints:
 
    ```shell
-   curl -X POST http://localhost:5000/setup
    curl http://localhost:5000/hello
    ```
 
-The second call prints the model's one-sentence greeting.
+The call prints the model's one-sentence greeting.
 
 ## Next steps
 

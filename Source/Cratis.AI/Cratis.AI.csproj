@@ -42,7 +42,10 @@
              Scoping these properties to net10.0 only leaves the target's own guard
              ('$(CratisProxiesOutputPath)' != '') false for the other TFM, so generation runs
              exactly once regardless of configuration. -->
-        <CratisProxiesOutputPath Condition="'$(TargetFramework)' == 'net10.0'">$(MSBuildThisFileDirectory)../Cratis.AI.Proxies/generated</CratisProxiesOutputPath>
+        <!-- Generation is opt-in for this repository's own entry points: building Cratis.AI.slnx, or an explicit
+             -p:CratisAIGenerateProxies=true (the npm release job). A consumer that references this project
+             sets neither, so building it as a ProjectReference never rewrites this repository's checkout. -->
+        <CratisProxiesOutputPath Condition="'$(TargetFramework)' == 'net10.0' And ('$(CratisAIGenerateProxies)' == 'true' Or '$(SolutionName)' == 'Cratis.AI')">$(MSBuildThisFileDirectory)../Cratis.AI.Proxies/generated</CratisProxiesOutputPath>
         <CratisProxiesSegmentsToSkip>1</CratisProxiesSegmentsToSkip>
         <CratisProxiesSkipOutputDeletion>false</CratisProxiesSkipOutputDeletion>
         <CratisProxiesSkipCommandNameInRoute>true</CratisProxiesSkipCommandNameInRoute>
@@ -87,6 +90,8 @@
         <!-- The Arc/Chronicle seam: [NotAudited], which keeps a command's credential out of the
              causation chain. Without it Arc records every command property value, in the clear. -->
         <PackageReference Include="Cratis.Arc.Chronicle" />
+        <!-- The default IIdentityProvider AddCratisAI registers, so a host does not have to name one. -->
+        <PackageReference Include="Cratis.Chronicle.AspNetCore" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.Http" />
         <PackageReference Include="Microsoft.Extensions.Options" />

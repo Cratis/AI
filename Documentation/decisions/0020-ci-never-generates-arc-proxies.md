@@ -28,10 +28,11 @@ of scope because it is not released.
 
 - Pull request and verify builds pass `-p:CratisProxiesOutputPath=`, which disables generation.
 - Amendment: from Arc 22.185.1, CI passes `-p:CratisProxiesSkip=true`, Arc's released skip property, instead of the empty output path. The decision itself (CI never generates) is unchanged.
+- Amendment (Cratis/AI#1195): generation is opt-in from inside this repository, so referencing `Cratis.AI` from another solution never rewrites the committed proxies. `Cratis.AI.csproj` sets `CratisProxiesOutputPath` only when building `Cratis.AI.slnx` or when `-p:CratisAIGenerateProxies=true` is passed; the npm release build passes it, and contributors building the project directly pass it too (`dotnet build Source/Cratis.AI/Cratis.AI.csproj -p:CratisAIGenerateProxies=true`).
 - The proxy-only build and the "Verify generated proxies are up to date" drift gate are removed.
 - The npm release build keeps generating, so the published `@cratis/ai` always ships fresh proxies.
 - Contributors refresh the committed tree locally with
-  `dotnet build Source/Cratis.AI/Cratis.AI.csproj` and commit the result under
+  `dotnet build Source/Cratis.AI/Cratis.AI.csproj -p:CratisAIGenerateProxies=true` (or build `Cratis.AI.slnx`) and commit the result under
   `Source/Cratis.AI.Proxies/generated`.
 
 Alternative not taken: keep the drift gate. It catches a forgotten refresh before release, but it
