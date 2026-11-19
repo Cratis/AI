@@ -16,11 +16,12 @@ namespace Cratis.AI.Configuration.Seeding;
 /// cannot be behind the way the listing read model can.
 /// </summary>
 /// <param name="Id">The agent's identity - one per purpose.</param>
+/// <param name="Name">The agent's name - the projection needs a mapped value to hold an instance at all.</param>
 [ReadModel]
 [Authorize(Policy = AIManagementPolicy.Name)]
 [Passive]
 [FromEvent<AgentConfigured>]
-public record SeededAgentPresence(AgentId Id);
+public record SeededAgentPresence(AgentId Id, AgentName Name);
 
 /// <summary>
 /// Command for connecting a purpose to a seeded provider, only while the purpose has no agent.

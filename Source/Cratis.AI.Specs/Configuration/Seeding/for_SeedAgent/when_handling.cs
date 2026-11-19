@@ -19,7 +19,7 @@ public class when_handling : Specification
     {
         var command = new SeedAgent("Greeting", "Greeter", "Answers the greeting.", ModelTier.Fast, _providerId);
         _forNone = command.Handle(null);
-        _forExisting = command.Handle(new SeededAgentPresence(AgentId.For("Greeting")));
+        _forExisting = command.Handle(new SeededAgentPresence(AgentId.For("Greeting"), new AgentName("Greeter")));
     }
 
     [Fact]

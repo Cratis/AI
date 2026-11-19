@@ -22,7 +22,7 @@ public class when_handling : Specification
 
         // Also what an administrator who set every tier to NotSet (back to vendor defaults) leaves behind:
         // the fact that the table was set, whatever its value - so a restart seeds nothing.
-        _everSet = command.Handle(new SeededTierModelsHistory(_providerId));
+        _everSet = command.Handle(new SeededTierModelsHistory(_providerId, TierModels.NotSet));
     }
 
     [Fact]

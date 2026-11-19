@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Providers;
+using Cratis.AI.Providers.Configuring;
+using Cratis.AI.Providers.Removing;
 using Cratis.AI.Providers.SettingTierModels;
 using Cratis.Arc.Authorization;
 using Cratis.Monads;
@@ -43,14 +45,19 @@ public record SeedAIProviderTierModels(AIProviderId Provider, TierModels Models)
 
 /// <summary>
 /// Records that a provider's tier models were set at least once, whatever they were set to - read from
-/// the provider's own stream, so it cannot be behind the way a list read model can.
+/// the provider's own stream, so it cannot be behind the way a list read model can. It ends when the
+/// provider is removed, like <see cref="ConfiguredAIProvider"/>, so a provider seeded again after a
+/// removal gets its tier models again.
 /// </summary>
 /// <param name="Id">The provider's identity.</param>
+/// <param name="Models">The tier models last set - the projection needs a mapped value to hold an instance at all.</param>
 [ReadModel]
 [Authorize(Policy = AIManagementPolicy.Name)]
 [Passive]
 [FromEvent<AIProviderTierModelsSet>]
-public record SeededTierModelsHistory(AIProviderId Id);
+[RemovedWith<AIProviderRemoved>]
+[RemovedWith<AIModelRemoved>]
+public record SeededTierModelsHistory(AIProviderId Id, TierModels Models);
 
 /// <summary>
 /// Represents the validator for the <see cref="SeedAIProviderTierModels"/> command.
