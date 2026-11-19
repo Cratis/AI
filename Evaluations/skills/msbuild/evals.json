@@ -44,6 +44,18 @@
         "Requires restoring analyzers and warnings-as-errors afterward.",
         "Requires running the real build gate before finishing."
       ]
+    },
+    {
+      "id": 5,
+      "name": "lost-generators",
+      "prompt": "Without calling tools, to cut CI build time someone proposes EnableNETAnalyzers=false and removing the Analyzer items. Review it.",
+      "expected_output": "Refuse; use RunAnalyzers=false on non-owning builds, keep one analyzer owner per build tuple, and keep source generators running.",
+      "assertions": [
+        "Uses RunAnalyzers=false or RunAnalyzersDuringBuild=false on non-owning builds.",
+        "Refuses removing Analyzer items and EnableNETAnalyzers=false because generators would stop.",
+        "Keeps exactly one analyzer-owning build per configuration, target framework and runtime identifier tuple.",
+        "Verifies generated code is present in the build output."
+      ]
     }
   ]
 }
