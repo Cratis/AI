@@ -520,7 +520,7 @@ jobs:
       # produces. Pull request builds never generate proxies; this release build does, so the
       # package always ships fresh ones (plan Section 6.5).
       - name: Build Cratis.AI (regenerates the proxy tree)
-        run: dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release
+        run: dotnet build Source/Cratis.AI/Cratis.AI.csproj --configuration Release -p:CratisAIGenerateProxies=true
 
       - name: Cache Yarn dependency archives
         uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1

@@ -49,21 +49,28 @@ if [[ "$command_text" =~ ^[[:space:]]*(cratis|ln)[[:space:]] ]] && command -v no
 fi
 
 IFS= read -r -d '' program <<'AWK' || true
-function candidate(s) {
+# `origin` is empty for a real candidate and the original spelling for its lowercase alias. In targets mode
+# an alias is printed as \001origin\001alias so the shell can drop it where it provably names no path.
+# A real candidate is never hidden by an earlier alias with the same text (seen: 1 alias, 2 real).
+function candidate(s, origin,    prior, marker) {
     if (checking_marker) return
     if (s == "" || s ~ /[\n\r\t]/) return
+    marker = ENVIRON["GSW_MODE"] == "targets"
     if (collecting) {
         if (s in collected) return
         if (++collected_count > 256 || length(s) > 4096) exit 2
         collected[s] = 1
     } else {
-        if (s in seen) return
+        if (origin == "" && marker && index(s, "\001")) exit 2
+        prior = (s in seen) ? seen[s] : 0
+        if (prior && (origin != "" || prior == 2)) return
         if (++candidates > 256 || length(s) > 4096) exit 2
-        seen[s] = 1; print s
+        seen[s] = (origin == "") ? 2 : 1
+        if (origin != "" && marker) print "\001" origin "\001" s; else print s
     }
-    if (s != tolower(s)) candidate(tolower(s))
+    if (s != tolower(s)) candidate(tolower(s), s)
     # A generic attached option prefix must not hide a path spelling (-t.pi/...).
-    if (s ~ /^-/ && match(s, /[.\/]/) && RSTART > 1) candidate(substr(s, RSTART))
+    if (s ~ /^-/ && match(s, /[.\/]/) && RSTART > 1) candidate(substr(s, RSTART), (origin == "") ? "" : substr(origin, RSTART))
 }
 # An extended-glob group (`@(a|b)`, `*(x)`) is also read as one star, so `.e@(n)v` meets `.env`.
 # A word with a brace span and quoting or expansion syntax is also kept whole, so the classifier sees it unsplit.
@@ -268,11 +275,16 @@ function short_flags(w, flags,    k) {
     return 1
 }
 function number(s) { return s ~ /^[+-]?[0-9]+$/ }
-function options_allowed(verb, first,    i, w, filters, patterns) {
+function options_allowed(verb, first,    i, w, filters, patterns, ended) {
     for (i = first; i <= argc; i++) {
         w = W[i]
-        if (w == "--") return 1
-        if (w !~ /^-/ || w == "-") { patterns++; continue }
+        if (!ended && w == "--") { if (verb !~ /^(sort|uniq)$/) return 1; ended = 1; continue }
+        if (ended || w !~ /^-/ || w == "-") {
+            # Admit sort/uniq only as stdin filters. File operands, including after
+            # --, retain whole-command classification and every existing refusal.
+            if (verb ~ /^(sort|uniq)$/) return 0
+            patterns++; continue
+        }
         if ((verb, w) in long_options) continue
         if (verb == "head" || verb == "tail" || verb == "git log") {
             if (w == "-n" || (verb != "git log" && w == "-c")) {
@@ -709,11 +721,48 @@ function readonly(s,    i, c, c2, sq, dq) {
         (directory_only && (nonconditional_separator || (has_pipeline && changed_index)))) fail()
     return !bad
 }
+# Only a complete, top-level literal cat heredoc is data. A quote, substitution,
+# comment, backslash or previous heredoc before its opening leaves the whole text
+# unclassified: the apparent cat might otherwise be inside another shell construct.
+# Reference extraction always uses the original text, including every body. Only
+# the read-only check reduces a proven heredoc to cat and its output redirection.
+# Protected bodies may be printed but never materialized to a file. Never execute text.
+function strip_data_heredocs(text,    lines, count, i, j, line, before, after, delimiter, quoted, body, prefix, out) {
+    count = split(text, lines, "\n")
+    for (i = 1; i <= count; i++) {
+        line = lines[i]
+        if (prefix !~ /[\047"\\$`#<>]/ &&
+            line ~ /^[ \t]*cat[ \t]+((>|>>)[ \t]*[-.\/A-Za-z0-9_]+[ \t]+)?<<[ \t]*(\047[A-Za-z_][A-Za-z0-9_]*\047|"[A-Za-z_][A-Za-z0-9_]*"|[A-Za-z_][A-Za-z0-9_]*)[ \t]*((>|>>)[ \t]*[-.\/A-Za-z0-9_]+)?[ \t]*$/) {
+            before = substr(line, 1, index(line, "<<") - 1)
+            after = substr(line, index(line, "<<") + 2)
+            if (!(index(before, ">") && index(after, ">"))) {
+                sub(/^[ \t]+/, "", after); sub(/[ \t]*(>|>>).*$/, "", after); sub(/[ \t]+$/, "", after)
+                quoted = after ~ /^[\047"]/
+                delimiter = after; gsub(/[\047"]/, "", delimiter)
+                body = ""
+                for (j = i + 1; j <= count && lines[j] != delimiter; j++) body = body lines[j] "\n"
+                if (j <= count && (quoted || body !~ /[$`\\]/)) {
+                    if (index(before, ">") || index(line, ">")) heredoc_writes = 1
+                    sub(/<<[ \t]*(\047[A-Za-z_][A-Za-z0-9_]*\047|"[A-Za-z_][A-Za-z0-9_]*"|[A-Za-z_][A-Za-z0-9_]*)/, "", line)
+                    out = out (i > 1 ? "\n" : "") line
+                    for (; i < j; i++) prefix = prefix lines[i] "\n"
+                    prefix = prefix lines[i] "\n"
+                    continue
+                }
+            }
+        }
+        out = out (i > 1 ? "\n" : "") line
+        prefix = prefix line "\n"
+    }
+    return out
+}
 BEGIN {
     policy("cat", "nAvetsb", "")
     policy("head", "", ""); policy("tail", "", "")
     policy("wc", "lwcm", ""); policy("ls", "laA1hdRtrF", "")
     policy("rg", "nli", "--files")
+    policy("sort", "nrufb", "--numeric-sort --reverse --unique --ignore-case --ignore-leading-blanks")
+    policy("uniq", "cdui", "--count --repeated --unique --ignore-case")
     policy("grep", "nirRlLcvwxFEHhoqs", "")
     policy("egrep", "nirRlLcvwxFEHhoqs", ""); policy("fgrep", "nirRlLcvwxFEHhoqs", "")
     policy("echo", "neE", "")
@@ -743,13 +792,17 @@ BEGIN {
     match_rewrite_safe = !index(text, MATCH_MARKER) && !index(decoded, MATCH_MARKER)
     if (ENVIRON["GSW_MODE"] == "references") { emit_text(text); exit 0 }
     if (ENVIRON["GSW_MODE"] == "targets") {
-        readonly(text)
-        if (unparsed) emit_text(text)
+        reduced = strip_data_heredocs(text)
+        readonly(reduced)
+        # Reducing data must never erase a protected reference and skip the final
+        # read-only check, even when the reduced command itself has no targets.
+        if (unparsed || reduced != text) emit_text(text)
         else for (i = 1; i <= emitted_count; i++) emit_text(emitted[i])
         exit 0
     }
     n = split(ENVIRON["GSW_PROTECTED"], a, "\n"); for (i = 1; i <= n; i++) protected_paths[a[i]] = 1
-    exit readonly(text) ? 0 : 1
+    reduced = strip_data_heredocs(text)
+    exit (readonly(reduced) && !heredoc_writes) ? 0 : 1
 }
 AWK
 # This stage is independent of the readonly/reference grammar above. Prefix syntax is
@@ -1500,8 +1553,50 @@ glob_shell_safe=1
 if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]]; then glob_shell_safe=0; fi
 candidates_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_MODE=targets LC_ALL=C awk "$program" </dev/null)" || parser_failed
 [ -n "$candidates_text" ] || exit 0
+# The lowercase alias of a mixed-case path serves case-insensitive file systems. Drop it only where the
+# longest existing prefix of the original spelling exists and its lowercase spelling provably does not
+# (a case-sensitive lookup that names nothing). Any doubt keeps the alias (return 0).
+alias_needed() {
+    local original="$1" base="" prefix lower parent
+    case "$original" in *[A-Z]*) ;; *) return 0 ;; esac
+    [ -d "$cwd" ] || return 0
+    case "$original" in /*) ;; *) base="$cwd/" ;; esac
+    # A `..` component (also in the working directory) is resolved by the classifier lexically before symlinks.
+    case "/$base$original/" in */../*) return 0 ;; esac
+    prefix="$original"
+    while :; do
+        while [ "${#prefix}" -gt 1 ] && [ "${prefix%/}" != "$prefix" ]; do prefix="${prefix%/}"; done
+        case "$prefix" in "" | /) return 0 ;; esac
+        if [ -e "$base$prefix" ] || [ -L "$base$prefix" ]; then break; fi
+        case "$prefix" in */*) prefix="${prefix%/*}" ;; *) return 0 ;; esac
+    done
+    case "$prefix" in *[A-Z]*) ;; *) return 0 ;; esac
+    lower="${2:0:${#prefix}}"
+    [ "${#lower}" -eq "${#prefix}" ] || return 0
+    if [ -e "$base$lower" ] || [ -L "$base$lower" ]; then return 0; fi
+    # Absence only counts when the nearest existing ancestor of that spelling is a searchable directory
+    # (the lookup then ends in "no such entry", not in a permission or other lookup error).
+    parent="$lower"
+    while :; do
+        case "$parent" in */*) parent="${parent%/*}" ;; *) parent="" ;; esac
+        [ -n "$parent" ] || [ "${lower#/}" = "$lower" ] || parent="/"
+        if [ -z "$parent" ]; then parent="${base:-/}"; break; fi
+        if [ -e "$base$parent" ] || [ -L "$base$parent" ]; then parent="$base$parent"; break; fi
+    done
+    [ -d "$parent" ] && [ -x "$parent" ] || return 0
+    return 1
+}
 candidates=()
-while IFS= read -r candidate; do candidates[${#candidates[@]}]="$candidate"; done <<<"$candidates_text"
+while IFS= read -r candidate; do
+    case "$candidate" in
+        $'\001'*)
+            alias_rest="${candidate#?}"
+            if alias_needed "${alias_rest%%$'\001'*}" "${alias_rest#*$'\001'}"; then candidates[${#candidates[@]}]="${alias_rest#*$'\001'}"; fi
+            ;;
+        *) candidates[${#candidates[@]}]="$candidate" ;;
+    esac
+done <<<"$candidates_text"
+[ "${#candidates[@]}" -gt 0 ] || exit 0
 classifier="$script_directory/cratis-guard-writes.sh"
 [ -f "$classifier" ] || {
     printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: could not check references (write guard is missing).' >&2

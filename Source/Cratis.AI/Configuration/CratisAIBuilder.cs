@@ -3,6 +3,7 @@
 
 using Cratis.AI.Abstractions;
 using Cratis.AI.Agents;
+using Cratis.AI.Configuration.Seeding;
 using Cratis.AI.Decisions;
 using Cratis.AI.Decisions.BuiltIn;
 using Cratis.AI.Decisions.Health;
@@ -11,6 +12,7 @@ using Cratis.AI.Decisions.Usage;
 using Cratis.AI.Providers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace Cratis.AI.Configuration;
 
@@ -41,7 +43,7 @@ public class CratisAIBuilder(IServiceCollection services)
 
     /// <summary>
     /// Registers the <see cref="IAIAgents"/> lookup the package resolves agent identity and display
-    /// names through. Required - <see cref="IAgentExecution"/> cannot attribute anything without it.
+    /// names through. Optional - defaults to <see cref="PurposeAgents"/> (one agent per purpose) when not called.
     /// </summary>
     /// <typeparam name="TAgents">The implementation type.</typeparam>
     /// <returns>The <see cref="CratisAIBuilder"/> for continuation.</returns>
@@ -64,6 +66,24 @@ public class CratisAIBuilder(IServiceCollection services)
         where TAgents : class, IAIAgents
     {
         Services.Add(new ServiceDescriptor(typeof(IAIAgents), typeof(TAgents), lifetime));
+        return this;
+    }
+
+    /// <summary>
+    /// Creates an OpenAI provider and the purposes it serves at startup, when the provider does not
+    /// exist yet. Opt-in; nothing is seeded unless this is called.
+    /// </summary>
+    /// <param name="seed">The <see cref="SeededOpenAIProvider"/> to create. Read its API key from configuration, never from source.</param>
+    /// <returns>The <see cref="CratisAIBuilder"/> for continuation.</returns>
+    /// <remarks>
+    /// Seeding only creates: once the provider exists, later starts send nothing, and changes made
+    /// through the administration commands are kept. Chronicle and MongoDB must still be running.
+    /// </remarks>
+    public CratisAIBuilder SeedOpenAIProvider(SeededOpenAIProvider seed)
+    {
+        Services.AddSingleton(seed);
+        Services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, AISeeder>());
+        Services.TryAddSingleton(TimeProvider.System);
         return this;
     }
 

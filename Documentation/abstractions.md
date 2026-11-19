@@ -46,7 +46,8 @@ public interface IAIAgents
 
 Looks up the identity of an agent without the package owning the full agent model (that
 reconciliation is plan Section 5.5, not yet done). `IAgentExecution` resolves an agent through this.
-No safe default; required for `IAgentExecution.As(...)` to ever attribute anything.
+`AddCratisAI` registers `PurposeAgents` (one agent per purpose, named after its identity) when you
+do not call `WithAgents<T>()`; supply your own when agents carry real names or tenant data.
 
 #### Tenant-scoped agent sources
 

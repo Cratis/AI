@@ -20,7 +20,7 @@ public static class CratisAIServiceCollectionExtensions
     /// Adds <c>Cratis.AI</c>.
     /// </summary>
     /// <param name="services">The <see cref="IServiceCollection"/> to add to.</param>
-    /// <param name="configure">Callback for supplying the seams the package needs - secret protection and an agent lookup are required.</param>
+    /// <param name="configure">Callback for supplying the seams the package lets a host replace or opt into, such as <c>WithAgents</c> or <c>SeedOpenAIProvider</c>.</param>
     /// <returns>The <see cref="IServiceCollection"/> for continuation.</returns>
     /// <remarks>
     /// <para>
@@ -64,6 +64,14 @@ public static class CratisAIServiceCollectionExtensions
         services.TryAddTransient<IProviderMemberAccess, ProviderMemberAccess>();
 
         configure(builder);
+
+        // Defaults for what a first host would otherwise have to write. Registered after `configure`
+        // with TryAdd so anything the host supplied - WithAgents, or an identity provider of its own - wins.
+        // TryAdd only yields to a registration made BEFORE this call; a host that registers its own
+        // IIdentityProvider afterwards with a plain Add also wins, as the last registration.
+        services.TryAddSingleton<IAIAgents, PurposeAgents>();
+        services.AddHttpContextAccessor();
+        services.TryAddSingleton<Cratis.Chronicle.Identities.IIdentityProvider, Cratis.Chronicle.AspNetCore.Identities.IdentityProvider>();
 
         // Resolve the agent lookup in the caller's scope so tenant-scoped sources are not captured.
         services.AddTransient<IAgentExecution, AgentExecution>();

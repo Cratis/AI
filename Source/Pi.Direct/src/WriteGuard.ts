@@ -14,7 +14,7 @@ export class WriteGuard {
 
     get state(): GuardState { return this.current; }
 
-    /** Called by a successful claim; has no effect once authority was lost. */
+    /** Called after the first confirming heartbeat; has no effect once authority was lost. */
     open(): void {
         if (this.current === 'unclaimed') this.current = 'open';
     }
