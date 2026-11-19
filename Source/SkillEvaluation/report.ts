@@ -32,8 +32,9 @@ function triggerRows(manifest: Manifest, results: Result[], skill: string) {
     return distinct(manifest.tasks.filter(task => task.skill === skill).map(task => task.index)).map(index => {
         const tasks = manifest.tasks.filter(task => task.skill === skill && task.index === index);
         const runs = results.filter(result => result.skill === skill && result.index === index);
-        const triggered = runs.filter(result => result.skillsRead.includes(skill)).length;
-        return { index, tasks, runs, triggered, verdict: runs.length === tasks.length ? triggerPass(triggered, runs.length, tasks[0].shouldTrigger!) : undefined };
+        const measured = runs.filter(result => result.confirmedSkills !== undefined);
+        const triggered = measured.filter(result => result.confirmedSkills!.includes(skill)).length;
+        return { index, tasks, runs, measured, triggered, verdict: measured.length === tasks.length ? triggerPass(triggered, measured.length, tasks[0].shouldTrigger!) : undefined };
     });
 }
 
@@ -44,14 +45,24 @@ function verdictLabel(row: TriggerRow): string {
     return row.verdict.passed ? 'PASS' : 'FAIL';
 }
 
-function loadedSkillCounts(row: TriggerRow): string {
+function skillCounts(runs: Result[], select: (run: Result) => string[]): string {
     const counts = new Map<string, number>();
-    for (const run of row.runs) for (const name of run.skillsRead) counts.set(name, (counts.get(name) ?? 0) + 1);
+    for (const run of runs) for (const name of select(run)) counts.set(name, (counts.get(name) ?? 0) + 1);
     return [...counts].map(([name, count]) => `${name} × ${count}`).join(', ') || 'none';
 }
 
+function siblingsFirst(run: Result): string[] {
+    const skills = run.confirmedSkills ?? [];
+    const target = skills.indexOf(run.skill);
+    return target < 0 ? skills : skills.slice(0, target);
+}
+
 function triggerRowLine(row: TriggerRow): string {
-    return `| ${cell(row.tasks[0].prompt)} | ${row.tasks[0].shouldTrigger} | ${row.triggered}/${row.runs.length} | ${verdictLabel(row)} | ${loadedSkillCounts(row)} |`;
+    const attempts = skillCounts(row.measured, run => run.attemptedSkills ?? []);
+    const confirmed = skillCounts(row.measured, run => run.confirmedSkills!);
+    const siblings = skillCounts(row.measured, siblingsFirst);
+    const rate = row.measured.length ? `${row.triggered}/${row.measured.length}` : 'not measured';
+    return `| ${cell(row.tasks[0].prompt)} | ${row.tasks[0].shouldTrigger} | ${rate} | ${verdictLabel(row)} | ${attempts} | ${confirmed} | ${siblings} |`;
 }
 
 function triggerSection(manifest: Manifest, results: Result[], skill: string): string[] {
@@ -61,8 +72,8 @@ function triggerSection(manifest: Manifest, results: Result[], skill: string): s
         const selected = rows.filter(row => row.tasks[0].shouldTrigger === shouldTrigger);
         lines.push(`${shouldTrigger ? 'Should-trigger' : 'Near-miss'}: ${percentage(selected.filter(row => row.verdict?.passed).length, selected.length)}`);
     }
-    lines.push('', '| Query | Expected | Rate | Verdict | Skills loaded (counts) |', '|---|---|---|---|---|', ...rows.map(triggerRowLine));
-    lines.push('', 'Failing queries:', ...rows.filter(row => row.verdict && !row.verdict.passed).map(row => `- ${cell(row.tasks[0].prompt)} — skills: ${distinct(row.runs.flatMap(run => run.skillsRead)).join(', ') || 'none'}`), '');
+    lines.push('', '| Query | Expected | Confirmed target rate | Verdict | Attempts (counts) | Confirmed skills (counts) | Sibling-first loads (counts) |', '|---|---|---|---|---|---|---|', ...rows.map(triggerRowLine));
+    lines.push('', 'Failing queries:', ...rows.filter(row => row.verdict && !row.verdict.passed).map(row => `- ${cell(row.tasks[0].prompt)} — skills: ${distinct(row.measured.flatMap(run => run.confirmedSkills!)).join(', ') || 'none'}`), '');
     return lines;
 }
 
@@ -115,7 +126,8 @@ export function report(manifest: Manifest, results: Result[], grades: Grade[]): 
     const lines = ['# Skill evaluation', '', `Harness: ${manifest.options.harness}/${manifest.options.model}. ${results.length}/${manifest.tasks.length} runs recorded.`,
         `Listing budget: ${manifest.options.listingBudget ?? 'default'}; thinking: ${manifest.options.thinking}; repetitions: ${manifest.options.runs}; timeout: ${manifest.options.timeout}s.`,
         `Corpus condition: ${manifest.corpusCondition ?? 'isolated-skills (legacy)'}; baseline: none.`,
-        'Trigger cutoff is the first skill load or six tool calls; prerequisite loads can prevent observing a later target load.',
+        'Trigger cutoff waits for a confirmed target skill load or six tool calls (pending skill attempts finish before the cap). Sibling loads do not stop the run.',
+        'Only matched successful loads count toward confirmed target rates. Historical results without confirmation fields are unmeasured, not rescored.',
         pending.length ? `Incomplete: ${pending.length} calls pending (not a pass).` : 'All requested calls recorded.',
         'Claude may retain bundled skills and usage-dependent listing truncation; pi has no listing budget. Compare like configurations.', ''];
     if (manifest.options.command === 'trigger') {
