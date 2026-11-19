@@ -155,6 +155,8 @@ function ansi_c(s, i, n,    c, c2, v, d, k, lim, stop, digits) {
         if (v == 0) stop = 1
         else if (!stop) addw(CH[v], "l")
     }
+    # An unterminated string leaves word boundaries uncertain: no test-filter exemption applies.
+    filter_compound = 1
     return i
 }
 # Output redirections are removed before a command is analyzed, so a redirect never shifts a CLI's subcommand
@@ -240,11 +242,54 @@ function stem_units(t, m, start, stem) {
     return stem_match(t, stem, start, 1, 0, 0)
 }
 function test_filter_option(w) {
-    return w ~ /^(-method|-class|-namespace|-trait|--filter|--filter-method|--filter-class|--filter-namespace|--treenode-filter)$/
+    return w ~ /^(-method|-class|-namespace|-trait|-filterVSTest|--filter|--filter-method|--filter-class|--filter-namespace|--treenode-filter)$/
 }
-function stem_scan(text, mode, nonliteral, test_filter,    t, k, stem, pos, offset, first, found, end, p, candidate) {
+# Only inert type/namespace data can release credential vocabulary; literal secret filenames stay protected.
+function inert_test_filter(w, m) {
+    return w != "" && length(w) == length(m) && w !~ /^[-.~@]/ &&
+        w !~ /[\/\\$`<>;|&[:cntrl:]]/ && !expands(w, m) && sensitive_path(w) == ""
+}
+# dotnet's own arguments can change what runs (-p:RunCommand=..., --launch-profile, adapter paths), so before `--`
+# only the project, build switches and filters are accepted; everything after `--` goes to the test application.
+# The command must be fully literal: an expansion or response file could supply any of those arguments.
+function plain_dotnet_args(A, M, n,    k, w) {
+    for (k = 1; k <= n; k++) if (expands(A[k], M[k]) || length(A[k]) != length(M[k])) return 0
+    for (k = 3; k <= n && A[k] != "--"; k++) {
+        w = A[k]
+        if (test_filter_option(w) || w ~ /^(--project|-c|--configuration|-f|--framework|-v|--verbosity)$/) {
+            if (++k <= n && A[k] ~ /^[-@]/) return 0
+            continue
+        }
+        if (w ~ /^--(no-build|no-restore|nologo|no-launch-profile)$/) continue
+        if (w ~ /^--(project|configuration|framework|verbosity)=[^-@]/) continue
+        if (w ~ /^--[^=]+=/ && test_filter_option(substr(w, 1, index(w, "=") - 1))) continue
+        if (k == 3 && w !~ /^[-\/@+]/ && w !~ /[=:]/) continue
+        return 0
+    }
+    return 1
+}
+function credential_filter_slots(A, M, n,    k, w, eq) {
+    delete CF
+    # Compound commands keep the existing fail-closed credential verdict across command separators.
+    if (filter_compound) return
+    # Only the .NET test runner takes filter data; a reader's operand that looks like an option stays a path.
+    if (tolower(base(A[1])) != "dotnet" || A[2] !~ /^(test|run)$/ || !plain_dotnet_args(A, M, n)) return
+    # Start after the subcommand, and consume exactly one value even when it is another option or is unsafe.
+    for (k = 3; k <= n; k++) {
+        w = A[k]
+        if (test_filter_option(w)) {
+            k++
+            if (k <= n && inert_test_filter(A[k], M[k])) CF[k] = 1
+        } else if (w ~ /^--[^=]+=/ && test_filter_option(substr(w, 1, index(w, "=") - 1))) {
+            eq = index(w, "=")
+            if (inert_test_filter(substr(w, eq + 1), substr(M[k], eq + 1))) CF[k] = 1
+        }
+    }
+}
+function stem_scan(text, mode, nonliteral, test_filter, credential_filter,    t, k, stem, pos, offset, first, found, end, p, candidate) {
     t = tolower(text)
     for (k = 1; k <= nstem; k++) {
+        if (credential_filter && STEM[k] ~ /^credentials?$/) continue
         stem = STEM[k]; offset = 0
         while ((pos = index(substr(t, offset + 1), stem)) > 0) {
             pos += offset; end = pos + length(stem) - 1
@@ -261,6 +306,7 @@ function stem_scan(text, mode, nonliteral, test_filter,    t, k, stem, pos, offs
             candidate = substr(t, p, 1)
             for (k = 1; k <= nstem; k++) {
                 stem = STEM[k]
+                if (credential_filter && stem ~ /^credentials?$/) continue
                 if (candidate != substr(stem, 1, 1) && candidate !~ /[*?[(@+!~^]/) continue
                 # Test-filter values are data; other programs can match globs across path separators.
                 if (stem == "run/secrets" && test_filter && nonliteral != "expanding" && !index(t, "/")) continue
@@ -667,6 +713,7 @@ function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only, test_filter)
         for (k = 1; k <= nw; k++) PROBE_WORDS[k] = W[k]
         paths_only = nonreader(W, WM, nw)
         regex_slots(W, 1, nw)
+        credential_filter_slots(W, WM, nw)
         path_git = git_paths(W, WM, nw)
         msg_shape = data_shape(W, WM, nw)
         for (k = 1; k <= nw; k++) {
@@ -678,7 +725,7 @@ function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only, test_filter)
             if (exempt && RP[k] < 0) continue
             w = exempt ? substr(W[k], 1, RP[k]) : W[k]
             test_filter = test_filter_option(W[k - 1]) || (w ~ /^--[^=]+=/ && test_filter_option(substr(w, 1, index(w, "=") - 1)))
-            hit = stem_scan(w, "raw", expands(w, WM[k]) ? "expanding" : 0, test_filter); if (TAINT == "") TAINT = hit
+            hit = stem_scan(w, "raw", expands(w, WM[k]) ? "expanding" : 0, test_filter, (k in CF)); if (TAINT == "") TAINT = hit
             # Command output may supply any text, including several names: judge it as an unresolved wildcard.
             if (!exempt && index(WM[k], "c") + index(WM[k], "C") > 0) {
                 hit = stem_scan(output_wild(W[k], WM[k]), "raw", "expanding"); if (TAINT == "") TAINT = hit
@@ -791,7 +838,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
     delete CWD; ncd = QUEUE_COUNT[qi]
     for (i = 1; i <= ncd; i++) CWD[i] = QUEUE_DIR[qi, i]
     effective_dir = CWD[1]; cwd_depth = 0; cwd_conditional = 0; nwrap = 0
-    clear_pipeline(); pipe_input = 0
+    clear_pipeline(); pipe_input = 0; filter_compound = 0
     n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; wunquoted = 0; nheredoc = 0; hd_shell = 0; hd_interp = 0; quote_boundary = 0
     delete W; delete WP; delete WM
     while (i <= n) {
@@ -804,17 +851,17 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
         if (c == "\047") {
             wquoted = 1; inword = 1; quote_boundary = 1
             j = index(substr(s, i + 1), "\047")
-            if (j == 0) { addw(substr(s, i + 1), "l"); i = n + 1; continue }
+            if (j == 0) { addw(substr(s, i + 1), "l"); filter_compound = 1; i = n + 1; continue }
             addw(substr(s, i + 1, j - 1), "l"); quote_boundary = 1; i += j + 1; continue
         }
         if (c == "$" && substr(s, i + 1, 1) == "\047") { wquoted = 1; inword = 1; quote_boundary = 1; i = ansi_c(s, i + 2, n); quote_boundary = 1; continue }
         if (c == "$" && substr(s, i + 1, 1) == "\"") { i++; c = "\"" }
         if (c == "\"") {
-            wquoted = 1; inword = 1; quote_boundary = 1; i++
+            wquoted = 1; inword = 1; quote_boundary = 1; i++; dq_closed = 0
             while (i <= n) {
                 c = substr(s, i, 1)
                 if (c == "\\") { addw(substr(s, i + 1, 1), "l"); i += 2; continue }
-                if (c == "\"") { quote_boundary = 1; i++; break }
+                if (c == "\"") { quote_boundary = 1; dq_closed = 1; i++; break }
                 if (c == "$" && substr(s, i + 1, 1) == "(") { i = cmdsub(s, i + 2, n); addw("x", "c"); continue }
                 if (c == "`") {
                     complex = 1
@@ -824,6 +871,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
                 }
                 addw(c, "d"); i++
             }
+            if (!dq_closed) filter_compound = 1
             continue
         }
         if (c == "$" && substr(s, i + 1, 1) == "(") { wquoted = 1; inword = 1; wunquoted = 1; i = cmdsub(s, i + 2, n); addw("x", "c"); continue }
@@ -841,6 +889,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
         }
         if (c == " " || c == "\t" || c == "\r") { flush_word(); i++; continue }
         if (c == "\n") {
+            filter_compound = 1
             end_cmd(); clear_pipeline(); pipe_input = 0; cwd_conditional = 0; i++
             if (nheredoc > 0) i = read_heredocs(s, i, n)
             continue
@@ -852,6 +901,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             inword = 1; addw(substr(s, i, j - i + 1), "u"); i = j + 1; continue
         }
         if (c == ";" || c == "&" || c == "|" || c == "(" || c == ")") {
+            filter_compound = 1
             end_cmd()
             c2 = substr(s, i + 1, 1)
             if (c == "(") push_cwd_scope()
