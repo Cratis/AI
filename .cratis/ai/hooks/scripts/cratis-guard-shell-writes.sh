@@ -49,21 +49,28 @@ if [[ "$command_text" =~ ^[[:space:]]*(cratis|ln)[[:space:]] ]] && command -v no
 fi
 
 IFS= read -r -d '' program <<'AWK' || true
-function candidate(s) {
+# `origin` is empty for a real candidate and the original spelling for its lowercase alias. In targets mode
+# an alias is printed as \001origin\001alias so the shell can drop it where it provably names no path.
+# A real candidate is never hidden by an earlier alias with the same text (seen: 1 alias, 2 real).
+function candidate(s, origin,    prior, marker) {
     if (checking_marker) return
     if (s == "" || s ~ /[\n\r\t]/) return
+    marker = ENVIRON["GSW_MODE"] == "targets"
     if (collecting) {
         if (s in collected) return
         if (++collected_count > 256 || length(s) > 4096) exit 2
         collected[s] = 1
     } else {
-        if (s in seen) return
+        if (origin == "" && marker && index(s, "\001")) exit 2
+        prior = (s in seen) ? seen[s] : 0
+        if (prior && (origin != "" || prior == 2)) return
         if (++candidates > 256 || length(s) > 4096) exit 2
-        seen[s] = 1; print s
+        seen[s] = (origin == "") ? 2 : 1
+        if (origin != "" && marker) print "\001" origin "\001" s; else print s
     }
-    if (s != tolower(s)) candidate(tolower(s))
+    if (s != tolower(s)) candidate(tolower(s), s)
     # A generic attached option prefix must not hide a path spelling (-t.pi/...).
-    if (s ~ /^-/ && match(s, /[.\/]/) && RSTART > 1) candidate(substr(s, RSTART))
+    if (s ~ /^-/ && match(s, /[.\/]/) && RSTART > 1) candidate(substr(s, RSTART), (origin == "") ? "" : substr(origin, RSTART))
 }
 # An extended-glob group (`@(a|b)`, `*(x)`) is also read as one star, so `.e@(n)v` meets `.env`.
 # A word with a brace span and quoting or expansion syntax is also kept whole, so the classifier sees it unsplit.
@@ -1546,8 +1553,38 @@ glob_shell_safe=1
 if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]]; then glob_shell_safe=0; fi
 candidates_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_MODE=targets LC_ALL=C awk "$program" </dev/null)" || parser_failed
 [ -n "$candidates_text" ] || exit 0
+# The lowercase alias of a mixed-case path serves case-insensitive file systems. Drop it only where the
+# longest existing prefix of the original spelling exists and its lowercase spelling provably does not
+# (a case-sensitive lookup that names nothing). Any doubt keeps the alias (return 0).
+alias_needed() {
+    local original="$1" base="" prefix lower
+    case "$original" in *[A-Z]*) ;; *) return 0 ;; esac
+    [ -d "$cwd" ] || return 0
+    case "$original" in /*) ;; *) base="$cwd/" ;; esac
+    prefix="$original"
+    while :; do
+        while [ "${#prefix}" -gt 1 ] && [ "${prefix%/}" != "$prefix" ]; do prefix="${prefix%/}"; done
+        case "$prefix" in "" | /) return 0 ;; esac
+        if [ -e "$base$prefix" ] || [ -L "$base$prefix" ]; then break; fi
+        case "$prefix" in */*) prefix="${prefix%/*}" ;; *) return 0 ;; esac
+    done
+    case "$prefix" in *[A-Z]*) ;; *) return 0 ;; esac
+    lower="${2:0:${#prefix}}"
+    [ "${#lower}" -eq "${#prefix}" ] || return 0
+    if [ -e "$base$lower" ] || [ -L "$base$lower" ]; then return 0; fi
+    return 1
+}
 candidates=()
-while IFS= read -r candidate; do candidates[${#candidates[@]}]="$candidate"; done <<<"$candidates_text"
+while IFS= read -r candidate; do
+    case "$candidate" in
+        $'\001'*)
+            alias_rest="${candidate#?}"
+            if alias_needed "${alias_rest%%$'\001'*}" "${alias_rest#*$'\001'}"; then candidates[${#candidates[@]}]="${alias_rest#*$'\001'}"; fi
+            ;;
+        *) candidates[${#candidates[@]}]="$candidate" ;;
+    esac
+done <<<"$candidates_text"
+[ "${#candidates[@]}" -gt 0 ] || exit 0
 classifier="$script_directory/cratis-guard-writes.sh"
 [ -f "$classifier" ] || {
     printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: could not check references (write guard is missing).' >&2
