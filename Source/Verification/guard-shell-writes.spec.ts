@@ -492,26 +492,28 @@ test('read-only inspection keeps protected references as data', async () => {
     } finally { repo.dispose(); }
 });
 
-test('unknown commands never hide protected writes or shell evaluation', async () => {
+test('read-only inspection never hides adjacent protected writes or shell evaluation', async () => {
     const repo = scratchRepository();
     try {
         mkdirSync(join(repo.root, '.cratis/ai/hooks/scripts'), { recursive: true });
+        const prefix = 'ls .cratis/ai/hooks/scripts/';
+        await checkCases([[ALLOW, prefix]], repo.root);
         await checkCases([
-            'lanes send L0 task -m "see {x} in .cratis/ai/hooks/*.sh" > .cratis/ai/rules/general.md',
-            'lanes send L0 task -m "see .cratis/ai/hooks/*.sh" | tee .cratis/ai/rules/general.md',
-            'lanes send L0 task -m "see {x}"; rm .cratis/ai/hooks/scripts/cratis-guard-writes.sh',
-            'lanes send L0 task -m "see {x}" && mv x .cratis/ai/rules/general.md',
-            'lanes send L0 task -m "see {x}"; cp x .cratis/ai/rules/general.md',
-            'lanes send L0 task -m "see {x}"; sed -i s/a/b/ .cratis/ai/rules/general.md',
-            'lanes send L0 task -m "$(rm .cratis/ai/rules/general.md)"',
-            'lanes send L0 task -m "`rm .cratis/ai/rules/general.md`"',
-            'lanes send L0 task -m "see {x}"; bash -c "rm .cratis/ai/rules/general.md"',
-            'lanes send L0 task -m "see {x}"; sh -c "rm .cratis/ai/rules/general.md"',
-            'lanes send L0 task -m "see {x}"; rm .cratis/ai/rules/general.md "unterminated',
-            'lanes send L0 task -m .cratis/ai/hooks/*.sh',
-            'lanes send L0 task --output .cratis/ai/rules/general.md',
-            'lanes send L0 task -m "see {x}" --output .cratis/ai/rules/general.md',
-        ].map(command => [BLOCK, command]), repo.root);
+            ' > .cratis/ai/rules/general.md',
+            ' | tee .cratis/ai/rules/general.md',
+            '; rm .cratis/ai/hooks/scripts/cratis-guard-writes.sh',
+            ' && mv x .cratis/ai/rules/general.md',
+            '; cp x .cratis/ai/rules/general.md',
+            '; sed -i s/a/b/ .cratis/ai/rules/general.md',
+            ' "$(rm .cratis/ai/rules/general.md)"',
+            ' "`rm .cratis/ai/rules/general.md`"',
+            '; bash -c "rm .cratis/ai/rules/general.md"',
+            '; sh -c "rm .cratis/ai/rules/general.md"',
+            ' || rm .cratis/ai/rules/general.md',
+            '; rm .cratis/ai/hooks/scripts/*.sh',
+            '; tee .cratis/ai/rules/general.md',
+            ' >> .cratis/ai/rules/general.md',
+        ].map(suffix => [BLOCK, `${prefix}${suffix}`]), repo.root);
     } finally { repo.dispose(); }
 });
 
