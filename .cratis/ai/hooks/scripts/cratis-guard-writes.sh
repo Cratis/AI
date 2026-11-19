@@ -402,6 +402,8 @@ session_manifests_allowed() {
     if [ -z "$session_manifest_policy" ]; then
         local session_root
         session_manifest_policy=1
+        # A session the harness named but that is not a directory is undeterminable, never the script's checkout.
+        if [ -n "${CLAUDE_PROJECT_DIR:-}" ] && [ ! -d "$CLAUDE_PROJECT_DIR" ]; then return 1; fi
         if session_root="$(hook_repo_root 2>/dev/null)" && session_root="$(git -C "$session_root" rev-parse --show-toplevel 2>/dev/null)"; then
             if repository_manifest_policy "$session_root"; then session_manifest_policy=0; fi
         fi

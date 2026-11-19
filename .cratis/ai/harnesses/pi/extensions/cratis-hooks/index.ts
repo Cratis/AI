@@ -198,13 +198,6 @@ function isInstalled(script: string): boolean {
 	}
 }
 
-function isDirectory(directory: string): boolean {
-	try {
-		return fs.statSync(directory).isDirectory();
-	} catch {
-		return false;
-	}
-}
 
 export default function (pi: ExtensionAPI) {
 	if (isPackagedExtension && fs.existsSync(path.join(process.cwd(), ".cratis", "ai.manifest.json"))) return;
@@ -216,10 +209,11 @@ export default function (pi: ExtensionAPI) {
 	const guardShellWrites = path.join(scriptsDir, "cratis-guard-shell-writes.sh");
 	// The dependency-manifest policy belongs to the session, so the two write guards are told which repository the session
 	// is in. It is fixed here, at start-up, not read from ctx.cwd, which follows the model's own directory changes. The
-	// bundled-script fallback would otherwise resolve to the Pi package. Without a usable directory the guards fail closed.
+	// bundled-script fallback would otherwise resolve to the Pi package. The root is always passed, so a session directory
+	// that is no longer usable makes the guards fail closed instead of falling back to the script's checkout.
 	const sessionRoot = process.cwd();
 	const writeGuardEnv = (script: string): NodeJS.ProcessEnv | undefined =>
-		(script === guardWrites || script === guardShellWrites) && isDirectory(sessionRoot) ? { ...process.env, CLAUDE_PROJECT_DIR: sessionRoot } : undefined;
+		script === guardWrites || script === guardShellWrites ? { ...process.env, CLAUDE_PROJECT_DIR: sessionRoot } : undefined;
 	const guardPrBody = path.join(scriptsDir, "cratis-guard-pr-body.sh");
 	const patternScan = path.join(scriptsDir, "cratis-pattern-scan.sh");
 	const qualityGate = path.join(scriptsDir, "cratis-quality-gate.sh");

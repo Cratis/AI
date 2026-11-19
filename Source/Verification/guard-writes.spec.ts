@@ -688,12 +688,23 @@ test('an undeterminable session never allows manifests because of the target', a
         cpSync(dirname(guard), installedScripts, { recursive: true });
         assert.notEqual(spawnSync('git', ['-C', detached, 'rev-parse', '--show-toplevel']).status, 0, 'detached fixture is not in a Git repository');
         const detachedGuard = join(installedScripts, 'cratis-guard-writes.sh');
+        // The same scripts installed in a permissive Cratis checkout, the fallback an invalid session must not reach.
+        const permissiveScripts = join(permissive.root, '.cratis', 'ai', 'hooks', 'scripts');
+        mkdirSync(permissiveScripts, { recursive: true });
+        cpSync(dirname(guard), permissiveScripts, { recursive: true });
+        writeFileSync(join(permissive.root, 'global.json'), '{}');
+        const permissiveGuard = join(permissiveScripts, 'cratis-guard-writes.sh');
         for (const target of [permissive.root, agentCreated.root]) {
             for (const name of manifestTargets) {
                 const payload = { cwd: target, tool_input: { file_path: join(target, name), content: 'x' } };
                 for (const sessionRoot of ['', '/nonexistent-cratis-session']) {
                     const result = await runGuardAsync(payload, target, { CLAUDE_PROJECT_DIR: sessionRoot }, detachedGuard);
                     assert.equal(result.verdict, BLOCK, `[${sessionRoot}] ${target}/${name}`);
+                }
+                // A named session that is not a directory never falls back to a permissive script checkout.
+                for (const sessionRoot of ['/nonexistent-cratis-session', join(permissive.root, 'global.json')]) {
+                    const result = await runGuardAsync(payload, target, { CLAUDE_PROJECT_DIR: sessionRoot }, permissiveGuard);
+                    assert.equal(result.verdict, BLOCK, `[${sessionRoot}] permissive checkout ${target}/${name}`);
                 }
             }
         }
