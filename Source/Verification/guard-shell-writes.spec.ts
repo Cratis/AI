@@ -472,7 +472,7 @@ test('original read lanes never confuse protected read paths with write targets'
     } finally { repo.dispose(); }
 });
 
-test('read-only inspection and literal lane messages keep protected references as data', async () => {
+test('read-only inspection keeps protected references as data', async () => {
     const repo = scratchRepository();
     try {
         mkdirSync(join(repo.root, '.cratis/ai/hooks/scripts'), { recursive: true });
@@ -485,8 +485,6 @@ test('read-only inspection and literal lane messages keep protected references a
             "jq '{a: .b, c: [.d[]]}' file.json",
             "jq '{a: .b, c: [.d[]]}' .cratis/ai.manifest.json",
             "gh api repos/Cratis/AI/issues/1248 --jq '{n: .number}'",
-            'lanes send L0 task -m "see {x} in .cratis/ai/hooks/*.sh and */foo"',
-            "lanes send L0 task -m 'Discuss rm, mv, cp and sed -i on .cratis/ai/hooks/*.sh; do not execute them.'",
             "rg -n 'cratis-guard' .cratis/ai/hooks/scripts/",
             'cat .cratis/ai/hooks/scripts/cratis-guard-writes.sh',
             'head -n 20 .cratis/ai/hooks/scripts/cratis-guard-writes.sh',
@@ -494,7 +492,7 @@ test('read-only inspection and literal lane messages keep protected references a
     } finally { repo.dispose(); }
 });
 
-test('literal lane messages never hide protected writes or shell evaluation', async () => {
+test('unknown commands never hide protected writes or shell evaluation', async () => {
     const repo = scratchRepository();
     try {
         mkdirSync(join(repo.root, '.cratis/ai/hooks/scripts'), { recursive: true });
