@@ -6,6 +6,9 @@ import type { Task } from './Task.ts';
 export interface Result extends Task {
     corpusCondition?: 'skills-with-dependencies' | 'none';
     skillsRead: string[];
+    /** Present only for runs scored using matched successful tool results. */
+    confirmedSkills?: string[];
+    attemptedSkills?: string[];
     listedSkills?: string[];
     text: string;
     usage: { input: number; output: number; costUsd?: number } | undefined;
