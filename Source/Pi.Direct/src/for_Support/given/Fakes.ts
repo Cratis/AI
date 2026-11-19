@@ -78,6 +78,10 @@ export class FakeGateway implements DirectGateway {
     closed = 0;
     claimFails = false;
     heartbeatFails = false;
+    /** When set, the claim stays pending until this promise settles. */
+    claimPending: Promise<void> | undefined;
+    heartbeatLeaseSeconds = 30;
+    readonly heartbeatLeases: number[] = [];
     /** When set, a heartbeat stays pending until this promise settles. */
     heartbeatPending: Promise<void> | undefined;
     epoch = 1;
@@ -88,6 +92,7 @@ export class FakeGateway implements DirectGateway {
 
     async claim(request: ClaimRequest): Promise<WorkClaimed> {
         this.claims.push(request);
+        await this.claimPending;
         if (this.claimFails) throw new Error(`server said no: ${request.launchProof}`);
         return this.claimed;
     }
@@ -97,7 +102,7 @@ export class FakeGateway implements DirectGateway {
         await this.heartbeatPending;
         if (this.heartbeatFails) throw new Error('stale epoch');
         this.epoch = request.epoch + 1;
-        return { epoch: this.epoch, leaseSeconds: 30 };
+        return { epoch: this.epoch, leaseSeconds: this.heartbeatLeases.shift() ?? this.heartbeatLeaseSeconds };
     }
 
     async release(request: ReleaseRequest): Promise<ReleaseResult> {

@@ -16,7 +16,7 @@ describe('when finishing', given(a_claimed_session, context => {
     });
 
     it('should release once with the outcome and reason', () => context.gateway.releases.should.deep.equal([
-        { workHandle: 'work-1', claimId: 'claim-1', epoch: 1, outcome: 'Blocked', reason: 'needs input' }
+        { workHandle: 'work-1', claimId: 'claim-1', epoch: 2, outcome: 'Blocked', reason: 'needs input' }
     ]));
     it('should refuse a second finish', () => (secondError as SessionRefused).code.should.equal('already-released'));
     it('should stop the heartbeat', () => context.clock.timers.size.should.equal(0));

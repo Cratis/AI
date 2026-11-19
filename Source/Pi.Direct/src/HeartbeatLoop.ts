@@ -7,8 +7,9 @@ export interface Clock {
     clearTimeout(handle: unknown): void;
 }
 
+/** Lease timing is monotonic, so wall-clock adjustments cannot extend authority. */
 export const systemClock: Clock = {
-    now: () => Date.now(),
+    now: () => performance.now(),
     setTimeout: (callback, milliseconds) => setTimeout(callback, milliseconds),
     clearTimeout: handle => clearTimeout(handle as ReturnType<typeof setTimeout>)
 };

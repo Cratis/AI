@@ -14,6 +14,9 @@ describe('when launching', given(a_launch, context => {
     it('should connect with the keychain token for the tenant', () => context.connections.should.deep.equal([
         { url: 'https://direct.example/mcp', tenant: 'tenant-a', token: sentinelToken }
     ]));
+    it('should confirm the claim with a heartbeat', () => context.gateway.heartbeats.should.deep.equal([
+        { workHandle: 'work-1', claimId: 'claim-1', epoch: 1 }
+    ]));
     it('should open the guard', () => context.guard.state.should.equal('open'));
     it('should delete the proof file', () => context.fileSystem.removed.should.deep.equal(['/state/launches/abc/launch.proof']));
     it('should start the heartbeat', () => context.clock.timers.size.should.equal(1));
