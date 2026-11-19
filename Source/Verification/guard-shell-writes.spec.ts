@@ -1227,6 +1227,11 @@ function symlinkedParentLayout() {
     symlinkSync('../../closed/child', join(open, 'a', 'jump'));
     symlinkSync('../sub', join(open, 'a', 'same'));
     symlinkSync('missing-target', join(open, 'dangling'));
+    writeFileSync(join(closed, 'package.json'), '{}');
+    mkdirSync(join(open, 'sub', 'child'), { recursive: true });
+    symlinkSync('sub/child', join(open, 'inner'));
+    symlinkSync('../../closed/package.json', join(open, 'sub', 'alias'));
+    symlinkSync('../closed/package.json', join(open, 'alias-direct'));
     return { root, open, closed, dispose: () => rmSync(root, { recursive: true, force: true }) };
 }
 
@@ -1241,6 +1246,7 @@ test('a parent reference after a symlinked directory is judged where the kernel 
             ["jump/$'\\056\\056'/package.json", BLOCK],
             ['jump-absolute/../global.json', BLOCK], [`${layout.open}/jump/../package.json`, BLOCK],
             ['a/jump/x/../../package.json', BLOCK], ['dangling/../package.json', BLOCK],
+            ['inner/../alias', BLOCK], ['alias-direct', BLOCK],
             ['jump/../README.md', ALLOW], ['sub/../package.json', ALLOW], ['a/same/../package.json', ALLOW],
             ['jump/x/../notes.txt', ALLOW],
         ];
