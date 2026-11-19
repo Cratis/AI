@@ -15,7 +15,7 @@ describe('when the confirming heartbeat is answered after the claim bound', give
     beforeEach(async () => {
         let answerClaim!: () => void;
         let answerHeartbeat!: () => void;
-        context.gateway.claimed.leaseSeconds = 2;
+        context.gateway.claimed = { ...context.gateway.claimed, leaseSeconds: 2 };
         context.gateway.claimPending = new Promise<void>(resolve => { answerClaim = resolve; });
         context.gateway.heartbeatPending = new Promise<void>(resolve => { answerHeartbeat = resolve; });
         const launching = context.claim();
