@@ -1068,7 +1068,7 @@ test('copy-style writes into protected names under a mixed-case root stay blocke
 
 // The classifier folds `..` lexically before it resolves symlinks, so a `..` after a symlink names another repository
 // than the one it is judged against. The lowercase alias is what still reaches the real target on a case-sensitive volume.
-test('a dot-dot component after a symlink never drops the lowercase alias of a mixed-case session root', async () => {
+test('a dot-dot component after a symlink never drops the lowercase alias of a mixed-case session root', onlyCaseSensitive, async () => {
     const open = scratchRepository('https://github.com/example/app.git', 'mixed');
     const closed = scratchRepository('https://github.com/example/app.git', 'lowercase');
     try {
