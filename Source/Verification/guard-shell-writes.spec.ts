@@ -1208,6 +1208,9 @@ test('gh publish commands treat a literal title or body as data and refuse file-
 });
 
 /** Two repositories (one allowing manifest writes, one not) joined by directory symlinks that a parent reference climbs out of. */
+// A mode-000 directory is still searchable by root, so those cases only apply to other users.
+const isRoot = process.getuid?.() === 0;
+
 function symlinkedParentLayout() {
     const root = mkdtempSync(join(tmpdir(), 'cratis-shell-parent-'));
     const repository = (name: string, setting: boolean) => {
@@ -1232,7 +1235,11 @@ function symlinkedParentLayout() {
     symlinkSync('sub/child', join(open, 'inner'));
     symlinkSync('../../closed/package.json', join(open, 'sub', 'alias'));
     symlinkSync('../closed/package.json', join(open, 'alias-direct'));
-    return { root, open, closed, dispose: () => rmSync(root, { recursive: true, force: true }) };
+    symlinkSync('loop', join(open, 'loop'));
+    symlinkSync('global.json', join(open, 'global.json'));
+    mkdirSync(join(open, 'locked'));
+    if (!isRoot) chmodSync(join(open, 'locked'), 0o000);
+    return { root, open, closed, dispose: () => { if (!isRoot) chmodSync(join(open, 'locked'), 0o700); rmSync(root, { recursive: true, force: true }); } };
 }
 
 test('a parent reference after a symlinked directory is judged where the kernel resolves it', async () => {
@@ -1247,6 +1254,8 @@ test('a parent reference after a symlinked directory is judged where the kernel 
             ['jump-absolute/../global.json', BLOCK], [`${layout.open}/jump/../package.json`, BLOCK],
             ['a/jump/x/../../package.json', BLOCK], ['dangling/../package.json', BLOCK],
             ['inner/../alias', BLOCK], ['alias-direct', BLOCK],
+            ['loop/../package.json', BLOCK], ['loop/x/../package.json', BLOCK], ['global.json', BLOCK],
+            ...(isRoot ? [] : [['locked/package.json', BLOCK], ['locked/x/../package.json', BLOCK], ['locked/README.md', ALLOW]] as Array<[string, string]>),
             ['jump/../README.md', ALLOW], ['sub/../package.json', ALLOW], ['a/same/../package.json', ALLOW],
             ['jump/x/../notes.txt', ALLOW],
         ];

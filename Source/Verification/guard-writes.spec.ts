@@ -13,7 +13,7 @@
 
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import test from 'node:test';
@@ -1103,6 +1103,9 @@ test('the guard refuses every write when jq is missing', () => {
 });
 
 /** Two repositories (one allowing manifest writes, one not) joined by directory symlinks that a parent reference climbs out of. */
+// A mode-000 directory is still searchable by root, so those cases only apply to other users.
+const isRoot = process.getuid?.() === 0;
+
 function symlinkedParentLayout() {
     const root = mkdtempSync(join(tmpdir(), 'cratis-guard-parent-'));
     const repository = (name: string, setting: boolean | undefined) => {
@@ -1131,7 +1134,11 @@ function symlinkedParentLayout() {
     symlinkSync('sub/child', join(open, 'inner'));
     symlinkSync('../../closed/package.json', join(open, 'sub', 'alias'));
     symlinkSync('../closed/package.json', join(open, 'alias-direct'));
-    return { root, open, dispose: () => rmSync(root, { recursive: true, force: true }) };
+    symlinkSync('loop', join(open, 'loop'));
+    symlinkSync('global.json', join(open, 'global.json'));
+    mkdirSync(join(open, 'locked'));
+    if (!isRoot) chmodSync(join(open, 'locked'), 0o000);
+    return { root, open, dispose: () => { if (!isRoot) chmodSync(join(open, 'locked'), 0o700); rmSync(root, { recursive: true, force: true }); } };
 }
 
 test('a parent reference after a symlinked directory is judged where the kernel resolves it', async () => {
@@ -1146,6 +1153,10 @@ test('a parent reference after a symlinked directory is judged where the kernel 
             ['a/jump/x/../../package.json', BLOCK],
             ['dangling/../package.json', BLOCK],
             ['inner/../alias', BLOCK],
+            ['loop/../package.json', BLOCK],
+            ['loop/x/../package.json', BLOCK],
+            ['global.json', BLOCK],
+            ...(isRoot ? [] : [['locked/package.json', BLOCK], ['locked/x/../package.json', BLOCK], ['locked/README.md', ALLOW]] as Array<[string, string]>),
             ['alias-direct', BLOCK],
             ['jump/../.env', BLOCK],
             ['managed-jump/../.cratis/ai/rules.md', BLOCK],
