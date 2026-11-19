@@ -1079,6 +1079,57 @@ test('test filters ending in run globs do not name the secrets mount', () => {
     ]);
 });
 
+test('credential-related types and namespaces are inert test-filter data (Cratis/AI#1155)', () => {
+    assertVerdicts([
+        [ALLOW, 'dotnet run --project Source/App/App.csproj --no-build -- -filterVSTest "FullyQualifiedName~App.Integrations.for_PersonalAccessTokenCredentials"'],
+        [ALLOW, 'dotnet test Source/App/App.csproj -- -filterVSTest "FullyQualifiedName~App.Integrations.for_PersonalAccessTokenCredentials"'],
+        [ALLOW, 'dotnet test Source/App/App.csproj --filter "FullyQualifiedName~App.Integrations.for_PersonalAccessTokenCredentials"'],
+        [ALLOW, 'dotnet test Source/App/App.csproj --filter="FullyQualifiedName~App.Integrations.for_PersonalAccessTokenCredentials"'],
+        ...['-method', '-class', '-namespace', '-trait', '-filterVSTest', '--filter', '--filter-method', '--filter-class', '--filter-namespace', '--treenode-filter']
+            .flatMap(option => [
+                [ALLOW, `dotnet run --project Source/App/App.csproj -- ${option} 'App.Integrations.for_PersonalAccessTokenCredentials'`],
+                [ALLOW, `dotnet run --project Source/App/App.csproj -- ${option} 'App.Credentials*'`],
+                ...(option.startsWith('--') ? [[ALLOW, `dotnet run --project Source/App/App.csproj -- ${option}='App.Credentials'`]] : []),
+            ] as Array<[string, string]>),
+        [ALLOW, "dotnet run --project Source/App/App.csproj -- -class 'App.Credentials' -namespace 'App.Integrations.for_PersonalAccessTokenCredentials'"],
+    ]);
+});
+
+test('test filters never exempt secret paths, expansions or other arguments (Cratis/AI#1155)', () => {
+    assertVerdicts([
+        ...['-filterVSTest', '--filter', '-class', '-namespace'].flatMap(option => [
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} '~/.aws/credentials'`],
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} 'config/credentials.json'`],
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} 'config\\credentials.json'`],
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} 'credentials.json'`],
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} 'credentials'`],
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} '/run/secrets/token'`],
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} '.kube/config'`],
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} '.Credentials'`],
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} '~Credentials'`],
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} "FullyQualifiedName~App.Credentials$(cat ~/.config/service/token.json)"`],
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} 'FullyQualifiedName~App.Credentials' ; cat ~/.config/gh/hosts.yml`],
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} 'FullyQualifiedName~App.Credentials' && cat ~/.config/service/token.json`],
+            [BLOCK, `dotnet run --project Source/App/App.csproj -- ${option} 'App.Credentials' --logger 'Other.Credentials'`],
+        ] as Array<[string, string]>),
+        ...['$UNKNOWN', '`cat token.json`', '>output', '<input', ';echo', '|echo', '&echo', '\nOther'].map(suffix => [
+            BLOCK, `dotnet run --project Source/App/App.csproj -- -filterVSTest 'App.Credentials${suffix}'`,
+        ] as [string, string]),
+        [BLOCK, 'dotnet test Source/App/App.csproj --filter=credentials.json'],
+        [BLOCK, "dotnet run --project Source/App/App.csproj -- -class -namespace 'App.Credentials'"],
+        [BLOCK, "dotnet run --project Source/App/App.csproj -- -class '--filter=App.Credentials'"],
+        [BLOCK, "dotnet run --project Source/App/App.csproj -- -filterVSTest; cat 'App.Credentials'"],
+        [BLOCK, "echo ready; dotnet run --project Source/App/App.csproj -- -filterVSTest 'App.Credentials'"],
+        [BLOCK, "echo ready\ndotnet run --project Source/App/App.csproj -- -filterVSTest 'App.Credentials'"],
+        [BLOCK, "dotnet run --project Source/App/App.csproj -- -filterVSTest 'App.Tests' App.Credentials"],
+        [BLOCK, "dotnet run --project Source/App/App.csproj -- -label 'App.Credentials'"],
+        [BLOCK, "App.Credentials --filter 'App.Tests'"],
+        [BLOCK, "--filter=App.Credentials"],
+        [BLOCK, "-class 'App.Credentials'"],
+        [BLOCK, 'cat ~/.config/service/token.json'],
+    ]);
+});
+
 test('non-filter globs that can match the secrets mount stay protected from the filesystem root', () => {
     assertVerdicts([
         [BLOCK, "find / -path '*run*' -exec cat {} +"],

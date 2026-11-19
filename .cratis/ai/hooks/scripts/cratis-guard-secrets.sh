@@ -240,11 +240,33 @@ function stem_units(t, m, start, stem) {
     return stem_match(t, stem, start, 1, 0, 0)
 }
 function test_filter_option(w) {
-    return w ~ /^(-method|-class|-namespace|-trait|--filter|--filter-method|--filter-class|--filter-namespace|--treenode-filter)$/
+    return w ~ /^(-method|-class|-namespace|-trait|-filterVSTest|--filter|--filter-method|--filter-class|--filter-namespace|--treenode-filter)$/
 }
-function stem_scan(text, mode, nonliteral, test_filter,    t, k, stem, pos, offset, first, found, end, p, candidate) {
+# Only inert type/namespace data can release credential vocabulary; literal secret filenames stay protected.
+function inert_test_filter(w, m) {
+    return w != "" && length(w) == length(m) && w !~ /^[-.~]/ &&
+        w !~ /[\/\\$`<>;|&[:cntrl:]]/ && !expands(w, m) && sensitive_path(w) == ""
+}
+function credential_filter_slots(A, M, n,    k, w, eq) {
+    delete CF
+    # Compound commands keep the existing fail-closed credential verdict across command separators.
+    if (filter_compound) return
+    # Start after the program, and consume exactly one value even when it is another option or is unsafe.
+    for (k = 2; k <= n; k++) {
+        w = A[k]
+        if (test_filter_option(w)) {
+            k++
+            if (k <= n && inert_test_filter(A[k], M[k])) CF[k] = 1
+        } else if (w ~ /^--[^=]+=/ && test_filter_option(substr(w, 1, index(w, "=") - 1))) {
+            eq = index(w, "=")
+            if (inert_test_filter(substr(w, eq + 1), substr(M[k], eq + 1))) CF[k] = 1
+        }
+    }
+}
+function stem_scan(text, mode, nonliteral, test_filter, credential_filter,    t, k, stem, pos, offset, first, found, end, p, candidate) {
     t = tolower(text)
     for (k = 1; k <= nstem; k++) {
+        if (credential_filter && STEM[k] ~ /^credentials?$/) continue
         stem = STEM[k]; offset = 0
         while ((pos = index(substr(t, offset + 1), stem)) > 0) {
             pos += offset; end = pos + length(stem) - 1
@@ -261,6 +283,7 @@ function stem_scan(text, mode, nonliteral, test_filter,    t, k, stem, pos, offs
             candidate = substr(t, p, 1)
             for (k = 1; k <= nstem; k++) {
                 stem = STEM[k]
+                if (credential_filter && stem ~ /^credentials?$/) continue
                 if (candidate != substr(stem, 1, 1) && candidate !~ /[*?[(@+!~^]/) continue
                 # Test-filter values are data; other programs can match globs across path separators.
                 if (stem == "run/secrets" && test_filter && nonliteral != "expanding" && !index(t, "/")) continue
@@ -667,6 +690,7 @@ function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only, test_filter)
         for (k = 1; k <= nw; k++) PROBE_WORDS[k] = W[k]
         paths_only = nonreader(W, WM, nw)
         regex_slots(W, 1, nw)
+        credential_filter_slots(W, WM, nw)
         path_git = git_paths(W, WM, nw)
         msg_shape = data_shape(W, WM, nw)
         for (k = 1; k <= nw; k++) {
@@ -678,7 +702,7 @@ function end_cmd(    k, m, w, j, hit, exempt, path_git, paths_only, test_filter)
             if (exempt && RP[k] < 0) continue
             w = exempt ? substr(W[k], 1, RP[k]) : W[k]
             test_filter = test_filter_option(W[k - 1]) || (w ~ /^--[^=]+=/ && test_filter_option(substr(w, 1, index(w, "=") - 1)))
-            hit = stem_scan(w, "raw", expands(w, WM[k]) ? "expanding" : 0, test_filter); if (TAINT == "") TAINT = hit
+            hit = stem_scan(w, "raw", expands(w, WM[k]) ? "expanding" : 0, test_filter, (k in CF)); if (TAINT == "") TAINT = hit
             # Command output may supply any text, including several names: judge it as an unresolved wildcard.
             if (!exempt && index(WM[k], "c") + index(WM[k], "C") > 0) {
                 hit = stem_scan(output_wild(W[k], WM[k]), "raw", "expanding"); if (TAINT == "") TAINT = hit
@@ -791,7 +815,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
     delete CWD; ncd = QUEUE_COUNT[qi]
     for (i = 1; i <= ncd; i++) CWD[i] = QUEUE_DIR[qi, i]
     effective_dir = CWD[1]; cwd_depth = 0; cwd_conditional = 0; nwrap = 0
-    clear_pipeline(); pipe_input = 0
+    clear_pipeline(); pipe_input = 0; filter_compound = 0
     n = length(s); i = 1; nw = 0; word = ""; wmask = ""; inword = 0; wquoted = 0; wplain = 0; wunquoted = 0; nheredoc = 0; hd_shell = 0; hd_interp = 0; quote_boundary = 0
     delete W; delete WP; delete WM
     while (i <= n) {
@@ -841,6 +865,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
         }
         if (c == " " || c == "\t" || c == "\r") { flush_word(); i++; continue }
         if (c == "\n") {
+            filter_compound = 1
             end_cmd(); clear_pipeline(); pipe_input = 0; cwd_conditional = 0; i++
             if (nheredoc > 0) i = read_heredocs(s, i, n)
             continue
@@ -852,6 +877,7 @@ function tokenize(s,    i, n, c, c2, j, dash, delim) {
             inword = 1; addw(substr(s, i, j - i + 1), "u"); i = j + 1; continue
         }
         if (c == ";" || c == "&" || c == "|" || c == "(" || c == ")") {
+            filter_compound = 1
             end_cmd()
             c2 = substr(s, i + 1, 1)
             if (c == "(") push_cwd_scope()
