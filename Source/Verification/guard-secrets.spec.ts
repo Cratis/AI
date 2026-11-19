@@ -1127,6 +1127,8 @@ test('test filters never exempt secret paths, expansions or other arguments (Cra
         [BLOCK, "dotnet run --project Source/App/App.csproj -- -label 'App.Credentials'"],
         ...['-p:RunCommand=/bin/cat -p:RunArguments=--', '/p:RunCommand=/bin/cat', '--property:RunCommand=/bin/cat', '--launch-profile Reader']
             .map(override => [BLOCK, `dotnet run --project Source/App/App.csproj --no-build ${override} -- -class App.Credentials`] as [string, string]),
+        ...['$X', '-c $X', '--project=$X', '$(cat x)', '-c `cat x`', '-c *', '-c @x.rsp', '--project=@x.rsp', '--verbosity=@x.rsp', '-c -p:RunCommand=/bin/cat']
+            .map(argument => [BLOCK, `dotnet run ${argument} -- -class App.Credentials`] as [string, string]),
         [BLOCK, 'RunCommand=/bin/cat RunArguments=-- dotnet run -- -class App.Credentials'],
         [BLOCK, 'env RunCommand=/bin/cat dotnet run -- -class App.Credentials'],
         [BLOCK, "dotnet run -- -class 'App.Credentials"],

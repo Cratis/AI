@@ -251,12 +251,17 @@ function inert_test_filter(w, m) {
 }
 # dotnet's own arguments can change what runs (-p:RunCommand=..., --launch-profile, adapter paths), so before `--`
 # only the project, build switches and filters are accepted; everything after `--` goes to the test application.
-function plain_dotnet_args(A, n,    k, w) {
+# The command must be fully literal: an expansion or response file could supply any of those arguments.
+function plain_dotnet_args(A, M, n,    k, w) {
+    for (k = 1; k <= n; k++) if (expands(A[k], M[k]) || length(A[k]) != length(M[k])) return 0
     for (k = 3; k <= n && A[k] != "--"; k++) {
         w = A[k]
-        if (test_filter_option(w) || w ~ /^(--project|-c|--configuration|-f|--framework|-v|--verbosity)$/) { k++; continue }
+        if (test_filter_option(w) || w ~ /^(--project|-c|--configuration|-f|--framework|-v|--verbosity)$/) {
+            if (++k <= n && A[k] ~ /^[-@]/) return 0
+            continue
+        }
         if (w ~ /^--(no-build|no-restore|nologo|no-launch-profile)$/) continue
-        if (w ~ /^--(project|configuration|framework|verbosity)=/) continue
+        if (w ~ /^--(project|configuration|framework|verbosity)=[^-@]/) continue
         if (w ~ /^--[^=]+=/ && test_filter_option(substr(w, 1, index(w, "=") - 1))) continue
         if (k == 3 && w !~ /^[-\/@+]/ && w !~ /[=:]/) continue
         return 0
@@ -268,7 +273,7 @@ function credential_filter_slots(A, M, n,    k, w, eq) {
     # Compound commands keep the existing fail-closed credential verdict across command separators.
     if (filter_compound) return
     # Only the .NET test runner takes filter data; a reader's operand that looks like an option stays a path.
-    if (tolower(base(A[1])) != "dotnet" || A[2] !~ /^(test|run)$/ || !plain_dotnet_args(A, n)) return
+    if (tolower(base(A[1])) != "dotnet" || A[2] !~ /^(test|run)$/ || !plain_dotnet_args(A, M, n)) return
     # Start after the subcommand, and consume exactly one value even when it is another option or is unsafe.
     for (k = 3; k <= n; k++) {
         w = A[k]
