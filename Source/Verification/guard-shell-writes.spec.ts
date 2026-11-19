@@ -5,9 +5,9 @@
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
-import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
@@ -62,11 +62,14 @@ async function checkCases(cases: Array<[string, string]>, cwd: string) {
 }
 
 // The shell guard also classifies a lowercase spelling of every path, for case-insensitive file systems.
-// On a case-sensitive one that spelling of a mixed-case repository path does not exist and blocks, so
-// specs that expect a write into a repository to be allowed use an all-lowercase root.
-function scratchRepository(origin = 'https://github.com/example/app.git', lowercase = false) {
-    const root = lowercase ? join(tmpdir(), `cratis-shell-writes-${randomBytes(6).toString('hex')}`) : mkdtempSync(join(tmpdir(), 'cratis-shell-writes-'));
-    if (lowercase) mkdirSync(root);
+// It drops that spelling only where the original path exists and its lowercase spelling provably does not
+// (a case-sensitive lookup), so a mixed-case repository root is judged like the redirect to the same path.
+type RootCase = boolean | 'random' | 'lowercase' | 'mixed';
+function scratchRepository(origin = 'https://github.com/example/app.git', rootCase: RootCase = 'random') {
+    const kind = rootCase === true ? 'lowercase' : rootCase === false ? 'random' : rootCase;
+    const hex = randomBytes(6).toString('hex');
+    const root = kind === 'random' ? mkdtempSync(join(tmpdir(), 'cratis-shell-writes-')) : join(tmpdir(), kind === 'mixed' ? `Cratis-Shell-Writes-${hex}` : `cratis-shell-writes-${hex}`);
+    if (kind !== 'random') mkdirSync(root);
     assert.equal(spawnSync('git', ['init', '-q', root]).status, 0);
     assert.equal(spawnSync('git', ['-C', root, 'remote', 'add', 'origin', origin]).status, 0);
     mkdirSync(join(root, 'Source/Accounts'), { recursive: true });
@@ -75,6 +78,15 @@ function scratchRepository(origin = 'https://github.com/example/app.git', lowerc
     symlinkSync(join(root, '.mcp.json'), join(root, 'linked-control'));
     return { root, dispose: () => rmSync(root, { recursive: true, force: true }) };
 }
+
+// Whether the temporary directory's file system folds case, probed once with a mixed-case directory.
+const fsIsCaseInsensitive = (() => {
+    const probe = join(tmpdir(), `Cratis-Case-Probe-${randomBytes(6).toString('hex')}`);
+    mkdirSync(probe);
+    try { return existsSync(probe.replace('Cratis-Case-Probe-', 'cratis-case-probe-')); } finally { rmSync(probe, { recursive: true, force: true }); }
+})();
+const onlyCaseSensitive = { skip: fsIsCaseInsensitive ? 'the temporary directory is case-insensitive' : false };
+const onlyCaseInsensitive = { skip: fsIsCaseInsensitive ? false : 'the temporary directory is case-sensitive' };
 
 for (const target of ['.env', 'package.json']) {
     test(`the shell-write guard blocks a redirect through an ordinary symlink name targeting ${target}`, () => {
@@ -1008,6 +1020,135 @@ test('shell writes to another repository follow the session manifest policy, nev
         assert.equal(runGuard(payload(`echo x > ${permissive.root}/global.json`, session.root), session.root).verdict, BLOCK);
         assert.equal(runGuard(payload(`echo x > ${permissive.root}/.env`, session.root), session.root).verdict, BLOCK);
     } finally { session.dispose(); permissive.dispose(); }
+});
+
+const copyWriters = (target: string) => [`cp x ${target}`, `install -D x ${target}`, `rsync x ${target}`, `tee ${target}`, `mv x ${target}`, `echo x > ${target}`];
+
+test('copies into a mixed-case repository root follow the redirect verdict for the same manifest', () => {
+    const session = scratchRepository('https://github.com/example/app.git', 'mixed');
+    const permissive = scratchRepository('https://github.com/Cratis/Example.git', 'mixed');
+    try {
+        mkdirSync(join(permissive.root, '.cratis'));
+        writeFileSync(join(permissive.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":true}');
+        const commands = (root: string) => [`cp x ${root}/package-lock.json`, `install -D x ${root}/New/Nested/NuGet.config`, `rsync x ${root}/Package.json`, `echo x > ${root}/package-lock.json`, `tee ${root}/Source/Accounts/NuGet.config`];
+        for (const command of commands(permissive.root)) {
+            assert.equal(runGuard(payload(command, session.root), session.root).verdict, BLOCK, command);
+            assert.equal(runGuard(payload(command, session.root), session.root, { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' }).verdict, ALLOW, command);
+        }
+        mkdirSync(join(session.root, '.cratis'));
+        writeFileSync(join(session.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":true}');
+        for (const command of commands(permissive.root)) assert.equal(runGuard(payload(command, session.root), session.root).verdict, ALLOW, command);
+        writeFileSync(join(permissive.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":false}');
+        for (const command of commands(permissive.root)) assert.equal(runGuard(payload(command, session.root), session.root).verdict, BLOCK, command);
+    } finally { session.dispose(); permissive.dispose(); }
+});
+
+// Hostile spellings are refused whatever the file system: the original spelling is always classified.
+function closedMixedRepository() {
+    const repo = scratchRepository('https://github.com/example/app.git', 'mixed');
+    mkdirSync(join(repo.root, '.cratis'));
+    writeFileSync(join(repo.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":false}');
+    mkdirSync(join(repo.root, 'Real'));
+    symlinkSync(join(repo.root, 'Real'), join(repo.root, 'Linked'));
+    return repo;
+}
+
+test('copy-style writes into protected names under a mixed-case root stay blocked on any file system', async () => {
+    const repo = closedMixedRepository();
+    try {
+        const targets = ['.ENV', '.Env', '.ENV.local', '.Cratis/AI.json', '.CLAUDE/settings.json', '.Pi/Extensions/x.ts', 'Package.JSON', 'New/Nested/.ENV', 'Linked/.ENV', 'Linked/Package.JSON', 'Source/.ENV', 'Source/Package.JSON', 'Linked/../.ENV', './.ENV', 'Source/../.ENV'];
+        const cases: Array<[string, string]> = [];
+        for (const target of targets) {
+            for (const spelling of [`${repo.root}/${target}`, target.replace(/^\.\//, '')]) for (const command of copyWriters(spelling)) cases.push([BLOCK, command]);
+        }
+        cases.push([BLOCK, `cp x ${repo.root}//.ENV`], [BLOCK, `cp x ${repo.root}/.ENV/`], [BLOCK, `cp -t ${repo.root}/Source x ${repo.root}/.ENV`]);
+        await checkCases(cases, repo.root);
+    } finally { repo.dispose(); }
+});
+
+// The classifier folds `..` lexically before it resolves symlinks, so a `..` after a symlink names another repository
+// than the one it is judged against. The lowercase alias is what still reaches the real target on a case-sensitive volume.
+test('a dot-dot component after a symlink never drops the lowercase alias of a mixed-case session root', onlyCaseSensitive, async () => {
+    const open = scratchRepository('https://github.com/example/app.git', 'mixed');
+    const closed = scratchRepository('https://github.com/example/app.git', 'lowercase');
+    try {
+        mkdirSync(join(open.root, '.cratis'));
+        writeFileSync(join(open.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":true}');
+        mkdirSync(join(closed.root, '.cratis'));
+        writeFileSync(join(closed.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":false}');
+        mkdirSync(join(closed.root, 'child'));
+        symlinkSync(join(closed.root, 'child'), join(open.root, 'Jump'));
+        await checkCases([
+            [BLOCK, `cp x ${open.root}/Jump/../package.json`], [BLOCK, `rsync x ${open.root}/Jump/../NuGet.config`],
+            [BLOCK, `cp x ${open.root}/Source/../Jump/../package.json`],
+            [ALLOW, `cp x ${open.root}/package.json`], [ALLOW, 'cp x package.json'],
+        ], open.root);
+        // A relative spelling from a working directory above the session root reaches it through the alias too.
+        const above = dirname(open.root);
+        const relative = `cp x ${basename(open.root)}/Jump/../package.json`;
+        assert.equal(runGuard(payload(relative, above), above, { CLAUDE_PROJECT_DIR: open.root }).verdict, BLOCK, relative);
+    } finally { open.dispose(); closed.dispose(); }
+});
+
+test('an unsearchable lowercase parent is a lookup error, so the lowercase alias is kept', onlyCaseSensitive, () => {
+    const repo = scratchRepository('https://github.com/example/app.git', 'mixed');
+    const name = repo.root.slice(repo.root.lastIndexOf('/') + 1);
+    const hidden = join(tmpdir(), name.toLowerCase());
+    try {
+        mkdirSync(join(repo.root, '.cratis'));
+        writeFileSync(join(repo.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":true}');
+        mkdirSync(join(repo.root, 'Sub'));
+        mkdirSync(hidden, { mode: 0o000 });
+        const command = `cp x ${repo.root}/Sub/package.json`;
+        if (process.getuid?.() === 0) return;
+        assert.equal(runGuard(payload(command, repo.root), repo.root).verdict, BLOCK, command);
+    } finally { chmodSync(hidden, 0o700); rmSync(hidden, { recursive: true, force: true }); repo.dispose(); }
+});
+
+test('the lowercase alias never hides a real candidate with the same text', async () => {
+    const repo = closedMixedRepository();
+    try {
+        mkdirSync(join(repo.root, 'Dir'));
+        await checkCases([
+            [BLOCK, 'cp x Dir/.env dir/.env'], [BLOCK, 'cp x dir/.env Dir/.env'], [BLOCK, 'cp x Dir/Package.json dir/package.json'],
+            [BLOCK, 'cp x dir/package.json Dir/package.json'], [ALLOW, 'cp x Dir/ok.txt dir/ok.txt'], [ALLOW, 'cp x dir/ok.txt Dir/ok.txt'],
+        ], repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('a removed working directory keeps the refusal for a mixed-case copy target', () => {
+    const repo = closedMixedRepository();
+    const removed = join(repo.root, 'Removed');
+    try {
+        for (const command of [`cp x ${repo.root}/Package.json`, 'cp x Mixed/Package.json', 'cp x Package.json']) {
+            assert.equal(runGuard(payload(command, removed), repo.root).verdict, BLOCK, command);
+        }
+    } finally { repo.dispose(); }
+});
+
+test('on a case-insensitive file system the lowercase alias of a mixed-case root still resolves and is judged', onlyCaseInsensitive, () => {
+    const repo = closedMixedRepository();
+    try {
+        assert.ok(existsSync(repo.root.toLowerCase()), 'the lowercase root must resolve');
+        assert.equal(runGuard(payload(`cp x ${repo.root.toLowerCase()}/package-lock.json`, repo.root), repo.root).verdict, BLOCK);
+        assert.equal(runGuard(payload(`cp x ${repo.root}/Package.json`, repo.root), repo.root).verdict, BLOCK);
+        writeFileSync(join(repo.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":true}');
+        assert.equal(runGuard(payload(`cp x ${repo.root.toLowerCase()}/package-lock.json`, repo.root), repo.root).verdict, ALLOW);
+        assert.equal(runGuard(payload(`cp x ${repo.root}/package-lock.json`, repo.root), repo.root).verdict, ALLOW);
+    } finally { repo.dispose(); }
+});
+
+test('on a case-sensitive file system a lowercase spelling that names a real path is still judged', onlyCaseSensitive, () => {
+    const repo = closedMixedRepository();
+    try {
+        assert.ok(!existsSync(repo.root.toLowerCase()), 'the lowercase root must not resolve');
+        const lowercase = scratchRepository('https://github.com/example/app.git', 'lowercase');
+        try {
+            mkdirSync(join(lowercase.root, '.cratis'));
+            writeFileSync(join(lowercase.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":false}');
+            assert.equal(runGuard(payload(`cp x ${lowercase.root}/package-lock.json`, repo.root), repo.root).verdict, BLOCK);
+        } finally { lowercase.dispose(); }
+    } finally { repo.dispose(); }
 });
 
 test('parse, size and classifier failures refuse instead of silently allowing a reference', () => {

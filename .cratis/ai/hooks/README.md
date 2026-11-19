@@ -374,7 +374,8 @@ for protected references, including nested strings, heredoc bodies and option va
 removes simple quoting/escapes, checks case-insensitive spellings, and asks the write guard's
 `--references` batch mode to classify candidate paths relative to the hook cwd. Original
 spellings are retained too so existing generated headers can be checked on case-sensitive
-filesystems. Glob/bracket patterns are checked against that same policy; brace patterns
+filesystems. The lowercase alias of a path is dropped only where the original path exists and its
+lowercase spelling provably does not (a case-sensitive lookup); any doubt keeps it. Glob/bracket patterns are checked against that same policy; brace patterns
 are conservative. A directory containing owned controls/managed paths also counts, such as
 `.claude`, `.pi/extensions` or installed `.cratis/ai`; no second tree list lives in the shell
 guard. Other trees, including `.github/workflows`, count only if the write policy protects them.
