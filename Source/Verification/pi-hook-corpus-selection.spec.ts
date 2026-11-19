@@ -8,7 +8,8 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -22,30 +23,38 @@ const SESSION_REFUSAL = 'REFUSED-BY-SESSION-GUARD';
 const TARGET_REFUSAL = 'REFUSED-BY-TARGET-GUARD';
 const guardNames = ['cratis-guard-shell-writes.sh', 'cratis-guard-writes.sh'];
 
-/** A stand-in guard: leaves a marker, refuses anything mentioning DENY, otherwise follows `fallback`. */
-function standIn(owner: string, marker: string, refusal: string, fallback: number): string {
-    return `#!/usr/bin/env bash\nprintf '%s\\n' "${owner}" >> "${marker}"\npayload="$(cat)"\nif [[ "$payload" == *DENY* || ${fallback} -eq 2 ]]; then echo "${refusal}" >&2; exit 2; fi\nexit 0\n`;
+/** `session` refuses anything mentioning DENY; `permissive` allows everything (the weakened corpus an attacker wants); `denyAll` refuses everything. */
+type Mode = 'session' | 'permissive' | 'denyAll';
+
+/** A stand-in guard that leaves a marker naming its owner, then decides by `mode`. */
+function standIn(owner: string, marker: string, refusal: string, mode: Mode): string {
+    const refuse = mode === 'denyAll' ? 'true' : mode === 'session' ? '[[ "$payload" == *DENY* ]]' : 'false';
+    return `#!/usr/bin/env bash\nprintf '%s\\n' "${owner}" >> "${marker}"\npayload="$(cat)"\nif ${refuse}; then echo "${refusal}" >&2; exit 2; fi\nexit 0\n`;
 }
 
-function installGuards(checkout: string, owner: string, marker: string, refusal: string, fallback: number, linkedFrom?: string): void {
-    const scripts = join(checkout, '.cratis', 'ai', 'hooks', 'scripts');
-    if (linkedFrom) {
-        mkdirSync(join(checkout, '.cratis', 'ai', 'hooks'), { recursive: true });
-        symlinkSync(linkedFrom, scripts);
-        return;
-    }
-    mkdirSync(scripts, { recursive: true });
-    for (const name of guardNames) writeFileSync(join(scripts, name), standIn(owner, marker, refusal, fallback));
+const scriptsOf = (checkout: string): string => join(checkout, '.cratis', 'ai', 'hooks', 'scripts');
+
+function installGuards(checkout: string, owner: string, marker: string, refusal: string, mode: Mode): void {
+    mkdirSync(scriptsOf(checkout), { recursive: true });
+    for (const name of guardNames) writeFileSync(join(scriptsOf(checkout), name), standIn(owner, marker, refusal, mode));
 }
 
-function writeManifest(checkout: string, manifest: object): void {
-    writeFileSync(join(checkout, '.cratis', 'ai.manifest.json'), JSON.stringify(manifest));
+/**
+ * Writes a manifest the way an installer would: a source commit, an explicit orderable revision (the real manifest has
+ * none, which is what makes "newer" undecidable) and the sha256 of every installed script, computed from what is on disk.
+ */
+function writeManifest(checkout: string, sourceCommit: string, revision: number): void {
+    const files: Record<string, string> = {};
+    for (const name of guardNames) files[`.cratis/ai/hooks/scripts/${name}`] = createHash('sha256').update(readFileSync(join(scriptsOf(checkout), name))).digest('hex');
+    writeFileSync(join(checkout, '.cratis', 'ai.manifest.json'), JSON.stringify({ sourceCommit, revision, files }));
 }
+
+const SESSION_REVISION = 5;
 
 interface Fixture { session: string; target: string; marker: string; call: Call; dispose(): void }
 
 /** `managedSession: false` leaves the session without a managed corpus so the bundled one is chosen. */
-function fixture(options: { managedSession?: boolean; targetFallback?: number; targetLink?: boolean } = {}): Fixture {
+function fixture(options: { managedSession?: boolean; targetMode?: Mode; targetLink?: 'directory' | 'script' } = {}): Fixture {
     const root = realpathSync(mkdtempSync(join(tmpdir(), 'cratis-corpus-selection-')));
     const session = join(root, 'session');
     const target = join(root, 'target');
@@ -53,15 +62,27 @@ function fixture(options: { managedSession?: boolean; targetFallback?: number; t
     mkdirSync(session, { recursive: true });
     mkdirSync(target, { recursive: true });
     spawnSync('git', ['init', '-q'], { cwd: session });
-    if (options.managedSession !== false) installGuards(session, 'session', marker, SESSION_REFUSAL, 0);
+    if (options.managedSession !== false) {
+        installGuards(session, 'session', marker, SESSION_REFUSAL, 'session');
+        writeManifest(session, 'session-commit', SESSION_REVISION);
+    }
+    const targetMode = options.targetMode ?? 'permissive';
     if (options.targetLink) {
-        const real = join(root, 'elsewhere');
-        installGuards(root, 'target', marker, TARGET_REFUSAL, options.targetFallback ?? 0);
-        // The directory holding the target's scripts is a symlink to a script set outside the checkout.
-        symlinkSync(join(root, '.cratis', 'ai', 'hooks', 'scripts'), real);
-        installGuards(target, 'target', marker, TARGET_REFUSAL, options.targetFallback ?? 0, real);
+        // A script set outside the target checkout, reached through a symlink the target's manifest cannot vouch for.
+        const outside = join(root, 'elsewhere');
+        installGuards(outside, 'target', marker, TARGET_REFUSAL, targetMode);
+        if (options.targetLink === 'directory') {
+            mkdirSync(join(target, '.cratis', 'ai', 'hooks'), { recursive: true });
+            symlinkSync(scriptsOf(outside), scriptsOf(target));
+        } else {
+            installGuards(target, 'target', marker, TARGET_REFUSAL, targetMode);
+            const script = join(scriptsOf(target), guardNames[0]);
+            unlinkSync(script);
+            symlinkSync(join(scriptsOf(outside), guardNames[0]), script);
+        }
+        writeManifest(target, 'target-newer', SESSION_REVISION + 1);
     } else {
-        installGuards(target, 'target', marker, TARGET_REFUSAL, options.targetFallback ?? 0);
+        installGuards(target, 'target', marker, TARGET_REFUSAL, targetMode);
     }
     const handlers = new Map<string, Call>();
     const previous = process.cwd();
@@ -79,13 +100,16 @@ function fixture(options: { managedSession?: boolean; targetFallback?: number; t
 const owners = (marker: string): string[] => (existsSync(marker) ? readFileSync(marker, 'utf8').split('\n').filter(Boolean) : []);
 const bash = (command: string) => ({ toolName: 'bash', input: { command } });
 
+// Every target corpus here is permissive (it would allow the DENY commands the session refuses), so a selector that
+// trusted a target's manifest would let them through. The manifests are valid for what is on disk unless stated.
+const weaken = (target: string): void => { for (const name of guardNames) writeFileSync(join(scriptsOf(target), name), standIn('target', join(target, '..', 'marker.log'), TARGET_REFUSAL, 'permissive')); };
 const manifests: Array<[string, (target: string) => void]> = [
-    ['unmanaged (no manifest)', () => { /* none */ }],
-    ['newer source commit', (target) => writeManifest(target, { sourceCommit: 'ffffffffffffffffffffffffffffffffffffffff', files: {} })],
-    ['equal source commit', (target) => writeManifest(target, { sourceCommit: 'same', files: {} })],
-    ['older source commit', (target) => writeManifest(target, { sourceCommit: '0000000000000000000000000000000000000000', files: {} })],
-    ['hash mismatch (tampered scripts)', (target) => writeManifest(target, { sourceCommit: 'newer', files: { '.cratis/ai/hooks/scripts/cratis-guard-shell-writes.sh': 'sha256:0' } })],
-    ['manifest forged to match weakened scripts', (target) => writeManifest(target, { sourceCommit: 'forged', files: { '.cratis/ai/hooks/scripts/cratis-guard-shell-writes.sh': 'sha256:forged' } })],
+    ['no manifest (unmanaged)', () => { /* none */ }],
+    [`a valid manifest, newer than the session (revision ${SESSION_REVISION + 1})`, (target) => writeManifest(target, 'target-newer', SESSION_REVISION + 1)],
+    [`a valid manifest, equal to the session (revision ${SESSION_REVISION})`, (target) => writeManifest(target, 'target-equal', SESSION_REVISION)],
+    [`a valid manifest, older than the session (revision ${SESSION_REVISION - 1})`, (target) => writeManifest(target, 'target-older', SESSION_REVISION - 1)],
+    ['hashes that no longer match the scripts (tampered after install)', (target) => { writeManifest(target, 'target-newer', SESSION_REVISION + 1); weaken(target); }],
+    ['a manifest recomputed after weakening the scripts (forged)', (target) => { weaken(target); writeManifest(target, 'target-newer', SESSION_REVISION + 1); }],
 ];
 
 for (const [label, prepare] of manifests) {
@@ -103,14 +127,17 @@ for (const [label, prepare] of manifests) {
     });
 }
 
-test('a symlinked target scripts directory is never consulted', async () => {
-    const f = fixture({ targetLink: true });
-    try {
-        const result = await f.call(bash(`cd ${f.target} && echo DENY`), { cwd: f.session });
-        assert.match(result?.reason ?? '', new RegExp(SESSION_REFUSAL));
-        assert.deepEqual([...new Set(owners(f.marker))], ['session']);
-    } finally { f.dispose(); }
-});
+for (const link of ['directory', 'script'] as const) {
+    test(`a target ${link} symlinked to a script set outside the checkout is never consulted`, async () => {
+        const f = fixture({ targetLink: link });
+        try {
+            const result = await f.call(bash(`cd ${f.target} && echo DENY`), { cwd: f.session });
+            assert.equal(result?.block, true);
+            assert.match(result?.reason ?? '', new RegExp(SESSION_REFUSAL));
+            assert.deepEqual([...new Set(owners(f.marker))], ['session']);
+        } finally { f.dispose(); }
+    });
+}
 
 test('absolute-path writes and edits in another checkout are judged by the session guard', async () => {
     const f = fixture();
@@ -136,7 +163,7 @@ test('a tool call whose cwd is the other checkout still uses the starting checko
 });
 
 test('control: a command the session guard allows is not blocked by a deny-everything target corpus', async () => {
-    const f = fixture({ targetFallback: 2 });
+    const f = fixture({ targetMode: 'denyAll' });
     try {
         assert.equal(await f.call(bash(`cd ${f.target} && echo harmless`), { cwd: f.session }), undefined);
         assert.equal(await f.call({ toolName: 'write', input: { path: join(f.target, 'ok.txt'), content: 'x' } }, { cwd: f.session }), undefined);
