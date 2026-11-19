@@ -65,8 +65,6 @@ one does.
   extension, enum rename, optional or required property added, property removed, retype).
   A reimplemented copy drifts: one demanded a registry repair for an enum-only change
   Chronicle accepts in place ([application-profile.md](./application-profile.md) rule 7).
-- **[contract] A hold or stop order is binding until its issuer explicitly lifts it.** The issuer is the user, a coordinator or a release owner. Silence, elapsed time, a green check or finishing the current step do not lift it.
-- **[contract] An agent waiting on messages or a watch re-arms it on every wake, before doing anything else,** so no message is missed.
 - **[convention] When the targets were not already established in the conversation, show
   the dry-run list and act on it once the user has answered.** A user who has reviewed
   and authorized those targets is not asked to approve the same pass again. The list is a

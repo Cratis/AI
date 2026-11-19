@@ -77,10 +77,6 @@ push to a PR unless the request says so. Pass `--assignee @me` when creating it.
    train, not its own PR. Item branches get no PR, CI or
    `run-integration` label; they get local gates and a delta review.
 
-A security-fix train is sealed once cut: add no new folds unless the new head
-gets its own review, including the security lens, and gate evidence. Otherwise
-the item waits for the next train.
-
 Minimal assembly, after agreeing on the included deliveries:
 
 ```bash
@@ -122,6 +118,9 @@ on a design decision, consumer proof, or another repository out.
 After the cut, nothing joins. Late deliveries go into the next candidate.
 Corrections needed to make the frozen candidate pass are not new deliveries;
 rerun the affected required gates for that changed code state.
+A security-fix train is sealed the same way, with no exception for urgency:
+every correction gets its own review of the new head, including the security
+lens, plus gate evidence for that head before the train merges.
 
 Record the cut in one line in the reviewer comment, not the release note:
 `Cut with A and B; C waits for consumer proof.` Keep local
