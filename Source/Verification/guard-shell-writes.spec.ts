@@ -4,6 +4,7 @@
 /** Whole-text references use the Write/Edit policy; protected references require read-only syntax. */
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
@@ -15,17 +16,18 @@ const guard = resolve(import.meta.dirname, '../../.cratis/ai/hooks/scripts/crati
 const BLOCK = 'block';
 const ALLOW = 'allow';
 const payload = (command: string, cwd: string) => ({ cwd, tool_name: 'Bash', tool_input: { command } });
+// The manifest policy comes from the session (CLAUDE_PROJECT_DIR); the runners default it to the case's cwd.
 const environment = () => ({ ...process.env, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' });
 
 function runGuard(input: object, cwd: string, env: NodeJS.ProcessEnv = {}) {
-    const result = spawnSync('bash', [guard], { cwd, input: JSON.stringify(input), encoding: 'utf8', env: { ...environment(), ...env } });
+    const result = spawnSync('bash', [guard], { cwd, input: JSON.stringify(input), encoding: 'utf8', env: { ...environment(), CLAUDE_PROJECT_DIR: cwd, ...env } });
     assert.ok(result.status === 0 || result.status === 2, `unexpected guard exit ${result.status}: ${result.stderr}`);
     return { verdict: result.status === 2 ? BLOCK : ALLOW, stdout: result.stdout, stderr: result.stderr };
 }
 
 function runGuardAsync(command: string, cwd: string): Promise<ReturnType<typeof runGuard>> {
     return new Promise((resolveRun, reject) => {
-        const child = spawn('bash', [guard], { cwd, env: environment() });
+        const child = spawn('bash', [guard], { cwd, env: { ...environment(), CLAUDE_PROJECT_DIR: cwd } });
         let stdout = '';
         let stderr = '';
         child.stdout.setEncoding('utf8').on('data', chunk => { stdout += chunk; });
@@ -59,8 +61,12 @@ async function checkCases(cases: Array<[string, string]>, cwd: string) {
     assert.equal(failures.join('\n'), '');
 }
 
-function scratchRepository(origin = 'https://github.com/example/app.git') {
-    const root = mkdtempSync(join(tmpdir(), 'cratis-shell-writes-'));
+// The shell guard also classifies a lowercase spelling of every path, for case-insensitive file systems.
+// On a case-sensitive one that spelling of a mixed-case repository path does not exist and blocks, so
+// specs that expect a write into a repository to be allowed use an all-lowercase root.
+function scratchRepository(origin = 'https://github.com/example/app.git', lowercase = false) {
+    const root = lowercase ? join(tmpdir(), `cratis-shell-writes-${randomBytes(6).toString('hex')}`) : mkdtempSync(join(tmpdir(), 'cratis-shell-writes-'));
+    if (lowercase) mkdirSync(root);
     assert.equal(spawnSync('git', ['init', '-q', root]).status, 0);
     assert.equal(spawnSync('git', ['-C', root, 'remote', 'add', 'origin', origin]).status, 0);
     mkdirSync(join(root, 'Source/Accounts'), { recursive: true });
@@ -981,6 +987,27 @@ test('Cratis-origin and explicit opt-in policies and the harness escape hatch ar
         assert.equal(runGuard(payload('echo x > .env', repo.root), repo.root, { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' }).verdict, ALLOW);
         assert.equal(runGuard({ tool_input: { file_path: '.env' } }, repo.root).verdict, ALLOW);
     } finally { repo.dispose(); }
+});
+
+test('shell writes to another repository follow the session manifest policy, never the write target policy', () => {
+    const session = scratchRepository('https://github.com/example/app.git', true);
+    const permissive = scratchRepository('https://github.com/Cratis/Example.git', true);
+    try {
+        mkdirSync(join(permissive.root, '.cratis'));
+        writeFileSync(join(permissive.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":true}');
+        const commands = (root: string) => [`echo x > ${root}/global.json`, `cp x ${root}/package-lock.json`, `tee ${root}/New/Nested/NuGet.config`, `cd ${root} && echo x > package.json`];
+        for (const command of commands(permissive.root)) {
+            assert.equal(runGuard(payload(command, session.root), session.root).verdict, BLOCK, command);
+            assert.equal(runGuard(payload(command, session.root), session.root, { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' }).verdict, ALLOW, command);
+        }
+        mkdirSync(join(session.root, '.cratis'));
+        writeFileSync(join(session.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":true}');
+        for (const command of commands(permissive.root).slice(0, 3)) assert.equal(runGuard(payload(command, session.root), session.root).verdict, ALLOW, command);
+        // A target that declares itself closed still blocks a permissive session.
+        writeFileSync(join(permissive.root, '.cratis/ai.json'), '{"allowDependencyManifestWrites":false}');
+        assert.equal(runGuard(payload(`echo x > ${permissive.root}/global.json`, session.root), session.root).verdict, BLOCK);
+        assert.equal(runGuard(payload(`echo x > ${permissive.root}/.env`, session.root), session.root).verdict, BLOCK);
+    } finally { session.dispose(); permissive.dispose(); }
 });
 
 test('parse, size and classifier failures refuse instead of silently allowing a reference', () => {
