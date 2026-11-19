@@ -4,11 +4,11 @@
     {
       "id": 1,
       "name": "validator-state-rule-under-on",
-      "prompt": "Our Arc command BorrowBook has a CommandValidator that takes the BookStock read model and rejects when no copy is left. Two members still borrow the last copy at the same time. The project has no read protection setting. Fix it for a new project, and say what the same validator does without your change.",
-      "expected_output": "Set <CratisReadProtection>On</CratisReadProtection>; keep the state rule in the validator with BookStock as a constructor parameter and Handle() returning the event. Under Off (the default) the validator over a plain read is only a hint; the second request gets HTTP 400 concurrencyViolation (ReadChanged) under On.",
+      "prompt": "Our Arc command BorrowBook has a CommandValidator that takes the BookStock read model and rejects when no copy is left. Two members still borrow the last copy at the same time. The project is on Arc 22 and has no read protection setting. Fix it for a new project, and say what the same validator does without your change.",
+      "expected_output": "Set <CratisReadProtection>On</CratisReadProtection>; keep the state rule in the validator with BookStock as a constructor parameter and Handle() returning the event. Under Off (Arc 22 behavior) the validator over a plain read is only a hint; the second request gets HTTP 400 concurrencyViolation (ReadChanged) under On.",
       "assertions": [
         "Sets read protection On (MSBuild <CratisReadProtection>On</CratisReadProtection> or an assembly/command ReadProtection attribute) and keeps the state rule in the CommandValidator with the read model as a constructor parameter, Handle() returning the event.",
-        "Says the validator over a plain read under Off (the default when nothing is set) or Measure is a hint that guards nothing, as the negative case.",
+        "Says the validator over a plain read under Off (set explicitly, or the Arc 22 behavior) or Measure is a hint that guards nothing, as the negative case.",
         "Says the lost race is a 400 validation result with reason concurrencyViolation and detail ReadChanged, that nothing was written, and that Arc and Chronicle do not re-run the command.",
         "Does not add [ProtectedDecision] or DecisionRead<T> as the default fix, and does not call On redundant with them where they exist.",
         "Says a caller sending X-Allowed-Severity: 3 (Error) can remove validator Error results under Off and Measure unless the command declares [BlockOnValidationSeverity(ValidationResultSeverity.Error)], and that from Arc 22.108.0 a command declared On gets an Error floor (Error and Unknown always block; lowering ReadProtection:MaximumMode does not remove it; an explicit attribute wins)."
@@ -53,7 +53,7 @@
     {
       "id": 5,
       "name": "adopt-with-measure-and-read-refusals",
-      "prompt": "We have a large Arc application on the default read protection setting and want read protection On. After switching one project, BorrowBook returns HTTP 500 with ReadCannotBeProtected for a model that joins members and loans. How do we roll out safely, and how do we handle that failure and a 400 ReadChanged from the browser?",
+      "prompt": "We have a large Arc application on read protection Off and want read protection On. After switching one project, BorrowBook returns HTTP 500 with ReadCannotBeProtected for a model that joins members and loans. How do we roll out safely, and how do we handle that failure and a 400 ReadChanged from the browser?",
       "expected_output": "Roll out Off to Measure to On per project, read the Measure report, fix refusals or annotate [Unprotected(\"why\")]; 500 means change the code, 400 ReadChanged means the client resubmits.",
       "assertions": [
         "Describes Measure first (<CratisReadProtection>Measure</CratisReadProtection>), which keeps results and status codes unchanged, then On per project; reads the cratis.arc.read_protection.events counter or read-protection.plan span event, and says Measure is best effort.",

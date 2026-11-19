@@ -31,8 +31,9 @@ Published guides this agrees with:
 
 ## Defaults
 
-- Read protection is `Off` unless the project sets it. New code starts with
-  `On`: `<CratisReadProtection>On</CratisReadProtection>` in the project (it
+- Read protection is `On` unless the project sets it (the default from Arc 23;
+  `Off` was the Arc 22 behavior). On Arc 22 set
+  `<CratisReadProtection>On</CratisReadProtection>` in the project (it
   emits `[assembly: ReadProtection(ReadProtectionMode.On)]`; an invalid value
   fails the build). Existing code moves `Off` to `Measure` to `On`; see
   [Roll out with Measure](#roll-out-with-measure).
@@ -107,7 +108,7 @@ append, a reactor, or an `ExpectedRevision` never passed into a scope.
 
 | Mode | Read-model parameter, validator constructor | Results and status codes |
 | --- | --- | --- |
-| `Off` (default) | plain read; a hint, guards nothing | as today |
+| `Off` (Arc 22 behavior, or set explicitly) | plain read; a hint, guards nothing | as today |
 | `Measure` | plain read; Arc reports what `On` would do | same as `Off` |
 | `On` | read fresh from the log; guards the command's append | a lost race is HTTP 400 |
 
@@ -336,7 +337,7 @@ append. Decision reads exist in the .NET and Elixir clients.
 - Name the mechanism and say why the rule shape needs it. A plain read, a
   validator under `Off`, `Result<,>` or `concurrency: true` is never presented as
   the guard.
-- New code sets `On`. Uniqueness is a constraint. A state rule is a read-model
+- `On` is the default from Arc 23 (set it on Arc 22). Uniqueness is a constraint. A state rule is a read-model
   parameter in a validator, a per-stream model, a stream decision, an aggregate or
   an explicit scope, enrolled **before** the events are staged.
 - The model is admitted (source-keyed projection or admitted reducer, `Id`).

@@ -404,7 +404,7 @@ privileged.
 Under read protection `On`, the read models in a convention-registered
 `CommandValidator<T>` constructor are read fresh and guard the command's append, so
 a state-dependent permission or ownership rule written there is decision-safe. Under
-`Off` (the default) and `Measure` the same validator reads a plain model: a hint. In
+`Off` (set explicitly, or the Arc 22 behavior) and `Measure` the same validator reads a plain model: a hint. In
 an `[Unprotected]` command (or a model or method marked `[Unprotected("why")]`) the
 read is advisory, so the rule is **not decision-safe**. A `[ProtectedDecision]`
 command without `On` runs only certified, parameterless validators and refuses a

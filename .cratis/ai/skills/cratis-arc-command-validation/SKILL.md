@@ -60,7 +60,7 @@ Which mechanism makes a rule hold under concurrent writers (constraint, protecte
 decision, stream decision, aggregate, scope, reactor repair) is routed in
 [choosing how a rule holds](../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md).
 A validator holds a state rule only when the project is on read protection `On`;
-under `Off` (the default) it is a hint, never the mechanism.
+under `Off` (set explicitly, or the Arc 22 behavior) it is a hint, never the mechanism.
 
 | The rule is… | Put it in |
 | --- | --- |
@@ -123,8 +123,8 @@ public class TransferFundsValidator : CommandValidator<TransferFunds>
   Step 5. **State rules ("may this proceed") belong here**, with the read model as a
   constructor parameter. Under read protection `On` that read is fresh from the log
   and guards the append: if an event of the model's types for that key arrives
-  after the read, nothing from the command is written. Under `Off` (the default
-  when nothing is set) and `Measure` the same validator reads a plain model: a hint
+  after the read, nothing from the command is written. Under `Off` (set explicitly,
+  or the Arc 22 behavior) and `Measure` the same validator reads a plain model: a hint
   with a friendly message that guards nothing. Under `On` the validator must be
   convention-registered (transient); hand-registered scoped, singleton, factory or
   instance validators are refused. Under `[ProtectedDecision]` without `On`, a
@@ -175,11 +175,12 @@ public async Task<Result<Customer, ValidationResult>> Provide(IReadModels readMo
 
 ## Step 5 — Guard a concurrency-sensitive decision
 
-Set read protection `On` for new code: `<CratisReadProtection>On</CratisReadProtection>`
+Read protection `On` is the default from Arc 23; on Arc 22 set
+`<CratisReadProtection>On</CratisReadProtection>`
 in the project (or `[ReadProtection(ReadProtectionMode.On)]` on one command). Under
 `On`, the read-model parameters of `Handle()` and of the validator constructor are
 the guard, so the state rule is a validator and `Handle()` returns the events.
-Requires Arc 22.106.0. Under `Off` (the default) a plain read guards nothing, even
+Requires Arc 22.106.0. Under `Off` (set explicitly, or the Arc 22 behavior) a plain read guards nothing, even
 inside `Handle()` returning `Result<,>`. Choose the first boundary that fits:
 
 1. A unique value or create-once: a Chronicle constraint, not a read.
@@ -303,7 +304,7 @@ the fact. See
 - **The rule never fires.** The read-model type has no backing Chronicle
   projection, reducer, `DbSet<T>`, or MongoDB collection, so nothing registered
   it for command-side resolution.
-- **Two requests both win.** The project is on `Off` (the default) or `Measure`, so
+- **Two requests both win.** The project is on `Off` (set explicitly, or Arc 22) or `Measure`, so
   the validator read is a hint; moving it to `Handle()` or returning `Result<,>`
   does not guard it. Set `On`, or use a stream decision or a constraint.
 - **`ARC0005` on build.** `Provide()` returns a value no `Handle()` parameter
