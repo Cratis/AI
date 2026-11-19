@@ -472,6 +472,51 @@ test('original read lanes never confuse protected read paths with write targets'
     } finally { repo.dispose(); }
 });
 
+test('read-only inspection and literal lane messages keep protected references as data', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai/hooks/scripts'), { recursive: true });
+        await checkCases([
+            'find . -name \'*.md\'',
+            'find Source -name "*.ts" -type f',
+            'ls -d */',
+            'ls .cratis/ai/hooks/scripts/',
+            'node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file x.md --label patch',
+            "jq '{a: .b, c: [.d[]]}' file.json",
+            "jq '{a: .b, c: [.d[]]}' .cratis/ai.manifest.json",
+            "gh api repos/Cratis/AI/issues/1248 --jq '{n: .number}'",
+            'lanes send L0 task -m "see {x} in .cratis/ai/hooks/*.sh and */foo"',
+            "lanes send L0 task -m 'Discuss rm, mv, cp and sed -i on .cratis/ai/hooks/*.sh; do not execute them.'",
+            "rg -n 'cratis-guard' .cratis/ai/hooks/scripts/",
+            'cat .cratis/ai/hooks/scripts/cratis-guard-writes.sh',
+            'head -n 20 .cratis/ai/hooks/scripts/cratis-guard-writes.sh',
+        ].map(command => [ALLOW, command]), repo.root);
+    } finally { repo.dispose(); }
+});
+
+test('literal lane messages never hide protected writes or shell evaluation', async () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, '.cratis/ai/hooks/scripts'), { recursive: true });
+        await checkCases([
+            'lanes send L0 task -m "see {x} in .cratis/ai/hooks/*.sh" > .cratis/ai/rules/general.md',
+            'lanes send L0 task -m "see .cratis/ai/hooks/*.sh" | tee .cratis/ai/rules/general.md',
+            'lanes send L0 task -m "see {x}"; rm .cratis/ai/hooks/scripts/cratis-guard-writes.sh',
+            'lanes send L0 task -m "see {x}" && mv x .cratis/ai/rules/general.md',
+            'lanes send L0 task -m "see {x}"; cp x .cratis/ai/rules/general.md',
+            'lanes send L0 task -m "see {x}"; sed -i s/a/b/ .cratis/ai/rules/general.md',
+            'lanes send L0 task -m "$(rm .cratis/ai/rules/general.md)"',
+            'lanes send L0 task -m "`rm .cratis/ai/rules/general.md`"',
+            'lanes send L0 task -m "see {x}"; bash -c "rm .cratis/ai/rules/general.md"',
+            'lanes send L0 task -m "see {x}"; sh -c "rm .cratis/ai/rules/general.md"',
+            'lanes send L0 task -m "see {x}"; rm .cratis/ai/rules/general.md "unterminated',
+            'lanes send L0 task -m .cratis/ai/hooks/*.sh',
+            'lanes send L0 task --output .cratis/ai/rules/general.md',
+            'lanes send L0 task -m "see {x}" --output .cratis/ai/rules/general.md',
+        ].map(command => [BLOCK, command]), repo.root);
+    } finally { repo.dispose(); }
+});
+
 test('tool labels and shell snapshots never make globbed writes safe', () => {
     const repo = scratchRepository();
     try {
