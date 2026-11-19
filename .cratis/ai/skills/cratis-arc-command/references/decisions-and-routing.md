@@ -16,17 +16,20 @@ Source: Arc. These features require `Cratis.Arc.Chronicle`.
 ## Pick the guarded read
 
 **Idiomatic default:** a state-dependent rule takes the read model as a `Handle()`
-(or validator-constructor) parameter, with `[ReadProtection(On)]` where it must hold
-under concurrent writers. Do not take `IDecisionReads` in `Handle()`: it is not
+(or validator-constructor) parameter; Arc 23 read protection `On` is the default, so it holds
+under concurrent writers with no attribute. Do not take `IDecisionReads` in `Handle()`: it is not
 recommended with Arc and is not an investment target. A computed key stays in
 `Provide()` until a read-model parameter covers it. Direction, not a release claim:
 Arc will pin protected parameters so the idiomatic shape needs no further ceremony.
 
-Under read protection `On` (`<CratisReadProtection>On</CratisReadProtection>`, or
-`[ReadProtection(ReadProtectionMode.On)]` on a command), a read model that is a
+Under read protection `On`, the default from Arc 23 when nothing is set (leave
+`<CratisReadProtection>` unset; do not write `On` or `[ReadProtection(ReadProtectionMode.On)]`), a read model that is a
 parameter of `Handle()` or of a `CommandValidator<T>` constructor is read fresh from
-the event log and guards the command's append. `On` is the default from Arc 23 when nothing is
-set (`Off` was the Arc 22 behavior); under `Off` and `Measure` those reads are plain, a hint that guards nothing.
+the event log and guards the command's append. Opt out narrowest first, with a reason:
+`[Unprotected("why")]` on the parameter, model type or method (one advisory read), then
+`[Unprotected("why")]` or `[ReadProtection(ReadProtectionMode.Off)]` on the command; project-level
+`Off`/`Measure` is a temporary adoption step. Under `Off` and `Measure` those reads are plain, a hint that guards nothing
+(`Off` was the Arc 22 default).
 A `Result<TEvent, ValidationResult>` rejects a request but does not enroll a guard.
 Uniqueness and create-once belong to a Chronicle constraint, not to any read. For the
 routing by rule shape, the matrix and the traps read

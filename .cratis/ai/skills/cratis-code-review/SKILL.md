@@ -84,7 +84,9 @@ there is nothing to review under a red build.
 - Logging lives in a `*Logging.cs` partial with `[LoggerMessage]`, not inline in
   domain code.
 - No shared mutable state between commands.
-- Read protection is `On` by default from Arc 23; on Arc 22 new code sets `<CratisReadProtection>On</CratisReadProtection>`.
+- Read protection is `On` by default from Arc 23. Flag an explicit `<CratisReadProtection>On</CratisReadProtection>` or
+  `[ReadProtection(ReadProtectionMode.On)]` as redundant, and any `Off`, `Measure` or `[Unprotected]` without a stated reason
+  (legacy: on Arc 22 new code had to set `On`).
   Under `Off` an injected model or validator read is advisory, not a concurrency guard.
   Under `On`, review that state rules sit in validators or handlers with the model as
   a parameter and `[Unprotected("why")]` carries a real reason. Apply
