@@ -294,11 +294,15 @@ Only where a read must stay advisory, always with a stated reason, narrowest fir
    (`Cratis.Arc.Chronicle.ReadModels`): that read is advisory.
    The method form covers only raw reads in the method body, never its injected
    read-model parameters; combining it with protected read-model parameters raises
-   `ARCCHR0034`, so put `[Unprotected]` on the specific parameter. For a key computed
-   at runtime, `IDecisionReads.Get<T>(key)` in `Provide` or a validator is a protected
-   read; method-level `[Unprotected]` is only for reads the guard cannot cover (joins,
-   children, other sequences, raw event store, external stores) and its reason names
-   what guards the append. Arc 23 key metadata is strict by default:
+   `ARCCHR0034`, so put `[Unprotected]` on the specific parameter. When the key is
+   not the command's own key, still inject the read model: key a parameter by a command
+   property with `[LookUpBy(nameof(Command.Property))]` (validate that a caller-supplied
+   property belongs to the entity the command acts on), key it by the caller with
+   `[LookUpBy<TProvider>]`/`IReadModelKeyProvider`, or add a small lookup read model
+   keyed by what the command carries. Do not call `IDecisionReads`, `IReadModels` or the
+   event store directly from a command. Method-level `[Unprotected]` is only for reads
+   no injected read model can cover (joins, children, other sequences, external stores),
+   and its reason names what guards the append. Arc 23 key metadata is strict by default:
    `CommandReadModelKeysMissing` (`ReadProtection:RequireGeneratedMetadata`) and
    `ProtectedReadModelKeyOptions.Strict`.
 2. `[Unprotected("why")]` or `[ReadProtection(ReadProtectionMode.Off)]` on one command
