@@ -53,6 +53,7 @@ dumps, and similar coordination files. These are **work records, not documentati
   inside a worktree leaves the worktree and branch behind. If the branch must outlive the task
   unmerged, leave the worktree and say so in the handoff. Never `--force` a removal; a
   refusal means look, not push harder.
+- **Local-only work is retain-only during cleanup.** Unpushed branches, commits on no remote, stashes and worktrees with uncommitted changes are never deleted by a cleanup pass. Record the branch refs (name and SHA) before and after cleanup so any loss is detectable and recoverable.
 - **Scan for secrets before archiving or sharing.** Before anything from `.ai-work/` is archived,
   attached or shared, run `gitleaks detect --no-git --source <dir>` (or the repository's equivalent)
   and redact every finding. See [`secrets.md`](./secrets.md).

@@ -77,6 +77,10 @@ push to a PR unless the request says so. Pass `--assignee @me` when creating it.
    train, not its own PR. Item branches get no PR, CI or
    `run-integration` label; they get local gates and a delta review.
 
+A security-fix train is sealed once cut: add no new folds unless the new head
+gets its own review, including the security lens, and gate evidence. Otherwise
+the item waits for the next train.
+
 Minimal assembly, after agreeing on the included deliveries:
 
 ```bash

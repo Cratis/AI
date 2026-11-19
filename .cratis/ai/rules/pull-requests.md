@@ -11,12 +11,13 @@ applyTo: "**/*"
 **The PR description is published verbatim as the GitHub release. In repositories released by `cratis/release-action`, it also closes every issue written as `(#n)`; elsewhere, follow the repository's own release and issue-closing process.** Write the note the person upgrading should read, not a development write-up.
 
 - Follow the repository's pull request template within this contract: an optional summary first, then only `## Added`, `## Changed`, `## Fixed`, `## Removed`, `## Security`, `## Deprecated`, each with short, user-facing bullets and none empty.
-- Never put review, verification, test or CI results, provenance, merge or deploy instructions, internal state, relative links or placeholders in the description. **Reviewer-facing information goes in a PR comment** posted right after creating the PR (`gh pr comment <n> --body-file .ai-work/pr-notes.md`), even when the PR is labelled `no-release`.
+- Never put review, verification, test or CI results, provenance, merge or deploy instructions, internal state, relative links or placeholders in the description. **Reviewer-facing information goes in a PR comment** posted right after creating the PR (`gh pr comment <n> --body-file .ai-work/pr-notes.md`), even when the PR is labelled `no-release`. Reviewer notes list only the commit ranges actually reviewed; unreviewed deltas are named as unreviewed.
 - A change to a hook script or its wiring (`.cratis/ai/hooks/**`) needs a release-note line that tells consumers to run `cratis ai update`; a hook fix does not reach a repository until they do.
 
 ### Issue references
 
 - `(#n)` at the end of the bullet that delivers it closes the issue at release: use it **only** for an issue this PR fully delivers. One `(#n)` per issue: `(#351, #352)` closes nothing, write `(#351) (#352)`.
+- Partial delivery uses `(part of #n)`, never a closing `(#n)`.
 - `(part of #n)`, prose `see #n` or `Cratis/Repo#n` relate without closing. No issue means no reference; never use a placeholder or guess a number.
 - Never use a linking or closing keyword before a number, anywhere (`Close`, `Closes`, `Fix`, `Fixes`, `Resolve`, `Resolves`, `Refs`, `References`, in any form). `Refs #n` closes nothing: write `(#n)` or `(part of #n)`.
 - Comment on or close an issue only when the user's request includes that effect. A delivered `(#n)` in a repository released by `cratis/release-action` is closed at release; do not close it by hand.
