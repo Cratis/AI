@@ -36,9 +36,15 @@ payload omits cwd; glob probing does not. Filesystem check/use races remain: thi
 
 The Bash write guard checks manifest and environment-file names against both logical and resolved physical basenames; run `cratis ai update` to receive this change.
 
-A Pi session runs guards from its starting checkout. Refresh the corpus there with `cratis ai update`,
-or start a new session in the checkout you change. Selecting a newer installed guard corpus per call
-is tracked in [Cratis/AI#1114](https://github.com/Cratis/AI/issues/1114).
+A Pi session runs guards from its starting checkout (or the bundled corpus when that checkout has none). A command or
+file path that targets another checkout is judged by those guards; the bridge never runs the other checkout's scripts,
+because a checkout the agent can write cannot be a trust anchor. The one documented exception is policy that
+`cratis-guard-writes.sh` reads about the write target's repository for dependency-manifest writes: the target's boolean
+`allowDependencyManifestWrites` overrides, otherwise the target's GitHub `Cratis/*` origin decides
+([Cratis/AI#1256](https://github.com/Cratis/AI/issues/1256)). Refresh the corpus in the starting checkout with
+`cratis ai update` (scripts are read per call, so no restart), or start a new session in the checkout you change.
+Proposed in Cratis/AI#1114 and drafted as `decisions/153-pi-hook-bridge-runs-only-the-starting-checkouts-guards.md`
+(status: proposed): do not select the guard corpus per call.
 
 Reader glob probes skip directories only when decoded options establish a nonrecursive reader;
 unknown or recursive grep options keep directory matches conservative. Simple sed print/substitution
