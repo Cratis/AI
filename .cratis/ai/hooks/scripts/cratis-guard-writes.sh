@@ -126,6 +126,46 @@ normalize_target_path() {
     REPLY="${normalized:-/}"
 }
 
+# Resolution changes directory in this shell (no per-path fork); a directory that cannot be restored is undeterminable.
+working_directory_lost() {
+    printf 'BLOCKED by cratis-guard-writes: the working directory could not be restored while resolving a path.\n' >&2
+    exit 2
+}
+
+# The path the kernel opens: each directory before a parent reference is resolved physically
+# (symlinks followed) before the reference applies. A missing prefix keeps the lexical result; a prefix
+# through a dangling symlink sets kernel_strict so the caller fails closed. Returns through REPLY.
+kernel_strict=0
+kernel_target_path() {
+    local remaining="$1" resolved="" component dangling=0 start="$PWD"
+    kernel_strict=0
+    while [ -n "$remaining" ]; do
+        component="${remaining%%/*}"
+        if [ "$remaining" = "$component" ]; then
+            remaining=""
+        else
+            remaining="${remaining#*/}"
+        fi
+        case "$component" in
+            "" | .) ;;
+            ..)
+                if cd -P -- "${resolved:-/}" 2>/dev/null; then
+                    resolved="$PWD"
+                    cd "$start" 2>/dev/null || working_directory_lost
+                elif [ "$dangling" = 1 ]; then
+                    kernel_strict=1
+                fi
+                resolved="${resolved%/*}"
+                ;;
+            *)
+                resolved="$resolved/$component"
+                if [ -L "$resolved" ] && [ ! -e "$resolved" ]; then dangling=1; fi
+                ;;
+        esac
+    done
+    REPLY="${resolved:-/}"
+}
+
 block() {
     # Pi can run the bundled script in a consumer checkout; this root is only for diagnostics,
     # so it is looked up only when a write is actually refused.
@@ -163,7 +203,7 @@ physical_target_path() {
     done
     cd -P "$directory" 2>/dev/null || return 1
     directory="$PWD"
-    cd "$start" 2>/dev/null || true
+    cd "$start" 2>/dev/null || working_directory_lost
     physical_file="${directory%/}$suffix"
 }
 
@@ -411,12 +451,15 @@ session_manifests_allowed() {
     return "$session_manifest_policy"
 }
 
+# Whether the repository owning $1 (an absolute path) permits manifest writes; the session decides first.
 manifest_writes_allowed() {
-    local directory policy_root start="$PWD"
+    local target="$1" directory policy_root start="$PWD"
+    # A prefix that cannot be resolved is never trusted.
+    [ "$kernel_strict" != 1 ] || return 1
     # The session decides first; the target is only consulted to tighten it.
     session_manifests_allowed || return 1
     # New files can have nonexistent parents; find their nearest existing directory first.
-    dir_of "$file"
+    dir_of "$target"
     directory="$REPLY"
     while [ ! -d "$directory" ]; do
         [ "$directory" != "/" ] || return 1
@@ -426,15 +469,14 @@ manifest_writes_allowed() {
     # Follow existing directory symlinks before asking Git which repository owns the target.
     cd -P "$directory" 2>/dev/null || return 1
     directory="$PWD"
-    cd "$start" 2>/dev/null || true
+    cd "$start" 2>/dev/null || working_directory_lost
     policy_root="$(git -C "$directory" rev-parse --show-toplevel 2>/dev/null)" || return 1
     repository_manifest_policy "$policy_root"
 }
 
-# Return the category, leaving normal Write/Edit diagnostics unchanged below.
-classify_file() {
-    local reference_pattern="${2:-0}" physical_base=""
-    abspath "$1" "$cwd"; normalize_target_path "$REPLY"; file="$REPLY"
+# Judge $file (already absolute and normalized) and its physical destination.
+classify_resolved() {
+    local physical_base=""
     base_of "$file"; base="$REPLY"
     physical_target_path "$file" || physical_file=""
     if [ -n "$physical_file" ]; then base_of "$physical_file"; physical_base="$REPLY"; fi
@@ -442,7 +484,8 @@ classify_file() {
         classification=controls; return 0
     fi
     if names_match "$base" "${manifest_patterns[@]}" || names_match "$physical_base" "${manifest_patterns[@]}"; then
-        if manifest_writes_allowed; then
+        # The addressed and the fully resolved destination are both authorized; either may refuse.
+        if manifest_writes_allowed "$file" && { [ -z "$physical_file" ] || manifest_writes_allowed "$physical_file"; }; then
             # Preserve reference-pattern policy when resolution leaves the basename unchanged.
             [ "$base" != "$physical_base" ] || return 1
         else
@@ -453,6 +496,22 @@ classify_file() {
         classification=environment; return 0
     fi
     return 1
+}
+
+# Return the category, leaving normal Write/Edit diagnostics unchanged below. A path with parent references is
+# judged on its lexical form and on the form the kernel opens; either may refuse it.
+classify_file() {
+    # reference_pattern is read by names_match and control_match through dynamic scope.
+    local raw reference_pattern="${2:-0}"
+    abspath "$1" "$cwd"; raw="$REPLY"
+    normalize_target_path "$raw"; file="$REPLY"
+    kernel_strict=0
+    if classify_resolved; then return 0; fi
+    case "$raw" in */.. | */../*) ;; *) return 1 ;; esac
+    kernel_target_path "$raw"
+    [ "$REPLY" != "$file" ] || [ "$kernel_strict" = 1 ] || return 1
+    file="$REPLY"
+    classify_resolved
 }
 
 if [ "$reference_mode" = 1 ]; then
