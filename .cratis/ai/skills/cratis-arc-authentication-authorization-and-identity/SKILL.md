@@ -170,7 +170,7 @@ Authorization runs before validation, so a caller who may not act never reaches 
 validator. Express who may act through policies, roles and `[Authorize]`, not a
 validator. A state rule ("the order is still open") belongs in a
 `CommandValidator<T>` with the read model as a constructor parameter; under read
-protection `On` that read guards the append, under `Off` (the default) it is a
+protection `On` that read guards the append, under `Off` (set explicitly, or the Arc 22 behavior) it is a
 hint, and in an `[Unprotected]` command it is advisory. A state-dependent
 permission or ownership rule (this member owns the order) may sit there too, with
 the same limit. Under `[ProtectedDecision]` without `On`, only a parameterless

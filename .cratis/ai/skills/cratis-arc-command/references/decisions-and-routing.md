@@ -25,8 +25,8 @@ Arc will pin protected parameters so the idiomatic shape needs no further ceremo
 Under read protection `On` (`<CratisReadProtection>On</CratisReadProtection>`, or
 `[ReadProtection(ReadProtectionMode.On)]` on a command), a read model that is a
 parameter of `Handle()` or of a `CommandValidator<T>` constructor is read fresh from
-the event log and guards the command's append. `Off` is the default when nothing is
-set; under `Off` and `Measure` those reads are plain, a hint that guards nothing.
+the event log and guards the command's append. `On` is the default from Arc 23 when nothing is
+set (`Off` was the Arc 22 behavior); under `Off` and `Measure` those reads are plain, a hint that guards nothing.
 A `Result<TEvent, ValidationResult>` rejects a request but does not enroll a guard.
 Uniqueness and create-once belong to a Chronicle constraint, not to any read. For the
 routing by rule shape, the matrix and the traps read

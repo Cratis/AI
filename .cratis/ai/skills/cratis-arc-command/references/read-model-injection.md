@@ -7,7 +7,7 @@
 - Which provider owns a read model type
 
 Source: [read models in commands](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md).
-Under read protection `Off` (the default) and `Measure`, injected models and keyed
+Under read protection `Off` (set explicitly, or the Arc 22 behavior) and `Measure`, injected models and keyed
 reads are plain reads, not concurrency guards. Under `On`, a read-model parameter of
 `Handle()` or a validator constructor is guarded; `IReadModels.GetInstanceById` in a
 command is refused, so read another entity's model with a second parameter and

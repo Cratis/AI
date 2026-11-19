@@ -20,9 +20,8 @@ when the question is which mechanism to use, or before writing code that reads
 state and then appends. It carries the routing by rule shape, the matrix with what
 not to use, the refusals, rollout with Measure, testing and the traps.
 
-In an Arc application new code sets read protection `On`
-(`<CratisReadProtection>On</CratisReadProtection>`); `Off` is the default when
-nothing is set. Under `On` the read model is a parameter of `Handle()` or of the
+In an Arc application using `Cratis.Arc.Chronicle`, read protection `On` is the default from Arc 23 (on Arc 22 set
+`<CratisReadProtection>On</CratisReadProtection>`; `Off` was the Arc 22 behavior). Under `On` the read model is a parameter of `Handle()` or of the
 `CommandValidator<T>` constructor, and the read guards the append; under `Off` and
 `Measure` a validator over a plain read is a hint that guards nothing. A plain read under
 `Off`, `Result<,>` and `concurrency: true` are never the guard.
@@ -183,8 +182,8 @@ deciding writer is guarded or the rule is a constraint.
 - The unit commits in the ASP.NET Core middleware: it commits after the response
   and reports no concurrency violation. Call
   `IUnitOfWorkCompletionFeature.CommitAsync()` before responding.
-- Arc under `Off` (the default when nothing is set): a command with a read model
-  is unguarded unless it carries `[ProtectedDecision]`. Set `On` for new code.
+- Arc under `Off` (set explicitly, or the Arc 22 behavior): a command with a read model
+  is unguarded unless it carries `[ProtectedDecision]`. `On` is the default from Arc 23.
 
 ## Verify
 
