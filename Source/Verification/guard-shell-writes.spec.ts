@@ -1206,3 +1206,82 @@ test('gh publish commands treat a literal title or body as data and refuse file-
         repo.dispose();
     }
 });
+
+/** Two repositories (one allowing manifest writes, one not) joined by directory symlinks that a parent reference climbs out of. */
+// A mode-000 directory is still searchable by root, so those cases only apply to other users.
+const isRoot = process.getuid?.() === 0;
+
+function symlinkedParentLayout() {
+    const root = mkdtempSync(join(tmpdir(), 'cratis-shell-parent-'));
+    const repository = (name: string, setting: boolean) => {
+        const directory = join(root, name);
+        mkdirSync(join(directory, '.cratis'), { recursive: true });
+        assert.equal(spawnSync('git', ['init', '-q', directory]).status, 0);
+        writeFileSync(join(directory, '.cratis', 'ai.json'), JSON.stringify({ allowDependencyManifestWrites: setting }));
+        return directory;
+    };
+    const open = repository('open', true);
+    const closed = repository('closed', false);
+    mkdirSync(join(closed, 'child', 'x'), { recursive: true });
+    mkdirSync(join(open, 'sub'), { recursive: true });
+    mkdirSync(join(open, 'a'), { recursive: true });
+    symlinkSync('../closed/child', join(open, 'jump'));
+    symlinkSync(join(closed, 'child'), join(open, 'jump-absolute'));
+    symlinkSync('../../closed/child', join(open, 'a', 'jump'));
+    symlinkSync('../sub', join(open, 'a', 'same'));
+    symlinkSync('missing-target', join(open, 'dangling'));
+    writeFileSync(join(closed, 'package.json'), '{}');
+    mkdirSync(join(open, 'sub', 'child'), { recursive: true });
+    symlinkSync('sub/child', join(open, 'inner'));
+    symlinkSync('../../closed/package.json', join(open, 'sub', 'alias'));
+    symlinkSync('../closed/package.json', join(open, 'alias-direct'));
+    symlinkSync('loop', join(open, 'loop'));
+    symlinkSync('global.json', join(open, 'global.json'));
+    mkdirSync(join(open, 'locked'));
+    if (!isRoot) chmodSync(join(open, 'locked'), 0o000);
+    return { root, open, closed, dispose: () => { if (!isRoot) chmodSync(join(open, 'locked'), 0o700); rmSync(root, { recursive: true, force: true }); } };
+}
+
+test('a parent reference after a symlinked directory is judged where the kernel resolves it', async () => {
+    const layout = symlinkedParentLayout();
+    try {
+        const writers = ['cp x', 'echo x >', 'tee', 'mv x'];
+        const targets: Array<[string, string]> = [
+            ['jump/../package.json', BLOCK], ['./jump/./../package.json', BLOCK], ['./jump/..//package.json', BLOCK],
+            ['jump//../package.json', BLOCK], ['jump/./../package.json', BLOCK], ['"jump/.."/package.json', BLOCK],
+            ['jump/"."./package.json', BLOCK], ['jump/\\.\\./package.json', BLOCK], ["jump/$'\\x2e\\x2e'/package.json", BLOCK],
+            ["jump/$'\\056\\056'/package.json", BLOCK],
+            ['jump-absolute/../global.json', BLOCK], [`${layout.open}/jump/../package.json`, BLOCK],
+            ['a/jump/x/../../package.json', BLOCK], ['dangling/../package.json', BLOCK],
+            ['inner/../alias', BLOCK], ['alias-direct', BLOCK],
+            ['loop/../package.json', BLOCK], ['loop/x/../package.json', BLOCK], ['global.json', BLOCK],
+            ...(isRoot ? [] : [['locked/package.json', BLOCK], ['locked/x/../package.json', BLOCK], ['locked/README.md', ALLOW]] as Array<[string, string]>),
+            ['jump/../README.md', ALLOW], ['sub/../package.json', ALLOW], ['a/same/../package.json', ALLOW],
+            ['jump/x/../notes.txt', ALLOW],
+        ];
+        const cases: Array<[string, string]> = targets.flatMap(([target, expected]) =>
+            writers.map(writer => [expected, `${writer} ${target}`] as [string, string]));
+        cases.push(
+            [BLOCK, 'cd jump && cp x ../package.json'], [BLOCK, 'cd jump && echo x > ../package.json'],
+            [BLOCK, 'cd jump/x && cp x ../../package.json'], [BLOCK, 'cd ./jump/. && cp x ./../package.json'],
+            [ALLOW, 'cd jump && cp x ../README.md'],
+            [BLOCK, `cp x ${layout.closed}/package.json`],
+        );
+        await checkCases(cases, layout.open);
+
+        const previous = process.cwd();
+        process.chdir(layout.open);
+        const handlers = new Map<string, (event: unknown, ctx: unknown) => Promise<unknown> | unknown>();
+        try {
+            registerCratisHooks({ on: (event: string, handler: (event: unknown, ctx: unknown) => unknown) => handlers.set(event, handler), registerTool: () => { /* No tools are needed by this fixture. */ } } as unknown as ExtensionAPI);
+        } finally { process.chdir(previous); }
+        const call = handlers.get('tool_call');
+        assert.ok(call);
+        for (const [expected, command] of [[BLOCK, 'cp x jump/../package.json'], [BLOCK, 'echo x > jump/../package.json'], [BLOCK, 'cd jump && cp x ../package.json'], [ALLOW, 'cp x sub/../package.json']]) {
+            const result = await call({ toolName: 'bash', input: { command } }, { cwd: layout.open }) as { block?: boolean } | undefined;
+            assert.equal(result?.block === true, expected === BLOCK, `Pi: ${command}`);
+        }
+    } finally {
+        layout.dispose();
+    }
+});
