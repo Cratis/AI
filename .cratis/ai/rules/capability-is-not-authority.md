@@ -48,10 +48,5 @@ Levels of Authority in [`general.md`](./general.md).
   trigger (diff or data) and an independent check against real system behavior that the
   action is needed, not just a correct procedure. Reviewers ask "is this action needed?".
   Example: attach the system's own check on the same diff before asking for a demanded repair.
-- **[contract] A hold or stop order is binding until its issuer explicitly lifts it.** The
-  issuer is the user, a coordinator or a release owner. Silence, elapsed time, a green
-  check or finishing the current step do not lift it.
-- **[contract] An agent waiting on messages or a watch re-arms it on every wake, before
-  doing anything else,** so no hold, stop order or request is missed.
 - **[convention] Prefer the narrowest capability that does the job.** Reaching for the
   broadest available grant makes the next reader assume it was authorized.

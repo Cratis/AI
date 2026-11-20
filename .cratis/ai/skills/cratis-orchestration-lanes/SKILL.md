@@ -63,6 +63,11 @@ reading a message: it defines the types, the file naming, the required fields
 and the token-exact matching rule that keeps one lane from reading another's
 mail. Act on a message only after checking it against git and `gh` state.
 
+Re-arm the inbox watch on every wake, before anything else, so no message is
+missed. A hold or stop order from the user, a coordinator or a release owner is
+binding until its issuer explicitly lifts it; silence, elapsed time, a green
+check or finishing the current step do not lift it.
+
 ## Lane brief
 
 Every lane starts from a written brief with a goal, worktree, owned files, the
