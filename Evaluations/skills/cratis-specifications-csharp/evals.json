@@ -17,13 +17,14 @@
     {
       "id": 2,
       "name": "choose-the-surface",
-      "prompt": "Pick the specification surface for: (1) a pure `Handle()` computing a price; (2) a command whose CommandValidator and `Provide()` must run and whose appended events matter; (3) a proof that two concurrent appends conflict. Reply only; do not write files.",
-      "expected_output": "(1) Plain method call with `Specification`. (2) `CommandScenario<TCommand>`. (3) Specify concurrency against the real kernel with an out-of-process integration specification, because `EventScenario` answers `ConcurrencyScope.None` so a violation is never produced and its negation passes vacuously.",
+      "prompt": "Pick the specification surface for: (1) a pure `Handle()` computing a price; (2) a command whose CommandValidator and derived-value `Provide()` must run and whose appended events matter; (3) an ordinary last-seat decision; (4) our application's explicit revision-at-read policy returned through EventsWithConcurrencyScopes. Does every conflict proof need a real kernel? Reply only; do not write files.",
+      "expected_output": "Use a plain Specification call for the pure calculation and supplied-state calls for the ordinary last-seat decision, with validator refusals separate from Provide's derived values. Use CommandScenario for pipeline wiring. Arc/Chronicle own the platform matrix; the unusual application-owned explicit revision policy may need a focused regression a plain call cannot prove. An unguarded no-scope append's no-conflict assertion is vacuous, not evidence that every guarded scenario or explicit scope needs a real kernel. Keep one assembly-level admission check and account for explicit body reads.",
       "assertions": [
         "Chooses a plain method call with `Specification` for the pure `Handle()`.",
         "Chooses `CommandScenario<TCommand>` for validators, `Provide()` and appended events.",
-        "Chooses an out-of-process integration specification against the real kernel for concurrency.",
-        "Explains that `EventScenario` wires a strategy that always answers `ConcurrencyScope.None`, so `ShouldHaveConcurrencyViolations()` cannot pass and its negation passes vacuously."
+        "Uses supplied state for the ordinary last-seat decision and separates validator refusals from Provide's derived values.",
+        "Allows only a focused regression for the unusual application-owned explicit revision policy; does not re-prove the platform matrix or require a real kernel universally.",
+        "Limits the vacuous no-conflict warning to unguarded no-scope appends, and mentions the assembly-level admission check and explicit-body-read limits."
       ]
     },
     {
@@ -48,6 +49,19 @@
         "Pins with `PinGeneratedValue(name, concept)` before the first execution and reads `GeneratedValues.Last<T>(name)` or `All<T>(name)`.",
         "Says `AllowGeneration()` is only for when the exact value is irrelevant, and late changes throw `GeneratedValuesMustBePinnedBeforeExecution`.",
         "Says a plain-call spec cannot prove pipeline generation or validation and the feature requires Arc 22.67.0."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "diagnose-slow-specs",
+      "prompt": "Our Specifications 5 xUnit v3 suite is slow: we run dotnet test in every local loop and suspect Because repeats for each fact. A teammate wants to replace the harness, split every read-model assertion into its own class and remove facts until it is fast. Give a before/after investigation plan. Reply only; do not write files.",
+      "expected_output": "Measure before rewriting: separate restore/build and runner startup/discovery from execution, build once and run the existing executable for repeated local loops. Use CRATIS_SPECS_TIMINGS=1 with CRATIS_SPECS_TIMINGS_FILE or the project properties for phase evidence, and runner fact output where supported. Specifications 5 shares eligible lifecycle by default; investigate opt-outs before changing packages, keeping facts read-only. Keep one class per declarative read model unless a sequence cannot share it. Compare environment, commands, filters, concurrency, discovery/pass/fail/skip counts and class/method lists as well as wall time and phases; reported timings are measurements, not universal ratios. Preserve coverage and production guards; report slow mandatory scenario gaps upstream.",
+      "assertions": [
+        "Diagnoses measured restore/build, runner startup/discovery and execution costs before replacing packages; recommends build-once executable loops.",
+        "Uses the phase timing environment variables or MSBuild properties and distinguishes lifecycle timings from total startup/discovery and runner-supported fact timings.",
+        "Investigates accidental shared-lifecycle opt-outs, keeping facts read-only and not changing packages first.",
+        "Keeps grouped declarative read-model specs and compares environment, filters, concurrency, coverage counts and class/method lists alongside before/after timings.",
+        "Does not remove assertions, weaken production guards or present example/benchmark timings as universal facts; reports mandatory scenario gaps upstream."
       ]
     }
   ]

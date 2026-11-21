@@ -40,25 +40,26 @@
     {
       "id": 4,
       "name": "seed-prior-state",
-      "prompt": "A command's `Handle()` rejects when an injected read model shows the cart already has 3 items. Our spec for the rejection is green but the read model was never seeded. How should we seed state and what is the danger? Reply only; do not write files.",
-      "expected_output": "Seed events with `_scenario.Given.ForEventSource(id).Events(...)` so the real projection builds the read model; pin a read model with `.ReadModel(instance)` only when events would be noise. Unseeded, the handler sees a default or null instance and the DCB rejection is green for the wrong reason; confirm the spec fails when seeding is removed. A guarded command selects the in-process decision mode itself; do not call `UseDecisionReads()`. `Given` requires `Cratis.Arc.Chronicle.Testing`.",
+      "prompt": "A command's validator refuses when an injected read model shows the cart already has 3 items. Our rejection spec is green without supplying that state. Do we need events or UseDecisionReads to prove the rule? What if we also need pipeline coverage? Reply only; do not write files.",
+      "expected_output": "Prove the validator rule with supplied 3-item state and a passing state; violate only the named rule and confirm it goes red when the rule is removed. Provide acquires data and only short-circuits (ValidationResult/AuthorizationResult) when acquisition yields nothing usable, not for ordinary validation rules. A typed scenario selects decision reads automatically; UseDecisionReads is obsolete. For pipeline proof, an admitted flat model can be pinned for a plain Handle parameter under On; use routed events for per-stream models, advanced DecisionRead parameters or mapping/history proof. Do not assume an unseeded rejection proves the intended rule. Given needs Cratis.Arc.Chronicle.Testing.",
       "assertions": [
-        "Prefers seeding events with `Given.ForEventSource(id).Events(...)` so the production projection builds the read model.",
-        "Says a model pinned with `.ReadModel(...)` only serves a plain (advisory) read, and that guarded state must be seeded with events.",
-        "Warns that without seeding the handler sees a default or null instance and the spec is green for the wrong reason, so confirm it fails without the seeding.",
-        "Says a guarded command (read protection On, a per-stream model or [ProtectedDecision]) selects the decision mode itself so UseDecisionReads() is not called, and that `Given` needs `Cratis.Arc.Chronicle.Testing`."
+        "Starts with a direct validator call using explicit failing and passing state; Provide only short-circuits when acquisition yields nothing usable, not for ordinary validation rules.",
+        "Does not claim pins are advisory-only: admitted flat plain-parameter reads under On can use pins; per-stream/advanced reads and mapping proof need events.",
+        "Warns an unseeded rejection can pass for the wrong reason, isolates the named rule and confirms removing it turns the spec red.",
+        "Says typed scenarios select decision reads automatically, UseDecisionReads is obsolete, and Given needs Cratis.Arc.Chronicle.Testing."
       ]
     },
     {
       "id": 5,
       "name": "specify-the-decision-not-the-race",
-      "prompt": "Write the specification that proves two members cannot both borrow the last copy of a book under Arc read protection On. Reply only; do not write files.",
-      "expected_output": "The race itself is a platform guarantee proven in Arc and Chronicle, not re-proven per application. The application specifies the business decision: call BorrowBook.Handle (or the validator) directly with supplied read-model state where no copy is left and assert the rejection, plus a case where a copy is left. The application keeps one assembly-level decision-read admission spec for its own decision models.",
+      "prompt": "For ordinary BorrowBook under read protection On, should we simulate two members taking the last copy? Contrast our unusual explicit revision-at-read policy returned in EventsWithConcurrencyScopes. Show the one assembly-level admission spec, explain its blind spots and when AppendConcurrently is legitimate, including its ordering and mode requirements. Reply only; do not write files.",
+      "expected_output": "Specify the ordinary business decision from supplied state, not the platform race matrix. Keep one assembly-level DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(typeof(BorrowBook).Assembly) check in Cratis.Arc.Chronicle.Testing.Commands. It checks discovered declarations with declared policy, not explicit body calls or runtime caps; spec-local projections can create ambiguity. Explicit body reads need Admit<T>() or a focused scenario. An unusual application-owned revision-at-read policy can need a focused regression a plain call cannot prove. AppendConcurrently is advanced and explicit-need-only, not routine application guidance: it works with or without decision mode, adds no protection to an unguarded command, queues before execution, runs after response processing before the owner commit, preserves routes and the outer queue, and refuses custom scope factories. Typed scenarios select decision reads automatically; UseDecisionReads is obsolete. Validators own refusals; Provide only short-circuits (ValidationResult/AuthorizationResult) when acquisition yields nothing usable, not for ordinary validation rules.",
       "assertions": [
-        "Says the concurrent-append race is proven by Arc/Chronicle platform specs, not by an application specification.",
-        "Specifies the decision by calling Handle or the validator directly with supplied read-model state (no copies left rejects; a copy left succeeds), without seeding events or calling AppendConcurrently or UseDecisionReads.",
-        "Mentions the single assembly-level decision-read admission spec as the application's only decision-read obligation.",
-        "Does not use scenario.AppendConditions, which does not exist."
+        "Specifies the ordinary last-copy decision with supplied state and no race matrix; allows only a focused regression for the unusual application-owned explicit revision policy.",
+        "Shows the assembly-level admission check and namespace; explains declared-policy/discovery limits, explicit body-read checks and spec-local projection ambiguity.",
+        "Keeps AppendConcurrently advanced and explicit-need-only, with no decision-mode requirement or added protection; UseDecisionReads is obsolete and typed selection is automatic.",
+        "Queues the hook before execution, after-response/before-owner-commit; preserves routes and outer-queue ownership and mentions refusal of custom scope factories.",
+        "Does not invent scenario.AppendConditions, require real kernels universally, or weaken production guards; validators own refusals; Provide only short-circuits when acquisition yields nothing usable."
       ]
     }
   ]
