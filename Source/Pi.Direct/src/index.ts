@@ -83,7 +83,9 @@ export function createExtension(extensionEnvironment: ExtensionEnvironment): (pi
         };
 
         pi.on('session_start', async (_event, context) => {
-            if (isLaunchedSession(extensionEnvironment.env)) await start(context);
+            if (!isLaunchedSession(extensionEnvironment.env)) return;
+            guard.markPending();
+            await start(context);
         });
         pi.on('before_agent_start', () => {
             if (!session || announced) return undefined;

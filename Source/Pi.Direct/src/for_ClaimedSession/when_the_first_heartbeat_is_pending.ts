@@ -22,7 +22,7 @@ describe('when the first heartbeat is pending', given(a_claimed_session, context
         await launching;
     });
 
-    it('should keep the guard unclaimed until confirmation', () => pendingState.should.equal('unclaimed'));
+    it('should keep the guard pending until confirmation', () => pendingState.should.equal('pending'));
     it('should deny the guarded tool until confirmation', () => writeBlocked.should.equal(true));
     it('should not schedule renewals before confirmation', () => pendingTimers.should.equal(0));
     it('should send exactly one confirming heartbeat', () => context.gateway.heartbeats.should.deep.equal([

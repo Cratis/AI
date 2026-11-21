@@ -28,4 +28,6 @@ describe('when parsing fractional-second grants', () => {
     it('should accept a fractional heartbeat lease', () => parseHeartbeatResult({ epoch: 1, leaseSeconds: 2.3 }).leaseSeconds.should.equal(2.3));
     it('should accept a fractional claim lease', () => parseWorkClaimed({ ...new FakeGateway().claimed, leaseSeconds: 2.3, heartbeatSeconds: 1 }).leaseSeconds.should.equal(2.3));
     it('should accept a fractional interval', () => parseWorkClaimed({ ...new FakeGateway().claimed, heartbeatSeconds: 2.3 }).heartbeatSeconds.should.equal(2.3));
+    it('should refuse an interval that rounds to the lease duration', () => (() => parseWorkClaimed({ ...new FakeGateway().claimed, leaseSeconds: 1.0004, heartbeatSeconds: 1.0001 })).should.throw(SessionRefused));
+    it('should accept an interval a rounded millisecond shorter than the lease', () => parseWorkClaimed({ ...new FakeGateway().claimed, leaseSeconds: 1.0006, heartbeatSeconds: 1.0004 }).heartbeatSeconds.should.equal(1.0004));
 });

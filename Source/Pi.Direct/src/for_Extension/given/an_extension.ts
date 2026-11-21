@@ -5,6 +5,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createExtension } from '../../index.ts';
+import type { CommandRunner } from '../../SecretStore.ts';
 import { FakeClock, FakeGateway, FakePi, FakeRunner, sentinelProof, sentinelToken } from '../../for_Support/given/Fakes.ts';
 
 /** The extension over fakes, with a real owner-only proof file in a private temp folder. */
@@ -30,9 +31,9 @@ export class an_extension {
         });
     }
 
-    install(): void {
+    install(runner: CommandRunner = this.runner.run): void {
         createExtension({
-            env: this.env, platform: 'darwin', uid: process.getuid?.() ?? -1, runner: this.runner.run,
+            env: this.env, platform: 'darwin', uid: process.getuid?.() ?? -1, runner,
             clock: this.clock, connect: () => this.gateway
         })(this.pi.api);
     }

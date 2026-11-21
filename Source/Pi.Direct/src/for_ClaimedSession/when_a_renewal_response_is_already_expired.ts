@@ -13,10 +13,10 @@ describe('when a renewal response is already expired', given(a_claimed_session, 
         let answer!: () => void;
         await context.claim();
         await context.clock.advance(10_000);
-        context.gateway.heartbeatLeases.push(5);
+        context.gateway.heartbeatLeases.push(15);
         context.gateway.heartbeatPending = new Promise<void>(resolve => { answer = resolve; });
         await context.clock.advance(10_000);
-        await context.clock.advance(6000);
+        await context.clock.advance(16_000);
         answer();
         await new Promise(resolve => setImmediate(resolve));
         finishError = await thrownBy(() => context.session.finish('Delivered'));

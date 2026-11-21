@@ -52,7 +52,7 @@ export class HeartbeatLoop {
     start(intervalSeconds: number): void {
         if (this.running) return;
         this.running = true;
-        this.schedule(intervalSeconds * 1000);
+        this.schedule(Math.round(intervalSeconds * 1000));
     }
 
     stop(): void {

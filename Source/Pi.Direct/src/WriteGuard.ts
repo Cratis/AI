@@ -1,9 +1,9 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-export type GuardState = 'unclaimed' | 'open' | 'lost' | 'released';
+export type GuardState = 'unclaimed' | 'pending' | 'open' | 'lost' | 'released';
 
-/** Read-only built-in names from Pi's ToolCallEvent; unknown extension tools fail closed after loss. */
+/** Read-only built-in names from Pi's ToolCallEvent; unknown tools fail closed while pending or lost. */
 export const readOnlyTools: ReadonlySet<string> = new Set(['read', 'grep', 'find', 'ls']);
 
 /**
@@ -17,9 +17,14 @@ export class WriteGuard {
 
     get state(): GuardState { return this.current; }
 
+    /** Restricts local tools before the claim request is sent. */
+    markPending(): void {
+        if (this.current === 'unclaimed') this.current = 'pending';
+    }
+
     /** Called after the first confirming heartbeat; has no effect once authority was lost. */
     open(): void {
-        if (this.current === 'unclaimed') this.current = 'open';
+        if (this.current === 'unclaimed' || this.current === 'pending') this.current = 'open';
     }
 
     markLost(): void {
@@ -42,6 +47,6 @@ export class WriteGuard {
 
     blocks(toolName: string): boolean {
         if (this.guards(toolName)) return this.current !== 'open';
-        return this.current === 'lost' && !readOnlyTools.has(toolName);
+        return (this.current === 'pending' || this.current === 'lost') && !readOnlyTools.has(toolName);
     }
 }
