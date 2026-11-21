@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import type { ToolInfo } from '@earendil-works/pi-coding-agent';
 import { WorkspaceReadAllowance } from '../../WorkspaceReadAllowance.ts';
 
@@ -18,9 +18,7 @@ export class a_workspace {
     readonly allowance: WorkspaceReadAllowance;
 
     constructor() {
-        const artifacts = fileURLToPath(new URL('../../../../../.ai-work/1291/', import.meta.url));
-        mkdirSync(artifacts, { recursive: true });
-        this.root = realpathSync(mkdtempSync(join(artifacts, 'read-allowance-')));
+        this.root = realpathSync(mkdtempSync(join(tmpdir(), 'read-allowance-')));
         this.workspace = join(this.root, 'workspace');
         this.outside = join(this.root, 'workspace-other');
         mkdirSync(join(this.workspace, 'nested'), { recursive: true });

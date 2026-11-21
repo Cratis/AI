@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { given } from '../given.ts';
+import { readArguments } from '../for_Support/given/ReadArguments.ts';
 import { WorkspaceReadAllowance } from '../WorkspaceReadAllowance.ts';
 import { a_workspace } from './given/a_workspace.ts';
 
@@ -11,9 +12,9 @@ for (const tool of ['read', 'grep', 'find', 'ls']) {
             let before: boolean;
             let after: boolean;
             beforeEach(() => {
-                before = context.allowance.allows(tool, {}, context.workspace);
+                before = context.allowance.allows(tool, readArguments(tool), context.workspace);
                 context.tools.find(candidate => candidate.name === tool)!.sourceInfo.source = source;
-                after = context.allowance.allows(tool, {}, context.workspace);
+                after = context.allowance.allows(tool, readArguments(tool), context.workspace);
             });
             afterEach(() => context.dispose());
             it('should allow the original built-in', () => before.should.equal(true));
@@ -30,7 +31,7 @@ for (const tool of ['read', 'grep', 'find', 'ls']) {
                 if (provenance === 'no metadata') context.tools[index].sourceInfo = undefined!;
                 const allowance = provenance === 'unavailable'
                     ? new WorkspaceReadAllowance(context.workspace, () => { throw new Error('registry unavailable'); }) : context.allowance;
-                allowed = allowance.allows(tool, {}, context.workspace);
+                allowed = allowance.allows(tool, readArguments(tool), context.workspace);
             });
             afterEach(() => context.dispose());
             it('should fail closed', () => allowed.should.equal(false));
@@ -43,7 +44,7 @@ for (const tool of ['bash', 'powershell', 'write', 'edit', 'mcp_read', 'unknown'
         let allowed: boolean;
         beforeEach(() => {
             context.tools.push({ ...context.tools[0], name: tool });
-            allowed = context.allowance.allows(tool, {}, context.workspace);
+            allowed = context.allowance.allows(tool, readArguments(tool), context.workspace);
         });
         afterEach(() => context.dispose());
         it('should not extend the read-only exception', () => allowed.should.equal(false));

@@ -5,6 +5,7 @@ import { homedir } from 'node:os';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { given } from '../given.ts';
+import { readArguments } from '../for_Support/given/ReadArguments.ts';
 import { WorkspaceReadAllowance } from '../WorkspaceReadAllowance.ts';
 import { a_workspace } from './given/a_workspace.ts';
 
@@ -16,7 +17,7 @@ for (const tool of ['read', 'grep', 'find', 'ls']) {
                 'escape/secret.txt', 'escape/missing/deep/file', 'dangling', 'cycle',
                 `@${context.outside}/secret.txt`, pathToFileURL(context.outside).href,
                 `~/${relative(homedir(), context.outside)}`, 'space\u2000escape/secret.txt'];
-            allowed = paths.map(path => context.allowance.allows(tool, { path }, context.workspace));
+            allowed = paths.map(path => context.allowance.allows(tool, { ...readArguments(tool), path }, context.workspace));
         });
         afterEach(() => context.dispose());
 

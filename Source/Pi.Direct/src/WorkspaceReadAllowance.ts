@@ -5,6 +5,8 @@ import { lstatSync, realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, sep } from 'node:path';
 import type { ToolInfo } from '@earendil-works/pi-coding-agent';
 import { builtinReadPath } from './BuiltinReadPath.ts';
+import { requestedPath } from './ReadToolArguments.ts';
+import { usesRipgrepConfiguration } from './ReadToolEnvironment.ts';
 import { readOnlyTools } from './WriteGuard.ts';
 
 type ToolProvenance = Pick<ToolInfo, 'name' | 'sourceInfo'>;
@@ -22,20 +24,13 @@ export class WorkspaceReadAllowance {
         try {
             const tools = this.getTools().filter(tool => tool.name === toolName);
             if (tools.length !== 1 || tools[0].sourceInfo?.source !== 'builtin') return false;
-            const path = requestedPath(input);
+            if (usesRipgrepConfiguration(tools[0])) return false;
+            const path = requestedPath(toolName, input);
             if (path === undefined) return false;
             const target = canonicalPath(builtinReadPath(toolName, path, cwd));
             return contains(this.workspace, target);
         } catch { return false; }
     }
-}
-
-function requestedPath(input: unknown): string | undefined {
-    if (!input || typeof input !== 'object') return undefined;
-    if (Array.isArray(input)) return undefined;
-    const path = (input as Record<string, unknown>).path;
-    if (path === undefined) return '.';
-    return typeof path === 'string' && !path.includes('\0') ? path : undefined;
 }
 
 function contains(workspace: string, target: string): boolean {

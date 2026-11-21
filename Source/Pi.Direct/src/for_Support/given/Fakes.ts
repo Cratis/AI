@@ -10,6 +10,7 @@ import type { DirectGateway } from '../../DirectGateway.ts';
 import type { Clock } from '../../HeartbeatLoop.ts';
 import type { FileInfo, ProofFileSystem } from '../../LaunchProofReader.ts';
 import type { CommandResult, CommandRunner } from '../../SecretStore.ts';
+import { readArguments } from './ReadArguments.ts';
 
 export const sentinelProof = 'c0ffee'.repeat(10) + 'c0ff';
 export const sentinelToken = 'direct_pat_v1_SENTINEL_TOKEN_VALUE';
@@ -174,7 +175,8 @@ export class FakePi {
     } as unknown as ExtensionAPI;
 
     emit(event: string, payload: unknown = {}): unknown {
-        const argumentsWithDefaults = event === 'tool_call' ? { input: {}, ...payload as object } : payload;
+        const toolName = (payload as { toolName?: string })?.toolName ?? '';
+        const argumentsWithDefaults = event === 'tool_call' ? { input: readArguments(toolName), ...payload as object } : payload;
         return this.handlers.get(event)?.(argumentsWithDefaults, this.context);
     }
 }

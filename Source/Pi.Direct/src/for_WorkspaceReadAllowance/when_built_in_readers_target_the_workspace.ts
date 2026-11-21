@@ -4,6 +4,7 @@
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { given } from '../given.ts';
+import { readArguments } from '../for_Support/given/ReadArguments.ts';
 import { WorkspaceReadAllowance } from '../WorkspaceReadAllowance.ts';
 import { a_workspace } from './given/a_workspace.ts';
 
@@ -14,11 +15,11 @@ for (const tool of ['read', 'grep', 'find', 'ls']) {
             const paths = [undefined, '.', 'notes.txt', 'nested/../notes.txt', 'missing/deep/file', 'inside-link', context.workspace,
                 join(context.workspace, 'notes.txt'), join(context.root, 'alias/notes.txt'), `@${context.workspace}/notes.txt`,
                 pathToFileURL(join(context.workspace, 'notes.txt')).href];
-            allowed = paths.map(path => context.allowance.allows(tool, { path }, context.workspace));
+            allowed = paths.map(path => context.allowance.allows(tool, { ...readArguments(tool), path }, context.workspace));
         });
         afterEach(() => context.dispose());
 
-        it('should allow the omitted path as cwd', () => allowed[0].should.equal(true));
+        it('should allow an omitted path only when the schema makes it optional', () => allowed[0].should.equal(tool !== 'read'));
         it('should allow dot as cwd', () => allowed[1].should.equal(true));
         it('should allow a relative file', () => allowed[2].should.equal(true));
         it('should allow contained traversal', () => allowed[3].should.equal(true));
