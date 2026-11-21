@@ -15,30 +15,8 @@ interface Report {
     errors: Finding[]; warnings: Finding[]; skipped: { check: string; reason: string }[];
 }
 
-function fixture(t: test.TestContext, withGit = true) {
-    const directory = realpathSync(mkdtempSync(join(tmpdir(), 'cratis-check-handoff-')));
-    t.after(() => rmSync(directory, { recursive: true, force: true }));
-    const task = join(directory, '.ai-work/t');
-    mkdirSync(task, { recursive: true });
-    writeFileSync(join(directory, 'tracked.txt'), 'initial\n');
-    const git = (...args: string[]) => {
-        const result = spawnSync('git', ['-C', directory, ...args], { encoding: 'utf8', timeout: 15_000 });
-        assert.equal(result.status, 0, result.stderr);
-        return result.stdout.trim();
-    };
-    let sha = 'a'.repeat(40);
-    if (withGit) {
-        git('init', '-q', '-b', 'handoff-test');
-        git('config', 'user.name', 'Handoff Spec');
-        git('config', 'user.email', 'handoff@example.invalid');
-        git('add', 'tracked.txt');
-        git('commit', '-qm', 'Initial');
-        sha = git('rev-parse', 'HEAD');
-    }
-    const handoff = join(task, 'handoff.md');
-    const note = join(task, 'STATE.md');
-    writeFileSync(note, 'state\n');
-    const body = `# Handoff: test
+function handoffBody(directory: string, sha: string) {
+    return `# Handoff: test
 
 **Preconditions:** repository \`${directory}\`, branch \`handoff-test\`, HEAD \`${sha}\`,
 worktrees \`${directory}\`, written \`2026-07-20\`.
@@ -68,10 +46,10 @@ none
 ## Open questions carried forward
 none
 
-## User constraints (verbatim)
+## User directives (verbatim)
 none
 
-## User instructions since the last handoff (verbatim)
+## Agent decisions (with reasons)
 none
 
 ## Next commands
@@ -81,6 +59,32 @@ none
 - \`tracked.txt\`
 - \`.ai-work/t/STATE.md\`
 `;
+}
+
+function fixture(t: test.TestContext, withGit = true) {
+    const directory = realpathSync(mkdtempSync(join(tmpdir(), 'cratis-check-handoff-')));
+    t.after(() => rmSync(directory, { recursive: true, force: true }));
+    const task = join(directory, '.ai-work/t');
+    mkdirSync(task, { recursive: true });
+    writeFileSync(join(directory, 'tracked.txt'), 'initial\n');
+    const git = (...args: string[]) => {
+        const result = spawnSync('git', ['-C', directory, ...args], { encoding: 'utf8', timeout: 15_000 });
+        assert.equal(result.status, 0, result.stderr);
+        return result.stdout.trim();
+    };
+    let sha = 'a'.repeat(40);
+    if (withGit) {
+        git('init', '-q', '-b', 'handoff-test');
+        git('config', 'user.name', 'Handoff Spec');
+        git('config', 'user.email', 'handoff@example.invalid');
+        git('add', 'tracked.txt');
+        git('commit', '-qm', 'Initial');
+        sha = git('rev-parse', 'HEAD');
+    }
+    const handoff = join(task, 'handoff.md');
+    const note = join(task, 'STATE.md');
+    writeFileSync(note, 'state\n');
+    const body = handoffBody(directory, sha);
     writeFileSync(handoff, body);
     const write = (text: string) => writeFileSync(handoff, text);
     const run = (...args: string[]) => spawnSync(process.execPath, [checker, ...args], {
@@ -246,6 +250,37 @@ test('missing and reordered headings are structural errors', t => {
     assert.equal(missing.data.errors.filter(item => item.code === 'section-missing').length, 11);
     f.write(f.body.replace('## Goal', '## Next commands').replace('## Next commands\nnone', '## Goal\nnone'));
     hasCode(f.report().data.errors, 'section-order');
+});
+
+for (const heading of ['User directives (verbatim)', 'Agent decisions (with reasons)']) {
+    for (const replacement of ['', `> ## ${heading}`]) {
+        test(`${heading} must be a section, not missing or quoted (${replacement || 'missing'})`, t => {
+            const f = fixture(t);
+            f.write(f.body.replace(`## ${heading}`, replacement));
+            const result = f.report();
+            assert.equal(result.status, 1);
+            assert.ok(result.data.errors.some(item => item.code === 'section-missing'
+                && item.message === `Missing section: ${heading}.`));
+        });
+    }
+}
+
+test('legacy user headings cannot replace separate directives and decisions', t => {
+    const f = fixture(t);
+    f.write(f.body.replace('User directives (verbatim)', 'User constraints (verbatim)')
+        .replace('Agent decisions (with reasons)', 'User instructions since the last handoff (verbatim)'));
+    const result = f.report();
+    assert.equal(result.status, 1);
+    assert.equal(result.data.errors.filter(item => item.code === 'section-missing').length, 2);
+});
+
+test('directives and decisions must follow the template order', t => {
+    const f = fixture(t);
+    f.write(f.body.replace('## User directives (verbatim)\nnone\n\n## Agent decisions (with reasons)\nnone',
+        '## Agent decisions (with reasons)\nnone\n\n## User directives (verbatim)\nnone'));
+    const result = f.report();
+    assert.equal(result.status, 1);
+    hasCode(result.data.errors, 'section-order');
 });
 
 test('table headers must match exactly and empty sections warn', t => {
