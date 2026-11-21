@@ -466,6 +466,9 @@ configuration, which the guard cannot see):
   `--no-config`, so a `RIPGREP_CONFIG_PATH` set in the environment can add options such as
   `--pre`. Only the flags admitted for #1255 require a literal `--no-config`; requiring it for
   every `rg` would refuse the most common read-only searches.
+- Already accepted `git diff` forms (for example `-p` or `-U2`) run an inherited
+  `GIT_EXTERNAL_DIFF` program. Controlling the environment already implies code execution,
+  so the guard does not try to detect it.
 - `git add <file>` runs any `filter.<name>.clean` driver defined in Git configuration for a
   path that `.gitattributes` assigns to that filter.
 Git format values containing `%(` are not accepted. Index/commit operations are deliberate

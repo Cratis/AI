@@ -108,6 +108,8 @@ export const blockCommands = [
     ...['--hidden', '--no-ignore', '--iglob "*.md"', '--no-heading', '--smart-case', '--heading', '--line-number', '--count', '--files-with-matches', '--context=2', '--type md', '--type-not ts', '--regexp foo', '-z', '-nz', '--pre ./x', '-f x', '--type-add "mine:*.md"', '-C x', '-C -1', '-m +1', '-t "a b"', '-T "md*"'].map(option => `rg --no-config ${option} foo ${P}`),
     `rg -S -- foo ${P} --no-config`, `rg -S --glob --no-config foo ${P}`,
     `rg -S -g --no-config foo ${P}`, `rg -S --no-config --pre ./x foo ${P}`,
+    `rg --no-con -S foo ${P}`, `rg --no-config= -S foo ${P}`,
+    `rg --no-config -nP foo ${P}`, `rg -nP foo ${P}`,
     `rg --no-config -S foo ${P} > ${P}`, `rg --no-config -S foo ${P} | tee ${P}`,
     `git diff --output=${P}`, `git diff --output=.ai-work/diff -- ${P}`,
     `git diff --diff-filter=Z -- ${P}`, `git diff --diff-filter= -- ${P}`,
