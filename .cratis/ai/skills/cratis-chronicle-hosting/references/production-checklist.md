@@ -21,8 +21,8 @@ after observing it, and list what was not observed.
 
 ## 2. Storage
 
-- [ ] `Storage__ConnectionDetails` is set (it is empty by default), with `Storage__Type` for a
-  backend other than MongoDB.
+- [ ] `Cratis__Chronicle__Storage__ConnectionDetails` is set (it is empty by default), with
+  `Cratis__Chronicle__Storage__Type` for a backend other than MongoDB.
 - [ ] MongoDB is a replica set, even for one node; a standalone `mongod` cannot serve
   transactions or change streams. Erasure confirmation also needs linearizable reads and
   majority writes, so on a standalone server erasures stay pending with a warning.
@@ -77,10 +77,11 @@ after observing it, and list what was not observed.
   time), the storage, and the compliance key store, all from the same point in time.
 - [ ] Restore in order: ring, storage, key store. Start **one** node and read
   `GET /diagnostics/encryption-certificates`; keys with the role `Retired` mean a certificate is
-  missing (restore it under `previous`). Then start the others.
+  missing. Keep traffic blocked, restore it under `previous`, restart that node and check again;
+  a running node does not reload its ring. Then start the others.
 - [ ] Keep a retired certificate as long as the oldest backup you would restore. Overwriting a
   certificate file is not a rotation.
-- [ ] A key store older than the storage reads `[PII]` as an empty string for newer subjects,
+- [ ] A key store older than the storage releases type-appropriate empty values for newer subjects,
   which looks like erasure, and may resurrect erased subjects. A newer one keeps the intervening
   erasures. Verify with **cratis-chronicle-compliance**.
 
