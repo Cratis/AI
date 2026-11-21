@@ -4,25 +4,27 @@
     {
       "id": 1,
       "name": "accounts-data-page",
-      "prompt": "An Arc app has generated proxies `AllAccounts` (observable query: name, balance, id) and `CreateAccount` (command with a name property), and a `CreateAccountDialog` already exists. Write the React `AccountsPage` with a table of name and balance and an 'Add account' toolbar action that opens the dialog. Give the code in your reply; do not write files.",
-      "expected_output": "A DataPage with title, query, emptyMessage and dataKey, columns inside DataPage.Columns, a MenuItem with command (not onClick) and an icon component, and a useDialog wrapper rendered once; imports from subpaths.",
+      "prompt": "An Arc app has generated proxies `AllAccounts` (observable query returning AccountSummary rows: name, balance, id) and `CreateAccount` (command with a name property), and CreateAccountDialog/EditAccountDialog already exist. The app shell owns <main>. Write AccountsPage with name/balance columns, Add account, and a typed Edit action plus disabled predicate using the committed DataPageSelection. Explain how controlled single selection follows a replaced or removed row. Give code in your reply; do not write files.",
+      "expected_output": "DataPage with title, query, emptyMessage, dataKey and landmark=false, compound columns/actions, typed MenuItem<AccountSummary> callbacks narrowing DataPageSelection, dialog wrappers rendered once, and controlled selection accepting event.value.",
       "assertions": [
         "Imports DataPage, Column and MenuItem from the subpath '@cratis/components/DataPage', not from the root '@cratis/components'.",
-        "Passes the proxy to DataPage's query prop with title and emptyMessage, and does not pre-fetch rows and pass an array.",
-        "Places columns in <DataPage.Columns> and the action in <DataPage.MenuItems> as a MenuItem using the command prop rather than onClick.",
-        "Uses useDialog from '@cratis/arc.react/dialogs' and renders the returned wrapper component once in the tree."
+        "Passes the proxy to DataPage's query prop with title, emptyMessage and dataKey, does not pre-fetch rows, and sets landmark={false} inside the existing main.",
+        "Places columns/actions in DataPage.Columns/MenuItems and supplies an explicit MenuItem<AccountSummary> generic; command and disabled receive committed DataPageSelection, narrow selectionMode before reading selectedItem, and use command rather than onClick.",
+        "Uses useDialog from '@cratis/arc.react/dialogs' and renders each returned wrapper once in the tree.",
+        "Explains single selection reconciliation by dataKey (reference without one) and updates controlled selection from event.value, including null when the row disappears."
       ]
     },
     {
       "id": 2,
       "name": "command-dialog-binding",
-      "prompt": "Write a `CreateAccountDialog` React component for an Arc app that runs the generated `CreateAccount` command (property `name`), closing with an OK result on success and Cancelled on cancel. A teammate suggests using a native <input> for the name field. Reply with the code and your view of that suggestion.",
-      "expected_output": "A CommandDialog with an InputTextField bound through a value accessor, closing via useDialogContext; the native input is rejected since it is not bound to the command so validation never reruns and submit stays disabled.",
+      "prompt": "Write CreateAccountDialog using generated CreateAccount (name), closing with OK on success and Cancelled on cancel. A teammate suggests a native <input>; another wants generated AutoCommandFields inside this existing dialog. Show the bound-field pattern and explain the generated-field alternative. Does autoServerValidate (/validate) under read protection On guarantee execution will succeed? Reply only.",
+      "expected_output": "CommandDialog with a bound InputTextField and dialog close callbacks; rejects unbound controls. AutoCommandFields generates fields inside the existing shell, not a nested AutoCommandForm. Server validation is feedback with fresh reads, not a guarded commit or execution promise.",
       "assertions": [
         "Builds the dialog on CommandDialog from '@cratis/components/CommandDialog' with command, title, onSuccess and onCancel.",
         "Binds the name with a CommandForm field such as InputTextField using a value accessor like c => c.name and a title prop.",
         "Closes the dialog through useDialogContext's closeDialog with DialogResult.Ok and DialogResult.Cancelled.",
-        "Rejects a raw native input or Common TextInput because it is not bound to the command, so validation never re-runs and the submit button stays disabled."
+        "Rejects a raw native input or Common TextInput because it is not bound to the command, so validation never re-runs and the submit button stays disabled.",
+        "Explains AutoCommandFields belongs in the existing form/dialog (not nested AutoCommandForm), and autoServerValidate is opt-in feedback: /validate under On neither guards a commit nor runs Provide/Handle, so execution must read fresh state again."
       ]
     },
     {
@@ -51,50 +53,15 @@
     },
     {
       "id": 5,
-      "name": "acquisition-outcome-feedback",
-      "prompt": "An Accounts page executes a command outside a dialog. A validator can refuse it, or Provide() can return an explicit ValidationResult when acquisition yields no usable facts. One result has reason dependencyUnavailable and a diagnostic message naming backend internals. A teammate wants all invalid results displayed verbatim as field errors, or matched by English message text. Explain the correct client and backend responsibilities. Reply only.",
-      "expected_output": "Both outcomes use validationResults; branch on flags and reason/reasonDetail, show safe copy for non-rule diagnostics, and use response only on success. Validators own refusals when facts exist; Provide only short-circuits failed acquisition and Handle does not duplicate validation.",
+      "name": "protected-read-and-availability-feedback",
+      "prompt": "An Arc Accounts dialog receives concurrencyViolation/ReadChanged or concurrencyViolation/ReadIncomplete. Other requests return isRetryable or isMissingHandler while otherwise looking authorized and valid. A teammate wants to mark input invalid, clear the draft, display framework English messages through CommandForm/toastCommandResult and redirect every denial to login. The host also wants availability-gated navigation: explain unknown, a later observation error and not opting in. Give a safe client policy and keep validator/Provide responsibilities clear. Reply only.",
+      "expected_output": "Classify complete results and exact protected-read pairs, retain the draft, re-read and deliberately retry without invalidating input. Framework diagnostics need safe application copy, not helper sanitization. Availability is presentation only, with unknown, retained last decision on error, and default-everything without a provider kept distinct.",
       "assertions": [
-        "Explains that validator refusals and explicit acquisition outcomes from Provide share validationResults, rather than a success response.",
-        "Branches on authorization, validity and exceptions, then reason/reasonDetail, never raw message text, and uses response only after success.",
-        "Distinguishes dependencyUnavailable from an authored rule refusal and selects safe application feedback instead of rendering diagnostic text as a field error.",
-        "Keeps business refusals in validators when usable facts exist, permits Provide to short-circuit only when acquisition yields nothing usable, and does not move duplicate validation into Handle."
-      ]
-    },
-    {
-      "id": 6,
-      "name": "committed-menu-selection",
-      "prompt": "An Accounts DataPage has single-row selection and an Edit action. After the query replaces or removes a row, a controlled selection leaves stale details open. Show how to use a typed DataPage.MenuItem<AccountSummary> action and disabled predicate, and explain how the controlled selection should follow the query. Reply only.",
-      "expected_output": "Typed callbacks receive the committed DataPageSelection discriminated union; single selection uses selectedItem and multiple selection uses readonly selectedItems. Use dataKey for replacement identity and accept event.value, including null on removal.",
-      "assertions": [
-        "Uses an explicit MenuItem row generic rather than claiming JSX infers it from the parent DataPage.",
-        "Treats command and disabled callbacks as receiving the immutable committed selection, not a click event, and narrows selectionMode before reading selectedItem or selectedItems.",
-        "Explains that disabled and disableOnUnselected prevent action dispatch, while zero-argument commands remain valid.",
-        "Reconciles single selection by dataKey, or reference without one, and updates controlled state from onSelectionChange event.value, including null when the row disappears."
-      ]
-    },
-    {
-      "id": 7,
-      "name": "whole-dataset-search",
-      "prompt": "Our paged Accounts DataPage has globalFilterFields but search only finds rows on the loaded page. We need whole-dataset search and sorting. A teammate says adding serverQuery automatically makes the backend understand search. Explain the real contract, including search callbacks, empty copy and paging behavior. Reply only.",
-      "expected_output": "Default search/filter/sort is loaded-page-only. The caller maps DataTableServerQueryState into actual backend arguments through mapQueryArguments; serverQuery disables local processing, debounces text and resets paging when effective arguments change.",
-      "assertions": [
-        "States that default search, filtering and sorting operate on the loaded page rather than the whole dataset.",
-        "Describes DataTableServerQuery<TArguments> with mapQueryArguments(state, baseArguments), optional debounceMs and state fields globalFilter, filters and sort, with types exported from @cratis/components/DataTables.",
-        "Requires backend query semantics for the mapped arguments rather than claiming serverQuery creates search automatically, and explains local processing is disabled and paging resets on effective argument changes.",
-        "Mentions onGlobalFilterChange, filteredEmptyMessage, and that text search is debounced while filters and sorting apply immediately."
-      ]
-    },
-    {
-      "id": 8,
-      "name": "raw-validation-helper-gap",
-      "prompt": "A CommandDialog can receive validatorFailed, concurrencyViolation, constraintViolation or frameworkFailure results whose messages contain developer diagnostics. Does CommandForm or toastCommandResult sanitize those messages? Is onValidationFailure alone enough to prevent exposure? Recommend a safe approach. Reply only.",
-      "expected_output": "Neither helper sanitizes validation diagnostics: CommandForm renders raw messages and toastCommandResult joins them. Own feedback by reason/reasonDetail, suppress built-in form errors when necessary, and never expose exception details.",
-      "assertions": [
-        "Explicitly rejects the claim that CommandDialog, CommandForm or toastCommandResult sanitizes non-rule validation diagnostics.",
-        "Explains CommandForm's raw inline/summary rendering and toastCommandResult's joining of raw validation messages.",
-        "Uses application-owned feedback selected by reason/reasonDetail and showErrors={false} where necessary; onValidationFailure alone does not suppress built-in display.",
-        "Keeps exceptionMessages and exceptionStackTrace out of user-facing output and does not treat every invalid result as an authored field error."
+        "Includes optional isRetryable/isMissingHandler flags in classification, uses response only on isSuccess, and distinguishes temporary refusal, missing handler and denial rather than treating authorized/valid/exception-free as success.",
+        "Recognizes concurrencyViolation/ReadChanged and concurrencyViolation/ReadIncomplete by reason/reasonDetail, keeps the draft and dialog open, re-reads and offers deliberate retry, never marks input invalid; unknown reasons/details are not automatically protected-read refusals.",
+        "Uses @cratis/arc.react/availability (AvailabilityProvider, RequireAvailable and hooks) for presentation, never authorization: unknown is loading, later errors retain the last decision, no provider means not opted in/everything available, and unavailable is not automatically forbidden or a login redirect.",
+        "Never parses or displays framework English diagnostics raw and does not claim CommandForm, CommandDialog or toastCommandResult sanitize them; chooses application copy, accounts for form display and validation announcements separately, and keeps exception details out of user UI.",
+        "Keeps refusals in validators when usable facts exist; Provide only short-circuits acquisition yielding nothing usable, and Handle does not duplicate business validation."
       ]
     }
   ]

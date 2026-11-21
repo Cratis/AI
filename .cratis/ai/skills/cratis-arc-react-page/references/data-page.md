@@ -4,6 +4,7 @@
 
 - Compound members
 - `DataPageProps`
+- Page landmarks
 - Snapshot versus observable
 - Selection reconciliation
 - Search and server queries
@@ -40,6 +41,7 @@ Three static members exist:
 | Prop | Type | Notes |
 | --- | --- | --- |
 | `title` | `string` | required — menubar title |
+| `landmark` | `boolean` | defaults to `true`; use `false` inside an existing main landmark |
 | `query` | `Constructor<TQuery>` | required — a snapshot **or** observable query proxy |
 | `emptyMessage` | `string` | required — only a real empty result |
 | `loadingMessage` / `failureMessage` / `unauthorizedMessage` | `ReactNode` | query-state rows; defaults from `messages.dataTable.loading/failed/unauthorized` |
@@ -66,6 +68,14 @@ Three static members exist:
 | `menubarPt` | `ButtonParts` | per-part attributes on the action buttons (`menubarPtOptions`/`menubarUnstyled` are accepted no-ops) |
 | `paginatorPt` | `TablePaginatorParts` | per-part attributes on the paginator |
 | `clientFiltering` | `boolean` | **deprecated and a no-op** — do not use in new code |
+
+## Page landmarks
+
+`Page` from `@cratis/components/Common` renders its content as `<main>` by
+default. `landmark={false}` switches that content region to `<div>`, for a page
+already inside the application's main landmark. `DataPage` forwards its
+`landmark` prop to Page. Choose the main owner and avoid nested main landmarks;
+`showTitle` controls Page's heading separately, not its landmark.
 
 ## Snapshot versus observable
 
@@ -128,10 +138,11 @@ neutral ("No rows match the search.").
 | `disableOnUnselected` | `boolean` | disabled until a row is selected; combined with `disabled` |
 
 `DataPageSelection<TDataType>` (exported from `@cratis/components/DataPage`) is a
-readonly discriminated union: `{ selectionMode: 'single', selectedItem: TDataType | null }`
+readonly discriminated union: `{ selectionMode: 'single', selectedItem: TDataType | null | undefined }`
 or `{ selectionMode: 'multiple', selectedItems: readonly TDataType[] }`. Both
-callbacks receive the immutable, committed selection, not a click event. A
-disabled item cannot dispatch its command. JSX does not infer the row type from
+callbacks receive the immutable, committed selection, not a click event. The
+container and multiple-selection array are frozen, but row objects are not
+deep-frozen. A disabled item cannot dispatch its command. JSX does not infer the row type from
 DataPage's generic; supply it explicitly:
 
 ```tsx

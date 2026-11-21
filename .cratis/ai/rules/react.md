@@ -132,30 +132,10 @@ const result = await command.execute();
 
 Inside dialogs, use `CommandDialog` + CommandForm fields rather than driving the command by hand — see [dialogs.md](./dialogs.md).
 
-### Read `CommandResult` by the granular flag — not just `isSuccess`
+### Read command outcomes before choosing feedback
 
-| Flag | Meaning | UX response |
-|---|---|---|
-| `isSuccess` | `isAuthorized && isValid && !hasExceptions` | happy path |
-| `isAuthorized` | `[Roles]`/policy rejected | redirect to login / "not allowed" |
-| `isValid` | false when blocking `validationResults` exist | reason-aware feedback, not always field errors |
-| `hasExceptions` | `Provide()`/`Handle()` threw — `exceptionMessages` carry diagnostics | generic error toast + log; never show stack traces |
-
-`CommandDialog` wires execution and callbacks; it does not sanitize validation messages. `validate()` returns the same shape with `response == null` (handler did not run). `result.validationResults` is a `ValidationResult[]` of `{ severity, message, members: string[], state, reason, reasonDetail? }`. Validator refusals and acquisition failures returned from `Provide()` share this channel. Validators own refusals when usable facts exist; `Provide()` short-circuits only when acquisition yields nothing usable. `Handle()` must not repeat business validation. Use `response` only on success.
-
-Branch on `reason`/`reasonDetail`, **never raw `.message` text**. Only application-authored rule messages are field-error copy matched through `members`. Non-rule reasons (`dependencyUnavailable`, `validatorFailed`, `concurrencyViolation`, `constraintViolation`, `frameworkFailure`, or unknown reasons) need safe application feedback. `CommandForm` renders raw validation messages and `toastCommandResult` joins them; neither sanitizes diagnostics. Use application-owned feedback and `showErrors={false}` where necessary. `exceptionMessages`/`exceptionStackTrace` are for logging, never for users. See the **cratis-arc-react-page** skill's `references/queries-and-commands.md`.
-
-Out-of-dialog execution branches in this order:
-
-```tsx
-const result = await command.execute();
-if (!result.isAuthorized) { redirectToLogin(); return; }
-if (!result.isValid)      { /* validationResults → reason-aware feedback */ return; }
-if (result.hasExceptions) { toast.error({ title: 'Something went wrong' }); console.error(result.exceptionMessages); return; }
-// happy path — refresh queries, close, etc.
-```
-
-`toastCommandResult(result, opts)` from `@cratis/components/Notifications` collapses this whole branch into one call (with a `<Toaster />` mounted) — success/not-authorized/validation/exception → the right toast, no stack traces shown.
+Read `.cratis/ai/skills/cratis-arc-command/references/command-result.md` for the complete result decision table, protected-read refusals and message safety; do not replace it with an `isSuccess`-only branch.
+Read the **cratis-arc-react-page** skill's `references/queries-and-commands.md` for `/validate` feedback under read protection, and `references/availability.md` for presentation-only availability.
 
 ### Command helpers
 

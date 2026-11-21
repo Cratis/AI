@@ -170,102 +170,31 @@ const result = await command.execute();
 `validate()`, `clear()`, `setInitialValues(values)`, `revertChanges()`, and
 `hasChanges`.
 
-### Read the result by the granular flag
+### Command result handling
 
-| Flag | Meaning | Response |
-| --- | --- | --- |
-| `isSuccess` | authorized, valid, and no exception | happy path |
-| `isAuthorized` | roles or policy rejected the call | redirect to login, or "not allowed" |
-| `isValid` | false when blocking `validationResults` exist | reason-aware feedback; only authored rule messages are field-error copy |
-| `hasExceptions` | the handler threw — `exceptionMessages` carries diagnostics | generic error, and log it |
+Read the owning [CommandResult reference](../../cratis-arc-command/references/command-result.md)
+before choosing success, refusal, retry or fault feedback. It owns the complete
+result shape, protected-read reason pairs and message-safety decision table;
+do not infer success from only authorization/validity/exception flags. Mount a
+`<Toaster />` near the app root when using notifications.
 
-The result also carries `correlationId`, `authorizationFailureReason`,
-`exceptionStackTrace`, and the typed `response`. Only use `response` after
-success; refusals and faults expose no usable response. Fluent callbacks
-`onSuccess`, `onFailed`, `onException`, `onUnauthorized`, and
-`onValidationFailure` each return the result for chaining.
+### Validation feedback under read protection
 
-```tsx
-const result = await command.execute();
-if (!result.isAuthorized) { redirectToLogin(); return; }
-if (!result.isValid) { /* validationResults -> reason-aware feedback below */ return; }
-if (result.hasExceptions) { console.error(result.exceptionMessages); return; }
-```
+`command.validate()` calls `{url}/validate`; `CommandForm`'s `autoServerValidate`
+is opt-in and defaults to `false`. When enabled, it runs throttled server
+validation as values change (default `autoServerValidateThrottle` is 500 ms).
+These are form feedback, not a reservation or permission to execute.
 
-A validation result is:
-
-```ts
-class ValidationResult {
-    severity: ValidationResultSeverity;   // Unknown 0, Information 1, Warning 2, Error 3
-    message: string;
-    members: string[];                    // the properties the message applies to
-    state: unknown;
-    reason: ValidationResultReason;       // 'rule' by default
-    reasonDetail?: string;
-}
-```
-
-### Validator and acquisition outcomes
-
-Application-authored validator refusals, explicit `ValidationResult` outcomes
-from `Provide()`/`Handle()`, and `IEnumerable<ValidationResult>` outcomes from
-`Provide()` reach the same `validationResults` channel (subject to blocking
-severity). This is not a
-license for validation in either method: validators own refusals once usable
-facts exist. `Provide()` short-circuits only when acquisition yields nothing
-usable; `Handle()` performs effects, not duplicate business validation.
-
-`ValidationResultReason` is an open string set, not a closed enum. Branch on
-`reason` and, where needed, `reasonDetail` (such as a constraint name), never on
-`.message` text. `state` is carried through from the author, not a safety marker.
-
-| `reason` | Client treatment |
-| --- | --- |
-| `rule` | application-authored rule copy may be shown and matched to fields through `members` |
-| `dependencyUnavailable` | required facts were unavailable before rules could run; safe page/dialog feedback, not a fabricated field error |
-| `validatorFailed` | a validator threw; safe generic feedback and diagnostic logging |
-| `concurrencyViolation` | stale state; offer an application-appropriate re-read/retry path |
-| `constraintViolation` | choose safe application copy using `reasonDetail`, not the diagnostic message |
-| `frameworkFailure` | framework contract/effects failure; safe generic feedback and diagnostic logging |
-| `malformedRequest` or an unknown reason | safe fallback; do not display the raw message |
-
-Non-rule `message` values are developer diagnostics, not user-facing copy.
-`exceptionMessages` and `exceptionStackTrace` are likewise for logging, never
-for users. Do not turn every invalid result into inline field errors.
-
-### Feedback helpers are not message sanitizers
-
-`toastCommandResult(result, options)` from `@cratis/components/Notifications`
-returns `true` on success and maps the flags to toasts; mount a `<Toaster />`
-near the app root. On invalid results it joins **raw validation messages** into
-the description. Its exception toast uses generic copy, but that does not make
-non-rule validation diagnostics safe. Intercept those outcomes and choose safe
-application copy before using the helper:
-
-```tsx
-if (!result.isAuthorized) { redirectToLogin(); return; }
-if (!result.isValid && result.validationResults.some(v => v.reason !== ValidationResultReason.Rule)) {
-    toast.error({ title: 'Unable to complete this action. Please refresh and try again.' });
-    return;
-}
-```
-
-For results whose validation messages are application-approved user copy:
-
-```tsx
-if (toastCommandResult(result, { successTitle: 'Account registered' })) refresh();
-```
+Under read protection `On`, `/validate` runs filters and validators with fresh
+reads, but does not call `Provide()` or `Handle()`, guard a commit, or write
+anything. Execution reads its own fresh state and guards from that position;
+it cannot reuse the earlier validation fold. A successful preflight does not
+promise execution success. Handle protected-read refusals using the owning
+result table, preserving the draft rather than marking input invalid.
 
 For ad-hoc notifications the imperative `toast.success/info/warn/error` each
 take an **options object**, not a bare string:
 `toast.info({ title: 'Saved', description: 'Your changes were saved.' })`.
-
-`CommandDialog` wires execution and failure callbacks, but neither it nor
-`CommandForm` sanitizes validation diagnostics. `CommandForm` renders raw
-validation messages inline or in its summary. Use application-owned feedback
-and the form's `showErrors={false}` when built-in display could expose non-rule
-messages; `onValidationFailure` alone does not suppress it. See
-[dialogs.md](dialogs.md).
 
 ### Command scope
 
