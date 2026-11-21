@@ -3,7 +3,7 @@
 
 export type GuardState = 'unclaimed' | 'pending' | 'open' | 'lost' | 'released';
 
-/** Read-only built-in names from Pi's ToolCallEvent; unknown tools fail closed while pending or lost. */
+/** Candidate built-in readers; names alone never grant access while pending or lost. */
 export const readOnlyTools: ReadonlySet<string> = new Set(['read', 'grep', 'find', 'ls']);
 
 /**
@@ -45,8 +45,8 @@ export class WriteGuard {
         return this.guardedTools.has(toolName);
     }
 
-    blocks(toolName: string): boolean {
+    blocks(toolName: string, allowsRead: () => boolean = () => false): boolean {
         if (this.guards(toolName)) return this.current !== 'open';
-        return (this.current === 'pending' || this.current === 'lost') && !readOnlyTools.has(toolName);
+        return (this.current === 'pending' || this.current === 'lost') && !(readOnlyTools.has(toolName) && allowsRead());
     }
 }

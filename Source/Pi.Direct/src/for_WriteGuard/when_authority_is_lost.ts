@@ -18,7 +18,8 @@ describe('when authority is lost', given(context, context => {
 
     it('should stay lost', () => context.guard.state.should.equal('lost'));
     it('should block guarded tools', () => context.guard.blocks('write').should.equal(true));
-    it('should not block other tools', () => context.guard.blocks('read').should.equal(false));
+    it('should allow verified reads', () => context.guard.blocks('read', () => true).should.equal(false));
+    it('should block unverified reads', () => context.guard.blocks('read').should.equal(true));
     it('should be opened again only by a new guard', () => {
         const fresh = new WriteGuard(new Set(['write']));
         fresh.open();

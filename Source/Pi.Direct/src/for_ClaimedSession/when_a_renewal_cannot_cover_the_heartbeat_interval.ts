@@ -30,7 +30,7 @@ for (const leaseSeconds of [10, 5]) {
         it('should stop the lease observer', () => context.clock.intervals.size.should.equal(0));
         it('should notify once', () => context.notifications.length.should.equal(1));
         it('should block local writes', () => context.guard.blocks('write').should.equal(true));
-        it('should allow local reads', () => context.guard.blocks('read').should.equal(false));
+        it('should allow verified local reads', () => context.guard.blocks('read', () => true).should.equal(false));
         it('should refuse to finish', () => (finishError as SessionRefused).code.should.equal('authority-lost'));
         it('should not release', () => context.gateway.releases.length.should.equal(0));
     }));
