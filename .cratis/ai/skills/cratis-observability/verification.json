@@ -1,0 +1,14 @@
+{
+  "skill": "cratis-observability",
+  "input": "Set up OpenTelemetry for a Cratis Arc and Chronicle application, verify spans reach a backend and keep sensitive values out of them.",
+  "fixtures": [],
+  "assertions": [
+    { "kind": "skill-contains", "value": "AddCratisOpenTelemetry" },
+    { "kind": "skill-contains", "value": "Cratis.Chronicle.Client" },
+    { "kind": "skill-contains", "value": "cratis.correlation_id" },
+    { "kind": "skill-contains", "value": "UseOtlpExporter()" },
+    { "kind": "skill-contains", "value": "OTEL_SERVICE_NAME" },
+    { "kind": "skill-contains", "value": "EventSourceIdTracing" },
+    { "kind": "skill-contains", "value": "otel.metric.overflow=true" }
+  ]
+}
