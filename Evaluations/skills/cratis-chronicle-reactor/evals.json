@@ -47,6 +47,19 @@
         "States an unsupported return value fails the partition with UnhandledReactorReturnValue.",
         "Mentions analyzer CHR0054 flagging an unsupported return type at build time."
       ]
+    },
+    {
+      "id": 5,
+      "name": "durable-provider-retry",
+      "prompt": "After a command commits a real confirmation request, send an email through an idempotent provider and record ConfirmationSent. Show the reactor and describe a ReactorScenario retry spec: the provider accepts once, then the first handler attempt fails before returning the fact. Explain inline operations versus Chronicle outbox/inbox. If this reactor also calls ICommandPipeline.Execute manually, does [ExecuteCommandsAsSystem] authorize that call? Reply only.",
+      "expected_output": "A stable-id reactor using delivery.IdempotencyKeyFor(\"confirmation-email\").Value as a provider idempotency key, returning a stable sent-fact event, with a same-occurrence retry spec and explicit limits on scenario recording and system-execution scope.",
+      "assertions": [
+        "Uses the committed domain fact as the trigger, not a synthetic signal; says command operations are inline/non-durable and Chronicle outbox/inbox is cross-event-store, not a provider job queue.",
+        "Uses an explicit reactor id and delivery.IdempotencyKeyFor(\"confirmation-email\").Value as the stable provider key, explaining it is hashed and includes the effect name and epoch, never sending raw delivery.Id outside the boundary; requires receiver-side deduplication and [OnceOnly] for replay exclusion, not retry deduplication, without promising exactly-once across the provider/receipt failure window.",
+        "Returns a stable ConfirmationSent fact after provider success and distinguishes returned-event append protection from protection for external calls.",
+        "Describes recording one occurrence with Given.ForEventSource(id).History and redelivering it with Redeliver, using an injected fake to assert identical delivery.IdempotencyKeyFor(\"confirmation-email\").Value provider keys, one provider send and the returned sent-fact; states ReactorScenario records every returned event and does not prove durable append deduplication.",
+        "States [ExecuteCommandsAsSystem] only covers returned commands; a manual pipeline call requires a deliberate ISystemExecution scope with trusted server-side roles, awaiting execution inside the scope and inspecting CommandResult."
+      ]
     }
   ]
 }

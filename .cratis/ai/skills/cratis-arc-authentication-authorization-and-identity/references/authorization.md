@@ -409,7 +409,7 @@ an `[Unprotected]` command (or a model or method marked `[Unprotected("why")]`) 
 read is advisory, so the rule is **not decision-safe**. A `[ProtectedDecision]`
 command without `On` runs only certified, parameterless validators and refuses a
 validator whose constructor takes dependencies; put such a rule in `Provide()` or
-`Handle()` using `DecisionRead<T>` or `IDecisionReads`. Hand-registered scoped,
+`Handle()` (older opt-in exception) using `DecisionRead<T>` or `IDecisionReads`. Hand-registered scoped,
 singleton, factory or instance validators are refused under `On`. Keep
 static/service-locator state out of validators: a guard covers reads Arc can see.
 Source: [protected validator boundary](https://github.com/Cratis/Arc/blob/main/Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md).

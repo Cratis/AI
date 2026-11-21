@@ -87,7 +87,7 @@ The command carries input from the caller. `Handle()` is defined directly on the
 | --- | --- |
 | Reusable value invariant (length, format, range) | `ConceptValidator<T>` on the concept type |
 | Command-input / cross-field / pre-handler rule (incl. injected read-model/service/identity checks) | `CommandValidator<TCommand>` with `RuleFor(...)` |
-| Handler needs fetched/computed data before it can build the event | `Provide()` — fetches the data; may validate it and short-circuit |
+| Handler needs fetched/computed data before it can build the event | `Provide()` — acquires inputs; only short-circuits when acquisition yields nothing usable. Validators own refusals |
 | State-dependent rule that must hold **under concurrency** | Read protection `On`: the read model as a `CommandValidator<T>` constructor (or `Handle()`) parameter; a per-stream read model or `IStreamReads`/`StreamDecision` for one stream; an aggregate for a rich lifecycle. `[ProtectedDecision]` + `DecisionRead<T>` is the older per-command opt-in. Under `Off` (set explicitly, or the Arc 22 behavior) injection is a hint |
 | Uniqueness | Chronicle `[Unique]` / `IConstraint` (race-safe) — not a read-model pre-check |
 | Genuinely exceptional failure (bug, missing infra) | `throw` a domain exception |
@@ -134,23 +134,27 @@ Values render camel-cased; concepts unwrap to the value they hold; a value that 
 
 `Provide()` runs after authorization and validation, before `Handle()`. Its parameters resolve from DI (like `Handle()`'s); the command instance is `this`. Return one value, or a tuple (Arc binds tuple values to `Handle(...)` parameters by type). Each provided value should be consumed by a `Handle` parameter — an unused one raises the **`ARC0005`** analyzer warning. Use a **named record** when the provided values form a real domain/snapshot concept; a **tuple** when they are just separate inputs to event construction. It may be sync or async.
 
+Validators own refusals, including read-model existence: a `CommandValidator<PlaceOrder>` constructor takes the model, using `[LookUpBy(nameof(PlaceOrder.CustomerId))]` if its key differs from the root id. Non-nullable means it must exist; nullable plus a validator rule gives a custom message (see **cratis-arc-command-validation**).
+
+Illustrative excerpt: the application supplies `IExchangeRates.GetFor(CustomerId)` returning `Task<Rate?>`, and `OrderPlaced(Rate rate)`. The customer-existence rule belongs in the validator, not this acquisition:
+
 ```csharp
 [Command]
 public record PlaceOrder(OrderId OrderId, CustomerId CustomerId) : ICanProvideEventSourceId
 {
     public EventSourceId GetEventSourceId() => OrderId;
 
-    public async Task<Result<Customer, ValidationResult>> Provide(IReadModels readModels)
+    public async Task<Result<Rate, ValidationResult>> Provide(IExchangeRates rates)
     {
-        var customer = await readModels.GetInstanceById<Customer>((EventSourceId)CustomerId);
-        return customer is null ? ValidationResult.Error("Customer must exist.") : customer;
+        var rate = await rates.GetFor(CustomerId);
+        return rate is null ? ValidationResult.Error("No rate data available.") : rate;
     }
 
-    public OrderPlaced Handle(Customer customer) => new(customer.Name);
+    public OrderPlaced Handle(Rate rate) => new(rate);
 }
 ```
 
-Use `Provide()` for IO/fetched/computed data a valid command needs (explicit-key read-model lookups, external services, snapshots). It may short-circuit with `ValidationResult` / `AuthorizationResult` / `Result<TProvided, ValidationResult>` when the supplied data is missing or unusable. Keep IO in `Provide()` and the decision in `Handle()`. Do **not** write a pass-through `Provide()` that only wraps a read model `Handle(...)` could take directly, and do **not** duplicate the same rejection in both the validator and `Provide()` — pick one owner.
+Use `Provide()` for IO/fetched/computed data a valid command needs (explicit-key read-model lookups, external services, snapshots). Only when acquisition itself yields nothing usable may `ValidationResult` / `AuthorizationResult` / `Result<TProvided, ValidationResult>` short-circuit — here, no external rate data, not an ordinary validation rule. Keep IO in `Provide()` and the decision in `Handle()`. Do **not** write a pass-through `Provide()` that only wraps a read model `Handle(...)` could take directly. Pick one rejection owner: validators for existence/preconditions; `Result<TEvent, ValidationResult>` in `Handle()` only for a rule depending on the event decision. Do not duplicate the same rejection.
 
 **[convention]** `Provide()` acquires decision inputs, not the writes moved out of `Handle()`; declare those as operations and let Arc execute them. Operations cannot return receipts into the decision — see **cratis-arc-command-operation**.
 
@@ -233,7 +237,7 @@ Apply authorization attributes on the `[Command]` record or query method. **[con
 - **[convention] Plain `[EventType]` for new events, public ones included** — the type name is the id; an explicit id only to retain a persisted id or resolve a cross-package collision, never to change one (application-profile.md item 7, decision 152). Evolve a contract with `generation:` (invoke the **cratis-chronicle-event-type-migration** skill).
 - **[contract] Past-tense, one-purpose names** (`AuthorRegistered`, not `Updated`/`FormSubmitted`) — Chronicle requires past-tense, single-purpose facts. Self-describing without slice context.
 - **[contract] Avoid nullable properties** — Chronicle's analyzer warns on nullable event members; model optional facts as a separate event, or resolve a nullable command input to a non-null sentinel before constructing the event.
-- **[contract] `Handle()` never returns a nullable event or `null` for "nothing to do"** — Arc treats a `null` result as success with nothing appended, so the caller is told a command succeeded that never happened. Missing state or a failed rule is a rejection: return `Result<TEvent, ValidationResult>` with `ValidationResult.Error(...)`, or reject in a validator or `Provide()`. Optional `ICommandOperation` returns are a separate contract and unaffected.
+- **[contract] `Handle()` never returns a nullable event or `null` for "nothing to do"** — Arc treats a `null` result as success with nothing appended, so the caller is told a command succeeded that never happened. Missing state or a failed rule is a rejection: return `Result<TEvent, ValidationResult>` with `ValidationResult.Error(...)`, or reject in a validator, not `Provide()`. Optional `ICommandOperation` returns are a separate contract and unaffected.
 - **[contract] Never carry the event-source id** — it's implicit in the event context.
 - **[convention] No `DateTimeOffset`/`DateTime` properties** that duplicate `EventContext.Occurred` — Chronicle records the wall-clock timestamp of every event there. Read it in projections/reducers via `[SetFromContext<T>]` or fluent `.Set(m => m.X).ToEventContextProperty(c => c.Occurred)`. Use `DateOnly` only for a business date the user explicitly supplies.
 - **[convention] Every `[EventType]` has an XML `<summary>`** (Cratis C# doc convention) recording why the event exists and what each value means.
