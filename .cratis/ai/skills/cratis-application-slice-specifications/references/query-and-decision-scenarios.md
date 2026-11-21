@@ -70,7 +70,9 @@ cover those pipeline hooks.
 ## Decision specifications
 
 Start with a direct `Handle()` or validator call supplied with read-model state;
-validators own refusals, and `Provide()` only computes derived values. Follow the
+validators own refusals. `Provide()` acquires data and only short-circuits
+(`ValidationResult`/`AuthorizationResult`) when acquisition yields nothing usable,
+not for ordinary validation rules. Follow the
 [scenario rule](../../../rules/specs.scenarios.csharp.md): ordinary application
 specs prove business decisions, not Arc/Chronicle's concurrency, conflict-refusal
 or isolation matrix. Add pipeline scenarios only for the wiring they prove.

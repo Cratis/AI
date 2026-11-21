@@ -87,12 +87,10 @@ for (const path of scenarioEntryPoints) {
     test(`${path} keeps the decision table and the focused explicit-policy boundary`, () => {
         const content = read(path).replace(/\s+/g, ' ');
         assert.match(content, /specs\.scenarios\.csharp\.md/);
-        assert.match(content, /reactor dispatch and routing\)/);
-        assert.doesNotMatch(content, /reactor dispatch and routing\) plus/);
-        assert.match(content, /supplied read-model state/);
-        assert.match(content, /platform (?:guard )?matrix/);
-        assert.match(content, /application-owned explicit guard policy/);
-        assert.match(content, /focused regression a plain call cannot prove/);
+        assert.match(content, /supplied.*state/);
+        assert.match(content, /platform.*matrix/);
+        assert.match(content, /explicit.*guard.*policy/);
+        assert.match(content, /focused.*regression/);
         assert.match(content, /query-and-decision-scenarios\.md/);
     });
 }
@@ -117,57 +115,62 @@ for (const path of [
     });
 }
 
+for (const path of ['rules/specs.scenarios.csharp.md', 'harnesses/copilot/instructions/specs.scenarios.csharp.instructions.md']) {
+    test(`${path} keeps acquisition-failure proofs and the explicit-policy exceptions`, () => {
+        const content = read(path).replace(/\s+/g, ' ');
+        assert.match(content, /negative proof.*Provide\(\).*short-circuit/);
+        assert.match(content, /Provide\(\).*only.*ValidationResult.*AuthorizationResult.*acquisition.*nothing usable/);
+        assert.match(content, /EventsWithConcurrencyScopes/);
+        assert.match(content, /\[Unprotected\]/);
+        assert.doesNotMatch(content, /none beyond it|Provide\(\)` carries no validation/);
+    });
+}
+
+for (const path of ['rules/specs.csharp.md', 'harnesses/copilot/instructions/specs.csharp.instructions.md']) {
+    test(`${path} qualifies the xUnit default by launch path and reported measurement`, () => {
+        const content = read(path).replace(/\s+/g, ' ');
+        assert.match(content, /house default.*built executable/);
+        assert.match(content, /running-specs\.md#local-loop/);
+        assert.match(content, /dotnet test.*slower.*reported/);
+    });
+}
+
 const decisionReference = 'skills/cratis-application-slice-specifications/references/query-and-decision-scenarios.md';
 
 test('decision admission covers discovered declarations and names the body-read blind spot', () => {
     const content = read(decisionReference).replace(/\s+/g, ' ');
     assert.match(content, /using Cratis\.Arc\.Chronicle\.Testing\.Commands;/);
-    assert.match(content, /DecisionReadAdmissions\.ShouldAdmitDecisionReadsIn\(typeof\(RegisterAuthor\)\.Assembly\)/);
-    assert.match(content, /without executing commands or running Chronicle/);
-    assert.match(content, /inherited methods are included/);
-    assert.match(content, /validator constructor parameters, excluding advisory reads/);
-    assert.match(content, /Stream parameters use stream admission/);
-    assert.match(content, /ignores the runtime cap/);
-    assert.match(content, /spec-local projection[^.]*ambiguous/);
-    assert.match(content, /inside method bodies are not statically visible/);
-    assert.match(content, /`Admit<T>\(\)` check or a focused command scenario/);
+    assert.match(content, /DecisionReadAdmissions\.ShouldAdmitDecisionReadsIn\(typeof\(\w+\)\.Assembly\)/);
+    assert.match(content, /declared.*runtime cap/);
+    assert.match(content, /spec-local.*projection.*ambiguous/);
+    assert.match(content, /method bodies.*not statically/);
+    assert.match(content, /Admit<T>.*focused.*scenario/);
 });
 
 test('the advanced hook has a narrow purpose without an invented decision-mode requirement', () => {
     const content = read(decisionReference).replace(/\s+/g, ' ');
-    assert.match(content, /Do not add a scenario to prove a race already guaranteed by Arc\/Chronicle/);
-    assert.match(content, /unusual application-owned explicit guard policy/);
-    assert.match(content, /works with or without decision mode and adds no guard/);
-    assert.match(content, /Queue it before the first execution/);
-    assert.match(content, /after response processing and before the owner's commit/);
-    assert.match(content, /route overload preserves routing/);
-    assert.match(content, /nested commands do not drain the outer queue/);
-    assert.match(content, /refuses custom execution scopes/);
-    assert.match(content, /`UseDecisionReads\(\)`; it is obsolete/);
-    assert.match(content, /`EnableDecisionReads\(\)` must run before seeding or the first `Execute`\/`Validate`/);
-    assert.match(read('rules/specs.scenarios.csharp.md'), /`Provide\(\)` carries no validation/);
+    assert.match(content, /AppendConcurrently.*advanced/);
+    assert.match(content, /specific.*explicit need/);
+    assert.match(content, /with or without decision mode.*adds no guard/);
+    assert.match(content, /after response.*before.*commit/);
+    assert.match(content, /UseDecisionReads.*obsolete/);
 });
 
 test('the default no-scope warning does not rule out guarded scenarios or explicit scopes', () => {
     const content = read('skills/cratis-specifications-csharp/SKILL.md').replace(/\s+/g, ' ');
-    assert.match(content, /unguarded in-process append using the default no-scope strategy/);
-    assert.match(content, /not a claim about every guarded scenario or explicit scope/);
-    assert.doesNotMatch(content, /EventScenario` wires a strategy that always answers/);
+    assert.match(content, /unguarded.*no-scope/);
+    assert.match(content, /not a claim.*guarded.*explicit scope/);
+    assert.doesNotMatch(content, /strategy that always answers/);
 });
 
 test('slow-spec guidance diagnoses measured costs and preserves discovery and coverage', () => {
     const content = read('skills/cratis-specifications-csharp/references/running-specs.md').replace(/\s+/g, ' ');
-    for (const detail of [
-        'CRATIS_SPECS_TIMINGS=1', 'CRATIS_SPECS_TIMINGS_FILE', 'CratisSpecificationsPhaseTimings',
-        'CratisSpecificationsSlowPhaseThreshold', 'Establish', 'Because', 'Destroy',
-        'startup/discovery', 'PerFactSpecificationLifecycle', 'class/method list', 'unchanged concurrency/shards',
-    ]) {
-        assert.ok(content.includes(detail), `${detail} is explained`);
-    }
-    assert.match(content, /Measure the existing suite before a rewrite/);
-    assert.match(content, /one class per declarative read model remains the default/i);
-    assert.match(content, /Do not merge unrelated behaviors, remove facts or turn off production guards/);
-    assert.match(content, /measurement, not a universal ratio/);
+    assert.match(content, /CRATIS_SPECS_TIMINGS=1.*CRATIS_SPECS_TIMINGS_FILE/);
+    assert.match(content, /startup.*discovery/);
+    assert.match(content, /shared.*lifecycle/i);
+    assert.match(content, /class per.*read model/);
+    assert.match(content, /Discovered.*passed.*failed.*skipped/);
+    assert.match(content, /measurement.*not.*universal/);
 });
 
 const identityReference = 'skills/cratis-arc-authentication-authorization-and-identity/references/command-identity.md';

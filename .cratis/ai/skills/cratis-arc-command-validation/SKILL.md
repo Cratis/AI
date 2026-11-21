@@ -279,8 +279,9 @@ assembly-level application-shape admission check; explicit body reads need their
 own admission check or focused scenario. An unusual application-owned explicit
 guard policy can justify a focused regression a plain call cannot prove; read the
 [decision guidance](../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
-for the example, limits and advanced hook boundary. `Provide()` carries no
-validation; validators own refusals. Report harness gaps upstream; never weaken
+for the example, limits and advanced hook boundary. Validators own refusals;
+`Provide()` only short-circuits (`ValidationResult`/`AuthorizationResult`) when
+acquisition yields nothing usable, not for ordinary validation rules. Report harness gaps upstream; never weaken
 production guards for speed.
 
 For a pipeline validation rejection, assert **both** that the command did not

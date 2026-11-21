@@ -190,7 +190,9 @@ source id/type and stream route; reactor tuples/collections cannot mix it with e
 ## Decision specifications
 
 Call `Handle()` and validators directly with read-model state for pure business
-decisions; validators own refusals, and `Provide()` carries no validation. Follow
+decisions; validators own refusals. `Provide()` acquires data and only short-circuits
+(`ValidationResult`/`AuthorizationResult`) when acquisition yields nothing usable,
+not for ordinary validation rules. Follow
 the [scenario rule](../../../rules/specs.scenarios.csharp.md): ordinary application
 specs do not re-prove Arc/Chronicle's platform concurrency, conflict-refusal or
 isolation matrix. Typed scenarios select decision reads automatically;

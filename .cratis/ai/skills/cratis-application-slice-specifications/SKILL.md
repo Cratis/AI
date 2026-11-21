@@ -141,12 +141,14 @@ One specification class for **each** of:
 
 1. **The happy path** — a plain call returns the expected event, plus one
    `CommandScenario` happy path for the pipeline, and a negative scenario for
-   each authorization policy and validator refusal.
+   each authorization policy, validator refusal and `Provide()` acquisition-failure short-circuit.
 2. **Each validation failure** — instantiate `CommandValidator` or
    `ConceptValidator` with the required state and validate directly; the
    command's pipeline scenario proves the wiring.
 3. **Each business-rule rejection** — one `and_` class per validator rule using
-   supplied read-model state; `Provide()` carries no validation.
+   supplied read-model state; `Provide()` only short-circuits
+   (`ValidationResult`/`AuthorizationResult`) when acquisition yields nothing usable,
+   not for ordinary validation rules.
 4. **Each constraint violation** — one class per constraint, written with
    `EventScenario`, because a constraint is enforced at the append and not by
    the command.

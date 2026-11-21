@@ -352,8 +352,9 @@ for the example, limits and advanced hook boundary. Production protection stays
 unchanged regardless of spec cost.
 
 For two borrowers competing for the last copy, give no-copy state to the validator
-and assert rejection; Arc/Chronicle prove the guard. `Provide()` computes derived
-values and carries no validation. An unusual application-owned explicit guard
+and assert rejection; Arc/Chronicle prove the guard. `Provide()` acquires data and
+only short-circuits (`ValidationResult`/`AuthorizationResult`) when acquisition
+yields nothing usable, not for ordinary validation rules. An unusual application-owned explicit guard
 policy may need a focused regression a plain call cannot prove, not a generic
 race matrix. Report harness state gaps upstream rather than inventing guard doubles.
 
