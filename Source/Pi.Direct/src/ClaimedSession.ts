@@ -179,11 +179,12 @@ export class ClaimedSession {
         try {
             const sent = LeaseDeadline.start(clock, MaxLeaseSeconds);
             const result = await gateway.heartbeat({ workHandle: environment.workHandle, claimId: this.claimId, epoch: this.epoch });
+            validateLeaseGrant(result.leaseSeconds, this.heartbeatSeconds);
+            const deadline = sent.withGrant(result.leaseSeconds);
+            if (deadline.expired()) throw new SessionRefused('refused');
+            this.deadline = deadline;
             this.epoch = result.epoch;
             refuseIfAborted(this.dependencies.signal);
-            validateLeaseGrant(result.leaseSeconds, this.heartbeatSeconds);
-            this.deadline = sent.withGrant(result.leaseSeconds);
-            if (this.leaseExpired()) throw new SessionRefused('refused');
             this.phase = 'live';
             guard.open();
             this.heartbeat.start(this.heartbeatSeconds);
@@ -201,7 +202,12 @@ export class ClaimedSession {
         this.checkLease();
         if (this.dependencies.signal?.aborted) this.endAuthority();
         if (this.phase !== 'live') return; // a late answer never revives expired authority
-        validateLeaseGrant(result.leaseSeconds, this.heartbeatSeconds);
+        try {
+            validateLeaseGrant(result.leaseSeconds, this.heartbeatSeconds);
+        } catch {
+            this.loseAuthority(); // revoke before any queued tool call can observe this response
+            return;
+        }
         const deadline = sent.withGrant(result.leaseSeconds);
         if (deadline.expired()) {
             this.loseAuthority();

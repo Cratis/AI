@@ -35,9 +35,9 @@ export function leaseMilliseconds(seconds: number): number {
 
 /** Every grant must leave time for another heartbeat at the agreed interval. */
 export function validateLeaseGrant(leaseSeconds: number, heartbeatSeconds: number): void {
-    leaseMilliseconds(leaseSeconds);
-    leaseMilliseconds(heartbeatSeconds);
-    if (heartbeatSeconds >= leaseSeconds || heartbeatSeconds * 1000 > MaxTimeoutMilliseconds) refuse();
+    const leaseMs = leaseMilliseconds(leaseSeconds);
+    const heartbeatMs = leaseMilliseconds(heartbeatSeconds);
+    if (heartbeatMs >= leaseMs || heartbeatMs > MaxTimeoutMilliseconds) refuse();
 }
 
 export const ReleaseOutcomes = ['Delivered', 'Abandoned', 'Blocked', 'Declined'] as const;
