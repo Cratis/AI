@@ -17,7 +17,8 @@ for (const state of ['unclaimed', 'pending', 'open', 'lost', 'released'] as cons
             it(`should ${state === 'pending' || state === 'lost' ? 'block' : 'allow'} ${tool}`, () => guard.blocks(tool).should.equal(state === 'pending' || state === 'lost'));
         }
         for (const tool of ['read', 'grep', 'find', 'ls']) {
-            it(`should allow ${tool}`, () => guard.blocks(tool).should.equal(false));
+            it(`should allow verified ${tool}`, () => guard.blocks(tool, () => true).should.equal(false));
+            it(`should require verification for ${tool} only while restricted`, () => guard.blocks(tool).should.equal(state === 'pending' || state === 'lost'));
         }
     });
 }

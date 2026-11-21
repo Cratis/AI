@@ -20,7 +20,7 @@ for (const grant of ['claim', 'confirmation'] as const) {
             it('should refuse the unusable grant', () => (error as SessionRefused).code.should.equal('refused'));
             it('should leave the guard lost', () => context.guard.state.should.equal('lost'));
             it('should block local writes', () => context.guard.blocks('write').should.equal(true));
-            it('should allow local reads', () => context.guard.blocks('read').should.equal(false));
+            it('should allow verified local reads', () => context.guard.blocks('read', () => true).should.equal(false));
             it('should start no heartbeat timer', () => context.clock.timers.size.should.equal(0));
             it('should start no lease observer', () => context.clock.intervals.size.should.equal(0));
             it('should not release', () => context.gateway.releases.length.should.equal(0));

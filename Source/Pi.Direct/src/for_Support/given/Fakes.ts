@@ -1,7 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
+import type { ExtensionAPI, ToolInfo } from '@earendil-works/pi-coding-agent';
+import { Type } from 'typebox';
 import type {
     ClaimRequest, HeartbeatRequest, HeartbeatResult, ReleaseRequest, ReleaseResult, WorkClaimed
 } from '../../DirectContract.ts';
@@ -9,6 +10,7 @@ import type { DirectGateway } from '../../DirectGateway.ts';
 import type { Clock } from '../../HeartbeatLoop.ts';
 import type { FileInfo, ProofFileSystem } from '../../LaunchProofReader.ts';
 import type { CommandResult, CommandRunner } from '../../SecretStore.ts';
+import { readArguments } from './ReadArguments.ts';
 
 export const sentinelProof = 'c0ffee'.repeat(10) + 'c0ff';
 export const sentinelToken = 'direct_pat_v1_SENTINEL_TOKEN_VALUE';
@@ -158,14 +160,23 @@ export class FakePi {
     readonly tools: Array<{ name: string; execute: (id: string, parameters: Record<string, unknown>) => Promise<{ content: Array<{ text: string }> }> }> = [];
     readonly commands = new Map<string, { handler: (args: string, context: unknown) => Promise<void> }>();
     readonly notifications: string[] = [];
+    readonly toolDefinitions: ToolInfo[] = ['read', 'grep', 'find', 'ls'].map(name => ({
+        name, description: name, parameters: Type.Object({}),
+        sourceInfo: { path: `<builtin:${name}>`, source: 'builtin', scope: 'temporary', origin: 'top-level' }
+    }));
 
-    readonly context = { hasUI: true, cwd: '/work/tree', ui: { notify: (message: string) => { this.notifications.push(message); } } };
+    readonly context = { hasUI: true, cwd: process.cwd(), ui: { notify: (message: string) => { this.notifications.push(message); } } };
 
     readonly api = {
+        getAllTools: () => this.toolDefinitions,
         on: (event: string, handler: Handler) => { this.handlers.set(event, handler); },
         registerTool: (tool: FakePi['tools'][number]) => { this.tools.push(tool); },
         registerCommand: (name: string, command: { handler: (args: string, context: unknown) => Promise<void> }) => { this.commands.set(name, command); }
     } as unknown as ExtensionAPI;
 
-    emit(event: string, payload: unknown = {}): unknown { return this.handlers.get(event)?.(payload, this.context); }
+    emit(event: string, payload: unknown = {}): unknown {
+        const toolName = (payload as { toolName?: string })?.toolName ?? '';
+        const argumentsWithDefaults = event === 'tool_call' ? { input: readArguments(toolName), ...payload as object } : payload;
+        return this.handlers.get(event)?.(argumentsWithDefaults, this.context);
+    }
 }
