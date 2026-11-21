@@ -47,7 +47,19 @@ Activity source: `Cratis.Chronicle.Client` (`ClientActivity.SourceName`). Regist
 | `client.reactor.handle` | `cratis.chronicle.client.reactor.handle` |
 | `client.reducer.handle` | `cratis.chronicle.client.reducer.handle` |
 
-The option form is `ChronicleTelemetryOptions.SpanNames = ClientSpanNames.Convention`. Failed append and handle operations set Error status and `error.type` without messages. Append spans carry `cratis.chronicle.append.outcome`: `success`, `error`, `concurrency_violation` or `constraint_violation`. Both modes also carry shared keys such as `cratis.event_store.name`, `cratis.event_sequence.id` and `cratis.correlation_id`; legacy keys such as `correlation_id` appear only on the unit-of-work spans, so search on the shared key.
+The option form is `ChronicleTelemetryOptions.SpanNames = ClientSpanNames.Convention`. Failed append and handle operations set Error status and `error.type` without messages. Append spans carry `cratis.chronicle.append.outcome`: `success`, `error`, `concurrency_violation` or `constraint_violation`.
+
+Attributes per span and mode (legacy keys are always set; the shared keys are added only in Convention mode):
+
+| Span | Legacy keys (both modes) | Added in Convention mode |
+| --- | --- | --- |
+| append | `event_store_name`, `namespace_name`, `event_sequence_id`, `event_source_type`, `event_source_id` (when traced) | `cratis.event_store.name`, `cratis.event_store.namespace`, `cratis.event_sequence.id`, `cratis.event_source.type`, `cratis.event_source.id` (when traced) |
+| append_many | `event_store_name`, `namespace_name`, `event_sequence_id` | the three matching shared keys |
+| reactor handle | `event_store_name`, `namespace_name`, `event_sequence_id`, `reactor_id` | shared store, namespace and sequence keys, `cratis.observer.id`, `cratis.observer.type=reactor` |
+| reducer handle | same with `reducer_id` | same with `cratis.observer.type=reducer` |
+| unit of work commit and rollback | `correlation_id` | `cratis.correlation_id` |
+
+So in Legacy mode (the default) no client span carries a shared key, and in either mode only the unit-of-work commit and rollback spans carry a correlation id; append, reactor and reducer spans never do. Correlate as follows: Arc command spans carry `cratis.correlation_id` and the client append sits in the same trace, so join them by trace id; the commit or rollback span carries the id under `correlation_id` (Legacy) or `cratis.correlation_id` (Convention); observer spans carry no correlation id, so identify them by observer id and store, namespace and sequence, not by correlation.
 
 Kernel spans call the event source id `cratis.eventsource.id`; client spans use `event_source_id`. Both follow their own exposure setting.
 

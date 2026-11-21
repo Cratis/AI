@@ -66,7 +66,7 @@ Chronicle emits **legacy** names by default (client spans `client.event_sequence
 
 - A command reaching the Chronicle client and its append calls are one trace; the client propagates trace context over gRPC.
 - Observer, reactor and reducer processing is **not** guaranteed to sit under the command's trace. Do not expect observer spans inside the trace of the command that caused them.
-- Join across that boundary with `cratis.correlation_id`, the persisted business id, never with the trace id. The only baggage key is `cratis.correlation_id`.
+- Correlation is partial. Arc spans and the unit-of-work commit and rollback client spans carry the correlation id (`cratis.correlation_id`; the commit span uses `correlation_id` in Legacy mode). Append, reactor and reducer spans carry none in either mode, and observer spans cannot be joined to the command by id: find them by observer id, store, namespace and sequence. The only baggage key is `cratis.correlation_id`. Exact attributes per mode are in `references/arc-and-chronicle-signals.md`.
 
 ## Never record
 
@@ -84,7 +84,7 @@ Run the app against a local viewer; do not claim telemetry works from a clean bu
 1. Start the Aspire dashboard container (image `mcr.microsoft.com/dotnet/aspire-dashboard`, UI on 18888, OTLP/gRPC published as 4317). Anonymous access is local-only. See `references/chronicle-kernel-export.md` (Local viewer).
 2. Start the app with `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317` and open `http://localhost:18888`.
 3. Issue one command that appends an event. Pass when the **Traces** view shows your service name, a `cratis.arc.command.execute` span and a client append span (`client.event_sequence.append`, or `cratis.chronicle.client.event_sequence.append` in convention mode) in one trace.
-4. Pass when a reactor or reducer span (`client.reactor.handle`) appears as its own trace, not nested under the command.
+4. Pass when a reactor span (`client.reactor.handle`; a reducer emits `client.reducer.handle`) appears as its own trace, not nested under the command.
 5. Pass when the same run with `OTEL_EXPORTER_OTLP_ENDPOINT` unset exports nothing and nothing fails.
 6. Stop the dashboard container when done.
 
@@ -100,7 +100,7 @@ Run the app against a local viewer; do not claim telemetry works from a clean bu
 - A hard-coded service name hides a wrong deployment identity; supply it through `OTEL_SERVICE_NAME`, with `options.ServiceName` only as the fallback.
 - Unbounded metric tags create series until the SDK folds the rest into one `otel.metric.overflow=true` series. Arc separately caps 1,000 distinct command or query names and records the rest as `_other`. These are different limits.
 - Rejections (validation, authorization) do not fail a command span; read the outcome attribute.
-- The Chronicle kernel's own setup (`AddChronicleTelemetry`) exports only when an endpoint is set and defaults `service.name` to `Chronicle`; the kernel is configured separately from the application.
+- The Chronicle kernel's own setup (`AddChronicleTelemetry`) exports only when an endpoint is set and always reports `service.name` as `Chronicle` (`OTEL_SERVICE_NAME` does not change it); the kernel is configured separately from the application.
 
 ## References
 
