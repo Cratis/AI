@@ -399,15 +399,15 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | `wc` | `-l -w -c -m` |
 | `ls` | `-l -a -A -1 -h -d -R -t -r -F` |
 | `df` | `-h` |
-| `rg` | `-n -l -i`, `--files`; literal `--glob`/`-g` filters |
+| `rg` | `-n -l -i`, `--files`; literal `--glob`/`-g` filters; with an explicit `--no-config` option only: `-A N -B N -C N -m N` (digits), `-t NAME -T NAME` (alphanumeric), `-S -o -s -I -N` (also in short-flag groups). No `--hidden`, `--no-ignore` or `--iglob` |
 | `grep`, `egrep`, `fgrep` | `-n -i -r -R -l -L -c -v -w -x -F -E -H -h -o -q -s`; `-e PATTERN`, `-A N`, `-B N`, `-C N`; `--include=PATTERN`, `--exclude=PATTERN` or a separate literal pattern value; a search pattern is still required |
 | `echo` | `-n -e -E` |
 | `printf`, `test`, `[`, `true`, `false`, `pwd` | None (in particular, no `printf -v`) |
 | `git status` | `-s -b --short --porcelain` |
-| `git diff` | `--stat --numstat --name-only --name-status --cached --staged --check -p -U<N> --no-color` |
+| `git diff` | `--stat --numstat --name-only --name-status --cached --staged --check -p -U<N> --no-color`; extra presentation flags remain refused (see #1255 below) |
 | `git log` | `--oneline --stat --name-only -n N -nN -<N> -p --no-color --format=<fmt> --pretty=<fmt> --follow` |
 | `git show` | `--stat --name-only -p --no-color --format=<fmt>` |
-| `git add` | `-A -u -p -v --all`, including path globs for installed prompts |
+| `git add` | `-A -u -p -v --all`; literal named paths, including corpus files, and path globs for installed prompts. No `-f` or `-N`/`--intent-to-add` |
 | `git commit` | `-m MSG`, `--message MSG`, `-mMSG`, `-a`, `-q`; `-F FILE` only for a literal non-protected file; no `--no-verify` |
 | `git blame`, `ls-files`, `rev-parse`, `check-ignore`, `grep` | None |
 | `git branch` | Exactly `--show-current`, or `--list` followed only by literal patterns |
@@ -415,6 +415,38 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | `cp` | `-r -R -p -a -f -v -n -i -u -T -L -P -H`; `--recursive --force --verbose --no-clobber --archive --no-target-directory`; `-t DIR`, `-tDIR`, `--target-directory DIR`, `--target-directory=DIR` (also in short-flag groups) |
 | `rsync` | `-a -r -v -n -u -z -t -p`; `--archive --recursive --verbose --dry-run --update --compress --times --perms` |
 | `install` | `-c -v -C -p`; `-d` directory operands; `-m MODE`/`-mMODE` (three or four octal digits); the same target-directory forms as `cp` |
+
+### Read-only admissions and deliberate refusals (#1255)
+
+| Case | Decision | Reason | Workaround |
+| --- | --- | --- | --- |
+| 1: extra `git diff` flags | Refused, unchanged | Any `git diff`, including the forms already accepted, can run `diff.external`, `.gitattributes` textconv or the pager, and these flags do not prevent that (reproduced with `-w` and `--shortstat -p`). Keeping them refused limits what is newly accepted; it does not remove that risk. Re-admission needs guard-enforced sanitized configuration, tracked separately. | Use the existing exact option list above. |
+| 1: extra `rg` flags | Narrow admission | Only the numeric context/count, alphanumeric type and short display flags listed above qualify, and only with an actual `--no-config` option disabling environment-selected configuration. A value or operand spelling `--no-config` does not qualify. Hidden/ignored-file expansion and all other new options stay refused. | Add `--no-config`, for example `rg --no-config -n -C 2 'a]*b' .cratis`. |
+| 2: corpus script execution | Named allowlist, unchanged | The two exact entries below are already accepted; other scripts and `cd X && node …` remain refused because a script or another checkout's copy can write protected paths. | Run the exact named invocation from the current checkout without a `cd` prefix. |
+| 3: scratch heredoc mentioning a protected path | Refused, unchanged | The whole command includes its body even when the destination is unprotected; that file could later be executed or sourced. Quoted/unquoted delimiters and append redirects are not exemptions. Stdout-only `cat <<'EOF'` remains accepted. | Use the Write tool for scratch files containing protected text. |
+| 4: glob-like searches and file/test filters | Quoted search patterns and `ls -d Arc*` already accepted; wildcard test filter refused | `rg 'a]*b' .cratis` and `rg -n '^[a-z-]*' Source` (also with `\| sort`) treat the quoted pattern as data; path operands stay checked. `Foo*` can intersect `*.env`, and `dotnet test` compiles, executes code and writes bin/obj: it is not a read-only verb when a protected reference exists. | Use `dotnet test --filter 'FullyQualifiedName~Foo'` or `--filter 'ClassName=…'`; `~` is already a contains-match. With no protected reference the ordinary policy allows it, not a dotnet exemption. |
+| 5: `git add` a named corpus file | Accepted, unchanged | Staging changes the index, not the working-tree content. The Write/Edit guard still protects that content. Chained content writes, `-f`, `-N`, status-variable and push chains remain refused. | Use `git add -- .cratis/ai/skills/s/SKILL.md` with the exact allowed options. |
+
+These options were refused before #1255. This is a closed allowlist, not an admission
+of arbitrary presentation options: `--pre`, `-f`, `--hostname-bin`, `--type-add`, `-z`,
+unknown options and invalid values remain refused. Output redirects to protected paths
+and pipelines to writers remain refused too. The existing protected-reference scan and
+lexer are unchanged; the guard remains best-effort, not a sandbox.
+
+#### Named scripts
+
+Only these exact interpreter/path pairs qualify, with no `./`, variable, glob or
+alternate spelling and no preceding directory change:
+
+- `node .cratis/ai/hooks/scripts/cratis-check-pr.mjs`: `--strict`, and value options
+  `--body-file`, `--label`, `--add-label`, `--remove-label`, `--pr`, `--base`, `--repo`.
+  Values must be nonempty literal words, not start with `-`, and not be globbed.
+- `bash .cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh`: `--dry-run`, `--quiet`,
+  `--no-fetch` only.
+
+This is not permission to run arbitrary corpus scripts: `cratis-check-handoff.mjs`
+and all other scripts remain refused. Redirect destinations and chained commands
+are still checked separately.
 
 The only global Git option exemption is a single separate `-C <dir>` with a literal,
 non-empty directory word not starting with `-`, followed by exactly one of these tails:
@@ -426,6 +458,19 @@ all other global options (`-c`, `--git-dir`, `--work-tree`, `--no-pager`, `--exe
 remain denied. `-C` gives **no protection** from a hostile repository's configuration:
 fsmonitor, hooks, pager and diff/textconv helpers can still run. This is a syntax filter,
 not a repository sandbox.
+
+Known limitations of the same kind (both need control of the local environment or Git
+configuration, which the guard cannot see):
+
+- Plain `rg` forms that were already accepted (`-n`, `-l`, `-i`, `--files`) do not require
+  `--no-config`, so a `RIPGREP_CONFIG_PATH` set in the environment can add options such as
+  `--pre`. Only the flags admitted for #1255 require a literal `--no-config`; requiring it for
+  every `rg` would refuse the most common read-only searches.
+- Already accepted `git diff` forms (for example `-p` or `-U2`) run an inherited
+  `GIT_EXTERNAL_DIFF` program. Controlling the environment already implies code execution,
+  so the guard does not try to detect it.
+- `git add <file>` runs any `filter.<name>.clean` driver defined in Git configuration for a
+  path that `.gitattributes` assigns to that filter.
 Git format values containing `%(` are not accepted. Index/commit operations are deliberate
 allowances, not general shell execution permission. Output-to-file options such as
 `git diff --output=...` are never exempt, even with a non-protected destination on a line

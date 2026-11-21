@@ -186,7 +186,12 @@ test('available awk variants preserve credential and shell-reference decisions',
             const bin = join(directory, name.replace(/\W/g, '-'));
             mkdirSync(bin);
             writeFileSync(join(bin, 'awk'), `#!/bin/sh\nexec ${executable} "$@"\n`, { mode: 0o755 });
-            const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, CRATIS_HOOKS_ALLOW_SECRET_READS: '' };
+            const env = {
+                ...process.env,
+                PATH: `${bin}:${process.env.PATH}`,
+                CRATIS_HOOKS_ALLOW_SECRET_READS: '0',
+                CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0',
+            };
             const cases: [string, string, number | null][] = [
                 ['cratis-guard-secrets.sh', String.raw`x=[fail\]; cat $x`, null],
                 ['cratis-guard-secrets.sh', String.raw`for f in [fail\]; do cat $f; done`, null],
