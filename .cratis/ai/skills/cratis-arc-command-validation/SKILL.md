@@ -66,7 +66,7 @@ under `Off` (set explicitly, or the Arc 22 behavior) it is a hint, never the mec
 | --- | --- |
 | A reusable value invariant — length, format, range | `ConceptValidator<T>` on the concept type |
 | Command input, cross-field, or a pre-handler check | `CommandValidator<TCommand>` with `RuleFor(...)` |
-| A dependency on data the handler must fetch first | `Provide()` — fetch, and short-circuit if unusable |
+| A dependency on data the handler must fetch first | `Provide()` — acquire inputs; only short-circuit if acquisition yields nothing usable |
 | State-dependent and must hold **under concurrency** | Under `On`, a `CommandValidator<T>` with the read model as a constructor parameter (Step 5); or `IStreamReads`/`StreamDecision`; return events through Arc. `[ProtectedDecision]` + `DecisionRead<T>` is the older per-command opt-in |
 | Uniqueness | A Chronicle constraint, never a command-side read |
 | A genuine defect or missing infrastructure | `throw` a domain exception |
@@ -152,17 +152,15 @@ metadata. Do not conflate metadata coverage with validator certification.
 `Provide()` runs after authorization and validation and before `Handle()`. Its
 parameters resolve from dependency injection; the command instance is `this`.
 
-```csharp
-public async Task<Result<Customer, ValidationResult>> Provide(IReadModels readModels)
-{
-    var customer = await readModels.GetInstanceById<Customer>((EventSourceId)CustomerId);
-    return customer is null ? ValidationResult.Error("Customer must exist.") : customer;
-}
-```
+Validators own refusals, including read-model existence; `Provide()` only
+short-circuits when acquisition itself yields nothing usable. Read
+[read-model-resolution.md](references/read-model-resolution.md) for the validator-owned
+existence check and [provide-example.md](../cratis-arc-command/references/provide-example.md)
+for an external lookup that yields no data.
 
-- Returning a `ValidationResult`, an `IEnumerable<ValidationResult>`, an
-  `AuthorizationResult`, or a `CommandResult` short-circuits: `Handle()` is
-  never invoked.
+- When acquisition yields nothing usable, a returned `ValidationResult`, an
+  `IEnumerable<ValidationResult>`, an `AuthorizationResult`, or a `CommandResult`
+  short-circuits: `Handle()` is never invoked.
 - A `Result<TProvided, ValidationResult>` has its inner value unwrapped, so the
   success arm flows to `Handle()` and the error arm short-circuits.
 - A returned tuple is flattened and its elements bound to `Handle()` parameters
@@ -170,8 +168,9 @@ public async Task<Result<Customer, ValidationResult>> Provide(IReadModels readMo
   an unused one is `ARC0005`.
 - Keep the fetch in `Provide()` and the decision in `Handle()`. Do not write a
   pass-through `Provide()` that only forwards a read model `Handle()` could take
-  directly, and do not duplicate one rejection in both the validator and
-  `Provide()` — pick one owner.
+  directly. Pick one rejection owner: validators for existence/preconditions;
+  `Result<TEvent, ValidationResult>` in `Handle()` only for a rule depending on the
+  event decision. Do not duplicate the same rejection.
 
 ## Step 5 — Guard a concurrency-sensitive decision
 
