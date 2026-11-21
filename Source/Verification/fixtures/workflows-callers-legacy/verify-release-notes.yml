@@ -1,6 +1,7 @@
 # [vendored] Cratis/Workflows caller template .github/workflows/verify-release-notes.yml
 # [vendored] source: https://github.com/Cratis/Workflows/blob/55135e76c2a1fb9f4bd8014df3a4ce6d7411bdfc/.github/scripts/bootstrap-common-workflows.sh (BOOTSTRAPPED_FILES)
-# [vendored] commit: 55135e76c2a1fb9f4bd8014df3a4ce6d7411bdfc; refresh with CRATIS_CONTRACT_LIVE=1 to detect drift
+# [vendored] commit: 55135e76c2a1fb9f4bd8014df3a4ce6d7411bdfc
+# [vendored] legacy: LEGACY_WRAPPER_HASHES migration payload; bootstrap replaces this caller (verified at 5823f48dfccfd6a2522ffa9035655d43f2aff17b); excluded from live comparison
 name: Verify Release Notes
 
 # Thin caller of the organization-wide release-notes gate. This pull request's

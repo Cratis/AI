@@ -4,10 +4,10 @@
 /**
  * Contract between cratis-check-pr and the caller workflows that Cratis/Workflows publishes (Cratis/AI#855).
  *
- * The callers are vendored under fixtures/workflows-callers with their source URL and commit in a header, so the
- * default run needs no network. A Workflows change that breaks the detection is caught by refreshing the
- * fixtures: set CRATIS_CONTRACT_LIVE=1 (needs an authenticated gh) to compare them with Cratis/Workflows main.
- * The live comparison is opt-in, not part of the default test run.
+ * Installed callers are vendored under fixtures/workflows-callers with their source URL and commit in a header.
+ * Retired callers stay under fixtures/workflows-callers-legacy to cover repositories awaiting bootstrap migration.
+ * The default run needs no network. Set CRATIS_CONTRACT_LIVE=1 (needs an authenticated gh) to compare only the
+ * installed callers with Cratis/Workflows main. The live comparison is opt-in, not part of the default test run.
  */
 
 import assert from 'node:assert/strict';
@@ -20,19 +20,38 @@ import test from 'node:test';
 const root = resolve(import.meta.dirname, '..', '..');
 const checker = join(root, '.cratis', 'ai', 'hooks', 'scripts', 'cratis-check-pr.mjs');
 const fixtures = join(import.meta.dirname, 'fixtures', 'workflows-callers');
+const legacyFixtures = join(import.meta.dirname, 'fixtures', 'workflows-callers-legacy');
 const bootstrapPath = '.github/scripts/bootstrap-common-workflows.sh';
 
 /** The bootstrap script renders these tokens into the policy caller; fill them the way a typical repository gets them. */
 const tokens: Record<string, string> = {
-    '__DEPENDABOT_JOB__': '', '__POLICY_NEEDS__': '', '__POLICY_RUNNER__': 'ubuntu-latest', '__RELEASE_INTENT__': 'true',
+    '__POLICY_RUNNER__': 'ubuntu-latest', '__RELEASE_INTENT__': 'true',
 };
 
 const vendored = readdirSync(fixtures).filter(name => name.endsWith('.yml')).sort();
+const legacyVendored = readdirSync(legacyFixtures).filter(name => name.endsWith('.yml')).sort();
+const callerFixtures = [
+    ...vendored.map(name => ({ name, directory: fixtures })),
+    ...legacyVendored.map(name => ({ name, directory: legacyFixtures })),
+];
 const withoutHeader = (text: string): string => text.split('\n').filter(line => !line.startsWith('# [vendored]')).join('\n');
-const rendered = (name: string): string => Object.entries(tokens)
-    .reduce((text, [token, value]) => text.replaceAll(token, value), withoutHeader(readFileSync(join(fixtures, name), 'utf8')));
+const rendered = (name: string, directory: string): string => Object.entries(tokens)
+    .reduce((text, [token, value]) => text.replaceAll(token, value), withoutHeader(readFileSync(join(directory, name), 'utf8')));
 
-function repository(callers: string[]): { directory: string; env: NodeJS.ProcessEnv; cleanup: () => void } {
+function publishedCallers(bootstrap: string): Map<string, string> {
+    const live = new Map<string, string>();
+    for (const match of bootstrap.matchAll(/^BOOTSTRAPPED_FILES\["\.github\/workflows\/(verify-(?:pull-request-policy|release-notes|semver-label|release-intent)\.yml)"\]="([A-Za-z0-9+/=]+)"/gm)) {
+        live.set(match[1], Buffer.from(match[2], 'base64').toString('utf8'));
+    }
+    // Mirror bootstrap's later loop that unsets every LEGACY_WRAPPER_HASHES entry before installation.
+    // Parse the declarations only; never execute a remotely fetched script.
+    for (const match of bootstrap.matchAll(/^LEGACY_WRAPPER_HASHES\["\.github\/workflows\/([^"\n]+)"\]=/gm)) {
+        live.delete(match[1]);
+    }
+    return live;
+}
+
+function repository(callers: string[], fixtureDirectory = fixtures): { directory: string; env: NodeJS.ProcessEnv; cleanup: () => void } {
     const directory = mkdtempSync(join(tmpdir(), 'cratis-check-pr-callers-'));
     const stubs = join(directory, 'stubs');
     mkdirSync(stubs);
@@ -41,7 +60,7 @@ function repository(callers: string[]): { directory: string; env: NodeJS.Process
     chmodSync(join(stubs, 'gh'), 0o755);
     const work = join(directory, 'work');
     mkdirSync(join(work, '.github', 'workflows'), { recursive: true });
-    for (const name of callers) writeFileSync(join(work, '.github', 'workflows', name), rendered(name));
+    for (const name of callers) writeFileSync(join(work, '.github', 'workflows', name), rendered(name, fixtureDirectory));
     const git = (...args: string[]) => assert.equal(spawnSync('git', ['-C', work, ...args], { encoding: 'utf8' }).status, 0, args.join(' '));
     git('init', '-q');
     git('remote', 'add', 'origin', 'https://github.com/Cratis/Contract.git');
@@ -62,16 +81,36 @@ const hook = (r: ReturnType<typeof repository>) => spawnSync(process.execPath, [
 });
 
 test('the vendored fixtures cover each published release-policy caller and name their source', () => {
-    assert.deepEqual(vendored, ['verify-pull-request-policy.yml', 'verify-release-notes.yml', 'verify-semver-label.yml']);
+    assert.deepEqual(vendored, ['verify-pull-request-policy.yml']);
     for (const name of vendored) {
         const text = readFileSync(join(fixtures, name), 'utf8');
         assert.match(text, /^# \[vendored\] source: https:\/\/github\.com\/Cratis\/Workflows\/blob\/[0-9a-f]{40}\//m, name);
+        assert.doesNotMatch(text, /normalize-dependabot-labels\.yml/, name);
     }
 });
 
-for (const name of vendored) {
-    test(`${name}: the checker finds the published caller and checks the pull request against it`, () => {
-        const r = repository([name]);
+test('the legacy fixtures identify the retired callers that bootstrap replaces', () => {
+    assert.deepEqual(legacyVendored, ['verify-release-notes.yml', 'verify-semver-label.yml']);
+    for (const name of legacyVendored) {
+        const text = readFileSync(join(legacyFixtures, name), 'utf8');
+        assert.match(text, /^# \[vendored\] legacy: LEGACY_WRAPPER_HASHES migration payload; bootstrap replaces this caller/m, name);
+    }
+});
+
+test('the live caller extraction excludes migration payloads that bootstrap unsets before installation', () => {
+    const bootstrap = [
+        ...callerFixtures.map(({ name }) => `BOOTSTRAPPED_FILES[".github/workflows/${name}"]="${Buffer.from(name).toString('base64')}"`),
+        ...legacyVendored.map(name => `LEGACY_WRAPPER_HASHES[".github/workflows/${name}"]="historical-blob"`),
+        'for legacy_path in "${!LEGACY_WRAPPER_HASHES[@]}"; do',
+        `  unset 'BOOTSTRAPPED_FILES['"$legacy_path"']'`,
+        'done',
+    ].join('\n');
+    assert.deepEqual(publishedCallers(bootstrap), new Map(vendored.map(name => [name, name])));
+});
+
+for (const { name, directory } of callerFixtures) {
+    test(`${name}: the checker finds the caller and checks the pull request against it`, () => {
+        const r = repository([name], directory);
         try {
             const result = run(r, []);
             assert.doesNotMatch(result.stderr, /No Cratis\/Workflows policy caller found/, `${name} was not recognized as a caller\n${result.stderr}`);
@@ -124,11 +163,8 @@ test('the hook stays a no-op in a repository with no caller', () => {
 test('the vendored callers still match Cratis/Workflows main', { skip: process.env.CRATIS_CONTRACT_LIVE !== '1' && 'set CRATIS_CONTRACT_LIVE=1 to compare with the live Cratis/Workflows callers' }, () => {
     const gh = spawnSync('gh', ['api', '-H', 'Accept: application/vnd.github.raw', `repos/Cratis/Workflows/contents/${bootstrapPath}`], { encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 });
     assert.equal(gh.status, 0, gh.stderr);
-    const live = new Map<string, string>();
-    for (const match of gh.stdout.matchAll(/^BOOTSTRAPPED_FILES\["(\.github\/workflows\/verify-[^"]+\.yml)"\]="([A-Za-z0-9+/=]+)"/gm)) {
-        live.set(match[1].split('/').pop() as string, Buffer.from(match[2], 'base64').toString('utf8'));
-    }
-    const policyCallers = [...live.keys()].filter(name => /^verify-(pull-request-policy|release-notes|semver-label|release-intent)\.yml$/.test(name)).sort();
+    const live = publishedCallers(gh.stdout);
+    const policyCallers = [...live.keys()].sort();
     assert.deepEqual(policyCallers, vendored, 'Cratis/Workflows publishes a different set of callers; vendor the new one and extend this contract');
     for (const name of vendored) assert.equal(withoutHeader(readFileSync(join(fixtures, name), 'utf8')), live.get(name), `${name} drifted from Cratis/Workflows; refresh the fixture and re-run`);
 });
