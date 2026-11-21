@@ -399,12 +399,12 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | `wc` | `-l -w -c -m` |
 | `ls` | `-l -a -A -1 -h -d -R -t -r -F` |
 | `df` | `-h` |
-| `rg` | `-n -l -i`, `--files`; literal `--glob`/`-g` filters |
+| `rg` | `-n -l -i`, `--files`; literal `--glob`/`-g` filters; with an explicit `--no-config` option only: `-A N -B N -C N -m N` (digits), `-t NAME -T NAME` (alphanumeric), `-S -o -s -I -N` (also in short-flag groups). No `--hidden`, `--no-ignore` or `--iglob` |
 | `grep`, `egrep`, `fgrep` | `-n -i -r -R -l -L -c -v -w -x -F -E -H -h -o -q -s`; `-e PATTERN`, `-A N`, `-B N`, `-C N`; `--include=PATTERN`, `--exclude=PATTERN` or a separate literal pattern value; a search pattern is still required |
 | `echo` | `-n -e -E` |
 | `printf`, `test`, `[`, `true`, `false`, `pwd` | None (in particular, no `printf -v`) |
 | `git status` | `-s -b --short --porcelain` |
-| `git diff` | `--stat --numstat --name-only --name-status --cached --staged --check -p -U<N> --no-color` |
+| `git diff` | `--stat --numstat --name-only --name-status --cached --staged --check -p -U<N> --no-color`; extra presentation flags remain refused (see #1255 below) |
 | `git log` | `--oneline --stat --name-only -n N -nN -<N> -p --no-color --format=<fmt> --pretty=<fmt> --follow` |
 | `git show` | `--stat --name-only -p --no-color --format=<fmt>` |
 | `git add` | `-A -u -p -v --all`, including path globs for installed prompts |
@@ -415,6 +415,19 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | `cp` | `-r -R -p -a -f -v -n -i -u -T -L -P -H`; `--recursive --force --verbose --no-clobber --archive --no-target-directory`; `-t DIR`, `-tDIR`, `--target-directory DIR`, `--target-directory=DIR` (also in short-flag groups) |
 | `rsync` | `-a -r -v -n -u -z -t -p`; `--archive --recursive --verbose --dry-run --update --compress --times --perms` |
 | `install` | `-c -v -C -p`; `-d` directory operands; `-m MODE`/`-mMODE` (three or four octal digits); the same target-directory forms as `cp` |
+
+### Read-only admissions and deliberate refusals (#1255)
+
+| Case | Decision | Reason | Workaround |
+| --- | --- | --- | --- |
+| 1: extra `git diff` flags | Refused, unchanged | Presentation flags do not prevent execution through `diff.external`, `.gitattributes` textconv or the pager; reproduced with `-w` and `--shortstat -p`. Re-admission needs guard-enforced sanitized configuration, tracked separately. | Use the existing exact option list above. |
+| 1: extra `rg` flags | Narrow admission | Only the numeric context/count, alphanumeric type and short display flags listed above qualify, and only with an actual `--no-config` option disabling environment-selected configuration. A value or operand spelling `--no-config` does not qualify. Hidden/ignored-file expansion and all other new options stay refused. | Add `--no-config`, for example `rg --no-config -n -C 2 'a]*b' .cratis`. |
+
+These options were refused before #1255. This is a closed allowlist, not an admission
+of arbitrary presentation options: `--pre`, `-f`, `--hostname-bin`, `--type-add`, `-z`,
+unknown options and invalid values remain refused. Output redirects to protected paths
+and pipelines to writers remain refused too. The existing protected-reference scan and
+lexer are unchanged; the guard remains best-effort, not a sandbox.
 
 The only global Git option exemption is a single separate `-C <dir>` with a literal,
 non-empty directory word not starting with `-`, followed by exactly one of these tails:

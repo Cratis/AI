@@ -275,10 +275,10 @@ function short_flags(w, flags,    k) {
     return 1
 }
 function number(s) { return s ~ /^[+-]?[0-9]+$/ }
-function options_allowed(verb, first,    i, w, filters, patterns, ended) {
+function options_allowed(verb, first,    i, w, filters, patterns, ended, rg_new, no_config) {
     for (i = first; i <= argc; i++) {
         w = W[i]
-        if (!ended && w == "--") { if (verb !~ /^(sort|uniq)$/) return 1; ended = 1; continue }
+        if (!ended && w == "--") { if (verb !~ /^(sort|uniq)$/) return !rg_new || no_config; ended = 1; continue }
         if (ended || w !~ /^-/ || w == "-") {
             # Admit sort/uniq only as stdin filters. File operands, including after
             # --, retain whole-command classification and every existing refusal.
@@ -306,6 +306,20 @@ function options_allowed(verb, first,    i, w, filters, patterns, ended) {
             }
         }
         if (verb == "git diff" && w ~ /^-U[0-9]+$/) continue
+        # New rg display/filter flags require an actual option, never a pattern or option value,
+        # disabling config-supplied helpers. Hidden/ignored-file expansion stays refused.
+        if (verb == "rg") {
+            if (w == "--no-config") { no_config = 1; continue }
+            if (w == "-A" || w == "-B" || w == "-C" || w == "-m") {
+                if (++i > argc || W[i] !~ /^[0-9]+$/) return 0
+                rg_new = 1; continue
+            }
+            if (w == "-t" || w == "-T") {
+                if (++i > argc || globbed[i] || W[i] !~ /^[A-Za-z0-9]+$/) return 0
+                rg_new = 1; continue
+            }
+            if (short_flags(w, "nliSosIN") && !short_flags(w, short_options[verb])) { rg_new = 1; continue }
+        }
         if (verb == "shellcheck" && w ~ /^--severity=(error|warning|info|style)$/) continue
         if ((verb == "git log" && w ~ /^--(format|pretty)=/) || (verb == "git show" && w ~ /^--format=/)) {
             if (index(w, "%(")) return 0
@@ -327,7 +341,7 @@ function options_allowed(verb, first,    i, w, filters, patterns, ended) {
         }
         if (!short_flags(w, short_options[verb])) return 0
     }
-    return !filters || patterns > 0
+    return (!filters || patterns > 0) && (!rg_new || no_config)
 }
 # awk is read-only only for the shape awk [-F sep] 'program' operands. Every other option (-f, -v, -e, -i,
 # --include, --, ...) is refused. awk output, execution and file reads need one of > | system getline close
