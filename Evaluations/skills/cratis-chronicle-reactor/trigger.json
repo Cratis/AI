@@ -10,6 +10,7 @@
     { "query": "UnhandledReactorReturnValue failed my partition. my handler returns a string", "shouldTrigger": true },
     { "query": "i renamed my reactor class and now it sent every email again from the start", "shouldTrigger": true },
     { "query": "[OnceOnly] on the handler. will it prevent the email going out twice when the partition is recovered?", "shouldTrigger": true },
+    { "query": "After a command succeeds I must send a confirmation email exactly once even if the reactor is retried; what's the pattern?", "shouldTrigger": true },
     { "query": "Build a read model of unread notifications from the events.", "shouldTrigger": false, "note": "cratis-chronicle-read-model" },
     { "query": "Write a reducer that folds the balance from credits and debits.", "shouldTrigger": false, "note": "cratis-chronicle-reducer" },
     { "query": "Run an existing command from backend code using ICommandPipeline.", "shouldTrigger": false, "note": "cratis-arc-command-execution" },

@@ -112,7 +112,7 @@ stack for this application work.
 processes a non-null result, so a `null` is success with nothing appended and the
 caller is told a command succeeded that never happened. Missing state or a failed
 rule is a rejection: return `Result<TEvent, ValidationResult>` with
-`ValidationResult.Error(...)`, or reject in a validator or `Provide()`. Optional
+`ValidationResult.Error(...)`, or reject in a validator, not `Provide()`. Optional
 `ICommandOperation` returns are a separate contract and unaffected. `ARCCHR0015` warns on nullable event returns. A nullable
 read-model parameter (`ARC0006`) is handled by rejecting, never by returning a
 nullable event.
@@ -191,9 +191,9 @@ to `Handle`'s parameters by type.
 
 Read [references/provide-example.md](references/provide-example.md) for a worked `Provide()` example.
 
-- Short-circuit with `ValidationResult.Error(...)`; do not throw for a rejection
-  the user can act on. A thrown exception surfaces as `HasExceptions` and HTTP
-  500, not as a validation failure.
+- Validators own refusals, including read-model existence. Only short-circuit
+  with `ValidationResult.Error(...)` when acquisition yields nothing usable.
+  A thrown exception surfaces as `HasExceptions` and HTTP 500, not validation.
 - Every value `Provide` returns must be consumed by a `Handle` parameter.
   `ARC0005` warns otherwise. `ValidationResult`, `AuthorizationResult` and
   `CommandResult` are exempt because they short-circuit rather than feed `Handle`.
@@ -278,7 +278,7 @@ Keep `Handle` a pure function of the command, its read-model parameters and
 provided values: that makes it specifiable by a plain call. Start `Handle()` and
 validator decisions with direct calls and supplied read-model state. Add the
 pipeline scenario plus a negative proof per authorization policy, validator
-rejection and `Provide()` short-circuit, and a constraint scenario; never
+rejection and acquisition-only `Provide()` short-circuit, and a constraint scenario; never
 read-protection plumbing or simulated concurrency. Follow the
 [decision table](../../rules/specs.scenarios.csharp.md).
 
