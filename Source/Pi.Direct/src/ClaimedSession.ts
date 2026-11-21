@@ -196,25 +196,21 @@ export class ClaimedSession {
     }
 
     private async beat(): Promise<void> {
-        const { gateway, environment, clock } = this.dependencies;
-        const sent = LeaseDeadline.start(clock, MaxLeaseSeconds);
-        const result = await gateway.heartbeat({ workHandle: environment.workHandle, claimId: this.claimId, epoch: this.epoch });
-        this.checkLease();
-        if (this.dependencies.signal?.aborted) this.endAuthority();
-        if (this.phase !== 'live') return; // a late answer never revives expired authority
         try {
+            const { gateway, environment, clock } = this.dependencies;
+            const sent = LeaseDeadline.start(clock, MaxLeaseSeconds);
+            const result = await gateway.heartbeat({ workHandle: environment.workHandle, claimId: this.claimId, epoch: this.epoch });
+            this.checkLease();
+            if (this.dependencies.signal?.aborted) this.endAuthority();
+            if (this.phase !== 'live') return; // a late answer never revives expired authority
             validateLeaseGrant(result.leaseSeconds, this.heartbeatSeconds);
+            const deadline = sent.withGrant(result.leaseSeconds);
+            if (deadline.expired()) throw new SessionRefused('refused');
+            this.deadline = deadline;
+            this.epoch = result.epoch;
         } catch {
-            this.loseAuthority(); // revoke before any queued tool call can observe this response
-            return;
+            this.loseAuthority(); // revoke in this continuation, before the beat promise settles
         }
-        const deadline = sent.withGrant(result.leaseSeconds);
-        if (deadline.expired()) {
-            this.loseAuthority();
-            return;
-        }
-        this.deadline = deadline;
-        this.epoch = result.epoch;
     }
 
     private startObserver(): void {
