@@ -25,15 +25,7 @@ permissions:
   pull-requests: read
 
 jobs:
-  dependabot-labels:
-    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.event.pull_request.base.ref == 'main'
-    uses: Cratis/Workflows/.github/workflows/normalize-dependabot-labels.yml@ca36e5bcfb27092ab4bf868c3643d0c2948f9b9e # main on 2026-10-18
-    permissions:
-      pull-requests: write
-
   policy:
-    needs: dependabot-labels
-    if: ${{ !cancelled() }}
     uses: Cratis/Workflows/.github/workflows/verify-pull-request-policy.yml@ca36e5bcfb27092ab4bf868c3643d0c2948f9b9e # main on 2026-10-18
     with:
       runs-on: ${{ vars.RUNNER_GATE || 'ubuntu-latest' }}
