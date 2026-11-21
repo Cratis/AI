@@ -125,8 +125,12 @@ import { DataPage, MenuItem, Column } from '@cratis/components/DataPage';
 
 `MenuItem` is a declarative Components element read by `DataPage.MenuItems` (use `command`, not
 `onClick`); `disableOnUnselected` greys it out until a row is selected; its `icon` is a **React
-component type** (e.g. a `react-icons` icon), not an `Icon`. See the **cratis-arc-react-page** skill
-for the full page workflow.
+component type** (e.g. a `react-icons` icon), not an `Icon`. Actions and `disabled` predicates
+receive the committed `DataPageSelection<T>`; type callbacks with `<DataPage.MenuItem<Row>>`.
+Single selection reconciles query replacements/removals by `dataKey` (reference without one);
+controlled consumers must accept `onSelectionChange`'s `event.value` to avoid stale details.
+Search/filter/sort is loaded-page-only unless the caller maps `serverQuery` state into backend
+query arguments. See the **cratis-arc-react-page** skill's `references/data-page.md` for contracts.
 
 ## Composition over Monoliths
 

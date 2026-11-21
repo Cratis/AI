@@ -132,6 +132,23 @@ The command then executes, and on failure calls `onValidationFailure(result.vali
 or `onFailed(result)` and **keeps the dialog open**. On success it calls
 `onSuccess(result.response)` and then the close gate.
 
+Validator refusals and acquisition failures returned from `Provide()` both
+arrive through `validationResults`, not a successful `response`. Validators own
+refusals when usable facts exist; `Provide()` short-circuits only when acquisition
+yields nothing usable. In failure callbacks, branch on `reason`/`reasonDetail`,
+never `.message`. Non-rule reasons such as `dependencyUnavailable`,
+`validatorFailed`, `concurrencyViolation`, `constraintViolation` and
+`frameworkFailure` need safe application feedback, not automatic field errors.
+
+The underlying `CommandForm` renders raw validation messages inline or in its
+summary. `onValidationFailure` does not suppress that display, and
+`toastCommandResult` joins raw messages too. Use `showErrors={false}` (forwarded
+by `CommandDialog` to the form) and application-owned feedback when non-rule
+diagnostics could be shown. Do not display `exceptionMessages` or
+`exceptionStackTrace` to users. See [queries-and-commands.md](queries-and-commands.md)
+for the result shape and reason handling; the framework does not sanitize these
+validation messages.
+
 ### `initialValues` versus `onBeforeExecute`
 
 Validation runs against the pre-transform values, so a required value seeded in

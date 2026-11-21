@@ -139,17 +139,19 @@ Inside dialogs, use `CommandDialog` + CommandForm fields rather than driving the
 |---|---|---|
 | `isSuccess` | `isAuthorized && isValid && !hasExceptions` | happy path |
 | `isAuthorized` | `[Roles]`/policy rejected | redirect to login / "not allowed" |
-| `isValid` | validation failed — `validationResults` has per-field messages | render inline field errors |
+| `isValid` | false when blocking `validationResults` exist | reason-aware feedback, not always field errors |
 | `hasExceptions` | `Provide()`/`Handle()` threw — `exceptionMessages` carry diagnostics | generic error toast + log; never show stack traces |
 
-`CommandDialog` handles all of this automatically; the flags matter most when executing a command **outside** a dialog. `validate()` returns the same shape with `response == null` (handler did not run). `result.validationResults` is a `ValidationResult[]` of `{ severity, message, members: string[], state, reason, reasonDetail? }` — `members` names the affected properties — render per-field UI from it, but **never branch on raw `.message` text**. `exceptionMessages`/`exceptionStackTrace` are for logging, never for users.
+`CommandDialog` wires execution and callbacks; it does not sanitize validation messages. `validate()` returns the same shape with `response == null` (handler did not run). `result.validationResults` is a `ValidationResult[]` of `{ severity, message, members: string[], state, reason, reasonDetail? }`. Validator refusals and acquisition failures returned from `Provide()` share this channel. Validators own refusals when usable facts exist; `Provide()` short-circuits only when acquisition yields nothing usable. `Handle()` must not repeat business validation. Use `response` only on success.
+
+Branch on `reason`/`reasonDetail`, **never raw `.message` text**. Only application-authored rule messages are field-error copy matched through `members`. Non-rule reasons (`dependencyUnavailable`, `validatorFailed`, `concurrencyViolation`, `constraintViolation`, `frameworkFailure`, or unknown reasons) need safe application feedback. `CommandForm` renders raw validation messages and `toastCommandResult` joins them; neither sanitizes diagnostics. Use application-owned feedback and `showErrors={false}` where necessary. `exceptionMessages`/`exceptionStackTrace` are for logging, never for users. See the **cratis-arc-react-page** skill's `references/queries-and-commands.md`.
 
 Out-of-dialog execution branches in this order:
 
 ```tsx
 const result = await command.execute();
 if (!result.isAuthorized) { redirectToLogin(); return; }
-if (!result.isValid)      { /* validationResults → inline field errors */ return; }
+if (!result.isValid)      { /* validationResults → reason-aware feedback */ return; }
 if (result.hasExceptions) { toast.error({ title: 'Something went wrong' }); console.error(result.exceptionMessages); return; }
 // happy path — refresh queries, close, etc.
 ```

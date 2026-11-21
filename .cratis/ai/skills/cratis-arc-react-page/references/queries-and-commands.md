@@ -176,18 +176,19 @@ const result = await command.execute();
 | --- | --- | --- |
 | `isSuccess` | authorized, valid, and no exception | happy path |
 | `isAuthorized` | roles or policy rejected the call | redirect to login, or "not allowed" |
-| `isValid` | validation failed — `validationResults` carries the messages | render inline field errors |
+| `isValid` | false when blocking `validationResults` exist | reason-aware feedback; only authored rule messages are field-error copy |
 | `hasExceptions` | the handler threw — `exceptionMessages` carries diagnostics | generic error, and log it |
 
 The result also carries `correlationId`, `authorizationFailureReason`,
-`exceptionStackTrace`, and the typed `response`. Fluent callbacks
+`exceptionStackTrace`, and the typed `response`. Only use `response` after
+success; refusals and faults expose no usable response. Fluent callbacks
 `onSuccess`, `onFailed`, `onException`, `onUnauthorized`, and
 `onValidationFailure` each return the result for chaining.
 
 ```tsx
 const result = await command.execute();
 if (!result.isAuthorized) { redirectToLogin(); return; }
-if (!result.isValid) { /* validationResults -> inline field errors */ return; }
+if (!result.isValid) { /* validationResults -> reason-aware feedback below */ return; }
 if (result.hasExceptions) { console.error(result.exceptionMessages); return; }
 ```
 
@@ -204,14 +205,52 @@ class ValidationResult {
 }
 ```
 
-Render per-field errors from `members` and `message`. Never branch on the raw
-message text. `exceptionMessages` and `exceptionStackTrace` are for logging,
-never for users.
+### Validator and acquisition outcomes
+
+Application-authored validator refusals, explicit `ValidationResult` outcomes
+from `Provide()`/`Handle()`, and `IEnumerable<ValidationResult>` outcomes from
+`Provide()` reach the same `validationResults` channel (subject to blocking
+severity). This is not a
+license for validation in either method: validators own refusals once usable
+facts exist. `Provide()` short-circuits only when acquisition yields nothing
+usable; `Handle()` performs effects, not duplicate business validation.
+
+`ValidationResultReason` is an open string set, not a closed enum. Branch on
+`reason` and, where needed, `reasonDetail` (such as a constraint name), never on
+`.message` text. `state` is carried through from the author, not a safety marker.
+
+| `reason` | Client treatment |
+| --- | --- |
+| `rule` | application-authored rule copy may be shown and matched to fields through `members` |
+| `dependencyUnavailable` | required facts were unavailable before rules could run; safe page/dialog feedback, not a fabricated field error |
+| `validatorFailed` | a validator threw; safe generic feedback and diagnostic logging |
+| `concurrencyViolation` | stale state; offer an application-appropriate re-read/retry path |
+| `constraintViolation` | choose safe application copy using `reasonDetail`, not the diagnostic message |
+| `frameworkFailure` | framework contract/effects failure; safe generic feedback and diagnostic logging |
+| `malformedRequest` or an unknown reason | safe fallback; do not display the raw message |
+
+Non-rule `message` values are developer diagnostics, not user-facing copy.
+`exceptionMessages` and `exceptionStackTrace` are likewise for logging, never
+for users. Do not turn every invalid result into inline field errors.
+
+### Feedback helpers are not message sanitizers
 
 `toastCommandResult(result, options)` from `@cratis/components/Notifications`
-collapses the whole branch into one call — mount a `<Toaster />` near the app
-root and it maps every flag to the right toast without showing stack traces. It
-returns `true` when the command succeeded:
+returns `true` on success and maps the flags to toasts; mount a `<Toaster />`
+near the app root. On invalid results it joins **raw validation messages** into
+the description. Its exception toast uses generic copy, but that does not make
+non-rule validation diagnostics safe. Intercept those outcomes and choose safe
+application copy before using the helper:
+
+```tsx
+if (!result.isAuthorized) { redirectToLogin(); return; }
+if (!result.isValid && result.validationResults.some(v => v.reason !== ValidationResultReason.Rule)) {
+    toast.error({ title: 'Unable to complete this action. Please refresh and try again.' });
+    return;
+}
+```
+
+For results whose validation messages are application-approved user copy:
 
 ```tsx
 if (toastCommandResult(result, { successTitle: 'Account registered' })) refresh();
@@ -221,8 +260,12 @@ For ad-hoc notifications the imperative `toast.success/info/warn/error` each
 take an **options object**, not a bare string:
 `toast.info({ title: 'Saved', description: 'Your changes were saved.' })`.
 
-`CommandDialog` performs all of this itself — the flags matter most when
-executing a command outside a dialog.
+`CommandDialog` wires execution and failure callbacks, but neither it nor
+`CommandForm` sanitizes validation diagnostics. `CommandForm` renders raw
+validation messages inline or in its summary. Use application-owned feedback
+and the form's `showErrors={false}` when built-in display could expose non-rule
+messages; `onValidationFailure` alone does not suppress it. See
+[dialogs.md](dialogs.md).
 
 ### Command scope
 

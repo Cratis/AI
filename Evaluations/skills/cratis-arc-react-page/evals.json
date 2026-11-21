@@ -48,6 +48,54 @@
         "Says a value with no origin is a gap in the backend or model and the property must be added to the read model first (or the .play model where one exists).",
         "Says to rebuild so the TypeScript proxies are regenerated."
       ]
+    },
+    {
+      "id": 5,
+      "name": "acquisition-outcome-feedback",
+      "prompt": "An Accounts page executes a command outside a dialog. A validator can refuse it, or Provide() can return an explicit ValidationResult when acquisition yields no usable facts. One result has reason dependencyUnavailable and a diagnostic message naming backend internals. A teammate wants all invalid results displayed verbatim as field errors, or matched by English message text. Explain the correct client and backend responsibilities. Reply only.",
+      "expected_output": "Both outcomes use validationResults; branch on flags and reason/reasonDetail, show safe copy for non-rule diagnostics, and use response only on success. Validators own refusals when facts exist; Provide only short-circuits failed acquisition and Handle does not duplicate validation.",
+      "assertions": [
+        "Explains that validator refusals and explicit acquisition outcomes from Provide share validationResults, rather than a success response.",
+        "Branches on authorization, validity and exceptions, then reason/reasonDetail, never raw message text, and uses response only after success.",
+        "Distinguishes dependencyUnavailable from an authored rule refusal and selects safe application feedback instead of rendering diagnostic text as a field error.",
+        "Keeps business refusals in validators when usable facts exist, permits Provide to short-circuit only when acquisition yields nothing usable, and does not move duplicate validation into Handle."
+      ]
+    },
+    {
+      "id": 6,
+      "name": "committed-menu-selection",
+      "prompt": "An Accounts DataPage has single-row selection and an Edit action. After the query replaces or removes a row, a controlled selection leaves stale details open. Show how to use a typed DataPage.MenuItem<AccountSummary> action and disabled predicate, and explain how the controlled selection should follow the query. Reply only.",
+      "expected_output": "Typed callbacks receive the committed DataPageSelection discriminated union; single selection uses selectedItem and multiple selection uses readonly selectedItems. Use dataKey for replacement identity and accept event.value, including null on removal.",
+      "assertions": [
+        "Uses an explicit MenuItem row generic rather than claiming JSX infers it from the parent DataPage.",
+        "Treats command and disabled callbacks as receiving the immutable committed selection, not a click event, and narrows selectionMode before reading selectedItem or selectedItems.",
+        "Explains that disabled and disableOnUnselected prevent action dispatch, while zero-argument commands remain valid.",
+        "Reconciles single selection by dataKey, or reference without one, and updates controlled state from onSelectionChange event.value, including null when the row disappears."
+      ]
+    },
+    {
+      "id": 7,
+      "name": "whole-dataset-search",
+      "prompt": "Our paged Accounts DataPage has globalFilterFields but search only finds rows on the loaded page. We need whole-dataset search and sorting. A teammate says adding serverQuery automatically makes the backend understand search. Explain the real contract, including search callbacks, empty copy and paging behavior. Reply only.",
+      "expected_output": "Default search/filter/sort is loaded-page-only. The caller maps DataTableServerQueryState into actual backend arguments through mapQueryArguments; serverQuery disables local processing, debounces text and resets paging when effective arguments change.",
+      "assertions": [
+        "States that default search, filtering and sorting operate on the loaded page rather than the whole dataset.",
+        "Describes DataTableServerQuery<TArguments> with mapQueryArguments(state, baseArguments), optional debounceMs and state fields globalFilter, filters and sort, with types exported from @cratis/components/DataTables.",
+        "Requires backend query semantics for the mapped arguments rather than claiming serverQuery creates search automatically, and explains local processing is disabled and paging resets on effective argument changes.",
+        "Mentions onGlobalFilterChange, filteredEmptyMessage, and that text search is debounced while filters and sorting apply immediately."
+      ]
+    },
+    {
+      "id": 8,
+      "name": "raw-validation-helper-gap",
+      "prompt": "A CommandDialog can receive validatorFailed, concurrencyViolation, constraintViolation or frameworkFailure results whose messages contain developer diagnostics. Does CommandForm or toastCommandResult sanitize those messages? Is onValidationFailure alone enough to prevent exposure? Recommend a safe approach. Reply only.",
+      "expected_output": "Neither helper sanitizes validation diagnostics: CommandForm renders raw messages and toastCommandResult joins them. Own feedback by reason/reasonDetail, suppress built-in form errors when necessary, and never expose exception details.",
+      "assertions": [
+        "Explicitly rejects the claim that CommandDialog, CommandForm or toastCommandResult sanitizes non-rule validation diagnostics.",
+        "Explains CommandForm's raw inline/summary rendering and toastCommandResult's joining of raw validation messages.",
+        "Uses application-owned feedback selected by reason/reasonDetail and showErrors={false} where necessary; onValidationFailure alone does not suppress built-in display.",
+        "Keeps exceptionMessages and exceptionStackTrace out of user-facing output and does not treat every invalid result as an authored field error."
+      ]
     }
   ]
 }

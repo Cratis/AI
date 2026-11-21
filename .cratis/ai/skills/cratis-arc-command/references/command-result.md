@@ -117,18 +117,29 @@ failure to one or more `members`, and `severity` is the numeric
 `ValidationResultSeverity` enum. Code that reads `v.propertyName` or compares
 `v.severity === 'Error'` is reading fields that do not exist.
 
-Match a failure to a field through `members`, and branch on `reasonDetail`
-rather than parsing `message` — the message is prose written for a human and is
-free to change, while `reasonDetail` is the identity of the specific thing that
-rejected the command (a constraint name, for instance).
+Match an application-authored rule failure to a field through `members`. Branch
+on `reason` and `reasonDetail`, never parse `message`: non-rule messages are
+developer diagnostics, not user-facing copy. `reasonDetail` identifies the
+specific cause (a constraint name, for instance). Validator refusals, explicit
+`ValidationResult` outcomes from `Provide()`/`Handle()`, and
+`IEnumerable<ValidationResult>` outcomes from `Provide()` share
+`validationResults`, subject to blocking severity. Validators own refusals when
+usable facts exist; `Provide()` short-circuits only when acquisition yields
+nothing usable, and `Handle()` must not duplicate business validation. Use
+`response` only on success.
 
 ```tsx
 const result = await command.execute();
 
 if (!result.isAuthorized) { /* the caller is not allowed to do this */ }
 else if (!result.isValid) {
-    const errorFor = (property: string) =>
-        result.validationResults.find(v => v.members.includes(property))?.message;
+    // Non-rule outcomes need safe application feedback, not raw diagnostic text.
+    const hasDiagnostics = result.validationResults.some(v => v.reason !== ValidationResultReason.Rule);
+    if (hasDiagnostics) { /* choose safe copy by reason/reasonDetail */ }
+    else {
+        const errorFor = (property: string) =>
+            result.validationResults.find(v => v.members.includes(property))?.message;
+    }
 }
 else if (result.hasExceptions) { /* server fault */ }
 else { /* result.response */ }
@@ -143,8 +154,19 @@ and names the field the same way.
 
 `reason` also distinguishes a genuine rejection from a validator that threw
 while validating hostile or partial input: the latter arrives as a single result
-with a `ValidatorFailed` reason and a generic message, replacing every message
+with a `ValidatorFailed` (`validatorFailed`) reason and a generic message, replacing every message
 the validator's author wrote. Do not read the message to tell the two apart.
+Other non-rule reasons include `dependencyUnavailable` (facts unavailable before
+rules), `concurrencyViolation`, `constraintViolation` and `frameworkFailure`.
+They need safe application feedback and an appropriate refresh/retry path, not
+blanket field-error rendering. The reason set is open; unknown reasons need a
+safe fallback. Never show `exceptionMessages`/`exceptionStackTrace` to users.
+
+`CommandForm` renders raw validation messages; `toastCommandResult` joins them
+into its invalid-result toast. Neither sanitizes non-rule diagnostics. Use
+application-owned feedback and suppress built-in form errors with
+`showErrors={false}` where necessary. See the React page skill's
+[queries-and-commands.md](../../cratis-arc-react-page/references/queries-and-commands.md).
 
 ## Executing with a severity
 

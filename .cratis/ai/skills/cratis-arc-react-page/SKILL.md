@@ -145,7 +145,11 @@ export const AccountsPage = () => (
 `DataPage.Columns`, `DataPage.MenuItems` and `DataPage.MenuItem` are the
 compound members; `MenuItem` and `Column` are also **named exports** of the
 subpath (there is no `DataPage.Column`). Pass `dataKey` whenever the read model has an
-identity.
+identity. Actions and `disabled` predicates receive a committed `DataPageSelection<T>`;
+use `<DataPage.MenuItem<Row>>` for typed callbacks. Query results reconcile single
+selection by `dataKey`, or reference without one; a controlled selection must
+accept `event.value`. Search and sorting are loaded-page-only unless the caller
+maps `serverQuery` state into backend query arguments.
 
 Read [data-page.md](references/data-page.md) when configuring DataPage props; it lists every prop, and
 [data-tables.md](references/data-tables.md) when you need a table without the
@@ -181,6 +185,16 @@ Render the wrapper returned by `useDialog` once in the tree. Read
 [dialogs.md](references/dialogs.md) when implementing dialog opening, closing, input, response, validation, or focus behavior; it gives the full dialog contract.
 
 ## Step 5 — Command dialogs
+
+Validator refusals and acquisition failures returned from `Provide()` both reach
+`validationResults`. Validators own refusals when usable facts exist; `Provide()`
+short-circuits only when acquisition yields nothing usable, and `Handle()` must
+not repeat business validation. Outside dialogs, branch on authorization,
+validity and exceptions before using `response`. For invalid results, branch on
+`reason`/`reasonDetail`, never `.message`: non-rule diagnostics need safe
+application copy, not automatic field-error display. Forms and toasts do not
+sanitize them. Never display `exceptionMessages` or `exceptionStackTrace`; see
+[queries-and-commands.md](references/queries-and-commands.md).
 
 A dialog that runs a command is its own component built on `CommandDialog`.
 Bind each input with a `CommandForm` field whose `value` accessor selects the

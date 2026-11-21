@@ -221,3 +221,108 @@ test('read-model injection includes caller keys without an unconditional command
     assert.doesNotMatch(content, /in all three, under `Off`/i);
     assert.doesNotMatch(content, /resolves it[^.]*by the command's resolved key/i);
 });
+
+const reactPageSkill = 'skills/cratis-arc-react-page';
+const commandFeedbackReferences = [
+    `${reactPageSkill}/references/queries-and-commands.md`,
+    'skills/cratis-arc-command/references/command-result.md',
+];
+const reactFeedbackRules = ['rules/react.md', 'harnesses/copilot/instructions/react.instructions.md'];
+
+// Arc carries validator and Provide control outcomes in one result channel, not successful response data.
+for (const path of [
+    `${reactPageSkill}/SKILL.md`,
+    `${reactPageSkill}/references/dialogs.md`,
+    ...commandFeedbackReferences,
+    ...reactFeedbackRules,
+]) {
+    test(`${path} keeps acquisition outcomes and safe reason-based feedback`, () => {
+        const content = read(path).replace(/\s+/g, ' ');
+        assert.match(content, /validationResults/);
+        assert.match(content, /[Vv]alidators.*refusals.*usable facts/);
+        assert.match(content, /Provide\(\).*acquisition.*nothing usable/);
+        assert.match(content, /reason/);
+        assert.match(content, /reasonDetail/);
+        assert.match(content, /non-rule/i);
+        assert.match(content, /safe.*(?:copy|feedback)/);
+        assert.match(content, /response/);
+        assert.match(content, /exceptionMessages/);
+        assert.match(content, /exceptionStackTrace/);
+        assert.doesNotMatch(content, /validationResults (?:->|→) inline field errors/);
+        assert.doesNotMatch(content, /CommandDialog` (?:handles all|performs all of this)/);
+    });
+}
+
+for (const path of [...commandFeedbackReferences, ...reactFeedbackRules]) {
+    test(`${path} distinguishes non-rule diagnostics from authored rule copy`, () => {
+        const content = read(path);
+        for (const member of [
+            'isSuccess', 'isAuthorized', 'isValid', 'hasExceptions', 'response',
+            'severity', 'message', 'members', 'state', 'reason', 'reasonDetail',
+        ]) {
+            assert.ok(content.includes(member), `${member} remains in the validation result shape`);
+        }
+        for (const reason of [
+            'dependencyUnavailable', 'validatorFailed', 'concurrencyViolation', 'constraintViolation', 'frameworkFailure',
+        ]) {
+            assert.ok(content.includes(reason), `${reason} has a client treatment`);
+        }
+        assert.match(content, /unknown reason/);
+        assert.match(content, /Handle\(\)/);
+    });
+}
+
+for (const path of [
+    `${reactPageSkill}/references/dialogs.md`, ...commandFeedbackReferences, ...reactFeedbackRules,
+]) {
+    test(`${path} does not claim form or toast helpers sanitize validation messages`, () => {
+        const content = read(path).replace(/\s+/g, ' ');
+        assert.match(content, /CommandForm.*raw validation messages/);
+        assert.match(content, /toastCommandResult.*joins/);
+        assert.match(content, /showErrors=\{false\}/);
+        assert.match(content, /application-owned feedback/);
+    });
+}
+
+for (const path of [
+    `${reactPageSkill}/references/dialogs.md`, `${reactPageSkill}/references/queries-and-commands.md`,
+]) {
+    test(`${path} distinguishes a failure callback from suppressing built-in errors`, () => {
+        assert.match(read(path).replace(/\s+/g, ' '), /onValidationFailure.*(?:not suppress|does not suppress)/);
+    });
+}
+
+const dataPageReference = `${reactPageSkill}/references/data-page.md`;
+for (const path of [
+    dataPageReference, `${reactPageSkill}/SKILL.md`,
+    'rules/components.md', 'harnesses/copilot/instructions/components.instructions.md',
+]) {
+    test(`${path} keeps committed actions, controlled reconciliation and search scope`, () => {
+        const content = read(path).replace(/\s+/g, ' ');
+        for (const term of ['DataPageSelection<', 'committed', 'disabled', 'dataKey', 'reference', 'event.value', 'serverQuery']) {
+            assert.ok(content.includes(term), `${term} is explained`);
+        }
+        assert.match(content, /controlled/i);
+        assert.match(content, /loaded[- ]page/);
+        assert.match(content, /backend.*query arguments/);
+    });
+}
+
+test('the DataPage reference gives typed menu callbacks and caller-owned server mapping', () => {
+    const content = read(dataPageReference).replace(/\s+/g, ' ');
+    for (const term of [
+        'MenuItem<AccountSummary>', 'selectionMode', 'selectedItem', 'readonly TDataType[]',
+        'disableOnUnselected', 'DataTableSelectionChangeEvent<TDataType>', 'DataTableServerQuery<TArguments>',
+        'DataTableServerQueryState', '@cratis/components/DataTables', 'mapQueryArguments', 'baseArguments',
+        'globalFilter', 'filters', 'sort', 'debounceMs', '250', 'filteredEmptyMessage', 'onGlobalFilterChange',
+    ]) {
+        assert.ok(content.includes(term), `${term} remains documented`);
+    }
+    assert.match(content, /disabled item cannot dispatch/);
+    assert.match(content, /zero-argument callbacks/);
+    assert.match(content, /selection.*null/);
+    assert.match(content, /resets paging/);
+    assert.match(content, /disables local filtering and sorting/);
+    assert.match(content, /debounced.*filters and sorting apply immediately/);
+    assert.doesNotMatch(content, /`command` \| `\(\) => void`|`disabled` \| `boolean`/);
+});
