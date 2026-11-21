@@ -15,6 +15,7 @@ import type { ProofReaderEnvironment } from './LaunchProofReader.ts';
 import { describeRefusal } from './Refusals.ts';
 import { CommandRunner, spawnRunner } from './SecretStore.ts';
 import { WriteGuard } from './WriteGuard.ts';
+import { WorkspaceReadAllowance } from './WorkspaceReadAllowance.ts';
 
 export const FinishTool = 'direct_session_finish';
 const workMessageType = 'direct-work';
@@ -43,6 +44,7 @@ export function createExtension(extensionEnvironment: ExtensionEnvironment): (pi
         const guard = new WriteGuard(new Set([FinishTool]));
         const shutdown = new AbortController();
         let session: ClaimedSession | undefined;
+        let workspaceReads: WorkspaceReadAllowance | undefined;
         let announced = false;
         const link: DirectLinkDependencies = { ...extensionEnvironment, session: () => session };
 
@@ -85,6 +87,7 @@ export function createExtension(extensionEnvironment: ExtensionEnvironment): (pi
         pi.on('session_start', async (_event, context) => {
             if (!isLaunchedSession(extensionEnvironment.env)) return;
             guard.markPending();
+            workspaceReads = new WorkspaceReadAllowance(context.cwd, () => pi.getAllTools());
             await start(context);
         });
         pi.on('before_agent_start', () => {
@@ -93,9 +96,9 @@ export function createExtension(extensionEnvironment: ExtensionEnvironment): (pi
             announced = true;
             return { message: { customType: workMessageType, content: describeWork(session.payload), display: true } };
         });
-        pi.on('tool_call', event => {
+        pi.on('tool_call', (event, context) => {
             session?.checkLease();
-            return guard.blocks(event.toolName)
+            return guard.blocks(event.toolName, () => workspaceReads?.allows(event.toolName, event.input, context.cwd) ?? false)
                 ? { block: true, reason: 'Claim authority for this Direct work is not live; this session can no longer write.' }
                 : undefined;
         });
