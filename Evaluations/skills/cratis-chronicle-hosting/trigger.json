@@ -9,6 +9,8 @@
     { "query": "Two Chronicle silos share MongoDB but both use Localhost clustering. Is that safe?", "shouldTrigger": true },
     { "query": "Explain kernel observer definitionEvolution and retry budget configuration before rollout.", "shouldTrigger": true },
     { "query": "What certificates and backup restore order does the production Chronicle image need?", "shouldTrigger": true },
+    { "query": "Give me a pre-flight checklist before taking Chronicle to production.", "shouldTrigger": true },
+    { "query": "What should we restore first after a Chronicle outage, and what do we check before starting the other nodes?", "shouldTrigger": true },
     { "query": "Wire AddCratisChronicle into my .NET worker.", "shouldTrigger": false, "note": "cratis-chronicle-client-dotnet" },
     { "query": "Clear a failed partition in the running staging store through the CLI.", "shouldTrigger": false, "note": "cratis-chronicle-cli-operations" },
     { "query": "Implement a custom Orleans grain storage provider.", "shouldTrigger": false, "note": "framework Orleans rules" },
@@ -16,6 +18,8 @@
     { "query": "Mark personal event fields for right to erasure.", "shouldTrigger": false, "note": "cratis-chronicle-compliance" },
     { "query": "Inspect events using the browser Workbench.", "shouldTrigger": false, "note": "cratis-chronicle-web-workbench" },
     { "query": "Add a reactor returning InvoiceSent with OnceOnly.", "shouldTrigger": false, "note": "cratis-chronicle-reactor" },
-    { "query": "Use IDecisionReads to protect the read before appending.", "shouldTrigger": false, "note": "cratis-chronicle-decision-reads" }
+    { "query": "Use IDecisionReads to protect the read before appending.", "shouldTrigger": false, "note": "cratis-chronicle-decision-reads" },
+    { "query": "Which client option sets the default sink type for my read models?", "shouldTrigger": false, "note": "cratis-chronicle-configuration" },
+    { "query": "Add OpenTelemetry tracing for Chronicle kernel spans.", "shouldTrigger": false, "note": "cratis-observability" }
   ]
 }
