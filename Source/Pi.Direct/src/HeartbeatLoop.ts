@@ -3,15 +3,32 @@
 
 export interface Clock {
     now(): number;
+    monotonic(): number;
     setTimeout(callback: () => void, milliseconds: number): unknown;
     clearTimeout(handle: unknown): void;
 }
 
 export const systemClock: Clock = {
     now: () => Date.now(),
+    monotonic: () => performance.now(),
     setTimeout: (callback, milliseconds) => setTimeout(callback, milliseconds),
     clearTimeout: handle => clearTimeout(handle as ReturnType<typeof setTimeout>)
 };
+
+export const CleanupBoundMs = 5_000;
+
+/** Cleanup cannot hold a session open indefinitely; the losing promise remains observed. */
+export async function bounded<T>(clock: Clock, promise: Promise<T>, milliseconds = CleanupBoundMs): Promise<T> {
+    let handle: unknown;
+    const timeout = new Promise<never>((_resolve, reject) => {
+        handle = clock.setTimeout(() => reject(new Error('Cleanup timed out.')), milliseconds);
+    });
+    try {
+        return await Promise.race([promise, timeout]);
+    } finally {
+        clock.clearTimeout(handle);
+    }
+}
 
 /** Beats at the granted interval, one at a time. The first failure stops the loop and is reported once. */
 export class HeartbeatLoop {

@@ -3,6 +3,9 @@
 
 export type GuardState = 'unclaimed' | 'open' | 'lost' | 'released';
 
+/** Read-only built-in names from Pi's ToolCallEvent; unknown extension tools fail closed after loss. */
+export const readOnlyTools: ReadonlySet<string> = new Set(['read', 'grep', 'find', 'ls']);
+
 /**
  * Blocks the session's write tools unless a claim is live. Lost authority is terminal: nothing but a new session
  * (a new guard with a new claim) opens it again, and acknowledging the loss never does.
@@ -38,6 +41,7 @@ export class WriteGuard {
     }
 
     blocks(toolName: string): boolean {
-        return this.guards(toolName) && this.current !== 'open';
+        if (this.guards(toolName)) return this.current !== 'open';
+        return this.current === 'lost' && !readOnlyTools.has(toolName);
     }
 }

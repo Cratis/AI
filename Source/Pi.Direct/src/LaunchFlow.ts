@@ -4,6 +4,7 @@
 import { ClaimedSession } from './ClaimedSession.ts';
 import type { DirectGateway } from './DirectGateway.ts';
 import { EnvironmentSource, originOf, readLaunchEnvironment } from './Environment.ts';
+import { bounded } from './HeartbeatLoop.ts';
 import type { Clock } from './HeartbeatLoop.ts';
 import { ProofReaderEnvironment, readLaunchProof } from './LaunchProofReader.ts';
 import { SecretStore, createSecretStore, secretAccount } from './SecretStore.ts';
@@ -17,6 +18,7 @@ export interface LaunchDependencies {
     readonly proofReader: ProofReaderEnvironment;
     readonly connect: (mcpUrl: string, tenantId: string, token: string) => DirectGateway;
     readonly clock: Clock;
+    readonly signal?: AbortSignal;
     readonly guard: WriteGuard;
     readonly notify: (message: string) => void;
 }
@@ -33,9 +35,9 @@ export async function claimLaunchedWork(dependencies: LaunchDependencies): Promi
     const proof = readLaunchProof(environment.proofFile, dependencies.proofReader);
     const gateway = dependencies.connect(environment.mcpUrl, environment.tenantId, token);
     try {
-        return await ClaimedSession.claim({ environment, gateway, guard: dependencies.guard, clock: dependencies.clock, notify: dependencies.notify }, proof);
+        return await ClaimedSession.claim({ environment, gateway, guard: dependencies.guard, clock: dependencies.clock, signal: dependencies.signal, notify: dependencies.notify }, proof);
     } catch (error) {
-        await gateway.close().catch(() => undefined);
+        await bounded(dependencies.clock, gateway.close()).catch(() => undefined);
         throw error;
     }
 }

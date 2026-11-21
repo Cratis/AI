@@ -6,4 +6,6 @@ A [Pi](https://github.com/earendil-works/pi) package for Cratis Direct local ses
 pi install npm:@cratis/pi-direct
 ```
 
+After claim authority is lost, local tools are blocked except `read`, `grep`, `find` and `ls`; acknowledgement does not restore authority. Shells (including `bash` and `powershell`) and unknown extension tools cannot be proven read-only, so they are blocked too. Unlaunched sessions and personal follow-up after release are unaffected. Leases use both wall and monotonic time: rollback cannot prolong authority, suspend counts toward expiry, and a forward wall-clock jump may end authority early. Timing grants are capped at 24 hours, heartbeat intervals must be shorter than the lease, and each shutdown/failed-launch cleanup attempt is bounded to 5 seconds without renewing authority.
+
 Setup, the personal access token and the harness contract are documented in the [Pi harness guide](https://www.cratis.io/direct/runner/harnesses#pi). If a session refuses to start, see [A harness session refuses to start](https://www.cratis.io/direct/runner/troubleshooting#a-harness-session-refuses-to-start).

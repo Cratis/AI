@@ -18,6 +18,19 @@ export const TenantHeader = 'x-cratis-tenant-id';
 /** The one switch: the contract records do not carry an idempotency key today. Turn it on if S2 adds one. */
 export const SEND_IDEMPOTENCY_KEY = false;
 
+/** Fail closed on implausible grants; leases and heartbeat intervals are capped at 24 hours. */
+export const MaxLeaseSeconds = 86_400;
+const MaxTimeoutMilliseconds = 2_147_483_647;
+
+/** Shared with the send-time deadline so even gateways bypassing the parser cannot extend authority. */
+export function leaseMilliseconds(seconds: number): number {
+    const milliseconds = seconds * 1000;
+    if (!Number.isFinite(seconds)) throw new SessionRefused('refused');
+    if (seconds <= 0 || seconds > MaxLeaseSeconds) throw new SessionRefused('refused');
+    if (!Number.isSafeInteger(milliseconds)) throw new SessionRefused('refused');
+    return milliseconds;
+}
+
 export const ReleaseOutcomes = ['Delivered', 'Abandoned', 'Blocked', 'Declined'] as const;
 export type ReleaseOutcome = typeof ReleaseOutcomes[number];
 
@@ -99,6 +112,12 @@ function positive(fields: Fields, name: string): number {
     return isNumberWhere(value, number => Number.isFinite(number) && number > 0) ? value : refuse();
 }
 
+function timing(fields: Fields, name: string): number {
+    const seconds = positive(fields, name);
+    leaseMilliseconds(seconds);
+    return seconds;
+}
+
 function counter(fields: Fields, name: string): number {
     const value = fields[name];
     return isNumberWhere(value, number => Number.isInteger(number) && number >= 0) ? value : refuse();
@@ -112,12 +131,15 @@ function optionalText(fields: Fields, name: string): string {
 export function parseWorkClaimed(value: unknown): WorkClaimed {
     const fields = fieldsOf(value);
     const payload = fieldsOf(fields.payload);
+    const leaseSeconds = timing(fields, 'leaseSeconds');
+    const heartbeatSeconds = timing(fields, 'heartbeatSeconds');
+    if (heartbeatSeconds >= leaseSeconds || heartbeatSeconds * 1000 > MaxTimeoutMilliseconds) refuse();
     return {
         workHandle: text(fields, 'workHandle'),
         claimId: text(fields, 'claimId'),
         epoch: counter(fields, 'epoch'),
-        leaseSeconds: positive(fields, 'leaseSeconds'),
-        heartbeatSeconds: positive(fields, 'heartbeatSeconds'),
+        leaseSeconds,
+        heartbeatSeconds,
         payload: {
             title: text(payload, 'title'),
             brief: optionalText(payload, 'brief'),
@@ -129,7 +151,7 @@ export function parseWorkClaimed(value: unknown): WorkClaimed {
 
 export function parseHeartbeatResult(value: unknown): HeartbeatResult {
     const fields = fieldsOf(value);
-    return { epoch: counter(fields, 'epoch'), leaseSeconds: positive(fields, 'leaseSeconds') };
+    return { epoch: counter(fields, 'epoch'), leaseSeconds: timing(fields, 'leaseSeconds') };
 }
 
 export function parseReleaseResult(value: unknown): ReleaseResult {
