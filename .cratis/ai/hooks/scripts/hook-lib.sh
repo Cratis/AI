@@ -114,12 +114,14 @@ hook_glob_awk_lib='
 '
 
 # Does path $1 match any of the newline-separated globs on stdin?
+# Drain stdin after a match: under pipefail, an upstream SIGPIPE would turn success into failure.
 hook_glob_match() {
     CRATIS_GLOB_PATH="$1" awk "$hook_glob_awk_lib"'
         BEGIN { p = ENVIRON["CRATIS_GLOB_PATH"]; found = 0 }
+        found { next }
         { g = $0; sub(/^[ \t]+/, "", g); sub(/[ \t\r]+$/, "", g) }
         g == "" { next }
-        { if (p ~ g2re(g)) { found = 1; exit } }
+        { if (p ~ g2re(g)) found = 1 }
         END { exit(found ? 0 : 1) }
     '
 }
