@@ -131,10 +131,13 @@ Under `On`:
   Take the model as a parameter, or mark the method `[Unprotected("why")]` (it
   covers the body, not injected parameters).
 - Immediate appends (an injected `IEventLog.Append`) are refused. Return the events.
-- The key is, in order: `[LookUpBy(nameof(Cmd.Prop))]` on the parameter
-  (parameter-only attribute, `Cratis.Arc.Commands`); the single command property
-  whose type equals the model's `Id` type; `AmbiguousReadModelLookup` (HTTP 500) if
-  several match; the command's event source id.
+- Explicit lookup selects either a command property with
+  `[LookUpBy(nameof(Cmd.Prop))]` or a caller-keyed handler model with
+  `[LookUpBy<CallerSubject>]` (`Cratis.Arc.Commands`); see
+  [command identity](../../cratis-arc-authentication-authorization-and-identity/references/command-identity.md).
+  Otherwise use the single command property matching the model's `Id` type;
+  several matches raise `AmbiguousReadModelLookup` (HTTP 500); no match falls
+  back to the command's event source id.
 - Admitted: event-source-keyed model-bound or declarative projections with a
   string or Guid `Id`, and unfiltered reducers without constructor dependencies
   (except `ILogger<T>`; self-reducing models are exempt). Refused with

@@ -48,6 +48,7 @@ Arc for TypeScript server API.
 
 Do not disguise a write as `Provide()`. Supply identities, clock values, and
 state before `Handle()`; returning operations does not make hidden I/O pure.
+Actors/audit: [identity](../cratis-arc-authentication-authorization-and-identity/references/command-identity.md).
 
 ## Declare the work and its reversal
 

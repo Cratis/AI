@@ -48,6 +48,19 @@
         "States sign-in, consent and profile UI belong to the host application.",
         "States the host composes the module's endpoints."
       ]
+    },
+    {
+      "id": 5,
+      "name": "command-actor-caller-key-and-audit",
+      "prompt": "Our Arc command accepts a UserId from the browser. We want a CurrentActor in Provide/Handle, a caller-keyed Chronicle preferences model, and audit attribution. Show the public resolver contract and registration without replacing Chronicle's resolver chain. Explain anonymous and ambiguous-sub behavior, permission checks, and whether we should copy sub, email or the actor chain into the event. A teammate says LookUpBy only supports command properties: is that current? Reply only.",
+      "expected_output": "A source-backed distinction between an application actor resolver, generic caller-key lookup, explicit authorization and Chronicle audit metadata. No client identity trust, privileged fallback or payload PII.",
+      "assertions": [
+        "Derives the actor from the server-selected authenticated principal via ICurrentPrincipalAccessor, never the command UserId or untrusted headers; anonymous callers get no privileged fallback.",
+        "Shows IAsyncParameterDependencyResolver with TryResolve and Resolve, NotResolved for unowned types and Resolved for owned types; registers through ICanResolveParameterDependency while preserving Chronicle-first scoped resolver composition.",
+        "Corrects the property-only premise with LookUpBy<CallerSubject>, CallerClaim and IReadModelKeyProvider; distinguishes exact claims, immutable caller capture and Missing/Ambiguous denial from permissions, existence and per-stream routing.",
+        "Keeps CanEnable permission checks in a named authorization policy with [Authorize]; Provide returns AuthorizationResult.Failure only when acquisition yields no usable actor (actor is null). Mentions a validator under read protection On only as an alternative for state-dependent preconditions, links the validators-are-not-an-authorization-boundary guidance, and keeps awaited acquisition out of the pure handler decision.",
+        "Separates IIdentityProvider.GetCurrent, EventContext.CausedBy and Identity.OnBehalfOf attribution from authorization and compliance subjects; events carry no copied subject, email, claims or actor chain, and raw identifiers stay inside the application boundary."
+      ]
     }
   ]
 }
