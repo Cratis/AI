@@ -58,7 +58,7 @@
         "Derives the actor from the server-selected authenticated principal via ICurrentPrincipalAccessor, never the command UserId or untrusted headers; anonymous callers get no privileged fallback.",
         "Shows IAsyncParameterDependencyResolver with TryResolve and Resolve, NotResolved for unowned types and Resolved for owned types; registers through ICanResolveParameterDependency while preserving Chronicle-first scoped resolver composition.",
         "Corrects the property-only premise with LookUpBy<CallerSubject>, CallerClaim and IReadModelKeyProvider; distinguishes exact claims, immutable caller capture and Missing/Ambiguous denial from permissions, existence and per-stream routing.",
-        "Uses explicit permission checks or AuthorizationResult.Failure in Provide, does not treat an actor or key as authority, and keeps awaited acquisition out of the pure handler decision.",
+        "Keeps CanEnable permission checks in a named authorization policy with [Authorize]; Provide returns AuthorizationResult.Failure only when acquisition yields no usable actor (actor is null). Mentions a validator under read protection On only as an alternative for state-dependent preconditions, links the validators-are-not-an-authorization-boundary guidance, and keeps awaited acquisition out of the pure handler decision.",
         "Separates IIdentityProvider.GetCurrent, EventContext.CausedBy and Identity.OnBehalfOf attribution from authorization and compliance subjects; events carry no copied subject, email, claims or actor chain, and raw identifiers stay inside the application boundary."
       ]
     }

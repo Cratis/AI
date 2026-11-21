@@ -6,10 +6,10 @@ license: MIT
 
 # Return work from an Arc command
 
-`Handle()` decides which seat to reserve without reserving it in the decision
-spec. It returns immutable work; Arc executes and, when the commit
-boundary permits, compensates attempted work. You supply the business reversal,
-not a rollback stack.
+A command should be able to decide which seat to reserve without reserving it
+in the decision spec. `Handle()` returns immutable descriptions of the work;
+Arc executes them and, when the commit boundary permits, compensates attempted
+work. You write the business reversal, not a rollback stack.
 
 **Command operations are the recommended way to express immediate inline side
 effects in model-bound commands.** Direct service calls remain supported.
@@ -46,7 +46,8 @@ Arc for TypeScript server API.
 | Use an external result to make the decision or response | An explicit service call; operations cannot return receipts |
 | Extend framework interpretation of a specialized return type | Response value handlers, not application operation orchestration |
 
-Resolve state/time before `Handle()`; no hidden I/O there or writes in `Provide()`.
+Do not disguise a write as `Provide()`. Supply identities, clock values, and
+state before `Handle()`; returning operations does not make hidden I/O pure.
 Actors/audit: [identity](../cratis-arc-authentication-authorization-and-identity/references/command-identity.md).
 
 ## Declare the work and its reversal

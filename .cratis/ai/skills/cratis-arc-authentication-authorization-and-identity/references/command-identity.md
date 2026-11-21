@@ -14,7 +14,7 @@
 | Identify the caller at the server boundary | `ICurrentPrincipalAccessor.Current` in `Cratis.Arc.Authorization` |
 | Supply an application-owned actor value to `Provide()` or `Handle()` | `IAsyncParameterDependencyResolver` in `Cratis.Arc.DependencyInjection` |
 | Select a Chronicle read model using the caller | `[LookUpBy<CallerSubject>]`, `CallerClaim` or `IReadModelKeyProvider` in `Cratis.Arc.Commands` |
-| Decide whether the caller may perform the action | Endpoint authorization and an explicit permission check; `AuthorizationResult.Failure(...)` can stop a command from `Provide()` |
+| Decide whether the caller may perform the action | Named authorization policies and `[Authorize]`; `Provide()` may short-circuit only when acquisition yields nothing usable |
 | Attribute an append | Chronicle's `IIdentityProvider.GetCurrent()` supplies `CausedBy`; observers read `EventContext.CausedBy` |
 
 An actor value and a lookup key are neither proof of permission nor a substitute
@@ -102,20 +102,26 @@ from the current service scope. Do not replace its
 `IInstancesOf<ICanResolveParameterDependency>` composition to install your actor
 resolver, or claim a Chronicle read-model type as your application actor.
 
-These are **method excerpts** inside an existing command, not a complete slice.
-`IFeatureAccess.CanEnable(CurrentActor)` is a synchronous application permission
-check; `FeatureEnabled` is an application event with no identity fields:
+Require a named policy such as `[Authorize(Policy = "CanEnableFeature")]` on the
+command and register that policy in the host. The policy owns the `CanEnable`
+permission check, before validation or acquisition. A validator under read
+protection `On` is an alternative for state-dependent preconditions, not caller
+admission; see [validators are not an authorization boundary](../SKILL.md#validators-are-not-an-authorization-boundary).
+
+These are **method excerpts** inside that command, not a complete slice.
+`FeatureEnabled` is an application event with no identity fields:
 
 ```csharp
-public AuthorizationResult Provide(CurrentActor? actor, IFeatureAccess access) =>
-    actor is not null && access.CanEnable(actor)
-        ? AuthorizationResult.Success
-        : AuthorizationResult.Failure("Not permitted.");
+public AuthorizationResult Provide(CurrentActor? actor) =>
+    actor is null
+        ? AuthorizationResult.Failure("Actor unavailable.")
+        : AuthorizationResult.Success;
 
 public FeatureEnabled Handle(CurrentActor actor) => new();
 ```
 
-A failed authorization result from `Provide()` stops handler execution. A
+The failed authorization result stops handler execution only because acquisition
+yielded no usable actor, not because `Provide()` owns permission checks. A
 non-nullable actor parameter alone is not a permission check. Do not use
 `Provide()` to echo a client-supplied actor: ordinary returned values can satisfy
 assignable `Handle()` parameters before resolver fallback. Keep acquisition in

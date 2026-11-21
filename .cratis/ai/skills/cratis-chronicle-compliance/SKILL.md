@@ -81,15 +81,17 @@ Requires Chronicle 19.54.1 for encrypted non-string properties/concepts (such as
 subject, namespace and global scopes. Check the kernel version; earlier kernels
 can fail those appends. Verify a protected-value round trip, not only compilation.
 
-Mark personal values, not business metadata, non-person IDs or amounts:
-encryption costs a round trip; erasure makes them unreadable.
+Mark only genuinely personal values. Business metadata, identifiers of
+non-persons, and amounts stay unmarked — every marked value costs an encryption
+round trip and becomes unreadable the moment the subject is erased.
 Attribution, not payload PII: [identity](../cratis-arc-authentication-authorization-and-identity/references/command-identity.md).
 
 ## Decide the subject
 
-The subject is the person a value belongs to: the erasure unit, not
-necessarily the actor. `Cratis.Chronicle.SubjectAttribute` marks its value on a
-property or constructor parameter; it takes no arguments.
+The subject is the natural person a value belongs to, and it is the unit of
+erasure. `Cratis.Chronicle.SubjectAttribute` marks the value that supplies it.
+The attribute is a pure marker with no arguments and targets a property or a
+constructor parameter.
 
 For an appended event, Chronicle uses the explicit subject when one is supplied
 and otherwise falls back to the event source id. That default is the shape you

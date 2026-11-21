@@ -130,6 +130,10 @@ test('command identity separates the actor, a lookup key, authorization and Chro
     assert.match(content, /IsAuthenticated: true/);
     assert.match(content, /(?:no|never a) privileged fallback/i);
     assert.match(content, /(?:neither|not)[^.]*permission/i);
+    assert.match(content, /\[Authorize\(Policy = "[^"]+"\)\]/);
+    assert.match(content, /public AuthorizationResult Provide\(CurrentActor\? actor\) =>\s*actor is null\s*\? AuthorizationResult\.Failure/);
+    assert.match(content, /SKILL\.md#validators-are-not-an-authorization-boundary/);
+    assert.doesNotMatch(content, /IFeatureAccess|access\.CanEnable/);
     assert.match(content, /per-stream/);
     assert.match(content, /not[^.]*event payloads/i);
     assert.doesNotMatch(content, /AssemblyQualifiedName|Type\.GetType|\.GetAwaiter\(\)\.GetResult\(\)/);
@@ -140,6 +144,8 @@ test('read-model injection includes caller keys without an unconditional command
     assert.match(content, /LookUpBy<CallerSubject>/);
     assert.match(content, /IReadModelKeyProvider/);
     assert.match(content, /command-identity\.md/);
+    assert.match(content, /supplied matching value is refused with `InvalidLookUpBy`/);
+    assert.match(read('skills/cratis-arc-authentication-authorization-and-identity/references/product-sources.md'), /supplied matching value[^|]*refused with `InvalidLookUpBy`/);
     assert.doesNotMatch(content, /in all three, under `Off`/i);
     assert.doesNotMatch(content, /resolves it[^.]*by the command's resolved key/i);
 });

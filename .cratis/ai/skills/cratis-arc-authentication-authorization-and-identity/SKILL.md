@@ -287,8 +287,9 @@ To run locally with an identity, supply the forwarded headers yourself — see
   callers, strips caller-supplied identity headers, writes trusted ones and blocks
   direct backend access; custom handlers honor it.
 - Every rule the frontend enforces also exists on the server.
-- Only the authenticating ingress reaches the app; no cookie or unsigned header
-  is trusted independently.
+- Nothing trusts the identity cookie or the forwarded headers beyond what the
+  ingress guarantees.
+- The application is not reachable except through that ingress.
 - Development user and tenant providers return fixtures, never production data.
 - `dotnet build` is clean in Debug and Release.
 

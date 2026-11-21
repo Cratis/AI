@@ -51,8 +51,9 @@ the legacy event-source-id default. A caller provider cannot redirect a
 per-stream model away from the command route.
 
 Ordinary `Provide()` values assignable to a `Handle()` parameter are used before
-service/read-model resolution. Caller-provider read-model parameters bypass that
-shortcut: do not try to replace the identity-keyed model with a provided value.
+service/read-model resolution. For a caller-provider read-model parameter, a
+supplied matching value is refused with `InvalidLookUpBy`, not bypassed: do not
+try to replace the identity-keyed model with a provided value.
 
 Requires Arc 22.93.0 for ARCCHR0023 (no unique key-type match), ARCCHR0025
 (keyless command reads a newly generated id and finds no model) and ARCCHR0026
