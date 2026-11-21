@@ -407,7 +407,7 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | `git diff` | `--stat --numstat --name-only --name-status --cached --staged --check -p -U<N> --no-color`; extra presentation flags remain refused (see #1255 below) |
 | `git log` | `--oneline --stat --name-only -n N -nN -<N> -p --no-color --format=<fmt> --pretty=<fmt> --follow` |
 | `git show` | `--stat --name-only -p --no-color --format=<fmt>` |
-| `git add` | `-A -u -p -v --all`, including path globs for installed prompts |
+| `git add` | `-A -u -p -v --all`; literal named paths, including corpus files, and path globs for installed prompts. No `-f` or `-N`/`--intent-to-add` |
 | `git commit` | `-m MSG`, `--message MSG`, `-mMSG`, `-a`, `-q`; `-F FILE` only for a literal non-protected file; no `--no-verify` |
 | `git blame`, `ls-files`, `rev-parse`, `check-ignore`, `grep` | None |
 | `git branch` | Exactly `--show-current`, or `--list` followed only by literal patterns |
@@ -422,12 +422,31 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | --- | --- | --- | --- |
 | 1: extra `git diff` flags | Refused, unchanged | Presentation flags do not prevent execution through `diff.external`, `.gitattributes` textconv or the pager; reproduced with `-w` and `--shortstat -p`. Re-admission needs guard-enforced sanitized configuration, tracked separately. | Use the existing exact option list above. |
 | 1: extra `rg` flags | Narrow admission | Only the numeric context/count, alphanumeric type and short display flags listed above qualify, and only with an actual `--no-config` option disabling environment-selected configuration. A value or operand spelling `--no-config` does not qualify. Hidden/ignored-file expansion and all other new options stay refused. | Add `--no-config`, for example `rg --no-config -n -C 2 'a]*b' .cratis`. |
+| 2: corpus script execution | Named allowlist, unchanged | The two exact entries below are already accepted; other scripts and `cd X && node …` remain refused because a script or another checkout's copy can write protected paths. | Run the exact named invocation from the current checkout without a `cd` prefix. |
+| 3: scratch heredoc mentioning a protected path | Refused, unchanged | The whole command includes its body even when the destination is unprotected; that file could later be executed or sourced. Quoted/unquoted delimiters and append redirects are not exemptions. Stdout-only `cat <<'EOF'` remains accepted. | Use the Write tool for scratch files containing protected text. |
+| 4: glob-like searches and file/test filters | Quoted search patterns and `ls -d Arc*` already accepted; wildcard test filter refused | `rg 'a]*b' .cratis` and `rg -n '^[a-z-]*' Source` (also with `\| sort`) treat the quoted pattern as data; path operands stay checked. `Foo*` can intersect `*.env`, and `dotnet test` compiles, executes code and writes bin/obj: it is not a read-only verb when a protected reference exists. | Use `dotnet test --filter 'FullyQualifiedName~Foo'` or `--filter 'ClassName=…'`; `~` is already a contains-match. With no protected reference the ordinary policy allows it, not a dotnet exemption. |
+| 5: `git add` a named corpus file | Accepted, unchanged | Staging changes the index, not the working-tree content. The Write/Edit guard still protects that content. Chained content writes, `-f`, `-N`, status-variable and push chains remain refused. | Use `git add -- .cratis/ai/skills/s/SKILL.md` with the exact allowed options. |
 
 These options were refused before #1255. This is a closed allowlist, not an admission
 of arbitrary presentation options: `--pre`, `-f`, `--hostname-bin`, `--type-add`, `-z`,
 unknown options and invalid values remain refused. Output redirects to protected paths
 and pipelines to writers remain refused too. The existing protected-reference scan and
 lexer are unchanged; the guard remains best-effort, not a sandbox.
+
+#### Named scripts
+
+Only these exact interpreter/path pairs qualify, with no `./`, variable, glob or
+alternate spelling and no preceding directory change:
+
+- `node .cratis/ai/hooks/scripts/cratis-check-pr.mjs`: `--strict`, and value options
+  `--body-file`, `--label`, `--add-label`, `--remove-label`, `--pr`, `--base`, `--repo`.
+  Values must be nonempty literal words, not start with `-`, and not be globbed.
+- `bash .cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh`: `--dry-run`, `--quiet`,
+  `--no-fetch` only.
+
+This is not permission to run arbitrary corpus scripts: `cratis-check-handoff.mjs`
+and all other scripts remain refused. Redirect destinations and chained commands
+are still checked separately.
 
 The only global Git option exemption is a single separate `-C <dir>` with a literal,
 non-empty directory word not starting with `-`, followed by exactly one of these tails:
