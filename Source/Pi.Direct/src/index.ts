@@ -41,16 +41,24 @@ function describeWork(payload: WorkPayload): string {
 export function createExtension(extensionEnvironment: ExtensionEnvironment): (pi: ExtensionAPI) => void {
     return pi => {
         const guard = new WriteGuard(new Set([FinishTool]));
+        const shutdown = new AbortController();
         let session: ClaimedSession | undefined;
         let announced = false;
         const link: DirectLinkDependencies = { ...extensionEnvironment, session: () => session };
 
         const start = async (context: ExtensionContext): Promise<void> => {
+            if (shutdown.signal.aborted) return;
             const notify = (message: string): void => { if (context.hasUI) context.ui.notify(message, 'warning'); };
             const proofReader: ProofReaderEnvironment = { fileSystem: nodeProofFileSystem, uid: extensionEnvironment.uid, platform: extensionEnvironment.platform, cwd: context.cwd };
             try {
-                session = await claimLaunchedWork({ ...extensionEnvironment, proofReader, guard, notify });
+                const claimed = await claimLaunchedWork({ ...extensionEnvironment, proofReader, guard, notify, signal: shutdown.signal });
+                if (shutdown.signal.aborted) {
+                    await claimed.shutdown();
+                    return;
+                }
+                session = claimed;
             } catch (error) {
+                guard.markLost();
                 if (context.hasUI) context.ui.notify(describeRefusal(error), 'error');
                 return;
             }
@@ -79,16 +87,21 @@ export function createExtension(extensionEnvironment: ExtensionEnvironment): (pi
         });
         pi.on('before_agent_start', () => {
             if (!session || announced) return undefined;
+            if (shutdown.signal.aborted) return undefined;
             announced = true;
             return { message: { customType: workMessageType, content: describeWork(session.payload), display: true } };
         });
         pi.on('tool_call', event => {
-            if (guard.guards(event.toolName)) session?.checkLease();
+            session?.checkLease();
             return guard.blocks(event.toolName)
                 ? { block: true, reason: 'Claim authority for this Direct work is not live; this session can no longer write.' }
                 : undefined;
         });
-        pi.on('session_shutdown', async () => { await session?.shutdown(); });
+        pi.on('session_shutdown', async () => {
+            shutdown.abort();
+            if (isLaunchedSession(extensionEnvironment.env)) guard.markLost();
+            await session?.shutdown();
+        });
         pi.registerCommand('direct-link', {
             description: 'Direct local sessions: login --tenant <id> | status',
             handler: async (args, context) => { context.ui.notify(await runDirectLink(args, link), 'info'); }
