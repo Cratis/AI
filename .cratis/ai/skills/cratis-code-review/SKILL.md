@@ -164,7 +164,11 @@ degradations a reviewer can see without measuring:
   per-artifact decision table of `specs.scenarios.csharp.md` (pipeline and
   authorization, constraints, projection and reducer dispatch, reactor dispatch
   and routing) and none beyond it. A rule that must hold under concurrent
-  writers is proven from supplied read-model state, not a race scenario.
+  writers is proven from supplied read-model state, not a race scenario
+  re-proving the platform matrix. For an unusual application-owned explicit
+  guard policy, accept only a focused regression a plain call cannot prove;
+  check the [decision guidance](../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
+  for the assembly-level admission check, body-read limits and advanced hook boundary.
 - Every State Change command has a happy-path specification.
 - Every validation rule has a direct-call failure spec. Pipeline validation
   specs assert **both** `ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()`.

@@ -272,11 +272,15 @@ Every rule gets a failure specification: instantiate the validator with its
 read-model state and validate directly, asserting the specific rejection. Add
 `CommandScenario<TCommand>` only for pipeline/authorization wiring, constraints.
 Follow the
-[scenario rule](../../rules/specs.scenarios.csharp.md): application specs never
-configure read-protection modes, call `UseDecisionReads`, simulate competing appends, seed events solely for
-infrastructure, or re-prove platform guards. Keep the single cheap assembly-level
-application-shape admission spec specified by that rule; it is the application's
-only decision-read spec obligation. Report harness gaps upstream; never weaken
+[scenario rule](../../rules/specs.scenarios.csharp.md): ordinary application specs
+supply state, not a replay of the platform guard matrix. Typed scenarios select
+decision reads automatically; `UseDecisionReads()` is obsolete. Keep one
+assembly-level application-shape admission check; explicit body reads need their
+own admission check or focused scenario. An unusual application-owned explicit
+guard policy can justify a focused regression a plain call cannot prove; read the
+[decision guidance](../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
+for the example, limits and advanced hook boundary. `Provide()` carries no
+validation; validators own refusals. Report harness gaps upstream; never weaken
 production guards for speed.
 
 For a pipeline validation rejection, assert **both** that the command did not

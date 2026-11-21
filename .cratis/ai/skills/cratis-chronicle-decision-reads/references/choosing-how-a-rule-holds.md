@@ -340,20 +340,22 @@ justified opt-out, then remove the property and any per-command
 ## Specify the business decision
 
 Start with a plain `Handle()` or validator call supplied with read-model state.
-Follow the [scenario rule](../../../rules/specs.scenarios.csharp.md): read-protection
-plumbing is invisible to application spec authors. They never configure modes,
-call `UseDecisionReads`, seed events solely for infrastructure or re-prove platform
-concurrency, conflict-refusal or isolation guards. Arc/Chronicle specs own that
-matrix. The application's only decision-read spec obligation is one cheap
-assembly-level `DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)`
-check of its own models/projections, not per-decision scenarios. Production
-protection stays unchanged regardless of spec cost.
+Follow the [scenario rule](../../../rules/specs.scenarios.csharp.md): ordinary
+application specs prove the decision, not Arc/Chronicle's platform concurrency,
+conflict-refusal or isolation matrix. Typed scenarios select decision reads
+automatically; `UseDecisionReads()` is obsolete. Keep one assembly-level
+`DecisionReadAdmissions.ShouldAdmitDecisionReadsIn(assembly)` check of discoverable
+application models/projections. Explicit body reads need their own admission check
+or focused scenario; see the
+[decision guidance](../../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
+for the example, limits and advanced hook boundary. Production protection stays
+unchanged regardless of spec cost.
 
-Do not simulate competing appends in an application spec, even for a rule such as
-two borrowers competing for the last copy. Give the state (no copies left) and assert
-the domain outcome (rejected); the guarantee that only one wins is proven by Arc and
-Chronicle. If the harness cannot accept required state, report the upstream gap
-rather than adding infrastructure setup to application specs.
+For two borrowers competing for the last copy, give no-copy state to the validator
+and assert rejection; Arc/Chronicle prove the guard. `Provide()` computes derived
+values and carries no validation. An unusual application-owned explicit guard
+policy may need a focused regression a plain call cannot prove, not a generic
+race matrix. Report harness state gaps upstream rather than inventing guard doubles.
 
 ## Costs
 

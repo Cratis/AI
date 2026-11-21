@@ -190,20 +190,21 @@ source id/type and stream route; reactor tuples/collections cannot mix it with e
 ## Decision specifications
 
 Call `Handle()` and validators directly with read-model state for pure business
-decisions. Follow the [scenario rule](../../../rules/specs.scenarios.csharp.md):
-read-protection plumbing is invisible to application spec authors. They never
-call `UseDecisionReads`, configure modes, simulate competing appends
-(`AppendConcurrently`), seed events solely for infrastructure, or re-prove the platform concurrency, conflict-refusal or isolation matrix;
-Arc/Chronicle specs own it. The application's only decision-read spec obligation
-is one cheap assembly-level shape-admission spec from that rule.
-Never weaken production guards for test speed. Report a harness state-setup gap
-upstream instead of working around it in application specs.
+decisions; validators own refusals, and `Provide()` carries no validation. Follow
+the [scenario rule](../../../rules/specs.scenarios.csharp.md): ordinary application
+specs do not re-prove Arc/Chronicle's platform concurrency, conflict-refusal or
+isolation matrix. Typed scenarios select decision reads automatically;
+`UseDecisionReads()` is obsolete. Keep one assembly-level shape-admission check;
+explicit body reads need their own admission check or focused scenario. Never
+weaken production guards for speed; report harness state-setup gaps upstream.
 
-Add scenarios for pipeline/authorization wiring or constraints. Never simulate
-competing appends: assert the business outcome from supplied state (for example, no
-copies left rejects). Read
+Add scenarios for pipeline/authorization wiring or constraints. Assert the business
+outcome from supplied state (for example, no copies left rejects in the validator).
+An unusual application-owned explicit guard policy may need a focused regression
+a plain call cannot prove, not a generic race matrix. Read
 [query and decision scenarios](../../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
-for the query and decision setup. Keep shared lifecycle on and measure the added cost.
+for the admission example, limits and advanced hook boundary. Keep shared
+lifecycle on and measure the added cost.
 
 ## Sources
 
