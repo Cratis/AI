@@ -100,3 +100,52 @@ test('the scenario reference still forbids a race scenario', () => {
     assert.match(content, /Do not add a scenario to prove a race/);
     assert.match(read('rules/specs.scenarios.csharp.md'), /add a scenario for each behavior listed, and none beyond it/);
 });
+
+const identityReference = 'skills/cratis-arc-authentication-authorization-and-identity/references/command-identity.md';
+for (const path of [
+    'skills/cratis-arc-authentication-authorization-and-identity/SKILL.md',
+    'skills/cratis-arc-command/references/decisions-and-routing.md',
+    'skills/cratis-arc-command-operation/SKILL.md',
+    'skills/cratis-chronicle-client-dotnet/SKILL.md',
+    'skills/cratis-chronicle-compliance/SKILL.md',
+]) {
+    test(`${path} routes command identity and audit questions to the shared reference`, () => {
+        const link = /\]\(([^)]+command-identity\.md)\)/.exec(read(path));
+        assert.ok(link, 'a direct identity-reference link');
+        assert.equal(resolve(corpus, path, '..', link[1]), resolve(corpus, identityReference));
+    });
+}
+
+test('command identity separates the actor, a lookup key, authorization and Chronicle attribution', () => {
+    const content = read(identityReference);
+    for (const api of [
+        'ICurrentPrincipalAccessor.Current', 'IAsyncParameterDependencyResolver', 'ParameterDependencyResolution.NotResolved',
+        'ParameterDependencyResolution.Resolved', 'ICanResolveParameterDependency', 'AuthorizationResult.Failure',
+        'LookUpBy<CallerSubject>', 'CallerClaim', 'IReadModelKeyProvider', 'ReadModelKeyLookup', 'CommandCaller.Single',
+        'IIdentityProvider.GetCurrent()', 'EventContext.CausedBy', 'Identity.OnBehalfOf',
+    ]) {
+        assert.ok(content.includes(api), `${api} is explained`);
+    }
+    assert.match(content, /Chronicle first[^.]*application resolvers/);
+    assert.match(content, /IsAuthenticated: true/);
+    assert.match(content, /(?:no|never a) privileged fallback/i);
+    assert.match(content, /(?:neither|not)[^.]*permission/i);
+    assert.match(content, /\[Authorize\(Policy = "[^"]+"\)\]/);
+    assert.match(content, /public AuthorizationResult Provide\(CurrentActor\? actor\) =>\s*actor is null\s*\? AuthorizationResult\.Failure/);
+    assert.match(content, /SKILL\.md#validators-are-not-an-authorization-boundary/);
+    assert.doesNotMatch(content, /IFeatureAccess|access\.CanEnable/);
+    assert.match(content, /per-stream/);
+    assert.match(content, /not[^.]*event payloads/i);
+    assert.doesNotMatch(content, /AssemblyQualifiedName|Type\.GetType|\.GetAwaiter\(\)\.GetResult\(\)/);
+});
+
+test('read-model injection includes caller keys without an unconditional command-key claim', () => {
+    const content = read('skills/cratis-arc-command/references/read-model-injection.md');
+    assert.match(content, /LookUpBy<CallerSubject>/);
+    assert.match(content, /IReadModelKeyProvider/);
+    assert.match(content, /command-identity\.md/);
+    assert.match(content, /supplied matching value is refused with `InvalidLookUpBy`/);
+    assert.match(read('skills/cratis-arc-authentication-authorization-and-identity/references/product-sources.md'), /supplied matching value[^|]*refused with `InvalidLookUpBy`/);
+    assert.doesNotMatch(content, /in all three, under `Off`/i);
+    assert.doesNotMatch(content, /resolves it[^.]*by the command's resolved key/i);
+});

@@ -375,7 +375,8 @@ being in-process does not prove permission.
 of transport. During HTTP it is the request principal; outside HTTP it can be the
 principal established by a server-side scope. Read claims from it, not from the
 identity cookie, and not through `IHttpContextAccessor` in code that must also run
-on hub emissions.
+on hub emissions. For application actor injection, caller-keyed reads and
+Chronicle attribution, read [command identity](command-identity.md).
 
 Command authorization reads the principal from the current request. A reactor,
 hosted service, or one command orchestrating another has no request, so any
