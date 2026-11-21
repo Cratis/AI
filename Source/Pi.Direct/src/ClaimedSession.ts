@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import type { LaunchEnvironment } from './Environment.ts';
-import { MaxLeaseSeconds } from './DirectContract.ts';
+import { MaxLeaseSeconds, validateLeaseGrant } from './DirectContract.ts';
 import type { ReleaseOutcome, WorkClaimed, WorkPayload } from './DirectContract.ts';
 import type { DirectGateway } from './DirectGateway.ts';
 import { Clock, HeartbeatLoop, bounded } from './HeartbeatLoop.ts';
@@ -36,6 +36,9 @@ function refuseIfAborted(signal: AbortSignal | undefined): void {
 
 /** One claimed work item: keeps the lease by heartbeat, releases exactly once, and turns lost authority into a terminal guard. */
 export class ClaimedSession {
+    readonly payload: WorkPayload;
+    private readonly claimId: string;
+    private readonly heartbeatSeconds: number;
     private epoch: number;
     private deadline: LeaseDeadline;
     private phase: SessionPhase = 'claimed';
@@ -46,11 +49,12 @@ export class ClaimedSession {
 
     private constructor(
         private readonly dependencies: SessionDependencies,
-        private readonly claimId: string,
-        epoch: number,
-        claimDeadline: LeaseDeadline,
-        readonly payload: WorkPayload) {
-        this.epoch = epoch;
+        claimed: WorkClaimed,
+        claimDeadline: LeaseDeadline) {
+        this.claimId = claimed.claimId;
+        this.heartbeatSeconds = claimed.heartbeatSeconds;
+        this.payload = claimed.payload;
+        this.epoch = claimed.epoch;
         this.deadline = claimDeadline;
         this.heartbeat = new HeartbeatLoop(dependencies.clock, () => this.beat(), () => this.loseAuthority());
     }
@@ -61,6 +65,7 @@ export class ClaimedSession {
         let claimed: WorkClaimed | undefined;
         let session: ClaimedSession | undefined;
         try {
+            guard.markPending();
             refuseIfAborted(signal);
             const sent = LeaseDeadline.start(clock, MaxLeaseSeconds);
             claimed = await gateway.claim({
@@ -71,7 +76,7 @@ export class ClaimedSession {
             });
             refuseIfAborted(signal);
             session = ClaimedSession.fromClaim(dependencies, claimed, sent);
-            await session.confirm(claimed.heartbeatSeconds);
+            await session.confirm();
             refuseIfAborted(signal);
             return session;
         } catch {
@@ -85,9 +90,10 @@ export class ClaimedSession {
     }
 
     private static fromClaim(dependencies: SessionDependencies, claimed: WorkClaimed, sent: LeaseDeadline): ClaimedSession {
+        validateLeaseGrant(claimed.leaseSeconds, claimed.heartbeatSeconds);
         const deadline = sent.withGrant(claimed.leaseSeconds);
         if (deadline.expired()) throw new SessionRefused('refused');
-        return new ClaimedSession(dependencies, claimed.claimId, claimed.epoch, deadline, claimed.payload);
+        return new ClaimedSession(dependencies, claimed, deadline);
     }
 
     private static async abandonInterruptedClaim(dependencies: SessionDependencies, claimed: WorkClaimed | undefined, session: ClaimedSession | undefined): Promise<void> {
@@ -168,18 +174,19 @@ export class ClaimedSession {
     }
 
     /** Only the confirming heartbeat's own send-time deadline can authorize the first write. */
-    private async confirm(heartbeatSeconds: number): Promise<void> {
+    private async confirm(): Promise<void> {
         const { gateway, environment, clock, guard } = this.dependencies;
         try {
             const sent = LeaseDeadline.start(clock, MaxLeaseSeconds);
             const result = await gateway.heartbeat({ workHandle: environment.workHandle, claimId: this.claimId, epoch: this.epoch });
             this.epoch = result.epoch;
             refuseIfAborted(this.dependencies.signal);
+            validateLeaseGrant(result.leaseSeconds, this.heartbeatSeconds);
             this.deadline = sent.withGrant(result.leaseSeconds);
             if (this.leaseExpired()) throw new SessionRefused('refused');
             this.phase = 'live';
             guard.open();
-            this.heartbeat.start(heartbeatSeconds);
+            this.heartbeat.start(this.heartbeatSeconds);
             this.startObserver();
         } catch (error) {
             this.phase = 'lost';
@@ -194,6 +201,7 @@ export class ClaimedSession {
         this.checkLease();
         if (this.dependencies.signal?.aborted) this.endAuthority();
         if (this.phase !== 'live') return; // a late answer never revives expired authority
+        validateLeaseGrant(result.leaseSeconds, this.heartbeatSeconds);
         const deadline = sent.withGrant(result.leaseSeconds);
         if (deadline.expired()) {
             this.loseAuthority();
