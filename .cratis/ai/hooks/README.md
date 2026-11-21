@@ -458,6 +458,16 @@ all other global options (`-c`, `--git-dir`, `--work-tree`, `--no-pager`, `--exe
 remain denied. `-C` gives **no protection** from a hostile repository's configuration:
 fsmonitor, hooks, pager and diff/textconv helpers can still run. This is a syntax filter,
 not a repository sandbox.
+
+Known limitations of the same kind (both need control of the local environment or Git
+configuration, which the guard cannot see):
+
+- Plain `rg` forms that were already accepted (`-n`, `-l`, `-i`, `--files`) do not require
+  `--no-config`, so a `RIPGREP_CONFIG_PATH` set in the environment can add options such as
+  `--pre`. Only the flags admitted for #1255 require a literal `--no-config`; requiring it for
+  every `rg` would refuse the most common read-only searches.
+- `git add <file>` runs any `filter.<name>.clean` driver defined in Git configuration for a
+  path that `.gitattributes` assigns to that filter.
 Git format values containing `%(` are not accepted. Index/commit operations are deliberate
 allowances, not general shell execution permission. Output-to-file options such as
 `git diff --output=...` are never exempt, even with a non-protected destination on a line
