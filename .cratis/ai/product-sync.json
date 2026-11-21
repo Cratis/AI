@@ -424,7 +424,8 @@
           "cratis-engineering-csharp-conventions",
           "cratis-fundamentals-concept",
           "cratis-fundamentals-telemetry",
-          "cratis-fundamentals-type-discovery"
+          "cratis-fundamentals-type-discovery",
+          "cratis-observability"
         ],
         "rules": [
           "concepts.md"
