@@ -112,8 +112,9 @@ Everything else a lane decides, records and reports.
 
 When a lane must stop and another session continues, write a handoff named
 `handoff-<lane-id>.md` under the task folder. Structure, filling rules and
-resuming follow [cratis-session-handoff](../cratis-session-handoff/SKILL.md);
-the preconditions rule lives in
+resuming follow [cratis-session-handoff](../cratis-session-handoff/SKILL.md),
+including separate user directives and agent decisions, sources, reasons and
+retirement markings. The preconditions rule lives in
 [local-work-artifacts.md](../../rules/local-work-artifacts.md).
 
 ## Roll call
