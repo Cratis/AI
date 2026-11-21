@@ -24,10 +24,12 @@ const MaxTimeoutMilliseconds = 2_147_483_647;
 
 /** Shared with the send-time deadline so even gateways bypassing the parser cannot extend authority. */
 export function leaseMilliseconds(seconds: number): number {
-    const milliseconds = seconds * 1000;
-    if (!Number.isFinite(seconds)) throw new SessionRefused('refused');
-    if (seconds <= 0 || seconds > MaxLeaseSeconds) throw new SessionRefused('refused');
-    if (!Number.isSafeInteger(milliseconds)) throw new SessionRefused('refused');
+    const milliseconds = Math.round(seconds * 1000);
+    if (!Number.isFinite(seconds)) refuse();
+    if (seconds <= 0) refuse();
+    if (seconds > MaxLeaseSeconds) refuse();
+    if (!Number.isSafeInteger(milliseconds)) refuse();
+    if (milliseconds <= 0) refuse();
     return milliseconds;
 }
 

@@ -21,7 +21,7 @@ for (const request of ['claim', 'confirmation', 'renewal'] as const) {
                 if (change === 'suspend') context.clock.suspend(31_000);
                 else {
                     context.clock.setWallTime(-60_000);
-                    await context.clock.advance(31_000);
+                    await context.clock.advance(1_000);
                 }
                 answer();
                 await launch;

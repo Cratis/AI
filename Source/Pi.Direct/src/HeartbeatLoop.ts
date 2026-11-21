@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+import { SessionRefused } from './Refusals.ts';
+
 export interface Clock {
     now(): number;
     monotonic(): number;
@@ -55,7 +57,14 @@ export class HeartbeatLoop {
     }
 
     private schedule(milliseconds: number): void {
+        if (!Number.isFinite(milliseconds)) this.refuseInterval();
+        if (milliseconds <= 0 || milliseconds > 2_147_483_647) this.refuseInterval();
         this.handle = this.clock.setTimeout(() => void this.tick(milliseconds), milliseconds);
+    }
+
+    private refuseInterval(): never {
+        this.stop();
+        throw new SessionRefused('refused');
     }
 
     private async tick(milliseconds: number): Promise<void> {

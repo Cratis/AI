@@ -102,7 +102,8 @@ export class ClaimedSession {
      * local tool: once the deadline has passed the guard is terminal and the person is told once.
      */
     checkLease(): void {
-        if (this.phase === 'live' && this.leaseExpired()) this.loseAuthority();
+        if (this.phase !== 'live' && this.phase !== 'releasing') return;
+        if (this.leaseExpired()) this.loseAuthority();
     }
 
     status(): SessionStatus {
@@ -123,13 +124,14 @@ export class ClaimedSession {
         this.phase = 'releasing';
         this.heartbeat.stop();
         try {
-            await this.dependencies.gateway.release({ workHandle: this.dependencies.environment.workHandle, claimId: this.claimId, epoch: this.epoch, outcome, reason });
+            await this.dependencies.gateway.release({ workHandle: this.dependencies.environment.workHandle, claimId: this.claimId, epoch: this.epoch, outcome, reason }).catch(() => {
+                this.loseAuthority();
+                throw new SessionRefused('refused');
+            });
+            this.checkLease();
             if (this.phase !== 'releasing') throw new SessionRefused('authority-lost');
             this.phase = 'released';
             this.dependencies.guard.markReleased();
-        } catch {
-            this.loseAuthority();
-            throw new SessionRefused('refused');
         } finally {
             await this.close();
         }
