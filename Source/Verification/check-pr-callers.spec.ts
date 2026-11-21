@@ -43,8 +43,12 @@ function publishedCallers(bootstrap: string): Map<string, string> {
     for (const match of bootstrap.matchAll(/^BOOTSTRAPPED_FILES\["\.github\/workflows\/(verify-(?:pull-request-policy|release-notes|semver-label|release-intent)\.yml)"\]="([A-Za-z0-9+/=]+)"/gm)) {
         live.set(match[1], Buffer.from(match[2], 'base64').toString('utf8'));
     }
-    // Mirror bootstrap's later loop that unsets every LEGACY_WRAPPER_HASHES entry before installation.
-    // Parse the declarations only; never execute a remotely fetched script.
+    // Retire migration payloads only when bootstrap actually loops over their keys and unsets them.
+    // Parse the script only; never execute remotely fetched code. Ignore quoting differences in unset arguments.
+    const removesLegacy = [...bootstrap.matchAll(/^[\t ]*for\s+([A-Za-z_]\w*)\s+in\s+["']?\$\{!LEGACY_WRAPPER_HASHES\[@\]\}["']?\s*(?:;|\n)\s*do\b([\s\S]*?)\bdone\b/gm)]
+        .some(([, iterator, body]) => new RegExp(String.raw`(?:^|[;\n])\s*unset\s+(?:(?:--|-v)\s+)?BOOTSTRAPPED_FILES\[\$(?:${iterator}|\{${iterator}\})\](?=\s|;|$)`)
+            .test(body.replace(/['"]/g, '')));
+    if (!removesLegacy) return live;
     for (const match of bootstrap.matchAll(/^LEGACY_WRAPPER_HASHES\["\.github\/workflows\/([^"\n]+)"\]=/gm)) {
         live.delete(match[1]);
     }
@@ -97,15 +101,29 @@ test('the legacy fixtures identify the retired callers that bootstrap replaces',
     }
 });
 
+const bootstrapDeclarations = [
+    ...callerFixtures.map(({ name }) => `BOOTSTRAPPED_FILES[".github/workflows/${name}"]="${Buffer.from(name).toString('base64')}"`),
+    ...legacyVendored.map(name => `LEGACY_WRAPPER_HASHES[".github/workflows/${name}"]="historical-blob"`),
+].join('\n');
+
 test('the live caller extraction excludes migration payloads that bootstrap unsets before installation', () => {
-    const bootstrap = [
-        ...callerFixtures.map(({ name }) => `BOOTSTRAPPED_FILES[".github/workflows/${name}"]="${Buffer.from(name).toString('base64')}"`),
-        ...legacyVendored.map(name => `LEGACY_WRAPPER_HASHES[".github/workflows/${name}"]="historical-blob"`),
-        'for legacy_path in "${!LEGACY_WRAPPER_HASHES[@]}"; do',
-        `  unset 'BOOTSTRAPPED_FILES['"$legacy_path"']'`,
-        'done',
-    ].join('\n');
-    assert.deepEqual(publishedCallers(bootstrap), new Map(vendored.map(name => [name, name])));
+    const removalLoops = [
+        ['for legacy_path in "${!LEGACY_WRAPPER_HASHES[@]}"; do', `  unset 'BOOTSTRAPPED_FILES['"$legacy_path"']'`, 'done'].join('\n'),
+        ['for wrapper in ${!LEGACY_WRAPPER_HASHES[@]}', 'do', '  unset -- "BOOTSTRAPPED_FILES[${wrapper}]"', 'done'].join('\n'),
+        `  for retired in "\${!LEGACY_WRAPPER_HASHES[@]}" ; do unset -v 'BOOTSTRAPPED_FILES["$retired"]'; done`,
+    ];
+    for (const loop of removalLoops) {
+        assert.deepEqual(publishedCallers(`${bootstrapDeclarations}\n${loop}`), new Map(vendored.map(name => [name, name])), loop);
+    }
+});
+
+test('the live caller extraction keeps legacy callers when the removal loop is missing', () => {
+    assert.deepEqual(publishedCallers(bootstrapDeclarations), new Map(callerFixtures.map(({ name }) => [name, name])));
+});
+
+test('the live caller extraction keeps legacy callers when a loop does not unset their payloads', () => {
+    const bootstrap = `${bootstrapDeclarations}\nfor legacy_path in "\${!LEGACY_WRAPPER_HASHES[@]}"; do echo "$legacy_path"; done`;
+    assert.deepEqual(publishedCallers(bootstrap), new Map(callerFixtures.map(({ name }) => [name, name])));
 });
 
 for (const { name, directory } of callerFixtures) {
