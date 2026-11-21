@@ -102,9 +102,7 @@ b. **reservation by identity**: if the scarce things can be named (seat 1..N, sl
 c. **accept and compensate**: allow the over-commit, detect it in a view or automation and
    record a compensating fact (`EnrolmentWaitlisted`); only when the business agrees.
 
-Target realization (for the handoff, not the model): in an Arc/Chronicle target (Arc 22.39.0 or
-later, Chronicle 19.23 or later; see the Requires line below) the rule is a `[ProtectedDecision]` command reading `DecisionRead<T>` (or `IDecisionReads.Get<T>(key)` for
-another event source) in `Provide()`/`Handle()` and returning a validation result; a conflict
+Target realization (for the handoff, not the model): in an Arc/Chronicle target with read protection `On` (the default from Arc 23; Arc 22.106 has it only as an opt-in) the rule is a command taking the read model as a typed parameter (`[LookUpBy]`/`[LookUpBy<TProvider>]` for another event source) in `Handle()` and returning a validation result; the typed parameter is the guard, no attribute needed. `[ProtectedDecision]` with `DecisionRead<T>` (Arc 22.39.0 or later, Chronicle 19.23 or later; see the Requires line below) is the legacy opt-in under read protection `Off`, where plain typed parameters guard nothing; a conflict
 at commit is reported as a concurrency violation. Equivalently a Chronicle decision-consistency
 read with a `concurrency` scope on the event source or stream. A passive read is fresh
 computation, not an atomic read-and-append; a plain materialized view and a validator are
@@ -130,7 +128,7 @@ Keep the rule **NOT enforced in the model today** with its race consequence.
 Never infer protection from `.play` `reads` + `require`, weaken the rule to render,
 or edit managed dependency files. A rendered scaffold pins its own Arc and Chronicle releases and does not move with newer ones.
 
-Requires Arc 22.39.0 or later and Chronicle 19.23.0 or later for `[ProtectedDecision]`.
+Requires Arc 22.39.0 or later and Chronicle 19.23.0 or later for `[ProtectedDecision]` and `DecisionRead<T>` (legacy opt-in under read protection `Off`); read protection `On` is the default from Arc 23.
 
 ## 4. Concurrency scenarios
 For each enforced or recorded rule write three short scenarios:

@@ -11,9 +11,9 @@ convention, not a resolver restriction.
 The default lookup uses the command's resolved event-source id. It does not
 infer a key from the read-model type or an arbitrary similarly named property.
 Use `[LookUpBy(nameof(Command.Property))]` for a command-property key; for a
-computed key use `IDecisionReads.Get` in `Provide()` under read protection `On`.
-An ordinary `IReadModels.GetInstanceById` there is refused under `On`; outside
-protected work it is an advisory read, not a consistency guard.
+runtime-computed key use `[LookUpBy<TProvider>]` or a flat lookup projection.
+An ordinary `IReadModels.GetInstanceById` in a command is refused under `On`; outside
+protected work (reactors, services) it is an advisory read, not a consistency guard.
 
 A missing instance resolves to `null`, not a default object. A nullable parameter
 receives that null; a non-nullable one produces a validation failure (400).

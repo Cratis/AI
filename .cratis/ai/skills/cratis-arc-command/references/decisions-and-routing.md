@@ -18,8 +18,8 @@ Source: Arc. These features require `Cratis.Arc.Chronicle`.
 **Idiomatic default:** a state-dependent rule takes the read model as a `Handle()`
 (or validator-constructor) parameter; Arc 23 read protection `On` is the default, so it holds
 under concurrent writers with no attribute. Do not take `IDecisionReads` in `Handle()`: it is not
-recommended with Arc and is not an investment target. A computed key stays in
-`Provide()` until a read-model parameter covers it. Direction, not a release claim:
+recommended with Arc and is not an investment target. A computed key uses
+`[LookUpBy<TProvider>]` or a flat lookup projection. Direction, not a release claim:
 Arc will pin protected parameters so the idiomatic shape needs no further ceremony.
 
 Under read protection `On`, the default from Arc 23 when nothing is set (leave
@@ -30,7 +30,7 @@ the event log and guards the command's append. Opt out narrowest first, with a r
 `[Unprotected("why")]` or `[ReadProtection(ReadProtectionMode.Off)]` on the command; project-level
 `Off`/`Measure` is a temporary adoption step. Under `Off` and `Measure` those reads are plain, a hint that guards nothing
 (`Off` was the Arc 22 default).
-For a key computed at runtime, `IDecisionReads.Get<T>(key)` in `Provide()` or a validator is a protected read; method-level `[Unprotected]` is only for reads the guard cannot cover (joins, children, other sequences, raw event store, external stores), and its reason names what guards the append. Arc 23 read-model key metadata is strict by default: missing generated metadata fails with `CommandReadModelKeysMissing` (`ReadProtection:RequireGeneratedMetadata`), and `ProtectedReadModelKeyOptions.Strict` requires composite key accessors.
+When the key is not the command's own key, still inject the read model: key a parameter by a command property with `[LookUpBy(nameof(Command.Property))]` (validate that a caller-supplied property belongs to the entity the command acts on), key it by the caller with `[LookUpBy<TProvider>]`/`IReadModelKeyProvider`, or add a small lookup read model keyed by what the command carries. Do not call `IDecisionReads`, `IReadModels` or the event store directly from a command. Method-level `[Unprotected]` is only for reads no injected read model can cover (joins, children, other sequences, external stores), and its reason names what guards the append. Arc 23 read-model key metadata is strict by default: missing generated metadata fails with `CommandReadModelKeysMissing` (`ReadProtection:RequireGeneratedMetadata`), and `ProtectedReadModelKeyOptions.Strict` requires composite key accessors.
 A `Result<TEvent, ValidationResult>` rejects a request but does not enroll a guard.
 Uniqueness and create-once belong to a Chronicle constraint, not to any read. For the
 routing by rule shape, the matrix and the traps read
@@ -57,8 +57,14 @@ Requires Arc 22.106.0 for read protection. Older Arc has only the per-command
   `Provide`, call `ForCommand()`, and return `StreamDecision.Append(...)` from
   `Handle` (`EventsWithConcurrencyScopes`); a competing append conflicts, including
   two competing first appends.
-- **Computed key or another stream or source.** Command-aware `IDecisionReads.Get<T>`
-  in `Provide()`, including the stream overloads.
+- **Computed key or another stream or source.** `[LookUpBy<TProvider>]`, a flat lookup
+  projection. A per-stream read model parameter works only for the command's own route
+  (`[LookUpBy]` and providers are rejected with `InvalidLookUpBy`). Otherwise `[Unprotected("why")]`
+  paired with a guard on the append (kernel constraint, another guarded typed parameter,
+  or an explicit scope captured before the read), reason "<key read> … guarded by <guard>".
+  Direct `IDecisionReads` is a deliberate exception outside the command path, with a
+  stated reason. Never add an explicit scope on a source a typed injected read already
+  guards: it throws `ExplicitScopeDoesNotCoverReads` on a race, not a clean violation.
 - **Rich lifecycle.** An aggregate root, with `Commit()` returned last. Under `On`,
   an aggregate and a protected read of the same source are refused
   (`ReadAndAggregateOnSameSource`); a different source is fine.
@@ -114,9 +120,9 @@ there, including static members and service locators. `[Unprotected]` on the
 command opts out; never combine it with `[ProtectedDecision]`
 (`CommandCannotBeBothProtectedAndUnprotected`).
 
-Requires Arc 22.81.0 for stream-scoped `IDecisionReads.Get<T>`,
-`GetDetached<T>` and `AdmitForStream<T>` to participate in command protection,
-caching and enrollment. Older Arc refuses these stream reads inside commands.
+Requires Arc 22.81.0 for stream-scoped `IDecisionReads` reads (deliberate use outside
+the command path) to participate in command protection, caching and enrollment. Older
+Arc refuses these stream reads inside commands.
 
 Do not manually append or commit to bypass the owner-capable unit of work.
 The guard detects every matching event appended after its boundary, whoever wrote

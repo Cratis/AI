@@ -79,8 +79,7 @@ published scenario catalogue.
    (S5: approve a period once), a stream decision with `IStreamReads`.
 8. **Process stream with steps and completion** (S6): a definition with a stream per
    process, declared concurrency and a closed stream.
-9. **Gapless numbers** (S7): a numbering source read with `IDecisionReads` in
-   `Provide()`; `[Unique]` alone gives no duplicates but allows gaps.
+9. **Gapless numbers** (S7): a numbering source injected as a read-model parameter (`[LookUpBy]` or provider); `[Unique]` alone gives no duplicates but allows gaps.
 10. **Rich behaviour over one lifecycle** (S8: order lines, pay, ship, cancel): an
     aggregate root, returning `Commit()` last. An aggregate and a protected read
     of the same source in one command are refused.
@@ -237,8 +236,7 @@ conflicting event. Outside Development, a 500 message is replaced unless
 Common 500 refusals: `ReadCannotBeProtected` (shape, above),
 `AmbiguousReadModelLookup` (add `[LookUpBy]`), `ImmediateAppendWhileReadsAreProtected`
 (return the event), `ReadRefusedWhileReadsAreProtected` and
-`DetachedReadWhileReadsAreProtected` (parameter, `IDecisionReads.Get` in
-`Provide()`, or `[Unprotected("why")]`), `ReadAfterProtectedCommit` (read first,
+`DetachedReadWhileReadsAreProtected` (parameter, or `[Unprotected("why")]` naming what guards the append), `ReadAfterProtectedCommit` (read first,
 return `Commit()` last), `ReadOfSourceWithStagedEvents`, `ExplicitScopeDoesNotCoverReads`,
 `DeclaredRoutingNotCoveredByExplicitScope`, `ConflictingReadProtection`,
 `ReadModelStreamNotOnCommandRoute`.
@@ -295,11 +293,15 @@ Only where a read must stay advisory, always with a stated reason, narrowest fir
    (`Cratis.Arc.Chronicle.ReadModels`): that read is advisory.
    The method form covers only raw reads in the method body, never its injected
    read-model parameters; combining it with protected read-model parameters raises
-   `ARCCHR0034`, so put `[Unprotected]` on the specific parameter. For a key computed
-   at runtime, `IDecisionReads.Get<T>(key)` in `Provide` or a validator is a protected
-   read; method-level `[Unprotected]` is only for reads the guard cannot cover (joins,
-   children, other sequences, raw event store, external stores) and its reason names
-   what guards the append. Arc 23 key metadata is strict by default:
+   `ARCCHR0034`, so put `[Unprotected]` on the specific parameter. When the key is
+   not the command's own key, still inject the read model: key a parameter by a command
+   property with `[LookUpBy(nameof(Command.Property))]` (validate that a caller-supplied
+   property belongs to the entity the command acts on), key it by the caller with
+   `[LookUpBy<TProvider>]`/`IReadModelKeyProvider`, or add a small lookup read model
+   keyed by what the command carries. Do not call `IDecisionReads`, `IReadModels` or the
+   event store directly from a command. Method-level `[Unprotected]` is only for reads
+   no injected read model can cover (joins, children, other sequences, external stores),
+   and its reason names what guards the append. Arc 23 key metadata is strict by default:
    `CommandReadModelKeysMissing` (`ReadProtection:RequireGeneratedMetadata`) and
    `ProtectedReadModelKeyOptions.Strict`.
 2. `[Unprotected("why")]` or `[ReadProtection(ReadProtectionMode.Off)]` on one command

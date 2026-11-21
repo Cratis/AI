@@ -29,8 +29,8 @@ error. The three shapes it takes:
 3. the id is generated inside `Handle()` and does not exist yet.
 
 In all three, under `Off` read by explicit key in `Provide()`; under `On` use a
-second parameter with `[LookUpBy]`, or `IDecisionReads.Get` in `Provide()` for a
-key computed there:
+second parameter with `[LookUpBy]` (or `[LookUpBy<TProvider>]` for a computed key); the
+explicit read below is the `Off`-only or `[Unprotected("why")]` form, whose reason names what guards the append:
 
 ```csharp
 var other = await readModels.GetInstanceById<<Other>>((EventSourceId)<OtherId>);
