@@ -7,12 +7,11 @@ license: MIT
 # The Chronicle client for .NET
 
 `Cratis.Chronicle` is a **standalone client SDK**. A console app, a worker, or a
-service constructs a client, asks it for an event store, and appends or observes.
-There is no host requirement and no application architecture imposed.
+service creates a client, gets an event store, and appends or observes.
+No host or application architecture is imposed.
 
-> **This is not the Arc integration.** In an Arc application, Chronicle is wired
-> in for you and commands return events that Arc appends. Everything below is the
-> layer underneath: what an application that is *not* Arc has to do itself.
+> **Not the Arc integration.** Arc wires Chronicle and appends events returned by
+> commands. Below is the underlying layer: what a non-Arc application does itself.
 
 ## Verified product sources
 
@@ -30,8 +29,9 @@ Take the version from nuget.org, not the placeholder version in the source.
 
 Read references/occurrences.md when recording durable triggers, implementing
 occurrence handlers, or choosing startup/shutdown activation and retry semantics.
-Read references/immediate-append-refusal.md when a unit must prevent immediate
-appends from escaping its atomic receipt boundary before transport.
+Read references/immediate-append-refusal.md to refuse immediate appends outside an
+atomic receipt boundary; [command identity](../cratis-arc-authentication-authorization-and-identity/references/command-identity.md)
+for caller versus `CausedBy` attribution.
 
 ## Lifecycle
 
@@ -50,7 +50,7 @@ defaults are reasonable for a sample and wrong for a service
 | `IIdentityProvider` | `BaseIdentityProvider` |
 | `ICorrelationIdAccessor` | `CorrelationIdAccessor` |
 | `IEventStoreNamespaceResolver` | `DefaultEventStoreNamespaceResolver` — always `"Default"` |
-| `ILoggerFactory` | `new LoggerFactory()` — **a silent one** |
+| `ILoggerFactory` | `new LoggerFactory()` — silent |
 | Configuration binding | none; there is no `Cratis:Chronicle` section without a host |
 
 The `IServiceProvider` default is the sharp one: **a reactor or reducer with
@@ -61,8 +61,8 @@ The AspNetCore package additionally registers `AddUnitOfWork()`,
 `AddCompliance()`, `AddCausation()`, `AddChronicleHealthCheck()`, and
 `UseCratisChronicle()` — none of which the base package gives you.
 
-**Keep the process alive.** Observation is a live gRPC duplex stream; a console
-app that appends and returns from `Main` never sees a reactor run.
+**Keep the process alive.** Observation is a live gRPC duplex stream; returning
+from `Main` prevents reactor execution.
 
 ## Which package
 

@@ -40,11 +40,14 @@ Requires Arc 22.106.0 for read protection. Older Arc has only the per-command
 `[ProtectedDecision]` path below.
 
 - **One entity's state.** Put the rule in a validator with the read model as a
-  constructor parameter; `Handle()` returns the events. The key is
-  `[LookUpBy(nameof(Cmd.Prop))]` on the parameter (`Cratis.Arc.Commands`), else the
-  single command property whose type equals the model's `Id` type, else the
-  command's event source id. Several matching properties fail with
-  `AmbiguousReadModelLookup` (500): add `[LookUpBy]`.
+  constructor parameter; `Handle()` returns the events. Choose one explicit key
+  form: `[LookUpBy(nameof(Cmd.Prop))]` for a command property or
+  `[LookUpBy<CallerSubject>]` for a caller-keyed handler model (`Cratis.Arc.Commands`);
+  read [command identity](../../cratis-arc-authentication-authorization-and-identity/references/command-identity.md)
+  for providers, actor injection and attribution. Without an explicit lookup the
+  key is the single command property matching the model's `Id` type, else the
+  command's event source id. Several matches fail with
+  `AmbiguousReadModelLookup` (500): declare the intended lookup.
 - **Two entities.** Two read-model parameters, the second with `[LookUpBy]`;
   `Handle()` returns `IEnumerable<EventForEventSourceId>`, one event per entity,
   appended atomically. Use a distinct event type per entity.

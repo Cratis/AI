@@ -13,7 +13,7 @@ told about them. Each has its own extension point.
 
 ## Verified product sources
 
-Read [references/product-sources.md](references/product-sources.md) when you need the owning package for an identity type.
+Read [product sources](references/product-sources.md) for packages; [command identity](references/command-identity.md) for actor injection, caller-keyed reads and Chronicle attribution.
 
 Authorization capabilities arrived over time: named policies, schemes, fallback baselines, guest policies and Microsoft-attribute enforcement all need a recent Arc. [authorization](references/authorization.md) lists the requirements; check them if you run an older version.
 
@@ -287,9 +287,8 @@ To run locally with an identity, supply the forwarded headers yourself — see
   callers, strips caller-supplied identity headers, writes trusted ones and blocks
   direct backend access; custom handlers honor it.
 - Every rule the frontend enforces also exists on the server.
-- Nothing trusts the identity cookie or the forwarded headers beyond what the
-  ingress guarantees.
-- The application is not reachable except through that ingress.
+- Only the authenticating ingress reaches the app; no cookie or unsigned header
+  is trusted independently.
 - Development user and tenant providers return fixtures, never production data.
 - `dotnet build` is clean in Debug and Release.
 
@@ -297,6 +296,5 @@ To run locally with an identity, supply the forwarded headers yourself — see
 
 - Rejecting a command's input or state: `cratis-arc-command-validation` scope
   (validators are not the place for state-dependent permission rules).
-- Chronicle tenant namespaces and per-tenant event stores: the Chronicle
-  multi-tenancy guidance.
+- Tenant namespaces and per-tenant event stores: Chronicle multi-tenancy.
 - Building the React page that consumes identity: the Arc React guidance.
