@@ -13,15 +13,16 @@ describe('when a renewal grants a shorter lease', given(a_claimed_session, conte
     beforeEach(async () => {
         await context.claim();
         await context.clock.advance(10_000);
-        context.gateway.heartbeatLeases.push(5);
+        context.gateway.heartbeatLeases.push(15);
         await context.clock.advance(10_000);
         secondsRemaining = context.session.status().secondsToLeaseEnd;
-        await context.clock.advance(6000);
+        context.gateway.heartbeatPending = new Promise<void>(() => { /* the next renewal never answers */ });
+        await context.clock.advance(16_000);
         context.session.checkLease();
         finishError = await thrownBy(() => context.session.finish('Delivered'));
     });
 
-    it('should replace the standing deadline with the shorter grant', () => secondsRemaining.should.equal(5));
+    it('should replace the standing deadline with the shorter grant', () => secondsRemaining.should.equal(15));
     it('should adopt the renewed epoch', () => context.session.status().epoch.should.equal(4));
     it('should lose authority at the shorter deadline', () => context.guard.state.should.equal('lost'));
     it('should deny the guarded tool', () => context.guard.blocks('direct_session_finish').should.equal(true));

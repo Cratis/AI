@@ -33,6 +33,13 @@ export function leaseMilliseconds(seconds: number): number {
     return milliseconds;
 }
 
+/** Every grant must leave time for another heartbeat at the agreed interval. */
+export function validateLeaseGrant(leaseSeconds: number, heartbeatSeconds: number): void {
+    const leaseMs = leaseMilliseconds(leaseSeconds);
+    const heartbeatMs = leaseMilliseconds(heartbeatSeconds);
+    if (heartbeatMs >= leaseMs || heartbeatMs > MaxTimeoutMilliseconds) refuse();
+}
+
 export const ReleaseOutcomes = ['Delivered', 'Abandoned', 'Blocked', 'Declined'] as const;
 export type ReleaseOutcome = typeof ReleaseOutcomes[number];
 
@@ -135,7 +142,7 @@ export function parseWorkClaimed(value: unknown): WorkClaimed {
     const payload = fieldsOf(fields.payload);
     const leaseSeconds = timing(fields, 'leaseSeconds');
     const heartbeatSeconds = timing(fields, 'heartbeatSeconds');
-    if (heartbeatSeconds >= leaseSeconds || heartbeatSeconds * 1000 > MaxTimeoutMilliseconds) refuse();
+    validateLeaseGrant(leaseSeconds, heartbeatSeconds);
     return {
         workHandle: text(fields, 'workHandle'),
         claimId: text(fields, 'claimId'),

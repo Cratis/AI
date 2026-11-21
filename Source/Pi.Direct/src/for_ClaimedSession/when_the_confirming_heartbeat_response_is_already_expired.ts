@@ -15,6 +15,7 @@ describe('when the confirming heartbeat response is already expired', given(a_la
         let answerClaim!: () => void;
         let answerHeartbeat!: () => void;
         context.gateway.claimPending = new Promise<void>(resolve => { answerClaim = resolve; });
+        context.gateway.claimed = { ...context.gateway.claimed, heartbeatSeconds: 0.5 };
         context.gateway.heartbeatLeaseSeconds = 1;
         context.gateway.heartbeatPending = new Promise<void>(resolve => { answerHeartbeat = resolve; });
         const launching = thrownBy(() => context.launch());
@@ -28,7 +29,7 @@ describe('when the confirming heartbeat response is already expired', given(a_la
         error = await launching;
     });
 
-    it('should not open while confirming', () => pendingState.should.equal('unclaimed'));
+    it('should not open while confirming', () => pendingState.should.equal('pending'));
     it('should refuse the expired confirmation', () => (error as SessionRefused).code.should.equal('refused'));
     it('should leave the guard terminal', () => context.guard.state.should.equal('lost'));
     it('should deny the guarded tool', () => context.guard.blocks('direct_session_finish').should.equal(true));

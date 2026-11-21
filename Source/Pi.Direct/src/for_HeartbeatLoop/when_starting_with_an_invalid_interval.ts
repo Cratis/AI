@@ -22,7 +22,7 @@ for (const seconds of [NaN, Infinity, -Infinity, 0, -1, 2_147_483.648, Number.MA
     });
 }
 
-for (const seconds of [0.001, 2.3, 2_147_483]) {
+for (const seconds of [0.001, 1.0001, 1.0006, 2.3, 2_147_483]) {
     describe(`when starting heartbeats with a valid interval of ${seconds} seconds`, () => {
         let clock: FakeClock;
         let loop: HeartbeatLoop;
@@ -33,5 +33,6 @@ for (const seconds of [0.001, 2.3, 2_147_483]) {
         });
         it('should run the loop', () => loop.isRunning.should.equal(true));
         it('should schedule one timer', () => clock.timers.size.should.equal(1));
+        it('should schedule at the rounded millisecond interval', () => Array.from(clock.timers.values())[0].at.should.equal(Math.round(seconds * 1000)));
     });
 }
