@@ -221,3 +221,166 @@ test('read-model injection includes caller keys without an unconditional command
     assert.doesNotMatch(content, /in all three, under `Off`/i);
     assert.doesNotMatch(content, /resolves it[^.]*by the command's resolved key/i);
 });
+
+const reactPageSkill = 'skills/cratis-arc-react-page';
+const commandResultReference = 'skills/cratis-arc-command/references/command-result.md';
+const dataPageReference = `${reactPageSkill}/references/data-page.md`;
+
+for (const path of [
+    `${reactPageSkill}/SKILL.md`, `${reactPageSkill}/references/dialogs.md`,
+    `${reactPageSkill}/references/queries-and-commands.md`, `${reactPageSkill}/references/availability.md`,
+    'rules/react.md', 'harnesses/copilot/instructions/react.instructions.md',
+    'agents/frontend-developer.md', 'harnesses/pi/agents/frontend-developer.md',
+    'harnesses/opencode/agents/frontend-developer.md',
+]) {
+    test(`${path} routes result classification to its single owner`, () => {
+        const content = read(path);
+        assert.match(content, /command-result\.md/);
+        assert.doesNotMatch(content, /\| Flag \| Meaning/);
+        assert.doesNotMatch(content, /redirectToLogin\(/);
+        assert.doesNotMatch(content, /isAuthorized && isValid && !hasExceptions/);
+        assert.doesNotMatch(content, /CommandDialog` (?:handles all|performs all of this)/);
+    });
+}
+
+test('the result owner includes optional retry and missing-handler flags and acquisition outcomes', () => {
+    const content = read(commandResultReference).replace(/\s+/g, ' ');
+    for (const member of [
+        'readonly isRetryable?: boolean', 'readonly isMissingHandler?: boolean',
+        'isSuccess', 'isAuthorized', 'isValid', 'hasExceptions', 'response',
+        'severity', 'message', 'members', 'state', 'reason', 'reasonDetail',
+    ]) {
+        assert.ok(content.includes(member), `${member} remains in the result contract`);
+    }
+    assert.match(content, /IsSuccess.*IsAuthorized && IsValid && !HasExceptions/);
+    assert.doesNotMatch(content, /!IsRetryable && !IsMissingHandler/);
+    assert.match(content, /[Vv]alidators.*refusals.*usable facts/);
+    assert.match(content, /Provide\(\).*acquisition.*nothing usable/);
+    assert.match(content, /Handle\(\).*duplicate business validation/);
+});
+
+test('protected-read pairs retain the draft and do not become invalid input', () => {
+    const content = read(commandResultReference);
+    assert.match(content, /concurrencyViolation[^\n]*ReadChanged/);
+    assert.match(content, /concurrencyViolation[^\n]*ReadIncomplete/);
+    assert.doesNotMatch(content, /dependencyUnavailable[^\n]*ReadIncomplete/);
+    const prose = content.replace(/\s+/g, ' ');
+    for (const term of ['draft', 're-read', 'deliberate retry', 'developer English']) {
+        assert.ok(prose.includes(term), `${term} remains part of refusal recovery`);
+    }
+    assert.match(prose, /Never mark.*input invalid/);
+    assert.match(prose, /Unknown reasons.*not automatically protected-read/);
+    assert.match(prose, /never show them raw/);
+    assert.match(prose, /reason.*reasonDetail/);
+    assert.match(prose, /rule.*members/);
+});
+
+test('the result owner exposes the raw-message helper gap without promising sanitization', () => {
+    const content = read(commandResultReference).replace(/\s+/g, ' ');
+    for (const reason of ['dependencyUnavailable', 'validatorFailed', 'concurrencyViolation', 'constraintViolation', 'frameworkFailure']) {
+        assert.ok(content.includes(reason), `${reason} has a client treatment`);
+    }
+    assert.match(content, /CommandForm.*raw validation messages/);
+    assert.match(content, /toastCommandResult.*joins/);
+    assert.match(content, /showErrors=\{false\}/);
+    assert.match(content, /validationAnnouncement/);
+    assert.match(content, /onValidationFailure.*not suppress/);
+    assert.match(content, /exceptionMessages/);
+    assert.match(content, /exceptionStackTrace/);
+});
+
+test('server validation under read protection is feedback, not a commit reservation', () => {
+    const content = read(`${reactPageSkill}/references/queries-and-commands.md`).replace(/\s+/g, ' ');
+    for (const term of ['/validate', 'autoServerValidate', 'false', '500', 'On', 'fresh', 'Provide()', 'Handle()']) {
+        assert.ok(content.includes(term), `${term} remains documented`);
+    }
+    assert.match(content, /not.*reservation/);
+    assert.match(content, /cannot reuse/);
+    assert.match(content, /does not promise execution success/);
+});
+
+test('availability presentation separates unknown, observation errors and a host not opted in', () => {
+    const content = read(`${reactPageSkill}/references/availability.md`).replace(/\s+/g, ' ');
+    for (const term of [
+        '@cratis/arc.react/availability', 'AvailabilityContext', 'AvailabilityProvider', 'RequireAvailable',
+        'useAvailability', 'useAvailableItems', 'whileLoading', 'unavailable', 'Availability.everything',
+        'isKnown', 'NotAvailable', 'isNotAvailable', 'isRetryable',
+    ]) {
+        assert.ok(content.includes(term), `${term} remains documented`);
+    }
+    assert.match(content, /presentation only, never authorization/);
+    assert.match(content, /last successful decision/);
+    assert.match(content, /first query fails.*unknown/);
+    assert.match(content, /unknown, error and not opted in/);
+    assert.match(content, /entry without a part is always kept/);
+    assert.match(read(`${reactPageSkill}/SKILL.md`), /references\/availability\.md/);
+});
+
+for (const path of ['rules/components.md', 'harnesses/copilot/instructions/components.instructions.md']) {
+    test(`${path} owns the peer range and routes conditional DataPage detail`, () => {
+        const content = read(path);
+        assert.match(content, />=20\.3\.1 <24/);
+        assert.doesNotMatch(content, />=20\.3\.1 <23/);
+        assert.match(content, /references\/data-page\.md/);
+        assert.doesNotMatch(content, /DataPageSelection<|event\.value|mapQueryArguments/);
+    });
+}
+
+test('the page skill routes compatibility to the rule rather than maintaining another range', () => {
+    const content = read(`${reactPageSkill}/SKILL.md`);
+    assert.match(content, /rules\/components\.md/);
+    assert.doesNotMatch(content, /20\.3\.1|below (?:23|24)/);
+});
+
+test('Page and DataPage have one main landmark owner', () => {
+    const content = read(dataPageReference);
+    for (const term of ['landmark={false}', '@cratis/components/Common', '<main>', '<div>', 'showTitle']) {
+        assert.ok(content.includes(term), `${term} remains documented`);
+    }
+    assert.match(content, /DataPage.*forwards/);
+    assert.match(read(`${reactPageSkill}/SKILL.md`), /landmark=\{false\}/);
+});
+
+test('AutoCommandFields uses the existing form shell rather than nesting AutoCommandForm', () => {
+    const content = read(`${reactPageSkill}/references/dialogs.md`).replace(/\s+/g, ' ');
+    for (const term of ['AutoCommandFields', '@cratis/components/CommandForm', 'exclude?', 'keyof TCommand', 'property descriptors']) {
+        assert.ok(content.includes(term), `${term} remains documented`);
+    }
+    assert.match(content, /creates no form shell/);
+    assert.match(content, /do not nest/);
+    assert.match(content, /Steppers and column layouts are not supported/);
+});
+
+test('the DataPage reference owns typed committed selection and server mapping detail', () => {
+    const content = read(dataPageReference).replace(/\s+/g, ' ');
+    for (const term of [
+        'MenuItem<AccountSummary>', 'DataPageSelection<', 'selectionMode', 'selectedItem', 'readonly TDataType[]',
+        'null | undefined', 'committed', 'dataKey', 'reference', 'event.value',
+        'disableOnUnselected', 'DataTableSelectionChangeEvent<TDataType>', 'DataTableServerQuery<TArguments>',
+        'DataTableServerQueryState', '@cratis/components/DataTables', 'mapQueryArguments', 'baseArguments',
+        'globalFilter', 'filters', 'sort', 'debounceMs', '250', 'filteredEmptyMessage', 'onGlobalFilterChange',
+    ]) {
+        assert.ok(content.includes(term), `${term} remains documented`);
+    }
+    assert.match(content, /disabled item cannot dispatch/);
+    assert.match(content, /zero-argument callbacks/);
+    assert.match(content, /not deep-frozen/);
+    assert.match(content, /resets paging/);
+    assert.match(content, /disables local filtering and sorting/);
+    assert.match(content, /debounced.*filters and sorting apply immediately/);
+    assert.doesNotMatch(content, /`command` \| `\(\) => void`|`disabled` \| `boolean`/);
+});
+
+test('React page evaluation inputs retain bounded tasks and balanced triggers', () => {
+    const { evals } = JSON.parse(read('../../Evaluations/skills/cratis-arc-react-page/evals.json'));
+    const { queries } = JSON.parse(read('../../Evaluations/skills/cratis-arc-react-page/trigger.json'));
+    assert.ok(evals.length >= 3 && evals.length <= 5);
+    assert.ok(queries.length >= 16 && queries.length <= 20);
+    const positives = queries.filter((query: { shouldTrigger: boolean }) => query.shouldTrigger).length;
+    const negatives = queries.length - positives;
+    assert.ok(positives >= 8 && positives <= 10);
+    assert.ok(negatives >= 8 && negatives <= 10);
+    for (const term of ['ReadChanged', 'ReadIncomplete', 'isRetryable', 'isMissingHandler', 'availability', 'landmark', 'AutoCommandFields', 'DataPageSelection']) {
+        assert.ok(JSON.stringify(evals).includes(term), `${term} has evaluation coverage`);
+    }
+});
