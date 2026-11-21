@@ -44,30 +44,50 @@ export class FakeFileSystem implements ProofFileSystem {
 
 export class FakeClock implements Clock {
     private time = 0;
+    private monotonicTime = 0;
     private nextHandle = 1;
     readonly timers = new Map<number, { at: number; callback: () => void }>();
+    readonly intervals = new Map<number, { at: number; callback: () => void; milliseconds: number }>();
 
     now(): number { return this.time; }
+    monotonic(): number { return this.monotonicTime; }
+    setWallTime(milliseconds: number): void { this.time = milliseconds; }
+    suspend(milliseconds: number): void { this.time += milliseconds; }
 
     setTimeout(callback: () => void, milliseconds: number): unknown {
         const handle = this.nextHandle++;
-        this.timers.set(handle, { at: this.time + milliseconds, callback });
+        this.timers.set(handle, { at: this.monotonicTime + milliseconds, callback });
         return handle;
     }
 
     clearTimeout(handle: unknown): void { this.timers.delete(handle as number); }
 
+    setInterval(callback: () => void, milliseconds: number): unknown {
+        const handle = this.nextHandle++;
+        this.intervals.set(handle, { at: this.monotonicTime + milliseconds, callback, milliseconds });
+        return handle;
+    }
+
+    clearInterval(handle: unknown): void { this.intervals.delete(handle as number); }
+
     async advance(milliseconds: number): Promise<void> {
-        const target = this.time + milliseconds;
+        const target = this.monotonicTime + milliseconds;
         for (;;) {
-            const due = [...this.timers.entries()].filter(([, timer]) => timer.at <= target).sort((a, b) => a[1].at - b[1].at)[0];
+            const due = [...this.timers.entries(), ...this.intervals.entries()].filter(([, timer]) => timer.at <= target).sort((a, b) => a[1].at - b[1].at)[0];
             if (!due) break;
-            this.timers.delete(due[0]);
-            this.time = due[1].at;
+            const interval = this.intervals.get(due[0]);
+            if (interval) this.intervals.set(due[0], { ...interval, at: interval.at + interval.milliseconds });
+            else this.timers.delete(due[0]);
+            this.moveTo(due[1].at);
             due[1].callback();
             await new Promise(resolve => setImmediate(resolve));
         }
-        this.time = target;
+        this.moveTo(target);
+    }
+
+    private moveTo(monotonicTime: number): void {
+        this.time += monotonicTime - this.monotonicTime;
+        this.monotonicTime = monotonicTime;
     }
 }
 
@@ -84,6 +104,8 @@ export class FakeGateway implements DirectGateway {
     readonly heartbeatLeases: number[] = [];
     /** When set, a heartbeat stays pending until this promise settles. */
     heartbeatPending: Promise<void> | undefined;
+    releasePending: Promise<void> | undefined;
+    closePending: Promise<void> | undefined;
     epoch = 1;
     claimed: WorkClaimed = {
         workHandle: 'work-1', claimId: 'claim-1', epoch: 1, leaseSeconds: 30, heartbeatSeconds: 10,
@@ -107,10 +129,11 @@ export class FakeGateway implements DirectGateway {
 
     async release(request: ReleaseRequest): Promise<ReleaseResult> {
         this.releases.push(request);
+        await this.releasePending;
         return { epoch: request.epoch, outcome: request.outcome };
     }
 
-    async close(): Promise<void> { this.closed++; }
+    async close(): Promise<void> { this.closed++; await this.closePending; }
 }
 
 export class FakeRunner {
