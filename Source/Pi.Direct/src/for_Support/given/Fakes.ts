@@ -47,6 +47,7 @@ export class FakeClock implements Clock {
     private monotonicTime = 0;
     private nextHandle = 1;
     readonly timers = new Map<number, { at: number; callback: () => void }>();
+    readonly intervals = new Map<number, { at: number; callback: () => void; milliseconds: number }>();
 
     now(): number { return this.time; }
     monotonic(): number { return this.monotonicTime; }
@@ -61,12 +62,22 @@ export class FakeClock implements Clock {
 
     clearTimeout(handle: unknown): void { this.timers.delete(handle as number); }
 
+    setInterval(callback: () => void, milliseconds: number): unknown {
+        const handle = this.nextHandle++;
+        this.intervals.set(handle, { at: this.monotonicTime + milliseconds, callback, milliseconds });
+        return handle;
+    }
+
+    clearInterval(handle: unknown): void { this.intervals.delete(handle as number); }
+
     async advance(milliseconds: number): Promise<void> {
         const target = this.monotonicTime + milliseconds;
         for (;;) {
-            const due = [...this.timers.entries()].filter(([, timer]) => timer.at <= target).sort((a, b) => a[1].at - b[1].at)[0];
+            const due = [...this.timers.entries(), ...this.intervals.entries()].filter(([, timer]) => timer.at <= target).sort((a, b) => a[1].at - b[1].at)[0];
             if (!due) break;
-            this.timers.delete(due[0]);
+            const interval = this.intervals.get(due[0]);
+            if (interval) this.intervals.set(due[0], { ...interval, at: interval.at + interval.milliseconds });
+            else this.timers.delete(due[0]);
             this.moveTo(due[1].at);
             due[1].callback();
             await new Promise(resolve => setImmediate(resolve));

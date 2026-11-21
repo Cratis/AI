@@ -40,6 +40,7 @@ export class ClaimedSession {
     private deadline: LeaseDeadline;
     private phase: SessionPhase = 'claimed';
     private readonly heartbeat: HeartbeatLoop;
+    private observer: unknown;
     private closing: Promise<void> | undefined;
     private shuttingDown: Promise<void> | undefined;
 
@@ -131,6 +132,7 @@ export class ClaimedSession {
             this.checkLease();
             if (this.phase !== 'releasing') throw new SessionRefused('authority-lost');
             this.phase = 'released';
+            this.stopObserver();
             this.dependencies.guard.markReleased();
         } finally {
             await this.close();
@@ -161,6 +163,7 @@ export class ClaimedSession {
     }
 
     private close(): Promise<void> {
+        this.stopObserver();
         return this.closing ??= bounded(this.dependencies.clock, this.dependencies.gateway.close()).catch(() => undefined);
     }
 
@@ -177,6 +180,7 @@ export class ClaimedSession {
             this.phase = 'live';
             guard.open();
             this.heartbeat.start(heartbeatSeconds);
+            this.startObserver();
         } catch (error) {
             this.phase = 'lost';
             throw error;
@@ -199,12 +203,23 @@ export class ClaimedSession {
         this.epoch = result.epoch;
     }
 
+    private startObserver(): void {
+        this.observer ??= this.dependencies.clock.setInterval(() => this.checkLease(), 1000);
+    }
+
+    private stopObserver(): void {
+        if (this.observer === undefined) return;
+        this.dependencies.clock.clearInterval(this.observer);
+        this.observer = undefined;
+    }
+
     private leaseExpired(): boolean {
         return this.deadline.expired();
     }
 
     private loseAuthority(): void {
         this.heartbeat.stop();
+        this.stopObserver();
         if (this.phase === 'lost' || this.phase === 'released') return;
         this.endAuthority();
         this.dependencies.notify(new SessionRefused('authority-lost').message);
@@ -212,6 +227,7 @@ export class ClaimedSession {
 
     private endAuthority(): void {
         this.heartbeat.stop();
+        this.stopObserver();
         if (this.phase === 'released') return;
         this.phase = 'lost';
         this.dependencies.guard.markLost();

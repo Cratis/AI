@@ -8,13 +8,18 @@ export interface Clock {
     monotonic(): number;
     setTimeout(callback: () => void, milliseconds: number): unknown;
     clearTimeout(handle: unknown): void;
+    /** Observe repeatedly without keeping the host process alive. */
+    setInterval(callback: () => void, milliseconds: number): unknown;
+    clearInterval(handle: unknown): void;
 }
 
 export const systemClock: Clock = {
     now: () => Date.now(),
     monotonic: () => performance.now(),
     setTimeout: (callback, milliseconds) => setTimeout(callback, milliseconds),
-    clearTimeout: handle => clearTimeout(handle as ReturnType<typeof setTimeout>)
+    clearTimeout: handle => clearTimeout(handle as ReturnType<typeof setTimeout>),
+    setInterval: (callback, milliseconds) => setInterval(callback, milliseconds).unref(),
+    clearInterval: handle => clearInterval(handle as ReturnType<typeof setInterval>)
 };
 
 export const CleanupBoundMs = 5_000;
