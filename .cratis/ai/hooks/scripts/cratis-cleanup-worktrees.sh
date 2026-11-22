@@ -338,6 +338,7 @@ lsof_matches() {
     local target="$1" processes="$2" listing="$3"
     awk -v root="$$" -v target="$target" '
         function under_target(path) { return path == target || index(path, target "/") == 1 }
+        function unsafe(detail) { if (!bad) first_bad = detail; bad = 1 }
         NR == FNR { parent[$1] = $2; next }
         /^p[1-9][0-9]*$/ {
             pid = substr($0, 2); ignored = 0; ancestor = pid; kind = ""; type = ""; seen_pid = 1
@@ -355,7 +356,7 @@ lsof_matches() {
             # A diagnostic suffix can follow the target directory itself, not just a child path.
             sub(/ (\(stat:|\(FD info error:|FD info error:).*/, "", path)
             if (under_target(path)) {
-                if (!seen_pid || kind == "" || type == "") bad = 1
+                if (!seen_pid || kind == "" || type == "") unsafe("incomplete " kind " " type " " path)
                 else print kind "|" path
             } else if (path !~ /^\//) {
                 # Kernel/network object names are not filesystem paths. Unix sockets may have paths,
@@ -371,23 +372,28 @@ lsof_matches() {
                     if (type == "unix" && path ~ /^type=[[:upper:]]+( \([[:upper:]]+\))?$/) next
                     if (type == "netlink" && path == "NETLINK") next
                 }
-                bad = 1
+                unsafe("unrecognised " kind " " type " " path)
             }
             next
         }
-        { if (!ignored) bad = 1 }
-        END { if (bad || !seen_pid || !seen_name) exit 1 }
+        { if (!ignored) unsafe("unexpected record " $0) }
+        END {
+            if (!seen_pid || !seen_name) unsafe("empty listing")
+            if (bad) { print "!" first_bad; exit 1 }
+        }
     ' <(printf '%s\n' "$processes") <(printf '%s\n' "$listing")
 }
 # One process-wide listing per candidate, retried at most three times before failing closed.
 check_lsof_holders() {
-    local target="$1" processes="$2" listing matches kind path links attempt
+    local target="$1" processes="$2" listing matches detail kind path links attempt
     for attempt in 1 2 3; do
         if ! listing=$(lsof -nP -w -F pfnt 2>/dev/null); then
             HOLDER_REASON="holder check failed (lsof)"; continue
         fi
         if matches=$(lsof_matches "$target" "$processes" "$listing"); then HOLDER_REASON=''; break; fi
-        HOLDER_REASON="holder check failed (path inspection)"
+        # The first unsafe record is the last output line; builtins only (PATH may be minimal).
+        detail=${matches##*$'\n'}
+        HOLDER_REASON="holder check failed (path inspection: ${detail#!})"
     done
     [ "$attempt" != 3 ] || [ -z "${HOLDER_REASON:-}" ] || return 1
     while IFS='|' read -r kind path; do
