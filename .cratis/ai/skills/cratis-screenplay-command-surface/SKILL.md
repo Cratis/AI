@@ -243,6 +243,8 @@ A `user` line names a development session identity and the personas it plays; se
 
 `authorize` says who may act; whether the command exists for the caller at all is `available`, with `provide` for `$context` values: `cratis-screenplay-availability`.
 
+Agent exposure is a separate default-deny allowlist, never inferred from a public command or authorization. Read toolchain [agent exposure](../cratis-screenplay-toolchain/references/agent-exposure.md) before exposing a command; commands require write scope and retain effective authorization.
+
 ## Event data subject
 
 A trailing `subject` on an event property is report-only (`PLAY0270`); see [compliance](references/compliance.md#event-data-subject).

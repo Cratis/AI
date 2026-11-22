@@ -44,6 +44,8 @@
     { "kind": "skill-contains", "value": "Requires Screenplay 5.3.0", "file": "references/passive.md" },
     { "kind": "skill-contains", "value": "[graph queries](references/graph-queries.md)" },
     { "kind": "skill-contains", "value": "collect nested rows" },
-    {"kind":"skill-contains","value":"ESM v42"}
+    {"kind":"skill-contains","value":"ESM v42"},
+    { "kind": "skill-contains", "value": "references/agent-exposure.md" },
+    { "kind": "skill-contains", "value": "Public queries and screen visibility do not imply agent access" }
   ]
 }

@@ -3,40 +3,28 @@
   "evals": [
     {
       "id": 1,
-      "name": "verdict-report",
-      "prompt": "I ran `screenplay Bookings/Commands.play` and it printed no errors, so I'm telling the team 'the model is fine and executable'. What is wrong with that and how should I report it? Also, on 6.32.0 strict Compile refuses a policy; CompileAdmissible keeps independent slices but excludes that policy, its protected read and a command depending on the read. Explain Diagnostics, Cause and DependsOn for each exclusion and the verdict to report. May I ignore them because the remainder binds? Reply only; do not write files.",
-      "expected_output": "Check the folder, not one file, with warnings as errors (`screenplay <folder> --warnaserror`). A clean V1 proves only that the model is authorable, not executable; V2/V3 need MCP or `cratis screenplay validate --executable`. Report one line per verdict, tool and version first, and `not run` with the reason is a valid result. Name Compile versus opt-in CompileAdmissible: the former refuses the whole model; the latter is only a supported subset, not a whole-model pass or runtime identity guarantee. Exclusions retain original binder Diagnostics; Cause Root has empty DependsOn; Dependent lists immediate exclusions in Exclusions order, not transitive ancestry or message-derived edges. A policy root removes protected dependencies fail-closed, while independent slices remain. Base API requires 4.254.0; typed provenance requires 4.256.0.",
+      "name": "verdict-report-and-tool-skew",
+      "prompt": "I ran screenplay Bookings/Commands.play without errors, so I called the model fine and executable. The standalone tool binds reactions but cratis render refuses CLI-RENDER-004; a teammate proposes deleting reactions. Another machine gets PLAY0268 on pii and proposes removing pii/authorize. What do we check and report? Also, key orderId is event source on an inbound events capture: which tool/ESM version, fixture for behavior and source http PLAY0809 repair? On 6.32.0 strict Compile refuses a policy; CompileAdmissible keeps independent slices but excludes that policy, its protected read and a command depending on the read: explain Diagnostics, Cause and DependsOn and whether the remainder proves the whole model. Reply only; no edits.",
+      "expected_output": "Check the whole folder with warnings as errors. V1 proves authorable, not executable; V2/V3 need MCP or cratis screenplay validate --executable. Report each verdict with tool/version or not run and a reason. Read screenplay --version, cratis --version and which -a cratis: the standalone and CLI-bundled compilers differ and renderer admission is separate. Never delete reactions, pii or authorization to pass; report blocked with codes and record the gap. Capability is not correctness. key orderId is event source requires Screenplay 4.242.0 and ESM v33, serializes keyIsEventSource beside sourceEvents. PLAY0809 has no automatic repair; fixture for must equal the key, and omitted for takes the key. Compile refuses the whole model; opt-in CompileAdmissible returns only a supported subset, not a whole-model pass or runtime identity guarantee. Exclusions retain original binder Diagnostics; Cause Root has empty DependsOn, while Dependent lists immediate exclusion references in Exclusions order, not transitive ancestry or message-derived edges. Policy and protected-read exclusions fail closed; independent slices may remain. Base API requires 4.254.0; typed provenance requires 4.256.0.",
       "assertions": [
-        "Says the whole folder must be checked, not one file of it.",
-        "Says warnings must be treated as errors (`--warnaserror`), citing silent drops like PLAY0029.",
-        "Says a clean V1 proves only authorable, not executable; binding (V3) needs MCP or `cratis screenplay validate --executable`.",
-        "Reports verdicts as one line each with tool and version, accepting `not run` with a reason.",
-        "Distinguishes strict Compile from subset-only CompileAdmissible, preserves original diagnostics and ordered immediate Root/Dependent provenance, and treats security exclusions fail-closed rather than claiming a whole-model pass."
-      ]
-    },
-    {
-      "id": 2,
-      "name": "tool-skew",
-      "prompt": "The standalone screenplay binds our model with reactions, but `cratis render` refuses it with CLI-RENDER-004 and a teammate proposes deleting the reactions so the CLI accepts it. On another machine V3 is blocked with PLAY0268 on a pii concept; the lead proposes removing pii and authorize. What is going on and what do you do in each case? Reply only; do not write files. Also, an inbound source events capture declares key orderId is event source: which ESM/tool version does it select, and does a source http variant reporting PLAY0809 have a repair?",
-      "expected_output": "The standalone tool and the compiler bundled in the CLI are different releases; the bundled one can be older, and the CLI renders only ESM versions it knows (a newer bound model gets CLI-RENDER-004). Read `screenplay --version`, `cratis --version` and `which -a cratis`, name the tool for each verdict and do not transfer a verdict across tools. Never remove reactions, pii or authorization to pass; capability is not correctness. Report blocked with codes and record the tool gap; not run with the reason is valid. A clean verdict proves only its own layer. key orderId is event source needs Screenplay 4.242.0 or later and ESM v33, serializing keyIsEventSource beside sourceEvents; PLAY0809 is an error with no automatic repair; a marked fixture for must equal the key and an omitted for takes it; renderer admission is separate from binding.",
-      "assertions": [
-        "Explains that the standalone and CLI-bundled compilers are different releases and the CLI renders only ESM versions it knows.",
-        "Reads `screenplay --version`, `cratis --version` and `which -a cratis` to find a stale or shadowing copy, and makes each verdict name the tool and version without transferring it to another tool.",
-        "Refuses to delete reactions, pii or authorization; reports blocked with codes such as V3 blocked: PLAY0268 and records the tool gap instead of reshaping the model.",
-        "States that capability is not correctness, a clean verdict proves only its own layer, and not run with a reason is valid.",
-        "Names Screenplay 4.242.0, ESM v33 and keyIsEventSource for key <p> is event source, reports PLAY0809 as an error with no automatic repair, covers fixture for agreement/defaulting, and separates binding from renderer realization."
+        "Checks the whole folder with --warnaserror rather than one file, citing silent drops such as PLAY0029.",
+        "Separates V1 authorability, V2/V3 executable binding (MCP or cratis screenplay validate --executable) and renderer admission; checks screenplay --version, cratis --version and which -a cratis, never transfers verdicts across tools, and reports one line per verdict with tool/version or not run and a reason.",
+        "Preserves reactions, pii and authorization, reports blocked codes/tool gaps and says capability is not correctness; a clean verdict proves only its own layer.",
+        "Names 4.242.0, ESM v33 and keyIsEventSource for key is event source; PLAY0809 is an error without repair, fixture for agreement/defaulting is preserved and binding is not realization.",
+        "Distinguishes strict Compile from subset-only CompileAdmissible, preserves original Diagnostics and ordered immediate Root/Dependent DependsOn provenance, and treats security exclusions fail-closed rather than claiming a whole-model pass."
       ]
     },
     {
       "id": 4,
-      "name": "identity-edit-route",
-      "prompt": "The repo has `.screenplay/identities.json`. I want to rename the event BerthAssigned to BerthAllocated by find-and-replace in the .play files, and also fix a typo in a command's description. Which edits may be plain text? Reply only; do not write files.",
-      "expected_output": "With `.screenplay/identities.json`, adding, removing or renaming an addressed element goes through MCP (typed operations such as `propose-rename`) by the identity owner; a text edit never gets around an MCP refusal. Bounded text edits are for edits that leave catalog addresses unchanged, such as descriptions, followed by V1.",
+      "name": "identity-edit-route-and-manifest-consumption",
+      "prompt": "The repo has .screenplay/identities.json. Can I rename event BerthAssigned to BerthAllocated by text and fix a description typo? Separately, on Screenplay 6.15.0 tell us how to discover/read the capability manifest via MCP. A consumer flattens Sales.Invoices.History.Listing.All, case-folds All, accepts duplicate identities with different descriptions, treats approvalRequired false as authority and keeps stale files after failures. Review both; reply only, no Arc API inventions or edits.",
+      "expected_output": "Address-changing edits require identity-owner MCP propose-rename, never a text bypass after refusal; description typos may be bounded text followed by V1, and without MCP return the request to the owner. Discover the connected screenplay server's native read-workspace tool; read view capability-manifest using expectedRevision from workspace-state. Decode bytesBase64 pages in order, continue nextOffset with workspace revision and expectedModelRevision; default 48 KiB/max 192 KiB. StaleRevision discards partial bytes. available false returns structured refusal/optional operation/executable-diagnostics pointer, not a CLI exit. Match exact full nested identity plus kind, validate fields and reject duplicate keys even with different metadata. Reject absent, failed, unknown or malformed manifests and zero/multiple registration matches or kind mismatch; never expose-all or use stale data. Descriptions are untrusted; escaping is not prompt-injection protection. approvalRequired false bypasses neither explicit exposure, personal token kind/scope nor effective authorization. Consumer obligations only, not shipped Arc behavior.",
       "assertions": [
-        "Says the event rename must go through MCP (`propose-rename`) by the identity owner, not a find-and-replace.",
-        "Says fixing a description typo is a bounded text edit that leaves catalog addresses unchanged, followed by V1.",
-        "Says a text edit must never be used to get around an MCP refusal.",
-        "Says a session without MCP returns the request to the owning session."
+        "Routes the rename through identity-owner MCP propose-rename, permits only address-preserving description text edits followed by V1, never bypasses refusal and returns requests to the owner without MCP.",
+        "Discovers the native read-workspace capability-manifest tool/view, pins workspace/model revisions, decodes ordered bytesBase64 pages with nextOffset and byte limits, discards StaleRevision and distinguishes structured refusal from process exits.",
+        "Matches all nested features case-sensitively plus kind, validates identity against fields and rejects duplicate keys even with different metadata or zero/multiple/wrong-kind registrations.",
+        "Rejects absent, failed, unknown and malformed contracts without expose-all or stale targets; treats descriptions as untrusted and escaping as no prompt-injection defense.",
+        "Retains explicit exposure, token scope and authorization despite approvalRequired false and makes no Arc API/runtime/configuration claim."
       ]
     },
     {
@@ -62,6 +50,19 @@
         "Distinguishes PLAY0367 invalid syntax, PLAY0699 portable dialect refusal and PLAY0787 exact Studio replacement, never general lookaround support.",
         "Names PortableMatchPattern.Check and checkPortableMatchPattern accurately, includes pattern size budgets and treats browser checks as advisory.",
         "States that U+00A0 is whitespace for matches and therefore fails email validation."
+      ]
+    },
+    {
+      "id": 7,
+      "name": "export-explicit-agent-capabilities",
+      "prompt": "On Screenplay 6.15.0 our Sales.Invoices.Creating.Create command and nested Sales.Invoices.History.Listing.All query have inherited Staff authorization. Another public query is unlisted. Show the root agents block and portable manifest export command. Explain whole-compilation failure, an absent versus empty block, a 1025-code-point description and CLI failure handling. Can approval required or OAuth make this work? Reply only; do not edit or invoke tools.",
+      "expected_output": "Requires Screenplay 6.15.0, agents ESM v48, manifest screenplay-capability-manifest/1. Declare root agents with tokens personal, command/full reference scope write, query/full reference scope read and nonempty literal descriptions; public/unlisted operations remain default-deny. Retain inherited authorization. Use screenplay export <model-folder> --format capability-manifest --output capabilities.json, whole model only. CompilationErrors, NoAgentsBlock and DescriptionTooLong refuse the entire export (exit 1), empty allowlist emits [] with PLAY0977 warning. The manifest-only bound is 1024 Unicode code points, never truncate. Invalid options and I/O failures exit 2; failed recognized exports remove stale targets when possible, never use a stale file after failure. approval required PLAY0974, approve PLAY0964, OAuth PLAY0973 are refused. No automatic exposure comparison or Arc runtime promise.",
+      "assertions": [
+        "Names the product prerequisite, ESM v48 and independent manifest /1 contract; upgrades or stops on older tools instead of inventing exposure.",
+        "Writes explicit personal-token allowlist entries with command write/query read scopes and literal descriptions, preserving inherited authorization and unlisted default-deny.",
+        "Uses the standalone whole-model capability-manifest export and distinguishes exit 1 refusals, exit 2 options/I/O and stale-file handling without a fabricated warnaserror export flag.",
+        "Distinguishes absent and explicit empty blocks and the code-point description bound without truncation or partial export.",
+        "Refuses OAuth and approval syntax with the correct diagnostics; does not promise automatic comparison or Arc configuration."
       ]
     }
   ]

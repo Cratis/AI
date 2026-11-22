@@ -17,13 +17,14 @@
     {
       "id": 2,
       "name": "scoped-to-global",
-      "prompt": "In review we find `query Everyones => Timesheet[]` with `scoped to global`. A teammate says it is harmless metadata. What does it do, what is the default, and how should a reviewer treat it? Reply only; do not write files.",
-      "expected_output": "A query is scoped to the tenant it runs for by default and that stays unstated; `scoped to global` opts out and reaches past the tenant. The dangerous case is the one you have to write down. Scope is a name, not a closed set (`identity` and `global` are documented), and a query declares at most one. Every `scoped to global` is a question to answer in review.",
+      "prompt": "In review query Everyones => Timesheet[] is scoped to global. Is that harmless metadata; what is the default and scope syntax? Separately on Screenplay 6.15.0 the screen uses Sales.Invoices.History.Listing.All with inherited Staff authorization. Is that already exposed to agents? Show its declaration, explain read versus write token scope, and assess exposing global, performed and graph queries. Can a consumer match All alone? Reply only; no edits/tools.",
+      "expected_output": "Tenant scope is default/unstated; scoped to global opts out across tenants and always needs review. At most one scope, a name not a closed enum. Screen/public visibility implies no agent access: route to toolchain agent-exposure/manifest references (6.15.0/ESM v48). Root agents uses tokens personal, query Sales.Invoices.History.Listing.All with scope read and a nonempty literal description. Read requirement accepts read or write tokens; query write is permitted/more restrictive; commands need write. Preserve effective authorization and tenant boundaries. Global query exposure refuses PLAY0981, performed/graph PLAY0982. Match full nested identity plus query kind, case-sensitively, not All or guessed Arc registrations. Absent agents exposes nothing.",
       "assertions": [
-        "Says the tenant is the default scope and stays unstated.",
-        "Says `scoped to global` opts out of tenant scoping and reaches past the tenant.",
-        "Treats each `scoped to global` as a question the reviewer must answer, not a detail.",
-        "States that a query declares at most one scope and the scope is a name, not a closed set."
+        "States tenant default is unstated, scoped to global reaches across tenants and needs review; at most one scope, a name not a closed set.",
+        "Rejects implicit agent exposure from screen/public visibility and routes to toolchain with the 6.15.0/ESM v48 prerequisite.",
+        "Declares root agents/personal tokens, full nested query identity, scope and literal description while preserving authorization and tenant boundaries.",
+        "Explains read accepts read/write tokens, query write is allowed and commands require write; refuses global PLAY0981 and performed/graph PLAY0982 without removing boundaries.",
+        "Matches every feature plus kind case-sensitively, not All alone, and makes no Arc registration/runtime promise."
       ]
     },
     {
