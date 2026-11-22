@@ -389,6 +389,47 @@ authored_corpus_repository() {
     return "$authored_cache_status"
 }
 
+# protectedPaths of one repository's .cratis/ai.json: globs relative to that root, additive to the built-ins.
+# Anything unreadable or invalid (not JSON, not one document, protectedPaths not an array of strings, an empty,
+# absolute or '..'-escaping glob, a control character) marks the repository invalid: every path in it is then
+# protected, because the declared intent cannot be known. Absent or null protectedPaths declares nothing.
+# A trailing slash protects the directory contents.
+protected_cache_root=""
+protected_paths=()
+protected_invalid=0
+protected_config_root=""
+load_protected_paths() {
+    local root="$1" item index glob config="$1/.cratis/ai.json" items=() last
+    [ "$protected_cache_root" != "$root" ] || return 0
+    protected_cache_root="$root"
+    protected_paths=()
+    protected_invalid=0
+    [ -e "$config" ] || [ -L "$config" ] || return 0
+    if [ -f "$config" ]; then
+        while IFS= read -r -d '' item; do items[${#items[@]}]="$item"; done < <(
+            jq -j -s '
+                if length == 1 then .[0] else error("expected one JSON document") end
+                | (if type == "object" then .protectedPaths else error("expected an object") end)
+                | if . == null then []
+                  elif type == "array" and length <= 256 and all(.[]; type == "string" and length > 0 and (startswith("/") | not)
+                      and (explode | all(.[]; . != 0 and . != 9 and . != 10 and . != 13)) and (split("/") | all(.[]; . != "..")))
+                  then . else error("invalid protectedPaths") end
+                | (.[], "ok") | ., "\u0000"' "$config" 2>/dev/null
+        )
+    fi
+    last=$((${#items[@]} - 1))
+    if [ "$last" -lt 0 ] || [ "${items[$last]}" != ok ]; then
+        protected_invalid=1
+        return 0
+    fi
+    for ((index = 0; index < last; index++)); do
+        glob="${items[$index]}"
+        while [[ "$glob" == ./* ]]; do glob="${glob#./}"; done
+        case "$glob" in */) glob="$glob*" ;; esac
+        protected_paths[${#protected_paths[@]}]="$glob"
+    done
+}
+
 agent_control_target() {
     local target="$1" directory policy_root target_rel managed pattern
     dir_of "$target"
@@ -412,6 +453,9 @@ agent_control_target() {
     else relative_to "$target" "$policy_root"; target_rel="$REPLY"; fi
     # Policy files remain controls even in the authored corpus repository.
     if control_match "$target_rel" '.cratis/ai.manifest.json' '.cratis/ai.json'; then return 0; fi
+    load_protected_paths "$policy_root"
+    if [ "$protected_invalid" = 1 ]; then protected_config_root="$policy_root"; return 0; fi
+    if [ "${#protected_paths[@]}" -gt 0 ] && control_match "$target_rel" "${protected_paths[@]}"; then return 0; fi
     if [ ! -f "$policy_root/.cratis/ai.manifest.json" ] && authored_corpus_repository "$policy_root"; then
         return 1
     fi
@@ -571,7 +615,11 @@ fi
 [ -n "$new_content" ] || new_content="$new_string"
 if ! classify_file "$file"; then exit 0; fi
 case "$classification" in
-    controls) block \
+    controls)
+        if [ -n "$protected_config_root" ]; then block \
+            "The repository's .cratis/ai.json is malformed (protectedPaths must be an array of non-empty relative globs without '..'), so every path in this repository is treated as protected until a person fixes it." \
+            "Instead: report the problem; a person must repair .cratis/ai.json. An explicitly authorized protected write requires CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1 in the harness environment. Do not retry through a shell write."; fi
+        block \
         "This target controls the agent's permissions or extensions, or belongs to an installed managed corpus/adapter tree. Agent Write/Edit calls may not alter their own controls or managed instructions." \
         "Instead: report the intended change. Use 'cratis ai update' for managed files, or let a person change settings. An explicitly authorized protected write requires CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1 in the harness environment. Do not retry through a shell write." ;;
     manifest) block \

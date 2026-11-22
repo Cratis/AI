@@ -553,13 +553,34 @@ and Pi:
 ```
 
 `false` re-enables the manifest block in a Cratis repository; `true` allows manifest writes
-in any repository, for targets that do not themselves block (see above). Merge this property into the existing configuration. An absent, malformed,
-or non-boolean setting uses the origin-based default. This setting never permits `.env` writes.
+in any repository, for targets that do not themselves block (see above). Merge this property into the existing configuration. An absent
+or non-boolean setting uses the origin-based default (an unparsable file protects the whole repository; see below). This setting never permits `.env` writes.
 The protected basename list is unchanged; `package.json` is not part of this guard's manifest category.
 
 This allowance is not authorization for unrelated upgrades: keep changes task-focused and
 call out version bumps in the PR description. Other repositories retain the rule requiring
 an explicit request; their setting is a mechanical opt-out, not a change to that rule.
+
+#### Repository-declared protected paths
+
+A repository can add its own agent-control paths with `protectedPaths` in its `.cratis/ai.json`:
+
+```json
+{ "protectedPaths": ["docs/release/*", "RELEASE.md", "deploy/"] }
+```
+
+Both the Write/Edit guard and the shell-write guard treat these exactly like the built-in controls:
+same case-insensitive glob matching (`*` also crosses `/`), same symlink and `..` normalisation, same
+deny message and the same `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` override. The file read is the
+`.cratis/ai.json` at the root of the repository that owns the target path, not the session's; globs are
+relative to that root, a leading `./` is ignored and a trailing `/` protects the directory contents.
+The list is additive: it cannot remove or weaken a built-in control, and `.cratis/ai.json` stays protected.
+
+Fail closed: if `.cratis/ai.json` cannot be read as one JSON object, or `protectedPaths` is not an array
+of non-empty strings (at most 256) free of control characters, or a glob is absolute or contains a `..`
+segment, the declared intent is unknowable, so **every** path in that repository is protected and the
+deny message names `protectedPaths`. Absolute and escaping globs are rejected this way (not silently
+ignored) so a mistaken declaration is noticed. An absent or `null` `protectedPaths` declares nothing.
 
 **Blocked outright** (`PreToolUse` on `Bash`, exit 2): a `cratis chronicle` command that is not
 read-only. The **cratis-chronicle-cli-operations** skill makes `--yes` the authorization boundary for
