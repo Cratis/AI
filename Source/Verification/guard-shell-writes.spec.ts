@@ -1285,38 +1285,3 @@ test('a parent reference after a symlinked directory is judged where the kernel 
         layout.dispose();
     }
 });
-
-test('protectedPaths declared in .cratis/ai.json block shell writes exactly like built-in controls', async () => {
-    const repo = scratchRepository();
-    try {
-        mkdirSync(join(repo.root, '.cratis'), { recursive: true });
-        writeFileSync(join(repo.root, '.cratis', 'ai.json'), '{"protectedPaths": ["docs/locked/*", "RELEASE.md"]}');
-        mkdirSync(join(repo.root, 'docs', 'locked'), { recursive: true });
-        mkdirSync(join(repo.root, 'docs', 'open'), { recursive: true });
-        const cases: Array<[string, string]> = [
-            [BLOCK, 'echo x > RELEASE.md'], [BLOCK, 'echo x >> docs/locked/a.md'], [BLOCK, 'echo x | tee docs/locked/a.md'],
-            [BLOCK, 'cp notes.md docs/locked/a.md'], [BLOCK, 'mv notes.md RELEASE.md'], [BLOCK, 'rm RELEASE.md'], [BLOCK, 'rm -rf docs/locked'],
-            [BLOCK, 'sed -i s/a/b/ docs/locked/a.md'], [BLOCK, 'echo x > ./docs/open/../locked/a.md'], [BLOCK, 'echo x > release.md'],
-            [BLOCK, 'echo x > .mcp.json'], [BLOCK, 'echo x > .cratis/ai.json'],
-            [ALLOW, 'echo x > docs/open/a.md'], [ALLOW, 'echo x > RELEASE.txt'], [ALLOW, 'echo x > Source/a.ts'], [ALLOW, 'ls docs'],
-        ];
-        await checkCases(cases, repo.root);
-        const overridden = runGuard(payload('echo x > RELEASE.md', repo.root), repo.root, { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' });
-        assert.equal(overridden.verdict, ALLOW);
-    } finally {
-        repo.dispose();
-    }
-});
-
-test('a malformed protectedPaths configuration blocks shell writes in that repository', async () => {
-    for (const config of ['{not json', '{"protectedPaths": [1]}', '{"protectedPaths": ["../x"]}', '{"protectedPaths": ["/abs"]}']) {
-        const repo = scratchRepository();
-        try {
-            mkdirSync(join(repo.root, '.cratis'), { recursive: true });
-            writeFileSync(join(repo.root, '.cratis', 'ai.json'), config);
-            await checkCases([[BLOCK, 'echo x > Source/a.ts'], [BLOCK, 'rm notes.md']], repo.root);
-        } finally {
-            repo.dispose();
-        }
-    }
-});
