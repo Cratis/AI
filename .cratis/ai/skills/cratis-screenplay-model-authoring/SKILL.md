@@ -145,6 +145,7 @@ Others send an edit request ([MCP loop](references/mcp-loop.md)).
    even on unbound models. Manual `propose-ast` / `propose-source` renames need
    `semanticRenames`; removal needs retirement and reports `orphanedNotes`.
    Never substitute global string replacement for an explicit refusal.
+   For the outermost `provide` and its override chain, read [MCP tools](references/mcp-tools.md): the version-gated planner repairs proven `$context` reads with no semantic identity to preserve. Do not assume the corpus pin or editor/TypeScript support covers it.
 4. Prefer `propose-property` for property add/rename/remove, not hand-composed
    `propose-ast` batches. Inspect the chain and never guess past a refusal:
    [property links](references/property-links.md). Otherwise use `propose-source`

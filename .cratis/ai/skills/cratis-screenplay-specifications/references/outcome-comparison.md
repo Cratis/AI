@@ -8,6 +8,7 @@ This reference holds the comparison rules for events, read models, query rows an
   `then events in any order` is stated. The count is always exact. After
   `when append`, a model before ESM v6 expects the appended fact itself; from
   ESM v6 the appended event is the action and `then` lists only what followed it.
+  From ESM v55 (Requires Screenplay 6.31.0), a `then` event's `tag` lines compare the exact ordered list, including duplicates; `no tags` asserts empty, while neither leaves tags unchecked. See [then-event tags](event-tags.md) for syntax, refusals and the fixture/board display boundary.
 - **Read models and query rows:** only the asserted properties must match
   (subset); add `exactly` to require every property. Query row count is exact;
   collection rows match by read model/key regardless of order. Ordering within a

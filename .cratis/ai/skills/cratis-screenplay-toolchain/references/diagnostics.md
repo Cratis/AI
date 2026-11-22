@@ -281,6 +281,7 @@ migration. Preview every repair; legal notes never move automatically.
 
 | Code | Severity | Meaning / fix |
 | --- | --- | --- |
+| PLAY1148 | E | Invalid tag expectation: only `then` events accept literal `tag` or a single childless `no tags`; never combine them. See [then-event tags](../../cratis-screenplay-specifications/references/event-tags.md) (Requires Screenplay 6.31.0, ESM v55) |
 | PLAY0558 | E | Module/feature/slice/command/read-model/reaction documentation must be one nonempty fenced Markdown block; remove repeats or fix the fence. Events retain PLAY0477. |
 | PLAY0559 | W | Conflicting module/feature documentation across files; first wins. Choose one owning text; identical copies are accepted. |
 | PLAY0572 | E | Malformed/unknown persona caller or body lines; use a declared top-level persona with no body. |

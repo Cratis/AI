@@ -207,7 +207,7 @@ choosing or omitting `for` on a production, or fixing `PLAY0469`-`PLAY0478`.
 
 ## `produces`
 
-Mapping sources that bind: a command property, a literal, `$context.occurred` and `$identity.*`; `for` must name the command `identifier` (`PLAY0273`); several unconditional `produces` are co-production. Read [references/constraints-produces-concurrency.md](references/constraints-produces-concurrency.md) when writing mappings, `tag`, or `produces when`.
+Mapping sources that bind: a command property, a literal, `$context.occurred` and `$identity.*`; `for` must name the command `identifier` (`PLAY0273`); several unconditional `produces` are co-production. Read [references/constraints-produces-concurrency.md](references/constraints-produces-concurrency.md) when writing mappings, `tag`, or `produces when`. Producer/declaration tags are not assertions: for exact ordered `then` tags, explicit `no tags` and unchecked omission, read [then-event tags](../cratis-screenplay-specifications/references/event-tags.md), including the compiler prerequisite and ESM v55 boundary.
 
 ## Routes and external operations
 
