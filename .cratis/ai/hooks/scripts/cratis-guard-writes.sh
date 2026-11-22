@@ -389,29 +389,75 @@ authored_corpus_repository() {
     return "$authored_cache_status"
 }
 
-agent_control_target() {
-    local target="$1" directory policy_root target_rel managed pattern
-    dir_of "$target"
-    directory="$REPLY"
-    if [ "$destructive_mode" = 1 ]; then
-        [ ! -d "$target" ] || directory="$target"
-        # A mutation of the repository or any containing directory reaches its controls too.
-        if [[ -n "$reference_root" && ( "$target" == / || "$reference_root" == "$target" || "$reference_root" == "$target"/* ) ]]; then
-            directory="$reference_root"
-        fi
+# protectedPaths of one repository's .cratis/ai.json: globs relative to that root, additive to the built-ins.
+# A declared entry is only (a) a literal file path (tools/guard.sh), (b) a literal folder with a trailing '/' (hooks/),
+# or (c) a literal folder followed by a whole final segment '*' (hooks/*). A '*' anywhere else (inside a name such as
+# *.sh or Source/*.ts, in a leading or middle segment, '**') would need a "could this folder hold a match" rule that
+# folder operands (rm -rf, mv, rsync --delete, tar -C, unzip -d ...) cannot be given, so it is refused. The same literal-prefix
+# machinery as the built-in controls then protects folders for every command shape. Characters: only A-Z a-z 0-9 . _ - /
+# and that '*'. Anything else is refused.
+protected_cache_root=""
+protected_paths=()
+protected_invalid=0
+protected_config_root=""
+protected_bad_entry=""
+# The jq definition of a valid declared glob: the three accepted shapes (see above). Leading './' is
+# dropped first, so the shape is judged on what is matched.
+# shellcheck disable=SC2016
+protected_glob_jq='
+    def norm: until(startswith("./") | not; .[2:]);
+    def shape: norm | split("/") as $s | ($s | length) as $n | ($s[-1]) as $last
+        | all($s[]; . != "." and . != "..") and all($s[:-1][]; length > 0 and (contains("*") | not))
+        and (($last | contains("*") | not) or ($last == "*" and $n > 1));
+    def valid: type == "string" and length > 0 and (startswith("/") | not)
+        and (explode | all(.[]; (. >= 48 and . <= 57) or (. >= 65 and . <= 90) or (. >= 97 and . <= 122) or . == 46 or . == 95 or . == 45 or . == 47 or . == 42))
+        and shape;
+'
+load_protected_paths() {
+    local root="$1" item index glob config="$1/.cratis/ai.json" items=() last
+    [ "$protected_cache_root" != "$root" ] || return 0
+    protected_cache_root="$root"
+    protected_paths=()
+    protected_invalid=0
+    protected_bad_entry=""
+    [ -e "$config" ] || [ -L "$config" ] || return 0
+    if [ -f "$config" ]; then
+        while IFS= read -r -d '' item; do items[${#items[@]}]="$item"; done < <(
+            jq -j -s "$protected_glob_jq"'
+                if length == 1 then .[0] else error("expected one JSON document") end
+                | (if type == "object" then .protectedPaths else error("expected an object") end)
+                | if . == null then []
+                  elif type == "array" and length <= 256 and all(.[]; valid) then .
+                  else error("invalid protectedPaths") end
+                | (.[], "ok") | ., "\u0000"' "$config" 2>/dev/null
+        )
     fi
-    # Keep the addressed spelling here, even when an adapter directory is a symlink.
-    # .git is a directory in a checkout and a file in a linked worktree.
-    while [ ! -e "$directory/.git" ]; do
-        [ "$directory" != "/" ] || return 1
-        dir_of "$directory"
-        directory="$REPLY"
+    last=$((${#items[@]} - 1))
+    if [ "$last" -lt 0 ] || [ "${items[$last]}" != ok ]; then
+        protected_invalid=1
+        # Best effort: name the first offending entry, when the file is readable enough to find one.
+        protected_bad_entry="$(jq -r -s "$protected_glob_jq"'
+            first(.[0].protectedPaths[]? | select(valid | not) | tojson | gsub("[^ -~]"; "?")) // empty' "$config" 2>/dev/null | head -c 200)" || protected_bad_entry=""
+        return 0
+    fi
+    for ((index = 0; index < last; index++)); do
+        glob="${items[$index]}"
+        while [[ "$glob" == ./* ]]; do glob="${glob#./}"; done
+        case "$glob" in */) glob="$glob*" ;; esac
+        protected_paths[${#protected_paths[@]}]="$glob"
     done
-    policy_root="$directory"
+}
+
+# Whether the repository at policy_root treats target (absolute) as a control, by its own policy only.
+agent_control_in_root() {
+    local target="$1" policy_root="$2" target_rel managed pattern
     if [[ "$destructive_mode" == 1 && ( "$target" == / || "$policy_root" == "$target" || "$policy_root" == "$target"/* ) ]]; then target_rel='.'
     else relative_to "$target" "$policy_root"; target_rel="$REPLY"; fi
     # Policy files remain controls even in the authored corpus repository.
     if control_match "$target_rel" '.cratis/ai.manifest.json' '.cratis/ai.json'; then return 0; fi
+    load_protected_paths "$policy_root"
+    if [ "$protected_invalid" = 1 ]; then protected_config_root="$policy_root"; return 0; fi
+    if [ "${#protected_paths[@]}" -gt 0 ] && control_match "$target_rel" "${protected_paths[@]}"; then return 0; fi
     if [ ! -f "$policy_root/.cratis/ai.manifest.json" ] && authored_corpus_repository "$policy_root"; then
         return 1
     fi
@@ -433,6 +479,33 @@ agent_control_target() {
         fi
     fi
     control_match "$target_rel" "${control_patterns[@]}"
+}
+
+# The target is judged by the policy of every enclosing repository, innermost first: a nested .git (a directory in a
+# checkout, a file in a linked worktree) never hides an ancestor's controls. Keep the addressed spelling here, even
+# when an adapter directory is a symlink.
+agent_control_target() {
+    local target="$1" directory
+    dir_of "$target"
+    directory="$REPLY"
+    if [ "$destructive_mode" = 1 ]; then
+        [ ! -d "$target" ] || directory="$target"
+        # A mutation of the repository or any containing directory reaches its controls too.
+        if [[ -n "$reference_root" && ( "$target" == / || "$reference_root" == "$target" || "$reference_root" == "$target"/* ) ]]; then
+            directory="$reference_root"
+        fi
+    fi
+    while :; do
+        while [ ! -e "$directory/.git" ]; do
+            [ "$directory" != "/" ] || return 1
+            dir_of "$directory"
+            directory="$REPLY"
+        done
+        if agent_control_in_root "$target" "$directory"; then return 0; fi
+        [ "$directory" != "/" ] || return 1
+        dir_of "$directory"
+        directory="$REPLY"
+    done
 }
 
 # ── Dependency manifests, lockfiles, SDK and NuGet configuration ──────────────
@@ -571,7 +644,11 @@ fi
 [ -n "$new_content" ] || new_content="$new_string"
 if ! classify_file "$file"; then exit 0; fi
 case "$classification" in
-    controls) block \
+    controls)
+        if [ -n "$protected_config_root" ]; then block \
+            "The repository's .cratis/ai.json is malformed${protected_bad_entry:+ at protectedPaths entry $protected_bad_entry} (protectedPaths must be an array of relative globs of letters, digits, . _ - and /, as a file 'tools/guard.sh', a folder 'locked/', or a folder with a whole final segment 'hooks/*'; a * inside a name is not accepted), so every path in this repository is treated as protected until a person fixes it." \
+            "Instead: report the problem; a person must repair .cratis/ai.json. An explicitly authorized protected write requires CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1 in the harness environment. Do not retry through a shell write."; fi
+        block \
         "This target controls the agent's permissions or extensions, or belongs to an installed managed corpus/adapter tree. Agent Write/Edit calls may not alter their own controls or managed instructions." \
         "Instead: report the intended change. Use 'cratis ai update' for managed files, or let a person change settings. An explicitly authorized protected write requires CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1 in the harness environment. Do not retry through a shell write." ;;
     manifest) block \

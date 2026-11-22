@@ -742,7 +742,8 @@ test('repository manifest settings override the origin default identically throu
                     assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${origin}, ${configuration}, ${name}`);
                 });
                 const ordinaryPath = join(repo.root, 'package.json.md');
-                assert.equal((await runGuardAsync({ cwd: repo.root, tool_input: { file_path: ordinaryPath, content: '{}' } }, repo.root)).verdict, ALLOW, 'ordinary files remain writable');
+                // An unparsable .cratis/ai.json protects the whole repository (protectedPaths cannot be read), so nothing is ordinary there.
+                assert.equal((await runGuardAsync({ cwd: repo.root, tool_input: { file_path: ordinaryPath, content: '{}' } }, repo.root)).verdict, configuration === 'not json' ? BLOCK : ALLOW, 'ordinary files remain writable unless the configuration is unparsable');
             }
         } finally {
             repo.dispose();
