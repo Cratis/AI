@@ -151,12 +151,17 @@ test('a wildcard glob protects every directory that can hold a match, for shell 
         ['*.pem', 'rm -rf certs', BLOCK], ['*.pem', 'mv certs c2', BLOCK], ['**/*.pem', 'rm -rf certs', BLOCK], ['**/*.pem', 'mv certs c2', BLOCK],
         ['certs/*.pem', 'rm -rf certs', BLOCK], ['certs/*.pem', 'mv certs c2', BLOCK], ['certs/*.pem', 'rm -rf docs', ALLOW],
         ['certs/*.pem', 'rm notes.md', ALLOW], ['*.pem', 'rm notes.md', ALLOW], ['*.sh', 'rm -rf hooks', BLOCK], ['*.sh', 'rm certs/a.pem', ALLOW],
+        // Only destructive references consult the directory overlap; entering, building or touching inside is not a mutation of it.
+        ['*.pem', 'cd certs && touch y', ALLOW], ['*.pem', 'cd certs && npm run build', ALLOW], ['*.pem', 'pushd certs && touch y', ALLOW],
+        ['*.pem', 'tar czf o.tgz certs', ALLOW], ['*.pem', 'cd certs && rm -rf sub', BLOCK], ['*.pem', 'cd certs && rm -rf sub/a.pem', BLOCK],
     ];
     for (const [glob, command, expected] of cases) {
         withRepository(configWith(glob), root => {
             mkdirSync(join(root, 'certs'));
             mkdirSync(join(root, 'hooks'));
+            mkdirSync(join(root, 'certs', 'sub'));
             writeFileSync(join(root, 'certs', 'a.pem'), 'x');
+            writeFileSync(join(root, 'certs', 'sub', 'a.pem'), 'x');
             writeFileSync(join(root, 'hooks', 'guard.sh'), 'x');
             assert.equal(shellCall(root, command).verdict, expected, `${glob}: ${command}`);
         });
@@ -190,12 +195,27 @@ test('a nested .git file or directory does not hide the policy of an enclosing r
 });
 
 test('a glob using anything but literal characters, * and a trailing slash makes the configuration malformed', () => {
-    for (const glob of ['[h]ook1.sh', 'hook?.sh', 'hook{1,2}.sh', 'a\\b', 'a]b', 'a}b', 'a\u0001b', 'a\u007fb', 'a\tb', 'a\u001bb']) {
+    const unsupported = [
+        '[h]ook1.sh', 'hook?.sh', 'hook{1,2}.sh', 'a\\b', 'a]b', 'a}b', 'a\u0001b', 'a\u007fb', 'a\tb', 'a\u001bb',
+        '@(hook1|hook2).sh', '!(hook1).sh', '+(hook1).sh', '*(hook1).sh', '?(hook1).sh', 'a b', "a'b", 'a"b', 'a$b', 'a|b', 'a&b', 'a;b', 'a~b', 'é.sh',
+    ];
+    for (const glob of unsupported) {
         withRepository(configWith(glob), root => {
             const result = writeCall(root, 'Source/anything.ts');
             assert.equal(result.verdict, BLOCK, JSON.stringify(glob));
             assert.match(result.stderr, /protectedPaths/, JSON.stringify(glob));
         });
     }
-    withRepository(configWith('[h]ook1.sh'), root => assert.equal(shellCall(root, 'tee hook{1,2}.sh').verdict, BLOCK));
+    withRepository(configWith('@(hook1|hook2).sh'), root => assert.equal(shellCall(root, 'tee hook{1,2}.sh').verdict, BLOCK));
+    withRepository(configWith('@(hook1|hook2).sh'), root => assert.equal(shellCall(root, 'tee hook1.sh').verdict, BLOCK));
+});
+
+test('an allowed glob is judged identically by the Write/Edit and shell guards', () => {
+    withRepository(configWith('hook-1_a.*', 'Docs/'), root => {
+        const cases: Array<[path: string, expected: Verdict]> = [['hook-1_a.sh', BLOCK], ['HOOK-1_A.sh', BLOCK], ['Docs/x.md', BLOCK], ['hook-2.sh', ALLOW]];
+        for (const [path, expected] of cases) {
+            assert.equal(writeCall(root, path).verdict, expected, path);
+            assert.equal(shellCall(root, `tee ${path}`).verdict, expected, path);
+        }
+    });
 });

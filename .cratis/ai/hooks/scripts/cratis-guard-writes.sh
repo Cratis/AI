@@ -390,8 +390,9 @@ authored_corpus_repository() {
 }
 
 # protectedPaths of one repository's .cratis/ai.json: globs relative to that root, additive to the built-ins.
-# A glob is literal characters, '*' (which also crosses '/') and an optional trailing '/'; any of ? [ ] { } \ is
-# refused because the reference matcher cannot model them on the policy side.
+# A glob is an allowlist: only A-Z a-z 0-9 . _ - / and '*' ('*' also crosses '/'; a trailing '/' protects the contents).
+# Everything else (extglob, classes, braces, spaces, quotes, non-ASCII, control characters) is refused because the
+# reference matcher cannot model it on the policy side.
 # Anything unreadable or invalid (not JSON, not one document, protectedPaths not an array of strings, an empty,
 # absolute or '..'-escaping glob, a control character, unsupported syntax) marks the repository invalid: every path in it is then
 # protected, because the declared intent cannot be known. Absent or null protectedPaths declares nothing.
@@ -414,7 +415,7 @@ load_protected_paths() {
                 | (if type == "object" then .protectedPaths else error("expected an object") end)
                 | if . == null then []
                   elif type == "array" and length <= 256 and all(.[]; type == "string" and length > 0 and (startswith("/") | not)
-                      and (explode | all(.[]; . > 31 and . != 127 and . != 63 and . != 91 and . != 92 and . != 93 and . != 123 and . != 125))
+                      and (explode | all(.[]; (. >= 48 and . <= 57) or (. >= 65 and . <= 90) or (. >= 97 and . <= 122) or . == 46 or . == 95 or . == 45 or . == 47 or . == 42))
                       and (split("/") | all(.[]; . != "..")))
                   then . else error("invalid protectedPaths") end
                 | (.[], "ok") | ., "\u0000"' "$config" 2>/dev/null
@@ -438,7 +439,8 @@ load_protected_paths() {
     done
 }
 
-# Whether a directory operand can hold a descendant matched by a wildcard glob: the literal text before the first
+# Only destructive references (rm, mv source, find -delete, rsync --delete ...) consult it: a read, cd, build or
+# ordinary write inside a directory is not a mutation of the directory itself. Whether a directory operand can hold a descendant matched by a wildcard glob: the literal text before the first
 # '*' must be a prefix of "<directory>/" (a glob that starts with '*' can match under every directory). Statically
 # fail-closed; globs without '*' are covered by the descendant rule of control_match.
 protected_directory_overlap() {
@@ -466,7 +468,7 @@ agent_control_in_root() {
     if [ "$protected_invalid" = 1 ]; then protected_config_root="$policy_root"; return 0; fi
     if [ "${#protected_paths[@]}" -gt 0 ]; then
         if control_match "$target_rel" "${protected_paths[@]}"; then return 0; fi
-        if [ "$reference_mode" = 1 ] && [ "$reference_pattern" = 0 ] && [ -d "$target" ] && protected_directory_overlap "$target_rel" "${protected_paths[@]}"; then return 0; fi
+        if [ "$destructive_mode" = 1 ] && [ "$reference_pattern" = 0 ] && [ -d "$target" ] && protected_directory_overlap "$target_rel" "${protected_paths[@]}"; then return 0; fi
     fi
     if [ ! -f "$policy_root/.cratis/ai.manifest.json" ] && authored_corpus_repository "$policy_root"; then
         return 1
