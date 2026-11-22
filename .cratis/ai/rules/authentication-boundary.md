@@ -6,12 +6,29 @@ paths:
   - "**/*Capabilit*"
   - "**/Mcp/**"
 ---
-# The AuthProxy authenticates; the application never does
+# The AuthProxy is the first and the last line of defense; applications never authenticate
 
 Every line is **[contract]** (binding; see [`general.md`](./general.md)). The AuthProxy is the only
-component that decides who a caller is. An application behind it trusts the identity and tenant the
-proxy forwards and nothing else. A surface that reaches an application without the proxy having
-authenticated the caller is a security hole, however well the application checks it afterwards.
+component that decides who a caller is, and it does so before a request reaches an application. An
+application trusts the identity and tenant the proxy forwards and contains no code that decides who
+a caller is. A surface that reaches an application without the proxy having authenticated the
+caller is a security hole, however well the application checks it afterwards.
+
+## The application never authenticates
+
+- **No code in an application checks a caller's credential to grant access:** no bearer-token,
+  JWT, API-key, personal-access-token, password or signature check on a request, no middleware,
+  filter or `Authorization` header reader that decides who is calling. Do not build one, and do
+  not copy one from another Cratis product. Move an existing one to the proxy.
+- **Last line means unreachable around the proxy.** An application accepts traffic only from the
+  proxy: a network policy lets only the proxy reach its listener, and it trusts only the identity
+  and tenant headers the proxy writes (the proxy strips inbound copies). Where available, verify the
+  proxy's forwarded-identity signature; that verifies the proxy, not the caller.
+- **The application may issue and revoke, never verify.** It may mint a token (signed with a
+  private key that never leaves it, public key published through issuer metadata and JWKS), set
+  expiry, record revocation, and answer the proxy's introspection question about a token's state
+  without reading any credential to do so. It may answer the proxy's back-channel question for
+  client credentials. The proxy validates every token on every call.
 
 ## Never expose a credential-bearing path unauthenticated
 
@@ -24,29 +41,24 @@ authenticated the caller is a security hole, however well the application checks
   Use it only for a request that signs itself with its own scheme (a webhook with a signature
   header), never for a bearer token, API key or personal access token.
 - **What may be anonymous:** health, static public content, a webhook receiver that verifies the
-  sender's signature, and public metadata (`/.well-known/oauth-protected-resource*`, issuer
-  metadata and keys). Each entry names the narrowest prefix, and the reason sits beside it.
+  sender's signature, public metadata (`/.well-known/oauth-protected-resource*`, issuer metadata
+  and public keys) and an introspection endpoint that only reports whether a presented token is
+  active. Each entry names the narrowest prefix, and the reason sits beside it.
 
 ## How a non-browser caller gets in
 
-Declare the route on the AuthProxy as a **bearer route** or by **client credentials**, so the
-proxy authenticates the token before the request is forwarded:
+Declare the route on the AuthProxy so the proxy authenticates before the request is forwarded:
 
 - **Bearer route with an issuer.** `BearerRoutes` with `PathPrefix`, `Issuers`, `Audiences` and
   `RequiredScopes`. The proxy validates the signature, `iss`, `aud`, `exp`/`nbf` and scopes, reads
   the tenant from a single tenant claim, and forwards the principal. Set `Introspection` on the
   issuer so a revoked token stops working within seconds.
-- **Client credentials.** The caller posts a client id and secret to `/.cratis/token`. The proxy
-  asks the application's internal verification endpoint whether they are good, mints a short-lived
+- **Client credentials.** The caller posts a client id and secret to `/.cratis/token`; the proxy
+  asks the application's internal back-channel endpoint whether they are good, mints a short-lived
   token scoped to one route prefix and the tenant the application named, and validates it on every
-  call. Cratis Studio's MCP does this.
-- **The application may be the issuer, never the edge verifier.** It can mint tokens (signed with
-  a private key that never leaves it, public key published through issuer metadata and JWKS), set
-  expiry, revoke, and answer introspection. The proxy validates them on a bearer route. The
-  application does not read the `Authorization` header to decide who a caller is.
+  call.
 - **Personal access tokens** (`PersonalAccessTokens` on a bearer route) are recognized by the proxy
-  but not authenticated by it, so the backend would have to authenticate each one. Do not use them
-  for a new surface; prefer an issuer or client credentials.
+  but not authenticated by it, so the backend would have to authenticate each one. Do not use them.
 
 ## Tenancy
 
@@ -54,15 +66,15 @@ proxy authenticates the token before the request is forwarded:
   or `Route`/`Host`/`SubHost` constraints that refuse a token for another tenant with `403`). It
   never comes from a header, a query string, a request body or a tool argument.
 - A credential belongs to one tenant. Someone in several organizations holds one per organization.
-- The application still checks the tenant and membership it receives (the proxy documents that the
-  backend decides membership). That is a second layer, not a substitute.
+- The application still enforces the tenant and membership it receives. That is authorization of
+  the forwarded identity, not authentication, and a second layer.
 
 ## Prove it before shipping
 
-- Read the rendered AuthProxy configuration (Pulumi mock spec) and fail when a path that serves a
-  credential-bearing endpoint is in `AnonymousPaths` or `PassCallerAuthorizationPaths`.
-- Call the endpoint through the proxy without a token and expect `401`; with a token for another
-  tenant and expect `403`; with a spoofed `x-cratis-tenant-id` or `x-ms-client-principal*` header
-  and expect it ignored.
-- The application is not reachable around the proxy: a network policy lets only the proxy reach
-  its listener, or the application refuses requests without the proxy's forwarded identity.
+- A Pulumi mock spec reads the rendered AuthProxy configuration and fails when a path that serves
+  a credential-bearing endpoint is in `AnonymousPaths` or `PassCallerAuthorizationPaths`.
+- A spec or scan fails when application code reads the `Authorization` header or validates a JWT,
+  key or password on a request.
+- Calling the endpoint through the proxy without a token gives `401`; with a token for another
+  tenant `403`; with a spoofed `x-cratis-tenant-id` or `x-ms-client-principal*` header the header
+  is ignored; a request that skips the proxy is refused by the network.
