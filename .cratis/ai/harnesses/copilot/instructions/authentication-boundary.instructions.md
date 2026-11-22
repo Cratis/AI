@@ -25,11 +25,12 @@ caller is a security hole, however well the application checks it afterwards.
   proxy: a network policy lets only the proxy reach its listener, and it trusts only the identity
   and tenant headers the proxy writes (the proxy strips inbound copies). Where available, verify the
   proxy's forwarded-identity signature; that verifies the proxy, not the caller.
-- **The application may issue and revoke, never verify.** It may mint a token (signed with a
-  private key that never leaves it, public key published through issuer metadata and JWKS), set
-  expiry, record revocation, and answer the proxy's introspection question about a token's state
-  without reading any credential to do so. It may answer the proxy's back-channel question for
-  client credentials. The proxy validates every token on every call.
+- **The application neither issues nor verifies credentials.** Signing keys, token minting, consent,
+  refresh and revocation belong to the product's own Cratis Identity instance, which publishes issuer
+  metadata and keys. The application answers only the questions Identity asks it, such as which
+  tenants a person may enter, over an isolated internal listener with a shared secret and a network
+  policy that admits only Identity. That callback is service-to-service trust, not caller
+  authentication.
 
 ## Never expose a credential-bearing path unauthenticated
 
@@ -50,16 +51,18 @@ caller is a security hole, however well the application checks it afterwards.
 
 Declare the route on the AuthProxy so the proxy authenticates before the request is forwarded:
 
-- **Bearer route with an issuer.** `BearerRoutes` with `PathPrefix`, `Issuers`, `Audiences` and
-  `RequiredScopes`. The proxy validates the signature, `iss`, `aud`, `exp`/`nbf` and scopes, reads
-  the tenant from a single tenant claim, and forwards the principal. Set `Introspection` on the
-  issuer so a revoked token stops working within seconds.
-- **Client credentials.** The caller posts a client id and secret to `/.cratis/token`; the proxy
-  asks the application's internal back-channel endpoint whether they are good, mints a short-lived
-  token scoped to one route prefix and the tenant the application named, and validates it on every
-  call.
-- **Personal access tokens** (`PersonalAccessTokens` on a bearer route) are recognized by the proxy
-  but not authenticated by it, so the backend would have to authenticate each one. Do not use them.
+- **Bearer route with the product's Identity issuer.** `BearerRoutes` with `PathPrefix`, `Issuers`,
+  `Audiences` and `RequiredScopes`. The proxy validates the signature, `iss`, `aud`, `exp`/`nbf` and
+  scopes, reads the tenant from a single tenant claim, and forwards the principal. Set `Introspection`
+  on the issuer so a revoked token stops working within seconds. Each product runs its own Identity
+  instance at its own origin (for example `identity.<product host>`), with its own keys and accounts.
+- **People sign in with authorization code and PKCE** (device flow where there is no browser). A
+  token pasted into a client is a fallback: short-lived, issued by Identity, never created by the
+  application.
+- **Client credentials** in the application (a secret hash the proxy checks over a back channel) are
+  a transitional shape only. Do not add one; move an existing one to Identity when it can replace it.
+- **Personal access tokens** (`PersonalAccessTokens`) are recognized by the proxy but not
+  authenticated by it, so the backend would have to authenticate each one. Do not use them.
 
 ## Tenancy
 
