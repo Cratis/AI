@@ -104,11 +104,15 @@ const linuxKernelRecords = [
     ['sock', 'socket:[456]'],
     ['a_inode', 'anon_inode:[eventfd]'],
     ['a_inode', '[eventpoll]'],
+    ['a_inode', '[eventpoll:6,7,12]'],
+    ['a_inode', '[eventfd:13]'],
     ['a_inode', 'anon_inode:inotify'],
     ['unix', 'type=STREAM'],
     ['unix', 'type=STREAM (CONNECTED)'],
     ['unix', 'type=DGRAM (UNCONNECTED)'],
     ['netlink', 'NETLINK'],
+    ['netlink', 'KOBJECT_UEVENT'],
+    ['sock', 'protocol: TCPv6'],
 ].map(([type, name], index) => `f${index + 3}\\nt${type}\\nn${name}\\n`).join('');
 const linuxLsofReport = `${clearLsofReport}\nprintf "p2\\n${linuxKernelRecords}"`;
 const holderToolScripts: Record<string, string> = {
