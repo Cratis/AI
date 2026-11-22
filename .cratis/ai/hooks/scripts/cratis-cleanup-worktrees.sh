@@ -367,10 +367,10 @@ lsof_matches() {
                 # Require a descriptor and a known type/name pair; cwd and incomplete records stay unsafe.
                 if (kind != "" && kind != "cwd") {
                     if (type == "FIFO" && path ~ /^pipe(:\[[0-9]+\])?$/) next
-                    if (type == "sock" && path ~ /^socket:\[[0-9]+\]$/) next
-                    if (type == "a_inode" && path ~ /^(anon_inode:)?\[[[:alnum:]_]+(:[0-9]+)?\]$|^anon_inode:[[:alnum:]_]+$/) next
+                    if (type == "sock" && path ~ /^(socket:\[[0-9]+\]|protocol: [[:alnum:]_-]+)$/) next
+                    if (type == "a_inode" && path ~ /^(anon_inode:)?\[[[:alnum:]_]+(:[0-9]+(,[0-9]+)*)?\]$|^anon_inode:[[:alnum:]_]+$/) next
                     if (type == "unix" && path ~ /^type=[[:upper:]]+( \([[:upper:]]+\))?$/) next
-                    if (type == "netlink" && path == "NETLINK") next
+                    if (type == "netlink" && path ~ /^[[:upper:]_]+$/) next
                 }
                 unsafe("unrecognised " kind " " type " " path)
             }
