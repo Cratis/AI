@@ -449,6 +449,7 @@ Frontend commands run through the Cratis dialogs — never a vendor or hand-roll
 ## See also
 
 - [general.md](../../../rules/general.md) — layout, slice types, workflow, quality gates.
+- [application-anatomy.md](./application-anatomy.instructions.md) — how the source tree grows from one project to modules and contracts; the slice stays the unit.
 - [concepts.md](./concepts.instructions.md) — `ConceptAs<T>` / `EventSourceId<T>` full patterns.
 - [reactors.md](./reactors.instructions.md) — reactor signatures and side-effect rules.
 - [specs.md](./specs.instructions.md) — `CommandScenario` / `EventScenario` / `ReadModelScenario` / `ReactorScenario`.

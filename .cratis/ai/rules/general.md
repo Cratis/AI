@@ -35,7 +35,7 @@ When these instructions don't cover a situation, apply these values to make the 
 Every rule below is one of three kinds — know which, because they carry different weight:
 
 - **Framework contract** — enforced by Arc/Chronicle source, analyzers, or runtime. Violating it breaks the build or behaves wrongly. (e.g. `[Command]` needs a public instance `Handle()`; model-bound queries are static methods on `[ReadModel]`; nullable event properties raise a Chronicle analyzer warning.)
-- **Cratis Application convention** — the house default for maintainability and consistent generated code. The framework does **not** enforce it, but follow it for consistency. (e.g. the slice folder shape, one backend file per small slice, declaration order.)
+- **Cratis Application convention** — the house default for maintainability and consistent generated code. The framework does **not** enforce it, but follow it for consistency. (e.g. slice folder shape, declaration order.)
 - **Product policy** — belongs in a downstream app's own `.cratis/ai/`, not this generic corpus. (e.g. specific roles, locales, design systems.)
 
 Where a rule is convention rather than contract, this file says so. Do not claim "the framework requires this" for a convention.
@@ -129,7 +129,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | --- | --- |
 | Corpus profiles and configuration | `profiles.md` |
 | **Contributing to a Cratis framework repo** (framework profile) | `framework.md`; creating a repository in the Cratis organization: `new-repository-intake.md` |
-| Slice anatomy (commands, `Provide()`, validators, events, projections, read models, reactors, constraints, compliance, cross-slice) | `vertical-slices.md` |
+| Slice anatomy (commands, `Provide()`, validators, events, projections, read models, reactors, constraints, compliance, cross-slice) | `vertical-slices.md`; growth: `application-anatomy.md` |
 | C# / TypeScript style and code-quality principles | `csharp.md`, `typescript.md`, `code-quality.md`, `code-quality.csharp.md`, `code-quality.typescript.md` |
 | Kotlin / Java / Elixir style; Orleans grains; reactors; GitHub Actions workflows | `kotlin.md`, `java.md`, `elixir.md`, `orleans.md`, `reactors.md`, `github-actions.md` |
 | Documentation structure, voice and examples | `documentation.md`, `documentation-structure-and-formatting.md`, `writing-cratis-docs.md`, `editing-cratis-docs.md`, `writing-correct-examples.md` |
