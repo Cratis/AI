@@ -368,7 +368,10 @@ lsof_matches() {
                 if (kind != "" && kind != "cwd") {
                     if (type == "FIFO" && path ~ /^pipe(:\[[0-9]+\])?$/) next
                     if (type == "sock" && path ~ /^(socket:\[[0-9]+\]|protocol: [[:alnum:]_-]+)$/) next
-                    if (type == "a_inode" && path ~ /^(anon_inode:)?\[[[:alnum:]_]+(:[0-9]+(,[0-9]+)*)?\]$|^anon_inode:[[:alnum:]_]+$/) next
+                    # Anonymous-inode names are kernel objects whatever the reported type (for example a
+                    # memory-mapped `anon_inode:[io_uring]` is type REG), so the name alone exempts them.
+                    if (path ~ /^(anon_inode:)?\[[[:alnum:]_]+(:[0-9]+(,[0-9]+)*)?\]$/) next
+                    if (type == "a_inode" && path ~ /^(anon_inode:)?[[:alnum:]_]+$/) next
                     if (type == "unix" && path ~ /^type=[[:upper:]]+( \([[:upper:]]+\))?$/) next
                     if (type == "netlink" && path ~ /^[[:upper:]_]+$/) next
                 }
