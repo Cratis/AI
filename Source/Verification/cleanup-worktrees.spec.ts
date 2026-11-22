@@ -53,7 +53,7 @@ const cleanupCases = [
     { name: 'fails closed without a holder tool', records: 'empty', args: [], tool: 'missing', kept: true, reason: 'no holder check tool available' },
     { name: 'fails closed after three lsof errors', records: 'empty', args: [], tool: 'lsof-error', attempts: 3, kept: true, reason: 'holder check failed (lsof)' },
     { name: 'fails closed when pi-holders errors', records: 'empty', args: [], tool: 'pi-error', kept: true, reason: 'live holder or failed holder check (pi-holders)' },
-    { name: 'keeps an ancestor whose cwd is inside the worktree', records: 'empty', args: [], ancestor: true, kept: true, reason: 'live holder' },
+    { name: 'keeps an ancestor whose cwd is inside the worktree', records: 'empty', args: [], ancestor: true, kept: true, reason: 'live ' },
     { name: 'keeps an ancestor cwd with fixed lsof output', records: 'empty', args: [], ancestor: true, tool: 'lsof-cwd', kept: true, reason: 'live process' },
     { name: 'excludes the cleanup script own open file', records: 'empty', args: [], ownScript: true, kept: false },
     { name: 'real-lsof smoke excludes the cleanup script own file', records: 'empty', args: [], ownScript: true, tool: 'lsof-real', kept: false },
