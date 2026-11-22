@@ -247,6 +247,33 @@ test('managed Pi restores general after an earlier handler removes loaded contex
     });
 });
 
+for (const [name, contextFiles, omitGeneral] of [
+    ['an object', { content: general }, false],
+    ['a string', general, false],
+    ['a null entry', [null], false],
+    ['an entry without content', [{}], false],
+    ['an entry with non-string content', [{ content: 42 }], false],
+    ['an unreadable entry', [{ get content(): string { throw new Error('unreadable context'); } }], false],
+    ['malformed entries before a valid match', [null, {}, { content: 42 }, { path: 'loaded.md', content: general }], true],
+] as const) {
+    test(`managed Pi retains guidance when an earlier handler supplies ${name}`, async () => {
+        await withFixture(async fixture => {
+            writeFileSync(join(fixture.project, 'AGENTS.md'), general);
+            const loaded = await loadFixture(fixture, {
+                extensionFactories: [pi => {
+                    pi.on('before_agent_start', event => { Object.assign(event.systemPromptOptions, { contextFiles }); });
+                }],
+                extensionsOverride: base => ({ ...base, extensions: [
+                    ...base.extensions.filter(extension => extension.path !== extensionPath),
+                    ...base.extensions.filter(extension => extension.path === extensionPath),
+                ] }),
+            });
+            assertLoaded(loaded, join(fixture.project, 'AGENTS.md'), general);
+            assert.equal(await loaded.start(), appendedPrompt(loaded.systemPrompt, fixture.project, omitGeneral));
+        });
+    });
+}
+
 test('accepted boundary: a later handler can remove deduplicated general with Pi project context', async () => {
     await withFixture(async fixture => {
         writeFileSync(join(fixture.project, 'AGENTS.md'), general);

@@ -9,9 +9,16 @@ function normalizedContent(content: string): string {
 }
 
 function generalAlreadyIncluded(content: string, event: BeforeAgentStartEvent): boolean {
-    const normalized = normalizedContent(content);
-    if (!normalized || !normalizedContent(event.systemPrompt).includes(normalized)) return false;
-    return event.systemPromptOptions?.contextFiles?.some(file => normalizedContent(file.content) === normalized) ?? false;
+    try {
+        const contextFiles = event.systemPromptOptions?.contextFiles;
+        if (!Array.isArray(contextFiles) || typeof event.systemPrompt !== 'string') return false;
+        const normalized = normalizedContent(content);
+        if (!normalized || !normalizedContent(event.systemPrompt).includes(normalized)) return false;
+        return contextFiles.some(file => typeof file?.content === 'string' && normalizedContent(file.content) === normalized);
+    } catch {
+        // Earlier handlers can mutate shared construction options; invalid evidence must retain guidance.
+        return false;
+    }
 }
 
 /**
