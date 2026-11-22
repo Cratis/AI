@@ -17,6 +17,7 @@
     { "query": "Write a fluent Chronicle projection in C#.", "shouldTrigger": false, "note": "cratis-chronicle-projection" },
     { "query": "Model a screen template and its toolbar dialog in .play.", "shouldTrigger": false, "note": "cratis-screenplay-ui-composition" },
     { "query": "Declare a Screenplay query over InvoiceSummary with paging filters.", "shouldTrigger": false, "note": "cratis-screenplay-read-surface" },
-    { "query": "Interview me about a new billing domain and discover its event timeline.", "shouldTrigger": false, "note": "cratis-screenplay-discovery" }
+    { "query": "Interview me about a new billing domain and discover its event timeline.", "shouldTrigger": false, "note": "cratis-screenplay-discovery" },
+    { "query": "Expose this authorized Screenplay command to agents with personal tokens; can I use read scope or approval required?", "shouldTrigger": true, "note": "Command boundary with direct toolchain exposure handoff." }
   ]
 }

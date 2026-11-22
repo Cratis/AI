@@ -48,6 +48,19 @@
         "Gives a headline counting where it enters, is recorded and is used.",
         "Makes no change to the model."
       ]
+    },
+    {
+      "id": 5,
+      "name": "manual-agent-exposure-widening-review",
+      "prompt": "Review read-only on Screenplay 6.15.0: the agents block adds one query and changes a retained query from write to read scope. A third operation's signature/contract and inherited feature authorization changed, but its manifest entry is byte-identical. A colleague calls semantic-diff and PLAY0978/PLAY0979 an automatic exposure safety gate. What evidence and review do you report? Follow-up: the before model lacks an imported feature and after compilation fails elsewhere, but old manifests match. Can that be safe/unchanged or approvalRequired false authorize calls? Reply only.",
+      "expected_output": "Automatic exposure comparison is not shipped; PLAY0978/PLAY0979 are reserved, and semantic-diff is ordinary model comparison, not an exposure verdict. Use the manual checklist with complete validated/compiled before and after models at known revisions, tool/version and effective authorization. Match exact canonical identity plus kind. Flag the addition and possible widening from write to read; inspect signature, contract and inherited module/feature/operation gates even with unchanged JSON. An unchanged manifest cannot prove no widening or runtime safety. Report evidence, consequences, open questions/edit requests pinned to each operation, without editing or inventing a computed result format. Missing before context and failed whole compilation leave comparison unresolved, not safe/unchanged. Matching stale JSON or absent reserved warnings is no evidence; obtain complete revision-pinned models and recompile. approvalRequired false bypasses neither default-deny, token scope nor effective authorization.",
+      "assertions": [
+        "Uses manual review, not a fictional automatic analyzer or PLAY0978/PLAY0979 verdict, and distinguishes semantic-diff from exposure safety.",
+        "Requires complete before/after model context, known revisions and actual validation/compilation evidence with the tool/version.",
+        "Matches canonical identity plus kind and flags new exposure and write-to-read as possible widening.",
+        "Inspects signatures/contracts and inherited authorization even when manifest JSON is unchanged; does not infer safety from metadata alone.",
+        "Reports read-only operation-pinned findings/edit requests without inventing a result schema or Arc runtime behavior; missing before context or failed compilation stays unresolved, never safe/unchanged from stale JSON, absent reserved warnings or approvalRequired false, and preserves authorization/token boundaries."
+      ]
     }
   ]
 }
