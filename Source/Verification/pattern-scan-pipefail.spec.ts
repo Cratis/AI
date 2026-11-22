@@ -9,8 +9,9 @@ import test from 'node:test';
 
 const repositoryRoot = resolve(import.meta.dirname, '../..');
 const script = join(repositoryRoot, '.cratis/ai/hooks/scripts/cratis-pattern-scan.sh');
-// More than 1 MiB of trailing globs keeps the producer writing after an early match.
-const trailingGlobs = Array<string>(65536).fill('unrelated/source/layout/**');
+// More than 256 KiB of trailing globs exceeds a 64 KiB pipe buffer by a clear margin.
+const trailingGlobs = Array<string>(12288).fill('unrelated/source/layout/**');
+assert.ok(Buffer.byteLength(trailingGlobs.join('\n')) >= 256 * 1024);
 
 type PathSelection = { paths?: string[]; exclude_paths?: string[] };
 
