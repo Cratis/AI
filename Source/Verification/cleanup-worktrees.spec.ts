@@ -73,6 +73,14 @@ const cleanupCases = [
     { name: 'rechecks ignored output created during the holder check', records: 'empty', args: [], tool: 'lsof-create-ignored', kept: true, reason: unarchivedReason },
     { name: 'does not match sibling wt-10 when checking wt-1', records: 'empty', args: [], tool: 'lsof-prefix', prefixSibling: true, kept: false },
     { name: 'ignores known kernel and network names and revoked descriptors', records: 'empty', args: [], tool: 'lsof-kernel', kept: false },
+    { name: 'ignores Linux anonymous kernel and network names', records: 'empty', args: [], tool: 'lsof-linux', attempts: 1, kept: false },
+    { name: 'keeps a cwd holder alongside Linux anonymous objects', records: 'empty', args: [], tool: 'lsof-linux-cwd', kept: true, reason: 'live process holds worktree (cwd:' },
+    { name: 'keeps a file holder alongside Linux anonymous objects', records: 'empty', args: [], tool: 'lsof-linux-file', kept: true, reason: 'live process holds worktree (3:' },
+    { name: 'fails closed on target errors alongside Linux anonymous objects', records: 'empty', args: [], tool: 'lsof-linux-target-error', attempts: 3, kept: true, reason: 'holder check failed (path inspection)' },
+    { name: 'fails closed on Linux pseudo-names used as cwd', records: 'empty', args: [], tool: 'lsof-linux-pseudo-cwd', attempts: 3, kept: true, reason: 'holder check failed (path inspection)' },
+    { name: 'fails closed on Linux pseudo-names without a type', records: 'empty', args: [], tool: 'lsof-linux-no-type', attempts: 3, kept: true, reason: 'holder check failed (path inspection)' },
+    { name: 'fails closed on Linux pseudo-names without a descriptor', records: 'empty', args: [], tool: 'lsof-linux-no-descriptor', attempts: 3, kept: true, reason: 'holder check failed (path inspection)' },
+    { name: 'fails closed on unknown Linux FIFO names', records: 'empty', args: [], tool: 'lsof-linux-unknown', attempts: 3, kept: true, reason: 'holder check failed (path inspection)' },
     { name: 'keeps filesystem socket names under the target', records: 'empty', args: [], tool: 'lsof-socket', kept: true, reason: 'live process' },
     { name: 'fails closed on unknown anonymous lsof objects', records: 'empty', args: [], tool: 'lsof-unknown', kept: true, reason: 'holder check failed (path inspection)' },
     { name: 'fails closed on ambiguous lsof hard-link names', records: 'empty', args: [], tool: 'lsof-ambiguous', hardlink: true, kept: true, reason: 'ambiguous holder check' },
@@ -90,6 +98,19 @@ const clearHolderReport = `printf '{"status":"clear","paths":[{"path":"%s","reso
 const clearLsofReport = 'printf "p1\\nfcwd\\ntDIR\\nn/\\n"';
 const noisyLsofReport = `${clearLsofReport}\nprintf "p2\\nf9\\nn/unrelated FD info error: Operation not permitted\\n"`;
 const incompleteTargetReport = `${clearLsofReport}\nprintf "p2\\nf9\\nn%s FD info error: Operation not permitted\\n" "$CLEANUP_TEST_WORKTREE"`;
+const linuxKernelRecords = [
+    ['FIFO', 'pipe:[123]'],
+    ['FIFO', 'pipe'],
+    ['sock', 'socket:[456]'],
+    ['a_inode', 'anon_inode:[eventfd]'],
+    ['a_inode', '[eventpoll]'],
+    ['a_inode', 'anon_inode:inotify'],
+    ['unix', 'type=STREAM'],
+    ['unix', 'type=STREAM (CONNECTED)'],
+    ['unix', 'type=DGRAM (UNCONNECTED)'],
+    ['netlink', 'NETLINK'],
+].map(([type, name], index) => `f${index + 3}\\nt${type}\\nn${name}\\n`).join('');
+const linuxLsofReport = `${clearLsofReport}\nprintf "p2\\n${linuxKernelRecords}"`;
 const holderToolScripts: Record<string, string> = {
     'pi-error': 'exit 3',
     'lsof-error': 'exit 3',
@@ -112,6 +133,14 @@ const holderToolScripts: Record<string, string> = {
     'lsof-create-ignored': `echo output > "$CLEANUP_TEST_WORKTREE/ignored-output"\n${clearLsofReport}`,
     'lsof-prefix': 'printf "p1\\nfcwd\\ntDIR\\nn%s\\n" "$CLEANUP_TEST_OTHER"',
     'lsof-kernel': 'printf "p1\\nf3\\ntPIPE\\nn->0x1234\\nf4\\ntNPOLICY\\nn\\nf5\\nn(revoked)\\nf6\\ntunix\\nn->0x5678\\nf11\\ntunix\\nn->(none)\\nf12\\ntunix\\nnlocal-address-token\\nf7\\ntKQUEUE\\nncount=0, state=0xa\\nf8\\ntIPv4\\nn127.0.0.1:80\\nf9\\ntsystm\\nn[ctl com.apple.netsrc]\\nf10\\ntCHAN\\nnuser-packet-pool\\n"',
+    'lsof-linux': linuxLsofReport,
+    'lsof-linux-cwd': `${linuxLsofReport}\nprintf "p3\\nfcwd\\ntDIR\\nn%s\\n" "$CLEANUP_TEST_WORKTREE"`,
+    'lsof-linux-file': `${linuxLsofReport}\nprintf "p3\\nf3\\ntREG\\nn%s/delivered\\n" "$CLEANUP_TEST_WORKTREE"`,
+    'lsof-linux-target-error': `${linuxLsofReport}\nprintf "p3\\nf9\\nn%s FD info error: Operation not permitted\\n" "$CLEANUP_TEST_WORKTREE"`,
+    'lsof-linux-pseudo-cwd': `${clearLsofReport}\nprintf "p2\\nfcwd\\ntFIFO\\nnpipe:[123]\\n"`,
+    'lsof-linux-no-type': `${clearLsofReport}\nprintf "p2\\nf3\\nnpipe:[123]\\n"`,
+    'lsof-linux-no-descriptor': `${clearLsofReport}\nprintf "p2\\ntFIFO\\nnpipe:[123]\\n"`,
+    'lsof-linux-unknown': `${clearLsofReport}\nprintf "p2\\nf3\\ntFIFO\\nnunknown-pipe\\n"`,
     'lsof-socket': 'printf "p1\\nf3\\ntunix\\nn%s/socket\\n" "$CLEANUP_TEST_WORKTREE"',
     'lsof-unknown': 'printf "p1\\nf3\\ntUNKNOWN\\nn\\n"',
     'lsof-ambiguous': 'printf "p1\\nf3\\ntREG\\nn%s/delivered\\n" "$CLEANUP_TEST_WORKTREE"',
