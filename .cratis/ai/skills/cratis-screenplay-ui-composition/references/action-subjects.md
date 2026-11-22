@@ -4,6 +4,7 @@
 
 - Table narrowing
   - Repair repeated advisories one occurrence at a time
+- Advisory row-menu placement
 
 Requires Screenplay 4.248.0 or later (`screenplay --version`). Source: Screenplay
 `Documentation/screenplay/action-subjects.md` (decision 0110).
@@ -119,3 +120,19 @@ repair by message text, by code or in bulk. For each occurrence:
    with explicit `with <input> from item.<field>` when several keys could bind.
 3. Propose one edit for that occurrence, apply it, and re-read.
 4. Confirm only that occurrence's diagnostic cleared and the others remain until decided.
+
+## Advisory row-menu placement
+
+Requires Screenplay 6.37.0 or later (`screenplay --version`). A plain command action with an explicit `for item` may request row-menu grouping:
+
+```play
+action SendInvoiceReminder for item
+  with invoiceId from item.invoiceId
+  presentation placement "row-menu"
+```
+
+The hint is optional and advisory. It changes presentation only, never the action's subject, selection, input binding, authorization, validation, execution or order. Omit it to keep the flat action bar; there is no action-count threshold. Keep at least one action unhinted when only some belong in a menu.
+
+Each presentation key occurs once and `placement` must be nonempty. Unknown keys and unknown nonempty placement values are retained so consumers can preserve or fall back. Screen-scoped, implicit-subject and guarded actions do not accept hints. Renderers see the hint only in the UI contract's optional `scene.actions` layer; the neutral action contract and executable model are unchanged. A renderer must implement it before the UI changes.
+
+`PLAY1166` (Error) is an invalid action presentation: add an explicit `for item`, use a plain action, or remove the hint; make keys unique and nonempty and `placement` nonempty.
