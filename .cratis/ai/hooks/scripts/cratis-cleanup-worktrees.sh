@@ -361,6 +361,7 @@ lsof_matches() {
             } else if (path !~ /^\//) {
                 # Kernel/network object names are not filesystem paths. Unix sockets may have paths,
                 # so only their non-path addresses are exempt; unknown names may hide a target file.
+                if (kind != "" && kind != "cwd" && type ~ /^(rte|ndrv)$/) next
                 if (kind != "cwd" && type ~ /^(PIPE|NPOLICY|NEXUS|KQUEUE|IPv4|IPv6|systm|CHAN)$/) next
                 if (kind != "cwd" && type == "unix" && path ~ /^(->0x[[:xdigit:]]+|->\(none\)|@.*|[[:alnum:]_.-]*)$/) next
                 # Linux anonymous objects have typed pseudo-names, not filesystem paths.
