@@ -121,8 +121,10 @@ module Fleet
 - Code reads `context.Values.<Name>` or `ValuesAs<T>()` on `CommandContext`, `QueryContext`, `RuleContext`,
   `PolicyContext` and `ProvideContext`.
 - `host`, inline code and `file` sources are opaque: the reference evaluator reports a gate that reads one as
-  unsupported, never allowed or denied. Executing `provide` reports PLAY0268 until the toolchain admits it; model
-  it, review it, do not promise it runs.
+  unsupported, never allowed or denied. A `provide` from `file <path>` or an inline `csharp` block is admitted from ESM v57
+  as an opaque implementation attachment (role `ProvideValue`); older models refuse it with PLAY0268. The evaluator never
+  runs it and treats every gate as available, so specifications run unchanged but cannot assert allowed or denied outcomes
+  that depend on a code `provide`; the host decides at run time.
 - **Identity stays out of rules by default.** `RuleContext` sees `CausedBy`, not `Identity`; roles and claims belong in a
   `policy`. A `provide` derived from `$context.identity` makes that value readable in a rule, so write it
   only deliberately and say why.
