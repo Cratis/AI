@@ -553,13 +553,49 @@ and Pi:
 ```
 
 `false` re-enables the manifest block in a Cratis repository; `true` allows manifest writes
-in any repository, for targets that do not themselves block (see above). Merge this property into the existing configuration. An absent, malformed,
-or non-boolean setting uses the origin-based default. This setting never permits `.env` writes.
+in any repository, for targets that do not themselves block (see above). Merge this property into the existing configuration. An absent
+or non-boolean setting uses the origin-based default (an unparsable file protects the whole repository; see below). This setting never permits `.env` writes.
 The protected basename list is unchanged; `package.json` is not part of this guard's manifest category.
 
 This allowance is not authorization for unrelated upgrades: keep changes task-focused and
 call out version bumps in the PR description. Other repositories retain the rule requiring
 an explicit request; their setting is a mechanical opt-out, not a change to that rule.
+
+#### Repository-declared protected paths
+
+A repository can add its own agent-control paths with `protectedPaths` in its `.cratis/ai.json`:
+
+```json
+{ "protectedPaths": ["docs/release/*", "RELEASE.md", "deploy/"] }
+```
+
+Both the Write/Edit guard and the shell-write guard treat these exactly like the built-in controls:
+same case-insensitive matching, same symlink and `..` normalisation, same
+deny message and the same `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` override. The file read is the
+`.cratis/ai.json` at the root of the repository that owns the target path, not the session's; globs are
+relative to that root.
+The list is additive: it cannot remove or weaken a built-in control, and `.cratis/ai.json` stays protected.
+
+A declared entry takes one of three shapes, so exactly the same literal-prefix machinery as the built-in controls
+(`.pi/extensions/*`, `.claude/settings.json`) protects it for every command shape, folder operands included (`rm -rf`,
+`mv`, `rsync --delete`, `cp -r`, `tar -C`, `unzip -d`, `ln -sfn`, `find -delete`, `cd dir && …`):
+
+- a literal **file** path: `tools/guard.sh` (a folder operand that contains it is protected too);
+- a literal **folder** with a trailing `/`: `hooks/` (everything under it);
+- a literal folder followed by a whole final segment `*`: `hooks/*` (the same as `hooks/`).
+
+Segments use only `A-Z a-z 0-9 . _ - /`; a leading `./` is ignored. A `*` anywhere else is **not accepted**: inside a name
+(`*.sh`, `settings*.json`, `src/*.ts`, `a*/b`), in a leading or middle segment, `**`, or alone. A name wildcard
+crosses `/` for single files but cannot be matched against a folder operand, so it would be enforced for `Write` yet
+missed by `rm -rf src/tests`. Also refused: `..`, `.` segments, empty segments, absolute paths and any other
+character (`( ) | ! @ + ? [ ] { } \`, spaces, quotes, `$`, control or non-ASCII). Declare the folder, or the exact files.
+Every enclosing repository's list applies, so a nested `.git` file or directory never hides the policy of an
+ancestor repository (this holds for the built-in controls too).
+
+Fail closed: if `.cratis/ai.json` cannot be read as one JSON object, or `protectedPaths` is not an array of at most 256
+entries of the accepted shapes, the declared intent is unknowable, so **every** path in that repository is protected. The
+deny message names `protectedPaths`, the first offending entry (when it can be found) and the accepted shapes; the
+declaration is rejected rather than ignored so a mistake is noticed. An absent or `null` `protectedPaths` declares nothing.
 
 **Blocked outright** (`PreToolUse` on `Bash`, exit 2): a `cratis chronicle` command that is not
 read-only. The **cratis-chronicle-cli-operations** skill makes `--yes` the authorization boundary for
