@@ -157,8 +157,9 @@ No other phase is skipped. P3-P5 scale to the change but always run for semantic
 | Executable or render request on an accepted model | P7 / P8 | P9 |
 | Question from a running Chronicle system | read-only `cratis-chronicle-cli-operations` | update the model at P2 if needed |
 
-**Slices under delivery.** Where a delivery plan exists (the `cratis-screenplay-delivery-planning`
-status block), check a slice's planning status before changing it. A `todo` slice changes through
+**Slices under delivery.** Where a delivery plan exists (`cratis-screenplay-delivery-planning`),
+check a slice's planning status in the working plan and meaningful issue comments before changing
+it. Leave legacy issue-body status blocks untouched; issue tracking is append-only. A `todo` slice changes through
 the entry points above. A slice that is `in progress`, `blocked` or `done` is read-only for
 modeling unless the request names it. Naming it is the approval for exactly those declarations
 and nothing wider. Otherwise do the rest of the request, return an edit request naming the slice,
