@@ -401,8 +401,12 @@ CI also lints the hook scripts with `shellcheck`, replays the screens authoring 
 (`Source/Verification/screens-smoke/screens-smoke.sh`, which needs Docker and Chromium), and
 checks `Source/AgentHarnesses`, which sits outside the workspace with its own `package-lock.json`
 (`npm ci && npm test` in that directory, then `bash Source/AgentHarnesses/run-entrypoint-fixtures.sh`).
-Corpus changes also run the Conformance workflow's install-phase checks
-(`cratis ai test --source . --install-only --output json`). Skill model evaluation
+Publish's required `verify` job runs install-phase conformance checks
+(`cratis ai test --source . --install-only --output json`) on every pull request, push to main,
+and manual publishing run, without path filters. The same fail-closed gate blocks publication:
+at least one check must pass, and only skips for fixtures with no install-phase checks are accepted.
+This checks source-corpus installation, not published package bytes or model/result-phase behavior
+([placement decision](decisions/154-install-phase-conformance-gates-publication.md)). Skill model evaluation
 ([Evaluate skills](#evaluate-skills)) makes paid model calls and is optional, never part of
 required verification.
 
