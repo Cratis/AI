@@ -113,9 +113,9 @@ for (const obsolete of ['tooling', 'evidence', 'evals', 'catalog', 'distribution
 }
 const workflows = (await readdir(join(root, '.github', 'workflows'))).filter(name => name.endsWith('.yml') || name.endsWith('.yaml'));
 if (!workflows.includes('publish.yml')) failures.push('The publish workflow is required.');
-// The pull-request policy caller, the shared workflow lint caller, the weekly product drift
-// monitor, and the conformance install-phase check accompany publishing.
-const allowedWorkflows = ['publish.yml', 'verify-pull-request-policy.yml', 'workflow-lint.yml', 'product-drift.yml', 'conformance.yml'];
+// The pull-request policy caller, the shared workflow lint caller, and the weekly product drift
+// monitor accompany publishing; install-phase conformance runs in Publish's verify job.
+const allowedWorkflows = ['publish.yml', 'verify-pull-request-policy.yml', 'workflow-lint.yml', 'product-drift.yml'];
 const unexpectedWorkflows = workflows.filter(name => !allowedWorkflows.includes(name));
 if (unexpectedWorkflows.length > 0) failures.push(`Only ${allowedWorkflows.join(', ')} are allowed; found ${unexpectedWorkflows.join(', ')}.`);
 const marketplaces: Array<{ path: string; document: unknown }> = [];
