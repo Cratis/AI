@@ -4,13 +4,14 @@
     {
       "id": 1,
       "name": "verdict-report",
-      "prompt": "I ran `screenplay Bookings/Commands.play` and it printed no errors, so I'm telling the team 'the model is fine and executable'. What is wrong with that and how should I report it? Reply only; do not write files.",
-      "expected_output": "Check the folder, not one file, with warnings as errors (`screenplay <folder> --warnaserror`). A clean V1 proves only that the model is authorable, not executable; V2/V3 need MCP or `cratis screenplay validate --executable`. Report one line per verdict, tool and version first, and `not run` with the reason is a valid result.",
+      "prompt": "I ran `screenplay Bookings/Commands.play` and it printed no errors, so I'm telling the team 'the model is fine and executable'. What is wrong with that and how should I report it? Also, on 6.32.0 strict Compile refuses a policy; CompileAdmissible keeps independent slices but excludes that policy, its protected read and a command depending on the read. Explain Diagnostics, Cause and DependsOn for each exclusion and the verdict to report. May I ignore them because the remainder binds? Reply only; do not write files.",
+      "expected_output": "Check the folder, not one file, with warnings as errors (`screenplay <folder> --warnaserror`). A clean V1 proves only that the model is authorable, not executable; V2/V3 need MCP or `cratis screenplay validate --executable`. Report one line per verdict, tool and version first, and `not run` with the reason is a valid result. Name Compile versus opt-in CompileAdmissible: the former refuses the whole model; the latter is only a supported subset, not a whole-model pass or runtime identity guarantee. Exclusions retain original binder Diagnostics; Cause Root has empty DependsOn; Dependent lists immediate exclusions in Exclusions order, not transitive ancestry or message-derived edges. A policy root removes protected dependencies fail-closed, while independent slices remain. Base API requires 4.254.0; typed provenance requires 4.256.0.",
       "assertions": [
         "Says the whole folder must be checked, not one file of it.",
         "Says warnings must be treated as errors (`--warnaserror`), citing silent drops like PLAY0029.",
         "Says a clean V1 proves only authorable, not executable; binding (V3) needs MCP or `cratis screenplay validate --executable`.",
-        "Reports verdicts as one line each with tool and version, accepting `not run` with a reason."
+        "Reports verdicts as one line each with tool and version, accepting `not run` with a reason.",
+        "Distinguishes strict Compile from subset-only CompileAdmissible, preserves original diagnostics and ordered immediate Root/Dependent provenance, and treats security exclusions fail-closed rather than claiming a whole-model pass."
       ]
     },
     {

@@ -3,6 +3,10 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "view: \"typed-contexts\"", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "result.entries", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "destinationType", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "legacy descriptors omit both additions", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "Monaco shows it as a code action", "file": "references/repairs.md" },
     { "kind": "skill-contains", "value": "reviewed saved-file code action", "file": "references/repairs.md" },
     { "kind": "skill-contains", "value": "an empty fixed root named `data` cannot rebind", "file": "references/mcp-tools.md" },

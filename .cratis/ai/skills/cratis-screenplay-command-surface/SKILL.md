@@ -74,11 +74,12 @@ Keep to it.
 A file/code `handler` beside unconditional `produces`, with a resolved nonempty body,
 binds as the v23 result contract: `produces` fixes the
 events and the body owns their property values. Without `produces` or a `may produce` block
-(ESM v35: the body returns an ordered subset of the declared events), with `produces ... when`,
+(result v2, ESM v35: an ordered subset/multiset, source binding from 5.4.0), with `produces ... when`,
 or with an unresolved body (even with `may produce`) it fails binding with PLAY0800. A pending
 `handler implementation` beside unconditional `produces` is a described command (ESM v23).
 Prefer plain `produces` for declarative logic. Read [described handlers](references/described-handlers.md)
-for the result contract, version gates, PLAY0695–0698 and Stage's STAGE-IMPL-002 refusal.
+for contracts, version gates and refusals. The standalone runner has no provider; a host can
+execute verified policy/handler bodies. Binding or a descriptor is not execution evidence.
 
 ## `identifier` — the stream boundary decision
 
@@ -191,7 +192,8 @@ A continuation line extends the clause.
 - Several `authorize` lines on one command or query combine with AND, in authored
   order; a `module` or `feature` gate is ANDed too, so an `or` never bypasses another gate.
 - Evaluation short-circuits left to right, module → feature → command. A policy implemented
-  in code makes the reference runner report the outcome unsupported, never allow or deny.
+  in code is Unsupported without a host provider (always on standalone); a configured host can
+  return Allow/Deny. Read [host body execution](../cratis-screenplay-specifications/references/host-body-execution.md).
 
 ## Inline events and destinations
 
