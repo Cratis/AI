@@ -41,7 +41,7 @@ with the construct address and the change to ask for; do not edit the model in a
    sources mean the reference evaluator cannot decide a gate that reads them.
 5. **Required versus optional.** Optional means "can be absent and the gate denies"; required means "absence refuses
    the request". Check each value matches the intent for its readers.
-6. **Executable claims.** Do not claim a `provide` runs end to end while the toolchain reports PLAY0268 for it.
+6. **Executable claims.** A `file` or inline-code `provide` (ESM v57) is an opaque attachment the reference evaluator never runs; do not claim a specification proved allowed or denied through it.
 7. **Unprovided reads.** An `available when` reading a value nothing provides at that place (PLAY1138) stays closed.
 
 ## Verdict wording

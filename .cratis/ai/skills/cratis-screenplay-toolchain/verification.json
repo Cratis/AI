@@ -12,7 +12,7 @@
     { "kind": "skill-contains", "value": "Requires Screenplay 6.35.0", "file": "references/model-export-diff-rename.md" },
     { "kind": "skill-contains", "value": "first path segment", "file": "references/model-export-diff-rename.md" },
     { "kind": "skill-contains", "value": "no semantic identity", "file": "references/model-export-diff-rename.md" },
-    { "kind": "skill-contains", "value": "6.32.0 corpus pin does not verify", "file": "references/model-export-diff-rename.md" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 6.35.0 or later", "file": "references/model-export-diff-rename.md" },
     { "kind": "skill-contains", "value": "Diagnostics` preserves original binder errors", "file": "references/executable-subset.md" },
     { "kind": "skill-contains", "value": "empty for `Root`, not transitive ancestry", "file": "references/executable-subset.md" },
     { "kind": "skill-contains", "value": "| v33 |", "file": "references/language-admission.md" },
