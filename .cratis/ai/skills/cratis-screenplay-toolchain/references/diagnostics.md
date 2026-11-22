@@ -367,7 +367,7 @@ Requires a Screenplay release that carries design systems (next minor after 6.2.
 
 ## Provided values (PLAY1119-PLAY1129)
 
-`provide` needs Screenplay 6.25.0. Fix by changing the model; PLAY0268 reports executing it.
+`provide` needs Screenplay 6.25.0. Fix by changing the model; a `file` or inline-code source needs ESM v57; older models refuse it with PLAY0268.
 
 | Code | Fix |
 | --- | --- |
