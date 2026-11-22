@@ -282,10 +282,16 @@ cannot delete a branch that a worktree still has checked out, so the pair is lef
 It removes only on **evidence of delivery**, never on a guess: the tip is merged into `origin/<default>`
 and was integrated rather than merely sitting on the default branch's first-parent history (where a
 brand-new empty branch sits), or it is merged and its upstream is gone, or GitHub reports a merged pull
-request whose head is exactly that tip. It never forces: a dirty, locked or current worktree is kept, as
-is anything undelivered, and every kept item is reported with its reason. Worktrees with non-empty
-`.ai-work/` directories are kept as "has untracked work records (.ai-work/)" by default, including
-ignored records. Other ignored files (`node_modules`, build output) go with a delivered worktree.
+request whose head is exactly that tip. It never forces: a dirty, locked, current or live-held worktree
+is kept, as is anything undelivered, and every kept item is reported with its reason. Before removal
+(including dry-run), it checks for live processes with a cwd or open file under the worktree, preferring
+validated `pi-holders --json` results (requiring `jq`) and otherwise using per-process `lsof` names,
+not inode-based `lsof +D`. Only the script and its descendants are excluded; ancestors, including a
+parent shell or agent session with cwd in another worktree, still count. Missing tools, tool errors,
+unparseable/unknown results and ambiguous shared-inode names keep the worktree. Ignored/untracked files
+(`node_modules`, build output, `.env`, local databases, `.ai-work/`) also keep it: archive or remove them
+first. Non-empty `.ai-work/` directories, even when tracked, are additionally kept as
+"has untracked work records (.ai-work/)" by default.
 
 - **When it runs.** After a Bash command that delivers or integrates work, and at the start of every
   session, so orphans left by any earlier session, crash or harness are collected too.
@@ -294,9 +300,11 @@ ignored records. Other ignored files (`node_modules`, build output) go with a de
   final step runs the same script, and on running it by hand.
 - **By hand.** `bash .cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh [--dry-run]` from any worktree;
   run from the main checkout to also collect the worktree you are standing in. Add
-  `--include-work-records` only after preserving any records you still need: it permits deleting
-  `.ai-work/` content, but never overrides locks or other safety checks. Hook mode ignores this flag;
-  automatic hooks never opt in.
+  `--include-work-records=<path>` only after preserving any records you still need. It bypasses the
+  record-preservation check for that exact worktree only (repeat for multiple paths), permitting clean
+  tracked `.ai-work/` content to go with it, never ignored/untracked files. Bare `--include-work-records`
+  exits 2 with guidance. It never overrides locks, live holders or other safety checks. Hook mode
+  ignores scoped opt-ins; automatic hooks never opt in.
 - **GitHub lookups.** The complete worktree and branch sweep is planned before any removal. Git
   ancestry is checked first; only a plan needing more evidence triggers the single REST batch. It
   reads the latest 100 closed pull requests, so older merged branches absent from that page are simply

@@ -3,13 +3,14 @@
 
 /**
  * The delivered-work cleanup must be wired in every harness that has hooks, and its own self-test (which plants
- * delivered, dirty, unmerged, brand-new, locked and work-record worktrees) must pass: a cleanup that removes nothing, or removes
+ * delivered, dirty, unmerged, brand-new, locked, live-held and work-record worktrees) must pass: a cleanup that removes nothing, or removes
  * unfinished work, is worse than none.
  */
 
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
+import { spawn, spawnSync } from 'node:child_process';
+import { once } from 'node:events';
+import { existsSync, linkSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -26,23 +27,90 @@ test('the cleanup self-test passes', () => {
     assert.match(result.stdout, /self-test: \d+ checks passed/);
 });
 
+const optIn = '--include-work-records=<worktree>';
+const unarchivedReason = 'has ignored/untracked files; archive or remove them first';
 const cleanupCases = [
     { name: 'keeps ignored work records by default', records: 'nonempty', args: [], kept: true, reason: 'has untracked work records (.ai-work/)' },
     { name: 'keeps work records in a dry run', records: 'nonempty', args: ['--dry-run'], kept: true, reason: 'has untracked work records (.ai-work/)' },
-    { name: 'removes work records with manual opt-in', records: 'nonempty', args: ['--include-work-records'], kept: false },
-    { name: 'ignores opt-in in hook mode', records: 'nonempty', args: ['--include-work-records', '--hook'], kept: true, reason: 'has untracked work records (.ai-work/)' },
+    { name: 'keeps ignored work records despite opt-in', records: 'nonempty', args: [optIn], kept: true, reason: unarchivedReason },
+    { name: 'removes clean tracked work records with scoped manual opt-in', records: 'tracked', args: [optIn], kept: false },
+    { name: 'keeps other worktrees records outside the opt-in scope', records: 'tracked', args: [optIn], otherRecords: true, kept: false },
+    { name: 'ignores opt-in in hook mode', records: 'tracked', args: [optIn, '--hook'], kept: true, reason: 'has untracked work records (.ai-work/)' },
+    { name: 'rejects bare opt-in', records: 'nonempty', args: ['--include-work-records'], kept: true, exit: 2, reason: '--include-work-records requires an explicit worktree path' },
     { name: 'removes a worktree with an empty records directory', records: 'empty', args: [], kept: false },
-    { name: 'keeps a locked worktree despite opt-in', records: 'nonempty', args: ['--include-work-records'], locked: true, kept: true, reason: 'locked' },
-    { name: 'keeps a locked detached worktree despite opt-in', records: 'nonempty', args: ['--include-work-records'], locked: true, detached: true, kept: true, reason: 'locked' },
-    { name: 'keeps uncommitted changes despite opt-in', records: 'nonempty', args: ['--include-work-records'], dirty: true, kept: true, reason: 'delivered but has uncommitted changes' },
+    { name: 'keeps a locked worktree despite opt-in', records: 'tracked', args: [optIn], locked: true, kept: true, reason: 'locked' },
+    { name: 'keeps a locked detached worktree despite opt-in', records: 'tracked', args: [optIn], locked: true, detached: true, kept: true, reason: 'locked' },
+    { name: 'keeps uncommitted changes despite opt-in', records: 'tracked', args: [optIn], dirty: true, kept: true, reason: 'delivered but has uncommitted changes' },
+    { name: 'keeps ignored output', records: 'empty', args: [], ignored: true, kept: true, reason: unarchivedReason },
+    { name: 'keeps untracked output', records: 'empty', args: [], untracked: true, kept: true, reason: unarchivedReason },
+    { name: 'keeps a live cwd holder', records: 'empty', args: [], holder: 'cwd', kept: true, reason: 'live' },
+    { name: 'reports a live cwd holder in dry-run', records: 'empty', args: ['--dry-run'], holder: 'cwd', kept: true, reason: 'live' },
+    { name: 'keeps a live open-file holder', records: 'empty', args: [], holder: 'file', kept: true, reason: 'live' },
+    { name: 'keeps a live holder despite opt-in', records: 'tracked', args: [optIn], holder: 'cwd', kept: true, reason: 'live' },
+    { name: 'keeps a live cwd holder with lsof fallback', records: 'empty', args: [], holder: 'cwd', tool: 'lsof', kept: true, reason: 'live process' },
+    { name: 'keeps a live file holder with lsof fallback', records: 'empty', args: [], holder: 'file', tool: 'lsof', kept: true, reason: 'live process' },
+    { name: 'removes an unused worktree with lsof fallback', records: 'empty', args: [], tool: 'lsof', kept: false },
+    { name: 'fails closed without a holder tool', records: 'empty', args: [], tool: 'missing', kept: true, reason: 'no holder check tool available' },
+    { name: 'fails closed when lsof errors', records: 'empty', args: [], tool: 'lsof-error', kept: true, reason: 'holder check failed (lsof)' },
+    { name: 'fails closed when pi-holders errors', records: 'empty', args: [], tool: 'pi-error', kept: true, reason: 'live holder or failed holder check (pi-holders)' },
+    { name: 'keeps an ancestor whose cwd is inside the worktree', records: 'empty', args: [], ancestor: true, kept: true, reason: 'live holder' },
+    { name: 'keeps an ancestor cwd with lsof fallback', records: 'empty', args: [], ancestor: true, tool: 'lsof', kept: true, reason: 'live process' },
+    { name: 'excludes the cleanup script own open file', records: 'empty', args: [], ownScript: true, kept: false },
+    { name: 'excludes the cleanup script own file with lsof fallback', records: 'empty', args: [], ownScript: true, tool: 'lsof', kept: false },
+    { name: 'accepts a validated clear pi-holders report', records: 'empty', args: [], tool: 'pi-clear', kept: false },
+    { name: 'fails closed without a pi-holders JSON parser', records: 'empty', args: [], tool: 'pi-no-jq', kept: true, reason: 'holder check unavailable (pi-holders JSON requires jq)' },
+    { name: 'fails closed on malformed pi-holders JSON', records: 'empty', args: [], tool: 'pi-invalid', kept: true, reason: 'live holder or invalid/ambiguous holder check' },
+    { name: 'fails closed on unknown pi-holders status', records: 'empty', args: [], tool: 'pi-unknown', kept: true, reason: 'live holder or invalid/ambiguous holder check' },
+    { name: 'fails closed on ambiguous pi-holders results', records: 'empty', args: [], tool: 'pi-ambiguous', kept: true, reason: 'live holder or invalid/ambiguous holder check' },
+    { name: 'fails closed on inconsistent pi-holders exit and status', records: 'empty', args: [], tool: 'pi-inconsistent', kept: true, reason: 'live holder or invalid/ambiguous holder check' },
+    { name: 'fails closed on unparseable lsof output', records: 'empty', args: [], tool: 'lsof-invalid', kept: true, reason: 'holder check failed (path inspection)' },
+    { name: 'ignores known anonymous kernel objects and revoked descriptors', records: 'empty', args: [], tool: 'lsof-kernel', kept: false },
+    { name: 'fails closed on unknown anonymous lsof objects', records: 'empty', args: [], tool: 'lsof-unknown', kept: true, reason: 'holder check failed (path inspection)' },
+    { name: 'fails closed on ambiguous lsof hard-link names', records: 'empty', args: [], tool: 'lsof-ambiguous', hardlink: true, kept: true, reason: 'ambiguous holder check' },
 ];
 
+function linkTools(bin: string, tools: string[]) {
+    for (const executable of tools) {
+        const located = spawnSync('bash', ['-c', 'command -v "$1"', 'bash', executable], { encoding: 'utf8' });
+        assert.equal(located.status, 0, `fixture requires ${executable}`);
+        symlinkSync(located.stdout.trim(), join(bin, executable));
+    }
+}
+
+const clearHolderReport = `printf '{"status":"clear","paths":[{"path":"%s","resolved":"%s","held":false,"holders":[],"ambiguous":0}]}\\n' "$2" "$2"`;
+const holderToolScripts: Record<string, string> = {
+    'pi-error': 'exit 3',
+    'lsof-error': 'exit 3',
+    'pi-clear': clearHolderReport,
+    'pi-no-jq': clearHolderReport,
+    'pi-invalid': 'echo invalid',
+    'pi-unknown': clearHolderReport.replace('"clear"', '"unknown"'),
+    'pi-ambiguous': clearHolderReport.replace('"ambiguous":0', '"ambiguous":1'),
+    'pi-inconsistent': `${clearHolderReport}\nexit 1`,
+    'lsof-invalid': 'echo invalid',
+    'lsof-kernel': 'printf "p1\\nf3\\ntPIPE\\nn\\nf4\\ntNPOLICY\\nn\\nf5\\nn(revoked)\\n"',
+    'lsof-unknown': 'printf "p1\\nf3\\ntUNKNOWN\\nn\\n"',
+    'lsof-ambiguous': 'printf "p1\\nf3\\ntREG\\nn%s/delivered\\n" "$CLEANUP_TEST_WORKTREE"',
+};
+
+function holderToolPath(directory: string, tool: string) {
+    const bin = join(directory, 'bin');
+    mkdirSync(bin);
+    const tools = ['bash', 'git', 'awk', 'mktemp', 'rm', 'grep', 'sed', 'find', 'du', 'cat', 'ps', 'stat'];
+    if (tool === 'lsof') tools.push('lsof');
+    if (tool.startsWith('pi-') && tool !== 'pi-no-jq') tools.push('jq');
+    linkTools(bin, tools);
+    const stub = holderToolScripts[tool];
+    if (stub) writeFileSync(join(bin, tool.startsWith('pi-') ? 'pi-holders' : 'lsof'), `#!/bin/bash\n${stub}\n`, { mode: 0o755 });
+    return bin;
+}
+
 for (const scenario of cleanupCases) {
-    test(`cleanup ${scenario.name}`, () => {
+    test(`cleanup ${scenario.name}`, async () => {
         const fixture = mkdtempSync(join(tmpdir(), 'cleanup-worktrees-'));
         const repository = join(fixture, 'repository');
         const worktree = join(fixture, 'worktree');
-        const env = {
+        const env: NodeJS.ProcessEnv = {
             ...process.env,
             GIT_AUTHOR_NAME: 'Cleanup spec', GIT_AUTHOR_EMAIL: 'cleanup@example.com',
             GIT_COMMITTER_NAME: 'Cleanup spec', GIT_COMMITTER_EMAIL: 'cleanup@example.com',
@@ -53,39 +121,66 @@ for (const scenario of cleanupCases) {
             assert.equal(result.status, 0, result.stdout + result.stderr);
             return result.stdout;
         };
+        let holder: ReturnType<typeof spawn> | undefined;
         try {
             git(fixture, 'init', '--bare', '-b', 'main', 'origin.git');
             git(fixture, 'clone', join(fixture, 'origin.git'), repository);
+            git(repository, 'config', 'core.excludesFile', '/dev/null');
             writeFileSync(join(repository, 'base'), 'base\n');
             git(repository, 'add', 'base');
             git(repository, 'commit', '-m', 'base');
             git(repository, 'push', 'origin', 'main');
             git(repository, 'worktree', 'add', '-b', 'delivered', worktree);
-            writeFileSync(join(worktree, 'delivered'), 'delivered\n');
+            writeFileSync(join(worktree, 'delivered'), scenario.ownScript ? readFileSync(script, 'utf8') : 'delivered\n');
             git(worktree, 'add', 'delivered');
+            mkdirSync(join(worktree, '.ai-work'));
+            const record = join(worktree, '.ai-work', '.handoff');
+            if (scenario.records !== 'empty') writeFileSync(record, 'Keep this handoff\n');
+            if (scenario.records === 'tracked') git(worktree, 'add', '.ai-work');
             git(worktree, 'commit', '-m', 'delivered');
             git(repository, 'merge', '--no-ff', 'delivered', '-m', 'merge delivered');
             git(repository, 'push', 'origin', 'main');
-            writeFileSync(join(repository, '.git', 'info', 'exclude'), '.ai-work/\n');
-            mkdirSync(join(worktree, '.ai-work'));
-            const record = join(worktree, '.ai-work', '.handoff');
-            if (scenario.records === 'nonempty') writeFileSync(record, 'Keep this handoff\n');
+            writeFileSync(join(repository, '.git', 'info', 'exclude'), '.ai-work/\nignored-output\n');
+            const other = join(fixture, 'worktree-other');
+            if (scenario.otherRecords) git(repository, 'worktree', 'add', '-b', 'other', other, 'delivered');
             if (scenario.detached) git(worktree, 'checkout', '--detach');
             if (scenario.locked) git(repository, 'worktree', 'lock', '--reason', 'long-lived', worktree);
-            if (scenario.dirty) writeFileSync(join(worktree, 'untracked'), 'unfinished work\n');
-            const result = spawnSync('bash', [script, '--no-fetch', ...scenario.args], {
-                cwd: repository, env, encoding: 'utf8',
+            if (scenario.dirty) writeFileSync(join(worktree, 'delivered'), 'unfinished work\n');
+            if (scenario.ignored) writeFileSync(join(worktree, 'ignored-output'), 'build output\n');
+            if (scenario.untracked) writeFileSync(join(worktree, 'untracked'), 'unfinished work\n');
+            if (scenario.hardlink) linkSync(join(worktree, 'delivered'), join(fixture, 'shared-delivered'));
+            if (scenario.holder) {
+                const command = scenario.holder === 'cwd' ? 'printf ready; exec sleep 120' : 'exec 3< "$1"; printf ready; exec sleep 120';
+                holder = spawn('bash', ['-c', command, 'holder', join(worktree, 'delivered')], { cwd: scenario.holder === 'cwd' ? worktree : repository });
+                assert.ok(holder.stdout);
+                await once(holder.stdout, 'data');
+            }
+            if (scenario.tool) env.PATH = holderToolPath(fixture, scenario.tool);
+            env.CLEANUP_TEST_WORKTREE = realpathSync(worktree);
+            const selectedScript = scenario.ownScript ? join(worktree, 'delivered') : script;
+            const args = scenario.args.map(argument => argument.replace('<worktree>', worktree));
+            const command = scenario.ancestor
+                ? ['-c', '(cd "$1" && bash "$2" --no-fetch "${@:3}"); status=$?; exit "$status"', 'ancestor', repository, selectedScript, ...args]
+                : [selectedScript, '--no-fetch', ...args];
+            const result = spawnSync('bash', command, {
+                cwd: scenario.ancestor ? worktree : repository, env, encoding: 'utf8',
                 input: JSON.stringify({ hook_event_name: 'SessionStart', cwd: repository }),
             });
-            assert.equal(result.status, 0, result.stdout + result.stderr);
+            assert.equal(result.status, scenario.exit ?? 0, result.stdout + result.stderr);
             assert.equal(existsSync(worktree), scenario.kept, result.stdout + result.stderr);
             if (scenario.reason) assert.ok((result.stdout + result.stderr).includes(`: ${scenario.reason}`), result.stdout + result.stderr);
-            if (scenario.kept && scenario.records === 'nonempty') assert.equal(readFileSync(record, 'utf8'), 'Keep this handoff\n');
+            if (scenario.kept && scenario.records !== 'empty') assert.equal(readFileSync(record, 'utf8'), 'Keep this handoff\n');
+            if (scenario.otherRecords) assert.equal(readFileSync(join(other, '.ai-work', '.handoff'), 'utf8'), 'Keep this handoff\n');
             if (!scenario.detached) {
                 const branches = git(repository, 'branch', '--format=%(refname:short)');
                 assert.equal(branches.split('\n').includes('delivered'), scenario.kept);
             }
         } finally {
+            if (holder) {
+                const exited = once(holder, 'exit');
+                holder.kill();
+                await exited;
+            }
             rmSync(fixture, { recursive: true, force: true });
         }
     });
@@ -149,6 +244,7 @@ for (const unavailable of ['NO_GH', 'gh missing', 'jq missing', 'non-GitHub orig
             else if (unavailable === 'jq missing') fixture.withoutTool('jq');
             else fixture.git(fixture.repository, 'remote', 'set-url', 'origin', unavailable === 'invalid slug'
                 ? 'https://github.com/example/cleanup/extra' : 'https://example.com/example/cleanup.git');
+            if (unavailable === 'gh missing' || unavailable === 'jq missing') linkTools(fixture.env.PATH, ['ps', 'lsof']);
             const output = fixture.run(['--hook']);
             assert.match(output, /3 removed/);
             assert.doesNotMatch(output, /GitHub evidence unavailable/);
