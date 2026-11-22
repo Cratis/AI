@@ -146,34 +146,53 @@ test('a malformed protectedPaths configuration blocks shell writes in that repos
 
 const configWith = (...globs: string[]) => JSON.stringify({ protectedPaths: globs });
 
-test('a wildcard glob protects every directory that can hold a match, for shell mutations of the directory', () => {
-    const cases: Array<[glob: string, command: string, expected: Verdict]> = [
-        ['*.pem', 'rm -rf certs', BLOCK], ['*.pem', 'mv certs c2', BLOCK], ['**/*.pem', 'rm -rf certs', BLOCK], ['**/*.pem', 'mv certs c2', BLOCK],
-        ['certs/*.pem', 'rm -rf certs', BLOCK], ['certs/*.pem', 'mv certs c2', BLOCK], ['certs/*.pem', 'rm -rf docs', ALLOW],
-        ['certs/*.pem', 'rm notes.md', ALLOW], ['*.pem', 'rm notes.md', ALLOW], ['*.sh', 'rm -rf hooks', BLOCK], ['*.sh', 'rm certs/a.pem', ALLOW],
-        // Only destructive references consult the directory overlap; entering, building or touching inside is not a mutation of it.
-        ['*.pem', 'cd certs && touch y', ALLOW], ['*.pem', 'cd certs && npm run build', ALLOW], ['*.pem', 'pushd certs && touch y', ALLOW],
-        ['*.pem', 'tar czf o.tgz certs', ALLOW], ['*.pem', 'cd certs && rm -rf sub', BLOCK], ['*.pem', 'cd certs && rm -rf sub/a.pem', BLOCK],
-    ];
-    for (const [glob, command, expected] of cases) {
-        withRepository(configWith(glob), root => {
-            mkdirSync(join(root, 'certs'));
-            mkdirSync(join(root, 'hooks'));
-            mkdirSync(join(root, 'certs', 'sub'));
-            writeFileSync(join(root, 'certs', 'a.pem'), 'x');
-            writeFileSync(join(root, 'certs', 'sub', 'a.pem'), 'x');
-            writeFileSync(join(root, 'hooks', 'guard.sh'), 'x');
-            assert.equal(shellCall(root, command).verdict, expected, `${glob}: ${command}`);
-        });
-    }
+/** One scratch repository whose declared directory (certs, below a declared glob) and built-in directory (.pi/extensions) hold the same files. */
+function directoryFixture(root: string): void {
+    for (const directory of ['certs', '.pi/extensions', 'other', 'src', 'node_modules']) mkdirSync(join(root, directory), { recursive: true });
+    for (const file of ['certs/a.pem', '.pi/extensions/a.pem', 'other/b.txt']) writeFileSync(join(root, file), 'x');
+}
+
+// Directory operands are covered by the machinery that protects built-ins such as .pi/extensions/*, for every command shape.
+const directoryCommands: Array<[template: string, expected: Verdict]> = [
+    ['rm -rf DIR', BLOCK], ['mv DIR x', BLOCK], ['rsync -a --delete other/ DIR/', BLOCK], ['cp -r other/. DIR', BLOCK],
+    ['tar xf o.tar -C DIR', BLOCK], ['unzip -o o.zip -d DIR', BLOCK], ['cd DIR && tar xf ../o.tar', BLOCK], ['cd DIR && rm -rf a.pem', BLOCK],
+    ['ln -sfn other DIR', BLOCK], ['find DIR -delete', BLOCK],
+    ['cd src && npm run build', ALLOW], ['tar czf o.tgz DIR', BLOCK], ['rm -rf node_modules', ALLOW], ['rm -rf other', ALLOW],
+];
+
+test('a declared directory glob protects its directory like a built-in control, for every command shape', () => {
+    withRepository(configWith('certs/*.pem'), root => {
+        directoryFixture(root);
+        for (const [template, expected] of directoryCommands) {
+            const declaredVerdict = shellCall(root, template.replaceAll('DIR', 'certs')).verdict;
+            const builtInVerdict = shellCall(root, template.replaceAll('DIR', '.pi/extensions')).verdict;
+            assert.equal(declaredVerdict, expected, template);
+            assert.equal(declaredVerdict, builtInVerdict, `parity with the built-in: ${template}`);
+        }
+    });
 });
 
-test('a leading **/ also protects the repository root', () => {
-    withRepository(configWith('**/*.pem'), root => {
-        assert.equal(writeCall(root, 'a.pem').verdict, BLOCK);
-        assert.equal(writeCall(root, 'deep/er/a.pem').verdict, BLOCK);
-        assert.equal(writeCall(root, 'a.txt').verdict, ALLOW);
+test('inside a declared directory only the matching files are protected, as for the built-ins', () => {
+    withRepository(configWith('certs/*.pem'), root => {
+        directoryFixture(root);
+        for (const [path, expected] of [['certs/a.pem', BLOCK], ['certs/y.txt', ALLOW], ['src/y.txt', ALLOW]] as Array<[string, Verdict]>) {
+            assert.equal(writeCall(root, path).verdict, expected, path);
+            assert.equal(shellCall(root, `echo x > ${path}`).verdict, expected, path);
+        }
     });
+});
+
+test('accepted glob shapes protect, and wildcards outside the final segment are malformed', () => {
+    for (const glob of ['certs/*.pem', 'tools/guard.sh', 'locked/', './tools/guard.sh', '.pi/ext/*']) {
+        withRepository(configWith(glob), root => assert.equal(writeCall(root, 'Source/other.ts').verdict, ALLOW, glob));
+    }
+    for (const glob of ['*.pem', '**/*.pem', '*X/src/*.ts', 'a/*/b.sh', 'a/**', 'a/*/', '*', './*.pem', 'a//b', 'a/./b', 'RELEASE*']) {
+        withRepository(configWith(glob), root => {
+            const result = writeCall(root, 'Source/other.ts');
+            assert.equal(result.verdict, BLOCK, glob);
+            assert.match(result.stderr, new RegExp(`protectedPaths entry .*${glob.replace(/[*.\/]/g, '.')}`), glob);
+        });
+    }
 });
 
 test('a nested .git file or directory does not hide the policy of an enclosing repository', () => {
@@ -194,7 +213,7 @@ test('a nested .git file or directory does not hide the policy of an enclosing r
     }
 });
 
-test('a glob using anything but literal characters, * and a trailing slash makes the configuration malformed', () => {
+test('a glob using characters outside the allowlist makes the configuration malformed', () => {
     const unsupported = [
         '[h]ook1.sh', 'hook?.sh', 'hook{1,2}.sh', 'a\\b', 'a]b', 'a}b', 'a\u0001b', 'a\u007fb', 'a\tb', 'a\u001bb',
         '@(hook1|hook2).sh', '!(hook1).sh', '+(hook1).sh', '*(hook1).sh', '?(hook1).sh', 'a b', "a'b", 'a"b', 'a$b', 'a|b', 'a&b', 'a;b', 'a~b', 'é.sh',
@@ -211,8 +230,8 @@ test('a glob using anything but literal characters, * and a trailing slash makes
 });
 
 test('an allowed glob is judged identically by the Write/Edit and shell guards', () => {
-    withRepository(configWith('hook-1_a.*', 'Docs/'), root => {
-        const cases: Array<[path: string, expected: Verdict]> = [['hook-1_a.sh', BLOCK], ['HOOK-1_A.sh', BLOCK], ['Docs/x.md', BLOCK], ['hook-2.sh', ALLOW]];
+    withRepository(configWith('hooks/hook-1_a.*', 'Docs/'), root => {
+        const cases: Array<[path: string, expected: Verdict]> = [['hooks/hook-1_a.sh', BLOCK], ['HOOKS/HOOK-1_A.sh', BLOCK], ['Docs/x.md', BLOCK], ['hooks/hook-2.sh', ALLOW]];
         for (const [path, expected] of cases) {
             assert.equal(writeCall(root, path).verdict, expected, path);
             assert.equal(shellCall(root, `tee ${path}`).verdict, expected, path);

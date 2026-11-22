@@ -390,9 +390,11 @@ authored_corpus_repository() {
 }
 
 # protectedPaths of one repository's .cratis/ai.json: globs relative to that root, additive to the built-ins.
-# A glob is an allowlist: only A-Z a-z 0-9 . _ - / and '*' ('*' also crosses '/'; a trailing '/' protects the contents).
-# Everything else (extglob, classes, braces, spaces, quotes, non-ASCII, control characters) is refused because the
-# reference matcher cannot model it on the policy side.
+# A glob has the shape of the built-in control patterns, so the same literal-prefix machinery protects directory
+# operands for every command shape: literal path segments, a '*' only in the final segment and only below a directory
+# (certs/*.pem, .pi/ext/*, hooks/guard.sh), or a directory with a trailing '/' (protects its contents). Characters:
+# only A-Z a-z 0-9 . _ - / and that '*'; no '**', no leading or middle wildcard, no extglob, class, brace, space, quote,
+# non-ASCII or control character. Anything else is refused.
 # Anything unreadable or invalid (not JSON, not one document, protectedPaths not an array of strings, an empty,
 # absolute or '..'-escaping glob, a control character, unsupported syntax) marks the repository invalid: every path in it is then
 # protected, because the declared intent cannot be known. Absent or null protectedPaths declares nothing.
@@ -401,29 +403,44 @@ protected_cache_root=""
 protected_paths=()
 protected_invalid=0
 protected_config_root=""
+protected_bad_entry=""
+# The jq definition of a valid declared glob: the shape of the built-in control patterns (see above). Leading './' is
+# dropped first, so the shape is judged on what is matched.
+# shellcheck disable=SC2016
+protected_glob_jq='
+    def norm: until(startswith("./") | not; .[2:]);
+    def shape: norm | split("/") as $s | ($s | length) as $n | ($s[-1]) as $last
+        | all($s[]; . != "." and . != "..") and all($s[:-1][]; length > 0 and (contains("*") | not))
+        and ($last | contains("**") | not) and (($last | contains("*") | not) or $n > 1);
+    def valid: type == "string" and length > 0 and (startswith("/") | not)
+        and (explode | all(.[]; (. >= 48 and . <= 57) or (. >= 65 and . <= 90) or (. >= 97 and . <= 122) or . == 46 or . == 95 or . == 45 or . == 47 or . == 42))
+        and shape;
+'
 load_protected_paths() {
     local root="$1" item index glob config="$1/.cratis/ai.json" items=() last
     [ "$protected_cache_root" != "$root" ] || return 0
     protected_cache_root="$root"
     protected_paths=()
     protected_invalid=0
+    protected_bad_entry=""
     [ -e "$config" ] || [ -L "$config" ] || return 0
     if [ -f "$config" ]; then
         while IFS= read -r -d '' item; do items[${#items[@]}]="$item"; done < <(
-            jq -j -s '
+            jq -j -s "$protected_glob_jq"'
                 if length == 1 then .[0] else error("expected one JSON document") end
                 | (if type == "object" then .protectedPaths else error("expected an object") end)
                 | if . == null then []
-                  elif type == "array" and length <= 256 and all(.[]; type == "string" and length > 0 and (startswith("/") | not)
-                      and (explode | all(.[]; (. >= 48 and . <= 57) or (. >= 65 and . <= 90) or (. >= 97 and . <= 122) or . == 46 or . == 95 or . == 45 or . == 47 or . == 42))
-                      and (split("/") | all(.[]; . != "..")))
-                  then . else error("invalid protectedPaths") end
+                  elif type == "array" and length <= 256 and all(.[]; valid) then .
+                  else error("invalid protectedPaths") end
                 | (.[], "ok") | ., "\u0000"' "$config" 2>/dev/null
         )
     fi
     last=$((${#items[@]} - 1))
     if [ "$last" -lt 0 ] || [ "${items[$last]}" != ok ]; then
         protected_invalid=1
+        # Best effort: name the first offending entry, when the file is readable enough to find one.
+        protected_bad_entry="$(jq -r -s "$protected_glob_jq"'
+            first(.[0].protectedPaths[]? | select(valid | not) | tojson | gsub("[^ -~]"; "?")) // empty' "$config" 2>/dev/null | head -c 200)" || protected_bad_entry=""
         return 0
     fi
     for ((index = 0; index < last; index++)); do
@@ -431,30 +448,7 @@ load_protected_paths() {
         while [[ "$glob" == ./* ]]; do glob="${glob#./}"; done
         case "$glob" in */) glob="$glob*" ;; esac
         protected_paths[${#protected_paths[@]}]="$glob"
-        # A leading **/ also matches at the repository root.
-        while [[ "$glob" == '**/'* ]]; do
-            glob="${glob#'**/'}"
-            protected_paths[${#protected_paths[@]}]="$glob"
-        done
     done
-}
-
-# Only destructive references (rm, mv source, find -delete, rsync --delete ...) consult it: a read, cd, build or
-# ordinary write inside a directory is not a mutation of the directory itself. Whether a directory operand can hold a descendant matched by a wildcard glob: the literal text before the first
-# '*' must be a prefix of "<directory>/" (a glob that starts with '*' can match under every directory). Statically
-# fail-closed; globs without '*' are covered by the descendant rule of control_match.
-protected_directory_overlap() {
-    local directory="${1%/}/" pattern literal
-    shift
-    shopt -s nocasematch
-    for pattern in "$@"; do
-        case "$pattern" in *'*'*) ;; *) continue ;; esac
-        literal="${pattern%%\**}"
-        # shellcheck disable=SC2053
-        if [[ "$directory" == "$literal"* ]]; then shopt -u nocasematch; return 0; fi
-    done
-    shopt -u nocasematch
-    return 1
 }
 
 # Whether the repository at policy_root treats target (absolute) as a control, by its own policy only.
@@ -466,10 +460,7 @@ agent_control_in_root() {
     if control_match "$target_rel" '.cratis/ai.manifest.json' '.cratis/ai.json'; then return 0; fi
     load_protected_paths "$policy_root"
     if [ "$protected_invalid" = 1 ]; then protected_config_root="$policy_root"; return 0; fi
-    if [ "${#protected_paths[@]}" -gt 0 ]; then
-        if control_match "$target_rel" "${protected_paths[@]}"; then return 0; fi
-        if [ "$destructive_mode" = 1 ] && [ "$reference_pattern" = 0 ] && [ -d "$target" ] && protected_directory_overlap "$target_rel" "${protected_paths[@]}"; then return 0; fi
-    fi
+    if [ "${#protected_paths[@]}" -gt 0 ] && control_match "$target_rel" "${protected_paths[@]}"; then return 0; fi
     if [ ! -f "$policy_root/.cratis/ai.manifest.json" ] && authored_corpus_repository "$policy_root"; then
         return 1
     fi
@@ -658,7 +649,7 @@ if ! classify_file "$file"; then exit 0; fi
 case "$classification" in
     controls)
         if [ -n "$protected_config_root" ]; then block \
-            "The repository's .cratis/ai.json is malformed (protectedPaths must be an array of non-empty relative globs without '..'), so every path in this repository is treated as protected until a person fixes it." \
+            "The repository's .cratis/ai.json is malformed${protected_bad_entry:+ at protectedPaths entry $protected_bad_entry} (protectedPaths must be an array of relative globs of letters, digits, . _ - and /, with a * only in the final segment below a directory, e.g. 'certs/*.pem', 'tools/guard.sh' or 'locked/'), so every path in this repository is treated as protected until a person fixes it." \
             "Instead: report the problem; a person must repair .cratis/ai.json. An explicitly authorized protected write requires CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1 in the harness environment. Do not retry through a shell write."; fi
         block \
         "This target controls the agent's permissions or extensions, or belongs to an installed managed corpus/adapter tree. Agent Write/Edit calls may not alter their own controls or managed instructions." \

@@ -576,19 +576,26 @@ deny message and the same `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` override. The 
 relative to that root, a leading `./` is ignored and a trailing `/` protects the directory contents.
 The list is additive: it cannot remove or weaken a built-in control, and `.cratis/ai.json` stays protected.
 
-Accepted glob syntax is an allowlist: only `A-Z a-z 0-9 . _ - /` and `*` (any run of characters, including `/`),
-plus a trailing `/`. Anything else (`( ) | ! @ + ? [ ] { } \`, spaces, quotes, `$`, control or non-ASCII
-characters) makes the configuration malformed. A leading `**/` also matches at the repository root (`**/*.pem` protects `a.pem`).
-A directory operand of a destructive shell command (`rm -rf certs`, `mv certs c2`; not a `cd`, build, read or ordinary write inside it) is denied when a wildcard
-glob could match something inside it (`*.pem` can match under every directory; `certs/*.pem` only under `certs`).
+A declared glob has the same shape as the built-in control patterns (`.pi/extensions/*`, `.claude/settings.json`),
+so exactly the same literal-prefix machinery protects it for every command shape, directory operands included
+(`rm -rf`, `mv`, `rsync --delete`, `cp -r`, `tar -C`, `unzip -d`, `ln -sfn`, `find -delete`, `cd dir && …`):
+
+- literal path segments of `A-Z a-z 0-9 . _ - /` (a leading `./` is ignored);
+- a `*` (any run of characters, including `/`) only in the **final** segment and only below a directory:
+  `certs/*.pem`, `.pi/ext/*`, `tools/guard.sh`;
+- or a directory with a trailing `/` (`locked/`), which protects everything under it.
+
+Not accepted: a leading or middle wildcard (`*.pem`, `a/*/b.sh`, `*X/src/*.ts`), `**`, `..`, `.` segments, empty
+segments, absolute paths, and any other character (`( ) | ! @ + ? [ ] { } \`, spaces, quotes, `$`, control or
+non-ASCII characters). Such wildcards would need a separate "could this directory hold a match" rule that no command
+shape can enforce reliably; list the directory with a trailing `/`, or the exact files, instead.
 Every enclosing repository's list applies, so a nested `.git` file or directory never hides the policy of an
 ancestor repository (this holds for the built-in controls too).
 
-Fail closed: if `.cratis/ai.json` cannot be read as one JSON object, or `protectedPaths` is not an array
-of non-empty strings (at most 256) using only the allowed glob characters,
-or a glob is absolute or contains a `..` segment, the declared intent is unknowable, so **every** path in that repository is protected and the
-deny message names `protectedPaths`. Absolute and escaping globs are rejected this way (not silently
-ignored) so a mistaken declaration is noticed. An absent or `null` `protectedPaths` declares nothing.
+Fail closed: if `.cratis/ai.json` cannot be read as one JSON object, or `protectedPaths` is not an array of at most 256
+globs of the accepted shape, the declared intent is unknowable, so **every** path in that repository is protected. The
+deny message names `protectedPaths`, the first offending entry (when it can be found) and the accepted shape; the
+declaration is rejected rather than ignored so a mistake is noticed. An absent or `null` `protectedPaths` declares nothing.
 
 **Blocked outright** (`PreToolUse` on `Bash`, exit 2): a `cratis chronicle` command that is not
 read-only. The **cratis-chronicle-cli-operations** skill makes `--yes` the authorization boundary for
