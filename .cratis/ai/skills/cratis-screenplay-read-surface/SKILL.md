@@ -76,6 +76,8 @@ It is never inferred, and a query or screen that consumes it is error `PLAY0859`
 
 A query's HTTP shape and a screen's data contract are exported (`screenplay export --format openapi|ui`; [formats](../cratis-screenplay-toolchain/references/model-export-diff-rename.md#openapi-and-ui-contract-formats)).
 
+Public queries and screen visibility do not imply agent access. Read toolchain [agent exposure](../cratis-screenplay-toolchain/references/agent-exposure.md) for the separate default-deny allowlist and manifest; query scope does not replace effective authorization, and global, performed or graph queries cannot be exposed.
+
 A query that ends in `graph <Graph>` reads a graph: see [graph queries](references/graph-queries.md). Such a query may return nested rows with `collect` (a view-shaped query; see [collect nested rows](../cratis-screenplay-projections/references/graphs.md#collect-nested-rows)).
 
 Excerpt: the concepts, the read model and the policy are declared elsewhere.

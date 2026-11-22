@@ -28,13 +28,14 @@
     {
       "id": 3,
       "name": "generation-is-not-protection",
-      "prompt": "RegisterCustomer on Screenplay 4.151.0 has a cus_-prefixed ULID generated identifier. A teammate wants to use it as the shop ApiKey, remove authorization, and add a generated-concept matches rule because the generation summary reports high entropy. Is that admitted and safe? The MCP executable.status is notAssessed due to another declaration's binding error. Reply only.",
-      "expected_output": "A time-visible CustomerId is neither a credential nor authorization. Keep the policy and ApiKey secret contract; secret generation and generated-concept validation/rule consistency are not admitted. High entropy does not prove security or rule consistency. notAssessed is unknown due to unrelated binding failure, not admitted; inspect diagnostics and reassess after a scoped repair. Do not invent derived regex/checksum/rule-proof repairs.",
+      "prompt": "RegisterCustomer on Screenplay 4.151.0 has a cus_-prefixed ULID generated identifier. A teammate wants it as ApiKey, removes authorization and adds a generated-concept matches rule based on high entropy; executable.status is notAssessed due to another declaration's binding error. Assess that historical case. Separately, on 6.15.0, expose Sales.Invoices.Creating.Create to agents with read scope and approval required, then remove inherited Staff authorization because approvalRequired is false. Another public command must stay unexposed. What do we declare or refuse? Reply only; no tools/edits.",
+      "expected_output": "In the 4.151.0 case, a time-visible CustomerId is not a credential or authorization; retain policy and ApiKey secret classification. Secret generation and generated-concept validation/rule consistency are unadmitted there. High entropy proves neither security nor binding; notAssessed is unknown, inspect diagnostics and reassess after scoped repair without fabricated regex/checksum/proof repairs. For 6.15.0/ESM v48, route to toolchain agent-exposure/manifest references: root agents, tokens personal, command Sales.Invoices.Creating.Create with scope write and a nonempty literal description. Public/unlisted commands remain default-deny; retain effective Staff authorization. Read-scoped commands refuse PLAY0971; approval required PLAY0974 and approve PLAY0964 are unsupported. approvalRequired false bypasses neither token scope nor authorization. No automatic analyzer or Arc configuration claim.",
       "assertions": [
-        "Rejects CustomerId as ApiKey and retains independent authorization and secret classification.",
-        "States generated secrets and generated-concept validation/rule consistency are unadmitted, never deletes classification/rules to obtain admission.",
-        "Treats notAssessed as unknown rather than admitted and distinguishes entropy from whole-model binding.",
-        "Does not promise derived regex, checksum or rule-proof repairs as released capabilities."
+        "Rejects CustomerId as ApiKey and retains authorization/secret classification; historical 4.151.0 secrets and generated-concept validation/rule consistency stay unadmitted without invented repairs.",
+        "Treats notAssessed as unknown and entropy as neither security nor whole-model binding; inspects diagnostics before reassessment.",
+        "Routes to toolchain with 6.15.0/ESM v48 and declares root agents/personal tokens, exact command, write scope and literal description; unlisted public commands stay unexposed.",
+        "Refuses command read scope PLAY0971, approval required PLAY0974 and approve PLAY0964 instead of silently deleting the boundary.",
+        "Keeps inherited authorization and token scope despite approvalRequired false; invents neither Arc configuration nor automatic comparison."
       ]
     },
     {

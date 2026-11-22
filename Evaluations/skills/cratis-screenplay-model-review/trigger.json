@@ -81,6 +81,11 @@
       "query": "Draw a Mermaid event model diagram for the module.",
       "shouldTrigger": false,
       "note": "cratis-event-model-diagram"
+    },
+    {
+      "query": "Review newly exposed agents operations and write-to-read scope widening manually; if before context is incomplete and after compilation fails, can matching manifests prove unchanged exposure?",
+      "shouldTrigger": true,
+      "note": "Manual exposure review, not an automatic shipped comparison."
     }
   ]
 }
