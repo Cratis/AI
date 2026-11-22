@@ -24,9 +24,10 @@ import { skillBody } from './skill-structure.ts';
  * Cratis/AI#469 observability.md general.md routing row: +100 bytes (claude-code), +80 (pi), +60 (copilot, cursor, codex-opencode).
  * Cratis/AI#977/#983/#979 new-repository-intake.md, verification-discipline.md, github-actions.md authority wording: +100 bytes (claude-code), +520 (copilot, pi).
  * Cratis/AI#1225 guards-and-fuses.md gate rule, capability-is-not-authority.md necessity bullet, application-profile.md rule 7 pointer: +330 bytes (claude-code), +360 (copilot, pi).
+ * Authentication-boundary rule: general.md routing row: +230 bytes (claude-code), +160 (copilot), +230 (pi), +160 (cursor, codex-opencode).
  */
 // File scoping and on-demand operation skills reduce Claude Code, Copilot and Pi; other caps stay unchanged.
-export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 76_430, copilot: 52_690, pi: 79_560, cursor: 23_560, 'codex-opencode': 23_260 };
+export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 76_660, copilot: 52_850, pi: 79_790, cursor: 23_720, 'codex-opencode': 23_420 };
 
 const remedy = 'Displace or demote text to an on-demand skill, or raise the budget in Source/Verification/always-on-budget.ts in a reviewed change.';
 
