@@ -90,6 +90,38 @@ jobs:
           CRATIS_REQUIRE_SCREENPLAY: '1'
         run: yarn workspace @cratis/ai-verification run verify
 
+      # Exit 1 means a check failed or a fixture errored, exit 2 that the corpus or report could not be produced.
+      # A zero exit alone is insufficient: at least one result must pass, and only known no-check skips are allowed.
+      - name: Run the conformance install-phase checks
+        env:
+          # Pinned so a CLI release cannot change the verdict unannounced. --install-only needs 3.100.0 or later.
+          CRATIS_CLI_VERSION: 3.100.0
+        run: |
+          set -euo pipefail
+          dotnet tool install Cratis.Cli --version "$CRATIS_CLI_VERSION" --tool-path "$RUNNER_TEMP/conformance-cli"
+          report="$RUNNER_TEMP/conformance.json"
+          status=0
+          "$RUNNER_TEMP/conformance-cli/cratis" ai test --source . --install-only --output json > "$report" || status=$?
+          # Diagnostics are best-effort; the original CLI exit and report checks below remain authoritative.
+          jq -r '.results[] | "\(.status)\t\(.fixture)/\(.harness)\t\(.reason // "")"' "$report" || true
+          if [ "$status" -ne 0 ]; then
+            echo "::error title=Conformance::cratis ai test exited $status"
+            jq -r '.error // empty' "$report" || true
+            exit "$status"
+          fi
+          passed=$(jq -e '[.results[] | select(.status == "passed")] | length' "$report")
+          unexpected=$(jq -e '[.results[] | select(.status != "passed" and (.status != "skipped" or .reason != "no install-phase checks"))] | length' "$report")
+          total=$(jq -e '.results | length' "$report")
+          echo "Install-phase checks: $passed passed of $total results."
+          if [ "$unexpected" -ne 0 ]; then
+            echo "::error title=Conformance::$unexpected result(s) neither passed nor skipped for lack of install-phase checks"
+            exit 1
+          fi
+          if [ "$passed" -eq 0 ]; then
+            echo "::error title=Conformance::no fixture passed an install-phase check; $(jq -r '.warning // "no results"' "$report")"
+            exit 1
+          fi
+
       # Replays the screens authoring workflow without a Screenplay checkout: the pinned public cratis CLI, the
       # published canonical corpus, the revision-checked MCP column edit, and a render that must carry the column.
       # SCREENS_SMOKE_BROWSER also runs the edited model with `cratis run` (Docker) and checks the column in Chromium.
