@@ -128,7 +128,7 @@ hook_glob_match() {
 
 # The other direction: print the FIRST newline-separated path on stdin matching any of the
 # newline-separated globs in $1, and exit 0. Prints nothing and exits 1 when none matches,
-# or when $1 holds no glob.
+# or when $1 holds no glob. Like hook_glob_match, it drains stdin instead of exiting early.
 #
 # hook_glob_match answers "does this one path match?" and costs a process per path, which is
 # right for the handful of changed files a hook sees. Discovery asks the mirror question over
@@ -144,12 +144,12 @@ hook_glob_first_match() {
             }
             found = 0
         }
-        count == 0 { exit }
+        count == 0 || found { next }
         { p = $0; sub(/[ \t\r]+$/, "", p) }
         p == "" { next }
         {
             for (i = 1; i <= count; i++) {
-                if (p ~ res[i]) { print p; found = 1; exit }
+                if (p ~ res[i]) { print p; found = 1; break }
             }
         }
         END { exit(found ? 0 : 1) }
