@@ -390,28 +390,25 @@ authored_corpus_repository() {
 }
 
 # protectedPaths of one repository's .cratis/ai.json: globs relative to that root, additive to the built-ins.
-# A glob has the shape of the built-in control patterns, so the same literal-prefix machinery protects directory
-# operands for every command shape: literal path segments, a '*' only in the final segment and only below a directory
-# (certs/*.pem, .pi/ext/*, hooks/guard.sh), or a directory with a trailing '/' (protects its contents). Characters:
-# only A-Z a-z 0-9 . _ - / and that '*'; no '**', no leading or middle wildcard, no extglob, class, brace, space, quote,
-# non-ASCII or control character. Anything else is refused.
-# Anything unreadable or invalid (not JSON, not one document, protectedPaths not an array of strings, an empty,
-# absolute or '..'-escaping glob, a control character, unsupported syntax) marks the repository invalid: every path in it is then
-# protected, because the declared intent cannot be known. Absent or null protectedPaths declares nothing.
-# A trailing slash protects the directory contents.
+# A declared entry is only (a) a literal file path (tools/guard.sh), (b) a literal folder with a trailing '/' (hooks/),
+# or (c) a literal folder followed by a whole final segment '*' (hooks/*). A '*' anywhere else (inside a name such as
+# *.sh or Source/*.ts, in a leading or middle segment, '**') would need a "could this folder hold a match" rule that
+# folder operands (rm -rf, mv, rsync --delete, tar -C, unzip -d ...) cannot be given, so it is refused. The same literal-prefix
+# machinery as the built-in controls then protects folders for every command shape. Characters: only A-Z a-z 0-9 . _ - /
+# and that '*'. Anything else is refused.
 protected_cache_root=""
 protected_paths=()
 protected_invalid=0
 protected_config_root=""
 protected_bad_entry=""
-# The jq definition of a valid declared glob: the shape of the built-in control patterns (see above). Leading './' is
+# The jq definition of a valid declared glob: the three accepted shapes (see above). Leading './' is
 # dropped first, so the shape is judged on what is matched.
 # shellcheck disable=SC2016
 protected_glob_jq='
     def norm: until(startswith("./") | not; .[2:]);
     def shape: norm | split("/") as $s | ($s | length) as $n | ($s[-1]) as $last
         | all($s[]; . != "." and . != "..") and all($s[:-1][]; length > 0 and (contains("*") | not))
-        and ($last | contains("**") | not) and (($last | contains("*") | not) or $n > 1);
+        and (($last | contains("*") | not) or ($last == "*" and $n > 1));
     def valid: type == "string" and length > 0 and (startswith("/") | not)
         and (explode | all(.[]; (. >= 48 and . <= 57) or (. >= 65 and . <= 90) or (. >= 97 and . <= 122) or . == 46 or . == 95 or . == 45 or . == 47 or . == 42))
         and shape;
@@ -649,7 +646,7 @@ if ! classify_file "$file"; then exit 0; fi
 case "$classification" in
     controls)
         if [ -n "$protected_config_root" ]; then block \
-            "The repository's .cratis/ai.json is malformed${protected_bad_entry:+ at protectedPaths entry $protected_bad_entry} (protectedPaths must be an array of relative globs of letters, digits, . _ - and /, with a * only in the final segment below a directory, e.g. 'certs/*.pem', 'tools/guard.sh' or 'locked/'), so every path in this repository is treated as protected until a person fixes it." \
+            "The repository's .cratis/ai.json is malformed${protected_bad_entry:+ at protectedPaths entry $protected_bad_entry} (protectedPaths must be an array of relative globs of letters, digits, . _ - and /, as a file 'tools/guard.sh', a folder 'locked/', or a folder with a whole final segment 'hooks/*'; a * inside a name is not accepted), so every path in this repository is treated as protected until a person fixes it." \
             "Instead: report the problem; a person must repair .cratis/ai.json. An explicitly authorized protected write requires CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1 in the harness environment. Do not retry through a shell write."; fi
         block \
         "This target controls the agent's permissions or extensions, or belongs to an installed managed corpus/adapter tree. Agent Write/Edit calls may not alter their own controls or managed instructions." \

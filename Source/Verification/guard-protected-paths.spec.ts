@@ -160,8 +160,8 @@ const directoryCommands: Array<[template: string, expected: Verdict]> = [
     ['cd src && npm run build', ALLOW], ['tar czf o.tgz DIR', BLOCK], ['rm -rf node_modules', ALLOW], ['rm -rf other', ALLOW],
 ];
 
-test('a declared directory glob protects its directory like a built-in control, for every command shape', () => {
-    withRepository(configWith('certs/*.pem'), root => {
+test('a declared folder wildcard protects its folder like a built-in control, for every command shape', () => {
+    withRepository(configWith('certs/*'), root => {
         directoryFixture(root);
         for (const [template, expected] of directoryCommands) {
             const declaredVerdict = shellCall(root, template.replaceAll('DIR', 'certs')).verdict;
@@ -172,21 +172,40 @@ test('a declared directory glob protects its directory like a built-in control, 
     });
 });
 
-test('inside a declared directory only the matching files are protected, as for the built-ins', () => {
-    withRepository(configWith('certs/*.pem'), root => {
+test('a declared file protects only itself and the folders that contain it', () => {
+    withRepository(configWith('certs/a.pem'), root => {
         directoryFixture(root);
         for (const [path, expected] of [['certs/a.pem', BLOCK], ['certs/y.txt', ALLOW], ['src/y.txt', ALLOW]] as Array<[string, Verdict]>) {
             assert.equal(writeCall(root, path).verdict, expected, path);
             assert.equal(shellCall(root, `echo x > ${path}`).verdict, expected, path);
         }
+        for (const [command, expected] of [['rm -rf certs', BLOCK], ['rm -rf other', ALLOW], ['mv certs x', BLOCK], ['mv other x', ALLOW]] as Array<[string, Verdict]>) {
+            assert.equal(shellCall(root, command).verdict, expected, command);
+        }
     });
 });
 
-test('accepted glob shapes protect, and wildcards outside the final segment are malformed', () => {
-    for (const glob of ['certs/*.pem', 'tools/guard.sh', 'locked/', './tools/guard.sh', '.pi/ext/*']) {
+test('every accepted entry shape denies mutations of a folder below it, and a folder without the protected file stays free', () => {
+    const subfolderCommands = ['rm -rf hooks/sub', 'mv hooks/sub x', 'rsync -a --delete other/ hooks/sub/', 'tar xf o.tar -C hooks/sub', 'unzip -o o.zip -d hooks/sub'];
+    for (const [glob, protectedFile] of [['hooks/*', 'hooks/sub/g.sh'], ['hooks/', 'hooks/sub/g.sh'], ['hooks/sub/g.sh', 'hooks/sub/g.sh']]) {
+        withRepository(configWith(glob), root => {
+            mkdirSync(join(root, 'hooks', 'sub'), { recursive: true });
+            mkdirSync(join(root, 'hooks', 'free'), { recursive: true });
+            mkdirSync(join(root, 'other'));
+            writeFileSync(join(root, protectedFile), 'x');
+            for (const command of subfolderCommands) assert.equal(shellCall(root, command).verdict, BLOCK, `${glob}: ${command}`);
+            assert.equal(writeCall(root, protectedFile).verdict, BLOCK, glob);
+            assert.equal(shellCall(root, 'rm -rf other').verdict, ALLOW, glob);
+            if (glob === 'hooks/sub/g.sh') assert.equal(shellCall(root, 'rm -rf hooks/free').verdict, ALLOW, glob);
+        });
+    }
+});
+
+test('accepted entry shapes protect, and a * anywhere but a whole final segment is malformed', () => {
+    for (const glob of ['certs/*', 'tools/guard.sh', 'locked/', './tools/guard.sh', '.pi/ext/*']) {
         withRepository(configWith(glob), root => assert.equal(writeCall(root, 'Source/other.ts').verdict, ALLOW, glob));
     }
-    for (const glob of ['*.pem', '**/*.pem', '*X/src/*.ts', 'a/*/b.sh', 'a/**', 'a/*/', '*', './*.pem', 'a//b', 'a/./b', 'RELEASE*']) {
+    for (const glob of ['*.pem', '**/*.pem', '*X/src/*.ts', 'a/*/b.sh', 'a/**', 'a/*/', '*', './*.pem', 'a//b', 'a/./b', 'RELEASE*', 'Source/*.ts', 'hooks/*.sh', 'a*/b', 'certs/settings*.json', 'certs/**']) {
         withRepository(configWith(glob), root => {
             const result = writeCall(root, 'Source/other.ts');
             assert.equal(result.verdict, BLOCK, glob);
@@ -230,7 +249,7 @@ test('a glob using characters outside the allowlist makes the configuration malf
 });
 
 test('an allowed glob is judged identically by the Write/Edit and shell guards', () => {
-    withRepository(configWith('hooks/hook-1_a.*', 'Docs/'), root => {
+    withRepository(configWith('hooks/hook-1_a.sh', 'Docs/'), root => {
         const cases: Array<[path: string, expected: Verdict]> = [['hooks/hook-1_a.sh', BLOCK], ['HOOKS/HOOK-1_A.sh', BLOCK], ['Docs/x.md', BLOCK], ['hooks/hook-2.sh', ALLOW]];
         for (const [path, expected] of cases) {
             assert.equal(writeCall(root, path).verdict, expected, path);
