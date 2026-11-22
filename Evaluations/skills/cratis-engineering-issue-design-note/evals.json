@@ -28,37 +28,37 @@
     {
       "id": 3,
       "name": "delegated-planner-publishing",
-      "prompt": "A delegated planner finished a design for an issue and has gh access. It proposes posting a new comment and editing the status block itself. Another design comment from an earlier run exists. Explain who publishes and how. Reply only; do not run anything.",
-      "expected_output": "The delegated planner never writes to GitHub and returns the public text. The owning session posts one canonical comment, edits it by explicit ID with gh api PATCH and updates the status block link.",
+      "prompt": "A delegated planner finished a revised design for an issue and has gh access. It proposes posting a new comment and editing the status block itself. The owner wrote an earlier design comment and offers to PATCH it by explicit ID instead, arguing agents may edit their own comments. Explain who publishes and how under append-only issue guidance. Reply only; do not run anything.",
+      "expected_output": "The delegated planner never writes to GitHub and returns the public text. Only the authorized owning session posts a NEW complete design with rev N+1, status proposed and a Supersedes link to the earlier design. Never PATCH an existing comment, including the owner's own, or use --edit-last. Leave the issue title, body, legacy status block and earlier comment intact; renewed review and any required approval apply to the new revision.",
       "assertions": [
         "States that the delegated planner does not post or edit anything on GitHub and returns the text to the owner.",
-        "Has the owner edit the one canonical comment by explicit comment ID instead of adding another or using --edit-last.",
-        "Updates the status block link with the rev and status after the edit.",
+        "Has only the authorized owner post a NEW complete rev N+1 proposed design with an explicit Supersedes link to the earlier design; rejects PATCH and --edit-last even for its own comment.",
+        "Leaves the title, description, legacy status block and earlier comment unchanged; renewed review and applicable approval are required for the new revision.",
         "Keeps local paths, model names and session details out of the public text."
       ]
     },
     {
       "id": 4,
       "name": "edit-invalidates-approval",
-      "prompt": "A maintainer comment approved rev 2 of a design. Later the design comment was edited to add a migration step, and the JSON still says rev 2. The task authority covers ordinary work. Decide whether to proceed. Reply only; do not run anything.",
-      "expected_output": "The approval predates the latest edit, so it no longer applies. Do not accept on the unchanged rev. Treat it as a new revision needing renewed review, and because the migration goes beyond the ordinary task authority, ask about it in plain language before proceeding.",
+      "prompt": "A maintainer approved rev 2 of a design. Later someone externally edited that comment to add a migration, leaving JSON rev 2. A teammate proposes fixing its rev field in place, then treating the old approval as sufficient. The task authority covers ordinary work. Decide whether to proceed or how to correct it. Reply only; do not run anything.",
+      "expected_output": "The approval predates the external edit, so it no longer applies. Never repair the old comment in place or accept on unchanged rev. The authorized owner must publish a new complete rev N+1 proposed design linking and superseding the earlier comment, leaving all existing issue text untouched. Renew review and any approval. Because migration goes beyond ordinary task authority, ask about it in plain language before proceeding.",
       "assertions": [
         "Notices the comment was edited after the approval and rejects that approval.",
         "Treats the edit as invalidating earlier review and does not accept on the unchanged rev alone.",
         "Recognizes the added migration as beyond the ordinary task authority.",
-        "Asks the owner for a new revision and asks about the migration rather than proceeding."
+        "Asks the authorized owner to post a NEW complete proposed revision with a Supersedes link, not edit any existing comment, and asks about the migration rather than proceeding."
       ]
     },
     {
       "id": 5,
       "name": "ambiguous-canonical-comments",
-      "prompt": "An issue has two design comments by eligible members. The status block links neither, and the newer comment says accepted. Say which one you may implement from. Reply only; do not run anything.",
-      "expected_output": "Stop. Do not pick the newest or the accepted-looking comment. Ask the owner to fix the status-block link so it names one canonical comment, or to supersede the other, before implementing.",
+      "prompt": "An issue has two design comments by eligible members. The legacy status block links neither, no task or owner selection comment links one, and the newer comment says accepted. Say which one you may implement from and how the owner should resolve it. Reply only; do not run anything.",
+      "expected_output": "Stop. Do not pick the newest or accepted-looking comment. Ask the authorized owner to post a NEW selection comment linking the intended design, or a NEW complete revision explicitly superseding the earlier design by link. Leave the legacy status block and all existing comments untouched; selection is not proof of approval.",
       "assertions": [
-        "States that more than one candidate or a missing status-block link means stop.",
+        "States that competing candidates without an explicit task or owner selection link mean stop.",
         "Refuses to choose the newest comment.",
         "Does not treat the accepted text in the newer comment as selecting the canonical comment.",
-        "Asks the owner to fix the status-block link to one canonical comment, or to supersede the other, before implementing."
+        "Asks the authorized owner to post a NEW explicit selection or linked superseding design comment before implementing, without editing the title, body, legacy status block or any existing comment."
       ]
     }
   ]
