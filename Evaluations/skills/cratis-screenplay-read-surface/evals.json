@@ -4,13 +4,14 @@
     {
       "id": 1,
       "name": "tenant-from-not-filter",
-      "prompt": "A Screenplay query `ListInvoices => InvoiceListReadModel[]` declares `filter tenantId TenantId` so the UI sends the tenant. Review the security of this and show the corrected query. Give the code in your reply; do not write files.",
-      "expected_output": "Anything the caller must not choose belongs on a `from` parameter, not a caller-supplied `filter`: `filter tenantId TenantId from $context.tenant`. The `from` states the contract and the runtime enforces it; a compiling query is not evidence that access control works, so pin denial with `given caller` and `then denied`.",
+      "prompt": "A Screenplay query `ListInvoices => InvoiceListReadModel[]` declares `filter tenantId TenantId` so the UI sends the tenant. Review the security of this and show the corrected query. Give the code in your reply; do not write files. Separately, Screenplay 6.32.0 reports PLAY0273 for DispatchSummary.detail typed as another readmodel DispatchDetail. Show the reusable-value extraction. For OpenDispatches => observable DispatchSummary[] with a C# performer, explain context/result versions, readModels, snapshots, subscription disposal and frozen context. Do not infer that Stage 4.197.0 implements this contract; what about observable optional results?",
+      "expected_output": "Anything the caller must not choose belongs on a `from` parameter, not a caller-supplied `filter`: `filter tenantId TenantId from $context.tenant`. The `from` states the contract and the runtime enforces it; a compiling query is not evidence that access control works, so pin denial with `given caller` and `then denied`. Extract DispatchDetail's fields into a top-level type DispatchDetailValue and use it as DispatchSummary.detail; members admit primitives, concepts and top-level reusable types, not read-model identities or slice-local types (4.256.0, PLAY0273). Live collection performers carry ContextVersion 1/ResultVersion 2: host-defined LiveReadModels<T> is only IObservable<IEnumerable<T>>, initial/current and then complete snapshots, not deltas or guaranteed changes. Read only declared T; one subscription per client, dispose on unsubscribe/disconnect/shutdown; OnError/OnCompleted end it without resubscription. Context is captured once, ReceivedAt stays fixed, no cancellation member. Optional/single live results have no live contract; this 4.256.0 Screenplay binding does not establish Stage runtime support.",
       "assertions": [
         "Says a caller-chosen `filter` for the tenant is a security flaw because the caller must not choose it.",
         "Uses a `from` source such as `filter tenantId TenantId from $context.tenant`.",
         "States that a compiling query is not evidence that access control works, since the runtime enforces the `from`.",
-        "Recommends a specification with `given caller` including a `then denied` case for an authorized query."
+        "Recommends a specification with `given caller` including a `then denied` case for an authorized query.",
+        "Repairs PLAY0273 through a top-level value type and accurately describes the live collection v1/v2 contract, complete snapshots, declared reads, fixed context and disposal without inventing optional/single live or Stage support."
       ]
     },
     {
