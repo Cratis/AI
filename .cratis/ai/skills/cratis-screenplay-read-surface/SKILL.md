@@ -43,6 +43,24 @@ readmodel AccountBalance
 A read model declares what it **is**, not what builds it. The builder points at it
 with `=>`, and **exactly one thing may** (two builders: `PLAY0191`). See `cratis-screenplay-projections` for the builder side.
 
+Since Screenplay 4.256.0, each member must be a primitive, concept or top-level reusable `type`
+(including optional/collection forms), not another read-model identity or a slice-local type
+(PLAY0273). Extract an embeddable value shape:
+
+```screenplay
+domain DeliveryViews
+
+type DeliveryAddress
+  street String
+
+module Deliveries
+  feature Tracking
+    slice StateView List
+      readmodel DeliverySummary
+        id String key
+        address DeliveryAddress
+```
+
 Use trailing `key` on top-level read-model properties, never `identifier`.
 Explicit marks replace inference; otherwise a single-instance query's `by` supplies
 identity (all such queries must agree). Only with no single-instance identifier
@@ -184,7 +202,8 @@ arguments and `then result` - see `cratis-screenplay-specifications`.
 
 #### Performer bodies are rendered
 
-Read [performer bodies](references/performer-bodies.md) when a query needs a body the declarative form cannot say (for example a filter relative to today), or when deciding rendering versus gap-fill.
+Read [performer bodies](references/performer-bodies.md) for snapshot/live collection contracts,
+lifecycle and context, or rendering versus gap-fill. Screenplay's live contract is not Stage support.
 
 
 A query's key goes on its own `by` line in the body. `query X => RM optional by id Type`
