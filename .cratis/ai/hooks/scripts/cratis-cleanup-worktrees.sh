@@ -362,6 +362,15 @@ lsof_matches() {
                 # so only their non-path addresses are exempt; unknown names may hide a target file.
                 if (kind != "cwd" && type ~ /^(PIPE|NPOLICY|NEXUS|KQUEUE|IPv4|IPv6|systm|CHAN)$/) next
                 if (kind != "cwd" && type == "unix" && path ~ /^(->0x[[:xdigit:]]+|->\(none\)|@.*|[[:alnum:]_.-]*)$/) next
+                # Linux anonymous objects have typed pseudo-names, not filesystem paths.
+                # Require a descriptor and a known type/name pair; cwd and incomplete records stay unsafe.
+                if (kind != "" && kind != "cwd") {
+                    if (type == "FIFO" && path ~ /^pipe(:\[[0-9]+\])?$/) next
+                    if (type == "sock" && path ~ /^socket:\[[0-9]+\]$/) next
+                    if (type == "a_inode" && path ~ /^(anon_inode:)?\[[[:alnum:]_]+(:[0-9]+)?\]$|^anon_inode:[[:alnum:]_]+$/) next
+                    if (type == "unix" && path ~ /^type=[[:upper:]]+( \([[:upper:]]+\))?$/) next
+                    if (type == "netlink" && path == "NETLINK") next
+                }
                 bad = 1
             }
             next
