@@ -124,6 +124,7 @@ to the routed scope. This does not make command `reads` protected.
   together. Optional and collection properties still cannot be destinations. A model using it selects v30; state each destination with `for` on the matching `then` event.
 - **`tag`** lines apply literal tags to this append. Tags also exist on the
   `event` declaration, where they apply to every append of that type.
+  Production/declaration tags are not specification assertions. Requires Screenplay 6.31.0 for ESM v55 `then` tag assertions: [then-event tags](../../cratis-screenplay-specifications/references/event-tags.md) owns exact ordered lists, `no tags` versus omission, literal-only expectations and PLAY1148 refusals. Keep payload fields, `for` and routing assertions; binding/reference support does not prove renderer admission.
 - **Several unconditional `produces` blocks** are allowed — that is co-production,
   and it is what an automation is *not*.
 - **`produces when <condition>`** takes the event name on the next indented line.
