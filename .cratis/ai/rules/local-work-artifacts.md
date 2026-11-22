@@ -50,10 +50,12 @@ dumps, and similar coordination files. These are **work records, not documentati
   `.ai-work/`, `.env` and local databases, always keep the worktree: archive or remove them first.
   Pin a long-lived worktree with `git worktree lock <path>`; locked worktrees are always kept,
   even with opt-in. Live-held worktrees are also kept. Cleanup checks live cwd/open-file holders using
-  validated `pi-holders --json` (requiring `jq`) or per-process `lsof` names (not `+D`). Only the script
-  and descendants are excluded; ancestors, including parent shells/agent sessions, still count.
-  Missing/failed checks, unparseable/unknown results and ambiguous shared-inode names keep the
-  worktree. Do not hand-remove worktrees
+  validated `pi-holders --json` with `jq`, otherwise one process-wide `lsof` name listing per candidate
+  (not `+D`, up to three attempts on incomplete/error results). Only the script and descendants are
+  excluded; ancestors, including parent shells/agent sessions, still count. Missing tools, unresolved
+  errors, incomplete target/unknown paths and ambiguous shared-inode names keep the worktree;
+  unrelated absolute-path FD-info diagnostics do not. Status is rechecked after holders, immediately
+  before removal. Do not hand-remove worktrees
   or `git branch -D` a delivered branch when the script can; `gh pr merge --delete-branch`
   inside a worktree leaves the worktree and branch behind. If the branch must outlive the task
   unmerged, leave the worktree and say so in the handoff. Never `--force` a removal; a

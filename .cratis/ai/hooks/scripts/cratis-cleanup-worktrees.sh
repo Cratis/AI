@@ -14,7 +14,8 @@
 # Anything else is KEPT and reported with the reason. Nothing is ever forced: a dirty, locked,
 # current or live-held worktree is kept. Ignored/untracked files must be archived or removed first,
 # including .ai-work/. A non-empty .ai-work/ is also preserved when tracked, unless opted in below.
-# Holder checks prefer validated pi-holders --json, otherwise per-process lsof names (never +D).
+# Holder checks prefer validated pi-holders --json with jq, otherwise per-process lsof names (never
+# +D): one process-wide listing per candidate, up to three attempts on errors/incomplete results.
 # Only this script and its descendants are excluded; ancestor sessions still count as holders.
 # Missing, failed, unparseable or ambiguous checks keep the worktree (including shared-inode names).
 # `git worktree remove` is never given --force.
@@ -123,7 +124,7 @@ if [ "$SELFTEST" = 1 ]; then
     chk "report names the removal"     'grep -q "removed worktree" <<<"$out"'
     chk "work records kept"            '[ -f "$t/wt-records/.ai-work/.handoff" ]'
     chk "work records branch kept"     'git rev-parse -q --verify refs/heads/records >/dev/null'
-    chk "work records reason reported" 'grep -Fq "has untracked work records (.ai-work/)" <<<"$out"'
+    chk "work records reason reported" 'grep -Fq "has work records (.ai-work/)" <<<"$out"'
     chk "empty work records removed"   '[ ! -d "$t/wt-empty-records" ]'
     chk "locked worktree kept"         '[ -d "$t/wt-locked" ]'
     chk "locked branch kept"           'git rev-parse -q --verify refs/heads/locked >/dev/null'
@@ -330,13 +331,15 @@ check_pi_holders() {
     fi
     return 0
 }
-# lsof lists paths opened by each process, avoiding +D's inode-based directory traversal.
-check_lsof_holders() {
-    local target="$1" processes="$2" listing matches kind path links
-    listing=$(lsof -nP -w -F pfnt 2>/dev/null) || { HOLDER_REASON="holder check failed (lsof)"; return 1; }
-    matches=$(awk -v root="$$" -v target="$target" '
+# Parse names, not inode traversal. Incomplete names inside the target (or without any path) are
+# unsafe; incomplete records naming other absolute paths cannot hide a target name in that record.
+# This avoids unrelated FD-info errors from process churn poisoning every candidate.
+lsof_matches() {
+    local target="$1" processes="$2" listing="$3"
+    awk -v root="$$" -v target="$target" '
+        function under_target(path) { return path == target || index(path, target "/") == 1 }
         NR == FNR { parent[$1] = $2; next }
-        /^p[0-9]+$/ {
+        /^p[1-9][0-9]*$/ {
             pid = substr($0, 2); ignored = 0; ancestor = pid; kind = ""; type = ""; seen_pid = 1
             while (ancestor > 0 && !ignored) {
                 if (ancestor == root) ignored = 1
@@ -344,22 +347,40 @@ check_lsof_holders() {
             }
             next
         }
-        /^f./ { if (!seen_pid) bad = 1; kind = substr($0, 2); type = ""; next }
-        /^t./ { if (kind == "") bad = 1; type = substr($0, 2); next }
+        /^f./ { kind = substr($0, 2); type = ""; next }
+        /^t./ { type = substr($0, 2); next }
         /^n/ {
-            if (!seen_pid || kind == "") bad = 1
             seen_name = 1; path = substr($0, 2)
-            # Revoked descriptors no longer refer to a live filesystem object, and have no type.
-            if (path == "(revoked)") next
-            if (type == "") bad = 1
-            # Known anonymous kernel objects have no filesystem path; unnamed files/cwds are unknown.
-            if (path == "" && (kind == "cwd" || type !~ /^(PIPE|NPOLICY|NEXUS|KQUEUE)$/)) bad = 1
-            if (!ignored && (path == target || index(path, target "/") == 1)) print kind "|" path
+            if (ignored || path == "(revoked)") next
+            # A diagnostic suffix can follow the target directory itself, not just a child path.
+            sub(/ (\(stat:|\(FD info error:|FD info error:).*/, "", path)
+            if (under_target(path)) {
+                if (!seen_pid || kind == "" || type == "") bad = 1
+                else print kind "|" path
+            } else if (path !~ /^\//) {
+                # Kernel/network object names are not filesystem paths. Unix sockets may have paths,
+                # so only their non-path addresses are exempt; unknown names may hide a target file.
+                if (kind != "cwd" && type ~ /^(PIPE|NPOLICY|NEXUS|KQUEUE|IPv4|IPv6|systm|CHAN)$/) next
+                if (kind != "cwd" && type == "unix" && path ~ /^(->0x[[:xdigit:]]+|->\(none\)|@.*|[[:alnum:]_.-]*)$/) next
+                bad = 1
+            }
             next
         }
-        { bad = 1 }
+        { if (!ignored) bad = 1 }
         END { if (bad || !seen_pid || !seen_name) exit 1 }
-    ' <(printf '%s\n' "$processes") <(printf '%s\n' "$listing")) || { HOLDER_REASON="holder check failed (path inspection)"; return 1; }
+    ' <(printf '%s\n' "$processes") <(printf '%s\n' "$listing")
+}
+# One process-wide listing per candidate, retried at most three times before failing closed.
+check_lsof_holders() {
+    local target="$1" processes="$2" listing matches kind path links attempt
+    for attempt in 1 2 3; do
+        if ! listing=$(lsof -nP -w -F pfnt 2>/dev/null); then
+            HOLDER_REASON="holder check failed (lsof)"; continue
+        fi
+        if matches=$(lsof_matches "$target" "$processes" "$listing"); then HOLDER_REASON=''; break; fi
+        HOLDER_REASON="holder check failed (path inspection)"
+    done
+    [ "$attempt" != 3 ] || [ -z "${HOLDER_REASON:-}" ] || return 1
     while IFS='|' read -r kind path; do
         [ -n "$path" ] || continue
         # Shared hard-link names cannot identify which worktree the process actually holds.
@@ -374,16 +395,18 @@ check_lsof_holders() {
     return 0
 }
 check_holders() {
-    local target processes
+    local target processes use_pi=0
+    HOLDER_REASON=''
     target=$(cd "$1" 2>/dev/null && pwd -P) || { HOLDER_REASON="could not resolve worktree for holder check"; return 1; }
-    if ! command -v pi-holders >/dev/null 2>&1 && ! command -v lsof >/dev/null 2>&1; then
-        HOLDER_REASON="no holder check tool available (pi-holders/lsof)"; return 1
+    if command -v pi-holders >/dev/null 2>&1 && command -v jq >/dev/null 2>&1; then use_pi=1
+    elif ! command -v lsof >/dev/null 2>&1; then
+        HOLDER_REASON="no holder check tool available (pi-holders+jq/lsof)"; return 1
     fi
     processes=$(ps -axo pid=,ppid= 2>/dev/null) || { HOLDER_REASON="holder check failed (ps)"; return 1; }
     if ! awk -v root="$$" '$1 == root { found = 1 } END { exit !found }' <<< "$processes"; then
         HOLDER_REASON="holder check incomplete (ps)"; return 1
     fi
-    if command -v pi-holders >/dev/null 2>&1; then check_pi_holders "$target" "$processes"
+    if [ "$use_pi" = 1 ]; then check_pi_holders "$target" "$processes"
     else check_lsof_holders "$target" "$processes"; fi
 }
 include_work_records() {
@@ -395,8 +418,19 @@ include_work_records() {
     done
     return 1
 }
+worktree_clean() {
+    local status
+    if ! status=$(git -C "$wt" status --porcelain --ignored 2>/dev/null); then
+        note_kept "worktree $wt ($name): could not inspect worktree status"; return 1
+    fi
+    if [[ "$status" == '?? '* || "$status" == '!! '* || "$status" == *$'\n?? '* || "$status" == *$'\n!! '* ]]; then
+        note_kept "worktree $wt ($name): has ignored/untracked files; archive or remove them first"; return 1
+    fi
+    if [ -n "$status" ]; then note_kept "worktree $wt ($name): delivered but has uncommitted changes"; return 1; fi
+    return 0
+}
 execute_worktree() {
-    local name="${br:-detached}" ev="$1" current status
+    local name="${br:-detached}" ev="$1" current
     current=$(git -C "$wt" rev-parse HEAD 2>/dev/null) || return 0
     [ "$current" = "$sha" ] || { note_kept "worktree $wt ($name): tip changed since planning"; return 0; }
     if ! include_work_records "$wt" && [ -d "$wt/.ai-work" ]; then
@@ -404,17 +438,12 @@ execute_worktree() {
         if ! records=$(find "$wt/.ai-work/." -mindepth 1 -maxdepth 1 -print -quit); then
             note_kept "worktree $wt ($name): could not inspect work records (.ai-work/)"; return 0
         fi
-        if [ -n "$records" ]; then note_kept "worktree $wt ($name): has untracked work records (.ai-work/)"; return 0; fi
+        if [ -n "$records" ]; then note_kept "worktree $wt ($name): has work records (.ai-work/)"; return 0; fi
     fi
-    if ! status=$(git -C "$wt" status --porcelain --ignored 2>/dev/null); then
-        note_kept "worktree $wt ($name): could not inspect worktree status"; return 0
-    fi
-    if [[ "$status" == '?? '* || "$status" == '!! '* || "$status" == *$'\n?? '* || "$status" == *$'\n!! '* ]]; then
-        note_kept "worktree $wt ($name): has ignored/untracked files; archive or remove them first"; return 0
-    fi
-    if [ -n "$status" ]; then note_kept "worktree $wt ($name): delivered but has uncommitted changes"; return 0; fi
+    worktree_clean || return 0
     local kb; kb=$(du -sk "$wt" 2>/dev/null | awk '{print $1}')
     if ! check_holders "$wt"; then note_kept "worktree $wt ($name): $HOLDER_REASON"; return 0; fi
+    worktree_clean || return 0
     if [ "$DRY" = 1 ]; then note_removed "worktree $wt ($name): would remove, $ev"; return 0; fi
     if git worktree remove "$wt" >/dev/null 2>&1; then
         FREED_KB=$((FREED_KB + ${kb:-0})); note_removed "worktree $wt ($name): $ev"

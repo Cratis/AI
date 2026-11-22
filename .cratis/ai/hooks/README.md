@@ -285,13 +285,16 @@ brand-new empty branch sits), or it is merged and its upstream is gone, or GitHu
 request whose head is exactly that tip. It never forces: a dirty, locked, current or live-held worktree
 is kept, as is anything undelivered, and every kept item is reported with its reason. Before removal
 (including dry-run), it checks for live processes with a cwd or open file under the worktree, preferring
-validated `pi-holders --json` results (requiring `jq`) and otherwise using per-process `lsof` names,
-not inode-based `lsof +D`. Only the script and its descendants are excluded; ancestors, including a
-parent shell or agent session with cwd in another worktree, still count. Missing tools, tool errors,
-unparseable/unknown results and ambiguous shared-inode names keep the worktree. Ignored/untracked files
+validated `pi-holders --json` results with `jq`, falling back to `lsof` when either is unavailable.
+The fallback takes one process-wide name listing per candidate, not inode-based `lsof +D`, with up
+to three attempts on errors/incomplete results. Unrelated absolute-path FD-info diagnostics are
+ignored; unresolved errors, incomplete target names, unknown paths and shared-inode ambiguity keep
+the worktree. Only the script and its descendants are excluded; ancestors, including a parent shell
+or agent session with cwd in another worktree, still count. Missing tools keep it. Git status is
+rechecked after the holder check, immediately before removal. Ignored/untracked files
 (`node_modules`, build output, `.env`, local databases, `.ai-work/`) also keep it: archive or remove them
 first. Non-empty `.ai-work/` directories, even when tracked, are additionally kept as
-"has untracked work records (.ai-work/)" by default.
+"has work records (.ai-work/)" by default.
 
 - **When it runs.** After a Bash command that delivers or integrates work, and at the start of every
   session, so orphans left by any earlier session, crash or harness are collected too.
