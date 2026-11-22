@@ -39,6 +39,7 @@ exact language/semantic pairs; binding, reference execution and rendering are se
 | v43 | `set once` or a `children` ordering line (PLAY0956-PLAY0963) | Serializes the `setOnce` operation and `ordering`; earlier models keep their version and bytes | Admission by Stage is separate; a refusal means the model is not renderable yet |
 | v53 | `audience`, `availability` and `available` gates (decision 0162; PLAY1130-PLAY1141) | Serializes the gates; specifications and the reference evaluator treat every gate as available and report opaque `provide` sources as unsupported; earlier models keep their version and bytes | Admission by Stage is separate: a refusal such as `STAGE-ESM-016` means the model is not renderable yet, never a reason to drop the gate. See `../../cratis-screenplay-availability/SKILL.md` |
 | v54 | A graph query `collect` (decision 0163; PLAY1144-PLAY1147) | Serializes the collects on the query; earlier models keep their version and bytes | Admission by Stage is separate: a refusal means the model is not renderable yet, never a reason to drop the collect. Check `cratis render` |
+| v55 | `then` event `tag` lines or `no tags` | Exact ordered tag comparison, including duplicates; `expectedTags` absent/null means unchecked, `[]` means explicitly empty | Reference admission is not renderer admission; inspect bundled Stage support separately |
 
 Constructs of decision 0098 with no executable-model content need no version: application-level hooks in a layout's actions outlet (`default <id> title "..." slice <Slice>` with an optional indented `authorize <Policy>`), and a capture over events that copies a list (`lines = $.lines`) or fans out with `children lines identified by sku`. Check `screenplay --version` against the release that admitted v29 and v30 before relying on them. Decision 0115 withdrew 0098's command specification that states the public event its outbound Translate slice publishes: a specification runs only its own slice, so the Translate slice states the public event in its own `when append` specification.
 
@@ -50,6 +51,8 @@ Read-model property order is opt-in ESM 37.1 metadata: see
 Requires Screenplay 6.2.0 or later (`screenplay --version`). A JSON Schema (draft 2020-12) is published per released ESM version from 1.0 (v39 was never released) at `https://raw.githubusercontent.com/Cratis/Screenplay/main/Documentation/screenplay/esm/esm-v<major>.schema.json` (`.0` versions) or `.../esm-v<major>.<minor>.schema.json` (minors); pick it from the document's `semanticVersion`. A schema checks shape, not admission: a document that validates is well-formed, but only the Screenplay reader (and a consumer's admission rules) accepts it. Ajv needs `allowUnionTypes`. In .NET, `EsmJsonSchema.For(version)` returns the same text.
 
 ## Compiler and target minimums
+
+Requires Screenplay 6.31.0 or later (`screenplay --version`) for `then` event tag expectations (v55). See [then-event tags](../../cratis-screenplay-specifications/references/event-tags.md) for syntax and PLAY1148; older models without expectations keep their semantics.
 
 Requires Screenplay 4.181.0 or later (`screenplay --version`) for atomic batches; older compilers cannot admit the preamble.
 

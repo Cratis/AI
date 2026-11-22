@@ -3,6 +3,11 @@
   "input": "Author and organize a Screenplay model in a repository.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "outermost `provide`" },
+    { "kind": "skill-contains", "value": "Requires Screenplay 6.35.0", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "first path segment", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "no semantic identity", "file": "references/mcp-tools.md" },
+    { "kind": "skill-contains", "value": "6.32.0 corpus pin does not verify", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "view: \"typed-contexts\"", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "result.entries", "file": "references/mcp-tools.md" },
     { "kind": "skill-contains", "value": "destinationType", "file": "references/mcp-tools.md" },

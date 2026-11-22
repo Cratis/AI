@@ -35,8 +35,9 @@ Because consumers can build against synthetic events, a wave boundary is an inte
 
 ## Slice groups and issues
 - One GitHub issue per slice group: slices that share a view, a stream or an owner, small enough for one person to finish.
-- Status block lists the slices (name, type, realization), the wave, blockers and each slice's planning status (todo, in progress, blocked, done). That vocabulary is per slice; the issue's own state follows the repository's hygiene (in progress, in review, paused, blocked, done when delivered). Update the block rather than adding progress comments.
-- Claim before starting: assign the issue, keep an in-progress status in its body and check for an existing claim (for example `issue_work` where the harness provides it). If the group is already in progress, choose another; do not take over.
+- A new issue's description lists the slices (name, type, realization), wave and initial blockers. Keep each slice's planning status (todo, in progress, blocked, done) in the working plan. Never edit an existing issue's title, description or comments, including the agent's own; leave legacy status blocks untouched. Follow **cratis-engineering-issue-hygiene**.
+- Use new self-contained comments only for meaningful events: PR opened (link), blocked or paused (reason and what remains), done or closing (what shipped and follow-ups). A started or claimed comment is optional and minimal; prefer assignment. No routine progress comments or per-slice status chatter. The issue is done only when delivered.
+- Claim before starting: check assignees, the plan and issue comments, then assign under issue hygiene. Use a harness claim tool such as `issue_work` only if it preserves existing issue text. If the group is already in progress, choose another; do not take over.
 - Mark `blocked` only with the named producer, decision or outside party.
 
 ## Parallelism that does not pay

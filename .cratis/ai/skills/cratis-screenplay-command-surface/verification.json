@@ -3,6 +3,8 @@
   "input": "Declare a Screenplay command with validation, authorization, a uniqueness constraint and a state-dependent rule.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "event-tags.md" },
+    { "kind": "skill-contains", "value": "Production/declaration tags are not specification assertions", "file": "references/constraints-produces-concurrency.md" },
     { "kind": "skill-contains", "value": "result v2, ESM v35", "file": "references/described-handlers.md" },
     { "kind": "skill-contains", "value": "for one of parcelIds", "file": "references/described-handlers.md" },
     { "kind": "skill-contains", "value": "source binding requires 5.4.0", "file": "references/described-handlers.md" },

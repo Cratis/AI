@@ -198,6 +198,7 @@ both supplied mean intersection. `offset`/`limit` page results; continuation
 requires `expectedSourceRevision`. Pass `proposalId` between proposal review and `apply`
 to run the retained candidate read-only; without that argument the call runs the workspace.
 A candidate V4 belongs only to its returned source revision, not to the disk model.
+For ESM v55 tag assertions (Requires Screenplay 6.31.0), compare the exact ordered tags, including duplicates. CLI and MCP failure details show `Expected fact tags (null = unchecked):` and `Actual fact tags:` with JSON arrays: `null` for unchecked events, `[]` for explicit `no tags`. The MCP fixture-occurrence view and event-model board omit expectations, so inspect source/ESM `expectedTags` and execute the specifications; display absence is not semantic absence. See [then-event tags](../../cratis-screenplay-specifications/references/event-tags.md).
 Unknown/applied/discarded/reopened proposals give `UnknownProposal`.
 A statically impossible `then` reports PLAY0285: the whole model is unbound,
 exit 3, and no specifications run. Details:
