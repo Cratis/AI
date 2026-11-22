@@ -139,6 +139,13 @@ delivered twice. Subagents that load only the allowlisted extensions below get n
 path guidance in such an installation until `cratis ai update` installs the managed
 copy.
 
+The managed `cratis-rules` extension omits its appended `general.md` only when
+its normalized content matches a context file Pi actually loaded and remains in
+the prompt reaching the handler; otherwise, including on older runtimes without
+construction options, it appends it as before. This deduplicates symlinks and
+copies, but a later extension that strips Pi's project context can still remove
+that guidance; other universal rules are unchanged.
+
 `cratis-rules` puts every universal rule in the system prompt, about 26k tokens
 on every turn. A pi-subagents agent definition (`@tintinweb/pi-subagents`) with an
 `extensions:` allowlist loads only the extensions it names, so such agents get

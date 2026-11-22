@@ -1,8 +1,18 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
+import type { BeforeAgentStartEvent, ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import { universalRules } from '../shared/rules.ts';
+
+function normalizedContent(content: string): string {
+    return content.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n').trim();
+}
+
+function generalAlreadyIncluded(content: string, event: BeforeAgentStartEvent): boolean {
+    const normalized = normalizedContent(content);
+    if (!normalized || !normalizedContent(event.systemPrompt).includes(normalized)) return false;
+    return event.systemPromptOptions?.contextFiles?.some(file => normalizedContent(file.content) === normalized) ?? false;
+}
 
 /**
  * Puts the universal rules in the system prompt, giving Pi the same rule semantics as the other harnesses.
@@ -13,7 +23,11 @@ import { universalRules } from '../shared/rules.ts';
  * only wants path guidance and the hooks should load `cratis-path-guidance` and `cratis-hooks` instead.
  */
 export default function (pi: ExtensionAPI): void {
-    pi.on('before_agent_start', (event, context) => ({
-        systemPrompt: `${event.systemPrompt}\n\n${universalRules(context.cwd).map(rule => rule.content).join('\n\n')}`,
-    }));
+    pi.on('before_agent_start', (event, context) => {
+        const contents = universalRules(context.cwd)
+            .filter(rule => rule.name !== 'general.md' || !generalAlreadyIncluded(rule.content, event))
+            .map(rule => rule.content)
+            .join('\n\n');
+        return { systemPrompt: `${event.systemPrompt}\n\n${contents}` };
+    });
 }
