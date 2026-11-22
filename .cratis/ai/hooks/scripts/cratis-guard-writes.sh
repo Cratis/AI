@@ -390,8 +390,10 @@ authored_corpus_repository() {
 }
 
 # protectedPaths of one repository's .cratis/ai.json: globs relative to that root, additive to the built-ins.
+# A glob is literal characters, '*' (which also crosses '/') and an optional trailing '/'; any of ? [ ] { } \ is
+# refused because the reference matcher cannot model them on the policy side.
 # Anything unreadable or invalid (not JSON, not one document, protectedPaths not an array of strings, an empty,
-# absolute or '..'-escaping glob, a control character) marks the repository invalid: every path in it is then
+# absolute or '..'-escaping glob, a control character, unsupported syntax) marks the repository invalid: every path in it is then
 # protected, because the declared intent cannot be known. Absent or null protectedPaths declares nothing.
 # A trailing slash protects the directory contents.
 protected_cache_root=""
@@ -412,7 +414,8 @@ load_protected_paths() {
                 | (if type == "object" then .protectedPaths else error("expected an object") end)
                 | if . == null then []
                   elif type == "array" and length <= 256 and all(.[]; type == "string" and length > 0 and (startswith("/") | not)
-                      and (explode | all(.[]; . != 0 and . != 9 and . != 10 and . != 13)) and (split("/") | all(.[]; . != "..")))
+                      and (explode | all(.[]; . > 31 and . != 127 and . != 63 and . != 91 and . != 92 and . != 93 and . != 123 and . != 125))
+                      and (split("/") | all(.[]; . != "..")))
                   then . else error("invalid protectedPaths") end
                 | (.[], "ok") | ., "\u0000"' "$config" 2>/dev/null
         )
@@ -427,35 +430,44 @@ load_protected_paths() {
         while [[ "$glob" == ./* ]]; do glob="${glob#./}"; done
         case "$glob" in */) glob="$glob*" ;; esac
         protected_paths[${#protected_paths[@]}]="$glob"
+        # A leading **/ also matches at the repository root.
+        while [[ "$glob" == '**/'* ]]; do
+            glob="${glob#'**/'}"
+            protected_paths[${#protected_paths[@]}]="$glob"
+        done
     done
 }
 
-agent_control_target() {
-    local target="$1" directory policy_root target_rel managed pattern
-    dir_of "$target"
-    directory="$REPLY"
-    if [ "$destructive_mode" = 1 ]; then
-        [ ! -d "$target" ] || directory="$target"
-        # A mutation of the repository or any containing directory reaches its controls too.
-        if [[ -n "$reference_root" && ( "$target" == / || "$reference_root" == "$target" || "$reference_root" == "$target"/* ) ]]; then
-            directory="$reference_root"
-        fi
-    fi
-    # Keep the addressed spelling here, even when an adapter directory is a symlink.
-    # .git is a directory in a checkout and a file in a linked worktree.
-    while [ ! -e "$directory/.git" ]; do
-        [ "$directory" != "/" ] || return 1
-        dir_of "$directory"
-        directory="$REPLY"
+# Whether a directory operand can hold a descendant matched by a wildcard glob: the literal text before the first
+# '*' must be a prefix of "<directory>/" (a glob that starts with '*' can match under every directory). Statically
+# fail-closed; globs without '*' are covered by the descendant rule of control_match.
+protected_directory_overlap() {
+    local directory="${1%/}/" pattern literal
+    shift
+    shopt -s nocasematch
+    for pattern in "$@"; do
+        case "$pattern" in *'*'*) ;; *) continue ;; esac
+        literal="${pattern%%\**}"
+        # shellcheck disable=SC2053
+        if [[ "$directory" == "$literal"* ]]; then shopt -u nocasematch; return 0; fi
     done
-    policy_root="$directory"
+    shopt -u nocasematch
+    return 1
+}
+
+# Whether the repository at policy_root treats target (absolute) as a control, by its own policy only.
+agent_control_in_root() {
+    local target="$1" policy_root="$2" target_rel managed pattern
     if [[ "$destructive_mode" == 1 && ( "$target" == / || "$policy_root" == "$target" || "$policy_root" == "$target"/* ) ]]; then target_rel='.'
     else relative_to "$target" "$policy_root"; target_rel="$REPLY"; fi
     # Policy files remain controls even in the authored corpus repository.
     if control_match "$target_rel" '.cratis/ai.manifest.json' '.cratis/ai.json'; then return 0; fi
     load_protected_paths "$policy_root"
     if [ "$protected_invalid" = 1 ]; then protected_config_root="$policy_root"; return 0; fi
-    if [ "${#protected_paths[@]}" -gt 0 ] && control_match "$target_rel" "${protected_paths[@]}"; then return 0; fi
+    if [ "${#protected_paths[@]}" -gt 0 ]; then
+        if control_match "$target_rel" "${protected_paths[@]}"; then return 0; fi
+        if [ "$reference_mode" = 1 ] && [ "$reference_pattern" = 0 ] && [ -d "$target" ] && protected_directory_overlap "$target_rel" "${protected_paths[@]}"; then return 0; fi
+    fi
     if [ ! -f "$policy_root/.cratis/ai.manifest.json" ] && authored_corpus_repository "$policy_root"; then
         return 1
     fi
@@ -477,6 +489,33 @@ agent_control_target() {
         fi
     fi
     control_match "$target_rel" "${control_patterns[@]}"
+}
+
+# The target is judged by the policy of every enclosing repository, innermost first: a nested .git (a directory in a
+# checkout, a file in a linked worktree) never hides an ancestor's controls. Keep the addressed spelling here, even
+# when an adapter directory is a symlink.
+agent_control_target() {
+    local target="$1" directory
+    dir_of "$target"
+    directory="$REPLY"
+    if [ "$destructive_mode" = 1 ]; then
+        [ ! -d "$target" ] || directory="$target"
+        # A mutation of the repository or any containing directory reaches its controls too.
+        if [[ -n "$reference_root" && ( "$target" == / || "$reference_root" == "$target" || "$reference_root" == "$target"/* ) ]]; then
+            directory="$reference_root"
+        fi
+    fi
+    while :; do
+        while [ ! -e "$directory/.git" ]; do
+            [ "$directory" != "/" ] || return 1
+            dir_of "$directory"
+            directory="$REPLY"
+        done
+        if agent_control_in_root "$target" "$directory"; then return 0; fi
+        [ "$directory" != "/" ] || return 1
+        dir_of "$directory"
+        directory="$REPLY"
+    done
 }
 
 # ── Dependency manifests, lockfiles, SDK and NuGet configuration ──────────────

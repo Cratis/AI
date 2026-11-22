@@ -576,9 +576,16 @@ deny message and the same `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` override. The 
 relative to that root, a leading `./` is ignored and a trailing `/` protects the directory contents.
 The list is additive: it cannot remove or weaken a built-in control, and `.cratis/ai.json` stays protected.
 
+Accepted glob syntax is deliberately small: literal characters, `*` (any run of characters, including `/`)
+and a trailing `/`. A leading `**/` also matches at the repository root (`**/*.pem` protects `a.pem`).
+A directory operand of a destructive shell command (`rm -rf certs`, `mv certs c2`) is denied when a wildcard
+glob could match something inside it (`*.pem` can match under every directory; `certs/*.pem` only under `certs`).
+Every enclosing repository's list applies, so a nested `.git` file or directory never hides the policy of an
+ancestor repository (this holds for the built-in controls too).
+
 Fail closed: if `.cratis/ai.json` cannot be read as one JSON object, or `protectedPaths` is not an array
-of non-empty strings (at most 256) free of control characters, or a glob is absolute or contains a `..`
-segment, the declared intent is unknowable, so **every** path in that repository is protected and the
+of non-empty strings (at most 256) free of control characters (0x00-0x1F, 0x7F) and of any of `? [ ] { } \`,
+or a glob is absolute or contains a `..` segment, the declared intent is unknowable, so **every** path in that repository is protected and the
 deny message names `protectedPaths`. Absolute and escaping globs are rejected this way (not silently
 ignored) so a mistaken declaration is noticed. An absent or `null` `protectedPaths` declares nothing.
 

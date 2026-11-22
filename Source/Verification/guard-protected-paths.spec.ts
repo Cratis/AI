@@ -143,3 +143,59 @@ test('a malformed protectedPaths configuration blocks shell writes in that repos
         });
     }
 });
+
+const configWith = (...globs: string[]) => JSON.stringify({ protectedPaths: globs });
+
+test('a wildcard glob protects every directory that can hold a match, for shell mutations of the directory', () => {
+    const cases: Array<[glob: string, command: string, expected: Verdict]> = [
+        ['*.pem', 'rm -rf certs', BLOCK], ['*.pem', 'mv certs c2', BLOCK], ['**/*.pem', 'rm -rf certs', BLOCK], ['**/*.pem', 'mv certs c2', BLOCK],
+        ['certs/*.pem', 'rm -rf certs', BLOCK], ['certs/*.pem', 'mv certs c2', BLOCK], ['certs/*.pem', 'rm -rf docs', ALLOW],
+        ['certs/*.pem', 'rm notes.md', ALLOW], ['*.pem', 'rm notes.md', ALLOW], ['*.sh', 'rm -rf hooks', BLOCK], ['*.sh', 'rm certs/a.pem', ALLOW],
+    ];
+    for (const [glob, command, expected] of cases) {
+        withRepository(configWith(glob), root => {
+            mkdirSync(join(root, 'certs'));
+            mkdirSync(join(root, 'hooks'));
+            writeFileSync(join(root, 'certs', 'a.pem'), 'x');
+            writeFileSync(join(root, 'hooks', 'guard.sh'), 'x');
+            assert.equal(shellCall(root, command).verdict, expected, `${glob}: ${command}`);
+        });
+    }
+});
+
+test('a leading **/ also protects the repository root', () => {
+    withRepository(configWith('**/*.pem'), root => {
+        assert.equal(writeCall(root, 'a.pem').verdict, BLOCK);
+        assert.equal(writeCall(root, 'deep/er/a.pem').verdict, BLOCK);
+        assert.equal(writeCall(root, 'a.txt').verdict, ALLOW);
+    });
+});
+
+test('a nested .git file or directory does not hide the policy of an enclosing repository', () => {
+    for (const marker of ['file', 'directory']) {
+        withRepository(configWith('tools/locked.txt'), root => {
+            for (const nested of ['tools', '.claude']) {
+                mkdirSync(join(root, nested), { recursive: true });
+                if (marker === 'file') writeFileSync(join(root, nested, '.git'), 'gitdir: ../.git\n');
+                else mkdirSync(join(root, nested, '.git'));
+            }
+            const cases: Array<[string, Verdict]> = [['tools/locked.txt', BLOCK], ['.claude/settings.json', BLOCK], ['tools/other.txt', ALLOW]];
+            for (const [path, expected] of cases) {
+                assert.equal(writeCall(root, path).verdict, expected, `${marker}: ${path}`);
+                const command = `echo x > ${path}`;
+                assert.equal(shellCall(root, command).verdict, expected, `${marker}: ${command}`);
+            }
+        });
+    }
+});
+
+test('a glob using anything but literal characters, * and a trailing slash makes the configuration malformed', () => {
+    for (const glob of ['[h]ook1.sh', 'hook?.sh', 'hook{1,2}.sh', 'a\\b', 'a]b', 'a}b', 'a\u0001b', 'a\u007fb', 'a\tb', 'a\u001bb']) {
+        withRepository(configWith(glob), root => {
+            const result = writeCall(root, 'Source/anything.ts');
+            assert.equal(result.verdict, BLOCK, JSON.stringify(glob));
+            assert.match(result.stderr, /protectedPaths/, JSON.stringify(glob));
+        });
+    }
+    withRepository(configWith('[h]ook1.sh'), root => assert.equal(shellCall(root, 'tee hook{1,2}.sh').verdict, BLOCK));
+});
