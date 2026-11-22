@@ -44,10 +44,18 @@ dumps, and similar coordination files. These are **work records, not documentati
   main checkout when a PR merges or you finish a task (hooks and **ship-changes** also run it). It
   removes a worktree and its branch only on evidence the work reached the default branch —
   pushed is not merged — and never forces. It keeps worktrees with non-empty `.ai-work/`
-  directories; manual `--include-work-records` deletes them once you have preserved what you
-  need; hooks never opt in. Pin a long-lived worktree with `git worktree lock <path>`;
-  locked worktrees are always kept, even with opt-in. Ignored files (`.env`, local databases) are
-  deleted with a removed worktree: move what you need out first. Do not hand-remove worktrees
+  directories; manual `--include-work-records=<path>` bypasses that record check for the exact
+  worktree only (repeatable), permitting clean tracked records after preserving what you need.
+  Bare `--include-work-records` exits 2; hooks never opt in. Ignored/untracked files, including
+  `.ai-work/`, `.env` and local databases, always keep the worktree: archive or remove them first.
+  Pin a long-lived worktree with `git worktree lock <path>`; locked worktrees are always kept,
+  even with opt-in. Live-held worktrees are also kept. Cleanup checks live cwd/open-file holders using
+  validated `pi-holders --json` with `jq`, otherwise one process-wide `lsof` name listing per candidate
+  (not `+D`, up to three attempts on incomplete/error results). Only the script and descendants are
+  excluded; ancestors, including parent shells/agent sessions, still count. Missing tools, unresolved
+  errors, incomplete target/unknown paths and ambiguous shared-inode names keep the worktree;
+  unrelated absolute-path FD-info diagnostics do not. Status is rechecked after holders, immediately
+  before removal. Do not hand-remove worktrees
   or `git branch -D` a delivered branch when the script can; `gh pr merge --delete-branch`
   inside a worktree leaves the worktree and branch behind. If the branch must outlive the task
   unmerged, leave the worktree and say so in the handoff. Never `--force` a removal; a
