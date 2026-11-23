@@ -1204,7 +1204,8 @@
         "cratis-commits-and-pull-requests",
         "cratis-rtk",
         "dotnet-trace-collect",
-        "dump-collect"
+        "dump-collect",
+        "pvanalyze"
       ],
       "languages": [
         "csharp"
@@ -1247,7 +1248,19 @@
         "platform-detection",
         "run-tests",
         "filter-syntax",
-        "coverage-analysis"
+        "coverage-analysis",
+        "exp-mock-usage-analysis"
+      ],
+      "languages": [
+        "csharp"
+      ]
+    },
+    {
+      "id": "cratis/engineering/dotnet/migrate-dotnet11",
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "migrate-dotnet10-to-dotnet11"
       ],
       "languages": [
         "csharp"
