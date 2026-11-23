@@ -77,7 +77,9 @@ test('protectedPaths block Write/Edit like built-in controls, and only those pat
     });
 });
 
-test('bulk effects honor declared scopes, absent entries and operation-aware Git allowances', () => {
+test('bulk effects honor declared scopes, absent entries and operation-aware Git allowances', context => {
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-archive-outside-'));
+    context.after(() => rmSync(outside, { recursive: true, force: true }));
     withRepository(declared, root => {
         mkdirSync(join(root, '.claude'), { recursive: true });
         mkdirSync(join(root, '.pi/extensions'), { recursive: true });
@@ -95,6 +97,7 @@ test('bulk effects honor declared scopes, absent entries and operation-aware Git
             'cp -r other/. .', 'cp -R other/. docs', 'cp -aT other docs', 'cp -r -t docs locked',
             'cp -r locked docs', 'cp -r --target-directory=docs locked',
             'tar xf bundle.tar -C docs', 'tar xCf docs bundle.tar', 'tar --extract --file bundle.tar --directory docs-alias',
+            'tar xf bundle.tar -C docs/open', 'unzip bundle.zip -d docs/open', 'tar xCf docs/open bundle.tar',
             'env -- tar -xzf bundle.tgz', 'command unzip bundle.zip', "sh -c 'tar xf bundle.tar'",
             'git restore RELEASE.md', 'git restore config', 'git restore docs', 'git checkout -- docs/locked',
             'git checkout --ours -- docs', 'git checkout --theirs -- docs',
@@ -112,8 +115,8 @@ test('bulk effects honor declared scopes, absent entries and operation-aware Git
             'rsync -a --delete other/ docs/open/', 'rsync -an --delete other/ docs/open/', 'rsync ordinary.txt .',
             'rsync -a ordinary.txt host:.cratis/ai/',
             'cp -r other/. docs/open', 'cp -r other docs/open', 'cp ordinary.txt .', 'cp -r -t docs/open other',
-            'cp -rT other docs/open', 'tar xf bundle.tar -C docs/open', 'unzip bundle.zip -d docs/open',
-            'tar czf bundle.tgz .', 'tar xOf bundle.tar', 'tar xCf docs/open bundle.tar',
+            'cp -rT other docs/open', `tar xf bundle.tar -C '${outside}'`, `unzip bundle.zip -d '${outside}'`,
+            'tar czf bundle.tgz .', 'tar xOf bundle.tar', `tar xCf '${outside}' bundle.tar`,
             'git restore -- docs/open', 'git checkout HEAD -- docs/open', 'git checkout docs/open',
             'git checkout --ours -- docs/open', 'git checkout --theirs -- docs/open',
             'git restore --staged -- .pi/settings.json', 'git -C docs restore --staged -- ../.pi/settings.json',

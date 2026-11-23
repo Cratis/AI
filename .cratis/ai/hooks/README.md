@@ -392,6 +392,13 @@ is conservatively scoped to the enclosing worktree. Unknown destinations and unc
 contexts refuse rather than assume a clean scope. Archive creation/listing
 and ordinary single-file copies are not treated as recursive extraction.
 
+Archive extraction is a repository-wide write because member paths and symlinks are opaque:
+extract into a folder outside the repository, then copy the specific files you need. Extraction
+inside any repository is refused even for an unrelated destination; outside extraction must not
+preserve absolute/parent paths (cpio requires `--no-absolute-filenames`). Only exactly recognised
+list/test/stdout forms retain their exceptions; stdout forms do not accept `--`. Git checkout-index
+requires a directory prefix ending in `/`, still checked against all protected-path policy.
+
 In destructive scope only, an existing directory also receives a metadata-only inventory for
 environment-named descendants using the write guard's environment patterns. Matching entry names
 include files, directories and symlinks, case-insensitively. Nested symlinks are not followed;
