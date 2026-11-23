@@ -95,33 +95,20 @@ Source: https://learn.microsoft.com/en-us/dotnet/core/compatibility/globalizatio
 
 **Fix:** Ensure ZIP files are not corrupted. If processing partially-written or legacy archives, add error handling for `InvalidDataException`.
 
-### Unhandled BackgroundService exceptions now stop the host
+### BackgroundService failures now propagate from the host
 
-**Impact: Medium.** Unhandled exceptions thrown from `BackgroundService.ExecuteAsync()` now propagate and stop the host application. Previously they were silently swallowed.
+**Impact: Medium.** Since .NET 6 the default `BackgroundServiceExceptionBehavior.StopHost` already stops the host when `ExecuteAsync()` throws. What changes in .NET 11 is how that stop is reported: `IHost.RunAsync()`/`StopAsync()` (and so `Run()`) now rethrow the background service exception instead of returning normally, so the process exits with a non-zero code.
 
 ```csharp
-// .NET 10: exception silently swallowed, host continues
-// .NET 11: exception propagates, host stops
+// .NET 10: host stops, RunAsync returns normally, exit code 0
+// .NET 11: host stops, RunAsync throws the service's exception, exit code non-zero
 protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 {
-    throw new InvalidOperationException("oops"); // now kills the host
-}
-
-// FIX: Add proper exception handling
-protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-{
-    try
-    {
-        // ... work ...
-    }
-    catch (Exception ex) when (ex is not OperationCanceledException)
-    {
-        _logger.LogError(ex, "Background service failed");
-    }
+    throw new InvalidOperationException("oops");
 }
 ```
 
-**Fix:** Add try/catch in `ExecuteAsync()` for any `BackgroundService` that should not crash the host on failure.
+**Fix:** Do not add a catch-all in `ExecuteAsync()` to restore the old exit code; that hides real failures and keeps the host running in a broken state. Instead, check callers of `RunAsync()`/`Run()`, scripts, health checks and orchestrators that relied on a zero exit code after a background failure, and handle or log the propagated exception at the host entry point where that is intended. Services that must keep running after a recoverable error should handle that specific error inside their work loop.
 
 ### TarWriter emits HardLink entries for hard-linked files
 

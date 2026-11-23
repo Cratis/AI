@@ -24,6 +24,7 @@ references/*.md:
 - Remove Preview N markers from headings and the Preview 3 section title.
 - Remove GitHub pull request and issue links; keep Microsoft Learn links.
 - csharp-compiler-dotnet10to11.md: point feature adoption to csharp.md.
+- core-libraries-dotnet10to11.md: correct the BackgroundService entry (the host already stopped on failure; .NET 11 propagates the exception from RunAsync/StopAsync) and replace the catch-all fix with guidance on exit-code consumers.
 - Add a Contents list to core-libraries-dotnet10to11.md, csharp-compiler-dotnet10to11.md and efcore-dotnet10to11.md.
 
 Executes or downloads: none. The imported text contains Docker and SDK version examples that were rewritten as guidance; this import runs nothing.

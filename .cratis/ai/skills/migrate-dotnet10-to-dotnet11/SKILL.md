@@ -36,7 +36,7 @@ Cratis rules in `.cratis/ai/rules/` (including `csharp.md`) and the `cratis-*` s
    - `Microsoft.NET.Sdk.Web` → ASP.NET Core; `Microsoft.EntityFrameworkCore.*` → EF Core.
    - Cryptography, mTLS or macOS usage → cryptography reference.
    - Compression, TAR or `NamedPipeClientStream` usage → core-libraries reference.
-   - `BackgroundService` usage → exceptions from `ExecuteAsync` now stop the host.
+   - `BackgroundService` usage → an exception from `ExecuteAsync` now makes `RunAsync`/`Run` throw, so the process exits non-zero (the host already stopped before).
    - Dockerfiles, CI SDK versions, old hardware or NativeAOT → runtime and SDK references.
 4. Establish a baseline with the repository's normal build on the current target, and record pre-existing warnings. Do not delete `bin`/`obj` unless the repository's guidance allows it.
 
@@ -68,7 +68,7 @@ Behavioral changes compile but change runtime results. Use the references to dec
 
 - Compression, ZIP and TAR reading and writing behavior.
 - `MemoryStream` capacity and exception types.
-- `BackgroundService` exceptions that now stop the host.
+- `BackgroundService` exceptions that now propagate from `RunAsync` and change the exit code.
 - Client certificate chain validation and cryptography availability by platform.
 - EF Core provider behavior, including Cosmos DB async-only I/O.
 - Hardware minimums and NativeAOT output names for the deployment targets.

@@ -7,7 +7,7 @@
 - [Run and verify](#run-and-verify)
 - [Stop conditions](#stop-conditions)
 
-The tool version is pinned by [assets/dotnet-tools.json](../assets/dotnet-tools.json), a standard local tool manifest. [assets/NuGet.Config](../assets/NuGet.Config) clears every other package source and allows only nuget.org. Do not install the tool globally, run it through a floating `dnx` call, build it from source, or run a downloaded script. Restore only after the operator approves downloading from nuget.org.
+The tool version is pinned by [assets/dotnet-tools.json](../assets/dotnet-tools.json), a standard local tool manifest. [assets/NuGet.Config](../assets/NuGet.Config) clears every other package source and allows only nuget.org. Do not install the tool globally, run it through a floating `dnx` call, build it from source, or run a downloaded script. Restore only after the operator approves downloading from nuget.org. The package has no verified ID prefix and a tool manifest cannot pin its hash, so before approving, check on nuget.org that `pvanalyze` 0.0.1 is still published by the owner `adityam`; stop if the owner or version differs.
 
 ## Preflight
 
