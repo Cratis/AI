@@ -1313,7 +1313,7 @@ function bulk_family(word) {
     return ""
 }
 function option_grammars() {
-    option_schema("tar", "xctruAdOzjJavpkhmPS", "fC", "extract get to-stdout create list append update concatenate diff compare verbose gzip gunzip bzip2 xz zstd overwrite keep-old-files no-same-owner same-owner no-same-permissions same-permissions remove-files", "file directory strip-components")
+    option_schema("tar", "xctruAdOzjJavpkhmPS", "fC", "extract get to-stdout create list append update concatenate diff compare verbose gzip gunzip bzip2 xz zstd overwrite keep-old-files no-same-owner same-owner no-same-permissions same-permissions", "file directory strip-components")
     option_schema("unzip", "lptZvoqnujCXLKafDUV", "dP", "", "")
     option_schema("cp", "rRaTpfvniuLPHdl", "t", "archive recursive no-target-directory force verbose no-clobber update", "target-directory")
     option_schema("rsync", "rapvniuLPHdzctgoDlq", "f", "archive recursive force verbose update compress times perms ignore-existing existing dry-run delete delete-before delete-during delete-delay delete-after delete-excluded", "")
@@ -1321,11 +1321,19 @@ function option_grammars() {
     option_schema("pax", "rwv", "f", "", "")
     option_schema("cpio", "idmvtop", "FDH", "extract create list pass-through make-directories preserve-modification-time no-absolute-filenames verbose", "file directory format")
     option_schema("7z", "y", "opt", "", "")
-    OPT["7z", "-so"] = OPT["7z", "-bd"] = OPT["7z", "-sdel"] = "flag"
-    option_schema("zip", "qrvm", "Pbn", "quiet recurse-paths verbose move", "password temp-path suffixes")
+    OPT["7z", "-so"] = OPT["7z", "-bd"] = "flag"
+    option_schema("zip", "rqjv0123456789", "x", "quiet recurse-paths junk-paths verbose", "exclude out")
     option_schema("jar", "xctuv", "fC", "extract create list update verbose", "file dir")
     option_schema("ar", "xtrqdmpsvfP", "", "", "output")
     option_schema("unar", "qfdD", "o", "quiet force-overwrite force-directory no-directory", "output-directory")
+    # Creation has a separate, deliberately small non-executing/non-deleting grammar.
+    option_schema("creation:tar", "cruAvzjJ", "fCT", "create append update concatenate gzip bzip2 xz zstd verbose", "file directory exclude files-from format")
+    option_schema("creation:zip", "rqjv0123456789", "x", "quiet recurse-paths junk-paths verbose", "exclude out")
+    option_schema("creation:7z", "", "t", "", "")
+    option_schema("creation:jar", "cuvM", "fC", "create update verbose no-manifest", "file")
+    option_schema("creation:ar", "rqcsdmvu", "", "", "")
+    option_schema("creation:cpio", "ov", "FH", "create verbose", "file format")
+    option_schema("creation:pax", "wv", "fx", "", "")
     option_schema("restore", "SWq", "s", "staged worktree ours theirs ignore-unmerged ignore-skip-worktree-bits overlay no-overlay quiet", "source")
     option_schema("checkout", "fmqd", "bB", "force merge quiet detach track no-track guess no-guess recurse-submodules ours theirs", "orphan")
     option_schema("switch", "fmqd", "cC", "force discard-changes merge quiet detach track no-track guess no-guess recurse-submodules", "create force-create")
@@ -1339,24 +1347,26 @@ function option_value(d, i, end) {
     return i <= end && K[d, i] == "word" && W[d, i] != "" && (Q[d, i] || W[d, i] !~ /[$`*?\[{}]/)
 }
 # Return the last consumed word, or zero. Option values are data, never another option.
-function option_end(d, i, end, family, old,    w, key, kind, j, last) {
+function option_end(d, i, end, family, old, schema,    w, key, kind, j, last) {
+    if (schema == "") schema = family
     w = W[d, i]; last = i
     if (w ~ /^--/) {
-        key = w; sub(/=.*/, "", key); kind = OPT[family, key]
+        key = w; sub(/=.*/, "", key); kind = OPT[schema, key]
         if (kind == "flag") return w == key ? i : 0
         if (kind != "value") return 0
         if (w != key) return length(w) > length(key) + 1 ? i : 0
         return option_value(d, i + 1, end) ? i + 1 : 0
     }
     if (family == "7z") {
-        if (OPT[family, w] == "flag") return i
+        if (schema == "creation:7z" && w ~ /^-mx=?[0-9]$/) return i
+        if (OPT[schema, w] == "flag") return i
         key = substr(w, 1, 2)
-        if (OPT[family, key] != "value") return 0
+        if (OPT[schema, key] != "value") return 0
         if (length(w) > 2) return i
         return option_value(d, i + 1, end) ? i + 1 : 0
     }
     for (j = old ? 1 : 2; j <= length(w); j++) {
-        kind = OPT[family, "-" substr(w, j, 1)]
+        kind = OPT[schema, "-" substr(w, j, 1)]
         if (kind == "") return 0
         if (kind != "value") continue
         if (!old && j < length(w)) return i
@@ -1365,7 +1375,8 @@ function option_end(d, i, end, family, old,    w, key, kind, j, last) {
     }
     return last
 }
-function known_options(d, start, end, family, cwd, uncertain,    i, w, old, last) {
+function known_options(d, start, end, family, cwd, uncertain, creation,    i, w, old, last, schema) {
+    schema = creation ? "creation:" family : family
     for (i = start; i <= end; i++) {
         w = W[d, i]
         if (redirection(d, i)) break
@@ -1376,13 +1387,13 @@ function known_options(d, start, end, family, cwd, uncertain,    i, w, old, last
             continue
         }
         if (!Q[d, i] && w ~ /[$`*?\[{}]/) return 0
-        last = option_end(d, i, end, family, old)
+        last = option_end(d, i, end, family, old, schema)
         if (!last) return 0
         i = last
     }
     return 1
 }
-# Archive payloads and option environments are opaque. Only explicit read modes are admitted.
+# Archive payloads and option environments are opaque. Read modes and safe creation are explicit.
 function archive_environment_name(word) { return word ~ /^(UNZIP|UNZIPOPT|TAR_OPTIONS|ZIPOPT)($|[+]?=|\[)/ }
 function archive_exports(d, head, end,    i, w) {
     for (i = head + 1; i <= end; i++) {
@@ -1402,7 +1413,6 @@ function archive_mode_flag(family, flag) {
         if (member("-O --to-stdout", flag)) return "stdout"
         if (member("-c -r -u -A --create --append --update --concatenate", flag)) return "create"
         if (member("-d --diff --compare", flag)) return "other"
-        if (flag == "--remove-files") return "remove"
     } else if (family == "unzip") {
         if (member("-l -t -v -Z", flag)) return "list"
         if (flag == "-p") return "stdout"
@@ -1426,18 +1436,8 @@ function archive_mode_flag(family, flag) {
     }
     return ""
 }
-function archive_mode_option(family, flag,    kind, key, parts) {
-    kind = archive_mode_flag(family, flag)
-    if (kind != "" || flag !~ /^--/) return kind
-    # An abbreviated extraction switch must not masquerade as an unknown creation option.
-    for (key in OPT) {
-        split(key, parts, SUBSEP)
-        if (parts[1] == family && index(parts[2], flag) == 1 && archive_mode_flag(family, parts[2]) == "extract") return "extract"
-    }
-    return ""
-}
 # 0 = refused/unknown, 1 = explicit read, 2 = archive creation/update.
-function archive_mode(d, start, end, family,    i, j, w, flag, kind, old, last, mode, options, terminator, state) {
+function archive_mode(d, start, end, family,    i, j, w, flag, kind, old, last, mode, options, terminator, state, schema) {
     if (family == "zip") return 2
     if (!member("tar unzip jar ar cpio pax 7z", family)) return 0
     options = 1
@@ -1450,16 +1450,17 @@ function archive_mode(d, start, end, family,    i, j, w, flag, kind, old, last, 
             if (family == "7z" && mode == "") mode = w
             continue
         }
-        last = option_end(d, i, end, family, old)
+        schema = family; last = option_end(d, i, end, family, old)
+        if (!last) { schema = "creation:" family; last = option_end(d, i, end, family, old, schema) }
         if (!last) last = i
         if (w ~ /^--/) {
             flag = w; sub(/=.*/, "", flag)
-            kind = archive_mode_option(family, flag); if (kind != "") state[kind] = 1
+            kind = archive_mode_flag(family, flag); if (kind != "") state[kind] = 1
         } else if (family != "7z") {
             for (j = old ? 1 : 2; j <= length(w); j++) {
                 flag = "-" substr(w, j, 1)
                 kind = archive_mode_flag(family, flag); if (kind != "") state[kind] = 1
-                if (!old && OPT[family, flag] == "value") break
+                if (!old && OPT[schema, flag] == "value") break
             }
         }
         i = last
@@ -1469,7 +1470,7 @@ function archive_mode(d, start, end, family,    i, j, w, flag, kind, old, last, 
         return member("l t", mode) && mode != ""
     }
     if (state["create"] && !state["extract"] && !state["list"] && !state["stdout"] && !state["other"]) return 2
-    if (state["create"] || state["other"] || state["remove"]) return family == "unzip" && state["stdout"]
+    if (state["create"] || state["other"]) return family == "unzip" && state["stdout"]
     if (family == "unzip") return state["stdout"] || state["list"]
     if (family == "tar") return (state["list"] && !state["extract"]) || (state["extract"] && state["stdout"] && !state["list"] && !terminator)
     return state["list"] && !state["extract"]
@@ -1482,38 +1483,18 @@ function archive_command(d, verb, end, cwd, uncertain, fed, family,    i, mode) 
         if (W[d, i] ~ /^@/) { emit("!archive"); return }
     }
     mode = archive_mode(d, verb + 1, end, family)
-    if (mode == 2) archive_creation(d, verb, end, cwd, uncertain, family)
-    else if (mode != 1 || !known_options(d, verb + 1, end, family, cwd, uncertain)) emit("!archive")
-}
-# Source deletion needs a stronger proof than ordinary archive reads. Never inspect file contents.
-function creation_source_scope(path,    script, cmd, result) {
-    if (path !~ /^\// || path ~ /[[:cntrl:]]/) return "!"
-    script = "p=$1; root=$2; " \
-        "if [ -e \"$root/.git\" ] || [ -L \"$root/.git\" ]; then case \"$p\" in \"$root\"|\"$root\"/*) echo inside; exit;; esac; fi; " \
-        "hops=0; while :; do " \
-        "if [ -L \"$p\" ]; then hops=$((hops+1)); [ \"$hops\" -le 40 ] || exit 2; " \
-        "link=$(readlink \"$p\" && printf x) || exit 2; link=${link%x}; link=${link%?}; " \
-        "case \"$link\" in *[[:cntrl:]]*) exit 2;; esac; case \"$link\" in /*) p=$link;; *) p=${p%/*}/$link;; esac; continue; fi; " \
-        "[ ! -d \"$p\" ] || break; [ \"$p\" != / ] || exit 2; p=${p%/*}; [ -n \"$p\" ] || p=/; done; " \
-        "cd -P -- \"$p\" || exit 2; while :; do " \
-        "if [ -e .git ] || [ -L .git ]; then echo inside; exit; fi; " \
-        "[ \"$PWD\" != / ] || break; cd .. || exit 2; done; echo outside"
-    cmd = "bash -c " quote_path(script) " guard-archive-source " quote_path(path) " " quote_path(ENVIRON["GSW_ROOT"]) " 2>/dev/null"
-    if ((cmd | getline result) != 1) result = "!"
-    if (close(cmd) != 0 || result !~ /^(inside|outside)$/) result = "!"
-    return result
-}
-function creation_removes_sources(family, flag) {
-    return (flag ~ /^--./ && index("--remove-files", flag) == 1) ||
-        (family == "zip" && flag ~ /^--./ && index("--move", flag) == 1)
+    if (mode == 2) {
+        if (!known_options(d, verb + 1, end, family, cwd, uncertain, 1)) emit("!archive")
+        else archive_creation(d, verb, end, cwd, uncertain, family)
+    } else if (mode != 1 || !known_options(d, verb + 1, end, family, cwd, uncertain)) emit("!archive")
 }
 function creation_output_option(family, flag) {
     return (member("tar jar pax", family) && member("-f --file", flag)) ||
         (family == "cpio" && member("-F --file", flag)) ||
-        (family == "zip" && member("--out --output-file", flag))
+        (family == "zip" && flag == "--out")
 }
-function archive_creation(d, verb, end, cwd, uncertain, family,    i, j, w, flag, value, next_word, old, options, output, output_q, output_dq, output_explicit, positional, source_cwd, source_uncertain, count, sources, bases, remove_files, stdout_only, path) {
-    options = 1; source_cwd = cwd
+function archive_creation(d, verb, end, cwd, uncertain, family,    i, j, w, flag, value, next_word, old, options, output, output_q, output_dq, output_explicit, positional, schema) {
+    options = 1; schema = "creation:" family
     for (i = verb + 1; i <= end; i++) {
         w = W[d, i]
         if (redirection(d, i)) break
@@ -1522,39 +1503,27 @@ function archive_creation(d, verb, end, cwd, uncertain, family,    i, j, w, flag
         old = member("tar jar ar", family) && i == verb + 1 && w ~ /^[a-zA-Z]+$/
         if (options && ((w ~ /^-/ && w != "-") || old)) {
             if (family == "7z") {
-                if (w == "-so") stdout_only = 1
-                if (w == "-sdel") remove_files = 1
-                next_word = option_end(d, i, end, family, 0); if (next_word) i = next_word
+                next_word = option_end(d, i, end, family, 0, schema); if (next_word) i = next_word
                 continue
             }
             if (w ~ /^--/) {
                 flag = w; sub(/=.*/, "", flag)
-                if (creation_removes_sources(family, flag)) remove_files = 1
-                if (creation_output_option(family, flag) || OPT[family, flag] == "value") {
+                if (OPT[schema, flag] == "value") {
                     value = substr(w, length(flag) + 2)
                     if (w == flag) value = W[d, ++i]
                     if (value == "") { emit("!"); return }
                     if (creation_output_option(family, flag)) { output = value; output_q = Q[d, i]; output_dq = DQ[d, i]; output_explicit = 1 }
-                    else if (flag == "--directory") {
-                        if (value ~ /(^|\/)\.\.(\/|$)/) source_uncertain = 1
-                        source_cwd = resolved(value, Q[d, i], source_cwd, uncertain, DQ[d, i], 1)
-                    }
                 }
                 continue
             }
             next_word = i
             for (j = old ? 1 : 2; j <= length(w); j++) {
                 flag = "-" substr(w, j, 1)
-                if (family == "zip" && flag == "-m") remove_files = 1
-                if (OPT[family, flag] != "value") continue
+                if (OPT[schema, flag] != "value") continue
                 value = old ? "" : substr(w, j + 1)
                 if (value == "") value = W[d, ++next_word]
                 if (value == "") { emit("!"); return }
                 if (creation_output_option(family, flag)) { output = value; output_q = Q[d, next_word]; output_dq = DQ[d, next_word]; output_explicit = 1 }
-                else if (flag == "-C") {
-                    if (value ~ /(^|\/)\.\.(\/|$)/) source_uncertain = 1
-                    source_cwd = resolved(value, Q[d, next_word], source_cwd, uncertain, DQ[d, next_word], 1)
-                }
                 if (!old) break
             }
             i = next_word; continue
@@ -1563,19 +1532,9 @@ function archive_creation(d, verb, end, cwd, uncertain, family,    i, j, w, flag
         if (member("zip ar 7z", family) && positional < 2) {
             positional = 2
             if (!output_explicit) { output = w; output_q = Q[d, i]; output_dq = DQ[d, i] }
-        } else { sources[++count] = i; bases[count] = source_cwd }
-    }
-    if (remove_files) {
-        if (source_uncertain || !count || count > 256 || !known_options(d, verb + 1, end, family, cwd, uncertain)) { emit("!"); return }
-        for (j = 1; j <= count; j++) {
-            i = sources[j]; w = W[d, i]
-            if (bases[j] == "!" || w ~ /(^|\/)\.\.(\/|$)/ || (!Q[d, i] && w ~ /[*?\[{}]/)) { emit("!"); return }
-            path = resolved(w, Q[d, i], bases[j], uncertain, DQ[d, i], 1)
-            if (path == "!" || creation_source_scope(path) != "outside") { emit("!"); return }
-            emit(path)
         }
     }
-    if (stdout_only || output == "-") return
+    if (output == "-") return
     if (output != "") operand(output, output_q, cwd, uncertain, output_dq)
     else if (member("ar 7z", family)) emit("!")
 }

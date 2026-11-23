@@ -394,8 +394,8 @@ as recursive extraction.
 
 Archive extraction is refused regardless of destination or current directory; exactly recognised
 list/test/stdout modes remain admitted. Creation/append is an ordinary write of the archive output
-path (or stdout); unknown creation options retain reference-policy checks. Source-removing modes
-require every source to be provably outside the repository. Option environments (`UNZIP`, `UNZIPOPT`,
+path (or stdout) only with exactly recognised non-executing, non-deleting options; unknown options,
+source deletion and program execution are refused. Option environments (`UNZIP`, `UNZIPOPT`,
 `TAR_OPTIONS`, `ZIPOPT`) and argfile arguments are refused; assigning/exporting those variables is
 also blocked. Extraction-to-stdout forms do not accept `--`. Extract outside the agent shell (or ask
 the user), then copy the specific files needed. Git checkout-index still requires a directory

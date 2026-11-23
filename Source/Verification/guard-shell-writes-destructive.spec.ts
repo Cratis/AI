@@ -429,7 +429,7 @@ test('review r1 bulk families require exact options and conservative pathspec sc
         '7z x bundle.7z', '/usr/bin/7z x bundle.7z -o.', '7za x bundle.7z -o.', '7zz x bundle.7z -o.',
         'git read-tree -u HEAD', 'cd clean && git read-tree -u HEAD', 'git read-tree -u --prefix=. HEAD',
         'git checkout-index -a', 'git checkout-index -af', 'git checkout-index -a --prefix=.',
-        'ditto --unknown bundle.zip clean', 'cpio -t --unknown', '7z l --unknown bundle.7z',
+        'ditto --unknown bundle.zip clean', 'pax -w --unknown', 'cpio -t --unknown', '7z l --unknown bundle.7z',
         'git read-tree --unknown HEAD', 'git checkout-index -a --unk --prefix=clean/',
         'tar xf bundle.tar -C clean', 'bsdtar xf bundle.tar -C clean', '/usr/bin/bsdtar xf bundle.tar -C clean',
         'gtar xf bundle.tar -C clean', '/opt/bin/gtar --extract -f bundle.tar --directory=clean',
@@ -447,7 +447,7 @@ test('review r1 bulk families require exact options and conservative pathspec sc
     }
     const allowed = [
         'tar tf bundle.tar', 'tar xOf bundle.tar', 'tar -czf bundle.tgz .',
-        'pax -w -f bundle.tar clean', 'pax -w --unknown', 'cpio -o -F bundle.cpio',
+        'pax -w -f bundle.tar clean', 'cpio -o -F bundle.cpio',
         'unzip -p bundle.zip', 'unzip -l bundle.zip', 'rsync -an --delete other/ clean/', 'cp -r other/. clean',
         'git reset --soft', 'git reset --mixed', 'git restore clean', 'git restore --staged .pi/settings.json',
         'git checkout -b topic', 'git switch -c topic', 'git stash list', 'git stash show -p', 'git stash push -- clean',
@@ -564,7 +564,7 @@ test('review r3 archives refuse extraction, option environments and argfiles', {
     } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
-test('archive creation checks output paths and source deletion without denying ordinary archive reads', { concurrency: 2 }, async context => {
+test('archive creation checks output paths and refuses source-deleting options', { concurrency: 2 }, async context => {
     const root = scratchRepository();
     const outside = mkdtempSync(join(tmpdir(), 'cratis-archive-sources-'));
     context.after(() => rmSync(outside, { recursive: true, force: true }));
@@ -584,15 +584,17 @@ test('archive creation checks output paths and source deletion without denying o
         'jar cf .claude/o.jar Source', 'ar q .claude/o.a Source',
         'cpio -o -F .claude/o.cpio', 'pax -w -f .claude/o.tar Source',
         'tar -cf /tmp/o.tar @list', 'TAR_OPTIONS=-P tar -cf /tmp/o.tar Source',
+        'tar -c --unknown -f /tmp/o.tar Source',
+        `tar -c --remove-files -f /tmp/o.tar '${outside}/source.txt'`,
+        `tar -c --remove-files -C '${outside}' -f /tmp/o.tar source.txt`,
+        `zip -m /tmp/o.zip '${outside}/source.txt'`, `7z a /tmp/o.7z -sdel '${outside}/source.txt'`,
     ];
     const allowed = [
         'tar c ~/.aws', 'tar -czf /tmp/o.tgz Source', 'tar -cf - . | cat',
-        'tar -c --unknown -f /tmp/o.tar Source', 'tar --create --file=/tmp/o.tar --format=ustar Source',
+        'tar --create --file=/tmp/o.tar --format=ustar Source',
         'bsdtar -rf /tmp/o.tar Source', 'gtar -uf /tmp/o.tar Source', 'tar -Af /tmp/o.tar other.tar',
-        `tar -c --remove-files -f /tmp/o.tar '${outside}/source.txt'`,
-        `tar -c --remove-files -C '${outside}' -f /tmp/o.tar source.txt`,
-        'zip -q /tmp/o.zip Source', 'zip -q - Source | cat', `zip -m /tmp/o.zip '${outside}/source.txt'`,
-        '7z a /tmp/o.7z Source', '7za u /tmp/o.7z Source', `7z a /tmp/o.7z -sdel '${outside}/source.txt'`,
+        'zip -q /tmp/o.zip Source', 'zip -q - Source | cat',
+        '7z a /tmp/o.7z Source', '7za u /tmp/o.7z Source',
         'jar cf /tmp/o.jar Source', 'jar c Source', 'ar r /tmp/o.a Source',
         'cpio -o -F /tmp/o.cpio', 'cpio -o | cat', 'pax -w -f /tmp/o.tar Source',
     ];
@@ -603,6 +605,49 @@ test('archive creation checks output paths and source deletion without denying o
                 assert.equal(result.status, expected, result.stderr);
             })));
         assert.ok(existsSync(join(outside, 'source.txt')));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('review r4 creation admits only exact non-executing non-deleting options', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-archive-sources-'));
+    context.after(() => rmSync(outside, { recursive: true, force: true }));
+    symlinkSync(root, join(outside, 'repo-link'));
+    const denied = [
+        `zip -rmq /tmp/x.zip '${outside}'`, `7z a /tmp/x.7z '${outside}' -sdel`,
+        `tar -chf /tmp/x.tar --remove-files '${outside}'`,
+        `bsdtar -cf /tmp/x.tar --remove-fi '${outside}'`, `gtar -cf /tmp/x.tar --remove-files '${outside}'`,
+        "tar -cf - --use-compress-program='git reset --hard' Source",
+        "tar -cf /tmp/o.tar --use-compress-prog='git reset --hard' Source",
+        "tar -cf /tmp/o.tar -I 'sh -c x' Source",
+        "tar --checkpoint=1 --checkpoint-action='exec=git reset --hard' -cf /tmp/o.tar Source",
+        "zip -q /tmp/o.zip Source -T -TT \"sh -c 'git reset --hard'\"",
+        'zip --unzip-command=x -T /tmp/o.zip Source',
+        'tar -cf /tmp/o.tar --to-command=x Source', 'tar -cf /tmp/o.tar --rsh-command=x Source',
+        'tar -cf /tmp/o.tar --info-script=x Source', 'tar -cf /tmp/o.tar -F x Source',
+        'tar -cf /tmp/o.tar --new-volume-script=x Source', 'tar -cf /tmp/o.tar --rmt-command=x Source',
+        'tar -tf o.tar --checkpoint=1', 'tar -xOf o.tar --use-compress-program=x',
+        'tar -cf /tmp/o.tar --form=ustar Source', 'zip --unknown /tmp/o.zip Source',
+        '7z a -si /tmp/o.7z Source', '7z a -so /tmp/o.7z Source', '7z a -mxexec /tmp/o.7z Source',
+    ];
+    const allowed = [
+        'tar -czf /tmp/o.tgz Source', 'tar -cf - . | cat', 'tar c ~/.aws', 'zip -r /tmp/o.zip Source',
+        'tar -tf o.tar', 'unzip -l o.zip', 'tar -xOf o.tar f',
+        'bsdtar -cjf /tmp/o.tbz Source', 'gtar -cJf /tmp/o.txz Source',
+        'tar -cvf /tmp/o.tar -C Source . --exclude=ignored', 'tar -cf /tmp/o.tar -T files.txt',
+        'tar --create --gzip --file=/tmp/o.tgz --files-from=files.txt',
+        'zip -9rq /tmp/o.zip Source -x ignored', 'zip -0j /tmp/o.zip Source',
+        '7z a -t7z -mx9 /tmp/o.7z Source', '7za a -tzip -mx=0 /tmp/o.zip Source',
+        'jar cvMf /tmp/o.jar Source', 'ar rcs /tmp/o.a Source',
+        'cpio -ov -H newc -F /tmp/o.cpio', 'pax -wv -x ustar -f /tmp/o.tar Source',
+    ];
+    try {
+        await Promise.all([...denied.map(command => [2, command] as const), ...allowed.map(command => [0, command] as const)]
+            .map(([expected, command]) => context.test(command, async scenario => {
+                const result = await shellVerdict(command, root, '0', scenario.signal);
+                assert.equal(result.status, expected, result.stderr);
+            })));
+        assert.ok(existsSync(join(outside, 'repo-link/.git')));
     } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
