@@ -565,6 +565,9 @@ manifest_writes_allowed() {
     repository_manifest_policy "$policy_root"
 }
 
+# Batch directory inventory once per destructive call; ordinary references never inspect descendants.
+inventory_directories=()
+
 # Judge $file (already absolute and normalized) and its physical destination.
 classify_resolved() {
     local physical_base=""
@@ -585,6 +588,12 @@ classify_resolved() {
     fi
     if names_match "$base" "${environment_patterns[@]}" || names_match "$physical_base" "${environment_patterns[@]}"; then
         classification=environment; return 0
+    fi
+    if [ "$destructive_mode" = 1 ]; then
+        if [ -d "$file" ]; then inventory_directories[${#inventory_directories[@]}]="$file"; fi
+        if [ -n "$physical_file" ] && [ "$physical_file" != "$file" ] && [ -d "$physical_file" ]; then
+            inventory_directories[${#inventory_directories[@]}]="$physical_file"
+        fi
     fi
     return 1
 }
@@ -638,6 +647,20 @@ if [ "$reference_mode" = 1 ]; then
             done < <(abspath "$candidate" "$cwd"; compgen -G "$REPLY" || true)
         fi
     done
+    if [ "${#inventory_directories[@]}" -gt 0 ]; then
+        inventory_status=0
+        if command -v node >/dev/null 2>&1; then
+            node "$script_directory/cratis-guard-writes-descendants.mjs" "${#environment_patterns[@]}" "${environment_patterns[@]}" "${inventory_directories[@]}" || inventory_status=$?
+        else inventory_status=2; fi
+        case "$inventory_status" in
+            0) ;;
+            1) printf '%s\n' "${inventory_directories[0]}" ;;
+            *)
+                printf '%s\n' 'BLOCKED by cratis-guard-writes: directory inventory could not be completed.' >&2
+                exit 2
+                ;;
+        esac
+    fi
     exit 0
 fi
 
