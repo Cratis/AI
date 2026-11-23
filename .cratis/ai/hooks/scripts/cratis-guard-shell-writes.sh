@@ -643,6 +643,31 @@ function copy_targets(verb,    i, w, j, ch, tail, value, targets, dirs, no_targe
     }
     return copy_effective_targets(verb, targets, operands, dirs, no_target, explicit_dirs)
 }
+# Index-only restore is admitted narrowly, never a neighboring worktree/patch/file-input form.
+function index_reset(    i, skip, w) {
+    if (W[2] != "reset") return 0
+    for (i = 3; i <= argc; i++) {
+        w = W[i]
+        if (!skip && w == "--") { skip = 1; continue }
+        if (!skip && w ~ /^-/ && w !~ /^(--soft|--mixed|--no-refresh|-q|--quiet)$/) return 0
+    }
+    return 1
+}
+function index_restore(    i, staged, paths, skip, w) {
+    i = 2
+    while (W[i] == "-C" && i + 2 <= argc && W[i + 1] != "" && !globbed[i + 1]) i += 2
+    if (W[i++] != "restore") return 0
+    for (; i <= argc; i++) {
+        w = W[i]
+        if (!skip && w == "--") { skip = 1; continue }
+        if (!skip && (w == "--staged" || w ~ /^-S+$/)) { staged = 1; continue }
+        if (!skip && (w == "-s" || w == "--source")) { if (++i > argc || globbed[i]) return 0; continue }
+        if (!skip && (w ~ /^--source=./ || w ~ /^-s./)) continue
+        if (!skip && w ~ /^-/) return 0
+        paths++
+    }
+    return staged && paths
+}
 function allow_command(    verb, first, i) {
     if (!argc) return
     if (++commands > 64) { fail(); return }
@@ -659,6 +684,7 @@ function allow_command(    verb, first, i) {
     if (verb == "sed") { if (!print_only_sed()) cmd_failed = 1; return }
     if (verb == "find") { if (!find_allowed()) cmd_failed = 1; return }
     if (verb == "gh") { if (!gh_allowed()) cmd_failed = 1; return }
+    if (verb == "git" && (index_restore() || index_reset())) { changed_index = 1; return }
     if (verb == "git" && W[2] == "-C") {
         if (argc >= 4 && W[3] != "" && W[3] !~ /^-/ && !globbed[3] && W[4] ~ /^(add|commit)$/) {
             verb = verb " " W[4]; first = 5
@@ -842,7 +868,10 @@ function unclassified(text) {
     gsub(/["\047\\]/, "", text)
     if (text ~ /(^|[[:space:];|&()`\/])(rm|rmdir|unlink|shred|mv)([[:space:];|&()`]|$)/ ||
         (text ~ /(^|[[:space:];|&()`\/])git[[:space:]]/ && text ~ /(^|[[:space:]])clean([[:space:]]|$)/) ||
-        (text ~ /(^|[[:space:];|&()`\/])find[[:space:]]/ && text ~ /(^|[[:space:]])-delete([[:space:]]|$)/)) emit("!")
+        (text ~ /(^|[[:space:];|&()`\/])find[[:space:]]/ && text ~ /(^|[[:space:]])-delete([[:space:]]|$)/) ||
+        (text ~ /(^|[[:space:];|&()`\/])git[[:space:]]/ && text ~ /(^|[[:space:]])(restore|checkout|switch|stash|reset)([[:space:]]|$)/) ||
+        text ~ /(^|[[:space:];|&()`\/])(rsync|cp|unzip)([[:space:]]|$)/ ||
+        (text ~ /(^|[[:space:];|&()`\/])tar[[:space:]]/ && text ~ /(^|[[:space:]])(-[^[:space:]]*x|[x][a-z]*|--extract|--get)([[:space:]]|$)/)) emit("!")
 }
 function remaining(d, start, end,    i, j, text) {
     for (i = start; i <= end; i++) {
@@ -885,7 +914,7 @@ function arithmetic_prefix(text, i, quoted) {
 # Quoted parentheses and parameter braces remain word data in the lexer.
 function simple_command(text, d, n,    i, head) {
     head = base(W[d, 1])
-    if (!destructive(head) && head != "git" && head != "find") return 0
+    if (!destructive(head) && !member("git find tar unzip rsync cp", head)) return 0
     if (text ~ /`|\$\(/) return 0
     for (i = 1; i <= n; i++) {
         if (BC[d, i] || (K[d, i] != "word" && K[d, i] !~ /^(>|>>|>&|&>|&>>|<|<&)$/)) return 0
@@ -1255,8 +1284,214 @@ function removal(d, verb, end, cwd, uncertain, findpaths,    i, w, count, option
         sources++
     }
 }
-function git_clean(d, verb, end, cwd, uncertain, findpaths, depth, fed,    i, j, w, subcommand, dry, paths, skip, alias, name, call, script, option) {
+# Destination effects only: the later reference grammar still judges sources and output files.
+function tar_effect(d, verb, end, cwd, uncertain,    i, j, w, ch, value, directory, extract, other, stdout_only, bad, options, old) {
+    directory = cwd; options = 1
+    for (i = verb + 1; i <= end; i++) {
+        w = W[d, i]
+        if (redirection(d, i)) break
+        if (w == "--") { options = 0; continue }
+        if (!options) continue
+        if (w == "--extract" || w == "--get") { extract = 1; continue }
+        if (w == "--to-stdout") { stdout_only = 1; continue }
+        if (member("--create --list --append --update --concatenate --diff --compare", w)) { other = 1; continue }
+        if (w ~ /^--(file|directory)(=|$)/) {
+            value = w; sub(/^--[^=]+=?/, "", value)
+            if (w == "--file" || w == "--directory") value = W[d, ++i]
+            if (value == "" || value ~ /^-/) bad = 1
+            if (w ~ /^--directory/) {
+                directory = resolved(value, Q[d, i], directory, uncertain, DQ[d, i])
+                if (directory == "!") bad = 1
+            }
+            continue
+        }
+        if (w ~ /^--/) {
+            if (!member("--verbose --gzip --gunzip --bzip2 --xz --zstd --overwrite --keep-old-files --no-same-owner --same-owner --no-same-permissions --same-permissions", w) && w !~ /^--strip-components=[0-9]+$/) bad = 1
+            continue
+        }
+        if (w ~ /^-/ || (i == verb + 1 && w ~ /^[a-zA-Z]+$/)) {
+            old = substr(w, 1, 1) != "-"; j = old ? 1 : 2
+            for (; j <= length(w); j++) {
+                ch = substr(w, j, 1)
+                if (ch == "x") extract = 1
+                else if (ch ~ /^[ctruAd]$/) other = 1
+                else if (ch == "O") stdout_only = 1
+                else if (ch == "f" || ch == "C") {
+                    value = old ? "" : substr(w, j + 1)
+                    if (value == "") value = W[d, ++i]
+                    if (value == "" || value ~ /^-/) bad = 1
+                    if (ch == "C") {
+                        directory = resolved(value, Q[d, i], directory, uncertain, DQ[d, i])
+                        if (directory == "!") bad = 1
+                    }
+                    if (!old) break
+                } else if (ch !~ /^[zjJavpkhmPS]$/) bad = 1
+            }
+        }
+    }
+    if (extract) {
+        if (bad || other || uncertain) emit("!")
+        else if (!stdout_only) emit(directory)
+    }
+}
+function unzip_effect(d, verb, end, cwd, uncertain,    i, j, w, ch, value, directory, read_only, bad, archive) {
+    directory = cwd
+    for (i = verb + 1; i <= end; i++) {
+        w = W[d, i]
+        if (redirection(d, i)) break
+        if (w == "--") { archive = 1; continue }
+        if (w ~ /^-/) {
+            for (j = 2; j <= length(w); j++) {
+                ch = substr(w, j, 1)
+                if (ch ~ /^[lptZv]$/) read_only = 1
+                else if (ch == "d" || ch == "P") {
+                    value = substr(w, j + 1)
+                    if (value == "") value = W[d, ++i]
+                    if (value == "") bad = 1
+                    if (ch == "d") directory = resolved(value, Q[d, i], cwd, uncertain, DQ[d, i])
+                    break
+                } else if (ch !~ /^[oqnujCXLKafDUV]$/) bad = 1
+            }
+        } else archive = 1
+    }
+    if (!read_only && archive) emit(bad || uncertain ? "!" : directory)
+}
+# cp writes source basenames to an existing/explicit directory, but source/. writes its contents.
+function copy_effect(d, verb, end, cwd, uncertain,    i, j, w, ch, value, count, target, no_target, recursive, dry, bad, options, source, suffix, kind, explicit_target, sync_delete, remote_target) {
+    options = 1
+    for (i = verb + 1; i <= end; i++) {
+        w = W[d, i]
+        if (redirection(d, i)) break
+        if (options && w == "--") { options = 0; continue }
+        if (options && w ~ /^--/) {
+            if (w ~ /^--target-directory(=|$)/ && base(W[d, verb]) == "cp") {
+                value = substr(w, 20); if (w == "--target-directory") value = W[d, ++i]
+                target = resolved(value, Q[d, i], cwd, uncertain, DQ[d, i]); explicit_target = 1
+            } else if (w == "--no-target-directory") no_target = 1
+            else if (w == "--dry-run") dry = 1
+            else if (member("--archive --recursive", w)) recursive = 1
+            else if (w ~ /^--delete(-before|-during|-delay|-after|-excluded)?$/) sync_delete = 1
+            else if (!member("--force --verbose --no-clobber --update --compress --times --perms --ignore-existing --existing", w)) bad = 1
+            continue
+        }
+        if (options && w ~ /^-/) {
+            for (j = 2; j <= length(w); j++) {
+                ch = substr(w, j, 1)
+                if (base(W[d, verb]) == "cp" && ch == "t") {
+                    value = substr(w, j + 1); if (value == "") value = W[d, ++i]
+                    target = resolved(value, Q[d, i], cwd, uncertain, DQ[d, i]); explicit_target = 1; break
+                }
+                if (ch ~ /^[rRa]$/) recursive = 1
+                else if (ch == "T") no_target = 1
+                else if (ch == "n" && base(W[d, verb]) == "rsync") dry = 1
+                else if (ch !~ /^[pfvniuLPHdzctgoDlq]$/) bad = 1
+            }
+            continue
+        }
+        CP[d, ++count] = i
+    }
+    if (dry && base(W[d, verb]) == "rsync") return
+    if (bad || uncertain || !count || target == "!") { emit("!"); return }
+    if (!explicit_target) {
+        i = CP[d, count--]; target = resolved(W[d, i], Q[d, i], cwd, uncertain, DQ[d, i])
+        remote_target = W[d, i] ~ /^([^\/:]+:|rsync:\/\/)/
+    }
+    if (target == "!" || !count || (no_target && (explicit_target || count > 1))) { emit("!"); return }
+    # Remote destinations are not local scopes; the existing reference fallback still applies.
+    if (base(W[d, verb]) == "rsync" && remote_target) return
+    if (base(W[d, verb]) == "rsync" && sync_delete) {
+        emit(target); return
+    }
+    if (!recursive && base(W[d, verb]) == "cp") return
+    kind = directory_kind(target)
+    if (kind == "!") { emit("!"); return }
+    for (j = 1; j <= count; j++) {
+        i = CP[d, j]; source = W[d, i]; sub(/\/+$/, "", source)
+        suffix = base(source)
+        if (suffix == "." || suffix == ".." || suffix == "" || source ~ /[$`*?\[{}]/ || (base(W[d, verb]) == "rsync" && W[d, i] ~ /[\/:]$/)) emit(target)
+        else if (!no_target && (explicit_target || kind == "directory" || count > 1)) emit(target "/" suffix)
+        else emit(target)
+    }
+}
+function directory_kind(path,    cmd, result) {
+    cmd = "bash -c " quote_path("if [ -d \"$1\" ]; then echo directory; elif [ -e \"$1\" ] || [ ! -L \"$1\" ]; then echo other; else exit 2; fi") " guard-directory " quote_path(path)
+    if ((cmd | getline result) != 1) result = "!"
+    if (close(cmd) != 0) result = "!"
+    return result
+}
+# Locate the selected worktree with metadata only. Overrides are refused for content effects.
+function git_root(cwd,    cmd, root) {
+    cmd = "bash -c " quote_path("cd -P -- \"$1\" || exit 2; while [ ! -e \"$PWD/.git\" ]; do [ \"$PWD\" != / ] || exit 2; cd .. || exit 2; done; pwd -P") " guard-git-root " quote_path(cwd) " 2>/dev/null"
+    if ((cmd | getline root) != 1) root = "!"
+    if (close(cmd) != 0) root = "!"
+    return root
+}
+function git_path(d, i, cwd, uncertain, findpaths,    w) {
+    w = W[d, i]
+    if (w ~ /^:\// || w ~ /^:\(top/) emit(git_root(cwd))
+    else if (w ~ /^:\(/) emit("!")
+    else if (w == "{}" && findpaths != "") emit(findpaths)
+    else operand(w, Q[d, i], cwd, uncertain, DQ[d, i])
+}
+function git_rewrite(d, command, start, end, cwd, uncertain, findpaths, fed,    i, j, w, ch, staged, worktree, whole, paths, skip, bad, create, position, action) {
+    if (command == "stash") {
+        action = W[d, start]
+        if (member("list show drop clear", action)) return
+        if (action == "" || member("apply pop branch save", action)) whole = 1
+        else if (action != "push" && action !~ /^-/) { emit("!"); return }
+        if (action == "push") start++
+    }
+    if (command == "reset") {
+        for (i = start; i <= end; i++) {
+            if (redirection(d, i)) break
+            if (member("--hard --merge --keep", W[d, i])) whole = 1
+            else if (W[d, i] ~ /^--(pathspec-from-file|pathspec-file-nul)/ || W[d, i] ~ /[$`]/) bad = 1
+        }
+        if (!whole && !bad) return
+    } else for (i = start; i <= end; i++) {
+        w = W[d, i]
+        if (redirection(d, i)) break
+        if (!skip && w == "--") { skip = 1; continue }
+        if (!skip && w ~ /^-/) {
+            if (command == "restore") {
+                if (w == "--staged") { staged = 1; continue }
+                if (w == "--worktree") { worktree = 1; continue }
+                if (w == "--source" || w == "-s") { if (++i > end || W[d, i] ~ /[$`]/) bad = 1; continue }
+                if (w ~ /^--source=./ || w ~ /^-s./) continue
+                if (w ~ /^-[SW]+$/) {
+                    for (j = 2; j <= length(w); j++) { ch = substr(w, j, 1); if (ch == "S") staged = 1; else worktree = 1 }
+                    continue
+                }
+                if (member("--ours --theirs --ignore-unmerged --ignore-skip-worktree-bits --overlay --no-overlay -q --quiet", w)) continue
+            } else if (command == "checkout" || command == "switch") {
+                if (member("-f --force --discard-changes -m --merge", w)) { whole = 1; continue }
+                if (member("-b -B --orphan -c -C --create --force-create", w)) { create = 1; if (++i > end) bad = 1; continue }
+                if (member("-q --quiet --detach -d --track --no-track --guess --no-guess --recurse-submodules --ours --theirs", w)) continue
+            } else if (command == "stash") {
+                if (w == "-m" || w == "--message") { if (++i > end) bad = 1; continue }
+                if (w ~ /^--message=/ || w ~ /^-m./ || member("-k --keep-index --no-keep-index -u --include-untracked -a --all -q --quiet", w)) continue
+            }
+            bad = 1; continue
+        }
+        if (w ~ /[$`]/) bad = 1
+        RP[++paths] = i
+        # checkout REV -- paths: revision is not a path, and branch data is never a subcommand.
+        if (!skip) position++
+    }
+    if (command == "restore" && staged && !worktree && !bad) return
+    if (command == "switch" && !whole && !bad) return
+    if (command == "checkout" && create && !whole && !bad) return
+    if (command == "stash" && !paths) whole = 1
+    if (bad || uncertain || fed) { emit("!"); return }
+    if (whole) { emit(git_root(cwd)); return }
+    if (command == "checkout" && skip && paths > 1 && position > 0) {
+        for (i = 2; i <= paths; i++) git_path(d, RP[i], cwd, uncertain, findpaths)
+    } else for (i = 1; i <= paths; i++) git_path(d, RP[i], cwd, uncertain, findpaths)
+    if (!paths) emit("!")
+}
+function git_clean(d, verb, end, cwd, uncertain, findpaths, depth, fed,    i, j, w, subcommand, dry, paths, skip, alias, name, call, script, option, rewrite_context) {
     subcommand = 0; call = ++git_call
+    uncertain = uncertain || git_context_unknown || ("GIT_WORK_TREE" in ENVIRON) || ("GIT_DIR" in ENVIRON) || ("GIT_COMMON_DIR" in ENVIRON)
     for (i = verb + 1; i <= end; i++) {
         w = W[d, i]
         if (w == "-C") {
@@ -1267,11 +1502,16 @@ function git_clean(d, verb, end, cwd, uncertain, findpaths, depth, fed,    i, j,
             if (alias ~ /^alias\.[^=]+=/) {
                 name = alias; sub(/^alias\./, "", name); sub(/=.*/, "", name)
                 sub(/^[^=]*=/, "", alias); A[call, name] = alias
-            }
+            } else if (tolower(alias) ~ /^(core\.worktree|core\.bare|include\.|includeif\.)/) uncertain = 1
         } else if (w ~ /[$`]/) { emit("!"); return }
         # Git 2.50.1 git.c handle_options(), plus legacy --super-prefix.
-        else if (member("--git-dir --work-tree --namespace --config-env --attr-source --super-prefix --shallow-file", w)) i++
-        else if (w ~ /^--(git-dir|work-tree|namespace|config-env|attr-source|super-prefix|exec-path)=/) continue
+        else if (w == "--work-tree") { if (W[d, ++i] != ".") uncertain = 1 }
+        else if (w == "--work-tree=.") continue
+        else if (w == "--git-dir") { rewrite_context = 1; if (W[d, ++i] != ".git") uncertain = 1 }
+        else if (w == "--git-dir=.git") { rewrite_context = 1; continue }
+        else if (w ~ /^--(git-dir|work-tree)=/ || w == "--bare") { uncertain = 1; continue }
+        else if (member("--namespace --config-env --attr-source --super-prefix --shallow-file", w)) { rewrite_context = 1; i++ }
+        else if (w ~ /^--(namespace|config-env|attr-source|super-prefix|exec-path)=/) { rewrite_context = 1; continue }
         else if (member("-h --help -v --version --html-path --man-path --info-path --exec-path", w) || w ~ /^--list-cmds=/) return
         else if (member("-p --paginate -P --no-pager --no-replace-objects --no-lazy-fetch --no-optional-locks --no-advice --bare --literal-pathspecs --no-literal-pathspecs --glob-pathspecs --noglob-pathspecs --icase-pathspecs", w)) continue
         else if (w ~ /^-/) { unclassified("git " remaining(d, i, end)); return }
@@ -1283,10 +1523,14 @@ function git_clean(d, verb, end, cwd, uncertain, findpaths, depth, fed,    i, j,
         if (substr(script, 1, 1) == "!") script = substr(script, 2)
         else script = "git " script
         for (i = subcommand + 1; i <= end; i++) script = script " " quote_path(W[d, i])
-        parse(script, cwd, uncertain, depth + 1, fed)
+        parse(script, cwd, uncertain || rewrite_context, depth + 1, fed)
         return
     }
     # Once a subcommand is established, later words are its data, never another subcommand.
+    if (member("restore checkout switch stash reset", W[d, subcommand])) {
+        git_rewrite(d, W[d, subcommand], subcommand + 1, end, cwd, uncertain || rewrite_context, findpaths, fed)
+        return
+    }
     if (W[d, subcommand] != "clean") return
     dry = 0; paths = 0; skip = 0
     for (i = subcommand + 1; i <= end; i++) {
@@ -1314,10 +1558,7 @@ function git_clean(d, verb, end, cwd, uncertain, findpaths, depth, fed,    i, j,
     if (fed) { emit("!"); return }
     for (j = 1; j <= paths; j++) {
         i = GP[call, j]; w = W[d, i]
-        if (w ~ /^:\// || w ~ /^:\(top/) emit(ENVIRON["GSW_ROOT"])
-        else if (w ~ /^:\(/) emit("!")
-        else if (w == "{}" && findpaths != "") emit(findpaths)
-        else operand(w, Q[d, i], cwd, uncertain, DQ[d, i])
+        git_path(d, i, cwd, uncertain, findpaths)
     }
     if (!paths) operand(".", 0, cwd, uncertain)
 }
@@ -1481,6 +1722,12 @@ function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed, out
     w = base(W[d, head])
     if (w == "git") git_clean(d, head, end, cwd, context, findpaths, depth, fed)
     else if (w == "find") find_command(d, head, end, cwd, context, depth + 1, fed)
+    else if (member("tar unzip rsync cp", w)) {
+        if (fed) emit("!")
+        else if (w == "tar") tar_effect(d, head, end, cwd, context)
+        else if (w == "unzip") unzip_effect(d, head, end, cwd, context)
+        else copy_effect(d, head, end, cwd, context)
+    }
     else if (destructive(w)) {
         # xargs always adds/replaces operands from stdin, even with safe literal operands.
         if (fed) emit("!")
@@ -1498,6 +1745,7 @@ function parse(text, cwd, uncertain, depth, fed,    n, i, start, kind, level, he
     # A depth slot may be reused by several script words.
     for (i = 1; i <= N[depth]; i++) { delete W[depth, i]; delete Q[depth, i]; delete DQ[depth, i]; delete CT[depth, i]; delete K[depth, i]; delete H[depth, i]; delete T[depth, i]; delete F[depth, i]; BC[depth, i] = 0 }
     n = lex(text, depth); N[depth] = n; start = 1; level = 0
+    if (text ~ /(^|[[:space:]])GIT_[A-Z_]+=/) git_context_unknown = 1
     if (depth == 0) simple_tool = simple_command(text, depth, n)
     for (i = 1; i <= n + 1; i++) {
         kind = K[depth, i]

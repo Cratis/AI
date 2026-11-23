@@ -3,10 +3,12 @@
 
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
+import * as filesystem from 'node:fs';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, relative, resolve } from 'node:path';
 import test from 'node:test';
+import { pathToFileURL } from 'node:url';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
 
@@ -62,8 +64,8 @@ add('allow', [
     'rm -rf ./Source/Foo/bin/', 'mv Source/Foo/bin /tmp/build-destination', 'find . -print', 'git status', 'echo "$PWD"',
     'cratis ai init', 'cratis ai update', 'cratis ai restore', 'dotnet format .', 'docker build -t x .', 'npx prettier --write .',
     'yarn eslint --fix .', 'npx eslint .', 'cp README.md .', 'cp src/a.txt ./', 'mv Source/Verification/README.md .',
-    'mv -t . Source/Verification/README.md', 'mv --target-directory=. README.md', 'tar -czf /tmp/o.tgz .', 'unzip x.zip -d .',
-    'chmod -R u+w .', 'git checkout -- .', 'git restore .', 'find .', 'find . -type f', 'find . -exec echo {} \\;', 'find . -exec ls {} +',
+    'mv -t . Source/Verification/README.md', 'mv --target-directory=. README.md', 'tar -czf /tmp/o.tgz .',
+    'chmod -R u+w .', 'find .', 'find . -type f', 'find . -exec echo {} \\;', 'find . -exec ls {} +',
     'rmdir Source/Foo/bin', 'git clean -ndx :/', "git clean -ndx ':(top)'", 'git clean -fdx --exclude -n -- node_modules',
     'cd Source && dotnet build .', 'pushd Source && npx prettier --write .', 'cd node_modules && rm -rf .', 'find . -exec echo rm {} \\;', 'find . -ok echo rm {} \\;',
     'rm -f notes.txt~', 'rm -rf "build (old)"', "rm -f '~'", 'sudo -u operator dotnet build .',
@@ -212,6 +214,8 @@ add('allow', [
 ], 'syntax-only shell option contexts', 'root', 'secrets');
 add('block', ['git clean -fdx :/', "git clean -fdx ':(top)'", 'nice git clean -fdx :/', 'rm -rf ../..'], 'subdirectory ancestor', 'sub');
 add('allow', ['rm -rf .'], 'unprotected subdirectory', 'sub');
+
+add('block', ['unzip x.zip -d .', 'git checkout -- .', 'git restore .'], 'explicit working-tree scope');
 
 function scratchRepository() {
     const root = mkdtempSync(join(tmpdir(), 'cratis-destructive-'));
@@ -362,6 +366,93 @@ test('all wrapper dispatches preserve stdin and redirections (direct guard)', { 
     } finally {
         rmSync(root, { recursive: true, force: true });
     }
+});
+
+test('bulk working-tree effects use destination scope and existing environment entries', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    mkdirSync(join(root, 'output/nested'), { recursive: true });
+    mkdirSync(join(root, 'clean/nested'), { recursive: true });
+    writeFileSync(join(root, 'output/nested/.ENV.local'), 'fixture');
+    symlinkSync(root, join(root, 'root-link'));
+    const cases: Array<[number, string]> = [
+        ...[
+            'tar xf bundle.tar', 'tar -xzf bundle.tgz -C .', 'tar --extract --file=bundle.tar --directory=./',
+            'tar -x -f bundle.tar -C sub/..', `tar xf bundle.tar -C '${root}'`, 'tar xf bundle.tar -C root-link',
+            'tar xf bundle.tar -C ..', 'cd clean && tar xf ../bundle.tar -C ..',
+            'unzip bundle.zip', 'unzip -o bundle.zip -d .', 'unzip bundle.zip -droot-link',
+            'rsync -a --delete src/ .', 'rsync -a --delete-after src/ ./',
+            'git restore .', 'git restore --source=HEAD --worktree .', 'git checkout -- .', 'git checkout HEAD -- ./',
+            'git checkout -f main', 'git checkout --merge main', 'git switch --discard-changes main',
+            'git stash apply', 'git stash pop stash@{0}', 'git reset --hard HEAD',
+            'git -C clean restore ..', 'git -C clean reset --hard', 'cd clean && git stash pop',
+            'rm -rf output', 'mv output elsewhere', 'find output -delete',
+            'rsync -a --delete src/ output/', 'tar xf bundle.tar -C output', 'unzip bundle.zip -d output',
+            'tar xf bundle.tar -C "$DIR"', 'git restore "$DIR"',
+        ].map(command => [2, command] as [number, string]),
+        ...[
+            'tar tf bundle.tar', 'tar -czf bundle.tgz .', 'tar xf bundle.tar -C clean', 'unzip bundle.zip -d clean',
+            'unzip -l bundle.zip', 'unzip -p bundle.zip', 'unzip -t bundle.zip', 'unzip -Z bundle.zip',
+            'rsync -a --delete src/ clean/', 'git status', 'git diff', 'git log -1', 'git stash list', 'git stash show',
+            'git restore --staged .', 'git restore --staged --source=HEAD .', 'git restore clean', 'git checkout HEAD -- clean',
+            'git checkout main', 'git checkout -b topic', 'git switch main', 'git switch -c topic',
+            'git reset --soft HEAD', 'git reset --mixed HEAD', 'rm -rf clean', 'find clean -delete',
+            'mv clean elsewhere', 'echo "tar xf bundle.tar; git restore ."',
+            "cat <<'EOF'\ntar xf bundle.tar\ngit restore .\nEOF",
+        ].map(command => [0, command] as [number, string]),
+    ];
+    try {
+        await Promise.all(cases.map(([expected, command]) => context.test(command, async scenario => {
+            const result = await shellVerdict(command, root, '0', scenario.signal);
+            assert.equal(result.status, expected, result.stderr);
+        })));
+        assert.ok(existsSync(join(root, 'output/nested/.ENV.local')));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+const descendants = resolve(import.meta.dirname, '../../.cratis/ai/hooks/scripts/cratis-guard-writes-descendants.mjs');
+const environmentPatterns = ['.env', '.env.*', '*.env'];
+
+test('metadata scanner reports clean, matching, uncertain and bounded outcomes without following nested links', async () => {
+    const { inspectDescendants } = await import(pathToFileURL(descendants).href);
+    const root = scratchRepository();
+    try {
+        const clean = join(root, 'clean');
+        mkdirSync(join(clean, 'nested'), { recursive: true });
+        writeFileSync(join(clean, 'nested/a.txt'), 'fixture');
+        symlinkSync('..', join(clean, 'nested/cycle'));
+        assert.equal(inspectDescendants([clean, clean, join(clean, 'nested'), join(root, 'missing')], environmentPatterns), 0);
+        assert.equal(inspectDescendants([clean], environmentPatterns, { maxEntries: 1 }), 2);
+        let time = 0;
+        assert.equal(inspectDescendants([clean], environmentPatterns, { now: () => time++, maxMs: 1 }), 2);
+        for (const code of ['EACCES', 'ENOENT']) {
+            const fs = { ...filesystem, readdirSync: () => { throw Object.assign(new Error('fixture'), { code }); } };
+            assert.equal(inspectDescendants([clean], environmentPatterns, { fs }), 2, code);
+        }
+        const changed = { ...filesystem, lstatSync: () => ({ ...filesystem.lstatSync(clean), isDirectory: () => false }) };
+        assert.equal(inspectDescendants([clean], environmentPatterns, { fs: changed }), 2);
+        mkdirSync(join(clean, 'nested/.ENV'));
+        assert.equal(inspectDescendants([clean], environmentPatterns), 1);
+        const result = spawnSync(process.execPath, [descendants, '3', ...environmentPatterns, clean], { encoding: 'utf8' });
+        assert.equal(result.status, 1);
+        assert.equal(result.stdout, '');
+        assert.equal(result.stderr, '');
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('a clean dependency-shaped tree completes inventory within the production budget', async context => {
+    const { inspectDescendants } = await import(pathToFileURL(descendants).href);
+    const root = scratchRepository();
+    try {
+        const directory = join(root, 'node_modules');
+        for (let packageIndex = 0; packageIndex < 128; packageIndex++) {
+            const packagePath = join(directory, `package-${packageIndex}`);
+            mkdirSync(packagePath, { recursive: true });
+            for (let fileIndex = 0; fileIndex < 32; fileIndex++) writeFileSync(join(packagePath, `file-${fileIndex}.js`), 'fixture');
+        }
+        const start = performance.now();
+        assert.equal(inspectDescendants([directory], environmentPatterns), 0);
+        context.diagnostic(`4224 clean dependency entries in ${(performance.now() - start).toFixed(1)}ms`);
+    } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
 test('large command-like comment data completes without executing or recursively inspecting it', { timeout: 5000 }, async context => {
