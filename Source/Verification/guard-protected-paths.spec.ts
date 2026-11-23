@@ -77,6 +77,76 @@ test('protectedPaths block Write/Edit like built-in controls, and only those pat
     });
 });
 
+test('bulk effects honor declared scopes, absent entries and operation-aware Git allowances', context => {
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-archive-outside-'));
+    context.after(() => rmSync(outside, { recursive: true, force: true }));
+    withRepository(declared, root => {
+        mkdirSync(join(root, '.claude'), { recursive: true });
+        mkdirSync(join(root, '.pi/extensions'), { recursive: true });
+        writeFileSync(join(root, '.claude/settings.json'), '{}');
+        writeFileSync(join(root, '.pi/extensions/test.js'), '// fixture');
+        mkdirSync(join(root, 'other'));
+        mkdirSync(join(root, 'locked'));
+        mkdirSync(join(root, 'node_modules/deep'), { recursive: true });
+        writeFileSync(join(root, 'ordinary.txt'), 'fixture');
+        symlinkSync('docs', join(root, 'docs-alias'));
+        const denied = [
+            'rsync -a --delete other/ docs/', 'rsync -a --delete-before other/ docs-alias/',
+            'rsync -a --delete-during other/ docs/', 'rsync -a --delete-delay other/ docs/',
+            'rsync -a --delete-excluded other/ "$PWD"', 'rsync -a --delete other/ "$DEST"',
+            'cp -r other/. .', 'cp -R other/. docs', 'cp -aT other docs', 'cp -r -t docs locked',
+            'cp -r locked docs', 'cp -r --target-directory=docs locked',
+            'tar xf bundle.tar -C docs', 'tar xCf docs bundle.tar', 'tar --extract --file bundle.tar --directory docs-alias',
+            'tar xf bundle.tar -C docs/open', 'unzip bundle.zip -d docs/open', 'tar xCf docs/open bundle.tar',
+            `tar xf bundle.tar -C '${outside}'`, `unzip bundle.zip -d '${outside}'`,
+            `tar xCf '${outside}' bundle.tar`,
+            'env -- tar -xzf bundle.tgz', 'command unzip bundle.zip', "sh -c 'tar xf bundle.tar'",
+            'git restore RELEASE.md', 'git restore config', 'git restore docs', 'git checkout -- docs/locked',
+            'git checkout --ours -- docs', 'git checkout --theirs -- docs',
+            'git restore --staged --worktree .pi/settings.json', 'git restore -SW .pi/settings.json',
+            'git restore --pathspec-from-file=paths', "git restore -- ':(glob)**'", 'git checkout --patch docs/open',
+            'git checkout docs docs/open', 'git -c core.worktree=/tmp restore docs/open',
+            'git reset --merge', 'git reset --keep', 'git stash', 'git stash push', 'git stash save message',
+            'git stash branch topic', 'git stash push -m message -- docs',
+            'git checkout --force main', 'git switch -m main', 'cd docs/open && git reset --hard',
+            'git -C docs -C open stash apply', 'git --work-tree=/tmp restore .', 'git --git-dir=.git restore docs',
+            'GIT_WORK_TREE=/tmp git restore docs/open', 'env GIT_DIR=.git git stash apply',
+            "git -c 'alias.rewrite=restore .' rewrite",
+        ];
+        const allowed = [
+            'rsync -a --delete other/ docs/open/', 'rsync -an --delete other/ docs/open/', 'rsync ordinary.txt .',
+            'rsync -a ordinary.txt host:.cratis/ai/',
+            'cp -r other/. docs/open', 'cp -r other docs/open', 'cp ordinary.txt .', 'cp -r -t docs/open other',
+            'cp -rT other docs/open', 'tar xOf bundle.tar', 'tar -tf bundle.tar', 'tar czf bundle.tgz .',
+            'git restore -- docs/open', 'git checkout HEAD -- docs/open', 'git checkout docs/open',
+            'git checkout --ours -- docs/open', 'git checkout --theirs -- docs/open',
+            'git restore --staged -- .pi/settings.json', 'git -C docs restore --staged -- ../.pi/settings.json',
+            'git restore -S -s HEAD -- .pi/settings.json', 'git stash push -m "reset --hard" -- docs/open',
+            'git stash show', 'git stash drop', 'git stash clear', 'git reset --soft', 'git reset --mixed',
+            'git reset HEAD -- docs', 'git checkout -b topic', 'git switch -c topic', 'git switch main',
+            'git clean -fdx -- node_modules',
+        ];
+        for (const command of denied) {
+            const result = shellCall(root, command);
+            assert.equal(result.verdict, BLOCK, `${command}: ${result.stderr}`);
+            assert.match(result.stderr, /BLOCKED by cratis-guard-shell-writes/);
+        }
+        for (const command of allowed) assert.equal(shellCall(root, command).verdict, ALLOW, command);
+        writeFileSync(join(root, 'node_modules/deep/service.env'), 'synthetic fixture');
+        for (const command of ['git clean -fdx -- node_modules', 'mv -t docs/open node_modules', 'find node_modules -delete']) {
+            assert.equal(shellCall(root, command).verdict, BLOCK, command);
+        }
+    });
+});
+
+test('bulk destinations fail closed for malformed declarations even on an otherwise clean subtree', () => {
+    withRepository('{"protectedPaths":["bad**"]}', root => {
+        for (const command of ['tar xf bundle.tar -C docs/open', 'rsync -a --delete other/ docs/open', 'git restore docs/open']) {
+            assert.equal(shellCall(root, command).verdict, BLOCK, command);
+        }
+    });
+});
+
 test('protectedPaths of the target repository apply, not those of the session repository', () => {
     const owner = repositoryWith('{"protectedPaths": ["locked.txt"]}');
     const other = repositoryWith('{}');

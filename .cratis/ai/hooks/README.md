@@ -380,12 +380,49 @@ only these standalone install/repair operations (Node must be available):
   so `ln` cannot follow it and write into its target. File Write/Edit calls, including writes
   through repaired links, remain protected as before.
 
-All other commands retain the existing policy. The shell-write guard scans the **whole command text**
+Before the reference fallback, destructive and bulk operations are checked by their effective
+scope against the shared write policy. This includes removal/movement, find-delete, Git clean,
+recursive copy destinations, local rsync destinations, archive extraction (including an implicit
+current directory), explicit Git path rewrites and whole-worktree content effects. Literal `cd`
+and Git `-C` contexts are tracked. Tar aliases, ditto, pax, cpio, 7-Zip extraction and Git
+read-tree/checkout-index content effects use the same destination policy. Classified families
+require exact recognized options, including their argument arities, before any dry-run, listing
+or index-only allowance; option abbreviation and unknown options are refused. Git pathspec magic
+is conservatively scoped to the enclosing worktree. Unknown destinations and uncertain execution
+contexts refuse rather than assume a clean scope. Ordinary single-file copies are not treated
+as recursive extraction.
+
+Archive extraction is refused regardless of destination or current directory; exactly recognised
+list/test/stdout modes remain admitted. Creation/append is an ordinary write of the archive output
+path (or stdout) only with exactly recognised non-executing, non-deleting options; unknown options,
+source deletion and program execution are refused. Option environments (`UNZIP`, `UNZIPOPT`,
+`TAR_OPTIONS`, `ZIPOPT`) and argfile arguments are refused; assigning/exporting those variables is
+also blocked. Extraction-to-stdout forms do not accept `--`. Extract outside the agent shell (or ask
+the user), then copy the specific files needed. Git checkout-index still requires a directory
+prefix ending in `/`, checked against all protected-path policy.
+
+In destructive scope only, an existing directory also receives a metadata-only inventory for
+environment-named descendants using the write guard's environment patterns. Matching entry names
+include files, directories and symlinks, case-insensitively. Nested symlinks are not followed;
+addressed directory aliases still receive the ordinary physical-path checks. Inventories are
+bounded to 250,000 entries and five seconds per hook call, deduplicated within that call, never
+cached across calls. Environment patterns cover control characters in entry names. Undecodable
+names, inspection errors, changes observed during inspection, missing Node and exhausted limits refuse. Clean ordinary directories (including dependency/build trees) and
+missing operands remain usable. Normal references and Write/Edit do not inventory descendants.
+
+Git restore is index-only only when a narrowly parsed `--staged` form has no worktree flag.
+Narrowly parsed default/soft/mixed reset also remains an index-only operation.
+Checkout path forms and restore paths use their explicit scope; reset hard/merge/keep, stash
+content operations and forced/discard/merge branch changes use whole-worktree scope even from
+subdirectories. Ordinary non-forced branch checkout/switch/creation remains allowed intentionally;
+this is not protection from every Git branch transition, alias, hook or configuration effect.
+Unresolved Git worktree selection is refused for content effects.
+
+All commands retain the later reference policy. The shell-write guard scans the **whole command text**
 for protected references, including nested strings, heredoc bodies and option values. It
 removes simple quoting/escapes, checks case-insensitive spellings, and asks the write guard's
 `--references` batch mode to classify candidate paths relative to the hook cwd. Original
-spellings are retained too so existing generated headers can be checked on case-sensitive
-filesystems. The lowercase alias of a path is dropped only where the original path exists and its
+spellings are retained too for physical-path checks on case-sensitive filesystems. The lowercase alias of a path is dropped only where the original path exists and its
 lowercase spelling provably does not (a case-sensitive lookup); any doubt keeps it. Glob/bracket patterns are checked against that same policy; brace patterns
 are conservative. A directory containing owned controls/managed paths also counts, such as
 `.claude`, `.pi/extensions` or installed `.cratis/ai`; no second tree list lives in the shell
@@ -419,6 +456,8 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | `git log` | `--oneline --stat --name-only -n N -nN -<N> -p --no-color --format=<fmt> --pretty=<fmt> --follow` |
 | `git show` | `--stat --name-only -p --no-color --format=<fmt>` |
 | `git add` | `-A -u -p -v --all`; literal named paths, including corpus files, and path globs for installed prompts. No `-f` or `-N`/`--intent-to-add` |
+| `git restore` (index only) | `--staged`/`-S` required, optional literal `--source`/`-s`; no worktree, patch or file-input option; literal repeated `-C` is supported |
+| `git reset` (index only) | Default, `--soft` or `--mixed`; `--no-refresh -q --quiet`; no content-mode, patch or file-input option |
 | `git commit` | `-m MSG`, `--message MSG`, `-mMSG`, `-a`, `-q`; `-F FILE` only for a literal non-protected file; no `--no-verify` |
 | `git blame`, `ls-files`, `rev-parse`, `check-ignore`, `grep` | None |
 | `git branch` | Exactly `--show-current`, or `--list` followed only by literal patterns |
@@ -466,7 +505,7 @@ The tag tail takes exactly one pattern not starting with `-` (for example, `'*7.
 Those metadata tails accept no extra words. Literal `git -C <dir> add` and `commit` also qualify,
 with the ordinary per-verb option checks above. Attached `-Cdir`/`-C=dir`, repeated `-C`, other verbs and
 all other global options (`-c`, `--git-dir`, `--work-tree`, `--no-pager`, `--exec-path`, etc.)
-remain denied. `-C` gives **no protection** from a hostile repository's configuration:
+remain denied in this reference allowlist, apart from the narrow index-only restore entry above. `-C` gives **no protection** from a hostile repository's configuration:
 fsmonitor, hooks, pager and diff/textconv helpers can still run. This is a syntax filter,
 not a repository sandbox.
 
@@ -496,7 +535,8 @@ evaluators, shells or writer verbs. `pushd` and `popd` are **not** allowlisted w
 protected reference exists. The restricted literal `cd` read-chain exemption still refuses
 `cd .claude && echo x > settings.json` without inferring write destinations. Shells refuse regardless of stdin descriptor, lone `-`, or
 `-c` option spelling. Unparsed complex syntax, including substitutions and heredocs, refuses
-once a protected reference exists; no shell bodies are interpreted.
+once a protected reference exists. Separately, bounded static analysis of nested shell commands
+tracks destructive scopes; it never executes those bodies or inspects archive contents.
 
 Even an allowlisted command may not redirect output to a protected or non-literal target
 (`$`, backticks or pathname patterns). Literal ordinary output is permitted, for example
@@ -513,14 +553,18 @@ matches and a bounded glob-intersection state space). Pattern and tree reference
 this deliberately over-conservative.
 
 This is **best-effort, not a sandbox**. Runtime names assembled from variables without a
-protected name appearing literally are out of scope, as are aliases/functions, external
-scripts, tool configuration/hooks and symlinks created during execution.
+protected name appearing literally remain outside the reference fallback; known scoped mutators
+refuse unresolved destinations. Aliases/functions, external scripts, tool configuration/hooks and
+symlinks created during execution are not generally modeled. Inventory is a point-in-time check,
+not a TOCTOU guarantee. Archive members and arbitrary copy payloads are not inspected; modeled
+destinations and existing protected descendants do not establish payload safety.
 OS permissions/sandboxing remain the primary boundary. Do not use another
 route to work around a refusal.
 
 Generated-file headers do not trigger a block in either write guard. Regenerating proxies with
-`dotnet build`, staging, restoring, committing and other Git index/worktree operations, and direct
-writes (including copies, moves and redirections) are allowed for generated files. For durable
+`dotnet build`, staging, restoring, committing and direct writes (including copies, moves and
+redirections) are allowed for generated files only when no other protected category or destructive
+scope applies. Generated status does not exempt whole-worktree rewrites. For durable
 proxy changes, change the C# source and rebuild rather than hand-editing generated output.
 Other protected classes still apply regardless of a generated header.
 
@@ -555,7 +599,7 @@ and Pi:
 `false` re-enables the manifest block in a Cratis repository; `true` allows manifest writes
 in any repository, for targets that do not themselves block (see above). Merge this property into the existing configuration. An absent
 or non-boolean setting uses the origin-based default (an unparsable file protects the whole repository; see below). This setting never permits `.env` writes.
-The protected basename list is unchanged; `package.json` is not part of this guard's manifest category.
+The protected basename list includes `package.json`; it follows the same session/target manifest policy.
 
 This allowance is not authorization for unrelated upgrades: keep changes task-focused and
 call out version bumps in the PR description. Other repositories retain the rule requiring
