@@ -59,6 +59,7 @@ then STAGE (V5 admission). Tool differences: `../SKILL.md` ("Tool versions and t
 | PLAY0455 | quoted import glob matches no file | fix the glob |
 | PLAY0196/0197/0198 | unknown query/screen; ambiguous bare name | declare or qualify `Slice.Name` |
 | PLAY1142 | a projection mapping, AutoMap or reducer copies a `secret` concept into a read model (Screenplay 6.28.0+) | leave it out or map a non-secret derived value |
+| PLAY1167 | an `agents` block exposes more than 20 distinct operations; arguments `count` and `recommendedMaximum` give the decimal counts; compilation still succeeds | expose a smaller, focused allowlist; see [agent exposure](agent-exposure.md) |
 
 ## Source reference and identifier checks
 
