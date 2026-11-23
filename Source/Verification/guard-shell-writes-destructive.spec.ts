@@ -391,9 +391,10 @@ test('bulk working-tree effects use destination scope and existing environment e
             'rsync -a --delete src/ output/', 'tar xf bundle.tar -C output', 'unzip bundle.zip -d output',
             'tar xf bundle.tar -C "$DIR"', 'git restore "$DIR"',
             'tar xf bundle.tar -C clean', 'unzip bundle.zip -d clean',
+            `tar xf bundle.tar -C '${outside}'`, `unzip bundle.zip -d '${outside}'`,
         ].map(command => [2, command] as [number, string]),
         ...[
-            'tar tf bundle.tar', 'tar -czf bundle.tgz .', `tar xf bundle.tar -C '${outside}'`, `unzip bundle.zip -d '${outside}'`,
+            'tar tf bundle.tar', 'tar -czf bundle.tgz .',
             'unzip -l bundle.zip', 'unzip -p bundle.zip', 'unzip -t bundle.zip', 'unzip -Z bundle.zip',
             'rsync -a --delete src/ clean/', 'git status', 'git diff', 'git log -1', 'git stash list', 'git stash show',
             'git restore --staged .', 'git restore --staged --source=HEAD .', 'git restore clean', 'git checkout HEAD -- clean',
@@ -428,27 +429,30 @@ test('review r1 bulk families require exact options and conservative pathspec sc
         '7z x bundle.7z', '/usr/bin/7z x bundle.7z -o.', '7za x bundle.7z -o.', '7zz x bundle.7z -o.',
         'git read-tree -u HEAD', 'cd clean && git read-tree -u HEAD', 'git read-tree -u --prefix=. HEAD',
         'git checkout-index -a', 'git checkout-index -af', 'git checkout-index -a --prefix=.',
-        'ditto --unknown bundle.zip clean', 'pax -w --unknown', 'cpio -t --unknown', '7z l --unknown bundle.7z',
+        'ditto --unknown bundle.zip clean', 'cpio -t --unknown', '7z l --unknown bundle.7z',
         'git read-tree --unknown HEAD', 'git checkout-index -a --unk --prefix=clean/',
         'tar xf bundle.tar -C clean', 'bsdtar xf bundle.tar -C clean', '/usr/bin/bsdtar xf bundle.tar -C clean',
         'gtar xf bundle.tar -C clean', '/opt/bin/gtar --extract -f bundle.tar --directory=clean',
         'ditto -x -k bundle.zip clean', 'cd clean && pax -r -f ../bundle.tar', 'cpio -id -D clean -F bundle.cpio',
         '7z x bundle.7z -oclean', '7za x bundle.7z -oclean', '7zz x bundle.7z -oclean',
+        `tar xf bundle.tar -C '${outside}'`,
+        `bsdtar xf bundle.tar -C '${outside}'`, `/usr/bin/bsdtar xf bundle.tar -C '${outside}'`,
+        `gtar xf bundle.tar -C '${outside}'`, `/opt/bin/gtar --extract -f bundle.tar --directory='${outside}'`,
+        `ditto -x -k bundle.zip '${outside}'`, `cd '${outside}' && pax -r -f ../bundle.tar`,
+        `cpio -id --no-absolute-filenames -D '${outside}' -F bundle.cpio`,
+        `7z x bundle.7z -o'${outside}'`, `7za x bundle.7z -o'${outside}'`, `7zz x bundle.7z -o'${outside}'`,
     ];
     for (const magic of [':!clean', ':^clean', ':clean', ':(exclude)clean', ':(top)clean', ':/clean']) {
         denied.push(...['git restore --', 'git restore --staged --', 'git checkout --', 'git stash push --', 'git clean -fdx --'].map(verb => `${verb} '${magic}'`));
     }
     const allowed = [
-        'tar tf bundle.tar', 'tar -czf bundle.tgz .', 'tar xOf bundle.tar', `tar xf bundle.tar -C '${outside}'`,
+        'tar tf bundle.tar', 'tar xOf bundle.tar', 'tar -czf bundle.tgz .',
+        'pax -w -f bundle.tar clean', 'pax -w --unknown', 'cpio -o -F bundle.cpio',
         'unzip -p bundle.zip', 'unzip -l bundle.zip', 'rsync -an --delete other/ clean/', 'cp -r other/. clean',
         'git reset --soft', 'git reset --mixed', 'git restore clean', 'git restore --staged .pi/settings.json',
         'git checkout -b topic', 'git switch -c topic', 'git stash list', 'git stash show -p', 'git stash push -- clean',
         'git checkout -- clean', 'git clean -n', 'git clean -fdx -- clean',
-        `bsdtar xf bundle.tar -C '${outside}'`, `/usr/bin/bsdtar xf bundle.tar -C '${outside}'`,
-        `gtar xf bundle.tar -C '${outside}'`, `/opt/bin/gtar --extract -f bundle.tar --directory='${outside}'`,
-        `ditto -x -k bundle.zip '${outside}'`, `cd '${outside}' && pax -r -f ../bundle.tar`, 'pax -w -f bundle.tar clean',
-        `cpio -id --no-absolute-filenames -D '${outside}' -F bundle.cpio`, 'cpio -o -F bundle.cpio',
-        `7z x bundle.7z -o'${outside}'`, `7za x bundle.7z -o'${outside}'`, `7zz x bundle.7z -o'${outside}'`, '7z l bundle.7z',
+        '7z l bundle.7z', 'cpio -t -F bundle.cpio',
         'git read-tree HEAD', 'git read-tree -u --prefix=clean/ HEAD', 'git checkout-index -af --prefix=clean/',
     ];
     try {
@@ -483,14 +487,14 @@ test('review r2 extraction is repository-wide and checkout-index requires a dire
         `cpio -i -D '${outside}' -F o.cpio`, `tar -xf o.tar -C '${outside}/into-repo/clean'`,
         `tar -xOf o.tar -- -P`, `unzip -p -- o.zip`,
         "rsync -a -f '- .cache/' --delete other/ .", 'rsync -a -f', 'rsync -a -f -n --delete other/ .',
-    ];
-    const allowed = [
         `tar -xzf o.tgz -C '${outside}'`, `bsdtar -xf o.tar -C '${outside}'`,
         `gtar --extract --file=o.tar --directory='${outside}'`,
         `unzip o.zip -d '${outside}'`, `bsdunzip o.zip -d '${outside}'`,
         `bsdcpio -i --no-absolute-filenames -D '${outside}' -F o.cpio`,
         `7zr x o.7z -o'${outside}'`, `jar xf o.jar -C '${outside}'`, `ar x --output='${outside}' o.a`,
         `unar -o '${outside}' o.zip`, `tar -xf o.tar -C '${root}/external'`,
+    ];
+    const allowed = [
         `git checkout-index --prefix='${outside}/' -a`, 'git checkout-index --prefix=clean/ -af',
         'unzip -l o.zip', 'unzip -t o.zip', 'unzip -v o.zip', 'unzip -Z o.zip',
         'tar -tf o.tar', 'tar -xOf o.tar f', 'unzip -p o.zip', 'unzip -p -o o.zip',
@@ -502,9 +506,103 @@ test('review r2 extraction is repository-wide and checkout-index requires a dire
                 const result = await shellVerdict(command, root, '0', scenario.signal);
                 assert.equal(result.status, expected, result.stderr);
                 if (expected === 2 && !command.startsWith('git ') && !command.startsWith('rsync ')) {
-                    assert.match(result.stderr, /Extract into a folder outside the repository, then copy the specific files you need/);
+                    assert.match(result.stderr, /archive extraction cannot be checked by the guard/i);
                 }
             })));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('review r3 archives refuse extraction, option environments and argfiles', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-archive-outside-'));
+    context.after(() => rmSync(outside, { recursive: true, force: true }));
+    const denied = [
+        `cd '${outside}' && UNZIP=-d'${root}' unzip x.zip`,
+        `UNZIPOPT=-d'${root}' unzip -l o.zip`, `export UNZIP=-d'${root}'; unzip x.zip`,
+        `env UNZIP=-d'${root}' unzip x.zip`, `env -S 'UNZIPOPT=-o unzip -l o.zip'`,
+        'TAR_OPTIONS=-P tar -xf o.tar', 'export TAR_OPTIONS=-P; tar -tf o.tar',
+        'UNZIP=x', 'UNZIP+=x; echo ordinary', 'TAR_OPTIONS[0]=-P; echo ordinary',
+        'export ZIPOPT=x; echo ordinary', 'export UNZIP; unzip -l o.zip',
+        'unzip -l o.zip; export UNZIP=x', 'export "$NAME=value"; tar -tf o.tar',
+        'tar -tf o.tar; export "$NAME=value"', 'env OTHER=$VALUE tar -tf o.tar',
+        "jar @/dev/stdin <<< 'xf o.jar'", `cd '${outside}' && jar @/dev/stdin <<< 'xf o.jar'`,
+        'tar @file', 'tar -tf @list', 'jar tf @list', '7z l @list',
+        'cd /var/empty && pax -r -f /tmp/o.tar', 'tar -xzf o.tgz -C /tmp/out',
+        '7z x -so o.7z',
+        'ditto ordinary /tmp/out', 'ditto -c -k ordinary /tmp/o.zip',
+        'tar o.tar', 'jar o.jar', 'ar o.a', '7z o.7z', 'cpio o.cpio',
+        'tar -txf o.tar', 'cpio -it -F o.cpio', 'jar xtf o.jar', 'ar xt o.a',
+    ];
+    const allowed = [
+        'tar -tf o.tar', 'tar -tvf o.tar', 'tar -xOf o.tar f', 'bsdtar -tf o.tar',
+        'gtar --list --file=o.tar', 'unzip -l o.zip', 'unzip -t o.zip', 'unzip -v o.zip',
+        'unzip -Z o.zip', 'unzip -p o.zip', 'bsdunzip -l o.zip', '7z l o.7z', '7za t o.7z',
+        'jar tf o.jar', 'jar --list --file=o.jar', 'ar t o.a', 'cpio -t -F o.cpio', 'bsdcpio -t -F o.cpio',
+        'git checkout-index --prefix=/tmp/x/ -a', 'OTHER=literal tar -tf o.tar', 'env OTHER=literal tar -tf o.tar',
+        '7z a o.7z ordinary', '7za u o.7z ordinary', 'pax -w -f o.tar ordinary',
+        'jar cf o.jar ordinary', 'ar r o.a ordinary', 'cpio -o', 'tar -cf o.tar ordinary',
+        'echo "UNZIP=-d/tmp/out"', "printf '%s\\n' 'TAR_OPTIONS=-P'",
+        "cat <<'EOF'\nexport UNZIP=-d/tmp/out\ntar xf o.tar\nEOF",
+    ];
+    try {
+        await Promise.all([...denied.map(command => [2, command] as const), ...allowed.map(command => [0, command] as const)]
+            .map(([expected, command]) => context.test(command, async scenario => {
+                const result = await shellVerdict(command, root, '0', scenario.signal);
+                assert.equal(result.status, expected, result.stderr);
+                if (expected === 2) assert.match(result.stderr, /archive extraction cannot be checked by the guard/i);
+            })));
+        for (const name of ['UNZIP', 'UNZIPOPT', 'TAR_OPTIONS', 'ZIPOPT']) {
+            const result = spawnSync('/bin/bash', [guard], {
+                cwd: root, encoding: 'utf8', timeout: 20000,
+                env: { ...process.env, [name]: '-P', HOME: tmpdir(), CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+                input: JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command: 'tar -tf o.tar' } }),
+            });
+            assert.equal(result.status, 2, name);
+            assert.equal(result.stdout, '');
+            assert.match(result.stderr, /archive extraction cannot be checked by the guard/i);
+        }
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('archive creation checks output paths and source deletion without denying ordinary archive reads', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-archive-sources-'));
+    context.after(() => rmSync(outside, { recursive: true, force: true }));
+    writeFileSync(join(outside, 'source.txt'), 'synthetic fixture');
+    writeFileSync(join(root, '.cratis/ai.json'), JSON.stringify({ protectedPaths: ['.claude/*'] }));
+    symlinkSync(join(root, 'Source'), join(outside, 'repo-link'));
+    const denied = [
+        'tar -czf .claude/x.tgz Source', 'tar -c --remove-files -f /tmp/o.tar .claude',
+        'tar -c --remove-files -f /tmp/o.tar Source', 'tar -c --remove-f -f /tmp/o.tar Source',
+        'tar -c --remove-files -C Source -f /tmp/o.tar .',
+        `tar -chf /tmp/o.tar --remove-files '${outside}/repo-link'`,
+        `tar -c --remove-files -C '${outside}/repo-link/..' -f /tmp/o.tar .`,
+        'tar -c --remove-files -C "$SOURCES" -f /tmp/o.tar file',
+        'tar -c --unknown -f .claude/x.tgz Source', 'tar -c --extr -f /tmp/o.tar Source',
+        'zip .claude/x.zip Source', 'zip -mr /tmp/o.zip Source',
+        '7z a .claude/o.7z Source', '7z a /tmp/o.7z -sdel Source',
+        'jar cf .claude/o.jar Source', 'ar q .claude/o.a Source',
+        'cpio -o -F .claude/o.cpio', 'pax -w -f .claude/o.tar Source',
+        'tar -cf /tmp/o.tar @list', 'TAR_OPTIONS=-P tar -cf /tmp/o.tar Source',
+    ];
+    const allowed = [
+        'tar c ~/.aws', 'tar -czf /tmp/o.tgz Source', 'tar -cf - . | cat',
+        'tar -c --unknown -f /tmp/o.tar Source', 'tar --create --file=/tmp/o.tar --format=ustar Source',
+        'bsdtar -rf /tmp/o.tar Source', 'gtar -uf /tmp/o.tar Source', 'tar -Af /tmp/o.tar other.tar',
+        `tar -c --remove-files -f /tmp/o.tar '${outside}/source.txt'`,
+        `tar -c --remove-files -C '${outside}' -f /tmp/o.tar source.txt`,
+        'zip -q /tmp/o.zip Source', 'zip -q - Source | cat', `zip -m /tmp/o.zip '${outside}/source.txt'`,
+        '7z a /tmp/o.7z Source', '7za u /tmp/o.7z Source', `7z a /tmp/o.7z -sdel '${outside}/source.txt'`,
+        'jar cf /tmp/o.jar Source', 'jar c Source', 'ar r /tmp/o.a Source',
+        'cpio -o -F /tmp/o.cpio', 'cpio -o | cat', 'pax -w -f /tmp/o.tar Source',
+    ];
+    try {
+        await Promise.all([...denied.map(command => [2, command] as const), ...allowed.map(command => [0, command] as const)]
+            .map(([expected, command]) => context.test(command, async scenario => {
+                const result = await shellVerdict(command, root, '0', scenario.signal);
+                assert.equal(result.status, expected, result.stderr);
+            })));
+        assert.ok(existsSync(join(outside, 'source.txt')));
     } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

@@ -18,7 +18,7 @@ parser_failed() {
     exit 2
 }
 archive_guidance() {
-    printf '%s\n' 'Extract into a folder outside the repository, then copy the specific files you need.' >&2
+    printf '%s\n' 'Extract outside the agent shell (or ask the user), then copy the specific files needed.' >&2
 }
 cwd="" command_text="" parser_status=""
 {
@@ -853,8 +853,8 @@ BEGIN {
     exit (readonly(reduced) && !heredoc_writes) ? 0 : 1
 }
 AWK
-# This stage is independent of the readonly/reference grammar above. Prefix syntax is
-# never a reason to refuse a reader: only a discovered destructive operation has operands.
+# This stage is independent of the readonly/reference grammar above. Scoped filesystem
+# effects retain prefix uncertainty; archive tools require explicit uncontaminated read modes.
 IFS= read -r -d '' destructive_program <<'AWK' || true
 function base(word) { sub(/^.*\//, "", word); return word }
 function member(list, word) { return index(" " list " ", " " word " ") > 0 }
@@ -863,7 +863,7 @@ function shell(word) { return member("sh bash dash zsh ksh ash", base(word)) }
 # Command-head recognition is shared by dispatch and directory tracking. time retains
 # its option-aware wrapper handling below; grouping delimiters also split segments.
 function command_prefix(word) {
-    return word ~ /^[A-Za-z_][A-Za-z0-9_]*=/ || member("then do else elif ! if while until { ( coproc", word)
+    return word ~ /^[A-Za-z_][A-Za-z0-9_]*[+]?=/ || word ~ /^(UNZIP|UNZIPOPT|TAR_OPTIONS|ZIPOPT)\[[^]]+\][+]?=/ || member("then do else elif ! if while until { ( coproc", word)
 }
 # Only these established execution prefixes expose another command position.
 function wrapper(word) {
@@ -878,7 +878,8 @@ function unclassified(text) {
         (text ~ /(^|[[:space:];|&()`\/])git[[:space:]]/ && text ~ /(^|[[:space:]])clean([[:space:]]|$)/) ||
         (text ~ /(^|[[:space:];|&()`\/])find[[:space:]]/ && text ~ /(^|[[:space:]])-delete([[:space:]]|$)/) ||
         (text ~ /(^|[[:space:];|&()`\/])git[[:space:]]/ && text ~ /(^|[[:space:]])(restore|checkout|switch|stash|reset|read-tree|checkout-index)([[:space:]]|$)/) ||
-        text ~ /(^|[[:space:];|&()`\/])(rsync|cp|unzip|bsdunzip|tar|bsdtar|gtar|ditto|pax|cpio|bsdcpio|7z|7za|7zz|7zr|jar|ar|unar)([[:space:]]|$)/) emit("!")
+        text ~ /(^|[[:space:];|&()`\/])(rsync|cp)([[:space:]]|$)/) emit("!")
+    if (text ~ /(^|[[:space:];|&()`\/])(unzip|bsdunzip|tar|bsdtar|gtar|ditto|pax|cpio|bsdcpio|7z|7za|7zz|7zr|jar|ar|unar|zip)([[:space:]]|$)/) emit("!archive")
 }
 function remaining(d, start, end,    i, j, text) {
     for (i = start; i <= end; i++) {
@@ -1235,7 +1236,11 @@ function env_words(text, slot,    i, c, nextc, quote, word, active, n) {
 function executable(d, start, end,    i, j, program, option, split_at, text, slot, count, first, expansions) {
     prefix_uncertain = 0; prefix_fed = 0; dispatch_end = end; i = start
     while (i <= end) {
-        if (command_prefix(W[d, i])) { i++; continue }
+        if (command_prefix(W[d, i])) {
+            if (archive_environment_name(W[d, i])) { archive_environment = 1; emit("!archive") }
+            if (program == "env" && W[d, i] ~ /[$`*?\[{}]/ && (!Q[d, i] || DQ[d, i])) prefix_uncertain = 1
+            i++; continue
+        }
         program = base(W[d, i])
         if (!wrapper(program)) return redirection(d, i) ? 0 : i
         if (member("chroot nsenter", program)) prefix_uncertain = 1
@@ -1304,11 +1309,11 @@ function bulk_family(word) {
     if (member("7z 7za 7zz 7zr", word)) return "7z"
     if (member("unzip bsdunzip", word)) return "unzip"
     if (member("cpio bsdcpio", word)) return "cpio"
-    if (member("rsync cp ditto pax jar ar unar", word)) return word
+    if (member("rsync cp ditto pax jar ar unar zip", word)) return word
     return ""
 }
 function option_grammars() {
-    option_schema("tar", "xctruAdOzjJavpkhmPS", "fC", "extract get to-stdout create list append update concatenate diff compare verbose gzip gunzip bzip2 xz zstd overwrite keep-old-files no-same-owner same-owner no-same-permissions same-permissions", "file directory strip-components")
+    option_schema("tar", "xctruAdOzjJavpkhmPS", "fC", "extract get to-stdout create list append update concatenate diff compare verbose gzip gunzip bzip2 xz zstd overwrite keep-old-files no-same-owner same-owner no-same-permissions same-permissions remove-files", "file directory strip-components")
     option_schema("unzip", "lptZvoqnujCXLKafDUV", "dP", "", "")
     option_schema("cp", "rRaTpfvniuLPHdl", "t", "archive recursive no-target-directory force verbose no-clobber update", "target-directory")
     option_schema("rsync", "rapvniuLPHdzctgoDlq", "f", "archive recursive force verbose update compress times perms ignore-existing existing dry-run delete delete-before delete-during delete-delay delete-after delete-excluded", "")
@@ -1316,7 +1321,8 @@ function option_grammars() {
     option_schema("pax", "rwv", "f", "", "")
     option_schema("cpio", "idmvtop", "FDH", "extract create list pass-through make-directories preserve-modification-time no-absolute-filenames verbose", "file directory format")
     option_schema("7z", "y", "opt", "", "")
-    OPT["7z", "-so"] = OPT["7z", "-bd"] = "flag"
+    OPT["7z", "-so"] = OPT["7z", "-bd"] = OPT["7z", "-sdel"] = "flag"
+    option_schema("zip", "qrvm", "Pbn", "quiet recurse-paths verbose move", "password temp-path suffixes")
     option_schema("jar", "xctuv", "fC", "extract create list update verbose", "file dir")
     option_schema("ar", "xtrqdmpsvfP", "", "", "output")
     option_schema("unar", "qfdD", "o", "quiet force-overwrite force-directory no-directory", "output-directory")
@@ -1376,100 +1382,202 @@ function known_options(d, start, end, family, cwd, uncertain,    i, w, old, last
     }
     return 1
 }
-# Archive payloads are opaque. Prove an external destination using physical metadata only.
-function archive_scope(path,    script, cmd, result) {
-    script = "p=$1; while [ ! -d \"$p\" ]; do " \
-        "case \"$p\" in */../*|*/..) exit 2;; esac; " \
-        "[ ! -e \"$p\" ] && [ ! -L \"$p\" ] || exit 2; " \
-        "[ \"$p\" != / ] || exit 2; p=${p%/*}; [ -n \"$p\" ] || p=/; done; " \
+# Archive payloads and option environments are opaque. Only explicit read modes are admitted.
+function archive_environment_name(word) { return word ~ /^(UNZIP|UNZIPOPT|TAR_OPTIONS|ZIPOPT)($|[+]?=|\[)/ }
+function archive_exports(d, head, end,    i, w) {
+    for (i = head + 1; i <= end; i++) {
+        w = W[d, i]
+        if (redirection(d, i)) break
+        if (archive_environment_name(w)) { archive_environment = 1; emit("!archive") }
+        else if (w !~ /^[-+]/ && w !~ /^[A-Za-z_][A-Za-z0-9_]*([+]?=|$)/) {
+            archive_environment = 1
+            if (archive_seen) emit("!archive")
+        }
+    }
+}
+function archive_mode_flag(family, flag) {
+    if (family == "tar") {
+        if (member("-t --list", flag)) return "list"
+        if (member("-x --extract --get", flag)) return "extract"
+        if (member("-O --to-stdout", flag)) return "stdout"
+        if (member("-c -r -u -A --create --append --update --concatenate", flag)) return "create"
+        if (member("-d --diff --compare", flag)) return "other"
+        if (flag == "--remove-files") return "remove"
+    } else if (family == "unzip") {
+        if (member("-l -t -v -Z", flag)) return "list"
+        if (flag == "-p") return "stdout"
+        return "other"
+    } else if (family == "jar") {
+        if (member("-t --list", flag)) return "list"
+        if (member("-c -u --create --update", flag)) return "create"
+        if (member("-x --extract", flag)) return "extract"
+    } else if (family == "ar") {
+        if (flag == "-t") return "list"
+        if (member("-r -q -d -m -s", flag)) return "create"
+        if (flag == "-x") return "extract"
+        if (member("-p -M", flag)) return "other"
+    } else if (family == "cpio") {
+        if (member("-t --list", flag)) return "list"
+        if (member("-o --create", flag)) return "create"
+        if (member("-i -p --extract --pass-through", flag)) return "extract"
+    } else if (family == "pax") {
+        if (flag == "-w") return "create"
+        if (flag == "-r") return "extract"
+    }
+    return ""
+}
+function archive_mode_option(family, flag,    kind, key, parts) {
+    kind = archive_mode_flag(family, flag)
+    if (kind != "" || flag !~ /^--/) return kind
+    # An abbreviated extraction switch must not masquerade as an unknown creation option.
+    for (key in OPT) {
+        split(key, parts, SUBSEP)
+        if (parts[1] == family && index(parts[2], flag) == 1 && archive_mode_flag(family, parts[2]) == "extract") return "extract"
+    }
+    return ""
+}
+# 0 = refused/unknown, 1 = explicit read, 2 = archive creation/update.
+function archive_mode(d, start, end, family,    i, j, w, flag, kind, old, last, mode, options, terminator, state) {
+    if (family == "zip") return 2
+    if (!member("tar unzip jar ar cpio pax 7z", family)) return 0
+    options = 1
+    for (i = start; i <= end; i++) {
+        w = W[d, i]
+        if (redirection(d, i)) break
+        if (w == "--") { options = 0; terminator = 1; continue }
+        old = member("tar jar ar", family) && i == start && w ~ /^[a-zA-Z]+$/
+        if (!options || (w !~ /^-/ && !old)) {
+            if (family == "7z" && mode == "") mode = w
+            continue
+        }
+        last = option_end(d, i, end, family, old)
+        if (!last) last = i
+        if (w ~ /^--/) {
+            flag = w; sub(/=.*/, "", flag)
+            kind = archive_mode_option(family, flag); if (kind != "") state[kind] = 1
+        } else if (family != "7z") {
+            for (j = old ? 1 : 2; j <= length(w); j++) {
+                flag = "-" substr(w, j, 1)
+                kind = archive_mode_flag(family, flag); if (kind != "") state[kind] = 1
+                if (!old && OPT[family, flag] == "value") break
+            }
+        }
+        i = last
+    }
+    if (family == "7z") {
+        if (member("a u d", mode) && mode != "") return 2
+        return member("l t", mode) && mode != ""
+    }
+    if (state["create"] && !state["extract"] && !state["list"] && !state["stdout"] && !state["other"]) return 2
+    if (state["create"] || state["other"] || state["remove"]) return family == "unzip" && state["stdout"]
+    if (family == "unzip") return state["stdout"] || state["list"]
+    if (family == "tar") return (state["list"] && !state["extract"]) || (state["extract"] && state["stdout"] && !state["list"] && !terminator)
+    return state["list"] && !state["extract"]
+}
+function archive_command(d, verb, end, cwd, uncertain, fed, family,    i, mode) {
+    archive_seen = 1
+    if (uncertain || fed || archive_environment || ("UNZIP" in ENVIRON) || ("UNZIPOPT" in ENVIRON) || ("TAR_OPTIONS" in ENVIRON) || ("ZIPOPT" in ENVIRON)) { emit("!archive"); return }
+    for (i = verb + 1; i <= end; i++) {
+        if (redirection(d, i)) break
+        if (W[d, i] ~ /^@/) { emit("!archive"); return }
+    }
+    mode = archive_mode(d, verb + 1, end, family)
+    if (mode == 2) archive_creation(d, verb, end, cwd, uncertain, family)
+    else if (mode != 1 || !known_options(d, verb + 1, end, family, cwd, uncertain)) emit("!archive")
+}
+# Source deletion needs a stronger proof than ordinary archive reads. Never inspect file contents.
+function creation_source_scope(path,    script, cmd, result) {
+    if (path !~ /^\// || path ~ /[[:cntrl:]]/) return "!"
+    script = "p=$1; root=$2; " \
+        "if [ -e \"$root/.git\" ] || [ -L \"$root/.git\" ]; then case \"$p\" in \"$root\"|\"$root\"/*) echo inside; exit;; esac; fi; " \
+        "hops=0; while :; do " \
+        "if [ -L \"$p\" ]; then hops=$((hops+1)); [ \"$hops\" -le 40 ] || exit 2; " \
+        "link=$(readlink \"$p\" && printf x) || exit 2; link=${link%x}; link=${link%?}; " \
+        "case \"$link\" in *[[:cntrl:]]*) exit 2;; esac; case \"$link\" in /*) p=$link;; *) p=${p%/*}/$link;; esac; continue; fi; " \
+        "[ ! -d \"$p\" ] || break; [ \"$p\" != / ] || exit 2; p=${p%/*}; [ -n \"$p\" ] || p=/; done; " \
         "cd -P -- \"$p\" || exit 2; while :; do " \
         "if [ -e .git ] || [ -L .git ]; then echo inside; exit; fi; " \
         "[ \"$PWD\" != / ] || break; cd .. || exit 2; done; echo outside"
-    cmd = "bash -c " quote_path(script) " guard-archive " quote_path(path) " 2>/dev/null"
+    cmd = "bash -c " quote_path(script) " guard-archive-source " quote_path(path) " " quote_path(ENVIRON["GSW_ROOT"]) " 2>/dev/null"
     if ((cmd | getline result) != 1) result = "!"
     if (close(cmd) != 0 || result !~ /^(inside|outside)$/) result = "!"
     return result
 }
-function archive_emit(directory, unsafe, uncertain) {
-    if (unsafe || uncertain || directory == "" || directory == "!" || archive_scope(directory) != "outside") emit("!archive")
-    else emit("@archive:" directory)
+function creation_removes_sources(family, flag) {
+    return (flag ~ /^--./ && index("--remove-files", flag) == 1) ||
+        (family == "zip" && flag ~ /^--./ && index("--move", flag) == 1)
 }
-# Destination effects only: the later reference grammar still judges sources and output files.
-function tar_effect(d, verb, end, cwd, uncertain, family,    i, j, w, ch, value, directory, extract, other, stdout_only, bad, options, old, unsafe, terminator) {
-    directory = cwd; options = 1
+function creation_output_option(family, flag) {
+    return (member("tar jar pax", family) && member("-f --file", flag)) ||
+        (family == "cpio" && member("-F --file", flag)) ||
+        (family == "zip" && member("--out --output-file", flag))
+}
+function archive_creation(d, verb, end, cwd, uncertain, family,    i, j, w, flag, value, next_word, old, options, output, output_q, output_dq, output_explicit, positional, source_cwd, source_uncertain, count, sources, bases, remove_files, stdout_only, path) {
+    options = 1; source_cwd = cwd
     for (i = verb + 1; i <= end; i++) {
         w = W[d, i]
         if (redirection(d, i)) break
-        if (w == "--") { options = 0; terminator = 1; continue }
-        if (!options) continue
-        if (w == "--extract" || w == "--get") { extract = 1; continue }
-        if (w == "--to-stdout") { stdout_only = 1; continue }
-        if (member("--create --list --append --update --concatenate --diff --compare", w)) { other = 1; continue }
-        if (w ~ /^--(file|directory|dir|output)(=|$)/) {
-            value = w; sub(/^--[^=]+=?/, "", value)
-            if (member("--file --directory --dir --output", w)) value = W[d, ++i]
-            if (value == "" || value ~ /^-/) bad = 1
-            if (w !~ /^--file/) {
-                directory = resolved(value, Q[d, i], directory, uncertain, DQ[d, i])
-                if (directory == "!") bad = 1
+        if (w == "--" && options) { options = 0; continue }
+        if (w ~ /[$`]/ && (!Q[d, i] || DQ[d, i])) { emit("!"); return }
+        old = member("tar jar ar", family) && i == verb + 1 && w ~ /^[a-zA-Z]+$/
+        if (options && ((w ~ /^-/ && w != "-") || old)) {
+            if (family == "7z") {
+                if (w == "-so") stdout_only = 1
+                if (w == "-sdel") remove_files = 1
+                next_word = option_end(d, i, end, family, 0); if (next_word) i = next_word
+                continue
             }
-            continue
-        }
-        if (w ~ /^--/) {
-            if (!member("--verbose --gzip --gunzip --bzip2 --xz --zstd --overwrite --keep-old-files --no-same-owner --same-owner --no-same-permissions --same-permissions", w) && w !~ /^--strip-components=[0-9]+$/) bad = 1
-            continue
-        }
-        if (w ~ /^-/ || ((i == verb + 1 || (family != "tar" && !extract && !other)) && w ~ /^[a-zA-Z]+$/)) {
-            old = substr(w, 1, 1) != "-"; j = old ? 1 : 2
-            for (; j <= length(w); j++) {
-                ch = substr(w, j, 1)
-                if (ch == "x") extract = 1
-                else if (ch ~ /^[ctruAd]$/) other = 1
-                else if (ch == "O") stdout_only = 1
-                else if (ch == "P") unsafe = 1
-                else if ((ch == "f" && family != "ar") || ch == "C") {
-                    value = old ? "" : substr(w, j + 1)
-                    if (value == "") value = W[d, ++i]
-                    if (value == "" || value ~ /^-/) bad = 1
-                    if (ch == "C") {
-                        directory = resolved(value, Q[d, i], directory, uncertain, DQ[d, i])
-                        if (directory == "!") bad = 1
+            if (w ~ /^--/) {
+                flag = w; sub(/=.*/, "", flag)
+                if (creation_removes_sources(family, flag)) remove_files = 1
+                if (creation_output_option(family, flag) || OPT[family, flag] == "value") {
+                    value = substr(w, length(flag) + 2)
+                    if (w == flag) value = W[d, ++i]
+                    if (value == "") { emit("!"); return }
+                    if (creation_output_option(family, flag)) { output = value; output_q = Q[d, i]; output_dq = DQ[d, i]; output_explicit = 1 }
+                    else if (flag == "--directory") {
+                        if (value ~ /(^|\/)\.\.(\/|$)/) source_uncertain = 1
+                        source_cwd = resolved(value, Q[d, i], source_cwd, uncertain, DQ[d, i], 1)
                     }
-                    if (!old) break
-                } else if (ch !~ /^[zjJavpkhmSf]$/) bad = 1
+                }
+                continue
             }
+            next_word = i
+            for (j = old ? 1 : 2; j <= length(w); j++) {
+                flag = "-" substr(w, j, 1)
+                if (family == "zip" && flag == "-m") remove_files = 1
+                if (OPT[family, flag] != "value") continue
+                value = old ? "" : substr(w, j + 1)
+                if (value == "") value = W[d, ++next_word]
+                if (value == "") { emit("!"); return }
+                if (creation_output_option(family, flag)) { output = value; output_q = Q[d, next_word]; output_dq = DQ[d, next_word]; output_explicit = 1 }
+                else if (flag == "-C") {
+                    if (value ~ /(^|\/)\.\.(\/|$)/) source_uncertain = 1
+                    source_cwd = resolved(value, Q[d, next_word], source_cwd, uncertain, DQ[d, next_word], 1)
+                }
+                if (!old) break
+            }
+            i = next_word; continue
+        }
+        if (family == "7z" && !positional) { positional = 1; continue }
+        if (member("zip ar 7z", family) && positional < 2) {
+            positional = 2
+            if (!output_explicit) { output = w; output_q = Q[d, i]; output_dq = DQ[d, i] }
+        } else { sources[++count] = i; bases[count] = source_cwd }
+    }
+    if (remove_files) {
+        if (source_uncertain || !count || count > 256 || !known_options(d, verb + 1, end, family, cwd, uncertain)) { emit("!"); return }
+        for (j = 1; j <= count; j++) {
+            i = sources[j]; w = W[d, i]
+            if (bases[j] == "!" || w ~ /(^|\/)\.\.(\/|$)/ || (!Q[d, i] && w ~ /[*?\[{}]/)) { emit("!"); return }
+            path = resolved(w, Q[d, i], bases[j], uncertain, DQ[d, i], 1)
+            if (path == "!" || creation_source_scope(path) != "outside") { emit("!"); return }
+            emit(path)
         }
     }
-    if (extract) {
-        if (bad || other || uncertain || (stdout_only && terminator)) emit("!archive")
-        else if (!stdout_only) archive_emit(directory, unsafe, uncertain)
-    }
-}
-function unzip_effect(d, verb, end, cwd, uncertain,    i, j, w, ch, value, directory, read_only, other, stdout_only, bad, archive) {
-    directory = cwd
-    for (i = verb + 1; i <= end; i++) {
-        w = W[d, i]
-        if (redirection(d, i)) break
-        if (w == "--") { emit("!archive"); return }
-        if (w ~ /^-/) {
-            for (j = 2; j <= length(w); j++) {
-                ch = substr(w, j, 1)
-                if (ch ~ /^[ltZv]$/) read_only = 1
-                else if (ch == "p") stdout_only = 1
-                else if (ch == "d" || ch == "P") {
-                    other = 1
-                    value = substr(w, j + 1)
-                    if (value == "") value = W[d, ++i]
-                    if (value == "") bad = 1
-                    if (ch == "d") directory = resolved(value, Q[d, i], cwd, uncertain, DQ[d, i])
-                    break
-                } else { other = 1; if (ch !~ /^[oqnujCXLKafDUV]$/) bad = 1 }
-            }
-        } else archive = 1
-    }
-    if (bad || uncertain) { emit("!archive"); return }
-    if (stdout_only || (read_only && !other)) return
-    if (archive) archive_emit(directory, 0, uncertain)
+    if (stdout_only || output == "-") return
+    if (output != "") operand(output, output_q, cwd, uncertain, output_dq)
+    else if (member("ar 7z", family)) emit("!")
 }
 # cp writes source basenames to an existing/explicit directory, but source/. writes its contents.
 function copy_effect(d, verb, end, cwd, uncertain,    i, j, w, ch, value, count, target, no_target, recursive, dry, bad, options, source, suffix, kind, explicit_target, sync_delete, remote_target) {
@@ -1538,65 +1646,6 @@ function directory_kind(path,    cmd, result) {
     if ((cmd | getline result) != 1) result = "!"
     if (close(cmd) != 0) result = "!"
     return result
-}
-# Additional extractors share argv validation and emit only their effective destination.
-function extractor_effect(d, verb, end, cwd, uncertain, family,    i, j, w, ch, value, directory, extract, copy, listing, mode, count, last, options, relative_names) {
-    directory = cwd; options = 1
-    for (i = verb + 1; i <= end; i++) {
-        w = W[d, i]
-        if (redirection(d, i)) break
-        if (options && w == "--") { options = 0; continue }
-        if (options && w ~ /^-/) {
-            if (family == "7z") {
-                if (w ~ /^-[opt]/) {
-                    value = substr(w, 3); if (value == "") value = W[d, ++i]
-                    if (substr(w, 2, 1) == "o") directory = resolved(value, Q[d, i], cwd, uncertain, DQ[d, i])
-                }
-                continue
-            }
-            if (w ~ /^--/) {
-                if (w == "--extract") extract = 1
-                else if (w == "--pass-through") copy = 1
-                else if (w == "--list") listing = 1
-                else if (w == "--no-absolute-filenames") relative_names = 1
-                else if (w ~ /^--(file|directory|format|output-directory)(=|$)/) {
-                    value = w; sub(/^--[^=]+=?/, "", value)
-                    if (member("--file --directory --format --output-directory", w)) value = W[d, ++i]
-                    if (w ~ /^--(directory|output-directory)/) directory = resolved(value, Q[d, i], cwd, uncertain, DQ[d, i])
-                }
-                continue
-            }
-            for (j = 2; j <= length(w); j++) {
-                ch = substr(w, j, 1)
-                if ((family == "pax" && ch == "r") || (family == "cpio" && ch == "i") || (family == "ditto" && ch == "x")) extract = 1
-                else if ((family == "pax" && ch == "w") || (family == "cpio" && ch == "p")) copy = 1
-                else if (family == "cpio" && ch == "t") listing = 1
-                if (OPT[family, "-" ch] != "value") continue
-                value = substr(w, j + 1); if (value == "") value = W[d, ++i]
-                if (ch == "D" || (family == "unar" && ch == "o")) directory = resolved(value, Q[d, i], cwd, uncertain, DQ[d, i])
-                break
-            }
-        } else {
-            count++; last = i
-            if (family == "7z" && mode == "") mode = w
-        }
-    }
-    if (family == "7z") {
-        if (mode != "x" && mode != "e") { if (!member("a l t d u", mode)) emit("!"); return }
-        extract = 1
-    } else if (family == "ditto") {
-        if (count < 2) { emit("!"); return }
-        directory = resolved(W[d, last], Q[d, last], cwd, uncertain, DQ[d, last])
-    } else if (family == "unar") extract = 1
-    else {
-        if (!extract && (listing || !(family == "cpio" && copy))) return
-        if (copy) {
-            if (!count) { emit("!"); return }
-            directory = resolved(W[d, last], Q[d, last], cwd, uncertain, DQ[d, last])
-        }
-    }
-    if (extract) archive_emit(directory, family == "cpio" && !relative_names, uncertain)
-    else emit(uncertain ? "!" : directory)
 }
 function git_bulk(d, command, start, end, cwd, uncertain, fed,    i, j, w, prefix, write, dry, root) {
     for (i = start; i <= end; i++) {
@@ -1929,14 +1978,14 @@ function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed, out
         return ""
     }
     w = base(W[d, head])
+    if (member("export declare typeset readonly local", w)) archive_exports(d, head, end)
     if (w == "git") git_clean(d, head, end, cwd, context, findpaths, depth, fed)
     else if (w == "find") find_command(d, head, end, cwd, context, depth + 1, fed)
     else if (bulk_family(w) != "") {
-        if (fed || !known_options(d, head + 1, end, bulk_family(w), cwd, context)) emit(w == "cp" || w == "rsync" ? "!" : "!archive")
-        else if (member("tar jar ar", bulk_family(w))) tar_effect(d, head, end, cwd, context, bulk_family(w))
-        else if (bulk_family(w) == "unzip") unzip_effect(d, head, end, cwd, context)
-        else if (w == "cp" || w == "rsync") copy_effect(d, head, end, cwd, context)
-        else extractor_effect(d, head, end, cwd, context, bulk_family(w))
+        if (w == "cp" || w == "rsync") {
+            if (fed || !known_options(d, head + 1, end, w, cwd, context)) emit("!")
+            else copy_effect(d, head, end, cwd, context)
+        } else archive_command(d, head, end, cwd, context, fed, bulk_family(w))
     }
     else if (destructive(w)) {
         # xargs always adds/replaces operands from stdin, even with safe literal operands.
@@ -2001,14 +2050,12 @@ done
 destructive_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_ROOT="$repository_root" LC_ALL=C awk "$destructive_program" </dev/null)" || parser_failed
 if [ -n "$destructive_text" ]; then
     destructive_candidates=()
-    destructive_archive=0
     while IFS= read -r candidate; do
         if [ "$candidate" = '!archive' ]; then
-            printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: archive extraction can reach protected repository paths.' >&2
+            printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: archive extraction cannot be checked by the guard.' >&2
             archive_guidance
             exit 2
         fi
-        case "$candidate" in @archive:*) destructive_archive=1; candidate="${candidate#@archive:}" ;; esac
         if [ "$candidate" = '!' ]; then
             printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: a destructive command targets an operand that could not be resolved; use explicit paths or report the intended change.' >&2
             exit 2
@@ -2018,7 +2065,6 @@ if [ -n "$destructive_text" ]; then
     destructive_input="$(jq -nc --arg cwd "$cwd" --args '{cwd:$cwd,tool_input:{file_paths:$ARGS.positional}}' -- "${destructive_candidates[@]}")" || parser_failed
     destructive_references="$("$BASH" "$classifier" --destructive-references <<<"$destructive_input")" || {
         printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: could not check references (write guard failed).' >&2
-        [ "$destructive_archive" = 0 ] || archive_guidance
         exit 2
     }
     if [ -n "$destructive_references" ]; then
@@ -2026,7 +2072,6 @@ if [ -n "$destructive_text" ]; then
         destructive_reference="${destructive_reference#"$cwd"/}"
         destructive_reference="${destructive_reference#./}"
         printf "BLOCKED by cratis-guard-shell-writes: protected reference '%s' (cratis-guard-writes). Use the edit/write tools, or report the intended change; for a read, name literal paths or use the Read/Grep tools.\n" "$destructive_reference" >&2
-        [ "$destructive_archive" = 0 ] || archive_guidance
         exit 2
     fi
 fi

@@ -389,15 +389,17 @@ read-tree/checkout-index content effects use the same destination policy. Classi
 require exact recognized options, including their argument arities, before any dry-run, listing
 or index-only allowance; option abbreviation and unknown options are refused. Git pathspec magic
 is conservatively scoped to the enclosing worktree. Unknown destinations and uncertain execution
-contexts refuse rather than assume a clean scope. Archive creation/listing
-and ordinary single-file copies are not treated as recursive extraction.
+contexts refuse rather than assume a clean scope. Ordinary single-file copies are not treated
+as recursive extraction.
 
-Archive extraction is a repository-wide write because member paths and symlinks are opaque:
-extract into a folder outside the repository, then copy the specific files you need. Extraction
-inside any repository is refused even for an unrelated destination; outside extraction must not
-preserve absolute/parent paths (cpio requires `--no-absolute-filenames`). Only exactly recognised
-list/test/stdout forms retain their exceptions; stdout forms do not accept `--`. Git checkout-index
-requires a directory prefix ending in `/`, still checked against all protected-path policy.
+Archive extraction is refused regardless of destination or current directory; exactly recognised
+list/test/stdout modes remain admitted. Creation/append is an ordinary write of the archive output
+path (or stdout); unknown creation options retain reference-policy checks. Source-removing modes
+require every source to be provably outside the repository. Option environments (`UNZIP`, `UNZIPOPT`,
+`TAR_OPTIONS`, `ZIPOPT`) and argfile arguments are refused; assigning/exporting those variables is
+also blocked. Extraction-to-stdout forms do not accept `--`. Extract outside the agent shell (or ask
+the user), then copy the specific files needed. Git checkout-index still requires a directory
+prefix ending in `/`, checked against all protected-path policy.
 
 In destructive scope only, an existing directory also receives a metadata-only inventory for
 environment-named descendants using the write guard's environment patterns. Matching entry names
