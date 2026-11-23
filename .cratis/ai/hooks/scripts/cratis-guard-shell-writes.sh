@@ -869,9 +869,8 @@ function unclassified(text) {
     if (text ~ /(^|[[:space:];|&()`\/])(rm|rmdir|unlink|shred|mv)([[:space:];|&()`]|$)/ ||
         (text ~ /(^|[[:space:];|&()`\/])git[[:space:]]/ && text ~ /(^|[[:space:]])clean([[:space:]]|$)/) ||
         (text ~ /(^|[[:space:];|&()`\/])find[[:space:]]/ && text ~ /(^|[[:space:]])-delete([[:space:]]|$)/) ||
-        (text ~ /(^|[[:space:];|&()`\/])git[[:space:]]/ && text ~ /(^|[[:space:]])(restore|checkout|switch|stash|reset)([[:space:]]|$)/) ||
-        text ~ /(^|[[:space:];|&()`\/])(rsync|cp|unzip)([[:space:]]|$)/ ||
-        (text ~ /(^|[[:space:];|&()`\/])tar[[:space:]]/ && text ~ /(^|[[:space:]])(-[^[:space:]]*x|[x][a-z]*|--extract|--get)([[:space:]]|$)/)) emit("!")
+        (text ~ /(^|[[:space:];|&()`\/])git[[:space:]]/ && text ~ /(^|[[:space:]])(restore|checkout|switch|stash|reset|read-tree|checkout-index)([[:space:]]|$)/) ||
+        text ~ /(^|[[:space:];|&()`\/])(rsync|cp|unzip|tar|bsdtar|gtar|ditto|pax|cpio|7z|7za|7zz)([[:space:]]|$)/) emit("!")
 }
 function remaining(d, start, end,    i, j, text) {
     for (i = start; i <= end; i++) {
@@ -914,7 +913,7 @@ function arithmetic_prefix(text, i, quoted) {
 # Quoted parentheses and parameter braces remain word data in the lexer.
 function simple_command(text, d, n,    i, head) {
     head = base(W[d, 1])
-    if (!destructive(head) && !member("git find tar unzip rsync cp", head)) return 0
+    if (!destructive(head) && !member("git find", head) && bulk_family(head) == "") return 0
     if (text ~ /`|\$\(/) return 0
     for (i = 1; i <= n; i++) {
         if (BC[d, i] || (K[d, i] != "word" && K[d, i] !~ /^(>|>>|>&|&>|&>>|<|<&)$/)) return 0
@@ -1284,6 +1283,86 @@ function removal(d, verb, end, cwd, uncertain, findpaths,    i, w, count, option
         sources++
     }
 }
+# A shared exact grammar runs before effect parsing, including nonmutating/dry-run exits.
+# Unknown options are never interpreted as abbreviations, negations or harmless data.
+function option_schema(family, flags, values, long_flags, long_values,    i, n, words) {
+    for (i = 1; i <= length(flags); i++) OPT[family, "-" substr(flags, i, 1)] = "flag"
+    for (i = 1; i <= length(values); i++) OPT[family, "-" substr(values, i, 1)] = "value"
+    n = split(long_flags, words, " "); for (i = 1; i <= n; i++) OPT[family, "--" words[i]] = "flag"
+    n = split(long_values, words, " "); for (i = 1; i <= n; i++) OPT[family, "--" words[i]] = "value"
+}
+function bulk_family(word) {
+    if (member("tar bsdtar gtar", word)) return "tar"
+    if (member("7z 7za 7zz", word)) return "7z"
+    if (member("unzip rsync cp ditto pax cpio", word)) return word
+    return ""
+}
+function option_grammars() {
+    option_schema("tar", "xctruAdOzjJavpkhmPS", "fC", "extract get to-stdout create list append update concatenate diff compare verbose gzip gunzip bzip2 xz zstd overwrite keep-old-files no-same-owner same-owner no-same-permissions same-permissions", "file directory strip-components")
+    option_schema("unzip", "lptZvoqnujCXLKafDUV", "dP", "", "")
+    option_schema("cp", "rRaTpfvniuLPHdl", "t", "archive recursive no-target-directory force verbose no-clobber update", "target-directory")
+    option_schema("rsync", "rapfvniuLPHdzctgoDlq", "", "archive recursive force verbose update compress times perms ignore-existing existing dry-run delete delete-before delete-during delete-delay delete-after delete-excluded", "")
+    option_schema("ditto", "xkczvV", "", "rsrc norsrc extattr noextattr acl noacl qtn noqtn keepParent sequesterRsrc", "")
+    option_schema("pax", "rwv", "f", "", "")
+    option_schema("cpio", "idmvtop", "FDH", "extract create list pass-through make-directories preserve-modification-time no-absolute-filenames verbose", "file directory format")
+    option_schema("7z", "y", "opt", "", "")
+    OPT["7z", "-so"] = OPT["7z", "-bd"] = "flag"
+    option_schema("restore", "SWq", "s", "staged worktree ours theirs ignore-unmerged ignore-skip-worktree-bits overlay no-overlay quiet", "source")
+    option_schema("checkout", "fmqd", "bB", "force merge quiet detach track no-track guess no-guess recurse-submodules ours theirs", "orphan")
+    option_schema("switch", "fmqd", "cC", "force discard-changes merge quiet detach track no-track guess no-guess recurse-submodules", "create force-create")
+    option_schema("stash", "kuapq", "m", "keep-index no-keep-index include-untracked all quiet patch stat index", "message")
+    option_schema("reset", "q", "", "soft mixed hard merge keep no-refresh quiet pathspec-file-nul", "pathspec-from-file")
+    option_schema("clean", "fdxXqn", "e", "force quiet dry-run", "exclude")
+    option_schema("read-tree", "uminv", "", "reset merge dry-run verbose no-sparse-checkout", "prefix index-output")
+    option_schema("checkout-index", "afqunz", "", "all force quiet index no-create stdin temp", "prefix")
+}
+function option_value(d, i, end) {
+    return i <= end && K[d, i] == "word" && W[d, i] != "" && (Q[d, i] || W[d, i] !~ /[$`*?\[{}]/)
+}
+# Return the last consumed word, or zero. Option values are data, never another option.
+function option_end(d, i, end, family, old,    w, key, kind, j, last) {
+    w = W[d, i]; last = i
+    if (w ~ /^--/) {
+        key = w; sub(/=.*/, "", key); kind = OPT[family, key]
+        if (kind == "flag") return w == key ? i : 0
+        if (kind != "value") return 0
+        if (w != key) return length(w) > length(key) + 1 ? i : 0
+        return option_value(d, i + 1, end) ? i + 1 : 0
+    }
+    if (family == "7z") {
+        if (OPT[family, w] == "flag") return i
+        key = substr(w, 1, 2)
+        if (OPT[family, key] != "value") return 0
+        if (length(w) > 2) return i
+        return option_value(d, i + 1, end) ? i + 1 : 0
+    }
+    for (j = old ? 1 : 2; j <= length(w); j++) {
+        kind = OPT[family, "-" substr(w, j, 1)]
+        if (kind == "") return 0
+        if (kind != "value") continue
+        if (!old && j < length(w)) return i
+        if (!option_value(d, ++last, end)) return 0
+        if (!old) break
+    }
+    return last
+}
+function known_options(d, start, end, family, cwd, uncertain,    i, w, old, last) {
+    for (i = start; i <= end; i++) {
+        w = W[d, i]
+        if (redirection(d, i)) break
+        if (w == "--") return 1
+        old = family == "tar" && i == start && w ~ /^[a-zA-Z]+$/
+        if (w !~ /^-/ && !old) {
+            if (w ~ /[$`]/ && (!Q[d, i] || DQ[d, i]) && (!DQ[d, i] || resolved(w, Q[d, i], cwd, uncertain, DQ[d, i]) == "!")) return 0
+            continue
+        }
+        if (!Q[d, i] && w ~ /[$`*?\[{}]/) return 0
+        last = option_end(d, i, end, family, old)
+        if (!last) return 0
+        i = last
+    }
+    return 1
+}
 # Destination effects only: the later reference grammar still judges sources and output files.
 function tar_effect(d, verb, end, cwd, uncertain,    i, j, w, ch, value, directory, extract, other, stdout_only, bad, options, old) {
     directory = cwd; options = 1
@@ -1419,6 +1498,87 @@ function directory_kind(path,    cmd, result) {
     if (close(cmd) != 0) result = "!"
     return result
 }
+# Additional extractors share argv validation and emit only their effective destination.
+function extractor_effect(d, verb, end, cwd, uncertain, family,    i, j, w, ch, value, directory, extract, copy, listing, stdout_only, mode, count, last, options) {
+    directory = cwd; options = 1
+    for (i = verb + 1; i <= end; i++) {
+        w = W[d, i]
+        if (redirection(d, i)) break
+        if (options && w == "--") { options = 0; continue }
+        if (options && w ~ /^-/) {
+            if (family == "7z") {
+                if (w == "-so") stdout_only = 1
+                else if (w ~ /^-[opt]/) {
+                    value = substr(w, 3); if (value == "") value = W[d, ++i]
+                    if (substr(w, 2, 1) == "o") directory = resolved(value, Q[d, i], cwd, uncertain, DQ[d, i])
+                }
+                continue
+            }
+            if (w ~ /^--/) {
+                if (w == "--extract") extract = 1
+                else if (w == "--pass-through") copy = 1
+                else if (w == "--list") listing = 1
+                else if (w ~ /^--(file|directory|format)(=|$)/) {
+                    value = w; sub(/^--[^=]+=?/, "", value)
+                    if (w == "--file" || w == "--directory" || w == "--format") value = W[d, ++i]
+                    if (w ~ /^--directory/) directory = resolved(value, Q[d, i], cwd, uncertain, DQ[d, i])
+                }
+                continue
+            }
+            for (j = 2; j <= length(w); j++) {
+                ch = substr(w, j, 1)
+                if ((family == "pax" && ch == "r") || (family == "cpio" && ch == "i")) extract = 1
+                else if ((family == "pax" && ch == "w") || (family == "cpio" && ch == "p")) copy = 1
+                else if (family == "cpio" && ch == "t") listing = 1
+                if (OPT[family, "-" ch] != "value") continue
+                value = substr(w, j + 1); if (value == "") value = W[d, ++i]
+                if (ch == "D") directory = resolved(value, Q[d, i], cwd, uncertain, DQ[d, i])
+                break
+            }
+        } else {
+            count++; last = i
+            if (family == "7z" && mode == "") mode = w
+        }
+    }
+    if (family == "7z") {
+        if (mode != "x" && mode != "e") { if (!member("a l t d u", mode)) emit("!"); return }
+        if (stdout_only) return
+    } else if (family == "ditto") {
+        if (count < 2) { emit("!"); return }
+        directory = resolved(W[d, last], Q[d, last], cwd, uncertain, DQ[d, last])
+    } else {
+        if (listing || (!extract && !(family == "cpio" && copy))) return
+        if (copy) {
+            if (!count) { emit("!"); return }
+            directory = resolved(W[d, last], Q[d, last], cwd, uncertain, DQ[d, last])
+        }
+    }
+    emit(uncertain ? "!" : directory)
+}
+function git_bulk(d, command, start, end, cwd, uncertain, fed,    i, j, w, prefix, write, dry, root) {
+    for (i = start; i <= end; i++) {
+        w = W[d, i]
+        if (redirection(d, i)) break
+        if (w == "--") { if (command == "checkout-index" && i < end) write = 1; break }
+        if (w == "--prefix") prefix = W[d, ++i]
+        else if (w ~ /^--prefix=/) prefix = substr(w, 10)
+        else if (w == "--index-output") i++
+        else if (w == "--stdin" || w == "--temp") { emit("!"); return }
+        else if (w == "--dry-run" && command == "read-tree") dry = 1
+        else if (member("--all --force", w) && command == "checkout-index") write = 1
+        else if (w ~ /^-[^-]/) {
+            for (j = 2; j <= length(w); j++) {
+                if (command == "read-tree" && substr(w, j, 1) == "u") write = 1
+                else if (command == "read-tree" && substr(w, j, 1) == "n") dry = 1
+                else if (command == "checkout-index" && substr(w, j, 1) ~ /[af]/) write = 1
+            }
+        } else if (command == "checkout-index" && w !~ /^-/) write = 1
+    }
+    if (!write || dry) return
+    if (uncertain || fed) { emit("!"); return }
+    root = command == "read-tree" ? git_root(cwd) : cwd
+    emit(prefix == "" ? root : resolved(prefix, 1, root, root == "!"))
+}
 # Locate the selected worktree with metadata only. Overrides are refused for content effects.
 function git_root(cwd,    cmd, root) {
     cmd = "bash -c " quote_path("cd -P -- \"$1\" || exit 2; while [ ! -e \"$PWD/.git\" ]; do [ \"$PWD\" != / ] || exit 2; cd .. || exit 2; done; pwd -P") " guard-git-root " quote_path(cwd) " 2>/dev/null"
@@ -1428,8 +1588,7 @@ function git_root(cwd,    cmd, root) {
 }
 function git_path(d, i, cwd, uncertain, findpaths,    w) {
     w = W[d, i]
-    if (w ~ /^:\// || w ~ /^:\(top/) emit(git_root(cwd))
-    else if (w ~ /^:\(/) emit("!")
+    if (w ~ /^:/) emit(git_root(cwd))
     else if (w == "{}" && findpaths != "") emit(findpaths)
     else operand(w, Q[d, i], cwd, uncertain, DQ[d, i])
 }
@@ -1474,6 +1633,7 @@ function git_rewrite(d, command, start, end, cwd, uncertain, findpaths, fed,    
             bad = 1; continue
         }
         if (w ~ /[$`]/) bad = 1
+        if (w ~ /^:/) { emit(git_root(cwd)); return }
         RP[++paths] = i
         # checkout REV -- paths: revision is not a path, and branch data is never a subcommand.
         if (!skip) position++
@@ -1527,6 +1687,11 @@ function git_clean(d, verb, end, cwd, uncertain, findpaths, depth, fed,    i, j,
         return
     }
     # Once a subcommand is established, later words are its data, never another subcommand.
+    if (member("restore checkout switch stash reset clean read-tree checkout-index", W[d, subcommand]) && !known_options(d, subcommand + 1, end, W[d, subcommand], cwd, uncertain)) { emit("!"); return }
+    if (member("read-tree checkout-index", W[d, subcommand])) {
+        git_bulk(d, W[d, subcommand], subcommand + 1, end, cwd, uncertain || rewrite_context, fed)
+        return
+    }
     if (member("restore checkout switch stash reset", W[d, subcommand])) {
         git_rewrite(d, W[d, subcommand], subcommand + 1, end, cwd, uncertain || rewrite_context, findpaths, fed)
         return
@@ -1722,11 +1887,12 @@ function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed, out
     w = base(W[d, head])
     if (w == "git") git_clean(d, head, end, cwd, context, findpaths, depth, fed)
     else if (w == "find") find_command(d, head, end, cwd, context, depth + 1, fed)
-    else if (member("tar unzip rsync cp", w)) {
-        if (fed) emit("!")
-        else if (w == "tar") tar_effect(d, head, end, cwd, context)
+    else if (bulk_family(w) != "") {
+        if (fed || !known_options(d, head + 1, end, bulk_family(w), cwd, context)) emit("!")
+        else if (bulk_family(w) == "tar") tar_effect(d, head, end, cwd, context)
         else if (w == "unzip") unzip_effect(d, head, end, cwd, context)
-        else copy_effect(d, head, end, cwd, context)
+        else if (w == "cp" || w == "rsync") copy_effect(d, head, end, cwd, context)
+        else extractor_effect(d, head, end, cwd, context, bulk_family(w))
     }
     else if (destructive(w)) {
         # xargs always adds/replaces operands from stdin, even with safe literal operands.
@@ -1779,7 +1945,7 @@ function parse(text, cwd, uncertain, depth, fed,    n, i, start, kind, level, he
     }
 }
 function quote_path(path,    q) { q = "\047"; gsub(/\047/, "\047\\\047\047", path); return q path q }
-BEGIN { parse(ENVIRON["GSW_COMMAND"], ENVIRON["GSW_CWD"], 0, 0) }
+BEGIN { option_grammars(); parse(ENVIRON["GSW_COMMAND"], ENVIRON["GSW_CWD"], 0, 0) }
 AWK
 classifier="$script_directory/cratis-guard-writes.sh"
 repository_root="$cwd"

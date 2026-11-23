@@ -384,8 +384,12 @@ Before the reference fallback, destructive and bulk operations are checked by th
 scope against the shared write policy. This includes removal/movement, find-delete, Git clean,
 recursive copy destinations, local rsync destinations, archive extraction (including an implicit
 current directory), explicit Git path rewrites and whole-worktree content effects. Literal `cd`
-and Git `-C` contexts are tracked. Unknown destinations, unsupported mutating options and
-uncertain execution contexts refuse rather than assume a clean scope. Archive creation/listing
+and Git `-C` contexts are tracked. Tar aliases, ditto, pax, cpio, 7-Zip extraction and Git
+read-tree/checkout-index content effects use the same destination policy. Classified families
+require exact recognized options, including their argument arities, before any dry-run, listing
+or index-only allowance; option abbreviation and unknown options are refused. Git pathspec magic
+is conservatively scoped to the enclosing worktree. Unknown destinations and uncertain execution
+contexts refuse rather than assume a clean scope. Archive creation/listing
 and ordinary single-file copies are not treated as recursive extraction.
 
 In destructive scope only, an existing directory also receives a metadata-only inventory for
@@ -393,8 +397,8 @@ environment-named descendants using the write guard's environment patterns. Matc
 include files, directories and symlinks, case-insensitively. Nested symlinks are not followed;
 addressed directory aliases still receive the ordinary physical-path checks. Inventories are
 bounded to 250,000 entries and five seconds per hook call, deduplicated within that call, never
-cached across calls. Inspection errors, changes observed during inspection, missing Node and
-exhausted limits refuse. Clean ordinary directories (including dependency/build trees) and
+cached across calls. Environment patterns cover control characters in entry names. Undecodable
+names, inspection errors, changes observed during inspection, missing Node and exhausted limits refuse. Clean ordinary directories (including dependency/build trees) and
 missing operands remain usable. Normal references and Write/Edit do not inventory descendants.
 
 Git restore is index-only only when a narrowly parsed `--staged` form has no worktree flag.

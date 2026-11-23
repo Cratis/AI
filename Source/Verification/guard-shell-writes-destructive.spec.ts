@@ -409,6 +409,48 @@ test('bulk working-tree effects use destination scope and existing environment e
     } finally { rmSync(root, { recursive: true, force: true }); }
 });
 
+test('review r1 bulk families require exact options and conservative pathspec scope', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    mkdirSync(join(root, 'clean'));
+    const denied = [
+        'tar --extr -f bundle.tar', 'tar tf bundle.tar --unknown', 'tar -xOf bundle.tar --no-extract',
+        'unzip -p --p bundle.zip', 'unzip -l --unknown bundle.zip',
+        'rsync -an --unknown other/ .', 'cp --recur other/. .',
+        'git reset --har', 'git reset --soft --har', 'git restore --workt .', 'git checkout --forc main',
+        'git stash list --unknown', 'git stash apply --no-unknown', 'git switch --dis main', 'git clean -n --dry-ru',
+        'bsdtar xf bundle.tar', '/usr/bin/bsdtar xf bundle.tar', 'gtar xf bundle.tar', '/opt/bin/gtar --extract -f bundle.tar',
+        'ditto -x -k bundle.zip .', 'pax -r -f bundle.tar', 'cpio -id -F bundle.cpio',
+        '7z x bundle.7z', '/usr/bin/7z x bundle.7z -o.', '7za x bundle.7z -o.', '7zz x bundle.7z -o.',
+        'git read-tree -u HEAD', 'cd clean && git read-tree -u HEAD', 'git read-tree -u --prefix=. HEAD',
+        'git checkout-index -a', 'git checkout-index -af', 'git checkout-index -a --prefix=.',
+        'ditto --unknown bundle.zip clean', 'pax -w --unknown', 'cpio -t --unknown', '7z l --unknown bundle.7z',
+        'git read-tree --unknown HEAD', 'git checkout-index -a --unk --prefix=clean/',
+    ];
+    for (const magic of [':!clean', ':^clean', ':clean', ':(exclude)clean', ':(top)clean', ':/clean']) {
+        denied.push(...['git restore --', 'git restore --staged --', 'git checkout --', 'git stash push --', 'git clean -fdx --'].map(verb => `${verb} '${magic}'`));
+    }
+    const allowed = [
+        'tar tf bundle.tar', 'tar -czf bundle.tgz .', 'tar xOf bundle.tar', 'tar xf bundle.tar -C clean',
+        'unzip -p bundle.zip', 'unzip -l bundle.zip', 'rsync -an --delete other/ clean/', 'cp -r other/. clean',
+        'git reset --soft', 'git reset --mixed', 'git restore clean', 'git restore --staged .pi/settings.json',
+        'git checkout -b topic', 'git switch -c topic', 'git stash list', 'git stash show -p', 'git stash push -- clean',
+        'git checkout -- clean', 'git clean -n', 'git clean -fdx -- clean',
+        'bsdtar xf bundle.tar -C clean', '/usr/bin/bsdtar xf bundle.tar -C clean',
+        'gtar xf bundle.tar -C clean', '/opt/bin/gtar --extract -f bundle.tar --directory=clean',
+        'ditto -x -k bundle.zip clean', 'cd clean && pax -r -f ../bundle.tar', 'pax -w -f bundle.tar clean',
+        'cpio -id -D clean -F bundle.cpio', 'cpio -o -F bundle.cpio',
+        '7z x bundle.7z -oclean', '7za x bundle.7z -oclean', '7zz x bundle.7z -oclean', '7z l bundle.7z',
+        'git read-tree HEAD', 'git read-tree -u --prefix=clean/ HEAD', 'git checkout-index -af --prefix=clean/',
+    ];
+    try {
+        await Promise.all([...denied.map(command => [2, command] as const), ...allowed.map(command => [0, command] as const)]
+            .map(([expected, command]) => context.test(command, async scenario => {
+                const result = await shellVerdict(command, root, '0', scenario.signal);
+                assert.equal(result.status, expected, result.stderr);
+            })));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 const descendants = resolve(import.meta.dirname, '../../.cratis/ai/hooks/scripts/cratis-guard-writes-descendants.mjs');
 const environmentPatterns = ['.env', '.env.*', '*.env'];
 
@@ -436,6 +478,27 @@ test('metadata scanner reports clean, matching, uncertain and bounded outcomes w
         assert.equal(result.status, 1);
         assert.equal(result.stdout, '');
         assert.equal(result.stderr, '');
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('review r1 environment inventory handles control characters and unclassifiable names', async () => {
+    const { inspectDescendants } = await import(pathToFileURL(descendants).href);
+    const root = scratchRepository();
+    const directory = join(root, 'output');
+    mkdirSync(directory);
+    try {
+        for (const name of ['.env.\nlocal', 'service\n.env', '.ENV.\r\nLOCAL', '.env.\u0001local']) {
+            const file = join(directory, name);
+            writeFileSync(file, 'synthetic fixture');
+            assert.equal(inspectDescendants([directory], environmentPatterns), 1, JSON.stringify(name));
+            const result = await shellVerdict('rm -rf output', root);
+            assert.equal(result.status, 2, result.stderr);
+            rmSync(file);
+        }
+        const fs = { ...filesystem, readdirSync: () => [Buffer.from([0xff, 0x61])] };
+        assert.equal(inspectDescendants([directory], environmentPatterns, { fs }), 2);
+        assert.equal(inspectDescendants([directory], environmentPatterns), 0);
+        assert.equal((await shellVerdict('rm -rf output', root)).status, 0);
     } finally { rmSync(root, { recursive: true, force: true }); }
 });
 

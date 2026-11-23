@@ -4,9 +4,12 @@
 import * as filesystem from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { TextDecoder } from 'node:util';
+
+const entryDecoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });
 
 function nameMatcher(patterns) {
-    const expressions = patterns.map(pattern => new RegExp(`^${pattern.split('*').map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*')}$`, 'i'));
+    const expressions = patterns.map(pattern => new RegExp(`^${pattern.split('*').map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('.*')}$`, 'is'));
     return name => expressions.some(expression => expression.test(name));
 }
 
@@ -47,7 +50,9 @@ function inspectDirectory(path, context, stack) {
     const before = context.fs.lstatSync(path);
     if (!unlinkedDirectory(before)) throw new Error('directory changed');
     stack.push({ path, before });
-    for (const name of context.fs.readdirSync(path)) {
+    for (const entry of context.fs.readdirSync(path, { encoding: 'buffer' })) {
+        // Decode losslessly or refuse the inventory; replacement characters can hide names.
+        const name = entryDecoder.decode(entry);
         if (inspectEntry(path, name, context, stack)) return 1;
     }
     return 0;
