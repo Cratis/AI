@@ -54,6 +54,7 @@ An absent block exposes nothing and manifest export refuses `NoAgentsBlock`. An 
 | Ambiguous reference | PLAY0967 error; qualify it |
 | Duplicate resolved operation | PLAY0968 error, even with different short references |
 | Missing or blank description | PLAY0969 error |
+| More than 20 distinct exposed operations | PLAY1167 warning; recommended maximum is 20 per `agents` block, so keep the MCP tool surface small; compilation still succeeds |
 | Missing, invalid or duplicate scope | PLAY0970 error |
 | Command with `scope read` | PLAY0971 error |
 | Missing or duplicate tokens declaration | PLAY0972 error |
