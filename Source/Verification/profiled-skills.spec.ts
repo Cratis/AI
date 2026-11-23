@@ -115,3 +115,45 @@ test('the orchestration profile is opt-in and resolves lanes plus the core engin
         rmSync(project, { recursive: true, force: true });
     }
 });
+
+test('the .NET diagnostics, testing and composed C# profiles select the imported analysis skills', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-dotnet-analysis-profiles-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const cases: Array<[string, string[]]> = [
+            ['cratis/engineering/dotnet/diagnostics', ['pvanalyze']],
+            ['cratis/engineering/dotnet/testing', ['exp-mock-usage-analysis']],
+            ['cratis/engineering/csharp', ['pvanalyze', 'exp-mock-usage-analysis']],
+        ];
+        for (const [profile, expected] of cases) {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: [profile], languages: ['csharp'] }));
+            const actual = selectedSkillPaths(project).map(path => basename(path)).sort();
+            for (const skill of expected) {
+                assert.ok(actual.includes(skill), `${profile} must install ${skill}`);
+            }
+            assert.ok(!actual.includes('migrate-dotnet10-to-dotnet11'), `${profile} must not install the opt-in migration skill`);
+            assert.deepEqual([...selectedSkillNames(project)!].sort(), actual, 'path guidance and the plugin must resolve the same skills');
+        }
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});
+
+test('the .NET 11 migration skill is reachable only through its explicit profile', () => {
+    const project = mkdtempSync(join(tmpdir(), 'cratis-dotnet-migration-profile-'));
+    try {
+        mkdirSync(join(project, '.cratis'));
+        const selectFor = (profiles: string[]) => {
+            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles, languages: ['csharp'] }));
+            const paths = selectedSkillPaths(project).map(path => basename(path)).sort();
+            assert.deepEqual([...selectedSkillNames(project)!].sort(), paths, 'path guidance and the plugin must resolve the same skills');
+            return paths;
+        };
+        assert.ok(selectFor(['cratis/engineering/dotnet/migrate-dotnet11']).includes('migrate-dotnet10-to-dotnet11'));
+        for (const profile of ['cratis/engineering/csharp', 'cratis/engineering', 'cratis']) {
+            assert.ok(!selectFor([profile]).includes('migrate-dotnet10-to-dotnet11'), `${profile} must not include the opt-in migration skill`);
+        }
+    } finally {
+        rmSync(project, { recursive: true, force: true });
+    }
+});

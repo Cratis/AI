@@ -1,0 +1,23 @@
+{
+  "skill": "exp-mock-usage-analysis",
+  "queries": [
+    { "query": "Audit these NSubstitute specs for setups that are never used by the code under test.", "shouldTrigger": true },
+    { "query": "Are there dead mock or stub setups in this test class?", "shouldTrigger": true },
+    { "query": "Find unnecessary Returns configuration in our specification contexts.", "shouldTrigger": true },
+    { "query": "Review this spec: is the Establish stub really exercised by the Because method?", "shouldTrigger": true },
+    { "query": "Check whether the substitutes in these tests are over-configured compared with what the handler calls.", "shouldTrigger": true },
+    { "query": "Which Substitute.For fields here are never touched during execution?", "shouldTrigger": true },
+    { "query": "Look for mock setups that no assertion or execution path depends on in the Orders specs.", "shouldTrigger": true },
+    { "query": "Is this test just verifying mocks, or does it assert real behavior? Review the mock usage.", "shouldTrigger": true },
+    { "query": "Analyze mock usage in this test project and report the unneeded setups without changing anything.", "shouldTrigger": true },
+    { "query": "Write a new specification for the cancel-order handler.", "shouldTrigger": false },
+    { "query": "Replace NSubstitute with another mocking library across the solution.", "shouldTrigger": false },
+    { "query": "Increase code coverage for the billing module.", "shouldTrigger": false },
+    { "query": "Run only the tests affected by my change.", "shouldTrigger": false },
+    { "query": "Why is this specification failing with a NullReferenceException?", "shouldTrigger": false },
+    { "query": "Add integration tests against a real database.", "shouldTrigger": false },
+    { "query": "Collect a dotnet-trace for a slow test run.", "shouldTrigger": false },
+    { "query": "Refactor this production class into smaller methods.", "shouldTrigger": false },
+    { "query": "Explain the Establish and Because lifecycle in Cratis specifications.", "shouldTrigger": false }
+  ]
+}
