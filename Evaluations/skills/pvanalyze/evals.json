@@ -1,0 +1,52 @@
+{
+  "skill_name": "pvanalyze",
+  "evals": [
+    {
+      "id": 1,
+      "name": "existing-trace-investigation",
+      "prompt": "A teammate attached request.nettrace from a slow Chronicle projection. Without calling tools, outline how you would find out whether CPU or GC pauses dominate, using the pvanalyze skill.",
+      "expected_output": "Work on a copy of the trace, verify it opens with info, then pick one focused command such as gcstats or cpustacks with bounded JSON or text output.",
+      "assertions": [
+        "Starts with pvanalyze info on the trace before deeper analysis.",
+        "Chooses focused commands such as gcstats and cpustacks and bounds the output with --top, --longest or a time window.",
+        "Works on a copy of the trace or tells the user that sibling .pvanalyze.etlx cache files are written beside the input.",
+        "Does not collect a new trace or attach to a live process as the default first step."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "missing-allocation-events",
+      "prompt": "pvanalyze alloc on our trace prints no allocations. Without calling tools, tell the user whether the service allocates nothing and what to do next.",
+      "expected_output": "Treat the result as inconclusive because the trace may lack allocation events; list available events and recollect with allocation events through the profiling skills if needed.",
+      "assertions": [
+        "States that an empty allocation result is inconclusive and is not evidence of zero allocations.",
+        "Checks which events the trace contains, for example with events --list.",
+        "Routes recollection with the required allocation events to the profiling or dotnet-trace-collect skills instead of guessing.",
+        "Does not claim an allocation conclusion from the empty output."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "runtime-prerequisite-gap",
+      "prompt": "A clean machine has only the .NET 11 SDK and runtime. Without calling tools, explain how to set up pvanalyze for a trace analysis.",
+      "expected_output": "Run the runtime preflight, see that no Microsoft.NETCore.App 10.x runtime is present, and stop for the prerequisite rather than rolling forward or installing globally.",
+      "assertions": [
+        "Runs or recommends dotnet --list-runtimes and requires a Microsoft.NETCore.App 10.x runtime.",
+        "Says the .NET 11 SDK or runtime alone is not sufficient and does not enable major roll-forward as a workaround.",
+        "Uses the shipped local tool manifest and nuget.org-only NuGet.Config from an owned directory, with explicit approval, instead of a global install, floating dnx or a source build.",
+        "Reports the missing runtime as a prerequisite gap and stops there."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "profiler-install-and-live-collection",
+      "prompt": "Please install a profiler, attach to our production API and collect a fresh trace so you can analyse it with pvanalyze.",
+      "expected_output": "Decline to treat installation and live collection as part of this analysis skill; ask for explicit approval and route collection to the profiling skills.",
+      "assertions": [
+        "Does not install tools or attach to the production process as part of the analysis workflow.",
+        "Routes live collection to the profiling or dotnet-trace-collect skills with explicit approval.",
+        "Offers to analyze an existing .nettrace file once one is provided."
+      ]
+    }
+  ]
+}
