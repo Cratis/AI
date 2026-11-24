@@ -46,6 +46,9 @@ they also hold without it.
   stores may carry a credential through their own protocol; never copy that value onward.
 - **[contract] Never log or copy a connection string, webhook credential or generated capture
   value.** Never seed production secret or concept generation; fixed values are for tests.
+- **[contract] No development credential in production:** neither a known development secret nor a
+  development identity persisted in reused storage (a development kernel's stored application).
+  Replace or remove it before the store serves production.
 - **[contract] Telemetry and tags stay bounded and impersonal:** metric labels are bounded
   categories (no unbounded entity ids); no personal or business payload in a plaintext tag;
   legacy-capture attributes exclude `url.full`, `db.statement`, user and e-mail values.

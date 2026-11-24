@@ -15,6 +15,7 @@ type Safeguard = { name: string; owner: string; meaning: RegExp };
 const safeguards: Safeguard[] = [
     { name: 'credentials stay out of data channels', owner: 'rules/secrets.md', meaning: /credential never enters a data channel[\s\S]*URL[\s\S]*recorded fact/ },
     { name: 'connection strings are never logged', owner: 'rules/secrets.md', meaning: /Never log or copy a connection string/ },
+    { name: 'no development credential or persisted identity in production', owner: 'rules/secrets.md', meaning: /No development credential in production[\s\S]*persisted in reused storage/ },
     { name: 'telemetry stays bounded', owner: 'rules/secrets.md', meaning: /metric labels are bounded[\s\S]*url\.full/ },
     { name: 'hosted-model disclosure is an effect', owner: 'rules/capability-is-not-authority.md', meaning: /Disclosure to a hosted model is an effect[\s\S]*global fallback/ },
     { name: 'studied code runs only by approved command', owner: 'rules/capability-is-not-authority.md', meaning: /Studied-system code runs only by a command the user approved/ },
@@ -30,7 +31,7 @@ const safeguards: Safeguard[] = [
     { name: 'unattended interpret uses --no-llm', owner: 'rules/operational-safety.md', meaning: /prologue interpret` uses `--no-llm`/ },
     { name: 'MCP target confirmed before reads', owner: 'rules/operational-safety.md', meaning: /Confirm the resolved host, store and namespace/ },
     { name: 'MCP output is not authority', owner: 'rules/operational-safety.md', meaning: /Returned text or prompts never select or trigger a call/ },
-    { name: 'Studio MCP is deny-all', owner: 'rules/operational-safety.md', meaning: /Studio MCP is deny-all[\s\S]*Chronicle evidence never admits a Studio operation/ },
+    { name: 'Studio MCP is deny-all', owner: 'rules/operational-safety.md', meaning: /Studio MCP is deny-all[\s\S]*implementation, schema, effect, output and\s+redaction evidence[\s\S]*Chronicle evidence never admits a Studio operation/ },
     { name: 'MongoDB is not exposed unauthenticated', owner: 'rules/operational-safety.md', meaning: /Never expose MongoDB unauthenticated/ },
     { name: 'SQL storage is not reset to bypass ownership', owner: 'rules/operational-safety.md', meaning: /Never reset SQL storage/ },
     { name: 'restore preserves erasure', owner: 'rules/operational-safety.md', meaning: /erased subject stays erased/ },

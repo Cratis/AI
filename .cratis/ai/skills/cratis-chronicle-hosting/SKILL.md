@@ -73,7 +73,7 @@ and still requires a certificate on first use. Development falls back to
 ephemeral OAuth keys. Supply passwords from the approved secret mechanism,
 never commit them. Every cluster node needs the same certificate ring.
 
-The .NET client uses known development credentials when ClientCredentials has
+The .NET client uses known development credentials (never in production: [`secrets.md`](../../rules/secrets.md)) when ClientCredentials has
 both username and password absent (`ChronicleClient.cs`,
 `Connections/ServiceCollectionExtensions.cs`). The development
 kernel creates the application **directly in persistent storage**

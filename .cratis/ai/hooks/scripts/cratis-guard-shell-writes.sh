@@ -37,8 +37,22 @@ cwd="${cwd:-$PWD}"
 [ "${#command_text}" -le 131072 ] || parser_failed
 
 # Explicit literal staging of the .cratis-render/ cache is refused before any installer/repair shortcut.
-# Only a git add/stage that mentions the cache (or runs inside it) reaches the classifier; a missing classifier or node refuses.
-if [[ "$command_text$cwd" == *.cratis-render* && "$command_text" == *git* && ( "$command_text" == *add* || "$command_text" == *stage* ) ]]; then
+# Node and the classifier are needed only for an executable staging candidate: the cache named, a git word at
+# a command position (after separators, assignments, control words or a wrapper) or inside a shell -c script, and
+# add or stage. A mention inside quoted text (echo 'git add .cratis-render/') is not a candidate and behaves as
+# before, with or without node. Wrapper words are skipped by the classifier; the prefilter only over-approximates it.
+render_staging_candidate() {
+    local text="$1" nl=$'\n'
+    local start="(^|[;&|(\`]|$nl)[[:space:]]*(((then|do|else|elif|if|while|until|time|!|\{)[[:space:]]+)*)([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*"
+    local git="['\"\\]*([^[:space:];&|]*/)?git['\"]*[[:space:]]"
+    local wrapper="(command|exec|time|nohup|sudo|doas|env|nice|ionice|stdbuf|timeout|setsid)[[:space:]]"
+    local shell="(sh|bash|zsh|dash|ksh)[[:space:]]+(-[A-Za-z]*[[:space:]]+)*-[A-Za-z]*c"
+    [[ "$text" =~ $start$git ]] && return 0
+    [[ "$text" =~ $start$wrapper[^\;\&\|]*[[:space:]\'\"/]git[[:space:]\'\"] ]] && return 0
+    [[ "$text" =~ $start([^[:space:];&|]*/)?$shell ]] && return 0
+    return 1
+}
+if [[ "$command_text$cwd" == *.cratis-render* && ( "$command_text" == *add* || "$command_text" == *stage* ) ]] && render_staging_candidate "$command_text"; then
     render_staging_guard="$script_directory/cratis-guard-render-staging.mjs"
     render_staging_status=0
     if [ -f "$render_staging_guard" ] && command -v node >/dev/null 2>&1; then

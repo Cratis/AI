@@ -475,16 +475,20 @@ mention `.cratis-render` (or run inside it), and never executes, expands or eval
 There is no escape variable for it beyond the whole-guard `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1`.
 
 - **Recognised:** `git [global options] add|stage [options] [--] PATH…` per simple command (split on
-  `;`, `&`, `|`, newlines, parentheses and backticks), after leading `NAME=value`, `command`, `env`,
-  `sudo`, `exec`, `time` words; `git -C DIR add`; a path with a `.cratis-render` component after quote
+  `;`, `&`, `|`, newlines, parentheses and backticks), after leading `NAME=value`, control words (`then`, `do`,
+  `else`…) and the wrappers `command`, `exec`, `time`, `nohup`, `sudo`, `doas`, `env`, `nice`, `ionice`, `stdbuf`,
+  `timeout`, `setsid` with their options and option values (every word between a wrapper and the first `git` or
+  shell is treated as wrapper syntax); `git -C DIR add`; a path with a `.cratis-render` component after quote
   removal (relative, `./`, nested or absolute, with or without a trailing slash or child file); and
   one level of `sh|bash|zsh -c '…'` text.
 - **Refused as unresolvable:** a recognised `git add` whose target contains `$` or backticks when the
   command also names `.cratis-render`; the refusal asks for literal paths.
-- **Not recognised (outside coverage):** `git add .`, `-A`, `-u`, pathspec files or magic, aliases,
+- **Not recognised (outside coverage):** any other wrapper or launcher (`xargs`, `find -exec`, `watch`, a script), `git add .`, `-A`, `-u`, pathspec files or magic, aliases,
   scripts, variables with no visible target, `xargs`, Git plumbing such as `update-index`, and spellings
   that hide the name from a literal match. The rule still prohibits staging the cache.
-- A missing classifier or `node` refuses a candidate command. A non-candidate command is unaffected.
+- A shell-side prefilter starts Node only for a candidate: the cache named, `add`/`stage`, and `git` at a command
+  position, behind a wrapper, or in a `sh -c` script. Quoted text (`echo 'git add .cratis-render/'`) is not a candidate
+  and behaves as before with or without `node`. A missing classifier or `node` refuses a candidate only.
 - Not wired anywhere new: the existing shell-write guard calls the helper, as it does the repair helper.
 
 ### Read-only admissions and deliberate refusals (#1255)

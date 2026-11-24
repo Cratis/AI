@@ -9,7 +9,8 @@ import { pathToFileURL } from 'node:url';
 
 const cacheName = '.cratis-render';
 const separators = new Set([';', '&', '|', '\n', '(', ')', '`']);
-const wrappers = new Set(['command', 'exec', 'time', 'nohup', 'sudo', 'env', 'then', 'do', 'else', '!', '{', '$']);
+const wrappers = new Set(['command', 'exec', 'time', 'nohup', 'sudo', 'doas', 'env', 'nice', 'ionice', 'stdbuf', 'timeout', 'setsid']);
+const controlWords = new Set(['if', 'then', 'do', 'else', 'elif', 'while', 'until', '!', '{', '$']);
 const shells = new Set(['sh', 'bash', 'zsh', 'dash', 'ksh']);
 const gitValueOptions = new Set(['-C', '-c', '--git-dir', '--work-tree', '--namespace', '--exec-path', '--super-prefix', '--config-env']);
 const maxNesting = 2;
@@ -102,8 +103,23 @@ export const tokenize = commandText => new Lexer(commandText).run();
 
 const isAssignment = text => /^[A-Za-z_][A-Za-z0-9_]*[+]?=/.test(text);
 
-/** Index of the command word when only assignments and wrappers precede it, else -1. */
-const commandIndex = words => words.findIndex(word => !isAssignment(word.text) && !wrappers.has(word.text));
+const isLauncher = text => shells.has(basename(text)) || basename(text) === 'git';
+
+/**
+ * Index of the command word. Assignments and control words are skipped. After a wrapper (which may take
+ * options and option values: sudo -n, env -u X --, nice -n 5) every word up to the first git or shell
+ * is treated as wrapper syntax, so an option-taking wrapper cannot hide a git invocation. Otherwise -1.
+ */
+function commandIndex(words) {
+    let wrapped = false;
+    for (let index = 0; index < words.length; index++) {
+        const text = words[index].text;
+        if (isAssignment(text) || controlWords.has(text)) continue;
+        if (wrappers.has(text)) wrapped = true;
+        else if (!wrapped || isLauncher(text)) return index;
+    }
+    return -1;
+}
 
 /** Returns {directories, subcommand, rest} for a `git` word, or undefined. */
 function parseGit(words, gitIndex) {
@@ -180,7 +196,13 @@ function main() {
     return 2;
 }
 
-const isEntryPoint = () => process.argv[1] && import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href;
+function isEntryPoint() {
+    try {
+        return import.meta.url === pathToFileURL(realpathSync(process.argv[1])).href;
+    } catch {
+        return false;
+    }
+}
 
 if (isEntryPoint()) {
     try {

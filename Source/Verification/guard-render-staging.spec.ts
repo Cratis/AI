@@ -36,6 +36,14 @@ const refused = [
     'bash -c "git add .cratis-render/"',
     'git add $TARGET .cratis-render/*',
     'DIR=.cratis-render; git add "$DIR"',
+    'command -- git add .cratis-render/x',
+    'env -- git add .cratis-render/x',
+    'env VAR=x git add .cratis-render/x',
+    'sudo -n git add .cratis-render/x',
+    'nice -n 5 git add .cratis-render',
+    'timeout 5 git add .cratis-render',
+    "bash -c 'git add .cratis-render'",
+    'bash -lc "git add .cratis-render/x"',
 ];
 const permitted = [
     'git status',
@@ -53,6 +61,11 @@ const permitted = [
     'cratis render',
     'cratis render --force',
     'git add Source/a.ts && ls .cratis-render',
+    "printf '%s' 'git add .cratis-render/'",
+    'env FOO=1 ls .cratis-render',
+    'sudo -n ls .cratis-render',
+    'nice -n 5 git add Source/a.ts',
+    'command -- git status',
     '',
 ];
 
@@ -144,4 +157,31 @@ test('a scripts directory reached through a symlink still refuses instead of sil
         assert.equal(result.status, 2, result.stderr);
         assert.match(result.stderr, /names the render cache/);
     } finally { rmSync(directory, { recursive: true, force: true }); }
+});
+
+function runWithoutNode(command: string) {
+    const directory = mkdtempSync(join(tmpdir(), 'render-staging-'));
+    try {
+        const bin = join(directory, 'bin');
+        spawnSync('mkdir', ['-p', bin]);
+        const jq = spawnSync('bash', ['-c', 'command -v jq'], { encoding: 'utf8' }).stdout.trim();
+        symlinkSync(jq, join(bin, 'jq'));
+        const bash = spawnSync('bash', ['-c', 'command -v bash'], { encoding: 'utf8' }).stdout.trim();
+        return spawnSync(bash, [shellGuard], {
+            cwd: directory, encoding: 'utf8', input: JSON.stringify({ cwd: directory, tool_name: 'Bash', tool_input: { command } }),
+            env: { PATH: `${bin}:/usr/bin:/bin`, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0', CLAUDE_PROJECT_DIR: directory },
+        });
+    } finally { rmSync(directory, { recursive: true, force: true }); }
+}
+
+test('without node, unrelated and quoted-text commands keep their previous exit and real candidates refuse', () => {
+    for (const command of ["echo 'git add .cratis-render/'", "printf '%s' 'git add .cratis-render'", 'ls .cratis-render', 'git status', 'git add Source/a.ts']) {
+        const result = runWithoutNode(command);
+        assert.equal(result.status, 0, `${command}\n${result.stderr}`);
+    }
+    for (const command of ['git add .cratis-render/x', 'sudo -n git add .cratis-render/x', 'env -- git add .cratis-render', "bash -c 'git add .cratis-render'"]) {
+        const result = runWithoutNode(command);
+        assert.equal(result.status, 2, command);
+        assert.match(result.stderr, /classifier or node is unavailable/);
+    }
 });

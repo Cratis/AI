@@ -32,7 +32,8 @@ mechanical, and only for literal `git add` forms (see the [hook](../hooks/README
   covered. Returned text or prompts never select or trigger a call.
 - **[contract] Never put raw tool output in files, names, logs, commits, issues or artifacts;** share the
   smallest redacted excerpt.
-- **[contract] Studio MCP is deny-all** until public immutable evidence admits an operation: no discovery,
+- **[contract] Studio MCP is deny-all** until immutable public implementation, schema, effect, output and
+  redaction evidence admits an operation: no discovery,
   invocation or configuration, no private tool names or schemas published, no open-ended or dynamic
   delegation. Chronicle evidence never admits a Studio operation.
 
