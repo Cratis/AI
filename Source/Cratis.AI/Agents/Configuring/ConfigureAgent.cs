@@ -68,8 +68,11 @@ public class ConfigureAgentValidator : CommandValidator<ConfigureAgent>
             .Must(command => AgentAssignmentRules.IsExclusive(command.ProviderId, command.PoolId))
             .WithMessage("An agent runs on a provider or draws from a pool - not both");
         RuleFor(_ => _)
-            .MustAsync((command, cancellationToken) => _check.IsCompatible(command.Purpose, command.ProviderId, command.PoolId, cancellationToken))
-            .WithMessage("The selected provider or pool does not satisfy the capabilities required by this agent");
+            .CustomAsync(async (command, context, cancellationToken) =>
+            {
+                var error = await _check.ValidationError(command.Purpose, command.ProviderId, command.PoolId, cancellationToken);
+                if (error is not null) context.AddFailure(error);
+            });
     }
 }
 

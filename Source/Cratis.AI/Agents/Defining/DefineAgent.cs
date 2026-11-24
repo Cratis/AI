@@ -80,8 +80,11 @@ public class DefineAgentValidator : CommandValidator<DefineAgent>
             .Must(command => AgentAssignmentRules.IsExclusive(command.ProviderId, command.PoolId))
             .WithMessage("An agent runs on a provider or draws from a pool - not both");
         RuleFor(_ => _)
-            .MustAsync((command, cancellationToken) => _check.IsCompatible(command.Purpose, command.ProviderId, command.PoolId, cancellationToken))
-            .WithMessage("The selected provider or pool does not satisfy the capabilities required by this agent");
+            .CustomAsync(async (command, context, cancellationToken) =>
+            {
+                var error = await _check.ValidationError(command.Purpose, command.ProviderId, command.PoolId, cancellationToken);
+                if (error is not null) context.AddFailure(error);
+            });
     }
 }
 
@@ -139,44 +142,46 @@ internal static class AgentAssignmentRules
 internal sealed class AgentAssignmentCompatibilityCheck(IReadModels readModels, IAgentProviderCompatibility compatibility)
 {
     /// <summary>
-    /// Checks the assignment - a provider takes precedence, a missing assignment is compatible.
+    /// Checks that the assignment exists and supports the purpose - no assignment is valid.
     /// </summary>
     /// <param name="purpose">The agent purpose.</param>
     /// <param name="providerId">The optional provider.</param>
     /// <param name="poolId">The optional pool.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><see langword="true"/> when the assignment is compatible.</returns>
-    internal async Task<bool> IsCompatible(LanguageModelPurpose purpose, AIProviderId? providerId, AIProviderPoolId? poolId, CancellationToken cancellationToken)
+    /// <returns>The validation error, or <see langword="null"/> when the assignment is valid.</returns>
+    internal async Task<string?> ValidationError(LanguageModelPurpose purpose, AIProviderId? providerId, AIProviderPoolId? poolId, CancellationToken cancellationToken)
     {
-        if (AgentAssignmentRules.IsSet(providerId)) return await ProviderSupports(purpose, providerId!);
-        if (!AgentAssignmentRules.IsSet(poolId)) return true;
-        return await PoolSupports(purpose, poolId!, cancellationToken);
+        if (AgentAssignmentRules.IsSet(providerId)) return await ProviderError(purpose, providerId!);
+        if (!AgentAssignmentRules.IsSet(poolId)) return null;
+        return await PoolError(purpose, poolId!, cancellationToken);
     }
 
-    async Task<bool> ProviderSupports(LanguageModelPurpose purpose, AIProviderId providerId)
+    static string? CapabilityError(bool supportsPurpose) => supportsPurpose
+        ? null
+        : "The selected provider or pool does not satisfy the capabilities required by this agent";
+
+    async Task<string?> ProviderError(LanguageModelPurpose purpose, AIProviderId providerId)
     {
         var provider = await readModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)providerId);
-        return provider is null || compatibility.Supports(purpose, provider.Type);
+        if (provider is null) return "The selected provider is unknown";
+        return CapabilityError(compatibility.Supports(purpose, provider.Type));
     }
 
-    async Task<bool> PoolSupports(LanguageModelPurpose purpose, AIProviderPoolId poolId, CancellationToken cancellationToken)
+    async Task<string?> PoolError(LanguageModelPurpose purpose, AIProviderPoolId poolId, CancellationToken cancellationToken)
     {
         var pool = await readModels.GetInstanceById<AIProviderPool>((EventSourceId)poolId);
-        if (pool?.Members is null) return true;
+        if (pool is null) return "The selected pool is unknown";
 
-        foreach (var member in pool.Members)
+        var supportsPurpose = false;
+        foreach (var member in pool.Members ?? [])
         {
             cancellationToken.ThrowIfCancellationRequested();
-            if (await ProviderIsKnownAndSupports(purpose, member.ProviderId)) return true;
+            var provider = await readModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)member.ProviderId);
+            if (provider is null) return "The selected pool contains an unknown provider";
+            supportsPurpose |= compatibility.Supports(purpose, provider.Type);
         }
 
-        return false;
-    }
-
-    async Task<bool> ProviderIsKnownAndSupports(LanguageModelPurpose purpose, AIProviderId providerId)
-    {
-        var provider = await readModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)providerId);
-        return provider is not null && compatibility.Supports(purpose, provider.Type);
+        return CapabilityError(supportsPurpose);
     }
 }
 
