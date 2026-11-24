@@ -46,7 +46,7 @@ operator/kernel surface, not an application-profile layout rule.
 - MongoDB **must be a replica set**, including single-node development: appends
   use transactions. The current Compose/Aspire default is MongoDB 8.2. Publish
   development database ports on loopback only; a host application needing MongoDB
-  must be able to reach port 27017. Do not expose unauthenticated MongoDB.
+  must be able to reach port 27017. Do not expose unauthenticated MongoDB (universal rule: [`operational-safety.md`](../../rules/operational-safety.md)).
 
 Read [storage resolution](references/storage-resolution.md) when choosing
 per-namespace destinations, schema/runtime identities, Azure authentication,

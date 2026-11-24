@@ -10,6 +10,8 @@ discover-storyboard (see provenance), with the board and HTML-reconstruction ste
   plan uses. No tools or no access blocks only this evidence source: say so in one message
   (what is missing, which source it blocks), record the gap and continue with source,
   document and expert evidence. Never install tools to fill the gap.
+- Observation limits (observe only, approved test identities, stop conditions) are owned by
+  [`browser.md`](../../../rules/browser.md); this file keeps the walk procedure.
 - **Never a gate.** Ask once at the start whether a running instance and a test account exist,
   then carry on with static evidence. Until the answer arrives, record "running instance: not
   answered yet". When access arrives later, the walk confirms or corrects the order and screens

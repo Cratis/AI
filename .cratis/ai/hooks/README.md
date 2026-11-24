@@ -466,6 +466,27 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | `rsync` | `-a -r -v -n -u -z -t -p`; `--archive --recursive --verbose --dry-run --update --compress --times --perms` |
 | `install` | `-c -v -C -p`; `-d` directory operands; `-m MODE`/`-mMODE` (three or four octal digits); the same target-directory forms as `cp` |
 
+### Render-cache staging (`cratis-guard-render-staging.mjs`)
+
+The shell-write guard refuses an **explicit, literal** `git add` (or `git stage`) of the generated
+`.cratis-render/` cache, so a model that skips the [operational-safety rule](../rules/operational-safety.md)
+still meets a mechanical refusal. It runs before the installer/repair shortcut, only for commands that
+mention `.cratis-render` (or run inside it), and never executes, expands or evaluates the command.
+There is no escape variable for it beyond the whole-guard `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1`.
+
+- **Recognised:** `git [global options] add|stage [options] [--] PATH…` per simple command (split on
+  `;`, `&`, `|`, newlines, parentheses and backticks), after leading `NAME=value`, `command`, `env`,
+  `sudo`, `exec`, `time` words; `git -C DIR add`; a path with a `.cratis-render` component after quote
+  removal (relative, `./`, nested or absolute, with or without a trailing slash or child file); and
+  one level of `sh|bash|zsh -c '…'` text.
+- **Refused as unresolvable:** a recognised `git add` whose target contains `$` or backticks when the
+  command also names `.cratis-render`; the refusal asks for literal paths.
+- **Not recognised (outside coverage):** `git add .`, `-A`, `-u`, pathspec files or magic, aliases,
+  scripts, variables with no visible target, `xargs`, Git plumbing such as `update-index`, and spellings
+  that hide the name from a literal match. The rule still prohibits staging the cache.
+- A missing classifier or `node` refuses a candidate command. A non-candidate command is unaffected.
+- Not wired anywhere new: the existing shell-write guard calls the helper, as it does the repair helper.
+
 ### Read-only admissions and deliberate refusals (#1255)
 
 | Case | Decision | Reason | Workaround |

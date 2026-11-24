@@ -80,6 +80,9 @@ connection. Passing `open-workspace.path` does **not** avoid it, because the err
 
 ## Who owns the connection
 
+The identity-owner, typed-proposal and no-text-edit-bypass obligations are universal:
+[`operational-safety.md`](../../../rules/operational-safety.md). This section keeps the connection mechanics.
+
 - **Proposals are connection-local.** They live in memory, at most **16**
   outstanding (`LimitExceeded`); `open-workspace`, a successful `apply` and a root
   change clear them. A proposal id means nothing in another process, another

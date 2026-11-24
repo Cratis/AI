@@ -111,3 +111,27 @@ test('a wired guard still blocks when its script has lost the execute bit', () =
         rmSync(project, { recursive: true, force: true });
     }
 });
+
+test('the wired shell-write guard refuses literal render-cache staging and allows neighbors', () => {
+    const command = wiredCommands().find(candidate => candidate.endsWith('/cratis-guard-shell-writes.sh'));
+    assert.ok(command, 'the shell-write guard is wired');
+    const project = mkdtempSync(join(tmpdir(), 'hook-wiring-render-staging-'));
+    try {
+        const scripts = join(project, '.cratis/ai/hooks/scripts');
+        assert.equal(spawnSync('mkdir', ['-p', scripts]).status, 0);
+        for (const file of ['cratis-guard-shell-writes.sh', 'cratis-guard-writes.sh', 'cratis-guard-render-staging.mjs', 'hook-lib.sh']) {
+            copyFileSync(join(root, '.cratis/ai/hooks/scripts', file), join(scripts, file));
+        }
+        const run = (text: string) => spawnSync('bash', ['-c', command], {
+            input: JSON.stringify({ cwd: project, tool_name: 'Bash', tool_input: { command: text } }),
+            cwd: project, encoding: 'utf8',
+            env: { ...process.env, CLAUDE_PROJECT_DIR: project, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+        });
+        const refusal = run('git add -f -- .cratis-render/out/file.cs');
+        assert.equal(refusal.status, 2, refusal.stderr);
+        assert.match(refusal.stderr, /BLOCKED by cratis-guard-shell-writes: this git add names the render cache/);
+        for (const allowed of ['git status', 'git add Source/file.ts', 'git add .cratis-render-notes', 'cratis render --force']) {
+            assert.equal(run(allowed).status, 0, allowed);
+        }
+    } finally { rmSync(project, { recursive: true, force: true }); }
+});

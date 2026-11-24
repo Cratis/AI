@@ -28,7 +28,7 @@ With no handler, protected operations answer 403 rather than authenticating.
 
 For Entra bearer tokens, verify against the tenant-specific issuer and API
 audience. App roles and delegated scopes are different; require the one the API
-actually uses. Do not put bearer tokens in query-string URLs. Native identity
+actually uses. Do not put bearer tokens in query-string URLs ([`secrets.md`](../../../rules/secrets.md)). Native identity
 must also be provided on upgrades/SSE; configuring HTTP middleware alone does
 not authenticate a WebSocket upgrade. Named schemes belong in
 `authenticationSchemes: { Verified: handler }` and are selected with

@@ -36,6 +36,20 @@ cwd="" command_text="" parser_status=""
 cwd="${cwd:-$PWD}"
 [ "${#command_text}" -le 131072 ] || parser_failed
 
+# Explicit literal staging of the .cratis-render/ cache is refused before any installer/repair shortcut.
+# Only a git add/stage that mentions the cache (or runs inside it) reaches the classifier; a missing classifier or node refuses.
+if [[ "$command_text$cwd" == *.cratis-render* && "$command_text" == *git* && ( "$command_text" == *add* || "$command_text" == *stage* ) ]]; then
+    render_staging_guard="$script_directory/cratis-guard-render-staging.mjs"
+    render_staging_status=0
+    if [ -f "$render_staging_guard" ] && command -v node >/dev/null 2>&1; then
+        node "$render_staging_guard" "$cwd" <<<"$command_text" || render_staging_status=$?
+    else
+        render_staging_status=3
+        printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: render-staging classifier or node is unavailable; cannot check this git command.' >&2
+    fi
+    [ "$render_staging_status" -eq 0 ] || exit 2
+fi
+
 # Only standalone corpus installer/repair invocations may bypass reference classification.
 # The helper accepts a deliberately smaller language than the shell, never shell evaluation.
 if [[ "$command_text" =~ ^[[:space:]]*(cratis|ln)[[:space:]] ]] && command -v node >/dev/null 2>&1; then

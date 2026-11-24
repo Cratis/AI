@@ -1286,3 +1286,25 @@ test('a parent reference after a symlinked directory is judged where the kernel 
         layout.dispose();
     }
 });
+
+test('the Pi bridge refuses literal render-cache staging and permits neighbors', async () => {
+    const saved = process.env.CRATIS_HOOKS_ALLOW_PROTECTED_WRITES;
+    process.env.CRATIS_HOOKS_ALLOW_PROTECTED_WRITES = '0';
+    const repo = scratchRepository();
+    const handlers = new Map<string, (event: unknown, ctx: unknown) => Promise<unknown> | unknown>();
+    registerCratisHooks({ on: (event: string, handler: (event: unknown, ctx: unknown) => unknown) => handlers.set(event, handler), registerTool: () => { /* No tools are needed by this fixture. */ } } as unknown as ExtensionAPI);
+    try {
+        const call = handlers.get('tool_call');
+        assert.ok(call);
+        const result = await call({ toolName: 'bash', input: { command: 'git add .cratis-render/x' } }, { cwd: repo.root }) as { block?: boolean; reason?: string };
+        assert.equal(result?.block, true);
+        assert.match(result?.reason ?? '', /BLOCKED by cratis-guard-shell-writes: this git add names the render cache/);
+        for (const allowed of ['git status', 'git add Source/file.ts', 'git add .cratis-render-notes']) {
+            assert.equal(await call({ toolName: 'bash', input: { command: allowed } }, { cwd: repo.root }), undefined, allowed);
+        }
+    } finally {
+        if (saved === undefined) delete process.env.CRATIS_HOOKS_ALLOW_PROTECTED_WRITES;
+        else process.env.CRATIS_HOOKS_ALLOW_PROTECTED_WRITES = saved;
+        repo.dispose();
+    }
+});

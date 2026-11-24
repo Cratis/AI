@@ -30,7 +30,9 @@ with explicit approval).
 | `cratis prologue interpret` | runs in-process; may call a hosted LLM (section 3); writes only the `.play` | only after the section 3 preflight |
 
 An explicit user request naming the effect and target counts as approval; ask again only when
-the target or consequence expands.
+the target or consequence expands. Capture and cleanup DDL authority and hosted-model disclosure
+are owned by [`capability-is-not-authority.md`](../../../rules/capability-is-not-authority.md); attribute and
+URL data-channel limits by [`secrets.md`](../../../rules/secrets.md).
 
 Nothing in Prologue removes what the Extractor created. Cleanup is manual, so write the cleanup before capture starts.
 
@@ -70,7 +72,8 @@ does not replace the approval.
 
 Requires cratis CLI 3.37.1 or later (`cratis --version`) for `cratis prologue interpret --no-llm`.
 
-Unattended default: pass `--no-llm` unless the brief records the approved disclosure.
+Unattended default: pass `--no-llm` unless the brief records the approved disclosure
+(rule: [`operational-safety.md`](../../../rules/operational-safety.md)).
 
 Preflight (read-only):
 - `cratis llm show -o json` (the key is masked) and the `llm` section of the

@@ -186,3 +186,17 @@ test('managed scripts run through Bash even without execute permission', async (
         denied(await shellGuard(JSON.stringify(payload('cratis chronicle observers replay a --yes')), { scriptsDirectory: f.directory }));
     } finally { f.cleanup(); }
 });
+
+test('native Codex refuses literal render-cache staging through the real scripts and allows neighbors', () => {
+    const project = mkdtempSync(join(tmpdir(), 'codex-render-staging-'));
+    try {
+        assert.equal(spawnSync('git', ['init', '-q', project]).status, 0);
+        const env = { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' };
+        const refusal = native({ ...payload('git add .cratis-render/'), cwd: project }, env);
+        assert.equal(refusal.status, 2, refusal.stderr);
+        assert.match(refusal.stdout, /BLOCKED by cratis-guard-shell-writes: this git add names the render cache/);
+        for (const allowed of ['git status', 'git add Source/file.ts', 'git add .cratis-render-notes', 'cratis render --force']) {
+            assert.equal(native({ ...payload(allowed), cwd: project }, env).status, 0, allowed);
+        }
+    } finally { rmSync(project, { recursive: true, force: true }); }
+});
