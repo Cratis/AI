@@ -1,6 +1,8 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 
 namespace Cratis.AI.Providers.Capacity;
@@ -24,7 +26,8 @@ public interface IAIProviderCapacitySnapshots
 /// <param name="observations">The existing shared observation cache.</param>
 /// <param name="timeProvider">The boundary clock.</param>
 /// <param name="options">The observation freshness policy.</param>
-public class AIProviderCapacitySnapshots(IAIProviderCapacityObservations observations, TimeProvider timeProvider, IOptions<AIProviderOptions> options) : IAIProviderCapacitySnapshots
+/// <param name="logger">The logger for sanitized cache failures.</param>
+public class AIProviderCapacitySnapshots(IAIProviderCapacityObservations observations, TimeProvider timeProvider, IOptions<AIProviderOptions> options, ILogger<AIProviderCapacitySnapshots>? logger = null) : IAIProviderCapacitySnapshots
 {
     /// <inheritdoc/>
     public AIProviderCapacitySnapshot Capture(AIProviderId provider)
@@ -36,6 +39,7 @@ public class AIProviderCapacitySnapshots(IAIProviderCapacityObservations observa
         }
         catch (Exception)
         {
+            AIProviderCapacitySnapshotsLogging.CaptureFailed(logger ?? NullLogger<AIProviderCapacitySnapshots>.Instance, provider);
             return AIProviderCapacitySnapshot.Unavailable(provider, now, AIProviderCapacitySnapshotReason.CaptureFailed);
         }
     }
@@ -83,4 +87,10 @@ public class AIProviderCapacitySnapshots(IAIProviderCapacityObservations observa
 
         return now - cached.Observation.ObservedAt >= options.Value.CapacityFreshness ? AIProviderCapacitySnapshotReason.Expired : AIProviderCapacitySnapshotReason.None;
     }
+}
+
+internal static partial class AIProviderCapacitySnapshotsLogging
+{
+    [LoggerMessage(LogLevel.Warning, "Allowance cache capture failed for provider {Provider}; recording an unavailable observation")]
+    internal static partial void CaptureFailed(ILogger<AIProviderCapacitySnapshots> logger, AIProviderId provider);
 }

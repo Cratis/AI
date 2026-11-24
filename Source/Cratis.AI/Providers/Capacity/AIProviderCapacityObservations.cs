@@ -92,8 +92,8 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
             // Shared reads retain their original account identity, even if a newer query changes credentials.
             var reading = _reading.GetOrAdd(
                 provider,
-                static (key, state) => new(() => state.Observations.ReadAndRemember(key, state.Read, state.Fingerprint)),
-                (Observations: this, Read: read, ticket.Fingerprint));
+                static (key, state) => new(() => state.Observations.ReadAndRemember(key, state.Read, state.Ticket)),
+                (Observations: this, Read: read, Ticket: ticket));
             entry = await reading.Value.WaitAsync(cancellationToken);
         }
 
@@ -126,8 +126,9 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
         Boundaries.Invalidate(provider);
     }
 
-    async Task<Entry> ReadAndRemember(AIProviderId provider, Func<CancellationToken, Task<AIProviderCapacityReport>> read, string? fingerprint)
+    async Task<Entry> ReadAndRemember(AIProviderId provider, Func<CancellationToken, Task<AIProviderCapacityReport>> read, AIProviderCapacityBoundaryCache.Ticket ticket)
     {
+        var fingerprint = ticket.Fingerprint;
         try
         {
             AIProviderCapacityReport report;
@@ -146,7 +147,7 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
             if (!report.Failed)
             {
                 var good = new Entry { LastGood = observation, GoodCredential = fingerprint };
-                _entries[provider] = good;
+                Remember(provider, ticket, good);
                 return good;
             }
 
@@ -159,12 +160,24 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
                 Failures = failures,
                 BackOffUntil = now + BackOff(failures)
             };
-            _entries[provider] = updated;
+            Remember(provider, ticket, updated);
             return updated;
         }
         finally
         {
             _reading.TryRemove(provider, out _);
+        }
+    }
+
+    void Remember(AIProviderId provider, AIProviderCapacityBoundaryCache.Ticket ticket, Entry entry)
+    {
+        lock (ticket.Slot.Gate)
+        {
+            // Unlike boundary publication, shared vendor reads survive newer selections of the same account.
+            if (ticket.Fingerprint == ticket.Slot.Fingerprint)
+            {
+                _entries[provider] = entry;
+            }
         }
     }
 
