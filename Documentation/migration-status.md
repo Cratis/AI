@@ -240,7 +240,8 @@ In roughly the order the plan's Section 10 sequence suggests tackling it:
 - [`decisions/0002-event-evolution-no-migrations.md`](./decisions/0002-event-evolution-no-migrations.md) -
   no event-type migrations; evolve in place and repair production at rollout, per both donor repos'
   own standing policy. Supersedes an earlier draft of the same record that had proposed keeping old
-  event types alive indefinitely.
+  event types alive indefinitely. Amended for the agent role/assignment split, which keeps legacy
+  `AgentConfigured` replayable ([`agent-configuration.md`](./agent-configuration.md)).
 - [`decisions/0004-proxy-route-shape-and-package-layout.md`](./decisions/0004-proxy-route-shape-and-package-layout.md) -
   the `/api/a-i/...` route prefix, the `generated/` subfolder layout `@cratis/ai` needs to survive
   `SkipOutputDeletion=false`, and the `CopyLocalLockFileAssemblies` fix proxy generation needed on a

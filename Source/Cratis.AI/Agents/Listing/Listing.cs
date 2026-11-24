@@ -3,6 +3,7 @@
 
 using System.Reactive.Subjects;
 using Cratis.AI.Agents.Configuring;
+using Cratis.AI.Agents.Defining;
 using Cratis.AI.Agents.Skills;
 using Cratis.AI.Agents.Skills.Adding;
 using Cratis.AI.Harnesses;
@@ -41,13 +42,20 @@ namespace Cratis.AI.Agents.Listing;
 [ReadModel]
 [Authorize(Policy = AIManagementPolicy.Name)]
 [FromEvent<AgentConfigured>]
+[FromEvent<AgentRoleConfigured>]
 public record Agent(
     AgentId Id,
     LanguageModelPurpose Purpose,
     AgentName Name,
     AgentDescription Description,
     ModelTier Tier,
+    [SetFrom<AgentAssignedToProvider>(nameof(AgentAssignedToProvider.Provider))]
+    [ClearWith<AgentAssignedToPool>]
+    [ClearWith<AgentAssignmentCleared>]
     AIProviderId? ProviderId,
+    [SetFrom<AgentAssignedToPool>(nameof(AgentAssignedToPool.Pool))]
+    [ClearWith<AgentAssignedToProvider>]
+    [ClearWith<AgentAssignmentCleared>]
     AIProviderPoolId? PoolId,
     [ChildrenFrom<AgentSkillAdded>(key: nameof(AgentSkillAdded.SkillId))]
     IReadOnlyList<AgentSkill>? Skills = null,

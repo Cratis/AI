@@ -30,6 +30,7 @@ at the repository root.
 - [`worker-console.md`](./worker-console.md) - console readiness, cancellation, and application-owned archiving.
 - [Kubernetes worker scheduling](./worker-scheduling.md) - batch packing and running-worker eviction protection.
 - [`provider-harnesses.md`](./provider-harnesses.md) - select supported worker harnesses per provider and migrate away from per-agent selection.
+- [`agent-configuration.md`](./agent-configuration.md) - the separate agent role and assignment events, `DefineAgent`, and the legacy `ConfigureAgent` path.
 - [`provider-administration.md`](./provider-administration.md) - register administrator authorization for AI management.
 - [`provider-team-members.md`](./provider-team-members.md) - restrict a provider to specific team
   members, and what enforcing that selection during dispatch is left to the consumer.

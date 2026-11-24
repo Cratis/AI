@@ -69,8 +69,9 @@ frontends should show the query results before executing the corresponding comma
 ## Upgrade from per-agent harnesses
 
 `ConfigureAgent` still accepts the optional `Harness` parameter (defaulting to Pi) in its original
-position before `Effort`, but it is deprecated for new configuration. `AgentConfigured` continues
-to record it, and the `Agent` read model projects it during historical replay. Existing callers
+position before `Effort`, but it is deprecated for new configuration. `AgentConfigured` (the legacy
+write path) continues to record it, `DefineAgent` records it on `AgentRoleConfigured`, and the `Agent`
+read model projects it from both events during replay. Existing callers
 can keep supplying a harness while migrating; a previously chosen harness is not lost on replay.
 
 Update worker dispatch to resolve the provider **after** selecting a pool member, if applicable.
