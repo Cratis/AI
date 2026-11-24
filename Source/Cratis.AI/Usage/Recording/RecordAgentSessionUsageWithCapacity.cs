@@ -9,6 +9,8 @@ using Cratis.AI.Providers;
 using Cratis.AI.Providers.Capacity;
 using Cratis.Arc.Authorization;
 using Cratis.Chronicle;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Cratis.AI.Usage.Recording;
 
@@ -54,8 +56,9 @@ public record RecordAgentSessionUsageWithCapacity(
     /// </summary>
     /// <param name="timeProvider">The boundary clock.</param>
     /// <param name="snapshots">The cache-only capture capability.</param>
+    /// <param name="logger">The logger for sanitized capture failures.</param>
     /// <returns>The prepared legacy usage event and the boundary snapshot.</returns>
-    public AgentSessionUsageBoundary Provide(TimeProvider timeProvider, IAIProviderCapacitySnapshots snapshots)
+    public AgentSessionUsageBoundary Provide(TimeProvider timeProvider, IAIProviderCapacitySnapshots snapshots, ILogger<RecordAgentSessionUsageWithCapacity>? logger = null)
     {
         var legacy = Legacy();
         var usage = legacy.Handle(legacy.Provide(timeProvider)).Item2;
@@ -70,6 +73,7 @@ public record RecordAgentSessionUsageWithCapacity(
         }
         catch (Exception)
         {
+            RecordAgentSessionUsageWithCapacityLogging.CaptureFailed(logger ?? NullLogger<RecordAgentSessionUsageWithCapacity>.Instance, provider);
             snapshot = AIProviderCapacitySnapshot.Unavailable(provider, now, AIProviderCapacitySnapshotReason.CaptureFailed);
         }
 
@@ -93,3 +97,9 @@ public record RecordAgentSessionUsageWithCapacity(
 /// <param name="Usage">The unchanged legacy event, prepared once.</param>
 /// <param name="Snapshot">The one cache-only observation.</param>
 public record AgentSessionUsageBoundary(AgentSessionUsageRecorded Usage, AIProviderCapacitySnapshot Snapshot);
+
+internal static partial class RecordAgentSessionUsageWithCapacityLogging
+{
+    [LoggerMessage(LogLevel.Warning, "Allowance capture failed for provider {Provider}; recording an unavailable observation")]
+    internal static partial void CaptureFailed(ILogger<RecordAgentSessionUsageWithCapacity> logger, AIProviderId provider);
+}
