@@ -3,6 +3,7 @@
 
 using Cratis.AI.Providers;
 using Cratis.AI.Providers.Pools;
+using Cratis.AI.Providers.Pools.Listing;
 
 namespace Cratis.AI.Agents.Configuring.when_configuring_agent;
 
@@ -13,7 +14,13 @@ public class and_a_pool_is_given : Specification
     ManagementCommandScenario<ConfigureAgent> _scenario;
     CommandResult _result;
 
-    void Establish() => _scenario = new();
+    void Establish()
+    {
+        _scenario = new();
+        var provider = AIProviderId.New();
+        _scenario.Given.ForEventSource(_pool).ReadModel(new AIProviderPool(_pool, "Test pool", [new(provider)]));
+        _scenario.Given.ForEventSource(provider).ReadModel(new ConfiguredAIProvider(provider, AIProviderType.Anthropic, "test-key"));
+    }
 
     async Task Because() => _result = await _scenario.Execute(new ConfigureAgent(
         "IssueTriage", "Scout", "Classifies issues.", ModelTier.Balanced, null, _pool));
@@ -21,6 +28,6 @@ public class and_a_pool_is_given : Specification
     [Fact] void should_succeed() => _result.ShouldBeSuccessful();
 
     [Fact]
-    void should_append_agent_configured_with_the_pool() => _scenario.EventSequence.ShouldHaveAppendedEvent<AgentConfigured>(
+    async Task should_append_agent_configured_with_the_pool() => await _scenario.EventSequence.ShouldHaveAppendedEvent<AgentConfigured>(
         @event => @event.PoolId == _pool && @event.ProviderId == null);
 }

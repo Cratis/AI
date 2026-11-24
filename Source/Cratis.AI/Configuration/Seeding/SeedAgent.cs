@@ -83,13 +83,19 @@ public class SeedAgentValidator : CommandValidator<SeedAgent>
         RuleFor(_ => _.Name).NotEqual(AgentName.NotSet).WithMessage("A name is required");
         RuleFor(_ => _.ProviderId).NotEqual(AIProviderId.NotSet).WithMessage("A provider is required");
         RuleFor(_ => _)
-            .MustAsync(async (command, _) => await AssignmentIsCompatible(command))
-            .WithMessage("The selected provider does not satisfy the capabilities required by this agent");
+            .CustomAsync(async (command, context, _) =>
+            {
+                var error = await AssignmentError(command);
+                if (error is not null) context.AddFailure(error);
+            });
     }
 
-    async Task<bool> AssignmentIsCompatible(SeedAgent command)
+    async Task<string?> AssignmentError(SeedAgent command)
     {
         var provider = await _readModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)command.ProviderId);
-        return provider is null || _compatibility.Supports(command.Purpose, provider.Type);
+        if (provider is null) return "The selected provider is unknown";
+        return _compatibility.Supports(command.Purpose, provider.Type)
+            ? null
+            : "The selected provider does not satisfy the capabilities required by this agent";
     }
 }
