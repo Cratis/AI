@@ -1,11 +1,11 @@
 // Copyright (c) Cratis. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Cratis.AI.Agents.Defining;
 using Cratis.AI.Harnesses;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
 using Cratis.AI.Providers.Pools;
-using Cratis.AI.Providers.Pools.Listing;
 using Cratis.Arc.Authorization;
 
 namespace Cratis.AI.Agents.Configuring;
@@ -15,8 +15,13 @@ namespace Cratis.AI.Agents.Configuring;
 /// giving it its own provider or provider pool - so a job that reasons about something high-stakes
 /// (merge classification) can run a stronger model, a different vendor, or draw from a pool of
 /// providers, rather than every job reasoning the same way. Provider and pool are mutually
-/// exclusive - the validator refuses both, and an agent with neither does not run.
+/// exclusive - the validator refuses both, and an agent with neither has no explicit assignment.
 /// </summary>
+/// <remarks>
+/// This is the legacy write path: it still records the combined <see cref="AgentConfigured"/> event,
+/// kept for compatibility and to be removed in a later major release. New callers use
+/// <see cref="DefineAgent"/>, which records the role and the assignment as separate events.
+/// </remarks>
 /// <param name="Purpose">The reasoning job this role is for.</param>
 /// <param name="Name">The role's display name.</param>
 /// <param name="Description">What the role does, in a sentence.</param>
@@ -47,8 +52,7 @@ public record ConfigureAgent(LanguageModelPurpose Purpose, AgentName Name, Agent
 /// </summary>
 public class ConfigureAgentValidator : CommandValidator<ConfigureAgent>
 {
-    readonly IReadModels _readModels;
-    readonly IAgentProviderCompatibility _compatibility;
+    readonly AgentAssignmentCompatibilityCheck _check;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ConfigureAgentValidator"/> class.
@@ -57,40 +61,15 @@ public class ConfigureAgentValidator : CommandValidator<ConfigureAgent>
     /// <param name="compatibility">Checks provider capabilities against the agent purpose.</param>
     public ConfigureAgentValidator(IReadModels readModels, IAgentProviderCompatibility compatibility)
     {
-        _readModels = readModels;
-        _compatibility = compatibility;
+        _check = new(readModels, compatibility);
         RuleFor(_ => _.Purpose).NotEqual(LanguageModelPurpose.NotSet).WithMessage("A purpose is required");
         RuleFor(_ => _.Name).NotEqual(AgentName.NotSet).WithMessage("A name is required");
         RuleFor(_ => _)
-            .Must(command => command.ProviderId?.Equals(AIProviderId.NotSet) != false ||
-                             command.PoolId?.Equals(AIProviderPoolId.NotSet) != false)
+            .Must(command => AgentAssignmentRules.IsExclusive(command.ProviderId, command.PoolId))
             .WithMessage("An agent runs on a provider or draws from a pool - not both");
         RuleFor(_ => _)
-            .MustAsync(async (command, cancellationToken) => await AssignmentIsCompatible(command, cancellationToken))
+            .MustAsync((command, cancellationToken) => _check.IsCompatible(command.Purpose, command.ProviderId, command.PoolId, cancellationToken))
             .WithMessage("The selected provider or pool does not satisfy the capabilities required by this agent");
-    }
-
-    async Task<bool> AssignmentIsCompatible(ConfigureAgent command, CancellationToken cancellationToken)
-    {
-        if (command.ProviderId is { } providerId && !providerId.Equals(AIProviderId.NotSet))
-        {
-            var provider = await _readModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)providerId);
-            return provider is null || _compatibility.Supports(command.Purpose, provider.Type);
-        }
-
-        if (command.PoolId is not { } poolId || poolId.Equals(AIProviderPoolId.NotSet)) return true;
-
-        var pool = await _readModels.GetInstanceById<AIProviderPool>((EventSourceId)poolId);
-        if (pool?.Members is null) return true;
-
-        foreach (var member in pool.Members)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            var provider = await _readModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)member.ProviderId);
-            if (provider is not null && _compatibility.Supports(command.Purpose, provider.Type)) return true;
-        }
-
-        return false;
     }
 }
 
@@ -98,6 +77,8 @@ public class ConfigureAgentValidator : CommandValidator<ConfigureAgent>
 /// Event raised when the role behind one of the Direct's own reasoning jobs has been named.
 /// </summary>
 /// <remarks>
+/// Legacy combined role-and-assignment contract: still written by <see cref="ConfigureAgent"/> and always
+/// replayed, but new writers use <see cref="AgentRoleConfigured"/> and the assignment events.
 /// <paramref name="Purpose"/> restates the canonical source of <see cref="AgentId"/> rather than
 /// being reconstructible from the event context - the composed identity lowercases it, which is not
 /// reversible, so the value has to stay on the event. See

@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Agents;
-using Cratis.AI.Agents.Configuring;
+using Cratis.AI.Agents.Defining;
 using Cratis.AI.Providers;
 using Cratis.Monads;
 
@@ -23,10 +23,14 @@ public class when_handling : Specification
     }
 
     [Fact]
-    void should_configure_the_agent_when_the_purpose_has_none()
+    void should_define_the_agent_when_the_purpose_has_none()
     {
         _forNone.TryGetResult(out var events);
-        events.Single().ShouldEqual(new AgentConfigured("Greeting", "Greeter", "Answers the greeting.", ModelTier.Fast, _providerId, null, Harness.Pi, Effort.High));
+        events.ShouldEqual(
+        [
+            new AgentRoleConfigured("Greeting", "Greeter", "Answers the greeting.", ModelTier.Fast, Harness.Pi, Effort.High),
+            new AgentAssignedToProvider(_providerId)
+        ]);
     }
 
     [Fact]

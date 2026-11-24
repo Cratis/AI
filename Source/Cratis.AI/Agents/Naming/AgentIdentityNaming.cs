@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using Cratis.AI.Agents.Configuring;
+using Cratis.AI.Agents.Defining;
 using Cratis.Chronicle;
 using Cratis.Chronicle.Reactors;
 namespace Cratis.AI.Agents.Naming;
@@ -25,5 +26,13 @@ public class AgentIdentityNaming(IEventStore eventStore) : IReactor
     /// <param name="event">The <see cref="AgentConfigured"/> event.</param>
     /// <returns>Awaitable task.</returns>
     public Task On(AgentConfigured @event) =>
+        eventStore.Identities.Rename(AgentId.For(@event.Purpose).Value, @event.Name.Value);
+
+    /// <summary>
+    /// Renames the agent's Chronicle identity to whatever its role was just defined with.
+    /// </summary>
+    /// <param name="event">The <see cref="AgentRoleConfigured"/> event.</param>
+    /// <returns>Awaitable task.</returns>
+    public Task On(AgentRoleConfigured @event) =>
         eventStore.Identities.Rename(AgentId.For(@event.Purpose).Value, @event.Name.Value);
 }
