@@ -8,11 +8,12 @@ import { existsSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
-import { classify } from '../../.cratis/ai/hooks/scripts/cratis-guard-render-staging.mjs';
+import { pathToFileURL } from 'node:url';
 
 const scripts = resolve(import.meta.dirname, '../../.cratis/ai/hooks/scripts');
 const shellGuard = join(scripts, 'cratis-guard-shell-writes.sh');
 const classifierFile = join(scripts, 'cratis-guard-render-staging.mjs');
+const { classify } = await import(pathToFileURL(classifierFile).href) as { classify: (command: string, cwd?: string) => { reason: string } | undefined };
 
 const refused = [
     'git add .cratis-render',

@@ -9,7 +9,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, copyFileSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { chmodSync, copyFileSync, cpSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -42,26 +42,31 @@ test('the secrets guard is wired on Bash beside the store-mutation guard', () =>
     assert.ok(commands.some(command => command.endsWith('/cratis-guard-store-mutations.sh')), 'the store-mutation guard stays wired');
 });
 
-test('the wired secrets guard still blocks when its script has lost the execute bit', () => {
-    const command = wiredCommands().find(candidate => candidate.endsWith('/cratis-guard-secrets.sh'));
-    assert.ok(command, 'the secrets guard is wired');
-    const project = mkdtempSync(join(tmpdir(), 'hook-wiring-secrets-'));
+/** Copies the named scripts without the execute bit into a scratch project and runs the wired guard command on a payload. */
+function runWithoutExecuteBit(guard: string, scriptFiles: string[], input: (project: string) => object, env: NodeJS.ProcessEnv) {
+    const command = wiredCommands().find(candidate => candidate.endsWith(`/${guard}`));
+    assert.ok(command, `${guard} is wired`);
+    const project = mkdtempSync(join(tmpdir(), 'hook-wiring-'));
     try {
         const scripts = join(project, '.cratis/ai/hooks/scripts');
         spawnSync('mkdir', ['-p', scripts]);
-        for (const file of ['cratis-guard-secrets.sh', 'hook-lib.sh']) {
+        for (const file of scriptFiles) {
             copyFileSync(join(root, '.cratis/ai/hooks/scripts', file), join(scripts, file));
             chmodSync(join(scripts, file), 0o644);
         }
-        const run = spawnSync('bash', ['-c', command!], {
-            input: JSON.stringify({ session_id: 't', cwd: project, tool_name: 'Bash', tool_input: { command: 'kubectl get pods -o json' } }),
-            cwd: project, encoding: 'utf8',
-            env: { ...process.env, CLAUDE_PROJECT_DIR: project, CRATIS_HOOKS_ALLOW_SECRET_READS: '0' },
+        const run = spawnSync('bash', ['-c', command], {
+            input: JSON.stringify({ session_id: 't', cwd: project, ...input(project) }),
+            cwd: project, encoding: 'utf8', env: { ...process.env, CLAUDE_PROJECT_DIR: project, ...env },
         });
         assert.equal(run.status, 2, `expected a block (exit 2), got ${run.status}: ${run.stderr}`);
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
+}
+
+test('the wired secrets guard still blocks when its script has lost the execute bit', () => {
+    runWithoutExecuteBit('cratis-guard-secrets.sh', ['cratis-guard-secrets.sh', 'hook-lib.sh'],
+        () => ({ tool_name: 'Bash', tool_input: { command: 'kubectl get pods -o json' } }), { CRATIS_HOOKS_ALLOW_SECRET_READS: '0' });
 });
 
 test('the wired shell-write guard still blocks when all its scripts have lost the execute bit', () => {
@@ -88,50 +93,29 @@ test('the wired shell-write guard still blocks when all its scripts have lost th
 });
 
 test('a wired guard still blocks when its script has lost the execute bit', () => {
-    const command = wiredCommands().find(candidate => candidate.endsWith('/cratis-guard-writes.sh'));
-    assert.ok(command, 'the write guard is wired');
-    const project = mkdtempSync(join(tmpdir(), 'hook-wiring-'));
-    try {
-        const scripts = join(project, '.cratis/ai/hooks/scripts');
-        spawnSync('mkdir', ['-p', scripts]);
-        for (const file of ['cratis-guard-writes.sh', 'hook-lib.sh']) {
-            copyFileSync(join(root, '.cratis/ai/hooks/scripts', file), join(scripts, file));
-            chmodSync(join(scripts, file), 0o644);
-        }
-        const payload = JSON.stringify({
-            session_id: 't', cwd: project, tool_name: 'Edit',
-            tool_input: { file_path: join(project, 'Directory.Packages.props'), new_string: 'x' },
-        });
-        const run = spawnSync('bash', ['-c', command!], {
-            input: payload, cwd: project, encoding: 'utf8',
-            env: { ...process.env, CLAUDE_PROJECT_DIR: project },
-        });
-        assert.equal(run.status, 2, `expected a block (exit 2), got ${run.status}: ${run.stderr}`);
-    } finally {
-        rmSync(project, { recursive: true, force: true });
-    }
+    runWithoutExecuteBit('cratis-guard-writes.sh', ['cratis-guard-writes.sh', 'hook-lib.sh'],
+        project => ({ tool_name: 'Edit', tool_input: { file_path: join(project, 'Directory.Packages.props'), new_string: 'x' } }), {});
 });
+
+function stagingRun(command: string, project: string, text: string) {
+    return spawnSync('bash', ['-c', command], {
+        input: JSON.stringify({ cwd: project, tool_name: 'Bash', tool_input: { command: text } }),
+        cwd: project, encoding: 'utf8',
+        env: { ...process.env, CLAUDE_PROJECT_DIR: project, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+    });
+}
 
 test('the wired shell-write guard refuses literal render-cache staging and allows neighbors', () => {
     const command = wiredCommands().find(candidate => candidate.endsWith('/cratis-guard-shell-writes.sh'));
     assert.ok(command, 'the shell-write guard is wired');
     const project = mkdtempSync(join(tmpdir(), 'hook-wiring-render-staging-'));
     try {
-        const scripts = join(project, '.cratis/ai/hooks/scripts');
-        assert.equal(spawnSync('mkdir', ['-p', scripts]).status, 0);
-        for (const file of ['cratis-guard-shell-writes.sh', 'cratis-guard-writes.sh', 'cratis-guard-render-staging.mjs', 'hook-lib.sh']) {
-            copyFileSync(join(root, '.cratis/ai/hooks/scripts', file), join(scripts, file));
-        }
-        const run = (text: string) => spawnSync('bash', ['-c', command], {
-            input: JSON.stringify({ cwd: project, tool_name: 'Bash', tool_input: { command: text } }),
-            cwd: project, encoding: 'utf8',
-            env: { ...process.env, CLAUDE_PROJECT_DIR: project, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
-        });
-        const refusal = run('git add -f -- .cratis-render/out/file.cs');
+        cpSync(join(root, '.cratis/ai/hooks/scripts'), join(project, '.cratis/ai/hooks/scripts'), { recursive: true });
+        const refusal = stagingRun(command, project, 'git add -f -- .cratis-render/out/file.cs');
         assert.equal(refusal.status, 2, refusal.stderr);
         assert.match(refusal.stderr, /BLOCKED by cratis-guard-shell-writes: this git add names the render cache/);
         for (const allowed of ['git status', 'git add Source/file.ts', 'git add .cratis-render-notes', 'cratis render --force']) {
-            assert.equal(run(allowed).status, 0, allowed);
+            assert.equal(stagingRun(command, project, allowed).status, 0, allowed);
         }
     } finally { rmSync(project, { recursive: true, force: true }); }
 });
