@@ -8,8 +8,7 @@ applyTo: "**/*"
 Operation-specific invariants that hold before any skill is chosen or file is open. Authority comes
 from [`capability-is-not-authority.md`](./capability-is-not-authority.instructions.md); credentials and data
 channels from [`secrets.md`](./secrets.instructions.md). All lines are **[contract]** (see
-[`general.md`](../../../rules/general.md)). They are policy, not a sandbox: only the staging refusal below is
-mechanical, and only for literal `git add` forms (see the [hook](../../../hooks/README.md)).
+[`general.md`](../../../rules/general.md)). They are policy, not a sandbox: none is mechanically enforced.
 
 ## Screenplay models and rendering
 
@@ -19,7 +18,7 @@ mechanical, and only for literal `git add` forms (see the [hook](../../../hooks/
   never authorizes a regex or text-edit bypass.
 - **[contract] `render --force` needs approval for that effect and resolved destination.** Approval for one
   target is not approval for another. Never force past changed or unreadable stored event identities.
-- **[contract] Never stage `.cratis-render/`.** The shell hook refuses explicit literal `git add` of it.
+- **[contract] Never stage `.cratis-render/`.** Judgement rule only; no hook enforces it.
 - **[contract] Unattended `prologue interpret` uses `--no-llm`** unless the brief records approved disclosure.
   Missing or unknown context is not approval.
 

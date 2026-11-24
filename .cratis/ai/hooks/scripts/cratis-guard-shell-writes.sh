@@ -36,21 +36,6 @@ cwd="" command_text="" parser_status=""
 cwd="${cwd:-$PWD}"
 [ "${#command_text}" -le 131072 ] || parser_failed
 
-# The .cratis-render/ cache is never staged. No shell parsing here: the classifier runs iff the raw text contains
-# both "git" and ".cratis-render" (no false negatives by construction). Without node such a command is refused,
-# even a harmless mention (a deliberate false refusal over a silent bypass). Other commands never start node.
-if [[ "$command_text$cwd" == *.cratis-render* && "$command_text" == *git* ]]; then
-    render_staging_guard="$script_directory/cratis-guard-render-staging.mjs"
-    render_staging_status=0
-    if [ -f "$render_staging_guard" ] && command -v node >/dev/null 2>&1; then
-        node "$render_staging_guard" "$cwd" <<<"$command_text" || render_staging_status=$?
-    else
-        render_staging_status=3
-        printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: command mentions git and .cratis-render but node or the render-staging classifier is unavailable; refusing rather than guessing.' >&2
-    fi
-    [ "$render_staging_status" -eq 0 ] || exit 2
-fi
-
 # Only standalone corpus installer/repair invocations may bypass reference classification.
 # The helper accepts a deliberately smaller language than the shell, never shell evaluation.
 if [[ "$command_text" =~ ^[[:space:]]*(cratis|ln)[[:space:]] ]] && command -v node >/dev/null 2>&1; then

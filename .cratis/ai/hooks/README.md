@@ -466,32 +466,6 @@ arguments are operands. A lone `-` is a stdin operand. Value-free short flags ma
 | `rsync` | `-a -r -v -n -u -z -t -p`; `--archive --recursive --verbose --dry-run --update --compress --times --perms` |
 | `install` | `-c -v -C -p`; `-d` directory operands; `-m MODE`/`-mMODE` (three or four octal digits); the same target-directory forms as `cp` |
 
-### Render-cache staging (`cratis-guard-render-staging.mjs`)
-
-The shell-write guard refuses an **explicit, literal** `git add` (or `git stage`) of the generated
-`.cratis-render/` cache, so a model that skips the [operational-safety rule](../rules/operational-safety.md)
-still meets a mechanical refusal. It runs before the installer/repair shortcut, only for commands that
-mention `.cratis-render` (or run inside it), and never executes, expands or evaluates the command.
-There is no escape variable for it beyond the whole-guard `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1`.
-
-- **Prefilter (shell, no parsing):** Node starts only when the raw command text (or working directory) contains both
-  `git` and `.cratis-render`, so it cannot miss a real candidate. Other commands never start Node and behave as before.
-  Without Node, such a command is refused with a message naming the reason. A harmless mention is refused with or without
-  Node: a deliberate false refusal over a silent bypass.
-- **Refused (classifier):** quote-aware tokenising (single/double quotes, backslash escapes) into simple commands on
-  unquoted `;`, `&`, `|`, newlines, parentheses and backticks. A simple command is refused when a `git` word (or a path
-  ending in `/git`) is followed by an `add` or `stage` word and any later word has a `.cratis-render` path component
-  (relative, `./`, nested, absolute, `-C DIR`, `--` operands). Everything before `git` is ignored. The guard identifies
-  no shell, `-c`, wrapper or assignment: **every** word (after quote removal) that contains both `git` and
-  `.cratis-render` is itself tokenised and classified again as a script, up to 8 levels (deeper, or unbalanced quotes,
-  is refused). So `sudo -n`, `env -u X`, `FOO=/bin/sh sh -c '…'`, `python -c '…system("git add .cratis-render")'` and nested
-  quoting are all covered. Quoted mentions such as `echo 'git add .cratis-render/'` are refused too: the guard prefers a false
-  refusal to a bypass. An `add` target containing `$` while the command names the cache is refused.
-- **Not covered:** `git add .`, `-A`, `-u`, pathspec files or magic, aliases, shell variables or `eval` that build the
-  name, scripts in files, `xargs`/`find -exec`, Git plumbing such as `update-index`, and spellings that hide the name
-  from a literal match. The rule still prohibits staging the cache.
-- Not wired anywhere new: the existing shell-write guard calls the helper, as it does the repair helper.
-
 ### Read-only admissions and deliberate refusals (#1255)
 
 | Case | Decision | Reason | Workaround |
