@@ -31,6 +31,15 @@ const refused = [
     'git -c core.quotepath=off add .cratis-render',
     'git stage .cratis-render',
     'echo ok && git add .cratis-render',
+    "FOO=/bin/sh env -u -c bash -c 'git add .cratis-render'",
+    "FOO=/bin/sh sh -c 'git add .cratis-render'",
+    "python -c 'import os; os.system(\"git add .cratis-render\")'",
+    "sh -c \"bash -c 'git add .cratis-render/x'\"",
+    "echo 'git add .cratis-render/'",
+    "printf '%s' 'git add .cratis-render/'",
+    "echo '; git add .cratis-render/'",
+    'grep -n "git add .cratis-render" README.md',
+    'git commit -m "never git add .cratis-render"',
     'FOO=1 git add .cratis-render',
     '/usr/bin/git add .cratis-render',
     'bash -c "git add .cratis-render/"',
@@ -58,17 +67,12 @@ const permitted = [
     'git add Source/file.ts',
     'git add .cratis-render-notes',
     'git add docs/.cratis-render.md',
-    "echo 'git add .cratis-render/'",
-    'grep -n "git add .cratis-render" README.md',
-    'git commit -m "never git add .cratis-render"',
     '# git add .cratis-render',
     'cratis render',
     'cratis render --force',
     'git add Source/a.ts && ls .cratis-render',
-    "printf '%s' 'git add .cratis-render/'",
     'env FOO=1 ls .cratis-render',
     'sudo -n ls .cratis-render',
-    "echo '; git add .cratis-render/'",
     'nice -n 5 git add Source/a.ts',
     'command -- git status',
     '',
@@ -116,7 +120,7 @@ test('the shell guard refuses explicit staging without a repository or manifest 
 test('the shell guard allows unrelated, textual and similarly named commands', () => {
     const directory = mkdtempSync(join(tmpdir(), 'render-staging-'));
     try {
-        for (const command of ['git status', 'git diff -- .cratis-render/', 'ls .cratis-render', 'git add Source/file.ts', 'git add .cratis-render-notes', "echo 'git add .cratis-render/'", 'cratis render --force']) {
+        for (const command of ['git status', 'git diff -- .cratis-render/', 'ls .cratis-render', 'git add Source/file.ts', 'git add .cratis-render-notes', 'cratis render --force']) {
             const result = runShellGuard(command, directory);
             assert.equal(result.status, 0, `${command}\n${result.stderr}`);
         }

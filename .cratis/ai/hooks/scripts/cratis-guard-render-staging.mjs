@@ -9,8 +9,7 @@ import { pathToFileURL } from 'node:url';
 
 const cacheName = '.cratis-render';
 const separators = new Set([';', '&', '|', '\n', '(', ')', '`']);
-const shells = new Set(['sh', 'bash', 'zsh', 'dash', 'ksh']);
-const maxNesting = 2;
+const maxNesting = 8;
 
 const hasCacheComponent = path => path.split('/').includes(cacheName);
 
@@ -103,14 +102,6 @@ export const tokenize = commandText => new Lexer(commandText).run();
 const isGit = text => basename(text) === 'git';
 const isStaging = text => text === 'add' || text === 'stage';
 
-/** The first `-c`-style flag of a shell word and the script after it, anywhere in the segment. */
-function shellScript(words) {
-    const shell = words.findIndex(word => shells.has(basename(word.text)));
-    if (shell < 0) return undefined;
-    const flag = words.findIndex((word, index) => index > shell && /^-[a-z]*c[a-z]*$/.test(word.text));
-    return flag < 0 ? undefined : words[flag + 1]?.text;
-}
-
 /**
  * Wrappers, assignments and option values before `git` are irrelevant: a simple command is refused when a
  * `git` word is later followed by add/stage and then any word naming the cache. Whatever follows is checked
@@ -127,15 +118,21 @@ function stagingVerdict(words, commandText, cwd) {
     return unresolved ? { reason: 'has a target this guard cannot resolve while naming the render cache' } : undefined;
 }
 
+const namesGitAndCache = text => text.includes('git') && text.includes(cacheName);
+
+/**
+ * Every word naming both git and the cache is itself classified as a script, whatever surrounds it (a shell
+ * -c argument, an env option value, an interpreter string), so no command structure is ever identified.
+ */
 function classifyText(commandText, cwd, depth) {
+    if (depth > maxNesting) return { reason: 'nests scripts deeper than this guard follows' };
     const segments = tokenize(commandText);
     if (segments.unbalanced) return { reason: 'has unbalanced quotes, so this guard cannot parse it' };
     for (const words of segments) {
-        const verdict = stagingVerdict(words, commandText, cwd);
+        const verdict = stagingVerdict(words, commandText, cwd)
+            ?? words.filter(word => word.text !== commandText && namesGitAndCache(word.text))
+                .map(word => classifyText(word.text, cwd, depth + 1)).find(Boolean);
         if (verdict) return verdict;
-        const script = depth < maxNesting ? shellScript(words) : undefined;
-        const nested = script === undefined ? undefined : classifyText(script, cwd, depth + 1);
-        if (nested) return nested;
     }
     return undefined;
 }
