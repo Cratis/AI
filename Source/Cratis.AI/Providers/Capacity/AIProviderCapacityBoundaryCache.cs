@@ -101,7 +101,12 @@ internal sealed class AIProviderCapacityBoundaryCache
     /// <param name="clear">Whether the provider is no longer known.</param>
     internal void Invalidate(AIProviderId provider, bool clear = false)
     {
-        var slot = _slots.GetOrAdd(provider, static _ => new());
+        var slot = clear ? _slots.GetValueOrDefault(provider) : _slots.GetOrAdd(provider, static _ => new());
+        if (slot is null)
+        {
+            return;
+        }
+
         lock (slot.Gate)
         {
             slot.Version++;
