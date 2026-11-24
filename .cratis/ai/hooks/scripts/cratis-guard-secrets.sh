@@ -15,7 +15,10 @@
 # aliases, functions, script files and recursive searches without named files remain outside its text analysis.
 # Allowlisted safe shapes (each commented where it is implemented, each with specs): source-file names classified by
 # real secret patterns, a leading plain NAME=VALUE, quoted commit and pull request text, literal here-document
-# text, and link-target checks. Anything else naming a protected file is refused.
+# text for plain consumers, and link-target checks. Inline interpreter programs and executable heredocs share
+# boundary-aware protected file vocabulary. This text filter is not a sandbox: encoded paths, external scripts
+# and arbitrarily assembled names need OS-level protection. See ../README.md#inline-interpreter-policy.
+# Anything else naming a protected file is refused.
 #
 # Escape hatch for a human who authorized the read — set in the environment the agent harness was started
 # from, never inside the command (an assignment in the command is ignored):
@@ -97,7 +100,8 @@ if [ -z "$command_cwd" ]; then
     case "$probe_lower" in
         *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
         *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.key*|*.p12*|*.pfx*|*.jks*|*.kdbx*|*token*|*.netrc*|*.npmrc*|\
-        *credential*|*.pgpass*|*pypirc*|*secrets*|*oc*|*grep*|*rg*|*ag*|*find*|*tar*|*cp*|*rsync*|*zip*|*diff*|*cd*) ;;
+        *credential*|*.pgpass*|*pypirc*|*secrets*|*oc*|*grep*|*rg*|*ag*|*find*|*tar*|*cp*|*rsync*|*zip*|*diff*|*cd*|\
+        *node*|*deno*|*bun*|*python*|*ruby*|*perl*|*php*|*lua*|*osascript*|*dotnet*|*java*|*julia*|*groovy*|*tsx*|*rscript*) ;;
         *) case "$command_text" in
             *'$'*|*'*'*|*'?'*|*'['*|*'{'*|*'('*|*'^'*|*'~'*|*'`'*) ;;
             *) exit 0 ;;
@@ -806,15 +810,40 @@ function interpreter_hit(body,    t, k, stem, from, p, before, after, kind) {
             before = (p > 1) ? substr(t, p - 1, 1) : ""
             after = substr(t, p + length(stem), 1)
             kind = INTERP_KIND[k]
+            # Template filenames and bare properties are not protected file vocabulary. Existing argv
+            # taint checks remain independent; process.env.NAME and data.key in heredocs are not reads.
+            if (stem == ".env" && substr(t, p + length(stem)) ~ /^\.(example|sample|template|dist|defaults)([^a-z0-9_]|$)/) { from = p + 1; continue }
             if (kind == "env" && before !~ /[]a-z0-9_)]/ && after !~ /[a-z0-9_]/) return stem
             if (kind == "ext" && (after == "\"" || after == "\047" || after == "`")) return stem
-            if (kind == "name" && after !~ /[a-z0-9_]/) return stem
+            if (kind == "path" || kind == "name" && after !~ /[a-z0-9_]/) return stem
             from = p + 1
         }
     }
     return ""
 }
-function read_heredocs(s, i, n,    h, e, line, cmp, body, hit) {
+function interpreter_name(b) {
+    return b ~ /^(node(js)?|deno|bun|python[0-9.]*|ruby|perl|php|lua|osascript|pwsh|powershell|dotnet|java|jshell|rscript|tclsh|julia|groovy|tsx|ts-node|bash|sh|zsh|dash|ksh)$/
+}
+# Inspect only the executable selected after shell wrappers; later script operands are data, not flags.
+# Unknown startup switches fail closed when vocabulary is present rather than guessing their arity.
+function interpreter_invocation(A, s, n, b,    k, option) {
+    if (nheredoc > 0) { hd_interp = 1; INLINE = 1 }
+    if (b ~ /^(bash|sh|zsh|dash|ksh)$/) return
+    for (k = s + 1; k <= n; k++) {
+        option = tolower(A[k])
+        if (option == "--") return
+        if (b == "deno" && option == "eval") { INLINE = 1; return }
+        if (b ~ /^(pwsh|powershell)$/ && option ~ /^-(c|command)$/) { INLINE = 1; return }
+        if (b ~ /^python/ && option ~ /^-c/ || b == "php" && option ~ /^-r/ ||
+            b ~ /^(node(js)?|bun|ruby|perl|lua|osascript|tsx|ts-node)$/ && option ~ /^-[ep]/ ||
+            b ~ /^(node(js)?|bun|tsx|ts-node)$/ && option ~ /^--(eval|print)(=|$)/) { INLINE = 1; return }
+        if (option !~ /^-/ || option == "-") return
+        if (option ~ /^--(input-type|require|loader|import)$/ || b ~ /^(node(js)?|bun|tsx|ts-node)$/ && option == "-r") { k++; continue }
+        if (option ~ /^--(input-type|require|loader|import)=/ || option ~ /^--(no-config|no-warnings|quiet)$/) continue
+        INLINE = 1; return
+    }
+}
+function read_heredocs(s, i, n,    h, e, line, cmp, body) {
     for (h = 1; h <= nheredoc; h++) {
         body = ""
         while (i <= n) {
@@ -825,11 +854,9 @@ function read_heredocs(s, i, n,    h, e, line, cmp, body, hit) {
             if (cmp == HD[h]) break
             body = body line "\n"
         }
+        if (hd_interp && interpreter_hit(body) != "") INLINE_HIT = 1
         if (hd_shell) enqueue(body)
-        else {
-            if (!HDQ[h]) heredoc_substitutions(body)
-            if (hd_interp && (hit = interpreter_hit(body)) != "") { complex = 1; if (TAINT == "") TAINT = hit }
-        }
+        else if (!HDQ[h]) heredoc_substitutions(body)
     }
     nheredoc = 0; hd_shell = 0; hd_interp = 0
     return i
@@ -1609,7 +1636,7 @@ function shell_invocation(A, s, n,    k, j, flags, c, script) {
             if (j != length(flags) || expands(A[k + 1], mask_of(A, k + 1)) || !allowed_option(A[k + 1])) config_report()
             k++; break
         }
-        if (script) { enqueue(A[k + 1]); return }
+        if (script) { INLINE = 1; enqueue(A[k + 1]); return }
     }
     if (nheredoc > 0) hd_shell = 1
 }
@@ -2102,6 +2129,8 @@ function git_content(A, s, n,    subcommand, k, w, kind, ended, pathspec) {
     }
 }
 function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
+    # Preserve decoded evidence before search-pattern, Git-path and source/template exemptions.
+    for (k = s; k <= n; k++) if (interpreter_hit(A[k]) != "") INLINE_HIT = 1
     nrt = 0; nwrap = 0; delete REDIRECT_TOKENS; delete ROFF; first = s
     while (s <= n) {
         w = A[s]; b = base(w)
@@ -2139,7 +2168,7 @@ function analyze(A, s, n,    w, b, k, names, p, config, get, show, first) {
     }
     if (expands(A[s], mask_of(A, s))) return dyn_command(A, s, n)
     b = base(A[s])
-    if (nheredoc > 0 && b ~ /^(node|nodejs|deno|bun|python[0-9.]*|ruby|perl|php|lua|osascript|pwsh|powershell|dotnet|java|jshell|rscript|tclsh|julia|groovy|tsx|ts-node)$/) hd_interp = 1
+    if (interpreter_name(b)) interpreter_invocation(A, s, n, b)
     if (b == "cd" || b == "pushd" || b == "popd") { change_directory(A, s, n, b); return }
     check_bulk_roots(A, s, n, b)
     if (A[s] == "git") git_content(A, s, n)
@@ -2233,18 +2262,20 @@ BEGIN {
     }
     nextension = split("pem key p12 pfx jks keystore kdbx kubeconfig env", EXT, " ")
     ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt set setopt unsetopt emulate grep egrep fgrep rg ag sed awk gawk mawk nawk busybox jq yq gojq jaq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
-    ninterp = split(".env|env .env.local|name .env.production|name .envrc|name id_rsa|name id_ed25519|name id_ecdsa|name id_dsa|name .netrc|name .npmrc|name .pgpass|name .pypirc|name .git-credentials|name kubeconfig|name .kube/|name .aws/|name .docker/config.json|name credentials.json|name secrets.yaml|name secrets.yml|name .pem|ext .key|ext .p12|ext .pfx|ext .jks|ext .keystore|ext .kdbx|ext", INTERP_SPEC, " ")
+    ninterp = split(".env|env .env.local|name .env.production|name .envrc|name id_rsa|name id_ed25519|name id_ecdsa|name id_dsa|name .netrc|name .npmrc|name .pgpass|name .pypirc|name .git-credentials|name kubeconfig|name .kube/|path .aws/|path .docker/|path credentials|name credential|name secrets.yaml|name secrets.yml|name /environ|name run/secrets|path .pem|ext .key|ext .p12|ext .pfx|ext .jks|ext .keystore|ext .kdbx|ext", INTERP_SPEC, " ")
     for (i = 1; i <= ninterp; i++) { split(INTERP_SPEC[i], L, "|"); INTERP[i] = L[1]; INTERP_KIND[i] = L[2] }
     nstem = split(".env .pem .key .p12 .pfx .jks .keystore .kdbx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials credential secrets.yaml secrets.yml .docker/ /environ run/secrets", STEM, " ")
     CMD = ENVIRON["GS_COMMAND"]
     for (pass = 1; pass <= 2; pass++) {
         delete queue; delete QUEUE_DIR; delete QUEUE_COUNT; queued = 0; qi = 0; delete seen; reports = ""
         delete CWD; ncd = 1; nwrap = 0; CWD[1] = ENVIRON["GS_CWD_FALLBACK"]; effective_dir = CWD[1]
-        nheredoc = 0; hd_shell = 0; hd_interp = 0; commands = 0; complex = 0; simple_ok = 1; TAINT = ""
+        nheredoc = 0; hd_shell = 0; hd_interp = 0; INLINE = 0; INLINE_HIT = interpreter_hit(CMD) != ""; commands = 0; complex = 0; simple_ok = 1; TAINT = ""
         enqueue(CMD)
         while (qi < queued) { qi++; tokenize(queue[qi]) }
         if (pass == 1 && bindings > 0) continue
-        if (TAINT != "" && (complex || queued != 1 || commands != 1 || !simple_ok)) {
+        if (INLINE && INLINE_HIT) {
+            report("inline interpreter programs with protected file vocabulary cannot be checked safely", "the read (Claude: Read) tool for an exact non-credential file; use find/ls to locate files first. Never read credential files or disguise the same read in a variable, encoded string or script file")
+        } else if (TAINT != "" && (complex || queued != 1 || commands != 1 || !simple_ok)) {
             other_reports = reports; reports = ""
             report("the command names a protected file (" TAINT ") and is not a single literal read", "run the read on its own with literal paths, e.g. cat .env.example; split compound commands into separate calls; do not build the name with variables, globs, loops, pipes, redirections or nested shells; for a commit message or PR body that mentions the name, write the text to a file with the file tool and pass the file")
             reports = reports other_reports

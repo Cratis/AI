@@ -10,6 +10,14 @@ from [`capability-is-not-authority.md`](./capability-is-not-authority.instructio
 channels from [`secrets.md`](./secrets.instructions.md). All lines are **[contract]** (see
 [`general.md`](../../../rules/general.md)). They are policy, not a sandbox: none is mechanically enforced.
 
+## Inline interpreters and protected files
+
+The [secrets guard](../../../hooks/README.md) refuses parsed inline interpreter programs and executable
+heredocs when protected file vocabulary occurs anywhere in the Bash call. Use the read (Claude: Read)
+tool for an exact non-credential file; do not split or disguise the same interpreter read. Ordinary
+property names and JSON are not new triggers. This boundary-aware text filter is not a sandbox:
+encoded paths, external helpers and generated stdin require OS-level sandboxing or file permissions.
+
 ## Screenplay models and rendering
 
 - **[contract] The identity owner applies** `apply`, recovery and catalog- or identity-changing edits to the

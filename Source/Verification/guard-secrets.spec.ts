@@ -6,7 +6,7 @@
  *
  * A guard that blocks every command fails these tests as surely as one that blocks none, so each table pairs a
  * command that prints credentials with its nearest projected or harmless neighbor. A word that only appears inside
- * a string argument (echo, rg, grep, git commit -m) or a here-document body is never a finding.
+ * a string argument (echo, rg, grep, git commit -m) or a plain-consumer here-document is not execution.
  */
 
 import assert from 'node:assert/strict';
@@ -1339,6 +1339,10 @@ test('the Pi bridge runs shell commands through the secrets guard', async () => 
         const dump = await toolCall({ toolName: 'bash', input: { command: 'kubectl get pods -o json' } }, ctx) as { block?: boolean; reason?: string } | undefined;
         assert.equal(dump?.block, true, 'a full pod spec through Pi must be refused');
         assert.match(dump?.reason ?? '', /BLOCKED by cratis-guard-secrets/);
+        const inline = await toolCall({ toolName: 'bash', input: { command: "node -e '/* .aws/config */ 1'" } }, ctx) as { block?: boolean; reason?: string } | undefined;
+        assert.equal(inline?.block, true);
+        assert.match(inline?.reason ?? '', /inline interpreter programs with protected file vocabulary/);
+        assert.match(inline?.reason ?? '', /read \(Claude: Read\)/);
         const projected = await toolCall({ toolName: 'bash', input: { command: 'kubectl get pods -o name' } }, ctx);
         assert.equal(projected, undefined, 'a projected read through Pi must pass');
         const unrelated = await toolCall({ toolName: 'bash', input: { command: 'git status' } }, ctx);
@@ -2036,6 +2040,84 @@ test('heredoc bodies are data only for a quoted delimiter or a plain consumer; s
         [BLOCK, 'cat <<EOF | node\nrequire("fs").readFileSync(".env")\nEOF'],
     ]);
 });
+
+// Shared vectors exercise the same policy with and without a supplied cwd (Cratis/AI#1154).
+{
+    const forms = [
+        'node -e', 'node --eval', 'node --eval=', 'node -p', 'node --print', 'node --print=',
+        'nodejs -e', 'bun -e', 'bun --eval=', 'bun -p', 'bun --print=',
+        'python -c', 'python3 -c', 'python3.12 -c', 'ruby -e', 'perl -e', 'perl -E',
+        'lua -e', 'osascript -e', 'tsx -e', 'ts-node -e', 'php -r', 'deno eval',
+        'pwsh -Command', 'powershell -c', 'bash -c', 'sh -lc', 'zsh -c', 'dash -c', 'ksh -c',
+    ];
+    const heredocInterpreters = [
+        'node', 'nodejs', 'deno', 'bun', 'python', 'python3', 'ruby', 'perl', 'php', 'lua',
+        'osascript', 'pwsh', 'powershell', 'dotnet', 'java', 'jshell', 'rscript', 'tclsh',
+        'julia', 'groovy', 'tsx', 'ts-node', 'bash', 'sh', 'zsh', 'dash', 'ksh',
+    ];
+    const blocked = [
+        ...forms.map(form => `${form}${form.endsWith('=') ? '' : ' '}'/* .aws/config */ 1'`),
+        ...['node -e', 'python3 -c', 'ruby -e', 'perl -E', 'php -r'].map(form => `${form}'/* .aws/config */ 1'`),
+        ...heredocInterpreters.map(interpreter => `${interpreter} <<'EOF'\n# .aws/config\nEOF`),
+        ...['.env', 'server.key', 'credentials.json', '/run/secrets/password', '.EnV.LoCaL',
+            '.kube/config', '.docker/config.json', 'secrets.yaml', '/proc/1/environ', 'credential.json',
+        ].map(path => `node -e 'const read = require("fs").readFileSync; read("${path}")'`),
+        'node -e \'const p = "." + "env"; /* .env */ require("fs").readFileSync(p)\'',
+        'node -e \'/* .aws/config without a read API */ console.log(1)\'',
+        'FLAG=.aws/config env command timeout 3 rtk proxy /usr/bin/node -e "1"',
+        "'node' -e '1' .aws/config",
+        'node --unknown-option .aws/config',
+        'node -e "1"; echo .aws/config',
+        'echo .aws/config; node -e "1"',
+        'node -e "1" # .aws/config',
+        'node -e \'1\' .a\'ws\'/config',
+        "node --input-type=module - <<'EOF'\n// .aws/config\nEOF",
+        'python3 <<EOF\n# credentials.json\nEOF',
+        "cat <<'EOF' | node\n// .aws/config\nEOF",
+        "node <<-'EOF'\n\t// .aws/config\n\tEOF",
+        "node <<'A' <<'B'\n1\nA\n// .aws/config\nB",
+        "node <<'EOF'\nconst read = require('fs').readFileSync; read('.env')\nEOF",
+        // Existing inline refusals stay refused even when the new matcher treats these as ordinary text.
+        "node -e 'console.log(process.env.HOME)'",
+        "node -e 'console.log(\".env.example\")'",
+        "node -e 'console.log(data.key)'",
+    ];
+    const allowed = [
+        ...['node -e', 'node --eval=', 'node -p'].map(form => `${form}${form.endsWith('=') ? '' : ' '}'Object.keys(JSON.parse("{}"))'`),
+        "node <<'EOF'\nconsole.log(Object.keys(JSON.parse('{}')))\nEOF",
+        "node --input-type=module - <<'EOF'\nconsole.log(process.env.HOME)\nEOF",
+        "node <<'EOF'\nconsole.log(data.key, '.env.example')\nEOF",
+        "node <<'EOF'\ndata.key === other.key;\nEOF",
+        "node -e 'require(\"fs\").readFileSync(\"Source/main.ts\")'",
+        "python3 -c 'print(1 + 2)'",
+        "bash -lc 'printf 1'",
+        "cat <<'EOF'\nnode -e 'read(\".env\")'\nEOF",
+        "git commit -m 'node -e and .aws/config are documentation'",
+        "echo 'node -e .aws/config'",
+        "node file.js -e .aws/config",
+        "node -- file.js -e .aws/config",
+        "node --require helper.js file.js -e .aws/config",
+        // No visible protected vocabulary: these synthetic shapes illustrate the text-analysis boundary.
+        "node -e 'console.log(\"notes\" + \".txt\")'",
+        'node helper.js',
+        'printf "console.log(1)" | node',
+        "cat Source/RecordingCredentials.ts",
+        "rg -n -e '.env' Source/main.ts",
+    ];
+    for (const cwd of [repositoryRoot, '']) {
+        test(`inline interpreter policy shares boundary-aware triggers across argv programs and heredocs (cwd: ${cwd || 'omitted'})`, () => {
+            assertVerdicts([
+                ...blocked.map(command => [BLOCK, command] as [string, string]),
+                ...allowed.map(command => [ALLOW, command] as [string, string]),
+            ], {}, { cwd });
+            const refusal = runGuard("node -e '/* .aws/config UNIQUE_PROGRAM_TEXT */ 1'", {}, cwd);
+            assert.equal(refusal.code, 2);
+            assert.match(refusal.stderr, /inline interpreter programs with protected file vocabulary cannot be checked safely/);
+            assert.match(refusal.stderr, /Use instead: the read \(Claude: Read\) tool for an exact non-credential file/);
+            assert.doesNotMatch(refusal.stderr, /UNIQUE_PROGRAM_TEXT|run the read on its own|Running the read on its own/);
+        });
+    }
+}
 
 for (const target of ['.envrc.local', '.env-prod', '.env_local']) {
     test(`link targets named ${target} use the protected-path classifier`, () => {

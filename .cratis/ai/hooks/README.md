@@ -19,6 +19,24 @@ Three layers:
 | Quality gate (Pi) | explicit `cratis_quality_gate` tool | same script | only at a requested verification checkpoint | error on failure; no turn-end hook |
 | Handoff checker | not wired: run by the skill | `scripts/cratis-check-handoff.mjs` | local files and git only | errors fail; warnings are advisory unless `--strict` |
 
+### Inline interpreter policy
+
+Inline interpreter argv programs (`node -e`/`--eval`/`-p`/`--print`, Python `-c`, Ruby/Perl/Lua/
+osascript `-e`, Perl `-E`, PHP `-r`, Deno `eval`, Bun/tsx/ts-node eval/print, PowerShell
+`-Command`/`-c`, and shell `-c` including `-lc`) and executable interpreter heredocs share a
+boundary-aware protected-file vocabulary. When a parsed invocation and a vocabulary hit occur anywhere
+in the Bash call, the guard refuses the call, even for comments, output strings or aliases of read APIs.
+Wrappers and absolute executable paths are recognized; script operands and words merely mentioning an
+interpreter are not inline invocations. Unknown startup options fail closed when vocabulary is present.
+The vocabulary combines the protected file stems above with `.aws/`, `credentials.json`, `secrets.yaml`
+and `secrets.yml`; file-shaped key extensions count, but `Object.keys`, JSON, `process.env.NAME`, bare
+key properties and `.env.example` are not new triggers. Existing argv taint refusals remain in force.
+Quoted heredoc delimiters disable shell expansion, not interpreter execution. Plain-consumer heredocs
+remain data. Use the read (Claude: Read) tool for an exact non-credential file after this refusal; splitting
+or disguising the same interpreter read is not remediation. This best-effort text filter is **not a sandbox**:
+encoded or split paths, external helper scripts and generated stdin can evade text analysis. OS-level
+sandboxing or file permissions are the protection boundary; literal shell reads remain supported.
+
 For false positives, a literal-prefix trailing `*`, including literal directory components, can be
 resolved in a known, readable cwd and parent directory. A single reader may stand alone or appear in
 an `&&` chain of literal read-only Git metadata commands, optionally after a literal leading `cd`.

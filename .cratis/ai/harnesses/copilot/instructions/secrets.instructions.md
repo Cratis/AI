@@ -23,6 +23,11 @@ they also hold without it.
 - **[contract] Command-text checks cannot see** shell-piped code (`… | sh`, `bash -c "$(…)"`),
   recursive searches without filenames (`grep -r PASSWORD .`), or paths hidden in variables,
   aliases or scripts. The rules still apply; output redaction is the backstop.
+- **[contract] Inline interpreter programs and executable heredocs with protected file vocabulary are
+  refused by the [secrets guard](../../../hooks/README.md), even when the mention is only a comment or string.
+  Use the read (Claude: Read) tool for an exact non-credential file instead; splitting or disguising the
+  same interpreter read is not remediation. This is a boundary-aware text filter, not a sandbox; encoded
+  or split paths, external helpers and generated stdin still require OS-level sandboxing or permissions.
 - **[contract] After a guard block, narrowing to literal non-credential files is supported remediation,
   not a workaround.** Follow `Use instead`; never disguise the same secret read.
 
