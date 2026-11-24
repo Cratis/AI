@@ -147,7 +147,7 @@ one, and event-source freshness does not protect a different payload value.
   credential only over an authorized secure channel and retain its hash, not
   plaintext. For a retained operational integration secret instead, use
   `[Encrypted]` plus `[NotAudited]` as described by `cratis-arc-command`.
-- Never log generated values/captures or seed production randomness. Use known
+- Never log generated values/captures or seed production randomness ([`secrets.md`](../../../rules/secrets.md)). Use known
   values in specs; test shape/time separately when randomness is the behavior.
 
 ## Sources

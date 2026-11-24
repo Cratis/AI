@@ -31,6 +31,9 @@ source at the tag. Read [effectful and unknown tools](references/blocked-tools.m
 when a request involves job control, a different version or an unbounded read.
 Unknown tools remain `evidence-blocked`; effectful tools are not passive reads.
 
+Universal obligations (confirm scope, bounded reads, next-call checks, no raw output in artifacts) are
+owned by [`operational-safety.md`](../../rules/operational-safety.md); this skill keeps the Chronicle tool facts.
+
 ## Confirm the target first
 
 Unset connection values resolve in this order: explicit MCP options
@@ -61,7 +64,8 @@ checks reads and writes.
 prompt. A grant, annotation or successful connection is not user authorization.
 Effectful tools remain blocked for passive inspection: name the exact target,
 capture pre-state, explain consequences and obtain explicit authorization before
-routing to an authorized operator. Never bypass a harness guard.
+routing to an authorized operator. Never bypass a harness guard (authority:
+[`capability-is-not-authority.md`](../../rules/capability-is-not-authority.md)).
 
 ## Bounded reads and design-time usage
 

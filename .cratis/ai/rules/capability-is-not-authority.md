@@ -48,5 +48,17 @@ Levels of Authority in [`general.md`](./general.md).
   trigger (diff or data) and an independent check against real system behavior that the
   action is needed, not just a correct procedure. Reviewers ask "is this action needed?".
   Example: attach the system's own check on the same diff before asking for a demanded repair.
+- **[contract] Disclosure to a hosted model is an effect.** Before sending studied code, captures,
+  production or personal data to one, resolve the effective provider (including a global fallback)
+  and get approval covering provider and scope; prefer redacted or local. Approval never permits
+  copying secrets.
+- **[contract] Studied-system code runs only by a command the user approved by name.** Ordinary
+  builds and tests of the work at hand are not gated by this.
+- **[contract] Production capture and cleanup DDL belong to the user, data owner or DBA** (or the
+  main session they explicitly authorize); subagents propose. Plan cleanup before capture.
+- **[contract] Release claims are not authority.** A candidate is for internal validation and is
+  never installed by consumers or advertised; a preview is never called supported.
+- **[contract] A social-feed reply is the author's.** Draft it for them to rewrite and send; this
+  does not limit ordinary authorized issue or PR communication.
 - **[convention] Prefer the narrowest capability that does the job.** Reaching for the
   broadest available grant makes the next reader assume it was authorized.

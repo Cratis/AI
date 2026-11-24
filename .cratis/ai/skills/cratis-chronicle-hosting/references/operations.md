@@ -166,7 +166,7 @@ Requires Chronicle 19.62.3 for recorded SQL database bindings in the cluster
 128-character limits. Existing bindings do not move automatically. An ambiguous
 truncated legacy deployment fails with `DatabaseOwnershipUnresolved`; follow the
 product's SQL database-name migration guide before restarting, never reset its
-storage to bypass the failure. Overlong cluster names fail startup, and incomplete
+storage to bypass the failure ([`operational-safety.md`](../../../rules/operational-safety.md)). Overlong cluster names fail startup, and incomplete
 migrations fail with `DatabaseMigrationIncomplete`. Check the kernel version and
 inspect bindings before an authorized migration; older naming can share databases.
 
@@ -182,4 +182,4 @@ then the compliance key store at the storage's point in time. The erasure fence
 is inside the key store: an older key backup can resurrect erased data, or miss
 new keys. Retain retired certificates as long as a backup needs them. Confirm a
 known protected subject remains readable and an erased subject remains erased
-before reopening traffic; see **cratis-chronicle-compliance**.
+before reopening traffic (rule: [`operational-safety.md`](../../../rules/operational-safety.md)); see **cratis-chronicle-compliance**.

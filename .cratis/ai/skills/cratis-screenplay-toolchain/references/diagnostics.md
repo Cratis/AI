@@ -744,7 +744,7 @@ Publication STAGE-ESM-032, foreign facts/event captures 033, claim-reading/opaqu
 | STAGE-ESM-024 | interval, schedule, application, startup and shutdown triggers, opaque reaction bodies, captures, Translate, clock/trigger/capture specifications |
 | STAGE-ESM-020 | a body the model requires, including a `generate rule` attachment, is missing or changed (content hash check); blocks publication |
 | STAGE-ESM-039 | unsupported refusal branch conditions/routes/mappings, same-event multi-trigger refusal groups, localized `$refusal.message` or ambiguous multi-constraint `$refusal.constraint` |
-| STAGE-EVENT-002 / CLI-RENDER-016 | existing destination event type ids changed or unreadable; pin stored identity, never bypass with `--force` |
+| STAGE-EVENT-002 / CLI-RENDER-016 | existing destination event type ids changed or unreadable; pin stored identity, never bypass with `--force` (rule: [`operational-safety.md`](../../../rules/operational-safety.md)) |
 | STAGE-BASELINE-001–004 | whole-application warnings: changed/missing admitted event revision, unreadable baseline, unavailable or stale assessment; keep `baseline check` as the independent CI gate |
 | CLI-RENDER-017 / 018 | persisted PATH root cannot open / `--name` differs from saved application name; resolve root state, never discard identities |
 | STAGE-CRATIS-005 | a modeled artifact would render into `Customizations/` |
