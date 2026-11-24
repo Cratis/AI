@@ -97,9 +97,3 @@ public record RecordAgentSessionUsageWithCapacity(
 /// <param name="Usage">The unchanged legacy event, prepared once.</param>
 /// <param name="Snapshot">The one cache-only observation.</param>
 public record AgentSessionUsageBoundary(AgentSessionUsageRecorded Usage, AIProviderCapacitySnapshot Snapshot);
-
-internal static partial class RecordAgentSessionUsageWithCapacityLogging
-{
-    [LoggerMessage(LogLevel.Warning, "Allowance capture failed for provider {Provider}; recording an unavailable observation")]
-    internal static partial void CaptureFailed(ILogger<RecordAgentSessionUsageWithCapacity> logger, AIProviderId provider);
-}

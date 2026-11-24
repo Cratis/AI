@@ -89,7 +89,7 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
         }
         else
         {
-            // Shared reads retain their original account identity, even if a newer query changes credentials.
+            // A new-account caller may join an old-account read and receive its result, but it is not cached.
             var reading = _reading.GetOrAdd(
                 provider,
                 static (key, state) => new(() => state.Observations.ReadAndRemember(key, state.Read, state.Ticket)),
@@ -99,7 +99,11 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
 
         var reason = entry.Failure is not null ? AIProviderCapacitySnapshotReason.RefreshFailed
             : entry.Stale ? AIProviderCapacitySnapshotReason.Invalidated : AIProviderCapacitySnapshotReason.None;
-        Boundaries.Remember(ticket, entry.Serve(), reason, entry.Credential);
+        if (ticket.Generation == entry.Generation)
+        {
+            Boundaries.Remember(ticket, entry.Serve(), reason, entry.Credential);
+        }
+
         return entry.Serve();
     }
 
@@ -122,8 +126,9 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
     /// <inheritdoc/>
     public void Forget(AIProviderId provider)
     {
-        _entries.AddOrUpdate(provider, static _ => new Entry { Stale = true }, static (_, entry) => entry with { Stale = true });
+        // Revoke pending writes before marking the retained entry stale.
         Boundaries.Invalidate(provider);
+        _entries.AddOrUpdate(provider, static _ => new Entry { Stale = true }, static (_, entry) => entry with { Stale = true });
     }
 
     async Task<Entry> ReadAndRemember(AIProviderId provider, Func<CancellationToken, Task<AIProviderCapacityReport>> read, AIProviderCapacityBoundaryCache.Ticket ticket)
@@ -138,15 +143,18 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
             }
             catch (Exception exception) when (exception is HttpRequestException or System.Text.Json.JsonException)
             {
-                // The exception's own message - never the request, which carries the credential.
-                report = AIProviderCapacityReport.Unavailable($"The usage read failed: {exception.Message}");
+                // Vendor messages, including inner exceptions, may contain credentials or response bodies.
+                var failure = exception is HttpRequestException { StatusCode: { } status }
+                    ? $"{exception.GetType().Name} (HTTP {(int)status})"
+                    : exception.GetType().Name;
+                report = AIProviderCapacityReport.Unavailable($"The usage read failed: {failure}");
             }
 
             var now = timeProvider.GetUtcNow();
             var observation = new AIProviderCapacityObservation(report, now);
             if (!report.Failed)
             {
-                var good = new Entry { LastGood = observation, GoodCredential = fingerprint };
+                var good = new Entry { LastGood = observation, GoodCredential = fingerprint, Generation = ticket.Generation };
                 Remember(provider, ticket, good);
                 return good;
             }
@@ -157,6 +165,7 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
             {
                 Failure = observation,
                 FailureCredential = fingerprint,
+                Generation = ticket.Generation,
                 Failures = failures,
                 BackOffUntil = now + BackOff(failures)
             };
@@ -174,7 +183,7 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
         lock (ticket.Slot.Gate)
         {
             // Unlike boundary publication, shared vendor reads survive newer selections of the same account.
-            if (ticket.Fingerprint == ticket.Slot.Fingerprint)
+            if (ticket.Fingerprint == ticket.Slot.Fingerprint && ticket.Generation == ticket.Slot.Generation)
             {
                 _entries[provider] = entry;
             }
@@ -197,6 +206,7 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
         public string? GoodCredential { get; init; }
         public string? FailureCredential { get; init; }
         public int Failures { get; init; }
+        public long Generation { get; init; }
         public DateTimeOffset BackOffUntil { get; init; } = DateTimeOffset.MinValue;
         public bool Stale { get; init; }
         public string? Credential => LastGood is not null ? GoodCredential : FailureCredential;

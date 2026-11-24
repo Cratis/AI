@@ -10,10 +10,14 @@ public class and_the_vendor_fails_without_a_good_read : given.an_observation_cac
 {
     AIProviderCapacityObservation _observation;
 
-    void Establish() => _vendor = () => throw new HttpRequestException("No route to host");
+    const string Secret = "sk-vendor-secret-in-error-body";
+
+    void Establish() => _vendor = () => throw new HttpRequestException(Secret, new InvalidOperationException("inner-secret"));
 
     async Task Because() => _observation = await Observe();
 
     [Fact] void should_serve_an_unknown_capacity() => _observation.Report.Source.ShouldEqual(AIProviderCapacitySource.Unknown);
-    [Fact] void should_say_why() => _observation.Report.Problem.ShouldEqual("The usage read failed: No route to host");
+    [Fact] void should_say_why() => _observation.Report.Problem.ShouldEqual("The usage read failed: HttpRequestException");
+    [Fact] void should_not_expose_the_vendors_message() => _observation.Report.Problem.ShouldNotContain(Secret);
+    [Fact] void should_not_expose_the_inner_message() => _observation.Report.Problem.ShouldNotContain("inner-secret");
 }
