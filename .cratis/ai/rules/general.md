@@ -150,9 +150,9 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Before commit messages, commits, pushes or PRs | `git-commits.md`, `pull-requests.md`, then **cratis-commits-and-pull-requests** |
 | Reading, citing and superseding a decision record | the **cratis-engineering-decision-record** skill |
 | Before any browser call: production permit, handoff, artifact paths, evidence | `browser.md` |
-| Whether you are allowed to do the thing you are able to do | `capability-is-not-authority.md` |
+| Whether you are allowed to do the thing you are able to do; sending data to a hosted model; before MCP inspection or configuration, modeling or rendering, `render --force`, Chronicle hosting or restore, even with no file open | `capability-is-not-authority.md`, `operational-safety.md` |
 | Exposing an endpoint, API or MCP to callers that present a token; AuthProxy anonymous paths, bearer routes | `authentication-boundary.md` |
-| Before running a command that could print a credential, or when a secret value appears in output | `secrets.md` |
+| Before running a command that could print a credential, or when a secret value appears in output; credentials, tokens or personal data in logs, URLs, labels, tags or recorded facts | `secrets.md` |
 | Session notes, plans and handovers (`.ai-work/` only) | `local-work-artifacts.md` |
 | Command wrappers, exact output and exit codes | `rtk.md`, then **cratis-rtk** |
 | Before issue-linked edits | `issue-assignment.md`, then **cratis-engineering-issue-hygiene** |

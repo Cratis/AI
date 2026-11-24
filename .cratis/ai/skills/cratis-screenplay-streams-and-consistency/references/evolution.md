@@ -92,7 +92,7 @@ reinterpret stored numbers. Before reordering or removing members, pin each to i
 **existing stored number**, not its new position. `propose-number-enum-members`
 pins an unnumbered enum to current positions; use it before changing order, only
 when those positions match storage. Never renumber or reuse a published member's
-number. Removing a member still needs replay and mixed-reader compatibility decisions.
+number ([`operational-safety.md`](../../../rules/operational-safety.md)). Removing a member still needs replay and mixed-reader compatibility decisions.
 
 Numbered members may have sparse or negative unique int32 values, all or none per
 enum. Source authoring shipped; non-positional numbers bind as ESM v12

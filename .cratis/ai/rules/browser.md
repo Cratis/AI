@@ -26,6 +26,15 @@ Authority in [`general.md`](./general.md). Read this before any browser call.
 - **[contract] Stop for a human on sign-in, 2FA or CAPTCHA.** Record
   `UI UNVERIFIED — needs human sign-in` and continue the other lanes. Do not block on it.
 
+## Legacy observation
+
+- **[contract] Observe only; never install a missing tool.** Without browser tools, use document and
+  expert evidence and record the gap. Installing tools is a separate, requested action.
+- **[contract] Use only approved test identities.** Never guess credentials or reuse one found in a URL.
+- **[contract] Stop on unexpected production data, mutation or an access boundary,** including from a
+  local page that calls production. Submit a form only for an approved scenario, never to see what
+  happens.
+
 ## Artifacts and uploads
 
 - **[contract] Write artifacts and stage uploads only under `.ai-work/<task>/browser/`**
