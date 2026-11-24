@@ -36,30 +36,17 @@ cwd="" command_text="" parser_status=""
 cwd="${cwd:-$PWD}"
 [ "${#command_text}" -le 131072 ] || parser_failed
 
-# Explicit literal staging of the .cratis-render/ cache is refused before any installer/repair shortcut.
-# Node and the classifier are needed only for an executable staging candidate: the cache named, a git word at
-# a command position (after separators, assignments, control words or a wrapper) or inside a shell -c script, and
-# add or stage. A mention inside quoted text (echo 'git add .cratis-render/') is not a candidate and behaves as
-# before, with or without node. Wrapper words are skipped by the classifier; the prefilter only over-approximates it.
-render_staging_candidate() {
-    local text="$1" nl=$'\n'
-    local start="(^|[;&|(\`]|$nl)[[:space:]]*(((then|do|else|elif|if|while|until|time|!|\{)[[:space:]]+)*)([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*"
-    local git="['\"\\]*([^[:space:];&|]*/)?git['\"]*[[:space:]]"
-    local wrapper="(command|exec|time|nohup|sudo|doas|env|nice|ionice|stdbuf|timeout|setsid)[[:space:]]"
-    local shell="(sh|bash|zsh|dash|ksh)[[:space:]]+(-[A-Za-z]*[[:space:]]+)*-[A-Za-z]*c"
-    [[ "$text" =~ $start$git ]] && return 0
-    [[ "$text" =~ $start$wrapper[^\;\&\|]*[[:space:]\'\"/]git[[:space:]\'\"] ]] && return 0
-    [[ "$text" =~ $start([^[:space:];&|]*/)?$shell ]] && return 0
-    return 1
-}
-if [[ "$command_text$cwd" == *.cratis-render* && ( "$command_text" == *add* || "$command_text" == *stage* ) ]] && render_staging_candidate "$command_text"; then
+# The .cratis-render/ cache is never staged. No shell parsing here: the classifier runs iff the raw text contains
+# both "git" and ".cratis-render" (no false negatives by construction). Without node such a command is refused,
+# even a harmless mention (a deliberate false refusal over a silent bypass). Other commands never start node.
+if [[ "$command_text$cwd" == *.cratis-render* && "$command_text" == *git* ]]; then
     render_staging_guard="$script_directory/cratis-guard-render-staging.mjs"
     render_staging_status=0
     if [ -f "$render_staging_guard" ] && command -v node >/dev/null 2>&1; then
         node "$render_staging_guard" "$cwd" <<<"$command_text" || render_staging_status=$?
     else
         render_staging_status=3
-        printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: render-staging classifier or node is unavailable; cannot check this git command.' >&2
+        printf '%s\n' 'BLOCKED by cratis-guard-shell-writes: command mentions git and .cratis-render but node or the render-staging classifier is unavailable; refusing rather than guessing.' >&2
     fi
     [ "$render_staging_status" -eq 0 ] || exit 2
 fi

@@ -9,10 +9,7 @@ import { pathToFileURL } from 'node:url';
 
 const cacheName = '.cratis-render';
 const separators = new Set([';', '&', '|', '\n', '(', ')', '`']);
-const wrappers = new Set(['command', 'exec', 'time', 'nohup', 'sudo', 'doas', 'env', 'nice', 'ionice', 'stdbuf', 'timeout', 'setsid']);
-const controlWords = new Set(['if', 'then', 'do', 'else', 'elif', 'while', 'until', '!', '{', '$']);
 const shells = new Set(['sh', 'bash', 'zsh', 'dash', 'ksh']);
-const gitValueOptions = new Set(['-C', '-c', '--git-dir', '--work-tree', '--namespace', '--exec-path', '--super-prefix', '--config-env']);
 const maxNesting = 2;
 
 const hasCacheComponent = path => path.split('/').includes(cacheName);
@@ -30,7 +27,9 @@ class Lexer {
     run() {
         for (; this.index < this.text.length; this.index++) this.consume(this.text[this.index]);
         this.flush();
-        return this.segments.filter(segment => segment.length > 0);
+        const result = this.segments.filter(segment => segment.length > 0);
+        result.unbalanced = this.quote !== '';
+        return result;
     }
 
     flush() {
@@ -101,82 +100,42 @@ class Lexer {
 /** Splits command text into segments of {text, expand} words; quotes and escapes are removed. */
 export const tokenize = commandText => new Lexer(commandText).run();
 
-const isAssignment = text => /^[A-Za-z_][A-Za-z0-9_]*[+]?=/.test(text);
+const isGit = text => basename(text) === 'git';
+const isStaging = text => text === 'add' || text === 'stage';
 
-const isLauncher = text => shells.has(basename(text)) || basename(text) === 'git';
+/** The first `-c`-style flag of a shell word and the script after it, anywhere in the segment. */
+function shellScript(words) {
+    const shell = words.findIndex(word => shells.has(basename(word.text)));
+    if (shell < 0) return undefined;
+    const flag = words.findIndex((word, index) => index > shell && /^-[a-z]*c[a-z]*$/.test(word.text));
+    return flag < 0 ? undefined : words[flag + 1]?.text;
+}
 
 /**
- * Index of the command word. Assignments and control words are skipped. After a wrapper (which may take
- * options and option values: sudo -n, env -u X --, nice -n 5) every word up to the first git or shell
- * is treated as wrapper syntax, so an option-taking wrapper cannot hide a git invocation. Otherwise -1.
+ * Wrappers, assignments and option values before `git` are irrelevant: a simple command is refused when a
+ * `git` word is later followed by add/stage and then any word naming the cache. Whatever follows is checked
+ * as a whole, so `git -C dir add x` and `git add -- .cratis-render` are covered.
  */
-function commandIndex(words) {
-    let wrapped = false;
-    for (let index = 0; index < words.length; index++) {
-        const text = words[index].text;
-        if (isAssignment(text) || controlWords.has(text)) continue;
-        if (wrappers.has(text)) wrapped = true;
-        else if (!wrapped || isLauncher(text)) return index;
-    }
-    return -1;
-}
-
-/** Returns {directories, subcommand, rest} for a `git` word, or undefined. */
-function parseGit(words, gitIndex) {
-    const directories = [];
-    let index = gitIndex + 1;
-    while (index < words.length && words[index].text.startsWith('-')) {
-        const option = words[index].text;
-        if (option === '-C' && words[index + 1]) directories.push(words[index + 1].text);
-        index += gitValueOptions.has(option) ? 2 : 1;
-    }
-    if (index >= words.length) return undefined;
-    return { directories, subcommand: words[index].text, rest: words.slice(index + 1) };
-}
-
-/** The staging operands of a `git add|stage` word, or undefined for any other command. */
-function parseStaging(words, start) {
-    const git = parseGit(words, start);
-    if (!git || (git.subcommand !== 'add' && git.subcommand !== 'stage')) return undefined;
-    const operands = [];
-    let optionsEnded = false;
-    for (const word of git.rest) {
-        if (!optionsEnded && word.text === '--') optionsEnded = true;
-        else if (optionsEnded || !word.text.startsWith('-')) operands.push(word);
-    }
-    return { directories: git.directories, operands };
-}
-
-function stagingVerdict({ directories, operands }, commandText, cwd) {
-    if (directories.some(hasCacheComponent) || hasCacheComponent(cwd)) {
-        return { reason: 'targets a directory inside the render cache' };
-    }
-    if (operands.some(word => hasCacheComponent(word.text))) return { reason: 'names the render cache' };
-    const unresolved = operands.some(word => word.expand) && commandText.includes(cacheName);
+function stagingVerdict(words, commandText, cwd) {
+    const git = words.findIndex(word => isGit(word.text));
+    if (git < 0) return undefined;
+    const staging = words.findIndex((word, index) => index > git && isStaging(word.text));
+    if (staging < 0) return undefined;
+    if (words.slice(git + 1).some(word => hasCacheComponent(word.text))) return { reason: 'names the render cache' };
+    if (hasCacheComponent(cwd)) return { reason: 'targets a directory inside the render cache' };
+    const unresolved = words.slice(staging + 1).some(word => word.expand) && commandText.includes(cacheName);
     return unresolved ? { reason: 'has a target this guard cannot resolve while naming the render cache' } : undefined;
 }
 
-function shellScriptVerdict(words, start, cwd, depth) {
-    if (depth >= maxNesting) return undefined;
-    const flag = words.findIndex((word, index) => index > start && /^-[a-z]*c[a-z]*$/.test(word.text));
-    const script = flag < 0 ? undefined : words[flag + 1];
-    return script ? classifyText(script.text, cwd, depth + 1) : undefined;
-}
-
-function classifySegment(words, commandText, cwd, depth) {
-    const start = commandIndex(words);
-    if (start < 0) return undefined;
-    const program = basename(words[start].text);
-    if (shells.has(program)) return shellScriptVerdict(words, start, cwd, depth);
-    if (program !== 'git') return undefined;
-    const staging = parseStaging(words, start);
-    return staging ? stagingVerdict(staging, commandText, cwd) : undefined;
-}
-
 function classifyText(commandText, cwd, depth) {
-    for (const words of tokenize(commandText)) {
-        const verdict = classifySegment(words, commandText, cwd, depth);
+    const segments = tokenize(commandText);
+    if (segments.unbalanced) return { reason: 'has unbalanced quotes, so this guard cannot parse it' };
+    for (const words of segments) {
+        const verdict = stagingVerdict(words, commandText, cwd);
         if (verdict) return verdict;
+        const script = depth < maxNesting ? shellScript(words) : undefined;
+        const nested = script === undefined ? undefined : classifyText(script, cwd, depth + 1);
+        if (nested) return nested;
     }
     return undefined;
 }

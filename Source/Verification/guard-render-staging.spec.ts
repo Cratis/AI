@@ -42,6 +42,11 @@ const refused = [
     'sudo -n git add .cratis-render/x',
     'nice -n 5 git add .cratis-render',
     'timeout 5 git add .cratis-render',
+    "FOO='x y' git add .cratis-render/x",
+    'env -u git git add .cratis-render/x',
+    'nice -- git add .cratis-render/x',
+    'git -C dir add .cratis-render',
+    "git add '.cratis-render/x",
     "bash -c 'git add .cratis-render'",
     'bash -lc "git add .cratis-render/x"',
 ];
@@ -54,7 +59,6 @@ const permitted = [
     'git add .cratis-render-notes',
     'git add docs/.cratis-render.md',
     "echo 'git add .cratis-render/'",
-    'echo git add .cratis-render',
     'grep -n "git add .cratis-render" README.md',
     'git commit -m "never git add .cratis-render"',
     '# git add .cratis-render',
@@ -64,6 +68,7 @@ const permitted = [
     "printf '%s' 'git add .cratis-render/'",
     'env FOO=1 ls .cratis-render',
     'sudo -n ls .cratis-render',
+    "echo '; git add .cratis-render/'",
     'nice -n 5 git add Source/a.ts',
     'command -- git status',
     '',
@@ -139,7 +144,7 @@ test('a candidate refuses when node is unavailable', () => {
             env: { PATH: bin, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0', CLAUDE_PROJECT_DIR: directory },
         });
         assert.equal(result.status, 2, result.stderr);
-        assert.match(result.stderr, /classifier or node is unavailable/);
+        assert.match(result.stderr, /node or the render-staging classifier is unavailable/);
         assert.ok(existsSync(classifierFile));
     } finally { rmSync(directory, { recursive: true, force: true }); }
 });
@@ -174,14 +179,15 @@ function runWithoutNode(command: string) {
     } finally { rmSync(directory, { recursive: true, force: true }); }
 }
 
-test('without node, unrelated and quoted-text commands keep their previous exit and real candidates refuse', () => {
-    for (const command of ["echo 'git add .cratis-render/'", "printf '%s' 'git add .cratis-render'", 'ls .cratis-render', 'git status', 'git add Source/a.ts']) {
+test('without node, commands lacking git or the cache never start node and keep their exit; any git plus cache mention refuses', () => {
+    for (const command of ['ls .cratis-render', 'git status', 'git add Source/a.ts', 'echo hello']) {
         const result = runWithoutNode(command);
         assert.equal(result.status, 0, `${command}\n${result.stderr}`);
     }
-    for (const command of ['git add .cratis-render/x', 'sudo -n git add .cratis-render/x', 'env -- git add .cratis-render', "bash -c 'git add .cratis-render'"]) {
+    const refusals = ['git add .cratis-render/x', 'sudo -n git add .cratis-render/x', 'env -- git add .cratis-render', "bash -c 'git add .cratis-render'", "FOO='x y' git add .cratis-render/x", "echo 'git add .cratis-render/'"];
+    for (const command of refusals) {
         const result = runWithoutNode(command);
         assert.equal(result.status, 2, command);
-        assert.match(result.stderr, /classifier or node is unavailable/);
+        assert.match(result.stderr, /node or the render-staging classifier is unavailable/);
     }
 });
