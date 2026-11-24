@@ -3,6 +3,7 @@
 
 using Cratis.AI.Providers;
 using Cratis.AI.Usage;
+using Cratis.AI.Usage.Recording;
 using Microsoft.Extensions.AI;
 
 namespace Cratis.AI.Conversations.for_PooledChatClient.when_getting_a_response;
@@ -27,7 +28,7 @@ public class and_the_agent_names_a_provider : given.a_pooled_chat_client
 
     [Fact]
     void should_record_the_usage() =>
-        _commandPipeline.Received(1).Execute(Arg.Is<RecordAgentSessionUsage>(command =>
+        _commandPipeline.Received(1).Execute(Arg.Is<RecordAgentSessionUsageWithCapacity>(command =>
             command.InputTokens == new InputTokens(10) &&
             command.OutputTokens == new OutputTokens(5)));
 }

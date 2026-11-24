@@ -5,6 +5,7 @@ using Cratis.AI.Abstractions;
 using Cratis.AI.Agents;
 using Cratis.AI.Common;
 using Cratis.AI.Usage;
+using Cratis.AI.Usage.Recording;
 using Cratis.Arc.Authorization;
 using Cratis.Arc.Http;
 using Microsoft.Extensions.Logging;
@@ -99,7 +100,7 @@ public class ManagedLanguageModel(
             var agent = agents.FindByPurpose(purpose);
 
             using var scope = agentExecution.As(purpose);
-            var command = new RecordAgentSessionUsage(
+            var command = new RecordAgentSessionUsageWithCapacity(
                 AgentSessionId.New(),
                 agent?.Id ?? AgentId.NotSet,
                 model,

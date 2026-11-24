@@ -47,3 +47,11 @@ rebuild process.
 This is an additive (minor) change: all existing public members and generated exports remain. See the
 [amendment to decision 0002](./decisions/0002-event-evolution-no-migrations.md) for how it relates to
 the event evolution policy.
+
+## Allowance at usage boundaries
+
+The provider or pool assigned to an agent is not necessarily the provider used by a particular
+completion. Package-owned usage writers record the actual resolved provider's cache-only allowance
+alongside usage, without changing assignments or routing. See
+[provider allowance at session-usage boundaries](./provider-capacity-boundaries.md) for the additive
+command/event, historical-consumer guidance and the separate #375 amendment to decision 0002.
