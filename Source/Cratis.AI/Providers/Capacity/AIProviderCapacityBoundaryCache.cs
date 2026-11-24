@@ -28,6 +28,11 @@ internal sealed class AIProviderCapacityBoundaryCache
     readonly ConcurrentDictionary<AIProviderId, Slot> _slots = new();
 
     /// <summary>
+    /// Gets the number of providers with allocated publication slots.
+    /// </summary>
+    internal int Count => _slots.Count;
+
+    /// <summary>
     /// Creates the shared, in-memory-only account identity; never included in events.
     /// </summary>
     /// <param name="credential">The credential material.</param>
@@ -50,9 +55,10 @@ internal sealed class AIProviderCapacityBoundaryCache
             {
                 Volatile.Write(ref slot.Cached, null);
                 slot.Fingerprint = fingerprint;
+                slot.Generation++;
             }
 
-            return new(slot, ++slot.Version, fingerprint);
+            return new(slot, ++slot.Version, fingerprint, slot.Generation);
         }
     }
 
@@ -110,6 +116,7 @@ internal sealed class AIProviderCapacityBoundaryCache
         lock (slot.Gate)
         {
             slot.Version++;
+            slot.Generation++;
             var cached = slot.Cached;
             Volatile.Write(ref slot.Cached, clear ? null : cached is null ? null : cached with { Reason = AIProviderCapacitySnapshotReason.Invalidated });
         }
@@ -128,7 +135,8 @@ internal sealed class AIProviderCapacityBoundaryCache
     /// <param name="Slot">The provider's slot.</param>
     /// <param name="Version">The selected query's version.</param>
     /// <param name="Fingerprint">The selected account's identity.</param>
-    internal sealed record Ticket(Slot Slot, long Version, string? Fingerprint);
+    /// <param name="Generation">The invalidation generation shared by reads of the same account.</param>
+    internal sealed record Ticket(Slot Slot, long Version, string? Fingerprint, long Generation);
 
     /// <summary>
     /// A provider's writer state and atomically readable observation.
@@ -149,6 +157,11 @@ internal sealed class AIProviderCapacityBoundaryCache
         /// The latest publication version.
         /// </summary>
         internal long Version { get; set; }
+
+        /// <summary>
+        /// Advances on invalidation and credential changes, not on ordinary selections.
+        /// </summary>
+        internal long Generation { get; set; }
 
         /// <summary>
         /// The selected account's fingerprint, never persisted.
