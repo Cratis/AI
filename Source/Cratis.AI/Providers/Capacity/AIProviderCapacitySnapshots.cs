@@ -88,9 +88,3 @@ public class AIProviderCapacitySnapshots(IAIProviderCapacityObservations observa
         return now - cached.Observation.ObservedAt >= options.Value.CapacityFreshness ? AIProviderCapacitySnapshotReason.Expired : AIProviderCapacitySnapshotReason.None;
     }
 }
-
-internal static partial class AIProviderCapacitySnapshotsLogging
-{
-    [LoggerMessage(LogLevel.Warning, "Allowance cache capture failed for provider {Provider}; recording an unavailable observation")]
-    internal static partial void CaptureFailed(ILogger<AIProviderCapacitySnapshots> logger, AIProviderId provider);
-}
