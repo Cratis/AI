@@ -49,57 +49,84 @@ public interface IAIProviderCapacityObservations
 /// <param name="timeProvider">The <see cref="TimeProvider"/> freshness and back-off are measured against.</param>
 /// <param name="options">The <see cref="AIProviderOptions"/> freshness and back-off come from.</param>
 [Singleton]
-public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<AIProviderOptions> options) : IAIProviderCapacityObservations
+public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<AIProviderOptions> options) : IAIProviderCapacityObservations, IAIProviderCapacityObservationView
 {
     static readonly TimeSpan _maximumBackOff = TimeSpan.FromHours(1);
 
     readonly ConcurrentDictionary<AIProviderId, Entry> _entries = new();
     readonly ConcurrentDictionary<AIProviderId, string> _fingerprints = new();
-    readonly ConcurrentDictionary<AIProviderId, Lazy<Task<AIProviderCapacityObservation>>> _reading = new();
+    readonly ConcurrentDictionary<AIProviderId, Lazy<Task<Entry>>> _reading = new();
+
+    /// <summary>
+    /// Gets the independent cache-only publication view on this singleton.
+    /// </summary>
+    internal AIProviderCapacityBoundaryCache Boundaries { get; } = new();
+
+    /// <inheritdoc/>
+    AIProviderCapacityBoundaryCache.Cached? IAIProviderCapacityObservationView.ReadCached(AIProviderId provider) => Boundaries.Read(provider);
 
     /// <inheritdoc/>
     public Task<AIProviderCapacityObservation> Observe(AIProviderId provider, Func<CancellationToken, Task<AIProviderCapacityReport>> read, string? credential = null, CancellationToken cancellationToken = default)
+        => ObserveSelected(provider, read, credential, Boundaries.Begin(provider, credential), cancellationToken);
+
+    /// <summary>
+    /// Uses the ordinary vendor cache while retaining the outer query's publication version.
+    /// </summary>
+    /// <param name="provider">The actual provider.</param>
+    /// <param name="read">The ordinary vendor reader.</param>
+    /// <param name="credential">The selected credentials.</param>
+    /// <param name="ticket">The boundary publication ticket.</param>
+    /// <param name="cancellationToken">The caller's cancellation token.</param>
+    /// <returns>The unchanged ordinary observation result.</returns>
+    internal async Task<AIProviderCapacityObservation> ObserveSelected(AIProviderId provider, Func<CancellationToken, Task<AIProviderCapacityReport>> read, string? credential, AIProviderCapacityBoundaryCache.Ticket ticket, CancellationToken cancellationToken)
     {
+        UpdateCredential(provider, credential);
         var now = timeProvider.GetUtcNow();
-        if (credential is not null)
+        Entry entry;
+        if (_entries.TryGetValue(provider, out var cached) && cached.CanServe(now, options.Value.CapacityFreshness))
         {
-            var fingerprint = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(credential)));
-            if (_fingerprints.TryGetValue(provider, out var known) && known != fingerprint)
-            {
-                _entries.TryRemove(provider, out _);
-            }
-
-            _fingerprints[provider] = fingerprint;
+            entry = cached;
+        }
+        else
+        {
+            // Shared reads retain their original account identity, even if a newer query changes credentials.
+            var reading = _reading.GetOrAdd(
+                provider,
+                static (key, state) => new(() => state.Observations.ReadAndRemember(key, state.Read, state.Fingerprint)),
+                (Observations: this, Read: read, ticket.Fingerprint));
+            entry = await reading.Value.WaitAsync(cancellationToken);
         }
 
-        if (_entries.TryGetValue(provider, out var entry))
-        {
-            if (!entry.Stale && entry.Failure is null && entry.LastGood is { } good && now - good.ObservedAt < options.Value.CapacityFreshness)
-            {
-                return Task.FromResult(good);
-            }
+        var reason = entry.Failure is not null ? AIProviderCapacitySnapshotReason.RefreshFailed
+            : entry.Stale ? AIProviderCapacitySnapshotReason.Invalidated : AIProviderCapacitySnapshotReason.None;
+        Boundaries.Remember(ticket, entry.Serve(), reason, entry.Credential);
+        return entry.Serve();
+    }
 
-            if (entry.BackOffUntil > now)
-            {
-                return Task.FromResult(entry.Serve());
-            }
+    void UpdateCredential(AIProviderId provider, string? credential)
+    {
+        if (credential is null)
+        {
+            return;
         }
 
-        // One read per provider at a time: concurrent callers share it rather than each asking the
-        // vendor. The shared read is deliberately not bound to any one caller's token - one caller
-        // giving up must not fail the read for the others - and is bounded by the vendor timeout.
-        var reading = _reading.GetOrAdd(
-            provider,
-            static (key, state) => new(() => state.Observations.ReadAndRemember(key, state.Read)),
-            (Observations: this, Read: read));
-        return reading.Value.WaitAsync(cancellationToken);
+        var fingerprint = AIProviderCapacityBoundaryCache.Fingerprint(credential);
+        if (_fingerprints.TryGetValue(provider, out var known) && known != fingerprint)
+        {
+            _entries.TryRemove(provider, out _);
+        }
+
+        _fingerprints[provider] = fingerprint;
     }
 
     /// <inheritdoc/>
-    public void Forget(AIProviderId provider) =>
-        _entries.AddOrUpdate(provider, static _ => new Entry(null, null, 0, DateTimeOffset.MinValue, true), static (_, entry) => entry with { Stale = true });
+    public void Forget(AIProviderId provider)
+    {
+        _entries.AddOrUpdate(provider, static _ => new Entry { Stale = true }, static (_, entry) => entry with { Stale = true });
+        Boundaries.Invalidate(provider);
+    }
 
-    async Task<AIProviderCapacityObservation> ReadAndRemember(AIProviderId provider, Func<CancellationToken, Task<AIProviderCapacityReport>> read)
+    async Task<Entry> ReadAndRemember(AIProviderId provider, Func<CancellationToken, Task<AIProviderCapacityReport>> read, string? fingerprint)
     {
         try
         {
@@ -118,20 +145,22 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
             var observation = new AIProviderCapacityObservation(report, now);
             if (!report.Failed)
             {
-                _entries[provider] = new Entry(observation, null, 0, DateTimeOffset.MinValue, false);
-                return observation;
+                var good = new Entry { LastGood = observation, GoodCredential = fingerprint };
+                _entries[provider] = good;
+                return good;
             }
 
             var previous = _entries.GetValueOrDefault(provider);
             var failures = (previous?.Failures ?? 0) + 1;
-            var updated = (previous ?? new Entry(null, null, 0, DateTimeOffset.MinValue, false)) with
+            var updated = (previous ?? new Entry()) with
             {
                 Failure = observation,
+                FailureCredential = fingerprint,
                 Failures = failures,
                 BackOffUntil = now + BackOff(failures)
             };
             _entries[provider] = updated;
-            return updated.Serve();
+            return updated;
         }
         finally
         {
@@ -148,8 +177,21 @@ public class AIProviderCapacityObservations(TimeProvider timeProvider, IOptions<
         return backOff > _maximumBackOff ? _maximumBackOff : backOff;
     }
 
-    sealed record Entry(AIProviderCapacityObservation? LastGood, AIProviderCapacityObservation? Failure, int Failures, DateTimeOffset BackOffUntil, bool Stale)
+    sealed record Entry
     {
+        public AIProviderCapacityObservation? LastGood { get; init; }
+        public AIProviderCapacityObservation? Failure { get; init; }
+        public string? GoodCredential { get; init; }
+        public string? FailureCredential { get; init; }
+        public int Failures { get; init; }
+        public DateTimeOffset BackOffUntil { get; init; } = DateTimeOffset.MinValue;
+        public bool Stale { get; init; }
+        public string? Credential => LastGood is not null ? GoodCredential : FailureCredential;
+
+        public bool CanServe(DateTimeOffset now, TimeSpan freshness) => IsFresh(now, freshness) || BackOffUntil > now;
+
+        bool IsFresh(DateTimeOffset now, TimeSpan freshness) => !Stale && Failure is null && LastGood is { } good && now - good.ObservedAt < freshness;
+
         public AIProviderCapacityObservation Serve() => (LastGood, Failure) switch
         {
             ({ } good, { } failure) => good with { Report = good.Report with { Problem = failure.Report.Problem } },

@@ -58,4 +58,5 @@ export * from './generated/Providers/UsageReporting/SettingCredential';
 export * from './generated/Providers/UsageReporting/Snapshots';
 export * from './generated/Usage';
 export * from './generated/Usage/Daily';
+export * from './generated/Usage/Recording';
 export * from './generated/Usage/Trends';
