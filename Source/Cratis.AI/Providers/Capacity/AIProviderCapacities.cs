@@ -48,13 +48,19 @@ public class AIProviderCapacities(
         if (configured is null)
         {
             logger.CapacityOfUnknownProvider(provider);
+            (observations as AIProviderCapacityObservations)?.Boundaries.Invalidate(provider, clear: true);
             return Capacity(provider, AIProviderCapacityReport.Unavailable("The provider is not configured"), timeProvider.GetUtcNow(), null);
         }
 
+        var cache = observations as AIProviderCapacityObservations;
+        var credential = configured.ApiKey.Value + "|" + configured.UsageApiKey.Value;
+        var ticket = cache?.Boundaries.Begin(provider, credential);
         var reporter = reporters.FirstOrDefault(candidate => candidate.CanReport(configured));
         if (reporter is not null)
         {
-            var observation = await observations.Observe(provider, ct => reporter.Report(configured, ct), configured.ApiKey.Value + "|" + configured.UsageApiKey.Value, cancellationToken);
+            var observation = cache is not null && ticket is not null
+                ? await cache.ObserveSelected(provider, ct => reporter.Report(configured, ct), credential, ticket, cancellationToken)
+                : await observations.Observe(provider, ct => reporter.Report(configured, ct), credential, cancellationToken);
             if (!observation.Report.FallsBack)
             {
                 if (observation.Report.Problem is { } problem)
@@ -66,7 +72,14 @@ public class AIProviderCapacities(
             }
         }
 
-        return Capacity(provider, await FromCeiling(configured, cancellationToken), timeProvider.GetUtcNow(), configured.RateLimitedUntil);
+        var fallback = await FromCeiling(configured, cancellationToken);
+        var observedAt = timeProvider.GetUtcNow();
+        if (ticket is not null)
+        {
+            cache!.Boundaries.Remember(ticket, new(fallback, observedAt), AIProviderCapacitySnapshotReason.None, ticket.Fingerprint);
+        }
+
+        return Capacity(provider, fallback, observedAt, configured.RateLimitedUntil);
     }
 
     /// <inheritdoc/>

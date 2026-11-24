@@ -3,6 +3,7 @@
 
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Usage;
+using Cratis.AI.Usage.Recording;
 using NSubstitute;
 
 namespace Cratis.AI.LanguageModels.for_ManagedLanguageModel.when_completing;
@@ -28,7 +29,7 @@ public class and_the_inner_model_succeeds_with_usage : given.an_inner_model
 
     [Fact]
     void should_have_recorded_usage() =>
-        CommandPipeline.Received(1).Execute(Arg.Is<RecordAgentSessionUsage>(command =>
+        CommandPipeline.Received(1).Execute(Arg.Is<RecordAgentSessionUsageWithCapacity>(command =>
             command.InputTokens == new InputTokens(100) &&
             command.OutputTokens == new OutputTokens(20)));
 }
