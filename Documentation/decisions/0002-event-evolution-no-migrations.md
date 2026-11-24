@@ -97,3 +97,12 @@ merely "not preferred."
   the procedure would have a real cost (production interruption on a cluster shared with the other
   product) for no corresponding benefit. It happens at the cutover PR, against the schema that PR
   actually ships, per step 4 above.
+
+## Amendment (2026-11-23) - agent role and assignment split (Cratis/AI#448)
+
+The prohibition on coexisting event types and the repair-at-rollout requirement above describe the
+usage cutovers and remain history. They do not govern the agent split: the maintainer decision on
+Cratis/AI#448 keeps legacy `AgentConfigured` replay working alongside the new `AgentRoleConfigured` and
+assignment events so shared-package consumers need no in-place repair at rollout. No generations or
+migrations are used. `ConfigureAgent` remains the legacy write path until a later major release. See
+[`../agent-configuration.md`](../agent-configuration.md).

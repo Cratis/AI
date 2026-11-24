@@ -17,6 +17,7 @@ export * as Configuring from './generated/Providers/Configuring';
 
 export * from './generated/Agents';
 export * from './generated/Agents/Configuring';
+export * from './generated/Agents/Defining';
 export * from './generated/Agents/Listing';
 export * from './generated/Agents/Skills';
 export * from './generated/Agents/Skills/Adding';
