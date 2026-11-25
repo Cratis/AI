@@ -5,21 +5,21 @@
 
 Source: `Cratis/Chronicle.Elixir` (`Source/chronicle/mix.exs`, `mix.lock`, `lib/cratis/chronicle/wire_result.ex`, `jobs.ex`, `event_sequences/event_log.ex`, `read_models.ex`, `seeding.ex`).
 
-## Moving from 3.x to 4.x
+## Moving to the 4.x line
 
-4.0.0 moved every module under the `Cratis` namespace and `lib/chronicle` to `lib/cratis/chronicle`.
-It is a breaking, mechanical change; nothing else in the API moved.
+The 4.x line moved every module under the `Cratis` namespace and `lib/chronicle` to
+`lib/cratis/chronicle`. It is a breaking, mechanical change; nothing else in the API moved.
 
-| 3.x | 4.x |
+| Before | Now |
 | --- | --- |
 | `use Chronicle.Events.EventType, id: "..."` | `use Cratis.Chronicle.Events.EventType, id: "..."` |
 | `Chronicle.append/2`, `Chronicle.all/2` | `Cratis.Chronicle.append/2`, `Cratis.Chronicle.all/2` |
 | `Chronicle.Reactors.Reactor`, `Reducers.Reducer`, `Projections.Projection` | the same names under `Cratis.Chronicle.` |
 | `Chronicle.Testing` | `Cratis.Chronicle.Testing` |
 
-Rename with a search for `Chronicle.` not preceded by `Cratis.` or a dot, then recompile. Use 4.0.1 or
-later: 4.0.0 passed a reducer handler a state without `client`, which 4.0.1 restores. Arc for Elixir
-1.3.2 and later require Chronicle 4.
+Rename with a search for `Chronicle.` not preceded by `Cratis.` or a dot, then recompile. Use the latest
+patch of the line: its first release passed a reducer handler a state without `client`, which the next
+patch restores. A current Arc for Elixir release needs this line.
 
 ## Dependencies and wire compatibility
 
