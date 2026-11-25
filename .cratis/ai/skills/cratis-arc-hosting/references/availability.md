@@ -3,6 +3,15 @@
 
 # Availability in a C# Arc host
 
+## Contents
+
+- Where the engine lives
+- Declare with types
+- Suspension
+- Proxies and asking
+- Manifest file and shared cases
+- Pitfalls
+
 Availability decides whether a part (module, feature, slice, command, read model) exists for a tenant, user or
 system caller. It is decided before `authorize` and is not authorization. The Screenplay model side is the
 `cratis-screenplay-availability` skill; this page is the C# side. Facts come from the Arc availability

@@ -58,9 +58,6 @@ Screenplay's reference runner executes specifications against an immutable
 in-memory world: no Arc, no Chronicle, no database, no network. Every downstream
 target has one normalized behavior to match.
 
-The runner treats every gate as available, including audience `not` terms and screen element gates;
-there is no `given availability` or suspension fixture. See `cratis-screenplay-availability`.
-
 Binding is not plan admission. Read model-authoring's
 [language reference](../cratis-screenplay-model-authoring/references/language-reference.md)
 when distinguishing executable declarations, refused projection shapes and opaque
