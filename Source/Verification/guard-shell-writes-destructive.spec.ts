@@ -754,6 +754,9 @@ const archiveOptionDenied = [
     'zip /tmp/o.zip -x -- ?x', 'tar -cf -- ?x', '7z a -t -- ?x',
     'env tar -cf /tmp/o.tar ?x', 'nice -n 5 zip /tmp/o.zip ?x', "sh -c 'tar -cf /tmp/o.tar ?x'", "bash -c 'tar -cf /tmp/o.tar -- ?x'",
     'cd Source && tar -cf /tmp/o.tar ?x',
+    // An expansion before the glob can be empty, so it never anchors, quoted or not.
+    'tar -cf /tmp/o.tar ./a "$x"[-]-use-compress-program=sh', 'x=; tar -cf /tmp/o.tar ./a "$x"?-use-compress-program=sh',
+    'tar -cf /tmp/o.tar -- "$x"?x', 'tar -cf /tmp/o.tar "`true`"?x', 'bsdtar -cf /tmp/o.tar "$x"?archive.tar', '7z a /tmp/o.7z "$x"?',
     // Every `*` spelling stays refused (here by the reference stage as well).
     'tar -cf /tmp/o.tar *', 'tar -cf /tmp/o.tar *.txt', 'tar -cf /tmp/o.tar -- *', 'tar -cf /tmp/o.tar ""*', 'zip /tmp/o.zip *.txt',
     '7z a /tmp/o.7z *', 'tar -cf ""* Source',

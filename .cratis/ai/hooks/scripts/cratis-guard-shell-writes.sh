@@ -1205,7 +1205,7 @@ function env_words(text, slot,    i, c, nextc, quote, word, active, n) {
     for (i = 1; i <= length(text) + 1; i++) {
         c = substr(text, i, 1); nextc = substr(text, i + 1, 1)
         if (c == "" || (quote == "" && c ~ /[[:space:]]/)) {
-            if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word"; word = ""; active = 0 }
+            if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word"; GL[slot, n] = 0; word = ""; active = 0 }
             continue
         }
         if (quote == "" && c == "#" && !active) break
@@ -1214,7 +1214,7 @@ function env_words(text, slot,    i, c, nextc, quote, word, active, n) {
             if (nextc == "c") break
             if (nextc == "_") {
                 if (quote == "") {
-                    if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word"; word = ""; active = 0 }
+                    if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word"; GL[slot, n] = 0; word = ""; active = 0 }
                     continue
                 }
                 c = " "
@@ -1232,7 +1232,7 @@ function env_words(text, slot,    i, c, nextc, quote, word, active, n) {
         word = word c; active = 1
     }
     if (quote != "") { unclassified(text); return -1 }
-    if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word" }
+    if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word"; GL[slot, n] = 0 }
     return n
 }
 function executable(d, start, end,    i, j, program, option, split_at, text, slot, count, first, expansions) {
@@ -1349,7 +1349,8 @@ function option_grammars() {
 # list-file reference, however it is quoted elsewhere in the word. That holds when an unquoted glob starts the
 # word (a quoted-empty prefix does not anchor it) or follows a leading `-`/`@`. `./`, a directory or any other
 # literal first character anchors the word. Lexical only: no expansion and no filesystem access.
-function option_shaped_glob(d, i) { return GL[d, i] && (GL[d, i] == 1 || W[d, i] ~ /^[-@]/) }
+# An expansion (`$` or backquote, quoted or not) before the glob can expand to nothing, so it never anchors.
+function option_shaped_glob(d, i) { return GL[d, i] && (GL[d, i] == 1 || W[d, i] ~ /^[-@]/ || substr(W[d, i], 1, GL[d, i] - 1) ~ /[$`]/) }
 function option_value(d, i, end) {
     return i <= end && K[d, i] == "word" && W[d, i] != "" && (Q[d, i] || W[d, i] !~ /[$`*?\[{}]/) && !(archive_operands && GL[d, i])
 }
