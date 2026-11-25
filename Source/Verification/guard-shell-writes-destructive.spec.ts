@@ -732,3 +732,52 @@ test('large command-like comment data completes without executing or recursively
         rmSync(root, { recursive: true, force: true });
     }
 });
+
+// Candidate shell text is JSON data for the guard; it is never executed. Option-shaped
+// fixture names make the hostile expansion real without any command running. The reference
+// stage already refuses most `*` words for these verbs; the archive predicate must hold on its
+// own for `?`, bracket classes and quoted-empty prefixes, and still refuse every `*` spelling.
+const archiveOptionDenied = [
+    'tar -cf /tmp/o.tar ?x', 'tar -cf /tmp/o.tar ?', 'tar -cf /tmp/o.tar [a-z]x', 'tar -cf /tmp/o.tar [-a]', 'tar -cf /tmp/o.tar ?.txt',
+    "tar -cf /tmp/o.tar ''?", 'tar -cf /tmp/o.tar ""?x', 'tar -cf /tmp/o.tar Source ?x', 'tar -cf /tmp/o.tar -C Source ?x',
+    'tar -czf /tmp/o.tgz ?x', 'bsdtar -cf /tmp/o.tar ?x', 'gtar -cf /tmp/o.tar ?x', 'tar cf /tmp/o.tar ?x',
+    'tar -tf o.tar ?x', 'tar -xOf o.tar ?x',
+    // bsdtar reads `@archive` operands after `--` too, so a terminator alone does not admit tar.
+    'tar -cf /tmp/o.tar -- ?x', 'tar -cf /tmp/o.tar -- [a]x', 'bsdtar -cf /tmp/o.tar -- ?x', 'tar -cf /tmp/o.tar -- Source ?x',
+    'zip /tmp/o.zip ?x', 'zip -r /tmp/o.zip [a]x', 'zip -q /tmp/o.zip ""?', 'zip /tmp/o.zip Source ?x',
+    '7z a /tmp/o.7z ?x', '7z a /tmp/o.7z ""?', '7za u /tmp/o.7z [a]x',
+    'jar cf /tmp/o.jar ?x', 'ar r /tmp/o.a ?x', 'pax -w -f /tmp/o.tar ?x', 'cpio -o -F /tmp/o.cpio ?x',
+    // A quoted-empty prefix does not anchor an active glob in an option value.
+    'tar -cf ""? Source', 'tar -cf /tmp/o.tar -C ""? .', 'tar --file=""? Source', 'zip /tmp/o.zip Source -x ""?',
+    'tar -cf "" ?', 'tar -cf /tmp/o.tar -f ""*',
+    // `--` in an option-value position is data, not the terminator.
+    'zip /tmp/o.zip -x -- ?x', 'tar -cf -- ?x', '7z a -t -- ?x',
+    'env tar -cf /tmp/o.tar ?x', 'nice -n 5 zip /tmp/o.zip ?x', "sh -c 'tar -cf /tmp/o.tar ?x'", "bash -c 'tar -cf /tmp/o.tar -- ?x'",
+    'cd Source && tar -cf /tmp/o.tar ?x',
+    // Every `*` spelling stays refused (here by the reference stage as well).
+    'tar -cf /tmp/o.tar *', 'tar -cf /tmp/o.tar *.txt', 'tar -cf /tmp/o.tar -- *', 'tar -cf /tmp/o.tar ""*', 'zip /tmp/o.zip *.txt',
+    '7z a /tmp/o.7z *', 'tar -cf ""* Source',
+];
+const archiveOptionAllowed = [
+    'tar -cf /tmp/o.tar ./?x', 'tar -cf /tmp/o.tar Source/?', 'tar -cf /tmp/o.tar ./[a]x', 'tar -cf /tmp/o.tar src/?.ts',
+    'tar -cf /tmp/o.tar "a"?', "tar -cf /tmp/o.tar '?'", 'tar -cf /tmp/o.tar "?"', 'tar -cf /tmp/o.tar \\?', "tar -cf /tmp/o.tar '[a]x'", 'tar -cf /tmp/o.tar Source',
+    'tar -cf /tmp/o.tar -- ./?x', 'tar -cf /tmp/o.tar -- Source', 'tar -tf o.tar ./?x', 'tar -C Source -cf /tmp/o.tar ./?',
+    'zip /tmp/o.zip ./?x', 'zip -r /tmp/o.zip Source/?', 'zip /tmp/o.zip -- ?x', 'zip /tmp/o.zip "Source"?',
+    '7z a /tmp/o.7z ./?x', '7z a /tmp/o.7z -- ?x', '7z a /tmp/o.7z Source/?',
+    'jar cf /tmp/o.jar ./?x', 'ar r /tmp/o.a ./?x', 'pax -w -f /tmp/o.tar ./?x',
+    'tar -cf /tmp/o.tar -T files.txt', 'tar -cf /tmp/o.tar -C Source .',
+    "sh -c 'tar -cf /tmp/o.tar ./?x'", 'env tar -cf /tmp/o.tar ./?x',
+];
+
+test('archive operands that can expand to options are refused unless anchored or after a proven terminator', { concurrency: 2 }, async context => {
+    // The directory holds option-shaped names, so a refusal cannot depend on a clean snapshot.
+    const root = scratchRepository();
+    try {
+        for (const name of ['-x', '-x.txt', '@x', '--use-compress-program=x']) writeFileSync(join(root, name), 'synthetic fixture');
+        await Promise.all([...archiveOptionDenied.map(command => [2, command] as const), ...archiveOptionAllowed.map(command => [0, command] as const)]
+            .map(([expected, command]) => context.test(command, async scenario => {
+                const result = await shellVerdict(command, root, '0', scenario.signal);
+                assert.equal(result.status, expected, result.stderr);
+            })));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
