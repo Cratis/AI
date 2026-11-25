@@ -9,10 +9,10 @@
 config :my_app, MyApp.Arc,
   mongodb: [server: System.get_env("MONGODB_URL"), database: "library", naming_policy: :camel_case]
 
-children = [MyApp.Arc, {Arc.MongoDB, application: MyApp.Arc}, MyApp.Endpoint]
+children = [MyApp.Arc, {Cratis.Arc.MongoDB, application: MyApp.Arc}, MyApp.Endpoint]
 ```
 
-Start `Arc.MongoDB` **after** the Arc application. `server` and `database` are required; a
+Start `Cratis.Arc.MongoDB` **after** the Arc application. `server` and `database` are required; a
 missing one raises on first use. **Change streams need a replica set or sharded cluster**;
 a single node started with `--replSet` is enough. Keep credentials out of source control.
 
@@ -22,13 +22,13 @@ Other options: `direct_connection`, `database_resolver`, `server_resolver`,
 ## Documents
 
 ```elixir
-use Arc.MongoDB.Document, types: [id: :uuid, created_at: :datetime]
+use Cratis.Arc.MongoDB.Document, types: [id: :uuid, created_at: :datetime]
 defstruct id: "", name: "", created_at: ~U[1970-01-01 00:00:00Z]
 ```
 
 Types: `:string`, `:integer`, `:float`, `:boolean`, `:uuid` (binary subtype 4), `:object_id`,
 `:datetime` (UTC), `:date` (UTC at noon), `{:list, t}` (never `nil` when read), `:map`, a
-`Chronicle.Concept`, a struct module. `id` is stored as `_id`. Use a datetime default of
+`Cratis.Chronicle.Concept`, a struct module. `id` is stored as `_id`. Use a datetime default of
 `~U[1970-01-01 00:00:00Z]` if the generated TypeScript should be non-optional.
 
 Naming policies: `:none`, `:camel_case`, `:snake_case` or a module (`property_name/1`,
@@ -36,7 +36,7 @@ Naming policies: `:none`, `:camel_case`, `:snake_case` or a module (`property_na
 
 ## Using a collection
 
-Every function takes `{ctx, DocumentModule}` (or an `Arc.MongoDB.Collection`): `all`, `find`,
+Every function takes `{ctx, DocumentModule}` (or an `Cratis.Arc.MongoDB.Collection`): `all`, `find`,
 `find_one`, `find_by_id`, `count`, `page`, `insert`, `insert_many`, `save`, `update`,
 `update_many`, `delete`, `delete_many`, `create_index`, `provide`. The context selects the
 tenant's database.
@@ -56,7 +56,7 @@ caller; **changing the naming of a database in use is a data migration.**
 
 `connection_resolution` places tenants on servers and credentials of their own by
 `:default`, a rule (`{:template, ...}`), an endpoint (`{:http, ...}`) or a module
-implementing `Arc.MongoDB.ConnectionResolver`, following the shared connection-resolution
+implementing `Cratis.Arc.MongoDB.ConnectionResolver`, following the shared connection-resolution
 contract. Answers are cached by purpose and tenant (never by credential) until a minute before
 expiry; an authentication failure drops the cached answer. **An OIDC `accessToken` is refused**:
 the Elixir driver has no such mechanism.
@@ -64,8 +64,8 @@ the Elixir driver has no such mechanism.
 ## Observation
 
 ```elixir
-@observe many: true, watch: [Arc.MongoDB.watch(Book)]
-def live_books(_args, ctx), do: {:ok, Arc.MongoDB.all({ctx, Book}, sort: [title: :asc])}
+@observe many: true, watch: [Cratis.Arc.MongoDB.watch(Book)]
+def live_books(_args, ctx), do: {:ok, Cratis.Arc.MongoDB.all({ctx, Book}, sort: [title: :asc])}
 ```
 
 One database-level change stream is shared by every observer of a database; it resumes
@@ -75,5 +75,5 @@ the collection another query writes to is how one change updates several lists.
 
 ## Test
 
-`Arc.MongoDB.Test.unique_database/1`, `connect`, `available?` and `drop_databases/3`. Tests
+`Cratis.Arc.MongoDB.Test.unique_database/1`, `connect`, `available?` and `drop_databases/3`. Tests
 that need MongoDB should skip when none answers (`MONGODB_URL`).

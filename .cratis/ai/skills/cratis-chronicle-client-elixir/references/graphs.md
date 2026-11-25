@@ -13,22 +13,22 @@
 
 ```elixir
 defmodule MyApp.Graphs.Person do
-  use Chronicle.Graphs.Node
+  use Cratis.Chronicle.Graphs.Node
   defstruct person_id: "", name: ""
 end
 
 defmodule MyApp.Graphs.Group do
-  use Chronicle.Graphs.Node
+  use Cratis.Chronicle.Graphs.Node
   defstruct group_id: "", name: ""
 end
 
 defmodule MyApp.Graphs.MemberOf do
-  use Chronicle.Graphs.Edge, type: "MEMBER_OF"
+  use Cratis.Chronicle.Graphs.Edge, type: "MEMBER_OF"
   defstruct since: ""
 end
 
 defmodule MyApp.Graphs.Organization do
-  use Chronicle.Graphs.Graph, id: "Organization"
+  use Cratis.Chronicle.Graphs.Graph, id: "Organization"
 
   node MyApp.Graphs.Person, key: :person_id do
     from MyApp.Events.PersonRegistered, key: :person_id, set: [name: :name]
@@ -105,7 +105,7 @@ identity; or a mapped field, option or module is unknown.
 ## Registering and choosing the sink
 
 ```elixir
-{Chronicle.Client,
+{Cratis.Chronicle.Client,
   connection_string: "chronicle://localhost:35000",
   event_store: "my-store",
   default_graph_sink_type_id: :in_memory_graph,
@@ -119,5 +119,5 @@ and tests. `:default_sink_type_id` still chooses the sink of document read model
 
 ## Not supported yet
 
-The client does not read a graph (use the engine driver) and `Chronicle.Testing` has no
+The client does not read a graph (use the engine driver) and `Cratis.Chronicle.Testing` has no
 graph scenario, so test a graph by asserting the definition it registers.

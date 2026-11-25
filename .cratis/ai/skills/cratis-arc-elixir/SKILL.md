@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-elixir
-description: Use when building an Elixir CQRS application with Arc for Elixir (`cratis_arc`, `cratis_arc_mongodb`) with commands, read-model queries, observable queries over WebSocket or SSE hubs, tenancy, MongoDB, identity, generated TypeScript proxies and vertical slices. Not for the Chronicle client alone, or for .NET, JVM, Go or TypeScript Arc.
+description: Use when building an Elixir CQRS application with Arc for Elixir (`cratis_arc`, `cratis_arc_mongodb`) with commands, read-model queries, observable queries over WebSocket or SSE hubs, tenancy, MongoDB, identity, availability, the generated event model, generated TypeScript proxies and vertical slices grouped into sub-features. Not for the Chronicle client alone, or for .NET, JVM, Go or TypeScript Arc.
 license: MIT
 compatibility: Elixir 1.18 or later; Plug and Bandit, or Phoenix.
 ---
@@ -25,8 +25,8 @@ and with **MongoDB** (`cratis_arc_mongodb`) for documents.
 
 | Product | Source checked |
 | --- | --- |
-| Arc for Elixir (`cratis_arc`) | `Source/arc/lib/arc/{command,read_model,application,pipeline,tenancy,filter,watch,proxy_generator}.ex`, `lib/arc/plug/{hub_session,hub,sse_hub}.ex`, `Documentation/*.md` |
-| Arc for Elixir MongoDB (`cratis_arc_mongodb`) | `Source/arc_mongodb/lib/arc/mongodb.ex`, `lib/arc/mongodb/*.ex` |
+| Arc for Elixir (`cratis_arc`) | `Source/arc/lib/cratis/arc/{command,read_model,application,pipeline,tenancy,filter,watch,proxy_generator}.ex`, `lib/cratis/arc/plug/{hub_session,hub,sse_hub}.ex`, `Documentation/*.md` |
+| Arc for Elixir MongoDB (`cratis_arc_mongodb`) | `Source/arc_mongodb/lib/cratis/arc/mongodb.ex`, `lib/cratis/arc/mongodb/*.ex` |
 | Samples | `Samples/showcase` (every feature, plain Plug), `Samples/phoenix` (LiveView, Chronicle) |
 
 Source is authoritative. `Documentation/` excerpts marked `# From: <path>` are verified
@@ -37,7 +37,7 @@ against the samples in CI, so prefer them to memory.
 ```elixir
 defmodule Library.Authors.Registration.RenameAuthor do
   @moduledoc "Renames an author. Only editors may."
-  use Arc.Command
+  use Cratis.Arc.Command, id: "rename-author"
   authorize roles: ["editor"]
 
   schema do
@@ -50,7 +50,8 @@ defmodule Library.Authors.Registration.RenameAuthor do
 end
 ```
 
-Only `handle/2` is required. The order is validate, `provide/2`, then `handle/2`.
+`id:` is the command's kebab-case name: its route is `/api/<namespace>/rename-author`, and the structure
+and the event model show `RenameAuthor`, whatever the module is called. Only `handle/2` is required. The order is validate, `provide/2`, then `handle/2`.
 `handle/2` returns `{:append, event | [events]}`, `{:append, events, response}`,
 `{:ok, response}` (records nothing) or `{:error, results}`. `key: true` marks the event
 source. A handler that returns an event with no key and no source id is rejected as
@@ -60,13 +61,13 @@ source. A handler that returns an event with no key and no source id is rejected
 
 ```elixir
 defmodule Library.Authors.Listing.Authors do
-  use Arc.ReadModel, model: Library.Authors.Author, types: [id: :uuid]
+  use Cratis.Arc.ReadModel, model: Library.Authors.Author, types: [id: :uuid]
 
   @query many: true
-  def all_authors(_args, ctx), do: Chronicle.all(Library.Authors.Author, ctx.chronicle)
+  def all_authors(_args, ctx), do: Cratis.Chronicle.all(Library.Authors.Author, ctx.chronicle)
 
   @observe many: true, watch: [Library.Authors.Author]
-  def live_authors(_args, ctx), do: Chronicle.all(Library.Authors.Author, ctx.chronicle)
+  def live_authors(_args, ctx), do: Cratis.Chronicle.all(Library.Authors.Author, ctx.chronicle)
 end
 ```
 
@@ -80,14 +81,14 @@ before choosing a transport or a transfer mode.
 
 ```elixir
 defmodule MyApp.Arc do
-  use Arc.Application, otp_app: :my_app
+  use Cratis.Arc.Application, otp_app: :my_app
 end
 
 # in the supervision tree, before the endpoint
 children = [MyApp.Arc, {Bandit, plug: MyApp.Router, port: 4000}]
 
 # the router
-plug Arc.Plug, application: MyApp.Arc
+plug Cratis.Arc.Plug, application: MyApp.Arc
 ```
 
 `MyApp.Arc` **must be in the supervision tree**: it owns the processes behind observable
@@ -113,8 +114,17 @@ Phoenix and LiveView use the same application in process. Read
 - **Organize by feature.** Backend, generated proxies and React page of a feature share a
   folder. `layout: :colocated` generates that layout.
 
-- **Availability is planned, not shipped.** Read [references/availability.md](references/availability.md) before
-  promising `not`, suspension or gates in Elixir.
+- **Names are ids.** A command (`id:`), event type (`id:`), reactor (`id:`) and read model (optional `id:`)
+  is named by its kebab-case id; `/.cratis/structure` and the event model show it in PascalCase (the
+  application's `display_names:` picks `:pascal_case`, `:kebab_case`, `:as_declared` or a function).
+  The module name is free, so never read meaning from its last segment.
+- **Group slices into sub-features, and validate the event model.** A folder is a feature, a folder in a
+  folder a sub-feature; the board and the Screenplay nest them. A view is drawn after the slices that
+  produce what it consumes, and the `:arc_event_model` compiler warns (errors with
+  `event_model_strict: true`) about a slice without its command, events or read model. Read
+  [references/event-model.md](references/event-model.md) before adding a slice.
+- **Availability ships (v1.3.0).** Read [references/availability.md](references/availability.md) for `available`,
+  the definition, suspension and the dev model route.
 
 See [references/pitfalls.md](references/pitfalls.md) for the full list, and
 [references/product-sources.md](references/product-sources.md) for package facts.

@@ -4,12 +4,12 @@ This reference holds process-scoped context, discovery and formatter notes, watc
 
 ## Operational inspection
 
-`Chronicle.Observers.get_all/1` lists namespace observers; `remove/2` removes an
+`Cratis.Chronicle.Observers.get_all/1` lists namespace observers; `remove/2` removes an
 orphaned observer across the store, refuses running/subscribed observers in any
 namespace, and leaves read model data intact (`observers.ex`). Obtain
 explicit authority before removal and inspect `RemovalResult.outcome` —
-`{:ok, result}` alone does not mean removed. `Chronicle.FailedPartitions` and
-`Chronicle.Jobs` provide failure/job inspection; `Jobs.get/2` lists then finds
+`{:ok, result}` alone does not mean removed. `Cratis.Chronicle.FailedPartitions` and
+`Cratis.Chronicle.Jobs` provide failure/job inspection; `Jobs.get/2` lists then finds
 client-side. Observer types include `:reactor`, `:projection`, `:reducer`,
 `:external`; states include `:active`, `:suspended`, `:replaying`, `:disconnected`,
 `:quarantined` and `:unknown`.
@@ -17,9 +17,9 @@ client-side. Observer types include `:reactor`, `:projection`, `:reducer`,
 ## Idioms worth knowing
 
 - **Process-scoped context.** Correlation id, identity, and causation are held per
-  process: `Chronicle.current_correlation_id/0`, `set_correlation_id/1`,
+  process: `Cratis.Chronicle.current_correlation_id/0`, `set_correlation_id/1`,
   `clear_correlation_id/0`; `current_identity/0`, `set_identity/1`,
-  `clear_identity/0`; `Chronicle.Auditing.CausationManager`. They are picked up
+  `clear_identity/0`; `Cratis.Chronicle.Auditing.CausationManager`. They are picked up
   automatically on append. **A `Task` is a different process** and does not
   inherit them.
 - **Discovery is compile-time reflection.** The `use` macros generate

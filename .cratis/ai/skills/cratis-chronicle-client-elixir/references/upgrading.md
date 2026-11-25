@@ -3,7 +3,23 @@
 
 # Upgrading from older clients
 
-Source: `Cratis/Chronicle.Elixir` (`Source/chronicle/mix.exs`, `mix.lock`, `lib/chronicle/wire_result.ex`, `jobs.ex`, `event_sequences/event_log.ex`, `read_models.ex`, `seeding.ex`).
+Source: `Cratis/Chronicle.Elixir` (`Source/chronicle/mix.exs`, `mix.lock`, `lib/cratis/chronicle/wire_result.ex`, `jobs.ex`, `event_sequences/event_log.ex`, `read_models.ex`, `seeding.ex`).
+
+## Moving from 3.x to 4.x
+
+4.0.0 moved every module under the `Cratis` namespace and `lib/chronicle` to `lib/cratis/chronicle`.
+It is a breaking, mechanical change; nothing else in the API moved.
+
+| 3.x | 4.x |
+| --- | --- |
+| `use Chronicle.Events.EventType, id: "..."` | `use Cratis.Chronicle.Events.EventType, id: "..."` |
+| `Chronicle.append/2`, `Chronicle.all/2` | `Cratis.Chronicle.append/2`, `Cratis.Chronicle.all/2` |
+| `Chronicle.Reactors.Reactor`, `Reducers.Reducer`, `Projections.Projection` | the same names under `Cratis.Chronicle.` |
+| `Chronicle.Testing` | `Cratis.Chronicle.Testing` |
+
+Rename with a search for `Chronicle.` not preceded by `Cratis.` or a dot, then recompile. Use 4.0.1 or
+later: 4.0.0 passed a reducer handler a state without `client`, which 4.0.1 restores. Arc for Elixir
+1.3.2 and later require Chronicle 4.
 
 ## Dependencies and wire compatibility
 
@@ -39,7 +55,7 @@ Requires `cratis_chronicle` 3.13.0 for the behaviors below; each is a difference
 
 | Behavior | Review |
 | --- | --- |
-| Reactor and reducer `context` is a `Chronicle.Events.EventContext` struct | Pattern matches on a bare map keep working; `correlation_id`, `caused_by`, `causation`, `tags`, `subject`, `appended_generation` and `replaying?` are now present |
+| Reactor and reducer `context` is a `Cratis.Chronicle.Events.EventContext` struct | Pattern matches on a bare map keep working; `correlation_id`, `caused_by`, `causation`, `tags`, `subject`, `appended_generation` and `replaying?` are now present |
 | `drift_policy` defaults to `:warn` | Start-up makes extra kernel calls and logs findings; set `:ignore` to skip them, `:fail` to block on a drift warning |
 | Discovery warns once per module for a reactor, reducer or projection with no pinned `:id` | Pin ids before renaming or moving modules; see [discovery-and-generations.md](discovery-and-generations.md) |
 | Appending a struct that is not an event type returns `{:error, {:unknown_event_type, module}}` | Handle it as an ordinary append error |
@@ -49,4 +65,4 @@ Requires `cratis_chronicle` 3.13.0 for the behaviors below; each is a difference
 
 Requires `cratis_chronicle` 3.11.0 for the context struct; it was a bare map before.
 
-Capabilities covered by these references: decision reads ([decision-reads.md](decision-reads.md)), `Chronicle.Testing` ([testing.md](testing.md)), captures ([captures.md](captures.md)), standalone constraints ([constraints.md](constraints.md)), `Chronicle.Patterns` ([patterns.md](patterns.md)) and read model subscriptions ([read-models.md](read-models.md)). A git tag is not a Hex release: confirm the version is on hex.pm before depending on it.
+Capabilities covered by these references: decision reads ([decision-reads.md](decision-reads.md)), `Cratis.Chronicle.Testing` ([testing.md](testing.md)), captures ([captures.md](captures.md)), standalone constraints ([constraints.md](constraints.md)), `Cratis.Chronicle.Patterns` ([patterns.md](patterns.md)) and read model subscriptions ([read-models.md](read-models.md)). A git tag is not a Hex release: confirm the version is on hex.pm before depending on it.
