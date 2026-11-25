@@ -66,6 +66,23 @@ test('guards allow ordinary tool calls under the system /bin/bash', { skip: !exi
     }
 });
 
+// Archive operands that can expand to options: hostile and anchored/terminated pairs.
+const archiveOptionCases: [string, number][] = [
+    ['tar -cf /tmp/o.tar ?x', 2],
+    ['tar -cf /tmp/o.tar ./?x', 0],
+    ['tar -cf /tmp/o.tar ""?x', 2],
+    ['tar -cf /tmp/o.tar "a"?', 0],
+    ["tar -cf /tmp/o.tar '?'", 0],
+    ['tar -cf /tmp/o.tar -- ?x', 2],
+    ['tar -cf /tmp/o.tar -- ./?x', 0],
+    ['tar -cf ""? Source', 2],
+    ['zip /tmp/o.zip [a]x', 2],
+    ['zip /tmp/o.zip -x -- ?x', 2],
+    ['zip /tmp/o.zip -- ?x', 0],
+    ['7z a /tmp/o.7z ?x', 2],
+    ['7z a /tmp/o.7z -- ?x', 0],
+];
+
 function assertAwkCase(variant: string, entry: [string, string, number | null], directory: string, env: NodeJS.ProcessEnv): void {
     const [script, command, expected] = entry;
     const result = spawnSync('bash', [join(scripts, script)], {
@@ -243,20 +260,7 @@ test('available awk variants preserve credential and shell-reference decisions',
                 ['cratis-guard-secrets.sh', 'git grep -e x -- secrets.json', 2],
                 ['cratis-guard-secrets.sh', 'git show HEAD:.env', 2],
                 ['cratis-guard-shell-writes.sh', 'git ls-files --debug -- .env', 0],
-                // Archive operands that can expand to options: hostile and anchored/terminated pairs.
-                ['cratis-guard-shell-writes.sh', 'tar -cf /tmp/o.tar ?x', 2],
-                ['cratis-guard-shell-writes.sh', 'tar -cf /tmp/o.tar ./?x', 0],
-                ['cratis-guard-shell-writes.sh', 'tar -cf /tmp/o.tar ""?x', 2],
-                ['cratis-guard-shell-writes.sh', 'tar -cf /tmp/o.tar "a"?', 0],
-                ['cratis-guard-shell-writes.sh', "tar -cf /tmp/o.tar '?'", 0],
-                ['cratis-guard-shell-writes.sh', 'tar -cf /tmp/o.tar -- ?x', 2],
-                ['cratis-guard-shell-writes.sh', 'tar -cf /tmp/o.tar -- ./?x', 0],
-                ['cratis-guard-shell-writes.sh', 'tar -cf ""? Source', 2],
-                ['cratis-guard-shell-writes.sh', 'zip /tmp/o.zip [a]x', 2],
-                ['cratis-guard-shell-writes.sh', 'zip /tmp/o.zip -x -- ?x', 2],
-                ['cratis-guard-shell-writes.sh', 'zip /tmp/o.zip -- ?x', 0],
-                ['cratis-guard-shell-writes.sh', '7z a /tmp/o.7z ?x', 2],
-                ['cratis-guard-shell-writes.sh', '7z a /tmp/o.7z -- ?x', 0],
+                ...archiveOptionCases.map(([command, expected]): [string, string, number] => ['cratis-guard-shell-writes.sh', command, expected]),
 
                 ['cratis-guard-shell-writes.sh', 'echo x > *.csproj', 2],
                 ['cratis-guard-shell-writes.sh', "rg -l 'Identity|Hosting' .cratis/ai/rules/project*", 0],
