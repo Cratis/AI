@@ -50,8 +50,21 @@
     },
     {
       "kind": "skill-contains",
-      "value": "**`Arc.Notifier` is one node.**",
+      "value": "**`Cratis.Arc.Notifier` is one node.**",
       "file": "references/pitfalls.md"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**Names are ids.**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "**Group slices into sub-features, and validate the event model.**"
+    },
+    {
+      "kind": "skill-contains",
+      "value": "## It is validated",
+      "file": "references/event-model.md"
     }
   ]
 }

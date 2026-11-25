@@ -11,13 +11,14 @@ paths:
 # Elixir Conventions
 
 Use Elixir and OTP idioms, not translated C# or JVM shapes. These conventions
-are grounded in `Cratis/Chronicle.Elixir v3.13.0` (`Source/chronicle/mix.exs`,
-`.formatter.exs`, and `lib/chronicle/`). Client-specific APIs belong in the
-**cratis-chronicle-client-elixir** skill.
+are grounded in `Cratis/Chronicle.Elixir` 4.x (`Source/chronicle/mix.exs`,
+`.formatter.exs`, and `lib/cratis/chronicle/`) and `Cratis/Arc.Elixir` 1.4.x
+(`lib/cratis/arc/`). Client-specific APIs belong in the
+**cratis-chronicle-client-elixir** skill, Arc APIs in **cratis-arc-elixir**.
 
 ## Build and format
 
-- For Chronicle 3.13.x use Elixir 1.18 or later (`~> 1.18`).
+- Use Elixir 1.18 or later (`~> 1.18`); the packages build on 1.19.
 - Run `mix compile --warnings-as-errors`, `mix test`, and
   `mix format --check-formatted` with the project's formatter inputs.
 - Use two-space indentation and let `mix format` own layout.
@@ -40,6 +41,27 @@ are grounded in `Cratis/Chronicle.Elixir v3.13.0` (`Source/chronicle/mix.exs`,
 - Document public APIs with `@moduledoc`, `@doc`, and `@spec`; use `Logger` for
   operational logging and keep credentials out of messages and crash reports.
 - Use American English in identifiers, comments and documentation.
+
+## Event-sourced applications on Arc and Chronicle
+
+Read the **cratis-arc-elixir** and **cratis-chronicle-client-elixir** skills before touching a slice.
+
+- **Folders are Module, Feature, Slice, and sub-features nest.** One folder per behavior, named for what
+  it does as a gerund (`RotatingSecrets`); the command inside is the verb. Group slices that act on one
+  thing into a sub-feature (`Secrets`, `Credentials`, `Viewing`), and put a reactor with the facts it
+  reacts to, not in a folder named for the third party it calls. No folders named for a kind of file.
+- **Names are ids.** `use Cratis.Arc.Command, id: "rotate-secret"`, an event type's `id:`, a reactor's
+  `id:`; the model shows the id in PascalCase, so a module can be renamed without renaming the model.
+- **A command and its events live in one file**, events first. An event is past tense, one fact, and
+  never carries a secret.
+- **Every slice tells a whole story**: a state change has a command and the events it appends; a view
+  has a read model and consumes events (`consumes:` when it reads the event log); an automation reacts to
+  an event and records a fact of its own, so the event model shows what it did. A reactor that calls a
+  third party returns the event recording that it did.
+- **Order is the story**: a slice that uses events of several sub-features goes in a sub-feature after
+  them. Build with `arc: [event_model_strict: true]` so an incomplete model fails the build.
+- **Third parties are integrations behind a behaviour**, with an in-memory stand-in for specs; only
+  reactors write to them.
 
 Every `.ex` and `.exs` source file starts with:
 
