@@ -22,6 +22,7 @@ they also hold without it.
 - **[contract] Command-text checks cannot see** shell-piped code (`… | sh`, `bash -c "$(…)"`),
   recursive searches without filenames (`grep -r PASSWORD .`), or paths hidden in variables,
   aliases or scripts. The rules still apply; output redaction is the backstop.
+- **[contract] Inline refusals:** Read exact non-credential files.
 - **[contract] After a guard block, narrowing to literal non-credential files is supported remediation,
   not a workaround.** Follow `Use instead`; never disguise the same secret read.
 

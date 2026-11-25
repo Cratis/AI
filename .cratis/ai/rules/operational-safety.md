@@ -4,10 +4,9 @@ applyTo: "**/*"
 
 # Operational safety
 
-Operation-specific invariants that hold before any skill is chosen or file is open. Authority comes
-from [`capability-is-not-authority.md`](./capability-is-not-authority.md); credentials and data
-channels from [`secrets.md`](./secrets.md). All lines are **[contract]** (see
-[`general.md`](./general.md)). They are policy, not a sandbox: none is mechanically enforced.
+Before skills/files: [authority](./capability-is-not-authority.md), [credentials/data channels](./secrets.md).
+All are **[contract]** ([general.md](./general.md)): policy, not enforcement or a sandbox.
+[Inline guards](../hooks/README.md#inline-interpreter-policy) are not sandboxes.
 
 ## Screenplay models and rendering
 
