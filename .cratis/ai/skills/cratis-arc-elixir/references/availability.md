@@ -3,7 +3,7 @@
 
 # Availability in Arc for Elixir (planned)
 
-Arc for Elixir does **not** yet have availability. It is tracked as an open request in Cratis/Arc.Elixir#36
+Arc for Elixir does **not** yet have availability. It is tracked as an open request in the Arc.Elixir repository
 ("Availability: the same model as Arc for .NET"), which starts after the C# design is built. Do not write
 code that assumes it, and do not describe it as shipped. Verify the repository's
 `Documentation/limits-and-gaps.md` and the issue before relying on anything here.
