@@ -39,8 +39,8 @@ const rows: Row[] = [
     { area: 'expansion', guard: 'writes', command: 'tar -cf /tmp/o.tar ./?x', outcome: 'allow' },
     { area: 'expansion', guard: 'writes', command: "tar -cf /tmp/o.tar '?x'", outcome: 'allow' },
     { area: 'expansion', guard: 'writes', command: 'tar -cf /tmp/o.tar "a"?', outcome: 'allow' },
-    { area: 'expansion', guard: 'writes', command: 'zip /tmp/o.zip -- ?x', outcome: 'allow' },
-    { area: 'expansion', guard: 'writes', command: '7z a /tmp/o.7z -- ?x', outcome: 'allow' },
+    { area: 'expansion', guard: 'writes', command: 'zip /tmp/o.zip -- ?x', outcome: 'refuse' },
+    { area: 'expansion', guard: 'writes', command: '7z a /tmp/o.7z -- ?x', outcome: 'refuse' },
     { area: 'expansion', guard: 'secrets', command: "cat .e''nv", outcome: 'refuse' },
     { area: 'expansion', guard: 'secrets', command: 'rg -n foo Source', outcome: 'allow' },
     // Known gap tracked on Cratis/AI#1223: cp and rsync share the option reader but not the archive check.

@@ -424,16 +424,18 @@ also blocked. Extraction-to-stdout forms do not accept `--`. Extract outside the
 the user), then copy the specific files needed.
 
 Archive operands (tar/bsdtar/gtar, zip, 7z, jar, ar, cpio, pax; ditto and unar are already refused outright)
-must not be able to expand into an option or an `@listfile` reference. A word is refused when an unquoted
-`*`, `?` or `[` starts it (a quoted-empty prefix such as `""*` does not anchor it) or follows a leading
-`-`/`@`, and likewise in an option-value position (`-f ""?`). This is a lexical check: it never expands the
-glob, reads the directory or runs anything, so it does not depend on which files exist today. **Compatibility
-change:** `tar -cf out.tar ?x`, `zip out.zip [a]*` and similar unanchored patterns are now refused even in a
-directory with no option-shaped names. Re-spell them with a literal anchor (`./?x`, `dir/?x`), which stays
-allowed. A `--` before the operand also admits the pattern for zip, 7z, cpio and pax, where the code treats it as
-the end of options; the guard does not verify what each tool really does after it, so prefer `./`. `--` never
-admits an unanchored pattern for tar-family commands, because bsdtar still reads `@archive` after it. A `--`
-that is itself an option value (`zip out.zip -x -- ?x`) is data, not a terminator. cp and rsync share the
+must not be able to expand into an option or an `@listfile` reference. A word containing an active glob
+(`*`, `?`, `[`) is admitted only when its **first** character is a literal character other than `-` or `@`: a plain
+character, a character of a plain quoted segment, or a backslash-escaped plain character. A leading glob, a
+`$` expansion, a backquote or a `$'..'`/`$".."` segment never anchors, quoted or not (`"$x"?`, `"$PWD"/?x`). The
+same rule applies in an option-value position (`-f ""?`). In archive mode any word containing a `$'..'` segment
+with a backslash is refused whether or not it has a glob, because its escapes are not decoded. This is a lexical
+check: it never expands the glob, reads the directory or runs anything, so it does not depend on which files
+exist today. **Compatibility change:** `tar -cf out.tar ?x`, `zip out.zip [a]*` and similar unanchored patterns are
+now refused even in a directory with no option-shaped names. Re-spell them with a literal anchor (`./?x`,
+`dir/?x`), which stays allowed. `--` is not an anchor for any family (tar, zip, 7z, cpio, pax, ...): the guard
+cannot verify what each tool does after it, so the remediation is `./`. A `--` that is itself an option value
+(`zip out.zip -x -- ?x`) is data, not a terminator. cp and rsync share the
 option reader but not this check (known gap, tracked on Cratis/AI#1223). Git checkout-index still requires a directory
 prefix ending in `/`, checked against all protected-path policy.
 
@@ -516,7 +518,7 @@ pins each row with JSON-only invocations (no candidate text is executed).
 | State inherited from earlier calls | The supplied `cwd`; literal `cd`/`git -C` within one command; modeled archive option environments | Unresolved destructive destinations; `UNZIP`/`TAR_OPTIONS`-style archive environments | Earlier assignments, executor shell options (`dotglob`, `nullglob`), files created by prior calls or races |
 | Aliases and functions | Literal executable names | Protected references and unresolved destructive effects stay visible | What an alias, function or shadowing executable does; definitions are never loaded or run |
 | Directory resolution | Literal cwd, `cd`, Git `-C`, logical and physical (symlink) path checks | Ambiguous destructive cwd; links resolving into protected or whole-worktree scope | `CDPATH`, unmodeled directory options, symlinks created during execution |
-| Expansion and quoting | Literal and quoted operands; ordinary source globs and bounded literal-prefix probes; archive operands anchored by a literal `./` or directory prefix (a quoted expansion such as `"$x"` does not anchor a glob) or quoting | Archive operands that can expand to options or `@` (above); unresolved destructive operands; over-budget parsing | General shell grammar (bash versus zsh), indirect expansion, option injection outside archives (cp/rsync: known gap, #1223) |
+| Expansion and quoting | Literal and quoted operands; ordinary source globs and bounded literal-prefix probes; archive operands whose first character is a literal other than `-`/`@` (`./?x`, `dir/?x`; a quoted expansion such as `"$x"` never anchors, and `--` is no anchor) or quoting | Archive operands that can expand to options or `@` (above); unresolved destructive operands; over-budget parsing | General shell grammar (bash versus zsh), indirect expansion, option injection outside archives (cp/rsync: known gap, #1223) |
 | Wrappers and shell entry points | Modeled wrappers (`env`, `nice`, `sudo`, `timeout`, …) and literal nested `sh -c` bodies | Protected inline-interpreter vocabulary; executable heredocs; uncertain destructive wrapper context | Dynamic code, external scripts, generated stdin, custom wrappers, archive file-list (`-T`) contents |
 
 Remaining redesign (a command-shape allowlist per tool family, argument-file and dynamic-code handling, a

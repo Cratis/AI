@@ -78,9 +78,9 @@ const archiveOptionCases: [string, number][] = [
     ['tar -cf ""? Source', 2],
     ['zip /tmp/o.zip [a]x', 2],
     ['zip /tmp/o.zip -x -- ?x', 2],
-    ['zip /tmp/o.zip -- ?x', 0],
+    ['zip /tmp/o.zip -- ?x', 2],
     ['7z a /tmp/o.7z ?x', 2],
-    ['7z a /tmp/o.7z -- ?x', 0],
+    ['7z a /tmp/o.7z -- ?x', 2],
 ];
 
 function assertAwkCase(variant: string, entry: [string, string, number | null], directory: string, env: NodeJS.ProcessEnv): void {

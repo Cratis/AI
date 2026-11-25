@@ -754,6 +754,12 @@ const archiveOptionDenied = [
     'zip /tmp/o.zip -x -- ?x', 'tar -cf -- ?x', '7z a -t -- ?x',
     'env tar -cf /tmp/o.tar ?x', 'nice -n 5 zip /tmp/o.zip ?x', "sh -c 'tar -cf /tmp/o.tar ?x'", "bash -c 'tar -cf /tmp/o.tar -- ?x'",
     'cd Source && tar -cf /tmp/o.tar ?x',
+    // The glob check anchors on a literal first character, but the older unresolved-expansion rule still refuses these.
+    'tar -cf /tmp/o.tar ./"$x"?', 'tar -cf /tmp/o.tar a"$x"?',
+    // A terminator is not proof for any family, and ANSI-C escapes are never decoded here.
+    'zip /tmp/o.zip -- ?T', 'zip /tmp/o.zip -- ?x', '7z a /tmp/o.7z -- ?x', 'cpio -o -F /tmp/o.cpio -- ?x', 'pax -w -f /tmp/o.tar -- ?x',
+    "tar -cf /tmp/o.tar $'\\x2d'?", "tar -cf /tmp/o.tar $'\\055'x?", "tar -cf /tmp/o.tar ./a $'\\x2d\\x2duse-compress-program=sh'",
+    'tar -cf /tmp/o.tar $"x"?', 'tar -cf /tmp/o.tar "$PWD"/?x', 'tar -cf /tmp/o.tar $x?',
     // An expansion before the glob can be empty, so it never anchors, quoted or not.
     'tar -cf /tmp/o.tar ./a "$x"[-]-use-compress-program=sh', 'x=; tar -cf /tmp/o.tar ./a "$x"?-use-compress-program=sh',
     'tar -cf /tmp/o.tar -- "$x"?x', 'tar -cf /tmp/o.tar "`true`"?x', 'bsdtar -cf /tmp/o.tar "$x"?archive.tar', '7z a /tmp/o.7z "$x"?',
@@ -765,8 +771,8 @@ const archiveOptionAllowed = [
     'tar -cf /tmp/o.tar ./?x', 'tar -cf /tmp/o.tar Source/?', 'tar -cf /tmp/o.tar ./[a]x', 'tar -cf /tmp/o.tar src/?.ts',
     'tar -cf /tmp/o.tar "a"?', "tar -cf /tmp/o.tar '?'", 'tar -cf /tmp/o.tar "?"', 'tar -cf /tmp/o.tar \\?', "tar -cf /tmp/o.tar '[a]x'", 'tar -cf /tmp/o.tar Source',
     'tar -cf /tmp/o.tar -- ./?x', 'tar -cf /tmp/o.tar -- Source', 'tar -tf o.tar ./?x', 'tar -C Source -cf /tmp/o.tar ./?',
-    'zip /tmp/o.zip ./?x', 'zip -r /tmp/o.zip Source/?', 'zip /tmp/o.zip -- ?x', 'zip /tmp/o.zip "Source"?',
-    '7z a /tmp/o.7z ./?x', '7z a /tmp/o.7z -- ?x', '7z a /tmp/o.7z Source/?',
+    'zip /tmp/o.zip ./?x', 'zip -r /tmp/o.zip Source/?', 'zip /tmp/o.zip "Source"?', 'zip /tmp/o.zip -- ./?x', 'tar -cf /tmp/o.tar "a"$x?',
+    '7z a /tmp/o.7z ./?x', '7z a /tmp/o.7z -- ./?x', '7z a /tmp/o.7z Source/?',
     'jar cf /tmp/o.jar ./?x', 'ar r /tmp/o.a ./?x', 'pax -w -f /tmp/o.tar ./?x',
     'tar -cf /tmp/o.tar -T files.txt', 'tar -cf /tmp/o.tar -C Source .',
     "sh -c 'tar -cf /tmp/o.tar ./?x'", 'env tar -cf /tmp/o.tar ./?x',
