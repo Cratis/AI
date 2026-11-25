@@ -27,10 +27,15 @@ osascript `-e`, Perl `-E`, PHP `-r`, Deno `eval`, Bun/tsx/ts-node eval/print, Po
 boundary-aware protected-file vocabulary. When a parsed invocation and a vocabulary hit occur anywhere
 in the Bash call, the guard refuses the call, even for comments, output strings or aliases of read APIs.
 Wrappers and absolute executable paths are recognized; script operands and words merely mentioning an
-interpreter are not inline invocations. Unknown startup options fail closed when vocabulary is present.
+interpreter are not inline invocations. Python `-m <module>` and Node `--test` are file-running modes,
+not inline programs; eval flags and executable heredocs still receive the inline checks. Unknown startup
+options fail closed when vocabulary is present.
 The vocabulary combines the protected file stems above with `.aws/`, `credentials.json`, `secrets.yaml`
-and `secrets.yml`; file-shaped key extensions count, but `Object.keys`, JSON, `process.env.NAME`, bare
-key properties and `.env.example` are not new triggers. Existing argv taint refusals remain in force.
+and `secrets.yml`; `credentials` needs word boundaries and `.pem` must not continue into an identifier.
+Thus `withCredentials`, `RecordingCredentials` and `.pembroke` are allowed in heredocs, while the bare
+word in Python `from google.oauth2 import credentials` is refused. File-shaped key extensions count,
+but `Object.keys`, JSON, `process.env.NAME`, bare key properties and `.env.example` are not new triggers.
+Existing argv taint refusals remain in force.
 Quoted heredoc delimiters disable shell expansion, not interpreter execution. Plain-consumer heredocs
 remain data. Use the read (Claude: Read) tool for an exact non-credential file after this refusal; splitting
 or disguising the same interpreter read is not remediation. This best-effort text filter is **not a sandbox**:

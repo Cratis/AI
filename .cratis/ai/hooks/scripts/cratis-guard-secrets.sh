@@ -100,8 +100,7 @@ if [ -z "$command_cwd" ]; then
     case "$probe_lower" in
         *kubectl*|*printenv*|*env*|*docker*|*podman*|*"gh "*|*vault*|*pulumi*|*show-secret*|*aws*|*"az "*|*gcloud*|*kubeconfig*|*.kube*|\
         *sh*|*extglob*|*set*|*emulate*|*'-o'*|*'+o'*|*globignore*|*export*|*declare*|*id_rsa*|*id_ed25519*|*id_ecdsa*|*id_dsa*|*.pem*|*.key*|*.p12*|*.pfx*|*.jks*|*.kdbx*|*token*|*.netrc*|*.npmrc*|\
-        *credential*|*.pgpass*|*pypirc*|*secrets*|*oc*|*grep*|*rg*|*ag*|*find*|*tar*|*cp*|*rsync*|*zip*|*diff*|*cd*|\
-        *node*|*deno*|*bun*|*python*|*ruby*|*perl*|*php*|*lua*|*osascript*|*dotnet*|*java*|*julia*|*groovy*|*tsx*|*rscript*) ;;
+        *credential*|*.pgpass*|*pypirc*|*secrets*|*oc*|*grep*|*rg*|*ag*|*find*|*tar*|*cp*|*rsync*|*zip*|*diff*|*cd*) ;;
         *) case "$command_text" in
             *'$'*|*'*'*|*'?'*|*'['*|*'{'*|*'('*|*'^'*|*'~'*|*'`'*) ;;
             *) exit 0 ;;
@@ -815,7 +814,8 @@ function interpreter_hit(body,    t, k, stem, from, p, before, after, kind) {
             if (stem == ".env" && substr(t, p + length(stem)) ~ /^\.(example|sample|template|dist|defaults)([^a-z0-9_]|$)/) { from = p + 1; continue }
             if (kind == "env" && before !~ /[]a-z0-9_)]/ && after !~ /[a-z0-9_]/) return stem
             if (kind == "ext" && (after == "\"" || after == "\047" || after == "`")) return stem
-            if (kind == "path" || kind == "name" && after !~ /[a-z0-9_]/) return stem
+            if (kind == "word" && before !~ /[a-z0-9_]/ && after !~ /[a-z0-9_]/) return stem
+            if (kind == "path" || kind ~ /^(name|suffix)$/ && after !~ /[a-z0-9_]/) return stem
             from = p + 1
         }
     }
@@ -831,7 +831,8 @@ function interpreter_invocation(A, s, n, b,    k, option) {
     if (b ~ /^(bash|sh|zsh|dash|ksh)$/) return
     for (k = s + 1; k <= n; k++) {
         option = tolower(A[k])
-        if (option == "--") return
+        if (option == "--" || b ~ /^python/ && option ~ /^-m/) return
+        if (b ~ /^node(js)?$/ && option == "--test") continue
         if (b == "deno" && option == "eval") { INLINE = 1; return }
         if (b ~ /^(pwsh|powershell)$/ && option ~ /^-(c|command)$/) { INLINE = 1; return }
         if (b ~ /^python/ && option ~ /^-c/ || b == "php" && option ~ /^-r/ ||
@@ -2262,7 +2263,7 @@ BEGIN {
     }
     nextension = split("pem key p12 pfx jks keystore kdbx kubeconfig env", EXT, " ")
     ndispatch = split("cat tac nl less more head tail bat batcat strings xxd od hexdump cut sort uniq base64 wc dd cp mv ln rsync scp tar zip shopt set setopt unsetopt emulate grep egrep fgrep rg ag sed awk gawk mawk nawk busybox jq yq gojq jaq kubectl oc docker podman docker-compose gh vault aws az gcloud pulumi cratis printenv export declare typeset env bash sh zsh dash ksh eval", DN, " ")
-    ninterp = split(".env|env .env.local|name .env.production|name .envrc|name id_rsa|name id_ed25519|name id_ecdsa|name id_dsa|name .netrc|name .npmrc|name .pgpass|name .pypirc|name .git-credentials|name kubeconfig|name .kube/|path .aws/|path .docker/|path credentials|name credential|name secrets.yaml|name secrets.yml|name /environ|name run/secrets|path .pem|ext .key|ext .p12|ext .pfx|ext .jks|ext .keystore|ext .kdbx|ext", INTERP_SPEC, " ")
+    ninterp = split(".env|env .env.local|name .env.production|name .envrc|name id_rsa|name id_ed25519|name id_ecdsa|name id_dsa|name .netrc|name .npmrc|name .pgpass|name .pypirc|name .git-credentials|name kubeconfig|name .kube/|path .aws/|path .docker/|path credentials|word credential|word secrets.yaml|name secrets.yml|name /environ|name run/secrets|path .pem|suffix .key|ext .p12|ext .pfx|ext .jks|ext .keystore|ext .kdbx|ext", INTERP_SPEC, " ")
     for (i = 1; i <= ninterp; i++) { split(INTERP_SPEC[i], L, "|"); INTERP[i] = L[1]; INTERP_KIND[i] = L[2] }
     nstem = split(".env .pem .key .p12 .pfx .jks .keystore .kdbx id_rsa id_ed25519 id_ecdsa id_dsa .netrc .npmrc .pgpass .pypirc .git-credentials .kube/ kubeconfig credentials credential secrets.yaml secrets.yml .docker/ /environ run/secrets", STEM, " ")
     CMD = ENVIRON["GS_COMMAND"]
