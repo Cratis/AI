@@ -59,6 +59,9 @@ comes from `ArcOptions.Hosting.ApplicationUrl`, not an argument to `UseCratisArc
 Read [integrations and publish boundaries](references/integrations-and-publish.md)
 when selecting storage, disabling MVC, adding generated JSON contracts, or
 configuring the explorer.
+Read [availability](references/availability.md) when gating, suspending or
+asking availability of a module, feature, slice or part with
+`arc.WithAvailability()`, typed audiences and `[AvailableFor<T>]`.
 
 ## Keep trust and discovery explicit
 

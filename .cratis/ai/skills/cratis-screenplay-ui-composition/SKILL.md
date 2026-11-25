@@ -221,6 +221,10 @@ MCP editing and the review checklist.
 
 ## Interactions — what a click does
 
+Availability of a screen element comes from the part it binds, not from the layout: a button bound to a command is offered only when
+that command is available (suspension, then gates) and authorized. An element gate (`available for | when | with` under an `action`
+or `data`) can only narrow it; see `cratis-screenplay-availability`.
+
 An interaction wires an `on <thing>` trigger to actions, inline or through named
 `behavior` + `uses`. This is closed UI wiring, not scripting; validation stays on
 the command. Trigger/action syntax, including a named confirmation behavior with an inline

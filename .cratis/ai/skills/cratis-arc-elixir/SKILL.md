@@ -113,5 +113,8 @@ Phoenix and LiveView use the same application in process. Read
 - **Organize by feature.** Backend, generated proxies and React page of a feature share a
   folder. `layout: :colocated` generates that layout.
 
+- **Availability is planned, not shipped.** Read [references/availability.md](references/availability.md) before
+  promising `not`, suspension or gates in Elixir.
+
 See [references/pitfalls.md](references/pitfalls.md) for the full list, and
 [references/product-sources.md](references/product-sources.md) for package facts.

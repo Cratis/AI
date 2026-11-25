@@ -178,7 +178,7 @@ with ordered imports means future files need explicit imports.
   not legal compliance, retention or runtime subject realization. See
   command-surface `references/context.md` and `references/compliance.md`.
 
-`audience`, `availability`, `available` and `provide` diagnostics are PLAY1119-PLAY1141; a `file` or inline-code `provide` needs ESM v57 (older: PLAY0268). Specifications treat every gate as available; opaque sources are unsupported, never allowed or denied. See `cratis-screenplay-availability`.
+`audience`, `availability`, `available` and `provide` diagnostics are PLAY1119-PLAY1141 plus PLAY1171 (`not`) and PLAY1172 (screen element gate); a `file` or inline-code `provide` needs ESM v57 (older: PLAY0268), a negated audience ESM v58, a screen element gate ESM v59. Specifications treat every gate as available; opaque sources are unsupported, never allowed or denied. See `cratis-screenplay-availability`.
 
 ## Edit strategy
 
