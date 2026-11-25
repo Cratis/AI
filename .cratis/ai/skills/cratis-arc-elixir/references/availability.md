@@ -1,27 +1,79 @@
 <!-- Copyright (c) Cratis. All rights reserved. -->
 <!-- Licensed under the MIT license. See LICENSE file in the project root for full license information. -->
 
-# Availability in Arc for Elixir (planned)
+# Availability in Arc for Elixir
 
-Arc for Elixir does **not** yet have availability. It is tracked as an open request in the Arc.Elixir repository
-("Availability: the same model as Arc for .NET"), which starts after the C# design is built. Do not write
-code that assumes it, and do not describe it as shipped. Verify the repository's
-`Documentation/limits-and-gaps.md` and the issue before relying on anything here.
+Arc for Elixir ships availability (v1.3.0): the same model as Arc for .NET and Screenplay, in the same words.
+Verify names against the package's `Documentation/availability.md`.
 
-## What is planned (from the issue, not yet verifiable in the package)
+It is one gate and runs **first**, before binding, `Arc.Filter`, authorization and validation.
 
-- The same model as Arc for .NET: audiences, blocks (`for`, `when`, `with`, `not`), gates on module, feature,
-  slice, command and query, module/feature/slice from `Arc.Descriptor.slice_location/2`.
-- A pipeline hook that runs before authorization (today `Arc.Filter` runs after it) with the reasons `NotAvailable`
-  and `Suspended` (403, and a retryable 503 when the decision cannot be made).
-- The shared manifest (`cratis.availability.manifest.json`) and the shared conformance cases from Arc.
-- `/.cratis/availability`, a generated proxy carrying part identity and a LiveView component to hide parts.
-- An open point from the language decision: a coded reason apart from availability, once Arc for Elixir has the hook.
+| Decision | Result |
+| --- | --- |
+| Available | The request continues to authorization and validation. |
+| Not available, or unknown | Not authorized, reason `NotAvailable`, HTTP `403`. |
+| Suspended | Not authorized, reason `Suspended`, HTTP `403`. |
+| The decision could not be made | Retryable error (`isRetryable` true), HTTP `503`; never a denial. |
 
-## What to do today
+## Configure and declare
 
-- Model availability in the Screenplay model (`cratis-screenplay-availability`) and enforce it where a hook exists
-  (a Phoenix plug or your own check); say plainly that the host enforces it, not Arc for Elixir.
-- Keep the vocabulary of the model: audiences are granted and withdrawn; parts are suspended and resumed.
-- Treat an undecided result as closed, and a failure to decide as a retryable error, never a denial.
-- For the shipped engine and typed declaration, see the C# side in `cratis-arc-hosting` (`references/availability.md`).
+```elixir
+config :my_app, MyApp.Arc,
+  availability: [
+    definition: MyApp.Availability,
+    audience_source: MyApp.AudienceSource,
+    suspension_source: MyApp.SuspensionSource,
+    pubsub: MyApp.PubSub
+  ]
+```
+
+```elixir
+defmodule MyApp.Availability do
+  use Arc.Availability.Definition
+
+  audience "Plus", "Customers on the Plus package"
+  block "Paid", "Sold with Plus", for: ["Plus", "Admin"]
+  scope "MyApp.Fleet", with: "Paid"
+  value "vessel", MyApp.VesselValue
+end
+
+defmodule MyApp.Fleet.Vessels.DockVessel do
+  use Arc.Command
+  available for: ["Plus", "Admin"], not: "Preview", with: "Reported"
+  available when: Arc.Availability.Condition.equal("vessel.package", "Plus")
+end
+```
+
+- `for:` audience(s), one is enough; `not:` none may be held; `with:` a named block; `when:` a condition
+  (`Arc.Availability.Condition` data shared with other languages, or a module implementing the behaviour).
+- On a read model `available` gates every query; `@query available: [...]` gates one query.
+- Module, feature and slice come from `Arc.Descriptor.slice_location/2`.
+- Conditions read `tenant`, `identity.user`, `arguments.<name>` (camelCase wire name) and `<name>.<path>` of a
+  provided value; tenant and identity always come from the server.
+- Three values: available, unavailable, unknown. Only available opens a gate; an absent value is unknown for every
+  operator. `Arc.Availability.Engine` passes the shared conformance cases.
+
+## Sources: audiences granted and withdrawn, parts suspended and resumed
+
+- `Arc.Availability.AudienceSource`: `grants(subject)` returns the audience names held. Undeclared audiences never match.
+- `Arc.Availability.SuspensionSource`: `suspended/0` returns paths (`"Fleet"`, `"Fleet/Vessels"`,
+  `"Fleet/Vessels/Dock"`, or a part's full name); suspension is decided before any gate.
+- `Arc.Availability.Memory` serves specifications and samples (`grant/2`, `withdraw/2`, `suspend/1`, `resume/1`).
+- Call `Arc.Availability.changed/1` when a source changes; open sessions decide again, on every node with `:pubsub`.
+
+## Client
+
+- `/.cratis/availability` is an observable query listing what is unavailable to the caller (name, module, feature,
+  slice, reason); `?part=<name>&arguments=<json>` asks about one part. A decision that cannot be made is a retryable error.
+- Generated proxies carry `static readonly part` (part identity).
+- LiveView: `<Arc.LiveView.Availability.available socket={@socket} version={@arc_availability} command={...}>`
+  hides a part (`Arc.LiveView.available?/3`). Hiding is presentation; the server still refuses.
+- `Arc.Availability.Manifest.build/1`, `to_json/1`, `decode/1`, `decide/3` use the shared
+  `cratis-availability-manifest` (version 1).
+
+## Rules
+
+- Model availability in Screenplay (`cratis-screenplay-availability`); do not invent a second gating mechanism.
+- Keep the vocabulary: audiences are granted and withdrawn; parts are suspended and resumed.
+- Unknown is closed; failure to decide is a retryable error, never a denial.
+- Compare the C# side in `cratis-arc-hosting` (`references/availability.md`).
