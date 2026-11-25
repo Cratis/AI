@@ -756,6 +756,9 @@ const archiveOptionDenied = [
     'cd Source && tar -cf /tmp/o.tar ?x',
     // The glob check anchors on a literal first character, but the older unresolved-expansion rule still refuses these.
     'tar -cf /tmp/o.tar ./"$x"?', 'tar -cf /tmp/o.tar a"$x"?',
+    // Bash removes backslash-newline outside single quotes, so it never anchors a word.
+    'tar -cf /tmp/o.tar \\\n?x', 'tar -cf /tmp/o.tar \\\n-?', 'tar -cf /tmp/o.tar "\\\n"?x',
+    'tar -cf /tmp/o.tar ./a \\\n?-use-compress-program=sh', 'tar -cf /tmp/o.tar ./a \\\n--use-compress-program=sh',
     // A terminator is not proof for any family, and ANSI-C escapes are never decoded here.
     'zip /tmp/o.zip -- ?T', 'zip /tmp/o.zip -- ?x', '7z a /tmp/o.7z -- ?x', 'cpio -o -F /tmp/o.cpio -- ?x', 'pax -w -f /tmp/o.tar -- ?x',
     "tar -cf /tmp/o.tar $'\\x2d'?", "tar -cf /tmp/o.tar $'\\055'x?", "tar -cf /tmp/o.tar ./a $'\\x2d\\x2duse-compress-program=sh'",
@@ -774,7 +777,7 @@ const archiveOptionAllowed = [
     'zip /tmp/o.zip ./?x', 'zip -r /tmp/o.zip Source/?', 'zip /tmp/o.zip "Source"?', 'zip /tmp/o.zip -- ./?x', 'tar -cf /tmp/o.tar "a"$x?',
     '7z a /tmp/o.7z ./?x', '7z a /tmp/o.7z -- ./?x', '7z a /tmp/o.7z Source/?',
     'jar cf /tmp/o.jar ./?x', 'ar r /tmp/o.a ./?x', 'pax -w -f /tmp/o.tar ./?x',
-    'tar -cf /tmp/o.tar -T files.txt', 'tar -cf /tmp/o.tar -C Source .',
+    'tar -czf o.tgz \\\n Source', 'tar -cf /tmp/o.tar -T files.txt', 'tar -cf /tmp/o.tar -C Source .',
     "sh -c 'tar -cf /tmp/o.tar ./?x'", 'env tar -cf /tmp/o.tar ./?x',
 ];
 

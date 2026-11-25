@@ -1087,6 +1087,7 @@ function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, p
         if (quote != "") {
             if (c == quote) { quote = ""; ansi = 0; continue }
             if (ansi && c == "\\" && xf !~ /e/) xf = xf "e"
+            if (c == "\\" && quote != "\047" && nextc == "\n") { i++; continue }
             if (c == "\\" && quote != "\047" && nextc ~ /[$`"\\]/) c = substr(text, ++i, 1)
             word = word c; continue
         }
@@ -1094,6 +1095,7 @@ function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, p
             if (c == "$") { c = substr(text, ++i, 1); ansi = 1; if (word == "") xf = xf "f" }
             quote = c; if (!active) quoted = 1; active = 1; continue
         }
+        if (c == "\\" && nextc == "\n") { i++; continue }
         if (c == "\\") { if (!active) quoted = 1; word = word substr(text, ++i, 1); active = 1; continue }
         if (c == "#" && !active) {
             while (i <= length(text) && substr(text, i, 1) != "\n") i++
