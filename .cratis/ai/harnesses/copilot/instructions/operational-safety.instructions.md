@@ -17,7 +17,7 @@ All are **[contract]** ([general.md](../../../rules/general.md)): policy, not en
   never authorizes a regex or text-edit bypass.
 - **[contract] `render --force` needs approval for that effect and resolved destination.** Approval for one
   target is not approval for another. Never force past changed or unreadable stored event identities.
-- **[contract] Never stage `.cratis-render/`.** Judgement rule only; no hook enforces it.
+- **[contract] Never stage `.cratis-render/`.** CLI v3.149.1+ self-ignores it; `git add -f` overrides, `git rm -r --cached .cratis-render` undoes. Recover by re-running render, not editing.
 - **[contract] Unattended `prologue interpret` uses `--no-llm`** unless the brief records approved disclosure.
   Missing or unknown context is not approval.
 
