@@ -5,8 +5,11 @@
 
 Ownership is the destination's `.cratis-render.json` manifest: semantic revision,
 identity, path and SHA-256 per artifact, not in-file markers. Interrupted commits
-are journaled in `.cratis-render/` (journal, staging, backups). Never stage that
-control directory; commit the manifest with generated output.
+are journaled in `.cratis-render/` (journal, staging, backups). The CLI writes a `*` `.gitignore` inside it, so `git add .` and
+`git add -A` skip it. Still never stage that control directory (`git add -f` is the
+deliberate override; `git rm -r --cached .cratis-render` removes files tracked by
+mistake); commit the manifest with generated output. Recover a leftover folder from an
+interrupted publish by re-running render, not by editing it.
 
 - An unmanaged file at a planned path is refused, even with `--force`.
 - A modified managed file is refused unless still active and `--force` is given.
