@@ -66,6 +66,33 @@ test('guards allow ordinary tool calls under the system /bin/bash', { skip: !exi
     }
 });
 
+// Classified bulk operands: refused and literal-anchored pairs.
+const bulkOptionCases: [string, number][] = [
+    ['tar -cf /tmp/o.tar ?x', 2],
+    ['tar -cf /tmp/o.tar ./?x', 0],
+    ['tar -cf /tmp/o.tar ""?x', 2],
+    ['tar -cf /tmp/o.tar "a"?', 0],
+    ["tar -cf /tmp/o.tar '?'", 0],
+    ['tar -cf /tmp/o.tar -- ?x', 2],
+    ['tar -cf /tmp/o.tar -- ./?x', 0],
+    ['tar -cf ""? Source', 2],
+    ['zip /tmp/o.zip [a]x', 2],
+    ['zip /tmp/o.zip -x -- ?x', 2],
+    ['zip /tmp/o.zip -- ?x', 2],
+    ['7z a /tmp/o.7z ?x', 2],
+    ['7z a /tmp/o.7z -- ?x', 2],
+    ['cp *.md /tmp/d', 0],
+    ['rsync -an *.md /tmp/d', 0],
+    ['cp ?x /tmp/d', 2],
+    ['cp ./?x /tmp/d', 0],
+    ['cp -- ?x /tmp/d', 2],
+    ['cp -- ./?x /tmp/d', 0],
+    ['rsync -an ?x /tmp/d', 2],
+    ['rsync -an ./?x /tmp/d', 0],
+    ['rsync -an -- ?x /tmp/d', 2],
+    ['rsync -an -- ./?x /tmp/d', 0],
+];
+
 function assertAwkCase(variant: string, entry: [string, string, number | null], directory: string, env: NodeJS.ProcessEnv): void {
     const [script, command, expected] = entry;
     const result = spawnSync('bash', [join(scripts, script)], {
@@ -91,6 +118,8 @@ function prepareAwkFixture(directory: string): void {
     assert.equal(spawnSync('git', ['init', '-q', directory]).status, 0);
     writeFileSync(join(directory, 'Directory.Build.props'), 'synthetic fixture');
     writeFileSync(join(directory, 'server.txt'), 'synthetic fixture');
+    writeFileSync(join(directory, 'notes.md'), 'synthetic fixture');
+    writeFileSync(join(directory, '-x'), 'synthetic fixture');
     mkdirSync(join(directory, 'keys'));
     writeFileSync(join(directory, 'keys/server.pem'), 'synthetic fixture');
     mkdirSync(join(directory, 'Source/sub'), { recursive: true });
@@ -183,6 +212,77 @@ function workflowRegressionCases(directory: string): [string, string, number][] 
     ];
 }
 
+function awkCases(directory: string): [string, string, number | null][] {
+    return [
+        ['cratis-guard-secrets.sh', String.raw`x=[fail\]; cat $x`, null],
+        ['cratis-guard-secrets.sh', String.raw`for f in [fail\]; do cat $f; done`, null],
+        ['cratis-guard-secrets.sh', 'cat ${x:-[fail\\]}', null],
+        ['cratis-guard-secrets.sh', String.raw`cat {a,[fail\]}`, null],
+        ['cratis-guard-secrets.sh', String.raw`rg -n '\[FAIL\]' gate.log`, 0],
+        ['cratis-guard-secrets.sh', String.raw`rg -n '\[FAIL\]' *.log`, 0],
+        ['cratis-guard-secrets.sh', 'cat [.]env', 2],
+        ['cratis-guard-secrets.sh', 'cat .[e]nv', 2],
+        ['cratis-guard-secrets.sh', 'cat id_[r]sa', 2],
+        ['cratis-guard-secrets.sh', 'cat secret.p[[:digit:]]m', 0],
+        ['cratis-guard-secrets.sh', 'cat [a-[:digit:]]', null],
+        ['cratis-guard-secrets.sh', 'cat secret.*', 2],
+        ['cratis-guard-secrets.sh', "c''d keys; cat server*", 2],
+        ['cratis-guard-secrets.sh', String.raw`c\d keys; cat server*`, 2],
+        ['cratis-guard-secrets.sh', 'rg -L foo cert*', 2],
+        ['cratis-guard-secrets.sh', 'rg -n foo Directory.Build.*', 0],
+        ['cratis-guard-secrets.sh', "rg -l 'Identity|Hosting' .cratis/ai/rules/project*", 0],
+        ['cratis-guard-secrets.sh', "git diff --cc && rg -n 'Docker|Testcontainers' Directory.Build.* Source/Directory.Build.* && git log -6 --format='%H %s'", 0],
+        ['cratis-guard-secrets.sh', 'rg -n foo keys/server*', 2],
+        ['cratis-guard-secrets.sh', 'cd keys/link/.. && cat server*', 2],
+        ['cratis-guard-secrets.sh', 'cat keys/link/../server*', 2],
+        ['cratis-guard-secrets.sh', 'git diff --cc && rg -n foo Source/Directory.Build.* && z', 2],
+        ['cratis-guard-secrets.sh', 'git add Specs/for_ApplicationCredentials/given/a.cs', 0],
+        ['cratis-guard-secrets.sh', 'git add credentials.json', 2],
+        ['cratis-guard-secrets.sh', 'git commit -m "mentions .env file"', 0],
+        ['cratis-guard-secrets.sh', 'git commit -m "$(cat .env)"', 2],
+        ['cratis-guard-secrets.sh', 'CI=1 cat .env.example', 0],
+        ['cratis-guard-secrets.sh', 'CI=1 cat .env', 2],
+        ['cratis-guard-secrets.sh', 'RIPGREP_CONFIG_PATH=/tmp/config rg -e x .env.example', 2],
+        ['cratis-guard-secrets.sh', 'cat <<EOF\nmentions .env here\nEOF', 0],
+        ['cratis-guard-secrets.sh', 'cat <<EOF\n$(cat .env)\nEOF', 2],
+        ['cratis-guard-secrets.sh', "node <<EOF\nrequire('fs').readFileSync('.env')\nEOF", 2],
+        ['cratis-guard-secrets.sh', 'git grep -n -e credentials -e .env -- Source/AuthProxy', 0],
+        ['cratis-guard-secrets.sh', 'git ls-files Source/AuthProxy/Credentials', 0],
+
+        ['cratis-guard-secrets.sh', 'git grep -e x -- secrets.json', 2],
+        ['cratis-guard-secrets.sh', 'git show HEAD:.env', 2],
+        ['cratis-guard-shell-writes.sh', 'git ls-files --debug -- .env', 0],
+        ...bulkOptionCases.map(([command, expected]): [string, string, number] => ['cratis-guard-shell-writes.sh', command, expected]),
+
+        ['cratis-guard-shell-writes.sh', 'echo x > *.csproj', 2],
+        ['cratis-guard-shell-writes.sh', "rg -l 'Identity|Hosting' .cratis/ai/rules/project*", 0],
+        ['cratis-guard-shell-writes.sh', `cd ${directory} && git diff --cc && rg -n Docker Source/Security/*.csproj && git log -6 --format='%H %s'`, 0],
+        ['cratis-guard-shell-writes.sh', `cd ${directory} && git branch --show-current && git rev-parse HEAD && git status --short && rg -n Infrastructure Source --glob '*.csproj' && sed -n '1,130p' Source/Admin.csproj`, 0],
+        ['cratis-guard-shell-writes.sh', 'sed -i s/a/b/ Source/Security/*.csproj', 2],
+        ['cratis-guard-shell-writes.sh', 'cd Source && echo x > .env', 2],
+        ['cratis-guard-shell-writes.sh', "rg -n 'a{1,2}[x]' notes.md", 0],
+        ['cratis-guard-shell-writes.sh', 'cat a; cp x .env', 2],
+        ['cratis-guard-shell-writes.sh', "jq '{a: .[0]}' data.json", 0],
+        ['cratis-guard-shell-writes.sh', "awk '{print $1} END{print}' notes.md", 0],
+        ['cratis-guard-shell-writes.sh', "awk '{print > \".env\"}' f", 2],
+        ['cratis-guard-shell-writes.sh', "awk -v a=1 '{print}' .env", 2],
+        ['cratis-guard-shell-writes.sh', "jq -f prog.jq .env", 2],
+        ['cratis-guard-shell-writes.sh', 'cat a &> .env', 2],
+        ['cratis-guard-shell-writes.sh', 'cat $(echo .env)', 2],
+        ['cratis-guard-shell-writes.sh', 'rg -nz p f; ls .env', 2],
+        ['cratis-guard-shell-writes.sh', 'shopt -s dotglob; echo x > *.csproj', 2],
+        ['cratis-guard-shell-writes.sh', "node <<'N'\nconsole.log(`${x || {}}`)\nN", 2],
+        ['cratis-guard-shell-writes.sh', "node <<'N'\nrequire('fs').readFileSync('.env')\nN", 2],
+        ...interpreterBraceCases(),
+        ...workflowRegressionCases(directory),
+        ['cratis-guard-shell-writes.sh', "cat <<'N' | bash\necho x > {.,}env\nN", 2],
+        ['cratis-guard-shell-writes.sh', 'rm -f *.local', 2],
+        ['cratis-guard-shell-writes.sh', 'echo "\ncat <<\'B\'\n"; echo x | tee {.e,}nv\nB', 2],
+        ['cratis-guard-shell-writes.sh', "bash <<'A'\ncat <<'B'\nA\necho x | tee {.e,}nv\nB", 2],
+        ['cratis-guard-shell-writes.sh', 'eval "$(\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n)"', 2],
+    ];
+}
+
 test('available awk variants preserve credential and shell-reference decisions', t => {
     const variants = [
         ['BSD/system', '/usr/bin/awk'],
@@ -204,73 +304,7 @@ test('available awk variants preserve credential and shell-reference decisions',
                 CRATIS_HOOKS_ALLOW_SECRET_READS: '0',
                 CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0',
             };
-            const cases: [string, string, number | null][] = [
-                ['cratis-guard-secrets.sh', String.raw`x=[fail\]; cat $x`, null],
-                ['cratis-guard-secrets.sh', String.raw`for f in [fail\]; do cat $f; done`, null],
-                ['cratis-guard-secrets.sh', 'cat ${x:-[fail\\]}', null],
-                ['cratis-guard-secrets.sh', String.raw`cat {a,[fail\]}`, null],
-                ['cratis-guard-secrets.sh', String.raw`rg -n '\[FAIL\]' gate.log`, 0],
-                ['cratis-guard-secrets.sh', String.raw`rg -n '\[FAIL\]' *.log`, 0],
-                ['cratis-guard-secrets.sh', 'cat [.]env', 2],
-                ['cratis-guard-secrets.sh', 'cat .[e]nv', 2],
-                ['cratis-guard-secrets.sh', 'cat id_[r]sa', 2],
-                ['cratis-guard-secrets.sh', 'cat secret.p[[:digit:]]m', 0],
-                ['cratis-guard-secrets.sh', 'cat [a-[:digit:]]', null],
-                ['cratis-guard-secrets.sh', 'cat secret.*', 2],
-                ['cratis-guard-secrets.sh', "c''d keys; cat server*", 2],
-                ['cratis-guard-secrets.sh', String.raw`c\d keys; cat server*`, 2],
-                ['cratis-guard-secrets.sh', 'rg -L foo cert*', 2],
-                ['cratis-guard-secrets.sh', 'rg -n foo Directory.Build.*', 0],
-                ['cratis-guard-secrets.sh', "rg -l 'Identity|Hosting' .cratis/ai/rules/project*", 0],
-                ['cratis-guard-secrets.sh', "git diff --cc && rg -n 'Docker|Testcontainers' Directory.Build.* Source/Directory.Build.* && git log -6 --format='%H %s'", 0],
-                ['cratis-guard-secrets.sh', 'rg -n foo keys/server*', 2],
-                ['cratis-guard-secrets.sh', 'cd keys/link/.. && cat server*', 2],
-                ['cratis-guard-secrets.sh', 'cat keys/link/../server*', 2],
-                ['cratis-guard-secrets.sh', 'git diff --cc && rg -n foo Source/Directory.Build.* && z', 2],
-                ['cratis-guard-secrets.sh', 'git add Specs/for_ApplicationCredentials/given/a.cs', 0],
-                ['cratis-guard-secrets.sh', 'git add credentials.json', 2],
-                ['cratis-guard-secrets.sh', 'git commit -m "mentions .env file"', 0],
-                ['cratis-guard-secrets.sh', 'git commit -m "$(cat .env)"', 2],
-                ['cratis-guard-secrets.sh', 'CI=1 cat .env.example', 0],
-                ['cratis-guard-secrets.sh', 'CI=1 cat .env', 2],
-                ['cratis-guard-secrets.sh', 'RIPGREP_CONFIG_PATH=/tmp/config rg -e x .env.example', 2],
-                ['cratis-guard-secrets.sh', 'cat <<EOF\nmentions .env here\nEOF', 0],
-                ['cratis-guard-secrets.sh', 'cat <<EOF\n$(cat .env)\nEOF', 2],
-                ['cratis-guard-secrets.sh', "node <<EOF\nrequire('fs').readFileSync('.env')\nEOF", 2],
-                ['cratis-guard-secrets.sh', 'git grep -n -e credentials -e .env -- Source/AuthProxy', 0],
-                ['cratis-guard-secrets.sh', 'git ls-files Source/AuthProxy/Credentials', 0],
-
-                ['cratis-guard-secrets.sh', 'git grep -e x -- secrets.json', 2],
-                ['cratis-guard-secrets.sh', 'git show HEAD:.env', 2],
-                ['cratis-guard-shell-writes.sh', 'git ls-files --debug -- .env', 0],
-
-                ['cratis-guard-shell-writes.sh', 'echo x > *.csproj', 2],
-                ['cratis-guard-shell-writes.sh', "rg -l 'Identity|Hosting' .cratis/ai/rules/project*", 0],
-                ['cratis-guard-shell-writes.sh', `cd ${directory} && git diff --cc && rg -n Docker Source/Security/*.csproj && git log -6 --format='%H %s'`, 0],
-                ['cratis-guard-shell-writes.sh', `cd ${directory} && git branch --show-current && git rev-parse HEAD && git status --short && rg -n Infrastructure Source --glob '*.csproj' && sed -n '1,130p' Source/Admin.csproj`, 0],
-                ['cratis-guard-shell-writes.sh', 'sed -i s/a/b/ Source/Security/*.csproj', 2],
-                ['cratis-guard-shell-writes.sh', 'cd Source && echo x > .env', 2],
-                ['cratis-guard-shell-writes.sh', "rg -n 'a{1,2}[x]' notes.md", 0],
-                ['cratis-guard-shell-writes.sh', 'cat a; cp x .env', 2],
-                ['cratis-guard-shell-writes.sh', "jq '{a: .[0]}' data.json", 0],
-                ['cratis-guard-shell-writes.sh', "awk '{print $1} END{print}' notes.md", 0],
-                ['cratis-guard-shell-writes.sh', "awk '{print > \".env\"}' f", 2],
-                ['cratis-guard-shell-writes.sh', "awk -v a=1 '{print}' .env", 2],
-                ['cratis-guard-shell-writes.sh', "jq -f prog.jq .env", 2],
-                ['cratis-guard-shell-writes.sh', 'cat a &> .env', 2],
-                ['cratis-guard-shell-writes.sh', 'cat $(echo .env)', 2],
-                ['cratis-guard-shell-writes.sh', 'rg -nz p f; ls .env', 2],
-                ['cratis-guard-shell-writes.sh', 'shopt -s dotglob; echo x > *.csproj', 2],
-                ['cratis-guard-shell-writes.sh', "node <<'N'\nconsole.log(`${x || {}}`)\nN", 2],
-                ['cratis-guard-shell-writes.sh', "node <<'N'\nrequire('fs').readFileSync('.env')\nN", 2],
-                ...interpreterBraceCases(),
-                ...workflowRegressionCases(directory),
-                ['cratis-guard-shell-writes.sh', "cat <<'N' | bash\necho x > {.,}env\nN", 2],
-                ['cratis-guard-shell-writes.sh', 'rm -f *.local', 2],
-                ['cratis-guard-shell-writes.sh', 'echo "\ncat <<\'B\'\n"; echo x | tee {.e,}nv\nB', 2],
-                ['cratis-guard-shell-writes.sh', "bash <<'A'\ncat <<'B'\nA\necho x | tee {.e,}nv\nB", 2],
-                ['cratis-guard-shell-writes.sh', 'eval "$(\ncat <<\'N\'\nprintf x | tee {.,}env\nN\n)"', 2],
-            ];
+            const cases = awkCases(directory);
             for (const entry of cases) assertAwkCase(name, entry, directory, env);
             assertMissingCwd(name, env);
             t.diagnostic(`${name}: ${cases.length + 1}/${cases.length + 1} passed`);

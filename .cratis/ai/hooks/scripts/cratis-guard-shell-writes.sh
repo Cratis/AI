@@ -1070,8 +1070,8 @@ function data_substitutions(text, d, word,    i, c, body, k) {
         }
     }
 }
-function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, pending, delimiter, strip, hd_index, end, word_start) {
-    n = 0; quote = ""; word = ""; active = 0; quoted = 0; pending = 0
+function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, pending, delimiter, strip, hd_index, end, word_start, glob_at, xf, ansi) {
+    n = 0; quote = ""; word = ""; active = 0; quoted = 0; pending = 0; glob_at = 0; xf = ""; ansi = 0
     for (i = 1; i <= length(text); i++) {
         c = substr(text, i, 1); nextc = substr(text, i + 1, 1)
         if (!active) word_start = i
@@ -1085,14 +1085,17 @@ function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, p
             i = sub_end; word = word "$__sub"; active = 1; continue
         }
         if (quote != "") {
-            if (c == quote) { quote = ""; continue }
+            if (c == quote) { quote = ""; ansi = 0; continue }
+            if (ansi && c == "\\" && xf !~ /e/) xf = xf "e"
+            if (c == "\\" && quote != "\047" && nextc == "\n") { i++; continue }
             if (c == "\\" && quote != "\047" && nextc ~ /[$`"\\]/) c = substr(text, ++i, 1)
             word = word c; continue
         }
         if (c == "\047" || c == "\"" || (c == "$" && nextc == "\047")) {
-            if (c == "$") c = substr(text, ++i, 1)
+            if (c == "$") { c = substr(text, ++i, 1); ansi = 1; if (word == "") xf = xf "f" }
             quote = c; if (!active) quoted = 1; active = 1; continue
         }
+        if (c == "\\" && nextc == "\n") { i++; continue }
         if (c == "\\") { if (!active) quoted = 1; word = word substr(text, ++i, 1); active = 1; continue }
         if (c == "#" && !active) {
             while (i <= length(text) && substr(text, i, 1) != "\n") i++
@@ -1106,7 +1109,7 @@ function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, p
         }
         if (c == "{" && nextc == "}") { word = word "{}"; i++; active = 1; continue }
         if (c ~ /[ \t\r\n;&|(){}<>]/) {
-            if (active) { W[d, ++n] = word; Q[d, n] = quoted; DQ[d, n] = quoted_prefix(substr(text, word_start, i - word_start)); CT[d, n] = literal_current_directory(substr(text, word_start, i - word_start), word); K[d, n] = "word"; T[d, n] = i - 1; F[d, n] = !quoted && word ~ /^[0-9]+$/ && substr(text, i - length(word), length(word)) == word; word = ""; active = quoted = 0 }
+            if (active) { W[d, ++n] = word; Q[d, n] = quoted; DQ[d, n] = quoted_prefix(substr(text, word_start, i - word_start)); CT[d, n] = literal_current_directory(substr(text, word_start, i - word_start), word); K[d, n] = "word"; T[d, n] = i - 1; F[d, n] = !quoted && word ~ /^[0-9]+$/ && substr(text, i - length(word), length(word)) == word; GL[d, n] = glob_at; XF[d, n] = xf; word = ""; active = quoted = glob_at = 0; xf = "" }
             if (c ~ /[ \t\r]/) continue
             if (c == "<" && nextc == "<") {
                 if (substr(text, i, 3) == "<<<") { W[d, ++n] = "<<<"; K[d, n] = "<<<"; T[d, n] = i; i += 2; continue }
@@ -1140,8 +1143,10 @@ function lex(text, d,    i, c, nextc, quote, word, quoted, active, n, body, k, p
             continue
         }
         word = word c; active = 1
+        # Offset of the first unquoted pathname-expansion character; quoted and escaped ones never get here.
+        if (!glob_at && c ~ /[*?\[]/) glob_at = length(word)
     }
-    if (active) { W[d, ++n] = word; Q[d, n] = quoted; DQ[d, n] = quoted_prefix(substr(text, word_start)); CT[d, n] = literal_current_directory(substr(text, word_start), word); K[d, n] = "word" }
+    if (active) { W[d, ++n] = word; Q[d, n] = quoted; DQ[d, n] = quoted_prefix(substr(text, word_start)); CT[d, n] = literal_current_directory(substr(text, word_start), word); K[d, n] = "word"; GL[d, n] = glob_at; XF[d, n] = xf }
     if (quote != "" || pending) unclassified(remaining(d, 1, n))
     return n
 }
@@ -1178,7 +1183,7 @@ function wrapper_flag(program, option) {
 function copy_token(source, from, dest, to,    j) {
     W[dest, to] = W[source, from]; Q[dest, to] = Q[source, from]; DQ[dest, to] = DQ[source, from]; K[dest, to] = K[source, from]
     H[dest, to] = H[source, from]; T[dest, to] = T[source, from]; F[dest, to] = F[source, from]
-    BC[dest, to] = BC[source, from]
+    BC[dest, to] = BC[source, from]; GL[dest, to] = GL[source, from]; XF[dest, to] = XF[source, from]
     for (j = 1; j <= BC[source, from]; j++) B[dest, to, j] = B[source, from, j]
 }
 function redirection(d, i) { return K[d, i] ~ /^[<>]/ || K[d, i] ~ /^&>/ }
@@ -1203,7 +1208,7 @@ function env_words(text, slot,    i, c, nextc, quote, word, active, n) {
     for (i = 1; i <= length(text) + 1; i++) {
         c = substr(text, i, 1); nextc = substr(text, i + 1, 1)
         if (c == "" || (quote == "" && c ~ /[[:space:]]/)) {
-            if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word"; word = ""; active = 0 }
+            if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word"; GL[slot, n] = 0; XF[slot, n] = ""; word = ""; active = 0 }
             continue
         }
         if (quote == "" && c == "#" && !active) break
@@ -1212,7 +1217,7 @@ function env_words(text, slot,    i, c, nextc, quote, word, active, n) {
             if (nextc == "c") break
             if (nextc == "_") {
                 if (quote == "") {
-                    if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word"; word = ""; active = 0 }
+                    if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word"; GL[slot, n] = 0; XF[slot, n] = ""; word = ""; active = 0 }
                     continue
                 }
                 c = " "
@@ -1230,7 +1235,7 @@ function env_words(text, slot,    i, c, nextc, quote, word, active, n) {
         word = word c; active = 1
     }
     if (quote != "") { unclassified(text); return -1 }
-    if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word" }
+    if (active) { W[slot, ++n] = word; Q[slot, n] = 1; K[slot, n] = "word"; GL[slot, n] = 0; XF[slot, n] = "" }
     return n
 }
 function executable(d, start, end,    i, j, program, option, split_at, text, slot, count, first, expansions) {
@@ -1343,8 +1348,37 @@ function option_grammars() {
     option_schema("read-tree", "uminv", "", "reset merge dry-run verbose no-sparse-checkout", "prefix index-output")
     option_schema("checkout-index", "afqunz", "", "all force quiet index no-create stdin temp", "prefix")
 }
+# Archive operands. A word whose expansion can begin with `-` or `@` is an option, or a bsdtar/7z list-file
+# reference. A word with an active glob is therefore admitted only when its FIRST element is a literal character
+# other than `-`/`@`: a plain character, a character of a plain quoted segment, or an escaped plain character.
+# A `$` expansion, backquote, `$'..'` segment or leading glob never anchors, because it can expand to nothing or to
+# an option. A `$'..'` segment containing a backslash is refused outright: its escapes are not decoded here.
+# Lexical only: no expansion and no filesystem access, and `--` is never treated as proof.
+function archive_escape(d, i) { return XF[d, i] ~ /e/ }
+function option_shaped_glob(d, i) {
+    return archive_escape(d, i) || (GL[d, i] && (GL[d, i] == 1 || W[d, i] ~ /^[-@$`]/ || XF[d, i] ~ /f/))
+}
+# A simple copy may retain a leading glob only after the same bounded metadata check as reader_globs.
+# Keep this exception local to the current directory and plain star/question patterns; never evaluate text.
+function copy_source_glob(d, i, cwd, uncertain,    script, cmd, line, count, ok) {
+    if (!exception_allowed || uncertain || cwd != ENVIRON["GSW_CWD"] || ENVIRON["GSW_GLOB_SAFE"] != "1") return 0
+    if (!GL[d, i] || XF[d, i] != "" || W[d, i] !~ /^[*?][a-zA-Z0-9._*?-]*$/) return 0
+    script = "cd -- \"$1\" && [ -r . ] && [ -x . ] || exit 3; unset GLOBIGNORE; " \
+        "shopt -s nullglob dotglob nocaseglob && shopt -q nullglob dotglob nocaseglob || exit 3; : *; " \
+        "n=0; while IFS= read -r f; do n=$((n+1)); [ \"$n\" -le 200 ] || exit 3; " \
+        "case $f in -*|*[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$f\"; done < <(compgen -G \"$2\"); echo OK"
+    cmd = "bash -c " quote_path(script) " guard-copy-glob " quote_path(cwd) " " quote_path(W[d, i]) " 2>/dev/null"
+    while ((cmd | getline line) > 0) {
+        if (line == "OK") { ok = 1; continue }
+        if (ok || substr(line, 1, 2) != "F:" || ++count > 200) { ok = 0; break }
+    }
+    return close(cmd) == 0 && ok
+}
+function option_operand(d, i, family, cwd, uncertain) {
+    return !option_shaped_glob(d, i) || (member("cp rsync", family) && copy_source_glob(d, i, cwd, uncertain))
+}
 function option_value(d, i, end) {
-    return i <= end && K[d, i] == "word" && W[d, i] != "" && (Q[d, i] || W[d, i] !~ /[$`*?\[{}]/)
+    return i <= end && K[d, i] == "word" && W[d, i] != "" && (Q[d, i] || W[d, i] !~ /[$`*?\[{}]/) && !(archive_operands && (GL[d, i] || archive_escape(d, i)))
 }
 # Return the last consumed word, or zero. Option values are data, never another option.
 function option_end(d, i, end, family, old, schema,    w, key, kind, j, last) {
@@ -1375,14 +1409,21 @@ function option_end(d, i, end, family, old, schema,    w, key, kind, j, last) {
     }
     return last
 }
-function known_options(d, start, end, family, cwd, uncertain, creation,    i, w, old, last, schema) {
+function known_options(d, start, end, family, cwd, uncertain, creation,    i, j, w, old, last, schema) {
     schema = creation ? "creation:" family : family
     for (i = start; i <= end; i++) {
         w = W[d, i]
         if (redirection(d, i)) break
-        if (w == "--") return !member("unzip jar ar", family)
+        if (archive_operands && archive_escape(d, i)) return 0
+        if (w == "--") {
+            if (member("unzip jar ar", family)) return 0
+            # A terminator is not proof for any family: tool behaviour after it is unverified.
+            if (archive_operands) for (j = i + 1; j <= end && !redirection(d, j); j++) if (!option_operand(d, j, family, cwd, uncertain)) return 0
+            return 1
+        }
         old = member("tar jar ar", family) && i == start && w ~ /^[a-zA-Z]+$/
         if (w !~ /^-/ && !old) {
+            if (archive_operands && !option_operand(d, i, family, cwd, uncertain)) return 0
             if (w ~ /[$`]/ && (!Q[d, i] || DQ[d, i]) && (!DQ[d, i] || resolved(w, Q[d, i], cwd, uncertain, DQ[d, i]) == "!")) return 0
             continue
         }
@@ -1483,10 +1524,12 @@ function archive_command(d, verb, end, cwd, uncertain, fed, family,    i, mode) 
         if (W[d, i] ~ /^@/) { emit("!archive"); return }
     }
     mode = archive_mode(d, verb + 1, end, family)
+    archive_operands = 1
     if (mode == 2) {
         if (!known_options(d, verb + 1, end, family, cwd, uncertain, 1)) emit("!archive")
         else archive_creation(d, verb, end, cwd, uncertain, family)
     } else if (mode != 1 || !known_options(d, verb + 1, end, family, cwd, uncertain)) emit("!archive")
+    archive_operands = 0
 }
 function creation_output_option(family, flag) {
     return (member("tar jar pax", family) && member("-f --file", flag)) ||
@@ -1942,8 +1985,10 @@ function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed, out
     else if (w == "find") find_command(d, head, end, cwd, context, depth + 1, fed)
     else if (bulk_family(w) != "") {
         if (w == "cp" || w == "rsync") {
+            archive_operands = 1
             if (fed || !known_options(d, head + 1, end, w, cwd, context)) emit("!")
             else copy_effect(d, head, end, cwd, context)
+            archive_operands = 0
         } else archive_command(d, head, end, cwd, context, fed, bulk_family(w))
     }
     else if (destructive(w)) {
@@ -1961,7 +2006,7 @@ function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed, out
 function parse(text, cwd, uncertain, depth, fed,    n, i, start, kind, level, head, path, old, j, pipe, data) {
     # Lex before the depth fallback so properly terminated heredoc bodies stay data.
     # A depth slot may be reused by several script words.
-    for (i = 1; i <= N[depth]; i++) { delete W[depth, i]; delete Q[depth, i]; delete DQ[depth, i]; delete CT[depth, i]; delete K[depth, i]; delete H[depth, i]; delete T[depth, i]; delete F[depth, i]; BC[depth, i] = 0 }
+    for (i = 1; i <= N[depth]; i++) { delete W[depth, i]; delete Q[depth, i]; delete DQ[depth, i]; delete CT[depth, i]; delete K[depth, i]; delete H[depth, i]; delete T[depth, i]; delete F[depth, i]; delete GL[depth, i]; delete XF[depth, i]; BC[depth, i] = 0 }
     n = lex(text, depth); N[depth] = n; start = 1; level = 0
     if (text ~ /(^|[[:space:]])GIT_[A-Z_]+=/) git_context_unknown = 1
     if (depth == 0) simple_tool = simple_command(text, depth, n)
@@ -2006,7 +2051,9 @@ while [ ! -e "$repository_root/.git" ]; do
     repository_root="${repository_root%/*}"
     [ -n "$repository_root" ] || repository_root=/
 done
-destructive_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_ROOT="$repository_root" LC_ALL=C awk "$destructive_program" </dev/null)" || parser_failed
+glob_shell_safe=1
+if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]]; then glob_shell_safe=0; fi
+destructive_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_ROOT="$repository_root" GSW_GLOB_SAFE="$glob_shell_safe" LC_ALL=C awk "$destructive_program" </dev/null)" || parser_failed
 if [ -n "$destructive_text" ]; then
     destructive_candidates=()
     while IFS= read -r candidate; do
@@ -2034,8 +2081,6 @@ if [ -n "$destructive_text" ]; then
         exit 2
     fi
 fi
-glob_shell_safe=1
-if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]]; then glob_shell_safe=0; fi
 candidates_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_MODE=targets LC_ALL=C awk "$program" </dev/null)" || parser_failed
 [ -n "$candidates_text" ] || exit 0
 # The lowercase alias of a mixed-case path serves case-insensitive file systems. Drop it only where the
