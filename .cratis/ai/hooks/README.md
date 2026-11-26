@@ -509,8 +509,8 @@ These guards check a **supported command-shape subset on a best-effort basis**; 
 not a sandbox. File permissions and OS-level isolation are the boundary. "Out of scope" below means the guard
 does not examine the shape, **not** that the shape is safe: a zero verdict there proves only the limit.
 Standalone verdicts differ: the secrets guard decides reads, the shell-write guard decides writes and
-destructive scope, and an allowance by one never authorizes the other. `Source/Verification/guard-support-matrix.spec.ts`
-pins each row with JSON-only invocations (no candidate text is executed).
+destructive scope, and an allowance by one never authorizes the other. A support-matrix spec in the
+Cratis AI repository pins each row with JSON-only invocations (no candidate text is executed).
 
 | Class | Supported | Refused | Out of scope (not examined) |
 |---|---|---|---|
