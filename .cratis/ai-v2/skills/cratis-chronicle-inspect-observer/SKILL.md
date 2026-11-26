@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-inspect-observer
-description: Diagnoses a stale Chronicle read model from observer positions and failed partitions. Use when an accepted registration is missing from the author listing. Not for repairing a live query connection (use cratis-arc-diagnose-live-query).
+description: Use when a Chronicle read model is stale and observer positions or failed partitions might explain a missing update, such as an accepted registration absent from the author listing. Not for repairing a live query connection (use cratis-arc-diagnose-live-query).
 compatibility: .NET SDK; Node.js for offline summaries.
 ---
 

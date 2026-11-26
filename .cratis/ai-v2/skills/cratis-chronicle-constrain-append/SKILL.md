@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-constrain-append
-description: Reserves a unique value at Chronicle append time. Use when two authors must not register the same name. Not for protecting an earlier command decision (use cratis-chronicle-protect-decision).
+description: Use when a value must be unique at Chronicle append time, such as when two authors must not register the same name. Not for protecting an earlier command decision (use cratis-chronicle-protect-decision).
 compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-modeling-discover-timeline
-description: Discovers the business timeline and the owner of each recorded event. Use when event modeling a journey, choosing a stream boundary or tracing a screen field to its origin. Not for expressing an agreed slice in .play (use cratis-screenplay-declare-slice).
+description: Use when event modeling a business journey, identifying who owns a recorded event, choosing a stream boundary or tracing a screen field to its origin. Not for expressing an agreed slice in .play (use cratis-screenplay-declare-slice).
 ---
 
 # Trace one business example

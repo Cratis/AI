@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-declare-slice
-description: Declares a state change and its view in Screenplay. Use when encoding an agreed command, event or list in .play. Not for discovering the business story (use cratis-modeling-discover-timeline).
+description: Use when encoding an agreed state change or its view as a command, event or list in a Screenplay .play file. Not for discovering the business story (use cratis-modeling-discover-timeline).
 compatibility: Requires the Screenplay CLI.
 ---
 

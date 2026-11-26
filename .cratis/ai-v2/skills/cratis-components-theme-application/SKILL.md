@@ -1,6 +1,6 @@
 ---
 name: cratis-components-theme-application
-description: Loads the Components styles and overrides theme tokens within one part of the application. Use when setting up the baseline or changing a scoped palette. Not for choosing input controls (use cratis-components-choose-control).
+description: Use when setting up baseline Components styles or overriding theme tokens to change the palette in one part of the application. Not for choosing input controls (use cratis-components-choose-control).
 compatibility: Requires @cratis/components and a CSS bundler that resolves package imports.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-components-submit-form
-description: Builds a dialog that binds typed fields to a generated command and runs it on OK. Use when adding a create or edit form for a command. Not for a yes/no confirmation (use cratis-components-coordinate-feedback).
+description: Use when adding a create or edit dialog that binds typed fields to a generated command and submits it on OK. Not for a yes/no confirmation (use cratis-components-coordinate-feedback).
 compatibility: Requires @cratis/components, @cratis/arc.react and @cratis/fundamentals.
 ---
 

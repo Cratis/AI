@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-accept-model
-description: Reviews the behavior changed by a Screenplay revision. Use when accepting a model change for implementation. Not for applying edits (use cratis-screenplay-edit-workspace).
+description: Use when reviewing behavior changed by a Screenplay revision before accepting the model change for implementation. Not for applying edits (use cratis-screenplay-edit-workspace).
 compatibility: Requires the Screenplay CLI.
 ---
 

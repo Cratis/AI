@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-react-bind-slice
-description: Mounts Arc and reads a generated query from React. Use when configuring the host, waiting for a query argument or rendering result states in custom markup. Not for a standard table (use cratis-components-display-list) or a command form (use cratis-components-submit-form).
+description: Use when configuring the Arc host in React, waiting for a generated query's argument or rendering its result states in custom markup. Not for a standard table (use cratis-components-display-list) or a command form (use cratis-components-submit-form).
 compatibility: Requires react, react-dom, reflect-metadata, @cratis/components and @cratis/arc.react.
 ---
 

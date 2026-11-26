@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-edit-workspace
-description: Applies a revision-bound Screenplay workspace edit. Use when proposing a typed change to a split model or recovering an interrupted write. Not for accepting changed behavior (use cratis-screenplay-accept-model).
+description: Use when proposing a revision-bound typed change to a split Screenplay model or recovering an interrupted workspace write. Not for accepting changed behavior (use cratis-screenplay-accept-model).
 compatibility: Requires the Screenplay MCP server and CLI.
 ---
 

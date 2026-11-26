@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-expose-mcp-operation
-description: Publishes an Arc command or query as an MCP tool. Use when an MCP client must call a command or a query that returns one result. Not for exposing the HTTP query (use cratis-arc-expose-query).
+description: Use when an MCP client needs a tool to call an Arc command or a query that returns one result. Not for exposing the HTTP query (use cratis-arc-expose-query).
 compatibility: Requires Cratis.Arc.Mcp and Cratis.Arc.PersonalAccessTokens; the Library examples use Cratis and Cratis.Arc.MongoDB.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-specifications-observe-ui
-description: Tests visible interaction with the Library dialog in a Storybook play function. Use when specifying how a user opens the real dialog and edits the author name. Not for choosing a control (use cratis-components-choose-control).
+description: Use when testing visible interaction with the real Library dialog in a Storybook play function, such as opening the dialog and editing the author name. Not for choosing a control (use cratis-components-choose-control).
 compatibility: Requires React Storybook with @storybook/react-vite, the Library UI packages and generated proxies. The running application check requires Playwright.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-platform-configure-environment
-description: Binds a host connection and names a model secret without committing either value. Use when configuring an isolated Library deployment. Not for changing host discovery (use cratis-arc-host-application).
+description: Use when configuring an isolated Library deployment that needs a host connection and a named model secret without committing their values. Not for changing host discovery (use cratis-arc-host-application).
 compatibility: Requires ASP.NET Core configuration and the Screenplay CLI for model inventory.
 ---
 

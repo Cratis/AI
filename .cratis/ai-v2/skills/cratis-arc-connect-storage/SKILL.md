@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-connect-storage
-description: Registers MongoDB for typed Arc queries. Use when adding MongoDB to a host or when IMongoCollection does not resolve or returns no rows. Not for defining a projection (use cratis-chronicle-project-view).
+description: Use when adding MongoDB to an Arc host for typed queries or when IMongoCollection does not resolve or returns no rows. Not for defining a projection (use cratis-chronicle-project-view).
 compatibility: Requires Cratis and Cratis.Arc.MongoDB; observable queries require MongoDB change streams.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-select-backend-sdk
-description: Checks whether a native Arc SDK supports a requested backend capability. Use when adding an Arc command or query to a native service. Not for Chronicle client lifecycle (use cratis-chronicle-select-client).
+description: Use when adding an Arc command or query to a native service and checking whether its backend SDK supports the requested capability. Not for Chronicle client lifecycle (use cratis-chronicle-select-client).
 compatibility: Requires the service's native toolchain and resolved Arc module. The example uses Go.
 ---
 

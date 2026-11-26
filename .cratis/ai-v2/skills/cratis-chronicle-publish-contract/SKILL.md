@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-publish-contract
-description: Publishes a selected Chronicle event from one event store to another. Use when delivering a public contract through outbox and inbox. Not for notifying a receiver within a store (use cratis-chronicle-react-to-fact).
+description: Use when publishing a selected Chronicle event as a public contract between event stores through outbox and inbox. Not for notifying a receiver within a store (use cratis-chronicle-react-to-fact).
 compatibility: .NET SDK and disposable producer and consumer stores.
 ---
 

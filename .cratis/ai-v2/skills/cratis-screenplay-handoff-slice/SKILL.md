@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-handoff-slice
-description: Exports an accepted Screenplay slice and identifies the application behavior to implement. Use when handing one qualified slice to a target team. Not for approving the model (use cratis-screenplay-accept-model).
+description: Use when exporting one accepted Screenplay slice to hand a target team the application behavior to implement. Not for approving the model (use cratis-screenplay-accept-model).
 compatibility: Requires the Screenplay CLI.
 ---
 

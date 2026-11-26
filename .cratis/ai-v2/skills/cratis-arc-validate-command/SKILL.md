@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-validate-command
-description: Adds member-level validation to a model-bound command. Use when rejecting a missing or invalid command field. Not for enforcing uniqueness across writers (use cratis-chronicle-constrain-append).
+description: Use when a model-bound command needs member-level validation to reject a missing or invalid field. Not for enforcing uniqueness across writers (use cratis-chronicle-constrain-append).
 compatibility: Requires the Cratis package, which supplies Arc and FluentValidation global usings.
 ---
 

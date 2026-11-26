@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-record-event
-description: Declares an event and appends it to Chronicle. Use when recording an event directly with IEventLog. Not for returning an event from an Arc command (use cratis-arc-declare-command).
+description: Use when declaring an event and appending it to Chronicle directly with IEventLog. Not for returning an event from an Arc command (use cratis-arc-declare-command).
 compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 ---
 

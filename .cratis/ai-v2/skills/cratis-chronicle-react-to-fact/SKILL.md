@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-react-to-fact
-description: Delivers a notification after Chronicle commits an event. Use when a reactor should notify a downstream service. Not for publishing an inter-service event contract (use cratis-chronicle-publish-contract).
+description: Use when a reactor should notify a downstream service after Chronicle commits an event. Not for publishing an inter-service event contract (use cratis-chronicle-publish-contract).
 compatibility: .NET SDK and Chronicle reactor APIs.
 ---
 

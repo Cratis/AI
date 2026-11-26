@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-recover-intent
-description: Separates observed application behavior from inferred intent. Use when recovering a candidate model from a recording of an inherited screen. Not for deciding an unobserved business rule (use cratis-modeling-discover-timeline).
+description: Use when recovering a candidate model from a recording of an inherited screen and distinguishing observed behavior from inferred intent. Not for deciding an unobserved business rule (use cratis-modeling-discover-timeline).
 compatibility: Requires the Screenplay CLI.
 ---
 

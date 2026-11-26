@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-model-interaction
-description: Binds screens, actions and forms to modeled operations. Use when declaring a Screenplay form, navigation destination or performer-specific action. Not for React bindings (use cratis-arc-react-bind-slice).
+description: Use when binding a Screenplay screen or form to a modeled operation, declaring a navigation destination or defining a performer-specific action. Not for React bindings (use cratis-arc-react-bind-slice).
 compatibility: Requires the Screenplay CLI.
 ---
 

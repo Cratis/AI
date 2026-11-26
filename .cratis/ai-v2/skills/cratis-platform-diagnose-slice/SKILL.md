@@ -1,6 +1,6 @@
 ---
 name: cratis-platform-diagnose-slice
-description: Finds the first missing result between a command and an open list. Use when registration succeeds but an Authors screen stays stale. Not for repairing a known observer problem (use cratis-chronicle-inspect-observer).
+description: Use when tracing a missing update between a successful command and an open list, such as a registration that never appears on the Authors screen. Not for repairing a known observer problem (use cratis-chronicle-inspect-observer).
 ---
 
 # Find where registration stops reaching the Authors list

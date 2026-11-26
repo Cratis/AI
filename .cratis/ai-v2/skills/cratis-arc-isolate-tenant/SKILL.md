@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-isolate-tenant
-description: Resolves the request tenant and checks caller membership. Use when tenants share a deployment but must not see each other's data. Not for choosing a database server (use cratis-arc-connect-storage).
+description: Use when resolving the request tenant or checking caller membership to keep tenants in a shared deployment from seeing each other's data. Not for choosing a database server (use cratis-arc-connect-storage).
 compatibility: Requires Cratis.Arc in a web host with a verified caller identity.
 ---
 

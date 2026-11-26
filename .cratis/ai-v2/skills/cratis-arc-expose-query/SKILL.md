@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-expose-query
-description: Exposes a read model through an Arc query. Use when adding a query method to a read model, including a live author list. Not for defining how events populate the model (use cratis-chronicle-project-view).
+description: Use when adding an Arc query method to a read model, including a query for a live author list. Not for defining how events populate the model (use cratis-chronicle-project-view).
 compatibility: Requires Cratis, Cratis.Arc.MongoDB and a change-stream-capable MongoDB deployment.
 ---
 

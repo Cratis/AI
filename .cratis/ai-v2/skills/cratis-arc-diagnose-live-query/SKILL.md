@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-diagnose-live-query
-description: Finds where a live query stops updating. Use when an observable query connects but its results do not change after a command. Not for implementing the query (use cratis-arc-expose-query).
+description: Use when a live observable query connects but its results stop updating after a command. Not for implementing the query (use cratis-arc-expose-query).
 compatibility: Requires curl and Node.js for the stream check, and a running Library host.
 ---
 

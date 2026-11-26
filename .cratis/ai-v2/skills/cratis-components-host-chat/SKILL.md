@@ -1,6 +1,6 @@
 ---
 name: cratis-components-host-chat
-description: Adds a chat sidebar fed by an observable topics query and a per-topic messages query. Use when a screen needs topic-based chat. Not for confirmation or busy dialogs (use cratis-components-coordinate-feedback).
+description: Use when a screen needs a topic-based chat sidebar with an observable topics query and a messages query for each topic. Not for confirmation or busy dialogs (use cratis-components-coordinate-feedback).
 compatibility: Requires react, @cratis/components and @cratis/arc.react.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-protect-personal-data
-description: Protects personal values in Chronicle events and read models. Use when classifying member data, releasing a profile or deleting a member's encryption key. Not for deciding who can access the profile (use cratis-arc-authorize-request).
+description: Use when classifying personal data in Chronicle events and read models, releasing a profile or deleting a member's encryption key. Not for deciding who can access the profile (use cratis-arc-authorize-request).
 compatibility: .NET SDK and a compliance-enabled Chronicle kernel.
 ---
 

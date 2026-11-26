@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-authorize-request
-description: Protects model-bound commands and queries with Arc authorization. Use when requiring sign-in or restricting an operation to a role. Not for selecting a tenant (use cratis-arc-isolate-tenant).
+description: Use when an Arc model-bound command or query must require sign-in or restrict access to a role. Not for selecting a tenant (use cratis-arc-isolate-tenant).
 compatibility: Requires the Cratis package and a configured authentication provider.
 ---
 

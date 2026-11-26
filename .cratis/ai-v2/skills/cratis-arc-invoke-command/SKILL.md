@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-invoke-command
-description: Runs a command from application code and handles failure. Use when a job, service or reactor must execute a command outside an HTTP request. Not for implementing Handle (use cratis-arc-declare-command).
+description: Use when a job, service or reactor must execute a command outside an HTTP request or handle its failure. Not for implementing Handle (use cratis-arc-declare-command).
 compatibility: Requires the Cratis package and a configured Arc command pipeline.
 ---
 

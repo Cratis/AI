@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-model-automation
-description: Models the import of external data into local events. Use when declaring a Translate slice with a capture, stable key and first-observation behavior. Not for implementing the reactor (use cratis-chronicle-react-to-fact).
+description: Use when modeling how a Translate slice imports external data into local events, including its capture, stable key and first-observation behavior. Not for implementing the reactor (use cratis-chronicle-react-to-fact).
 compatibility: Requires the Screenplay CLI.
 ---
 

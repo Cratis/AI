@@ -1,12 +1,12 @@
 ---
 name: cratis-chronicle-connect-application
-description: Connects an ASP.NET Core application to Chronicle. Use when registering the standalone client or setting its endpoint and event store. Not for setting tenant authorization policy (use cratis-arc-isolate-tenant).
+description: Use when registering the standalone Chronicle client in an ASP.NET Core application or setting its endpoint and event store. Not for setting tenant authorization policy (use cratis-arc-isolate-tenant).
 compatibility: .NET SDK and a disposable Chronicle kernel for connection checks.
 ---
 
 # Connect an ASP.NET Core library service to Chronicle
 
-1. Reference `Cratis.Chronicle.AspNetCore` in the standalone web project. Configure the endpoint under `Cratis:Chronicle:ConnectionString` in `appsettings.json`. Replace `library.example:35000` with the kernel's host and port. Use a certificate trusted by the application and enable validation explicitly:
+1. Reference `Cratis.Chronicle.AspNetCore` in the standalone web project. Configure the endpoint under `Cratis:Chronicle:ConnectionString` in `appsettings.json`. Replace the example host and port with those of the Chronicle kernel. Use a certificate trusted by the application and enable validation explicitly:
 
 ```json
 {

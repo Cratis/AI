@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-select-client
-description: Picks the Chronicle client package for a non-.NET service. Use when choosing Python, Elixir, Kotlin or TypeScript contracts or checking what a language client provides. Not for choosing an Arc backend SDK (use cratis-arc-select-backend-sdk).
+description: Use when choosing a Chronicle client package or contracts for a non-.NET service in Python, Elixir, Kotlin or TypeScript, or checking what a language client provides. Not for choosing an Arc backend SDK (use cratis-arc-select-backend-sdk).
 compatibility: A language toolchain with the matching Chronicle contracts installed.
 ---
 

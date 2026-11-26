@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-evolve-event
-description: Migrates a stored event to a new generation without changing its identity. Use when renaming a payload property or making a breaking shape change. Not for changing a database schema (use cratis-arc-connect-storage).
+description: Use when a stored event needs a new generation with the same identity because a payload property was renamed or its shape has a breaking change. Not for changing a database schema (use cratis-arc-connect-storage).
 compatibility: .NET SDK and Chronicle event migrations.
 ---
 

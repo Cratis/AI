@@ -1,6 +1,6 @@
 ---
 name: cratis-specifications-exercise-backend
-description: Tests Arc command execution and its Chronicle append. Use when checking that a registration is recorded on the requested author or that a refusal appends nothing. Not for a direct handler test (use cratis-specifications-isolate-behavior).
+description: Use when testing Arc command execution and its Chronicle append, such as checking that registration is recorded on the requested author or that a refusal appends nothing. Not for a direct handler test (use cratis-specifications-isolate-behavior).
 compatibility: Requires the .NET SDK and matching Arc and Chronicle testing packages.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-components-compose-toolbar
-description: Builds a toolbar whose visible buttons change with the screen mode. Use when a screen needs a tool palette or mode-specific tools. Not for row actions on a list (use cratis-components-display-list).
+description: Use when a screen needs a toolbar with a tool palette or buttons that change with the screen mode. Not for row actions on a list (use cratis-components-display-list).
 compatibility: Requires react and @cratis/components.
 ---
 

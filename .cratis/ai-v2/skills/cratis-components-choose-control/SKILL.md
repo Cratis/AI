@@ -1,6 +1,6 @@
 ---
 name: cratis-components-choose-control
-description: Binds a number, calendar date or searchable choice to React state. Use when a screen needs a standalone controlled input. Not for command fields (use cratis-components-submit-form).
+description: Use when a React screen needs a standalone controlled input for a number, calendar date or searchable choice. Not for command fields (use cratis-components-submit-form).
 compatibility: Requires react and @cratis/components.
 ---
 

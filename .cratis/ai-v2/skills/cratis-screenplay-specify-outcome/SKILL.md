@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-specify-outcome
-description: Specifies an accepted outcome and its refusal in Screenplay. Use when writing Given/When/Then examples for a .play slice. Not for exercising a running backend (use cratis-specifications-exercise-backend).
+description: Use when writing Given/When/Then examples for an accepted outcome or a refusal in a Screenplay .play slice. Not for exercising a running backend (use cratis-specifications-exercise-backend).
 compatibility: Requires the Screenplay CLI.
 ---
 

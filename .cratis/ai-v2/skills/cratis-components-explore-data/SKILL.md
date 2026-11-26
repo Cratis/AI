@@ -1,6 +1,6 @@
 ---
 name: cratis-components-explore-data
-description: Groups records into PivotViewer cards or shows dated versions of one record with TimeMachine. Use when readers explore a collection by category or browse its history. Not for a plain table (use cratis-components-display-list).
+description: Use when readers need PivotViewer cards to explore records by category or TimeMachine to browse dated versions of one record. Not for a plain table (use cratis-components-display-list).
 compatibility: Requires react, @cratis/components and pixi.js for PivotViewer.
 ---
 

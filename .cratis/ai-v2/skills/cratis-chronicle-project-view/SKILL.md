@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-project-view
-description: Maps Chronicle events onto a stored read model. Use when projecting event properties or removing a projected instance. Not for calculating state from previous values (use cratis-chronicle-reduce-state).
+description: Use when mapping Chronicle event properties onto a stored read model or removing a projected instance. Not for calculating state from previous values (use cratis-chronicle-reduce-state).
 compatibility: .NET SDK and Chronicle projections.
 ---
 

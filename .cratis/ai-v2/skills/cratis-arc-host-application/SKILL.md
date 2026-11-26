@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-host-application
-description: Starts an Arc-only ASP.NET Core application. Use when hosting a model-bound query without Chronicle. Not for an application that also needs Chronicle (use cratis-chronicle-connect-application).
+description: Use when starting an Arc-only ASP.NET Core application to host a model-bound query without Chronicle. Not for an application that also needs Chronicle (use cratis-chronicle-connect-application).
 compatibility: Requires Microsoft.NET.Sdk.Web and the Cratis.Arc package.
 ---
 

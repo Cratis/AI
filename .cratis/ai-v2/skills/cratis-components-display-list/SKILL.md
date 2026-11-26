@@ -1,6 +1,6 @@
 ---
 name: cratis-components-display-list
-description: Renders a generated query in a table with columns, selection and row actions. Use when a slice needs a standard DataPage. Not for custom markup around a query hook (use cratis-arc-react-bind-slice).
+description: Use when a slice needs a standard DataPage to show a generated query in a table with columns, selection or row actions. Not for custom markup around a query hook (use cratis-arc-react-bind-slice).
 compatibility: Requires @cratis/components and @cratis/arc.react.
 ---
 

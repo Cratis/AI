@@ -1,6 +1,6 @@
 ---
 name: cratis-components-edit-schema-data
-description: Edits a JSON schema with SchemaEditor or one document's values with ObjectContentEditor. Use when the fields are not known at build time. Not for known command fields (use cratis-components-submit-form).
+description: Use when fields are unknown at build time and a screen needs SchemaEditor to edit a JSON schema or ObjectContentEditor to edit one document's values. Not for known command fields (use cratis-components-submit-form).
 compatibility: Requires react and @cratis/components.
 ---
 

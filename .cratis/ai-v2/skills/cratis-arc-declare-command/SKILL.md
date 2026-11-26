@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-declare-command
-description: Declares a model-bound command that returns an event. Use when writing a command record or its Handle method. Not for dispatching it (use cratis-arc-invoke-command).
+description: Use when writing a model-bound command record or its Handle method, including a handler that returns an event. Not for dispatching it (use cratis-arc-invoke-command).
 compatibility: Requires the Cratis package for Arc with Chronicle.
 ---
 

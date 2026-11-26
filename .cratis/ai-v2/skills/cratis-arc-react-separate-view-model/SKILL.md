@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-react-separate-view-model
-description: Moves search and filtering out of a React view into an injectable view model. Use when those operations make a component hard to read. Not for an ordinary slice view (use cratis-arc-react-bind-slice by default).
+description: Use when search and filtering make a React component hard to read and belong in an injectable view model. Not for an ordinary slice view (use cratis-arc-react-bind-slice by default).
 compatibility: Requires @cratis/arc.react.mvvm, tsyringe, react-router-dom and reflect-metadata in an Arc React app.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-specifications-isolate-behavior
-description: Specifies an isolated .NET decision with Cratis Specifications. Use when structuring a pure behavior spec, shared context or xUnit runner. Not for exercising the Arc pipeline (use cratis-specifications-exercise-backend).
+description: Use when testing an isolated .NET decision with Cratis Specifications or structuring its pure behavior spec, shared context or xUnit runner. Not for exercising the Arc pipeline (use cratis-specifications-exercise-backend).
 compatibility: Requires the .NET SDK and the xUnit v3 specification runner.
 ---
 

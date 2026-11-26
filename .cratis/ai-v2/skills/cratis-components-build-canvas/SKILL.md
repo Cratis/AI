@@ -1,6 +1,6 @@
 ---
 name: cratis-components-build-canvas
-description: Places DOM content on a pannable, zoomable Canvas. Use when building a board with world coordinates and fixed zoom controls. Not for grouping tool buttons (use cratis-components-compose-toolbar).
+description: Use when building a pannable, zoomable Canvas board with DOM content in world coordinates and fixed zoom controls. Not for grouping tool buttons (use cratis-components-compose-toolbar).
 compatibility: Requires react, @cratis/components and the pixi.js peer dependency.
 ---
 

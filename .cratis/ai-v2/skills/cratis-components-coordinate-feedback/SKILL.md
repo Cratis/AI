@@ -1,6 +1,6 @@
 ---
 name: cratis-components-coordinate-feedback
-description: Registers confirmation and busy dialogs and asks for confirmation before an action runs. Use when an action needs a yes/no answer. Not for forms that collect command fields (use cratis-components-submit-form).
+description: Use when registering confirmation and busy dialogs or when an action needs a yes/no answer before it runs. Not for forms that collect command fields (use cratis-components-submit-form).
 compatibility: Requires react, @cratis/arc.react and @cratis/components.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-platform-deliver-slice
-description: Delivers a business outcome from command input to an observable screen change. Use when implementing a vertical slice end to end. Not for changing only the command (use cratis-arc-declare-command).
+description: Use when implementing a vertical slice end to end, from command input to an observable screen change. Not for changing only the command (use cratis-arc-declare-command).
 compatibility: Requires a Library .NET host, MongoDB, Chronicle, generated TypeScript client and Playwright Chromium.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-reduce-state
-description: Calculates Chronicle read-model state from successive events. Use when a reducer needs the previous value and the event. Not for copying event fields directly (use cratis-chronicle-project-view).
+description: Use when a Chronicle reducer needs the previous read-model value and the next event to calculate state. Not for copying event fields directly (use cratis-chronicle-project-view).
 compatibility: .NET SDK and Chronicle reducers.
 ---
 

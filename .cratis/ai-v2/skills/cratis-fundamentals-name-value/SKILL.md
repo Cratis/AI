@@ -1,6 +1,6 @@
 ---
 name: cratis-fundamentals-name-value
-description: Defines typed C# domain values and Chronicle identifiers. Use when naming a concept, replacing a primitive or declaring a strongly typed ID. Not for deciding whose history changes (use cratis-modeling-discover-timeline).
+description: Use when naming a C# domain concept, replacing a primitive with a typed value or declaring a strongly typed Chronicle ID. Not for deciding whose history changes (use cratis-modeling-discover-timeline).
 compatibility: Requires the .NET SDK.
 ---
 

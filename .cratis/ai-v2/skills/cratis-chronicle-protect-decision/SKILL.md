@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-protect-decision
-description: Guards a command against changes to the Chronicle state it validated. Use when available stock must still be valid at commit. Not for reserving a unique value (use cratis-chronicle-constrain-append).
+description: Use when the Chronicle state a command validated must still hold at commit, such as a check for available stock. Not for reserving a unique value (use cratis-chronicle-constrain-append).
 compatibility: .NET SDK and an Arc host with Chronicle.
 ---
 
