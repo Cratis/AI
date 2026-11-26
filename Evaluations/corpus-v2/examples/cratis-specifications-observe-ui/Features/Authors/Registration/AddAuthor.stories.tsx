@@ -1,34 +1,26 @@
-import { useState } from 'react';
+import 'reflect-metadata';
+import { Arc } from '@cratis/arc.react';
+import { CratisComponentsProvider } from '@cratis/components';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from 'storybook/test';
+import { AddAuthorButton } from './AddAuthorButton';
 
-export default { title: 'Library/Authors/Registration' };
+const meta = {
+    title: 'Library/Authors/Registration',
+    component: AddAuthorButton,
+    decorators: [Story => <CratisComponentsProvider><Arc><Story /></Arc></CratisComponentsProvider>],
+} satisfies Meta<typeof AddAuthorButton>;
+export default meta;
 
-function ControlledRegistration() {
-    const [open, setOpen] = useState(false);
-    const [name, setName] = useState('');
-    const [names, setNames] = useState<string[]>([]);
-    return <>
-        <button onClick={() => setOpen(true)}>Add author</button>
-        {open && <form onSubmit={event => {
-            event.preventDefault();
-            setNames([...names, name]);
-            setOpen(false);
-            setName('');
-        }}>
-            <label>Name <input value={name} onChange={e => setName(e.target.value)} /></label>
-            <button disabled={!name.trim()}>Add</button>
-        </form>}
-        <ul>{names.map((value, index) => <li key={index}>{value}</li>)}</ul>
-    </>;
-}
-
-export const SubmitFromKeyboard = {
-    render: () => <ControlledRegistration />,
-    play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-        const canvas = within(canvasElement);
-        await userEvent.click(canvas.getByRole('button', { name: 'Add author' }));
-        await expect(canvas.getByRole('button', { name: 'Add', exact: true })).toBeDisabled();
-        await userEvent.type(canvas.getByRole('textbox', { name: 'Name' }), 'Aster{Enter}');
-        await expect(canvas.getByRole('listitem')).toHaveTextContent('Aster');
+export const OpensAndEditsName: StoryObj<typeof meta> = {
+    play: async ({ canvasElement }) => {
+        const trigger = within(canvasElement).getByRole('button', { name: 'Add author' });
+        await userEvent.click(trigger);
+        const page = within(canvasElement.ownerDocument.body);
+        const dialog = within(await page.findByRole('dialog'));
+        const input = dialog.getByRole('textbox');
+        await userEvent.type(input, 'Aster');
+        await expect(input).toHaveValue('Aster');
+        await expect(dialog.getByRole('button', { name: 'Add', exact: true })).toBeVisible();
     },
 };

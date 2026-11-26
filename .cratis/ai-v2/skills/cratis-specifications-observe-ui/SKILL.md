@@ -1,69 +1,62 @@
 ---
 name: cratis-specifications-observe-ui
-description: Tests visible user interactions in a controlled Storybook story. Use when specifying a Library dialog's input, submission and visible result. Not for choosing a control (use cratis-components-choose-control).
-compatibility: Requires a React Storybook project with story interaction tests enabled.
+description: Tests visible interaction with the Library dialog in a Storybook play function. Use when specifying how a user opens the real dialog and edits the author name. Not for choosing a control (use cratis-components-choose-control).
+compatibility: Requires React Storybook with @storybook/react-vite, the Library UI packages and generated proxies. The running application check requires Playwright.
 ---
 
-# Test author submission in a controlled story
+# Open the real Add author dialog in a story
 
-1. Put the following story in `Features/Authors/Registration/AddAuthor.stories.tsx` in the Library UI project. The story owns its data and needs no authenticated host. Its form models the local interaction, not the Arc command or the production dialog.
-2. Open **Library / Authors / Registration → Submit from keyboard** in Storybook and run its interaction. Assert against the rendered list, not a callback spy.
+1. Start with [AddAuthorButton and AddAuthor](../cratis-components-submit-form/SKILL.md) and the generated `RegisterAuthor` proxy in the Library application. Put this story beside the button in `Features/Authors/Registration/AddAuthor.stories.tsx`. Its decorator mounts the [Library providers](../cratis-arc-react-bind-slice/SKILL.md); omit the local decorator if the project's preview already supplies both.
+2. Open **Library / Authors / Registration → Opens And Edits Name** in Storybook. The play function opens the real dialog and edits its single name field. Query the trigger inside the canvas, then find the dialog in the preview document because the provider can render it outside the canvas.
 
 ```tsx
-import { useState } from 'react';
+import 'reflect-metadata';
+import { Arc } from '@cratis/arc.react';
+import { CratisComponentsProvider } from '@cratis/components';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, within } from 'storybook/test';
+import { AddAuthorButton } from './AddAuthorButton';
 
-export default { title: 'Library/Authors/Registration' };
+const meta = {
+    title: 'Library/Authors/Registration',
+    component: AddAuthorButton,
+    decorators: [Story => <CratisComponentsProvider><Arc><Story /></Arc></CratisComponentsProvider>],
+} satisfies Meta<typeof AddAuthorButton>;
+export default meta;
 
-function ControlledRegistration() {
-    const [open, setOpen] = useState(false);
-    const [name, setName] = useState('');
-    const [names, setNames] = useState<string[]>([]);
-    return <>
-        <button onClick={() => setOpen(true)}>Add author</button>
-        {open && <form onSubmit={event => {
-            event.preventDefault();
-            setNames([...names, name]);
-            setOpen(false);
-            setName('');
-        }}>
-            <label>Name <input value={name} onChange={e => setName(e.target.value)} /></label>
-            <button disabled={!name.trim()}>Add</button>
-        </form>}
-        <ul>{names.map((value, index) => <li key={index}>{value}</li>)}</ul>
-    </>;
-}
-
-export const SubmitFromKeyboard = {
-    render: () => <ControlledRegistration />,
-    play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
-        const canvas = within(canvasElement);
-        await userEvent.click(canvas.getByRole('button', { name: 'Add author' }));
-        await expect(canvas.getByRole('button', { name: 'Add', exact: true })).toBeDisabled();
-        await userEvent.type(canvas.getByRole('textbox', { name: 'Name' }), 'Aster{Enter}');
-        await expect(canvas.getByRole('listitem')).toHaveTextContent('Aster');
+export const OpensAndEditsName: StoryObj<typeof meta> = {
+    play: async ({ canvasElement }) => {
+        const trigger = within(canvasElement).getByRole('button', { name: 'Add author' });
+        await userEvent.click(trigger);
+        const page = within(canvasElement.ownerDocument.body);
+        const dialog = within(await page.findByRole('dialog'));
+        const input = dialog.getByRole('textbox');
+        await userEvent.type(input, 'Aster');
+        await expect(input).toHaveValue('Aster');
+        await expect(dialog.getByRole('button', { name: 'Add', exact: true })).toBeVisible();
     },
 };
 ```
 
-## Check the production dialog separately
+## Check submission on the running Library application
 
-Put this helper in `Features/Authors/Registration/verifyKeyboardRegistration.mjs` in the browser-test project with `playwright` installed. Pass an authenticated Playwright page already on the Library Authors DataPage in a fresh namespace, and a unique name. It checks keyboard activation and live delivery, not initial focus placement.
+Put this helper in `Features/Authors/Registration/verifyKeyboardRegistration.mjs`. Pass an authenticated Playwright page already on the Library Authors DataPage in a fresh namespace, and a unique name. Wait for the row without reloading:
 
 ```js
 export async function verifyKeyboardRegistration(page, name) {
     await page.getByRole('button', { name: 'Add author' }).press('Enter');
-    await page.getByRole('textbox', { name: 'Name' }).fill(name);
-    await page.getByRole('button', { name: 'Add', exact: true }).press('Enter');
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('textbox').fill(name);
+    await dialog.getByRole('button', { name: 'Add', exact: true }).press('Enter');
     await page.getByRole('row').filter({ hasText: name }).waitFor();
 }
 ```
 
 ## Avoid
 
-- Don't assert focus restoration or submission behavior of a production dialog from this controlled fixture.
-- Don't use a local story to test live query delivery. Submit a unique name to the [running application](../cratis-platform-deliver-slice/SKILL.md) and wait for the matching row without a reload.
+- Don't replace `AddAuthorButton` with a form defined by the story. That would not detect broken dialog wiring.
+- Don't report a successful command or live query update from the story. It never presses Add.
 
 ## Related skills
 
-- [Submit the form](../cratis-components-submit-form/SKILL.md) for the production `AddAuthor` dialog.
+- [Deliver the slice](../cratis-platform-deliver-slice/SKILL.md) to check live delivery and backend refusal.

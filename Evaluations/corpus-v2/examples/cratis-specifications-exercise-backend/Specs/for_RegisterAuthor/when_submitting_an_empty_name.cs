@@ -20,7 +20,6 @@ public class when_submitting_an_empty_name : Specification
 
     [Fact] public void should_refuse_registration() => _result.ShouldNotBeSuccessful();
     [Fact] public void should_explain_the_refusal() =>
-        Assert.Contains(_result.ValidationResults, e =>
-            e.Message == "Name is required" && System.Linq.Enumerable.Contains(e.Members, "name"));
+        _result.ShouldHaveValidationErrorFor("Name is required");
     [Fact] public async Task should_not_append_an_event() => await _scenario.ShouldNotHaveAppendedEvents();
 }

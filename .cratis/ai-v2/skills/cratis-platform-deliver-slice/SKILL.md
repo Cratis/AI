@@ -6,7 +6,7 @@ compatibility: Requires a Library .NET host, MongoDB, Chronicle, generated TypeS
 
 # Register an author and show the new row
 
-Use a disposable Library namespace with no authors. For this acceptance case, have the test host supply author ID `11111111-1111-4111-8111-111111111111` when the dialog creates its command. The librarian enters Aster. The open list must gain one row with this ID and name.
+Use a disposable Library namespace with no authors. The librarian enters Aster. `AddAuthor` sets the command's `id` with `Guid.create()`; the test does not supply an ID. The open list must gain one row named Aster.
 
 1. Configure the [host](../cratis-arc-host-application/SKILL.md), [Chronicle connection](../cratis-chronicle-connect-application/SKILL.md) and [MongoDB storage](../cratis-arc-connect-storage/SKILL.md).
 2. In `Features/Authors/Registration/RegisterAuthor.cs`, use [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) and [RegisterAuthorValidator](../cratis-arc-validate-command/SKILL.md). Return [AuthorRegistered](../cratis-chronicle-record-event/SKILL.md) from `Handle()`. Only `Id` selects the author history.
@@ -16,9 +16,9 @@ Use a disposable Library namespace with no authors. For this acceptance case, ha
 
 ## Check the running application
 
-Open the Authors list as the librarian. Choose **Add author**, enter **Aster**, submit once and wait for the new row without reloading. Verify its ID and name with `AllAuthors`. Reload and verify it remains. A row appearing only after reload requires a [live query check](../cratis-arc-diagnose-live-query/SKILL.md).
+Open the Authors list as the librarian. Choose **Add author**, enter **Aster**, submit once and wait for the new row without reloading. Fetch `AllAuthors` as the same librarian. Check that exactly one result has `name` equal to `Aster` and record its `id`. Reload the screen, fetch again and check that the one Aster row has the same `id`. A row appearing only after reload requires a [live query check](../cratis-arc-diagnose-live-query/SKILL.md).
 
-With another fresh ID, submit an empty name through the backend and check for `Name is required`, no new `AuthorRegistered` and no new row. A dialog preventing blank submission is a UI check, not a backend refusal test.
+Run the [empty-name backend specification](../cratis-specifications-exercise-backend/SKILL.md): in its own `CommandScenario<RegisterAuthor>`, `await _scenario.Execute(new RegisterAuthor(AuthorId.New(), ""))` must fail validation with `Name is required` and append no events. This is an isolated backend check, not a submission to the browser's Library namespace. A dialog preventing blank submission is a UI check, not a backend refusal test.
 
 ## Avoid
 
