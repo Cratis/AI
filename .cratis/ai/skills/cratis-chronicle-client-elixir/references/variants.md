@@ -12,8 +12,8 @@ The client source does not establish whether the kernel maps `$eventSourceId` pr
 Some entities do not have one shape for their whole lifetime — a work item is a
 backlog entry until a pull request exists for it, then it is a pull request
 until it merges. `variant_of/2` and `enters_on/1,2` are macros imported by
-**both** `use Chronicle.ReadModels.ReadModel` and
-`use Chronicle.Projections.Projection`, so the model-bound and declarative
+**both** `use Cratis.Chronicle.ReadModels.ReadModel` and
+`use Cratis.Chronicle.Projections.Projection`, so the model-bound and declarative
 paths declare a variant identically:
 
 ```elixir
@@ -21,7 +21,7 @@ defmodule MyApp.ReadModels.WorkItem do
 end
 
 defmodule MyApp.ReadModels.BacklogItem do
-  use Chronicle.ReadModels.ReadModel
+  use Cratis.Chronicle.ReadModels.ReadModel
   defstruct id: "", title: ""
 
   variant_of MyApp.ReadModels.WorkItem, key: :id
@@ -31,7 +31,7 @@ defmodule MyApp.ReadModels.BacklogItem do
 end
 
 defmodule MyApp.ReadModels.PullRequestItem do
-  use Chronicle.ReadModels.ReadModel
+  use Cratis.Chronicle.ReadModels.ReadModel
   defstruct id: "", title: "", pull_request_url: "", build_status: ""
 
   variant_of MyApp.ReadModels.WorkItem, key: :id
@@ -53,24 +53,24 @@ locally or merged from a shared handler, is automatically reclassified into an
 update-only join keyed on `variant_of`'s `:key`.
 
 A mapping shared across every variant of an identity is a
-`Chronicle.Projections.GlobalHandler`, never registered as a projection on its
+`Cratis.Chronicle.Projections.GlobalHandler`, never registered as a projection on its
 own:
 
 ```elixir
 defmodule MyApp.Projections.WorkItemTitleHandler do
-  use Chronicle.Projections.GlobalHandler, identity: MyApp.ReadModels.WorkItem
+  use Cratis.Chronicle.Projections.GlobalHandler, identity: MyApp.ReadModels.WorkItem
 
   from MyApp.Events.TitleChanged, set: [title: :title]
 end
 ```
 
-Register it explicitly with `global_handlers: [...]` on `Chronicle.Client`, or
+Register it explicitly with `global_handlers: [...]` on `Cratis.Chronicle.Client`, or
 let `:otp_app` auto-discovery find it (modules exporting
 `__chronicle_global_handler__/1`). A mapping that targets a field some variant
-lacks raises `Chronicle.Projections.GlobalHandlerPropertyNotOnVariant` at
+lacks raises `Cratis.Chronicle.Projections.GlobalHandlerPropertyNotOnVariant` at
 registration, not a silently skipped mapping.
 
 **A variant with no `enters_on` raises
-`Chronicle.Projections.VariantMustDeclareEntersOnEvent`** at registration — a
+`Cratis.Chronicle.Projections.VariantMustDeclareEntersOnEvent`** at registration — a
 variant that could never be entered could never be written to at all, since
 every other handler on it is update-only.

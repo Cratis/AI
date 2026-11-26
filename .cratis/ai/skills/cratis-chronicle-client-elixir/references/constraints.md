@@ -3,7 +3,7 @@
 
 # Constraints
 
-Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/chronicle/events/event_type.ex`, `events/constraint.ex`, `events/constraint_violation.ex`, and `Documentation/constraints.md`.
+Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/cratis/chronicle/events/event_type.ex`, `events/constraint.ex`, `events/constraint_violation.ex`, and `Documentation/constraints.md`.
 
 Requires `cratis_chronicle` 3.13.0 for standalone constraint modules, `remove_constraint/2`, `:scope` and `ConstraintViolation.details/1`.
 
@@ -11,7 +11,7 @@ A constraint is checked by the kernel at append time; a violation returns `{:err
 
 ## On the event type
 
-`unique/2`, `unique_event_type/1`, `remove_constraint/1,2` and `closes_stream/1` are imported by `use Chronicle.Events.EventType`.
+`unique/2`, `unique_event_type/1`, `remove_constraint/1,2` and `closes_stream/1` are imported by `use Cratis.Chronicle.Events.EventType`.
 
 | Option | Meaning |
 | --- | --- |
@@ -30,14 +30,14 @@ In `:per_value` mode, `remove_constraint("Name")` releases every value the remov
 
 ## Standalone constraint modules
 
-Use `use Chronicle.Events.Constraint` when one name spans several event types or lives apart from any one event type's module.
+Use `use Cratis.Chronicle.Events.Constraint` when one name spans several event types or lives apart from any one event type's module.
 
 ```elixir
 # Copyright (c) Cratis. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 defmodule MyApp.Constraints.UniqueEmail do
-  use Chronicle.Events.Constraint
+  use Cratis.Chronicle.Events.Constraint
 
   unique name: "UniqueEmail" do
     on MyApp.Events.UserRegistered, [:email]
@@ -54,10 +54,10 @@ end
 
 ## Violation details
 
-`Chronicle.Events.ConstraintViolation.details(violation)` maps the kernel's detail keys to atoms: `:property_name`, `:property_value`, `:closed_by`, `:closed_at_sequence_number`; any other key stays a string. A PII property's `:property_value` is its **encrypted** form. Use it in a `:message` callback: `"A project named '#{ConstraintViolation.details(violation)[:property_value]}' already exists."`.
+`Cratis.Chronicle.Events.ConstraintViolation.details(violation)` maps the kernel's detail keys to atoms: `:property_name`, `:property_value`, `:closed_by`, `:closed_at_sequence_number`; any other key stays a string. A PII property's `:property_value` is its **encrypted** form. Use it in a `:message` callback: `"A project named '#{ConstraintViolation.details(violation)[:property_value]}' already exists."`.
 
 ## Closing events
 
-`closes_stream event_stream_id_from: :period, reopened_by: [MyApp.Events.PeriodReopened]` on an event type closes that stream scope when the event is appended; later events in the scope are refused. Options: `:dimensions`, `:event_stream_id_from`, `:reopened_by`, `:name`, `:event_sequences`; same-named declarations merge and must agree on dimensions. Registration closes nothing in history. Inspect closed scopes with `Chronicle.EventSequences.Streams`. The in-memory test kernel does not model `closes_stream`.
+`closes_stream event_stream_id_from: :period, reopened_by: [MyApp.Events.PeriodReopened]` on an event type closes that stream scope when the event is appended; later events in the scope are refused. Options: `:dimensions`, `:event_stream_id_from`, `:reopened_by`, `:name`, `:event_sequences`; same-named declarations merge and must agree on dimensions. Registration closes nothing in history. Inspect closed scopes with `Cratis.Chronicle.EventSequences.Streams`. The in-memory test kernel does not model `closes_stream`.
 
 Constraint drift is not detected: the kernel cannot list registered constraints.

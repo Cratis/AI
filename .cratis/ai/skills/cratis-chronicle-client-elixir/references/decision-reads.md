@@ -5,7 +5,7 @@
 
 Requires Chronicle.Elixir 3.14.2 for the rejection/cleanup behavior below; check `mix deps`, or upgrade before relying on a rejected callback to discard buffered events.
 
-A `Chronicle.decide/2` callback returning `{:error, reason}` rejects all buffered
+A `Cratis.Chronicle.decide/2` callback returning `{:error, reason}` rejects all buffered
 appends and returns that tuple unchanged.
 Migrate matches on `{:ok, {:error, _}}` to `{:error, _}`. A failed commit rolls
 back the unit of work, and both `decide/2` and `with_unit_of_work/2` stop their
@@ -13,32 +13,32 @@ unit-of-work process on return, so later appends from long-lived GenServers or
 Phoenix connections are not trapped in a failed buffer. Spec the rejection and
 failed-commit paths, not only successful decisions.
 
-Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/chronicle/read_models/decision_reads.ex`, `decision_read_refused.ex`, `decision_conflict.ex`, `transactions/unit_of_work.ex`, and `Documentation/dynamic-consistency-boundary.md`.
+Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/cratis/chronicle/read_models/decision_reads.ex`, `decision_read_refused.ex`, `decision_conflict.ex`, `transactions/unit_of_work.ex`, and `Documentation/dynamic-consistency-boundary.md`.
 
 Requires `cratis_chronicle` 3.13.0.
 
-Use a decision read when an append depends on state that a concurrent append could change (a seat can be booked once, a course has capacity). It folds a read model at a key in a fresh session and remembers the exact log position it stopped at; the commit is then rejected by the kernel if a matching event arrived since. An ordinary `Chronicle.read_model/3` followed by `append/3` is **not** a guard: it can silently act on stale state.
+Use a decision read when an append depends on state that a concurrent append could change (a seat can be booked once, a course has capacity). It folds a read model at a key in a fresh session and remembers the exact log position it stopped at; the commit is then rejected by the kernel if a matching event arrived since. An ordinary `Cratis.Chronicle.read_model/3` followed by `append/3` is **not** a guard: it can silently act on stale state.
 
 ## Decide
 
 ```elixir
 result =
-  Chronicle.decide(fn _unit_of_work ->
-    {:ok, read} = Chronicle.ReadModels.DecisionReads.get(MyApp.ReadModels.Seat, "seat-5")
+  Cratis.Chronicle.decide(fn _unit_of_work ->
+    {:ok, read} = Cratis.Chronicle.ReadModels.DecisionReads.get(MyApp.ReadModels.Seat, "seat-5")
 
     if read.instance == nil do
-      Chronicle.EventSequences.EventLog.append("seat-5", %MyApp.Events.SeatBooked{by: "alice"})
+      Cratis.Chronicle.EventSequences.EventLog.append("seat-5", %MyApp.Events.SeatBooked{by: "alice"})
     end
   end)
 
 case result do
   {:ok, _} -> :booked
-  {:error, %Chronicle.ReadModels.DecisionConflict{}} -> :retry
+  {:error, %Cratis.Chronicle.ReadModels.DecisionConflict{}} -> :retry
   {:error, reason} -> {:error, reason}
 end
 ```
 
-- `Chronicle.decide/2` runs the function in a unit of work and commits on return. It returns `{:ok, result}`, or `{:error, %DecisionConflict{}}` when an enrolled decision read conflicted with a concurrent append; nothing from that attempt was written, so re-read and decide again. Other commit failures are plain `{:error, reason}`.
+- `Cratis.Chronicle.decide/2` runs the function in a unit of work and commits on return. It returns `{:ok, result}`, or `{:error, %DecisionConflict{}}` when an enrolled decision read conflicted with a concurrent append; nothing from that attempt was written, so re-read and decide again. Other commit failures are plain `{:error, reason}`.
 - Unlike `with_unit_of_work/2`, `decide/2` never raises on a conflict. A concurrency violation without an enrolled decision read stays `{:error, {:concurrency_violations, _}}`.
 - **`DecisionReads.get/2` enrolls the read only inside a unit of work** (`decide/2` or `UnitOfWork.with_unit_of_work/2`). Outside one it returns `{:error, :requires_unit_of_work}`.
 - `DecisionReads.get_detached/2` folds the same way and enrolls nothing; use it for a read you do not intend to guard.
@@ -47,13 +47,13 @@ end
 
 ## Admission
 
-`DecisionReads.admit/2` and `admit_for_stream/2` check a model's shape without any I/O and return `{:ok, event_types}` or `{:error, reason}`. `get` and `get_detached` **raise** `Chronicle.ReadModels.DecisionReadRefused` for a refused shape, because that is a programming error. Refusal reasons: `:reducer` (an active reducer), `:join`, `:hierarchy` (`children/2`), `:not_event_log`, `:open_ended_event_types` (`from_every/1`), `:no_event_types`, `:not_event_source_keyed`, `:unsupported_event_type_id`, `:all_streams_not_supported`, `:stream_scope_not_supported`, `:fold_incomplete`.
+`DecisionReads.admit/2` and `admit_for_stream/2` check a model's shape without any I/O and return `{:ok, event_types}` or `{:error, reason}`. `get` and `get_detached` **raise** `Cratis.Chronicle.ReadModels.DecisionReadRefused` for a refused shape, because that is a programming error. Refusal reasons: `:reducer` (an active reducer), `:join`, `:hierarchy` (`children/2`), `:not_event_log`, `:open_ended_event_types` (`from_every/1`), `:no_event_types`, `:not_event_source_keyed`, `:unsupported_event_type_id`, `:all_streams_not_supported`, `:stream_scope_not_supported`, `:fold_incomplete`.
 
-A model with `join/2`, `removed_with_join/2`, `children/2` or `from_every/1` cannot be guarded. A **passive** reducer (`use Chronicle.Reducers.Reducer, model: M, active: false`) can back a decision read because it is folded fresh on the client; an active reducer cannot.
+A model with `join/2`, `removed_with_join/2`, `children/2` or `from_every/1` cannot be guarded. A **passive** reducer (`use Cratis.Chronicle.Reducers.Reducer, model: M, active: false`) can back a decision read because it is folded fresh on the client; an active reducer cannot.
 
 ## Explicit concurrency scopes
 
-When a plain guard on the tail is enough, use `Chronicle.Events.ConcurrencyScope` (`:concurrency_scope` append option) instead of a read model.
+When a plain guard on the tail is enough, use `Cratis.Chronicle.Events.ConcurrencyScope` (`:concurrency_scope` append option) instead of a read model.
 
 | Need | Builder |
 | --- | --- |
@@ -67,7 +67,7 @@ When a plain guard on the tail is enough, use `Chronicle.Events.ConcurrencyScope
 ## Default optimistic strategy
 
 ```elixir
-{Chronicle.Client, ..., concurrency: [default: :optimistic, check_first_append: false]}
+{Cratis.Chronicle.Client, ..., concurrency: [default: :optimistic, check_first_append: false]}
 ```
 
 By default an append with no explicit or definition-derived scope sends no guard. With `default: :optimistic` the client reads the tail, narrowed the way the append is routed, and expects nothing newer. `check_first_append: true` also guards the first append into an empty narrowing with `expecting_no_matching_event/1`. An explicit or definition-derived scope always wins.

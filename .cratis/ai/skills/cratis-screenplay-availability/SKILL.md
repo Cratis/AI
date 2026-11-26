@@ -53,13 +53,56 @@ module Fleet
 - `availability <Name>` is a reusable rule. Its `for`, `when` and `with` lines must all hold;
   `with` builds on another availability. A `with` cycle is PLAY1137.
 - `available for <audiences>`, `available when <condition>`, `available with <Availability>`.
-  `for` and `with` combine names with `and`, `or` and parentheses. A `when` is one condition with its own
+  `for` and `with` combine names with `and`, `or`, `not` and parentheses (see [`not`](#not-and-the-closing-pattern)). A `when` is one condition with its own
   `and`/`or`. One line holds one form; to mix forms, name them in an `availability` and use `with`.
   Several `available` lines on one construct all have to hold.
-- A gate is allowed on a module, feature, slice, command, query and screen. Gates AND down the
+- A gate is allowed on a module, feature, slice, command, query, screen, and on a screen `action` or `data`
+  element (see [screen elements](#screen-elements)). Gates AND down the
   path from module to construct. Gate at the highest level that is true for everything beneath it.
 - The runtime context carries `$context.audiences`, the union of the tenant's, user's and
   system caller's audiences. Withdrawing a grant removes it from its own level only.
+
+## `not` and the closing pattern
+
+`not` is an audience term: `available for Plus and not Incident` and `available for not Incident`, also on the
+`for` line of an `availability` block. `not` binds tighter than `and`, then `or`, and applies to **one audience name**.
+
+- It is three-valued. `not` of an unknown audience is unknown, so the part stays closed (**unknown never opens a gate**).
+  A part is closed for a *granted* audience: grant an `Incident` audience to close it, withdraw the grant to reopen it.
+  Do not list every other audience to simulate a negation.
+- `PLAY1171` (error): `not` on a group (`not (Plus)`), on another `not`, on nothing, or on an availability in
+  `available with` (`with not Open`).
+- `PLAY1139` skips any gate that contains `not`, as it skips `when`: it depends on grants the model cannot see.
+- A negated audience is ESM v58 (`"negated": true` on the audience requirement). A model without `not` keeps its earlier version.
+
+## Screen elements
+
+An element bound to a command or a query is offered only when the part is available and the caller is authorized.
+That is **derived**; write nothing for it. The path is suspension first, then the module, feature, slice and construct
+gates, then `authorize`.
+
+- `available for | when | with` is allowed under a screen `action` (plain, not guarded) and a screen `data` directive,
+  one form per line. Elements with nothing bound (section, table, summary, component) take no gate.
+- **An element gate can only narrow.** It is added to the derived path. `PLAY1172` (warning) reports a gate that can be on
+  while the bound part is not; narrow or remove it.
+- Availability of an element is asked with the data the screen shows (for example the one vessel), not only the tenant and user.
+- An element gate is ESM v59 (`"available"` on a screen `data` entry and `action`, written only when present).
+- The reference evaluator reports everything available unless `SemanticScreenAvailability.Evaluate` is given a
+  `SemanticAvailabilityState` (audiences and suspended parts). A result carries a `Cause`: `NotAuthorized`,
+  `NotAvailable` or `Suspended`. `when` conditions stay undecided there. Specifications still run with everything available.
+
+## Suspension
+
+An operator can suspend any module, feature, slice or part (command, read model) for a tenant, a user or the system,
+and resume it. **The model declares nothing for this**; do not add an audience or a flag to simulate it.
+
+- The reason is `Suspended`, distinct from `NotAvailable` (same 403; clients tell them apart by reason).
+- It is checked **first**, before gates (so before audiences and context values resolve) and before `authorize`.
+  A suspension at any level wins over every grant (deny wins); suspending a module or feature suspends what is beneath it.
+- Levels are tenant, user and system; the newest decision per level and path wins, so a later resume ends an earlier
+  suspension at the same level only.
+- **Two pairs of verbs, kept apart:** audiences are **granted and withdrawn**; parts are **suspended and resumed**.
+  The events are `PartSuspended` and `PartResumed`. Never name one `TenantSuspended`; that belongs to another product.
 
 ## Rules the language holds
 
@@ -75,6 +118,7 @@ module Fleet
   the tenant's and system's audiences, never a user's.
 - **Persona `audience` lines are authoring only.** `audience Plus` under a `persona` tells the board, Studio
   and docs which audiences the persona is in. It changes nothing at runtime and is not in the executable model.
+- **Suspension is not a gate.** It is runtime state, never in the model and never in a specification.
 - **Cross-slice warning (PLAY1139).** A screen action, form or reaction that `invokes` a command whose audiences
   can be off while the invoker's are on can be refused as not available. Align the audiences, or accept and say
   why. `when` conditions are opaque and skipped, never guessed.
@@ -136,7 +180,9 @@ Read [complete example](references/complete-example.md) for a model that compile
 ## Who owns what
 
 Read [runtime ownership](references/runtime-ownership.md) when a request asks where a gate is enforced, how
-audiences are granted, or whether application code can check one. Applications never call these directly.
+audiences are granted, how parts are suspended, or whether application code can check one. The engine lives in Arc
+(`Cratis.Arc.Availability`); for the typed C# declaration, see the Arc hosting skill's
+[availability reference](../cratis-arc-hosting/references/availability.md).
 
 ## Review checks
 
@@ -146,7 +192,8 @@ Read [review checks](references/review-checks.md) before accepting a model that 
 
 PLAY1119-1129 are `provide` (line shape, source, body, duplicates, reserved names, type override, query source, cycle).
 PLAY1130-1141 are `audience`, `availability` and `available` (shape, duplicates, undeclared, cycle, unprovided value,
-cross-slice invocation, gate tokens and parentheses). The full table is in the toolchain
+cross-slice invocation, gate tokens and parentheses). PLAY1171 is a misplaced `not`; PLAY1172 is an element gate broader
+than the bound part. The full table is in the toolchain
 [diagnostics](../cratis-screenplay-toolchain/references/diagnostics.md).
 Fix by changing the model: declare the audience, name the availability, provide the value or correct the key; never remove a
 gate to silence a warning.

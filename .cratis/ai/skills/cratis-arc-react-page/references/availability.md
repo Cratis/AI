@@ -48,6 +48,16 @@ import { AllAccounts } from './AllAccounts';
 proxy class/instance. Strings match the full name; proxies match their slice
 location. Missing slice metadata is not an authorization grant.
 
+## Ask for one part and its data
+
+Generated command and query proxies declare `static part` (regenerate the proxies after updating Arc), so a part is a
+proxy rather than a string. `useIsAvailable(part, args?)` and `askAvailability(part, args)` from `@cratis/arc/availability`
+ask the server for one part, with the arguments the gate reads (for example `{ vesselId }`), using the same gate that
+decides execution. `RequireAvailable` takes `args` and a `suspended` slot beside `unavailable`.
+
+`Suspended` (an operator suspended the part) is told apart from `NotAvailable`: `isSuspended(result)` and, on a
+`CommandResult`, `isSuspended` and `onSuspended`. Both are refusals with HTTP 403; neither is a failure to decide.
+
 ## Navigation and decisions in code
 
 `useAvailability()` returns the `Availability` decision: `isKnown`,

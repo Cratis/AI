@@ -5,14 +5,14 @@
 
 ## Plug
 
-`plug Arc.Plug, application: MyApp.Arc` answers `/api/...` commands and queries, `/.cratis/*`
+`plug Cratis.Arc.Plug, application: MyApp.Arc` answers `/api/...` commands and queries, `/.cratis/*`
 (identity, discovery, both hubs) and passes everything else on. `max_body_bytes` is the only
-request limit; there are no connection or subscription caps. `Arc.Plug.SinglePage` serves a
+request limit; there are no connection or subscription caps. `Cratis.Arc.Plug.SinglePage` serves a
 built SPA (`root:`, `api_prefixes:`). Plug and Bandit are enough; no Phoenix is needed.
 
 ## Phoenix and LiveView
 
-The same application runs in process: `Arc.execute/3`, `Arc.query/5`, and `Arc.LiveView` keeps
+The same application runs in process: `Cratis.Arc.execute/3`, `Cratis.Arc.query/5`, and `Cratis.Arc.LiveView` keeps
 an assign current from an observable query, with forms that show pipeline errors on the
 field. Hand the endpoint the Arc plug as for Plug.
 
@@ -25,18 +25,18 @@ On the application: `chronicle:`, `authentication:`, `trust_forwarded_identity_h
 
 ## Testing
 
-`use Arc.Test.Case, application: MyApp.Arc, event_types: [...]` starts a Chronicle in-memory
-test client per test and gives an `Arc.Test.Scenario` as `:arc`; `async: true` is safe.
+`use Cratis.Arc.Test.Case, application: MyApp.Arc, event_types: [...]` starts a Chronicle in-memory
+test client per test and gives an `Cratis.Arc.Test.Scenario` as `:arc`; `async: true` is safe.
 
 ```elixir
-result = Arc.Test.execute(arc, {RegisterAuthor, %{"id" => Arc.new_id(), "name" => "A"}})
-Arc.Test.assert_invalid(result, :name)
-Arc.Test.refute_appended(arc, AuthorRegistered)
+result = Cratis.Arc.Test.execute(arc, {RegisterAuthor, %{"id" => Cratis.Arc.new_id(), "name" => "A"}})
+Cratis.Arc.Test.assert_invalid(result, :name)
+Cratis.Arc.Test.refute_appended(arc, AuthorRegistered)
 ```
 
-Also `Arc.Test.query/5`, `principal/2`, `assert_success/1`, `assert_forbidden/1`,
+Also `Cratis.Arc.Test.query/5`, `principal/2`, `assert_success/1`, `assert_forbidden/1`,
 `assert_appended/3` and `wait_for_observers/1`. For a plain Plug application without
-Chronicle, call `Arc.execute/3` and `Arc.query/5` with `principal:` and `tenant:` and assert
+Chronicle, call `Cratis.Arc.execute/3` and `Cratis.Arc.query/5` with `principal:` and `tenant:` and assert
 on the result. In-memory Chronicle has the limits listed in the Chronicle client skill.
 
 ## Running samples

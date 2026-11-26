@@ -9,9 +9,8 @@ writes enforcement code and an application never calls the pieces below.
 | Piece | Owns |
 | --- | --- |
 | Screenplay | The language: `audience`, `availability`, `available`, `provide`, their diagnostics, and the reference evaluator (every gate available in specifications; opaque sources unsupported) |
-| Choreography engine | Evaluates an availability for a request: Available, Unavailable with a reason, or Unknown, which denies. A failure to decide is an error result, never a denial. Request-scoped context values are resolved lazily, once per request |
-| Showrunner GuestList | The audience contracts: public events that grant and withdraw an audience at tenant, user and system level, payload field `Audience`; the newest grant wins and a withdrawal removes only its own level |
-| Arc | Enforcement at the command and query boundary, before authorization, refusing with `NotAvailable` |
+| Arc (`Cratis.Arc.Availability`) | The engine and the enforcement. Evaluates an availability for a request: Available, Unavailable with a reason (`NotAvailable` or `Suspended`), or Unknown, which denies. A failure to decide is an error result, never a denial. Context values are resolved lazily, once per request. Enforces at the command and query boundary, before authorization. Needs no ASP.NET: `arc.WithAvailability()` for an Arc host, `AddAvailability` for any other. Choreography's availability is an obsolete forwarder to Arc's |
+| Showrunner GuestList | The audience contracts: public events that grant and withdraw an audience at tenant, user and system level, payload field `Audience`; the newest grant wins and a withdrawal removes only its own level. Suspension decisions come from `PartSuspended` and `PartResumed` through Arc's `ISuspensionSource` |
 | Stage | Renders and runs the admitted model with the engine; consumes it rather than owning it |
 | Direct | Not called by an application. Box Office module entitlements stay separate and unchanged |
 
@@ -19,6 +18,7 @@ writes enforcement code and an application never calls the pieces below.
 
 - The model declares audiences and never members. Do not add a membership event or a grant command to the
   model to simulate GuestList; granting is the runtime's job.
+- Do not model suspension: no audience, flag or command. Suspension is operator state, checked first, and wins over every grant.
 - Chronicle's routing audience stays in event options and is never a field of an event.
 - A union of audiences comes from tenant, user and system levels; a reaction sees the tenant's and system's only.
 - Decide a hidden entry from `NotAvailable`, not from guessing the package in client code.

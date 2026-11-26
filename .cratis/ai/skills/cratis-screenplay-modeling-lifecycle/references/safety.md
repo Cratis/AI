@@ -5,7 +5,7 @@
 | `.play` text edits in the model root that leave catalog addresses and document mappings unchanged (or any text edit when no `identities.json` exists) | allowed within the brief | policy |
 | the `screenplay` server's `apply` tool, recovery; catalog-changing and identity-affecting edits | the identity owner applies; approval naming the target | policy (the harness may also gate the tool) |
 | `cratis screenplay generate` | output only under `.ai-work/screenplay/<model-slug>/legacy/` | policy |
-| `cratis render` | probe renders under `.ai-work/screenplay/<model-slug>/render-probe/` unless the user names a destination; `--force` needs approval naming it; pass `--name`; never stage `.cratis-render/` | policy |
+| `cratis render` | probe renders under `.ai-work/screenplay/<model-slug>/render-probe/` unless the user names a destination; `--force` needs approval naming it; pass `--name`; never stage `.cratis-render/` (the CLI makes it ignore itself; `git add -f` is the deliberate override, `git rm -r --cached .cratis-render` fixes a mistake; recover a leftover folder by re-running render, not editing it) | policy |
 | Prologue capture start, Extractor containers, traffic re-routing, load, cleanup DDL | approval naming the target; production needs the data owner's sign-off; plan cleanup first | policy |
 | Prologue interpret | approval; it may fall back to a globally configured LLM, so check the effective configuration first | policy |
 | Sending captures, code, production data, personal data or secrets to any hosted model | ask first; prefer redacted or local | policy |

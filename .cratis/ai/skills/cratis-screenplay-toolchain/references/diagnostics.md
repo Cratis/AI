@@ -391,7 +391,9 @@ Requires Screenplay 6.26.0. Errors fix the line; warnings leave the gate closed,
 | PLAY1137 | break the `with` cycle |
 | PLAY1138 | W: provide the value at or above the gate, or change the condition |
 | PLAY1139 | W: align the audiences of invoker and command, or accept the refusal; `when` is skipped, reactions are never gated |
-| PLAY1140, PLAY1141 | an `available for`/`with` line holds names, `and`, `or` and balanced parentheses only |
+| PLAY1140, PLAY1141 | an `available for`/`with` line holds names, `and`, `or`, `not` and balanced parentheses only |
+| PLAY1171 | `not` applies to one audience name: not on a group, another `not`, nothing, or an availability in `with`; a negated audience is ESM v58; `PLAY1139` skips a gate containing `not` |
+| PLAY1172 | W: a screen `action`/`data` gate is broader than the bound command or query; narrow it or remove it (element gates are ESM v59) |
 
 See `../../cratis-screenplay-availability/SKILL.md`.
 

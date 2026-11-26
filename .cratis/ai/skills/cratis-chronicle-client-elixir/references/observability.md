@@ -3,7 +3,7 @@
 
 # Observability: OpenTelemetry and `:telemetry`
 
-Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/chronicle/diagnostics/tracing.ex`, `connections/trace_propagation_interceptor.ex`, and `Documentation/observability.md`.
+Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/cratis/chronicle/diagnostics/tracing.ex`, `connections/trace_propagation_interceptor.ex`, and `Documentation/observability.md`.
 
 Requires `cratis_chronicle` 3.13.0.
 
@@ -34,4 +34,4 @@ The `:stop` metadata carries `error: true` when the operation returned `{:error,
 
 ## Trace propagation
 
-Every outbound gRPC call carries W3C `traceparent`/`tracestate` for the span active in the **calling process**, injected by `Chronicle.Connections.TracePropagationInterceptor` (always installed). A trace continues into the kernel only when the append or query runs inside the active span (for example inside `OpenTelemetry.Tracer.with_span/2`); a `Task` is a different process. The kernel does not store trace context on events, so an observer's span is not linked to the append that caused it. OpenTelemetry metrics instruments are not emitted, only `:telemetry` events.
+Every outbound gRPC call carries W3C `traceparent`/`tracestate` for the span active in the **calling process**, injected by `Cratis.Chronicle.Connections.TracePropagationInterceptor` (always installed). A trace continues into the kernel only when the append or query runs inside the active span (for example inside `OpenTelemetry.Tracer.with_span/2`); a `Task` is a different process. The kernel does not store trace context on events, so an observer's span is not linked to the append that caused it. OpenTelemetry metrics instruments are not emitted, only `:telemetry` events.

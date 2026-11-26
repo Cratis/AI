@@ -4,7 +4,7 @@ This reference holds a worked reactor module and a worked model-bound read model
 
 ```elixir
 defmodule MyApp.Reactors.DepositLogger do
-  use Chronicle.Reactors.Reactor
+  use Cratis.Chronicle.Reactors.Reactor
   require Logger
 
   alias MyApp.Events.FundsDeposited
@@ -22,7 +22,7 @@ end
 
 ```elixir
 defmodule MyApp.ReadModels.AccountBalance do
-  use Chronicle.ReadModels.ReadModel
+  use Cratis.Chronicle.ReadModels.ReadModel
   defstruct id: "", balance: 0
 
   from(MyApp.Events.FundsDeposited,

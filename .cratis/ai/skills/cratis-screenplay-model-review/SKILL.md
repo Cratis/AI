@@ -155,7 +155,7 @@ P5 uses a fresh reviewer who authored nothing in scope; record reviewer/author m
 
 ## Availability and context pass
 
-For a model with `available` or `provide`, check: a gate no persona can satisfy, unreferenced or undeclared audiences, a gate used as authorization (or the reverse), a `provide` whose key cannot be resolved for a command, a rule reading identity-derived values, and specifications that depend on a gate. Read [review checks](../cratis-screenplay-availability/references/review-checks.md).
+For a model with `available` or `provide`, check: a gate no persona can satisfy, unreferenced or undeclared audiences, a gate used as authorization (or the reverse), a `provide` whose key cannot be resolved for a command, a rule reading identity-derived values, specifications that depend on a gate, a `not` that is misplaced (PLAY1171) or replaces a granted audience with a list, and a screen element gate that is broader than its bound part (PLAY1172). Read [review checks](../cratis-screenplay-availability/references/review-checks.md).
 
 ## Rules
 - Compiler contracts (defects when the mode needs them): V1 must pass with warnings

@@ -257,7 +257,9 @@ choosing a whole action list rather than one labeled command, use block-form
 `when`/`otherwise` on click, double click, select or change:
 [guarded interactions](../cratis-screenplay-ui-composition/references/guarded-interactions.md).
 
-`available` and `provide`: `cratis-screenplay-availability`.
+`available` and `provide`: `cratis-screenplay-availability`. A screen `action` or `data` bound to a command or query is offered only when the
+bound part is available and the caller authorized; that is derived. An explicit `available` line under it (ESM v59) can only narrow
+(PLAY1172 when broader); a section, table, summary or component takes none.
 
 ## How a bare name resolves
 

@@ -24,6 +24,35 @@ arc: [application: MyApp.Arc, output: "assets/src/arc"]
 
 ## Vertical slices
 
+### Group slices into sub-features, and keep an integration beside what it serves
+
+A feature that holds more than about six slices is usually several features. Look for these seams
+before adding the next slice, and review them whenever a feature grows:
+
+- **One noun, many verbs.** The slices that act on one thing (`rotating_secrets`, `revoking_previous_secrets`,
+  `expiring_previous_secrets`, `retiring_secrets`) belong together in a sub-feature named for the
+  thing (`secrets/`), not spread across a flat feature.
+- **A reactor belongs with the facts it reacts to.** An automation that retires a secret after it was
+  revoked lives in `secrets/`, not in a folder named for the third party it calls (`ory/`). A third
+  party is an integration detail of the sub-feature, not a feature of its own; put its
+  behaviour, adapter and stand-in in the sub-feature (or a shared folder when several use it).
+- **Mirror the lifecycle.** Slices that detect, adopt and revert one kind of drift sit together.
+- **A reactor and a view are slices too.** A reactor that records nothing is invisible in the event model.
+  Have it record the fact that its effect happened (`SecretRetiredInOry`), so the automation shows
+  what it produced.
+
+The folder is the namespace: `Prism.Access.ApiCredentials.Secrets.RotatingSecrets` is the slice
+`RotatingSecrets` of the sub-feature `Secrets`. Arc's structure and event model show each
+sub-feature as a feature of its own, so the grouping is what readers and tools see. Keep
+`segments_to_skip` equal to the segments above the module.
+
+### Name things by their ids
+
+A command is `use Cratis.Arc.Command, id: "rotate-secret"`, an event type has an `id:`, a reactor has an
+`id:` and a read model may have one. That id is the name: Arc shows `RotateSecret` in the structure and
+the event model (`display_names:` on the Arc application picks `:pascal_case`, `:kebab_case`, `:as_declared`
+or a function), so never rely on the last module segment as the name.
+
 Organize by feature, not by layer: the Elixir, the generated proxies and the React page of
 one feature share a folder. This matches the .NET guidance.
 
