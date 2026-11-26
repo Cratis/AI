@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "1.0",
+  "publicProfiles": [
+    {
+      "id": "cratis/v2/application",
+      "composes": [],
+      "availableTargets": [],
+      "languages": [
+        "csharp",
+        "typescript"
+      ]
+    }
+  ],
+  "engineeringProfiles": []
+}
