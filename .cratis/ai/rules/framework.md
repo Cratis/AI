@@ -59,7 +59,7 @@ Repo conventions follow from this: `Source/DotNET` + `Source/JavaScript` for dua
 ## Quality gates (framework)
 
 - Select gates by [criticality tier](./criticality-tiers.md), changed inputs and dependency closure; these product gates are not a blanket local mandate for tooling or prose.
-- Applicable builds (Debug and Release) have **zero warnings, zero errors**; affected specs pass (C# via `dotnet test <project> --no-build`; TS via package test commands; Components also `build-storybook`).
+- Applicable Debug/Release builds have **zero warnings, zero errors**; specs in scope pass (built C# spec executables; VSTest only: `dotnet test <project> --no-build`; TS package tests; Components also `build-storybook`).
 - For public-facing changes (APIs, attributes, generated output, component props): update the product documentation and verify it.
 - Match the repo's existing patterns; when a deep architectural question isn't answered by the universal rules or this file, consult the **repo's own docs/CONTRIBUTING** or ask — do not infer framework internals from a single call site.
 
