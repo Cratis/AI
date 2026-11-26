@@ -1,5 +1,6 @@
 ---
 name: cratis-components-host-chat
+compatibility: Requires React and Cratis Components.
 description: Use when a host must supply conversations, messages and outcomes to a Chat view. Not for generic notifications (cratis-components-coordinate-feedback).
 ---
 
@@ -9,9 +10,9 @@ Use the public ChatConversation component for a single conversation. The host ow
 
 Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
 
-1. Keep one stable topic id per message and render only the selected topic. Done: switching to Notes replaces the Books transcript.
-2. Capture the topic before awaiting the write. Append a confirmed response only to its original topic, or leave an observed query as the sole message source. Done: late responses cannot migrate to the currently open conversation.
-3. Reject a send in the second conversation and return to the first. Done: Notes shows Message not sent; Books still shows the accepted message and no Notes error.
+1. Keep one stable topic id per message and render only the selected topic. **Done:** Switching to Notes replaces the Books transcript.
+2. Capture the topic before awaiting the write. Append a confirmed response only to its original topic, or leave an observed query as the sole message source. **Done:** Late responses cannot migrate to the currently open conversation.
+3. Reject a send in the second conversation and return to the first. **Done:** Notes shows Message not sent; Books still shows the accepted message and no Notes error.
 
 ## Example
 
@@ -48,4 +49,4 @@ Read references/observed-topics.md when the host already has observable topic an
 
 ## Verify
 
-In the cratis-components-host-chat example fixture, run `npm run test:example`. Notes shows Message not sent; Books still shows the accepted message and no Notes error.
+Run `npx tsc --noEmit` in the frontend, then switch topics while a send is pending and reject it. Only the originating topic shows the error; the other transcript remains unchanged.

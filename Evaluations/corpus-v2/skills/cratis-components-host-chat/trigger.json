@@ -2,11 +2,11 @@
   "skill": "cratis-components-host-chat",
   "queries": [
     {
-      "query": "Mount a conversation for each selected topic.",
+      "query": "When I switch topics in the chat pane I want only that conversation's history to show. What should the host own?",
       "shouldTrigger": true
     },
     {
-      "query": "Handle Chat send intent in the host.",
+      "query": "I sent a message and changed conversations before the server replied. How do I put the result in the original thread?",
       "shouldTrigger": true
     },
     {

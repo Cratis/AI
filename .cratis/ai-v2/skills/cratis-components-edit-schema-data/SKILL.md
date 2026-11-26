@@ -1,5 +1,6 @@
 ---
 name: cratis-components-edit-schema-data
+compatibility: Requires React and Cratis Components.
 description: Use when choosing SchemaEditor to edit a schema or ObjectContentEditor to edit data against it. Not for a fixed command form (cratis-components-submit-form).
 ---
 
@@ -9,9 +10,9 @@ Use ObjectContentEditor when the outgoing document is data. Keep its schema as a
 
 Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
 
-1. Identify the document being persisted and retain a separate schema. Done: the initial object has a string name and the schema declares that member required.
-2. Feed onChange back as the object and onValidationChange to the save gate. Done: a valid edit appears in the emitted data without replacing the schema.
-3. Clear the required field, observe its invalid state and inspect the schema again. Done: Aster was emitted as data, the empty name blocks Save, and the original schema remains unchanged.
+1. Identify the document being persisted and retain a separate schema. **Done:** The initial object has a string name and the schema declares that member required.
+2. Feed onChange back as the object and onValidationChange to the save gate. **Done:** A valid edit appears in the emitted data without replacing the schema.
+3. Clear the required field, observe its invalid state and inspect the schema again. **Done:** Aster was emitted as data, the empty name blocks Save, and the original schema remains unchanged.
 
 ## Example
 
@@ -36,4 +37,4 @@ Read references/schema-authoring.md when the schema itself is the deliverable.
 
 ## Verify
 
-In the cratis-components-edit-schema-data example fixture, run `npm run test:example`. Aster was emitted as data, the empty name blocks Save, and the original schema remains unchanged.
+Run `npx tsc --noEmit` in the frontend, then edit a required value and clear it. The valid edit updates the emitted object, clearing it blocks Save and neither edit changes the original schema.

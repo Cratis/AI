@@ -1,11 +1,23 @@
 ---
 name: cratis-screenplay-edit-workspace
-description: Use when editing a split .play model, proposing an AST change or recovering from stale workspace handles. Not for accepting modeled behavior (cratis-screenplay-accept-model).
+description: Use when editing a split .play model, proposing an AST change or recovering from a stale workspace revision or handle. Not for accepting modeled behavior (cratis-screenplay-accept-model).
+compatibility: Requires the Screenplay MCP server and CLI.
 ---
 
-# Change the revision that was reviewed
+# Edit against a workspace revision
 
-1. Use the `screenplay` MCP server's `open-workspace` and `read-workspace` on the authorized root. Read references/split-models.md when declarations span files. **Done:** record the composed model, touched document keys, identities and workspace revision; do not treat a line number as a handle.
-2. Default to `propose-ast` with handles from that revision and node kinds from `syntax-schema`; request the smallest operation. **Done:** use `read-proposal` to inspect the server-produced proposal, including source changes, moved identities, diagnostics and semantic differences. An unrelated reprint or lost identity is a reason to reject it.
-3. Only on explicit approval of this proposal for this workspace, use `apply`. Read references/stale-revision.md on any revision conflict. **Done:** either nothing changed or the new revision contains exactly the approved change and the full model compiles. Route the resulting model to [acceptance](../cratis-screenplay-accept-model/SKILL.md) for behavioral judgment.
-4. In the isolated fixture run `screenplay ./model --warnaserror` and `node --test acceptance.test.mjs`. **Done:** both composed documents bind; changing the sibling document invalidates the old review snapshot. This offline contract check does not exercise a live MCP apply.
+**Requires:** Check `screenplay --version` and confirm the configured `screenplay` MCP server lists `open-workspace`. If either is unavailable, stop before mutation; a local compile cannot substitute for applying a reviewed proposal.
+
+1. Open the authorized root with `open-workspace` and use `read-workspace`. Read references/split-models.md if declarations span files. For example, a sibling document can own the identity used by a command:
+
+```screenplay
+concept AuthorId : Uuid
+
+eventsource AuthorHistory
+  identifier AuthorId
+```
+
+   **Done:** record the composed documents, identities, handles and revision; a line number is not a handle.
+2. Use `propose-ast` with handles from that revision and node kinds from `syntax-schema`. Inspect `read-proposal`. **Done:** the source changes, identities, diagnostics and semantic diff match the intended edit without unrelated reprints.
+3. Use `apply` only with explicit approval of that proposal for that workspace. If the revision is stale, follow references/stale-revision.md; do not replay old handles. **Done:** either nothing changed or the new revision contains exactly the approved change.
+4. Run `screenplay ./model` against the whole composed directory, not the edited file alone. **Done:** all sibling references bind and the compiler exits zero. Send the revision to [Decide whether the model is accepted](../cratis-screenplay-accept-model/SKILL.md) for behavioral judgment.

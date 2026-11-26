@@ -1,6 +1,7 @@
 ---
 name: cratis-chronicle-protect-decision
-description: Use when a command decision needs Chronicle read protection or a dynamic consistency boundary against concurrent writes. Not for unique property ownership or once-per-source appends (cratis-chronicle-constrain-append).
+compatibility: .NET SDK and a disposable Chronicle kernel for the race.
+description: Use when a command decision needs optimistic concurrency for a Chronicle decision read or a dynamic consistency boundary. Not for unique property ownership or once-per-source appends (cratis-chronicle-constrain-append).
 ---
 
 # Refuse a decision based on stale facts
@@ -11,4 +12,11 @@ For an explicit Chronicle unit, acquire with `await store.GetDecisionReads().Get
 
 3. Pause after acquisition, append an invalidating fact independently, then commit. Distinguish admission failure from stale data; read references/conflict-outcomes.md when reporting the refusal. **Done:** no contradictory event, a fresh attempt reads the changed state and changes the decision. Never retry just the stale write.
 
-In the isolated fixture build `dotnet build Specs --configuration Release -warnaserror` then run `dotnet test Specs --configuration Release --no-build`. The unit-of-work race exercises the Chronicle boundary; verify the actual Arc command's effective mode separately.
+Check the refused unit of work for the source that invalidated the decision:
+
+```csharp
+        Assert.False(first.IsSuccess);
+        Assert.Contains(first.GetConcurrencyViolations(), violation => violation.EventSourceId == source);
+```
+
+Run `dotnet test -c Release` in the application's decision spec project against a disposable kernel. The stale decision must not append; a fresh protected read must see the winning fact. If both appends succeed, check that read protection was enforced on the unit of work that committed, not only measured.

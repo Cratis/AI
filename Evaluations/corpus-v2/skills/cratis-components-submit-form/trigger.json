@@ -2,11 +2,11 @@
   "skill": "cratis-components-submit-form",
   "queries": [
     {
-      "query": "Build a CommandDialog that registers an author.",
+      "query": "I need a registration dialog that stays open if the server rejects the name. How should I bind the command?",
       "shouldTrigger": true
     },
     {
-      "query": "Bind a Components text field to my generated command.",
+      "query": "How do I connect the name input to the generated command so its validation message appears beside that field?",
       "shouldTrigger": true
     },
     {

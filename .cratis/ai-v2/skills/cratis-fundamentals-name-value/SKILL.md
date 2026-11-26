@@ -1,6 +1,7 @@
 ---
 name: cratis-fundamentals-name-value
 description: Use when defining a C# concept, strongly typed ID or Chronicle event source ID. Not for deciding whose history to use (cratis-modeling-discover-timeline) or declaring an event type (cratis-chronicle-record-event).
+compatibility: Requires the .NET SDK.
 ---
 
 # Give a domain value a type
@@ -19,4 +20,4 @@ public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
 3. Round-trip a representative value through the application's configured serializer. Read references/wire-values.md when a client sees a wrapper instead of a scalar. **Done:** the name is the JSON string `"Aster"`, not an object with a `value` property, and the decoded concept compares equal to the input.
 4. Execute the event-backed command with a known ID. Inspect the append for that source **and** its payload. A correctly formatted GUID in a response doesn't establish routing. **Done:** the matching fact is under the given ID; the scenario's complete append list has one entry. If the event landed elsewhere, inspect the command's ID type before changing the projection.
 
-In the example fixture, run `dotnet build Specs --configuration Release -warnaserror`, then `dotnet test Specs --configuration Release --no-build`. Expect named scalar and dispatch checks, not just a successful restore.
+Run `dotnet test -c Release` in the application's spec project. Expect the scalar round-trip and dispatch to the submitted source to pass independently.

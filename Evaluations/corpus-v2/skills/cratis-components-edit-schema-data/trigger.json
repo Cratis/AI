@@ -2,11 +2,11 @@
   "skill": "cratis-components-edit-schema-data",
   "queries": [
     {
-      "query": "Edit a JSON document using its supplied schema.",
+      "query": "I want users to edit this JSON document and reject invalid values without letting them change the supplied schema.",
       "shouldTrigger": true
     },
     {
-      "query": "Choose ObjectContentEditor or SchemaEditor for a value change.",
+      "query": "The schema stays fixed and the page saves only its data. Which editor and change callback should I use?",
       "shouldTrigger": true
     },
     {

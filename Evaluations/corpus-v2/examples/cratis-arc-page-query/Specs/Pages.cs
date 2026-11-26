@@ -1,8 +1,14 @@
 using Cratis.Arc.Queries;
+using Cratis.Arc.Queries.ModelBound;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-public record Row(int Id, string Name);
+[ReadModel]
+public record Row(int Id, string Name)
+{
+    public static IQueryable<Row> ByName(string name, Catalog db) =>
+        db.Rows.Where(row => row.Name == name).OrderBy(row => row.Name).ThenBy(row => row.Id);
+}
 public class Catalog : DbContext
 {
     public DbSet<Row> Rows => Set<Row>();
@@ -17,7 +23,7 @@ public class Pages
         db.AddRange(new Row(2,"Aster"), new Row(3,"Aster"), new Row(4,"Aster"), new Row(9,"Other")); await db.SaveChangesAsync();
         int[] Page(int page, int expectedCount)
         {
-            var result = new QueryableQueryRenderer().Execute(db.Rows.Where(x => x.Name == "Aster").OrderBy(x => x.Name).ThenBy(x => x.Id), QueryContext.NotSet with { Paging = new Paging(page, 2, true) });
+            var result = new QueryableQueryRenderer().Execute(Row.ByName("Aster", db), QueryContext.NotSet with { Paging = new Paging(page, 2, true) });
             Assert.Equal(expectedCount, result.TotalItems);
             return ((IQueryable<Row>)result.Data).Select(x => x.Id).ToArray();
         }

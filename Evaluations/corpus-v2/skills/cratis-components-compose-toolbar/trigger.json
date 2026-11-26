@@ -2,11 +2,11 @@
   "skill": "cratis-components-compose-toolbar",
   "queries": [
     {
-      "query": "Build a toolbar with a different command set per mode.",
+      "query": "Our toolbar still lets me draw after I switch to review mode. How do I replace the active commands?",
       "shouldTrigger": true
     },
     {
-      "query": "Group drawing actions into a toolbar section.",
+      "query": "We have too many drawing buttons across the top. How should I group the related ones in the toolbar?",
       "shouldTrigger": true
     },
     {

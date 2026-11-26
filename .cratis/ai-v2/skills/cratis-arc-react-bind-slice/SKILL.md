@@ -1,17 +1,18 @@
 ---
 name: cratis-arc-react-bind-slice
-description: Use when a React component must consume a generated query or execute a generated command. Not for generating its types (cratis-arc-generate-proxies).
+compatibility: Requires React and generated Arc proxies.
+description: Use when a React component needs a generated proxy hook to read query rows or execute a command. Not for generating its types (cratis-arc-generate-proxies).
 ---
 
 # Bind an authoring screen to its contracts
 
 Default to the generated hooks under Arc. The command owns the editable draft; the query owns the rows.
 
-Start with the generated Authors contracts. Generate them from the owning backend before type checking; if the exports are missing, pass that project to `cratis-arc-generate-proxies` instead of writing a client substitute.
+Use the backend's generated command and query exports. If either is missing, regenerate the proxies rather than writing a substitute.
 
-1. Locate the command and read model modules. Done: the generated query returns the row type the screen renders and the command accepts the required identifier.
-2. Keep the identifier stable while the draft is mounted. Set values through the command tuple and await execute before reporting acceptance. Done: a rejected write keeps its input and does not append a row.
-3. Render the observed collection, keyed by the identifier rather than the label. Done: rejection is visible, followed by an accepted command and its Aster row from the next query frame.
+1. Locate the command and read model modules. **Done:** The generated query returns the row type the screen renders and the command accepts the required identifier.
+2. Keep the identifier stable while the draft is mounted. Set values through the command tuple and await execute before reporting acceptance. **Done:** A rejected write keeps its input and does not append a row.
+3. Render the observed collection, keyed by the identifier rather than the label. **Done:** Rejection is visible, followed by an accepted command and its Aster row from the next query frame.
 
 ## Example
 
@@ -44,7 +45,7 @@ export function View() {
 }
 ```
 
-If the command succeeds but the list stays unchanged, inspect query frames before changing the component. Give a connected but silent endpoint to `cratis-arc-diagnose-live-query`; do not push the draft into the list.
+If the command succeeds but the list stays unchanged, inspect query frames before changing the component. For a connected but silent endpoint, follow [Locate the first missing emission](../cratis-arc-diagnose-live-query/SKILL.md); do not push the draft into the list.
 
 Read references/provider.md when the view runs in a separate frontend host.
 
@@ -52,4 +53,4 @@ Read references/query-lifecycle.md when the first render has no rows.
 
 ## Verify
 
-In the cratis-arc-react-bind-slice example fixture, run `npm run test:example`. rejection is visible, followed by an accepted command and its Aster row from the next query frame.
+Run `npx tsc --noEmit` in the frontend, then submit rejected and valid inputs in the mounted screen. The rejection preserves the draft; the successful row appears once, from the next query frame.

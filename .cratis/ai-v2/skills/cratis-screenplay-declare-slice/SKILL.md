@@ -1,11 +1,25 @@
 ---
 name: cratis-screenplay-declare-slice
-description: Use when an agreed state change or view must be expressed in .play. Not for discovering a domain timeline (cratis-modeling-discover-timeline).
+description: Use when an agreed command, event or read model needs a state change or view slice in .play. Not for discovering the domain timeline (cratis-modeling-discover-timeline).
+compatibility: Requires the Screenplay CLI.
 ---
 
 # Declare the slice the actor agreed to
 
-1. Start from one accepted input and observable result. If the actor, history owner or refusal is disputed, return the example to [timeline discovery](../cratis-modeling-discover-timeline/SKILL.md). **Done:** Register author has one permitted catalog editor, one AuthorId, one submitted Name and a distinct AuthorRegistered outcome.
-2. Put the command and its past-tense event in a StateChange slice; bind the production's `for` to the command identifier. Declare the identifier concept and the event source separately. Hand its C# representation to [domain value typing](../cratis-fundamentals-name-value/SKILL.md) only when implementing it. Do not add an ID field to the fact just to project the key. Read references/consistency.md when names collide. **Done:** changing the input ID moves the fact's destination, not its business payload.
-3. Give the StateView a keyed read model, projection and query. Read references/projection-lineage.md when tracing a displayed value. **Done:** Authors.Name traces backward from AllAuthors through Author.Name to AuthorRegistered.Name and the submitted Name; Author.Id comes from the source. Run `screenplay lineage Catalog.Authors.ListAuthors.Author.name model` and check the projection and production hops.
-4. In the [declaration fixture](../../../../Evaluations/corpus-v2/examples/cratis-screenplay-declare-slice), run `screenplay ./model --warnaserror`, then `screenplay test model --format json`. **Done:** no diagnostics and RegisteringAster, ListingAster and RejectingAnEmptyName execute successfully. This does not authorize rendering.
+**Requires:** Check `screenplay --version`. If unavailable, restore the project's pinned CLI before validating the model.
+
+1. Trace one accepted input to its observable result. **Done:** the actor, source identity, input and resulting fact are agreed; take unresolved examples to [Discover one timeline](../cratis-modeling-discover-timeline/SKILL.md).
+2. Declare the identifier concept and event source. Bind the command production's `for` to the identifier; do not copy that ID into the fact just to recover a projection key. Read references/consistency.md when names collide. **Done:** changing the input ID changes the fact's destination, not its business payload.
+3. Declare the keyed read model, projection and query in a StateView. For example, the author view derives its key from the source and its name from the event:
+
+```screenplay
+      projection AuthorProjection => Author
+        from AuthorRegistered
+          id = $eventSourceId
+          name = name
+
+      query AllAuthors => observable Author[]
+```
+
+   **Done:** each displayed field traces back to a fact or source identifier. If a key is missing, inspect its projection hop; use references/projection-lineage.md to trace each visible field back to its source.
+4. Run `screenplay ./model` and `screenplay test model --format json`, substituting the application model directory. **Done:** compilation exits zero and the intended write, refusal and read scenarios all execute and pass. This does not authorize rendering.

@@ -1,5 +1,6 @@
 ---
 name: cratis-components-choose-control
+compatibility: Requires React and Cratis Components.
 description: Use when an input or navigation control needs selection, search, dates, tabs, tags or breadcrumbs. Not for command submission (cratis-components-submit-form).
 ---
 
@@ -9,9 +10,9 @@ For a small exclusive choice use ToggleGroup with one string value. Distinguish 
 
 Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
 
-1. Name the value and commit boundary. Done: the scope has one key and Apply is the only action that changes the active filter.
-2. Give the group an accessible name and keep draft selection controlled. Done: one tab stop reaches the group and arrow navigation moves to the other option.
-3. Press Space to select the focused option in the draft. Tab to Apply and activate it. Done: Mine receives keyboard focus while the active value is still all; Apply commits mine.
+1. Name the value and commit boundary. **Done:** The scope has one key and Apply is the only action that changes the active filter.
+2. Give the group an accessible name and keep draft selection controlled. **Done:** One tab stop reaches the group and arrow navigation moves to the other option.
+3. Press Space to select the focused option in the draft. Tab to Apply and activate it. **Done:** Mine receives keyboard focus while the active value is still all; Apply commits mine.
 
 ## Example
 
@@ -40,4 +41,4 @@ Read references/dates.md when the chosen value is a calendar date.
 
 ## Verify
 
-In the cratis-components-choose-control example fixture, run `npm run test:example`. Mine receives keyboard focus while the active value is still all; Apply commits mine.
+Run `npx tsc --noEmit` in the frontend, then focus an option with the keyboard and select it before applying. Focus and draft selection must not change the committed filter; Apply must change it. If focus alone commits the filter, separate draft state from the applied value.

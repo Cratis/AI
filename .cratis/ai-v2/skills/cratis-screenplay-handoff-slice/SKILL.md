@@ -1,11 +1,22 @@
 ---
 name: cratis-screenplay-handoff-slice
-description: Use when an accepted .play model is ready for implementation or authorized rendering. Not for approving the model (cratis-screenplay-accept-model).
+description: Use when an approved .play slice needs a scoped export for implementation or authorized rendering. Not for approving a candidate model (cratis-screenplay-accept-model).
+compatibility: Requires Node.js and the Screenplay CLI.
 ---
 
 # Hand off one accepted outcome
 
-1. Freeze the accepted model, scope, caller, success and refusal examples, approval reference and target. Without revision-specific approval, stop at a candidate package. Read references/extensions-and-locks.md if rendering depends on an extension. **Done:** model agreement and permission to render are two separate entries.
-2. Compile with `screenplay ./model --warnaserror` and run `screenplay test model --format json`. Export the slice and its required view together: `screenplay export model --scope Catalog.Authors --output accepted.esm.json`. **Done:** [the scoped contract](../../../../Evaluations/corpus-v2/examples/cratis-screenplay-handoff-slice/accepted.esm.json) contains RegisteringAster, ListingAster and RejectingAnEmptyName at one revision. Send those outcomes to [slice delivery](../cratis-platform-deliver-slice/SKILL.md), not a second implementation recipe.
-3. Read references/renderer-parity.md before claiming target support. **Done:** each binding, permission and observable outcome is implemented, assigned as a manual gap, or blocked. Obtain separate target-specific authorization before rendering; do not force through conflicts.
-4. Against the approved isolated target, run `npm run test:journey` from the fixture after configuring its host adapter. **Done:** a permitted editor adds Aster and sees exactly one persistent row; compare backend fact/key and refusal independently. Without the approved target and journey result report parity unverified, even if every model spec passed.
+**Requires:** Check `node --version` and `screenplay --version`; restore the project's pinned CLI before exporting.
+
+1. Freeze the approved revision, scope, caller, success and refusal examples, approval reference and target. Read references/extensions-and-locks.md when rendering depends on an extension. **Done:** acceptance of the model and permission to render have separate entries.
+2. Export the dependency-ready scope. Run `node scripts/export-scope.mjs <model-directory> <dotted-scope>` from this skill's folder with an absolute model path; it prints the scoped ESM as JSON after checking for a revision and executable scenarios. **Done:** compare the revision to the approval and inspect the write, refusal and required view. For example, this assertion requires exactly the expected query result, not merely a successful command:
+
+```screenplay
+        then query AllAuthors exactly
+          result
+            id = "11111111-1111-4111-8111-111111111111"
+            name = "Aster"
+```
+
+3. Read references/renderer-parity.md before claiming target support. **Done:** assign each binding and permission to a supported implementation, a manual task or an explicit blocker. If the renderer lacks a binding, do not force through the conflict; hand the contract and gap to [Deliver one observable change](../cratis-platform-deliver-slice/SKILL.md).
+4. Run `screenplay test model --format json` against the approved model directory and inspect the named outcomes. **Done:** the accepted cases execute and pass. Run the application's journey against the approved target to compare actual persistence, refusal and visible results; without it, report runtime parity unverified.

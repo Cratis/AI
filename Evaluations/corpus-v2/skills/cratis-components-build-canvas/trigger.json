@@ -2,11 +2,11 @@
   "skill": "cratis-components-build-canvas",
   "queries": [
     {
-      "query": "Build a spatial workspace with selectable canvas pins.",
+      "query": "I want to click pins in the drawing area even after I've panned and zoomed. Which coordinates should the hit test use?",
       "shouldTrigger": true
     },
     {
-      "query": "Keep an overlay fixed while the camera zooms.",
+      "query": "Our legend moves with the drawing when I zoom. How do I keep it in the corner of the viewport?",
       "shouldTrigger": true
     },
     {

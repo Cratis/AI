@@ -2,11 +2,11 @@
   "skill": "cratis-components-display-list",
   "queries": [
     {
-      "query": "Build a DataPage for the authors collection.",
+      "query": "I already have an authors query. How do I put the returned rows and their names into a selectable table?",
       "shouldTrigger": true
     },
     {
-      "query": "Add selected-row actions to my table.",
+      "query": "Two records have the same label and Inspect opens the wrong one. How should the table pass the selected row?",
       "shouldTrigger": true
     },
     {

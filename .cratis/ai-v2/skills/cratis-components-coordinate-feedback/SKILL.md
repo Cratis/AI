@@ -1,5 +1,6 @@
 ---
 name: cratis-components-coordinate-feedback
+compatibility: Requires React and Cratis Components.
 description: Use when showing a ConfirmationDialog, notification or busy dialog and handling its result. Not for collecting command fields (cratis-components-submit-form).
 ---
 
@@ -9,9 +10,9 @@ Register the confirmation renderer at the dialog host. Treat its result as a dec
 
 Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
 
-1. Choose the exact affirmative result. Done: Yes is the only result that starts the archive request; dismissal has the same effect as No.
-2. Await the effect and keep busy scoped to that operation. Done: a rejected response produces failure feedback and releases the trigger in finally.
-3. Count requests across cancel, failed confirmation and successful confirmation. Done: cancel sends none, each Yes sends one, and feedback distinguishes failure from success.
+1. Choose the exact affirmative result. **Done:** Yes is the only result that starts the archive request; dismissal has the same effect as No.
+2. Await the effect and keep busy scoped to that operation. **Done:** A rejected response produces failure feedback and releases the trigger in finally.
+3. Count requests across cancel, failed confirmation and successful confirmation. **Done:** Cancel sends none, each Yes sends one, and feedback distinguishes failure from success.
 
 ## Example
 
@@ -44,4 +45,4 @@ Read references/dialog-host.md when multiple routes open the same confirmation U
 
 ## Verify
 
-In the cratis-components-coordinate-feedback example fixture, run `npm run test:example`. cancel sends none, each Yes sends one, and feedback distinguishes failure from success.
+Run `npx tsc --noEmit` in the frontend, then cancel once and confirm twice, with one failed request and one successful request. Cancel sends none and each Yes sends one. If dismissal sends a request, compare the returned result to the affirmative enum value rather than testing truthiness.

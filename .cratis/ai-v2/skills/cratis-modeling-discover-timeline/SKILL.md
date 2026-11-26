@@ -15,4 +15,4 @@ description: Use when event modeling a timeline, choosing stream boundaries or t
 
 4. Replay the example with the stakeholder, then change one input: blank name → field error, no fact, list unchanged. Record agreed outcomes separately from decisions still needed (for example whether two authors can share a name). **Done:** an explicit acceptance or named decision owner for each open point. A passing consistency check is not stakeholder approval.
 
-Run `node --test acceptance.test.mjs` in the example fixture to check field lineage and the success/refusal traces. Only carry the agreed portion to implementation; hand it to `cratis-screenplay-declare-slice` only if a model artifact is requested.
+If the team records these traces as Node tests, run `node --test` in its acceptance project. Expect both the successful field-lineage trace and the refusal trace to pass. Hand the agreed portion to [Declare a slice](../cratis-screenplay-declare-slice/SKILL.md) only if a model artifact is requested.

@@ -1,11 +1,23 @@
 ---
 name: cratis-screenplay-model-interaction
-description: Use when a .play model needs screens, forms, navigation or performer-specific availability. Not for binding a React component to generated operations (cratis-arc-react-bind-slice).
+description: Use when a .play screen needs a form, navigation, a query binding or actions available to a particular performer. Not for wiring React hooks (cratis-arc-react-bind-slice).
+compatibility: Requires the Screenplay CLI.
 ---
 
 # Bind the input screen before the success destination
 
-1. Mark the performer, screen-wide versus selected-row subject, and source of each input. **Done:** Add author does not require a selected Author; Name is form input, not a property copied from a list row. Record who supplies the new AuthorId.
-2. Bind Authors to AllAuthors and navigate on click to AddAuthor. Attach the form to RegisterAuthor, then navigate back only on success. Read references/shell-and-locales.md when a shell or translated label changes the route. **Done:** the [screen declarations](../../../../Evaluations/corpus-v2/examples/cratis-screenplay-model-interaction/model/screens.play) distinguish opening the form from executing Add.
-3. Gate the action for CatalogEditors. Read references/authentication-and-context.md when availability depends on a performer. **Done:** the model distinguishes unavailable from unauthorized; a hidden button cannot satisfy a command permission check.
-4. From the fixture run `screenplay ./model --warnaserror`, `screenplay export model --format ui --output screens.json` and `node --test acceptance.test.mjs`. **Done:** the exported query, command identity, input and success target resolve; verify the authored unavailable case separately where the export omits audience gates. Hand the bindings and negative state to [UI verification](../cratis-specifications-observe-ui/SKILL.md) for actual interaction evidence.
+**Requires:** Check `screenplay --version`; restore the project's pinned CLI if missing.
+
+1. Identify the performer and whether opening the form requires a selected row. Bind editable fields to the declared command and list data to its query. **Done:** each input has a source, including any identifier the performer never enters.
+2. Separate navigation that opens the form from the action that submits it. Read references/shell-and-locales.md when shell routes or translated labels are involved. For example, a screen-wide submit action names its audience and success destination:
+
+```screenplay
+      screen AddAuthor
+        action RegisterAuthor for screen
+          label "Add"
+          available for CatalogEditors
+          navigate to Authors
+```
+
+   **Done:** opening the form does not execute the command, and rejection does not navigate to the success destination.
+3. Run `screenplay ./model --warnaserror` and `screenplay export model --format ui --output screens.json` against the application model directory. **Done:** the exported query, action identity and navigation target resolve. If the export has screens but lacks identities, inspect stderr for a missing executable model. Check the authored audience gate separately from server authorization; read references/authentication-and-context.md when availability depends on the performer. Pass the expected interactions to [Test what the actor can do](../cratis-specifications-observe-ui/SKILL.md).

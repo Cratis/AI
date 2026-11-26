@@ -2,11 +2,11 @@
   "skill": "cratis-components-coordinate-feedback",
   "queries": [
     {
-      "query": "Ask for confirmation before archiving a record.",
+      "query": "Before we archive this record I want the user to confirm. How do I avoid sending anything when they dismiss the dialog?",
       "shouldTrigger": true
     },
     {
-      "query": "Await DialogResult.Yes instead of a boolean.",
+      "query": "My confirmation dialog closes but the request runs even on No. What result should the caller actually await?",
       "shouldTrigger": true
     },
     {

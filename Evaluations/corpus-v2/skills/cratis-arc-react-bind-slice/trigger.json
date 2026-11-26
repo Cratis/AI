@@ -2,11 +2,11 @@
   "skill": "cratis-arc-react-bind-slice",
   "queries": [
     {
-      "query": "Wire a generated command and live query to the author screen.",
+      "query": "My author screen should show the server's new row after Save. Which generated hook do I subscribe to?",
       "shouldTrigger": true
     },
     {
-      "query": "Render rows from AllAuthors.use().",
+      "query": "I already generated the proxies. How do I display the authors without copying their rows into local state?",
       "shouldTrigger": true
     },
     {

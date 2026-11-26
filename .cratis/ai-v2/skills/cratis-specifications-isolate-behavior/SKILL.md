@@ -1,11 +1,12 @@
 ---
 name: cratis-specifications-isolate-behavior
-description: Use when specifying pure behavior, fixture structure or the .NET spec runner. Not for proving Arc pipeline behavior (cratis-specifications-exercise-backend).
+description: Use when writing a unit test for pure behavior or choosing a fixture structure or .NET spec runner. Not for proving Arc pipeline behavior (cratis-specifications-exercise-backend).
+compatibility: Requires the .NET SDK and the xUnit v3 specification runner.
 ---
 
 # Specify one decision without a host
 
-1. Pick a decision whose result depends entirely on supplied values. Write the expected observation as a `should_` name and its circumstance as a `when_` name. **Done:** the assertion can fail without HTTP, a store, a clock read or a UI. If the question is whether validation prevented a write, hand the rejection scenario to `cratis-specifications-exercise-backend` instead.
+1. Pick a decision whose result depends entirely on supplied values. Write the expected observation as a `should_` name and its circumstance as a `when_` name. **Done:** the assertion can fail without HTTP, a store, a clock read or a UI. If the question is whether validation prevented a write, hand the rejection scenario to [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) instead.
 2. In an xUnit v3 spec project referencing `Cratis.Specifications.XUnit.v3`, derive the context from `Specification`. Arrange in `Establish`, act once in `Because`, observe in `[Fact]` methods. Read references/shared-contexts.md when several contexts need the same setup. **Done:** assertions observe captured output rather than rerunning the decision.
 
 ```csharp
@@ -29,4 +30,4 @@ public static class DisplayName
 }
 ```
 
-3. From the example run `dotnet build Specs --configuration Release -warnaserror`, then `dotnet test Specs --configuration Release --no-build --logger "console;verbosity=detailed"`. **Done:** `should_keep_only_the_significant_text` executed and passed. Read references/xunit-discovery.md if the build passes but the named test is absent.
+3. In the application's xUnit v3 spec project run `dotnet test -c Release --logger "console;verbosity=detailed"`. **Done:** the named `should_` assertion executed and passed. Read references/xunit-discovery.md if the build passes but the named test is absent.

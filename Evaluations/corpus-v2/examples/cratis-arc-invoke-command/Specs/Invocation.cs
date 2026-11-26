@@ -9,6 +9,11 @@ using Xunit;
 public class Writes { public List<string> Names { get; } = []; }
 [Command, Authorize(Roles = "editor")]
 public record Keep(string Name) { public void Handle(Writes writes) => writes.Names.Add(Name); }
+public sealed class KeepDispatcher(ICommandPipeline pipeline)
+{
+    public Task<CommandResult> Dispatch(Keep command, IServiceProvider requestServices) =>
+        pipeline.Execute(command, requestServices);
+}
 public class Invocation
 {
     [Theory][InlineData("reader", false)][InlineData("editor", true)] public async Task dispatch_keeps_scope(string role, bool allowed)

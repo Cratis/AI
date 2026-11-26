@@ -1,5 +1,6 @@
 ---
 name: cratis-chronicle-protect-personal-data
+compatibility: .NET SDK and a compliance-enabled disposable Chronicle kernel.
 description: Use when Chronicle events contain PII or a subject's data must be forgotten under GDPR. Not for changing an event generation (cratis-chronicle-evolve-event).
 ---
 
@@ -16,4 +17,4 @@ public record ProfileSupplied([Subject] string Author, [property: PII] string Di
 **Done:** an authorized reader can read the synthetic value before erasure, and the unrelated author's record uses a different subject key.
 3. On an explicitly disposable store only, authorize erasure for the test subject; delete that subject's encryption key and inspect reads that report erased properties. Read references/redaction-vs-erasure.md for different retention requirements. **Done:** the subject's value is unavailable, the control remains readable, and any separate exports, baseline snapshots or cached plaintext have a named cleanup owner. Never promise that deleting a key recalls an export.
 
-Build `dotnet build Specs --configuration Release -warnaserror` and run `dotnet test Specs --configuration Release --no-build` in the fixture against a compliance-enabled disposable kernel. Do not run an erasure check using production credentials.
+Run `dotnet test -c Release` in the application's compliance spec project against a compliance-enabled disposable kernel. Verify the forgotten subject's protected value cannot be recovered but the control subject's still can. If both become unreadable, check whether both writes used the same subject identifier. Never use production credentials for this check.

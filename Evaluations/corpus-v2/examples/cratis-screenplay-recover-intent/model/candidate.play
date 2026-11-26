@@ -1,0 +1,7 @@
+module Catalog
+  feature Authors
+    slice StateView ListAuthors
+      readmodel Author
+        id Uuid key
+        name String
+      query AllAuthors => observable Author[]

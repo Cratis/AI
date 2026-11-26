@@ -1,6 +1,6 @@
 {"skill":"cratis-arc-select-backend-sdk","queries":[
-{"query":"Can a Go backend return a typed command reply through Arc?","shouldTrigger":true},
-{"query":"We have Mix, not a dotnet host. Is the Arc handler available in Elixir?","shouldTrigger":true},
+{"query":"Our service is written in Go. Can an Arc handler return a typed reply that the caller can actually read?","shouldTrigger":true},
+{"query":"I'm working in a Mix project and the examples I found are all C#. What can I use to handle this command in Elixir?","shouldTrigger":true},
 {"query":"Which backend library does a Node service need for Arc query endpoints?","shouldTrigger":true},
 {"query":"Prove the Java-callable adapter works from Java, not just Kotlin.","shouldTrigger":true},
 {"query":"Before porting this validator to Go, what native behavior is supported?","shouldTrigger":true},

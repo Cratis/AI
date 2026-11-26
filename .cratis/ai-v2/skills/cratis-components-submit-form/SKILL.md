@@ -1,5 +1,6 @@
 ---
 name: cratis-components-submit-form
+compatibility: Requires React, Cratis Components and generated Arc proxies.
 description: Use when building a CommandForm, CommandDialog or multi-step command wizard for React inputs. Not for generic confirmation (cratis-components-coordinate-feedback).
 ---
 
@@ -7,11 +8,11 @@ description: Use when building a CommandForm, CommandDialog or multi-step comman
 
 Use Arc CommandForm for inline input and Components fields for its members. Use CommandDialog when success should close a modal; let that form own execution.
 
-Start with the generated Authors contracts. Generate them from the owning backend before type checking; if the exports are missing, pass that project to `cratis-arc-generate-proxies` instead of writing a client substitute.
+Use the generated command type so field bindings and validation target the same member names as the backend.
 
-1. Identify editable members and required hidden values. Done: the command has its id before the first validation, without asking the user to type it.
-2. Bind fields with typed accessors and route member errors back to their fields. Done: the rejected name and its error remain visible in the open dialog.
-3. Close only on success or deliberate cancellation. Done: changing the rejected name to Aster commits once and the dialog closes.
+1. Identify editable members and required hidden values. **Done:** The command has its id before the first validation, without asking the user to type it.
+2. Bind fields with typed accessors and route member errors back to their fields. **Done:** The rejected name and its error remain visible in the open dialog.
+3. Close only on success or deliberate cancellation. **Done:** Changing the rejected name to Aster commits once and the dialog closes.
 
 ## Example
 
@@ -45,4 +46,4 @@ Read references/calendar-field.md when a command member carries a date.
 
 ## Verify
 
-In the cratis-components-submit-form example fixture, run `npm run test:example`. changing the rejected name to Aster commits once and the dialog closes.
+Run `npx tsc --noEmit` in the frontend, then submit an invalid value and correct it in the open dialog. The error attaches to its field, the correction commits once and the dialog closes.

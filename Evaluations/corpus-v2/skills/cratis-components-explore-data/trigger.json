@@ -2,11 +2,11 @@
   "skill": "cratis-components-explore-data",
   "queries": [
     {
-      "query": "Build a PivotViewer by region and show copies per edition.",
+      "query": "I want to group editions by region and show a separate copies measure on each card. How do I define those dimensions?",
       "shouldTrigger": true
     },
     {
-      "query": "Filter pivot cards on a category.",
+      "query": "Selecting East in my facet doesn't narrow the cards. What should the category getter return for the filter?",
       "shouldTrigger": true
     },
     {

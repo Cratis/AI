@@ -1,6 +1,6 @@
 {"skill":"cratis-platform-diagnose-slice","queries":[
-{"query":"Submit worked but Authors stayed empty. We don't know which boundary failed.","shouldTrigger":true},
-{"query":"Locate where the time goes between command completion and first visible row.","shouldTrigger":true},
+{"query":"The form reported success but I can't see the new row. How do I work out whether it stopped at the write, the observer or the screen?","shouldTrigger":true},
+{"query":"The command finishes quickly but the new row takes seconds to appear. What should I measure to find the first slow stage?","shouldTrigger":true},
 {"query":"The query is late after a write; help distinguish projection lag from the screen.","shouldTrigger":true},
 {"query":"Correlate the command, append, checkpoint and read for one slow registration.","shouldTrigger":true},
 {"query":"The UI and kernel logs disagree on whether processing stalled. What should we compare?","shouldTrigger":true},

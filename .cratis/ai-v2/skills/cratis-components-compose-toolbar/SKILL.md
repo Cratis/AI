@@ -1,5 +1,6 @@
 ---
 name: cratis-components-compose-toolbar
+compatibility: Requires React and Cratis Components.
 description: Use when contextual actions need toolbar groups, sections or fan-outs. Not for list data binding (cratis-components-display-list).
 ---
 
@@ -9,9 +10,9 @@ Group mutually exclusive actions under named contexts in one ToolbarSection. Put
 
 Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
 
-1. Map each action to the mode in which it is valid. Done: Draw line belongs only to draw and Add note only to review.
-2. Bind activeContext to the host mode. Done: switching mode removes Draw line from the accessible action set rather than just dimming it.
-3. Navigate into the changed toolbar and invoke the command from the keyboard. Done: Add note records Note and the inactive command is unreachable.
+1. Map each action to the mode in which it is valid. **Done:** Draw line belongs only to draw and Add note only to review.
+2. Bind activeContext to the host mode. **Done:** Switching mode removes Draw line from the accessible action set rather than just dimming it.
+3. Navigate into the changed toolbar and invoke the command from the keyboard. **Done:** Add note records Note and the inactive command is unreachable.
 
 ## Example
 
@@ -38,4 +39,4 @@ Read references/palettes-and-folders.md when a mode has more actions than fit at
 
 ## Verify
 
-In the cratis-components-compose-toolbar example fixture, run `npm run test:example`. Add note records Note and the inactive command is unreachable.
+Run `npx tsc --noEmit` in the frontend, then switch modes and invoke the active command by keyboard. Only that mode's command runs; the previous action cannot receive focus.

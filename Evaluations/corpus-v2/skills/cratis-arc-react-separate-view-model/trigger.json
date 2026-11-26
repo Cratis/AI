@@ -2,11 +2,11 @@
   "skill": "cratis-arc-react-separate-view-model",
   "queries": [
     {
-      "query": "Extract coordination from a complicated React editor into an Arc view model.",
+      "query": "Our editor component now owns several dependent actions. Can we move those decisions out of the JSX so I can test them?",
       "shouldTrigger": true
     },
     {
-      "query": "Use withViewModel for preview behavior.",
+      "query": "How should I inject the preview service into the view model without each render constructing a new instance?",
       "shouldTrigger": true
     },
     {

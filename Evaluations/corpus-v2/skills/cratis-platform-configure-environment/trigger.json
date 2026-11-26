@@ -1,6 +1,6 @@
 {"skill":"cratis-platform-configure-environment","queries":[
-{"query":"Wire separate preview endpoints and credentials without changing the model.","shouldTrigger":true},
-{"query":"Make our local composition fail before it accidentally targets staging.","shouldTrigger":true},
+{"query":"Preview and local development need different endpoints and credentials. How do I wire both without putting secrets in the model?","shouldTrigger":true},
+{"query":"My local compose stack picked up the staging endpoint. Can the app reject that binding before it sends anything?","shouldTrigger":true},
 {"query":"Which provider keys should the host bind from its secret store?","shouldTrigger":true},
 {"query":"Verify a missing environment binding fails startup without leaking the value.","shouldTrigger":true},
 {"query":"Keep test and production identity registrations separate using the same Screenplay model.","shouldTrigger":true},

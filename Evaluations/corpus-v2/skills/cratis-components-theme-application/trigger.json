@@ -2,11 +2,11 @@
   "skill": "cratis-components-theme-application",
   "queries": [
     {
-      "query": "Theme a Components button inside one part of the host.",
+      "query": "Can I change the outline button color in just this panel without changing matching buttons in the rest of the app?",
       "shouldTrigger": true
     },
     {
-      "query": "Load the baseline Cratis tokens and styles.",
+      "query": "Our buttons render without the expected theme even though I set a token. Which styles does the host need to load first?",
       "shouldTrigger": true
     },
     {

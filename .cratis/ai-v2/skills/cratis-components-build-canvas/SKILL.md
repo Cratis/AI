@@ -1,5 +1,6 @@
 ---
 name: cratis-components-build-canvas
+compatibility: Requires React, Cratis Components and a browser for hit testing.
 description: Use when a spatial workspace needs pan, zoom, overlays or canvas objects. Not for a command toolbar alone (cratis-components-compose-toolbar).
 ---
 
@@ -9,9 +10,9 @@ Give Canvas the camera and place selectable objects in world coordinates. Anchor
 
 Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
 
-1. Give the world item a stable id and a hit shape in local coordinates. Done: the item at (64,48) responds at that initial location.
-2. Place the camera action relative to the viewport. Use the supplied handle to center and zoom in one operation. Done: the same world point moves to the viewport center.
-3. Hit-test before and after the move against the actual renderer. Done: the new center selects Pin, its old location misses, and the overlay rectangle does not move.
+1. Give the world item a stable id and a hit shape in local coordinates. **Done:** The item at (64,48) responds at that initial location.
+2. Place the camera action relative to the viewport. Use the supplied handle to center and zoom in one operation. **Done:** The same world point moves to the viewport center.
+3. Hit-test before and after the move against the actual renderer. **Done:** The new center selects Pin, its old location misses, and the overlay rectangle does not move.
 
 ## Example
 
@@ -42,4 +43,6 @@ Read references/layers.md when a layer must stay readable during zoom.
 
 ## Verify
 
-In the cratis-components-build-canvas example fixture, run `npm run test:journey`. the new center selects Pin, its old location misses, and the overlay rectangle does not move.
+**Requires:** For browser automation, check `npx playwright install --list` for Chromium; if unavailable, exercise the mounted canvas in a real browser instead.
+
+Run `npx tsc --noEmit` in the frontend, then pan and zoom before clicking the object's new and old positions. Only the new position hits; the overlay stays fixed. If the old position still hits, check whether the hit shape uses world coordinates rather than viewport pixels.

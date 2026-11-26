@@ -2,11 +2,11 @@
   "skill": "cratis-components-choose-control",
   "queries": [
     {
-      "query": "Choose a segmented control for an exclusive filter.",
+      "query": "I have two mutually exclusive filter options. How do I let someone choose one without applying it immediately?",
       "shouldTrigger": true
     },
     {
-      "query": "Keep search text separate from a ComboBox selection.",
+      "query": "Typing into my searchable picker changes the saved value before I pick a result. Which state belongs to the control?",
       "shouldTrigger": true
     },
     {

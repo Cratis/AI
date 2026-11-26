@@ -1,5 +1,6 @@
 ---
 name: cratis-components-display-list
+compatibility: Requires React and Cratis Components.
 description: Use when building a DataPage or DataTable with query-backed rows, columns, selection or details. Not for server-side paging logic (cratis-arc-page-query).
 ---
 
@@ -7,11 +8,11 @@ description: Use when building a DataPage or DataTable with query-backed rows, c
 
 Use DataPage for a complete list screen. The generated query supplies rows; the compound columns and menu items describe how to read or act on them.
 
-Start with the generated Authors contracts. Generate them from the owning backend before type checking; if the exports are missing, pass that project to `cratis-arc-generate-proxies` instead of writing a client substitute.
+Use the generated query's row type for the table, its columns and the selected-row callback.
 
-1. Identify the stable key and define the empty state separately from a failed or loading query. Done: a successful empty result shows No authors.
-2. Use the selected row from the menu callback rather than an array index. Done: the action is unavailable before selection and selection survives duplicate display labels by identity.
-3. Feed a populated result and choose a non-default row. Done: the Name column displays both rows and Inspect targets Fern, not its neighbor.
+1. Identify the stable key and define the empty state separately from a failed or loading query. **Done:** A successful empty result shows No authors.
+2. Use the selected row from the menu callback rather than an array index. **Done:** The action is unavailable before selection and selection survives duplicate display labels by identity.
+3. Feed a populated result and choose a non-default row. **Done:** The Name column displays both rows and Inspect targets Fern, not its neighbor.
 
 ## Example
 
@@ -42,4 +43,4 @@ Read references/filters.md when search needs to cover unloaded rows.
 
 ## Verify
 
-In the cratis-components-display-list example fixture, run `npm run test:example`. the Name column displays both rows and Inspect targets Fern, not its neighbor.
+Run `npx tsc --noEmit` in the frontend, then select the second of two rows and invoke its action. The displayed detail belongs to that row, even when both labels match.
