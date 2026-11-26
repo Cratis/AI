@@ -1,39 +1,42 @@
-using Cratis.Chronicle;
-using Cratis.Chronicle.Auditing;
+using Cratis.Arc.Commands;
+using Cratis.Arc.Commands.ModelBound;
+using Cratis.Arc.Queries.ModelBound;
 using Cratis.Chronicle.Events;
-using Cratis.Chronicle.EventSequences;
 using Cratis.Chronicle.Projections.ModelBound;
-using Cratis.Chronicle.ReadModels;
-using Cratis.Chronicle.Transactions;
-using Cratis.Execution;
+using FluentValidation;
 using Xunit;
 
-[EventType] public record AuthorRegistered(string Name);
-[Passive, FromEvent<AuthorRegistered>] public record Author(Guid Id, string Name);
-public class GuardedCreation
+namespace Library.Books.Borrowing;
+
+public record Isbn(string Value) : EventSourceId<string>(Value);
+[EventType] public record CopyAdded;
+[EventType] public record BookBorrowed;
+
+[ReadModel]
+public record BookStock(Isbn Id, [Increment<CopyAdded>, Decrement<BookBorrowed>] int Available);
+
+[Command]
+public record BorrowBook(Isbn Isbn)
+{
+    public BookBorrowed Handle() => new();
+}
+
+public class BorrowBookValidator : CommandValidator<BorrowBook>
+{
+    public BorrowBookValidator(BookStock? stock) =>
+        RuleFor(command => command.Isbn)
+            .Must(_ => stock is { Available: > 0 })
+            .WithMessage("No copies of this book are available.");
+}
+
+public class BorrowingTests
 {
     [Fact]
-    public async Task rejects_a_decision_based_on_absence()
+    public void only_allows_borrowing_available_stock()
     {
-        using var client = new ChronicleClient(ChronicleOptions.FromDevelopmentConnectionString());
-        var store = await client.GetEventStore("corpus-guard", Guid.NewGuid().ToString());
-        EventSourceId source = Guid.NewGuid();
-        UnitOfWork NewUnit() => new(CorrelationId.New(), _ => { }, store);
-        var first = NewUnit();
-        var owner = first.ClaimDecisionReadCommitOwnership();
-        using (first.EnforceReadProtection())
-        {
-            Assert.False((await store.GetDecisionReads().GetFor<Author>(first, source)).Exists);
-            Task competitor;
-            using (ExecutionContext.SuppressFlow()) competitor = Task.Run(async () => Assert.True((await store.EventLog.Append(source, new AuthorRegistered("Birch"))).IsSuccess));
-            await competitor;
-            first.AddEvent(EventSequenceId.Log, source, new AuthorRegistered("Aster"), Causation.Unknown());
-            await first.CommitAsOwner(owner);
-        }
-        Assert.False(first.IsSuccess);
-        Assert.Contains(first.GetConcurrencyViolations(), violation => violation.EventSourceId == source);
-        var fresh = NewUnit();
-        using (fresh.EnforceReadProtection()) Assert.True((await store.GetDecisionReads().GetFor<Author>(fresh, source)).Exists);
-        Assert.Equal(new AuthorRegistered("Birch"), Assert.Single(await store.EventLog.GetFromSequenceNumber(EventSequenceNumber.First, source)).Content);
+        var command = new BorrowBook(new Isbn("123"));
+        Assert.False(new BorrowBookValidator(null).Validate(command).IsValid);
+        Assert.False(new BorrowBookValidator(new(command.Isbn, 0)).Validate(command).IsValid);
+        Assert.True(new BorrowBookValidator(new(command.Isbn, 1)).Validate(command).IsValid);
     }
 }

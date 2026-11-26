@@ -1,22 +1,53 @@
 ---
 name: cratis-chronicle-record-event
+description: Declares an event and appends it to Chronicle. Use when recording an event directly with IEventLog. Not for returning an event from an Arc command (use cratis-arc-declare-command).
 compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
-description: Use when declaring an [EventType] record or appending a fact directly with IEventLog. Not for returning events from Handle() (cratis-arc-declare-command) or changing a registered schema (cratis-chronicle-evolve-event).
 ---
 
-# Record an accepted fact
+# Append an author registration
 
-1. Start with the accepted outcome, not the requested action. If the history owner is unclear, send the actor and outcome to [Discover one timeline](../cratis-modeling-discover-timeline/SKILL.md); if its ID type is missing, pass the agreed owner to [Give a domain value a type](../cratis-fundamentals-name-value/SKILL.md). **Done:** the caller supplies one stable source ID; the payload contains what a future reader needs without re-querying mutable state.
-2. Declare the past-tense fact in the discovered application assembly. Keep the existing event type identity once data exists. **Done:** the event store registers the type before the writer runs.
+1. Reference `Cratis.Chronicle` in the backend. Put the registration event and its writer in `Features/Authors/Registration/`.
+2. Mark the event `[EventType]`. The stored ID defaults to the type name; if you rename the type later, retain its old ID with `[EventType("AuthorRegistered")]`.
+3. Inject `IEventLog` into the direct writer. Pass the same `AuthorId` for all events about that author. Return the append result to the caller.
 
 ```csharp
+// Features/Authors/Registration/AuthorRegistry.cs
+using Cratis.Chronicle.Events;
+using Cratis.Chronicle.EventSequences;
+
+namespace Library.Authors.Registration;
+
+public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
+
 [EventType]
 public record AuthorRegistered(string Name);
+
+public class AuthorRegistry(IEventLog eventLog)
+{
+    public Task<AppendResult> Register(AuthorId authorId, string name) =>
+        eventLog.Append(authorId, new AuthorRegistered(name));
+}
 ```
 
-3. For an Arc command, hand the declaration to [Return the outcome of an intent](../cratis-arc-declare-command/SKILL.md) and stop: don't append and return the same event. For a direct writer, await `eventLog.Append(authorId, new AuthorRegistered("Aster"))` and inspect the result before acknowledging acceptance. **Done:** a success has a sequence position; a constraint or concurrency refusal doesn't produce a success response. Read references/append-outcomes.md when a writer retries.
-4. Read the source history in the same store and namespace. **Done:** exactly one matching payload at the returned position, not merely a successful method return. Read references/event-log-hygiene.md when the payload contains user identifiers or raw request data.
+## Read back the accepted registration
 
-To deliver the full Add author flow, pass the fact and intended row to [Deliver one observable change](../cratis-platform-deliver-slice/SKILL.md). For application-level accepted/refused evidence, pass the command and source to [Prove the boundary a direct call misses](../cratis-specifications-exercise-backend/SKILL.md); the direct writer checks only the accepted append.
+In a caller with the library's `IEventLog`, take the result from `var result = await new AuthorRegistry(eventLog).Register(authorId, "Aster");`. Check `result.IsSuccess` before reporting success. On refusal inspect `result.ConstraintViolations`, `result.ConcurrencyViolation` and `result.Errors`. For an accepted registration, read only that author's registrations and match the returned position:
 
-Run `dotnet test -c Release` in the application's event spec project against a disposable store. Read back the accepted append and compare its source, position and payload. If the read is empty, check the append result for a refusal before retrying.
+```csharp
+var registrations = await eventLog.GetForEventSourceIdAndEventTypes(
+    authorId, [typeof(AuthorRegistered).GetEventType()]);
+var stored = registrations.Single(e => e.Context.SequenceNumber == result.SequenceNumber);
+var name = ((AuthorRegistered)stored.Content).Name;
+var registeredAt = stored.Context.Occurred;
+```
+
+## Avoid
+
+- Don't generate an ID inside the writer. Use the ID supplied for this author.
+- Don't use observer completion to decide whether the append was accepted. Check `result.IsSuccess` first.
+- Don't append inside an Arc command that already returns `AuthorRegistered`; that would write twice.
+
+## Related skills
+
+- [Return an event from an Arc command](../cratis-arc-declare-command/SKILL.md)
+- [Reserve an author's name](../cratis-chronicle-constrain-append/SKILL.md)

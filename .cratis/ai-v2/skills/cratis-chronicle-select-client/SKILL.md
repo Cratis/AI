@@ -1,30 +1,40 @@
 ---
 name: cratis-chronicle-select-client
-compatibility: Native language toolchain and matching Chronicle client or generated contracts.
-description: Use when consuming Chronicle gRPC contracts in TypeScript, Kotlin, Elixir or Python, or checking non-.NET append and concurrency support. Not for an Arc backend SDK (cratis-arc-select-backend-sdk).
+description: Picks the Chronicle client package for a non-.NET service. Use when choosing Python, Elixir, Kotlin or TypeScript contracts or checking what a language client provides. Not for choosing an Arc backend SDK (use cratis-arc-select-backend-sdk).
+compatibility: A language toolchain with the matching Chronicle contracts installed.
 ---
 
-# Choose the Chronicle client layer
+# Choose a Chronicle client for a non-.NET service
 
-1. Identify the deliverable: serialize a wire message, resolve a service stub, or execute a high-level operation. Read references/language-matrix.md when picking the package. **Done:** identify both the language and the layer; a generated stub isn't a configured client against a kernel.
-2. For a wire contract, import from the generated package and run the language's own consumer. In Python the module follows the `EventTypes` contract group:
+1. Decide whether the caller needs a wire message or needs to run Chronicle application behavior. A service stub is not a reactor host.
+2. Use the generated contracts from `cratis-chronicle-contracts` in Python or `:cratis_chronicle_contracts` in Elixir. In TypeScript import generated types from `@cratis/chronicle.contracts`. In Kotlin `io.cratis.chronicle.contracts.ChronicleConnection` manages the gRPC channel; call its suspending `connect()` before using it.
+3. For a reactor, projection, reducer or guarded application write, use the [.NET application integration](../cratis-chronicle-connect-application/SKILL.md). Don't translate a .NET API into another language and assume that implementation exists.
+
+## Read a registered author's event type in Python
+
+Install `cratis-chronicle-contracts` in the consuming service's Python environment. Run the following with `python -m unittest discover -s tests`. It checks the generated message and stub without connecting to a kernel.
 
 ```python
+# tests/test_author_event_type.py
 import unittest
 from cratis_chronicle_contracts import eventtypes_pb2, eventtypes_pb2_grpc
 
 
-class ContractTest(unittest.TestCase):
-    def test_wire_roundtrip_and_service_stub(self):
-        fact = eventtypes_pb2.EventType(Id="AuthorRegistered", Generation=1)
-        copy = eventtypes_pb2.EventType.FromString(fact.SerializeToString())
-        self.assertEqual((copy.Id, copy.Generation), ("AuthorRegistered", 1))
+class AuthorEventTypeTest(unittest.TestCase):
+    def test_registration_identity(self):
+        registration = eventtypes_pb2.EventType(Id="AuthorRegistered", Generation=1)
+        decoded = eventtypes_pb2.EventType.FromString(registration.SerializeToString())
+        self.assertEqual((decoded.Id, decoded.Generation), ("AuthorRegistered", 1))
         self.assertTrue(callable(eventtypes_pb2_grpc.EventTypesStub))
 ```
 
-**Done:** the serialized message round-trips and the stub resolves without contacting a live kernel. A similarly named method from .NET is not evidence for Python.
-3. For append outcomes, observer registration or guarded reads, verify the idiomatic SDK package, its exact operation and a native behavioral example. If missing, stop at the verified layer and name the missing operation. **Done:** no claim of concurrency protection from encoding a protobuf.
+## Avoid
 
-**Requires (Python example):** Check `python3 --version` and import `cratis_chronicle_contracts` in the application's virtual environment. If the interpreter or package is missing, use an environment with the application's pinned dependencies before claiming wire compatibility.
+- Don't interpret a message round trip as a successful server write.
+- Don't promise retry or reconnect behavior because the package exposes a channel or service stub.
+- Don't assume a native consumer can host a .NET projection.
 
-Save the wire check above as `check_contract.py` in the application and run `python3 -m unittest -v check_contract`. One passing test means the fields survived serialization and the stub resolved; it says nothing about live RPCs.
+## Related skills
+
+- [Choose the Arc backend SDK](../cratis-arc-select-backend-sdk/SKILL.md)
+- [Connect a .NET application](../cratis-chronicle-connect-application/SKILL.md)

@@ -1,20 +1,57 @@
 ---
 name: cratis-chronicle-publish-contract
-compatibility: .NET SDK and disposable Chronicle producer and consumer targets.
-description: Use when publishing integration events through Chronicle outbox and inbox subscriptions between services. Not for a local post-commit effect (cratis-chronicle-react-to-fact).
+description: Publishes a selected Chronicle event from one event store to another. Use when delivering a public contract through outbox and inbox. Not for notifying a receiver within a store (use cratis-chronicle-react-to-fact).
+compatibility: .NET SDK and disposable producer and consumer stores.
 ---
 
-# Publish an explicit integration contract
+# Publish an author's listing without sharing the internal review
 
-1. Name the publishing store, consuming store, namespace and public event schema. A consumer needing notification of registration need not receive the author's private profile. **Done:** the contract contains only fields the subscriber needs and has an agreed identity.
-2. Append the public contract to the publisher's `EventSequenceId.Outbox`. A successful append to its ordinary log is not publication. Register a stable subscription on the target, selecting the source and allowed types. Fixture excerpt:
+1. Reference `Cratis.Chronicle` in both services. Put the public event in a project both reference. Mark it `[Public]` and name its originating store. Keep `InternalReview` in the library service.
+2. In the directory's `Program.cs`, call `await consumer.Subscriptions.Subscribe("library-listings", "library", subscription => subscription.WithEventType<AuthorListed>());` with the directory's `IEventStore`. Import `Library.Contracts`. This subscription belongs in the consumer, not the library's publishing class.
+3. In the library's publishing feature, append the internal review to the event log. Only after acceptance, append the public listing to the outbox for the same `AuthorId`.
 
 ```csharp
-        await target.Subscriptions.Subscribe("author-notices", sourceName,
-            builder => builder.WithEventType<AuthorListed>());
+// Library.Contracts/AuthorListed.cs
+using Cratis.Chronicle.Events;
+
+namespace Library.Contracts;
+
+[EventType, Public, EventStore("library")]
+public record AuthorListed(string PublicName);
 ```
 
-**Done:** the definition names the publishing store rather than the consuming store, and excludes the internal control type.
-3. Publish a nonmatching event followed by a matching sentinel. Inspect `inbox-{sourceEventStore}` on the target; never seed that inbox by hand. Process its stored copy independently. **Done:** only the matching source and payload arrive, and consumer output advances without writing another publisher event. Read references/delivery-diagnostics.md when publication succeeds but output is missing.
+```csharp
+// Features/Authors/Publication/ListingExchange.cs
+using Cratis.Chronicle;
+using Cratis.Chronicle.Events;
+using Cratis.Chronicle.EventSequences;
+using Library.Authors.Registration;
+using Library.Contracts;
 
-Run `dotnet test -c Release` in the application's contract spec project against disposable targets. Require a matching consumer inbox copy, not just an accepted subscription. If the inbox is empty, verify the fact reached the producer's outbox before changing the subscriber.
+namespace Library.Authors.Publication;
+
+[EventType] public record InternalReview;
+
+public static class ListingExchange
+{
+    public static async Task<AppendResult> Publish(IEventStore producer, AuthorId id, string name)
+    {
+        var review = await producer.EventLog.Append(id, new InternalReview());
+        if (!review.IsSuccess) return review;
+        return await producer.GetEventSequence(EventSequenceId.Outbox).Append(id, new AuthorListed(name));
+    }
+}
+```
+
+`AuthorId` comes from [Record an event](../cratis-chronicle-record-event/SKILL.md). Check `result.IsSuccess` for the returned publication result. In the directory, after delivery, select `var inbox = consumer.GetEventSequence($"{EventSequenceId.InboxPrefix}library");` and read `await inbox.GetFromSequenceNumber(EventSequenceNumber.First, id)`. For a newly published author expect a single `AuthorListed` with the public name, not `InternalReview`.
+
+## Avoid
+
+- Don't treat `[Public]` as a write: append to the outbox.
+- Don't omit `WithEventType<AuthorListed>()`; without a selection the subscription builder includes all registered event types.
+- Don't report that the review was rolled back if the separate outbox append failed.
+
+## Related skills
+
+- [Append an event](../cratis-chronicle-record-event/SKILL.md)
+- [Send a post-commit notice](../cratis-chronicle-react-to-fact/SKILL.md)

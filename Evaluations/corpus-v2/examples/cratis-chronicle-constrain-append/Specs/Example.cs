@@ -1,27 +1,36 @@
 using Cratis.Chronicle;
 using Cratis.Chronicle.Events;
 using Cratis.Chronicle.Events.Constraints;
-using Cratis.Chronicle.EventSequences.Concurrency;
+using Cratis.Concepts;
 using Xunit;
 
-[EventType]
-[Unique(name: "one-registration", message: "Author already registered.")]
-public record AuthorRegistered(string Name);
+public record AuthorName(string Value) : ConceptAs<string>(Value);
 
-public class RegistrationRace
+[EventType]
+public record AuthorRegistered(
+    [property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] AuthorName Name);
+
+[EventType, RemoveConstraint("UniqueAuthorName")]
+public record AuthorRemoved;
+
+public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
+
+public class Reservation
 {
     [Fact]
-    public async Task one_source_can_register_once()
+    public async Task refuses_the_same_name_for_a_different_author()
     {
         using var client = new ChronicleClient(ChronicleOptions.FromDevelopmentConnectionString());
-        var store = await client.GetEventStore("corpus-constrain", Guid.NewGuid().ToString());
-        var key = EventSourceId.New();
-        var fact = new AuthorRegistered("Aster");
-        var results = await Task.WhenAll(Enumerable.Range(0, 2).Select(_ => store.EventLog.Append(key, fact, concurrencyScope: ConcurrencyScope.None)));
-        Assert.Single(results, r => r.IsSuccess);
-        var loser = Assert.Single(results, r => !r.IsSuccess);
-        Assert.Equal("one-registration", Assert.Single(loser.ConstraintViolations).ConstraintName.Value);
-        Assert.Single(await store.EventLog.GetFromSequenceNumber(EventSequenceNumber.First, key));
-        Assert.True((await store.EventLog.Append(EventSourceId.New(), fact)).IsSuccess);
+        var store = await client.GetEventStore("corpus-unique", Guid.NewGuid().ToString());
+        var first = new AuthorId(Guid.NewGuid());
+        var other = new AuthorId(Guid.NewGuid());
+        var registration = new AuthorRegistered(new AuthorName("Aster"));
+        Assert.True((await store.EventLog.Append(first, registration)).IsSuccess);
+        var refused = await store.EventLog.Append(other, registration);
+        Assert.False(refused.IsSuccess);
+        Assert.Equal("UniqueAuthorName", Assert.Single(refused.ConstraintViolations).ConstraintName.Value);
+        Assert.Empty(await store.EventLog.GetFromSequenceNumber(EventSequenceNumber.First, other));
+        Assert.True((await store.EventLog.Append(first, new AuthorRemoved())).IsSuccess);
+        Assert.True((await store.EventLog.Append(other, registration)).IsSuccess);
     }
 }

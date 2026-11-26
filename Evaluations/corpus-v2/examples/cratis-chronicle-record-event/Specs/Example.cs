@@ -8,6 +8,12 @@ public record AuthorRegistered(string Name);
 
 public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
 
+public class AuthorRegistry(IEventLog eventLog)
+{
+    public Task<AppendResult> Register(AuthorId authorId, string name) =>
+        eventLog.Append(authorId, new AuthorRegistered(name));
+}
+
 public class Recording
 {
     [Fact]
@@ -17,11 +23,12 @@ public class Recording
         var store = await client.GetEventStore("corpus-record", Guid.NewGuid().ToString());
         IEventLog eventLog = store.EventLog;
         var authorId = new AuthorId(Guid.Parse("11111111-1111-4111-8111-111111111111"));
-        var result = await eventLog.Append(authorId, new AuthorRegistered("Aster"));
+        var result = await new AuthorRegistry(eventLog).Register(authorId, "Aster");
         Assert.True(result.IsSuccess);
-        var fact = Assert.Single(await eventLog.GetFromSequenceNumber(EventSequenceNumber.First, authorId));
-        Assert.Equal(result.SequenceNumber, fact.Context.SequenceNumber);
-        Assert.Equal(authorId.Value.ToString(), fact.Context.EventSourceId.Value);
-        Assert.Equal(new AuthorRegistered("Aster"), fact.Content);
+        var stored = Assert.Single(await eventLog.GetForEventSourceIdAndEventTypes(authorId, [typeof(AuthorRegistered).GetEventType()]));
+        Assert.Equal(result.SequenceNumber, stored.Context.SequenceNumber);
+        Assert.Equal(authorId.Value.ToString(), stored.Context.EventSourceId.Value);
+        Assert.Equal(new AuthorRegistered("Aster"), stored.Content);
+        Assert.NotEqual(default, stored.Context.Occurred);
     }
 }

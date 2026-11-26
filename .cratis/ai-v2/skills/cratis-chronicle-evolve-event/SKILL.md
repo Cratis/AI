@@ -1,19 +1,53 @@
 ---
 name: cratis-chronicle-evolve-event
-compatibility: .NET SDK and Chronicle event migration APIs.
-description: Use when a registered Chronicle event needs a new schema generation and stored events must remain readable. Not for a new event declaration (cratis-chronicle-record-event) or an EF migration (cratis-arc-connect-storage).
+description: Migrates a stored event to a new generation without changing its identity. Use when renaming a payload property or making a breaking shape change. Not for changing a database schema (use cratis-arc-connect-storage).
+compatibility: .NET SDK and Chronicle event migrations.
 ---
 
-# Keep both generations readable
+# Rename AuthorRegistered.Name without breaking older readers
 
-1. Compare the registered schema to the proposed contract, using examples from retained data, including missing optional values. Don't repurpose the existing type ID for a different fact. **Done:** identify a breaking change that actually requires a generation, not just a display label.
-2. Preserve the previous record. Give the current record the same event type ID and next generation, and bind the prior one with `EventTypeGenerationFor<T>`. Implement adjacent `Upcast` and `Downcast` recipes on `EventTypeMigration<TCurrent,TPrevious>`. For `Name` becoming `DisplayName`, map by rename in both directions, not by splitting on spaces. **Done:** old and new reader contracts each have a defined result for writes in either generation. Read references/generation-fixtures.md before treating a lossy transform as reversible.
-Example upcast body (the downcast swaps source and target):
+1. Reference `Cratis.Chronicle`. Keep the old `Name` record, the new `DisplayName` record and the migration in the author registration feature.
+2. Keep the stored ID `AuthorRegistered` and increment the generation. Mark the old type with `[EventTypeGenerationFor<AuthorRegistered>(1)]`. Both types must resolve to the same ID and their generations must be adjacent.
+3. Put `AuthorRegisteredMigration` in the backend assembly with the event records. Chronicle's default client finds migration implementations in the assemblies it scans; no separate migration registration is needed with default discovery. In both methods, specify the destination property first, then the source property.
 
 ```csharp
-builder.Properties(p => p.RenamedFrom(t => t.DisplayName, s => s.Name));
+// Features/Authors/Registration/AuthorRegisteredMigration.cs
+using Cratis.Chronicle.Events;
+using Cratis.Chronicle.Events.Migrations;
+
+namespace Library.Authors.Registration;
+
+[EventType(generation: 2)] public record AuthorRegistered(string DisplayName);
+[EventTypeGenerationFor<AuthorRegistered>(1)] public record AuthorRegisteredV1(string Name);
+
+public class AuthorRegisteredMigration : EventTypeMigration<AuthorRegistered, AuthorRegisteredV1>
+{
+    public override void Upcast(IEventMigrationBuilder<AuthorRegistered, AuthorRegisteredV1> builder) =>
+        builder.Properties(p => p.RenamedFrom(t => t.DisplayName, s => s.Name));
+
+    public override void Downcast(IEventMigrationBuilder<AuthorRegisteredV1, AuthorRegistered> builder) =>
+        builder.Properties(p => p.RenamedFrom(t => t.Name, s => s.DisplayName));
+}
 ```
 
-3. Register both shapes and the recipe on a disposable clone; append in each generation and inspect results from each reader. For existing events, wait for backfill before checking stored representations. **Done:** original values survive in both reader shapes after backfill; report unsupported cases rather than silently substituting defaults. A successful build or recipe registration is not a backfill test.
+## Read each generation through a projection
 
-Run `dotnet test -c Release` in the application's migration spec project. Assert that old and new readers recover the expected values in both directions. If an old field is empty on downcast, check the reverse mapping before migrating retained data.
+Append `Name = "Aster"` with a client that registers only generation one. Start the updated client with both generations and the migration. Read the projected author by ID using a projection subscribed to `AuthorRegistered`; check `DisplayName`. Append a generation-two registration for another author, read a projection subscribed to `AuthorRegisteredV1`, and check `Name`. For this check, define these two projections in the same registration namespace (import `Cratis.Chronicle.Projections.ModelBound`):
+
+```csharp
+[FromEvent<AuthorRegistered>] public record CurrentAuthor(AuthorId Id, string DisplayName);
+[FromEvent<AuthorRegisteredV1>] public record PreviousAuthor(AuthorId Id, string Name);
+```
+
+Read them with `await store.ReadModels.GetInstanceById<CurrentAuthor>(oldAuthorId.Value)` and `await store.ReadModels.GetInstanceById<PreviousAuthor>(newAuthorId.Value)`. A filter on stored event type ID alone does not select a generation. Use `AuthorId` from [Record an event](../cratis-chronicle-record-event/SKILL.md).
+
+## Avoid
+
+- Don't give the rename a new event type ID.
+- Don't reverse the arguments to `RenamedFrom` in the downcast: `Name` is its destination.
+- Don't assume registering the migration rewrites stored events or rebuilds existing read models.
+
+## Related skills
+
+- [Declare a registration](../cratis-chronicle-record-event/SKILL.md)
+- [Project registrations](../cratis-chronicle-project-view/SKILL.md)

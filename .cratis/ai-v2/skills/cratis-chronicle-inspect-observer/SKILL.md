@@ -1,23 +1,47 @@
 ---
 name: cratis-chronicle-inspect-observer
-compatibility: Node.js for the offline failure summary; .NET SDK for the application spec.
-description: Use when a Chronicle observer lags, a projection stops advancing, or an observer partition has failed. Not for missing observable query emissions after the view updated (cratis-arc-diagnose-live-query).
+description: Diagnoses a stale Chronicle read model from observer positions and failed partitions. Use when an accepted registration is missing from the author listing. Not for repairing a live query connection (use cratis-arc-diagnose-live-query).
+compatibility: .NET SDK; Node.js for offline summaries.
 ---
 
-# Locate the stalled delivery before recovering it
+# Find out why a registered author is missing from the listing
 
-1. Identify store, namespace, event sequence, observer and affected partition. Obtain the expected matching fact position rather than assuming every event in the log matches. Read references/workbench.md when examining the Workbench. **Done:** one scoped observation binds the missing output to a specific input.
-2. Compare last handled and next positions with the matching input. Check running state, failed partitions, attempts, redacted exception category, and active jobs. An observer-wide checkpoint can advance while one partition is failed. **Done:** distinguish a backlog that is progressing from a recorded failure; if the view already has the row, give that row and query to [Locate the first missing emission](../cratis-arc-diagnose-live-query/SKILL.md).
-For client-side inspection start with `await store.Observers.GetObserversWithState()`. Select the matching `ObserverInformation.Id` and `EventSequenceId`. Read `await store.FailedPartitions.GetFailedPartitionsFor(observer.Id)` for the same scope; compare `FailedPartition.Partition`, `IsResolved` and each attempt's `SequenceNumber` instead of printing its payload or stack trace.
-
-3. For failure, check the dependency and whether an external effect already happened. Propose retry of the affected partition only after the cause is fixed and output is safe to repeat. Read references/replay-cost.md when state itself must be rebuilt. **Done:** record a bounded recovery proposal, its separate approval requirement and the exact position and output that would confirm recovery. Do not start a job while diagnosing.
-
-Select unresolved records within the store, namespace and sequence already under investigation:
+1. Reference `Cratis.Chronicle`. Check `result.IsSuccess`; keep `result.SequenceNumber`, the author's event source ID and the observer ID. Use the same store, namespace and event sequence as the write.
+2. Read `await eventStore.Observers.GetAll()`. Find the observer by ID, check `observer.RunningState` and compare its positions only when the event sequence matches. For a write at 20 and a last-handled position of 15, next position 16 means the observer is behind.
+3. For the accepted append, use `var completion = await result.WaitForCompletion();` from `Cratis.Chronicle.Observation` and inspect `completion.FailedPartitions`. Use `await eventStore.FailedPartitions.GetFailedPartitionsFor(observer.Id)` and match `failure.Partition.Value` to the affected event source ID. A failure for another author doesn't explain this one.
+4. To check a job, use `await eventStore.Jobs.GetJobs()` and `await eventStore.Jobs.GetJob(id)`. A null result means that job wasn't found, not that it completed.
 
 ```csharp
-        var failed = scopedFailures.SingleOrDefault(f => !f.IsResolved && f.ObserverId == observer.Id && f.Partition.Value == partition);
+// Features/Authors/Diagnostics/AuthorListingProgress.cs
+using Cratis.Chronicle.EventSequences;
+using Cratis.Chronicle.Observation;
+
+namespace Library.Authors.Diagnostics;
+
+public static class AuthorListingProgress
+{
+    public static string ComparePosition(ObserverInformation observer, EventSequenceId sequence, ulong write)
+    {
+        if (observer.EventSequenceId != sequence) return "Different sequence: do not compare positions";
+        var last = observer.LastHandledEventSequenceNumber;
+        if (!last.IsActualValue || last.Value < write)
+            return observer.NextEventSequenceNumber.IsActualValue
+                ? $"Behind; next position is {observer.NextEventSequenceNumber.Value}"
+                : "No actual next position reported";
+        return "Position reached; check this author's failed partition and read model";
+    }
+}
 ```
 
-For one selected partition, save its attempts locally as a JSON array with numeric `sequenceNumber` and string `kind` per attempt. Run `node scripts/summarize-failure.mjs <attempts.json>` from the skill directory; it prints positions and allowlisted failure categories without identifiers, messages or stacks. It does not connect or retry.
+To summarize captured attempts without printing their payloads, run `node scripts/summarize-failure.mjs attempts.json`. Pass a JSON array with `sequenceNumber` and `kind` for each attempt.
 
-Run `dotnet test -c Release` in the application's diagnosis spec project. An unresolved failure for the selected partition must take precedence over the observer checkpoint; a resolved or unrelated failure must not.
+## Avoid
+
+- Don't interpret an unavailable position as a large position ahead of the write.
+- Don't use client health or an observer's position alone to declare the author's read model current.
+- Don't remove an observer, stop a job or start replay to diagnose progress.
+
+## Related skills
+
+- [Check the original append](../cratis-chronicle-record-event/SKILL.md)
+- [Diagnose the live query connection](../cratis-arc-diagnose-live-query/SKILL.md)

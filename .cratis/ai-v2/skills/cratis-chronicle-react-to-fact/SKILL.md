@@ -1,23 +1,45 @@
 ---
 name: cratis-chronicle-react-to-fact
+description: Delivers a notification after Chronicle commits an event. Use when a reactor should notify a downstream service. Not for publishing an inter-service event contract (use cratis-chronicle-publish-contract).
 compatibility: .NET SDK and Chronicle reactor APIs.
-description: Use when a Chronicle reactor must notify another system or invoke a follow-up command after commit. Not for an operation needed before commit (cratis-arc-declare-operation) or an inbox subscription (cratis-chronicle-publish-contract).
 ---
 
-# Deliver a repeatable effect
+# Notify the author directory after registration
 
-1. Name the committed fact and the external effect. A registration notice failing does not undo AuthorRegistered. **Done:** the caller can distinguish an accepted registration from a pending notice.
-2. Implement `IReactor`; return the asynchronous downstream operation from the typed handler. Pass a stable key to a receiver that atomically remembers completed effects. For example:
+1. Reference `Cratis.Chronicle`. Put `RegistrationNotice` in the feature that sends directory notices. Import `AuthorRegistered` from [Record an event](../cratis-chronicle-record-event/SKILL.md).
+2. Implement `IReactor`. Take `AuthorRegistered` and `ReactorDelivery` in the public handler. Register the library's directory adapter for `IAuthorDirectory` in the host's services so Chronicle can construct the reactor. With default discovery, a concrete `IReactor` in the backend assembly needs no separate reactor registration.
+3. Pass `delivery.Id` with the author's name. The directory must recognize repeated calls with that key. Return its `Task` without catching exceptions so Chronicle can record the failure and retry delivery.
 
 ```csharp
-public class RegistrationNotice(INotices notices) : IReactor
+// Features/Authors/Directory/RegistrationNotice.cs
+using Cratis.Chronicle.Reactors;
+using Library.Authors.Registration;
+
+namespace Library.Authors.Directory;
+
+public interface IAuthorDirectory
 {
-    public Task Registered(AuthorRegistered fact, ReactorDelivery delivery) =>
-        notices.Send(delivery.Id, fact.Name);
+    Task Announce(DeliveryId key, string name);
+}
+
+public class RegistrationNotice(IAuthorDirectory directory) : IReactor
+{
+    public Task Registered(AuthorRegistered @event, ReactorDelivery delivery) =>
+        directory.Announce(delivery.Id, @event.Name);
 }
 ```
 
-**Done:** two deliveries of the same fact to this reactor use the same `delivery.Id`, not a fresh request ID; a failed downstream result throws or otherwise fails the handler instead of advancing it.
-3. Substitute a receiver that commits the notice but loses the acknowledgement on the first attempt. Deliver again. **Done:** the first call visibly fails, the second succeeds and only one notice exists. A local receipt written after a non-idempotent call leaves a crash window. Read references/replay-and-retries.md before replaying an observer with effects.
+## Retry a notice after a lost acknowledgement
 
-Run `dotnet test -c Release` in the application's reactor spec project. Deliver the same fact twice: both calls must use the same delivery key and the receiver must apply the effect only once. If the receiver duplicates it despite equal keys, verify the receiver's idempotency contract before retrying.
+Have the directory save the first notice, then fail before acknowledging it. Call the handler again with the same delivery; check that the directory contains only one notice with the expected name.
+
+## Avoid
+
+- Don't create a new key on retry or use the author's ID as the key for every notice. Use `delivery.Id`.
+- Don't use `[OnceOnly]` to deduplicate retries; it affects replay, not recovery.
+- Don't change the observer ID when moving an existing reactor. For this class, retain the old identity on the renamed class with `[Reactor("Library.Authors.Directory.RegistrationNotice")]`.
+
+## Related skills
+
+- [Call a provider during a command](../cratis-arc-declare-operation/SKILL.md)
+- [Publish a public event](../cratis-chronicle-publish-contract/SKILL.md)

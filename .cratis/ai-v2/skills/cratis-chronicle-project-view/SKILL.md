@@ -1,22 +1,41 @@
 ---
 name: cratis-chronicle-project-view
+description: Maps Chronicle events onto a stored read model. Use when projecting event properties or removing a projected instance. Not for calculating state from previous values (use cratis-chronicle-reduce-state).
 compatibility: .NET SDK and Chronicle projections.
-description: Use when building a Chronicle read model that projects events into keyed rows, children or graph edges. Not for prior-state transitions (cratis-chronicle-reduce-state) or exposing a query (cratis-arc-expose-query).
 ---
 
-# Map events into keyed rows
+# Store each registered author's name in a read model
 
-1. Write the expected row after each input, including which event removes it. For Authors, the key is the source, not the submitted name. If field lineage is missing, take that field to [Discover one timeline](../cratis-modeling-discover-timeline/SKILL.md). **Done:** two sources submitting identical values still yield two distinct rows.
-2. Start with model-bound mapping. `[FromEvent<AuthorRegistered>]` maps like-named fields; `[RemovedWith<AuthorRemoved>]` removes the keyed row. Do not put a write or external call on the model. **Done:** the definition identifies subscribed types, key, field sources and deletion. For example:
+1. In the backend project that references `Cratis.Chronicle`, put `Author` beside the query that lists authors. `AuthorId` and `AuthorRegistered` come from [Record an event](../cratis-chronicle-record-event/SKILL.md).
+2. Put `[FromEvent<AuthorRegistered>]` on the record. Chronicle uses the event source ID as `Id` and maps `AuthorRegistered.Name` to `Author.Name` by name.
+3. Reuse the feature's `AuthorRemoved` event if it exists; don't declare a second type with the same persisted ID. Put `[RemovedWith<AuthorRemoved>]` on the record. When this event is appended, Chronicle removes the instance with that author ID.
 
 ```csharp
-[Passive]
+// Features/Authors/Listing/Author.cs
+using Cratis.Chronicle.Events;
+using Cratis.Chronicle.Projections.ModelBound;
+using Library.Authors.Registration;
+
+namespace Library.Authors.Listing;
+
+[EventType] public record AuthorRemoved;
+
 [FromEvent<AuthorRegistered>]
 [RemovedWith<AuthorRemoved>]
 public record Author(AuthorId Id, string Name);
 ```
 
-3. Choose the read path: passive folds on request; materialize when a query enumerates stored rows. Read references/mongo-sink.md when the consumer reads a Mongo collection. For a read that combines sources, see [joins and keyed children](references/joins-and-children.md); for a relationship traversal, see [vertices and edges](references/graph.md). **Done:** the consumer reads the sink or fold the projection actually updates.
-4. Feed two keyed histories; remove only the first. Assert the exact keys and values after reconstruction. If a row disappears for both, check the key selector before changing the query. **Done:** the other author's name remains intact. Hand that model to [Expose the read, not the projection](../cratis-arc-expose-query/SKILL.md) only if it needs an endpoint.
+## Choose the mapping for each property
 
-Run `dotnet test -c Release` in the application's projection spec project. After removing one source, only its row disappears; the other key and mapped values remain unchanged.
+- Keep matching property names for direct copies. If the read model calls the name `DisplayName`, declare `[SetFrom<AuthorRegistered>(nameof(AuthorRegistered.Name))] string DisplayName` instead.
+- For a last-updated timestamp, declare `[FromEvery(contextProperty: nameof(EventContext.Occurred))] DateTimeOffset LastUpdated`. Don't read the wall clock while projecting an event.
+- Keep `[Passive]` off this record: the listing needs stored instances, not a model computed only when requested by ID.
+
+## Check removal by author ID
+
+With default discovery, keep `Author` in the backend assembly; Chronicle discovers records with model-bound projection attributes. Register Aster and Birch using different IDs. After the projection handles the registrations, check both IDs and names. Append `AuthorRemoved` for Aster. After it is handled, list `await store.ReadModels.GetInstances<Author>()` in the test namespace and check that only Birch remains with the same ID and name.
+
+## Related skills
+
+- [Expose the query](../cratis-arc-expose-query/SKILL.md)
+- [Calculate state from previous values](../cratis-chronicle-reduce-state/SKILL.md)

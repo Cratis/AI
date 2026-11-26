@@ -1,7 +1,7 @@
 using Cratis.Chronicle;
 using Cratis.Chronicle.Events;
 using Cratis.Chronicle.Projections.ModelBound;
-using Cratis.Chronicle.ReadModels;
+using Cratis.Chronicle.Observation;
 using Xunit;
 
 [EventType] public record AuthorRegistered(string Name);
@@ -9,7 +9,6 @@ using Xunit;
 
 public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
 
-[Passive]
 [FromEvent<AuthorRegistered>]
 [RemovedWith<AuthorRemoved>]
 public record Author(AuthorId Id, string Name);
@@ -17,19 +16,22 @@ public record Author(AuthorId Id, string Name);
 public class Projection
 {
     [Fact]
-    public async Task removes_only_the_addressed_row()
+    public async Task removes_only_the_named_author()
     {
         using var client = new ChronicleClient(ChronicleOptions.FromDevelopmentConnectionString());
         var store = await client.GetEventStore("corpus-project", Guid.NewGuid().ToString());
-        var a = Guid.Parse("11111111-1111-4111-8111-111111111111");
-        var b = Guid.NewGuid();
-        foreach (var key in new[] { a, b })
+        var a = new AuthorId(Guid.NewGuid());
+        var b = new AuthorId(Guid.NewGuid());
+        foreach (var (key, name) in new[] { (a, "Aster"), (b, "Birch") })
         {
-            Assert.True((await store.EventLog.Append(key, new AuthorRegistered("Aster"))).IsSuccess);
-            Assert.Equal(new Author(new AuthorId(key), "Aster"), await store.ReadModels.GetInstanceById<Author>(key));
+            var result = await store.EventLog.Append(key, new AuthorRegistered(name));
+            Assert.True(result.IsSuccess);
+            Assert.True((await result.WaitForCompletion()).IsSuccess);
+            Assert.Equal(new Author(key, name), await store.ReadModels.GetInstanceById<Author>(key.Value));
         }
-        Assert.True((await store.EventLog.Append(a, new AuthorRemoved())).IsSuccess);
-        Assert.Null(await store.ReadModels.GetInstanceById<Author>(a));
-        Assert.Equal(new Author(new AuthorId(b), "Aster"), await store.ReadModels.GetInstanceById<Author>(b));
+        var removal = await store.EventLog.Append(a, new AuthorRemoved());
+        Assert.True(removal.IsSuccess);
+        Assert.True((await removal.WaitForCompletion()).IsSuccess);
+        Assert.Equal(new Author(b, "Birch"), Assert.Single(await store.ReadModels.GetInstances<Author>()));
     }
 }

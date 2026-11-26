@@ -1,29 +1,33 @@
 using Cratis.Chronicle.Events;
 using Xunit;
 
-[EventType] public record AuthorRegistered(string Name);
+namespace Library.Books.Availability;
 
-public record RegistrationHistory(string FirstName, int Count)
+[EventType] public record BookAdded(int Copies);
+[EventType] public record BookBorrowed;
+
+public record BookAvailability(int Copies, int OnLoan)
 {
-    public static RegistrationHistory Reduce(AuthorRegistered fact, RegistrationHistory? current) =>
-        current is null ? new(fact.Name, 1) : current with { Count = current.Count + 1 };
+    public static BookAvailability Reduce(BookAdded @event, BookAvailability? current) =>
+        new(@event.Copies, 0);
+
+    public static BookAvailability? Reduce(BookBorrowed @event, BookAvailability? current) =>
+        current is null ? null : current with { OnLoan = Math.Min(current.Copies, current.OnLoan + 1) };
 }
 
-public class Reduction
+public class BookAvailabilityTests
 {
     [Fact]
-    public void reconstructs_state_independently_for_each_key()
+    public void counts_loans_only_for_added_books_up_to_the_number_of_copies()
     {
-        (string Key, AuthorRegistered Fact)[] facts = [("a", new("Aster")), ("b", new("Elm")), ("a", new("Birch"))];
-        Dictionary<string, RegistrationHistory> Replay()
-        {
-            var rows = new Dictionary<string, RegistrationHistory>();
-            foreach (var (key, fact) in facts) rows[key] = RegistrationHistory.Reduce(fact, rows.GetValueOrDefault(key));
-            return rows;
-        }
-        var initial = Replay();
-        Assert.Equal(new RegistrationHistory("Aster", 2), initial["a"]);
-        Assert.Equal(new RegistrationHistory("Elm", 1), initial["b"]);
-        Assert.Equal(initial, Replay());
+        var borrowed = new BookBorrowed();
+        Assert.Null(BookAvailability.Reduce(borrowed, null));
+        var added = BookAvailability.Reduce(new BookAdded(2), null);
+        var first = BookAvailability.Reduce(borrowed, added);
+        var second = BookAvailability.Reduce(borrowed, first);
+        Assert.Equal(new BookAvailability(2, 1), first);
+        Assert.Equal(new BookAvailability(2, 2), second);
+        Assert.Equal(second, BookAvailability.Reduce(borrowed, second));
+        Assert.Equal(0, added.OnLoan);
     }
 }

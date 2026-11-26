@@ -1,20 +1,48 @@
 ---
 name: cratis-chronicle-protect-personal-data
-compatibility: .NET SDK and a compliance-enabled disposable Chronicle kernel.
-description: Use when Chronicle events contain PII or a subject's data must be forgotten under GDPR. Not for changing an event generation (cratis-chronicle-evolve-event).
+description: Protects personal values in Chronicle events and read models. Use when classifying member data, releasing a profile or deleting a member's encryption key. Not for deciding who can access the profile (use cratis-arc-authorize-request).
+compatibility: .NET SDK and a compliance-enabled Chronicle kernel.
 ---
 
-# Protect values for the right subject
+# Protect a library member's name and email
 
-1. Remove unnecessary personal fields. Inventory the retained property, purpose, subject, copies and control subject. Use a surrogate source ID; an email in a source ID remains visible even if payload properties are encrypted. **Done:** no personal data in identifiers, tags, exception text or diagnostics.
-2. Mark the needed property or value concept with `PII`, enable compliance services and bind the subject before append. The source identifies the history, not necessarily the person in the payload. Example declaration for a profile fact distinct from the registration contract:
+1. Reference `Cratis.Chronicle`, `Cratis.Arc` and `Cratis.Fundamentals`. Use a surrogate member ID, not an email address. By default the event source ID identifies the subject; release uses the read model's `Id` when it has no `[Subject]` member.
+2. Mark the name concept with `[PII]`. Mark a personal scalar such as email on both the event and the read model. Give the reason for collecting each value.
+3. When reading the profile directly from the application's database collection, authorize the caller, check the profile is not null, then use `var readable = await eventStore.ReadModels.Release(profile);`. Release cannot recover the original name or email after key deletion. Don't use object identity or a successful call as a test that the key exists.
 
 ```csharp
+// Features/Members/Profiles/MemberProfile.cs
+using Cratis.Arc.Queries.ModelBound;
+using Cratis.Chronicle.Compliance.GDPR;
+using Cratis.Chronicle.Events;
+using Cratis.Chronicle.Projections.ModelBound;
+using Cratis.Concepts;
+
+namespace Library.Members.Profiles;
+
+public record MemberId(Guid Value) : EventSourceId<Guid>(Value);
+
+[PII("Member name for identification and correspondence")]
+public record MemberName(string Value) : ConceptAs<string>(Value);
+
 [EventType]
-public record ProfileSupplied([Subject] string Author, [property: PII] string DisplayName);
+public record MemberRegistered(MemberName Name, [PII("Email for member correspondence")] string Email);
+
+[ReadModel, FromEvent<MemberRegistered>]
+public record MemberProfile(MemberId Id, MemberName Name, [PII("Email for member correspondence")] string Email);
 ```
 
-**Done:** an authorized reader can read the synthetic value before erasure, and the unrelated author's record uses a different subject key.
-3. On an explicitly disposable store only, authorize erasure for the test subject; delete that subject's encryption key and inspect reads that report erased properties. Read references/redaction-vs-erasure.md for different retention requirements. **Done:** the subject's value is unavailable, the control remains readable, and any separate exports, baseline snapshots or cached plaintext have a named cleanup owner. Never promise that deleting a key recalls an export.
+## Delete one member's key
 
-Run `dotnet test -c Release` in the application's compliance spec project against a compliance-enabled disposable kernel. Verify the forgotten subject's protected value cannot be recovered but the control subject's still can. If both become unreadable, check whether both writes used the same subject identifier. Never use production credentials for this check.
+With an `IEventStore` from `Cratis.Chronicle` for the correct namespace, call `await eventStore.PII.DeleteEncryptionKeyFor(memberId.Value.ToString());`. The subject loses that key in every event store in this namespace. Read both this member and a control member; the first member's email must no longer be readable, while the control member's email must still be readable.
+
+## Avoid
+
+- Don't store personal values in IDs.
+- Don't use release to decide authorization or pass it a missing profile.
+- Don't promise to retract copies already released or erase backups by deleting the key.
+
+## Related skills
+
+- [Authorize access](../cratis-arc-authorize-request/SKILL.md)
+- [Project the member profile](../cratis-chronicle-project-view/SKILL.md)

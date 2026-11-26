@@ -1,19 +1,31 @@
 using Cratis.Chronicle;
 using Cratis.Chronicle.Events;
 using Xunit;
+using Microsoft.AspNetCore.Builder;
 
+public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
 [EventType] public record AuthorRegistered(string Name);
 public class ConnectionProbe
 {
+    public static async Task RunAuthorsHost(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args)
+            .AddCratisChronicle(options => options.EventStore = "library");
+
+        var app = builder.Build();
+        app.UseCratisChronicle();
+        await app.RunAsync();
+    }
+
     [Fact]
     public async Task one_client_selects_two_independent_namespaces()
     {
         using var client = new ChronicleClient(ChronicleOptions.FromDevelopmentConnectionString());
-        const string name = "corpus-connect";
+        const string name = "library";
         var ns = Guid.NewGuid().ToString();
         var expected = await client.GetEventStore(name, ns);
         var control = await client.GetEventStore(name, ns + "-other");
-        var id = EventSourceId.New();
+        var id = new AuthorId(Guid.NewGuid());
         Assert.Equal(name, expected.Name.Value);
         Assert.Equal(ns, expected.Namespace.Value);
         Assert.True((await expected.EventLog.Append(id, new AuthorRegistered("Aster"))).IsSuccess);

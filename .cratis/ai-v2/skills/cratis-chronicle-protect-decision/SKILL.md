@@ -1,22 +1,59 @@
 ---
 name: cratis-chronicle-protect-decision
-compatibility: .NET SDK and a disposable Chronicle kernel for the race.
-description: Use when a command decision needs optimistic concurrency for a Chronicle decision read or a dynamic consistency boundary. Not for unique property ownership or once-per-source appends (cratis-chronicle-constrain-append).
+description: Guards a command against changes to the Chronicle state it validated. Use when available stock must still be valid at commit. Not for reserving a unique value (use cratis-chronicle-constrain-append).
+compatibility: .NET SDK and an Arc host with Chronicle.
 ---
 
-# Refuse a decision based on stale facts
+# Refuse borrowing if the last copy is no longer available
 
-1. State the read that changes the decision: for example, create a draft only for an existing author. An absent instance also represents a decision input. Record the source, stream if narrower, and events that could invalidate it. **Done:** a competing removal changes the answer; a write for an unrelated author does not.
-2. In Arc, start with an eligible plain read-model `Handle` parameter under effective protection `On` (the default unless overridden). Check application, command and maximum mode settings. `Measure` does not enforce ordinary parameter reads. Don't substitute a Mongo read, preflight query, or immediate append. Read references/scope-selection.md when the key is ambiguous. **Done:** the decision sees a fresh fold and stages its write under the guard that protects that same read.
-For an explicit Chronicle unit, acquire with `await store.GetDecisionReads().GetFor<Author>(unit, source)` inside `unit.EnforceReadProtection()`. Inspect `Exists` even when no instance was returned. Stage on that same unit and let its commit owner complete it; independently querying the model and constructing a new unit at write time loses the decision boundary.
-
-3. Pause after acquisition, append an invalidating fact independently, then commit. Distinguish admission failure from stale data; read references/conflict-outcomes.md when reporting the refusal. **Done:** no contradictory event, a fresh attempt reads the changed state and changes the decision. Never retry just the stale write.
-
-Check the refused unit of work for the source that invalidated the decision:
+1. Reference `Cratis.Arc.Chronicle`. Put the command and validator together in `Features/Books/Borrowing/`. Use `Isbn` as the command's only event-source-ID property: it selects both the book to read and the book to append to.
+2. Request `BookStock?` in the validator constructor. A book with no events has no read model; a missing model must not allow borrowing.
+3. Leave `<CratisReadProtection>` at the package default, `On`. Don't set it to `Measure` or `Off` when a competing write must reject the command. Check `Cratis:Arc:ReadProtection:MaximumMode` in deployment configuration; it must not lower protection below `On`.
 
 ```csharp
-        Assert.False(first.IsSuccess);
-        Assert.Contains(first.GetConcurrencyViolations(), violation => violation.EventSourceId == source);
+// Features/Books/Borrowing/BorrowBook.cs
+using Cratis.Arc.Commands;
+using Cratis.Arc.Commands.ModelBound;
+using Cratis.Arc.Queries.ModelBound;
+using Cratis.Chronicle.Events;
+using Cratis.Chronicle.Projections.ModelBound;
+using FluentValidation;
+
+namespace Library.Books.Borrowing;
+
+public record Isbn(string Value) : EventSourceId<string>(Value);
+[EventType] public record CopyAdded;
+[EventType] public record BookBorrowed;
+
+[ReadModel]
+public record BookStock(Isbn Id, [Increment<CopyAdded>, Decrement<BookBorrowed>] int Available);
+
+[Command]
+public record BorrowBook(Isbn Isbn)
+{
+    public BookBorrowed Handle() => new();
+}
+
+public class BorrowBookValidator : CommandValidator<BorrowBook>
+{
+    public BorrowBookValidator(BookStock? stock) =>
+        RuleFor(command => command.Isbn)
+            .Must(_ => stock is { Available: > 0 })
+            .WithMessage("No copies of this book are available.");
+}
 ```
 
-Run `dotnet test -c Release` in the application's decision spec project against a disposable kernel. The stale decision must not append; a fresh protected read must see the winning fact. If both appends succeed, check that read protection was enforced on the unit of work that committed, not only measured.
+## Check the decision and the commit
+
+Run the command with one available copy, no copies and a missing book. Only the first may append `BookBorrowed`. To check concurrency, consume the last copy between validation and commit. The stale borrowing must be refused without another `BookBorrowed` event.
+
+## Avoid
+
+- Don't use a display query for stock. Request the decision model in the validator.
+- Don't add a read-protection attribute merely to repeat the project default.
+- Don't rely on `Measure` to reject writes: it only reports conflicts.
+
+## Related skills
+
+- [Validate command input](../cratis-arc-validate-command/SKILL.md)
+- [Reserve a unique value](../cratis-chronicle-constrain-append/SKILL.md)
