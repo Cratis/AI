@@ -29,6 +29,6 @@
     { "kind": "skill-contains", "value": "references/agent-exposure.md" },
     { "kind": "skill-contains", "value": "difference.agentExposure", "file": "references/baseline-comparison.md" },
     { "kind": "skill-contains", "value": "agent-exposure-diff/1", "file": "references/baseline-comparison.md" },
-    { "kind": "skill-contains", "value": "unresolved", "file": "references/baseline-comparison.md" }
+    { "kind": "skill-contains", "value": "Empty rows alone prove nothing", "file": "references/baseline-comparison.md" }
   ]
 }
