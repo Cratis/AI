@@ -1,0 +1,77 @@
+{
+  "skill": "cratis-components-choose-control",
+  "queries": [
+    {
+      "query": "Choose a segmented control for an exclusive filter.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Keep search text separate from a ComboBox selection.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Use tabs when the choice reveals a panel.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "My scope control takes four tab stops.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Choose a date picker for one calendar day.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Represent multiple selected tags without losing keys.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check focus and commit with arrows and Tab.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Expose the current ancestor path as breadcrumbs.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Attach calendar input to a typed command property.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-submit-form."
+    },
+    {
+      "query": "Test keyboard invocation after switching toolbar context.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-compose-toolbar."
+    },
+    {
+      "query": "Determine whether a renderer or a stylesheet owns this appearance.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-theme-application."
+    },
+    {
+      "query": "Build a DataPage for the authors collection.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-display-list."
+    },
+    {
+      "query": "Filter pivot cards on a category.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-explore-data."
+    },
+    {
+      "query": "Disable saving invalid schema-defined data.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-edit-schema-data."
+    },
+    {
+      "query": "Cancelling a confirmation still archives the item.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-coordinate-feedback."
+    },
+    {
+      "query": "Write a browser specification for an existing widget without changing the UI.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-specifications-observe-ui."
+    }
+  ]
+}

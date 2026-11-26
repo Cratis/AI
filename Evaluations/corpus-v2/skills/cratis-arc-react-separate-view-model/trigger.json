@@ -1,0 +1,77 @@
+{
+  "skill": "cratis-arc-react-separate-view-model",
+  "queries": [
+    {
+      "query": "Extract coordination from a complicated React editor into an Arc view model.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Use withViewModel for preview behavior.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Inject the clipboard boundary into my screen model.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Observable caption changes but the wrapped view stays stale.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Dispose the listener owned by a closing view model.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Stop recreating the model on each render.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Prove the preview reacts to a substituted dependency.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Which state belongs in the view model rather than a second query cache?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Render rows from AllAuthors.use().",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-react-bind-slice."
+    },
+    {
+      "query": "Initialize a hidden id before the command form validates.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-submit-form."
+    },
+    {
+      "query": "Inspect opens the wrong row after sorting.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-display-list."
+    },
+    {
+      "query": "Bind the active context to review mode.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-compose-toolbar."
+    },
+    {
+      "query": "Release a busy dialog after a rejected mutation.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-coordinate-feedback."
+    },
+    {
+      "query": "Find why the live query endpoint stopped delivering updates.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-diagnose-live-query."
+    },
+    {
+      "query": "Write a browser specification for an existing widget without changing the UI.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-specifications-observe-ui."
+    },
+    {
+      "query": "Generate missing command and query TypeScript from the backend.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-generate-proxies."
+    }
+  ]
+}

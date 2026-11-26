@@ -1,0 +1,3 @@
+@import '@cratis/components/tokens';
+@import '@cratis/components/styles';
+.accent { --cratis-primary-color: rgb(101, 29, 155); }

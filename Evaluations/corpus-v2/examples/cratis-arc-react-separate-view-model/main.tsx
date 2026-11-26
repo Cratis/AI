@@ -1,0 +1,11 @@
+import 'reflect-metadata';
+import './host.css';
+import {createRoot} from 'react-dom/client';
+import {Arc} from '@cratis/arc.react';
+import {CratisComponentsProvider} from '@cratis/components/Common';
+import {View} from './View';
+import {MemoryRouter} from 'react-router-dom';
+import {container} from 'tsyringe';
+import {CaptionSource} from './View';
+container.registerInstance(CaptionSource,{next:()=> 'Proof copy'});
+createRoot(document.getElementById('root')!).render(<Arc queryDirectMode><CratisComponentsProvider><MemoryRouter><View/></MemoryRouter></CratisComponentsProvider></Arc>);

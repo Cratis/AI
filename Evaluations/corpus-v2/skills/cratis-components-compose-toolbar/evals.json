@@ -1,0 +1,38 @@
+{
+  "skill_name": "cratis-components-compose-toolbar",
+  "evals": [
+    {
+      "id": 1,
+      "name": "implement",
+      "prompt": "Build a toolbar with a different command set per mode. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "Group mutually exclusive actions under named contexts in one ToolbarSection. Put commands available in every mode outside that section.",
+      "assertions": [
+        "Map each action to the mode in which it is valid. Done: Draw line belongs only to draw and Add note only to review.",
+        "Bind activeContext to the host mode. Done: switching mode removes Draw line from the accessible action set rather than just dimming it.",
+        "Group mutually exclusive actions under named contexts in one ToolbarSection. Put commands available in every mode outside that section."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "diagnose",
+      "prompt": "Hidden toolbar commands still get keyboard focus. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "If the action renders but receives no focus, inspect the active toolbar context and the native button name; hiding just the icon leaves an unintended command.",
+      "assertions": [
+        "If the action renders but receives no focus, inspect the active toolbar context and the native button name; hiding just the icon leaves an unintended command.",
+        "Bind activeContext to the host mode. Done: switching mode removes Draw line from the accessible action set rather than just dimming it.",
+        "Navigate into the changed toolbar and invoke the command from the keyboard. Done: Add note records Note and the inactive command is unreachable."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "verify",
+      "prompt": "Test keyboard invocation after switching toolbar context. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "Navigate into the changed toolbar and invoke the command from the keyboard. Done: Add note records Note and the inactive command is unreachable.",
+      "assertions": [
+        "Map each action to the mode in which it is valid. Done: Draw line belongs only to draw and Add note only to review.",
+        "Navigate into the changed toolbar and invoke the command from the keyboard. Done: Add note records Note and the inactive command is unreachable.",
+        "Bind activeContext to the host mode. Done: switching mode removes Draw line from the accessible action set rather than just dimming it."
+      ]
+    }
+  ]
+}

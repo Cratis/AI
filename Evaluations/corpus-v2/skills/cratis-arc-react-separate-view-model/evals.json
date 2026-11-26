@@ -1,0 +1,38 @@
+{
+  "skill_name": "cratis-arc-react-separate-view-model",
+  "evals": [
+    {
+      "id": 1,
+      "name": "implement",
+      "prompt": "Extract coordination from a complicated React editor into an Arc view model. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "Use withViewModel when interaction state has dependencies or lifecycle of its own. For one command input and query tuple keep the binding in the component.",
+      "assertions": [
+        "Extract the decision and its dependency, not the query result array. Done: replacing the dependency changes what the same intent returns.",
+        "Bind the model class and read its observable inside the wrapped render. Done: the view sends intent without instantiating a model or copying its fields into useState.",
+        "Use withViewModel when interaction state has dependencies or lifecycle of its own. For one command input and query tuple keep the binding in the component."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "diagnose",
+      "prompt": "Observable caption changes but the wrapped view stays stale. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "If an interaction changes the model but not the view, move the observable read back inside the tracked render. If values leak across views, check whether the model was registered as a singleton. Let the wrapper own model lifetime; release model-owned listeners in detached().",
+      "assertions": [
+        "If an interaction changes the model but not the view, move the observable read back inside the tracked render. If values leak across views, check whether the model was registered as a singleton. Let the wrapper own model lifetime; release model-owned listeners in detached().",
+        "Bind the model class and read its observable inside the wrapped render. Done: the view sends intent without instantiating a model or copying its fields into useState.",
+        "Register the fixture dependency in the resolver before mount. Done: Preview changes No preview to Proof copy using the substitute, without a refresh button or copied query rows."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "verify",
+      "prompt": "Prove the preview reacts to a substituted dependency. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "Register the fixture dependency in the resolver before mount. Done: Preview changes No preview to Proof copy using the substitute, without a refresh button or copied query rows.",
+      "assertions": [
+        "Extract the decision and its dependency, not the query result array. Done: replacing the dependency changes what the same intent returns.",
+        "Register the fixture dependency in the resolver before mount. Done: Preview changes No preview to Proof copy using the substitute, without a refresh button or copied query rows.",
+        "Bind the model class and read its observable inside the wrapped render. Done: the view sends intent without instantiating a model or copying its fields into useState."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "skill": "cratis-components-explore-data",
+  "queries": [
+    {
+      "query": "Build a PivotViewer by region and show copies per edition.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Filter pivot cards on a category.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Configure numeric ranges instead of categorical values.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "My pivot label changes but the results do not narrow.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Show the value for a selected historical position.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Choose a dimension key for the grouping control.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Verify the viewer count at a selected facet.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Use TimeMachine for earlier and later views of the same object.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Build a DataPage for the authors collection.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-display-list."
+    },
+    {
+      "query": "Implement sorting and paging in the server query.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-page-query."
+    },
+    {
+      "query": "Center the viewport on a world coordinate.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-build-canvas."
+    },
+    {
+      "query": "My scope control takes four tab stops.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-choose-control."
+    },
+    {
+      "query": "Bind the active context to review mode.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-compose-toolbar."
+    },
+    {
+      "query": "Find why the live query endpoint stopped delivering updates.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-diagnose-live-query."
+    },
+    {
+      "query": "Show a newly observed row after registration without inserting it by hand.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-react-bind-slice."
+    },
+    {
+      "query": "Write a browser specification for an existing widget without changing the UI.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-specifications-observe-ui."
+    }
+  ]
+}

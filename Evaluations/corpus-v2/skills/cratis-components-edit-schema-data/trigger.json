@@ -1,0 +1,77 @@
+{
+  "skill": "cratis-components-edit-schema-data",
+  "queries": [
+    {
+      "query": "Edit a JSON document using its supplied schema.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Choose ObjectContentEditor or SchemaEditor for a value change.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Disable saving invalid schema-defined data.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "My edited object resets after each keystroke.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Change the schema itself rather than an instance.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Wire onValidationChange into the host save action.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Prove the schema stays identical after editing a property value.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Render an editor for a dynamic object rather than fixed command fields.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "My modal closes and loses the rejected field value.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-submit-form."
+    },
+    {
+      "query": "Choose a date picker for one calendar day.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-choose-control."
+    },
+    {
+      "query": "Model the input screen in the .play document rather than building it.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-screenplay-model-interaction."
+    },
+    {
+      "query": "Reject an empty name in the backend command validator.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-validate-command."
+    },
+    {
+      "query": "Declare the columns for a generated read model.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-display-list."
+    },
+    {
+      "query": "Build a PivotViewer by region and show copies per edition.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-explore-data."
+    },
+    {
+      "query": "Render rows from AllAuthors.use().",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-react-bind-slice."
+    },
+    {
+      "query": "Write a browser specification for an existing widget without changing the UI.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-specifications-observe-ui."
+    }
+  ]
+}

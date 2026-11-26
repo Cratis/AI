@@ -1,0 +1,38 @@
+{
+  "skill_name": "cratis-components-edit-schema-data",
+  "evals": [
+    {
+      "id": 1,
+      "name": "implement",
+      "prompt": "Edit a JSON document using its supplied schema. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "Use ObjectContentEditor when the outgoing document is data. Keep its schema as a separate input and let validity decide whether the host permits a save.",
+      "assertions": [
+        "Identify the document being persisted and retain a separate schema. Done: the initial object has a string name and the schema declares that member required.",
+        "Feed onChange back as the object and onValidationChange to the save gate. Done: a valid edit appears in the emitted data without replacing the schema.",
+        "Use ObjectContentEditor when the outgoing document is data. Keep its schema as a separate input and let validity decide whether the host permits a save."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "diagnose",
+      "prompt": "My edited object resets after each keystroke. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "If edits disappear, inspect the object supplied on the next render; feeding the initial object back discards the emission. If a schema property is being renamed, switch editors instead of mutating schema inside a value callback.",
+      "assertions": [
+        "If edits disappear, inspect the object supplied on the next render; feeding the initial object back discards the emission. If a schema property is being renamed, switch editors instead of mutating schema inside a value callback.",
+        "Feed onChange back as the object and onValidationChange to the save gate. Done: a valid edit appears in the emitted data without replacing the schema.",
+        "Clear the required field, observe its invalid state and inspect the schema again. Done: Aster was emitted as data, the empty name blocks Save, and the original schema remains unchanged."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "verify",
+      "prompt": "Prove the schema stays identical after editing a property value. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "Clear the required field, observe its invalid state and inspect the schema again. Done: Aster was emitted as data, the empty name blocks Save, and the original schema remains unchanged.",
+      "assertions": [
+        "Identify the document being persisted and retain a separate schema. Done: the initial object has a string name and the schema declares that member required.",
+        "Clear the required field, observe its invalid state and inspect the schema again. Done: Aster was emitted as data, the empty name blocks Save, and the original schema remains unchanged.",
+        "Feed onChange back as the object and onValidationChange to the save gate. Done: a valid edit appears in the emitted data without replacing the schema."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "cratis-arc-react-bind-slice-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:example": "node prepare.mjs && tsc --noEmit && node --test example.test.mjs"
+  },
+  "dependencies": {
+    "@cratis/arc": "24.9.0",
+    "@cratis/arc.react": "24.9.0",
+    "@cratis/components": "4.63.1",
+    "@cratis/fundamentals": "7.34.5",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "reflect-metadata": "0.2.2",
+    "pixi.js": "8.20.0",
+    "tsyringe": "4.10.0"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vite": "7.1.7",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
+    "@playwright/test": "1.63.0"
+  }
+}

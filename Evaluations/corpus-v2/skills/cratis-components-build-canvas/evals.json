@@ -1,0 +1,38 @@
+{
+  "skill_name": "cratis-components-build-canvas",
+  "evals": [
+    {
+      "id": 1,
+      "name": "implement",
+      "prompt": "Build a spatial workspace with selectable canvas pins. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "Give Canvas the camera and place selectable objects in world coordinates. Anchor screen controls outside that transform.",
+      "assertions": [
+        "Give the world item a stable id and a hit shape in local coordinates. Done: the item at (64,48) responds at that initial location.",
+        "Place the camera action relative to the viewport. Use the supplied handle to center and zoom in one operation. Done: the same world point moves to the viewport center.",
+        "Give Canvas the camera and place selectable objects in world coordinates. Anchor screen controls outside that transform."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "diagnose",
+      "prompt": "Objects draw correctly but selection misses after a pan. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "When drawing and selecting disagree, inspect whether the host applied pan or zoom twice. renderItem creates a local display object; Canvas places it at the item coordinates.",
+      "assertions": [
+        "When drawing and selecting disagree, inspect whether the host applied pan or zoom twice. renderItem creates a local display object; Canvas places it at the item coordinates.",
+        "Place the camera action relative to the viewport. Use the supplied handle to center and zoom in one operation. Done: the same world point moves to the viewport center.",
+        "Hit-test before and after the move against the actual renderer. Done: the new center selects Pin, its old location misses, and the overlay rectangle does not move."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "verify",
+      "prompt": "Prove the old hit location stops selecting after zoom. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "Hit-test before and after the move against the actual renderer. Done: the new center selects Pin, its old location misses, and the overlay rectangle does not move.",
+      "assertions": [
+        "Give the world item a stable id and a hit shape in local coordinates. Done: the item at (64,48) responds at that initial location.",
+        "Hit-test before and after the move against the actual renderer. Done: the new center selects Pin, its old location misses, and the overlay rectangle does not move.",
+        "Place the camera action relative to the viewport. Use the supplied handle to center and zoom in one operation. Done: the same world point moves to the viewport center."
+      ]
+    }
+  ]
+}

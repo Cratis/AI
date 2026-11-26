@@ -1,0 +1,38 @@
+{
+  "skill_name": "cratis-components-theme-application",
+  "evals": [
+    {
+      "id": 1,
+      "name": "implement",
+      "prompt": "Theme a Components button inside one part of the host. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "Load the published token and component styles in the application stylesheet. Override a documented token on the smallest host element that contains the themed controls.",
+      "assertions": [
+        "Identify the renderer and the published rules for the target part. Done: an outline Button uses the primary color token after baseline styles load.",
+        "Import @cratis/components/tokens then @cratis/components/styles in host.css. Set --cratis-primary-color to rgb(101, 29, 155) only on .accent. Done: computed color changes on Preview but not Outside.",
+        "Load the published token and component styles in the application stylesheet. Override a documented token on the smallest host element that contains the themed controls."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "diagnose",
+      "prompt": "My token changes but the actual outline button does not. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "If the token changes but the rendered color does not, inspect the active renderer and the part consuming the token. Do not override a private descendant selector to force a match.",
+      "assertions": [
+        "If the token changes but the rendered color does not, inspect the active renderer and the part consuming the token. Do not override a private descendant selector to force a match.",
+        "Import @cratis/components/tokens then @cratis/components/styles in host.css. Set --cratis-primary-color to rgb(101, 29, 155) only on .accent. Done: computed color changes on Preview but not Outside.",
+        "Navigate with the keyboard in the browser, not a DOM emulator. Done: the scoped outline button changes color, its sibling stays unchanged, and keyboard focus has a visible ring or outline."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "verify",
+      "prompt": "Prove the themed control keeps visible keyboard focus. Give the component boundary and a check for the resulting interaction.",
+      "expected_output": "Navigate with the keyboard in the browser, not a DOM emulator. Done: the scoped outline button changes color, its sibling stays unchanged, and keyboard focus has a visible ring or outline.",
+      "assertions": [
+        "Identify the renderer and the published rules for the target part. Done: an outline Button uses the primary color token after baseline styles load.",
+        "Navigate with the keyboard in the browser, not a DOM emulator. Done: the scoped outline button changes color, its sibling stays unchanged, and keyboard focus has a visible ring or outline.",
+        "Import @cratis/components/tokens then @cratis/components/styles in host.css. Set --cratis-primary-color to rgb(101, 29, 155) only on .accent. Done: computed color changes on Preview but not Outside."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "skill": "cratis-components-submit-form",
+  "queries": [
+    {
+      "query": "Build a CommandDialog that registers an author.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Bind a Components text field to my generated command.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Initialize a hidden id before the command form validates.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "My modal closes and loses the rejected field value.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Keep one command across the steps of a wizard.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Attach calendar input to a typed command property.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Prove only the final wizard action submits.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Move field validation messages into the open command dialog.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Show feedback after the confirmed request settles.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-coordinate-feedback."
+    },
+    {
+      "query": "My edited object resets after each keystroke.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-edit-schema-data."
+    },
+    {
+      "query": "Choose a date picker for one calendar day.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-choose-control."
+    },
+    {
+      "query": "Replace a parallel fetch cache with the existing proxy.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-react-bind-slice."
+    },
+    {
+      "query": "Reject an empty name in the backend command validator.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-validate-command."
+    },
+    {
+      "query": "Model the input screen in the .play document rather than building it.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-screenplay-model-interaction."
+    },
+    {
+      "query": "Build a DataPage for the authors collection.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-display-list."
+    },
+    {
+      "query": "Write a browser specification for an existing widget without changing the UI.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-specifications-observe-ui."
+    }
+  ]
+}
