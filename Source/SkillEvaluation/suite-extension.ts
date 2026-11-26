@@ -19,9 +19,8 @@ export default function sandboxTools(pi: PiTools): void {
     if (!container || !/^cratis-suite-[a-f0-9-]+$/.test(container)) throw new Error('Missing suite-owned sandbox');
     const execute = (command: string, input: string, signal?: AbortSignal, admitted = false): Promise<ToolResult> => new Promise(resolve => {
         const docker = ['docker', 'exec', '-i', '-w', '/workspace', container, '/bin/sh', '-c', command];
-        const phase = [join(process.env.HOME!, '.pi/agent/bin/pi-phase'), 'run', '--kind', 'test', '--label', 'corpus-v2-agent-tool',
-            '--queue-timeout', '3600', '--timeout', '600', '--log', join(process.env.CRATIS_SUITE_TOOL_LOGS!, `${randomUUID()}.log`), '--', ...docker];
-        const invocation = admitted ? phase : docker;
+        const invocation = admitted ? [join(process.env.HOME!, '.pi/agent/bin/pi-phase'), 'run', '--kind', 'test', '--label', 'corpus-v2-agent-tool',
+            '--queue-timeout', '3600', '--timeout', '600', '--log', join(process.env.CRATIS_SUITE_TOOL_LOGS!, `${randomUUID()}.log`), '--', ...docker] : docker;
         const child = spawn(invocation[0], invocation.slice(1), { stdio: ['pipe', 'pipe', 'pipe'] });
         let text = '';
         let overflow = false;
@@ -53,6 +52,11 @@ export default function sandboxTools(pi: PiTools): void {
     const string = { type: 'string' };
     register('read', 'Read a file inside the sandbox. Read skill files under /corpus using this tool for routing telemetry.', { path: string }, ['path'],
         parameters => [`cat -- ${quote(parameters.path)}`, '']);
+    if (process.env.CRATIS_EVAL_READ_ONLY === '1') {
+        register('ls', 'List a directory inside the sandbox.', { path: string }, ['path'],
+            parameters => [`ls -la -- ${quote(parameters.path)}`, '']);
+        return;
+    }
     register('write', 'Write a sandbox file, creating parent directories.', { path: string, content: string }, ['path', 'content'],
         parameters => [`mkdir -p -- "$(dirname -- ${quote(parameters.path)})" && cat > ${quote(parameters.path)}`, parameters.content]);
     register('edit', 'Replace one unique exact string in a sandbox file.', { path: string, oldText: string, newText: string }, ['path', 'oldText', 'newText'],

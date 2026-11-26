@@ -57,3 +57,27 @@ Each task requires named executable agent-authored specs, a real package-backed 
 The report keeps failed/time-out trials in denominators, labels infrastructure separately, summarizes per arm/area and supplies paired task-cluster bootstrap intervals. Missing input/output/cache/reasoning usage is null, not zero. Subscription USD is unavailable, not a token-price estimate. Baseline routing is N/A; an unavailable taxonomy mapping is also N/A rather than an invented failure. Counts distinguish attempted skill reads from successful reads. Pilot/smoke outcomes and partial matrices are inconclusive. Efficiency claims require noninferior quality, not merely fewer tokens spent giving up.
 
 No paid/full matrix has been run or claimed by adding these files. Review the task contracts, hidden coverage and dependency-image preflight before approving the 18-call pilot or 216-call batch.
+
+## Per-skill routing and answer evaluation (E0–E3)
+
+These are separate from `evaluate suite`. `trigger` and `outputs` default to the legacy v1 evaluator. Pass `--corpus v2` to read the v2 definitions and evaluation inputs. `--skill` accepts one name, a comma list, or `all`; selection limits the prompts, not the skills installed. `--models provider/a,provider/b` schedules every trial for both models in the same run. Reports score each model separately.
+
+```sh
+# E0: validates both input files for each selected skill, prints trial counts, and exits without Docker or model calls.
+yarn workspace @cratis/ai-skill-evaluation run evaluate trigger --corpus v2 --skill all --dry-run
+yarn workspace @cratis/ai-skill-evaluation run evaluate outputs --corpus v2 --skill all --compare v1 --dry-run
+
+# E1 and E2/E3: only after approval and preparation of the dependency image above.
+yarn workspace @cratis/ai-skill-evaluation run evaluate trigger --corpus v2 --skill all --models provider/a,provider/b
+yarn workspace @cratis/ai-skill-evaluation run evaluate outputs --corpus v2 --skill all --compare v1 --models provider/a,provider/b
+
+# Grade the output run (separate model calls), then display its report without any further calls.
+yarn workspace @cratis/ai-skill-evaluation run evaluate grade --run .ai-work/skill-evaluations/<output-run>
+yarn workspace @cratis/ai-skill-evaluation run evaluate report --run .ai-work/skill-evaluations/<output-run>
+```
+
+V2 trials use Pi with the suite's offline Docker sandbox and only read-only tools. Each gets the full selected corpus as a read-only mount or no corpus for `none`. No other corpus, host configuration, or credentials are mounted. `--compare v1` runs the same v2 output prompts against the full v1 corpus as well as v2 and `none`; omit it for E2 alone.
+
+Routing uses only successful reads of installed skill definitions. Per skill and overall, the report applies the 90/10/5 thresholds above to repetitions, and lists the expected and observed alternative skills when a near miss does not load the target. Trigger trials default to three repetitions and stop at six tool calls (pending skill reads may finish). Missing categories or unrecorded repetitions cannot earn a pass. Output trials default to one repetition. After grading, compare assertion pass rates by arm, paired percentage-point uplift, and individual assertion failures. Ungraded assertions are unknown.
+
+The runner prints the run directory and records usage, tool-call counts, raw transcripts and `summary.md` there. To resume, repeat the original trial command with `--run` and the printed directory. The manifest locks the options, tasks, installed corpus snapshots and sandbox image; already recorded trials are skipped. Resume grading with the same grader model and run directory.

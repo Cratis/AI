@@ -2,7 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 import { realpathSync } from 'node:fs';
-import { isAbsolute, relative, resolve, sep } from 'node:path';
+import { isAbsolute, join, posix, relative, resolve, sep } from 'node:path';
 import { Harness } from './Harness.ts';
 import type { SkillExpectation } from './SkillExpectation.ts';
 
@@ -80,6 +80,17 @@ function containedRead(input: Record<string, unknown>, root: string | undefined)
     } catch { return false; }
 }
 
+/** A successful sandbox read counts only if it points to the mounted definition, not a lookalike. */
+function sandboxRead(call: ToolCall, skill: string, stage: string): boolean {
+    if (call.name !== 'read') return false;
+    const raw = call.input.path;
+    if (typeof raw !== 'string') return false;
+    if (raw.split('/').includes('..')) return false;
+    const path = posix.resolve('/workspace', raw);
+    const installed = join(stage, 'skills', skill, 'SKILL.md');
+    return path === installed || path === `/corpus/skills/${skill}/SKILL.md`;
+}
+
 export class Transcript {
     readonly skillsRead = new Set<string>();
     readonly attemptedSkills = new Set<string>();
@@ -126,6 +137,7 @@ export class Transcript {
     private confirmable(call: ToolCall, skill: string): boolean {
         if (!this.expectation?.withSkills) return false;
         if (!this.expectation.corpusSkills.includes(skill)) return false;
+        if (this.expectation.sandboxCorpus) return sandboxRead(call, skill, this.expectation.sandboxCorpus);
         return call.name === 'Skill' || containedRead(call.input, this.root);
     }
 
