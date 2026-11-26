@@ -45,6 +45,10 @@ public static class AIChatClientFactory
 
     const string NoCredentialPlaceholder = "no-key";
 
+    // The OpenAI SDK gives up on a request after 100 seconds. A model that reasons over a large prompt - structuring a whole
+    // project's brief - takes longer than that to answer a single request, and the SDK retries it three times, each timing out the same way.
+    static readonly TimeSpan _networkTimeout = TimeSpan.FromMinutes(20);
+
     /// <summary>
     /// Resolves which model identifier to talk to: an explicit override first, then whatever the
     /// provider itself was configured with, and finally the vendor's own sane default.
@@ -142,7 +146,7 @@ public static class AIChatClientFactory
         {
             AIProviderType.OpenAI =>
                 (new ResponsesFallbackChatClient(
-                    new OpenAI.Chat.ChatClient(modelId, apiKey!.ForUse()).AsIChatClient(),
+                    new OpenAI.Chat.ChatClient(modelId, new ApiKeyCredential(apiKey!.ForUse()), new OpenAIClientOptions { NetworkTimeout = _networkTimeout }).AsIChatClient(),
                     () => OpenAIResponses(modelId, apiKey, null)),
                     modelId),
 
@@ -154,6 +158,7 @@ public static class AIChatClientFactory
                         new OpenAIClientOptions
                         {
                             Endpoint = NormalizeAzureOpenAIEndpoint(endpoint!.Value),
+                            NetworkTimeout = _networkTimeout,
                         }).AsIChatClient(),
                     () => OpenAIResponses(modelId, apiKey, NormalizeAzureOpenAIEndpoint(endpoint.Value))),
                     modelId),
@@ -187,6 +192,7 @@ public static class AIChatClientFactory
                     new OpenAIClientOptions
                     {
                         Endpoint = NormalizeOpenAICompatibleEndpoint(endpoint!.Value),
+                        NetworkTimeout = _networkTimeout,
                     }).AsIChatClient(),
                     modelId),
 
@@ -199,7 +205,7 @@ public static class AIChatClientFactory
     static IChatClient OpenAIResponses(string modelId, AIProviderApiKey apiKey, Uri? endpoint) =>
         new OpenAI.Responses.ResponsesClient(
             new ApiKeyCredential(apiKey.ForUse()),
-            endpoint is null ? new OpenAI.Responses.ResponsesClientOptions() : new OpenAI.Responses.ResponsesClientOptions { Endpoint = endpoint })
+            endpoint is null ? new OpenAI.Responses.ResponsesClientOptions { NetworkTimeout = _networkTimeout } : new OpenAI.Responses.ResponsesClientOptions { Endpoint = endpoint, NetworkTimeout = _networkTimeout })
             .AsIChatClient(modelId);
 #pragma warning restore OPENAI001
 
