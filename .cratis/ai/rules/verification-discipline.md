@@ -9,20 +9,16 @@ paths:
 Verification answers whether changed behavior works. It does not establish who
 authored a file or preserve a chain of evidence about how it arrived.
 
-- Run the narrowest relevant build, type check, lint, and specifications while iterating; explain when a wider gate is required before completion or push/PR.
-- Run one phase per command with its real exit status. Budget targeted checks around 120 seconds and build/test phases around 300 seconds; explain any longer budget first, and obtain explicit approval before a phase exceeds 600 seconds. Stop on a failure; do not blindly retry or repeat passing tests on unchanged inputs without a flaky-test hypothesis or required matrix.
-- **[contract] Never iterate through CI:** never push to see failures or wait on runs; iterate on narrow local checks, reproduce CI failures locally, run Tier 1 once before pushing and integration when the repository's policy requires it. Integration may wait for CI only when the repository allows it, CI demonstrably runs that coverage and it passes before merge; say it was deferred to CI, never call it a local pass. If integration is required but has neither local proof nor enforced CI coverage, treat it as unverified and stop. A stricter repository policy, such as local-only integration, wins. On a shared machine cap parallelism, one heavy phase at once (`cratis-engineering-ci-gates`).
-- Separate status/fetch from builds, Debug from Release, each test project, and frontend lint/compile/test/build. Do not combine these into an opaque command with a large outer timeout. Expose progress and cancellation; report the precise failed or timed-out phase and do not continue dependent phases after failure.
-- Never use `build/test | grep | sort/head/tail` as gate evidence. Capture the producer's exit status before summarising output; `pipefail` alone is insufficient with early-closing consumers such as `head`. Printed zero-error counts are not proof of success. Preserve needed full diagnostics in task-scoped `.ai-work/` logs rather than hiding them in `/tmp`.
-- Fast feedback is a product requirement: a spec takes milliseconds, the suite seconds; specs share setup and run in parallel; analyzers must not halt builds. CI builds the spec path without analyzers and enforces them, warnings as errors, in a parallel required job; the pre-push gate runs them. A slowdown is a defect.
-- Add a focused specification for every behavior or rejection rule you change.
+- Select specs, review and local checks by [criticality tier](./criticality-tiers.md).
+- Run one bounded phase per command with its real exit status; stop on failure. Read **cratis-engineering-ci-gates** for deadlines, phase selection and diagnostic handling.
+- **[contract] Never iterate through CI:** never push to see failures; reproduce relevant CI failures locally. Run applicable local gates before pushing; required product/integration CI still passes before merge. Integration may wait for CI only when repository policy permits and CI enforces it; call it deferred, never a local pass. Required coverage without local proof or enforced CI is unverified. On a shared machine cap parallelism, one heavy phase at once (`cratis-engineering-ci-gates`).
+- Never use filtered build/test output or printed zero-error counts as gate evidence; preserve the producer's exit status and needed diagnostics in `.ai-work/`.
+- Keep specs fast; follow [fast-feedback.md](./fast-feedback.md).
 - Keep each check deterministic and runnable locally and in CI.
-- Never replace a real behavior check with a checksum, inventory, generated
-  receipt, or provenance record.
-- Documentary evidence — a receipt, ledger, attestation, hash inventory,
-  snapshot, escrow copy, or ad-hoc `verify-*` script — is not verification and
-  is not produced unless a repository workflow (such as a governed release) or
-  the user asks for it. The check's own output is the evidence.
+- Check output is evidence; checksums, inventories, receipts, ledgers, attestations,
+  snapshots, escrow copies and provenance records cannot replace behavior checks.
+  Do not produce these or ad-hoc `verify-*` scripts unless a repository workflow or
+  the user asks.
 - Report the conclusion and any real uncertainty in a line or two, not the
   audit trail. Show the output when asked, when a claim is contested, or when
   the check failed. Report failures and skipped checks honestly.

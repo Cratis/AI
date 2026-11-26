@@ -8,6 +8,9 @@ paths:
 
 # How to Write Specs
 
+[Criticality tiers](./criticality-tiers.instructions.md) determine when specs are required.
+The conventions below govern writing specs, not whether every change needs them.
+
 We call automated tests **specs** (specifications), not tests. This is deliberate — specs are executable documentation that describe what the system *does*, written in the language of the domain. A new developer should be able to read the spec folder structure like a table of contents and understand the system's behavior without opening a single source file.
 
 This philosophy comes from Specification by Example and BDD (Behavior Driven Development). The goal is human-readable, navigable specifications that double as a living contract.
