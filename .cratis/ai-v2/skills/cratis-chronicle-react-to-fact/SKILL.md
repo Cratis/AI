@@ -13,9 +13,9 @@ compatibility: .NET SDK and Chronicle reactor APIs.
 ```csharp
 // Features/Authors/Directory/RegistrationNotice.cs
 using Cratis.Chronicle.Reactors;
-using Library.Authors.Registration;
+using Library.Features.Authors.Registration;
 
-namespace Library.Authors.Directory;
+namespace Library.Features.Authors.Directory;
 
 public interface IAuthorDirectory
 {
@@ -37,7 +37,7 @@ Have the directory save the first notice, then fail before acknowledging it. Cal
 
 - Don't create a new key on retry or use the author's ID as the key for every notice. Use `delivery.Id`.
 - Don't use `[OnceOnly]` to deduplicate retries; it affects replay, not recovery.
-- Don't change the observer ID when moving an existing reactor. For this class, retain the old identity on the renamed class with `[Reactor("Library.Authors.Directory.RegistrationNotice")]`.
+- Don't change the observer ID when moving an existing reactor. For this class, retain the old identity on the renamed class with `[Reactor("Library.Features.Authors.Directory.RegistrationNotice")]`.
 
 ## Related skills
 

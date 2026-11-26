@@ -7,12 +7,12 @@ compatibility: A language toolchain with the matching Chronicle contracts instal
 # Choose a Chronicle client for a non-.NET service
 
 1. Decide whether the caller needs a wire message or needs to run Chronicle application behavior. A service stub is not a reactor host.
-2. Use the generated contracts from `cratis-chronicle-contracts` in Python or `:cratis_chronicle_contracts` in Elixir. In TypeScript import generated types from `@cratis/chronicle.contracts`. In Kotlin `io.cratis.chronicle.contracts.ChronicleConnection` manages the gRPC channel; call its suspending `connect()` before using it.
-3. For a reactor, projection, reducer or guarded application write, use the [.NET application integration](../cratis-chronicle-connect-application/SKILL.md). Don't translate a .NET API into another language and assume that implementation exists.
+2. Use the generated contracts from `cratis-chronicle-contracts` in Python or `:cratis_chronicle_contracts` in Elixir. For a TypeScript application use `@cratis/chronicle`. Use `@cratis/chronicle.contracts` only when building a client or tool. In Kotlin `io.cratis.chronicle.contracts.ChronicleConnection` manages the gRPC channel; call its suspending `connect()` before using it.
+3. When a Python, Elixir or Kotlin service needs to host a reactor, projection, reducer or guarded write, don't infer support from the contracts; for the .NET implementation use the [.NET application integration](../cratis-chronicle-connect-application/SKILL.md). Don't translate a .NET API into another language and assume that implementation exists.
 
 ## Read a registered author's event type in Python
 
-Install `cratis-chronicle-contracts` in the consuming service's Python environment. Run the following with `python -m unittest discover -s tests`. It checks the generated message and stub without connecting to a kernel.
+Chronicle distributes generated Python contracts separately from PyPI. Check the Chronicle GitHub release matching the kernel tag for a wheel and `SHA256SUMS`. If both exist, pin its download URL and SHA-256 digest in the Python environment; don't use a bare package name. If the assets are absent, obtain a wheel built from that exact tag or stop before running this test. Run the following with `python -m unittest discover -s tests`. It checks the generated message and stub without connecting to a kernel.
 
 ```python
 # tests/test_author_event_type.py

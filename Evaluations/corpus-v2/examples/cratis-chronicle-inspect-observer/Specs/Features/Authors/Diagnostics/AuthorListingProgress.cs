@@ -3,7 +3,9 @@ using Cratis.Chronicle.EventSequences;
 using Cratis.Chronicle.Observation;
 using Xunit;
 
-public class Diagnosis
+namespace Library.Features.Authors.Diagnostics;
+
+public static class AuthorListingProgress
 {
     public static string ComparePosition(ObserverInformation observer, EventSequenceId sequence, ulong write)
     {
@@ -15,6 +17,13 @@ public class Diagnosis
                 : "No actual next position reported";
         return "Position reached; check this author's failed partition and read model";
     }
+
+}
+
+public class Diagnosis
+{
+    static string ComparePosition(ObserverInformation observer, EventSequenceId sequence, ulong write) =>
+        AuthorListingProgress.ComparePosition(observer, sequence, write);
 
     static string Describe(ObserverInformation observer, string partition, ulong needed, IEnumerable<FailedPartition> scopedFailures)
     {

@@ -3,16 +3,9 @@ using Cratis.Chronicle.Events;
 using Cratis.Chronicle.EventSequences;
 using Xunit;
 
-[EventType]
-public record AuthorRegistered(string Name);
+using Library.Features.Authors;
 
-public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
-
-public class AuthorRegistry(IEventLog eventLog)
-{
-    public Task<AppendResult> Register(AuthorId authorId, string name) =>
-        eventLog.Append(authorId, new AuthorRegistered(name));
-}
+namespace Library.Features.Authors.Registration;
 
 public class Recording
 {
@@ -23,7 +16,7 @@ public class Recording
         var store = await client.GetEventStore("corpus-record", Guid.NewGuid().ToString());
         IEventLog eventLog = store.EventLog;
         var authorId = new AuthorId(Guid.Parse("11111111-1111-4111-8111-111111111111"));
-        var result = await new AuthorRegistry(eventLog).Register(authorId, "Aster");
+        var result = await new AuthorRegistry(eventLog).Register(authorId, new AuthorName("Aster"));
         Assert.True(result.IsSuccess);
         var stored = Assert.Single(await eventLog.GetForEventSourceIdAndEventTypes(authorId, [typeof(AuthorRegistered).GetEventType()]));
         Assert.Equal(result.SequenceNumber, stored.Context.SequenceNumber);

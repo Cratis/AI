@@ -4,16 +4,10 @@ using Cratis.Chronicle.Events.Constraints;
 using Cratis.Concepts;
 using Xunit;
 
-public record AuthorName(string Value) : ConceptAs<string>(Value);
+using Library.Features.Authors;
+using Library.Features.Authors.Removal;
 
-[EventType]
-public record AuthorRegistered(
-    [property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] AuthorName Name);
-
-[EventType, RemoveConstraint("UniqueAuthorName")]
-public record AuthorRemoved;
-
-public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
+namespace Library.Features.Authors.Registration;
 
 public class Reservation
 {
@@ -24,7 +18,7 @@ public class Reservation
         var store = await client.GetEventStore("corpus-unique", Guid.NewGuid().ToString());
         var first = new AuthorId(Guid.NewGuid());
         var other = new AuthorId(Guid.NewGuid());
-        var registration = new AuthorRegistered(new AuthorName("Aster"));
+        var registration = new AuthorRegistered("Aster");
         Assert.True((await store.EventLog.Append(first, registration)).IsSuccess);
         var refused = await store.EventLog.Append(other, registration);
         Assert.False(refused.IsSuccess);

@@ -1,3 +1,5 @@
+extern alias v1;
+using V1Registration = v1::Library.Features.Authors.Registration.AuthorRegistered;
 using Cratis.Chronicle;
 using Cratis.Chronicle.Events;
 using Cratis.Chronicle.Events.Migrations;
@@ -6,10 +8,11 @@ using Cratis.Chronicle.ReadModels;
 using Cratis.Chronicle.Testing;
 using Xunit;
 
-[EventType("AuthorRegistered")] public record Original(string Name);
-[EventType(generation: 2)] public record AuthorRegistered(string DisplayName);
+using Library.Features.Authors;
+
+namespace Library.Features.Authors.Registration;
+
 [EventTypeGenerationFor<AuthorRegistered>(1)] public record AuthorRegisteredV1(string Name);
-public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
 [FromEvent<AuthorRegistered>] public record CurrentAuthor(AuthorId Id, string DisplayName);
 [FromEvent<AuthorRegisteredV1>] public record PreviousAuthor(AuthorId Id, string Name);
 public class AuthorRegisteredMigration : EventTypeMigration<AuthorRegistered, AuthorRegisteredV1>
@@ -26,10 +29,10 @@ public class Migration
     {
         var storeName = $"corpus-evolve-{Guid.NewGuid():N}";
         var historical = new AuthorId(Guid.NewGuid());
-        using (var legacy = new ChronicleClient(ChronicleOptions.FromDevelopmentConnectionString(), new InMemoryClientArtifactsProvider { EventTypes = [typeof(Original)] }))
+        using (var legacy = new ChronicleClient(ChronicleOptions.FromDevelopmentConnectionString(), new InMemoryClientArtifactsProvider { EventTypes = [typeof(V1Registration)] }))
         {
             var store = await legacy.GetEventStore(storeName, "fixture");
-            Assert.True((await store.EventLog.Append(historical, new Original("Aster Vale"))).IsSuccess);
+            Assert.True((await store.EventLog.Append(historical, new V1Registration("Aster"))).IsSuccess);
         }
         using var client = new ChronicleClient(ChronicleOptions.FromDevelopmentConnectionString(), new InMemoryClientArtifactsProvider
         {
@@ -38,7 +41,7 @@ public class Migration
         var upgraded = await client.GetEventStore(storeName, "fixture");
         var recent = new AuthorId(Guid.NewGuid());
         Assert.True((await upgraded.EventLog.Append(recent, new AuthorRegistered("Birch"))).IsSuccess);
-        foreach (var (id, name) in new[] { (historical, "Aster Vale"), (recent, "Birch") })
+        foreach (var (id, name) in new[] { (historical, "Aster"), (recent, "Birch") })
         {
             using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(30));
             while ((await upgraded.ReadModels.GetInstanceById<CurrentAuthor>(id.Value))?.DisplayName != name ||

@@ -1,17 +1,11 @@
 using Cratis.Chronicle;
-using Cratis.Chronicle.Events;
-using Cratis.Chronicle.Projections.ModelBound;
+using Library.Features.Authors;
+using Library.Features.Authors.Registration;
+using Library.Features.Authors.Removal;
 using Cratis.Chronicle.Observation;
 using Xunit;
 
-[EventType] public record AuthorRegistered(string Name);
-[EventType] public record AuthorRemoved;
-
-public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
-
-[FromEvent<AuthorRegistered>]
-[RemovedWith<AuthorRemoved>]
-public record Author(AuthorId Id, string Name);
+namespace Library.Features.Authors.Listing;
 
 public class Projection
 {
@@ -19,7 +13,7 @@ public class Projection
     public async Task removes_only_the_named_author()
     {
         using var client = new ChronicleClient(ChronicleOptions.FromDevelopmentConnectionString());
-        var store = await client.GetEventStore("corpus-project", Guid.NewGuid().ToString());
+        var store = await client.GetEventStore("library", Guid.NewGuid().ToString());
         var a = new AuthorId(Guid.NewGuid());
         var b = new AuthorId(Guid.NewGuid());
         foreach (var (key, name) in new[] { (a, "Aster"), (b, "Birch") })

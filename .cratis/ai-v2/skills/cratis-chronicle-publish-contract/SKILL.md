@@ -6,8 +6,17 @@ compatibility: .NET SDK and disposable producer and consumer stores.
 
 # Publish an author's listing without sharing the internal review
 
-1. Reference `Cratis.Chronicle` in both services. Put the public event in a project both reference. Mark it `[Public]` and name its originating store. Keep `InternalReview` in the library service.
-2. In the directory's `Program.cs`, call `await consumer.Subscriptions.Subscribe("library-listings", "library", subscription => subscription.WithEventType<AuthorListed>());` with the directory's `IEventStore`. Import `Library.Contracts`. This subscription belongs in the consumer, not the library's publishing class.
+1. Reference `Cratis.Chronicle` in both services. Put the public event in a project both reference. Mark it `[Public]` and name its originating store. Keep the private `AuthorReviewed` event in the library service's `Features/Authors/Publication/AuthorReviewed.cs`.
+2. Configure the directory host's Chronicle store as `directory`. In its `Program.cs`, after `app.UseCratisChronicle()` and before `app.RunAsync()`, resolve its scoped `IEventStore` and register the subscription. Import `Cratis.Chronicle`, `Library.Contracts` and `Microsoft.Extensions.DependencyInjection`.
+
+```csharp
+using (var scope = app.Services.CreateScope())
+{
+    var consumer = scope.ServiceProvider.GetRequiredService<IEventStore>();
+    await consumer.Subscriptions.Subscribe("library-listings", "library",
+        subscription => subscription.WithEventType<AuthorListed>());
+}
+```
 3. In the library's publishing feature, append the internal review to the event log. Only after acceptance, append the public listing to the outbox for the same `AuthorId`.
 
 ```csharp
@@ -25,25 +34,26 @@ public record AuthorListed(string PublicName);
 using Cratis.Chronicle;
 using Cratis.Chronicle.Events;
 using Cratis.Chronicle.EventSequences;
-using Library.Authors.Registration;
+using Library.Features.Authors;
 using Library.Contracts;
 
-namespace Library.Authors.Publication;
+namespace Library.Features.Authors.Publication;
 
-[EventType] public record InternalReview;
+// Features/Authors/Publication/AuthorReviewed.cs (same namespace)
+[EventType] public record AuthorReviewed;
 
 public static class ListingExchange
 {
     public static async Task<AppendResult> Publish(IEventStore producer, AuthorId id, string name)
     {
-        var review = await producer.EventLog.Append(id, new InternalReview());
+        var review = await producer.EventLog.Append(id, new AuthorReviewed());
         if (!review.IsSuccess) return review;
         return await producer.GetEventSequence(EventSequenceId.Outbox).Append(id, new AuthorListed(name));
     }
 }
 ```
 
-`AuthorId` comes from [Record an event](../cratis-chronicle-record-event/SKILL.md). Check `result.IsSuccess` for the returned publication result. In the directory, after delivery, select `var inbox = consumer.GetEventSequence($"{EventSequenceId.InboxPrefix}library");` and read `await inbox.GetFromSequenceNumber(EventSequenceNumber.First, id)`. For a newly published author expect a single `AuthorListed` with the public name, not `InternalReview`.
+`AuthorId` comes from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Check `result.IsSuccess` for the returned publication result. In the directory's integration test, resolve `consumer` from a fresh service scope as above. Select `var inbox = consumer.GetEventSequence($"{EventSequenceId.InboxPrefix}library");` and read `await inbox.GetFromSequenceNumber(EventSequenceNumber.First, id)`. Delivery is asynchronous: repeat that read until it returns the listing, failing the test after 30 seconds. For a newly published author expect a single `AuthorListed` with the public name, not `AuthorReviewed`.
 
 ## Avoid
 

@@ -6,23 +6,21 @@ compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 
 # Reject duplicate author names when appending a registration
 
-1. Reference `Cratis.Chronicle` and `Cratis.Fundamentals`. Change the existing registration event's `Name` to the `AuthorName` concept below; don't declare a second `AuthorRegistered` event.
-2. Put `[property: Unique]` on the record parameter, not on the record type. Give the reservation a stable name and an error message.
-3. Use the same reservation name on the event that frees the author's name. If `AuthorRemoved` already exists, add `RemoveConstraint` to that event instead of adding another type.
+1. In `Features/Authors/Registration/AuthorRegistered.cs`, augment the event from [Record an event](../cratis-chronicle-record-event/SKILL.md). Reference `Cratis.Chronicle`, import `Cratis.Chronicle.Events.Constraints`, and put the constraint on its existing **string** parameter:
 
 ```csharp
-// Features/Authors/Registration/AuthorRegistered.cs
+[property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] string Name
+```
+
+2. Keep callers' wire shape unchanged: `new AuthorRegistered("Aster")`. A caller holding an `AuthorName` concept passes `new AuthorRegistered(name.Value)`.
+3. Declare the removal event once, in its own feature. Name the reservation it releases:
+
+```csharp
+// Features/Authors/Removal/AuthorRemoved.cs
 using Cratis.Chronicle.Events;
 using Cratis.Chronicle.Events.Constraints;
-using Cratis.Concepts;
 
-namespace Library.Authors.Registration;
-
-public record AuthorName(string Value) : ConceptAs<string>(Value);
-
-[EventType]
-public record AuthorRegistered(
-    [property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] AuthorName Name);
+namespace Library.Features.Authors.Removal;
 
 [EventType, RemoveConstraint("UniqueAuthorName")]
 public record AuthorRemoved;
@@ -30,7 +28,7 @@ public record AuthorRemoved;
 
 ## Try the same name for two author IDs
 
-Use `AuthorId` from [Record an event](../cratis-chronicle-record-event/SKILL.md). Append `new AuthorRegistered(new AuthorName("Aster"))` for the first ID and check `result.IsSuccess`. Try it for the second ID. Expect `result.IsSuccess` to be false and `result.ConstraintViolations.Single().ConstraintName.Value` to be `"UniqueAuthorName"`. No event should be stored for the second author. Append `new AuthorRemoved()` for the first ID before trying the second registration again.
+Use two different `AuthorId` values from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Append `new AuthorRegistered("Aster")` for the first ID and check `result.IsSuccess`. Try it for the second ID: `result.IsSuccess` must be false and `result.ConstraintViolations.Single().ConstraintName.Value` must be `"UniqueAuthorName"`. No event should be stored for the second author. Append `new AuthorRemoved()` for the first ID and check acceptance. Retry the second registration and expect success.
 
 ## Avoid
 

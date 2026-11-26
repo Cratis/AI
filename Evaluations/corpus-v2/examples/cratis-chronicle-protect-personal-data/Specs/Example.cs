@@ -7,15 +7,10 @@ using Cratis.Chronicle.Projections.ModelBound;
 using Cratis.Concepts;
 using Xunit;
 
-namespace Library.Members.Profiles;
+using Library.Features.Members;
+using Library.Features.Members.Registration;
 
-public record MemberId(Guid Value) : EventSourceId<Guid>(Value);
-[PII("Member name for identification and correspondence")]
-public record MemberName(string Value) : ConceptAs<string>(Value);
-[EventType]
-public record MemberRegistered(MemberName Name, [PII("Email for member correspondence")] string Email);
-[ReadModel, FromEvent<MemberRegistered>]
-public record MemberProfile(MemberId Id, MemberName Name, [PII("Email for member correspondence")] string Email);
+namespace Library.Features.Members.Profiles;
 
 public class MemberErasure
 {

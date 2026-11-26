@@ -1,9 +1,10 @@
+using Library.Features.Authors.Registration;
 using Cratis.Chronicle.Events;
 using Cratis.Chronicle.EventSequences;
 using Cratis.Chronicle.Reactors;
 using Xunit;
 
-[EventType] public record AuthorRegistered(string Name);
+namespace Library.Features.Authors.Directory;
 
 public interface IAuthorDirectory
 {

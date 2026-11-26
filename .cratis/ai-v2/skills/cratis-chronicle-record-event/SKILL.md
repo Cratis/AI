@@ -6,32 +6,34 @@ compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 
 # Append an author registration
 
-1. Reference `Cratis.Chronicle` in the backend. Put the registration event and its writer in `Features/Authors/Registration/`.
+1. Import `AuthorId` and `AuthorName` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Reference `Cratis.Chronicle` in the backend. Put the registration event and its writer in `Features/Authors/Registration/`.
 2. Mark the event `[EventType]`. The stored ID defaults to the type name; if you rename the type later, retain its old ID with `[EventType("AuthorRegistered")]`.
 3. Inject `IEventLog` into the direct writer. Pass the same `AuthorId` for all events about that author. Return the append result to the caller.
 
 ```csharp
-// Features/Authors/Registration/AuthorRegistry.cs
+// Features/Authors/Registration/AuthorRegistered.cs and AuthorRegistry.cs (same namespace)
 using Cratis.Chronicle.Events;
 using Cratis.Chronicle.EventSequences;
 
-namespace Library.Authors.Registration;
+using Cratis.Chronicle.Events.Constraints;
+using Library.Features.Authors;
 
-public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
+namespace Library.Features.Authors.Registration;
 
 [EventType]
-public record AuthorRegistered(string Name);
+public record AuthorRegistered(
+    [property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] string Name);
 
 public class AuthorRegistry(IEventLog eventLog)
 {
-    public Task<AppendResult> Register(AuthorId authorId, string name) =>
-        eventLog.Append(authorId, new AuthorRegistered(name));
+    public Task<AppendResult> Register(AuthorId authorId, AuthorName name) =>
+        eventLog.Append(authorId, new AuthorRegistered(name.Value));
 }
 ```
 
 ## Read back the accepted registration
 
-In a caller with the library's `IEventLog`, take the result from `var result = await new AuthorRegistry(eventLog).Register(authorId, "Aster");`. Check `result.IsSuccess` before reporting success. On refusal inspect `result.ConstraintViolations`, `result.ConcurrencyViolation` and `result.Errors`. For an accepted registration, read only that author's registrations and match the returned position:
+In a caller with the library's `IEventLog`, take the result from `var result = await new AuthorRegistry(eventLog).Register(authorId, new AuthorName("Aster"));`. Check `result.IsSuccess` before reporting success. On refusal inspect `result.ConstraintViolations`, `result.ConcurrencyViolation` and `result.Errors`. For an accepted registration, read only that author's registrations and match the returned position:
 
 ```csharp
 var registrations = await eventLog.GetForEventSourceIdAndEventTypes(

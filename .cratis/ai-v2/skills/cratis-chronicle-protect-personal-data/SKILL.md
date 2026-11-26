@@ -8,33 +8,42 @@ compatibility: .NET SDK and a compliance-enabled Chronicle kernel.
 
 1. Reference `Cratis.Chronicle`, `Cratis.Arc` and `Cratis.Fundamentals`. Use a surrogate member ID, not an email address. By default the event source ID identifies the subject; release uses the read model's `Id` when it has no `[Subject]` member.
 2. Mark the name concept with `[PII]`. Mark a personal scalar such as email on both the event and the read model. Give the reason for collecting each value.
-3. When reading the profile directly from the application's database collection, authorize the caller, check the profile is not null, then use `var readable = await eventStore.ReadModels.Release(profile);`. Release cannot recover the original name or email after key deletion. Don't use object identity or a successful call as a test that the key exists.
+3. When reading the profile directly from the application's database collection, authorize the caller, check the profile is not null, then use `var readable = await eventStore.ReadModels.Release(profile);`. Release cannot recover the original name or email after key deletion. A successful `Release` does not prove the values were decrypted.
 
 ```csharp
-// Features/Members/Profiles/MemberProfile.cs
+// Shared imports for the three feature namespaces below.
 using Cratis.Arc.Queries.ModelBound;
 using Cratis.Chronicle.Compliance.GDPR;
 using Cratis.Chronicle.Events;
 using Cratis.Chronicle.Projections.ModelBound;
 using Cratis.Concepts;
 
-namespace Library.Members.Profiles;
+using Library.Features.Members;
+using Library.Features.Members.Registration;
 
-public record MemberId(Guid Value) : EventSourceId<Guid>(Value);
-
-[PII("Member name for identification and correspondence")]
-public record MemberName(string Value) : ConceptAs<string>(Value);
-
-[EventType]
-public record MemberRegistered(MemberName Name, [PII("Email for member correspondence")] string Email);
-
-[ReadModel, FromEvent<MemberRegistered>]
-public record MemberProfile(MemberId Id, MemberName Name, [PII("Email for member correspondence")] string Email);
+namespace Library.Features.Members
+{
+    // Features/Members/MemberId.cs and MemberName.cs
+    public record MemberId(Guid Value) : EventSourceId<Guid>(Value);
+    [PII("Member name for identification and correspondence")]
+    public record MemberName(string Value) : ConceptAs<string>(Value);
+}
+namespace Library.Features.Members.Registration
+{
+    // Features/Members/Registration/MemberRegistered.cs
+    [EventType] public record MemberRegistered(MemberName Name, [PII("Email for member correspondence")] string Email);
+}
+namespace Library.Features.Members.Profiles
+{
+    // Features/Members/Profiles/MemberProfile.cs
+    [ReadModel, FromEvent<MemberRegistered>]
+    public record MemberProfile(MemberId Id, MemberName Name, [PII("Email for member correspondence")] string Email);
+}
 ```
 
 ## Delete one member's key
 
-With an `IEventStore` from `Cratis.Chronicle` for the correct namespace, call `await eventStore.PII.DeleteEncryptionKeyFor(memberId.Value.ToString());`. The subject loses that key in every event store in this namespace. Read both this member and a control member; the first member's email must no longer be readable, while the control member's email must still be readable.
+With an `IEventStore` from `Cratis.Chronicle` for the correct namespace, call `await eventStore.PII.DeleteEncryptionKeyFor(memberId.Value.ToString());`. The subject loses that key in every event store in this namespace. With `using Cratis.Chronicle.Events;` for `EventSequenceNumber`, read `await eventStore.EventLog.GetFromSequenceNumberWithErasedProperties(EventSequenceNumber.First, memberId)`. For the registration, check `registration.Context.ErasedProperties.Any(path => path.EndsWith("email", StringComparison.OrdinalIgnoreCase))` and `((MemberRegistered)registration.Content).Email != originalEmail`. Read `await eventStore.ReadModels.GetInstanceById<MemberProfile>(controlMemberId.Value)` and check the control member's email still equals the original.
 
 ## Avoid
 

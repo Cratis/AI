@@ -18,13 +18,11 @@ compatibility: .NET SDK and a disposable Chronicle kernel for connection checks.
 }
 ```
 
-2. Register Chronicle once in `Program.cs` and set the logical store name. In a web project with implicit usings the builder extensions need no additional import. Top-level startup code has no namespace declaration.
+2. Register Chronicle once in `Program.cs` and set the logical store name. In a web project with implicit usings the builder extensions need no additional import.
 3. Build the app, add the Chronicle middleware, then run it:
 
 ```csharp
 // Program.cs
-using Microsoft.AspNetCore.Builder;
-
 var builder = WebApplication.CreateBuilder(args)
     .AddCratisChronicle(options => options.EventStore = "library");
 

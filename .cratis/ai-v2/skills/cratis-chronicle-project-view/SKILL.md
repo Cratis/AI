@@ -6,21 +6,21 @@ compatibility: .NET SDK and Chronicle projections.
 
 # Store each registered author's name in a read model
 
-1. In the backend project that references `Cratis.Chronicle`, put `Author` beside the query that lists authors. `AuthorId` and `AuthorRegistered` come from [Record an event](../cratis-chronicle-record-event/SKILL.md).
+1. In the backend project that references `Cratis.Arc` and `Cratis.Chronicle`, put `Author` beside the query that lists authors. Import `AuthorId` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md) and `AuthorRegistered` from [Record an event](../cratis-chronicle-record-event/SKILL.md).
 2. Put `[FromEvent<AuthorRegistered>]` on the record. Chronicle uses the event source ID as `Id` and maps `AuthorRegistered.Name` to `Author.Name` by name.
-3. Reuse the feature's `AuthorRemoved` event if it exists; don't declare a second type with the same persisted ID. Put `[RemovedWith<AuthorRemoved>]` on the record. When this event is appended, Chronicle removes the instance with that author ID.
+3. Import `AuthorRemoved` from `Features/Authors/Removal/AuthorRemoved.cs` in [Reserve a name](../cratis-chronicle-constrain-append/SKILL.md). Put `[RemovedWith<AuthorRemoved>]` on the record. When this event is appended, Chronicle removes the instance with that author ID.
 
 ```csharp
 // Features/Authors/Listing/Author.cs
-using Cratis.Chronicle.Events;
 using Cratis.Chronicle.Projections.ModelBound;
-using Library.Authors.Registration;
+using Cratis.Arc.Queries.ModelBound;
+using Library.Features.Authors;
+using Library.Features.Authors.Registration;
+using Library.Features.Authors.Removal;
 
-namespace Library.Authors.Listing;
+namespace Library.Features.Authors.Listing;
 
-[EventType] public record AuthorRemoved;
-
-[FromEvent<AuthorRegistered>]
+[ReadModel, FromEvent<AuthorRegistered>]
 [RemovedWith<AuthorRemoved>]
 public record Author(AuthorId Id, string Name);
 ```
@@ -28,12 +28,12 @@ public record Author(AuthorId Id, string Name);
 ## Choose the mapping for each property
 
 - Keep matching property names for direct copies. If the read model calls the name `DisplayName`, declare `[SetFrom<AuthorRegistered>(nameof(AuthorRegistered.Name))] string DisplayName` instead.
-- For a last-updated timestamp, declare `[FromEvery(contextProperty: nameof(EventContext.Occurred))] DateTimeOffset LastUpdated`. Don't read the wall clock while projecting an event.
+- For a last-updated timestamp, add `using Cratis.Chronicle.Events;` and declare `[FromEvery(contextProperty: nameof(EventContext.Occurred))] DateTimeOffset LastUpdated`. Don't read the wall clock while projecting an event.
 - Keep `[Passive]` off this record: the listing needs stored instances, not a model computed only when requested by ID.
 
 ## Check removal by author ID
 
-With default discovery, keep `Author` in the backend assembly; Chronicle discovers records with model-bound projection attributes. Register Aster and Birch using different IDs. After the projection handles the registrations, check both IDs and names. Append `AuthorRemoved` for Aster. After it is handled, list `await store.ReadModels.GetInstances<Author>()` in the test namespace and check that only Birch remains with the same ID and name.
+With default discovery, keep `Author` in the backend assembly; Chronicle discovers records with model-bound projection attributes. In a test with an `IEventStore eventStore` for an empty namespace, register Aster with `var result = await eventStore.EventLog.Append(authorId, new AuthorRegistered("Aster"));`. Check `result.IsSuccess`, then check `(await result.WaitForCompletion()).IsSuccess` (import `Cratis.Chronicle.Observation`). Repeat for Birch with a different ID. List `await eventStore.ReadModels.GetInstances<Author>()` and check both names and IDs. Append `new AuthorRemoved()` for Aster; check acceptance and completion the same way. List again and expect only Birch.
 
 ## Related skills
 

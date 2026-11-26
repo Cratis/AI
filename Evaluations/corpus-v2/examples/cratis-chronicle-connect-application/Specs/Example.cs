@@ -3,8 +3,10 @@ using Cratis.Chronicle.Events;
 using Xunit;
 using Microsoft.AspNetCore.Builder;
 
-public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
-[EventType] public record AuthorRegistered(string Name);
+using Library.Features.Authors;
+
+namespace Library.Features.Authors.Registration;
+
 public class ConnectionProbe
 {
     public static async Task RunAuthorsHost(string[] args)

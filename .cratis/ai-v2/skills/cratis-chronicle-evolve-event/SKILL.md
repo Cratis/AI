@@ -6,7 +6,7 @@ compatibility: .NET SDK and Chronicle event migrations.
 
 # Rename AuthorRegistered.Name without breaking older readers
 
-1. Reference `Cratis.Chronicle`. Keep the old `Name` record, the new `DisplayName` record and the migration in the author registration feature.
+1. Reference `Cratis.Chronicle`. In an isolated upgrade of the registration feature (not alongside its generation-one implementation), keep the old `Name` record, the new `DisplayName` record and the migration in the author registration feature.
 2. Keep the stored ID `AuthorRegistered` and increment the generation. Mark the old type with `[EventTypeGenerationFor<AuthorRegistered>(1)]`. Both types must resolve to the same ID and their generations must be adjacent.
 3. Put `AuthorRegisteredMigration` in the backend assembly with the event records. Chronicle's default client finds migration implementations in the assemblies it scans; no separate migration registration is needed with default discovery. In both methods, specify the destination property first, then the source property.
 
@@ -14,10 +14,13 @@ compatibility: .NET SDK and Chronicle event migrations.
 // Features/Authors/Registration/AuthorRegisteredMigration.cs
 using Cratis.Chronicle.Events;
 using Cratis.Chronicle.Events.Migrations;
+using Cratis.Chronicle.Events.Constraints;
 
-namespace Library.Authors.Registration;
+namespace Library.Features.Authors.Registration;
 
-[EventType(generation: 2)] public record AuthorRegistered(string DisplayName);
+// Change the existing AuthorRegistered.cs in this revision.
+[EventType(generation: 2)] public record AuthorRegistered(
+    [property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] string DisplayName);
 [EventTypeGenerationFor<AuthorRegistered>(1)] public record AuthorRegisteredV1(string Name);
 
 public class AuthorRegisteredMigration : EventTypeMigration<AuthorRegistered, AuthorRegisteredV1>
@@ -32,14 +35,35 @@ public class AuthorRegisteredMigration : EventTypeMigration<AuthorRegistered, Au
 
 ## Read each generation through a projection
 
-Append `Name = "Aster"` with a client that registers only generation one. Start the updated client with both generations and the migration. Read the projected author by ID using a projection subscribed to `AuthorRegistered`; check `DisplayName`. Append a generation-two registration for another author, read a projection subscribed to `AuthorRegisteredV1`, and check `Name`. For this check, define these two projections in the same registration namespace (import `Cratis.Chronicle.Projections.ModelBound`):
+In the **test project only**, reference `Cratis.Chronicle.Testing`. Import `Cratis.Chronicle`, `Cratis.Chronicle.Testing`, `Cratis.Chronicle.Events`, `Cratis.Chronicle.Projections.ModelBound`, `Library.Features.Authors` and `Library.Features.Authors.Registration`. Compile the original `Features/Authors/Registration/AuthorRegistered.cs` unchanged in a separate test-support project `GenerationOne`. Add `<ProjectReference Include="../GenerationOne/GenerationOne.csproj" Aliases="v1" />` in the test project. At the top of the test file, before other imports, write `extern alias v1;` then `using V1Registration = v1::Library.Features.Authors.Registration.AuthorRegistered;`. Keep both test projections in the test assembly, not the application's discovered assembly:
 
 ```csharp
 [FromEvent<AuthorRegistered>] public record CurrentAuthor(AuthorId Id, string DisplayName);
 [FromEvent<AuthorRegisteredV1>] public record PreviousAuthor(AuthorId Id, string Name);
 ```
 
-Read them with `await store.ReadModels.GetInstanceById<CurrentAuthor>(oldAuthorId.Value)` and `await store.ReadModels.GetInstanceById<PreviousAuthor>(newAuthorId.Value)`. A filter on stored event type ID alone does not select a generation. Use `AuthorId` from [Record an event](../cratis-chronicle-record-event/SKILL.md).
+Against a disposable development kernel, use two clients in sequence. Choose a fresh store name for the test and pass the same store name and namespace to both clients' `GetEventStore` calls.
+
+```csharp
+var options = ChronicleOptions.FromDevelopmentConnectionString();
+using var legacy = new ChronicleClient(options, new InMemoryClientArtifactsProvider
+{
+    EventTypes = [typeof(V1Registration)]
+});
+var storeName = $"library-{Guid.NewGuid():N}";
+var oldAuthorId = AuthorId.New();
+var oldStore = await legacy.GetEventStore(storeName, "migration-test");
+var first = await oldStore.EventLog.Append(oldAuthorId, new V1Registration("Aster"));
+if (!first.IsSuccess) throw new InvalidOperationException("Generation-one registration failed");
+using var updated = new ChronicleClient(options, new InMemoryClientArtifactsProvider
+{
+    EventTypes = [typeof(AuthorRegisteredV1), typeof(AuthorRegistered)],
+    EventTypeMigrators = [typeof(AuthorRegisteredMigration)],
+    ModelBoundProjections = [typeof(CurrentAuthor), typeof(PreviousAuthor)]
+});
+```
+
+Get `var store = await updated.GetEventStore(storeName, "migration-test");` and a different `var newAuthorId = AuthorId.New();`. Use the updated store to append `new AuthorRegistered("Birch")` for `newAuthorId`. Check acceptance of each append. Read `await store.ReadModels.GetInstanceById<CurrentAuthor>(oldAuthorId.Value)` until `DisplayName` is `"Aster"` and `await store.ReadModels.GetInstanceById<PreviousAuthor>(newAuthorId.Value)` until `Name` is `"Birch"`; fail the test if either hasn't arrived after 30 seconds. A filter on stored event type ID alone does not select a generation. Use `AuthorId` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md).
 
 ## Avoid
 

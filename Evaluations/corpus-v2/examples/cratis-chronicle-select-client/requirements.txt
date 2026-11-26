@@ -1,1 +1,2 @@
-cratis-chronicle-contracts==19.184.3
+# URL and SHA-256 must identify the verified Chronicle wheel from the fixture's tag.
+cratis-chronicle-contracts @ ${CHRONICLE_CONTRACTS_WHEEL_URL}#sha256=${CHRONICLE_CONTRACTS_WHEEL_SHA256}
