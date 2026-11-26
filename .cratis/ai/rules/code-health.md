@@ -33,8 +33,8 @@ MCP setup, approval-gated tools and tool-output handling: [codescene.md](./codes
 
 ## No fix loops
 
-- **Once, before the gate.** Handle Code Health once per touched file: review while shaping the code (design for the score, do not write first and fix later), refactor, then one `code_health_score`. The gate and review then run once on the final shape.
+- **Once, before the gate.** Handle Code Health once per in-scope file: review while shaping the code (design for the score, do not write first and fix later), refactor, then one `code_health_score`. The gate and review then run once on the final shape.
 - **Never a cycle.** No gate, score, refactor, gate loops. A score check never triggers an extra build or test run on its own; batch score fixes with the other fixes.
 - **One refactor pass per file per change.** If it does not reach 9.5, report before/after and the reason, suggest the uplift follow-up, and stop.
-- **A reported reason closes the item.** Reviewers flag only a touched file below 9.5 with no reason, together with the round's other findings, never as a review round of its own.
+- **A reported reason closes the item.** Reviewers flag only an in-scope file below 9.5 with no reason, together with the round's other findings, never as a review round of its own.
 - **A second Code Health round is itself a finding.** Name the cause (wrong approach, file too large for the task, tool problem) instead of iterating.

@@ -30,6 +30,10 @@ scope specification, independent review, Code Health and local gate obligations.
   justifies one. Existing cheap checks may remain without disproportionate ceremony;
   cosmetic findings are advisory.
 
+A change in any tier that touches credentials or secrets, authentication or authorization,
+workflow permissions or untrusted-PR triggers (`pull_request_target`, `workflow_run`,
+forked-PR inputs), data exposure, a trust boundary, or a destructive or irreversible action
+is Tier A for that part and needs independent review, whatever the tool's tier.
 A critical subcomponent inherits Tier A even inside a Tier C tool. Unknown critical
 dependencies fail closed to the relevant higher tier. Narrow fixes never require
 unrelated legacy uplift. No receipt, inventory or review document is needed to claim a tier.
