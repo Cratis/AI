@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk"><Import Project="../ArcSpecs.props"/><ItemGroup><ProjectReference Include="../Catalog.csproj"/></ItemGroup></Project>
