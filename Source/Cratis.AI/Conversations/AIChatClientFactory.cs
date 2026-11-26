@@ -141,16 +141,21 @@ public static class AIChatClientFactory
         type switch
         {
             AIProviderType.OpenAI =>
-                (new OpenAI.Chat.ChatClient(modelId, apiKey!.ForUse()).AsIChatClient(), modelId),
+                (new ResponsesFallbackChatClient(
+                    new OpenAI.Chat.ChatClient(modelId, apiKey!.ForUse()).AsIChatClient(),
+                    () => OpenAIResponses(modelId, apiKey, null)),
+                    modelId),
 
             AIProviderType.AzureOpenAI =>
-                (new OpenAI.Chat.ChatClient(
-                    modelId,
-                    new ApiKeyCredential(apiKey!.ForUse()),
-                    new OpenAIClientOptions
-                    {
-                        Endpoint = NormalizeAzureOpenAIEndpoint(endpoint!.Value),
-                    }).AsIChatClient(),
+                (new ResponsesFallbackChatClient(
+                    new OpenAI.Chat.ChatClient(
+                        modelId,
+                        new ApiKeyCredential(apiKey!.ForUse()),
+                        new OpenAIClientOptions
+                        {
+                            Endpoint = NormalizeAzureOpenAIEndpoint(endpoint!.Value),
+                        }).AsIChatClient(),
+                    () => OpenAIResponses(modelId, apiKey, NormalizeAzureOpenAIEndpoint(endpoint.Value))),
                     modelId),
 
             // A subscription token never reaches the Messages API SDK - it authenticates only through
@@ -187,6 +192,16 @@ public static class AIChatClientFactory
 
             _ => null,
         };
+
+    // The Responses client is marked experimental by the OpenAI SDK, and is the only API a model that reasons will serve
+    // function tools over; ResponsesFallbackChatClient builds it only when a model has said so.
+#pragma warning disable OPENAI001
+    static IChatClient OpenAIResponses(string modelId, AIProviderApiKey apiKey, Uri? endpoint) =>
+        new OpenAI.Responses.ResponsesClient(
+            new ApiKeyCredential(apiKey.ForUse()),
+            endpoint is null ? new OpenAI.Responses.ResponsesClientOptions() : new OpenAI.Responses.ResponsesClientOptions { Endpoint = endpoint })
+            .AsIChatClient(modelId);
+#pragma warning restore OPENAI001
 
     static bool HasValue(Cratis.Concepts.ConceptAs<string>? value) => !string.IsNullOrWhiteSpace(value?.Value);
 
