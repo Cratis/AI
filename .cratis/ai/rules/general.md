@@ -90,11 +90,10 @@ the plugin marketplaces) are in [ai-distribution.md](./ai-distribution.md):
 
 ## Verification Discipline
 
-A claim is only as good as the signal behind it — a build result, a test run, a lint pass, observed app behavior — not the model's own confidence. Internal reasoning *plans* the work; external signals *confirm* it.
+Verify claims with build, spec, lint or observed-behavior signals, not confidence.
 
 - **Confirm "done"/"fixed"/"correct" against a fresh signal — never self-assessment.** Run the relevant gate and observe it pass *this time*.
-- **Choose checks by [criticality tier](./criticality-tiers.md).** Check affected behavior and changed inputs, reuse valid unchanged-input results, and preserve required CI coverage. Re-run a failed gate after a relevant fix; never argue yourself to green.
-- **Gate configuration:** shipped defaults `.cratis/ai/hooks/scripts/quality-gates.json`; project overrides `.cratis/ai/quality-gates.project.json` shallow-merge by gate id (command without requires drops inherited packageScripts). `CRATIS_HOOKS_GATES` replaces defaults; project overrides still apply.
+- **Scope checks by [criticality tier](./criticality-tiers.md);** follow [verification-discipline.md](./verification-discipline.md) for execution and evidence.
 - **A green build is not behavioral correctness.** Compilation proves it builds, not that the slice does the right thing — that's what specs and exercising the UI are for.
 - **Incidents:** analyse the cause first; choose the narrowest fix for it; state its cost and when it can be removed (**cratis-engineering-post-mortem**).
 - **Report the conclusion and what you didn't verify, in a line or two.** Show output when asked, contested or failed — see [verification-discipline.md](./verification-discipline.md).
@@ -118,9 +117,8 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 
 ## Definition of Done
 
-- Apply [criticality tiers](./criticality-tiers.md) to specs, review, Code Health and local gates; applicable builds have zero warnings/errors and relevant specs pass.
+- Within the [tier's scope](./criticality-tiers.md), builds have zero warnings/errors, specs pass and [Code Health](./code-health.md) shortfalls are reported.
 - For public-facing behavior, update documentation and verify it.
-- Apply [Code Health](./code-health.md) only within that tier's scope; report any applicable shortfall.
 
 ## Where to Look
 
