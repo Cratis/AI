@@ -7,7 +7,9 @@ compatibility: .NET SDK; Node.js for offline summaries.
 # Find out why a registered author is missing from the listing
 
 1. Reference `Cratis.Chronicle`. Check `result.IsSuccess`; keep `result.SequenceNumber`, the author's event source ID and the observer ID. The default ID for the listing projection is its model's full name (`Library.Features.Authors.Listing.Author`); for a reactor it is the reactor class's full name. Use the configured ID instead if explicitly overridden. Use the same store, namespace and event sequence as the write.
-2. Read `await eventStore.Observers.GetAll()`. Find the observer by ID, check `observer.RunningState` and compare its positions only when the event sequence matches. For a write at 20 and a last-handled position of 15, next position 16 means the observer is behind.
+2. Read `await eventStore.Observers.GetAll()` and look for the expected ID.
+   - If the observer is missing, verify the scope and ID. On the host that registers `Author`, check `eventStore.Registration`: `Failure` means the run failed; a `Failure` on the `Artifacts` entry whose `ArtifactType` is `typeof(Author)` means that projection failed. A missing entry or `HasRun == false` doesn't establish a failure. With no observer to compare, don't report lag.
+   - If the observer is present, check `observer.RunningState` and compare positions only on the same event sequence. For a write at 20 and a last-handled position of 15, next position 16 means the observer is behind.
 3. For the accepted append, use `var completion = await result.WaitForCompletion();` from `Cratis.Chronicle.Observation` and inspect `completion.FailedPartitions`. Use `await eventStore.FailedPartitions.GetFailedPartitionsFor(observer.Id)` and match `failure.Partition.Value` to the affected event source ID. A failure for another author doesn't explain this one.
 4. To check a job, use `await eventStore.Jobs.GetJobs()` and `await eventStore.Jobs.GetJob(id)`. A null result means that job wasn't found, not that it completed.
 

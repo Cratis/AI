@@ -18,7 +18,7 @@ public record RegisterAuthor(AuthorId Id, string Name)
 }
 ```
 
-`AuthorId` derives from `EventSourceId<Guid>`. Arc recognizes this property's type, not its constructor position, when selecting the author's history. Return the accepted name as the fact; the pipeline appends it once.
+Use the shared `AuthorId` record, which derives from `EventSourceId<Guid>`; don't redeclare it in the command. Explain why `Id` selects the author's history: Arc looks for an event-source property by type, so the single `AuthorId` property works in any constructor position. Return the accepted name as the fact; the pipeline appends it once.
 
 [Test the append](../cratis-specifications-exercise-backend/SKILL.md) against the caller's author ID and submitted name.
 

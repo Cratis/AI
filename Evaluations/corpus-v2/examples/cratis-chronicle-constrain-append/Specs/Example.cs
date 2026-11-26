@@ -18,7 +18,8 @@ public class Reservation
         var store = await client.GetEventStore("corpus-unique", Guid.NewGuid().ToString());
         var first = new AuthorId(Guid.NewGuid());
         var other = new AuthorId(Guid.NewGuid());
-        var registration = new AuthorRegistered("Aster");
+        var name = new AuthorName("Aster");
+        var registration = new AuthorRegistered(name.Value);
         Assert.True((await store.EventLog.Append(first, registration)).IsSuccess);
         var refused = await store.EventLog.Append(other, registration);
         Assert.False(refused.IsSuccess);

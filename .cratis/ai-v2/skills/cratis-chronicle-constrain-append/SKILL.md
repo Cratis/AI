@@ -12,7 +12,7 @@ compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 [property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] string Name
 ```
 
-2. Keep callers' wire shape unchanged: `new AuthorRegistered("Aster")`. A caller holding an `AuthorName` concept passes `new AuthorRegistered(name.Value)`.
+2. Keep the stored name a string. At the append boundary, turn an in-process `AuthorName` into the fact with `new AuthorRegistered(name.Value)`.
 3. Declare the removal event once, in its own feature. Name the reservation it releases:
 
 ```csharp
@@ -28,7 +28,7 @@ public record AuthorRemoved;
 
 ## Try the same name for two author IDs
 
-Use two different `AuthorId` values from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Append `new AuthorRegistered("Aster")` for the first ID and check `result.IsSuccess`. Try it for the second ID: `result.IsSuccess` must be false and `result.ConstraintViolations.Single().ConstraintName.Value` must be `"UniqueAuthorName"`. No event should be stored for the second author. Append `new AuthorRemoved()` for the first ID and check acceptance. Retry the second registration and expect success.
+Use two different `AuthorId` values and `var name = new AuthorName("Aster");` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Append `new AuthorRegistered(name.Value)` for the first ID and check `result.IsSuccess`. Try the same fact for the second ID: `result.IsSuccess` must be false and `result.ConstraintViolations.Single().ConstraintName.Value` must be `"UniqueAuthorName"`. No event should be stored for the second author. Append `new AuthorRemoved()` for the first ID and check acceptance. Retry the second registration and expect success.
 
 ## Avoid
 
