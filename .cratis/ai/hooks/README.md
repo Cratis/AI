@@ -435,8 +435,7 @@ exist today. **Compatibility change:** `tar -cf out.tar ?x`, `zip out.zip [a]*` 
 now refused even in a directory with no option-shaped names. Re-spell them with a literal anchor (`./?x`,
 `dir/?x`), which stays allowed. `--` is not an anchor for any family (tar, zip, 7z, cpio, pax, ...): the guard
 cannot verify what each tool does after it, so the remediation is `./`. A `--` that is itself an option value
-(`zip out.zip -x -- ?x`) is data, not a terminator. cp and rsync share the
-option reader but not this check (known gap, tracked on Cratis/AI#1223). Git checkout-index still requires a directory
+(`zip out.zip -x -- ?x`) is data, not a terminator. Git checkout-index still requires a directory
 prefix ending in `/`, checked against all protected-path policy.
 
 In destructive scope only, an existing directory also receives a metadata-only inventory for
@@ -518,7 +517,7 @@ pins each row with JSON-only invocations (no candidate text is executed).
 | State inherited from earlier calls | The supplied `cwd`; literal `cd`/`git -C` within one command; modeled archive option environments | Unresolved destructive destinations; `UNZIP`/`TAR_OPTIONS`-style archive environments | Earlier assignments, executor shell options (`dotglob`, `nullglob`), files created by prior calls or races |
 | Aliases and functions | Literal executable names | Protected references and unresolved destructive effects stay visible | What an alias, function or shadowing executable does; definitions are never loaded or run |
 | Directory resolution | Literal cwd, `cd`, Git `-C`, logical and physical (symlink) path checks | Ambiguous destructive cwd; links resolving into protected or whole-worktree scope | `CDPATH`, unmodeled directory options, symlinks created during execution |
-| Expansion and quoting | Literal and quoted operands; ordinary source globs and bounded literal-prefix probes; archive operands whose first character is a literal other than `-`/`@` (`./?x`, `dir/?x`; a quoted expansion such as `"$x"` never anchors, and `--` is no anchor) or quoting | Archive operands that can expand to options or `@` (above); unresolved destructive operands; over-budget parsing | General shell grammar (bash versus zsh), indirect expansion, option injection outside archives (cp/rsync: known gap, #1223) |
+| Expansion and quoting | Literal and quoted operands; ordinary source globs and bounded literal-prefix probes; archive operands whose first character is a literal other than `-`/`@` (`./?x`, `dir/?x`; a quoted expansion such as `"$x"` never anchors, and `--` is no anchor) or quoting | Archive operands that can expand to options or `@` (above); unresolved destructive operands; over-budget parsing | General shell grammar (bash versus zsh), indirect expansion |
 | Wrappers and shell entry points | Modeled wrappers (`env`, `nice`, `sudo`, `timeout`, …) and literal nested `sh -c` bodies | Protected inline-interpreter vocabulary; executable heredocs; uncertain destructive wrapper context | Dynamic code, external scripts, generated stdin, custom wrappers, archive file-list (`-T`) contents |
 
 Remaining redesign (a command-shape allowlist per tool family, argument-file and dynamic-code handling, a

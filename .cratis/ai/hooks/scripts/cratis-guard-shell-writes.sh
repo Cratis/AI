@@ -1966,8 +1966,10 @@ function segment(d, start, end, cwd, uncertain, depth, findpaths, pipe, fed, out
     else if (w == "find") find_command(d, head, end, cwd, context, depth + 1, fed)
     else if (bulk_family(w) != "") {
         if (w == "cp" || w == "rsync") {
+            archive_operands = 1
             if (fed || !known_options(d, head + 1, end, w, cwd, context)) emit("!")
             else copy_effect(d, head, end, cwd, context)
+            archive_operands = 0
         } else archive_command(d, head, end, cwd, context, fed, bulk_family(w))
     }
     else if (destructive(w)) {

@@ -758,13 +758,13 @@ const archiveOptionDenied = [
     'tar -cf /tmp/o.tar ./"$x"?', 'tar -cf /tmp/o.tar a"$x"?',
     // Bash removes backslash-newline outside single quotes, so it never anchors a word.
     'tar -cf /tmp/o.tar \\\n?x', 'tar -cf /tmp/o.tar \\\n-?', 'tar -cf /tmp/o.tar "\\\n"?x',
-    'tar -cf /tmp/o.tar ./a \\\n?-use-compress-program=sh', 'tar -cf /tmp/o.tar ./a \\\n--use-compress-program=sh',
+    'tar -cf /tmp/o.tar ./a \\\n?-fixture-option=value', 'tar -cf /tmp/o.tar ./a \\\n--fixture-option=value',
     // A terminator is not proof for any family, and ANSI-C escapes are never decoded here.
     'zip /tmp/o.zip -- ?T', 'zip /tmp/o.zip -- ?x', '7z a /tmp/o.7z -- ?x', 'cpio -o -F /tmp/o.cpio -- ?x', 'pax -w -f /tmp/o.tar -- ?x',
-    "tar -cf /tmp/o.tar $'\\x2d'?", "tar -cf /tmp/o.tar $'\\055'x?", "tar -cf /tmp/o.tar ./a $'\\x2d\\x2duse-compress-program=sh'",
+    "tar -cf /tmp/o.tar $'\\x2d'?", "tar -cf /tmp/o.tar $'\\055'x?", "tar -cf /tmp/o.tar ./a $'\\x2d\\x2dfixture-option=value'",
     'tar -cf /tmp/o.tar $"x"?', 'tar -cf /tmp/o.tar "$PWD"/?x', 'tar -cf /tmp/o.tar $x?',
     // An expansion before the glob can be empty, so it never anchors, quoted or not.
-    'tar -cf /tmp/o.tar ./a "$x"[-]-use-compress-program=sh', 'x=; tar -cf /tmp/o.tar ./a "$x"?-use-compress-program=sh',
+    'tar -cf /tmp/o.tar ./a "$x"[-]-fixture-option=value', 'x=; tar -cf /tmp/o.tar ./a "$x"?-fixture-option=value',
     'tar -cf /tmp/o.tar -- "$x"?x', 'tar -cf /tmp/o.tar "`true`"?x', 'bsdtar -cf /tmp/o.tar "$x"?archive.tar', '7z a /tmp/o.7z "$x"?',
     // Every `*` spelling stays refused (here by the reference stage as well).
     'tar -cf /tmp/o.tar *', 'tar -cf /tmp/o.tar *.txt', 'tar -cf /tmp/o.tar -- *', 'tar -cf /tmp/o.tar ""*', 'zip /tmp/o.zip *.txt',
@@ -785,11 +785,36 @@ test('archive operands that can expand to options are refused unless anchored or
     // The directory holds option-shaped names, so a refusal cannot depend on a clean snapshot.
     const root = scratchRepository();
     try {
-        for (const name of ['-x', '-x.txt', '@x', '--use-compress-program=x']) writeFileSync(join(root, name), 'synthetic fixture');
+        for (const name of ['-x', '-x.txt', '@x', '--fixture-option=value']) writeFileSync(join(root, name), 'synthetic fixture');
         await Promise.all([...archiveOptionDenied.map(command => [2, command] as const), ...archiveOptionAllowed.map(command => [0, command] as const)]
             .map(([expected, command]) => context.test(command, async scenario => {
                 const result = await shellVerdict(command, root, '0', scenario.signal);
                 assert.equal(result.status, expected, result.stderr);
             })));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+const copyOptionCases: [number, string][] = [
+    [2, '?x'], [2, '""?x'], [2, '[a-z]x'], [2, '-- ?x'],
+    [2, '"$x"?x'], [2, '"$x"[-]-fixture-option=value'],
+    [2, "$'\\x2d\\x2dfixture-option=value'"], [2, "-- $'\\x2d\\x2dfixture-option=value'"],
+    [2, '--fixture-option=value source.txt'],
+    [0, './?x'], [0, "'?x'"], [0, '"a"?'], [0, '-- ./?x'], [0, 'source.txt'],
+];
+
+test('copy operands follow the exact option grammar', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    try {
+        for (const name of ['-x', '-x.txt', '--fixture-option=value']) writeFileSync(join(root, name), 'synthetic fixture');
+        const cases: [number, string][] = ['cp', 'rsync -an'].flatMap(verb =>
+            copyOptionCases.map(([expected, operand]): [number, string] => [expected, `${verb} ${operand} /tmp/d`]));
+        cases.push(
+            [2, 'cp -t ""? source.txt'], [0, 'cp -t /tmp/d source.txt'],
+            [2, 'rsync -f ""? source.txt /tmp/d'], [0, 'rsync -f +safe source.txt /tmp/d'],
+        );
+        await Promise.all(cases.map(([expected, command]) => context.test(command, async scenario => {
+            const result = await shellVerdict(command, root, '0', scenario.signal);
+            assert.equal(result.status, expected, result.stderr);
+        })));
     } finally { rmSync(root, { recursive: true, force: true }); }
 });

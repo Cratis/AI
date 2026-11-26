@@ -66,8 +66,8 @@ test('guards allow ordinary tool calls under the system /bin/bash', { skip: !exi
     }
 });
 
-// Archive operands that can expand to options: hostile and anchored/terminated pairs.
-const archiveOptionCases: [string, number][] = [
+// Classified bulk operands: refused and literal-anchored pairs.
+const bulkOptionCases: [string, number][] = [
     ['tar -cf /tmp/o.tar ?x', 2],
     ['tar -cf /tmp/o.tar ./?x', 0],
     ['tar -cf /tmp/o.tar ""?x', 2],
@@ -81,6 +81,14 @@ const archiveOptionCases: [string, number][] = [
     ['zip /tmp/o.zip -- ?x', 2],
     ['7z a /tmp/o.7z ?x', 2],
     ['7z a /tmp/o.7z -- ?x', 2],
+    ['cp ?x /tmp/d', 2],
+    ['cp ./?x /tmp/d', 0],
+    ['cp -- ?x /tmp/d', 2],
+    ['cp -- ./?x /tmp/d', 0],
+    ['rsync -an ?x /tmp/d', 2],
+    ['rsync -an ./?x /tmp/d', 0],
+    ['rsync -an -- ?x /tmp/d', 2],
+    ['rsync -an -- ./?x /tmp/d', 0],
 ];
 
 function assertAwkCase(variant: string, entry: [string, string, number | null], directory: string, env: NodeJS.ProcessEnv): void {
@@ -240,7 +248,7 @@ function awkCases(directory: string): [string, string, number | null][] {
         ['cratis-guard-secrets.sh', 'git grep -e x -- secrets.json', 2],
         ['cratis-guard-secrets.sh', 'git show HEAD:.env', 2],
         ['cratis-guard-shell-writes.sh', 'git ls-files --debug -- .env', 0],
-        ...archiveOptionCases.map(([command, expected]): [string, string, number] => ['cratis-guard-shell-writes.sh', command, expected]),
+        ...bulkOptionCases.map(([command, expected]): [string, string, number] => ['cratis-guard-shell-writes.sh', command, expected]),
 
         ['cratis-guard-shell-writes.sh', 'echo x > *.csproj', 2],
         ['cratis-guard-shell-writes.sh', "rg -l 'Identity|Hosting' .cratis/ai/rules/project*", 0],

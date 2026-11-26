@@ -43,9 +43,8 @@ const rows: Row[] = [
     { area: 'expansion', guard: 'writes', command: '7z a /tmp/o.7z -- ?x', outcome: 'refuse' },
     { area: 'expansion', guard: 'secrets', command: "cat .e''nv", outcome: 'refuse' },
     { area: 'expansion', guard: 'secrets', command: 'rg -n foo Source', outcome: 'allow' },
-    // Known gap tracked on Cratis/AI#1223: cp and rsync share the option reader but not the archive check.
-    { area: 'known gap: cp operands that can expand to options', guard: 'writes', command: 'cp ?x /tmp/d', outcome: 'limit' },
-    { area: 'known gap: rsync operands that can expand to options', guard: 'writes', command: 'rsync -a ?x /tmp/d', outcome: 'limit' },
+    { area: 'expansion', guard: 'writes', command: 'cp ?x /tmp/d', outcome: 'refuse' },
+    { area: 'expansion', guard: 'writes', command: 'rsync -a ?x /tmp/d', outcome: 'refuse' },
     // File-list content and generated scripts are not read or evaluated.
     { area: 'file list: payload is not inspected', guard: 'writes', command: 'tar -cf /tmp/o.tar -T files.txt', outcome: 'limit' },
     { area: 'external script: behaviour is not inspected', guard: 'secrets', command: './generate-report.sh', outcome: 'limit' },
