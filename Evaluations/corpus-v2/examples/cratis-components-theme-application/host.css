@@ -2,4 +2,16 @@
 @import '@cratis/components/styles';
 @import '@cratis/components/theme';
 
+:root, .cratis-theme, :root.cratis-light, :root.cratis-dark.cratis-light,
+:root.cratis-light .cratis-theme:not(.cratis-dark), .cratis-theme.cratis-light,
+.cratis-dark .cratis-theme.cratis-light { --cratis-primary-color: #0f766e; }
+
+:root.cratis-dark, .cratis-dark .cratis-theme, .cratis-theme.cratis-dark {
+    --cratis-primary-color: #5eead4;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not(.cratis-light), .cratis-theme:not(.cratis-light) { --cratis-primary-color: #5eead4; }
+}
+
 .author-admin { --cratis-primary-color: rgb(101, 29, 155); }

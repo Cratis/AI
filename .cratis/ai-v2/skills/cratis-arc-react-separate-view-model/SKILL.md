@@ -6,7 +6,7 @@ compatibility: Requires @cratis/arc.react.mvvm, tsyringe, react-router-dom and r
 
 # Filter authors with a bound view model
 
-1. Set `compilerOptions.experimentalDecorators` to `true` in `tsconfig.json`. In [main.tsx](../cratis-arc-react-bind-slice/SKILL.md), import `reflect-metadata` first, `MVVM` from `@cratis/arc.react.mvvm`, `BrowserRouter` from `react-router-dom` and `AuthorSearch` from `./Features/Authors/Listing/AuthorSearch`. In the existing `createRoot(...).render(...)` call, render `<CratisComponentsProvider><Arc><MVVM><BrowserRouter><AuthorSearch /></BrowserRouter></MVVM></Arc></CratisComponentsProvider>`. The bound view reads the router, so mount it inside `BrowserRouter`.
+1. Set `compilerOptions.experimentalDecorators` to `true` in `tsconfig.json`. In [main.tsx](../cratis-arc-react-bind-slice/SKILL.md), import `reflect-metadata` first, `MVVM` from `@cratis/arc.react.mvvm` and `BrowserRouter` from `react-router-dom`. Keep the existing providers and wrap the application shell inside `Arc`: `<Arc><MVVM><BrowserRouter><App /></BrowserRouter></MVVM></Arc>`. In `App.tsx`, import `AuthorSearch` from `./Features/Authors/Listing/AuthorSearch` and render it on the search screen. The bound view reads the router; don't replace the shell or its dialog registration.
 2. Put the search term and filter in `Features/Authors/Listing/AuthorSearchViewModel.ts`. `Author` and `AllAuthors` come from the slice's [generated proxy](../cratis-arc-generate-proxies/SKILL.md).
 
 ```ts

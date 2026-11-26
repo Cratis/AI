@@ -3,7 +3,7 @@ import { Canvas, CanvasItem } from '@cratis/components/Canvas';
 type BoardBook = { id: string; title: string; x: number; y: number };
 export function BookBoard({ book, openBook }: { book: BoardBook; openBook: (id: string) => void }) {
     return <div style={{ width: '100%', height: 480 }}>
-        <Canvas style={{ width: '100%', height: '100%' }} showControls>
+        <Canvas style={{ width: '100%', height: '100%' }}>
             <CanvasItem id={book.id} x={book.x} y={book.y}>
                 <button type="button" onClick={() => openBook(book.id)}>{book.title}</button>
             </CanvasItem>
