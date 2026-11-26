@@ -27,6 +27,12 @@ compatibility: Requires ASP.NET Core configuration and the Screenplay CLI for mo
 
 4. Run `screenplay environment model --format json`. Look for `secrets.MailerApiKey` marked secret. The output lists paths and secret flags, not values. Bind the named secret in the deployment's secret store.
 
+## Bind an already-running local service
+
+For a Compose-hosted Library app, supply `Cratis__Chronicle__ConnectionString` to the **app** with an endpoint reachable from that container, not a host-only address. Apply the same presence and destination checks as for preview.
+
+In an existing Aspire AppHost where the Library project references the resource named `chronicle`, the app receives `ConnectionStrings__chronicle`. Check `builder.Configuration["ConnectionStrings:chronicle"]` rather than requiring the preview key in this environment. Leave the explicit Chronicle connection string unset in both host settings and client registration: either would override the resource binding. Verify the app reaches the intended local store without printing the value.
+
 ## Avoid
 
 - Don't expect this CLI inventory to list implicit extension settings or the effective Chronicle connection string. It inventories the model, not the host.

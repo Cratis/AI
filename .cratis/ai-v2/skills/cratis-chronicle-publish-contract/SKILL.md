@@ -63,5 +63,7 @@ public static class ListingExchange
 
 ## Related skills
 
+- [Choose a Chronicle client](../cratis-chronicle-select-client/SKILL.md) before implementing the consumer in another language.
+
 - [Append an event](../cratis-chronicle-record-event/SKILL.md)
 - [Send a post-commit notice](../cratis-chronicle-react-to-fact/SKILL.md)

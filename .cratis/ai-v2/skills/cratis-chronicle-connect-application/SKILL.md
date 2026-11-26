@@ -45,5 +45,7 @@ Append an `AuthorRegistered` event in the library store and check `result.IsSucc
 
 ## Related skills
 
+- [Bind the deployment environment](../cratis-platform-configure-environment/SKILL.md) to keep the preview connection separate from shared settings.
+
 - [Configure the Arc host](../cratis-arc-host-application/SKILL.md)
 - [Diagnose observer progress](../cratis-chronicle-inspect-observer/SKILL.md)

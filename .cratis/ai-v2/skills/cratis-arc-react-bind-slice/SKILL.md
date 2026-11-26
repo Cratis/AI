@@ -52,5 +52,8 @@ if (!name.trim()) return <p>Enter an author name.</p>;
 
 ## Related skills
 
+- [Separate the view model](../cratis-arc-react-separate-view-model/SKILL.md) when presentation state belongs outside the component.
+- [Theme the application](../cratis-components-theme-application/SKILL.md) to apply shared styles at the provider boundary.
+
 - [Generate the TypeScript proxies](../cratis-arc-generate-proxies/SKILL.md)
 - [Render the Library authors page](../cratis-components-display-list/SKILL.md)

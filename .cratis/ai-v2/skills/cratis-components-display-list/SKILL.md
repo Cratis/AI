@@ -34,4 +34,6 @@ export const Authors = ({ onOpen }: { onOpen: (author: Author) => void }) => (
 
 ## Related skills
 
+- [Explore data](../cratis-components-explore-data/SKILL.md) when readers need to inspect more than a fixed list.
+
 - [Confirm a row action](../cratis-components-coordinate-feedback/SKILL.md)

@@ -41,5 +41,7 @@ Have the directory save the first notice, then fail before acknowledging it. Cal
 
 ## Related skills
 
+- [Inspect reactor progress](../cratis-chronicle-inspect-observer/SKILL.md) if a recorded registration never reaches the directory.
+
 - [Call a provider during a command](../cratis-arc-declare-operation/SKILL.md)
 - [Publish a public event](../cratis-chronicle-publish-contract/SKILL.md)

@@ -1,7 +1,7 @@
 ---
 name: cratis-arc-page-query
 description: Use when a list query needs server-side paging or sorting of filtered results in the database. Not for rendering list columns (use cratis-components-display-list).
-compatibility: Requires Cratis and Cratis.Arc.MongoDB with Mongo registered on the host.
+compatibility: Requires Node.js for the verification script, and Cratis and Cratis.Arc.MongoDB with Mongo registered on the host.
 ---
 
 # Page authors with the requested name
@@ -23,6 +23,8 @@ With prefix `api` and one namespace segment skipped, request `GET /api/features/
 - Do not reuse `page`, `pageSize`, `sortBy` or `sortDirection` as business filter names.
 
 ## Related skills
+
+- [Expose a live query](../cratis-arc-expose-query/SKILL.md) for the unpaged Authors list.
 
 - [Connect MongoDB](../cratis-arc-connect-storage/SKILL.md)
 - [Display the list](../cratis-components-display-list/SKILL.md)

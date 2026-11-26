@@ -41,5 +41,7 @@ From the directory containing `model`, run `screenplay export model --format ui 
 
 ## Related skills
 
+- [Model automation](../cratis-screenplay-model-automation/SKILL.md) for work triggered by an event rather than a librarian.
+
 - [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md) to define the operation inputs and results.
 - [Bind the React slice](../cratis-arc-react-bind-slice/SKILL.md) to implement the accepted interaction.

@@ -27,5 +27,7 @@ Run the [empty-name backend specification](../cratis-specifications-exercise-bac
 
 ## Related skills
 
+- [Trace a missing update](../cratis-platform-diagnose-slice/SKILL.md) if registration succeeds but the screen stays unchanged.
+
 - [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) to assert the append and refusal.
 - [Observe the UI](../cratis-specifications-observe-ui/SKILL.md) for the local interaction check.

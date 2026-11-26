@@ -25,5 +25,8 @@ Subscribe to `AllAuthors` (see [Diagnose a missing update](../cratis-arc-diagnos
 
 ## Related skills
 
+- [Page an author search](../cratis-arc-page-query/SKILL.md) when the server should return one page rather than the whole list.
+- [Expose a query as an MCP tool](../cratis-arc-expose-mcp-operation/SKILL.md) when a tool caller needs a snapshot.
+
 - [Generate the frontend contract](../cratis-arc-generate-proxies/SKILL.md)
 - [Diagnose a missing update](../cratis-arc-diagnose-live-query/SKILL.md)

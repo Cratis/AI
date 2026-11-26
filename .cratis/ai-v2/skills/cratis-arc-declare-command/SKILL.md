@@ -20,16 +20,7 @@ public record RegisterAuthor(AuthorId Id, string Name)
 
 `AuthorId` derives from `EventSourceId<Guid>`. Arc recognizes this property's type, not its constructor position, when selecting the author's history. Return the accepted name as the fact; the pipeline appends it once.
 
-In an async xUnit test referencing `Cratis.Arc.Chronicle.Testing`, import `Xunit`, `Library.Features.Authors`, `Library.Features.Authors.Registration`, `Cratis.Arc.Testing.Commands` and `Cratis.Arc.Chronicle.Testing.Commands`. If the `catalog-editor` role requirement is installed, add `scenario.WithClaims(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "catalog-editor"));` immediately after creating the scenario. Check the complete append sequence and the selected author ID:
-
-```csharp
-await using var scenario = new CommandScenario<RegisterAuthor>();
-var id = AuthorId.New();
-var result = await scenario.Execute(new RegisterAuthor(id, "Aster"));
-Assert.True(result.IsSuccess);
-await scenario.ShouldHaveAppendedEventsInOrder(new AuthorRegistered("Aster"));
-await scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e => e.Name == "Aster");
-```
+[Test the append](../cratis-specifications-exercise-backend/SKILL.md) against the caller's author ID and submitted name.
 
 ## Avoid
 
@@ -40,4 +31,4 @@ await scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e =
 ## Related skills
 
 - [Invoke the command](../cratis-arc-invoke-command/SKILL.md)
-- [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md)
+- [Validate the command](../cratis-arc-validate-command/SKILL.md) to reject an empty name before the handler runs.

@@ -36,5 +36,7 @@ class AuthorEventTypeTest(unittest.TestCase):
 
 ## Related skills
 
+- [Publish a shared contract](../cratis-chronicle-publish-contract/SKILL.md) when another application needs a public event.
+
 - [Choose the Arc backend SDK](../cratis-arc-select-backend-sdk/SKILL.md)
 - [Connect a .NET application](../cratis-chronicle-connect-application/SKILL.md)

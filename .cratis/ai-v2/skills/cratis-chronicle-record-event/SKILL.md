@@ -51,5 +51,8 @@ var registeredAt = stored.Context.Occurred;
 
 ## Related skills
 
+- [Evolve an event](../cratis-chronicle-evolve-event/SKILL.md) before changing a stored payload's shape.
+- [Protect personal data](../cratis-chronicle-protect-personal-data/SKILL.md) before recording identifying member details.
+
 - [Return an event from an Arc command](../cratis-arc-declare-command/SKILL.md)
 - [Reserve an author's name](../cratis-chronicle-constrain-append/SKILL.md)

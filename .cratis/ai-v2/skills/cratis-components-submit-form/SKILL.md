@@ -50,4 +50,6 @@ export function AddAuthorButton() {
 
 ## Related skills
 
+- [Choose a control](../cratis-components-choose-control/SKILL.md) for a known field; [edit schema-defined data](../cratis-components-edit-schema-data/SKILL.md) when the fields are determined at runtime.
+
 - [Confirm an action](../cratis-components-coordinate-feedback/SKILL.md)

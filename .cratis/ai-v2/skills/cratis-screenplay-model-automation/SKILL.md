@@ -56,5 +56,7 @@ From the application directory run `screenplay test model --format json`. For th
 
 ## Related skills
 
+- [Model an interaction](../cratis-screenplay-model-interaction/SKILL.md) when a librarian initiates the action on screen.
+
 - [Specify the outcome](../cratis-screenplay-specify-outcome/SKILL.md) for accepted and refused commands.
 - [React to an event](../cratis-chronicle-react-to-fact/SKILL.md) for the runtime implementation.

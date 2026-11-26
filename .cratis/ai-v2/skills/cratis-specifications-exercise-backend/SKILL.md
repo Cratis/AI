@@ -1,6 +1,6 @@
 ---
 name: cratis-specifications-exercise-backend
-description: Use when testing Arc command execution and its Chronicle append, such as checking that registration is recorded on the requested author or that a refusal appends nothing. Not for a direct handler test (use cratis-specifications-isolate-behavior).
+description: Use when testing an Arc command's append or refusal, or checking the row a Chronicle projection builds from an event. Not for a direct handler test (use cratis-specifications-isolate-behavior).
 compatibility: Requires the .NET SDK and matching Arc and Chronicle testing packages.
 ---
 
@@ -55,6 +55,36 @@ public class when_submitting_an_empty_name : Specification
     [Fact] public async Task should_not_append_an_event() => await _scenario.ShouldNotHaveAppendedEvents();
 }
 ```
+
+## Test the projected author
+
+Reference `Cratis.Chronicle.Testing` and use the application's [Author projection](../cratis-chronicle-project-view/SKILL.md). In `Library.Specs/for_Author/when_projecting_a_registration.cs`, apply the registration to one source and check the resulting row:
+
+```csharp
+using System.Threading.Tasks;
+using Cratis.Chronicle.Testing.ReadModels;
+using Cratis.Specifications;
+using Library.Features.Authors;
+using Library.Features.Authors.Listing;
+using Library.Features.Authors.Registration;
+using Xunit;
+
+namespace Library.Specs.for_Author;
+
+public class when_projecting_a_registration : Specification
+{
+    readonly AuthorId _id = AuthorId.New();
+    readonly ReadModelScenario<Author> _scenario = new();
+
+    async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new AuthorRegistered("Aster"));
+    void Destroy() => _scenario.Dispose();
+
+    [Fact] public void should_identify_the_author() => _scenario.Instance!.Id.ShouldEqual(_id);
+    [Fact] public void should_display_the_registered_name() => _scenario.Instance!.Name.ShouldEqual("Aster");
+}
+```
+
+This checks the mapping in process, not observer delivery. In a running-store test, register the projection first, append to the test author's history and assert the append succeeded. Await `WaitForCompletion()` on that append result (import `Cratis.Chronicle.Observation`); require success with no failed partitions before querying the stored row for the same ID and name. A fixed sleep does not establish that the observer handled this write.
 
 ## Avoid
 
