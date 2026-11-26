@@ -57,7 +57,7 @@ The compiler reports what is incomplete (warnings; errors with `event_model_stri
 | --- | --- |
 | a state change without a command, or whose command appends no events | the command must build its event types in its own module |
 | a view without a read model, or that consumes no events | add a reducer or projection, or `consumes:` |
-| an automation that reacts to no event, or records none | have the reactor return the event that says what it did (`SecretRetiredInOry`), not nothing |
+| an automation that reacts to no event, or records none | the reactor runs a command in its slice folder that appends the fact (`RecordSecretRetirement` appends `SecretRetiredInOry`); a slice with a reactor and its command is an automation showing reaction, command and event |
 | a consumed event no slice produces | the event needs a command appending it |
 | a fact used before it is produced | move the slice into a sub-feature after the ones it uses |
 

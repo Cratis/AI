@@ -56,8 +56,9 @@ Read the **cratis-arc-elixir** and **cratis-chronicle-client-elixir** skills bef
   never carries a secret.
 - **Every slice tells a whole story**: a state change has a command and the events it appends; a view
   has a read model and consumes events (`consumes:` when it reads the event log); an automation reacts to
-  an event and records a fact of its own, so the event model shows what it did. A reactor that calls a
-  third party returns the event recording that it did.
+  an event, runs a command and records the fact that command appends, so the event model shows what it
+  did. A reactor that calls a third party does not append events itself: it runs a `:system` command
+  (`Cratis.Arc.execute/3`) that records the outcome, and the command lives in the reactor's slice folder.
 - **Order is the story**: a slice that uses events of several sub-features goes in a sub-feature after
   them. Build with `arc: [event_model_strict: true]` so an incomplete model fails the build.
 - **Third parties are integrations behind a behaviour**, with an in-memory stand-in for specs; only

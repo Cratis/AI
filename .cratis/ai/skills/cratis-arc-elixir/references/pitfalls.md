@@ -29,7 +29,7 @@
 | Mistake | What happens | Do this |
 | --- | --- | --- |
 | A read model module in the parent namespace (`ApiCredentials.Listing` beside `ApiCredentials.Listing.Reducer`) | The view is grouped with the parent feature, not its slice | Put the query module inside the slice folder (`Listing.Queries`) |
-| A reactor that returns nothing | The automation slice shows no events | Return the event that records what it did |
+| A reactor that appends events itself or returns nothing | The automation slice shows no command or no events | Have the reactor run a command in its slice folder that appends the fact; Arc shows reaction, command and event |
 | A view over a model another slice builds | Old Arc showed no events | Arc 1.4 reads them from the reducer; use `consumes:` for a model read from the event log |
 | Reading the last module segment as the name | The model shows the `id:` | Name by `id:` and keep `display_names:` in mind |
 | Slices that use events of several sub-features in the parent feature | A fact is drawn after what uses it; validation fails | Give them a sub-feature that follows the others |
