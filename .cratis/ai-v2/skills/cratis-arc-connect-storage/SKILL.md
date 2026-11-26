@@ -1,12 +1,12 @@
 ---
 name: cratis-arc-connect-storage
-description: Registers MongoDB for typed Arc queries. Use when adding MongoDB to a host or when IMongoCollection does not resolve or returns no authors. Not for defining a projection (use cratis-chronicle-project-view).
+description: Registers MongoDB for typed Arc queries. Use when adding MongoDB to a host or when IMongoCollection does not resolve or returns no rows. Not for defining a projection (use cratis-chronicle-project-view).
 compatibility: Requires Cratis and Cratis.Arc.MongoDB; observable queries require MongoDB change streams.
 ---
 
 # Connect Arc to MongoDB
 
-Reference `Cratis.Arc.MongoDB` in the Library backend. For a new database written by Chronicle, configure the same camel-case naming policy on both builders. For an existing database, match its naming policy.
+Reference `Cratis.Arc.MongoDB` in the Library backend. For a new database written by Chronicle, configure the same camel-case naming policy on both builders.
 
 `Program.cs` (top-level statements in a Web SDK project):
 
@@ -24,13 +24,13 @@ app.UseCratis();
 await app.RunAsync();
 ```
 
-Set both required reader values in the host project's `appsettings.json`. The example uses a local Mongo server and a database named `library`; it does not configure Chronicle's writer. Point the writer at the same server and tenant database before checking projected rows:
+Set `Cratis:MongoDB:Server` and `Cratis:MongoDB:Database` in the host project's `appsettings.json`. For the default tenant, use the database that contains the projected author documents:
 
 ```json
 { "Cratis": { "MongoDB": { "Server": "mongodb://localhost:27017", "Database": "library" } } }
 ```
 
-In [the author query](../cratis-arc-expose-query/SKILL.md), take `IMongoCollection<Author>` as a method parameter. Check that a known author written to the configured server and tenant database can be read by ID.
+In [the author query](../cratis-arc-expose-query/SKILL.md), take `IMongoCollection<Author>` as a method parameter. Register an author and check that `AllAuthors` returns it. If the default tenant's list stays empty, compare `Server` and `Database` with the location of the stored author document. With Arc's default database resolver, a non-default tenant uses `<Database>+<tenantId>`: for tenant `A` the settings above select `library+A`, not `library`.
 
 ## Avoid
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-isolate-tenant
-description: Resolves the request tenant and checks caller membership. Use when tenants share a deployment but must not see each other's authors. Not for choosing a database server (use cratis-arc-connect-storage).
+description: Resolves the request tenant and checks caller membership. Use when tenants share a deployment but must not see each other's data. Not for choosing a database server (use cratis-arc-connect-storage).
 compatibility: Requires Cratis.Arc in a web host with a verified caller identity.
 ---
 
@@ -11,7 +11,7 @@ Select the tenant from a trusted claim. A resolver selects a tenant; it does not
 In the Arc-only host's `Program.cs`, keep the existing authentication setup and add the tenant configuration below. In a combined Library host pass `configureArcOptions: options => options.UseClaimTenancy("tenant_id")` to the existing `AddCratis` call instead of registering Arc twice.
 
 ```csharp
-using Catalog.Tenancy;
+using Library.Tenancy;
 using Cratis.Arc.Tenancy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,7 +30,7 @@ In `Tenancy/ClaimsTenantMembership.cs`, use the **verified** membership claims s
 using System.Security.Claims;
 using Cratis.Arc.Tenancy;
 
-namespace Catalog.Tenancy;
+namespace Library.Tenancy;
 
 public class ClaimsTenantMembership : ITenantMembership
 {
@@ -40,14 +40,14 @@ public class ClaimsTenantMembership : ITenantMembership
 }
 ```
 
-Call the same author query with the same ID under two tenant identities. Each member should see only its tenant's name; a caller selecting a tenant without membership must receive no data.
+Call `AllAuthors` as a member of tenant A and as a member of tenant B. Each sees only its own tenant's authors. A caller whose `tenant_id` names a tenant missing from its `member_of` claims gets HTTP 403.
 
 ## Avoid
 
 - Do not trust membership supplied in a command body; inspect the verified principal.
 - Do not perform I/O in `IsMember`; use membership already established for this request.
-- Do not ship fixed or development tenancy as per-caller routing; both select one tenant.
-- Explicit background scopes bypass request membership. Authorize first, then call `tenantScope.Begin(tenantId)` before resolving scoped services.
+- Do not use `UseFixedTenancy()` or `UseDevelopmentTenancy()` for per-caller routing; both select one tenant for every caller.
+- Do not rely on request membership in background work. Inject `ITenantScope tenantScope` into the worker. After authorizing its target `TenantId tenantId`, use `using var scope = tenantScope.Begin(tenantId);` before resolving tenant-bound services in a fresh DI scope. An explicit selection does not run `ITenantMembership`.
 
 ## Related skills
 

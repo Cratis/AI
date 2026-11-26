@@ -6,7 +6,7 @@ compatibility: Requires Microsoft.NET.Sdk.Web and the Cratis.Arc package.
 
 # Start an Arc host
 
-In a `Microsoft.NET.Sdk.Web` project, reference `Cratis.Arc`. Register Arc on the builder and activate it on the built application in `Program.cs` (top-level statements, no namespace).
+In a `Microsoft.NET.Sdk.Web` project with `<ImplicitUsings>enable</ImplicitUsings>`, reference `Cratis.Arc`. Register Arc on the builder and activate it on the built application in `Program.cs` (top-level statements, no namespace).
 
 ```csharp
 using Microsoft.AspNetCore.Builder;
@@ -22,7 +22,7 @@ app.UseCratisArc();
 await app.RunAsync();
 ```
 
-Run `dotnet run` from the host project directory. Use the listening address printed at startup and the credentials required by the existing query. With the options above, namespace `Catalog.Authors` and method `AllAuthors` map to `/api/authors/all-authors`. For an observable query, append `?waitForFirstResult=true` to request one result. Expect HTTP 200, `isSuccess: true` and the expected authors in `data`.
+Run `dotnet run` from the host project directory. Use the listening address printed at startup and the credentials required by the existing query. With the options above, namespace `Library.Features.Authors.Listing` and method `AllAuthors` map to `/api/features/authors/listing/all-authors`. For an observable query, append `?waitForFirstResult=true` to request one result. Expect HTTP 200, `isSuccess: true` and the expected authors in `data`.
 
 ## Avoid
 

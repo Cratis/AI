@@ -1,7 +1,8 @@
-using Catalog.Authors;
+using Library.Features.Authors;
+using Library.Features.Authors.Registration;
+using System.Security.Claims;
 using Cratis.Arc.Chronicle.Testing.Commands;
 using Cratis.Arc.Testing.Commands;
-using System.Security.Claims;
 using Xunit;
 
 public class Return
@@ -11,8 +12,7 @@ public class Return
         await using var scenario = new CommandScenario<RegisterAuthor>();
         scenario.WithClaims(new Claim(ClaimTypes.Role, "catalog-editor"));
         var id = AuthorId.New();
-        var command = new RegisterAuthor(id, "Aster");
-        var result = await scenario.Execute(command);
+        var result = await scenario.Execute(new RegisterAuthor(id, "Aster"));
         Assert.True(result.IsSuccess);
         await scenario.ShouldHaveAppendedEventsInOrder(new AuthorRegistered("Aster"));
         await scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e => e.Name == "Aster");

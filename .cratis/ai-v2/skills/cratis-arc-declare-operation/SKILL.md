@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-declare-operation
-description: Returns a compensatable provider call from a command. Use when reserving a library book through an external service. Not for reacting after commit (use cratis-chronicle-react-to-fact).
+description: Returns a compensatable provider call from a command. Use when a command must call an external service and undo the call if the command fails without committing. Not for reacting after commit (use cratis-chronicle-react-to-fact).
 compatibility: Requires the Cratis package and a reservation provider registered in DI.
 ---
 
@@ -8,13 +8,17 @@ compatibility: Requires the Cratis package and a reservation provider registered
 
 Use an immutable operation record for the work. `Handle` returns it; Arc runs `Execute` and can run `Compensate` if the write fails without committing. Give both methods the same caller-supplied reservation identifier, including when the provider accepted the call but its acknowledgement was lost.
 
-In `Books/ReserveBook.cs`, using the `Cratis` global usings:
+In `Features/Books/Reservations/`, put `ReservationId` in `ReservationId.cs` and `BookId` in `BookId.cs`. Both files use `namespace Library.Features.Books.Reservations;` and the `Cratis` global usings:
 
 ```csharp
-namespace Catalog.Books;
-
 public record ReservationId(Guid Value) : ConceptAs<Guid>(Value);
 public record BookId(Guid Value) : ConceptAs<Guid>(Value);
+```
+
+Place the provider interface, command and operation in `Features/Books/Reservations/ReserveBook.cs`:
+
+```csharp
+namespace Library.Features.Books.Reservations;
 
 public interface IBookReservations
 {
@@ -38,7 +42,7 @@ public record ReserveBookOperation(ReservationId Id, BookId Book) : ICommandOper
 }
 ```
 
-The host needs a provider that implements `IBookReservations`. If the implementation is `BookReservations`, register `builder.Services.AddScoped<IBookReservations, BookReservations>()` before `Build()` in `Program.cs`. Use a reservation ID unique to the caller's booking attempt. The provider must bind that ID to the authenticated owner, tenant and book, reject conflicting reuse and protect finalized reservations. `Cancel` must be safe when the attempted reservation does not exist. Possession of an ID is not permission to cancel a booking.
+Implement `IBookReservations` in `Features/Books/Reservations/BookReservations.cs` as `BookReservations` and register it before `Build()` in `Program.cs`: `builder.Services.AddScoped<IBookReservations, BookReservations>();`. The caller chooses one `ReservationId` per booking attempt. For the same owner, tenant, book and ID, a repeated `Reserve` must not create a second booking. Reject reuse for a different request. `Cancel` removes only this attempt's pending reservation; it succeeds without removing anything if that reservation is absent or already confirmed. This also covers a lost provider acknowledgement: Arc can compensate an attempted `Execute` even when it threw before returning.
 
 ## Avoid
 

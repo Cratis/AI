@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using MongoDB.Driver;
+using Library.Features.Authors;
+using Library.Features.Authors.Listing;
 
 public class FixturePeople : ICallerPersonDirectory
 {
@@ -49,7 +51,7 @@ internal sealed class FixtureHost : IAsyncDisposable
         builder.Services.AddSingleton(authority); builder.Services.AddSingleton(epochs); builder.Services.AddSingleton(policy);
         var collection = Substitute.For<IMongoCollection<Author>>();
         var cursor = Substitute.For<IAsyncCursor<Author>>();
-        cursor.Current.Returns(new[] { new Author(Catalog.Authors.AuthorId.New(), "Aster") });
+        cursor.Current.Returns(new[] { new Author(AuthorId.New(), "Aster") });
         cursor.MoveNext(Arg.Any<CancellationToken>()).Returns(true, false);
         collection.FindSync(Arg.Any<FilterDefinition<Author>>(), Arg.Any<FindOptions<Author, Author>>(), Arg.Any<CancellationToken>()).Returns(cursor);
         builder.Services.AddSingleton(collection);

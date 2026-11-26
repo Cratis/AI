@@ -1,4 +1,4 @@
-namespace Catalog.Authors;
+namespace Library.Features.Authors;
 
 public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
 {

@@ -1,1 +1,1 @@
-<Project Sdk="Microsoft.NET.Sdk"><Import Project="../../cratis-arc-generate-proxies/ArcSpecs.props"/><ItemGroup><ProjectReference Include="../../cratis-arc-generate-proxies/Catalog.csproj"/><PackageReference Include="Cratis.Arc.Chronicle.Testing" Version="24.9.0"/></ItemGroup></Project>
+<Project Sdk="Microsoft.NET.Sdk"><Import Project="../../cratis-arc-generate-proxies/ArcSpecs.props"/><ItemGroup><ProjectReference Include="../../cratis-arc-generate-proxies/Library.csproj"/><PackageReference Include="Cratis.Arc.Chronicle.Testing" Version="24.9.0"/></ItemGroup></Project>

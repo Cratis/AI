@@ -12,7 +12,7 @@ test('published host discovers and dispatches the real snapshot endpoint', {time
   t.after(() => {host.stdin.end('quit\n'); const timer = setTimeout(() => host.kill(),3000); return exited.finally(() => clearTimeout(timer));});
   const lines = createInterface({input:host.stdout});
   const addr = await Promise.race([new Promise(resolve => lines.on('line', s => {if (s.startsWith('READY ')) resolve(s.slice(6));})), exited.then(() => {throw Error('Host exited before READY');}), new Promise((_,reject) => {const timer = setTimeout(() => reject(Error('No READY address')),10000); timer.unref();})]);
-  const response = await fetch(new URL('/api/authors/snapshot',addr),{signal:AbortSignal.timeout(5000)});
+  const response = await fetch(new URL('/api/features/authors/listing/snapshot',addr),{signal:AbortSignal.timeout(5000)});
   assert.equal(response.status,200);
   const body = await response.json(); assert.equal(body.isSuccess,true); assert.deepEqual(body.data,[]);
 });

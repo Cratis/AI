@@ -6,17 +6,11 @@ compatibility: Requires the Cratis package and a configured authentication provi
 
 # Restrict author registration to editors
 
-Add Arc's authorization attribute to the [existing command](../cratis-arc-declare-command/SKILL.md) in `Authors/RegisterAuthor.cs`. Use the role name issued by your identity provider. Leave `Handle`, `AuthorId` and the event unchanged.
+Add Arc's authorization attribute to the [existing command](../cratis-arc-declare-command/SKILL.md) in `Features/Authors/Registration/RegisterAuthor.cs` (`Library.Features.Authors.Registration`). Use the role name issued by your identity provider. Leave `Handle`, `AuthorId` and the event unchanged.
 
 ```csharp
-namespace Catalog.Authors;
-
-[Command]
+// Add to the existing RegisterAuthor declaration, alongside [Command].
 [Cratis.Arc.Authorization.Authorize(Roles = "catalog-editor")]
-public record RegisterAuthor(AuthorId Id, string Name)
-{
-    public AuthorRegistered Handle() => new(Name);
-}
 ```
 
 Execute through the pipeline as an anonymous caller, a signed-in reader and a catalog editor. Both refused results have `IsAuthorized` false and append nothing; the editor succeeds. Arc maps the unauthorized command result to HTTP 403. Check that response rather than whether the UI shows the registration button.

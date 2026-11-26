@@ -1,4 +1,4 @@
-using Catalog.Authors;
+using Library.Features.Authors.Registration;
 using Xunit;
 
 public class Contract

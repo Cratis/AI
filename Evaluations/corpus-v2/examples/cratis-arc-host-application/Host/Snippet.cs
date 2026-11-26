@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 
-namespace Catalog;
+namespace Library;
 
 public static class MinimalHost
 {

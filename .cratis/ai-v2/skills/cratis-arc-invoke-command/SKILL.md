@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-invoke-command
-description: Runs a command from application code and handles failure. Use when a job or service must register an author. Not for implementing Handle (use cratis-arc-declare-command).
+description: Runs a command from application code and handles failure. Use when a job, service or reactor must execute a command outside an HTTP request. Not for implementing Handle (use cratis-arc-declare-command).
 compatibility: Requires the Cratis package and a configured Arc command pipeline.
 ---
 
@@ -8,10 +8,10 @@ compatibility: Requires the Cratis package and a configured Arc command pipeline
 
 Inject `ICommandPipeline` into the service that initiates registration. `Execute(command)` creates its own service scope. Await the result before recording the import as successful.
 
-`RegisterAuthor` and `AuthorId` come from [Declare a command](../cratis-arc-declare-command/SKILL.md). In `Authors/AuthorImporter.cs`, using the `Cratis` global usings:
+`RegisterAuthor` and `AuthorId` come from [Declare a command](../cratis-arc-declare-command/SKILL.md). In `Features/Authors/Registration/AuthorImporter.cs`, using the `Cratis` global usings:
 
 ```csharp
-namespace Catalog.Authors;
+namespace Library.Features.Authors.Registration;
 
 public class AuthorImporter(ICommandPipeline commandPipeline)
 {

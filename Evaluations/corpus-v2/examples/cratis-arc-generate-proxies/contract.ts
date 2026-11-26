@@ -1,5 +1,5 @@
-import { RegisterAuthor } from './generated/Authors/RegisterAuthor';
-import { Author, AllAuthors } from './generated/Authors/Author';
+import { RegisterAuthor } from './generated/Features/Authors/Registration/RegisterAuthor';
+import { Author, AllAuthors } from './generated/Features/Authors/Listing/Author';
 
 export const contracts = [RegisterAuthor, AllAuthors];
 export const row = (author: Author): string => author.name;

@@ -6,27 +6,16 @@ compatibility: Requires Cratis, Cratis.Arc.MongoDB and a change-stream-capable M
 
 # Expose the author list
 
-[Connect MongoDB](../cratis-arc-connect-storage/SKILL.md) with `WithMongoDB()` before resolving the collection. The `Cratis` package supplies the model and projection attributes as global usings. Use the `AuthorId` and `AuthorRegistered` from [Declare a command](../cratis-arc-declare-command/SKILL.md).
+[Connect MongoDB](../cratis-arc-connect-storage/SKILL.md) with `WithMongoDB()` before resolving the collection. Start with the existing [Author projection](../cratis-chronicle-project-view/SKILL.md); it already owns the row shape and event mapping.
 
-In `Authors/Author.cs` put a public static query on the record itself. Arc supplies the registered collection; do not include it among the client's query arguments.
+In `Features/Authors/Listing/Author.cs` (`Library.Features.Authors.Listing`) put a public static query on the record itself. Import `System.Reactive.Subjects`, `Cratis.Arc.MongoDB` and `MongoDB.Driver` at the top of that file. Add only the following member to `Author`. Arc supplies the registered collection; do not include it among the client's query arguments.
 
 ```csharp
-using System.Reactive.Subjects;
-using Cratis.Arc.MongoDB;
-using MongoDB.Driver;
-
-namespace Catalog.Authors;
-
-[ReadModel]
-[FromEvent<AuthorRegistered>]
-public record Author(AuthorId Id, string Name)
-{
-    public static ISubject<IEnumerable<Author>> AllAuthors(IMongoCollection<Author> collection) =>
-        collection.Observe();
-}
+public static ISubject<IEnumerable<Author>> AllAuthors(IMongoCollection<Author> collection) =>
+    collection.Observe();
 ```
 
-Open the generated `AllAuthors` query. Check its first list, register an author, then check that the same subscription delivers the new `Id` and `Name`.
+Subscribe to `AllAuthors` (see [Diagnose a missing update](../cratis-arc-diagnose-live-query/SKILL.md) for a curl probe). Check its first list, register an author, then check that the same subscription delivers the new `Id` and `Name`.
 
 ## Avoid
 

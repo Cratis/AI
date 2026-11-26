@@ -1,7 +1,11 @@
-namespace Catalog.Authors;
+using Cratis.Arc.Mcp;
+
+namespace Library.Features.Authors.Registration;
 
 #region docs:command
 [Command]
+[Cratis.Arc.Authorization.Authorize(Roles = "catalog-editor")]
+[ExposeOverMcp("register_author", Description = "Registers an author in the library.")]
 public record RegisterAuthor(AuthorId Id, string Name)
 {
     public AuthorRegistered Handle() => new(Name);
@@ -14,7 +18,7 @@ public class RegisterAuthorValidator : CommandValidator<RegisterAuthor>
 {
     public RegisterAuthorValidator()
     {
-        RuleFor(command => command.Name).NotEmpty();
+        RuleFor(command => command.Name).NotEmpty().WithMessage("Name is required");
     }
 }
 #endregion docs:validator

@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using Cratis.Arc.Tenancy;
 
-namespace Catalog.Tenancy;
+namespace Library.Tenancy;
 
 public class ClaimsTenantMembership : ITenantMembership
 {

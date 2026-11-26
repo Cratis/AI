@@ -1,5 +1,5 @@
 using Cratis.Arc;
-using Probe.Authors;
+using Library.Features.Authors.Listing;
 
 await using var app = ProbeHost.Create();
 await app.StartAsync();

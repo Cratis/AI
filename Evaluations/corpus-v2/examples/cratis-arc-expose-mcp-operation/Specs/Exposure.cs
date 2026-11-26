@@ -1,23 +1,4 @@
-using Cratis.Arc.Mcp;
-using Cratis.Arc.Queries.ModelBound;
-using MongoDB.Driver;
 using Xunit;
-
-[Cratis.Arc.Commands.ModelBound.Command]
-[ExposeOverMcp("register_author", Description = "Registers an author in the library.")]
-public record RegisterAuthor(Catalog.Authors.AuthorId Id, string Name)
-{
-    public Catalog.Authors.AuthorRegistered Handle() => new(Name);
-}
-
-[ReadModel]
-[Cratis.Chronicle.Projections.ModelBound.FromEvent<Catalog.Authors.AuthorRegistered>]
-public record Author(Catalog.Authors.AuthorId Id, string Name)
-{
-    [ExposeOverMcp("list_authors", Description = "Lists the library's authors.")]
-    public static IEnumerable<Author> ListAuthors(IMongoCollection<Author> collection) =>
-        collection.Find(_ => true).ToList();
-}
 
 // Exercise the catalog and dispatch over HTTP, not by inspecting attributes.
 public class Exposure

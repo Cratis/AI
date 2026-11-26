@@ -1,48 +1,43 @@
 ---
 name: cratis-arc-declare-command
-description: Declares a model-bound command that returns an event. Use when writing a command record or its Handle method. Not for dispatching the command (use cratis-arc-invoke-command).
+description: Declares a model-bound command that returns an event. Use when writing a command record or its Handle method. Not for dispatching it (use cratis-arc-invoke-command).
 compatibility: Requires the Cratis package for Arc with Chronicle.
 ---
 
 # Register an author
 
-Put the command and returned event in `Authors/RegisterAuthor.cs`. The `Cratis` package supplies their framework namespaces as global usings.
+Put this command in `Features/Authors/Registration/RegisterAuthor.cs`. Use the existing [AuthorId](../cratis-fundamentals-name-value/SKILL.md) from `Library.Features.Authors` and [AuthorRegistered](../cratis-chronicle-record-event/SKILL.md) from the command's namespace. `Cratis` supplies the framework global usings.
 
 ```csharp
-namespace Catalog.Authors;
+namespace Library.Features.Authors.Registration;
 
 [Command]
 public record RegisterAuthor(AuthorId Id, string Name)
 {
     public AuthorRegistered Handle() => new(Name);
 }
-
-[EventType]
-public record AuthorRegistered(string Name);
 ```
 
-Make the first parameter the caller's event source ID. Define the concept in `Authors/AuthorId.cs`:
+`AuthorId` derives from `EventSourceId<Guid>`. Arc recognizes this property's type, not its constructor position, when selecting the author's history. Return the accepted name as the fact; the pipeline appends it once.
+
+In an async xUnit test referencing `Cratis.Arc.Chronicle.Testing`, import `Xunit`, `Library.Features.Authors`, `Library.Features.Authors.Registration`, `Cratis.Arc.Testing.Commands` and `Cratis.Arc.Chronicle.Testing.Commands`. If the `catalog-editor` role requirement is installed, add `scenario.WithClaims(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "catalog-editor"));` immediately after creating the scenario. Check the complete append sequence and the selected author ID:
 
 ```csharp
-namespace Catalog.Authors;
-
-public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
-{
-    public static readonly AuthorId NotSet = new(Guid.Empty);
-    public static implicit operator AuthorId(Guid value) => new(value);
-    public static AuthorId New() => new(Guid.NewGuid());
-}
+await using var scenario = new CommandScenario<RegisterAuthor>();
+var id = AuthorId.New();
+var result = await scenario.Execute(new RegisterAuthor(id, "Aster"));
+Assert.True(result.IsSuccess);
+await scenario.ShouldHaveAppendedEventsInOrder(new AuthorRegistered("Aster"));
+await scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e => e.Name == "Aster");
 ```
-
-Execute `RegisterAuthor` through `ICommandPipeline`. Check `IsSuccess` and that exactly one `AuthorRegistered` with the supplied name was appended to `Id`.
 
 ## Avoid
 
-- Do not append in `Handle`. Return the event; Arc with Chronicle appends it.
-- Do not use a plain `Guid` for the event source property. Use `AuthorId` on the command and read model.
-- Do not call `AuthorId.New()` inside `Handle`; the caller already chose `Id`.
+- Do not append in `Handle`; return the event.
+- Do not use a plain `Guid` for this event-source property.
+- Do not replace the caller's ID with `AuthorId.New()` inside the command.
 
 ## Related skills
 
 - [Invoke the command](../cratis-arc-invoke-command/SKILL.md)
-- [Name a domain value](../cratis-fundamentals-name-value/SKILL.md)
+- [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md)

@@ -1,14 +1,14 @@
 ---
 name: cratis-arc-generate-proxies
-description: Generates TypeScript contracts from the backend project. Use when author proxies are missing or stale after a C# change. Not for consuming a generated hook (use cratis-arc-react-bind-slice).
+description: Generates TypeScript contracts from the backend project. Use when command or query proxies are missing or stale after a C# change. Not for consuming a generated hook (use cratis-arc-react-bind-slice).
 compatibility: Requires the .NET SDK and a TypeScript frontend with @cratis/arc, @cratis/arc.react and @cratis/fundamentals.
 ---
 
 # Generate the author contracts
 
-Build the project containing [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) and [Author](../cratis-arc-expose-query/SKILL.md). The `Cratis` package includes `Cratis.Arc.ProxyGenerator.Build`; a backend using only `Cratis.Arc` needs a direct reference to the build package.
+Build the project containing [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) and [AllAuthors](../cratis-arc-expose-query/SKILL.md). `Cratis` includes `Cratis.Arc.ProxyGenerator.Build`; with `Cratis.Arc` alone reference the build package directly.
 
-Add these properties to `Catalog.csproj`:
+Add these properties to `Library.csproj`:
 
 ```xml
 <PropertyGroup>
@@ -19,17 +19,22 @@ Add these properties to `Catalog.csproj`:
 </PropertyGroup>
 ```
 
-These properties assume the Library host's `appsettings.json` has `Cratis:Arc:GeneratedApis:RoutePrefix` set to `api`, `SegmentsToSkipForRoute` to `1` and `IncludeCommandNameInRoute` to `false` in the same section. Match the generator to the host: `RegisterAuthor` uses `/api/authors`; `AllAuthors` reads `/api/authors/all-authors`.
+Merge this section into the host project's `appsettings.json`, preserving other settings:
 
-1. From the backend project directory run `dotnet build Catalog.csproj -c Debug`. An empty output path writes nothing.
-2. Open `generated/Authors/Author.ts`. Skipping the root segment of `Catalog.Authors` leaves `Authors`; the source filename groups `Author` and `AllAuthors` in `Author.ts`.
-3. Import `{ AllAuthors }` from `./generated/Authors/Author` in a frontend module next to `generated`. After changing a C# member, rebuild the backend and run `tsc --noEmit` in the frontend.
+```json
+{ "Cratis": { "Arc": { "GeneratedApis": { "RoutePrefix": "api", "SegmentsToSkipForRoute": 1, "IncludeCommandNameInRoute": false } } } }
+```
+
+1. Run `dotnet build Library.csproj -c Debug` from the project directory. Skipping the `Library` segment keeps `Features/Authors/Listing` and `Features/Authors/Registration` distinct.
+2. From the skill directory run `node scripts/check-proxy.mjs /path/to/Library.csproj Features/Authors/Listing/Author.ts AllAuthors`, substituting the absolute backend project path. The file argument is relative to `CratisProxiesOutputPath`.
+3. Check the generated `RegisterAuthor` targets `/api/features/authors/registration` and `AllAuthors` targets `/api/features/authors/listing/all-authors`. Compare both with the running host.
+4. From a frontend module beside `generated/`, import `{ AllAuthors }` from `./generated/Features/Authors/Listing/Author`. Compile the consuming frontend with `tsc --noEmit`.
 
 ## Avoid
 
-- Do not share the output directory between projects. Each generator can delete files it no longer produces, even in incremental mode.
-- Do not patch a generated contract or copy it by hand. Edit C# and build again.
-- Do not guess the output path. Inspect `dotnet msbuild Catalog.csproj -getProperty:CratisProxiesOutputPath`; `scripts/check-proxy.mjs` can also check a generated member.
+- Do not share the output directory between projects. Orphan cleanup deletes outputs no longer produced, even in incremental mode.
+- Do not patch a generated type. Edit the C# producer and regenerate.
+- Do not leave the output property empty; an empty path produces no proxies.
 
 ## Related skills
 

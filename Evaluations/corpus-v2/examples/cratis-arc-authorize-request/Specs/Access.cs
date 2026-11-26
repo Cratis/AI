@@ -1,18 +1,10 @@
-using Catalog.Authors;
-using Cratis.Arc.Commands.ModelBound;
+using Library.Features.Authors.Registration;
 using Cratis.Arc.Chronicle.Testing.Commands;
 using Cratis.Arc.Testing.Commands;
 using System.Security.Claims;
 using Xunit;
 
-namespace Catalog.ProtectedAuthors;
-
-[Command]
-[Cratis.Arc.Authorization.Authorize(Roles = "catalog-editor")]
-public record RegisterAuthor(AuthorId Id, string Name)
-{
-    public AuthorRegistered Handle() => new(Name);
-}
+namespace Library.Specs;
 
 public class Access
 {

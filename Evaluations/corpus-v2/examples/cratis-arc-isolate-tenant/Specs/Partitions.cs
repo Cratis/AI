@@ -27,7 +27,7 @@ public class Partitions
         context.User.Returns(caller);
         var accessor = Substitute.For<IHttpRequestContextAccessor>(); accessor.Current.Returns(context);
         var tenant = new ClaimTenantIdResolver(accessor, Options.Create(new ArcOptions())).Resolve();
-        return !string.IsNullOrWhiteSpace(tenant) && new Catalog.Tenancy.ClaimsTenantMembership().IsMember(caller, tenant) ? tenant : throw new UnauthorizedAccessException();
+        return !string.IsNullOrWhiteSpace(tenant) && new Library.Tenancy.ClaimsTenantMembership().IsMember(caller, tenant) ? tenant : throw new UnauthorizedAccessException();
     }
     [Fact] public void audience_is_captured_before_subscription()
     {

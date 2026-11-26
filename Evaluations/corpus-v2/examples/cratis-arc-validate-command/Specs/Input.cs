@@ -1,4 +1,4 @@
-using Catalog.Authors;
+using Library.Features.Authors.Registration;
 using Cratis.Arc.Chronicle.Testing.Commands;
 using Cratis.Arc.Testing.Commands;
 using System.Security.Claims;

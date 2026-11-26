@@ -1,7 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
-using Probe.Authors;
+using Library.Features.Authors.Listing;
 using Xunit;
 
 public class Stream
@@ -13,7 +13,7 @@ public class Stream
         await using var app = ProbeHost.Create(); await app.StartAsync(deadline.Token);
         using var client = new HttpClient { BaseAddress = new Uri(app.Urls.Single()) };
         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/event-stream"));
-        using var response = await client.GetAsync("/api/authors/all-authors", HttpCompletionOption.ResponseHeadersRead, deadline.Token);
+        using var response = await client.GetAsync("/api/features/authors/listing/all-authors", HttpCompletionOption.ResponseHeadersRead, deadline.Token);
         response.EnsureSuccessStatusCode();
         using var reader = new StreamReader(await response.Content.ReadAsStreamAsync(deadline.Token));
         async Task<JsonElement> Next()

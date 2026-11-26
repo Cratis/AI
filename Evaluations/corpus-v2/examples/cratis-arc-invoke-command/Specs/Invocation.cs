@@ -3,19 +3,9 @@ using Cratis.Arc.Testing.Commands;
 using NSubstitute;
 using Xunit;
 
-namespace Catalog.Authors;
-
-public class AuthorImporter(ICommandPipeline commandPipeline)
-{
-    public async Task Import(AuthorId id, string name)
-    {
-        var result = await commandPipeline.Execute(new RegisterAuthor(id, name));
-        if (!result.IsSuccess)
-        {
-            throw new InvalidOperationException($"Could not register author {id}. Correlation: {result.CorrelationId}");
-        }
-    }
-}
+using Library.Features.Authors;
+using Library.Features.Authors.Registration;
+using System.Security.Claims;
 
 public class Invocation
 {
@@ -23,6 +13,7 @@ public class Invocation
     public async Task import_checks_the_result(string name, bool accepted)
     {
         await using var scenario = new CommandScenario<RegisterAuthor>();
+        scenario.WithClaims(new Claim(ClaimTypes.Role, "catalog-editor"));
         var id = AuthorId.New();
         var command = new RegisterAuthor(id, name);
         var result = await scenario.Execute(command);

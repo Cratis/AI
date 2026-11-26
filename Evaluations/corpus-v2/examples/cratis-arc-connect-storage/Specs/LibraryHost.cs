@@ -2,7 +2,7 @@ using Cratis.Arc.MongoDB;
 using Microsoft.AspNetCore.Builder;
 using Cratis.Chronicle;
 
-namespace Catalog.Storage;
+namespace Library.Storage;
 
 public class LibraryHost
 {

@@ -1,9 +1,9 @@
-using Catalog.Tenancy;
+using Library.Tenancy;
 using Cratis.Arc.Tenancy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Catalog;
+namespace Library;
 
 public class TenantHost
 {

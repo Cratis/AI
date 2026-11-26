@@ -11,6 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Cratis" Version="24.9.0" />
+    <PackageReference Include="Cratis.Arc.Mcp" Version="24.9.0" />
     <PackageReference Include="Cratis.Arc.MongoDB" Version="24.9.0" />
     <PackageReference Include="Cratis.Fundamentals" Version="7.34.5" />
     <PackageReference Include="Cratis.Chronicle" Version="19.184.3" />

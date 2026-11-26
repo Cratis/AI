@@ -1,46 +1,21 @@
-using Cratis.Arc.Commands;
-using Cratis.Arc.Commands.ModelBound;
+using Library.Features.Books.Reservations;
 using Cratis.Arc.Testing.Commands;
-using Cratis.Concepts;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Catalog.Books;
-
-public record ReservationId(Guid Value) : ConceptAs<Guid>(Value);
-public record BookId(Guid Value) : ConceptAs<Guid>(Value);
-
-public interface IBookReservations
-{
-    Task Reserve(ReservationId id, BookId book, CancellationToken cancellationToken);
-    Task Cancel(ReservationId id, CancellationToken cancellationToken);
-}
-
-[Command]
-public record ReserveBook(ReservationId Id, BookId Book)
-{
-    public ReserveBookOperation Handle() => new(Id, Book);
-}
-
-public record ReserveBookOperation(ReservationId Id, BookId Book) : ICommandOperation
-{
-    public Task Execute(IBookReservations reservations, CancellationToken cancellationToken) =>
-        reservations.Reserve(Id, Book, cancellationToken);
-
-    public Task Compensate(IBookReservations reservations, CancellationToken cancellationToken) =>
-        reservations.Cancel(Id, cancellationToken);
-}
+namespace Library.Specs;
 
 public class Reservation
 {
-    class BookReservations(bool fail) : IBookReservations
+    class TestReservations(bool fail) : IBookReservations
     {
         public Dictionary<ReservationId, BookId> Saved { get; } = [];
         public HashSet<ReservationId> Finalized { get; } = [];
         public Task Reserve(ReservationId id, BookId book, CancellationToken cancellationToken)
         {
             if (Finalized.Contains(id)) throw new InvalidOperationException("Already finalized");
-            Saved.Add(id, book);
+            if (Saved.TryGetValue(id, out var existing) && existing != book) throw new InvalidOperationException("Conflicting book");
+            Saved[id] = book;
             return fail ? Task.FromException(new IOException("Acknowledgement lost")) : Task.CompletedTask;
         }
         public Task Cancel(ReservationId id, CancellationToken cancellationToken)
@@ -50,9 +25,19 @@ public class Reservation
         }
     }
 
+    [Fact] public async Task reserving_the_same_attempt_twice_does_not_create_a_second_booking()
+    {
+        var provider = new TestReservations(false);
+        var id = new ReservationId(Guid.NewGuid());
+        var book = new BookId(Guid.NewGuid());
+        await provider.Reserve(id, book, CancellationToken.None);
+        await provider.Reserve(id, book, CancellationToken.None);
+        Assert.Single(provider.Saved);
+    }
+
     [Theory][InlineData(false)][InlineData(true)] public async Task reverses_only_the_failed_reservation(bool fail)
     {
-        var provider = new BookReservations(fail);
+        var provider = new TestReservations(fail);
         var prior = new ReservationId(Guid.NewGuid());
         var book = new BookId(Guid.NewGuid());
         provider.Saved.Add(prior, book);
