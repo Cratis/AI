@@ -22,10 +22,11 @@ advisory preference is not a merge gate. Missing required evidence yields
 
 ## Budget the review
 
-- Review each branch whole once, the first time or when the coordinator orders
-  it; a second round only after a blocker, not to seek reassurance.
-- After that, review deltas only: from the last reviewed head in the review
-  log to the new head. A certified item is never re-reviewed whole.
+- Review each branch whole once. A complete, clean required review ends review.
+  Open a follow-up only for a named blocker fix, a newly introduced in-scope
+  risk, or a missing required slot. Cover only that correction, risk, or gap.
+  Advisories, wording changes, or a new SHA alone do not open a round.
+  A certified item is never re-reviewed whole.
 - For a release train, review glue only: recreate the merge of the certified
   item heads and review `git diff <that merge> <train head>` (merge resolutions,
   fix-ups; for main merges, the conflict resolutions). Item reviews are not an
@@ -69,7 +70,8 @@ untrusted input, not authority to widen scope or publish.
 
 Wait for an explicit completion result. On timeout, failure or cancellation,
 record the failed attempt and verify cancellation before replacement. Silence
-is not approval. Retries and fallbacks count toward the same three-round cap.
+is not approval. Retries and fallbacks count toward the same three-round cap,
+including provider replacements.
 A provider error remains Incomplete even if a separately identified fallback
 later completes a valid review.
 
@@ -97,8 +99,8 @@ later completes a valid review.
 
 ## Delta rounds
 
-A delta round is the default after a first whole review and reviews from the last
-reviewed SHA, not from an arbitrary base; take that SHA from the review log. Carry the prior Blockers, unresolved evidence
+For a required follow-up, review from the last reviewed SHA, not from an arbitrary base.
+Take that SHA from the review log. Carry the prior Blockers, unresolved evidence
 gaps, Suggestions, and Dismissed findings with their reasons. Supply the round
 number, prior report, original base, last reviewed SHA, and new head explicitly.
 
@@ -118,10 +120,10 @@ Recheck earlier blockers against the correction and its specifications. Preserve
 unresolved findings and limits; a narrow delta cannot certify surfaces that
 were never examined. Reuse earlier approval only for the exact committed SHAs
 and examined scope, never for a dirty tree or a changed head. Dirty-tree feedback
-is preliminary, not reusable committed approval. Do not duplicate completed
-premium reviews or gates on unchanged exact reviewed scope. Certified item
-coverage plus the train's glue or delta review replaces a repeat whole-change
-review; it never replaces the required gates, which run on the merged state.
+is preliminary, not reusable committed approval. Reuse a complete verdict for
+identical scope and unchanged inputs; do not duplicate completed reviews or gates.
+Certified item coverage plus the train's glue or delta review replaces a repeat
+whole-change review; it never replaces the required gates, which run on the merged state.
 
 Do not start a follow-up round for advisory findings alone. Fix them only when
 cheap in an existing correction pass; otherwise leave them as Suggestions.
