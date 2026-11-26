@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
@@ -76,6 +76,7 @@ test('the support matrix rows keep their published outcome', () => {
         assert.equal(spawnSync('git', ['init', '-q', root]).status, 0);
         for (const directory of ['.cratis/ai/hooks', 'Source/Foo/bin', 'node_modules']) mkdirSync(join(root, directory), { recursive: true });
         symlinkSync('.cratis', join(root, 'control-link'));
+        writeFileSync(join(root, '-x'), 'synthetic fixture');
         for (const entry of rows) assert.equal(verdict(root, entry), status[entry.outcome], `${entry.area}: ${entry.guard}: ${entry.command}`);
     } finally { rmSync(root, { recursive: true, force: true }); }
 });

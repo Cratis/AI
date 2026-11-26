@@ -1358,6 +1358,25 @@ function archive_escape(d, i) { return XF[d, i] ~ /e/ }
 function option_shaped_glob(d, i) {
     return archive_escape(d, i) || (GL[d, i] && (GL[d, i] == 1 || W[d, i] ~ /^[-@$`]/ || XF[d, i] ~ /f/))
 }
+# A simple copy may retain a leading glob only after the same bounded metadata check as reader_globs.
+# Keep this exception local to the current directory and plain star/question patterns; never evaluate text.
+function copy_source_glob(d, i, cwd, uncertain,    script, cmd, line, count, ok) {
+    if (!exception_allowed || uncertain || cwd != ENVIRON["GSW_CWD"] || ENVIRON["GSW_GLOB_SAFE"] != "1") return 0
+    if (!GL[d, i] || XF[d, i] != "" || W[d, i] !~ /^[*?][a-zA-Z0-9._*?-]*$/) return 0
+    script = "cd -- \"$1\" && [ -r . ] && [ -x . ] || exit 3; unset GLOBIGNORE; " \
+        "shopt -s nullglob dotglob nocaseglob && shopt -q nullglob dotglob nocaseglob || exit 3; : *; " \
+        "n=0; while IFS= read -r f; do n=$((n+1)); [ \"$n\" -le 200 ] || exit 3; " \
+        "case $f in -*|*[!a-zA-Z0-9._/@+=,:%-]*) exit 3;; esac; printf \"F:%s\\n\" \"$f\"; done < <(compgen -G \"$2\"); echo OK"
+    cmd = "bash -c " quote_path(script) " guard-copy-glob " quote_path(cwd) " " quote_path(W[d, i]) " 2>/dev/null"
+    while ((cmd | getline line) > 0) {
+        if (line == "OK") { ok = 1; continue }
+        if (ok || substr(line, 1, 2) != "F:" || ++count > 200) { ok = 0; break }
+    }
+    return close(cmd) == 0 && ok
+}
+function option_operand(d, i, family, cwd, uncertain) {
+    return !option_shaped_glob(d, i) || (member("cp rsync", family) && copy_source_glob(d, i, cwd, uncertain))
+}
 function option_value(d, i, end) {
     return i <= end && K[d, i] == "word" && W[d, i] != "" && (Q[d, i] || W[d, i] !~ /[$`*?\[{}]/) && !(archive_operands && (GL[d, i] || archive_escape(d, i)))
 }
@@ -1399,12 +1418,12 @@ function known_options(d, start, end, family, cwd, uncertain, creation,    i, j,
         if (w == "--") {
             if (member("unzip jar ar", family)) return 0
             # A terminator is not proof for any family: tool behaviour after it is unverified.
-            if (archive_operands) for (j = i + 1; j <= end && !redirection(d, j); j++) if (option_shaped_glob(d, j)) return 0
+            if (archive_operands) for (j = i + 1; j <= end && !redirection(d, j); j++) if (!option_operand(d, j, family, cwd, uncertain)) return 0
             return 1
         }
         old = member("tar jar ar", family) && i == start && w ~ /^[a-zA-Z]+$/
         if (w !~ /^-/ && !old) {
-            if (archive_operands && option_shaped_glob(d, i)) return 0
+            if (archive_operands && !option_operand(d, i, family, cwd, uncertain)) return 0
             if (w ~ /[$`]/ && (!Q[d, i] || DQ[d, i]) && (!DQ[d, i] || resolved(w, Q[d, i], cwd, uncertain, DQ[d, i]) == "!")) return 0
             continue
         }
@@ -2032,7 +2051,9 @@ while [ ! -e "$repository_root/.git" ]; do
     repository_root="${repository_root%/*}"
     [ -n "$repository_root" ] || repository_root=/
 done
-destructive_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_ROOT="$repository_root" LC_ALL=C awk "$destructive_program" </dev/null)" || parser_failed
+glob_shell_safe=1
+if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]]; then glob_shell_safe=0; fi
+destructive_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_ROOT="$repository_root" GSW_GLOB_SAFE="$glob_shell_safe" LC_ALL=C awk "$destructive_program" </dev/null)" || parser_failed
 if [ -n "$destructive_text" ]; then
     destructive_candidates=()
     while IFS= read -r candidate; do
@@ -2060,8 +2081,6 @@ if [ -n "$destructive_text" ]; then
         exit 2
     fi
 fi
-glob_shell_safe=1
-if [[ -n "${BASH_ENV+x}" || -n "${ENV+x}" || -n "${GLOBIGNORE+x}" ]]; then glob_shell_safe=0; fi
 candidates_text="$(GSW_COMMAND="$command_text" GSW_CWD="$cwd" GSW_GLOB_SAFE="$glob_shell_safe" GSW_MODE=targets LC_ALL=C awk "$program" </dev/null)" || parser_failed
 [ -n "$candidates_text" ] || exit 0
 # The lowercase alias of a mixed-case path serves case-insensitive file systems. Drop it only where the

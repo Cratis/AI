@@ -81,6 +81,8 @@ const bulkOptionCases: [string, number][] = [
     ['zip /tmp/o.zip -- ?x', 2],
     ['7z a /tmp/o.7z ?x', 2],
     ['7z a /tmp/o.7z -- ?x', 2],
+    ['cp *.md /tmp/d', 0],
+    ['rsync -an *.md /tmp/d', 0],
     ['cp ?x /tmp/d', 2],
     ['cp ./?x /tmp/d', 0],
     ['cp -- ?x /tmp/d', 2],
@@ -116,6 +118,8 @@ function prepareAwkFixture(directory: string): void {
     assert.equal(spawnSync('git', ['init', '-q', directory]).status, 0);
     writeFileSync(join(directory, 'Directory.Build.props'), 'synthetic fixture');
     writeFileSync(join(directory, 'server.txt'), 'synthetic fixture');
+    writeFileSync(join(directory, 'notes.md'), 'synthetic fixture');
+    writeFileSync(join(directory, '-x'), 'synthetic fixture');
     mkdirSync(join(directory, 'keys'));
     writeFileSync(join(directory, 'keys/server.pem'), 'synthetic fixture');
     mkdirSync(join(directory, 'Source/sub'), { recursive: true });

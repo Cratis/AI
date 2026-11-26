@@ -795,7 +795,7 @@ test('archive operands that can expand to options are refused unless anchored or
 });
 
 const copyOptionCases: [number, string][] = [
-    [2, '?x'], [2, '""?x'], [2, '[a-z]x'], [2, '-- ?x'],
+    [2, '?x'], [2, '""?x'], [2, '[a-z]x'], [2, '-- ?x'], [2, '*.md'], [2, '-- *.md'],
     [2, '"$x"?x'], [2, '"$x"[-]-fixture-option=value'],
     [2, "$'\\x2d\\x2dfixture-option=value'"], [2, "-- $'\\x2d\\x2dfixture-option=value'"],
     [2, '--fixture-option=value source.txt'],
@@ -805,7 +805,7 @@ const copyOptionCases: [number, string][] = [
 test('copy operands follow the exact option grammar', { concurrency: 2 }, async context => {
     const root = scratchRepository();
     try {
-        for (const name of ['-x', '-x.txt', '--fixture-option=value']) writeFileSync(join(root, name), 'synthetic fixture');
+        for (const name of ['-x', '-x.txt', '-x.md', '--fixture-option=value']) writeFileSync(join(root, name), 'synthetic fixture');
         const cases: [number, string][] = ['cp', 'rsync -an'].flatMap(verb =>
             copyOptionCases.map(([expected, operand]): [number, string] => [expected, `${verb} ${operand} /tmp/d`]));
         cases.push(
@@ -816,5 +816,27 @@ test('copy operands follow the exact option grammar', { concurrency: 2 }, async 
             const result = await shellVerdict(command, root, '0', scenario.signal);
             assert.equal(result.status, expected, result.stderr);
         })));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('copy source globs use bounded metadata only for simple literal commands', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    try {
+        for (const name of ['notes.md', '-x.txt']) writeFileSync(join(root, name), 'synthetic fixture');
+        const cases: [number, string][] = [
+            [0, 'cp *.md /tmp/d'], [0, 'cp ?z /tmp/d'], [0, 'cp -- *.md /tmp/d'],
+            [0, 'rsync -a *.md /tmp/d'], [0, 'rsync -an *.md /tmp/d'],
+            [2, 'true; cp *.md /tmp/d'], [2, 'cp *.md /tmp/d; true'],
+            [2, 'env cp *.md /tmp/d'], [2, "sh -c 'cp *.md /tmp/d'"],
+        ];
+        await Promise.all(cases.map(([expected, command]) => context.test(command, async scenario => {
+            const result = await shellVerdict(command, root, '0', scenario.signal);
+            assert.equal(result.status, expected, result.stderr);
+        })));
+        writeFileSync(join(root, '-x.md'), 'synthetic fixture');
+        for (const command of ['cp *.md /tmp/d', 'rsync -a *.md /tmp/d']) {
+            const result = await shellVerdict(command, root);
+            assert.equal(result.status, 2, result.stderr);
+        }
     } finally { rmSync(root, { recursive: true, force: true }); }
 });
