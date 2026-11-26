@@ -1,0 +1,17 @@
+{"skill":"cratis-platform-diagnose-slice","queries":[
+{"query":"Submit worked but Authors stayed empty. We don't know which boundary failed.","shouldTrigger":true},
+{"query":"Locate where the time goes between command completion and first visible row.","shouldTrigger":true},
+{"query":"The query is late after a write; help distinguish projection lag from the screen.","shouldTrigger":true},
+{"query":"Correlate the command, append, checkpoint and read for one slow registration.","shouldTrigger":true},
+{"query":"The UI and kernel logs disagree on whether processing stalled. What should we compare?","shouldTrigger":true},
+{"query":"An accepted command takes seconds to appear in the list; pick the first boundary to investigate.","shouldTrigger":true},
+{"query":"Triage a missing row using only the scoped trace capture.","shouldTrigger":true},
+{"query":"Is the long delay before or after we materialize the view? We have snapshots and timings.","shouldTrigger":true},
+{"query":"We already know the author observer partition faulted. Inspect that partition.","shouldTrigger":false,"note":"cratis-chronicle-inspect-observer"},
+{"query":"Fresh queries work. Only the live subscription stopped delivering.","shouldTrigger":false,"note":"cratis-arc-diagnose-live-query"},
+{"query":"Fix a wrong source-key mapping in our Author projection.","shouldTrigger":false,"note":"cratis-chronicle-project-view"},
+{"query":"Add server-side paging to the working query.","shouldTrigger":false,"note":"cratis-arc-page-query"},
+{"query":"Write a browser test for our already delivered author flow.","shouldTrigger":false,"note":"cratis-specifications-observe-ui"},
+{"query":"Capture the validation rejection on the backend with a command scenario.","shouldTrigger":false,"note":"cratis-specifications-exercise-backend"},
+{"query":"Select the endpoint bindings for a disposable diagnostics environment.","shouldTrigger":false,"note":"cratis-platform-configure-environment"},
+{"query":"Build the missing cross-layer registration feature from scratch.","shouldTrigger":false,"note":"cratis-platform-deliver-slice"}]}

@@ -1,0 +1,17 @@
+{"skill":"cratis-arc-select-backend-sdk","queries":[
+{"query":"Can a Go backend return a typed command reply through Arc?","shouldTrigger":true},
+{"query":"We have Mix, not a dotnet host. Is the Arc handler available in Elixir?","shouldTrigger":true},
+{"query":"Which backend library does a Node service need for Arc query endpoints?","shouldTrigger":true},
+{"query":"Prove the Java-callable adapter works from Java, not just Kotlin.","shouldTrigger":true},
+{"query":"Before porting this validator to Go, what native behavior is supported?","shouldTrigger":true},
+{"query":"Does this Elixir Arc release actually export the proxy graph?","shouldTrigger":true},
+{"query":"Show how to verify Arc identity middleware in our Spring Boot runtime.","shouldTrigger":true},
+{"query":"Does the Node command runtime match the response contract our client expects?","shouldTrigger":true},
+{"query":"Choose the Go client for connecting to a Chronicle event store.","shouldTrigger":false,"note":"cratis-chronicle-select-client"},
+{"query":"Start discovery for an existing C# Arc host.","shouldTrigger":false,"note":"cratis-arc-host-application"},
+{"query":"Define RegisterAuthor on our ASP.NET Core host.","shouldTrigger":false,"note":"cratis-arc-declare-command"},
+{"query":"Generate TypeScript proxies from our C# contracts.","shouldTrigger":false,"note":"cratis-arc-generate-proxies"},
+{"query":"Bind an existing generated query in the React client.","shouldTrigger":false,"note":"cratis-arc-react-bind-slice"},
+{"query":"Configure read-model storage on our existing .NET backend.","shouldTrigger":false,"note":"cratis-arc-connect-storage"},
+{"query":"Make the existing C# validator reject an empty name.","shouldTrigger":false,"note":"cratis-arc-validate-command"},
+{"query":"Run the complete working feature from command to visible result.","shouldTrigger":false,"note":"cratis-platform-deliver-slice"}]}
