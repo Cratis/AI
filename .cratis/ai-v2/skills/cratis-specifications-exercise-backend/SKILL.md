@@ -84,7 +84,7 @@ public class when_projecting_a_registration : Specification
 }
 ```
 
-This checks the mapping in process, not observer delivery. In a running-store test, register the projection first, append to the test author's history and assert the append succeeded. Await `WaitForCompletion()` on that append result (import `Cratis.Chronicle.Observation`); require success with no failed partitions before querying the stored row for the same ID and name. A fixed sleep does not establish that the observer handled this write.
+This checks the mapping in process, not observer delivery. In a running-store test, make sure the host has discovered the `Author` projection, then append to the test author's history and assert the append succeeded. Await `WaitForCompletion()` on that append result (import `Cratis.Chronicle.Observation`); require success with no failed partitions before querying the stored row for the same ID and name. A fixed sleep does not establish that the observer handled this write.
 
 ## Avoid
 

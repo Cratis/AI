@@ -55,6 +55,6 @@ export function RemoveAuthorButton({ name, remove }: { name: string; remove: () 
 
 ## Related skills
 
-- [Host a chat](../cratis-components-host-chat/SKILL.md) when feedback belongs to a particular conversation rather than an application notification.
+- [Host a chat](../cratis-components-host-chat/SKILL.md) when the screen needs a topic-based message sidebar rather than a dialog.
 
 - [Open a custom command dialog](../cratis-components-submit-form/SKILL.md)

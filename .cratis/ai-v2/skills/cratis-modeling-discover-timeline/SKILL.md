@@ -31,7 +31,7 @@ Write the example as the table below in `Features/Authors/Registration/timeline.
 
 ## Related skills
 
-- [Recover intent](../cratis-screenplay-recover-intent/SKILL.md) when the starting point is an existing implementation rather than a workshop.
+- [Recover intent](../cratis-screenplay-recover-intent/SKILL.md) when the starting point is a recording of an inherited screen rather than a workshop.
 
 - [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md) to encode the agreed example.
 - [Deliver the slice](../cratis-platform-deliver-slice/SKILL.md) to implement its visible result.
