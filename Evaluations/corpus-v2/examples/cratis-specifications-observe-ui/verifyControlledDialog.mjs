@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 
-export async function verifyKeyboardRegistration(page) {
+export async function verifyControlledDialog(page) {
     const trigger = page.getByRole('button', { name: 'Add author' });
     await trigger.press('Enter');
     const name = page.getByRole('textbox', { name: 'Name' });

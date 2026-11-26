@@ -10,7 +10,7 @@ module Library
     slice StateView BrowseAuthors
       screen Authors
         data Author[] via query AllAuthors
-        section addAuthor
-          title "Add author"
-          on click
-            navigate to AddAuthor
+        title "Authors"
+        toolbar authorActions
+          item addAuthor navigate to AddAuthor
+            label "Add author"

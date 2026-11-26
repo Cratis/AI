@@ -1,43 +1,69 @@
 ---
 name: cratis-specifications-observe-ui
-description: Tests an interaction through its visible outcome. Use when writing a Storybook interaction or a browser journey for focus, navigation or live UI state. Not for choosing a control (use cratis-components-choose-control).
-compatibility: Requires Node.js and the application's UI runner; browser journeys require Playwright Chromium.
+description: Tests visible user interactions in a controlled Storybook story. Use when specifying a Library dialog's input, submission and visible result. Not for choosing a control (use cratis-components-choose-control).
+compatibility: Requires a React Storybook project with story interaction tests enabled.
 ---
 
-# Check keyboard submission in the Add author dialog
+# Test author submission in a controlled story
 
-Test the dialog from the keyboard. A click handler can work even though opening the dialog loses focus or submitting a name never updates the visible list.
+1. Put the following story in `Features/Authors/Registration/AddAuthor.stories.tsx` in the Library UI project. The story owns its data and needs no authenticated host. Its form models the local interaction, not the Arc command or the production dialog.
+2. Open **Library / Authors / Registration → Submit from keyboard** in Storybook and run its interaction. Assert against the rendered list, not a callback spy.
 
-1. Add `playwright` to the browser-test project and install its Chromium browser. Start the Library's Authors screen with an empty Authors list, an **Add author** button and a dialog with a **Name** textbox and an **Add** submit button.
-2. Open that screen in a Playwright page. Put the following check in `Features/Authors/Registration/verifyKeyboardRegistration.mjs` and pass it the opened page.
-3. Check the name in the visible list and check where subsequent keyboard input will go.
+```tsx
+import { useState } from 'react';
+import { expect, userEvent, within } from 'storybook/test';
+
+export default { title: 'Library/Authors/Registration' };
+
+function ControlledRegistration() {
+    const [open, setOpen] = useState(false);
+    const [name, setName] = useState('');
+    const [names, setNames] = useState<string[]>([]);
+    return <>
+        <button onClick={() => setOpen(true)}>Add author</button>
+        {open && <form onSubmit={event => {
+            event.preventDefault();
+            setNames([...names, name]);
+            setOpen(false);
+            setName('');
+        }}>
+            <label>Name <input value={name} onChange={e => setName(e.target.value)} /></label>
+            <button disabled={!name.trim()}>Add</button>
+        </form>}
+        <ul>{names.map((value, index) => <li key={index}>{value}</li>)}</ul>
+    </>;
+}
+
+export const SubmitFromKeyboard = {
+    render: () => <ControlledRegistration />,
+    play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+        const canvas = within(canvasElement);
+        await userEvent.click(canvas.getByRole('button', { name: 'Add author' }));
+        await expect(canvas.getByRole('button', { name: 'Add', exact: true })).toBeDisabled();
+        await userEvent.type(canvas.getByRole('textbox', { name: 'Name' }), 'Aster{Enter}');
+        await expect(canvas.getByRole('listitem')).toHaveTextContent('Aster');
+    },
+};
+```
+
+## Check the production dialog separately
+
+Put this helper in `Features/Authors/Registration/verifyKeyboardRegistration.mjs` in the browser-test project with `playwright` installed. Pass an authenticated Playwright page already on the Library Authors DataPage in a fresh namespace, and a unique name. It checks keyboard activation and live delivery, not initial focus placement.
 
 ```js
-import assert from 'node:assert/strict';
-
-export async function verifyKeyboardRegistration(page) {
-    const trigger = page.getByRole('button', { name: 'Add author' });
-    await trigger.press('Enter');
-    const name = page.getByRole('textbox', { name: 'Name' });
-    assert.ok(await name.evaluate(el => el === el.ownerDocument.activeElement));
-    const add = page.getByRole('button', { name: 'Add', exact: true });
-    assert.ok(await add.isDisabled());
-    await name.fill('Aster');
-    await name.press('Enter');
-    assert.equal(await page.getByRole('listitem').innerText(), 'Aster');
-    assert.ok(await trigger.evaluate(el => el === el.ownerDocument.activeElement));
+export async function verifyKeyboardRegistration(page, name) {
+    await page.getByRole('button', { name: 'Add author' }).press('Enter');
+    await page.getByRole('textbox', { name: 'Name' }).fill(name);
+    await page.getByRole('button', { name: 'Add', exact: true }).press('Enter');
+    await page.getByRole('row').filter({ hasText: name }).waitFor();
 }
 ```
 
-For a local Storybook interaction, import `within`, `userEvent` and `expect` from `storybook/test`. Use `within(canvasElement)` to find the dialog controls, perform the interaction and assert the visible result. A story with a fake list cannot test live delivery. For a live query check, submit a unique disposable author to the running Library application and wait for the keyed row without a reload.
-
 ## Avoid
 
-- Don't assert a setter call instead of the new author on screen.
-- Don't infer focus from how a button looks; compare the control with the active element.
-- Don't use a screenshot as the only assertion of successful submission.
+- Don't assert focus restoration or submission behavior of a production dialog from this controlled fixture.
+- Don't use a local story to test live query delivery. Submit a unique name to the [running application](../cratis-platform-deliver-slice/SKILL.md) and wait for the matching row without a reload.
 
 ## Related skills
 
-- [Choose the control](../cratis-components-choose-control/SKILL.md) to change the interaction itself.
-- [Deliver the slice](../cratis-platform-deliver-slice/SKILL.md) to connect the real command and query.
+- [Submit the form](../cratis-components-submit-form/SKILL.md) for the production `AddAuthor` dialog.

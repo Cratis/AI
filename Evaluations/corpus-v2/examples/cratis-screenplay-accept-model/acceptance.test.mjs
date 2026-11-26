@@ -14,11 +14,14 @@ test('a changed rejection is not covered by the previous review', t => {
     t.after(() => rmSync(temp,{recursive:true,force:true}));
     const next = join(temp,'model');
     cpSync('model',next,{recursive:true});
-    const path = join(next,'authors.play');
-    writeFileSync(path,readFileSync(path,'utf8').replaceAll('Name is required','Missing label'));
+    const path = join(next,'Authors','registration.play');
+    writeFileSync(path,readFileSync(path,'utf8').replaceAll('Name is required',"Enter the author's name"));
     execFileSync('screenplay',['model']);
     execFileSync('screenplay',[next]);
-    run('test',next,'--format','json');
+    const results = run('test',next,'--format','json');
+    assert.equal(results.executed,results.selected);
+    assert.equal(results.executed,results.passed);
+    assert.equal(results.failed + results.unsupported,0);
     const changed = run('export',next,'--scope','Library.Authors');
     assert.notEqual(changed.revision,base.revision);
     const {difference} = run('diff','model',next,'--format','json');

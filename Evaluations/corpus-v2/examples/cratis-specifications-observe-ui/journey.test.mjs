@@ -1,5 +1,5 @@
 import test from 'node:test';
-import { verifyKeyboardRegistration } from './verifyKeyboardRegistration.mjs';
+import { verifyControlledDialog } from './verifyControlledDialog.mjs';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { readFile } from 'node:fs/promises';
@@ -20,6 +20,6 @@ test('keyboard submission restores focus to Add author', { timeout: 30000 }, asy
         const page = await browser.newPage();
         page.setDefaultTimeout(5000);
         await page.goto(`http://127.0.0.1:${host.address().port}`);
-        await verifyKeyboardRegistration(page);
+        await verifyControlledDialog(page);
     } finally { await browser.close(); }
 });

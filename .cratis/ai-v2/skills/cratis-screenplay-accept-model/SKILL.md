@@ -1,39 +1,31 @@
 ---
 name: cratis-screenplay-accept-model
-description: Evaluates whether a complete Screenplay change preserves the agreed behavior. Use when reviewing a model change or admitting a model to delivery. Not for applying the edit (use cratis-screenplay-edit-workspace).
-compatibility: Requires Node.js and the Screenplay CLI.
+description: Reviews the behavior changed by a Screenplay revision. Use when accepting a model change for implementation. Not for applying edits (use cratis-screenplay-edit-workspace).
+compatibility: Requires the Screenplay CLI.
 ---
 
-# Decide whether to accept the model change
+# Review a changed registration refusal
 
-Compile the complete model, execute its examples and compare both successful compilations. A clean structural check alone does not say what the changed command will do.
+1. Put the accepted Library model in `before/model` and a copy in `after/model`. Include the [registration and refusal specifications](../cratis-screenplay-specify-outcome/SKILL.md). Use the same `screenplay --version` for both folders.
+2. As a review exercise only, change the candidate command rule to `name not empty message "Enter the author's name"` and update its specification to `then error "Enter the author's name"`. Do not change the accepted Library message `Name is required`.
+3. From the common parent run:
 
-1. Keep separate folders for the baseline and candidate. Use the same compatible compiler on both.
-2. Compile each complete folder before interpreting a scoped result. Treat a failed side as unknown, not as a model with nothing in it.
-3. Run the candidate's specifications. Compare selected, executed and unsupported counts and inspect the named outcomes.
-4. Compare semantic changes against the agreed examples. Check removed expectations separately from deleted seed data.
+   ```sh
+   screenplay before/model
+   screenplay after/model
+   screenplay test after/model --format json
+   screenplay diff before/model after/model --format json
+   ```
 
-## Review a change to the blank-name error
-
-Keep the accepted Library model in `before/model/` and the proposed change in `after/model/`. Include the Authors [registration and refusal specifications](../cratis-screenplay-specify-outcome/SKILL.md) in both. Run from their common parent:
-
-```sh
-screenplay before/model
-screenplay after/model
-screenplay test after/model --format json
-screenplay diff before/model after/model --format json
-```
-
-Trace the new blank-name error through the command's validation rule and the refusal example. Compare the old and new model revisions before reusing an earlier acceptance decision. If the candidate no longer checks the expected destination, a passing test count does not preserve that expectation. Compare scope and exposure changes even when operation names are unchanged.
+4. Require both compilations to succeed. In the test output compare `selected`, `executed` and `passed`; they must match, with `failed` and `unsupported` zero. Read `results[].outcome` for `RejectingAnEmptyName` and `RegisteringAster` by address.
+5. In `difference` find the changed registration rule and its refusal specification. For each behavior change identify a passing specification that checks it. Updating the implementation and its test together does not approve a new message: compare the message with the domain owner's accepted wording. Reject this candidate if the agreed message is still `Name is required`.
 
 ## Avoid
 
-- Don't count unsupported or `NotEvaluable` outcomes as passes.
-- Don't treat an agent allowlist as caller authorization; review them separately.
-- Don't compare localized diagnostic messages; compare the code and declared arguments.
-- Don't change the stored shape of a shipped event revision through a shared nested type.
+- Don't interpret a failed baseline compilation as an empty baseline.
+- Don't count `unsupported` specifications as passing or reuse approval after the candidate revision changes.
 
 ## Related skills
 
-- [Edit the workspace](../cratis-screenplay-edit-workspace/SKILL.md) to revise the proposal.
-- [Hand off the slice](../cratis-screenplay-handoff-slice/SKILL.md) once the change is accepted.
+- [Edit the workspace](../cratis-screenplay-edit-workspace/SKILL.md) to revise a rejected change.
+- [Hand off the slice](../cratis-screenplay-handoff-slice/SKILL.md) after acceptance.

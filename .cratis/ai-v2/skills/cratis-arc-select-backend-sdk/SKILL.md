@@ -1,29 +1,23 @@
 ---
 name: cratis-arc-select-backend-sdk
-description: Checks whether a native Arc SDK supports a requested backend capability. Use when adding an Arc command or query to a Node, JVM, Go or Elixir service. Not for Chronicle client lifecycle (use cratis-chronicle-select-client).
-compatibility: Native backend toolchain and its resolved Arc module.
+description: Checks whether a native Arc SDK supports a requested backend capability. Use when adding an Arc command or query to a native service. Not for Chronicle client lifecycle (use cratis-chronicle-select-client).
+compatibility: Requires the service's native toolchain and resolved Arc module. The example uses Go.
 ---
 
-# Check the requested capability in the native SDK
+# Check command execution in the native SDK
 
-Choose the implementation from the service's own package and toolchain. A shared HTTP contract tells the client how to call an operation, not how to declare it in Go or Java.
+Only Go is shown. For another runtime, identify the resolved package and requested operation, inspect the package's declarations and run its native test. If either the API or runnable setup is missing, report that gap rather than translating C# attributes.
 
-1. Name the target language, resolved package version and exact capability requested. For the Library's Go service read `go.mod` and confirm the version actually resolved by the Go toolchain. Command validation and command execution are different capabilities.
-2. Locate an example for that capability in the resolved native SDK. Identify its declarations, registration and check in that language.
-3. Run the native check in the target project. Report the behavior it exercised; don't generalize from a handler test to the entire endpoint pipeline.
-4. If the native surface or runnable setup is unknown, report that gap instead of supplying translated C# code.
-
-## Test the Library's Go command handler
-
-In a Go module that resolves `github.com/cratis/arc.go`, put this test in `features/authors/registration/command_test.go`. Use the module's existing version; run `go list -m github.com/cratis/arc.go` to see it. From the module root run `go test ./features/authors/registration`.
+1. From the Go service root run `go list -m github.com/cratis/arc.go` for the version, then `go list -m -f '{{.Dir}}' github.com/cratis/arc.go` for its location. Read `commands` and its `_test.go` files there.
+2. In `features/authors/registration/command_test.go`, register the handler, build a command pipeline and submit the request. Check both execution success and the returned name.
+3. Run `go test ./features/authors/registration` from the module root.
 
 ```go
-package authors_test
+package registration_test
 
 import (
     "context"
     "testing"
-
     "github.com/cratis/arc.go/commands"
 )
 
@@ -39,35 +33,27 @@ func (c RegisterAuthor) Handle(context.Context) (AuthorRegistered, error) {
 }
 
 func TestNativeReply(t *testing.T) {
-    registry := commands.NewRegistry()
-    commands.Register(registry, commands.Handle(RegisterAuthor.Handle))
-    pipeline := commands.NewCommandPipeline(commands.PipelineOptions{Registry: registry})
-    result, value := commands.Execute[AuthorRegistered](context.Background(), pipeline,
+    var registry commands.Registry
+    if err := commands.Register(&registry, commands.Handle(RegisterAuthor.Handle)); err != nil {
+        t.Fatal(err)
+    }
+    pipeline, err := registry.Build(commands.PipelineOptions{})
+    if err != nil { t.Fatal(err) }
+    result, err := commands.Execute[AuthorRegistered](context.Background(), pipeline,
         RegisterAuthor{Id: "11111111-1111-4111-8111-111111111111", Name: "Aster"})
-    if !result.IsSuccess() || !result.HasResponse || value.Name != "Aster" {
-        t.Fatalf("result=%+v value=%v", result, value)
+    if err != nil { t.Fatal(err) }
+    value, present := result.Response()
+    if !result.IsSuccess() || !present || value.Name != "Aster" {
+        t.Fatalf("success=%t present=%t value=%v", result.IsSuccess(), present, value)
     }
 }
 ```
 
-This tests the Go pipeline's returned value. It does not register an HTTP endpoint or append a Chronicle event.
-
-## Check validation separately
-
-For `RegisterAuthor`, take the route from the running Library service's command contract rather than deriving it from the name. From the API client's point of view the wire operation is:
-
-```text
-POST <command-route>/validate
-```
-
-Check that the validator and authorization policy run without invoking the handler. To recommend how to *implement* that endpoint in a Go service, first identify the Go registration and exercise that behavior with its resolved module. A passing native command-execution test alone leaves validation untested.
-
 ## Avoid
 
-- Don't translate `[Command]` into an invented native annotation.
-- Don't take a matching URL as a guarantee of matching dependency injection.
-- Don't present a check of one language's SDK as support in another.
+- Don't infer a Chronicle append or HTTP route registration from a successful handler reply.
+- Don't infer validation-only behavior from execution. To check it, POST to the command route's `/validate` suffix and verify that authorization and validation run without invoking the handler. Without an HTTP test, report that behavior as unverified.
 
 ## Related skills
 
-- [Select the Chronicle client](../cratis-chronicle-select-client/SKILL.md) for event-store connectivity rather than Arc command support.
+- [Select the Chronicle client](../cratis-chronicle-select-client/SKILL.md) for event-store connectivity.

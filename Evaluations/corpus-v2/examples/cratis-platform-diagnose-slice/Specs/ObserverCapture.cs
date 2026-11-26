@@ -10,7 +10,7 @@ public class ObserverCapture
         if (!capture.GetProperty("accepted").GetBoolean()) return "Command refused";
         var position = capture.GetProperty("appended").GetUInt64();
         var checkpoint = sample.GetProperty("checkpoint").GetUInt64();
-        var observer = new ObserverInformation("Author", EventSequenceId.Log, ObserverType.Projection,
+        var observer = new ObserverInformation("Library.Features.Authors.Listing.Author", EventSequenceId.Log, ObserverType.Projection,
             ObserverRunningState.Active, checkpoint, checkpoint + 1, checkpoint + 1);
         if (observer.LastHandledEventSequenceNumber.Value < position) return "Observer behind";
         var key = capture.GetProperty("source").GetString();
@@ -27,7 +27,7 @@ public class ObserverCapture
         Assert.Equal("library-test", capture.GetProperty("store").GetString());
         Assert.Equal("isolated", capture.GetProperty("namespace").GetString());
         Assert.Equal("event-log", capture.GetProperty("sequence").GetString());
-        Assert.Equal("Author", capture.GetProperty("observer").GetString());
+        Assert.Equal("Library.Features.Authors.Listing.Author", capture.GetProperty("observer").GetString());
         Assert.True(capture.GetProperty("accepted").GetBoolean());
         var append = capture.GetProperty("appended").GetInt32();
         var samples = capture.GetProperty("samples");

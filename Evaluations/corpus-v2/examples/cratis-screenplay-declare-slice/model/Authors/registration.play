@@ -14,6 +14,8 @@ module Library
         name String
 
     slice StateView ListAuthors
+      event AuthorRemoved
+
       readmodel Author
         id AuthorId key
         name String
@@ -22,6 +24,8 @@ module Library
         from AuthorRegistered
           id = $eventSourceId
           name = name
+
+        remove with AuthorRemoved
 
       query AllAuthors => observable Author[]
 

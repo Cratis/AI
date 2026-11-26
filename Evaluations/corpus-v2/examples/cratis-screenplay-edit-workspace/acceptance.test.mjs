@@ -12,11 +12,10 @@ test('a sibling edit invalidates the reviewed model revision', t => {
     const copy = join(root, 'model');
     cpSync('model', copy, {recursive:true});
     const before = model(copy);
-    assert.ok(before.application.eventSources.some(source => source.name === 'AuthorHistory'));
-    const file = join(copy, 'identity.play');
-    writeFileSync(file, readFileSync(file, 'utf8').replace('AuthorHistory', 'RegistrationHistory'));
+    const file = join(copy, 'Authors', 'registration.play');
+    writeFileSync(file, readFileSync(file, 'utf8').replaceAll('Name is required', "Enter the author's name"));
     execFileSync('screenplay', [copy]);
     const after = model(copy);
     assert.notEqual(after.revision, before.revision);
-    assert.deepEqual(before.application.modules, after.application.modules);
+    assert.notDeepEqual(before.application.modules, after.application.modules);
 });

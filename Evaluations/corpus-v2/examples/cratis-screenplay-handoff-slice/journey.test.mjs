@@ -9,7 +9,7 @@ test('accepted registration reaches the authorized isolated target', {timeout:90
     const accepted = JSON.parse(readFileSync('accepted.esm.json','utf8'));
     const example = JSON.parse(readFileSync('registration-example.json','utf8'));
     assert.equal(example.revision,accepted.revision);
-    const exported = JSON.parse(execFileSync('screenplay',['export','model','--scope','Catalog.Authors'],{encoding:'utf8'}));
+    const exported = JSON.parse(execFileSync('screenplay',['export','model','--scope',example.scope],{encoding:'utf8'}));
     assert.equal(exported.revision, example.revision);
     assert.deepEqual(exported,accepted);
     assert.ok(process.env.AUTHORS_TARGET_ADAPTER, 'Supply the approved local target adapter; no mock fallback. See README.md.');

@@ -8,7 +8,8 @@ import { join } from 'node:path';
 test('the resolved Go module executes the command; this does not test its HTTP validation route', async t => {
     const cwd = await mkdtemp(join(tmpdir(), 'native-reply-'));
     t.after(() => rm(cwd, { recursive: true, force: true }));
-    for (const name of ['command_test.go', 'go.mod']) await copyFile(new URL(name, import.meta.url), join(cwd, name));
+    await copyFile(new URL('features/authors/registration/command_test.go', import.meta.url), join(cwd, 'command_test.go'));
+    await copyFile(new URL('go.mod', import.meta.url), join(cwd, 'go.mod'));
     const run = spawnSync('go', ['test', '-mod=mod', '-count=1', '-json', '.'], {
         cwd, env: { ...process.env, GOWORK: 'off' }, encoding: 'utf8', timeout: 120000
     });

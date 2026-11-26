@@ -8,7 +8,7 @@ compatibility: Requires the Screenplay CLI.
 
 In `model/Authors/registration.play`, put the command and its event inside a `StateChange` slice. Give the list a separate `StateView` slice in the same feature.
 
-1. Declare the typed identifier. Keep the person submitting the request separate from the thing whose history changes.
+1. Declare `concept AuthorId : Uuid`. Mark the command's `id` with `identifier`.
 2. Map each command input needed by the event. Use `for` to address the event to its owner.
 3. Give the read model a key. In its projection map the event source identity to the key and the payload to the displayed fields.
 4. Bind the list query to the collection. Run an example for a known ID and check the returned row.
@@ -32,6 +32,8 @@ module Library
         name String
 
     slice StateView ListAuthors
+      event AuthorRemoved
+
       readmodel Author
         id AuthorId key
         name String
@@ -41,15 +43,26 @@ module Library
           id = $eventSourceId
           name = name
 
+        remove with AuthorRemoved
+
       query AllAuthors => observable Author[]
+
+      specification ListingAster
+        given AuthorRegistered
+          for "11111111-1111-4111-8111-111111111111"
+          name = "Aster"
+        then query AllAuthors exactly
+          result
+            id = "11111111-1111-4111-8111-111111111111"
+            name = "Aster"
 ```
 
-From the Library directory run `screenplay ./model --warnaserror` to compile the composed folder. Add the [registration and refusal examples](../cratis-screenplay-specify-outcome/SKILL.md), then run `screenplay test model --format json`.
+From the Library directory run `screenplay model` to compile the folder. Expect `PLAY0533` until the [Add author screen](../cratis-screenplay-model-interaction/SKILL.md) issues the command. Add the [registration and refusal examples](../cratis-screenplay-specify-outcome/SKILL.md), then run `screenplay test model --format json`.
 
 ## Avoid
 
-- Don't use a display reference for the history address; keep it in a separate field.
-- Don't declare two builders for `Author`; the projection owns the row.
+- Don't put the name in `for`; `for` takes the author ID.
+- Don't add a second projection or reducer for `Author`.
 - Don't assume the source supplies missing payload fields; map `name` explicitly.
 
 ## Related skills

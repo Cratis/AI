@@ -1,4 +1,1 @@
 concept AuthorId : Uuid
-
-eventsource AuthorHistory
-  identifier AuthorId

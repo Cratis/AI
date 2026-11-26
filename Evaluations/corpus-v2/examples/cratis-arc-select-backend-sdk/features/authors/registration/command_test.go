@@ -1,4 +1,4 @@
-package authors_test
+package registration_test
 
 import (
 	"context"

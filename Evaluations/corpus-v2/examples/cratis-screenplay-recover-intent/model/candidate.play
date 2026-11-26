@@ -1,9 +1,0 @@
-concept AuthorId : Uuid
-
-module Library
-  feature Authors
-    slice StateView ListAuthors
-      readmodel Author
-        id AuthorId key
-        name String
-      query AllAuthors => observable Author[]

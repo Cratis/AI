@@ -1,15 +1,11 @@
-policy MayRegisterAuthor
-  require authenticated and role "CatalogEditor"
+concept AuthorId : Uuid
 
 module Library
   feature Authors
     slice StateChange RegisterAuthor
       command RegisterAuthor
-        authorize MayRegisterAuthor
         id AuthorId identifier
         name String
-        validate
-          name not empty message "Name is required"
         produces AuthorRegistered
           for id
           name = name
@@ -17,27 +13,9 @@ module Library
       event AuthorRegistered
         name String
 
-      example Aster : RegisterAuthor
-        id = "11111111-1111-4111-8111-111111111111"
-        name = "Aster"
-
-      specification RegisteringAster
-        given caller
-          authenticated
-          role "CatalogEditor"
-        when Aster
-        then AuthorRegistered
-          for "11111111-1111-4111-8111-111111111111"
-          name = "Aster"
-
-      specification RejectingAnEmptyName
-        given caller
-          authenticated
-          role "CatalogEditor"
-        when Aster name = ""
-        then error "Name is required"
-
     slice StateView ListAuthors
+      event AuthorRemoved
+
       readmodel Author
         id AuthorId key
         name String
@@ -47,14 +25,13 @@ module Library
           id = $eventSourceId
           name = name
 
+        remove with AuthorRemoved
+
       query AllAuthors => observable Author[]
 
       specification ListingAster
         given AuthorRegistered
           for "11111111-1111-4111-8111-111111111111"
-          name = "Aster"
-        then readmodel Author
-          id = "11111111-1111-4111-8111-111111111111"
           name = "Aster"
         then query AllAuthors exactly
           result

@@ -5,11 +5,11 @@ description: Discovers the business timeline and the owner of each recorded even
 
 # Trace one business example
 
-Write the example with the Library feature notes in `Features/Authors/Registration/timeline.md`. Record who submits the name, which author it belongs to and how the librarian knows registration succeeded.
+Write the example as the table below in `Features/Authors/Registration/timeline.md`. Record who submits the name, which author it belongs to and how the librarian knows registration succeeded.
 
 1. Ask for one outcome. Record the actor, the input and the visible result in the owner's words.
 2. Walk the input forward. Name the command for what the actor requests and the event for what happened.
-3. Ask which thing now has a different history. Write that ID beside the event, separate from the caller.
+3. Ask whose history gained the event (here, the author's). Write that ID beside the event, separate from the caller.
 4. Walk each displayed value back to its origin. Identify the value carried in the payload and the key identifying the row.
 5. Change one input to expose a boundary. Ask what should be refused, what the caller sees and what must remain unchanged. Keep unanswered questions open.
 
@@ -17,7 +17,7 @@ Write the example with the Library feature notes in `Features/Authors/Registrati
 
 | Question | Concrete example |
 |---|---|
-| Who asks for what? | A librarian requests `RegisterAuthor` with the name Aster. |
+| Who asks for what? | A librarian requests `RegisterAuthor` with ID `11111111-1111-4111-8111-111111111111` and name Aster. |
 | What happened, and to whom? | `AuthorRegistered` records Aster in that author's history. |
 | What changes on screen? | The authors list gains the row for that author ID. |
 | Where does the name come from? | The row takes its name from `AuthorRegistered.Name`. |

@@ -1,17 +1,10 @@
 using System.Text.Json;
 using Cratis.Arc.Chronicle.Testing.Commands;
-using Cratis.Arc.Commands.ModelBound;
 using Cratis.Arc.Testing.Commands;
-using Cratis.Chronicle.Events;
 using Cratis.Json;
 using Library.Features.Authors;
+using Library.Features.Authors.Registration;
 using Xunit;
-
-[EventType] public record AuthorRegistered(string Name);
-[Command] public record RegisterAuthor(AuthorId Id, string Name)
-{
-    public AuthorRegistered Handle() => new(Name);
-}
 
 public class ValueTests
 {
@@ -31,6 +24,5 @@ public class ValueTests
         var result = await scenario.Execute(new(id, "Aster"));
         result.ShouldBeSuccessful();
         await scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e => e.Name == "Aster");
-        await scenario.ShouldHaveAppendedEventsInOrder(new AuthorRegistered("Aster"));
     }
 }

@@ -6,7 +6,7 @@ compatibility: Requires the Screenplay CLI.
 
 # Specify successful registration and refusal of an empty name
 
-Write both specifications beside `RegisterAuthor` in `model/Authors/registration.play`. Use the same fixed author ID in each example so only the name changes.
+In `model/Authors/registration.play`, use the same fixed author ID in each example so only the name changes.
 
 1. Start with the command, `AuthorId` and event from [declaring the Authors slice](../cratis-screenplay-declare-slice/SKILL.md).
 2. Inside the command, add the rule below before `produces AuthorRegistered`:
@@ -34,13 +34,12 @@ Write both specifications beside `RegisterAuthor` in `model/Authors/registration
      then error "Name is required"
    ```
 
-4. From the Library application directory run `screenplay test model --format json`. Check that both named examples executed and passed. The first one should fail if the event goes to a different author, even if the name is correct.
+4. From the Library application directory run `screenplay test model --format json`. When running just these two specifications, require `executed` and `passed` both 2 and `failed` and `unsupported` both 0. In a larger model, check their named outcomes individually. The first one should fail if the event goes to a different author, even if the name is correct.
 
 ## Avoid
 
 - Don't infer the destination from a payload field; assert `for` on the expected event.
 - Don't use `then no events` for a validation error; it describes a successful request that produced nothing.
-- Don't change the caller and the input together when testing the name rule.
 
 ## Related skills
 

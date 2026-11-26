@@ -1,0 +1,5 @@
+secret MailerApiKey
+
+system Mailer
+  extension "ghcr.io/cratis/extension-mail" version 2
+  setting apiKey from secret MailerApiKey

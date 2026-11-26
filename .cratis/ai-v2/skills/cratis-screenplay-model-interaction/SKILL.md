@@ -8,7 +8,7 @@ compatibility: Requires the Screenplay CLI.
 
 Use the command and observable query from [declaring the Authors slice](../cratis-screenplay-declare-slice/SKILL.md). In `model/Authors/screens.play`, declare the form directly under the module, and declare each screen inside its feature slice.
 
-1. Bind the form to `RegisterAuthor` and label the editable name. The caller must supply the `AuthorId` requested by the command; the name is not the identifier.
+1. Bind the form to `RegisterAuthor` and label the editable name. Do not add an `id` field. The [AddAuthor dialog](../cratis-components-submit-form/SKILL.md) initializes the generated command with a fresh ID.
 2. Make Add a screen action: it does not require a selected row. Navigate to Authors only after successful submission.
 3. Bind the list to `AllAuthors` so the screen uses the modeled collection instead of a second local list.
 
@@ -25,20 +25,19 @@ module Library
     slice StateView BrowseAuthors
       screen Authors
         data Author[] via query AllAuthors
-        section addAuthor
-          title "Add author"
-          on click
-            navigate to AddAuthor
+        title "Authors"
+        toolbar authorActions
+          item addAuthor navigate to AddAuthor
+            label "Add author"
 ```
 
-From the directory containing `model`, run `screenplay export model --format ui --output screens.json`. Check that Add binds to `RegisterAuthor`, its successful destination is `Authors`, and the list reads a live collection from `AllAuthors`.
+From the directory containing `model`, run `screenplay export model --format ui --output screens.json`. In `screens.json`, verify the Authors screen title, the toolbar item's `AddAuthor` destination, the Add action's `RegisterAuthor` command and `Authors` destination, and the live `AllAuthors` data binding. Check the form separately in `screens.play`: `form AddAuthorForm for RegisterAuthor` binds the editable name; a screen export alone need not contain the form declaration.
 
 ## Avoid
 
 - Don't use `for item` on Add; reserve it for actions on a selected row.
-- Don't show a generated command input as an editable field; use the returned ID when navigating to a generated entity.
 - Don't treat action visibility as authorization; enforce permission at the operation.
-- Don't navigate after a refused submission; refresh the actual state.
+- Don't navigate after a refused submission.
 
 ## Related skills
 

@@ -42,7 +42,7 @@
     {
       "name": "Authors",
       "slice": "Library.Authors.BrowseAuthors",
-      "title": "Add author",
+      "title": "Authors",
       "data": [
         {
           "query": "AllAuthors",
@@ -58,23 +58,33 @@
       "navigation": [
         {
           "screen": "AddAuthor",
-          "trigger": "click"
+          "trigger": "toolbar"
         }
       ],
       "layout": {
         "fits": [],
         "regions": [
           {
-            "kind": "section",
+            "kind": "toolbar",
             "regions": [],
-            "name": "addAuthor",
-            "title": "Add author",
+            "name": "authorActions",
             "actions": []
           }
         ]
       },
-      "sliceId": "sem1:191f0b53c718a1e34006531e4714324d1c279ff9d6f65aae3c2e6fab3a63d78a"
+      "sliceId": "sem1:191f0b53c718a1e34006531e4714324d1c279ff9d6f65aae3c2e6fab3a63d78a",
+      "scene": {
+        "templates": [],
+        "components": [],
+        "toolbars": [
+          {
+            "name": "authorActions",
+            "buttons": []
+          }
+        ],
+        "outlets": []
+      }
     }
   ],
-  "modelRevision": "rev1:fc8178c86fc0c602e510f201ebead98f9af3915683febc351ed4803f11cabdf6"
+  "modelRevision": "rev1:368b57ba5d82e467803adc3070d04cd8044ddaed5d7b8fd30b79cd173b3cd15f"
 }

@@ -9,9 +9,10 @@ test('positive evidence stops at the visible list', () => {
     assert.equal(input.action,'submit');
     assert.deepEqual(output.names,[input.name]);
     assert.equal(seen.status,'observed');
-    const view = readFileSync('model/candidate.play','utf8');
+    const view = readFileSync('model/Authors/registration.play','utf8');
     assert.match(view,/query AllAuthors => observable Author\[\]/);
-    assert.doesNotMatch(view,/produces AuthorRegistered/);
+    assert.match(view,/produces AuthorRegistered/);
+    assert.equal(candidate.find(c => c.path === 'write').status,'inference');
 });
 test('no blank input or event trace was captured', () => {
     assert.ok(!frames.some(f => f.name === '' || f.eventSourceId));

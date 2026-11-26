@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-model-automation
-description: Models translation and automated action in Screenplay. Use when a .play feature imports external data, reacts to an event or initiates scheduled work. Not for implementing the reactor (use cratis-chronicle-react-to-fact).
+description: Models the import of external data into local events. Use when declaring a Translate slice with a capture, stable key and first-observation behavior. Not for implementing the reactor (use cratis-chronicle-react-to-fact).
 compatibility: Requires the Screenplay CLI.
 ---
 
@@ -8,9 +8,9 @@ compatibility: Requires the Screenplay CLI.
 
 In `model/Authors/import.play`, describe what the Library receives, how it identifies a directory entry and which local event it records on the first observation.
 
-1. Identify the source and the stable key it supplies. Use the directory ID as the key; a change of name does not identify a new author.
-2. Map the input's name to the local event. `when added` means the first sighting of that key.
-3. Give the same prior observation in the repeat example. `then no events` distinguishes a successful repeat from a refusal.
+1. Name the `Directory` API and `/authors` route under `source api`. Set `key id`.
+2. Under `append DirectoryAuthorSeen`, set `when added` and map `name = $.name`.
+3. Add the two specifications below. Give the same ID and name as prior state for the repeat case.
 
 ```play
 module Library
@@ -47,13 +47,12 @@ module Library
         then no events
 ```
 
-From the application directory run `screenplay test model --format json`. These examples exercise translation of supplied observations; they do not poll an actual directory.
+From the application directory run `screenplay test model --format json`. For this file alone require two executed and two passed. These examples exercise translation of supplied observations; they do not poll an actual directory.
 
 ## Avoid
 
 - Don't treat the first observation as a change from a previous value; supply prior state when testing a transition.
-- Don't bypass the deciding command in a reaction. Test its invocation in the reaction and the resulting event in the command.
-- Don't assume a scheduled result is still eligible; have the command recheck the current deadline and state.
+- Don't key an author by name; different directory IDs may have the same display name.
 
 ## Related skills
 
