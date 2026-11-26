@@ -1,0 +1,1 @@
+{"private":true,"type":"module","scripts":{"test:example":"tsc -p tsconfig.json && node --test interaction.test.mjs","test:journey":"tsc -p tsconfig.json && node --test journey.test.mjs"},"devDependencies":{"@testing-library/dom":"10.4.1","@testing-library/user-event":"14.6.1","jsdom":"27.4.0","playwright":"1.63.0","typescript":"6.0.3"}}

@@ -1,0 +1,3 @@
+# When materialization is the contract
+
+For the mapping alone, supply ordered events for one source to a read-model scenario and inspect its instance. This checks the projection or reducer, not subscription delivery. For a running observer use a disposable store and namespace, an empty target key and the real host's registration. Dispatch through the app, then await the model at that key with a bounded deadline; assert fields, not just non-null. On timeout record source, observer and last known position without payloads. Never substitute a fixed sleep or replay a shared namespace to make the test pass.
