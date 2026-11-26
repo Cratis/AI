@@ -55,7 +55,7 @@ Keep pins in `product-sync.json` and compatibility documentation under `Document
 
 ## 5. Instruction style
 
-Give one default and the condition for choosing an alternative, rather than an equal-options menu. Put the reason beside an absolute so the agent can recognize its boundary; volume and ALL-CAPS add no evidence. Prefer concrete, checkable directions over vague quality requests. Use the terms in [glossary.md](./glossary.md); define an unfamiliar term on first use to avoid competing meanings. Prefer a compact term the model already knows (*tracer bullet*, *red/green*, *vertical slice*) to explaining the concept; one well-chosen word steers every step that uses it.
+Give one default and the condition for choosing an alternative, rather than an equal-options menu. Put the reason beside an absolute so the agent can recognize its boundary; volume and ALL-CAPS add no evidence. Prefer concrete, checkable directions over vague quality requests. Use the terms in [glossary.md](./glossary.md); define an unfamiliar term on first use to avoid competing meanings. Prefer a compact term the model already knows (*tracer bullet*, *red/green*, *vertical slice*) to explaining the concept; a new Cratis term is defined once in `glossary.md`.
 
 Give every workflow step an observable done-condition (a file exists, a command passes, a named check returns a value). A step without one invites premature completion: the agent stops when the step looks plausible, not when it is done.
 
