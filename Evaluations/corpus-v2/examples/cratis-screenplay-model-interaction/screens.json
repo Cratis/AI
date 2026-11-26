@@ -1,0 +1,80 @@
+{
+  "contract": "screenplay-ui/1",
+  "application": "model",
+  "screens": [
+    {
+      "name": "AddAuthor",
+      "slice": "Catalog.Authors.AddAuthorInput",
+      "title": "AddAuthor",
+      "data": [],
+      "actions": [
+        {
+          "command": "RegisterAuthor",
+          "label": "Add",
+          "subject": "screen",
+          "inputs": [
+            {
+              "name": "id",
+              "type": "AuthorId"
+            },
+            {
+              "name": "name",
+              "type": "String"
+            }
+          ],
+          "then": "Authors",
+          "commandId": "sem1:0664d32c5c17b9713f0254a70aa07086d089ce62f5a9041edbd1377f01354e74",
+          "route": "/api/catalog/authors/register-author"
+        }
+      ],
+      "navigation": [
+        {
+          "screen": "Authors",
+          "trigger": "action"
+        }
+      ],
+      "layout": {
+        "fits": [],
+        "regions": []
+      },
+      "sliceId": "sem1:afb810e0d0e9913d4b1c14419b19483b3048d37d9aa8c8258156db4a5b6fd4c1"
+    },
+    {
+      "name": "Authors",
+      "slice": "Catalog.Authors.BrowseAuthors",
+      "title": "Add author",
+      "data": [
+        {
+          "query": "AllAuthors",
+          "readModel": "Author",
+          "many": true,
+          "fields": [],
+          "queryId": "sem1:79ba5cd652c86242ec646a014cf8033b4d3f010924477bb2eef1ced94d80e3f3",
+          "route": "/api/catalog/authors/list-authors/all-authors",
+          "live": true
+        }
+      ],
+      "actions": [],
+      "navigation": [
+        {
+          "screen": "AddAuthor",
+          "trigger": "click"
+        }
+      ],
+      "layout": {
+        "fits": [],
+        "regions": [
+          {
+            "kind": "section",
+            "regions": [],
+            "name": "addAuthor",
+            "title": "Add author",
+            "actions": []
+          }
+        ]
+      },
+      "sliceId": "sem1:ea65047e7a88d32f2dcd71066e59632ccd9fbca32fb402ad681465107a133aba"
+    }
+  ],
+  "modelRevision": "rev1:5217bf34844600f63d258262d8a514cb74e65a6cb18ff9779ecfab571bc97b39"
+}

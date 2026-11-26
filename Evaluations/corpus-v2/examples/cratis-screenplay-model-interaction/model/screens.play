@@ -1,0 +1,22 @@
+audience CatalogEditors
+
+persona CatalogEditor
+  audience CatalogEditors
+
+module Catalog
+  form AddAuthorForm for RegisterAuthor
+    field name label "Name"
+  feature Authors
+    slice StateChange AddAuthorInput
+      screen AddAuthor
+        action RegisterAuthor for screen
+          label "Add"
+          available for CatalogEditors
+          navigate to Authors
+    slice StateView BrowseAuthors
+      screen Authors
+        data Author[] via query AllAuthors
+        section addAuthor
+          title "Add author"
+          on click
+            navigate to AddAuthor
