@@ -5,7 +5,7 @@ import { copyFile, mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-test('Go command pipeline returns the typed native response', async t => {
+test('the resolved Go module executes the command; this does not test its HTTP validation route', async t => {
     const cwd = await mkdtemp(join(tmpdir(), 'native-reply-'));
     t.after(() => rm(cwd, { recursive: true, force: true }));
     for (const name of ['command_test.go', 'go.mod']) await copyFile(new URL(name, import.meta.url), join(cwd, name));
