@@ -25,7 +25,7 @@ advisory preference is not a merge gate. Missing required evidence yields
 - Review each branch whole once. A complete, clean required review ends review.
   Open a follow-up only for a named blocker fix, a newly introduced in-scope
   risk, or a missing required slot. Cover only that correction, risk, or gap.
-  Advisories, wording changes, or a new SHA alone do not open a round.
+  Advisories, non-normative wording changes, or a new SHA alone do not open a round.
   A certified item is never re-reviewed whole.
 - For a release train, review glue only: recreate the merge of the certified
   item heads and review `git diff <that merge> <train head>` (merge resolutions,
