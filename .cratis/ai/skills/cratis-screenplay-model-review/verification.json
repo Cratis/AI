@@ -27,8 +27,8 @@
     { "kind": "skill-contains", "value": "no read model exposes a `secret` concept", "file": "references/mode-compliance.md" },
     {"kind":"skill-contains","value":"screenplay lineage"},
     { "kind": "skill-contains", "value": "references/agent-exposure.md" },
-    { "kind": "skill-contains", "value": "Manual agent-exposure review", "file": "references/baseline-comparison.md" },
-    { "kind": "skill-contains", "value": "Automatic exposure comparison is not shipped", "file": "references/baseline-comparison.md" },
+    { "kind": "skill-contains", "value": "difference.agentExposure", "file": "references/baseline-comparison.md" },
+    { "kind": "skill-contains", "value": "agent-exposure-diff/1", "file": "references/baseline-comparison.md" },
     { "kind": "skill-contains", "value": "unresolved", "file": "references/baseline-comparison.md" }
   ]
 }
