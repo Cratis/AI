@@ -818,7 +818,7 @@ jobs:
     timeout-minutes: 15
     name: Verify a release actually shipped
     if: always() && needs.release.outputs.publish == 'true'
-    needs: [release, publish-pi, publish-screenplay-session, publish-dotnet-packages, publish-npm-packages, publish-agent-harnesses, publish-decision-engine]
+    needs: [release, publish-pi, publish-pi-direct, publish-screenplay-session, publish-dotnet-packages, publish-npm-packages, publish-agent-harnesses, publish-decision-engine]
     runs-on: ubuntu-latest
     steps:
       # Cratis.AI (NuGet) and @cratis/ai (npm) are one artifact split across two registries (plan
@@ -840,6 +840,14 @@ jobs:
         if: needs.publish-agent-harnesses.result != 'success'
         run: |
           echo "Release ${{ needs.release.outputs.version }} did not publish the agent-harness images (cratis/ai-agents*) - a product still pointed at these tags would be left on a stale image." >&2
+          exit 1
+
+      - name: Fail if the Pi Direct package did not publish
+        if: needs.publish-pi-direct.result != 'success'
+        env:
+          VERSION: ${{ needs.release.outputs.version }}
+        run: |
+          echo "::error::Release ${VERSION} did not publish the Pi Direct package (@cratis/pi-direct) - Pi users installing this version's Direct extension would not find it on npm." >&2
           exit 1
 
       - name: Fail if the Screenplay session bundle did not publish
