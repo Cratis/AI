@@ -13,7 +13,7 @@ import { SuiteTranscript } from './suite-transcript.ts';
 import { inside, copyFixture } from './suite-files.ts';
 import type { SuiteResult, Suite } from './Suite.ts';
 import { concurrent, pendingTasks } from './storage.ts';
-import { writeLocked } from './suite-runner.ts';
+import { suiteMain, writeLocked } from './suite-runner.ts';
 import { protectedFilesUnchanged } from './suite-trial.ts';
 import { runProcess } from './suite-process.ts';
 
@@ -43,6 +43,25 @@ test('defaults count 216 calls, pilot counts 18, and dry-run does not require a 
     for (const args of [['--arms', 'v1,v1'], ['--harness', 'claude'], ['--runs', '0'], ['--unknown'], ['--thinking', 'high'], ['--task', 'missing']]) {
         assert.throws(() => schedule(suite, suiteOptions(args)));
     }
+});
+
+test('suite option validation retains model, pilot and integer diagnostics', () => {
+    assert.throws(() => suiteOptions(['--model', 'local']), /Use a provider\/model identity/);
+    assert.throws(() => suiteOptions(['--pilot', '--runs', '01']), /Pilot has exactly one repetition/);
+    assert.equal(suiteOptions(['--pilot', '--runs', '1']).runs, 1);
+    assert.throws(() => suiteOptions(['--pilot', '--runs', '']), /Expected integer 1\.\.20:/);
+    assert.throws(() => suiteOptions(['--concurrency', '9']), /Expected integer 1\.\.8: 9/);
+    assert.throws(() => suiteOptions(['--concurrency', '1.5']), /Expected integer 1\.\.8: 1\.5/);
+});
+
+test('dry run prints its plan without opening a sandbox or validating the run directory', async t => {
+    const log = t.mock.method(console, 'log', () => {});
+    const args = ['--arms', 'none', '--runs', '1', '--task', '01-concepts', '--run', '.ai-work/corpus-v2/runs'];
+    await suiteMain([...args, '--dry-run']);
+    assert.equal(log.mock.callCount(), 1);
+    const plan = JSON.parse(log.mock.calls[0].arguments[0]);
+    assert.deepEqual(plan.schedule, [{ key: '01-concepts:none:1', task: '01-concepts', arm: 'none', repetition: 1 }]);
+    await assert.rejects(suiteMain(args), /Run directory must be below \.ai-work\/corpus-v2\/runs/);
 });
 
 test('schema rejects unsafe paths, missing scorers, duplicate IDs and unbounded limits', () => {

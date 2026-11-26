@@ -12,16 +12,22 @@ function selectedArms(value: string): Arm[] {
     return arms;
 }
 
-function validateHarness(values: Record<string, unknown>): void {
-    if (values.harness !== 'pi') throw new Error('The suite requires Pi');
-    if (values.thinking !== 'medium') throw new Error('The suite requires medium thinking');
-    if (typeof values.model !== 'string' || !values.model.includes('/')) throw new Error('Use a provider/model identity');
-    if (values.pilot && values.runs && values.runs !== '1') throw new Error('Pilot has exactly one repetition');
+function validateHarness(harness: string, thinking: string, model: string): void {
+    if (harness !== 'pi') throw new Error('The suite requires Pi');
+    if (thinking !== 'medium') throw new Error('The suite requires medium thinking');
+    if (!model.includes('/')) throw new Error('Use a provider/model identity');
+}
+
+function validatePilot(pilot: boolean | undefined, runs: string | undefined): void {
+    const requestedRuns = runs || '1';
+    if (!pilot) return;
+    if (requestedRuns !== '1') throw new Error('Pilot has exactly one repetition');
 }
 
 function integer(value: string | undefined, fallback: number, maximum: number): number {
     const number = Number(value ?? fallback);
-    if (!Number.isSafeInteger(number) || number < 1 || number > maximum) throw new Error(`Expected integer 1..${maximum}: ${value}`);
+    const inRange = number >= 1 && number <= maximum;
+    if (!(Number.isSafeInteger(number) && inRange)) throw new Error(`Expected integer 1..${maximum}: ${value}`);
     return number;
 }
 
@@ -34,7 +40,8 @@ export function suiteOptions(args: string[]): SuiteOptions {
         'dry-run': { type: 'boolean' }, pilot: { type: 'boolean' }, task: { type: 'string' }, run: { type: 'string' },
         image: { type: 'string', default: 'cratis-corpus-v2:fixture' },
     } });
-    validateHarness(values);
+    validateHarness(values.harness!, values.thinking!, values.model!);
+    validatePilot(values.pilot, values.runs);
     return { suite: values.suite!, arms: selectedArms(values.arms!), runs: integer(values.runs, values.pilot ? 1 : 3, 20), concurrency: integer(values.concurrency, 2, 8),
         seed: integer(values.seed, 1349, 2147483647), model: values.model!, thinking: 'medium', dryRun: Boolean(values['dry-run']),
         pilot: Boolean(values.pilot), task: values.task, runDirectory: values.run, image: values.image! };

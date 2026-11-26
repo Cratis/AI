@@ -15,7 +15,7 @@ import { renderReport } from './suite-report.ts';
 import { docker, phase, startSandbox } from './suite-sandbox.ts';
 import { prepareFixture, runTrial } from './suite-trial.ts';
 import type { TrialContext } from './suite-trial.ts';
-import type { Arm, SuiteOptions, SuiteResult, Trial } from './Suite.ts';
+import type { Arm, SuiteOptions, SuiteResult, SuiteTask, Trial } from './Suite.ts';
 import type { StageMarker } from '../Verification/corpus-staging.ts';
 
 const root = resolve(import.meta.dirname, '../..');
@@ -31,9 +31,7 @@ export async function suiteMain(args: string[]): Promise<void> {
         billing: 'subscription; record tokens/time; USD unavailable', schedule: trials };
     console.log(JSON.stringify(plan, null, 2));
     if (options.dryRun) return;
-    const output = join(root, '.ai-work/corpus-v2/runs');
-    const run = options.runDirectory ? resolve(root, options.runDirectory) : join(output, `${new Date().toISOString().replaceAll(':', '-')}-${randomUUID()}`);
-    if (relative(output, run).startsWith('..') || run === output) throw new Error('Run directory must be below .ai-work/corpus-v2/runs');
+    const run = runPath(options.runDirectory);
     await mkdir(run, { recursive: true, mode: 0o700 });
     await withRunLock(run, async () => {
         const context: TrialContext = { root, suiteRoot: dirname(dirname(file)), run, image: await docker(['image', 'inspect', '--format', '{{.Id}}', options.image]),
@@ -45,15 +43,28 @@ export async function suiteMain(args: string[]): Promise<void> {
     console.log(`Run artifacts: ${run}`);
 }
 
-async function lockInputs(context: TrialContext, plan: object, options: SuiteOptions): Promise<void> {
+function runPath(requested: string | undefined): string {
+    const output = join(root, '.ai-work/corpus-v2/runs');
+    const run = requested ? resolve(root, requested) : join(output, `${new Date().toISOString().replaceAll(':', '-')}-${randomUUID()}`);
+    const suffix = relative(output, run);
+    if (suffix.startsWith('..') || run === output) throw new Error('Run directory must be below .ai-work/corpus-v2/runs');
+    return run;
+}
+
+async function stageArms(context: TrialContext, arms: Arm[]) {
     const stages = [];
-    for (const arm of options.arms) {
+    for (const arm of arms) {
         const path = join(context.run, 'stages', arm);
         const marker = await readOrStage(context.root, path, arm);
         context.stages.set(arm, { path, marker });
         stages.push({ arm, digest: marker.digest, skills: marker.skills });
     }
     await verifyStages(context);
+    return stages;
+}
+
+async function lockInputs(context: TrialContext, plan: object, options: SuiteOptions): Promise<void> {
+    const stages = await stageArms(context, options.arms);
     const execute = promisify(execFile);
     const pi = (await execute('pi', ['--version'])).stdout.trim();
     const commit = (await execute('git', ['rev-parse', 'HEAD'], { cwd: context.root })).stdout.trim();
@@ -88,21 +99,27 @@ async function preflight(context: TrialContext, trials: Trial[]): Promise<void> 
         const task = context.suite.tasks.find(task => task.id === id)!;
         const key = `${task.fixture}:${task.overlay ?? ''}`;
         if (checked.has(key)) continue;
-        const directory = join(context.run, 'preflight', `${id}-${Date.now()}`);
-        await mkdir(directory, { recursive: true });
-        const workspace = join(directory, 'workspace');
-        await prepareFixture(context, task, workspace);
-        const container = await startSandbox(context.image, workspace);
-        try {
-            const fixture = context.suite.fixtures[task.fixture];
-            const build = await phase(container, fixture.build, 'build', directory, 'preflight-build');
-            if (build !== 0) throw new Error(`${id}: fixture preflight build failed (${build}); no model calls started`);
-            const specs = await phase(container, fixture.specs, 'test', directory, 'preflight-specs');
-            if (specs !== 0) throw new Error(`${id}: fixture preflight specs failed (${specs}); no model calls started`);
+        await withPreflightSandbox(context, task, () => {
             appendLine(receipt, { key });
             checked.add(key);
-        } finally { await docker(['rm', '-f', container]); }
+        });
     }
+}
+
+async function withPreflightSandbox(context: TrialContext, task: SuiteTask, recordSuccess: () => void): Promise<void> {
+    const directory = join(context.run, 'preflight', `${task.id}-${Date.now()}`);
+    await mkdir(directory, { recursive: true });
+    const workspace = join(directory, 'workspace');
+    await prepareFixture(context, task, workspace);
+    const container = await startSandbox(context.image, workspace);
+    try {
+        const fixture = context.suite.fixtures[task.fixture];
+        const build = await phase(container, fixture.build, 'build', directory, 'preflight-build');
+        if (build !== 0) throw new Error(`${task.id}: fixture preflight build failed (${build}); no model calls started`);
+        const specs = await phase(container, fixture.specs, 'test', directory, 'preflight-specs');
+        if (specs !== 0) throw new Error(`${task.id}: fixture preflight specs failed (${specs}); no model calls started`);
+        recordSuccess();
+    } finally { await docker(['rm', '-f', container]); }
 }
 
 async function readOrStage(root: string, path: string, arm: Arm): Promise<StageMarker> {
@@ -112,11 +129,16 @@ async function readOrStage(root: string, path: string, arm: Arm): Promise<StageM
     }
 }
 
+function validateResultKeys(rows: SuiteResult[], trials: Trial[]): void {
+    if (new Set(rows.map(row => row.key)).size !== rows.length) throw new Error('Duplicate result keys; preserve and repair results before resuming');
+    const trialKeys = new Set(trials.map(trial => trial.key));
+    if (rows.some(row => !trialKeys.has(row.key))) throw new Error('Unknown result keys; preserve and repair results before resuming');
+}
+
 async function executeTrials(context: TrialContext, trials: Trial[]): Promise<void> {
     const path = join(context.run, 'results.jsonl');
     const rows = await readLines<SuiteResult>(path);
-    if (new Set(rows.map(row => row.key)).size !== rows.length) throw new Error('Duplicate result keys; preserve and repair results before resuming');
-    if (rows.some(row => !trials.some(trial => trial.key === row.key))) throw new Error('Unknown result keys; preserve and repair results before resuming');
+    validateResultKeys(rows, trials);
     try {
         await concurrent(pendingTasks(trials, rows), context.options.concurrency, async trial => {
             const row = await runTrial(context, trial);
