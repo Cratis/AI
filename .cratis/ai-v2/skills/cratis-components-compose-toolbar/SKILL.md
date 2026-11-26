@@ -1,42 +1,35 @@
 ---
 name: cratis-components-compose-toolbar
-compatibility: Requires React and Cratis Components.
-description: Use when contextual actions need toolbar groups, sections or fan-outs. Not for list data binding (cratis-components-display-list).
+description: Builds a toolbar whose visible buttons change with the screen mode. Use when a screen needs a tool palette or mode-specific tools. Not for row actions on a list (use cratis-components-display-list).
+compatibility: Requires react and @cratis/components.
 ---
 
-# Switch the active toolbar commands
+# Switch shelf drawing tools between drawing and reviewing
 
-Group mutually exclusive actions under named contexts in one ToolbarSection. Put commands available in every mode outside that section.
-
-Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
-
-1. Map each action to the mode in which it is valid. **Done:** Draw line belongs only to draw and Add note only to review.
-2. Bind activeContext to the host mode. **Done:** Switching mode removes Draw line from the accessible action set rather than just dimming it.
-3. Navigate into the changed toolbar and invoke the command from the keyboard. **Done:** Add note records Note and the inactive command is unreachable.
-
-## Example
-
-Mount this view inside the configured application host.
+1. In `Features/Board/DrawingTools.tsx`, accept the shelf board's current mode, the operation to draw a shelf and the operation to add a review note. Use the application's [Components provider](../cratis-arc-react-bind-slice/SKILL.md).
+2. Give each button visible `text` or an `icon`, a `title` for its accessible name and tooltip, and `onClick` for the action.
+3. Set `focusMode` to `SingleTabStop` to enter the toolbar once with Tab and move between its tools with arrow keys. The default `Arrows` mode leaves each tool a Tab stop.
 
 ```tsx
-import { useState } from 'react';
-import { Toolbar, ToolbarButton, ToolbarContext, ToolbarSection } from '@cratis/components/Toolbar';
+import { Toolbar, ToolbarButton, ToolbarContext, ToolbarFocusMode, ToolbarSection } from '@cratis/components/Toolbar';
 
-export function View() {
-    const [mode, change] = useState('draw');
-    const [last, record] = useState('');
-    return <><button onClick={() => change('review')}>Review mode</button><Toolbar>
+export function DrawingTools({ mode, draw, annotate }: {
+    mode: 'draw' | 'review'; draw: () => void; annotate: () => void;
+}) {
+    return <Toolbar aria-label="Shelf tools" focusMode={ToolbarFocusMode.SingleTabStop}>
         <ToolbarSection activeContext={mode}>
-            <ToolbarContext name="draw"><ToolbarButton text="Line" title="Draw line" onClick={() => record('Line')}/></ToolbarContext>
-            <ToolbarContext name="review"><ToolbarButton text="Note" title="Add note" onClick={() => record('Note')}/></ToolbarContext>
-        </ToolbarSection></Toolbar><output>{last}</output></>;
+            <ToolbarContext name="draw"><ToolbarButton text="Shelf" title="Draw shelf" onClick={draw} /></ToolbarContext>
+            <ToolbarContext name="review"><ToolbarButton text="Note" title="Add note" onClick={annotate} /></ToolbarContext>
+        </ToolbarSection>
+    </Toolbar>;
 }
 ```
 
-If the action renders but receives no focus, inspect the active toolbar context and the native button name; hiding just the icon leaves an unintended command.
+## Avoid
 
-Read references/palettes-and-folders.md when a mode has more actions than fit at once.
+- Don't use a mode that matches no context name. The section then displays no tools.
+- Don't rely on unmounting to clear a draft. An inactive context stays mounted, hidden and inert; explicitly reset the state if changing mode should discard it.
 
-## Verify
+## Related skills
 
-Run `npx tsc --noEmit` in the frontend, then switch modes and invoke the active command by keyboard. Only that mode's command runs; the previous action cannot receive focus.
+- [Place board items](../cratis-components-build-canvas/SKILL.md)

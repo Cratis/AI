@@ -1,56 +1,56 @@
 ---
 name: cratis-arc-react-bind-slice
-compatibility: Requires React and generated Arc proxies.
-description: Use when a React component needs a generated proxy hook to read query rows or execute a command. Not for generating its types (cratis-arc-generate-proxies).
+description: Mounts Arc and reads a generated query from React. Use when configuring the host, waiting for a query argument or rendering result states in custom markup. Not for a standard table (use cratis-components-display-list) or a command form (use cratis-components-submit-form).
+compatibility: Requires react, react-dom, reflect-metadata, @cratis/components and @cratis/arc.react.
 ---
 
-# Bind an authoring screen to its contracts
+# Mount Arc and read a query result
 
-Default to the generated hooks under Arc. The command owns the editable draft; the query owns the rows.
-
-Use the backend's generated command and query exports. If either is missing, regenerate the proxies rather than writing a substitute.
-
-1. Locate the command and read model modules. **Done:** The generated query returns the row type the screen renders and the command accepts the required identifier.
-2. Keep the identifier stable while the draft is mounted. Set values through the command tuple and await execute before reporting acceptance. **Done:** A rejected write keeps its input and does not append a row.
-3. Render the observed collection, keyed by the identifier rather than the label. **Done:** Rejection is visible, followed by an accepted command and its Aster row from the next query frame.
-
-## Example
-
-The imports below assume the generated directory is beside the view. Mount this view inside the configured application host.
+1. In `main.tsx`, load metadata before the application. Mount the two providers once. `App.tsx` is the [application shell](../cratis-components-coordinate-feedback/SKILL.md); it supplies the required row-opening callback to the [Authors page](../cratis-components-display-list/SKILL.md).
 
 ```tsx
-import { useState } from 'react';
-import { Guid } from '@cratis/fundamentals';
-import { AllAuthors } from './generated/Authors/Author';
-import { RegisterAuthor } from './generated/Authors/RegisterAuthor';
+import 'reflect-metadata';
+import { createRoot } from 'react-dom/client';
+import { Arc } from '@cratis/arc.react';
+import { CratisComponentsProvider } from '@cratis/components';
+import { App } from './App';
 
-export function View() {
-    const [authors] = AllAuthors.use();
-    const [id] = useState(() => Guid.create());
-    const [command, setValues] = RegisterAuthor.use({ id, name: '' });
-    const [status, report] = useState('');
-    const [busy, setBusy] = useState(false);
-    async function register() {
-        setBusy(true);
-        try {
-            const result = await command.execute();
-            report(result.isSuccess ? 'Registered' : !result.isAuthorized ? 'Not authorized' :
-                result.validationResults.map(error => error.message).join('; ') || 'Registration failed');
-        } catch { report('Registration unavailable'); }
-        finally { setBusy(false); }
-    }
-    return <><label>Name<input value={command.name} onChange={e => setValues({ name: e.target.value })}/></label>
-        <button disabled={busy} onClick={register}>Register</button><p role="status">{status}</p>
-        <ul>{authors.data.map(author => <li key={String(author.id)}>{author.name}</li>)}</ul></>;
-}
+createRoot(document.getElementById('root')!).render(
+    <CratisComponentsProvider><Arc><App /></Arc></CratisComponentsProvider>
+);
 ```
 
-If the command succeeds but the list stays unchanged, inspect query frames before changing the component. For a connected but silent endpoint, follow [Locate the first missing emission](../cratis-arc-diagnose-live-query/SKILL.md); do not push the draft into the list.
+2. For custom markup **instead of** `DataPage`, import `AllAuthors` from `../../../generated/Features/Authors/Listing/Author` in the consuming component under `Features/Authors/Listing`. Use this fragment inside that function component. Do not add another `Authors` component or call the hook alongside a `DataPage` that already uses the query.
 
-Read references/provider.md when the view runs in a separate frontend host.
+```tsx
+const [authors] = AllAuthors.use();
+if (!authors.isReady) return <p>Loading authors…</p>;
+if (!authors.isAuthorized) return <p>Not authorized.</p>;
+if (!authors.isValid) return <p>Invalid query.</p>;
+if (!authors.isSuccess) return <p>Could not load authors.</p>;
+if (!authors.data.length) return <p>No authors yet.</p>;
+return <ul>{authors.data.map(a => <li key={String(a.id)}>{a.name}</li>)}</ul>;
+```
 
-Read references/query-lifecycle.md when the first render has no rows.
+3. For a name search in the same folder, import `AuthorsNamed` from the same generated file. That [paged query](../cratis-arc-page-query/SKILL.md) takes `{ name: string }`, unlike the argument-free live query. With the current input in `name: string`, call the hook on every render. Set the condition false when the input is blank, and show a prompt instead of reading the default result:
 
-## Verify
+```tsx
+const [matches] = AuthorsNamed.when(name.trim().length > 0).use({ name: name.trim() });
+if (!name.trim()) return <p>Enter an author name.</p>;
+```
 
-Run `npx tsc --noEmit` in the frontend, then submit rejected and valid inputs in the mounted screen. The rejection preserves the draft; the successful row appears once, from the next query frame.
+## Configure the host
+
+- Set `apiBasePath` on `Arc` to the API prefix. Set `microservice` to the target service name if the host serves several microservices.
+- Import `useIdentity` from `@cratis/arc.react/identity`. Call `const identity = useIdentity()` in the component. Show a loading indicator while `identity.isLoading`, then check `identity.isSet` to distinguish signed-in from signed-out.
+- Read `const arc = useContext(ArcContext)` during render (`useContext` from `react`, `ArcContext` from `@cratis/arc.react`). After an account switch, call `arc.reconnectQueries?.()` to reconnect live queries for the new caller.
+
+## Avoid
+
+- Don't edit generated files; [generate the proxies](../cratis-arc-generate-proxies/SKILL.md) from the backend.
+- Don't show an empty list while loading, denied access or waiting for a name.
+
+## Related skills
+
+- [Generate the TypeScript proxies](../cratis-arc-generate-proxies/SKILL.md)
+- [Render the Library authors page](../cratis-components-display-list/SKILL.md)

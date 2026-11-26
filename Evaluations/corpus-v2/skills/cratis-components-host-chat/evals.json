@@ -1,38 +1,4 @@
-{
-  "skill_name": "cratis-components-host-chat",
-  "evals": [
-    {
-      "id": 1,
-      "name": "implement",
-      "prompt": "Mount a conversation for each selected topic. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Use the public ChatConversation component for a single conversation. The host owns topic selection, ordered messages and command outcomes; a send callback is intent, not proof of delivery.",
-      "assertions": [
-        "Keep one stable topic id per message and render only the selected topic. Done: switching to Notes replaces the Books transcript.",
-        "Capture the topic before awaiting the write. Append a confirmed response only to its original topic, or leave an observed query as the sole message source. Done: late responses cannot migrate to the currently open conversation.",
-        "Use the public ChatConversation component for a single conversation. The host owns topic selection, ordered messages and command outcomes; a send callback is intent, not proof of delivery."
-      ]
-    },
-    {
-      "id": 2,
-      "name": "diagnose",
-      "prompt": "A rejected chat message shows up as delivered. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "If a rejected message looks delivered, check whether the composer updated host history before persistence completed. Keep transient errors indexed by topic, not in a shared last-error string.",
-      "assertions": [
-        "If a rejected message looks delivered, check whether the composer updated host history before persistence completed. Keep transient errors indexed by topic, not in a shared last-error string.",
-        "Capture the topic before awaiting the write. Append a confirmed response only to its original topic, or leave an observed query as the sole message source. Done: late responses cannot migrate to the currently open conversation.",
-        "Reject a send in the second conversation and return to the first. Done: Notes shows Message not sent; Books still shows the accepted message and no Notes error."
-      ]
-    },
-    {
-      "id": 3,
-      "name": "verify",
-      "prompt": "Verify a failed send is visible only in its own conversation. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Reject a send in the second conversation and return to the first. Done: Notes shows Message not sent; Books still shows the accepted message and no Notes error.",
-      "assertions": [
-        "Keep one stable topic id per message and render only the selected topic. Done: switching to Notes replaces the Books transcript.",
-        "Reject a send in the second conversation and return to the first. Done: Notes shows Message not sent; Books still shows the accepted message and no Notes error.",
-        "Capture the topic before awaiting the write. Append a confirmed response only to its original topic, or leave an observed query as the sole message source. Done: late responses cannot migrate to the currently open conversation."
-      ]
-    }
-  ]
-}
+{"skill_name":"cratis-components-host-chat","evals":[
+{"id":1,"name":"live-queries","prompt":"The conversation slice has generated Topics and Messages queries. Messages requires topicId. Bind them to the sidebar.","expected_output":"Import Topics and Messages from generated/Features/Conversations.","assertions":["Passes Topics and Messages to topicsQuery and messagesQuery.","Returns undefined from messagesArguments for no selected topic.","Builds the topicId argument from the selected ID."]},
+{"id":2,"name":"hide-chat","prompt":"Hide the chat panel without stopping topic updates or requesting all conversations.","expected_output":"Visibility changes without unmounting the query adapter.","assertions":["Renders the sidebar while open is false.","Connects open and onClose to the host.","Loads messages only for the displayed topic."]},
+{"id":3,"name":"send-message","prompt":"Connect the send callback so a request still belongs to its original conversation after switching topics.","expected_output":"Deliver the body and mentions with the callback's topic ID.","assertions":["Supplies onSendMessage with topicId, body and mentions.","Uses that ID rather than reading a later selection.","Handles the failed send in the host and identifies the originating topic."]}]}

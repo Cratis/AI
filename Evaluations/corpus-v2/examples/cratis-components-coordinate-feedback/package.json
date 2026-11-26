@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "pretest": "node prepare.mjs",
     "test:example": "tsc --noEmit && node --test example.test.mjs"
   },
   "dependencies": {

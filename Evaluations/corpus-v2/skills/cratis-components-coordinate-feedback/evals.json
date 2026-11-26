@@ -1,38 +1,4 @@
-{
-  "skill_name": "cratis-components-coordinate-feedback",
-  "evals": [
-    {
-      "id": 1,
-      "name": "implement",
-      "prompt": "Ask for confirmation before archiving a record. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Register the confirmation renderer at the dialog host. Treat its result as a decision; only the requesting caller owns the effect and its outcome.",
-      "assertions": [
-        "Choose the exact affirmative result. Done: Yes is the only result that starts the archive request; dismissal has the same effect as No.",
-        "Await the effect and keep busy scoped to that operation. Done: a rejected response produces failure feedback and releases the trigger in finally.",
-        "Register the confirmation renderer at the dialog host. Treat its result as a decision; only the requesting caller owns the effect and its outcome."
-      ]
-    },
-    {
-      "id": 2,
-      "name": "diagnose",
-      "prompt": "Cancelling a confirmation still archives the item. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "An unresolved confirmation usually means the trigger is outside the registered dialog host. Do not attach another mutation to a rendered Yes button.",
-      "assertions": [
-        "An unresolved confirmation usually means the trigger is outside the registered dialog host. Do not attach another mutation to a rendered Yes button.",
-        "Await the effect and keep busy scoped to that operation. Done: a rejected response produces failure feedback and releases the trigger in finally.",
-        "Count requests across cancel, failed confirmation and successful confirmation. Done: cancel sends none, each Yes sends one, and feedback distinguishes failure from success."
-      ]
-    },
-    {
-      "id": 3,
-      "name": "verify",
-      "prompt": "Verify the negative response makes no request. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Count requests across cancel, failed confirmation and successful confirmation. Done: cancel sends none, each Yes sends one, and feedback distinguishes failure from success.",
-      "assertions": [
-        "Choose the exact affirmative result. Done: Yes is the only result that starts the archive request; dismissal has the same effect as No.",
-        "Count requests across cancel, failed confirmation and successful confirmation. Done: cancel sends none, each Yes sends one, and feedback distinguishes failure from success.",
-        "Await the effect and keep busy scoped to that operation. Done: a rejected response produces failure feedback and releases the trigger in finally."
-      ]
-    }
-  ]
-}
+{"skill_name":"cratis-components-coordinate-feedback","evals":[
+{"id":1,"name":"register-dialogs","prompt":"Register the confirmation and busy dialogs for all author screens.","expected_output":"A single App.tsx registration inside Arc.","assertions":["Imports DialogComponents from @cratis/arc.react/dialogs.","Supplies ConfirmationDialog and BusyIndicatorDialog from @cratis/components/Dialogs.","Imports the listing slice's Authors and supplies its required onOpen(author) callback."]},
+{"id":2,"name":"remove-author","prompt":"Confirm before removing an author. Dismissing or choosing No must do nothing.","expected_output":"Await a yes/no confirmation before calling remove.","assertions":["Calls useConfirmationDialog in the descendant component.","Uses DialogButtons.YesNo and checks DialogResult.Yes.","Invokes the supplied removal operation only for Yes."]},
+{"id":3,"name":"recover-failure","prompt":"Prevent a repeated removal request and let readers retry after the server rejects it.","expected_output":"Disable the button across confirmation and removal; show failure and release pending state.","assertions":["Disables the action before opening the dialog.","Awaits the removal and reports rejection as failure.","Releases pending state in all paths including No and rejection."]}]}

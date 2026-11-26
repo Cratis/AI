@@ -1,52 +1,42 @@
 ---
 name: cratis-components-host-chat
-compatibility: Requires React and Cratis Components.
-description: Use when a host must supply conversations, messages and outcomes to a Chat view. Not for generic notifications (cratis-components-coordinate-feedback).
+description: Adds a chat sidebar fed by an observable topics query and a per-topic messages query. Use when a screen needs topic-based chat. Not for confirmation or busy dialogs (use cratis-components-coordinate-feedback).
+compatibility: Requires react, @cratis/components and @cratis/arc.react.
 ---
 
-# Host a conversation without mixing topics
+# Show messages for the selected topic
 
-Use the public ChatConversation component for a single conversation. The host owns topic selection, ordered messages and command outcomes; a send callback is intent, not proof of delivery.
-
-Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
-
-1. Keep one stable topic id per message and render only the selected topic. **Done:** Switching to Notes replaces the Books transcript.
-2. Capture the topic before awaiting the write. Append a confirmed response only to its original topic, or leave an observed query as the sole message source. **Done:** Late responses cannot migrate to the currently open conversation.
-3. Reject a send in the second conversation and return to the first. **Done:** Notes shows Message not sent; Books still shows the accepted message and no Notes error.
-
-## Example
-
-Mount this view inside the configured application host.
+1. Place `TopicChat.tsx` in `Features/Conversations` inside the application's [Arc provider](../cratis-arc-react-bind-slice/SKILL.md). This slice has [generated proxies](../cratis-arc-generate-proxies/SKILL.md) `Topics` and `Messages` under `generated/Features/Conversations`. Don't copy them into the UI folder. `Messages` takes `{ topicId: string }`.
+2. Return topic rows with an `id` and optionally `name`. Message rows need `id`, `topicId`, `authorId`, `body: string` and `timestamp: Date`. Use string IDs or IDs that implement `toString()`. Here `authorId` identifies the message sender, not a catalog author.
+3. Render the sidebar even when it is closed. Toggle `open` instead of mounting it conditionally, so the topic list continues to receive updates. Return `undefined` from `messagesArguments` until a topic is open.
+4. Supply the application's send operation. The example passes through the message body and mentions with the topic ID received by `onSendMessage`. The caller must handle errors from sending against that topic.
 
 ```tsx
-import { useState } from 'react';
-import { ChatConversation, type ChatMessage } from '@cratis/components/Chat';
-const message = (topicId: string, body: string): ChatMessage => ({ id: crypto.randomUUID(), topicId,
-    body, authorId: 'editor', timestamp: new Date() });
-export function View() {
-    const [topic, choose] = useState('Books');
-    const [messages, replace] = useState(() => [message('Books', 'First proof'), message('Notes', 'Margin notes')]);
-    const [errors, report] = useState<Record<string, string>>({});
-    async function send(body: string) {
-        const target = topic;
-        try {
-            const response = await fetch('/messages', { method: 'POST', body: JSON.stringify({ topicId: target, body }) });
-            if (!response.ok) throw Error();
-            const accepted = message(target, body);
-            replace(previous => [...previous, accepted]); report(previous => ({ ...previous, [target]: '' }));
-        } catch { report(previous => ({ ...previous, [target]: 'Message not sent' })); }
-    }
-    return <><label>Topic<select value={topic} onChange={e => choose(e.target.value)}>
-        <option>Books</option><option>Notes</option></select></label>
-        <ChatConversation key={topic} messages={messages.filter(m => m.topicId === topic)} onSendMessage={send}/>
-        <output>{errors[topic]}</output></>;
+import { ChatSidebarForObservableQueries, type ChatMention } from '@cratis/components/Chat';
+import { Topics } from '../../generated/Features/Conversations/Topics';
+import { Messages } from '../../generated/Features/Conversations/Messages';
+
+type ChatProps = {
+    open: boolean; onClose: () => void;
+    send: (topicId: string, body: string, mentions: ChatMention[]) => void;
+};
+export function TopicChat({ open, onClose, send }: ChatProps) {
+    return <ChatSidebarForObservableQueries open={open} onClose={onClose}
+        topicsQuery={Topics} messagesQuery={Messages}
+        messagesArguments={id => id === undefined ? undefined : { topicId: String(id) }}
+        onSendMessage={(id, body, mentions) => send(String(id), body, mentions)} />;
 }
 ```
 
-If a rejected message looks delivered, check whether the composer updated host history before persistence completed. Keep transient errors indexed by topic, not in a shared last-error string.
+## Enable optional topic actions
 
-Read references/observed-topics.md when the host already has observable topic and message queries.
+Set `authorOf` to a function taking the author ID and returning the author's `name` and `kind` (`ChatAuthor` from `@cratis/components/Chat`). Set `onStartTopic` to the operation that creates a topic and returns its ID. Set `onRequestTopicName` to the operation that names an unnamed topic using its first message body.
 
-## Verify
+## Avoid
 
-Run `npx tsc --noEmit` in the frontend, then switch topics while a send is pending and reject it. Only the originating topic shows the error; the other transcript remains unchanged.
+- Don't return `{}` for missing message arguments; return `undefined` to skip the subscription.
+- Don't send to whichever topic happens to be selected when a request completes. Carry the ID from `onSendMessage` through the operation and its error handling.
+
+## Related skills
+
+- [Bind generated live queries](../cratis-arc-react-bind-slice/SKILL.md)

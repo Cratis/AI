@@ -1,43 +1,53 @@
 ---
 name: cratis-arc-react-separate-view-model
-compatibility: Requires React and Arc MVVM.
-description: Use when introducing Arc MVVM or withViewModel to move complex React interactions into a testable view model. Not for a simple proxy binding (cratis-arc-react-bind-slice).
+description: Moves search and filtering out of a React view into an injectable view model. Use when those operations make a component hard to read. Not for an ordinary slice view (use cratis-arc-react-bind-slice by default).
+compatibility: Requires @cratis/arc.react.mvvm, tsyringe, react-router-dom and reflect-metadata in an Arc React app.
 ---
 
-# Separate view behavior from rendering
+# Filter authors with a bound view model
 
-Use withViewModel when interaction state has dependencies or lifecycle of its own. For one command input and query tuple keep the binding in the component.
+1. Set `compilerOptions.experimentalDecorators` to `true` in `tsconfig.json`. In [main.tsx](../cratis-arc-react-bind-slice/SKILL.md), import `reflect-metadata` first, `MVVM` from `@cratis/arc.react.mvvm`, `BrowserRouter` from `react-router-dom` and `AuthorSearch` from `./Features/Authors/Listing/AuthorSearch`. In the existing `createRoot(...).render(...)` call, render `<CratisComponentsProvider><Arc><MVVM><BrowserRouter><AuthorSearch /></BrowserRouter></MVVM></Arc></CratisComponentsProvider>`. The bound view reads the router, so mount it inside `BrowserRouter`.
+2. Put the search term and filter in `Features/Authors/Listing/AuthorSearchViewModel.ts`. `Author` and `AllAuthors` come from the slice's [generated proxy](../cratis-arc-generate-proxies/SKILL.md).
 
-Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
+```ts
+import { injectable } from 'tsyringe';
+import type { Author } from '../../../generated/Features/Authors/Listing/Author';
 
-1. Extract the decision and its dependency, not the query result array. **Done:** Replacing the dependency changes what the same intent returns.
-2. Bind the model class and read its observable inside the wrapped render. **Done:** The view sends intent without instantiating a model or copying its fields into useState.
-3. Register the substitute dependency in the test resolver before mount. **Done:** Preview changes No preview to Proof copy using the substitute, without a refresh button or copied query rows.
+@injectable()
+export class AuthorSearchViewModel {
+    search = '';
+    setSearch(value: string) { this.search = value; }
+    filter(authors: Author[]) {
+        return authors.filter(author => author.name.toLowerCase().includes(this.search.toLowerCase()));
+    }
+}
+```
 
-## Example
-
-Mount this view inside the configured application host.
+3. In `Features/Authors/Listing/AuthorSearch.tsx`, call the generated query hook on each render and pass its current rows to the model. `withViewModel` creates and disposes the model.
 
 ```tsx
 import { withViewModel } from '@cratis/arc.react.mvvm';
-import { inject, injectable } from 'tsyringe';
+import { AllAuthors } from '../../../generated/Features/Authors/Listing/Author';
+import { AuthorSearchViewModel } from './AuthorSearchViewModel';
 
-export class CaptionSource { next() { return 'Draft'; } }
-@injectable()
-class Preview {
-    caption = 'No preview';
-    constructor(@inject(CaptionSource) private source: CaptionSource) {}
-    preview() { this.caption = this.source.next(); }
-}
-export const View = withViewModel(Preview, ({ viewModel }) => <>
-    <button onClick={() => viewModel.preview()}>Preview</button><output>{viewModel.caption}</output>
-</>);
+export const AuthorSearch = withViewModel(AuthorSearchViewModel, ({ viewModel }) => {
+    const [authors] = AllAuthors.use();
+    if (!authors.isReady) return <p>Loading authors…</p>;
+    if (!authors.isSuccess) return <p>Could not load authors.</p>;
+    return <section>
+        <label>Search authors<input value={viewModel.search}
+            onChange={event => viewModel.setSearch(event.target.value)} /></label>
+        <ul>{viewModel.filter(authors.data).map(a => <li key={String(a.id)}>{a.name}</li>)}</ul>
+    </section>;
+});
 ```
 
-If an interaction changes the model but not the view, move the observable read back inside the tracked render. If values leak across views, check whether the model was registered as a singleton. Let the wrapper own model lifetime; release model-owned listeners in detached().
+## Avoid
 
-Read references/browser-dependencies.md when the dependency is browser-specific.
+- Don't construct a second model in `useState` or `new` one in the view.
+- Don't call a query hook in the model. The bound view supplies fresh rows on every update.
+- Don't read observable state in an unobserved child. Pass plain values to it or wrap it with `observer` from `@cratis/arc.react.mvvm`.
 
-## Verify
+## Related skills
 
-Run `npx tsc --noEmit` in the frontend, then mount the view with a substitute dependency and invoke the preview action. Its returned value appears without a refresh or a copied query array.
+- [Render a generated live query](../cratis-arc-react-bind-slice/SKILL.md)

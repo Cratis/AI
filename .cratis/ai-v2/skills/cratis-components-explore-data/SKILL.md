@@ -1,40 +1,49 @@
 ---
 name: cratis-components-explore-data
-compatibility: Requires React and Cratis Components.
-description: Use when building a PivotViewer or TimeMachine for pivot dimensions or historical navigation. Not for ordinary query rows (cratis-components-display-list).
+description: Groups records into PivotViewer cards or shows dated versions of one record with TimeMachine. Use when readers explore a collection by category or browse its history. Not for a plain table (use cratis-components-display-list).
+compatibility: Requires react, @cratis/components and pixi.js for PivotViewer.
 ---
 
-# Explore a collection by dimension
+# Group library books by genre
 
-Use PivotViewer to compare members of a collection at a chosen dimension. The dimension extracts a stable grouping value; card values carry the measures, not the group identity.
-
-Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
-
-1. Define a known coordinate before rendering. **Done:** The three editions include two in East and one in West, each with its own copies measure.
-2. Give each card a stable key; use the same getter for a filter and dimension sharing a key. **Done:** Filtering by region compares region values, not formatted count labels.
-3. Select East from the facet and inspect the viewer result. **Done:** The displayed count changes from three editions to two at East.
-
-## Example
-
-Mount this view inside the configured application host.
+1. Put `BookExplorer.tsx` in `Features/Books` under the [application providers](../cratis-arc-react-bind-slice/SKILL.md). Pass it books from the catalog screen.
+2. Use a unique dimension `key` to identify the grouping choice. `getValue` returns the grouping value for each book. The dimension key does not have to be a book property.
+3. Keep the book ID independent of its genre. Two books in one group still have distinct cards.
 
 ```tsx
 import { PivotViewer } from '@cratis/components/PivotViewer';
-const editions = [{ id: 'a', region: 'East', copies: 12 }, { id: 'b', region: 'West', copies: 5 },
-    { id: 'c', region: 'East', copies: 8 }];
-export function View() {
-    return <div style={{ height: 520 }}><PivotViewer data={editions} getItemId={item => item.id}
-        dimensions={[{ key: 'region', label: 'Region', getValue: item => item.region }]}
-        filters={[{ key: 'region', label: 'Region', getValue: item => item.region }]}
-        cardRenderer={item => ({ title: item.id, labels: ['Copies'], values: [String(item.copies)] })}
-        labels={{ itemCount: count => count + ' editions' }}/></div>;
+
+type Book = { id: string; title: string; genre: string };
+export function BookExplorer({ books }: { books: Book[] }) {
+    return <div style={{ height: 520 }}>
+        <PivotViewer data={books} getItemId={book => book.id}
+            dimensions={[{ key: 'byGenre', label: 'Genre', getValue: book => book.genre }]}
+            cardRenderer={book => ({ title: book.title })} />
+    </div>;
 }
 ```
 
-If the count does not narrow, check whether the facet is categorical but the getter returns numbers. Use a numeric range for numbers; formatValue changes the label, not the key.
+## Show the versions of a book
 
-Read references/time-positions.md when the selected coordinate is a position in history.
+In `Features/Books/BookHistory.tsx`, accept snapshots oldest first. Build a version with a unique ID, `Date` timestamp, label and rendered content. Seed the initial index once; receive subsequent selections through `onVersionChange`.
 
-## Verify
+```tsx
+import { TimeMachine } from '@cratis/components/TimeMachine';
 
-Run `npx tsc --noEmit` in the frontend, then select a region with a known subset of records. The displayed count matches that subset, not the overall count or the sum of its measures.
+type Snapshot = { id: string; timestamp: Date; title: string };
+export function BookHistory({ snapshots, select }: { snapshots: Snapshot[]; select: (index: number) => void }) {
+    if (!snapshots.length) return <p>No book history.</p>;
+    const versions = snapshots.map(s => ({ id: s.id, timestamp: s.timestamp, label: s.title, content: <p>{s.title}</p> }));
+    return <TimeMachine versions={versions} currentVersionIndex={versions.length - 1} onVersionChange={select} />;
+}
+```
+
+## Avoid
+
+- Don't use the genre as the card ID. It identifies a group, not a book.
+- Don't return raw dates when readers need monthly groups; return a year-month string from `getValue`.
+- Don't use `currentVersionIndex` as a controlled selection after initialization.
+
+## Related skills
+
+- [List authors in a table](../cratis-components-display-list/SKILL.md)

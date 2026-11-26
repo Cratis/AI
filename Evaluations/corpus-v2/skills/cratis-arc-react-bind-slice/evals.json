@@ -1,38 +1,4 @@
-{
-  "skill_name": "cratis-arc-react-bind-slice",
-  "evals": [
-    {
-      "id": 1,
-      "name": "implement",
-      "prompt": "Wire a generated command and live query to the author screen. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Default to the generated hooks under Arc. The command owns the editable draft; the query owns the rows.",
-      "assertions": [
-        "Locate the command and read model modules. Done: the generated query returns the row type the screen renders and the command accepts the required identifier.",
-        "Keep the identifier stable while the draft is mounted. Set values through the command tuple and await execute before reporting acceptance. Done: a rejected write keeps its input and does not append a row.",
-        "Default to the generated hooks under Arc. The command owns the editable draft; the query owns the rows."
-      ]
-    },
-    {
-      "id": 2,
-      "name": "diagnose",
-      "prompt": "The component shows Saved even when the generated command rejects. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "If the command succeeds but the list stays unchanged, inspect query frames before changing the component. Give a connected but silent endpoint to `cratis-arc-diagnose-live-query`; do not push the draft into the list.",
-      "assertions": [
-        "If the command succeeds but the list stays unchanged, inspect query frames before changing the component. Give a connected but silent endpoint to `cratis-arc-diagnose-live-query`; do not push the draft into the list.",
-        "Keep the identifier stable while the draft is mounted. Set values through the command tuple and await execute before reporting acceptance. Done: a rejected write keeps its input and does not append a row.",
-        "Render the observed collection, keyed by the identifier rather than the label. Done: rejection is visible, followed by an accepted command and its Aster row from the next query frame."
-      ]
-    },
-    {
-      "id": 3,
-      "name": "verify",
-      "prompt": "Show a newly observed row after registration without inserting it by hand. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Render the observed collection, keyed by the identifier rather than the label. Done: rejection is visible, followed by an accepted command and its Aster row from the next query frame.",
-      "assertions": [
-        "Locate the command and read model modules. Done: the generated query returns the row type the screen renders and the command accepts the required identifier.",
-        "Render the observed collection, keyed by the identifier rather than the label. Done: rejection is visible, followed by an accepted command and its Aster row from the next query frame.",
-        "Keep the identifier stable while the draft is mounted. Set values through the command tuple and await execute before reporting acceptance. Done: a rejected write keeps its input and does not append a row."
-      ]
-    }
-  ]
-}
+{"skill_name":"cratis-arc-react-bind-slice","evals":[
+{"id":1,"name":"live-result","prompt":"Show a custom live AllAuthors result in the listing slice without duplicating the existing DataPage screen.","expected_output":"A consumer fragment checks every result state before reading rows.","assertions":["Imports AllAuthors from the generated Features/Authors/Listing/Author module.","Separates loading, denied, invalid, failed and empty results.","Does not declare a second Authors screen or subscribe alongside its DataPage."]},
+{"id":2,"name":"name-search","prompt":"Run the AuthorsNamed query only when the reader has supplied a name.","expected_output":"An unconditional hook call gates the query on a nonblank name.","assertions":["Imports AuthorsNamed from the same generated listing module as AllAuthors.","Calls .when(condition).use({name}) every render, using the supplied name.","Shows a missing-name prompt instead of interpreting default rows as a successful empty result."]},
+{"id":3,"name":"mount-app","prompt":"Mount the existing Library App shell beneath Arc and Components.","expected_output":"One main.tsx mounts the providers in order.","assertions":["Imports reflect-metadata first.","Imports Arc from @cratis/arc.react and CratisComponentsProvider from @cratis/components.","Renders App inside Arc inside CratisComponentsProvider, not Authors without its callback."]}]}

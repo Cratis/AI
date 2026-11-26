@@ -10,9 +10,7 @@ test("Choose a control by its committed value", {timeout:120000}, async t=>{
  const page=await browser.newPage();
  await page.route('**/.cratis/me',route=>route.fulfill({status:401,body:''}));
  await page.goto(host.resolvedUrls.local[0]);
- const button=(name)=>page.getByRole('button',{name,exact:true});
- await page.keyboard.press('Tab'); await expect(page.getByRole('radio',{name:'Everyone'})).toBeFocused();
- await page.keyboard.press('ArrowRight'); await expect(page.getByRole('radio',{name:'Mine'})).toBeFocused(); await expect(page.locator('output')).toHaveText('all');
- await page.keyboard.press('Space'); await expect(page.getByRole('radio',{name:'Mine'})).toBeChecked(); await expect(page.locator('output')).toHaveText('all');
- await page.keyboard.press('Tab'); await expect(button('Apply')).toBeFocused(); await page.keyboard.press('Enter'); await expect(page.locator('output')).toHaveText('mine');
+ const amount = page.getByLabel('Price', { exact: true });
+ await amount.fill('12'); await amount.press('Tab'); await expect(amount).toHaveValue('12');
+ await amount.fill(''); await amount.press('Tab'); await expect(amount).toHaveValue('');
 });

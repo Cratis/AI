@@ -11,7 +11,9 @@ test("Edit values against a schema", {timeout:120000}, async t=>{
  await page.route('**/.cratis/me',route=>route.fulfill({status:401,body:''}));
  await page.goto(host.resolvedUrls.local[0]);
  const button=(name)=>page.getByRole('button',{name,exact:true});
- const field=page.getByRole('textbox',{name:'name'}),save=button('Save'); await page.getByText('Contract',{exact:true}).click(); const contract=await page.locator('pre').textContent();
- await field.fill('Aster'); await expect(page.locator('output')).toHaveText('{"name":"Aster"}'); await expect(save).toBeEnabled();
+ const field=page.getByRole('textbox',{name:'name'}),save=button('Save').first(); await page.getByText('Contract',{exact:true}).click(); const contract=await page.locator('pre').textContent();
+ await field.fill('Aster'); await save.click(); await expect(page.locator('output')).toHaveText('{"name":"Aster"}'); await expect(save).toBeEnabled();
  await field.fill(''); await expect(field).toHaveAttribute('aria-invalid','true'); await expect(save).toBeDisabled(); assert.equal(await page.locator('pre').textContent(),contract);
+ await page.getByText('Edit schema draft').click();
+ await expect(page.locator('[data-cratis-component="SchemaEditor"]')).toBeVisible();
 });

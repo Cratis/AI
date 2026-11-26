@@ -1,40 +1,45 @@
 ---
 name: cratis-components-edit-schema-data
-compatibility: Requires React and Cratis Components.
-description: Use when choosing SchemaEditor to edit a schema or ObjectContentEditor to edit data against it. Not for a fixed command form (cratis-components-submit-form).
+description: Edits a JSON schema with SchemaEditor or one document's values with ObjectContentEditor. Use when the fields are not known at build time. Not for known command fields (use cratis-components-submit-form).
+compatibility: Requires react and @cratis/components.
 ---
 
-# Edit values against a schema
+# Edit a schema or a document
 
-Use ObjectContentEditor when the outgoing document is data. Keep its schema as a separate input and let validity decide whether the host permits a save.
-
-Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
-
-1. Identify the document being persisted and retain a separate schema. **Done:** The initial object has a string name and the schema declares that member required.
-2. Feed onChange back as the object and onValidationChange to the save gate. **Done:** A valid edit appears in the emitted data without replacing the schema.
-3. Clear the required field, observe its invalid state and inspect the schema again. **Done:** Aster was emitted as data, the empty name blocks Save, and the original schema remains unchanged.
-
-## Example
-
-Mount this view inside the configured application host.
+1. Use `SchemaEditor` to change which properties exist. Put `SchemaDraft.tsx` in `Features/Schemas`, under the [application providers](../cratis-arc-react-bind-slice/SKILL.md). Pass the existing schema and the application's save operation.
 
 ```tsx
-import { useState, type ComponentProps } from 'react';
-import { ObjectContentEditor } from '@cratis/components/ObjectContentEditor';
-const schema = { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] };
-export function View() {
-    const [data, edit] = useState<ComponentProps<typeof ObjectContentEditor>['object']>({ name: 'Draft' });
-    const [invalid, flag] = useState(false);
-    return <><ObjectContentEditor schema={schema} object={data} editMode onChange={edit} onValidationChange={flag}/>
-        <button disabled={invalid}>Save</button><output>{JSON.stringify(data)}</output>
-        <details><summary>Contract</summary><pre>{JSON.stringify(schema)}</pre></details></>;
+import { useState } from 'react';
+import { SchemaEditor, type JsonSchema } from '@cratis/components/SchemaEditor';
+
+export function SchemaDraft({ initial, save }: { initial: JsonSchema; save: (schema: JsonSchema) => void }) {
+    const [schema, setSchema] = useState(initial);
+    return <SchemaEditor schema={schema} onChange={setSchema} onSave={() => save(schema)} />;
 }
 ```
 
-If edits disappear, inspect the object supplied on the next render; feeding the initial object back discards the emission. If a schema property is being renamed, switch editors instead of mutating schema inside a value callback.
+2. The default table editor's Cancel returns to the `schema` prop as it is now. Once the host feeds a change back, Cancel no longer restores the originally loaded schema. Keep that original separately if the screen needs a full reset.
+3. To edit one author's values instead, put `AuthorDocument.tsx` in `Features/Authors`. Keep the schema fixed and set `editMode` on `ObjectContentEditor`. Its validation callback receives `true` when there are errors.
 
-Read references/schema-authoring.md when the schema itself is the deliverable.
+```tsx
+import { useState } from 'react';
+import type { Json, JsonSchema } from '@cratis/components/SchemaEditor';
+import { ObjectContentEditor } from '@cratis/components/ObjectContentEditor';
 
-## Verify
+export function AuthorDocument({ initial, schema, save }: { initial: Json; schema: JsonSchema; save: (doc: Json) => void }) {
+    const [author, setAuthor] = useState(initial);
+    const [hasErrors, setHasErrors] = useState(false);
+    return <><ObjectContentEditor object={author} schema={schema} editMode
+        onChange={setAuthor} onValidationChange={setHasErrors} />
+        <button disabled={hasErrors} onClick={() => save(author)}>Save</button></>;
+}
+```
 
-Run `npx tsc --noEmit` in the frontend, then edit a required value and clear it. The valid edit updates the emitted object, clearing it blocks Save and neither edit changes the original schema.
+## Avoid
+
+- Don't change the schema when editing a document value. `onChange` on `ObjectContentEditor` returns the changed document.
+- Don't treat a draft edit as a save. Persist only when the caller's `save` operation runs.
+
+## Related skills
+
+- [Bind a known command field](../cratis-components-submit-form/SKILL.md)

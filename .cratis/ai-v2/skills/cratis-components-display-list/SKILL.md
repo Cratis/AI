@@ -1,46 +1,37 @@
 ---
 name: cratis-components-display-list
-compatibility: Requires React and Cratis Components.
-description: Use when building a DataPage or DataTable with query-backed rows, columns, selection or details. Not for server-side paging logic (cratis-arc-page-query).
+description: Renders a generated query in a table with columns, selection and row actions. Use when a slice needs a standard DataPage. Not for custom markup around a query hook (use cratis-arc-react-bind-slice).
+compatibility: Requires @cratis/components and @cratis/arc.react.
 ---
 
-# Render a selectable query-backed list
+# List authors and open the selected row
 
-Use DataPage for a complete list screen. The generated query supplies rows; the compound columns and menu items describe how to read or act on them.
-
-Use the generated query's row type for the table, its columns and the selected-row callback.
-
-1. Identify the stable key and define the empty state separately from a failed or loading query. **Done:** A successful empty result shows No authors.
-2. Use the selected row from the menu callback rather than an array index. **Done:** The action is unavailable before selection and selection survives duplicate display labels by identity.
-3. Feed a populated result and choose a non-default row. **Done:** The Name column displays both rows and Inspect targets Fern, not its neighbor.
-
-## Example
-
-The imports below assume the generated directory is beside the view. Mount this view inside the configured application host.
+1. In `Features/Authors/Listing/Authors.tsx`, import `Author` and `AllAuthors` from the private [generated tree](../cratis-arc-generate-proxies/SKILL.md). The generator retains `Features/Authors/Listing`; don't copy its output into the UI folder. Render the page inside the app's [providers](../cratis-arc-react-bind-slice/SKILL.md).
+2. Pass the query constructor and a stable `dataKey`. Each column's `field` names a property of `Author`.
+3. Pass the caller's `onOpen` operation the selected author. Check `selectionMode` and `selectedItem` first.
 
 ```tsx
-import { useState } from 'react';
-import { DataPage, MenuItem } from '@cratis/components/DataPage';
-import { Column } from '@cratis/components/DataTables';
-import { AllAuthors, type Author } from './generated/Authors/Author';
+import { Column, DataPage } from '@cratis/components/DataPage';
+import { AllAuthors, type Author } from '../../../generated/Features/Authors/Listing/Author';
 
-export function View() {
-    const [opened, open] = useState('');
-    return <><DataPage query={AllAuthors} title="Authors" dataKey="id" emptyMessage="No authors">
-        <DataPage.Columns><Column field="name" header="Name"/></DataPage.Columns>
-        <DataPage.MenuItems><MenuItem<Author> label="Inspect" disableOnUnselected command={selection => {
-            if (selection.selectionMode === 'single' && selection.selectedItem) open(selection.selectedItem.name);
-        }}/></DataPage.MenuItems>
-    </DataPage><output>{opened}</output></>;
-}
+export const Authors = ({ onOpen }: { onOpen: (author: Author) => void }) => (
+    <DataPage query={AllAuthors} title="Authors" dataKey="id" emptyMessage="No authors">
+        <DataPage.Columns><Column field="name" header="Name" sortable /></DataPage.Columns>
+        <DataPage.MenuItems>
+            <DataPage.MenuItem<Author> label="Open" disableOnUnselected command={selection => {
+                if (selection.selectionMode === 'single' && selection.selectedItem) onOpen(selection.selectedItem);
+            }} />
+        </DataPage.MenuItems>
+    </DataPage>
+);
 ```
 
-If a click targets the wrong record after a refresh, compare dataKey with the identity in the generated row. A displayed name or table index is not a durable identity.
+## Avoid
 
-Read references/standalone-table.md when a parent already owns the page layout.
+- Don't call `AllAuthors.use()` separately; `DataPage` already subscribes.
+- Don't identify an author by name or row position. Names can repeat and sorting changes positions.
+- Don't rely on the menu to await an asynchronous action. The caller must handle failure and prevent repeated submission.
 
-Read references/filters.md when search needs to cover unloaded rows.
+## Related skills
 
-## Verify
-
-Run `npx tsc --noEmit` in the frontend, then select the second of two rows and invoke its action. The displayed detail belongs to that row, even when both labels match.
+- [Confirm a row action](../cratis-components-coordinate-feedback/SKILL.md)

@@ -1,40 +1,35 @@
 ---
 name: cratis-components-theme-application
-compatibility: Requires React, Cratis Components and a browser for computed styles.
-description: Use when styling Components or integrating a renderer with the host design system. Not for selecting control semantics (cratis-components-choose-control).
+description: Loads the Components styles and overrides theme tokens within one part of the application. Use when setting up the baseline or changing a scoped palette. Not for choosing input controls (use cratis-components-choose-control).
+compatibility: Requires @cratis/components and a CSS bundler that resolves package imports.
 ---
 
-# Scope the host theme
+# Load the theme and change one area's color
 
-Load the published token and component styles in the application stylesheet. Override a documented token on the smallest host element that contains the themed controls.
+1. Add `host.css` beside `main.tsx` and import `./host.css` from that entry point. Mount `CratisComponentsProvider` from `@cratis/components` as shown in [Mount Arc and list authors](../cratis-arc-react-bind-slice/SKILL.md).
+2. Load tokens, component styles and the baseline theme in order. Set the token on the wrapper of the area that should change:
 
-Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
+```css
+@import '@cratis/components/tokens';
+@import '@cratis/components/styles';
+@import '@cratis/components/theme';
 
-1. Identify the renderer and the published rules for the target part. **Done:** An outline Button uses the primary color token after baseline styles load.
-2. Import @cratis/components/tokens then @cratis/components/styles in host.css. Set --cratis-primary-color to rgb(101, 29, 155) only on .accent. **Done:** Computed color changes on Preview but not Outside.
-3. Navigate with the keyboard in the browser, not a DOM emulator. **Done:** The scoped outline button changes color, its sibling stays unchanged, and keyboard focus has a visible ring or outline.
-
-## Example
-
-Mount this view inside the configured application host.
-
-```tsx
-import { Button } from '@cratis/components/Common';
-
-export function View() {
-    return <><section className="accent"><Button variant="outline" label="Preview"/></section>
-        <Button variant="outline" label="Outside"/></>;
-}
+.author-admin { --cratis-primary-color: rgb(101, 29, 155); }
 ```
 
-If the token changes but the rendered color does not, inspect the active renderer and the part consuming the token. Do not override a private descendant selector to force a match.
+3. Put `className="author-admin"` on the authors section. Controls inside inherit the override; sibling sections keep the default.
+4. For an app-wide palette instead, set the light tokens on `.cratis-theme` and the dark tokens on `.cratis-theme.cratis-dark`. In `@media (prefers-color-scheme: dark)`, set the dark tokens on `.cratis-theme:not(.cratis-light)`. Set the light tokens on `.cratis-dark .cratis-theme.cratis-light` so that an explicit light section inside a dark one stays light.
 
-Read references/adapters.md when the application already provides a design-system renderer.
+## Target a component part
 
-Read references/per-area-css.md when only a subset of Components styles may be loaded.
+Use `.author-admin [data-cratis-part='header-content']` for the content inside a table header. ComboBox renders its popover outside its wrapper. Set `pt={{ popover: { className: 'author-options' } }}` on that ComboBox, then target `.author-options [data-cratis-part='optionLabel']` and `.author-options [data-cratis-part='optionDescription']` in `host.css`. Don't rely on the popover being a descendant of `.author-admin`.
 
-## Verify
+## Avoid
 
-**Requires:** For browser automation, check `npx playwright install --list` for Chromium; if unavailable, inspect computed styles and keyboard focus in a real browser instead.
+- Don't change a global token to recolor one panel.
+- Don't depend on private DOM nesting. Use the component's named part.
+- Don't depend on rearranging imports. Write normal overrides outside `@layer` so they take precedence over the library's layered normal rules.
 
-Run `npx tsc --noEmit` in the frontend, then compare matching buttons inside and outside the theme scope in the mounted app. Only the scoped color changes and keyboard focus remains visible.
+## Related skills
+
+- [Mount the providers](../cratis-arc-react-bind-slice/SKILL.md)

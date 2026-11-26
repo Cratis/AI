@@ -1,19 +1,28 @@
 import test from 'node:test';
-import assert from 'node:assert/strict';
-import {chromium,expect} from '@playwright/test';
+import {readFileSync} from 'node:fs';
+import {chromium, expect} from '@playwright/test';
 import {createServer} from 'vite';
 
-test("Submit a generated command from fields", {timeout:120000}, async t=>{
- const host=await createServer({server:{host:'127.0.0.1',port:0},optimizeDeps:{entries:['index.html']},plugins:[catalog()]});
- await host.listen(); let browser; t.after(async()=>{try{await browser?.close();}finally{await host.close();}});
- browser=await chromium.launch();
- const page=await browser.newPage();
- await page.route('**/.cratis/me',route=>route.fulfill({status:401,body:''}));
- await page.goto(host.resolvedUrls.local[0]);
- const button=(name)=>page.getByRole('button',{name,exact:true});
- const field=page.getByRole('textbox'); await field.fill('Taken'); await button('Register').click();
- await expect(page.getByText('Name unavailable',{exact:true}).first()).toBeVisible(); await expect(field).toHaveValue('Taken');
- await field.fill('Aster'); await button('Register').click(); await expect(page.locator('output')).toHaveText('Registered');
- assert.equal(await (await page.request.get(new URL('/fixture-count',page.url()).href)).text(),'1');
+function registrationServer() {
+    const source = readFileSync(new URL('./generated/Features/Authors/Registration/RegisterAuthor.ts', import.meta.url),'utf8');
+    const path = source.match(/readonly route:\s*string\s*=\s*'([^']+)'/)?.[1];
+    if (!path) throw new Error('Missing RegisterAuthor route');
+    return {name:'registration',configureServer(server){server.middlewares.use(async(req,res,next)=>{
+        const url=new URL(req.url,'http://localhost');
+        if(req.method!=='POST'||![path,path+'/validate'].includes(url.pathname))return next();
+        let body='';for await(const chunk of req)body+=chunk;
+        const invalid=!JSON.parse(body).name;
+        res.setHeader('Content-Type','application/json');
+        res.end(JSON.stringify({isSuccess:!invalid,isAuthorized:true,isValid:!invalid,hasExceptions:false,exceptionMessages:[],
+            validationResults:invalid?[{message:'Name is required',members:['name'],severity:'error'}]:[]}));
+    });}};
+}
+test('Open the registration dialog and submit an author', {timeout:120000},async t=>{
+    const server=await createServer({server:{host:'127.0.0.1',port:0},plugins:[registrationServer()]});
+    await server.listen();let browser;t.after(async()=>{try{await browser?.close();}finally{await server.close();}});
+    browser=await chromium.launch();const page=await browser.newPage();
+    await page.route('**/.cratis/me',r=>r.fulfill({status:401,body:''}));await page.goto(server.resolvedUrls.local[0]);
+    const trigger=page.getByRole('button',{name:'Add author',exact:true});await trigger.click();
+    const name=page.getByRole('textbox');await name.fill('Aster');await page.getByRole('button',{name:'Add',exact:true}).click();
+    await expect(name).toBeHidden();await expect(trigger).toBeFocused();
 });
-function catalog(){return {name:'catalog-responses',configureServer(server){const clients=new Set(),rows=[];let accepted=0;const flags={isSuccess:true,isReady:true,isAuthorized:true,isValid:true,hasExceptions:false,validationResults:[],exceptionMessages:[],exceptionStackTrace:'',authorizationFailureReason:''};const frame=()=> 'data: '+JSON.stringify({...flags,data:rows,paging:{page:0,size:rows.length,totalItems:rows.length,totalPages:1}})+'\n\n';server.middlewares.use(async(req,res,next)=>{const path=req.url.split('?')[0];if(path==='/fixture-count'){res.end(String(accepted));return;}if(path==='/api/authors/all-authors'){res.writeHead(200,{'Content-Type':'text/event-stream','Cache-Control':'no-cache'});res.write(frame());clients.add(res);res.on('close',()=>clients.delete(res));return;}if(path==='/fixture-seed'){rows.push({id:'00000000-0000-4000-8000-000000000002',name:'Fern'},{id:'00000000-0000-4000-8000-000000000003',name:'Aster'});for(const c of clients)c.write(frame());res.end();return;}if((path==='/api/authors'||path==='/api/authors/validate')&&req.method==='POST'){let raw='';for await(const chunk of req)raw+=chunk;const body=JSON.parse(raw);const validate=path.endsWith('/validate');const ok=validate||body.name==='Aster';if(ok&&!validate){accepted++;rows.push({id:body.id,name:body.name});for(const c of clients)c.write(frame());}res.setHeader('Content-Type','application/json');res.end(JSON.stringify({...flags,isSuccess:ok,isValid:ok,correlationId:'00000000-0000-4000-8000-000000000001',response:null,validationResults:ok?[]:[{severity:0,message:'Name unavailable',members:['name'],state:{}}]}));return;}next();});}}}

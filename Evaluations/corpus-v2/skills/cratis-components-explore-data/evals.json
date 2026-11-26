@@ -1,38 +1,4 @@
-{
-  "skill_name": "cratis-components-explore-data",
-  "evals": [
-    {
-      "id": 1,
-      "name": "implement",
-      "prompt": "Build a PivotViewer by region and show copies per edition. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Use PivotViewer to compare members of a collection at a chosen dimension. The dimension extracts a stable grouping value; card values carry the measures, not the group identity.",
-      "assertions": [
-        "Define a known coordinate before rendering. Done: the three editions include two in East and one in West, each with its own copies measure.",
-        "Give each card a stable key; use the same getter for a filter and dimension sharing a key. Done: filtering by region compares region values, not formatted count labels.",
-        "Use PivotViewer to compare members of a collection at a chosen dimension. The dimension extracts a stable grouping value; card values carry the measures, not the group identity."
-      ]
-    },
-    {
-      "id": 2,
-      "name": "diagnose",
-      "prompt": "My pivot label changes but the results do not narrow. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "If the count does not narrow, check whether the facet is categorical but the getter returns numbers. Use a numeric range for numbers; formatValue changes the label, not the key.",
-      "assertions": [
-        "If the count does not narrow, check whether the facet is categorical but the getter returns numbers. Use a numeric range for numbers; formatValue changes the label, not the key.",
-        "Give each card a stable key; use the same getter for a filter and dimension sharing a key. Done: filtering by region compares region values, not formatted count labels.",
-        "Select East from the facet and inspect the viewer result. Done: the displayed count changes from three editions to two at East."
-      ]
-    },
-    {
-      "id": 3,
-      "name": "verify",
-      "prompt": "Verify the viewer count at a selected facet. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Select East from the facet and inspect the viewer result. Done: the displayed count changes from three editions to two at East.",
-      "assertions": [
-        "Define a known coordinate before rendering. Done: the three editions include two in East and one in West, each with its own copies measure.",
-        "Select East from the facet and inspect the viewer result. Done: the displayed count changes from three editions to two at East.",
-        "Give each card a stable key; use the same getter for a filter and dimension sharing a key. Done: filtering by region compares region values, not formatted count labels."
-      ]
-    }
-  ]
-}
+{"skill_name":"cratis-components-explore-data","evals":[
+{"id":1,"name":"books-by-genre","prompt":"Group book cards by genre with a dimension named byGenre, even though books have no byGenre property.","expected_output":"The dimension identifies a grouping and its getter reads genre.","assertions":["Supplies a unique dimension key byGenre and a Genre label.","Returns book.genre from getValue without requiring a matching key property.","Uses book.id for identity and book.title for the card."]},
+{"id":2,"name":"monthly-groups","prompt":"Group dated books by calendar month rather than individual instants.","expected_output":"The dimension getter returns the intended year-month label.","assertions":["Derives a year-month string from each record in getValue.","Does not require adding the dimension key as a stored field.","Preserves independent book IDs for cards sharing the month."]},
+{"id":3,"name":"book-history","prompt":"Show versions of a book and open its most recent snapshot first.","expected_output":"TimeMachine receives versions and an initial index.","assertions":["Orders versions oldest first with id, Date timestamp, label and rendered content.","Handles no versions before seeding the newest index.","Uses onVersionChange rather than treating currentVersionIndex as controlled after mount."]}]}

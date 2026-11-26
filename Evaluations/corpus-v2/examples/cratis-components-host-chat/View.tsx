@@ -1,22 +1,17 @@
 import { useState } from 'react';
-import { ChatConversation, type ChatMessage } from '@cratis/components/Chat';
-const message = (topicId: string, body: string): ChatMessage => ({ id: crypto.randomUUID(), topicId,
-    body, authorId: 'editor', timestamp: new Date() });
-export function View() {
-    const [topic, choose] = useState('Books');
-    const [messages, replace] = useState(() => [message('Books', 'First proof'), message('Notes', 'Margin notes')]);
-    const [errors, report] = useState<Record<string, string>>({});
-    async function send(body: string) {
-        const target = topic;
+import type { ChatMention } from '@cratis/components/Chat';
+import { TopicChat } from './Features/Conversations/TopicChat';
+
+export const View = () => {
+    const [open, setOpen] = useState(true);
+    const [error, report] = useState('');
+    async function send(topicId: string, body: string, mentions: ChatMention[]) {
         try {
-            const response = await fetch('/messages', { method: 'POST', body: JSON.stringify({ topicId: target, body }) });
-            if (!response.ok) throw Error();
-            const accepted = message(target, body);
-            replace(previous => [...previous, accepted]); report(previous => ({ ...previous, [target]: '' }));
-        } catch { report(previous => ({ ...previous, [target]: 'Message not sent' })); }
+            const result = await fetch('/messages', { method: 'POST', body: JSON.stringify({ topicId, body, mentions }) });
+            if (!result.ok) throw new Error('Message not sent');
+        } catch { report(`Message not sent to ${topicId}.`); }
     }
-    return <><label>Topic<select value={topic} onChange={e => choose(e.target.value)}>
-        <option>Books</option><option>Notes</option></select></label>
-        <ChatConversation key={topic} messages={messages.filter(m => m.topicId === topic)} onSendMessage={send}/>
-        <output>{errors[topic]}</output></>;
-}
+    return <><button onClick={() => setOpen(true)}>Open topics</button>
+        <TopicChat open={open} onClose={() => setOpen(false)} send={send} />
+        {error && <p role="alert">{error}</p>}</>;
+};

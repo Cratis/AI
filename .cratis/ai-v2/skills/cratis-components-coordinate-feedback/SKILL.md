@@ -1,48 +1,58 @@
 ---
 name: cratis-components-coordinate-feedback
-compatibility: Requires React and Cratis Components.
-description: Use when showing a ConfirmationDialog, notification or busy dialog and handling its result. Not for collecting command fields (cratis-components-submit-form).
+description: Registers confirmation and busy dialogs and asks for confirmation before an action runs. Use when an action needs a yes/no answer. Not for forms that collect command fields (use cratis-components-submit-form).
+compatibility: Requires react, @cratis/arc.react and @cratis/components.
 ---
 
-# Await the result of confirmation
+# Confirm before removing an author
 
-Register the confirmation renderer at the dialog host. Treat its result as a decision; only the requesting caller owns the effect and its outcome.
+1. Inside the [application's Arc provider](../cratis-arc-react-bind-slice/SKILL.md), register both dialog components once in `App.tsx`. Here `Authors` is the [existing list screen](../cratis-components-display-list/SKILL.md); pass its required `onOpen` callback to display the selected author.
 
-Use the component subpath imports below. If the installed declarations lack one of these props, inspect the package export and the host renderer before changing the interaction.
+```tsx
+import { DialogComponents } from '@cratis/arc.react/dialogs';
+import { BusyIndicatorDialog, ConfirmationDialog } from '@cratis/components/Dialogs';
+import { useState } from 'react';
+import { Authors } from './Features/Authors/Listing/Authors';
+import type { Author } from './generated/Features/Authors/Listing/Author';
 
-1. Choose the exact affirmative result. **Done:** Yes is the only result that starts the archive request; dismissal has the same effect as No.
-2. Await the effect and keep busy scoped to that operation. **Done:** A rejected response produces failure feedback and releases the trigger in finally.
-3. Count requests across cancel, failed confirmation and successful confirmation. **Done:** Cancel sends none, each Yes sends one, and feedback distinguishes failure from success.
+export function App() {
+    const [opened, open] = useState<Author>();
+    return <DialogComponents confirmation={ConfirmationDialog} busyIndicator={BusyIndicatorDialog}>
+        <Authors onOpen={open} />
+        {opened && <section aria-label="Author details"><h2>{opened.name}</h2></section>}
+    </DialogComponents>;
+}
+```
 
-## Example
-
-Mount this view inside the configured application host.
+2. In `Features/Authors/Removal/RemoveAuthorButton.tsx`, accept the author's name and the caller's removal operation. The operation must resolve only on success and reject on failure. Ask the question on click, not during render.
 
 ```tsx
 import { useState } from 'react';
-import { DialogButtons, DialogComponents, DialogResult, useConfirmationDialog } from '@cratis/arc.react/dialogs';
-import { ConfirmationDialog } from '@cratis/components/Dialogs';
+import { DialogButtons, DialogResult, useConfirmationDialog } from '@cratis/arc.react/dialogs';
 
-function Archive() {
-    const [confirm] = useConfirmationDialog('Archive record?', 'Remove it from active records?', DialogButtons.YesNo);
-    const [busy, setBusy] = useState(false);
-    const [status, report] = useState('Ready');
-    async function archive() {
-        if (await confirm() !== DialogResult.Yes) return;
-        setBusy(true);
-        try { const result = await fetch('/archive', { method: 'POST' }); report(result.ok ? 'Archived' : 'Archive failed'); }
-        catch { report('Archive unavailable'); }
-        finally { setBusy(false); }
+export function RemoveAuthorButton({ name, remove }: { name: string; remove: () => Promise<void> }) {
+    const [confirm] = useConfirmationDialog('Remove author?', `Remove ${name} from the library?`, DialogButtons.YesNo);
+    const [pending, setPending] = useState(false);
+    const [failed, setFailed] = useState(false);
+    async function onClick() {
+        setPending(true);
+        setFailed(false);
+        try {
+            if (await confirm() === DialogResult.Yes) await remove();
+        } catch { setFailed(true); }
+        finally { setPending(false); }
     }
-    return <><button disabled={busy} onClick={archive}>Archive</button><output>{status}</output></>;
+    return <><button type="button" disabled={pending} onClick={onClick}>Remove</button>
+        {failed && <p role="alert">Could not remove {name}.</p>}</>;
 }
-export const View = () => <DialogComponents confirmation={ConfirmationDialog}><Archive/></DialogComponents>;
 ```
 
-An unresolved confirmation usually means the trigger is outside the registered dialog host. Do not attach another mutation to a rendered Yes button.
+## Avoid
 
-Read references/dialog-host.md when multiple routes open the same confirmation UI.
+- Don't treat dismissal or No as Yes.
+- Don't enable the button while the answer or the removal is pending.
+- Don't report success on confirmation. Wait until the removal succeeds.
 
-## Verify
+## Related skills
 
-Run `npx tsc --noEmit` in the frontend, then cancel once and confirm twice, with one failed request and one successful request. Cancel sends none and each Yes sends one. If dismissal sends a request, compare the returned result to the affirmative enum value rather than testing truthiness.
+- [Open a custom command dialog](../cratis-components-submit-form/SKILL.md)

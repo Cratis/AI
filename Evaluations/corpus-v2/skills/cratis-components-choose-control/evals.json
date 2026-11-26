@@ -1,38 +1,4 @@
-{
-  "skill_name": "cratis-components-choose-control",
-  "evals": [
-    {
-      "id": 1,
-      "name": "implement",
-      "prompt": "Choose a segmented control for an exclusive filter. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "For a small exclusive choice use ToggleGroup with one string value. Distinguish a filter choice from revealing a panel; they promise different keyboard behavior.",
-      "assertions": [
-        "Name the value and commit boundary. Done: the scope has one key and Apply is the only action that changes the active filter.",
-        "Give the group an accessible name and keep draft selection controlled. Done: one tab stop reaches the group and arrow navigation moves to the other option.",
-        "For a small exclusive choice use ToggleGroup with one string value. Distinguish a filter choice from revealing a panel; they promise different keyboard behavior."
-      ]
-    },
-    {
-      "id": 2,
-      "name": "diagnose",
-      "prompt": "My scope control takes four tab stops. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "If changing a choice should reveal a different labeled panel, use tabs instead of assigning tab roles to a value picker.",
-      "assertions": [
-        "If changing a choice should reveal a different labeled panel, use tabs instead of assigning tab roles to a value picker.",
-        "Give the group an accessible name and keep draft selection controlled. Done: one tab stop reaches the group and arrow navigation moves to the other option.",
-        "Follow selection with Tab and activate Apply. Done: Mine receives keyboard focus while the active value is still all; Apply commits mine."
-      ]
-    },
-    {
-      "id": 3,
-      "name": "verify",
-      "prompt": "Check focus and commit with arrows and Tab. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Follow selection with Tab and activate Apply. Done: Mine receives keyboard focus while the active value is still all; Apply commits mine.",
-      "assertions": [
-        "Name the value and commit boundary. Done: the scope has one key and Apply is the only action that changes the active filter.",
-        "Follow selection with Tab and activate Apply. Done: Mine receives keyboard focus while the active value is still all; Apply commits mine.",
-        "Give the group an accessible name and keep draft selection controlled. Done: one tab stop reaches the group and arrow navigation moves to the other option."
-      ]
-    }
-  ]
-}
+{"skill_name":"cratis-components-choose-control","evals":[
+{"id":1,"name":"book-price","prompt":"Add a clearable price input in the Books editor.","expected_output":"A named controlled NumberInput.","assertions":["Imports NumberInput from @cratis/components/Common.","Stores number or null and passes that state as value.","Passes its setter as onChange and names the field Price."]},
+{"id":2,"name":"select-author","prompt":"Add a searchable author selection to the book fields. Names may repeat.","expected_output":"ComboBox stores an option key.","assertions":["Takes options with a unique string key and visible label.","Controls the nullable key through value and onChange rather than storing a label.","Passes loading and failure to the control."]},
+{"id":3,"name":"publication-date","prompt":"Bind a clearable publication date to the book editor.","expected_output":"DatePickerInput accepts a nullable Date.","assertions":["Imports DatePickerInput from @cratis/components/Common.","Uses Date or null rather than a formatted string.","Connects value and onChange to the same state and supplies an accessible name."]}]}

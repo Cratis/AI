@@ -1,10 +1,11 @@
-import { useState, type ComponentProps } from 'react';
-import { ObjectContentEditor } from '@cratis/components/ObjectContentEditor';
-const schema = { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] };
-export function View() {
-    const [data, edit] = useState<ComponentProps<typeof ObjectContentEditor>['object']>({ name: 'Draft' });
-    const [invalid, flag] = useState(false);
-    return <><ObjectContentEditor schema={schema} object={data} editMode onChange={edit} onValidationChange={flag}/>
-        <button disabled={invalid}>Save</button><output>{JSON.stringify(data)}</output>
-        <details><summary>Contract</summary><pre>{JSON.stringify(schema)}</pre></details></>;
-}
+import { useState } from 'react';
+import { SchemaDraft } from './Features/Schemas/SchemaDraft';
+import { AuthorDocument } from './Features/Authors/AuthorDocument';
+import type { Json, JsonSchema } from '@cratis/components/SchemaEditor';
+export const View = () => {
+    const [schema, setSchema] = useState<JsonSchema>({type: 'object', properties:{name:{type:'string'}}, required:['name']});
+    const [saved, save] = useState<Json>({ name: 'Draft' });
+    return <><AuthorDocument initial={saved} schema={schema} save={save} /><output>{JSON.stringify(saved)}</output>
+        <details><summary>Contract</summary><pre>{JSON.stringify(schema)}</pre></details>
+        <details><summary>Edit schema draft</summary><SchemaDraft initial={schema} save={setSchema} /></details></>;
+};

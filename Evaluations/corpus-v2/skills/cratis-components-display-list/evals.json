@@ -1,38 +1,4 @@
-{
-  "skill_name": "cratis-components-display-list",
-  "evals": [
-    {
-      "id": 1,
-      "name": "implement",
-      "prompt": "Build a DataPage for the authors collection. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Use DataPage for a complete list screen. The generated query supplies rows; the compound columns and menu items describe how to read or act on them.",
-      "assertions": [
-        "Identify the stable key and define the empty state separately from a failed or loading query. Done: a successful empty result shows No authors.",
-        "Use the selected row from the menu callback rather than an array index. Done: the action is unavailable before selection and selection survives duplicate display labels by identity.",
-        "Use DataPage for a complete list screen. The generated query supplies rows; the compound columns and menu items describe how to read or act on them."
-      ]
-    },
-    {
-      "id": 2,
-      "name": "diagnose",
-      "prompt": "Inspect opens the wrong row after sorting. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "If a click targets the wrong record after a refresh, compare dataKey with the identity in the generated row. A displayed name or table index is not a durable identity.",
-      "assertions": [
-        "If a click targets the wrong record after a refresh, compare dataKey with the identity in the generated row. A displayed name or table index is not a durable identity.",
-        "Use the selected row from the menu callback rather than an array index. Done: the action is unavailable before selection and selection survives duplicate display labels by identity.",
-        "Feed a populated result and choose a non-default row. Done: the Name column displays both rows and Inspect targets Fern, not its neighbor."
-      ]
-    },
-    {
-      "id": 3,
-      "name": "verify",
-      "prompt": "Check the menu targets the selected row rather than row zero. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Feed a populated result and choose a non-default row. Done: the Name column displays both rows and Inspect targets Fern, not its neighbor.",
-      "assertions": [
-        "Identify the stable key and define the empty state separately from a failed or loading query. Done: a successful empty result shows No authors.",
-        "Feed a populated result and choose a non-default row. Done: the Name column displays both rows and Inspect targets Fern, not its neighbor.",
-        "Use the selected row from the menu callback rather than an array index. Done: the action is unavailable before selection and selection survives duplicate display labels by identity."
-      ]
-    }
-  ]
-}
+{"skill_name":"cratis-components-display-list","evals":[
+{"id":1,"name":"author-table","prompt":"List authors in a sortable table using the generated AllAuthors query.","expected_output":"A DataPage in the Authors feature owns the query.","assertions":["Imports AllAuthors from generated/Features/Authors/Listing/Author into Features/Authors/Listing/Authors.tsx.","Passes the query constructor, id dataKey and emptyMessage.","Declares a sortable name column under DataPage.Columns."]},
+{"id":2,"name":"open-author","prompt":"Open the selected author using an onOpen callback supplied by the page's caller.","expected_output":"A typed menu action passes a single selected author.","assertions":["Declares DataPage.MenuItem<Author> under DataPage.MenuItems.","Sets disableOnUnselected.","Checks single selection and a defined selectedItem before calling onOpen."]},
+{"id":3,"name":"async-action","prompt":"An asynchronous list action can fail while opening a selected author. Who should handle that failure?","expected_output":"The caller owns completion, failure and pending state.","assertions":["Does not assume the menu awaits its command callback.","Handles rejected actions and repeated submissions in the caller.","Uses the selected author rather than a row index or display name."]}]}

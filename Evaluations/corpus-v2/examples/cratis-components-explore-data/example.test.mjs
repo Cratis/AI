@@ -10,7 +10,7 @@ test("Explore a collection by dimension", {timeout:120000}, async t=>{
  const page=await browser.newPage();
  await page.route('**/.cratis/me',route=>route.fulfill({status:401,body:''}));
  await page.goto(host.resolvedUrls.local[0]);
- const button=(name)=>page.getByRole('button',{name,exact:true});
- await expect(page.getByText('3 editions')).toBeVisible(); await page.getByRole('button',{name:/filter/i}).first().click();
- await page.getByRole('button',{name:/Region/}).click(); await page.getByText('East',{exact:true}).first().click(); await expect(page.getByText('2 editions')).toBeVisible();
+ await page.getByRole('button',{name:'Grouped',exact:true}).click();
+ await expect(page.getByText('Reference', { exact: true }).first()).toBeVisible();
+ await expect(page.getByText('Fiction', { exact: true }).first()).toBeVisible();
 });

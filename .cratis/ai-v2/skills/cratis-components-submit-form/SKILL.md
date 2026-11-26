@@ -1,49 +1,53 @@
 ---
 name: cratis-components-submit-form
-compatibility: Requires React, Cratis Components and generated Arc proxies.
-description: Use when building a CommandForm, CommandDialog or multi-step command wizard for React inputs. Not for generic confirmation (cratis-components-coordinate-feedback).
+description: Builds a dialog that binds typed fields to a generated command and runs it on OK. Use when adding a create or edit form for a command. Not for a yes/no confirmation (use cratis-components-coordinate-feedback).
+compatibility: Requires @cratis/components, @cratis/arc.react and @cratis/fundamentals.
 ---
 
-# Submit a generated command from fields
+# Open a dialog to register an author
 
-Use Arc CommandForm for inline input and Components fields for its members. Use CommandDialog when success should close a modal; let that form own execution.
-
-Use the generated command type so field bindings and validation target the same member names as the backend.
-
-1. Identify editable members and required hidden values. **Done:** The command has its id before the first validation, without asking the user to type it.
-2. Bind fields with typed accessors and route member errors back to their fields. **Done:** The rejected name and its error remain visible in the open dialog.
-3. Close only on success or deliberate cancellation. **Done:** Changing the rejected name to Aster commits once and the dialog closes.
-
-## Example
-
-The imports below assume the generated directory is beside the view. Mount this view inside the configured application host.
+1. Under the app's [Arc and Components providers](../cratis-arc-react-bind-slice/SKILL.md), create `Features/Authors/Registration/AddAuthor.tsx`. Import the [generated command](../cratis-arc-generate-proxies/SKILL.md) from the private `generated/Features/Authors/Registration` folder. For the generated `id: Guid`, call `Guid.create()`. Use `initialValues` for the ID the reader doesn't type. Bind the Name field directly to the command property.
 
 ```tsx
-import { useState } from 'react';
-import { Guid } from '@cratis/fundamentals';
 import { CommandDialog } from '@cratis/components/CommandDialog';
 import { InputTextField } from '@cratis/components/CommandForm';
-import { RegisterAuthor } from './generated/Authors/RegisterAuthor';
+import { Guid } from '@cratis/fundamentals';
+import { RegisterAuthor } from '../../../generated/Features/Authors/Registration/RegisterAuthor';
 
-export function View() {
-    const [id] = useState(() => Guid.create());
-    const [open, show] = useState(true);
-    const [message, report] = useState('');
-    return <><CommandDialog<RegisterAuthor> visible={open} title="New author" okLabel="Register"
-        command={RegisterAuthor} initialValues={{ id }} onCancel={() => show(false)}
-        onValidationFailure={errors => report(errors.map(error => error.message).join('; '))}
-        onSuccess={() => { report('Registered'); show(false); }}>
-        <InputTextField<RegisterAuthor> value={c => c.name} title="Name" />
-    </CommandDialog><output>{message}</output></>;
+export const AddAuthor = () => (
+    <CommandDialog<RegisterAuthor> command={RegisterAuthor} title="Add author"
+        okLabel="Add" initialValues={{ id: Guid.create() }}>
+        <InputTextField<RegisterAuthor> value={author => author.name} title="Name" />
+    </CommandDialog>
+);
+```
+
+2. Open that dialog from the Authors screen (`Features/Authors/Registration/AddAuthorButton.tsx`). Render the component returned by `useDialog` once, beside the button. `useDialog` supplies this custom dialog's context. To also offer the shared confirmation and busy dialogs, [register DialogComponents](../cratis-components-coordinate-feedback/SKILL.md) in `App.tsx`.
+
+```tsx
+import { useRef } from 'react';
+import { useDialog } from '@cratis/arc.react/dialogs';
+import { AddAuthor } from './AddAuthor';
+
+export function AddAuthorButton() {
+    const button = useRef<HTMLButtonElement>(null);
+    const [Dialog, show] = useDialog(AddAuthor);
+    async function open() {
+        await show();
+        button.current?.focus();
+    }
+    return <><button ref={button} type="button" onClick={open}>Add author</button><Dialog /></>;
 }
 ```
 
-If Save stays disabled, inspect the initialized command, including required context not represented by a field. Do not add a second execute call to the success callback.
+3. Add no submit handler. OK runs the command. The dialog stays open on failure so the reader can correct the name; keep both field errors and the form summary visible.
 
-Read references/multi-step.md when input spans ordered steps.
+## Avoid
 
-Read references/calendar-field.md when a command member carries a date.
+- Don't execute a second command when the dialog closes.
+- Don't put `CommandForm` inside `CommandDialog`; the dialog already contains the form.
+- Don't expect removing a field to clear its value. Clear the property if it no longer applies.
 
-## Verify
+## Related skills
 
-Run `npx tsc --noEmit` in the frontend, then submit an invalid value and correct it in the open dialog. The error attaches to its field, the correction commits once and the dialog closes.
+- [Confirm an action](../cratis-components-coordinate-feedback/SKILL.md)

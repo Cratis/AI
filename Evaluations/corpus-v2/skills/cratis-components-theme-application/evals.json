@@ -1,38 +1,4 @@
-{
-  "skill_name": "cratis-components-theme-application",
-  "evals": [
-    {
-      "id": 1,
-      "name": "implement",
-      "prompt": "Theme a Components button inside one part of the host. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Load the published token and component styles in the application stylesheet. Override a documented token on the smallest host element that contains the themed controls.",
-      "assertions": [
-        "Identify the renderer and the published rules for the target part. Done: an outline Button uses the primary color token after baseline styles load.",
-        "Import @cratis/components/tokens then @cratis/components/styles in host.css. Set --cratis-primary-color to rgb(101, 29, 155) only on .accent. Done: computed color changes on Preview but not Outside.",
-        "Load the published token and component styles in the application stylesheet. Override a documented token on the smallest host element that contains the themed controls."
-      ]
-    },
-    {
-      "id": 2,
-      "name": "diagnose",
-      "prompt": "My token changes but the actual outline button does not. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "If the token changes but the rendered color does not, inspect the active renderer and the part consuming the token. Do not override a private descendant selector to force a match.",
-      "assertions": [
-        "If the token changes but the rendered color does not, inspect the active renderer and the part consuming the token. Do not override a private descendant selector to force a match.",
-        "Import @cratis/components/tokens then @cratis/components/styles in host.css. Set --cratis-primary-color to rgb(101, 29, 155) only on .accent. Done: computed color changes on Preview but not Outside.",
-        "Navigate with the keyboard in the browser, not a DOM emulator. Done: the scoped outline button changes color, its sibling stays unchanged, and keyboard focus has a visible ring or outline."
-      ]
-    },
-    {
-      "id": 3,
-      "name": "verify",
-      "prompt": "Prove the themed control keeps visible keyboard focus. Give the component boundary and a check for the resulting interaction.",
-      "expected_output": "Navigate with the keyboard in the browser, not a DOM emulator. Done: the scoped outline button changes color, its sibling stays unchanged, and keyboard focus has a visible ring or outline.",
-      "assertions": [
-        "Identify the renderer and the published rules for the target part. Done: an outline Button uses the primary color token after baseline styles load.",
-        "Navigate with the keyboard in the browser, not a DOM emulator. Done: the scoped outline button changes color, its sibling stays unchanged, and keyboard focus has a visible ring or outline.",
-        "Import @cratis/components/tokens then @cratis/components/styles in host.css. Set --cratis-primary-color to rgb(101, 29, 155) only on .accent. Done: computed color changes on Preview but not Outside."
-      ]
-    }
-  ]
-}
+{"skill_name":"cratis-components-theme-application","evals":[
+{"id":1,"name":"entry-styles","prompt":"Load the Components baseline in a React application, naming the stylesheet and entry-point imports.","expected_output":"One stylesheet loads the three package assets.","assertions":["Imports tokens, styles and theme in order.","Imports host.css from main.tsx.","Mounts CratisComponentsProvider from the package root."]},
+{"id":2,"name":"scope-color","prompt":"Change the authors area's primary color without recoloring a neighboring Books panel.","expected_output":"A wrapper sets the primary-color token.","assertions":["Sets --cratis-primary-color on an authors-specific CSS selector.","Applies that class to the Authors wrapper.","Leaves sibling components outside the override."]},
+{"id":3,"name":"parts","prompt":"Style the inner table header and the supporting text of a ComboBox option in the Authors area.","expected_output":"Use scoped selectors for the published parts.","assertions":["Selects data-cratis-part='header-content' for inner header content.","Selects data-cratis-part='optionDescription' for supporting text.","Scopes the portaled options with a class on pt.popover rather than assuming they are inside the author panel."]}]}
