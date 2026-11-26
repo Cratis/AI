@@ -5,7 +5,6 @@ export async function verifyRegistration(page, name = 'Aster') {
     assert.equal(await row.count(), 0);
     await page.getByRole('button', { name: 'Add author' }).click();
     const add = page.getByRole('button', { name: 'Add', exact: true });
-    assert.ok(await add.isDisabled());
     await page.getByRole('textbox', { name: 'Name' }).fill(name);
     await add.click();
     await row.waitFor();

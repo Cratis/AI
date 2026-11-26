@@ -16,7 +16,7 @@ Use a disposable Library namespace with no authors. The librarian enters Aster. 
 
 ## Check the running application
 
-Open the Authors list as the librarian. Choose **Add author**, enter **Aster**, submit once and wait for the new row without reloading. Fetch `AllAuthors` as the same librarian. Check that exactly one result has `name` equal to `Aster` and record its `id`. Reload the screen, fetch again and check that the one Aster row has the same `id`. A row appearing only after reload requires a [live query check](../cratis-arc-diagnose-live-query/SKILL.md).
+Open the Authors list as the librarian. Choose **Add author**, enter **Aster**, submit once and wait for the new row without reloading. Fetch `AllAuthors` once as the same librarian using the [live query diagnostic](../cratis-arc-diagnose-live-query/SKILL.md). Check that exactly one result has `name` equal to `Aster` and record its `id`. Reload the screen, fetch again and check that the one Aster row has the same `id`. A row appearing only after reload requires a [live query check](../cratis-arc-diagnose-live-query/SKILL.md).
 
 Run the [empty-name backend specification](../cratis-specifications-exercise-backend/SKILL.md): in its own `CommandScenario<RegisterAuthor>`, `await _scenario.Execute(new RegisterAuthor(AuthorId.New(), ""))` must fail validation with `Name is required` and append no events. This is an isolated backend check, not a submission to the browser's Library namespace. A dialog preventing blank submission is a UI check, not a backend refusal test.
 
