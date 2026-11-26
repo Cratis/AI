@@ -40,6 +40,19 @@ async function filesUnder(directory: string): Promise<string[]> {
     return found;
 }
 
+const sourceCitation = /\b[\w.-]+@v\d+\.\d+\.\d+\b|[\w./\\-]+\.(?:cs|tsx?|md|json):\d+\b|^source:/;
+
+async function skillCitationProblems(root: string, corpus: string): Promise<string[]> {
+    const skills = join(corpus, 'skills');
+    if (!existsSync(skills)) return [];
+    const paths = (await filesUnder(skills)).sort();
+    return (await Promise.all(paths.map(async file => {
+        const content = await readFile(file, 'utf8');
+        const line = content.split(/\r?\n/).findIndex(text => sourceCitation.test(text));
+        return line === -1 ? [] : [`${relative(root, file)}:${line + 1}: skill content contains a source citation.`];
+    }))).flat();
+}
+
 async function readJson<T>(path: string, failures: string[]): Promise<T | undefined> {
     try { return JSON.parse(await readFile(path, 'utf8')) as T; } catch (error) {
         failures.push(`${path}: cannot read JSON: ${String(error)}`);
@@ -52,7 +65,13 @@ async function markdownIn(corpus: string, directory: string): Promise<Array<{ pa
     return Promise.all(names.map(async name => ({ path: `${directory}/${name}`, content: await readFile(join(corpus, directory, name), 'utf8') })));
 }
 
-async function skillProblems(root: string, corpus: string, name: string, failures: string[], authoring: AuthoringFinding[], hygiene: ReturnType<typeof skillHygieneFindings>): Promise<void> {
+interface SkillFindings {
+    failures: string[];
+    authoring: AuthoringFinding[];
+    hygiene: ReturnType<typeof skillHygieneFindings>;
+}
+
+async function skillProblems(root: string, corpus: string, name: string, { failures, authoring, hygiene }: SkillFindings): Promise<void> {
     const skillDirectory = join(corpus, 'skills', name);
     const skillFile = join(skillDirectory, 'SKILL.md');
     const shown = relative(root, skillFile);
@@ -77,6 +96,14 @@ async function skillProblems(root: string, corpus: string, name: string, failure
     }
 }
 
+async function verifySkills(root: string, corpus: string, skillNames: string[]) {
+    const findings: SkillFindings = { failures: [], authoring: [], hygiene: [] };
+    for (const name of skillNames) await skillProblems(root, corpus, name, findings);
+    const citations = await skillCitationProblems(root, corpus);
+    findings.failures.push(...citations);
+    return { ...findings, citationSummary: `Source citations: ${citations.length} skill files flagged.` };
+}
+
 /**
  * Runs the existing structural, authoring, hygiene and evaluation validators against `.cratis/ai-v2` and
  * `Evaluations/corpus-v2`. A corpus with no skills yet is a clean, explicitly reported empty result, never a pass of v1.
@@ -92,9 +119,10 @@ export async function verifyCorpusV2(root: string, environment: NodeJS.ProcessEn
     const skillNames = (await entries(join(corpus, 'skills'))).filter(name => existsSync(join(corpus, 'skills', name)) && !name.startsWith('.')).sort();
     if (manifest && catalog) failures.push(...catalogProblems('v2', manifest, catalog, skillNames));
 
-    const authoring: AuthoringFinding[] = [];
-    const hygiene: ReturnType<typeof skillHygieneFindings> = [];
-    for (const name of skillNames) await skillProblems(root, corpus, name, failures, authoring, hygiene);
+    const skills = await verifySkills(root, corpus, skillNames);
+    const { authoring, hygiene } = skills;
+    failures.push(...skills.failures);
+    lines.push(skills.citationSummary);
 
     const referencing = (await Promise.all(['rules', 'prompts', 'agents'].map(directory => markdownIn(corpus, directory)))).flat();
     failures.push(...danglingSkillReferences(referencing, skillNames));

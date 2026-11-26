@@ -25,7 +25,10 @@ export async function runProcess(options: ProcessOptions): Promise<{ exit: numbe
     let pending = '';
     let error: string | undefined;
     const child = spawn(command[0], command.slice(1), { cwd, env, stdio: ['ignore', 'pipe', 'pipe'], detached: true });
-    const kill = (signal: NodeJS.Signals) => { error ??= killGroup(child.pid, signal); };
+    const kill = (signal: NodeJS.Signals) => {
+        const failure = killGroup(child.pid, signal);
+        error ??= failure;
+    };
     let escalation: NodeJS.Timeout | undefined;
     const stop = (reason: string) => { error ??= reason; kill('SIGTERM'); escalation ??= setTimeout(() => kill('SIGKILL'), 1500); };
     const remove = onInterrupt(() => stop('Interrupted'));

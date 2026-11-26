@@ -15,7 +15,7 @@ import { renderReport } from './suite-report.ts';
 import { docker, phase, startSandbox } from './suite-sandbox.ts';
 import { prepareFixture, runTrial } from './suite-trial.ts';
 import type { TrialContext } from './suite-trial.ts';
-import type { Arm, SuiteOptions, SuiteResult, SuiteTask, Trial } from './Suite.ts';
+import type { Arm, Suite, SuiteOptions, SuiteResult, SuiteTask, Trial } from './Suite.ts';
 import type { StageMarker } from '../Verification/corpus-staging.ts';
 
 const root = resolve(import.meta.dirname, '../..');

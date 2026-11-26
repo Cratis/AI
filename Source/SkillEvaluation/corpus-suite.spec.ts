@@ -197,17 +197,21 @@ test('scoring rejects modified package inputs, seed specs and injected project t
     assert.equal(protectedFilesUnchanged(before, new Map([...before, ['Production.Specs/new.cs', 'new spec']])), true);
 });
 
-test('process failures preserve partial telemetry and raw output', async () => {
+test('process failures preserve partial telemetry and raw output', { timeout: 8000 }, async () => {
     const directory = await mkdtemp(join(tmpdir(), 'corpus-process-'));
     const event = JSON.stringify({ type: 'message_end', message: { role: 'assistant', provider: 'p', model: 'm', usage: { input: 7 }, content: [] } });
+    // Ignore SIGTERM to exercise escalation; exit eventually even if the runner fails to kill this child.
+    const script = `process.on('SIGTERM', () => console.error('SIGTERM received')); console.log(${JSON.stringify(event)}); setTimeout(() => process.exit(0), 10000)`;
     try {
         const transcript = new SuiteTranscript('p/m', []);
-        const result = await runProcess({ command: [process.execPath, '-e', `console.log(${JSON.stringify(event)}); setInterval(() => {}, 1000)`],
-            cwd: directory, env: process.env, log: join(directory, 'timeout.log'), timeoutSeconds: 1, transcript });
+        const result = await runProcess({ command: [process.execPath, '-e', script],
+            cwd: directory, env: process.env, log: join(directory, 'timeout.log'), timeoutSeconds: 2, transcript });
         assert.match(result.error!, /Timed out/);
         assert.notEqual(result.exit, 0);
         assert.equal(transcript.metrics().input, 7);
-        assert.match(await readFile(join(directory, 'timeout.log'), 'utf8'), /message_end/);
+        const log = await readFile(join(directory, 'timeout.log'), 'utf8');
+        assert.match(log, /message_end/);
+        assert.match(log, /SIGTERM received/);
         const failure = await runProcess({ command: [process.execPath, '-e', 'console.error("failure"); process.exit(7)'],
             cwd: directory, env: process.env, log: join(directory, 'failure.log'), timeoutSeconds: 5 });
         assert.equal(failure.exit, 7);

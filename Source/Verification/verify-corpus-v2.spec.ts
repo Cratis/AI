@@ -71,6 +71,21 @@ describe('verify corpus v2', () => {
         assert.ok((await verifyCorpusV2(root)).failures.some(failure => failure.includes('name must match its directory')));
     });
 
+    it('should reject source citations in skill definitions and nested assets, but not ordinary links or external content', async () => {
+        await scaffold(root, ['v2-demo']);
+        await addSkill(root, 'v2-demo', 'See Cratis/Arc@v1.2.3 for this demo.');
+        const templates = join(root, '.cratis', 'ai-v2', 'skills', 'v2-demo', 'templates');
+        await mkdir(templates);
+        await writeFile(join(templates, 'line.txt'), 'See `Source/Demo/Command.cs:17`.\n');
+        await writeFile(join(templates, 'attribution.txt'), 'Template\r\nsource: upstream documentation\r\n');
+        await writeFile(join(templates, 'ordinary.txt'), 'Use Source/Demo/Command.cs or Cratis/Arc. No source: metadata.\n');
+        await writeFile(join(root, '.cratis', 'ai-v2', 'outside.txt'), 'source: upstream documentation\n');
+
+        const { failures } = await verifyCorpusV2(root);
+        const citations = failures.filter(failure => failure.includes('contains a source citation'));
+        assert.deepEqual(citations.map(failure => failure.match(/[^/]+:\d+(?=: )/)?.[0]), ['SKILL.md:3', 'attribution.txt:2', 'line.txt:1']);
+    });
+
     it('should reject shipped content that names a blind-evaluation application', async () => {
         await scaffold(root, ['v2-demo']);
         await addSkill(root, 'v2-demo', 'Use when adding a demo; not for other work.');

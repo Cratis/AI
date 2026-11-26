@@ -38,21 +38,23 @@ function integer(value: string | undefined, fallback: number, maximum: number): 
     return number;
 }
 
+const suiteFlags = {
+    suite: { type: 'string', default: 'Evaluations/corpus-v2/tasks/suite.json' },
+    arms: { type: 'string', default: 'v1,v2,none' }, runs: { type: 'string' }, concurrency: { type: 'string' },
+    seed: { type: 'string' }, model: { type: 'string' }, models: { type: 'string' },
+    thinking: { type: 'string', default: 'medium' }, harness: { type: 'string', default: 'pi' },
+    'dry-run': { type: 'boolean' }, pilot: { type: 'boolean' }, task: { type: 'string' }, run: { type: 'string' },
+    image: { type: 'string', default: 'cratis-corpus-v2:fixture' },
+} as const;
+
 export function suiteOptions(args: string[]): SuiteOptions & { models: string[] } {
-    const { values } = parseArgs({ args, options: {
-        suite: { type: 'string', default: 'Evaluations/corpus-v2/tasks/suite.json' },
-        arms: { type: 'string', default: 'v1,v2,none' }, runs: { type: 'string' }, concurrency: { type: 'string' },
-        seed: { type: 'string' }, model: { type: 'string' }, models: { type: 'string' },
-        thinking: { type: 'string', default: 'medium' }, harness: { type: 'string', default: 'pi' },
-        'dry-run': { type: 'boolean' }, pilot: { type: 'boolean' }, task: { type: 'string' }, run: { type: 'string' },
-        image: { type: 'string', default: 'cratis-corpus-v2:fixture' },
-    } });
-    validateHarness(values.harness!, values.thinking!);
+    const { values } = parseArgs({ args, options: suiteFlags });
+    validateHarness(values.harness, values.thinking);
     const models = selectedModels(values.model, values.models);
     validatePilot(values.pilot, values.runs);
-    return { suite: values.suite!, arms: selectedArms(values.arms!), runs: integer(values.runs, values.pilot ? 1 : 3, 20), concurrency: integer(values.concurrency, 2, 8),
+    return { suite: values.suite, arms: selectedArms(values.arms), runs: integer(values.runs, values.pilot ? 1 : 3, 20), concurrency: integer(values.concurrency, 2, 8),
         seed: integer(values.seed, 1349, 2147483647), model: models[0], models, thinking: 'medium', dryRun: Boolean(values['dry-run']),
-        pilot: Boolean(values.pilot), task: values.task, runDirectory: values.run, image: values.image! };
+        pilot: Boolean(values.pilot), task: values.task, runDirectory: values.run, image: values.image };
 }
 
 export function random(seed: number): () => number {
@@ -60,16 +62,21 @@ export function random(seed: number): () => number {
     return () => { state = (Math.imul(state, 1664525) + 1013904223) >>> 0; return state / 4294967296; };
 }
 
-export function schedule(suite: Suite, options: SuiteOptions): Trial[] {
-    const tasks = suite.tasks.filter(task => (!options.pilot || task.pilot) && (!options.task || task.id === options.task));
-    if (!tasks.length) throw new Error('No tasks selected');
-    const trials = tasks.flatMap(task => options.arms.flatMap(arm => Array.from({ length: options.runs }, (_, index) => ({
-        key: `${task.id}:${arm}:${index + 1}`, task: task.id, arm, repetition: index + 1,
-    }))));
-    const next = random(options.seed);
+function shuffle(trials: Trial[], seed: number): Trial[] {
+    const next = random(seed);
     for (let index = trials.length - 1; index > 0; index--) {
         const other = Math.floor(next() * (index + 1));
         [trials[index], trials[other]] = [trials[other], trials[index]];
     }
     return trials;
+}
+
+export function schedule(suite: Suite, options: SuiteOptions): Trial[] {
+    const pilotTasks = options.pilot ? suite.tasks.filter(task => task.pilot) : suite.tasks;
+    const tasks = options.task ? pilotTasks.filter(task => task.id === options.task) : pilotTasks;
+    if (!tasks.length) throw new Error('No tasks selected');
+    const trials = tasks.flatMap(task => options.arms.flatMap(arm => Array.from({ length: options.runs }, (_, index) => ({
+        key: `${task.id}:${arm}:${index + 1}`, task: task.id, arm, repetition: index + 1,
+    }))));
+    return shuffle(trials, options.seed);
 }
