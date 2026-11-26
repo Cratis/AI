@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-expose-mcp-operation
-description: Publishes an Arc command or query as an MCP tool. Use when a client needs to call a command or a finite query over MCP. Not for exposing the HTTP query (use cratis-arc-expose-query).
+description: Publishes an Arc command or query as an MCP tool. Use when an MCP client must call a command or a query that returns one result. Not for exposing the HTTP query (use cratis-arc-expose-query).
 compatibility: Requires Cratis.Arc.Mcp and Cratis.Arc.PersonalAccessTokens; the Library examples use Cratis and Cratis.Arc.MongoDB.
 ---
 
@@ -19,10 +19,9 @@ using Microsoft.AspNetCore.Hosting;
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://127.0.0.1:5000", "http://127.0.0.1:5002");
 builder.AddCratisArc(options => options.EndpointGroups.Assign("capabilities", 5002),
-    configureBuilder: arc => arc
+    configureBuilder: arc => arc.WithCapabilities()
     .WithPersonalAccessTokens(new PatOptions("direct") { AllowedScopes = ["catalog:read", "catalog:write"] },
         callers => callers.ForResource("urn:catalog", "catalog-mcp", "development").UsePersonDirectory<LibraryPersonDirectory>())
-    .WithCapabilities()
     .WithMcp(mcp => mcp.Configure(options => options.ApplicationName = "catalog")));
 var app = builder.Build();
 app.UseCratisArc();

@@ -14,7 +14,17 @@ Trace one [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) on one existi
    curl -sN --max-time 60 -H 'Accept: text/event-stream' https://localhost:5001/api/features/authors/listing/all-authors | node scripts/check-frames.mjs
    ```
 
-2. The script counts ready frames, not their contents. Wait for `Ready result 1`. In another terminal execute `await commandPipeline.Execute(new RegisterAuthor(id, "Aster"))` from the authenticated service described in [Invoke a command](../cratis-arc-invoke-command/SKILL.md), with `id = AuthorId.New()`; record `id` and use the same tenant. Require `IsSuccess` before looking for a query update. With the Library proxy and route settings (`IncludeCommandNameInRoute: false`), the corresponding HTTP endpoint is `POST /api/features/authors/registration`.
+2. The script counts ready frames, not their contents. Wait for `Ready result 1`. In another terminal, register Aster once using the same curl credentials and tenant. Keep the printed ID for the database check:
+
+   ```sh
+   id=$(node -p "require('node:crypto').randomUUID()")
+   printf 'Author ID: %s\n' "$id"
+   curl -sS -X POST https://localhost:5001/api/features/authors/registration \
+     -H 'Content-Type: application/json' \
+     -d "{\"id\":\"$id\",\"name\":\"Aster\"}"
+   ```
+
+   Require `"isSuccess": true` in the response before looking for a query update. The route assumes `IncludeCommandNameInRoute: false` as in [Generate proxies](../cratis-arc-generate-proxies/SKILL.md).
 
    With the [Mongo settings](../cratis-arc-connect-storage/SKILL.md) from the Library example, the default tenant uses `library` and the camel-case pluralized `Author` collection is `authors`. Run `mongosh 'mongodb://localhost:27017/library' --quiet --eval 'db.authors.find({name:"Aster"}, {_id:1,name:1}).toArray()'` and compare the returned `_id` with the command ID. For a named tenant using Arc's default database resolver, substitute `library+<tenantId>` in the database path. If the matching document is missing, check the [projection](../cratis-chronicle-project-view/SKILL.md) before debugging delivery.
 3. If the document exists but no `Ready result 2` arrives, check that Mongo supports change streams (replica set or sharded cluster) and that `Features/Authors/Listing/Author.cs` returns `collection.Observe()`, not a materialized list.

@@ -9,8 +9,6 @@ compatibility: Requires the Cratis package, which supplies Arc and FluentValidat
 Add the validator beside [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) in `Features/Authors/Registration/RegisterAuthor.cs`. Arc discovers `CommandValidator<RegisterAuthor>`; no dependency injection registration is necessary. Keep the file's existing namespace declaration; add the validator class below the command.
 
 ```csharp
-namespace Library.Features.Authors.Registration;
-
 public class RegisterAuthorValidator : CommandValidator<RegisterAuthor>
 {
     public RegisterAuthorValidator()
