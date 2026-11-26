@@ -3,7 +3,7 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { readFile, mkdtemp, mkdir, writeFile, symlink, rm } from 'node:fs/promises';
+import { readFile, readdir, mkdtemp, mkdir, writeFile, symlink, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { suiteOptions, schedule, validateSuite } from './suite-input.ts';
@@ -28,6 +28,14 @@ test('the frozen suite has 24 unique tasks, all scored, and a six-task pilot', (
         assert.ok(task.idioms.length >= 2);
         assert.ok(task.requiredSpecs.length > 0);
         assert.ok(!/cratis\/ai|SKILL\.md|corpus v[12]/i.test(task.prompt));
+    }
+});
+
+test('every suite task names skills available for v2 routing', async () => {
+    const skills = new Set(await readdir(new URL('../../.cratis/ai-v2/skills/', import.meta.url)));
+    for (const task of suite.tasks) {
+        assert.ok(task.expectedSkills.v2.length > 0, `${task.id} lacks v2 routing expectations`);
+        for (const skill of task.expectedSkills.v2) assert.ok(skills.has(skill), `${task.id}: unknown v2 skill ${skill}`);
     }
 });
 

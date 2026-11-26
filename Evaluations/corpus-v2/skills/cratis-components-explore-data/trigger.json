@@ -36,42 +36,60 @@
     {
       "query": "Build a DataPage for the authors collection.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-display-list."
+      "note": "Route to cratis-components-display-list.",
+      "sibling": "cratis-components-display-list"
     },
     {
       "query": "Implement sorting and paging in the server query.",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-page-query."
+      "note": "Route to cratis-arc-page-query.",
+      "sibling": "cratis-arc-page-query"
     },
     {
       "query": "Center the viewport on a world coordinate.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-build-canvas."
+      "note": "Route to cratis-components-build-canvas.",
+      "sibling": "cratis-components-build-canvas"
     },
     {
       "query": "My scope control takes four tab stops.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-choose-control."
+      "note": "Route to cratis-components-choose-control.",
+      "sibling": "cratis-components-choose-control"
     },
     {
       "query": "Bind the active context to review mode.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-compose-toolbar."
+      "note": "Route to cratis-components-compose-toolbar.",
+      "sibling": "cratis-components-compose-toolbar"
     },
     {
       "query": "Find why the live query endpoint stopped delivering updates.",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-diagnose-live-query."
+      "note": "Route to cratis-arc-diagnose-live-query.",
+      "sibling": "cratis-arc-diagnose-live-query"
     },
     {
       "query": "Show a newly observed row after registration without inserting it by hand.",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-react-bind-slice."
+      "note": "Route to cratis-arc-react-bind-slice.",
+      "sibling": "cratis-arc-react-bind-slice"
     },
     {
       "query": "Write a browser specification for an existing widget without changing the UI.",
       "shouldTrigger": false,
-      "note": "Route to cratis-specifications-observe-ui."
+      "note": "Route to cratis-specifications-observe-ui.",
+      "sibling": "cratis-specifications-observe-ui"
+    },
+    {
+      "query": "Translate a brief birthday greeting into Italian.",
+      "shouldTrigger": false,
+      "sibling": null
+    },
+    {
+      "query": "What is the difference between a sonnet and a ballad?",
+      "shouldTrigger": false,
+      "sibling": null
     }
   ]
 }

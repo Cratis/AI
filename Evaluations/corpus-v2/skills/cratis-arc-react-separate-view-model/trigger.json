@@ -36,42 +36,60 @@
     {
       "query": "Render rows from AllAuthors.use().",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-react-bind-slice."
+      "note": "Route to cratis-arc-react-bind-slice.",
+      "sibling": "cratis-arc-react-bind-slice"
     },
     {
       "query": "Initialize a hidden id before the command form validates.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-submit-form."
+      "note": "Route to cratis-components-submit-form.",
+      "sibling": "cratis-components-submit-form"
     },
     {
       "query": "Inspect opens the wrong row after sorting.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-display-list."
+      "note": "Route to cratis-components-display-list.",
+      "sibling": "cratis-components-display-list"
     },
     {
       "query": "Bind the active context to review mode.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-compose-toolbar."
+      "note": "Route to cratis-components-compose-toolbar.",
+      "sibling": "cratis-components-compose-toolbar"
     },
     {
       "query": "Release a busy dialog after a rejected mutation.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-coordinate-feedback."
+      "note": "Route to cratis-components-coordinate-feedback.",
+      "sibling": "cratis-components-coordinate-feedback"
     },
     {
       "query": "Find why the live query endpoint stopped delivering updates.",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-diagnose-live-query."
+      "note": "Route to cratis-arc-diagnose-live-query.",
+      "sibling": "cratis-arc-diagnose-live-query"
     },
     {
       "query": "Write a browser specification for an existing widget without changing the UI.",
       "shouldTrigger": false,
-      "note": "Route to cratis-specifications-observe-ui."
+      "note": "Route to cratis-specifications-observe-ui.",
+      "sibling": "cratis-specifications-observe-ui"
     },
     {
       "query": "Generate missing command and query TypeScript from the backend.",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-generate-proxies."
+      "note": "Route to cratis-arc-generate-proxies.",
+      "sibling": "cratis-arc-generate-proxies"
+    },
+    {
+      "query": "Why does bread become crusty when baked with steam?",
+      "shouldTrigger": false,
+      "sibling": null
+    },
+    {
+      "query": "When should I transplant basil seedlings into a bigger pot?",
+      "shouldTrigger": false,
+      "sibling": null
     }
   ]
 }

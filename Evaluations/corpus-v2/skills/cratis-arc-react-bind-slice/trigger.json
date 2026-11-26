@@ -36,42 +36,60 @@
     {
       "query": "Generate missing command and query TypeScript from the backend.",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-generate-proxies."
+      "note": "Route to cratis-arc-generate-proxies.",
+      "sibling": "cratis-arc-generate-proxies"
     },
     {
       "query": "Find why the live query endpoint stopped delivering updates.",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-diagnose-live-query."
+      "note": "Route to cratis-arc-diagnose-live-query.",
+      "sibling": "cratis-arc-diagnose-live-query"
     },
     {
       "query": "Inject the clipboard boundary into my screen model.",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-react-separate-view-model."
+      "note": "Route to cratis-arc-react-separate-view-model.",
+      "sibling": "cratis-arc-react-separate-view-model"
     },
     {
       "query": "My modal closes and loses the rejected field value.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-submit-form."
+      "note": "Route to cratis-components-submit-form.",
+      "sibling": "cratis-components-submit-form"
     },
     {
       "query": "Name the empty state of the query-backed list.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-display-list."
+      "note": "Route to cratis-components-display-list.",
+      "sibling": "cratis-components-display-list"
     },
     {
       "query": "Write a browser specification for an existing widget without changing the UI.",
       "shouldTrigger": false,
-      "note": "Route to cratis-specifications-observe-ui."
+      "note": "Route to cratis-specifications-observe-ui.",
+      "sibling": "cratis-specifications-observe-ui"
     },
     {
       "query": "Implement sorting and paging in the server query.",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-page-query."
+      "note": "Route to cratis-arc-page-query.",
+      "sibling": "cratis-arc-page-query"
     },
     {
       "query": "Reject an empty name in the backend command validator.",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-validate-command."
+      "note": "Route to cratis-arc-validate-command.",
+      "sibling": "cratis-arc-validate-command"
+    },
+    {
+      "query": "Suggest a polite way to decline a second helping at dinner.",
+      "shouldTrigger": false,
+      "sibling": null
+    },
+    {
+      "query": "What causes a rainbow to have a second, fainter band?",
+      "shouldTrigger": false,
+      "sibling": null
     }
   ]
 }

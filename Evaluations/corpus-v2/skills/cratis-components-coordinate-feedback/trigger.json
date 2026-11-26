@@ -36,42 +36,60 @@
     {
       "query": "Keep one command across the steps of a wizard.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-submit-form."
+      "note": "Route to cratis-components-submit-form.",
+      "sibling": "cratis-components-submit-form"
     },
     {
       "query": "Feed chat messages from an observable query.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-host-chat."
+      "note": "Route to cratis-components-host-chat.",
+      "sibling": "cratis-components-host-chat"
     },
     {
       "query": "Test keyboard invocation after switching toolbar context.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-compose-toolbar."
+      "note": "Route to cratis-components-compose-toolbar.",
+      "sibling": "cratis-components-compose-toolbar"
     },
     {
       "query": "Keep the identifier steady across renders while editing the command.",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-react-bind-slice."
+      "note": "Route to cratis-arc-react-bind-slice.",
+      "sibling": "cratis-arc-react-bind-slice"
     },
     {
       "query": "Choose a segmented control for an exclusive filter.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-choose-control."
+      "note": "Route to cratis-components-choose-control.",
+      "sibling": "cratis-components-choose-control"
     },
     {
       "query": "Choose ObjectContentEditor or SchemaEditor for a value change.",
       "shouldTrigger": false,
-      "note": "Route to cratis-components-edit-schema-data."
+      "note": "Route to cratis-components-edit-schema-data.",
+      "sibling": "cratis-components-edit-schema-data"
     },
     {
       "query": "Reject an empty name in the backend command validator.",
       "shouldTrigger": false,
-      "note": "Route to cratis-arc-validate-command."
+      "note": "Route to cratis-arc-validate-command.",
+      "sibling": "cratis-arc-validate-command"
     },
     {
       "query": "Write a browser specification for an existing widget without changing the UI.",
       "shouldTrigger": false,
-      "note": "Route to cratis-specifications-observe-ui."
+      "note": "Route to cratis-specifications-observe-ui.",
+      "sibling": "cratis-specifications-observe-ui"
+    },
+    {
+      "query": "Why does bread become crusty when baked with steam?",
+      "shouldTrigger": false,
+      "sibling": null
+    },
+    {
+      "query": "Write a short thank-you note for a neighbor who fed my cat.",
+      "shouldTrigger": false,
+      "sibling": null
     }
   ]
 }
