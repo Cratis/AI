@@ -11,13 +11,18 @@ compatibility: Requires git and the GitHub CLI (gh).
 # Run the gate once, then watch the exact run
 
 Operate checks; do not redesign workflows here. Read
-[verification-discipline.md](../../rules/verification-discipline.md) for phase
-budgets and exit-status handling, and
+[verification-discipline.md](../../rules/verification-discipline.md) for verification
+contracts, and
 [pull-requests.md](../cratis-commits-and-pull-requests/references/pr-labels-and-release.md#quality-gates) for required checks.
 Read [capability-is-not-authority.md](../../rules/capability-is-not-authority.md)
 before an external effect. A request to verify does not authorize a push.
 
 ## Derive the local gate
+
+Hook gate configuration: shipped defaults `.cratis/ai/hooks/scripts/quality-gates.json`;
+project overrides `.cratis/ai/quality-gates.project.json` shallow-merge by gate id
+(command without requires drops inherited packageScripts). `CRATIS_HOOKS_GATES`
+replaces defaults; project overrides still apply.
 
 1. Read `.github/workflows/` and the repository's tier policy. Follow reusable
    workflows and invoked scripts. Extract commands, solution and test selection,
@@ -72,8 +77,26 @@ When several deliveries form one candidate, the assembler runs the final gate
 on the assembled state; deliveries bring targeted results. A changed state after
 a failure needs the required gate again.
 
-Keep build, lint and test phases separate, each with a deadline. Stop on failure;
-do not run dependent phases or hide a producer's exit status behind a filter.
+## Phase execution
+
+- Budget targeted checks around 120 seconds and build/test phases around 300 seconds;
+  explain any longer budget first, and obtain explicit approval before a phase exceeds
+  600 seconds. Do not blindly retry or repeat passing tests on unchanged inputs without
+  a flaky-test hypothesis or required matrix.
+- Separate status/fetch from builds, Debug from Release, each test project, and frontend
+  lint/compile/test/build. Do not combine these into an opaque command with a large
+  outer timeout. Expose progress and cancellation; report the precise failed or
+  timed-out phase and do not continue dependent phases after failure.
+- Capture the producer's exit status before summarizing output; `pipefail` alone is
+  insufficient with early-closing consumers such as `head`. Never use
+  `build/test | grep | sort/head/tail` as gate evidence. Printed zero-error counts are
+  not proof of success. Preserve needed full diagnostics in task-scoped `.ai-work/`
+  logs rather than hiding them in `/tmp`.
+- Fast feedback is a product requirement: a spec takes milliseconds, the suite seconds;
+  specs share setup and run in parallel; analyzers must not halt builds. CI builds the
+  spec path without analyzers and enforces them, warnings as errors, in a parallel
+  required job; the pre-push gate runs them. A slowdown is a defect.
+
 Report the exact command and result. Put verification and deferred coverage in
 reviewer comments, not the release-note description.
 

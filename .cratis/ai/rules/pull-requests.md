@@ -4,7 +4,7 @@ applyTo: "**/*"
 
 # How to Do Pull Requests
 
-**Before writing any commit message, committing, pushing, or creating/editing a PR, read the `cratis-commits-and-pull-requests` skill.** It holds the description shape, forbidden list, examples, labels, grouping and release-action windows. Commit rules: [git-commits.md](./git-commits.md).
+**Before writing any commit message, committing, pushing, or creating/editing a PR, read the `cratis-commits-and-pull-requests` skill.** Commit rules: [git-commits.md](./git-commits.md).
 
 ## The description is the release note
 
@@ -32,5 +32,6 @@ applyTo: "**/*"
 ## Before you create or edit a PR
 
 - Run `node .cratis/ai/hooks/scripts/cratis-check-pr.mjs --body-file <file> --label <intent>`; it applies the exact `policy / verify` release-note rules and the Bash hook runs it on `gh pr create` and `gh pr edit`. If it fails, fix the description, not the code. Before every body edit, run `git diff --stat origin/main...HEAD` and delete bullets the diff no longer supports.
-- Run the affected-project gates before marking work ready (build, built specs, lint and type-check; zero warnings), and the repository's required CI checks after an authorized push. `no-release` and documentation-only PRs still satisfy every required check; none is a blanket exemption from red CI.
+- Run the affected-project gates before marking work ready. Scope gates and independent review by [criticality tier](./criticality-tiers.md) and affected inputs/dependencies; reuse valid unchanged-input results. When specs run, use built spec runners.
+- Run the repository's required CI checks after an authorized push. Of all labels and PR types, none is a blanket exemption from red CI. Irrelevant checks report success/not-applicable, never pending.
 - The release train is the PR: fold finished branches into the repository's one train (see the skill). Open it once, when verified, as the orchestrator (`cratis-engineering-release-trains`) with `--assignee @me`. Split only for a named major, an urgent security fix authorized in writing, or an accepted outsider issue (patch or minor, own release).
