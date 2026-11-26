@@ -7,7 +7,7 @@ compatibility: .NET SDK and an Arc host with Chronicle.
 # Refuse borrowing if the last copy is no longer available
 
 1. Reference `Cratis.Arc.Chronicle`. Put the command and validator together in `Features/Books/Borrowing/`. Use `Isbn` as the command's only event-source-ID property: it selects both the book to read and the book to append to.
-2. Put `public record Isbn(string Value) : EventSourceId<string>(Value);` in `Features/Books/Isbn.cs` (`Library.Features.Books`), and `[EventType] public record CopyAdded;` in `Features/Books/Stock/CopyAdded.cs` (`Library.Features.Books.Stock`); import `Cratis.Chronicle.Events` in both. Request `BookStock?` in the validator constructor. A book with no events has no read model; a missing model must not allow borrowing.
+2. Put `public record Isbn(string Value) : EventSourceId<string>(Value);` in `Features/Books/Isbn.cs` (`Library.Features.Books`), and `[EventType] public record CopyAdded;` in `Features/Books/Stock/CopyAdded.cs` (`Library.Features.Books.Stock`); import `Cratis.Chronicle.Events` in both. Request `BookStock?` in the validator constructor. For a book with no events the validator receives `null` or an instance with `Available` 0; the rule refuses both.
 3. Leave `<CratisReadProtection>` at the package default, `On`. Don't set it to `Measure` or `Off` when a competing write must reject the command. Check `Cratis:Arc:ReadProtection:MaximumMode` in deployment configuration; leave it unset or `On`.
 
 ```csharp

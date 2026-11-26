@@ -6,7 +6,7 @@ compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 
 # Reject duplicate author names when appending a registration
 
-1. In `Features/Authors/Registration/AuthorRegistered.cs`, augment the event from [Record an event](../cratis-chronicle-record-event/SKILL.md). Reference `Cratis.Chronicle`, import `Cratis.Chronicle.Events.Constraints`, and put the constraint on its existing **string** parameter:
+1. In `Features/Authors/Registration/AuthorRegistered.cs`, the event from [Record an event](../cratis-chronicle-record-event/SKILL.md) declares the unique constraint on its **string** parameter. Reference `Cratis.Chronicle` and import `Cratis.Chronicle.Events.Constraints`:
 
 ```csharp
 [property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] string Name
