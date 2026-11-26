@@ -16,6 +16,8 @@ paths:
 
 Trigger (when to use / when not) · the how (steps, patterns, one minimal correct example each) · choosing (use X when…, not Y) · pitfalls (with the diagnostic code you'll see) · verification (command + what a pass looks like). Timeless: describe current behavior without saying it is current.
 
+Write for the class of task, not the run the skill came from. Keep that run as evaluation evidence, but strip its repository, file names and one-off examples; a skill fitted to its origin fails on the next task.
+
 A code-breaking prerequisite belongs in one `Requires` line with the version-check command and the fallback. This is a compatibility gate, not a release history. Use American English in authored text.
 
 ## 2. Frontmatter and routing
@@ -53,7 +55,11 @@ Keep pins in `product-sync.json` and compatibility documentation under `Document
 
 ## 5. Instruction style
 
-Give one default and the condition for choosing an alternative, rather than an equal-options menu. Put the reason beside an absolute so the agent can recognize its boundary; volume and ALL-CAPS add no evidence. Prefer concrete, checkable directions over vague quality requests. Use the terms in [glossary.md](./glossary.md); define an unfamiliar term on first use to avoid competing meanings. Show one minimal correct example per pattern and an exact verification command with the observable pass condition.
+Give one default and the condition for choosing an alternative, rather than an equal-options menu. Put the reason beside an absolute so the agent can recognize its boundary; volume and ALL-CAPS add no evidence. Prefer concrete, checkable directions over vague quality requests. Use the terms in [glossary.md](./glossary.md); define an unfamiliar term on first use to avoid competing meanings. Prefer a compact term the model already knows (*tracer bullet*, *red/green*, *vertical slice*) to explaining the concept; one well-chosen word steers every step that uses it.
+
+Give every workflow step an observable done-condition (a file exists, a command passes, a named check returns a value). A step without one invites premature completion: the agent stops when the step looks plausible, not when it is done.
+
+Prune by behavior, not length. For each sentence ask whether deleting it would change what the agent does; if not, it is a no-op and the whole sentence goes, rather than trimming its words. Explanations of what the model already knows are the usual no-ops. Never shorten by cutting steps, conditions or examples that change behavior, and settle disagreements by running the skill or its evaluations, not by argument. Show one minimal correct example per pattern and an exact verification command with the observable pass condition.
 
 ## 6. One source of truth
 
@@ -79,6 +85,7 @@ When changing a description, run trigger evaluations before and after when autho
 - Body has headroom; every reference, asset and script is directly named; long references have Contents.
 - Text is timeless; no research-only pages or verified-source headings remain.
 - Defaults, escape conditions, adjacent reasons, glossary terms and correct examples are clear.
+- Every workflow step has an observable done-condition; no sentence fails the no-op test; examples fit the class of task, not the run the skill came from.
 - Rules are linked, not duplicated; MCP server and native naming are resolved.
 - Mechanical steps use scripts where warranted; verification names the command and pass condition.
 - Evaluation inputs cover positive and near-miss routing and baseline output behavior; report any runs not performed.
@@ -95,6 +102,7 @@ Use path-scoped rules for file-specific invariants and skills for particular ope
 ## Sources
 
 - https://agentskills.io/specification
+- https://www.aihero.dev/skills-writing-for-agents
 - https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices
 - https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md
 - https://code.claude.com/docs/en/memory
