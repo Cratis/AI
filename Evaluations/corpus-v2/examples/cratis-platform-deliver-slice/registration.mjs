@@ -1,17 +1,16 @@
 import assert from 'node:assert/strict';
 
-// The host owner supplies an authenticated Playwright page at the fresh Authors route.
-export async function verifyRegistration(page) {
-    const row = page.getByRole('row').filter({ hasText: 'Aster' });
+export async function verifyRegistration(page, name = 'Aster') {
+    const row = page.getByRole('row').filter({ hasText: name });
     assert.equal(await row.count(), 0);
     await page.getByRole('button', { name: 'Add author' }).click();
     const add = page.getByRole('button', { name: 'Add', exact: true });
     assert.ok(await add.isDisabled());
-    await page.getByRole('textbox', { name: 'Name' }).fill('Aster');
+    await page.getByRole('textbox', { name: 'Name' }).fill(name);
     await add.click();
-    await row.waitFor({ timeout: 10000 });
+    await row.waitFor();
     assert.equal(await row.count(), 1);
     await page.reload();
-    await row.waitFor({ timeout: 10000 });
+    await row.waitFor();
     assert.equal(await row.count(), 1);
 }

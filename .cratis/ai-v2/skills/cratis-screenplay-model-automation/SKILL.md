@@ -1,17 +1,21 @@
 ---
 name: cratis-screenplay-model-automation
-description: Use when a .play slice needs to poll an external API, capture a change, schedule a trigger or react to an event. Not for implementing a Chronicle reactor (cratis-chronicle-react-to-fact).
+description: Models translation and automated action in Screenplay. Use when a .play feature imports external data, reacts to an event or initiates scheduled work. Not for implementing the reactor (use cratis-chronicle-react-to-fact).
 compatibility: Requires the Screenplay CLI.
 ---
 
-# Decide what an outside occurrence means
+# Import an author from a directory
 
-**Requires:** Check `screenplay --version`; restore the project's pinned CLI if missing.
+In `model/Authors/import.play`, describe what the Library receives, how it identifies a directory entry and which local event it records on the first observation.
 
-1. Identify the external source, stable record key and local fact. Read references/external-translations.md when their vocabularies differ. **Done:** observing a record means the record was seen, not that a local registration command succeeded.
-2. For an external record, use a capture in a Translate slice. For a modeled event or clock tick, use a reaction in an Automation slice and specify it there. For example:
+1. Identify the source and the stable key it supplies. Use the directory ID as the key; a change of name does not identify a new author.
+2. Map the input's name to the local event. `when added` means the first sighting of that key.
+3. Give the same prior observation in the repeat example. `then no events` distinguishes a successful repeat from a refusal.
 
-```screenplay
+```play
+module Library
+  feature Authors
+    slice Translate ImportAuthors
       capture DirectoryAuthors
         source api
           api Directory
@@ -21,7 +25,37 @@ compatibility: Requires the Screenplay CLI.
         append DirectoryAuthorSeen
           when added
             name = $.name
+
+      event DirectoryAuthorSeen
+        name String
+
+      specification SeeingAster
+        when capture DirectoryAuthors
+          id = "11111111-1111-4111-8111-111111111111"
+          name = "Aster"
+        then DirectoryAuthorSeen
+          for "11111111-1111-4111-8111-111111111111"
+          name = "Aster"
+
+      specification SeeingAsterAgain
+        given capture DirectoryAuthors
+          id = "11111111-1111-4111-8111-111111111111"
+          name = "Aster"
+        when capture DirectoryAuthors
+          id = "11111111-1111-4111-8111-111111111111"
+          name = "Aster"
+        then no events
 ```
 
-   **Done:** the first observation produces the named fact. If redelivery produces another fact, seed the prior capture in `given`, repeat the same key in `when` and check the change condition.
-3. Run `screenplay ./model` and `screenplay test model --format json` against the application model directory. **Done:** both the first delivery and the repeat scenario execute and pass, including `then no events` where required. Provider polling, checkpoints and actual deduplication still need runtime evidence.
+From the application directory run `screenplay test model --format json`. These examples exercise translation of supplied observations; they do not poll an actual directory.
+
+## Avoid
+
+- Don't treat the first observation as a change from a previous value; supply prior state when testing a transition.
+- Don't bypass the deciding command in a reaction. Test its invocation in the reaction and the resulting event in the command.
+- Don't assume a scheduled result is still eligible; have the command recheck the current deadline and state.
+
+## Related skills
+
+- [Specify the outcome](../cratis-screenplay-specify-outcome/SKILL.md) for accepted and refused commands.
+- [React to an event](../cratis-chronicle-react-to-fact/SKILL.md) for the runtime implementation.

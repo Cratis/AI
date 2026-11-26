@@ -1,18 +1,41 @@
 ---
 name: cratis-screenplay-declare-slice
-description: Use when an agreed command, event or read model needs a state change or view slice in .play. Not for discovering the domain timeline (cratis-modeling-discover-timeline).
+description: Declares a state change and its view in Screenplay. Use when encoding an agreed command, event or list in .play. Not for discovering the business story (use cratis-modeling-discover-timeline).
 compatibility: Requires the Screenplay CLI.
 ---
 
-# Declare the slice the actor agreed to
+# Declare the command, event and list in the model
 
-**Requires:** Check `screenplay --version`. If unavailable, restore the project's pinned CLI before validating the model.
+In `model/Authors/registration.play`, put the command and its event inside a `StateChange` slice. Give the list a separate `StateView` slice in the same feature.
 
-1. Trace one accepted input to its observable result. **Done:** the actor, source identity, input and resulting fact are agreed; take unresolved examples to [Discover one timeline](../cratis-modeling-discover-timeline/SKILL.md).
-2. Declare the identifier concept and event source. Bind the command production's `for` to the identifier; do not copy that ID into the fact just to recover a projection key. Read references/consistency.md when names collide. **Done:** changing the input ID changes the fact's destination, not its business payload.
-3. Declare the keyed read model, projection and query in a StateView. For example, the author view derives its key from the source and its name from the event:
+1. Declare the typed identifier. Keep the person submitting the request separate from the thing whose history changes.
+2. Map each command input needed by the event. Use `for` to address the event to its owner.
+3. Give the read model a key. In its projection map the event source identity to the key and the payload to the displayed fields.
+4. Bind the list query to the collection. Run an example for a known ID and check the returned row.
 
-```screenplay
+## Example: register an author and list the name
+
+```play
+concept AuthorId : Uuid
+
+module Library
+  feature Authors
+    slice StateChange RegisterAuthor
+      command RegisterAuthor
+        id AuthorId identifier
+        name String
+        produces AuthorRegistered
+          for id
+          name = name
+
+      event AuthorRegistered
+        name String
+
+    slice StateView ListAuthors
+      readmodel Author
+        id AuthorId key
+        name String
+
       projection AuthorProjection => Author
         from AuthorRegistered
           id = $eventSourceId
@@ -21,5 +44,15 @@ compatibility: Requires the Screenplay CLI.
       query AllAuthors => observable Author[]
 ```
 
-   **Done:** each displayed field traces back to a fact or source identifier. If a key is missing, inspect its projection hop; use references/projection-lineage.md to trace each visible field back to its source.
-4. Run `screenplay ./model` and `screenplay test model --format json`, substituting the application model directory. **Done:** compilation exits zero and the intended write, refusal and read scenarios all execute and pass. This does not authorize rendering.
+From the Library directory run `screenplay ./model --warnaserror` to compile the composed folder. Add the [registration and refusal examples](../cratis-screenplay-specify-outcome/SKILL.md), then run `screenplay test model --format json`.
+
+## Avoid
+
+- Don't use a display reference for the history address; keep it in a separate field.
+- Don't declare two builders for `Author`; the projection owns the row.
+- Don't assume the source supplies missing payload fields; map `name` explicitly.
+
+## Related skills
+
+- [Discover the timeline](../cratis-modeling-discover-timeline/SKILL.md) before encoding an unresolved ownership decision.
+- [Specify the outcome](../cratis-screenplay-specify-outcome/SKILL.md) to check the destination and payload.

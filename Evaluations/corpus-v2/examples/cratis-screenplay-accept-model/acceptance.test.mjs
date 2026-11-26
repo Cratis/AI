@@ -7,7 +7,7 @@ import test from 'node:test';
 const run = (...args) => JSON.parse(execFileSync('screenplay', args, {encoding:'utf8'}));
 
 test('a changed rejection is not covered by the previous review', t => {
-    const base = run('export','model','--scope','Catalog.Authors');
+    const base = run('export','model','--scope','Library.Authors');
     const names = base.application.modules[0].features[0].slices.flatMap(s => s.specifications.map(x => x.name));
     assert.deepEqual(names.sort(), ['ListingAster','RegisteringAster','RejectingAnEmptyName']);
     const temp = mkdtempSync(join(tmpdir(),'authors-admission-'));
@@ -16,7 +16,10 @@ test('a changed rejection is not covered by the previous review', t => {
     cpSync('model',next,{recursive:true});
     const path = join(next,'authors.play');
     writeFileSync(path,readFileSync(path,'utf8').replaceAll('Name is required','Missing label'));
-    const changed = run('export',next,'--scope','Catalog.Authors');
+    execFileSync('screenplay',['model']);
+    execFileSync('screenplay',[next]);
+    run('test',next,'--format','json');
+    const changed = run('export',next,'--scope','Library.Authors');
     assert.notEqual(changed.revision,base.revision);
     const {difference} = run('diff','model',next,'--format','json');
     assert.ok(JSON.stringify(difference).includes('RejectingAnEmptyName'));

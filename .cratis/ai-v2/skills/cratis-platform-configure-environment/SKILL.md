@@ -1,25 +1,44 @@
 ---
 name: cratis-platform-configure-environment
+description: Binds per-environment settings and secrets outside the application model. Use when configuring local composition, service settings or credentials. Not for changing Arc discovery (use cratis-arc-host-application).
 compatibility: .NET SDK and the application's configuration providers.
-description: Use when appsettings, Aspire or docker compose must bind service endpoints and credentials separately per environment. Not for changing Arc discovery (cratis-arc-host-application).
 ---
 
-# Bind the host to the intended environment
+# Supply environment values through the host
 
-1. Inventory each required key, its owner, whether it is secret, and which host consumes it. For a Screenplay provider use its declared identity or alias to find the requirement keys; the model declares requirements, not values. **Done:** a names-only contract with no credentials, URIs containing credentials, or fallback shared targets.
-2. Default to explicit host bindings for the selected composition. Keep nonsecret local endpoint settings separate from credentials supplied by the host's secret provider. Validate the **resolved** configuration before connecting: check required values, scheme, host, port and resource identity against the intended disposable target. Never infer isolation from an environment label. Read references/local-services.md when translating names between the model, .NET configuration and local services. **Done:** an allowlisted target and a secret-presence check, without making a service call.
-3. Omit one required setting and repeat startup validation; also try an unintended endpoint with all keys present. **Done:** both attempts stop before I/O, naming only the offending key. Remove any code default that silently converts a missing binding into a shared or development connection.
-4. Supply the missing setting through the disposable host provider, keeping the endpoint local. **Done:** a bounded diagnostic identifies the allowed target and says nothing about the credential value. Test its absence on success *and* failure. Once bindings are correct, hand connection or namespace setup to [Connect once, select the logical target explicitly](../cratis-chronicle-connect-application/SKILL.md); if types are not discovered in an otherwise configured host, use [Discover a slice in a web host](../cratis-arc-host-application/SKILL.md).
+Declare the requirement by name in the model. Supply the value through configuration for the selected host; neither the model nor an event should carry the credential.
 
-For example, bind a preview service's `Preview__Credential` environment variable as `Preview:Credential` after stripping its configured prefix. Neither key is an Arc or Chronicle setting:
+1. Keep service credentials out of `model/` and `appsettings.json`. In the Library model, refer to a secret by name, not its value.
+2. Inventory the model's explicit requirements. For deployment include implicit extension settings by passing the parsed application and restored contracts to `EnvironmentRequirements.For(application, contracts)` from the `Cratis.Screenplay.Environments` namespace of the `Cratis.Screenplay` package.
+3. Bind values through the intended environment's host configuration. Keep `Cratis__Chronicle__ConnectionString` there, not in an event payload.
+4. Check that the application resolves its settings without printing values. Test connectivity separately against the intended service.
 
-```csharp
-        using var settings = new ConfigurationManager();
-        settings.AddEnvironmentVariables(prefix);
-        if (settings["Preview:Endpoint"] != Allowed) throw new InvalidOperationException("Invalid Preview:Endpoint");
-        if (string.IsNullOrWhiteSpace(settings["Preview:Credential"])) throw new InvalidOperationException("Missing Preview:Credential");
+## Bind the Library's Chronicle connection
+
+In the Library's preview deployment, configure `Cratis__Chronicle__ConnectionString` in the host's environment using the deployment's secret provider. Do not commit its value to `appsettings.json`. ASP.NET Core exposes the setting to the application as `Cratis:Chronicle:ConnectionString`.
+
+For Library loan reminders, assume the model already declares `system Mailer` with a restored extension contract that defines the `apiKey` setting. In `model/environment.play`, declare the secret at top level:
+
+```play
+secret MailerApiKey
 ```
 
-**Requires (Compose-hosted checks):** Confirm `docker compose version` and `docker info` succeed. Without a local daemon, exercise the configuration provider in process and leave container wiring unverified.
+Inside the existing `system Mailer` declaration add `setting apiKey from secret MailerApiKey`. Bind `MailerApiKey` through the deployment's secret provider, not in the `.play` file. From the directory containing `model`, list the required keys:
 
-Run `dotnet test -c Release` in the application's binding spec project. Expect the allowed target on success and only the offending key on failure; neither path may print the credential or contact a service.
+```sh
+screenplay environment ./model --format json
+```
+
+Look for declared service requirements, not values. This command does not read `Cratis__Chronicle__ConnectionString` from the operating system. The CLI inventory omits implicit extension settings. The contract-aware inventory also includes unmapped `systems.<System>.<setting>` keys and their secret flags.
+
+## Avoid
+
+- Don't put a credential literal in a `.play` file; bind by name.
+- Don't treat inventory output as the effective settings installed on a host.
+- Don't let a disposable Library host proceed without its own connection setting; fail startup instead of falling back to shared infrastructure.
+- Don't report connectivity from successful configuration resolution; exercise the connection separately.
+
+## Related skills
+
+- [Host the Arc application](../cratis-arc-host-application/SKILL.md) for application registration.
+- [Connect Chronicle](../cratis-chronicle-connect-application/SKILL.md) for the application's event-store connection.

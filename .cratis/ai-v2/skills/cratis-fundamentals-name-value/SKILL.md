@@ -1,23 +1,49 @@
 ---
 name: cratis-fundamentals-name-value
-description: Use when defining a C# concept, strongly typed ID or Chronicle event source ID. Not for deciding whose history to use (cratis-modeling-discover-timeline) or declaring an event type (cratis-chronicle-record-event).
+description: Defines typed C# domain values and Chronicle identifiers. Use when naming a concept, replacing a primitive or declaring a strongly typed ID. Not for deciding whose history changes (use cratis-modeling-discover-timeline).
 compatibility: Requires the .NET SDK.
 ---
 
-# Give a domain value a type
+# Declare an author name and author ID
 
-1. Ask what the value identifies. A display name can change without moving an author's history. A Chronicle source ID must continue selecting that same history after a rename. **Done:** one underlying scalar and one meaning for each type. If the owner is disputed, resolve the timeline before defining the ID.
-2. Derive an ordinary scalar from `ConceptAs<T>`; use `EventSourceId<T>` specifically for the typed ID by which an event-backed command selects its history. **Done:** the command exposes the owner as its `Id`, not a new ID created inside `Handle()`. The fact type names what happened, not whom it happened to.
+Give the scalar and the identity different types. An author name describes the author; an author ID addresses that author's history.
+
+1. Name the type after the business value, not its representation.
+2. Declare an ordinary scalar as a record over `ConceptAs<T>`.
+3. Declare the identity of a Chronicle entity over `EventSourceId<T>`. Give the GUID-based identity a `New()` factory.
+4. Use `AuthorId` for `RegisterAuthor.Id` and `Author.Id`. Check that `AuthorRegistered` is appended to the requested author's history.
+
+## Declare the Library types
+
+In the Library backend, reference the `Cratis` package. Put these declarations in `Features/Authors/AuthorName.cs` and `Features/Authors/AuthorId.cs`, each in its own file:
 
 ```csharp
-using Cratis.Chronicle.Events;
 using Cratis.Concepts;
 
+namespace Library.Features.Authors;
+
 public record AuthorName(string Value) : ConceptAs<string>(Value);
-public record AuthorId(Guid Value) : EventSourceId<Guid>(Value);
 ```
 
-3. Round-trip a representative value through the application's configured serializer. Read references/wire-values.md when a client sees a wrapper instead of a scalar. **Done:** the name is the JSON string `"Aster"`, not an object with a `value` property, and the decoded concept compares equal to the input.
-4. Execute the event-backed command with a known ID. Inspect the append for that source **and** its payload. A correctly formatted GUID in a response doesn't establish routing. **Done:** the matching fact is under the given ID; the scenario's complete append list has one entry. If the event landed elsewhere, inspect the command's ID type before changing the projection.
+```csharp
+using System;
+using Cratis.Chronicle.Events;
 
-Run `dotnet test -c Release` in the application's spec project. Expect the scalar round-trip and dispatch to the submitted source to pass independently.
+namespace Library.Features.Authors;
+
+public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
+{
+    public static AuthorId New() => new(Guid.NewGuid());
+}
+```
+
+## Avoid
+
+- Don't use an unlabelled `Guid` for the command key; use `AuthorId`.
+- Don't use an ordinary name as the history address; keep identity distinct from payload.
+- Don't rely on the concept declaration to validate format; express that as a separate rule.
+
+## Related skills
+
+- [Discover the timeline](../cratis-modeling-discover-timeline/SKILL.md) to identify the thing that owns the history.
+- [Declare the command](../cratis-arc-declare-command/SKILL.md) once the request values are named.

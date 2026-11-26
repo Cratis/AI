@@ -1,13 +1,43 @@
 ---
 name: cratis-specifications-observe-ui
-description: Use when writing a Storybook interaction test or Playwright journey to prove UI state, focus or navigation. Not for choosing controls (cratis-components-choose-control).
+description: Tests an interaction through its visible outcome. Use when writing a Storybook interaction or a browser journey for focus, navigation or live UI state. Not for choosing a control (use cratis-components-choose-control).
 compatibility: Requires Node.js and the application's UI runner; browser journeys require Playwright Chromium.
 ---
 
-# Test what the actor can do
+# Check keyboard submission in the Add author dialog
 
-1. Fix a named state, actor and observation. Use a component interaction by default: start the story with fresh data and a recording command callback. Read references/story-states.md when a previous play leaves data or calls behind. Read references/view-model-test.md when the question concerns only coordination logic. **Done:** the initial accessible controls and callback count are known without contacting a shared service.
-2. Find the input by its label and the button by role and accessible name. For a blank name, verify Add is unavailable and submission does not call the callback. Enter Aster, activate Add, then assert one call with Aster and the resulting visible row. **Done:** both the user's feedback and the effect match; counting calls alone misses a broken render.
-3. Switch to a real browser when the claim is navigation, focus restoration or a live host connection. Read references/browser-journey.md for isolation and evidence. **Done:** after keyboard activation the active element, intended URL or live query result changes as specified. A mock response cannot prove command-to-query delivery.
+Test the dialog from the keyboard. A click handler can work even though opening the dialog loses focus or submitting a name never updates the visible list.
 
-Requires the project's Playwright installation for browser checks: run `npx --no-install playwright install --list`. If the matching Chromium is missing, run `npx playwright install chromium` or report the browser check unverified. From the application's UI project run `npx --no-install playwright test journey.spec.ts` with the path to the keyboard journey. Expect blank input to leave the list unchanged, valid input to add one row, and focus to return to the named control. If the locator matches two Add buttons, scope it to the named dialog; do not select by array index or replace the assertion with a screenshot.
+1. Add `playwright` to the browser-test project and install its Chromium browser. Start the Library's Authors screen with an empty Authors list, an **Add author** button and a dialog with a **Name** textbox and an **Add** submit button.
+2. Open that screen in a Playwright page. Put the following check in `Features/Authors/Registration/verifyKeyboardRegistration.mjs` and pass it the opened page.
+3. Check the name in the visible list and check where subsequent keyboard input will go.
+
+```js
+import assert from 'node:assert/strict';
+
+export async function verifyKeyboardRegistration(page) {
+    const trigger = page.getByRole('button', { name: 'Add author' });
+    await trigger.press('Enter');
+    const name = page.getByRole('textbox', { name: 'Name' });
+    assert.ok(await name.evaluate(el => el === el.ownerDocument.activeElement));
+    const add = page.getByRole('button', { name: 'Add', exact: true });
+    assert.ok(await add.isDisabled());
+    await name.fill('Aster');
+    await name.press('Enter');
+    assert.equal(await page.getByRole('listitem').innerText(), 'Aster');
+    assert.ok(await trigger.evaluate(el => el === el.ownerDocument.activeElement));
+}
+```
+
+For a local Storybook interaction, import `within`, `userEvent` and `expect` from `storybook/test`. Use `within(canvasElement)` to find the dialog controls, perform the interaction and assert the visible result. A story with a fake list cannot test live delivery. For a live query check, submit a unique disposable author to the running Library application and wait for the keyed row without a reload.
+
+## Avoid
+
+- Don't assert a setter call instead of the new author on screen.
+- Don't infer focus from how a button looks; compare the control with the active element.
+- Don't use a screenshot as the only assertion of successful submission.
+
+## Related skills
+
+- [Choose the control](../cratis-components-choose-control/SKILL.md) to change the interaction itself.
+- [Deliver the slice](../cratis-platform-deliver-slice/SKILL.md) to connect the real command and query.

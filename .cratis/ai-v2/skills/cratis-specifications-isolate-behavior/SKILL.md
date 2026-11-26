@@ -1,33 +1,47 @@
 ---
 name: cratis-specifications-isolate-behavior
-description: Use when writing a unit test for pure behavior or choosing a fixture structure or .NET spec runner. Not for proving Arc pipeline behavior (cratis-specifications-exercise-backend).
+description: Specifies an isolated .NET decision with Cratis Specifications. Use when structuring a pure behavior spec, shared context or xUnit runner. Not for exercising the Arc pipeline (use cratis-specifications-exercise-backend).
 compatibility: Requires the .NET SDK and the xUnit v3 specification runner.
 ---
 
-# Specify one decision without a host
+# Test what RegisterAuthor.Handle returns
 
-1. Pick a decision whose result depends entirely on supplied values. Write the expected observation as a `should_` name and its circumstance as a `when_` name. **Done:** the assertion can fail without HTTP, a store, a clock read or a UI. If the question is whether validation prevented a write, hand the rejection scenario to [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) instead.
-2. In an xUnit v3 spec project referencing `Cratis.Specifications.XUnit.v3`, derive the context from `Specification`. Arrange in `Establish`, act once in `Because`, observe in `[Fact]` methods. Read references/shared-contexts.md when several contexts need the same setup. **Done:** assertions observe captured output rather than rerunning the decision.
+Call the registration handler once. Assert against the returned `AuthorRegistered`, without starting a host or appending to an event log.
+
+1. Reference the Library project, `Cratis.Specifications.XUnit.v3` and `xunit.v3` in `Library.Specs`. Keep the core and adapter aligned; let the adapter register its framework.
+2. Put one behavior context in `Library.Specs/for_RegisterAuthor/when_registering_an_author.cs`. Put reusable arrangement under `given/`.
+3. Arrange the command in `Establish`. Invoke `Handle()` in `Because`. Name the `[Fact]` for the result a reader should expect.
+
+## Check the event's name
+
+`RegisterAuthor` and `AuthorRegistered` come from [delivering the registration slice](../cratis-platform-deliver-slice/SKILL.md); `AuthorId` comes from [declaring domain values](../cratis-fundamentals-name-value/SKILL.md).
 
 ```csharp
 using Cratis.Specifications;
+using Library.Features.Authors;
+using Library.Features.Authors.Registration;
 using Xunit;
 
-public class when_accepting_a_padded_display_name : Specification
+namespace Library.Specs.for_RegisterAuthor;
+
+public class when_registering_an_author : Specification
 {
-    string _input = string.Empty;
-    string _accepted = string.Empty;
+    RegisterAuthor _command = null!;
+    AuthorRegistered _event = null!;
 
-    void Establish() => _input = " Aster ";
-    void Because() => _accepted = DisplayName.Accept(_input);
+    void Establish() => _command = new(AuthorId.New(), "Aster");
+    void Because() => _event = _command.Handle();
 
-    [Fact] public void should_keep_only_the_significant_text() => Assert.Equal("Aster", _accepted);
-}
-
-public static class DisplayName
-{
-    public static string Accept(string text) => text.Trim();
+    [Fact] public void should_return_the_submitted_name() => _event.Name.ShouldEqual("Aster");
 }
 ```
 
-3. In the application's xUnit v3 spec project run `dotnet test -c Release --logger "console;verbosity=detailed"`. **Done:** the named `should_` assertion executed and passed. Read references/xunit-discovery.md if the build passes but the named test is absent.
+## Avoid
+
+- Don't perform a second action inside a fact; all facts observe the result of `Because`.
+- Don't share mutable data between scenarios; share only costly infrastructure and release owned resources in `Destroy`.
+- Don't infer authorization, validation or an append from `Handle()` returning an event.
+
+## Related skills
+
+- [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) to test the pipeline and recorded event.

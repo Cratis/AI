@@ -1,5 +1,5 @@
 import test from 'node:test';
-import assert from 'node:assert/strict';
+import { verifyKeyboardRegistration } from './verifyKeyboardRegistration.mjs';
 import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { readFile } from 'node:fs/promises';
@@ -20,13 +20,6 @@ test('keyboard submission restores focus to Add author', { timeout: 30000 }, asy
         const page = await browser.newPage();
         page.setDefaultTimeout(5000);
         await page.goto(`http://127.0.0.1:${host.address().port}`);
-        const trigger = page.getByRole('button', { name: 'Add author' });
-        await trigger.press('Enter');
-        const name = page.getByRole('textbox', { name: 'Name' });
-        assert.ok(await name.evaluate(el => el === el.ownerDocument.activeElement));
-        await name.fill('Aster');
-        await name.press('Enter');
-        assert.equal(await page.getByRole('listitem').innerText(), 'Aster');
-        assert.ok(await trigger.evaluate(el => el === el.ownerDocument.activeElement));
+        await verifyKeyboardRegistration(page);
     } finally { await browser.close(); }
 });

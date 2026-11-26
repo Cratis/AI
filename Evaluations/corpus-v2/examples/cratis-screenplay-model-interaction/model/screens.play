@@ -1,9 +1,4 @@
-audience CatalogEditors
-
-persona CatalogEditor
-  audience CatalogEditors
-
-module Catalog
+module Library
   form AddAuthorForm for RegisterAuthor
     field name label "Name"
   feature Authors
@@ -11,7 +6,6 @@ module Catalog
       screen AddAuthor
         action RegisterAuthor for screen
           label "Add"
-          available for CatalogEditors
           navigate to Authors
     slice StateView BrowseAuthors
       screen Authors

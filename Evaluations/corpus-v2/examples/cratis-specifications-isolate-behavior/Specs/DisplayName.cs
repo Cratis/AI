@@ -1,18 +1,41 @@
+using System;
+using Cratis.Arc.Commands.ModelBound;
+using Cratis.Chronicle.Events;
 using Cratis.Specifications;
+using Library.Features.Authors;
+using Library.Features.Authors.Registration;
 using Xunit;
 
-public class when_accepting_a_padded_display_name : Specification
+namespace Library.Features.Authors
 {
-    string _input = string.Empty;
-    string _accepted = string.Empty;
-
-    void Establish() => _input = " Aster ";
-    void Because() => _accepted = DisplayName.Accept(_input);
-
-    [Fact] public void should_keep_only_the_significant_text() => Assert.Equal("Aster", _accepted);
+    public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
+    {
+        public static AuthorId New() => new(Guid.NewGuid());
+    }
 }
 
-public static class DisplayName
+namespace Library.Features.Authors.Registration
 {
-    public static string Accept(string text) => text.Trim();
+    [Command]
+    public record RegisterAuthor(AuthorId Id, string Name)
+    {
+        public AuthorRegistered Handle() => new(Name);
+    }
+
+    [EventType]
+    public record AuthorRegistered(string Name);
+}
+
+namespace Library.Specs.for_RegisterAuthor
+{
+    public class when_registering_an_author : Specification
+    {
+        RegisterAuthor _command = null!;
+        AuthorRegistered _event = null!;
+
+        void Establish() => _command = new(AuthorId.New(), "Aster");
+        void Because() => _event = _command.Handle();
+
+        [Fact] public void should_return_the_submitted_name() => _event.Name.ShouldEqual("Aster");
+    }
 }

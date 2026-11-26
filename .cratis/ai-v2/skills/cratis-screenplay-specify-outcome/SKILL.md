@@ -1,24 +1,48 @@
 ---
 name: cratis-screenplay-specify-outcome
-description: Use when writing executable Given/When/Then scenarios for .play behavior, including rejection, denial or conflicting history. Not for runtime integration tests (cratis-specifications-exercise-backend).
+description: Specifies an accepted outcome and its refusal in Screenplay. Use when writing Given/When/Then examples for a .play slice. Not for exercising a running backend (use cratis-specifications-exercise-backend).
 compatibility: Requires the Screenplay CLI.
 ---
 
-# Specify one contrast in the deciding slice
+# Specify successful registration and refusal of an empty name
 
-**Requires:** Check `screenplay --version`; restore the project's pinned CLI if missing.
+Write both specifications beside `RegisterAuthor` in `model/Authors/registration.play`. Use the same fixed author ID in each example so only the name changes.
 
-1. Fix the prior facts, key and caller in the deciding slice. Read references/fixture-data.md when reusing command values. **Done:** the positive case exercises the command and asserts the produced event's destination and payload, rather than directly appending the expected fact.
-2. Change only the invalid input and assert the specific refusal. For example, override the `name` in an existing command example while retaining the authorized caller:
+1. Start with the command, `AuthorId` and event from [declaring the Authors slice](../cratis-screenplay-declare-slice/SKILL.md).
+2. Inside the command, add the rule below before `produces AuthorRegistered`:
 
-```screenplay
-      specification RejectingAnEmptyName
-        given caller
-          authenticated
-          role "CatalogEditor"
-        when Aster name = ""
-        then error "Name is required"
-```
+   ```play
+   validate
+     name not empty message "Name is required"
+   ```
 
-   **Done:** an authorization failure cannot satisfy the validation example. Read references/negative-paths.md for denial and other negative paths.
-3. Run `screenplay ./model` followed by `screenplay test model --format json` against the application model directory. **Done:** every intended address executed and passed. If the report says `unsupported`, inspect the result's `capability` and `reason`; do not count it as coverage. For simultaneous delivery or real storage isolation, send the same examples to [Prove the boundary a direct call misses](../cratis-specifications-exercise-backend/SKILL.md).
+3. At the same indentation as the command declaration, add the example and specifications:
+
+   ```play
+   example Aster : RegisterAuthor
+     id = "11111111-1111-4111-8111-111111111111"
+     name = "Aster"
+
+   specification RegisteringAster
+     when Aster
+     then AuthorRegistered
+       for "11111111-1111-4111-8111-111111111111"
+       name = "Aster"
+
+   specification RejectingAnEmptyName
+     when Aster name = ""
+     then error "Name is required"
+   ```
+
+4. From the Library application directory run `screenplay test model --format json`. Check that both named examples executed and passed. The first one should fail if the event goes to a different author, even if the name is correct.
+
+## Avoid
+
+- Don't infer the destination from a payload field; assert `for` on the expected event.
+- Don't use `then no events` for a validation error; it describes a successful request that produced nothing.
+- Don't change the caller and the input together when testing the name rule.
+
+## Related skills
+
+- [Accept the model](../cratis-screenplay-accept-model/SKILL.md) to review what changed in the running examples.
+- [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) for the corresponding runtime assertions.

@@ -1,6 +1,6 @@
 {
-  "scope": "Catalog.Authors",
-  "revision": "rev1:0d58ace00e253dc4ff5752c28beea705dc97b52e67fa784c11a9571f75036f13",
+  "scope": "Library.Authors",
+  "revision": "rev1:a269ab79fff75e3c1999964c7ad6d8d33fa9138251457f07b87d52be355e899c",
   "contract": "accepted.esm.json",
   "preconditions": { "namespace": "fresh isolated application namespace per case", "caller": "permitted catalog editor", "priorRegistration": false },
   "success": {

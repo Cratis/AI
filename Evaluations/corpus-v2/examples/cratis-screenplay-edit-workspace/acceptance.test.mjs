@@ -15,6 +15,7 @@ test('a sibling edit invalidates the reviewed model revision', t => {
     assert.ok(before.application.eventSources.some(source => source.name === 'AuthorHistory'));
     const file = join(copy, 'identity.play');
     writeFileSync(file, readFileSync(file, 'utf8').replace('AuthorHistory', 'RegistrationHistory'));
+    execFileSync('screenplay', [copy]);
     const after = model(copy);
     assert.notEqual(after.revision, before.revision);
     assert.deepEqual(before.application.modules, after.application.modules);

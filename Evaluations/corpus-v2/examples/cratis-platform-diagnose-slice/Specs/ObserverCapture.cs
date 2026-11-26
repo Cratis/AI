@@ -24,7 +24,10 @@ public class ObserverCapture
         using var doc = JsonDocument.Parse(File.ReadAllBytes(Path.Combine(AppContext.BaseDirectory, "capture.json")));
         var capture = doc.RootElement;
         Assert.Equal("fixture-request", capture.GetProperty("trace").GetString());
+        Assert.Equal("library-test", capture.GetProperty("store").GetString());
         Assert.Equal("isolated", capture.GetProperty("namespace").GetString());
+        Assert.Equal("event-log", capture.GetProperty("sequence").GetString());
+        Assert.Equal("Author", capture.GetProperty("observer").GetString());
         Assert.True(capture.GetProperty("accepted").GetBoolean());
         var append = capture.GetProperty("appended").GetInt32();
         var samples = capture.GetProperty("samples");

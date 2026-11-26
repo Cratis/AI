@@ -1,16 +1,57 @@
 ---
 name: cratis-specifications-exercise-backend
-description: Use when a backend integration test must exercise Arc middleware, a Chronicle append or observer materialization. Not for a pure transition (cratis-specifications-isolate-behavior).
-compatibility: Requires the .NET SDK. Container-backed scenarios also need a Docker engine.
+description: Exercises the backend boundary an assertion names. Use when testing Arc command execution, a Chronicle append, a materialized view or reactor dispatch. Not for testing a pure transition (use cratis-specifications-isolate-behavior).
+compatibility: Requires the .NET SDK and matching Arc and Chronicle testing packages.
 ---
 
-# Prove the boundary a direct call misses
+# Test that registration appends to the requested author
 
-1. State the failure a direct `Handle()` assertion would miss. For a command that returns a fact, choose an in-process Arc command scenario with Chronicle testing support. Read references/command-scenario.md for pipeline setup. **Done:** the claimed outcome names an execution boundary (for registration: actual scenario append to the requested source), not just the returned object.
-2. Use a fresh scenario, supply collaborators and configure the trusted principal *before* first dispatch. Seed only prior facts needed by the decision under the intended source. Execute once. **Done:** the command result distinguishes rejection from success and setup events cannot be mistaken for output.
-3. For success, inspect both exact appended events and their destination. For refusal, assert the specific validation or authorization result and absence of writes, not just an exception. **Done:** a disabled handler or a wrong stream would fail the spec. Read references/provider-failures.md when setup fails before dispatch.
-4. If the claim extends to an observer, feed the accepted event to the real mapping and check its keyed state. Read references/chronicle-fixture.md when the claim requires a running store/observer rather than the in-process scenario. **Done:** the requested model appears at the correct key with the expected name, or a bounded wait fails with the last observed state. An append check alone is not delivery evidence.
+Run `RegisterAuthor` through the command pipeline. Check both success and the name on the event appended to the requested author ID.
 
-Example: execute registration for Aster; expect success, exactly `AuthorRegistered("Aster")`, at the submitted author's ID. Execute a separate blank-name case; expect a name validation failure and no registration. Run `dotnet test -c Release` in the application's backend-spec project and confirm both outcomes. Report whether assertions exercised a scenario, a projection in isolation or the running observer; don't substitute one for another.
+1. In `Library.Specs`, reference the Library project, `Cratis.Arc.Chronicle.Testing`, `Cratis.Specifications.XUnit.v3` and `xunit.v3`. Keep the testing packages aligned with the application packages.
+2. Put the context in `Library.Specs/for_RegisterAuthor/when_executing_author_registration.cs`. `AuthorId` comes from [declaring domain values](../cratis-fundamentals-name-value/SKILL.md); the command and event come from [delivering the registration slice](../cratis-platform-deliver-slice/SKILL.md).
+3. Create the scenario before execution. Configure any required collaborators before it builds the service provider. Call `Execute` once and await the append assertion.
 
-Requires Docker only for a container-backed scenario: check `docker info`. If the engine is unavailable, run the in-process dispatch check and mark store delivery unverified.
+```csharp
+using System.Threading.Tasks;
+using Cratis.Arc.Chronicle.Testing.Commands;
+using Cratis.Arc.Commands;
+using Cratis.Arc.Testing.Commands;
+using Cratis.Specifications;
+using Library.Features.Authors;
+using Library.Features.Authors.Registration;
+using Xunit;
+
+namespace Library.Specs.for_RegisterAuthor;
+
+public class when_executing_author_registration : Specification
+{
+    readonly CommandScenario<RegisterAuthor> _scenario = new();
+    readonly AuthorId _id = AuthorId.New();
+    CommandResult _result = null!;
+
+    async Task Because() => _result = await _scenario.Execute(new RegisterAuthor(_id, "Aster"));
+    async Task Destroy() => await _scenario.DisposeAsync();
+
+    [Fact] public void should_accept_registration() => _result.ShouldBeSuccessful();
+    [Fact] public async Task should_record_the_name_on_the_requested_author() =>
+        await _scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(_id, x => x.Name == "Aster");
+}
+```
+
+## Test other backend outcomes
+
+- Refusal: arrange the conflicting state in a fresh scenario. Check the refusal reason and that the attempt appended nothing. Do not count arranged events as new appends.
+- Append constraint: arrange the first claim in `EventScenario`, attempt a conflicting append on another source and assert the named violation.
+- Projected row: supply events to `ReadModelScenario<TReadModel>` and check the row for the requested key.
+- Reactor: use `ReactorScenario<TReactor>` to check the output destination or the call to its collaborator.
+
+## Avoid
+
+- Don't use `Validate` to test an append; it never executes the handler.
+- Don't assert only the event type; check its destination and payload.
+- Don't claim the in-memory scenario demonstrates delivery by a running host.
+
+## Related skills
+
+- [Isolate behavior](../cratis-specifications-isolate-behavior/SKILL.md) for a direct handler test.

@@ -1,4 +1,4 @@
-module Catalog
+module Library
   feature Authors
     slice Translate ImportAuthors
       capture DirectoryAuthors

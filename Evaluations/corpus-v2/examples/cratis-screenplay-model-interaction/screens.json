@@ -4,7 +4,7 @@
   "screens": [
     {
       "name": "AddAuthor",
-      "slice": "Catalog.Authors.AddAuthorInput",
+      "slice": "Library.Authors.AddAuthorInput",
       "title": "AddAuthor",
       "data": [],
       "actions": [
@@ -23,8 +23,8 @@
             }
           ],
           "then": "Authors",
-          "commandId": "sem1:0664d32c5c17b9713f0254a70aa07086d089ce62f5a9041edbd1377f01354e74",
-          "route": "/api/catalog/authors/register-author"
+          "commandId": "sem1:2ea78e90b254335b251c18b259a8a95cd4582a85b91ff6f83405e90c7956ab78",
+          "route": "/api/library/authors/register-author"
         }
       ],
       "navigation": [
@@ -37,11 +37,11 @@
         "fits": [],
         "regions": []
       },
-      "sliceId": "sem1:afb810e0d0e9913d4b1c14419b19483b3048d37d9aa8c8258156db4a5b6fd4c1"
+      "sliceId": "sem1:a93d2143ab0d9c572579b7cfdd5565c591152ef02ef963507f0cc5d486eb66ec"
     },
     {
       "name": "Authors",
-      "slice": "Catalog.Authors.BrowseAuthors",
+      "slice": "Library.Authors.BrowseAuthors",
       "title": "Add author",
       "data": [
         {
@@ -49,8 +49,8 @@
           "readModel": "Author",
           "many": true,
           "fields": [],
-          "queryId": "sem1:79ba5cd652c86242ec646a014cf8033b4d3f010924477bb2eef1ced94d80e3f3",
-          "route": "/api/catalog/authors/list-authors/all-authors",
+          "queryId": "sem1:ec4da3976c3411c59f528b4cc68339f77232ac5f3a672e2736171fa644d83f8f",
+          "route": "/api/library/authors/list-authors/all-authors",
           "live": true
         }
       ],
@@ -73,8 +73,8 @@
           }
         ]
       },
-      "sliceId": "sem1:ea65047e7a88d32f2dcd71066e59632ccd9fbca32fb402ad681465107a133aba"
+      "sliceId": "sem1:191f0b53c718a1e34006531e4714324d1c279ff9d6f65aae3c2e6fab3a63d78a"
     }
   ],
-  "modelRevision": "rev1:5217bf34844600f63d258262d8a514cb74e65a6cb18ff9779ecfab571bc97b39"
+  "modelRevision": "rev1:fc8178c86fc0c602e510f201ebead98f9af3915683febc351ed4803f11cabdf6"
 }

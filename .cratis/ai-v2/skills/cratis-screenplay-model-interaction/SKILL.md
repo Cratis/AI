@@ -1,23 +1,46 @@
 ---
 name: cratis-screenplay-model-interaction
-description: Use when a .play screen needs a form, navigation, a query binding or actions available to a particular performer. Not for wiring React hooks (cratis-arc-react-bind-slice).
+description: Binds screens, actions and forms to modeled operations. Use when declaring a Screenplay form, navigation destination or performer-specific action. Not for React bindings (use cratis-arc-react-bind-slice).
 compatibility: Requires the Screenplay CLI.
 ---
 
-# Bind the input screen before the success destination
+# Bind the Add author form and authors list
 
-**Requires:** Check `screenplay --version`; restore the project's pinned CLI if missing.
+Use the command and observable query from [declaring the Authors slice](../cratis-screenplay-declare-slice/SKILL.md). In `model/Authors/screens.play`, declare the form directly under the module, and declare each screen inside its feature slice.
 
-1. Identify the performer and whether opening the form requires a selected row. Bind editable fields to the declared command and list data to its query. **Done:** each input has a source, including any identifier the performer never enters.
-2. Separate navigation that opens the form from the action that submits it. Read references/shell-and-locales.md when shell routes or translated labels are involved. For example, a screen-wide submit action names its audience and success destination:
+1. Bind the form to `RegisterAuthor` and label the editable name. The caller must supply the `AuthorId` requested by the command; the name is not the identifier.
+2. Make Add a screen action: it does not require a selected row. Navigate to Authors only after successful submission.
+3. Bind the list to `AllAuthors` so the screen uses the modeled collection instead of a second local list.
 
-```screenplay
+```play
+module Library
+  form AddAuthorForm for RegisterAuthor
+    field name label "Name"
+  feature Authors
+    slice StateChange AddAuthorInput
       screen AddAuthor
         action RegisterAuthor for screen
           label "Add"
-          available for CatalogEditors
           navigate to Authors
+    slice StateView BrowseAuthors
+      screen Authors
+        data Author[] via query AllAuthors
+        section addAuthor
+          title "Add author"
+          on click
+            navigate to AddAuthor
 ```
 
-   **Done:** opening the form does not execute the command, and rejection does not navigate to the success destination.
-3. Run `screenplay ./model --warnaserror` and `screenplay export model --format ui --output screens.json` against the application model directory. **Done:** the exported query, action identity and navigation target resolve. If the export has screens but lacks identities, inspect stderr for a missing executable model. Check the authored audience gate separately from server authorization; read references/authentication-and-context.md when availability depends on the performer. Pass the expected interactions to [Test what the actor can do](../cratis-specifications-observe-ui/SKILL.md).
+From the directory containing `model`, run `screenplay export model --format ui --output screens.json`. Check that Add binds to `RegisterAuthor`, its successful destination is `Authors`, and the list reads a live collection from `AllAuthors`.
+
+## Avoid
+
+- Don't use `for item` on Add; reserve it for actions on a selected row.
+- Don't show a generated command input as an editable field; use the returned ID when navigating to a generated entity.
+- Don't treat action visibility as authorization; enforce permission at the operation.
+- Don't navigate after a refused submission; refresh the actual state.
+
+## Related skills
+
+- [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md) to define the operation inputs and results.
+- [Bind the React slice](../cratis-arc-react-bind-slice/SKILL.md) to implement the accepted interaction.

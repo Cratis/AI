@@ -1,19 +1,39 @@
 ---
 name: cratis-screenplay-accept-model
-description: Use before signing off a .play change, choosing a Screenplay compiler or deciding whether a semantic diff matches agreed behavior. Not for applying workspace edits (cratis-screenplay-edit-workspace).
+description: Evaluates whether a complete Screenplay change preserves the agreed behavior. Use when reviewing a model change or admitting a model to delivery. Not for applying the edit (use cratis-screenplay-edit-workspace).
 compatibility: Requires Node.js and the Screenplay CLI.
 ---
 
-# Decide whether the model is accepted
+# Decide whether to accept the model change
 
-**Requires:** Check `node --version` and `screenplay --version`; restore the project's pinned CLI before making a compiler-based decision.
+Compile the complete model, execute its examples and compare both successful compilations. A clean structural check alone does not say what the changed command will do.
 
-1. Record the intended outcomes independently of the candidate, the compiler and language versions, and the reviewed revision. Read references/compiler-selection.md if the editor reports green. **Done:** an editor parse alone is not counted as execution.
-2. Compare the baseline and candidate. Run `node scripts/check-model.mjs <baseline-directory> <candidate-directory>` from this skill's folder with absolute model paths; it compiles the candidate, tests it and prints the compilation diagnostics, scenario report and semantic differences as JSON. **Done:** diagnostics have been reviewed and the required scenario addresses are present and passed, including refusals. For example, changing this expected message changes the reviewed contract even if a matching implementation change keeps the test green:
+1. Keep separate folders for the baseline and candidate. Use the same compatible compiler on both.
+2. Compile each complete folder before interpreting a scoped result. Treat a failed side as unknown, not as a model with nothing in it.
+3. Run the candidate's specifications. Compare selected, executed and unsupported counts and inspect the named outcomes.
+4. Compare semantic changes against the agreed examples. Check removed expectations separately from deleted seed data.
 
-```screenplay
-        when Aster name = ""
-        then error "Name is required"
+## Review a change to the blank-name error
+
+Keep the accepted Library model in `before/model/` and the proposed change in `after/model/`. Include the Authors [registration and refusal specifications](../cratis-screenplay-specify-outcome/SKILL.md) in both. Run from their common parent:
+
+```sh
+screenplay before/model
+screenplay after/model
+screenplay test after/model --format json
+screenplay diff before/model after/model --format json
 ```
 
-3. Read references/admission.md before recording the decision. If the diff shows removal plus addition instead of a rename, inspect persisted identities; do not infer continuity from similar names. **Done:** every difference has an owner disposition, and the decision names the exact revision as accepted, rejected or unresolved. Send only the accepted scope to [Hand off one accepted outcome](../cratis-screenplay-handoff-slice/SKILL.md).
+Trace the new blank-name error through the command's validation rule and the refusal example. Compare the old and new model revisions before reusing an earlier acceptance decision. If the candidate no longer checks the expected destination, a passing test count does not preserve that expectation. Compare scope and exposure changes even when operation names are unchanged.
+
+## Avoid
+
+- Don't count unsupported or `NotEvaluable` outcomes as passes.
+- Don't treat an agent allowlist as caller authorization; review them separately.
+- Don't compare localized diagnostic messages; compare the code and declared arguments.
+- Don't change the stored shape of a shipped event revision through a shared nested type.
+
+## Related skills
+
+- [Edit the workspace](../cratis-screenplay-edit-workspace/SKILL.md) to revise the proposal.
+- [Hand off the slice](../cratis-screenplay-handoff-slice/SKILL.md) once the change is accepted.

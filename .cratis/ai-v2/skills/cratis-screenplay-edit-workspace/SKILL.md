@@ -1,23 +1,31 @@
 ---
 name: cratis-screenplay-edit-workspace
-description: Use when editing a split .play model, proposing an AST change or recovering from a stale workspace revision or handle. Not for accepting modeled behavior (cratis-screenplay-accept-model).
+description: Applies revision-bound Screenplay workspace edits. Use when editing a split model, proposing an AST change or recovering a stale workspace handle. Not for accepting the behavior (use cratis-screenplay-accept-model).
 compatibility: Requires the Screenplay MCP server and CLI.
 ---
 
-# Edit against a workspace revision
+# Apply a model edit to the reviewed revision
 
-**Requires:** Check `screenplay --version` and confirm the configured `screenplay` MCP server lists `open-workspace`. If either is unavailable, stop before mutation; a local compile cannot substitute for applying a reviewed proposal.
+Open the folder containing the complete model. A change in one document can affect references in another document in that folder.
 
-1. Open the authorized root with `open-workspace` and use `read-workspace`. Read references/split-models.md if declarations span files. For example, a sibling document can own the identity used by a command:
+1. Call `open-workspace` for `model/`. Keep the returned `revision` and `catalogRevision`. Use `read-ast` to obtain the handle for the `name` property of `RegisterAuthor`.
+2. Call `propose-property` with that handle as `target`, `action: "rename"`, `expectedName: "name"`, `newName: "authorName"` and `validation: "Executable"`. Pass the saved revisions as `expectedRevision` and `expectedCatalogRevision`. Select no other fields: the event payload must still be named `name`.
+3. Use `read-proposal` to review the affected references, identities, diagnostics, lost comments and exact files the proposal would write.
+4. Obtain approval for that specific proposal before `apply`. Approval for one proposal does not transfer to another.
+5. Reopen the composed folder after applying and compile it. Do not infer the persisted state from the proposed write plan.
 
-```screenplay
-concept AuthorId : Uuid
+## Example: rename a command input in a split model
 
-eventsource AuthorHistory
-  identifier AuthorId
-```
+Start with `model/Authors/registration.play` from [declaring the Authors slice](../cratis-screenplay-declare-slice/SKILL.md). To rename `RegisterAuthor.name`, open `model`, then select that command input in the assembled workspace. Request the rename there. Inspect the proposed changes to its production mapping and example values separately: a matching literal need not be a reference to the declaration.
 
-   **Done:** record the composed documents, identities, handles and revision; a line number is not a handle.
-2. Use `propose-ast` with handles from that revision and node kinds from `syntax-schema`. Inspect `read-proposal`. **Done:** the source changes, identities, diagnostics and semantic diff match the intended edit without unrelated reprints.
-3. Use `apply` only with explicit approval of that proposal for that workspace. If the revision is stale, follow references/stale-revision.md; do not replay old handles. **Done:** either nothing changed or the new revision contains exactly the approved change.
-4. Run `screenplay ./model` against the whole composed directory, not the edited file alone. **Done:** all sibling references bind and the compiler exits zero. Send the revision to [Decide whether the model is accepted](../cratis-screenplay-accept-model/SKILL.md) for behavioral judgment.
+If a collaborator edits the feature before apply, reopen the model, propose against the new revision and review the new write plan. If the connection drops during apply, inspect `workspace-state` **before** deciding whether recovery is needed. Obtain approval before recovery.
+
+## Avoid
+
+- Don't rename with a global replacement; target the declaration.
+- Don't retry an interrupted write blindly; inspect the recorded workspace state.
+- Don't generate a folder layout over the existing workspace; obsolete files can remain and still compile into the folder model.
+
+## Related skills
+
+- [Accept the model](../cratis-screenplay-accept-model/SKILL.md) to evaluate the resulting behavior rather than the edit mechanics.

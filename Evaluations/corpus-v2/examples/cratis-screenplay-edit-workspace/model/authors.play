@@ -1,7 +1,7 @@
 policy MayRegisterAuthor
   require authenticated and role "CatalogEditor"
 
-module Catalog
+module Library
   feature Authors
     slice StateChange RegisterAuthor
       command RegisterAuthor

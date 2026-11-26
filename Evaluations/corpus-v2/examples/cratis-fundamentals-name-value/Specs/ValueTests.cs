@@ -4,6 +4,7 @@ using Cratis.Arc.Commands.ModelBound;
 using Cratis.Arc.Testing.Commands;
 using Cratis.Chronicle.Events;
 using Cratis.Json;
+using Library.Features.Authors;
 using Xunit;
 
 [EventType] public record AuthorRegistered(string Name);

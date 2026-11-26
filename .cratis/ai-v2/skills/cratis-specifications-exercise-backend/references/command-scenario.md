@@ -1,3 +1,0 @@
-# Drive the command rather than its method
-
-Construct `CommandScenario<TCommand>` from `Cratis.Arc.Testing.Commands`. Register dependencies before `Execute` builds the provider. Include `Cratis.Arc.Chronicle.Testing` and import `Cratis.Arc.Chronicle.Testing.Commands` for event-backed execution. Await `Execute`, then assert the result and `ShouldHaveAppendedEvent<TCommand,TEvent>` on the scenario with the expected source and payload predicate. Use `ShouldHaveAppendedEventsInOrder` to catch extra output. Await scenario disposal. A `Validate` call is useful for preflight only; it cannot show the handler ran.

@@ -1,3 +1,0 @@
-# Keep availability and authorization separate
-
-A persona describes a performer; an audience describes availability. Neither is a token validation rule. Test the contrast on the target with the same command values and a caller outside the audience. The Screenplay specification runner treats gates as available; `given caller` is not a test of audience entitlement. Refusal for unavailability is distinct from an available feature denying permission. The UI export binds screens and operations but does not carry every authored gate; inspect the source as well as the contract, then verify the denied call at the application boundary.

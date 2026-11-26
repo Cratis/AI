@@ -11,7 +11,7 @@ public class PreviewBindings
         using var settings = new ConfigurationManager();
         settings.AddEnvironmentVariables(prefix);
         if (settings["Preview:Endpoint"] != Allowed) throw new InvalidOperationException("Invalid Preview:Endpoint");
-        if (string.IsNullOrWhiteSpace(settings["Preview:Credential"])) throw new InvalidOperationException("Missing Preview:Credential");
+        if (string.IsNullOrWhiteSpace(settings["Cratis:Chronicle:ConnectionString"])) throw new InvalidOperationException("Missing Chronicle connection string");
         return $"Preview target: {Allowed}";
     }
 
@@ -20,12 +20,12 @@ public class PreviewBindings
     {
         var prefix = $"PREVIEW_FIXTURE_{Guid.NewGuid():N}_";
         var endpoint = prefix + "Preview__Endpoint";
-        var credential = prefix + "Preview__Credential";
+        var credential = prefix + "Cratis__Chronicle__ConnectionString";
         var marker = Convert.ToHexString(RandomNumberGenerator.GetBytes(16));
         try
         {
             Environment.SetEnvironmentVariable(endpoint, Allowed);
-            Assert.Equal("Missing Preview:Credential", Assert.Throws<InvalidOperationException>(() => Inspect(prefix)).Message);
+            Assert.Equal("Missing Chronicle connection string", Assert.Throws<InvalidOperationException>(() => Inspect(prefix)).Message);
             Environment.SetEnvironmentVariable(credential, marker);
             var success = Inspect(prefix);
             Assert.Equal($"Preview target: {Allowed}", success);
