@@ -1,0 +1,3 @@
+# Verify the endpoint identity
+
+Chronicle serves TLS even in development. The development client skips certificate validation by default for the server's ephemeral self-signed certificate. For a trusted remote endpoint configure `skipTlsValidation=false` and install the intended trust chain. Check scheme, configured port and trust chain from the application host's network context. Match the certificate name to the hostname the client actually uses. Install the intended local CA for a disposable TLS environment; never solve a trust error by globally accepting arbitrary certificates. Record only the non-secret endpoint and failure category. A valid TLS session says nothing about which namespace was selected.

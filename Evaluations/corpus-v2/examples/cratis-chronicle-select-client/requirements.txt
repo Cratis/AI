@@ -1,0 +1,1 @@
+cratis-chronicle-contracts==19.184.3
