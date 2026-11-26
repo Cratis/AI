@@ -2,10 +2,12 @@
   <PropertyGroup>
     <TargetFramework>net11.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
     <DefaultItemExcludes>$(DefaultItemExcludes);Specs/**;node_modules/**;generated/**</DefaultItemExcludes>
+  </PropertyGroup>
+  <PropertyGroup>
     <CratisProxiesOutputPath>$(MSBuildProjectDirectory)/generated</CratisProxiesOutputPath>
     <CratisProxiesSegmentsToSkip>1</CratisProxiesSegmentsToSkip>
-    <CratisProxiesSkipCommandNameInRoute>true</CratisProxiesSkipCommandNameInRoute>
     <CratisProxiesUseSourceFileAsOutputFile>true</CratisProxiesUseSourceFileAsOutputFile>
+    <CratisProxiesSkipCommandNameInRoute>true</CratisProxiesSkipCommandNameInRoute>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Cratis" Version="24.9.0" />

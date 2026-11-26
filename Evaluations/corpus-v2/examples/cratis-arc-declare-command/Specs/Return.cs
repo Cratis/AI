@@ -10,8 +10,9 @@ public class Return
     {
         await using var scenario = new CommandScenario<RegisterAuthor>();
         scenario.WithClaims(new Claim(ClaimTypes.Role, "catalog-editor"));
-        var id = new AuthorId(Guid.NewGuid());
-        var result = await scenario.Execute(new RegisterAuthor(id, "Aster"));
+        var id = AuthorId.New();
+        var command = new RegisterAuthor(id, "Aster");
+        var result = await scenario.Execute(command);
         Assert.True(result.IsSuccess);
         await scenario.ShouldHaveAppendedEventsInOrder(new AuthorRegistered("Aster"));
         await scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e => e.Name == "Aster");

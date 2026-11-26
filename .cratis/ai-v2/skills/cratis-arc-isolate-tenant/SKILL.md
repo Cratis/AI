@@ -1,13 +1,55 @@
 ---
 name: cratis-arc-isolate-tenant
-description: Use when tenants in a multi-tenant application must not share query results, observations or writes. Not for event store connection setup (cratis-chronicle-connect-application).
-compatibility: Requires the .NET SDK.
+description: Resolves the request tenant and checks caller membership. Use when tenants share a deployment but must not see each other's authors. Not for choosing a database server (use cratis-arc-connect-storage).
+compatibility: Requires Cratis.Arc in a web host with a verified caller identity.
 ---
 
-# Bind the operation to one authorized partition
+# Check tenant membership before accessing authors
 
-1. Resolve tenant membership from an authenticated principal at entry. For claim resolution set `Cratis:Arc:Tenancy:ResolverType` to `Claim` and `ClaimType` under that section to the issuer's tenant claim; an absent claim can resolve to an empty string, so reject missing or unmapped tenants before touching storage. **Done:** changing a client parameter cannot select another tenant. Use [Authorize a request](../cratis-arc-authorize-request/SKILL.md) for establishing the principal.
-2. Bind scoped storage and the Chronicle namespace (if used) to that resolved tenant. Keep an author ID distinct from its namespace. Capture scope for live delivery; do not reuse a mutable global current tenant or key a cache by author ID alone. **Done:** two tenants can store different names under the same author ID and a write from A cannot change B's value.
-3. As each tenant fetch the same ID, subscribe, then write under A while B stays subscribed. Include a permitted update under B as a positive delivery control. **Done:** B receives its own update and never A's row; switching tenant closes the old subscription and clears previously displayed data. If a one-shot read passes but a later update leaks, inspect the observer's captured partition rather than adding a browser filter.
+Select the tenant from a trusted claim. A resolver selects a tenant; it does not establish that the caller belongs to it. Register a separate synchronous `ITenantMembership` check.
 
-Run `dotnet test -c Release` in the application's tenant-spec project. Expect tenant B to observe its own update but never A's, even when both use the same row key.
+In the Arc-only host's `Program.cs`, keep the existing authentication setup and add the tenant configuration below. In a combined Library host pass `configureArcOptions: options => options.UseClaimTenancy("tenant_id")` to the existing `AddCratis` call instead of registering Arc twice.
+
+```csharp
+using Catalog.Tenancy;
+using Cratis.Arc.Tenancy;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.AddCratisArc(options => options.UseClaimTenancy("tenant_id"));
+builder.Services.AddScoped<ITenantMembership, ClaimsTenantMembership>();
+var app = builder.Build();
+app.UseCratisArc();
+await app.RunAsync();
+```
+
+In `Tenancy/ClaimsTenantMembership.cs`, use the **verified** membership claims supplied by your identity provider. Here `tenant_id` selects the active tenant and each `member_of` claim grants membership in one tenant.
+
+```csharp
+using System.Security.Claims;
+using Cratis.Arc.Tenancy;
+
+namespace Catalog.Tenancy;
+
+public class ClaimsTenantMembership : ITenantMembership
+{
+    public bool IsMember(ClaimsPrincipal principal, TenantId tenantId) =>
+        principal.Identity?.IsAuthenticated == true && tenantId != TenantId.NotSet &&
+        principal.HasClaim("member_of", tenantId.Value);
+}
+```
+
+Call the same author query with the same ID under two tenant identities. Each member should see only its tenant's name; a caller selecting a tenant without membership must receive no data.
+
+## Avoid
+
+- Do not trust membership supplied in a command body; inspect the verified principal.
+- Do not perform I/O in `IsMember`; use membership already established for this request.
+- Do not ship fixed or development tenancy as per-caller routing; both select one tenant.
+- Explicit background scopes bypass request membership. Authorize first, then call `tenantScope.Begin(tenantId)` before resolving scoped services.
+
+## Related skills
+
+- [Authorize the operation](../cratis-arc-authorize-request/SKILL.md)
+- [Connect MongoDB](../cratis-arc-connect-storage/SKILL.md)

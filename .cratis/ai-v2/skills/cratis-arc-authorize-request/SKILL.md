@@ -1,27 +1,35 @@
 ---
 name: cratis-arc-authorize-request
-description: Use when configuring authentication, authorization or permissions for an Arc query or command. Not for partitioning tenant data (cratis-arc-isolate-tenant).
-compatibility: Requires the .NET SDK.
+description: Protects model-bound commands and queries with Arc authorization. Use when requiring sign-in or restricting an operation to a role. Not for selecting a tenant (use cratis-arc-isolate-tenant).
+compatibility: Requires the Cratis package and a configured authentication provider.
 ---
 
-# Enforce access before data leaves the server
+# Restrict author registration to editors
 
-1. Identify who authenticates the caller and which principal reaches Arc. Accept forwarded identity headers only behind an ingress that authenticates, strips incoming copies and is the sole route to the app. Otherwise leave trust disabled. **Done:** an arbitrary client-supplied actor cannot become a catalog editor.
-2. Require the server permission on the command and separately on the read method. For a live query whose membership can change, register an `IGuardObservableQueryEmission` checking current server-side access before each delivery. A connection-time role check alone does not detect revocation. **Done:** an insufficient caller sees neither rows nor side effects, even without the UI. If the task is to scope the rows within granted access, use [Isolate a tenant](../cratis-arc-isolate-tenant/SKILL.md).
-3. Exercise anonymous, insufficient and authorized callers against the real dispatch/transport. After a permitted subscription's initial response, revoke access then produce another update. **Done:** only the authorized operation succeeds, denied writes leave the stream unchanged, and no new protected payload crosses the connection after revocation. A guard runs at delivery, not on a timer; don't assert instant idle disconnect. If a revoked reader still sees updates, verify that the guard runs for each delivery and reads current membership. Record verdicts and synthetic IDs only, never tokens or claim dumps.
-
-For example, check current membership on delivery, not just on subscription:
+Add Arc's authorization attribute to the [existing command](../cratis-arc-declare-command/SKILL.md) in `Authors/RegisterAuthor.cs`. Use the role name issued by your identity provider. Leave `Handle`, `AuthorId` and the event unchanged.
 
 ```csharp
-public sealed class CatalogAccess(IReadOnlySet<string> readers) : IGuardObservableQueryEmission
+namespace Catalog.Authors;
+
+[Command]
+[Cratis.Arc.Authorization.Authorize(Roles = "catalog-editor")]
+public record RegisterAuthor(AuthorId Id, string Name)
 {
-    public Task<ObservableQueryEmissionVerdict> Guard(ObservableQueryEmissionContext context)
-    {
-        var actor = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var permitted = context.Principal?.Identity?.IsAuthenticated == true && actor is not null && readers.Contains(actor);
-        return Task.FromResult(permitted ? ObservableQueryEmissionVerdict.Allow : ObservableQueryEmissionVerdict.DenyAndTerminate);
-    }
+    public AuthorRegistered Handle() => new(Name);
 }
 ```
 
-Run `dotnet test -c Release` in the application's spec project. Expect the permitted read to succeed and revocation to stop subsequent protected data.
+Execute through the pipeline as an anonymous caller, a signed-in reader and a catalog editor. Both refused results have `IsAuthorized` false and append nothing; the editor succeeds. Arc maps the unauthorized command result to HTTP 403. Check that response rather than whether the UI shows the registration button.
+
+Use `[Cratis.Arc.Authorization.Authorize]` without roles to require sign-in alone. On queries, put it on the read model to cover its methods, or on an individual query method for that query's requirements.
+
+## Avoid
+
+- Do not authorize only in React; protect the server operation.
+- Do not add method and model role lists together; the method declaration takes precedence.
+- Do not test access by invoking `Handle` directly; this bypasses the pipeline.
+
+## Related skills
+
+- [Check tenant membership](../cratis-arc-isolate-tenant/SKILL.md)
+- [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md)

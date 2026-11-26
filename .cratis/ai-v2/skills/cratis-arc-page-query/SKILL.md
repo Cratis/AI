@@ -1,24 +1,38 @@
 ---
 name: cratis-arc-page-query
-description: Use when an existing list endpoint must page, sort or filter on the server. Not for rendering table columns (cratis-components-display-list).
-compatibility: Requires the .NET SDK; the page comparison uses Node.js.
+description: Pages a filtered list in the database. Use when a list query needs server-side paging or sorting. Not for rendering list columns (use cratis-components-display-list).
+compatibility: Requires Cratis and Cratis.Arc.MongoDB with Mongo registered on the host.
 ---
 
-# Page before materializing
+# Page authors with the requested name
 
-1. Record scope, filter, zero-based page and size. Pick a total ordering, e.g. name then unique ID; seed tied names across the page boundary and a nonmatching control. **Done:** the expected adjacent ID lists are disjoint and their concatenation has a known order.
-2. Return provider-backed `IQueryable<Author>` from the one-shot static query. Apply tenant and business filters before paging. Do not call `ToList()` and wrap it with `AsQueryable()`. Let Arc count the filtered query and slice it once. Inspect the effective ordering: a requested dynamic `sortBy` can replace an earlier `OrderBy`; do not claim stable ties unless the final query preserves the unique key. **Done:** the provider executes a bounded page and a matching total count, not a full collection transfer.
-3. Request `?page=0&pageSize=2` and `?page=1&pageSize=2` against the same unchanged dataset. Check the result verdict before comparing `data`, `paging.totalItems` and `paging.totalPages`. **Done:** no extra, duplicated or omitted keys. For a live page the producer must apply the same filter, total order and slice on *every* update; insert a row before the boundary and check the shifted page. If it grows beyond two rows, repair the producer, not the UI.
-
-For example, keep the provider query ordered and unmaterialized on the read model:
+Add `AuthorsNamed` to [the Author read model](../cratis-arc-expose-query/SKILL.md) in `Authors/Author.cs`. The client supplies `name`; Arc injects the collection. Add the imports and method below to the existing file; do not replace `AllAuthors` or declare a second `Author`. Return the filtered query unexecuted so Arc counts matching authors before applying the requested page.
 
 ```csharp
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
+
+namespace Catalog.Authors;
+
 [ReadModel]
-public record Row(int Id, string Name)
+[FromEvent<AuthorRegistered>]
+public record Author(AuthorId Id, string Name)
 {
-    public static IQueryable<Row> ByName(string name, Catalog db) =>
-        db.Rows.Where(row => row.Name == name).OrderBy(row => row.Name).ThenBy(row => row.Id);
+    public static IQueryable<Author> AuthorsNamed(string name, IMongoCollection<Author> collection) =>
+        collection.AsQueryable().Where(author => author.Name == name).OrderBy(author => author.Id);
 }
 ```
 
-Run `node scripts/check-pages.mjs first.json second.json id` from the installed skill directory with the two saved successful page responses and their key field. It prints the row counts only if both pages contain rows with distinct keys; compare their concatenation with the expected order separately.
+With prefix `api` and one namespace segment skipped, request `GET /api/authors/authors-named?name=Aster&page=0&pageSize=2`, then change `page` to `1`, with three authors named Aster and one other author. Expect two different IDs on page zero and the remaining ID on page one. Both responses should have `paging.totalItems` equal to three. To check for repeated IDs in the two saved responses run `node scripts/check-pages.mjs first.json second.json id` from the skill directory.
+
+## Avoid
+
+- Do not call `ToList()` before returning; that moves paging off the database.
+- Do not apply `Skip` or `Take` yourself; Arc applies them once.
+- Do not rely on insertion order. Order by a stable key; a client `sortBy` replaces this ordering.
+- Do not reuse `page`, `pageSize`, `sortBy` or `sortDirection` as business filter names.
+
+## Related skills
+
+- [Connect MongoDB](../cratis-arc-connect-storage/SKILL.md)
+- [Display the list](../cratis-components-display-list/SKILL.md)

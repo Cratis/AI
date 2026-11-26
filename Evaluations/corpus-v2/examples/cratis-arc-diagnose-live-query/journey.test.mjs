@@ -16,16 +16,21 @@ test('inspect storage snapshot, direct SSE and rendered result', {timeout: 40000
   const page = await browser.newPage(); await page.goto(url);
   await page.evaluate(() => {
     const source = new EventSource('/api/authors/all-authors');
+    window.authorDeliveries = [];
     source.onmessage = event => {
       const frame = JSON.parse(event.data);
       if (!frame.isSuccess) throw Error('Query failed');
+      window.authorDeliveries.push(frame.data);
       document.querySelector('main').textContent = frame.data.map(row => `${row.id}: ${row.name}`).join(', ') || 'Ready: empty';
     };
   });
   await page.getByText('Ready: empty',{exact:true}).waitFor({timeout:8000});
+  const initial = await page.request.get(`${url}/api/authors/snapshot`);
+  assert.deepEqual((await initial.json()).data, []);
   host.stdin.write('register\n');
   const id = '11111111-1111-4111-8111-111111111111';
   await page.getByText(`${id}: Aster`,{exact:true}).waitFor({timeout:8000});
+  assert.deepEqual(await page.evaluate(() => window.authorDeliveries.at(-1)), [{id,name:'Aster'}]);
   const snapshot = await page.request.get(`${url}/api/authors/snapshot`);
   assert.equal(snapshot.ok(),true); assert.deepEqual((await snapshot.json()).data,[{id,name:'Aster'}]);
 });

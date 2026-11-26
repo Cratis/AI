@@ -1,13 +1,31 @@
 ---
 name: cratis-arc-diagnose-live-query
-description: Use when a real-time query connects over SSE or WebSocket but the expected update never arrives. Not for adding an endpoint (cratis-arc-expose-query).
-compatibility: The SSE diagnostic uses Node.js.
+description: Finds where a live query stops updating. Use when the author list connects but does not change after registration. Not for implementing the query (use cratis-arc-expose-query).
+compatibility: Requires curl and Node.js for the stream check, and a running Library host.
 ---
 
-# Locate the first missing emission
+# Find the missing author update
 
-1. Start from the actual generated query route, transport, scoped test identity and disposable namespace. Establish what storage should contain before and after one permitted registration. **Done:** one known ID and expected change distinguish this operation from other writers. If the read model never materializes, stop at the observer rather than debugging React.
-2. Open a direct query GET with `Accept: text/event-stream` and buffering disabled, authenticating through the application's protected test client. Wait for a ready, successful `data:` frame before triggering the change. A snapshot with `waitForFirstResult=true` is useful for the initial read but disposes after one result. **Done:** the baseline frame is known; an HTTP 200, heartbeat or 202 not-ready result does not count.
-3. Register Aster once and compare keyed storage, next direct frame, then the browser's subscription and rendered row. Bound the wait and close the connection. **Done:** name the first missing signal: absent storage row, missing server delivery, or received frame without rendered state. If the second frame is denied, inspect current access/emission guards rather than removing them. Record IDs and verdicts, never headers, credentials or whole payloads. For a received frame with a stale screen, pass the generated query and row key to [Bind the slice in React](../cratis-arc-react-bind-slice/SKILL.md).
+Trace one [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) on one existing [AllAuthors](../cratis-arc-expose-query/SKILL.md) subscription. Use the same authenticated caller, tenant and database throughout.
 
-For SSE, pipe the protected test client's unbuffered response into `node scripts/check-frames.mjs` from the skill directory, with a timeout on the client. It prints only ready-result counts. Trigger the change after result 1; expect result 2 on the same connection, then check the expected key in the application. Frame counts alone do not prove the row changed.
+1. From the skill directory, open the direct query at the host's listening address, with the same credentials used for the query in the browser. The example assumes HTTPS port 5001, prefix `/api`, one namespace segment skipped and authentication already configured for curl. Substitute the running host's origin if different:
+
+   ```sh
+   curl -sN --max-time 60 -H 'Accept: text/event-stream' https://localhost:5001/api/authors/all-authors | node scripts/check-frames.mjs
+   ```
+
+2. The script counts ready frames, not their contents. Wait for `Ready result 1`. In another session register Aster once. Look up the supplied `AuthorId` in the Mongo database used by this tenant. If the document is missing, investigate the [projection](../cratis-chronicle-project-view/SKILL.md) before debugging delivery.
+3. If the document exists but no `Ready result 2` arrives, check that Mongo supports change streams (replica set or sharded cluster) and that `Authors/Author.cs` returns `collection.Observe()`, not a materialized list.
+4. If curl gets the update, inspect the browser's network connection to `/.cratis/queries/ws` or `/.cratis/queries/sse`. For WebSockets, enable `app.UseWebSockets()` before `app.UseCratis()` in `Program.cs`. Check for the same ID in the delivered data before changing the React component.
+
+## Avoid
+
+- Do not use `waitForFirstResult=true` for this probe; it stops after the first result.
+- Do not use `/.cratis/queries/health` to check that the author document exists; it describes connections.
+- Do not require a delta on the first result. It is a snapshot; later delta deliveries need a stable `Id`.
+- Do not reconnect between registration and inspection; a new subscription starts with a fresh snapshot.
+
+## Related skills
+
+- [Connect the Mongo reader](../cratis-arc-connect-storage/SKILL.md)
+- [Expose the observable query](../cratis-arc-expose-query/SKILL.md)

@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
+using MongoDB.Driver;
 
 public class FixturePeople : ICallerPersonDirectory
 {
@@ -46,6 +47,12 @@ internal sealed class FixtureHost : IAsyncDisposable
         var policy = Substitute.For<IPatPolicy>();
         policy.Evaluate(Arg.Any<PatRecord>(),Arg.Any<bool>(),Arg.Any<CancellationToken>()).Returns(new PatPolicyDecision(true,TimeSpan.FromMinutes(10),1));
         builder.Services.AddSingleton(authority); builder.Services.AddSingleton(epochs); builder.Services.AddSingleton(policy);
+        var collection = Substitute.For<IMongoCollection<Author>>();
+        var cursor = Substitute.For<IAsyncCursor<Author>>();
+        cursor.Current.Returns(new[] { new Author(Catalog.Authors.AuthorId.New(), "Aster") });
+        cursor.MoveNext(Arg.Any<CancellationToken>()).Returns(true, false);
+        collection.FindSync(Arg.Any<FilterDefinition<Author>>(), Arg.Any<FindOptions<Author, Author>>(), Arg.Any<CancellationToken>()).Returns(cursor);
+        builder.Services.AddSingleton(collection);
         app = builder.Build(); app.UseCratisArc(); app.MapArcMcp();
     }
     public Task Start(CancellationToken token) => app.StartAsync(token);

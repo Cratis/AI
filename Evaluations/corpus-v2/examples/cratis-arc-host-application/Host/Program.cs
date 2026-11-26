@@ -20,6 +20,7 @@ public static class ProbeHost
         builder.Services.AddSingleton<Rows>();
         builder.AddCratisArc(options => { options.GeneratedApis.RoutePrefix = "api"; options.GeneratedApis.SegmentsToSkipForRoute = 1; }, configureBuilder: arc => arc.WithoutControllers());
         var app = builder.Build();
+        app.UseWebSockets();
         app.UseCratisArc();
         app.MapGet("/", () => Results.Content("<main>Waiting</main>", "text/html"));
         return app;

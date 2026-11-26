@@ -1,12 +1,22 @@
 using Cratis.Arc.Mcp;
 using Cratis.Arc.Queries.ModelBound;
+using MongoDB.Driver;
 using Xunit;
 
-[ReadModel]
-public record Author(string Name)
+[Cratis.Arc.Commands.ModelBound.Command]
+[ExposeOverMcp("register_author", Description = "Registers an author in the library.")]
+public record RegisterAuthor(Catalog.Authors.AuthorId Id, string Name)
 {
-    [ExposeOverMcp("list_authors", Description = "Lists authors in the current catalog.")]
-    public static IEnumerable<Author> Snapshot() => [new("Aster")];
+    public Catalog.Authors.AuthorRegistered Handle() => new(Name);
+}
+
+[ReadModel]
+[Cratis.Chronicle.Projections.ModelBound.FromEvent<Catalog.Authors.AuthorRegistered>]
+public record Author(Catalog.Authors.AuthorId Id, string Name)
+{
+    [ExposeOverMcp("list_authors", Description = "Lists the library's authors.")]
+    public static IEnumerable<Author> ListAuthors(IMongoCollection<Author> collection) =>
+        collection.Find(_ => true).ToList();
 }
 
 // Exercise the catalog and dispatch over HTTP, not by inspecting attributes.
@@ -29,6 +39,8 @@ public class Exposure
         var read = fixture.Reader; var insufficient = fixture.Other;
         var listed = await Rpc("tools/list",new {},read);
         Assert.True(listed.Ok && listed.Body.Contains("list_authors",StringComparison.Ordinal) && !listed.Body.Contains("register_author",StringComparison.Ordinal));
+        var writerTools = await Rpc("tools/list",new {},insufficient);
+        Assert.True(writerTools.Ok && writerTools.Body.Contains("register_author",StringComparison.Ordinal) && !writerTools.Body.Contains("list_authors",StringComparison.Ordinal));
         var args = new {name = "list_authors", arguments = new {}};
         var valid = await Rpc("tools/call",args,read); Assert.True(valid.Ok && valid.Body.Contains("Aster",StringComparison.Ordinal));
         foreach (var token in new string?[]{null,insufficient})

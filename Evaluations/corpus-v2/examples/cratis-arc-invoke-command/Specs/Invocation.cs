@@ -1,29 +1,38 @@
-using Cratis.Arc.Authorization;
 using Cratis.Arc.Commands;
-using Cratis.Arc.Commands.ModelBound;
 using Cratis.Arc.Testing.Commands;
-using Microsoft.Extensions.DependencyInjection;
-using System.Security.Claims;
+using NSubstitute;
 using Xunit;
 
-public class Writes { public List<string> Names { get; } = []; }
-[Command, Authorize(Roles = "editor")]
-public record Keep(string Name) { public void Handle(Writes writes) => writes.Names.Add(Name); }
-public sealed class KeepDispatcher(ICommandPipeline pipeline)
+namespace Catalog.Authors;
+
+public class AuthorImporter(ICommandPipeline commandPipeline)
 {
-    public Task<CommandResult> Dispatch(Keep command, IServiceProvider requestServices) =>
-        pipeline.Execute(command, requestServices);
+    public async Task Import(AuthorId id, string name)
+    {
+        var result = await commandPipeline.Execute(new RegisterAuthor(id, name));
+        if (!result.IsSuccess)
+        {
+            throw new InvalidOperationException($"Could not register author {id}. Correlation: {result.CorrelationId}");
+        }
+    }
 }
+
 public class Invocation
 {
-    [Theory][InlineData("reader", false)][InlineData("editor", true)] public async Task dispatch_keeps_scope(string role, bool allowed)
+    [Theory][InlineData("Aster", true)][InlineData("", false)]
+    public async Task import_checks_the_result(string name, bool accepted)
     {
-        await using var scope = new CommandScenario<Keep>();
-        var writes = new Writes();
-        scope.Services.AddSingleton(writes);
-        scope.WithClaims(new Claim(ClaimTypes.Role, role));
-        var result = await scope.Execute(new Keep("Aster"));
-        Assert.Equal(allowed, result.IsAuthorized);
-        Assert.Equal(allowed ? new[] { "Aster" } : Array.Empty<string>(), writes.Names.ToArray());
+        await using var scenario = new CommandScenario<RegisterAuthor>();
+        var id = AuthorId.New();
+        var command = new RegisterAuthor(id, name);
+        var result = await scenario.Execute(command);
+        var pipeline = Substitute.For<ICommandPipeline>();
+        pipeline.Execute(command).Returns(Task.FromResult(result));
+        var importer = new AuthorImporter(pipeline);
+        if (accepted) await importer.Import(id, name);
+        else await Assert.ThrowsAsync<InvalidOperationException>(() => importer.Import(id, name));
+        await pipeline.Received(1).Execute(command);
+        Assert.Equal(accepted, result.IsSuccess);
+        Assert.Equal(accepted, result.IsValid);
     }
 }

@@ -1,8 +1,18 @@
 using Catalog.Authors;
+using Cratis.Arc.Commands.ModelBound;
 using Cratis.Arc.Chronicle.Testing.Commands;
 using Cratis.Arc.Testing.Commands;
 using System.Security.Claims;
 using Xunit;
+
+namespace Catalog.ProtectedAuthors;
+
+[Command]
+[Cratis.Arc.Authorization.Authorize(Roles = "catalog-editor")]
+public record RegisterAuthor(AuthorId Id, string Name)
+{
+    public AuthorRegistered Handle() => new(Name);
+}
 
 public class Access
 {
@@ -13,6 +23,7 @@ public class Access
         if (role is null) scenario.Unauthenticated(); else scenario.WithClaims(new Claim(ClaimTypes.Role, role));
         var result = await scenario.Execute(new RegisterAuthor(new(Guid.NewGuid()), "Aster"));
         Assert.Equal(granted, result.IsAuthorized);
+        Assert.Equal(granted, result.IsSuccess);
         if (granted) await scenario.ShouldHaveAppendedEventsInOrder(new AuthorRegistered("Aster"));
         else await scenario.ShouldNotHaveAppendedEvents();
     }

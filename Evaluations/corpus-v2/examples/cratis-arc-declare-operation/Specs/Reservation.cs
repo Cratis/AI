@@ -1,41 +1,68 @@
-using Cratis.Arc.Authorization;
 using Cratis.Arc.Commands;
 using Cratis.Arc.Commands.ModelBound;
 using Cratis.Arc.Testing.Commands;
+using Cratis.Concepts;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-public sealed class Provider
+namespace Catalog.Books;
+
+public record ReservationId(Guid Value) : ConceptAs<Guid>(Value);
+public record BookId(Guid Value) : ConceptAs<Guid>(Value);
+
+public interface IBookReservations
 {
-    public HashSet<Guid> Reservations { get; } = [];
-    public bool FailAfterWrite { get; init; }
+    Task Reserve(ReservationId id, BookId book, CancellationToken cancellationToken);
+    Task Cancel(ReservationId id, CancellationToken cancellationToken);
 }
-public record Reserve(Guid AttemptId) : ICommandOperation
+
+[Command]
+public record ReserveBook(ReservationId Id, BookId Book)
 {
-    bool inserted;
-    public void Execute(Provider provider)
-    {
-        if (!provider.Reservations.Add(AttemptId)) throw new InvalidOperationException("Attempt already exists");
-        inserted = true;
-        if (provider.FailAfterWrite) throw new InvalidOperationException("Interrupted after reservation");
-    }
-    public void Compensate(Provider provider) { if (inserted) provider.Reservations.Remove(AttemptId); }
+    public ReserveBookOperation Handle() => new(Id, Book);
 }
-[Command, Authorize(Roles = "editor")]
-public record Book { public Reserve Handle() => new(Guid.NewGuid()); }
+
+public record ReserveBookOperation(ReservationId Id, BookId Book) : ICommandOperation
+{
+    public Task Execute(IBookReservations reservations, CancellationToken cancellationToken) =>
+        reservations.Reserve(Id, Book, cancellationToken);
+
+    public Task Compensate(IBookReservations reservations, CancellationToken cancellationToken) =>
+        reservations.Cancel(Id, cancellationToken);
+}
+
 public class Reservation
 {
-    [Theory][InlineData(false)][InlineData(true)] public async Task reverses_only_the_failed_attempt(bool fail)
+    class BookReservations(bool fail) : IBookReservations
     {
-        var provider = new Provider { FailAfterWrite = fail };
-        var prior = Guid.NewGuid(); provider.Reservations.Add(prior);
-        await using var scenario = new CommandScenario<Book>();
-        scenario.WithClaims(new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, "editor"));
-        scenario.Services.AddSingleton(provider);
-        var result = await scenario.Execute(new Book());
+        public Dictionary<ReservationId, BookId> Saved { get; } = [];
+        public HashSet<ReservationId> Finalized { get; } = [];
+        public Task Reserve(ReservationId id, BookId book, CancellationToken cancellationToken)
+        {
+            if (Finalized.Contains(id)) throw new InvalidOperationException("Already finalized");
+            Saved.Add(id, book);
+            return fail ? Task.FromException(new IOException("Acknowledgement lost")) : Task.CompletedTask;
+        }
+        public Task Cancel(ReservationId id, CancellationToken cancellationToken)
+        {
+            if (!Finalized.Contains(id)) Saved.Remove(id);
+            return Task.CompletedTask;
+        }
+    }
+
+    [Theory][InlineData(false)][InlineData(true)] public async Task reverses_only_the_failed_reservation(bool fail)
+    {
+        var provider = new BookReservations(fail);
+        var prior = new ReservationId(Guid.NewGuid());
+        var book = new BookId(Guid.NewGuid());
+        provider.Saved.Add(prior, book);
+        provider.Finalized.Add(prior);
+        await using var scenario = new CommandScenario<ReserveBook>();
+        scenario.Services.AddSingleton<IBookReservations>(provider);
+        var result = await scenario.Execute(new ReserveBook(new(Guid.NewGuid()), book));
         Assert.Equal(!fail, result.IsSuccess);
-        Assert.Contains(prior, provider.Reservations);
-        Assert.Equal(fail ? 1 : 2, provider.Reservations.Count);
-        if (fail) scenario.ShouldHaveCompensatedOperation<Reserve>(); else scenario.ShouldHaveExecutedOperation<Reserve>();
+        Assert.True(provider.Saved.ContainsKey(prior));
+        Assert.Equal(fail ? 1 : 2, provider.Saved.Count);
+        if (fail) scenario.ShouldHaveCompensatedOperation<ReserveBookOperation>(); else scenario.ShouldHaveExecutedOperation<ReserveBookOperation>();
     }
 }

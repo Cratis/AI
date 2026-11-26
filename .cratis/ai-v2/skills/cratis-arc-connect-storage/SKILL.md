@@ -1,25 +1,44 @@
 ---
 name: cratis-arc-connect-storage
-description: Use when wiring EF Core, MongoDB or Neo4j persistence into an Arc-only slice, or migrating its database schema. Not for Chronicle materialization (cratis-chronicle-project-view).
-compatibility: Requires the .NET SDK and the application's database provider.
+description: Registers MongoDB for typed Arc queries. Use when adding MongoDB to a host or when IMongoCollection does not resolve or returns no authors. Not for defining a projection (use cratis-chronicle-project-view).
+compatibility: Requires Cratis and Cratis.Arc.MongoDB; observable queries require MongoDB change streams.
 ---
 
-# Bind storage without introducing an event store
+# Connect Arc to MongoDB
 
-1. Identify the provider already owned by the application, its scoped service, migration owner and tenant-to-storage mapping. Reject missing tenant selection. **Done:** an isolated database or schema is available and no production target is a fallback. Do not add Chronicle solely to separate commands and queries.
-2. Inject the provider's typed dependency into the handler/query method. For EF register `WithEntityFrameworkCore` on the Arc builder and bind the application's context to its provider and connection. Inject that scoped context, save, then reload using a fresh context so the change tracker cannot satisfy the assertion. Apply pending migrations only to the disposable fixture first. With MongoDB use the tenant's typed collection; observation needs a change-stream-capable deployment. With Neo4j keep the session bound to the intended database and dispose it after the operation. **Done:** a second request reloads the committed value at the expected key.
-3. Seed the same key with a different name in another tenant and repeat the read after the write. **Done:** tenant B's value is unchanged and the migration preserves existing fixture rows. If reload fails, compare the selected database, serializer mapping and acknowledged write before changing the CQRS contract. For a projection driven by events, hand the mapping to [Project a view](../cratis-chronicle-project-view/SKILL.md).
+Reference `Cratis.Arc.MongoDB` in the Library backend. For a new database written by Chronicle, configure the same camel-case naming policy on both builders. For an existing database, match its naming policy.
 
-For example, give entries a tenant-scoped key in the EF model:
+`Program.cs` (top-level statements in a Web SDK project):
 
 ```csharp
-public record Entry(string Tenant, int Id, string Name);
-public class Store(SqliteConnection connection) : DbContext
-{
-    public DbSet<Entry> Entries => Set<Entry>();
-    protected override void OnConfiguring(DbContextOptionsBuilder options) => options.UseSqlite(connection);
-    protected override void OnModelCreating(ModelBuilder model) => model.Entity<Entry>().HasKey(x => new { x.Tenant, x.Id });
-}
+using Cratis.Arc.MongoDB;
+using Microsoft.AspNetCore.Builder;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.AddCratis(
+    configureArcBuilder: arc => arc.WithMongoDB(configureMongoDB: mongo => mongo.WithCamelCaseNamingPolicy()),
+    configureChronicleBuilder: chronicle => chronicle.WithCamelCaseNamingPolicy());
+var app = builder.Build();
+app.UseWebSockets();
+app.UseCratis();
+await app.RunAsync();
 ```
 
-Run `dotnet test -c Release` in the application's provider-spec project. Expect a fresh context to reload both tenants' distinct values after migration.
+Set both required reader values in the host project's `appsettings.json`. The example uses a local Mongo server and a database named `library`; it does not configure Chronicle's writer. Point the writer at the same server and tenant database before checking projected rows:
+
+```json
+{ "Cratis": { "MongoDB": { "Server": "mongodb://localhost:27017", "Database": "library" } } }
+```
+
+In [the author query](../cratis-arc-expose-query/SKILL.md), take `IMongoCollection<Author>` as a method parameter. Check that a known author written to the configured server and tenant database can be read by ID.
+
+## Avoid
+
+- Do not construct database or collection names in `AllAuthors`; inject the typed collection.
+- Do not configure different naming policies on the reader and writer. Compare BSON field names if a known document cannot be read.
+- Do not map concepts into nested `Value` documents; the configured serializers store their underlying values.
+
+## Related skills
+
+- [Expose AllAuthors](../cratis-arc-expose-query/SKILL.md)
+- [Select the tenant](../cratis-arc-isolate-tenant/SKILL.md)

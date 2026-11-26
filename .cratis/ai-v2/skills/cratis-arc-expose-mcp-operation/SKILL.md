@@ -1,24 +1,74 @@
 ---
 name: cratis-arc-expose-mcp-operation
-description: Use when making an application command or query available through MCP. Not for inspecting a Chronicle observer partition (cratis-chronicle-inspect-observer).
-compatibility: Requires the .NET SDK and Cratis.Arc.Mcp.
+description: Publishes an Arc command or query as an MCP tool. Use when a client needs to register or list authors through MCP. Not for exposing the HTTP query (use cratis-arc-expose-query).
+compatibility: Requires Cratis.Arc.Mcp on a host configured to authenticate MCP clients; the Library examples use Cratis and Cratis.Arc.MongoDB.
 ---
 
-# Expose one scoped application tool
+# Expose an author operation as an MCP tool
 
-1. Select the smallest approved operation. Default to a one-shot read; an observable query is not a streaming MCP tool. Name the permitted caller, read scope and additional business permission. **Done:** one operation is approved by name and the neighboring command remains unlisted.
-2. Reference `Cratis.Arc.Mcp`, assign and bind a capabilities port and install `WithCapabilities()` plus verified callers. Register `WithMcp`, then `MapArcMcp()` after `UseCratisArc()`. Configure the application name so the server and issuer agree on the read and write scopes; never accept an unsigned identity assertion. Keep exclusive catalog enforcement and explicitly expose the selected query with a stable snake_case tool name and a description. A write requires write scope and separate approval to expose; a command requiring approval cannot be a tool. **Done:** startup accepts the catalog without relaxing scope validation. For `McpToolHasNoScope` or `McpWriteToolLacksWriteScope`, fix the declaration rather than weakening authentication.
-3. On a disposable host compare `tools/list` and `tools/call` for an authorized token, insufficient scope and no credentials. Try the name of the unlisted operation directly as well. **Done:** the authorized read returns the expected row, the unlisted name cannot execute, and refusal yields no protected data or write. A filtered listing alone is not execution evidence. For command/query authorization after tool selection use [Authorize a request](../cratis-arc-authorize-request/SKILL.md).
-
-For example, expose the snapshot rather than its neighboring command:
+On the existing Arc registration in `Program.cs`, enable capabilities and MCP. Start with a host that authenticates MCP callers and supplies their granted scopes. Keep that configuration. For a local Arc-only Web SDK host, bind a second listener for capabilities and map the endpoint:
 
 ```csharp
-[ReadModel]
-public record Author(string Name)
+using Cratis.Arc;
+using Cratis.Arc.Mcp;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.UseUrls("http://127.0.0.1:5000", "http://127.0.0.1:5002");
+builder.AddCratisArc(options => options.EndpointGroups.Assign("capabilities", 5002),
+    configureBuilder: arc => arc.WithCapabilities()
+    .WithMcp(mcp => mcp.Configure(options => options.ApplicationName = "catalog")));
+var app = builder.Build();
+app.UseCratisArc();
+app.MapArcMcp();
+await app.RunAsync();
+```
+
+In the Library host apply the port assignment in `AddCratis(configureArcOptions: ...)` and chain `WithCapabilities().WithMcp(...)` onto the existing `configureArcBuilder` expression; keep the existing Chronicle and Mongo registration. `catalog` gives queries the default `catalog:read` scope and commands `catalog:write`. The local client endpoint here is `http://127.0.0.1:5002/mcp`. Use HTTPS for remote clients.
+
+In `Authors/RegisterAuthor.cs` annotate the [command](../cratis-arc-declare-command/SKILL.md) itself. Its `AuthorId` and `AuthorRegistered` stay unchanged:
+
+```csharp
+using Cratis.Arc.Mcp;
+
+namespace Catalog.Authors;
+
+[Command]
+[ExposeOverMcp("register_author", Description = "Registers an author in the library.")]
+public record RegisterAuthor(AuthorId Id, string Name)
 {
-    [ExposeOverMcp("list_authors", Description = "Lists authors in the current catalog.")]
-    public static IEnumerable<Author> Snapshot() => [new("Aster")];
+    public AuthorRegistered Handle() => new(Name);
 }
 ```
 
-Run `dotnet test -c Release` in the application's MCP-spec project. Expect discovery and direct invocation to agree on the permitted operation and scope.
+For a list, annotate the **method** on the existing `Author` read model in `Authors/Author.cs`. Add the imports and `ListAuthors` method; keep the existing `AllAuthors` method and event mapping:
+
+```csharp
+using Cratis.Arc.Mcp;
+using MongoDB.Driver;
+
+namespace Catalog.Authors;
+
+[ReadModel]
+[FromEvent<AuthorRegistered>]
+public record Author(AuthorId Id, string Name)
+{
+    [ExposeOverMcp("list_authors", Description = "Lists the library's authors.")]
+    public static IEnumerable<Author> ListAuthors(IMongoCollection<Author> collection) =>
+        collection.Find(_ => true).ToList();
+}
+```
+
+Give the tool a name matching `^[a-z][a-z0-9_]{0,63}$` and a description. `System.ComponentModel.DescriptionAttribute` on a query parameter or command property describes the argument.
+
+## Avoid
+
+- Do not expose `AllAuthors` returning `ISubject<T>`; a tool returns one result.
+- Do not rely on hiding the tool. An insufficiently scoped caller must neither see it nor get data by calling it by name.
+- Do not treat mapping `/mcp` as issuing credentials; configure verified callers and keep operation authorization in force.
+
+## Related skills
+
+- [Declare the command](../cratis-arc-declare-command/SKILL.md)
+- [Protect the operation](../cratis-arc-authorize-request/SKILL.md)

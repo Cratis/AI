@@ -27,8 +27,11 @@ public class Stream
             }
             throw new EndOfStreamException();
         }
-        Assert.Equal(0, (await Next()).GetArrayLength());
+        var initialAuthors = await Next();
+        Assert.Empty(initialAuthors.EnumerateArray());
         app.Services.GetRequiredService<Rows>().Register();
-        var rows = await Next(); Assert.Equal(1, rows.GetArrayLength()); Assert.Equal("Aster", rows[0].GetProperty("name").GetString());
+        var row = Assert.Single((await Next()).EnumerateArray());
+        Assert.Equal("11111111-1111-4111-8111-111111111111", row.GetProperty("id").GetString());
+        Assert.Equal("Aster", row.GetProperty("name").GetString());
     }
 }

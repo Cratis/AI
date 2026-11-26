@@ -9,7 +9,7 @@ namespace Catalog.Authors;
 public record Author(AuthorId Id, string Name)
 {
     #region docs:observable
-    [Cratis.Arc.Authorization.Authorize(Roles = "catalog-editor")]
-    public static ISubject<IEnumerable<Author>> AllAuthors(IMongoCollection<Author> collection) => collection.Observe();
+    public static ISubject<IEnumerable<Author>> AllAuthors(IMongoCollection<Author> collection) =>
+        collection.Observe();
     #endregion docs:observable
 }

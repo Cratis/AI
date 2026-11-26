@@ -1,13 +1,37 @@
 ---
 name: cratis-arc-generate-proxies
-description: Use when backend changes have no matching TypeScript proxy or generated types are stale. Not for consuming generated hooks in React (cratis-arc-react-bind-slice).
-compatibility: Requires the .NET SDK, Node.js and the consuming project's TypeScript compiler.
+description: Generates TypeScript contracts from the backend project. Use when author proxies are missing or stale after a C# change. Not for consuming a generated hook (use cratis-arc-react-bind-slice).
+compatibility: Requires the .NET SDK and a TypeScript frontend with @cratis/arc, @cratis/arc.react and @cratis/fundamentals.
 ---
 
-# Generate the client from the backend
+# Generate the author contracts
 
-1. Find the project compiling the command and read model, not the project serving static assets. Locate `CratisProxiesOutputPath` and its relationship to the UI imports. **Done:** one known assembly owns `RegisterAuthor` and `AllAuthors`, and the output directory is dedicated to generated code. If the property is empty the build may succeed without generating anything.
-2. Set the generator's route prefix, namespace segments to skip and command-name inclusion to match the running host. Reference `Cratis.Arc.ProxyGenerator.Build` in the owning backend project and run `dotnet build -c Debug` there. **Done:** the generated command has the changed members, and the generated query uses the expected endpoint. Never fix a stale route in the `.ts` output; correct the project or runtime options and regenerate.
-3. In the consuming TS project install the locked Arc dependencies and run `npx --no-install tsc --noEmit`. Import both generated classes, assign a typed author ID and name, and include a negative type assertion on a retired member. **Done:** the valid import compiles and the old member still fails type checking. If the generated file exists but the check imports a different one, inspect module resolution before changing the command. Pass the actual output paths, not hand-written lookalikes, to [Bind the slice in React](../cratis-arc-react-bind-slice/SKILL.md).
+Build the project containing [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) and [Author](../cratis-arc-expose-query/SKILL.md). The `Cratis` package includes `Cratis.Arc.ProxyGenerator.Build`; a backend using only `Cratis.Arc` needs a direct reference to the build package.
 
-After building, run `node scripts/check-proxy.mjs /path/to/Catalog.csproj Authors/RegisterAuthor.ts 'class RegisterAuthor'` from the skill directory with the project's actual file and expected changed text. It prints the matching file or reports an empty Debug output setting, missing file or absent contract text.
+Add these properties to `Catalog.csproj`:
+
+```xml
+<PropertyGroup>
+  <CratisProxiesOutputPath>$(MSBuildProjectDirectory)/generated</CratisProxiesOutputPath>
+  <CratisProxiesSegmentsToSkip>1</CratisProxiesSegmentsToSkip>
+  <CratisProxiesUseSourceFileAsOutputFile>true</CratisProxiesUseSourceFileAsOutputFile>
+  <CratisProxiesSkipCommandNameInRoute>true</CratisProxiesSkipCommandNameInRoute>
+</PropertyGroup>
+```
+
+These properties assume the Library host's `appsettings.json` has `Cratis:Arc:GeneratedApis:RoutePrefix` set to `api`, `SegmentsToSkipForRoute` to `1` and `IncludeCommandNameInRoute` to `false` in the same section. Match the generator to the host: `RegisterAuthor` uses `/api/authors`; `AllAuthors` reads `/api/authors/all-authors`.
+
+1. From the backend project directory run `dotnet build Catalog.csproj -c Debug`. An empty output path writes nothing.
+2. Open `generated/Authors/Author.ts`. Skipping the root segment of `Catalog.Authors` leaves `Authors`; the source filename groups `Author` and `AllAuthors` in `Author.ts`.
+3. Import `{ AllAuthors }` from `./generated/Authors/Author` in a frontend module next to `generated`. After changing a C# member, rebuild the backend and run `tsc --noEmit` in the frontend.
+
+## Avoid
+
+- Do not share the output directory between projects. Each generator can delete files it no longer produces, even in incremental mode.
+- Do not patch a generated contract or copy it by hand. Edit C# and build again.
+- Do not guess the output path. Inspect `dotnet msbuild Catalog.csproj -getProperty:CratisProxiesOutputPath`; `scripts/check-proxy.mjs` can also check a generated member.
+
+## Related skills
+
+- [Use the generated query](../cratis-arc-react-bind-slice/SKILL.md)
+- [Expose the query](../cratis-arc-expose-query/SKILL.md)

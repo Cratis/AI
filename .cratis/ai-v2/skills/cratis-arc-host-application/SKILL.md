@@ -1,21 +1,36 @@
 ---
 name: cratis-arc-host-application
-description: Use when configuring Arc startup in Program.cs or diagnosing a host that fails to start or discover a slice. Not for implementing the query that an existing endpoint calls (cratis-arc-expose-query).
-compatibility: Requires the .NET SDK.
+description: Starts an Arc-only ASP.NET Core application. Use when hosting a model-bound query without Chronicle. Not for an application that also needs Chronicle (use cratis-chronicle-connect-application).
+compatibility: Requires Microsoft.NET.Sdk.Web and the Cratis.Arc package.
 ---
 
-# Discover a slice in a web host
+# Start an Arc host
 
-1. Choose one public command or static query in an application assembly and identify its expected route, including prefix and skipped namespace segments. **Done:** there is a specific endpoint to probe, not just a health page. If the contract itself is missing, create it before diagnosing discovery.
-2. For an Arc-only host register Arc before building, then activate it on the built app. Register handler dependencies before `Build()`. Do not introduce a Chronicle connection merely to discover a slice.
+In a `Microsoft.NET.Sdk.Web` project, reference `Cratis.Arc`. Register Arc on the builder and activate it on the built application in `Program.cs` (top-level statements, no namespace).
 
 ```csharp
-        var builder = WebApplication.CreateBuilder(args);
-        builder.AddCratisArc();
-        var app = builder.Build();
-        app.UseCratisArc();
-        await app.RunAsync();
+using Microsoft.AspNetCore.Builder;
+
+var builder = WebApplication.CreateBuilder(args);
+builder.AddCratisArc(options =>
+{
+    options.GeneratedApis.RoutePrefix = "api";
+    options.GeneratedApis.SegmentsToSkipForRoute = 1;
+});
+var app = builder.Build();
+app.UseCratisArc();
+await app.RunAsync();
 ```
 
-   **Done:** startup completes with the intended environment. For a host already using the full-stack `AddCratis`/`UseCratis` composition, keep that pair rather than registering Arc twice.
-3. Start with `dotnet run` and request the known endpoint on the reported loopback address as the intended test identity. **Done:** a successful query result contains the seeded value. For 404 compare the host route options and assembly discovery; for refusal inspect authorization, not discovery. If only the published build fails, repeat the probe on the untrimmed Release artifact. Arc 24.9.0 does not support trimmed or NativeAOT publishing. Hand missing bindings to [Configure the environment](../cratis-platform-configure-environment/SKILL.md) without dumping settings.
+Run `dotnet run` from the host project directory. Use the listening address printed at startup and the credentials required by the existing query. With the options above, namespace `Catalog.Authors` and method `AllAuthors` map to `/api/authors/all-authors`. For an observable query, append `?waitForFirstResult=true` to request one result. Expect HTTP 200, `isSuccess: true` and the expected authors in `data`.
+
+## Avoid
+
+- Do not omit either half of `AddCratisArc()` / `UseCratisArc()`.
+- Do not add a controller for a model-bound query; put the method on its read model.
+- Do not register Arc twice in an application using Chronicle. The `Cratis` package composes both through `AddCratis()` / `UseCratis()`.
+
+## Related skills
+
+- [Expose an author query](../cratis-arc-expose-query/SKILL.md)
+- [Connect Chronicle](../cratis-chronicle-connect-application/SKILL.md)

@@ -6,10 +6,10 @@ using Xunit;
 [ReadModel]
 public record Row(int Id, string Name)
 {
-    public static IQueryable<Row> ByName(string name, Catalog db) =>
-        db.Rows.Where(row => row.Name == name).OrderBy(row => row.Name).ThenBy(row => row.Id);
+    public static IQueryable<Row> ByName(string name, AuthorDb db) =>
+        db.Rows.Where(row => row.Name == name).OrderBy(row => row.Id);
 }
-public class Catalog : DbContext
+public class AuthorDb : DbContext
 {
     public DbSet<Row> Rows => Set<Row>();
     protected override void OnConfiguring(DbContextOptionsBuilder builder) => builder.UseSqlite("Data Source=:memory:");
@@ -18,7 +18,7 @@ public class Pages
 {
     [Fact] public async Task filtered_pages_have_stable_keys_even_after_insertion()
     {
-        await using var db = new Catalog();
+        await using var db = new AuthorDb();
         await db.Database.OpenConnectionAsync(); await db.Database.EnsureCreatedAsync();
         db.AddRange(new Row(2,"Aster"), new Row(3,"Aster"), new Row(4,"Aster"), new Row(9,"Other")); await db.SaveChangesAsync();
         int[] Page(int page, int expectedCount)

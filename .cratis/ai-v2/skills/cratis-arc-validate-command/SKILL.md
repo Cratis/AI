@@ -1,20 +1,34 @@
 ---
 name: cratis-arc-validate-command
-description: Use when adding command validation, a FluentValidation rule or a member-specific field rejection to an Arc command. Not for enforcing uniqueness across writers (cratis-chronicle-constrain-append).
-compatibility: Requires the .NET SDK.
+description: Adds member-level validation to a model-bound command. Use when rejecting a missing or invalid command field. Not for enforcing uniqueness across writers (use cratis-chronicle-constrain-append).
+compatibility: Requires the Cratis package, which supplies Arc and FluentValidation global usings.
 ---
 
-# Reject invalid command input before writing
+# Require an author name
 
-1. Specify the rejected member, value and valid control. Put the rule for registering an author on the command's validator. **Done:** blank input is rejected regardless of whether the caller used the form.
-2. Derive a discoverable validator from `CommandValidator<TCommand>`. With `RegisterAuthor` in scope and FluentValidation imported:
+Add the validator beside [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) in `Authors/RegisterAuthor.cs`. Arc discovers `CommandValidator<RegisterAuthor>`; no dependency injection registration is necessary. Keep the file's existing namespace declaration; add the validator class below the command.
 
 ```csharp
-public sealed class RegisterAuthorValidator : CommandValidator<RegisterAuthor>
+namespace Catalog.Authors;
+
+public class RegisterAuthorValidator : CommandValidator<RegisterAuthor>
 {
-    public RegisterAuthorValidator() => RuleFor(command => command.Name).NotEmpty();
+    public RegisterAuthorValidator()
+    {
+        RuleFor(command => command.Name).NotEmpty();
+    }
 }
 ```
 
-   **Done:** the validation result names the `Name` member; a generic exception or a successful empty response is not a field rejection. Do not query a list inside this rule to reserve a unique name across writers.
-3. Dispatch blank input directly through the server pipeline on fresh state. Dispatch Aster separately with the same permissions. Run `dotnet test -c Release` in the application's spec project with both dispatch cases from [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md). **Done:** blank yields a member error and zero appends; Aster succeeds and appends once. If blank passes, inspect discovery and the dispatch path before adding another client-side guard.
+Execute registration as an authorized caller with an empty name. Expect `IsValid` and `IsSuccess` to be false, `ValidationResults` to identify the name member, and no event to be appended. With `Aster`, expect success and one registration.
+
+## Avoid
+
+- Do not throw from `Handle` for a missing field; attach the rule to that field.
+- Do not register a validator per rule. Add registration-specific rules to the existing validator.
+- Do not use a validation lookup to guarantee uniqueness; use an append constraint.
+
+## Related skills
+
+- [Declare the command](../cratis-arc-declare-command/SKILL.md)
+- [Constrain the append](../cratis-chronicle-constrain-append/SKILL.md)

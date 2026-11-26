@@ -11,7 +11,9 @@ public class Host
         app.Services.GetRequiredService<Rows>().Register();
         await app.StartAsync(TestContext.Current.CancellationToken);
         using var client = new HttpClient { BaseAddress = new Uri(app.Urls.Single()) };
-        using var json = JsonDocument.Parse(await client.GetStringAsync("/api/authors/snapshot", TestContext.Current.CancellationToken));
-        Assert.Equal("Aster", json.RootElement.GetProperty("data")[0].GetProperty("name").GetString());
+        using var json = JsonDocument.Parse(await client.GetStringAsync("/api/authors/all-authors?waitForFirstResult=true", TestContext.Current.CancellationToken));
+        Assert.True(json.RootElement.GetProperty("isSuccess").GetBoolean());
+        var author = Assert.Single(json.RootElement.GetProperty("data").EnumerateArray());
+        Assert.Equal("Aster", author.GetProperty("name").GetString());
     }
 }

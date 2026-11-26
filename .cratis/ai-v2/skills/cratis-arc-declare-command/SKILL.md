@@ -1,22 +1,48 @@
 ---
 name: cratis-arc-declare-command
-description: Use when creating an Arc command, adding an event to a command or returning an event from Handle(). Not for declaring the event type or appending directly (cratis-chronicle-record-event), or invoking an existing command (cratis-arc-invoke-command).
-compatibility: Requires the .NET SDK.
+description: Declares a model-bound command that returns an event. Use when writing a command record or its Handle method. Not for dispatching the command (use cratis-arc-invoke-command).
+compatibility: Requires the Cratis package for Arc with Chronicle.
 ---
 
-# Return the outcome of an intent
+# Register an author
 
-1. Name the intent and include only caller-controlled inputs. For `RegisterAuthor`, the input selects the author's history and supplies `Name`; get the authenticated actor from trusted context, not an input field. Give unresolved ID semantics to [Name a value](../cratis-fundamentals-name-value/SKILL.md). **Done:** two registrations for different authors cannot accidentally select the same history through a constant or an ID allocated inside the handler.
-2. Put the handler on the command record. For an event-backed command, return the fact; the Chronicle integration appends it. Excerpt with the application's `AuthorId` and `AuthorRegistered` contracts:
+Put the command and returned event in `Authors/RegisterAuthor.cs`. The `Cratis` package supplies their framework namespaces as global usings.
 
 ```csharp
+namespace Catalog.Authors;
+
 [Command]
-[Cratis.Arc.Authorization.Authorize(Roles = "catalog-editor")]
 public record RegisterAuthor(AuthorId Id, string Name)
 {
     public AuthorRegistered Handle() => new(Name);
 }
+
+[EventType]
+public record AuthorRegistered(string Name);
 ```
 
-   **Done:** one success path produces one fact; no second append or controller write. Pass the payload contract to [Record an event](../cratis-chronicle-record-event/SKILL.md) if a new fact type is needed.
-3. Dispatch Aster once as a permitted catalog editor and inspect the append list for the submitted source. Hand the blank-name case to [Validate a command](../cratis-arc-validate-command/SKILL.md). **Done:** exactly one matching fact for success, none for refusal. If direct `Handle()` succeeds but nothing is stored, verify that dispatch used the pipeline and that the host activated Chronicle. Run the command scenario with `dotnet test -c Release` in the application's spec project as in [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md); don't return an event log receipt as a client contract.
+Make the first parameter the caller's event source ID. Define the concept in `Authors/AuthorId.cs`:
+
+```csharp
+namespace Catalog.Authors;
+
+public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
+{
+    public static readonly AuthorId NotSet = new(Guid.Empty);
+    public static implicit operator AuthorId(Guid value) => new(value);
+    public static AuthorId New() => new(Guid.NewGuid());
+}
+```
+
+Execute `RegisterAuthor` through `ICommandPipeline`. Check `IsSuccess` and that exactly one `AuthorRegistered` with the supplied name was appended to `Id`.
+
+## Avoid
+
+- Do not append in `Handle`. Return the event; Arc with Chronicle appends it.
+- Do not use a plain `Guid` for the event source property. Use `AuthorId` on the command and read model.
+- Do not call `AuthorId.New()` inside `Handle`; the caller already chose `Id`.
+
+## Related skills
+
+- [Invoke the command](../cratis-arc-invoke-command/SKILL.md)
+- [Name a domain value](../cratis-fundamentals-name-value/SKILL.md)
