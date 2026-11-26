@@ -9,7 +9,7 @@
 | Elixir requirement | `~> 1.18` | `mix.exs` |
 | Chronicle dependency | `cratis_chronicle ~> 4.0` (modules are `Cratis.Chronicle.*`) | `Source/arc/mix.exs` |
 | MongoDB driver | `mongodb_driver ~> 1.6` | `Source/arc_mongodb/mix.exs` |
-| Release | Source preview. Releases are GitHub tags and Hex may lag them: pin a git tag or a path, and check hex.pm before quoting a version | repository, `gh release list` |
+| Release | Source preview. Every release is published to Hex automatically: depend on `{:cratis_arc, "~> 1.4"}` from Hex, never a path or git reference, and check hex.pm for the current version | repository, `gh release list` |
 | Module namespace | Everything is `Cratis.Arc.*` (`use Cratis.Arc.Command, id: "..."`); sources are under `Source/arc/lib/cratis/arc/` | repository |
 | Documented gaps | `Documentation/limits-and-gaps.md` | repository |
 | Contract | The Arc HTTP contract | Cratis/Arc `Documentation/http-contract.md` |
