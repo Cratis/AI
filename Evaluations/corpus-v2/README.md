@@ -4,7 +4,7 @@ This is separate from the answer/routing/LLM-grading evaluator. `evaluate suite`
 
 ## Frozen inputs
 
-`tasks/suite.json` declares 24 tasks and a six-task pilot. All arms use identical prompts, fixture bytes, tool permissions, medium thinking, 120 tool-call/80 assistant-turn limits and 900-second trajectory timeouts. Defaults: `openai-codex/gpt-6.2-sol`, two workers, three repetitions, seed 1349. A full matrix is **216 calls**; the pilot is **18 calls**. Neither is authorized merely by running dry-run. The currently authorized smoke is one `none` trajectory only.
+`tasks/suite.json` declares 24 tasks and a six-task pilot. All arms use identical prompts, fixture bytes, tool permissions, medium thinking, 120 tool-call/80 assistant-turn limits and 900-second trajectory timeouts. Defaults: `openai-codex/gpt-6.2-sol`, two workers, three repetitions, seed 1349. Per model, the full matrix is **216 calls** and the pilot is **18 calls**. Neither is authorized merely by running dry-run. The currently authorized smoke is one `none` trajectory only.
 
 The application fixture is derived from **Cratis/Samples@4cbb7c9**, specifically Capstone and LearningPath/08-Production. The Screenplay library model is copied from this repository's compiled session example. Original source/license headers remain. Changes to the Samples baseline:
 
@@ -24,7 +24,8 @@ Run from the repository root. All costly checks use `pi-phase`, never bypass its
 ~/.pi/agent/bin/pi-phase run --kind build --label corpus-v2-image --queue-timeout 3600 --timeout 300 --log .ai-work/corpus-v2/image.log -- docker build -t cratis-corpus-v2:fixture Evaluations/corpus-v2
 
 yarn workspace @cratis/ai-skill-evaluation run evaluate suite --harness pi --arms v1,v2,none --runs 3 --seed 1349 --dry-run
-yarn workspace @cratis/ai-skill-evaluation run evaluate suite --harness pi --pilot --dry-run
+# Three-model pilot plan: six tasks × three arms × one repetition × three models = 54 calls.
+yarn workspace @cratis/ai-skill-evaluation run evaluate suite --harness pi --pilot --models openai-codex/gpt-6.2-sol,anthropic/claude-haiku-5-5,anthropic/claude-fable-5-2 --dry-run
 
 # One authorized subscription-provider smoke (tokens/time, not per-token USD billing):
 yarn workspace @cratis/ai-skill-evaluation run evaluate suite --harness pi --arms none --task 01-concepts --runs 1 --concurrency 1 --run .ai-work/corpus-v2/runs/smoke
@@ -33,7 +34,21 @@ yarn workspace @cratis/ai-skill-evaluation run evaluate suite --harness pi --arm
 yarn workspace @cratis/ai-skill-evaluation run evaluate suite-report .ai-work/corpus-v2/runs/smoke
 ```
 
+Use `--model provider/model` for a single alternative model or `--models` for a comma-separated list, not both. The pilot compares GPT with a small Claude (Haiku 5.5) and a large Claude (Fable 5.2). Every model gets the same seeded schedule; live matrix runs execute one model at a time, with separate locks, results and reports under `model-1`, `model-2`, etc. Run `suite-report` on the corresponding model subdirectory. The pilot requires separate authorization; the command above only prints the plan.
+
 The runner preflights selected fixture variants before any model call. Builds use `--timeout 300`; executable specs use `--timeout 600`; every phase uses `--queue-timeout 3600`. Do not cancel a phase merely because it waits. Failed preflight, changed locked inputs, model substitution, missing auth or image stops new trajectories. Failed/aborted agents stop further scheduling while already-running workers finish and persist telemetry. Interrupted attempts are preserved, never overwritten. Locks are never silently cleared. Raw logs, normalized events, fixture modifications, metrics and reports stay under ignored `.ai-work/corpus-v2/runs/<run>/`.
+
+## Success criteria
+
+Fix these thresholds before looking at results. Evaluate each model separately and use matched tasks and repetitions for arm comparisons.
+
+| Measure | Target |
+| --- | --- |
+| Positive trigger rate (confirmed target skill load) | ≥ 90% |
+| Near-miss false-trigger rate (confirmed target skill load on negatives with a named sibling) | ≤ 10% |
+| Unrelated false-trigger rate (any confirmed Cratis skill load on negatives with `sibling: null`) | ≤ 5% |
+| Executable task pass rate | v2 ≥ v1 and v2 ≥ none |
+| Median tool calls and median input + output tokens | v2 ≤ v1 for each measure |
 
 ## Scoring and interpretation
 

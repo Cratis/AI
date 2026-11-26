@@ -12,10 +12,17 @@ function selectedArms(value: string): Arm[] {
     return arms;
 }
 
-function validateHarness(harness: string, thinking: string, model: string): void {
+function validateHarness(harness: string, thinking: string): void {
     if (harness !== 'pi') throw new Error('The suite requires Pi');
     if (thinking !== 'medium') throw new Error('The suite requires medium thinking');
-    if (!model.includes('/')) throw new Error('Use a provider/model identity');
+}
+
+function selectedModels(model: string | undefined, list: string | undefined): string[] {
+    if (model !== undefined && list !== undefined) throw new Error('Use either --model or --models, not both');
+    const models = list === undefined ? [model ?? 'openai-codex/gpt-6.2-sol'] : list.split(',').map(identity => identity.trim());
+    if (models.some(identity => !/^[^\s/,]+(?:\/[^\s/,]+)+$/.test(identity))) throw new Error('Use a provider/model identity');
+    if (new Set(models).size !== models.length) throw new Error('Models must be unique');
+    return models;
 }
 
 function validatePilot(pilot: boolean | undefined, runs: string | undefined): void {
@@ -31,19 +38,20 @@ function integer(value: string | undefined, fallback: number, maximum: number): 
     return number;
 }
 
-export function suiteOptions(args: string[]): SuiteOptions {
+export function suiteOptions(args: string[]): SuiteOptions & { models: string[] } {
     const { values } = parseArgs({ args, options: {
         suite: { type: 'string', default: 'Evaluations/corpus-v2/tasks/suite.json' },
         arms: { type: 'string', default: 'v1,v2,none' }, runs: { type: 'string' }, concurrency: { type: 'string' },
-        seed: { type: 'string' }, model: { type: 'string', default: 'openai-codex/gpt-6.2-sol' },
+        seed: { type: 'string' }, model: { type: 'string' }, models: { type: 'string' },
         thinking: { type: 'string', default: 'medium' }, harness: { type: 'string', default: 'pi' },
         'dry-run': { type: 'boolean' }, pilot: { type: 'boolean' }, task: { type: 'string' }, run: { type: 'string' },
         image: { type: 'string', default: 'cratis-corpus-v2:fixture' },
     } });
-    validateHarness(values.harness!, values.thinking!, values.model!);
+    validateHarness(values.harness!, values.thinking!);
+    const models = selectedModels(values.model, values.models);
     validatePilot(values.pilot, values.runs);
     return { suite: values.suite!, arms: selectedArms(values.arms!), runs: integer(values.runs, values.pilot ? 1 : 3, 20), concurrency: integer(values.concurrency, 2, 8),
-        seed: integer(values.seed, 1349, 2147483647), model: values.model!, thinking: 'medium', dryRun: Boolean(values['dry-run']),
+        seed: integer(values.seed, 1349, 2147483647), model: models[0], models, thinking: 'medium', dryRun: Boolean(values['dry-run']),
         pilot: Boolean(values.pilot), task: values.task, runDirectory: values.run, image: values.image! };
 }
 

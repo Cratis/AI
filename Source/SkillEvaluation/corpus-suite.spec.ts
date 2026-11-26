@@ -72,6 +72,27 @@ test('dry run prints its plan without opening a sandbox or validating the run di
     await assert.rejects(suiteMain(args), /Run directory must be below \.ai-work\/corpus-v2\/runs/);
 });
 
+test('a multi-model pilot budgets an identical seeded schedule for each model without starting trials', async t => {
+    const models = ['openai-codex/gpt-6.2-sol', 'anthropic/claude-haiku-5-5', 'anthropic/claude-fable-5-2'];
+    const log = t.mock.method(console, 'log', () => {});
+    await suiteMain(['--models', models.join(','), '--pilot', '--dry-run']);
+    assert.equal(log.mock.callCount(), 1);
+    const plan = JSON.parse(log.mock.calls[0].arguments[0]);
+    assert.equal(plan.trials, 54);
+    assert.deepEqual(plan.models.map((entry: { model: string }) => entry.model), models);
+    for (const entry of plan.models) {
+        assert.equal(entry.trials, 18);
+        assert.deepEqual(entry.schedule, plan.models[0].schedule);
+    }
+});
+
+test('model options reject duplicates, empty entries and competing selectors', () => {
+    for (const value of ['anthropic/claude-haiku-5-5,', 'anthropic/claude-haiku-5-5,local', 'anthropic/claude-haiku-5-5,anthropic/claude-haiku-5-5']) {
+        assert.throws(() => suiteOptions(['--models', value]));
+    }
+    assert.throws(() => suiteOptions(['--model', 'anthropic/claude-haiku-5-5', '--models', 'anthropic/claude-fable-5-2']));
+});
+
 test('schema rejects unsafe paths, missing scorers, duplicate IDs and unbounded limits', () => {
     const mutate = (change: (value: Suite) => void) => { const copy = structuredClone(suite); change(copy); return copy; };
     for (const value of [mutate(value => value.tasks[0].fixture = '../escape'), mutate(value => value.tasks[0].idioms = []),

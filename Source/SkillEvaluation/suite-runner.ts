@@ -21,17 +21,38 @@ import type { StageMarker } from '../Verification/corpus-staging.ts';
 const root = resolve(import.meta.dirname, '../..');
 
 export async function suiteMain(args: string[]): Promise<void> {
-    const options = suiteOptions(args);
+    const { models, ...options } = suiteOptions(args);
     const file = resolve(root, options.suite);
     const suite = validateSuite(JSON.parse(await readFile(file, 'utf8')));
     const trials = schedule(suite, options);
-    const plan = { trials: trials.length, arms: options.arms, tasks: [...new Set(trials.map(trial => trial.task))].length,
-        runs: options.runs, concurrency: options.concurrency, model: options.model, thinking: options.thinking, seed: options.seed,
-        tools: 120, turns: 80, trajectoryTimeoutSeconds: [...new Set(suite.tasks.map(task => task.timeoutSeconds))],
-        billing: 'subscription; record tokens/time; USD unavailable', schedule: trials };
+    const runs = models.map(model => {
+        const selection = { ...options, model };
+        return { options: selection, plan: suitePlan(selection, suite, trials) };
+    });
+    const plan = runs.length === 1 ? runs[0].plan : { trials: trials.length * runs.length, models: runs.map(run => run.plan) };
     console.log(JSON.stringify(plan, null, 2));
     if (options.dryRun) return;
     const run = runPath(options.runDirectory);
+    if (runs.length === 1) return runSuite(run, file, suite, trials, runs[0]);
+
+    await mkdir(run, { recursive: true, mode: 0o700 });
+    await withRunLock(run, async () => {
+        await writeLocked(join(run, 'matrix.json'), plan);
+        for (const [index, model] of runs.entries()) {
+            await runSuite(join(run, `model-${index + 1}`), file, suite, trials, model);
+        }
+    });
+}
+
+function suitePlan(options: SuiteOptions, suite: Suite, trials: Trial[]) {
+    return { trials: trials.length, arms: options.arms, tasks: [...new Set(trials.map(trial => trial.task))].length,
+        runs: options.runs, concurrency: options.concurrency, model: options.model, thinking: options.thinking, seed: options.seed,
+        tools: 120, turns: 80, trajectoryTimeoutSeconds: [...new Set(suite.tasks.map(task => task.timeoutSeconds))],
+        billing: 'subscription; record tokens/time; USD unavailable', schedule: trials };
+}
+
+async function runSuite(run: string, file: string, suite: Suite, trials: Trial[], selection: { options: SuiteOptions; plan: object }): Promise<void> {
+    const { options, plan } = selection;
     await mkdir(run, { recursive: true, mode: 0o700 });
     await withRunLock(run, async () => {
         const context: TrialContext = { root, suiteRoot: dirname(dirname(file)), run, image: await docker(['image', 'inspect', '--format', '{{.Id}}', options.image]),
