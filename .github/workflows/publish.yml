@@ -74,6 +74,11 @@ jobs:
           YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
+      - name: Check startup budget and instruction routing
+        run: >-
+          yarn workspace @cratis/ai-verification exec node --import tsx --test
+          always-on-budget.spec.ts rule-scoping.spec.ts discoverability-routing.spec.ts documentation-routing.spec.ts
+
       - name: Type check
         run: |
           yarn workspace @cratis/harness-setup run check
