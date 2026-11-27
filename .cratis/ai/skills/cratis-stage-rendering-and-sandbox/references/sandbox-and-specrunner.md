@@ -256,11 +256,15 @@ invalid semantic option.
   `then denied`. Report schema `stage-spec-run/1` with outcomes
   `Passed`, `Failed`, `Unsupported` (carrying kind, construct id and reason) or
   `Cancelled`. Not supported: given read models, conditional production, implicit identity
-  allocation, external effects, composite values, queries other than optional snapshots, and
+  allocation, external effects, queries other than optional snapshots, and
   a reached opaque authorization policy (reported as `Unsupported`). An exact `Int64` overflow in a
   whole-number projection product (the product or one of its operands), reached directly or through a
   command append, is also `Unsupported` (projection capability): it names the event and product
   instead of failing in the executor. Unsupported is never a pass. Do not feed the file to a legacy reader.
+
+Rendering has separate admission for structured values: nested scalar objects and lists of
+objects render, but collection-valued members on the top-level object or inside list elements
+are refused with `STAGE-ESM-011`.
 
 The runner and generated-fixture checks use Screenplay's public
 `SemanticValidationRules.Check`. This shared rule check does not execute opaque

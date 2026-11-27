@@ -6,7 +6,8 @@ import { globSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-const skill = new URL('../../.cratis/ai/skills/cratis-screenplay-scenario-coverage/', import.meta.url);
+const skills = new URL('../../.cratis/ai/skills/', import.meta.url);
+const skill = new URL('cratis-screenplay-scenario-coverage/', skills);
 const reference = new URL('references/spec-forms-by-mode.md', skill);
 
 test('the mode matrix names structured values and identifies the Stage collection-member limit', () => {
@@ -27,3 +28,21 @@ test('the scenario coverage skill does not label structured values as Composite 
         assert.doesNotMatch(text, /Composite\s*\(JSON\)/i, `${path} uses the obsolete Composite (JSON) label`);
     }
 });
+
+for (const path of [
+    'cratis-stage-rendering-and-sandbox/references/admission.md',
+    'cratis-screenplay-toolchain/references/diagnostics.md',
+    'cratis-stage-rendering-and-sandbox/references/sandbox-and-specrunner.md',
+]) {
+    test(`${path} distinguishes the structured-value rendering limit from an outright refusal`, () => {
+        const text = readFileSync(new URL(path, skills), 'utf8');
+        assert.ok(!/\bcomposite\s+values\b/i.test(text), 'uses the obsolete blanket refusal');
+
+        const sections = text.split(/\r?\n(?:\s*\r?\n|(?=\|))/);
+        const describesLimit = sections.some(section =>
+            /\bstructured\s+values\b/i.test(section) &&
+            /\bcollection-valued\s+members\b/i.test(section) &&
+            /\bSTAGE-ESM-011\b/.test(section));
+        assert.ok(describesLimit, 'does not associate STAGE-ESM-011 with collection-valued members of structured values');
+    });
+}
