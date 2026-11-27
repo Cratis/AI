@@ -1,6 +1,6 @@
 ---
 name: cratis-components-build-canvas
-description: Use when building a pannable, zoomable Canvas board with DOM or Pixi items in world coordinates. Not for grouping tool buttons (use cratis-components-compose-toolbar).
+description: Use when a developer lays out interactive DOM items or Pixi markers in world coordinates on a pannable, zoomable Canvas. Not for grouping tool buttons (use cratis-components-compose-toolbar).
 compatibility: Requires react, @cratis/components and the pixi.js peer dependency.
 ---
 
@@ -8,7 +8,7 @@ compatibility: Requires react, @cratis/components and the pixi.js peer dependenc
 
 Default to DOM `CanvasItem` for content that needs keyboard focus. For dense, noninteractive book markers import `{ Graphics }` from `pixi.js` and use `<Canvas items={books} renderItem={() => new Graphics().circle(0, 0, 6).fill(0x2563eb)} />` inside the same sized wrapper. Each book has `id`, `x` and `y`. Keep positions in host data; panning and zooming do not save them.
 
-1. Install the `pixi.js` version required by the `@cratis/components` peer dependency. In `Features/Books/BookBoard.tsx`, import `Canvas` and `CanvasItem` from `@cratis/components/Canvas`. Render `BookBoard` inside the [app's Components provider](../cratis-arc-react-bind-slice/SKILL.md).
+1. Install the Canvas peer (`npm install pixi.js@8.20.0` for Components 4.63.1). In `Features/Books/BookBoard.tsx`, import `Canvas` and `CanvasItem` from `@cratis/components/Canvas`. Render `BookBoard` inside the app's `CratisComponentsProvider` from `@cratis/components`.
 2. Give the containing element a height and set the canvas to fill it. Zoom controls are visible by default and stay fixed when the board moves. Pass `showControls={false}` to hide them.
 3. Pass the book ID, title and its world coordinates from the board screen. Place its button inside `CanvasItem`; call the screen's `openBook` handler with the same ID.
 
@@ -26,6 +26,8 @@ export function BookBoard({ book, openBook }: { book: BoardBook; openBook: (id: 
     </div>;
 }
 ```
+
+Pan or zoom: the book should move with the board. Tab to its button and activate it; the handler should receive the book ID, not its current coordinates.
 
 ## Avoid
 

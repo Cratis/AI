@@ -1,6 +1,6 @@
 ---
 name: cratis-components-explore-data
-description: Use when readers need PivotViewer cards to explore records by category or TimeMachine to browse dated versions of one record. Not for a plain table (use cratis-components-display-list).
+description: Use when a developer groups records into PivotViewer cards or lets readers browse dated snapshots of one record with TimeMachine. Not for a plain table (use cratis-components-display-list).
 compatibility: Requires react, @cratis/components and pixi.js for PivotViewer.
 ---
 
@@ -8,7 +8,7 @@ compatibility: Requires react, @cratis/components and pixi.js for PivotViewer.
 
 Use `PivotViewer` to group current, already loaded records. Choose `TimeMachine` when comparing supplied snapshots over time of one record. Neither fetches history.
 
-1. Put `BookExplorer.tsx` in `Features/Books` under the [application providers](../cratis-arc-react-bind-slice/SKILL.md). Filter and bound a large catalog at the query before passing the loaded books to the viewer; the viewer is not a paging mechanism.
+1. Put `BookExplorer.tsx` in `Features/Books` inside `CratisComponentsProvider` from `@cratis/components`. For `PivotViewer`, install its Pixi peer (`npm install pixi.js@8.20.0` for Components 4.63.1). Filter and bound a large catalog at the query before passing the loaded books to the viewer; the viewer is not a paging mechanism.
 2. Use a unique dimension `key` to identify the grouping choice. `getValue` returns the grouping value for each book. The dimension key does not have to be a book property.
 3. Keep the book ID independent of its genre. Two books in one group still have distinct cards.
 
@@ -41,6 +41,8 @@ export function BookHistory({ snapshots, select }: { snapshots: Snapshot[]; sele
     return <TimeMachine versions={versions} currentVersionIndex={versions.length - 1} onVersionChange={select} />;
 }
 ```
+
+Selecting a card should open that book even when another shares its genre. Selecting an older version should show the supplied snapshot without changing the current book.
 
 ## Avoid
 

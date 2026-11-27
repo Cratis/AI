@@ -1,12 +1,12 @@
 ---
 name: cratis-components-coordinate-feedback
-description: Use when registering confirmation and busy dialogs or when an action needs a yes/no answer before it runs. Not for forms that collect command fields (use cratis-components-submit-form).
+description: Use when a developer must confirm an action before executing it or show a shared busy dialog while it runs. Not for forms that collect command fields (use cratis-components-submit-form).
 compatibility: Requires react, @cratis/arc.react and @cratis/components.
 ---
 
 # Confirm before removing an author
 
-1. Inside the [application's Arc provider](../cratis-arc-react-bind-slice/SKILL.md), register both dialog components once in `App.tsx`. Here `Authors` is the [existing list screen](../cratis-components-display-list/SKILL.md); use its `onOpen` callback to receive the selected author's ID.
+1. Inside the application's `<Arc>` provider from `@cratis/arc.react`, register both dialog components once in `App.tsx`. Here `Authors` is the [existing list screen](../cratis-components-display-list/SKILL.md); use its `onOpen` callback to receive the selected author's ID.
 
 ```tsx
 import { DialogComponents } from '@cratis/arc.react/dialogs';
@@ -24,7 +24,7 @@ export function App() {
 }
 ```
 
-2. In `Features/Authors/Removal/RemoveAuthorButton.tsx`, accept the author's name and the caller's removal operation. The operation must resolve only on success and reject on failure. Ask the question on click, not during render.
+2. In `Features/Authors/Removal/RemoveAuthorButton.tsx`, accept the author's name and the caller's removal operation. The operation must resolve only on success and reject on failure. If it wraps an Arc command, inspect the returned `isSuccess`; a resolved command result can still report refusal. Ask the question on click, not during render.
 
 ```tsx
 import { useRef, useState } from 'react';
@@ -67,6 +67,6 @@ Choose the shared busy dialog when the user must wait before continuing. Import 
 
 ## Related skills
 
-- [Host a chat](../cratis-components-host-chat/SKILL.md) when the screen needs a topic-based message sidebar rather than a dialog.
+- Use `cratis-specifications-observe-ui` when checking that dismissal leaves the author unchanged.
 
 - [Open a custom command dialog](../cratis-components-submit-form/SKILL.md)

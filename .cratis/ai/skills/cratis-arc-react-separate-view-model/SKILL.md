@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-react-separate-view-model
-description: Use when React presentation state or an injected collaborator belongs in an injectable MVVM view model. For simple local state, use cratis-arc-react-bind-slice.
+description: Use when a developer needs an Arc React MVVM view model to isolate a presentation decision or inject a collaborator. For simple local state, use cratis-arc-react-bind-slice.
 compatibility: Requires @cratis/arc.react.mvvm, tsyringe, react-router-dom and reflect-metadata in an Arc React app.
 ---
 
@@ -34,7 +34,9 @@ import { AuthorSearchViewModel } from './AuthorSearchViewModel';
 
 export const AuthorSearch = withViewModel(AuthorSearchViewModel, ({ viewModel }) => {
     const [authors] = AllAuthors.use();
-    if (!authors.isReady) return <p>Loading authors…</p>;
+    if (!authors.isAuthorized) return <p>Not authorized.</p>;
+    if (!authors.isValid || authors.hasExceptions) return <p>Authors could not be loaded.</p>;
+    if (authors.isPerforming || !authors.isReady) return <p>Loading authors…</p>;
     if (!authors.isSuccess) return <p>Could not load authors.</p>;
     return <section>
         <label>Search authors<input value={viewModel.search}
@@ -44,7 +46,7 @@ export const AuthorSearch = withViewModel(AuthorSearchViewModel, ({ viewModel })
 });
 ```
 
-Keep query loading and failure state in the bound view. Verify that changing the search text and receiving a new matching author both refresh the visible list.
+Keep query loading and failure state in the bound view. Changing the search text or receiving a matching author should refresh the visible list. To check that interaction, [observe the rendered view](../cratis-specifications-observe-ui/SKILL.md); test a filtering decision by itself without mounting React.
 
 For an existing `Catalogue` service instance `catalogue`, define and export `export const CatalogueToken = Symbol('Catalogue');` from the service module. Use `container.registerInstance(CatalogueToken, catalogue)` before mounting the view. Add `constructor(@inject(CatalogueToken) private readonly catalogue: Catalogue) {}` to the model, importing the shared token and service type from that module and `container` and `inject` from `tsyringe` where used.
 

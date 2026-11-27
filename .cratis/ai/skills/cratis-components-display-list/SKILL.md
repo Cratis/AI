@@ -1,6 +1,6 @@
 ---
 name: cratis-components-display-list
-description: Use when a slice needs a standard DataPage to show a generated query in a table with columns, selection or row actions. Not for custom markup around a query hook (use cratis-arc-react-bind-slice).
+description: Use when a developer displays generated query results in a DataPage table with columns, selection or row actions. Not for custom markup around a query hook (use cratis-arc-react-bind-slice).
 compatibility: Requires @cratis/components and @cratis/arc.react.
 ---
 
@@ -11,7 +11,7 @@ Present the state view using rows returned by the query, not values from the las
 - Pass `detailsComponent={AuthorDetails}` when users should inspect a selection alongside the table. Import `type { IDetailsComponentProps }` from `@cratis/components/DataPage` and define `const AuthorDetails = ({ item }: IDetailsComponentProps<Author>) => <h2>{item.name}</h2>;`. If loading related records, use `item.id`, not `item.name`.
 - Choose navigation, as below, when details need their own screen or won't fit in a pane. Keep Add independent of selection; do not set `disableOnUnselected` on it.
 
-1. In `Features/Authors/Listing/Authors.tsx`, import `Author` and `AllAuthors` from the private [generated tree](../cratis-arc-generate-proxies/SKILL.md). Use the generated tree's actual import path, even if the screen and proxy share a filename; never import the query from the screen itself. Render the page inside the app's [providers](../cratis-arc-react-bind-slice/SKILL.md).
+1. In `Features/Authors/Listing/Authors.tsx`, import `Author` and `AllAuthors` from the generated proxy tree (`cratis-arc-generate-proxies`). Use the generated tree's actual import path, even if the screen and proxy share a filename; never import the query from the screen itself. Render the page under `Arc` and `CratisComponentsProvider`.
 2. Pass the query constructor and a stable `dataKey`. Each column's `field` names a property of `Author`.
 3. Check `selectionMode` and `selectedItem` before invoking a row action. Pass the selected row's key to the callback that opens its details, not its display label.
 
@@ -31,7 +31,7 @@ export const Authors = ({ onOpen }: { onOpen: (id: Author['id']) => void }) => (
 );
 ```
 
-In the UI check, switch between two rows with the same name and confirm that inspection follows the selected ID.
+`emptyMessage` describes a successful query with no rows. Use `loadingMessage`, `unauthorizedMessage` and `failureMessage` to customize the other states; don't convert a failed query to an empty array. In a UI check (`cratis-specifications-observe-ui`), switch between two rows with the same name and confirm that inspection follows the selected ID.
 
 ## Avoid
 

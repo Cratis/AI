@@ -1,6 +1,6 @@
 ---
 name: cratis-components-theme-application
-description: Use when setting up baseline Components styles or overriding theme tokens to change the palette in one part of the application. Not for choosing input controls (use cratis-components-choose-control).
+description: Use when a developer loads the baseline Components styles or overrides theme tokens for an application or panel. Not for choosing input controls (use cratis-components-choose-control).
 compatibility: Requires @cratis/components and a CSS bundler that resolves package imports.
 ---
 
@@ -8,7 +8,7 @@ compatibility: Requires @cratis/components and a CSS bundler that resolves packa
 
 Use a theme token for a color change, scoped to the smallest wrapper that should inherit it. Choose a named component part only when you need to style a specific piece of the component.
 
-1. Add `host.css` beside `main.tsx` and import `./host.css` from that entry point. Import `{ CratisComponentsProvider }` from `@cratis/components` and wrap the UI with `<CratisComponentsProvider><App /></CratisComponentsProvider>` inside the [Arc host](../cratis-arc-react-bind-slice/SKILL.md).
+1. Add `host.css` beside `main.tsx` and import `./host.css` from that entry point. Keep the single `CratisComponentsProvider` from `@cratis/components` around the app; do not mount a second provider to change colors.
 2. Load tokens, component styles and the baseline theme in that order. Put unlayered token overrides after the imports and match the theme selector's specificity. Set the token on the wrapper of the area that should change:
 
 ```css
@@ -16,7 +16,9 @@ Use a theme token for a color change, scoped to the smallest wrapper that should
 @import '@cratis/components/styles';
 @import '@cratis/components/theme';
 
-.author-admin { --cratis-primary-color: rgb(101, 29, 155); }
+@media (forced-colors: none) {
+    .author-admin { --cratis-primary-color: rgb(101, 29, 155); }
+}
 ```
 
 3. Put `className="author-admin"` on the authors section. Controls inside inherit the override; sibling sections keep the default.
@@ -66,4 +68,4 @@ Use `.author-admin [data-cratis-part='header-content'] { font-weight: 600; }` fo
 
 ## Related skills
 
-- [Mount the providers](../cratis-arc-react-bind-slice/SKILL.md)
+- For the complete host setup, use `cratis-arc-react-bind-slice` from the Arc React profile.

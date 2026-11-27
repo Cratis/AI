@@ -1,6 +1,6 @@
 ---
 name: cratis-components-submit-form
-description: Use when adding a create or edit dialog that binds typed fields to a generated command and submits it on OK. Not for a yes/no confirmation (use cratis-components-coordinate-feedback).
+description: Use when a developer binds typed fields to a generated command in a create or edit dialog and submits it on OK. Not for a yes/no confirmation (use cratis-components-coordinate-feedback).
 compatibility: Requires @cratis/components, @cratis/arc.react and @cratis/fundamentals.
 ---
 
@@ -8,7 +8,7 @@ compatibility: Requires @cratis/components, @cratis/arc.react and @cratis/fundam
 
 Default to one `CommandDialog` for a short submission. Bind the state change's input to the generated command. Submitting requests the change; it does not prove that an event committed.
 
-1. Under the app's [Arc and Components providers](../cratis-arc-react-bind-slice/SKILL.md), create `Features/Authors/Registration/AddAuthor.tsx`. Import the [generated command](../cratis-arc-generate-proxies/SKILL.md) from the private `generated/Features/Authors/Registration` folder. For the generated `id: Guid`, call `Guid.create()`. Use `initialValues` for the ID the reader doesn't type. Bind the Name field directly to the command property.
+1. Under the app's `Arc` and `CratisComponentsProvider`, create `Features/Authors/Registration/AddAuthor.tsx`. Import the generated command from the private `generated/Features/Authors/Registration` folder. For the generated `id: Guid`, call `Guid.create()`. Use `initialValues` for the ID the reader doesn't type. Bind the Name field directly to the command property.
 
 ```tsx
 import { CommandDialog } from '@cratis/components/CommandDialog';
@@ -42,7 +42,7 @@ export function AddAuthorButton() {
 }
 ```
 
-3. Add no submit handler. OK runs the command. The dialog stays open on failure so the reader can correct the name; keep both field errors and the form summary visible.
+3. Import `AddAuthorButton` from `../Registration/AddAuthorButton` in `Features/Authors/Listing/Authors.tsx` and render it beside the list, independent of row selection. Add no submit handler. OK runs the command. The dialog stays open on failure so the reader can correct the name; keep both field errors and the form summary visible.
 
 Choose `StepperCommandDialog` when one command genuinely needs several stages. Import `{ StepperCommandDialog, StepperPanel }` from `@cratis/components/CommandDialog`. Replace both `CommandDialog` tags with `StepperCommandDialog`, and wrap each field group with `<StepperPanel header="Author details">…</StepperPanel>` using a distinct header per step. Next and Previous move between panels without executing; the final Submit runs the command only after validation across all steps. Verify that returning to fix a required field on an earlier step preserves the other inputs and enables one final submission.
 
@@ -56,7 +56,7 @@ Read the generated command type before choosing field accessors; use its propert
 ## When it goes off the usual path
 
 - **Enter could activate confirmation on open:** import `{ DialogInitialFocus }` from `@cratis/components/Dialogs` and pass `initialFocus={DialogInitialFocus.Content}` to focus the title, then test that Enter there does not submit and Tab reaches the editable field.
-- **The command is refused:** verify that the dialog stays open with the errors available for correction.
+- **The command is refused:** keep the dialog open. A field violation needs a correction; denied authorization needs a caller with permission, not a different field value. If the change affects validation or focus, use `cratis-specifications-observe-ui` to check the registration journey.
 
 ## Related skills
 

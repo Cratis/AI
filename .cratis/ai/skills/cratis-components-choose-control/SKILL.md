@@ -1,12 +1,12 @@
 ---
 name: cratis-components-choose-control
-description: Use when a React screen needs a standalone controlled input for a number, calendar date or searchable choice. Not for command fields (use cratis-components-submit-form).
+description: Use when a developer binds a standalone number, calendar date or searchable choice to React state. Not for command fields (use cratis-components-submit-form).
 compatibility: Requires react and @cratis/components.
 ---
 
 # Bind book editor inputs by value type
 
-1. In `Features/Books/BookFields.tsx`, import the controls from `@cratis/components/Common`. Mount the editor under the [application providers](../cratis-arc-react-bind-slice/SKILL.md).
+1. In `Features/Books/BookFields.tsx`, import the controls from `@cratis/components/Common`. Mount the editor inside `CratisComponentsProvider` from `@cratis/components`.
 2. Keep a `number | null` for a price, `Date | null` for a publication date, or `string | null` for an author's option key. Each control calls `onChange(null)` when cleared.
 3. Bind `value` and `onChange` to the same state. Let `NumberInput` inherit the provider locale; it does not infer browser preferences on its own. When the app follows the browser, set `locale: navigator.language` in the mounted Components provider's `value` on the client, not on each field. Set `maximumFractionDigits` to suit the domain value. The `BookFields.tsx` example accepts the available authors from its caller; `failure` is a message when loading those options failed.
 
@@ -30,7 +30,7 @@ export function BookFields({ authors, loading, failure }: { authors: AuthorOptio
 
 Use `ComboBox` for choosing an existing author; store its unique key because two options may share a label. For a free-text name, use `<input aria-label="Author name" value={name} onChange={event => setName(event.target.value)} />` with string state. Read prices and dates from `onChange`, not formatted text.
 
-Put the accessible name on the control itself, not its surrounding panel. For the segmented date picker, pass `aria-label` on `DatePickerInput` to name its focus group. In the UI check, find the input or group by role and name, then use the keyboard to edit or select a value.
+Put the accessible name on the control itself, not its surrounding panel. For the segmented date picker, pass `aria-label` on `DatePickerInput` to name its focus group. For a UI check (`cratis-specifications-observe-ui`), find the control by role and name, select a value with the keyboard, then clear it. The host should receive the typed value followed by `null`.
 
 ## When it goes off the usual path
 

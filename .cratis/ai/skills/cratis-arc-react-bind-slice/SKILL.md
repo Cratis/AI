@@ -1,12 +1,14 @@
 ---
 name: cratis-arc-react-bind-slice
-description: Use when configuring the Arc host in React, waiting for a generated query's argument or rendering its result states in custom markup. Not for a standard table (use cratis-components-display-list) or a command form (use cratis-components-submit-form).
+description: Use when a developer mounts the Arc React host, renders a generated query in custom markup or invokes a generated command from an action. Not for a standard table (use cratis-components-display-list) or a command form (use cratis-components-submit-form).
 compatibility: Requires react, react-dom, reflect-metadata, @cratis/components and @cratis/arc.react.
 ---
 
-# Mount Arc and read a query result
+# Bind generated proxies in a React component
 
-1. In `main.tsx`, load metadata before the application. Mount the two providers once. `App.tsx` is the [application shell](../cratis-components-coordinate-feedback/SKILL.md); it supplies the required row-opening callback to the [Authors page](../cratis-components-display-list/SKILL.md).
+Start with a plain function component and [React-enabled generated proxies](../cratis-arc-generate-proxies/SKILL.md). The paths and author types below belong to the Library example; use your slice's generated imports.
+
+1. In `main.tsx`, load metadata before the application. Mount the two providers once. `App` is your root component. If starting without a shell, export a function named `App` from `App.tsx` and render the query view there.
 
 ```tsx
 import 'reflect-metadata';
@@ -24,10 +26,11 @@ createRoot(document.getElementById('root')!).render(
 
 ```tsx
 const [authors] = AllAuthors.use();
-if (authors.isPerforming || !authors.isReady) return <p>Loading authors…</p>;
 if (!authors.isAuthorized) return <p>Not authorized.</p>;
 if (!authors.isValid) return <p>Invalid query.</p>;
-if (authors.hasExceptions || !authors.isSuccess) return <p>Could not load authors.</p>;
+if (authors.hasExceptions) return <p>Could not load authors.</p>;
+if (authors.isPerforming || !authors.isReady) return <p>Loading authors…</p>;
+if (!authors.isSuccess) return <p>Could not load authors.</p>;
 if (!authors.hasData) return <p>No authors yet.</p>;
 return <ul>{authors.data.map(a => <li key={String(a.id)}>{a.name}</li>)}</ul>;
 ```
@@ -39,23 +42,40 @@ const [matches] = AuthorsNamed.when(name.trim().length > 0).use({ name: name.tri
 if (!name.trim()) return <p>Enter an author name.</p>;
 ```
 
+## Execute an action without a form
+
+When the action already has its inputs, use the generated command hook in the component that owns the action. For example, import `RegisterAuthor` from the registration slice's generated module. Given an `id` and `name` for the draft, and a `setStatus` state setter, bind this handler to the registration gesture:
+
+```tsx
+const [register, setValues] = RegisterAuthor.use();
+async function registerAuthor() {
+    setValues({ id, name });
+    const result = await register.execute();
+    if (!result.isAuthorized) setStatus('Not authorized.');
+    else if (!result.isValid) setStatus(result.validationResults.map(v => v.message).join('; '));
+    else setStatus(result.isSuccess ? 'Registration submitted.' : 'Registration failed.');
+}
+```
+
+Render the status and keep failed input for correction. Read the updated list from the query, not the submitted command. When collecting the inputs in a dialog, use `cratis-components-submit-form` instead; it executes the command itself.
+
 ## Configure the host
 
 - For a custom prefix, use `<Arc apiBasePath="/library-api"><App /></Arc>`. For a named service, set `microservice="catalog"` on that same `Arc` element, using the actual service name.
 
-## Avoid
-
-- Don't edit generated files; [generate the proxies](../cratis-arc-generate-proxies/SKILL.md) from the backend.
+- To show an editor-only control, import `RequireRole` from `@cratis/arc.react/identity`. Pass `roles={['catalog-editor']}` and distinguish `whileLoading` from `forbidden`. This is presentation only; enforce authorization on the backend command and query.
 
 ## When it goes off the usual path
 
 - **Rows aren't ready or access was denied:** show loading or error, not an empty list. Show an empty list only for a ready, successful result with no rows.
 - **The account switches:** cached query results and open query connections belong to the previous caller, and remounting views or the `<Arc>` provider does not discard them all. After sign-out or after installing a different user's credentials, reload the page (`window.location.reload()` or a full navigation) so every query starts fresh for the new caller.
 
+## Check the binding
+
+Start with no rows, then register an author. The list should change without a page reload. With a blank search, expect the input hint. In the AI repository, `Evaluations/corpus-v2/examples/cratis-arc-react-bind-slice/README.md` explains how to run the query example with generated proxies and Chromium.
+
 ## Related skills
 
 - [Separate the view model](../cratis-arc-react-separate-view-model/SKILL.md) when presentation state belongs outside the component.
-- [Theme the application](../cratis-components-theme-application/SKILL.md) to apply shared styles at the provider boundary.
-
-- [Generate the TypeScript proxies](../cratis-arc-generate-proxies/SKILL.md)
-- [Render the Library authors page](../cratis-components-display-list/SKILL.md)
+- [Check the user-visible result](../cratis-specifications-observe-ui/SKILL.md) if the binding changes a user journey.
+- For a standard query-backed table, use `cratis-components-display-list` from the Components profile.
