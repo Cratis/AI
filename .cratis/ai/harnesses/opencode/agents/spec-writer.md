@@ -2,7 +2,7 @@
 description: >
   Specialist for writing C# specs (plain calls and focused in-process scenarios) and
   TypeScript/React specs for vertical slices. Ensures every slice has
-  comprehensive behavior coverage following the project's BDD conventions.
+  the coverage the criticality tier requires, following the project's BDD conventions.
 mode: subagent
 permission:
   edit: allow

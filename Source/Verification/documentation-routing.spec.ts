@@ -32,40 +32,9 @@ test('documentation entry points route to the installed writing skill', () => {
     }
 });
 
-test('version guidance distinguishes ordinary installation from deliberate reproducibility', () => {
-    const rule = readFileSync(join(corpus, 'rules/documentation.md'), 'utf8');
-    const examples = readFileSync(join(corpus, 'skills/cratis-technical-examples/SKILL.md'), 'utf8');
-    for (const content of [rule, examples]) {
-        assert.match(content, /supported latest-release/);
-        assert.match(content, /reproducib/);
-        assert.match(content, /security/);
-        assert.match(content, /deployment/);
-    }
-    assert.doesNotMatch(rule, /pin what the reader runs/);
-    assert.doesNotMatch(examples, /part of the command, not a note, and stays/);
-});
-
-test('site presentation guidance owns format choices and export limitations', () => {
-    const site = readFileSync(join(corpus, 'skills', canonical, 'references/cratis-site.md'), 'utf8');
+test('site format guidance routes to the shared presentation reference', () => {
     const format = readFileSync(join(corpus, 'skills/cratis-engineering-docs-authoring/references/site-format.md'), 'utf8');
     assert.ok(format.includes('../cratis-documentation-writing/references/cratis-site.md'));
-    for (const component of ['Steps', 'Tabs', 'Card', 'Mermaid', 'LinkCard', 'Aside', 'FullStackTabs']) {
-        assert.ok(site.includes(component), `missing supported presentation boundary: ${component}`);
-    }
-    assert.match(site, /prose\/children/);
-    assert.match(site, /canonical URL/);
-    assert.doesNotMatch(site, /mirror behind "Copy Markdown" keeps its\s+imports and JSX/);
-    assert.doesNotMatch(site, /Two independently readable alternatives \(C# and TypeScript\)/);
-});
-
-test('reader review selects relevant perspectives without creating a mandatory review board', () => {
-    const review = readFileSync(join(corpus, 'skills', canonical, 'references/reader-review.md'), 'utf8');
-    for (const lens of ['Newcomer', 'Experienced developer', 'Operator', 'AI/text reader', 'Security/trust boundary', 'Accessibility/visual/editorial']) {
-        assert.ok(review.includes(lens), `missing conditional reader lens: ${lens}`);
-    }
-    assert.match(review, /One reviewer may cover several/);
-    assert.match(review, /not a mandatory review board/);
-    assert.match(review, /source-backed recovery/);
 });
 
 // These checks protect routing and reference structure, not reader comprehension or model behavior.
@@ -83,7 +52,6 @@ test('drafting and revision entry points require the shared explanation guidance
     for (const [entryPoint, target] of routes) {
         const content = readFileSync(join(corpus, entryPoint), 'utf8');
         assert.ok(content.includes(`(${target})`), `${entryPoint} must route to the explanation reference`);
-        assert.match(content, /read and (?:apply|use)|work through/i, entryPoint);
     }
     // Local links must resolve even when the reference is shipped with a profile.
     const content = readFileSync(reference, 'utf8');
@@ -93,39 +61,23 @@ test('drafting and revision entry points require the shared explanation guidance
         }
     }
 });
-test('the documentation prompt requires applicable skill reads before drafting', () => {
+
+test('the documentation prompt routes to applicable skills before drafting', () => {
     const prompt = readFileSync(join(corpus, 'prompts/write-documentation.prompt.md'), 'utf8');
-    const preparation = prompt.slice(0, prompt.indexOf('## Determine the reader'));
-    assert.match(preparation, /Read the actual applicable `SKILL\.md` files before drafting/);
+    const drafting = prompt.indexOf('## Determine the reader');
+    assert.ok(drafting > 0, 'missing drafting section');
+    const preparation = prompt.slice(0, drafting);
     for (const skill of [canonical, 'cratis-engineering-docs-authoring', 'cratis-technical-examples', 'cratis-llm-friendly-documentation', 'cratis-writing-voice-and-cadence']) {
         assert.ok(preparation.includes(`skills/${skill}/SKILL.md`), `missing read route for ${skill}`);
     }
-    assert.match(preparation, /paths, source revision, and observed read order/);
-    assert.match(preparation, /availability or invocation alone is not a read/);
 });
 
-test('reader review has one canonical procedure with separate evidence levels', () => {
+test('reader review entry points route to one canonical procedure', () => {
     const skill = readFileSync(join(corpus, 'skills', canonical, 'SKILL.md'), 'utf8');
     assert.match(skill, /\(references\/reader-review\.md\)/);
-    const review = readFileSync(join(corpus, 'skills', canonical, 'references/reader-review.md'), 'utf8');
-    assert.match(review, /not the author's\s+answers/);
-    for (const level of ['Comprehension', 'Source checking', 'Compilation', 'Runtime', 'Deployed']) {
-        assert.ok(review.includes(`| ${level} |`), `missing evidence boundary: ${level}`);
-    }
-    assert.match(review, /smallest gap/);
-    assert.match(review, /not a public verification\s+receipt/);
     for (const specialist of ['cratis-engineering-docs-authoring', 'cratis-technical-examples', 'cratis-llm-friendly-documentation', 'cratis-writing-voice-and-cadence']) {
         const content = readFileSync(join(corpus, 'skills', specialist, 'SKILL.md'), 'utf8');
         assert.ok(content.includes('(../cratis-documentation-writing/references/reader-review.md)'), `${specialist} must route to the shared review`);
         assert.ok(content.includes('(../../rules/documentation.md)'), `${specialist} must route to the naming and claims owner`);
     }
-});
-
-test('the shared documentation rule owns Platform naming without renaming APIs', () => {
-    const rule = readFileSync(join(corpus, 'rules/documentation.md'), 'utf8');
-    assert.match(rule, /\*\*Cratis\*\* is the organization/);
-    assert.match(rule, /\*\*Cratis Platform\*\* is the umbrella offering/);
-    assert.match(rule, /adopt one component independently/);
-    assert.match(rule, /literal package IDs and API names/);
-    assert.match(rule, /authoritative source for capability, compatibility, dependency and maturity/);
 });

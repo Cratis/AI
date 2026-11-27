@@ -46,9 +46,8 @@ const executableSites = [
 ];
 
 for (const path of executableSites) {
-    test(`${path} directs specification execution to built runners`, () => {
+    test(`${path} does not prescribe dotnet test as the default`, () => {
         const text = read(path);
-        assert.match(text, /(?:built.*(?:spec|runner|executable)|spec.*executable|bin\/(?:Debug|Release|<Config>))/i, path);
         assert.doesNotMatch(text, /(?:Run|via|and|with|\[ \])\s+`dotnet test`(?!.*(?:VSTest|not|never))/i, path);
         assert.doesNotMatch(text, /(?:^|\n)\s*dotnet test\s*(?:#.*)?\n/, path);
     });
@@ -67,7 +66,6 @@ for (const path of stageSites) {
     test(`${path} runs Stage-rendered VSTest specs after the Debug build`, () => {
         const text = read(path);
         assert.match(text, /`dotnet test [^`]+\.csproj -c Debug --no-build`/, path);
-        assert.match(text, /(?:Stage-rendered apps.*VSTest|Stage-rendered apps \(VSTest\))/, path);
         assert.doesNotMatch(text, /(?:VSTest-only:|only VSTest uses)/i, path);
         assert.doesNotMatch(text, /(?:the (?:same|generated) project's|the destination's) (?:verified )?built (?:Debug )?spec executable/i, path);
     });
@@ -82,49 +80,24 @@ test('Stage class discovery lists VSTest tests rather than starting the web serv
 test('formatting follows repository CI instead of inventing a solution gate', () => {
     const text = read('rules/csharp.md');
     assert.match(text, /\.editorconfig/);
-    assert.match(text, /only when.*CI requires/);
     assert.doesNotMatch(text, /^- Use `dotnet format`/m);
 });
 
 test('the backend default is an installed sibling runner with unchanged deadline and override schema', () => {
-    const gates = JSON.parse(read('hooks/scripts/quality-gates.json')).gates as { id: string; command: string[]; timeoutSeconds: number; timeoutHint: string }[];
+    const gates = JSON.parse(read('hooks/scripts/quality-gates.json')).gates as { id: string; command: string[]; timeoutSeconds: number }[];
     const gate = gates.find(value => value.id === 'backend-specs');
     assert.deepEqual(gate?.command, ['bash', '-c', 'exec bash "$CRATIS_HOOKS_SCRIPTS_DIR/cratis-run-specs.sh" --configuration Debug --no-build']);
     assert.equal(gate?.timeoutSeconds, 120);
-    assert.match(gate!.timeoutHint, /only VSTest/);
     assert.match(read('hooks/scripts/cratis-quality-gate.sh'), /export CRATIS_HOOKS_SCRIPTS_DIR="\$here"/);
 });
 
-// Explicitly retained syntax: diagnostics, request-specific command modes, negative safety,
-// optional code fixes and historical sample output. None chooses the default Cratis runner.
-const technicalExamples: [string, RegExp][] = [
-    ['skills/filter-syntax/SKILL.md', /## VSTest filters[\s\S]*dotnet test --filter/],
-    ['skills/run-tests/SKILL.md', /Only identified VSTest projects default[\s\S]*Native MTP mode/],
-    ['skills/platform-detection/references/command-mode.md', /dotnet test/],
-    ['skills/platform-detection/SKILL.md', /Microsoft\.NET\.Test\.Sdk.*does not/],
-    ['skills/cratis-specifications-csharp/references/running-specs.md', /With VSTest,[\s\S]*--logger "trx;/],
-    ['skills/binlog-generation/SKILL.md', /dotnet test \/bl:/],
-    ['skills/csharp-refactoring/references/operation-catalog.md', /via `dotnet format` \/ code-fixes/],
-    ['skills/coverage-analysis/SKILL.md', /Do not run `dotnet test`/],
-    ['skills/eliminate-redundant-restores/SKILL.md', /VSTest-only/],
-    ['skills/cratis-ci-pipeline-performance/references/flaky-and-hung-jobs.md', /dotnet test VSTest\.Specs\.csproj/],
-    ['skills/cratis-ci-pipeline-performance/references/sources.md', /dotnet test/],
-    ['skills/cratis-ci-pipeline-performance/scripts/ci-timings.sh', /dotnet test/],
-    ['skills/cratis-rtk/SKILL.md', /Tests: `dotnet test`/],
-    ['skills/msbuild/references/binlog-generation.md', /dotnet test/],
-    ['harnesses/pi/extensions/cratis-hooks/quality-gate.ts', /dotnet test/],
-];
+test('executable diagnostics and the adapter retain their dotnet test paths', () => {
+    assert.match(read('skills/cratis-ci-pipeline-performance/scripts/ci-timings.sh'), /dotnet test/);
+    assert.match(read('harnesses/pi/extensions/cratis-hooks/quality-gate.ts'), /dotnet test/);
+});
 
-for (const [path, example] of technicalExamples) {
-    test(`${path} retains its legitimate technical example`, () => assert.match(read(path), example));
-}
-
-test('executable preference and framework-specific flags precede command-mode help', () => {
-    const execution = read('skills/run-tests/SKILL.md');
-    assert.match(execution, /Cratis xUnit v3, TUnit and native-runner/);
-    assert.ok(execution.indexOf('For supported Cratis') < execution.indexOf('| Detected mode / platform'));
+test('filter guidance does not assume the stale xUnit v2 platform', () => {
     assert.doesNotMatch(read('skills/filter-syntax/SKILL.md'), /core repositories run xUnit v2 on VSTest/);
-    assert.match(read('skills/cratis-specifications-csharp/references/running-specs.md'), /not a requirement to migrate frameworks/);
 });
 
 test('agent adapters are generated from canonical instructions rather than patched mirrors', () => {

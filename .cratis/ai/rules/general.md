@@ -90,11 +90,10 @@ the plugin marketplaces) are in [ai-distribution.md](./ai-distribution.md):
 
 ## Verification Discipline
 
-A claim is only as good as the signal behind it — a build result, a test run, a lint pass, observed app behavior — not the model's own confidence. Internal reasoning *plans* the work; external signals *confirm* it.
+Verify claims with build, spec, lint or observed-behavior signals, not confidence.
 
 - **Confirm "done"/"fixed"/"correct" against a fresh signal — never self-assessment.** Run the relevant gate and observe it pass *this time*.
-- **Check at the right frequency.** Run affected-project checks while iterating; a prompt ending is not task completion. Before claiming a task complete or pushing/opening a PR, run the full CI-equivalent gates required for that repository (including its Tier 1/2 policy where applicable). A change-selected hook gate is not a substitute for the repository's full CI matrix. After a fix, re-run the gate that failed. Don't argue yourself to green.
-- **Gate configuration:** shipped defaults `.cratis/ai/hooks/scripts/quality-gates.json`; project overrides `.cratis/ai/quality-gates.project.json` shallow-merge by gate id (command without requires drops inherited packageScripts). `CRATIS_HOOKS_GATES` replaces defaults; project overrides still apply.
+- **Scope checks by [criticality tier](./criticality-tiers.md);** follow [verification-discipline.md](./verification-discipline.md) for execution and evidence.
 - **A green build is not behavioral correctness.** Compilation proves it builds, not that the slice does the right thing — that's what specs and exercising the UI are for.
 - **Incidents:** analyse the cause first; choose the narrowest fix for it; state its cost and when it can be removed (**cratis-engineering-post-mortem**).
 - **Report the conclusion and what you didn't verify, in a line or two.** Show output when asked, contested or failed — see [verification-discipline.md](./verification-discipline.md).
@@ -118,10 +117,8 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 
 ## Definition of Done
 
-- The affected solution/project builds with zero warnings and zero errors.
-- Relevant specs for every affected project pass.
-- For public-facing changes (clients, SDKs, public APIs, developer-facing behavior), documentation is added or updated and its verification passes.
-- When CodeScene tools are available, touched files end at Code Health >= 9.5 and never decline; handle it once, before the gate, and report before/after (`code-health.md`).
+- Within the [tier's scope](./criticality-tiers.md), builds have zero warnings/errors, specs pass and [Code Health](./code-health.md) shortfalls are reported.
+- For public-facing behavior, update documentation and verify it.
 
 ## Where to Look
 
@@ -141,7 +138,7 @@ A claim is only as good as the signal behind it — a build result, a test run, 
 | Build and spec-run speed: parallel-safe specs, no per-spec startup, cheap analyzers | `fast-feedback.md` |
 | Spec patterns — the four `*Scenario` helpers (application only) | `specs.scenarios.csharp.md` |
 | Strongly-typed values (`ConceptAs<T>`, `EventSourceId<T>`); shared term definitions (event, projection, reducer, reactor, observer, DCB, …) | `concepts.md`; `glossary.md` |
-| Files an AI change touches (Code Health with CodeScene); behavior at a trust boundary or wire/protocol surface (cite and conform to the published contract and vectors) | `code-health.md`; `published-contracts.md` |
+| Specs, review, Code Health and local gate scope; trust boundaries and wire/protocol contracts | `criticality-tiers.md`; `code-health.md`; `published-contracts.md` |
 | OpenTelemetry traces, metrics and telemetry code | `observability.md` |
 | Diagnosing a misbehaving slice | read model stale or startup crash: **cratis-chronicle-projection** (*Startup-crash traps*); reactor paused or quarantined: **cratis-chronicle-reactor** (*Failure behavior*); proxy missing: **cratis-arc-command** (*Generate the TypeScript proxy*) |
 | Inspecting or operating a **running** Chronicle store (failed partitions, replays, browsing events) with the `cratis` CLI | the **cratis-chronicle-cli-operations** and **cratis-cli-terminal-workbench** skills |

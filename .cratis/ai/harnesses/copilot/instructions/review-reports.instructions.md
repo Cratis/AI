@@ -14,6 +14,10 @@ paths:
 
 # Shared review reports
 
+[Criticality tiers](./criticality-tiers.instructions.md) determine when independent review is
+required; Tier C needs no review or review document. The following governs requested
+or required reviews.
+
 Use this report shape for code, security, performance, and repository-investigation
 reviews. Domain-specific risk labels refine findings, not the report or verdict
 vocabulary. Review the change within the declared scope, not unrelated existing debt.
@@ -86,10 +90,9 @@ See `cratis-engineering-review-rounds` for dispatch and writer-pause mechanics.
 
 An uncited behavior change on a trust-boundary or wire/protocol surface is a blocker (`published-contracts.md`).
 
-Code Health (`code-health.md`) never earns a round of its own: flag a touched file below
-9.5 with no reported reason only together with the round's other findings. A file below 9.5
-with a reason and an uplift entry is closed; a second Code Health round is a finding that
-names its cause.
+Code Health (`code-health.md`) applies only within the tier's scope and never earns
+a round of its own. Flag an in-scope file below 9.5 without a reason alongside other
+findings; a reported reason closes it. A second Code Health round is a finding.
 
 ## Reviewer independence
 
