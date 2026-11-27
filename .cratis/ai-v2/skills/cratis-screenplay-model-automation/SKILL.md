@@ -54,27 +54,29 @@ From the application directory run `screenplay test model --format json`. For th
 When the input is another application's public event, use an explicitly inbound slice, declare the event's origin and name that event under `source events`. Key the append from the incoming payload; it need not be the incoming event's own history address. For an event capture, test with `when append`, not `when capture`.
 
 ```play
-slice Translate ImportAuthors
-  direction inbound
-  event DirectoryAuthorPublished from "directory"
-    id String
-    name String
-  event DirectoryAuthorSeen
-    name String
-  capture DirectoryAuthors
-    source events
-      from DirectoryAuthorPublished
-    key id
-    append DirectoryAuthorSeen
-      when added
-        name = $.name
-  specification SeeingAster
-    when append DirectoryAuthorPublished
-      id = "author-42"
-      name = "Aster"
-    then DirectoryAuthorSeen
-      for "author-42"
-      name = "Aster"
+module Library
+  feature Authors
+    slice Translate ReceiveAuthorAnnouncements
+      direction inbound
+      event AuthorAnnounced from "directory"
+        id String
+        name String
+      event AuthorAnnouncementReceived
+        name String
+      capture AuthorAnnouncements
+        source events
+          from AuthorAnnounced
+        key id
+        append AuthorAnnouncementReceived
+          when added
+            name = $.name
+      specification ReceivingAsterAnnouncement
+        when append AuthorAnnounced
+          id = "author-42"
+          name = "Aster"
+        then AuthorAnnouncementReceived
+          for "author-42"
+          name = "Aster"
 ```
 
 ## Avoid

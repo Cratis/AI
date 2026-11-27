@@ -8,7 +8,7 @@ compatibility: Requires @cratis/components and @cratis/arc.react.
 
 1. In `Features/Authors/Listing/Authors.tsx`, import `Author` and `AllAuthors` from the private [generated tree](../cratis-arc-generate-proxies/SKILL.md). The generator retains `Features/Authors/Listing`; don't copy its output into the UI folder. Render the page inside the app's [providers](../cratis-arc-react-bind-slice/SKILL.md).
 2. Pass the query constructor and a stable `dataKey`. Each column's `field` names a property of `Author`.
-3. Check `selectionMode` and `selectedItem` before invoking a row action. For a caller that takes an ID, use `inspect(selection.selectedItem.id)` inside that guard rather than passing the row or its display name. The example below passes the row to the application shell, which displays details from the row without loading it by ID.
+3. Check `selectionMode` and `selectedItem` before invoking a row action. If the callback expects an ID, pass the selected row's `dataKey` value, not its display label. The example passes the row because the shell can display its details without loading it by ID.
 
 ```tsx
 import { Column, DataPage } from '@cratis/components/DataPage';

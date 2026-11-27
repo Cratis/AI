@@ -27,16 +27,16 @@ Add a read model with a public static query when starting from an empty project.
 ```csharp
 using Cratis.Arc.Queries.ModelBound;
 
-namespace Library.Features.Authors.Listing;
+namespace Library.Features.Diagnostics;
 
 [ReadModel]
-public record Author(string Name)
+public record LibraryStatus(string State)
 {
-    public static Author[] AllAuthors() => [new("Aster")];
+    public static LibraryStatus CurrentStatus() => new("Open");
 }
 ```
 
-Run `dotnet run` from the host project directory. Use the listening address printed at startup and the credentials required by the existing query. With the options above, namespace `Library.Features.Authors.Listing` and method `AllAuthors` map to `/api/features/authors/listing/all-authors`. For an observable query, append `?waitForFirstResult=true` to request one result. Expect HTTP 200, `isSuccess: true` and the expected authors in `data`.
+Run `dotnet run` from the host project directory. With the options above, request `GET /api/features/diagnostics/current-status` at the listening address printed at startup. Expect HTTP 200, `isSuccess: true` and `data.state` equal to `Open`. When testing an existing query, use its route and required credentials. For an observable query, append `?waitForFirstResult=true` to request one result.
 
 ## Avoid
 

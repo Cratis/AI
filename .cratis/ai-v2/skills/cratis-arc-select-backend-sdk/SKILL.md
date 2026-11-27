@@ -1,14 +1,14 @@
 ---
 name: cratis-arc-select-backend-sdk
-description: Use when adding an Arc command or query to a native service and checking whether its backend SDK supports the requested capability. Not for Chronicle client lifecycle (use cratis-chronicle-select-client).
+description: Use when choosing or evaluating an Arc backend SDK for a command, query or existing ASP.NET Core MVC endpoint. Not for Chronicle client lifecycle (use cratis-chronicle-select-client).
 compatibility: Requires the service's native toolchain and resolved Arc module. The example uses Go.
 ---
 
 # Choose an Arc backend for the required behavior
 
-## Keep an existing MVC action
+## Match the host integration
 
-Use Arc's .NET ASP.NET Core MVC integration when the release must keep an existing MVC action with its binding and authorization. Keep MVC enabled in `AddCratisArc` and keep controller routes mapped. An eligible attribute-routed `[HttpPost]` action gets a `POST <action-route>/validate` selector without converting it to a model-bound command. Verify it with the same credentials, content type and payload as execution, and confirm the action was not called. Check for `[AspNetResult]` opt-outs. Before promising a port, prove the same routing, binding, authorization and validate-only behavior on the target host; a working command pipeline is not MVC compatibility.
+Keep Arc on ASP.NET Core when an endpoint depends on MVC routing, binding or authorization. Keep controller integration enabled and routes mapped. For an attribute-routed `[HttpPost]` command action without an `[AspNetResult]` opt-out, Arc accepts `POST` at the action's route plus `/validate`. MVC still binds and validates the input, but Arc skips the action body. Verify required host behavior before porting; matching wire contracts or successful in-process execution do not prove compatibility.
 
 ## Check command execution in a native SDK
 

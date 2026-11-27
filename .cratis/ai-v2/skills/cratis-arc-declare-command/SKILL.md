@@ -20,12 +20,13 @@ public record RegisterAuthor(AuthorId Id, string Name)
 
 Use the shared `AuthorId` record, which derives from `EventSourceId<Guid>`; don't redeclare it in the command. Arc selects the event source by property type, so the single `AuthorId` property identifies the author's history in any constructor position. Return the accepted name as the fact; the pipeline appends it once.
 
+For a command that already uses an ordinary concept or primitive as its identity, mark that one positional member `[property: Key]` using `Cratis.Chronicle.Keys`. A property named `Id` alone does not select the event source. `EventSourceId` is a type, not an attribute.
+
 [Test the append](../cratis-specifications-exercise-backend/SKILL.md) against the caller's author ID and submitted name.
 
 ## Avoid
 
 - Do not append in `Handle`; return the event.
-- If the existing input ID is a `ConceptAs<Guid>` rather than an `EventSourceId<Guid>`, keep its type and mark the positional member `[property: Key]` (`System.ComponentModel.DataAnnotations`). `EventSourceId` is a type, not an attribute. Do not rely on a property name such as `Id` to select the history.
 - Do not replace the caller's ID with `AuthorId.New()` inside the command.
 
 ## Related skills
