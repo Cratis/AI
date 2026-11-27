@@ -5,6 +5,8 @@ import type { Grade } from './Grade.ts';
 import type { Manifest } from './Manifest.ts';
 import type { Result } from './Result.ts';
 import { pendingTasks, uniqueByKey } from './storage.ts';
+import { routingSection } from './routing-score.ts';
+import { outputMatrixSection } from './output-score.ts';
 
 export function triggerPass(triggered: number, runs: number, shouldTrigger: boolean): { rate: number; passed: boolean } {
     if (runs < 1) throw new Error('Cannot compute a trigger rate over zero runs.');
@@ -121,7 +123,46 @@ function outputSection(manifest: Manifest, results: Result[], grades: Grade[]): 
 }
 
 export function report(manifest: Manifest, results: Result[], grades: Grade[]): string {
-    grades = uniqueByKey(grades);
+    if (manifest.options.corpus === 'v2' || manifest.options.models) return matrixReport(manifest, results, uniqueByKey(grades));
+    return legacyReport(manifest, results, uniqueByKey(grades));
+}
+
+function matrixReport(manifest: Manifest, results: Result[], grades: Grade[]): string {
+    const { options } = manifest;
+    const lines = ['# Skill evaluation', '', `${options.command}; ${options.corpus ?? 'v1'} corpus; ${options.harness}; ${results.length}/${manifest.tasks.length} trials recorded.`,
+        `Thinking: ${options.thinking}; repetitions: ${options.runs}; timeout: ${options.timeout}s.`, ''];
+    for (const model of options.models ?? [options.model]) {
+        const tasks = manifest.tasks.filter(task => (task.model ?? options.model) === model);
+        const keys = new Set(tasks.map(task => task.key));
+        const measured = results.filter(row => keys.has(row.key));
+        const marked = grades.filter(row => keys.has(row.key));
+        lines.push(`## ${cell(model)}`, '', `${measured.length}/${tasks.length} trials recorded.`, '');
+        lines.push(...matrixSection({ ...manifest, tasks, options: { ...options, model } }, measured, marked), ...telemetry(measured));
+    }
+    return lines.join('\n') + '\n';
+}
+
+function matrixSection(manifest: Manifest, results: Result[], grades: Grade[]): string[] {
+    if (manifest.options.corpus !== 'v2') return legacyReport(manifest, results, grades).trimEnd().split('\n');
+    return manifest.options.command === 'trigger' ? routingSection(manifest.tasks, results) : outputMatrixSection(manifest.tasks, grades);
+}
+
+function telemetry(results: Result[]): string[] {
+    const lines = ['', '### Telemetry (means per recorded trial)', '', '| Arm | Input tokens | Output tokens | Tool calls | Seconds |', '|---|---|---|---|---|'];
+    const arms = distinct(results.map(armOf));
+    return [...lines, ...arms.map(arm => telemetryRow(arm, results.filter(row => armOf(row) === arm))), ''];
+}
+
+function armOf(row: Result): string { return row.arm ?? (row.withSkills ? 'v1' : 'none'); }
+
+function telemetryRow(arm: string, results: Result[]): string {
+    const inputs = metric(results.flatMap(row => row.usage ? [row.usage.input] : []));
+    const outputs = metric(results.flatMap(row => row.usage ? [row.usage.output] : []));
+    const tools = metric(results.flatMap(row => row.toolCalls === undefined ? [] : [row.toolCalls]));
+    return `| ${arm} | ${inputs} | ${outputs} | ${tools} | ${metric(results.map(row => row.durationSeconds))} |`;
+}
+
+function legacyReport(manifest: Manifest, results: Result[], grades: Grade[]): string {
     const pending = pendingTasks(manifest.tasks, results);
     const lines = ['# Skill evaluation', '', `Harness: ${manifest.options.harness}/${manifest.options.model}. ${results.length}/${manifest.tasks.length} runs recorded.`,
         `Listing budget: ${manifest.options.listingBudget ?? 'default'}; thinking: ${manifest.options.thinking}; repetitions: ${manifest.options.runs}; timeout: ${manifest.options.timeout}s.`,

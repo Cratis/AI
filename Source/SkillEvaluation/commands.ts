@@ -14,14 +14,14 @@ export function harnessEnvironment(environment: NodeJS.ProcessEnv, listingBudget
     return clean;
 }
 
-export function harnessCommand(options: Pick<Options, 'harness' | 'model' | 'thinking'>, prompt: string, skillsDirectory?: string): string[] {
+export function harnessCommand(options: Pick<Options, 'harness' | 'model' | 'thinking'>, prompt: string, skillsDirectory?: string, extension?: string): string[] {
     if (options.harness === Harness.Claude) return [
         'claude', '-p', prompt, '--model', options.model, '--output-format', 'stream-json', '--verbose',
         '--no-session-persistence', '--setting-sources', 'project', '--strict-mcp-config', '--tools', 'Read,Glob,Grep,Skill',
     ];
     return [
         'pi', '-p', '--mode', 'json', '--no-session', '--no-context-files', '--no-extensions', '--no-mcp',
-        '--no-prompt-templates', '--no-themes', '--tools', 'read,grep,find,ls', '--no-skills',
+        '--no-prompt-templates', '--no-themes', ...(extension ? ['--no-builtin-tools', '--extension', extension] : ['--tools', 'read,grep,find,ls']), '--no-skills',
         ...(skillsDirectory ? ['--skill', skillsDirectory] : []), '--model', options.model, '--thinking', options.thinking, prompt,
     ];
 }

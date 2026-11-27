@@ -1,0 +1,16 @@
+module Library
+  form AddAuthorForm for RegisterAuthor
+    field name label "Name"
+  feature Authors
+    slice StateChange AddAuthorInput
+      screen AddAuthor
+        action RegisterAuthor for screen
+          label "Add"
+          navigate to Authors
+    slice StateView BrowseAuthors
+      screen Authors
+        data Author[] via query AllAuthors
+        title "Authors"
+        toolbar authorActions
+          item addAuthor navigate to AddAuthor
+            label "Add author"

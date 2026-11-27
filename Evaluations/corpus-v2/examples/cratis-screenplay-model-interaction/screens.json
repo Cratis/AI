@@ -1,0 +1,90 @@
+{
+  "contract": "screenplay-ui/1",
+  "application": "model",
+  "screens": [
+    {
+      "name": "AddAuthor",
+      "slice": "Library.Authors.AddAuthorInput",
+      "title": "AddAuthor",
+      "data": [],
+      "actions": [
+        {
+          "command": "RegisterAuthor",
+          "label": "Add",
+          "subject": "screen",
+          "inputs": [
+            {
+              "name": "id",
+              "type": "AuthorId"
+            },
+            {
+              "name": "name",
+              "type": "String"
+            }
+          ],
+          "then": "Authors",
+          "commandId": "sem1:2ea78e90b254335b251c18b259a8a95cd4582a85b91ff6f83405e90c7956ab78",
+          "route": "/api/library/authors/register-author"
+        }
+      ],
+      "navigation": [
+        {
+          "screen": "Authors",
+          "trigger": "action"
+        }
+      ],
+      "layout": {
+        "fits": [],
+        "regions": []
+      },
+      "sliceId": "sem1:a93d2143ab0d9c572579b7cfdd5565c591152ef02ef963507f0cc5d486eb66ec"
+    },
+    {
+      "name": "Authors",
+      "slice": "Library.Authors.BrowseAuthors",
+      "title": "Authors",
+      "data": [
+        {
+          "query": "AllAuthors",
+          "readModel": "Author",
+          "many": true,
+          "fields": [],
+          "queryId": "sem1:ec4da3976c3411c59f528b4cc68339f77232ac5f3a672e2736171fa644d83f8f",
+          "route": "/api/library/authors/list-authors/all-authors",
+          "live": true
+        }
+      ],
+      "actions": [],
+      "navigation": [
+        {
+          "screen": "AddAuthor",
+          "trigger": "toolbar"
+        }
+      ],
+      "layout": {
+        "fits": [],
+        "regions": [
+          {
+            "kind": "toolbar",
+            "regions": [],
+            "name": "authorActions",
+            "actions": []
+          }
+        ]
+      },
+      "sliceId": "sem1:191f0b53c718a1e34006531e4714324d1c279ff9d6f65aae3c2e6fab3a63d78a",
+      "scene": {
+        "templates": [],
+        "components": [],
+        "toolbars": [
+          {
+            "name": "authorActions",
+            "buttons": []
+          }
+        ],
+        "outlets": []
+      }
+    }
+  ],
+  "modelRevision": "rev1:368b57ba5d82e467803adc3070d04cd8044ddaed5d7b8fd30b79cd173b3cd15f"
+}

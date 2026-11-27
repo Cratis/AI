@@ -1,0 +1,1 @@
+{"compilerOptions":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","experimentalDecorators":true,"strict":true,"skipLibCheck":true},"include":["contract.ts","generated/**/*.ts"]}

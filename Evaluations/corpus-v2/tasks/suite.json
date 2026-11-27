@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "fixtures": {
+    "backend": {
+      "path": "fixtures/sample",
+      "build": "dotnet build LearningPath/08-Production/Production.Specs/Production.Specs.csproj -c Release --warnaserror && dotnet build Capstone/Capstone.csproj -c Release --warnaserror",
+      "specs": "dotnet run --project LearningPath/08-Production/Production.Specs/Production.Specs.csproj -c Release --no-build --no-restore"
+    },
+    "frontend": {
+      "path": "fixtures/sample",
+      "build": "dotnet build Capstone/Capstone.csproj -c Release --warnaserror && if test ! -e Capstone/node_modules; then ln -s /opt/frontend/node_modules Capstone/node_modules; fi && cd Capstone && npm run build",
+      "specs": "node --experimental-strip-types --test Capstone/Specs/*.spec.ts"
+    },
+    "screenplay": {
+      "path": "fixtures/sample",
+      "build": "/opt/screenplay/screenplay Model --warnaserror && dotnet build LearningPath/08-Production/Production.Specs/Production.Specs.csproj -c Release --warnaserror",
+      "specs": "/opt/screenplay/screenplay test Model && dotnet run --project LearningPath/08-Production/Production.Specs/Production.Specs.csproj -c Release --no-build --no-restore"
+    }
+  },
+  "tasks": [
+    {
+      "id": "01-concepts", "area": "concepts", "fixture": "backend", "pilot": true, "timeoutSeconds": 900,
+      "prompt": "Introduce a DiscountCode string concept for carts in LearningPath/08-Production/DiscountCode.cs. Use the repository's value-concept abstraction, not a parallel primitive wrapper. Show equal codes compare equally, different codes do not, and JSON serialization round-trips the scalar value. Add executable specifications in the existing Production.Specs project; preserve all existing behavior.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_DiscountCode.cs"],
+      "expectedSkills": { "v1": ["cratis-fundamentals-concept"], "v2": ["cratis-fundamentals-name-value"] },
+      "idioms": [
+        { "id": "concept-as", "file": "LearningPath/08-Production/DiscountCode.cs", "kind": "present", "pattern": "DiscountCode[^\\n]*ConceptAs<string>", "positive": "public record DiscountCode(string Value) : ConceptAs<string>(Value);", "negative": "public record DiscountCode(string Value);" },
+        { "id": "no-parallel-equality", "file": "LearningPath/08-Production/DiscountCode.cs", "kind": "absent", "pattern": "IEquatable|override\\s+bool\\s+Equals", "positive": "public record DiscountCode(string Value) : ConceptAs<string>(Value);", "negative": "class DiscountCode : IEquatable<DiscountCode> {}" }
+      ]
+    },
+    {
+      "id": "02-bootstrap", "area": "bootstrap", "fixture": "backend", "timeoutSeconds": 900,
+      "prompt": "Add an in-process readiness health check CartReadiness to the production sample in CartReadiness.cs and register it in Program.cs. Readiness must be unhealthy until its MarkReady method is called, while the existing liveness endpoint and authentication pipeline keep working. Retain the current Arc/Chronicle composition instead of manually wiring internal framework services. Exercise the readiness transition and liveness/readiness distinction without an external Chronicle server.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_CartReadiness.cs"],
+      "expectedSkills": { "v1": ["cratis-arc-bootstrap"], "v2": ["cratis-arc-host-application"] },
+      "idioms": [
+        { "id": "arc-composition", "file": "LearningPath/08-Production/Program.cs", "kind": "present", "pattern": "AddCratisArc\\s*\\(", "positive": "builder.AddCratisArc();", "negative": "builder.Services.AddControllers();" },
+        { "id": "health-check-contract", "file": "LearningPath/08-Production/CartReadiness.cs", "kind": "present", "pattern": "IHealthCheck", "positive": "public class CartReadiness : IHealthCheck {}", "negative": "public class CartReadiness {}" }
+      ]
+    },
+    {
+      "id": "03-command", "area": "commands", "fixture": "backend", "pilot": true, "timeoutSeconds": 900,
+      "prompt": "Add a GiftWrapCart command to the production cart domain in GiftWrapCart.cs. Accept CartId and a gift message and return a GiftWrappingRequested event containing that message, attributed to the cart. Use the model-bound command/event return convention; do not inject an event log to append manually. Add positive specs proving the event and identity. Add the event contract in its own file.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_GiftWrapCart.cs"],
+      "expectedSkills": { "v1": ["cratis-arc-command"], "v2": ["cratis-arc-declare-command"] },
+      "idioms": [
+        { "id": "model-bound-command", "file": "LearningPath/08-Production/GiftWrapCart.cs", "kind": "present", "pattern": "\\[Command\\]", "positive": "[Command] public record GiftWrapCart(CartId CartId);", "negative": "public record GiftWrapCart(CartId CartId);" },
+        { "id": "no-injected-event-log", "file": "LearningPath/08-Production/GiftWrapCart.cs", "kind": "absent", "pattern": "IEventLog|\\.Append\\s*\\(", "positive": "public GiftWrappingRequested Handle() => new(Message);", "negative": "public GiftWrapCart(IEventLog log) {}" }
+      ]
+    },
+    {
+      "id": "04-validation", "area": "validation", "fixture": "backend", "timeoutSeconds": 900,
+      "prompt": "Add SetDeliveryAddress.cs: a model-bound command identified by CartId with an Address string. Reject empty/whitespace addresses through Arc validation, not by throwing a generic exception; accept a nonempty address and produce DeliveryAddressSet. Add specs for valid, empty and whitespace input. Put the event in its own file.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_SetDeliveryAddress.cs"],
+      "expectedSkills": { "v1": ["cratis-arc-command-validation"], "v2": ["cratis-arc-validate-command", "cratis-arc-declare-command"] },
+      "idioms": [
+        { "id": "validation-contract", "file": "LearningPath/08-Production/SetDeliveryAddress.cs", "kind": "present", "pattern": "ValidationResult|CommandValidator|NotEmpty\\s*\\(", "positive": "ValidationResult.Error(\"Address is required\");", "negative": "throw new Exception(\"invalid\");" },
+        { "id": "no-generic-input-exception", "file": "LearningPath/08-Production/SetDeliveryAddress.cs", "kind": "absent", "pattern": "throw\\s+new\\s+(Exception|InvalidOperationException)", "positive": "return ValidationResult.Error(\"required\");", "negative": "throw new Exception(\"required\");" }
+      ]
+    },
+    {
+      "id": "05-state-rejection", "area": "validation", "fixture": "backend", "timeoutSeconds": 900,
+      "prompt": "Add ChangeCartNote.cs and CartNoteChanged. Allow a note to change while the cart is open, but reject changes after checkout. Use the cart's decision read model and a typed validation rejection, not manual storage queries or event appends. Add specs for both open and checked-out carts, and prove the rejected case emits no event.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_ChangeCartNote.cs"],
+      "expectedSkills": { "v1": ["cratis-arc-command", "cratis-arc-command-validation"], "v2": ["cratis-arc-declare-command", "cratis-chronicle-protect-decision"] },
+      "idioms": [
+        { "id": "decision-read", "file": "LearningPath/08-Production/ChangeCartNote.cs", "kind": "present", "pattern": "DecisionRead<CartSummary>", "positive": "Handle(DecisionRead<CartSummary> cart)", "negative": "Handle(CartSummary cart)" },
+        { "id": "typed-rejection", "file": "LearningPath/08-Production/ChangeCartNote.cs", "kind": "present", "pattern": "ValidationResult", "positive": "Result<CartNoteChanged, ValidationResult>", "negative": "Task<bool>" }
+      ]
+    },
+    {
+      "id": "06-authorization", "area": "authorization", "fixture": "backend", "timeoutSeconds": 900,
+      "prompt": "Add ArchiveCart.cs and CartArchived. Require an authenticated caller in the CartManager role using Arc's authorization contract. Normal members and anonymous callers must be rejected before handling; managers can archive. Do not trust a client-supplied role or identity header. Add specs for all three caller cases using the existing command scenario conventions.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_ArchiveCart.cs"],
+      "expectedSkills": { "v1": ["cratis-arc-authentication-authorization-and-identity"], "v2": ["cratis-arc-authorize-request"] },
+      "idioms": [
+        { "id": "authorized-command", "file": "LearningPath/08-Production/ArchiveCart.cs", "kind": "present", "pattern": "\\[Authorize", "positive": "[Authorize(Roles = \"CartManager\")]", "negative": "[AllowAnonymous]" },
+        { "id": "no-client-identity", "file": "LearningPath/08-Production/ArchiveCart.cs", "kind": "absent", "pattern": "Request\\.Headers|IHeaderDictionary", "positive": "[Authorize] public record ArchiveCart(CartId CartId);", "negative": "var role = Request.Headers[\"Role\"];" }
+      ]
+    },
+    {
+      "id": "07-query", "area": "queries", "fixture": "backend", "timeoutSeconds": 900,
+      "prompt": "Add a model-bound GetCartSummary query in GetCartSummary.cs for one CartId, using the existing CartSummary read model. An unknown cart must yield no result, not another cart's state. Use the read-model/query abstraction rather than a custom HTTP controller. Add specs for a known and an unknown identity with two distinct carts.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_GetCartSummary.cs"],
+      "expectedSkills": { "v1": ["cratis-chronicle-read-model"], "v2": ["cratis-arc-expose-query"] },
+      "idioms": [
+        { "id": "query-contract", "file": "LearningPath/08-Production/GetCartSummary.cs", "kind": "present", "pattern": "\\[Query\\]|IReadModels|IReadModel", "positive": "[Query] public record GetCartSummary(CartId CartId);", "negative": "[HttpGet] public CartSummary Get() => default;" },
+        { "id": "no-controller-query", "file": "LearningPath/08-Production/GetCartSummary.cs", "kind": "absent", "pattern": "ControllerBase|HttpGet", "positive": "public record GetCartSummary(CartId CartId);", "negative": "public class GetCartSummary : ControllerBase {}" }
+      ]
+    },
+    {
+      "id": "08-observable-query", "area": "queries", "fixture": "backend", "timeoutSeconds": 900,
+      "prompt": "Add WatchCartSummary.cs: expose observable updates for one cart through the framework query/read-model APIs. A subscriber receives an update after an item is added; disposing the subscription stops further notifications. Do not implement a polling timer or raw custom SSE endpoint. Test two cart identities and disposal deterministically without external services.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_WatchCartSummary.cs"],
+      "expectedSkills": { "v1": ["cratis-chronicle-read-model"], "v2": ["cratis-arc-expose-query"] },
+      "idioms": [
+        { "id": "observable-contract", "file": "LearningPath/08-Production/WatchCartSummary.cs", "kind": "present", "pattern": "IObservable<|ISubject<|Observe", "positive": "IObservable<CartSummary> Watch()", "negative": "Task<CartSummary> Get()" },
+        { "id": "no-polling-query", "file": "LearningPath/08-Production/WatchCartSummary.cs", "kind": "absent", "pattern": "PeriodicTimer|Task\\.Delay|text/event-stream", "positive": "readModels.Observe(id);", "negative": "await Task.Delay(1000);" }
+      ]
+    },
+    {
+      "id": "09-event-projection", "area": "chronicle", "fixture": "backend", "pilot": true, "timeoutSeconds": 900,
+      "prompt": "Add CartItemCount.cs, a read model and projection of total item quantity per cart from ItemAddedToCart events. Two events of quantities 2 and 3 for one cart must yield 5, while another cart remains isolated. Use Chronicle's projection declaration, not a reactor updating a private dictionary. Add executable read-model/projection specs for accumulation and identity isolation.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_CartItemCount.cs"],
+      "expectedSkills": { "v1": ["cratis-chronicle-projection"], "v2": ["cratis-chronicle-project-view"] },
+      "idioms": [
+        { "id": "projection-contract", "file": "LearningPath/08-Production/CartItemCount.cs", "kind": "present", "pattern": "IProjectionFor<", "positive": "class Projection : IProjectionFor<CartItemCount>", "negative": "class Projection : IReactor" },
+        { "id": "event-projection-source", "file": "LearningPath/08-Production/CartItemCount.cs", "kind": "present", "pattern": "From<ItemAddedToCart>", "positive": "builder.From<ItemAddedToCart>()", "negative": "builder.From<CartCheckedOut>()" }
+      ]
+    },
+    {
+      "id": "10-lifecycle-projection", "area": "chronicle", "fixture": "backend", "timeoutSeconds": 900,
+      "prompt": "Add OpenCart.cs, a projection/list of open carts. ItemAddedToCart establishes the cart entry; CartCheckedOut removes it. Cover two carts so checkout of one cannot remove the other, and repeated checkout is harmless. Use projection lifecycle operations rather than manual event-log writes. Add deterministic executable projection specs.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_OpenCart.cs"],
+      "expectedSkills": { "v1": ["cratis-chronicle-projection"], "v2": ["cratis-chronicle-project-view"] },
+      "idioms": [
+        { "id": "lifecycle-projection", "file": "LearningPath/08-Production/OpenCart.cs", "kind": "present", "pattern": "IProjectionFor<", "positive": "class Projection : IProjectionFor<OpenCart>", "negative": "class Projection {}" },
+        { "id": "checkout-removal", "file": "LearningPath/08-Production/OpenCart.cs", "kind": "present", "pattern": "RemovedWith<CartCheckedOut>|Remove.*CartCheckedOut|From<CartCheckedOut>", "positive": "builder.RemovedWith<CartCheckedOut>();", "negative": "builder.From<ItemAddedToCart>();" }
+      ]
+    },
+    {
+      "id": "11-reactor", "area": "chronicle", "fixture": "backend", "timeoutSeconds": 900,
+      "prompt": "Add NotifyCartCheckout.cs, a reactor that sends one checkout notification through a small injectable notification port when CartCheckedOut is handled. Keep the side effect out of projections and command handlers. Use an in-memory substitute in specs; assert the correct cart identity and that unrelated events do not trigger a notification. No real network service is needed.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_NotifyCartCheckout.cs"],
+      "expectedSkills": { "v1": ["cratis-chronicle-reactor"], "v2": ["cratis-chronicle-react-to-fact"] },
+      "idioms": [
+        { "id": "reactor-contract", "file": "LearningPath/08-Production/NotifyCartCheckout.cs", "kind": "present", "pattern": "IReactor", "positive": "class NotifyCartCheckout : IReactor", "negative": "class NotifyCartCheckout : IProjectionFor<CartSummary>" },
+        { "id": "reactor-checkout-event", "file": "LearningPath/08-Production/NotifyCartCheckout.cs", "kind": "present", "pattern": "CartCheckedOut", "positive": "Task Handle(CartCheckedOut @event)", "negative": "Task Handle(ItemAddedToCart @event)" }
+      ]
+    },
+    {
+      "id": "12-reducer", "area": "chronicle", "fixture": "backend", "timeoutSeconds": 900,
+      "prompt": "Add CartQuantityReducer.cs and its small result model. Fold ItemAddedToCart into a running total quantity for one cart with Chronicle's reducer API. Empty history must produce zero; quantities 2 and 3 produce 5; rebuilding the same history is deterministic. Add executable reducer specs, with no database or Chronicle server dependency.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_CartQuantityReducer.cs"],
+      "expectedSkills": { "v1": ["cratis-chronicle-reducer"], "v2": ["cratis-chronicle-reduce-state"] },
+      "idioms": [
+        { "id": "reducer-contract", "file": "LearningPath/08-Production/CartQuantityReducer.cs", "kind": "present", "pattern": "IReducerFor<", "positive": "class CartQuantityReducer : IReducerFor<CartQuantity>", "negative": "class CartQuantityReducer : IReactor" },
+        { "id": "reducer-quantity-event", "file": "LearningPath/08-Production/CartQuantityReducer.cs", "kind": "present", "pattern": "ItemAddedToCart", "positive": "Reduce(ItemAddedToCart @event)", "negative": "Reduce(CartCheckedOut @event)" }
+      ]
+    },
+    {
+      "id": "13-constraint", "area": "chronicle", "fixture": "backend", "timeoutSeconds": 900,
+      "prompt": "Add ClaimCartReference.cs and CartReferenceClaimed. References must be unique case-insensitively across carts through a Chronicle event constraint, not a query-then-append race. Add CartReferenceConstraint.cs if a separate declaration is required. Specs must reject the same reference on another cart, accept distinct references, and assert rejected commands append nothing.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_ClaimCartReference.cs"],
+      "expectedSkills": { "v1": ["cratis-chronicle-constraint"], "v2": ["cratis-chronicle-constrain-append"] },
+      "idioms": [
+        { "id": "constraint-contract", "file": "LearningPath/08-Production/CartReferenceConstraint.cs", "kind": "present", "pattern": "IConstraint|Unique", "positive": "class CartReferenceConstraint : IConstraint", "negative": "class CartReferenceConstraint {}" },
+        { "id": "constraint-no-racy-append", "file": "LearningPath/08-Production/ClaimCartReference.cs", "kind": "absent", "pattern": "IEventLog|\\.Append\\s*\\(", "positive": "CartReferenceClaimed Handle() => new(Reference);", "negative": "await eventLog.Append(@event);" }
+      ]
+    },
+    {
+      "id": "14-event-evolution", "area": "chronicle", "fixture": "backend", "timeoutSeconds": 900,
+      "prompt": "Introduce a versioned DeliveryAddressSet event in DeliveryAddressSet.cs and a Chronicle event-sequence upgrade in DeliveryAddressUpgrade.cs. The original payload has Address only; the new generation adds Country defaulting to GB for old events. Preserve old event identity and readable history rather than replacing its id. Add specs that replay an old payload and a new payload and prove deterministic upgraded values.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_DeliveryAddressUpgrade.cs"],
+      "expectedSkills": { "v1": ["cratis-chronicle-event-sequence-upgrades"], "v2": ["cratis-chronicle-evolve-event"] },
+      "idioms": [
+        { "id": "event-upgrade-contract", "file": "LearningPath/08-Production/DeliveryAddressUpgrade.cs", "kind": "present", "pattern": "IEventSequence|IEvent.*Upgrade|IEvent.*Migration", "positive": "class DeliveryAddressUpgrade : IEventSequenceUpgrade", "negative": "class DeliveryAddressUpgrade {}" },
+        { "id": "versioned-event", "file": "LearningPath/08-Production/DeliveryAddressSet.cs", "kind": "present", "pattern": "EventType", "positive": "[EventType(\"delivery-address-set\", 2)]", "negative": "public record DeliveryAddressSet(string Address);" }
+      ]
+    },
+    {
+      "id": "15-generated-command-ui", "area": "react", "fixture": "frontend", "pilot": true, "timeoutSeconds": 900,
+      "prompt": "Add Capstone/Authors/RegisterAuthorPanel.tsx. Use the generated RegisterAuthor command proxy rather than duplicating the HTTP contract. Provide a name field, disable submission while executing, display command rejection/errors, and clear the field only on success. Extract testable interaction logic if needed. Add native node:test TypeScript specs covering success and rejected commands; no browser or external backend is required.",
+      "requiredSpecs": ["Capstone/Specs/register-author.spec.ts"],
+      "expectedSkills": { "v1": ["cratis-arc-react-page", "cratis-arc-command"], "v2": ["cratis-arc-react-bind-slice"] },
+      "idioms": [
+        { "id": "generated-command-hook", "file": "Capstone/Authors/RegisterAuthorPanel.tsx", "kind": "present", "pattern": "RegisterAuthor\\.use|useCommand\\s*\\(RegisterAuthor", "positive": "const command = RegisterAuthor.use();", "negative": "fetch('/api/register-author');" },
+        { "id": "no-handwritten-http", "file": "Capstone/Authors/RegisterAuthorPanel.tsx", "kind": "absent", "pattern": "fetch\\s*\\(|axios", "positive": "await command.execute();", "negative": "await fetch('/api/authors');" }
+      ]
+    },
+    {
+      "id": "16-query-list-ui", "area": "react", "fixture": "frontend", "timeoutSeconds": 900,
+      "prompt": "Add Capstone/Authors/AuthorListPanel.tsx using the generated AllAuthors query. Render loading, error and empty states and refresh when observable query results change. Clean up subscriptions on unmount instead of implementing polling. Add native node:test TypeScript interaction/state specs with a mock query contract, including an update after initial render and disposal.",
+      "requiredSpecs": ["Capstone/Specs/author-list.spec.ts"],
+      "expectedSkills": { "v1": ["cratis-arc-react-page"], "v2": ["cratis-arc-react-bind-slice"] },
+      "idioms": [
+        { "id": "generated-query-hook", "file": "Capstone/Authors/AuthorListPanel.tsx", "kind": "present", "pattern": "AllAuthors\\.use|useQuery\\s*\\(AllAuthors", "positive": "const query = AllAuthors.use();", "negative": "const query = fetch('/authors');" },
+        { "id": "no-ui-polling", "file": "Capstone/Authors/AuthorListPanel.tsx", "kind": "absent", "pattern": "setInterval|setTimeout", "positive": "return query.data.map(author => author.name);", "negative": "setInterval(reload, 1000);" }
+      ]
+    },
+    {
+      "id": "17-components-data-page", "area": "components", "fixture": "frontend", "timeoutSeconds": 900,
+      "prompt": "Add Capstone/Authors/AuthorDataPage.tsx using the installed Cratis Components DataPage compound API and the AllAuthors generated query. Include a name column, loading/error/empty feedback and row selection. Use published imports/required props instead of inventing component APIs. Add native node:test TypeScript state/interaction specs for selection and empty data, extracting a presentation model if necessary.",
+      "requiredSpecs": ["Capstone/Specs/author-data-page.spec.ts"],
+      "expectedSkills": { "v1": ["cratis-components-data-page"], "v2": ["cratis-components-display-list"] },
+      "idioms": [
+        { "id": "components-import", "file": "Capstone/Authors/AuthorDataPage.tsx", "kind": "present", "pattern": "from ['\"]@cratis/components", "positive": "import { DataPage } from '@cratis/components';", "negative": "import { DataPage } from './fake';" },
+        { "id": "data-page-use", "file": "Capstone/Authors/AuthorDataPage.tsx", "kind": "present", "pattern": "<DataPage", "positive": "<DataPage query={AllAuthors} />", "negative": "<table />" }
+      ]
+    },
+    {
+      "id": "18-dialog-ui", "area": "components", "fixture": "frontend", "timeoutSeconds": 900,
+      "prompt": "Add Capstone/Authors/RegisterAuthorDialog.tsx using the installed Components dialog/form APIs and generated RegisterAuthor. Support submit/cancel, validation feedback, refresh after success and returning focus to the opener. Do not close or refresh on rejection. Add native node:test TypeScript lifecycle/interaction specs for submit success, rejection and cancellation using extracted state logic if needed.",
+      "requiredSpecs": ["Capstone/Specs/register-author-dialog.spec.ts"],
+      "expectedSkills": { "v1": ["cratis-components-dialog"], "v2": ["cratis-components-submit-form", "cratis-arc-react-bind-slice"] },
+      "idioms": [
+        { "id": "dialog-components", "file": "Capstone/Authors/RegisterAuthorDialog.tsx", "kind": "present", "pattern": "from ['\"]@cratis/components", "positive": "import { Dialog } from '@cratis/components';", "negative": "import { Dialog } from './fake';" },
+        { "id": "dialog-generated-command", "file": "Capstone/Authors/RegisterAuthorDialog.tsx", "kind": "present", "pattern": "RegisterAuthor", "positive": "RegisterAuthor.use();", "negative": "fetch('/register');" }
+      ]
+    },
+    {
+      "id": "19-paged-live-ui", "area": "react", "fixture": "frontend", "timeoutSeconds": 900,
+      "prompt": "Add Capstone/Authors/PagedAuthorsPanel.tsx with server-side page/sort parameters and live query updates. Add the corresponding model-bound paged author query in Capstone/Authors if needed and consume its generated proxy. Changing pages must dispose the prior subscription; observable updates must not duplicate rows or subscriptions. Add native node:test TypeScript state specs for page changes, sort and disposal. Do not fake server paging with Array.slice over an unbounded response.",
+      "requiredSpecs": ["Capstone/Specs/paged-authors.spec.ts"],
+      "expectedSkills": { "v1": ["cratis-arc-query-paging", "cratis-arc-react-page"], "v2": ["cratis-arc-page-query", "cratis-arc-react-bind-slice"] },
+      "idioms": [
+        { "id": "server-page-parameter", "file": "Capstone/Authors/PagedAuthorsPanel.tsx", "kind": "present", "pattern": "page|Page", "positive": "query.setArguments({ page, sort });", "negative": "query.use();" },
+        { "id": "no-client-slice-paging", "file": "Capstone/Authors/PagedAuthorsPanel.tsx", "kind": "absent", "pattern": "\\.slice\\s*\\(", "positive": "return query.data;", "negative": "return data.slice(page * size, size);" }
+      ]
+    },
+    {
+      "id": "20-domain-concepts", "area": "concepts", "fixture": "backend", "timeoutSeconds": 900,
+      "prompt": "Introduce LoyaltyPoints.cs and LoyaltyAccountId.cs as domain concepts in the cart domain, using integer and Guid underlying values respectively. Avoid a parallel hand-written equality/converter implementation. Add executable specs for value equality and scalar JSON round-trips, including zero points and a nonempty account id. Do not replace existing cart identifiers.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_LoyaltyConcepts.cs"],
+      "expectedSkills": { "v1": ["cratis-fundamentals-concept"], "v2": ["cratis-fundamentals-name-value"] },
+      "idioms": [
+        { "id": "integer-concept", "file": "LearningPath/08-Production/LoyaltyPoints.cs", "kind": "present", "pattern": "ConceptAs<int>", "positive": "record LoyaltyPoints(int Value) : ConceptAs<int>(Value);", "negative": "record LoyaltyPoints(int Value);" },
+        { "id": "identity-concept", "file": "LearningPath/08-Production/LoyaltyAccountId.cs", "kind": "present", "pattern": "ConceptAs<Guid>", "positive": "record LoyaltyAccountId(Guid Value) : ConceptAs<Guid>(Value);", "negative": "record LoyaltyAccountId(Guid Value);" }
+      ]
+    },
+    {
+      "id": "21-command-projection-specs", "area": "specs", "fixture": "backend", "pilot": true, "timeoutSeconds": 900,
+      "prompt": "Add executable Cratis command and read-model scenario specifications for the existing AddItemToCart and CartSummary. Prove addition succeeds while open, checkout rejects addition without emitting an event, and quantities accumulate to the right total in CartSummary. Put command cases in for_CartCommands.cs and projection cases in for_CartProjection.cs in Production.Specs. Cases must fail if the command ignores checkout or if projection accumulation loses an event. Do not alter the existing implementation or specs.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_CartCommands.cs", "LearningPath/08-Production/Production.Specs/for_CartProjection.cs"],
+      "expectedSkills": { "v1": ["cratis-specifications", "cratis-chronicle-projection"], "v2": ["cratis-specifications-exercise-backend"] },
+      "idioms": [
+        { "id": "command-scenario", "file": "LearningPath/08-Production/Production.Specs/for_CartCommands.cs", "kind": "present", "pattern": "CommandScenario|given|when", "positive": "CommandScenario.For<AddItemToCart>();", "negative": "Assert.True(true);" },
+        { "id": "read-model-scenario", "file": "LearningPath/08-Production/Production.Specs/for_CartProjection.cs", "kind": "present", "pattern": "ReadModelScenario|ProjectionScenario|given|when", "positive": "ReadModelScenario.For<CartSummary>();", "negative": "Assert.True(true);" }
+      ]
+    },
+    {
+      "id": "22-react-specs", "area": "specs", "fixture": "frontend", "timeoutSeconds": 900,
+      "prompt": "Add Capstone/Authors/AuthorRegistrationState.ts, a small testable interaction state adapter around the generated RegisterAuthor command contract. It must disable duplicate submission while executing, retain input/show errors on rejection, and clear input on success. Add native node:test TypeScript interaction specs using a controllable mock of the generated command's public shape, including a deferred result. Tests must catch a mutation that clears input on rejection. Keep the actual HTTP contract generated, not duplicated.",
+      "requiredSpecs": ["Capstone/Specs/author-registration-state.spec.ts"],
+      "expectedSkills": { "v1": ["cratis-specifications-typescript", "cratis-arc-react-page"], "v2": ["cratis-specifications-observe-ui", "cratis-arc-react-bind-slice"] },
+      "idioms": [
+        { "id": "generated-command-contract", "file": "Capstone/Authors/AuthorRegistrationState.ts", "kind": "present", "pattern": "\\bRegisterAuthor\\b", "positive": "import type { RegisterAuthor } from './RegisterAuthor';", "negative": "interface RegisterAuthorRequest { name: string }" },
+        { "id": "no-duplicate-request-contract", "file": "Capstone/Authors/AuthorRegistrationState.ts", "kind": "absent", "pattern": "interface\\s+RegisterAuthorRequest|fetch\\s*\\(", "positive": "type Command = Pick<RegisterAuthor, 'execute'>;", "negative": "interface RegisterAuthorRequest { name: string }" }
+      ]
+    },
+    {
+      "id": "23-event-model", "area": "screenplay", "fixture": "screenplay", "pilot": true, "timeoutSeconds": 900,
+      "prompt": "Extend the library model with Model/reservations.play. A member reserves a book with ReservationId and BookId; the ReserveBook command produces BookReserved for that reservation, and an observable reservation-list query/read model projects the event, preserving both identities. Use one additional module, leaving the existing catalog unchanged. Include executable model specifications for the command and query/projection linkage, and C# assertion specs documenting the reservation identity contract in Production.Specs. Compile and run model specs with the installed Screenplay tool.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_ReservationContract.cs"],
+      "expectedSkills": { "v1": ["cratis-screenplay-modeling"], "v2": ["cratis-screenplay-declare-slice", "cratis-screenplay-specify-outcome"] },
+      "idioms": [
+        { "id": "model-command-event-link", "file": "Model/reservations.play", "kind": "present", "pattern": "produces BookReserved", "positive": "produces BookReserved", "negative": "event BookReserved" },
+        { "id": "model-query-projection", "file": "Model/reservations.play", "kind": "present", "pattern": "projection [^\\n]+=>", "positive": "projection Reservations => ReservationRow", "negative": "readmodel ReservationRow" }
+      ]
+    },
+    {
+      "id": "24-model-handoff", "area": "screenplay", "fixture": "screenplay", "timeoutSeconds": 900,
+      "prompt": "Model a reservation cancellation change in Model/cancellations.play: CancelReservation identifies ReservationId and produces ReservationCancelled, and a reservation read model reflects the cancelled state. Include executable model specifications. Implement the corresponding model-bound CancelReservation.cs and event contract in the production cart sample as a small independent slice, with executable command specs proving identity and the returned event. Keep the model's names/fields consistent with the implementation; do not inject an event log or change the existing library model.",
+      "requiredSpecs": ["LearningPath/08-Production/Production.Specs/for_CancelReservation.cs"],
+      "expectedSkills": { "v1": ["cratis-screenplay-modeling", "cratis-arc-command"], "v2": ["cratis-screenplay-declare-slice", "cratis-screenplay-specify-outcome", "cratis-screenplay-handoff-slice", "cratis-arc-declare-command"] },
+      "idioms": [
+        { "id": "handoff-model-event", "file": "Model/cancellations.play", "kind": "present", "pattern": "produces ReservationCancelled", "positive": "produces ReservationCancelled", "negative": "event ReservationCancelled" },
+        { "id": "handoff-command-return", "file": "LearningPath/08-Production/CancelReservation.cs", "kind": "present", "pattern": "ReservationCancelled\\s+Handle", "positive": "public ReservationCancelled Handle() => new();", "negative": "public void Handle() {}" }
+      ]
+    }
+  ]
+}

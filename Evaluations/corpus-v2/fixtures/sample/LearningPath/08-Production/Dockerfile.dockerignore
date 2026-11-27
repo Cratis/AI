@@ -1,0 +1,9 @@
+**
+!Directory.Build.props
+!Directory.Packages.props
+!NuGet.config
+!global.json
+!LearningPath/08-Production/Production.csproj
+!LearningPath/08-Production/*.cs
+!LearningPath/08-Production/appsettings.json
+!LearningPath/08-Production/certs/ca.crt

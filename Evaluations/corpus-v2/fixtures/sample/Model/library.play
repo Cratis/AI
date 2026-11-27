@@ -1,0 +1,154 @@
+// A small, complete Screenplay model: a library that registers books and shows which ones can be lent.
+// Every excerpt in this guidance is taken from this file, and the file compiles and its specifications pass.
+
+concept BookId : Uuid
+concept BookTitle : String
+concept CopyCount : Int
+
+policy IsLibrarian
+  require role "Librarian"
+
+policy IsMember
+  require authenticated
+
+module Lending
+  description "Books the library owns and lends to its members"
+
+  feature Catalog
+    description "Registering books and seeing what can be lent"
+
+    slice StateChange RegisterBook
+      description "A librarian adds a book to the catalog"
+
+      command RegisterBook
+        description "Adds a book with the number of copies the library owns"
+        bookId BookId identifier
+        title  BookTitle
+        copies CopyCount
+
+        authorize IsLibrarian
+
+        validate
+          require copies > 0
+            message "A book needs at least one copy"
+
+        produces BookRegistered
+          for bookId
+          title      = title
+          copies     = copies
+          registered = $context.occurred
+
+      event BookRegistered
+        title      BookTitle
+        copies     CopyCount
+        registered DateTime
+
+      constraint UniqueBookTitle
+        unique title on BookRegistered
+        ignore casing
+        message "A book with that title is already registered"
+
+      screen RegisterBookScreen
+        action RegisterBook
+          navigate to AvailableBooksScreen
+          label "Register book"
+
+      specification RegisteringABook
+        description "A librarian registers a book with copies"
+        given caller
+          authenticated
+          role "Librarian"
+        given clock "2026-03-02T09:00:00Z"
+        when RegisterBook
+          bookId = "0b3f6a52-7c1d-4e8f-9a2b-3c4d5e6f7a81"
+          title  = "The Left Hand of Darkness"
+          copies = 3
+        then BookRegistered
+          for "0b3f6a52-7c1d-4e8f-9a2b-3c4d5e6f7a81"
+          title      = "The Left Hand of Darkness"
+          copies     = 3
+          registered = "2026-03-02T09:00:00Z"
+
+      specification RejectingABookWithoutCopies
+        description "A book needs at least one copy"
+        given caller
+          authenticated
+          role "Librarian"
+        when RegisterBook
+          bookId = "0b3f6a52-7c1d-4e8f-9a2b-3c4d5e6f7a82"
+          title  = "Kindred"
+          copies = 0
+        then error "A book needs at least one copy"
+
+      specification RejectingADuplicateTitle
+        description "Titles are unique, whatever their casing"
+        given caller
+          authenticated
+          role "Librarian"
+        given clock "2026-03-02T10:00:00Z"
+        given BookRegistered
+          for "0b3f6a52-7c1d-4e8f-9a2b-3c4d5e6f7a81"
+          title      = "The Left Hand of Darkness"
+          copies     = 3
+          registered = "2026-03-02T09:00:00Z"
+        when RegisterBook
+          bookId = "0b3f6a52-7c1d-4e8f-9a2b-3c4d5e6f7a83"
+          title  = "the left hand of darkness"
+          copies = 1
+        then error "A book with that title is already registered"
+
+      specification MembersCannotRegisterBooks
+        description "Only librarians register books"
+        given caller
+          authenticated
+          role "Member"
+        when RegisterBook
+          bookId = "0b3f6a52-7c1d-4e8f-9a2b-3c4d5e6f7a84"
+          title  = "Parable of the Sower"
+          copies = 2
+        then denied
+
+    slice StateView AvailableBooks
+      description "Members see the books the library can lend"
+
+      readmodel AvailableBook
+        bookId BookId
+        title  BookTitle
+        copies CopyCount
+
+      query AvailableBooks => AvailableBook[]
+        description "Every registered book with its copy count"
+        authorize IsMember
+
+      query AvailableBookById => AvailableBook optional
+        by bookId BookId
+        authorize IsMember
+
+      projection AvailableBooks => AvailableBook
+        from BookRegistered
+          title  = title
+          copies = copies
+
+      screen AvailableBooksScreen
+        data AvailableBook[] via query AvailableBooks
+
+      specification SeeingARegisteredBook
+        description "A registered book becomes available"
+        given caller
+          authenticated
+          role "Member"
+        when append BookRegistered
+          for "0b3f6a52-7c1d-4e8f-9a2b-3c4d5e6f7a81"
+          title      = "The Left Hand of Darkness"
+          copies     = 3
+          registered = "2026-03-02T09:00:00Z"
+        then readmodel AvailableBook
+          bookId = "0b3f6a52-7c1d-4e8f-9a2b-3c4d5e6f7a81"
+          title  = "The Left Hand of Darkness"
+          copies = 3
+        then query AvailableBookById
+          arguments
+            bookId = "0b3f6a52-7c1d-4e8f-9a2b-3c4d5e6f7a81"
+          result
+            title  = "The Left Hand of Darkness"
+            copies = 3

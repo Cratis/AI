@@ -1,0 +1,95 @@
+{
+  "skill": "cratis-components-compose-toolbar",
+  "queries": [
+    {
+      "query": "Our toolbar still lets me draw after I switch to review mode. How do I replace the active commands?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "We have too many drawing buttons across the top. How should I group the related ones in the toolbar?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Move secondary palette tools into a fan-out.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Hidden toolbar commands still get keyboard focus.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Bind the active context to review mode.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Keep Undo available in both action groups.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Test keyboard invocation after switching toolbar context.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Organize overflow commands in a toolbar folder.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Check focus and commit with arrows and Tab.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-choose-control.",
+      "sibling": "cratis-components-choose-control"
+    },
+    {
+      "query": "Convert my screen-space decoration into fixed canvas chrome.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-build-canvas.",
+      "sibling": "cratis-components-build-canvas"
+    },
+    {
+      "query": "Build a DataPage for the authors collection.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-display-list.",
+      "sibling": "cratis-components-display-list"
+    },
+    {
+      "query": "Load the baseline Cratis tokens and styles.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-theme-application.",
+      "sibling": "cratis-components-theme-application"
+    },
+    {
+      "query": "Show feedback after the confirmed request settles.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-coordinate-feedback.",
+      "sibling": "cratis-components-coordinate-feedback"
+    },
+    {
+      "query": "My pivot label changes but the results do not narrow.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-explore-data.",
+      "sibling": "cratis-components-explore-data"
+    },
+    {
+      "query": "Dispose the listener owned by a closing view model.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-react-separate-view-model.",
+      "sibling": "cratis-arc-react-separate-view-model"
+    },
+    {
+      "query": "Write a browser specification for an existing widget without changing the UI.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-specifications-observe-ui.",
+      "sibling": "cratis-specifications-observe-ui"
+    },
+    {
+      "query": "Suggest a polite way to decline a second helping at dinner.",
+      "shouldTrigger": false,
+      "sibling": null
+    },
+    {
+      "query": "When should I transplant basil seedlings into a bigger pot?",
+      "shouldTrigger": false,
+      "sibling": null
+    }
+  ]
+}

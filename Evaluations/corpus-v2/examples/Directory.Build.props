@@ -1,0 +1,10 @@
+<Project>
+    <!-- Examples model standalone customer applications, not projects in this repository. -->
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <DiscoverGlobalAnalyzerConfigFiles>false</DiscoverGlobalAnalyzerConfigFiles>
+    </PropertyGroup>
+</Project>

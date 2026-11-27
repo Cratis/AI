@@ -312,6 +312,14 @@ findings without failing.
 
 ### Evaluate skills
 
+For the separate executable v1/v2/none application comparison, see
+[`Evaluations/corpus-v2`](Evaluations/corpus-v2/README.md). Preview its 216-call matrix without
+model calls with `yarn workspace @cratis/ai-skill-evaluation run evaluate suite --dry-run`;
+`--pilot --dry-run` previews 18 calls. That suite uses Pi, offline package-backed fixtures,
+executable specifications and source-idiom diagnostics, not the answer-grading commands below.
+Its default model is `openai-codex/gpt-6.2-sol`, medium thinking, concurrency two. A dry-run
+is not approval to execute the matrix.
+
 Behavior evaluations live in `Evaluations/skills/<name>/trigger.json` and `evals.json`, outside the
 shipped corpus. New skills require both files. `Evaluations/unevaluated.json` records the existing
 coverage gap with reasons; comparison against the Git base allows that list only to shrink. CI
