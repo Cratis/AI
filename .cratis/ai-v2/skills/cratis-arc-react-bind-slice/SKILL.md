@@ -50,7 +50,7 @@ if (!name.trim()) return <p>Enter an author name.</p>;
 ## When it goes off the usual path
 
 - **Rows aren't ready or access was denied:** show loading or error, not an empty list. Show an empty list only for a ready, successful result with no rows.
-- **The account switches:** have the sign-in flow hide or unmount the old caller's view before activating the new credentials. In the component coordinating the switch, import `useContext` from `react` and `ArcContext` from `@cratis/arc.react`, then read `const arc = useContext(ArcContext);`. After installing the new credentials, call `arc.reconnectQueries?.();` and remount the query view. Show loading until the newly mounted view has a result.
+- **The account switches:** the `<Arc>` provider keeps the last result of each query, so a remounted view can briefly show the previous caller's rows. Have the sign-in flow hide the old view, install the new credentials, then give the owning provider a fresh instance by keying it on the signed-in identity, for example `<Arc key={userId} ...>`. Show loading until the new view has a result.
 
 ## Related skills
 
