@@ -28,7 +28,7 @@ event store name is required and has no default.
 | `SkipCompatibilityCheck` | `false` | Connecting deliberately to a kernel version the client does not declare compatible. Leave on otherwise. |
 | `UnitOfWorkLifecyclePolicy` | `Compatibility` | `Strict` to fail on units of work that are never completed. |
 | `EventGenerationDelivery` | `Compatibility` | Opting into the newer event generation delivery behavior. |
-| `ArtifactIdentityDrift` | `Warn` | `Error` in CI to fail on renamed or drifted artifact identities. |
+| `ArtifactIdentityDrift` | `Warn` | `Fail` in CI or staging to stop registration on likely reactor or event type renames (values: `Warn`, `Fail`, `Ignore`). It detects drift; it does not repair stored identities. |
 | `DefaultSinkTypeId` | MongoDB | Read models should default to another sink type. |
 | `ClaimsBasedNamespaceResolverClaimType` | `tenant_id` | The identity provider carries the tenant in another claim. |
 | `EnableEventTypeGenerationValidation` | `false` | Only a development kernel honors this; a production kernel always enforces migration-chain validation. |
