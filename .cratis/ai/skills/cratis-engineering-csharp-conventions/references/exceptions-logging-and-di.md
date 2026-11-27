@@ -81,7 +81,12 @@ registration is the exception, not the rule.
   collaborators — that is the service-locator anti-pattern.
 - Mark a singleton with the `[Singleton]` attribute rather than registering it
   explicitly.
-- A convention-based `IFoo → Foo` pair needs no registration.
+- A convention-based `IFoo → Foo` pair needs no registration. The convention
+  binds only when `IFoo` and `Foo` share a namespace and `Foo` is the single
+  implementation, and it skips any service type already registered. An
+  interface in a contracts project with its implementation elsewhere is not
+  covered: register it explicitly, and apply any generated bindings after the
+  explicit registrations so they only fill gaps.
 - Command and query `Handle()` parameters resolve from DI by type.
 
 ```csharp
