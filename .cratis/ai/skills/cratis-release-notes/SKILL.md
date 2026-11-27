@@ -132,10 +132,17 @@ labels warn but are not permission to omit required PR labels.
 
 `hotfix-labels` defaults to `hotfix` and bypasses the window. With a pending major,
 only the merge run for the hotfix fails; scheduled/other merge runs warn and leave
-the batch pending. A manual run without a version releases everything pending;
-obtain the required human major confirmation first. Inspect `pull-requests` and
-`reason` (`batched` or `nothing-pending`) rather than assuming every successful
-run released. Never turn on batching just to clear a queue without authorization.
+the batch pending. An authorized manual Publish run with an empty version or
+`0.0.0` releases everything pending; obtain the required human major confirmation
+first. Inspect `pull-requests` and `reason` (`batched` or `nothing-pending`)
+rather than assuming every successful run released. Never turn on batching just
+to clear a queue without authorization.
+
+From release-action 1.5.2, check the main-step log or the step summary's
+`Explanation` to see why a batch was skipped. If the window is still open, both
+list the pending PRs and show the oldest merge time and when the window elapses
+(in UTC). Use that time to decide whether to wait for the next scheduled Publish
+run or request an authorized manual release. The post step logs the skip reason.
 
 A release-creation 403 caused by workflow drift names the recovery:
 dispatch the publish workflow from the current default branch with the PR's
