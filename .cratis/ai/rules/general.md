@@ -134,7 +134,7 @@ Verify claims with build, spec, lint or observed-behavior signals, not confidenc
 | Go | `go.md`; framework: `go-engineering.md`; product APIs: `cratis-chronicle-client-go`, `cratis-arc-go` and `cratis-fundamentals-concept-go` |
 | React + Arc + Cratis Components + MVVM + dialogs | `react.md`, `components.md`, `dialogs.md` |
 | Frontend engineering quality & testing | `frontend-quality.md`, `frontend-testing.md`, `storybook.md` |
-| Spec patterns — universal `Specification` base (both profiles) | `specs.md`, `specs.csharp.md`, `specs.typescript.md` |
+| Spec patterns — universal `Specification` base (both profiles) | `specs.md`, `specs.csharp.md`, `specs.typescript.md`, `specs.elixir.md` |
 | Build and spec-run speed: parallel-safe specs, no per-spec startup, cheap analyzers | `fast-feedback.md` |
 | Spec patterns — the four `*Scenario` helpers (application only) | `specs.scenarios.csharp.md` |
 | Strongly-typed values (`ConceptAs<T>`, `EventSourceId<T>`); shared term definitions (event, projection, reducer, reactor, observer, DCB, …) | `concepts.md`; `glossary.md` |

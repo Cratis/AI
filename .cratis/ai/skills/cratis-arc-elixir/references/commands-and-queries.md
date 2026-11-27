@@ -24,6 +24,26 @@ once and is what Chronicle records.
 
 Each callback runs only if the previous steps passed.
 
+## Where each decision lives
+
+A command's `handle/2` decides what to append from what `provide/2` loaded. Pick the mechanism by what the
+decision is:
+
+| Decision | Use |
+| --- | --- |
+| Shape or range of an input | `field` options (`required:`, `max_length:`), then a validator |
+| State of the stream a rule needs (does it exist, is it suspended) | `provide/2` loading the folded state; `handle/2` refuses with a validation result |
+| **Uniqueness**: a value used once, or a fact (an event type) once per stream | **A Chronicle constraint**, declared on the event type (`unique/2`, `unique_event_type/1`) or in a standalone `Cratis.Chronicle.Events.Constraint` module. The kernel checks it at append time, so it holds under concurrency. |
+| A rule over many streams or a count (a tenant limit) | A read model or the integration, and accept that it can race; say so in the command's doc |
+| An exceptional failure (a bug, missing infrastructure) | raise |
+
+**Do not check uniqueness by reading first.** A `provide/2` that loads the stream or a read model to see "is
+this taken" (`{:ok, %{exists?: true}} -> refuse(...)`) is a race: two commands both see it free, and both
+append. Declare the constraint and let the append refuse. Arc turns the violation into a validation result with
+reason `constraintViolation` (the constraint name in `reasonDetail`), so a client already handles it; give the
+constraint a `:message` so the refusal reads well. Release a held value with `remove_constraint/1,2` on the event
+that frees it. Read the Chronicle skill's `references/constraints.md` for the options.
+
 ## When Chronicle refuses
 
 A constraint or concurrency rejection never raises. It is a validation result with reason

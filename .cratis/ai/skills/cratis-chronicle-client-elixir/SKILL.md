@@ -252,6 +252,16 @@ A standalone projection is `use Cratis.Chronicle.Projections.Projection, model: 
 `reduce(event, model_or_nil, context) :: struct()`. **Reducers run in your
 process**, so the reduction is Elixir code you own.
 
+**Prefer a projection over a reducer.** Write a reducer only when a projection cannot express the transition
+(branching on prior state, calculations, guards), and say why in its `@moduledoc`. Keep the read model, its
+projection or reducer and its queries together in one file named for the read model; do not name files for
+their technical function (`reducer.ex`, `queries.ex`).
+
+**Uniqueness is a constraint, not a read.** To say "this value is used once" or "this event happens once per
+stream", declare `unique/2` or `unique_event_type/1` (or a standalone constraint module) and let the append
+refuse; do not load the stream or a read model first to look. A read-then-append check races. See
+[references/constraints.md](references/constraints.md).
+
 #### Variants — mutually exclusive read models for one entity's lifecycle
 
 Requires `cratis_chronicle` `3.4.0` or later. `variant_of/2` requires `:key`; a variant with no `enters_on` raises `Cratis.Chronicle.Projections.VariantMustDeclareEntersOnEvent` at registration.
