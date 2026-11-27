@@ -89,7 +89,7 @@ The command carries input from the caller. `Handle()` is defined directly on the
 | Command-input / cross-field / pre-handler rule (incl. injected read-model/service/identity checks) | `CommandValidator<TCommand>` with `RuleFor(...)` |
 | Handler needs fetched/computed data before it can build the event | `Provide()` — acquires inputs; only short-circuits when acquisition yields nothing usable. Validators own refusals |
 | State-dependent rule that must hold **under concurrency** | Read protection `On`: the read model as a `CommandValidator<T>` constructor (or `Handle()`) parameter; a per-stream read model or `IStreamReads`/`StreamDecision` for one stream; an aggregate for a rich lifecycle. `[ProtectedDecision]` + `DecisionRead<T>` is the older per-command opt-in. Under `Off` (set explicitly, or the Arc 22 behavior) injection is a hint |
-| Uniqueness | Chronicle `[Unique]` / `IConstraint` (race-safe) — not a read-model pre-check |
+| Uniqueness (a value used once, a fact once per stream) | Chronicle `[Unique]` / `IConstraint` (race-safe) — **never** a read-model pre-check or a state read in `Provide()`/`Handle()`, which races and says nothing the kernel enforces. Elixir: `unique/2`, `unique_event_type/1` or a standalone `Constraint` module |
 | Genuinely exceptional failure (bug, missing infra) | `throw` a domain exception |
 
 **Do not throw for normal business rejection.** A thrown exception (from `Provide()` or `Handle()`) surfaces as an exception/HTTP 500, *not* a validation result. Recoverable, user-facing rejections are validation: `ValidationResult.Error(...)` via a validator or `Result<,>`. (For step-by-step business-rule placement, invoke the **cratis-arc-command-validation** skill.)
@@ -292,6 +292,10 @@ public record Author(AuthorId Id, AuthorName Name)
         readModels.GetInstanceById<Author>((EventSourceId)id);
 }
 ```
+
+**[convention] Projections over reducers.** A read model is built by a **projection** by default (model-bound attributes, then fluent `IProjectionFor<T>`; in Elixir the `Cratis.Chronicle.Projections` DSL). Reach for a **reducer** only when a projection cannot express the transition (branching on prior state, calculations, guards) and say why in the read model's doc. A projection is declarative, so the kernel can replay, optimize and diagram it; a reducer is code you own and run.
+
+**[convention] A read model owns its artifacts.** The read model, its projection (or, by exception, reducer) and its queries live together, in the slice folder of the read model and in one file named for it, not in files named for their technical function (`Queries`, `Reducer`, `Projection`). In Elixir that is one file with the read model's module containing its projection/reducer and its queries as nested modules, the way a command and its events share a file.
 
 **[convention] No default values on `[ReadModel]` constructor parameters** — omit `= null`, `= default`, `= default!`, `= 0`, `= false`, `= ""`, `= []`. Chronicle writes the projected value on the first event, so a sentinel default is never correct and hides missing projection wiring. The only permitted defaults are enum variants that represent an explicit initial state and `[SetValue<T>]`-driven `bool` flags. Use `T?` for data genuinely absent before the relevant event fires.
 

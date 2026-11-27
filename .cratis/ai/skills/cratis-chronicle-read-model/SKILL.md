@@ -107,8 +107,11 @@ For application code, work down this ladder:
 2. **Fluent `IProjectionFor<T>`** when the definition needs structure or an
    attribute-free contract. Counters, joins, children and composite keys remain
    projection features; fluent lambdas are not arbitrary per-event code.
-3. **Reducer code** when branching on prior state, calculations or guards read
-   better as state transitions. A reducer is a normal choice, not a last resort.
+3. **Reducer code** only when a projection cannot express the transition:
+   branching on prior state, calculations or guards that mappings, counters,
+   joins and children cannot say. **Prefer a projection over a reducer**; a
+   reducer needs a reason you can name, and it is the exception, not an equal
+   choice.
    For new .NET code default to a **self-reducing model**: public static
    `Reduce(TEvent @event, TSelf? current[, EventContext context])` on the model,
    returning `TSelf`/`TSelf?` or `Task` of it. No marker or model activation.
