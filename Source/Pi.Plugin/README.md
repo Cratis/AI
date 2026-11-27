@@ -9,20 +9,11 @@ pi install -l npm:@cratis/pi
 
 The package reads the repository's `.cratis/ai.json`, resolves its profiles and
 languages through the packaged profile catalog, and contributes only the matching
-skills. It also loads packaged rules, path guidance, prompts, agents, the
-subagent tool, and Cratis quality hooks. When no `.cratis/ai.json` exists, it exposes the complete
+skills. It also loads packaged rules, path guidance, the Cratis MCP bridge and
+the Cratis guard and quality hooks. When no `.cratis/ai.json` exists, it exposes the complete
 packaged skill set. It therefore gives Pi the complete single-harness Cratis
-experience without requiring the Cratis CLI.
-
-The `subagent` tool stands down for the session when another extension already
-provides a delegation tool named `Agent` (such as pi-subagents, which lists the
-same agents). It removes itself from the active tools at session start and
-shows one notice when Pi has a UI, so the model is not offered two delegation
-tools. The package declares generated Pi-native agents through `pi.subagents.agents`
-for external loaders that support package resources. Their comma-separated `tools:`
-allowlists already use Pi names (`read`, `grep`, `find`, `bash`, `edit`, `write`),
-so neither loader needs to interpret Claude-style names. See
-[Agent adapters](https://github.com/Cratis/AI/blob/main/Documentation/agent-adapters.md) for regeneration and drift checks.
+experience without requiring the Cratis CLI. It ships no agents, prompt
+templates or delegation tool.
 
 The managed CLI path remains the choice when one repository must configure and
 synchronize several harnesses. It writes the resolved corpus to `.cratis/ai`,
@@ -65,7 +56,7 @@ profile (including `cratis/screenplay`, `cratis/modeling/screenplay-stage`,
 `cratis/full/*` or `cratis`), or configuring `mcpServers.screenplay.root` in
 `.cratis/ai.json`, keeps startup failures visible as errors.
 
-## Path guidance and subagents
+## Path guidance
 
 The packaged `cratis-path-guidance` extension attaches a path-scoped rule to the
 tool result the first time a matching file is touched, and after a successful
@@ -95,7 +86,7 @@ counts as one that delivers them. In such an older managed installation, a subag
 that loads only the allowlisted extensions below gets no path guidance until
 `cratis ai update` installs the managed `cratis-path-guidance`.
 
-The universal rules add about 26k tokens to every session. A pi-subagents agent
+The universal rules are added to every session. A pi-subagents agent
 (`@tintinweb/pi-subagents`) with an `extensions:` allowlist loads only the
 extensions it names, so it gets none of this package by default. Name the two
 cheap extensions to give it path guidance and the write and store guards without
@@ -104,6 +95,3 @@ the universal rules:
 ```yaml
 extensions: cratis-path-guidance, cratis-hooks
 ```
-
-The `subagent` tool of this package starts a full `pi` process and loads every
-extension.

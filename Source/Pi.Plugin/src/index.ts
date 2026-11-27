@@ -146,10 +146,7 @@ function rules(cwd: string): string {
 
 /** Resolves a repository's .cratis/ai.json into Pi skills and instructions without the Cratis CLI. */
 export default function (pi: ExtensionAPI): void {
-    pi.on('resources_discover', event => isManagedInstallation(event.cwd) ? undefined : ({
-        skillPaths: selectedSkillPaths(event.cwd),
-        promptPaths: [join(corpusRoot, 'prompts')],
-    }));
+    pi.on('resources_discover', event => isManagedInstallation(event.cwd) ? undefined : ({ skillPaths: selectedSkillPaths(event.cwd) }));
     pi.on('before_agent_start', (event, context) => isManagedInstallation(context.cwd)
         ? undefined
         : ({ systemPrompt: `${event.systemPrompt}\n\n${rules(context.cwd)}` }));

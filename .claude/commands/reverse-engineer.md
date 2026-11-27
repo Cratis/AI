@@ -1,1 +1,0 @@
-../../.cratis/ai/prompts/reverse-engineer.prompt.md

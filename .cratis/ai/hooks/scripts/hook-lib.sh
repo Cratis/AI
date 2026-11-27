@@ -2,7 +2,7 @@
 # Shared helpers for the Cratis enforcement hooks.
 #
 # Sourced by cratis-guard-secrets.sh, cratis-guard-writes.sh, cratis-guard-store-mutations.sh,
-# cratis-pattern-scan.sh and cratis-quality-gate.sh.
+# cratis-guard-shell-writes.sh and cratis-quality-gate.sh.
 # Portable: bash 3.2 (macOS system bash) and up, BSD + GNU userland. No GNU-only flags,
 # no `mapfile`/`readarray`, no associative arrays, no `eval`.
 set -euo pipefail

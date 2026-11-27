@@ -3,8 +3,8 @@
   "gates": [
     {
       "id": "frontend-lint",
-      "description": "yarn workspace @cratis/harness-setup run check — type check and adapter plan verified",
-      "changed": ["**/*.ts", "**/*.tsx", ".cratis/ai/agents/*.md", ".cratis/ai/prompts/*.md"],
+      "description": "yarn workspace @cratis/harness-setup run check — type check, harness links and Copilot rule projections verified",
+      "changed": ["**/*.ts", "**/*.tsx", ".cratis/ai/rules/*.md"],
       "excludeChanged": ["**/node_modules/**", "**/wwwroot/**", "**/dist/**", "**/obj/**", "**/bin/**"],
       "workingDirectory": ".",
       "command": ["yarn", "workspace", "@cratis/harness-setup", "run", "check"]
@@ -18,7 +18,7 @@
     },
     {
       "id": "frontend-compile-specs",
-      "description": "yarn workspace @cratis/ai-verification run verify — corpus structure, catalog, agents, and skill scenarios verified",
+      "description": "yarn workspace @cratis/ai-verification run verify — static corpus verification",
       "changed": ["**/*.ts", "**/*.tsx", ".cratis/ai/**/*.md", ".cratis/ai/**/*.json"],
       "excludeChanged": ["**/node_modules/**", "**/wwwroot/**", "**/dist/**", "**/obj/**", "**/bin/**"],
       "workingDirectory": ".",
@@ -27,7 +27,7 @@
     {
       "id": "frontend-specs",
       "description": "yarn workspace @cratis/ai-verification run test — zero failures",
-      "changed": ["**/*.ts", "**/*.tsx", ".cratis/ai/agents/*.md", ".cratis/ai/harnesses/**"],
+      "changed": ["**/*.ts", "**/*.tsx", ".cratis/ai/harnesses/**", ".cratis/ai/hooks/**"],
       "excludeChanged": ["**/node_modules/**", "**/wwwroot/**", "**/dist/**", "**/obj/**", "**/bin/**"],
       "workingDirectory": ".",
       "command": ["yarn", "workspace", "@cratis/ai-verification", "run", "test"]
