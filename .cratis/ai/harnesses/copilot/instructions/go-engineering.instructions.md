@@ -1,12 +1,8 @@
 ---
 profile: framework
-applyTo: "**/*.go,go.mod,go.sum,**/go.mod,**/go.sum"
+applyTo: "**/*.go"
 paths:
   - "**/*.go"
-  - "go.mod"
-  - "go.sum"
-  - "**/go.mod"
-  - "**/go.sum"
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 

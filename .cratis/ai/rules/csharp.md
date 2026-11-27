@@ -57,20 +57,9 @@ Every rule here reduces noise. `var` avoids redundant type repetition. Expressio
 - The `Cratis.Architecture.CodeAnalysis` analyzer package (26 diagnostics, `CRARCH0001`–`CRARCH0026`, in 1.0.2) enforces these and others: `CRARCH0003` postfixes, `0004` `.Features.` namespaces, `0005` regions, `0006`/`0024` `LoggerMessage`, `0007` `IServiceProvider` injection, `0008` `is null`, `0017` namespace matches folder, `0019` `Async` suffix, `0022` explicit `private`, `0023` typed logger category; `0012` (`async void`) and `0014` (test types in production) are errors. When a repository has the package, a `CRARCH` warning is the house convention, not noise.
 - For types with no implementation body, omit the braces (e.g. `public interface IMyInterface;`).
 - Prefer `record` types for immutable data structures (events, commands, read models, concepts) — they give you value equality, immutability, and concise syntax for free.
-- Set `LangVersion` to `latest` in every repository. Language-only features of newer C# versions are safe on every target of a multi-targeted library; a new runtime or library API needs `#if NET11_0_OR_GREATER` with a net10 fallback.
-- Use collection expression arguments (`[with(capacity: n), .. items]`, `[with(comparer), ..]`) instead of constructor calls, and labeled `break`/`continue` instead of Boolean flags or `goto` in nested loops (IDE0410).
-- Do not introduce `union` types, runtime-async, or the memory-safety preview features, and do not retrofit `closed` onto an existing public type — a public API change is a major version.
+- Use the language features the repository's SDK and `LangVersion` support.
+- Keep `ConceptAs<T>` and the existing result envelopes unchanged.
 - Keep IDE style rule severities at `suggestion`, never `warning`: Release builds treat warnings as errors.
-- Under the .NET 11 SDK, IDE0370 (unnecessary null-forgiving operator) and IDE0001/IDE0002 (simplify names and member access) surface wherever code style is enforced: `dotnet format --verify-no-changes`, or `EnforceCodeStyleInBuild` with warnings as errors and `dotnet_analyzer_diagnostic.severity = warning`. IDE0001/IDE0002 are `EnforceOnBuild=Never`, so only `dotnet format` and the IDE surface them; IDE0370 is `WhenExplicitlyEnabled`, so the build enforces it only when something enables it explicitly, such as an all-analyzers severity line. A repository that already enforces style at `warning` keeps that severity and fixes these findings in its .NET 11 change.
-- Exception for multi-target libraries only (for example `net10.0;net11.0`): IDE0370 is analyzed per compilation and can flag a `!` another target still needs ([roslyn#81632](https://github.com/dotnet/roslyn/issues/81632), [roslyn#82003](https://github.com/dotnet/roslyn/issues/82003)). Remove every `!` that is unnecessary on all targets. If target-dependent ones remain, add this to that repository's `.editorconfig`, with a tracking issue, and verify with a build of all target frameworks:
-
-  ```ini
-  # IDE0370 is analyzed per target framework and flags null-forgiving operators another target still needs.
-  # See https://github.com/dotnet/roslyn/issues/81632 and https://github.com/dotnet/roslyn/issues/82003. Tracked in <issue>.
-  dotnet_diagnostic.IDE0370.severity = suggestion
-  ```
-
-  Never `none`, never in shared or global config, and never for `net11.0`-only executables.
 
 ## Nullable Reference Types
 
@@ -331,26 +320,6 @@ public class ReactorSideEffectHandlers(IInstancesOf<IReactorSideEffectHandler> h
 - Use `ILogger<T>` where `T` is the class name.
 - Keep log messages in a separate `<ClassName>Logging.cs` partial static internal class.
 - Use `[LoggerMessage]` attribute (without `eventId`).
-
-## C# 14/15 Language Features
-
-Cratis .NET repos build with SDK 11 (C# 15); libraries target `net10.0;net11.0`.
-
-Use in new code:
-
-- Extension blocks (`extension(T x) { ... }`, C# 14) for new extension APIs; leave existing extension classes as they are.
-- The `field` keyword (C# 14) in property accessors instead of a hand-written backing field.
-- `System.Threading.Lock` for new lock objects instead of `object`.
-- Collection expression arguments `with(...)` (C# 15), e.g. to pass a comparer or capacity.
-- `closed` (C# 15) for new internal class hierarchies.
-
-Avoid:
-
-- Union types in public APIs of libraries that also target `net10.0` — consumers on C# 14 cannot use them.
-- Adding `closed` to existing public types — it is a breaking change.
-- Runtime-async — it is still preview.
-
-Keep `ConceptAs<T>` and the existing result envelopes unchanged.
 
 ## Async
 

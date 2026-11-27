@@ -42,4 +42,4 @@ For an uncovered calculation, commit one direct spec: start with no model, fold 
 ## Related skills
 
 - [Map events onto a read model](../cratis-chronicle-project-view/SKILL.md)
-- [Test a decision directly](../cratis-specifications-isolate-behavior/SKILL.md)
+- Test a decision directly with `cratis-specifications-isolate-behavior` (in the `cratis/specifications/dotnet` profile).

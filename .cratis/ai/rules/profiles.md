@@ -7,7 +7,7 @@ profile: framework
 
 # Profiles
 
-A profile selects which skills, rules and MCP server declarations `cratis ai install` copies into a repository. The catalog is `profile-catalog.json` in the Cratis AI repository: each profile lists the skills it installs (`availableTargets`) and the profiles it includes (`composes`). Selecting a profile installs its own skills and those of every profile it composes, transitively.
+A profile selects which skills, rules and MCP server declarations `cratis ai install` copies into a repository. The catalog is `profile-catalog.json` in the Cratis AI repository: each profile lists the skills it installs (`availableTargets`) and the profiles it includes (`composes`). Selecting a profile installs its own skills and those of the profiles it composes, transitively. A composed profile is skipped if it matches none of the configured languages, unless it is language-agnostic. Naming a profile directly bypasses that filter; omitting `languages` leaves composition unfiltered.
 
 ## Choose a profile
 
@@ -16,7 +16,7 @@ A profile selects which skills, rules and MCP server declarations `cratis ai ins
 | `cratis/application` | The repository builds an application on Cratis. |
 | `cratis/engineering` | The repository is a Cratis library or tool. |
 
-`cratis ai profiles list` shows these two. `cratis ai profiles list --all` adds the narrower IDs: a single product (`cratis/arc`, `cratis/chronicle`, `cratis/screenplay`), a single language stack (`cratis/application/csharp`, `cratis/engineering/go`), and the opt-in profiles below. A repository records its selection in `.cratis/ai.json`:
+The default `cratis ai profiles list` table shows these two featured profiles. `cratis ai profiles list --all` and `cratis ai profiles list --output json` list every ID, including single products (`cratis/arc`, `cratis/chronicle`, `cratis/screenplay`), language stacks (`cratis/application/csharp`, `cratis/engineering/go`), and the additional profiles below. A repository records its selection in `.cratis/ai.json`:
 
 ```json
 {
@@ -28,15 +28,15 @@ A profile selects which skills, rules and MCP server declarations `cratis ai ins
 
 Select the narrowest set that covers the work. Several profiles may be selected together; the installed skills are the union.
 
-## Opt-in profiles
+## Additional profiles
 
-These install skills that the platform task skills do not cover. A profile marked *explicit* is composed by no other profile, so nothing installs it unless it is named in `profiles`.
+Select these by ID when needed, or get them through a composing profile. For example, the broad `cratis` profile composes documentation, content, review and governed releases. A profile marked *Explicit* is not composed by any other profile and must be named in `profiles`.
 
 | Profile | Adds |
 |---|---|
 | `cratis/engineering/core` | Engineering process for Cratis repositories: CI gates and pipeline cost, cross-repository verification, issue and decision records, review rounds, release trains, post-mortems and session handoff. Composed by `cratis/engineering`. |
 | `cratis/engineering/dotnet` | Vendored .NET skills in seven groups, each selectable alone: `performance`, `diagnostics`, `msbuild`, `orleans`, `testing`, `migrate-dotnet11`, `refactoring` (as `cratis/engineering/dotnet/<group>`). |
-| `cratis/orchestration` | Running several agent lanes and gating their merges. |
+| `cratis/orchestration` | *Explicit.* Running several agent lanes and gating their merges. |
 | `cratis/documentation` | Product documentation: reader-centered writing, checked examples, discoverability, release notes and voice. |
 | `cratis/content` | Release notes, social posts, developer marketing, length and voice. |
 | `cratis/review` | Code, security and performance review. |
@@ -45,7 +45,7 @@ These install skills that the platform task skills do not cover. A profile marke
 | `cratis/cli`, `cratis/cli/terminal-workbench` | Operating Chronicle from the CLI, environments and secrets, and the terminal Workbench. |
 | `cratis/chronicle/mcp`, `cratis/chronicle/web-workbench` | Inspecting an event store through the Chronicle MCP server or the web Workbench. |
 | `cratis/studio`, `cratis/lens`, `cratis/stage` | Studio MCP safety guidance, the Lens browser extension and the onboarding runtime. |
-| `cratis/methodology/governed-releases` | *Explicit.* The governed release methodology. |
+| `cratis/methodology/governed-releases` | The governed release methodology. |
 
 ### Code Health with CodeScene
 
@@ -70,7 +70,7 @@ A rule's frontmatter decides where it is installed and when it loads:
 | `profile: application` | A selected or composed profile is `cratis/application` or one of its children, and the language condition above holds. |
 | `profile: cratis/<id>` | `profiles` in `.cratis/ai.json` names that ID or one of its children directly. A parent that only composes it does not install the rule. The language condition above also applies. |
 
-`applyTo` and `paths` then limit an installed rule to matching files. A rule with neither loads in every session, so only `general.md` is written that way.
+`applyTo` and `paths` then limit an installed rule to matching files. Only `general.md` has neither a profile nor a file scope. A profile-only rule is always on wherever its profile is selected under the rules above.
 
 ## Change the catalog
 

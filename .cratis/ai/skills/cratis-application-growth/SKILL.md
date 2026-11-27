@@ -19,7 +19,8 @@ check passes; do not start the next one before.
 1. Name the current stage and the signal that justifies the next, in the rule's terms. No signal, no move.
 2. A new application starts at stage 2 or 3 only for a rule-listed reason; otherwise stage 1.
 3. Read the accepted decision records that describe the current structure. If the target contradicts one,
-   write the superseding record first (**cratis-engineering-decision-record**); a record binds until then.
+   write the superseding record first; a record binds until then. See
+   `cratis-engineering-decision-record` (in the `cratis/engineering/core` profile).
 4. Write down the target: the modules, the platform projects (each with one stated purpose), and
    where every existing project goes.
 
@@ -117,5 +118,5 @@ name-scoped filters, which is where structural changes break. Say which phases w
 ## Related
 
 - Modules deployed as separate services: [cratis-platform-verify-service-handoff](../cratis-platform-verify-service-handoff/SKILL.md) and [cratis-chronicle-publish-contract](../cratis-chronicle-publish-contract/SKILL.md).
-- **cratis-engineering-decision-record**: superseding the structure's accepted records.
+- Superseding the structure's accepted records: `cratis-engineering-decision-record` (in the `cratis/engineering/core` profile).
 - Verifying a slice against its model after a move: [cratis-platform-deliver-slice](../cratis-platform-deliver-slice/SKILL.md).

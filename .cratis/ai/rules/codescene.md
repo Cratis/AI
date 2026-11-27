@@ -33,7 +33,7 @@ Never refactor generated code: proto/gRPC contracts, generated proxies or `obj/`
 Optional recipe for generated code CodeScene still scores: a root `.codescene/code-health-rules.json`
 with one `rule_sets` entry whose `matching_content_path` is the generated glob (`**/*.g.cs`,
 `**/Generated/**`, `**/Proxies/**`) and `rules` listing every rule at `"weight": 0.0` scores those
-files 10 and leaves others unchanged (verified). Names: Bumpy Road Ahead, Complex Conditional,
+files 10 and leaves others unchanged. Names: Bumpy Road Ahead, Complex Conditional,
 Complex Method, Constructor Over-Injection, Code Duplication, Deep, Nested Complexity, Excess Number
 of Function Arguments, Large Method, Large Assertion Blocks, Duplicated Assertion Blocks, Low
 Cohesion, Brain Class, Brain Method, Overall Code Complexity, Primitive Obsession, String Heavy
