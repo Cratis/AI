@@ -59,6 +59,7 @@ then STAGE (V5 admission). Tool differences: `../SKILL.md` ("Tool versions and t
 | PLAY0455 | quoted import glob matches no file | fix the glob |
 | PLAY0196/0197/0198 | unknown query/screen; ambiguous bare name | declare or qualify `Slice.Name` |
 | PLAY1142 | a projection mapping, AutoMap or reducer copies a `secret` concept into a read model (Screenplay 6.28.0+) | leave it out or map a non-secret derived value |
+| PLAY1167 | an `agents` block exposes more than 20 distinct operations; arguments `count` and `recommendedMaximum` give the decimal counts; compilation still succeeds | expose a smaller, focused allowlist; see [agent exposure](agent-exposure.md) |
 
 ## Source reference and identifier checks
 
@@ -281,6 +282,8 @@ migration. Preview every repair; legal notes never move automatically.
 
 | Code | Severity | Meaning / fix |
 | --- | --- | --- |
+| PLAY1148 | E | Invalid tag expectation: only `then` events accept literal `tag` or a single childless `no tags`; never combine them. See [then-event tags](../../cratis-screenplay-specifications/references/event-tags.md) (Requires Screenplay 6.31.0, ESM v55) |
+| PLAY1166 | E | Invalid action presentation: `presentation` hints need a plain action with explicit `for item`; keys unique and nonempty, `placement` nonempty. Add `for item`, use a plain action or remove the hint. See [advisory row-menu placement](../../cratis-screenplay-ui-composition/references/action-subjects.md#advisory-row-menu-placement) |
 | PLAY0558 | E | Module/feature/slice/command/read-model/reaction documentation must be one nonempty fenced Markdown block; remove repeats or fix the fence. Events retain PLAY0477. |
 | PLAY0559 | W | Conflicting module/feature documentation across files; first wins. Choose one owning text; identical copies are accepted. |
 | PLAY0572 | E | Malformed/unknown persona caller or body lines; use a declared top-level persona with no body. |
@@ -365,7 +368,7 @@ Requires a Screenplay release that carries design systems (next minor after 6.2.
 
 ## Provided values (PLAY1119-PLAY1129)
 
-`provide` needs Screenplay 6.25.0. Fix by changing the model; PLAY0268 reports executing it.
+`provide` needs Screenplay 6.25.0. Fix by changing the model; a `file` or inline-code source needs ESM v57; older models refuse it with PLAY0268.
 
 | Code | Fix |
 | --- | --- |
@@ -388,7 +391,9 @@ Requires Screenplay 6.26.0. Errors fix the line; warnings leave the gate closed,
 | PLAY1137 | break the `with` cycle |
 | PLAY1138 | W: provide the value at or above the gate, or change the condition |
 | PLAY1139 | W: align the audiences of invoker and command, or accept the refusal; `when` is skipped, reactions are never gated |
-| PLAY1140, PLAY1141 | an `available for`/`with` line holds names, `and`, `or` and balanced parentheses only |
+| PLAY1140, PLAY1141 | an `available for`/`with` line holds names, `and`, `or`, `not` and balanced parentheses only |
+| PLAY1171 | `not` applies to one audience name: not on a group, another `not`, nothing, or an availability in `with`; a negated audience is ESM v58; `PLAY1139` skips a gate containing `not` |
+| PLAY1172 | W: a screen `action`/`data` gate is broader than the bound command or query; narrow it or remove it (element gates are ESM v59) |
 
 See `../../cratis-screenplay-availability/SKILL.md`.
 
@@ -741,7 +746,7 @@ Publication STAGE-ESM-032, foreign facts/event captures 033, claim-reading/opaqu
 | STAGE-ESM-024 | interval, schedule, application, startup and shutdown triggers, opaque reaction bodies, captures, Translate, clock/trigger/capture specifications |
 | STAGE-ESM-020 | a body the model requires, including a `generate rule` attachment, is missing or changed (content hash check); blocks publication |
 | STAGE-ESM-039 | unsupported refusal branch conditions/routes/mappings, same-event multi-trigger refusal groups, localized `$refusal.message` or ambiguous multi-constraint `$refusal.constraint` |
-| STAGE-EVENT-002 / CLI-RENDER-016 | existing destination event type ids changed or unreadable; pin stored identity, never bypass with `--force` |
+| STAGE-EVENT-002 / CLI-RENDER-016 | existing destination event type ids changed or unreadable; pin stored identity, never bypass with `--force` (rule: [`operational-safety.md`](../../../rules/operational-safety.md)) |
 | STAGE-BASELINE-001–004 | whole-application warnings: changed/missing admitted event revision, unreadable baseline, unavailable or stale assessment; keep `baseline check` as the independent CI gate |
 | CLI-RENDER-017 / 018 | persisted PATH root cannot open / `--name` differs from saved application name; resolve root state, never discard identities |
 | STAGE-CRATIS-005 | a modeled artifact would render into `Customizations/` |

@@ -1,0 +1,95 @@
+{
+  "skill": "cratis-components-build-canvas",
+  "queries": [
+    {
+      "query": "I want to click pins in the drawing area even after I've panned and zoomed. Which coordinates should the hit test use?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Our legend moves with the drawing when I zoom. How do I keep it in the corner of the viewport?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Center the viewport on a world coordinate.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Objects draw correctly but selection misses after a pan.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Choose where canvas controls live relative to world layers.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Handle a Pixi item pointer event.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Prove the old hit location stops selecting after zoom.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Convert my screen-space decoration into fixed canvas chrome.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Group drawing actions into a toolbar section.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-compose-toolbar.",
+      "sibling": "cratis-components-compose-toolbar"
+    },
+    {
+      "query": "Map an accent token to the design system.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-theme-application.",
+      "sibling": "cratis-components-theme-application"
+    },
+    {
+      "query": "My pivot label changes but the results do not narrow.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-explore-data.",
+      "sibling": "cratis-components-explore-data"
+    },
+    {
+      "query": "Choose a date picker for one calendar day.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-choose-control.",
+      "sibling": "cratis-components-choose-control"
+    },
+    {
+      "query": "Use a standalone observable table inside the existing page.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-display-list.",
+      "sibling": "cratis-components-display-list"
+    },
+    {
+      "query": "Verify the negative response makes no request.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-coordinate-feedback.",
+      "sibling": "cratis-components-coordinate-feedback"
+    },
+    {
+      "query": "Which state belongs in the view model rather than a second query cache?",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-react-separate-view-model.",
+      "sibling": "cratis-arc-react-separate-view-model"
+    },
+    {
+      "query": "Write a browser specification for an existing widget without changing the UI.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-specifications-observe-ui.",
+      "sibling": "cratis-specifications-observe-ui"
+    },
+    {
+      "query": "How can I remove tea stains from a ceramic mug?",
+      "shouldTrigger": false,
+      "sibling": null
+    },
+    {
+      "query": "Translate a brief birthday greeting into Italian.",
+      "shouldTrigger": false,
+      "sibling": null
+    }
+  ]
+}

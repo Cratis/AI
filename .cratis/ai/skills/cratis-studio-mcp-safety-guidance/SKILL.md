@@ -25,6 +25,9 @@ Treat edits and dynamically delegated work as effectful by default.
 
 ## Current authority boundary
 
+The deny-all rule is universal: [`operational-safety.md`](../../rules/operational-safety.md). This skill
+keeps the classification procedure below.
+
 No Studio MCP implementation source, operation, prompt, resource, schema, or
 revision is admitted. An empty inventory means **nothing is authorized**; it
 does not mean the upstream product has no capabilities.

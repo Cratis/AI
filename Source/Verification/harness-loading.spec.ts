@@ -44,7 +44,7 @@ test('Pi SDK discovers the complete managed repository resources without a model
         // skills are the managed resources under test, so an operator's personal skills must not move the count.
         const repositoryRealPath = realpathSync(repositoryRoot);
         const repositorySkills = loader.getSkills().skills.filter(skill => realpathSync(skill.filePath).startsWith(repositoryRealPath));
-        assert.equal(repositorySkills.length, 162);
+        assert.equal(repositorySkills.length, 165);
         assert.equal(loader.getPrompts().prompts.length, 20);
         // A worktree nested under another checkout can also load that checkout's AGENTS.md.
         // Assert this repository's context is present exactly once, regardless of its ancestors.
@@ -64,7 +64,7 @@ test('Pi SDK discovers the complete managed repository resources without a model
 
 test('every supported harness resolves the canonical skill corpus', () => {
     for (const path of ['.claude/skills', '.agents/skills', '.github/skills', '.cursor/skills', '.opencode/skills', '.pi/skills']) {
-        assert.equal(skillCount(join(repositoryRoot, path)), 162, path);
+        assert.equal(skillCount(join(repositoryRoot, path)), 165, path);
         assert.equal(realpathSync(join(repositoryRoot, path)), realpathSync(join(corpusRoot, 'skills')), path);
     }
 });
@@ -115,7 +115,7 @@ test('every path-scoped rule stays reachable in each harness', () => {
 test('rules a flow needs before any file is touched stay always-on in every harness', () => {
     // Operations keep always-on contracts; file concerns are scoped and routed from general.md.
     const general = readFileSync(join(corpusRoot, 'rules/general.md'), 'utf8');
-    for (const name of ['git-commits.md', 'pull-requests.md']) {
+    for (const name of ['git-commits.md', 'pull-requests.md', 'operational-safety.md']) {
         const fields = frontmatter(readFileSync(join(corpusRoot, 'rules', name), 'utf8'));
         assert.ok(!fields.has('paths'), `${name}: Claude Code loads it at launch only without paths`);
         assert.deepEqual(fields.get('applyTo'), ['**/*'], `${name}: Copilot applies it to every file`);

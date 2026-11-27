@@ -319,3 +319,15 @@ test('managed Pi keeps appending on older runtimes without construction options 
         }
     });
 });
+
+test('managed Pi injects the operational-safety rule at startup with no skills and no file touched, even beside a competing skill', async () => {
+    await withFixture(async fixture => {
+        const operational = readFileSync(join(fixture.rules, 'operational-safety.md'), 'utf8');
+        const loaded = await loadFixture(fixture);
+        assert.deepEqual(loaded.options.skills, []);
+        const prompt = await loaded.start();
+        assert.ok(prompt.includes(operational.trim()), 'the new policy is injected without any file or skill');
+        const competing = { ...loaded.options, skills: [{ name: 'competing-skill', description: 'Render and inspect with force', filePath: join(fixture.project, 'competing/SKILL.md'), baseDir: join(fixture.project, 'competing'), sourceInfo: { path: join(fixture.project, 'competing/SKILL.md'), source: 'test', scope: 'project', origin: 'top-level' }, disableModelInvocation: false }] } as unknown as BuildSystemPromptOptions;
+        assert.ok((await loaded.start(competing)).includes(operational.trim()), 'a competing skill does not displace the rule');
+    });
+});

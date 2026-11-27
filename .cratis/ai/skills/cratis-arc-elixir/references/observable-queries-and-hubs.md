@@ -10,7 +10,7 @@ hub that carries many subscriptions on one connection.
 ## The two hubs
 
 Both speak one protocol (`Connected`, `Subscribe`, `Unsubscribe`, `QueryResult`,
-`Unauthorized`, `Error`, `Ping`/`Pong`) through `Arc.Plug.HubSession`.
+`Unauthorized`, `Error`, `Ping`/`Pong`) through `Cratis.Arc.Plug.HubSession`.
 
 | | WebSocket | Server-Sent Events |
 | --- | --- | --- |
@@ -39,9 +39,9 @@ or paged query always sends the snapshot too, because position matters.
 ## What triggers a re-run
 
 - `watch: [ReadModel]` re-runs when Chronicle changes that read model.
-- `watch: [Arc.MongoDB.watch(Doc)]`, or any `{module, target}` for a module implementing
-  `Arc.Watch`, re-runs when that source reports a change.
-- `topics: ["name"]` re-runs on `Arc.Notifier.notify(MyApp.Arc, "name")`. It reaches
+- `watch: [Cratis.Arc.MongoDB.watch(Doc)]`, or any `{module, target}` for a module implementing
+  `Cratis.Arc.Watch`, re-runs when that source reports a change.
+- `topics: ["name"]` re-runs on `Cratis.Arc.Notifier.notify(MyApp.Arc, "name")`. It reaches
   **subscriptions on the same node only**; across nodes broadcast with `Phoenix.PubSub`
   and notify in each receiver.
 
@@ -50,5 +50,5 @@ it and the client resubscribes.
 
 ## Authentication of browser connections
 
-Use cookies. A plug in front of `Arc.Plug` can turn a sign-in cookie and a tenant cookie
+Use cookies. A plug in front of `Cratis.Arc.Plug` can turn a sign-in cookie and a tenant cookie
 into the headers Arc reads (the showcase's `Samples.Web.CookieIdentity` does, for a demo).

@@ -12,7 +12,7 @@ CI installs and which must match `references/screenplay-contract.version` in the
 
 | Item | Value |
 | --- | --- |
-| Screenplay language, standalone tool and MCP | **6.32.0** |
+| Screenplay language, standalone tool and MCP | **6.43.0** |
 
 The published `screenplay-contract.json` beside the toolchain skill's references is byte-identical to
 this release's contract, and `screenplay-contract.version` names the same version.
@@ -94,3 +94,7 @@ row so the smoke and the recorded vector cannot drift apart.
 | Render-then-recover and rejection codes | `CLI-RENDER-007` to `-010`, shipped in CLI 3.41.0 (Cratis/cli#301) |
 | MCP edit transcript | 9 requests and 9 responses, column on disk, render `published` with the column in `scene.json` |
 | Edited-application browser check | all five browser checks passed against `cratis/stage:4.52.0` |
+
+## Third-party skills
+
+The `pvanalyze` skill pins its published tool package in its own `assets/dotnet-tools.json` (the pin is the single source for the version) and needs a `Microsoft.NETCore.App` 10.x runtime. The `migrate-dotnet10-to-dotnet11` skill's references are an imported checklist of known breaking changes, not the exhaustive .NET 11 compatibility contract; each skill's `NOTICE` records the upstream revision.

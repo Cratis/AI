@@ -26,6 +26,10 @@ with the construct address and the change to ask for; do not edit the model in a
    carries Chronicle's routing audience as a field.
 8. **Entitlements.** A package already enforced by Box Office modules is not also modeled as an audience unless
    the model deliberately reads a host value.
+9. **`not` use.** Each `not` negates one audience name and a granted audience (such as `Incident`) is what closes the part;
+   PLAY1171 is an error. A list of every other audience instead of `not` is a smell. `not` of an unknown audience stays closed.
+10. **Screen element gates.** A gate on a screen `action` or `data` only narrows the derived path of the bound part; PLAY1172 means it
+    is broader. Elements with nothing bound take no gate. Nothing models suspension (no audience, flag or command for it).
 
 ## Provided values
 
@@ -41,7 +45,7 @@ with the construct address and the change to ask for; do not edit the model in a
    sources mean the reference evaluator cannot decide a gate that reads them.
 5. **Required versus optional.** Optional means "can be absent and the gate denies"; required means "absence refuses
    the request". Check each value matches the intent for its readers.
-6. **Executable claims.** Do not claim a `provide` runs end to end while the toolchain reports PLAY0268 for it.
+6. **Executable claims.** A `file` or inline-code `provide` (ESM v57) is an opaque attachment the reference evaluator never runs; do not claim a specification proved allowed or denied through it.
 7. **Unprovided reads.** An `available when` reading a value nothing provides at that place (PLAY1138) stays closed.
 
 ## Verdict wording

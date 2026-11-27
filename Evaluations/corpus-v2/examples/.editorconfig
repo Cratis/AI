@@ -1,0 +1,6 @@
+# Keep the SDK's default analyzer severities for customer examples.
+root = true
+
+[**/Specs/**.cs]
+# Keep the small executable teaching examples identical to their excerpts.
+dotnet_diagnostic.xUnit1051.severity = none

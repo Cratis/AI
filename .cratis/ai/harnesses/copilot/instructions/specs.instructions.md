@@ -8,16 +8,30 @@ paths:
 
 # How to Write Specs
 
+[Criticality tiers](./criticality-tiers.instructions.md) determine when specs are required.
+The conventions below govern writing specs, not whether every change needs them.
+
 We call automated tests **specs** (specifications), not tests. This is deliberate — specs are executable documentation that describe what the system *does*, written in the language of the domain. A new developer should be able to read the spec folder structure like a table of contents and understand the system's behavior without opening a single source file.
 
 This philosophy comes from Specification by Example and BDD (Behavior Driven Development). The goal is human-readable, navigable specifications that double as a living contract.
 
 ## Core Philosophy
 
-- **Specify behaviors, not implementations.** A spec should verify what a method *promises from its signature* — its contract with callers. If the implementation changes but the contract holds, specs should still pass. When they don't, the spec was testing the wrong thing.
-- **One behavior, one spec.** Every public method that performs an action gets its own `when_` folder or file. Never bundle multiple behaviors into one spec — it obscures what broke and why.
+- **Specify behaviors, not implementations.** Verify the contract with callers. If the implementation changes but the contract holds, specs should still pass. When they don't, the spec was testing the wrong thing.
+- **Specify distinct caller-visible promises and consequential failures, not methods.** Extend or parameterize a spec when setup and contract are shared. A new method, adapter, or input value alone does not require a spec file.
 - **Specs are documentation first.** The folder tree, class names, and `should_` assertions form a specification anyone can read. Optimize for readability over DRY. A little repetition in setup is fine if it makes the spec self-contained and clear.
-- **Do not test logging** — it is too fragile and provides no value. Don't test simple delegation or trivial getters either. The cost of maintaining these specs exceeds the value they provide.
+- **Do not test logging** — ordinary diagnostic messages are too fragile. This never overrides audit or redaction checks. Don't test simple delegation or trivial getters either. The cost of maintaining these specs exceeds the value they provide.
+
+## Design for removal
+
+A vertical slice is the unit of deletion. From the event model, start with one
+Given/When/Then boundary spec per command outcome and per view. This is a starting
+point, not a cap. Do not assert prose, file layout, or third-party markup. Mock only
+costly, dangerous, or nondeterministic boundaries.
+
+Before deleting a slice, check dependencies. Delete its private implementation
+and specs with it only after that check. Keep event types, upcasters and historical
+readers, replay fixtures, audit and redaction checks, and durable contract tests.
 
 ## Folder & File Structure
 
@@ -85,9 +99,9 @@ A sub-folder under `when_` is only needed when that condition has its **own** mu
 The goal is to cover *decisions and transformations* — code where bugs hide. Simple plumbing that the compiler already validates is noise.
 
 **Write specs for:**
-- Public methods that perform actions (behaviors)
-- Methods with branching logic or business rules
-- Methods that coordinate between dependencies
+- Caller-visible outcomes and consequential failures
+- Decisions and transformations that enforce business rules
+- Observable behavior that depends on wiring or coordination
 
 **Do NOT write specs for:**
 - Simple auto-properties (`public string Name { get; set; }`)

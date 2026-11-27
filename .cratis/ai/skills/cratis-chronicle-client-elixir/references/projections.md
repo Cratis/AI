@@ -3,9 +3,9 @@
 
 # Projection options and keys
 
-Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/chronicle/read_models/read_model.ex`, `projections/projection.ex`, and `registration/coordinator.ex`.
+Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/cratis/chronicle/read_models/read_model.ex`, `projections/projection.ex`, and `registration/coordinator.ex`.
 
-`use Chronicle.ReadModels.ReadModel` accepts `id:`, `passive: true`, `not_rewindable: true`, and `event_sequence: "sequence-name"`. Defaults are the last module segment as id, active, rewindable, and `"event-log"`. Standalone `Chronicle.Projections.Projection` also accepts sequence/rewindability options and requires `model:`.
+`use Cratis.Chronicle.ReadModels.ReadModel` accepts `id:`, `passive: true`, `not_rewindable: true`, and `event_sequence: "sequence-name"`. Defaults are the last module segment as id, active, rewindable, and `"event-log"`. Standalone `Cratis.Chronicle.Projections.Projection` also accepts sequence/rewindability options and requires `model:`.
 
 AutoMap maps matching event/model properties by default. `no_auto_map()` disables it for the whole projection; `no_auto_map([:balance, :status])` excludes only those properties so explicit mappings can own them.
 
@@ -22,7 +22,7 @@ This module excerpt assumes a registered `MyApp.Events.AccountOpened` event. The
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 defmodule MyApp.ReadModels.WeeklyAccountOpenings do
-  use Chronicle.ReadModels.ReadModel
+  use Cratis.Chronicle.ReadModels.ReadModel
   defstruct transaction_count: 0
 
   from(MyApp.Events.AccountOpened,
@@ -55,7 +55,7 @@ from_every(increment: [event_counts: {:event_context, :type}])
 
 Requires `cratis_chronicle` 3.13.0 for the one-line form, `removed_with_join/2`, `clear_with/2` and the compile-time checks below; `children/2,3` itself requires 3.11.0.
 
-`children/2,3` declares a list on the parent that grows, changes and shrinks with events. It works in `use Chronicle.ReadModels.ReadModel` and `use Chronicle.Projections.Projection`; declare the list field's element type with `types: [items: {:list, MyApp.ReadModels.BasketItem}]`.
+`children/2,3` declares a list on the parent that grows, changes and shrinks with events. It works in `use Cratis.Chronicle.ReadModels.ReadModel` and `use Cratis.Chronicle.Projections.Projection`; declare the list field's element type with `types: [items: {:list, MyApp.ReadModels.BasketItem}]`.
 
 ```elixir
 children :items, identified_by: :item_id do

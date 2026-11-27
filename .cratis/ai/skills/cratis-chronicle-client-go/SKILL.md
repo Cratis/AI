@@ -156,7 +156,7 @@ Do not use the deprecated `readmodels.DecisionProtectedModel` or
 
 Webhook source authorization cannot travel through the CDL-only capture transport.
 `Save`/`Validate` refuse it with `ErrUnsupported` before dispatch. Capture credential
-JSON import/export is also refused. Never serialize or log webhook credentials or
+JSON import/export is also refused. Never serialize or log webhook credentials ([`secrets.md`](../../rules/secrets.md)) or
 pretend a rejected configuration was applied.
 
 ## Verify

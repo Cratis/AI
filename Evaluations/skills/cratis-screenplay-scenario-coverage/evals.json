@@ -4,13 +4,14 @@
     {
       "id": 1,
       "name": "matrix-before-specs",
-      "prompt": "Slice CancelBooking (gated by a Manager role, rule: a booking may not be cancelled twice) has two specs: a success and one rejection. The author says the slice is covered. How do you assess it and what do you do before drafting more? Reply only; do not write files.",
-      "expected_output": "Build the coverage matrix first: rows are commands, reactions, captures, read models and gated queries; columns are the scenario types. Each cell is a spec, `n/a` with a domain reason, `recorded`, `open`, `question` or `gap`. Two specs are not enough unless every other type was reviewed and found inapplicable; denial needs `given caller` without the policy and `then denied`.",
+      "prompt": "Slice CancelBooking (gated by a Manager role, rule: a booking may not be cancelled twice) has two specs: a success and one rejection. The author says the slice is covered. On Screenplay 6.32.0, cancellation routing depends on tags [booking, cancelled, booking], but the success checks only payload; the board and fixture view show no tag expectations. How do you assess it and what do you do before drafting more? Contrast an exact tag list, no tags and omission, and name the evidence needed before calling tag behavior covered. Reply only; do not write files.",
+      "expected_output": "Build the coverage matrix first: rows are commands, reactions, captures, read models and gated queries; columns are the scenario types. Each cell is a spec, `n/a` with a domain reason, `recorded`, `open`, `question` or `gap`. Two specs are not enough unless every other type was reviewed and found inapplicable; denial needs `given caller` without the policy and `then denied`. Tag-sensitive cells are gaps until the exact ordered list/count/duplicates or explicit no tags is asserted and reference-executed; omission is unchecked. ESM v55 requires Screenplay 6.31.0. Board/fixture views omit expectations, so inspect source or expectedTags rather than infer absence or coverage.",
       "assertions": [
         "Requires a coverage matrix (rows per command, reaction, capture, read model and gated query; columns per scenario type) before drafting specs.",
         "Says a command with only two specs (success and one rejection) is not covered unless every other scenario type was reviewed and found inapplicable.",
         "Requires a denial spec for the gated command using `given caller` without the policy and `then denied`.",
-        "Says each matrix cell is a spec, an `n/a` with a domain reason, or a recorded, open, question or gap entry, and that 'fewer specs' is never a reason."
+        "Says each matrix cell is a spec, an `n/a` with a domain reason, or a recorded, open, question or gap entry, and that 'fewer specs' is never a reason.",
+        "Records the tag-sensitive success as a gap until exact ordered tags including duplicates or explicit no tags are asserted and reference-executed; omission is unchecked, 6.32.0 selects ESM v55, and board/fixture absence needs source/expectedTags inspection rather than a coverage claim."
       ]
     },
     {

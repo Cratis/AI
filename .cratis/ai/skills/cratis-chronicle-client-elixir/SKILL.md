@@ -10,7 +10,7 @@ license: MIT
 # The Chronicle client for Elixir
 
 `cratis_chronicle` is a **standalone client SDK**. It is a library, not a
-framework: it starts no supervision tree of its own, you add `Chronicle.Client`
+framework: it starts no supervision tree of its own, you add `Cratis.Chronicle.Client`
 to yours, and everything after that is ordinary OTP.
 
 ## Verified product sources
@@ -19,9 +19,9 @@ Source: `Cratis/Chronicle.Elixir` (Hex package `cratis_chronicle`). Source paths
 
 Read [references/upgrading.md](references/upgrading.md) when moving an application from an older client. Requires Elixir `~> 1.18`; read [references/product-sources.md](references/product-sources.md) for the package and contracts dependency facts.
 
-> **A git tag is not a Hex release.** `mix deps.get` fetches only published versions, and the repository's `VERSION` file is a build-time placeholder: never quote it. Use namespaced modules (`Chronicle.Events.EventType`, not `Chronicle.EventType`); older READMEs got this wrong. Maintained snippets live in `Documentation/client-snippets/`.
+> **A git tag is not a Hex release.** `mix deps.get` fetches only published versions, and the repository's `VERSION` file is a build-time placeholder: never quote it. Use namespaced modules (`Cratis.Chronicle.Events.EventType`, not `Cratis.Chronicle.EventType`); older READMEs got this wrong. Maintained snippets live in `Documentation/client-snippets/`.
 
-`Chronicle.Concept` (`use Chronicle.Concept, type: :string`) is the preferred way to classify a personal value once, mirroring `ConceptAs<T>`; it requires `cratis_chronicle` 3.0.0, and an older client annotates fields with `pii/1,2`.
+`Cratis.Chronicle.Concept` (`use Cratis.Chronicle.Concept, type: :string`) is the preferred way to classify a personal value once, mirroring `ConceptAs<T>`; it requires `cratis_chronicle` 3.0.0, and an older client annotates fields with `pii/1,2`.
 
 ## Adding it
 
@@ -29,7 +29,7 @@ Read [references/upgrading.md](references/upgrading.md) when moving an applicati
 # mix.exs
 defp deps do
   [
-    {:cratis_chronicle, "~> 3.13"}
+    {:cratis_chronicle, "~> 4.0"}
   ]
 end
 ```
@@ -40,7 +40,7 @@ The library declares `extra_applications: [:logger, :inets, :ssl]` and **no
 
 ## Starting the client
 
-`Chronicle.Client` is a `Supervisor` (`lib/chronicle/client.ex`) with
+`Cratis.Chronicle.Client` is a `Supervisor` (`lib/cratis/chronicle/client.ex`) with
 `start_link(opts \\ [])`. Put it in your application's tree — this is
 the CI-validated snippet from
 `Documentation/client-snippets/get-started/console/connect.md`:
@@ -52,8 +52,8 @@ defmodule MyApp.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      {Chronicle.Client,
-       connection_string: Chronicle.Connections.ConnectionString.development(),
+      {Cratis.Chronicle.Client,
+       connection_string: Cratis.Chronicle.Connections.ConnectionString.development(),
        event_store: "quickstart",
        otp_app: :my_app}
     ]
@@ -65,13 +65,13 @@ end
 
 ### Options, supervision and multiple clients
 
-Read [references/client-options.md](references/client-options.md) when setting `Chronicle.Client` options (set `:otp_app`), its supervision tree, or multiple clients.
+Read [references/client-options.md](references/client-options.md) when setting `Cratis.Chronicle.Client` options (set `:otp_app`), its supervision tree, or multiple clients.
 
 ## Connecting is asynchronous — wait for the lifecycle
 
-The client connects in the background. `Chronicle.Connections.Lifecycle`
+The client connects in the background. `Cratis.Chronicle.Connections.Lifecycle`
 broadcasts `{:chronicle_lifecycle, phase, connection_id}` with three phases
-(`lib/chronicle/connections/lifecycle.ex`):
+(`lib/cratis/chronicle/connections/lifecycle.ex`):
 
 | Phase | Meaning |
 | --- | --- |
@@ -84,9 +84,9 @@ so, because reducers and reactors are not attached until registration
 finishes.
 
 ```elixir
-alias Chronicle.Connections.Lifecycle
+alias Cratis.Chronicle.Connections.Lifecycle
 
-case Lifecycle.wait_until(Lifecycle.name_for(Chronicle.Client), :registered, 30_000) do
+case Lifecycle.wait_until(Lifecycle.name_for(Cratis.Chronicle.Client), :registered, 30_000) do
   :ok -> :ready
   {:error, :timeout} -> :not_ready
 end
@@ -129,14 +129,14 @@ Read [references/connections.md](references/connections.md) when configuring con
 defmodule MyApp.Events.FundsDeposited do
   @moduledoc "Funds were deposited into an account."
 
-  use Chronicle.Events.EventType, id: "funds-deposited"
+  use Cratis.Chronicle.Events.EventType, id: "funds-deposited"
 
   defstruct amount: 0, active: false, title: ""
 end
 ```
 
-`use Chronicle.Events.EventType` takes `:id` through `Keyword.fetch!`
-(`lib/chronicle/events/event_type.ex`) — **the id is required**, unlike the
+`use Cratis.Chronicle.Events.EventType` takes `:id` through `Keyword.fetch!`
+(`lib/cratis/chronicle/events/event_type.ex`) — **the id is required**, unlike the
 .NET, Kotlin, and TypeScript clients where it defaults to the type name. Give it
 a stable, kebab-case string and never change it. `:generation` defaults to `1`.
 
@@ -146,34 +146,34 @@ list element schemas use the first default element. Nested structs and concepts
 are descended into (`schemas/json_schema_generator.ex`).
 
 The macro imports `unique/1,2`, `unique_event_type/0,1`, `remove_constraint/1,2`,
-`closes_stream/1`, `Chronicle.Compliance.pii/1,2` and
-`Chronicle.Confidentiality.encrypted/1,2,3`; the accumulating attributes
+`closes_stream/1`, `Cratis.Chronicle.Compliance.pii/1,2` and
+`Cratis.Chronicle.Confidentiality.encrypted/1,2,3`; the accumulating attributes
 `@unique`, `@unique_event_type`, `@remove_constraint` also work. Read
 [references/constraints.md](references/constraints.md) for their options.
 
 **Only top-level event keys are camelCased.** `encode_event/1` transforms them
 before `Jason.encode!` (`event_sequences/event_log.ex`); nested keys are
 not transformed. Event structs get no `Jason.Encoder` implementation;
-`Chronicle.Concept` does, encoding its wrapped value.
+`Cratis.Chronicle.Concept` does, encoding its wrapped value.
 
 Read [references/compliance.md](references/compliance.md) when defining personal data, data subjects, concepts or encrypted operational secrets. `pii` and `encrypted` are not interchangeable and cannot mark the same leaf.
 
 Schema evolution is
-`use Chronicle.Events.Migration, from: {Mod, generation: n}, to: {Mod, generation: n + 1}`
+`use Cratis.Chronicle.Events.Migration, from: {Mod, generation: n}, to: {Mod, generation: n + 1}`
 with `upcast/1` and `downcast/1`; the generations must be exactly one apart. Mark
 the older module with `generation_for:`, not a second `:id`.
 
 ## Appending
 
 ```elixir
-case Chronicle.append("account-1", %MyApp.Events.FundsDeposited{amount: 50}) do
+case Cratis.Chronicle.append("account-1", %MyApp.Events.FundsDeposited{amount: 50}) do
   :ok -> :ok
   {:error, {:constraint_violations, violations}} -> {:rejected, violations}
   {:error, reason} -> {:error, reason}
 end
 ```
 
-`Chronicle.append/3` delegates to `Chronicle.EventSequences.EventLog`.
+`Cratis.Chronicle.append/3` delegates to `Cratis.Chronicle.EventSequences.EventLog`.
 **The event source id comes first, the event second.** The return is a bare
 `:ok`, carrying no sequence number; use `append_with_result/3` or
 `append_and_wait_for_completion/3` when you need the outcome.
@@ -187,15 +187,15 @@ Failed appends return `{:error, reason}`: `{:constraint_violations, violations}`
 `{:unknown_event_type, module}`, `:not_connected`, and `{:incompatible_server, response}`
 from the first append's compatibility preflight per channel. Pair the kernel and
 installed contracts; do not blindly retry a timed-out write. **Match on them**: a
-bare `:ok = Chronicle.append(...)` raises a `MatchError` on a violation, fine in a
+bare `:ok = Cratis.Chronicle.append(...)` raises a `MatchError` on a violation, fine in a
 script and wrong in a GenServer.
 
 Read [references/event-sources.md](references/event-sources.md) when declaring named event sources/streams, deriving concurrency scopes or routing mixed-source batches; definitions have client and kernel requirements stated there.
 
-A unit of work is a process: `Chronicle.begin_unit_of_work/1` starts an `Agent`;
+A unit of work is a process: `Cratis.Chronicle.begin_unit_of_work/1` starts an `Agent`;
 while one is current for the calling process, `append`/`append_many` buffer until
 `UnitOfWork.commit/1` (`:ok | {:error, reason}`) or `rollback/1`.
-`Chronicle.with_unit_of_work(fun, opts)` commits on return and raises on commit
+`Cratis.Chronicle.with_unit_of_work(fun, opts)` commits on return and raises on commit
 failure.
 
 ## Observing
@@ -204,7 +204,7 @@ failure.
 
 Requires Chronicle.Elixir 3.14.0, contracts 19.70 and kernel 19.70.0 for start_at_tail; check `mix deps` and the server version, or retain initial catch-up until upgraded.
 
-`use Chronicle.Reactors.Reactor, start_at_tail: true` skips history only on first
+`use Cratis.Chronicle.Reactors.Reactor, start_at_tail: true` skips history only on first
 registration; an existing reactor keeps its position. `once_only` does not skip
 initial catch-up. An older server ignores the flag and catches up from the beginning.
 
@@ -222,14 +222,14 @@ Read [references/reactor-example.md](references/reactor-example.md) when you nee
 - Optional replay callbacks: `on_replay_begin/0`, `on_replay_end/0`,
   `on_partition_replay_begin/1`, `on_partition_replay_end/1`.
 
-**The context is a `Chronicle.Events.EventContext` struct** (requires 3.11.0; a
+**The context is a `Cratis.Chronicle.Events.EventContext` struct** (requires 3.11.0; a
 bare map before). Pattern match on keys or use `context.caused_by`. It carries
 `event_source_id`, `sequence_number`, `occurred`, `event_source` (the registered
 source name or `nil`), `event_store`, `namespace`, `correlation_id`, `caused_by`,
 `causation`, `tags`, `subject`, `appended_generation`, `replaying?` and, for
 reactors only, `delivery_id` (stable across replay and failed-partition
 recovery; key a receipt on it). Reducers get the same struct with
-`observation_state` set (`lib/chronicle/events/event_context.ex`).
+`observation_state` set (`lib/cratis/chronicle/events/event_context.ex`).
 
 ### Read models and projections
 
@@ -246,29 +246,29 @@ Read [references/projections.md](references/projections.md) when choosing `passi
 > `MyApp.ReadModels.Account` registers as `"Account"`, so two read models with the
 > same final segment collide. Pass `id:` to disambiguate.
 
-A standalone projection is `use Chronicle.Projections.Projection, model: Mod`
+A standalone projection is `use Cratis.Chronicle.Projections.Projection, model: Mod`
 (`:model` is required); a reducer is
-`use Chronicle.Reducers.Reducer, model: Mod` with
+`use Cratis.Chronicle.Reducers.Reducer, model: Mod` with
 `reduce(event, model_or_nil, context) :: struct()`. **Reducers run in your
 process**, so the reduction is Elixir code you own.
 
 #### Variants — mutually exclusive read models for one entity's lifecycle
 
-Requires `cratis_chronicle` `3.4.0` or later. `variant_of/2` requires `:key`; a variant with no `enters_on` raises `Chronicle.Projections.VariantMustDeclareEntersOnEvent` at registration.
+Requires `cratis_chronicle` `3.4.0` or later. `variant_of/2` requires `:key`; a variant with no `enters_on` raises `Cratis.Chronicle.Projections.VariantMustDeclareEntersOnEvent` at registration.
 
 Read [references/variants.md](references/variants.md) when an entity has mutually exclusive lifecycle shapes (for example a backlog entry that becomes a pull request) and you need variant read models or a `GlobalHandler`.
 
-Querying (`lib/chronicle/read_models.ex`):
+Querying (`lib/cratis/chronicle/read_models.ex`):
 
 ```elixir
-{:ok, accounts} = Chronicle.all(MyApp.ReadModels.AccountBalance)
-{:ok, account} = Chronicle.read_model(MyApp.ReadModels.AccountBalance, "account-1")
+{:ok, accounts} = Cratis.Chronicle.all(MyApp.ReadModels.AccountBalance)
+{:ok, account} = Cratis.Chronicle.read_model(MyApp.ReadModels.AccountBalance, "account-1")
 ```
 
-`Chronicle.read_model/3` returns `{:ok, struct() | nil} | {:error, term()}`; `nil`
+`Cratis.Chronicle.read_model/3` returns `{:ok, struct() | nil} | {:error, term()}`; `nil`
 means absent **or not projected yet**.
 
-Use `Chronicle.ReadModels.query(MyApp.ReadModels.AccountBalance, page: 0)` for paging:
+Use `Cratis.Chronicle.ReadModels.query(MyApp.ReadModels.AccountBalance, page: 0)` for paging:
 `:page` is zero-based (default `0`), `:page_size` defaults to `50`, and
 `:occurrence` selects a replay container. **Page 1 is the second page**. `ReadModels.snapshots/3`,
 `occurrences/2`, and `definitions/1` expose history, replay containers, and
@@ -278,11 +278,11 @@ registered definitions.
 
 #### Graph projections — `node` and `edge`
 
-A graph is a module with `use Chronicle.Graphs.Graph, id: "Organization"`; its nodes
-and edges are structs with `use Chronicle.Graphs.Node` and `use Chronicle.Graphs.Edge,
+A graph is a module with `use Cratis.Chronicle.Graphs.Graph, id: "Organization"`; its nodes
+and edges are structs with `use Cratis.Chronicle.Graphs.Node` and `use Cratis.Chronicle.Graphs.Edge,
 type: "MEMBER_OF"`. Inside the graph, `node Mod, key: :field do ... end` and
 `edge Mod, source: A, target: B do ... end` hold `from/2` and `removed_with/2`
-(`detach: true` on a node). Register it with `graphs: [Mod]` on `Chronicle.Client`.
+(`detach: true` on a node). Register it with `graphs: [Mod]` on `Cratis.Chronicle.Client`.
 Requires cratis_chronicle 3.20.0 (check `mix deps`). Read
 [references/graphs.md](references/graphs.md) for the options, counters, edge identity,
 compiler checks and sink choice. Pin `id:`; renaming it registers a different projection.
@@ -291,12 +291,12 @@ compiler checks and sink choice. Pin `id:`; renaming it registers a different pr
 
 Read the reference that matches the task:
 
-- [references/decision-reads.md](references/decision-reads.md) when an append depends on state a concurrent append could change: `Chronicle.decide/2`, `DecisionReads`, `ConcurrencyScope` builders, the optimistic default.
-- [references/testing.md](references/testing.md) when writing specs: `Chronicle.Testing.Case`, assertions, the in-memory kernel's limits.
+- [references/decision-reads.md](references/decision-reads.md) when an append depends on state a concurrent append could change: `Cratis.Chronicle.decide/2`, `DecisionReads`, `ConcurrencyScope` builders, the optimistic default.
+- [references/testing.md](references/testing.md) when writing specs: `Cratis.Chronicle.Testing.Case`, assertions, the in-memory kernel's limits.
 - [references/constraints.md](references/constraints.md) when declaring uniqueness, standalone constraint modules, `remove_constraint/2`, violation details or closing events.
 - [references/discovery-and-generations.md](references/discovery-and-generations.md) when pinning ids, setting `:drift_policy`, running `mix chronicle.discover`, or handling older event generations.
 - [references/captures.md](references/captures.md) when turning external API, webhook or other-store data into events.
-- [references/observability.md](references/observability.md) and [references/patterns.md](references/patterns.md) for OpenTelemetry/`:telemetry` and `Chronicle.Patterns`.
+- [references/observability.md](references/observability.md) and [references/patterns.md](references/patterns.md) for OpenTelemetry/`:telemetry` and `Cratis.Chronicle.Patterns`.
 
 ## Idioms and operational inspection
 
@@ -311,12 +311,12 @@ Read [references/pitfalls.md](references/pitfalls.md) when troubleshooting disco
 - Elixir 1.18+ and `mix deps.get` resolve the intended published client; contracts
   and kernel are compatible (event source definitions have their own client and kernel requirements; see the event sources reference).
 - Local development uses `ConnectionString.development()` or explicit credentials.
-- `Chronicle.Client` is in the supervision tree with an explicit `:otp_app`, and
+- `Cratis.Chronicle.Client` is in the supervision tree with an explicit `:otp_app`, and
   the tree starts clean.
 - The lifecycle reaches `:registered` before the application claims readiness.
 - A production connection string sets `skipTlsValidation=false`.
 - Every event type module passes an explicit, stable `id:`.
-- Every `Chronicle.append/3` call site handles `{:error, _}` as well as `:ok`.
+- Every `Cratis.Chronicle.append/3` call site handles `{:error, _}` as well as `:ok`.
 - Every reactor's `@handles` list matches the clauses of its `handle/2`.
 - Reactors, reducers and projections that must survive a rename pin their `:id`.
 - Read model module names have distinct final segments, or explicit ids.

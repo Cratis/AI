@@ -19,15 +19,17 @@ import { skillBody } from './skill-structure.ts';
  * fast-feedback.md general.md routing row: budgets raised by 150 bytes (copilot, pi) and 109 (cursor, codex-opencode).
  * Cratis/AI#969 secrets.md `cratis config get … --show-secret` in the guarded commands: +39 bytes (claude-code, copilot, pi); the Pi budget is raised by 50.
  * local-verification-and-delivery.md (engineering profile): budgets raised by 200 bytes (claude-code) and 450 (pi).
+ * Cratis/AI#1328 operational-safety.md `.cratis-render/` staging wording: budgets raised by 60 bytes (copilot, pi).
  * Published-contracts rule: general.md routing row (merged into the Code Health row) and review-reports.md blocker sentence: +250 (claude-code), +100 (copilot, cursor, codex-opencode), +300 (pi).
  * Code Health rule: general.md routing row and DoD bullet, review-reports.md rounds note, codescene.md exclusion recipe: +210 bytes (copilot), up to +905 (claude-code, pi).
  * Cratis/AI#469 observability.md general.md routing row: +100 bytes (claude-code), +80 (pi), +60 (copilot, cursor, codex-opencode).
  * Cratis/AI#977/#983/#979 new-repository-intake.md, verification-discipline.md, github-actions.md authority wording: +100 bytes (claude-code), +520 (copilot, pi).
  * Cratis/AI#1225 guards-and-fuses.md gate rule, capability-is-not-authority.md necessity bullet, application-profile.md rule 7 pointer: +330 bytes (claude-code), +360 (copilot, pi).
  * Authentication-boundary rule: general.md routing row: +230 bytes (claude-code), +160 (copilot), +230 (pi), +160 (cursor, codex-opencode).
+ * Cratis/AI#777 operational-safety.md plus secrets.md, capability-is-not-authority.md, browser.md and general.md routing promoted from skills: +5931 bytes (claude-code), +5789 (copilot), +5927 (pi), +244 (cursor), +251 (codex-opencode).
  */
 // File scoping and on-demand operation skills reduce Claude Code, Copilot and Pi; other caps stay unchanged.
-export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 76_660, copilot: 52_850, pi: 79_790, cursor: 23_720, 'codex-opencode': 23_420 };
+export const alwaysOnHarnessBudgets: Record<string, number> = { 'claude-code': 82_600, copilot: 58_710, pi: 85_790, cursor: 23_970, 'codex-opencode': 23_680 };
 
 const remedy = 'Displace or demote text to an on-demand skill, or raise the budget in Source/Verification/always-on-budget.ts in a reviewed change.';
 

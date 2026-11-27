@@ -413,7 +413,13 @@ Requires Screenplay 4.153.0 or later (`screenplay --version`) for `propose-renam
 
 `syntax-schema` exposes graph query collects as `GraphQuerySyntax.collects` (`GraphCollectSyntax` with `property`, `from`, `hop`, `returns`; Screenplay 6.29.0 or later, `screenplay --version`); `propose-ast` adds, replaces and removes them through the ordinary typed operations, and the member is omitted when a query collects nothing.
 
-`screenplay rename` is the scriptable, identity-preserving alternative to `propose-rename` plus `apply` (Screenplay 6.1.0 or later; see [export, compare and rename](../../cratis-screenplay-toolchain/references/model-export-diff-rename.md)).
+`screenplay rename` is the scriptable alternative to `propose-rename` plus `apply`, preserving identity for identity-bearing declarations (Screenplay 6.1.0 or later; see [export, compare and rename](../../cratis-screenplay-toolchain/references/model-export-diff-rename.md)).
+
+Requires Screenplay 6.35.0 or later (`screenplay --version`) for provided-value rename. A `provide` has no semantic identity to preserve. Resolve its declaration handle through the syntax index, supply current expected revisions and names to `propose-rename`, review the source diff and refusals, then `apply` only with the proposal's expected revisions. Address the CLI equivalent by declaring module/feature/slice plus the name, or the name alone at application scope.
+
+Choose the outermost `provide` in the override chain: the planner rewrites it and overrides below it, and only the first path segment of `$context.<name>` reads proven to resolve to that chain. For example `$context.vessel.code` becomes `$context.ship.code`; the `.code` member, unrelated chains and plain strings are not renamed. Renaming an override, using a built-in context name, an overlapping provided name or a new name already read in scope refuses. So do opaque/unsupported reads and ambiguous reusable availability reads across separate chains. Inspect the refusal and coordinate typed repairs; never force a global replacement or fabricate an identity migration for `provide`.
+
+Below the required version, upgrade the actual CLI/MCP or defer. Use CLI/MCP, not VS Code/Monaco or a TypeScript rename operation. Check the installed version before proposing or applying the rename; this guidance promises no editor or TypeScript support.
 
 `propose-rename` consults release-baseline mutability: without a
 baseline it conservatively pins the previous effective name; an unadmitted event

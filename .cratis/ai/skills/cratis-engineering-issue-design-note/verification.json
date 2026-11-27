@@ -7,6 +7,13 @@
     { "kind": "skill-contains", "value": "never pick the newest" },
     { "kind": "skill-contains", "value": "git merge-base --is-ancestor <base> origin/<target>" },
     { "kind": "skill-contains", "value": "never writes to" },
-    { "kind": "skill-contains", "value": "gh api -X PATCH repos/OWNER/REPO/issues/comments/<id>" }
+    { "kind": "skill-contains", "value": "Never edit the issue's title," },
+    { "kind": "skill-contains", "value": "including the agent's own design notes" },
+    { "kind": "skill-contains", "value": "Leave legacy status blocks untouched." },
+    { "kind": "skill-contains", "value": "Supersedes: <earlier design comment URL>" },
+    { "kind": "skill-contains", "value": "The earlier comment stays intact." },
+    { "kind": "skill-contains", "value": "gh issue comment <n> --repo OWNER/REPO --body-file <draft>" },
+    { "kind": "skill-contains", "value": "Never PATCH" },
+    { "kind": "skill-contains", "value": "new selection comment" }
   ]
 }

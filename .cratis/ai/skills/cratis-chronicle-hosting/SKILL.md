@@ -46,7 +46,7 @@ operator/kernel surface, not an application-profile layout rule.
 - MongoDB **must be a replica set**, including single-node development: appends
   use transactions. The current Compose/Aspire default is MongoDB 8.2. Publish
   development database ports on loopback only; a host application needing MongoDB
-  must be able to reach port 27017. Do not expose unauthenticated MongoDB.
+  must be able to reach port 27017. Do not expose unauthenticated MongoDB (universal rule: [`operational-safety.md`](../../rules/operational-safety.md)).
 
 Read [storage resolution](references/storage-resolution.md) when choosing
 per-namespace destinations, schema/runtime identities, Azure authentication,
@@ -73,7 +73,7 @@ and still requires a certificate on first use. Development falls back to
 ephemeral OAuth keys. Supply passwords from the approved secret mechanism,
 never commit them. Every cluster node needs the same certificate ring.
 
-The .NET client uses known development credentials when ClientCredentials has
+The .NET client uses known development credentials (never in production: [`secrets.md`](../../rules/secrets.md)) when ClientCredentials has
 both username and password absent (`ChronicleClient.cs`,
 `Connections/ServiceCollectionExtensions.cs`). The development
 kernel creates the application **directly in persistent storage**

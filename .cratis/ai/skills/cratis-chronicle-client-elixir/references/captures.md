@@ -3,7 +3,7 @@
 
 # Captures
 
-Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/chronicle/captures.ex`, `captures/capture.ex`, `captures/registrar.ex`, and `Documentation/captures.md`.
+Source: `Cratis/Chronicle.Elixir`: `Source/chronicle/lib/cratis/chronicle/captures.ex`, `captures/capture.ex`, `captures/registrar.ex`, and `Documentation/captures.md`.
 
 Requires `cratis_chronicle` 3.13.0.
 
@@ -14,7 +14,7 @@ A capture turns data that arrives from outside the event log (an external API, a
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 defmodule MyApp.Captures.InvoiceCapture do
-  use Chronicle.Captures.Capture, name: "InvoiceCapture"
+  use Cratis.Chronicle.Captures.Capture, name: "InvoiceCapture"
 
   api_source("InvoicingApi", route: "/invoices", poll: "10m")
 
@@ -32,12 +32,12 @@ end
 - `when:` takes a property name, `{:any, [...]}`, `{:all, [...]}`, `{:transition, property, from, to}`, `:added`, `:removed`, or `{:expression, "template"}`. `set/2` maps a target field from `"$.path"` (payload) or `"$context.<property>"`.
 - The DSL also has `nested` and `children` scopes, and a `map do` block with `rename`, `template`, `translate` and `split`.
 
-**An appended event type's id must start with an uppercase letter and contain only letters, digits and underscores.** The kernel's CDL parser rejects hyphens, so `use Chronicle.Events.EventType, id: "InvoiceStatusChanged"` works as an `append` target and `id: "invoice-status-changed"` raises `ArgumentError` at compile time. This restriction does not apply to `events_source/1`.
+**An appended event type's id must start with an uppercase letter and contain only letters, digits and underscores.** The kernel's CDL parser rejects hyphens, so `use Cratis.Chronicle.Events.EventType, id: "InvoiceStatusChanged"` works as an `append` target and `id: "invoice-status-changed"` raises `ArgumentError` at compile time. This restriction does not apply to `events_source/1`.
 
 **The kernel's capture engine runs a subset of the language**: only `api` and `events` sources, and only root-level `append` rules. `map`, `nested` and `children` compile and validate but are not applied at runtime, and webhook sources cannot carry authentication.
 
 ## Registering and managing
 
-Captures are discovered with `otp_app:` or listed in the client's `:captures` option. `Chronicle.Captures.Registrar` saves them at `:registered` and again on every reconnect. It skips a capture whose declaration already matches, and warns before saving over a **started** capture whose declaration changed, because saving stops it on the kernel.
+Captures are discovered with `otp_app:` or listed in the client's `:captures` option. `Cratis.Chronicle.Captures.Registrar` saves them at `:registered` and again on every reconnect. It skips a capture whose declaration already matches, and warns before saving over a **started** capture whose declaration changed, because saving stops it on the kernel.
 
-Manage directly with `Chronicle.Captures.register/1`, `start/1`, `stop/1`, `delete/1`, `list/0`, `validate/1` (a module or raw CDL text) and `captured_events/1`. `start`, `stop` and `delete` also accept a raw capture id; `delete` is destructive, so obtain authority for the specific capture first.
+Manage directly with `Cratis.Chronicle.Captures.register/1`, `start/1`, `stop/1`, `delete/1`, `list/0`, `validate/1` (a module or raw CDL text) and `captured_events/1`. `start`, `stop` and `delete` also accept a raw capture id; `delete` is destructive, so obtain authority for the specific capture first.

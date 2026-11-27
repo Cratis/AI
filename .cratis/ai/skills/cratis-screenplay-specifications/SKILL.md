@@ -164,6 +164,7 @@ Screenplay 5.7.0 (`screenplay --version`). Read
 
 Events compare as the complete new set in authored order (exact count). Read models and query rows: only the asserted properties must match (add `exactly` for all). Rejections: `then error "<message>"` matches the message, never severity. Bare `then error` never matches
   a denial. Read [references/outcome-comparison.md](references/outcome-comparison.md) for events, rows, ordering or a localized rejection key.
+For exact ordered event tags, `no tags` versus unchecked tags, and fixture/board visibility, read [then-event tags](references/event-tags.md), including the compiler prerequisite and ESM v55 boundary.
 
 ## Worked example
 

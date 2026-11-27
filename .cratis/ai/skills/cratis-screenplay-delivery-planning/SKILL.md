@@ -56,18 +56,22 @@ it is not planned work yet.
    type and realization, divide by measured throughput, and report a range with its basis. Add
    separate lines for what is not slice work: modeling and review gates, integration with
    outside systems, environment and deployment, specifications that need new infrastructure.
-7. **Track.** One GitHub issue per slice group, in the repository's own issue practice
-   (assign the issue, keep an in-progress status in the issue body, check for an existing claim
-   before starting): the status block lists the slices, their
-   type, the wave, the blockers and each slice's planning status below. The issue's own state
-   follows the repository's hygiene (in progress, in review when the PR opens, paused, blocked,
-   done only when delivered). Keep the working plan in
-   `.ai-work/<task>/delivery-plan.md`.
+7. **Track.** One GitHub issue per slice group. Read
+   **cratis-engineering-issue-hygiene** before claiming or publishing: assign instead of
+   posting routine progress, and check assignees and comments for an existing claim before
+   starting. Put the slices, type, wave and initial blockers in a new issue's description;
+   never edit an existing issue's title, description or comments, even the agent's own.
+   Leave legacy status blocks untouched. Keep per-slice planning status and the working plan
+   in `.ai-work/<task>/delivery-plan.md`. Report meaningful events only in new self-contained
+   comments: PR opened with its link, blocked or paused with the reason and what remains,
+   done or closing with what shipped and follow-ups. Started or claimed is optional and
+   minimal; prefer assignment. No progress chatter. The issue is done only when delivered.
 8. **Re-plan after each completed group.** Update throughput, recount if the model changed,
    restate the range. Record the retrospective metrics from `references/velocity-and-capacity.md`.
 
 ## Status vocabulary
-Per-slice planning status, a closed set recorded inside the plan and the issue's status block.
+Per-slice planning status, a closed set recorded inside the working plan. Issue comments
+carry snapshots only at meaningful events, not every per-slice transition.
 It is not the issue's state: the enclosing issue keeps the repository's own states (for example
 in progress, in review, paused, blocked, done), and is done only when its slices are
 delivered (merged and released where the repository releases).
@@ -82,8 +86,9 @@ delivered (merged and released where the repository releases).
 Before claiming a slice, check its current status. If it is already `in progress`, someone else
 holds it: pick another slice, do not take it over and do not report an error. Move a status only
 to a different value; a repeated update is a signal that another worker got there first.
-Check for an existing claim (assignee and in-progress status) before starting; where the harness
-provides a claim tool such as `issue_work`, its claim step is that guard.
+Check for an existing claim (assignees, the plan and issue comments, not a legacy body status
+alone) before starting; where the harness provides a claim tool such as `issue_work`, use it
+only if it preserves existing issue text. Assignment and plan updates must not edit issue text.
 
 ## What a plan states
 - Scope: the modules and slices counted, and what was excluded and why.

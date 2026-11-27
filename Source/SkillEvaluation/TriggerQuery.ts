@@ -5,4 +5,5 @@ export interface TriggerQuery {
     query: string;
     shouldTrigger: boolean;
     note?: string;
+    sibling?: string | null;
 }

@@ -1,0 +1,8 @@
+*
+!Dockerfile
+!fixtures/
+!fixtures/**
+**/bin
+**/obj
+**/node_modules
+**/wwwroot

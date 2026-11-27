@@ -28,13 +28,14 @@
     {
       "id": 3,
       "name": "claimed-slice",
-      "prompt": "I want to start the InvoiceSend slice. Its tracking issue has status block 'InvoiceSend: in progress' and an assignee who is not me. The agent next to me suggests I just take it, since I am faster. What do I do? Also list the allowed per-slice statuses. Reply only; do not write files.",
-      "expected_output": "Do not take it over and do not report an error: pick another slice. The per-slice statuses are todo, in progress, blocked and done, a closed set separate from the issue's own state.",
+      "prompt": "I want to start the InvoiceSend slice. Its tracking issue has a legacy status block 'InvoiceSend: in progress', an assignee who is not me, and a recent comment confirming that person's active claim. The agent next to me suggests I just take it, since I am faster. What do I do? Also list the allowed per-slice statuses and where they belong now. Reply only; do not write files.",
+      "expected_output": "Do not take it over and do not report an error: pick another slice. The per-slice statuses are todo, in progress, blocked and done, a closed set separate from the issue's own state, kept in the working plan. Read assignees and meaningful comments for the current claim; leave legacy body blocks untouched. Never edit existing issue titles, descriptions or comments, including the agent's own.",
       "assertions": [
         "Says to pick another slice and not take over a slice that is already in progress.",
         "Does not treat the existing claim as an error to report.",
         "Lists the closed per-slice status set: todo, in progress, blocked, done.",
-        "Notes that a blocked status names the producer, decision or external party it waits on."
+        "Notes that a blocked status names the producer, decision or external party it waits on.",
+        "Keeps per-slice status in the working plan, checks assignees and comments for claims, and leaves legacy status blocks and all existing issue text untouched."
       ]
     },
     {
@@ -47,6 +48,19 @@
         "Bases the estimate on the team's own completed slices (6 in 3 weeks) as a range with its basis.",
         "Says the small sample or one project's rate may not transfer to a different kind of slice.",
         "Prices hand-written slices separately from rendered ones and recounts if the model changes."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "delivery-events-not-body-updates",
+      "prompt": "Our accepted delivery plan has slice groups in existing issues with legacy status blocks. You are authorized to claim an unassigned group and publish delivery events. The PR opens, then the work pauses waiting for a schema decision, and later it ships. A teammate asks you to refresh the issue body per slice, correct your own old comment and post every test run as progress. Plan the public updates, how to supersede a changed design decision, and where the per-slice status lives. Does append-only also forbid an authorized PR description edit? Reply only; do not run tools or write files.",
+      "expected_output": "Keep per-slice status in the private working plan. Prefer assignment over an optional minimal started comment. Never edit existing issue titles, descriptions, legacy blocks or comments, including your own. Use NEW self-contained comments only for PR opened with link, blocked/paused with reason and what remains, and done/closing with what shipped and follow-ups. Correct or supersede a changed design by a NEW comment linking the earlier one. No test-run or routine per-slice progress chatter. PR descriptions stay editable as release notes when authorized.",
+      "assertions": [
+        "Leaves the title, description, legacy status block and all existing comments unchanged, even its own; rejects body refreshes and in-place comment corrections.",
+        "Keeps per-slice status in the working plan and prefers assignment over optional minimal started or claimed comments.",
+        "Proposes NEW self-contained comments at PR opened with public link, blocked/paused with reason and remaining work, and done/closing with what shipped and follow-ups.",
+        "Supersedes a changed design decision with a NEW linked comment rather than editing the earlier one, following issue-design-note guidance.",
+        "Rejects test-run and routine progress chatter, while allowing authorized PR description edits as release notes."
       ]
     }
   ]

@@ -7,7 +7,7 @@ instruction for the work, not background reading. Skills that restate one cite i
 2. **Work within an explicit model boundary and change it in slices.** One successful slice is not a complete application.
 3. **Report five different verdicts separately** (V1-V5, `verdicts-and-modes.md`).
 4. **Discover installed capabilities and versions before prescribing tools or syntax.** A dependency bump does not prove support.
-5. **Use typed workspace proposals, exact revisions and explicit review before apply.** A refusal is never permission for a regex or text replacement.
+5. **Use typed workspace proposals, exact revisions and explicit review before apply.** A refusal is never permission for a regex or text replacement (universal rule: [`operational-safety.md`](../../../rules/operational-safety.md)).
 6. **Keep semantic identity independent of names, paths, layout and generated symbols.** Commit the identity catalog with the model.
 7. **Keep unsupported intent visible.** Return a precise gap and its owning issue; never weaken the model so rendering passes.
 8. **Write specifications with intent, including rejection and denial.** Never report an unexecuted or unsupported scenario as passed.

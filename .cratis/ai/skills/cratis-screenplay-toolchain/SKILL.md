@@ -149,6 +149,7 @@ with ordered imports means future files need explicit imports.
   [generation strategies](references/generation-strategies-example.md) for Guarded
   freshness and strict fixtures, and command-surface
   `references/generated-values-and-responses.md` for strategy/refusal depth.
+- **v55 tag assertions:** exact ordered `then` tags, explicit `no tags`, and unchecked omission have a separate compiler prerequisite. Read [then-event tags](../cratis-screenplay-specifications/references/event-tags.md), [language admission](references/language-admission.md) and [V4 verdicts](references/verdicts.md#v4-reference-specifications-run); fixture/board visibility and reference support do not prove rendering.
 - **v17–v21:** recovery/no-events (v17), query Validation errors (v18), refusal
   branches (v19), generated-concept proofs (v20), pattern/random/rule/checksum (v21).
   Read `references/executable-subset.md` for version prerequisites and
@@ -177,7 +178,7 @@ with ordered imports means future files need explicit imports.
   not legal compliance, retention or runtime subject realization. See
   command-surface `references/context.md` and `references/compliance.md`.
 
-`audience`, `availability`, `available` and `provide` diagnostics are PLAY1119-PLAY1141; executing a `provide` reports PLAY0268. Specifications and the reference evaluator treat every gate as available; opaque sources are unsupported, never allowed. See `cratis-screenplay-availability`.
+`audience`, `availability`, `available` and `provide` diagnostics are PLAY1119-PLAY1141; a `file` or inline-code `provide` needs ESM v57 (older: PLAY0268). Specifications treat every gate as available; opaque sources are unsupported, never allowed or denied. See `cratis-screenplay-availability`.
 
 ## Edit strategy
 
@@ -239,7 +240,7 @@ Requires Cratis CLI 3.60.0 or later (`cratis --version`) for that option; older 
 
 Read [language admission](references/language-admission.md#esm-json-schemas) for the published ESM JSON Schemas (shape, not admission).
 
-Read [export, compare and rename](references/model-export-diff-rename.md) for `screenplay export`, `diff` and `rename` and persisted identities.
+Read [export, compare and rename](references/model-export-diff-rename.md) for `screenplay export`, `diff` and `rename`, persisted identities, and the separate prerequisite/refusals for outermost `provide` rename.
 
 Read [fast path](references/fast-path.md) for the ordered requirements-to-running-app checklist (validate, `render --check`, render, build, run, check in a browser, run the specs).
 

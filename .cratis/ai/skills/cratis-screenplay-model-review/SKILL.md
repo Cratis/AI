@@ -123,7 +123,7 @@ model's behalf.
   ignored and, if it tries, reported.
 
 ## Comparing with a baseline
-Read toolchain [agent exposure](../cratis-screenplay-toolchain/references/agent-exposure.md) before reviewing agent access. Use [manual exposure review](references/baseline-comparison.md#manual-agent-exposure-review) for newly exposed or possibly widened operations; automatic exposure comparison is not shipped, and unchanged manifest JSON is not a safety verdict.
+Read toolchain [agent exposure](../cratis-screenplay-toolchain/references/agent-exposure.md) before reviewing agent access. Use [exposure comparison](references/baseline-comparison.md#compare-agent-exposure) for newly exposed or possibly widened operations; unknown is not unchanged, and unchanged manifest JSON is not a safety verdict.
 For comparison with `main`, use `semantic-diff`; neither it nor `read-proposal view=semantic-diff` proves behavioral equivalence. Read [baseline comparison](references/baseline-comparison.md) for source selection, the baseline worktree check, identity matching and drift refusals.
 Review [enum numeric identity](../cratis-screenplay-model-authoring/references/mcp-tools.md#enum-numeric-identity)
 (Requires Screenplay 4.214.0; `screenplay --version`): inspect `stored: true` items.
@@ -155,7 +155,7 @@ P5 uses a fresh reviewer who authored nothing in scope; record reviewer/author m
 
 ## Availability and context pass
 
-For a model with `available` or `provide`, check: a gate no persona can satisfy, unreferenced or undeclared audiences, a gate used as authorization (or the reverse), a `provide` whose key cannot be resolved for a command, a rule reading identity-derived values, and specifications that depend on a gate. Read [review checks](../cratis-screenplay-availability/references/review-checks.md).
+For a model with `available` or `provide`, check: a gate no persona can satisfy, unreferenced or undeclared audiences, a gate used as authorization (or the reverse), a `provide` whose key cannot be resolved for a command, a rule reading identity-derived values, specifications that depend on a gate, a `not` that is misplaced (PLAY1171) or replaces a granted audience with a list, and a screen element gate that is broader than its bound part (PLAY1172). Read [review checks](../cratis-screenplay-availability/references/review-checks.md).
 
 ## Rules
 - Compiler contracts (defects when the mode needs them): V1 must pass with warnings

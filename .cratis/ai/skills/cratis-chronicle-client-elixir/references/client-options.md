@@ -1,15 +1,15 @@
 # Client options and supervision
 
-This reference holds the `Chronicle.Client` child-spec options, its supervision tree and the multiple-client rule.
+This reference holds the `Cratis.Chronicle.Client` child-spec options, its supervision tree and the multiple-client rule.
 
 ### Options
 
 Pass **child-spec keyword options**. The client reads no application env;
-your app must read its own configuration and pass it in (`lib/chronicle/client.ex`).
+your app must read its own configuration and pass it in (`lib/cratis/chronicle/client.ex`).
 
 | Option | Default |
 | --- | --- |
-| `:name` | `Chronicle.Client` |
+| `:name` | `Cratis.Chronicle.Client` |
 | `:connection_string` | `ConnectionString.default/0` |
 | `:event_store` | `"default"` |
 | `:namespace` | `"Default"` — capital D |
@@ -34,7 +34,7 @@ your app must read its own configuration and pass it in (`lib/chronicle/client.e
 without it the client falls back to scanning every loaded module.
 
 Configuration is stashed in `:persistent_term` and read back with
-`Chronicle.Client.config/1` (`client.ex`). Its subset includes `event_sources`,
+`Cratis.Chronicle.Client.config/1` (`client.ex`). Its subset includes `event_sources`,
 but not `read_models`, `projections`, or `migrations`.
 
 ### The supervision tree
@@ -45,5 +45,5 @@ The connection, session and registration precede observers.
 
 ### Multiple clients
 
-Pass `name:` to `Chronicle.Client` and `client:` to every API call. Every public
+Pass `name:` to `Cratis.Chronicle.Client` and `client:` to every API call. Every public
 function takes a `:client` option.

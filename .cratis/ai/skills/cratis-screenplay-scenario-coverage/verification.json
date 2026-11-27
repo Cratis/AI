@@ -3,6 +3,9 @@
   "input": "Write the specifications for a ReserveBerth command and its read model, and tell me what coverage is missing.",
   "fixtures": [],
   "assertions": [
+    { "kind": "skill-contains", "value": "event-tags.md" },
+    { "kind": "skill-contains", "value": "Tag-sensitive outcomes", "file": "references/quality-checklist.md" },
+    { "kind": "skill-contains", "value": "Missing tag expectations in a board or fixture view are not proof of coverage", "file": "references/quality-checklist.md" },
     { "kind": "play-compiles" },
     { "kind": "skill-contains", "value": "a whitespace-only rejection" },
     { "kind": "skill-contains", "value": "parent never arrives" },

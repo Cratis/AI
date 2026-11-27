@@ -151,7 +151,7 @@ module Invoicing
 ## Names, navigation, storylines and sample data
 
 - **Names resolve from the declaration site.** A query, command or screen a free screen names resolves inside-out from where the screen is declared, then by unique match anywhere in the model. An adopting slice never changes what a name means. Ambiguous or unresolved names stay warnings, as for a slice screen; commands and screens a free screen names have no contract beyond that.
-- **Navigation reaches every screen.** `navigate to`, `show` and a storyline `screen` step resolve to a free screen or a slice screen alike, adopted or not.
+- `navigate to`, `show` and a storyline `screen` step resolve to a free screen or a slice screen alike, adopted or not. An [outlet item's `target <Module>.<Feature> screen <Screen>`](application-shell.md#navigation-outlets-inherit-extend-or-override) instead requires the free screen to be executable in the exact target feature, where its first adopting slice owns it.
 - **Sample data may name a shape.** `sample data ... shape <Name>` checks its rows against the declared `shape`'s typed fields (`PLAY0710`, `PLAY0711`), as it does against a read model; rows for a screen nobody has adopted can exist before any read model does.
 
 ```screenplay expect PLAY1164

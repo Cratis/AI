@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <RootNamespace>LearningPath.Production</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Remove="Production.Specs/**/*.cs" />
+        <Content Remove="Production.Specs/**" />
+        <None Remove="Production.Specs/**" />
+        <Content Remove="certs/**;keycloak/**;.env*" />
+        <None Remove="certs/**;keycloak/**;.env*" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Cratis.Arc" />
+        <PackageReference Include="Cratis.Arc.Chronicle" />
+        <PackageReference Include="Cratis.Chronicle.AspNetCore" />
+        <PackageReference Include="Cratis.Arc.MongoDB" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    </ItemGroup>
+</Project>

@@ -50,7 +50,8 @@ lower tier's evidence be reinterpreted as a higher tier's.
 "this builds deterministically from an immutable source and contains nothing it
 should not." Requires deterministic regeneration from an exact revision, static
 contract and schema validation, secret and path scanning, and an inventory
-digest. It may never be installed by a consumer or described as available.
+digest. It may never be installed by a consumer or described as available; a preview is never called supported
+([`capability-is-not-authority.md`](../../rules/capability-is-not-authority.md)).
 
 **Preview** — a real, published, low-commitment version (a `0.x.y`, a
 prerelease channel). Claim: "a consumer can install this, use it, and get back

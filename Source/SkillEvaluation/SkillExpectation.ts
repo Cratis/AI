@@ -5,4 +5,6 @@ export interface SkillExpectation {
     target?: string;
     corpusSkills: string[];
     withSkills: boolean;
+    /** Host path mirrored by the read-only sandbox mount at /corpus. */
+    sandboxCorpus?: string;
 }

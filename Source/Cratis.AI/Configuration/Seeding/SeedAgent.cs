@@ -3,6 +3,7 @@
 
 using Cratis.AI.Agents;
 using Cratis.AI.Agents.Configuring;
+using Cratis.AI.Agents.Defining;
 using Cratis.AI.Harnesses;
 using Cratis.AI.LanguageModels;
 using Cratis.AI.Providers;
@@ -21,6 +22,7 @@ namespace Cratis.AI.Configuration.Seeding;
 [Authorize(Policy = AIManagementPolicy.Name)]
 [Passive]
 [FromEvent<AgentConfigured>]
+[FromEvent<AgentRoleConfigured>]
 public record SeededAgentPresence(AgentId Id, AgentName Name);
 
 /// <summary>
@@ -44,7 +46,7 @@ public record SeedAgent(LanguageModelPurpose Purpose, AgentName Name, AgentDescr
     public EventSourceId GetEventSourceId() => AgentId.For(Purpose);
 
     /// <summary>
-    /// Handles the command by appending an <see cref="AgentConfigured"/> event when the purpose has no agent yet.
+    /// Handles the command by appending an <see cref="AgentRoleConfigured"/> and an <see cref="AgentAssignedToProvider"/> event when the purpose has no agent yet.
     /// </summary>
     /// <param name="current">The agent presence so far - <see langword="null"/> when there is none.</param>
     /// <returns>The events - none when the purpose already has an agent.</returns>
@@ -56,7 +58,7 @@ public record SeedAgent(LanguageModelPurpose Purpose, AgentName Name, AgentDescr
         }
 
         return Result<IEnumerable<object>, ValidationResult>.Success(
-            [new AgentConfigured(Purpose, Name, Description, Tier, ProviderId, null, Harness.Pi, Effort.High)]);
+            [new AgentRoleConfigured(Purpose, Name, Description, Tier, Harness.Pi, Effort.High), new AgentAssignedToProvider(ProviderId)]);
     }
 }
 
@@ -81,13 +83,19 @@ public class SeedAgentValidator : CommandValidator<SeedAgent>
         RuleFor(_ => _.Name).NotEqual(AgentName.NotSet).WithMessage("A name is required");
         RuleFor(_ => _.ProviderId).NotEqual(AIProviderId.NotSet).WithMessage("A provider is required");
         RuleFor(_ => _)
-            .MustAsync(async (command, _) => await AssignmentIsCompatible(command))
-            .WithMessage("The selected provider does not satisfy the capabilities required by this agent");
+            .CustomAsync(async (command, context, _) =>
+            {
+                var error = await AssignmentError(command);
+                if (error is not null) context.AddFailure(error);
+            });
     }
 
-    async Task<bool> AssignmentIsCompatible(SeedAgent command)
+    async Task<string?> AssignmentError(SeedAgent command)
     {
         var provider = await _readModels.GetInstanceById<ConfiguredAIProvider>((EventSourceId)command.ProviderId);
-        return provider is null || _compatibility.Supports(command.Purpose, provider.Type);
+        if (provider is null) return "The selected provider is unknown";
+        return _compatibility.Supports(command.Purpose, provider.Type)
+            ? null
+            : "The selected provider does not satisfy the capabilities required by this agent";
     }
 }

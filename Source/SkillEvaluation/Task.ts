@@ -8,7 +8,10 @@ export interface Task {
     run: number;
     prompt: string;
     withSkills: boolean;
+    arm?: 'v1' | 'v2' | 'none';
+    model?: string;
     shouldTrigger?: boolean;
+    sibling?: string | null;
     name?: string;
     expectedOutput?: string;
     assertions?: string[];

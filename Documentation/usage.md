@@ -94,6 +94,7 @@ migrations, no generations (`[EventType(generation: N)]`, `EventTypeMigration<T,
 evolve an event type in place and repair production at rollout with a documented scale-down +
 MongoDB registry/collection surgery procedure. `AgentSessionUsageRecorded` is the one event type
 from day one; the donor event types it replaces are retired via that same procedure at each
-product's actual cutover PR, not kept alive indefinitely as parallel types. Full detail, including
+product's actual cutover PR, not kept alive indefinitely as parallel types. The agent role/assignment split is an exception: it keeps the legacy event replayable alongside the
+new ones ([`agent-configuration.md`](./agent-configuration.md)). Full detail, including
 why the surgery is not run before a product actually ships against the new schema:
 [`decisions/0002-event-evolution-no-migrations.md`](./decisions/0002-event-evolution-no-migrations.md).

@@ -97,3 +97,34 @@ merely "not preferred."
   the procedure would have a real cost (production interruption on a cluster shared with the other
   product) for no corresponding benefit. It happens at the cutover PR, against the schema that PR
   actually ships, per step 4 above.
+
+## Amendment (2026-11-23) - agent role and assignment split (Cratis/AI#448)
+
+The prohibition on coexisting event types and the repair-at-rollout requirement above describe the
+usage cutovers and remain history. They do not govern the agent split: the maintainer decision on
+Cratis/AI#448 keeps legacy `AgentConfigured` replay working alongside the new `AgentRoleConfigured` and
+assignment events so shared-package consumers need no in-place repair at rollout. No generations or
+migrations are used. `ConfigureAgent` remains the legacy write path until a later major release. See
+[`../agent-configuration.md`](../agent-configuration.md).
+
+## Amendment - allowance observations alongside usage (Cratis/AI#375)
+
+For #375, `AgentSessionUsageRecorded` remains the sole consumption event, with its existing pinned
+identity, schema, stream and aggregate semantics unchanged. The legacy `RecordAgentSessionUsage`
+command remains supported. The new additive `RecordAgentSessionUsageWithCapacity` command prepares
+that same usage event once and appends it followed by `AgentSessionCapacityObserved` on the same
+session stream. The companion names the `UsageRecorded` boundary and records provider-wide remaining
+allowance, not a replacement usage type or the consumption of this task. Usage projections continue
+consuming only the original usage event; allowance consumers opt into the companion separately.
+
+This is a MINOR-compatible addition, not an in-place schema change. Historical events replay without
+invented allowance. **No migration, upcast, generation, backfill, production repair or maintenance
+window is required for #375.** The historical cutover repair procedure above remains scoped to those
+cutovers; the #448 amendment remains scoped to the agent split. Neither is generalized into a new
+repair policy by this amendment.
+
+Capture uses only existing cached observations and cannot start or wait for provider I/O. AI-owned
+usage writers cover completions, image completions, chat and completed streaming usage points;
+consumer start/stop orchestration and Direct are not changed. Direct remains paused. See
+[`../provider-capacity-boundaries.md`](../provider-capacity-boundaries.md) for the inventory, snapshot
+semantics and consumer guidance.

@@ -17,6 +17,7 @@ using Cratis.AI.Providers.Pools.Listing;
 using Cratis.AI.Providers.RateLimiting;
 using Cratis.AI.Providers.UsageReporting;
 using Cratis.AI.Usage;
+using Cratis.AI.Usage.Recording;
 using Cratis.Arc.Authorization;
 using Cratis.Arc.Http;
 using Cratis.Chronicle.ReadModels;
@@ -477,7 +478,7 @@ public sealed class PooledChatClient(
         {
             var agent = agents.FindByPurpose(purpose);
             using var scope = agentExecution.As(purpose);
-            var command = new RecordAgentSessionUsage(
+            var command = new RecordAgentSessionUsageWithCapacity(
                 AgentSessionId.New(),
                 agent?.Id ?? AgentId.NotSet,
                 modelId is null ? ModelName.NotSet : new ModelName(modelId),

@@ -178,6 +178,8 @@ prerequisite and runnable cases. Include first, changed and unchanged rows in th
 ## Reaction chains: one slice per specification
 A specification runs only its own slice. Prove a chain across slices link by link: the command's spec states its own events, the Automation's `when append` spec states what it appends, and `then invokes <Command>` (ESM v34) states a command it invokes in another slice. Another slice's event in a spec is PLAY0285. Never delete the reaction. Read [references/version-skew.md](references/version-skew.md) when a spec reports PLAY0285 or the bundled compiler is older than the standalone tool.
 
+For tag-sensitive behavior, include an exact ordered tag list or explicit `no tags` in the matrix's outcome evidence; omitted tags are unchecked. Read [then-event tags](../cratis-screenplay-specifications/references/event-tags.md) for ESM v55 syntax and the compiler prerequisite and why fixture/board views cannot prove tag coverage.
+
 ## Gate
 A scope is spec-complete only when: the matrix has no `open`, `question` or `gap` cell (or the
 scope is reported as explicitly incomplete); V1 passes with the tool named in

@@ -48,11 +48,18 @@ A reference the executable model does not hold refuses admission: CLI exit 1 wit
 - `--format json` carries `before` and `after` (path, source revision, persisted identities used, model revision) and a `difference` object.
 - Exit 0 compared; exit 2 could not run (including identities of two different applications).
 - `--format json` also carries `difference.slices`, the per-slice change summary: `slices` (each with `change`, `changes`, `beforeAddress`, `afterAddress`, `semanticId`, `declarations`, `dependentSlices`; change kinds `added`, `removed`, `renamed`, `moved`, `changed`), `modelWide` (changed declarations no slice owns: modules, features, concepts, types, policies, personas) and `affectedSlices` (unchanged slices that directly reference a changed slice or a model-wide declaration). Renames and moves appear only under identity matching; address matching reports one removed and one added slice. Dependencies are direct, not transitive: rebuild everything when `modelWide` is not empty.
+- On a capable tool, `--format json` also carries the additive `difference.agentExposure` (explicit agent allowlist changes; unknown is not unchanged). Minimum version and interpretation: [compare agent exposure](../../cratis-screenplay-model-review/references/baseline-comparison.md#compare-agent-exposure).
 - To compare two commits, `git worktree add` each into its own folder and diff the folders.
 
 ## Rename
 
-`screenplay rename <address> <new-name> [<folder>] [--kind <Command|EventContract|ReadModel|...>]` is the scriptable form of MCP `propose-rename` plus `apply`: it repairs references across files, keeps the element's semantic identity, pins a renamed event's stored type name with `id`, and writes (creating on the first rename) `.screenplay/identities.json`. Exit 0 renamed, 1 refused, 2 could not run.
+`screenplay rename <address> <new-name> [<folder>] [--kind <Command|EventContract|ReadModel|...>]` is the scriptable form of MCP `propose-rename` plus `apply`: for identity-bearing declarations, it repairs references across files, keeps the element's semantic identity, pins a renamed event's stored type name with `id`, and writes (creating on the first rename) `.screenplay/identities.json`. Exit 0 renamed, 1 refused, 2 could not run.
+
+Requires Screenplay 6.35.0 or later (`screenplay --version`) to rename a provided value through this CLI or MCP `propose-rename`. A `provide` has no semantic identity to preserve. Address it by its declaring module/feature/slice plus its name, or just its name at application scope, for example `screenplay rename Billing.Invoices.vessel ship path/to/screenplays`.
+
+Target the outermost declaration of the override chain. The planner renames it and its nested overrides, rewriting only the first path segment of each `$context.<name>` read proven to resolve to that chain; `$context.vessel.code` becomes `$context.ship.code`, not a payload-property rename. Unrelated chains and strings stay unchanged. Renaming an override, using a built-in context name, colliding with a provided name in an overlapping scope or capturing an existing read of the new name is refused. Unprovable opaque/unsupported reads, including ambiguous reusable availability reads across separate chains, also refuse: inspect the refusal and coordinate explicit typed edits where needed, never global replacement.
+
+Below the required version, upgrade the actual CLI/MCP or defer the rename. Use CLI/MCP, not VS Code/Monaco or a TypeScript rename operation. Do not infer editor or TypeScript support. MCP proposal review/apply details: [model authoring](../../cratis-screenplay-model-authoring/references/mcp-tools.md).
 
 ## Trace a value's lineage
 

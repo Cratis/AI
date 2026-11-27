@@ -193,13 +193,14 @@ test('git reflog selectors are revisions without hiding protected paths or globs
         mkdirSync(join(repo.root, '.cratis'));
         writeFileSync(join(repo.root, '.cratis/ai.manifest.json'), '{}');
         await checkCases([
-            ...['git stash show stash@{0}', 'git stash apply stash@{0}', 'git stash apply stash@{1}',
+            ...['git stash show stash@{0}',
                 'git stash show -p stash@{1}', 'git log stash@{0}', 'git show HEAD@{1}',
                 'git reflog show HEAD@{1}', 'git diff main@{upstream}', 'git show main@{push}',
                 'git show main@{u}', 'git show @{-1}', 'git stash list',
                 'git push origin stash@{0}:refs/heads/x',
             ].map(command => [ALLOW, command] as [string, string]),
-            ...['git stash push -- .cratis', 'git stash apply stash@{0} && touch .env',
+            ...['git stash push -- .cratis', 'git stash apply stash@{0}', 'git stash apply stash@{1}',
+                'git stash apply stash@{0} && touch .env',
                 'cat x@{.env}', 'cat x@{a,b}', 'touch stash@{0}/.env', 'touch stash@{0}/*.env',
                 'touch .env@{upstream}',
                 'touch package.json@{0}', 'touch .mcp.json@{1}', 'touch .claude/settings.json@{0}',

@@ -3,10 +3,12 @@
 
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
+import * as filesystem from 'node:fs';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join, relative, resolve } from 'node:path';
 import test from 'node:test';
+import { pathToFileURL } from 'node:url';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
 
@@ -62,8 +64,8 @@ add('allow', [
     'rm -rf ./Source/Foo/bin/', 'mv Source/Foo/bin /tmp/build-destination', 'find . -print', 'git status', 'echo "$PWD"',
     'cratis ai init', 'cratis ai update', 'cratis ai restore', 'dotnet format .', 'docker build -t x .', 'npx prettier --write .',
     'yarn eslint --fix .', 'npx eslint .', 'cp README.md .', 'cp src/a.txt ./', 'mv Source/Verification/README.md .',
-    'mv -t . Source/Verification/README.md', 'mv --target-directory=. README.md', 'tar -czf /tmp/o.tgz .', 'unzip x.zip -d .',
-    'chmod -R u+w .', 'git checkout -- .', 'git restore .', 'find .', 'find . -type f', 'find . -exec echo {} \\;', 'find . -exec ls {} +',
+    'mv -t . Source/Verification/README.md', 'mv --target-directory=. README.md', 'tar -czf /tmp/o.tgz .',
+    'chmod -R u+w .', 'find .', 'find . -type f', 'find . -exec echo {} \\;', 'find . -exec ls {} +',
     'rmdir Source/Foo/bin', 'git clean -ndx :/', "git clean -ndx ':(top)'", 'git clean -fdx --exclude -n -- node_modules',
     'cd Source && dotnet build .', 'pushd Source && npx prettier --write .', 'cd node_modules && rm -rf .', 'find . -exec echo rm {} \\;', 'find . -ok echo rm {} \\;',
     'rm -f notes.txt~', 'rm -rf "build (old)"', "rm -f '~'", 'sudo -u operator dotnet build .',
@@ -212,6 +214,8 @@ add('allow', [
 ], 'syntax-only shell option contexts', 'root', 'secrets');
 add('block', ['git clean -fdx :/', "git clean -fdx ':(top)'", 'nice git clean -fdx :/', 'rm -rf ../..'], 'subdirectory ancestor', 'sub');
 add('allow', ['rm -rf .'], 'unprotected subdirectory', 'sub');
+
+add('block', ['unzip x.zip -d .', 'git checkout -- .', 'git restore .'], 'explicit working-tree scope');
 
 function scratchRepository() {
     const root = mkdtempSync(join(tmpdir(), 'cratis-destructive-'));
@@ -364,6 +368,356 @@ test('all wrapper dispatches preserve stdin and redirections (direct guard)', { 
     }
 });
 
+test('bulk working-tree effects use destination scope and existing environment entries', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-archive-outside-'));
+    context.after(() => rmSync(outside, { recursive: true, force: true }));
+    mkdirSync(join(root, 'output/nested'), { recursive: true });
+    mkdirSync(join(root, 'clean/nested'), { recursive: true });
+    writeFileSync(join(root, 'output/nested/.ENV.local'), 'fixture');
+    symlinkSync(root, join(root, 'root-link'));
+    const cases: Array<[number, string]> = [
+        ...[
+            'tar xf bundle.tar', 'tar -xzf bundle.tgz -C .', 'tar --extract --file=bundle.tar --directory=./',
+            'tar -x -f bundle.tar -C sub/..', `tar xf bundle.tar -C '${root}'`, 'tar xf bundle.tar -C root-link',
+            'tar xf bundle.tar -C ..', 'cd clean && tar xf ../bundle.tar -C ..',
+            'unzip bundle.zip', 'unzip -o bundle.zip -d .', 'unzip bundle.zip -droot-link',
+            'rsync -a --delete src/ .', 'rsync -a --delete-after src/ ./',
+            'git restore .', 'git restore --source=HEAD --worktree .', 'git checkout -- .', 'git checkout HEAD -- ./',
+            'git checkout -f main', 'git checkout --merge main', 'git switch --discard-changes main',
+            'git stash apply', 'git stash pop stash@{0}', 'git reset --hard HEAD',
+            'git -C clean restore ..', 'git -C clean reset --hard', 'cd clean && git stash pop',
+            'rm -rf output', 'mv output elsewhere', 'find output -delete',
+            'rsync -a --delete src/ output/', 'tar xf bundle.tar -C output', 'unzip bundle.zip -d output',
+            'tar xf bundle.tar -C "$DIR"', 'git restore "$DIR"',
+            'tar xf bundle.tar -C clean', 'unzip bundle.zip -d clean',
+            `tar xf bundle.tar -C '${outside}'`, `unzip bundle.zip -d '${outside}'`,
+        ].map(command => [2, command] as [number, string]),
+        ...[
+            'tar tf bundle.tar', 'tar -czf bundle.tgz .',
+            'unzip -l bundle.zip', 'unzip -p bundle.zip', 'unzip -t bundle.zip', 'unzip -Z bundle.zip',
+            'rsync -a --delete src/ clean/', 'git status', 'git diff', 'git log -1', 'git stash list', 'git stash show',
+            'git restore --staged .', 'git restore --staged --source=HEAD .', 'git restore clean', 'git checkout HEAD -- clean',
+            'git checkout main', 'git checkout -b topic', 'git switch main', 'git switch -c topic',
+            'git reset --soft HEAD', 'git reset --mixed HEAD', 'rm -rf clean', 'find clean -delete',
+            'mv clean elsewhere', 'echo "tar xf bundle.tar; git restore ."',
+            "cat <<'EOF'\ntar xf bundle.tar\ngit restore .\nEOF",
+        ].map(command => [0, command] as [number, string]),
+    ];
+    try {
+        await Promise.all(cases.map(([expected, command]) => context.test(command, async scenario => {
+            const result = await shellVerdict(command, root, '0', scenario.signal);
+            assert.equal(result.status, expected, result.stderr);
+        })));
+        assert.ok(existsSync(join(root, 'output/nested/.ENV.local')));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('review r1 bulk families require exact options and conservative pathspec scope', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-archive-outside-'));
+    context.after(() => rmSync(outside, { recursive: true, force: true }));
+    mkdirSync(join(root, 'clean'));
+    const denied = [
+        'tar --extr -f bundle.tar', 'tar tf bundle.tar --unknown', 'tar -xOf bundle.tar --no-extract',
+        'unzip -p --p bundle.zip', 'unzip -l --unknown bundle.zip',
+        'rsync -an --unknown other/ .', 'cp --recur other/. .',
+        'git reset --har', 'git reset --soft --har', 'git restore --workt .', 'git checkout --forc main',
+        'git stash list --unknown', 'git stash apply --no-unknown', 'git switch --dis main', 'git clean -n --dry-ru',
+        'bsdtar xf bundle.tar', '/usr/bin/bsdtar xf bundle.tar', 'gtar xf bundle.tar', '/opt/bin/gtar --extract -f bundle.tar',
+        'ditto -x -k bundle.zip .', 'pax -r -f bundle.tar', 'cpio -id -F bundle.cpio',
+        '7z x bundle.7z', '/usr/bin/7z x bundle.7z -o.', '7za x bundle.7z -o.', '7zz x bundle.7z -o.',
+        'git read-tree -u HEAD', 'cd clean && git read-tree -u HEAD', 'git read-tree -u --prefix=. HEAD',
+        'git checkout-index -a', 'git checkout-index -af', 'git checkout-index -a --prefix=.',
+        'ditto --unknown bundle.zip clean', 'pax -w --unknown', 'cpio -t --unknown', '7z l --unknown bundle.7z',
+        'git read-tree --unknown HEAD', 'git checkout-index -a --unk --prefix=clean/',
+        'tar xf bundle.tar -C clean', 'bsdtar xf bundle.tar -C clean', '/usr/bin/bsdtar xf bundle.tar -C clean',
+        'gtar xf bundle.tar -C clean', '/opt/bin/gtar --extract -f bundle.tar --directory=clean',
+        'ditto -x -k bundle.zip clean', 'cd clean && pax -r -f ../bundle.tar', 'cpio -id -D clean -F bundle.cpio',
+        '7z x bundle.7z -oclean', '7za x bundle.7z -oclean', '7zz x bundle.7z -oclean',
+        `tar xf bundle.tar -C '${outside}'`,
+        `bsdtar xf bundle.tar -C '${outside}'`, `/usr/bin/bsdtar xf bundle.tar -C '${outside}'`,
+        `gtar xf bundle.tar -C '${outside}'`, `/opt/bin/gtar --extract -f bundle.tar --directory='${outside}'`,
+        `ditto -x -k bundle.zip '${outside}'`, `cd '${outside}' && pax -r -f ../bundle.tar`,
+        `cpio -id --no-absolute-filenames -D '${outside}' -F bundle.cpio`,
+        `7z x bundle.7z -o'${outside}'`, `7za x bundle.7z -o'${outside}'`, `7zz x bundle.7z -o'${outside}'`,
+    ];
+    for (const magic of [':!clean', ':^clean', ':clean', ':(exclude)clean', ':(top)clean', ':/clean']) {
+        denied.push(...['git restore --', 'git restore --staged --', 'git checkout --', 'git stash push --', 'git clean -fdx --'].map(verb => `${verb} '${magic}'`));
+    }
+    const allowed = [
+        'tar tf bundle.tar', 'tar xOf bundle.tar', 'tar -czf bundle.tgz .',
+        'pax -w -f bundle.tar clean', 'cpio -o -F bundle.cpio',
+        'unzip -p bundle.zip', 'unzip -l bundle.zip', 'rsync -an --delete other/ clean/', 'cp -r other/. clean',
+        'git reset --soft', 'git reset --mixed', 'git restore clean', 'git restore --staged .pi/settings.json',
+        'git checkout -b topic', 'git switch -c topic', 'git stash list', 'git stash show -p', 'git stash push -- clean',
+        'git checkout -- clean', 'git clean -n', 'git clean -fdx -- clean',
+        '7z l bundle.7z', 'cpio -t -F bundle.cpio',
+        'git read-tree HEAD', 'git read-tree -u --prefix=clean/ HEAD', 'git checkout-index -af --prefix=clean/',
+    ];
+    try {
+        await Promise.all([...denied.map(command => [2, command] as const), ...allowed.map(command => [0, command] as const)]
+            .map(([expected, command]) => context.test(command, async scenario => {
+                const result = await shellVerdict(command, root, '0', scenario.signal);
+                assert.equal(result.status, expected, result.stderr);
+            })));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('review r2 extraction is repository-wide and checkout-index requires a directory prefix', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-archive-outside-'));
+    context.after(() => rmSync(outside, { recursive: true, force: true }));
+    mkdirSync(join(root, 'clean'));
+    symlinkSync(root, join(outside, 'into-repo'));
+    symlinkSync(outside, join(root, 'external'));
+    const denied = [
+        'git checkout-index -af --prefix=.c', 'git checkout-index -af --prefix=clean',
+        'git checkout-index -af', 'git checkout-index --prefix=.claude/ -a',
+        'tar -xPf o.tar -C clean', 'bsdtar -xPf o.tar -C clean', 'tar --extract --absolute-names -f o.tar -C clean',
+        'unzip -p -- --p -o o.zip', 'unzip -l -o o.zip', 'unzip -l -d clean o.zip',
+        'bsdcpio -i', '/usr/bin/bsdcpio -i', 'bsdunzip o.zip', '/usr/bin/bsdunzip o.zip',
+        '7zr x o.7z', '/usr/bin/7zr x o.7z', 'jar xf o.jar', '/usr/bin/jar xf o.jar',
+        'ar x o.a', '/usr/bin/ar x o.a', 'unar o.zip', '/usr/bin/unar o.zip',
+        'jar -- xf o.jar', 'ar -- x o.a',
+        'cpio -i --no-absolute-filenames -D clean -F o.cpio', 'cd clean && jar xf ../o.jar',
+        'jar -x -f o.jar -C clean', 'ar x --output=clean o.a', 'unar -o clean o.zip',
+        'ditto -x -k o.zip clean', 'pax -r -f o.tar', '7z x o.7z -oclean',
+        `tar -xPf o.tar -C '${outside}'`, `tar -xf o.tar --absolute-names -C '${outside}'`,
+        `cpio -i -D '${outside}' -F o.cpio`, `tar -xf o.tar -C '${outside}/into-repo/clean'`,
+        `tar -xOf o.tar -- -P`, `unzip -p -- o.zip`,
+        "rsync -a -f '- .cache/' --delete other/ .", 'rsync -a -f', 'rsync -a -f -n --delete other/ .',
+        `tar -xzf o.tgz -C '${outside}'`, `bsdtar -xf o.tar -C '${outside}'`,
+        `gtar --extract --file=o.tar --directory='${outside}'`,
+        `unzip o.zip -d '${outside}'`, `bsdunzip o.zip -d '${outside}'`,
+        `bsdcpio -i --no-absolute-filenames -D '${outside}' -F o.cpio`,
+        `7zr x o.7z -o'${outside}'`, `jar xf o.jar -C '${outside}'`, `ar x --output='${outside}' o.a`,
+        `unar -o '${outside}' o.zip`, `tar -xf o.tar -C '${root}/external'`,
+    ];
+    const allowed = [
+        `git checkout-index --prefix='${outside}/' -a`, 'git checkout-index --prefix=clean/ -af',
+        'unzip -l o.zip', 'unzip -t o.zip', 'unzip -v o.zip', 'unzip -Z o.zip',
+        'tar -tf o.tar', 'tar -xOf o.tar f', 'unzip -p o.zip', 'unzip -p -o o.zip',
+        "rsync -a -f '- .cache/' --delete other/ clean/", "rsync -af'- .cache/' --delete other/ clean/",
+    ];
+    try {
+        await Promise.all([...denied.map(command => [2, command] as const), ...allowed.map(command => [0, command] as const)]
+            .map(([expected, command]) => context.test(command, async scenario => {
+                const result = await shellVerdict(command, root, '0', scenario.signal);
+                assert.equal(result.status, expected, result.stderr);
+                if (expected === 2 && !command.startsWith('git ') && !command.startsWith('rsync ')) {
+                    assert.match(result.stderr, /archive extraction cannot be checked by the guard/i);
+                }
+            })));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('review r3 archives refuse extraction, option environments and argfiles', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-archive-outside-'));
+    context.after(() => rmSync(outside, { recursive: true, force: true }));
+    const denied = [
+        `cd '${outside}' && UNZIP=-d'${root}' unzip x.zip`,
+        `UNZIPOPT=-d'${root}' unzip -l o.zip`, `export UNZIP=-d'${root}'; unzip x.zip`,
+        `env UNZIP=-d'${root}' unzip x.zip`, `env -S 'UNZIPOPT=-o unzip -l o.zip'`,
+        'TAR_OPTIONS=-P tar -xf o.tar', 'export TAR_OPTIONS=-P; tar -tf o.tar',
+        'UNZIP=x', 'UNZIP+=x; echo ordinary', 'TAR_OPTIONS[0]=-P; echo ordinary',
+        'export ZIPOPT=x; echo ordinary', 'export UNZIP; unzip -l o.zip',
+        'unzip -l o.zip; export UNZIP=x', 'export "$NAME=value"; tar -tf o.tar',
+        'tar -tf o.tar; export "$NAME=value"', 'env OTHER=$VALUE tar -tf o.tar',
+        "jar @/dev/stdin <<< 'xf o.jar'", `cd '${outside}' && jar @/dev/stdin <<< 'xf o.jar'`,
+        'tar @file', 'tar -tf @list', 'jar tf @list', '7z l @list',
+        'cd /var/empty && pax -r -f /tmp/o.tar', 'tar -xzf o.tgz -C /tmp/out',
+        '7z x -so o.7z',
+        'ditto ordinary /tmp/out', 'ditto -c -k ordinary /tmp/o.zip',
+        'tar o.tar', 'jar o.jar', 'ar o.a', '7z o.7z', 'cpio o.cpio',
+        'tar -txf o.tar', 'cpio -it -F o.cpio', 'jar xtf o.jar', 'ar xt o.a',
+    ];
+    const allowed = [
+        'tar -tf o.tar', 'tar -tvf o.tar', 'tar -xOf o.tar f', 'bsdtar -tf o.tar',
+        'gtar --list --file=o.tar', 'unzip -l o.zip', 'unzip -t o.zip', 'unzip -v o.zip',
+        'unzip -Z o.zip', 'unzip -p o.zip', 'bsdunzip -l o.zip', '7z l o.7z', '7za t o.7z',
+        'jar tf o.jar', 'jar --list --file=o.jar', 'ar t o.a', 'cpio -t -F o.cpio', 'bsdcpio -t -F o.cpio',
+        'git checkout-index --prefix=/tmp/x/ -a', 'OTHER=literal tar -tf o.tar', 'env OTHER=literal tar -tf o.tar',
+        '7z a o.7z ordinary', '7za u o.7z ordinary', 'pax -w -f o.tar ordinary',
+        'jar cf o.jar ordinary', 'ar r o.a ordinary', 'cpio -o', 'tar -cf o.tar ordinary',
+        'echo "UNZIP=-d/tmp/out"', "printf '%s\\n' 'TAR_OPTIONS=-P'",
+        "cat <<'EOF'\nexport UNZIP=-d/tmp/out\ntar xf o.tar\nEOF",
+    ];
+    try {
+        await Promise.all([...denied.map(command => [2, command] as const), ...allowed.map(command => [0, command] as const)]
+            .map(([expected, command]) => context.test(command, async scenario => {
+                const result = await shellVerdict(command, root, '0', scenario.signal);
+                assert.equal(result.status, expected, result.stderr);
+                if (expected === 2) assert.match(result.stderr, /archive extraction cannot be checked by the guard/i);
+            })));
+        for (const name of ['UNZIP', 'UNZIPOPT', 'TAR_OPTIONS', 'ZIPOPT']) {
+            const result = spawnSync('/bin/bash', [guard], {
+                cwd: root, encoding: 'utf8', timeout: 20000,
+                env: { ...process.env, [name]: '-P', HOME: tmpdir(), CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0' },
+                input: JSON.stringify({ cwd: root, tool_name: 'Bash', tool_input: { command: 'tar -tf o.tar' } }),
+            });
+            assert.equal(result.status, 2, name);
+            assert.equal(result.stdout, '');
+            assert.match(result.stderr, /archive extraction cannot be checked by the guard/i);
+        }
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('archive creation checks output paths and refuses source-deleting options', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-archive-sources-'));
+    context.after(() => rmSync(outside, { recursive: true, force: true }));
+    writeFileSync(join(outside, 'source.txt'), 'synthetic fixture');
+    writeFileSync(join(root, '.cratis/ai.json'), JSON.stringify({ protectedPaths: ['.claude/*'] }));
+    symlinkSync(join(root, 'Source'), join(outside, 'repo-link'));
+    const denied = [
+        'tar -czf .claude/x.tgz Source', 'tar -c --remove-files -f /tmp/o.tar .claude',
+        'tar -c --remove-files -f /tmp/o.tar Source', 'tar -c --remove-f -f /tmp/o.tar Source',
+        'tar -c --remove-files -C Source -f /tmp/o.tar .',
+        `tar -chf /tmp/o.tar --remove-files '${outside}/repo-link'`,
+        `tar -c --remove-files -C '${outside}/repo-link/..' -f /tmp/o.tar .`,
+        'tar -c --remove-files -C "$SOURCES" -f /tmp/o.tar file',
+        'tar -c --unknown -f .claude/x.tgz Source', 'tar -c --extr -f /tmp/o.tar Source',
+        'zip .claude/x.zip Source', 'zip -mr /tmp/o.zip Source',
+        '7z a .claude/o.7z Source', '7z a /tmp/o.7z -sdel Source',
+        'jar cf .claude/o.jar Source', 'ar q .claude/o.a Source',
+        'cpio -o -F .claude/o.cpio', 'pax -w -f .claude/o.tar Source',
+        'tar -cf /tmp/o.tar @list', 'TAR_OPTIONS=-P tar -cf /tmp/o.tar Source',
+        'tar -c --unknown -f /tmp/o.tar Source',
+        `tar -c --remove-files -f /tmp/o.tar '${outside}/source.txt'`,
+        `tar -c --remove-files -C '${outside}' -f /tmp/o.tar source.txt`,
+        `zip -m /tmp/o.zip '${outside}/source.txt'`, `7z a /tmp/o.7z -sdel '${outside}/source.txt'`,
+    ];
+    const allowed = [
+        'tar c ~/.aws', 'tar -czf /tmp/o.tgz Source', 'tar -cf - . | cat',
+        'tar --create --file=/tmp/o.tar --format=ustar Source',
+        'bsdtar -rf /tmp/o.tar Source', 'gtar -uf /tmp/o.tar Source', 'tar -Af /tmp/o.tar other.tar',
+        'zip -q /tmp/o.zip Source', 'zip -q - Source | cat',
+        '7z a /tmp/o.7z Source', '7za u /tmp/o.7z Source',
+        'jar cf /tmp/o.jar Source', 'jar c Source', 'ar r /tmp/o.a Source',
+        'cpio -o -F /tmp/o.cpio', 'cpio -o | cat', 'pax -w -f /tmp/o.tar Source',
+    ];
+    try {
+        await Promise.all([...denied.map(command => [2, command] as const), ...allowed.map(command => [0, command] as const)]
+            .map(([expected, command]) => context.test(command, async scenario => {
+                const result = await shellVerdict(command, root, '0', scenario.signal);
+                assert.equal(result.status, expected, result.stderr);
+            })));
+        assert.ok(existsSync(join(outside, 'source.txt')));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('review r4 creation admits only exact non-executing non-deleting options', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    const outside = mkdtempSync(join(tmpdir(), 'cratis-archive-sources-'));
+    context.after(() => rmSync(outside, { recursive: true, force: true }));
+    symlinkSync(root, join(outside, 'repo-link'));
+    const denied = [
+        `zip -rmq /tmp/x.zip '${outside}'`, `7z a /tmp/x.7z '${outside}' -sdel`,
+        `tar -chf /tmp/x.tar --remove-files '${outside}'`,
+        `bsdtar -cf /tmp/x.tar --remove-fi '${outside}'`, `gtar -cf /tmp/x.tar --remove-files '${outside}'`,
+        "tar -cf - --use-compress-program='git reset --hard' Source",
+        "tar -cf /tmp/o.tar --use-compress-prog='git reset --hard' Source",
+        "tar -cf /tmp/o.tar -I 'sh -c x' Source",
+        "tar --checkpoint=1 --checkpoint-action='exec=git reset --hard' -cf /tmp/o.tar Source",
+        "zip -q /tmp/o.zip Source -T -TT \"sh -c 'git reset --hard'\"",
+        'zip --unzip-command=x -T /tmp/o.zip Source',
+        'tar -cf /tmp/o.tar --to-command=x Source', 'tar -cf /tmp/o.tar --rsh-command=x Source',
+        'tar -cf /tmp/o.tar --info-script=x Source', 'tar -cf /tmp/o.tar -F x Source',
+        'tar -cf /tmp/o.tar --new-volume-script=x Source', 'tar -cf /tmp/o.tar --rmt-command=x Source',
+        'tar -tf o.tar --checkpoint=1', 'tar -xOf o.tar --use-compress-program=x',
+        'tar -cf /tmp/o.tar --form=ustar Source', 'zip --unknown /tmp/o.zip Source',
+        '7z a -si /tmp/o.7z Source', '7z a -so /tmp/o.7z Source', '7z a -mxexec /tmp/o.7z Source',
+    ];
+    const allowed = [
+        'tar -czf /tmp/o.tgz Source', 'tar -cf - . | cat', 'tar c ~/.aws', 'zip -r /tmp/o.zip Source',
+        'tar -tf o.tar', 'unzip -l o.zip', 'tar -xOf o.tar f',
+        'bsdtar -cjf /tmp/o.tbz Source', 'gtar -cJf /tmp/o.txz Source',
+        'tar -cvf /tmp/o.tar -C Source . --exclude=ignored', 'tar -cf /tmp/o.tar -T files.txt',
+        'tar --create --gzip --file=/tmp/o.tgz --files-from=files.txt',
+        'zip -9rq /tmp/o.zip Source -x ignored', 'zip -0j /tmp/o.zip Source',
+        '7z a -t7z -mx9 /tmp/o.7z Source', '7za a -tzip -mx=0 /tmp/o.zip Source',
+        'jar cvMf /tmp/o.jar Source', 'ar rcs /tmp/o.a Source',
+        'cpio -ov -H newc -F /tmp/o.cpio', 'pax -wv -x ustar -f /tmp/o.tar Source',
+    ];
+    try {
+        await Promise.all([...denied.map(command => [2, command] as const), ...allowed.map(command => [0, command] as const)]
+            .map(([expected, command]) => context.test(command, async scenario => {
+                const result = await shellVerdict(command, root, '0', scenario.signal);
+                assert.equal(result.status, expected, result.stderr);
+            })));
+        assert.ok(existsSync(join(outside, 'repo-link/.git')));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+const descendants = resolve(import.meta.dirname, '../../.cratis/ai/hooks/scripts/cratis-guard-writes-descendants.mjs');
+const environmentPatterns = ['.env', '.env.*', '*.env'];
+
+test('metadata scanner reports clean, matching, uncertain and bounded outcomes without following nested links', async () => {
+    const { inspectDescendants } = await import(pathToFileURL(descendants).href);
+    const root = scratchRepository();
+    try {
+        const clean = join(root, 'clean');
+        mkdirSync(join(clean, 'nested'), { recursive: true });
+        writeFileSync(join(clean, 'nested/a.txt'), 'fixture');
+        symlinkSync('..', join(clean, 'nested/cycle'));
+        assert.equal(inspectDescendants([clean, clean, join(clean, 'nested'), join(root, 'missing')], environmentPatterns), 0);
+        assert.equal(inspectDescendants([clean], environmentPatterns, { maxEntries: 1 }), 2);
+        let time = 0;
+        assert.equal(inspectDescendants([clean], environmentPatterns, { now: () => time++, maxMs: 1 }), 2);
+        for (const code of ['EACCES', 'ENOENT']) {
+            const fs = { ...filesystem, readdirSync: () => { throw Object.assign(new Error('fixture'), { code }); } };
+            assert.equal(inspectDescendants([clean], environmentPatterns, { fs }), 2, code);
+        }
+        const changed = { ...filesystem, lstatSync: () => ({ ...filesystem.lstatSync(clean), isDirectory: () => false }) };
+        assert.equal(inspectDescendants([clean], environmentPatterns, { fs: changed }), 2);
+        mkdirSync(join(clean, 'nested/.ENV'));
+        assert.equal(inspectDescendants([clean], environmentPatterns), 1);
+        const result = spawnSync(process.execPath, [descendants, '3', ...environmentPatterns, clean], { encoding: 'utf8' });
+        assert.equal(result.status, 1);
+        assert.equal(result.stdout, '');
+        assert.equal(result.stderr, '');
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('review r1 environment inventory handles control characters and unclassifiable names', async () => {
+    const { inspectDescendants } = await import(pathToFileURL(descendants).href);
+    const root = scratchRepository();
+    const directory = join(root, 'output');
+    mkdirSync(directory);
+    try {
+        for (const name of ['.env.\nlocal', 'service\n.env', '.ENV.\r\nLOCAL', '.env.\u0001local']) {
+            const file = join(directory, name);
+            writeFileSync(file, 'synthetic fixture');
+            assert.equal(inspectDescendants([directory], environmentPatterns), 1, JSON.stringify(name));
+            const result = await shellVerdict('rm -rf output', root);
+            assert.equal(result.status, 2, result.stderr);
+            rmSync(file);
+        }
+        const fs = { ...filesystem, readdirSync: () => [Buffer.from([0xff, 0x61])] };
+        assert.equal(inspectDescendants([directory], environmentPatterns, { fs }), 2);
+        assert.equal(inspectDescendants([directory], environmentPatterns), 0);
+        assert.equal((await shellVerdict('rm -rf output', root)).status, 0);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('a clean dependency-shaped tree completes inventory within the production budget', async context => {
+    const { inspectDescendants } = await import(pathToFileURL(descendants).href);
+    const root = scratchRepository();
+    try {
+        const directory = join(root, 'node_modules');
+        for (let packageIndex = 0; packageIndex < 128; packageIndex++) {
+            const packagePath = join(directory, `package-${packageIndex}`);
+            mkdirSync(packagePath, { recursive: true });
+            for (let fileIndex = 0; fileIndex < 32; fileIndex++) writeFileSync(join(packagePath, `file-${fileIndex}.js`), 'fixture');
+        }
+        const start = performance.now();
+        assert.equal(inspectDescendants([directory], environmentPatterns), 0);
+        context.diagnostic(`4224 clean dependency entries in ${(performance.now() - start).toFixed(1)}ms`);
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 test('large command-like comment data completes without executing or recursively inspecting it', { timeout: 5000 }, async context => {
     const root = scratchRepository();
     try {
@@ -377,4 +731,112 @@ test('large command-like comment data completes without executing or recursively
     } finally {
         rmSync(root, { recursive: true, force: true });
     }
+});
+
+// Candidate shell text is JSON data for the guard; it is never executed. Option-shaped
+// fixture names make the hostile expansion real without any command running. The reference
+// stage already refuses most `*` words for these verbs; the archive predicate must hold on its
+// own for `?`, bracket classes and quoted-empty prefixes, and still refuse every `*` spelling.
+const archiveOptionDenied = [
+    'tar -cf /tmp/o.tar ?x', 'tar -cf /tmp/o.tar ?', 'tar -cf /tmp/o.tar [a-z]x', 'tar -cf /tmp/o.tar [-a]', 'tar -cf /tmp/o.tar ?.txt',
+    "tar -cf /tmp/o.tar ''?", 'tar -cf /tmp/o.tar ""?x', 'tar -cf /tmp/o.tar Source ?x', 'tar -cf /tmp/o.tar -C Source ?x',
+    'tar -czf /tmp/o.tgz ?x', 'bsdtar -cf /tmp/o.tar ?x', 'gtar -cf /tmp/o.tar ?x', 'tar cf /tmp/o.tar ?x',
+    'tar -tf o.tar ?x', 'tar -xOf o.tar ?x',
+    // bsdtar reads `@archive` operands after `--` too, so a terminator alone does not admit tar.
+    'tar -cf /tmp/o.tar -- ?x', 'tar -cf /tmp/o.tar -- [a]x', 'bsdtar -cf /tmp/o.tar -- ?x', 'tar -cf /tmp/o.tar -- Source ?x',
+    'zip /tmp/o.zip ?x', 'zip -r /tmp/o.zip [a]x', 'zip -q /tmp/o.zip ""?', 'zip /tmp/o.zip Source ?x',
+    '7z a /tmp/o.7z ?x', '7z a /tmp/o.7z ""?', '7za u /tmp/o.7z [a]x',
+    'jar cf /tmp/o.jar ?x', 'ar r /tmp/o.a ?x', 'pax -w -f /tmp/o.tar ?x', 'cpio -o -F /tmp/o.cpio ?x',
+    // A quoted-empty prefix does not anchor an active glob in an option value.
+    'tar -cf ""? Source', 'tar -cf /tmp/o.tar -C ""? .', 'tar --file=""? Source', 'zip /tmp/o.zip Source -x ""?',
+    'tar -cf "" ?', 'tar -cf /tmp/o.tar -f ""*',
+    // `--` in an option-value position is data, not the terminator.
+    'zip /tmp/o.zip -x -- ?x', 'tar -cf -- ?x', '7z a -t -- ?x',
+    'env tar -cf /tmp/o.tar ?x', 'nice -n 5 zip /tmp/o.zip ?x', "sh -c 'tar -cf /tmp/o.tar ?x'", "bash -c 'tar -cf /tmp/o.tar -- ?x'",
+    'cd Source && tar -cf /tmp/o.tar ?x',
+    // The glob check anchors on a literal first character, but the older unresolved-expansion rule still refuses these.
+    'tar -cf /tmp/o.tar ./"$x"?', 'tar -cf /tmp/o.tar a"$x"?',
+    // Bash removes backslash-newline outside single quotes, so it never anchors a word.
+    'tar -cf /tmp/o.tar \\\n?x', 'tar -cf /tmp/o.tar \\\n-?', 'tar -cf /tmp/o.tar "\\\n"?x',
+    'tar -cf /tmp/o.tar ./a \\\n?-fixture-option=value', 'tar -cf /tmp/o.tar ./a \\\n--fixture-option=value',
+    // A terminator is not proof for any family, and ANSI-C escapes are never decoded here.
+    'zip /tmp/o.zip -- ?T', 'zip /tmp/o.zip -- ?x', '7z a /tmp/o.7z -- ?x', 'cpio -o -F /tmp/o.cpio -- ?x', 'pax -w -f /tmp/o.tar -- ?x',
+    "tar -cf /tmp/o.tar $'\\x2d'?", "tar -cf /tmp/o.tar $'\\055'x?", "tar -cf /tmp/o.tar ./a $'\\x2d\\x2dfixture-option=value'",
+    'tar -cf /tmp/o.tar $"x"?', 'tar -cf /tmp/o.tar "$PWD"/?x', 'tar -cf /tmp/o.tar $x?',
+    // An expansion before the glob can be empty, so it never anchors, quoted or not.
+    'tar -cf /tmp/o.tar ./a "$x"[-]-fixture-option=value', 'x=; tar -cf /tmp/o.tar ./a "$x"?-fixture-option=value',
+    'tar -cf /tmp/o.tar -- "$x"?x', 'tar -cf /tmp/o.tar "`true`"?x', 'bsdtar -cf /tmp/o.tar "$x"?archive.tar', '7z a /tmp/o.7z "$x"?',
+    // Every `*` spelling stays refused (here by the reference stage as well).
+    'tar -cf /tmp/o.tar *', 'tar -cf /tmp/o.tar *.txt', 'tar -cf /tmp/o.tar -- *', 'tar -cf /tmp/o.tar ""*', 'zip /tmp/o.zip *.txt',
+    '7z a /tmp/o.7z *', 'tar -cf ""* Source',
+];
+const archiveOptionAllowed = [
+    'tar -cf /tmp/o.tar ./?x', 'tar -cf /tmp/o.tar Source/?', 'tar -cf /tmp/o.tar ./[a]x', 'tar -cf /tmp/o.tar src/?.ts',
+    'tar -cf /tmp/o.tar "a"?', "tar -cf /tmp/o.tar '?'", 'tar -cf /tmp/o.tar "?"', 'tar -cf /tmp/o.tar \\?', "tar -cf /tmp/o.tar '[a]x'", 'tar -cf /tmp/o.tar Source',
+    'tar -cf /tmp/o.tar -- ./?x', 'tar -cf /tmp/o.tar -- Source', 'tar -tf o.tar ./?x', 'tar -C Source -cf /tmp/o.tar ./?',
+    'zip /tmp/o.zip ./?x', 'zip -r /tmp/o.zip Source/?', 'zip /tmp/o.zip "Source"?', 'zip /tmp/o.zip -- ./?x', 'tar -cf /tmp/o.tar "a"$x?',
+    '7z a /tmp/o.7z ./?x', '7z a /tmp/o.7z -- ./?x', '7z a /tmp/o.7z Source/?',
+    'jar cf /tmp/o.jar ./?x', 'ar r /tmp/o.a ./?x', 'pax -w -f /tmp/o.tar ./?x',
+    'tar -czf o.tgz \\\n Source', 'tar -cf /tmp/o.tar -T files.txt', 'tar -cf /tmp/o.tar -C Source .',
+    "sh -c 'tar -cf /tmp/o.tar ./?x'", 'env tar -cf /tmp/o.tar ./?x',
+];
+
+test('archive operands that can expand to options are refused unless anchored or after a proven terminator', { concurrency: 2 }, async context => {
+    // The directory holds option-shaped names, so a refusal cannot depend on a clean snapshot.
+    const root = scratchRepository();
+    try {
+        for (const name of ['-x', '-x.txt', '@x', '--fixture-option=value']) writeFileSync(join(root, name), 'synthetic fixture');
+        await Promise.all([...archiveOptionDenied.map(command => [2, command] as const), ...archiveOptionAllowed.map(command => [0, command] as const)]
+            .map(([expected, command]) => context.test(command, async scenario => {
+                const result = await shellVerdict(command, root, '0', scenario.signal);
+                assert.equal(result.status, expected, result.stderr);
+            })));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+const copyOptionCases: [number, string][] = [
+    [2, '?x'], [2, '""?x'], [2, '[a-z]x'], [2, '-- ?x'], [2, '*.md'], [2, '-- *.md'],
+    [2, '"$x"?x'], [2, '"$x"[-]-fixture-option=value'],
+    [2, "$'\\x2d\\x2dfixture-option=value'"], [2, "-- $'\\x2d\\x2dfixture-option=value'"],
+    [2, '--fixture-option=value source.txt'],
+    [0, './?x'], [0, "'?x'"], [0, '"a"?'], [0, '-- ./?x'], [0, 'source.txt'],
+];
+
+test('copy operands follow the exact option grammar', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    try {
+        for (const name of ['-x', '-x.txt', '-x.md', '--fixture-option=value']) writeFileSync(join(root, name), 'synthetic fixture');
+        const cases: [number, string][] = ['cp', 'rsync -an'].flatMap(verb =>
+            copyOptionCases.map(([expected, operand]): [number, string] => [expected, `${verb} ${operand} /tmp/d`]));
+        cases.push(
+            [2, 'cp -t ""? source.txt'], [0, 'cp -t /tmp/d source.txt'],
+            [2, 'rsync -f ""? source.txt /tmp/d'], [0, 'rsync -f +safe source.txt /tmp/d'],
+        );
+        await Promise.all(cases.map(([expected, command]) => context.test(command, async scenario => {
+            const result = await shellVerdict(command, root, '0', scenario.signal);
+            assert.equal(result.status, expected, result.stderr);
+        })));
+    } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
+test('copy source globs use bounded metadata only for simple literal commands', { concurrency: 2 }, async context => {
+    const root = scratchRepository();
+    try {
+        for (const name of ['notes.md', '-x.txt']) writeFileSync(join(root, name), 'synthetic fixture');
+        const cases: [number, string][] = [
+            [0, 'cp *.md /tmp/d'], [0, 'cp ?z /tmp/d'], [0, 'cp -- *.md /tmp/d'],
+            [0, 'rsync -a *.md /tmp/d'], [0, 'rsync -an *.md /tmp/d'],
+            [2, 'true; cp *.md /tmp/d'], [2, 'cp *.md /tmp/d; true'],
+            [2, 'env cp *.md /tmp/d'], [2, "sh -c 'cp *.md /tmp/d'"],
+        ];
+        await Promise.all(cases.map(([expected, command]) => context.test(command, async scenario => {
+            const result = await shellVerdict(command, root, '0', scenario.signal);
+            assert.equal(result.status, expected, result.stderr);
+        })));
+        writeFileSync(join(root, '-x.md'), 'synthetic fixture');
+        for (const command of ['cp *.md /tmp/d', 'rsync -a *.md /tmp/d']) {
+            const result = await shellVerdict(command, root);
+            assert.equal(result.status, 2, result.stderr);
+        }
+    } finally { rmSync(root, { recursive: true, force: true }); }
 });

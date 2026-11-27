@@ -18,12 +18,60 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import test from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
-import { pathWithout } from './fixtures/path-without-tool.ts';
+import { hookTools, pathWithout } from './fixtures/path-without-tool.ts';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const guard = join(repositoryRoot, '.cratis', 'ai', 'hooks', 'scripts', 'cratis-guard-writes.sh');
 const shellGuard = join(repositoryRoot, '.cratis', 'ai', 'hooks', 'scripts', 'cratis-guard-shell-writes.sh');
+
+function scopedReferences(root: string, paths: string[], mode = '--destructive-references', env: NodeJS.ProcessEnv = {}) {
+    const result = spawnSync('/bin/bash', [guard, mode], {
+        cwd: root, input: JSON.stringify({ cwd: root, tool_input: { file_paths: paths } }), encoding: 'utf8',
+        env: { ...process.env, CLAUDE_PROJECT_DIR: root, CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '0', ...env },
+    });
+    assert.ok(result.status === 0 || result.status === 2, result.stderr);
+    return result;
+}
+
+test('destructive directory inventory is existence-based and leaves ordinary references and writes unchanged', () => {
+    const repo = scratchRepository();
+    try {
+        mkdirSync(join(repo.root, 'output/deep'), { recursive: true });
+        mkdirSync(join(repo.root, 'clean'));
+        symlinkSync('output', join(repo.root, 'alias'));
+        for (const name of ['.env', '.env.local', 'service.env', '.ENV.LOCAL']) {
+            const file = join(repo.root, 'output/deep', name);
+            writeFileSync(file, 'synthetic fixture');
+            assert.notEqual(scopedReferences(repo.root, ['output']).stdout, '', name);
+            assert.notEqual(scopedReferences(repo.root, ['alias']).stdout, '', name);
+            assert.equal(scopedReferences(repo.root, ['output'], '--references').stdout, '');
+            assert.equal(runGuard({ cwd: repo.root, tool_input: { file_path: join(repo.root, 'output/plain.txt'), content: 'x' } }, repo.root).verdict, ALLOW);
+            rmSync(file);
+        }
+        symlinkSync('missing', join(repo.root, 'output/deep/.env.link'));
+        assert.notEqual(scopedReferences(repo.root, ['output']).stdout, '');
+        rmSync(join(repo.root, 'output/deep/.env.link'));
+        symlinkSync('../output', join(repo.root, 'clean/nested-link'));
+        writeFileSync(join(repo.root, 'output/.env'), 'fixture');
+        assert.equal(scopedReferences(repo.root, ['clean', 'missing']).stdout, '');
+        assert.equal(scopedReferences(repo.root, ['output'], '--destructive-references', { CRATIS_HOOKS_ALLOW_PROTECTED_WRITES: '1' }).stdout, '');
+    } finally { repo.dispose(); }
+});
+
+test('missing inventory runtime refuses only directory inventory calls', () => {
+    const repo = scratchRepository();
+    const isolated = pathWithout('node', [...hookTools, 'jq']);
+    try {
+        mkdirSync(join(repo.root, 'clean'));
+        const env = { PATH: isolated.path };
+        const result = scopedReferences(repo.root, ['clean'], '--destructive-references', env);
+        assert.equal(result.status, 2);
+        assert.match(result.stderr, /directory inventory could not be completed/);
+        assert.equal(scopedReferences(repo.root, ['clean'], '--references', env).status, 0);
+        assert.equal(scopedReferences(repo.root, ['missing.txt'], '--destructive-references', env).status, 0);
+    } finally { isolated.dispose(); repo.dispose(); }
+});
 
 const BLOCK = 'block';
 const ALLOW = 'allow';
@@ -742,7 +790,8 @@ test('repository manifest settings override the origin default identically throu
                     assert.equal(bridged?.block === true, expected === BLOCK, `Pi: ${origin}, ${configuration}, ${name}`);
                 });
                 const ordinaryPath = join(repo.root, 'package.json.md');
-                assert.equal((await runGuardAsync({ cwd: repo.root, tool_input: { file_path: ordinaryPath, content: '{}' } }, repo.root)).verdict, ALLOW, 'ordinary files remain writable');
+                // An unparsable .cratis/ai.json protects the whole repository (protectedPaths cannot be read), so nothing is ordinary there.
+                assert.equal((await runGuardAsync({ cwd: repo.root, tool_input: { file_path: ordinaryPath, content: '{}' } }, repo.root)).verdict, configuration === 'not json' ? BLOCK : ALLOW, 'ordinary files remain writable unless the configuration is unparsable');
             }
         } finally {
             repo.dispose();

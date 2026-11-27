@@ -15,10 +15,10 @@ not opted in.
 
 ## Thresholds and checking
 
-The floor (touched files end at Code Health 9.5 or higher), the checking steps and the
-no-fix-loops process are the universal rule [code-health.md](./code-health.md). The
-`safeguarding-ai-generated-code` instruction to refactor when a review reports problems
-applies to every touched file, not only to problems the change introduced.
+Scope follows [criticality tiers](./criticality-tiers.md); the floor, checking steps
+and no-fix-loops process are in [code-health.md](./code-health.md). Tier C requires
+no Code Health scoring or uplift; a narrow fix does not require unrelated legacy uplift.
+Vendored refactoring instructions do not expand that scope.
 
 CodeScene categories, for reference: **10 optimal**, **9–9.9 green**, **4–8.9 yellow**,
 **1–3.9 red**. Project target: **Hotspot Code Health at least 9**, with no downward trend.

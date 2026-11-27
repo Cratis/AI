@@ -78,7 +78,7 @@ redaction. Check the append mappings and every resulting event property, and rec
 the target stores raw or last-seen source records and how they are minimized.
 Personal data kept in events needs bare `pii` on its concept and a declared purpose
 (see command-surface `references/compliance.md`); keep the marker
-even when it blocks binding. Never record bearer tokens, magic links or signed URLs as facts
+even when it blocks binding. Never record bearer tokens, magic links or signed URLs as facts ([`secrets.md`](../../rules/secrets.md))
 (a keyed hash or reference at most), and never put PII on the event-source id.
 
 ## Product sources

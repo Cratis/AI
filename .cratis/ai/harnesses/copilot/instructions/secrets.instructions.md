@@ -23,6 +23,7 @@ they also hold without it.
 - **[contract] Command-text checks cannot see** shell-piped code (`… | sh`, `bash -c "$(…)"`),
   recursive searches without filenames (`grep -r PASSWORD .`), or paths hidden in variables,
   aliases or scripts. The rules still apply; output redaction is the backstop.
+- **[contract] Inline refusals:** Read exact non-credential files.
 - **[contract] After a guard block, narrowing to literal non-credential files is supported remediation,
   not a workaround.** Follow `Use instead`; never disguise the same secret read.
 
@@ -37,3 +38,19 @@ they also hold without it.
   shared (see [`local-work-artifacts.md`](./local-work-artifacts.instructions.md)).
 - **[contract] The escape hatch is a human's.** `CRATIS_HOOKS_ALLOW_SECRET_READS=1` is set by the
   person who authorized the read, in the harness environment, never by an agent.
+
+## Data channels
+
+- **[contract] A credential never enters a data channel:** a log line, metric label or telemetry
+  attribute, plaintext or indexed tag, emitted or shared URL (bearer token in a query string, magic
+  or signed link), serialization or export artifact, capture configuration file, or recorded fact.
+  Record a nonsecret identifier or keyed hash. Approved authentication configuration and secret
+  stores may carry a credential through their own protocol; never copy that value onward.
+- **[contract] Never log or copy a connection string, webhook credential or generated capture
+  value.** Never seed production secret or concept generation; fixed values are for tests.
+- **[contract] No development credential in production:** neither a known development secret nor a
+  development identity persisted in reused storage (a development kernel's stored application).
+  Replace or remove it before the store serves production.
+- **[contract] Telemetry and tags stay bounded and impersonal:** metric labels are bounded
+  categories (no unbounded entity ids); no personal or business payload in a plaintext tag;
+  legacy-capture attributes exclude `url.full`, `db.statement`, user and e-mail values.

@@ -1,0 +1,95 @@
+{
+  "skill": "cratis-components-host-chat",
+  "queries": [
+    {
+      "query": "When I switch topics in the chat pane I want only that conversation's history to show. What should the host own?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "I sent a message and changed conversations before the server replied. How do I put the result in the original thread?",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Bind the message list to a topic id.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "A rejected chat message shows up as delivered.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Prevent a late reply from appearing under the new topic.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Feed chat messages from an observable query.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Verify a failed send is visible only in its own conversation.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Connect host persistence to the chat composer.",
+      "shouldTrigger": true
+    },
+    {
+      "query": "Show feedback after the confirmed request settles.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-coordinate-feedback.",
+      "sibling": "cratis-components-coordinate-feedback"
+    },
+    {
+      "query": "The component shows Saved even when the generated command rejects.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-react-bind-slice.",
+      "sibling": "cratis-arc-react-bind-slice"
+    },
+    {
+      "query": "Name the empty state of the query-backed list.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-display-list.",
+      "sibling": "cratis-components-display-list"
+    },
+    {
+      "query": "Find why the live query endpoint stopped delivering updates.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-diagnose-live-query.",
+      "sibling": "cratis-arc-diagnose-live-query"
+    },
+    {
+      "query": "Check focus and commit with arrows and Tab.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-choose-control.",
+      "sibling": "cratis-components-choose-control"
+    },
+    {
+      "query": "Move field validation messages into the open command dialog.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-components-submit-form.",
+      "sibling": "cratis-components-submit-form"
+    },
+    {
+      "query": "Extract coordination from a complicated React editor into an Arc view model.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-arc-react-separate-view-model.",
+      "sibling": "cratis-arc-react-separate-view-model"
+    },
+    {
+      "query": "Write a browser specification for an existing widget without changing the UI.",
+      "shouldTrigger": false,
+      "note": "Route to cratis-specifications-observe-ui.",
+      "sibling": "cratis-specifications-observe-ui"
+    },
+    {
+      "query": "What causes a rainbow to have a second, fainter band?",
+      "shouldTrigger": false,
+      "sibling": null
+    },
+    {
+      "query": "Suggest a rainy-day activity for two children who like drawing.",
+      "shouldTrigger": false,
+      "sibling": null
+    }
+  ]
+}

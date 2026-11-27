@@ -7,13 +7,13 @@ import { join } from 'node:path';
 import { stageDependencies } from './dependencies.ts';
 
 /** No model/opt-in hints: the baseline must not be handed the lifecycle answers. */
-export async function workspace(skillsDirectory?: string, parent = tmpdir()): Promise<{ path: string; remove: () => Promise<void> }> {
+export async function workspace(skillsDirectory?: string, parent = tmpdir(), dereference = true): Promise<{ path: string; remove: () => Promise<void> }> {
     const path = await mkdtemp(join(parent, 'cratis-skill-evaluation-'));
     try {
         await writeFile(join(path, 'README.md'), '# Harbor Rentals\n\nA boat-rental application using Cratis Arc and Chronicle on a C# backend, MongoDB read models, and a React frontend. Features include boats, bookings, customers, and payments.\n');
         if (skillsDirectory) {
             await mkdir(join(path, '.claude'));
-            await cp(skillsDirectory, join(path, '.claude', 'skills'), { recursive: true, dereference: true });
+            await cp(skillsDirectory, join(path, '.claude', 'skills'), { recursive: true, dereference });
             await stageDependencies(skillsDirectory, join(path, '.claude'));
             // Both relative skill links and repository-root corpus paths resolve inside this snapshot.
             await mkdir(join(path, '.cratis'));

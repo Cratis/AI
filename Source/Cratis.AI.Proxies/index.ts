@@ -17,6 +17,7 @@ export * as Configuring from './generated/Providers/Configuring';
 
 export * from './generated/Agents';
 export * from './generated/Agents/Configuring';
+export * from './generated/Agents/Defining';
 export * from './generated/Agents/Listing';
 export * from './generated/Agents/Skills';
 export * from './generated/Agents/Skills/Adding';
@@ -57,4 +58,5 @@ export * from './generated/Providers/UsageReporting/SettingCredential';
 export * from './generated/Providers/UsageReporting/Snapshots';
 export * from './generated/Usage';
 export * from './generated/Usage/Daily';
+export * from './generated/Usage/Recording';
 export * from './generated/Usage/Trends';
