@@ -1,7 +1,7 @@
 ---
 name: cratis-specifications-observe-ui
 description: Use when a frontend author needs to check keyboard interaction, dialog focus or visible input in a Storybook play function. Not for proving backend validation.
-compatibility: Requires React Storybook with @storybook/react-vite, the Library UI packages and generated proxies. The running application check requires Playwright.
+compatibility: Requires React Storybook with @storybook/react-vite, the Library UI packages and generated proxies. The running application check requires an authenticated browser session.
 ---
 
 # Open the real Add author dialog in a story
@@ -42,7 +42,7 @@ export const OpensAndEditsName: StoryObj<typeof meta> = {
 
 ## Check submission on the running Library application
 
-Choose an authenticated live browser for command-to-row delivery. Put this helper in `Features/Authors/Registration/verifyKeyboardRegistration.mjs` and pass a page on Authors in a fresh namespace, plus a unique name. Wait for the row without reloading. `locator.press()` targets the element; it does not test how Tab gets there.
+Use the project's existing authenticated browser harness for command-to-row delivery. Start on Authors in a fresh namespace, submit a unique name and wait for its row on the same open page without reloading. Any harness that can do this satisfies the live check. For example, with Playwright, put this helper in `Features/Authors/Registration/verifyKeyboardRegistration.mjs` and pass it that page and name. `locator.press()` targets the element; it does not test how Tab gets there.
 
 ```js
 export async function verifyKeyboardRegistration(page, name) {

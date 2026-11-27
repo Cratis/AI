@@ -47,6 +47,7 @@ Register the same `AuthorId` with different names in tenant A and tenant B as au
 
 ## When it goes off the usual path
 
+- **One deployment tenant contains several organizations:** use `options.UseFixedTenancy("library")` when every organization shares the `library` Chronicle namespace through tenant-based namespace resolution. With `ClaimsTenantMembership` above, the caller still needs a verified `member_of` claim with value `library`. Tenant membership does not grant access to every row. For example, filter an editor's author list to their authorized organization and check the author's organization before allowing an edit. Test that an editor for A cannot edit B's author by ID even though both use `library`.
 - **An authorized background job runs without a request:** inject `ITenantScope tenantScope` and call `using var scope = tenantScope.Begin(tenantId);` before resolving tenant-bound services in a fresh DI scope. The worker must authorize `tenantId` first; `Begin` does not run `ITenantMembership`. Do not reuse services from a previous tenant's job.
 
 ## Avoid

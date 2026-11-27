@@ -24,6 +24,8 @@ curl -fsS "$url&page=1" -o second.json
 node scripts/check-pages.mjs first.json second.json id
 ```
 
+If some fields are masked, reject unauthorized sorts before Arc orders the rows: their order can reveal a hidden field's ranking. In a discovered `IQueryFilter.OnPerform`, return `QueryResult.Success(context.CorrelationId)` for other fully qualified query names or `Sorting.None`. For this query, compare `context.Sorting.Field.Value` against the caller's allowed fields using `StringComparer.OrdinalIgnoreCase`; return success for a match and `QueryResult.Unauthorized(context.CorrelationId)` otherwise. Restrict the query to authorized rows before Arc counts them. Test that a reader can sort by `Id` but is refused when requesting a masked field.
+
 ## Avoid
 
 - Do not call `ToList()` before returning; that moves paging off the database.

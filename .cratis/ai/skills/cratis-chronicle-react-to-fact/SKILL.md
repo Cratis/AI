@@ -10,10 +10,11 @@ Implement the local automation with a reactor, an observer that acts on a commit
 
 1. Reference `Cratis.Chronicle`. Put `RegistrationNotice` in the feature that sends directory notices. Import `AuthorRegistered` from [Record an event](../cratis-chronicle-record-event/SKILL.md).
 2. Implement `IReactor`. Take `AuthorRegistered` and `ReactorDelivery` in the public handler. In the host, register the actual adapter with `builder.Services.AddScoped<IAuthorDirectory, AuthorDirectory>();`, where `AuthorDirectory` implements `IAuthorDirectory`. With default discovery, a concrete `IReactor` in the backend assembly needs no separate reactor registration.
-3. Pass `delivery.Id` with the author's name. The directory must recognize repeated calls with that key. Return its `Task` without catching exceptions so Chronicle can record the failure and retry delivery.
+3. Pass `delivery.IdempotencyKeyFor("announce")` with the author's name. The directory must recognize repeated calls with that key. Return its `Task` without catching exceptions so Chronicle can record the failure and retry delivery.
 
 ```csharp
 // Features/Authors/Directory/RegistrationNotice.cs
+using Cratis.Chronicle.EventSequences;
 using Cratis.Chronicle.Reactors;
 using Library.Features.Authors.Registration;
 
@@ -21,13 +22,13 @@ namespace Library.Features.Authors.Directory;
 
 public interface IAuthorDirectory
 {
-    Task Announce(DeliveryId key, string name);
+    Task Announce(IdempotencyKey key, string name);
 }
 
 public class RegistrationNotice(IAuthorDirectory directory) : IReactor
 {
     public Task Registered(AuthorRegistered @event, ReactorDelivery delivery) =>
-        directory.Announce(delivery.Id, @event.Name);
+        directory.Announce(delivery.IdempotencyKeyFor("announce"), @event.Name);
 }
 ```
 
@@ -35,7 +36,9 @@ public class RegistrationNotice(IAuthorDirectory directory) : IReactor
 
 One-off wiring check with a disposable receiver. If the application owns deduplication, commit a spec of that decision at the receiver; don't add a hosted spec of Chronicle retry. See [exercise the backend](../cratis-specifications-exercise-backend/SKILL.md).
 
-Have the directory save the first notice, then fail before acknowledging it. Deliver the same occurrence again; assert one notice with the expected name. Reuse `delivery.Id` for retries. An author ID would collapse distinct occurrences.
+Have the directory save the first notice, then fail before acknowledging it. Deliver the same occurrence again; assert one notice with the expected name. Keep the effect name unchanged on retry so the receiver sees the same key. An author ID would collapse distinct occurrences.
+
+If the same delivery also sends email, pass `delivery.IdempotencyKeyFor("email")` to the email adapter's `IdempotencyKey` parameter. Each receiver must deduplicate its own key atomically with its effect, so a retry can finish the email without repeating the announcement.
 
 ## When it goes off the usual path
 

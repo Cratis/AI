@@ -58,7 +58,7 @@ export function RemoveAuthorButton({ name, remove }: { name: string; remove: () 
 
 ## Choose feedback for the wait
 
-Default to local pending feedback for a short row action. Keep the re-entry guard separate from visible progress: confirmation is a choice, not a request in flight.
+Default to local pending feedback for a short row action. Keep the re-entry guard separate from visible progress: confirmation is a choice, not a request in flight. For a one-click row action without confirmation, use the same ref guard: set it before the first await and release it in `finally` on success or failure. Disabling the button on the next render is too late to guard a second invocation.
 
 Choose the shared busy dialog when the user must wait before continuing. Import `{ useBusyIndicator }` from `@cratis/arc.react/dialogs` and add `const [showBusy, closeBusy] = useBusyIndicator('Removing author…');` in `RemoveAuthorButton`. After Yes, wrap `await remove()` with `void showBusy(); try { await remove(); } finally { closeBusy(); }`. Do not await `showBusy()`; it resolves when the dialog closes.
 

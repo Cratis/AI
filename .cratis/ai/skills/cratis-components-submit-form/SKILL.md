@@ -59,6 +59,7 @@ Read the generated command type before choosing field accessors; use its propert
 
 ## When it goes off the usual path
 
+- **The server owns translated field messages:** send the selected locale through `<Arc httpHeadersCallback={() => ({ 'Accept-Language': locale })}>` and configure the backend to honor it. Return user-facing rule messages with the affected member names so the form can place them beside the fields. The header does not translate client-side errors or dialog labels.
 - **Enter could activate confirmation on open:** import `{ DialogInitialFocus }` from `@cratis/components/Dialogs` and pass `initialFocus={DialogInitialFocus.Content}` to focus the title, then test that Enter there does not submit and Tab reaches the editable field.
 - **The command is refused:** keep the dialog open. A field violation needs a correction; denied authorization needs a caller with permission, not a different field value.
 

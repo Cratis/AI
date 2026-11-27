@@ -52,6 +52,8 @@ Use a theme token for a color change, scoped to the smallest wrapper that should
 
 As a one-off check, inspect a control that uses both primary tokens, such as the chat topic start button. Switch between light and dark mode and check the computed text and background colors on the button itself. Normal-sized text should have at least 4.5:1 contrast in both modes.
 
+When the product design system owns the whole palette, keep the `tokens` and `styles` imports but omit `@cratis/components/theme`. Map the `--cratis-*` roles to product tokens in unlayered CSS after the imports. The product then supplies its own light, dark and forced-colors treatment; the baseline scheme classes no longer supply colors.
+
 ## Scope action colors to a themed panel
 
 Override the action tokens on the panel wrapper itself. Match the explicit-light selector when the panel is light inside a dark theme. Pair the action foreground with all three backgrounds; do not set ordinary panel `color` as a substitute.

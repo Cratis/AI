@@ -33,6 +33,8 @@ export const Authors = ({ onOpen }: { onOpen: (id: Author['id']) => void }) => (
 
 `emptyMessage` describes a successful query with no rows. Use `loadingMessage`, `unauthorizedMessage` and `failureMessage` to customize the other states; don't convert a failed query to an empty array. For a one-off check in the existing story, switch between two rows with the same name and confirm that inspection follows the selected ID. If the TypeScript Specifications profile is installed, use `cratis-specifications-observe-ui`.
 
+By default, search and column filters match only the loaded page. Set `globalFilterFields={['name']}` to show the search box. When users need to find a row on any page, pass `serverQuery` with `toArguments` mapping the search text (`globalFilter`) and any active filters to the generated query's arguments. Apply those arguments in the query and return an `IQueryable` (or use MongoDB `Observe` for a live list) so Arc sorts and pages the filtered result.
+
 ## Avoid
 
 - Don't call `AllAuthors.use()` separately; `DataPage` already subscribes.
