@@ -41,7 +41,7 @@ if (!name.trim()) return <p>Enter an author name.</p>;
 
 ## Configure the host
 
-- Set `apiBasePath` on `Arc` to the API prefix. Set `microservice` to the target service name if the host serves several microservices.
+- For a custom prefix, use `<Arc apiBasePath="/library-api"><App /></Arc>`. For a named service, set `microservice="catalog"` on that same `Arc` element, using the actual service name.
 
 ## Avoid
 
@@ -50,7 +50,7 @@ if (!name.trim()) return <p>Enter an author name.</p>;
 ## When it goes off the usual path
 
 - **Rows aren't ready or access was denied:** show loading or error, not an empty list. Show an empty list only for a ready, successful result with no rows.
-- **The account switches:** hide the previous caller's rows. Check `useIdentity()` (`@cratis/arc.react/identity`) for loading and sign-in state. Once the new credentials are active, call `arc.reconnectQueries?.()` on the `ArcContext` value read with `useContext` and wait for a fresh result before displaying rows.
+- **The account switches:** have the sign-in flow hide or unmount the old caller's view before activating the new credentials. In the component coordinating the switch, import `useContext` from `react` and `ArcContext` from `@cratis/arc.react`, then read `const arc = useContext(ArcContext);`. After installing the new credentials, call `arc.reconnectQueries?.();` and remount the query view. Show loading until the newly mounted view has a result.
 
 ## Related skills
 

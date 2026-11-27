@@ -25,7 +25,7 @@ export function BookExplorer({ books }: { books: Book[] }) {
 }
 ```
 
-Return structured text from `cardRenderer`. Put interactive React content in `detailRenderer`.
+Return structured text from `cardRenderer`. Put interactive React content in `detailRenderer={book => <button onClick={() => openBook(book.id)}>Open book</button>}`, where `openBook` is the host's navigation callback.
 
 ## Show the versions of a book
 

@@ -112,5 +112,4 @@ module Library
 
 ## When it goes off the usual path
 
-- **A changed field matters:** seed the prior observation for the same key, then supply the new value. A first observation is an addition, not a transition.
 - **The provider reuses keys:** settle which immutable source identity belongs to the same author before writing the mapping. Don't substitute the display name or silently merge histories.

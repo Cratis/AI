@@ -6,7 +6,7 @@ compatibility: Requires the Cratis package, which supplies Arc and FluentValidat
 
 # Require an author name
 
-Ask whether the value is invalid everywhere or only for this command. Put an invariant of a shared concept in its `ConceptValidator<T>`; keep a registration-only rule (or a rule on a plain string) in `CommandValidator<RegisterAuthor>`. Required state for a decision belongs in the decision path, not in a format rule.
+Use a command validator for the registration rule below on a plain string. To require a nonempty value wherever `AuthorName` is itself validated, put `public class AuthorNameValidator : ConceptValidator<AuthorName> { public AuthorNameValidator() => RuleFor(name => name.Value).NotEmpty(); }` next to `AuthorName`. Import `Cratis.Arc.Validation` and `FluentValidation`.
 
 Add the validator beside [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) in `Features/Authors/Registration/RegisterAuthor.cs`. Arc discovers `CommandValidator<RegisterAuthor>`; no dependency injection registration is necessary. Keep the file's existing namespace declaration; add the validator class below the command. Add `using Cratis.Arc.Commands;` for the base class and `using FluentValidation;` for the rule extensions unless those namespaces are already in scope.
 
@@ -24,7 +24,7 @@ The execute pipeline applies blocking validation before `Handle`. A separate `/v
 
 ## When it goes off the usual path
 
-- **A warning is allowed to pass:** Arc filters it out of `ValidationResults`; do not expect it alongside a successful result. For a non-waivable check, set a server blocking policy with `BlockOnValidationSeverity` instead of relying on client confirmation.
+- **A warning is allowed to pass:** Arc filters it out of `ValidationResults`; do not expect it alongside a successful result. To block even confirmed warnings, put `[BlockOnValidationSeverity(ValidationResultSeverity.Warning)]` on the command. Import `Cratis.Arc.Commands.ModelBound` and `Cratis.Arc.Validation`.
 
 ## Avoid
 

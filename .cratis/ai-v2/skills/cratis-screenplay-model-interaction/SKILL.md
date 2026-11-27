@@ -45,11 +45,11 @@ screen Authors
         with authorId from item.id
 ```
 
-Default to a screen action when no row is needed. Choose `for item` when the action needs the selected row's key. Pass that key from the row; add form fields only for input the user must supply.
+Keep Add as `action RegisterAuthor for screen`: it needs no selected row. The inspection gesture above passes `item.id` directly rather than making the user enter it in a form.
 
 ## Gate an interaction
 
-If Add author is a preview feature, declare this audience at the model root. Add the gate to `screen AddAuthor` and to its `command RegisterAuthor` declaration so a direct invocation cannot bypass availability.
+If Add author is a preview feature, declare this audience at the model root. Add the gate under `screen AddAuthor` and `command RegisterAuthor`. The top-level form remains ungated: `screenplay model` can report `PLAY1139`. Render that form only from the gated screen and handle a not-available result from the command.
 
 ```play
 audience AuthorRegistrationPreview
@@ -60,7 +60,7 @@ audience AuthorRegistrationPreview
 available for AuthorRegistrationPreview
 ```
 
-Hide Add when the gate is closed, including when it cannot be resolved. Enforce permission separately at the operation. Model specifications assume availability. On the target, check that a caller outside the audience cannot open Add or run the command, and that a caller inside the audience without permission is still denied.
+Hide Add when the gate is closed, including when it cannot be resolved. Keep any existing command permission check; availability doesn't grant permission. Model specifications assume availability. On the target, check that a caller outside the audience cannot open Add or run the command, and that a caller inside the audience without permission is still denied.
 
 ## When it goes off the usual path
 

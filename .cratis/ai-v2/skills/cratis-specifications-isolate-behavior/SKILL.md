@@ -45,7 +45,6 @@ public class when_registering_an_author : Specification
 ## When it goes off the usual path
 
 - **The decision uses time or a generated ID:** provide a fixed value through its actual input or generator seam. For values the pipeline supplies, configure them in a pipeline scenario instead. Don't sleep, assume today's date or compare two newly generated IDs.
-- **The package is native TypeScript:** arrange a context, run one action and assert its outcome with the package's native runner; don't translate .NET attributes or lifecycle hooks literally.
 
 ## Related skills
 

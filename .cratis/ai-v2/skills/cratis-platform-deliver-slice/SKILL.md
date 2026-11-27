@@ -16,13 +16,33 @@ Connect the registration state change to the consuming authors state view. Use t
 
 ## When delivery starts from a Screenplay model
 
-Use the selected target renderer for supported behavior. Choose app-owned implementation for an explicitly assigned gap; keep it outside renderer-managed files so regeneration preserves it. Map each accepted outcome to a named test in the actual target. Mark generated tests, app-owned gap tests, and outcomes not implemented; run each implemented test. A passing build or a test count cannot identify which refusal or state view was covered.
+In a .NET rendering tool, run `dotnet add package Cratis.Stage.Rendering.Cratis`. To preview the plan without writing files, run this from the Library repository root:
+
+```csharp
+using Cratis.Stage.Rendering.Cratis;
+
+var plan = await CratisRendering.PlanFrom(
+    new PlaySources("model", []),
+    new PlanSelection([PlanSelectionEntry.Feature("Library", "Authors")]),
+    new CratisPlanOptions("Library", "Library", "Library"));
+```
+
+Check `plan.Success` and read `plan.Diagnostics` before treating any planned output as covered. In the actual target, map each accepted outcome to a named generated test, an app-owned test for an assigned gap, or an unimplemented outcome. Keep app-owned code outside renderer-managed files. Run `dotnet test` in the target and check the named outcomes, not just the test count.
 
 ## Check the running application
 
 Open the Authors list as the librarian. Choose **Add author**, enter **Aster**, submit once and wait for the new row without reloading. Fetch `AllAuthors` once as the same librarian using the [live query diagnostic](../cratis-arc-diagnose-live-query/SKILL.md). Check that exactly one result has `name` equal to `Aster` and record its `id`. Reload the screen, fetch again and check that the one Aster row has the same `id`.
 
-Run the [empty-name backend specification](../cratis-specifications-exercise-backend/SKILL.md) for `Name is required` and no additional event. To check the full refusal path, send that invalid command through the authenticated API in the disposable namespace. Require a validation refusal, no append at the attempted author ID, and the same author IDs and names in the open list and in a fresh `AllAuthors` result. A dialog preventing blank submission is a UI check, not evidence of a backend refusal.
+Run the [empty-name backend specification](../cratis-specifications-exercise-backend/SKILL.md) for `Name is required` and no additional event. To check refusal in a cookie-authenticated deployment, use `page` on the Authors screen as the librarian in the disposable namespace. With the routes generated above, post to the execute endpoint, not the preflight endpoint:
+
+```js
+const id = globalThis.crypto.randomUUID();
+const response = await page.request.post(new URL('/api/features/authors/registration', page.url()).href, {
+    data: { id, name: '' },
+});
+```
+
+The request shares the page's cookies. If the app sends tenant, authentication or anti-forgery headers separately, pass the same headers with `headers: commandHeaders`. Check `(await response.json()).validationResults` for `Name is required`. In the same namespace, require `await eventStore.EventLog.GetFromSequenceNumber(EventSequenceNumber.First, new AuthorId(Guid.Parse(attemptedId)))` to return no events, where `attemptedId` is the JavaScript `id` sent above. Compare the open list with a fresh `AllAuthors` result. Neither should gain a row. A disabled Add button doesn't prove backend refusal.
 
 ## When it goes off the usual path
 

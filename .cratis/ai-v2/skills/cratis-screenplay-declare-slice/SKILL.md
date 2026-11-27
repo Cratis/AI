@@ -68,7 +68,7 @@ From the Library directory run `screenplay model` to compile the folder. Expect 
 
 ## When it goes off the usual path
 
-- **An event from another history enriches the row:** name the `from` event that creates it and the related event source matched by `join <Name> on <Property>`. A join updates existing rows; it doesn't create them. Check that an unrelated source doesn't change the row and that the event named in `remove with` makes it disappear from the query.
+- **Removal leaves the author in the list:** check that `AuthorRemoved` addresses the same author ID as `AuthorRegistered`; `remove with AuthorRemoved` matches the event source in this projection.
 - **The source key differs from a payload ID:** use `$eventSourceId` if the row identifies that history. Use the payload ID only if it identifies the row by design. Don't duplicate the source ID in the payload just to display it.
 
 ## Related skills

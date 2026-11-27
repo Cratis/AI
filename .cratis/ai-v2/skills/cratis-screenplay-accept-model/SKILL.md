@@ -28,7 +28,7 @@ compatibility: Requires the Screenplay CLI.
 
 ## When it goes off the usual path
 
-- **A rename appears as a removal and an addition:** check whether the diff matched persisted identities or only addresses. With address matching, verify continuity with the owner rather than assuming two domain changes.
+- **A rename appears as a removal and an addition:** check `difference.matching` in the JSON diff for identity or address matching. With address matching, verify continuity with the owner rather than assuming two domain changes.
 
 ## Related skills
 

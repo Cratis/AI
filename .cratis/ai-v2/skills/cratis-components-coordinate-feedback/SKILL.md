@@ -51,7 +51,7 @@ export function RemoveAuthorButton({ name, remove }: { name: string; remove: () 
 
 Default to local pending feedback for a short row action. Keep the button disabled while the answer or removal is pending. Ask for confirmation only when the choice matters; it is not progress feedback.
 
-Choose the shared busy dialog when the user must wait before continuing. Registration alone does not show it. Get `[showBusy, closeBusy]` from `useBusyIndicator` in `@cratis/arc.react/dialogs`. After Yes, call `void showBusy()`, await the removal and call `closeBusy()` in `finally`, whether the operation succeeds, is refused or fails. Do not await `showBusy()`; its promise resolves when the dialog closes.
+Choose the shared busy dialog when the user must wait before continuing. Registration alone does not show it. Import `{ useBusyIndicator }` from `@cratis/arc.react/dialogs` and add `const [showBusy, closeBusy] = useBusyIndicator('Removing author…');` in `RemoveAuthorButton`. Replace the existing Yes branch with `if (await confirm() === DialogResult.Yes) { void showBusy(); try { await remove(); } finally { closeBusy(); } }`. Do not await `showBusy()`; its promise resolves when the dialog closes.
 
 ## When it goes off the usual path
 

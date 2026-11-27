@@ -74,8 +74,8 @@ Get `var store = await updated.GetEventStore(storeName, "migration-test");` and 
 ## When it goes off the usual path
 
 - **The business outcome was wrong:** choose a compensating fact when correcting what happened, not how the same fact is represented.
-- **A stored value changes meaning:** declare its value mapping, not just a property rename. Exercise upcast and downcast for the mapped values.
-- **Generation three fails to register:** restore the missing old generation or migrator. Keep both 1→2 and 2→3 under the original ID; test the oldest payload through the full chain and the current payload through the older consumer.
+- **A stored value changes as well as the property name:** if `"A. Birch"` becomes `"Anna Birch"`, for that alternative replace the rename-only migration with `public override void MapValues(IEventValueMapBuilder<AuthorRegistered, AuthorRegisteredV1> builder) => builder.For(current => current.DisplayName, previous => previous.Name, map => map.Map("A. Birch", "Anna Birch"));` and leave `Upcast` and `Downcast` empty for this property. Assert both directions with the mapped values.
+- **Generation three fails to register:** mark the former current payload `[EventTypeGenerationFor<AuthorRegistered>(2)]` and keep the generation-one type. Use `EventTypeMigration<AuthorRegisteredV2, AuthorRegisteredV1>` and `EventTypeMigration<AuthorRegistered, AuthorRegisteredV2>` for the two adjacent pairs. Test the oldest payload through the full chain and the current payload through the oldest consumer.
 
 ## Related skills
 

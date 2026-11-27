@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-react-separate-view-model
-description: Use when presentation state transitions or injected collaborators need testing independently of React. For simple local state, use cratis-arc-react-bind-slice.
+description: Use when React presentation state or an injected collaborator belongs in an injectable MVVM view model. For simple local state, use cratis-arc-react-bind-slice.
 compatibility: Requires @cratis/arc.react.mvvm, tsyringe, react-router-dom and reflect-metadata in an Arc React app.
 ---
 
@@ -46,7 +46,7 @@ export const AuthorSearch = withViewModel(AuthorSearchViewModel, ({ viewModel })
 
 Keep query loading and failure state in the bound view. Verify that changing the search text and receiving a new matching author both refresh the visible list.
 
-For an injected service, register the actual service or implementation before mounting the view. For example, use `container.registerInstance(CatalogueToken, catalogue)` and declare `constructor(@inject(CatalogueToken) private readonly catalogue: Catalogue)` on the `@injectable()` view model, importing `container` and `inject` from `tsyringe`. Use the same token at both sites; `@inject` alone does not register anything.
+For an existing `Catalogue` service instance `catalogue`, define and export `export const CatalogueToken = Symbol('Catalogue');` from the service module. Use `container.registerInstance(CatalogueToken, catalogue)` before mounting the view. Add `constructor(@inject(CatalogueToken) private readonly catalogue: Catalogue) {}` to the model, importing the shared token and service type from that module and `container` and `inject` from `tsyringe` where used.
 
 ## Avoid
 
@@ -55,7 +55,7 @@ For an injected service, register the actual service or implementation before mo
 
 ## When it goes off the usual path
 
-- **A child does not update after a model change:** pass plain values computed in the bound view, or wrap the child with `observer` from `@cratis/arc.react.mvvm` if it reads observable state directly.
+- **A child does not update after a model change:** pass plain values computed in the bound view, or `export const ObservedChild = observer(AuthorRows);` if the existing `AuthorRows` reads observable state directly. Import `observer` from `@cratis/arc.react.mvvm` and render `<ObservedChild />` with the same props as `AuthorRows`.
 
 ## Related skills
 

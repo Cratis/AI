@@ -6,7 +6,7 @@ compatibility: Requires Cratis, Cratis.Arc.MongoDB and a change-stream-capable M
 
 # Expose the author list
 
-Use a live `AllAuthors` query because this state view must stay current while open. For information needed once, choose a finite query instead, such as a method returning `IEnumerable<Author>` from a single collection read. Decide separately whether to page the rows. A query serves the `Author` read model; it does not define how facts build those rows.
+Use a live `AllAuthors` query because this state view must stay current while open. For a snapshot instead, use `public static IEnumerable<Author> AllAuthors(IMongoCollection<Author> collection) => collection.Find(_ => true).ToList();`. A query serves the `Author` read model; it does not define how facts build those rows.
 
 [Connect MongoDB](../cratis-arc-connect-storage/SKILL.md) with `WithMongoDB()` before resolving the collection. Start with the existing [Author projection](../cratis-chronicle-project-view/SKILL.md); it already owns the row shape and event mapping.
 

@@ -8,7 +8,7 @@ compatibility: .NET SDK and an Arc host with Chronicle.
 
 1. Reference `Cratis.Arc.Chronicle`. Put the command and validator together in `Features/Books/Borrowing/`. Use `Isbn` as the command's only event-source-ID property: it selects both the book to read and the book to append to.
 2. Put `public record Isbn(string Value) : EventSourceId<string>(Value);` in `Features/Books/Isbn.cs` (`Library.Features.Books`), and `[EventType] public record CopyAdded;` in `Features/Books/Stock/CopyAdded.cs` (`Library.Features.Books.Stock`); import `Cratis.Chronicle.Events` in both. Request `BookStock?` in the validator constructor. For a book with no events the validator receives `null` or an instance with `Available` 0; the rule refuses both.
-3. Leave `<CratisReadProtection>` at the package default, `On`. Don't set it to `Measure` or `Off` when a competing write must reject the command. Check `Cratis:Arc:ReadProtection:MaximumMode` in deployment configuration; leave it unset or `On`.
+3. Leave commit protection at its default or set `<CratisReadProtection>On</CratisReadProtection>` in the project property group. In deployment, leave `Cratis__Arc__ReadProtection__MaximumMode` unset or set it to `On`; don't lower the maximum when competing writes must be refused.
 
 ```csharp
 // Features/Books/Borrowing/BorrowBook.cs
@@ -50,7 +50,7 @@ public class BorrowBookValidator : CommandValidator<BorrowBook>
 
 In the validator test use `var isbn = new Isbn("9780140327243"); var command = new BorrowBook(isbn);`. Both `new BorrowBookValidator(null).Validate(command).IsValid` and `new BorrowBookValidator(new BookStock(isbn, 0)).Validate(command).IsValid` must be false. With `new BookStock(isbn, 1)` the same check must be true.
 
-A validator test cannot prove commit protection. In a development host, set a debugger breakpoint on `BorrowBook.Handle()`. Submit a borrowing for a book with one copy and stop there after validation. From a separate process connected to the same kernel store and namespace, append `new BookBorrowed()` to the same ISBN and check acceptance, then continue the paused request. Expect HTTP 400, reason `concurrencyViolation`, detail `ReadChanged`, and no second borrowing event. Don't retry in the command: the client reads again and offers resubmission.
+A validator test cannot prove commit protection. In a development host, set a debugger breakpoint on `BorrowBook.Handle()`. Submit a borrowing for a book with one copy and stop there after validation. From a separate process connected to the same kernel store and namespace, run `var competitor = await eventStore.EventLog.Append(isbn, new BookBorrowed());`. Verify `competitor.IsSuccess`, then continue the paused request. Expect HTTP 400, reason `concurrencyViolation`, detail `ReadChanged`, and no second borrowing event. Don't retry in the command: the client reads again and offers resubmission.
 
 ## Read and append explicitly outside the Arc pipeline
 
@@ -71,7 +71,7 @@ Here `source` is the book's Chronicle `EventSourceId` and the enclosing method r
 ## When it goes off the usual path
 
 - **A conflict rejects the write:** read the current stock and decide again before attempting another append.
-- **The rule must hold for every writer:** use an append constraint when it can express the invariant. The guard checks changes at commit; it does not lock the book, cover reads from another store or an external service, or enforce the rule for writers that omit a protected decision.
+- **Another writer bypasses the protected decision:** make it use `AppendMany(..., guardedBy: [stock])` as above. The guard applies only to the same store and namespace, and does not lock the book or check an external service.
 
 Don't use a display query for stock. Request the decision model in the validator.
 

@@ -36,7 +36,7 @@ Merge this section into the host project's `appsettings.json`, preserving other 
 
 ## Avoid
 
-- Use one output tree per independent generator and keep handwritten files and public barrels outside it. Incremental generation and skipping output deletion do not prevent cleanup of marked orphan files.
+- Use one output tree per independent generator and keep handwritten files and public barrels outside it. Regenerating may remove files marked as generated when their endpoints no longer exist.
 - Do not patch a generated type. Edit the C# producer and regenerate.
 - Do not leave the output property empty; an empty path produces no proxies.
 

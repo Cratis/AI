@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-project-view
-description: Use when mapping Chronicle event properties onto a stored read model or removing a projected instance. Not for calculating state from previous values (use cratis-chronicle-reduce-state).
+description: Use when declaring Chronicle read-model mappings, counters or instance removal. Not for calculations the projection cannot declare (use cratis-chronicle-reduce-state).
 compatibility: .NET SDK and Chronicle projections.
 ---
 
@@ -29,10 +29,11 @@ public record Author(AuthorId Id, string Name);
 
 ## When it goes off the usual path
 
-- Name matching selects a property, not a compatible type or correct model key. Give a same-named read-model property the same type as the event property. If the read model calls the name `DisplayName`, declare `[SetFrom<AuthorRegistered>(nameof(AuthorRegistered.Name))] string DisplayName` instead.
+- **The payload and model use different property names:** declare `[SetFrom<AuthorRegistered>(nameof(AuthorRegistered.Name))] string DisplayName`. Match the payload's type; the mapping does not change how Chronicle selects the row.
 - For a last-updated timestamp, add `using Cratis.Chronicle.Events;` and declare `[FromEvery(contextProperty: nameof(EventContext.Occurred))] DateTimeOffset LastUpdated`. Don't read the wall clock while projecting an event.
-- **A join or child needs explicit routing:** choose a declarative `IProjectionFor<T>` when the key, parent key and child identity are clearer as a fluent projection. Move the mappings there rather than adding another writer or querying a database during projection. Test events for two parent keys and assert each child appears only under its intended parent.
-- **The screen needs to list stored rows:** keep this model active. A passive read model computed on demand by ID cannot supply this listing.
+- **A child event carries a parent ID different from its source ID:** for a separate `AuthorPublications(AuthorId Id, IEnumerable<Listing> Listings)` view, declare `public record Listing(string Id);` and `[EventType] public record ListingAdded(AuthorId AuthorId, string Id);`. Implement `IProjectionFor<AuthorPublications>` from `Cratis.Chronicle.Projections`. In `Define(IProjectionBuilderFor<AuthorPublications> builder)`, use `builder.From<AuthorRegistered>().Children(m => m.Listings, c => c.IdentifiedBy(m => m.Id).From<ListingAdded>(e => e.UsingParentKey(p => p.AuthorId).UsingKey(p => p.Id)));`. Test with two parents and assert each child appears only under its intended parent.
+- **The view needs a simple count:** import `Cratis.Chronicle.Projections.ModelBound` and use `[Increment<CopyAdded>, Decrement<BookBorrowed>] int Available` on a book-stock read model. A simple counter does not need a reducer.
+- **The screen needs to list stored rows:** keep the `Author` declaration above unchanged. Adding `[Passive]` (from `Cratis.Chronicle.ReadModels`) would compute by ID on demand instead of storing rows for the listing.
 
 ## Check removal by author ID
 

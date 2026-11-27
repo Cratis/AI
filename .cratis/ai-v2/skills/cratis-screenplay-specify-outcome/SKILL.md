@@ -6,7 +6,7 @@ compatibility: Requires the Screenplay CLI.
 
 # Specify successful registration and refusal of an empty name
 
-Start with a concrete case. Choose a named case table only when multiple independent rows witness the same rule. In `model/Authors/registration.play`, use the same fixed author ID in both examples so only the name changes.
+Start with a concrete case. In `model/Authors/registration.play`, use the same fixed author ID in both examples so only the name changes.
 
 1. Start with the command, `AuthorId` and event from [declaring the Authors slice](../cratis-screenplay-declare-slice/SKILL.md).
 2. Inside the command, add the rule below before `produces AuthorRegistered`:
@@ -38,7 +38,7 @@ Start with a concrete case. Choose a named case table only when multiple indepen
 
 ## Arrange a stateful or authorized command
 
-Put the givens in each specification. Seed `given <EventType>` with `for <literal-id>` and the event's declared payload members, or use `given readmodel <ReadModelType>` with its key member and required state when testing directly against a view. Use the same concrete ID as the example input and the expected event's `for` value. If the fixture needs a different ID from the example, override the ID on the `when` step rather than putting a placeholder in `then`. Give the caller separately before the action:
+Seed a prior event before the action, for example `given AuthorRegistered` with `for "11111111-1111-4111-8111-111111111111"` and `name = "Aster"` on indented lines. Give the caller separately before the action:
 
 ```play
   given caller
@@ -52,13 +52,30 @@ Use the application's declared role. A command example has one stimulus: `when A
 
 When a command records multiple facts, assert every new fact in the expected order. Choose `then events in any order` only when their order is not part of the contract. An unexpected extra fact still fails.
 
+## Check one rule across independent cases
+
+Choose a named table when the steps are identical and only the values change. Add it beside the registration specifications:
+
+```play
+specification RecordingAuthorNames
+  parameter name String
+  case AsterName name = "Aster"
+  case BirchName name = "Birch"
+  when Aster name = case.name
+  then AuthorRegistered
+    for "11111111-1111-4111-8111-111111111111"
+    name = case.name
+```
+
+Run `screenplay test model --format json`; check `RecordingAuthorNames_AsterName` and `RecordingAuthorNames_BirchName` separately.
+
 ## Carry the accepted examples into the application
 
 [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) with the same Given/When/Then: assert the addressed append and name for Aster, and a refusal with no append for the empty name. For the state view, assert the query's row ID and name from the fact. [Check the UI interaction](../cratis-specifications-observe-ui/SKILL.md) and [verify the running slice](../cratis-platform-deliver-slice/SKILL.md) separately; model tests don't demonstrate either.
 
 ## When it goes off the usual path
 
-- **Only a read is under test:** seed the relevant history or read-model state and assert `then query` without a `when` command.
+- **Only a read is under test:** use the `ListingAster` specification in [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md): seed the fact, omit the action, and assert `then query AllAuthors exactly` with the expected row under `result`.
 - **The effect belongs to another slice:** move the effect assertion to the slice that owns it and seed the fact it reacts to. Verify the joined behavior in the running application.
 - **The model runner reports Unsupported:** keep the outcome unverified; cover it at the first executable boundary rather than changing the assertion to get a pass.
 

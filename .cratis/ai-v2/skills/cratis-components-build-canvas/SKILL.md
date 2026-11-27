@@ -6,7 +6,7 @@ compatibility: Requires react, @cratis/components and the pixi.js peer dependenc
 
 # Place a book on a pannable board
 
-Default to DOM `CanvasItem` for interactive content that needs native keyboard focus and accessible controls. Use Pixi `items` and `renderItem` when dense graphics should not allocate a DOM node per item; return a Pixi container, not JSX. In either case, keep editable item positions in host data; panning and zooming do not save item positions.
+Default to DOM `CanvasItem` for content that needs keyboard focus. For dense, noninteractive book markers import `{ Graphics }` from `pixi.js` and use `<Canvas items={books} renderItem={() => new Graphics().circle(0, 0, 6).fill(0x2563eb)} />` inside the same sized wrapper. Each book has `id`, `x` and `y`. Keep positions in host data; panning and zooming do not save them.
 
 1. Install the `pixi.js` version required by the `@cratis/components` peer dependency. In `Features/Books/BookBoard.tsx`, import `Canvas` and `CanvasItem` from `@cratis/components/Canvas`. Render `BookBoard` inside the [app's Components provider](../cratis-arc-react-bind-slice/SKILL.md).
 2. Give the containing element a height and set the canvas to fill it. Zoom controls are visible by default and stay fixed when the board moves. Pass `showControls={false}` to hide them.

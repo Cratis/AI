@@ -33,9 +33,15 @@ app.MapArcMcp();
 await app.RunAsync();
 ```
 
-`direct` is the PAT format key. `ForResource` binds the receiver to its resource URI, credential audience and deployment environment. Match all three to the token issuer. Register your authoritative `IPatAuthority`, `IPatRecoveryEpoch` and `IPatPolicy` implementations before `Build()`; the default adapters refuse issuance and verification. Use only one verifier for this resource.
+`direct` is the PAT format key. `ForResource` binds the receiver to its resource URI, credential audience and deployment environment. Match all three to the token issuer. The default token adapters refuse issuance and verification. If the application supplies the implementations below, import `Microsoft.Extensions.DependencyInjection` and register them before `Build()`:
 
-In a combined Library host, assign the port in `AddCratis`'s `configureArcOptions` and chain the three builder calls above after `WithMongoDB` in `configureArcBuilder`. Keep Chronicle registration. `catalog` gives queries the default `catalog:read` scope and commands `catalog:write`. The local client endpoint here is `http://127.0.0.1:5002/mcp`. Use HTTPS for remote clients.
+```csharp
+builder.Services.AddScoped<IPatAuthority, LibraryPatAuthority>();
+builder.Services.AddScoped<IPatRecoveryEpoch, LibraryPatRecoveryEpoch>();
+builder.Services.AddScoped<IPatPolicy, LibraryPatPolicy>();
+```
+
+For a combined Library host, merge `options.EndpointGroups.Assign("capabilities", 5002)` into the `configureArcOptions` lambda on `builder.AddCratis(...)`. Extend that call's existing `configureArcBuilder` lambda with the `.WithCapabilities().WithPersonalAccessTokens(...).WithMcp(...)` chain above. Keep the existing MongoDB and Chronicle registration. `catalog` gives queries the default `catalog:read` scope and commands `catalog:write`. The local client endpoint here is `http://127.0.0.1:5002/mcp`. Use HTTPS for remote clients.
 
 ## Add a tool
 
@@ -49,7 +55,7 @@ public static IEnumerable<Author> ListAuthors(IMongoCollection<Author> collectio
 
 For an allowed write, import `Cratis.Arc.Mcp` in `Features/Authors/Registration/RegisterAuthor.cs` and add `[ExposeOverMcp("register_author", Description = "Registers an author in the library.")]` alongside `[Command]` on [RegisterAuthor](../cratis-arc-declare-command/SKILL.md).
 
-Give the tool a name matching `^[a-z][a-z0-9_]{0,63}$` and a description. `System.ComponentModel.DescriptionAttribute` on a query parameter or command property describes the argument.
+Give the tool a name matching `^[a-z][a-z0-9_]{0,63}$` and a description. For an argument description on a command record parameter, use `[property: System.ComponentModel.Description("The author's display name")] string Name`.
 
 ## When it goes off the usual path
 

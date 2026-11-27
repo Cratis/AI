@@ -26,18 +26,18 @@ public class AuthorImporter(ICommandPipeline commandPipeline)
 }
 ```
 
-Inspect the final result: `!IsAuthorized` means access was denied, `!IsValid` points to `ValidationResults`, and `HasExceptions` means execution failed. `IsRetryable` identifies a retryable result. Use `Validate(command)` only for early feedback: it does not run `Provide()` or `Handle()` and does not replace checking the final result.
+Inspect the final result: `!IsAuthorized` means access was denied, `!IsValid` points to `ValidationResults`, and `HasExceptions` means execution failed. `IsRetryable` identifies a retryable result. Use `var preflight = await commandPipeline.Validate(command);` only for early feedback: it does not run `Provide()` or `Handle()` and does not replace checking the final result.
 
 ## When it goes off the usual path
 
-- **The command must use scoped dependencies the caller already owns:** pass the existing scoped provider to `Execute(command, services)`. The caller owns disposal. Otherwise let the pipeline create a scope.
+- **The command must use scoped dependencies the caller already owns:** use `var result = await commandPipeline.Execute(command, services);` with the caller's scoped `IServiceProvider services`. The caller owns disposal. Otherwise let the pipeline create a scope.
 - **An import spans several commands:** decide whether a failed item stops the job, gets retried, or is recorded while other items continue. One successful execution does not mean the batch committed.
 
 ## Avoid
 
 - Do not call `Handle()` directly; the pipeline runs validation, authorization and the append.
 - Do not pass the root provider or an unrelated scope to `Execute`.
-- Choose `Execute<TResponse>` only if the command contract returns a value the caller uses. Check `IsSuccess` before reading the typed `Response`.
+- If using the server-generated ID variant of `RegisterAuthor`, execute `var result = await commandPipeline.Execute<AuthorId>(new RegisterAuthor(name));`. Check `result.IsSuccess` before reading `result.Response`.
 
 ## Related skills
 

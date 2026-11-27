@@ -26,7 +26,14 @@ For a command that already uses an ordinary concept or primitive as its identity
 
 ## When it goes off the usual path
 
-- **The decision needs existing state:** load it in `Provide()`. If missing state rejects the command, return `ValidationResult.Error(...)` from `Provide()` (for a state-or-error return, use `Result<TState, ValidationResult>`). Arc drops `null` from the provided values; it is not a validation result.
+**A command needs an existing author:** in a command with an `AuthorId Id`, use a provider like this and accept `AuthorName` as a `Handle` parameter. Import `Cratis.Monads`, `Cratis.Arc.Validation`, `Library.Features.Authors.Listing` and `MongoDB.Driver`.
+
+```csharp
+public Result<AuthorName, ValidationResult> Provide(IMongoCollection<Author> authors) =>
+    authors.FindById(Id) is { } author ? new AuthorName(author.Name) : ValidationResult.Error("Author not found");
+```
+
+Arc drops `null` from the provided values; it is not a validation result. If a decision requires current committed facts, [protect the decision](../cratis-chronicle-protect-decision/SKILL.md) rather than relying on a projected row.
 
 ## When the server allocates the ID
 
@@ -43,7 +50,7 @@ public record RegisterAuthor(string Name)
 }
 ```
 
-Arc calls `AuthorId.New()` for the generated parameter. The wrapper addresses the event to that ID; the first tuple item returns it to the caller. If the caller does not need the ID, return only the wrapper. Check `IsSuccess` before using the response. In a `CommandScenario<RegisterAuthor>`, call `scenario.PinGeneratedValue("authorId", id)` with a fixed `AuthorId` before execution and assert the append used that ID.
+Arc calls `AuthorId.New()` for the generated parameter. The wrapper addresses the event to that ID; the first tuple item returns it to the caller. If the caller does not need the ID, return only the wrapper. Check `IsSuccess` before using the response. In the [backend spec](../cratis-specifications-exercise-backend/SKILL.md), import `Cratis.Arc.Testing.Commands` and insert `scenario.PinGeneratedValue("authorId", id);` before execution. Supply the fixed `AuthorId id` used by the append assertion.
 
 ## Avoid
 

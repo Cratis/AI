@@ -39,13 +39,13 @@ public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
 
 ## When it goes off the usual path
 
-- **The value crosses a Go wire boundary:** use a Go named value, not C# inheritance. A defined type over `concepts.UUID` does not inherit its codecs. Implement the needed codecs explicitly and round-trip the value as the underlying UUID string, not a wrapper or byte array.
+- **The value crosses a Go wire boundary:** use the Go value and JSON round-trip check in [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md).
 
 ## Avoid
 
 - Don't use an unlabelled `Guid` for the command key; use `AuthorId`.
 - Keep the stable `AuthorId` separate from `Name`. A business constraint may make names unique without making them the history address.
-- Put a rule that applies to every use of a concept in its `ConceptValidator<T>`. For this command's plain `string Name`, put the empty-name rule in [RegisterAuthorValidator](../cratis-arc-validate-command/SKILL.md).
+- For an invariant of `AuthorName`, use [concept validation](../cratis-arc-validate-command/SKILL.md). For this command's plain `string Name`, put the empty-name rule in `RegisterAuthorValidator` instead.
 
 ## Related skills
 

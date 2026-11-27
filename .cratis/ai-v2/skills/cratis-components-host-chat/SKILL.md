@@ -6,7 +6,7 @@ compatibility: Requires react, @cratis/components and @cratis/arc.react.
 
 # Show messages for the selected topic
 
-Default to `ChatSidebarForObservableQueries` when the screen has generated live queries and does not already own that state. Choose `ChatSidebar` when the host already owns the data and selection: pass `topics`, `messages`, `selectedTopicId` and `onTopicSelected` instead of subscribing again. Both bindings send with the explicit topic ID.
+Default to `ChatSidebarForObservableQueries` when the screen has generated live queries and does not already own that state. For host-owned arrays and selection, import `{ ChatSidebar }` from `@cratis/components/Chat` and use `<ChatSidebar open={open} onClose={onClose} topics={topics} messages={messages} selectedTopicId={selectedTopicId} onTopicSelected={id => setSelectedTopicId(id ?? null)} onSendMessage={(id, body, mentions) => send(String(id), body, mentions)} />` instead of subscribing again. Both bindings send with the explicit topic ID.
 
 1. Place `TopicChat.tsx` in `Features/Conversations` inside the application's [Arc provider](../cratis-arc-react-bind-slice/SKILL.md). This slice has [generated proxies](../cratis-arc-generate-proxies/SKILL.md) `Topics` and `Messages` under `generated/Features/Conversations`. Don't copy them into the UI folder. `Messages` takes `{ topicId: string }`.
 2. The `Topics` query returns rows with an `id` and optionally `name`. Each row returned by `Messages` must have `id`, `topicId`, `authorId`, `body: string` and `timestamp: Date`. Use string IDs or IDs that implement `toString()`. Here `authorId` identifies the message sender, not a catalog author.
@@ -32,7 +32,11 @@ export function TopicChat({ open, onClose, send }: ChatProps) {
 
 ## Enable optional topic actions
 
-Set `authorOf` to a function taking the author ID and returning a `ChatAuthor` with `{ name, kind }`. Use `ChatAuthorKind.User` for people or `ChatAuthorKind.Agent` for agents; import `type ChatAuthor` and `ChatAuthorKind` from `@cratis/components/Chat`. Set `onStartTopic` to the operation that creates a topic and returns its ID. Set `onRequestTopicName` to the operation that names an unnamed topic using its first message body. Bind `topicActions` to topics and `actions` to individual messages; they target different records.
+Add these props only if the host supplies the corresponding operations:
+
+- `authorOf={id => ({ name: displayName(id), kind: ChatAuthorKind.User })}` resolves a sender. Import `{ ChatAuthorKind }` from `@cratis/components/Chat`; use `ChatAuthorKind.Agent` for an agent.
+- `onStartTopic={() => startTopic()}` opens the topic whose ID the host returns. `onRequestTopicName={(topic, body) => nameTopic(topic.id, body)}` names a new topic from its first message.
+- `topicActions={[{ id: 'rename', label: 'Rename', onInvoke: topic => renameTopic(topic.id) }]}` acts on the topic. `actions={[{ id: 'copy', label: 'Copy', icon: <span aria-hidden="true">⧉</span>, onInvoke: message => copyMessage(message.body) }]}` acts on one message.
 
 ## When it goes off the usual path
 

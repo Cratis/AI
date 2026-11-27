@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-reduce-state
-description: Use when state-dependent rules need a Chronicle reducer, such as capping loans at the number of copies. Not for field mappings or plain counters (use cratis-chronicle-project-view).
+description: Use when a Chronicle read model's next value needs logic a projection cannot declare, such as a clamped count. Not for accepting or refusing a command (use cratis-chronicle-protect-decision).
 compatibility: .NET SDK and Chronicle reducers.
 ---
 
@@ -42,7 +42,7 @@ Call `BookAvailability.Reduce` directly in a test. `BookAvailability.Reduce(new 
 
 ## When it goes off the usual path
 
-- **A rebuilt view disagrees with the original:** replay the same ordered facts from empty state and compare the final model. Keep all durable state in the returned record.
+- **The result depends on when the test runs:** call the loan-count test twice with the same facts from `current = null` and compare the final records. Keep durable state in the returned record, not in static fields.
 - **The calculation needs outside data:** record the needed input as a fact first. Don't call a service from `Reduce`; replay must use the recorded inputs, not today's answers.
 
 ## Related skills

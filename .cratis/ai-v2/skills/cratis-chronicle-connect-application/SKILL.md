@@ -35,7 +35,7 @@ Choose the combined host when the app already uses Arc and Chronicle through `Cr
 
 ## Check the connection
 
-Append an `AuthorRegistered` event in the library store and check `result.IsSuccess` before reading the author's events back. With the same store name but a different namespace, reading that ID must not return the registration. When logging a `Cratis.Chronicle.Connections.ChronicleConnectionString` use `connectionString.Redacted` rather than the raw value.
+In a disposable namespace, resolve the scoped `IEventStore` and use `var result = await eventStore.EventLog.Append(authorId, new AuthorRegistered("Aster"));` with a fresh `AuthorId`. Check `result.IsSuccess`, then read `await eventStore.EventLog.GetFromSequenceNumber(EventSequenceNumber.First, authorId)` (`using Cratis.Chronicle.Events;`). With the same store name but a different namespace, the read must not return the registration. When logging a `Cratis.Chronicle.Connections.ChronicleConnectionString` use `connectionString.Redacted` rather than the raw value.
 
 ## Avoid
 

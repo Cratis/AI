@@ -6,9 +6,7 @@ compatibility: Requires Cratis and Cratis.Arc.MongoDB; observable queries requir
 
 # Connect Arc to MongoDB
 
-Use `Cratis.Arc.MongoDB` for the Library author view. Choose `Cratis.Arc.EntityFrameworkCore` with `WithEntityFrameworkCore(...)` for a relational read through a `DbContext`, or `Cratis.Arc.Neo4j` with `WithNeo4j()` for a graph traversal. Match the integration to the data the slice reads, not to Chronicle's storage.
-
-Reference `Cratis.Arc.MongoDB` in the Library backend. For a new database written by Chronicle, configure the same camel-case naming policy on both builders.
+Reference `Cratis.Arc.MongoDB` in the Library backend. Match the integration to the data the slice reads, not to Chronicle's storage. For a new database written by Chronicle, configure the same camel-case naming policy on both builders.
 
 `Program.cs` (top-level statements in a Web SDK project):
 
@@ -37,7 +35,7 @@ In [the author query](../cratis-arc-expose-query/SKILL.md), take `IMongoCollecti
 ## When it goes off the usual path
 
 - **An existing author is missing:** compare the reader's physical server, database and collection with the writer, then compare BSON field names before changing conventions.
-- **Tenants use separate servers or credentials:** use MongoDB `ConnectionResolution` to resolve the authorized tenant's binding before opening its database. Keep connection resolution out of `AllAuthors`; let Arc inject the collection.
+- **Tenants use separate database names on the same server:** add `"ConnectionResolution": { "Connection": { "Resolver": "Template", "Template": { "Database": "tenant-{tenant}" } } }` inside `Cratis:MongoDB`. This replaces the default naming, not the stored data; provision or migrate the target databases before switching. Leave `AllAuthors` unchanged.
 
 ## Avoid
 

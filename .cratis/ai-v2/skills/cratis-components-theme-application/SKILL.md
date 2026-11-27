@@ -8,7 +8,7 @@ compatibility: Requires @cratis/components and a CSS bundler that resolves packa
 
 Use a theme token for a color change, scoped to the smallest wrapper that should inherit it. Choose a named component part only when you need to style a specific piece of the component.
 
-1. Add `host.css` beside `main.tsx` and import `./host.css` from that entry point. Mount `CratisComponentsProvider` from `@cratis/components` as shown in [Mount Arc and read a query result](../cratis-arc-react-bind-slice/SKILL.md).
+1. Add `host.css` beside `main.tsx` and import `./host.css` from that entry point. Import `{ CratisComponentsProvider }` from `@cratis/components` and wrap the UI with `<CratisComponentsProvider><App /></CratisComponentsProvider>` inside the [Arc host](../cratis-arc-react-bind-slice/SKILL.md).
 2. Load tokens, component styles and the baseline theme in that order. Put unlayered token overrides after the imports and match the theme selector's specificity. Set the token on the wrapper of the area that should change:
 
 ```css
@@ -56,7 +56,7 @@ Apply `cratis-theme cratis-light author-admin` to the light panel, not the page 
 
 ## Target a component part
 
-Use `.author-admin [data-cratis-part='header-content']` for the content inside a table header. Don't target private DOM nesting or internal vendor nodes.
+Use `.author-admin [data-cratis-part='header-content'] { font-weight: 600; }` for the content inside a table header. Don't target private DOM nesting or internal vendor nodes.
 
 ## When it goes off the usual path
 

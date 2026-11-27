@@ -92,7 +92,7 @@ For a command that decides from a read model, seed the prerequisite events in or
 
 ## When it goes off the usual path
 
-- **The query has an argument or caller filter:** seed one matching and one excluded row. Execute the actual query with the intended arguments and caller; assert inclusion and exclusion. A mapping test is not a query test.
+- **The query has a caller filter:** seed one visible and one excluded author in the running app. As that caller, send `GET /api/features/authors/listing/all-authors?waitForFirstResult=true`; assert that the returned IDs include the first author and exclude the second. The projection scenario above does not exercise that query.
 - **The in-process projection passes but a live query misses the author:** verify the append and observer completion against the running application before testing delivery through the query and UI.
 
 ## Avoid

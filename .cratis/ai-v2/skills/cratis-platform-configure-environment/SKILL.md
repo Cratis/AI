@@ -14,7 +14,7 @@ compatibility: Requires ASP.NET Core configuration and the Screenplay CLI for mo
        throw new System.InvalidOperationException("Missing Chronicle connection string");
    ```
 
-   This guard checks presence only. Require the resolved endpoint to match the preview deployment's allowed endpoint and probe the expected store and namespace from the consuming app before calling the binding healthy. Report a mismatch without logging the supplied value.
+   This guard checks presence only. For a single-host preview binding with no client override, parse the value with `new ChronicleConnectionString(builder.Configuration["Cratis:Chronicle:ConnectionString"]!).ServerAddress` (`using Cratis.Chronicle.Connections;`). Compare its `Host` and `Port` with the deployment's allowed pair; reject a mismatch without logging the value.
 3. For Library reminder mail using the mail extension contract with the `apiKey` setting, put this declaration in `model/environment.play`:
 
    ```play
@@ -29,11 +29,15 @@ compatibility: Requires ASP.NET Core configuration and the Screenplay CLI for mo
 
 ## Bind an already-running local service
 
-Choose the orchestrator's resource binding when an existing Aspire AppHost supplies the `chronicle` reference. Check `builder.Configuration["ConnectionStrings:chronicle"]` rather than requiring the preview key, then probe the local store and namespace. A Compose network changes the reachable host and port from inside the app's container; it does not define another configuration source.
+When an existing Aspire AppHost supplies the `chronicle` reference, check `builder.Configuration["ConnectionStrings:chronicle"]` rather than requiring the preview key.
+
+## Prove the app reached the intended store and namespace
+
+In a smoke check running in the app, resolve `var eventStore = scope.ServiceProvider.GetRequiredService<IEventStore>();` from the app's service scope (`using Cratis.Chronicle;`). Check `eventStore.Name.Value` and `eventStore.Namespace.Value` against the expected values. Read a fixture registration already seeded only in that target with `await eventStore.EventLog.GetFromSequenceNumber(EventSequenceNumber.First, fixtureAuthorId)` (`using Cratis.Chronicle.Events;`). Require the known registration, not merely a successful connection. Use the same check for Aspire and preview.
 
 ## When it goes off the usual path
 
-- **Aspire supplies a local reference but the app reaches another store:** check for an inherited `Cratis:Chronicle:ConnectionString` or an explicit value in client registration. Remove the override and probe again from the app without printing the connection string.
+- **Aspire supplies a local reference but the app reaches another store:** check for an inherited `Cratis:Chronicle:ConnectionString` or an explicit value in client registration. Remove the override and repeat the fixture read from the app without printing the connection string.
 
 ## Avoid
 

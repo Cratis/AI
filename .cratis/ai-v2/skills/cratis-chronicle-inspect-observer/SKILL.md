@@ -8,7 +8,7 @@ compatibility: .NET SDK; Node.js for offline summaries.
 
 1. Reference `Cratis.Chronicle`. Check `result.IsSuccess`; keep `result.SequenceNumber`, the author's event source ID and the observer ID. The default ID for the listing projection is its model's full name (`Library.Features.Authors.Listing.Author`); for a reactor it is the reactor class's full name. Use the configured ID instead if explicitly overridden. Use the same store, namespace and event sequence as the write.
 2. Read `await eventStore.Observers.GetAll()` and look for the expected ID.
-   - If the observer is missing, verify the scope and ID. On the host that registers `Author`, check `eventStore.Registration`: `Failure` means the run failed; a `Failure` on the `Artifacts` entry whose `ArtifactType` is `typeof(Author)` means that projection failed. A missing entry or `HasRun == false` doesn't establish a failure. With no observer to compare, don't report lag.
+   - If the observer is missing, verify the scope and ID. On the host that registers `Author`, inspect `eventStore.Registration.Failure` and `eventStore.Registration.Artifacts.FirstOrDefault(a => a.ArtifactType == typeof(Author))?.Failure`. The former reports a run failure; the latter reports failure of that projection. A missing entry or `eventStore.Registration.HasRun == false` doesn't establish a failure. With no observer to compare, don't report lag.
    - If the observer is present, check `observer.RunningState` and compare positions only on the same event sequence. For a write at 20 and a last-handled position of 15, next position 16 means the observer is behind.
 3. For the accepted append, use `var completion = await result.WaitForCompletion();` from `Cratis.Chronicle.Observation` and inspect `completion.FailedPartitions`. Use `await eventStore.FailedPartitions.GetFailedPartitionsFor(observer.Id)` and match `failure.Partition.Value` to the author ID for this projection. For other observers, first resolve their actual partition key. A failure in a different partition is not evidence that this partition failed.
 
@@ -38,7 +38,7 @@ To summarize captured attempts without printing their payloads, run `node script
 
 ## When it goes off the usual path
 
-- **Only the deployed application is available:** choose the available read-only inspector when you can't run the .NET calls. Select the exact store, namespace, sequence and observer; capture its positions, the matching failed partition, failed event position and latest attempt before proposing repair. Share diagnostic metadata, not whole payloads.
+- **You cannot run the .NET calls:** open the deployment's configured Chronicle Workbench URL. Select the affected store and namespace and open **Observers** for the observer's positions. In **Failed partitions**, select its failed partition and follow the latest attempt's sequence number. Verify the store, namespace and sequence in the event inspector. Share positions and failure metadata, not payloads.
 - **Catch-up or replay is already running:** use `eventStore.Jobs.GetJobs()` and open `eventStore.Jobs.GetJob(id)` only for the matching job. A null result is not evidence of completion.
 
 ## Avoid

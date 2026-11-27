@@ -8,9 +8,9 @@ compatibility: Requires the Screenplay CLI.
 
 1. For immediate follow-up, start with a reaction to one local fact. Name what triggers it, the system actor, the inputs it needs and the effect it requests.
 2. Use `invokes` when a command must decide. Choose `produces` only when the reaction already knows which fact to record and which event source to address. Map the event source explicitly when it is the command's target.
-3. If the command is gated, declare the system's required roles; don't borrow a user's identity. Specify the addressed effect and handle only the intended refusal. Keep a capture in a separate [translation](../cratis-screenplay-model-translation/SKILL.md); consume its local `DirectoryAuthorSeen` fact here.
+3. For a command gated on a role, use `runs as system role "<Role>"` under the reaction with the role required by the command. Don't borrow a user's identity. Specify the addressed effect and handle only the intended refusal. Keep a capture in a separate [translation](../cratis-screenplay-model-translation/SKILL.md); consume its local `DirectoryAuthorSeen` fact here.
 
-Choose scheduled work when a clock, not a recorded fact, determines when to act: `every 15 minutes` for an interval or `at 08:00` for a daily UTC time. Choose `when <Trigger>` for a declared or host-provided signal. Neither supplies an event source: `produces` needs `for` with an available key or literal text. Add a pending-work view when items must survive a delay, retry or cancellation.
+Choose a schedule when the clock determines when to act: `every 15 minutes` for an interval or `at 08:00` for a daily UTC time. Choose an application trigger when the host raises a signal that isn't already a fact. Neither supplies an event source: use an explicit key such as `for "directory-welcomes"` under `produces`.
 
 ## Example: request one welcome per directory author
 
@@ -77,11 +77,12 @@ module Library
           for "11111111-1111-4111-8111-111111111111"
           name = "Aster"
         when redelivered DirectoryAuthorSeen to OnDirectoryAuthorSeen
+        then no events
         then invokes RequestDirectoryWelcome
           id = "11111111-1111-4111-8111-111111111111"
           name = "Aster"
 
-    slice Automation CheckPendingWelcomes
+    slice Automation ScheduleWelcomeReview
       event DirectoryWelcomeReviewDue
 
       reaction ReviewPendingWelcomes
@@ -96,10 +97,27 @@ module Library
           for "directory-welcomes"
 ```
 
-Run `screenplay test model --format json` on the composed model. Require the command, invocation, redelivery and clock specifications to execute and pass. The invocation checks its typed inputs and `then` accounts for unexpected new facts. The separate command examples show the recorded fact on first request and the refusal on duplicate. [Implement the runtime reaction](../cratis-chronicle-react-to-fact/SKILL.md) with a reactor after commit; verify target support and test any external delivery separately.
+Run `screenplay test model --format json` on the composed model. Require the command, invocation, redelivery and clock specifications to pass. `then invokes` compares only the invocations and the stated input values. `then no events` separately checks that redelivery records nothing. The command's own examples check the recorded fact and duplicate refusal. [Implement the runtime reaction](../cratis-chronicle-react-to-fact/SKILL.md) with a reactor after commit; verify target support and test any external delivery separately.
+
+## Review welcomes on a host signal instead
+
+Declare `trigger DirectoryWelcomeReviewRequested` at the model root. Keep `DirectoryWelcomeReviewDue` in `ScheduleWelcomeReview` and replace its reaction and specification with:
+
+```play
+reaction ReviewWelcomesOnRequest
+  when DirectoryWelcomeReviewRequested
+    produces DirectoryWelcomeReviewDue
+      for "directory-welcomes"
+
+specification ReviewingWelcomesOnRequest
+  when trigger DirectoryWelcomeReviewRequested
+  then DirectoryWelcomeReviewDue
+    for "directory-welcomes"
+```
+
+Run the same model checks. The specification supplies the signal; the host must still raise it at runtime.
 
 ## When it goes off the usual path
 
-- **Pending work can be withdrawn:** give each item a stable key and model the fact that closes it on cancellation so it stops appearing in the pending-work view.
 - **The command lives in another slice:** assert the handoff with `then invokes` here, and assert the command's events in its own slice. A specification runs only its own slice's follow-up behavior.
 - **A provider may have performed the effect before losing its reply:** retry with the same provider idempotency key and verify provider behavior separately. A unique request fact doesn't make an external effect exactly once.

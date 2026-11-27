@@ -8,7 +8,7 @@ compatibility: Requires @cratis/components and @cratis/arc.react.
 
 Present the state view using rows returned by the query, not values from the last submitted command. Default to a table alone.
 
-- Pass `detailsComponent={AuthorDetails}` when users should inspect a selection alongside the table. Type the component with `IDetailsComponentProps<Author>` from `@cratis/components/DataPage`; it receives the selected row as `item`. Load related records with `item.id`, not `item.name`.
+- Pass `detailsComponent={AuthorDetails}` when users should inspect a selection alongside the table. Import `type { IDetailsComponentProps }` from `@cratis/components/DataPage` and define `const AuthorDetails = ({ item }: IDetailsComponentProps<Author>) => <h2>{item.name}</h2>;`. If loading related records, use `item.id`, not `item.name`.
 - Choose navigation, as below, when details need their own screen or won't fit in a pane. Keep Add independent of selection; do not set `disableOnUnselected` on it.
 
 1. In `Features/Authors/Listing/Authors.tsx`, import `Author` and `AllAuthors` from the private [generated tree](../cratis-arc-generate-proxies/SKILL.md). The generator retains `Features/Authors/Listing`; don't copy its output into the UI folder. Render the page inside the app's [providers](../cratis-arc-react-bind-slice/SKILL.md).

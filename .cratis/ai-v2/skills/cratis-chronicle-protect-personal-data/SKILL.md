@@ -47,9 +47,9 @@ With an `IEventStore` from `Cratis.Chronicle` for the correct namespace, call `a
 
 ## When it goes off the usual path
 
-- **A history describes someone other than its owner:** choose an explicit `subject:` at append time for the person described. In a view composed from several subjects, erase A's key in a test and check that A's protected fields are withheld and B's are still releasable. Chronicle owns `__subject` and `__subjects`; don't declare them on the model.
-- **An old event or projected field was stored unmarked:** adding `[PII]` does not erase plaintext already written. Verify cleanup of affected stores and independently retained copies. Event redaction targets a particular event; key erasure targets data encrypted for the subject.
-- **A field cannot be read:** check the key lifecycle and read errors separately. An empty value alone is not evidence that erasure succeeded.
+- **A history describes someone other than its owner:** use `await eventStore.EventLog.Append(historyId, new MemberRegistered(name, email), subject: memberId.Value.ToString());` with the ID of the member described. In a multi-subject view, delete A's key with the call above and check that release withholds A's fields but still releases B's. Don't declare `__subject` or `__subjects` on the model; Chronicle owns them.
+- **An old event or projected field was stored unmarked:** adding `[PII]` does not erase plaintext already written. Inventory and verify cleanup of each affected store and independently retained copy instead of relying on key deletion.
+- **A released field is empty:** check `registration.Context.ErasedProperties` as above before attributing the empty value to erasure.
 
 ## Avoid
 

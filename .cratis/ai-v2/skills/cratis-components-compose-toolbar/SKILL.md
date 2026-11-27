@@ -9,8 +9,8 @@ compatibility: Requires react and @cratis/components.
 Use the [DataPage menu](../cratis-components-display-list/SKILL.md) for actions on its list or selection. For board tools, default to one stable group. Choose `ToolbarSection` with named contexts only when changing modes changes which tools are usable; keep shared tools outside the section.
 
 1. In `Features/Board/DrawingTools.tsx`, accept the shelf board's current mode, the operation to draw a shelf and the operation to add a review note. Use the application's [Components provider](../cratis-arc-react-bind-slice/SKILL.md).
-2. Give each button visible `text` or an `icon`, a `title` for its accessible name and tooltip, and `onClick` for the action.
-3. Set `focusMode` to `SingleTabStop` to enter the toolbar once with Tab and move between its tools with arrow keys. The default `Arrows` mode leaves each tool a Tab stop. Focus mode changes keyboard navigation, not authorization.
+2. Give each button visible `text` and a `title` for its accessible name and tooltip, and `onClick` for the action.
+3. Set `focusMode` to `SingleTabStop` to enter the toolbar once with Tab and move between its tools with arrow keys. Omit `focusMode` to keep each tool a Tab stop with arrow navigation.
 
 ```tsx
 import { Toolbar, ToolbarButton, ToolbarContext, ToolbarFocusMode, ToolbarSection } from '@cratis/components/Toolbar';
@@ -27,12 +27,12 @@ export function DrawingTools({ mode, draw, annotate }: {
 }
 ```
 
-Switch modes using the keyboard and check where focus lands. If the switch hides the focused tool, move focus to a visible control; the section does not do that for the host.
+Switch modes using the keyboard and check where focus lands. If a mode change hides the focused tool, have the host call `modeButtonRef.current?.focus()` on its visible mode switcher after the change.
 
 ## When it goes off the usual path
 
 - **No tools appear after a mode switch:** check that `activeContext` matches a context name.
-- **A draft should reset on mode switch:** clear it explicitly. An inactive context stays mounted, hidden and inert.
+- **A draft should reset on mode switch:** call the host's `setDraft('')` as part of changing modes. An inactive context stays mounted, hidden and inert.
 
 ## Related skills
 

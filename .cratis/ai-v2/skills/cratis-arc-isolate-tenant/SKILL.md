@@ -8,7 +8,7 @@ compatibility: Requires Cratis.Arc in a web host with a verified caller identity
 
 Keep the host's existing selection mechanism, including header selection when callers choose a tenant. A resolver selects a tenant; it does not establish that the caller belongs to it. A request header expresses a selection, not membership. Register a separate synchronous `ITenantMembership` check against trusted membership claims.
 
-In the Arc-only host's `Program.cs`, keep the existing authentication and tenant resolver setup and register the check. For header selection, keep `options.UseHeaderTenancy(...)` with the configured header name. The example selects from a claim; for a combined Library host, configure the same resolver through `AddCratis(configureArcOptions: ...)` instead of registering Arc twice.
+In the Arc-only host's `Program.cs`, keep the existing authentication and tenant resolver setup and register the check. If the caller selects the tenant by header, replace the claim registration below with `builder.AddCratisArc(options => options.UseHeaderTenancy("X-Library-Tenant"));` and send `X-Library-Tenant: tenant-a` on the request. In a combined Library host, configure claim selection with `builder.AddCratis(configureArcOptions: options => options.UseClaimTenancy("tenant_id"));` rather than registering Arc twice.
 
 ```csharp
 using Library.Tenancy;
@@ -53,7 +53,7 @@ Register the same `AuthorId` with different names in tenant A and tenant B as au
 
 - Do not trust membership supplied in a command body; inspect the verified principal.
 - Do not perform I/O in `IsMember`; use membership already established for this request.
-- Do not use `UseFixedTenancy()` or `UseDevelopmentTenancy()` for per-caller routing; both select one tenant for every caller.
+- Do not configure a single fixed tenant for a host serving multiple tenants.
 
 ## Related skills
 

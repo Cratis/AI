@@ -32,8 +32,8 @@ Use two different `AuthorId` values and `var name = new AuthorName("Aster");` fr
 
 ## When it goes off the usual path
 
-- **Several facts or fields define one reservation:** choose a named declarative `IConstraint` when one annotated property cannot express the rule. Replace the attribute rule with one `Unique` definition, `.On` for each contributing event (with property selectors in the same order for a composite), and `.RemovedWith<AuthorRemoved>()`. Test collisions across the contributing facts and reuse after release.
-- **The same source must not record the same event type twice:** that is an occurrence limit, not a name reservation across sources. An event-type uniqueness rule does not prevent two authors from taking Aster.
+- **Registration and a later rename must claim names in the same reservation:** replace the `Unique` property attribute and `RemoveConstraint` release with one declarative rule. In a class implementing `IConstraint` from `Cratis.Chronicle.Events.Constraints`, add `public void Define(IConstraintBuilder builder) => builder.Unique(u => u.WithName("UniqueAuthorName").On<AuthorRegistered>(e => e.Name).On<AuthorRenamed>(e => e.Name).RemovedWith<AuthorRemoved>());`. Here the additional fact is `[EventType] public record AuthorRenamed(string Name);`. Check that a rename to a different author's name is refused and that removal releases the claim.
+- **The same source must not record an event type twice:** put `[Unique]` directly on that event record, not on a property. Append two occurrences for one source and check the second is refused. Keep the property rule if names must also be unique across sources.
 
 Don't enforce uniqueness with a query or validator alone; two callers can both pass the check before either appends. The claim and its release must use the same constraint.
 

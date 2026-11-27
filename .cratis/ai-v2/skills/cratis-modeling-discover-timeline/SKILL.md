@@ -1,6 +1,6 @@
 ---
 name: cratis-modeling-discover-timeline
-description: Use when discovering who owns one business outcome, whose event source records it or where a displayed field comes from. For cutting an agreed timeline into slices, use cratis-modeling-design-event-model.
+description: Use when reconstructing a business journey with its owner or walking through it before coding to identify who acts, whose event source records the outcome and where displayed fields come from. For cutting an agreed timeline into slices, use cratis-modeling-design-event-model.
 ---
 
 # Discover the business timeline

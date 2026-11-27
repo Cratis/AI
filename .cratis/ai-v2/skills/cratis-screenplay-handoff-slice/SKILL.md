@@ -16,7 +16,7 @@ compatibility: Requires the Screenplay CLI.
 
 3. Give the implementer `library.json`, `registration.json`, both revisions and the accepted `RegisteringAster` and `RejectingAnEmptyName` addresses and outcomes. Name `Library.Authors.ListAuthors` as a dependency, not as part of this excerpt.
 4. Add a UI export (`screenplay export model --format ui --output screens.json`) for a screen consumer. Add the HTTP contract below for a client integrating over HTTP.
-5. On the target, register Aster for the agreed author ID and verify that the already-open list gains the matching row. An empty name must produce `Name is required` and no new row. If generating tests, map each accepted specification address to its generated and executed case, not to a generated test count.
+5. On the target, register Aster for the agreed author ID and verify that the already-open list gains the matching row. An empty name must produce `Name is required` and no new row. Record which accepted specification each executed target check covers.
 
 ## Hand off to an HTTP client
 
@@ -31,7 +31,7 @@ Treat those IDs as model metadata. Arc's generated OpenAPI uses the host's endpo
 | Validate `RegisterAuthor` | `POST <command-route>/validate` with the command JSON | Runs authorization and validation, not the handler; no registration is recorded, even for valid input. |
 | Execute `RegisterAuthor` | `POST <command-route>` with the same JSON | Runs the handler when authorized and valid. Check the command result and the registration outcome. |
 | Read one `AllAuthors` snapshot | `GET <query-route>?waitForFirstResult=true` without a stream header or upgrade | One JSON query result, not a subscription. Without `waitForFirstResult=true`, an observable query can answer 202 with `isReady: false` and no data. |
-| Follow `AllAuthors` live | `GET <query-route>` with `Accept: text/event-stream`, or a WebSocket upgrade on that route | Keep the connection open for later results; the first streamed result alone does not verify live delivery. |
+| Follow `AllAuthors` live | `GET <query-route>` with `Accept: text/event-stream` | Keep the connection open for later results; the first streamed result alone does not verify live delivery. |
 
 The model's `x-screenplay-observable` marks a live query; the plain `GET` and stream negotiation above describe Arc's runtime behavior. Verify with valid input: run validation first and confirm no new row, then execute and confirm the fresh snapshot and the already-open stream both contain the agreed author ID.
 

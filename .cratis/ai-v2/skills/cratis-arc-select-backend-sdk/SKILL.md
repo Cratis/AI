@@ -32,6 +32,7 @@ package registration_test
 
 import (
     "context"
+    "encoding/json"
     "testing"
     "github.com/cratis/arc.go/commands"
 )
@@ -64,10 +65,26 @@ func TestNativeReply(t *testing.T) {
 }
 ```
 
+A Go `type AuthorId string` is distinct from `string` but `encoding/json` reads and writes it as a JSON string. In the same file, verify its wire shape when the ID leaves the process:
+
+```go
+func TestAuthorIdJSON(t *testing.T) {
+    const id AuthorId = "11111111-1111-4111-8111-111111111111"
+    data, err := json.Marshal(id)
+    if err != nil || string(data) != `"11111111-1111-4111-8111-111111111111"` {
+        t.Fatalf("JSON=%q err=%v", data, err)
+    }
+    var decoded AuthorId
+    if err := json.Unmarshal(data, &decoded); err != nil || decoded != id {
+        t.Fatalf("decoded=%q err=%v", decoded, err)
+    }
+}
+```
+
 ## When it goes off the usual path
 
-- **The Go command test passes but the port needs an adapter or proxy generation:** check the separately resolved integration or tool module. A root-module pass does not prove either is installed. Verify the required feature against the resolved version, not a sample from the development branch.
-- **An ASP.NET Core MVC client relies on `/validate`:** treat that route as a porting requirement. Test that the target binds and validates the request without invoking the action; do not assume matching execution contracts provide it.
+- **The Go command test passes but the port needs proxy generation:** check `go list -m github.com/cratis/arc.go/tools` in the module that owns tool dependencies. The root `arc.go` module does not prove the generator is installed.
+- **The MVC client relies on validation without execution:** test `POST /api/features/authors/registration/validate` with `Content-Type: application/json` and `{"id":"11111111-1111-4111-8111-111111111111","name":""}`. The registration route must bind the request and report the name error without invoking the action.
 
 ## Avoid
 
@@ -75,5 +92,5 @@ func TestNativeReply(t *testing.T) {
 
 ## Related skills
 
-- [Name a domain value](../cratis-fundamentals-name-value/SKILL.md) for Go wire codecs.
+- [Name a domain value](../cratis-fundamentals-name-value/SKILL.md) in C#.
 - [Select the Chronicle client](../cratis-chronicle-select-client/SKILL.md) for event-store connectivity.

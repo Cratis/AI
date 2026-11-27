@@ -8,7 +8,7 @@ compatibility: A language toolchain with the matching Chronicle contracts instal
 
 1. **Application behavior:** start with the native application client when its pinned version implements and tests the required append, observe or host behavior against your kernel. Look for `:cratis_chronicle` (Elixir/OTP), `io.cratis:chronicle` (JVM), `@cratis/chronicle` (TypeScript), or `github.com/cratis/chronicle.go` (Go). Check the pinned version's documented support and tests for the operation. Don't infer support from another SDK.
 2. **Wire tooling:** choose generated contracts when you need message types and service stubs, not hosted behavior. Use `cratis-chronicle-contracts` in Python, `:cratis_chronicle_contracts` in Elixir, or `@cratis/chronicle.contracts` in TypeScript. The Kotlin contracts' `ChronicleConnection` opens the gRPC connection; that is not the JVM application client.
-3. **Missing application behavior:** route to an implementation that demonstrates the required behavior. For .NET, follow the [application integration](../cratis-chronicle-connect-application/SKILL.md).
+3. **The native client cannot host the required observer:** put that observer in a .NET worker rather than implementing a host from wire stubs. In the worker project run `dotnet add package Cratis.Chronicle`, then implement the [projection](../cratis-chronicle-project-view/SKILL.md) or [reactor](../cratis-chronicle-react-to-fact/SKILL.md) there.
 
 ## Read a registered author's event type in Python
 

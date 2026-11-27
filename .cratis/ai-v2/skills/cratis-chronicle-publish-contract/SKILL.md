@@ -64,8 +64,8 @@ public static class ListingExchange
 
 ## When it goes off the usual path
 
-- **The review commits but publication fails:** reconcile the public append separately. Don't repeat the recorded review to retry delivery.
-- **The directory did not update:** check its `inbox-library` first. If the listing arrived, inspect the consumer observer; otherwise, inspect the source outbox, subscription selection and forwarding progress. Replaying forwarding can create a new inbox row for an already delivered listing. Deduplicate effects by stable publication identity, not the inbox sequence number.
+- **The review commits but publication fails:** read `await producer.GetEventSequence(EventSequenceId.Outbox).GetFromSequenceNumber(EventSequenceNumber.First, id)`. If the intended listing is already there, don't append it again. For a confirmed missing listing, retry just the `Outbox` append shown above, not `Publish`.
+- **The directory did not update:** repeat the `inbox` read above. If the listing arrived, check `await consumer.Observers.GetAll()` for the listing observer on that sequence. If the outbox has the listing but the inbox does not, verify `WithEventType<AuthorListed>()` in the directory's subscription setup. Replaying forwarding can create a new inbox row; for a listing published once per author, use `AuthorId` to upsert the listing instead of keying it by inbox position.
 
 ## Related skills
 

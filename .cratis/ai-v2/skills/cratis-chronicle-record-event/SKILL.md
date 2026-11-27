@@ -69,7 +69,7 @@ Use the stored occurrence time, not the lookup time. If another writer permits m
 
 ## When it goes off the usual path
 
-- **The create-only append was refused:** inspect the refusal and read the existing history before deciding whether to report an existing author or try again. A refusal does not prove the history is empty.
+- **The create-only append was refused:** inspect `result.ConcurrencyViolation` and read `await eventLog.GetFromSequenceNumber(EventSequenceNumber.First, authorId)` before deciding whether to report an existing author or try again.
 - **The original outcome needs correcting:** append a correcting fact for that event source and preserve the original. Don't edit it in the event log.
 
 ## Related skills

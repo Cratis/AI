@@ -44,9 +44,9 @@ export function AddAuthorButton() {
 
 3. Add no submit handler. OK runs the command. The dialog stays open on failure so the reader can correct the name; keep both field errors and the form summary visible.
 
-Choose `StepperCommandDialog` when one command genuinely needs several stages. Import it and `StepperPanel` from `@cratis/components/CommandDialog`; put each field group in a panel. Next and Previous move between panels without executing; the final Submit runs the command only after validation across all steps. Verify that returning to fix a required field on an earlier step preserves the other inputs and enables one final submission.
+Choose `StepperCommandDialog` when one command genuinely needs several stages. Import `{ StepperCommandDialog, StepperPanel }` from `@cratis/components/CommandDialog`. Replace both `CommandDialog` tags with `StepperCommandDialog`, and wrap each field group with `<StepperPanel header="Author details">…</StepperPanel>` using a distinct header per step. Next and Previous move between panels without executing; the final Submit runs the command only after validation across all steps. Verify that returning to fix a required field on an earlier step preserves the other inputs and enables one final submission.
 
-For commands with a generated `Date` property, bind `CalendarField` from `@cratis/components/CommandForm` as another typed field. Set `showTime` only if users supply a time as well as a date.
+If a generated command such as `ScheduleLoan` has `startsAt: Date`, import `{ CalendarField }` from `@cratis/components/CommandForm` and bind `<CalendarField<ScheduleLoan> value={loan => loan.startsAt} title="Starts at" />`. Add `showTime={true}` only when users must supply a time.
 
 ## Avoid
 
@@ -55,9 +55,8 @@ For commands with a generated `Date` property, bind `CalendarField` from `@crati
 
 ## When it goes off the usual path
 
-- **Enter could activate confirmation on open:** set `initialFocus` to `DialogInitialFocus.Content` from `@cratis/components/Dialogs` to focus the title, then test that Enter there does not submit and Tab reaches the editable field.
+- **Enter could activate confirmation on open:** import `{ DialogInitialFocus }` from `@cratis/components/Dialogs` and pass `initialFocus={DialogInitialFocus.Content}` to focus the title, then test that Enter there does not submit and Tab reaches the editable field.
 - **The command is refused:** verify that the dialog stays open with the errors available for correction.
-- **An input stops applying and its field disappears:** explicitly clear the corresponding property. Hiding the field doesn't clear the command value.
 
 ## Related skills
 

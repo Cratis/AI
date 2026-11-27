@@ -6,7 +6,7 @@ compatibility: Requires React Storybook with @storybook/react-vite, the Library 
 
 # Open the real Add author dialog in a story
 
-Use a story with fixed inputs and the real component for dialog interaction and focus. Start with [AddAuthorButton and AddAuthor](../cratis-components-submit-form/SKILL.md) and set the real dialog's `initialFocus={DialogInitialFocus.Content}` as described there. Put `AddAuthor.stories.tsx` beside the button. Omit its decorator if the preview already supplies the [Library providers](../cratis-arc-react-bind-slice/SKILL.md).
+Put `AddAuthor.stories.tsx` beside the real [AddAuthorButton and AddAuthor](../cratis-components-submit-form/SKILL.md). Check that focus enters the dialog without configuring a different focus target for the test. Omit the decorator if the preview already supplies the [Library providers](../cratis-arc-react-bind-slice/SKILL.md).
 
 ```tsx
 import 'reflect-metadata';
@@ -29,10 +29,9 @@ export const OpensAndEditsName: StoryObj<typeof meta> = {
         trigger.focus();
         await userEvent.keyboard('{Enter}');
         const page = within(canvasElement.ownerDocument.body);
-        const dialog = within(await page.findByRole('dialog', { name: 'Add author' }));
-        const title = dialog.getByRole('heading', { name: 'Add author' });
-        await waitFor(() => expect(title).toHaveFocus());
-        const input = dialog.getByRole('textbox');
+        const dialog = await page.findByRole('dialog', { name: 'Add author' });
+        await waitFor(() => expect(dialog.contains(dialog.ownerDocument.activeElement)).toBe(true));
+        const input = within(dialog).getByRole('textbox');
         await userEvent.type(input, 'Aster');
         await expect(input).toHaveValue('Aster');
         await userEvent.keyboard('{Escape}');
@@ -55,10 +54,7 @@ export async function verifyKeyboardRegistration(page, name) {
 }
 ```
 
-## When it goes off the usual path
-
-- **The dialog is portalled outside the canvas:** keep the trigger lookup scoped to the canvas and the named dialog lookup scoped to the preview document.
-- **Testing server refusal:** in a wired story, use a nonempty name with a fixed refusal at the command transport boundary. Verify the announced refusal, visible error and still-open dialog before editing and resubmitting with an accepted result. Assert focus returns to the trigger after dismissal. A disabled Add button on empty input doesn't exercise refusal.
+For a server refusal, run the authenticated invalid-request check in [Deliver the slice](../cratis-platform-deliver-slice/SKILL.md). This story does not submit a command.
 
 ## Related skills
 
