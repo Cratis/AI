@@ -51,8 +51,7 @@ export function evaluationProblems(path: string, skill: string, kind: 'trigger' 
 }
 
 /** CI checks only shape, never starts a model. Missing/empty populations are defects. */
-export async function verifySkillEvaluations(root: string, knownSkills: string[]): Promise<{ skills: number; problems: string[] }> {
-    const directory = join(root, 'Evaluations', 'skills');
+export async function verifySkillEvaluations(root: string, knownSkills: string[], directory = join(root, 'Evaluations', 'skills')): Promise<{ skills: number; problems: string[] }> {
     let names: string[];
     try { names = (await readdir(directory, { withFileTypes: true })).filter(entry => entry.isDirectory()).map(entry => entry.name).sort(); }
     catch (error) { return { skills: 0, problems: [`${directory}: cannot read evaluation skills: ${String(error)}`] }; }

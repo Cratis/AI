@@ -6,21 +6,23 @@ import { homedir, tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { Harness } from './Harness.ts';
 import { corpusDigest } from './tasks.ts';
+import { validateCorpus } from './corpus.ts';
 import { workspace } from './workspace.ts';
 
 /** Neither harness is shown a path into the repository. Dereference copied links, never retain them. */
-export async function isolateBatch(source: string, harness: Harness, environment = process.env): Promise<{
+export async function isolateBatch(source: string, harness: Harness, environment = process.env, sandboxed = false): Promise<{
     skillsDirectory: string; corpusSkills: string[]; digest: string; agentDirectory?: string;
     withWorkspace: string; withoutWorkspace: string; remove: () => Promise<void>;
 }> {
     const path = await mkdtemp(join(tmpdir(), 'cratis-skill-eval-'));
     try {
         await chmod(path, 0o700);
-        const withWorkspace = (await workspace(source, path)).path;
+        const withWorkspace = (await workspace(source, path, !sandboxed)).path;
         const withoutWorkspace = (await workspace(undefined, path)).path;
         const skillsDirectory = join(withWorkspace, '.claude/skills');
         const corpusSkills = (await readdir(skillsDirectory, { withFileTypes: true })).filter(entry => entry.isDirectory()).map(entry => entry.name);
         if (!corpusSkills.length) throw new Error('Isolated corpus contains no skills.');
+        if (sandboxed) await validateCorpus(skillsDirectory, corpusSkills);
         let agentDirectory: string | undefined;
         if (harness === Harness.Pi) {
             agentDirectory = join(path, 'agent');

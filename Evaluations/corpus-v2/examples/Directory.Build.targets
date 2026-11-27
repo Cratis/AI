@@ -1,0 +1,4 @@
+<Project>
+    <!-- A few fixtures have their own Directory.Build.props for standalone builds. -->
+    <Import Project="Directory.Build.props" Condition="'$(DirectoryBuildPropsPath)' != '$(MSBuildThisFileDirectory)Directory.Build.props'" />
+</Project>

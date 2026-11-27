@@ -12,6 +12,7 @@ export interface Result extends Task {
     listedSkills?: string[];
     text: string;
     usage: { input: number; output: number; costUsd?: number } | undefined;
+    toolCalls?: number;
     durationSeconds: number;
     stopped: 'skill-loaded' | 'tool-cap' | undefined;
     transcript: string;

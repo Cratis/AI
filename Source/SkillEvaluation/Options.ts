@@ -8,6 +8,10 @@ export interface Options {
     skills: string[];
     harness: Harness;
     model: string;
+    models?: string[];
+    corpus?: 'v1' | 'v2';
+    compare?: 'v1';
+    dryRun?: boolean;
     thinking: string;
     runs: number;
     concurrency: number;

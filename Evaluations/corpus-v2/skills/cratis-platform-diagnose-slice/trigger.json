@@ -1,0 +1,17 @@
+{"skill":"cratis-platform-diagnose-slice","queries":[
+{"query":"The form reported success but I can't see the new row. How do I work out whether it stopped at the write, the observer or the screen?","shouldTrigger":true},
+{"query":"The command finishes quickly but the new row takes seconds to appear. What should I measure to find the first slow stage?","shouldTrigger":true},
+{"query":"The query is late after a write; help distinguish projection lag from the screen.","shouldTrigger":true},
+{"query":"Correlate the command, append, checkpoint and read for one slow registration.","shouldTrigger":true},
+{"query":"The UI and kernel logs disagree on whether processing stalled. What should we compare?","shouldTrigger":true},
+{"query":"An accepted command takes seconds to appear in the list; pick the first boundary to investigate.","shouldTrigger":true},
+{"query":"Triage a missing row using only the scoped trace capture.","shouldTrigger":true},
+{"query":"Is the long delay before or after we materialize the view? We have snapshots and timings.","shouldTrigger":true},
+{"query":"We already know the author observer partition faulted. Inspect that partition.","shouldTrigger":false,"note":"cratis-chronicle-inspect-observer","sibling":"cratis-chronicle-inspect-observer"},
+{"query":"Fresh queries work. Only the live subscription stopped delivering.","shouldTrigger":false,"note":"cratis-arc-diagnose-live-query","sibling":"cratis-arc-diagnose-live-query"},
+{"query":"Fix a wrong source-key mapping in our Author projection.","shouldTrigger":false,"note":"cratis-chronicle-project-view","sibling":"cratis-chronicle-project-view"},
+{"query":"Add server-side paging to the working query.","shouldTrigger":false,"note":"cratis-arc-page-query","sibling":"cratis-arc-page-query"},
+{"query":"Write a browser test for our already delivered author flow.","shouldTrigger":false,"note":"cratis-specifications-observe-ui","sibling":"cratis-specifications-observe-ui"},
+{"query":"Capture the validation rejection on the backend with a command scenario.","shouldTrigger":false,"note":"cratis-specifications-exercise-backend","sibling":"cratis-specifications-exercise-backend"},
+{"query":"Select the endpoint bindings for a disposable diagnostics environment.","shouldTrigger":false,"note":"cratis-platform-configure-environment","sibling":"cratis-platform-configure-environment"},
+{"query":"Build the missing cross-layer registration feature from scratch.","shouldTrigger":false,"note":"cratis-platform-deliver-slice","sibling":"cratis-platform-deliver-slice"},{"query":"Can I substitute plain yogurt for sour cream in a cake?","shouldTrigger":false,"sibling":null},{"query":"Why does bread become crusty when baked with steam?","shouldTrigger":false,"sibling":null}]}

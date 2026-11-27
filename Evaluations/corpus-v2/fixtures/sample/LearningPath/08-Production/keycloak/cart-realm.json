@@ -1,0 +1,66 @@
+{
+  "realm": "cart",
+  "enabled": true,
+  "sslRequired": "all",
+  "registrationAllowed": false,
+  "roles": {
+    "realm": [{ "name": "Customer" }]
+  },
+  "clients": [
+    {
+      "clientId": "cart-demo",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true,
+      "fullScopeAllowed": true,
+      "protocol": "openid-connect",
+      "protocolMappers": [
+        {
+          "name": "cart-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.custom.audience": "cart-api",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "flat-roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "usermodel.realmRoleMapping.rolePrefix": ""
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "customer",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Demo",
+      "lastName": "Customer",
+      "email": "customer@example.invalid",
+      "realmRoles": ["Customer"],
+      "credentials": [{ "type": "password", "value": "${DEMO_CUSTOMER_PASSWORD}", "temporary": false }]
+    },
+    {
+      "username": "visitor",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Demo",
+      "lastName": "Visitor",
+      "email": "visitor@example.invalid",
+      "credentials": [{ "type": "password", "value": "${DEMO_VISITOR_PASSWORD}", "temporary": false }]
+    }
+  ]
+}
