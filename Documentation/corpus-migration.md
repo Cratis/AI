@@ -32,6 +32,8 @@ Afterwards, change the selection in `.cratis/ai.json` to a featured profile when
 | `product-sync.json` and the product drift workflow | Removed. [Compatibility](./compatibility.md) lists the releases the skills were checked against |
 | Per-skill trigger and output evaluations | Removed. [Authoring skills](./authoring-skills.md) describes the review a skill gets instead |
 
+To replace the removed `security-reviewer` agent, add `cratis/review` to your selection. It installs `cratis-security-review`, `cratis-code-review` and `cratis-performance-review`. If your repository's own rules dispatch `security-reviewer`, point them to the `cratis-security-review` skill instead, or keep your own copy of the agent.
+
 Some earlier platform skill names no longer resolve. Use the v2 name for a replaced task; `cratis ai status` lists the installed skills, including specialist skills that kept their names.
 
 ## Profiles

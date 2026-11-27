@@ -6,7 +6,7 @@ compatibility: .NET SDK and an Arc host with Chronicle.
 
 # Refuse borrowing if the last copy is no longer available
 
-Refuse with a message → request the decision model in the validator. Need the state to build the event → take it as a `Handle` parameter. Both are protected by default.
+Inject the model into the validator for refusals or `Handle` to build the event. Both are protected under `On`.
 
 1. Reference `Cratis.Arc.Chronicle`. Put the command and validator together in `Features/Books/Borrowing/`. Use `Isbn` as the command's only event-source-ID property: it selects both the book to read and the book to append to.
 2. Put `public record Isbn(string Value) : EventSourceId<string>(Value);` in `Features/Books/Isbn.cs` (`Library.Features.Books`), and `[EventType] public record CopyAdded;` in `Features/Books/Stock/CopyAdded.cs` (`Library.Features.Books.Stock`); import `Cratis.Chronicle.Events` in both. Request `BookStock?` in the validator constructor. For a book with no events the validator receives `null` or an instance with `Available` 0; the rule refuses both.
@@ -50,9 +50,9 @@ public class BorrowBookValidator : CommandValidator<BorrowBook>
 
 ## Check the stock rule
 
-The committed spec covers the stock decision, not the framework guard. In the existing validator fixture use `var isbn = new Isbn("9780140327243"); var command = new BorrowBook(isbn);`. Both `new BorrowBookValidator(null).Validate(command).IsValid` and `new BorrowBookValidator(new BookStock(isbn, 0)).Validate(command).IsValid` must be false. With `new BookStock(isbn, 1)` the same check must be true.
+In the validator spec, validate a `BorrowBook` against `null`, `new BookStock(isbn, 0)` and `new BookStock(isbn, 1)`; only the last should pass. This checks the rule, not the guard.
 
-Optional manual check for a human, not an automated race spec: in a disposable host, pause at `Handle()` after validation with one copy left. From another process append `BookBorrowed` to that book in the same namespace. Confirm the append succeeded, then resume the request. Expect a concurrency refusal and no second borrowing. Read the current stock before offering resubmission.
+Optional manual check: in a disposable host with one copy left, pause at `Handle()` after validation. Append `BookBorrowed` from another process to the same book and namespace. Confirm that append, then resume. Expect a concurrency refusal and no second borrowing.
 
 ## Check which read actually guards the append
 
@@ -70,9 +70,21 @@ public BorrowBookValidator(
 }
 ```
 
-Return both events in one `IEnumerable<EventForEventSourceId>` batch: `BookBorrowed` to the book and `LoanTaken` to the member. Under `On`, a conflicting change to either guarded source refuses the batch. `LookUpBy` selects a source from the command; it cannot protect a projection keyed by an event payload property.
+Return both events in one `IEnumerable<EventForEventSourceId>` batch: `BookBorrowed` to the book and `LoanTaken` to the member. Under `On`, a conflicting change to either source refuses the batch. A lookup does not make a payload-keyed projection protectable.
 
-Keep decisions protected. Mark a genuinely advisory parameter `[Unprotected("display only")]` (`Cratis.Arc.Chronicle.ReadModels`). A method-level annotation covers body reads, not injected parameters (`ARCCHR0034`). If an exceptional body read influences a decision, the reason must name the independent append guard, such as a kernel constraint. Never overlay an explicit scope on the same protected read: conflicting expectations can raise `ExplicitScopeDoesNotCoverReads` rather than a clean concurrency refusal. Do not bypass typed injection with a raw keyed read in a command.
+### Where does the lookup key come from?
+
+- Prefer an injected model: use the command's source key, `[LookUpBy(nameof(Property))]` for another command property, or `[LookUpBy<CallerSubject>]` in `Handle` for the authenticated subject.
+- For a key on another protected model in the same member, Arc 25.2.0+ supports `[LookUpBy("order", nameof(OrderSummary.CustomerId))]`. The property must match the target key type; both reads are guarded under `On`.
+- For keys injection can't express (such as a service-computed hash), compute the key in `Handle` under `On` and await the injected `IDecisionReads.Get<T>(key)`. Justify any `ARCCHR0040` suppression.
+
+From Arc 25.1.0, a null or blank secondary scalar key gives a nullable model parameter `null` without a read or guard. A valid key with no instance still guards against the first event. For required keys, reject blanks before invocation if you need a field message: acquisition can fail before validator rules run.
+
+### Which scope guards the append?
+
+Prefer the inferred guard. An explicit scope must cover each protected read's source, event types and stream without narrowing them. Its expected position must be at or before the read's. `ExplicitScopeDoesNotCoverReads` means fix or remove the scope; `ReadChanged` means a competing write invalidated the decision. Read again before resubmitting.
+
+Mark advisory reads `[Unprotected("display only")]` (`Cratis.Arc.Chronicle.ReadModels`). A method annotation covers body reads, not injected parameters (`ARCCHR0034`). If a body read affects a decision, name its independent append guard.
 
 Outside Arc's command pipeline, [guard the standalone append explicitly](references/standalone.md).
 

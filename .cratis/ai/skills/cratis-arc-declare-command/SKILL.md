@@ -35,20 +35,18 @@ public record LendBook(BookId BookId, BorrowerId BorrowerId) : ICanProvideEventS
 
 In the [command scenario](../cratis-specifications-exercise-backend/SKILL.md), use different IDs and assert the single append is to the book, not the borrower. This tests ownership, not the handler's field copy.
 
-## When it goes off the usual path
+In Arc 25.3.1 and 25.3.2, command-level `[EventSource<T>]` can fail before `Handle` when the host validates dependency injection scopes and the caller is unchanged. For append routing, omit the attribute and wrap each event: `new EventForEventSourceId(id, fact) { EventSource = typeof(T), EventStream = "StreamName" }`. Use the stream name declared by `T`. This does not set the route for injected per-stream reads.
 
-Refuse with a message → request the decision model in the validator. Need the state to build the event → take it as a `Handle` parameter. Both are protected by default.
+## Read state to make a decision
 
-Use a validator constructor parameter for the refusal. `[LookUpBy]` chooses the model to read, not where to append. For example, on a `CreditAuthor` command whose source is the book and whose `AuthorId` identifies a separately projected author, use:
+Inject the read model into the validator constructor to refuse with a message, or into `Handle` to build the event. `[LookUpBy]` selects the read, not the append. For a book-owned `CreditAuthor` command, read the author by `AuthorId`:
 
 ```csharp
 public AuthorCredited Handle([LookUpBy(nameof(CreditAuthor.AuthorId))] Author author) =>
     new(AuthorId, author.Name);
 ```
 
-`LookUpBy` is in `Cratis.Arc.Commands`. Finding the author is not authorization to change the book. Check that separately. For a caller-derived key use `[LookUpBy<CallerSubject>]` when the model is keyed by the authenticated subject. For a non-key search, prefer a small projection keyed by the value the command carries. A per-stream model must match the command's own append route; it cannot be redirected with `LookUpBy`.
-
-Don't query MongoDB or `IReadModels` inside `Provide` to bypass injection. A raw observation is not a protected decision. If no injected model can express the read, state why it is advisory and what independently guards the append. `[Unprotected("reason")]` on a method covers reads in its body, not injected parameters. See [Protect a decision](../cratis-chronicle-protect-decision/SKILL.md) before relying on concurrent state.
+`LookUpBy` is in `Cratis.Arc.Commands`. Finding the author does not authorize changes to the book. A per-stream model follows the command's route, not `LookUpBy`. For a caller-derived, related, computed, or optional key, follow [Protect a decision](../cratis-chronicle-protect-decision/SKILL.md). Don't bypass the guard with a raw MongoDB or `IReadModels` read in `Provide`.
 
 ## When the server allocates the ID
 
