@@ -137,11 +137,24 @@ async function referenceProblems(skill: Skill): Promise<string[]> {
     return problems;
 }
 
-async function citationProblems(skill: Skill): Promise<string[]> {
+const checkoutOnlyPath = /(?<![\w.-])(?:Evaluations|\.ai-work|Source[\\/]Verification|Documentation|decisions)[\\/]/;
+
+function contentProblems(path: string, content: string): string[] {
+    const lines = content.split(/\r?\n/);
+    const rules = [
+        { pattern: sourceCitation, problem: 'a source citation' },
+        { pattern: checkoutOnlyPath, problem: 'a checkout-only path' },
+    ];
+    return rules.flatMap(({ pattern, problem }) => {
+        const line = lines.findIndex(text => pattern.test(text));
+        return line === -1 ? [] : [`${path}:${line + 1}: skill content contains ${problem}.`];
+    });
+}
+
+async function skillContentProblems(skill: Skill): Promise<string[]> {
     const problems: string[] = [];
     for (const file of skill.files) {
-        const line = (await readFile(file, 'utf8')).split(/\r?\n/).findIndex(text => sourceCitation.test(text));
-        if (line !== -1) problems.push(`${relative(skill.root, file)}:${line + 1}: skill content contains a source citation.`);
+        problems.push(...contentProblems(relative(skill.root, file), await readFile(file, 'utf8')));
     }
     return problems;
 }
@@ -157,7 +170,7 @@ async function skillProblems(corpus: Corpus, name: string): Promise<string[]> {
         ...skillStructureProblems(skill.shown, skill.content),
         ...linkProblems(skill),
         ...await referenceProblems(skill),
-        ...await citationProblems(skill),
+        ...await skillContentProblems(skill),
     ];
 }
 

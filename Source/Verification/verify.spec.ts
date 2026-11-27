@@ -71,6 +71,7 @@ describe('verify corpus', () => {
         ['a description without an invocation condition', files => { files['.cratis/ai/skills/demo-skill/SKILL.md'] = skill('demo-skill', 'Adds a demo.'); }, /must start with 'Use when' or 'Use before'/],
         ['a broken relative link', files => { files['.cratis/ai/skills/demo-skill/SKILL.md'] = skill('demo-skill', undefined, 'See [next](../gone/SKILL.md).'); }, /links to '\.\.\/gone\/SKILL\.md', which does not exist/],
         ['a reference the skill never names', files => { files['.cratis/ai/skills/demo-skill/references/detail.md'] = '# Detail\n'; }, /must directly reference 'references\/detail\.md'/],
+        ['a checkout-only path in skill content', files => { files['.cratis/ai/skills/demo-skill/SKILL.md'] = skill('demo-skill', undefined, 'Run the example in `Evaluations/corpus-v2/examples/demo/`.'); }, /SKILL\.md:\d+: skill content contains a checkout-only path/],
         ['a file-and-line citation in skill content', files => { files['.cratis/ai/skills/demo-skill/SKILL.md'] = skill('demo-skill', undefined, 'See Handler.cs:12 for proof.'); }, /SKILL\.md:\d+: skill content contains a source citation/],
         ['a product version citation in skill content', files => { files['.cratis/ai/skills/demo-skill/SKILL.md'] = skill('demo-skill', undefined, 'Verified against Arc@v20.65.0.'); }, /skill content contains a source citation/],
         ['a rule naming a skill that does not exist', files => { files['.cratis/ai/rules/general.md'] = 'Choose the **gone-skill** skill.\n'; }, /gone-skill/],

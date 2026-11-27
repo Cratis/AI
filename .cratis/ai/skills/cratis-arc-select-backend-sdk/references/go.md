@@ -1,6 +1,6 @@
 # Go: check a typed command reply
 
-In an empty directory with Go 1.26.4 or later run `go mod init example.org/library` and `go get github.com/cratis/arc.go@v0.1.4`. Save this as `register_author_test.go`:
+In an empty directory with Go 1.26 or later run `go mod init example.org/library` and `go get github.com/cratis/arc.go@v0.1.4`. Save this as `register_author_test.go`:
 
 ```go
 package library_test

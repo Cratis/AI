@@ -72,7 +72,7 @@ Render the status and keep failed input for correction. Read the updated list fr
 
 ## Check the binding
 
-Start with no rows, then register an author. The list should change without a page reload. With a blank search, expect the input hint. In the AI repository, `Evaluations/corpus-v2/examples/cratis-arc-react-bind-slice/README.md` explains how to run the query example with generated proxies and Chromium.
+Start with no rows, then register an author. The list should change without a page reload. With a blank search, expect the input hint.
 
 ## Related skills
 

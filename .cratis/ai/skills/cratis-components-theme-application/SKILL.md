@@ -25,16 +25,18 @@ Use a theme token for a color change, scoped to the smallest wrapper that should
 4. For an app-wide palette instead, put these rules after the three imports, outside `@layer`. Match the baseline selectors so the later value wins on the root and in themed subtrees. Wrap all three rules in `@media (forced-colors: none)` to preserve system colors in forced-colors mode.
 
 ```css
-:root, .cratis-theme, :root.cratis-light, :root.cratis-dark.cratis-light,
-:root.cratis-light .cratis-theme:not(.cratis-dark), .cratis-theme.cratis-light,
-.cratis-dark .cratis-theme.cratis-light { --cratis-primary-color: #0f766e; }
+@media (forced-colors: none) {
+    :root, .cratis-theme, :root.cratis-light, :root.cratis-dark.cratis-light,
+    :root.cratis-light .cratis-theme:not(.cratis-dark), .cratis-theme.cratis-light,
+    .cratis-dark .cratis-theme.cratis-light { --cratis-primary-color: #0f766e; }
 
-:root.cratis-dark, .cratis-dark .cratis-theme, .cratis-theme.cratis-dark {
-    --cratis-primary-color: #5eead4;
-}
+    :root.cratis-dark, .cratis-dark .cratis-theme, .cratis-theme.cratis-dark {
+        --cratis-primary-color: #5eead4;
+    }
 
-@media (prefers-color-scheme: dark) {
-    :root:not(.cratis-light), .cratis-theme:not(.cratis-light) { --cratis-primary-color: #5eead4; }
+    @media (prefers-color-scheme: dark) {
+        :root:not(.cratis-light), .cratis-theme:not(.cratis-light) { --cratis-primary-color: #5eead4; }
+    }
 }
 ```
 

@@ -10,6 +10,8 @@ Start with a finite read. Expose a write only if the verified caller is allowed 
 
 ## Prepare the host
 
+Add explicit package references to the host project for `Cratis.Arc.Mcp` and `Cratis.Arc.PersonalAccessTokens`, both at version `24.9.0`. Neither comes with `Cratis` or `Cratis.Arc`.
+
 If verified callers are already configured, extend the existing scopes and tool catalog without adding another verifier. For a new local Arc-only Web SDK host, install the personal access token (PAT) verifier, bind a separate capabilities port and enable MCP on the same Arc builder. Use your application's existing `LibraryPersonDirectory` implementation of `Cratis.Arc.Identity.Callers.ICallerPersonDirectory`: its `Find` must resolve the verified account key against persisted person records. The example assumes that type is in `Library.Identity`. In `Program.cs`:
 
 ```csharp
