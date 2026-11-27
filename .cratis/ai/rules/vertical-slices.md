@@ -48,6 +48,8 @@ A single `<Slice>.cs` therefore contains ALL of: `[Command]` records with `Handl
 
 **❌ Never split by artifact type** (`Commands/`, `Handlers/`, `Events/` folders) — that is the layered structure the slice replaces.
 
+**[convention] A name does not repeat what its path already says.** A slice is named for what it does *within its feature*, so the feature's noun is not repeated: `Credentials/Adding`, `Credentials/Renaming`, `Secrets/Rotating`, not `Credentials/AddingCredentials` or `Secrets/RotatingSecrets`. Keep the noun when the feature does not name it (`Credentials/AddingLabels`, `Credentials/SyncingClients`, `Credentials/TransferringOwnership`), and never drop it into ambiguity: if two slices of a feature would end up with the same name, the nouns stay. The same holds up the tree: a module's root feature is named for what it is (`Prism.Access.Api`, not `Prism.Access.ApiCredentials` beside `Api.Credentials`), a view's query module is `Queries` inside its slice folder, and a spec is named for the unit and the behavior, not for the folders above it. The command, event and read model keep their full names (`AddCredential`, `CredentialAdded`): they are read away from the path, in the event model, the log and the proxies, where the path is gone.
+
 ## Concepts
 
 Every domain identifier or named value is a typed record — raw `string`/`Guid`/`int` should not appear on commands, events, or read models for domain values. Primitives stay primitive only when the meaning *is* the base type (`bool`, a plain count, `DateOnly`).
