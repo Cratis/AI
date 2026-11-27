@@ -1,2 +1,0 @@
-{"type":"session","id":"synthetic-empty","synthetic":true}
-{"type":"message","message":{"role":"assistant","content":[{"type":"text","text":"Browser verification is unavailable; browser_click was not invoked."}]}}

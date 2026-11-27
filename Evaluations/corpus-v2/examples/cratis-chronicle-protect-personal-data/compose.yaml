@@ -1,7 +1,0 @@
-services:
-  chronicle:
-    image: cratis/chronicle:19.184.3-development
-    ports:
-      - '127.0.0.1:35000:35000'
-    sysctls:
-      net.ipv4.ip_local_reserved_ports: '11111,30000,35000'
