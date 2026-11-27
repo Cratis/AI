@@ -36,8 +36,8 @@ arc: [application: MyApp.Arc, output: "assets/src/arc"]
 A feature that holds more than about six slices is usually several features. Look for these seams
 before adding the next slice, and review them whenever a feature grows:
 
-- **One noun, many verbs.** The slices that act on one thing (`rotating_secrets`, `revoking_previous_secrets`,
-  `expiring_previous_secrets`, `retiring_secrets`) belong together in a sub-feature named for the
+- **One noun, many verbs.** The slices that act on one thing (`rotating`, `revoking_previous`,
+  `expiring_previous`, `retiring`) belong together in a sub-feature named for the
   thing (`secrets/`), not spread across a flat feature.
 - **A reactor belongs with the facts it reacts to.** An automation that retires a secret after it was
   revoked lives in `secrets/`, not in a folder named for the third party it calls (`ory/`). A third
@@ -48,8 +48,8 @@ before adding the next slice, and review them whenever a feature grows:
   Have it record the fact that its effect happened (`SecretRetiredInOry`), so the automation shows
   what it produced.
 
-The folder is the namespace: `Prism.Access.ApiCredentials.Secrets.RotatingSecrets` is the slice
-`RotatingSecrets` of the sub-feature `Secrets`. Arc's structure and event model show each
+The folder is the namespace: `Prism.Access.Api.Secrets.Rotating` is the slice
+`Rotating` of the sub-feature `Secrets`. Arc's structure and event model show each
 sub-feature as a feature of its own, so the grouping is what readers and tools see. Keep
 `segments_to_skip` equal to the segments above the module.
 

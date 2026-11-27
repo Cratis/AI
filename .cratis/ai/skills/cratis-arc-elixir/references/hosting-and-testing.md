@@ -41,7 +41,9 @@ scenario as `:scenario`, and you chain `given_events/3`, `execute/3` (`as:` a `p
 `should_have_constraint_violation/1,2`, `should_respond_with/2`, `should_have_appended/2,3`,
 `should_have_appended_exactly/2`, `should_not_have_appended_any_events/1`, `should_return_items/2`. The
 `Cratis.Arc.Test.Should` module is the counterpart of the C# `Should` extensions (`should_equal/2`,
-`should_contain_only/2`, `should_match/2`, ...). Read `rules/specs.elixir.md` for the layout of the files.
+`should_contain_only/2`, `should_match/2`, ...). Reusable facts are given contexts (`use Cratis.Arc.Test.Given`, a `given/1` that returns the scenario) applied with
+`given: [Context]` or `given/2`, and `setup: {Module, :function}` prepares fakes before they run. Read
+`rules/specs.elixir.md` for the layout of the files and the contexts.
 
 Also `Cratis.Arc.Test.query/5`, `principal/2`, `assert_success/1`, `assert_forbidden/1`,
 `assert_appended/3` and `wait_for_observers/1`. For a plain Plug application without

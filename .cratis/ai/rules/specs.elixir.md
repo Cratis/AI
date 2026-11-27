@@ -63,8 +63,8 @@ Folder names are `snake_case`. A spec's **module name mirrors its path** below t
 `PascalCase`, so it can never clash with the module it specifies and is never named `...Test`:
 
 ```elixir
-# lib/access/credentials/adding_credentials/for_add_credential/when_adding/with_selected_vessels.exs
-defmodule Prism.Access.Credentials.AddingCredentials.ForAddCredential.WhenAdding.WithSelectedVessels do
+# lib/access/credentials/adding/for_add_credential/when_adding/with_selected_vessels.exs
+defmodule Prism.Access.Credentials.Adding.ForAddCredential.WhenAdding.WithSelectedVessels do
   use ExUnit.Case, async: true
 ```
 
@@ -123,26 +123,50 @@ fine for a pure function; there is no scenario to set up.
   assert on internals, and do not spec logging or trivial delegation.
 - `doctest Module` belongs in its own spec (`when_building/with_the_documented_examples.exs`).
 
-## Shared context: `given/`
+## Shared context: `given/` contexts
 
-Contexts that several specs share (a table of people, a started kernel) go in `for_<unit>/given/<name>.exs`
-as a module, and a spec loads it by relative path. The filter above keeps `given/` out of the specs ExUnit
-runs, so it is loaded once, by the spec that needs it:
+Facts that several specs start from are a **given context**, named for the situation (`a_credential`,
+`a_rotated_credential`), the counterpart of the `given` classes of the C# specs. A context is a module in a
+script under a `given/` folder beside the specs that use it, with `given/1` that returns the next scenario
+(`given/2` takes an argument, `{Context, argument}` passes it):
 
 ```elixir
-Code.require_file("../given/people.exs", __DIR__)
+# lib/access/api/given/a_credential.exs
+defmodule Prism.Access.Api.Given.ACredential do
+  use Cratis.Arc.Test.Given
 
-defmodule Prism.Access.Components.DataTable.ForDataTable.WhenFiltering.WithASingleFilter do
-  use ExUnit.Case, async: true
+  @impl true
+  def given(scenario), do: __MODULE__.given(scenario, %{})
 
-  alias Prism.Access.Components.DataTable.ForDataTable.Given.People
-  import People, only: [names: 1, table: 1]
-  ...
+  @impl true
+  def given(scenario, attrs), do: given_command(scenario, AddCredential, Map.merge(@defaults, attrs))
+end
 ```
 
-A context that needs a compiled module (a `Case` with `setup`, an in-memory stand-in) is a `test/support/*.ex`
-module that the spec `use`s, like `Prism.Access.Case` in a Cratis application: it starts the in-memory
-Chronicle kernel and gives `exec/3`, `facts/2` and the stand-ins.
+A spec applies contexts with the `given:` option of its scenario, which runs them in order before its own
+`setup_all`; contexts compose with `given_context/2` (`a_rotated_credential` is `a_credential` and a
+rotation). Put a context where its users are: next to the one spec folder that needs it
+(`for_rotate_secret/given/`), or in the feature's `given/` folder when several slices share it
+(`secrets/given/`, `api/given/`). A fact that is only reachable through the real pipeline (a client created in
+Ory) is given with a command that must succeed; the scenario goes on from before it, so only what the spec's
+own behavior appended counts.
+
+Load the scripts once, in `lib/test_helper.exs` (the helper sits in the first of `test_paths`), and keep
+`mix test` from running them:
+
+```elixir
+for file <- Path.wildcard("lib/**/given/*.exs") |> Enum.sort(), do: Code.require_file(file)
+```
+
+```elixir
+test_ignore_filters: [&String.contains?(&1, "/given/")]
+```
+
+A thing the scenarios cannot express (fakes that need `start_supervised!`, application environment, a fixed
+clock) is prepared by `setup: {Module, :function}`, run before the contexts in the setup's own process. An
+application wraps that in its own `use` (`use Prism.Access.Scenario, given: [...]`) so a spec states only the
+contexts and the behavior. Pure ExUnit specs of a function or a component keep a plain `given/` module that
+they load with `Code.require_file("../given/people.exs", __DIR__)`.
 
 ## What to specify, by kind
 
