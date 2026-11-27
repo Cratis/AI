@@ -149,4 +149,5 @@ This file is the shared base. For the concrete patterns:
 - [specs.csharp.md](./specs.csharp.md) — C#: the universal `Cratis.Specifications` base + NSubstitute (both profiles; this is what framework/library specs use).
 - [specs.scenarios.csharp.md](./specs.scenarios.csharp.md) — C# **application** profile: the in-process scenario family (`CommandScenario`, `EventScenario`, `ReadModelScenario`, `ReactorScenario`) + out-of-process Chronicle integration.
 - [specs.typescript.md](./specs.typescript.md) — TypeScript framework-package specs (`given()` helper).
+- [specs.elixir.md](./specs.elixir.md) — Elixir: `.exs` scripts in `for_*`/`when_*` folders with no `_test` suffix (never in a release), `should` assertions, `given/` contexts.
 - [frontend-testing.md](./frontend-testing.md) — application frontend specs (view models, React components).
