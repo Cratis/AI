@@ -36,7 +36,7 @@ Merge this section into the host project's `appsettings.json`, preserving other 
 
 ## Avoid
 
-- Use one output tree per independent generator and keep handwritten files and public barrels outside it. The MSBuild integration does not wipe the whole output directory before generating, but each run still deletes files marked as generated whose endpoints no longer exist.
+- Use one output tree per independent generator and keep handwritten files and public barrels outside it. Each generation run deletes generated-marked `.ts` files in the output tree that the run did not emit. By default it does not wipe the whole directory first; setting `CratisProxiesSkipOutputDeletion` to `false` makes it do so.
 - Do not patch a generated type. Edit the C# producer and regenerate.
 - Do not leave the output property empty; an empty path produces no proxies.
 
