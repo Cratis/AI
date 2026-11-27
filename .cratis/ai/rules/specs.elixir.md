@@ -70,25 +70,55 @@ defmodule Prism.Access.Credentials.AddingCredentials.ForAddCredential.WhenAdding
 
 ## One scenario, several `should` assertions
 
-The `setup` establishes the context and performs the behavior once per assertion (ExUnit runs `setup` for each
-`test`); each `test` states one expectation and starts with **`should`**, so the file reads as a sentence:
+Use the **scenarios** of Arc and Chronicle for Elixir: the counterpart of the C# `Specification` with its
+`CommandScenario`, `EventScenario`, `ReadModelScenario`, `ReactorScenario` and `QueryScenario`. Facts are given,
+the behavior happens **once** (`setup_all`: the shared lifecycle), and each `test` is one expectation, a
+`should_*` function that starts the test name with **`should`**:
 
 ```elixir
-defmodule Prism.Access.ApiCredentials.ForState.WhenDerivingTheStatus do
-  use ExUnit.Case, async: true
+defmodule MyApp.Authors.ForRegisterAuthor.WhenRegistering.WithAValidName do
+  use Cratis.Arc.Test.CommandScenario,
+    application: MyApp.Arc,
+    event_types: [MyApp.Authors.AuthorRegistered]
 
-  alias Prism.Access.ApiCredentials.State
+  alias MyApp.Authors.{AuthorRegistered, RegisterAuthor}
 
-  test "should be active by default" do
-    assert State.status(%State{id: "c", exists?: true}, ~U[2026-03-01 12:00:00Z]) == :active
+  setup_all %{scenario: scenario} do
+    scenario =
+      scenario
+      |> given_events("ada", %AuthorRegistered{name: "Ada"})
+      |> execute(%RegisterAuthor{id: "grace", name: "Grace"}, as: principal("tester", ["maintainer"]))
+
+    %{scenario: scenario}
+  end
+
+  test "should be successful", %{scenario: scenario}, do: should_be_successful(scenario)
+
+  test "should append the author as registered", %{scenario: scenario} do
+    should_have_appended(scenario, %AuthorRegistered{name: "Grace"}, event_source_id: "grace")
   end
 end
 ```
 
-- `test "should refuse a duplicate label"`, not `test "a duplicate label is refused"` and not
-  `test "refuses..."`. Name the expected result, not the call.
-- A file with several unrelated scenarios is several files. Split `describe` blocks into
-  `when_<behavior>/<preposition>_<condition>.exs` files; do not use `describe` to group scenarios.
+A scenario is an immutable value: **given** and **because** functions (`given_events/3`, `execute/3`, `query/5`,
+`append/3`) return the next scenario, **should** functions return the one they checked, so they chain. Use
+`lifecycle: :per_test` (and `setup`) only for a spec whose tests change the shared state. Only the events the
+behavior appended count for `should_have_appended`, not the given ones.
+
+| Scenario | Module | Use for |
+|---|---|---|
+| Command | `Cratis.Arc.Test.CommandScenario` | a command through the real pipeline: result, validation, authorization, constraints, events |
+| Query | `Cratis.Arc.Test.QueryScenario` | a query's arguments, authorization and data (the in-memory kernel runs no read-model queries) |
+| Event | `Cratis.Chronicle.Testing.EventScenario` | an event's constraints (`unique/2`, `unique_event_type/1`), concurrency, sequence numbers |
+| Read model | `Cratis.Chronicle.Testing.ReadModelScenario` | what a projection or reducer builds from given events, by module and key |
+| Reactor | `Cratis.Chronicle.Testing.ReactorScenario` | the events a reactor produced and whether it failed |
+
+For assertions on any other value use `Cratis.Arc.Test.Should` (`should_equal`, `should_contain_only`,
+`should_match`, ...): the value first, so they pipe, and they return it. A plain `ExUnit.Case` with `assert` is
+fine for a pure function; there is no scenario to set up.
+
+- Name the expected result, not the call: `test "should refuse a duplicate label"`.
+- A file with several unrelated scenarios is several files; do not use `describe` to group them.
 - Assert on the **contract**: the result, the events appended, what a collaborator was asked to do. Do not
   assert on internals, and do not spec logging or trivial delegation.
 - `doctest Module` belongs in its own spec (`when_building/with_the_documented_examples.exs`).
@@ -118,9 +148,9 @@ Chronicle kernel and gives `exec/3`, `facts/2` and the stand-ins.
 
 | Kind | Run it through | Assert |
 |---|---|---|
-| Command | the real pipeline (`Cratis.Arc.Test.execute/3`, in-memory Chronicle) | result, events appended (types and data), what the integration was asked |
-| Reactor / automation | the real reactor against the in-memory kernel | the command it ran, the event that records the outcome |
-| Read model, projection | the events folded (`State`, projection function) | the document, never `Process.sleep` |
+| Command | `CommandScenario` (the real pipeline, in-memory Chronicle) | result, events appended (types and data), what the integration was asked |
+| Reactor / automation | `ReactorScenario` (the real reactor against the in-memory kernel) | the command it ran, the event that records the outcome |
+| Read model, projection | `ReadModelScenario`, or the events folded (`State`) for the pure part | the document, never `Process.sleep` |
 | Pure function | a direct call | return values; one file per rule |
 | LiveView / component | `Phoenix.LiveViewTest` (`render_component/2`, `live/2`) | the markup that matters: structure, state classes, the events wired, not every attribute |
 
