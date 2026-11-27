@@ -50,7 +50,7 @@ if (!name.trim()) return <p>Enter an author name.</p>;
 ## When it goes off the usual path
 
 - **Rows aren't ready or access was denied:** show loading or error, not an empty list. Show an empty list only for a ready, successful result with no rows.
-- **The account switches:** the `<Arc>` provider keeps the last result of each query, so a remounted view can briefly show the previous caller's rows. Have the sign-in flow hide the old view, install the new credentials, then give the owning provider a fresh instance by keying it on the signed-in identity, for example `<Arc key={userId} ...>`. Show loading until the new view has a result.
+- **The account switches:** cached query results and open query connections belong to the previous caller, and remounting views or the `<Arc>` provider does not discard them all. After sign-out or after installing a different user's credentials, reload the page (`window.location.reload()` or a full navigation) so every query starts fresh for the new caller.
 
 ## Related skills
 
