@@ -228,10 +228,11 @@ ui profile Desktop
 
 ## Routes, slots, toolbars and dialogs
 
-Navigation and toolbar items target the same typed destination contract: screen,
-named slot, optional route parameters, and optionally a dialog. A State Change
-slice's hook instead lets the slice's `fits` choose the place (see
-`application-shell.md`).
+Screen navigation and screen toolbar items use the typed destination contract:
+screen, named slot, optional route parameters and optionally a dialog. A shell
+navigation outlet instead targets a module or feature, with optional `screen <Screen>`
+for a specific page in the exact target feature (see [navigation outlets](application-shell.md#navigation-outlets-inherit-extend-or-override)).
+A State Change slice's hook lets the slice's `fits` choose the place.
 
 ```screenplay excerpt
 screen InvoiceList

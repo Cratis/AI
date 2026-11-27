@@ -161,19 +161,58 @@ outlet it changes; an outlet it does not mention **inherits** what is above it.
 - Each outlet has its own mode: a module can extend the sidebar and inherit the topbar.
 - The layout declares; it never says `inherits`, `extends` or `overrides`, and `inherits` lists no items (`PLAY0897`).
 - `logo image "<path>" title "<text>"` belongs to the layout's navigation outlet only; a logo below the layout is `PLAY0744`.
-- A navigation item is `<id> title "<text>" [icon <name>] [target <Module>[.<Feature>]] [slot <name>]`, after `default` on
-  the layout and after `item` below it; any item nests sub-items as `item` lines. The title is a quoted string or
-  `$strings.<key>`.
+- A navigation item is `<id> title "<text>" [icon <name>] [target <Module>[.<Feature>] [screen <Screen>]] [slot <name>]`,
+  after `default` on the layout and after `item` below it; any item nests sub-items as `item` lines. The title is a
+  quoted string or `$strings.<key>`.
 - An id is unique in the outlet, and an extending level never repeats an inherited id (`PLAY0905`). `hide <id>` drops an
   inherited item; `before <id>` or `after <id>` under an own item places it among the inherited ones (`PLAY0899` when the
   id is not inherited). Own items never move above inherited ones without `before`.
-- `target` names a module (its first feature) or a feature path. An item with no target needs sub-items, and a target the
+- `target` names a module or a feature path. An item with no target needs sub-items, and a target the
   document does not declare is `PLAY0748`. A module with no feature warns (`PLAY0751`).
 - `slot` names a layout slot the target renders into; without it the target renders into the layout's primary slot. A slot
   no layout declares is `PLAY0749`.
 - **A module's own items may only target that module** (`PLAY0750`). To link elsewhere, put the item in the layout. This
   matters when switching a module from inherit to override: retarget the copied items to the module's own features.
 - An `overrides` outlet with no items leaves the list empty and warns (`PLAY0752`).
+
+Without `screen`, the consumer lands on the first page-capable screen in declaration order at or beneath the resolved
+feature or module. It does not prefer a list over a command form. Use `target <Module>.<Feature> screen <Screen>` when
+an item needs a particular page, such as a list declared after a page-capable command form. Two items can select
+different screens of the same feature without changing declaration order or the fallback for other items. This is
+item-local; it does not set the initial `/` route or logo destination.
+
+Requires Screenplay 6.41.0 or later (`screenplay --version`) for `screen` on an item; on an older compiler, omit the
+suffix to use the landing fallback.
+
+```screenplay
+layout AppShell
+  category Shell
+  content page routed primary
+  outlet sidebar of navigation
+module Shop
+  outlet sidebar extends
+    item projects title "Projects" target Shop.Projects screen Projects
+    item create title "Create project" target Shop.Projects screen CreateProject
+  feature Projects
+    slice StateView Views
+      screen CreateProject
+        fits page
+      screen Projects
+        fits page
+```
+
+Use a single unquoted screen name and an explicit feature path (nested features are allowed). A module-only target,
+a grouping item without a target, or a missing, repeated, quoted or dotted screen operand is `PLAY0741`. The selected
+screen must be executable in that exact feature, not in a descendant. A free screen counts where its first adopting
+slice owns it. A screen is page-capable if it has no `fits` or if `fits` includes `page`.
+
+| Code | Compiler message | Fix |
+| --- | --- | --- |
+| `PLAY1168` | `Navigation target '<Module>.<Feature>' has no executable screen '<Screen>'` | Correct the name or feature path, or adopt the free screen in a slice in the target feature if that feature should own it. |
+| `PLAY1169` | `Navigation target '<Module>.<Feature>' has more than one executable screen named '<Screen>'` | Rename the competing screens so the selected name matches exactly one, and update references. |
+| `PLAY1170` | `Navigation screen '<Screen>' does not fit page` | Select a page-capable screen, or include `page` in `fits` if this screen is intended to open as a page. |
+
+An invalid explicit destination is an error, not a reason to fall back to another screen.
 
 ### `contribute to`: one entry from where it belongs
 
@@ -211,7 +250,7 @@ A template offers more than navigation. Each kind takes its own item form, and a
 | `filters` | `filter <id> title "…" sets <Query>.<param>` - the parameter must be a `by` or `filter` parameter (`PLAY0901`) |
 | `tabs` | `tab <id> title "…" shows <Screen>` - shown in the slot the outlet is `in` |
 | `stats` | `stat <id> title "…" value from <Query>.<field>` - the query returns one result (`PLAY0902`) |
-| `navigation` | `item <id> title "…" [icon] [target] [slot]`, as above |
+| `navigation` | `item <id> title "…" [icon] [target <Module>[.<Feature>] [screen <Screen>]] [slot]`, as above |
 
 ```screenplay
 module Catalog
@@ -523,6 +562,8 @@ apply, reopen. Resolve member names with `syntax-schema`. Details: `cratis-scree
 - `cratis render <model> --name <App> --destination <out>` and `cratis run <model>` carry the shell: the navigation
   outlets render, a module's sidebar replaces or extends the application's, a hook opens the slice's screen where it
   fits, and the address reflects the active module, feature and routed slots. The sample data pack is not served.
+- Rendering a selected `screen` requires updated Scene conversion and Stage rendering that carry and honor it. A
+  consumer without that support may still open the landing screen even if the compiler accepts the item.
 - Report authoring acceptance, executable admission and runtime rendering separately (see `SKILL.md`).
 
 ## Review checklist

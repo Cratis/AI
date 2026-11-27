@@ -214,10 +214,9 @@ module Sales
   another place. `runs` issues the command without a form.
 - `show <Screen> by <param> from <element>.selection` in a template slot shows another screen for the selected row.
 
-Read [references/application-shell.md](references/application-shell.md) before writing any of it: slot roles, outlet
-kinds and modes, `hide`/`before`/`after`, contribution resolution, the module-only target rule (`PLAY0750`), hooks
-(`runs`, `opens`, `for item|for screen`, `enabled when`, `confirm`), `fits` and `show`, blueprint ranges, sample data,
-MCP editing and the review checklist.
+Read [references/application-shell.md](references/application-shell.md) before editing the shell. It covers slots,
+outlet modes and ordering, contributions, hooks, placement, blueprints, sample data and MCP edits. Append
+`screen <Screen>` to `target <Module>.<Feature>` when an item needs a specific page rather than the landing screen.
 
 ## Interactions — what a click does
 
