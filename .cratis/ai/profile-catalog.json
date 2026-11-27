@@ -31,6 +31,7 @@
         "cratis-arc-host-application",
         "cratis-arc-invoke-command",
         "cratis-arc-isolate-tenant",
+        "cratis-arc-migrate-relational-schema",
         "cratis-arc-page-query",
         "cratis-arc-react-bind-slice",
         "cratis-arc-react-separate-view-model",
@@ -413,6 +414,7 @@
         "cratis/arc/core"
       ],
       "availableTargets": [
+        "cratis-arc-migrate-relational-schema",
         "cratis-arc-connect-storage"
       ],
       "languages": [
@@ -1125,6 +1127,7 @@
         "cratis-arc-host-application",
         "cratis-arc-invoke-command",
         "cratis-arc-isolate-tenant",
+        "cratis-arc-migrate-relational-schema",
         "cratis-arc-page-query",
         "cratis-arc-react-bind-slice",
         "cratis-arc-react-separate-view-model",
@@ -1209,6 +1212,7 @@
         "cratis-arc-host-application",
         "cratis-arc-invoke-command",
         "cratis-arc-isolate-tenant",
+        "cratis-arc-migrate-relational-schema",
         "cratis-arc-page-query",
         "cratis-arc-react-bind-slice",
         "cratis-arc-react-separate-view-model",
@@ -1232,9 +1236,7 @@
         "cratis-components-display-list",
         "cratis-components-edit-schema-data",
         "cratis-components-explore-data",
-        "cratis-components-host-chat",
         "cratis-components-submit-form",
-        "cratis-components-theme-application",
         "cratis-fundamentals-name-value",
         "cratis-platform-contribute-change",
         "cratis-platform-diagnose-slice",
