@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-evolve-event
-description: Use when an event type needs a new generation with the same identity because a payload property was renamed or its shape has a breaking change. Not for changing a database schema (use cratis-arc-connect-storage).
+description: Use when a maintainer changes a stored event shape and needs a new generation with upcasting and downcasting. Not for relational schema migrations (use cratis-arc-migrate-relational-schema).
 compatibility: .NET SDK and Chronicle event migrations.
 ---
 
@@ -32,6 +32,8 @@ public class AuthorRegisteredMigration : EventTypeMigration<AuthorRegistered, Au
         builder.Properties(p => p.RenamedFrom(t => t.Name, s => s.DisplayName));
 }
 ```
+
+Roll out readers capable of handling the new shape before switching writers. Keep the old generation and transforms while either shape is consumed; never rewrite history to roll back a reader.
 
 ## Read each generation through a projection
 

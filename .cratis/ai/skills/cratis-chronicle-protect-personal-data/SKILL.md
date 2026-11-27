@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-protect-personal-data
-description: Use when classifying personal data in Chronicle events and read models, releasing a profile or deleting a member's encryption key. Not for deciding who can access the profile (use cratis-arc-authorize-request).
+description: Use when a maintainer needs to mark Chronicle events and read models for PII protection, release encrypted fields or erase a subject key. Not for deciding who can access the profile (use cratis-arc-authorize-request).
 compatibility: .NET SDK and a compliance-enabled Chronicle kernel.
 ---
 
@@ -42,6 +42,8 @@ namespace Library.Features.Members.Profiles
 ```
 
 ## Delete one member's key
+
+Erasure is irreversible. Demonstrate this only in a disposable namespace with synthetic data. In production, require separate authorization, stop in-flight personal-data writes and prevent new ones from recreating protected data. Include other namespaces, retained exports and backup keys in the erasure plan.
 
 With an `IEventStore` from `Cratis.Chronicle` for the correct namespace, call `await eventStore.PII.DeleteEncryptionKeyFor(memberId.Value.ToString());`. The subject loses that key in every event store in this namespace. With `using Cratis.Chronicle.Events;` for `EventSequenceNumber`, read `await eventStore.EventLog.GetFromSequenceNumberWithErasedProperties(EventSequenceNumber.First, memberId)`. For the registration, check `registration.Context.ErasedProperties.Any(path => path.EndsWith("email", StringComparison.OrdinalIgnoreCase))` and `((MemberRegistered)registration.Content).Email != originalEmail`. Read `await eventStore.ReadModels.GetInstanceById<MemberProfile>(controlMemberId.Value)` and check the control member's email still equals the original.
 

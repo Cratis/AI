@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-reduce-state
-description: Use when a Chronicle read model's next value needs logic a projection cannot declare, such as a clamped count. Not for accepting or refusing a command (use cratis-chronicle-protect-decision).
+description: Use when a maintainer needs to fold a Chronicle event and prior state into a read model with a static Reduce method. Not for accepting or refusing a command (use cratis-chronicle-protect-decision).
 compatibility: .NET SDK and Chronicle reducers.
 ---
 
@@ -8,7 +8,7 @@ compatibility: .NET SDK and Chronicle reducers.
 
 Start with a projection for field mappings and plain counters, even when a counter accumulates prior state. Choose a static model reducer when the next value depends on a rule the projection cannot express: here, loans are capped at the number of copies and a loan cannot create a missing book.
 
-Use a reactor for side effects and the command path to decide whether to accept a borrow request; this reducer only maintains a view of recorded facts.
+The reducer maintains a view of recorded facts; deciding whether to accept the borrow belongs in the command. Keep `Reduce` on the model. A separate `IReducerFor<BookAvailability>` is an extreme exception for an unavoidable injected dependency whose result is repeatable on replay, not the usual shape for a fold. Record changing external input as a fact instead.
 
 1. Reference `Cratis.Chronicle` and put `BookAvailability` in the book availability feature folder of the backend assembly. Import `CopyAdded` and `BookBorrowed` from [Protect a command decision](../cratis-chronicle-protect-decision/SKILL.md). Chronicle's default discovery recognizes public static reducer methods on the model; do not register a separate reducer service.
 2. Put a public static `Reduce` method on the record for each event. Take the typed event first, then the nullable previous model. The first `CopyAdded` starts the model with one copy and no loans. Each subsequent `CopyAdded` adds one copy without changing the loan count.

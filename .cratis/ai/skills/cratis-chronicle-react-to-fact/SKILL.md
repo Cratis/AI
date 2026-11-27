@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-react-to-fact
-description: Use when a reactor should notify a downstream service after Chronicle commits an event. Not for publishing an inter-service event contract (use cratis-chronicle-publish-contract).
+description: Use when a maintainer needs a Chronicle reactor to notify a downstream service after commit without duplicating side effects on retry. Not for publishing an inter-service event contract (use cratis-chronicle-publish-contract).
 compatibility: .NET SDK and Chronicle reactor APIs.
 ---
 
@@ -36,6 +36,8 @@ public class RegistrationNotice(IAuthorDirectory directory) : IReactor
 Have the directory save the first notice, then fail before acknowledging it. Deliver the same occurrence again; assert one notice with the expected name. Reuse `delivery.Id` for retries. An author ID would collapse distinct occurrences.
 
 ## When it goes off the usual path
+
+- **Historical events must not resend the notice:** `[OnceOnly]` skips replay, not ordinary retry. A `[Replay]` handler can replace the ordinary handler during replay when historical events need different work. Neither marker deduplicates external effects.
 
 - **The follow-up makes its own local business decision:** inject `ICommandPipeline` from `Cratis.Arc.Commands` in the Arc host and use `var result = await pipeline.Execute(command);` with the follow-up command. Check `result.IsSuccess`. Handle an explicit permanent refusal separately; let transient failures surface so Chronicle can retry. Make the command safe to invoke again.
 - **An existing reactor moves or is renamed:** preserve its observer ID to keep its position. For this class, set `[Reactor("Library.Features.Authors.Directory.RegistrationNotice")]` on the renamed class.

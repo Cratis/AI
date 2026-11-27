@@ -1,41 +1,17 @@
 ---
 name: cratis-chronicle-select-client
-description: Use when choosing a Chronicle client or generated contracts for a non-.NET service. Not for choosing an Arc backend SDK (use cratis-arc-select-backend-sdk).
-compatibility: A language toolchain with the matching Chronicle contracts installed.
+description: Use when a maintainer needs to choose a Chronicle client or consume its gRPC contracts in Go, Kotlin, TypeScript, Elixir or Python. Not for HTTP commands and queries (use cratis-arc-select-backend-sdk).
+compatibility: The chosen language toolchain and a versioned Chronicle release.
 ---
 
 # Choose a Chronicle client for a non-.NET service
 
-1. **Application behavior:** start with the native application client when its pinned version implements and tests the required append, observe or host behavior against your kernel. Look for `:cratis_chronicle` (Elixir/OTP), `io.cratis:chronicle` (JVM), `@cratis/chronicle` (TypeScript), or `github.com/cratis/chronicle.go` (Go). Check the pinned version's documented support and tests for the operation. Don't infer support from another SDK.
-2. **Wire tooling:** choose generated contracts when you need message types and service stubs, not hosted behavior. Use `cratis-chronicle-contracts` in Python, `:cratis_chronicle_contracts` in Elixir, or `@cratis/chronicle.contracts` in TypeScript. The Kotlin contracts' `ChronicleConnection` opens the gRPC connection; that is not the JVM application client.
-3. **The native client cannot host the required observer:** put that observer in a .NET worker rather than implementing a host from wire stubs. In the worker project run `dotnet add package Cratis.Chronicle`, then implement the [projection](../cratis-chronicle-project-view/SKILL.md) or [reactor](../cratis-chronicle-react-to-fact/SKILL.md) there.
+**Application or wire tool?** For an application, choose the idiomatic client only if its tagged support and integration tests cover the operation against the intended kernel. Look for `github.com/cratis/chronicle.go`, `io.cratis:chronicle`, `@cratis/chronicle` or `:cratis_chronicle`. Don't override a client's transitive contracts to make versions appear to match. If a required observer isn't supported, host it in a [.NET worker](../cratis-chronicle-react-to-fact/SKILL.md).
 
-## Read a registered author's event type in Python
+For protocol inspection or building tooling, use the wire contracts instead. Start in a disposable project with the recipe for the language below. These offline checks do not register an event, start a client session or demonstrate that an application can append. Verify the exact client/kernel pair separately against a disposable namespace before choosing it.
 
-Chronicle distributes generated Python contracts separately from PyPI. Check the Chronicle GitHub release matching the kernel tag for a wheel and `SHA256SUMS`. If both exist, pin its download URL and SHA-256 digest in the Python environment; don't use a bare package name. If the assets are absent, obtain a wheel built from that exact tag or stop before running this test. Run the following with `python -m unittest discover -s tests`. It checks the generated message and stub without connecting to a kernel.
-
-```python
-# tests/test_author_event_type.py
-import unittest
-from cratis_chronicle_contracts import eventtypes_pb2, eventtypes_pb2_grpc
-
-
-class AuthorEventTypeTest(unittest.TestCase):
-    def test_registration_identity(self):
-        registration = eventtypes_pb2.EventType(Id="AuthorRegistered", Generation=1)
-        decoded = eventtypes_pb2.EventType.FromString(registration.SerializeToString())
-        self.assertEqual((decoded.Id, decoded.Generation), ("AuthorRegistered", 1))
-        self.assertTrue(callable(eventtypes_pb2_grpc.EventTypesStub))
-```
-
-## When it goes off the usual path
-
-- **A Go append returns a transport error:** distinguish an explicit server refusal from an unknown commit. Check the intended history or reconcile using the operation's durable identity before repeating the append. A lost acknowledgement is not evidence of rejection.
-- **The Python round trip passes:** it proves the wire types and stub are installed, not an append, retry, or hosted observer.
-
-## Related skills
-
-- [Publish a shared contract](../cratis-chronicle-publish-contract/SKILL.md) when another application needs a public event.
-
-- [Choose the Arc backend SDK](../cratis-arc-select-backend-sdk/SKILL.md)
-- [Connect a .NET application](../cratis-chronicle-connect-application/SKILL.md)
+- [Go: inspect an event type](references/go.md)
+- [Kotlin/JVM: load the protocol descriptor](references/kotlin.md)
+- [TypeScript: load the gRPC service definition](references/typescript.md)
+- [Elixir: check the bundled protocol](references/elixir.md)
+- [Python: round-trip a generated message](references/python.md)

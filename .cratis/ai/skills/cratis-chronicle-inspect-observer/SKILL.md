@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-inspect-observer
-description: Use when a Chronicle read model is stale and observer positions or failed partitions might explain a missing update, such as an accepted registration absent from the author listing. Not for repairing a live query connection (use cratis-arc-diagnose-live-query).
+description: Use when an operator needs to trace a stale Chronicle read model using observer checkpoints and failed partitions after an accepted write. Not for repairing a live query connection (use cratis-arc-diagnose-live-query).
 compatibility: .NET SDK; Node.js for offline summaries.
 ---
 
@@ -34,7 +34,7 @@ public static class AuthorListingProgress
 }
 ```
 
-To summarize captured attempts without printing their payloads, run `node scripts/summarize-failure.mjs attempts.json`. Pass a JSON array with `sequenceNumber` and `kind` for each attempt.
+To summarize captured attempts without printing their payloads, run `node scripts/summarize-failure.mjs /absolute/path/to/attempts.json` from this skill's installed directory. Pass a JSON array with `sequenceNumber` and `kind` for each attempt.
 
 ## When it goes off the usual path
 
@@ -45,7 +45,7 @@ To summarize captured attempts without printing their payloads, run `node script
 
 - Don't interpret an unavailable position as a large position ahead of the write.
 - Don't use client health or an observer's position alone to declare the author's read model current.
-- Don't remove an observer, stop a job or start replay to diagnose progress.
+- Stop at the diagnosis. Don't retry a partition, remove an observer, stop a job or start replay. Give the operator the affected identities, positions and likely repeated effects before seeking separate repair approval.
 
 ## Related skills
 

@@ -1,13 +1,13 @@
 ---
 name: cratis-chronicle-record-event
-description: Use when declaring and appending a Chronicle event directly with IEventLog, or reading a stored event's occurrence time. Not for returning an event from an Arc command (use cratis-arc-declare-command).
+description: Use when a maintainer needs to declare a Chronicle event type, append a fact with IEventLog or inspect the accepted event. Not for returning an event from an Arc command (use cratis-arc-declare-command).
 compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 ---
 
 # Append an author registration
 
 1. Import `AuthorId` and `AuthorName` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Reference `Cratis.Chronicle` in the backend. Put the registration event and its writer in `Features/Authors/Registration/`.
-2. Mark the event `[EventType]`. The stored ID defaults to the type name; if you rename the type later, retain its old ID with `[EventType("AuthorRegistered")]`.
+2. Mark the event `[EventType]`. The event-type ID is a plain string naming the schema, not the author. It defaults to the type name; if you rename the type later, retain its old ID with `[EventType("AuthorRegistered")]`.
 3. Inside Arc, [return the fact from the handler](../cratis-arc-declare-command/SKILL.md). Choose a guarded `IEventLog` append when the writer is standalone. Use the caller's `AuthorId` as the event source ID and return the append result.
 
 ```csharp

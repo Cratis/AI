@@ -1,10 +1,12 @@
 ---
 name: cratis-chronicle-connect-application
-description: Use when registering the standalone Chronicle client in an ASP.NET Core application or setting its endpoint and event store. Not for setting tenant authorization policy (use cratis-arc-isolate-tenant).
+description: Use when a maintainer needs to register the standalone Chronicle client in ASP.NET Core or set its endpoint and event store. Not for starting the kernel (use cratis-chronicle-deploy-kernel).
 compatibility: .NET SDK and a disposable Chronicle kernel for connection checks.
 ---
 
 # Connect an ASP.NET Core library service to Chronicle
+
+Start with a running kernel, its trusted endpoint and credentials for the application. If none exists, [start a kernel](../cratis-chronicle-deploy-kernel/SKILL.md) first. Supply credentials through the deployment secret store rather than committing a credential-bearing connection string.
 
 1. Reference `Cratis.Chronicle.AspNetCore` in the standalone web project. Configure the endpoint under `Cratis:Chronicle:ConnectionString` in `appsettings.json`. Replace the example host and port with those of the Chronicle kernel. Use a certificate trusted by the application and enable validation explicitly:
 
@@ -35,7 +37,7 @@ Choose the combined host when the app already uses Arc and Chronicle through `Cr
 
 ## Check the connection
 
-In a disposable namespace, resolve the scoped `IEventStore` and use `var result = await eventStore.EventLog.Append(authorId, new AuthorRegistered("Aster"));` with a fresh `AuthorId`. Check `result.IsSuccess`, then read `await eventStore.EventLog.GetFromSequenceNumber(EventSequenceNumber.First, authorId)` (`using Cratis.Chronicle.Events;`). With the same store name but a different namespace, the read must not return the registration. When logging a `Cratis.Chronicle.Connections.ChronicleConnectionString` use `connectionString.Redacted` rather than the raw value.
+In a disposable namespace, resolve the scoped `IEventStore` and use [the registration event and source ID](../cratis-chronicle-record-event/SKILL.md): `var result = await eventStore.EventLog.Append(authorId, new AuthorRegistered("Aster"));` with a fresh `AuthorId`. Check `result.IsSuccess`, then read `await eventStore.EventLog.GetFromSequenceNumber(EventSequenceNumber.First, authorId)` (`using Cratis.Chronicle.Events;`). With the same store name but a different namespace, the read must not return the registration. When logging a `Cratis.Chronicle.Connections.ChronicleConnectionString` use `connectionString.Redacted` rather than the raw value.
 
 ## Avoid
 
@@ -49,8 +51,6 @@ In a disposable namespace, resolve the scoped `IEventStore` and use `var result 
 - **A development connection worked but a shared endpoint fails TLS:** verify the trusted certificate and hostname. The development image bundles dependencies and generates an untrusted certificate; configure production dependencies and certificates explicitly. Don't turn off validation for a shared endpoint.
 
 ## Related skills
-
-- [Bind the deployment environment](../cratis-platform-configure-environment/SKILL.md) to keep the preview connection separate from shared settings.
 
 - [Configure the Arc host](../cratis-arc-host-application/SKILL.md)
 - [Diagnose observer progress](../cratis-chronicle-inspect-observer/SKILL.md)

@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-constrain-append
-description: Use when a value must be unique at Chronicle append time, such as when two authors must not register the same name. Not for protecting an earlier command decision (use cratis-chronicle-protect-decision).
+description: Use when a maintainer needs to enforce or release a uniqueness constraint at Chronicle append time across competing writers. Not for protecting an earlier command decision (use cratis-chronicle-protect-decision).
 compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 ---
 
@@ -28,7 +28,7 @@ public record AuthorRemoved;
 
 ## Try the same name for two author IDs
 
-Use two different `AuthorId` values and `var name = new AuthorName("Aster");` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Append `new AuthorRegistered(name.Value)` for the first ID and check `result.IsSuccess`. Try the same fact for the second ID: `result.IsSuccess` must be false and `result.ConstraintViolations.Single().ConstraintName.Value` must be `"UniqueAuthorName"`. No event should be stored for the second author. Append `new AuthorRemoved()` for the first ID and check acceptance. Retry the second registration and expect success.
+Start in a fresh test namespace with no claim on the name. Use two different `AuthorId` values and `var name = new AuthorName("Aster");` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Append `new AuthorRegistered(name.Value)` for the first ID and check `result.IsSuccess`. Try the same fact for the second ID: `result.IsSuccess` must be false and `result.ConstraintViolations.Single().ConstraintName.Value` must be `"UniqueAuthorName"`. No event should be stored for the second author. Append `new AuthorRemoved()` for the first ID and check acceptance. Retry the second registration and expect success.
 
 ## When it goes off the usual path
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-project-view
-description: Use when declaring Chronicle read-model mappings, counters or instance removal. Not for calculations the projection cannot declare (use cratis-chronicle-reduce-state).
+description: Use when a maintainer needs to project Chronicle events into a read model through field mappings, counters or instance removal. Not for calculations the projection cannot declare (use cratis-chronicle-reduce-state).
 compatibility: .NET SDK and Chronicle projections.
 ---
 
@@ -39,7 +39,8 @@ public record Author(AuthorId Id, string Name);
 
 With default discovery, keep `Author` in the backend assembly; Chronicle discovers records with model-bound projection attributes. In a test with an `IEventStore eventStore` for an empty namespace, register Aster with `var result = await eventStore.EventLog.Append(authorId, new AuthorRegistered("Aster"));`. Check `result.IsSuccess`, then check `(await result.WaitForCompletion()).IsSuccess` (import `Cratis.Chronicle.Observation`). Repeat for Birch with a different ID. List `await eventStore.ReadModels.GetInstances<Author>()` and check both names and IDs. Append `new AuthorRemoved()` for Aster; check acceptance and completion the same way. List again and expect only Birch.
 
+When the next value requires a computation over prior state that projection operators cannot express, switch to [a self-reducing model](../cratis-chronicle-reduce-state/SKILL.md). Keep side effects out of both.
+
 ## Related skills
 
 - [Expose the query](../cratis-arc-expose-query/SKILL.md)
-- [Calculate state from previous values](../cratis-chronicle-reduce-state/SKILL.md)

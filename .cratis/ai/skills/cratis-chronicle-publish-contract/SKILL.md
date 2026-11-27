@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-publish-contract
-description: Use when publishing a selected Chronicle event as a public contract between event stores through outbox and inbox. Not for notifying a receiver within a store (use cratis-chronicle-react-to-fact).
+description: Use when a maintainer needs to publish a selected public event between Chronicle stores through an outbox and inbox. Not for notifying a receiver within a store (use cratis-chronicle-react-to-fact).
 compatibility: .NET SDK and disposable producer and consumer stores.
 ---
 
@@ -19,7 +19,7 @@ using (var scope = app.Services.CreateScope())
         subscription => subscription.WithEventType<AuthorListed>());
 }
 ```
-3. In the library's publishing feature, append the internal review to the event log. Only after acceptance, append the public listing to the outbox for the same `AuthorId`.
+3. In the library's publishing feature, append the internal review to the event log. These writes are not atomic. Only after acceptance, append the public listing to the outbox for the same `AuthorId`.
 
 ```csharp
 // Library.Contracts/AuthorListed.cs
@@ -55,7 +55,7 @@ public static class ListingExchange
 }
 ```
 
-`AuthorId` comes from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Check `result.IsSuccess` for the returned publication result. In the directory's integration test, resolve `consumer` from a fresh service scope as above. Select `var inbox = consumer.GetEventSequence($"{EventSequenceId.InboxPrefix}library");` and read `await inbox.GetFromSequenceNumber(EventSequenceNumber.First, id)`. Delivery is asynchronous: repeat that read until it returns the listing, failing the test after 30 seconds. In this fresh fixture, verify `AuthorListed` carries the public name and `AuthorReviewed` is absent. That does not establish exactly-once forwarding.
+`AuthorId` comes from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Check `result.IsSuccess` for the returned publication result. In the directory's integration test, resolve `consumer` from a fresh service scope as above. Select `var inbox = consumer.GetEventSequence($"{EventSequenceId.InboxPrefix}library");` and read `await inbox.GetFromSequenceNumber(EventSequenceNumber.First, id)`. Forwarding and consumption have separate checkpoints; subscribing does not by itself route an explicit consumer observer to the inbox. Route it to the intended per-source sequence. Delivery is asynchronous: repeat that read until it returns the listing, failing the test after 30 seconds. In this fresh fixture, verify `AuthorListed` carries the public name and `AuthorReviewed` is absent. That does not establish exactly-once forwarding.
 
 ## Avoid
 

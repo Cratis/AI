@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-protect-decision
-description: Use when the Chronicle state a command validated must still hold at commit, such as a check for available stock. Not for reserving a unique value (use cratis-chronicle-constrain-append).
+description: Use when a maintainer needs a Chronicle append to refuse a command if its decision read has changed since validation. Not for reserving a unique value (use cratis-chronicle-constrain-append).
 compatibility: .NET SDK and an Arc host with Chronicle.
 ---
 
@@ -8,7 +8,7 @@ compatibility: .NET SDK and an Arc host with Chronicle.
 
 1. Reference `Cratis.Arc.Chronicle`. Put the command and validator together in `Features/Books/Borrowing/`. Use `Isbn` as the command's only event-source-ID property: it selects both the book to read and the book to append to.
 2. Put `public record Isbn(string Value) : EventSourceId<string>(Value);` in `Features/Books/Isbn.cs` (`Library.Features.Books`), and `[EventType] public record CopyAdded;` in `Features/Books/Stock/CopyAdded.cs` (`Library.Features.Books.Stock`); import `Cratis.Chronicle.Events` in both. Request `BookStock?` in the validator constructor. For a book with no events the validator receives `null` or an instance with `Available` 0; the rule refuses both.
-3. Leave commit protection at its default or set `<CratisReadProtection>On</CratisReadProtection>` in the project property group. In deployment, leave `Cratis__Arc__ReadProtection__MaximumMode` unset or set it to `On`; don't lower the maximum when competing writes must be refused.
+3. Leave `CratisReadProtection` unset: the `Cratis.Arc.Chronicle` build props default it to `On`. Without those props do not assume the default. Check with `dotnet msbuild -getProperty:CratisReadProtection`. In deployment, leave `Cratis__Arc__ReadProtection__MaximumMode` unset or set it to `On`; don't lower the maximum when competing writes must be refused.
 
 ```csharp
 // Features/Books/Borrowing/BorrowBook.cs
@@ -51,6 +51,12 @@ public class BorrowBookValidator : CommandValidator<BorrowBook>
 In the validator test use `var isbn = new Isbn("9780140327243"); var command = new BorrowBook(isbn);`. Both `new BorrowBookValidator(null).Validate(command).IsValid` and `new BorrowBookValidator(new BookStock(isbn, 0)).Validate(command).IsValid` must be false. With `new BookStock(isbn, 1)` the same check must be true.
 
 A validator test cannot prove commit protection. In a development host, set a debugger breakpoint on `BorrowBook.Handle()`. Submit a borrowing for a book with one copy and stop there after validation. From a separate process connected to the same kernel store and namespace, run `var competitor = await eventStore.EventLog.Append(isbn, new BookBorrowed());`. Verify `competitor.IsSuccess`, then continue the paused request. Expect HTTP 400, reason `concurrencyViolation`, detail `ReadChanged`, and no second borrowing event. Don't retry in the command: the client reads again and offers resubmission.
+
+## Check which read actually guards the append
+
+A plain typed parameter resolves by the command's event source ID. For a different key, use `[LookUpBy(nameof(CommandType.Property))]` and validate the relationship, a trusted `[LookUpBy<TProvider>]`, or a flat lookup projection. Per-stream models cannot be redirected this way. See [validate command input](../cratis-arc-validate-command/SKILL.md) for command wiring. The typed parameter under `On` enrolls the read. `concurrency: true` on routing metadata alone does not protect state read before the append scope is captured.
+
+Keep decisions protected. Mark a genuinely advisory parameter `[Unprotected("display only")]` (`Cratis.Arc.Chronicle.ReadModels`). A method-level annotation covers body reads, not injected parameters (`ARCCHR0034`). If an exceptional body read influences a decision, the reason must name the independent append guard, such as a kernel constraint. Never overlay an explicit scope on the same protected read: conflicting expectations can raise `ExplicitScopeDoesNotCoverReads` rather than a clean concurrency refusal. Do not bypass typed injection with a raw keyed read in a command.
 
 ## Read and append explicitly outside the Arc pipeline
 
