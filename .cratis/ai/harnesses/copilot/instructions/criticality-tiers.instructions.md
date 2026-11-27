@@ -10,30 +10,36 @@ paths:
 
 # Criticality tiers
 
-Judgment-shaped: classify by failure consequences, not repository name.
+Classify by failure consequences, not repository name.
 
 - **Tier A — Critical:** product runtime, auth/credentials, data integrity/migrations,
-  production deployment or automation able to disrupt all CI. Require focused
-  behavior/rejection specs, independent review and security/product CI. Full local gates
-  run only for changed inputs/dependency closure; reuse valid unchanged-input results.
-- **Tier B — Operational but bounded:** internal tooling with limited, recoverable
-  impact (e.g. ordinary runner management). Require bounded smoke/regression checks
-  for meaningful behavior; review elevated permissions, broad impact or the escalation
-  below. No unrelated product gate; Code Health only for maintained, non-disposable code.
+  production deployment or automation that can disrupt all CI. Require focused
+  behavior/rejection specs, independent review and security/product CI. Run full local
+  gates for changed inputs and their dependencies; reuse valid unchanged-input results.
+- **Tier B — Operational but bounded:** internal tools with limited, recoverable impact
+  (e.g. runner management). Smoke/regression-test meaningful behavior; review elevated
+  permissions, broad impact or escalation below. No unrelated product gate; Code Health
+  only for maintained, non-disposable code.
 - **Tier C — Disposable or advisory:** noncritical dashboards, reports, local helpers,
-  demos/samples, experiments, prose and corpus style checks. No mandatory new specs,
-  review/artifacts, Code Health scoring/uplift or full local gate. Smoke checks are
-  optional absent specific failure risk; cheap checks may remain, cosmetics are advisory.
+  samples, experiments, prose and style checks. No mandatory new specs, review/artifacts,
+  Code Health scoring/uplift or full local gate. Smoke checks are optional absent a
+  specific failure risk; cheap checks may stay. Cosmetics are advisory.
 
-A change in any tier that touches credentials or secrets, authentication or authorization,
-workflow permissions or untrusted-PR triggers (`pull_request_target`, `workflow_run`,
-forked-PR inputs), data exposure, a trust boundary, or a destructive or irreversible action
-is Tier A for that part and needs independent review, whatever the tool's tier.
-Critical subcomponents inherit Tier A; unknown critical dependencies fail closed to
-the higher tier. Narrow fixes need no unrelated legacy uplift. No artifacts needed
-to claim a tier.
+Credentials, secrets, authentication, authorization, workflow permissions, untrusted PRs
+(`pull_request_target`, `workflow_run`, forked-PR inputs), data exposure, trust boundaries,
+and destructive or irreversible actions escalate the affected part to Tier A with
+independent review. Critical subcomponents inherit Tier A; unknown critical dependencies
+fail closed to the higher tier. No unrelated legacy uplift or tier artifacts.
 
-Security, secrets, authorization, destructive-action safeguards and required CI
-status-check contracts remain binding. Irrelevant CI execution must report explicit
-success/not-applicable rather than leave a required check pending; preserve required
+Security, secrets, authorization, destructive-action and required CI contracts remain
+binding. Irrelevant CI checks report success/not-applicable, not pending. Keep required
 product/integration coverage until a validated narrower replacement exists.
+
+## Always kept, at every tier
+
+- Security and authorization checks
+- Secret redaction checks
+- Data integrity and migration checks
+- Event schema compatibility, upcasting, replay, and projection idempotency checks
+- Published contract tests (public APIs, wire formats, generated proxies)
+- Runner cost guards
