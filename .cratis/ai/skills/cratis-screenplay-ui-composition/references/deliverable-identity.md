@@ -9,7 +9,9 @@ defaults to those when the model is silent, so declare, in every deliverable app
   application title the shell shows; `logo initials` is only valid in a profile's `identity`);
 - a `ui profile` with `root template`, shell `option` lines such as `option showFooter false`, and an `identity`
   block (`name`, `logo initials`);
-- a `title "<text>"` in each screen and a navigation item `<id> title "<text>" target <Module.Feature>` per screen;
+- a `title "<text>"` in each screen and a titled navigation item for each destination the shell offers. Use
+  `target <Module>.<Feature>` for the landing screen; append `screen <Screen>` for a specific page in that feature
+  (see [navigation outlets](application-shell.md#navigation-outlets-inherit-extend-or-override));
 - `label "<text>"` on **every** `action`.
 
 ## Example
