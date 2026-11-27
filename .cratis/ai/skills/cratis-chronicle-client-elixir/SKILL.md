@@ -302,7 +302,7 @@ compiler checks and sink choice. Pin `id:`; renaming it registers a different pr
 Read the reference that matches the task:
 
 - [references/decision-reads.md](references/decision-reads.md) when an append depends on state a concurrent append could change: `Cratis.Chronicle.decide/2`, `DecisionReads`, `ConcurrencyScope` builders, the optimistic default.
-- [references/testing.md](references/testing.md) when writing specs: `Cratis.Chronicle.Testing.Case`, assertions, the in-memory kernel's limits.
+- [references/testing.md](references/testing.md) when writing specs: `Cratis.Chronicle.Testing.Case`, assertions, the in-memory kernel's limits, and the `EventScenario`, `ReadModelScenario` and `ReactorScenario` that state one behavior in the shape of a Specification (given, because, `should_*`).
 - [references/constraints.md](references/constraints.md) when declaring uniqueness, standalone constraint modules, `remove_constraint/2`, violation details or closing events.
 - [references/discovery-and-generations.md](references/discovery-and-generations.md) when pinning ids, setting `:drift_policy`, running `mix chronicle.discover`, or handling older event generations.
 - [references/captures.md](references/captures.md) when turning external API, webhook or other-store data into events.

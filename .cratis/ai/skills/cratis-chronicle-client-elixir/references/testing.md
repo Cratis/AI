@@ -39,6 +39,17 @@ end
 
 `start_supervised_client/1` (outside ExUnit templates; pair with `stop_supervised_client/1`) accepts `:event_types`, `:event_sources`, `:constraints` (standalone constraint modules), `:reactors`, `:reducers`, `:projections`, `:name`, `:event_store` and `:namespace`.
 
+## Scenarios: one behavior, one `should_*` per test
+
+`use Cratis.Chronicle.Testing.EventScenario` (events and their constraints), `ReadModelScenario` (a projection
+or reducer, asked for by module and key) or `ReactorScenario` (what a reactor produced, and whether it failed)
+starts the kernel once per spec module (`lifecycle: :per_test` for one per test) and gives the scenario as
+`:scenario`. Chain `given_events/3` and `append/3,4`, then assert with `should_be_successful/1`,
+`should_have_constraint_violation/1,2`, `should_have_concurrency_violation/1`, `should_have_appended/2,3`,
+`should_have_appended_exactly/2`, `should_not_have_appended_any_events/1`, `should_have_tail_sequence_number/2`,
+`should_have_read_model/4`, `should_have_observer_failures/1,2`. Only what the `append` added counts, not the
+given events. The layout and naming of the files is `rules/specs.elixir.md`.
+
 ## Waiting and reading
 
 An append returns once the event is committed; reactors and reducers run afterward in `Cratis.Chronicle.Testing.Dispatcher`, synchronously after each committed append. Call `Cratis.Chronicle.Testing.wait_for_observers(client)` before asserting on their effects; it is a sleep-free barrier that returns `{:error, failures}` when a reactor or reducer raised.
