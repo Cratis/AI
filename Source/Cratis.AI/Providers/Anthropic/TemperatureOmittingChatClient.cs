@@ -7,14 +7,34 @@ using Microsoft.Extensions.AI;
 namespace Cratis.AI.Providers.Anthropic;
 
 /// <summary>
-/// An <see cref="IChatClient"/> that leaves the sampling temperature out of a request to a Claude model that
-/// has deprecated it - every model of generation 5 and later answers a request carrying one with
-/// <c>invalid_request_error: temperature is deprecated for this model</c>. Other models see the request untouched.
+/// An <see cref="IChatClient"/> that omits the sampling temperature for models that do not accept it.
+/// Requests to other models pass through unchanged.
 /// </summary>
-/// <param name="innerClient">The client requests are passed on to.</param>
-/// <param name="defaultModelId">The model a request is for when its own options name none.</param>
-public sealed class TemperatureOmittingChatClient(IChatClient innerClient, string defaultModelId) : DelegatingChatClient(innerClient)
+public sealed class TemperatureOmittingChatClient : DelegatingChatClient
 {
+    static readonly string[] _openAIReasoningFamilies = ["o1", "o3", "o4", "gpt-5"];
+
+    readonly string _defaultModelId;
+    readonly Func<string, bool> _requiresDefaultTemperature;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TemperatureOmittingChatClient"/> class
+    /// that omits temperature for Claude models of generation 5 and later.
+    /// </summary>
+    /// <param name="innerClient">The client requests are passed on to.</param>
+    /// <param name="defaultModelId">The model a request is for when its own options name none.</param>
+    public TemperatureOmittingChatClient(IChatClient innerClient, string defaultModelId)
+        : this(innerClient, defaultModelId, modelId => AnthropicProviderClient.UsesAdaptiveThinking(new ModelName(modelId)))
+    {
+    }
+
+    TemperatureOmittingChatClient(IChatClient innerClient, string defaultModelId, Func<string, bool> requiresDefaultTemperature)
+        : base(innerClient)
+    {
+        _defaultModelId = defaultModelId;
+        _requiresDefaultTemperature = requiresDefaultTemperature;
+    }
+
     /// <inheritdoc/>
     public override Task<ChatResponse> GetResponseAsync(
         IEnumerable<ChatMessage> messages,
@@ -29,6 +49,22 @@ public sealed class TemperatureOmittingChatClient(IChatClient innerClient, strin
         CancellationToken cancellationToken = default) =>
         base.GetStreamingResponseAsync(messages, WithoutTemperature(options), cancellationToken);
 
+    /// <summary>
+    /// Wraps an OpenAI client to omit temperature for reasoning model families.
+    /// </summary>
+    /// <param name="innerClient">The client requests are passed on to.</param>
+    /// <param name="defaultModelId">The model a request is for when its own options name none.</param>
+    /// <returns>The client with the OpenAI temperature policy applied.</returns>
+    internal static TemperatureOmittingChatClient ForOpenAI(IChatClient innerClient, string defaultModelId) =>
+        new(innerClient, defaultModelId, UsesOpenAIReasoningFamily);
+
+    static bool UsesOpenAIReasoningFamily(string modelId) =>
+        _openAIReasoningFamilies.Any(family => IsInFamily(modelId, family));
+
+    static bool IsInFamily(string modelId, string family) =>
+        modelId.StartsWith(family, StringComparison.OrdinalIgnoreCase) &&
+        (modelId.Length == family.Length || modelId[family.Length] is '-' or '.');
+
     ChatOptions? WithoutTemperature(ChatOptions? options)
     {
         if (options?.Temperature is null)
@@ -36,8 +72,8 @@ public sealed class TemperatureOmittingChatClient(IChatClient innerClient, strin
             return options;
         }
 
-        var model = string.IsNullOrWhiteSpace(options.ModelId) ? defaultModelId : options.ModelId;
-        if (!AnthropicProviderClient.UsesAdaptiveThinking(new ModelName(model)))
+        var model = string.IsNullOrWhiteSpace(options.ModelId) ? _defaultModelId : options.ModelId;
+        if (!_requiresDefaultTemperature(model))
         {
             return options;
         }
