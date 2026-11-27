@@ -33,6 +33,18 @@ module Library
 
 From the directory containing `model`, run `screenplay export model --format ui --output screens.json`. In `screens.json`, verify the Authors screen title, the toolbar item's `AddAuthor` destination, the Add action's `RegisterAuthor` command and `Authors` destination, and the live `AllAuthors` data binding. Check the form separately in `screens.play`: `form AddAuthorForm for RegisterAuthor` binds the editable name; a screen export alone need not contain the form declaration.
 
+For an inspection gesture, bind the screen's collection with `data Author[] via query AllAuthors`. Put the interaction on the table displaying that collection, not at screen level. With an existing `AuthorDetails` screen whose input is `authorId`, pass the activated row's key explicitly:
+
+```play
+screen Authors
+  data Author[] via query AllAuthors
+  table AuthorRows
+    column name
+    on double click
+      navigate to AuthorDetails
+        with authorId from item.id
+```
+
 ## Avoid
 
 - Don't use `for item` on Add; reserve it for actions on a selected row.

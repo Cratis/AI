@@ -44,6 +44,8 @@ public record ReserveBookOperation(ReservationId Id, BookId Book) : ICommandOper
 
 Implement `IBookReservations` in `Features/Books/Reservations/BookReservations.cs` as `BookReservations` and register it before `Build()` in `Program.cs`: `builder.Services.AddScoped<IBookReservations, BookReservations>();`. The caller chooses one `ReservationId` per booking attempt. For the same owner, tenant, book and ID, a repeated `Reserve` must not create a second booking. Reject reuse for a different request. `Cancel` removes only this attempt's pending reservation; it succeeds without removing anything if that reservation is absent or already confirmed. This also covers a lost provider acknowledgement: Arc can compensate an attempted `Execute` even when it threw before returning.
 
+To also append a fact, return `(Fact, Operation)` when the command already identifies the event source. With an explicit Chronicle source, keep the source and event together: return `(EventForEventSourceId, Operation)` with `(new EventForEventSourceId(source, fact), operation)`, not a flat triple. Here `Fact` and `Operation` stand for your concrete types. Import `Cratis.Arc.Commands` for `ICommandOperation` and `Cratis.Chronicle.EventSequences` for the event wrapper if not globally imported.
+
 ## Avoid
 
 - Do not generate the reservation ID or call the provider in `Handle`.

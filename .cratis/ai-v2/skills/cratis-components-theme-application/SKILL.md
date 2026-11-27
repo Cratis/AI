@@ -34,6 +34,24 @@ compatibility: Requires @cratis/components and a CSS bundler that resolves packa
 }
 ```
 
+## Scope action colors to a themed panel
+
+Override the action tokens on the panel wrapper itself, after the theme import. Match the explicit-light selector when the panel is light inside a dark theme. Pair the action foreground with all three backgrounds; do not set ordinary panel `color` as a substitute.
+
+```css
+@media (forced-colors: none) {
+    .cratis-theme.cratis-light.author-admin,
+    .cratis-dark .cratis-theme.cratis-light.author-admin {
+        --cratis-action-background: #92400e;
+        --cratis-action-background-hover: #78350f;
+        --cratis-action-background-active: #451a03;
+        --cratis-action-text: #fff;
+    }
+}
+```
+
+Apply `cratis-theme cratis-light author-admin` to the light panel, not the page root.
+
 ## Target a component part
 
 Use `.author-admin [data-cratis-part='header-content']` for the content inside a table header. ComboBox renders its popover outside its wrapper. Set `pt={{ popover: { className: 'author-options' } }}` on that ComboBox, then target `.author-options [data-cratis-part='optionLabel']` and `.author-options [data-cratis-part='optionDescription']` in `host.css`. Don't rely on the popover being a descendant of `.author-admin`.

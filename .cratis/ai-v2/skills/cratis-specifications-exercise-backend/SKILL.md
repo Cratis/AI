@@ -86,6 +86,8 @@ public class when_projecting_a_registration : Specification
 
 This checks the mapping in process, not observer delivery. In a running-store test, make sure the host has discovered the `Author` projection, then append to the test author's history and assert the append succeeded. Await `WaitForCompletion()` on that append result (import `Cratis.Chronicle.Observation`); require success with no failed partitions before querying the stored row for the same ID and name. A fixed sleep does not establish that the observer handled this write.
 
+For a state-dependent command, arrange all events needed to establish the state the decision will actually use, not just the latest transition. For example, in `Establish`, use `_scenario.Given.ForEventSource(bookId).Events(...)` to seed both the stock intake and the prior loan, using the fixture's real event types and source. Register the read model the command uses. In `Because`, execute the command for that same ID. Assert both the command outcome and the new append (or its absence); the seed events are not new appends.
+
 ## Avoid
 
 - Don't call `Validate` to check an append; it does not execute the handler.

@@ -4,9 +4,15 @@ description: Use when adding an Arc command or query to a native service and che
 compatibility: Requires the service's native toolchain and resolved Arc module. The example uses Go.
 ---
 
-# Check command execution in the native SDK
+# Choose an Arc backend for the required behavior
 
-Only Go is shown. For another runtime, identify the resolved package and requested operation, inspect the package's declarations and run its native test. If either the API or runnable setup is missing, report that gap rather than translating C# attributes.
+## Keep an existing MVC action
+
+Use Arc's .NET ASP.NET Core MVC integration when the release must keep an existing MVC action with its binding and authorization. Keep MVC enabled in `AddCratisArc` and keep controller routes mapped. An eligible attribute-routed `[HttpPost]` action gets a `POST <action-route>/validate` selector without converting it to a model-bound command. Verify it with the same credentials, content type and payload as execution, and confirm the action was not called. Check for `[AspNetResult]` opt-outs. Before promising a port, prove the same routing, binding, authorization and validate-only behavior on the target host; a working command pipeline is not MVC compatibility.
+
+## Check command execution in a native SDK
+
+Identify the resolved package and requested operation, inspect the package's declarations and run its native test. If either the API or runnable setup is missing, report that gap rather than translating C# attributes. This example uses Go.
 
 1. From the Go service root run `go list -m github.com/cratis/arc.go` for the version, then `go list -m -f '{{.Dir}}' github.com/cratis/arc.go` for its location. Read `commands` and its `_test.go` files there.
 2. In `features/authors/registration/command_test.go`, register the handler, build a command pipeline and submit the request. Check both execution success and the returned name.

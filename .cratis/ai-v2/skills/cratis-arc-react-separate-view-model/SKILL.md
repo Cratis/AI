@@ -42,6 +42,8 @@ export const AuthorSearch = withViewModel(AuthorSearchViewModel, ({ viewModel })
 });
 ```
 
+For an injected service, register the actual service or implementation before mounting the view. For example, use `container.registerInstance(CatalogueToken, catalogue)` and declare `constructor(@inject(CatalogueToken) private readonly catalogue: Catalogue)` on the `@injectable()` view model, importing `container` and `inject` from `tsyringe`. Use the same token at both sites; `@inject` alone does not register anything.
+
 ## Avoid
 
 - Don't construct a second model in `useState` or `new` one in the view.

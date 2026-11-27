@@ -49,6 +49,34 @@ module Library
 
 From the application directory run `screenplay test model --format json`. For this file alone require two executed and two passed. These examples exercise translation of supplied observations; they do not poll an actual directory.
 
+## Receive a public event instead of polling
+
+When the input is another application's public event, use an explicitly inbound slice, declare the event's origin and name that event under `source events`. Key the append from the incoming payload; it need not be the incoming event's own history address. For an event capture, test with `when append`, not `when capture`.
+
+```play
+slice Translate ImportAuthors
+  direction inbound
+  event DirectoryAuthorPublished from "directory"
+    id String
+    name String
+  event DirectoryAuthorSeen
+    name String
+  capture DirectoryAuthors
+    source events
+      from DirectoryAuthorPublished
+    key id
+    append DirectoryAuthorSeen
+      when added
+        name = $.name
+  specification SeeingAster
+    when append DirectoryAuthorPublished
+      id = "author-42"
+      name = "Aster"
+    then DirectoryAuthorSeen
+      for "author-42"
+      name = "Aster"
+```
+
 ## Avoid
 
 - Don't treat the first observation as a change from a previous value; supply prior state when testing a transition.

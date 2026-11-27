@@ -6,7 +6,7 @@ compatibility: Requires the Cratis package for Arc with Chronicle.
 
 # Register an author
 
-Put this command in `Features/Authors/Registration/RegisterAuthor.cs`. Use the existing [AuthorId](../cratis-fundamentals-name-value/SKILL.md) from `Library.Features.Authors` and [AuthorRegistered](../cratis-chronicle-record-event/SKILL.md) from the command's namespace. `Cratis` supplies the framework global usings.
+Put this command in `Features/Authors/Registration/RegisterAuthor.cs`. Use the existing [AuthorId](../cratis-fundamentals-name-value/SKILL.md) from `Library.Features.Authors` and [AuthorRegistered](../cratis-chronicle-record-event/SKILL.md) from the command's namespace. `Cratis` supplies the framework global usings. Without those global usings, import `Cratis.Arc.Commands.ModelBound` for `[Command]`.
 
 ```csharp
 namespace Library.Features.Authors.Registration;
@@ -25,7 +25,7 @@ Use the shared `AuthorId` record, which derives from `EventSourceId<Guid>`; don'
 ## Avoid
 
 - Do not append in `Handle`; return the event.
-- Do not use a plain `Guid` for this event-source property.
+- If the existing input ID is a `ConceptAs<Guid>` rather than an `EventSourceId<Guid>`, keep its type and mark the positional member `[property: Key]` (`System.ComponentModel.DataAnnotations`). `EventSourceId` is a type, not an attribute. Do not rely on a property name such as `Id` to select the history.
 - Do not replace the caller's ID with `AuthorId.New()` inside the command.
 
 ## Related skills

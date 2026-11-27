@@ -36,6 +36,20 @@ In `model/Authors/registration.play`, use the same fixed author ID in each examp
 
 4. From the Library application directory run `screenplay test model --format json`. When running just these two specifications, require `executed` and `passed` both 2 and `failed` and `unsupported` both 0. In a larger model, check their named outcomes individually. The first one should fail if the event goes to a different author, even if the name is correct.
 
+## Arrange a stateful or authorized command
+
+Put the givens in each specification. Seed `given <EventType>` with `for <literal-id>` and the event's declared payload members, or use `given readmodel <ReadModelType>` with its key member and required state when testing directly against a view. Use the same concrete ID as the example input and the expected event's `for` value. If the fixture needs a different ID from the example, override the ID on the `when` step rather than putting a placeholder in `then`. Give the caller separately before the action:
+
+```play
+  given caller
+    authenticated
+    role "Librarian"
+  when Aster name = ""
+  then error "Name is required"
+```
+
+Use the application's declared role and modeled refusal. Run one `when` per specification: `when Aster` to use the example as-is, or an inline assignment to override an input. Do not attach a caller to the `when` or invent a fixture name in place of event or read-model data.
+
 ## Avoid
 
 - Don't infer the destination from a payload field; assert `for` on the expected event.

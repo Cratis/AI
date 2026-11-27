@@ -22,6 +22,20 @@ app.UseCratisArc();
 await app.RunAsync();
 ```
 
+Add a read model with a public static query when starting from an empty project. For a finite smoke query with no database, use a fixture:
+
+```csharp
+using Cratis.Arc.Queries.ModelBound;
+
+namespace Library.Features.Authors.Listing;
+
+[ReadModel]
+public record Author(string Name)
+{
+    public static Author[] AllAuthors() => [new("Aster")];
+}
+```
+
 Run `dotnet run` from the host project directory. Use the listening address printed at startup and the credentials required by the existing query. With the options above, namespace `Library.Features.Authors.Listing` and method `AllAuthors` map to `/api/features/authors/listing/all-authors`. For an observable query, append `?waitForFirstResult=true` to request one result. Expect HTTP 200, `isSuccess: true` and the expected authors in `data`.
 
 ## Avoid

@@ -6,9 +6,9 @@ compatibility: Requires Cratis.Arc in a web host with a verified caller identity
 
 # Check tenant membership before accessing authors
 
-Select the tenant from a trusted claim. A resolver selects a tenant; it does not establish that the caller belongs to it. Register a separate synchronous `ITenantMembership` check.
+Keep the host's existing selection mechanism, including header selection when callers choose a tenant. A resolver selects a tenant; it does not establish that the caller belongs to it. Register a separate synchronous `ITenantMembership` check against trusted membership claims.
 
-In the Arc-only host's `Program.cs`, keep the existing authentication setup and add the tenant configuration below. In a combined Library host pass `configureArcOptions: options => options.UseClaimTenancy("tenant_id")` to the existing `AddCratis` call instead of registering Arc twice.
+In the Arc-only host's `Program.cs`, keep the existing authentication and tenant resolver setup and register the check. For header selection, keep `options.UseHeaderTenancy(...)` with the configured header name. The example selects from a claim; for a combined Library host, configure the same resolver through `AddCratis(configureArcOptions: ...)` instead of registering Arc twice.
 
 ```csharp
 using Library.Tenancy;
@@ -35,10 +35,13 @@ namespace Library.Tenancy;
 public class ClaimsTenantMembership : ITenantMembership
 {
     public bool IsMember(ClaimsPrincipal principal, TenantId tenantId) =>
-        principal.Identity?.IsAuthenticated == true && tenantId != TenantId.NotSet &&
+        principal.Identity?.IsAuthenticated == true && !tenantId.IsDefault &&
+        !string.IsNullOrWhiteSpace(tenantId.Value) &&
         principal.HasClaim("member_of", tenantId.Value);
 }
 ```
+
+`IsDefault` rejects both `TenantId.NotSet` and `TenantId.Default`; use this guard when selection is mandatory. Test both a missing selection and an explicit default selection as well as a nonmember selection.
 
 Call `AllAuthors` as a member of tenant A and as a member of tenant B. Each sees only its own tenant's authors. A caller whose `tenant_id` names a tenant missing from its `member_of` claims gets HTTP 403.
 

@@ -19,7 +19,7 @@ With prefix `api` and one namespace segment skipped, request `GET /api/features/
 
 - Do not call `ToList()` before returning; that moves paging off the database.
 - Do not apply `Skip` or `Take` yourself; Arc applies them once.
-- Do not rely on insertion order. Order by a stable key; a client `sortBy` replaces this ordering.
+- Do not rely on insertion order. Order by a stable key. To override it in a GET, supply both `sortBy` and `sortDirection`, for example `&sortBy=Name&sortDirection=asc`. Arc does not apply a request sort if the direction is omitted.
 - Do not reuse `page`, `pageSize`, `sortBy` or `sortDirection` as business filter names.
 
 ## Related skills

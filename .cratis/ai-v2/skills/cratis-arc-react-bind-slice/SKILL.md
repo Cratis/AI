@@ -24,11 +24,11 @@ createRoot(document.getElementById('root')!).render(
 
 ```tsx
 const [authors] = AllAuthors.use();
-if (!authors.isReady) return <p>Loading authors…</p>;
 if (!authors.isAuthorized) return <p>Not authorized.</p>;
 if (!authors.isValid) return <p>Invalid query.</p>;
-if (!authors.isSuccess) return <p>Could not load authors.</p>;
-if (!authors.data.length) return <p>No authors yet.</p>;
+if (authors.hasExceptions || !authors.isSuccess) return <p>Could not load authors.</p>;
+if (authors.isPerforming || !authors.isReady) return <p>Loading authors…</p>;
+if (!authors.hasData) return <p>No authors yet.</p>;
 return <ul>{authors.data.map(a => <li key={String(a.id)}>{a.name}</li>)}</ul>;
 ```
 

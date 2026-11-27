@@ -6,7 +6,7 @@ compatibility: Requires the Cratis package, which supplies Arc and FluentValidat
 
 # Require an author name
 
-Add the validator beside [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) in `Features/Authors/Registration/RegisterAuthor.cs`. Arc discovers `CommandValidator<RegisterAuthor>`; no dependency injection registration is necessary. Keep the file's existing namespace declaration; add the validator class below the command.
+Add the validator beside [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) in `Features/Authors/Registration/RegisterAuthor.cs`. Arc discovers `CommandValidator<RegisterAuthor>`; no dependency injection registration is necessary. Keep the file's existing namespace declaration; add the validator class below the command. Add `using Cratis.Arc.Commands;` for the base class and `using FluentValidation;` for the rule extensions unless those namespaces are already in scope.
 
 ```csharp
 public class RegisterAuthorValidator : CommandValidator<RegisterAuthor>
@@ -18,7 +18,7 @@ public class RegisterAuthorValidator : CommandValidator<RegisterAuthor>
 }
 ```
 
-Execute registration with an empty name. Expect `IsValid` and `IsSuccess` to be false, `ValidationResults` to identify the name member, and no event to be appended. With `Aster`, expect success and one registration.
+The execute pipeline applies blocking validation before `Handle`. A separate `/validate` request can provide early feedback, but is not needed to enforce the rule. Execute registration with an empty name. Expect `IsValid` and `IsSuccess` to be false, `ValidationResults` to identify the name member, and no event to be appended. With `Aster`, expect success and one registration.
 
 ## Avoid
 

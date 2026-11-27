@@ -52,6 +52,22 @@ In the validator test use `var isbn = new Isbn("9780140327243"); var command = n
 
 A validator test cannot prove commit protection. In a development host, set a debugger breakpoint on `BorrowBook.Handle()`. Submit a borrowing for a book with one copy and stop there after validation. From a separate process connected to the same kernel store and namespace, append `new BookBorrowed()` to the same ISBN and check acceptance, then continue the paused request. Expect HTTP 400, reason `concurrencyViolation`, detail `ReadChanged`, and no second borrowing event. Don't retry in the command: the client reads again and offers resubmission.
 
+## Read and append explicitly outside the Arc pipeline
+
+Use the same `IEventStore` (including its store and namespace) for the decision and the write. For a single book, use the same source for both:
+
+```csharp
+var stock = await eventStore.GetDecisionReads().GetDetached<BookStock>(source);
+if (stock.Instance is not { Available: > 0 }) return false;
+
+var result = await eventStore.EventLog.AppendMany(
+    [new EventForEventSourceId(source, new BookBorrowed())],
+    guardedBy: [stock]);
+return result.IsSuccess;
+```
+
+Here `source` is the book's Chronicle `EventSourceId` and the enclosing method returns `Task<bool>`. Import `Cratis.Chronicle`, `Cratis.Chronicle.Events`, `Cratis.Chronicle.EventSequences` and `Cratis.Chronicle.ReadModels`. If you need to distinguish a stale decision from other failures, inspect `result.GetDecisionConflicts([stock])`. Do not append again on a conflict without reading and deciding again.
+
 ## Avoid
 
 - Don't use a display query for stock. Request the decision model in the validator.

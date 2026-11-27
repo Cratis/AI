@@ -42,6 +42,8 @@ export function AddAuthorButton() {
 
 3. Add no submit handler. OK runs the command. The dialog stays open on failure so the reader can correct the name; keep both field errors and the form summary visible.
 
+For a generated `Date` property, use `CalendarField` from `@cratis/components/CommandForm`, with `showTime` when the librarian supplies a time as well as a date. For example, bind `<CalendarField<MyCommand> value={command => command.start} title="Start" showTime />`. Let the same command form submit the date and the other fields on OK; do not execute the command again in a click handler.
+
 ## Avoid
 
 - Don't execute a second command when the dialog closes.
