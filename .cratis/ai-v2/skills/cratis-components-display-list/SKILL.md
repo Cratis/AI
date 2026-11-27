@@ -13,7 +13,7 @@ Present the state view using rows returned by the query, not values from the las
 
 1. In `Features/Authors/Listing/Authors.tsx`, import `Author` and `AllAuthors` from the private [generated tree](../cratis-arc-generate-proxies/SKILL.md). Use the generated tree's actual import path, even if the screen and proxy share a filename; never import the query from the screen itself. Render the page inside the app's [providers](../cratis-arc-react-bind-slice/SKILL.md).
 2. Pass the query constructor and a stable `dataKey`. Each column's `field` names a property of `Author`.
-3. Check `selectionMode` and `selectedItem` before invoking a row action. Pass the selected row's key to inspection; a label can identify what the user sees, not which record to open.
+3. Check `selectionMode` and `selectedItem` before invoking a row action. Pass the selected row's key to the callback that opens its details, not its display label.
 
 ```tsx
 import { Column, DataPage } from '@cratis/components/DataPage';

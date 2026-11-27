@@ -38,7 +38,7 @@ Start with a concrete case. In `model/Authors/registration.play`, use the same f
 
 ## Arrange a stateful or authorized command
 
-Seed decision history with `given <EventOrEventExample>` and `for` the owning source. Choose `given readmodel <ReadModelOrTypedExample>` to seed a view instead of replaying history. Supply its key and required fields; there is no `given fixture` step. For an authorized command, supply `given caller` as shown or choose `given caller as <Persona>` when a declared persona supplies the caller. Declare `command reads protected` once at the application root.
+Seed decision history with `given <EventOrEventExample>` and `for` the owning source. Choose `given readmodel <ReadModelOrTypedExample>` to seed a view instead of replaying history. Supply its key and required fields. For an authorized command, supply `given caller` as shown or choose `given caller as <Persona>` when a declared persona supplies the caller. If a `require` rule in `validate` uses a property of a declared read, opt in with `command reads protected` once in the application root document.
 
 ```play
 command reads protected

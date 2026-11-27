@@ -30,6 +30,8 @@ Merge this section into the host project's `appsettings.json`, preserving other 
 3. Check the generated `RegisterAuthor` targets `/api/features/authors/registration` and `AllAuthors` targets `/api/features/authors/listing/all-authors`. Compare both with the running host.
 4. From a frontend module beside `generated/`, import `{ AllAuthors }` from `./generated/Features/Authors/Listing/Author`. Compile the consuming frontend with `tsc --noEmit`.
 
+By default, the MSBuild integration skips deleting the whole output directory before generation, but orphan cleanup still runs.
+
 ## When it goes off the usual path
 
 - **Imports still name a renamed endpoint:** check the old file's generated marker, the configured output root, and the consuming barrel. Regenerate from the owning project, update imports, then compile the consumer. Do not restore the obsolete proxy.
