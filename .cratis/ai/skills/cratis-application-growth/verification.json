@@ -1,12 +1,14 @@
 {
   "skill": "cratis-application-growth",
-  "input": "Our single-project Cratis app now has a Billing capability gated by entitlement and a second team. Plan moving it into a module project without breaking existing events.",
+  "input": "Our single-project Cratis app has a Billing capability gated by entitlement, a second team, and a Shared project every feature depends on. Plan moving Billing into a module project and renaming namespaces afterwards without breaking stored identities.",
   "fixtures": [],
   "assertions": [
     { "kind": "skill-contains", "value": "No signal, no move." },
-    { "kind": "skill-contains", "value": "Pin identities first" },
-    { "kind": "skill-contains", "value": "Never add `InternalsVisibleTo`." },
+    { "kind": "skill-contains", "value": "decide, guard, move, untangle, rename, verify." },
+    { "kind": "skill-contains", "value": "Never add `InternalsVisibleTo` or a seam" },
     { "kind": "skill-contains", "value": "`<Module>.Contracts`" },
-    { "kind": "skill-contains", "value": "Never raise one to land a change." }
+    { "kind": "skill-contains", "value": "Dissolving a catch-all project" },
+    { "kind": "skill-contains", "value": "references/rename-window.md" },
+    { "kind": "skill-contains", "value": "Then boot the host and drive it end to end" }
   ]
 }
