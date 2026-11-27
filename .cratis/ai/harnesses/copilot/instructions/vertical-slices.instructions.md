@@ -15,6 +15,8 @@ A vertical slice owns a single behavior: the command or query, the events it pro
 
 This file is the reference for *what* goes in each part of a slice. Layout, slice types, workflow, and quality gates are in [general.md](../../../rules/general.md).
 
+**In an application split into module projects**, a slice lives in the module that owns its behavior and uses another module only through that module's `.Contracts` project (an interface to ask, a public event to be told), never its commands, read models or project. Never add `InternalsVisibleTo` or compile a file into another project to make it build; [application-anatomy.md](./application-anatomy.instructions.md) has the layers and why a namespace is an identity.
+
 **Model-first check.** Before changing a slice, look for it in the accepted `.play` model under the model root (opted in per `general.md` "Model first"; where `cratis-screenplay-modeling-lifecycle` is installed, run its `scripts/model-first-status.mjs` for the decision, root and drafts). If an accepted model covers it, change the model and render or gap-fill from it; never edit Stage-managed files. See Phase 0 in [application-profile.md](./application-profile.instructions.md).
 
 ## Technical stack
@@ -453,6 +455,7 @@ Frontend commands run through the Cratis dialogs — never a vendor or hand-roll
 ## See also
 
 - [general.md](../../../rules/general.md) — layout, slice types, workflow, quality gates.
+- [application-anatomy.md](./application-anatomy.instructions.md) — how the source tree grows from one project to modules and contracts; the slice stays the unit.
 - [concepts.md](./concepts.instructions.md) — `ConceptAs<T>` / `EventSourceId<T>` full patterns.
 - [reactors.md](./reactors.instructions.md) — reactor signatures and side-effect rules.
 - [specs.md](./specs.instructions.md) — `CommandScenario` / `EventScenario` / `ReadModelScenario` / `ReactorScenario`.

@@ -137,7 +137,8 @@ Current behavior:
   and queries with no explicit declaration, on both hosts, and ASP.NET's
   `FallbackPolicy` covers HTTP endpoints and MVC actions. They are separate:
   neither covers what the other does, and neither protects an explicitly anonymous
-  endpoint.
+  endpoint. A baseline never decides from a namespace or folder name
+  ([authorization](references/authorization.md#baselines-two-separate-mechanisms)).
 - **Direct calls bypass authorization.** Calling `Handle()` or a query method
   directly skips authorization, validation and filters; only the pipeline and
   mapped endpoints enforce them. Server-side callers still need a principal
