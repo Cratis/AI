@@ -38,7 +38,7 @@ To summarize captured attempts without printing their payloads, run `node script
 
 ## When it goes off the usual path
 
-- **You cannot run the .NET calls:** open the deployment's configured Chronicle Workbench URL. Select the affected store and namespace and open **Observers** for the observer's positions. In **Failed partitions**, select its failed partition and follow the latest attempt's sequence number. Verify the store, namespace and sequence in the event inspector. Share positions and failure metadata, not payloads.
+- **You cannot run the .NET calls:** open the deployment's configured Chronicle Workbench URL. Select the affected store and namespace and open **Observers** for the observer's positions. In **Failed partitions**, select its failed partition and follow the latest attempt's sequence number. Verify the store, namespace and sequence in **Sequences**. Share positions and failure metadata, not payloads.
 - **Catch-up or replay is already running:** use `eventStore.Jobs.GetJobs()` and open `eventStore.Jobs.GetJob(id)` only for the matching job. A null result is not evidence of completion.
 
 ## Avoid

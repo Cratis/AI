@@ -34,7 +34,7 @@ Put the accessible name on the control itself, not its surrounding panel. For th
 
 ## When it goes off the usual path
 
-- **The first outside click must also activate the underlying control:** check that the installed `DatePickerInput` supports the option and pass `isNonModal={true}`. Otherwise leave the default: the first click only dismisses the calendar.
+- **The first outside click must also activate the underlying control:** pass `isNonModal={true}` to `DatePickerInput`. Otherwise leave the default: the first click only dismisses the calendar.
 
 ## Related skills
 
