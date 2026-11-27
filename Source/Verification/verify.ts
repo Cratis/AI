@@ -40,147 +40,230 @@ async function filesUnder(directory: string): Promise<string[]> {
     return found.sort();
 }
 
-async function readJson<T>(root: string, path: string, failures: string[]): Promise<T | undefined> {
-    try { return JSON.parse(await readFile(join(root, path), 'utf8')) as T; } catch (error) {
+/** What the static checks read once: the repository, its corpus and the skill directories the corpus holds. */
+interface Corpus { root: string; directory: string; skills: string[] }
+
+/** The corpus once its catalog is read, so later checks know which profiles exist. */
+interface ResolvedCorpus extends Corpus { profiles: string[] }
+
+async function readJson<T>(corpus: Corpus, path: string, failures: string[]): Promise<T | undefined> {
+    try { return JSON.parse(await readFile(join(corpus.root, path), 'utf8')) as T; } catch (error) {
         failures.push(`${path}: cannot read JSON: ${error instanceof Error ? error.message : String(error)}`);
         return undefined;
     }
 }
 
+function profilesOf(catalog: Catalog | undefined): Profile[] {
+    return [...catalog?.publicProfiles ?? [], ...catalog?.engineeringProfiles ?? []];
+}
+
+function duplicateProfileProblems(profiles: Profile[]): string[] {
+    const seen = new Set<string>();
+    const problems: string[] = [];
+    for (const { id } of profiles) {
+        if (seen.has(id)) problems.push(`Catalog defines profile '${id}' more than once.`);
+        seen.add(id);
+    }
+    return problems;
+}
+
+function manifestProfileProblems(manifest: Manifest, ids: Set<string>): string[] {
+    const declared = new Set(manifest.profiles ?? []);
+    return [
+        ...[...ids].filter(id => !declared.has(id)).map(id => `manifest.profiles is missing catalog profile '${id}'.`),
+        ...[...declared].filter(id => !ids.has(id)).map(id => `manifest.profiles lists '${id}', which the catalog does not define.`),
+    ];
+}
+
+function profileEdgeProblems(profile: Profile, ids: Set<string>, skills: Set<string>): string[] {
+    return [
+        ...(profile.composes ?? []).filter(child => !ids.has(child)).map(child => `Profile '${profile.id}' composes unknown profile '${child}'.`),
+        ...(profile.availableTargets ?? []).filter(target => !skills.has(target)).map(target => `Profile '${profile.id}' targets missing skill '${target}'.`),
+    ];
+}
+
+function unreachableSkillProblems(profiles: Profile[], skills: string[]): string[] {
+    const reachable = new Set(profiles.flatMap(profile => profile.availableTargets ?? []));
+    return skills.filter(skill => !reachable.has(skill)).map(skill => `Skill '${skill}' is not reachable from any profile.`);
+}
+
 /** Manifest and catalog list the same profiles, every edge and target resolves, and every skill is installable. */
 export function catalogProblems(manifest: Manifest, catalog: Catalog, skills: string[]): string[] {
-    const problems: string[] = [];
-    const profiles = [...catalog.publicProfiles ?? [], ...catalog.engineeringProfiles ?? []];
-    const ids = new Set<string>();
-    for (const { id } of profiles) {
-        if (ids.has(id)) problems.push(`Catalog defines profile '${id}' more than once.`);
-        ids.add(id);
-    }
-    if (ids.size === 0) problems.push('Catalog defines no profiles.');
-    const declared = new Set(manifest.profiles ?? []);
-    for (const id of ids) if (!declared.has(id)) problems.push(`manifest.profiles is missing catalog profile '${id}'.`);
-    for (const id of declared) if (!ids.has(id)) problems.push(`manifest.profiles lists '${id}', which the catalog does not define.`);
-    for (const profile of profiles) {
-        for (const child of profile.composes ?? []) if (!ids.has(child)) problems.push(`Profile '${profile.id}' composes unknown profile '${child}'.`);
-        for (const target of profile.availableTargets ?? []) if (!skills.includes(target)) problems.push(`Profile '${profile.id}' targets missing skill '${target}'.`);
-    }
-    const reachable = new Set(profiles.flatMap(profile => profile.availableTargets ?? []));
-    for (const skill of skills) if (!reachable.has(skill)) problems.push(`Skill '${skill}' is not reachable from any profile.`);
-    return problems;
+    const profiles = profilesOf(catalog);
+    const ids = new Set(profiles.map(profile => profile.id));
+    const known = new Set(skills);
+    return [
+        ...duplicateProfileProblems(profiles),
+        ...(ids.size === 0 ? ['Catalog defines no profiles.'] : []),
+        ...manifestProfileProblems(manifest, ids),
+        ...profiles.flatMap(profile => profileEdgeProblems(profile, ids, known)),
+        ...unreachableSkillProblems(profiles, skills),
+    ];
 }
 
 /** A product version tag, a file-and-line location or a `source:` line is review evidence, not teaching. A lower-case module pin such as `arc.go@v0.1.4` is an install instruction. */
 const sourceCitation = /(?<![\w./-])[A-Z][\w.-]*@v\d+\.\d+\.\d+\b|[\w./\\-]+\.(?:cs|tsx?|md|json):\d+\b|^source:/;
 
-function descriptionOf(content: string): string | undefined {
-    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(content)?.[1];
+function descriptionOf(skill: Skill): string | undefined {
+    const frontmatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(skill.content)?.[1];
     return frontmatter === undefined ? undefined : /^description:\s*(?:[>|][+-]?\s*\n\s+)?["']?(.*)$/m.exec(frontmatter)?.[1];
 }
 
-async function skillProblems(root: string, corpus: string, name: string): Promise<string[]> {
-    const skillDirectory = join(corpus, 'skills', name);
-    const skillFile = join(skillDirectory, 'SKILL.md');
-    const shown = relative(root, skillFile);
-    if (!existsSync(skillFile)) return [`Skill directory '${name}' has no SKILL.md.`];
-    const content = await readFile(skillFile, 'utf8');
+/** One skill directory of the corpus, with its `SKILL.md` as the repository-relative path problems are reported under. */
+interface Skill { root: string; name: string; directory: string; file: string; shown: string; content: string; files: string[] }
+
+interface Document { shown: string; directory: string; content: string }
+
+function linkProblems(document: Document): string[] {
+    return brokenRelativeLinkProblems(document.shown, document.content, target => existsSync(join(document.directory, target)));
+}
+
+function skillIdentityProblems(skill: Skill): string[] {
     const problems: string[] = [];
-    if (!new RegExp(`^name:\\s*["']?${name}["']?\\s*$`, 'm').test(content)) problems.push(`${shown} name must match its directory.`);
-    const description = descriptionOf(content);
-    if (description !== undefined && !/^Use (?:when|before)\s+\S/.test(description)) problems.push(`${shown} description must start with 'Use when' or 'Use before' and an invocation condition.`);
-    problems.push(...skillFrontmatterProblems(shown, content), ...skillStructureProblems(shown, content));
-    problems.push(...brokenRelativeLinkProblems(shown, content, target => existsSync(join(skillDirectory, target))));
-    const files = await filesUnder(skillDirectory);
-    const within = (path: string) => relative(skillDirectory, path).replaceAll('\\', '/');
-    const references = files.filter(path => path !== skillFile && path.endsWith('.md'));
-    problems.push(...skillReferenceProblems(shown, skillBody(content), references.map(within)));
+    if (!new RegExp(`^name:\\s*["']?${skill.name}["']?\\s*$`, 'm').test(skill.content)) problems.push(`${skill.shown} name must match its directory.`);
+    const description = descriptionOf(skill);
+    if (description !== undefined && !/^Use (?:when|before)\s+\S/.test(description)) problems.push(`${skill.shown} description must start with 'Use when' or 'Use before' and an invocation condition.`);
+    return problems;
+}
+
+async function referenceProblems(skill: Skill): Promise<string[]> {
+    const references = skill.files.filter(path => path !== skill.file && path.endsWith('.md'));
+    const within = (path: string) => relative(skill.directory, path).replaceAll('\\', '/');
+    const problems = skillReferenceProblems(skill.shown, skillBody(skill.content), references.map(within));
     for (const reference of references) {
-        const text = await readFile(reference, 'utf8');
-        problems.push(...referenceContentsProblems(relative(root, reference), text));
-        problems.push(...brokenRelativeLinkProblems(relative(root, reference), text, target => existsSync(join(dirname(reference), target))));
+        const document = { shown: relative(skill.root, reference), directory: dirname(reference), content: await readFile(reference, 'utf8') };
+        problems.push(...referenceContentsProblems(document.shown, document.content), ...linkProblems(document));
     }
-    for (const file of files) {
+    return problems;
+}
+
+async function citationProblems(skill: Skill): Promise<string[]> {
+    const problems: string[] = [];
+    for (const file of skill.files) {
         const line = (await readFile(file, 'utf8')).split(/\r?\n/).findIndex(text => sourceCitation.test(text));
-        if (line !== -1) problems.push(`${relative(root, file)}:${line + 1}: skill content contains a source citation.`);
+        if (line !== -1) problems.push(`${relative(skill.root, file)}:${line + 1}: skill content contains a source citation.`);
+    }
+    return problems;
+}
+
+async function skillProblems(corpus: Corpus, name: string): Promise<string[]> {
+    const directory = join(corpus.directory, 'skills', name);
+    const file = join(directory, 'SKILL.md');
+    if (!existsSync(file)) return [`Skill directory '${name}' has no SKILL.md.`];
+    const skill: Skill = { root: corpus.root, name, directory, file, shown: relative(corpus.root, file), content: await readFile(file, 'utf8'), files: await filesUnder(directory) };
+    return [
+        ...skillIdentityProblems(skill),
+        ...skillFrontmatterProblems(skill.shown, skill.content),
+        ...skillStructureProblems(skill.shown, skill.content),
+        ...linkProblems(skill),
+        ...await referenceProblems(skill),
+        ...await citationProblems(skill),
+    ];
+}
+
+/** An authoring case file names the skill of the directory it sits in. */
+async function authoringCaseProblems(corpus: Corpus, name: string): Promise<string[]> {
+    const problems: string[] = [];
+    const directory = `${evaluationDirectory}/skills/${name}`;
+    for (const file of (await readdir(join(corpus.root, directory))).filter(entry => entry.endsWith('.json'))) {
+        const path = `${directory}/${file}`;
+        const document = await readJson<{ skill?: string; skill_name?: string }>(corpus, path, problems);
+        const named = document?.skill ?? document?.skill_name;
+        if (named !== undefined && named !== name) problems.push(`${path} must name the skill '${name}'.`);
+    }
+    return problems;
+}
+
+async function orphanedInputProblems(corpus: Corpus): Promise<string[]> {
+    const problems: string[] = [];
+    for (const kind of ['examples', 'skills']) {
+        const orphans = (await directories(join(corpus.root, evaluationDirectory, kind))).filter(name => !corpus.skills.includes(name));
+        problems.push(...orphans.map(name => `${evaluationDirectory}/${kind}/${name} names no skill in ${corpusDirectory}/skills.`));
     }
     return problems;
 }
 
 /** Examples and authoring cases are optional, but each one must belong to a skill that still exists. */
-async function authoringInputProblems(root: string, skills: string[]): Promise<string[]> {
-    const problems: string[] = [];
-    for (const kind of ['examples', 'skills']) {
-        for (const name of await directories(join(root, evaluationDirectory, kind))) {
-            if (!skills.includes(name)) problems.push(`${evaluationDirectory}/${kind}/${name} names no skill in ${corpusDirectory}/skills.`);
-        }
-    }
-    for (const name of await directories(join(root, evaluationDirectory, 'skills'))) {
-        for (const file of (await readdir(join(root, evaluationDirectory, 'skills', name))).filter(entry => entry.endsWith('.json'))) {
-            const path = `${evaluationDirectory}/skills/${name}/${file}`;
-            const document = await readJson<{ skill?: string; skill_name?: string }>(root, path, problems);
-            const named = document?.skill ?? document?.skill_name;
-            if (named !== undefined && named !== name) problems.push(`${path} must name the skill '${name}'.`);
-        }
-    }
+async function authoringInputProblems(corpus: Corpus): Promise<string[]> {
+    const problems = await orphanedInputProblems(corpus);
+    for (const name of await directories(join(corpus.root, evaluationDirectory, 'skills'))) problems.push(...await authoringCaseProblems(corpus, name));
     return problems;
 }
 
 interface Fixture { name?: string; profiles?: string[]; checks?: Array<{ phase?: string }> }
 
 /** `cratis ai test` validates fixture shape in CI; this keeps the population real against the current catalog. */
-async function installFixtureProblems(root: string, profiles: string[]): Promise<string[]> {
-    const names = await directories(join(root, fixtureDirectory));
+async function installFixtureProblems(corpus: ResolvedCorpus): Promise<string[]> {
+    const names = await directories(join(corpus.root, fixtureDirectory));
     if (names.length === 0) return [`${fixtureDirectory} requires at least one install fixture.`];
     const problems: string[] = [];
     let installChecks = 0;
     for (const name of names) {
         const path = `${fixtureDirectory}/${name}/fixture.json`;
-        const fixture = await readJson<Fixture>(root, path, problems);
+        const fixture = await readJson<Fixture>(corpus, path, problems);
         if (!fixture) continue;
         if (fixture.name !== name) problems.push(`${path} name must match its directory.`);
-        for (const profile of fixture.profiles ?? []) if (!profiles.includes(profile)) problems.push(`${path} selects unknown profile '${profile}'.`);
+        for (const profile of fixture.profiles ?? []) if (!corpus.profiles.includes(profile)) problems.push(`${path} selects unknown profile '${profile}'.`);
         installChecks += (fixture.checks ?? []).filter(check => check.phase === 'install').length;
     }
     return installChecks > 0 ? problems : [...problems, `${fixtureDirectory} requires at least one install-phase check.`];
 }
 
-async function pluginProblems(root: string): Promise<string[]> {
+interface Marketplace { plugins?: Array<{ source?: { path?: string }; skills?: string }> }
+
+function exposesCorpus(marketplace: Marketplace): boolean {
+    const plugin = marketplace.plugins?.length === 1 ? marketplace.plugins[0] : undefined;
+    return plugin?.source?.path === corpusDirectory && plugin.skills === './skills';
+}
+
+async function pluginProblems(corpus: Corpus): Promise<string[]> {
     const problems: string[] = [];
     const marketplaces: Array<{ path: string; document: unknown }> = [];
     for (const path of marketplacePaths) {
-        const document = await readJson<{ plugins?: Array<{ source?: { path?: string }; skills?: string }> }>(root, path, problems);
+        const document = await readJson<Marketplace>(corpus, path, problems);
         if (!document) continue;
         marketplaces.push({ path, document });
-        if (document.plugins?.length !== 1 || document.plugins[0]?.source?.path !== corpusDirectory || document.plugins[0]?.skills !== './skills') {
-            problems.push(`${path} must expose the canonical ${corpusDirectory}/skills corpus.`);
-        }
+        if (!exposesCorpus(document)) problems.push(`${path} must expose the canonical ${corpusDirectory}/skills corpus.`);
     }
-    const manifest = await readJson<unknown>(root, pluginManifestPath, problems);
+    const manifest = await readJson<unknown>(corpus, pluginManifestPath, problems);
     return manifest === undefined ? problems : [...problems, ...pluginManifestProblems(manifest, marketplaces)];
+}
+
+/** The catalog's profile ids, with what the manifest and catalog get wrong about them reported into `failures`. */
+async function profileIds(corpus: Corpus, failures: string[]): Promise<string[]> {
+    const manifest = await readJson<Manifest>(corpus, `${corpusDirectory}/manifest.json`, failures);
+    if (!manifest) return [];
+    const catalog = await readJson<Catalog>(corpus, `${corpusDirectory}/${manifest.profileCatalog ?? 'profile-catalog.json'}`, failures);
+    if (catalog) failures.push(...catalogProblems(manifest, catalog, corpus.skills));
+    return profilesOf(catalog).map(profile => profile.id);
+}
+
+async function ruleProblems(corpus: Corpus): Promise<string[]> {
+    const names = (await readdir(join(corpus.directory, 'rules')).catch(() => [])).filter(name => name.endsWith('.md')).sort();
+    const rules = await Promise.all(names.map(async name => ({ path: `${corpusDirectory}/rules/${name}`, content: await readFile(join(corpus.directory, 'rules', name), 'utf8') })));
+    const missing = names.includes('general.md') ? [] : [`${corpusDirectory}/rules/general.md is missing.`];
+    return [...missing, ...danglingSkillReferences(rules, corpus.skills)];
+}
+
+async function serverProblems(corpus: ResolvedCorpus): Promise<string[]> {
+    const problems: string[] = [];
+    const servers = await readJson<unknown>(corpus, `${corpusDirectory}/mcp-servers.json`, problems);
+    return servers === undefined ? problems : [...problems, ...validateMcpServers(servers, new Set(corpus.profiles))];
 }
 
 /** The one static check of the shipped corpus at `.cratis/ai`: no model, no network, no generated state. */
 export async function verifyCorpus(root: string): Promise<CorpusReport> {
     const failures: string[] = [];
-    const corpus = join(root, corpusDirectory);
-    if (!existsSync(corpus)) return { failures: [`Corpus ${corpusDirectory} is missing.`], skills: 0, profiles: 0 };
+    const directory = join(root, corpusDirectory);
+    if (!existsSync(directory)) return { failures: [`Corpus ${corpusDirectory} is missing.`], skills: 0, profiles: 0 };
 
-    const skills = await directories(join(corpus, 'skills'));
-    if (skills.length === 0) failures.push(`${corpusDirectory}/skills contains no skills.`);
-    const manifest = await readJson<Manifest>(root, `${corpusDirectory}/manifest.json`, failures);
-    const catalog = manifest ? await readJson<Catalog>(root, `${corpusDirectory}/${manifest.profileCatalog ?? 'profile-catalog.json'}`, failures) : undefined;
-    const profiles = [...catalog?.publicProfiles ?? [], ...catalog?.engineeringProfiles ?? []].map(profile => profile.id);
-    if (manifest && catalog) failures.push(...catalogProblems(manifest, catalog, skills));
-    for (const name of skills) failures.push(...await skillProblems(root, corpus, name));
-
-    const rules = await Promise.all((await readdir(join(corpus, 'rules')).catch(() => [])).filter(name => name.endsWith('.md')).sort()
-        .map(async name => ({ path: `${corpusDirectory}/rules/${name}`, content: await readFile(join(corpus, 'rules', name), 'utf8') })));
-    if (!rules.some(rule => rule.path.endsWith('/general.md'))) failures.push(`${corpusDirectory}/rules/general.md is missing.`);
-    failures.push(...danglingSkillReferences(rules, skills));
-
-    const servers = await readJson<unknown>(root, `${corpusDirectory}/mcp-servers.json`, failures);
-    if (servers !== undefined) failures.push(...validateMcpServers(servers, new Set(profiles)));
-    failures.push(...await pluginProblems(root), ...await authoringInputProblems(root, skills), ...await installFixtureProblems(root, profiles));
-    return { failures, skills: skills.length, profiles: profiles.length };
+    const source: Corpus = { root, directory, skills: await directories(join(directory, 'skills')) };
+    if (source.skills.length === 0) failures.push(`${corpusDirectory}/skills contains no skills.`);
+    const corpus: ResolvedCorpus = { ...source, profiles: await profileIds(source, failures) };
+    for (const name of corpus.skills) failures.push(...await skillProblems(corpus, name));
+    failures.push(...await ruleProblems(corpus), ...await serverProblems(corpus));
+    failures.push(...await pluginProblems(corpus), ...await authoringInputProblems(corpus), ...await installFixtureProblems(corpus));
+    return { failures, skills: corpus.skills.length, profiles: corpus.profiles.length };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

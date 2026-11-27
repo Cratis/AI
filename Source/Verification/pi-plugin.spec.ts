@@ -5,20 +5,22 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import test from 'node:test';
+import test, { after } from 'node:test';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
 import registerPiPlugin, { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
 import registerCratisHooks from '../../.cratis/ai/harnesses/pi/extensions/cratis-hooks/index.ts';
 import registerManagedRules from '../../.cratis/ai/harnesses/pi/extensions/cratis-rules/index.ts';
 import { globToRegExp } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
 import { managedRules, rulesForPath, universalRules } from '../../.cratis/ai/harnesses/pi/extensions/shared/rules.ts';
+import { createPiPackage, createProject, ruleContent, ruleFixtures, rulesMatchingPath, skillNames, universalRuleNames, writeRules } from './pi-package.fixture.ts';
+import type { AiConfiguration } from './pi-package.fixture.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 type Handler = (event: { cwd: string; systemPrompt: string }, context: { cwd: string }) => unknown;
 
-function pluginHandlers(): Map<string, Handler> {
+function pluginHandlers(register: (pi: ExtensionAPI) => void = registerPiPlugin): Map<string, Handler> {
     const handlers = new Map<string, Handler>();
-    registerPiPlugin({
+    register({
         on(name: string, handler: Handler) {
             handlers.set(name, handler);
         },
@@ -102,21 +104,6 @@ test('managed Pi cratis-rules injects only the universal rules and delivers no p
     assert.doesNotMatch(prompt.systemPrompt, /# Platform sources/);
 });
 
-test('the Pi package yields to a managed CLI installation', () => {
-    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
-    try {
-        mkdirSync(join(project, '.cratis'));
-        writeFileSync(join(project, '.cratis', 'ai.manifest.json'), '{}');
-        const handlers = pluginHandlers();
-        const resources = handlers.get('resources_discover')?.({ cwd: project, systemPrompt: '' }, { cwd: project });
-        const prompt = handlers.get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project });
-        assert.equal(resources, undefined);
-        assert.equal(prompt, undefined);
-    } finally {
-        rmSync(project, { recursive: true, force: true });
-    }
-});
-
 test('Cratis quality hooks register an explicit gate but no automatic turn-end continuation', () => {
     const handlers: string[] = [];
     const tools: string[] = [];
@@ -160,30 +147,122 @@ test('the Pi package system prompt carries exactly the universal rules so path g
     }
 });
 
-const arcTypeScriptServerSkills = ['cratis-arc-command-typescript', 'cratis-arc-query-typescript', 'cratis-arc-validation-typescript', 'cratis-arc-tenancy-typescript', 'cratis-arc-storage-typescript', 'cratis-arc-testing-typescript', 'cratis-arc-code-analysis-typescript'];
+// The cases below run the shipped loader over a synthetic corpus (see pi-package.fixture.ts), so they state the
+// selection behaviour itself and do not move when the real rules, skills or profiles are renamed.
+const piPackage = await createPiPackage();
+after(() => piPackage.dispose());
 
-function resolvedSkills(configuration: { profiles: string[]; languages?: string[] }): (string | undefined)[] {
-    const project = mkdtempSync(join(tmpdir(), 'cratis-pi-'));
+function inProject<T>(configuration: AiConfiguration | undefined, action: (project: string) => T): T {
+    const project = createProject(configuration);
     try {
-        mkdirSync(join(project, '.cratis'));
-        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify(configuration));
-        return selectedSkillPaths(project).map(path => path.split('/').pop());
+        return action(project);
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
 }
 
-test('Pi does not load the Arc for TypeScript server skills into C# applications with a React frontend', () => {
-    for (const configuration of [
-        { profiles: ['cratis/application/csharp'], languages: ['csharp', 'typescript'] },
-        { profiles: ['cratis/application'] },
-        { profiles: ['cratis/application'], languages: ['csharp', 'typescript'] },
-        { profiles: ['cratis/arc'], languages: ['csharp', 'typescript'] },
-        { profiles: ['cratis/application/typescript'], languages: ['typescript'] },
-    ]) {
-        const names = resolvedSkills(configuration);
-        for (const skill of arcTypeScriptServerSkills) {
-            assert.ok(!names.includes(skill), `${JSON.stringify(configuration)}: ${skill}`);
-        }
-    }
+const allRules = Object.keys(ruleFixtures);
+const without = (...excluded: string[]) => allRules.filter(name => !excluded.includes(name));
+const unprofiled = without('application.md', 'framework.md', 'framework-always.md', 'optional.md');
+const applicationRules = without('framework.md', 'framework-always.md', 'optional.md');
+
+const ruleSelections: Array<{ reason: string; configuration?: AiConfiguration; rules: string[] }> = [
+    { reason: 'no configuration keeps every rule', rules: allRules },
+    { reason: 'an application profile drops framework and opt-in rules', configuration: { profiles: ['cratis/application/csharp'] }, rules: applicationRules },
+    { reason: 'a composing profile inherits the application rules but not the opt-in ones', configuration: { profiles: ['cratis'] }, rules: applicationRules },
+    { reason: 'an empty language list filters nothing', configuration: { profiles: ['cratis/full'], languages: [] }, rules: applicationRules },
+    { reason: 'an engineering profile selects the framework rules', configuration: { profiles: ['cratis/engineering/csharp'] }, rules: without('application.md', 'optional.md') },
+    { reason: 'an opt-in profile selects its own rule', configuration: { profiles: ['cratis/optional'] }, rules: [...unprofiled, 'optional.md'].sort() },
+    { reason: 'a profile nested under the opt-in profile selects its rule', configuration: { profiles: ['cratis/optional/team'] }, rules: [...unprofiled, 'optional.md'].sort() },
+    { reason: 'a profile that merely shares the opt-in prefix does not', configuration: { profiles: ['cratis/optional-other'] }, rules: unprofiled },
+    { reason: 'no profiles keeps only rules without a profile', configuration: { profiles: [] }, rules: unprofiled },
+    { reason: 'opting in beside a composing profile adds only the opt-in rule', configuration: { profiles: ['cratis/full', 'cratis/optional'] }, rules: without('framework.md', 'framework-always.md') },
+    { reason: 'a selected language drops rules scoped to other languages and to documentation', configuration: { profiles: ['cratis/application/csharp'], languages: ['csharp'] }, rules: ['always.md', 'application.md', 'csharp.md', 'everywhere.md', 'model.md'] },
+    { reason: 'the documentation profile keeps documentation rules', configuration: { profiles: ['cratis/application/typescript', 'cratis/documentation'], languages: ['typescript'] }, rules: ['always.md', 'application.md', 'documentation.md', 'everywhere.md', 'model.md', 'typescript.md'] },
+    { reason: 'a composed documentation profile counts as selected', configuration: { profiles: ['cratis'], languages: ['csharp'] }, rules: ['always.md', 'application.md', 'csharp.md', 'documentation.md', 'everywhere.md', 'model.md'] },
+    { reason: 'a rule naming only unselected languages is dropped even when its profile is selected', configuration: { profiles: ['cratis/engineering/csharp'], languages: ['go'] }, rules: ['always.md', 'everywhere.md', 'framework-always.md', 'go.md', 'model.md'] },
+];
+
+for (const { reason, configuration, rules } of ruleSelections) {
+    test(`the Pi package scopes rules by profile, composition and language: ${reason}`, () => {
+        inProject(configuration, project => {
+            assert.deepEqual(piPackage.managedRules(project).map(rule => rule.name), rules);
+
+            const universal = rules.filter(name => universalRuleNames.includes(name));
+            const prompt = pluginHandlers(piPackage.register).get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }) as { systemPrompt: string };
+            assert.equal(prompt.systemPrompt, `base\n\n${universal.map(ruleContent).join('\n\n')}`, 'the system prompt carries exactly the selected universal rules');
+
+            for (const [path, matching] of Object.entries(rulesMatchingPath)) {
+                const delivered = piPackage.rulesForPath(project, path).map(rule => rule.name);
+                assert.deepEqual(delivered, matching.filter(name => rules.includes(name)), `${path}: only selected rules whose scope matches reach the file`);
+            }
+        });
+    });
+}
+
+const skillSelections: Array<{ reason: string; configuration?: AiConfiguration; skills: string[] }> = [
+    { reason: 'no configuration exposes every catalog skill', skills: skillNames },
+    { reason: 'no profiles exposes nothing', configuration: { profiles: [] }, skills: [] },
+    { reason: 'a composing profile reaches every composed profile when languages are unspecified', configuration: { profiles: ['cratis'] }, skills: ['demo-application', 'demo-csharp', 'demo-documentation', 'demo-typescript'] },
+    { reason: 'composition follows only the selected languages and language-agnostic profiles', configuration: { profiles: ['cratis'], languages: ['typescript'] }, skills: ['demo-application', 'demo-documentation', 'demo-typescript'] },
+    { reason: 'several languages compose each of their profiles', configuration: { profiles: ['cratis/application'], languages: ['csharp', 'typescript'] }, skills: ['demo-application', 'demo-csharp', 'demo-typescript'] },
+    { reason: 'an explicitly selected profile is kept whatever the languages', configuration: { profiles: ['cratis/application/csharp'], languages: ['typescript'] }, skills: ['demo-csharp'] },
+    { reason: 'an engineering profile composes its language-agnostic core', configuration: { profiles: ['cratis/engineering/csharp'], languages: ['csharp'] }, skills: ['demo-engineering', 'demo-engineering-csharp'] },
+    { reason: 'the opt-in profile resolves only its own skills', configuration: { profiles: ['cratis/optional'] }, skills: ['demo-optional'] },
+    { reason: 'opting in beside a composing profile adds the opt-in skills', configuration: { profiles: ['cratis/full', 'cratis/optional'], languages: ['csharp'] }, skills: ['demo-application', 'demo-csharp', 'demo-documentation', 'demo-optional'] },
+];
+
+for (const { reason, configuration, skills } of skillSelections) {
+    test(`the Pi package resolves skills through profile composition: ${reason}`, () => {
+        inProject(configuration, project => {
+            const discovered = pluginHandlers(piPackage.register).get('resources_discover')?.({ cwd: project, systemPrompt: '' }, { cwd: project }) as { skillPaths: string[] };
+            assert.deepEqual(discovered.skillPaths, skills.map(name => join(piPackage.corpus, 'skills', name)));
+            assert.ok(discovered.skillPaths.every(existsSync));
+            assert.deepEqual(piPackage.selectedSkillNames(project), skills, 'path guidance hints exactly the skills the package loads');
+        });
+    });
+}
+
+test('the Pi package rejects a profile the catalog does not define, and path guidance then hints nothing', () => {
+    inProject({ profiles: ['cratis/unknown'] }, project => {
+        assert.throws(() => piPackage.selectedSkillPaths(project), /Unknown Cratis AI profile 'cratis\/unknown'/);
+        assert.equal(piPackage.selectedSkillNames(project), undefined);
+    });
+});
+
+test('the Pi package yields to a managed CLI installation and resumes when it is removed, without writing project files', () => {
+    const configurations: AiConfiguration[] = [{ profiles: ['cratis'], languages: ['csharp'] }, { profiles: ['cratis/optional'] }];
+    inProject(undefined, project => {
+        const configurationPath = join(project, '.cratis', 'ai.json');
+        const marker = join(project, '.cratis', 'ai.manifest.json');
+        const handlers = pluginHandlers(piPackage.register);
+        const discover = () => handlers.get('resources_discover')?.({ cwd: project, systemPrompt: '' }, { cwd: project });
+        const start = () => handlers.get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project });
+        const selections = configurations.map(configuration => {
+            const written = JSON.stringify(configuration);
+            writeFileSync(configurationPath, written);
+            const selected = { resources: discover(), prompt: start() };
+            assert.ok(selected.resources && selected.prompt, 'the package serves a repository without a managed installation');
+            assert.deepEqual({ resources: discover(), prompt: start() }, selected, 'discovery has no side effects');
+
+            writeFileSync(marker, '{}');
+            assert.deepEqual({ resources: discover(), prompt: start() }, { resources: undefined, prompt: undefined }, 'the managed installation owns skills and rules');
+            rmSync(marker);
+            assert.deepEqual({ resources: discover(), prompt: start() }, selected, 'removing the managed marker restores the package selection');
+            assert.equal(readFileSync(configurationPath, 'utf8'), written);
+            return selected;
+        });
+        assert.notDeepEqual(selections[0], selections[1], 'a configuration update changes the selection in the same session');
+        assert.equal(existsSync(join(project, '.cratis', 'ai')), false, 'the package discovers its own resources; it installs no corpus');
+    });
+});
+
+test('a CLI-managed installation filters its installed rules by profile but trusts their language scopes', () => {
+    inProject({ profiles: ['cratis/application/csharp'], languages: ['csharp'] }, project => {
+        writeRules(join(project, '.cratis', 'ai', 'rules'), ['application.md', 'csharp.md', 'framework.md', 'typescript.md']);
+        writeFileSync(join(project, '.cratis', 'ai.manifest.json'), '{}');
+        assert.deepEqual(piPackage.managedRules(project).map(rule => rule.name), ['application.md', 'csharp.md', 'typescript.md'], 'the CLI already resolved the languages, so only the profile filter applies');
+        assert.deepEqual(piPackage.rulesForPath(project, 'Source/thing.ts').map(rule => rule.name), ['application.md', 'typescript.md']);
+        assert.equal(pluginHandlers(piPackage.register).get('before_agent_start')?.({ cwd: project, systemPrompt: 'base' }, { cwd: project }), undefined, 'the managed installation owns rule delivery');
+    });
 });

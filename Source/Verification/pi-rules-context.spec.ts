@@ -9,6 +9,8 @@ import test from 'node:test';
 import { DefaultResourceLoader, ExtensionRunner, SessionManager, SettingsManager } from '@earendil-works/pi-coding-agent';
 import type { BeforeAgentStartEvent, BeforeAgentStartEventResult, BuildSystemPromptOptions, ExtensionContext, ExtensionFactory, ExtensionHandler, ModelRegistry } from '@earendil-works/pi-coding-agent';
 import { universalRules } from '../../.cratis/ai/harnesses/pi/extensions/shared/rules.ts';
+import { ruleContent, ruleFixtures, universalRuleNames, writeRules } from './pi-package.fixture.ts';
+import type { AiConfiguration } from './pi-package.fixture.ts';
 
 // The SDK uses this builder internally but does not export it from its package entry point.
 const { buildSystemPrompt }: { buildSystemPrompt: (options: BuildSystemPromptOptions) => string } = await import(
@@ -308,3 +310,36 @@ test('managed Pi keeps appending on older runtimes without construction options 
         }
     });
 });
+
+test('managed Pi does not deduplicate any other universal rule loaded as context', async () => {
+    await withFixture(async fixture => {
+        writeRules(fixture.rules);
+        const path = join(fixture.project, 'AGENTS.md');
+        writeFileSync(path, ruleContent('always.md'));
+        const loaded = await loadFixture(fixture);
+        assertLoaded(loaded, path, ruleContent('always.md'));
+        assert.equal(await loaded.start(), appendedPrompt(loaded.systemPrompt, fixture.project));
+    });
+});
+
+const startupSelections: Array<{ reason: string; configuration?: AiConfiguration; omitted: string[] }> = [
+    { reason: 'every universal rule without a configuration', omitted: [] },
+    { reason: 'no framework or opt-in rule for an application profile', configuration: { profiles: ['cratis/application/csharp'], languages: ['csharp'] }, omitted: ['framework-always.md', 'optional.md'] },
+    { reason: 'the framework rule for an engineering profile', configuration: { profiles: ['cratis/engineering/csharp'] }, omitted: ['optional.md'] },
+    { reason: 'the opt-in rule only for its profile', configuration: { profiles: ['cratis/optional'] }, omitted: ['framework-always.md'] },
+];
+
+for (const { reason, configuration, omitted } of startupSelections) {
+    test(`managed Pi injects the selected universal rules at startup with no skills and no file touched: ${reason}`, async () => {
+        await withFixture(async fixture => {
+            writeRules(fixture.rules);
+            if (configuration) writeFileSync(join(fixture.project, '.cratis/ai.json'), JSON.stringify(configuration));
+            const loaded = await loadFixture(fixture);
+            assert.deepEqual(loaded.options.skills, []);
+            const prompt = await loaded.start();
+            const injected = Object.keys(ruleFixtures).filter(name => prompt.includes(ruleContent(name)));
+            assert.deepEqual(injected, universalRuleNames.filter(name => !omitted.includes(name)));
+            assert.ok(prompt.includes(general), 'the shipped always-on rule is injected beside them');
+        });
+    });
+}

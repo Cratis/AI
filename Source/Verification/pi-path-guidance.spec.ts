@@ -6,7 +6,7 @@ import { spawn } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import test from 'node:test';
+import test, { after } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { DefaultResourceLoader, SettingsManager } from '@earendil-works/pi-coding-agent';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
@@ -19,6 +19,8 @@ import { selectedSkillNames } from '../../.cratis/ai/harnesses/pi/extensions/sha
 import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
 import { globProblem } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
 import { skillFrontmatterProblems } from './skill-paths.ts';
+import { createPiPackage, createProject, ruleFixtures, rulesMatchingPath } from './pi-package.fixture.ts';
+import type { AiConfiguration } from './pi-package.fixture.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const extensionsRoot = join(repositoryRoot, '.cratis', 'ai', 'harnesses', 'pi', 'extensions');
@@ -991,3 +993,39 @@ const specificationsSkill = '.cratis/ai/skills/cratis-specifications-csharp/SKIL
 
 // verify.ts reports exactly what skillFrontmatterProblems returns for each corpus skill (the end-to-end test above
 // proves that wiring with one rejected trigger), so each variant of the real skill is checked by calling the validation directly.
+
+// Scoped rules over the synthetic corpus of pi-package.fixture.ts: each path is probed in its own session, so a
+// module file such as go.mod proves its own selector instead of riding on an earlier source-file touch.
+const piPackage = await createPiPackage();
+after(() => piPackage.dispose());
+
+const scopedSelections: Array<{ reason: string; configuration?: AiConfiguration; excluded: string[] }> = [
+    { reason: 'an unconfigured repository', excluded: [] },
+    { reason: 'an engineering selection of one language', configuration: { profiles: ['cratis/engineering/csharp'], languages: ['go'] }, excluded: ['application.md', 'csharp.md', 'documentation.md', 'framework.md', 'typescript.md'] },
+    { reason: 'an application selection of another language', configuration: { profiles: ['cratis/application/csharp'], languages: ['csharp'] }, excluded: ['documentation.md', 'framework.md', 'go.md', 'typescript.md'] },
+];
+
+for (const { reason, configuration, excluded } of scopedSelections) {
+    for (const skills of [undefined, [] as LoadedSkill[]]) {
+        test(`the packaged copy attaches exactly the selected scoped rules per touched file for ${reason}, with ${skills ? 'no' : 'unreported'} skills`, () => {
+            const project = createProject(configuration);
+            try {
+                for (const [path, matching] of Object.entries(rulesMatchingPath)) {
+                    const handlers = register(piPackage.pathGuidance);
+                    const context = { cwd: project };
+                    handlers.get('before_agent_start')?.({ systemPrompt: 'base', systemPromptOptions: { cwd: project, skills } }, context);
+                    const read = () => textOf(handlers.get('tool_result')?.({ toolName: 'read', isError: false, input: { path }, content: [] }, context) as Result);
+                    const expected = matching.filter(name => !excluded.includes(name));
+                    const delivered = (text: string) => Object.keys(ruleFixtures).filter(name => text.includes(`# Rule ${name}\n`));
+
+                    assert.deepEqual(delivered(read()), expected, path);
+                    assert.equal(read(), '', `${path}: delivered once per session`);
+                    handlers.get('session_start')?.({}, context);
+                    assert.deepEqual(delivered(read()), expected, `${path}: a fresh session delivers it again`);
+                }
+            } finally {
+                rmSync(project, { recursive: true, force: true });
+            }
+        });
+    }
+}

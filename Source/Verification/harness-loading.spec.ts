@@ -6,13 +6,16 @@ import { spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, readlinkSync, realpathSync, lstatSync, statSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import test from 'node:test';
-import { DefaultResourceLoader, SettingsManager } from '@earendil-works/pi-coding-agent';
+import test, { after } from 'node:test';
+import { DefaultResourceLoader, ExtensionRunner, SessionManager, SettingsManager } from '@earendil-works/pi-coding-agent';
+import type { ModelRegistry } from '@earendil-works/pi-coding-agent';
 import { selectedSkillPaths } from '../Pi.Plugin/src/index.ts';
 import { checkCopilotInstructions, copilotInstructionsDirectory, copilotMarker, rewriteCopilotLinks } from '../Harness.Setup/copilot-instructions.ts';
 import { frontmatter, frontmatterText, quotedScalar } from '../../.cratis/ai/harnesses/pi/extensions/shared/frontmatter.ts';
 import { globToRegExp } from '../../.cratis/ai/harnesses/pi/extensions/shared/globs.ts';
 import { lineCount } from './skill-structure.ts';
+import { createPiPackage, createProject, skillNames } from './pi-package.fixture.ts';
+import type { AiConfiguration } from './pi-package.fixture.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '..', '..');
 const corpusRoot = join(repositoryRoot, '.cratis', 'ai');
@@ -126,3 +129,57 @@ test('every supported harness resolves canonical rules or shared project instruc
     assert.equal(realpathSync(join(repositoryRoot, 'CLAUDE.md')), realpathSync(join(corpusRoot, 'rules', 'general.md')));
     assert.match(readFileSync(join(repositoryRoot, '.cursor', 'rules', 'cratis.mdc'), 'utf8'), /\.cratis\/ai\/rules\/general\.md/);
 });
+
+test('every supported harness resolves the canonical skill corpus', () => {
+    const canonical = join(corpusRoot, 'skills');
+    assert.ok(skillCount(canonical) > 0);
+    for (const path of ['.claude/skills', '.agents/skills', '.github/skills', '.cursor/skills', '.opencode/skills', '.pi/skills']) {
+        assert.equal(realpathSync(join(repositoryRoot, path)), realpathSync(canonical), path);
+        assert.equal(skillCount(join(repositoryRoot, path)), skillCount(canonical), path);
+    }
+});
+
+// The published package is loaded by the real Pi SDK over the synthetic corpus of pi-package.fixture.ts.
+const piPackage = await createPiPackage();
+after(() => piPackage.dispose());
+
+const packageLoads: Array<{ reason: string; configuration?: AiConfiguration; managed?: boolean; skills: string[] }> = [
+    { reason: 'every skill for an unconfigured repository', skills: skillNames },
+    { reason: 'the composed skills of the selected profiles and languages', configuration: { profiles: ['cratis', 'cratis/optional'], languages: ['typescript'] }, skills: ['demo-application', 'demo-documentation', 'demo-optional', 'demo-typescript'] },
+    { reason: 'nothing beside a managed CLI installation', configuration: { profiles: ['cratis'] }, managed: true, skills: [] },
+];
+
+for (const { reason, configuration, managed, skills } of packageLoads) {
+    test(`Pi SDK loads from the @cratis/pi package ${reason}`, async () => {
+        const project = createProject(configuration);
+        const agentDirectory = mkdtempSync(join(tmpdir(), 'cratis-pi-loader-'));
+        try {
+            if (managed) writeFileSync(join(project, '.cratis', 'ai.manifest.json'), '{}');
+            const loader = new DefaultResourceLoader({
+                cwd: project,
+                agentDir: agentDirectory,
+                settingsManager: SettingsManager.inMemory(),
+                noExtensions: true,
+                noSkills: true,
+                additionalExtensionPaths: [piPackage.entryPath],
+            });
+            await loader.reload();
+            const { extensions, errors, runtime } = loader.getExtensions();
+            assert.deepEqual(errors, []);
+            // No model is consulted by resource discovery.
+            const runner = new ExtensionRunner(extensions, runtime, project, SessionManager.inMemory(project), {} as ModelRegistry);
+            runner.onError(error => assert.fail(error.error));
+            const discovered = await runner.emitResourcesDiscover(project, 'startup');
+            loader.extendResources({ skillPaths: discovered.skillPaths.map(entry => ({ path: entry.path, metadata: { source: 'extension', scope: 'temporary', origin: 'top-level' } })) });
+
+            const loaded = loader.getSkills();
+            assert.deepEqual(loaded.diagnostics, []);
+            assert.deepEqual(loaded.skills.map(skill => skill.name).sort(), skills);
+            assert.ok(loaded.skills.every(skill => skill.filePath.startsWith(piPackage.corpus)), 'the skills come from the package, not the repository');
+            assert.equal(existsSync(join(project, '.cratis', 'ai')), false, 'the package installs nothing into the repository');
+        } finally {
+            rmSync(project, { recursive: true, force: true });
+            rmSync(agentDirectory, { recursive: true, force: true });
+        }
+    });
+}
