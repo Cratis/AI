@@ -144,46 +144,12 @@ public static class AIChatClientFactory
     public static (IChatClient Client, string ModelId)? Create(AIProviderType type, AIProviderApiKey? apiKey, AIProviderEndpoint? endpoint, string modelId) =>
         type switch
         {
-            AIProviderType.OpenAI =>
-                (new ResponsesFallbackChatClient(
-                    new OpenAI.Chat.ChatClient(modelId, new ApiKeyCredential(apiKey!.ForUse()), new OpenAIClientOptions { NetworkTimeout = _networkTimeout }).AsIChatClient(),
-                    () => OpenAIResponses(modelId, apiKey, null)),
-                    modelId),
+            AIProviderType.OpenAI => (OpenAIChat(modelId, new ApiKeyCredential(apiKey!.ForUse()), null), modelId),
 
             AIProviderType.AzureOpenAI =>
-                (new ResponsesFallbackChatClient(
-                    new OpenAI.Chat.ChatClient(
-                        modelId,
-                        new ApiKeyCredential(apiKey!.ForUse()),
-                        new OpenAIClientOptions
-                        {
-                            Endpoint = NormalizeAzureOpenAIEndpoint(endpoint!.Value),
-                            NetworkTimeout = _networkTimeout,
-                        }).AsIChatClient(),
-                    () => OpenAIResponses(modelId, apiKey, NormalizeAzureOpenAIEndpoint(endpoint.Value))),
-                    modelId),
+                (OpenAIChat(modelId, new ApiKeyCredential(apiKey!.ForUse()), NormalizeAzureOpenAIEndpoint(endpoint!.Value)), modelId),
 
-            // A subscription token never reaches the Messages API SDK - it authenticates only through
-            // the Claude Code CLI transport (Providers.Anthropic.ClaudeCodeChatClient), which shells
-            // out to the unmodified official `claude` binary per call rather than forging CLI identity
-            // headers onto a raw Messages request.
-            AIProviderType.Anthropic when AnthropicCredential.IsOAuthToken(apiKey!) =>
-                (new ClaudeCodeChatClient(new ClaudeCodeStreamingProcess(), AnthropicCredential.Normalize(apiKey!), modelId) { UseVendorDefaults = true }, modelId),
-
-            // AnthropicClient's own disposal is handed to the IChatClient wrapper AsIChatClient()
-            // returns - the caller disposes the returned client, not this one, exactly as Studio's
-            // own original code already assumed. CA2000 cannot trace ownership through the wrapping
-            // extension method, so it reads this as a leak; it is not one.
-#pragma warning disable CA2000
-            AIProviderType.Anthropic =>
-                (new TemperatureOmittingChatClient(
-                    new AnthropicClient(new ClientOptions
-                    {
-                        ApiKey = AnthropicCredential.Normalize(apiKey!).Value,
-                    }).AsIChatClient(),
-                    modelId),
-                    modelId),
-#pragma warning restore CA2000
+            AIProviderType.Anthropic => (AnthropicChat(modelId, apiKey!), modelId),
 
             AIProviderType.OpenAICompatible =>
                 (new OpenAI.Chat.ChatClient(
@@ -199,12 +165,51 @@ public static class AIChatClientFactory
             _ => null,
         };
 
+    static IChatClient AnthropicChat(string modelId, AIProviderApiKey apiKey)
+    {
+        // A subscription token never reaches the Messages API SDK - it authenticates only through
+        // the Claude Code CLI transport (Providers.Anthropic.ClaudeCodeChatClient), which shells
+        // out to the unmodified official `claude` binary per call rather than forging CLI identity
+        // headers onto a raw Messages request.
+        if (AnthropicCredential.IsOAuthToken(apiKey))
+        {
+            return new ClaudeCodeChatClient(new ClaudeCodeStreamingProcess(), AnthropicCredential.Normalize(apiKey), modelId) { UseVendorDefaults = true };
+        }
+
+        // AnthropicClient's own disposal is handed to the IChatClient wrapper AsIChatClient()
+        // returns - the caller disposes the returned client, not this one, exactly as Studio's
+        // own original code already assumed. CA2000 cannot trace ownership through the wrapping
+        // extension method, so it reads this as a leak; it is not one.
+#pragma warning disable CA2000
+        return new TemperatureOmittingChatClient(
+            new AnthropicClient(new ClientOptions
+            {
+                ApiKey = AnthropicCredential.Normalize(apiKey).Value,
+            }).AsIChatClient(),
+            modelId);
+#pragma warning restore CA2000
+    }
+
+    static TemperatureOmittingChatClient OpenAIChat(string modelId, ApiKeyCredential credential, Uri? endpoint)
+    {
+        var chatCompletions = new OpenAI.Chat.ChatClient(
+            modelId,
+            credential,
+            new OpenAIClientOptions { Endpoint = endpoint, NetworkTimeout = _networkTimeout }).AsIChatClient();
+
+        // ForOpenAI returns a delegating client that owns and disposes the fallback client.
+#pragma warning disable CA2000
+        var fallback = new ResponsesFallbackChatClient(chatCompletions, () => OpenAIResponses(modelId, credential, endpoint));
+#pragma warning restore CA2000
+        return TemperatureOmittingChatClient.ForOpenAI(fallback, modelId);
+    }
+
     // The Responses client is marked experimental by the OpenAI SDK, and is the only API a model that reasons will serve
     // function tools over; ResponsesFallbackChatClient builds it only when a model has said so.
 #pragma warning disable OPENAI001
-    static IChatClient OpenAIResponses(string modelId, AIProviderApiKey apiKey, Uri? endpoint) =>
+    static IChatClient OpenAIResponses(string modelId, ApiKeyCredential credential, Uri? endpoint) =>
         new OpenAI.Responses.ResponsesClient(
-            new ApiKeyCredential(apiKey.ForUse()),
+            credential,
             endpoint is null ? new OpenAI.Responses.ResponsesClientOptions { NetworkTimeout = _networkTimeout } : new OpenAI.Responses.ResponsesClientOptions { Endpoint = endpoint, NetworkTimeout = _networkTimeout })
             .AsIChatClient(modelId);
 #pragma warning restore OPENAI001
