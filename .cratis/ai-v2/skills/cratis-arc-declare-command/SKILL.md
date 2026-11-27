@@ -18,11 +18,15 @@ public record RegisterAuthor(AuthorId Id, string Name)
 }
 ```
 
-Use the shared `AuthorId` record, which derives from `EventSourceId<Guid>`; don't redeclare it in the command. Arc selects the event source by property type, so the single `AuthorId` property identifies the author's history in any constructor position. Return the accepted name as the fact; the pipeline appends it once.
+Use the shared `AuthorId` record, which derives from `EventSourceId<Guid>`; don't redeclare it in the command. Arc selects the event source by property type, so the single `AuthorId` property identifies the author's history in any constructor position. In this event-sourced state change, `Handle()` decides which fact to record. Return the accepted name in the event; the Arc pipeline with Chronicle appends it once.
 
 For a command that already uses an ordinary concept or primitive as its identity, mark that one positional member `[property: Key]` using `Cratis.Chronicle.Keys`. A property named `Id` alone does not select the event source. `EventSourceId` is a type, not an attribute.
 
 [Test the append](../cratis-specifications-exercise-backend/SKILL.md) against the caller's author ID and submitted name.
+
+## When it goes off the usual path
+
+- **The decision needs existing state:** load it before `Handle` via `Provide()`. If the provider can't supply required state, return a typed failure, not `null`.
 
 ## Avoid
 

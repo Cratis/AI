@@ -6,6 +6,8 @@ compatibility: Requires @cratis/components, @cratis/arc.react and @cratis/fundam
 
 # Open a dialog to register an author
 
+Bind user input for the state change to the generated command. Submitting the form requests the change; it does not prove that an event committed.
+
 1. Under the app's [Arc and Components providers](../cratis-arc-react-bind-slice/SKILL.md), create `Features/Authors/Registration/AddAuthor.tsx`. Import the [generated command](../cratis-arc-generate-proxies/SKILL.md) from the private `generated/Features/Authors/Registration` folder. For the generated `id: Guid`, call `Guid.create()`. Use `initialValues` for the ID the reader doesn't type. Bind the Name field directly to the command property.
 
 ```tsx
@@ -48,7 +50,10 @@ For a generated `Date` property, use `CalendarField` from `@cratis/components/Co
 
 - Don't execute a second command when the dialog closes.
 - Don't put `CommandForm` inside `CommandDialog`; the dialog already contains the form.
-- Don't expect removing a field to clear its value. Clear the property if it no longer applies.
+
+## When it goes off the usual path
+
+- **An input stops applying and its field disappears:** explicitly clear the corresponding property. Hiding the field doesn't clear the command value.
 
 ## Related skills
 

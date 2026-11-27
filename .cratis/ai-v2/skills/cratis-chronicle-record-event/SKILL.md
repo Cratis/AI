@@ -8,7 +8,7 @@ compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 
 1. Import `AuthorId` and `AuthorName` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Reference `Cratis.Chronicle` in the backend. Put the registration event and its writer in `Features/Authors/Registration/`.
 2. Mark the event `[EventType]`. The stored ID defaults to the type name; if you rename the type later, retain its old ID with `[EventType("AuthorRegistered")]`.
-3. Inject `IEventLog` into the direct writer. Pass the same `AuthorId` for all events about that author. Return the append result to the caller.
+3. Inject `IEventLog` into the direct writer. Use the author's `AuthorId` as the event source ID. The event log is the default event sequence; filter it by event source to read this author's history. Return the append result to the caller.
 
 ```csharp
 // Features/Authors/Registration/AuthorRegistered.cs and AuthorRegistry.cs (same namespace)
@@ -64,6 +64,10 @@ If the same ID may register more than once, select the intended registration by 
 - Don't generate an ID inside the writer. Use the ID supplied for this author.
 - Don't use observer completion to decide whether the append was accepted. Check `result.IsSuccess` first.
 - Don't append inside an Arc command that already returns `AuthorRegistered`; that would write twice.
+
+## When it goes off the usual path
+
+- **The original outcome needs correcting:** append a correcting fact for that event source and preserve the original. Don't edit it in the event log.
 
 ## Related skills
 

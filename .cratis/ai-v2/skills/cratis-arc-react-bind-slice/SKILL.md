@@ -20,7 +20,7 @@ createRoot(document.getElementById('root')!).render(
 );
 ```
 
-2. For custom markup **instead of** `DataPage`, import `AllAuthors` from `../../../generated/Features/Authors/Listing/Author` in the consuming component under `Features/Authors/Listing`. Use this fragment inside that function component. Do not add another `Authors` component or call the hook alongside a `DataPage` that already uses the query.
+2. Bind the state view to its generated query. Loading and errors are UI states, not separate slices. For custom markup **instead of** `DataPage`, import `AllAuthors` from `../../../generated/Features/Authors/Listing/Author` in the consuming component under `Features/Authors/Listing`. Use this fragment inside that function component. Do not add another `Authors` component or call the hook alongside a `DataPage` that already uses the query.
 
 ```tsx
 const [authors] = AllAuthors.use();
@@ -48,7 +48,10 @@ if (!name.trim()) return <p>Enter an author name.</p>;
 ## Avoid
 
 - Don't edit generated files; [generate the proxies](../cratis-arc-generate-proxies/SKILL.md) from the backend.
-- Don't show an empty list while loading, denied access or waiting for a name.
+
+## When it goes off the usual path
+
+- **Rows aren't ready or access was denied:** show the relevant loading or error state. Show an empty list only when the query succeeds and returns no rows.
 
 ## Related skills
 

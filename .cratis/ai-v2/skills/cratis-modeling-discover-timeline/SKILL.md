@@ -1,19 +1,20 @@
 ---
 name: cratis-modeling-discover-timeline
-description: Use when event modeling a business journey, identifying who owns a recorded event, choosing a stream boundary or tracing a screen field to its origin. Not for expressing an agreed slice in .play (use cratis-screenplay-declare-slice).
+description: Use when event modeling a business journey, identifying who owns a recorded event, identifying the event source or tracing a screen field to its origin. Not for expressing an agreed slice in .play (use cratis-screenplay-declare-slice).
 ---
 
-# Trace one business example
+# Discover the business timeline
 
-Write the example as the table below in `Features/Authors/Registration/timeline.md`. Record who submits the name, which author it belongs to and how the librarian knows registration succeeded.
-
-1. Ask for one outcome. Record the actor, the input and the visible result in the owner's words.
-2. Walk the input forward. Name the command for what the actor requests and the event for what happened.
-3. Ask whose history gained the event (here, the author's). Write that ID beside the event, separate from the caller.
-4. Walk each displayed value back to its origin. Identify the value carried in the payload and the key identifying the row.
+1. Ask for one outcome. Record the actor, input and visible result in the owner's words.
+2. Arrange past-tense business events left to right as a causal plot, including alternative paths. Sketch what participants see and do as a storyboard. Give each owning system or bounded context a swimlane.
+3. Name the command for what the actor requests and the event for the business outcome, not the database write. Mark whose history gained the fact: write the event source ID beside the event, separate from the caller.
+4. Check information completeness. Walk each displayed value to its origin: in the authors list, the event source supplies the row key and the payload supplies the name.
 5. Change one input to expose a boundary. Ask what should be refused, what the caller sees and what must remain unchanged. Keep unanswered questions open.
+6. Cut the plot by behavior within the owning swimlane. [Design the event model](../cratis-modeling-design-event-model/SKILL.md) to choose the slice patterns and carry the agreed journey into examples.
 
 ## Example: register an author
+
+Record the plot and its unresolved branch in `Features/Authors/Registration/timeline.md`. In the Library swimlane, arrange `AuthorRegistered` then `AuthorRemoved`; sketch the librarian submitting the name, seeing the new row, and later removing it. Registration and removal are separate state changes. The list is a state view fed by both facts.
 
 | Question | Concrete example |
 |---|---|
@@ -23,15 +24,12 @@ Write the example as the table below in `Features/Authors/Registration/timeline.
 | Where does the name come from? | The row takes its name from `AuthorRegistered.Name`. |
 | Which decision is still open? | Ask the owner what the librarian should see after submitting a blank name. |
 
-## Avoid
+## When it goes off the usual path
 
-- Don't name the event “row inserted”; name the business outcome.
-- Don't address `AuthorRegistered` to the librarian who entered the name; use the author ID.
-- Don't promote a proposed refusal to an agreed rule without the owner's answer.
+- If accounts of the refusal disagree, sketch both outcomes and take the smallest example that distinguishes them to the owner. Don't mark either as accepted yet.
+- If all you have is a recording of the screen, note the visible result and [recover intent](../cratis-screenplay-recover-intent/SKILL.md). Verify the event and its address before treating either as fact.
 
 ## Related skills
-
-- [Recover intent](../cratis-screenplay-recover-intent/SKILL.md) when the starting point is a recording of an inherited screen rather than a workshop.
 
 - [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md) to encode the agreed example.
 - [Deliver the slice](../cratis-platform-deliver-slice/SKILL.md) to implement its visible result.

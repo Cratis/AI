@@ -6,6 +6,8 @@ compatibility: .NET SDK and Chronicle reducers.
 
 # Calculate how many copies of a book are on loan
 
+Use a reducer when the observer needs the previous read model to compute the next one. Use a projection for declarative mapping, a reactor for side effects and a command handler to decide whether to accept a request.
+
 1. Reference `Cratis.Chronicle` and put `BookAvailability` in the book availability feature folder of the backend assembly. Import `CopyAdded` and `BookBorrowed` from [Protect a command decision](../cratis-chronicle-protect-decision/SKILL.md). Chronicle's default discovery recognizes public static reducer methods on the model; do not register a separate reducer service.
 2. Put a public static `Reduce` method on the record for each event. Take the typed event first, then the nullable previous model. The first `CopyAdded` starts the model with one copy and no loans. Each subsequent `CopyAdded` adds one copy without changing the loan count.
 3. For `BookBorrowed`, return a new instance with one more copy on loan, up to the number of copies. Return `null` if the book hasn't been added: borrowing alone cannot create availability.
@@ -33,9 +35,12 @@ Call `BookAvailability.Reduce` directly in a test. `BookAvailability.Reduce(new 
 
 ## Avoid
 
-- Don't fetch stock from another service inside `Reduce`. Compute it from the event and previous model.
 - Don't mutate the previous instance. Return a new record with `with`.
 - Don't try to change the key in the return value. Chronicle uses the event source ID of the event.
+
+## When it goes off the usual path
+
+- **The calculation needs outside data:** record the needed input as a fact first. Don't call a service from `Reduce`; replay must use the recorded inputs, not today's answers.
 
 ## Related skills
 

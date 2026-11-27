@@ -1,6 +1,7 @@
 module Library
   feature Authors
     slice Translate ImportAuthors
+      direction inbound
       capture DirectoryAuthors
         source api
           api Directory

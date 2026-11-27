@@ -50,6 +50,15 @@ Put the givens in each specification. Seed `given <EventType>` with `for <litera
 
 Use the application's declared role and modeled refusal. Run one `when` per specification: `when Aster` to use the example as-is, or an inline assignment to override an input. Do not attach a caller to the `when` or invent a fixture name in place of event or read-model data.
 
+## Carry the accepted examples into the application
+
+[Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) with the same Given/When/Then: assert the addressed append and name for Aster, and a refusal with no append for the empty name. For the state view, assert the query's row ID and name from the fact. [Check the UI interaction](../cratis-specifications-observe-ui/SKILL.md) and [verify the running slice](../cratis-platform-deliver-slice/SKILL.md) separately; model tests don't demonstrate either.
+
+## When it goes off the usual path
+
+- **The effect belongs to another slice:** move the effect assertion to the slice that owns it and seed the fact it reacts to. Verify the joined behavior in the running application.
+- **The model runner reports Unsupported:** keep the outcome unverified; cover it at the first executable boundary rather than changing the assertion to get a pass.
+
 ## Avoid
 
 - Don't infer the destination from a payload field; assert `for` on the expected event.

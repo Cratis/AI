@@ -1,92 +1,69 @@
 ---
 name: cratis-screenplay-model-automation
-description: Use when modeling how a Translate slice imports external data into local events, including its capture, stable key and first-observation behavior. Not for implementing the reactor (use cratis-chronicle-react-to-fact).
+description: Use when modeling a Screenplay Automation slice where a local fact, due work or a system trigger starts work without a person. Not for importing external observations (use cratis-screenplay-model-translation).
 compatibility: Requires the Screenplay CLI.
 ---
 
-# Import an author from a directory
+# React to a local fact
 
-In `model/Authors/import.play`, describe what the Library receives, how it identifies a directory entry and which local event it records on the first observation.
+1. For immediate follow-up, start with a reaction to one local fact. Name what triggers it, the system actor, the inputs it needs and the effect it requests.
+2. Use `invokes` when a command must decide. Choose `produces` only when the reaction already knows which fact to record and which event source to address. Map the event source explicitly when it is the command's target.
+3. If the command is gated, declare the system's required roles; don't borrow a user's identity. Specify the addressed effect and handle only the intended refusal. Keep a capture in a separate [translation](../cratis-screenplay-model-translation/SKILL.md); consume its local `DirectoryAuthorSeen` fact here.
 
-1. Name the `Directory` API and `/authors` route under `source api`. Set `key id`.
-2. Under `append DirectoryAuthorSeen`, set `when added` and map `name = $.name`.
-3. Add the two specifications below. Give the same ID and name as prior state for the repeat case.
+## Example: request one welcome per directory author
+
+Use `AuthorId` from [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md) and `DirectoryAuthorSeen` from the directory translation. Here the directory row ID is already the Library's `AuthorId`. The Library system requests a welcome, not delivery of the message. The command can record only one request per author; acknowledge just that constraint refusal on redelivery.
 
 ```play
 module Library
   feature Authors
-    slice Translate ImportAuthors
-      capture DirectoryAuthors
-        source api
-          api Directory
-          route /authors
-          poll 5m
-        key id
-        append DirectoryAuthorSeen
-          when added
-            name = $.name
-
-      event DirectoryAuthorSeen
+    slice Automation WelcomeDirectoryAuthor
+      event DirectoryWelcomeRequested
         name String
 
-      specification SeeingAster
-        when capture DirectoryAuthors
-          id = "11111111-1111-4111-8111-111111111111"
+      constraint OneDirectoryWelcome
+        unique event DirectoryWelcomeRequested
+
+      command RequestDirectoryWelcome
+        id AuthorId identifier
+        name String
+        produces DirectoryWelcomeRequested
+          for id
+          name = name
+
+      reaction OnDirectoryAuthorSeen
+        runs as system
+        when DirectoryAuthorSeen
+          name
+          invokes RequestDirectoryWelcome
+            id = $eventSourceId
+            name = name
+            on refused by constraint OneDirectoryWelcome
+              acknowledge
+
+      specification RequestingAstersWelcome
+        when append DirectoryAuthorSeen
+          for "11111111-1111-4111-8111-111111111111"
           name = "Aster"
-        then DirectoryAuthorSeen
+        then DirectoryWelcomeRequested
           for "11111111-1111-4111-8111-111111111111"
           name = "Aster"
 
-      specification SeeingAsterAgain
-        given capture DirectoryAuthors
-          id = "11111111-1111-4111-8111-111111111111"
+      specification RedeliveringAfterWelcomeRequested
+        given DirectoryAuthorSeen
+          for "11111111-1111-4111-8111-111111111111"
           name = "Aster"
-        when capture DirectoryAuthors
-          id = "11111111-1111-4111-8111-111111111111"
+        given DirectoryWelcomeRequested
+          for "11111111-1111-4111-8111-111111111111"
           name = "Aster"
+        when redelivered DirectoryAuthorSeen to OnDirectoryAuthorSeen
         then no events
 ```
 
-From the application directory run `screenplay test model --format json`. For this file alone require two executed and two passed. These examples exercise translation of supplied observations; they do not poll an actual directory.
+Run `screenplay test model --format json` on the composed model. Require both automation specifications to execute and pass. [Implement the runtime reaction](../cratis-chronicle-react-to-fact/SKILL.md) with a reactor after commit; verify target support and test any external delivery separately.
 
-## Receive a public event instead of polling
+## When it goes off the usual path
 
-When the input is another application's public event, use an explicitly inbound slice, declare the event's origin and name that event under `source events`. Key the append from the incoming payload; it need not be the incoming event's own history address. For an event capture, test with `when append`, not `when capture`.
-
-```play
-module Library
-  feature Authors
-    slice Translate ReceiveAuthorAnnouncements
-      direction inbound
-      event AuthorAnnounced from "directory"
-        id String
-        name String
-      event AuthorAnnouncementReceived
-        name String
-      capture AuthorAnnouncements
-        source events
-          from AuthorAnnounced
-        key id
-        append AuthorAnnouncementReceived
-          when added
-            name = $.name
-      specification ReceivingAsterAnnouncement
-        when append AuthorAnnounced
-          id = "author-42"
-          name = "Aster"
-        then AuthorAnnouncementReceived
-          for "author-42"
-          name = "Aster"
-```
-
-## Avoid
-
-- Don't treat the first observation as a change from a previous value; supply prior state when testing a transition.
-- Don't key an author by name; different directory IDs may have the same display name.
-
-## Related skills
-
-- [Model an interaction](../cratis-screenplay-model-interaction/SKILL.md) when a librarian initiates the action on screen.
-
-- [Specify the outcome](../cratis-screenplay-specify-outcome/SKILL.md) for accepted and refused commands.
-- [React to an event](../cratis-chronicle-react-to-fact/SKILL.md) for the runtime implementation.
+- **Work must wait or be retried:** model a read model of pending work. Give each item a stable key and facts that open and close it, including cancellation if the work can be withdrawn.
+- **The command lives in another slice:** assert the handoff with `then invokes` here, and assert the command's events in its own slice. A specification runs only its own slice's follow-up behavior.
+- **A provider may have performed the effect before losing its reply:** retry with the same provider idempotency key and verify provider behavior separately. A unique request fact doesn't make an external effect exactly once.

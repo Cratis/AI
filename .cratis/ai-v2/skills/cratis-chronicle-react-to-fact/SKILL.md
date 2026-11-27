@@ -6,6 +6,8 @@ compatibility: .NET SDK and Chronicle reactor APIs.
 
 # Notify the author directory after registration
 
+Implement the local automation with a reactor, an observer that acts on a committed fact rather than building a read model or importing outside data.
+
 1. Reference `Cratis.Chronicle`. Put `RegistrationNotice` in the feature that sends directory notices. Import `AuthorRegistered` from [Record an event](../cratis-chronicle-record-event/SKILL.md).
 2. Implement `IReactor`. Take `AuthorRegistered` and `ReactorDelivery` in the public handler. Register the library's directory adapter for `IAuthorDirectory` in the host's services so Chronicle can construct the reactor. With default discovery, a concrete `IReactor` in the backend assembly needs no separate reactor registration.
 3. Pass `delivery.Id` with the author's name. The directory must recognize repeated calls with that key. Return its `Task` without catching exceptions so Chronicle can record the failure and retry delivery.
@@ -33,11 +35,10 @@ public class RegistrationNotice(IAuthorDirectory directory) : IReactor
 
 Have the directory save the first notice, then fail before acknowledging it. Call the handler again with the same delivery; check that the directory contains only one notice with the expected name.
 
-## Avoid
+## When it goes off the usual path
 
-- Don't create a new key on retry or use the author's ID as the key for every notice. Use `delivery.Id`.
-- Don't use `[OnceOnly]` to deduplicate retries; it affects replay, not recovery.
-- Don't change the observer ID when moving an existing reactor. For this class, retain the old identity on the renamed class with `[Reactor("Library.Features.Authors.Directory.RegistrationNotice")]`.
+- **A failed partition is recovering:** use the same `delivery.Id` for the provider request. `[OnceOnly]` skips replay, not recovery; a new key on every retry can repeat the effect and an author ID can collapse distinct notices.
+- **An existing reactor moves or is renamed:** preserve its observer ID to keep its position. For this class, set `[Reactor("Library.Features.Authors.Directory.RegistrationNotice")]` on the renamed class.
 
 ## Related skills
 

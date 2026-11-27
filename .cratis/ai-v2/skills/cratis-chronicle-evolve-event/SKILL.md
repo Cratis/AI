@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-evolve-event
-description: Use when a stored event needs a new generation with the same identity because a payload property was renamed or its shape has a breaking change. Not for changing a database schema (use cratis-arc-connect-storage).
+description: Use when an event type needs a new generation with the same identity because a payload property was renamed or its shape has a breaking change. Not for changing a database schema (use cratis-arc-connect-storage).
 compatibility: .NET SDK and Chronicle event migrations.
 ---
 
@@ -70,6 +70,10 @@ Get `var store = await updated.GetEventStore(storeName, "migration-test");` and 
 - Don't give the rename a new event type ID.
 - Don't reverse the arguments to `RenamedFrom` in the downcast: `Name` is its destination.
 - Don't assume registering the migration rewrites stored events or rebuilds existing read models.
+
+## When it goes off the usual path
+
+- **The business outcome, not its schema, needs correcting:** append a compensating fact. Don't create a new generation to reinterpret what happened.
 
 ## Related skills
 

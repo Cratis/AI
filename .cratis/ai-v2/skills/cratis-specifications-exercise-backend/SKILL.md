@@ -6,6 +6,8 @@ compatibility: Requires the .NET SDK and matching Arc and Chronicle testing pack
 
 # Test the registration append and empty-name refusal
 
+Carry accepted Given/When/Then examples into separate contracts: execute the state change and check its addressed append or refusal; seed the state view with facts and check its derived row. An in-process projection check does not prove observer delivery or a live query update.
+
 1. In `Library.Specs`, reference the Library project, `Cratis.Arc.Chronicle.Testing`, `Cratis.Specifications.XUnit.v3`, `xunit.v3`, `Microsoft.NET.Test.Sdk` and `xunit.runner.visualstudio`. Keep the Arc testing package on the same version as the application's Arc packages.
 2. Use [RegisterAuthor](../cratis-arc-declare-command/SKILL.md), [AuthorRegistered](../cratis-chronicle-record-event/SKILL.md), [AuthorId](../cratis-fundamentals-name-value/SKILL.md) and [RegisterAuthorValidator](../cratis-arc-validate-command/SKILL.md) from the referenced application. The validator must reject empty `Name` with `Name is required`.
 3. In `Library.Specs/for_RegisterAuthor/when_executing_author_registration.cs`, submit once and check both the command result and addressed payload:
@@ -87,6 +89,10 @@ public class when_projecting_a_registration : Specification
 This checks the mapping in process, not observer delivery. In a running-store test, make sure the host has discovered the `Author` projection, then append to the test author's history and assert the append succeeded. Await `WaitForCompletion()` on that append result (import `Cratis.Chronicle.Observation`); require success with no failed partitions before querying the stored row for the same ID and name. A fixed sleep does not establish that the observer handled this write.
 
 For a command that decides from a read model, seed the prerequisite events in order with `_scenario.Given.ForEventSource(id).Events(...)` in `Establish`. Include the events needed to materialize the decision state, not just the last change. In `Because`, execute against that same source. Verify the command outcome and what that execution appended, separately from the seeded history.
+
+## When it goes off the usual path
+
+- **The in-process projection passes but a live query misses the author:** verify the append and observer completion against the running application before testing delivery through the query and UI.
 
 ## Avoid
 

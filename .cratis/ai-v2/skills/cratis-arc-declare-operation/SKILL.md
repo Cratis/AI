@@ -6,7 +6,7 @@ compatibility: Requires the Cratis package and a reservation provider registered
 
 # Reserve a library book
 
-Use an immutable operation record for the work. `Handle` returns it; Arc runs `Execute` and can run `Compensate` if the write fails without committing. Give both methods the same caller-supplied reservation identifier, including when the provider accepted the call but its acknowledgement was lost.
+Choose a command operation when the provider work must run before the command commits. `Handle` returns an immutable operation record; Arc runs `Execute` and can run `Compensate` if the write fails without committing. Give both methods the same caller-supplied reservation identifier, including when the provider accepted the call but its acknowledgement was lost.
 
 In `Features/Books/Reservations/`, put `ReservationId` in `ReservationId.cs` and `BookId` in `BookId.cs`. Both files use `namespace Library.Features.Books.Reservations;` and the `Cratis` global usings:
 
@@ -45,6 +45,11 @@ public record ReserveBookOperation(ReservationId Id, BookId Book) : ICommandOper
 Implement `IBookReservations` in `Features/Books/Reservations/BookReservations.cs` as `BookReservations` and register it before `Build()` in `Program.cs`: `builder.Services.AddScoped<IBookReservations, BookReservations>();`. The caller chooses one `ReservationId` per booking attempt. For the same owner, tenant, book and ID, a repeated `Reserve` must not create a second booking. Reject reuse for a different request. `Cancel` removes only this attempt's pending reservation; it succeeds without removing anything if that reservation is absent or already confirmed. This also covers a lost provider acknowledgement: Arc can compensate an attempted `Execute` even when it threw before returning.
 
 When the command already identifies the event source and also records a fact, return `(Fact, Operation)` from `Handle`, using the concrete event and operation types. Import `Cratis.Arc.Commands` for `ICommandOperation` if it is not in scope.
+
+## When it goes off the usual path
+
+- **Commit is unknown or mixed:** reconcile the event and provider state before reversing anything. A failed response is not proof that nothing committed.
+- **A committed outcome is wrong:** use Chronicle event compensation to append a linked corrective fact without changing the original. Don't use command operation compensation for this.
 
 ## Avoid
 

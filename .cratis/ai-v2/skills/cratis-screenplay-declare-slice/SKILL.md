@@ -6,6 +6,13 @@ compatibility: Requires the Screenplay CLI.
 
 # Declare the command, event and list in the model
 
+Choose a slice by what it does:
+
+- **State change** (`StateChange`): a command decides which facts to record.
+- **State view** (`StateView`): a query presents a read model derived from facts.
+- **Automation** (`Automation`): a system acts on local facts or due work. [Model automation](../cratis-screenplay-model-automation/SKILL.md).
+- **Translation** (`Translate`): adapt outside observations to local facts or private facts to a public contract. [Model translation](../cratis-screenplay-model-translation/SKILL.md).
+
 In `model/Authors/registration.play`, put the command and its event inside a `StateChange` slice. Give the list a separate `StateView` slice in the same feature.
 
 1. Declare `concept AuthorId : Uuid`. Mark the command's `id` with `identifier`.

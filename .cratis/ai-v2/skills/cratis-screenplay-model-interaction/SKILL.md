@@ -49,11 +49,14 @@ screen Authors
 
 - Don't use `for item` on Add; reserve it for actions on a selected row.
 - Don't treat action visibility as authorization; enforce permission at the operation.
-- Don't navigate after a refused submission.
+
+## When it goes off the usual path
+
+- **Submission is refused:** keep the registration screen open and show the command's outcome. Navigate to Authors only on success.
 
 ## Related skills
 
-- [Model automation](../cratis-screenplay-model-automation/SKILL.md) for work triggered by an event rather than a librarian.
-
+- [Model automation](../cratis-screenplay-model-automation/SKILL.md) for system-triggered work on a local fact rather than a librarian's action.
+- [Model translation](../cratis-screenplay-model-translation/SKILL.md) when an outside observation must first become a local fact.
 - [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md) to define the operation inputs and results.
 - [Bind the React slice](../cratis-arc-react-bind-slice/SKILL.md) to implement the accepted interaction.

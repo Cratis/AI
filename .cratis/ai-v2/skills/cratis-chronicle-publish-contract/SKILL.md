@@ -6,6 +6,8 @@ compatibility: .NET SDK and disposable producer and consumer stores.
 
 # Publish an author's listing without sharing the internal review
 
+For outbound translation, adapt the private review fact to the public listing contract. The outbox and inbox transport that contract; a subscription does not translate it into the receiver's local vocabulary.
+
 1. Reference `Cratis.Chronicle` in both services. Put the public event in a project both reference. Mark it `[Public]` and name its originating store. Keep the private `AuthorReviewed` event in the library service's `Features/Authors/Publication/AuthorReviewed.cs`.
 2. Configure the directory host's Chronicle store as `directory`. In its `Program.cs`, after `app.UseCratisChronicle()` and before `app.RunAsync()`, resolve its scoped `IEventStore` and register the subscription. Import `Cratis.Chronicle`, `Library.Contracts` and `Microsoft.Extensions.DependencyInjection`.
 
@@ -59,7 +61,10 @@ public static class ListingExchange
 
 - Don't treat `[Public]` as a write: append to the outbox.
 - Don't omit `WithEventType<AuthorListed>()`; without a selection the subscription builder includes all registered event types.
-- Don't report that the review was rolled back if the separate outbox append failed.
+
+## When it goes off the usual path
+
+- **The review commits but publication fails:** treat the review as recorded. Recover the public append separately; don't repeat the private append to retry delivery.
 
 ## Related skills
 

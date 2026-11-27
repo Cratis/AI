@@ -6,7 +6,7 @@ compatibility: Requires a Library .NET host, MongoDB, Chronicle, generated TypeS
 
 # Register an author and show the new row
 
-Use a disposable Library namespace with no authors. The librarian enters Aster. `AddAuthor` sets the command's `id` with `Guid.create()`; the test does not supply an ID. The open list must gain one row named Aster.
+Connect the registration state change to the consuming authors state view. Use the agreed Given/When/Then as the delivery check: given a disposable Library namespace with no authors, when the librarian enters and submits Aster, then the open list gains one row named Aster. `AddAuthor` sets the command's `id` with `Guid.create()`; the test does not supply an ID.
 
 1. Configure the [host](../cratis-arc-host-application/SKILL.md), [Chronicle connection](../cratis-chronicle-connect-application/SKILL.md) and [MongoDB storage](../cratis-arc-connect-storage/SKILL.md).
 2. In `Features/Authors/Registration/RegisterAuthor.cs`, use [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) and [RegisterAuthorValidator](../cratis-arc-validate-command/SKILL.md). Return [AuthorRegistered](../cratis-chronicle-record-event/SKILL.md) from `Handle()`. Only `Id` selects the author history. For a command on an existing history, reuse the supplied ID. If it is not typed as an event-source ID, select the positional property with `[property: Key]` using `Cratis.Chronicle.Keys`.
@@ -16,9 +16,14 @@ Use a disposable Library namespace with no authors. The librarian enters Aster. 
 
 ## Check the running application
 
-Open the Authors list as the librarian. Choose **Add author**, enter **Aster**, submit once and wait for the new row without reloading. Fetch `AllAuthors` once as the same librarian using the [live query diagnostic](../cratis-arc-diagnose-live-query/SKILL.md). Check that exactly one result has `name` equal to `Aster` and record its `id`. Reload the screen, fetch again and check that the one Aster row has the same `id`. A row appearing only after reload requires a [live query check](../cratis-arc-diagnose-live-query/SKILL.md).
+Open the Authors list as the librarian. Choose **Add author**, enter **Aster**, submit once and wait for the new row without reloading. Fetch `AllAuthors` once as the same librarian using the [live query diagnostic](../cratis-arc-diagnose-live-query/SKILL.md). Check that exactly one result has `name` equal to `Aster` and record its `id`. Reload the screen, fetch again and check that the one Aster row has the same `id`.
 
 Run the [empty-name backend specification](../cratis-specifications-exercise-backend/SKILL.md): in its own `CommandScenario<RegisterAuthor>`, `await _scenario.Execute(new RegisterAuthor(AuthorId.New(), ""))` must fail validation with `Name is required` and append no events. This is an isolated backend check, not a submission to the browser's Library namespace. A dialog preventing blank submission is a UI check, not a backend refusal test.
+
+## When it goes off the usual path
+
+- **Registration succeeds but the query has no row:** verify the addressed append and observer completion in the same namespace before debugging the UI.
+- **The row appears only after reloading:** [check the live query](../cratis-arc-diagnose-live-query/SKILL.md) as the same caller before touching the form or projection.
 
 ## Avoid
 
