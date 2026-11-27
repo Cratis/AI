@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-host-application
-description: Use when starting an Arc-only ASP.NET Core application to host a model-bound query without Chronicle. Not for an application that also needs Chronicle (use cratis-chronicle-connect-application).
+description: Use when a developer needs to start an ASP.NET Core host and verify a model-bound Arc query without an event store. Not for an application that also needs Chronicle (use cratis-chronicle-connect-application).
 compatibility: Requires Microsoft.NET.Sdk.Web and the Cratis.Arc package.
 ---
 
@@ -24,7 +24,7 @@ app.UseCratisArc();
 await app.RunAsync();
 ```
 
-Add a read model with a public static query when starting from an empty project. For a finite smoke query with no database, use a fixture:
+Add a read model with a public static query when starting from an empty project. For a finite smoke query with no database, add this probe in `Features/Diagnostics/LibraryStatus.cs`:
 
 ```csharp
 using Cratis.Arc.Queries.ModelBound;

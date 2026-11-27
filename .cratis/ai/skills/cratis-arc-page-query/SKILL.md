@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-page-query
-description: Use when a list query needs server-side paging or sorting of filtered results in the database. Not for rendering list columns (use cratis-components-display-list).
+description: Use when a developer needs to page or sort filtered results on the server, or rows repeat across pages. Not for rendering list columns (use cratis-components-display-list).
 compatibility: Requires curl, Node.js, Cratis and Cratis.Arc.MongoDB with Mongo registered on the host.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-declare-command
-description: Use when writing a model-bound command record or its Handle method, including a handler that returns an event. Not for dispatching it (use cratis-arc-invoke-command).
+description: Use when a developer needs a model-bound command, a Handle method that returns an event, or a keyed read model for a decision. Not for dispatching it (use cratis-arc-invoke-command).
 compatibility: Requires the Cratis package for Arc with Chronicle.
 ---
 
@@ -26,14 +26,16 @@ For a command that already uses an ordinary concept or primitive as its identity
 
 ## When it goes off the usual path
 
-**A command needs an existing author:** in a command with an `AuthorId Id`, use a provider like this and accept `AuthorName` as a `Handle` parameter. Import `Cratis.Monads`, `Cratis.Arc.Validation`, `Library.Features.Authors.Listing` and `MongoDB.Driver`.
+**A decision needs current state:** inject the Chronicle read model as a typed `Handle` parameter. For the command's own entity use its source key. For a related entity, select the key explicitly. For example, on a `CreditAuthor` command whose source is the book and whose `AuthorId` identifies a separately projected author, use:
 
 ```csharp
-public Result<AuthorName, ValidationResult> Provide(IMongoCollection<Author> authors) =>
-    authors.FindById(Id) is { } author ? new AuthorName(author.Name) : ValidationResult.Error("Author not found");
+public AuthorCredited Handle([LookUpBy(nameof(CreditAuthor.AuthorId))] Author author) =>
+    new(AuthorId, author.Name);
 ```
 
-Arc drops `null` from the provided values; it is not a validation result. If a decision requires current committed facts, [protect the decision](../cratis-chronicle-protect-decision/SKILL.md) rather than relying on a projected row.
+`LookUpBy` is in `Cratis.Arc.Commands`. Finding the author is not authorization to change the book. Check that separately. For a caller-derived key use `[LookUpBy<CallerSubject>]` when the model is keyed by the authenticated subject. For a non-key search, prefer a small projection keyed by the value the command carries. A per-stream model must match the command's own append route; it cannot be redirected with `LookUpBy`.
+
+Don't query MongoDB or `IReadModels` inside `Provide` to bypass injection. A raw observation is not a protected decision. If no injected model can express the read, state why it is advisory and what independently guards the append. `[Unprotected("reason")]` on a method covers reads in its body, not injected parameters. See [Protect a decision](../cratis-chronicle-protect-decision/SKILL.md) before relying on concurrent state.
 
 ## When the server allocates the ID
 

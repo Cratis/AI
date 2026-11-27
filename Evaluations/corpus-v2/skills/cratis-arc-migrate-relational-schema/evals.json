@@ -1,0 +1,3 @@
+{"skill_name":"cratis-arc-migrate-relational-schema","evals":[
+  {"id":1,"name":"required-later","prompt":"Every book must eventually have a catalog number. We have existing books and older writers that cannot provide one yet. Show how we would know when it is safe to enforce the rule.","expected_output":"Stage the change; existing books and writes survive the upgrade. Enforce non-null only after old writers are retired and the backfill is complete.","assertions":["Checks a representative book survives a previous-schema upgrade.","Separates nullable rollout and backfill from the non-null constraint.","Does not describe a destructive down migration as restoring the new values."]}
+]}

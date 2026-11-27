@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-validate-command
-description: Use when a model-bound command needs member-level validation to reject a missing or invalid field. Not for enforcing uniqueness across writers (use cratis-chronicle-constrain-append).
+description: Use when a developer needs member-level validation for a missing field or an invalid relationship on an Arc command. Not for enforcing uniqueness across writers (use cratis-chronicle-constrain-append).
 compatibility: Requires the Cratis package, which supplies Arc and FluentValidation global usings.
 ---
 
@@ -21,6 +21,8 @@ public class RegisterAuthorValidator : CommandValidator<RegisterAuthor>
 ```
 
 The execute pipeline applies blocking validation before `Handle`. A separate `/validate` request can provide early feedback, but is not needed to enforce the rule. Execute registration with an empty name. Expect `IsValid` and `IsSuccess` to be false, `ValidationResults` to identify the name member, and no event to be appended. With `Aster`, expect success and one registration.
+
+For a relationship rule, take the related model as a typed validator constructor parameter (for example, `[LookUpBy(nameof(CancelReservation.ReservationId))] Reservation? reservation`, from `Cratis.Arc.Commands`). Check both existence and the relationship to the entity being changed. Nullable allows an absent instance; it doesn't turn an invalid key into a valid one. Test with an existing reservation for a different book: the command must still be rejected.
 
 ## When it goes off the usual path
 

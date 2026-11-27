@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-declare-operation
-description: Use when a command needs a compensatable operation to call an external service and undo the provider call if the command fails without committing. Not for reacting after commit (use cratis-chronicle-react-to-fact).
+description: Use when a developer needs to reserve something with an external service before a command commits and undo the reservation on a known non-commit. Not for reacting after commit (use cratis-chronicle-react-to-fact).
 compatibility: Requires the Cratis package and a reservation provider registered in DI.
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cratis-fundamentals-name-value
-description: Use when naming a C# domain concept, replacing a primitive with a typed value or declaring a strongly typed Chronicle ID. Not for deciding whose history changes (use cratis-modeling-discover-timeline).
+description: Use when a developer needs a named C# domain value, a replacement for a primitive or a strongly typed Chronicle ID. Not for deciding whose history changes (use cratis-modeling-discover-timeline).
 compatibility: Requires the .NET SDK.
 ---
 
@@ -39,6 +39,7 @@ public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
 
 ## When it goes off the usual path
 
+- **Two entities both use GUIDs:** give each its own concept. At the call site, accept `AuthorId` rather than `Guid` so passing a book's ID is a compile-time error. Convert wire text at the boundary, not in each handler.
 - **The value crosses a Go wire boundary:** use the Go value and JSON round-trip check in [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md).
 
 ## Avoid

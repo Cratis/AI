@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-generate-proxies
-description: Use when generating TypeScript command or query proxies from a C# backend or when the proxies are missing or stale after a backend change. Not for consuming a generated hook (use cratis-arc-react-bind-slice).
+description: Use when a developer needs TypeScript proxies from a C# command or query, or a generated proxy is missing or stale. Not for consuming a generated hook (use cratis-arc-react-bind-slice).
 compatibility: Requires Node.js, the .NET SDK and a TypeScript frontend with @cratis/arc, @cratis/arc.react and @cratis/fundamentals.
 ---
 

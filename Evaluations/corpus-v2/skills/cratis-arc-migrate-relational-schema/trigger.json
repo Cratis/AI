@@ -1,0 +1,4 @@
+[
+  {"query":"Our EF scaffold adds Subtitle to Books but also drops a tenant key. Can we ship it?","shouldTrigger":true},
+  {"query":"Old BookRegistered events lack a subtitle; replay must still work.","shouldTrigger":false,"notes":"cratis-chronicle-evolve-event"}
+]

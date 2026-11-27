@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-expose-query
-description: Use when adding an Arc query method to a read model, including a query for a live author list. Not for defining how events populate the model (use cratis-chronicle-project-view).
+description: Use when a developer needs an Arc read-model query for a live MongoDB list or a snapshot of projected graph relationships. Not for defining how events populate the model (use cratis-chronicle-project-view).
 compatibility: Requires Cratis, Cratis.Arc.MongoDB and a change-stream-capable MongoDB deployment.
 ---
 
@@ -23,6 +23,24 @@ Subscribe to `AllAuthors` (see [Diagnose a missing update](../cratis-arc-diagnos
 
 - **The first result looks empty:** a ready, successful frame with `data: []` is a valid list. If no initial frame is ready, keep it pending or show the transport failure; do not show an empty list.
 - **Initial rows load but changes never arrive:** verify MongoDB supports change streams and [check the live response](../cratis-arc-diagnose-live-query/SKILL.md) before changing the projection or adding client polling.
+
+## When the caller wants one graph snapshot
+
+Start with [registered graph views](../cratis-arc-connect-storage/SKILL.md) and the graph projection's existing `Group`, `Person` and `MemberOf` declarations. Import `Cratis.Chronicle.Graphs` and `Cratis.Arc.Queries.ModelBound`. Anchor a view at the root node; follow the edge only for the member the caller needs:
+
+```csharp
+[ViewOf<Person>]
+public record MemberSummary(PersonId Id, PersonName? Name);
+
+[ReadModel, ViewOf<Group>]
+public record GroupWithMembers(GroupId Id, [Follows<MemberOf>] IReadOnlyList<MemberSummary> Members)
+{
+    public static Task<GroupWithMembers?> ById(GroupId id, IGraph graph) =>
+        graph.Nodes<GroupWithMembers>().Where(g => g.Id, id).FirstOrDefault();
+}
+```
+
+Expect `null` for a missing group, an empty list for an existing group with no members. A relation filter selects matching **roots**, not a subset of each root's members. Return this as a finite query; it isn't a live subscription. For a path of unknown length, use parameterized Cypher with a tenant-scoped `IGraphSession` rather than expanding a recursive view. In shared-database mode the session alone does not isolate raw Cypher: restrict every matched node and relationship to the trusted namespace or keep the typed view. For an ordinary list or a single document by ID, don't add a graph just to populate a DTO.
 
 ## Avoid
 

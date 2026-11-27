@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-authorize-request
-description: Use when an Arc model-bound command or query must require sign-in or restrict access by role or policy. Not for selecting a tenant (use cratis-arc-isolate-tenant).
+description: Use when a developer needs to require sign-in or restrict an Arc model-bound command or query by role or policy. Not for selecting a tenant (use cratis-arc-isolate-tenant).
 compatibility: Requires the Cratis package and a configured authentication provider.
 ---
 
@@ -18,6 +18,8 @@ For a role requirement, add Arc's authorization attribute to the [existing comma
 Execute through the pipeline as an anonymous caller, a signed-in reader and a catalog editor. Both refused results have `IsAuthorized` false and append nothing; the editor succeeds. If the HTTP request reaches Arc and produces an unauthorized command result, Arc maps that result to HTTP 403. Check the server verdict rather than whether the UI shows the registration button.
 
 On queries, put the attribute on the read model for a shared requirement or on an individual query method to replace that query's requirement. Invocation authorization does not continually recheck a live subscription.
+
+If access depends on ownership, do not treat a caller-supplied owner ID as proof. Use the verified principal and compare it with the resource's ownership; exercise a signed-in caller who knows another owner's ID and expect refusal.
 
 ## When it goes off the usual path
 
