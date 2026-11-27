@@ -347,7 +347,9 @@ Query-performer gaps are a separate contract: see [bodies and implementation gap
   rendered constraint or an authored message, `then denied`. Generated fixtures and
   `then returns` assertions render, as do routed companion replay and supported
   single-hop reaction appends.
-- Refused: `then no readmodel` (`STAGE-ESM-027`), an unauthenticated caller carrying roles or claims (`STAGE-ESM-011`), other `when append` forms, composite values, `given readmodel` beside a
+- Structured values render as nested scalar objects and lists of objects. Collection-valued
+  members, including on the top-level object and inside list elements, are refused with `STAGE-ESM-011`.
+- Refused: `then no readmodel` (`STAGE-ESM-027`), an unauthenticated caller carrying roles or claims (`STAGE-ESM-011`), other `when append` forms, `given readmodel` beside a
   command, error codes that name no rendered constraint, a `$context.occurred` mapping
   asserted without a supplied time, a query on a reducer-built read model, a protected
   query whose fixtures use streams other than the queried key.
