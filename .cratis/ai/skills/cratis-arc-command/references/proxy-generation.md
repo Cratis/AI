@@ -4,6 +4,7 @@
 
 - Wiring
 - MSBuild properties
+- Several projects, several packages
 - Route settings must match the host and the frontend
 - Skipping generation
 - What the generator extracts for client-side validation
@@ -85,6 +86,23 @@ inserted without configuration.
 
 Item groups the target also forwards: `AssemblyToPackageMapping`,
 `ExcludeType`, `ExcludeNamespace`, `NamespaceRoot`, and `TypeToTsType`.
+
+## Several projects, several packages
+
+The generator writes a TypeScript type for every type a project's commands and
+queries use, **including types declared in referenced projects** (a contracts
+project's concepts, another module's read model). Without a mapping, each
+referencing project emits its own copy; when two projects write into the same
+folder, the last writer wins and a partial copy can replace the owner's full
+proxy.
+
+- Give each backend project its own output root, inside its own frontend package.
+- For every referenced project that has its own package, add
+  `<AssemblyToPackageMapping Include="billing" Assembly="<Assembly name>" Package="@<scope>/billing" />`
+  so its types are imported from that package instead of
+  regenerated. The owner generates a type; everyone else imports it.
+- Routes and output folders follow the namespace, so a namespace rename changes
+  both; regenerate every package and search for literal routes afterwards.
 
 ## Route settings must match the host and the frontend
 
