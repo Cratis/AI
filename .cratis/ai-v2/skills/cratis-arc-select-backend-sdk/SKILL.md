@@ -17,7 +17,7 @@ Keep the existing host for a new Library slice. If porting, choose the SDK that 
 | Elixir / OTP | Arc.Elixir: `cratis_arc` | `mix test` |
 | Go | Arc.Go: `github.com/cratis/arc.go` | `go test ./...` |
 
-If HTTP is required, start the actual host and call the operation's route with its normal credentials. An in-process test does not verify route registration, binding or authorization.
+If HTTP is required, call the route on the actual host. Choose ASP.NET Core when you need to retain its MVC controller behavior. For an attribute-routed MVC `[HttpPost]` command action without an `[AspNetResult]` opt-out, send the same body and credentials to `POST <action-route>/validate`: MVC binding and authorization still run, but the action body does not. An in-process test cannot prove that behavior.
 
 ## Check command execution in a native SDK
 

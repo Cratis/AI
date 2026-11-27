@@ -34,21 +34,79 @@ Start with a concrete case. In `model/Authors/registration.play`, use the same f
      then error "Name is required"
    ```
 
-4. From the Library application directory run `screenplay test model --format json`. When running just these two specifications, require `executed` and `passed` both 2 and `failed` and `unsupported` both 0. In a larger model, check their named outcomes individually. The first one should fail if the event goes to a different author, even if the name is correct.
+4. Run `screenplay test model --format json` from the application directory. Require each named scenario to pass; an unsupported outcome is unverified.
 
 ## Arrange a stateful or authorized command
 
-Seed a prior event before the action, for example `given AuthorRegistered` with `for "11111111-1111-4111-8111-111111111111"` and `name = "Aster"` on indented lines. Give the caller separately before the action:
+Seed decision history with `given <EventOrEventExample>` and `for` the owning source. Choose `given readmodel <ReadModelOrTypedExample>` to seed a view instead of replaying history. Supply its key and required fields; there is no `given fixture` step. For an authorized command, supply `given caller` as shown or choose `given caller as <Persona>` when a declared persona supplies the caller. Declare `command reads protected` once at the application root.
 
 ```play
-  given caller
-    authenticated
-    role "Librarian"
-  when Aster name = ""
-  then error "Name is required"
+command reads protected
+
+policy CanLend
+  require role "Librarian"
+
+module Library
+  feature Lending
+    slice StateChange LendCopies
+      command LendCopies
+        bookId String identifier
+        copies Int
+        reads LoanStock as stock by bookId
+        authorize CanLend
+        validate
+          require copies <= stock.available
+            message "Not enough copies"
+        produces CopiesLent
+          for bookId
+          copies = copies
+
+      event CopiesLent
+        copies Int
+
+      example LendOne : LendCopies
+        bookId = "book-42"
+        copies = 1
+
+      specification LendingTheLastCopy
+        given readmodel OneCopy
+        given caller
+          authenticated
+          role "Librarian"
+        when LendOne
+        then CopiesLent
+          for "book-42"
+          copies = 1
+
+      specification RefusingTwoCopies
+        given readmodel OneCopy
+        given caller
+          authenticated
+          role "Librarian"
+        when LendOne copies = 2
+        then error "Not enough copies"
+
+    slice StateView ShowLoanStock
+      event LoanStockSet
+        available Int
+      event BookWithdrawn
+
+      readmodel LoanStock
+        bookId String key
+        available Int
+
+      projection ProjectLoanStock => LoanStock
+        from LoanStockSet
+          bookId = $eventSourceId
+          available = available
+        remove with BookWithdrawn
+
+      example OneCopy : LoanStock
+        bookId = "book-42"
+        available = 1
 ```
 
-Use the application's declared role. A command example has one stimulus: `when Aster` uses the example as-is, or an inline assignment overrides an input. Put the caller in `given caller`, not on `when`. For an authorization refusal use `then denied`, not `then error` or `then no events`.
+Resolve the fixture, input names, ID and refusal from the existing model. Use one `when`, overriding an actual input when needed. Expect the same concrete ID in `for`. Use `then denied` for an authorization refusal.
 
 When a command records multiple facts, assert every new fact in the expected order. Choose `then events in any order` only when their order is not part of the contract. An unexpected extra fact still fails.
 
@@ -71,7 +129,7 @@ Run `screenplay test model --format json`; check `RecordingAuthorNames_AsterName
 
 ## Carry the accepted examples into the application
 
-[Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) with the same Given/When/Then: assert the addressed append and name for Aster, and a refusal with no append for the empty name. For the state view, assert the query's row ID and name from the fact. [Check the UI interaction](../cratis-specifications-observe-ui/SKILL.md) and [verify the running slice](../cratis-platform-deliver-slice/SKILL.md) separately; model tests don't demonstrate either.
+Carry the same Given/When/Then into [backend specs](../cratis-specifications-exercise-backend/SKILL.md). Model tests don't prove the [running slice](../cratis-platform-deliver-slice/SKILL.md).
 
 ## When it goes off the usual path
 

@@ -88,7 +88,7 @@ public class when_projecting_a_registration : Specification
 
 This checks the mapping in process, not observer delivery. In a running-store test, make sure the host has discovered the `Author` projection, then append to the test author's history and assert the append succeeded. Await `WaitForCompletion()` on that append result (import `Cratis.Chronicle.Observation`); require success with no failed partitions before querying the stored row for the same ID and name. A fixed sleep does not establish that the observer handled this write.
 
-For a command that decides from a read model, seed the prerequisite events in order with `_scenario.Given.ForEventSource(id).Events(...)` in `Establish`. Include the events needed to materialize the decision state, not just the last change. In `Because`, execute against that same source. Verify the command outcome and what that execution appended, separately from the seeded history.
+For a command that decides from a read model, seed the prerequisite events in order with `_scenario.Given.ForEventSource(id).Events(...)` in `Establish`. Include the events needed to materialize the decision state, not just the last change. In `Because`, execute against that same source. Verify what that execution appended separately from the seeded history. For refusal, assert a structured result entry that identifies the intended rule: use the modeled message with `ShouldHaveValidationErrorFor` or an agreed stable failure code. A member name alone is insufficient when several rules can reject that member.
 
 ## When it goes off the usual path
 

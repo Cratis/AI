@@ -46,7 +46,7 @@ export function AddAuthorButton() {
 
 Choose `StepperCommandDialog` when one command genuinely needs several stages. Import `{ StepperCommandDialog, StepperPanel }` from `@cratis/components/CommandDialog`. Replace both `CommandDialog` tags with `StepperCommandDialog`, and wrap each field group with `<StepperPanel header="Author details">…</StepperPanel>` using a distinct header per step. Next and Previous move between panels without executing; the final Submit runs the command only after validation across all steps. Verify that returning to fix a required field on an earlier step preserves the other inputs and enables one final submission.
 
-If a generated command such as `ScheduleLoan` has `startsAt: Date`, import `{ CalendarField }` from `@cratis/components/CommandForm` and bind `<CalendarField<ScheduleLoan> value={loan => loan.startsAt} title="Starts at" />`. Add `showTime={true}` only when users must supply a time.
+Read the generated command type before choosing field accessors; use its property names, not the labels shown in the dialog. Put required values already known to the caller in `initialValues`, not `onBeforeExecute` (validation runs first). For a `Date` property, choose `CalendarField` from `@cratis/components/CommandForm`; set `showTime` when the time is required. Put caller-owned post-save effects in `onSuccess`, not in a click or close handler.
 
 ## Avoid
 

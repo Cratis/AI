@@ -14,15 +14,15 @@ compatibility: Requires the Screenplay CLI.
    screenplay export model --scope Library.Authors.RegisterAuthor --output registration.json
    ```
 
-3. Give the implementer `library.json`, `registration.json`, both revisions and the accepted `RegisteringAster` and `RejectingAnEmptyName` addresses and outcomes. Name `Library.Authors.ListAuthors` as a dependency, not as part of this excerpt.
+3. For a slice-only handoff, give the reader `registration.json`, the accepted full-model revision, the excerpt revision and the accepted example addresses and outcomes. Check the excerpt for the definitions it references. An export keeps application-level declarations but does not bring in other slices; supply any needed definitions from separate scoped exports. Name cross-slice checks such as `Library.Authors.ListAuthors` separately from the registration contract. Send `library.json` only when the reader needs the entire application.
 4. Add a UI export (`screenplay export model --format ui --output screens.json`) for a screen consumer. Add the HTTP contract below for a client integrating over HTTP.
 5. On the target, register Aster for the agreed author ID and verify that the already-open list gains the matching row. An empty name must produce `Name is required` and no new row. Record which accepted specification each executed target check covers.
 
 ## Hand off to an HTTP client
 
-Run `screenplay export model --format openapi --output api.json` on the full model so both registration and listing are present. Under `paths`, locate the execution, validation and query operations. For each, include the HTTP method and path, `operationId`, and `x-screenplay-id` in the handoff.
+For a registration-only client, run `screenplay export model --scope Library.Authors.RegisterAuthor --format openapi --output api.json`. Omit `--scope` only when the client needs the full application contract. Under `paths`, locate the operations in scope. For each, include the HTTP method and path, `operationId`, and `x-screenplay-id` in the handoff.
 
-With the default model conventions, the execution operation is `POST /api/library/authors/register-author` with ID `Library.Authors.RegisterAuthor.RegisterAuthor`. Validation appends `/validate` to that path and `.Validate` to that ID; both share the command's `x-screenplay-id`. The query is `GET /api/library/authors/list-authors/all-authors` with ID `Library.Authors.ListAuthors.AllAuthors` and its own artifact ID. Copy the artifact IDs from the export. If it is unavailable, identify the fields to extract and leave their values pending.
+With the default model conventions, the execution operation is `POST /api/library/authors/register-author` with ID `Library.Authors.RegisterAuthor.RegisterAuthor`. Validation appends `/validate` to that path and `.Validate` to that ID; both share the command's `x-screenplay-id`. A separate listing contract includes `GET /api/library/authors/list-authors/all-authors` with ID `Library.Authors.ListAuthors.AllAuthors` and its own artifact ID; it is not in the registration-only export. Copy the artifact IDs from the export. If it is unavailable, identify the fields to extract and leave their values pending.
 
 Treat those IDs as model metadata. Arc's generated OpenAPI uses the host's endpoint names as `operationId` (for example, `ExecuteLibrary.Features.Authors.Registration.RegisterAuthor`), not the Screenplay operation IDs. Get `x-screenplay-id` from the Screenplay export, not Arc. Confirm the target host's method, path and operation ID against its own OpenAPI before writing client requests.
 

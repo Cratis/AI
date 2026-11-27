@@ -54,11 +54,11 @@ A validator test cannot prove commit protection. In a development host, set a de
 
 ## Read and append explicitly outside the Arc pipeline
 
-Choose an explicit decision read when writing outside Arc's command pipeline. Use the same `IEventStore` (including its store and namespace) for the decision and the write. For a single book, use the same source for both:
+Choose an explicit decision read when writing outside Arc's command pipeline. Use the same `IEventStore` (including its store and namespace) for the decision and the write. Use a decision model eligible for protection, not an advisory read. For a single book, use the same source for both:
 
 ```csharp
 var stock = await eventStore.GetDecisionReads().GetDetached<BookStock>(source);
-if (stock.Instance is not { Available: > 0 }) return false;
+if (!stock.IsProtected || stock.Instance is not { Available: > 0 }) return false;
 
 var result = await eventStore.EventLog.AppendMany(
     [new EventForEventSourceId(source, new BookBorrowed())],

@@ -6,7 +6,7 @@ compatibility: Requires react, @cratis/arc.react and @cratis/components.
 
 # Confirm before removing an author
 
-1. Inside the [application's Arc provider](../cratis-arc-react-bind-slice/SKILL.md), register both dialog components once in `App.tsx`. Here `Authors` is the [existing list screen](../cratis-components-display-list/SKILL.md); pass its required `onOpen` callback to display the selected author.
+1. Inside the [application's Arc provider](../cratis-arc-react-bind-slice/SKILL.md), register both dialog components once in `App.tsx`. Here `Authors` is the [existing list screen](../cratis-components-display-list/SKILL.md); use its `onOpen` callback to receive the selected author's ID.
 
 ```tsx
 import { DialogComponents } from '@cratis/arc.react/dialogs';
@@ -16,10 +16,10 @@ import { Authors } from './Features/Authors/Listing/Authors';
 import type { Author } from './generated/Features/Authors/Listing/Author';
 
 export function App() {
-    const [opened, open] = useState<Author>();
+    const [openedId, open] = useState<Author['id']>();
     return <DialogComponents confirmation={ConfirmationDialog} busyIndicator={BusyIndicatorDialog}>
         <Authors onOpen={open} />
-        {opened && <section aria-label="Author details"><h2>{opened.name}</h2></section>}
+        {openedId !== undefined && <section aria-label="Author details">Author {String(openedId)}</section>}
     </DialogComponents>;
 }
 ```
@@ -27,20 +27,27 @@ export function App() {
 2. In `Features/Authors/Removal/RemoveAuthorButton.tsx`, accept the author's name and the caller's removal operation. The operation must resolve only on success and reject on failure. Ask the question on click, not during render.
 
 ```tsx
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { DialogButtons, DialogResult, useConfirmationDialog } from '@cratis/arc.react/dialogs';
 
 export function RemoveAuthorButton({ name, remove }: { name: string; remove: () => Promise<void> }) {
     const [confirm] = useConfirmationDialog('Remove author?', `Remove ${name} from the library?`, DialogButtons.YesNo);
+    const active = useRef(false);
     const [pending, setPending] = useState(false);
     const [failed, setFailed] = useState(false);
     async function onClick() {
-        setPending(true);
-        setFailed(false);
+        if (active.current) return;
+        active.current = true;
         try {
-            if (await confirm() === DialogResult.Yes) await remove();
+            if (await confirm() !== DialogResult.Yes) return;
+            setFailed(false);
+            setPending(true);
+            await remove();
         } catch { setFailed(true); }
-        finally { setPending(false); }
+        finally {
+            active.current = false;
+            setPending(false);
+        }
     }
     return <><button type="button" disabled={pending} onClick={onClick}>Remove</button>
         {failed && <p role="alert">Could not remove {name}.</p>}</>;
@@ -49,9 +56,9 @@ export function RemoveAuthorButton({ name, remove }: { name: string; remove: () 
 
 ## Choose feedback for the wait
 
-Default to local pending feedback for a short row action. Keep the button disabled while the answer or removal is pending. Ask for confirmation only when the choice matters; it is not progress feedback.
+Default to local pending feedback for a short row action. Keep the re-entry guard separate from visible progress: confirmation is a choice, not a request in flight.
 
-Choose the shared busy dialog when the user must wait before continuing. Registration alone does not show it. Import `{ useBusyIndicator }` from `@cratis/arc.react/dialogs` and add `const [showBusy, closeBusy] = useBusyIndicator('Removing author…');` in `RemoveAuthorButton`. Replace the existing Yes branch with `if (await confirm() === DialogResult.Yes) { void showBusy(); try { await remove(); } finally { closeBusy(); } }`. Do not await `showBusy()`; its promise resolves when the dialog closes.
+Choose the shared busy dialog when the user must wait before continuing. Import `{ useBusyIndicator }` from `@cratis/arc.react/dialogs` and add `const [showBusy, closeBusy] = useBusyIndicator('Removing author…');` in `RemoveAuthorButton`. After Yes, wrap `await remove()` with `void showBusy(); try { await remove(); } finally { closeBusy(); }`. Do not await `showBusy()`; it resolves when the dialog closes.
 
 ## When it goes off the usual path
 

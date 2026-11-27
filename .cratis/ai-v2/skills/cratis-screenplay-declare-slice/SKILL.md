@@ -13,7 +13,7 @@ Choose a slice by what it does:
 - **Automation** (`Automation`): a system acts on local facts or due work. [Model automation](../cratis-screenplay-model-automation/SKILL.md).
 - **Translation** (`Translate`): adapt outside observations to local facts or private facts to a public contract. [Model translation](../cratis-screenplay-model-translation/SKILL.md).
 
-In `model/Authors/registration.play`, put the command and its event inside a `StateChange` slice. Give the list a separate `StateView` slice in the same feature.
+Put `StateChange` and `StateView` slices under the intended `module` and `feature` declarations. Those declarations set the address, not the application name or file path. In `model/Authors/registration.play`, put the registration command and fact in one slice and the list in a separate view slice.
 
 1. Declare `concept AuthorId : Uuid`. Mark the command's `id` with `identifier`.
 2. Map each command input needed by the event. Use `for` to address the event to its owner.
