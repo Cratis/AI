@@ -48,6 +48,7 @@ A reference the executable model does not hold refuses admission: CLI exit 1 wit
 - `--format json` carries `before` and `after` (path, source revision, persisted identities used, model revision) and a `difference` object.
 - Exit 0 compared; exit 2 could not run (including identities of two different applications).
 - `--format json` also carries `difference.slices`, the per-slice change summary: `slices` (each with `change`, `changes`, `beforeAddress`, `afterAddress`, `semanticId`, `declarations`, `dependentSlices`; change kinds `added`, `removed`, `renamed`, `moved`, `changed`), `modelWide` (changed declarations no slice owns: modules, features, concepts, types, policies, personas) and `affectedSlices` (unchanged slices that directly reference a changed slice or a model-wide declaration). Renames and moves appear only under identity matching; address matching reports one removed and one added slice. Dependencies are direct, not transitive: rebuild everything when `modelWide` is not empty.
+- On a capable tool, `--format json` also carries the additive `difference.agentExposure` (explicit agent allowlist changes; unknown is not unchanged). Minimum version and interpretation: [compare agent exposure](../../cratis-screenplay-model-review/references/baseline-comparison.md#compare-agent-exposure).
 - To compare two commits, `git worktree add` each into its own folder and diff the folders.
 
 ## Rename

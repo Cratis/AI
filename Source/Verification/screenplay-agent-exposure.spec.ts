@@ -106,10 +106,50 @@ test('manual exposure review cannot turn incomplete comparison into a safety ver
     assert.match(content, /identity.*kind/);
     assert.match(content, /write.*read/);
     assert.match(content, /signature.*contract.*inherited.authorization/i);
-    assert.match(content, /complete before.*after models/);
-    assert.match(content, /unchanged manifest.*cannot prove/i);
-    assert.match(content, /compilation.*unresolved/i);
-    assert.match(content, /not.*safe.*unchanged/i);
-    assert.match(content, /automatic exposure comparison.*not.*shipped/i);
-    assert.match(content, /semantic-diff.*not.*agent.exposure verdict/i);
+    assert.match(content, /unchanged manifest.*(cannot prove|proves none)/i);
+    assert.match(content, /not.*safe.*unchanged|empty rows alone prove nothing/i);
+    assert.doesNotMatch(content, /comparison is not shipped/i);
+});
+
+test('exposure comparison names its minimum version, invocation and distinct findings', () => {
+    const content = review();
+    assert.match(content, /#compare-agent-exposure|## Compare agent exposure/);
+    assert.match(content, /Requires Screenplay 6\.39\.0/);
+    assert.match(content, /screenplay diff <before> <after>/);
+    assert.match(content, /--format json/);
+    assert.match(content, /difference\.agentExposure/);
+    for (const row of ['added', 'removed', 'scopeChanged', 'widened', 'narrowed', 'descriptionChanged']) {
+        assert.ok(content.includes(row), row);
+    }
+    assert.match(content, /PLAY0978.*PLAY0979.*reserved/);
+});
+
+test('exposure comparison distinguishes unknown from unchanged and keeps exit semantics', () => {
+    const content = review();
+    for (const term of ['compilationFailed', 'complete: false', 'hasExposureChange: null', 'Agent exposure change: none', 'Agent exposure change: unknown']) {
+        assert.ok(content.includes(term), term);
+    }
+    assert.match(content, /Empty rows alone prove nothing/);
+    assert.match(content, /[Ee]xit \*\*0\*\*.*\*\*2\*\*/);
+    assert.match(content, /No exposure-specific exit 1/);
+});
+
+test('exposure comparison over MCP is opt-in, revision pinned and refuses stale pages', () => {
+    const content = review();
+    assert.match(content, /includeAgentExposure/);
+    assert.match(content, /view.*agent-exposure-diff/);
+    assert.match(content, /agent-exposure-diff\/1/);
+    assert.match(content, /explicit-agent-allowlist/);
+    assert.match(content, /instead of.*structural/);
+    for (const term of ['nextOffset', 'expectedSourceRevision', 'StaleRevision', 'PendingOperation', 'IncompatibleRevisions', 'ResponseTooLarge']) {
+        assert.ok(content.includes(term), term);
+    }
+});
+
+test('exposure comparison limits and keeps a manual follow-up', () => {
+    const content = review();
+    assert.match(content, /doesn't compute authorization/);
+    assert.match(content, /signature.*contract.*inherited module.*authorization/i);
+    assert.match(content, /unchanged manifest proves none/i);
+    assert.match(content, /label the result manual/);
 });

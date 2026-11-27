@@ -83,9 +83,9 @@
       "note": "cratis-event-model-diagram"
     },
     {
-      "query": "Review newly exposed agents operations and write-to-read scope widening manually; if before context is incomplete and after compilation fails, can matching manifests prove unchanged exposure?",
+      "query": "Compare two revisions for newly allowlisted agents operations and write-to-read scope widening; if one side fails compilation and the diff exits 0 with no changes, is exposure unchanged?",
       "shouldTrigger": true,
-      "note": "Manual exposure review, not an automatic shipped comparison."
+      "note": "Agent exposure comparison; unknown is not unchanged."
     }
   ]
 }

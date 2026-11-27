@@ -85,6 +85,6 @@ Do not add `approve` or `approval required` to a valid sample. A description ove
 
 ## Review exposure changes
 
-Automatic exposure comparison is not shipped. Use the model review skill's [manual exposure review](../../cratis-screenplay-model-review/references/baseline-comparison.md#manual-agent-exposure-review) for additions and possible widening. Ordinary `semantic-diff` is useful model comparison, not an agent-exposure safety verdict; incomplete or failing compilation remains unresolved.
+Use the model review skill's [exposure comparison](../../cratis-screenplay-model-review/references/baseline-comparison.md#compare-agent-exposure) (Screenplay 6.39.0+) for additions and possible widening. Incomplete or failing compilation is unknown, not unchanged.
 
 Read [capability manifest](capability-manifest.md) when exporting or consuming the portable allowlist. Read the owning [capability-is-not-authority rule](../../../rules/capability-is-not-authority.md) before acting on any exposed capability.
