@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0",
-  "description": "The supported selection dimensions for Cratis AI installation.",
+  "description": "The harnesses, profiles and languages a Cratis AI installation can select.",
   "harnesses": [
     "claude",
     "codex",
@@ -100,7 +100,8 @@
     "cratis/specifications/dotnet",
     "cratis/specifications/typescript",
     "cratis/stage",
-    "cratis/studio"
+    "cratis/studio",
+    "cratis/v2/application"
   ],
   "languages": [
     "csharp",
