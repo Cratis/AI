@@ -8,10 +8,9 @@ This repository is two things sharing one source of truth:
 - **`@cratis/ai`** (npm) - the generated Arc command/query proxies and TypeScript types for
   everything `Cratis.AI` exposes over HTTP, published from the same release as the NuGet package.
 
-It also carries a separate, parallel effort - the TypeScript corpus/profile-distribution content
-under `Source/Harness.Setup`, `Source/Pi.Plugin`, `Source/Verification` and `.cratis/ai/` - which
-is described in part by [Agent adapters](./agent-adapters.md). See that content's own `AGENTS.md`/`CLAUDE.md`
-at the repository root.
+It also carries the Cratis AI corpus under `.cratis/ai/` - the skills and rules coding agents use when
+building with or contributing to Cratis - and the tooling that installs and checks it. Start with
+[Installing and using the corpus](./corpus-installation.md).
 
 ## Where to start
 
@@ -43,12 +42,17 @@ at the repository root.
 - [`migration-status.md`](./migration-status.md) - a living record of what has moved from Direct
   and Studio into the package, what has not, and what each still-open PR contains. Read this first
   if you are picking this work up mid-stream.
-- [`compatibility.md`](./compatibility.md) - the product releases the AI corpus is checked against: the Cratis CLI bundle and the Stage rendered-application scaffold pins. Maintainer reference, not agent-loaded.
+- [`corpus-installation.md`](./corpus-installation.md) - choose a profile, install the corpus with the Cratis CLI or as a
+  harness plugin, and what a session then sees.
+- [`corpus-migration.md`](./corpus-migration.md) - what changed when the corpus became task-based, what was removed, and
+  what every earlier profile ID installs now.
+- [`authoring-skills.md`](./authoring-skills.md) - the checklist a new or changed skill has to meet.
+- [`compatibility.md`](./compatibility.md) - the product releases the corpus skills were checked against.
 - [`screenplay-session-bundle.md`](./screenplay-session-bundle.md) - the stack-neutral Screenplay guidance
   each release publishes for build loops to inject into coding-agent sessions: format, versions and how
   to consume it.
 - [`third-party/tstack.md`](./third-party/tstack.md) - attribution for the tstack review protocol
-  concepts the review-rounds skill and review-reports rule adapt, and how the adaptation differs.
+  concepts an earlier corpus adapted. The adapting skill and rule have been removed; the attribution is kept.
 - [`decisions/`](./decisions/) - architecture decision records. Each documents the context, the
   decision, its consequences, and the alternatives that were rejected - read these before
   revisiting a decision that looks wrong; the reasoning for it is here, not only in the code.

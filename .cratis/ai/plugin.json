@@ -1,7 +1,7 @@
 {
   "name": "cratis",
-  "description": "Cratis skills for building event-sourced and CQRS applications with Chronicle, Arc and Cratis Components",
-  "version": "1.0.0",
+  "description": "Skills for building an application on Cratis (model, implement, run and diagnose slices) and for contributing to the Cratis platform",
+  "version": "2.0.0",
   "author": {
     "name": "Cratis",
     "url": "https://www.cratis.io"
@@ -15,6 +15,8 @@
     "cqrs",
     "chronicle",
     "arc",
+    "components",
+    "screenplay",
     "skills"
   ],
   "skills": "./skills"

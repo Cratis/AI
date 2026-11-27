@@ -1,7 +1,7 @@
 ---
 id: 151
 title: Fast feedback is a product requirement across Cratis repositories, including specs, analyzers and CI
-status: accepted
+status: historical
 stage: implemented
 class: strategy
 reversibility: costly
@@ -14,6 +14,8 @@ applies-to:
   - ".cratis/ai/skills/cratis-ci-pipeline-performance/**"
 issues: []
 ---
+
+> **Historical.** The task-based corpus (Cratis/AI#1370) replaced the files named in `applies-to`. The rules it applied to were removed. `rules/general.md` keeps the smallest-check and planning defaults. This record is kept for its reasoning; no instruction is loaded from it.
 
 ## Context
 

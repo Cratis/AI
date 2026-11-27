@@ -1,7 +1,7 @@
 ---
 id: 149
 title: Let a project route the Screenplay lifecycle through its own decision, work-item and acceptance process
-status: accepted
+status: historical
 stage: none
 class: contract
 reversibility: costly
@@ -14,6 +14,8 @@ applies-to:
   - ".cratis/ai/skills/cratis-engineering-decision-record/**"
 issues: [514]
 ---
+
+> **Historical.** The task-based corpus (Cratis/AI#1370) replaced the files named in `applies-to`. The lifecycle skill and the Screenplay agents this seam was written into were removed. This record is kept for its reasoning; no instruction is loaded from it.
 
 ## Context
 
