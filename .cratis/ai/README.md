@@ -19,7 +19,7 @@ Skills and rules for building applications on Cratis and for changing the Cratis
 | `cratis/application` | Build an application on Cratis: model a business flow, implement its backend and UI slices, run and diagnose them. |
 | `cratis/engineering` | Change a Cratis platform repository: follow its library contracts, verify the change and prepare the PR and release note. |
 
-Every other profile ID is kept so existing selections keep resolving; each maps to a subset of the same skills. See [migration](../../Documentation/corpus-migration.md).
+Every other profile ID is kept so existing selections keep resolving; each installs skills from the same set. See [migration](../../Documentation/corpus-migration.md).
 
 ## Where to start
 

@@ -36,7 +36,7 @@ A skill name from the previous corpus no longer resolves. Reference a task by it
 
 ## Profiles
 
-`cratis/application` and `cratis/engineering` are the two profiles to choose from. Every other ID resolves as before, composes the same children and adds the same MCP servers, and installs a subset of the same skills. A profile that installs no skills is kept so that an existing selection does not fail.
+`cratis/application` and `cratis/engineering` are the two profiles to choose from. Every other ID resolves as before, composes the same children and adds the same MCP servers, and installs skills from the same set. A profile installs the skills that replace what it covered and every skill those link to, so most earlier profiles now install most of the application skills. A profile that installs no skills is kept so that an existing selection does not fail.
 
 The second column counts the skills the profile installs by area, with all languages selected.
 
@@ -44,54 +44,54 @@ The second column counts the skills the profile installs by area, with all langu
 | Profile | Installs now | Featured successor |
 | --- | --- | --- |
 | `cratis` | arc 17, chronicle 13, components 10, fundamentals 1, modeling 2, platform 7, screenplay 11, specifications 3, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/application/arc-chronicle` | arc 12, chronicle 10, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/application/arc-only` | arc 12, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/application/chronicle-dotnet` | arc 1, chronicle 10, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/application/arc-chronicle` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 3, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/application/arc-only` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 3, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/application/chronicle-dotnet` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 3, stage 1; MCP: screenplay | `cratis/application` |
 | `cratis/application/csharp` | arc 17, chronicle 13, components 10, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 3, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/application/elixir` | arc 1, chronicle 1, modeling 2, screenplay 11, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/application/java` | arc 1, chronicle 1, modeling 2, screenplay 11, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/application/kotlin` | arc 1, chronicle 1, modeling 2, screenplay 11, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/application/react` | arc 14, components 10, fundamentals 1, platform 5, specifications 3 | `cratis/application` |
-| `cratis/application/typescript` | chronicle 1, modeling 2, screenplay 11, specifications 1, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/arc` | arc 15, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/arc/client-kotlin` | arc 1 | `cratis/application` |
-| `cratis/arc/core` | arc 12 | `cratis/application` |
-| `cratis/arc/csharp` | arc 15, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/arc/ef-core` | arc 13 | `cratis/application` |
-| `cratis/arc/elixir` | arc 1, chronicle 1 | `cratis/application` |
-| `cratis/arc/go` | arc 1 | `cratis/application` |
-| `cratis/arc/identity` | arc 14 | `cratis/application` |
-| `cratis/arc/java` | arc 1 | `cratis/application` |
-| `cratis/arc/kotlin` | arc 1 | `cratis/application` |
-| `cratis/arc/react` | arc 14, specifications 1 | `cratis/application` |
-| `cratis/arc/server-typescript` | arc 1 | `cratis/application` |
-| `cratis/arc/typescript` | arc 1 | `cratis/application` |
-| `cratis/chronicle` | arc 2, chronicle 13, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/chronicle/client-dotnet` | chronicle 2 | `cratis/application` |
-| `cratis/chronicle/client-elixir` | chronicle 1 | `cratis/application` |
-| `cratis/chronicle/client-go` | chronicle 1 | `cratis/application` |
-| `cratis/chronicle/client-java` | chronicle 1 | `cratis/application` |
-| `cratis/chronicle/client-kotlin` | chronicle 1 | `cratis/application` |
-| `cratis/chronicle/client-python` | chronicle 1 | `cratis/application` |
-| `cratis/chronicle/client-typescript` | chronicle 1 | `cratis/application` |
-| `cratis/chronicle/compliance` | arc 1, chronicle 11, modeling 2, platform 1 | `cratis/application` |
-| `cratis/chronicle/core` | arc 1, chronicle 10, modeling 2, platform 1 | `cratis/application` |
-| `cratis/chronicle/csharp` | arc 2, chronicle 11, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/chronicle/elixir` | chronicle 1 | `cratis/application` |
-| `cratis/chronicle/java` | chronicle 1 | `cratis/application` |
-| `cratis/chronicle/kotlin` | chronicle 1 | `cratis/application` |
-| `cratis/chronicle/mcp` | chronicle 1 | `cratis/application` |
-| `cratis/chronicle/multi-tenancy` | arc 2, chronicle 10, modeling 2, platform 1 | `cratis/application` |
-| `cratis/chronicle/typescript` | chronicle 1 | `cratis/application` |
-| `cratis/chronicle/web-workbench` | arc 1, chronicle 11, modeling 2, platform 1 | `cratis/application` |
-| `cratis/cli` | chronicle 2, platform 2 | `cratis/application` |
-| `cratis/cli/terminal-workbench` | chronicle 2, platform 2 | `cratis/application` |
+| `cratis/application/elixir` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/application/java` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/application/kotlin` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/application/react` | arc 17, chronicle 13, components 10, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 3, stage 1 | `cratis/application` |
+| `cratis/application/typescript` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/arc` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 3, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/arc/client-kotlin` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/arc/core` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/arc/csharp` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 3, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/arc/ef-core` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/arc/elixir` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/arc/go` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/arc/identity` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/arc/java` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/arc/kotlin` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/arc/react` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/arc/server-typescript` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/arc/typescript` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 3, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/chronicle/client-dotnet` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/client-elixir` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/client-go` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/client-java` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/client-kotlin` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/client-python` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/client-typescript` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/compliance` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 3, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/core` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 3, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/csharp` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 3, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/chronicle/elixir` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/java` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/kotlin` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/mcp` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/multi-tenancy` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 3, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/typescript` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/chronicle/web-workbench` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 3, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/cli` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 3, screenplay 11, specifications 2, stage 1 | `cratis/application` |
+| `cratis/cli/terminal-workbench` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 3, screenplay 11, specifications 2, stage 1 | `cratis/application` |
 | `cratis/codescene` | no skills; MCP: codescene | `cratis/application` |
 | `cratis/components` | components 10 | `cratis/application` |
 | `cratis/content` | no skills | `cratis/application` |
-| `cratis/documentation` | platform 1 | `cratis/engineering` |
+| `cratis/documentation` | platform 2 | `cratis/engineering` |
 | `cratis/engineering/core` | platform 2 | `cratis/engineering` |
-| `cratis/engineering/csharp` | fundamentals 1, platform 2, specifications 2 | `cratis/engineering` |
+| `cratis/engineering/csharp` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 4, screenplay 11, specifications 3, stage 1 | `cratis/engineering` |
 | `cratis/engineering/dotnet` | no skills | `cratis/engineering` |
 | `cratis/engineering/dotnet/diagnostics` | no skills | `cratis/engineering` |
 | `cratis/engineering/dotnet/migrate-dotnet11` | no skills | `cratis/engineering` |
@@ -107,13 +107,13 @@ The second column counts the skills the profile installs by area, with all langu
 | `cratis/engineering/typescript` | platform 2 | `cratis/engineering` |
 | `cratis/full` | arc 17, chronicle 13, components 10, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 3, stage 1; MCP: screenplay | `cratis/application` |
 | `cratis/full/csharp` | arc 17, chronicle 13, components 10, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 3, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/full/elixir` | arc 1, chronicle 1, modeling 2, screenplay 11, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/full/java` | arc 1, chronicle 1, modeling 2, screenplay 11, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/full/kotlin` | arc 1, chronicle 1, modeling 2, screenplay 11, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/full/typescript` | arc 1, chronicle 1, modeling 2, screenplay 11, specifications 1, stage 1; MCP: screenplay | `cratis/application` |
-| `cratis/fundamentals` | fundamentals 1 | `cratis/application` |
+| `cratis/full/elixir` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/full/java` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/full/kotlin` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/full/typescript` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/fundamentals` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
 | `cratis/fundamentals/go` | no skills | `cratis/application` |
-| `cratis/fundamentals/type-discovery` | fundamentals 1 | `cratis/application` |
+| `cratis/fundamentals/type-discovery` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
 | `cratis/language/csharp` | no skills | `cratis/application` |
 | `cratis/language/elixir` | no skills | `cratis/application` |
 | `cratis/language/go` | no skills | `cratis/application` |
@@ -122,15 +122,15 @@ The second column counts the skills the profile installs by area, with all langu
 | `cratis/language/typescript` | no skills | `cratis/application` |
 | `cratis/lens` | no skills | `cratis/application` |
 | `cratis/methodology/governed-releases` | platform 1 | `cratis/engineering` |
-| `cratis/modeling/screenplay-stage` | modeling 2, screenplay 11, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/modeling/screenplay-stage` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
 | `cratis/orchestration` | platform 2 | `cratis/engineering` |
 | `cratis/playwright` | no skills; MCP: playwright | `cratis/application` |
 | `cratis/review` | platform 1 | `cratis/engineering` |
-| `cratis/screenplay` | modeling 2, screenplay 11, stage 1; MCP: screenplay | `cratis/application` |
+| `cratis/screenplay` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1; MCP: screenplay | `cratis/application` |
 | `cratis/specifications` | no skills | `cratis/application` |
 | `cratis/specifications/dotnet` | specifications 2 | `cratis/application` |
-| `cratis/specifications/typescript` | specifications 1 | `cratis/application` |
-| `cratis/stage` | stage 1 | `cratis/application` |
+| `cratis/specifications/typescript` | specifications 2 | `cratis/application` |
+| `cratis/stage` | arc 17, chronicle 13, components 6, fundamentals 1, modeling 2, platform 2, screenplay 11, specifications 2, stage 1 | `cratis/application` |
 | `cratis/studio` | no skills | `cratis/application` |
 | `cratis/v2/application` | arc 17, chronicle 13, components 10, fundamentals 1, modeling 2, platform 5, screenplay 11, specifications 3, stage 1 | `cratis/application` |
 <!-- profiles:end -->

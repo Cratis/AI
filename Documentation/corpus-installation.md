@@ -5,7 +5,7 @@
 | Profile | Select it when |
 | --- | --- |
 | `cratis/application` | The repository builds an application on Cratis. Installs the skills for modeling a business flow, implementing backend and UI slices, and running and diagnosing them. |
-| `cratis/engineering` | The repository is a Cratis library or tool. Installs the skills for changing a platform contract, verifying it and preparing the PR and release note, plus the library skills they hand off to. |
+| `cratis/engineering` | The repository is a Cratis library or tool. Installs the skills for changing a platform contract, verifying it and preparing the PR and release note, plus every skill those link to, which is most of the application skills. |
 
 `cratis ai profiles list` shows these two with the same descriptions; `--all` adds the older profile IDs, which still resolve. See [migration](./corpus-migration.md).
 
