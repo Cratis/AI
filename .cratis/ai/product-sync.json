@@ -568,9 +568,9 @@
       "repository": "Cratis/release-action",
       "packages": [],
       "synced": {
-        "version": "1.5.1",
-        "date": "2026-10-25",
-        "by": "Cratis/AI#820"
+        "version": "1.5.2",
+        "date": "2026-11-27",
+        "by": "Cratis/AI#1368"
       },
       "covers": {
         "skills": [
@@ -581,7 +581,7 @@
         ]
       },
       "coverage": "tracked",
-      "notes": "Cratis/AI#820: reviewed v1.4.3, v1.5.0 and v1.5.1. Skill and PR policy now distinguish workflow-drift 403 recovery from stale-tag retry, opt-in batching/defaults/outputs, combined summaries and corrected pending-major hotfix behavior. No workflow activation or release execution claimed."
+      "notes": "Cratis/AI#1368: reviewed v1.5.2. Release notes skill now uses skipped-batch explanations to decide whether to wait or request an authorized manual release; PR policy is unchanged because the label and note contracts did not change. No workflow activation or release execution claimed. Prior: Cratis/AI#820: reviewed v1.4.3, v1.5.0 and v1.5.1. Skill and PR policy now distinguish workflow-drift 403 recovery from stale-tag retry, opt-in batching/defaults/outputs, combined summaries and corrected pending-major hotfix behavior. No workflow activation or release execution claimed."
     },
     {
       "id": "screenplay-generation",
