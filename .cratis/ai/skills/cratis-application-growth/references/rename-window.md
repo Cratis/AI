@@ -4,8 +4,7 @@
 # The namespace rename window
 
 A namespace rename is a change to stored identities, so it ships as one production rollout with a
-repair, once, after the structural moves. The identity table is in
-[application-anatomy.md](../../../rules/application-anatomy.md) (*What a rename changes*).
+repair, once, after the structural moves.
 
 ## 1. Prepare the code
 

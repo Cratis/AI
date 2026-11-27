@@ -11,10 +11,9 @@ fix. Adding runners cures a queue and does nothing for a serial build; a faster
 build does nothing for a workflow that fails a quarter of the time. Measure,
 classify, change one lever, measure again. Never optimize from the YAML alone.
 
-Capacity, timeout, concurrency and runner invariants live in
-[github-actions.md](../../rules/github-actions.md); obey them and do not restate them in a change.
-Workflow-only pull requests carry the `no-release` label per
-[pull-requests.md](../../rules/pull-requests.md).
+Follow the `github-actions` rule where installed with an engineering profile
+for capacity, timeout, concurrency and runner constraints. For release intent,
+use [cratis-platform-prepare-release-pr](../cratis-platform-prepare-release-pr/SKILL.md).
 
 ## 1. Measure first
 
@@ -112,10 +111,9 @@ when keyed on `github.ref` for merged `pull_request` `closed` events). A workflo
 whose release tooling aggregates since the last release may keep one pending slot,
 documented. Read `references/publish-pipelines.md`.
 
-**Runner routing.** Fits queue-bound workflows. Read the
-[Infrastructure runner guide](https://github.com/Cratis/Infrastructure/blob/main/Documentation/deployment/github-runners.md)
-for the UpCloud scale sets `cratis-arc` and `cratis-arc-small`; do not copy its
-capacity numbers. The rule owns routing and public-fork safety. Read
+**Runner routing.** Fits queue-bound workflows. Consult the Infrastructure
+repository's GitHub runners guide for the `cratis-arc` and `cratis-arc-small`
+scale sets; do not copy its capacity numbers. Read
 `references/runner-sizing-and-images.md` when choosing hosted versus self-hosted
 runners, sizing in-job parallelism or weighing fan-out against cold starts.
 
@@ -206,5 +204,4 @@ touches `permissions:`, uses `pull_request_target`, or adds a cache.
 - Read `references/test-setup-cost.md` when test steps outlast reported test time, tests duplicate a dependency's suite, or compiles repeat per push.
 - Read `references/runner-sizing-and-images.md` when choosing runners, sizing parallelism, or when jobs are uniformly slow, pull images, install tools or reuse workspaces.
 - Read `references/security-and-pinning.md` when a change touches actions, permissions, triggers or caches.
-- Read `references/sources.md` when attributing or extending the method.
 - Execute `scripts/ci-timings.sh` for every measurement; read it only to change it. Its self-test reads the synthetic inputs `scripts/fixtures/runs.json` and `scripts/fixtures/jobs/1003.json`, `scripts/fixtures/jobs/1007.json`, `scripts/fixtures/jobs/1010.json`; edit them only together with the expected lines in the script.

@@ -8,7 +8,7 @@ license: MIT
 
 # Mock usage analysis
 
-Cratis rules in `.cratis/ai/rules/` (including `specs.csharp.md`) and the `cratis-*` skills win where they differ. Use [cratis-specifications-csharp](../cratis-specifications-csharp/SKILL.md) for writing or restructuring specifications; this skill only audits setups that already exist.
+Cratis rules in `.cratis/ai/rules/` (including `specs.csharp.md`) and the `cratis-*` skills win where they differ. Use the `specs.csharp` rule for writing or restructuring specifications; this skill only audits setups that already exist.
 
 Trace each NSubstitute setup through the production code's execution path to find setups that no scenario exercises. A review request is not authority to edit or run anything: report findings, and edit only when asked.
 

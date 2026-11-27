@@ -37,13 +37,12 @@ follow the steps below before writing the fix.
    verification script, or one specification suite that covers every member of
    the class (every filter, every endpoint), not one specification per bug. A
    class that only judgment can catch gets a review checklist entry, and the
-   choice is stated as judgment-shaped; see the enforcement rule in
-   [authoring-skills.md](../../rules/authoring-skills.md).
+   choice is stated as judgment-shaped. Do not rely on a checklist or prose
+   when an executable check can enforce the constraint.
 3. **Prove the gate fails** on the current broken instance, or on the earlier
    instances with their fixes reverted, before fixing anything. A gate that
-   passes on the broken code owns nothing; follow
-   [guards-and-fuses.md](../../rules/guards-and-fuses.md) so it cannot pass
-   vacuously.
+   passes on the broken code owns nothing. Check that it examines the intended
+   subjects and cannot pass on an empty selection.
 4. **Register the class.** When the repository keeps a failure-class table or
    gate inventory, add one row: class, owning gate, where it runs. Otherwise
    put the class name in the gate's failure message and the specification or

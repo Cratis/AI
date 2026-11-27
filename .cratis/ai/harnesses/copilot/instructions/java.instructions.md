@@ -13,7 +13,7 @@ KSP present only in the build (Arc generates Kotlin adapters for Java
 declarations under the hood). Write idiomatic modern Java; do not import
 Kotlin idioms into Java source, and do not treat Java as a second-class
 citizen of a Kotlin codebase. Arc/Chronicle-specific shapes (`@Command`,
-`@ReadModel`, `@EventType`, and the rest) live in the matching skill, not
+`@ReadModel`, `@EventType`, and the rest) are chosen with **cratis-arc-select-backend-sdk**, not
 here.
 
 ## Building
@@ -36,7 +36,7 @@ here.
 
 All identifiers, Javadoc, and string literals use **American English**
 spelling (initialize, serialize, behavior, color, organization, center,
-modeling, dialog, license, judgment, gray). See [general.md](../../../rules/general.md).
+modeling, dialog, license, judgment, gray).
 
 ## Naming
 
@@ -110,8 +110,8 @@ modeling, dialog, license, judgment, gray). See [general.md](../../../rules/gene
 
 - Use exceptions for genuinely exceptional, unrecoverable conditions — not for
   control flow a caller is expected to handle. A command or query rejection a
-  user can act on is a validation result, not a thrown exception; see the Arc
-  validation skills.
+  user can act on is a validation result, not a thrown exception; see
+  **cratis-arc-validate-command**.
 - Prefer an unchecked exception with a clear name over a checked exception
   that forces every caller to catch or declare it; reserve checked exceptions
   for conditions a caller genuinely has a recovery path for.

@@ -67,7 +67,7 @@ Before accepting any rewrite, confirm that:
   repetition first, and re-read the shortened text for a widened claim;
 - important warnings precede the affected action and limits stay beside the behavior they
   qualify. A closing caveat can move there without weakening its scope. Internal proof notes
-  and verification provenance belong in the private change or review record, not a public
+  and records of what was verified belong in the private change or review record, not a public
   closing receipt; keep evidence the reader needs to make a decision in the explanation.
 
 The catalog's mechanical comparison flags changed identifiers, numbers and qualifier tokens
@@ -78,21 +78,22 @@ prose-only file edit; route a necessary technical correction to its owning speci
 
 ## Preserve documentation evidence
 
-Before revising an explanation beside code, read and apply
-[Explaining code](../cratis-engineering-docs-authoring/references/explaining-code.md).
+Before revising an explanation beside code, use the Explaining code reference in
+`cratis-engineering-docs-authoring`, available in `cratis/documentation`.
 Use its transformations to reconnect the prose to the example without imposing
 a paragraph template. Preserve client-specific setup and behavior distinctions,
 and keep essential shared warnings visible outside tabs.
 
-For documentation, apply the [documentation rule](../../rules/documentation.md)
-without changing literal product names, APIs or package IDs. Preserve causal
+In documentation, use Cratis Platform for the umbrella offering and name the
+component that owns the task. Do not change literal product names, APIs or
+package IDs. Preserve causal
 explanations: responsibility, host-process boundaries, connecting identifiers,
 defaults, observable results and limitations must survive the voice pass.
 Do not smooth several components into an unexplained "the Platform handles it"
 or make an independent component sound dependent on the whole Platform.
 
-When the journey changes materially, route to **cratis-documentation-writing**'s
-[fresh-context reader review](../cratis-documentation-writing/references/reader-review.md).
+When the journey changes materially, use the fresh-context reader review in
+`cratis-documentation-writing`, available in `cratis/documentation`.
 It owns comprehension review; this skill does not duplicate it. Source checks,
 compilation, runtime and deployed evidence remain separate, and a voice pass
 establishes none of them. Report unavailable reader review rather than treating

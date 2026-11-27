@@ -2,11 +2,10 @@
 
 Which skill owns each task next to stream and consistency design.
 
-- Construct grammar: `cratis-screenplay-command-surface` (identifier, `for`, constraints),
-  `cratis-screenplay-projections`; compiler facts and traps: `cratis-screenplay-toolchain`.
-- Chronicle C# compliance and event-source ids: `cratis-chronicle-event-modeling`.
-- Reactions, todo lists, captures, external facts: `cratis-screenplay-automations-and-translations`.
-- Commands, read models and lineage: `cratis-screenplay-slice-design`. Specs:
-  `cratis-screenplay-scenario-coverage`.
-- Reviewing someone else's model: `cratis-screenplay-model-review`.
-- Rendering and the code left to write after it: `cratis-screenplay-render-and-gap-fill`.
+- Declaring slice syntax and projections: [cratis-screenplay-declare-slice](../../cratis-screenplay-declare-slice/SKILL.md).
+- Setting up the compiler for a workspace: [cratis-screenplay-onboard-workspace](../../cratis-screenplay-onboard-workspace/SKILL.md).
+- Designing facts and views before encoding them: [cratis-modeling-design-event-model](../../cratis-modeling-design-event-model/SKILL.md).
+- Reactions and work queues: [cratis-screenplay-model-automation](../../cratis-screenplay-model-automation/SKILL.md). External facts: [cratis-screenplay-model-translation](../../cratis-screenplay-model-translation/SKILL.md).
+- Observable specifications: [cratis-screenplay-specify-outcome](../../cratis-screenplay-specify-outcome/SKILL.md).
+- Reviewing a proposed model: [cratis-screenplay-accept-model](../../cratis-screenplay-accept-model/SKILL.md).
+- Rendering and determining what remains hand-written: [cratis-stage-render-slice](../../cratis-stage-render-slice/SKILL.md).

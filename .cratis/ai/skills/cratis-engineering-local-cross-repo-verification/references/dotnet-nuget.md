@@ -181,7 +181,7 @@ targets; never rename old packages into a helper stamp or clear a whole shared c
 ## Mixed-version compositions (opt-in)
 
 Use a composition when products have independent local versions. It never packs
-or rebuilds producers. Write a tab-separated manifest under `.ai-work/`:
+or rebuilds producers. Write a tab-separated `composition.tsv` in the ignored scratch folder:
 
 ```text
 # Separate fields with literal tabs.
@@ -194,17 +194,17 @@ package	Stage	Cratis.Stage
 ```
 
 Each producer needs a valid local/train stamp, an existing absolute Git worktree
-root and at least one package. Paths declare provenance, not cryptographic artifact
-authenticity. Package IDs have one owner, case-insensitively.
+root and at least one package. Paths identify where packages came from; they do not authenticate the artifacts. Package IDs have one owner, case-insensitively.
 Declare the complete local dependency closure. Only blank lines and lines starting
 with `#` are ignored. No npm rows or implicit merging with an active overlay.
 
 ```bash
-bash "$local" verify-pack --composition .ai-work/composition.tsv --json
-bash "$local" use-nuget "$consumer" --composition .ai-work/composition.tsv --pin-transitive
+composition="$scratch/composition.tsv"  # scratch is the path to the ignored scratch folder
+bash "$local" verify-pack --composition "$composition" --json
+bash "$local" use-nuget "$consumer" --composition "$composition" --pin-transitive
 # Source the printed env; use the printed --configfile for consumer restore.
 # Run the consumer's own restore/build/specs, then:
-bash "$local" verify-assets "$consumer" --composition .ai-work/composition.tsv --json
+bash "$local" verify-assets "$consumer" --composition "$composition" --json
 bash "$local" restore "$consumer"
 ```
 

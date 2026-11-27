@@ -12,7 +12,7 @@ metadata:
 
 # Run .NET Tests
 
-Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, and `orleans.md`) and the `cratis-*` skills win where they differ. Specification authoring belongs to **cratis-specifications-csharp**; Cratis spec projects on Specifications 5 and xUnit v3 run as the built executable, not `dotnet test`; see its `references/running-specs.md` for the loop and filter flags. Projects still on xUnit v2 run on VSTest.
+Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, and `orleans.md`) and the `cratis-*` skills win where they differ. Specification conventions belong to the `specs.csharp` rule; Cratis spec projects on Specifications 5 and xUnit v3 run as the built executable, not `dotnet test`; see the `specs.csharp` rule. Projects still on xUnit v2 run on VSTest.
 
 Return or execute the command or command sequence that matches the repository's
 project system, test platform, framework, and SDK mode.
@@ -91,7 +91,7 @@ resolved. Route identification-only requests to `platform-detection`.
 For supported Cratis xUnit v3, TUnit and native-runner suites, restore/build once
 and run each project's built executable directly, or `dotnet <TargetPath.dll>`
 when there is no apphost. Use the matching configuration/TFM and runner-specific
-filter/report flags; see [running-specs](../cratis-specifications-csharp/references/running-specs.md).
+filter/report flags; see the `specs.csharp` rule.
 Only identified VSTest projects default to `dotnet test <project> --no-build`.
 Mixed suites run per project, never solution-wide `dotnet test`. The command-mode
 forms below remain valid when the user explicitly requires dotnet-test syntax;

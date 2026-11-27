@@ -3,7 +3,7 @@
 
 # Arc and Chronicle signals
 
-Sources: Arc `Source/DotNET/Arc.Core/WellKnownDiagnostics.cs`, `WellKnownTelemetryNames.cs`, `Source/DotNET/MongoDB/WellKnownMongoDBDiagnostics.cs`, `Documentation/backend/csharp/observability.md`; Chronicle `Source/Clients/DotNET/Diagnostics/OpenTelemetry/Tracing/ClientActivity.cs`, `ChronicleTelemetryOptions.cs`, `Documentation/hosting/client-tracing.mdx`, `Documentation/hosting/configuration/telemetry-names.md`. Read the release you consume.
+Check signal names in the release you consume.
 
 ## Arc
 
@@ -37,7 +37,7 @@ Arc records at most 1,000 distinct command types or query names per metric and f
 
 ## Chronicle .NET client
 
-Activity source: `Cratis.Chronicle.Client` (`ClientActivity.SourceName`). Registration: `AddCratisOpenTelemetry` covers it through `Cratis.*`. Without it, `AddCratisChronicleInstrumentation()` (package `Cratis.Chronicle.AspNetCore`, namespace `Cratis.Chronicle.AspNetCore.OpenTelemetry`) or `AddSource("Cratis.Chronicle.Client")` is required, in the same tracing configuration as the exporter.
+Activity source: `Cratis.Chronicle.Client`. Registration: `AddCratisOpenTelemetry` covers it through `Cratis.*`. Without it, `AddCratisChronicleInstrumentation()` (package `Cratis.Chronicle.AspNetCore`, namespace `Cratis.Chronicle.AspNetCore.OpenTelemetry`) or `AddSource("Cratis.Chronicle.Client")` is required, in the same tracing configuration as the exporter.
 
 | Legacy span (default) | Convention span (`Telemetry:SpanNames=Convention`) |
 | --- | --- |

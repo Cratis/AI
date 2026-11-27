@@ -14,8 +14,7 @@ This skill applies only to multi-session autonomous work with two or more
 lanes. A single session, or a session with its own sub-agents, follows the
 existing agents and skills; it does not need claims, an inbox or roll calls.
 Authority comes from the user's request and the brief, never from the
-tooling: read [capability-is-not-authority.md](../../rules/capability-is-not-authority.md)
-first. Values in `<angle brackets>` are placeholders the operator fills in;
+tooling. Values in `<angle brackets>` are placeholders the operator fills in;
 defaults and their bounds are in [references/placeholders.md](references/placeholders.md) (read it when choosing a lease, threshold or time box).
 
 ## Roles
@@ -31,10 +30,9 @@ defaults and their bounds are in [references/placeholders.md](references/placeho
 
 ## Claim, lease and release
 
-Single-issue claiming is already defined in
-[issue-assignment.md](../../rules/issue-assignment.md) and
-`cratis-engineering-issue-hygiene`; follow them and do not restate them here.
-Lanes add three things on top.
+For single-issue claiming, use `cratis-engineering-issue-hygiene` and the
+`issue-assignment` rule where installed with `cratis/engineering`. Lanes add
+three things on top.
 
 1. **Check the register first.** Before claiming, read the claim register under
    `<work-root>` and the issue's assignees. A lane claims only unowned work, and
@@ -52,8 +50,7 @@ or is in review, take over only with a handoff or an explicit confirmation from
 the user or the coordinator. Record every takeover in the register, naming the
 previous owner and the evidence that the claim was stale. Never replace or add
 to another person's issue assignment; comment on or reassign the issue only
-when the request or brief covers it, as
-[issue-assignment.md](../../rules/issue-assignment.md) describes.
+when the request or brief covers it.
 
 ## Inbox
 
@@ -80,26 +77,23 @@ stop and report, not to improvise.
 
 - One lane, one worktree, one branch. Never two lanes committing in one tree.
 - Create worktrees outside the repository tree, and keep plans, inbox files and
-  notes under `<work-root>` (default `.ai-work`, always inside `.ai-work/`).
-  See [local-work-artifacts.md](../../rules/local-work-artifacts.md).
+  notes under `<work-root>` (the ignored `.ai-work` directory or a folder inside it).
 - Never rewrite history, force-remove a worktree or delete another lane's
-  branch; see [git-commits.md](../../rules/git-commits.md).
+  branch.
 - Run builds and tests only through the gate command in the brief.
 
 ## Stop and ask
 
 Escalate consequential items: a public contract, a breaking change, security,
 production data, product direction, spending, and any effect the request or
-brief does not authorize
-([capability-is-not-authority.md](../../rules/capability-is-not-authority.md)).
+brief does not authorize.
 Everything else a lane decides, records and reports.
 
 - Stopping and escalating never wait for anything. When a lane decides a
   non-escalated judgment call with real alternatives and consequences itself
   (not a trivial choice such as an internal name), it first gets a review from
   a different provider family where the harness can select one, and otherwise
-  states `single-provider`, as
-  [review-reports.md](../../rules/review-reports.md) requires.
+  states `single-provider`.
 - Escalate to `<coordinator>`, who forwards only what needs the operator.
 - A lane blocked longer than the blocked-report threshold sends a `blocked`
   message instead of waiting silently.
@@ -114,8 +108,8 @@ When a lane must stop and another session continues, write a handoff named
 `handoff-<lane-id>.md` under the task folder. Structure, filling rules and
 resuming follow [cratis-session-handoff](../cratis-session-handoff/SKILL.md),
 including separate user directives and agent decisions, sources, reasons and
-retirement markings. The preconditions rule lives in
-[local-work-artifacts.md](../../rules/local-work-artifacts.md).
+retirement markings. Open with the repository, branch, expected `HEAD`, named
+worktree paths and date.
 
 ## Roll call
 

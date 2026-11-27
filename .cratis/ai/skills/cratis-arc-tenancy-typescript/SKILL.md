@@ -119,7 +119,7 @@ HTTP requests to test the resolver itself.
 
 ## Route near misses
 
-- Authenticating callers, JWT/EasyAuth, identity details: `cratis-arc-command-typescript`
-  (`identity-and-introspection.md`).
-- Chronicle namespaces in a .NET or standalone setting: `cratis-chronicle-multi-tenancy`.
+- Node host setup: [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md).
+- Chronicle namespaces in .NET: [cratis-chronicle-connect-application](../cratis-chronicle-connect-application/SKILL.md).
+- Request authorization: [cratis-arc-authorize-request](../cratis-arc-authorize-request/SKILL.md).
 - C# Arc tenant resolution: the C# Arc skills.

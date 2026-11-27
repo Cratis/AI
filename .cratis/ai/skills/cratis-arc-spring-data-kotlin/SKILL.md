@@ -13,12 +13,8 @@ Keep Spring Data responsible for persistence and Arc responsible for the
 model-bound command/query pipeline. Repository injection alone does not isolate
 tenants or turn a repository into an observable source.
 
-## Verified product sources
+## Install
 
-Source: `Arc.Kotlin`: `Integrations/SpringDataJpa`,
-`Integrations/SpringDataMongo` (observable query services/extensions, contextual
-read-model providers, tenant access and converters) and
-`Documentation/guides/spring-data/*.mdx`.
 Add `io.cratis:arc-spring-data-jpa:<version>` or
 `io.cratis:arc-spring-data-mongodb:<version>`; both include the Arc Spring Boot
 starter and corresponding Spring Data starter. Spring owns repository discovery,
@@ -124,9 +120,7 @@ first. Then select certified isolated stores:
 
 Plain injected repositories are not automatically routed by tenant. Native
 collection access uses Arc's `NamingPolicy`, while Spring Data operations respect
-`@Document`; choose deliberately. For Chronicle projection collection alignment,
-read [../cratis-arc-command-kotlin/references/read-model-naming.md](../cratis-arc-command-kotlin/references/read-model-naming.md)
-when upgrading or changing names.
+`@Document`; choose deliberately. When changing a Chronicle projection’s collection name, verify that the projection writes to the same collection the Spring Data query reads.
 
 Concept persistence needs store-specific converters: JPA attribute converters
 (or embedded ids for composite identity), Mongo concrete scalar read/write pairs.
@@ -159,5 +153,4 @@ indeterminate outcomes rather than claiming atomic cross-store success.
 - For JPA, verify committed notifications, rollback suppression and the intended
   in-process boundary; test thread affinity before enabling transactions.
 
-Query transport: `cratis-arc-query-kotlin`. Chronicle projections:
-`cratis-chronicle-client-kotlin`, not a Spring Data observation.
+Query transport: [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md). For the Chronicle JVM client, use [cratis-chronicle-select-client](../cratis-chronicle-select-client/SKILL.md); this skill covers Spring Data observation.

@@ -65,19 +65,3 @@ test('MCP catalogue validation detects planted invalid declarations', () => {
     assert.equal(invalid.length, 9);
     for (const value of invalid) assert.ok(validateMcpServers(value, profiles).length > 0, JSON.stringify(value));
 });
-
-test('CodeScene and Playwright MCP guidance matches the per-harness registration declared in the catalogue', () => {
-    const corpus = resolve(import.meta.dirname, '../../.cratis/ai');
-    const value = JSON.parse(readFileSync(resolve(corpus, 'mcp-servers.json'), 'utf8')) as { servers: Array<typeof server> };
-    assert.ok(value.servers.some(entry => entry.id === 'codescene' && entry.profiles.includes('cratis/codescene')));
-    for (const path of ['rules/codescene.md', 'rules/profiles.md', 'rules/ai-distribution.md', 'harnesses/copilot/instructions/profiles.instructions.md']) {
-        const content = readFileSync(resolve(corpus, path), 'utf8').replace(/\s+/g, ' ');
-        assert.doesNotMatch(content, /nor any harness registers/, `${path} claims no harness registers CodeScene`);
-        assert.doesNotMatch(content, /extension loads only Screenplay/, `${path} claims Pi loads only Screenplay`);
-    }
-    const codescene = readFileSync(resolve(corpus, 'rules/profiles.md'), 'utf8');
-    assert.match(codescene, /`cratis-mcp`\s+extension/);
-    assert.match(codescene, /cratis_enable_mcp/);
-    assert.match(codescene, /mcpServers\.codescene\.eager/);
-    assert.match(codescene, /mcpServers\.codescene\.enabled: false/);
-});

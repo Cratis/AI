@@ -10,11 +10,7 @@ paths:
 
 # Elixir Conventions
 
-Use Elixir and OTP idioms, not translated C# or JVM shapes. These conventions
-are grounded in `Cratis/Chronicle.Elixir` 4.x (`Source/chronicle/mix.exs`,
-`.formatter.exs`, and `lib/cratis/chronicle/`) and `Cratis/Arc.Elixir` 1.4.x
-(`lib/cratis/arc/`). Client-specific APIs belong in the
-**cratis-chronicle-client-elixir** skill, Arc APIs in **cratis-arc-elixir**.
+Use Elixir and OTP idioms, not translated C# or JVM shapes. Client APIs are outside this rule: choose the Chronicle client with **cratis-chronicle-select-client** and the Arc backend SDK with **cratis-arc-select-backend-sdk** where those skills are installed.
 
 ## Build and format
 
@@ -81,36 +77,9 @@ slice's command, its events and its specs next to each other, and a view's marku
 owns it. A module is too big when it has several reasons to change, not when it has many lines. These
 anti-pattern fixes must not scatter a vertical slice across folders.
 
-## Event-sourced applications on Arc and Chronicle
+## Specs
 
-Read the **cratis-arc-elixir** and **cratis-chronicle-client-elixir** skills before touching a slice.
-
-- **Folders are Module, Feature, Slice, and sub-features nest.** One folder per behavior, named for what
-  it does as a gerund, without repeating what its sub-feature already names (`Secrets.Rotating`, not
-  `Secrets.RotatingSecrets`; see [vertical-slices.md](./vertical-slices.md)); the command inside is the verb and keeps
-  its noun (`RotateSecret`). Group slices that act on one
-  thing into a sub-feature (`Secrets`, `Credentials`, `Viewing`), and put a reactor with the facts it
-  reacts to, not in a folder named for the third party it calls. No folders named for a kind of file.
-- **Names are ids.** `use Cratis.Arc.Command, id: "rotate-secret"`, an event type's `id:`, a reactor's
-  `id:`; the model shows the id in PascalCase, so a module can be renamed without renaming the model.
-- **A command and its events live in one file**, events first. An event is past tense, one fact, and
-  never carries a secret or anything derived from one (no hint, hash or last characters): the system that
-  owns a secret, such as an identity provider, is the only one that holds it, and a secret is shown once to
-  the person who asked for it.
-- **Every slice tells a whole story**: a state change has a command and the events it appends; a view
-  has a read model and consumes events (`consumes:` when it reads the event log); an automation reacts to
-  an event, runs a command and records the fact that command appends, so the event model shows what it
-  did. A reactor that calls a third party does not append events itself: it runs a `:system` command
-  (`Cratis.Arc.execute/3`) that records the outcome, and the command lives in the reactor's slice folder.
-- **Order is the story**: a slice that uses events of several sub-features goes in a sub-feature after
-  them. Build with `arc: [event_model_strict: true]` so an incomplete model fails the build.
-- **Third parties are integrations behind a behaviour**, with an in-memory stand-in for specs; only
-  reactors write to them.
-
-Specs follow [specs.elixir.md](./specs.elixir.md): scripts in `for_*`/`when_*` folders beside the code, no
-`_test` suffix, `should` assertions. Build read models with a projection, not a reducer, unless a projection
-cannot express the transition, and enforce uniqueness with a Chronicle constraint, not a read before the append
-(see the **cratis-arc-elixir** and **cratis-chronicle-client-elixir** skills).
+Specs follow the `specs.elixir` rule: scripts in `for_*`/`when_*` folders beside the code, no `_test` suffix, `should` assertions.
 
 Every `.ex` and `.exs` source file starts with:
 

@@ -13,11 +13,10 @@ need the model's `@field` declarations.
 
 | Package | Builder method | Peer | Use for |
 | --- | --- | --- | --- |
-| `@cratis/arc.mongodb` | `withMongoDB` | `mongodb` `^6.21.0` | documents, change-stream observation |
+| `@cratis/arc.mongodb` | `withMongoDB` | `mongodb@^6.21.0` | documents, change-stream observation |
 | `@cratis/arc.drizzle` | `withDrizzle` | `drizzle-orm` `^0.45.0`, `rxjs` | PostgreSQL, MySQL, SQLite tables |
 
-Query methods, argument binding and observable queries are in
-`cratis-arc-query-typescript`; this skill covers the storage side.
+For query methods and argument binding, use [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md); this skill covers storage.
 
 ## MongoDB
 
@@ -132,8 +131,7 @@ export class TaskQueries {
   application migration and pass a listener factory returning a **new, dedicated**
   `pg.Client` through `nodePostgresListener` (`pg` `^8`). Arc does not create
   database objects at runtime. NOTIFY is not a durable log: states during a
-  disconnect are not replayed. Details in `cratis-arc-query-typescript`,
-  `storage-observation-and-compliance.md`.
+  disconnect are not replayed.
 
 ## Pitfalls
 

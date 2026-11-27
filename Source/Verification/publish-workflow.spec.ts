@@ -10,15 +10,10 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { runInNewContext } from 'node:vm';
 import { parse } from 'yaml';
-import { check } from './contract/check.ts';
-import { summary } from './contract/index.ts';
-import { cleanDocument, specimen } from './contract/self-test.ts';
-import { reportComparison } from './contract/sync.ts';
 
 const workflow = parse(readFileSync(new URL('../../.github/workflows/publish.yml', import.meta.url), 'utf8'));
 const verify = workflow.jobs.verify;
 const dotnetVerify = workflow.jobs['dotnet-verify'];
-const screenplaySync = workflow.jobs['screenplay-sync'];
 const release = workflow.jobs.release;
 const confirmation = workflow.jobs['release-confirmed'];
 const releaseCheck = confirmation.steps.find((step: { name: string }) => step.name === 'Verify the GitHub release exists');
@@ -32,17 +27,14 @@ const cacheOptions = {
     'key-prefix': "yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}",
     mode: "${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}",
 };
-const cachedWorkflows = {
-    publish: workflow,
-    'product-drift': parse(readFileSync(new URL('../../.github/workflows/product-drift.yml', import.meta.url), 'utf8')),
-};
+const cachedWorkflows = { publish: workflow };
 
 for (const [workflowName, document] of Object.entries(cachedWorkflows)) {
     const installingJobs = Object.entries(document.jobs).filter(([, job]) =>
         (job as { steps?: WorkflowStep[] }).steps?.some(step => step.run === installCommand));
 
     test(`should cache every root Yarn install in ${workflowName}`, () => {
-        assert.equal(installingJobs.length, workflowName === 'publish' ? 6 : 1);
+        assert.equal(installingJobs.length, 5);
     });
 
     for (const [jobName, job] of installingJobs) {
@@ -88,20 +80,13 @@ function allowsEvent(condition: string | undefined, event: string): boolean {
 }
 
 for (const [name, job] of [['verify', verify], ['dotnet-verify', dotnetVerify]] as const) {
-    test(`should exclude only sync events in the ${name} job guard`, () => {
-        assert.equal(job.if, "github.event_name != 'repository_dispatch' && github.event_name != 'schedule'");
+    test(`should run ${name} for every workflow event`, () => {
+        assert.equal(job.if, undefined);
     });
-    for (const event of ['pull_request', 'push', 'workflow_dispatch', 'repository_dispatch', 'schedule']) {
-        const syncEvent = event === 'repository_dispatch' || event === 'schedule';
-        test(`should ${syncEvent ? 'skip' : 'require'} ${name} for ${event}`, () => {
-            assert.equal(allowsEvent(job.if, event), !syncEvent);
-        });
-    }
 }
 
-for (const event of ['pull_request', 'push', 'workflow_dispatch', 'repository_dispatch', 'schedule']) {
-    test(`should plan independent contract comparison and guarded release for ${event}`, () => {
-        assert.equal(allowsEvent(screenplaySync.if, event), event === 'repository_dispatch' || event === 'schedule');
+for (const event of ['pull_request', 'push', 'workflow_dispatch']) {
+    test(`should plan a guarded release for ${event}`, () => {
         assert.equal(allowsEvent(release.if, event), event === 'push' || event === 'workflow_dispatch');
     });
 }
@@ -111,71 +96,9 @@ test('should require successful verification before push or manual release witho
     assert.deepEqual(release.needs, ['verify', 'dotnet-verify']);
 });
 
-test('should compare the external Screenplay contract independently of skipped verification', () => {
-    assert.equal(screenplaySync.if, "github.event_name == 'repository_dispatch' || github.event_name == 'schedule'");
-    assert.equal(screenplaySync.needs, undefined);
-    assert.equal(screenplaySync['continue-on-error'], undefined);
-    const download = screenplaySync.steps.find((step: { id?: string }) => step.id === 'contract');
-    assert.equal(download.env.DISPATCH_VERSION, '${{ github.event.client_payload.version }}');
-    assert.equal(download.env.DISPATCH_SCHEMA, '${{ github.event.client_payload.schemaVersion }}');
-    assert.equal(download.if, undefined);
-    assert.match(download.run, /version="\$DISPATCH_VERSION"/);
-    assert.match(download.run, /gh release view --repo Cratis\/Screenplay --json tagName --jq .tagName/);
-    assert.match(download.run, /gh release download "\$tag" --repo Cratis\/Screenplay --pattern screenplay-contract.json/);
-    const comparison = screenplaySync.steps.at(-1);
-    assert.equal(comparison.if, undefined);
-    assert.equal(comparison['continue-on-error'], undefined);
-    assert.equal(comparison.env.CONTRACT_VERSION, '${{ steps.contract.outputs.version }}');
-    assert.equal(comparison.env.CONTRACT_PATH, '${{ runner.temp }}/screenplay-contract/screenplay-contract.json');
-    assert.equal(comparison.run, 'yarn workspace @cratis/ai-verification exec tsx contract/sync.ts --root "$GITHUB_WORKSPACE" --contract "$CONTRACT_PATH" --version "$CONTRACT_VERSION"');
-});
-
-for (const findings of [[], ['New release needs a corpus update.']]) {
-    test(`should report ${findings.length} drift findings successfully without hiding real reporting errors`, async () => {
-        const directory = await mkdtemp(join(tmpdir(), 'sync-report-'));
-        try {
-            const result = { ...check(specimen, [cleanDocument]), problems: findings, files: 1, pinnedVersion: '1.2.3', contractSource: 'latest.json' };
-            const output: string[] = [];
-            const path = join(directory, 'summary.md');
-            assert.equal(await reportComparison('2.3.4', result, path, line => output.push(line)), 0);
-            assert.ok((await readFile(path, 'utf8')).includes(summary(result)));
-            assert.deepEqual(output, findings.length ? ['::warning::Screenplay 2.3.4 contract drift: 1 findings'] : []);
-            await assert.rejects(reportComparison('2.3.4', result, directory, () => undefined));
-        } finally {
-            await rm(directory, { recursive: true, force: true });
-        }
-    });
-}
-
-for (const status of [0, 1, 2]) {
-    test(`should preserve the sync script exit status without workflow error suppression (exit ${status})`, () => {
-        const comparison = screenplaySync.steps.at(-1);
-        // Stub the issue-reconciling command: never contact GitHub or mutate a tracking issue.
-        const result = spawnSync('bash', ['--noprofile', '--norc', '-e', '-o', 'pipefail'], {
-            input: `yarn() { printf 'comparison argument: <%s>\\n' "$@"; if [ "$SYNC_STATUS" = 1 ]; then printf 'Screenplay contract drift\\n' >&2; fi; return "$SYNC_STATUS"; }\n${comparison.run}`,
-            env: { PATH: process.env.PATH, GITHUB_WORKSPACE: '/fixture/ai', CONTRACT_PATH: '/fixture/external-contract.json', CONTRACT_VERSION: 'v1.2.3', SYNC_STATUS: String(status) },
-            encoding: 'utf8',
-            timeout: 5_000,
-        });
-        assert.ifError(result.error);
-        assert.equal(result.status, status, result.stderr);
-        assert.match(result.stdout, /comparison argument: <contract\/sync.ts>/);
-        assert.match(result.stdout, /comparison argument: <\/fixture\/external-contract.json>/);
-        assert.match(result.stdout, /comparison argument: <v1\.2\.3>/);
-        if (status === 1) assert.match(result.stderr, /Screenplay contract drift/);
-    });
-}
-
-test('should retain the sync schedule and FIFO groups without changing the separate Product drift workflow', () => {
-    assert.deepEqual(workflow.on.repository_dispatch.types, ['screenplay-contract-published']);
-    assert.deepEqual(workflow.on.schedule, [{ cron: '41 4 * * 3' }]);
-    assert.deepEqual(workflow.concurrency, {
-        group: "${{ github.workflow }}-${{ (github.event_name == 'repository_dispatch' || github.event_name == 'schedule') && 'screenplay-sync' || github.ref }}",
-        queue: 'max',
-    });
-    const productDrift = parse(readFileSync(new URL('../../.github/workflows/product-drift.yml', import.meta.url), 'utf8'));
-    assert.deepEqual(productDrift.on, { schedule: [{ cron: '23 5 * * 1' }], workflow_dispatch: null });
-    assert.deepEqual(productDrift.concurrency, { group: 'ai-corpus-product-drift', 'cancel-in-progress': false });
+test('should queue runs per ref and trigger on no external event', () => {
+    assert.deepEqual(Object.keys(workflow.on).sort(), ['pull_request', 'push', 'workflow_dispatch']);
+    assert.deepEqual(workflow.concurrency, { group: '${{ github.workflow }}-${{ github.ref }}', queue: 'max' });
 });
 
 test('should pin the release action that rejects a version claimed by another commit', () => {

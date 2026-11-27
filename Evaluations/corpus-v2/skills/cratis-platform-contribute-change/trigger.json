@@ -1,0 +1,1 @@
+{"skill":"cratis-platform-contribute-change","queries":[{"query":"I'm changing Arc's shared query behavior. How do I locate the contract and verify the change for callers?","shouldTrigger":true},{"query":"I already verified the Arc change. Write the release note and choose the label.","shouldTrigger":false,"sibling":"cratis-platform-prepare-release-pr"}]}

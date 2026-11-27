@@ -26,9 +26,9 @@ will fit a model's context window.
 
 ## Keep discovery aligned with the reader journey
 
-Follow the [documentation rule](../../rules/documentation.md) for Platform
-naming and product claims: route an umbrella query to the relevant component,
-without implying that a single-component task needs every product. A root
+Use Cratis Platform for the umbrella offering and route an umbrella query to
+the component that owns the task. Do not imply that a single-component task
+needs every product. A root
 index should expose that first useful path; product and task indexes should
 continue it with enough context to identify responsibilities and handoffs.
 An export must retain the prerequisites, identifiers, host boundaries and

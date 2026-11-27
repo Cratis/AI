@@ -13,7 +13,7 @@ by the recipe and check disk capacity before packing or building images.
 On an ephemeral agent host, use an absolute ignored workspace directory:
 
 ```bash
-export CRATIS_LOCAL_FEED=/absolute/workspace/.ai-work/local-feed
+export CRATIS_LOCAL_FEED="$scratch/local-feed"  # scratch is an absolute path to ignored storage
 # No CRATIS_LOCAL_RUN is needed when this host has no queue wrapper.
 stamp=$(bash "$local" stamp "$producer")
 ```

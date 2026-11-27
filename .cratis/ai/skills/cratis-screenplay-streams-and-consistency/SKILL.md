@@ -14,27 +14,19 @@ lives only in code, or only in a description, is a finding, not a solution.
 
 **First append into a scope is not checked by default.** The optimistic strategy compares the scope's tail sequence number; with no matching event yet there is no tail, so two writers opening the same source can both succeed. A concurrency scope alone does not protect "only one writer may open this": enable `ConcurrencyOptions.CheckFirstAppendIntoAScope` or `ExpectingNoMatchingEvent()`, or use a unique event constraint. Treat the default as unchecked until target evidence shows otherwise. Read [references/consistency-and-concurrency.md](references/consistency-and-concurrency.md) ("First append into a scope") for the options and the evidence to require.
 
-## Product sources
-
-Read [references/product-sources.md](references/product-sources.md) when checking a rule against the Screenplay, Chronicle, Arc or Stage sources.
-
 ## When / when not
-- Use: choosing `identifier` and `for`; adding or naming a `constraint`; a rule that depends on
-  earlier state; "can two people do this at once?"; retries and duplicate requests; splitting or
-  merging streams, events or modules; adding, renaming or re-meaning an event; who owns which
-  interface; reviewing collection- or log-shaped streams.
-- Not for: projection and query syntax, reactions and captures, writing the specifications
-  themselves (`cratis-screenplay-scenario-coverage`), Chronicle C# mechanics
-  (`cratis-chronicle-event-modeling`). See Route near misses.
-- Apply model-first per `cratis-screenplay-modeling-lifecycle`; never weaken
-  authorization, `pii` or rules to compile.
+
+- Use for stream identity, invariants, retries and races, splitting or merging streams, events or
+  modules, changing an event’s meaning, and reviewing collection- or log-shaped streams.
+- Not for projection syntax, reactions or captures; see Route near misses. For outcome specifications, use [cratis-screenplay-specify-outcome](../cratis-screenplay-specify-outcome/SKILL.md).
+- When an accepted model covers the change, change the model first; never weaken authorization, `pii` or rules to compile.
 
 ## Interview phase
 Read [interview prompts](references/interview-batch.md) when identity, competition,
 retry, ownership, growth or stored-event history is unsettled. Ask only missing
 questions, one at a time; ownership options are in `references/boundaries.md`.
 Unattended work takes the conservative option and marks it `ASSUMED` in model
-`documentation` and `.ai-work/screenplay/<model-slug>/STATE.md`.
+`documentation` and the model’s `STATE.md` in the ignored scratch folder.
 
 ## Procedure
 1. **Establish identity and membership.** For every `concept XId` used as an `identifier`, write
@@ -46,12 +38,10 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
    namespace, process-stream routing and concurrency scope apart
    (`references/chronicle-boundaries.md`). Declared `eventsource`/`stream`/`streamId` and
    command/specification routes bind and reference-execute as ESM v8.
-   The CLI (toolchain `references/renderable-subset.md`) reaches Stage construct checks through its bundled ceiling; keep the routing
-   contract when target admission requires gap-fill. Forms/boundaries:
-   toolchain `references/sources-and-streams.md`. A `generated identifier` (ESM v7; Stage renders supported UUID/String strategies and v15 freshness; unsupported types/results still refuse -028/-038) is
-   generated fresh on every acceptance: it is not a retry identity, and generated values give no
-   idempotency, retry or deduplication guarantee. When a retry must find the same stream, the caller
-   supplies the identifier before the first attempt.
+   The CLI’s bundled compiler must admit the model before Stage checks route support; keep the routing
+   contract when target admission requires gap-fill. A `generated identifier` (ESM v7; Stage renders supported UUID/String strategies and v15 freshness; unsupported types/results still refuse -028/-038)
+   is generated fresh on each acceptance. It gives no retry or deduplication guarantee; when
+   retries must find the same stream, let the caller supply the identifier before the first attempt.
 2. **Account for every invariant.** One row per rule in the table from
    `references/consistency-and-concurrency.md`: rule, authoritative inputs, all paths that can
    affect it, intended atomic decision point, exact construct, status (`enforced` / `recorded` /
@@ -59,8 +49,10 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
    - only the command's own inputs: concept `validate`, command `validate`/`require`;
    - supported uniqueness and exclusion/release rules: a named `constraint` (`unique ... on`,
      `unique event`, `released by`); list every event that sets the claimed value;
-   - a state-dependent rule not reducible to those: write `reads <View>` + `require <expr>
-     message "..."` as stated intent (PLAY0268/0271 at binding are expected in design mode) and
+   - an eligible state-dependent command rule: use `command reads protected` with
+     `reads <View>` and `require`; check renderer admission separately. For a legacy or refused
+     rule, write the `reads` and `require` as stated intent (PLAY0268/0271 at binding are
+     expected in design mode) and
      mark it **NOT enforced in the model today** in the slice `description` with the named target,
      and record requirement, missing guarantee and race consequence in the slice `documentation`. Add a `STATE.md` row
      with an owner. A general "some rules are unsupported" note is not enough.
@@ -68,7 +60,7 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
      (`confirmsX == true`) standing in for a rule, and rules hidden in `handler` or
      implementation-hint prose. An unguarded materialized read is unsafe for a protected
      decision; that is not "read models never drive decisions". See
-     `../cratis-chronicle-decision-reads/references/choosing-how-a-rule-holds.md`.
+     [cratis-chronicle-protect-decision](../cratis-chronicle-protect-decision/SKILL.md).
 3. **Play the races and retries.** For each enforced or recorded rule write the concurrent case
    (two commands at once), the retry case (same request again after a lost reply) and the
    duplicate case (same intent, new id). State the outcome and which construct produces it.
@@ -83,12 +75,10 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
    and protected payload. A stream identity and an event's data subject may differ:
    trailing event-property `subject` records that lineage but is report-only
    (PLAY0270), not runtime propagation or generated C# `[Subject]`. Without a
-   supplied subject, the runtime defaults to the event source; see command-surface
-   `references/compliance.md` for allowed types and the policy/encryption distinction.
-5. **Plan evolution**: read `references/evolution.md` before editing stored contracts
-   for change classification, compatibility scenarios and enum-number safety.
-   After release-baseline admission, revisions need `newGeneration`. Identity-affecting edits belong to the
-   identity owner (`cratis-screenplay-modeling-lifecycle`).
+   supplied subject, the runtime defaults to the event source. For stored personal data, use [cratis-chronicle-protect-personal-data](../cratis-chronicle-protect-personal-data/SKILL.md).
+5. **Plan evolution.** Read [event evolution](references/evolution.md) before editing stored
+   contracts, for change classification, compatibility scenarios and enum-number safety.
+   After release-baseline admission, revisions need `newGeneration`. The owning session handles identity-affecting edits using [cratis-screenplay-edit-workspace](../cratis-screenplay-edit-workspace/SKILL.md).
 6. **Test ownership and interfaces** with `references/boundaries.md`: ownership interview,
    interface and processor inventory, one real interaction walked across each boundary, coupling
    check. Keep team, module, stream and deployment boundaries distinct; inbound facts via
@@ -98,11 +88,12 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
    decisions and capability gaps in `STATE.md`. Then the gate below.
 
 ## Rules
-**Compiler contracts** (diagnostics; capability per tool in the toolchain `references/executable-subset.md`)
+
+**Compiler contracts** (diagnostics; check binding and renderer admission separately)
 - `identifier` on an event property is PLAY0019; the source id is never payload by declaration.
   Copying it as a payload value is PLAY0469 (information, warning for inline events);
   for a possibly stored contract, retire it as an evolution draft with `propose-property`
-  `remove` + `newGeneration: true`, not by editing the event in place (model-authoring [property planning](../cratis-screenplay-model-authoring/references/property-links.md#remove-from-an-inline-event)).
+  `remove` + `newGeneration: true`, not by editing the event in place. Use [cratis-screenplay-edit-workspace](../cratis-screenplay-edit-workspace/SKILL.md) for typed edits.
 - In the executable model a production's `for` must resolve to the command's scalar identifier:
   one command writes one stream declaratively; described handlers bind v23 but
   their payload-only contract does not grant arbitrary destinations.
@@ -114,13 +105,12 @@ Unattended work takes the conservative option and marks it `ASSUMED` in model
 - Application-root `command reads protected` admits eligible reads and single-level
   requirement/mapping paths (v25). Absence rejects, matching decide/commit changes
   conflict. Legacy reads remain PLAY0271/PLAY0268; `concurrency` remains unbound and
-  combining it with protected reads is PLAY0783. Read
-  [protected reads](../cratis-screenplay-command-surface/references/protected-reads.md)
-  for admission and protected-read rendering (Stage 4.138.0; STAGE-ESM-044 otherwise; the v25 pair itself is admitted). `description` text never reaches rendered code: a rule that lives only in prose is
-  unenforced there.
+  combining it with protected reads is PLAY0783. Stage rendering requires 4.138.0 or later
+  (STAGE-ESM-044 otherwise); the v25 pair itself is admitted. A rule that lives only in
+  `description` text is unenforced in rendered code.
 - `pii` and `secret` bind as ESM v13;
-  enum/identity compliance and protected events with explicit subject marks still
-  refuse PLAY0268 (command-surface `references/compliance.md`). Legacy markers are
+  enum/identity compliance and protected events with explicit subject marks still refuse PLAY0268.
+  Legacy markers are
   deprecated (PLAY0565). Never remove protection to pass a tool. PLAY0515 also refuses
   scalar/composite stream-id types and route mapping sources, including nested paths.
 - Stream-id literals must be nonempty NFC text; composite ids use at least two named scalar parts; PLAY0504 is an error for route/destination type mismatch; a stored stream name exactly `All` (and a stored source name exactly `Default`) is refused with PLAY0802, including via an `id` pin (rename via `propose-rename`; a pin away from `All` is valid). Read [references/stream-id-rules.md](references/stream-id-rules.md) when choosing stream-id types, literals, composite ids or renaming a stream.
@@ -145,16 +135,7 @@ Requires Chronicle 19.59.6 or later (19.59.3 for the InMemory provider) for the 
 - Copy the source id into the payload only when a consumer needs it as a value.
 - Give each invariant an authoritative atomic decision point and inspect every path that could
   violate it. A constraint violation rejects that command's whole append set; a reaction cascade
-  is not one transaction. Declared semantics are not a passed concurrency test.
-- New models declare `reaction batches atomic`: direct productions per trigger
-  occurrence and each selected refusal branch are separate batches; invoked commands
-  stay independent. Legacy absence retains per-fact appends. The reviewed Stage
-  executes semantic atomic batches and renders bounded event-only batches;
-  multiple same-event production triggers and routed productions still refuse
-  STAGE-ESM-043. The live Host rolls back the whole initiating command on failure,
-  while the specification executor retains earlier successful units. Read
-  [atomic boundaries](../cratis-screenplay-captures-and-reactions/references/atomic-batches-and-source-mappings.md)
-  when defining failure rollback; batching is not redelivery deduplication.
+  is not one transaction. For rollback and reaction batching (not redelivery deduplication), use [cratis-screenplay-model-automation](../cratis-screenplay-model-automation/SKILL.md).
 - Match duplicate protection to scope. A property constraint lets a source re-claim its own
   value; use `unique event` for a fact that is genuinely once-only in its lifecycle, without
   blocking legitimate repeated operations just to make retries safe.
@@ -181,7 +162,7 @@ Do not report done until all hold; otherwise report what is open:
   missing guarantee, race consequence and intended enforcement owner in the slice `documentation` and `STATE.md`.
 - Every changed event has compatibility scenarios; identity changes were made by the identity owner.
 - Every changed boundary has a named owner (or `ASSUMED`), callers, processors and contracts.
-- Verdicts are stated V1-V5 per `cratis-screenplay-modeling-lifecycle`, each a result or "not run".
+- Report the compiler result (warnings as errors), executable diagnostics, binding, reference specifications, and delivery (admission, publication, build and tests) separately, naming the tool/version or why a check did not run.
 
 ## Verify
 - Run the compile check on the model (V1, warnings as errors) and state the tool and version;
@@ -197,8 +178,3 @@ Do not report done until all hold; otherwise report what is open:
 
 ## Route near misses
 Read [references/neighbouring-skills.md](references/neighbouring-skills.md) when the work is grammar, Chronicle C# compliance, reactions, slice design, review or rendering rather than stream and consistency decisions.
-
-## Lineage
-Adapted in part from TrogonStack/agentskills (MIT); attribution and provenance entries are in
-`references/provenance.md`; the notice is in `LICENSE`.
-Read `references/provenance.md` when checking attribution, licenses or the origin of an adapted modeling practice.

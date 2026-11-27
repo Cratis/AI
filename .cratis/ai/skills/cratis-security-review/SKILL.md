@@ -21,17 +21,14 @@ first.
 | `Cratis.Chronicle` | `[Encrypted]` in `Cratis.Chronicle.ProtectedValues`; analyzers `CHR0052`, `CHR0053` |
 | `Cratis.Arc.Core` | Authorization filters, `CommandResult.Unauthorized` |
 
-Every Arc check is cited in references/arc-boundaries.md.
-
 Reverify against the owning product repository before asserting a framework
 guarantee this file does not already state.
 
 ## When to run this review without being asked
 
-The orchestrating agents and the PR-review prompt run it unconditionally as the
-last gate. When you are shipping directly — one agent, one branch — run it
-yourself before committing whenever the diff **adds or removes** a line carrying
-any of: `[Roles]`, `[Authorize]`, `[AllowAnonymous]`, `[ExecuteCommandsAsSystem]`;
+In an orchestrated or PR review, always run security as the final review gate.
+When working directly, run it before committing whenever the diff **adds or
+removes** a line carrying any of: `[Roles]`, `[Authorize]`, `[AllowAnonymous]`, `[ExecuteCommandsAsSystem]`;
 `[PII]`, `[Subject]`, `[NotAudited]`; `useIdentity`; or a secret-shaped identifier
 (`ConnectionString`, `PrivateKey`, `Bearer`, `Password`, `ApiKey`, `AccessToken`).
 Added *or removed* matters: a deleted `[PII]` or `[Roles]` is the change most
@@ -45,11 +42,10 @@ command's properties as well as grepping them.
 
 - General correctness and maintainability: use `cratis-code-review`.
 - Scalability and resource use: use `cratis-performance-review`.
-- Implementing authentication, authorization or identity: use
-  `cratis-arc-authentication-authorization-and-identity`. This skill reviews;
-  it does not build.
-- Compliance mechanics — `[PII]`, subject resolution, erasure, redaction: use
-  `cratis-chronicle-compliance`.
+- Implementing request authorization or tenant isolation: use
+  `cratis-arc-authorize-request` or `cratis-arc-isolate-tenant` from `cratis/application`.
+- Implementing personal-data protection or erasure: use
+  `cratis-chronicle-protect-personal-data` from `cratis/application`.
 
 ## Step 1 — Event sourcing: the permanent-record checks
 
@@ -61,13 +57,10 @@ command's properties as well as grepping them.
   command input on the causation chain.
   `ARCCHR0009` catches properties whose *names* read as secrets — so read the
   properties whose names do not say what they hold, because the analyzer cannot.
-- **Personal data is `[PII]` alone, a secret is `[Encrypted]` plus `[NotAudited]`.**
-  They are different mechanisms with different consequences: `[NotAudited]`
-  withholds a value from the causation chain; `[Encrypted]` encrypts it at rest
-  without erasure; `[PII]` encrypts, enrolls it in per-subject erasure and
-  withholds it. A third-party API key is `[Encrypted]` + `[NotAudited]`. An email address is
-  `[PII]`. A password is stored as a hash, never as a retained secret. Never combine `[PII]` with `[Encrypted]` (`CHR0053`), and neither goes
-  on an event-source id (`CHR0034`, `CHR0052`).
+- Flag personal data that does not use subject protection; encryption alone
+  does not enroll a value in erasure. Never combine
+  `[PII]` with `[Encrypted]` (`CHR0053`), and neither goes on an event-source id
+  (`CHR0034`, `CHR0052`).
 - Credentials used for authentication (passwords, bearer or session tokens) are never stored; keep a hash or a reference. An operational secret the system must retain and use (a third-party API key, a company's bank account number) is stored only as an `[Encrypted]` + `[NotAudited]` concept, and never in a read model returned to clients in plaintext.
 - Event-source ids are generated server-side, never accepted from an untrusted
   client where the id grants access to a stream.
@@ -129,7 +122,13 @@ command's properties as well as grepping them.
 
 ## Step 7 — Report
 
-Read and use `.cratis/ai/rules/review-reports.md` when writing the report.
+Write the report in this order: **Blockers**, **Suggestions**, **Dismissed (with reason)**
+and **Verdict**. Write `None` for empty sections. Include a **Not examined:**
+line naming unreviewed surfaces, ranges and checks. For each blocker, give its
+evidence, concrete consequence and proposed correction.
+Use **Changes requested** for a blocker, **Incomplete** if required evidence is
+missing without a blocker, **Approved with suggestions** for non-blocking findings
+after required checks, and **Approved** when required checks are complete with no findings.
 Keep the security risk label on each finding:
 
 | Risk | Shared classification |
@@ -138,9 +137,10 @@ Keep the security risk label on each finding:
 | **Medium** | Suggestions: conditional exposure; state what makes it non-critical |
 | **Low** | Suggestions: defense-in-depth improvement |
 
-Use the shared verdict vocabulary, not a separate security verdict. If a
-conditional exposure must be corrected before merge, classify it as Critical
+If a conditional exposure must be corrected before merge, classify it as Critical
 and explain the exploit conditions rather than leaving a blocker under Medium.
+A security blocker needs a fix and re-review or an explicit, recorded decision
+from the person who owns the risk; never downgrade it to advisory.
 
 ## What breaks
 

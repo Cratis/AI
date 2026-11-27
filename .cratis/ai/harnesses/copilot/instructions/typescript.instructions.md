@@ -53,61 +53,20 @@ Each type gets its own file because it makes the codebase navigable — finding 
 
 ## User-facing strings (localization)
 
-How user-visible text is handled is **product policy, not a Cratis framework rule** (see [general.md](../../../rules/general.md) — locales belong in a downstream app's own `.cratis/ai/`). Cratis itself has no mandatory i18n layer or `Strings` alias.
+How user-visible text is handled is **product policy, not a Cratis framework rule**: locales belong in a downstream application's own rules. Cratis itself has no mandatory i18n layer or `Strings` alias.
 
 - If the app has a localization convention (e.g. a translation object behind a `strings`/`Strings` import, or any i18n library), follow it consistently and keep raw string literals to constant, non-user-facing values (CSS class names, `key` props, internal identifiers).
 - If the app ships literal text, literal labels in JSX are fine.
 
 Either way, the Cratis-generic rule is only that strings are handled consistently within the app — not a specific file layout or import alias.
 
-## Arc Frontend Patterns
+## Arc proxies
 
-Arc's proxy generator bridges C# and TypeScript automatically — every `[Command]` and `[ReadModel]` becomes a TypeScript class with `.use()` hooks, `.execute()` methods, and change tracking. This is the foundation of full-stack type safety: change a C# record and the TypeScript proxy updates on the next `dotnet build`.
-
-### Commands
-
-Auto-generated from C# `[Command]` records. The `.use()` hook returns a tuple: the command instance (with change tracking) and a setter for property values.
-
-```tsx
-const [command, setValues] = OpenAccount.use({ name: '', owner: '' });
-await command.execute();       // Sends command to backend, returns CommandResult
-await command.validate();      // Pre-flight validation only, no side effects
-command.hasChanges;            // True when any property differs from initial values
-command.revertChanges();       // Reset all properties to initial values
-```
-
-### Queries
-
-Auto-generated from C# `[ReadModel]` static query methods. Observable queries (returning `ISubject<T>` on the backend) auto-subscribe via WebSocket — the component re-renders when data changes on the server.
-
-```tsx
-const [result, perform] = AllProjects.use();
-// result.data — the query result
-// result.isPerforming — true while loading
-// result.hasData — true when data has arrived
-// result.isSuccess — true when query completed without errors
-```
-
-Paginated queries — the tuples differ, so skip the right number of slots:
-```tsx
-// Plain query: [result, perform, setSorting, setPage, setPageSize]
-const [result, , , setPage] = AllProjects.useWithPaging(10);
-
-// Observable query has no perform: [result, setSorting, setPage, setPageSize]
-const [liveResult, , setLivePage] = ObservedProjects.useWithPaging(10);
-```
-
-### CommandScope
-
-Wraps multiple command-using components, aggregating their `hasChanges` state and enabling bulk `execute()` and `revertChanges()`. Useful for forms that span multiple components.
-
-### CommandForm
-
-Declarative form component with built-in field types, validation timing (`validateOn: blur|change|both`), and automatic server-side validation feedback.
+Generated command and query proxies, their hooks, paging and forms are covered by **cratis-arc-react-bind-slice** and **cratis-arc-generate-proxies** where those skills are installed. Never edit a generated proxy by hand: change the backend type and regenerate.
 
 ## Language — American English Only
 
-All identifiers, comments, JSDoc, and string literals must use **American English** spelling (initialize, serialize, behavior, color, organization, center, modeling, dialog, license, judgment, gray). See [general.md](../../../rules/general.md) for the full guidance.
+All identifiers, comments, JSDoc, and string literals must use **American English** spelling (initialize, serialize, behavior, color, organization, center, modeling, dialog, license, judgment, gray).
 
 ## Variables and Naming
 

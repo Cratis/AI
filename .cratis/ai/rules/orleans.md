@@ -10,7 +10,7 @@ paths:
 > **⚠️ APPLIES ONLY TO PROJECTS USING MICROSOFT ORLEANS**
 > If your project does not reference `Microsoft.Orleans` or any Orleans packages, **ignore this entire file**. These rules are irrelevant outside of Orleans contexts.
 
-In the Cratis organization, Orleans is the Chronicle kernel's actor runtime (`Source/Kernel/`). The kernel conventions below are verified against `Cratis/Chronicle` **v19.50.0**. Shared hosting and jobs come from `Cratis/Choreography`; use `Cratis.Choreography` 2.0.0 or newer (renamed from `Cratis.Orleans`); use its setup for other services that co-host a silo.
+In the Cratis organization, Orleans is the Chronicle kernel's actor runtime. The kernel conventions below describe `Cratis/Chronicle` 19.50.0 and later. Shared hosting and jobs come from `Cratis/Choreography`; use `Cratis.Choreography` 2.0.0 or newer (renamed from `Cratis.Orleans`); use its setup for other services that co-host a silo.
 
 ## General
 
@@ -20,7 +20,7 @@ In the Cratis organization, Orleans is the Chronicle kernel's actor runtime (`So
 
 ## Grain storage providers
 
-- Storage provider names are constants in `WellKnownGrainStorageProviders` (`Kernel/Core`), **one name per concern** — 23 of them at v19.50.0 (`Namespaces`, `EventSequences`, `ObserverDefinitions`, `ObserverState`, `FailedPartitions`, `Recommendations`, `Projections`, `ProjectionsManager`, `ProjectionFutures`, `Reactors`, `Reducers`, `ReducersManager`, `ReadModels`, `ReadModelsManager`, `ReadModelReplayManager`, `Constraints`, `EventStoreSubscriptionsManager`, `EventSeeding`, `Webhooks`, `WebhooksManager`, `DataProtectionKeys`, `PatchManager`, `System`). Reference a provider only through its constant — never a magic string, and there is no "default" provider.
+- Storage provider names are constants in `WellKnownGrainStorageProviders` (`Kernel/Core`), **one name per concern** — 23 of them in 19.50.0 (`Namespaces`, `EventSequences`, `ObserverDefinitions`, `ObserverState`, `FailedPartitions`, `Recommendations`, `Projections`, `ProjectionsManager`, `ProjectionFutures`, `Reactors`, `Reducers`, `ReducersManager`, `ReadModels`, `ReadModelsManager`, `ReadModelReplayManager`, `Constraints`, `EventStoreSubscriptionsManager`, `EventSeeding`, `Webhooks`, `WebhooksManager`, `DataProtectionKeys`, `PatchManager`, `System`). Reference a provider only through its constant — never a magic string, and there is no "default" provider.
 - Each concern has its own `IGrainStorage` implementation (`EventSequencesStorageProvider`, `NamespacesStateStorageProvider`, …) taking the kernel's `IStorage` abstraction — **not** a MongoDB collection. The storage backend (MongoDB, SQL, in-memory) is selected behind `IStorage`, so a grain storage provider never references a database driver.
 - Every provider is registered once, in `StorageProviderExtensions.AddStorageProviders(this ISiloBuilder)`, as a keyed singleton wrapped in `ResilientGrainStorage` (a Polly resilience pipeline configured from `Chronicle:ResilientStorage`). A new concern adds a constant, an `IGrainStorage` over `IStorage`, and one `AddKeyedSingleton(WellKnownGrainStorageProviders.<Name>, CreateResilientStorageFor<…>)` line there — nothing else.
 - Grains declare their state with `[PersistentState(nameof(<StateType>), WellKnownGrainStorageProviders.<Name>)]`.

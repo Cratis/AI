@@ -1,12 +1,43 @@
 # Compatibility
 
-Maintainer reference for the product releases the AI corpus is checked against. Skills do
-not carry these versions: they describe behavior, and an agent reads the exact pins from
-the tool or the rendered output it is working with. Update a table when the corpus is synced
-to a new release (see [product-sync.md](./product-sync.md)); `Source/Verification/pin-restatements.ts`
-parses the CLI and scaffold tables below and fails when a skill restates a current pin.
-`Source/Verification/play/fences.ts` (`pinnedVersion`) reads the standalone Screenplay row, which
-CI installs and which must match `references/screenplay-contract.version` in the toolchain skill.
+The product releases the v2 platform skills were checked against. Profile-scoped engineering and specialist skills may cover other tools or releases; this table does not certify vendored skills against every listed SDK. Skills describe behavior and do not repeat these versions; an application uses the versions it has installed. A skill that needs a later release says so where it matters.
+
+## Product releases
+
+| Product | Release | Packages |
+| --- | --- | --- |
+| Arc | 24.9.0 | `Cratis`, `Cratis.Arc.*`, `@cratis/arc`, `@cratis/arc.react` |
+| Chronicle | 19.184.3 | `Cratis.Chronicle`, `.AspNetCore`, `.Testing`, the `cratis/chronicle` image |
+| Components | 4.63.1 | `@cratis/components` |
+| Fundamentals | 7.34.5 | `Cratis.Fundamentals`, `@cratis/fundamentals` |
+| Specifications | 5.3.0 | `Cratis.Specifications.XUnit.v3` (with `xunit.v3` 4.0.2) |
+| Screenplay | 7.0.0 | The standalone Screenplay tool and MCP server the modeling and Screenplay skills author against |
+| Cratis CLI | 3.154.2 | `Cratis.Cli`: scaffolding, diagnostics and `cratis render`. It bundles Stage renderer 6.4.1 and Screenplay 6.37.0, which admit a model separately from the standalone tool. |
+| Templates | 1.9.2 | `Cratis.Templates`: the C# full-stack application template. `Cratis.Templates.Extensions`: the Stage extension scaffold |
+| Stage extensions | 5.30.0 | `Cratis.Stage.Extensions` with a Stage 5.30.0 host, C# backend on `net10.0`. The extension template requires Stage 5.x, not the 6.4.1 renderer the CLI bundles |
+| release-action | 1.5.2 | `cratis/release-action` batching, as described by `cratis-platform-prepare-release-pr` |
+
+The compiled examples in `Evaluations/corpus-v2/examples` pin the Arc, Chronicle, Fundamentals and Specifications rows and target .NET 10 or .NET 11. The CLI and the standalone Screenplay tool run on .NET SDK 11.0.100. Moving a row means rebuilding those examples and rereading the skills that teach the changed surface.
+
+## Managed installation
+
+Use the CLI release that filters Copilot instruction copies for profile-scoped Copilot installs. It installs copies only for selected rules. The Cratis CLI row above is the release checked for the product commands, not the installer requirement.
+
+## Native SDKs
+
+`cratis-arc-select-backend-sdk` and `cratis-chronicle-select-client` name these releases. Each SDK versions independently of the .NET packages and of `@cratis/arc`, the generated browser client. A row records what was checked; it does not claim feature parity with .NET or that the release is the newest.
+
+| SDK | Release | Package |
+| --- | --- | --- |
+| Arc for TypeScript | 1.0.0 | npm `@cratis/arc.core` |
+| Arc for Java and Kotlin | 7.11.1 | Maven Central `io.cratis:arc-spring-boot-starter` |
+| Arc for Elixir | 1.4.10 | Hex `cratis_arc` |
+| Arc for Go | 0.1.4 | `github.com/cratis/arc.go` |
+| Chronicle contracts for Java and Kotlin | 19.184.3 | Maven Central `io.cratis:chronicle-contracts` |
+| Chronicle contracts for Elixir | 19.184.3 | Hex `cratis_chronicle_contracts` |
+| Chronicle contracts for TypeScript | 19.184.3 | npm `@cratis/chronicle.contracts` |
+| Chronicle contracts for Python | 19.184.3 | `cratis-chronicle-contracts`, built from the Chronicle source at that tag; the release publishes no wheel |
+| Chronicle for Go | 0.17.0 | `github.com/cratis/chronicle.go`, used only as an offline generated-message example. Its kernel tests and decision support target Chronicle 19.153.0, so it is not checked against 19.184.3 |
 
 ## Standalone Screenplay tool
 
@@ -14,87 +45,4 @@ CI installs and which must match `references/screenplay-contract.version` in the
 | --- | --- |
 | Screenplay language, standalone tool and MCP | **6.43.0** |
 
-The published `screenplay-contract.json` beside the toolchain skill's references is byte-identical to
-this release's contract, and `screenplay-contract.version` names the same version.
-
-## Bumping the Screenplay pin
-
-To sync the corpus to a reviewed Screenplay release, install workspace dependencies,
-then run from the repository root with the release's `X.Y.Z` version:
-
-```sh
-yarn workspace @cratis/ai-verification run bump <version>
-```
-
-The command uses the authenticated GitHub CLI to download the release's
-`screenplay-contract.json`. To use an already downloaded asset instead, add
-`--contract <path>`. It validates the version, contract schema and compatibility
-row before updating the contract JSON, `screenplay-contract.version` and the
-standalone Screenplay row above together. The asset's formatting is preserved.
-
-Install the newly pinned tool and check the corpus before committing:
-
-```sh
-yarn workspace @cratis/ai-verification run tool:screenplay
-yarn workspace @cratis/ai-verification run verify
-yarn workspace @cratis/ai-verification run test
-```
-
-Resolve any findings, including flagged entries in `pin-restatement-exceptions.json`
-or `screenplay-contract-exceptions.json`. The bump changes the pin; it does not
-update examples or establish product coverage automatically.
-
-The scheduled or dispatched Publish `screenplay-sync` job compares newer contracts
-and maintains an issue labeled `screenplay-sync`. Drift produces a run warning and
-job summary, not a failed run; download, parse and GitHub failures still fail the job.
-Release verification uses the committed pin, independently of this advisory comparison.
-
-## Cratis CLI
-
-| Item | Value |
-| --- | --- |
-| Release | cratis CLI `3.74.0` |
-| Bundled Stage (renderer and sandbox image) | `4.135.0`, `cratis render` admits ESM v1 to v26 |
-| Bundled Screenplay compiler | `4.201.0`, binds through ESM v26 |
-| Bundled Screenplay.Generation / CritterStack / Prologue | `0.18.0` / `0.24.0` / `2.0.0` |
-| Bundled Cratis.Arc.Screenplay (generator package) | `22.54.0` |
-| Bundled Chronicle / Fundamentals | `19.56.0` / `7.22.8` |
-
-## Stage rendered-application scaffold
-
-The pins Stage `4.103.0` writes into a rendered application. Its semantic renderer admits exact ESM v1–v17 and v19 pairs, not v18 or v20. Moving them is a Stage release; a
-re-render under a newer Stage is how a rendered application changes them.
-
-| Item | Value |
-| --- | --- |
-| Target framework | .NET 10 (`net10.0`), `Microsoft.NET.Sdk.Web` |
-| Arc packages (`Cratis`, `Cratis.Arc.MongoDB`, `Cratis.Arc.Chronicle.Testing`) | `22.88.0` (includes invocation refusal handling; Stage still refuses mixed reactions because redelivery can duplicate the appended events) |
-| Chronicle client | `Cratis.Chronicle`, `.AspNetCore` and `.Testing` `19.64.1`, matched to the `cratis/chronicle:19.64.1-development` image in the compose file |
-| Test packages | `Cratis.Specifications` and `.XUnit` 4.1.1, Microsoft.NET.Test.Sdk 18.10.1, NSubstitute 6.2.0, xunit 2.9.3, xunit runner 4.0.0; Debug configuration only |
-| Frontend | Vite 8.3.0 and React 19.3.0; `@cratis/arc`, `arc.react`, `arc.vite` 22.58.2; `@cratis/components` 4.26.2; `@cratis/scene.*` 4.22.1; `@cratis/fundamentals` 7.22.8 |
-
-The Scene family pin applies to six scaffold dependencies: `@cratis/scene.blueprint.default`,
-`@cratis/scene.components`, `@cratis/scene.engine`, `@cratis/scene.model`,
-`@cratis/scene.primereact` and `@cratis/scene.react`. The newest Components release the
-corpus has verified does not change the scaffold's Components pin.
-
-## Screens release vector
-
-The public vector the screens guidance was executed against. The skills state the behavior;
-this section is the maintainer record of what was run.
-`Source/Verification/screenplay-screen-authoring.spec.ts` asserts these values, and compares
-the smoke pin in `Source/Verification/screens-smoke/screens-smoke.json` with the **Smoke CLI**
-row so the smoke and the recorded vector cannot drift apart.
-
-| Item | Value |
-| --- | --- |
-| Smoke CLI | CLI 3.53.1 (live browser run with `cratis/stage:4.73.1`; guarded Close and double click run since Stage 4.65) |
-| Shell CLI | CLI 3.67.0 (bundles `cratis/stage:4.119.1`, Screenplay 4.180.1): the smoke renders `screens-smoke/shell/application.play` - regions that inherit, extend and override, a toolbar button that starts a State Change slice, a sample data pack - and requires the navigation targets and the toolbar slice in `scene.json` and no sample data in the generated application (the fixture is the CLI's own `Integration/Cli/Shell`, Cratis/cli#374) |
-| Executed vector | CLI 3.43.0 (`23e5a24`), default runtime `cratis/stage:4.52.0`, bundled Screenplay 4.127.0, Scene 4.15.0 (Scene 4.17.0 was the earlier verified scaffold tag) |
-| Render-then-recover and rejection codes | `CLI-RENDER-007` to `-010`, shipped in CLI 3.41.0 (Cratis/cli#301) |
-| MCP edit transcript | 9 requests and 9 responses, column on disk, render `published` with the column in `scene.json` |
-| Edited-application browser check | all five browser checks passed against `cratis/stage:4.52.0` |
-
-## Third-party skills
-
-The `pvanalyze` skill pins its published tool package in its own `assets/dotnet-tools.json` (the pin is the single source for the version) and needs a `Microsoft.NETCore.App` 10.x runtime. The `migrate-dotnet10-to-dotnet11` skill's references are an imported checklist of known breaking changes, not the exhaustive .NET 11 compatibility contract; each skill's `NOTICE` records the upstream revision.
+CI installs this release for the standalone Screenplay check, which is older than the 7.0.0 the skills were checked against; `Source/Verification/play/fences.ts` and `Source/ScreenplaySession/src/version.ts` read the row.

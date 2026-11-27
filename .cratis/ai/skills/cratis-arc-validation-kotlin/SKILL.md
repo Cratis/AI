@@ -12,13 +12,6 @@ client-side checks, and **ordinary imperative validators** that run only on
 the server. Pick shared rules first for anything literal enough to express
 that way; keep service calls, async work, and cross-member logic imperative.
 
-## Verified product sources
-
-Source: `Arc.Kotlin`. `io.cratis:arc` supplies `io.cratis.arc.validation.FluentModelValidator`,
-`CommandValidator<T>`, nongeneric `QueryValidator`, `ConceptValidator<T>`,
-`ModelValidator<T>`, `ConceptValidationExclusion`, `IgnoreValidation`,
-`CommandFilter`, `QueryFilter`. Sources: `queries/QueryValidator.kt`,
-`commands/CommandValidator.kt`, validation types and `guides/pipeline-filters.mdx`.
 
 ## Shared fluent rules — server and generated TypeScript
 
@@ -97,9 +90,7 @@ cratisArc {
 ```
 
 The Arc Gradle plugin wires the dependency index shared validation needs
-automatically. A manual KSP build must extract and pass that index itself —
-see the Arc.Kotlin `Documentation/reference/configuration.md` dependency
-extraction recipe before reaching for manual wiring.
+automatically. A manual KSP build must extract and pass that index itself; follow the dependency extraction recipe for the installed Arc Kotlin plugin.
 
 ### Opt a member out
 
@@ -307,13 +298,12 @@ exception result; it is not silently skipped.
 
 ## Route near misses
 
-- Defining the command or query the rule attaches to:
-  `cratis-arc-command-kotlin`, `cratis-arc-query-kotlin`.
+- Defining the command or query: [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md) and [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md).
 - In-process rule assertions and dependency pins: `cratis-arc-testing-kotlin`.
 - Authentication, identity and tenancy: `cratis-arc-identity-and-tenancy-kotlin`.
-- Append-time Chronicle uniqueness/concurrency: `cratis-chronicle-event-constraints`.
+- Append-time Chronicle uniqueness/concurrency: [cratis-chronicle-constrain-append](../cratis-chronicle-constrain-append/SKILL.md).
 - The C# Arc validation shape (`ConceptValidator<T>`, `CommandValidator<T>`,
-  Provide short-circuiting): `cratis-arc-command-validation`.
+  Provide short-circuiting): [cratis-arc-validate-command](../cratis-arc-validate-command/SKILL.md).
 
 ## Verify
 

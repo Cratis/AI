@@ -11,7 +11,7 @@ paths:
 Read and use **cratis-documentation-writing** to establish the reader's goal and
 page purpose, then **cratis-engineering-docs-authoring** to draft from product
 evidence. Before writing explanations beside examples, work through
-[Explaining code](../../../skills/cratis-engineering-docs-authoring/references/explaining-code.md).
+that skill's explaining-code reference.
 It shows how a concrete registration or directive can carry the explanation
 without making the page read like a review form. Read a current, well-reviewed
 tutorial in the product or a closely related product before writing, without

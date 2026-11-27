@@ -8,11 +8,11 @@ license: MIT
 
 A screenshot-grounded, severity-rated critique of a rendered UI against a stated user goal. Code that compiles, passes specs and follows the component rules can still have weak hierarchy, a missing empty or error state, unclear copy or inconsistent patterns. This skill looks at the result the way the user does.
 
-It reviews; it does not build. Implement fixes with **cratis-arc-react-page**, **cratis-components-styling** and the repository's own frontend rules, then return here for after-captures.
+It reviews; it does not build. Follow the repository’s frontend rules: use `cratis-arc-react-bind-slice` for page bindings or `cratis-arc-react-separate-view-model` for behavior (both in `cratis/arc/react`), and `cratis-components-theme-application` from `cratis/components` for theming. Return here for after-captures.
 
 ## Boundaries
 
-- Not a WCAG conformance claim. Accessibility risks seen in screenshots are reported as risks; keyboard, focus order, screen-reader names and measured contrast are verified separately (**cratis-components-accessibility**, a contrast checker or a DOM check) and otherwise marked UNVERIFIED.
+- Not a WCAG conformance claim. Accessibility risks seen in screenshots are reported as risks; keyboard, focus order, screen-reader names and measured contrast are verified separately (`cratis-components-accessibility` from `cratis/components`, a contrast checker or a DOM check) and otherwise marked UNVERIFIED.
 - Not a behavior specification. A finding that needs a behavior decision goes back to the model or the specs, not into this report.
 - Not request or data debugging. A screen that is blank because a request failed is a defect to hand to debugging, not a UX finding.
 - Not a visual-identity exercise. Judge the screen against the project's templates, tokens and type scale, never against a preferred style.
@@ -23,7 +23,10 @@ Ask for what is missing and stop until the goal is known; severity is anchored t
 
 1. **User goal and journey**: who the user is, what they are trying to finish, and the ordered screens or states of the journey.
 2. **Project rules**: the repository's frontend rules, page templates, state conventions, tokens and type scale. Read them before judging. Project rules win over this skill (see below).
-3. **Captures** produced by the `browser-operator` agent, following the permit, artifact and evidence rules of `.cratis/ai/rules/browser.md`. Hand it the URL or story, scope, permit and artifact directory; the main session does not drive the browser.
+3. **Captures** from the browser operator. Hand it the URL or story, permitted
+   actions, scope and artifact directory. The main session does not drive the
+   browser. If there is no authorized operator, ask for captures and mark
+   missing states UNVERIFIED.
 
 Capture matrix:
 
@@ -33,7 +36,7 @@ Capture matrix:
 | Theme | light and dark |
 | State | populated, empty, loading, error and validation, where the screen can reach them |
 
-Each capture records URL or story, build, viewport, theme, state and timestamp, and is saved under `.ai-work/<task>/browser/`. Use a local or staging copy; make no production writes and keep secrets and tokens out of captures, URLs and logs. A sign-in wall stops the run: record `UI UNVERIFIED — needs human sign-in` and review only what was captured.
+Each capture records URL or story, build, viewport, theme, state and timestamp, and is saved under the task’s ignored browser artifact directory. Use a local or staging copy; make no production writes and keep secrets and tokens out of captures, URLs and logs. A sign-in wall stops the run: record `UI UNVERIFIED — needs human sign-in` and review only what was captured.
 
 A state the matrix names but the captures lack is listed as a gap, never assumed fine.
 

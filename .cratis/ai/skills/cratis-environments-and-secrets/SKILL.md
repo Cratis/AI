@@ -8,9 +8,7 @@ license: MIT
 
 A Screenplay model is the same in every environment. What it needs to run (a client id, an SMTP
 host, a signing key) is not. A project keeps that in **named environments**, one committed file
-per environment next to the model, in the way a Pulumi project has stacks. Which keys a model
-needs is derived from its declarations: see
-[cratis-screenplay-authentication-and-onboarding](../cratis-screenplay-authentication-and-onboarding/SKILL.md).
+per environment next to the model. The keys the model needs come from its declarations.
 
 **Requires** `cratis` 3.114.0 or later for `cratis env` and `cratis config` (`cratis --version`,
 and `which -a cratis` for a shadowing copy). The commands do not exist in older releases.
@@ -19,9 +17,6 @@ This is not a Chronicle server context: `cratis context` and `-e/--event-store` 
 commands belong to `cratis-chronicle-cli-operations`.
 
 ## The secrets contract
-
-This skill applies the always-on [secrets rule](../../rules/secrets.md); read it first. For this
-CLI it means:
 
 - **A secret enters only through stdin or the hidden prompt.** Never as an argument (it lands in shell history and the transcript).
 - **An agent never runs `cratis config get <key> --show-secret`** and never prints a secret by
@@ -94,7 +89,7 @@ cratis run ./model -e development
 - `--requires` exits `5` while any key is missing, and when an extension is not restored, because its contract's settings cannot be known. `--missing` remains the narrower check.
 - `activation always` or `activation on demand [idle after <n> <unit>]` on the system overrides the extension contract's default; neither is an environment key.
 - A literal on a `secret` setting, an unknown setting, an unused secret and a duplicate mapping are errors (`PLAY0990` to `PLAY0997`).
-- Registry credentials for private extension packages are environment keys too: `extensions.registry.<host>.token`, or `.username` with `.password`, set as secrets. See [extension packages](../cratis-screenplay-extension-packages/SKILL.md).
+- Registry credentials for private extension packages are environment keys too: `extensions.registry.<host>.token`, or `.username` with `.password`, set as secrets. For authoring those packages, use [cratis-screenplay-author-extension](../cratis-screenplay-author-extension/SKILL.md).
 - `cratis run` hands the Stage the settings and secrets of the admitted extensions; read the CLI environments and `run` pages for details rather than assuming.
 
 ## Choosing a secrets provider
@@ -132,5 +127,5 @@ Requires cratis CLI 3.116.0 (`cratis --version`); older CLIs run the Stage alone
 ## Route near misses
 
 - Chronicle server contexts and operations: `cratis-chronicle-cli-operations`.
-- The model's `authentication` and `onboarding` blocks and their keys: `cratis-screenplay-authentication-and-onboarding`.
-- Running the application with the resolved values: `cratis-onboarding-runtime` (cluster) and `cratis-stage-rendering-and-sandbox`.
+- The model's `authentication` and `onboarding` blocks and their keys: cratis-screenplay-authentication-and-onboarding (`cratis/screenplay`).
+- Running the application with the resolved values: cratis-onboarding-runtime (`cratis/stage`) for the cluster; [cratis-stage-render-slice](../cratis-stage-render-slice/SKILL.md) for Stage rendering.

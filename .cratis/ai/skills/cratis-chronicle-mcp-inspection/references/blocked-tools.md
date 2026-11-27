@@ -7,11 +7,11 @@ Hand-maintained classification for `Cratis/Chronicle.Mcp`. These three
 tools are effectful, never `passive-allowed`; unknown subjects are
 `evidence-blocked`. All three are closed-world and declared idempotent.
 
-| Tool | Effect | Source |
-| --- | --- | --- |
-| `stop_job` | mutating, non-destructive; stops a job, retains state | [JobTools.cs](https://github.com/Cratis/Chronicle.Mcp/blob/main/Source/Tools/Jobs/JobTools.cs) |
-| `resume_job` | mutating, non-destructive; resumes a Stopped job's remaining steps | [JobTools.cs](https://github.com/Cratis/Chronicle.Mcp/blob/main/Source/Tools/Jobs/JobTools.cs) |
-| `delete_job` | mutating, destructive; removes the job and progress irreversibly | [JobTools.cs](https://github.com/Cratis/Chronicle.Mcp/blob/main/Source/Tools/Jobs/JobTools.cs) |
+| Tool | Effect |
+| --- | --- |
+| `stop_job` | mutating, non-destructive; stops a job, retains state |
+| `resume_job` | mutating, non-destructive; resumes a Stopped job's remaining steps |
+| `delete_job` | mutating, destructive; removes the job and progress irreversibly |
 
 Only the `Mutation` deployment profile registers these tools, and every call
 needs a current matching grant. A matching grant is not user confirmation:

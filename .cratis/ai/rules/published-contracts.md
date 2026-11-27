@@ -6,6 +6,7 @@ paths:
   - "**/*vectors*.json"
   - "**/*.proto"
   - "**/*.schema.json"
+profile: framework
 ---
 
 # Published contracts
@@ -13,10 +14,9 @@ paths:
 A published contract is a specification other repositories implement: a wire format, a
 protocol profile, or an authorization or trust-boundary specification, usually with
 conformance vectors. This rule applies when a change alters behavior at such a surface.
-Every line is tagged **[contract]** (binding) or **[convention]** (the house default) per
-the Three Levels of Authority in [`general.md`](./general.md). The router is the
-`general.md` "Where to Look" row; the rule loads by path, so look it up before editing
-source on a trust boundary or wire surface.
+Every line is tagged **[contract]** (binding) or **[convention]** (the house default).
+The rule loads by path, so read it before editing source on a trust boundary or wire
+surface that its globs do not match.
 
 - **[contract] Find the governing contract before changing the behavior.** Locate the
   published specification and its vectors for the surface (authentication, authorization,

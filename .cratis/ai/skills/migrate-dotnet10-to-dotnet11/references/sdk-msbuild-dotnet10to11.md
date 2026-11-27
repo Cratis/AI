@@ -23,4 +23,3 @@ Source: https://learn.microsoft.com/en-us/dotnet/core/compatibility/sdk/11/mono-
 **Impact: Low.** `dotnet publish --self-contained` previously always interpreted the flag as `true` regardless of the passed value. It now correctly parses the value (e.g., `--self-contained false` actually produces a framework-dependent publish).
 
 **Fix:** Review build scripts that pass `--self-contained` to ensure the intended value is correct.
-

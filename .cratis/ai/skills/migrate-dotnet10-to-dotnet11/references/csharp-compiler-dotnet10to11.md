@@ -162,4 +162,4 @@ List<string> names = [with(capacity: values.Count * 2), .. values];
 HashSet<string> set = [with(StringComparer.OrdinalIgnoreCase), "Hello", "HELLO"];
 ```
 
-This is the feature that causes the `with()` method call breaking change above. Whether to adopt it in Cratis code is decided by [csharp.md](../../../rules/csharp.md), not by this migration.
+This is the feature that causes the `with()` method call breaking change above. Whether to adopt it in Cratis code is decided by the `csharp` rule, not by this migration.

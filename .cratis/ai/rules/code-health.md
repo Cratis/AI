@@ -10,6 +10,7 @@ paths:
   - "**/*.java"
   - "**/*.ex"
   - "**/*.exs"
+profile: framework
 ---
 
 # Code Health floor
@@ -17,12 +18,13 @@ paths:
 Apply [criticality tiers](./criticality-tiers.md) first: score Tier A code and
 maintained Tier B code when CodeScene is available. Tier C requires no scoring or
 uplift. Without tools or an account, report that and continue; never block.
-MCP setup, approval-gated tools and tool-output handling: [codescene.md](./codescene.md).
+MCP setup, approval-gated tools and tool-output handling are in the `codescene` rule,
+installed with the `cratis/codescene` profile.
 
 ## The floor
 
 - In-scope code ends at Code Health **9.5 or higher**; new code aims for 10. A touched file never declines.
-- Uplift safely with behavior-preserving refactoring and specs. A narrow fix does not require unrelated legacy uplift. If 9.5 exceeds safe scope, report the gap and suggest a follow-up; do not widen the change.
+- Uplift safely with behavior-preserving refactoring; an uplift alone does not call for new specs. A narrow fix does not require unrelated legacy uplift. If 9.5 exceeds safe scope, report the gap and suggest a follow-up; do not widen the change.
 - Never refactor generated code. A "could not determine" Code Health score is not a failure. Other Cratis rules win over a finding.
 - CodeScene has no floor setting, so the check is ours.
 

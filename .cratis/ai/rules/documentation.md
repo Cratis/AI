@@ -46,7 +46,7 @@ Use [Diátaxis](https://diataxis.fr/) as a compass: decide whether the reader is
 
 Diátaxis governs a page's purpose and voice, not a universal set of sidebar labels. Each product has navigation buckets suited to its domain; read `PRODUCTS[].buckets` in the Documentation site's sync script before placing a new section.
 
-For a reader-centered writing workflow, use **cratis-documentation-writing**; for source-verified snippets use **cratis-technical-examples**. Before drafting or revising an explanation beside code, read and apply [Explaining code](../skills/cratis-engineering-docs-authoring/references/explaining-code.md): develop the point from the example instead of turning source-checking questions into public prose.
+For a reader-centered writing workflow, use **cratis-documentation-writing**; for source-verified snippets use **cratis-technical-examples**. Before drafting or revising an explanation beside code, read and apply the explaining-code reference of **cratis-engineering-docs-authoring**: develop the point from the example instead of turning source-checking questions into public prose.
 
 ## Onboarding is the most important documentation you write
 
@@ -88,7 +88,7 @@ The project's voice is **direct, practical, and opinionated**. Write like an exp
 - A standalone example must be **complete and correct** at its stated scope. Mark a partial excerpt as an excerpt, state its prerequisites, and never leave an essential step behind `// ...`. Do not offer an incomplete block as click-to-copy code.
 - **State version requirements, not the test log.** Name minimum, fixed or breaking releases and meaningful compatibility or peer ranges. Ordinary installation follows the supported latest-release path, not universal exact-patch pins; latest does not imply every package combination is compatible. Keep resolved versions in maintained manifests/lockfiles, or pin deliberately reproducible tutorials when needed. Preserve required security/deployment constraints and production image policy. Do not end a page with verification provenance (SDK build, image digest or SHA, date, "tested with", unrun samples); that belongs in the change summary. See **cratis-technical-examples**.
 - **Short illustrative snippets** may be purpose-built after checking their framework APIs against source. Derive substantial or runnable examples from compiled, tested sample or spec code; extract or check displayed snippets with the owning repository's tooling so they do not drift. Never substitute a bare “see the repository” link for showing the code.
-- Where a feature spans products or languages, show both sides when both matter. Keep sequential backend-producer/frontend-consumer examples together. Tabs are alternatives for the same reader task, not evidence of client parity; apply the multi-client guidance in [Explaining code](../skills/cratis-engineering-docs-authoring/references/explaining-code.md) before choosing that shape.
+- Where a feature spans products or languages, show both sides when both matter. Keep sequential backend-producer/frontend-consumer examples together. Tabs are alternatives for the same reader task, not evidence of client parity; apply the multi-client guidance in the same explaining-code reference before choosing that shape.
 
 ## Links
 
@@ -109,4 +109,4 @@ The project's voice is **direct, practical, and opinionated**. Write like an exp
 - Follow [Documentation Structure and Formatting](./documentation-structure-and-formatting.md) for frontmatter, landing pages, `toc.yml`, Markdown/MDX, links, and rendering.
 - End every Markdown file with a single trailing newline.
 - Run the owning repository's local documentation gate when present; use `cd ../Documentation/web && npm run check` for full-fidelity site verification when the sibling checkout is available.
-- For a new or materially changed reader journey, use the **cratis-documentation-writing** [fresh-context reader review](../skills/cratis-documentation-writing/references/reader-review.md). Report unavailable review rather than calling an author's reread independent evidence; a passing build is not a comprehension check.
+- For a new or materially changed reader journey, use the fresh-context reader review of **cratis-documentation-writing**. Report unavailable review rather than calling an author's reread independent evidence; a passing build is not a comprehension check.

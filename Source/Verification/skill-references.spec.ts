@@ -41,9 +41,9 @@ test('the check names a planted reference to a skill that does not exist', () =>
     assert.deepEqual(problems, ["rules/planted.md names skill 'write-specs', which has no directory in .cratis/ai/skills."]);
 });
 
-test('every skill named in a rule, prompt or agent resolves to a skill directory', () => {
+test('every skill named in a rule resolves to a skill directory', () => {
     const skillNames = readdirSync(join(corpus, 'skills'), { withFileTypes: true }).filter(entry => entry.isDirectory()).map(entry => entry.name);
-    const entries = ['rules', 'prompts', 'agents'].flatMap(directory => readdirSync(join(corpus, directory))
+    const entries = ['rules'].flatMap(directory => readdirSync(join(corpus, directory))
         .filter(name => name.endsWith('.md'))
         .map(name => ({ path: `${directory}/${name}`, content: readFileSync(join(corpus, directory, name), 'utf8') })));
     assert.deepEqual(danglingSkillReferences(entries, skillNames), []);

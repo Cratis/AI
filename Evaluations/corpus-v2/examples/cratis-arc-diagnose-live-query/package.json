@@ -1,1 +1,0 @@
-{"name":"live-author-probe","private":true,"type":"module","scripts":{"test:journey":"node --test journey.test.mjs"},"devDependencies":{"playwright":"1.63.0"}}

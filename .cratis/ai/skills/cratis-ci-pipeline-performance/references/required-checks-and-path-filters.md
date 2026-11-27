@@ -40,7 +40,8 @@ jobs:
           fetch-depth: 2
       - id: diff
         run: |
-          if git diff --name-only HEAD^1 HEAD | grep -q -v -E '^(Documentation/|.*\.md$)'; then
+          docs_dir=Documentation
+          if git diff --name-only HEAD^1 HEAD | grep -q -v -E "^(${docs_dir}/|.*\.md$)"; then
             echo "code=true" >> "$GITHUB_OUTPUT"
           else
             echo "code=false" >> "$GITHUB_OUTPUT"
@@ -100,8 +101,7 @@ concurrency:
 ```
 
 Use the repository's actual default branch. Keep publish/release/deploy workflows
-separate and follow their non-cancelling queue rules in
-[github-actions.md](../../../rules/github-actions.md). Cancellation stops obsolete
+separate and queue them without cancelling in-progress work. Cancellation stops obsolete
 PR runs; it does not deduplicate `push` and `pull_request` events, whose refs differ.
 Use change detection above to avoid unrelated heavy jobs without suppressing the
 required aggregator. Retain any required `merge_group` trigger as described below.

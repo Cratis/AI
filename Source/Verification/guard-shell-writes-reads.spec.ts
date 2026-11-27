@@ -14,7 +14,7 @@ const S = '.cratis/ai/hooks/scripts/cratis-guard-writes.sh';
 const K = '.cratis/ai/skills/s/SKILL.md';
 const M = '.mcp.json';
 const checker = '.cratis/ai/hooks/scripts/cratis-check-pr.mjs';
-const handoff = '.cratis/ai/hooks/scripts/cratis-check-handoff.mjs';
+const handoff = '.cratis/ai/hooks/scripts/cratis-guard-writes-descendants.mjs';
 
 // Explicit read/run/data-only admissions. The fail-open comparison also uses this list.
 export const allowCommands = [

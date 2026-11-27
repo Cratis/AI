@@ -564,8 +564,3 @@ test('Pi runs it after a Bash result and at session start', () => {
     assert.match(extension, /pi\.on\("session_start"[\s\S]*sweepDelivered\("SessionStart"/);
     assert.match(extension, /sweepDelivered\("PostToolUse"/);
 });
-
-test('ship-changes ends with the cleanup for harnesses that have no hook', () => {
-    const prompt = readFileSync(join(corpus, 'prompts', 'ship-changes.prompt.md'), 'utf8');
-    assert.match(prompt, /## Cleanup[\s\S]*cratis-cleanup-worktrees\.sh/);
-});

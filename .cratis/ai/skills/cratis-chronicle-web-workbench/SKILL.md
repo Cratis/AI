@@ -40,15 +40,7 @@ Redact secrets, personal data, and business payloads before putting anything
 from the Workbench into a filename, a log, a commit, an issue, or a generated
 artifact. Screenshot the smallest region that answers the question.
 
-## Verified product sources
-
-Sources:
-
-| Package | Purpose |
-| --- | --- |
-| `Cratis.Chronicle` | the Workbench application, its hosting, screens, and commands |
-
-Reverify before claiming a screen, route, command, or configuration key for
+Confirm the screen, route, command or configuration key in the version you operate.
 another version.
 
 ## Reach it
@@ -63,8 +55,7 @@ forward **all** traffic over h2c, including Workbench/REST, not HTTP/1.1.
 Restrict direct backend access. With authentication enabled, this requires an
 external HTTPS authority; the internal OAuth authority and `/connect/token`
 are unavailable. The .NET SDK's built-in ClientCredentials mode cannot use that
-external authority. Source: `Documentation/hosting/configuration/tls.md`.
-Use **cratis-chronicle-hosting** for the deployment checklist.
+external authority. For deployment use [cratis-chronicle-deploy-kernel](../cratis-chronicle-deploy-kernel/SKILL.md).
 
 Configuration lives under `Cratis:Chronicle`, bound from a `chronicle.json` at
 the host root and from environment variables prefixed `Cratis__Chronicle__`.
@@ -115,8 +106,7 @@ Read these before putting a Workbench on any reachable network.
   (`Cratis__Chronicle__ForwardedHeaders__KnownProxies__0` and
   `__KnownNetworks__0`). `ASPNETCORE_FORWARDEDHEADERS_ENABLED=true` does not widen
   trust. Restrict the proxy subnet, never use a wildcard CIDR, and have the proxy
-  **replace** client-supplied headers. Source: `Documentation/hosting/configuration/tls.md`,
-  "Trusted reverse proxies".
+  **replace** client-supplied headers.
 - The health endpoint, the antiforgery probe, the gRPC descriptor-set and
   compatibility calls, the initial-admin-password endpoints, and the gRPC
   `ResetKernelState` call answer anonymously (`[AllowAnonymous]`).
@@ -137,13 +127,8 @@ Webhooks · External Services · Captures · Projections (namespace-routed) · N
 Tools (offered only when the server reports them available).
 
 Reducers, Reactors, Sinks and a store-wide Sequences view have routes but no menu
-entry (their menu lines are commented out in `EventStore.tsx`). Event types uses
-one list with a side panel (Schema and Observers tabs). Observer details includes
-connected clients in Summary; Failed partitions has Retry and a detail panel.
-The Help menu needs Chronicle 19.39.2. Source:
-`Source/Workbench/Features/EventStore/EventStore.tsx`,
-`Namespaces/Observers/ObserverDetails.tsx`, `Namespaces/FailedPartitions/FailedPartitions.tsx`,
-and `General/EventTypes/TypeDetails.tsx` (paths relative to that feature).
+entry. Event types uses one list with a side panel (Schema and Observers tabs). Observer details includes
+connected clients in Summary; Failed partitions has Retry and a detail panel. The Help menu needs Chronicle 19.39.2.
 Do not infer that dashboard or stale-detail problems are fixed from the Help menu;
 reproduce them against your own deployment.
 
@@ -203,10 +188,10 @@ These two are Workbench-only; the CLI has no equivalent command.
 - **Redact** removes an event's content, retained causation property values,
   revision history and content hashes. It requires a reason and records the
   redaction itself. It does not reach backups, oplogs or already-forwarded events.
-- `IEventSequence.VerifyContent` is a command for comparing prepared content
+  Use redaction for content that should never have been appended.
+- `IEventSequence.VerifyContent` compares prepared content
   after an ambiguous append, not an authorization to revise or retry blindly.
-  Use **cratis-chronicle-client-dotnet** for its result contract. Use it for
-  content that should never have been appended.
+  For the comparison outcomes, see `cratis-chronicle-cli-operations` in `cratis/cli`.
 - **Revise** rewrites an event's content. Its confirmation dialog enumerates the
   replayable observers that will be affected — read that list before confirming,
   because it is the blast radius.

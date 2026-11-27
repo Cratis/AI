@@ -1,11 +1,7 @@
 ---
-applyTo: "**/*.go,go.mod,go.sum,**/go.mod,**/go.sum"
+applyTo: "**/*.go"
 paths:
   - "**/*.go"
-  - "go.mod"
-  - "go.sum"
-  - "**/go.mod"
-  - "**/go.sum"
 ---
 
 <!-- Copyright (c) Cratis. All rights reserved. -->

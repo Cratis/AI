@@ -1,0 +1,9 @@
+{
+  "skill": "cratis-chronicle-deploy-kernel",
+  "queries": [
+    {"query":"My kernel is live but its readiness probe returns 503. Which probe should trigger restarts?","shouldTrigger":true},
+    {"query":"Replace the workstation Chronicle image with a persistent private deployment. What has to exist before startup?","shouldTrigger":true},
+    {"query":"The kernel is healthy. Where do I register the client in Program.cs?","shouldTrigger":false,"sibling":"cratis-chronicle-connect-application"},
+    {"query":"The registration was accepted but it never appeared in my list. Which observer failed?","shouldTrigger":false,"sibling":"cratis-chronicle-inspect-observer"}
+  ]
+}

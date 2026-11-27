@@ -1,7 +1,0 @@
-{
-  "typescript-frontend-browser-operator-unavailable": {
-    "capture": true,
-    "forbidden": ["browser|playwright|clickElement|typeInPage"],
-    "sessions": ["pi-clean-no-browser.jsonl"]
-  }
-}

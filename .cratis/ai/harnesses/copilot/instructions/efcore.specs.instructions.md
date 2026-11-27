@@ -1,20 +1,19 @@
 ---
-applyTo: "**/for_*/**/*.cs, **/when_*/**/*.cs"
+applyTo: "**/for_*/**/*.cs,**/when_*/**/*.cs"
 paths:
   - "**/for_*/**/*.cs"
   - "**/when_*/**/*.cs"
-profile: application
+profile: cratis/arc/ef-core
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 
 # Entity Framework Core Specs
 
-> **⚠️ APPLIES ONLY TO PROJECTS USING ENTITY FRAMEWORK CORE**
-> If your project does not reference `Microsoft.EntityFrameworkCore` or any EF Core packages, **ignore this entire file**. These rules are irrelevant outside of EF Core contexts.
+These rules apply only to specs for code that uses an EF Core `DbContext`. Whether a behavior needs a spec, and at which boundary, is decided by **cratis-specifications-exercise-backend**; this rule covers only the SQLite technique once a `DbContext` spec is warranted.
 
-EF Core specs verify database interaction logic — migrations, queries, and error handling. They use SQLite in-memory databases, which are fast, isolated, and disposable. This keeps specs independent of any real database server.
+EF Core specs verify database interaction logic — queries and error handling. They use SQLite in-memory databases, which are fast, isolated, and disposable. This keeps specs independent of any real database server. SQLite does not prove a migration against the production provider; rehearse migrations with **cratis-arc-migrate-relational-schema**.
 
-These specs are for code that interacts directly with `DbContext`. For event-sourcing integration specs (testing commands against Chronicle), use the Chronicle integration spec pattern in [specs.scenarios.csharp.md](./specs.scenarios.csharp.instructions.md) instead.
+These specs are for code that interacts directly with `DbContext`. For a command, event or read-model outcome in an event-sourced slice, use **cratis-specifications-exercise-backend** instead.
 
 ## Database Setup
 

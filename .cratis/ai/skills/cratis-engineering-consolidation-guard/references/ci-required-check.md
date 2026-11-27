@@ -120,8 +120,8 @@ required check in the same change.
 ## What discovery cannot see
 
 Discovery reads only what history records. Work restored by copying files,
-re-implemented by hand, or folded with a squash leaves no trace, which is one
-more reason [git-commits.md](../../../rules/git-commits.md) forbids squashing.
+re-implemented by hand, or folded with a squash leaves no trace; preserve
+history instead.
 For such a branch, run the guard locally with explicit sources and post the
 command and its result as a pull request comment, so the reviewer can repeat it.
 

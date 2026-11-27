@@ -1,1 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk"><Import Project="../../cratis-arc-generate-proxies/ArcSpecs.props"/></Project>

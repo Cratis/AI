@@ -9,7 +9,7 @@ license: MIT
 
 # .NET Profiling
 
-Use only within this skill's stated task; general workflow advice does not apply to unrelated tasks. Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, and `orleans.md`) and the `cratis-*` skills win where they differ. Write outputs only to the task's `.ai-work/<task>/` folder; run collection commands there, not in `profile-output/`.
+Use only within this skill's stated task; general workflow advice does not apply to unrelated tasks. Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, and `orleans.md`) and the `cratis-*` skills win where they differ. Write outputs only to the task's folder under `.ai-work`; run collection commands there, not in `profile-output/`.
 
 ## Trigger On
 
@@ -83,7 +83,7 @@ If official .NET profiling tools are not available yet:
    - `dotnet-counters --version`
    - `dotnet-trace --version`
    - `dotnet-gcdump --version`
-4. Record the exact profiling commands in the task's `.ai-work/<task>/` notes or the final report (propose an `AGENTS.md` or project-doc change only when the user asks for one; managed corpus files are never edited by hand), for example:
+4. Record the exact profiling commands in the task notes or the final report (propose an `AGENTS.md` or project-doc change only when the user asks for one; managed corpus files are never edited by hand), for example:
    - `dotnet-counters monitor --process-id PID --counters System.Runtime`
    - `dotnet-trace collect --process-id PID --profile dotnet-common,dotnet-sampled-thread-time -o trace.nettrace`
    - `dotnet-gcdump collect --process-id PID --output heap.gcdump`

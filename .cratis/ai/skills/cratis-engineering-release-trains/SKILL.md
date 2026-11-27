@@ -18,18 +18,14 @@ item ships as a train: the train is the PR, and item branches get no PR.
 
 ## Authority and routing
 
-Read [capability-is-not-authority.md](../../rules/capability-is-not-authority.md)
-and the [ship-changes prompt](../../prompts/ship-changes.prompt.md) before any
-external effect. A user's ship request authorizes its ordinary shipping steps;
-loading this skill does not turn an implementation-only request into shipping.
-Without that request, prepare the grouping and report the proposed next action.
+A user's ship request authorizes its ordinary shipping steps; loading this
+skill does not turn an implementation-only request into shipping. Without that
+request, prepare the grouping and report the proposed next action.
 
-Read [pull-requests.md](../../rules/pull-requests.md) for release intent, split
-criteria, release notes, issue dispositions, and the human checkpoint for a
-major release. A major release is never merged by an agent: a human confirms
-and merges it. Agent work stops at preparing the PR, even after confirmation.
-Read [git-commits.md](../../rules/git-commits.md) before assembling
-branches. Preserve commits: never squash, rebase, amend, or force-push.
+Use [cratis-platform-prepare-release-pr](../cratis-platform-prepare-release-pr/SKILL.md)
+for the PR body and release intent. A human confirms and merges
+every major release; agent work stops at preparing the PR, even after
+confirmation. Preserve commits: never squash, rebase, amend, or force-push.
 
 Use `cratis-engineering-consolidation-guard` when folding existing PRs to prove
 nothing was dropped. Use `cratis-engineering-ci-gates` for gate selection and
@@ -97,8 +93,8 @@ its old branch. Close the superseded PR with a one-line reason:
 when assembly is still pending. Do not wait for the candidate's push to retire
 a PR that is already known to be superseded.
 
-Move its delivered release-note bullets into the candidate's release note,
-following `pull-requests.md`; retain only issues actually delivered by the diff.
+Move its delivered release-note bullets into the candidate's release note;
+retain only issues actually delivered by the diff.
 Before consolidation, check release intent and publication effects and apply
 `cratis-engineering-consolidation-guard`.
 
@@ -124,7 +120,7 @@ lens, plus gate evidence for that head before the train merges.
 
 Record the cut in one line in the reviewer comment, not the release note:
 `Cut with A and B; C waits for consumer proof.` Keep local
-coordination records under `.ai-work/`, never in public release text.
+coordination records in the ignored scratch folder, never in public release text.
 
 ## Replace waits with local work
 
@@ -163,7 +159,7 @@ making a speculative shipping push. Recheck the merge conditions after CI.
    train's glue review (merge resolutions, fix-ups, main-merge conflict
    resolutions) completed without Blockers or missing required evidence. A
    whole-change review is needed only for an item without a review-log entry.
-4. **Release decision settled.** Release intent follows `pull-requests.md`.
+4. **Release decision settled.** Confirm the candidate has the intended release label.
    For a major release, require explicit human confirmation and human merge.
    An agent never merges it; preparing the PR does not answer that checkpoint.
 5. **Conversation reread.** Re-read the issues and PR, including comments and
@@ -188,17 +184,16 @@ before creating or editing the PR; never rewrite an existing commit to do it.
 If a committed token cannot be corrected without rewriting history, stop and
 report the unsafe message rather than pushing it.
 
-Use the ship-changes prompt for PR creation, notes, merge, issue disposition,
-and cleanup. Non-major releases use a merge commit; never squash or rebase.
-A human confirms and merges every major release. In repositories
-using release-action, delivered `(#n)` references close at release, not by hand;
-follow `pull-requests.md` for other cases rather than inventing a closing step.
+Create the PR and merge only within the authorized shipping scope. Non-major
+releases use a merge commit; never squash or rebase. A human confirms and merges
+every major release. Use [cratis-engineering-issue-hygiene](../cratis-engineering-issue-hygiene/SKILL.md)
+for issue disposition and follow the repository's worktree cleanup procedure.
 
 Do not enable auto-merge. Wait using `cratis-engineering-ci-gates`. If checks
-outlast the session, leave a handoff under `.ai-work/` per
-[local-work-artifacts.md](../../rules/local-work-artifacts.md), with valid
-preconditions, candidate and tested SHAs, PR, exact pending checks, and the next
-steps. The next session must recheck the ship bar, not blindly merge on green.
+outlast the session, leave a [handoff](../cratis-session-handoff/SKILL.md) with
+valid preconditions, candidate and tested SHAs, PR, exact pending checks, and
+the next steps. The next session must recheck the ship bar, not blindly merge
+on green.
 
 ## What breaks
 
@@ -213,6 +208,6 @@ steps. The next session must recheck the ship bar, not blindly merge on green.
 Run the repository's exact assembled gate and inspect its successful exit.
 Run `gh pr checks <pr>` before merge: required checks must pass for the tested
 head. Confirm the review-log-certified items and glue review, fresh discussion, and main-overlap check.
-For release notes, execute the repository's `cratis-check-pr.mjs` command from
-`pull-requests.md`; a zero exit is the pass signal. No checklist replaces those
-behavioral and CI signals.
+If the repository supplies a PR policy check, run it for the final body and
+label; a zero exit is the pass signal. No checklist replaces those behavioral
+and CI signals.

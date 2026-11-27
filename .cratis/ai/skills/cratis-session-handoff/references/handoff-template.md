@@ -9,12 +9,10 @@
 - Rules for filling it in
 - Filled example
 
-A handoff lets a fresh session continue work. Save it as
-`.ai-work/<task>/handoff.md`; a lane uses `.ai-work/<task>/handoff-<lane-id>.md`.
-It opens with the preconditions (repository, branch, expected `HEAD`, worktree
-paths, date) required by
-[local-work-artifacts.md](../../../rules/local-work-artifacts.md). The next
-session compares them with `git` before acting; a mismatch means the handoff is
+A handoff lets a fresh session continue work. Save it in the task's ignored
+scratch folder as `handoff.md`; a lane uses `handoff-<lane-id>.md`.
+It opens with the repository, branch, expected `HEAD`, named worktree paths and
+date. The next session compares them with `git` before acting; a mismatch means the handoff is
 stale, not that the work is lost.
 
 The structure is fixed so a tool can check it: the headings below appear
@@ -121,7 +119,7 @@ Cap export retries at five and surface the final failure.
 | ci-1 | CI run `1234567890` on head `0123456789abcdef0123456789abcdef01234567` | fails: read the failing job log, fix in owned files; passes: report ready | `gh run cancel 1234567890` |
 
 ## Finished, results not yet read
-- review-1: findings are in `.ai-work/export-retry/review-1.md`
+- review-1: findings are in `review-1.md` in the `export-retry` scratch folder
 
 ## Open questions carried forward
 - Should the cap be configurable per tenant: asked by the user in the first session, unanswered.
@@ -145,5 +143,5 @@ Cap export retries at five and surface the final failure.
 
 ## Files to read
 - `Source/Export/ExportJob.cs`
-- `.ai-work/export-retry/STATE.md`
+- `STATE.md` in the `export-retry` scratch folder
 ```

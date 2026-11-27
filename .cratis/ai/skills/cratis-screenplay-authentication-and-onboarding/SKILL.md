@@ -22,7 +22,7 @@ a sender address, a mail server and its password differ per environment, so none
 in the model. A configuration line under a provider is a compile error (`PLAY0183`), not an
 ignored line. The model refers to a value by a **key derived from its declarations**, and the
 environment supplies the value. Never add the value to the model to "make it render". Creating
-and filling the environment is [cratis-environments-and-secrets](../cratis-environments-and-secrets/SKILL.md).
+and filling the environment is covered by `cratis-environments-and-secrets` in `cratis/cli`.
 
 ## `authentication`
 
@@ -104,8 +104,7 @@ keys using `cratis config --missing <path>`, which exits `5` when any key is abs
 
 ## Route near misses
 
-- Personas, policies and `require`: `cratis-screenplay-command-surface`.
-- Choosing a compiler and reading verdicts: `cratis-screenplay-toolchain`.
-- Creating an environment, setting a secret: `cratis-environments-and-secrets`.
+- Modeling persona access and policy: [cratis-screenplay-model-interaction](../cratis-screenplay-model-interaction/SKILL.md).
+- Setting up the compiler: [cratis-screenplay-onboard-workspace](../cratis-screenplay-onboard-workspace/SKILL.md). Reviewing a revision: [cratis-screenplay-accept-model](../cratis-screenplay-accept-model/SKILL.md).
 - How AuthProxy, Ante and Herald consume the contract at runtime: `cratis-onboarding-runtime`.
-- How an Arc application trusts the proxy: `cratis-arc-authentication-authorization-and-identity`.
+- Applying the HTTP authorization boundary in Arc: [cratis-arc-authorize-request](../cratis-arc-authorize-request/SKILL.md).

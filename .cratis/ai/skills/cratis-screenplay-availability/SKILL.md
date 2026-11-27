@@ -1,22 +1,19 @@
 ---
 name: cratis-screenplay-availability
-description: Use when a Screenplay model must decide whether a module, feature or slice exists for a tenant, user or system, or when it provides ambient `$context` values. Not for who may act; use cratis-screenplay-command-surface for `authorize`.
+description: Use when a Screenplay model must decide whether a module, feature or slice exists for a tenant, user or system, or when it provides ambient `$context` values. Not for who may act.
 license: MIT
 ---
 
 # Availability, audiences and context values
 
-Read [preferred syntax](../cratis-screenplay-toolchain/references/preferred-syntax.md) when writing or reviewing `.play`.
-Product facts come from Screenplay `availability.md`, `context.md`, `personas.md`
-and `policies.md` under `Documentation/screenplay/`; run examples at the pinned
-compiler before relying on them.
+Run the examples with the compiler version the application uses before relying on them.
 
 ## Pick the right mechanism
 
 | Question | Use |
 | --- | --- |
 | Is this part there at all for this tenant, user or system (a package, a rollout, an incident switch)? | `audience`, `availability`, `available` |
-| May this caller do it, given who they are and what they can prove? | `policy` and `authorize` ([command surface](../cratis-screenplay-command-surface/SKILL.md)) |
+| May this caller do it, given who they are and what they can prove? | `policy` and `authorize`; use [cratis-screenplay-model-interaction](../cratis-screenplay-model-interaction/SKILL.md) |
 | Is this input acceptable? | `rule` and validation on the command |
 | Does a gate or code need a value that is not in the request (the vessel viewed, the project worked in)? | `provide` and `$context.<name>` |
 | Which tenant-level commercial module is bought? | Box Office module entitlements; outside the model |
@@ -180,9 +177,7 @@ Read [complete example](references/complete-example.md) for a model that compile
 ## Who owns what
 
 Read [runtime ownership](references/runtime-ownership.md) when a request asks where a gate is enforced, how
-audiences are granted, how parts are suspended, or whether application code can check one. The engine lives in Arc
-(`Cratis.Arc.Availability`); for the typed C# declaration, see the Arc hosting skill's
-[availability reference](../cratis-arc-hosting/references/availability.md).
+audiences are granted, how parts are suspended, or whether application code can check one. The engine lives in Arc (`Cratis.Arc.Availability`).
 
 ## Review checks
 
@@ -192,8 +187,6 @@ Read [review checks](references/review-checks.md) before accepting a model that 
 
 PLAY1119-1129 are `provide` (line shape, source, body, duplicates, reserved names, type override, query source, cycle).
 PLAY1130-1141 are `audience`, `availability` and `available` (shape, duplicates, undeclared, cycle, unprovided value,
-cross-slice invocation, gate tokens and parentheses). PLAY1171 is a misplaced `not`; PLAY1172 is an element gate broader
-than the bound part. The full table is in the toolchain
-[diagnostics](../cratis-screenplay-toolchain/references/diagnostics.md).
+cross-slice invocation, gate tokens and parentheses). PLAY1171 is a misplaced `not`; PLAY1172 is an element gate broader than the bound part.
 Fix by changing the model: declare the audience, name the availability, provide the value or correct the key; never remove a
 gate to silence a warning.

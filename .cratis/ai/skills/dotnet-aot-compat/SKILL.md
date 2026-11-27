@@ -8,7 +8,7 @@ license: MIT
 
 # dotnet-aot-compat
 
-Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, and `orleans.md`) and the `cratis-*` skills win where they differ. Arc host trimming/NativeAOT setup belongs to **cratis-arc-hosting**.
+Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, and `orleans.md`) and the `cratis-*` skills win where they differ. Arc host trimming/NativeAOT setup belongs to **cratis-arc-host-application**.
 
 Make .NET projects compatible with Native AOT and trimming by systematically resolving all IL trim/AOT analyzer warnings.
 

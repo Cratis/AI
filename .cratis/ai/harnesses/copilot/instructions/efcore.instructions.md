@@ -2,16 +2,15 @@
 applyTo: "**/*.cs"
 paths:
   - "**/*.cs"
-profile: application
+profile: cratis/arc/ef-core
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 
 # Entity Framework Core Instructions
 
-> **⚠️ APPLIES ONLY TO PROJECTS USING ENTITY FRAMEWORK CORE**
-> If your project does not reference `Microsoft.EntityFrameworkCore` or any EF Core packages, **ignore this entire file**. These rules are irrelevant outside of EF Core contexts.
+These rules apply only to projects that reference `Cratis.Arc.EntityFrameworkCore`.
 
-`Cratis.Arc.EntityFrameworkCore` gives an Arc application EF Core-backed read models: two `DbContext` base types, convention-based registration, provider selection from the connection string, cross-database column helpers for migrations, concept-aware value conversion, and live observation of a `DbSet`. **That is the whole of what Arc ships** — it has no migration runner, no table-name constant convention, no design-time factory and no prescribed project split. Where an application adds one of those, it is that application's local convention, not Cratis; keep such conventions in the repository's own instructions, never present them as framework. The step-by-step workflow, the exact signatures and the traps live in the **cratis-arc-ef-core-migration** skill; this rule states the invariants.
+`Cratis.Arc.EntityFrameworkCore` gives an Arc application EF Core-backed read models: two `DbContext` base types, convention-based registration, provider selection from the connection string, cross-database column helpers for migrations, concept-aware value conversion, and live observation of a `DbSet`. **That is the whole of what Arc ships** — it has no migration runner, no table-name constant convention, no design-time factory and no prescribed project split. Where an application adds one of those, it is that application's local convention, not Cratis; keep such conventions in the repository's own instructions, never present them as framework. This rule states the invariants for the context types, registration, concept mapping and observation.
 
 ## DbContext base types **[contract]**
 
@@ -53,24 +52,9 @@ With a non-empty connection string and `AutoDiscoverDbContexts` (the default), A
 
 Select the provider with **`UseDatabaseFromConnectionString(connectionString)`** — never hard-code `UseSqlite` / `UseNpgsql` / `UseSqlServer`. It infers `DatabaseType` (`Sqlite`, `SqlServer`, `PostgreSql`) from the connection string, ensures a SQLite file's directory exists, and installs Arc's migrations SQL generator for that provider (which is what adds the JSON validation constraint for `[Json]` columns). An unsupported connection string throws `UnsupportedDatabaseType`.
 
-## Migrations **[contract]/[convention]**
+## Migrations
 
-Migrations are created and applied with the **standard EF Core tooling** (`dotnet ef migrations add`, `dotnet ef database update`, or `Database.Migrate()` at startup). Arc adds only the column helpers that keep one migration valid across all three providers — use them instead of raw `table.Column<T>()`:
-
-| Helper | Use for |
-| --- | --- |
-| `table.StringColumn(migrationBuilder, …)` | text |
-| `table.GuidColumn(migrationBuilder, …)` | GUID / UUID |
-| `table.NumberColumn<T>(migrationBuilder, …)` | integers, longs, decimals |
-| `table.BoolColumn(migrationBuilder, …)` | booleans |
-| `table.DateTimeOffsetColumn(migrationBuilder, …)` | timestamps with offset |
-| `table.AutoIncrementColumn(migrationBuilder, …)` | identity columns |
-| `table.JsonColumn<TProperty>(migrationBuilder, …)` | a `[Json]`-mapped property |
-| `migrationBuilder.Add{String,Guid,Number,Bool,DateTimeOffset,AutoIncrement,Json,Point,LineString,Polygon}Column(…)` | adding a column to an existing table |
-
-A migration that is committed or applied to any database is append-only: never edit or delete it. Correct mistakes with a new migration. Only an unapplied, uncommitted migration may be removed with `dotnet ef migrations remove` and regenerated.
-
-Where a repository organizes its migrations (a dedicated project, a versioned file naming scheme, a table-name constants class) is its own convention: follow what the repository already does, and do not introduce one as if Arc required it.
+Generating, reviewing, applying and rolling back a migration, including Arc's cross-provider column helpers, belongs to the **cratis-arc-migrate-relational-schema** skill. Where a repository organizes its migrations (a dedicated project, a file naming scheme, a table-name constants class) is its own convention: follow what the repository already does, and do not introduce one as if Arc required it.
 
 ## Concepts and JSON **[contract]**
 
@@ -78,9 +62,4 @@ Where a repository organizes its migrations (a dedicated project, a versioned fi
 
 ## Observation **[contract]**
 
-An EF Core read model can back an observable query: `dbSet.Observe(...)`, `ObserveById(...)` and `ObserveSingle(...)` (extension methods declared in the `Microsoft.EntityFrameworkCore` namespace, so they are in scope wherever the `DbSet` is) push changes through the provider's change notifier — see the skill for what each provider supports. At Arc v22.75.0 auxiliary sources support `ignoreQueryContext: true`; single-instance observations emit `default` on absence/deletion/filter exit. Indexer-property keys are supported; composite/shadow-only keys are refused at setup.
-
-## See also
-
-- the **cratis-arc-ef-core-migration** skill — wiring, making an EF read model injectable into a command, writing a migration, observing, and specs.
-- [efcore.specs.md](./efcore.specs.instructions.md) — `DbContext` specs with SQLite in-memory.
+An EF Core read model can back an observable query: `dbSet.Observe(...)`, `ObserveById(...)` and `ObserveSingle(...)` (extension methods declared in the `Microsoft.EntityFrameworkCore` namespace, so they are in scope wherever the `DbSet` is) push changes through the provider's change notifier. Auxiliary sources support `ignoreQueryContext: true`; single-instance observations emit `default` on absence/deletion/filter exit. Indexer-property keys are supported; composite/shadow-only keys are refused at setup.

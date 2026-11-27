@@ -1,11 +1,10 @@
 ---
-applyTo: ".cratis/ai/skills/cratis-code-review/**,.cratis/ai/skills/cratis-security-review/**,.cratis/ai/skills/cratis-performance-review/**,.cratis/ai/agents/**,.cratis/ai/prompts/**"
+applyTo: ".cratis/ai/skills/cratis-code-review/**,.cratis/ai/skills/cratis-security-review/**,.cratis/ai/skills/cratis-performance-review/**"
 paths:
   - ".cratis/ai/skills/cratis-code-review/**"
   - ".cratis/ai/skills/cratis-security-review/**"
   - ".cratis/ai/skills/cratis-performance-review/**"
-  - ".cratis/ai/agents/**"
-  - ".cratis/ai/prompts/**"
+profile: cratis/review
 ---
 
 <!-- Copyright (c) Cratis. All rights reserved. -->
@@ -13,8 +12,8 @@ paths:
 
 # Shared review reports
 
-[Criticality tiers](./criticality-tiers.md) determine when independent review is
-required; Tier C needs no review or review document. The following governs requested
+Disposable or advisory work (Tier C in the `criticality-tiers` rule, where installed)
+needs no review or review document. The following governs requested
 or required reviews.
 
 Use this report shape for code, security, performance, and repository-investigation
@@ -85,7 +84,7 @@ Cap review at three total rounds per work item; retries, fallbacks and renaming 
 not reset it. Record failed attempts. Silence, failure, cancellation, missing checks
 and exhaustion never imply approval. Verify cancellation before replacement; escalate
 unresolved disputes instead of looping. Suggestions alone do not justify another round.
-See `cratis-engineering-review-rounds` for dispatch and writer-pause mechanics.
+Where **cratis-engineering-review-rounds** is installed, it covers dispatch and writer-pause mechanics.
 
 An uncited behavior change on a trust-boundary or wire/protocol surface is a blocker (`published-contracts.md`).
 

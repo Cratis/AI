@@ -27,7 +27,7 @@ stay within ±(2^53−1). Protected concepts cannot be key types/parts or mappin
 sources (PLAY0515); choose surrogate keys and keep protection in payloads.
 Canonical encoding formats parts, escapes `%`/`|`, and joins in declaration order;
 never split hand-joined legacy text by guesswork. A stored key-schema change needs
-a new stream identity or migration. See toolchain `references/sources-and-streams.md`.
+a new stream identity or migration.
 
 ## Identity and event-membership review
 Start from the business instance, then choose its representation. A generated id can name a
@@ -40,7 +40,7 @@ concept:
 For every affected identifier:
 1. Name the instance and its lifecycle.
 2. Inspect every producer and destination that can write its history, including reactions and
-   captures (`cratis-screenplay-automations-and-translations`), not only event declarations.
+   captures, not only event declarations.
 3. Explain how each event changes or records that instance's history.
 4. List cross-stream references (payload properties) and the consumers that need them.
 5. Decide: retain, split, model a view instead, or leave unresolved pending a named answer.
@@ -49,8 +49,7 @@ For every affected identifier:
 Facts about another thing go on that thing's stream with a reference as payload
 (`MemberEnrolled` carries `courseId` and `memberId`). A view over many streams is a projection
 keyed by the reference (`from MemberEnrolled key courseId`), never a shared stream. A command
-with no identifier allocates a new stream (executable mode needs explicit allocation, see
-`cratis-screenplay-toolchain`). Prefer an identifier the caller chooses before the first attempt: it
+with no identifier allocates a new stream (executable mode needs explicit allocation). Prefer an identifier the caller chooses before the first attempt: it
 is also the retry identity; one allocated afresh per retry (including a `generated identifier`, which is generated on every acceptance) can create a second history.
 Never use personal data as the identifier (see `chronicle-boundaries.md`).
 
@@ -92,7 +91,7 @@ A correctly routed event can still be unclear. Do not name an event or command f
 `Update/Edit/Save/Set/Change/Manage<Noun>` and `<Noun>Updated/Changed/Edited/Saved/Modified` are
 not accepted names. Name the business act, or for a correction say what it corrects
 (`ResultCorrected`); ask which decision happened and whether a consumer can tell it from other
-changes without comparing snapshots (naming method: `cratis-screenplay-discovery`, `cratis-screenplay-slice-design`). Do not split every property into an event, and do not merge recognised facts
+changes without comparing snapshots. For naming facts use [cratis-modeling-design-event-model](../../cratis-modeling-design-event-model/SKILL.md). Do not split every property into an event, and do not merge recognized facts
 because one command produced them. Separately, an event whose payload restates the creation event is a review signal (major only when
 meaning is lost, a rule is bypassed or consumers become ambiguous); historical generations are
 exempt from that signal, not from the naming rule.
@@ -216,7 +215,7 @@ Some event stores decide consistency by a query over tagged events instead of on
 check to event types, source type or stream (`concurrency` block, Screenplay
 `commands.md`). Legacy concurrency metadata still fails binding (PLAY0271),
 but sources/streams/routes bind and reference-execute as ESM v8 on 4.125.0.
-Route admission does not make a view read protected. The CLI (toolchain `references/renderable-subset.md`) reaches Stage construct checks
+Route admission does not make a view read protected. The CLI reaches Stage construct checks
 through v10. Model the stream by business
 identity; when a rule truly needs a cross-stream decision, record it (see
 `consistency-and-concurrency.md`) rather than inventing a construct.

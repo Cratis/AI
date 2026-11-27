@@ -13,7 +13,6 @@ Locally, a multi-service Cratis system is **one** Chronicle kernel hosting one
 event store per service, one MongoDB replica set behind it, every service as its
 own process with its own store name, and one frontend per service. Cross-store
 forwarding only works inside one kernel, so never start a kernel per service.
-`cratis-multi-service-architecture` owns why the services are split this way.
 
 ## Lay out the repository
 
@@ -67,8 +66,8 @@ var mongo = builder.AddCratisChronicleMongoDB();
 var chronicle = builder.AddCratisChronicle("chronicle", c => c.WithMongoDB(mongo));
 var grpc = chronicle.GetEndpoint("grpc");
 
-// The development client id and secret come from the AppHost's own configuration
-// (see `cratis-chronicle-client-dotnet`), never from literals in source.
+// The development client id and secret come from the AppHost's own configuration,
+// never from literals in source.
 const string scheme = "chronicle://";
 var chronicleClient = builder.Configuration["Chronicle:Client"];
 var chronicleSecret = builder.Configuration["Chronicle:Secret"];
@@ -108,7 +107,7 @@ Rules behind each line:
 - **`WaitFor(chronicle)`** orders startup; the client also reconnects on its own.
 - The development client and secret are for a local kernel only. Publish mode
   selects the production image, which needs storage, a TLS certificate and an
-  encryption certificate (`cratis-chronicle-hosting`).
+  encryption certificate. Use [cratis-chronicle-deploy-kernel](../cratis-chronicle-deploy-kernel/SKILL.md) for production deployment.
 
 To reach the kernel at a fixed address (the CLI default, a browser bookmark), pin
 the host port: `chronicle.WithEndpoint("grpc", endpoint => endpoint.Port = 35000);`.
@@ -121,7 +120,7 @@ TLS) to `127.0.0.1` only; its dedicated health port (8080 here, HTTP without TLS
 stays inside the network for the health check; the Orleans ports 11111 and 30000
 stay unpublished for a single node. Services reach the kernel at
 the `chronicle` service name on port 35000, with the development client id and
-secret in the connection string (`cratis-chronicle-client-dotnet`). Read
+secret in the connection string. Read
 [references/docker-compose.md](references/docker-compose.md) for the complete file
 and the per-service settings.
 
@@ -171,9 +170,7 @@ pinned port, use the host port the dashboard shows for the `grpc` endpoint.
 
 ## Route near misses
 
-- Contracts, subscriptions, delivery and idempotency between services:
-  `cratis-multi-service-architecture`.
-- Kernel storage, TLS, certificates, clustering and production images:
-  `cratis-chronicle-hosting`.
-- Bootstrapping one Arc service: `cratis-arc-hosting`.
-- Rendering a service from its model: `cratis-screenplay-render-and-gap-fill`.
+- Contracts and subscriptions: [cratis-chronicle-publish-contract](../cratis-chronicle-publish-contract/SKILL.md). Verifying delivery: [cratis-platform-verify-service-handoff](../cratis-platform-verify-service-handoff/SKILL.md).
+- Kernel storage, TLS, certificates, clustering and production images: [cratis-chronicle-deploy-kernel](../cratis-chronicle-deploy-kernel/SKILL.md).
+- Bootstrapping one Arc service: [cratis-arc-host-application](../cratis-arc-host-application/SKILL.md); with Chronicle, use [cratis-chronicle-connect-application](../cratis-chronicle-connect-application/SKILL.md).
+- Rendering a service from its model: [cratis-stage-render-slice](../cratis-stage-render-slice/SKILL.md).

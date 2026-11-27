@@ -6,7 +6,7 @@ license: MIT
 
 # Use Lens against a running Arc application
 
-Screenplay `user` declarations (`cratis-screenplay-command-surface`, "Users") are development identities Stage can offer to Lens when its development mode and explicit users switch are both on.
+Screenplay `user` declarations are development identities Stage can offer to Lens when its development mode and explicit users switch are both on.
 
 Lens is a Manifest V3 browser extension that impersonates a user and a tenant
 against an Arc application you are developing, and executes that application's
@@ -16,18 +16,6 @@ introspection endpoints.
 
 ⚠️ Lens is a **development** tool that can present any identity to any origin
 the developer points it at. Nothing in it is production tooling.
-
-## Verified product sources
-
-| Source | Purpose |
-| --- | --- |
-| `Cratis/Lens` `Source/` | The extension itself; no newer release |
-| `Cratis.Arc.Core` | The `/.cratis/*` endpoints, the forwarded-identity contract, and the tenancy header Lens depends on |
-
-Arc evidence: [ArcOptions.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/ArcOptions.cs),
-[MicrosoftIdentityPlatformAuthenticationHandler.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/Identity/MicrosoftIdentityPlatformAuthenticationHandler.cs),
-[IntrospectionOptions.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/Introspection/IntrospectionOptions.cs)
-and [DiscoveryExposure.cs](https://github.com/Cratis/Arc/blob/main/Source/DotNET/Arc.Core/Introspection/DiscoveryExposure.cs).
 
 ⚠️ **There is no published store listing.** Nothing in the Lens repository links
 a Chrome Web Store, Edge Add-ons, AMO, or App Store entry — the only store URLs
@@ -97,8 +85,8 @@ Against a deployed host Lens needs the user signed in; hosts unable to authentic
 omit those routes (404). `Introspection.Enabled` controls catalogs and
 `IdentityDiscovery` the roster/tenant/schema routes. Forwarded identity switching
 also needs the explicit host-wide `TrustForwardedIdentityHeaders` opt-in, only
-behind a header-stripping ingress. Source:
-[secure defaults](https://github.com/Cratis/Arc/blob/main/Documentation/upgrading/secure-defaults.mdx).
+behind a header-stripping ingress.
+
 `MapIntrospectionEndpoints` runs during Arc activation, subject to these settings. The user and tenant
 routes return whatever the application implements — with **no implementation
 registered they return an empty list**, and Lens treats a `404` on either as
@@ -110,7 +98,7 @@ All five discovery routes are anonymous by default only in
 the host cannot enforce it. `Cratis:Arc:Introspection` options `Enabled` and
 `IdentityDiscovery` control mapping; `RequireAuthentication` and `Roles` control
 access. Register development user/tenant providers with fixtures, not production
-rosters — see `cratis-arc-authentication-authorization-and-identity`.
+rosters.
 
 ### Identity
 
@@ -235,7 +223,6 @@ those tabs while Settings may keep working. This is the default outside
 Development. Run the app in **Development**, or knowingly set
 `Cratis:Arc:Introspection:RequireAuthentication=false` on an isolated development
 host; do not weaken production discovery for Lens.
-Evidence: [Lens introspection.ts](https://github.com/Cratis/Lens/blob/main/Source/arc/introspection.ts).
 
 Queries are path-parameter GETs only: no query-string arguments, no paging or
 sorting inputs, and no observable subscription from the popup.
@@ -264,7 +251,7 @@ it does not, the panel reports no data. Nothing else in Lens depends on it.
 ## Route near misses
 
 - Designing authentication, authorization, identity details or tenancy in the
-  application: `cratis-arc-authentication-authorization-and-identity`.
-- Executing an existing command from backend code without the extension: `cratis-arc-command-execution`.
-- Observable query transports and their HTTP shapes: `cratis-arc-observable-query-http`.
+  application: `cratis-arc-authorize-request` in `cratis/application` and `cratis-arc-isolate-tenant` in `cratis/application`.
+- Executing an existing command without the extension: `cratis-arc-invoke-command` in `cratis/application`.
+- Observable query transports and their HTTP shapes: `cratis-arc-diagnose-live-query` in `cratis/application`.
 - Inspecting a Chronicle event store: the Chronicle CLI or Workbench guidance.

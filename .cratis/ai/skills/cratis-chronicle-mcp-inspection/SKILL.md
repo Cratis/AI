@@ -13,26 +13,18 @@ Treat access to Chronicle as access to live operational data. Confirm the server
 event store, namespace and data sensitivity before selecting a tool. A request
 to inspect does not authorize a mutation.
 
-## Verified product sources
-
-| Source | Purpose |
-| --- | --- |
-| `Cratis/Chronicle.Mcp` | `Source/Tools/**`, `Source/Authorization/ToolCatalog.cs`, deployment profiles and target resolution |
-| `Cratis/cli` | `Source/Cli/Commands/Ai/AiMcpHarnesses.cs`, manual rather than corpus-managed Chronicle registration |
+## Tool effects
 
 The surface has **27 tools: 24 read-only and 3 mutating**, plus three
 prompts. All tools declare `OpenWorld=false`. Annotations corroborate the
 classification; the implementation owns it. Only `stop_job`, `resume_job` and
 `delete_job` call mutating RPCs.
 
-Read [observational tools](references/observational-tools.md) when selecting a
-read or interpreting its data; it records every admitted read and its exact
-source at the tag. Read [effectful and unknown tools](references/blocked-tools.md)
+Read [observational tools](references/observational-tools.md) when selecting a read or interpreting its data. Read [effectful and unknown tools](references/blocked-tools.md)
 when a request involves job control, a different version or an unbounded read.
 Unknown tools remain `evidence-blocked`; effectful tools are not passive reads.
 
-Universal obligations (confirm scope, bounded reads, next-call checks, no raw output in artifacts) are
-owned by [`operational-safety.md`](../../rules/operational-safety.md); this skill keeps the Chronicle tool facts.
+Confirm scope, bound each read, check each follow-up call independently, and keep raw output out of artifacts.
 
 ## Confirm the target first
 
@@ -64,8 +56,7 @@ checks reads and writes.
 prompt. A grant, annotation or successful connection is not user authorization.
 Effectful tools remain blocked for passive inspection: name the exact target,
 capture pre-state, explain consequences and obtain explicit authorization before
-routing to an authorized operator. Never bypass a harness guard (authority:
-[`capability-is-not-authority.md`](../../rules/capability-is-not-authority.md)).
+routing to an authorized operator. Never bypass a harness guard.
 
 ## Bounded reads and design-time usage
 

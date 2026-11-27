@@ -4,11 +4,10 @@ Everything else in `.cratis/ai/` is text an agent may or may not follow. The fil
 that runs. They convert the mechanically-checkable Cratis invariants into deterministic checks
 that fire whether or not the model remembered the rule.
 
-Three layers:
+Two layers:
 
 | Layer | Event | Script | Cost | Effect |
 |---|---|---|---|---|
-| Pattern pass | `PostToolUse` on a write | `scripts/cratis-pattern-scan.sh` | zero tokens until a match | appends a one-line reminder to context, never blocks |
 | Hard block | `PreToolUse` on a write | `scripts/cratis-guard-writes.sh` | zero | exits **2** — the write does not happen |
 | Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-shell-writes.sh` | zero tokens; one batch Write/Edit classification | exits **2** — a protected reference requires read-only syntax throughout the command; best-effort, not a sandbox |
 | Hard block | `PreToolUse` on `Bash` | `scripts/cratis-guard-store-mutations.sh` | zero; parses only commands that mention `cratis` | exits **2** — the store-changing `cratis chronicle` command does not run |
@@ -17,7 +16,6 @@ Three layers:
 | Cleanup of delivered work | `PostToolUse` on `Bash` (`gh pr merge`, `git pull/merge/worktree`) and `SessionStart` (Pi: `tool_result` and `session_start`) | `scripts/cratis-cleanup-worktrees.sh --hook` | zero when the command is unrelated | never blocks; removes delivered worktrees and branches, reports what it kept |
 | Quality gate (Claude) | `Stop` | `scripts/cratis-quality-gate.sh` | one build/test run, only when relevant files changed | exits **2** — the turn does not end |
 | Quality gate (Pi) | explicit `cratis_quality_gate` tool | same script | only at a requested verification checkpoint | error on failure; no turn-end hook |
-| Handoff checker | not wired: run by the skill | `scripts/cratis-check-handoff.mjs` | local files and git only | errors fail; warnings are advisory unless `--strict` |
 
 ### Inline interpreter policy
 
@@ -225,9 +223,6 @@ rather than overwriting — the rest of that file is yours — and re-copy after
 **Edit the template, never the copy or the managed file**: `.cratis/ai/` is the source of truth (see the
 [corpus README](../README.md)), and `cratis ai status` reports a hand-edited managed file as drift.
 
-The markdown files in this folder (`agent-stop.md`, `pre-commit.md`) remain *lifecycle guidance* —
-they describe what a hook should do for tools that have no wiring yet.
-
 > Hooks use native wiring rather than a shared folder adapter: Claude Code reads `.claude/settings.json`;
 > Codex has a shell-only adapter described below. The Pi harness bridges the same scripts to its own events through the `cratis-hooks`
 > extension under `../harnesses/pi/extensions/` (its `bash` tool feeds the store-mutation, secrets, shell-write and PR-body guards, its
@@ -287,13 +282,13 @@ launch the adapter; native callback failure, crash, timeout, or malformed-respon
 can fail open before a supported denial is received. Other local hook configurations and
 specialized tool paths are outside this adapter's control. The existing scripts retain
 their own deliberate allowances and limits: missing `jq` makes the store, secret and write guards refuse every call;
-the quality gate blocks changed trees (dry runs warn only), and pattern scanning warns once per session without blocking.
+the quality gate blocks changed trees (dry runs warn only).
 PR checks can allow with an unchecked/offline warning; command-text parsing cannot see all indirect
 execution. Inherited `CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1` and existing script configuration
 are preserved. An adapter exit **0** is not proof that every underlying check ran.
 
 **Not wired:** `apply_patch`/file-write protection (a patch is not a single-file write),
-pattern scans, an explicit quality-gate tool, Stop gates, SessionStart, SessionEnd,
+an explicit quality-gate tool, Stop gates, SessionStart, SessionEnd,
 and automatic worktree cleanup. Use the repository's explicit verification and cleanup
 workflows; this slice neither provides full hook parity nor completes Codex integration.
 
@@ -354,8 +349,6 @@ first. Non-empty `.ai-work/` directories, even when tracked, are additionally ke
 - **Opt out.** `CRATIS_HOOKS_SKIP_CLEANUP=1`.
 
 ## What is enforced
-
-Rule numbers refer to the numbered list in [`../rules/general.md`](../rules/general.md).
 
 **Blocked outright** (`PreToolUse`, exit 2):
 
@@ -552,8 +545,7 @@ alternate spelling and no preceding directory change:
 - `bash .cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh`: `--dry-run`, `--quiet`,
   `--no-fetch` only.
 
-This is not permission to run arbitrary corpus scripts: `cratis-check-handoff.mjs`
-and all other scripts remain refused. Redirect destinations and chained commands
+This is not permission to run arbitrary corpus scripts: all other scripts remain refused. Redirect destinations and chained commands
 are still checked separately.
 
 The only global Git option exemption is a single separate `-C <dir>` with a literal,
@@ -802,44 +794,6 @@ merging or rebasing main. The local checker requires Node and Git; fetching rule
 labels also needs authenticated `gh`. Unrelated commands exit before checking for Node; when Node
 is missing, relevant PR commands in locally opted-in repositories warn rather than claiming a pass.
 
-**Flagged** (`PostToolUse`, exit 0 + context):
-
-| Pattern id | Rule | Detects |
-|---|---|---|
-| `cratis-automap-call` | 10 `[contract]` | `.AutoMap()` in a file that never calls `.NoAutoMap()` |
-| `cratis-ieventlog-in-handle` | 14 `[contract]` | `IEventLog` in a `Handle(` signature, wrapping across up to 5 lines |
-| `cratis-nullable-event-property` | 6 `[contract]` | a nullable property inside a type declared with `[EventType]` |
-| `cratis-route-on-readmodel` | 12 `[contract]` | `[Route(` inside a type declared with `[ReadModel]` |
-| `cratis-controller-base` | 1 `[contract]` | `: ControllerBase` in a file that imports `Microsoft.AspNetCore.Mvc` |
-| `cratis-primereact-dialog-import` | 16 `[convention]` | `from 'primereact/dialog'` |
-
-The two `within_type_attribute` patterns are not line greps — the scanner tracks C# attribute
-blocks and type scope (positional record, multi-line declaration, or braced body), so a nullable
-property is only reported when it really sits inside an `[EventType]`.
-
-### Advisory slice scope and migration review
-
-The quality gate calls `scripts/cratis-slice-scope-report.sh` with its changed paths on stdin.
-It recognizes only `Source/<Module>/<Feature>/<Slice>/<Slice>.cs` carrying a model-bound
-`[Command]` or `[ReadModel]` attribute. For each recognized slice it lists changed paths outside
-that folder as **seam or out of scope**; use that list for the delivery record's shared seams.
-For a changed anchor it notes a missing `when_*` specification under the slice. It does not
-judge whether a seam is authorized or whether existing specifications cover the contract.
-Unrecognized layouts are skipped silently; report failures never fail or bypass the real gates.
-The output is advisory in normal and dry-run modes, never verification evidence.
-
-The PostToolUse `cratis-append-only-migration` reminder likewise only asks for review of
-`Source/**/Migrations/*.cs` carrying `[Migration(`, excluding model snapshots. It cannot tell
-whether a migration is committed or applied, so it never blocks a legitimate uncommitted edit.
-Read `cratis-arc-ef-core-migration` for migration generation and application.
-
-The slice-scope and specification-presence report takes the idea of node Build-Kits
-`check-commit-scope` checks, with original wording. The migration reminder is copied and
-translated from classic `build-state-change` and node `append-only-migrations` to EF Core.
-Both credit Martin Dilger and Nebulit GmbH's
-[Eventmodelers Build-Kits](https://github.com/Nebulit-GmbH/Eventmodelers-Build-Kits), used with
-their explicit consent. Slice-only scope checks do not replace the repository's completion gate.
-
 ### Project-specific gate configuration
 
 Shipped defaults live in `.cratis/ai/hooks/scripts/quality-gates.json`, not `.cratis/ai/quality-gates.json`.
@@ -862,222 +816,18 @@ drift or replaces it, and the repository silently loses its own configuration. A
 gate that does not exist is reported on stderr rather than ignored, and an unreadable override leaves
 the managed gates running unchanged.
 
-**Gated** (`Stop`, exit 2): the app-pinned commands from the Quality Gates table in
-`general.md` and the steps in [`agent-stop.md`](./agent-stop.md) — Debug build, specs, Release
-build (with `-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath=` per `general.md`, so the proxy generator does not
+**Gated** (`Stop`, exit 2): Debug build, specs, Release
+build (with `-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath=`, so the proxy generator does not
 re-run and touch already-correct generated files), frontend lint / compile / compile-specs /
 test.
 
-## Handoff checker
-
-The `cratis-session-handoff` skill runs the harness-neutral validator before ending:
-
-```bash
-node .cratis/ai/hooks/scripts/cratis-check-handoff.mjs .ai-work/<task>/handoff.md
-```
-
-It checks the fixed template, paths, watch actions, branch/HEAD and state-note freshness.
-With no path it selects the newest `.ai-work/*/handoff*.md`. Use `--repo <dir>` or
-`--state-note <path>` to override those inputs, `--json` for one report object, and
-`--strict` to promote warnings to errors. Exit **0** means no errors, **1** means
-validation failed, and **2** means invalid arguments or an unreadable/non-handoff input.
-Git checks degrade to explicit skips offline or outside a repository; no network is used.
-
-This is not an agent-stop hook: a hook cannot reliably choose the active handoff,
-a moved-HEAD warning must not trap a deliberately ending session, and Pi has no
-turn-end hook. Follow-up: consider Stop wiring when a handoff newer than the last
-commit can be identified without guessing; keep the standalone command portable.
-
-## The package drift guards
-
-Three scripts sit outside the three layers and are not bound to a hook event: run
-`scripts/validate-package-subpaths.sh` directly and it chains `validate-type-references.sh` and
-`validate-package-imports.sh` over the same roots. They check the corpus text against the packages a
-repository actually has installed, so they are meaningful only where `node_modules` or a NuGet cache
-exists. The corpus's own structure, catalog and adapters are verified in the `Cratis/AI` repository
-before anything is published; a consuming repository checks its installed copy with `cratis ai status`.
-
-### Package subpath existence — `scripts/validate-package-subpaths.sh` (warn)
-
-Every other drift guard asserts that a string should *not* appear. This one is the other direction,
-and the only guard that knows what a package is. It extracts each `@cratis/<pkg>/<subpath>` the
-corpus names — fenced blocks, inline spans and table cells alike — from `.cratis/ai/rules`, `.cratis/ai/skills`,
-`.cratis/ai/agents` and `.cratis/ai/prompts`, then resolves it against the `exports` map of the package installed
-in `node_modules`. The exports map is exact and machine-readable, so a miss is a genuine miss.
-`.cratis/ai/hooks` is deliberately *not* one of the default roots — this page names bogus subpaths as
-examples, and a guard that reports its own documentation is a guard people switch off.
-
-It exists because nothing in the repository could catch documenting
-`@cratis/components/Notifications` (a subpath that first ships in **3.0.0**) while the pin is
-**2.6.1**. A prose-pattern matcher has no notion of a package, a version, or an exports map; a
-developer following the corpus got a module-resolution failure.
-
-**Warn, never fail — the tradeoff.** The observation is exact but the conclusion is not: "the corpus
-names an API that does not exist" and "this repository is pinned behind the version the corpus
-documents" look identical from the exports map. This script propagates to every Cratis repository,
-and the `ai-corpus` CI job checks out the tree and installs nothing — so failing would be a
-permanent no-op in CI while turning repos red locally for their own dependency pin. The warning
-names the file, the line and the installed version, and leaves the judgement to a human.
-
-> Every `.cs` / `.ts` / `Source/**` reference below describes what the hooks do in a repository
-> that has such a project. Where there is none — a documentation or corpus-only repository — the
-> hooks are silent, which is the designed behavior, not a broken setup.
-
-**Silent when it cannot judge.** No `jq`, no `node_modules`, a package this repository does not
-depend on, or a package published without an `exports` map: skipped without a word. "Not installed"
-is not a finding.
-
-**Version-qualified lines are not drift.** The corpus deliberately documents some 3.0.0+ APIs
-against a 2.x pin, marked inline as `(**≥ 3.0.0**)`. A reference is cleared when a line mentioning
-it in the same file also carries a version — a dotted number, an `N.x`, or either inequality
-spelling. Qualification is judged per *(file, reference)* rather than per line, because the corpus
-states a requirement once and then mentions the subpath again unqualified nearby; per-line matching
-would fire on exactly the lines someone had just fixed correctly. The check is deliberately generous
-in the same direction: it would rather miss a stale line than warn about a correct one.
-
-**What it deliberately does not check.** Named imports (`import { Toaster } from '…'`) are Tier 2's
-job, below; .NET types named in prose or in a C# type position are Tier 3's. This tier checks module
-specifiers, nothing else.
-
-Run it standalone, optionally over other roots, and add `CRATIS_HOOKS_SUBPATH_REPORT=1` to see every
-reference and how it resolved rather than only the failures. It invokes Tier 3 before its own gates
-and Tier 2 after its own work, over the same roots, so one call gets all three.
-
-### Named import existence — `scripts/validate-package-imports.sh` (warn)
-
-Tier 2, and the reason it exists is that Tier 1's answer is not the whole question: a subpath that
-resolves says nothing about the *names* imported through it. For every
-`import { A, B } from '@cratis/<pkg>/<subpath>'` in the corpus — single-line, brace-on-its-own-line,
-`import type`, `A as B` (the *imported* name is what has to exist), trailing `//` comments — it
-checks each identifier against the `.d.ts` closure of the installed package and warns about the ones
-that are not there. `Toaster`, `toastCommandResult`, `PasswordField`, `RatingField` and the rest are
-real APIs of `@cratis/components` **3.0.0** and absent from **2.6.1**; Tier 1 caught the three
-*subpaths* that moved with them, and the twelve *names* were found only by a human reading package
-internals.
-
-**Deliberately permissive, and here is the price.** A name passes when it appears as a *word
-anywhere* in the package's `.d.ts` closure — not only in an export position, not only behind the
-subpath it was imported from — and the closure follows `export … from '<other-package>'` re-exports
-one level out to another installed package. Intra-package barrels (`export * from './X'`) need no
-following, because the whole tree is read either way. That admits names the package merely
-*references* (an imported PrimeReact symbol, a name in a doc comment) and it will not notice a name
-imported from the wrong subpath of the right package. The trade is deliberate: a false warning
-trains people to ignore the guard, a missed one costs a stale line. Measured over the corpus's 85
-import statements / 134 bindings / 38 distinct *(package, name)* pairs plus a 36-pair all-valid
-probe: **zero false positives**, and it still flags all twelve of the 3.0.0 names above when they are
-written unqualified.
-
-**Same warn-only, same silence, same version rule as Tier 1.** No `jq`, no `node_modules`, a package
-this repository does not depend on, or a package that ships no `.d.ts`: skipped without a word. A
-name is cleared when any line in the same file that mentions it also carries a version — judged per
-*(file, name)*, for the same reason Tier 1 judges per *(file, reference)*.
-
-**What it deliberately does not check.** Identifiers that never appear inside an `import { … }`:
-prose mentions, JSX usages, and C# type positions are all invisible. It reads TypeScript import
-statements, nothing else.
-
-Run it standalone over any roots, and add `CRATIS_HOOKS_IMPORT_REPORT=1` to see every binding and how
-it resolved rather than only the failures.
-
-### .NET type existence — `scripts/validate-type-references.sh` (warn)
-
-Tier 3, and the only tier that reads .NET rather than TypeScript. Tiers 1 and 2 both start from an
-`import` statement, so a type the corpus names *only* in prose and in C# type positions is invisible
-to both. That is exactly how `ReactorSideEffect` survived: never a module specifier, never an import,
-told readers to return it from a reactor, shown with object-initializer syntax — and never a type in
-any Chronicle release. Someone following the corpus wrote code that does not compile.
-
-**The index.** Every `Cratis*` version pinned in `Directory.Packages.props` — or, in the corpus
-repository itself, in the tracked pin list `scripts/cratis-nuget-pins.txt`, which names the exact
-product versions the skills verify against — plus the Cratis packages those pull in (`Cratis` is a
-metapackage), resolved against the local NuGet cache. A pin moves only together with the skill
-whose verified version moved.
-
-**Exit codes.** `0` ran (warnings, if any, are on stderr); `1` a `--self-test` expectation failed;
-`2` could not run — no pin source, no NuGet cache, or an index that came up empty — with the reason
-on stderr. "Ran and found nothing" and "never looked" are different verdicts
-(`exit-codes-and-wrappers.md`), and this guard spent its first lifetime erasing that difference by
-exiting `0` at the `Directory.Packages.props` gate in a repository that has none (#287).
-
-**Self-test.** `--self-test` seeds the motivating fabrication (`ReactorSideEffect`, in prose, in
-attribute position, beside the real names it must be distinguished from) into a scratch corpus and
-fails unless the guard names it and keeps the real types silent. Run it after any change to the
-extraction rules, the pin list, or the allowlist — a guard that can pass vacuously is worse than no
-guard (`guards-and-fuses.md`). Each package's
-`lib/**/*.xml` carries `<member name="T:Full.Namespace.TypeName">` — a complete machine-readable type
-list — and every other identifier the docs mention is kept as a second, permissive accept list, in
-the same spirit as Tier 2's "a word anywhere in the `.d.ts` closure". Names the corpus itself
-declares, and names declared in the consuming repository's own `Source/**/*.cs`, are accepted too: a worked
-example that writes `public record AuthorRegistered(…)` before using it is not documenting a
-framework API. A curated allowlist covers the rest — see below.
-
-**Why it is narrow, and what that cost.** The naive version of this check is the reason the whole
-tier nearly did not ship. Of the **1279** distinct PascalCase names it reads across 151 corpus files,
-**599 — 47% — resolve nowhere**, because the corpus legitimately invents domain examples
-(`AuthorRegistered`, `IAuthorService`), placeholders and prose nouns. A guard that cries wolf 599
-times gets switched off, and then it protects nothing. So only two constructs are ever reported:
-
-| Construct | Why it is safe | Measured |
-|---|---|---|
-| **Attribute position** — `[Name]`, `[Name<T>]`, `[Name(…)]` inside an inline code span or a fenced `csharp` block | attribute brackets are unambiguous C#, and a markdown link cannot live inside a code span, so the syntax alone identifies an API reference; `Name` and `NameAttribute` both count | 686 occurrences, 61 distinct names |
-| **Framework-adjacent type token** — any other PascalCase token in a code span or a fenced `csharp` block that resolves nowhere **and** is a strict PascalCase-word-boundary *prefix* of a real Cratis type name | that is the fabrication signature: a half-remembered real family of names with a member coined that was never minted. `ReactorSideEffect` is a prefix of `ReactorSideEffectFailure`; `AuthorRegistered` is a prefix of nothing Cratis ships | takes the 599 unresolved down to **2** |
-
-Both remaining names — `ICommand` and `IQuery`, which do not exist — are cleared by the absence rule
-below, because the corpus's own point about them is exactly that. **Zero warnings on the real
-corpus.**
-
-**Constructs measured and rejected.** Each was extracted over the whole corpus and its unresolved
-names counted before being dropped: `new TypeName` in a fenced `csharp` block (**17** false positives —
-example events are constructed but never declared), `IInterfaceName` in a fenced `csharp` block (**17** —
-invented example services like `IOrderRepository`), the same in an inline code span (**23** —
-TypeScript interfaces and shouty prose such as `IMPORTANT`), and in bare prose (**2**, including the
-plural `IDs`). None of them survives the "precision over recall" test on its own. They are all still
-*read*; they simply have to earn a warning through framework-adjacency instead of through syntax.
-
-**Three structural exclusions, no allowlist needed.** A token is skipped when it is preceded by `.`
-(a member, not a type), when it is ALL-CAPS (`PII`, `IMPORTANT`), and when it is written as
-`<Placeholder>` — the corpus's `<Module>/<Feature>/<Slice>` idiom, distinguished from a generic
-argument list by the character before the `<`, which in C# is always an identifier character.
-
-**Same warn-only and same version rule as Tiers 1 and 2, plus one of its own.** A name is cleared
-when any line in the same file that mentions it carries a version, *or* says the thing does not
-exist — `does not exist`, `no longer`, `never use`, `removed`, `deprecated`, `there is no` and
-friends. Part of this corpus's job is naming APIs that are **not** real, and warning about a line
-whose entire point is that the type is fictional would be the most annoying false positive of all.
-The cost is stated plainly: reintroduce a fabrication into a sentence containing one of those
-phrases and the guard stays quiet.
-
-**Silent when it cannot judge.** No `Directory.Packages.props`, no local NuGet cache, or a cache
-holding none of the pinned versions: skipped without a word. It needs no `jq` and no `node_modules`,
-which is why Tier 1 invokes it *above* its own gates rather than beside the Tier 2 call — a backend-
-only repository must still get this check. It adds about 1.4 s to the chained run.
-
-**The allowlist — `scripts/type-references-allowlist.txt`.** Thirteen entries, each with a written
-justification: ASP.NET Core and BCL attributes that live in ref packs (which ship no XML docs at
-all), Orleans and `Microsoft.Extensions.*` attributes from packages that ship none either, `[CliCommand]`
-/ `[CliExample]` from the separate `Cratis/cli` repository, the Chronicle **Kernel**'s `WellKnown`,
-and `@cratis/fundamentals`' TypeScript `JsonSerializer`. Every one was verified real before being
-listed. An entry is a small lie the guard tells itself, so prefer widening the index whenever that
-is possible, and never add a name you have not confirmed exists.
-
-**What it deliberately does not check.** TypeScript — that is Tiers 1 and 2. Members, methods and
-properties: `Provide()`, `.AutoMap()` and `EventStoreName.NotSet` are all invisible, and a fabricated
-*member* on a real type would pass. And a fabricated type that is not a prefix of any real Cratis
-name is invisible too — the adjacency filter is what buys the precision, and it is also the ceiling
-on the recall.
-
-Run it standalone over any roots, and add `CRATIS_HOOKS_TYPE_REPORT=1` to see every distinct name and
-how it resolved rather than only the failures.
-
 ## Configuration is data, not code
 
-Neither the pattern list, the gate commands nor the `cratis` command classification live in a
-script. A consuming repository customises all three without forking anything:
+Neither the gate commands nor the `cratis` command classification live in a
+script. A consuming repository customises both without forking anything:
 
 | File | Purpose |
 |---|---|
-| `scripts/cratis-patterns.json` | shipped pattern set; its header `$comment` documents every field |
-| `scripts/cratis-patterns.local.json` | optional; merged over the above by `id` — add patterns, or set `"enabled": false` to silence one |
 | `scripts/quality-gates.json` | shipped gates; `changed` globs decide when a gate runs, `requires` and `workingDirectoryFrom` decide whether it *can* |
 | `scripts/cratis-store-mutations.json` | the store-mutation guard's read-only allowlist and known-mutating list, each entry with its reason or effect, and the CLI options it skips; its header `$comment` documents every field and the CLI version the lists were derived from |
 | `scripts/cratis-store-mutations.local.json` | optional; its lists are appended to the above. It can classify a command a newer CLI adds, or list a shipped read-only command as mutating (a command on the mutating list always blocks); only a replacement file can make a known mutation read-only |
@@ -1159,7 +909,7 @@ suites are not passes; unsupported runners need a repository-owned invocation ov
 
 For a large solution, replace the placeholder below with the affected project directory,
 TFM and AssemblyName and repeat for affected dependents. Use that executable's filter/report
-flags (see [running-specs](../skills/cratis-specifications-csharp/references/running-specs.md)),
+flags,
 not VSTest logger switches. Override `command` rather than raising a timeout without diagnosis:
 
 ```json
@@ -1172,13 +922,6 @@ all solution projects, executing each test project independently rather than sil
 dependents. Non-test projects are explicitly skipped; a solution with none reports no verified
 specifications. A timeout is never a pass. Reports are local under `.ai-work/spec-runs/`.
 
-**Profile note.** The C# patterns are application-profile and scoped to `Source/**/*.cs`, which is
-the application source root [`../rules/general.md`](../rules/general.md) documents. A
-framework-profile repository (Arc, Chronicle,
-Fundamentals, Components — see [`../rules/framework.md`](../rules/framework.md)) has no vertical
-slices and should disable them in its `cratis-patterns.local.json`; a repository whose application
-source root is not `Source/` re-scopes the `paths` globs there too.
-
 **`CratisProxiesSkip` is the proxy generator's off switch.** From Arc 22.185.1 the generator's
 target runs only when `CratisProxiesOutputPath` is non-empty and `CratisProxiesSkip` is not
 `true`, so `-p:CratisProxiesSkip=true` skips it even when the output path is set. Before 22.185.1
@@ -1187,7 +930,7 @@ silently (MSBuild accepts unknown `-p:` names), so the shipped gates pass both. 
 generated and committed by the client, never in CI, so CI builds always skip generation.
 
 The Debug/Release split applies to the shipped client-side local gates only: Release clears the
-path, and the committing client's Debug gate does not, because `general.md` makes the Debug build
+path, and the committing client's Debug gate does not, because the Debug build is
 the canonical trigger for regenerating the TypeScript proxies the frontend phase depends on, and
 the client commits the result. A consuming repository's CI never copies the Debug proxy step; it
 passes `-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath=` (Skip needs Arc 22.185.1 or
@@ -1223,11 +966,9 @@ Each is an explicit, auditable opt-out — none of them is a default.
 | Variable | Effect |
 |---|---|
 | `CRATIS_HOOKS_ALLOW_PROTECTED_WRITES=1` | bypasses both Write/Edit and shell-write guards, including `.env`, agent controls and installed trees, while set in the harness environment; use only for an explicitly requested protected write. Repository-scoped manifest allowance uses `.cratis/ai.json` instead and never bypasses those protections |
-| `CRATIS_HOOKS_SKIP_SCAN=1` | disables the pattern pass |
 | `CRATIS_HOOKS_SKIP_GATE=1` | disables the quality gate |
 | `CRATIS_HOOKS_GATE_DRYRUN=1` | prints which gates would run, and why, then exits 0 |
 | `CRATIS_HOOKS_GATE_TIMEOUT_SECONDS=<n>` | Pi only: stops a `cratis_quality_gate` run after `n` seconds (default 300, maximum 600) and reports it as timed out |
-| `CRATIS_HOOKS_PATTERNS=<path>` | replaces the pattern file |
 | `CRATIS_HOOKS_GATES=<path>` | replaces the gate file (the project override still merges over it) |
 | `CRATIS_HOOKS_ALLOW_STORE_MUTATIONS=1` | allows `cratis chronicle` commands that change a live store; set by the person who authorized the mutation, in the environment the harness was started from |
 | `CRATIS_HOOKS_ALLOW_SECRET_READS=1` | allows commands the secrets guard blocks; set by the person who authorized the read, in the environment the harness was started from — an assignment inside the command is ignored |
@@ -1242,26 +983,22 @@ Each is an explicit, auditable opt-out — none of them is a default.
   (macOS system bash) — no `mapfile`, no associative arrays, no GNU-only flags, `LC_ALL=C` on
   every sort and compare.
 - **Gate commands are an argv array**, executed directly. They never pass through a shell.
-- **`jq` is the dependency for the write, store-mutation, secret, pattern and quality hooks.** The
+- **`jq` is the dependency for the write, store-mutation, secret and quality hooks.** The
   write, store-mutation and secret guards refuse every call while it is missing (exit 2, with the
   reason and the install hint on stderr). Without `jq`, the quality gate blocks changed trees with
   an install hint (exit 2); dry runs warn with exit 0. Unchanged trees, non-Git directories,
   Stop-hook re-entry and `CRATIS_HOOKS_SKIP_GATE=1` still exit 0 silently. A person accepting
   unverified turn ends can set that escape hatch in the environment the harness was started from.
-  The pattern scan exits 0 with a one-line stderr notice at most once per session (or on each call
-  if session state is unavailable). The PR-body hook uses Node instead, and the checker uses Git
+  The PR-body hook uses Node instead, and the checker uses Git
   and `gh` as described above.
 - **Fail safe.** Malformed config, empty stdin, a missing file, a binary file, a file over 2 MB:
   all exit 0 silently. The one deliberate exception is the store-mutation guard's command lists:
   an unreadable shipped or local list is not an empty allowlist that happens to pass, so every `cratis chronicle`
   command is then blocked with a message naming the file, and a classifier that fails to run blocks
   the command it was given. Commands that never mention `cratis` are unaffected either way.
-- **No secrets, no file dumps.** Gate output is capped at `maxOutputLines`; the pattern pass
-  prints a path, a line number and a fixed message — never file content.
+- **No secrets, no file dumps.** Gate output is capped at `maxOutputLines`.
 - **No re-entry.** The `Stop` hook returns immediately when `stop_hook_active` is true, so a
   blocked turn cannot loop.
-- **Each pattern fires once per file per session**, tracked under
-  `${TMPDIR}/cratis-hooks/<session-id>/`, so a long edit loop cannot flood context.
 - **The gate never edits code.** It builds, tests and lints. The one side effect is that a Debug
   build regenerates TypeScript proxies, which is the documented purpose of that build.
 
@@ -1269,16 +1006,10 @@ Each is an explicit, auditable opt-out — none of them is a default.
 
 The scripts read hook JSON on stdin, so they are directly testable:
 
-The pattern pass and the gate both read the repository they are pointed at, so testing them means
-pointing them at a repository that *has* the thing under test; where it is absent, expect silence.
+The gate reads the repository it is pointed at, so testing it means
+pointing it at a repository that *has* the thing under test; where it is absent, expect silence.
 
 ```bash
-# Pattern pass — expect exit 0, and JSON on stdout only when something matched.
-# Run from an application checkout; <Module>/<Feature>/<Slice> is the layout general.md documents.
-jq -nc '{session_id:"t", cwd:"'"$PWD"'", tool_name:"Edit",
-         tool_input:{file_path:"'"$PWD"'/Source/<Module>/<Feature>/<Slice>/<Slice>.cs"}}' \
-  | bash .cratis/ai/hooks/scripts/cratis-pattern-scan.sh; echo "exit=$?"
-
 # Hard block — expect exit 2
 jq -nc '{session_id:"t", cwd:"'"$PWD"'", tool_name:"Edit",
          tool_input:{file_path:"'"$PWD"'/Directory.Packages.props", new_string:"x"}}' \
@@ -1305,60 +1036,6 @@ jq -nc '{tool_name:"Bash", tool_input:{command:"kubectl get pods -o name"}}' \
 # Quality gate — show the dispatch plan without running anything
 jq -nc '{session_id:"t", cwd:"'"$PWD"'", stop_hook_active:false}' \
   | CRATIS_HOOKS_GATE_DRYRUN=1 bash .cratis/ai/hooks/scripts/cratis-quality-gate.sh
-```
-
-The subpath guard takes corpus roots as arguments, so it is testable in both directions without
-touching the corpus — point it at a scratch folder holding a known-bad reference, then at the real
-roots. A one-sided test passes vacuously; run both.
-
-```bash
-# Negative — expect a warning naming the file and line
-mkdir -p /tmp/scratch-corpus
-echo "import x from '@cratis/components/ThisDoesNotExist';" > /tmp/scratch-corpus/drift.md
-bash .cratis/ai/hooks/scripts/validate-package-subpaths.sh .cratis/ai/rules /tmp/scratch-corpus
-
-# Positive — expect silence, and the report to show every real reference resolving
-CRATIS_HOOKS_SUBPATH_REPORT=1 bash .cratis/ai/hooks/scripts/validate-package-subpaths.sh
-```
-
-Tier 2 is testable the same way, and wants a third run the subpath guard does not: a probe of names
-that all genuinely exist. A guard that warns on everything passes the negative test just as well as
-a correct one, so prove it stays quiet when it should.
-
-```bash
-# Negative — a fabricated name behind a subpath that resolves
-mkdir -p /tmp/scratch-corpus
-echo "import { CommandDialog, ThisNameDoesNotExist } from '@cratis/components/CommandDialog';" \
-  > /tmp/scratch-corpus/drift.md
-bash .cratis/ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
-
-# Discrimination — every name real, expect silence
-echo "import { DataPage, MenuItem } from '@cratis/components/DataPage';" \
-  > /tmp/scratch-corpus/drift.md
-bash .cratis/ai/hooks/scripts/validate-package-imports.sh /tmp/scratch-corpus
-
-# Positive — the real corpus, with the report showing every binding resolving
-CRATIS_HOOKS_IMPORT_REPORT=1 bash .cratis/ai/hooks/scripts/validate-package-imports.sh
-```
-
-Tier 3 wants the same three runs, and its negative case is the one that motivated it. Put
-`ReactorSideEffect` back into a scratch corpus and the guard must name it; a design that misses its
-own motivating case is the wrong design.
-
-```bash
-# Negative — the confirmed fabrication, in prose and in object-initializer syntax
-mkdir -p /tmp/scratch-corpus
-printf 'A reactor may return a `ReactorSideEffect` to control where the event is appended.\n' \
-  > /tmp/scratch-corpus/drift.md
-bash .cratis/ai/hooks/scripts/validate-type-references.sh /tmp/scratch-corpus
-
-# Discrimination — every name real, expect silence
-printf 'Return `EventForEventSourceId`, or a `ReactorSideEffectFailure` from an `IReactor`.\n' \
-  > /tmp/scratch-corpus/drift.md
-bash .cratis/ai/hooks/scripts/validate-type-references.sh /tmp/scratch-corpus
-
-# Positive — the real corpus, expect silence, with the report showing how each name resolved
-CRATIS_HOOKS_TYPE_REPORT=1 bash .cratis/ai/hooks/scripts/validate-type-references.sh
 ```
 
 Run `bash -n` on every script and `jq .` on every JSON file before committing. The owning

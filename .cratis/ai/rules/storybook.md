@@ -1,13 +1,13 @@
 ---
 applyTo: "**/*.stories.tsx"
-profile: application
 paths:
   - "**/*.stories.tsx"
+profile: cratis/components
 ---
 
 # Storybook Story Conventions
 
-Stories are visual coverage and documentation for reusable React components built on Cratis Components — **not** the behavior test suite. Non-trivial view-model/helper behavior still needs BDD Vitest specs (see [frontend-testing.md](./frontend-testing.md)). Every story file is colocated with the component it covers.
+Stories are visual coverage and documentation for reusable React components built on Cratis Components — **not** the behavior test suite. Behavior is specified with **cratis-specifications-observe-ui**, not with stories; a story is never a quota to fill. Every story file is colocated with the component it covers.
 
 ## When to write a story
 
@@ -77,8 +77,3 @@ Wrap with `MemoryRouter` via a story decorator when a component uses `Link`/`use
 ## Gate
 
 `build-storybook` should be green in CI — it compiles every story and `play:` function (catching broken imports/decorators) but does not execute play assertions.
-
-## See also
-
-- [react.md](./react.md) — component patterns; [components.md](./components.md) — component structure/styling.
-- [frontend-testing.md](./frontend-testing.md) — BDD Vitest specs (the behavioral gate).

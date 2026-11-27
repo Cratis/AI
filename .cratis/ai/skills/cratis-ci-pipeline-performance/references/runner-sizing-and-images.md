@@ -14,11 +14,11 @@ installing tools, or when choosing runners and deciding how to warm workspaces.
 
 ## Choosing Cratis runners
 
-Read the [Infrastructure runner guide](https://github.com/Cratis/Infrastructure/blob/main/Documentation/deployment/github-runners.md)
-for the UpCloud scale sets, resource requests and limits, pod ceilings, scratch
-storage and autoscaling. Keep those numbers there, not in this skill. The routing
-and public-fork safety invariants live in
-[github-actions.md](../../../rules/github-actions.md).
+Read the Infrastructure repository's GitHub runners guide for scale sets,
+resource requests and limits, pod ceilings, scratch storage and autoscaling.
+Keep those numbers there, not in this skill. Follow the `github-actions` rule
+where installed with an engineering profile for runner routing and public-fork
+safety.
 
 Choose by the work, not just the queue length:
 

@@ -13,7 +13,7 @@
 
 Commits are the permanent record of how the codebase evolved. Each commit should tell a clear story: *what* changed and *why*. A reviewer reading `git log --oneline` should understand the arc of the work without opening any diffs.
 
-The history rules (append-only history, the forbidden commands, merge commits only) stay always-on in [git-commits.md](../../../rules/git-commits.md). This reference holds the procedure.
+History is append-only. Never rebase, squash, amend, or force-push; integrate branches with merge commits.
 
 ## Why history is never rewritten
 

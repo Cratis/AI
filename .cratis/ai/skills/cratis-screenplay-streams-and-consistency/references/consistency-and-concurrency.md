@@ -11,12 +11,10 @@
 - 7. Ordering
 - 8. Projection lag and rebuild
 - 9. Corrections and backdated facts
-- 10. Specification limits (no local spec engine)
+- 10. Specification limits
 - First append into a scope
 
-For installed tool versions see `SKILL.md` of `cratis-screenplay-toolchain`.
-
-Routing identity checks verified: PLAY0515 refuses personal/secret
+PLAY0515 refuses personal/secret
 concepts in stream-id types, composite parts and route sources, including nested
 paths. Composite keys require every named scalar part, not a legacy separator
 split. Text must be well-formed, nonempty NFC and Double integer ids bounded by
@@ -24,7 +22,7 @@ split. Text must be well-formed, nonempty NFC and Double integer ids bounded by
 Canonical specification comparisons preserve part order and treat UUID case
 variants as equal. Key-schema evolution for stored events requires a new stream
 identity or migration. These checks do not protect command decision reads.
-Details: toolchain `references/sources-and-streams.md`.
+See [stream-id rules](stream-id-rules.md) for literal and rename constraints.
 
 ## 1. Invariant table (fill before writing constraints)
 | # | Rule (business words) | Data it needs | Decided atomically where | Screenplay construct | Status | Race / retry outcome |
@@ -64,12 +62,10 @@ observed legacy check from verified atomic protection.
 Never accept the caller's copy of the state: `currentStatus Status` on the command with
 `require currentStatus == "approved"` protects nothing, and neither does a boolean attestation
 input (`confirmsX == true`) standing in for the rule. Never move the rule into `handler` or
-`implementation hint` prose; a description renders only as an XML doc comment (Stage#178), so prose alone leaves
-the rule unenforced in rendered scope.
+`implementation hint` prose; prose alone leaves the rule unenforced in rendered scope.
 
-First inspect [protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md):
-opt eligible command reads into v25, retain absence/conflict specifications and verify
-target consistency separately. Stage admits v25 and renders protected reads from 4.138.0 (STAGE-ESM-044 otherwise).
+For eligible command reads, declare `command reads protected` at the application root.
+Retain absence/conflict specifications and verify target consistency separately. Stage admits v25 and renders protected reads from 4.138.0 (STAGE-ESM-044 otherwise).
 Semantic Host/executor support has separate severity and outside-append limits. A payload-keyed
 fan-in such as the course-capacity example remains refused; the preamble is not a
 blanket admission of arbitrary projections.
@@ -81,7 +77,7 @@ For legacy models without opt-in or refused shapes, write stated intent and mark
 - Slice `description`: one short marker per rule, `NOT enforced in the model today; target: <mechanism>`.
 - Slice fenced `documentation`, one block per rule:
   - Requirement: the business rule in business words.
-  - Status: NOT enforced in the model today (Screenplay#129).
+  - Status: NOT enforced in the model today.
   - Decision inputs: the authoritative facts or state.
   - Missing guarantee: why the construct does not protect the decision.
   - Race consequence: what two individually plausible commands could jointly violate.
@@ -115,13 +111,11 @@ unfiltered reducer without constructor dependencies. Filtered reducers, reducers
 joins, children, nested sources and **event-property routing** (fan-in from many streams by a payload reference) are refused, and a concurrency scope
 on the referenced source does not see appends made on other sources. A rule over such a view, for
 example a course capacity computed from enrolment streams, needs option a or b: write the
-deciding fact on the source that owns the state, or give each scarce item its own identity. Sources: Arc `Documentation/backend/csharp/chronicle/read-models/injecting-into-commands.md` (limits unchanged);
-`chronicle-boundaries.md`.
+deciding fact on the source that owns the state, or give each scarce item its own identity (see [Chronicle boundaries](chronicle-boundaries.md)).
 
 **Availability in Stage-rendered applications.** The Stage scaffold pins Arc and Chronicle client/kernel
 releases (not the latest). `[ProtectedDecision]` and `DecisionRead<T>` /
-`IDecisionReads` exist in that package set; source checks are in
-`cratis-stage-rendering-and-sandbox` `references/rendered-application.md`.
+`IDecisionReads` exist in that package set.
 This does not mean Stage emits protected decisions. Gap-fill must opt into the
 protected command profile, use an admitted projection/key shape and enroll the
 read in the active unit of work. For refused shapes choose option a/b (state on
@@ -137,7 +131,7 @@ For each enforced or recorded rule write three short scenarios:
 - **race**: two commands for the same claim at the same moment -> which one wins, what the
   loser sees. With constraints: one append commits, the other is rejected. Note: Chronicle
   checks uniqueness before the commit and updates the index after it; index update failures
-  are logged, not rolled back (Screenplay `constraints.md`, Chronicle#4123, open). Do not call it an
+  are logged, not rolled back; do not call that an
   atomic index-and-append guarantee.
   When a command's protected read changed and its uniqueness constraint is violated in the same
   commit, the observable refusal is the constraint refusal, not the concurrency conflict: assert
@@ -161,7 +155,7 @@ See "First append into a scope" in SKILL.md.
 |---|---|---|
 | once-only event occurrence | the fact exists at most once per source (or value) | `unique event` / `unique … on` + violation spec |
 | idempotent command handling | repeating a request yields the same outcome to the caller | target behaviour; the model shows a rejection, the target maps "already has the event" to success where intended |
-| exactly-once external effect | the outside world sees the effect once (email, payment) | cannot be shown by the model; see `cratis-screenplay-automations-and-translations` |
+| exactly-once external effect | the outside world sees the effect once (email, payment) | cannot be shown by the model |
 
 ## 6. Lost acknowledgements
 The append may commit while the reply is lost. The caller retries. Decide per command:
@@ -181,12 +175,8 @@ behaviour. Write the answer in the slice `documentation`.
   then `then readmodel`; also cover a given child followed by `when append <ParentEvent>`.
   The reference evaluator defers the child until its original parent exists. A parent
   that never arrives leaves the child absent; an ambiguous parent still fails closed.
-  This is reference execution, not a Chronicle runtime/race proof. Complete example:
-  [child ordering](../../cratis-screenplay-specifications/references/child-ordering.md).
+  This is reference execution, not a Chronicle runtime/race proof. Use [cratis-screenplay-specify-outcome](../../cratis-screenplay-specify-outcome/SKILL.md) to run the outcome specifications.
   Requires Screenplay 4.149.1 or later (`screenplay --version`) for child-before-parent ordering.
-  Sources: Cratis/Screenplay
-  `Documentation/screenplay/projections/semantic-model.md` and
-  `Source/DotNET/Screenplay/Semantics/Execution/SemanticScopedProjection.Deferred.cs`.
 - Constraints are evaluated in append order, including earlier appends of the same command.
 
 ## 8. Projection lag and rebuild
@@ -209,13 +199,12 @@ behaviour. Write the answer in the slice `documentation`.
   differ (backdated sickness, late-reported delivery), model it as a property and decide which
   date views and rules use. Constraints and reactions still see record order.
 
-## 10. Specification limits (no local spec engine)
+## 10. Specification limits
 - A spec can show a source re-claiming its own value, a `unique event` violation and a collision
   between two different sources: `for` on `given` events (ESM v2) establishes a claim on one source
-  and attempts the same value on another (`specifications.md`; `streams-example.md` uses it). It is a
-  sequential history, not a race proof. The `constraints.md` sentence that it "cannot yet show a
-  collision between two event sources" is stale (Screenplay `constraints.md` versus `specifications.md`).
-  Spec outcomes come only from a reference run (V4) or rendered tests. See `cratis-screenplay-scenario-coverage`.
+  and attempts the same value on another (see [the worked example](streams-example.md)). It is
+  a sequential history, not a race proof. Count a specification result only from a reference
+  run or rendered tests; see [cratis-screenplay-specify-outcome](../../cratis-screenplay-specify-outcome/SKILL.md).
 - Constraint violation messages are fixed strings: copy them exactly into `then error`.
 - For every value constraint write a competing-claim spec (one source owns the value, a
   different source attempts it) using `when <Command>` with the earlier fact as `given`.
@@ -242,5 +231,4 @@ needs it:
 Require target evidence that the check ran: a concurrent first-append scenario against a real
 Chronicle, asserting one append wins, one is rejected, and `IAppendResult.ConcurrencyCheckPerformed`
 is `true` (a skipped check and a passing one look identical otherwise; a current client against
-an older kernel always reads `false`). Treat the default as unchecked until target evidence shows otherwise (a future major release can flip the default, so read the target's release notes). The Stage scaffold pins Chronicle client/kernel and Arc releases (see `cratis-stage-rendering-and-sandbox` `references/rendered-application.md`;
-the CLI bundle's Chronicle follows the installed CLI: `cratis --version`); the APIs exist for gap-fill, not as automatically rendered enforcement.
+an older kernel always reads `false`). Treat the default as unchecked until target evidence shows otherwise. Check the versions actually used: Stage pins the Arc and Chronicle releases and the CLI bundle follows the installed `cratis --version`. The APIs are available for gap-fill, not as automatically rendered enforcement.

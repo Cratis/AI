@@ -7,7 +7,7 @@ paths:
 
 # Code Quality — TypeScript
 
-TypeScript/React-specific applications of the general [Code Quality](./code-quality.md) principles.
+TypeScript/React-specific code quality rules.
 
 ## Composition over Inheritance
 

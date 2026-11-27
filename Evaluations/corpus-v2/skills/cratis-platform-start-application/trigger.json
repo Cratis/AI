@@ -1,0 +1,1 @@
+{"skill":"cratis-platform-start-application","queries":[{"query":"I have an empty folder. Get me a running Cratis .NET and React starter with the application guidance installed.","shouldTrigger":true},{"query":"Our existing preview host connects to the wrong event store. Which setting should we bind?","shouldTrigger":false,"sibling":"cratis-platform-configure-environment"}]}

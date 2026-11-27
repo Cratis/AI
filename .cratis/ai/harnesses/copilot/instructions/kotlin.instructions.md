@@ -13,8 +13,8 @@ classes, `null`-aware types, coroutines, sealed hierarchies — instead of
 carrying Java or C# patterns across unchanged. A Cratis Arc or Chronicle
 application on Kotlin follows Spring Boot conventions for wiring and this
 file's conventions for everything else; Arc/Chronicle-specific shapes
-(`@Command`, `@ReadModel`, `@EventType`, and the rest) live in the matching
-skill, not here.
+(`@Command`, `@ReadModel`, `@EventType`, and the rest) are chosen with
+**cratis-arc-select-backend-sdk**, not here.
 
 ## Building
 
@@ -38,7 +38,7 @@ skill, not here.
 
 All identifiers, KDoc, and string literals use **American English** spelling
 (initialize, serialize, behavior, color, organization, center, modeling,
-dialog, license, judgment, gray). See [general.md](../../../rules/general.md).
+dialog, license, judgment, gray).
 
 ## Naming
 
@@ -144,8 +144,8 @@ should assume by default:
 
 - Use exceptions for genuinely exceptional, unrecoverable conditions — not for
   control flow a caller is expected to handle. A command or query rejection a
-  user can act on is a validation result, not a thrown exception; see the
-  Arc validation skills.
+  user can act on is a validation result, not a thrown exception; see
+  **cratis-arc-validate-command**.
 - Define a custom exception type when a caller needs to distinguish it from
   other failures; do not throw a bare `RuntimeException`/`IllegalStateException`
   for something callers are expected to catch specifically.

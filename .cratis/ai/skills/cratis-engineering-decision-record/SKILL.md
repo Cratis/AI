@@ -7,8 +7,9 @@ license: LICENSE
 # Cratis decision records
 
 A decision is a durable choice with a **decider** and a **date**. It is
-documentation, not a work record: it lives in the repository's `decisions/`
-folder (or the folder `.cratis/ai.json` sets as `process.decisions.path`) and is reviewed like any other documentation. A handover may summarize a
+documentation, not a work record: it lives in the repository's `decisions`
+folder (or the folder `.cratis/ai.json` sets as `process.decisions.path`) and
+is reviewed like any other documentation. A handover may summarize a
 decision; it never holds the only copy.
 
 This skill owns the *procedure* — how to consult, author, accept, and supersede
@@ -34,7 +35,7 @@ into an approval ceremony merely because this skill is available.
 
 - **Session notes, plans, handovers, status boards.** Those are work records.
   They belong in the repository's ignored local working directory, never in
-  `decisions/`.
+  the decision folder.
 - **Product or API documentation.** A record says what was chosen and why; the
   documentation says how the thing works. Use the documentation workflow.
 - **A work item's status.** "Blocked on X" is a work item field, not a decision.
@@ -52,7 +53,7 @@ into an approval ceremony merely because this skill is available.
 ## Steps
 
 1. **List the records in force for the paths you are changing.** Read
-   `decisions/` (or the configured folder), keep the records whose `applies-to` matches a path you are
+   the decision folder, keep the records whose `applies-to` matches a path you are
    about to touch and whose `status` is `accepted`, and order them newest first.
    Report the count — "0 records matched" and "3 matched, none contradicted" are
    different verdicts and must read differently.
@@ -101,9 +102,8 @@ into an approval ceremony merely because this skill is available.
     names the one it replaces in `supersedes`; the replaced record's `status`
     becomes `superseded` and it gains a `superseded-by` pointer forward, with
     its original text preserved. Keep committed trailers and existing issue and
-    pull request text as written: they record which decision governed that work,
-    and updating a committed trailer means rewriting history, which
-    `git-commits` forbids. Cite the new id on new commits and new work. For
+    pull request text as written: they record which decision governed that work.
+    Never rewrite history to update a committed trailer. Cite the new id on new commits and new work. For
     open work, add a forward link only where the user or an applicable policy
     authorizes that issue or pull request effect; authority to write a record does
     not cover it, and never rewrite another author's text. A reader arriving at
@@ -123,7 +123,7 @@ Read [record-format.md](references/record-format.md) when authoring or updating 
   reads as authority but resolves to no one.
 - **Decision text edited in place.** The next reader sees text nobody ever
   agreed to, and the people who relied on the old wording have no way to tell
-  what changed. This is the failure that makes a whole `decisions/` folder
+  what changed. This is the failure that makes the decision folder
   untrustworthy, because it is invisible.
 - **A one-way supersession.** The new record says it supersedes the old one, but
   the old one still reads as accepted. Whoever arrives from a search, a
@@ -153,5 +153,5 @@ Read [record-format.md](references/record-format.md) when authoring or updating 
 - **The stage matches the evidence.** `implemented` is confirmed by the change
   being in the tree; `verified` is confirmed by naming the signal — the command,
   the gate, the observed behavior — that was watched *this time*.
-- **The index resolves.** Every record in `decisions/` appears in the index, and
+- **The index resolves.** Every record in the decision folder appears in the index, and
   every index entry resolves to a file.

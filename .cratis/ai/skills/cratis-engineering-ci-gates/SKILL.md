@@ -10,12 +10,12 @@ compatibility: Requires git and the GitHub CLI (gh).
 
 # Run the gate once, then watch the exact run
 
-Operate checks; do not redesign workflows here. Read
-[verification-discipline.md](../../rules/verification-discipline.md) for verification
-contracts, and
-[pull-requests.md](../cratis-commits-and-pull-requests/references/pr-labels-and-release.md#quality-gates) for required checks.
-Read [capability-is-not-authority.md](../../rules/capability-is-not-authority.md)
-before an external effect. A request to verify does not authorize a push.
+Operate checks; do not redesign workflows here. Run the applicable local gates
+before pushing and require the repository's required CI checks before merging.
+For release labels and PR body checks, use
+[cratis-platform-prepare-release-pr](../cratis-platform-prepare-release-pr/SKILL.md).
+A `no-release` label never waives required checks.
+A request to verify does not authorize a push.
 
 ## Derive the local gate
 
@@ -46,7 +46,7 @@ replaces defaults; project overrides still apply.
    when every discovered project has execution coverage; use repository tooling,
    not a universal framework-specific scanner in this corpus.
 3. Prefer the repository's existing gate script. If none exists, keep a small
-   local runner under `.ai-work/`, with each phase's real exit status preserved.
+   local runner in the ignored scratch folder, with each phase's real exit status preserved.
    Do not substitute only the touched projects for the final gate. The done gate
    runs its tier's CI shards unfiltered; filters are for iterating only.
 4. **Tier 1** is the whole-solution build with CI's configuration and warning
@@ -64,11 +64,10 @@ replaces defaults; project overrides still apply.
 7. A change to a command, read model or query shape runs the repository's proxy
    and API regeneration checks; never hand-edit generated files. A package bump
    regenerates the checked-in snapshots that pin versions, in the same commit.
-   Arc TypeScript proxies are generated and committed by the client, never in CI:
-   CI, and local gates that mirror CI, pass `-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath=`
-   (Skip needs Arc 22.185.1 or later; the empty path covers earlier Arc); only the
-   client's own Debug hook regenerates proxies. See the
-   **cratis-arc-command** proxy-generation reference.
+   For Arc TypeScript proxy generation in the client's Debug build, use
+   cratis-arc-generate-proxies (`cratis/arc/core`). Keep generation out of CI and
+   its local mirror: pass `-p:CratisProxiesSkip=true -p:CratisProxiesOutputPath=`
+   (`CratisProxiesSkip` needs Arc 22.185.1 or later; the empty path covers older Arc).
 
 Use affected-project checks while coding and writing specifications. Build once
 at the end: run the full local gate when the work is believed complete, not after
@@ -90,7 +89,7 @@ a failure needs the required gate again.
 - Capture the producer's exit status before summarizing output; `pipefail` alone is
   insufficient with early-closing consumers such as `head`. Never use
   `build/test | grep | sort/head/tail` as gate evidence. Printed zero-error counts are
-  not proof of success. Preserve needed full diagnostics in task-scoped `.ai-work/`
+  not proof of success. Preserve needed full diagnostics in the task’s ignored scratch folder
   logs rather than hiding them in `/tmp`.
 - Fast feedback is a product requirement: a spec takes milliseconds, the suite seconds;
   specs share setup and run in parallel; analyzers must not halt builds. CI builds the
@@ -146,7 +145,7 @@ repeated `gh run list`, `gh run view` or PR-check requests while waiting.
 
 Say: "Waiting on CI run <id> for the current PR head." Do independent work while
 it runs. If none remains, end the turn. If the watch cannot finish in the session,
-leave a handoff under `.ai-work/` with the SHA, run ID and outstanding checks;
+leave a [handoff](../cratis-session-handoff/SKILL.md) with the SHA, run ID and outstanding checks;
 report the wait as incomplete, not successful. A watch timeout does not cancel
 the remote run and is not a failed-test diagnosis.
 
@@ -231,8 +230,7 @@ When a test run hangs, ask for a mini hang dump (`--blame-hang-dump-type mini` o
 For a repository's Compose test setup, one scoped teardown example is
 `docker compose -p <task-project> down`, under its own deadline. Do not add
 volume deletion unless those volumes are disposable and owned by this task.
-Keep secrets out of logs and artifacts per
-[secrets.md](../../rules/secrets.md).
+Keep secrets out of logs and artifacts.
 
 ## What breaks
 

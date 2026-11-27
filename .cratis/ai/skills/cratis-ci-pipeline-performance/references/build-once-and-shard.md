@@ -172,9 +172,8 @@ build performance references).
 ## Specs from built executables
 
 xUnit v3 projects are executables: run the built file from the build tuple's output
-directory instead of `dotnet test`, which rebuilds implicitly. Native filters are
-owned by [running-specs](../../cratis-specifications-csharp/references/running-specs.md);
-do not restate the syntax here. Fail closed on counts:
+directory instead of `dotnet test`, which rebuilds implicitly. Use the repository's
+configured test runner and its native filter syntax. Fail closed on counts:
 
 - every shard reports executed > 0;
 - the total across shards equals the spec count before the change;

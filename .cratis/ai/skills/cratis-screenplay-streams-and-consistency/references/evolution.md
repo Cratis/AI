@@ -25,14 +25,13 @@ current-property edits still require exactly one of `newGeneration` or
 `eventNeverPersisted`; unadmitted revisions default to in-place edits; admitted
 revisions accept only explicit `newGeneration`. Never hand-edit the sidecar except
 a reviewed correction. The baseline freezes resolved shared schemas too, not just
-event declaration text. Full CLI exits, MCP review and source evidence:
-model-authoring [release baseline](../../cratis-screenplay-model-authoring/references/release-baseline.md).
+event declaration text. For identity-aware workspace edits use [cratis-screenplay-edit-workspace](../../cratis-screenplay-edit-workspace/SKILL.md).
 
 Edit class depends on whether the event is **persisted** (facts may be stored: the model was
 accepted, deployed or rendered into a running system; ask when unsure). Changing an
 unpersisted event's members is an ordinary text edit when no `.screenplay/identities.json` exists; with it, adding or removing event properties changes catalog addresses and goes through MCP. Any change to a
 persisted event's contract (new generation, property added, removed or retyped, meaning) is
-**contract evolution**: identity-affecting (identity procedure in `cratis-screenplay-modeling-lifecycle`). Write the
+**contract evolution**, an identity-affecting change. Write the
 compatibility scenarios below first; the identity owner then applies the change (see
 *Identity owner*). The table assumes a persisted event.
 
@@ -69,18 +68,11 @@ promise rendered storage compatibility or remove the pin to make rendering pass.
 A passing reference specification is not a stored-history test: reference facts
 still use contract/display names. If an older renderer already stored events under
 the new name, switching the stored type needs a reviewed baseline correction or
-data migration, not a silent re-render. The `--from-esm` stored-name behavior is in the
-release-baseline reference.
+data migration, not a silent re-render.
 
 Requires Screenplay 4.152.0 or later (`screenplay --version`) for `storedName` (ESM v16) and 4.153.0 or later for the release baseline.
 
-Sources: Cratis/Screenplay `Documentation/screenplay/events.md`,
-`Source/DotNET/Screenplay/Semantics/SemanticModelBinder.StoredEventNames.cs`,
-`SemanticModelBinder.Structure.cs` in the same folder, and
-`Source/DotNET/Screenplay.Mcp/McpWorkspaces.Refactoring.cs`.
-Target evidence: toolchain `references/diagnostics.md` (Reserved stored names and event pins).
-Source/stream stored names already travel in ESM v8; stream `All` remains reserved
-regardless of a pin (toolchain `sources-and-streams.md`).
+Source and stream stored names already travel in ESM v8; stream `All` remains reserved regardless of a pin.
 
 A test for "generation or new event": a new version must be convertible from the old one
 without inventing facts. If it is not, it is a different event.
@@ -92,15 +84,14 @@ reinterpret stored numbers. Before reordering or removing members, pin each to i
 **existing stored number**, not its new position. `propose-number-enum-members`
 pins an unnumbered enum to current positions; use it before changing order, only
 when those positions match storage. Never renumber or reuse a published member's
-number ([`operational-safety.md`](../../../rules/operational-safety.md)). Removing a member still needs replay and mixed-reader compatibility decisions.
+number. Removing a member still needs replay and mixed-reader compatibility decisions.
 
 Numbered members may have sparse or negative unique int32 values, all or none per
-enum. Source authoring shipped; non-positional numbers bind as ESM v12
+enum. Source authoring shipped; non-positional numbers bind as ESM v12.
 Positional pins retain older executable bytes/version. A renderer that admits v12 renders
 explicit member numbers; keep the pins.
 Short-lived input/view-only enums may remain positional. Use opt-in
 `--check enum-pinning` (PLAY0671) to find unnumbered enums used by event properties.
-Syntax/example and source evidence: command-surface [enum numbers](../../cratis-screenplay-command-surface/references/enum-numbers.md).
 
 ## Compatibility scenarios (write before editing)
 For each changed event, answer in the slice `documentation` or `STATE.md`:
@@ -133,14 +124,8 @@ For each changed event, answer in the slice `documentation` or `STATE.md`:
   or module is identity-affecting and is done by the identity owner.
 
 ## Identity owner
-Procedure and ownership: the identity procedure in `cratis-screenplay-modeling-lifecycle` (the
-owning session, or a brief that asks for the rename, applies it; a subagent without MCP returns
-the catalog-changing request to the owner; never leave a requested change silently unapplied).
-- Several generations select ESM v4; that binds executably on both tools (compiled
-  with `evolution-example.md`). Stage (still) admits v4 but refuses any evolved event and its
-  dependent scope with `STAGE-ESM-026` (it cannot render event-type migrations yet, Stage#204,
-  which depends on Screenplay#71), and its runtime still refuses evolved events: the evolved
-  events are gap-fill, with migrations hand-written per `cratis-chronicle-event-type-migration`.
+The owning session, or an agent explicitly assigned the rename, applies identity changes with [cratis-screenplay-edit-workspace](../../cratis-screenplay-edit-workspace/SKILL.md). A subagent without MCP returns the catalog-changing request to the owner; never leave a requested change silently unapplied.
+- Several generations select ESM v4. Stage admits v4 but refuses evolved events and their dependent scope with `STAGE-ESM-026`; its runtime also refuses evolved events. Those events are gap-fill. Use [cratis-chronicle-evolve-event](../../cratis-chronicle-evolve-event/SKILL.md) for hand-written migrations.
 
 Complete compiled example: `evolution-example.md` (generation, rename pin, meaning change).
 
@@ -152,7 +137,7 @@ Complete compiled example: `evolution-example.md` (generation, rename pin, meani
   Differing pins carry `storedName` in ESM v16;
   equal-name pins are no-ops. Pins are event-name identifiers, shared by all
   generations and unique application-wide (PLAY0472). Consumers must admit v16;
-  a renderer that stops before v16 does not. See `references/evolution.md`.
+  a renderer that stops before v16 does not. See [stored event names](#stored-event-names).
 
 ## Enum member numbers
 

@@ -9,6 +9,8 @@ import test from 'node:test';
 import { DefaultResourceLoader, ExtensionRunner, SessionManager, SettingsManager } from '@earendil-works/pi-coding-agent';
 import type { BeforeAgentStartEvent, BeforeAgentStartEventResult, BuildSystemPromptOptions, ExtensionContext, ExtensionFactory, ExtensionHandler, ModelRegistry } from '@earendil-works/pi-coding-agent';
 import { universalRules } from '../../.cratis/ai/harnesses/pi/extensions/shared/rules.ts';
+import { ruleContent, ruleFixtures, universalRuleNames, writeRules } from './pi-package.fixture.ts';
+import type { AiConfiguration } from './pi-package.fixture.ts';
 
 // The SDK uses this builder internally but does not export it from its package entry point.
 const { buildSystemPrompt }: { buildSystemPrompt: (options: BuildSystemPromptOptions) => string } = await import(
@@ -139,17 +141,6 @@ test('managed Pi deduplicates loaded content under an unrelated context path', a
     });
 });
 
-test('managed Pi does not deduplicate any other universal rule loaded as context', async () => {
-    await withFixture(async fixture => {
-        const other = universalRules(fixture.project).find(rule => rule.name !== 'general.md')!;
-        const path = join(fixture.project, 'AGENTS.md');
-        writeFileSync(path, other.content);
-        const loaded = await loadFixture(fixture);
-        assertLoaded(loaded, path, other.content);
-        assert.equal(await loaded.start(), appendedPrompt(loaded.systemPrompt, fixture.project));
-    });
-});
-
 test('managed Pi leaves remaining rules unchanged when general.md is absent', async () => {
     await withFixture(async fixture => {
         rmSync(join(fixture.rules, 'general.md'));
@@ -160,10 +151,10 @@ test('managed Pi leaves remaining rules unchanged when general.md is absent', as
 });
 
 for (const [name, content] of [
-    ['changed instructions', general.replace('Project Philosophy', 'Different Philosophy')],
-    ['a heading only', '# Cratis — Project Instructions'],
-    ['interior spaces', general.replace('Project Philosophy', 'Project  Philosophy')],
-    ['interior blank lines', general.replace('## Project Philosophy\n\n', '## Project Philosophy\n\n\n')],
+    ['changed instructions', general.replace('Know which work this is', 'Know which other work this is')],
+    ['a heading only', '# Working with Cratis'],
+    ['interior spaces', general.replace('Know which work this is', 'Know  which work this is')],
+    ['interior blank lines', general.replace('## Know which work this is\n\n', '## Know which work this is\n\n\n')],
 ]) {
     test(`managed Pi retains general when loaded context contains ${name}`, async () => {
         await withFixture(async fixture => {
@@ -320,14 +311,35 @@ test('managed Pi keeps appending on older runtimes without construction options 
     });
 });
 
-test('managed Pi injects the operational-safety rule at startup with no skills and no file touched, even beside a competing skill', async () => {
+test('managed Pi does not deduplicate any other universal rule loaded as context', async () => {
     await withFixture(async fixture => {
-        const operational = readFileSync(join(fixture.rules, 'operational-safety.md'), 'utf8');
+        writeRules(fixture.rules);
+        const path = join(fixture.project, 'AGENTS.md');
+        writeFileSync(path, ruleContent('always.md'));
         const loaded = await loadFixture(fixture);
-        assert.deepEqual(loaded.options.skills, []);
-        const prompt = await loaded.start();
-        assert.ok(prompt.includes(operational.trim()), 'the new policy is injected without any file or skill');
-        const competing = { ...loaded.options, skills: [{ name: 'competing-skill', description: 'Render and inspect with force', filePath: join(fixture.project, 'competing/SKILL.md'), baseDir: join(fixture.project, 'competing'), sourceInfo: { path: join(fixture.project, 'competing/SKILL.md'), source: 'test', scope: 'project', origin: 'top-level' }, disableModelInvocation: false }] } as unknown as BuildSystemPromptOptions;
-        assert.ok((await loaded.start(competing)).includes(operational.trim()), 'a competing skill does not displace the rule');
+        assertLoaded(loaded, path, ruleContent('always.md'));
+        assert.equal(await loaded.start(), appendedPrompt(loaded.systemPrompt, fixture.project));
     });
 });
+
+const startupSelections: Array<{ reason: string; configuration?: AiConfiguration; omitted: string[] }> = [
+    { reason: 'every universal rule without a configuration', omitted: [] },
+    { reason: 'no framework or opt-in rule for an application profile', configuration: { profiles: ['cratis/application/csharp'], languages: ['csharp'] }, omitted: ['framework-always.md', 'optional.md'] },
+    { reason: 'the framework rule for an engineering profile', configuration: { profiles: ['cratis/engineering/csharp'] }, omitted: ['optional.md'] },
+    { reason: 'the opt-in rule only for its profile', configuration: { profiles: ['cratis/optional'] }, omitted: ['framework-always.md'] },
+];
+
+for (const { reason, configuration, omitted } of startupSelections) {
+    test(`managed Pi injects the selected universal rules at startup with no skills and no file touched: ${reason}`, async () => {
+        await withFixture(async fixture => {
+            writeRules(fixture.rules);
+            if (configuration) writeFileSync(join(fixture.project, '.cratis/ai.json'), JSON.stringify(configuration));
+            const loaded = await loadFixture(fixture);
+            assert.deepEqual(loaded.options.skills, []);
+            const prompt = await loaded.start();
+            const injected = Object.keys(ruleFixtures).filter(name => prompt.includes(ruleContent(name)));
+            assert.deepEqual(injected, universalRuleNames.filter(name => !omitted.includes(name)));
+            assert.ok(prompt.includes(general), 'the shipped always-on rule is injected beside them');
+        });
+    });
+}

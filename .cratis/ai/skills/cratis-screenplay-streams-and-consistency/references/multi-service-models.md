@@ -121,9 +121,7 @@ module Billing
   specification, and the consumer's capture over events, which a specification
   drives by presenting the consumed public event (`when append <Event>`;
   Requires Screenplay 4.171.0).
-- Syntax, publication semantics and the full rules: read
-  `cratis-screenplay-automations-and-translations`
-  `references/public-events-and-direction.md`.
+- Use [cratis-screenplay-model-translation](../../cratis-screenplay-model-translation/SKILL.md) to declare the contract crossing with an explicit direction.
 
 Requires Screenplay 4.117.0 or later (`screenplay --version`) for public events,
 origins and direction (ESM v9).
@@ -147,9 +145,7 @@ Requires Screenplay 4.155.0 or later for `PLAY0687`; older compilers accept a mi
 
 ## Tooling: one workspace and one verdict set per service
 
-- Compile, test and record verdicts V1–V5 per model folder
-  (`cratis-screenplay-toolchain` owns the commands). A system-level verdict does
-  not exist; the contract agreement below is a review step.
+- Record compile, executable diagnostics, binding, reference specifications and delivery checks separately per model folder. There is no system-level verdict; review the contract agreement below.
 - The `screenplay` MCP server works on one workspace at a time; switching clears
   outstanding proposals. When `cratis screenplay mcp` locates the project's model
   itself (`--project-root`, or `.cratis/ai.json` without
@@ -172,10 +168,7 @@ Requires Screenplay 4.155.0 or later for `PLAY0687`; older compilers accept a mi
   consumer's `from "…"` origin.
 - Stage now renders bounded inbound source-event captures and outbound
   public-event projections; unsupported foreign/public/Translate uses retain
-  STAGE-ESM-032/033/024. Check [Stage target boundaries](../../cratis-stage-rendering-and-sandbox/references/current-boundaries.md).
-  Render admitted modules with `--scope`; gap-fill refused integration scope by
-  hand against the model, using `cratis-multi-service-architecture` for the
-  runtime shape (`cratis-screenplay-render-and-gap-fill` owns the workflow).
+  STAGE-ESM-032/033/024. Use [cratis-stage-render-slice](../../cratis-stage-render-slice/SKILL.md) to render admitted modules with `--scope` and identify refused scope. For a refused integration, gap-fill against the model using [cratis-chronicle-publish-contract](../../cratis-chronicle-publish-contract/SKILL.md).
   A semantic Host's seeded foreign facts/local public appends are not proof of
   real cross-service delivery.
 - Each rendered scaffold carries its own single-kernel compose file with fixed host

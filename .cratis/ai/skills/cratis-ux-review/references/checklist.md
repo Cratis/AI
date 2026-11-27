@@ -48,7 +48,7 @@ Report only what screenshots show, as risks, and list the verification each need
 - Text or controls that look low-contrast in either theme: UNVERIFIED until measured with a contrast checker.
 - Information carried by color alone, a missing visible label or a placeholder used as the label.
 - Small or crowded targets.
-- Focus visibility, keyboard order, accessible names and screen-reader output cannot be seen in a screenshot. Hand them to **cratis-components-accessibility** checks or a DOM verification, and mark UNVERIFIED here.
+- Focus visibility, keyboard order, accessible names and screen-reader output cannot be seen in a screenshot. Hand them to `cratis-components-accessibility` checks from `cratis/components` or a DOM verification, and mark UNVERIFIED here.
 
 ### Copy
 

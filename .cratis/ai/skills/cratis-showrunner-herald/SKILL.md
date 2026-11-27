@@ -38,8 +38,7 @@ builder.AddHerald(herald =>
 ```
 
 - **Take the sender, host, user name and password from configuration, never literals.** For a
-  Screenplay application these are the `onboarding.email.*` environment values (see
-  [cratis-environments-and-secrets](../cratis-environments-and-secrets/SKILL.md)), and the
+  Screenplay application these are the `onboarding.email.*` environment values (see `cratis-environments-and-secrets` in `cratis/cli`), and the
   password is a secret that never enters source, a log, an event or the transcript.
 - `TemplatesFolder` is required and must exist; `Sender.Address` is required. Options are
   validated at startup and the error names the option.
@@ -106,6 +105,6 @@ a custom `IEmailTransport` before `AddHerald`.
 
 ## Route near misses
 
-- Events, reactors and projections that call Herald: `cratis-chronicle-reactor`, `cratis-chronicle-projection`.
+- Events, reactors and projections that call Herald: [cratis-chronicle-react-to-fact](../cratis-chronicle-react-to-fact/SKILL.md) and [cratis-chronicle-project-view](../cratis-chronicle-project-view/SKILL.md).
 - Invitation tokens, the lobby and acceptance: `cratis-onboarding-runtime`.
-- Erasing personal data: `cratis-chronicle-compliance`.
+- Erasing personal data: [cratis-chronicle-protect-personal-data](../cratis-chronicle-protect-personal-data/SKILL.md).

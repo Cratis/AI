@@ -55,4 +55,3 @@ Source: https://learn.microsoft.com/en-us/dotnet/core/compatibility/jit/11/minim
 **Impact: Low.** NativeAOT shared/native library outputs on Linux and macOS now follow Unix conventions and include the `lib` prefix (e.g., `libMyLib.so` instead of `MyLib.so`).
 
 **Fix:** Update build scripts, deployment pipelines, or P/Invoke declarations that reference output filenames by the old name without the `lib` prefix.
-

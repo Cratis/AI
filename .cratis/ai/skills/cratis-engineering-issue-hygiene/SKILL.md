@@ -14,11 +14,8 @@ An issue must make sense to a reader outside the session. Issues are append-only
 never edit an issue's title, description or any existing comment, including the
 agent's own comments. Leave legacy status blocks in issue bodies untouched.
 Labels, assignees, milestones and opening or closing issues remain allowed when
-authorized. PR descriptions stay editable: they are the release notes, governed
-by [pull-requests.md](../../rules/pull-requests.md).
+authorized. PR descriptions stay editable: they are the release notes.
 
-Before any mutation, read
-[capability-is-not-authority.md](../../rules/capability-is-not-authority.md).
 The request authorizes its named effects, not arbitrary filing or closing.
 
 ## One writer and a clear claim
@@ -28,8 +25,8 @@ Delegated workers report findings to that owner. An explicit handoff can transfe
 the named issue, but the previous writer must stop publishing to it. Append-only
 comments preserve traceability and avoid concurrent overwrites of issue text.
 
-Before starting, read the issue, comments, assignees and any status block. Follow
-[issue-assignment.md](../../rules/issue-assignment.md) and this claiming procedure:
+Before starting, read the issue, comments, assignees and any status block. Follow this claiming procedure and the `issue-assignment` rule where installed
+with `cratis/engineering`:
 
 - Applies when the user, branch, task or handover names an issue number in a
   known repository. No known repository or issue means no guessed assignment.
@@ -74,13 +71,12 @@ Use absolute public URLs. Summarize a local plan; never link its file path.
 Do not put local paths, harness commands, credentials or private context in
 public issue or PR text. Never name a customer or a customer's customer in an
 issue, comment or PR; describe the situation generically ("a large enterprise
-tenant") and strip identifying products, systems and people. Read
-[secrets.md](../../rules/secrets.md) before handling output, and
-[local-work-artifacts.md](../../rules/local-work-artifacts.md) before creating a
-private comment draft. For an authorized PR-opened event, for example:
+tenant") and strip identifying products, systems and people. Keep secrets out
+of output and save any private comment draft in the ignored scratch folder. For
+an authorized PR-opened event, set `draft` to the comment file's path, then:
 
 ```bash
-gh issue comment <n> --repo OWNER/REPO --body-file .ai-work/issue-comment.md
+gh issue comment <n> --repo OWNER/REPO --body-file "$draft"
 gh issue view <n> --repo OWNER/REPO --comments
 ```
 
@@ -115,8 +111,8 @@ For example, use `gh issue view <n> --repo OWNER/REPO --comments` and
 
 ## Close with a reason, through the owning mechanism
 
-Read [pull-requests.md](../../rules/pull-requests.md#issue-references) before
-changing issue references or disposition. Confirm the actual PR state, release
+For issue references in the PR body, use [cratis-platform-prepare-release-pr](../cratis-platform-prepare-release-pr/SKILL.md).
+Before changing disposition, confirm the actual PR state, release
 intent and repository workflow; a merged PR is not proof of a published release.
 
 - **Release-action delivery:** for a fully delivered issue, the delivering
@@ -141,7 +137,7 @@ gh issue close <n> --repo OWNER/REPO --reason completed \
 ```
 
 A duplicate uses `--reason "not planned"` and a specific canonical public URL.
-No closing keywords are needed in the PR description; follow the owning rule.
+No closing keywords are needed in the PR description.
 
 ## End-of-work audit
 

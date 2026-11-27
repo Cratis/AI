@@ -3,7 +3,7 @@ name: cratis-engineering-docs-authoring
 description: Use when drafting a Cratis tutorial, how-to, explanation or reference after its reader, owning page and product evidence are known. Not for locating pages, wiring navigation or visual QA.
 license: LICENSE
 metadata:
-  cratis-hint-paths: "**/Documentation/**/*.{md,mdx}"
+  cratis-hint-paths: "**/{Documentation}/**/*.{md,mdx}"
 ---
 
 # Cratis documentation authoring
@@ -13,9 +13,9 @@ by its document type. This skill owns **content**. It does not decide which
 repository owns a page, wire site navigation, locate an existing source page, or
 perform visual QA.
 
-Read **cratis-documentation-writing** for the reader journey and the
-[documentation rule](../../rules/documentation.md) for Platform naming and
-product-claim constraints. Use those shared contracts rather than inventing
+Read [cratis-documentation-writing](../cratis-documentation-writing/SKILL.md)
+for the reader journey and the `documentation` rule where installed with
+`cratis/documentation` for Platform naming and product-claim constraints. Use those shared contracts rather than inventing
 a second review procedure here. Before drafting, read and use
 [Explaining code](references/explaining-code.md), including both worked
 transformations. Choose the detail in your example that will carry its
@@ -43,7 +43,7 @@ different document types, audiences, or product choices remain plausible.
   editing; never patch a synchronized copy.
 - Rendering or visual layout is requested: use the owning site's preview and
   screenshot workflow, checking both light and dark presentation when relevant.
-- A product/API claim lacks first-party source evidence: stop and identify the
+- A product/API claim cannot be confirmed in first-party product sources: stop and identify the
   missing authority instead of drafting the claim.
 - The subject is not Cratis product or engineering documentation: do not apply
   this skill.

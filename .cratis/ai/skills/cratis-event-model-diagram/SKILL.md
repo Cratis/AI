@@ -19,11 +19,6 @@ and later). The grammar is owned by Mermaid, and
 file and Mermaid disagree. Confirm the Mermaid version available to the renderer
 before relying on a construct.
 
-The Cratis artifacts a diagram refers to were originally checked against `Cratis.Chronicle`
-18.3.0 and re-read against Chronicle 19.50.0 and the Arc query and command surface it is used with
-(tool versions: `cratis-screenplay-toolchain` `SKILL.md`). The Mermaid claim above is
-external and was not re-verified here.
-
 ## What an event model is
 
 It arranges a module's commands, events, read models, and automations on a
@@ -119,9 +114,6 @@ earlier one. In practice:
 - If the natural place for a frame is already taken, insert it just before or after rather than
   wiring across the gap.
 
-Adapted from Martin Dilger and Nebulit GmbH's core rules (`references/provenance.md`); their
-board mechanics (columns, cells, linked copies) do not apply to Mermaid frames.
-
 ## The command rules table
 
 Mermaid's eventmodeling grammar has no shape for validation or guards. After the
@@ -138,7 +130,7 @@ language. Include commands that emit no event.
    system or return events or commands in response to our own events for
    automations, and adapters that take outside data in as our own events for
    translations. Choose the **authority** here: when an accepted model covers
-   the scope (or the repository is opted in, per `cratis-screenplay-modeling-lifecycle`), read the behaviors from
+   the scope (or the repository is opted in to Screenplay), read the behaviors from
    its slices (`StateChange`, `StateView`, `Automation`, `Translate`) and render
    from the model; otherwise the code is the authority. Report code that
    disagrees with the model as drift, separately; do not add unmodeled behavior
@@ -158,7 +150,7 @@ language. Include commands that emit no event.
    the behavior commits in the module's folders since then
    (`git log --reverse <baseline>..HEAD -- <module folders>`), oldest first, and check each against
    the diagram. When an accepted model is the authority, report code that disagrees with it through
-   `cratis-screenplay-render-and-gap-fill` (hand-written changes), not in the diagram.
+   [cratis-screenplay-handoff-slice](../cratis-screenplay-handoff-slice/SKILL.md) (hand-written changes), not in the diagram.
 
 ## Common mistakes
 
@@ -189,9 +181,4 @@ language. Include commands that emit no event.
 - An accepted model covers the scope (or the repository is opted in): it is the source for this
   diagram; do not redraw from code and never change the model to match a
   diagram. The diagram is a view of it.
-- Deciding the model rather than drawing one: `cratis-chronicle-event-modeling`
-  for a hand-written Chronicle implementation, or
-  `cratis-screenplay-event-modeling` when the model is authored as a Screenplay
-  `.play` document.
-
-Attribution for adapted method text: `references/provenance.md`.
+- Deciding the model rather than drawing one: [cratis-modeling-design-event-model](../cratis-modeling-design-event-model/SKILL.md). For declaring the resulting Screenplay slice, use [cratis-screenplay-declare-slice](../cratis-screenplay-declare-slice/SKILL.md).

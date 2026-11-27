@@ -17,9 +17,9 @@ This skill decides and verifies. It reuses the neighbors instead of restating th
 
 ## Guardrails
 
-- History is append-only. Never rebase, amend or force-push the inherited branch or a copy of it. Bring the base in with a merge (see [git-commits.md](../../rules/git-commits.md)).
+- History is append-only. Never rebase, amend or force-push the inherited branch or a copy of it. Bring the base in with a merge.
 - Treat any uncommitted change in the worktree you find as someone else's. Work in a separate worktree when it is dirty or in use.
-- Picking up work authorizes reading, verifying and recommending. It does not by itself authorize pushing to another person's branch, merging, closing or changing the base. Follow [capability-is-not-authority.md](../../rules/capability-is-not-authority.md) and [pull-requests.md](../../rules/pull-requests.md); when the user's request does not clearly cover an effect, recommend it and ask.
+- Picking up work authorizes reading, verifying and recommending. It does not by itself authorize pushing to another person's branch, merging, closing or changing the base. When the user's request does not clearly cover an effect, recommend it and ask.
 - Closing someone else's pull request is such an effect. Recommend closing with evidence; do not close it unless the user's request or an applicable policy authorizes it.
 - Fetch before reading: the source branch, the base branch and any branch the work relates to. A stale local ref gives a wrong verdict.
 
@@ -73,7 +73,7 @@ Take responsibility for finishing the goal, not for defending the existing imple
 
 ## 6. Preserve contributor credit
 
-- Keep original commits with their authorship and any co-author trailers; merge, never squash, so each contributor's commits stay in history ([git-commits.md](../../rules/git-commits.md)).
+- Keep original commits with their authorship and any co-author trailers; merge, never squash, so each contributor's commits stay in history.
 - Credit the original contributors in the pull request description and link the original pull request.
 - Use verified identities. Never guess an email address. Model attribution does not replace credit to a human contributor.
 - If the delivery path forces a squash, say so before it happens and ask; do not choose it silently.

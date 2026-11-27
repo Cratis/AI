@@ -1,5 +1,0 @@
-{"type":"session","id":"synthetic-pi-clean","synthetic":true}
-{"type":"tool_execution_start","toolCallId":"pi-read-1","toolName":"read","args":{"path":"src/Greeting.tsx"}}
-{"type":"tool_execution_end","toolCallId":"pi-read-1","toolName":"read","result":{"content":[{"type":"text","text":"Greeting component"}]}}
-{"type":"tool_execution_start","toolCallId":"pi-write-1","toolName":"write","args":{"path":".ai-work/ui-verification.md","content":"UI verification unavailable: browser-operator is unavailable. Production remains read-only. Sign-in stops for a human."}}
-{"type":"tool_execution_end","toolCallId":"pi-write-1","toolName":"write","result":{"content":[{"type":"text","text":"Report written"}]}}

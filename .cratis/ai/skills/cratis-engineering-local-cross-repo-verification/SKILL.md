@@ -33,10 +33,10 @@ After local proof, release
 the producer through the normal authorized workflow and bump the consumer to the
 released version. Local feeds, pins and images never go into production or a PR.
 Single-repository work needs its own regression specs, not this overlay. Released
-pin updates use ordinary dependency maintenance; CI changes use the
-[github-actions rule](../../rules/github-actions.md). Shipping uses the
-[ship-changes prompt](../../prompts/ship-changes.prompt.md); release text uses
-[cratis-release-notes](../cratis-release-notes/SKILL.md).
+pin updates use ordinary dependency maintenance. For CI changes, follow the
+`github-actions` rule where installed with an engineering profile. Use
+[cratis-platform-prepare-release-pr](../cratis-platform-prepare-release-pr/SKILL.md) for the producer's PR body and label, and
+[cratis-release-notes](../cratis-release-notes/SKILL.md) for version announcements.
 
 ## Prepare
 
@@ -165,9 +165,8 @@ dotnet build path/to/consumer.slnx -c Release -warnaserror
 ./<integration-project-dir>/bin/Release/<TFM>/<AssemblyName> <runner-specific-filter>
 ```
 
-Resolve the integration project's actual built spec entrypoint and filter syntax with
-[running-specs](../cratis-specifications-csharp/references/running-specs.md); without
-apphost use `dotnet <TargetPath.dll>`. Only VSTest uses `dotnet test <project> -c Release
+Resolve the integration project's actual built spec entrypoint and filter syntax
+from its test runner and repository workflow; without apphost use `dotnet <TargetPath.dll>`. Only VSTest uses `dotnet test <project> -c Release
 --no-build --filter '<regression>'`. Keep the sourced local NuGet environment.
 Substitute the repository's actual commands; for frontend fixes run build, lint,
 specs and the previously broken UI action. Pass: the reproducing spec/action now

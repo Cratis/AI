@@ -11,7 +11,7 @@ that read one contract, produced from the model and a Cratis environment:
 
 | Part | Does | Contract |
 |---|---|---|
-| **AuthProxy** | The only public entry point; signs people in with the model's providers. | `Cratis:AuthProxy:Application` (see the AuthProxy reference of `cratis-arc-authentication-authorization-and-identity`). |
+| **AuthProxy** | The only public entry point; signs people in with the model’s providers. | `Cratis:AuthProxy:Application`. |
 | **Ante** | **One per application.** Signs invitation tokens, serves the lobby, records acceptance and legal terms, publishes to its outbox. | `Ante:Onboarding:*`. |
 | **Herald** | Sends the invitation and welcome emails from the application (including the declined sign-up email). | `cratis-showrunner-herald`. |
 
@@ -44,7 +44,7 @@ for the table before configuring anything.
 - `SignUp` is `CreateTenant` (default; self-service registration may create a tenant) or `JoinTenant` (`/register` closed; invitation only). This is the model's `signup` line.
 - `InvitationTypes` and `Personas` are runtime checks: an invitation of a disallowed type is rejected with `InvitationTypeNotAllowed`, one granting a persona outside the list with `PersonaNotGrantable`, and no token is issued either way. Validate against the model's persona list in the application first; Ante is the second line of defense. Observe generation 4 of `InvitationRejected`.
 - Legal terms are files in a mounted folder (`terms.md`, `privacy.md`). The version is a content hash, so editing either file requires everyone onboarding afterwards to accept again. Archive each version for consent audit; the bodies live in your files.
-- **Secrets** (the signing private key, pinned attestation public keys) arrive only as mounted files or standard configuration, never on the command line; Ante logs no value.
+- **Secrets** (the signing private key and the attestation public keys pinned for verification) arrive only as mounted files or standard configuration, never on the command line; Ante logs no value.
 
 ## Sign-up review and the default offering
 
@@ -99,4 +99,4 @@ with its AuthProxy when the application has `authentication` and its own Ante wh
 - Sending the emails: `cratis-showrunner-herald`.
 - Box Office offers, seats and entitlements beyond the default offering: Showrunner's Box Office documentation; this corpus covers only starting a tenant on the default offering.
 - Ante used by a host product, not a Screenplay application: Ante's own documentation; this corpus does not cover it.
-- Chronicle itself in a cluster: `cratis-chronicle-hosting`.
+- Chronicle itself in a cluster: [cratis-chronicle-deploy-kernel](../cratis-chronicle-deploy-kernel/SKILL.md).

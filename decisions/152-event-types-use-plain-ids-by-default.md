@@ -1,7 +1,7 @@
 ---
 id: 152
 title: Event types use plain [EventType] by default; explicit ids only to retain a persisted id or resolve a collision
-status: accepted
+status: historical
 stage: implemented
 class: contract
 reversibility: costly
@@ -17,6 +17,8 @@ qualifies:
   - "Documentation/decisions/0007-pin-explicit-event-type-ids-for-provider-crud.md"
   - "Documentation/decisions/0008-provider-crud-event-ids-match-directs-implicit-ones.md"
 ---
+
+> **Historical.** The task-based corpus (Cratis/AI#1370) replaced the files named in `applies-to`. The rules and skills it applied to were removed. `cratis-chronicle-record-event` and `cratis-chronicle-evolve-event` cover event type identity. This record is kept for its reasoning; no instruction is loaded from it.
 
 ## Context
 

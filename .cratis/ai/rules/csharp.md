@@ -31,7 +31,7 @@ These rules exist so that every file in the codebase reads the same way. When fo
 
 ## Language — American English Only
 
-All identifiers, comments, XML docs, and string literals must use **American English** spelling (initialize, serialize, behavior, color, organization, center, modeling, dialog, license, judgment, gray). See [general.md](./general.md) for the full guidance.
+All identifiers, comments, XML docs, and string literals must use **American English** spelling (initialize, serialize, behavior, color, organization, center, modeling, dialog, license, judgment, gray).
 
 ## Naming
 
@@ -54,23 +54,12 @@ Every rule here reduces noise. `var` avoids redundant type repetition. Expressio
 - Don't use regions — they hide code instead of organizing it. If a file needs regions, it needs refactoring.
 - Never add postfixes like `Async`, `Impl`, `Service` to class names — they add noise without information.
 - Name a method without the `Async` suffix unless a synchronous method of the same name also exists, never write an explicit `private` modifier (property setters excepted), and never put a `.Features.` segment in a namespace.
-- The `Cratis.Architecture.CodeAnalysis` analyzer package (26 diagnostics, `CRARCH0001`–`CRARCH0026`; verified at `v1.0.2`) enforces these and others: `CRARCH0003` postfixes, `0004` `.Features.` namespaces, `0005` regions, `0006`/`0024` `LoggerMessage`, `0007` `IServiceProvider` injection, `0008` `is null`, `0017` namespace matches folder, `0019` `Async` suffix, `0022` explicit `private`, `0023` typed logger category; `0012` (`async void`) and `0014` (test types in production) are errors. When a repository has the package, a `CRARCH` warning is the house convention, not noise.
+- The `Cratis.Architecture.CodeAnalysis` analyzer package (26 diagnostics, `CRARCH0001`–`CRARCH0026`, in 1.0.2) enforces these and others: `CRARCH0003` postfixes, `0004` `.Features.` namespaces, `0005` regions, `0006`/`0024` `LoggerMessage`, `0007` `IServiceProvider` injection, `0008` `is null`, `0017` namespace matches folder, `0019` `Async` suffix, `0022` explicit `private`, `0023` typed logger category; `0012` (`async void`) and `0014` (test types in production) are errors. When a repository has the package, a `CRARCH` warning is the house convention, not noise.
 - For types with no implementation body, omit the braces (e.g. `public interface IMyInterface;`).
 - Prefer `record` types for immutable data structures (events, commands, read models, concepts) — they give you value equality, immutability, and concise syntax for free.
-- Set `LangVersion` to `latest` in every repository. Language-only features of newer C# versions are safe on every target of a multi-targeted library; a new runtime or library API needs `#if NET11_0_OR_GREATER` with a net10 fallback.
-- Use collection expression arguments (`[with(capacity: n), .. items]`, `[with(comparer), ..]`) instead of constructor calls, and labeled `break`/`continue` instead of Boolean flags or `goto` in nested loops (IDE0410).
-- Do not introduce `union` types, runtime-async, or the memory-safety preview features, and do not retrofit `closed` onto an existing public type — a public API change is a major version.
+- Use the language features the repository's SDK and `LangVersion` support.
+- Keep `ConceptAs<T>` and the existing result envelopes unchanged.
 - Keep IDE style rule severities at `suggestion`, never `warning`: Release builds treat warnings as errors.
-- Under the .NET 11 SDK, IDE0370 (unnecessary null-forgiving operator) and IDE0001/IDE0002 (simplify names and member access) surface wherever code style is enforced: `dotnet format --verify-no-changes`, or `EnforceCodeStyleInBuild` with warnings as errors and `dotnet_analyzer_diagnostic.severity = warning`. IDE0001/IDE0002 are `EnforceOnBuild=Never`, so only `dotnet format` and the IDE surface them; IDE0370 is `WhenExplicitlyEnabled`, so the build enforces it only when something enables it explicitly, such as an all-analyzers severity line. A repository that already enforces style at `warning` keeps that severity and fixes these findings in its .NET 11 change.
-- Exception for multi-target libraries only (for example `net10.0;net11.0`): IDE0370 is analyzed per compilation and can flag a `!` another target still needs ([roslyn#81632](https://github.com/dotnet/roslyn/issues/81632), [roslyn#82003](https://github.com/dotnet/roslyn/issues/82003)). Remove every `!` that is unnecessary on all targets. If target-dependent ones remain, add this to that repository's `.editorconfig`, with a tracking issue, and verify with a build of all target frameworks:
-
-  ```ini
-  # IDE0370 is analyzed per target framework and flags null-forgiving operators another target still needs.
-  # See https://github.com/dotnet/roslyn/issues/81632 and https://github.com/dotnet/roslyn/issues/82003. Tracked in <issue>.
-  dotnet_diagnostic.IDE0370.severity = suggestion
-  ```
-
-  Never `none`, never in shared or global config, and never for `net11.0`-only executables.
 
 ## Nullable Reference Types
 
@@ -332,61 +321,7 @@ public class ReactorSideEffectHandlers(IInstancesOf<IReactorSideEffectHandler> h
 - Keep log messages in a separate `<ClassName>Logging.cs` partial static internal class.
 - Use `[LoggerMessage]` attribute (without `eventId`).
 
-## C# 14/15 Language Features
-
-Cratis .NET repos build with SDK 11 (C# 15); libraries target `net10.0;net11.0`.
-
-Use in new code:
-
-- Extension blocks (`extension(T x) { ... }`, C# 14) for new extension APIs; leave existing extension classes as they are.
-- The `field` keyword (C# 14) in property accessors instead of a hand-written backing field.
-- `System.Threading.Lock` for new lock objects instead of `object`.
-- Collection expression arguments `with(...)` (C# 15), e.g. to pass a comparer or capacity.
-- `closed` (C# 15) for new internal class hierarchies.
-
-Avoid:
-
-- Union types in public APIs of libraries that also target `net10.0` — consumers on C# 14 cannot use them.
-- Adding `closed` to existing public types — it is a breaking change.
-- Runtime-async — it is still preview.
-
-Keep `ConceptAs<T>` and the existing result envelopes unchanged.
-
 ## Async
 
 - Use `async`/`await` for asynchronous programming.
 - Use `Task` and `Task<T>` for asynchronous methods.
-
-## Chronicle & Arc — Key API Types
-
-These are the building blocks. Each type has a specific role in the vertical slice architecture — using the right type in the right place means the framework handles discovery, wiring, and proxy generation automatically.
-
-| Type | Purpose |
-| --- | --- |
-| `ConceptAs<T>` | Strongly-typed domain *value* wrapper (see [concepts.md](./concepts.md)) |
-| `EventSourceId<T>` | Strongly-typed *identity* base — derive event-source ids from this, not `ConceptAs<T>` |
-| `[EventType]` | Marks a record as a Chronicle event — plain for a new event (explicit id only per application-profile.md item 7) |
-| `[Command]` | Marks a record as a model-bound command — define `Handle()` directly on the record |
-| `[ReadModel]` | Marks a record as a model-bound query — define static query methods on the record |
-| `CommandValidator<T>` | FluentValidation validator for commands |
-| `IProjectionFor<T>` | Fluent projection definition — AutoMap is on by default, never call `.AutoMap()` |
-| Self-reducing model | New .NET reducer default: public static `Reduce(event, model? current[, EventContext])`, returns model or `Task<model>` (nullable results allowed); marker-free discovery, no fold-time DI |
-| `IReducerFor<T>` | Separate instance fold for injected services, replay instance behavior or separation from the model |
-| `ChronicleOptions.ExplicitArtifacts.RegisterReducer<T>()` | Nominate a plain instance class only when its assembly cannot reference Chronicle; also accepts self models (see **cratis-chronicle-client-dotnet**, discovery reference) |
-| `IReactor` | Marker interface for side-effect observers — method dispatch by event type parameter |
-| `IConstraint` | Constraint definition — enforced server-side by Chronicle at append time |
-| `AggregateRoot` | Chronicle aggregate root with `Apply()` and `Commit()` |
-| `ICommandPipeline` | Programmatic command execution from reactors or other code |
-| `ICommandOperation` | `Cratis.Arc.Commands` marker for returned inline work with `Execute` and optional `Compensate`; see **cratis-arc-command-operation** |
-| `CommandOperations` | Explicit ordered server-only operation batch; use instead of bare operation arrays/enumerables |
-| `EventContext` | Event metadata: `Occurred`, `SequenceNumber`, `CorrelationId`, `EventSourceId`, etc. |
-| `ISubject<T>` | Observable query return type — enables real-time push |
-| `IMongoCollection<T>` | MongoDB collection — use `.Observe()` for reactive queries |
-
-**Key conventions:**
-
-- Prefer `ConceptAs<T>` over raw primitives in all domain models, commands, events, and queries; derive identity concepts from `EventSourceId<T>`. See [concepts.md](./concepts.md) for details.
-- Projections join **events**, never read models — projections rebuild state from the event stream, not from other projections.
-- For fluent projections, AutoMap is on by default — call `.From<EventType>()` without `.AutoMap()` and without manually mapping every matching property.
-- Use model-bound projection attributes (`[FromEvent<T>]`, `[SetFrom<T>]`, etc.) when possible; fall back to `IProjectionFor<T>` for complex cases.
-- Full slice anatomy lives in [vertical-slices.md](./vertical-slices.md).

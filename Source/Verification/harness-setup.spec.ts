@@ -7,9 +7,7 @@ import { cpSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, 
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import test from 'node:test';
-import { checkOpenCodeAgents, generateOpenCodeAgent, parseCanonicalAgent } from '../Harness.Setup/opencode-agents.ts';
 import { checkCopilotInstructions, copilotInstructionsDirectory } from '../Harness.Setup/copilot-instructions.ts';
-import { checkPiAgents, piAgentsDirectory } from '../Harness.Setup/pi-agents.ts';
 
 const repositoryRoot = resolve(import.meta.dirname, '../..');
 const setupPath = join(repositoryRoot, 'Source/Harness.Setup/setup.ts');
@@ -17,84 +15,6 @@ const setupPath = join(repositoryRoot, 'Source/Harness.Setup/setup.ts');
 function setup(project: string, check = false, force = false) {
     return spawnSync(process.execPath, ['--import', 'tsx', setupPath, project, ...(check ? ['--check'] : []), ...(force ? ['--force'] : [])], { cwd: repositoryRoot, encoding: 'utf8' });
 }
-
-test('OpenCode parsing preserves scalar, block-list and description bytes', () => {
-    const agent = parseCanonicalAgent('fixture.md', '---\nname: "Fixture"\ndescription: >\n  First line.\n  Second line.\ntools:\n  - Read\n  - Bash\nmodel: |\nmodelTier: \'scoped\'\nreviewIndependence: >\nreadonly: true\n---\n\nBody without a final newline');
-    assert.equal(agent.name, 'Fixture');
-    assert.deepEqual(agent.tools, ['Read', 'Bash']);
-    assert.equal(agent.model, undefined);
-    assert.equal(agent.modelTier, 'scoped');
-    assert.equal(agent.reviewIndependence, undefined);
-    assert.equal(agent.readonly, true);
-    assert.equal(parseCanonicalAgent('blank.md', '---\nname: Blank\nmodel:\n---\n').model, undefined);
-    assert.equal(generateOpenCodeAgent(agent).content, '---\ndescription: >\n  First line.\n  Second line.\nmode: subagent\npermission:\n  edit: deny\n  bash: allow\n---\n<!-- cratis-ai: generated OpenCode adapter of agents/fixture.md. Do not edit; the canonical agent is the source. -->\n\nBody without a final newline');
-});
-
-test('OpenCode generation preserves validation precedence and exact diagnostics', () => {
-    const agent = parseCanonicalAgent('fixture.md', '---\nname: Fixture\ntools: [Unknown, Edit, Write]\nmodel: native\nreadonly: true\n---\nbody\n');
-    assert.throws(() => generateOpenCodeAgent(agent), { message: 'fixture.md declares tools outside the canonical vocabulary: Unknown.' });
-    agent.tools = ['Edit', 'Write'];
-    assert.throws(() => generateOpenCodeAgent(agent), { message: 'fixture.md pins a model; canonical agents must declare modelTier (scoped | strongest | reviewer) instead of a native model.' });
-    agent.model = undefined;
-    assert.throws(() => generateOpenCodeAgent(agent), { message: 'fixture.md is readonly but declares Edit/Write.' });
-    agent.readonly = false;
-    assert.throws(() => generateOpenCodeAgent(agent), { message: 'fixture.md declares no description; OpenCode requires one.' });
-});
-
-test('OpenCode parsing rejects unsupported frontmatter shapes with exact diagnostics', () => {
-    for (const [text, message] of [
-        ['name: Fixture\n', 'fixture.md has no frontmatter.'],
-        ['---\nname: Fixture\n', 'fixture.md has an unterminated frontmatter block.'],
-        ['---\nname: >\n---\nbody', 'fixture.md declares no name.'],
-        ['---\nname: Fixture\ntools: Read\n---\nbody', "fixture.md: 'tools:' must be a YAML list, got 'Read'."],
-    ]) {
-        assert.throws(() => parseCanonicalAgent('fixture.md', text), { message });
-    }
-});
-
-test('adapter preflight refuses a foreign Pi directory before updating owned OpenCode output', () => {
-    const project = fixture();
-    try {
-        const corpus = join(project, '.cratis/ai');
-        const adapter = join(corpus, 'harnesses/opencode/agents/backend-developer.md');
-        const before = readFileSync(adapter, 'utf8');
-        const canonical = join(corpus, 'agents/backend-developer.md');
-        writeFileSync(canonical, `${readFileSync(canonical, 'utf8')}\nChanged canonical body.\n`);
-        rmSync(join(corpus, piAgentsDirectory), { recursive: true });
-        writeFileSync(join(corpus, piAgentsDirectory), 'Local directory replacement\n');
-        const refused = setup(project);
-        assert.notEqual(refused.status, 0);
-        assert.match(refused.stderr, /Pi agent adapters are out of date:/);
-        assert.equal(readFileSync(adapter, 'utf8'), before);
-        assert.equal(readFileSync(join(corpus, piAgentsDirectory), 'utf8'), 'Local directory replacement\n');
-        assert.equal(setup(project, false, true).status, 0);
-        assert.deepEqual(checkOpenCodeAgents(corpus), []);
-        assert.deepEqual(checkPiAgents(corpus), []);
-    } finally { rmSync(project, { recursive: true, force: true }); }
-});
-
-test('OpenCode directory conflicts are reported without following a foreign symlink', () => {
-    const project = fixture();
-    try {
-        const corpus = join(project, '.cratis/ai');
-        const directory = join(corpus, 'harnesses/opencode/agents');
-        const local = join(project, 'local-agents');
-        mkdirSync(local);
-        writeFileSync(join(local, 'local.md'), 'Local agent\n');
-        rmSync(directory, { recursive: true });
-        symlinkSync(local, directory, 'dir');
-        assert.deepEqual(checkOpenCodeAgents(corpus), ['harnesses/opencode/agents is not a generated adapter directory.']);
-        for (const check of [false, true]) {
-            const refused = setup(project, check);
-            assert.notEqual(refused.status, 0);
-            assert.match(refused.stderr, /OpenCode agent adapters are out of date:/);
-            assert.equal(readlinkSync(directory), local);
-        }
-        assert.equal(setup(project, false, true).status, 0);
-        assert.equal(readFileSync(join(local, 'local.md'), 'utf8'), 'Local agent\n');
-        assert.deepEqual(checkOpenCodeAgents(corpus), []);
-    } finally { rmSync(project, { recursive: true, force: true }); }
-});
 
 test('Codex setup links only native shell hooks, is idempotent and repairs owned links', () => {
     const project = fixture();
@@ -141,15 +61,13 @@ test('Codex setup never replaces user hook config or writes through an occupied 
     }
 });
 
-test('setup regenerates owned stale symlinks and generated adapters', () => {
+test('setup regenerates owned stale symlinks', () => {
     const project = fixture();
     try {
         assert.equal(setup(project).status, 0);
         const rootLink = join(project, 'AGENTS.md');
         unlinkSync(rootLink);
         symlinkSync('.cratis/ai/rules/obsolete.md', rootLink);
-        const adapter = join(project, '.cratis/ai/harnesses/opencode/agents/backend-developer.md');
-        writeFileSync(adapter, `${readFileSync(adapter, 'utf8')}\nStale generated content.\n`);
         assert.notEqual(setup(project, true).status, 0);
         const updated = setup(project);
         assert.equal(updated.status, 0, updated.stderr);
@@ -169,17 +87,17 @@ test('Copilot migration replaces owned directory or per-file links without chang
             if (legacy === 'directory') symlinkSync('../.cratis/ai/rules', instructions, 'dir');
             else {
                 mkdirSync(instructions);
-                symlinkSync('../../.cratis/ai/rules/go.md', join(instructions, 'go.md'));
-                symlinkSync('../../.cratis/ai/rules/go.md', join(instructions, 'go.instructions.md'));
+                symlinkSync('../../.cratis/ai/rules/framework.md', join(instructions, 'framework.md'));
+                symlinkSync('../../.cratis/ai/rules/framework.md', join(instructions, 'framework.instructions.md'));
             }
-            const canonical = readFileSync(join(project, '.cratis/ai/rules/go.md'), 'utf8');
+            const canonical = readFileSync(join(project, '.cratis/ai/rules/framework.md'), 'utf8');
             assert.notEqual(setup(project, true).status, 0);
             const installed = setup(project);
             assert.equal(installed.status, 0, installed.stderr);
             assert.equal(readlinkSync(instructions), `../.cratis/ai/${copilotInstructionsDirectory}`);
-            assert.equal(readFileSync(join(project, '.cratis/ai/rules/go.md'), 'utf8'), canonical);
-            assert.throws(() => readlinkSync(join(instructions, 'go.md')), /ENOENT/);
-            assert.ok(lstatSync(join(instructions, 'go.instructions.md')).isFile());
+            assert.equal(readFileSync(join(project, '.cratis/ai/rules/framework.md'), 'utf8'), canonical);
+            assert.throws(() => readlinkSync(join(instructions, 'framework.md')), /ENOENT/);
+            assert.ok(lstatSync(join(instructions, 'framework.instructions.md')).isFile());
             assert.equal(setup(project, true).status, 0);
         } finally {
             rmSync(project, { recursive: true, force: true });
@@ -188,7 +106,7 @@ test('Copilot migration replaces owned directory or per-file links without chang
 });
 
 test('Copilot path and root instructions preserve customized files unless forced', () => {
-    for (const adapter of [`.cratis/ai/${copilotInstructionsDirectory}/go.instructions.md`, '.github/copilot-instructions.md']) {
+    for (const adapter of [`.cratis/ai/${copilotInstructionsDirectory}/framework.instructions.md`, '.github/copilot-instructions.md']) {
         const project = fixture();
         try {
             assert.equal(setup(project).status, 0);
@@ -258,15 +176,6 @@ test('setup refuses occupied directories and links without following or deleting
         assert.equal(readFileSync(local, 'utf8'), '# Local content\n');
         assert.equal(setup(project, false, true).status, 0);
         assert.equal(readlinkSync(join(project, 'AGENTS.md')), '.cratis/ai/rules/general.md');
-        const target = join(project, 'local-agent.md');
-        writeFileSync(target, '# Local agent\n');
-        const adapter = join(project, '.cratis/ai/harnesses/opencode/agents/backend-developer.md');
-        unlinkSync(adapter);
-        symlinkSync(target, adapter);
-        assert.notEqual(setup(project).status, 0);
-        assert.equal(readFileSync(target, 'utf8'), '# Local agent\n');
-        assert.equal(setup(project, false, true).status, 0);
-        assert.equal(readFileSync(target, 'utf8'), '# Local agent\n');
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
@@ -293,15 +202,15 @@ test('Copilot drift checks detect source changes, missing files and orphans, the
     try {
         assert.equal(setup(project).status, 0);
         const corpus = join(project, '.cratis/ai');
-        const adapter = join(corpus, copilotInstructionsDirectory, 'go.instructions.md');
-        const canonical = join(corpus, 'rules/go.md');
+        const adapter = join(corpus, copilotInstructionsDirectory, 'framework.instructions.md');
+        const canonical = join(corpus, 'rules/framework.md');
         const before = readFileSync(adapter, 'utf8');
         writeFileSync(canonical, `${readFileSync(canonical, 'utf8')}\nUpdated path guidance.\n`);
-        assert.ok(checkCopilotInstructions(corpus).some(message => message.includes('go.instructions.md is stale')));
+        assert.ok(checkCopilotInstructions(corpus).some(message => message.includes('framework.instructions.md is stale')));
         const checked = setup(project, true);
         assert.notEqual(checked.status, 0);
         assert.match(checked.stderr, /Copilot instruction adapters are out of date:/);
-        assert.match(checked.stderr, /go\.instructions\.md is stale/);
+        assert.match(checked.stderr, /framework\.instructions\.md is stale/);
         assert.equal(readFileSync(adapter, 'utf8'), before, '--check reports body drift without regenerating');
         assert.equal(setup(project).status, 0);
         assert.match(readFileSync(adapter, 'utf8'), /Updated path guidance/);
@@ -309,7 +218,7 @@ test('Copilot drift checks detect source changes, missing files and orphans, the
         cpSync(adapter, orphan);
         unlinkSync(adapter);
         const drift = checkCopilotInstructions(corpus);
-        assert.ok(drift.some(message => message.includes('go.instructions.md is missing')));
+        assert.ok(drift.some(message => message.includes('framework.instructions.md is missing')));
         assert.ok(drift.some(message => message.includes('orphan.instructions.md has no path-scoped rule')));
         assert.notEqual(setup(project, true).status, 0);
         assert.equal(setup(project).status, 0);
@@ -319,103 +228,6 @@ test('Copilot drift checks detect source changes, missing files and orphans, the
         assert.equal(readFileSync(orphan, 'utf8'), '# User-owned orphan\n');
         assert.equal(setup(project, false, true).status, 0);
         assert.deepEqual(checkCopilotInstructions(corpus), []);
-    } finally {
-        rmSync(project, { recursive: true, force: true });
-    }
-});
-
-test('Pi migrates canonical links and detects source, missing and orphaned adapter drift', () => {
-    const project = fixture();
-    try {
-        const corpus = join(project, '.cratis/ai');
-        const canonical = join(corpus, 'agents/screenplay-modeler.md');
-        const original = readFileSync(canonical, 'utf8');
-        mkdirSync(join(project, '.pi'));
-        symlinkSync('../.cratis/ai/agents', join(project, '.pi/agents'), 'dir');
-        assert.notEqual(setup(project, true).status, 0);
-        assert.equal(setup(project).status, 0);
-        assert.equal(readlinkSync(join(project, '.pi/agents')), `../.cratis/ai/${piAgentsDirectory}`);
-        assert.equal(readFileSync(canonical, 'utf8'), original, 'migration never writes canonical content');
-        const adapter = join(project, '.pi/agents/screenplay-modeler.md');
-        const before = readFileSync(adapter, 'utf8');
-        writeFileSync(canonical, `${original}\nUpdated agent body.\n`);
-        assert.ok(checkPiAgents(corpus).some(message => message.includes('screenplay-modeler.md is stale')));
-        const checked = setup(project, true);
-        assert.notEqual(checked.status, 0);
-        assert.match(checked.stderr, /agent adapters are out of date/);
-        assert.equal(readFileSync(adapter, 'utf8'), before, '--check is read-only');
-        assert.equal(setup(project).status, 0);
-        assert.match(readFileSync(adapter, 'utf8'), /Updated agent body/);
-        const orphan = join(corpus, piAgentsDirectory, 'orphan.md');
-        cpSync(adapter, orphan);
-        unlinkSync(adapter);
-        assert.ok(checkPiAgents(corpus).some(message => message.includes('screenplay-modeler.md is missing')));
-        assert.ok(checkPiAgents(corpus).some(message => message.includes('orphan.md has no canonical agent')));
-        assert.notEqual(setup(project, true).status, 0);
-        assert.equal(setup(project).status, 0);
-        assert.deepEqual(checkPiAgents(corpus), []);
-        writeFileSync(adapter, readFileSync(adapter, 'utf8').replace('tools: read, grep, find, bash, edit, write', 'tools: Read'));
-        assert.ok(checkPiAgents(corpus).some(message => message.includes('screenplay-modeler.md is stale')));
-        const toolsDrift = setup(project, true);
-        assert.notEqual(toolsDrift.status, 0);
-        assert.match(toolsDrift.stderr, /Pi agent adapters are out of date/);
-        assert.equal(setup(project).status, 0);
-        assert.equal(setup(project, true).status, 0);
-    } finally {
-        rmSync(project, { recursive: true, force: true });
-    }
-});
-
-test('Pi refuses unowned agent files and symlinks without writing through them', () => {
-    const project = fixture();
-    try {
-        assert.equal(setup(project).status, 0);
-        const target = join(project, 'local-agent.md');
-        const adapter = join(project, '.cratis/ai', piAgentsDirectory, 'screenplay-modeler.md');
-        writeFileSync(target, '# Local agent\n');
-        unlinkSync(adapter);
-        symlinkSync(target, adapter);
-        assert.notEqual(setup(project).status, 0);
-        assert.equal(readFileSync(target, 'utf8'), '# Local agent\n');
-        assert.equal(setup(project, false, true).status, 0);
-        assert.equal(readFileSync(target, 'utf8'), '# Local agent\n');
-        const local = join(project, '.cratis/ai', piAgentsDirectory, 'local.md');
-        writeFileSync(local, '# Local definition\n');
-        assert.notEqual(setup(project).status, 0);
-        assert.equal(readFileSync(local, 'utf8'), '# Local definition\n');
-    } finally {
-        rmSync(project, { recursive: true, force: true });
-    }
-});
-
-test('Pi package preparation ships native agents for external loaders and copied Copilot adapters', () => {
-    const project = fixture();
-    try {
-        assert.equal(setup(project).status, 0);
-        const plugin = join(project, 'Source/Pi.Plugin');
-        mkdirSync(plugin, { recursive: true });
-        cpSync(join(repositoryRoot, 'Source/Pi.Plugin/prepare-package.mjs'), join(plugin, 'prepare-package.mjs'));
-        const prepared = spawnSync(process.execPath, [join(plugin, 'prepare-package.mjs')], { encoding: 'utf8' });
-        assert.equal(prepared.status, 0, prepared.stderr);
-        const manifest = JSON.parse(readFileSync(join(repositoryRoot, 'Source/Pi.Plugin/package.json'), 'utf8'));
-        const declared = manifest.pi.subagents.agents;
-        assert.deepEqual(declared, ['./package/corpus/harnesses/pi/agents']);
-        const modeler = join(plugin, declared[0], 'screenplay-modeler.md');
-        assert.ok(lstatSync(modeler).isFile(), 'external package loader receives real agent files');
-        assert.equal(readFileSync(modeler, 'utf8'), readFileSync(join(project, '.pi/agents/screenplay-modeler.md'), 'utf8'));
-        assert.match(readFileSync(modeler, 'utf8'), /tools: read, grep, find, bash, edit, write\n/);
-        assert.deepEqual(checkPiAgents(join(plugin, 'package/corpus')), []);
-        assert.ok(lstatSync(join(plugin, 'package/corpus/harnesses/pi/extensions/subagent/tool-names.ts')).isFile());
-        const packaged = join(plugin, 'package/corpus', copilotInstructionsDirectory, 'go.instructions.md');
-        assert.ok(lstatSync(packaged).isFile(), 'package contains a portable file, not a canonical symlink');
-        const generated = readFileSync(join(project, '.github/instructions/go.instructions.md'), 'utf8');
-        assert.equal(readFileSync(packaged, 'utf8'), generated);
-        const consumer = join(project, 'consumer');
-        cpSync(join(plugin, 'package/corpus'), join(consumer, '.cratis/ai'), { recursive: true });
-        mkdirSync(join(consumer, '.github'), { recursive: true });
-        symlinkSync(`../.cratis/ai/${copilotInstructionsDirectory}`, join(consumer, '.github/instructions'), 'dir');
-        assert.equal(readFileSync(join(consumer, '.github/instructions/go.instructions.md'), 'utf8'), generated);
-        assert.deepEqual(checkCopilotInstructions(join(consumer, '.cratis/ai')), []);
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
@@ -448,14 +260,6 @@ test('adapter generation is repeatable on clean and customized repositories with
             assert.equal(updated.status, 0, updated.stderr);
             assert.equal(setup(project, true).status, 0);
             assert.equal(readlinkSync(join(project, '.pi/skills')), '../.cratis/ai/skills');
-            const generated = join(project, '.cratis/ai/harnesses/opencode/agents/backend-developer.md');
-            const before = readFileSync(generated, 'utf8');
-            const canonical = join(project, '.cratis/ai/agents/backend-developer.md');
-            writeFileSync(canonical, `${readFileSync(canonical, 'utf8')}\nUpdated upstream guidance.\n`);
-            assert.ok(checkOpenCodeAgents(join(project, '.cratis/ai')).length > 0);
-            assert.equal(setup(project).status, 0, 'updated canonical agent regenerates its owned adapter');
-            assert.notEqual(readFileSync(generated, 'utf8'), before);
-            assert.deepEqual(checkOpenCodeAgents(join(project, '.cratis/ai')), []);
             for (const [path, content] of local) assert.equal(readFileSync(join(project, path), 'utf8'), content, path);
         } finally {
             rmSync(project, { recursive: true, force: true });
@@ -486,26 +290,11 @@ test('setup refuses a directory with local instructions unless explicitly forced
     }
 });
 
-test('adapter checks report same-path local adoption conflicts without modifying local content', () => {
+test('setup reports an occupied root instruction path without modifying local content', () => {
     const project = fixture();
     try {
         const local = '# Locally owned instructions\n';
         writeFileSync(join(project, 'AGENTS.md'), local);
-        const generatedPath = join(project, '.cratis/ai/harnesses/opencode/agents/backend-developer.md');
-        writeFileSync(generatedPath, local);
-        const checked = setup(project, true);
-        assert.notEqual(checked.status, 0);
-        assert.match(checked.stderr, /OpenCode agent adapters are out of date/);
-        assert.ok(checkOpenCodeAgents(join(project, '.cratis/ai')).some(path => path.includes('backend-developer.md')));
-        assert.equal(readFileSync(generatedPath, 'utf8'), local);
-        const refused = setup(project);
-        assert.notEqual(refused.status, 0);
-        assert.match(refused.stderr, /OpenCode agent adapters are out of date/);
-        assert.equal(readFileSync(generatedPath, 'utf8'), local);
-        assert.equal(readFileSync(join(project, 'AGENTS.md'), 'utf8'), local);
-        // Once the generated adapter is repaired by its owner, the occupied root path is
-        // independently reported, in check and mutating mode.
-        cpSync(join(repositoryRoot, '.cratis/ai/harnesses/opencode/agents/backend-developer.md'), generatedPath);
         const rootConflict = setup(project, true);
         assert.notEqual(rootConflict.status, 0);
         assert.match(rootConflict.stderr, /AGENTS\.md: expected symbolic link/);
@@ -514,10 +303,8 @@ test('adapter checks report same-path local adoption conflicts without modifying
         assert.notEqual(rootRefused.status, 0);
         assert.match(rootRefused.stderr, /AGENTS\.md: expected symbolic link/);
         assert.equal(readFileSync(join(project, 'AGENTS.md'), 'utf8'), local);
-        writeFileSync(generatedPath, local);
         assert.equal(setup(project, false, true).status, 0, '--force replaces explicitly occupied paths');
         assert.equal(readlinkSync(join(project, 'AGENTS.md')), '.cratis/ai/rules/general.md');
-        assert.deepEqual(checkOpenCodeAgents(join(project, '.cratis/ai')), []);
     } finally {
         rmSync(project, { recursive: true, force: true });
     }

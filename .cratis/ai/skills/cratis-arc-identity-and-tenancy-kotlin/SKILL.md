@@ -13,12 +13,7 @@ Authentication identifies the caller; authorization decides whether they may
 execute an operation; tenant resolution selects their data boundary. Configure
 and verify all three separately. A tenant header alone proves no membership.
 
-## Verified product sources
-
-Source: `Arc.Kotlin`: `Source` authentication/identity/tenancy contracts,
-`Integrations/SpringBoot/ArcTenancyProperties.java`, platform security classes,
-`Documentation/guides/security.mdx`, `ambient-tenancy.mdx` and
-`reference/configuration.mdx`. Use `io.cratis:arc-spring-boot-starter:<version>`
+Use `io.cratis:arc-spring-boot-starter:<version>`
 (or `io.cratis:cratis:<version>` for Chronicle integration), with matching plugin/KSP.
 These are JVM contracts; do not infer the same switches exist in Arc .NET.
 
@@ -53,7 +48,7 @@ excluded from authentication input and cannot authenticate a later request.
 
 `@Authorize`, `@Roles`, `@AllowAnonymous` declare authorization. An operation's
 own metadata replaces its class default wholesale; contradictions on the same
-declaration fail `ARCKSP0108`. See `cratis-arc-command-kotlin` for precedence.
+declaration fail `ARCKSP0108`. Use [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md) for JVM command setup.
 
 ## Configure inbound tenant resolution
 
@@ -134,4 +129,4 @@ before changing an ingress adapter; do not hand-roll permissive parsing.
 - Run the application's `./gradlew build` and real storage/ingress checks.
 
 Command rules: `cratis-arc-validation-kotlin`. Standalone Chronicle namespaces:
-`cratis-chronicle-client-kotlin`, not this resolver configuration.
+[cratis-chronicle-select-client](../cratis-chronicle-select-client/SKILL.md), not this resolver configuration.

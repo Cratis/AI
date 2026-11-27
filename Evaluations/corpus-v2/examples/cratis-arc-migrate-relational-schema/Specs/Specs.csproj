@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="../../cratis-arc-generate-proxies/ArcSpecs.props" />
+  <ItemGroup>
+    <PackageReference Include="Cratis.Arc.EntityFrameworkCore" Version="24.9.0" />
+  </ItemGroup>
+</Project>

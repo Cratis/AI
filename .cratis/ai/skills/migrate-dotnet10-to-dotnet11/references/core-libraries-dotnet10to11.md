@@ -121,4 +121,3 @@ protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 **Impact: Low.** `ZstandardStream` and related APIs that were previously in the `System.IO.Compression.Zstandard` preview NuGet package are now in-box in `System.IO.Compression`.
 
 **Fix:** Remove the `<PackageReference Include="System.IO.Compression.Zstandard" />` preview package if present. The APIs are now available without any additional package reference.
-

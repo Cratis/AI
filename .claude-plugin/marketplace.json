@@ -5,13 +5,13 @@
     "url": "https://www.cratis.io"
   },
   "metadata": {
-    "description": "Cratis AI skills for building event-sourced and CQRS applications"
+    "description": "Cratis skills for building applications on Arc, Chronicle and Components, and for changing the Cratis platform"
   },
   "plugins": [
     {
       "name": "cratis",
-      "description": "Cratis skills for application and framework development",
-      "version": "1.0.0",
+      "description": "Skills for building an application on Cratis (model, implement, run and diagnose slices) and for contributing to the Cratis platform",
+      "version": "2.0.0",
       "author": {
         "name": "Cratis",
         "url": "https://www.cratis.io"

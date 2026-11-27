@@ -22,14 +22,6 @@ change did not touch is a note, never a blocker.
 | `Cratis.Chronicle` | Event, projection, read-model and constraint surface |
 | `Cratis.Fundamentals` | `ConceptAs<T>`, `IInstancesOf<T>`, the DI conventions |
 
-Fundamentals:
-[`ConceptAs<T>`](https://github.com/Cratis/Fundamentals/blob/main/Source/DotNET/Fundamentals/Concepts/ConceptAs.cs)
-is the typed-value record;
-[`InstancesOf<T>`](https://github.com/Cratis/Fundamentals/blob/main/Source/DotNET/Fundamentals/Types/InstancesOf.cs)
-discovers implementations and resolves them when enumerated;
-[DI conventions](https://github.com/Cratis/Fundamentals/blob/main/Source/DotNET/Fundamentals/DependencyInjection/ServiceCollectionExtensions.cs)
-honor `[Singleton]` and `[Scoped]`, defaulting to transient.
-
 Reverify against the owning product repository before asserting a framework
 contract this file does not already state.
 
@@ -55,25 +47,17 @@ there is nothing to review under a red build.
 - Each slice is its own folder, `<Module>/<Feature>/<Slice>/<Slice>.cs`, with the
   backend artifacts together. **No top-level `Features/` wrapper.**
 - Namespace mirrors the folder path under the source root.
-- Commands are `record` types with `Handle()` on the record. No separate handler
-  class.
-- Business rejection returns a `ValidationResult` or
-  `Result<TEvent, ValidationResult>`, or comes from a validator. **Never thrown
-  from `Provide()` or `Handle()`** — a throw is HTTP 500, not a validation error.
-- Fetched or computed handler data is in `Provide()`, not inline in `Handle()`.
-- Events are `record` types: past tense, no mutable and no nullable properties,
-  never carrying the event-source id, and each has an XML `<summary>`.
+- Review command shape, refusals and data loading with `cratis-arc-declare-command`;
+  check durable event facts with `cratis-chronicle-evolve-event` (both in
+  `cratis/application`).
 - Identity concepts derive from `EventSourceId<T>`, not `ConceptAs<Guid>`.
 - Domain values are concepts, not raw `Guid`, `string`, or `int`. Search the change
   for single-value records (`record \w+\((Guid|string|int|long) Value\)`) with no
   base type, then judge each: a concept-shaped candidate is a finding, a
   genuine DTO is not an automatic rejection.
-- Projections consume events, never read models. AutoMap is on by default —
-  `.AutoMap()` appears only inside a scope disabled with `.NoAutoMap()`.
-- A `[Projection]` id, once given explicitly and deployed, is permanent. The
-  argument is optional; adding one to an existing projection after the fact
-  changes its identity.
-- Model-bound query custom paths use `[Path("...")]`, never ASP.NET `[Route]`.
+- Check projection inputs, mapping and stable observer identity with
+  `cratis-chronicle-project-view`, and query publication with
+  `cratis-arc-expose-query` (both in `cratis/application`).
 - No service locator: `IServiceProvider` is not injected. Implementation sets
   come from `IInstancesOf<T>`, never `IEnumerable<T>`.
 - No explicit singleton registration where `[Singleton]` suffices.
@@ -84,16 +68,8 @@ there is nothing to review under a red build.
 - Logging lives in a `*Logging.cs` partial with `[LoggerMessage]`, not inline in
   domain code.
 - No shared mutable state between commands.
-- Read protection is `On` by default from Arc 23. Flag an explicit `<CratisReadProtection>On</CratisReadProtection>` or
-  `[ReadProtection(ReadProtectionMode.On)]` as redundant, and any `Off`, `Measure` or `[Unprotected]` without a stated reason
-  (legacy: on Arc 22 new code had to set `On`).
-  Under `Off` an injected model or validator read is advisory, not a concurrency guard.
-  Under `On`, review that state rules sit in validators or handlers with the model as
-  a parameter and `[Unprotected("why")]` carries a real reason. Apply
-  [specs.scenarios.csharp.md](../../rules/specs.scenarios.csharp.md): business
-  decisions use direct `Handle()`/validator calls with supplied state. Require
-  one cheap assembly-level admission spec for the application's own shapes,
-  not per-decision concurrency/conflict/isolation tests; Arc/Chronicle own that matrix.
+- Review decision reads with `cratis-chronicle-protect-decision` from
+  `cratis/application`; flag any downgrade or bypass without a stated reason.
 - Use `Cratis.Arc.Core.CodeAnalysis` and `Cratis.Arc.Chronicle.CodeAnalysis`.
   ARCCHR0011 (Info, `Off` only) and 0012 flag unprotected reads/immediate
   bypasses; 0013 (Info) recommends definitions; 0014 checks declared observer
@@ -102,8 +78,6 @@ there is nothing to review under a red build.
   ARC0015 checks concept query inputs, ARC0016–18 operations, ARC0019–21
   authorization, ARC0022–25 generated values and ARC0026 explicit/ambiguous queries.
   A clean build cannot prove the Info-level decision advisories were addressed.
-  Sources: Arc `Source/DotNET/Arc.Core.CodeAnalysis/DiagnosticDescriptors.cs`
-  and `Source/DotNET/Chronicle.CodeAnalysis/DiagnosticDescriptors.cs`.
 
 ## Step 3 — C# style
 
@@ -146,10 +120,9 @@ degradations a reviewer can see without measuring:
   inside a handler instead of using the event data.
 - A new projection that could not replay all earlier events; events carrying
   large blobs.
-- A query that does not filter on an indexed field; a growable list that does
-  not return a shape Arc pages (`IQueryable<T>`, or MongoDB `Observe`); a query
-  that pages or sorts itself or uses MongoDB `AsQueryable()`; hydrating a
-  collection only to count it.
+- A query that does not filter on an indexed field, a growable list that does
+  not use server-side paging (`cratis-arc-page-query` in `cratis/application`),
+  or a collection hydrated only to count it.
 - An N+1 pattern; a response payload with fields no client reads.
 - React: a growable list rendering every row; an inline object or array literal
   passed as a prop, changing identity every render; wrong `useEffect`
@@ -159,22 +132,12 @@ degradations a reviewer can see without measuring:
 
 ## Step 6 — Specification coverage
 
-- Pure command, validator, reducer and reactor decisions have plain-call specs
-  with supplied read-model state; scenarios cover exactly the obligations in the
-  per-artifact decision table of `specs.scenarios.csharp.md` (pipeline and
-  authorization, constraints, projection and reducer dispatch, reactor dispatch
-  and routing) and none beyond it. A rule that must hold under concurrent
-  writers is proven from supplied read-model state, not a race scenario
-  re-proving the platform matrix. For an unusual application-owned explicit
-  guard policy, accept only a focused regression a plain call cannot prove;
-  check the [decision guidance](../cratis-application-slice-specifications/references/query-and-decision-scenarios.md)
-  for the assembly-level admission check, body-read limits and advanced hook boundary.
-- Every State Change command has a happy-path specification.
-- Every validation rule has a direct-call failure spec. Pipeline validation
-  specs assert **both** `ShouldNotBeSuccessful()` and `ShouldHaveValidationErrors()`.
-- Every business-rule rejection has a specification.
-- Every constraint has an `EventScenario` specification asserting the constraint
-  **name** by default.
+- Check that direct specs cover consequential decisions
+  (`cratis-specifications-isolate-behavior`) and backend scenarios cover only
+  the obligations that depend on the pipeline, dispatch, mapping or constraints
+  (`cratis-specifications-exercise-backend`). Both skills are in `cratis/application`.
+  For application-owned decision guards, check one assembly-level admission spec
+  rather than asking for races that re-prove framework behavior.
 - Presentation message strings are not asserted by default. Exact wording is
   asserted only when it is the specified behavior, and the fact names that
   requirement.
@@ -184,7 +147,13 @@ degradations a reviewer can see without measuring:
 
 ## Step 7 — Report
 
-Read and use `.cratis/ai/rules/review-reports.md` when writing the report.
+Write the report in this order: **Blockers**, **Suggestions**, **Dismissed (with reason)**
+and **Verdict**. Write `None` for empty sections. Include a **Not examined:**
+line naming unreviewed surfaces, ranges and checks. For each blocker, give its
+evidence, concrete consequence and proposed correction.
+Use **Changes requested** for a blocker, **Incomplete** if required evidence is
+missing without a blocker, **Approved with suggestions** for non-blocking findings
+after required checks, and **Approved** when required checks are complete with no findings.
 
 Correctness regressions, broken contracts, and missing specification coverage
 that leaves changed behavior unverified belong in Blockers when they require
@@ -196,7 +165,8 @@ For a quick review, report at most the few findings that matter most and say wha
 was not reviewed.
 
 For a follow-up round after blockers were fixed, review only the delta and carry prior
-findings forward; see `cratis-engineering-review-rounds`.
+findings forward. For planning rounds, use `cratis-engineering-review-rounds`
+from `cratis/engineering/core`.
 
 ## What breaks
 

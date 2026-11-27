@@ -9,17 +9,18 @@ paths:
   - "**/src/pages/**/*.html"
   - "**/src/content/**/*.md"
   - "**/src/content/**/*.mdx"
+profile: cratis/content
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 
 # Writing content that people and assistants can find
 
-Readability comes first. If a change for search engines or AI assistants makes a page harder to read, drop the change. Voice, structure and examples stay with [writing-cratis-docs.md](./writing-cratis-docs.instructions.md), [editing-cratis-docs.md](./editing-cratis-docs.instructions.md) and [documentation-structure-and-formatting.md](./documentation-structure-and-formatting.instructions.md); this rule adds only what they do not cover. Before publishing a page, post or package, use **cratis-discoverability**.
+Readability comes first. If a change for search engines or AI assistants makes a page harder to read, drop the change. Voice, structure and examples stay with the documentation rules `writing-cratis-docs`, `editing-cratis-docs` and `documentation-structure-and-formatting` where the `cratis/documentation` profile installs them; this rule adds only what they do not cover. Before publishing a page, post or package, use **cratis-discoverability**.
 
 ## Every page, post and README
 
 - **Define first, where a definition belongs.** Landing pages, glossary entries, READMEs and package descriptions open with one self-contained sentence: "X is a <category> for <audience> that <does>." Product index pages make the product's purpose clear near the beginning without requiring a definition as the opening sentence.
-- **Docs follow [writing-cratis-docs.md](./writing-cratis-docs.instructions.md) for voice and structure.** Let the reader's task and page purpose determine the opening and sequence; a concrete scenario is useful when it helps, not a required opener. Keep the self-contained definition or outcome in the frontmatter `description`, which serves search and AI. Reference entries stay terse, with introductory context only where needed to use them. writing-cratis-docs wins over discoverability suggestions.
+- **Docs follow the `writing-cratis-docs` rule for voice and structure.** Let the reader's task and page purpose determine the opening and sequence; a concrete scenario is useful when it helps, not a required opener. Keep the self-contained definition or outcome in the frontmatter `description`, which serves search and AI. Reference entries stay terse, with introductory context only where needed to use them. That rule wins over discoverability suggestions.
 - **Title and description are written by hand.** Title with the distinguishing term first: 50-60 characters for blog and landing pages, 20-60 for docs and reference pages; a README H1 that is the product name is fine. Description is one sentence of 60-160 characters, never over 160, and not a copy of the title or of another page's description.
 - **Name things one way.** The first mention is the full name ("Cratis Chronicle"), later mentions may shorten it. Use the canonical names in the **cratis-discoverability** entity reference, and do not call the platform "Cratis.io".
 - **Links name their destination.** Link text says what is behind it. Outside the docs site, link docs with the absolute canonical host `https://www.cratis.io/...`, never the bare `cratis.io`.

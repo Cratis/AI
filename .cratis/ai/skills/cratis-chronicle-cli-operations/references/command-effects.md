@@ -3,10 +3,7 @@
 
 # Chronicle CLI effects
 
-Derived from `cratis llm-context`. Use the
-installed version's catalog, not this snapshot, when they differ. The
-[effect/confirmation contract](https://github.com/Cratis/cli/blob/main/Documentation/reference/llm-context.md)
-defines `read-only`, `local`, `mutating`, `destructive`; every other or unknown
+Use the installed version’s `cratis llm-context` catalog when it differs from this table. Effects are `read-only`, `local`, `mutating` and `destructive`; every other or unknown
 effect is a state change. `requiresConfirmation=true` fails non-interactively
 without `--yes`, independently of effect. Confirmation is not authorization.
 
@@ -47,17 +44,9 @@ The remaining Chronicle commands are cataloged read-only, including
 external browser issue form. `chronicle version` is not a command in this
 catalog; server version is included in diagnostic output.
 
-Critical effect implementations at the tag:
-
-- [RemoveObserverCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/Observers/RemoveObserverCommand.cs):
-  deletes observer records across all namespaces, leaves read model data,
-  refuses running/subscribed observers.
-- [ClearPartitionQuarantineCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/Observers/ClearPartitionQuarantineCommand.cs):
-Chronicle 19.29.0 or later, resets retry budget, retries unless `--no-retry`.
-- [ChronicleCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/ChronicleCommand.cs):
-  confirmation handling shared by prompted commands.
-- [WorkbenchCommand.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/Workbench/WorkbenchCommand.cs):
-  destructive interactive surface, table output only.
+- `observers remove` deletes observer records across all namespaces, leaves read-model data and refuses running or subscribed observers.
+- `observers clear-partition-quarantine` needs Chronicle 19.29.0 or later, resets the retry budget and retries unless `--no-retry` is set.
+- `workbench` is a destructive-capable interactive surface and uses table output only.
 
 The guard covers `chronicle` only. `direct login|logout|status|use` declares
 `mutating` but is outside that guard's scope, as are other top-level groups.

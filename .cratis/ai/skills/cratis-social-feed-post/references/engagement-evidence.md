@@ -12,7 +12,7 @@
 - Accessibility references
 - Folklore
 
-This is the public evidence behind the feed post skill, as of 2026-09-25. Each row states the
+This is the public evidence behind the feed post skill. Each row states the
 claim the way the source supports it, which is often narrower than the way it gets repeated.
 Platforms change their ranking and formats often, so recheck the sources before relying on a
 row and correct this file when they change.

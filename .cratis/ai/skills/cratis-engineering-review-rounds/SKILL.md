@@ -10,9 +10,9 @@ compatibility: Requires git and the GitHub CLI (gh).
 
 # Review the change, then its corrections
 
-Read [review-reports.md](../../rules/review-reports.md) before choosing reviewers
-or reporting findings. Its report shape, verdicts, scope limits, and reviewer
-independence apply to every round. This skill schedules reviews; it does not
+Where installed with `cratis/review`, read the `review-reports` rule before
+choosing reviewers or reporting findings. Its report shape, verdicts, scope
+limits, and reviewer independence apply to every round. This skill schedules reviews; it does not
 replace the criteria in `cratis-code-review` or specialist review skills.
 
 **Blocking** means a must-fix finding in **Blockers**, yielding **Changes
@@ -35,7 +35,7 @@ advisory preference is not a merge gate. Missing required evidence yields
   provisional: required gates must pass before an approval report is finalized.
   Do not launch duplicate gates for review.
 - Keep a review log at the path the coordinator names, default
-  `.ai-work/review-log.tsv` (ignored work area, configurable). Append one row per
+  `review-log.tsv` in the ignored scratch folder. Append one row per
   attempt: repo, branch/PR, full base and head SHAs, run id, mode, ranges
   covered, verdict (PASS / NOT PASS / INCOMPLETE), date. An attempt is always
   recorded, but an unexamined partition never advances certified coverage.
@@ -87,8 +87,8 @@ later completes a valid review.
    rule directs, rather than manufacturing a verdict.
 3. Review the whole diff using the applicable criteria and real gate results.
    Record round 1 with its base/head and retain the complete report unchanged.
-   Keep local review records under `.ai-work/`; public reviewer notes follow
-   [pull-requests.md](../../rules/pull-requests.md), never the release note.
+   Keep local review records in the ignored scratch folder. Put public reviewer
+   notes in a PR comment, never in the release note.
 4. The writer independently verifies each finding against the code and behavior;
    do not implement feedback merely because a reviewer asserted it. Fix confirmed
    Blockers together and run authorized gates for the corrections. Retain stable
@@ -186,6 +186,6 @@ Suggestions, Dismissed (with reason), Verdict, and Not examined, per the shared
 rule. No Blockers and complete required evidence permit approval; suggestions
 alone permit Approved with suggestions.
 
-For PR descriptions and release notes, run the deterministic
-`cratis-check-pr.mjs` command from `pull-requests.md` and require a zero exit.
-Do not spend a review round on checks that script owns.
+For PR descriptions and release notes, run the repository's deterministic PR
+policy check when supplied and require a zero exit. Do not spend a review round
+on checks the script owns.

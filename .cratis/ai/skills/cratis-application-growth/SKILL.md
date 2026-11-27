@@ -1,6 +1,6 @@
 ---
 name: cratis-application-growth
-description: Use when a Cratis application's source tree must grow from one project into modules or module projects, untangle a catch-all project, rename namespaces after moves, or decide whether a new application starts modular. Not for service splits (cratis-multi-service-architecture) or one slice's contents.
+description: Use when a Cratis application’s source tree must grow from one project into modules or module projects, untangle a catch-all project, rename namespaces after moves, or decide whether a new application starts modular. Not for service splits or one slice’s contents.
 license: MIT
 ---
 
@@ -9,9 +9,7 @@ license: MIT
 
 # Grow an application's anatomy
 
-The stages, layers, invariants and identity table are the rule
-[application-anatomy.md](../../rules/application-anatomy.md); read it first. This skill is the
-procedure. The slice stays the unit throughout ([vertical-slices.md](../../rules/vertical-slices.md)).
+Keep each slice together throughout the move. Preserve stored identities until the separate rename window.
 
 The order is fixed: **decide, guard, move, untangle, rename, verify.** Each phase is done when its
 check passes; do not start the next one before.
@@ -21,7 +19,8 @@ check passes; do not start the next one before.
 1. Name the current stage and the signal that justifies the next, in the rule's terms. No signal, no move.
 2. A new application starts at stage 2 or 3 only for a rule-listed reason; otherwise stage 1.
 3. Read the accepted decision records that describe the current structure. If the target contradicts one,
-   write the superseding record first (**cratis-engineering-decision-record**); a record binds until then.
+   write the superseding record first; a record binds until then. See
+   `cratis-engineering-decision-record` (in the `cratis/engineering/core` profile).
 4. Write down the target: the modules, the platform projects (each with one stated purpose), and
    where every existing project goes.
 
@@ -77,7 +76,7 @@ one purpose (shell and tenancy into the host or a `Tenancy.Contracts`, an engine
 with contracts); everything else moves into the module that owns it. Delete the project when it is empty.
 
 **Retiring a project that owns event types** removes those types: their stored events and registrations
-need an event-store plan (**cratis-chronicle-event-type-migration**) before the project goes.
+need an event-store plan before the project goes; use [cratis-chronicle-evolve-event](../cratis-chronicle-evolve-event/SKILL.md).
 
 Done when: the seam baseline and the module-reference baseline reach zero.
 
@@ -110,7 +109,7 @@ name-scoped filters, which is where structural changes break. Say which phases w
 | Observers replay from the start, side effects repeat | A namespace or type name changed an observer identity | Pin the id, or repair stored identities before starting the new version |
 | `IFoo` not resolved, or the wrong implementation wins | Interface moved to `.Contracts`, so the same-namespace convention no longer binds; or extra bindings ran before explicit registrations | Register the pair explicitly; apply generated bindings once, after all explicit ones |
 | 404 from the frontend or a script after a rename | Arc routes follow the namespace | Regenerate proxies; replace hard-coded routes; update reverse-proxy rewrites |
-| A generated proxy lost members after a split | A project that only references a type emitted a copy over the owner's proxy | Generate each project into its own package; map referenced assemblies with `AssemblyToPackageMapping` (**cratis-arc-command**, proxy generation) |
+| A generated proxy lost members after a split | A project that only references a type emitted a copy over the owner’s proxy | Generate each project into its own package; map referenced assemblies with `AssemblyToPackageMapping`. See [cratis-arc-generate-proxies](../cratis-arc-generate-proxies/SKILL.md). |
 | API docs, authorization or Release stripping silently stopped applying | Code keyed on a namespace or path | Replace name keys with explicit declarations or one shared pattern |
 | Stored jobs fail to resume after a project rename or a move | Job type names are assembly-qualified | Keep `AssemblyName`; for a job type moved to another assembly, rewrite the stored names or leave a type forwarder |
 | Module B does not compile without module A's internals | Hidden coupling | Contract or lower project; never `InternalsVisibleTo` |
@@ -118,7 +117,6 @@ name-scoped filters, which is where structural changes break. Say which phases w
 
 ## Related
 
-- **cratis-multi-service-architecture**: modules deployed as separate services.
-- **cratis-chronicle-event-type-migration**: deliberate event identity or schema changes.
-- **cratis-engineering-decision-record**: superseding the structure's accepted records.
-- **cratis-application-slice-conformance**: a slice against its model after a move.
+- Modules deployed as separate services: [cratis-platform-verify-service-handoff](../cratis-platform-verify-service-handoff/SKILL.md) and [cratis-chronicle-publish-contract](../cratis-chronicle-publish-contract/SKILL.md).
+- Superseding the structure's accepted records: `cratis-engineering-decision-record` (in the `cratis/engineering/core` profile).
+- Verifying a slice against its model after a move: [cratis-platform-deliver-slice](../cratis-platform-deliver-slice/SKILL.md).

@@ -28,7 +28,7 @@ operator may override in their own brief, within the bounds shown.
 | Targeted-check time box | 120 seconds | Up to the build or test phase time box; a silent command is diagnosed, not given more time |
 | Build or test phase time box | 300 seconds | Up to 600 seconds; longer needs the user's explicit approval |
 | Detach threshold for long work | 600 seconds | At most 600 seconds; work beyond it runs detached and reports through a completion notification |
-| Work root | `.ai-work` | Must stay under `.ai-work/` |
+| Work root | `.ai-work` | Must be `.ai-work` or a folder inside it |
 
 A brief states each override explicitly. An override never weakens a rule,
 a required gate or the escalation list.

@@ -2,13 +2,13 @@
 applyTo: "**/.cratis/**"
 paths:
   - "**/.cratis/**"
+profile: framework
 ---
 
 # Shared AI Distribution
 
 How the shared Cratis AI corpus reaches a repository, and what a consuming
-repository must and must not do with it. The always-loaded instructions keep only
-the two invariants; this rule carries the mechanics.
+repository must and must not do with it.
 
 Do not copy or synchronize shared `.cratis/ai`, `.agents`, `.claude`, `.github`, or
 `.pi` trees from one Cratis repository to another. A consuming repository must
@@ -21,36 +21,24 @@ repository through these channels, each with its own version semantics:
   from the current `main` of `Cratis/AI` (or an explicit `--source` path), record
   the source commit and every installed file's hash in `.cratis/ai.manifest.json`,
   and create native harness adapters as symlinks into that managed copy. There is
-  no version pin on this channel: an update takes whatever `main` holds. Agents,
-  prompts, and hooks are always installed; rules are filtered by profile and
-  language; skills by the profile catalog; `harnesses/<harness>/` only for the
-  harnesses selected.
+  no version pin on this channel: an update takes whatever `main` holds. Hooks
+  are always installed; rules are filtered by profile and language; skills by
+  the profile catalog; `harnesses/<harness>/` only for the harnesses selected.
 - **`@cratis/pi`** is a versioned channel: an npm package cut per release,
   pinned and rolled back by package version. It yields to a managed install when
   `.cratis/ai.manifest.json` exists.
 - **Native plugin marketplaces** (Claude Code, Codex, Copilot, Cursor) expose the
   skills only, from the unpinned `Cratis/AI` GitHub source.
 - **`Cratis/AI.Distribution`** is a separate tag-versioned, deny-by-default public
-  evaluation marketplace. At **v0.3.0** it contains 29 skills and is explicitly
-  unsupported `0.x`, not a supported installation channel. Codex and Gemini
-  accept `--ref v0.3.0`; Pi accepts
-  `git:github.com/Cratis/AI.Distribution@v0.3.0`. Its documented Claude Code and
-  Copilot marketplace-add commands carry no ref. Live Chronicle CLI operations
-  (`cratis-chronicle-cli-operations`) and both Chronicle/Studio MCP skills remain
-  excluded, as do command execution, EF Core/event-type migration and reactors.
-  Sources: [v0.3.0 README](https://github.com/Cratis/AI.Distribution/blob/v0.3.0/README.md),
-  [release manifest](https://github.com/Cratis/AI.Distribution/blob/v0.3.0/marketplace-release.json)
-  and [exclusions](https://github.com/Cratis/AI.Distribution/blob/v0.3.0/provenance.json).
+  evaluation marketplace. It is explicitly unsupported `0.x`, not a supported
+  installation channel, and it carries a subset of the skills.
 
-At CLI **v3.53.1**, install/update/uninstall support `--dry-run`; `--source`
+`cratis ai install`, `update` and `uninstall` support `--dry-run`; `--source`
 or `CRATIS_AI_SOURCE` supplies a local corpus. Otherwise the CLI shallow-clones
 Cratis/AI's default branch and deletes the download after the run. `status`
 exits non-zero on local modifications; `--force` does not remove changed owned
 MCP entries on uninstall. Consumer extension sections in `.cratis/ai.json` and
 hook shebang/execute bits are preserved. Installation creates no model folder.
-Sources: [AiCorpusSource.cs](https://github.com/Cratis/cli/blob/v3.53.1/Source/Cli/Commands/Ai/AiCorpusSource.cs)
-and [AI commands](https://github.com/Cratis/cli/blob/v3.53.1/Documentation/ai/index.md)
-(the latter's older model-directory claim does not override current behavior).
 
 ## Profile-selected MCP servers
 
@@ -65,18 +53,18 @@ servers, settings and comments, detect conflicts, support dry-run/status, and
 remove only unchanged owned entries on uninstall. Unsupported adapters must be
 reported explicitly rather than presented as configured.
 
-At CLI v3.53.1 only Screenplay is registered: `.mcp.json` for Claude (with
-`--project-root-env CLAUDE_PROJECT_DIR`), `.vscode/mcp.json` for Copilot,
-`.cursor/mcp.json`, `.codex/config.toml` and OpenCode's config. Pi uses the
-`cratis-mcp` harness extension rather than a config file. CodeScene's `cs-mcp`
-is never registered by the CLI; neither Chronicle nor Studio MCP is registered
-by the corpus. Source: [AiMcpHarnesses.cs](https://github.com/Cratis/cli/blob/v3.53.1/Source/Cli/Commands/Ai/AiMcpHarnesses.cs).
+The CLI registers each server whose profile is selected in the project
+configuration of every managed harness: `.mcp.json` for Claude, `.vscode/mcp.json`
+for Copilot, `.cursor/mcp.json`, `.codex/config.toml` and OpenCode's config. This
+requires Cratis CLI 3.90.0 or later; older CLIs register only Screenplay. Pi uses
+the `cratis-mcp` harness extension rather than a config file. Set
+`mcpServers.<id>.enabled` to `false` in `.cratis/ai.json` to opt out of one
+server. The corpus declares no Chronicle or Studio MCP server. Run
+`cratis ai status` to see what was registered.
 
-Project model roots and opt-outs are consumer-owned configuration. Guidance
-installation never creates or manages a model directory: the Screenplay MCP locates the model
-itself (existing `.play` files, else `Source/` or `src/`, else a new `Screenplay/` folder). Ordinary
-model writes still require the model-authoring proposal/apply contract and the
-user's in-scope request.
+Project model roots and opt-outs are consumer-owned configuration. Model writes
+go through a reviewed proposal that is then applied, and need the user's in-scope
+request.
 
 ## Preserve consumer ownership
 

@@ -21,4 +21,3 @@ Code that directly uses `Microsoft.OpenApi` types (`OpenApiDocument`, `OpenApiSc
 **Impact: Low.** The default `OverscanCount` on the `Virtualize<TItem>` component changed from `3` to `15` to support variable-height item measurement. `QuickGrid` retains its own default of `3`.
 
 **Fix:** If performance-sensitive, set `OverscanCount` explicitly: `<Virtualize OverscanCount="3" />`.
-

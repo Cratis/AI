@@ -1,7 +1,7 @@
 ---
 id: 150
 title: Application specs never see decision reads or concurrency, and state-dependent rules use the read model as a Handle parameter
-status: accepted
+status: historical
 stage: implemented
 class: product
 reversibility: costly
@@ -15,6 +15,8 @@ applies-to:
   - ".cratis/ai/skills/cratis-chronicle-decision-reads/**"
 issues: []
 ---
+
+> **Historical.** The task-based corpus (Cratis/AI#1370) replaced the files named in `applies-to`. The rule and skills it applied to were removed. `cratis-arc-declare-command` and `cratis-chronicle-protect-decision` teach the read model as a `Handle` parameter. This record is kept for its reasoning; no instruction is loaded from it.
 
 ## Context
 

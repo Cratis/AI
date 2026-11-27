@@ -9,13 +9,12 @@ license: MIT
 
 # Observability across the Cratis stack
 
-Wire telemetry once, prove spans and metrics reach a backend, and keep sensitive values out of them. The binding naming and "never record" contract is the Cratis OpenTelemetry convention; read `.cratis/ai/rules/observability.md` for it and do not restate it in code comments.
+Wire telemetry once, prove spans and metrics reach a backend, and keep sensitive values out of them. Apply the Cratis OpenTelemetry convention for names and values that must never be recorded; do not restate it in code comments.
 
 Sibling skills own adjacent ground:
 
 - **cratis-fundamentals-telemetry** declares generated metrics and spans (`[Counter]`, `[Span]`) and subscribes application meters. Use it for custom instruments.
-- **cratis-chronicle-configuration** owns kernel storage, TLS and other kernel environment settings.
-- **cratis-chronicle-client-elixir** (`references/observability.md`) owns Elixir client tracing.
+- For kernel storage, TLS and other deployment settings, use [cratis-chronicle-deploy-kernel](../cratis-chronicle-deploy-kernel/SKILL.md).
 
 ## Setup (.NET)
 
@@ -90,7 +89,7 @@ Run the app against a local viewer; do not claim telemetry works from a clean bu
 
 ## Other platforms
 
-- Elixir: read `cratis-chronicle-client-elixir` `references/observability.md`.
+- For Elixir client setup, use [cratis-chronicle-select-client](../cratis-chronicle-select-client/SKILL.md).
 - TypeScript, JVM, Python and Go: the convention defines a shared setup entry point for each, but none is verified in this corpus. Treat them as planned; do not invent an API. Use the standard `OTEL_*` variables and the naming rule meanwhile.
 
 ## Pitfalls

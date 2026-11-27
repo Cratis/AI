@@ -6,7 +6,7 @@ intent as an `id` pin, and a changed meaning that becomes a new event. Several g
 alone select ESM v4; the differing event pin selects v16.
 It carries `storedName`, but released Stage 4.92.0 does not admit v16: this example
 does not prove rendered stored-history compatibility.
-See `evolution.md` for source evidence and the deployment boundary.
+See [event evolution](evolution.md) for the deployment boundary.
 
 ```screenplay
 // cratis-screenplay-streams-and-consistency: event evolution, complete design-mode example (V1, warnings as errors).
@@ -16,7 +16,7 @@ See `evolution.md` for source evidence and the deployment boundary.
 //   through the identity-aware path, which carries the old storedName in ESM v16.
 // - MembershipEnded vs MembershipTerminatedForBreach: a change of meaning is a NEW event, not
 //   a generation.
-// Screenplay does not express migrations/upcasters (Documentation/screenplay/events.md); the
+// Screenplay does not express migrations/upcasters; the
 // target must convert generation 1 facts and explicitly admit storedName in ESM v16.
 
 concept MembershipId : Uuid

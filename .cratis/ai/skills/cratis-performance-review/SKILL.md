@@ -24,8 +24,8 @@ storage and replay cost that never goes away.
 | `Cratis.Arc.Core` | Query return shapes and server-side paging |
 | `@cratis/components` | `DataTable` paging surface |
 
-Paged MongoDB observations re-read page and total on each change; see the
-read-model query reference for the distinction from unpaged retained sets.
+Paged MongoDB observations re-read page and total on each change; distinguish
+that cost from the retained set in an unpaged observation.
 
 Reverify against the owning product repository before asserting a framework
 behavior this file does not already state.
@@ -35,9 +35,8 @@ behavior this file does not already state.
 - General correctness and maintainability: use `cratis-code-review`. Its
   performance section is the pass-by list; this skill is the focused one. When
   both have run, do not restate the same finding twice.
-- Adding paging to a query rather than judging one: use
-  `cratis-arc-query-paging`. That skill is authoritative on the mechanism; this
-  one does not override it.
+- Adding paging rather than judging it: use `cratis-arc-page-query` from
+  `cratis/application`.
 - Security or data exposure: use `cratis-security-review`. An over-fetching
   payload is a finding for both — say which lens produced it.
 
@@ -63,12 +62,8 @@ behavior this file does not already state.
 
 - Queries filter on indexed fields. An unintentional full-collection scan is the
   most common finding here.
-- **A list that can grow returns a shape Arc pages** — `IQueryable<T>` for a
-  LINQ-native provider, `collection.Observe(...)` for MongoDB — so Arc applies
-  server-side paging and sorting. A query that writes its own `Skip`/`Take` or
-  `OrderBy` for the client's page or sort is a finding, as is MongoDB
-  `AsQueryable()` (translation failures at request time). Materializing and then slicing in memory reads the whole
-  collection every request.
+- Flag a growable list that does not use server-side paging or materializes
+  before slicing.
 - No N+1: one query returns what the caller needs.
 - A count is a count. Hydrating the collection to measure its length is the
   same finding as an unpaged list, wearing different clothes.
@@ -87,8 +82,8 @@ behavior this file does not already state.
   read passive computed state; never materialize secrets to make that query work.
 - Distinguish retained `Observe` state and in-memory emissions from explicit
   recompute queries. Narrow source filters and inspect page-refill/membership
-  lookups; do not claim every change re-queries the entire collection. See the
-  **cratis-chronicle-read-model** query reference for versioned behavior.
+  lookups; do not claim every change re-queries the entire collection. For live
+  query setup, see `cratis-arc-expose-query` in `cratis/application`.
 
 ## Step 3 — Commands and queries
 
@@ -121,7 +116,13 @@ behavior this file does not already state.
 
 ## Step 6 — Report
 
-Read and use `.cratis/ai/rules/review-reports.md` when writing the report.
+Write the report in this order: **Blockers**, **Suggestions**, **Dismissed (with reason)**
+and **Verdict**. Write `None` for empty sections. Include a **Not examined:**
+line naming unreviewed surfaces, ranges and checks. For each blocker, give its
+evidence, concrete consequence and proposed correction.
+Use **Changes requested** for a blocker, **Incomplete** if required evidence is
+missing without a blocker, **Approved with suggestions** for non-blocking findings
+after required checks, and **Approved** when required checks are complete with no findings.
 Keep the performance risk label on each finding:
 
 | Risk | Shared classification |
@@ -143,9 +144,8 @@ from code-shape inference; use the shared scope line to name unmeasured behavior
 
 - **A shape finding is reported as a measurement.** Reading code tells you the
   shape; only running it tells you the cost. Say which one you have.
-- **The paging advice contradicts the paging skill.** `cratis-arc-query-paging`
-  is authoritative on the mechanism. Report the missing paging; do not invent an
-  alternative to it.
+- **The finding invents a paging mechanism.** Report the missing paging; do
+  not invent an alternative to the framework mechanism.
 - **A replay cost is judged at development volume.** A projection over a hundred
   seeded events proves nothing about a replay over a production history.
 - **Every finding is High.** The classification is the value; when all findings

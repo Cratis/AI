@@ -14,8 +14,7 @@
 - Boundary checklist
 - Review questions
 
-Read when you split, merge or connect modules, or when a fact crosses between owners. Grammar
-for reactions and translations lives in `cratis-screenplay-automations-and-translations`.
+Read when splitting, merging or connecting modules. For grammar use [cratis-screenplay-model-automation](../../cratis-screenplay-model-automation/SKILL.md) for reactions and [cratis-screenplay-model-translation](../../cratis-screenplay-model-translation/SKILL.md) for translations.
 
 ## Establish the boundary, not an organizational formula
 A `module` groups business behaviour; it does not automatically define a team, deployment, event
@@ -162,28 +161,24 @@ integration support.
 - Events are private by default. Mark a public contract with `public event X` (ESM v9, released in
   Screenplay 4.117.0); declare a foreign public event's shape locally with `event X from "store"`.
   A command never produces a public event (PLAY0607/0613); crossing the boundary is a `Translate`
-  slice with an explicit direction (`cratis-screenplay-automations-and-translations`
-  `references/public-events-and-direction.md`). Nothing checks that the foreign shape matches the
-  other store, so also name the consumers in the event's `documentation` and keep the list in
-  `STATE.md`. Check [Stage target boundaries](../../cratis-stage-rendering-and-sandbox/references/current-boundaries.md)
-  for bounded publication support; public-event use is not universally renderable.
+  slice with an explicit direction. Use [cratis-screenplay-model-translation](../../cratis-screenplay-model-translation/SKILL.md) to declare it. Nothing checks
+  that the foreign shape matches the other store, so name consumers in the event’s `documentation`
+  and keep the list in `STATE.md`. Public-event use is not universally renderable.
 
 ## Crossing a boundary in Screenplay
 | Situation | Construct |
 |---|---|
 | another module in the same application | reference the event by name (cross-module resolution works within one application) |
-| another bounded context's contract | `event X from "store"` (shape declared locally, ESM v9); an unquoted `import Context.Event` or `import Q.X from "store"` has no local shape and stays PLAY0268 (see toolchain `references/executable-subset.md`) |
+| another bounded context’s contract | `event X from "store"` (shape declared locally, ESM v9); an unquoted `import Context.Event` or `import Q.X from "store"` has no local shape and stays PLAY0268 |
 | my own files | quoted `import "glob"` |
-| outside data entering | `Translate` slice: `capture`, or a translator `reaction` over an imported event (`cratis-screenplay-automations-and-translations`) |
+| outside data entering | `Translate` slice: `capture`, or a translator `reaction` over an imported event |
 | our fact another context needs | a public summary event; the other side translates it into its own language |
 
 Never let an external system's ids, codes or shapes become our domain vocabulary: translate at
 the edge, keep the external reference as a property when it is needed for correlation or dedup.
 Stage renders supported internal event-triggered Automation and bounded
 source-event capture/outbound Translate paths. Unsupported translation shapes
-remain gap-fill with the model as contract; check
-[Stage target boundaries](../../cratis-stage-rendering-and-sandbox/references/current-boundaries.md)
-rather than assuming that any foreign/public boundary renders.
+remain gap-fill with the model as contract; check admission with [cratis-stage-render-slice](../../cratis-stage-render-slice/SKILL.md) rather than assuming that any foreign/public boundary renders.
 
 ## Change data capture is not a domain event
 A row change captured from a database (CDC) says which columns changed, not why. Treat it as an

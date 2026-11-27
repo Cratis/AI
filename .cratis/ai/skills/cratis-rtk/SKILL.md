@@ -10,10 +10,9 @@ compatibility: Local shell; rtk is optional and must already be installed.
 
 # Token-optimized commands
 
-Follow [rtk.md](../../rules/rtk.md): exact output and real exit codes win over
-compression. A wrapper is not verification and never expands authority.
+Exact output and real exit codes win over compression. A wrapper is not verification and never expands authority.
 
-1. If `rtk` is not on `PATH`, use normal tools; do not install it or block work.
+1. If `command -v rtk` finds nothing, use normal tools; do not install it or block work.
 2. For human-readable output, let the configured PreToolUse hook rewrite Bash
    commands (for example `git status` → `rtk git status`). Without that hook,
    prefix each supported command, including each command in an `&&` chain.

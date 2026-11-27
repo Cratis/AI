@@ -44,10 +44,8 @@ composite type only to carry flat parts: both hide the identity the model should
   STAGE-ESM-048 and single-instance lookup by parts retains STAGE-ESM-047.
   DateTime parts and decimal parts (a `Decimal` primitive or a concept over
   `Decimal`) are refused STAGE-ESM-048; a decimal part can split `1.0` and `1.00`
-  into two instances on replay, and the refusal lifts with Stage#847 once
-  Chronicle#5427 lands. Choose a non-decimal key part.
+  into two instances on replay. Choose a non-decimal key part.
   Semantic Host support does not imply specification-executor support for
-  multi-part keys. See [Stage key boundaries](../../cratis-stage-rendering-and-sandbox/references/current-boundaries.md#renderer-support-is-bounded).
+  multi-part keys. Check target admission with [cratis-stage-render-slice](../../cratis-stage-render-slice/SKILL.md).
 
-Read read-surface `references/named-keys.md` for one complete executable example and the
-projections skill `references/pdl-grammar.md` for the key block syntax.
+Use [cratis-screenplay-declare-slice](../../cratis-screenplay-declare-slice/SKILL.md) for projection syntax.

@@ -5,8 +5,7 @@
 
 Each lane has an inbox directory under `<work-root>/inbox/<lane-id>/`. A sender
 writes one file per message into the recipient's inbox and keeps a copy in its
-own `<work-root>/outbox/`. Messages are work records: they live only under
-`.ai-work/` and never enter git history.
+own `<work-root>/outbox/`. Messages are work records: they live only in the ignored scratch folder and never enter git history.
 
 ## Message types
 

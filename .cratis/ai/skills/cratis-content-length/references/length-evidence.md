@@ -12,7 +12,7 @@
 - Not verified here
 - Folklore
 
-The sources behind the bands in the content length skill, as of 2026-09-25. Every entry was
+The sources behind the bands in the content length skill. Every entry was
 checked against its source page; where the original reading overstated a source, the
 corrected reading is the one given here. Platform limits and vendor figures change, so check
 the live page before relying on a number and correct this file when it moves.

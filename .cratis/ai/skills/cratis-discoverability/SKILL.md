@@ -7,9 +7,8 @@ license: MIT
 # Discoverability before you publish
 
 Discoverability is a property of good content: a clear definition, an honest title, one name per
-thing and working links. The always-on rule is [discoverability.md](../../rules/discoverability.md);
-this skill is the procedure to run on the finished draft. If a fix makes the page worse to read,
-drop the fix and say so.
+thing and working links. Run these checks on the finished draft. If a fix makes
+the page worse to read, drop the fix and say so.
 
 ## Procedure
 
@@ -24,8 +23,8 @@ Read `references/page-checklist.md` when checking a page, including docs lint ba
 ## Checks by content type
 
 - **Docs page.** The `description` is written by hand as one self-contained
-  definition or outcome sentence. Follow `writing-cratis-docs` for the page's purpose, voice and
-  structure; it takes precedence over discoverability suggestions. A scenario can help a tutorial
+  definition or outcome sentence. Preserve the page's purpose, voice and structure
+  when applying discoverability suggestions. A scenario can help a tutorial
   or explanation, but is not a required opener. Product index pages should make the product's
   purpose clear near the beginning without forcing a definition into the first sentence.
   Reference pages stay terse: title is the exact name plus its product, headings support lookup,

@@ -186,8 +186,8 @@ replied to comments had about 30% more engagement than that same account's posts
 replies. Buffer says itself that this doesn't show replies cause it. Replies take the author's
 time, so count that time when planning a post.
 
-An agent never replies on anyone's behalf ([`capability-is-not-authority.md`](../../rules/capability-is-not-authority.md)). It can draft an answer for the author to rewrite
-and send.
+An agent never replies on anyone's behalf. It can draft an answer for the author
+to rewrite and send.
 
 Where posts go, how often, and how to measure what happened belongs to
 **cratis-developer-marketing**.

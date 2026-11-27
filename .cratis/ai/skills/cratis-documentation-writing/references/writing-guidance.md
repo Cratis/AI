@@ -69,7 +69,7 @@ structural changes. A style pass cannot establish technical correctness.
 Do not rewrite an entire corpus into one repeated template.
 
 An AI-drafted narrative is a first draft, not a finished page. Give the model
-the reader, the scenario, the terminology and the source evidence up front;
+the reader, the scenario, the terminology and the evidence from the product up front;
 then revise the result against that evidence and the
 **cratis-writing-voice-and-cadence** constructions before it ships. Tell the
 reviewer the narrative was AI-drafted (in the review request, a PR comment or

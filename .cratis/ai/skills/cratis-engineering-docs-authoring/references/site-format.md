@@ -21,7 +21,7 @@ require an eligible MDX pipeline. Choose aids for this task, not a uniform layou
 - Tag every code fence with its language.
 - Dedent extracted snippets to their natural source indentation.
 - Use the **cratis-technical-examples** workflow: substantial examples come
-  from compiled sample or spec source; short illustrations are verified against
+  from compiled sample or spec source; check short illustrations against
   first-party product source. State any omitted setup rather than implying an
   excerpt is a standalone runnable program.
 - Use the client-owned multi-language snippet mechanism when shared product docs

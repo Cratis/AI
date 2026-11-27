@@ -1,13 +1,12 @@
 ---
-applyTo: "**/*"
+profile: cratis/playwright
 ---
 
 # Browser use
 
-Browser access is a capability, not authority (see
-[`capability-is-not-authority.md`](./capability-is-not-authority.md)). Every line is tagged
-**[contract]** (binding) or **[convention]** (the house default) per the Three Levels of
-Authority in [`general.md`](./general.md). Read this before any browser call.
+Browser access is a capability, not authority: a configured browser tool permits
+nothing by itself. Every line is tagged **[contract]** (binding) or **[convention]**
+(the house default). Read this before any browser call.
 
 ## Permit and handoff
 
@@ -37,8 +36,8 @@ Authority in [`general.md`](./general.md). Read this before any browser call.
 
 ## Artifacts and uploads
 
-- **[contract] Write artifacts and stage uploads only under `.ai-work/<task>/browser/`**
-  (see [`local-work-artifacts.md`](./local-work-artifacts.md)). If a path guard blocks you,
+- **[contract] Write artifacts and stage uploads only under `.ai-work/<task>/browser/`**,
+  an ignored folder at the repository root. If a path guard blocks you,
   stop and report. Never monkey-patch DOM or file APIs to get around it.
 - **[contract] No secrets or tokens in artifacts, URLs or logs.**
 

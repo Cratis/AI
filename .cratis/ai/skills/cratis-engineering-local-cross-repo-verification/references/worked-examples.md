@@ -54,7 +54,7 @@ step. Apply the entry point's check/restore/cleanup sequence to both repositorie
    ```
 
    Resolve the actual output and filter for `Source/Integrations/Specs/Specs.csproj`
-   via [running-specs](../../cratis-specifications-csharp/references/running-specs.md).
+   from the project's test runner and repository workflow.
    Without apphost use `dotnet <TargetPath.dll>`; only VSTest uses
    `dotnet test <project> -c Release --no-build --filter '<regression>'`.
    Inspect the current consumer workflow before claiming CI equivalence.
@@ -143,7 +143,7 @@ Gates (Direct `build.yml`): `dotnet build Source/Direct/Direct.csproj -c Release
 -p:DisableProxyGenerator=true`, the same in Debug with `-warnaserror`, then the project's
 verified built Debug spec entrypoint. Build `Source/Assurance/Assurance.csproj` in the
 matching configuration and run its verified spec entrypoint too; do not guess assembly
-names or start an application server. See [running-specs](../../cratis-specifications-csharp/references/running-specs.md);
+names or start an application server. Use the project's actual test runner;
 only VSTest uses `dotnet test <project> --no-build` in that configuration. Inspect the
 current consumer workflow before claiming equivalence. Then check `project.assets.json`. Image-based specs also need the producer image tag.
 

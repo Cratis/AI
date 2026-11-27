@@ -3,7 +3,7 @@
 
 # .NET setup and options
 
-Source: Fundamentals `Source/DotNET/OpenTelemetry/` (`OpenTelemetryExtensions.cs`, `InstrumentationExtensions.cs`, `CratisOpenTelemetryOptions.cs`), package `Cratis.OpenTelemetry`, namespace `Cratis.OpenTelemetry`. Read the release you consume.
+Use package and namespace `Cratis.OpenTelemetry`.
 
 ## Entry points
 

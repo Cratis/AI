@@ -8,7 +8,7 @@ license: MIT
 
 # Test Platform and Framework Detection
 
-Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, and `orleans.md`) and the `cratis-*` skills win where they differ. Specification authoring belongs to **cratis-specifications-csharp**; Cratis core repositories run xUnit v2 on VSTest.
+Cratis rules in `.cratis/ai/rules/` (including `csharp.md`, `specs.csharp.md`, and `orleans.md`) and the `cratis-*` skills win where they differ. Specification conventions belong to the `specs.csharp` rule; Cratis core repositories run xUnit v2 on VSTest.
 
 Determine **which test platform** (VSTest or Microsoft.Testing.Platform) and **which test framework** (MSTest, xUnit, NUnit, TUnit) a project uses.
 

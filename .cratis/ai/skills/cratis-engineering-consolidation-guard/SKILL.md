@@ -23,8 +23,7 @@ the same guard against that original change, not against the revert.
 
 ## When the guard applies
 
-- Folding two or more pull requests onto one branch, as
-  [pull-requests.md](../../rules/pull-requests.md) asks for small related work.
+- Folding related work from two or more pull requests onto one branch.
 - Re-landing reverted work, whether by reverting the revert, cherry-picking the
   original commits, or merging the original branch again.
 - Restoring commits by cherry-pick: from a deleted branch, a closed pull
@@ -37,7 +36,7 @@ work it replaces; there, specify the behavior instead.
 
 ## Consolidate without rewriting history
 
-[git-commits.md](../../rules/git-commits.md) forbids rebase, squash and force.
+Preserve history: never rebase, squash or force-push.
 Each permitted way to consolidate also records its source in history, which is
 what lets CI find the sources without being told:
 
@@ -191,7 +190,6 @@ when adding or reviewing that workflow.
 - **Trusting a green build.** The specifications that would have failed are the
   ones the merge deleted.
 - **Fixing a finding by force-pushing or squashing the branch.** That removes
-  the evidence and breaks [git-commits.md](../../rules/git-commits.md); restore
-  in a new commit.
+  the evidence; restore the missing work in a new commit.
 - **Folding from a branch name.** A deleted branch cannot be fetched again;
   `refs/pull/<n>/head` can.

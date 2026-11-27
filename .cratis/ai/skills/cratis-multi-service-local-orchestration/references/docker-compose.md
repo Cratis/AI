@@ -21,7 +21,7 @@ Before `docker compose up`, create `chronicle-client.env` next to the compose fi
 and keep it out of version control. It holds one setting,
 `Cratis__Chronicle__ConnectionString`, whose value is a `chronicle://` connection
 string for the kernel's service name `chronicle` and port `35000`, carrying the
-development client id and secret (see `cratis-chronicle-client-dotnet`). Both
+development client id and secret. Both
 services read it through `env_file`, so no credential appears in the compose file.
 
 ```yaml
@@ -128,7 +128,7 @@ volumes:
 - **Image choice.** The development image bundles MongoDB and suits a kernel alone;
   with external storage use the development-slim image as above. The production
   image starts only with storage, a TLS certificate and an encryption certificate,
-  and generates no development client (`cratis-chronicle-hosting`). Pin an exact
+  and generates no development client. Pin an exact
   image version in shared environments instead of a floating tag.
 
 ## Per-service settings
@@ -140,8 +140,7 @@ volumes:
 | `Cratis__MongoDB__Server`, `Cratis__MongoDB__Database` | The replica set, and the service's event-store name as the database |
 | Host port | A distinct port per service, bound to `127.0.0.1` |
 
-Connection-string options (`skipTlsValidation`, credentials, several hosts) are
-covered in `cratis-chronicle-client-dotnet`.
+For the .NET client connection, use [cratis-chronicle-connect-application](../../cratis-chronicle-connect-application/SKILL.md).
 
 ## Checks
 

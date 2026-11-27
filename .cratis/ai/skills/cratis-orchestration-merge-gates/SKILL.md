@@ -13,8 +13,7 @@ compatibility: Requires git and the GitHub CLI (gh).
 This skill applies to multi-lane work where several pull requests merge into
 one repository. A single session follows `cratis-engineering-ci-gates`.
 Merging, like any external effect, needs the user's request or brief to
-authorize it: read
-[capability-is-not-authority.md](../../rules/capability-is-not-authority.md).
+authorize it.
 Placeholders such as `<coordinator>` and the default time boxes come from
 `cratis-orchestration-lanes` and its
 [placeholders.md](../cratis-orchestration-lanes/references/placeholders.md);

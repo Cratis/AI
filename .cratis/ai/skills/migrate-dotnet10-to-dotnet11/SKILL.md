@@ -15,7 +15,7 @@ Cratis rules in `.cratis/ai/rules/` (including `csharp.md`) and the `cratis-*` s
 - Use for upgrading a repository's SDK, retargeting to `net11.0`, or diagnosing build errors and behavior changes after either.
 - Do not use for greenfield projects, upgrades from .NET 9 or earlier, .NET Framework migrations, or cosmetic modernization unrelated to the upgrade.
 - Distinguish the SDK and compiler version from the runtime target. A .NET 11 SDK (C# 15) can build `net10.0` targets; libraries that multi-target `net10.0;net11.0` keep both. Drop `net10.0` only when the repository's support policy says so.
-- Follow the C# 14/15 feature guidance in [csharp.md](../../rules/csharp.md) instead of adopting language features here. In particular, no new public union types in libraries that also target `net10.0`, no `closed` on existing public types, and no runtime-async.
+- Follow the C# 14/15 feature guidance in the `csharp` rule instead of adopting language features here. In particular, no new public union types in libraries that also target `net10.0`, no `closed` on existing public types, and no runtime-async.
 - Keep the repository's approved SDK pin (`global.json`) and package pins. With Central Package Management, change `Directory.Packages.props` only where the approved upgrade scope requires it.
 
 ## Inputs

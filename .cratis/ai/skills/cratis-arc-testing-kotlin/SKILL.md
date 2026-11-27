@@ -13,13 +13,7 @@ Use generated artifacts through the real pipelines, not hand-written handlers
 that bypass KSP wiring. `arc-testing` needs neither Spring Boot nor Docker.
 This is test support, not an alternative production host.
 
-## Verified product sources
-
-Source: `Arc.Kotlin`: `Testing/src/main/kotlin/io/cratis/arc/testing`
-(`CommandScenario`, `QueryScenario`, `ObservableQueryScenario`, result assertions),
-`Integrations/Chronicle/ChronicleCommandScenario.kt`, and
-`Documentation/guides/testing.mdx`. Add
-`testImplementation("io.cratis:arc-testing:<version>")`; align it with the runtime,
+Add `testImplementation("io.cratis:arc-testing:<version>")`; align it with the runtime,
 plugin and KSP version.
 
 ## Choose the pipeline
@@ -127,5 +121,4 @@ cancels the stage; callback-based `collect` does not deliver timeout callbacks.
 - Run real-store integration checks separately when the behavior depends on
   kernel constraints, persistence, transactions or change streams.
 
-For definition rather than tests: `cratis-arc-command-kotlin`,
-`cratis-arc-query-kotlin`, `cratis-arc-validation-kotlin`.
+For definition rather than tests, use [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md) for commands, [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md) for queries and [cratis-arc-validation-kotlin](../cratis-arc-validation-kotlin/SKILL.md) for validation.

@@ -10,13 +10,6 @@ Treat Studio MCP access as access to live product and organization data. This
 skill classifies intent only. It does not discover, configure, install, or call
 an MCP server.
 
-## Verified product sources
-
-| Source | Purpose |
-| --- | --- |
-| Studio public product announcement | Organization-scoped, credential-gated MCP availability, not tool-effect admission |
-| `Cratis/Studio` | Private repository; implementation evidence is **not admitted** |
-
 Studio has an organization-scoped, credential-gated MCP endpoint. Availability
 and credentials do not establish that an operation is observational. The private
 repository cannot supply this public skill's required immutable public effect
@@ -25,8 +18,7 @@ Treat edits and dynamically delegated work as effectful by default.
 
 ## Current authority boundary
 
-The deny-all rule is universal: [`operational-safety.md`](../../rules/operational-safety.md). This skill
-keeps the classification procedure below.
+Deny all Studio MCP calls; this skill classifies intent only.
 
 No Studio MCP implementation source, operation, prompt, resource, schema, or
 revision is admitted. An empty inventory means **nothing is authorized**; it

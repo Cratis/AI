@@ -16,14 +16,13 @@ reconstructed after it degrades. This skill covers one agent continuing its own
 task in a later session. Parallel lanes with claims, leases and inboxes use
 `cratis-orchestration-lanes`, which reuses the template here.
 
-Work records live under `.ai-work/` as defined in
-[local-work-artifacts.md](../../rules/local-work-artifacts.md), which also owns
-the preconditions every handoff opens with.
+Keep work records in the ignored scratch folder (`.ai-work`). Open each handoff
+with the repository, branch, expected `HEAD`, named worktree paths and date.
 
 ## Keep a state note
 
-Default: keep `.ai-work/<task>/STATE.md` from the start of any task expected to
-span more than one sitting. It holds the same sections as the handoff template,
+Default: keep `STATE.md` in the task's scratch folder from the start of any
+work expected to span more than one sitting. It holds the same sections as the handoff template,
 so a handoff is a copy plus a verification, not a reconstruction.
 
 Update it at each milestone and before any long wait. Also update it
@@ -63,9 +62,9 @@ When the context is nearly full:
 3. Write the handoff from it. Read
    [references/handoff-template.md](references/handoff-template.md) for the
    fixed structure, the rules for filling it and a worked example.
-4. Verify it: run `node .cratis/ai/hooks/scripts/cratis-check-handoff.mjs .ai-work/<task>/handoff.md`;
-   fix every error and either fix or acknowledge each warning (a moved HEAD means
-   update the table). Where the script is not installed, check by hand:
+4. If the repository supplies a handoff checker, run it on the draft. Fix every
+   error and either fix or acknowledge each warning (a moved HEAD means update
+   the table). Otherwise, check by hand:
    preconditions against `git`, each section present, every running job with a
    full watch row.
 5. End the session, or reset it with your harness's compaction or new-session
@@ -119,5 +118,5 @@ the repositories and watch tables use the exact header rows, every running job,
 CI watch and subagent has a row with an immutable target, and each user quote
 is verbatim with its source. Check directive status and replacements, and keep
 agent decisions with their reasons separate. The checker validates structure,
-not attribution or retirement. Run `node .cratis/ai/hooks/scripts/cratis-check-handoff.mjs .ai-work/<task>/handoff.md`;
-the checker exits 0. Fix or acknowledge its warnings before ending the session.
+not attribution or retirement. If the checker is installed, it must exit 0.
+Fix or acknowledge its warnings before ending the session.

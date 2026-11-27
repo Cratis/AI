@@ -26,8 +26,7 @@ with `given`), and `node:test` works too.
 | Stored events or an aggregate | `ChronicleKernelScenario` against a running kernel | n/a |
 
 Cover decision branches with fast direct specs and add scenario specs for the
-rules Arc enforces. The Chronicle scenarios are in
-`cratis-arc-command-typescript` (`chronicle-events.md`).
+rules Arc enforces. Use [cratis-chronicle-select-client](../cratis-chronicle-select-client/SKILL.md) for Chronicle client setup.
 
 ## CommandScenario
 
@@ -119,8 +118,7 @@ describe('when registering a task', given(a_task_registration, context => { /* .
 ```
 
 Layout: `for_<Subject>/when_<action>/<case>.ts`, with shared setup in a `given/`
-folder next to it; `discover()` skips both. See `cratis-specifications-typescript`
-for the file and naming conventions. With Vitest or Vite, the transform must
+folder next to it; `discover()` skips both. With Vitest or Vite, the transform must
 lower standard decorators with `useDefineForClassFields: true`, or decorators
 silently do nothing in specs.
 
@@ -148,6 +146,5 @@ does not transform decorators.
 
 ## Route near misses
 
-- Writing the command or query itself: `cratis-arc-command-typescript`,
-  `cratis-arc-query-typescript`; the rule vocabulary: `cratis-arc-validation-typescript`.
-- Specification naming and fixtures in general: `cratis-specification-by-example`.
+- Writing the command or query itself: [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md) and [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md). The rule vocabulary is in [cratis-arc-validation-typescript](../cratis-arc-validation-typescript/SKILL.md).
+- Specification naming and fixtures in general: `cratis-specifications-isolate-behavior` in `cratis/application`.

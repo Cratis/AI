@@ -15,18 +15,8 @@ the member it concerns — never as a thrown error.
 Arc for TypeScript ships as stable 1.0.0 packages on npm (`@cratis/arc.core`
 and the other server packages). The published
 `@cratis/arc` client is separate; it runs the client-safe rules the proxy
-generator copies into generated proxies. Setup is in
-`cratis-arc-command-typescript`.
+generator copies into generated proxies. For Node server setup, use [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md).
 
-## Verified product sources
-
-Source: `Cratis/Arc.TypeScript`, reading `Source/Core/validation/**` (including
-`index.ts`, `ValidationResult.ts`, `Severity.ts`, `RuleBuilder.ts`),
-`Source/Core/commands/Outcome.ts`, `Documentation/commands/command-validation.md`,
-`validation-severity-filtering.md`, `command-outcomes.md`,
-`Documentation/queries/validation.md`, `Documentation/concepts.md`,
-`Documentation/proxy-generation/validation.md`, `Source/Testing`, and the
-`Samples/Tasks` validators.
 `ValidationResult` is both the exported interface and a value with the helpers
 `ValidationResult.information/warning/error(message, options?)`; the positional
 `validation(...)` function remains available.
@@ -50,11 +40,11 @@ Source: `Cratis/Arc.TypeScript`, reading `Source/Core/validation/**` (including
   authorization or `denied(...)`.
 - A stored-state check tells you what was true when it ran. A rule that must hold
   under concurrency belongs at the storage boundary (for Chronicle, a constraint
-  or concurrency scope — `cratis-chronicle-event-constraints`).
+  or concurrency scope; see [cratis-chronicle-constrain-append](../cratis-chronicle-constrain-append/SKILL.md)).
 
 ## Command rules — `CommandValidator`
 
-`Samples/Tasks/Features/Tasks/Registration/Registration.ts` keeps the validator
+The registration example keeps the validator
 in the slice file with its command:
 
 ```typescript
@@ -84,7 +74,7 @@ export class RegisterTaskValidator extends CommandValidator<RegisterTask> {
 ## Value rules — `ConceptValidator`
 
 A rule that belongs to the value goes on the concept, once.
-`Samples/Tasks/Features/Tasks/TaskTitleValidator.ts`:
+Example:
 
 ```typescript
 import { ConceptValidator, validator } from '@cratis/arc.core';
@@ -300,13 +290,10 @@ describe('when validating a task with an empty title', given(a_task_registration
 
 ## Route near misses
 
-- Defining the command or query the rule attaches to:
-  `cratis-arc-command-typescript`, `cratis-arc-query-typescript`.
-- Append-time uniqueness or concurrency in Chronicle:
-  `cratis-chronicle-event-constraints` and the Chronicle reference in
-  `cratis-arc-command-typescript`.
-- The .NET validation shape: `cratis-arc-command-validation`; Kotlin/Java:
-  `cratis-arc-validation-kotlin`.
+- Defining the Node command or query: [cratis-arc-select-backend-sdk](../cratis-arc-select-backend-sdk/SKILL.md) and [cratis-arc-expose-query](../cratis-arc-expose-query/SKILL.md).
+- Append-time uniqueness or concurrency: [cratis-chronicle-constrain-append](../cratis-chronicle-constrain-append/SKILL.md).
+- The .NET validation shape: [cratis-arc-validate-command](../cratis-arc-validate-command/SKILL.md); Kotlin/Java:
+  `cratis-arc-validation-kotlin` in `cratis/arc/client-kotlin`.
 
 ## Verify
 

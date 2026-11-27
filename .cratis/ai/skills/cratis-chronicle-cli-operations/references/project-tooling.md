@@ -26,8 +26,7 @@ fails; `--no-templates` skips it. CLI and template versions are separate. Do not
 silently enable scaffold scripts; preserve the template's `--allow-scripts`
 choice. Multi-service orchestration still needs explicit per-store settings.
 
-For `cratis render` / `run`, read **cratis-screenplay-render-and-gap-fill** and
-**cratis-stage-rendering-and-sandbox**. Their bundled renderer determines support;
+For `cratis render` / `run`, use [cratis-stage-render-slice](../../cratis-stage-render-slice/SKILL.md). The bundled renderer determines support;
 a CLI upgrade can change admission, generated output and the default container
 without changing the model. Never infer support from the ESM version alone or
 edit generated output to make an older CLI accept it.
@@ -59,7 +58,8 @@ fresh temporary workspace with the fixture's selected profiles/languages; the
 invoking repository is unchanged. It is **not** a security sandbox: fixture
 commands and harnesses still have host tools/authentication. Trust the source,
 request the intended session/budget, and keep transcripts off unless needed.
-The default fixture root is `Evaluations/conformance`; `--fixtures` overrides
+The default fixture root is the conformance folder under the repository’s evaluations folder.
+`--fixtures` overrides
 it, `--fixture` selects names, and `--harnesses claude,codex` narrows adapters.
 `--output json` is this command's structured format, not proof of a passing run.
 

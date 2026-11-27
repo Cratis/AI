@@ -1,8 +1,7 @@
 # Chronicle boundaries
 
 Read when consistency, tenancy or personal data decides where a boundary falls. These are
-target facts; the `.play` model declares only part of them (`references/executable-subset.md` in
-`cratis-screenplay-toolchain`).
+target facts; the `.play` model declares only part of them, and binding is not target admission.
 
 ## Target facts
 
@@ -10,12 +9,11 @@ Chronicle has CHR0012 (nullable event properties) and CHR0034 (PII on an event-s
 Three runtime limits apply: on older Chronicle releases (see the Requires line below) the SQL and InMemory providers do not settle unique claims,
 constraint index updates run after commit and fail silently, and composite unique
 constraints collide when a component contains the separator. Arc has `[ProtectedDecision]`;
-Stage-rendered apps pin an Arc and Chronicle client/kernel release (see the Stage skill's
-`references/rendered-application.md`) that include it, so the APIs are available to gap-fill,
+Stage-rendered apps pin Arc and Chronicle releases that include it, so the APIs are available to gap-fill,
 not automatically emitted or protected (see `consistency-and-concurrency.md` section 3).
 Re-check these limits before relying on a constraint in a new release.
 A concurrency scope's first append is unchecked by default; see
-SKILL.md, ‘First append into a scope’.
+[First append into a scope](consistency-and-concurrency.md#first-append-into-a-scope).
 
 Requires Arc 22.39.0 or later and Chronicle 19.23.0 or later for `[ProtectedDecision]`.
 

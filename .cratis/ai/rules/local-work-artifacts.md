@@ -1,5 +1,14 @@
 ---
-applyTo: "**/*"
+applyTo: "**/.ai-work/**,**/.gitignore,**/*.sh,**/*.ps1,**/scripts/**,**/.github/workflows/**,**/.cratis/ai/hooks/**"
+paths:
+  - "**/.ai-work/**"
+  - "**/.gitignore"
+  - "**/*.sh"
+  - "**/*.ps1"
+  - "**/scripts/**"
+  - "**/.github/workflows/**"
+  - "**/.cratis/ai/hooks/**"
+profile: framework
 ---
 
 # Local AI work artifacts belong in `.ai-work/` only
@@ -41,12 +50,12 @@ dumps, and similar coordination files. These are **work records, not documentati
   severities). In a container whose checkout is the workspace root with a read-only
   parent, use `$HOME/.worktrees/<name>`. **Delivered work is cleaned up by
   `.cratis/ai/hooks/scripts/cratis-cleanup-worktrees.sh`, not by memory:** run it from the
-  main checkout when a PR merges or you finish a task (hooks and **ship-changes** also run it). It
+  main checkout when a PR merges or you finish a task (the installed hooks also run it). It
   removes a worktree and its branch only on evidence the work reached the default branch —
   pushed is not merged — and never forces. It keeps worktrees with non-empty `.ai-work/`
   directories; manual `--include-work-records=<path>` lifts that for that worktree only;
   hooks never opt in. Ignored or untracked files, a live process using it, or a failed holder
-  check (hooks README) keep a worktree. `git worktree lock <path>` pins one: locked worktrees are always kept. Do not hand-remove worktrees
+  check keep a worktree. `git worktree lock <path>` pins one: locked worktrees are always kept. Do not hand-remove worktrees
   or `git branch -D` a delivered branch when the script can; `gh pr merge --delete-branch`
   inside a worktree leaves the worktree and branch behind. If the branch must outlive the task
   unmerged, leave the worktree and say so in the handoff. Never `--force` a removal; a
@@ -54,7 +63,7 @@ dumps, and similar coordination files. These are **work records, not documentati
   worktrees) and records branch refs and SHAs before and after.
 - **Scan for secrets before archiving or sharing.** Before anything from `.ai-work/` is archived,
   attached or shared, run `gitleaks detect --no-git --source <dir>` (or the repository's equivalent)
-  and redact every finding. See [`secrets.md`](./secrets.md).
+  and redact every finding.
 - **A decision log is not a work record.** A decision — a durable choice with a
   decider and a date — is documentation: it lives in **`decisions/`** (or the
   repository's documented decisions folder, such as `.cratis/ai.json` `process.decisions.path`) and is reviewed like any other
@@ -62,6 +71,6 @@ dumps, and similar coordination files. These are **work records, not documentati
   copy. If a session produced a real decision, land the record in `decisions/`
   before the session's `.ai-work/` files are discarded.
 - The record's shape (front matter, status and stage values, supersession
-  pointers) is defined by the decision-record skill and the shared vocabulary
-  once this repository carries them; until then use the repository's existing
-  decisions folder and keep decider and date explicit.
+  pointers) is defined by **cratis-engineering-decision-record** when it is
+  installed; otherwise use the repository's existing decisions folder and keep
+  decider and date explicit.

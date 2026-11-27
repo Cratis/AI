@@ -26,14 +26,12 @@ needs it, keeping important warnings before the affected action and limits
 beside the behavior they qualify. A plausible block followed by a product-name
 list is not a causal explanation.
 Preserve real package IDs, API names and wire types rather than translating
-them into umbrella branding. Follow the
-[documentation rule](../../rules/documentation.md) for naming and claims.
+them into umbrella branding.
 
 Keep source checking, compilation, runtime observation and deployed behavior
 separate in the private change note. A source-verified command is not a command
 you ran; expected output is not observed output. For a new or materially changed
-journey, use **cratis-documentation-writing**'s
-[fresh-context reader review](../cratis-documentation-writing/references/reader-review.md).
+journey, use `cratis-documentation-writing` in `cratis/documentation` for a fresh-context reader review.
 That comprehension check cannot replace any example gate, and an unavailable
 reader review must not be claimed as completed.
 
@@ -66,9 +64,7 @@ reader review must not be claimed as completed.
   contradicts. A note inside a tab ("not supported", "no equivalent") is also a
   claim: check that client's source and show the real shape. Before changing a
   repeated fact, grep the whole series for it and update every occurrence.
-  Check every snippet against the [concepts rule](../../rules/concepts.md)
-  even when copied from client docs; a primitive for a domain value is a defect
-  there too.
+  Check every snippet for domain concepts even when copied from client docs; a primitive standing in for a domain value is a defect there too.
 - **Sample application:** one realistic domain, explicit prerequisites and
   relevant version constraints, a documented run command, a reproducible state to start
   from, and a visible result. Keep it minimal enough for a new reader to finish.
@@ -77,8 +73,6 @@ reader review must not be claimed as completed.
   example creates, and any costs or security shortcuts that make it unsuitable
   for production. Never use real credentials or personal data.
 
-For Cratis-specific API traps and source-location guidance, read
-[Writing Correct Code Examples](../../rules/writing-correct-examples.md).
 A local Chronicle client documentation workflow takes precedence for shared
 language tabs. Never hand-edit a generated proxy or a synchronized docs copy.
 
@@ -108,7 +102,7 @@ language tabs. Never hand-edit a generated proxy or a synchronized docs copy.
 
 ## Version constraints belong in the page; the test log does not
 
-Follow the [documentation rule](../../rules/documentation.md): a reader needs
+A reader needs
 versions that change what they install or write. State minimum, fixed or
 breaking releases and compatibility or peer ranges that affect the task.
 Ordinary installation follows the supported latest-release path, not universal
@@ -119,27 +113,27 @@ tutorial when needed, and preserve required security/deployment constraints
 and production image policy.
 
 Keep the author's verification record out of the page. Exact SDK builds, image
-digests or commit SHAs recorded for provenance, the date it was run, "tested
+digests or commit SHAs kept only as a record, the date it was run, "tested
 with X on Y", "also checked against a development server", counts of passing
 specifications and a list of which tabs were not run are all a log of what
 the author did. A reader cannot act on them, they are stale by the next
 release, and a page that ends in an audit trail reads as generated, not
 written. Put them in the change summary, the pull request comment or
-`.ai-work/`, per the step above.
+the ignored scratch folder, per the step above.
 
 Test each version sentence: would a reader install or write something
 different because of it? If not, remove it. A real limitation stays, stated as
 a fact about the product ("the Kotlin client has no equivalent yet"), not as a
 record of what was and was not run. Keep a digest in a runnable command when
 reproducibility, security or deployment requires that artifact; its presence
-inside a command alone is not a reason to retain it. Removing provenance is
+inside a command alone is not a reason to retain it. Removing test receipts is
 not permission to float a production image or weaken a compatibility boundary.
 
 ## Know what the owning gate actually checks
 
-Look for a snippet validator before designing another checker. Arc and
-Chronicle's .NET repositories use `Documentation/validate-client-snippets.py`
-for supported **C#** fences in `Documentation/client-snippets/**`; Arc's
+Look for a snippet validator before designing another checker. The Arc and
+Chronicle .NET repositories use `validate-client-snippets.py`
+for supported **C#** fences in the client snippets under their documentation folders; Arc’s
 validator has a `--self-test` that plants a failing snippet. Other client
 repositories own their own validators and toolchains. Check the validator's
 reported count and exclusions: unsupported markers or legacy snippets are not

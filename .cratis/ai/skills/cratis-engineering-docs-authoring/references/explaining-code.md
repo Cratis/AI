@@ -131,7 +131,7 @@ to the next action or expectation? Repair the missing connection, not every
 sentence's vocabulary. Retain useful contrasts, parallel reference entries and
 limits that change a decision. Accuracy questions about hosts, identifiers,
 defaults and failures guide the author; publish their answers where they help,
-not a fixed paragraph for each question. Keep source-checking provenance in the
+not a fixed paragraph for each question. Record which sources were checked in the
 change note, not as a closing receipt in the page.
 
 For a revision, compare the new explanation with the original for claims,

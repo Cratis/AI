@@ -1,0 +1,1 @@
+{"skill":"cratis-platform-prepare-release-pr","queries":[{"query":"The label is patch and Publish is green, but the package is missing. Is the PR still in the release batch?","shouldTrigger":true},{"query":"I haven't implemented the change yet. Which public contract should its spec cover?","shouldTrigger":false,"sibling":"cratis-platform-contribute-change"}]}

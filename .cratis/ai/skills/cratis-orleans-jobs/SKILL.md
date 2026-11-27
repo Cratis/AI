@@ -9,13 +9,9 @@ license: MIT
 
 # Recoverable Choreography jobs
 
-For services and kernel contributors using Orleans. This is library-consumer guidance, not the application vertical-slice architecture. For live Chronicle operations use **cratis-chronicle-cli-operations** instead. Co-hosting conventions are in [orleans.md](../../rules/orleans.md).
+For services and kernel contributors using Orleans. This is library-consumer guidance, not the application vertical-slice architecture. For live Chronicle operations use `cratis-chronicle-cli-operations` in `cratis/cli` instead.
 
 Use `Cratis.Choreography` 2.0.0 or newer. When upgrading from `Cratis.Orleans`, replace the package/namespace prefix and `AddCratisOrleans` registration prefix with `Cratis.Choreography` and `AddCratisChoreography`, including `CratisChoreographyOptions`. The 1.x prerequisites below and in the references describe the pre-rename compatibility baseline; Choreography 2.0.0 includes them.
-
-## Verified product sources
-
-Packages are pinned to 2.0.0, the `Cratis.Choreography` rename baseline. Names are verified against `Cratis/Orleans` origin/main: `Source/Choreography/Hosting/CratisChoreographySiloBuilderExtensions.cs`, `CratisChoreographyOptions.cs`, and the jobs-storage extensions in `Source/Choreography.Storage.MongoDB/Setup/`, `Source/Choreography.Storage.Sql/Setup/` and `Source/Choreography.Storage/InMemory/`.
 
 ## 1. Choose a job, not a detached task
 

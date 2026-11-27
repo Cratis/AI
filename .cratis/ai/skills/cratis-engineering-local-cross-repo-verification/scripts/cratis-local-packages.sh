@@ -2467,6 +2467,7 @@ self_test_nuget_overlay() {
 self_test() {
     [ $# -eq 0 ] || die '--self-test takes no arguments'
     local root home repo feed version output status passed=0 skipped=0 test_key arg map system_path
+    local fixture_state=.fixture-state
     # Fixtures use the physical path (macOS TMPDIR is /var -> /private/var) because the helper
     # reports repositories by their git toplevel; symlinked feeds have their own test below.
     scratch; root=$(cd -P "$TMP" && pwd -P)/self-test; mkdir -p "$root/home" "$root/repo"
@@ -3521,20 +3522,21 @@ self_test_matrix() {
 self_test_symlink_feed() {
     local physical=$root/feed-physical-parent alias=$root/feed-symlink-parent
     local sr=$root/feed-symlink-repo sv=1.2.3-local.202610240544.gabcdef0
+    local session_dir=$sr/$fixture_state/local-packages
     mkdir -p "$physical" "$sr"
     ln -s "$physical" "$alias"
     git -C "$sr" init -q
-    printf '.ai-work/\n' > "$sr/.gitignore"
+    printf '%s/\n' "$fixture_state" > "$sr/.gitignore"
     printf '<Project><ItemGroup><PackageVersion Include="Cratis.Symlink" Version="1.2.3"/></ItemGroup></Project>\n' > "$sr/Directory.Packages.props"
     git -C "$sr" add .gitignore Directory.Packages.props
     git -C "$sr" -c user.email=test@example.invalid -c user.name='Symlink feed fixture' commit -qm initial
-    slf() { env -i HOME="$home" PATH="$system_path" TMPDIR="$TMP" CRATIS_LOCAL_FEED="$alias/missing/feed" CRATIS_LOCAL_SESSION_DIR="$sr/.ai-work/local-packages" /bin/bash "$SELF" "$@"; }
+    slf() { env -i HOME="$home" PATH="$system_path" TMPDIR="$TMP" CRATIS_LOCAL_FEED="$alias/missing/feed" CRATIS_LOCAL_SESSION_DIR="$session_dir" /bin/bash "$SELF" "$@"; }
     expect_status 0 'symlink feed resolution does not create a missing feed' slf check "$sr"
     [ ! -e "$physical/missing" ] || failed 'symlink feed resolution created directories'
     mkdir -p "$physical/missing/feed/nuget"
     : > "$physical/missing/feed/nuget/Cratis.Symlink.$sv.nupkg"
     expect_status 0 'legacy use-nuget under symlinked feed parent' slf use-nuget "$sr" "$sv" Cratis.Symlink
-    has "$physical/missing/feed/nuget" "$sr/.ai-work/local-packages/env" || failed 'legacy feed path was not resolved physically'
+    has "$physical/missing/feed/nuget" "$session_dir/env" || failed 'legacy feed path was not resolved physically'
     expect_status 0 'legacy restore under symlinked feed parent' slf restore "$sr"
     has '0 leaks' "$root/output" || failed 'symlink feed restore leaked a local pin'
     expect_status 0 'legacy clean under symlinked feed parent' slf clean --stamp "$sv" --apply
@@ -3545,6 +3547,7 @@ self_test_symlink_feed() {
 # Composition fixtures are isolated, SDK-native and never restore/build a producer.
 self_test_composition() {
     local cf=$root/composition-parent/feed cr=$root/composition-repo cm=$root/composition.tsv
+    local session_dir=$cr/$fixture_state/local-packages
     local a=22.138.1-local.202610240544.gd1ad215 b=0.2.2-local.202610240544.g91916a3 c=0.1.18-local.202610240544.g524bdce
     local boundary kind base=$root/composition-prior cpkg=$root/composition-package
     if ! command -v node >/dev/null 2>&1 || ! command -v dotnet >/dev/null 2>&1 || ! command -v zip >/dev/null 2>&1 || ! command -v unzip >/dev/null 2>&1; then
@@ -3555,7 +3558,7 @@ self_test_composition() {
     mkdir -p "$cf/nuget" "$cr" "$cpkg"
     : > "$root/.composition-fixture"
     git -C "$cr" init -q
-    printf '.ai-work/\nobj/\n' > "$cr/.gitignore"
+    printf '%s/\nobj/\n' "$fixture_state" > "$cr/.gitignore"
     printf '<Project><PropertyGroup><ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally></PropertyGroup><ItemGroup><PackageVersion Include="Cratis.Keep" Version="1.2.3"/></ItemGroup></Project>\n' > "$cr/Directory.Packages.props"
     mkdir -p "$cr/nested"
     printf '<Project><PropertyGroup><ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally></PropertyGroup></Project>\n' > "$cr/nested/Directory.Packages.props"
@@ -3565,7 +3568,7 @@ self_test_composition() {
     git -C "$cr" -c user.email=test@example.invalid -c user.name='Composition fixture' commit -qm initial
     cp "$cr/Directory.Packages.props" "$root/composition-original.props"
     printf 'producer\tChronicle\t%s\t%s\nproducer\tScreenplay\t%s\t%s\nproducer\tStage\t%s\t%s\npackage\tChronicle\tCratis.Chronicle.InProcess\npackage\tScreenplay\tCratis.Screenplay\npackage\tStage\tCratis.Stage\n' "$a" "$cr" "$b" "$cr" "$c" "$cr" > "$cm"
-    cst() { env -i HOME="$home" PATH="$PATH" TMPDIR="$TMP" DOTNET_CLI_HOME="$home" DOTNET_NOLOGO=1 DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 PI_PHASE_ORIGINAL_PATH="${PI_PHASE_ORIGINAL_PATH:-}" PI_PHASE_SHIM_DIR="${PI_PHASE_SHIM_DIR:-}" PI_PHASE_MSBUILD_MAX_CPU="${PI_PHASE_MSBUILD_MAX_CPU:-1}" CRATIS_LOCAL_FEED="$cf" CRATIS_LOCAL_SESSION_DIR="$cr/.ai-work/local-packages" CRATIS_LOCAL_COMPOSITION_TEST_ROOT="$root" CRATIS_LOCAL_COMPOSITION_FAIL="${composition_fail:-}" CRATIS_LOCAL_COMPOSITION_INTERRUPT="${composition_interrupt:-}" /bin/bash "$SELF" "$@"; }
+    cst() { env -i HOME="$home" PATH="$PATH" TMPDIR="$TMP" DOTNET_CLI_HOME="$home" DOTNET_NOLOGO=1 DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1 PI_PHASE_ORIGINAL_PATH="${PI_PHASE_ORIGINAL_PATH:-}" PI_PHASE_SHIM_DIR="${PI_PHASE_SHIM_DIR:-}" PI_PHASE_MSBUILD_MAX_CPU="${PI_PHASE_MSBUILD_MAX_CPU:-1}" CRATIS_LOCAL_FEED="$cf" CRATIS_LOCAL_SESSION_DIR="$session_dir" CRATIS_LOCAL_COMPOSITION_TEST_ROOT="$root" CRATIS_LOCAL_COMPOSITION_FAIL="${composition_fail:-}" CRATIS_LOCAL_COMPOSITION_INTERRUPT="${composition_interrupt:-}" /bin/bash "$SELF" "$@"; }
     cmpkg() {
         local id=$1 ver=$2 dependencies=${3:-} xmlfile=$cpkg/$1.nuspec
         printf '<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd"><metadata><id>%s</id><version>%s</version><dependencies>%s</dependencies></metadata></package>' "$id" "$ver" "$dependencies" > "$xmlfile"
@@ -3690,7 +3693,7 @@ for (const stamp of stamps) {
 NODE
     }
     expect_status 0 'registry composition consumer' composition_registry
-    output=$cr/.ai-work/local-packages/composition
+    output=$session_dir/composition
     grep -Fq 'CentralPackageTransitivePinningEnabled>true' "$output/Directory.Packages.props" || failed 'composition pin property'
     self_test_nuget_overlay "$output" Cratis.Stage "$c"
     passed=$((passed + 8))
@@ -3734,12 +3737,12 @@ NODE
     expect_status 0 'private-cache composition' cst use-nuget "$cr" --composition "$cm" --private-cache
     composition_cache=$(git -C "$cr" rev-parse --absolute-git-dir)/cratis-local-nuget
     env -i PATH=/usr/bin:/bin /bin/bash -c "source \"\$1\"; [ \"\$NUGET_PACKAGES\" = \"\$2\" ]" _ "$output/env" "$composition_cache" || failed 'private-cache composition env export'
-    [ "$(cat "$cr/.ai-work/local-packages/nuget-cache")" = "$composition_cache" ] && [ "$(cat "$composition_cache/.cratis-local-cache")" = "$cr" ] || failed 'private-cache composition marker'
+    [ "$(cat "$session_dir/nuget-cache")" = "$composition_cache" ] && [ "$(cat "$composition_cache/.cratis-local-cache")" = "$cr" ] || failed 'private-cache composition marker'
     expect_status 2 'private-cache composition live kept' cst clean "$cr" --private-cache --apply
     expect_status 0 'private-cache composition restore' cst restore "$cr"
     [ -d "$composition_cache" ] || failed 'private-cache composition restore removed cache'
     expect_status 0 'private-cache composition removal' cst clean "$cr" --private-cache --apply
-    [ ! -e "$composition_cache" ] && [ ! -e "$cr/.ai-work/local-packages/nuget-cache" ] || failed 'private-cache composition removal left cache registration'
+    [ ! -e "$composition_cache" ] && [ ! -e "$session_dir/nuget-cache" ] || failed 'private-cache composition removal left cache registration'
     cf=$composition_feed
     [ -f "$cf/nuget/Cratis.Chronicle.InProcess.$a.nupkg" ] && [ -f "$cf/nuget/Cratis.Screenplay.$b.nupkg" ] && [ -f "$cf/nuget/Cratis.Stage.$c.nupkg" ] || failed 'private-cache composition cleanup removed recovery feed packages'
     # Every live mutation boundary is exercised both as an ordinary failure and
@@ -3793,9 +3796,9 @@ NODE
     mkdir -p "$cf/.composition-lock"; printf '%s\n' "$$" > "$cf/.composition-lock/owner"
     expect_status 2 'composition concurrent activation lock' cst use-nuget "$cr" --composition "$cm"
     rm "$cf/.composition-lock/owner"; rmdir "$cf/.composition-lock"
-    mkdir -p "$cr/.ai-work/local-packages/npm-backup"; printf 'unrelated npm backup\n' > "$cr/.ai-work/local-packages/npm-backup/package.json"
+    mkdir -p "$session_dir/npm-backup"; printf 'unrelated npm backup\n' > "$session_dir/npm-backup/package.json"
     expect_status 2 'composition preserves incompatible npm backup' cst use-nuget "$cr" --composition "$cm"
-    grep -Fq 'unrelated npm backup' "$cr/.ai-work/local-packages/npm-backup/package.json" || failed 'composition npm backup drift'
+    grep -Fq 'unrelated npm backup' "$session_dir/npm-backup/package.json" || failed 'composition npm backup drift'
     passed=$((passed + 1))
 }
 

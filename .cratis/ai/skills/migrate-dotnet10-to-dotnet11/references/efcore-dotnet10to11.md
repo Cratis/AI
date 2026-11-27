@@ -91,4 +91,3 @@ await context.SaveChangesAsync();
 **Impact: Medium.** `SQLitePCLRaw 3.0` (used by `Microsoft.Data.Sqlite` 11) removed `bundle_e_sqlcipher` and several other bundle packages.
 
 **Fix:** Switch to SQLite Encryption Extension (SEE), SQLCipher from Zetetic, or `SQLite3MultipleCiphers-NuGet`.
-

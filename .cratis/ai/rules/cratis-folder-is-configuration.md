@@ -2,6 +2,7 @@
 applyTo: "**/.cratis/**"
 paths:
   - "**/.cratis/**"
+profile: framework
 ---
 
 # `.cratis/` is configuration, never a place to produce things

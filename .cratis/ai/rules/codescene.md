@@ -6,18 +6,19 @@ profile: cratis/codescene
 
 This policy applies only when the repository explicitly selects `cratis/codescene`
 or a descendant profile. It overrides the vendored CodeScene skills where they
-differ. Only Pi's `cratis-mcp` extension can start the CodeScene MCP server (see
-[profiles.md](./profiles.md)); other harnesses add it at user level, never in committed
-project files: `cs-mcp` over stdio (`brew install cs-mcp`), or `npx -y @codescene/codehealth-mcp`.
+differ. The profile declares the `codescene` MCP server, which launches `cs-mcp` over stdio.
+Each user installs that executable (`brew install cs-mcp`); the corpus does not.
 CodeScene needs an account and OAuth `login`. Without an account or available
 CodeScene tools, skip these steps and say so; never block contributors who have
 not opted in.
 
 ## Thresholds and checking
 
-Scope follows [criticality tiers](./criticality-tiers.md); the floor, checking steps
-and no-fix-loops process are in [code-health.md](./code-health.md). Tier C requires
-no Code Health scoring or uplift; a narrow fix does not require unrelated legacy uplift.
+Where the engineering rules `criticality-tiers` and `code-health` are installed, they
+set the scope, the floor, the checking steps and the no-fix-loops process. Without
+them, score only maintained code the change touches. Disposable or advisory code
+(Tier C) requires no Code Health scoring or uplift; a narrow fix does not require
+unrelated legacy uplift.
 Vendored refactoring instructions do not expand that scope.
 
 CodeScene categories, for reference: **10 optimal**, **9–9.9 green**, **4–8.9 yellow**,
@@ -32,7 +33,7 @@ Never refactor generated code: proto/gRPC contracts, generated proxies or `obj/`
 Optional recipe for generated code CodeScene still scores: a root `.codescene/code-health-rules.json`
 with one `rule_sets` entry whose `matching_content_path` is the generated glob (`**/*.g.cs`,
 `**/Generated/**`, `**/Proxies/**`) and `rules` listing every rule at `"weight": 0.0` scores those
-files 10 and leaves others unchanged (verified). Names: Bumpy Road Ahead, Complex Conditional,
+files 10 and leaves others unchanged. Names: Bumpy Road Ahead, Complex Conditional,
 Complex Method, Constructor Over-Injection, Code Duplication, Deep, Nested Complexity, Excess Number
 of Function Arguments, Large Method, Large Assertion Blocks, Duplicated Assertion Blocks, Low
 Cohesion, Brain Class, Brain Method, Overall Code Complexity, Primitive Obsession, String Heavy

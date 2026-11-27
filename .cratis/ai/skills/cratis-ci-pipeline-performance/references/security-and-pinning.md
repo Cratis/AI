@@ -37,8 +37,8 @@ comment so updates remain reviewable:
 - Set `permissions:` at the job level, not the workflow level, and grant only
   what the job uses. Start from `contents: read`, or `permissions: {}` for a job
   that touches no repository content.
-- Grant write scopes (`contents`, `packages`, `pull-requests`, `id-token`) only to
-  the job that needs them, such as the publisher.
+- Grant scopes such as `contents: write`, `packages: write`, `pull-requests: write`
+  or `id-token: write` only to the job that needs them, such as the publisher.
 - Do not use a personal access token where the workflow token suffices.
 
 ## Untrusted code and triggers

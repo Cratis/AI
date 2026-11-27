@@ -11,7 +11,7 @@ paths:
 
 # How to Write Elixir Specs
 
-Extends the base [specs.md](./specs.instructions.md) with Elixir conventions. The philosophy is the same: a spec
+Elixir conventions for specs. A spec
 describes a **behavior** in the language of the domain, the folder tree reads as a sentence, and one
 scenario lives in one file. ExUnit is the runner; nothing else is needed.
 
@@ -56,8 +56,7 @@ stays beside the specs, in the first of `test_paths`. Let `mix format` cover the
 ```
 
 The unit is the module, command, read model, component or function under specification:
-`for_rotate_secret`, `for_data_table`, `for_patterns`. Use the prepositions and the rules of
-[specs.md](./specs.instructions.md) (`and_`, `with_`, `without_`, `having_`, `given_`), including: **never put `when` in a
+`for_rotate_secret`, `for_data_table`, `for_patterns`. Outcome files start with `and_`, `with_`, `without_`, `having_` or `given_`. **Never put `when` in a
 file or non-`when_` folder name** (`and_ory_fails.exs`, not `when_ory_fails.exs`, under `when_adding/`).
 
 Folder names are `snake_case`. A spec's **module name mirrors its path** below the application's namespace,

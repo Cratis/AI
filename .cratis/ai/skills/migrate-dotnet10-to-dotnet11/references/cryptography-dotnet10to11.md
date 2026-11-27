@@ -35,4 +35,3 @@ This change only affects macOS. DSA continues to work on Windows and Linux (thou
 - Pre-install the full certificate chain on the server
 - Have clients send the full chain including intermediates
 - Re-enable AIA downloads via `X509ChainPolicy.DisableCertificateDownloads = false`
-

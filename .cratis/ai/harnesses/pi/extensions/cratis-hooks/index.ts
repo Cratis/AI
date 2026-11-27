@@ -11,7 +11,6 @@
  *   Claude PreToolUse  (Bash)        →  Pi `tool_call`      →  cratis-guard-secrets.sh  (exit 2 = block)
  *   Claude PreToolUse  (Bash)        →  Pi `tool_call`      →  cratis-guard-shell-writes.sh  (exit 2 = block)
  *   Claude PreToolUse  (Bash)        →  Pi `tool_call`      →  cratis-guard-pr-body.sh  (exit 2 = block)
- *   Claude PostToolUse (Write|Edit)  →  Pi `tool_result`    →  cratis-pattern-scan.sh  (advisory context)
  *   Claude PostToolUse (Bash)        →  Pi `tool_result`    →  cratis-cleanup-worktrees.sh --hook  (removes delivered worktrees/branches)
  *   Claude SessionStart              →  Pi `session_start`  →  cratis-cleanup-worktrees.sh --hook  (sweeps orphans left by any earlier session)
  *   Explicit Pi `cratis_quality_gate` tool → cratis-quality-gate.sh  (exit 2 = failed)
@@ -28,7 +27,7 @@
  *
  * Nothing here duplicates corpus content: it is adapter machinery, the Pi peer of the Claude
  * `hooks` block in `.claude/settings.json`. Every environment escape hatch the scripts honor
- * (CRATIS_HOOKS_ALLOW_PROTECTED_WRITES, CRATIS_HOOKS_ALLOW_STORE_MUTATIONS, CRATIS_HOOKS_ALLOW_SECRET_READS, CRATIS_HOOKS_SKIP_SCAN,
+ * (CRATIS_HOOKS_ALLOW_PROTECTED_WRITES, CRATIS_HOOKS_ALLOW_STORE_MUTATIONS, CRATIS_HOOKS_ALLOW_SECRET_READS,
  * CRATIS_HOOKS_SKIP_GATE, …) still works because the scripts are executed unchanged, in the environment
  * Pi was started from.
  *
@@ -184,7 +183,7 @@ async function runCommandGuards(
  *
  * A repository that ships no hook scripts is a supported configuration, so an absent script is
  * not an error and is not enforced. Installed scripts report missing `jq`: guards refuse calls,
- * the quality gate blocks changed trees, and the advisory pattern scan warns once per session.
+ * and the quality gate blocks changed trees.
  *
  * The dangerous case is the other one: the script is present, so this repository clearly intends
  * the guard to run, but it cannot be executed. That is a broken guard rather than an absent one,
@@ -215,7 +214,6 @@ export default function (pi: ExtensionAPI) {
 	const writeGuardEnv = (script: string): NodeJS.ProcessEnv | undefined =>
 		script === guardWrites || script === guardShellWrites ? { ...process.env, CLAUDE_PROJECT_DIR: sessionRoot } : undefined;
 	const guardPrBody = path.join(scriptsDir, "cratis-guard-pr-body.sh");
-	const patternScan = path.join(scriptsDir, "cratis-pattern-scan.sh");
 	const qualityGate = path.join(scriptsDir, "cratis-quality-gate.sh");
 	const cleanupWorktrees = path.join(scriptsDir, "cratis-cleanup-worktrees.sh");
 
@@ -290,46 +288,9 @@ export default function (pi: ExtensionAPI) {
 		return { content: [...existing, { type: "text", text: `\n\n[cratis-hooks]\n${message}` }] };
 	}
 
-	// ── PostToolUse → deterministic pattern scan (advisory; injects reminders the model sees) ──
+	// ── PostToolUse (Bash) → cleanup of delivered worktrees and branches ──
 	pi.on("tool_result", async (event, ctx) => {
 		if (event.toolName === "bash") return sweepAfterBash(event, ctx);
-		if (event.toolName !== "write" && event.toolName !== "edit") return;
-		if (event.isError) return;
-		const { filePath } = writeTarget(event.toolName, (event as any).input);
-		if (!filePath) return;
-		if (!isInstalled(patternScan)) return;
-		const payload = JSON.stringify({
-			cwd: ctx.cwd,
-			session_id: ctx.sessionManager.getSessionId?.() ?? "nosession",
-			tool_input: { file_path: filePath },
-		});
-		const run = await runScript(patternScan, payload, ctx.cwd, ctx.signal);
-
-		// Advisory, not a gate: a broken pattern scan must not fail a write that already succeeded.
-		// It is still surfaced rather than swallowed, because a scan that silently stops running
-		// looks exactly like a scan that finds nothing.
-		if (run.failed) {
-			const existing = Array.isArray(event.content) ? event.content : [];
-			return {
-				content: [
-					...existing,
-					{
-						type: "text",
-						text: `\n\n[cratis-hooks] cratis-pattern-scan is installed but could not be run, so no pattern checks were applied to this edit.`,
-					},
-				],
-			};
-		}
-		if (run.code !== 0 || !run.stdout.trim()) return;
-		let reminder = "";
-		try {
-			reminder = JSON.parse(run.stdout)?.hookSpecificOutput?.additionalContext ?? "";
-		} catch {
-			reminder = "";
-		}
-		if (!reminder.trim()) return;
-		const existing = Array.isArray(event.content) ? event.content : [];
-		return { content: [...existing, { type: "text", text: `\n\n[cratis-hooks]\n${reminder.trim()}` }] };
 	});
 
 	// The quality gate is only run by its explicit tool, never by a turn-end handler.

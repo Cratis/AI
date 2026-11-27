@@ -7,17 +7,33 @@ paths:
 
 # How to Write C# Specs
 
-Extends the base [specs.md](./specs.md) (folder structure, naming, philosophy) with C#-specific conventions. This file is the **universal foundation** used in **both** profiles — the `Cratis.Specifications` pattern (`Establish → Because → should_`) with NSubstitute.
+C# conventions for specs written with `Cratis.Specifications` (`Establish → Because → should_`) and NSubstitute. This rule covers naming, layout and style only. Whether a behavior needs a spec, and at which boundary, is decided by **cratis-specifications-isolate-behavior** and **cratis-specifications-exercise-backend** where they are installed; do not add a spec because a class or method exists.
 
-> **Which spec surface?**
-> - **Framework / library code** (Chronicle kernel, Arc pipeline, source generators, Fundamentals): the `Specification` base + NSubstitute in this file is the dominant mode — unit-test the classes under test in isolation. Reach for a `*Scenario` helper (in [specs.scenarios.csharp.md](./specs.scenarios.csharp.md)) **only** when testing the very engine your repo provides — Arc → `CommandScenario`, Chronicle → the event/projection/reactor scenarios. The **cratis-application-slice-specifications** skill is application-oriented, not for general framework specs.
-> - **Event-sourced applications on Cratis** (commands, projections, reducers, reactors, constraints): use this base plus a direct call by default for pure `Handle()`, validator and reducer decisions with supplied read-model state; add the scenarios its per-artifact decision table obligates — see **[specs.scenarios.csharp.md](./specs.scenarios.csharp.md)** (`profile: application`) and the **cratis-application-slice-specifications** skill.
+## Folder and file names
+
+The path reads as a sentence: `for_Changeset / when_adding_changes / and_there_are_differences`.
+
+```
+for_<TypeUnderTest>/
+├── given/
+│   ├── all_dependencies.cs           ← common substitute setup
+│   └── a_<descriptive_name>.cs       ← reusable context
+├── when_<behavior>/                  ← folder for a behavior with several outcomes
+│   ├── and_<condition>.cs            ← one outcome per file
+│   ├── with_<data_state>.cs
+│   └── without_<requirement>.cs
+└── when_<simple_behavior>.cs         ← single file for a single outcome
+```
+
+- Outcome files and classes start with `and_`, `with_`, `without_`, `having_` or `given_`. Use a folder with the same prefix only when that condition has several outcomes of its own.
+- `when` appears only in a `when_<behavior>` name. A name such as `with_a_registered_migration_when_appending` puts two "whens" in the sentence: fold the context into the `when_` folder name instead.
+- A name starting `when_getting_` or `when_returning_` usually specifies a plain getter, which needs no spec.
 
 `Cratis.Specifications` keeps the approach of Machine.Specifications (MSpec): `Establish → Because → should_` maps to "Given → When → Then" and keeps each spec focused on *one setup, one action, one set of assertions*.
 
 ## Frameworks
 
-- [xUnit v3](https://xunit.net/docs/getting-started/v3/migration) is the house default for new and migrated spec projects **run as the built executable** ([loop](../skills/cratis-specifications-csharp/references/running-specs.md#local-loop)); through `dotnet test` it can be slower (reported measurement). Reference `Cratis.Specifications.XUnit.v3` **5.0** with `xunit.v3.mtp-off`, `Microsoft.NET.Test.Sdk` and `xunit.runner.visualstudio`, and set `<OutputType>Exe</OutputType>` in the project. The package supplies the `Specification` base, convention lifecycle and `ShouldXxx` assertions; the namespace remains `Cratis.Specifications`. Its `Cratis.Specifications` dependency supplies `Catch` and `SpecificationMethods`.
+- [xUnit v3](https://xunit.net/docs/getting-started/v3/migration) is the house default for new and migrated spec projects, **run as the built executable**. Reference `Cratis.Specifications.XUnit.v3` **5.0** with `xunit.v3.mtp-off`, `Microsoft.NET.Test.Sdk` and `xunit.runner.visualstudio`, and set `<OutputType>Exe</OutputType>` in the project. The package supplies the `Specification` base, convention lifecycle and `ShouldXxx` assertions; the namespace remains `Cratis.Specifications`. Its `Cratis.Specifications` dependency supplies `Catch` and `SpecificationMethods`.
 - 5.0 targets `net10.0` only. A spec project that must stay on net8.0/net9.0 stays on 4.x, and net48 on 3.x. A project that stays on xUnit v2 uses `Cratis.Specifications.XUnit`, with the same base and conventions.
 - `.NUnit`/`.NUnit5`, `.TUnit` and the experimental `.Runner` are alternatives for repositories already built on them.
 - [NSubstitute](https://nsubstitute.github.io/) for mocking collaborators.
@@ -47,11 +63,11 @@ public class when_combining_parts : Specification
 | `[Fact] void should_*()` | one assertion per fact | use the `ShouldXxx()` extension methods |
 | `void Destroy()` | teardown once per eligible class by default | after each fact when per-fact lifecycle is selected |
 
-The shared lifecycle is the default on xUnit v2 and v3 since 5.0; the package registers the framework, so delete any hand-written `[assembly: Xunit.TestFramework(...)]` (it fails with `CS0579`). Eligible classes derive from `Specification`, have one public constructor with no arguments or only framework-managed fixture arguments, and contain only plain facts. Construction, Establish/Because and Destroy run once; all facts share the instance and must not mutate it. `IDisposable` specifications also share the lifecycle since Cratis.Specifications 4.4.0: one construction and one `Dispose` after the last fact. Initialization failure fails every fact. Theories and `ITestOutputHelper` constructors keep per-fact execution. Keep shared lifecycle on; `[PerFactSpecificationLifecycle]` opts out only the class whose facts genuinely mutate shared state and cannot move the mutation into `Because`. `CRSPEC0008` (a fact modifies the shared context) is an error by default: move the change into `Establish` or `Because`. See the **cratis-specifications-csharp** skill's shared-lifecycle reference.
+The shared lifecycle is the default on xUnit v2 and v3 since 5.0; the package registers the framework, so delete any hand-written `[assembly: Xunit.TestFramework(...)]` (it fails with `CS0579`). Eligible classes derive from `Specification`, have one public constructor with no arguments or only framework-managed fixture arguments, and contain only plain facts. Construction, Establish/Because and Destroy run once; all facts share the instance and must not mutate it. `IDisposable` specifications also share the lifecycle since Cratis.Specifications 4.4.0: one construction and one `Dispose` after the last fact. Initialization failure fails every fact. Theories and `ITestOutputHelper` constructors keep per-fact execution. Keep shared lifecycle on; `[PerFactSpecificationLifecycle]` opts out only the class whose facts genuinely mutate shared state and cannot move the mutation into `Because`. `CRSPEC0008` (a fact modifies the shared context) is an error by default: move the change into `Establish` or `Because`.
 
-Run xUnit v3, TUnit and native-runner specifications as each project's built executable: restore and build once, then run its matching configuration/TFM output. Only identified VSTest projects use `dotnet test <project> --no-build`. Never default to solution-wide `dotnet test` in a mixed suite. Filters and the 4.x → 5.0 checklist are in the **cratis-specifications-csharp** skill's [running-specs reference](../skills/cratis-specifications-csharp/references/running-specs.md).
+Run xUnit v3, TUnit and native-runner specifications as each project's built executable: restore and build once, then run its matching configuration/TFM output. Only identified VSTest projects use `dotnet test <project> --no-build`. Never default to solution-wide `dotnet test` in a mixed suite.
 
-CRSPEC0001–CRSPEC0007 are warnings. Since 4.5 the analyzers ship only in `Cratis.Specifications`, transitively used by the framework packages; excluding analyzers on a framework package does not remove them. Derived xUnit/NUnit test attributes are recognized since 4.1.2. `Given`/`When` are aliases since 4.4 (declaring both aliases for one phase is CRSPEC0009), but house style stays `Establish`/`Because`. With warnings as errors, a non-`should_` fact, multiple specs per file (given contexts exempt), a fact on a given context, a `should_` without a test attribute, explicit base lifecycle calls, non-public specs with facts, or `Because` on a given context fail the build. Follow **cratis-specification-by-example**; do not suppress these diagnostics.
+CRSPEC0001–CRSPEC0007 are warnings. Since 4.5 the analyzers ship only in `Cratis.Specifications`, transitively used by the framework packages; excluding analyzers on a framework package does not remove them. Derived xUnit/NUnit test attributes are recognized since 4.1.2. `Given`/`When` are aliases since 4.4 (declaring both aliases for one phase is CRSPEC0009), but house style stays `Establish`/`Because`. With warnings as errors, a non-`should_` fact, multiple specs per file (given contexts exempt), a fact on a given context, a `should_` without a test attribute, explicit base lifecycle calls, non-public specs with facts, or `Because` on a given context fail the build. Do not suppress these diagnostics.
 
 ## Reusable layered contexts
 
@@ -107,27 +123,17 @@ Additional helpers include `ShouldNotEqual`, `ShouldBeSame`/`ShouldNotBeSame`, `
 - Common usings come from `GlobalUsings.Specs.cs` (`Xunit`, `NSubstitute`, `Cratis.Specifications`, …) — don't duplicate them, and don't add a using for the system-under-test namespace.
 - **`using` ordering (SA1210/SA1211):** non-aliased namespaces first, then a blank line, then `using <alias> = …` aliases sorted by alias name. Alias a type whose short name collides with a namespace segment (CS0118) — `using RegisterAuthorCmd = …` style, with a domain-meaningful alias, never a technical `Command`/`Event`/`Component` suffix.
 - Single-statement assertion lambdas use expression-body form (RCS1021) — `[Fact] void should_x() => result.ShouldEqual(...)`, not a `{ … }` block. Don't break long `should_` lines; don't add blank lines between `should_` methods.
-- **Prefer a concept's sentinel over a raw empty primitive.** When a `ConceptAs<T>` / `EventSourceId<T>` value is expected — as an argument, a mock setup, or an assertion — use its `NotSet` (or `Empty` / `New()`) static rather than a `string.Empty` / `Guid.Empty` / `0` that implicitly converts. It states intent and survives a sentinel-value change (see [concepts.md](./concepts.md)). Reserve raw `string.Empty` for genuinely non-concept `string` values (e.g. asserting a decrypted-to-empty JSON payload).
+- **Prefer a concept's sentinel over a raw empty primitive.** When a `ConceptAs<T>` / `EventSourceId<T>` value is expected — as an argument, a mock setup, or an assertion — use its `NotSet` (or `Empty` / `New()`) static rather than a `string.Empty` / `Guid.Empty` / `0` that implicitly converts. It states intent and survives a sentinel-value change. Reserve raw `string.Empty` for genuinely non-concept `string` values (e.g. asserting a decrypted-to-empty JSON payload).
 
 ## Never sleep — await a fact, not a duration
 
-**A spec never waits on the clock for the system under test.** `Thread.Sleep`, a bare `Task.Delay`, or a `SpinWait` before an assertion makes the spec pass because the machine happened to be fast enough, and it silently writes today's latency into the suite: the next fix that shifts timing in the observer/projection core then breaks specs that have nothing to do with it. That coupling — not the bugs being fixed — is the single largest source of regressions in Chronicle, and it is why fixes there keep getting rolled back.
+**A spec never waits on the clock for the system under test.** `Thread.Sleep`, a bare `Task.Delay`, or a `SpinWait` before an assertion makes the spec pass because the machine happened to be fast enough, and it writes today's latency into the suite: the next change that shifts timing breaks specs that have nothing to do with it.
 
-Wait on a signal instead:
+Wait on a signal instead. Use the completion or state helper the framework under test provides. Where none exists, build the signal: a `SemaphoreSlim` or `TaskCompletionSource` released by the code that observes the outcome, awaited under a timeout and never polled.
 
-| Waiting for | Await |
-|---|---|
-| observers to catch up with an append | `appendResult.WaitForCompletion()` |
-| client artifacts to be registered with the kernel | `eventStore.WaitForRegistration()` |
-| an observer's state or position | `WaitTillActive` / `WaitTillSubscribed` / `WaitTillReachesEventSequenceNumber` / `WaitForState` (reactors, reducers, projections) |
-| a job | the `JobsWaitHelpers` extensions |
-| anything with no helper yet | build the signal: a `SemaphoreSlim` (or `TaskCompletionSource`) released by the code that observes the event, awaited under a timeout — `Source/Clients/XUnit.Integration/EventAppendCollection.cs` is the shipped example, and it never polls |
-
-A **deadline** is not a sleep — every helper above takes a `timeout`, and a timeout is what turns a hang into a named failure. Sleeping *between* re-checks is: a poll loop is a completion signal you have not built yet, so add the signal rather than another `while` + `Task.Delay`.
+A **deadline** is not a sleep: a timeout is what turns a hang into a named failure. Sleeping *between* re-checks is: a poll loop is a completion signal you have not built yet, so add the signal rather than another `while` + `Task.Delay`.
 
 Three delays are not waits at all and stay allowed — say which one it is in a comment: a test double that is **slow on purpose** so the test can observe it mid-flight (`Task.Delay(HandleTime)`), an **infrastructure readiness backoff** between retries of a connect/start that can legitimately fail, and a `Task.Delay(1)` / `Task.Yield()` that **widens an interleaving window** in a concurrency spec.
-
-The sleeps that predate this rule are frozen per file in `.github/timing-coupling-baseline.txt`; `.github/workflows/timing-coupling-ratchet.yml` fails a pull request that raises any entry or adds a file. The numbers may only go down.
 
 ## What NOT to spec
 
@@ -143,10 +149,3 @@ public decimal TotalCost => Items.Sum(i => i.Cost * i.Quantity * (1 + i.TaxRate)
 ```
 
 Also don't spec logging or trivial getters.
-
-## See also
-
-- [specs.md](./specs.md) — folder structure, naming, BDD philosophy (the base this extends).
-- [specs.scenarios.csharp.md](./specs.scenarios.csharp.md) — **application profile**: the in-process scenario family (`CommandScenario` / `EventScenario` / `ReadModelScenario` / `ReactorScenario`) + out-of-process Chronicle integration, for event-sourced apps.
-- [efcore.specs.md](./efcore.specs.md) — `DbContext` specs with SQLite in-memory.
-- [frontend-testing.md](./frontend-testing.md) — TypeScript/React application BDD specs.

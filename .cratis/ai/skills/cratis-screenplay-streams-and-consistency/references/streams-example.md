@@ -2,9 +2,8 @@
 
 Legacy control: no `command reads protected` preamble is declared. The course-capacity
 payload-key fan-in remains refused even with opt-in; eligible active-enrolment reads
-can protect under v25, but reads plus concurrency cannot combine (PLAY0783). Read
-[protected reads](../../cratis-screenplay-command-surface/references/protected-reads.md)
-for admission and protected-read rendering (Stage 4.138.0; STAGE-ESM-044 otherwise). The legacy diagnostics below describe this
+can protect under v25, but reads plus concurrency cannot combine (PLAY0783). Protected-read
+rendering requires Stage 4.138.0 or later (STAGE-ESM-044 otherwise). The legacy diagnostics below describe this
 control, not a blanket refusal of command reads.
 
 A complete design-mode model for course enrolment. It shows one business identity per stream,

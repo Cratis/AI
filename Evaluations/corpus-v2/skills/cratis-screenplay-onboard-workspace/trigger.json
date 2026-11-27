@@ -1,0 +1,1 @@
+{"skill":"cratis-screenplay-onboard-workspace","queries":[{"query":"Our new app has no model files. How do I connect the modeling client and propose its first document?","shouldTrigger":true},{"query":"Preview a rename without losing the existing command identity.","shouldTrigger":false,"sibling":"cratis-screenplay-edit-workspace"}]}

@@ -6,14 +6,16 @@ paths:
   - "**/scripts/**"
   - "**/.github/workflows/**"
   - "**/.cratis/ai/hooks/**"
+profile: framework
 ---
 <!-- cratis-ai: generated Copilot instructions. Do not edit; rules/ is the source. -->
 
 # Guards, scans and fuses
 
 A guard that cannot fail is worse than no guard: it converts "nobody looked" into a green
-check. Every line is tagged **[contract]** (binding) or **[convention]** (the house
-default) per the Three Levels of Authority in [`general.md`](../../../rules/general.md).
+check. Every line is tagged **[contract]** (binding: breaking it produces a wrong or unsafe
+result) or **[convention]** (the house default, replaceable by a repository's own
+documented practice).
 
 **Scope.** This rule governs two situations: *authoring* a scanner, guard, allowlist or
 checker, and *running a pass* that mutates a computed set of subjects rather than the
@@ -28,8 +30,8 @@ user pointed at is outside it and carries none of the machinery below.
 - **[contract] Report the count on success.** "Checked 0 files, found 0 problems" and
   "checked 412 files, found 0 problems" are different verdicts and must read differently.
 - **[contract] A pattern that matches nothing is a defect in the pattern** until proven
-  otherwise. Prove a matcher still matches by planting a violation; see
-  [`exit-codes-and-wrappers.md`](./exit-codes-and-wrappers.instructions.md).
+  otherwise. Prove a matcher still matches by planting a violation, as the
+  `exit-codes-and-wrappers` rule's `--self-test` contract requires.
 
 ## Allowlists
 
@@ -64,8 +66,8 @@ one does.
   for Chronicle event-type registration calls Chronicle's read-only registration check, or
   carries a contract spec against Chronicle's comparison for every change class (enum
   extension, enum rename, optional or required property added, property removed, retype).
-  A reimplemented copy drifts: one demanded a registry repair for an enum-only change
-  Chronicle accepts in place ([application-profile.md](./application-profile.instructions.md) rule 7).
+  A reimplemented copy drifts, for example by demanding a registry repair for an
+  enum-only change Chronicle accepts in place.
 - **[convention] When the targets were not already established in the conversation, show
   the dry-run list and act on it once the user has answered.** A user who has reviewed
   and authorized those targets is not asked to approve the same pass again. The list is a

@@ -2,8 +2,6 @@
 name: cratis-documentation-writing
 description: Use when planning a Cratis documentation reader journey, choosing a page's purpose or reviewing its structure. Not for example execution, release notes or publication; use the corresponding specialist.
 license: MIT
-metadata:
-  cratis-hint-paths: "**/Documentation/**/*.{md,mdx}"
 ---
 
 # Documentation writing
@@ -29,9 +27,9 @@ Use its worked transformations to choose the detail that carries the explanation
 use its multi-client guidance before choosing shared prose, tabs or separate
 procedures. Read the resulting paragraphs for connected reasoning, not just
 coverage of accuracy questions.
-The [documentation rule](../../rules/documentation.md) owns Platform naming and
-product-claim constraints; do not turn an umbrella label into a dependency on
-all components.
+Use Cratis Platform for the umbrella offering and name the component that owns
+the task. Do not imply a dependency on all components or claim support that
+has not been checked.
 
 ## Completion checklist
 
@@ -49,8 +47,8 @@ A page is done when:
   checkable result; longer examples come from compiling sample or spec source.
   Explanations of what happened match the backend the reader built.
 - Security, privacy and data-loss claims ("never logged", "encrypted", "safe to
-  retry") are verified against the code that implements them, not only against
-  other docs; narrow or drop one that cannot be shown.
+  retry") are checked in the implementation, not inferred from other docs;
+  narrow or drop one that cannot be shown.
 - A page that describes a UI was checked by exercising a seeded system and
   comparing what appears with the prose; recommended, not required.
 - The entry point, terminology, and next-step links fit the surrounding docs.

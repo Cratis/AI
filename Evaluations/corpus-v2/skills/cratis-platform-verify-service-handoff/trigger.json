@@ -1,0 +1,1 @@
+{"skill":"cratis-platform-verify-service-handoff","queries":[{"query":"Prove that a supplier approval published by Procurement becomes a selectable supplier in Orders.","shouldTrigger":true},{"query":"Check that this local projection copies an approved supplier's name correctly.","shouldTrigger":false,"sibling":"cratis-specifications-exercise-backend"}]}

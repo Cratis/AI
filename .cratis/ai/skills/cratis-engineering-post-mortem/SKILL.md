@@ -34,8 +34,7 @@ keep following this skill.
 1. **Scope.** Name the incident, its window, the affected surface and who
    declared it. A review without a bounded window cannot be checked.
 2. **Gather evidence.** List each source with a stable link and what was read.
-   Read logs without printing credentials; follow
-   [secrets.md](../../rules/secrets.md).
+   Read logs without printing secrets; redact credentials in anything you share.
 3. **Build the timeline in UTC.** One row per event: ISO-8601 UTC time, the
    event, a source link and a Confidence (columns: Time (UTC), Event, Source,
    Confidence). Convert local times and note the original zone. Bold the first and last row of the

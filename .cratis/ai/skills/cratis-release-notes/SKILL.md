@@ -45,11 +45,11 @@ one to add weight.
 ## Write for the right channel
 
 - **Exact-version release note (GitHub/PR):** in a Cratis repository this is
-  the merged PR description, published verbatim, so it follows the contract in
-  [pull-requests.md](../../rules/pull-requests.md), which holds the full
-  rules. The ones most often broken: no development write-up (no Overview,
-  Verification or Test plan headings, no review or provenance notes; those go
-  in a PR comment); `(#n)` at the end of the bullet that delivers an issue and
+  the merged PR description, published verbatim. Follow the repository’s PR
+  template and release policy. For release intent and labels, use
+  `cratis-platform-prepare-release-pr` from `cratis/engineering`. No development
+  write-up (no Overview, Verification or Test plan headings; put review notes
+  and verification details in a PR comment); `(#n)` at the end of the bullet that delivers an issue and
   `(part of #n)` for anything that stays open (in repositories released by
   `cratis/release-action`, `(#n)` is what closes the issue), never `Closes`, `Fixes` or
   `Refs` before a number (also in bold or a link), and no issue reference
@@ -95,8 +95,7 @@ items. Use descriptive headings, meaningful links, and natural sentence rhythm.
 
 A `no-release` PR body still follows this contract. Its `(#n)` closes nothing
 because no release runs, so the issue is closed separately, and only when the
-request includes that effect; never imply automatic closing (see the issue
-section of [pull-requests.md](../../rules/pull-requests.md)).
+request includes that effect; never imply automatic closing.
 
 For every pull request, write the body file in a step of its own before
 `gh pr create --body-file`.
@@ -134,8 +133,8 @@ labels warn but are not permission to omit required PR labels.
 only the merge run for the hotfix fails; scheduled/other merge runs warn and leave
 the batch pending. An authorized manual Publish run with an empty version or
 `0.0.0` releases everything pending; obtain the required human major confirmation
-first. Inspect `pull-requests` and `reason` (`batched` or `nothing-pending`)
-rather than assuming every successful run released. Never turn on batching just
+first. Inspect the workflow outputs **pull-requests** and `reason` (`batched`
+or `nothing-pending`) rather than assuming every successful run released. Never turn on batching just
 to clear a queue without authorization.
 
 From release-action 1.5.2, check the main-step log or the step summary's

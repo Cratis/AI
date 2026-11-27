@@ -10,14 +10,7 @@ Source code says what *should* happen. When the question is what *is* happening
 in a live store — a projection that will not move, an observer that stopped, an
 event you are not sure was appended — read the server instead of the code.
 
-## Verified product sources
-
-This skill draws on these sources:
-
-| Package | Purpose |
-| --- | --- |
-| `Cratis.Cli` | command effects, confirmations, contexts, output and command tree |
-| `Cratis.Chronicle` | the CLI's Chronicle client package; server authentication configuration and development-client registration |
+## Check the command effect
 
 Observer removal, partition-quarantine clearing, server-bound login and diagnose scope
 are operational. Read [command effects](references/command-effects.md)
@@ -90,12 +83,7 @@ and `chronicle auth status -o json` (`tokenServer`, `loginMatchesServer`). Login
 refuses multi-host and `chronicle+srv://` targets. Requires cratis CLI 3.21.0 for login to keep the token; an older CLI discarded it, so log in again if `auth status` shows no token. Context values can be changed
 with `context set-value server|event-store|namespace|client-id|client-secret`.
 Keep secrets out of logs and committed configuration.
-Evidence: [ChronicleSettings.cs](https://github.com/Cratis/cli/blob/main/Source/Cli/Commands/Chronicle/ChronicleSettings.cs)
-and [authentication](https://github.com/Cratis/cli/blob/main/Documentation/chronicle/auth.md).
-Server evidence:
-[authentication configuration](https://github.com/Cratis/Chronicle/blob/main/Source/Kernel/Core/Configuration/Authentication.cs)
-and [development-client registration](https://github.com/Cratis/Chronicle/blob/main/Source/Kernel/Core/Setup/Authentication/AuthenticationService.cs)
-(`EnsureDefaultClientCredentials`, compiled under `DEVELOPMENT`).
+Default development-client credentials are registered only in development builds.
 
 Prefer a named context over repeating a connection string:
 
@@ -167,8 +155,7 @@ The catalog recommends plain for `event-types list`, `projections list` and
   automatically under the configured budget; quarantined partitions stop retrying.
   Missing `IsQuarantined` is Unknown, not healthy. A stale value can mean lag or a
   stopped partition: inspect attempts and observer state rather than guessing.
-Observer clear does not clear partition quarantine. Source: Chronicle
-  `Documentation/concepts/observers.mdx`.
+  Clearing observer quarantine does not clear partition quarantine.
 - **Fix the cause before replaying.** Replaying into an unfixed handler fails the
   same way and buries the original error under a newer one.
 - **A quarantined observer does not resume by itself.** A quarantine ends when
@@ -258,7 +245,7 @@ destroys the evidence and the same failure returns on the next event.
 
 ## Compare a namespace with its model
 
-`cratis screenplay conform-namespace` is read-only and sits outside the `chronicle` group and its guard: it reads the registry, observers and event metadata of one namespace and compares them with a `.play` model. Use it for a post-deploy check; the procedure and exit codes are in `cratis-screenplay-render-and-gap-fill` [post-deploy check](../cratis-screenplay-render-and-gap-fill/references/post-deploy-check.md). Its exit `4` is a refused read: obtain a context with read access, never widen permissions.
+`cratis screenplay conform-namespace` is read-only and sits outside the `chronicle` group and its guard: it reads the registry, observers and event metadata of one namespace and compares them with a `.play` model. Use it for a post-deploy check. Exit `4` is a refused read: obtain a context with read access, never widen permissions.
 
 ## What the CLI cannot do
 

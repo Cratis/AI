@@ -1,6 +1,6 @@
 # Report template
 
-Write the report under `.ai-work/<task>/` unless the user names a location. Keep it short enough to act on.
+Write the report under the task’s ignored scratch directory unless the user names a location. Keep it short enough to act on.
 
 ## Header
 
@@ -42,7 +42,7 @@ List strengths separately from findings. Do not add strengths to balance the fin
 ## UNVERIFIED
 
 ```markdown
-- **U-01**: Focus order in the create dialog. Not visible in a screenshot. Verify by tabbing through the dialog; see cratis-components-accessibility.
+- **U-01**: Focus order in the create dialog. Not visible in a screenshot. Verify by tabbing through the dialog; see `cratis-components-accessibility` in `cratis/components`.
 ```
 
 Each item names the claim and the check that would settle it. These are never defects until verified.

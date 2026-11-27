@@ -31,7 +31,7 @@ something that is not a package. Classify the artifact first.
 The dividing question is **"can the consumer verify what they got against what
 was reviewed, without trusting our build?"** If the host clones a git ref and
 reads the files, git's own content addressing already answers that: the tree
-hash *is* the checksum, the commit *is* the provenance, and the reviewed diff
+hash *is* the checksum, the commit identifies the exact source, and the reviewed diff
 *is* the artifact. Generating a checksum file for that content, publishing an
 SBOM of markdown, and demanding a signed attestation before a folder may be read
 adds process without adding a guarantee. Say so plainly rather than performing
@@ -50,8 +50,8 @@ lower tier's evidence be reinterpreted as a higher tier's.
 "this builds deterministically from an immutable source and contains nothing it
 should not." Requires deterministic regeneration from an exact revision, static
 contract and schema validation, secret and path scanning, and an inventory
-digest. It may never be installed by a consumer or described as available; a preview is never called supported
-([`capability-is-not-authority.md`](../../rules/capability-is-not-authority.md)).
+digest. It may never be installed by a consumer or described as available; a
+preview is never called supported.
 
 **Preview** — a real, published, low-commitment version (a `0.x.y`, a
 prerelease channel). Claim: "a consumer can install this, use it, and get back
@@ -109,7 +109,7 @@ For compiled or assembled artifacts only, and each for a distinct reason:
 
 - **Checksums** prove the bytes a consumer downloaded are the bytes that were
   built. They defend against a corrupted or substituted download.
-- **Provenance** proves *which* build, from which source revision, on which
+- **Build attestation** proves *which* build, from which source revision, on which
   workflow, produced those bytes. It defends against a package that matches its
   own checksum but was built from something nobody reviewed.
 - **SBOM** proves what is *inside* the artifact. It is what makes a downstream
@@ -128,7 +128,7 @@ publication receipt cannot be a prepublication prerequisite; a promotion receipt
 cannot be written before the canary it cites. If an earlier record has to be
 rewritten to make a later claim true, the later claim is false.
 
-Prefer registry-native provenance (trusted publishing / OIDC) over
+Prefer registry-native build attestations (trusted publishing / OIDC) over
 hand-assembled attestations. It removes the long-lived credential, and the
 consumer can verify it without trusting a file you wrote.
 
@@ -210,7 +210,7 @@ only records that already existed when it started.
    approval to the parent commit so unrelated authority changes cannot be
    batched in ahead of it.
 5. **Publish, then write the publication receipt** with package identity,
-   artifact digest, provenance, SBOM, and checksums.
+   artifact digest, build attestation, SBOM, and checksums.
 6. **Canary the released artifact against a real consumer** — a real downstream
    repository or sample that actually depends on it, running its own build and
    tests against the published version. A canary against a fixture proves the
@@ -267,7 +267,7 @@ the artifact *is* — not a hedged version of the claim you wanted to make.
   lifecycle, or canary evidence.
 - Rollback to a prior exact version and preservation of consumer-owned files
   were both actually exercised.
-- Checksums, provenance, and SBOM exist for compiled or assembled artifacts and
+- Checksums, build attestations, and SBOMs exist for compiled or assembled artifacts and
   are absent, deliberately and explainably, for git-ref source delivery.
 - Every claimed external control has an attestation with subject, issuer,
   validity, and a revocation check.

@@ -1,197 +1,35 @@
-# Cratis — Project Instructions
+# Working with Cratis
 
-Cratis repositories come in **two profiles**, and the rules are scoped to them. **Identify your profile first** — it decides which rules apply.
+## Know which work this is
 
-- **Application profile (default)** — you are *building an application on Cratis*: event-sourced CQRS with **Cratis Chronicle** + **Cratis Arc**, vertical slices, read models persisted to MongoDB/EF Core, and a React + Cratis Components (4.x) frontend in MVVM. Most of this corpus targets this profile.
-- **Framework profile** — you are *contributing to a Cratis framework repository itself* (Arc, Chronicle, Fundamentals, Components, …). These are **libraries** (source generators, the Chronicle kernel, client SDKs, a React component library), **not** vertical-slice event-sourced apps. The application-architecture rules here **do not apply**; follow **[framework.md](./framework.md)**.
+- **Application**: the repository builds a product on Cratis. Arc exposes commands for intent and queries for reads. Chronicle stores events as facts and builds read models from them. Components renders the UI, and generated Arc proxies connect it to the backend.
+- **Platform**: the repository is Arc, Chronicle, Components, Fundamentals, Specifications or another Cratis library or tool. Keep its existing structure and published contracts. Do not shape a library as an application slice.
 
-**How to tell:** if the repo's own package is `Cratis.*` / `@cratis/*` and it *builds* the framework, you are in the framework profile. If it *consumes* Cratis to build a product, you are in the application profile.
+## Implement the contract a caller can observe
 
-**See [profiles.md](./profiles.md) for all profiles and how to configure them.**
+- Start from the behavior the caller should see, and implement the smallest contract that delivers it.
+- Choose a skill by the task at hand. Check its nearest exclusion, and load a linked skill only when the work reaches that boundary.
+- Follow the repository's conventions and installed package versions over any example.
+- Fix incorrect behavior within the requested change; report unrelated defects separately.
+- Treat generated output as output: change the owning contract and regenerate.
 
-Profile-specific rules declare a **`profile:`** in their frontmatter (`application` or `framework`); a rule **without** one is **universal** and applies everywhere — C#/TypeScript style, code quality, specs (`Cratis.Specifications`), documentation, commits/PRs, American English. In this file, everything from **Project Layout** through the **Implementation Workflow** is *application profile* (framework contributors: skip to the Framework profile section); Philosophy, Authority, Verification, Quality Gates, and the closing sections are universal.
+## Approval is not execution
 
-> **Arc is a standalone CQRS framework — not bound to event sourcing.** Even within the application profile, Arc provides model-bound commands/queries, validation, authorization, and full-stack proxy generation, and works **without** Chronicle (Arc.Core does not depend on Chronicle). A `[Command]` `Handle()` does not *have* to append events — it can return a response, return `void`, or work through injected services. The event-sourcing behavior (a returned event gets appended; `EventForEventSourceId`; "never inject `IEventLog`") comes from the **Arc + Chronicle** integration. This application is event-sourced, so the slice guidance assumes event-sourced commands — read the event-centric rules as the *house default for this app*, not universal Arc laws.
+An accepted model, plan or review approves a description. Permission to render, apply, deploy or change a running system is separate; ask for it explicitly. Use Screenplay when the repository already has `.play` files under `model/` or the user asks for Screenplay or Stage. Otherwise work code-first from the event model's accepted examples; no Screenplay handoff is needed.
 
-The framework is convention-over-configuration. **Idiomatic Cratis is the goal — not custom abstractions over it.** Recommend the idiomatic way; when unclear, prefer the Cratis convention, do not invent. The rules and skills under `.cratis/ai/` are the authoritative answer — if your question is not answered there, ask rather than inferring framework behavior from package internals.
+## Protect tenants, data and secrets
 
-## Project Philosophy
+- Never trust identity or tenant scope supplied by the caller. Enforce access on the server, including for live queries.
+- Keep credentials and personal data out of code, examples, logs and diagnostics.
+- Do not reset, replay or delete shared state to make a check pass.
 
-Every rule here serves **ease of use**, **productivity**, and **maintainability**:
+## Verify what can go wrong
 
-- **Lovable APIs** — APIs should be pleasant to use: sane defaults, flexible, extensible, overridable. If an API feels awkward, it is wrong.
-- **Easy to do things right, hard to do things wrong** — convention over configuration; artifact discovery by naming/attributes; minimal boilerplate. The framework guides you into the pit of success.
-- **Events are facts** — immutable records of what happened. Past tense, one purpose, never ambiguous. If you reach for a nullable property on an event, you need a second event.
-- **Strongly-typed primitives are the foundation — get them right first.** The most important, load-bearing decisions in every slice are the domain primitives: `ConceptAs<T>` value types and `EventSourceId<T>` identities (never raw `Guid`/`string`/`int` for a domain value); `ConceptValidator<T>` for invariants that travel with a value everywhere it appears; `CommandValidator<T>` for command-level rules; and past-tense, self-describing `[EventType]` names. They keep the model type-safe, rules enforceable in one place and events trustworthy; a slice on sloppy primitives is wrong however good the rest is.
-- **High cohesion through vertical slices** — everything for a behavior lives together: backend, frontend, specs. Navigate by feature, not by technical layer.
-- **Full-stack type safety** — shared models flow from C# through proxy generation to TypeScript. End-to-end typing without manual synchronization.
-- **Specialization over reuse** — focused, purpose-built read models over one model reused across conflicting scenarios.
-- **Consistency is king** — when in doubt, follow the established pattern.
+- Verify consequential decisions, transformations and failures. Do not verify passthrough, getters or the framework itself.
+- Call the decision directly unless framework behavior such as binding, validation, authorization or projection is in question; then exercise it through the framework. Never do both for the same decision.
+- As a planning default, a behavior-neutral change needs no new case, a fix usually needs one regression case, and a small change needs one to three. Explain more than five cases or any new hosted test. These defaults never limit coverage of security, migration or replay, deterministic failure, redaction or resource limits.
+- Run the smallest check that crosses the changed boundary.
 
-When these instructions don't cover a situation, apply these values to make the call.
+## Report what actually ran
 
-## Three Levels of Authority
-
-Every rule below is one of three kinds — know which, because they carry different weight:
-
-- **Framework contract** — enforced by Arc/Chronicle source, analyzers, or runtime. Violating it breaks the build or behaves wrongly. (e.g. `[Command]` needs a public instance `Handle()`; model-bound queries are static methods on `[ReadModel]`; nullable event properties raise a Chronicle analyzer warning.)
-- **Cratis Application convention** — the house default for maintainability and consistent generated code. The framework does **not** enforce it, but follow it for consistency. (e.g. slice folder shape, declaration order.)
-- **Product policy** — belongs in a downstream app's own `.cratis/ai/`, not this generic corpus. (e.g. specific roles, locales, design systems.)
-
-Where a rule is convention rather than contract, this file says so. Do not claim "the framework requires this" for a convention.
-
-## Project-Specific Instructions
-
-This corpus is the shared, generic instruction set common to every Cratis
-repository. Individual projects need extra context that does not belong here,
-such as product composition, approved environment names, directions for
-obtaining credentials, and other local conventions ("Product policy" above).
-
-- Project-specific context is the repository's own documentation plus
-  `.cratis/ai/rules/project.md`.
-- Project context may explain which approved secret mechanism or local setup to
-  use, but it must never contain credential values, tokens, keys, passwords, or
-  other secrets.
-- A repository's accepted decision records (`decisions/`) and project rules bind AI work: read those matching your paths, follow them, never work around one.
-- Project-specific guidance wins when it narrows shared behavior for product policy, but may not weaken organization security, authorization, or required quality gates. For `[convention]` idioms the corpus wins over repository-local specs, design docs, and existing code or checks; a deviation needs an accepted ADR in the repository's decisions folder naming the corpus rule it replaces. It never relaxes `[contract]` rules, security, authorization or gates, or rewrites persisted ids.
-- Scope project file concerns with `paths`; put operational workflows in
-  `.agents/skills/`, not global `applyTo: "**/*"` rules.
-
-## Collaboration Default
-
-Default to agentic behavior: inspect local rules, skills, code, tests, and generated patterns; make conservative assumptions supported by that context; implement and verify end to end when feasible. A user's direct request authorizes every clearly named in-scope action, including external effects such as pushing, opening or merging a pull request, applying the requested label, deployment, issue mutation, and operations against a named environment. The user is the authority for their request; do not require them to identify another approver, decision record, or formal operation profile.
-
-Decide what the repository or research can answer, record the evidence, and get a cross-provider check when the decision is risky. Report reversible choices instead of asking approval for a plan the user requested; do not re-ask for an authorized action unless its target or consequence materially changes. Deciding never widens the task's authorization ([capability-is-not-authority.md](./capability-is-not-authority.md)). Ask only about human-only matters (credentials, money, production access, legal, merging majors), undecided product choices with different consequences, an effect the request did not include, a hard-to-reverse change with unclear scope, or requested checkpoints.
-
-Write a necessary question plainly: the choice, why now, each option's consequence, your recommendation. No unexplained internal labels ("execution authority," "operation profile," "decider"); do not bundle verdicts. A decision record never gates a direct request; offer one only after explaining the decision.
-
-## Destructive operations
-
-Before a destructive or bulk external mutation whose exact targets, consequences,
-or recovery are not already clear from the conversation, show those details and
-obtain explicit user authorization. A sufficiently bounded direct request is that
-authorization; do not add a second confirmation step. Re-read the target state
-immediately before acting and stop only when drift invalidates the authorized scope
-or recovery plan. Git history rewrites remain prohibited unless the user explicitly
-requests one.
-
-## Shared AI Distribution
-
-Two invariants; the mechanics of every channel (`cratis ai install`, `@cratis/pi`,
-the plugin marketplaces) are in [ai-distribution.md](./ai-distribution.md):
-
-- Never copy or synchronize `.cratis/ai`, `.agents`, `.claude`, `.github`, or `.pi`
-  trees between repositories. In a consuming repository, never patch managed
-  files under `.cratis/ai/` by hand — update through the channel that installed
-  them. The authored corpus in `Cratis/AI` is changed and reviewed here.
-- The consuming repository owns its project facts, confidential behavior, and
-  local skills; installing, updating, or uninstalling shared AI never merges,
-  overwrites, or removes them.
-
-## Verification Discipline
-
-Verify claims with build, spec, lint or observed-behavior signals, not confidence.
-
-- **Confirm "done"/"fixed"/"correct" against a fresh signal — never self-assessment.** Run the relevant gate and observe it pass *this time*.
-- **Scope checks by [criticality tier](./criticality-tiers.md);** follow [verification-discipline.md](./verification-discipline.md) for execution and evidence.
-- **A green build is not behavioral correctness.** Compilation proves it builds, not that the slice does the right thing — that's what specs and exercising the UI are for.
-- **Incidents:** analyse the cause first; choose the narrowest fix for it; state its cost and when it can be removed (**cratis-engineering-post-mortem**).
-- **Report the conclusion and what you didn't verify, in a line or two.** Show output when asked, contested or failed — see [verification-discipline.md](./verification-discipline.md).
----
-
-# Application profile
-
-> **Building an application on Cratis?** Project layout, slice types, slice naming, the seventeen slice rules, the implementation workflow and the application quality gates are in [application-profile.md](./application-profile.md), which is scoped to source files in every supported language and to `.play` models and is installed only for repositories that select an application profile; read it before starting application work. If you are contributing to a Cratis framework repo, see **Framework profile** below.
-
-**Model first.** When an accepted `.play` model covers the scope, or the repository has opted in, the `.play` model is the source of truth for behavior: change the model first, verify it, then render it or gap-fill from it, and never edit Stage-managed output, take code as a shortcut around the model, or weaken protection (authorization, `@pii`, rules) to make a model compile or render. Opted in means the model root (the folder holding the project's `.play` files) holds a committed `.play` file (`git ls-tree -r --name-only HEAD` lists a `.play` file there, narrowed to `-- <root>` when a root is configured), or the project explicitly set `mcpServers.screenplay.root` in `.cratis/ai.json`; an empty directory, install output, an installed profile or skill, a `.play` file outside the root, an untracked or uncommitted draft or a committed model the project marks frozen (`modelFirst.frozen`) is not opt-in, and a behavior is a contract only when an accepted model under the root covers it (accepted means committed: staged or untracked files under the root are drafts; a committed file with uncommitted working-tree edits is a model change in progress, and its HEAD version is the contract until the change is committed; committing a model under the root is the team's act of acceptance and opts the repository in; an explicitly configured but empty root also counts as opted in). Otherwise stay code-first; the entry-point session may propose a model at most once per session (never for trivial, bug-fix, infrastructure, client, framework or brownfield-maintenance work), and infrastructure, client and adapter work stays in code at any level. Trivial changes keep the proportional-delegation policy. The master decision rule is in **cratis-screenplay-modeling-lifecycle** (router: **cratis-screenplay-event-modeling**); if the Screenplay skills are not installed, say so and do not author `.play` from memory.
-
----
-
-# Framework profile
-
-> You are contributing to a Cratis framework repository (Arc, Chronicle, Fundamentals, Components, …). **The Application-profile sections above do not apply** — there are no vertical slices, model-bound `[Command]`/`[ReadModel]` artifacts, projections/read-models, or MVVM app components here; these are libraries. Follow **[framework.md](./framework.md)** for repo structure, library/API design, source generators, the Chronicle kernel, and the framework quality gates. The universal sections (below, and every `profile: universal` rule) still apply.
-
----
-
-# Both profiles (universal)
-
-## Definition of Done
-
-- Within the [tier's scope](./criticality-tiers.md), builds have zero warnings/errors, specs pass and [Code Health](./code-health.md) shortfalls are reported.
-- For public-facing behavior, update documentation and verify it.
-
-## Where to Look
-
-| For | Location |
-| --- | --- |
-| Corpus profiles and configuration | `profiles.md` |
-| **Contributing to a Cratis framework repo** (framework profile) | `framework.md`; creating a repository in the Cratis organization: `new-repository-intake.md` |
-| Slice anatomy (commands, `Provide()`, validators, events, projections, read models, reactors, constraints, compliance, cross-slice) | `vertical-slices.md`; modules, renames: `application-anatomy.md` |
-| C# / TypeScript style and code-quality principles | `csharp.md`, `typescript.md`, `code-quality.md`, `code-quality.csharp.md`, `code-quality.typescript.md` |
-| Kotlin / Java / Elixir style; Orleans grains; reactors; GitHub Actions workflows | `kotlin.md`, `java.md`, `elixir.md`, `orleans.md`, `reactors.md`, `github-actions.md` |
-| Documentation structure, voice and examples | `documentation.md`, `documentation-structure-and-formatting.md`, `writing-cratis-docs.md`, `editing-cratis-docs.md`, `writing-correct-examples.md` |
-| Findability of published pages, READMEs and package metadata | `discoverability.md` |
-| Go | `go.md`; framework: `go-engineering.md`; product APIs: `cratis-chronicle-client-go`, `cratis-arc-go` and `cratis-fundamentals-concept-go` |
-| React + Arc + Cratis Components + MVVM + dialogs | `react.md`, `components.md`, `dialogs.md` |
-| Frontend engineering quality & testing | `frontend-quality.md`, `frontend-testing.md`, `storybook.md` |
-| Spec patterns — universal `Specification` base (both profiles) | `specs.md`, `specs.csharp.md`, `specs.typescript.md`, `specs.elixir.md` |
-| Build and spec-run speed: parallel-safe specs, no per-spec startup, cheap analyzers | `fast-feedback.md` |
-| Spec patterns — the four `*Scenario` helpers (application only) | `specs.scenarios.csharp.md` |
-| Strongly-typed values (`ConceptAs<T>`, `EventSourceId<T>`); shared term definitions (event, projection, reducer, reactor, observer, DCB, …) | `concepts.md`; `glossary.md` |
-| Specs, review, Code Health and local gate scope; trust boundaries and wire/protocol contracts | `criticality-tiers.md`; `code-health.md`; `published-contracts.md` |
-| OpenTelemetry traces, metrics and telemetry code | `observability.md` |
-| Diagnosing a misbehaving slice | read model stale or startup crash: **cratis-chronicle-projection** (*Startup-crash traps*); reactor paused or quarantined: **cratis-chronicle-reactor** (*Failure behavior*); proxy missing: **cratis-arc-command** (*Generate the TypeScript proxy*) |
-| Inspecting or operating a **running** Chronicle store (failed partitions, replays, browsing events) with the `cratis` CLI | the **cratis-chronicle-cli-operations** and **cratis-cli-terminal-workbench** skills |
-| EF Core read models / migrations | `efcore.md`, `efcore.specs.md` |
-| MongoDB queries — native driver API over LINQ; paging and sorting belong to Arc | `mongodb.md` |
-| Before commit messages, commits, pushes or PRs | `git-commits.md`, `pull-requests.md`, then **cratis-commits-and-pull-requests** |
-| Reading, citing and superseding a decision record | the **cratis-engineering-decision-record** skill |
-| Before any browser call: production permit, handoff, artifact paths, evidence | `browser.md` |
-| Whether you are allowed to do the thing you are able to do; sending data to a hosted model; before MCP inspection or configuration, modeling or rendering, `render --force`, Chronicle hosting or restore, even with no file open | `capability-is-not-authority.md`, `operational-safety.md` |
-| Exposing an endpoint, API or MCP to callers that present a token; AuthProxy anonymous paths, bearer routes | `authentication-boundary.md` |
-| Before running a command that could print a credential, or when a secret value appears in output; credentials, tokens or personal data in logs, URLs, labels, tags or recorded facts | `secrets.md` |
-| Session notes, plans and handovers (`.ai-work/` only) | `local-work-artifacts.md` |
-| Command wrappers, exact output and exit codes | `rtk.md`, then **cratis-rtk** |
-| Before issue-linked edits | `issue-assignment.md`, then **cratis-engineering-issue-hygiene** |
-| `.cratis/` is configuration, not deliverables | `cratis-folder-is-configuration.md` |
-| Exit codes, wrappers and scripting | `exit-codes-and-wrappers.md`, `scripting.md` |
-| Writing a scan, allowlist, script or CI check, or a destructive pass, that cannot pass vacuously | `guards-and-fuses.md` |
-| How the shared corpus is installed, updated and rolled back | `ai-distribution.md` |
-| Code-level event modeling / schema migration / calling commands from code / paging / cross-cutting metadata / multi-tenancy | the matching skills |
-| Building or changing behavior in an opted-in repository (see Model first above), or designing an information system, business process or information flow: **model first** | the **cratis-screenplay-event-modeling** skill (decision rule), then **cratis-screenplay-modeling-lifecycle** and one phase skill; per-surface `cratis-screenplay-*` skills for syntax |
-| Building or changing behavior in a Cratis application that is not opted in | `application-profile.md` Phase 0, then the code skills (**cratis-arc-command**, **cratis-chronicle-projection**, ...) |
-| Reviewing or explaining a `.play` model; turning an existing system into a model | the **cratis-screenplay-model-review** skill; the **cratis-screenplay-legacy-extraction** skill |
-| Rendering or gap-filling an accepted model | the **cratis-screenplay-render-and-gap-fill** skill, then **cratis-stage-rendering-and-sandbox** for renderer facts |
-| Code, security, performance and repository-investigation review reports | `review-reports.md` |
-| Authoring or reviewing skills, rules, agents or prompts | `authoring-skills.md` |
-| Step-by-step recipes | `.cratis/ai/skills/` |
-
-## Source-of-Truth Discipline
-
-- **Rules define invariants; skills define workflows.** A skill may refine how to apply a rule but must not contradict it. On conflict, follow the stricter invariant and fix the stale artifact.
-- The user's instructions take precedence over guidelines provided in a skill. This does not override safety rules or hooks; skills must still follow rules.
-- **Skills and rules are authoritative.** If unanswered, ask; don't infer Cratis behavior from package internals.
-- Only make high-confidence suggestions.
-- For help, unanswered questions or design discussion, point users to the [Cratis Discord](https://discord.gg/kt4AMpV8WV); direct confirmed bugs to GitHub issues.
-- In Cratis organization repositories (a `github.com/Cratis/<repo>` Git `origin`), update dependency manifests / lockfiles / `global.json` / NuGet config as needed for the task; avoid unrelated version churn and call out version bumps in the PR description. In other repositories, don't change them unless explicitly asked.
-- When asked to **ship** or **land** changes, use the **ship-changes** prompt (`.cratis/ai/prompts/ship-changes.prompt.md`); invoking it is what authorizes the branch → commits → push → PR → merge → cleanup chain it describes. A request to only commit, only push, or only open a PR authorizes exactly that step, under [Git commits](./git-commits.md) and [Pull requests](./pull-requests.md) — do not route it through ship-changes and do not add the later steps.
-
-## General
-
-- **American English** in all code, comments, and docs (initialize, behavior, color, serialize…).
-- Treat warnings as errors; never suppress warning output.
-- Reuse the active terminal; open a new one only when it is busy or fails.
-- All files start with the standard license header:
-
-```csharp
-// Copyright (c) Cratis. All rights reserved.
-// Licensed under the MIT license. See LICENSE file in the project root for full license information.
-```
-
-## `.cratis/` is configuration only
-
-Never produce deliverables - Screenplay models, source, generated code, specifications, documentation, anything that can ship - into `.cratis/`. It holds configuration and the shared AI corpus itself. Full rule: [cratis-folder-is-configuration.md](./cratis-folder-is-configuration.md).
-
-## Local AI work artifacts — `.ai-work/` only
-
-Plans, handovers, session notes, scratch analyses and research dumps are **work records, not documentation**: they live only in the gitignored `.ai-work/` at the repository root, never enter git history, and are never the only copy of a durable decision (those go in `decisions/`). A follow-up that must outlive the session is an issue, not a file. Full rule: [local-work-artifacts.md](./local-work-artifacts.md).
+State each command and its outcome. Distinguish source inspection, compilation, model acceptance and execution. Name the checks that did not run.

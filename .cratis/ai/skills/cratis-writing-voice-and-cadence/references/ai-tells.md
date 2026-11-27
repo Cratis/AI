@@ -369,7 +369,7 @@ qualifiers that protect the writer without informing the reader.
 ```
 
 Flag every match of the first pattern. Count the second per sentence and flag two or more in
-one sentence. Move internal review residue and verification provenance to the private change
+one sentence. Move internal review residue and records of what was verified to the private change
 or review record, not the public closing paragraph. Keep decision-relevant evidence and a
 true qualifier that changes what the reader does or expects. Basis: editorial.
 
@@ -420,7 +420,7 @@ verified claim, narrowed where the original summary overstated it.
 | HV-09 | From excess vocabulary across more than 15 million PubMed abstracts, at least 13.5% of 2024 abstracts were estimated to be processed with LLMs. An inferred lower bound, not a count, and not about social media. | Corpus study, 2025 | [PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC12219543/) |
 | HV-10 | The same study reports strong excess 2024 usage of "delves", "underscores" and "showcasing". An aggregate signal, not an individual verdict. | Corpus study, 2025 | [PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC12219543/) |
 | HV-11 | In an experiment with 680 US participants, some AI assistance increased engagement and content volume while lowering perceived quality and authenticity of discussion. | Preprint, not peer reviewed, 2025 | [arXiv](https://arxiv.org/abs/2506.14295) |
-| HV-12 | A review of 47 journalism studies found no consistent trust penalty from AI provenance cues; effects depended on topic, baseline trust, source cues and signaled human oversight. Not about developer posts. | Systematic review, 2026 | [PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC13183635/) |
+| HV-12 | A review of 47 journalism studies found no consistent trust penalty from cues about AI involvement; effects depended on topic, baseline trust, source cues and signaled human oversight. Not about developer posts. | Systematic review, 2026 | [PMC](https://pmc.ncbi.nlm.nih.gov/articles/PMC13183635/) |
 | HV-18 | LinkedIn: "It's ok to use AI to help you write, but your posts and comments need to represent your voice and your perspectives." | Platform statement, 2026 | [LinkedIn](https://news.linkedin.com/2026/keeping-conversations-real-on-linkedin) |
 | HV-19 | LinkedIn: content that appears AI-generated and lacks clear perspective is less likely to be widely distributed beyond the author's immediate network. LinkedIn's own claim, not independently measured. | Platform statement, 2026 | [LinkedIn](https://news.linkedin.com/2026/keeping-conversations-real-on-linkedin) |
 | HV-21 | A detector vendor classified 4,061 of 5,000 sampled public LinkedIn posts of 100+ words as "Likely AI". A vendor classification, not verified authorship or a platform-wide rate. | Vendor, observational, 2026 | [Originality.ai](https://originality.ai/blog/ai-content-published-linkedin) |

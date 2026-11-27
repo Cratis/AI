@@ -129,9 +129,9 @@ at a named version.
 ## Structure and publishing
 
 - No repository has a path-specific `CODEOWNERS` entry for
-  `Documentation/**`; a few, such as Chronicle.Python and Chronicle.Wolverine,
+  its documentation folder; a few, such as Chronicle.Python and Chronicle.Wolverine,
   have catch-all owners that include it. Check the owning repository rather
   than assuming a documentation reviewer exists.
-- What is part of writing a page, what is a separate navigation decision,
-  and how a merged change reaches the site are in
-  [Editing Cratis Documentation](../../../rules/editing-cratis-docs.md).
+- Adding a page in an existing section includes its table-of-contents entry.
+  Changing the site’s navigation structure is a separate decision. Confirm
+  that a site build containing the merged page deployed before calling it live.

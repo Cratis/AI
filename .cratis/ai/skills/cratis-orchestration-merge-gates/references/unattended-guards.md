@@ -14,11 +14,9 @@ box.
 - Every command has a deadline. A hung command is killed by its box, not
   waited on.
 - A hook that would ask is a blocker, not an obstacle. Never loosen a hook,
-  allowlist or guard to avoid a prompt; report it. See
-  [hooks/README.md](../../../hooks/README.md) for how denials behave when no human
-  is present.
-- Secrets are never typed into a prompt: see
-  [secrets.md](../../../rules/secrets.md).
+  allowlist or guard to avoid a prompt; report it. Treat a denial as a stop, not
+  permission to try another route.
+- Never type secrets into a prompt or expose them in command output.
 
 ## Time boxes
 
