@@ -281,6 +281,11 @@ public class MembersByDefault : IFallbackAuthorizationEvaluator
   resource-dependent rules.
 - `IAuthorizationAttributeEvaluator` reports only **explicit** declarations from
   another attribute family; it never becomes a baseline.
+- **Never decide from a name.** An evaluator or filter that grants or denies by
+  namespace prefix, folder or route segment changes who may call what the day
+  code moves or a namespace is renamed. Decide from a declaration on the type or
+  its assembly (an attribute, an assembly-level marker, a named policy), and keep
+  a spec that lists what each declaration covers.
 
 **ASP.NET Core `FallbackPolicy`** covers HTTP endpoints and MVC actions without
 authorization metadata. It does **not** supply Arc's pipeline baseline, and
