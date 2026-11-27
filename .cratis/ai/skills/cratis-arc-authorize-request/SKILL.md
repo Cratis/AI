@@ -47,6 +47,10 @@ public sealed class RequireActiveSession(ILibrarySessions sessions) : IGuardObse
 
 Revoke the session after the first result. Verify that no subsequent protected data arrives on each exposed transport.
 
+A valid session can outlast a role or organization assignment. In a discovered `IQueryFilter`, have `OnPerform(QueryContext context)` return `QueryResult.Success(context.CorrelationId)` for other fully qualified `context.Name` values. For the protected query, return `QueryResult.Unauthorized(context.CorrelationId)` if access is denied; otherwise set `context.SubscriptionScope` to the authorized organization ID and return success. The query itself must restrict rows to that organization.
+
+In an `IGuardObservableQueryEmission`, return `Allow` for other `context.QueryName` values. For this query, use `context.Principal` to check current access against `context.SubscriptionScope` on each emission. Return `DenyAndTerminate` if either is missing, the active organization differs, or the required role no longer applies there. Keep the session active in the test; switch organizations or revoke the role and verify the next update is withheld.
+
 ## Avoid
 
 - Do not authorize only in React; protect the server operation.

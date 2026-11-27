@@ -50,6 +50,8 @@ Keep query loading and failure state in the bound view. Changing the search text
 
 For an existing `Catalogue` service instance `catalogue`, define and export `export const CatalogueToken = Symbol('Catalogue');` from the service module. Use `container.registerInstance(CatalogueToken, catalogue)` before mounting the view. Add `constructor(@inject(CatalogueToken) private readonly catalogue: Catalogue) {}` to the model, importing the shared token and service type from that module and `container` and `inject` from `tsyringe` where used.
 
+When the model decides when to submit, call `const [command] = RegisterAuthor.use()` in the bound view and pass that instance to the model after filling its fields. A model method `register(command: RegisterAuthor) { return command.execute(); }` preserves the generated response type. Await the result and check `isSuccess` before reading `response`. The hook configures the instance with Arc's `httpHeadersCallback`, so a locale header supplied there is sent on the request. A bare `new RegisterAuthor()` does not inherit the provider's headers.
+
 ## Avoid
 
 - Don't construct a second model in `useState` or `new` one in the view.

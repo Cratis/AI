@@ -35,7 +35,7 @@ public record LendBook(BookId BookId, BorrowerId BorrowerId) : ICanProvideEventS
 
 In the [command scenario](../cratis-specifications-exercise-backend/SKILL.md), use different IDs and assert the single append is to the book, not the borrower. This tests ownership, not the handler's field copy.
 
-With the standard Arc and Chronicle service registration, up to at least Arc 25.3.2, command-level `[EventSource<T>]` can fail before `Handle` when the host validates dependency injection scopes and the caller is unchanged. For append routing, omit the attribute and wrap each event: `new EventForEventSourceId(id, fact) { EventSource = typeof(T), EventStream = "StreamName" }`. Use the stream name declared by `T`. This routes the append only; an injected per-stream read model still needs a matching command route.
+Before Arc 25.3.3, command-level `[EventSource<T>]` can fail before `Handle` when the host validates dependency injection scopes and the caller is unchanged. Upgrade to Arc 25.3.3 or later. If you can't upgrade, omit the attribute and wrap each event: `new EventForEventSourceId(id, fact) { EventSource = typeof(T), EventStream = "StreamName" }`. Use the stream name declared by `T`. This routes the append only; an injected per-stream read model still needs a matching command route.
 
 ## Read state to make a decision
 

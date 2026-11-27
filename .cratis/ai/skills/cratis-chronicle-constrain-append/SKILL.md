@@ -26,6 +26,8 @@ namespace Library.Features.Authors.Removal;
 public record AuthorRemoved;
 ```
 
+For one registration event and a fixed refusal message, keep the attribute: its explicit `name` already gives callers a stable identifier. If the refusal must follow the current culture, use the `IConstraint` builder below even for one event. Omit the rename clause, keep `WithName("UniqueAuthorName")`, and add `.WithMessage(_ => Messages.AuthorNameMustBeUnique)` to the unique rule, where `Messages.AuthorNameMustBeUnique` reads your localized resource when the message is requested.
+
 ## Try the same name for two author IDs
 
 One-off wiring check, not a spec of Chronicle's constraint mechanism. For an uncovered application refusal, use the [existing backend fixture](../cratis-specifications-exercise-backend/SKILL.md).
