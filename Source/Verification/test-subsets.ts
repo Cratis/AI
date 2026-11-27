@@ -10,9 +10,9 @@ const here = dirname(fileURLToPath(import.meta.url));
 
 /** Named, fast subsets for iteration. The full `test` script stays the CI and final gate. */
 export const subsets: Record<string, string[]> = {
-    hooks: ['guard-pr-body', 'guard-pr-body-hook', 'guard-pr-body-policy', 'guard-secrets', 'guard-routine-corpus', 'guard-store-mutations', 'guard-writes', 'guard-protected-paths', 'guard-shell-writes', 'guard-shell-writes-reads', 'guard-shell-writes-destructive', 'guard-shell-writes-repair', 'hook-wiring', 'codex-hooks', 'migration-reminder', 'pi-hook-corpus-selection', 'pi-mcp-bridge', 'pi-quality-gate', 'pi-quality-gate-lifecycle', 'pi-quality-gate-bounded', 'pi-quality-gate-fingerprint', 'quality-gates', 'pattern-scan', 'spec-runner', 'cleanup-worktrees', 'check-pr-callers', 'check-handoff', 'hook-pipefail-grep'],
-    adapters: ['agent-adapters', 'harness-setup', 'harness-loading', 'pi-plugin', 'plugin-manifest', 'pi-mcp-configuration', 'pi-mcp-servers', 'pi-mcp-transport', 'pi-subagent', 'mcp-servers', 'source-identity-helper'],
-    corpus: ['../SkillEvaluation/corpus-suite', 'skill-safeguards', 'action-restraint', 'captured-tool-calls', 'spec-runner-policy', 'always-on-budget', 'discoverability-routing', 'documentation-routing', 'conformance-fixtures', 'evaluation-contamination', 'sandbox-engine-contract', 'evaluation-coverage', 'instruction-dependencies', 'instruction-dependency-lines', 'profiled-skills', 'skill-authoring', 'skill-evaluations', 'skill-hygiene', 'skill-hygiene-order', 'skill-overlap', 'skill-paths', 'skill-references', 'skill-script-self-tests', 'skill-structure', 'reference-contents-bytes', 'pin-restatements', 'rule-connection-strings', 'model-first-restatements', 'preferred-syntax', 'review-reports', 'screenplay-tool', 'test-subsets', 'corpus-staging', 'verify-corpus-v2']
+    hooks: ['guard-pr-body', 'guard-pr-body-hook', 'guard-pr-body-policy', 'guard-secrets', 'guard-routine-corpus', 'guard-store-mutations', 'guard-writes', 'guard-protected-paths', 'guard-shell-writes', 'guard-shell-writes-reads', 'guard-shell-writes-destructive', 'guard-shell-writes-repair', 'hook-wiring', 'codex-hooks', 'pi-hook-corpus-selection', 'pi-mcp-bridge', 'pi-quality-gate', 'pi-quality-gate-lifecycle', 'pi-quality-gate-bounded', 'pi-quality-gate-fingerprint', 'quality-gates', 'spec-runner', 'cleanup-worktrees', 'check-pr-callers', 'hook-pipefail-grep'],
+    adapters: ['harness-setup', 'harness-loading', 'pi-plugin', 'plugin-manifest', 'pi-mcp-configuration', 'pi-mcp-servers', 'pi-mcp-transport', 'mcp-servers'],
+    corpus: ['verify', 'skill-structure', 'skill-paths', 'skill-references']
 };
 
 /** Spec files that may be absent on a branch; they are skipped when missing. */
@@ -25,9 +25,9 @@ export type Mapping = { pattern: RegExp; subsets: string[] };
  * (verified by grepping the specs for the path); any other path needs the full suite.
  */
 export const mappings: Mapping[] = [
-    // Read only by guard-*, codex-hooks, hook-wiring, cleanup-worktrees specs, all in `hooks`. hook-lib.sh is excluded: discoverability-routing sources it.
-    { pattern: /^\.cratis\/ai\/hooks\/scripts\/(cratis-guard-(writes|shell-writes|secrets|pr-body|store-mutations)\.sh|cratis-check-(pr|handoff)\.mjs|cratis-store-mutations\.json|cratis-cleanup-worktrees\.sh)$/, subsets: ['hooks'] },
-    // Imported only by agent-adapters, harness-loading and harness-setup specs, all in `adapters`.
+    // Read only by guard-*, codex-hooks, hook-wiring, cleanup-worktrees specs, all in `hooks`.
+    { pattern: /^\.cratis\/ai\/hooks\/scripts\/(cratis-guard-(writes|shell-writes|secrets|pr-body|store-mutations)\.sh|cratis-check-pr\.mjs|cratis-store-mutations\.json|cratis-cleanup-worktrees\.sh)$/, subsets: ['hooks'] },
+    // Imported only by harness-loading and harness-setup specs, all in `adapters`.
     { pattern: /^Source\/Harness\.Setup\/[^/]+\.ts$/, subsets: ['adapters'] }
 ];
 

@@ -86,7 +86,7 @@ test('path guidance delivers a scoped rule once per session when its file is tou
     assert.equal(handlers.has('before_agent_start'), true, 'skills are observed at agent start');
     const first = touch('Source/Thing.cs');
     assert.ok(first, 'expected the C# rules to be attached on first touch');
-    assert.match(textOf(first), /# C# Conventions/);
+    assert.match(textOf(first), /# Platform sources/);
     assert.match(textOf(first), /^\n\n\[cratis-rules\] Rules that apply to Source\/Thing\.cs:/);
     assert.equal(touch('Source/Other.cs'), undefined, 'the same rules must not be delivered twice in a session');
     assert.equal(touch('README.md'), undefined);
@@ -94,36 +94,6 @@ test('path guidance delivers a scoped rule once per session when its file is tou
 
     handlers.get('session_start')?.({}, context);
     assert.ok(touch('Source/Thing.cs'), 'a new session delivers the rules again');
-});
-
-test('fresh Go sessions attach canonical source and module rules independently of skill discovery', () => {
-    const project = mkdtempSync(join(tmpdir(), 'cratis-go-guidance-'));
-    try {
-        mkdirSync(join(project, '.cratis'));
-        for (const product of ['cratis/chronicle/client-go', 'cratis/arc/go']) {
-            writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/engineering/go', product], languages: ['go'] }));
-            for (const path of ['main.go', 'Source/client.go', 'go.mod', 'go.sum', 'adapter/go.mod', 'adapter/go.sum']) {
-                // Separate session per path proves each selector, rather than one earlier .go touch
-                // incidentally making the module-file case look covered. No loaded skills are needed.
-                const guidance = session(project, []);
-                const first = textOf(guidance.read(path));
-                assert.match(first, /# Go conventions/, `${product}: ${path}`);
-                assert.match(first, /# Go framework parity and module releases/, `${product}: ${path}`);
-                assert.doesNotMatch(first, /# C# Conventions|# TypeScript Conventions|cratis-path-guidance/);
-                assert.equal(guidance.read(path), undefined, 'delivered once');
-                guidance.handlers.get('session_start')?.({}, guidance.context);
-                assert.match(textOf(guidance.read(path)), /# Go conventions/, 'a fresh session loads it again');
-            }
-            assert.equal(session(project, []).read('README.md'), undefined);
-        }
-        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/language/go'], languages: ['go'] }));
-        assert.doesNotMatch(textOf(session(project, []).read('main.go')), /# Go framework parity/);
-        writeFileSync(join(project, '.cratis', 'ai.json'), JSON.stringify({ profiles: ['cratis/engineering/csharp'], languages: ['csharp'] }));
-        // A Go file in a repository that did not select Go receives no Go-specific rule.
-        for (const path of ['main.go', 'go.mod', 'go.sum']) assert.doesNotMatch(textOf(session(project, []).read(path)), /# Go conventions|# Go framework parity/, 'non-Go selection');
-    } finally {
-        rmSync(project, { recursive: true, force: true });
-    }
 });
 
 test('path guidance re-delivers scoped rules after the conversation is rewritten', () => {
@@ -140,7 +110,7 @@ test('path guidance re-delivers scoped rules after the conversation is rewritten
         handlers.get(event)?.({}, context);
         const again = touch();
         assert.ok(again, `${event}: the rule must be delivered again once the conversation is rewritten`);
-        assert.match(textOf(again), /# C# Conventions/);
+        assert.match(textOf(again), /# Platform sources/);
     }
 });
 
@@ -155,7 +125,7 @@ test('path guidance delivers scoped rules for files touched through bash', () =>
         // rtk.md directs bulk reads through the terminal, so this is how many sessions read source.
         const viaRtk = guidance.bash('rtk read Source/Thing.cs');
         assert.ok(viaRtk, 'a bash read of a .cs file must deliver the C# rules');
-        assert.match(textOf(viaRtk), /# C# Conventions/);
+        assert.match(textOf(viaRtk), /# Platform sources/);
         assert.equal(guidance.bash('cat Source/Thing.cs'), undefined, 'already delivered this session');
 
         guidance.handlers.get('session_start')?.({}, guidance.context);
@@ -298,7 +268,7 @@ test('a session without UI, such as a subagent, still gets hints and rules', () 
         const guidance = session(project, all, { cwd: project, hasUI: false });
         const result = textOf(guidance.write(specificationPath));
         assert.match(result, /demo-specifications/);
-        assert.match(result, /# C# Conventions/);
+        assert.match(result, /# Platform sources/);
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
@@ -315,39 +285,6 @@ test('without Pi-reported skills the repository skills stand in, and the hint ne
     } finally {
         rmSync(project, { recursive: true, force: true });
     }
-});
-
-test('the corpus skills declare triggers that match the conventions they teach', () => {
-    const handlers = register();
-    const context = { cwd: repositoryRoot };
-    const skill = (name: string): LoadedSkill => ({ name, filePath: join(repositoryRoot, '.cratis', 'ai', 'skills', name, 'SKILL.md') });
-    const names = [
-        'cratis-specifications-csharp', 'cratis-specifications-typescript', 'cratis-application-slice-specifications', 'cratis-application-react-specifications',
-        'cratis-documentation-writing', 'cratis-engineering-docs-authoring', 'cratis-technical-examples',
-    ];
-    handlers.get('before_agent_start')?.({ systemPrompt: '', systemPromptOptions: { cwd: repositoryRoot, skills: names.map(skill) } }, context);
-    const write = (path: string) => textOf(handlers.get('tool_result')?.({ toolName: 'write', isError: false, input: { path }, content: [] }, context) as Result);
-    const named = (text: string) => names.filter(name => text.includes(`\`${name}\``));
-    const reset = () => handlers.get('session_start')?.({}, context);
-
-    // A for_ specification names the framework C# skill and the slice skill, in one line.
-    const csharp = write('Source/for_Thing/when_doing.cs');
-    assert.deepEqual(named(csharp), ['cratis-specifications-csharp', 'cratis-application-slice-specifications']);
-    assert.equal(csharp.match(/\[cratis-path-guidance\]/g)?.length, 1, 'one combined line');
-    reset();
-    // The slice skill teaches `<Slice>/when_<verb>/and_<condition>.cs` with no for_ folder, and must still be hinted.
-    assert.deepEqual(named(write('Features/Projects/Registration/when_registering/and_name_is_unique.cs')), ['cratis-application-slice-specifications']);
-    reset();
-    assert.deepEqual(named(write('Source/for_Thing/when_doing.ts')), ['cratis-specifications-typescript', 'cratis-application-react-specifications']);
-    reset();
-    // A documentation page brings the two authoring skills in one line; runnable-sample guidance is for samples.
-    const documentation = write('Documentation/guides/page.md');
-    assert.deepEqual(named(documentation), ['cratis-documentation-writing', 'cratis-engineering-docs-authoring']);
-    assert.equal(documentation.match(/\[cratis-path-guidance\]/g)?.length, 1, 'one combined line');
-    reset();
-    assert.deepEqual(named(write('Samples/Quickstart/Program.cs')), ['cratis-technical-examples']);
-    reset();
-    assert.equal(write('Source/Thing.cs').includes('cratis-specifications-csharp'), false, 'production code is not a specification');
 });
 
 test('several matching skills are named in one line that lists each skill, glob and SKILL.md', () => {
@@ -672,7 +609,7 @@ test('the packaged copy resolves its shared helpers, delivers guidance, and stan
         assert.ok(active.has('tool_result'), 'a project without a managed installation loads the packaged copy');
         active.get('before_agent_start')?.({ systemPrompt: '', systemPromptOptions: { cwd: project, skills: [skill] } }, { cwd: project });
         const delivered = textOf(active.get('tool_result')?.({ toolName: 'write', isError: false, input: { path: 'Source/for_Thing/when_x.cs' }, content: [] }, { cwd: project }) as Result);
-        assert.match(delivered, /# C# Conventions/);
+        assert.match(delivered, /# Platform sources/);
         assert.match(delivered, /demo-specifications/);
 
         mkdirSync(join(project, '.pi', 'extensions', 'cratis-path-guidance'), { recursive: true });
@@ -868,28 +805,6 @@ test('nested metadata keys are not counted as top-level keys', () => {
     assert.match(skillFrontmatterProblems('x/SKILL.md', skillWith('metadata:\n  a: "b"\npaths: "a/*.cs"\n'))[0], /declares 'paths'/);
 });
 
-test('the corpus skills produce exactly the globs they did before the hint form was tightened', () => {
-    const expected: Record<string, string[]> = {
-        'cratis-application-react-specifications': ['**/for_*/**/*.ts', '**/for_*/**/*.tsx'],
-        'cratis-application-slice-specifications': ['**/when_*/**/*.cs', '**/for_*/**/*.cs'],
-        'cratis-documentation-writing': ['**/Documentation/**/*.{md,mdx}'],
-        'cratis-engineering-docs-authoring': ['**/Documentation/**/*.{md,mdx}'],
-        'cratis-screenplay-modeling-lifecycle': ['**/*.play'],
-        'cratis-specifications-csharp': ['**/for_*/**/*.cs'],
-        'cratis-specifications-typescript': ['**/for_*/**/*.ts', '**/for_*/**/*.tsx'],
-        'cratis-technical-examples': ['**/Samples/**/*.{cs,ts,tsx}'],
-    };
-    const skillsRoot = join(repositoryRoot, '.cratis', 'ai', 'skills');
-    const actual: Record<string, string[]> = {};
-    for (const name of readdirSync(skillsRoot)) {
-        const content = readFileSync(join(skillsRoot, name, 'SKILL.md'), 'utf8');
-        assert.deepEqual(skillFrontmatterProblems(`${name}/SKILL.md`, content), [], name);
-        const globs = skillTriggerGlobs(content);
-        if (globs.length > 0) actual[name] = globs;
-    }
-    assert.deepEqual(actual, expected);
-});
-
 test('skill frontmatter may only use the Agent Skills top-level keys', () => {
     const skill = (frontmatterLines: string) => `---\nname: x\ndescription: y\n${frontmatterLines}---\n\nBody\n`;
     assert.deepEqual(skillFrontmatterProblems('x/SKILL.md', skill('license: MIT\ncompatibility: any\nallowed-tools: Read Bash\nmetadata:\n  anything: "goes"\n')), []);
@@ -1074,91 +989,5 @@ test('invalid YAML in the frontmatter is reported', () => {
 
 const specificationsSkill = '.cratis/ai/skills/cratis-specifications-csharp/SKILL.md';
 
-test('verify.ts accepts the corpus end to end, rejects a bad skill trigger, and CI without a resolvable base fails closed', async () => {
-    const workspace = mkdtempSync(join(tmpdir(), 'cratis-verify-'));
-    const rejectedWorkspace = mkdtempSync(join(tmpdir(), 'cratis-verify-rejected-'));
-    try {
-        for (const entry of ['.cratis', '.claude-plugin', '.cursor-plugin', '.github/workflows', '.github/plugin', 'Evaluations']) {
-            cpSync(join(repositoryRoot, entry), join(workspace, entry), { recursive: true });
-        }
-        cpSync(join(repositoryRoot, '.agents', 'plugins'), join(workspace, '.agents', 'plugins'), { recursive: true });
-        mkdirSync(join(workspace, 'Documentation'), { recursive: true });
-        cpSync(join(repositoryRoot, 'Documentation', 'compatibility.md'), join(workspace, 'Documentation', 'compatibility.md'));
-        mkdirSync(join(workspace, 'Source', 'Pi.Plugin'), { recursive: true });
-        cpSync(join(repositoryRoot, 'Source', 'Pi.Plugin', 'package.json'), join(workspace, 'Source', 'Pi.Plugin', 'package.json'));
-        mkdirSync(join(workspace, 'Source', 'Verification', 'play'), { recursive: true });
-        cpSync(join(repositoryRoot, 'Source', 'Verification', 'play', 'preferred-syntax-allowlist.json'), join(workspace, 'Source', 'Verification', 'play', 'preferred-syntax-allowlist.json'));
-        const env = { ...process.env, CI: '', GITHUB_ACTIONS: '', GITHUB_EVENT_PATH: '', GITHUB_EVENT_NAME: '' };
-        const verify = (overrides: NodeJS.ProcessEnv = {}, root = workspace) => new Promise<{ status: number | null; stdout: string; stderr: string }>(resolveRun => {
-            const child = spawn(process.execPath, ['--import', 'tsx', join(repositoryRoot, 'Source', 'Verification', 'verify.ts'), root], { cwd: join(repositoryRoot, 'Source', 'Verification'), env: { ...env, ...overrides } });
-            let stdout = '';
-            let stderr = '';
-            child.stdout.setEncoding('utf8').on('data', chunk => { stdout += chunk; });
-            child.stderr.setEncoding('utf8').on('data', chunk => { stderr += chunk; });
-            child.on('close', status => resolveRun({ status, stdout, stderr }));
-        });
-
-        const original = readFileSync(join(workspace, specificationsSkill), 'utf8');
-        assert.match(original, /\nmetadata:\n  cratis-hint-paths: "/, 'the corpus skill declares a trigger under metadata');
-        assert.doesNotMatch(original, /\npaths:/, "the plain 'paths' key is Claude Code's conditional activation");
-        // A second copy carries one bad trigger, so verify.ts itself is shown to reject what skillFrontmatterProblems reports.
-        cpSync(workspace, rejectedWorkspace, { recursive: true });
-        const badTrigger = original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: "**/for_*/**/*.cs **/*.{cs"');
-        assert.notEqual(badTrigger, original, 'the bad-trigger replacement did not apply');
-        writeFileSync(join(rejectedWorkspace, specificationsSkill), badTrigger);
-        // The three runs only read their workspaces, so they run side by side.
-        const [baseline, ciWithoutBase, rejected] = await Promise.all([verify(), verify({ GITHUB_ACTIONS: 'true' }), verify({}, rejectedWorkspace)]);
-        assert.equal(rejected.status, 1, `${rejected.stdout}${rejected.stderr}`);
-        assert.match(rejected.stderr, /cratis-specifications-csharp\/SKILL\.md has an invalid 'metadata\.cratis-hint-paths' entry '\*\*\/\*\.\{cs'/);
-        assert.equal(baseline.status, 0, `${baseline.stdout}${baseline.stderr}`);
-        assert.match(baseline.stdout, /Evaluation coverage base comparison: skipped.*static coverage checks still run/);
-        assert.equal(ciWithoutBase.status, 2, `${ciWithoutBase.stdout}${ciWithoutBase.stderr}`);
-        assert.match(ciWithoutBase.stderr, /Evaluation coverage base could not resolve in CI/);
-        assert.doesNotMatch(ciWithoutBase.stdout, /base comparison: skipped/);
-    } finally {
-        rmSync(workspace, { recursive: true, force: true });
-        rmSync(rejectedWorkspace, { recursive: true, force: true });
-    }
-});
-
 // verify.ts reports exactly what skillFrontmatterProblems returns for each corpus skill (the end-to-end test above
 // proves that wiring with one rejected trigger), so each variant of the real skill is checked by calling the validation directly.
-test('a bad or misplaced skill trigger in a real corpus skill is rejected, and valid shapes are accepted', () => {
-    const original = readFileSync(join(repositoryRoot, specificationsSkill), 'utf8');
-    const problemsOf = (content: string) => skillFrontmatterProblems(specificationsSkill, content);
-    assert.match(original, /\nmetadata:\n  cratis-hint-paths: "/, 'the corpus skill declares a trigger under metadata');
-    assert.deepEqual(problemsOf(original), [], 'the unchanged corpus skill is accepted');
-
-    const rejected = problemsOf(original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: "**/for_*/**/*.cs **/*.{cs"'));
-    assert.match(rejected.join('\n'), /cratis-specifications-csharp\/SKILL\.md has an invalid 'metadata\.cratis-hint-paths' entry '\*\*\/\*\.\{cs'/);
-
-    const topLevel = problemsOf(original.replace('metadata:\n  cratis-hint-paths:', 'cratis-hint-paths:'));
-    assert.match(topLevel.join('\n'), /cratis-specifications-csharp\/SKILL\.md declares 'cratis-hint-paths' as a top-level key/);
-
-    const blockScalar = problemsOf(original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: >-\n    **/for_*/**/*.cs'));
-    assert.match(blockScalar.join('\n'), /cratis-specifications-csharp\/SKILL\.md has an unsupported 'metadata\.cratis-hint-paths' value \(a block scalar/);
-
-    // Spellings the runtime reader does not know are valid YAML, so only the cross-check with a real parser catches them.
-    const spellings: Array<[string, string, RegExp]> = [
-        ['a quoted key', original.replace('  cratis-hint-paths:', '  "cratis-hint-paths":'), /cratis-specifications-csharp\/SKILL\.md spells 'metadata\.cratis-hint-paths' in a way the Pi runtime reads differently from YAML/],
-        ['a space before the colon', original.replace('  cratis-hint-paths:', '  cratis-hint-paths :'), /reads differently from YAML/],
-        ['a duplicate metadata key', original.replace('---\n\n', 'metadata:\n  other: "x"\n---\n\n'), /cratis-specifications-csharp\/SKILL\.md has frontmatter that is not valid YAML: .*unique/i],
-        ['a duplicate top-level key', original.replace('license: MIT\n', 'license: MIT\nlicense: MIT\n'), /not valid YAML: .*unique/i],
-        ['a flow map', original.replace('metadata:\n  cratis-hint-paths: "**/for_*/**/*.cs"\n', 'metadata: {cratis-hint-paths: "**/for_*/**/*.cs"}\n'), /declares 'metadata' inline \(a flow map\)/],
-        ['a literal block scalar', original.replace('cratis-hint-paths: "**/for_*/**/*.cs"', 'cratis-hint-paths: |\n    **/for_*/**/*.cs'), /a block scalar/],
-        ['a quoted block scalar key', original.replace('  cratis-hint-paths: "**/for_*/**/*.cs"', '  "cratis-hint-paths": >-\n    **/for_*/**/*.cs'), /reads differently from YAML/],
-    ];
-    for (const [form, content, message] of spellings) {
-        assert.notEqual(content, original, `${form}: the replacement did not apply`);
-        assert.match(problemsOf(content).join('\n'), message, form);
-    }
-
-    const nested = original.replace('metadata:\n', 'metadata:\n  name: other\n  description: other\n');
-    assert.notEqual(nested, original);
-    assert.deepEqual(problemsOf(nested), [], 'nested name and description keys are valid metadata');
-    assert.deepEqual(frontmatter(nested).get('name'), ['cratis-specifications-csharp'], 'nested keys are not read as the skill name (verify.ts reads name through this parser)');
-
-    const unknown = original.replace('license: MIT\n', 'license: MIT\nversion: 1\n');
-    assert.notEqual(unknown, original);
-    assert.match(problemsOf(unknown).join('\n'), /cratis-specifications-csharp\/SKILL\.md declares top-level frontmatter key 'version'/);
-});

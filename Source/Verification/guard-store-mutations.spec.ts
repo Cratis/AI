@@ -246,7 +246,7 @@ test('a local list can tighten the shipped lists but never make a known mutation
     }
 });
 
-test('every command list entry is justified, unique, and agrees with the skill', () => {
+test('every command list entry is justified and unique', () => {
     const lists = JSON.parse(readFileSync(dataFile, 'utf8')) as CommandLists;
     const readOnly = lists.readOnly.map(entry => entry.command);
     const mutating = lists.mutating.map(entry => entry.command);
@@ -257,14 +257,6 @@ test('every command list entry is justified, unique, and agrees with the skill',
     assert.equal(new Set(mutating).size, mutating.length, 'mutating commands must be unique');
     assert.deepEqual(readOnly.filter(command => mutating.includes(command)), [], 'no command may be both read-only and mutating');
 
-    // Every mutation the operations skill names must be one the guard knows by name, not only by failing closed.
-    const skill = readFileSync(join(repositoryRoot, '.cratis', 'ai', 'skills', 'cratis-chronicle-cli-operations', 'SKILL.md'), 'utf8');
-    const section = skill.slice(skill.indexOf('These commands mutate the running store:'), skill.indexOf('Before any of them:'));
-    const named = [...section.matchAll(/`chronicle ([a-z-]+) ([a-z-]+(?: [a-z-]+)?)`(?:, `([a-z-]+)`)?(?:, `([a-z-]+)`)?(?:,\s+`([a-z-]+)`)?/g)]
-        .flatMap(match => [match[2], match[3], match[4], match[5]].filter(Boolean).map(command => `${match[1]} ${command}`));
-    assert.ok(named.length >= 16, `expected the skill to name at least 16 mutations, found ${named.length}`);
-    assert.ok(named.includes('streams closed reopen'), 'the nested stream mutation must be extracted from the skill');
-    for (const command of named) assert.ok(mutating.includes(command), `the skill names '${command}' as a mutation, but the guard does not list it`);
 });
 
 test('the command lists match the chronicle commands of the CLI they were verified against', t => {

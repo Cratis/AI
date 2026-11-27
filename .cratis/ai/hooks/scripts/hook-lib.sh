@@ -89,8 +89,9 @@ hook_relpath() {
 #   *     any characters except /
 #   ?     one character except /
 #
-# The conversion is an awk source fragment shared by both matchers below rather than
-# copied into each, so the two directions cannot drift apart.
+# The conversion is an awk source fragment that sourcing scripts prepend to their own awk
+# programs, so every matcher converts globs the same way.
+# shellcheck disable=SC2034
 hook_glob_awk_lib='
         function g2re(g,    out, i, n, c, c2, c3) {
             out = "^"; n = length(g)
@@ -113,52 +114,9 @@ hook_glob_awk_lib='
         }
 '
 
-# Does path $1 match any of the newline-separated globs on stdin?
-# Drain stdin after a match: under pipefail, an upstream SIGPIPE would turn success into failure.
-hook_glob_match() {
-    CRATIS_GLOB_PATH="$1" awk "$hook_glob_awk_lib"'
-        BEGIN { p = ENVIRON["CRATIS_GLOB_PATH"]; found = 0 }
-        found { next }
-        { g = $0; sub(/^[ \t]+/, "", g); sub(/[ \t\r]+$/, "", g) }
-        g == "" { next }
-        { if (p ~ g2re(g)) found = 1 }
-        END { exit(found ? 0 : 1) }
-    '
-}
-
-# The other direction: print the FIRST newline-separated path on stdin matching any of the
-# newline-separated globs in $1, and exit 0. Prints nothing and exits 1 when none matches,
-# or when $1 holds no glob. Like hook_glob_match, it drains stdin instead of exiting early.
-#
-# hook_glob_match answers "does this one path match?" and costs a process per path, which is
-# right for the handful of changed files a hook sees. Discovery asks the mirror question over
-# every path in the repository, so it gets one awk pass instead of thousands of processes.
-hook_glob_first_match() {
-    CRATIS_GLOBS="$1" awk "$hook_glob_awk_lib"'
-        BEGIN {
-            count = 0
-            n = split(ENVIRON["CRATIS_GLOBS"], globs, "\n")
-            for (i = 1; i <= n; i++) {
-                g = globs[i]; sub(/^[ \t]+/, "", g); sub(/[ \t\r]+$/, "", g)
-                if (g != "") res[++count] = g2re(g)
-            }
-            found = 0
-        }
-        count == 0 || found { next }
-        { p = $0; sub(/[ \t\r]+$/, "", p) }
-        p == "" { next }
-        {
-            for (i = 1; i <= count; i++) {
-                if (p ~ res[i]) { print p; found = 1; break }
-            }
-        }
-        END { exit(found ? 0 : 1) }
-    '
-}
-
 # ── Session state ─────────────────────────────────────────────────────────────
 
-# Per-session scratch directory used to de-duplicate reminders. Session ids are
+# Per-session scratch directory. Session ids are
 # sanitized so a hostile value cannot escape the scratch root.
 hook_state_dir() {
     local session="${1:-nosession}" base
@@ -168,14 +126,4 @@ hook_state_dir() {
     base="${base%/}/cratis-hooks/$session"
     mkdir -p "$base" 2>/dev/null || return 1
     printf '%s\n' "$base"
-}
-
-# Record key $2 in the state file $1. Returns 0 the first time, 1 afterwards.
-hook_claim_once() {
-    local file="$1" key="$2"
-    if [ -f "$file" ] && LC_ALL=C grep -Fqx -- "$key" "$file" 2>/dev/null; then
-        return 1
-    fi
-    printf '%s\n' "$key" >>"$file" 2>/dev/null || true
-    return 0
 }

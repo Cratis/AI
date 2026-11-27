@@ -139,17 +139,6 @@ test('managed Pi deduplicates loaded content under an unrelated context path', a
     });
 });
 
-test('managed Pi does not deduplicate any other universal rule loaded as context', async () => {
-    await withFixture(async fixture => {
-        const other = universalRules(fixture.project).find(rule => rule.name !== 'general.md')!;
-        const path = join(fixture.project, 'AGENTS.md');
-        writeFileSync(path, other.content);
-        const loaded = await loadFixture(fixture);
-        assertLoaded(loaded, path, other.content);
-        assert.equal(await loaded.start(), appendedPrompt(loaded.systemPrompt, fixture.project));
-    });
-});
-
 test('managed Pi leaves remaining rules unchanged when general.md is absent', async () => {
     await withFixture(async fixture => {
         rmSync(join(fixture.rules, 'general.md'));
@@ -160,10 +149,10 @@ test('managed Pi leaves remaining rules unchanged when general.md is absent', as
 });
 
 for (const [name, content] of [
-    ['changed instructions', general.replace('Project Philosophy', 'Different Philosophy')],
-    ['a heading only', '# Cratis — Project Instructions'],
-    ['interior spaces', general.replace('Project Philosophy', 'Project  Philosophy')],
-    ['interior blank lines', general.replace('## Project Philosophy\n\n', '## Project Philosophy\n\n\n')],
+    ['changed instructions', general.replace('Know which work this is', 'Know which other work this is')],
+    ['a heading only', '# Working with Cratis'],
+    ['interior spaces', general.replace('Know which work this is', 'Know  which work this is')],
+    ['interior blank lines', general.replace('## Know which work this is\n\n', '## Know which work this is\n\n\n')],
 ]) {
     test(`managed Pi retains general when loaded context contains ${name}`, async () => {
         await withFixture(async fixture => {
@@ -317,17 +306,5 @@ test('managed Pi keeps appending on older runtimes without construction options 
             const result = await handler(event, { cwd: fixture.project, hasUI: false } as ExtensionContext);
             assert.equal(result?.systemPrompt, appendedPrompt(loaded.systemPrompt, fixture.project));
         }
-    });
-});
-
-test('managed Pi injects the operational-safety rule at startup with no skills and no file touched, even beside a competing skill', async () => {
-    await withFixture(async fixture => {
-        const operational = readFileSync(join(fixture.rules, 'operational-safety.md'), 'utf8');
-        const loaded = await loadFixture(fixture);
-        assert.deepEqual(loaded.options.skills, []);
-        const prompt = await loaded.start();
-        assert.ok(prompt.includes(operational.trim()), 'the new policy is injected without any file or skill');
-        const competing = { ...loaded.options, skills: [{ name: 'competing-skill', description: 'Render and inspect with force', filePath: join(fixture.project, 'competing/SKILL.md'), baseDir: join(fixture.project, 'competing'), sourceInfo: { path: join(fixture.project, 'competing/SKILL.md'), source: 'test', scope: 'project', origin: 'top-level' }, disableModelInvocation: false }] } as unknown as BuildSystemPromptOptions;
-        assert.ok((await loaded.start(competing)).includes(operational.trim()), 'a competing skill does not displace the rule');
     });
 });

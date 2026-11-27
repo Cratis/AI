@@ -47,20 +47,19 @@ test('should gate every PR and publishing event without path filters', () => {
     assert.deepEqual(workflow.on.push, { branches: ['main'] });
     assert.ok(Object.hasOwn(workflow.on, 'workflow_dispatch'));
     assert.equal(verify.name, 'verify');
-    assert.equal(verify.if, "github.event_name != 'repository_dispatch' && github.event_name != 'schedule'");
+    assert.equal(verify.if, undefined);
     assert.equal(verify.needs, undefined);
     assert.equal(verify['continue-on-error'], undefined);
 });
 
-test('should run conformance exactly once before screens smoke without a bypass', () => {
+test('should run conformance exactly once after corpus verification without a bypass', () => {
     const step = conformanceStep();
     assert.equal(step.if, undefined);
     assert.equal(step['continue-on-error'], undefined);
     assert.deepEqual(step.env, { CRATIS_CLI_VERSION: '3.100.0' });
     const steps = verify.steps!;
     const index = steps.findIndex(step => step.name === stepName);
-    assert.equal(steps[index - 1].name, 'Verify corpus and skill behavior');
-    assert.equal(steps[index + 1].name, 'Replay the screens authoring workflow on the pinned public vector');
+    assert.equal(steps[index - 1].name, 'Verify the corpus');
     const owners = Object.entries(jobs).flatMap(([name, job]) =>
         (job.steps ?? []).filter(runsConformance).map(() => name));
     assert.deepEqual(owners, ['verify']);

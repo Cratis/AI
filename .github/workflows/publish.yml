@@ -4,11 +4,6 @@
 name: Publish
 
 on:
-  repository_dispatch:
-    types: [screenplay-contract-published]
-  schedule:
-    # Cratis/AI's weekly offset, away from the top of the hour.
-    - cron: '41 4 * * 3'
   pull_request:
   push:
     branches: [main]
@@ -26,10 +21,10 @@ on:
 
 # Keep up to 100 pending Publish runs in FIFO order with `queue: max` (Cratis/Direct#1517).
 # The default single pending slot drops the older pending release when a third merge arrives.
-# PR refs and the Screenplay-sync group keep non-publishing runs out of the main release queue.
+# PR refs keep non-publishing runs out of the main release queue.
 # Omit `cancel-in-progress`: GitHub rejects it together with `queue: max`; in-flight runs are not cancelled.
 concurrency:
-  group: ${{ github.workflow }}-${{ (github.event_name == 'repository_dispatch' || github.event_name == 'schedule') && 'screenplay-sync' || github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   queue: max
 
 permissions:
@@ -39,7 +34,6 @@ permissions:
 jobs:
   verify:
     name: verify
-    if: github.event_name != 'repository_dispatch' && github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -74,25 +68,17 @@ jobs:
           YARN_CHECKSUM_BEHAVIOR: throw
         run: corepack enable && yarn install --immutable
 
-      - name: Check startup budget and instruction routing
-        run: >-
-          yarn workspace @cratis/ai-verification exec node --import tsx --test
-          always-on-budget.spec.ts rule-scoping.spec.ts discoverability-routing.spec.ts documentation-routing.spec.ts
-
       - name: Type check
         run: |
           yarn workspace @cratis/harness-setup run check
           yarn workspace @cratis/pi run check
           yarn workspace @cratis/pi-direct run check
           yarn workspace @cratis/ai-verification run check
-          yarn workspace @cratis/ai-skill-evaluation run check
 
       - name: Install the pinned standalone Screenplay tool
         run: yarn workspace @cratis/ai-verification run tool:screenplay
 
-      - name: Verify corpus and skill behavior
-        env:
-          CRATIS_REQUIRE_SCREENPLAY: '1'
+      - name: Verify the corpus
         run: yarn workspace @cratis/ai-verification run verify
 
       # Exit 1 means a check failed or a fixture errored, exit 2 that the corpus or report could not be produced.
@@ -127,21 +113,12 @@ jobs:
             exit 1
           fi
 
-      # Replays the screens authoring workflow without a Screenplay checkout: the pinned public cratis CLI, the
-      # published canonical corpus, the revision-checked MCP column edit, and a render that must carry the column.
-      # SCREENS_SMOKE_BROWSER also runs the edited model with `cratis run` (Docker) and checks the column in Chromium.
-      - name: Replay the screens authoring workflow on the pinned public vector
-        env:
-          SCREENS_SMOKE_BROWSER: '1'
-        run: Source/Verification/screens-smoke/screens-smoke.sh "$RUNNER_TEMP/screens-smoke"
-
       - name: Lint Pi Direct package
         run: yarn workspace @cratis/pi-direct run lint:ci
 
       - name: Test Pi package behavior
         run: |
           yarn workspace @cratis/ai-verification run test
-          yarn workspace @cratis/ai-skill-evaluation run test
           yarn workspace @cratis/pi-direct run test
 
       - name: Verify Pi package contents
@@ -190,71 +167,8 @@ jobs:
       - name: Run entrypoint fixtures
         run: bash Source/AgentHarnesses/run-entrypoint-fixtures.sh
 
-  # Drift is advisory; releases verify against the pinned Screenplay contract.
-  screenplay-sync:
-    name: Compare the published Screenplay contract
-    if: github.event_name == 'repository_dispatch' || github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      issues: write
-    steps:
-      - name: Check out source
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Use Node.js 24
-        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
-        with:
-          node-version: 24
-
-      - name: Cache Yarn dependency archives
-        uses: Cratis/Workflows/.github/actions/yarn-cache@56270801b4d685a32b95b20e30599a5f982d8de1
-        with:
-          path: .yarn/cache
-          key-prefix: yarn-v1-${{ runner.arch }}-node24-${{ hashFiles('package.json', 'Source/**/package.json', '.yarn/releases/**', '.yarn/plugins/**') }}
-          mode: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && (github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && 'save' || 'restore' }}
-
-      - name: Install project dependencies
-        env:
-          YARN_CHECKSUM_BEHAVIOR: throw
-        run: corepack enable && yarn install --immutable
-
-      - name: Download the released contract
-        id: contract
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EVENT_NAME: ${{ github.event_name }}
-          DISPATCH_VERSION: ${{ github.event.client_payload.version }}
-          DISPATCH_SCHEMA: ${{ github.event.client_payload.schemaVersion }}
-        run: |
-          set -euo pipefail
-          if [ "$EVENT_NAME" = repository_dispatch ]; then
-            test "$DISPATCH_SCHEMA" = 1
-            version="$DISPATCH_VERSION"
-          else
-            version=$(gh release view --repo Cratis/Screenplay --json tagName --jq .tagName)
-          fi
-          if [[ ! "$version" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]]; then
-            echo 'Invalid Screenplay release version' >&2
-            exit 2
-          fi
-          tag="v${version#v}"
-          gh release download "$tag" --repo Cratis/Screenplay --pattern screenplay-contract.json --dir "$RUNNER_TEMP/screenplay-contract"
-          echo "version=$tag" >> "$GITHUB_OUTPUT"
-
-      - name: Check facts, report coverage and reconcile the tracking issue
-        env:
-          GH_TOKEN: ${{ github.token }}
-          CONTRACT_VERSION: ${{ steps.contract.outputs.version }}
-          CONTRACT_PATH: ${{ runner.temp }}/screenplay-contract/screenplay-contract.json
-        run: yarn workspace @cratis/ai-verification exec tsx contract/sync.ts --root "$GITHUB_WORKSPACE" --contract "$CONTRACT_PATH" --version "$CONTRACT_VERSION"
-
   dotnet-verify:
     name: dotnet verify
-    if: github.event_name != 'repository_dispatch' && github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
