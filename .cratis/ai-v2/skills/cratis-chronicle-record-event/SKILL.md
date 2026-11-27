@@ -1,6 +1,6 @@
 ---
 name: cratis-chronicle-record-event
-description: Use when declaring an event and appending it to Chronicle directly with IEventLog. Not for returning an event from an Arc command (use cratis-arc-declare-command).
+description: Use when declaring and appending a Chronicle event directly with IEventLog, or reading a stored event's occurrence time. Not for returning an event from an Arc command (use cratis-arc-declare-command).
 compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 ---
 
@@ -42,6 +42,22 @@ var stored = registrations.Single(e => e.Context.SequenceNumber == result.Sequen
 var name = ((AuthorRegistered)stored.Content).Name;
 var registeredAt = stored.Context.Occurred;
 ```
+
+## Read when an existing author registered
+
+For a read-only lookup by `authorId`, query `IEventLog` for that author and the `AuthorRegistered` event type. Do not call `Register` to obtain a sequence number. If the slice allows one registration per author ID, add this method to `AuthorRegistry`. It returns the stored occurrence time or no timestamp when the author has not registered:
+
+```csharp
+public async Task<DateTimeOffset?> GetRegistrationTime(AuthorId authorId)
+{
+    var registrations = await eventLog.GetForEventSourceIdAndEventTypes(
+        authorId, [typeof(AuthorRegistered).GetEventType()]);
+    var stored = registrations.SingleOrDefault();
+    return stored?.Context.Occurred;
+}
+```
+
+If the same ID may register more than once, select the intended registration by its sequence number before reading `Context.Occurred`. Do not use the time of the lookup as the time of the registration.
 
 ## Avoid
 
