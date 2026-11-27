@@ -70,7 +70,7 @@ public BorrowBookValidator(
 }
 ```
 
-Return both events in one `IEnumerable<EventForEventSourceId>` batch: `BookBorrowed` to the book and `LoanTaken` to the member. Under `On`, a conflicting change to either source refuses the batch. A lookup does not make a payload-keyed projection protectable.
+Return both events in one `IEnumerable<EventForEventSourceId>` batch: `BookBorrowed` to the book and `LoanTaken` to the member. Under `On`, a conflicting change to either guarded source refuses the batch. A lookup does not make a payload-keyed projection protectable.
 
 ### Where does the lookup key come from?
 
@@ -78,11 +78,11 @@ Return both events in one `IEnumerable<EventForEventSourceId>` batch: `BookBorro
 - For a key on another protected model in the same member, Arc 25.2.0+ supports `[LookUpBy("order", nameof(OrderSummary.CustomerId))]`. The property must match the target key type; both reads are guarded under `On`.
 - For keys injection can't express (such as a service-computed hash), compute the key in `Handle` under `On` and await the injected `IDecisionReads.Get<T>(key)`. Justify any `ARCCHR0040` suppression.
 
-From Arc 25.1.0, a null or blank secondary scalar key gives a nullable model parameter `null` without a read or guard. A valid key with no instance still guards against the first event. For required keys, reject blanks before invocation if you need a field message: acquisition can fail before validator rules run.
+From Arc 25.1.0, a null or blank secondary scalar key gives a nullable model parameter `null` without a read or guard. A valid key with no instance still keeps its guard: if no matching event exists yet, the first matching append by someone else refuses this one. For required keys, reject blanks before invocation if you need a field message: acquisition can fail before validator rules run.
 
 ### Which scope guards the append?
 
-Prefer the inferred guard. An explicit scope must cover each protected read's source, event types and stream without narrowing them. Its expected position must be at or before the read's. `ExplicitScopeDoesNotCoverReads` means fix or remove the scope; `ReadChanged` means a competing write invalidated the decision. Read again before resubmitting.
+Prefer the inferred guard. An explicit scope must cover each protected read's source, event types and stream without narrowing them, and expect a position at or before the read's, or expect no matching event. `ExplicitScopeDoesNotCoverReads` means fix or remove the scope. `ReadChanged` means the guard was invalidated, for example by a competing write; read again before resubmitting.
 
 Mark advisory reads `[Unprotected("display only")]` (`Cratis.Arc.Chronicle.ReadModels`). A method annotation covers body reads, not injected parameters (`ARCCHR0034`). If a body read affects a decision, name its independent append guard.
 

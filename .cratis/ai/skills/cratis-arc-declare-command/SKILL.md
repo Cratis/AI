@@ -35,11 +35,11 @@ public record LendBook(BookId BookId, BorrowerId BorrowerId) : ICanProvideEventS
 
 In the [command scenario](../cratis-specifications-exercise-backend/SKILL.md), use different IDs and assert the single append is to the book, not the borrower. This tests ownership, not the handler's field copy.
 
-In Arc 25.3.1 and 25.3.2, command-level `[EventSource<T>]` can fail before `Handle` when the host validates dependency injection scopes and the caller is unchanged. For append routing, omit the attribute and wrap each event: `new EventForEventSourceId(id, fact) { EventSource = typeof(T), EventStream = "StreamName" }`. Use the stream name declared by `T`. This does not set the route for injected per-stream reads.
+With the standard Arc and Chronicle service registration, up to at least Arc 25.3.2, command-level `[EventSource<T>]` can fail before `Handle` when the host validates dependency injection scopes and the caller is unchanged. For append routing, omit the attribute and wrap each event: `new EventForEventSourceId(id, fact) { EventSource = typeof(T), EventStream = "StreamName" }`. Use the stream name declared by `T`. This routes the append only; an injected per-stream read model still needs a matching command route.
 
 ## Read state to make a decision
 
-Inject the read model into the validator constructor to refuse with a message, or into `Handle` to build the event. `[LookUpBy]` selects the read, not the append. For a book-owned `CreditAuthor` command, read the author by `AuthorId`:
+Inject the read model into the validator constructor to refuse with a message, or into `Handle` to build the event. Under `On`, both reads guard the append. `[LookUpBy]` selects the read, not the append. For a book-owned `CreditAuthor` command, read the author by `AuthorId`:
 
 ```csharp
 public AuthorCredited Handle([LookUpBy(nameof(CreditAuthor.AuthorId))] Author author) =>
