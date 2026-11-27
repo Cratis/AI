@@ -21,6 +21,7 @@ compatibility: Requires the Screenplay CLI.
 
 ## When it goes off the usual path
 
+- **The question is about code or a difference between the model and the code:** [trace the existing behavior](../cratis-modeling-trace-existing-behavior/SKILL.md) instead.
 - **The recording doesn't identify the author or time window:** leave the append unresolved. Don't match a fact by the displayed name alone.
 
 ## Related skills

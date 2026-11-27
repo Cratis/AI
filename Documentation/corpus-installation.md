@@ -4,10 +4,10 @@
 
 | Profile | Select it when |
 | --- | --- |
-| `cratis/application` | The repository builds an application on Cratis. Installs the skills for modeling a business flow, implementing backend and UI slices, and running and diagnosing them. |
-| `cratis/engineering` | The repository is a Cratis library or tool. Installs the skills for changing a platform contract, verifying it and preparing the PR and release note, plus every skill those link to, which is most of the application skills. |
+| `cratis/application` | The repository builds an application on Cratis. Installs the v2 platform skills for modeling a business flow, implementing backend and UI slices, and running and diagnosing them. |
+| `cratis/engineering` | The repository is a Cratis library or tool. Installs platform skills and internal engineering guidance. With C# it includes .NET build, diagnostics, performance, Orleans, testing and refactoring skills. |
 
-`cratis ai profiles list` shows these two with the same descriptions; `--all` adds the older profile IDs, which still resolve. See [migration](./corpus-migration.md).
+`cratis ai profiles list` shows the featured starting points; `--all` also lists the specialist profiles. Select the profiles you need for language-specific work, documentation, content, review, CodeScene, CLI or Workbench, and orchestration. For example, .NET 11 migration is a separate opt-in (`cratis/engineering/dotnet/migrate-dotnet11`). See the [profile inventory](./corpus-migration.md#profiles).
 
 ## Install with the Cratis CLI
 
@@ -18,7 +18,7 @@ cratis ai install \
   --languages csharp,typescript
 ```
 
-The CLI copies the selected skills and the rules into `.cratis/ai`, creates the adapter links each selected harness reads, and records the selection in `.cratis/ai.json` and file ownership in `.cratis/ai.manifest.json`.
+The CLI copies the selected skills and rules into `.cratis/ai`, creates the adapter links each selected harness reads, and records the selection in `.cratis/ai.json` and file ownership in `.cratis/ai.manifest.json`. With the CLI release that filters Copilot instruction copies, only copies for selected rules are installed. Earlier CLI releases can install Copilot copies of rules that the profile did not select.
 
 | Command | Effect |
 | --- | --- |
@@ -28,6 +28,12 @@ The CLI copies the selected skills and the rules into `.cratis/ai`, creates the 
 | `cratis ai uninstall` | Removes managed files and links. Leaves files it does not own. |
 
 Add `--source <checkout>` to install from a local checkout of this repository instead of its default branch.
+
+For a Cratis platform checkout, select `cratis/engineering` instead. For example:
+
+```bash
+cratis ai install --profiles cratis/engineering --languages csharp,typescript --harnesses copilot,pi
+```
 
 ## Install for one harness
 
@@ -44,8 +50,8 @@ pi install -l npm:@cratis/pi
 ## What a session sees
 
 - `rules/general.md` is read in every session. It is one page.
-- `rules/framework.md` and `rules/specs.typescript.md` apply only to matching paths in a platform repository.
-- A skill is loaded when its description matches the task. Each description ends with the nearest skill to use instead, and a skill links to the next one at the point of handoff. Linked skills are part of the same profile.
+- Other installed rules apply to matching paths. In a managed install, the selected profiles and languages determine which rules are installed. A rule with a `profile: cratis/<id>` selector needs a direct selection of that profile or a child; composing it is not enough.
+- A skill is loaded when its description matches the task. Links between skills work within the same installation; a skill from another profile can be named as an optional handoff.
 
 Two ways in:
 

@@ -1,0 +1,32 @@
+pvanalyze
+Copyright (c) 2026 Managed Code
+Licensed under the MIT License. See LICENSE.
+
+Upstream source: https://github.com/managedcode/dotnet-skills/blob/6c69830ec1b82bc69b1b3ffe576dc9214f51aa15/catalog/Tools/pvanalyze/skills/pvanalyze/SKILL.md
+The references/ files come from the same directory at the same revision. The command surface was checked against the pvanalyze tool repository https://github.com/adityamandaleeka/pvanalyze at commit faec9b3dbdb15e019636bcf98864b0d99a549b66 (MIT, Aditya Mandaleeka) and the published package's `--help`. No tool source is copied.
+
+Changes made by Cratis:
+
+LICENSE:
+- Copy upstream MIT license and copyright verbatim.
+
+SKILL.md:
+- Rewrite the description and compatibility to the Cratis routing shape and the real runtime requirement (Microsoft.NETCore.App 10.x).
+- Remove the global tool install, floating `dnx`, source-build fallback, the net8 runtime claim, the dotnet-trace install and the collection recipes; route collection to the profiling skills.
+- Add a pinned local-tool install route with a runtime preflight, an owned task directory and stop conditions.
+- Add inconclusive-result handling, owned-copy and cache-file guidance, and a no-code-edit boundary.
+- Add the marked modification/source comment and Cratis precedence line.
+
+references/commands.md:
+- Add a Contents list and a note to run commands through `dotnet tool run`.
+- Replace the dotnet-trace collection commands with pointers to the profiling skills.
+- Add the empty-allocation caveat and the owned-copy limit on `clean`.
+
+references/overview.md:
+- Rewrite without the install model, source-build fallback, version-prefix claims and collection commands.
+
+references/install.md, assets/dotnet-tools.json, assets/NuGet.Config:
+- Added by Cratis. The manifest pins the published package; the NuGet configuration clears all sources except nuget.org.
+
+Executes or downloads (instructions in the skill, not executed by this import):
+- references/install.md: dotnet tool restore --tool-manifest .config/dotnet-tools.json --configfile .config/NuGet.Config (downloads the pinned package from nuget.org after operator approval).

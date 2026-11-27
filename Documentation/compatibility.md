@@ -1,6 +1,6 @@
 # Compatibility
 
-The product releases the corpus skills were checked against. Skills describe behavior and do not repeat these versions; an application uses the versions it has installed. A skill that needs a later release says so where it matters.
+The product releases the v2 platform skills were checked against. Profile-scoped engineering and specialist skills may cover other tools or releases; this table does not certify vendored skills against every listed SDK. Skills describe behavior and do not repeat these versions; an application uses the versions it has installed. A skill that needs a later release says so where it matters.
 
 ## Product releases
 
@@ -12,12 +12,16 @@ The product releases the corpus skills were checked against. Skills describe beh
 | Fundamentals | 7.34.5 | `Cratis.Fundamentals`, `@cratis/fundamentals` |
 | Specifications | 5.3.0 | `Cratis.Specifications.XUnit.v3` (with `xunit.v3` 4.0.2) |
 | Screenplay | 7.0.0 | The standalone Screenplay tool and MCP server the modeling and Screenplay skills author against |
-| Cratis CLI | 3.154.2 | `Cratis.Cli`: scaffolding, diagnostics and `cratis render`. It bundles Stage renderer 6.4.1 and Screenplay 6.37.0, which admit a model separately from the standalone tool. The profile catalog in this corpus needs a later CLI release |
+| Cratis CLI | 3.154.2 | `Cratis.Cli`: scaffolding, diagnostics and `cratis render`. It bundles Stage renderer 6.4.1 and Screenplay 6.37.0, which admit a model separately from the standalone tool. |
 | Templates | 1.9.2 | `Cratis.Templates`: the C# full-stack application template. `Cratis.Templates.Extensions`: the Stage extension scaffold |
 | Stage extensions | 5.30.0 | `Cratis.Stage.Extensions` with a Stage 5.30.0 host, C# backend on `net10.0`. The extension template requires Stage 5.x, not the 6.4.1 renderer the CLI bundles |
 | release-action | 1.5.2 | `cratis/release-action` batching, as described by `cratis-platform-prepare-release-pr` |
 
 The compiled examples in `Evaluations/corpus-v2/examples` pin the Arc, Chronicle, Fundamentals and Specifications rows and target .NET 10 or .NET 11. The CLI and the standalone Screenplay tool run on .NET SDK 11.0.100. Moving a row means rebuilding those examples and rereading the skills that teach the changed surface.
+
+## Managed installation
+
+Use the CLI release that filters Copilot instruction copies for profile-scoped Copilot installs. It installs copies only for selected rules. The Cratis CLI row above is the release checked for the product commands, not the installer requirement.
 
 ## Native SDKs
 

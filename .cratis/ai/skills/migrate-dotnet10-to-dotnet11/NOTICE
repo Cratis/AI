@@ -1,0 +1,30 @@
+.NET 10 to .NET 11 Migration
+Copyright (c) .NET Foundation and Contributors
+Licensed under the MIT License. See LICENSE.
+
+Upstream source: https://github.com/dotnet/skills/blob/c227688ed14de4467e3e45f95dc69a94e905e219/plugins/dotnet-upgrade/skills/migrate-dotnet10-to-dotnet11/SKILL.md
+The references/ files come from the same directory at the same revision.
+
+Changes made by Cratis:
+
+LICENSE:
+- Copy upstream MIT license and copyright verbatim.
+
+SKILL.md:
+- Rewrite the description to the Cratis routing shape.
+- Replace the claim to resolve all breaking changes with a checklist role: confirm each change against the linked Microsoft compatibility page and report contradictions.
+- Replace the ban on external documentation, the automatic commit per step, bin/obj deletion and the blanket upgrade of Microsoft packages to 11.x with the repository's approved SDK, package pins and CI gates.
+- Distinguish the SDK and compiler version from the runtime target and keep net10.0 in multi-targeted libraries; defer C# feature adoption to csharp.md.
+- Replace the preview-era SDK version example and Docker tag edits with approved-scope guidance.
+- Move the per-change lists into the references and add conditional read pointers for every reference.
+- Add the marked modification/source comment and Cratis precedence line.
+
+references/*.md:
+- Replace the preview-status note with a statement that the checklist is not the exhaustive release contract.
+- Remove Preview N markers from headings and the Preview 3 section title.
+- Remove GitHub pull request and issue links; keep Microsoft Learn links.
+- csharp-compiler-dotnet10to11.md: point feature adoption to csharp.md.
+- core-libraries-dotnet10to11.md: correct the BackgroundService entry (the host already stopped on failure; .NET 11 propagates the exception from RunAsync/StopAsync) and replace the catch-all fix with guidance on exit-code consumers.
+- Add a Contents list to core-libraries-dotnet10to11.md, csharp-compiler-dotnet10to11.md and efcore-dotnet10to11.md.
+
+Executes or downloads: none. The imported text contains Docker and SDK version examples that were rewritten as guidance; this import runs nothing.

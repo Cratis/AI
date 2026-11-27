@@ -4,9 +4,9 @@ Skills and rules for building applications on Cratis and for changing the Cratis
 
 | Path | Contents |
 | --- | --- |
-| `skills/` | One skill per task. The description says when to use it and names the nearest skill to use instead. |
+| `skills/` | One skill per task. Cratis-authored descriptions say when to use the skill and what falls outside its task. |
 | `rules/general.md` | The one-page core every session reads. |
-| `rules/framework.md`, `rules/specs.typescript.md` | Rules scoped to platform sources and platform TypeScript specs. |
+| Other `rules/` files | Scoped rules, including platform engineering, language and specialist conventions. |
 | `profile-catalog.json` | Which skills each profile selects. |
 | `manifest.json` | The harnesses, profiles and languages an installer offers. |
 | `mcp-servers.json` | MCP servers a profile can add; a profile's skills never require one. |
@@ -21,7 +21,7 @@ Skills and rules for building applications on Cratis and for changing the Cratis
 
 The worked application examples use .NET and React. Paths such as `Features/Books` are examples: follow the repository's layout and edit existing slices in place. Profiles select overlapping skills, not separate implementations per language.
 
-Every other profile ID is kept so existing selections keep resolving; each installs skills from the same set. See [migration](../../Documentation/corpus-migration.md).
+The v2 platform skills cover application tasks. Existing profile IDs still resolve, and profiles also select specialist skills for internal .NET engineering, CodeScene, documentation, content, review, language-specific work, CLI and Workbench, and orchestration. Managed installs filter scoped rules by profile and language; the CLI release that filters Copilot instruction copies installs copies only for selected rules. See [migration](../../Documentation/corpus-migration.md) for the profile inventory.
 
 ## Where to start
 

@@ -62,7 +62,9 @@
         "cratis-components-theme-application",
         "cratis-fundamentals-name-value",
         "cratis-modeling-design-event-model",
+        "cratis-modeling-review-event-model",
         "cratis-modeling-discover-timeline",
+        "cratis-modeling-trace-existing-behavior",
         "cratis-platform-configure-environment",
         "cratis-platform-deliver-slice",
         "cratis-platform-diagnose-slice",
@@ -82,7 +84,9 @@
         "cratis-specifications-exercise-backend",
         "cratis-specifications-isolate-behavior",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-application-growth",
+        "cratis-observability"
       ],
       "languages": [
         "csharp",
@@ -230,6 +234,7 @@
         "cratis-components-submit-form",
         "cratis-fundamentals-name-value",
         "cratis-modeling-design-event-model",
+        "cratis-modeling-review-event-model",
         "cratis-modeling-discover-timeline",
         "cratis-platform-configure-environment",
         "cratis-platform-deliver-slice",
@@ -249,7 +254,9 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-application-growth",
+        "cratis-observability"
       ],
       "languages": [
         "csharp"
@@ -321,7 +328,9 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-application-growth",
+        "cratis-observability"
       ],
       "languages": [
         "csharp"
@@ -375,6 +384,7 @@
         "cratis-components-submit-form",
         "cratis-fundamentals-name-value",
         "cratis-modeling-design-event-model",
+        "cratis-modeling-review-event-model",
         "cratis-modeling-discover-timeline",
         "cratis-platform-configure-environment",
         "cratis-platform-deliver-slice",
@@ -394,7 +404,9 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-application-growth",
+        "cratis-observability"
       ],
       "languages": [
         "csharp"
@@ -471,7 +483,9 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-application-growth",
+        "cratis-observability"
       ],
       "languages": [
         "csharp",
@@ -487,7 +501,9 @@
         "cratis/language/elixir",
         "cratis/screenplay"
       ],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-observability"
+      ],
       "languages": [
         "elixir"
       ]
@@ -500,7 +516,9 @@
         "cratis/language/java",
         "cratis/screenplay"
       ],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-observability"
+      ],
       "languages": [
         "java"
       ]
@@ -513,7 +531,9 @@
         "cratis/language/kotlin",
         "cratis/screenplay"
       ],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-observability"
+      ],
       "languages": [
         "kotlin"
       ]
@@ -586,7 +606,9 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-application-growth",
+        "cratis-observability"
       ],
       "languages": [
         "csharp",
@@ -602,7 +624,9 @@
         "cratis/screenplay",
         "cratis/specifications/typescript"
       ],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-observability"
+      ],
       "languages": [
         "typescript",
         "react"
@@ -682,7 +706,13 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-arc-validation-kotlin",
+        "cratis-arc-testing-kotlin",
+        "cratis-arc-identity-and-tenancy-kotlin",
+        "cratis-arc-spring-data-kotlin"
       ],
       "languages": [
         "java",
@@ -747,7 +777,9 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
       ],
       "languages": [
         "csharp",
@@ -1120,7 +1152,8 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-ux-review"
       ],
       "languages": [
         "react",
@@ -1185,7 +1218,14 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-arc-validation-typescript",
+        "cratis-arc-tenancy-typescript",
+        "cratis-arc-storage-typescript",
+        "cratis-arc-testing-typescript",
+        "cratis-arc-code-analysis-typescript"
       ],
       "languages": [
         "typescript"
@@ -1282,7 +1322,9 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
       ],
       "languages": [
         "csharp"
@@ -1346,7 +1388,9 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
       ],
       "languages": [
         "elixir"
@@ -1487,7 +1531,9 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
       ],
       "languages": [
         "java",
@@ -1552,7 +1598,9 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
       ],
       "languages": [
         "python"
@@ -1616,7 +1664,9 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
       ],
       "languages": [
         "typescript"
@@ -1731,6 +1781,7 @@
         "cratis-components-submit-form",
         "cratis-fundamentals-name-value",
         "cratis-modeling-design-event-model",
+        "cratis-modeling-review-event-model",
         "cratis-modeling-discover-timeline",
         "cratis-platform-deliver-slice",
         "cratis-platform-diagnose-slice",
@@ -1748,7 +1799,12 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-event-model-diagram",
+        "cratis-multi-service-local-orchestration",
+        "cratis-showrunner-herald"
       ],
       "languages": [
         "csharp",
@@ -1860,7 +1916,10 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-chronicle-mcp-inspection"
       ],
       "languages": [
         "language-agnostic"
@@ -2004,7 +2063,8 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-chronicle-web-workbench"
       ],
       "languages": [
         "language-agnostic"
@@ -2069,7 +2129,11 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-chronicle-cli-operations",
+        "cratis-environments-and-secrets"
       ],
       "languages": [
         "shell"
@@ -2080,7 +2144,9 @@
       "composes": [
         "cratis/cli"
       ],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-cli-terminal-workbench"
+      ],
       "languages": [
         "shell"
       ]
@@ -2088,7 +2154,14 @@
     {
       "id": "cratis/codescene",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "guiding-refactoring-with-code-health",
+        "prioritizing-technical-debt",
+        "risk-based-testing-with-code-health",
+        "safeguarding-ai-generated-code"
+      ],
       "languages": [
         "language-agnostic"
       ]
@@ -2096,7 +2169,10 @@
     {
       "id": "cratis/playwright",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
+      ],
       "languages": [
         "language-agnostic"
       ]
@@ -2114,7 +2190,11 @@
         "cratis-components-explore-data",
         "cratis-components-host-chat",
         "cratis-components-submit-form",
-        "cratis-components-theme-application"
+        "cratis-components-theme-application",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-components-accessibility",
+        "cratis-ux-review"
       ],
       "languages": [
         "react",
@@ -2124,7 +2204,17 @@
     {
       "id": "cratis/content",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-content-length",
+        "cratis-developer-marketing",
+        "cratis-discoverability",
+        "cratis-release-notes",
+        "cratis-social-feed-post",
+        "cratis-technical-examples",
+        "cratis-writing-voice-and-cadence"
+      ],
       "languages": [
         "markdown",
         "language-agnostic"
@@ -2135,7 +2225,16 @@
       "composes": [],
       "availableTargets": [
         "cratis-platform-contribute-change",
-        "cratis-platform-prepare-release-pr"
+        "cratis-platform-prepare-release-pr",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-discoverability",
+        "cratis-documentation-writing",
+        "cratis-engineering-docs-authoring",
+        "cratis-llm-friendly-documentation",
+        "cratis-release-notes",
+        "cratis-technical-examples",
+        "cratis-writing-voice-and-cadence"
       ],
       "languages": [
         "markdown",
@@ -2292,7 +2391,10 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-fundamentals-telemetry"
       ],
       "languages": [
         "csharp"
@@ -2303,7 +2405,9 @@
       "composes": [
         "cratis/language/go"
       ],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-fundamentals-concept-go"
+      ],
       "languages": [
         "go"
       ]
@@ -2313,7 +2417,9 @@
       "composes": [
         "cratis/fundamentals"
       ],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-fundamentals-type-discovery"
+      ],
       "languages": [
         "csharp"
       ]
@@ -2321,7 +2427,10 @@
     {
       "id": "cratis/language/csharp",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
+      ],
       "languages": [
         "csharp"
       ]
@@ -2329,7 +2438,10 @@
     {
       "id": "cratis/language/elixir",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
+      ],
       "languages": [
         "elixir"
       ]
@@ -2337,7 +2449,10 @@
     {
       "id": "cratis/language/go",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
+      ],
       "languages": [
         "go"
       ]
@@ -2345,7 +2460,10 @@
     {
       "id": "cratis/language/java",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
+      ],
       "languages": [
         "java"
       ]
@@ -2353,7 +2471,10 @@
     {
       "id": "cratis/language/kotlin",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
+      ],
       "languages": [
         "kotlin"
       ]
@@ -2361,7 +2482,10 @@
     {
       "id": "cratis/language/typescript",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
+      ],
       "languages": [
         "typescript"
       ]
@@ -2369,7 +2493,11 @@
     {
       "id": "cratis/lens",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-lens-browser-extension"
+      ],
       "languages": [
         "csharp",
         "typescript",
@@ -2380,7 +2508,10 @@
       "id": "cratis/methodology/governed-releases",
       "composes": [],
       "availableTargets": [
-        "cratis-platform-prepare-release-pr"
+        "cratis-platform-prepare-release-pr",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-governed-release-methodology"
       ],
       "languages": []
     },
@@ -2390,7 +2521,11 @@
         "cratis/screenplay",
         "cratis/stage"
       ],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-modeling-discover-timeline",
+        "cratis-modeling-design-event-model",
+        "cratis-modeling-trace-existing-behavior"
+      ],
       "languages": [
         "language-agnostic"
       ]
@@ -2399,7 +2534,12 @@
       "id": "cratis/review",
       "composes": [],
       "availableTargets": [
-        "cratis-platform-prepare-release-pr"
+        "cratis-platform-prepare-release-pr",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-code-review",
+        "cratis-performance-review",
+        "cratis-security-review"
       ],
       "languages": [
         "csharp",
@@ -2449,7 +2589,9 @@
         "cratis-components-submit-form",
         "cratis-fundamentals-name-value",
         "cratis-modeling-design-event-model",
+        "cratis-modeling-review-event-model",
         "cratis-modeling-discover-timeline",
+        "cratis-modeling-trace-existing-behavior",
         "cratis-platform-deliver-slice",
         "cratis-platform-diagnose-slice",
         "cratis-screenplay-accept-model",
@@ -2465,7 +2607,12 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-screenplay-authentication-and-onboarding",
+        "cratis-screenplay-availability",
+        "cratis-screenplay-streams-and-consistency"
       ],
       "languages": [
         "language-agnostic"
@@ -2474,7 +2621,10 @@
     {
       "id": "cratis/specifications",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk"
+      ],
       "languages": [
         "language-agnostic"
       ]
@@ -2486,7 +2636,11 @@
       ],
       "availableTargets": [
         "cratis-specifications-exercise-backend",
-        "cratis-specifications-isolate-behavior"
+        "cratis-specifications-isolate-behavior",
+        "coverage-analysis",
+        "filter-syntax",
+        "platform-detection",
+        "run-tests"
       ],
       "languages": [
         "csharp"
@@ -2564,7 +2718,10 @@
         "cratis-screenplay-specify-outcome",
         "cratis-specifications-exercise-backend",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-onboarding-runtime"
       ],
       "languages": [
         "language-agnostic"
@@ -2573,7 +2730,11 @@
     {
       "id": "cratis/studio",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-studio-mcp-safety-guidance"
+      ],
       "languages": [
         "language-agnostic"
       ]
@@ -2624,7 +2785,9 @@
         "cratis-components-theme-application",
         "cratis-fundamentals-name-value",
         "cratis-modeling-design-event-model",
+        "cratis-modeling-review-event-model",
         "cratis-modeling-discover-timeline",
+        "cratis-modeling-trace-existing-behavior",
         "cratis-platform-configure-environment",
         "cratis-platform-deliver-slice",
         "cratis-platform-diagnose-slice",
@@ -2741,7 +2904,27 @@
       "composes": [],
       "availableTargets": [
         "cratis-platform-contribute-change",
-        "cratis-platform-prepare-release-pr"
+        "cratis-platform-prepare-release-pr",
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "cratis-ci-pipeline-performance",
+        "cratis-documentation-writing",
+        "cratis-engineering-ci-gates",
+        "cratis-engineering-consolidation-guard",
+        "cratis-engineering-decision-record",
+        "cratis-engineering-docs-authoring",
+        "cratis-engineering-effect-boundaries",
+        "cratis-engineering-issue-hygiene",
+        "cratis-engineering-inherited-work",
+        "cratis-engineering-issue-design-note",
+        "cratis-engineering-local-cross-repo-verification",
+        "cratis-engineering-post-mortem",
+        "cratis-engineering-regression-cluster",
+        "cratis-engineering-release-trains",
+        "cratis-engineering-review-rounds",
+        "cratis-release-notes",
+        "cratis-session-handoff",
+        "cratis-technical-examples"
       ],
       "languages": [
         "language-agnostic"
@@ -2809,7 +2992,9 @@
         "cratis-specifications-exercise-backend",
         "cratis-specifications-isolate-behavior",
         "cratis-specifications-observe-ui",
-        "cratis-stage-render-slice"
+        "cratis-stage-render-slice",
+        "cratis-engineering-csharp-conventions",
+        "cratis-orleans-jobs"
       ],
       "languages": [
         "csharp"
@@ -2833,7 +3018,14 @@
     {
       "id": "cratis/engineering/dotnet/performance",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "microbenchmarking",
+        "analyzing-dotnet-performance",
+        "vectorization",
+        "profiling"
+      ],
       "languages": [
         "csharp"
       ]
@@ -2841,7 +3033,13 @@
     {
       "id": "cratis/engineering/dotnet/diagnostics",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "dotnet-trace-collect",
+        "dump-collect",
+        "pvanalyze"
+      ],
       "languages": [
         "csharp"
       ]
@@ -2849,7 +3047,18 @@
     {
       "id": "cratis/engineering/dotnet/msbuild",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "msbuild",
+        "directory-build-organization",
+        "eliminate-redundant-restores",
+        "check-bin-obj-clash",
+        "including-generated-files",
+        "target-authoring",
+        "extension-points",
+        "binlog-generation"
+      ],
       "languages": [
         "csharp"
       ]
@@ -2857,7 +3066,11 @@
     {
       "id": "cratis/engineering/dotnet/orleans",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "orleans"
+      ],
       "languages": [
         "csharp"
       ]
@@ -2865,7 +3078,15 @@
     {
       "id": "cratis/engineering/dotnet/testing",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "platform-detection",
+        "run-tests",
+        "filter-syntax",
+        "coverage-analysis",
+        "exp-mock-usage-analysis"
+      ],
       "languages": [
         "csharp"
       ]
@@ -2873,7 +3094,11 @@
     {
       "id": "cratis/engineering/dotnet/migrate-dotnet11",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "migrate-dotnet10-to-dotnet11"
+      ],
       "languages": [
         "csharp"
       ]
@@ -2881,7 +3106,12 @@
     {
       "id": "cratis/engineering/dotnet/refactoring",
       "composes": [],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-commits-and-pull-requests",
+        "cratis-rtk",
+        "csharp-refactoring",
+        "dotnet-aot-compat"
+      ],
       "languages": [
         "csharp"
       ]
@@ -2942,7 +3172,10 @@
       "composes": [
         "cratis/engineering/core"
       ],
-      "availableTargets": [],
+      "availableTargets": [
+        "cratis-orchestration-lanes",
+        "cratis-orchestration-merge-gates"
+      ],
       "languages": [
         "language-agnostic"
       ]

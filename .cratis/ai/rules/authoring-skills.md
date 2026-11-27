@@ -1,0 +1,75 @@
+---
+applyTo: ".cratis/ai/skills/**,.cratis/ai/rules/**"
+paths:
+  - ".cratis/ai/skills/**"
+  - ".cratis/ai/rules/**"
+profile: framework
+---
+
+# Authoring skills and rules
+
+A skill teaches one task. Add one when a reader cannot complete a task with the existing skills, not to document a product area. These rules apply to skills written for the Cratis corpus. A vendored third-party skill keeps its upstream text, license and notice; change it only to keep its links and packaging valid.
+
+## Name and description
+
+- The directory name equals `name`: 1–64 lowercase letters, digits and single hyphens, no leading or trailing hyphen, and neither `anthropic` nor `claude`. A new skill is named `cratis-<area>-<task>`.
+- Use only the portable frontmatter fields `name`, `description`, `license`, `compatibility`, `metadata` and `allowed-tools`. Vendor-specific values go under `metadata`, as strings.
+- The description starts with `Use when` or `Use before` and states the task and the situation in the reader's words, then names the nearest skill to use instead. It holds invocation conditions only: capabilities, outputs and how-to belong in the body. Write it in neutral voice, without `I`, `you` or `your`, because descriptions are loaded as instructions.
+
+For example: `Use when an existing Arc query needs server-side paging. Not for creating a read model (use cratis-chronicle-project-view).`
+
+## Body
+
+- **One default.** Give one recommended path and at most three choices in total, each with "choose this when". An exclusion points to exactly one other skill.
+- **Steps a newcomer can follow.** Start from stated prerequisites. Give one small correct example per pattern, the output the reader should observe and what to do when it is absent. Separate example names from conventions, and read-only inspection from writes.
+- **Observable done-conditions.** Every step ends in something checkable: a file exists, a command passes, a named check returns a value. A step without one invites stopping when the result merely looks plausible.
+- **A reason beside every absolute.** The reason lets the reader recognize where the rule stops applying; volume and capitals add nothing.
+- **Prune by behavior.** For each sentence ask whether deleting it would change what the reader does. If not, remove the whole sentence. Never shorten by cutting a step, a condition or an example that changes behavior.
+- **Write for the class of task**, not the run the skill came from: strip that run's repository, file names and one-off details.
+- **American English** in authored text.
+
+## Checked, timeless claims
+
+Check every API, flag, shape, package, default and version constraint against a released version before writing it. Keep the evidence in review notes, not in the skill: no source paths, line citations, commit hashes, issue or pull-request numbers, probe results or dates.
+
+A version is kept only when it marks a prerequisite. Before deleting one, decide what it marks, because deleting it blindly turns a true statement into a false one:
+
+- **History** (when something was verified or shipped): remove it.
+- **The release that introduced a behavior**: state it at the step that needs it, naming the release from the product's tags.
+- **A behavior that changed in a release**: state the release and what older releases do.
+
+## Size, references and links
+
+- Aim for under 750 words in `SKILL.md`. Verification fails a body above 500 lines or 20,000 characters.
+- Put conditional detail in `references/`, one level deep, and name every reference file from `SKILL.md` with the condition for reading it. A reference above 100 lines opens with a `## Contents` list.
+- Link to another skill at the actual handoff with a relative path, `../cratis-<name>/SKILL.md`. Every profile that installs the linking skill must also install the target, or the link leaves the selection.
+- A skill never links or refers to a path that exists only in the corpus repository, such as its documentation, evaluations or verification sources. Installed skills are read without them.
+- Refer to a rule by name, in backticks, with the profile that installs it. Do not link to a rule from a skill: the rule may not be installed where the skill is.
+
+## One source of truth
+
+A skill owns its task. Another skill or rule that touches the task hands off to it instead of repeating the steps, because copies diverge on the next edit. Resolve a contradiction at its source.
+
+## MCP tools and scripts
+
+Name the server once, then its protocol tool: the `screenplay` MCP server's `propose-ast` tool. The harness-native tool name comes from the connected client's tool listing; a fixed prefix can address the wrong server.
+
+Put a repeatable mechanical operation in `scripts/` when a script removes repeated reasoning. Say to execute it, with its prerequisites, inputs, errors and pass signal. The script preserves the wrapped command's exit status: apparent success after a check that did not run is not verification.
+
+## Rules
+
+`general.md` stays within one page and holds only what every session needs. Add a rule only for a constraint that applies regardless of task; anything task-shaped belongs in a skill. Every other rule declares `applyTo` and `paths` globs narrow enough that it loads only where it applies, and a `profile` when only some repositories need it.
+
+Prose does not enforce itself. A constraint that an analyzer, a lint, a hook or CI can check ships as that check, with at most a one-line pointer in a rule.
+
+## Change together, then verify
+
+Change the skill, its `references/` and its entry in `profile-catalog.json` in one change. Regenerate the harness adapters after changing a rule; never edit a generated adapter. Then run:
+
+```bash
+yarn workspace @cratis/harness-setup run setup
+yarn workspace @cratis/ai-verification run verify
+git diff --check
+```
+
+A pass is exit code 0 from each. Finally, read the skill as someone who has never seen the artifact; if a step is missing, add it.

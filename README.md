@@ -34,18 +34,21 @@ Evaluations/         Compiled examples that keep skill examples honest
 .claude/ .github/ .agents/ .pi/ .cursor/ .opencode/   Harness adapters that link to .cratis/ai
 ```
 
-There is one corpus: `.cratis/ai`. Harness folders link to it and carry no copies.
+There is one canonical corpus: `.cratis/ai`. Harness folders link to it,
+including to the generated Copilot instruction copies.
 `AGENTS.md`, `CLAUDE.md` and `.github/copilot-instructions.md` link to
 [`.cratis/ai/rules/general.md`](.cratis/ai/rules/general.md), the one page every session reads.
 
 ## Managed installation
 
-Choose the profile that matches the repository:
+Start with the profile that matches the repository:
 
 | Profile | For |
 | --- | --- |
-| `cratis/application` | Build an application on Cratis: model a business flow, implement its backend and UI slices, run and diagnose them. |
-| `cratis/engineering` | Change a Cratis platform repository: follow its library contracts, verify the change and prepare the PR and release note. |
+| `cratis/application` | Build an application on Cratis with the v2 platform skills: model a business flow, implement its backend and UI slices, run and diagnose them. |
+| `cratis/engineering` | Change a Cratis platform repository with the platform skills and internal engineering guidance, including .NET build and diagnostic skills for C#. |
+
+Specialist profiles add skills and scoped rules for documentation, content, review, CodeScene, languages, CLI and Workbench, and orchestration. Managed installs include this material only when its profile and language conditions are met.
 
 ```bash
 cratis ai install \
@@ -58,12 +61,12 @@ The CLI reads `.cratis/ai/manifest.json`, resolves the profile's skills through
 `.cratis/ai/profile-catalog.json`, installs them in `.cratis/ai` and creates the
 adapters each harness reads. It records hashes in `.cratis/ai.manifest.json`,
 refuses to overwrite files it does not own, and stops an update or uninstall when
-managed content was edited unless `--force` is used.
+managed content was edited unless `--force` is used. For Copilot, use the CLI release that filters Copilot instruction copies: only copies for selected rules are installed.
 
 [Installing and using the corpus](./Documentation/corpus-installation.md) covers
 status, update, uninstall and what a session sees.
-[Migration](./Documentation/corpus-migration.md) lists what the earlier corpus had
-that this one does not, and what each earlier profile ID installs now.
+[Migration](./Documentation/corpus-migration.md) lists what changed and what
+each profile installs now.
 
 ## Native plugins
 
