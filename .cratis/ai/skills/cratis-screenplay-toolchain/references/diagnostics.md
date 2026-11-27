@@ -610,7 +610,7 @@ or V4 execution. Run the CLI or MCP for those verdicts.
 | PLAY0816 | a specification states `then invokes <Command>`, but no reaction declared in its own slice invokes that command; a specification runs its own slice only, so the invocation can never be made |
 | PLAY0286 | spec value is not a member of the enum |
 | PLAY0287 | producer/capture/spec assigns a field the event lacks |
-| PLAY0291 | Malformed structured value; check the indented block's syntax and indentation |
+| PLAY0291 | Malformed structured value; check the inline object or list, or the indented block's syntax and indentation |
 | PLAY0292 | Unknown member; use a member declared by the target type |
 | PLAY0293 | Incompatible shape; match the structured value to the declared target type |
 | PLAY0294 | Duplicate member; declare each member only once in the object |

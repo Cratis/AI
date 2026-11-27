@@ -17,6 +17,7 @@ test('the toolchain reference distinguishes the structured-value diagnostics', (
     const rows = readFileSync(reference, 'utf8').split('\n');
     for (const [code, meaning] of diagnoses) {
         const row = rows.find(line => line.startsWith(`| ${code} |`));
-        assert.ok(row?.toLowerCase().includes(meaning), `${code} should describe ${meaning}`);
+        assert.ok(row, `the toolchain diagnostics reference has no row for ${code}`);
+        assert.ok(row.toLowerCase().includes(meaning), `${code} should describe ${meaning}`);
     }
 });
