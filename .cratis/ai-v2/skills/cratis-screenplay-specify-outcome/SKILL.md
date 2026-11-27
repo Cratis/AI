@@ -38,7 +38,7 @@ Start with a concrete case. In `model/Authors/registration.play`, use the same f
 
 ## Arrange a stateful or authorized command
 
-Seed decision history with `given <EventOrEventExample>` and `for` the owning source. Choose `given readmodel <ReadModelOrTypedExample>` to seed a view instead of replaying history. Supply its key and required fields. For an authorized command, supply `given caller` as shown or choose `given caller as <Persona>` when a declared persona supplies the caller. If any command declares `reads`, declare `command reads protected` once in the application root document; without it the model does not bind and its specifications cannot run.
+Seed decision history with `given <EventOrEventExample>` and `for` the owning source. Choose `given readmodel <ReadModelOrTypedExample>` to seed a view instead of replaying history. Supply its key and required fields. For an authorized command, default to `given caller` with nested `authenticated` and the required roles or claims, as shown. Use `given caller as <Persona>` only when a top-level persona declaration already satisfies the command's policy; an undeclared persona fails. If any command declares `reads`, declare `command reads protected` once in the application root document; without it the model does not bind and its specifications cannot run.
 
 ```play
 command reads protected
