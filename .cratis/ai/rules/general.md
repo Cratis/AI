@@ -10,11 +10,12 @@
 - Start from the behavior the caller should see, and implement the smallest contract that delivers it.
 - Choose a skill by the task at hand. Check its nearest exclusion, and load a linked skill only when the work reaches that boundary.
 - Follow the repository's conventions and installed package versions over any example.
+- Fix incorrect behavior within the requested change; report unrelated defects separately.
 - Treat generated output as output: change the owning contract and regenerate.
 
 ## Approval is not execution
 
-An accepted model, plan or review approves a description. Permission to render, apply, deploy or change a running system is separate; ask for it explicitly. Do not add a Screenplay model only to implement a code-first slice.
+An accepted model, plan or review approves a description. Permission to render, apply, deploy or change a running system is separate; ask for it explicitly. Use Screenplay when the repository already has `.play` files under `model/` or the user asks for Screenplay or Stage. Otherwise work code-first from the event model's accepted examples; no Screenplay handoff is needed.
 
 ## Protect tenants, data and secrets
 

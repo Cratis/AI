@@ -17,7 +17,7 @@ Put `StateChange` and `StateView` slices under the intended `module` and `featur
 
 1. Declare `concept AuthorId : Uuid`. Mark the command's `id` with `identifier`.
 2. Map each command input needed by the event. Use `for` to address the event to its owner.
-3. Give the read model a key. Default to the event source for a view of one history. Choose an explicit business key on each relevant `from` handler, using `from <Event> key <property>`, when the view uses a different key. Choose one projection or reducer per read model and map the payload to the displayed fields.
+3. Give the read model a key. Default to the event source for a view of one history. Choose an explicit business key on each relevant `from` handler, using `from <Event> key <property>`, when the view uses a different key. Use a projection by default to map facts to displayed fields. Choose a reducer instead when the view needs a calculation the projection cannot declare.
 4. Bind the list query to the collection. Run an example for a known ID and check the returned row.
 
 ## Example: register an author and list the name
@@ -38,9 +38,15 @@ module Library
       event AuthorRegistered
         name String
 
-    slice StateView ListAuthors
+    slice StateChange RemoveAuthor
+      command RemoveAuthor
+        id AuthorId identifier
+        produces AuthorRemoved
+          for id
+
       event AuthorRemoved
 
+    slice StateView ListAuthors
       readmodel Author
         id AuthorId key
         name String
@@ -64,7 +70,7 @@ module Library
             name = "Aster"
 ```
 
-From the Library directory run `screenplay model` to compile the folder. Expect `PLAY0533` until the [Add author screen](../cratis-screenplay-model-interaction/SKILL.md) issues the command. Add the [registration and refusal examples](../cratis-screenplay-specify-outcome/SKILL.md), then run `screenplay test model --format json`.
+From the Library directory run `screenplay model` to compile the folder. Expect `PLAY0533` for a command with no invocation yet; the [Add author screen](../cratis-screenplay-model-interaction/SKILL.md) supplies the registration action. Add the [registration and refusal examples](../cratis-screenplay-specify-outcome/SKILL.md), then run `screenplay test model --format json`.
 
 ## When it goes off the usual path
 

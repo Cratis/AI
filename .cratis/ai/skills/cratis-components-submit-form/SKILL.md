@@ -11,17 +11,19 @@ Default to one `CommandDialog` for a short submission. Bind the state change's i
 1. Under the app's `Arc` and `CratisComponentsProvider`, create `Features/Authors/Registration/AddAuthor.tsx`. Import the generated command from the private `generated/Features/Authors/Registration` folder. For the generated `id: Guid`, call `Guid.create()`. Use `initialValues` for the ID the reader doesn't type. Bind the Name field directly to the command property.
 
 ```tsx
+import { useState } from 'react';
 import { CommandDialog } from '@cratis/components/CommandDialog';
 import { InputTextField } from '@cratis/components/CommandForm';
 import { Guid } from '@cratis/fundamentals';
 import { RegisterAuthor } from '../../../generated/Features/Authors/Registration/RegisterAuthor';
 
-export const AddAuthor = () => (
-    <CommandDialog<RegisterAuthor> command={RegisterAuthor} title="Add author"
-        okLabel="Add" initialValues={{ id: Guid.create() }}>
+export function AddAuthor() {
+    const [initialValues] = useState(() => ({ id: Guid.create() }));
+    return <CommandDialog<RegisterAuthor> command={RegisterAuthor} title="Add author"
+        okLabel="Add" initialValues={initialValues}>
         <InputTextField<RegisterAuthor> value={author => author.name} title="Name" />
-    </CommandDialog>
-);
+    </CommandDialog>;
+}
 ```
 
 2. Open that dialog from the Authors screen (`Features/Authors/Registration/AddAuthorButton.tsx`). Render the component returned by `useDialog` once, beside the button. `useDialog` supplies this custom dialog's context. To also offer the shared confirmation and busy dialogs, [register DialogComponents](../cratis-components-coordinate-feedback/SKILL.md) in `App.tsx`.
@@ -46,6 +48,8 @@ export function AddAuthorButton() {
 
 Choose `StepperCommandDialog` when one command genuinely needs several stages. Import `{ StepperCommandDialog, StepperPanel }` from `@cratis/components/CommandDialog`. Replace both `CommandDialog` tags with `StepperCommandDialog`, and wrap each field group with `<StepperPanel header="Author details">…</StepperPanel>` using a distinct header per step. Next and Previous move between panels without executing; the final Submit runs the command only after validation across all steps. Verify that returning to fix a required field on an earlier step preserves the other inputs and enables one final submission.
 
+For editing, pass the selected ID and name to `show({ id, name })`. In the edit dialog, capture that opening's snapshot with `const [initialValues] = useState(() => ({ id, name }));`. Pass it to `CommandDialog` as above. `useDialog` unmounts the dialog on close, so the next opening starts with its own values.
+
 Read the generated command type before choosing field accessors; use its property names, not the labels shown in the dialog. Put required values already known to the caller in `initialValues`, not `onBeforeExecute` (validation runs first). For a `Date` property, choose `CalendarField` from `@cratis/components/CommandForm`; set `showTime` when the time is required. Put caller-owned post-save effects in `onSuccess`, not in a click or close handler.
 
 ## Avoid
@@ -56,7 +60,9 @@ Read the generated command type before choosing field accessors; use its propert
 ## When it goes off the usual path
 
 - **Enter could activate confirmation on open:** import `{ DialogInitialFocus }` from `@cratis/components/Dialogs` and pass `initialFocus={DialogInitialFocus.Content}` to focus the title, then test that Enter there does not submit and Tab reaches the editable field.
-- **The command is refused:** keep the dialog open. A field violation needs a correction; denied authorization needs a caller with permission, not a different field value. If the change affects validation or focus, use `cratis-specifications-observe-ui` to check the registration journey.
+- **The command is refused:** keep the dialog open. A field violation needs a correction; denied authorization needs a caller with permission, not a different field value.
+
+For a one-off check in the existing edit story, type a new name, rerender the parent without closing the dialog, then submit. The command should carry the typed name and the original ID. If the TypeScript Specifications profile is installed, use `cratis-specifications-observe-ui`.
 
 ## Related skills
 

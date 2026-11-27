@@ -6,6 +6,8 @@ compatibility: Requires Node.js, the .NET SDK and a TypeScript frontend with @cr
 
 # Generate the author contracts
 
+For an event-sourced command and a live page, [deliver the whole slice](../cratis-platform-deliver-slice/SKILL.md): generate after the event has a projection and the view has a query. A command proxy alone cannot update the list.
+
 Build the project containing [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) and [AllAuthors](../cratis-arc-expose-query/SKILL.md). `Cratis` includes `Cratis.Arc.ProxyGenerator.Build`; with `Cratis.Arc` alone reference the build package directly.
 
 Add these properties to `Library.csproj`:

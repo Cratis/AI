@@ -27,7 +27,7 @@ export function DrawingTools({ mode, draw, annotate }: {
 }
 ```
 
-Check keyboard navigation with `cratis-specifications-observe-ui`: Tab enters the toolbar, arrow keys reach the active tools, and hidden tools cannot run. If a mode change hides the focused tool, have the host call `modeButtonRef.current?.focus()` on its visible mode switcher after the change.
+For a one-off check in the existing story, Tab into the toolbar and use the arrow keys. Active tools should be reachable; hidden tools should not run. If the TypeScript Specifications profile is installed, use `cratis-specifications-observe-ui`. If a mode change hides the focused tool, have the host call `modeButtonRef.current?.focus()` on its visible mode switcher after the change.
 
 ## When it goes off the usual path
 

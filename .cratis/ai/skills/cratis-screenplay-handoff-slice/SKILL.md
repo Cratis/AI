@@ -6,7 +6,7 @@ compatibility: Requires the Screenplay CLI.
 
 # Hand off Library author registration
 
-1. Start in the application directory containing `model/Authors/registration.play`. Run the [acceptance checks](../cratis-screenplay-accept-model/SKILL.md) and identify the target Library application before exporting.
+1. Start in the application directory containing `model/Authors/registration.play`. Confirm [acceptance](../cratis-screenplay-accept-model/SKILL.md) covers this exact revision and identify the target Library application before exporting.
 2. Export the full model and the registration-only excerpt, then copy the top-level `revision` field from each JSON file. Label the values **full model** (`library.json`) and **registration excerpt** (`registration.json`). If a file is unavailable, give its export command and field to read instead of guessing the value:
 
    ```sh
@@ -16,7 +16,7 @@ compatibility: Requires the Screenplay CLI.
 
 3. For a slice-only handoff, give the reader `registration.json`, the accepted full-model revision, the excerpt revision and the accepted example addresses and outcomes. Check the excerpt for the definitions it references. An export keeps application-level declarations but does not bring in other slices; supply any needed definitions from separate scoped exports. Name cross-slice checks such as `Library.Authors.ListAuthors` separately from the registration contract. A renderer that takes `.play` source needs the accepted model folder and identity state, plus `screenplay.lock` and its restored contracts when extensions are used. An excerpt alone is not that input.
 4. Add a UI export (`screenplay export model --format ui --output screens.json`) for a screen consumer. Add the HTTP contract below for a client integrating over HTTP.
-5. On the target, register Aster for the agreed author ID and verify that the already-open list gains the matching row. An empty name must produce `Name is required` and no new row. Record which accepted specification each executed target check covers.
+5. List the target checks for the implementer: Aster appears in the open list under the agreed ID; a blank name produces `Name is required` and no new row. Map each check to its accepted example. Leave execution pending.
 
 ## Hand off to an HTTP client
 
@@ -33,7 +33,7 @@ Treat those IDs as model metadata. Arc's generated OpenAPI uses the host's endpo
 | Read one `AllAuthors` snapshot | `GET <query-route>?waitForFirstResult=true` without a stream header or upgrade | One JSON query result, not a subscription. Without `waitForFirstResult=true`, an observable query can answer 202 with `isReady: false` and no data. |
 | Follow `AllAuthors` live | `GET <query-route>` with `Accept: text/event-stream` | Keep the connection open for later results; the first streamed result alone does not verify live delivery. |
 
-The model's `x-screenplay-observable` marks a live query; the plain `GET` and stream negotiation above describe Arc's runtime behavior. Verify with valid input: run validation first and confirm no new row, then execute and confirm the fresh snapshot and the already-open stream both contain the agreed author ID.
+The model's `x-screenplay-observable` marks a live query; the plain `GET` and stream negotiation above describe Arc's runtime behavior. For HTTP delivery, include this one-off target check: validating valid input adds no row; executing it puts the agreed ID in both the fresh snapshot and the open stream.
 
 ## When it goes off the usual path
 

@@ -4,48 +4,42 @@ description: Use when a maintainer needs to fold a Chronicle event and prior sta
 compatibility: .NET SDK and Chronicle reducers.
 ---
 
-# Calculate how many copies of a book are on loan
+# Calculate the average completed loan duration for a book
 
-Start with a projection for field mappings and plain counters, even when a counter accumulates prior state. Choose a static model reducer when the next value depends on a rule the projection cannot express: here, loans are capped at the number of copies and a loan cannot create a missing book.
+Start with a projection for field mappings and plain counters. Choose a static model reducer for a calculation that needs prior state and cannot be expressed with projection mappings. This example calculates the mean duration across completed loans. It describes recorded facts; it doesn't decide whether to accept another loan.
 
-The reducer maintains a view of recorded facts; deciding whether to accept the borrow belongs in the command. Keep `Reduce` on the model. A separate `IReducerFor<BookAvailability>` is an extreme exception for an unavoidable injected dependency whose result is repeatable on replay, not the usual shape for a fold. Record changing external input as a fact instead.
-
-1. Reference `Cratis.Chronicle` and put `BookAvailability` in the book availability feature folder of the backend assembly. Import `CopyAdded` and `BookBorrowed` from [Protect a command decision](../cratis-chronicle-protect-decision/SKILL.md). Chronicle's default discovery recognizes public static reducer methods on the model; do not register a separate reducer service.
-2. Put a public static `Reduce` method on the record for each event. Take the typed event first, then the nullable previous model. The first `CopyAdded` starts the model with one copy and no loans. Each subsequent `CopyAdded` adds one copy without changing the loan count.
-3. For `BookBorrowed`, return a new instance with one more copy on loan, up to the number of copies. Return `null` if the book hasn't been added: borrowing alone cannot create availability.
+In the book's loan reporting feature, record the completed loan's duration on the return event and append it to the book's event source. Keep the fold on the read model:
 
 ```csharp
-// Features/Books/Availability/BookAvailability.cs
-using Library.Features.Books.Borrowing;
-using Library.Features.Books.Stock;
+using Cratis.Chronicle.Events;
 
-namespace Library.Features.Books.Availability;
+namespace Library.Features.Books.Reporting;
 
-public record BookAvailability(int Copies, int OnLoan)
+[EventType] public record BookReturned(int DaysOnLoan);
+
+public record LoanDuration(int CompletedLoans, long TotalDays, decimal AverageDays)
 {
-    public static BookAvailability Reduce(CopyAdded @event, BookAvailability? current) =>
-        current is null ? new(1, 0) : current with { Copies = current.Copies + 1 };
-
-    public static BookAvailability? Reduce(BookBorrowed @event, BookAvailability? current) =>
-        current is null ? null : current with { OnLoan = Math.Min(current.Copies, current.OnLoan + 1) };
+    public static LoanDuration Reduce(BookReturned returned, LoanDuration? current)
+    {
+        var count = (current?.CompletedLoans ?? 0) + 1;
+        var total = (current?.TotalDays ?? 0L) + returned.DaysOnLoan;
+        return new(count, total, (decimal)total / count);
+    }
 }
 ```
 
-## Check each loan count
+Default discovery recognizes the public static `Reduce` method on the model. No separate reducer registration or `Id` property is needed. Read `await eventStore.ReadModels.GetInstanceById<LoanDuration>(isbn.Value)` for that book, where `isbn.Value` is its string event source ID. To make this result available to a screen, [expose a query](../cratis-arc-expose-query/SKILL.md).
 
-Call `BookAvailability.Reduce` directly in a test. `BookAvailability.Reduce(new BookBorrowed(), null)` is null. Add two copies with two `new CopyAdded()` events, then borrow three times, passing each result as `current`: `OnLoan` is 1, 2, 2. The instance returned after the second `CopyAdded` still has `OnLoan` 0.
+## Check the calculation
+
+For an uncovered calculation, commit one direct spec: start with no model, fold returns of two and five days for one book, and expect an average of `3.5m`. This catches integer division as well as a fold that discards the previous loan. Don't repeat it in a hosted spec.
 
 ## Avoid
 
-- Don't mutate the previous instance. Return a new record with `with`.
-- Don't try to change the key in the return value. Chronicle uses the event source ID of the event.
-
-## When it goes off the usual path
-
-- **The result depends on when the test runs:** call the loan-count test twice with the same facts from `current = null` and compare the final records. Keep durable state in the returned record, not in static fields.
-- **The calculation needs outside data:** record the needed input as a fact first. Don't call a service from `Reduce`; replay must use the recorded inputs, not today's answers.
+- Don't mutate previous state or calculate duration from today's date. Replay must use the recorded inputs.
+- Keep `Reduce` on the model. A separate `IReducerFor<LoanDuration>` is an extreme exception for an unavoidable injected dependency whose answer is repeatable on replay. Record changing external input as a fact instead.
 
 ## Related skills
 
 - [Map events onto a read model](../cratis-chronicle-project-view/SKILL.md)
-- [Test a backend feature](../cratis-specifications-exercise-backend/SKILL.md)
+- [Test a decision directly](../cratis-specifications-isolate-behavior/SKILL.md)

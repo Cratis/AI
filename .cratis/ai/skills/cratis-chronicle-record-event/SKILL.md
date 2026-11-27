@@ -6,23 +6,30 @@ compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 
 # Append an author registration
 
-1. Import `AuthorId` and `AuthorName` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Reference `Cratis.Chronicle` in the backend. Put the registration event and its writer in `Features/Authors/Registration/`.
-2. Mark the event `[EventType]`. The event-type ID is a plain string naming the schema, not the author. It defaults to the type name; if you rename the type later, retain its old ID with `[EventType("AuthorRegistered")]`.
-3. Inside Arc, [return the fact from the handler](../cratis-arc-declare-command/SKILL.md). Choose a guarded `IEventLog` append when the writer is standalone. Use the caller's `AuthorId` as the event source ID and return the append result.
+Declare the fact in the registration feature. This is all the event declaration needs:
 
 ```csharp
-// Features/Authors/Registration/AuthorRegistered.cs and AuthorRegistry.cs (same namespace)
 using Cratis.Chronicle.Events;
-using Cratis.Chronicle.EventSequences;
-using Cratis.Chronicle.EventSequences.Concurrency;
-using Cratis.Chronicle.Events.Constraints;
-using Library.Features.Authors;
 
 namespace Library.Features.Authors.Registration;
 
-[EventType]
-public record AuthorRegistered(
-    [property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] string Name);
+[EventType] public record AuthorRegistered(string Name);
+```
+
+1. For a writer, import `AuthorId` and `AuthorName` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Reference `Cratis.Chronicle` in the backend. Keep the registration code in `Features/Authors/Registration/`.
+2. Mark the event `[EventType]`. The event-type ID is a plain string naming the schema, not the author. It defaults to the type name; if you rename the type later, retain its old ID with `[EventType("AuthorRegistered")]`.
+3. Inside Arc, [return the fact from the handler](../cratis-arc-declare-command/SKILL.md). Choose a guarded `IEventLog` append when the writer is standalone. Use the caller's `AuthorId` as the event source ID and return the append result.
+
+**Standalone writer only:**
+
+```csharp
+// Features/Authors/Registration/AuthorRegistry.cs
+using Cratis.Chronicle.Events;
+using Cratis.Chronicle.EventSequences;
+using Cratis.Chronicle.EventSequences.Concurrency;
+using Library.Features.Authors;
+
+namespace Library.Features.Authors.Registration;
 
 public class AuthorRegistry(IEventLog eventLog)
 {
@@ -37,9 +44,11 @@ public class AuthorRegistry(IEventLog eventLog)
 }
 ```
 
-The standalone writer is create-only: a freshly generated ID is not proof this history is unused. Its append condition checks for any prior event at that ID; `UniqueAuthorName` reserves the name across histories. After one accepted append, try a different unused name for the same ID and require a concurrency violation and no second event.
+The standalone writer is create-only: a freshly generated ID is not proof this history is unused. Its append condition checks for any prior event at that ID. If names must also be unique across authors, [add that constraint separately](../cratis-chronicle-constrain-append/SKILL.md).
 
 ## Read back the accepted registration
+
+One-off wiring check in a disposable namespace, not a committed spec of append or readback. For an uncovered command outcome, use the [backend scenario](../cratis-specifications-exercise-backend/SKILL.md).
 
 In a caller with the library's `IEventLog`, take the result from `var result = await new AuthorRegistry(eventLog).Register(authorId, new AuthorName("Aster"));`. Check `result.IsSuccess` before reporting success. On refusal inspect `result.ConstraintViolations`, `result.ConcurrencyViolation` and `result.Errors`. For an accepted registration, read only that author's registrations and match the returned position:
 

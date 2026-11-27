@@ -6,7 +6,7 @@ compatibility: Requires the Screenplay CLI.
 
 # Bind the Add author form and authors list
 
-Use the command and observable query from [declaring the Authors slice](../cratis-screenplay-declare-slice/SKILL.md). In `model/Authors/screens.play`, declare the form directly under the module, and declare each screen inside its feature slice.
+Use the command and observable query from [declaring the Authors slice](../cratis-screenplay-declare-slice/SKILL.md). In the existing `model/Authors/registration.play`, insert the form directly under `module Library`. Insert each `screen` block inside the existing slice that owns its command or query, alongside those declarations. The headers below show placement; do not redeclare the slices in another file.
 
 1. Bind the form to `RegisterAuthor` and label the editable name. Do not add an `id` field. The [AddAuthor dialog](../cratis-components-submit-form/SKILL.md) initializes the generated command with a fresh ID.
 2. Make Add a screen action: it does not require a selected row. Navigate to Authors only after successful submission.
@@ -17,12 +17,12 @@ module Library
   form AddAuthorForm for RegisterAuthor
     field name label "Name"
   feature Authors
-    slice StateChange AddAuthorInput
+    slice StateChange RegisterAuthor
       screen AddAuthor
         action RegisterAuthor for screen
           label "Add"
           navigate to Authors
-    slice StateView BrowseAuthors
+    slice StateView ListAuthors
       screen Authors
         data Author[] via query AllAuthors
         title "Authors"
@@ -31,7 +31,7 @@ module Library
             label "Add author"
 ```
 
-From the directory containing `model`, run `screenplay export model --format ui --output screens.json`. In `screens.json`, verify the Authors screen title, the toolbar item's `AddAuthor` destination, the Add action's `RegisterAuthor` command and `Authors` destination, and the live `AllAuthors` data binding. Check the form separately in `screens.play`: `form AddAuthorForm for RegisterAuthor` binds the editable name; a screen export alone need not contain the form declaration.
+From the directory containing `model`, run `screenplay export model --format ui --output screens.json`. In `screens.json`, verify the Authors screen title, the toolbar item's `AddAuthor` destination, the Add action's `RegisterAuthor` command and `Authors` destination, and the live `AllAuthors` data binding. Check the form separately in `registration.play`: `form AddAuthorForm for RegisterAuthor` binds the editable name; a screen export alone need not contain the form declaration.
 
 For an inspection gesture, bind the screen's collection with `data Author[] via query AllAuthors`. Put the interaction on the table displaying that collection, not at screen level. With an existing `AuthorDetails` screen whose input is `authorId`, pass the activated row's key explicitly:
 
@@ -49,7 +49,7 @@ Keep Add as `action RegisterAuthor for screen`: it needs no selected row. The in
 
 ## Gate an interaction
 
-If Add author is a preview feature, declare this audience at the model root. Add the gate under `screen AddAuthor` and `command RegisterAuthor`. The top-level form remains ungated: `screenplay model` can report `PLAY1139`. Render that form only from the gated screen and handle a not-available result from the command.
+If Add author is a preview feature, declare this audience at the model root. Add the gate under `screen AddAuthor` and `command RegisterAuthor`. The top-level form remains ungated: `screenplay model` can report warning `PLAY1139`. Accept this warning only if the form is reachable solely from the gated screen and the caller handles a not-available command result.
 
 ```play
 audience AuthorRegistrationPreview

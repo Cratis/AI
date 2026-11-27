@@ -37,6 +37,8 @@ Choose the combined host when the app already uses Arc and Chronicle through `Cr
 
 ## Check the connection
 
+One-off wiring check, not a committed spec of namespace isolation. For a change to an application's tenant boundary, use its [existing backend fixture](../cratis-specifications-exercise-backend/SKILL.md).
+
 In a disposable namespace, resolve the scoped `IEventStore` and use [the registration event and source ID](../cratis-chronicle-record-event/SKILL.md): `var result = await eventStore.EventLog.Append(authorId, new AuthorRegistered("Aster"));` with a fresh `AuthorId`. Check `result.IsSuccess`, then read `await eventStore.EventLog.GetFromSequenceNumber(EventSequenceNumber.First, authorId)` (`using Cratis.Chronicle.Events;`). With the same store name but a different namespace, the read must not return the registration. When logging a `Cratis.Chronicle.Connections.ChronicleConnectionString` use `connectionString.Redacted` rather than the raw value.
 
 ## Avoid

@@ -1,6 +1,6 @@
 ---
 name: cratis-arc-diagnose-live-query
-description: Use when a developer needs to find why a live query connects but the open view stops updating after a command. Not for implementing the query (use cratis-arc-expose-query).
+description: Use when the stored row is confirmed correct but the open view does not receive the live query update. Not for a stale screen with an unknown failing boundary (use cratis-platform-diagnose-slice).
 compatibility: Requires curl, Node.js and a running Library host.
 ---
 

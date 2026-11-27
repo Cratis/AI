@@ -55,7 +55,11 @@ public static class ListingExchange
 }
 ```
 
-`AuthorId` comes from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Check `result.IsSuccess` for the returned publication result. In the directory's integration test, resolve `consumer` from a fresh service scope as above. Select `var inbox = consumer.GetEventSequence($"{EventSequenceId.InboxPrefix}library");` and read `await inbox.GetFromSequenceNumber(EventSequenceNumber.First, id)`. Forwarding and consumption have separate checkpoints; subscribing does not by itself route an explicit consumer observer to the inbox. Route it to the intended per-source sequence. Delivery is asynchronous: repeat that read until it returns the listing, failing the test after 30 seconds. In this fresh fixture, verify `AuthorListed` carries the public name and `AuthorReviewed` is absent. That does not establish exactly-once forwarding.
+`AuthorId` comes from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Check `result.IsSuccess` for the returned publication result.
+
+## Check the public handoff
+
+Use disposable stores for this one-off wiring check. If the public/private boundary is an uncovered application promise, extend the existing [backend check](../cratis-specifications-exercise-backend/SKILL.md); don't add a hosted spec of Chronicle forwarding. In the directory, resolve `consumer` from a fresh service scope as above. Select `var inbox = consumer.GetEventSequence($"{EventSequenceId.InboxPrefix}library");` and read `await inbox.GetFromSequenceNumber(EventSequenceNumber.First, id)`. Forwarding and consumption have separate checkpoints; subscribing does not by itself route an explicit consumer observer to the inbox. Route it to the intended per-source sequence. Delivery is asynchronous: repeat that read until it returns the listing, stopping with a timeout after 30 seconds. In this fresh fixture, verify `AuthorListed` carries the public name and `AuthorReviewed` is absent. That does not establish exactly-once forwarding.
 
 ## Avoid
 

@@ -6,21 +6,17 @@ compatibility: .NET SDK and Chronicle event migrations.
 
 # Rename AuthorRegistered.Name without breaking older readers
 
-1. Reference `Cratis.Chronicle`. In an isolated upgrade of the registration feature (not alongside its generation-one implementation), keep the old `Name` record, the new `DisplayName` record and the migration in the author registration feature.
+1. Reference `Cratis.Chronicle`. In the registration feature, keep the old `Name` payload, the current `DisplayName` payload and the migration together. Keep any existing constraint on the renamed property.
 2. Keep the stored ID `AuthorRegistered` and increment the generation. Mark the old type with `[EventTypeGenerationFor<AuthorRegistered>(1)]`. Both types must resolve to the same ID and their generations must be adjacent.
-3. Put `AuthorRegisteredMigration` in the backend assembly with the event records. Chronicle's default client finds migration implementations in the assemblies it scans; no separate migration registration is needed with default discovery. In both methods, specify the destination property first, then the source property.
+3. Put `AuthorRegisteredMigration` in the backend assembly with the event records. With default client discovery no separate migration registration is needed. In both methods, specify the destination property first, then the source property.
 
 ```csharp
-// Features/Authors/Registration/AuthorRegisteredMigration.cs
 using Cratis.Chronicle.Events;
 using Cratis.Chronicle.Events.Migrations;
-using Cratis.Chronicle.Events.Constraints;
 
 namespace Library.Features.Authors.Registration;
 
-// Change the existing AuthorRegistered.cs in this revision.
-[EventType(generation: 2)] public record AuthorRegistered(
-    [property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] string DisplayName);
+[EventType(generation: 2)] public record AuthorRegistered(string DisplayName);
 [EventTypeGenerationFor<AuthorRegistered>(1)] public record AuthorRegisteredV1(string Name);
 
 public class AuthorRegisteredMigration : EventTypeMigration<AuthorRegistered, AuthorRegisteredV1>
@@ -35,49 +31,15 @@ public class AuthorRegisteredMigration : EventTypeMigration<AuthorRegistered, Au
 
 Roll out readers capable of handling the new shape before switching writers. Keep the old generation and transforms while either shape is consumed; never rewrite history to roll back a reader.
 
-## Read each generation through a projection
+## Check the compatibility promise
 
-In the **test project only**, reference `Cratis.Chronicle.Testing`. Import `Cratis.Chronicle`, `Cratis.Chronicle.Testing`, `Cratis.Chronicle.Events`, `Cratis.Chronicle.Projections.ModelBound`, `Library.Features.Authors` and `Library.Features.Authors.Registration`. Compile the original `Features/Authors/Registration/AuthorRegistered.cs` unchanged in a separate test-support project `GenerationOne`. Add `<ProjectReference Include="../GenerationOne/GenerationOne.csproj" Aliases="v1" />` in the test project. At the top of the test file, before other imports, write `extern alias v1;` then `using V1Registration = v1::Library.Features.Authors.Registration.AuthorRegistered;`. Keep both test projections in the test assembly, not the application's discovered assembly:
+In the repository's existing migration specs, cover both directions of the rename once: old `Name = "Aster"` becomes current `DisplayName = "Aster"`; current `DisplayName = "Birch"` becomes old `Name = "Birch"`. No extra project or live kernel is needed for the ordinary migration spec.
 
-```csharp
-[FromEvent<AuthorRegistered>] public record CurrentAuthor(AuthorId Id, string DisplayName);
-[FromEvent<AuthorRegisteredV1>] public record PreviousAuthor(AuthorId Id, string Name);
-```
+## When to choose another path
 
-Against a disposable development kernel, use two clients in sequence. Choose a fresh store name for the test and pass the same store name and namespace to both clients' `GetEventStore` calls.
-
-```csharp
-var options = ChronicleOptions.FromDevelopmentConnectionString();
-using var legacy = new ChronicleClient(options, new InMemoryClientArtifactsProvider
-{
-    EventTypes = [typeof(V1Registration)]
-});
-var storeName = $"library-{Guid.NewGuid():N}";
-var oldAuthorId = AuthorId.New();
-var oldStore = await legacy.GetEventStore(storeName, "migration-test");
-var first = await oldStore.EventLog.Append(oldAuthorId, new V1Registration("Aster"));
-if (!first.IsSuccess) throw new InvalidOperationException("Generation-one registration failed");
-using var updated = new ChronicleClient(options, new InMemoryClientArtifactsProvider
-{
-    EventTypes = [typeof(AuthorRegisteredV1), typeof(AuthorRegistered)],
-    EventTypeMigrators = [typeof(AuthorRegisteredMigration)],
-    ModelBoundProjections = [typeof(CurrentAuthor), typeof(PreviousAuthor)]
-});
-```
-
-Get `var store = await updated.GetEventStore(storeName, "migration-test");` and a different `var newAuthorId = AuthorId.New();`. Use the updated store to append `new AuthorRegistered("Birch")` for `newAuthorId`. Check acceptance of each append. Read `await store.ReadModels.GetInstanceById<CurrentAuthor>(oldAuthorId.Value)` until `DisplayName` is `"Aster"` and `await store.ReadModels.GetInstanceById<PreviousAuthor>(newAuthorId.Value)` until `Name` is `"Birch"`; fail the test if either hasn't arrived after 30 seconds. A filter on stored event type ID alone does not select a generation. Use `AuthorId` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md).
-
-## Avoid
-
-- Don't give the rename a new event type ID.
-- Don't reverse the arguments to `RenamedFrom` in the downcast: `Name` is its destination.
-- Don't assume registering the migration rewrites stored events or rebuilds existing read models.
-
-## When it goes off the usual path
-
-- **The business outcome was wrong:** choose a compensating fact when correcting what happened, not how the same fact is represented.
-- **A stored value changes as well as the property name:** if `"A. Birch"` becomes `"Anna Birch"`, for that alternative replace the rename-only migration with `public override void MapValues(IEventValueMapBuilder<AuthorRegistered, AuthorRegisteredV1> builder) => builder.For(current => current.DisplayName, previous => previous.Name, map => map.Map("A. Birch", "Anna Birch"));` and leave `Upcast` and `Downcast` empty for this property. Assert both directions with the mapped values.
-- **Generation three fails to register:** mark the former current payload `[EventTypeGenerationFor<AuthorRegistered>(2)]` and keep the generation-one type. Use `EventTypeMigration<AuthorRegisteredV2, AuthorRegisteredV1>` and `EventTypeMigration<AuthorRegistered, AuthorRegisteredV2>` for the two adjacent pairs. Test the oldest payload through the full chain and the current payload through the oldest consumer.
+- **Old-generation consumers stay deployed:** use the [two-generation rollout check](references/deployed-readers.md) when you need to verify compatibility across the deployment.
+- **The business outcome was wrong:** append a compensating fact to correct what happened, not a new generation of the same fact.
+- **A third shape is needed:** mark the former current payload `[EventTypeGenerationFor<AuthorRegistered>(2)]` and retain generation one. Define two adjacent migrations; check the oldest payload through the full chain.
 
 ## Related skills
 

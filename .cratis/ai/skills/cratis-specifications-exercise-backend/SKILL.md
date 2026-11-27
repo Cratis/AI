@@ -1,12 +1,14 @@
 ---
 name: cratis-specifications-exercise-backend
-description: Use when a backend author needs to check which event an Arc command appends, why it refuses input, or which row Chronicle projects. For a decision invoked without the pipeline, use cratis-specifications-isolate-behavior.
+description: Use when a backend author needs to check which event an Arc command appends, why it refuses input, or which row Chronicle projects. Not for a decision invoked without the pipeline (use cratis-specifications-isolate-behavior).
 compatibility: Requires the .NET SDK, the Cratis Specifications xUnit v3 adapter and the testing packages matching the application's Arc or Chronicle versions.
 ---
 
 # Test the backend promise at its owner
 
 Use a command scenario when the promise depends on binding, authorization, validation or commitment. For a row mapping, use a read-model scenario instead. Reserve a running store for behavior that depends on discovery, actual persistence or observer delivery.
+
+Commit one spec per uncovered consequential rule. Add the accepted case only when the handler decides something. See the [case defaults](../../rules/general.md); don't duplicate a decision already covered directly.
 
 ## Reject an empty author name
 
@@ -39,7 +41,7 @@ public class when_submitting_an_empty_name : Specification
 }
 ```
 
-For the accepted example, execute once with the requested `id` and `"Aster"`. Check `result.ShouldBeSuccessful()` and await `scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e => e.Name == "Aster")`. Checking only a returned object would miss a write addressed to the wrong author. If a refusal test passes because authorization rejected the caller, it hasn't checked the name rule: inspect the structured reason.
+If the handler decides which author receives the event, exercise that accepted case once with the requested `id` and `"Aster"`. Check `result.ShouldBeSuccessful()` and await `scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e => e.Name == "Aster")`. Checking only a returned object would miss a write addressed to the wrong author. If a refusal test passes because authorization rejected the caller, it hasn't checked the name rule: inspect the structured reason.
 
 ## Check the projected row instead
 

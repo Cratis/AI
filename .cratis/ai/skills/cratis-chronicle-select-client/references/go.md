@@ -16,4 +16,4 @@ func main() {
 }
 ```
 
-`go run .` prints `AuthorRegistered 1` without reaching a kernel. This module pins contracts and kernel tests to 19.153.0; don't use that test as evidence for decision reads on 19.184.3. For the client's supported kernel, run its tagged `examples/getting-started` program against its matching development image to check a real append. If a real append loses its acknowledgement, reconcile with history before retrying; a transport error isn't a refusal.
+`go run .` prints `AuthorRegistered 1` without reaching a kernel. Check the tagged module's stated kernel version before choosing it for your deployment. This offline check does not demonstrate support for decision reads. For the client's supported kernel, run its tagged `examples/getting-started` program against its matching development image to check a real append. If a real append loses its acknowledgement, reconcile with history before retrying; a transport error isn't a refusal.

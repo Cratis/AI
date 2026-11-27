@@ -1,16 +1,16 @@
 ---
 name: cratis-chronicle-inspect-observer
-description: Use when an operator needs to trace a stale Chronicle read model using observer checkpoints and failed partitions after an accepted write. Not for repairing a live query connection (use cratis-arc-diagnose-live-query).
+description: Use when a Chronicle observer failure is confirmed and an operator needs to inspect its checkpoint or failed partitions. Not for a stale result with an unknown failing boundary (use cratis-platform-diagnose-slice).
 compatibility: .NET SDK; Node.js for offline summaries.
 ---
 
 # Find out why a registered author is missing from the listing
 
-1. Reference `Cratis.Chronicle`. Check `result.IsSuccess`; keep `result.SequenceNumber`, the author's event source ID and the observer ID. The default ID for the listing projection is its model's full name (`Library.Features.Authors.Listing.Author`); for a reactor it is the reactor class's full name. Use the configured ID instead if explicitly overridden. Use the same store, namespace and event sequence as the write.
+1. Reference `Cratis.Chronicle`. If you have the append result, check `result.IsSuccess` and keep `result.SequenceNumber`. Otherwise read `eventStore.EventLog.GetForEventSourceIdAndEventTypes` for the author and registration event type, identify the intended occurrence and take its `Context.SequenceNumber`. Keep the author's event source ID and observer ID. The default ID for the listing projection is its model's full name (`Library.Features.Authors.Listing.Author`); for a reactor it is the reactor class's full name. Use the configured ID instead if explicitly overridden. Use the same store, namespace and event sequence as the write.
 2. Read `await eventStore.Observers.GetAll()` and look for the expected ID.
    - If the observer is missing, verify the scope and ID. On the host that registers `Author`, inspect `eventStore.Registration.Failure` and `eventStore.Registration.Artifacts.FirstOrDefault(a => a.ArtifactType == typeof(Author))?.Failure`. The former reports a run failure; the latter reports failure of that projection. A missing entry or `eventStore.Registration.HasRun == false` doesn't establish a failure. With no observer to compare, don't report lag.
    - If the observer is present, check `observer.RunningState` and compare positions only on the same event sequence. For a write at 20 and a last-handled position of 15, next position 16 means the observer is behind.
-3. For the accepted append, use `var completion = await result.WaitForCompletion();` from `Cratis.Chronicle.Observation` and inspect `completion.FailedPartitions`. Use `await eventStore.FailedPartitions.GetFailedPartitionsFor(observer.Id)` and match `failure.Partition.Value` to the author ID for this projection. For other observers, first resolve their actual partition key. A failure in a different partition is not evidence that this partition failed.
+3. Only if you have the accepted append result, use `var completion = await result.WaitForCompletion();` from `Cratis.Chronicle.Observation` and inspect `completion.FailedPartitions`. With or without that result, use `await eventStore.FailedPartitions.GetFailedPartitionsFor(observer.Id)` and match `failure.Partition.Value` to the author ID for this projection. For other observers, first resolve their actual partition key. A failure in a different partition is not evidence that this partition failed.
 
 ```csharp
 // Features/Authors/Diagnostics/AuthorListingProgress.cs

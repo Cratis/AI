@@ -22,11 +22,24 @@ Use the shared `AuthorId` record, which derives from `EventSourceId<Guid>`; don'
 
 For a command that already uses an ordinary concept or primitive as its identity, mark that one positional member `[property: Key]` using `Cratis.Chronicle.Keys`. A property named `Id` alone does not select the event source. `EventSourceId` is a type, not an attribute.
 
-[Test the append](../cratis-specifications-exercise-backend/SKILL.md) against the caller's author ID and submitted name.
+**Two candidate IDs:** if `BookId` and `BorrowerId` both derive from `EventSourceId<Guid>`, don't let property order decide where `BookLent` lands. For book-owned history, use `Cratis.Chronicle.Events`:
+
+```csharp
+[Command]
+public record LendBook(BookId BookId, BorrowerId BorrowerId) : ICanProvideEventSourceId
+{
+    public EventSourceId GetEventSourceId() => BookId;
+    public BookLent Handle() => new(BorrowerId);
+}
+```
+
+In the [command scenario](../cratis-specifications-exercise-backend/SKILL.md), use different IDs and assert the single append is to the book, not the borrower. This tests ownership, not the handler's field copy.
 
 ## When it goes off the usual path
 
-**A decision needs current state:** inject the Chronicle read model as a typed `Handle` parameter. For the command's own entity use its source key. For a related entity, select the key explicitly. For example, on a `CreditAuthor` command whose source is the book and whose `AuthorId` identifies a separately projected author, use:
+Refuse with a message → request the decision model in the validator. Need the state to build the event → take it as a `Handle` parameter. Both are protected by default.
+
+Use a validator constructor parameter for the refusal. `[LookUpBy]` chooses the model to read, not where to append. For example, on a `CreditAuthor` command whose source is the book and whose `AuthorId` identifies a separately projected author, use:
 
 ```csharp
 public AuthorCredited Handle([LookUpBy(nameof(CreditAuthor.AuthorId))] Author author) =>
@@ -61,5 +74,6 @@ Arc calls `AuthorId.New()` for the generated parameter. The wrapper addresses th
 
 ## Related skills
 
+- [Deliver a lending slice](../cratis-platform-deliver-slice/SKILL.md): validate input, protect availability if lending depends on it, project `BookLent` unless already mapped, expose the live query, generate both proxies, then bind the page. As a one-off check, accept a loan and see it once without refreshing; refuse another and check nothing changed.
 - [Invoke the command](../cratis-arc-invoke-command/SKILL.md)
 - [Validate the command](../cratis-arc-validate-command/SKILL.md) to reject an empty name before the handler runs.

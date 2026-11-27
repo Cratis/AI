@@ -38,10 +38,11 @@ Start with a concrete case. In `model/Authors/registration.play`, use the same f
 
 ## Arrange a stateful or authorized command
 
-Seed decision history with `given <EventOrEventExample>` and `for` the owning source. Choose `given readmodel <ReadModelOrTypedExample>` to seed a view instead of replaying history. Supply its key and required fields. For an authorized command, default to `given caller` with nested `authenticated` and the required roles or claims, as shown. Use `given caller as <Persona>` only when a top-level persona declaration already satisfies the command's policy; an undeclared persona fails. If any command declares `reads`, declare `command reads protected` once in the application root document; without it the model does not bind and its specifications cannot run. The following is a separate Lending example: if composing it into Library, leave the already-declared root directive in `application.play` instead of duplicating it.
+Seed decision history with `given <EventOrEventExample>` and `for` the owning source. Choose `given readmodel <ReadModelOrTypedExample>` to seed a view instead of replaying history. Supply its key and required fields. For an authorized command, default to `given caller` with nested `authenticated` and the required roles or claims, as shown. Use `given caller as <Persona>` only when a top-level persona declaration already satisfies the command's policy; an undeclared persona fails. If any command declares `reads`, declare `command reads protected` once in the application root document; without it the model does not bind and its specifications cannot run. This Lending example seeds stock directly. In a working app, acquisition supplies `LoanStockSet` and withdrawal supplies `BookWithdrawn`; those producers are omitted here. When composing it into Library, don't duplicate the root directive.
 
 ```play
 command reads protected
+concept BookId : Uuid
 
 policy CanLend
   require role "Librarian"
@@ -50,11 +51,13 @@ module Library
   feature Lending
     slice StateChange LendCopies
       command LendCopies
-        bookId String identifier
+        bookId BookId identifier
         copies Int
         reads LoanStock as stock by bookId
         authorize CanLend
         validate
+          require copies > 0
+            message "Enter a positive quantity"
           require copies <= stock.available
             message "Not enough copies"
         produces CopiesLent
@@ -65,7 +68,7 @@ module Library
         copies Int
 
       example LendOne : LendCopies
-        bookId = "book-42"
+        bookId = "22222222-2222-4222-8222-222222222222"
         copies = 1
 
       specification LendingTheLastCopy
@@ -75,7 +78,7 @@ module Library
           role "Librarian"
         when LendOne
         then CopiesLent
-          for "book-42"
+          for "22222222-2222-4222-8222-222222222222"
           copies = 1
 
       specification RefusingTwoCopies
@@ -92,17 +95,19 @@ module Library
       event BookWithdrawn
 
       readmodel LoanStock
-        bookId String key
+        bookId BookId key
         available Int
 
       projection ProjectLoanStock => LoanStock
         from LoanStockSet
           bookId = $eventSourceId
           available = available
+        from CopiesLent
+          subtract available by copies
         remove with BookWithdrawn
 
       example OneCopy : LoanStock
-        bookId = "book-42"
+        bookId = "22222222-2222-4222-8222-222222222222"
         available = 1
 ```
 
@@ -114,7 +119,7 @@ When only the input and expected values change across examples, [check one rule 
 
 ## Carry the accepted examples into the application
 
-Carry the same Given/When/Then into [backend specs](../cratis-specifications-exercise-backend/SKILL.md). Model tests don't prove the [running slice](../cratis-platform-deliver-slice/SKILL.md).
+Reuse [backend specs](../cratis-specifications-exercise-backend/SKILL.md); commit a case only for an uncovered consequential decision. Model tests don't prove the [running slice](../cratis-platform-deliver-slice/SKILL.md).
 
 ## When it goes off the usual path
 

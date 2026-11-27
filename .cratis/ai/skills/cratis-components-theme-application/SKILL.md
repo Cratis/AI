@@ -17,7 +17,10 @@ Use a theme token for a color change, scoped to the smallest wrapper that should
 @import '@cratis/components/theme';
 
 @media (forced-colors: none) {
-    .author-admin { --cratis-primary-color: rgb(101, 29, 155); }
+    .author-admin {
+        --cratis-primary-color: #651d9b;
+        --cratis-primary-color-text: #fff;
+    }
 }
 ```
 
@@ -28,17 +31,26 @@ Use a theme token for a color change, scoped to the smallest wrapper that should
 @media (forced-colors: none) {
     :root, .cratis-theme, :root.cratis-light, :root.cratis-dark.cratis-light,
     :root.cratis-light .cratis-theme:not(.cratis-dark), .cratis-theme.cratis-light,
-    .cratis-dark .cratis-theme.cratis-light { --cratis-primary-color: #0f766e; }
+    .cratis-dark .cratis-theme.cratis-light {
+        --cratis-primary-color: #0f766e;
+        --cratis-primary-color-text: #fff;
+    }
 
     :root.cratis-dark, .cratis-dark .cratis-theme, .cratis-theme.cratis-dark {
         --cratis-primary-color: #5eead4;
+        --cratis-primary-color-text: #030712;
     }
 
     @media (prefers-color-scheme: dark) {
-        :root:not(.cratis-light), .cratis-theme:not(.cratis-light) { --cratis-primary-color: #5eead4; }
+        :root:not(.cratis-light), .cratis-theme:not(.cratis-light) {
+            --cratis-primary-color: #5eead4;
+            --cratis-primary-color-text: #030712;
+        }
     }
 }
 ```
+
+As a one-off check, inspect a control that uses both primary tokens, such as the chat topic start button. Switch between light and dark mode and check the computed text and background colors on the button itself. Normal-sized text should have at least 4.5:1 contrast in both modes.
 
 ## Scope action colors to a themed panel
 

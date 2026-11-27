@@ -1,9 +1,11 @@
 ---
 name: cratis-modeling-discover-timeline
-description: Use when a modeler needs to discover the actors, event ownership and field origins of a business journey with its owner before coding. For cutting an agreed timeline into slices, use cratis-modeling-design-event-model.
+description: Use when a modeler needs to discover the actors, event ownership and field origins of a business journey with its owner before coding. Not for cutting an agreed timeline into slices (use cratis-modeling-design-event-model).
 ---
 
 # Discover the business timeline
+
+The requesting user owns domain decisions unless they name someone else. Batch unresolved decisions into one question. If told to proceed, label assumptions as assumptions, not accepted outcomes.
 
 1. Start with one real completed instance. Record the actor, input and visible result in the owner's words.
 2. Arrange past-tense business events left to right as a causal plot. Sketch what participants see and do as a storyboard. Give each owning system or bounded context a swimlane. Name the storyline if it crosses features and needs revisiting.
@@ -32,4 +34,3 @@ Record the plot and its unresolved branch in `Features/Authors/Registration/time
 ## Related skills
 
 - [Design the event model](../cratis-modeling-design-event-model/SKILL.md) to cut the agreed timeline into slices.
-- [Deliver the slice](../cratis-platform-deliver-slice/SKILL.md) to implement its visible result.

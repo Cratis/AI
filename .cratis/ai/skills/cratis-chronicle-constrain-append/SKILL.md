@@ -6,7 +6,7 @@ compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 
 # Reject duplicate author names when appending a registration
 
-1. In `Features/Authors/Registration/AuthorRegistered.cs`, the event from [Record an event](../cratis-chronicle-record-event/SKILL.md) declares the unique constraint on its **string** parameter. Reference `Cratis.Chronicle` and import `Cratis.Chronicle.Events.Constraints`:
+1. In `Features/Authors/Registration/AuthorRegistered.cs`, extend the event from [Record an event](../cratis-chronicle-record-event/SKILL.md) to declare the unique constraint on its **string** parameter. Reference `Cratis.Chronicle` and import `Cratis.Chronicle.Events.Constraints`:
 
 ```csharp
 [property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] string Name
@@ -28,7 +28,9 @@ public record AuthorRemoved;
 
 ## Try the same name for two author IDs
 
-Start in a fresh test namespace with no claim on the name. Use two different `AuthorId` values and `var name = new AuthorName("Aster");` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Append `new AuthorRegistered(name.Value)` for the first ID and check `result.IsSuccess`. Try the same fact for the second ID: `result.IsSuccess` must be false and `result.ConstraintViolations.Single().ConstraintName.Value` must be `"UniqueAuthorName"`. No event should be stored for the second author. Append `new AuthorRemoved()` for the first ID and check acceptance. Retry the second registration and expect success.
+One-off wiring check, not a spec of Chronicle's constraint mechanism. For an uncovered application refusal, use the [existing backend fixture](../cratis-specifications-exercise-backend/SKILL.md).
+
+Start in a disposable namespace with no claim on the name. Use two different `AuthorId` values and `var name = new AuthorName("Aster");` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Append `new AuthorRegistered(name.Value)` for the first ID and check `result.IsSuccess`. Try the same fact for the second ID: `result.IsSuccess` must be false and `result.ConstraintViolations.Single().ConstraintName.Value` must be `"UniqueAuthorName"`. No event should be stored for the second author. Append `new AuthorRemoved()` for the first ID and check acceptance. Retry the second registration and expect success.
 
 ## When it goes off the usual path
 

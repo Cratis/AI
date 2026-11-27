@@ -1,6 +1,6 @@
 ---
 name: cratis-platform-configure-environment
-description: Use when an operator needs to bind a preview host to the intended Chronicle store and map a named Screenplay secret without exposing its value. Not for scaffolding a new application.
+description: Use when an operator needs to verify a deployed host reached the intended Chronicle store and namespace, or map a named Screenplay secret. Not for registering the client (use cratis-chronicle-connect-application).
 compatibility: Requires ASP.NET Core configuration and the Screenplay CLI for model inventory.
 ---
 

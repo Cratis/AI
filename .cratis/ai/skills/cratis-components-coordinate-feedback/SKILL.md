@@ -18,8 +18,10 @@ import type { Author } from './generated/Features/Authors/Listing/Author';
 export function App() {
     const [openedId, open] = useState<Author['id']>();
     return <DialogComponents confirmation={ConfirmationDialog} busyIndicator={BusyIndicatorDialog}>
-        <Authors onOpen={open} />
-        {openedId !== undefined && <section aria-label="Author details">Author {String(openedId)}</section>}
+        <>
+            <Authors onOpen={open} />
+            {openedId !== undefined && <section aria-label="Author details">Author {String(openedId)}</section>}
+        </>
     </DialogComponents>;
 }
 ```
@@ -67,6 +69,6 @@ Choose the shared busy dialog when the user must wait before continuing. Import 
 
 ## Related skills
 
-- Use `cratis-specifications-observe-ui` when checking that dismissal leaves the author unchanged.
+- For a one-off check, dismiss the confirmation in the existing story and confirm the author remains. If the TypeScript Specifications profile is installed, use `cratis-specifications-observe-ui`.
 
 - [Open a custom command dialog](../cratis-components-submit-form/SKILL.md)

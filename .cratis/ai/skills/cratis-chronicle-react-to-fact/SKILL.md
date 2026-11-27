@@ -33,6 +33,8 @@ public class RegistrationNotice(IAuthorDirectory directory) : IReactor
 
 ## Retry a notice after a lost acknowledgement
 
+One-off wiring check with a disposable receiver. If the application owns deduplication, commit a spec of that decision at the receiver; don't add a hosted spec of Chronicle retry. See [exercise the backend](../cratis-specifications-exercise-backend/SKILL.md).
+
 Have the directory save the first notice, then fail before acknowledging it. Deliver the same occurrence again; assert one notice with the expected name. Reuse `delivery.Id` for retries. An author ID would collapse distinct occurrences.
 
 ## When it goes off the usual path

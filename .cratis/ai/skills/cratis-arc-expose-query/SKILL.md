@@ -1,7 +1,7 @@
 ---
 name: cratis-arc-expose-query
 description: Use when a developer needs an Arc read-model query for a live MongoDB list or a snapshot of projected graph relationships. Not for defining how events populate the model (use cratis-chronicle-project-view).
-compatibility: Requires Cratis, Cratis.Arc.MongoDB and a change-stream-capable MongoDB deployment.
+compatibility: The live list requires Cratis.Arc.MongoDB and MongoDB change streams. The graph snapshot requires Cratis.Arc.Neo4j.Chronicle and Neo4j 5.6+, not MongoDB or a running Chronicle server.
 ---
 
 # Expose the author list
@@ -17,7 +17,7 @@ public static ISubject<IEnumerable<Author>> AllAuthors(IMongoCollection<Author> 
     collection.Observe();
 ```
 
-Subscribe to `AllAuthors` (see [Diagnose a missing update](../cratis-arc-diagnose-live-query/SKILL.md) for a curl probe). Check its first list, register an author, then check that the same subscription delivers the new `Id` and `Name`.
+One-off live query check: subscribe to `AllAuthors` (see [Diagnose a missing update](../cratis-arc-diagnose-live-query/SKILL.md) for a curl probe). Check its first list, register an author, then check that the same subscription delivers the new `Id` and `Name`.
 
 ## When it goes off the usual path
 

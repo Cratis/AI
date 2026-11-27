@@ -1,6 +1,6 @@
 ---
 name: cratis-platform-diagnose-slice
-description: Use when a maintainer must trace an accepted command to a missing or late query result and screen update. For a confirmed observer failure, use cratis-chronicle-inspect-observer.
+description: Use when a slice outcome is missing or stale and the failing boundary is unknown. Not for a confirmed correct stored row and stale live view (use cratis-arc-diagnose-live-query) or a confirmed observer failure (use cratis-chronicle-inspect-observer).
 compatibility: Chronicle diagnostics below use the Cratis CLI 3.154.2.
 ---
 
@@ -33,6 +33,6 @@ cratis chronicle failed-partitions list --observer "$observer" -e "$store" -n "$
 If a command isn't present, inspect `cratis chronicle --help` and the relevant group's `--help`. A failed or unauthorized read is unknown, not an empty result. Inspect only authorized records; retain identifiers, not raw payloads.
 
 1. Locate the expected `AuthorRegistered` for the original source. If absent, verify scope, then investigate the write. If present, record its event log sequence number.
-2. Compare the projection's last handled position **in that same store, namespace and sequence**. For a write at 12 and a checkpoint at 11, check observer state and failed partitions for this key. A checkpoint at 12 is not proof that the intended row exists. [Inspect the observer](../cratis-chronicle-inspect-observer/SKILL.md) for a confirmed gap. Don't reset, replay or retry partitions during diagnosis.
+2. Compare the projection's last handled position **in that same store, namespace and sequence**. For a write at 12 and a checkpoint at 11, check observer state and failed partitions for this key. A checkpoint at 12 is not proof that the intended row exists. [Inspect the observer](../cratis-chronicle-inspect-observer/SKILL.md) if the observer reports a failure. Don't reset, replay or retry partitions during diagnosis.
 3. Run `cratis chronicle read-models list -e "$store" -n "$ns"`. For a queryable model, run `cratis chronicle read-models get "$model" "$row_key" -e "$store" -n "$ns"`, setting `model` to its listed **Identifier** and `row_key` to the expected projection key. For client-owned state, query the owning application instead; the CLI cannot retrieve it. Rerun the application query as the same caller and tenant. For the example observable `AllAuthors` query, GET the route from its generated proxy with `waitForFirstResult=true` and look for the exact ID in the first ready result. A pending response isn't evidence of an empty list. A missing stored row suggests mapping or key selection; a stored row excluded by the query suggests scope or filtering.
-4. Only if the fresh query includes the ID, inspect the open subscription and rendered list. Distinguish an update never delivered to this client from an update received but not rendered. Record the first expected observation that was absent.
+4. Only if the fresh query includes the ID, [inspect the live subscription](../cratis-arc-diagnose-live-query/SKILL.md) and rendered list. Distinguish an update never delivered to this client from an update received but not rendered. Record the first expected observation that was absent.

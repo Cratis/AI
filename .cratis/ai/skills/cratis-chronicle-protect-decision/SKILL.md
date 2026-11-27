@@ -1,10 +1,12 @@
 ---
 name: cratis-chronicle-protect-decision
-description: Use when a maintainer needs a Chronicle append to refuse a command if its decision read has changed since validation. Not for reserving a unique value (use cratis-chronicle-constrain-append).
+description: Use when an Arc command must be accepted or refused from current event-derived state (a limit, stock, balance), and the refusal must hold under concurrent writers. Not for uniqueness (use cratis-chronicle-constrain-append).
 compatibility: .NET SDK and an Arc host with Chronicle.
 ---
 
 # Refuse borrowing if the last copy is no longer available
+
+Refuse with a message → request the decision model in the validator. Need the state to build the event → take it as a `Handle` parameter. Both are protected by default.
 
 1. Reference `Cratis.Arc.Chronicle`. Put the command and validator together in `Features/Books/Borrowing/`. Use `Isbn` as the command's only event-source-ID property: it selects both the book to read and the book to append to.
 2. Put `public record Isbn(string Value) : EventSourceId<string>(Value);` in `Features/Books/Isbn.cs` (`Library.Features.Books`), and `[EventType] public record CopyAdded;` in `Features/Books/Stock/CopyAdded.cs` (`Library.Features.Books.Stock`); import `Cratis.Chronicle.Events` in both. Request `BookStock?` in the validator constructor. For a book with no events the validator receives `null` or an instance with `Available` 0; the rule refuses both.
@@ -46,40 +48,33 @@ public class BorrowBookValidator : CommandValidator<BorrowBook>
 }
 ```
 
-## Check the decision and the commit
+## Check the stock rule
 
-In the validator test use `var isbn = new Isbn("9780140327243"); var command = new BorrowBook(isbn);`. Both `new BorrowBookValidator(null).Validate(command).IsValid` and `new BorrowBookValidator(new BookStock(isbn, 0)).Validate(command).IsValid` must be false. With `new BookStock(isbn, 1)` the same check must be true.
+The committed spec covers the stock decision, not the framework guard. In the existing validator fixture use `var isbn = new Isbn("9780140327243"); var command = new BorrowBook(isbn);`. Both `new BorrowBookValidator(null).Validate(command).IsValid` and `new BorrowBookValidator(new BookStock(isbn, 0)).Validate(command).IsValid` must be false. With `new BookStock(isbn, 1)` the same check must be true.
 
-A validator test cannot prove commit protection. In a development host, set a debugger breakpoint on `BorrowBook.Handle()`. Submit a borrowing for a book with one copy and stop there after validation. From a separate process connected to the same kernel store and namespace, run `var competitor = await eventStore.EventLog.Append(isbn, new BookBorrowed());`. Verify `competitor.IsSuccess`, then continue the paused request. Expect HTTP 400, reason `concurrencyViolation`, detail `ReadChanged`, and no second borrowing event. Don't retry in the command: the client reads again and offers resubmission.
+Optional manual check for a human, not an automated race spec: in a disposable host, pause at `Handle()` after validation with one copy left. From another process append `BookBorrowed` to that book in the same namespace. Confirm the append succeeded, then resume the request. Expect a concurrency refusal and no second borrowing. Read the current stock before offering resubmission.
 
 ## Check which read actually guards the append
 
-A plain typed parameter resolves by the command's event source ID. For a different key, use `[LookUpBy(nameof(CommandType.Property))]` and validate the relationship, a trusted `[LookUpBy<TProvider>]`, or a flat lookup projection. Per-stream models cannot be redirected this way. See [validate command input](../cratis-arc-validate-command/SKILL.md) for command wiring. The typed parameter under `On` enrolls the read. `concurrency: true` on routing metadata alone does not protect state read before the append scope is captured.
+For a three-loan limit, give `BorrowBook` a `MemberId` property. Count `LoanTaken` and `LoanReturned` facts appended **to the member**, not book events grouped by a payload property. The validator constructor selects each source separately:
+
+```csharp
+public BorrowBookValidator(
+    [LookUpBy(nameof(BorrowBook.Isbn))] BookStock? stock,
+    [LookUpBy(nameof(BorrowBook.MemberId))] MemberLoans? loans)
+{
+    RuleFor(c => c.Isbn).Must(_ => stock is { Available: > 0 })
+        .WithMessage("No copies of this book are available.");
+    RuleFor(c => c.MemberId).Must(_ => loans is null || loans.Active < 3)
+        .WithMessage("The member has reached the loan limit.");
+}
+```
+
+Return both events in one `IEnumerable<EventForEventSourceId>` batch: `BookBorrowed` to the book and `LoanTaken` to the member. Under `On`, a conflicting change to either guarded source refuses the batch. `LookUpBy` selects a source from the command; it cannot protect a projection keyed by an event payload property.
 
 Keep decisions protected. Mark a genuinely advisory parameter `[Unprotected("display only")]` (`Cratis.Arc.Chronicle.ReadModels`). A method-level annotation covers body reads, not injected parameters (`ARCCHR0034`). If an exceptional body read influences a decision, the reason must name the independent append guard, such as a kernel constraint. Never overlay an explicit scope on the same protected read: conflicting expectations can raise `ExplicitScopeDoesNotCoverReads` rather than a clean concurrency refusal. Do not bypass typed injection with a raw keyed read in a command.
 
-## Read and append explicitly outside the Arc pipeline
-
-Choose an explicit decision read when writing outside Arc's command pipeline. Use the same `IEventStore` (including its store and namespace) for the decision and the write. Use a decision model eligible for protection, not an advisory read. For a single book, use the same source for both:
-
-```csharp
-var stock = await eventStore.GetDecisionReads().GetDetached<BookStock>(source);
-if (!stock.IsProtected || stock.Instance is not { Available: > 0 }) return false;
-
-var result = await eventStore.EventLog.AppendMany(
-    [new EventForEventSourceId(source, new BookBorrowed())],
-    guardedBy: [stock]);
-return result.IsSuccess;
-```
-
-Here `source` is the book's Chronicle `EventSourceId` and the enclosing method returns `Task<bool>`. Import `Cratis.Chronicle`, `Cratis.Chronicle.Events`, `Cratis.Chronicle.EventSequences` and `Cratis.Chronicle.ReadModels`. If you need to distinguish a stale decision from other failures, inspect `result.GetDecisionConflicts([stock])`.
-
-## When it goes off the usual path
-
-- **A conflict rejects the write:** read the current stock and decide again before attempting another append.
-- **Another writer bypasses the protected decision:** make it use `AppendMany(..., guardedBy: [stock])` as above. The guard applies only to the same store and namespace, and does not lock the book or check an external service.
-
-Don't use a display query for stock. Request the decision model in the validator.
+Outside Arc's command pipeline, [guard the standalone append explicitly](references/standalone.md).
 
 ## Related skills
 

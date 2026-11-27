@@ -1,36 +1,21 @@
 ---
 name: cratis-screenplay-accept-model
-description: Use when a reviewer needs to compare changed Screenplay behavior and decide whether to accept the model revision for implementation. Not for applying edits (use cratis-screenplay-edit-workspace).
+description: Use when a reviewer needs to assess Screenplay behavior and decide whether to accept a model revision for implementation. Not for applying edits (use cratis-screenplay-edit-workspace).
 compatibility: Requires the Screenplay CLI.
 ---
 
-# Review a changed registration refusal
+# Review the candidate model for acceptance
 
-1. Put the accepted Library model in `before/model` and a copy in `after/model`. Include the [registration and refusal specifications](../cratis-screenplay-specify-outcome/SKILL.md). Use the same `screenplay --version` for both folders.
-2. As a review exercise only, change the candidate command rule to `name not empty message "Enter the author's name"` and update its specification to `then error "Enter the author's name"`. Do not change the accepted Library message `Name is required`.
-3. From the common parent run:
+1. Identify the proposed revision and its intended outcomes. The baseline is the last accepted revision, if one exists. Use the same `screenplay --version` for both. The requesting user is the decision owner unless they name someone else.
+2. Compile the candidate and run its committed [model specifications](../cratis-screenplay-specify-outcome/SKILL.md). From its application directory:
 
    ```sh
-   screenplay before/model
-   screenplay after/model
-   screenplay test after/model --format json
-   screenplay diff before/model after/model --format json
+   screenplay model
+   screenplay test model --format json
    ```
 
-4. Require both compilations to succeed. In `difference`, inventory each changed decision, denial or affected read. Map each obligation to a specification address or record it as unresolved. Include removed rules: deleting a rule and its specification can leave a green suite.
-5. Check `results[].outcome` for `RejectingAnEmptyName` and `RegisteringAster` by address, then confirm that `selected`, `executed` and `passed` match, with `failed` and `unsupported` zero. These counts cover only selected examples. The structural diff locates the change; the examples witness behavior, not delivery on the target.
-6. Confirm the change in meaning with the domain owner before accepting the exact candidate revision. Updating the rule and its specification together does not approve new wording. Reject this candidate if the agreed message is still `Name is required`.
+3. **First revision:** review the whole model and all its specifications. **Existing baseline:** compile the baseline too. From the common parent, run `screenplay diff before/model after/model --format json`, substituting the actual baseline and candidate paths. A baseline that fails compilation is not an empty baseline. Inventory changed or removed decisions, denials and reads in `difference`; deleting a rule and its spec can leave a green suite. If a rename looks like removal and addition, inspect `difference.matching` and confirm continuity.
+4. Map each obligation to a specification address or mark it unresolved. Check `results[].outcome` by address and confirm `selected`, `executed` and `passed` match, with `failed` and `unsupported` zero. Passing examples witness selected model behavior, not execution on the target.
+5. Ask the owner about all open decisions together. Record acceptance only for the exact revision and named outcomes they accept. If told to proceed on assumptions, record them as assumptions and keep acceptance pending. Do not render on the strength of a self-check.
 
-## Avoid
-
-- Don't interpret a failed baseline compilation as an empty baseline.
-- Don't count `unsupported` specifications as passing or reuse approval after the candidate revision changes. If the reviewer hasn't accepted the named revision and outcomes, record that decision as pending and don't send the slice to the renderer.
-
-## When it goes off the usual path
-
-- **A rename appears as a removal and an addition:** check `difference.matching` in the JSON diff for identity or address matching. With address matching, verify continuity with the owner rather than assuming two domain changes.
-
-## Related skills
-
-- [Edit the workspace](../cratis-screenplay-edit-workspace/SKILL.md) to revise a rejected change.
-- [Hand off the slice](../cratis-screenplay-handoff-slice/SKILL.md) after acceptance.
+For example, changing both a blank-name rule and its expected message from `Name is required` to `Enter the author's name` may pass every model spec. It does not establish that the owner wants the new wording. [Revise the model](../cratis-screenplay-edit-workspace/SKILL.md) if needed; [hand off the slice](../cratis-screenplay-handoff-slice/SKILL.md) only after acceptance.

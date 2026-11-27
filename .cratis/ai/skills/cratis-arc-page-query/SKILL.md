@@ -15,7 +15,7 @@ public static IQueryable<Author> AuthorsNamed(string name, IMongoCollection<Auth
     collection.AsQueryable().Where(author => author.Name == name).OrderBy(author => author.Id);
 ```
 
-With prefix `api` and one namespace segment skipped, request `GET /api/features/authors/listing/authors-named?name=Aster&page=0&pageSize=2`, then change `page` to `1`, with three authors named Aster and one other author. Expect two different IDs on page zero and the remaining ID on page one. All three matching rows tie on `Name`, so leave request sorting unset for this check and verify the pages follow the query's `Id` order. Both responses should have `paging.totalItems` equal to three, not four. To check for repeated IDs, save the two response bodies: from the skill directory, with the same caller and tenant on both requests, run:
+One-off paging check: keep the matching rows unchanged between requests. With prefix `api` and one namespace segment skipped, request `GET /api/features/authors/listing/authors-named?name=Aster&page=0&pageSize=2`, then change `page` to `1`, with three authors named Aster and one other author. Expect two different IDs on page zero and the remaining ID on page one. All three matching rows tie on `Name`, so leave request sorting unset for this check and verify the pages follow the query's `Id` order. Both responses should have `paging.totalItems` equal to three, not four. To check for repeated IDs, save the two response bodies: from the skill directory, with the same caller and tenant on both requests, run:
 
 ```sh
 url='https://localhost:5001/api/features/authors/listing/authors-named?name=Aster&pageSize=2'

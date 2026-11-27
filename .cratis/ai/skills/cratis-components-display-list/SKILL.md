@@ -31,7 +31,7 @@ export const Authors = ({ onOpen }: { onOpen: (id: Author['id']) => void }) => (
 );
 ```
 
-`emptyMessage` describes a successful query with no rows. Use `loadingMessage`, `unauthorizedMessage` and `failureMessage` to customize the other states; don't convert a failed query to an empty array. In a UI check (`cratis-specifications-observe-ui`), switch between two rows with the same name and confirm that inspection follows the selected ID.
+`emptyMessage` describes a successful query with no rows. Use `loadingMessage`, `unauthorizedMessage` and `failureMessage` to customize the other states; don't convert a failed query to an empty array. For a one-off check in the existing story, switch between two rows with the same name and confirm that inspection follows the selected ID. If the TypeScript Specifications profile is installed, use `cratis-specifications-observe-ui`.
 
 ## Avoid
 

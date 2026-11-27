@@ -12,7 +12,7 @@ Start with a finite read. Expose a write only if the verified caller is allowed 
 
 Add explicit package references to the host project for `Cratis.Arc.Mcp` and `Cratis.Arc.PersonalAccessTokens`, both at version `24.9.0`. Neither comes with `Cratis` or `Cratis.Arc`.
 
-If verified callers are already configured, extend the existing scopes and tool catalog without adding another verifier. For a new local Arc-only Web SDK host, install the personal access token (PAT) verifier, bind a separate capabilities port and enable MCP on the same Arc builder. Use your application's existing `LibraryPersonDirectory` implementation of `Cratis.Arc.Identity.Callers.ICallerPersonDirectory`: its `Find` must resolve the verified account key against persisted person records. The example assumes that type is in `Library.Identity`. In `Program.cs`:
+**Existing verified host:** extend its PAT scopes and tool catalog on the same Arc builder. Do not install a second verifier. The example below shows the resulting configuration for an Arc-only receiver. It assumes a `LibraryPersonDirectory` implementing `Cratis.Arc.Identity.Callers.ICallerPersonDirectory` that resolves verified account keys to persisted person records.
 
 ```csharp
 using Cratis.Arc;
@@ -35,13 +35,9 @@ app.MapArcMcp();
 await app.RunAsync();
 ```
 
-`direct` is the PAT format key. `ForResource` binds the receiver to its resource URI, credential audience and deployment environment. Match all three to the token issuer. The default token adapters refuse issuance and verification. If the application supplies the implementations below, import `Microsoft.Extensions.DependencyInjection` and register them before `Build()`:
+`direct` is the PAT format key. `ForResource` binds the receiver to its resource URI, credential audience and deployment environment. Match all three to the token issuer. Keep the application's durable `IPatAuthority`, `IPatRecoveryEpoch` and `IPatPolicy` registrations.
 
-```csharp
-builder.Services.AddScoped<IPatAuthority, LibraryPatAuthority>();
-builder.Services.AddScoped<IPatRecoveryEpoch, LibraryPatRecoveryEpoch>();
-builder.Services.AddScoped<IPatPolicy, LibraryPatPolicy>();
-```
+**Fresh local host:** start with the [MCP quick start’s local development adapters](https://www.cratis.io/arc/backend/csharp/mcp/quick-start/#local-development-adapters). In Development only, `UseDevelopmentPersonalAccessTokenAdapters()` after `WithPersonalAccessTokens(...)` supplies those three adapters in memory, not a person directory or an issuance endpoint. Issuance still needs a verified browser caller. Without one, exercise that path in an isolated spec using the [verified-caller acceptance fixture](https://github.com/Cratis/Arc/tree/v24.9.0/Samples/VerifiedCallerAcceptance.Specs); never install its signer or key in the host.
 
 For a combined Library host, merge `options.EndpointGroups.Assign("capabilities", 5002)` into the `configureArcOptions` lambda on `builder.AddCratis(...)`. Extend that call's existing `configureArcBuilder` lambda with the `.WithCapabilities().WithPersonalAccessTokens(...).WithMcp(...)` chain above. Keep the existing MongoDB and Chronicle registration. `catalog` gives queries the default `catalog:read` scope and commands `catalog:write`. The local client endpoint here is `http://127.0.0.1:5002/mcp`. Use HTTPS for remote clients.
 
@@ -58,6 +54,19 @@ public static IEnumerable<Author> ListAuthors(IMongoCollection<Author> collectio
 For an allowed write, import `Cratis.Arc.Mcp` in `Features/Authors/Registration/RegisterAuthor.cs` and add `[ExposeOverMcp("register_author", Description = "Registers an author in the library.")]` alongside `[Command]` on [RegisterAuthor](../cratis-arc-declare-command/SKILL.md).
 
 Give the tool a name matching `^[a-z][a-z0-9_]{0,63}$` and a description. For an argument description on a command record parameter, use `[property: System.ComponentModel.Description("The author's display name")] string Name`.
+
+## One-off scope check
+
+With both tools configured and a client PAT issued for `catalog:read` only, list tools on the capabilities listener. Supply `PAT` privately; do not log it.
+
+```sh
+curl -fsS http://127.0.0.1:5002/mcp \
+  -H "Authorization: Bearer $PAT" \
+  -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+In the result, expect `list_authors` and no `register_author`.
 
 ## When it goes off the usual path
 

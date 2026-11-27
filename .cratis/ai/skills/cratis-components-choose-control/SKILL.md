@@ -30,7 +30,7 @@ export function BookFields({ authors, loading, failure }: { authors: AuthorOptio
 
 Use `ComboBox` for choosing an existing author; store its unique key because two options may share a label. For a free-text name, use `<input aria-label="Author name" value={name} onChange={event => setName(event.target.value)} />` with string state. Read prices and dates from `onChange`, not formatted text.
 
-Put the accessible name on the control itself, not its surrounding panel. For the segmented date picker, pass `aria-label` on `DatePickerInput` to name its focus group. For a UI check (`cratis-specifications-observe-ui`), find the control by role and name, select a value with the keyboard, then clear it. The host should receive the typed value followed by `null`.
+Put the accessible name on the control itself, not its surrounding panel. For the segmented date picker, pass `aria-label` on `DatePickerInput` to name its focus group. For a one-off check in the existing story, find the control by role and name, select a value with the keyboard, then clear it. The host should receive the typed value followed by `null`. If the TypeScript Specifications profile is installed, use `cratis-specifications-observe-ui`.
 
 ## When it goes off the usual path
 

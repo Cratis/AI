@@ -20,9 +20,11 @@ public class RegisterAuthorValidator : CommandValidator<RegisterAuthor>
 }
 ```
 
-The execute pipeline applies blocking validation before `Handle`. A separate `/validate` request can provide early feedback, but is not needed to enforce the rule. Execute registration with an empty name. Expect `IsValid` and `IsSuccess` to be false, `ValidationResults` to identify the name member, and no event to be appended. With `Aster`, expect success and one registration.
+The execute pipeline applies blocking validation before `Handle`. A separate `/validate` request can provide early feedback, but is not needed to enforce the rule. For a one-off wiring check, execute registration with an empty name. Expect `IsValid` and `IsSuccess` to be false, `ValidationResults` to identify the name member, and no event to be appended. With `Aster`, expect success and one registration.
 
-For a relationship rule, take the related model as a typed validator constructor parameter (for example, `[LookUpBy(nameof(CancelReservation.ReservationId))] Reservation? reservation`, from `Cratis.Arc.Commands`). Check both existence and the relationship to the entity being changed. Nullable allows an absent instance; it doesn't turn an invalid key into a valid one. Test with an existing reservation for a different book: the command must still be rejected.
+Refuse with a message → request the decision model in the validator. Need the state to build the event → take it as a `Handle` parameter. Both are protected by default.
+
+For a relationship rule, take the related model as a typed validator constructor parameter (for example, `[LookUpBy(nameof(CancelReservation.ReservationId))] Reservation? reservation`, from `Cratis.Arc.Commands`). Check both existence and the relationship to the entity being changed. Nullable allows an absent instance; it doesn't turn an invalid key into a valid one. For a committed spec of this relationship rule, supply an existing reservation for a different book: the command must still be rejected.
 
 ## When it goes off the usual path
 
@@ -32,7 +34,7 @@ For a relationship rule, take the related model as a typed validator constructor
 
 - Do not throw from `Handle` for a missing field; attach the rule to that field.
 - Do not register a validator per rule. Add registration-specific rules to the existing validator.
-- Do not use a validation lookup to win a race. [Protect a decision](../cratis-chronicle-protect-decision/SKILL.md) based on current state, or use an append constraint for uniqueness across writers.
+- Do not substitute a database lookup for a [protected model parameter](../cratis-chronicle-protect-decision/SKILL.md). For uniqueness across writers use an append constraint.
 
 ## Related skills
 

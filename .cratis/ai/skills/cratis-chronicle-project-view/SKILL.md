@@ -27,17 +27,19 @@ namespace Library.Features.Authors.Listing;
 public record Author(AuthorId Id, string Name);
 ```
 
+Leave the listing active: `[Passive]` would compute by ID on demand instead of storing rows. For counts, use projection operators such as `[Increment<CopyAdded>, Decrement<BookBorrowed>] int Available`. A simple counter does not need a reducer.
+
 ## When it goes off the usual path
 
 - **The payload and model use different property names:** declare `[SetFrom<AuthorRegistered>(nameof(AuthorRegistered.Name))] string DisplayName`. This mapping can target a positional parameter or an explicit property. Match the payload's type; the mapping does not change how Chronicle selects the row. In a fluent projection, use `.To(e => e.Name)` for an event member and `.ToValue(...)` for a constant.
-- For a last-updated timestamp, add `using Cratis.Chronicle.Events;` and declare `[FromEvery(contextProperty: nameof(EventContext.Occurred))] DateTimeOffset LastUpdated`. Don't read the wall clock while projecting an event.
+- **The row is keyed by an event property rather than the source:** if `BookBorrowed` carries a `MemberId`, put `[FromEvent<BookBorrowed>(key: nameof(BookBorrowed.MemberId))]` on the member view. This selects the displayed row; it does not make the view a protected command read.
 - **A child event carries a parent ID different from its source ID:** for a separate `AuthorPublications(AuthorId Id, IEnumerable<Listing> Listings)` view, declare `public record Listing(string Id);` and `[EventType] public record ListingAdded(AuthorId AuthorId, string Id);`. Implement `IProjectionFor<AuthorPublications>` from `Cratis.Chronicle.Projections`. In `Define(IProjectionBuilderFor<AuthorPublications> builder)`, use `builder.From<AuthorRegistered>().Children(m => m.Listings, c => c.IdentifiedBy(m => m.Id).From<ListingAdded>(e => e.UsingParentKey(p => p.AuthorId).UsingKey(p => p.Id)));`. Test with two parents and assert each child appears only under its intended parent.
-- **The view needs a simple count:** import `Cratis.Chronicle.Projections.ModelBound` and use `[Increment<CopyAdded>, Decrement<BookBorrowed>] int Available` on a book-stock read model. A simple counter does not need a reducer.
-- **The screen needs to list stored rows:** keep the `Author` declaration above unchanged. Adding `[Passive]` (from `Cratis.Chronicle.ReadModels`) would compute by ID on demand instead of storing rows for the listing.
 
 ## Check removal by author ID
 
-With default discovery, keep `Author` in the backend assembly; Chronicle discovers records with model-bound projection attributes. In a test with an `IEventStore eventStore` for an empty namespace, register Aster with `var result = await eventStore.EventLog.Append(authorId, new AuthorRegistered("Aster"));`. Check `result.IsSuccess`, then check `(await result.WaitForCompletion()).IsSuccess` (import `Cratis.Chronicle.Observation`). Repeat for Birch with a different ID. List `await eventStore.ReadModels.GetInstances<Author>()` and check both names and IDs. Append `new AuthorRemoved()` for Aster; check acceptance and completion the same way. List again and expect only Birch.
+One-off wiring check in a disposable namespace, not a committed spec of Chronicle removal. For an uncovered application mapping, use a [`ReadModelScenario<Author>`](../cratis-specifications-exercise-backend/SKILL.md) instead.
+
+With default discovery, keep `Author` in the backend assembly; Chronicle discovers records with model-bound projection attributes. With an `IEventStore eventStore` for that namespace, register Aster with `var result = await eventStore.EventLog.Append(authorId, new AuthorRegistered("Aster"));`. Check `result.IsSuccess`, then check `(await result.WaitForCompletion()).IsSuccess` (import `Cratis.Chronicle.Observation`). Repeat for Birch with a different ID. List `await eventStore.ReadModels.GetInstances<Author>()` and check both names and IDs. Append `new AuthorRemoved()` for Aster; check acceptance and completion the same way. List again and expect only Birch.
 
 When the next value requires a computation over prior state that projection operators cannot express, switch to [a self-reducing model](../cratis-chronicle-reduce-state/SKILL.md). Keep side effects out of both.
 

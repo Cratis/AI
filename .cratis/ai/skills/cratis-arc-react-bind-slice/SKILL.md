@@ -1,26 +1,27 @@
 ---
 name: cratis-arc-react-bind-slice
 description: Use when a developer mounts the Arc React host, renders a generated query in custom markup or invokes a generated command from an action. Not for a standard table (use cratis-components-display-list) or a command form (use cratis-components-submit-form).
-compatibility: Requires react, react-dom, reflect-metadata, @cratis/components and @cratis/arc.react.
+compatibility: Requires react, react-dom, reflect-metadata and @cratis/arc.react. Add @cratis/components for DataPage or command dialogs.
 ---
 
 # Bind generated proxies in a React component
 
 Start with a plain function component and [React-enabled generated proxies](../cratis-arc-generate-proxies/SKILL.md). The paths and author types below belong to the Library example; use your slice's generated imports.
 
-1. In `main.tsx`, load metadata before the application. Mount the two providers once. `App` is your root component. If starting without a shell, export a function named `App` from `App.tsx` and render the query view there.
+1. In `main.tsx`, load metadata before the application. Mount `Arc` once. `App` is your root component. If starting without a shell, export a function named `App` from `App.tsx` and render the query view there.
 
 ```tsx
 import 'reflect-metadata';
 import { createRoot } from 'react-dom/client';
 import { Arc } from '@cratis/arc.react';
-import { CratisComponentsProvider } from '@cratis/components';
 import { App } from './App';
 
 createRoot(document.getElementById('root')!).render(
-    <CratisComponentsProvider><Arc><App /></Arc></CratisComponentsProvider>
+    <Arc><App /></Arc>
 );
 ```
+
+   For `DataPage` or command dialogs, import `CratisComponentsProvider` from `@cratis/components` and render `<Arc><CratisComponentsProvider><App /></CratisComponentsProvider></Arc>` instead.
 
 2. Bind the state view to its generated query. Loading and errors are UI states, not separate slices. For custom markup **instead of** `DataPage`, import `AllAuthors` from `../../../generated/Features/Authors/Listing/Author` in the consuming component under `Features/Authors/Listing`. Use this fragment inside that function component. Do not add another `Authors` component or call the hook alongside a `DataPage` that already uses the query.
 
@@ -61,7 +62,7 @@ Render the status and keep failed input for correction. Read the updated list fr
 
 ## Configure the host
 
-- For a custom prefix, use `<Arc apiBasePath="/library-api"><App /></Arc>`. For a named service, set `microservice="catalog"` on that same `Arc` element, using the actual service name.
+- For the same-origin Library host, omit `apiBasePath`: the generated routes already start with `/api`. Only set an additional deployment prefix, e.g. `apiBasePath="/library"` for `/library/api/...`. For a named service, set `microservice="catalog"` on that same `Arc` element, using the actual service name.
 
 - To show an editor-only control, import `RequireRole` from `@cratis/arc.react/identity`. Pass `roles={['catalog-editor']}` and distinguish `whileLoading` from `forbidden`. This is presentation only; enforce authorization on the backend command and query.
 
@@ -70,7 +71,7 @@ Render the status and keep failed input for correction. Read the updated list fr
 - **Rows aren't ready or access was denied:** show loading or error, not an empty list. Show an empty list only for a ready, successful result with no rows.
 - **The account switches:** cached query results and open query connections belong to the previous caller, and remounting views or the `<Arc>` provider does not discard them all. After sign-out or after installing a different user's credentials, reload the page (`window.location.reload()` or a full navigation) so every query starts fresh for the new caller.
 
-## Check the binding
+## One-off binding check
 
 Start with no rows, then register an author. The list should change without a page reload. With a blank search, expect the input hint.
 
