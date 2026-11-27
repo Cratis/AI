@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-accept-model
-description: Use when reviewing behavior changed by a Screenplay revision before accepting the model change for implementation. Not for applying edits (use cratis-screenplay-edit-workspace).
+description: Use when a reviewer needs to compare changed Screenplay behavior and decide whether to accept the model revision for implementation. Not for applying edits (use cratis-screenplay-edit-workspace).
 compatibility: Requires the Screenplay CLI.
 ---
 
@@ -24,7 +24,7 @@ compatibility: Requires the Screenplay CLI.
 ## Avoid
 
 - Don't interpret a failed baseline compilation as an empty baseline.
-- Don't count `unsupported` specifications as passing or reuse approval after the candidate revision changes.
+- Don't count `unsupported` specifications as passing or reuse approval after the candidate revision changes. If the reviewer hasn't accepted the named revision and outcomes, record that decision as pending and don't send the slice to the renderer.
 
 ## When it goes off the usual path
 

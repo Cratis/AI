@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-model-translation
-description: Use when modeling a Translate slice that turns an outside observation or public event into a private local fact, or adapts private facts to a public event. Not for acting on an already-local fact.
+description: Use when a modeler needs to translate external observations into local facts or private events into a public contract. For reacting to a local fact, use cratis-screenplay-model-automation.
 compatibility: Requires the Screenplay CLI.
 ---
 
@@ -109,6 +109,8 @@ module Library
 ```
 
 [Transport the public event](../cratis-chronicle-publish-contract/SKILL.md) through the outbox and inbox. Test delivery separately; these model specifications don't run polling or transport.
+
+If the outside system needs a new reusable provider package rather than just a boundary mapping, [author the extension](../cratis-screenplay-author-extension/SKILL.md) separately. Declaring a translation does not install or activate a backend.
 
 ## When it goes off the usual path
 

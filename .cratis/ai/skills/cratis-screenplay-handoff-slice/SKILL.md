@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-handoff-slice
-description: Use when exporting one accepted Screenplay slice to hand a target team the application behavior to implement. Not for approving the model (use cratis-screenplay-accept-model).
+description: Use when a modeler needs to hand an accepted Screenplay slice, scoped export and target obligations to an implementer. Not for approving the model (use cratis-screenplay-accept-model).
 compatibility: Requires the Screenplay CLI.
 ---
 
@@ -14,7 +14,7 @@ compatibility: Requires the Screenplay CLI.
    screenplay export model --scope Library.Authors.RegisterAuthor --output registration.json
    ```
 
-3. For a slice-only handoff, give the reader `registration.json`, the accepted full-model revision, the excerpt revision and the accepted example addresses and outcomes. Check the excerpt for the definitions it references. An export keeps application-level declarations but does not bring in other slices; supply any needed definitions from separate scoped exports. Name cross-slice checks such as `Library.Authors.ListAuthors` separately from the registration contract. Send `library.json` only when the reader needs the entire application.
+3. For a slice-only handoff, give the reader `registration.json`, the accepted full-model revision, the excerpt revision and the accepted example addresses and outcomes. Check the excerpt for the definitions it references. An export keeps application-level declarations but does not bring in other slices; supply any needed definitions from separate scoped exports. Name cross-slice checks such as `Library.Authors.ListAuthors` separately from the registration contract. A renderer that takes `.play` source needs the accepted model folder and identity state, plus `screenplay.lock` and its restored contracts when extensions are used. An excerpt alone is not that input.
 4. Add a UI export (`screenplay export model --format ui --output screens.json`) for a screen consumer. Add the HTTP contract below for a client integrating over HTTP.
 5. On the target, register Aster for the agreed author ID and verify that the already-open list gains the matching row. An empty name must produce `Name is required` and no new row. Record which accepted specification each executed target check covers.
 
@@ -42,4 +42,5 @@ The model's `x-screenplay-observable` marks a live query; the plain `GET` and st
 ## Related skills
 
 - [Declare the model slice](../cratis-screenplay-declare-slice/SKILL.md) for its qualified name.
+- [Render the accepted slice](../cratis-stage-render-slice/SKILL.md) to preview generated changes and assign target gaps before publication.
 - [Deliver the slice](../cratis-platform-deliver-slice/SKILL.md) for the running application check.

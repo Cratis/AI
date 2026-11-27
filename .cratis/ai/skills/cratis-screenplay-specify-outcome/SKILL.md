@@ -1,6 +1,6 @@
 ---
 name: cratis-screenplay-specify-outcome
-description: Use when writing Given/When/Then examples for an accepted outcome or a refusal in a Screenplay .play slice. Not for exercising a running backend (use cratis-specifications-exercise-backend).
+description: Use when a modeler needs Given/When/Then examples for success or refusal in a Screenplay .play slice. Not for exercising a running backend (use cratis-specifications-exercise-backend).
 compatibility: Requires the Screenplay CLI.
 ---
 
@@ -38,7 +38,7 @@ Start with a concrete case. In `model/Authors/registration.play`, use the same f
 
 ## Arrange a stateful or authorized command
 
-Seed decision history with `given <EventOrEventExample>` and `for` the owning source. Choose `given readmodel <ReadModelOrTypedExample>` to seed a view instead of replaying history. Supply its key and required fields. For an authorized command, default to `given caller` with nested `authenticated` and the required roles or claims, as shown. Use `given caller as <Persona>` only when a top-level persona declaration already satisfies the command's policy; an undeclared persona fails. If any command declares `reads`, declare `command reads protected` once in the application root document; without it the model does not bind and its specifications cannot run.
+Seed decision history with `given <EventOrEventExample>` and `for` the owning source. Choose `given readmodel <ReadModelOrTypedExample>` to seed a view instead of replaying history. Supply its key and required fields. For an authorized command, default to `given caller` with nested `authenticated` and the required roles or claims, as shown. Use `given caller as <Persona>` only when a top-level persona declaration already satisfies the command's policy; an undeclared persona fails. If any command declares `reads`, declare `command reads protected` once in the application root document; without it the model does not bind and its specifications cannot run. The following is a separate Lending example: if composing it into Library, leave the already-declared root directive in `application.play` instead of duplicating it.
 
 ```play
 command reads protected
@@ -110,22 +110,7 @@ Resolve the fixture, input names, ID and refusal from the existing model. Use on
 
 When a command records multiple facts, assert every new fact in the expected order. Choose `then events in any order` only when their order is not part of the contract. An unexpected extra fact still fails.
 
-## Check one rule across independent cases
-
-Choose a named table when the steps are identical and only the values change. Add it beside the registration specifications:
-
-```play
-specification RecordingAuthorNames
-  parameter name String
-  case AsterName name = "Aster"
-  case BirchName name = "Birch"
-  when Aster name = case.name
-  then AuthorRegistered
-    for "11111111-1111-4111-8111-111111111111"
-    name = case.name
-```
-
-Run `screenplay test model --format json`; check `RecordingAuthorNames_AsterName` and `RecordingAuthorNames_BirchName` separately.
+When only the input and expected values change across examples, [check one rule with named cases](references/named-cases.md).
 
 ## Carry the accepted examples into the application
 

@@ -1,0 +1,1 @@
+{"skill":"cratis-stage-render-slice","queries":[{"query":"The approved pricing slice changed. Preview the renderer's diff without losing the manual tax adapter.","shouldTrigger":true},{"query":"Prepare a portable excerpt of the accepted pricing slice for a different target team.","shouldTrigger":false,"sibling":"cratis-screenplay-handoff-slice"}]}

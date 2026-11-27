@@ -1,23 +1,23 @@
 ---
 name: cratis-screenplay-declare-slice
-description: Use when encoding an agreed state change or its view as a command, event or list in a Screenplay .play file. Not for discovering the business story (use cratis-modeling-discover-timeline).
+description: Use when a modeler needs to encode an agreed command, event or derived view in a Screenplay .play file. Not for discovering the business story (use cratis-modeling-discover-timeline).
 compatibility: Requires the Screenplay CLI.
 ---
 
 # Declare the command, event and list in the model
 
-Choose a slice by what it does:
+Start with an [application workspace](../cratis-screenplay-onboard-workspace/SKILL.md) and an agreed command or query outcome. Choose the owning slice:
 
 - **State change** (`StateChange`): a command decides which facts to record.
 - **State view** (`StateView`): a query presents a read model derived from facts.
-- **Automation** (`Automation`): a system acts on local facts or due work. [Model automation](../cratis-screenplay-model-automation/SKILL.md).
-- **Translation** (`Translate`): adapt outside observations to local facts or private facts to a public contract. [Model translation](../cratis-screenplay-model-translation/SKILL.md).
+
+For system-initiated work, use [automation](../cratis-screenplay-model-automation/SKILL.md); for a crossing between vocabularies, use [translation](../cratis-screenplay-model-translation/SKILL.md).
 
 Put `StateChange` and `StateView` slices under the intended `module` and `feature` declarations. Those declarations set the address, not the application name or file path. In `model/Authors/registration.play`, put the registration command and fact in one slice and the list in a separate view slice.
 
 1. Declare `concept AuthorId : Uuid`. Mark the command's `id` with `identifier`.
 2. Map each command input needed by the event. Use `for` to address the event to its owner.
-3. Give the read model a key. Default to the event source for a view of one history. Choose an explicit business key on each relevant `from` handler, using `from <Event> key <property>`, when the view uses a different key. Map the payload to the displayed fields.
+3. Give the read model a key. Default to the event source for a view of one history. Choose an explicit business key on each relevant `from` handler, using `from <Event> key <property>`, when the view uses a different key. Choose one projection or reducer per read model and map the payload to the displayed fields.
 4. Bind the list query to the collection. Run an example for a known ID and check the returned row.
 
 ## Example: register an author and list the name
