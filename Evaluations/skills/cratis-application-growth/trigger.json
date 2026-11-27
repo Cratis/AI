@@ -1,0 +1,23 @@
+{
+  "skill": "cratis-application-growth",
+  "queries": [
+    { "query": "Our Cratis app is one big project with feature folders. When should we split it into modules?", "shouldTrigger": true },
+    { "query": "Plan moving the Billing feature folders into their own module project without breaking our Chronicle events.", "shouldTrigger": true },
+    { "query": "Should a brand new Cratis product with three teams start modular from day one?", "shouldTrigger": true },
+    { "query": "Module Orders needs to know when Billing invoices a customer. How do we avoid a project reference between them?", "shouldTrigger": true },
+    { "query": "Set up a ratcheting architecture gate that fails when cross-module usings increase.", "shouldTrigger": true },
+    { "query": "We keep adding InternalsVisibleTo between two of our projects to make things compile. What is the right fix?", "shouldTrigger": true },
+    { "query": "What goes in a module README and how is a module declared and registered with its own routes and settings?", "shouldTrigger": true },
+    { "query": "Our shared Components package imports a module's component. How should frontend package boundaries work?", "shouldTrigger": true },
+    { "query": "We moved our modules into their own projects; now rename every namespace to Acme.Shop.<Project> without replaying projections in production.", "shouldTrigger": true },
+    { "query": "Our Shared project depends on the Orders module and every module depends on Shared. How do we break it up?", "shouldTrigger": true },
+    { "query": "Split Ordering and Billing into separate deployed services with their own event stores.", "shouldTrigger": false, "note": "cratis-multi-service-architecture" },
+    { "query": "Run Ordering and Billing locally together with Aspire.", "shouldTrigger": false, "note": "cratis-multi-service-local-orchestration" },
+    { "query": "Add a field to a stored event and keep old events readable.", "shouldTrigger": false, "note": "cratis-chronicle-event-type-migration" },
+    { "query": "Write the command, event and projection for registering an author.", "shouldTrigger": false, "note": "cratis-arc-command" },
+    { "query": "Check that my hand-written slice matches its accepted .play model.", "shouldTrigger": false, "note": "cratis-application-slice-conformance" },
+    { "query": "Make a second tenant available in our single Chronicle app.", "shouldTrigger": false, "note": "cratis-chronicle-multi-tenancy" },
+    { "query": "Restructure the MSBuild Directory.Build.props hierarchy to remove duplicated settings.", "shouldTrigger": false, "note": "directory-build-organization" },
+    { "query": "Build a React page with a data table and command dialogs.", "shouldTrigger": false, "note": "cratis-arc-react-page" }
+  ]
+}
