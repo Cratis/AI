@@ -1,16 +1,16 @@
 ---
 name: cratis-modeling-discover-timeline
-description: Use when event modeling a business journey, identifying who owns a recorded event, identifying the event source or tracing a screen field to its origin. Not for expressing an agreed slice in .play (use cratis-screenplay-declare-slice).
+description: Use when discovering who owns one business outcome, whose event source records it or where a displayed field comes from. For cutting an agreed timeline into slices, use cratis-modeling-design-event-model.
 ---
 
 # Discover the business timeline
 
-1. Ask for one outcome. Record the actor, input and visible result in the owner's words.
-2. Arrange past-tense business events left to right as a causal plot, including alternative paths. Sketch what participants see and do as a storyboard. Give each owning system or bounded context a swimlane.
+1. Start with one real completed instance. Record the actor, input and visible result in the owner's words.
+2. Arrange past-tense business events left to right as a causal plot. Sketch what participants see and do as a storyboard. Give each owning system or bounded context a swimlane. Name the storyline if it crosses features and needs revisiting.
 3. Name the command for what the actor requests and the event for the business outcome, not the database write. Mark whose history gained the fact: write the event source ID beside the event, separate from the caller.
 4. Check information completeness. Walk each displayed value to its origin: in the authors list, the event source supplies the row key and the payload supplies the name.
-5. Change one input to expose a boundary. Ask what should be refused, what the caller sees and what must remain unchanged. Keep unanswered questions open.
-6. Cut the plot by behavior within the owning swimlane. [Design the event model](../cratis-modeling-design-event-model/SKILL.md) to choose the slice patterns and carry the agreed journey into examples.
+5. Read the plot back in story order to the person who does the work. When the answer is "usually", ask what decides the outcome. Change one input at a time; record one example that distinguishes the outcomes, where its deciding input comes from and what remains unresolved.
+6. Once the outcome is agreed, [design the event model](../cratis-modeling-design-event-model/SKILL.md) to cut the timeline into slices.
 
 ## Example: register an author
 

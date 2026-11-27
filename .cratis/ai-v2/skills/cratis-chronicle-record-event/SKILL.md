@@ -8,13 +8,13 @@ compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 
 1. Import `AuthorId` and `AuthorName` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Reference `Cratis.Chronicle` in the backend. Put the registration event and its writer in `Features/Authors/Registration/`.
 2. Mark the event `[EventType]`. The stored ID defaults to the type name; if you rename the type later, retain its old ID with `[EventType("AuthorRegistered")]`.
-3. Inject `IEventLog` into the direct writer. Use the author's `AuthorId` as the event source ID. The event log is the default event sequence; filter it by event source to read this author's history. Return the append result to the caller.
+3. Inside Arc, [return the fact from the handler](../cratis-arc-declare-command/SKILL.md). Choose a guarded `IEventLog` append when the writer is standalone. Use the caller's `AuthorId` as the event source ID and return the append result.
 
 ```csharp
 // Features/Authors/Registration/AuthorRegistered.cs and AuthorRegistry.cs (same namespace)
 using Cratis.Chronicle.Events;
 using Cratis.Chronicle.EventSequences;
-
+using Cratis.Chronicle.EventSequences.Concurrency;
 using Cratis.Chronicle.Events.Constraints;
 using Library.Features.Authors;
 
@@ -26,10 +26,18 @@ public record AuthorRegistered(
 
 public class AuthorRegistry(IEventLog eventLog)
 {
-    public Task<AppendResult> Register(AuthorId authorId, AuthorName name) =>
-        eventLog.Append(authorId, new AuthorRegistered(name.Value));
+    public Task<AppendResult> Register(AuthorId authorId, AuthorName name)
+    {
+        var unused = new ConcurrencyScopeBuilder()
+            .ExpectingNoMatchingEvent()
+            .WithEventSourceId(authorId)
+            .Build();
+        return eventLog.Append(authorId, new AuthorRegistered(name.Value), concurrencyScope: unused);
+    }
 }
 ```
+
+The standalone writer is create-only: a freshly generated ID is not proof this history is unused. Its append condition checks for any prior event at that ID; `UniqueAuthorName` reserves the name across histories. After one accepted append, try a different unused name for the same ID and require a concurrency violation and no second event.
 
 ## Read back the accepted registration
 
@@ -57,16 +65,11 @@ public async Task<DateTimeOffset?> GetRegistrationTime(AuthorId authorId)
 }
 ```
 
-If the same ID may register more than once, select the intended registration by its sequence number before reading `Context.Occurred`. Do not use the time of the lookup as the time of the registration.
-
-## Avoid
-
-- Don't generate an ID inside the writer. Use the ID supplied for this author.
-- Don't use observer completion to decide whether the append was accepted. Check `result.IsSuccess` first.
-- Don't append inside an Arc command that already returns `AuthorRegistered`; that would write twice.
+Use the stored occurrence time, not the lookup time. If another writer permits multiple registrations per source, select the intended registration by sequence number instead of taking the single result.
 
 ## When it goes off the usual path
 
+- **The create-only append was refused:** inspect the refusal and read the existing history before deciding whether to report an existing author or try again. A refusal does not prove the history is empty.
 - **The original outcome needs correcting:** append a correcting fact for that event source and preserve the original. Don't edit it in the event log.
 
 ## Related skills

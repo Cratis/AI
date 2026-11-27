@@ -6,15 +6,14 @@ compatibility: Requires React Storybook with @storybook/react-vite, the Library 
 
 # Open the real Add author dialog in a story
 
-1. Start with [AddAuthorButton and AddAuthor](../cratis-components-submit-form/SKILL.md) and the generated `RegisterAuthor` proxy in the Library application. Put this story beside the button in `Features/Authors/Registration/AddAuthor.stories.tsx`. Its decorator mounts the [Library providers](../cratis-arc-react-bind-slice/SKILL.md); omit the local decorator if the project's preview already supplies both.
-2. Open **Library / Authors / Registration → Opens And Edits Name** in Storybook. The play function opens the real dialog and edits its single name field. Query the trigger inside the canvas, then find the dialog in the preview document because the provider can render it outside the canvas.
+Use a story with fixed inputs and the real component for dialog interaction and focus. Start with [AddAuthorButton and AddAuthor](../cratis-components-submit-form/SKILL.md) and set the real dialog's `initialFocus={DialogInitialFocus.Content}` as described there. Put `AddAuthor.stories.tsx` beside the button. Omit its decorator if the preview already supplies the [Library providers](../cratis-arc-react-bind-slice/SKILL.md).
 
 ```tsx
 import 'reflect-metadata';
 import { Arc } from '@cratis/arc.react';
 import { CratisComponentsProvider } from '@cratis/components';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { AddAuthorButton } from './AddAuthorButton';
 
 const meta = {
@@ -27,20 +26,24 @@ export default meta;
 export const OpensAndEditsName: StoryObj<typeof meta> = {
     play: async ({ canvasElement }) => {
         const trigger = within(canvasElement).getByRole('button', { name: 'Add author' });
-        await userEvent.click(trigger);
+        trigger.focus();
+        await userEvent.keyboard('{Enter}');
         const page = within(canvasElement.ownerDocument.body);
-        const dialog = within(await page.findByRole('dialog'));
+        const dialog = within(await page.findByRole('dialog', { name: 'Add author' }));
+        const title = dialog.getByRole('heading', { name: 'Add author' });
+        await waitFor(() => expect(title).toHaveFocus());
         const input = dialog.getByRole('textbox');
         await userEvent.type(input, 'Aster');
         await expect(input).toHaveValue('Aster');
-        await expect(dialog.getByRole('button', { name: 'Add', exact: true })).toBeVisible();
+        await userEvent.keyboard('{Escape}');
+        await waitFor(() => expect(trigger).toHaveFocus());
     },
 };
 ```
 
 ## Check submission on the running Library application
 
-Put this helper in `Features/Authors/Registration/verifyKeyboardRegistration.mjs`. Pass an authenticated Playwright page already on the Library Authors DataPage in a fresh namespace, and a unique name. Wait for the row without reloading:
+Choose an authenticated live browser for command-to-row delivery. Put this helper in `Features/Authors/Registration/verifyKeyboardRegistration.mjs` and pass a page on Authors in a fresh namespace, plus a unique name. Wait for the row without reloading. `locator.press()` targets the element; it does not test how Tab gets there.
 
 ```js
 export async function verifyKeyboardRegistration(page, name) {
@@ -52,10 +55,10 @@ export async function verifyKeyboardRegistration(page, name) {
 }
 ```
 
-## Avoid
+## When it goes off the usual path
 
-- Don't replace `AddAuthorButton` with a form defined by the story. That would not detect broken dialog wiring.
-- Don't report a successful command or live query update from the story. It never presses Add.
+- **The dialog is portalled outside the canvas:** keep the trigger lookup scoped to the canvas and the named dialog lookup scoped to the preview document.
+- **Testing server refusal:** in a wired story, use a nonempty name with a fixed refusal at the command transport boundary. Verify the announced refusal, visible error and still-open dialog before editing and resubmitting with an accepted result. Assert focus returns to the trigger after dismissal. A disabled Add button on empty input doesn't exercise refusal.
 
 ## Related skills
 

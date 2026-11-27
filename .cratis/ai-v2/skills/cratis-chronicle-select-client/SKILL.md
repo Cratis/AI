@@ -1,14 +1,14 @@
 ---
 name: cratis-chronicle-select-client
-description: Use when choosing a Chronicle client package or contracts for a non-.NET service in Python, Elixir, Kotlin or TypeScript, or checking what a language client provides. Not for choosing an Arc backend SDK (use cratis-arc-select-backend-sdk).
+description: Use when choosing a Chronicle client or generated contracts for a non-.NET service. Not for choosing an Arc backend SDK (use cratis-arc-select-backend-sdk).
 compatibility: A language toolchain with the matching Chronicle contracts installed.
 ---
 
 # Choose a Chronicle client for a non-.NET service
 
-1. Decide whether the caller needs a wire message or needs to run Chronicle application behavior. A service stub is not a reactor host.
-2. Use the generated contracts from `cratis-chronicle-contracts` in Python or `:cratis_chronicle_contracts` in Elixir. For a TypeScript application use `@cratis/chronicle`. Use `@cratis/chronicle.contracts` only when building a client or tool. In Kotlin `io.cratis.chronicle.contracts.ChronicleConnection` manages the gRPC channel; call its suspending `connect()` before using it.
-3. When a Python, Elixir or Kotlin service needs to host a reactor, projection, reducer or guarded write, don't infer support from the contracts; for the .NET implementation use the [.NET application integration](../cratis-chronicle-connect-application/SKILL.md). Don't translate a .NET API into another language and assume that implementation exists.
+1. **Application behavior:** start with the native application client when its pinned version implements and tests the required append, observe or host behavior against your kernel. Look for `:cratis_chronicle` (Elixir/OTP), `io.cratis:chronicle` (JVM), `@cratis/chronicle` (TypeScript), or `github.com/cratis/chronicle.go` (Go). Check the pinned version's documented support and tests for the operation. Don't infer support from another SDK.
+2. **Wire tooling:** choose generated contracts when you need message types and service stubs, not hosted behavior. Use `cratis-chronicle-contracts` in Python, `:cratis_chronicle_contracts` in Elixir, or `@cratis/chronicle.contracts` in TypeScript. The Kotlin contracts' `ChronicleConnection` opens the gRPC connection; that is not the JVM application client.
+3. **Missing application behavior:** route to an implementation that demonstrates the required behavior. For .NET, follow the [application integration](../cratis-chronicle-connect-application/SKILL.md).
 
 ## Read a registered author's event type in Python
 
@@ -28,11 +28,10 @@ class AuthorEventTypeTest(unittest.TestCase):
         self.assertTrue(callable(eventtypes_pb2_grpc.EventTypesStub))
 ```
 
-## Avoid
+## When it goes off the usual path
 
-- Don't interpret a message round trip as a successful server write.
-- Don't promise retry or reconnect behavior because the package exposes a channel or service stub.
-- Don't assume a native consumer can host a .NET projection.
+- **A Go append returns a transport error:** distinguish an explicit server refusal from an unknown commit. Check the intended history or reconcile using the operation's durable identity before repeating the append. A lost acknowledgement is not evidence of rejection.
+- **The Python round trip passes:** it proves the wire types and stub are installed, not an append, retry, or hosted observer.
 
 ## Related skills
 

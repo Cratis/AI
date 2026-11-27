@@ -31,7 +31,7 @@ app.UseCratisChronicle();
 await app.RunAsync();
 ```
 
-For an Arc + Chronicle app using the combined `Cratis` package, use `builder.AddCratis(configureChronicleOptions: options => options.EventStore = "library");` and `app.UseCratis();` instead of the two standalone calls. For namespace selection per tenant, see [Isolate tenant access](../cratis-arc-isolate-tenant/SKILL.md).
+Choose the combined host when the app already uses Arc and Chronicle through `Cratis`: call `builder.AddCratis(configureChronicleOptions: options => options.EventStore = "library");` and `app.UseCratis();` instead of the two standalone calls. For namespace selection per tenant, see [Isolate tenant access](../cratis-arc-isolate-tenant/SKILL.md).
 
 ## Check the connection
 
@@ -42,6 +42,11 @@ Append an `AuthorRegistered` event in the library store and check `result.IsSucc
 - Don't create a client for each request.
 - Don't omit `skipTlsValidation=false` and assume certificate validation is enabled.
 - Don't assume the kernel's event storage determines read-model storage: the client's `DefaultSinkTypeId` selects that storage (MongoDB by default).
+
+## When it goes off the usual path
+
+- **The client cannot connect or register:** first verify the resolved host and port from the app's network. If it reaches the intended kernel, compare the installed client and running kernel versions for the operation that fails. Record versions and endpoint only, not credentials.
+- **A development connection worked but a shared endpoint fails TLS:** verify the trusted certificate and hostname. The development image bundles dependencies and generates an untrusted certificate; configure production dependencies and certificates explicitly. Don't turn off validation for a shared endpoint.
 
 ## Related skills
 

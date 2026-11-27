@@ -6,7 +6,7 @@ compatibility: Requires the Screenplay CLI.
 
 # Specify successful registration and refusal of an empty name
 
-In `model/Authors/registration.play`, use the same fixed author ID in each example so only the name changes.
+Start with a concrete case. Choose a named case table only when multiple independent rows witness the same rule. In `model/Authors/registration.play`, use the same fixed author ID in both examples so only the name changes.
 
 1. Start with the command, `AuthorId` and event from [declaring the Authors slice](../cratis-screenplay-declare-slice/SKILL.md).
 2. Inside the command, add the rule below before `produces AuthorRegistered`:
@@ -48,7 +48,9 @@ Put the givens in each specification. Seed `given <EventType>` with `for <litera
   then error "Name is required"
 ```
 
-Use the application's declared role and modeled refusal. Run one `when` per specification: `when Aster` to use the example as-is, or an inline assignment to override an input. Do not attach a caller to the `when` or invent a fixture name in place of event or read-model data.
+Use the application's declared role. A command example has one stimulus: `when Aster` uses the example as-is, or an inline assignment overrides an input. Put the caller in `given caller`, not on `when`. For an authorization refusal use `then denied`, not `then error` or `then no events`.
+
+When a command records multiple facts, assert every new fact in the expected order. Choose `then events in any order` only when their order is not part of the contract. An unexpected extra fact still fails.
 
 ## Carry the accepted examples into the application
 
@@ -56,6 +58,7 @@ Use the application's declared role and modeled refusal. Run one `when` per spec
 
 ## When it goes off the usual path
 
+- **Only a read is under test:** seed the relevant history or read-model state and assert `then query` without a `when` command.
 - **The effect belongs to another slice:** move the effect assertion to the slice that owns it and seed the fact it reacts to. Verify the joined behavior in the running application.
 - **The model runner reports Unsupported:** keep the outcome unverified; cover it at the first executable boundary rather than changing the assertion to get a pass.
 

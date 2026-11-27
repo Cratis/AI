@@ -42,8 +42,6 @@ if (!name.trim()) return <p>Enter an author name.</p>;
 ## Configure the host
 
 - Set `apiBasePath` on `Arc` to the API prefix. Set `microservice` to the target service name if the host serves several microservices.
-- Import `useIdentity` from `@cratis/arc.react/identity`. Call `const identity = useIdentity()` in the component. Show a loading indicator while `identity.isLoading`, then check `identity.isSet` to distinguish signed-in from signed-out.
-- Read `const arc = useContext(ArcContext)` during render (`useContext` from `react`, `ArcContext` from `@cratis/arc.react`). After an account switch, call `arc.reconnectQueries?.()` to reconnect live queries for the new caller.
 
 ## Avoid
 
@@ -51,7 +49,8 @@ if (!name.trim()) return <p>Enter an author name.</p>;
 
 ## When it goes off the usual path
 
-- **Rows aren't ready or access was denied:** show the relevant loading or error state. Show an empty list only when the query succeeds and returns no rows.
+- **Rows aren't ready or access was denied:** show loading or error, not an empty list. Show an empty list only for a ready, successful result with no rows.
+- **The account switches:** hide the previous caller's rows. Check `useIdentity()` (`@cratis/arc.react/identity`) for loading and sign-in state. Once the new credentials are active, call `arc.reconnectQueries?.()` on the `ArcContext` value read with `useContext` and wait for a fresh result before displaying rows.
 
 ## Related skills
 

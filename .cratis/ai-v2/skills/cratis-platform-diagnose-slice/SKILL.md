@@ -12,9 +12,9 @@ Add the `Cratis.OpenTelemetry` package to the Library host. In `Program.cs`, imp
 builder.AddCratisOpenTelemetry(options => options.ServiceName = "library");
 ```
 
-This registers Cratis traces and metrics for the host, not the kernel. To send them to a collector, configure the host's `OTEL_EXPORTER_OTLP_ENDPOINT`. Select the trace for one registration request. Keep its author ID, store and namespace fixed through the checks below; aggregate request counts cannot identify the missing row.
+This registers Cratis traces and metrics for the host, not the kernel. To send them to a collector, configure the host's `OTEL_EXPORTER_OTLP_ENDPOINT`. Use a shared request or trace ID when available to correlate the command and downstream checks. Keep the store, namespace, author ID and logged event position as evidence even when the trace is incomplete.
 
-1. Submit `RegisterAuthor` with a fresh `AuthorId` and name Aster. Inspect `CommandResult.IsSuccess`. On refusal, inspect the validation results before investigating the list.
+1. Submit `RegisterAuthor` with a fresh `AuthorId` and name Aster. Inspect `CommandResult.IsSuccess`. On refusal, identify the result category first. Inspect validation results for invalid input, not for authorization denial or an exception.
 2. In the Library event store and the application's namespace, read `eventLog.GetForEventSourceIdAndEventTypes(authorId, [typeof(AuthorRegistered).GetEventType()])` as in [reading back the append](../cratis-chronicle-record-event/SKILL.md). For this fresh ID take the single event and record `stored.Context.SequenceNumber` and `EventSequenceId.Log`; a successful command result alone does not establish the append.
 3. Read `await eventStore.Observers.GetAll()` and select the observer whose ID is `Library.Features.Authors.Listing.Author`. In `Features/Authors/Diagnostics/AuthorListingProgress.cs`, use [ComparePosition](../cratis-chronicle-inspect-observer/SKILL.md) with that observer, the same event sequence ID and the recorded write position. Compare `LastHandledEventSequenceNumber` only within the same store, namespace and sequence.
 4. After catch-up, check the materialized row independently in the tenant's read-model database and collection. Look up the written source by its persisted row key and check its projected fields. If the observer reached the write and that row is missing or stale, investigate the projection, key or storage mapping.
@@ -28,10 +28,12 @@ This registers Cratis traces and metrics for the host, not the kernel. To send t
 | Observer reaches 12 | Check the persisted row, then rerun the lookup for Aster's exact `AuthorId` against a fresh `AllAuthors` result from `GET <query-route>?waitForFirstResult=true`. If absent from a ready result, check the projected row key and query scope, not the screen. |
 | Query contains the author; open screen doesn't | Distinguish a missing subscription update from a row the component didn't render. |
 
-## Avoid
+## When it goes off the usual path
 
-- Don't infer a failed append from a missing telemetry span; inspect the event log.
-- Don't log sensitive payloads or credentials in a diagnostic capture.
+- **A span is missing:** follow the same evidence chain from command result to event, row, query and screen. A missing span does not establish a failed append.
+- **The command is unauthorized:** check the caller and required permissions, not field validation.
+
+Don't put author names or payloads in metric dimensions or copy sensitive payloads or credentials into a diagnostic capture.
 
 ## Related skills
 

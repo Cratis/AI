@@ -6,6 +6,8 @@ compatibility: Requires Microsoft.NET.Sdk.Web and the Cratis.Arc package.
 
 # Start an Arc host
 
+For an Arc-only ASP.NET Core host, pair `AddCratisArc()` with `UseCratisArc()`. Choose `AddCratis()` and `UseCratis()` from the `Cratis` package instead if the application also uses Chronicle. The combined registration wires the Chronicle client; it does not start a kernel.
+
 In a `Microsoft.NET.Sdk.Web` project with `<ImplicitUsings>enable</ImplicitUsings>`, reference `Cratis.Arc`. Register Arc on the builder and activate it on the built application in `Program.cs` (top-level statements, no namespace).
 
 ```csharp
@@ -38,11 +40,15 @@ public record LibraryStatus(string State)
 
 Run `dotnet run` from the host project directory. With the options above, request `GET /api/features/diagnostics/current-status` at the listening address printed at startup. Expect HTTP 200, `isSuccess: true` and `data.state` equal to `Open`. When testing an existing query, use its route and required credentials. For an observable query, append `?waitForFirstResult=true` to request one result.
 
+## When it goes off the usual path
+
+- **The host probe passes but an append cannot connect:** check the configured endpoint and availability of the separate Chronicle kernel. `CurrentStatus` verifies Arc's HTTP route, not event appends or projection delivery.
+
 ## Avoid
 
 - Do not omit either half of `AddCratisArc()` / `UseCratisArc()`.
 - Do not add a controller for a model-bound query; put the method on its read model.
-- Do not register Arc twice in an application using Chronicle. The `Cratis` package composes both through `AddCratis()` / `UseCratis()`.
+- Do not combine the Arc-only and combined registration pairs.
 
 ## Related skills
 

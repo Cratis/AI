@@ -6,7 +6,10 @@ compatibility: Requires @cratis/components and @cratis/arc.react.
 
 # List authors and open the selected row
 
-Present the state view using rows returned by the query, not values from the last submitted command.
+Present the state view using rows returned by the query, not values from the last submitted command. Default to a table alone.
+
+- Pass `detailsComponent={AuthorDetails}` when users should inspect a selection alongside the table. Type the component with `IDetailsComponentProps<Author>` from `@cratis/components/DataPage`; it receives the selected row as `item`. Load related records with `item.id`, not `item.name`.
+- Choose navigation, as below, when details need their own screen or won't fit in a pane. Keep Add independent of selection; do not set `disableOnUnselected` on it.
 
 1. In `Features/Authors/Listing/Authors.tsx`, import `Author` and `AllAuthors` from the private [generated tree](../cratis-arc-generate-proxies/SKILL.md). The generator retains `Features/Authors/Listing`; don't copy its output into the UI folder. Render the page inside the app's [providers](../cratis-arc-react-bind-slice/SKILL.md).
 2. Pass the query constructor and a stable `dataKey`. Each column's `field` names a property of `Author`.
@@ -27,6 +30,8 @@ export const Authors = ({ onOpen }: { onOpen: (author: Author) => void }) => (
     </DataPage>
 );
 ```
+
+In the UI check, switch between two rows with the same name and confirm that inspection follows the selected ID.
 
 ## Avoid
 

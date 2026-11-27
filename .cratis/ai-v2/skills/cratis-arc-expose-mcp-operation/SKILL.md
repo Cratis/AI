@@ -6,7 +6,11 @@ compatibility: Requires Cratis.Arc.Mcp and Cratis.Arc.PersonalAccessTokens; the 
 
 # Expose an author operation as an MCP tool
 
-In a local Arc-only Web SDK host, install the personal access token (PAT) verifier, bind a separate capabilities port and enable MCP on the same Arc builder. Use your application's existing `LibraryPersonDirectory` implementation of `Cratis.Arc.Identity.Callers.ICallerPersonDirectory`: its `Find` must resolve the verified account key against persisted person records. The example assumes that type is in `Library.Identity`. In `Program.cs`:
+Start with a finite read. Expose a write only if the verified caller is allowed to make that change without a separate approval.
+
+## Prepare the host
+
+If verified callers are already configured, extend the existing scopes and tool catalog without adding another verifier. For a new local Arc-only Web SDK host, install the personal access token (PAT) verifier, bind a separate capabilities port and enable MCP on the same Arc builder. Use your application's existing `LibraryPersonDirectory` implementation of `Cratis.Arc.Identity.Callers.ICallerPersonDirectory`: its `Find` must resolve the verified account key against persisted person records. The example assumes that type is in `Library.Identity`. In `Program.cs`:
 
 ```csharp
 using Cratis.Arc;
@@ -29,16 +33,11 @@ app.MapArcMcp();
 await app.RunAsync();
 ```
 
-`direct` is the PAT format key. `ForResource` binds the receiver to its resource URI, credential audience and deployment environment. Match all three to the token issuer. Register your authoritative `IPatAuthority`, `IPatRecoveryEpoch` and `IPatPolicy` implementations before `Build()`; the default adapters refuse issuance and verification. If PAT callers are already installed for this resource, retain that installation and only add the allowed scopes, capabilities and MCP configuration. Do not install a second verifier.
+`direct` is the PAT format key. `ForResource` binds the receiver to its resource URI, credential audience and deployment environment. Match all three to the token issuer. Register your authoritative `IPatAuthority`, `IPatRecoveryEpoch` and `IPatPolicy` implementations before `Build()`; the default adapters refuse issuance and verification. Use only one verifier for this resource.
 
 In a combined Library host, assign the port in `AddCratis`'s `configureArcOptions` and chain the three builder calls above after `WithMongoDB` in `configureArcBuilder`. Keep Chronicle registration. `catalog` gives queries the default `catalog:read` scope and commands `catalog:write`. The local client endpoint here is `http://127.0.0.1:5002/mcp`. Use HTTPS for remote clients.
 
-In `Features/Authors/Registration/RegisterAuthor.cs` (`Library.Features.Authors.Registration`) annotate the [command](../cratis-arc-declare-command/SKILL.md) itself. Its `AuthorId` and `AuthorRegistered` stay unchanged:
-
-```csharp
-// Import Cratis.Arc.Mcp and add alongside [Command] on RegisterAuthor.
-[ExposeOverMcp("register_author", Description = "Registers an author in the library.")]
-```
+## Add a tool
 
 For a list, annotate the **method** on the existing [Author projection](../cratis-chronicle-project-view/SKILL.md) in `Features/Authors/Listing/Author.cs` (`Library.Features.Authors.Listing`). Import `Cratis.Arc.Mcp` and `MongoDB.Driver`, then add this method to `Author`:
 
@@ -48,7 +47,13 @@ public static IEnumerable<Author> ListAuthors(IMongoCollection<Author> collectio
     collection.Find(_ => true).ToList();
 ```
 
+For an allowed write, import `Cratis.Arc.Mcp` in `Features/Authors/Registration/RegisterAuthor.cs` and add `[ExposeOverMcp("register_author", Description = "Registers an author in the library.")]` alongside `[Command]` on [RegisterAuthor](../cratis-arc-declare-command/SKILL.md).
+
 Give the tool a name matching `^[a-z][a-z0-9_]{0,63}$` and a description. `System.ComponentModel.DescriptionAttribute` on a query parameter or command property describes the argument.
+
+## When it goes off the usual path
+
+- **A command marked `[RequiresApproval]` is exposed:** Arc rejects the catalog at startup. Remove its MCP exposure, not the approval requirement. Keep the command on the approved application path.
 
 ## Avoid
 

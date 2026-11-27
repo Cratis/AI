@@ -14,9 +14,9 @@ compatibility: Requires the Screenplay CLI.
    screenplay export model --scope Library.Authors.RegisterAuthor --output registration.json
    ```
 
-3. Give the implementer `registration.json`, both revisions and the accepted `RegisteringAster` and `RejectingAnEmptyName` outcomes. Name `Library.Authors.ListAuthors` as a dependency, not as part of this excerpt.
-4. For a screen consumer, include `screenplay export model --format ui --output screens.json`. For an HTTP consumer, use the handoff below.
-5. On the target, register Aster for the agreed author ID and verify that the already-open list gains the matching row. An empty name must produce `Name is required` and no new row.
+3. Give the implementer `library.json`, `registration.json`, both revisions and the accepted `RegisteringAster` and `RejectingAnEmptyName` addresses and outcomes. Name `Library.Authors.ListAuthors` as a dependency, not as part of this excerpt.
+4. Add a UI export (`screenplay export model --format ui --output screens.json`) for a screen consumer. Add the HTTP contract below for a client integrating over HTTP.
+5. On the target, register Aster for the agreed author ID and verify that the already-open list gains the matching row. An empty name must produce `Name is required` and no new row. If generating tests, map each accepted specification address to its generated and executed case, not to a generated test count.
 
 ## Hand off to an HTTP client
 
@@ -35,10 +35,9 @@ Treat those IDs as model metadata. Arc's generated OpenAPI uses the host's endpo
 
 The model's `x-screenplay-observable` marks a live query; the plain `GET` and stream negotiation above describe Arc's runtime behavior. Verify with valid input: run validation first and confirm no new row, then execute and confirm the fresh snapshot and the already-open stream both contain the agreed author ID.
 
-## Avoid
+## When it goes off the usual path
 
-- Don't send a feature-wide export when the request is for one slice.
-- Don't treat a successful export as proof that the target application implements registration.
+- **The compiler accepts a feature that the renderer cannot deliver:** record the compiler and renderer versions and the selected target. Assign one owner and one target check per unrendered behavior. Don't weaken the accepted outcome or edit renderer-managed files to make the handoff look complete.
 
 ## Related skills
 

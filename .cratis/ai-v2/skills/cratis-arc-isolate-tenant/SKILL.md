@@ -6,7 +6,7 @@ compatibility: Requires Cratis.Arc in a web host with a verified caller identity
 
 # Check tenant membership before accessing authors
 
-Keep the host's existing selection mechanism, including header selection when callers choose a tenant. A resolver selects a tenant; it does not establish that the caller belongs to it. Register a separate synchronous `ITenantMembership` check against trusted membership claims.
+Keep the host's existing selection mechanism, including header selection when callers choose a tenant. A resolver selects a tenant; it does not establish that the caller belongs to it. A request header expresses a selection, not membership. Register a separate synchronous `ITenantMembership` check against trusted membership claims.
 
 In the Arc-only host's `Program.cs`, keep the existing authentication and tenant resolver setup and register the check. For header selection, keep `options.UseHeaderTenancy(...)` with the configured header name. The example selects from a claim; for a combined Library host, configure the same resolver through `AddCratis(configureArcOptions: ...)` instead of registering Arc twice.
 
@@ -43,14 +43,17 @@ public class ClaimsTenantMembership : ITenantMembership
 
 `IsDefault` rejects both `TenantId.NotSet` and `TenantId.Default`; use this guard when selection is mandatory. Test both a missing selection and an explicit default selection as well as a nonmember selection.
 
-Call `AllAuthors` as a member of tenant A and as a member of tenant B. Each sees only its own tenant's authors. A caller whose `tenant_id` names a tenant missing from its `member_of` claims gets HTTP 403.
+Register the same `AuthorId` with different names in tenant A and tenant B as authorized members. Call `AllAuthors` in each tenant and check that the matching row has only that tenant's name. If using Chronicle, verify that each tenant's configured event store or namespace contains only its own registration for that ID. Denying a nonmember does not prove storage isolation: also check that a caller whose `tenant_id` names a tenant missing from its `member_of` claims gets HTTP 403.
+
+## When it goes off the usual path
+
+- **An authorized background job runs without a request:** inject `ITenantScope tenantScope` and call `using var scope = tenantScope.Begin(tenantId);` before resolving tenant-bound services in a fresh DI scope. The worker must authorize `tenantId` first; `Begin` does not run `ITenantMembership`. Do not reuse services from a previous tenant's job.
 
 ## Avoid
 
 - Do not trust membership supplied in a command body; inspect the verified principal.
 - Do not perform I/O in `IsMember`; use membership already established for this request.
 - Do not use `UseFixedTenancy()` or `UseDevelopmentTenancy()` for per-caller routing; both select one tenant for every caller.
-- Do not rely on request membership in background work. Inject `ITenantScope tenantScope` into the worker. After authorizing its target `TenantId tenantId`, use `using var scope = tenantScope.Begin(tenantId);` before resolving tenant-bound services in a fresh DI scope. An explicit selection does not run `ITenantMembership`.
 
 ## Related skills
 

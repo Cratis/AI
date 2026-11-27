@@ -29,9 +29,10 @@ public record Author(AuthorId Id, string Name);
 
 ## When it goes off the usual path
 
-- Chronicle matches properties by name only and does not check types. Give a same-named read-model property the same type as the event property. If the read model calls the name `DisplayName`, declare `[SetFrom<AuthorRegistered>(nameof(AuthorRegistered.Name))] string DisplayName` instead.
+- Name matching selects a property, not a compatible type or correct model key. Give a same-named read-model property the same type as the event property. If the read model calls the name `DisplayName`, declare `[SetFrom<AuthorRegistered>(nameof(AuthorRegistered.Name))] string DisplayName` instead.
 - For a last-updated timestamp, add `using Cratis.Chronicle.Events;` and declare `[FromEvery(contextProperty: nameof(EventContext.Occurred))] DateTimeOffset LastUpdated`. Don't read the wall clock while projecting an event.
-- **A model is only calculated on demand by ID:** choose `[Passive]` for that use, not for this listing, which needs stored instances.
+- **A join or child needs explicit routing:** choose a declarative `IProjectionFor<T>` when the key, parent key and child identity are clearer as a fluent projection. Move the mappings there rather than adding another writer or querying a database during projection. Test events for two parent keys and assert each child appears only under its intended parent.
+- **The screen needs to list stored rows:** keep this model active. A passive read model computed on demand by ID cannot supply this listing.
 
 ## Check removal by author ID
 

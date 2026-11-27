@@ -6,9 +6,11 @@ compatibility: Requires react and @cratis/components.
 
 # Switch shelf drawing tools between drawing and reviewing
 
+Use the [DataPage menu](../cratis-components-display-list/SKILL.md) for actions on its list or selection. For board tools, default to one stable group. Choose `ToolbarSection` with named contexts only when changing modes changes which tools are usable; keep shared tools outside the section.
+
 1. In `Features/Board/DrawingTools.tsx`, accept the shelf board's current mode, the operation to draw a shelf and the operation to add a review note. Use the application's [Components provider](../cratis-arc-react-bind-slice/SKILL.md).
 2. Give each button visible `text` or an `icon`, a `title` for its accessible name and tooltip, and `onClick` for the action.
-3. Set `focusMode` to `SingleTabStop` to enter the toolbar once with Tab and move between its tools with arrow keys. The default `Arrows` mode leaves each tool a Tab stop.
+3. Set `focusMode` to `SingleTabStop` to enter the toolbar once with Tab and move between its tools with arrow keys. The default `Arrows` mode leaves each tool a Tab stop. Focus mode changes keyboard navigation, not authorization.
 
 ```tsx
 import { Toolbar, ToolbarButton, ToolbarContext, ToolbarFocusMode, ToolbarSection } from '@cratis/components/Toolbar';
@@ -25,10 +27,12 @@ export function DrawingTools({ mode, draw, annotate }: {
 }
 ```
 
-## Avoid
+Switch modes using the keyboard and check where focus lands. If the switch hides the focused tool, move focus to a visible control; the section does not do that for the host.
 
-- Don't use a mode that matches no context name. The section then displays no tools.
-- Don't rely on unmounting to clear a draft. An inactive context stays mounted, hidden and inert; explicitly reset the state if changing mode should discard it.
+## When it goes off the usual path
+
+- **No tools appear after a mode switch:** check that `activeContext` matches a context name.
+- **A draft should reset on mode switch:** clear it explicitly. An inactive context stays mounted, hidden and inert.
 
 ## Related skills
 

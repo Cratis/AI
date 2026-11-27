@@ -6,7 +6,7 @@ compatibility: .NET SDK and a compliance-enabled Chronicle kernel.
 
 # Protect a library member's name and email
 
-1. Reference `Cratis.Chronicle`, `Cratis.Arc` and `Cratis.Fundamentals`. Use a surrogate member ID, not an email address. By default the event source ID identifies the subject; release uses the read model's `Id` when it has no `[Subject]` member.
+1. Reference `Cratis.Chronicle`, `Cratis.Arc` and `Cratis.Fundamentals`. Use a surrogate member ID, not an email address. Use the event source ID as the subject when the history belongs to the person described.
 2. Mark the name concept with `[PII]`. Mark a personal scalar such as email on both the event and the read model. Give the reason for collecting each value.
 3. When reading the profile directly from the application's database collection, authorize the caller, check the profile is not null, then use `var readable = await eventStore.ReadModels.Release(profile);`. Release cannot recover the original name or email after key deletion. A successful `Release` does not prove the values were decrypted.
 
@@ -44,6 +44,12 @@ namespace Library.Features.Members.Profiles
 ## Delete one member's key
 
 With an `IEventStore` from `Cratis.Chronicle` for the correct namespace, call `await eventStore.PII.DeleteEncryptionKeyFor(memberId.Value.ToString());`. The subject loses that key in every event store in this namespace. With `using Cratis.Chronicle.Events;` for `EventSequenceNumber`, read `await eventStore.EventLog.GetFromSequenceNumberWithErasedProperties(EventSequenceNumber.First, memberId)`. For the registration, check `registration.Context.ErasedProperties.Any(path => path.EndsWith("email", StringComparison.OrdinalIgnoreCase))` and `((MemberRegistered)registration.Content).Email != originalEmail`. Read `await eventStore.ReadModels.GetInstanceById<MemberProfile>(controlMemberId.Value)` and check the control member's email still equals the original.
+
+## When it goes off the usual path
+
+- **A history describes someone other than its owner:** choose an explicit `subject:` at append time for the person described. In a view composed from several subjects, erase A's key in a test and check that A's protected fields are withheld and B's are still releasable. Chronicle owns `__subject` and `__subjects`; don't declare them on the model.
+- **An old event or projected field was stored unmarked:** adding `[PII]` does not erase plaintext already written. Verify cleanup of affected stores and independently retained copies. Event redaction targets a particular event; key erasure targets data encrypted for the subject.
+- **A field cannot be read:** check the key lifecycle and read errors separately. An empty value alone is not evidence that erasure succeeded.
 
 ## Avoid
 

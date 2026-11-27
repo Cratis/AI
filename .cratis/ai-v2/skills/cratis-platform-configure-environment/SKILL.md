@@ -14,7 +14,7 @@ compatibility: Requires ASP.NET Core configuration and the Screenplay CLI for mo
        throw new System.InvalidOperationException("Missing Chronicle connection string");
    ```
 
-   This guard checks presence, not the destination. If preview clients can inherit a separate shared endpoint, also require the effective endpoint to equal the preview deployment's allowed endpoint before use. Report a mismatch without logging the supplied value. Exercise the configured preview service separately before reporting it reachable.
+   This guard checks presence only. Require the resolved endpoint to match the preview deployment's allowed endpoint and probe the expected store and namespace from the consuming app before calling the binding healthy. Report a mismatch without logging the supplied value.
 3. For Library reminder mail using the mail extension contract with the `apiKey` setting, put this declaration in `model/environment.play`:
 
    ```play
@@ -29,9 +29,11 @@ compatibility: Requires ASP.NET Core configuration and the Screenplay CLI for mo
 
 ## Bind an already-running local service
 
-For a Compose-hosted Library app, supply `Cratis__Chronicle__ConnectionString` to the **app** with an endpoint reachable from that container, not a host-only address. Apply the same presence and destination checks as for preview.
+Choose the orchestrator's resource binding when an existing Aspire AppHost supplies the `chronicle` reference. Check `builder.Configuration["ConnectionStrings:chronicle"]` rather than requiring the preview key, then probe the local store and namespace. A Compose network changes the reachable host and port from inside the app's container; it does not define another configuration source.
 
-In an existing Aspire AppHost where the Library project references the resource named `chronicle`, the app receives `ConnectionStrings__chronicle`. Check `builder.Configuration["ConnectionStrings:chronicle"]` rather than requiring the preview key in this environment. Leave the explicit Chronicle connection string unset in both host settings and client registration: either would override the resource binding. Verify the app reaches the intended local store without printing the value.
+## When it goes off the usual path
+
+- **Aspire supplies a local reference but the app reaches another store:** check for an inherited `Cratis:Chronicle:ConnectionString` or an explicit value in client registration. Remove the override and probe again from the app without printing the connection string.
 
 ## Avoid
 

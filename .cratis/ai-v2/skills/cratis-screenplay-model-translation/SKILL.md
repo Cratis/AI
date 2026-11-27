@@ -6,13 +6,9 @@ compatibility: Requires the Screenplay CLI.
 
 # Translate across a boundary
 
-Choose by what crosses the boundary:
+Choose the direction first. In Screenplay, an inbound capture maps outside data into a private local fact. Default to an API capture for snapshots the provider exposes for polling. Choose an event capture when the provider publishes its own facts. Choose outbound instead when the Library owns the fact and another system needs a public contract.
 
-- **Outside records:** use an inbound API capture when the other system supplies a snapshot to poll.
-- **Outside public events:** use an inbound event capture when the other system publishes facts.
-- **Your public contract:** use `direction outbound` when another system needs facts from yours. Use a projection targeting one public event and expose only the contract's fields. [Transport that event](../cratis-chronicle-publish-contract/SKILL.md) through the outbox and inbox; delivery alone doesn't translate it to a local fact.
-
-For inbound capture, name the private local fact, choose the stable key and map only the fields that fact needs. If it triggers more work, join a separate [automation](../cratis-screenplay-model-automation/SKILL.md) at the local fact, not at the polling schedule.
+For an inbound capture, name the private local fact, choose a stable key and map only the fields that fact needs. If the local fact triggers more work, [model a separate automation](../cratis-screenplay-model-automation/SKILL.md) that observes it.
 
 ## Import an author from a directory
 
@@ -79,12 +75,40 @@ module Library
             name = $.name
       specification ReceivingAsterAnnouncement
         when append AuthorAnnounced
+          for "directory-feed"
           id = "author-42"
           name = "Aster"
         then AuthorAnnouncementReceived
           for "author-42"
           name = "Aster"
 ```
+
+## Publish a Library contract
+
+Use `direction outbound`. Declare `public event AuthorPublished` without a foreign origin. Project private facts into that one public event; expose only its contract fields. This example uses `AuthorRegistered` from [Declare the slice](../cratis-screenplay-declare-slice/SKILL.md).
+
+```play
+module Library
+  feature Authors
+    slice Translate PublishAuthor
+      direction outbound
+      public event AuthorPublished
+        name String
+
+      projection AuthorPublication => AuthorPublished
+        from AuthorRegistered
+          name = name
+
+      specification PublishingAster
+        when append AuthorRegistered
+          for "11111111-1111-4111-8111-111111111111"
+          name = "Aster"
+        then AuthorPublished
+          for "11111111-1111-4111-8111-111111111111"
+          name = "Aster"
+```
+
+[Transport the public event](../cratis-chronicle-publish-contract/SKILL.md) through the outbox and inbox. Test delivery separately; these model specifications don't run polling or transport.
 
 ## When it goes off the usual path
 

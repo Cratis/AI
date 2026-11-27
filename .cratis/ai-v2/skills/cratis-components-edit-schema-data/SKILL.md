@@ -18,8 +18,7 @@ export function SchemaDraft({ initial, save }: { initial: JsonSchema; save: (sch
 }
 ```
 
-2. The default table editor's Cancel returns to the `schema` prop as it is now. Once the host feeds a change back, Cancel no longer restores the originally loaded schema. Keep that original separately if the screen needs a full reset.
-3. To edit one author's values instead, put `AuthorDocument.tsx` in `Features/Authors`. Keep the schema fixed and set `editMode` on `ObjectContentEditor`. Its validation callback receives `true` when there are errors.
+2. Choose `ObjectContentEditor` instead when the user edits one document's values without changing its shape. Put `AuthorDocument.tsx` in `Features/Authors`. Keep the schema fixed and set `editMode` on `ObjectContentEditor`. Treat `onValidationChange(true)` as `hasErrors`, not as validity.
 
 ```tsx
 import { useState } from 'react';
@@ -39,6 +38,12 @@ export function AuthorDocument({ initial, schema, save }: { initial: Json; schem
 
 - Don't change the schema when editing a document value. `onChange` on `ObjectContentEditor` returns the changed document.
 - Don't treat a draft edit as a save. Persist only when the caller's `save` operation runs.
+
+## When it goes off the usual path
+
+- **Save stays disabled after editing a property:** check that its name matches `^[a-zA-Z_][a-zA-Z0-9_]*$`, is not `__proto__`, `constructor` or `prototype`, and is unique among siblings.
+- **Cancel must undo the entire draft:** keep the original snapshot separately and reset to it in the host. The default table editor's Cancel restores the current `schema` prop, which may already include draft edits.
+- **An external schema uses richer keywords or shapes:** check that they fit the editor's JSON Schema subset before editing. For example, the editor cannot author tuple-valued `items`. Validate the saved result with the application's authoritative validator when external constraints matter.
 
 ## Related skills
 

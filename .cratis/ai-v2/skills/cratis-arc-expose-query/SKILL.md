@@ -6,7 +6,7 @@ compatibility: Requires Cratis, Cratis.Arc.MongoDB and a change-stream-capable M
 
 # Expose the author list
 
-In this state view, `AllAuthors` serves the `Author` read model; it does not define how facts build those rows.
+Use a live `AllAuthors` query because this state view must stay current while open. For information needed once, choose a finite query instead, such as a method returning `IEnumerable<Author>` from a single collection read. Decide separately whether to page the rows. A query serves the `Author` read model; it does not define how facts build those rows.
 
 [Connect MongoDB](../cratis-arc-connect-storage/SKILL.md) with `WithMongoDB()` before resolving the collection. Start with the existing [Author projection](../cratis-chronicle-project-view/SKILL.md); it already owns the row shape and event mapping.
 
@@ -21,13 +21,14 @@ Subscribe to `AllAuthors` (see [Diagnose a missing update](../cratis-arc-diagnos
 
 ## When it goes off the usual path
 
+- **The first result looks empty:** a ready, successful frame with `data: []` is a valid list. If no initial frame is ready, keep it pending or show the transport failure; do not show an empty list.
 - **Initial rows load but changes never arrive:** verify MongoDB supports change streams and [check the live response](../cratis-arc-diagnose-live-query/SKILL.md) before changing the projection or adding client polling.
 
 ## Avoid
 
 - Do not materialize `Observe()` into a list; subscribers need subsequent deliveries.
 - Do not expose helper methods as public static queries; keep helpers private.
-- Do not return `IAsyncEnumerable<Author>` for this generated observable contract; return `ISubject<IEnumerable<Author>>`.
+- Use `ISubject<IEnumerable<Author>>` for this .NET observable list; a finite query does not need a subject.
 
 ## Related skills
 

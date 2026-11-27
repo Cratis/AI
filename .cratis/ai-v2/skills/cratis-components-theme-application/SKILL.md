@@ -6,8 +6,10 @@ compatibility: Requires @cratis/components and a CSS bundler that resolves packa
 
 # Load the theme and change one area's color
 
+Use a theme token for a color change, scoped to the smallest wrapper that should inherit it. Choose a named component part only when you need to style a specific piece of the component.
+
 1. Add `host.css` beside `main.tsx` and import `./host.css` from that entry point. Mount `CratisComponentsProvider` from `@cratis/components` as shown in [Mount Arc and read a query result](../cratis-arc-react-bind-slice/SKILL.md).
-2. Load tokens, component styles and the baseline theme in order. Set the token on the wrapper of the area that should change:
+2. Load tokens, component styles and the baseline theme in that order. Put unlayered token overrides after the imports and match the theme selector's specificity. Set the token on the wrapper of the area that should change:
 
 ```css
 @import '@cratis/components/tokens';
@@ -36,7 +38,7 @@ compatibility: Requires @cratis/components and a CSS bundler that resolves packa
 
 ## Scope action colors to a themed panel
 
-Override the action tokens on the panel wrapper itself, after the theme import. Match the explicit-light selector when the panel is light inside a dark theme. Pair the action foreground with all three backgrounds; do not set ordinary panel `color` as a substitute.
+Override the action tokens on the panel wrapper itself. Match the explicit-light selector when the panel is light inside a dark theme. Pair the action foreground with all three backgrounds; do not set ordinary panel `color` as a substitute.
 
 ```css
 @media (forced-colors: none) {
@@ -54,13 +56,13 @@ Apply `cratis-theme cratis-light author-admin` to the light panel, not the page 
 
 ## Target a component part
 
-Use `.author-admin [data-cratis-part='header-content']` for the content inside a table header. ComboBox renders its popover outside its wrapper. Set `pt={{ popover: { className: 'author-options' } }}` on that ComboBox, then target `.author-options [data-cratis-part='optionLabel']` and `.author-options [data-cratis-part='optionDescription']` in `host.css`. Don't rely on the popover being a descendant of `.author-admin`.
+Use `.author-admin [data-cratis-part='header-content']` for the content inside a table header. Don't target private DOM nesting or internal vendor nodes.
 
-## Avoid
+## When it goes off the usual path
 
-- Don't change a global token to recolor one panel.
-- Don't depend on private DOM nesting. Use the component's named part.
-- Don't depend on rearranging imports. Normal overrides outside `@layer` beat layered component styles. The theme tokens are unlayered: match their selector specificity and put the override after the theme import.
+- **Controls look unstyled after an upgrade:** verify that the entry stylesheet loads and the Components provider wraps the surface before adding a vendor theme. Remove legacy vendor CSS and packages only if the host no longer uses them directly.
+- **A ComboBox rule misses the listbox:** the popover is portalled outside the wrapper. Set `pt={{ popover: { className: 'author-options' } }}` on that ComboBox, then target `.author-options [data-cratis-part='optionLabel']` and `.author-options [data-cratis-part='optionDescription']` in `host.css`. Don't rely on the popover being a descendant of `.author-admin`.
+- **A palette override fights system colors:** keep the override within `@media (forced-colors: none)`.
 
 ## Related skills
 

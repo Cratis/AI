@@ -12,7 +12,7 @@ compatibility: .NET SDK and a disposable Chronicle kernel for append checks.
 [property: Unique(name: "UniqueAuthorName", message: "Author name must be unique")] string Name
 ```
 
-2. Keep the stored name a string. At the append boundary, turn an in-process `AuthorName` into the fact with `new AuthorRegistered(name.Value)`.
+2. `AuthorRegistered` stores the Library name as a `string`. At the append boundary, unwrap the in-process `AuthorName` with `new AuthorRegistered(name.Value)`.
 3. Declare the removal event once, in its own feature. Name the reservation it releases:
 
 ```csharp
@@ -30,11 +30,12 @@ public record AuthorRemoved;
 
 Use two different `AuthorId` values and `var name = new AuthorName("Aster");` from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Append `new AuthorRegistered(name.Value)` for the first ID and check `result.IsSuccess`. Try the same fact for the second ID: `result.IsSuccess` must be false and `result.ConstraintViolations.Single().ConstraintName.Value` must be `"UniqueAuthorName"`. No event should be stored for the second author. Append `new AuthorRemoved()` for the first ID and check acceptance. Retry the second registration and expect success.
 
-## Avoid
+## When it goes off the usual path
 
-- Don't query for the name and then append without a constraint; two callers could pass the query together.
-- Don't put `[Unique]` on the event type for a name reservation. That limits occurrences per event source.
-- Don't use a different constraint name on `AuthorRemoved`; it must release the original reservation.
+- **Several facts or fields define one reservation:** choose a named declarative `IConstraint` when one annotated property cannot express the rule. Replace the attribute rule with one `Unique` definition, `.On` for each contributing event (with property selectors in the same order for a composite), and `.RemovedWith<AuthorRemoved>()`. Test collisions across the contributing facts and reuse after release.
+- **The same source must not record the same event type twice:** that is an occurrence limit, not a name reservation across sources. An event-type uniqueness rule does not prevent two authors from taking Aster.
+
+Don't enforce uniqueness with a query or validator alone; two callers can both pass the check before either appends. The claim and its release must use the same constraint.
 
 ## Related skills
 

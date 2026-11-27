@@ -30,9 +30,13 @@ Merge this section into the host project's `appsettings.json`, preserving other 
 3. Check the generated `RegisterAuthor` targets `/api/features/authors/registration` and `AllAuthors` targets `/api/features/authors/listing/all-authors`. Compare both with the running host.
 4. From a frontend module beside `generated/`, import `{ AllAuthors }` from `./generated/Features/Authors/Listing/Author`. Compile the consuming frontend with `tsc --noEmit`.
 
+## When it goes off the usual path
+
+- **Imports still name a renamed endpoint:** check the old file's generated marker, the configured output root, and the consuming barrel. Regenerate from the owning project, update imports, then compile the consumer. Do not restore the obsolete proxy.
+
 ## Avoid
 
-- Do not share the output directory between projects. Orphan cleanup deletes outputs no longer produced, even in incremental mode.
+- Use one output tree per independent generator and keep handwritten files and public barrels outside it. Incremental generation and skipping output deletion do not prevent cleanup of marked orphan files.
 - Do not patch a generated type. Edit the C# producer and regenerate.
 - Do not leave the output property empty; an empty path produces no proxies.
 

@@ -6,16 +6,22 @@ compatibility: Requires the Cratis package and a configured authentication provi
 
 # Restrict author registration to editors
 
-Add Arc's authorization attribute to the [existing command](../cratis-arc-declare-command/SKILL.md) in `Features/Authors/Registration/RegisterAuthor.cs` (`Library.Features.Authors.Registration`). Use the role name issued by your identity provider. Leave `Handle`, `AuthorId` and the event unchanged.
+Require sign-in by default with `[Cratis.Arc.Authorization.Authorize]`. Choose a role or named policy when signing in is not enough to perform the operation; declare the requirement on the command or query, not in a field validator.
+
+For a role requirement, add Arc's authorization attribute to the [existing command](../cratis-arc-declare-command/SKILL.md) in `Features/Authors/Registration/RegisterAuthor.cs` (`Library.Features.Authors.Registration`). Use the role name issued by your identity provider. Leave `Handle`, `AuthorId` and the event unchanged.
 
 ```csharp
 // Add to the existing RegisterAuthor declaration, alongside [Command].
 [Cratis.Arc.Authorization.Authorize(Roles = "catalog-editor")]
 ```
 
-Execute through the pipeline as an anonymous caller, a signed-in reader and a catalog editor. Both refused results have `IsAuthorized` false and append nothing; the editor succeeds. Arc maps the unauthorized command result to HTTP 403. Check that response rather than whether the UI shows the registration button.
+Execute through the pipeline as an anonymous caller, a signed-in reader and a catalog editor. Both refused results have `IsAuthorized` false and append nothing; the editor succeeds. If the HTTP request reaches Arc and produces an unauthorized command result, Arc maps that result to HTTP 403. Check the server verdict rather than whether the UI shows the registration button.
 
-Use `[Cratis.Arc.Authorization.Authorize]` without roles to require sign-in alone. On queries, put it on the read model to cover its methods, or on an individual query method for that query's requirements.
+On queries, put the attribute on the read model for a shared requirement or on an individual query method to replace that query's requirement. Invocation authorization does not continually recheck a live subscription.
+
+## When it goes off the usual path
+
+- **A sensitive subscription can outlive permission:** implement `IGuardObservableQueryEmission` to look up current access for the captured caller and deny delivery after revocation. Keep query authorization and tenant filtering. Revoke access after the first result and verify that subsequent protected data does not arrive on each exposed transport.
 
 ## Avoid
 

@@ -1,12 +1,14 @@
 ---
 name: cratis-chronicle-reduce-state
-description: Use when a Chronicle reducer needs the previous read-model value and the next event to calculate state. Not for copying event fields directly (use cratis-chronicle-project-view).
+description: Use when state-dependent rules need a Chronicle reducer, such as capping loans at the number of copies. Not for field mappings or plain counters (use cratis-chronicle-project-view).
 compatibility: .NET SDK and Chronicle reducers.
 ---
 
 # Calculate how many copies of a book are on loan
 
-Use a reducer when the observer needs the previous read model to compute the next one. Use a projection for declarative mapping, a reactor for side effects and a command handler to decide whether to accept a request.
+Start with a projection for field mappings and plain counters, even when a counter accumulates prior state. Choose a static model reducer when the next value depends on a rule the projection cannot express: here, loans are capped at the number of copies and a loan cannot create a missing book.
+
+Use a reactor for side effects and the command path to decide whether to accept a borrow request; this reducer only maintains a view of recorded facts.
 
 1. Reference `Cratis.Chronicle` and put `BookAvailability` in the book availability feature folder of the backend assembly. Import `CopyAdded` and `BookBorrowed` from [Protect a command decision](../cratis-chronicle-protect-decision/SKILL.md). Chronicle's default discovery recognizes public static reducer methods on the model; do not register a separate reducer service.
 2. Put a public static `Reduce` method on the record for each event. Take the typed event first, then the nullable previous model. The first `CopyAdded` starts the model with one copy and no loans. Each subsequent `CopyAdded` adds one copy without changing the loan count.
@@ -40,6 +42,7 @@ Call `BookAvailability.Reduce` directly in a test. `BookAvailability.Reduce(new 
 
 ## When it goes off the usual path
 
+- **A rebuilt view disagrees with the original:** replay the same ordered facts from empty state and compare the final model. Keep all durable state in the returned record.
 - **The calculation needs outside data:** record the needed input as a fact first. Don't call a service from `Reduce`; replay must use the recorded inputs, not today's answers.
 
 ## Related skills

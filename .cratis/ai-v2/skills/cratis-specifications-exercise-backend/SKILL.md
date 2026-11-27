@@ -6,7 +6,7 @@ compatibility: Requires the .NET SDK and matching Arc and Chronicle testing pack
 
 # Test the registration append and empty-name refusal
 
-Carry accepted Given/When/Then examples into separate contracts: execute the state change and check its addressed append or refusal; seed the state view with facts and check its derived row. An in-process projection check does not prove observer delivery or a live query update.
+Carry accepted Given/When/Then examples into separate contracts. Use a pipeline scenario for authorization, validation, constraints, and command operations. Choose an in-process projection scenario when checking only the state view's mapping. Choose a running store when testing discovery or delivery. Don't require all three for one behavior.
 
 1. In `Library.Specs`, reference the Library project, `Cratis.Arc.Chronicle.Testing`, `Cratis.Specifications.XUnit.v3`, `xunit.v3`, `Microsoft.NET.Test.Sdk` and `xunit.runner.visualstudio`. Keep the Arc testing package on the same version as the application's Arc packages.
 2. Use [RegisterAuthor](../cratis-arc-declare-command/SKILL.md), [AuthorRegistered](../cratis-chronicle-record-event/SKILL.md), [AuthorId](../cratis-fundamentals-name-value/SKILL.md) and [RegisterAuthorValidator](../cratis-arc-validate-command/SKILL.md) from the referenced application. The validator must reject empty `Name` with `Name is required`.
@@ -92,6 +92,7 @@ For a command that decides from a read model, seed the prerequisite events in or
 
 ## When it goes off the usual path
 
+- **The query has an argument or caller filter:** seed one matching and one excluded row. Execute the actual query with the intended arguments and caller; assert inclusion and exclusion. A mapping test is not a query test.
 - **The in-process projection passes but a live query misses the author:** verify the append and observer completion against the running application before testing delivery through the query and UI.
 
 ## Avoid

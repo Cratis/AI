@@ -33,11 +33,11 @@ public class RegistrationNotice(IAuthorDirectory directory) : IReactor
 
 ## Retry a notice after a lost acknowledgement
 
-Have the directory save the first notice, then fail before acknowledging it. Call the handler again with the same delivery; check that the directory contains only one notice with the expected name.
+Have the directory save the first notice, then fail before acknowledging it. Deliver the same occurrence again; assert one notice with the expected name. Reuse `delivery.Id` for retries: `[OnceOnly]` skips replay, not recovery. An author ID would collapse distinct occurrences.
 
 ## When it goes off the usual path
 
-- **A failed partition is recovering:** use the same `delivery.Id` for the provider request. `[OnceOnly]` skips replay, not recovery; a new key on every retry can repeat the effect and an author ID can collapse distinct notices.
+- **The follow-up makes its own local business decision:** in an Arc host choose `ICommandPipeline` to execute that command, rather than calling `Handle()` directly. Check `IsSuccess`. Record a modeled permanent refusal separately from a completed effect; surface a transient failure for recovery and make the follow-up safe to invoke again.
 - **An existing reactor moves or is renamed:** preserve its observer ID to keep its position. For this class, set `[Reactor("Library.Features.Authors.Directory.RegistrationNotice")]` on the renamed class.
 
 ## Related skills

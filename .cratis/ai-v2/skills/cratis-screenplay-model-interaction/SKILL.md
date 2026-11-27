@@ -45,14 +45,27 @@ screen Authors
         with authorId from item.id
 ```
 
-## Avoid
+Default to a screen action when no row is needed. Choose `for item` when the action needs the selected row's key. Pass that key from the row; add form fields only for input the user must supply.
 
-- Don't use `for item` on Add; reserve it for actions on a selected row.
-- Don't treat action visibility as authorization; enforce permission at the operation.
+## Gate an interaction
+
+If Add author is a preview feature, declare this audience at the model root. Add the gate to `screen AddAuthor` and to its `command RegisterAuthor` declaration so a direct invocation cannot bypass availability.
+
+```play
+audience AuthorRegistrationPreview
+  description "Callers with the author registration preview"
+```
+
+```play
+available for AuthorRegistrationPreview
+```
+
+Hide Add when the gate is closed, including when it cannot be resolved. Enforce permission separately at the operation. Model specifications assume availability. On the target, check that a caller outside the audience cannot open Add or run the command, and that a caller inside the audience without permission is still denied.
 
 ## When it goes off the usual path
 
 - **Submission is refused:** keep the registration screen open and show the command's outcome. Navigate to Authors only on success.
+- **A gesture is in the UI export but does nothing:** check renderer support and record the gap. An exported interaction is not a working target interaction.
 
 ## Related skills
 

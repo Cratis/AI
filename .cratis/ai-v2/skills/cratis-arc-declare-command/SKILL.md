@@ -6,7 +6,7 @@ compatibility: Requires the Cratis package for Arc with Chronicle.
 
 # Register an author
 
-Put this command in `Features/Authors/Registration/RegisterAuthor.cs`. Use the existing [AuthorId](../cratis-fundamentals-name-value/SKILL.md) from `Library.Features.Authors` and [AuthorRegistered](../cratis-chronicle-record-event/SKILL.md) from the command's namespace. `Cratis` supplies the framework global usings. Without those global usings, import `Cratis.Arc.Commands.ModelBound` for `[Command]`.
+Keep the ID in the request when the caller already owns it. Put this command in `Features/Authors/Registration/RegisterAuthor.cs`. Use the existing [AuthorId](../cratis-fundamentals-name-value/SKILL.md) from `Library.Features.Authors` and [AuthorRegistered](../cratis-chronicle-record-event/SKILL.md) from the command's namespace. `Cratis` supplies the framework global usings. Without those global usings, import `Cratis.Arc.Commands.ModelBound` for `[Command]`.
 
 ```csharp
 namespace Library.Features.Authors.Registration;
@@ -26,12 +26,29 @@ For a command that already uses an ordinary concept or primitive as its identity
 
 ## When it goes off the usual path
 
-- **The decision needs existing state:** load it before `Handle` via `Provide()`. If the provider can't supply required state, return a typed failure, not `null`.
+- **The decision needs existing state:** load it in `Provide()`. If missing state rejects the command, return `ValidationResult.Error(...)` from `Provide()` (for a state-or-error return, use `Result<TState, ValidationResult>`). Arc drops `null` from the provided values; it is not a validation result.
+
+## When the server allocates the ID
+
+Choose this when the Library, not the caller, allocates the ID. In `Features/Authors/AuthorId.cs`, add `IGeneratable<AuthorId>` (from `Cratis.Concepts`) to the existing declaration: `public record AuthorId(Guid Value) : EventSourceId<Guid>(Value), IGeneratable<AuthorId>`. Keep its existing `New()` factory and replace the command with:
+
+```csharp
+namespace Library.Features.Authors.Registration;
+
+[Command]
+public record RegisterAuthor(string Name)
+{
+    public (AuthorId, EventForEventSourceId) Handle([GeneratedValue("authorId")] AuthorId authorId) =>
+        (authorId, new EventForEventSourceId(authorId, new AuthorRegistered(Name)));
+}
+```
+
+Arc calls `AuthorId.New()` for the generated parameter. The wrapper addresses the event to that ID; the first tuple item returns it to the caller. If the caller does not need the ID, return only the wrapper. Check `IsSuccess` before using the response. In a `CommandScenario<RegisterAuthor>`, call `scenario.PinGeneratedValue("authorId", id)` with a fixed `AuthorId` before execution and assert the append used that ID.
 
 ## Avoid
 
-- Do not append in `Handle`; return the event.
-- Do not replace the caller's ID with `AuthorId.New()` inside the command.
+- In the Arc + Chronicle return-event path, let the pipeline append the returned event; do not also append in `Handle`. An Arc-only command does not have to return an event.
+- Do not replace a caller-owned ID with `AuthorId.New()`.
 
 ## Related skills
 

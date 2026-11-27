@@ -6,6 +6,8 @@ compatibility: Requires Cratis and Cratis.Arc.MongoDB; observable queries requir
 
 # Connect Arc to MongoDB
 
+Use `Cratis.Arc.MongoDB` for the Library author view. Choose `Cratis.Arc.EntityFrameworkCore` with `WithEntityFrameworkCore(...)` for a relational read through a `DbContext`, or `Cratis.Arc.Neo4j` with `WithNeo4j()` for a graph traversal. Match the integration to the data the slice reads, not to Chronicle's storage.
+
 Reference `Cratis.Arc.MongoDB` in the Library backend. For a new database written by Chronicle, configure the same camel-case naming policy on both builders.
 
 `Program.cs` (top-level statements in a Web SDK project):
@@ -30,7 +32,12 @@ Set `Cratis:MongoDB:Server` and `Cratis:MongoDB:Database` in the host project's 
 { "Cratis": { "MongoDB": { "Server": "mongodb://localhost:27017", "Database": "library" } } }
 ```
 
-In [the author query](../cratis-arc-expose-query/SKILL.md), take `IMongoCollection<Author>` as a method parameter. Register an author and check that `AllAuthors` returns it. If the default tenant's list stays empty, compare `Server` and `Database` with the location of the stored author document. With Arc's default database resolver, a non-default tenant uses `<Database>+<tenantId>`: for tenant `A` the settings above select `library+A`, not `library`.
+In [the author query](../cratis-arc-expose-query/SKILL.md), take `IMongoCollection<Author>` as a method parameter. Register an author and check that `AllAuthors` returns it. With Arc's default database resolver, tenant `A` uses `library+A`, not `library`; this is not a naming rule the query should implement. Resolve tenant membership before selecting storage.
+
+## When it goes off the usual path
+
+- **An existing author is missing:** compare the reader's physical server, database and collection with the writer, then compare BSON field names before changing conventions.
+- **Tenants use separate servers or credentials:** use MongoDB `ConnectionResolution` to resolve the authorized tenant's binding before opening its database. Keep connection resolution out of `AllAuthors`; let Arc inject the collection.
 
 ## Avoid
 

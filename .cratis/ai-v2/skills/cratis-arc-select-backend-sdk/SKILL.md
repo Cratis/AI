@@ -8,7 +8,16 @@ compatibility: Requires the service's native toolchain and resolved Arc module. 
 
 ## Match the host integration
 
-Keep Arc on ASP.NET Core when an endpoint depends on MVC routing, binding or authorization. Keep controller integration enabled and routes mapped. For an attribute-routed `[HttpPost]` command action without an `[AspNetResult]` opt-out, Arc accepts `POST` at the action's route plus `/validate`. MVC still binds and validates the input, but Arc skips the action body. Verify required host behavior before porting; matching wire contracts or successful in-process execution do not prove compatibility.
+Keep the existing host for a new Library slice. If porting, choose the SDK that runs in the target host and check the required operation against the installed dependency before committing to the port.
+
+| Host | Identify the installed artifact | Run the host project's check |
+| --- | --- | --- |
+| Node server | Arc.TypeScript: `@cratis/arc.core` and the host adapter if used; `@cratis/arc` and `@cratis/arc.react` are client packages | `npm test` for a project with a test script |
+| Spring Boot / JVM | Arc.Kotlin: `io.cratis:arc-spring-boot-starter` | `./gradlew test` |
+| Elixir / OTP | Arc.Elixir: `cratis_arc` | `mix test` |
+| Go | Arc.Go: `github.com/cratis/arc.go` | `go test ./...` |
+
+If HTTP is required, start the actual host and call the operation's route with its normal credentials. An in-process test does not verify route registration, binding or authorization.
 
 ## Check command execution in a native SDK
 
@@ -55,11 +64,16 @@ func TestNativeReply(t *testing.T) {
 }
 ```
 
+## When it goes off the usual path
+
+- **The Go command test passes but the port needs an adapter or proxy generation:** check the separately resolved integration or tool module. A root-module pass does not prove either is installed. Verify the required feature against the resolved version, not a sample from the development branch.
+- **An ASP.NET Core MVC client relies on `/validate`:** treat that route as a porting requirement. Test that the target binds and validates the request without invoking the action; do not assume matching execution contracts provide it.
+
 ## Avoid
 
 - Don't infer a Chronicle append or HTTP route registration from a successful handler reply.
-- Don't infer validation-only behavior from execution. To check it, POST to the command route's `/validate` suffix and verify that authorization and validation run without invoking the handler. Without an HTTP test, report that behavior as unverified.
 
 ## Related skills
 
+- [Name a domain value](../cratis-fundamentals-name-value/SKILL.md) for Go wire codecs.
 - [Select the Chronicle client](../cratis-chronicle-select-client/SKILL.md) for event-store connectivity.

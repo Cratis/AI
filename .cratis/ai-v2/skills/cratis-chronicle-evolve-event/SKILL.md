@@ -73,7 +73,9 @@ Get `var store = await updated.GetEventStore(storeName, "migration-test");` and 
 
 ## When it goes off the usual path
 
-- **The business outcome, not its schema, needs correcting:** append a compensating fact. Don't create a new generation to reinterpret what happened.
+- **The business outcome was wrong:** choose a compensating fact when correcting what happened, not how the same fact is represented.
+- **A stored value changes meaning:** declare its value mapping, not just a property rename. Exercise upcast and downcast for the mapped values.
+- **Generation three fails to register:** restore the missing old generation or migrator. Keep both 1→2 and 2→3 under the original ID; test the oldest payload through the full chain and the current payload through the older consumer.
 
 ## Related skills
 

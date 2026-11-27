@@ -28,11 +28,13 @@ export function BookFields({ authors, loading, failure }: { authors: AuthorOptio
 }
 ```
 
-## Avoid
+Use `ComboBox` for choosing an existing author; store its unique key because two options may share a label. Choose a text input when the user must enter a new name rather than select a record. Read prices and dates from `onChange`, not from formatted text. Use typed `CommandForm` fields for generated commands.
 
-- Don't parse formatted price or date text. Read the typed value from `onChange`.
-- Don't store the author's label; two options may share a name. Use the unique `key`.
-- Don't expect these controls to update a generated command. Use the typed `CommandForm` fields for that.
+Put the accessible name on the control itself, not its surrounding panel. For the segmented date picker, pass `aria-label` on `DatePickerInput` to name its focus group. In the UI check, find the input or group by role and name, then use the keyboard to edit or select a value.
+
+## When it goes off the usual path
+
+- **The first outside click must also activate the underlying control:** check that the installed `DatePickerInput` supports `isNonModal` and opt in. Otherwise leave the default: the first click only dismisses the calendar.
 
 ## Related skills
 

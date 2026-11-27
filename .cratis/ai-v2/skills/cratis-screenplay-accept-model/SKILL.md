@@ -17,13 +17,18 @@ compatibility: Requires the Screenplay CLI.
    screenplay diff before/model after/model --format json
    ```
 
-4. Require both compilations to succeed. In the test output compare `selected`, `executed` and `passed`; they must match, with `failed` and `unsupported` zero. Read `results[].outcome` for `RejectingAnEmptyName` and `RegisteringAster` by address.
-5. In `difference` find the changed registration rule and its refusal specification. For each behavior change identify a passing specification that checks it. Updating the implementation and its test together does not approve a new message: compare the message with the domain owner's accepted wording. Reject this candidate if the agreed message is still `Name is required`.
+4. Require both compilations to succeed. In `difference`, inventory each changed decision, denial or affected read. Map each obligation to a specification address or record it as unresolved. Include removed rules: deleting a rule and its specification can leave a green suite.
+5. Check `results[].outcome` for `RejectingAnEmptyName` and `RegisteringAster` by address, then confirm that `selected`, `executed` and `passed` match, with `failed` and `unsupported` zero. These counts cover only selected examples. The structural diff locates the change; the examples witness behavior, not delivery on the target.
+6. Confirm the change in meaning with the domain owner before accepting the exact candidate revision. Updating the rule and its specification together does not approve new wording. Reject this candidate if the agreed message is still `Name is required`.
 
 ## Avoid
 
 - Don't interpret a failed baseline compilation as an empty baseline.
 - Don't count `unsupported` specifications as passing or reuse approval after the candidate revision changes.
+
+## When it goes off the usual path
+
+- **A rename appears as a removal and an addition:** check whether the diff matched persisted identities or only addresses. With address matching, verify continuity with the owner rather than assuming two domain changes.
 
 ## Related skills
 

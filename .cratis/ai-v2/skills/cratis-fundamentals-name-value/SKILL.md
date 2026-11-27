@@ -9,8 +9,8 @@ compatibility: Requires the .NET SDK.
 Give the scalar and the identity different types. An author name describes the author; an author ID addresses that author's history.
 
 1. Name the type after the business value, not its representation.
-2. Declare an ordinary scalar as a record over `ConceptAs<T>`.
-3. Declare the identity of a Chronicle entity over `EventSourceId<T>`. Give the GUID-based identity a `New()` factory.
+2. Declare an ordinary scalar as a record over `ConceptAs<T>`, including entity IDs that do not address event history. Use a structured record for a group of related fields, not a scalar concept with extra mutable properties.
+3. Use `EventSourceId<T>` only for an identity that addresses Chronicle history. Give the GUID-based identity a `New()` factory.
 4. Use `AuthorId` for `RegisterAuthor.Id` and `Author.Id`. Keep `Name` a `string` on `RegisterAuthor`, `AuthorRegistered` and `Author`. `AuthorName` is an in-process value; the [direct append service](../cratis-chronicle-record-event/SKILL.md) unwraps `name.Value`. Check the destination with `ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e => e.Name == "Aster")` in a [backend spec](../cratis-specifications-exercise-backend/SKILL.md).
 
 ## Declare the Library types
@@ -37,11 +37,15 @@ public record AuthorId(Guid Value) : EventSourceId<Guid>(Value)
 }
 ```
 
+## When it goes off the usual path
+
+- **The value crosses a Go wire boundary:** use a Go named value, not C# inheritance. A defined type over `concepts.UUID` does not inherit its codecs. Implement the needed codecs explicitly and round-trip the value as the underlying UUID string, not a wrapper or byte array.
+
 ## Avoid
 
 - Don't use an unlabelled `Guid` for the command key; use `AuthorId`.
-- Don't use an ordinary name as the history address; keep identity distinct from payload.
-- Don't rely on the concept declaration to validate format; put the empty-name rule in [RegisterAuthorValidator](../cratis-arc-validate-command/SKILL.md).
+- Keep the stable `AuthorId` separate from `Name`. A business constraint may make names unique without making them the history address.
+- Put a rule that applies to every use of a concept in its `ConceptValidator<T>`. For this command's plain `string Name`, put the empty-name rule in [RegisterAuthorValidator](../cratis-arc-validate-command/SKILL.md).
 
 ## Related skills
 

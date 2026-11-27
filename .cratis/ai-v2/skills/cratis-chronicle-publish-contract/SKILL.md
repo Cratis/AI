@@ -55,7 +55,7 @@ public static class ListingExchange
 }
 ```
 
-`AuthorId` comes from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Check `result.IsSuccess` for the returned publication result. In the directory's integration test, resolve `consumer` from a fresh service scope as above. Select `var inbox = consumer.GetEventSequence($"{EventSequenceId.InboxPrefix}library");` and read `await inbox.GetFromSequenceNumber(EventSequenceNumber.First, id)`. Delivery is asynchronous: repeat that read until it returns the listing, failing the test after 30 seconds. For a newly published author expect a single `AuthorListed` with the public name, not `AuthorReviewed`.
+`AuthorId` comes from [Name a domain value](../cratis-fundamentals-name-value/SKILL.md). Check `result.IsSuccess` for the returned publication result. In the directory's integration test, resolve `consumer` from a fresh service scope as above. Select `var inbox = consumer.GetEventSequence($"{EventSequenceId.InboxPrefix}library");` and read `await inbox.GetFromSequenceNumber(EventSequenceNumber.First, id)`. Delivery is asynchronous: repeat that read until it returns the listing, failing the test after 30 seconds. In this fresh fixture, verify `AuthorListed` carries the public name and `AuthorReviewed` is absent. That does not establish exactly-once forwarding.
 
 ## Avoid
 
@@ -64,7 +64,8 @@ public static class ListingExchange
 
 ## When it goes off the usual path
 
-- **The review commits but publication fails:** treat the review as recorded. Recover the public append separately; don't repeat the private append to retry delivery.
+- **The review commits but publication fails:** reconcile the public append separately. Don't repeat the recorded review to retry delivery.
+- **The directory did not update:** check its `inbox-library` first. If the listing arrived, inspect the consumer observer; otherwise, inspect the source outbox, subscription selection and forwarding progress. Replaying forwarding can create a new inbox row for an already delivered listing. Deduplicate effects by stable publication identity, not the inbox sequence number.
 
 ## Related skills
 

@@ -14,16 +14,19 @@ Connect the registration state change to the consuming authors state view. Use t
 4. Run `dotnet build` on the backend with [proxy generation configured](../cratis-arc-generate-proxies/SKILL.md). Use the generated files under `generated/Features/Authors/`; do not copy them beside the screen.
 5. Submit the generated command from [AddAuthor](../cratis-components-submit-form/SKILL.md) in `Features/Authors/Registration/AddAuthor.tsx`. Use the [Authors DataPage](../cratis-components-display-list/SKILL.md) in `Features/Authors/Listing/Authors.tsx` with the generated `AllAuthors` query. Supply its `onOpen` callback from the Library shell. Do not build a second listing screen.
 
+## When delivery starts from a Screenplay model
+
+Use the selected target renderer for supported behavior. Choose app-owned implementation for an explicitly assigned gap; keep it outside renderer-managed files so regeneration preserves it. Map each accepted outcome to a named test in the actual target. Mark generated tests, app-owned gap tests, and outcomes not implemented; run each implemented test. A passing build or a test count cannot identify which refusal or state view was covered.
+
 ## Check the running application
 
 Open the Authors list as the librarian. Choose **Add author**, enter **Aster**, submit once and wait for the new row without reloading. Fetch `AllAuthors` once as the same librarian using the [live query diagnostic](../cratis-arc-diagnose-live-query/SKILL.md). Check that exactly one result has `name` equal to `Aster` and record its `id`. Reload the screen, fetch again and check that the one Aster row has the same `id`.
 
-Run the [empty-name backend specification](../cratis-specifications-exercise-backend/SKILL.md): in its own `CommandScenario<RegisterAuthor>`, `await _scenario.Execute(new RegisterAuthor(AuthorId.New(), ""))` must fail validation with `Name is required` and append no events. This is an isolated backend check, not a submission to the browser's Library namespace. A dialog preventing blank submission is a UI check, not a backend refusal test.
+Run the [empty-name backend specification](../cratis-specifications-exercise-backend/SKILL.md) for `Name is required` and no additional event. To check the full refusal path, send that invalid command through the authenticated API in the disposable namespace. Require a validation refusal, no append at the attempted author ID, and the same author IDs and names in the open list and in a fresh `AllAuthors` result. A dialog preventing blank submission is a UI check, not evidence of a backend refusal.
 
 ## When it goes off the usual path
 
-- **Registration succeeds but the query has no row:** verify the addressed append and observer completion in the same namespace before debugging the UI.
-- **The row appears only after reloading:** [check the live query](../cratis-arc-diagnose-live-query/SKILL.md) as the same caller before touching the form or projection.
+- **The accepted row is missing or appears only after reload:** [trace the missing update](../cratis-platform-diagnose-slice/SKILL.md) in the same namespace before changing the form or projection.
 
 ## Avoid
 

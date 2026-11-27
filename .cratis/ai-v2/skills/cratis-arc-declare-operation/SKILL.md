@@ -44,7 +44,11 @@ public record ReserveBookOperation(ReservationId Id, BookId Book) : ICommandOper
 
 Implement `IBookReservations` in `Features/Books/Reservations/BookReservations.cs` as `BookReservations` and register it before `Build()` in `Program.cs`: `builder.Services.AddScoped<IBookReservations, BookReservations>();`. The caller chooses one `ReservationId` per booking attempt. For the same owner, tenant, book and ID, a repeated `Reserve` must not create a second booking. Reject reuse for a different request. `Cancel` removes only this attempt's pending reservation; it succeeds without removing anything if that reservation is absent or already confirmed. This also covers a lost provider acknowledgement: Arc can compensate an attempted `Execute` even when it threw before returning.
 
-When the command already identifies the event source and also records a fact, return `(Fact, Operation)` from `Handle`, using the concrete event and operation types. Import `Cratis.Arc.Commands` for `ICommandOperation` if it is not in scope.
+Use one operation for one provider action. Choose `CommandOperations` when several actions must run in order; a plain array does not declare an operation batch. If the command also records a fact and already identifies the event source, return `(Fact, Operation)` using the concrete types. Import `Cratis.Arc.Commands` for `ICommandOperation` if it is not in scope.
+
+## Verify recovery through the pipeline
+
+In a `CommandScenario`, make `Reserve` fail after the provider may have accepted it. Assert that `Cancel` receives the same reservation ID and the result still reports the original failure. For a batch, fail a later `Execute` and verify reverse-order recovery with the failed attempt first. Make one compensator fail and verify that Arc keeps the original failure and attempts the earlier compensators while the recovery budget remains.
 
 ## When it goes off the usual path
 
@@ -56,7 +60,7 @@ When the command already identifies the event source and also records a fact, re
 - Do not generate the reservation ID or call the provider in `Handle`.
 - Do not put the provider in the operation constructor; declare it on the methods.
 - Do not return response data from `Execute`; use `void`, `Task` or `ValueTask`.
-- Do not track success with a mutable flag or undo in a catch block. Arc compensates attempted operations in reverse order for `NoCommit` or `NotCommitted`, not a committed or unknown outcome.
+- Do not track success with a mutable flag or undo in a catch block. Let Arc decide recovery from the commit outcome.
 
 ## Related skills
 

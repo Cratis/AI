@@ -54,7 +54,7 @@ A validator test cannot prove commit protection. In a development host, set a de
 
 ## Read and append explicitly outside the Arc pipeline
 
-Use the same `IEventStore` (including its store and namespace) for the decision and the write. For a single book, use the same source for both:
+Choose an explicit decision read when writing outside Arc's command pipeline. Use the same `IEventStore` (including its store and namespace) for the decision and the write. For a single book, use the same source for both:
 
 ```csharp
 var stock = await eventStore.GetDecisionReads().GetDetached<BookStock>(source);
@@ -66,13 +66,14 @@ var result = await eventStore.EventLog.AppendMany(
 return result.IsSuccess;
 ```
 
-Here `source` is the book's Chronicle `EventSourceId` and the enclosing method returns `Task<bool>`. Import `Cratis.Chronicle`, `Cratis.Chronicle.Events`, `Cratis.Chronicle.EventSequences` and `Cratis.Chronicle.ReadModels`. If you need to distinguish a stale decision from other failures, inspect `result.GetDecisionConflicts([stock])`. Do not append again on a conflict without reading and deciding again.
+Here `source` is the book's Chronicle `EventSourceId` and the enclosing method returns `Task<bool>`. Import `Cratis.Chronicle`, `Cratis.Chronicle.Events`, `Cratis.Chronicle.EventSequences` and `Cratis.Chronicle.ReadModels`. If you need to distinguish a stale decision from other failures, inspect `result.GetDecisionConflicts([stock])`.
 
-## Avoid
+## When it goes off the usual path
 
-- Don't use a display query for stock. Request the decision model in the validator.
-- Don't add `[ReadProtection(ReadProtectionMode.On)]` merely to repeat the project default.
-- Don't rely on `Measure` to reject writes: it only reports conflicts.
+- **A conflict rejects the write:** read the current stock and decide again before attempting another append.
+- **The rule must hold for every writer:** use an append constraint when it can express the invariant. The guard checks changes at commit; it does not lock the book, cover reads from another store or an external service, or enforce the rule for writers that omit a protected decision.
+
+Don't use a display query for stock. Request the decision model in the validator.
 
 ## Related skills
 

@@ -17,7 +17,7 @@ In `model/Authors/registration.play`, put the command and its event inside a `St
 
 1. Declare `concept AuthorId : Uuid`. Mark the command's `id` with `identifier`.
 2. Map each command input needed by the event. Use `for` to address the event to its owner.
-3. Give the read model a key. In its projection map the event source identity to the key and the payload to the displayed fields.
+3. Give the read model a key. Default to the event source for a view of one history. Choose an explicit business key on each relevant `from` handler, using `from <Event> key <property>`, when the view uses a different key. Map the payload to the displayed fields.
 4. Bind the list query to the collection. Run an example for a known ID and check the returned row.
 
 ## Example: register an author and list the name
@@ -66,11 +66,10 @@ module Library
 
 From the Library directory run `screenplay model` to compile the folder. Expect `PLAY0533` until the [Add author screen](../cratis-screenplay-model-interaction/SKILL.md) issues the command. Add the [registration and refusal examples](../cratis-screenplay-specify-outcome/SKILL.md), then run `screenplay test model --format json`.
 
-## Avoid
+## When it goes off the usual path
 
-- Don't put the name in `for`; `for` takes the author ID.
-- Don't add a second projection or reducer for `Author`.
-- Don't assume the source supplies missing payload fields; map `name` explicitly.
+- **An event from another history enriches the row:** name the `from` event that creates it and the related event source matched by `join <Name> on <Property>`. A join updates existing rows; it doesn't create them. Check that an unrelated source doesn't change the row and that the event named in `remove with` makes it disappear from the query.
+- **The source key differs from a payload ID:** use `$eventSourceId` if the row identifies that history. Use the payload ID only if it identifies the row by design. Don't duplicate the source ID in the payload just to display it.
 
 ## Related skills
 
