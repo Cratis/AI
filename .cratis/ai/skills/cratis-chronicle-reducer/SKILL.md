@@ -7,10 +7,10 @@ license: MIT
 # Chronicle reducers
 
 A reducer builds a read model as "current state plus event produces next state",
-with real C# control flow. Start with model-bound attributes, use fluent
-`IProjectionFor<T>` when mappings need structure, and choose a reducer when
-branching on prior state, calculations or guards read better as code. A reducer
-is a normal choice, not a last resort. For the application-code ladder and PDL's
+with real C# control flow. **We prefer projections over reducers.** Start with
+model-bound attributes, use fluent `IProjectionFor<T>` when mappings need
+structure, and choose a reducer only when a projection cannot express the
+transition (branching on prior state, calculations or guards). For the application-code ladder and PDL's
 outside-code role, read [choosing a style](../cratis-chronicle-read-model/SKILL.md#step-3--choose-a-projection-or-a-reducer).
 
 Requires Chronicle 19.58.0 for self-reducing read models.

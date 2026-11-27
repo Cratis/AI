@@ -103,6 +103,11 @@ Read the **cratis-arc-elixir** and **cratis-chronicle-client-elixir** skills bef
 - **Third parties are integrations behind a behaviour**, with an in-memory stand-in for specs; only
   reactors write to them.
 
+Specs follow [specs.elixir.md](./specs.elixir.md): scripts in `for_*`/`when_*` folders beside the code, no
+`_test` suffix, `should` assertions. Build read models with a projection, not a reducer, unless a projection
+cannot express the transition, and enforce uniqueness with a Chronicle constraint, not a read before the append
+(see the **cratis-arc-elixir** and **cratis-chronicle-client-elixir** skills).
+
 Every `.ex` and `.exs` source file starts with:
 
 ```elixir

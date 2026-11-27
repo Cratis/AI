@@ -3,6 +3,13 @@
 
 # Proxies and vertical slices
 
+## Contents
+
+- Vertical slices
+  - Group slices into sub-features, and keep an integration beside what it serves
+  - A read model owns its artifacts
+  - Name things by their ids
+
 Proxy generation is opt-in. Add the compiler and every `mix compile` regenerates the
 TypeScript for commands and queries:
 
@@ -45,6 +52,28 @@ The folder is the namespace: `Prism.Access.ApiCredentials.Secrets.RotatingSecret
 `RotatingSecrets` of the sub-feature `Secrets`. Arc's structure and event model show each
 sub-feature as a feature of its own, so the grouping is what readers and tools see. Keep
 `segments_to_skip` equal to the segments above the module.
+
+### A read model owns its artifacts
+
+A view slice has one file, named for its read model, holding everything the read model needs:
+
+```text
+viewing/listing/
+  credential_listing.ex      the read model, its projection (or reducer) and its queries
+  page.ex, page.html.heex    the page that shows it
+  for_credential_listing/    its specs
+```
+
+Inside, the read model's module nests what it needs (`Credential`, then its projection, then its `Queries`),
+the way a command shares a file with its events. Do **not** make files or folders named for a technical function
+(`queries.ex`, `reducer.ex`, `projection.ex`, `read_models/`): the folder is the slice and the file is the read
+model, so a reader finds the whole view in one place and the event model draws one box.
+
+**Prefer a projection over a reducer.** Build the read model with the `Cratis.Chronicle.Projections` DSL
+(`from/2`, `join/2`, `children/2,3`, counters). Use a reducer (`Cratis.Chronicle.Reducers.Reducer`) only when a
+projection cannot express the transition (branching on prior state, calculations, guards over the previous
+document) and say why in the read model's `@moduledoc`. A reducer is code you own and run; a projection is
+declarative and the kernel can replay and diagram it.
 
 ### Name things by their ids
 
