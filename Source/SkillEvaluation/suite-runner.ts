@@ -9,7 +9,7 @@ import { promisify } from 'node:util';
 import { stageCorpus, stageNone, treeDigest } from '../Verification/corpus-staging.ts';
 import { withRunLock } from './locking.ts';
 import { appendLine, concurrent, pendingTasks, readLines } from './storage.ts';
-import { inputDigest } from './suite-files.ts';
+import { generatedDirectories, inputDigest } from './suite-files.ts';
 import { suiteOptions, schedule, validateSuite } from './suite-input.ts';
 import { renderReport } from './suite-report.ts';
 import { docker, phase, startSandbox } from './suite-sandbox.ts';
@@ -90,7 +90,7 @@ async function lockInputs(context: TrialContext, plan: object, options: SuiteOpt
     const pi = (await execute('pi', ['--version'])).stdout.trim();
     const commit = (await execute('git', ['rev-parse', 'HEAD'], { cwd: context.root })).stdout.trim();
     const frozen = { schemaVersion: 1, plan, image: context.image, inputs: await inputDigest(context.suiteRoot), stages,
-        harness: await inputDigest(join(context.root, 'Source/SkillEvaluation')), commit, pi,
+        harness: await inputDigest(join(context.root, 'Source/SkillEvaluation'), generatedDirectories), commit, pi,
         options: { ...options, runDirectory: undefined }, node: process.version, platform: process.platform };
     await writeLocked(join(context.run, 'lock.json'), frozen);
 }

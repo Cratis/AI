@@ -39,12 +39,16 @@ async function assertNoLinks(root: string): Promise<void> {
     }
 }
 
-/** Includes every seed/overlay/scorer file, not just source extensions. */
-export async function inputDigest(root: string): Promise<string> {
+/** Directories holding installed dependencies or build output, never harness inputs. */
+export const generatedDirectories: ReadonlySet<string> = new Set(['node_modules', 'dist', 'bin', 'obj']);
+
+/** Includes every seed/overlay/scorer file, not just source extensions. Top-level directories named in `skip` are left out. */
+export async function inputDigest(root: string, skip: ReadonlySet<string> = new Set()): Promise<string> {
     const hash = createHash('sha256');
     async function visit(path: string): Promise<void> {
         for (const entry of (await readdir(join(root, path), { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
             const name = join(path, entry.name);
+            if (path === '' && skip.has(entry.name)) continue;
             if (entry.isSymbolicLink()) throw new Error(`Symbolic link refused: ${name}`);
             if (entry.isDirectory()) await visit(name);
             else hash.update(name).update('\0').update(await readFile(join(root, name))).update('\0');

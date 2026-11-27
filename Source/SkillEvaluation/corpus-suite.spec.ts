@@ -10,7 +10,7 @@ import { suiteOptions, schedule, validateSuite } from './suite-input.ts';
 import { evaluateIdiom, scoreSources } from './suite-scoring.ts';
 import { summarize, renderReport, variance } from './suite-report.ts';
 import { SuiteTranscript } from './suite-transcript.ts';
-import { inside, copyFixture } from './suite-files.ts';
+import { inside, copyFixture, inputDigest, generatedDirectories } from './suite-files.ts';
 import type { SuiteResult, Suite } from './Suite.ts';
 import { concurrent, pendingTasks } from './storage.ts';
 import { suiteMain, writeLocked } from './suite-runner.ts';
@@ -230,4 +230,20 @@ test('reports keep failures in denominators, missing metrics null, and repetitio
     assert.match(report, /infrastructure-error/);
     assert.match(report, /N\/A/);
     assert.match(report, /inconclusive/i);
+});
+
+test('harness digest skips installed dependencies but still refuses links among inputs', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'harness-digest-'));
+    try {
+        await writeFile(join(root, 'runner.ts'), 'export {};');
+        await mkdir(join(root, 'node_modules', '.bin'), { recursive: true });
+        await symlink(join(root, 'runner.ts'), join(root, 'node_modules', '.bin', 'tsc'));
+        const digest = await inputDigest(root, generatedDirectories);
+        await writeFile(join(root, 'node_modules', 'extra.js'), 'changed');
+        assert.equal(await inputDigest(root, generatedDirectories), digest);
+        await symlink(join(root, 'runner.ts'), join(root, 'linked.ts'));
+        await assert.rejects(inputDigest(root, generatedDirectories), /Symbolic link refused/);
+    } finally {
+        await rm(root, { recursive: true, force: true });
+    }
 });
