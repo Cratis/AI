@@ -30,7 +30,7 @@ Treat those IDs as model metadata. Arc's generated OpenAPI uses the host's endpo
 |---|---|---|
 | Validate `RegisterAuthor` | `POST <command-route>/validate` with the command JSON | Runs authorization and validation, not the handler; no registration is recorded, even for valid input. |
 | Execute `RegisterAuthor` | `POST <command-route>` with the same JSON | Runs the handler when authorized and valid. Check the command result and the registration outcome. |
-| Read one `AllAuthors` snapshot | Ordinary `GET <query-route>` without a stream header or upgrade | One JSON query result, not a subscription. If not ready, use `waitForFirstResult=true` to wait for the first result with a timeout. |
+| Read one `AllAuthors` snapshot | `GET <query-route>?waitForFirstResult=true` without a stream header or upgrade | One JSON query result, not a subscription. Without `waitForFirstResult=true`, an observable query can answer 202 with `isReady: false` and no data. |
 | Follow `AllAuthors` live | `GET <query-route>` with `Accept: text/event-stream`, or a WebSocket upgrade on that route | Keep the connection open for later results; the first streamed result alone does not verify live delivery. |
 
 The model's `x-screenplay-observable` marks a live query; the plain `GET` and stream negotiation above describe Arc's runtime behavior. Verify with valid input: run validation first and confirm no new row, then execute and confirm the fresh snapshot and the already-open stream both contain the agreed author ID.
