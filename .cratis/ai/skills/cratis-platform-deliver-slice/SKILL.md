@@ -1,61 +1,16 @@
 ---
 name: cratis-platform-deliver-slice
-description: Use when implementing a vertical slice end to end, from command input to an observable screen change. Not for changing only the command (use cratis-arc-declare-command).
-compatibility: Requires a Library .NET host, MongoDB, Chronicle, generated TypeScript client and Playwright Chromium.
+description: Use when an application author must turn an accepted slice into a working command, read model and visible screen outcome. For a change confined to the command, use cratis-arc-declare-command.
 ---
 
 # Register an author and show the new row
 
-Connect the registration state change to the consuming authors state view. Use the agreed Given/When/Then as the delivery check: given a disposable Library namespace with no authors, when the librarian enters and submits Aster, then the open list gains one row named Aster. `AddAuthor` sets the command's `id` with `Guid.create()`; the test does not supply an ID.
+Start with a running development host and an [accepted slice handoff](../cratis-screenplay-handoff-slice/SKILL.md): model revision, qualified slice, target, owner of the history and accepted examples. For Library, registration is a state change; the Authors list is its consuming state view. Agree that a librarian can register Aster once and see exactly one new row without refreshing. If the owner hasn't decided what happens on an empty name, resolve that before coding a validator.
 
-1. Configure the [host](../cratis-arc-host-application/SKILL.md), [Chronicle connection](../cratis-chronicle-connect-application/SKILL.md) and [MongoDB storage](../cratis-arc-connect-storage/SKILL.md).
-2. In `Features/Authors/Registration/RegisterAuthor.cs`, use [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) and [RegisterAuthorValidator](../cratis-arc-validate-command/SKILL.md). Return [AuthorRegistered](../cratis-chronicle-record-event/SKILL.md) from `Handle()`. `Id` selects the author history. For a command on an existing history, reuse the supplied ID. If it is not typed as an event-source ID, select the positional property with `[property: Key]` using `Cratis.Chronicle.Keys`.
-3. In `Features/Authors/Listing/Author.cs`, use the [Author projection](../cratis-chronicle-project-view/SKILL.md). `Author.Id` comes from the event source and `Author.Name` from the payload. In a fluent projection, map event members with `.To(selector)` and constants with `.ToValue(value)`. Add the [AllAuthors query](../cratis-arc-expose-query/SKILL.md) to that record; do not create another `Author` declaration.
-4. Run `dotnet build` on the backend with [proxy generation configured](../cratis-arc-generate-proxies/SKILL.md). Use the generated files under `generated/Features/Authors/`; do not copy them beside the screen.
-5. Submit the generated command from [AddAuthor](../cratis-components-submit-form/SKILL.md) in `Features/Authors/Registration/AddAuthor.tsx`. Use the [Authors DataPage](../cratis-components-display-list/SKILL.md) in `Features/Authors/Listing/Authors.tsx` with the generated `AllAuthors` query. Supply its `onOpen` callback from the Library shell. Do not build a second listing screen.
+1. Confirm the [host](../cratis-arc-host-application/SKILL.md) reaches the intended [Chronicle store](../cratis-chronicle-connect-application/SKILL.md) and [read-model storage](../cratis-arc-connect-storage/SKILL.md). Work in a disposable namespace. Check which artifacts the target already generates; do not edit generated output or implement a second owner for the same behavior.
+2. In the registration feature, [declare RegisterAuthor](../cratis-arc-declare-command/SKILL.md) and [validate its input](../cratis-arc-validate-command/SKILL.md). Address the author's history with its typed ID. For this decision, `public AuthorRegistered Handle() => new(Name);` returns the fact for the pipeline to append. Do not append it again in the handler.
+3. [Project the authors list](../cratis-chronicle-project-view/SKILL.md): the row ID comes from the event source, the name from `AuthorRegistered`. Expose it via the observable [AllAuthors query](../cratis-arc-expose-query/SKILL.md).
+4. [Generate the client](../cratis-arc-generate-proxies/SKILL.md) from the backend. [Submit the command](../cratis-components-submit-form/SKILL.md) once from the dialog and [display the rows](../cratis-components-display-list/SKILL.md) from `AllAuthors`. The query supplies the new row; don't also insert one into local state.
+5. As the librarian on the open Authors screen, register a fresh name. Wait for the row without reloading, then check that a fresh query returns exactly one matching row with the same identity. Verify the agreed empty-name refusal in a [backend scenario](../cratis-specifications-exercise-backend/SKILL.md): the reason identifies the name rule and no event was appended. A disabled button alone does not prove backend refusal.
 
-## When delivery starts from a Screenplay model
-
-In a .NET rendering tool, run `dotnet add package Cratis.Stage.Rendering.Cratis`. To preview the plan without writing files, run this from the Library repository root:
-
-```csharp
-using Cratis.Stage.Rendering.Cratis;
-
-var plan = await CratisRendering.PlanFrom(
-    new PlaySources("model", []),
-    new PlanSelection([PlanSelectionEntry.Feature("Library", "Authors")]),
-    new CratisPlanOptions("Library", "Library", "Library"));
-```
-
-Check `plan.Success` and read `plan.Diagnostics` before treating any planned output as covered. In the actual target, map each accepted outcome to a named generated test, an app-owned test for an assigned gap, or an unimplemented outcome. Keep app-owned code outside renderer-managed files. Run `dotnet test` in the target and check the named outcomes, not just the test count.
-
-## Check the running application
-
-Open the Authors list as the librarian. Choose **Add author**, enter **Aster**, submit once and wait for the new row without reloading. Fetch `AllAuthors` once as the same librarian using the [live query diagnostic](../cratis-arc-diagnose-live-query/SKILL.md). Check that exactly one result has `name` equal to `Aster` and record its `id`. Reload the screen, fetch again and check that the one Aster row has the same `id`.
-
-Run the [empty-name backend specification](../cratis-specifications-exercise-backend/SKILL.md) for `Name is required` and no additional event. To check refusal in a cookie-authenticated deployment, use `page` on the Authors screen as the librarian in the disposable namespace. With the routes generated above, post to the execute endpoint, not the preflight endpoint:
-
-```js
-const id = globalThis.crypto.randomUUID();
-const response = await page.request.post(new URL('/api/features/authors/registration', page.url()).href, {
-    data: { id, name: '' },
-});
-```
-
-The request shares the page's cookies. If the app sends tenant, authentication or anti-forgery headers separately, pass the same headers with `headers: commandHeaders`. Check `(await response.json()).validationResults` for `Name is required`. In the same namespace, require `await eventStore.EventLog.GetFromSequenceNumber(EventSequenceNumber.First, new AuthorId(Guid.Parse(attemptedId)))` to return no events, where `attemptedId` is the JavaScript `id` sent above. Compare the open list with a fresh `AllAuthors` result. Neither should gain a row. A disabled Add button doesn't prove backend refusal.
-
-## When it goes off the usual path
-
-- **The accepted row is missing or appears only after reload:** [trace the missing update](../cratis-platform-diagnose-slice/SKILL.md) in the same namespace before changing the form or projection.
-
-## Avoid
-
-- Don't append from both the command handler and the pipeline; return the event once.
-- Don't insert a second local row on success; the observable query supplies the list.
-
-## Related skills
-
-- [Trace a missing update](../cratis-platform-diagnose-slice/SKILL.md) if registration succeeds but the screen stays unchanged.
-
-- [Exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) to assert the append and refusal.
-- [Observe the UI](../cratis-specifications-observe-ui/SKILL.md) for the local interaction check.
+If registration succeeds but the row appears only after reloading, [trace the missing update](../cratis-platform-diagnose-slice/SKILL.md) before changing the form or projection. Report the observed result against the accepted example, not a list of generated files.

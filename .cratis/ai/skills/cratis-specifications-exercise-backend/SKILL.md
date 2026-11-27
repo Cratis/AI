@@ -1,16 +1,16 @@
 ---
 name: cratis-specifications-exercise-backend
-description: Use when testing an Arc command's append or refusal, or checking the row a Chronicle projection builds from an event. Not for a direct handler test (use cratis-specifications-isolate-behavior).
-compatibility: Requires the .NET SDK and matching Arc and Chronicle testing packages.
+description: Use when a backend author needs to check which event an Arc command appends, why it refuses input, or which row Chronicle projects. For a decision invoked without the pipeline, use cratis-specifications-isolate-behavior.
+compatibility: Requires the .NET SDK, the Cratis Specifications xUnit v3 adapter and the testing packages matching the application's Arc or Chronicle versions.
 ---
 
-# Test the registration append and empty-name refusal
+# Test the backend promise at its owner
 
-Carry accepted Given/When/Then examples into separate contracts. Use a pipeline scenario for authorization, validation, constraints, and command operations. Choose an in-process projection scenario when checking only the state view's mapping. Choose a running store when testing discovery or delivery. Don't require all three for one behavior.
+Use a command scenario when the promise depends on binding, authorization, validation or commitment. For a row mapping, use a read-model scenario instead. Reserve a running store for behavior that depends on discovery, actual persistence or observer delivery.
 
-1. In `Library.Specs`, reference the Library project, `Cratis.Arc.Chronicle.Testing`, `Cratis.Specifications.XUnit.v3`, `xunit.v3`, `Microsoft.NET.Test.Sdk` and `xunit.runner.visualstudio`. Keep the Arc testing package on the same version as the application's Arc packages.
-2. Use [RegisterAuthor](../cratis-arc-declare-command/SKILL.md), [AuthorRegistered](../cratis-chronicle-record-event/SKILL.md), [AuthorId](../cratis-fundamentals-name-value/SKILL.md) and [RegisterAuthorValidator](../cratis-arc-validate-command/SKILL.md) from the referenced application. The validator must reject empty `Name` with `Name is required`.
-3. In `Library.Specs/for_RegisterAuthor/when_executing_author_registration.cs`, submit once and check both the command result and addressed payload:
+## Reject an empty author name
+
+Reference the application, `Cratis.Arc.Chronicle.Testing`, `Cratis.Specifications.XUnit.v3` and the repository's xUnit v3 test setup in the spec project. This example assumes `RegisterAuthor` takes the source ID and name, and its validator rejects an empty name with `Name is required`. Seed another registration to distinguish earlier history from this command's work.
 
 ```csharp
 using System.Threading.Tasks;
@@ -24,24 +24,6 @@ using Xunit;
 
 namespace Library.Specs.for_RegisterAuthor;
 
-public class when_executing_author_registration : Specification
-{
-    readonly CommandScenario<RegisterAuthor> _scenario = new();
-    readonly AuthorId _id = AuthorId.New();
-    CommandResult _result = null!;
-
-    async Task Because() => _result = await _scenario.Execute(new RegisterAuthor(_id, "Aster"));
-    void Destroy() => _scenario.Dispose();
-
-    [Fact] public void should_accept_registration() => _result.ShouldBeSuccessful();
-    [Fact] public async Task should_record_the_name_on_the_requested_author() =>
-        await _scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(_id, e => e.Name == "Aster");
-}
-```
-
-4. In `when_submitting_an_empty_name.cs` in the same folder, use the same imports and namespace. Give this context its own scenario. Seed another author's history so that the assertion distinguishes prior history from a new append:
-
-```csharp
 public class when_submitting_an_empty_name : Specification
 {
     readonly CommandScenario<RegisterAuthor> _scenario = new();
@@ -52,54 +34,15 @@ public class when_submitting_an_empty_name : Specification
     void Destroy() => _scenario.Dispose();
 
     [Fact] public void should_refuse_registration() => _result.ShouldNotBeSuccessful();
-    [Fact] public void should_explain_the_refusal() =>
-        _result.ShouldHaveValidationErrorFor("Name is required");
+    [Fact] public void should_explain_the_refusal() => _result.ShouldHaveValidationErrorFor("Name is required");
     [Fact] public async Task should_not_append_an_event() => await _scenario.ShouldNotHaveAppendedEvents();
 }
 ```
 
-## Test the projected author
+For the accepted example, execute once with the requested `id` and `"Aster"`. Check `result.ShouldBeSuccessful()` and await `scenario.ShouldHaveAppendedEvent<RegisterAuthor, AuthorRegistered>(id, e => e.Name == "Aster")`. Checking only a returned object would miss a write addressed to the wrong author. If a refusal test passes because authorization rejected the caller, it hasn't checked the name rule: inspect the structured reason.
 
-Reference `Cratis.Chronicle.Testing` and use the application's [Author projection](../cratis-chronicle-project-view/SKILL.md). In `Library.Specs/for_Author/when_projecting_a_registration.cs`, apply the registration to one source and check the resulting row:
+## Check the projected row instead
 
-```csharp
-using System.Threading.Tasks;
-using Cratis.Chronicle.Testing.ReadModels;
-using Cratis.Specifications;
-using Library.Features.Authors;
-using Library.Features.Authors.Listing;
-using Library.Features.Authors.Registration;
-using Xunit;
+With `Cratis.Chronicle.Testing`, create a `ReadModelScenario<Author>` for the application's projection. Apply `await scenario.Given.ForEventSource(id).Events(new AuthorRegistered("Aster"));` once. Require `scenario.Instance` to have that ID and name, then dispose the scenario during cleanup. That proves the mapping, not the live subscription.
 
-namespace Library.Specs.for_Author;
-
-public class when_projecting_a_registration : Specification
-{
-    readonly AuthorId _id = AuthorId.New();
-    readonly ReadModelScenario<Author> _scenario = new();
-
-    async Task Because() => await _scenario.Given.ForEventSource(_id).Events(new AuthorRegistered("Aster"));
-    void Destroy() => _scenario.Dispose();
-
-    [Fact] public void should_identify_the_author() => _scenario.Instance!.Id.ShouldEqual(_id);
-    [Fact] public void should_display_the_registered_name() => _scenario.Instance!.Name.ShouldEqual("Aster");
-}
-```
-
-This checks the mapping in process, not observer delivery. In a running-store test, make sure the host has discovered the `Author` projection, then append to the test author's history and assert the append succeeded. Await `WaitForCompletion()` on that append result (import `Cratis.Chronicle.Observation`); require success with no failed partitions before querying the stored row for the same ID and name. A fixed sleep does not establish that the observer handled this write.
-
-For a command that decides from a read model, seed the prerequisite events in order with `_scenario.Given.ForEventSource(id).Events(...)` in `Establish`. Include the events needed to materialize the decision state, not just the last change. In `Because`, execute against that same source. Verify what that execution appended separately from the seeded history. For refusal, assert a structured result entry that identifies the intended rule: use the modeled message with `ShouldHaveValidationErrorFor` or an agreed stable failure code. A member name alone is insufficient when several rules can reject that member.
-
-## When it goes off the usual path
-
-- **The query has a caller filter:** seed one visible and one excluded author in the running app. As that caller, send `GET /api/features/authors/listing/all-authors?waitForFirstResult=true`; assert that the returned IDs include the first author and exclude the second. The projection scenario above does not exercise that query.
-- **The in-process projection passes but a live query misses the author:** verify the append and observer completion against the running application before testing delivery through the query and UI.
-
-## Avoid
-
-- Don't call `Validate` to check an append; it does not execute the handler.
-- Don't assert only the event type; check the requested ID and submitted name.
-
-## Related skills
-
-- [Isolate behavior](../cratis-specifications-isolate-behavior/SKILL.md) when the assertion concerns only the event returned by `Handle()`.
+For a delivery promise, use an isolated running store with the projection registered. Check the append result first, await `WaitForCompletion()` on that append result (import `Cratis.Chronicle.Observation`), require successful observation and query the stored row by the same ID. A fixed sleep cannot distinguish a slow observer from a failed one. When a query also filters by caller, check the returned IDs as that caller; the stored row alone cannot prove visibility.

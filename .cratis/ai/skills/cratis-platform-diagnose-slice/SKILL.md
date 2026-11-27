@@ -1,42 +1,38 @@
 ---
 name: cratis-platform-diagnose-slice
-description: Use when tracing a missing update between a successful command and an open list, such as a registration that never appears on the Authors screen. Not for repairing a known observer problem (use cratis-chronicle-inspect-observer).
-compatibility: Requires a running Library host, Chronicle and access to the Authors list.
+description: Use when a maintainer must trace an accepted command to a missing or late query result and screen update. For a confirmed observer failure, use cratis-chronicle-inspect-observer.
+compatibility: Chronicle diagnostics below use the Cratis CLI 3.154.2.
 ---
 
-# Find where registration stops reaching the Authors list
+# Find the first boundary that lost the update
 
-Add the `Cratis.OpenTelemetry` package to the Library host. In `Program.cs`, import `Cratis.OpenTelemetry` and add the following after creating the web application builder, before building the host:
+Start with an existing request, not another write. Record the caller, command outcome, expected row key and request time. If the command was refused, inspect its authorization or validation result; a refused command isn't projection lag.
 
-```csharp
-builder.AddCratisOpenTelemetry(options => options.ServiceName = "library");
+## Inspect the running Chronicle, read-only
+
+Use read access to the intended server. Confirm the endpoint in the active CLI context or have the secret provider supply `CHRONICLE_CONNECTION_STRING`. An environment value overrides the context; without either, the CLI falls back to localhost. Never put credentials in shell history or diagnostic output. Use the application's tenant-to-namespace mapping; a tenant name need not be its Chronicle namespace.
+
+```sh
+cratis chronicle event-stores list
 ```
 
-This registers Cratis traces and metrics for the host, not the kernel. To send them to a collector, set `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317` in the host environment for a local gRPC collector; substitute the actual collector address. Use the same trace ID for spans where it propagates. Keep the store, namespace, author ID and logged event position as evidence even when the trace is incomplete.
+If unreachable, check the endpoint, credentials and network before interpreting missing data. Choose the actual store from the result. The following shell variables illustrate a Library deployment; replace their values with the store, namespace, event source and observer from this request:
 
-1. Submit `RegisterAuthor` with a fresh `AuthorId` and name Aster. Inspect `CommandResult.IsSuccess`. On refusal, check `result.IsAuthorized` and `result.HasExceptions` before inspecting `result.ValidationResults` for invalid input.
-2. In the Library event store and the application's namespace, read `eventLog.GetForEventSourceIdAndEventTypes(authorId, [typeof(AuthorRegistered).GetEventType()])` as in [reading back the append](../cratis-chronicle-record-event/SKILL.md). For this fresh ID take the single event and record `stored.Context.SequenceNumber` and `EventSequenceId.Log`; a successful command result alone does not establish the append.
-3. Read `await eventStore.Observers.GetAll()` and select the observer whose ID is `Library.Features.Authors.Listing.Author`. In `Features/Authors/Diagnostics/AuthorListingProgress.cs`, use [ComparePosition](../cratis-chronicle-inspect-observer/SKILL.md) with that observer, the same event sequence ID and the recorded write position. Compare `LastHandledEventSequenceNumber` only within the same store, namespace and sequence.
-4. After catch-up, check the materialized row independently in the tenant's read-model database and collection. Look up the written source by its persisted row key and check its projected fields. If the observer reached the write and that row is missing or stale, investigate the projection, key or storage mapping.
-5. **Rerun the query for the original key before touching the screen.** As the same librarian in the same tenant, repeat the application's lookup for the original `AuthorId`. For Library's `AllAuthors` collection query, make a new HTTP `GET /api/features/authors/listing/all-authors?waitForFirstResult=true` with Library's generated route (no SSE or WebSocket) and look for that exact `Id` in the fresh result. A plain GET on an observable query can return 202 with `isReady: false` and no data; that is not an answer, so never read it as a missing row. A database row check cannot replace rerunning the query. If the fresh query returns the row but the screen doesn't, inspect the open subscription for that ID using the [live query diagnostic](../cratis-arc-diagnose-live-query/SKILL.md) before changing React rendering.
+```sh
+store=library
+cratis chronicle namespaces list -e "$store"
+ns=Default
+source_id='the-requested-author-id'
+cratis chronicle events get -e "$store" -n "$ns" --event-source-id "$source_id"
+cratis chronicle observers list -e "$store" -n "$ns"
+observer='the-registered-projection-id'
+cratis chronicle observers show "$observer" -e "$store" -n "$ns"
+cratis chronicle failed-partitions list --observer "$observer" -e "$store" -n "$ns"
+```
 
-## Example: a registration at position 12
+If a command isn't present, inspect `cratis chronicle --help` and the relevant group's `--help`. A failed or unauthorized read is unknown, not an empty result. Inspect only authorized records; retain identifiers, not raw payloads.
 
-| Result | Next check |
-|---|---|
-| AuthorRegistered at 12; observer at 11 | The observer hasn't reached the write. Check its running state and failures for this author ID. |
-| Observer reaches 12 | Check the persisted row, then rerun the lookup for Aster's exact `AuthorId` against the fresh `AllAuthors` result. If absent from a ready result, check the projected row key and query scope, not the screen. |
-| Query contains the author; open screen doesn't | Distinguish a missing subscription update from a row the component didn't render. |
-
-## When it goes off the usual path
-
-- **A span is missing:** follow the same evidence chain from command result to event, row, query and screen. A missing span does not establish a failed append.
-- **`result.IsAuthorized` is false:** inspect `result.AuthorizationFailureReason` and compare the caller's access with the command's policy.
-
-Don't put author names or payloads in metric dimensions or copy sensitive payloads or credentials into a diagnostic capture.
-
-## Related skills
-
-- [Exercise the complete slice](../cratis-platform-deliver-slice/SKILL.md) after correcting the first failing step.
-
-- [Inspect the observer](../cratis-chronicle-inspect-observer/SKILL.md) to investigate a confirmed checkpoint gap.
+1. Locate the expected `AuthorRegistered` for the original source. If absent, verify scope, then investigate the write. If present, record its event log sequence number.
+2. Compare the projection's last handled position **in that same store, namespace and sequence**. For a write at 12 and a checkpoint at 11, check observer state and failed partitions for this key. A checkpoint at 12 is not proof that the intended row exists. [Inspect the observer](../cratis-chronicle-inspect-observer/SKILL.md) for a confirmed gap. Don't reset, replay or retry partitions during diagnosis.
+3. Run `cratis chronicle read-models list -e "$store" -n "$ns"`. For a queryable model, run `cratis chronicle read-models get "$model" "$row_key" -e "$store" -n "$ns"`, setting `model` to its listed **Identifier** and `row_key` to the expected projection key. For client-owned state, query the owning application instead; the CLI cannot retrieve it. Rerun the application query as the same caller and tenant. For the example observable `AllAuthors` query, GET the route from its generated proxy with `waitForFirstResult=true` and look for the exact ID in the first ready result. A pending response isn't evidence of an empty list. A missing stored row suggests mapping or key selection; a stored row excluded by the query suggests scope or filtering.
+4. Only if the fresh query includes the ID, inspect the open subscription and rendered list. Distinguish an update never delivered to this client from an update received but not rendered. Record the first expected observation that was absent.

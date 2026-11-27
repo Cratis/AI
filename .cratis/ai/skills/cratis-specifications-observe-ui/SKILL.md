@@ -1,12 +1,12 @@
 ---
 name: cratis-specifications-observe-ui
-description: Use when testing visible interaction with the real Library dialog in a Storybook play function, such as opening the dialog and editing the author name. Not for choosing a control (use cratis-components-choose-control).
+description: Use when a frontend author needs to check keyboard interaction, dialog focus or visible input in a Storybook play function. Not for proving backend validation.
 compatibility: Requires React Storybook with @storybook/react-vite, the Library UI packages and generated proxies. The running application check requires Playwright.
 ---
 
 # Open the real Add author dialog in a story
 
-Put `AddAuthor.stories.tsx` beside the real [AddAuthorButton and AddAuthor](../cratis-components-submit-form/SKILL.md). Check that focus enters the dialog without configuring a different focus target for the test. Omit the decorator if the preview already supplies the [Library providers](../cratis-arc-react-bind-slice/SKILL.md).
+Start with a Storybook preview for the application and a working dialog. In this Library example the trigger and dialog are both named “Add author”, with a single name field. Put `AddAuthor.stories.tsx` beside the application's `AddAuthorButton` and `AddAuthor` components. Check that focus enters the dialog without configuring a different focus target for the test. Omit the decorator if the preview already supplies the Arc and Components providers.
 
 ```tsx
 import 'reflect-metadata';
@@ -54,8 +54,4 @@ export async function verifyKeyboardRegistration(page, name) {
 }
 ```
 
-For a server refusal, run the authenticated invalid-request check in [Deliver the slice](../cratis-platform-deliver-slice/SKILL.md). This story does not submit a command.
-
-## Related skills
-
-- [Deliver the slice](../cratis-platform-deliver-slice/SKILL.md) to check live delivery and backend refusal.
+If the dialog cannot be found after Enter, inspect the trigger's accessible name and check the document body for a portal before changing the component. The story does not submit a command. For server refusal, [exercise the backend](../cratis-specifications-exercise-backend/SKILL.md) with the same invalid input.

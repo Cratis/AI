@@ -1,7 +1,7 @@
 ---
 name: cratis-specifications-isolate-behavior
-description: Use when testing an isolated .NET decision with Cratis Specifications or structuring its pure behavior spec, shared context or xUnit runner. Not for exercising the Arc pipeline (use cratis-specifications-exercise-backend).
-compatibility: Requires the .NET SDK and the xUnit v3 specification runner.
+description: Use when a .NET contributor needs a Cratis Specifications context for a decision that can be invoked directly. For command validation, authorization or append behavior, use cratis-specifications-exercise-backend.
+compatibility: With Cratis.Specifications.XUnit.v3 5.3.0, target .NET 10 or 11 in the specification project.
 ---
 
 # Test what RegisterAuthor.Handle returns
@@ -14,7 +14,7 @@ Call the registration handler once and assert its returned `AuthorRegistered`. D
 
 ## Check the event's name
 
-`RegisterAuthor` and `AuthorRegistered` come from [the registration command](../cratis-arc-declare-command/SKILL.md) and [the recorded event](../cratis-chronicle-record-event/SKILL.md); `AuthorId` comes from [declaring domain values](../cratis-fundamentals-name-value/SKILL.md).
+The example assumes the Library command takes an `AuthorId` and name and returns an `AuthorRegistered` with that name. Substitute the actual decision and input in a library repository; don't introduce a command just to test a method.
 
 ```csharp
 using Cratis.Specifications;
@@ -38,7 +38,7 @@ public class when_registering_an_author : Specification
 
 ## Avoid
 
-- Don't perform a second action inside a fact; all facts observe the result of `Because`.
+- In an eligible xUnit v3 specification, facts share the arranged instance and the result of `Because`. Keep facts observational: a second action in a fact can affect the next fact.
 - Don't share mutable data between scenarios; each context arranges its own inputs in `Establish`.
 - Direct invocation does not exercise generated-argument binding, authorization, validation or commitment.
 
