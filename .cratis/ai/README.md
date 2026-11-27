@@ -23,6 +23,7 @@ Every other profile ID is kept so existing selections keep resolving; each insta
 
 ## Where to start
 
+- An empty directory: [start an application](skills/cratis-platform-start-application/SKILL.md).
 - A business journey: [discover the timeline](skills/cratis-modeling-discover-timeline/SKILL.md), then [design the event model](skills/cratis-modeling-design-event-model/SKILL.md).
 - A slice to implement: [deliver a slice](skills/cratis-platform-deliver-slice/SKILL.md).
 - A change that did not reach the screen: [diagnose a slice](skills/cratis-platform-diagnose-slice/SKILL.md).
