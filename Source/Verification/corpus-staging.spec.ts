@@ -9,7 +9,7 @@ import { afterEach, beforeEach, describe, it } from 'node:test';
 import { catalogProblems, profileSkills, removeStage, stageCorpus, stageMarkerFile, stageNone, treeDigest } from './corpus-staging.ts';
 import { main } from './stage-corpus.ts';
 
-const catalog = (extra: object[] = []) => ({
+const catalog = (extra: { id: string; composes?: string[]; availableTargets?: string[] }[] = []) => ({
     publicProfiles: [
         { id: 'cratis/v2/application', composes: ['cratis/v2/arc'], availableTargets: ['v2-platform'] },
         { id: 'cratis/v2/arc', availableTargets: ['v2-arc-command'] },
