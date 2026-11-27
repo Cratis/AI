@@ -48,7 +48,9 @@ starts the kernel once per spec module (`lifecycle: :per_test` for one per test)
 `should_have_constraint_violation/1,2`, `should_have_concurrency_violation/1`, `should_have_appended/2,3`,
 `should_have_appended_exactly/2`, `should_not_have_appended_any_events/1`, `should_have_tail_sequence_number/2`,
 `should_have_read_model/4`, `should_have_observer_failures/1,2`. Only what the `append` added counts, not the
-given events. The layout and naming of the files is `rules/specs.elixir.md`.
+given events. Reusable facts are given contexts (`use Cratis.Chronicle.Testing.Given`) applied with
+`given: [Context]`, and `setup: {Module, :function}` prepares fakes. The layout and naming of the files is
+`rules/specs.elixir.md`.
 
 ## Waiting and reading
 

@@ -86,13 +86,17 @@ anti-pattern fixes must not scatter a vertical slice across folders.
 Read the **cratis-arc-elixir** and **cratis-chronicle-client-elixir** skills before touching a slice.
 
 - **Folders are Module, Feature, Slice, and sub-features nest.** One folder per behavior, named for what
-  it does as a gerund (`RotatingSecrets`); the command inside is the verb. Group slices that act on one
+  it does as a gerund, without repeating what its sub-feature already names (`Secrets.Rotating`, not
+  `Secrets.RotatingSecrets`; see [vertical-slices.md](./vertical-slices.md)); the command inside is the verb and keeps
+  its noun (`RotateSecret`). Group slices that act on one
   thing into a sub-feature (`Secrets`, `Credentials`, `Viewing`), and put a reactor with the facts it
   reacts to, not in a folder named for the third party it calls. No folders named for a kind of file.
 - **Names are ids.** `use Cratis.Arc.Command, id: "rotate-secret"`, an event type's `id:`, a reactor's
   `id:`; the model shows the id in PascalCase, so a module can be renamed without renaming the model.
 - **A command and its events live in one file**, events first. An event is past tense, one fact, and
-  never carries a secret.
+  never carries a secret or anything derived from one (no hint, hash or last characters): the system that
+  owns a secret, such as an identity provider, is the only one that holds it, and a secret is shown once to
+  the person who asked for it.
 - **Every slice tells a whole story**: a state change has a command and the events it appends; a view
   has a read model and consumes events (`consumes:` when it reads the event log); an automation reacts to
   an event, runs a command and records the fact that command appends, so the event model shows what it

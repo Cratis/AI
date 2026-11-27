@@ -32,8 +32,8 @@ arc: [application: MyApp.Arc, event_model_strict: true]
 
 - A slice is the module namespace after `segments_to_skip` as `[module, feature..., slice]`: the first
   segment is the module, the last the slice, **everything between is a feature path**, so
-  `Prism.Access.ApiCredentials.Secrets.RotatingSecrets.RotateSecret` with `segments_to_skip: 1` is the
-  slice `RotatingSecrets` of the sub-feature `Secrets` of the feature `ApiCredentials` of the module
+  `Prism.Access.Api.Secrets.Rotating.RotateSecret` with `segments_to_skip: 1` is the
+  slice `Rotating` of the sub-feature `Secrets` of the feature `Api` of the module
   `Access`. The board nests sub-features as `subFeatures`, the Screenplay source nests `feature` inside
   `feature`, and each depth has its own document. Fewer than three segments fill the deepest parts first.
 - A slice with a command is a state change; with a read model, reducer or projection a state view; with
