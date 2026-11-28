@@ -6,6 +6,8 @@ compatibility: Requires react and @cratis/components.
 
 # Edit a schema or a document
 
+These paths are for the Library example; in other apps, put the components in the owning slices.
+
 1. Use `SchemaEditor` to change which properties exist. Put `SchemaDraft.tsx` in `Features/Schemas`, inside `CratisComponentsProvider` from `@cratis/components`. Pass the existing schema and the application's save operation.
 
 ```tsx

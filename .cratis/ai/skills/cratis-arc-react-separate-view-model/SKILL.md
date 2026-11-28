@@ -8,6 +8,8 @@ compatibility: Requires @cratis/arc.react.mvvm, tsyringe and react-router-dom in
 
 Keep simple presentation state in the view. Extract a view model when the search term and filtering decision need testing without React, or when presentation behavior needs an injected collaborator.
 
+In the Library example below, use its existing `Features/` paths.
+
 1. Set `compilerOptions.experimentalDecorators` to `true` in `tsconfig.json`. In [main.tsx](../cratis-arc-react-bind-slice/SKILL.md), keep the Fundamentals metadata import first so it runs before `tsyringe`. Then import `MVVM` from `@cratis/arc.react.mvvm` and `BrowserRouter` from `react-router-dom`. Keep the existing providers and wrap the application shell inside `Arc`: `<Arc><MVVM><BrowserRouter><App /></BrowserRouter></MVVM></Arc>`. In `App.tsx`, import `AuthorSearch` from `./Features/Authors/Listing/AuthorSearch` and render it on the search screen. The bound view reads the router; don't replace the shell or its dialog registration.
 2. Put the search term and filter in `Features/Authors/Listing/AuthorSearchViewModel.ts`. `Author` and `AllAuthors` come from the slice's generated proxy (`cratis-arc-generate-proxies` skill in `cratis/arc/csharp`).
 

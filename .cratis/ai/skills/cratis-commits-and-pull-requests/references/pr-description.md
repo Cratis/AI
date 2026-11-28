@@ -1,6 +1,6 @@
 # Describe the delivery
 
-Use the repository's PR template. Where the PR body supplies the published release notes, use only applicable `Added`, `Changed`, `Fixed`, `Removed`, `Security` and `Deprecated` sections with short, user-facing bullets. Include migration guidance for breaking changes. Put verification, test and CI results and other reviewer context in a PR comment, not in the body. Do not narrate the work in the release note.
+Use the repository's PR template. Where the PR body supplies the published release notes, optionally open with a short `## Summary` or one unheaded lead paragraph, not both. Then use only applicable sections in this order: `Added`, `Changed`, `Fixed`, `Removed`, `Security`, `Deprecated`. Write short, user-facing bullets. Include migration guidance for breaking changes. Put verification, test and CI results and other reviewer context in a PR comment, not in the body. Do not narrate the work in the release note.
 
 ## Issue references
 

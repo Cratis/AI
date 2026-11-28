@@ -1,6 +1,6 @@
 # Generate clients from Node source
 
-Run `arc-proxygenerator --project tsconfig.json --artifacts Features --output Features --use-proxy-file-suffix --metadata "$PWD/Features/generatedMetadata.ts"` from the project root when the registered classes live under `Features`. The input is source, not a running server. The suffix keeps co-located proxies separate from handwritten artifacts. Load the generated metadata in the host. Stale runtime shapes can prevent startup; source-only changes can still escape the runtime check. Run the same command with `--check-metadata` in CI.
+Run `arc-proxygenerator --project tsconfig.json --artifacts Features --output Features --use-proxy-file-suffix --metadata "$PWD/Features/generatedMetadata.ts"` from the Library example project root, where registered classes live under `Features`. Use the actual slice path in other projects. The input is source, not a running server. The suffix keeps co-located proxies separate from handwritten artifacts. Load the generated metadata in the host. Stale runtime shapes can prevent startup; source-only changes can still escape the runtime check. Run the same command with `--check-metadata` in CI.
 
 Match generator options to the server before debugging the client:
 

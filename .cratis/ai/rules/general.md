@@ -17,7 +17,7 @@
 
 ## Approval is not execution
 
-An accepted model, plan or review approves a description. Permission to render, apply, deploy or change a running system is separate; ask for it explicitly. Having a tool is not permission either: sending repository data to a hosted service, changing MCP configuration and forcing a render over edited files each need their own explicit authority.
+Accepting a model, plan or review does not authorize rendering, applying, deploying or changing a running system. Ask explicitly before acting, sending repository data to a hosted service, changing MCP configuration or forcing a render over edited files.
 
 Use Screenplay when `.cratis/ai.json` sets `mcpServers.screenplay.root`, the application already has `.play` source anywhere, or the user requests Screenplay or Stage. An MCP entry, profile or empty directory alone is not opt-in. If `.cratis/ai.json` sets `modelFirst.frozen: true` (optional `reason`), committed `.play` files are generated evidence. Edit or regenerate them only when the request names the path or model; skip them in generic regeneration and report it. When frozen or not opted in, work code-first from accepted examples.
 
@@ -31,17 +31,13 @@ Use Screenplay when `.cratis/ai.json` sets `mcpServers.screenplay.root`, the app
 
 ## Retrieve remote content
 
-- For exact CI logs, artifacts or API JSON, use terminal `curl -LsS` to follow redirects. Capture the body separately from `--write-out '%{http_code}'` and record curl's exit code before filtering locally with `head`, `grep` or `jq`. Do not let a filter's exit code stand in for the producer's. Use a page-fetch tool for summaries of rendered pages. Keep credentials, authorization headers and signed URL query strings out of displayed commands, transcripts, logs and artifacts.
+- Fetch exact CI logs, artifacts or API JSON with `curl -LsS`. Capture the body separately from `--write-out '%{http_code}'`; record curl's exit code before filtering. Use page-fetch tools for rendered summaries. Keep credentials, authorization headers and signed URL queries out of commands, transcripts, logs and artifacts.
 
 ## Verify what can go wrong
 
 - Verify consequential decisions, transformations and failures. Do not verify passthrough, getters or the framework itself.
 - Call the decision directly unless framework behavior such as binding, validation, authorization or projection is in question; then exercise it through the framework. Never do both for the same decision.
 - As a planning default, a behavior-neutral change needs no new case, a fix usually needs one regression case, and a small change needs one to three. Explain more than five cases or any new hosted test. These defaults never limit coverage of security, migration or replay, deterministic failure, redaction or resource limits.
-- For build/spec changes, time the cold full suite and focused folder loop; fix slowdowns in the same change. Target under a minute; keep coverage. Parallel specs need isolated state, ports, paths and names and no ordering assumptions. Never serialize or disable shared setup to hide isolation bugs.
-- Keep consumer-owned routing and service-boundary specs in PR CI. Retire a consumer assertion only if a named spec in the owning upstream repository fails when that consumer behavior breaks.
-- Run the smallest check that crosses the changed boundary. Trust its fresh result, not your own assessment. CI confirms afterwards; it is not the feedback loop.
-
 ## Report what actually ran
 
 State each command and its outcome. Distinguish source inspection, compilation, model acceptance and execution. Name the checks that did not run.

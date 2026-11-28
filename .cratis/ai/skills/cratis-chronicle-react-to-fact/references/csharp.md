@@ -41,7 +41,7 @@ If the same delivery also sends email, pass `delivery.IdempotencyKeyFor("email")
 
 ## When it goes off the usual path
 
-- **Historical events must not resend the notice:** `[StartAtTail]` skips initial history only on first registration, while `[OnceOnly]` skips explicit replay. Neither suppresses ordinary redelivery or deduplicates external effects. A `[Replay]` handler can replace the ordinary handler during replay when historical events need different work.
+- **Historical events must not resend the notice:** `[StartAtTail]` skips initial history only on first registration, while `[OnceOnly]` excludes replay, including observer rewind, redaction and revision. Neither suppresses ordinary redelivery or deduplicates external effects. A `[Replay]` handler can replace the ordinary handler during replay when historical events need different work.
 
 - **The follow-up makes its own local business decision:** return a command invocation as shown below. For a leased occurrence rather than a reactor delivery, see "Execute a command once per occurrence effect" in `cratis-arc-invoke-command`.
 - **An existing reactor moves or is renamed:** preserve its observer ID to keep its position. Keep the explicit `[Reactor]` ID shown in the example, even after moving or renaming the class.

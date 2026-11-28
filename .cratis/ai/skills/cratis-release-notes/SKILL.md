@@ -20,9 +20,8 @@ required to draft notes.
 Before writing, identify product, tag or candidate version, previous version,
 artifact/package names, supported platforms, and the audience. Inventory
 observable changes from the diff, specs, linked issues/PRs, and authoritative
-product source at that revision. A PR description is published verbatim as
-release notes in a Cratis repository; follow its current template and the
-pull-request contract, and confirm that behavior before drafting. Do not turn
+product source at that revision. Confirm whether the publishing workflow uses the PR description as release notes,
+then follow the repository's template and pull-request contract. Do not turn
 a draft into a claim about shipped behavior.
 
 For each change, ask: who uses this path, what happened before, what happens
@@ -44,8 +43,8 @@ one to add weight.
 
 ## Write for the right channel
 
-- **Exact-version release note (GitHub/PR):** in a Cratis repository this is
-  the merged PR description, published verbatim. Follow the repository’s PR
+- **Exact-version release note (GitHub/PR):** when the workflow publishes the
+  merged PR description, write it for the reader upgrading. Follow the repository’s PR
   template and release policy. For release intent and labels, use
   `cratis-platform-prepare-release-pr` from `cratis/engineering`. No development
   write-up (no Overview, Verification or Test plan headings; put review notes
