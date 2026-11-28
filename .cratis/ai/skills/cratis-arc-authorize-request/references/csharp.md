@@ -43,7 +43,7 @@ Revoke the session after the first result. Verify that no subsequent protected d
 
 A valid session can outlast a role or organization assignment. In a discovered `IQueryFilter`, have `OnPerform(QueryContext context)` return `QueryResult.Success(context.CorrelationId)` for other fully qualified `context.Name` values. For the protected query, return `QueryResult.Unauthorized(context.CorrelationId)` if access is denied; otherwise set `context.SubscriptionScope` to the authorized organization ID and return success. The query itself must restrict rows to that organization.
 
-In an `IGuardObservableQueryEmission`, return `Allow` for other `context.QueryName` values. For this query, use `context.Principal` to check current access against `context.SubscriptionScope` on each emission. Return `DenyAndTerminate` if either is missing, the active organization differs, or the required role no longer applies there. Keep the session active in the test; switch organizations or revoke the role and verify the next update is withheld.
+In an `IGuardObservableQueryEmission`, return `Allow` for other `context.QueryName` values. For this query, use the captured `context.Principal` only to identify the caller. Its WebSocket handshake claims do not refresh: calling `IsInRole` again is not a revocation check. On every emission fetch current membership, active organization and roles from the authoritative store. Return `DenyAndTerminate` unless access is confirmed for the captured `context.SubscriptionScope`, including when the lookup fails. Test without reconnecting: keep the session active, revoke the role after the first result, publish a matching change, and assert termination with no protected update.
 
 ## Rules that decide the verdict
 
