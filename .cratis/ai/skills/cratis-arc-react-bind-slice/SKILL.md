@@ -1,12 +1,14 @@
 ---
 name: cratis-arc-react-bind-slice
 description: Use when a developer mounts the Arc React host, renders a generated query in custom markup or invokes a generated command from an action. Not for a standard table (use cratis-components-display-list) or a command form (use cratis-components-submit-form).
-compatibility: Requires react, react-dom, reflect-metadata and @cratis/arc.react. Add @cratis/components for DataPage or command dialogs.
+compatibility: Requires react, react-dom, reflect-metadata and compatible versions of @cratis/arc, @cratis/arc.react and @cratis/fundamentals. Add @cratis/components for DataPage or command dialogs.
 ---
 
 # Bind generated proxies in a React component
 
-Start with a plain function component and React-enabled generated proxies (`cratis-arc-generate-proxies` skill). The paths and author types below belong to the Library example; use your slice's generated imports.
+Start with a plain function component and React-enabled generated proxies (`cratis-arc-generate-proxies` skill). For the Library example below, choose the import reference for the backend that produced the files: a C# project (`.csproj`) → [C#](references/csharp.md); a Kotlin project (`.kt`) → [Kotlin](references/kotlin.md). Otherwise use the module that actually exports the generated proxy.
+
+In a new frontend, install `@cratis/arc`, `@cratis/arc.react`, `@cratis/fundamentals`, `react`, `react-dom` and `reflect-metadata`. Enable `experimentalDecorators: true` under `compilerOptions` in `tsconfig.json` for generated models that use legacy `@field` decorators, and use a build that honors that setting.
 
 1. In `main.tsx`, load metadata before the application. Mount `Arc` once. `App` is your root component. If starting without a shell, export a function named `App` from `App.tsx` and render the query view there.
 
@@ -23,7 +25,7 @@ createRoot(document.getElementById('root')!).render(
 
    For `DataPage` or command dialogs, import `CratisComponentsProvider` from `@cratis/components` and render `<Arc><CratisComponentsProvider><App /></CratisComponentsProvider></Arc>` instead.
 
-2. Bind the state view to its generated query. Loading and errors are UI states, not separate slices. For custom markup **instead of** `DataPage`, import `AllAuthors` from `../../../generated/Features/Authors/Listing/Author` in the consuming component under `Features/Authors/Listing`. Use this fragment inside that function component. Do not add another `Authors` component or call the hook alongside a `DataPage` that already uses the query.
+2. Bind the state view to its generated query. Loading and errors are UI states, not separate slices. For custom markup **instead of** `DataPage`, import `AllAuthors` using the selected backend reference. Use this fragment inside that function component. Do not add another `Authors` component or call the hook alongside a `DataPage` that already uses the query.
 
 ```tsx
 const [authors] = AllAuthors.use();
@@ -36,7 +38,7 @@ if (!authors.hasData) return <p>No authors yet.</p>;
 return <ul>{authors.data.map(a => <li key={String(a.id)}>{a.name}</li>)}</ul>;
 ```
 
-3. For a name search in the same folder, import `AuthorsNamed` from the same generated file. That paged query (`cratis-arc-page-query` skill) takes `{ name: string }`, unlike the argument-free live query. With the current input in `name: string`, call the hook on every render. Set the condition false when the input is blank, and show a prompt instead of reading the default result:
+3. For a name search in the same folder, import `AuthorsNamed` from the module that exports it; do not assume both queries share a module. That paged query (`cratis-arc-page-query` skill) takes `{ name: string }`, unlike the argument-free live query. With the current input in `name: string`, call the hook on every render. Set the condition false when the input is blank, and show a prompt instead of reading the default result:
 
 ```tsx
 const [matches] = AuthorsNamed.when(name.trim().length > 0).use({ name: name.trim() });

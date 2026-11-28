@@ -11,6 +11,8 @@ test "rejects the missing title", %{arc: arc} do
 end
 ```
 
+Before relying on side-by-side specs without the `_test` suffix, verify that Mix discovers them; otherwise use the project’s discovered `*_test.exs` location or configure discovery for its Elixir version.
+
 For an authorization rule use `principal(name, roles)` and `assert_forbidden` from `Cratis.Arc.Test`. For a query spec, call `Cratis.Arc.Test.query(arc, read_model, name, args)` with the scenario from the case and assert the returned rows. If setup already owns an isolated Chronicle client, build the scenario with `Cratis.Arc.Test.scenario(application, client)`; neither command nor query needs global configuration.
 
 For an HTTP host or LiveView test that reads application configuration, set `configure: true` on the case, or call `Cratis.Arc.Test.configure(application, client)` during explicit setup. It changes shared application configuration and restores it on exit. Keep these and `observable: true` tests non-async.
