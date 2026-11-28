@@ -3,6 +3,8 @@
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { nativeRouteProblems } from './native-routes.ts';
+
 import {
     brokenRelativeLinkProblems, exampleListingIntroductionLines, isExampleListing, lineCount, markdownHeadings, maximumSkillBodyCharacters, maximumSkillBodyLines,
     referenceContentsProblems, skillAssertionFileProblem, skillBody, skillContainsAssertionProblems,
@@ -223,4 +225,31 @@ test('a site-absolute link in skill Markdown fails instead of being skipped', ()
     ].join('\n');
     assert.deepEqual(brokenRelativeLinkProblems('skill/references/x.md', content, () => true),
         ["skill/references/x.md links to the site path '/arc/backend/csharp/commands/generated-values/'; use the absolute documentation URL (https://www.cratis.io/arc/backend/csharp/commands/generated-values/)."]);
+});
+
+const sdkConditions = [
+    ['csharp', 'For a `*.csproj`'], ['typescript', 'For a Node server `package.json`'],
+    ['kotlin', 'For `*.kt` sources'], ['java', 'For `*.java` sources'], ['go', 'For `go.mod`'], ['elixir', 'For `mix.exs`'],
+];
+const routerPaths = sdkConditions.map(([language]) => `references/${language}.md`);
+const goRoute = 'For `go.mod`, read [go](references/go.md).';
+const router = [...sdkConditions.map(([language, condition]) => `${condition}, read [${language}](references/${language}.md).`),
+    'Python: no application SDK; use a supported service.'].join('\n');
+
+test('a shared router offers a conditioned native route or a gap with an alternative', () => {
+    assert.deepEqual(nativeRouteProblems('router', router, routerPaths), []);
+    for (const [body, paths] of [
+        [router.replace(goRoute, '[Go](references/go.md)'), routerPaths],
+        [router.replace(goRoute, 'Go is unsupported.'), routerPaths.filter(path => path !== 'references/go.md')],
+        [router.replace(goRoute, '```text\n' + goRoute + '\n```'), routerPaths],
+    ] as const) assert.equal(nativeRouteProblems('router', body, paths).length, 1);
+});
+
+test('host detection uses tagged fences and actual import lines', () => {
+    for (const text of ['Use `import registry` when reading a reference.', '```\nimport registry\n```', '~~~screenplay\napplication Example {}\n~~~']) {
+        assert.deepEqual(nativeRouteProblems('router', `${router}\n${text}`, routerPaths), []);
+    }
+    for (const text of ['```csharp\nrecord Example;\n```', '~~~text\nimport registry\n~~~', 'using Cratis.Arc;']) {
+        assert.equal(nativeRouteProblems('router', `${router}\n${text}`, routerPaths).length, 1);
+    }
 });

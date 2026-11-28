@@ -12,7 +12,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 export const subsets: Record<string, string[]> = {
     hooks: ['guard-pr-body', 'guard-pr-body-hook', 'guard-pr-body-policy', 'guard-secrets', 'guard-routine-corpus', 'guard-store-mutations', 'guard-writes', 'guard-protected-paths', 'guard-shell-writes', 'guard-shell-writes-reads', 'guard-shell-writes-destructive', 'guard-shell-writes-repair', 'hook-wiring', 'codex-hooks', 'pi-hook-corpus-selection', 'pi-mcp-bridge', 'pi-quality-gate', 'pi-quality-gate-lifecycle', 'pi-quality-gate-bounded', 'pi-quality-gate-fingerprint', 'quality-gates', 'spec-runner', 'cleanup-worktrees', 'check-pr-callers', 'hook-pipefail-grep'],
     adapters: ['harness-setup', 'harness-loading', 'pi-plugin', 'plugin-manifest', 'pi-mcp-configuration', 'pi-mcp-servers', 'pi-mcp-transport', 'mcp-servers'],
-    corpus: ['verify', 'skill-structure', 'skill-paths', 'skill-references']
+    corpus: ['verify', 'skill-structure', 'skill-paths', 'skill-references', 'profile-applicability', 'screenplay-tool']
 };
 
 /** Spec files that may be absent on a branch; they are skipped when missing. */

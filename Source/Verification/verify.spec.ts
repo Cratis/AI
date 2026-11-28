@@ -6,6 +6,7 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
+import { packageProblems, retiredSkills } from './corpus-shape.ts';
 import { verifyCorpus } from './verify.ts';
 
 const marketplace = { plugins: [{ name: 'cratis', version: '1.0.0', source: { path: '.cratis/ai' }, skills: './skills' }] };
@@ -60,6 +61,12 @@ describe('verify corpus', () => {
         assert.match((await verifyCorpus(root)).failures[0], /\.cratis\/ai is missing/);
     });
 
+    it('measures the general cap in UTF-8 bytes', async () => {
+        const general = '.cratis/ai/rules/general.md';
+        assert.deepEqual(await failuresFor(files => { files[general] = 'é'.repeat(2150); }), []);
+        assert.equal((await failuresFor(files => { files[general] = 'é'.repeat(2150) + '!'; })).length, 1);
+    });
+
     const catalog = (profile: object) => JSON.stringify({ publicProfiles: [{ id: 'cratis/application', availableTargets: ['demo-skill'], ...profile }] });
     const defects: Array<[string, (files: Record<string, string | undefined>) => void, RegExp]> = [
         ['an empty skill tree', files => { files['.cratis/ai/skills/demo-skill/SKILL.md'] = undefined; files['.cratis/ai/profile-catalog.json'] = catalog({ availableTargets: [] }); files['.cratis/ai/rules/general.md'] = 'Rule.\n'; }, /contains no skills/],
@@ -91,4 +98,12 @@ describe('verify corpus', () => {
             assert.ok(failures.some(failure => expected.test(failure)), failures.join('\n') || 'no failures');
         });
     }
+});
+
+it('rejects an installed retired skill and an otherwise valid competing description', () => {
+    const files = new Map([['skills/demo/SKILL.md', skill('demo')]]);
+    assert.deepEqual(packageProblems(files, retiredSkills), []);
+    const retired = retiredSkills.values().next().value!;
+    assert.equal(packageProblems(new Map([...files, [`skills/${retired}/LICENSE`, 'text']]), retiredSkills).length, 1);
+    assert.equal(packageProblems(new Map([...files, ['skills/another/SKILL.md', skill('another')]]), retiredSkills).length, 1);
 });
