@@ -1,62 +1,21 @@
 ---
 name: cratis-arc-isolate-tenant
-description: Use when a developer needs to resolve a request tenant, authorize membership or isolate a background job's storage scope. Not for choosing a database server (use cratis-arc-connect-storage).
-compatibility: Requires Cratis.Arc in a web host with a verified caller identity.
+description: Use when resolving a request tenant, checking membership or isolating a background job's storage scope. Not for choosing a database server (use cratis-arc-connect-storage).
 ---
 
-# Check tenant membership before accessing authors
+# Resolve and verify tenant scope
 
-Keep the host's existing selection mechanism, including header selection when callers choose a tenant. A resolver selects a tenant; it does not establish that the caller belongs to it. A request header expresses a selection, not membership. Register a separate synchronous `ITenantMembership` check against trusted membership claims.
+Select the tenant, check the authenticated caller's membership, then open storage for that tenant. A request header, host or query parameter expresses a choice, not a grant. Reject missing selections when the operation requires a named tenant.
 
-In the Arc-only host's `Program.cs`, keep the existing authentication and tenant resolver setup and register the check. If the caller selects the tenant by header, replace the claim registration below with `builder.AddCratisArc(options => options.UseHeaderTenancy("X-Library-Tenant"));` and send `X-Library-Tenant: tenant-a` on the request. In a combined Library host, configure claim selection with `builder.AddCratis(configureArcOptions: options => options.UseClaimTenancy("tenant_id"));` rather than registering Arc twice.
+Read the recipe for the **server** handling the operation:
 
-```csharp
-using Library.Tenancy;
-using Cratis.Arc.Tenancy;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
+- For ASP.NET Core, read [C#](references/csharp.md).
+- For a Node server, read [TypeScript](references/typescript.md).
+- For a Kotlin Spring host, read [Kotlin](references/kotlin.md).
+- For a Java Spring host, read [Java](references/java.md).
+- For a Go service, read [Go](references/go.md).
+- For an OTP application, read [Elixir](references/elixir.md).
 
-var builder = WebApplication.CreateBuilder(args);
-builder.AddCratisArc(options => options.UseClaimTenancy("tenant_id"));
-builder.Services.AddScoped<ITenantMembership, ClaimsTenantMembership>();
-var app = builder.Build();
-app.UseCratisArc();
-await app.RunAsync();
-```
+No Python Arc application tenancy recipe is verified. Call a supported service that owns membership checks and storage selection.
 
-In `Tenancy/ClaimsTenantMembership.cs`, use the **verified** membership claims supplied by your identity provider. Here `tenant_id` selects the active tenant and each `member_of` claim grants membership in one tenant.
-
-```csharp
-using System.Security.Claims;
-using Cratis.Arc.Tenancy;
-
-namespace Library.Tenancy;
-
-public class ClaimsTenantMembership : ITenantMembership
-{
-    public bool IsMember(ClaimsPrincipal principal, TenantId tenantId) =>
-        principal.Identity?.IsAuthenticated == true && !tenantId.IsDefault &&
-        !string.IsNullOrWhiteSpace(tenantId.Value) &&
-        principal.HasClaim("member_of", tenantId.Value);
-}
-```
-
-`IsDefault` rejects both `TenantId.NotSet` and `TenantId.Default`; use this guard when selection is mandatory. Test both a missing selection and an explicit default selection as well as a nonmember selection.
-
-Register the same `AuthorId` with different names in tenant A and tenant B as authorized members. Call `AllAuthors` in each tenant and check that the matching row has only that tenant's name. If using Chronicle, verify that each tenant's configured event store or namespace contains only its own registration for that ID. Denying a nonmember does not prove storage isolation: also check that a caller whose `tenant_id` names a tenant missing from its `member_of` claims gets HTTP 403.
-
-## When it goes off the usual path
-
-- **One deployment tenant contains several organizations:** use `options.UseFixedTenancy("library")` when every organization shares the `library` Chronicle namespace through tenant-based namespace resolution. With `ClaimsTenantMembership` above, the caller still needs a verified `member_of` claim with value `library`. Tenant membership does not grant access to every row. For example, filter an editor's author list to their authorized organization and check the author's organization before allowing an edit. Test that an editor for A cannot edit B's author by ID even though both use `library`.
-- **An authorized background job runs without a request:** inject `ITenantScope tenantScope` and call `using var scope = tenantScope.Begin(tenantId);` before resolving tenant-bound services in a fresh DI scope. The worker must authorize `tenantId` first; `Begin` does not run `ITenantMembership`. Do not reuse services from a previous tenant's job.
-
-## Avoid
-
-- Do not trust membership supplied in a command body; inspect the verified principal.
-- Do not perform I/O in `IsMember`; use membership already established for this request.
-- Do not configure a single fixed tenant for a host serving multiple tenants.
-
-## Related skills
-
-- [Authorize the operation](../cratis-arc-authorize-request/SKILL.md)
-- [Connect MongoDB](../cratis-arc-connect-storage/SKILL.md)
+Prove both boundaries: a nonmember cannot run the operation, and authorized writes of the same ID with different values in two tenants return only the local value on each read. Stop before enabling the route if either check fails.

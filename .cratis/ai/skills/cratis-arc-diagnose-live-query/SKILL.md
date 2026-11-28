@@ -1,47 +1,40 @@
 ---
 name: cratis-arc-diagnose-live-query
-description: Use when the stored row is confirmed correct but the open view does not receive the live query update. Not for a stale screen with an unknown failing boundary (use cratis-platform-diagnose-slice).
-compatibility: Requires curl, Node.js and a running Library host.
+description: Use when a live Arc query shows its first result but a later change never reaches the client. Not for declaring the query (use cratis-arc-expose-query).
+compatibility: Requires a running Arc backend, its database and credentials for the affected caller.
 ---
 
-# Find the missing author update
+# Find the missing live update
 
-Trace one [RegisterAuthor](../cratis-arc-declare-command/SKILL.md) on one existing [AllAuthors](../cratis-arc-expose-query/SKILL.md) subscription. Use the same authenticated caller, tenant and database throughout. To check current contents only, GET the same URL with `?waitForFirstResult=true` and no SSE header. A successful one-result GET does not prove that a sustained subscription delivers later writes.
+Trace one write on one open subscription to [the query](../cratis-arc-expose-query/SKILL.md), as the same authenticated caller, tenant and database throughout. Work from storage outward and stop at the first stage that fails:
 
-1. From the skill directory, open the direct query at the host's listening address, with the same credentials used for the query in the browser. The example assumes HTTPS port 5001, prefix `/api`, one namespace segment skipped and authentication already configured for curl. Substitute the running host's origin if different:
+1. **The write succeeded.** Require a successful [command](../cratis-arc-declare-command/SKILL.md) result before looking for an update.
+2. **The row is stored** where the reader looks. If not, check the [projection](../cratis-chronicle-project-view/SKILL.md) and the [storage connection](../cratis-arc-connect-storage/SKILL.md), not delivery.
+3. **The server source emits.** The query returns the provider's observable, not a materialized list, and the store can notify changes.
+4. **The transport delivers.** A direct stream carries the changed row.
+5. **The client receives it.** Only then inspect the frontend.
 
-   ```sh
-   curl -sN --max-time 60 -H 'Accept: text/event-stream' https://localhost:5001/api/features/authors/listing/all-authors | tee capture.sse
-   ```
+Three states look alike and are not: an empty first result, a first result that is not ready yet, and a subscription that was never opened. A one-shot request that succeeds does not prove that a sustained subscription delivers later writes, and repeating snapshots is not a subscription. Transports, routes and statuses differ between hosts; take them from the reference.
 
-2. Wait for the first ready, successful `data:` result. In another terminal, register Aster once using the same curl credentials and tenant. Keep the printed ID:
+## Read the reference for the host
 
-   ```sh
-   id=$(node -p "require('node:crypto').randomUUID()")
-   printf 'Author ID: %s\n' "$id"
-   curl -sS -X POST https://localhost:5001/api/features/authors/registration \
-     -H 'Content-Type: application/json' \
-     -d "{\"id\":\"$id\",\"name\":\"Aster\"}"
-   ```
+The artifact being changed selects the one reference to read: `*.csproj` → [C#](references/csharp.md); a Node server `package.json` → [TypeScript](references/typescript.md); `*.kt` → [Kotlin](references/kotlin.md); `*.java` → [Java](references/java.md); `go.mod` → [Go](references/go.md); `mix.exs` → [Elixir](references/elixir.md). Another language's reference is not a template. Python has no released Arc SDK: call the owning service over HTTP.
 
-   Require `"isSuccess": true` in the response before looking for a query update. The route assumes `IncludeCommandNameInRoute: false` as in [Generate proxies](../cratis-arc-generate-proxies/SKILL.md).
+## Expected outcome
 
-   With the [Mongo settings](../cratis-arc-connect-storage/SKILL.md) from the Library example, the default tenant uses `library` and the camel-case pluralized `Author` collection is `authors`. Run `mongosh 'mongodb://localhost:27017/library' --quiet --eval 'db.authors.find({name:"Aster"}, {_id:1,name:1}).toArray()'` and compare the returned `_id` with the command ID. For a named tenant using Arc's default database resolver, substitute `library+<tenantId>` in the database path. If the matching document is missing, check the [projection](../cratis-chronicle-project-view/SKILL.md) before debugging delivery.
-3. In the same stream, match the printed ID in a later successful result. `node scripts/check-frames.mjs < capture.sse` can count ready results in a saved stream, but two results do not prove delivery of that ID. If the row exists but the stream does not deliver it, check that the query returns `collection.Observe()` (or `collection.Observe(author => author.Name == name)` for a name filter), not a materialized list. Subscribe to the server observable before repeating the write with a fresh test ID and check whether it emits the updated row. To isolate Mongo, open a watch on the query's collection in the reader's tenant database before writing. For a query filtered by name, a probe is `db.authors.watch([{$match: {'fullDocument.name': 'Aster'}}], {fullDocument: 'updateLookup'}).next()`. Use the query's stored field names and BSON values; use `db.authors.watch().next()` for an unfiltered query. Correlate the emission with the test ID. If the watch does not emit, check replica set or sharded-cluster support; if only the watch emits, check the query's observation and predicate.
-4. If curl gets the update, inspect the browser's network connection to `/.cratis/queries/ws` or `/.cratis/queries/sse`. For WebSockets, enable `app.UseWebSockets()` before `app.UseCratis()` in `Program.cs`. Check for the same ID in the delivered data before changing the React component.
+The stage that drops the change is identified by a write whose known ID appears in the store and then does or does not appear in a later result on the same subscription. `node scripts/check-frames.mjs < capture.sse`, run from the skill directory, counts ready results in a saved event stream; two results alone do not prove delivery of that ID.
 
-## When it goes off the usual path
+## Stop when
 
-- **Updates stop after an identity change:** use the [account-switch reconnection](../cratis-arc-react-bind-slice/SKILL.md) after credentials change. If delivery still stops, check whether the [emission guard](../cratis-arc-authorize-request/SKILL.md) denies the new caller.
+Updates stop after an identity change: reconnect through the [account-switch reconnection](../cratis-arc-react-bind-slice/SKILL.md), then check whether the [emission guard](../cratis-arc-authorize-request/SKILL.md) denies the new caller.
 
 ## Avoid
 
-- Do not use `waitForFirstResult=true` for this probe; it stops after the first result.
-- Do not use `/.cratis/queries/health` to check that the author document exists; it describes connections.
-- Do not require a delta on the first result. It is a snapshot; later delta deliveries need a stable `Id`.
-- Do not reconnect between registration and inspection; a new subscription starts with a fresh snapshot.
+- Do not reconnect between the write and the inspection; a new subscription starts with a fresh snapshot.
+- Do not require a delta on the first result. It is a snapshot; later changes need a stable item identity, or only additions and removals are reported.
+- Do not use a health endpoint to check that a row exists; it describes connections.
 
 ## Related skills
 
 - [Connect the Mongo reader](../cratis-arc-connect-storage/SKILL.md)
-- [Expose the observable query](../cratis-arc-expose-query/SKILL.md)
+- [Generate proxies](../cratis-arc-generate-proxies/SKILL.md)

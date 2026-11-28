@@ -8,15 +8,7 @@ compatibility: Requires the toolchain for the selected host.
 
 Use the language and host of the service that owns the feature. Prove the command with its native dispatcher before integrating a browser client. A compatible HTTP envelope doesn't make .NET attributes, dependency injection or commit semantics portable.
 
-| Host | First runnable check |
-| --- | --- |
-| ASP.NET Core | [Start an Arc host](../cratis-arc-host-application/SKILL.md), [declare the command](../cratis-arc-declare-command/SKILL.md), then [invoke it](../cratis-arc-invoke-command/SKILL.md). |
-| Node / TypeScript | [Run a decorated command](references/node.md) and read back its task over HTTP. |
-| JVM / Kotlin or Java | [Run a Spring Boot command](references/jvm.md) with the generated adapters for that language. |
-| Elixir / OTP | [Execute an append command](references/elixir.md) in an isolated application. |
-| Go | [Register a typed handler](references/go.md) and inspect its reply. |
-
-For a retained ASP.NET Core MVC receipt endpoint, use the controller's existing route and test its actual result and authorization. Don't move it to a model-bound API only to reuse a sample request.
+Read only the reference for the service being changed: `.csproj` → [C#](references/csharp.md); Node server `package.json` → [TypeScript](references/typescript.md); `.kt` → [Kotlin](references/kotlin.md); `.java` → [Java](references/java.md); `go.mod` → [Go](references/go.md); `mix.exs` → [Elixir](references/elixir.md). Python has no released Arc application SDK; call the owning service over HTTP instead.
 
 ## When a client must work with two services
 

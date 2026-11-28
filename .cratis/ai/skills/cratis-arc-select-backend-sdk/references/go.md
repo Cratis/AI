@@ -34,3 +34,5 @@ func TestNativeReply(t *testing.T) {
 ```
 
 Run `go mod tidy` and `go test -run TestNativeReply .`. Expect `PASS`. The returned `AuthorRegistered` is a typed response; this handler does not append a Chronicle event.
+
+The root version does not version nested modules. The Chronicle integration in this checkout requires Chronicle.Go v0.9.1. No independent release tags for the integration or tools were verified: do not append `@v0.1.4` to their module paths. Use the tagged checkout for the sample or stay on the standalone pipeline.
